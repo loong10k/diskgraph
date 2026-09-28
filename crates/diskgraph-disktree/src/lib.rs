@@ -37,7 +37,7 @@ pub fn scan_native(root: &Path, options: ScanOptions) -> io::Result<DiskGraph> {
         snapshot: DiskSnapshot {
             id: Uuid::new_v4().to_string(),
             root: ResourceLocator::NativePath(root.to_string_lossy().into_owned()),
-            volume_id: None,
+            volume_id: volume_id(&root),
             captured_at_unix_ms,
             settings,
             coverage: ScanCoverage {
@@ -49,6 +49,21 @@ pub fn scan_native(root: &Path, options: ScanOptions) -> io::Result<DiskGraph> {
         nodes,
         evidence: Vec::new(),
     })
+}
+
+#[cfg(unix)]
+fn volume_id(path: &Path) -> Option<String> {
+    use std::os::unix::fs::MetadataExt;
+
+    std::fs::metadata(path)
+        .ok()
+        .map(|metadata| metadata.dev().to_string())
+}
+
+#[cfg(not(unix))]
+fn volume_id(_path: &Path) -> Option<String> {
+    // Windows volume identity needs a dedicated platform adapter.
+    None
 }
 
 fn append_node(

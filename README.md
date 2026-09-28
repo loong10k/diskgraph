@@ -1,16 +1,18 @@
 # DiskGraph
 
-DiskGraph is an open-source, read-only disk facts and evidence layer for storage analysis and cleanup products such as PruneX. It turns a directory scan into a queryable snapshot, while keeping cleanup decisions and execution outside the scanner.
+DiskGraph is a read-only disk facts and evidence layer for storage analysis and cleanup products such as PruneX. It turns a directory scan into a queryable snapshot, while keeping cleanup decisions and execution outside the scanner. **The repository is private during initial development; public release is deferred.**
 
 DiskGraph 是面向 PruneX 等清理产品的跨平台磁盘事实层：记录扫描范围、目录节点与可追溯证据，向上提供只读查询。**分类提示不等于删除许可。**
 
 ## What works today / 当前进度
 
 - `diskgraph-core`: serializable `DiskSnapshot`, `DiskNode`, and `EvidenceEdge` models; bounded `top`, `children`, `growth`, `explain`, and conservative `candidates` queries.
+- `diskgraph-store`: immutable, transactional SQLite snapshots with indexed nodes and evidence; snapshot lookup and paged child queries.
 - `diskgraph-disktree`: read-only native-path scanner using [DiskTree](https://github.com/tobi/disktree)'s `disktree-core`, pinned to a reviewed commit. It never invokes DiskTree's removal module.
-- Automated tests for hidden files, incomplete scans, growth comparison, protected descendants, and JSON round-tripping.
+- `diskgraph-ffi`: UniFFI read-only entry points with generated Swift/Kotlin bindings and a versionable JSON response envelope.
+- Automated tests for hidden files, incomplete scans, SQLite persistence, history growth, protected descendants, and JSON round-tripping.
 
-This is an **early foundation**, not a production disk cleaner. Snapshots are currently in memory; SQLite persistence, native bindings, ownership/process evidence, and cleanup executors are not implemented. The native-path adapter is currently tested on macOS only. Android, iOS, Windows, and Linux support are design targets, not verified releases.
+This is an **early foundation**, not a production disk cleaner. Ownership/process collectors, Android URI scanning, iOS document scanning, native-app integration, and cleanup executors are not implemented. Rust CI verifies macOS, Windows, and Linux compilation/tests; this does not establish real-device or product-level support.
 
 ## Architecture / 架构
 
@@ -36,7 +38,19 @@ Requires Rust 1.97 or newer:
 ```bash
 cargo test --workspace --locked
 cargo fmt --all --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
 ```
+
+On macOS, generate Swift and Kotlin source bindings from the built library:
+
+```bash
+cargo build -p diskgraph-ffi --lib --locked
+cargo run -p diskgraph-ffi --bin uniffi-bindgen -- generate \
+  target/debug/libdiskgraph_ffi.dylib \
+  --language swift --language kotlin --no-format --out-dir ./generated-bindings
+```
+
+The FFI exports `scan_native_json`, `top_json`, `children_json`, `growth_json`, `explain_json`, and `candidates_json`. Every result is `{"schema_version":1,"ok":true,"data":...}` or `{"schema_version":1,"ok":false,"error":"..."}`. Growth's signed `delta_bytes` is a decimal string to avoid foreign-language integer-width loss. Generated source alone is not an XCFramework, Android AAR, or a tested PruneX integration.
 
 The Rust scanner depends on upstream `disktree-core` at a pinned Git revision. No DiskTree code is vendored into this repository. Both projects use the MIT license.
 

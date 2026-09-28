@@ -1,4 +1,5 @@
 /target/
+/generated-bindings/
 *.db
 *.db-shm
 *.db-wal

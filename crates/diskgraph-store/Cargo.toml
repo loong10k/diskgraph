@@ -1,0 +1,18 @@
+[package]
+name = "diskgraph-store"
+description = "Immutable SQLite snapshots for DiskGraph"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+diskgraph-core.workspace = true
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

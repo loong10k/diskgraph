@@ -20,8 +20,10 @@ flowchart LR
 - `DiskSnapshot` identifies one selected scope, scan settings, time, and coverage. Partial scans are explicit.
 - `DiskNode` records a snapshot-local ID, parent, locator, kind, direct/subtree bytes, counts, and scanner classification hints. IDs are not stable across scans.
 - `EvidenceEdge` records a sourced, timestamped relationship such as app ownership, project ownership, process use, rebuildability, or protection. Confidence is not authorization.
-- `growth` compares a matching locator only when both snapshots have complete, compatible settings and scope. It does not infer renames or mount changes.
+- `growth` compares a matching locator only when both snapshots have complete, compatible settings and the same known volume ID. It does not infer renames or mount changes.
 - `candidates` requires explicit rebuildable evidence and excludes protected/in-use descendants. Its byte sum is a review target, never promised freed space.
+- SQLite stores each snapshot, node, and evidence record transactionally. Snapshot IDs cannot be overwritten; node IDs remain snapshot-local. The current schema is version 1.
+- UniFFI exposes a narrow JSON-based contract for Swift/Kotlin. The response envelope distinguishes errors from empty results; no function can delete data.
 
 The initial JSON-compatible `NativePath` representation is for analysis and display. Production execution must use a separately validated platform resource handle, not deserialize a path from a model response and delete it.
 
@@ -39,12 +41,12 @@ The same graph schema and product information architecture can be shared, but sc
 
 ## Next milestones
 
-1. Add validated SQLite snapshot/evidence storage, schema migration, and retention policy. Keep raw paths local; provide redacted exports.
-2. Add platform capability manifests and opaque resource handles. Implement Mac filesystem identity and permission-error capture without claiming unsupported scope.
-3. Add versioned ownership/process evidence collectors and stale-evidence invalidation; measure growth across persisted snapshots.
-4. Add Swift/Kotlin/Rust bindings and end-to-end PruneX read-only integration.
+1. Add explicit SQLite migrations beyond schema v1, retention policy, and redacted exports. Keep raw paths local.
+2. Add platform capability manifests and opaque resource handles. Extend Mac filesystem identity and permission-error capture without claiming unsupported scope.
+3. Add versioned ownership/process evidence collectors and stale-evidence invalidation.
+4. Package generated Swift/Kotlin bindings into an XCFramework/AAR and verify end-to-end PruneX read-only integration.
 5. Add a separate deterministic executor behind immutable approval, liveness checks, trash/rollback where supported, and actual volume-space verification.
-6. Verify each platform on real devices/CI; do not describe Android/iOS as full-disk cleaners.
+6. Validate Android NDK compilation and URI scanning, then iOS security-scoped document access; verify each platform on real devices. Do not describe Android/iOS as full-disk cleaners.
 
 ## Acceptance principles
 

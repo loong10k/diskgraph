@@ -76,7 +76,9 @@ impl DiskGraph {
     ) -> Option<Growth<'a>> {
         if self.snapshot.root != previous.snapshot.root
             || self.snapshot.volume_id != previous.snapshot.volume_id
+            || self.snapshot.volume_id.is_none()
             || self.snapshot.settings != previous.snapshot.settings
+            || self.snapshot.captured_at_unix_ms < previous.snapshot.captured_at_unix_ms
             || !self.snapshot.coverage.complete
             || !previous.snapshot.coverage.complete
         {
@@ -212,8 +214,8 @@ mod tests {
             snapshot: DiskSnapshot {
                 id: "snapshot".into(),
                 root: ResourceLocator::NativePath("/tmp".into()),
-                volume_id: None,
-                captured_at_unix_ms: 0,
+                volume_id: Some("test-volume".into()),
+                captured_at_unix_ms: bytes,
                 settings: ScanSettings {
                     apparent_size: false,
                     follow_links: false,

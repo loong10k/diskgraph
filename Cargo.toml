@@ -1,6 +1,11 @@
 [workspace]
 resolver = "3"
-members = ["crates/diskgraph-core", "crates/diskgraph-disktree"]
+members = [
+    "crates/diskgraph-core",
+    "crates/diskgraph-store",
+    "crates/diskgraph-disktree",
+    "crates/diskgraph-ffi",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -11,4 +16,9 @@ repository = "https://github.com/loong10k/diskgraph"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 uuid = { version = "1", features = ["v4"] }
+diskgraph-core = { path = "crates/diskgraph-core", version = "0.1.0" }
+diskgraph-store = { path = "crates/diskgraph-store", version = "0.1.0" }
+diskgraph-disktree = { path = "crates/diskgraph-disktree", version = "0.1.0" }
+disktree-core = { git = "https://github.com/tobi/disktree", rev = "158f9cc2f0b332194a3ffc5acec47760c99146d8" }

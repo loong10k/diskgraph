@@ -8,8 +8,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-diskgraph-core = { path = "../diskgraph-core" }
-disktree-core = { git = "https://github.com/tobi/disktree", rev = "158f9cc2f0b332194a3ffc5acec47760c99146d8" }
+diskgraph-core.workspace = true
+disktree-core.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
