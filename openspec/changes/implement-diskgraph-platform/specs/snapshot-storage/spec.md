@@ -1,0 +1,44 @@
+## Purpose
+
+保证快照和关系索引在迁移、并发读取、崩溃、满盘及历史淘汰时维持可解释的一致性；保留当前版本契约并防止可重建图索引的清理破坏保护策略或文件恢复记录。
+
+## ADDED Requirements
+
+### Requirement: ST-01 Immutable atomic publication
+系统 SHALL 将未完成批次与可查询版本隔离，原子发布完整或明确标记的 partial 版本；失败和取消不得无声替换最新完成版本。
+
+#### Scenario: Crash during publication
+- **WHEN** 进程在发布边界崩溃后重新打开数据库
+- **THEN** 旧完成版本仍可读；新版本要么完整发布要么不可见。
+
+### Requirement: ST-02 Explicit v1 migration
+系统 SHALL 保留 v1 数据与接口语义，使用显式迁移、备份和版本检查；未保存的身份/覆盖标 unknown，legacy 文本证据不得自动升级为可信关系。
+
+#### Scenario: Insufficient migration space
+- **WHEN** 迁移所需额外空间不足
+- **THEN** 在修改正式数据前拒绝，原库继续可读。
+
+#### Scenario: Old binary on new schema
+- **WHEN** 不兼容旧程序打开升级库
+- **THEN** 明确拒绝，不损坏数据或自动降级。
+
+### Requirement: ST-03 Consistent paging
+分页 SHALL 固定 revision、过滤与排序，使用稳定继续游标；版本淘汰后返回 revision_expired，不切换到最新版本。
+
+#### Scenario: Snapshot removed between pages
+- **WHEN** 请求下一页时目标 revision 已淘汰
+- **THEN** 返回显式过期状态而非混合快照结果。
+
+### Requirement: ST-04 Retention dependencies
+索引治理 SHALL 统计主库、WAL、staging、备份及历史依赖，保留 pin 和引用批次；重建索引不得删除 scope 授权、用户保护、批准或恢复记录。
+
+#### Scenario: Index rebuild
+- **WHEN** 管理员重建某范围索引
+- **THEN** 控制记录保留；旧操作计划失效或按绑定版本重验，不重置授权。
+
+### Requirement: ST-05 Local ownership
+本机及服务器索引 SHALL 由同一 Rust 存储语义管理，服务器数据库不作为网络共享文件提供给客户端；PruneX 不直接写图索引 schema。
+
+#### Scenario: Two hosts
+- **WHEN** 本地智能体连接服务器
+- **THEN** 通过查询协议获取结果，而不是挂载并并发写服务器 SQLite。
