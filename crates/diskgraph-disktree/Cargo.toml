@@ -1,0 +1,16 @@
+[package]
+name = "diskgraph-disktree"
+description = "Read-only DiskTree scanner adapter for DiskGraph"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+diskgraph-core = { path = "../diskgraph-core" }
+disktree-core = { git = "https://github.com/tobi/disktree", rev = "158f9cc2f0b332194a3ffc5acec47760c99146d8" }
+uuid.workspace = true
+
+[dev-dependencies]
+tempfile = "3"
