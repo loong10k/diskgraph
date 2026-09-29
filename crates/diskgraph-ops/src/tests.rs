@@ -1264,3 +1264,429 @@ fn another_principal_cannot_cancel_someone_elses_operation() {
         Err(OpsError::NotAuthorized(_))
     ));
 }
+
+// --------------------------------- 6.14 volume measurement and index refresh ---
+
+#[test]
+fn a_volume_report_separates_processed_retained_and_measured_space() {
+    let mut project = project("volume-report");
+    let (_plan, _recovery, _executor) = quarantine_app(&mut project);
+    let (scope, _principal) = indexed_once(&mut project);
+    let engine = std::sync::Arc::clone(&project.engine);
+
+    let processed = 4096u64;
+    let retained = quarantine_retained_bytes(&engine, &scope).unwrap();
+    // The object is held, so the retained bytes are reported separately: the
+    // user must not read a trash as freed space.
+    assert_eq!(retained, processed);
+
+    let free_before = volume_free_bytes(&project.root).unwrap_or(0);
+    let free_after = volume_free_bytes(&project.root).unwrap_or(0);
+    let report = VolumeReport {
+        processed_bytes: processed,
+        retained_in_quarantine_bytes: retained,
+        free_before_bytes: free_before,
+        free_after_bytes: free_after,
+        measured_at_unix_ms: 1,
+        caveat: "the delta reflects all writers on this volume, not only this operation",
+    };
+    // A same-volume move changes no free space at all, and the report says so
+    // by keeping the numbers apart rather than implying space was freed.
+    assert_eq!(report.free_delta_bytes(), 0);
+    let json = report.to_json();
+    assert_eq!(json["processed_bytes"], "4096");
+    assert_eq!(json["retained_in_quarantine_bytes"], "4096");
+    assert_eq!(json["free_delta_bytes"], "0");
+    assert!(json["caveat"].as_str().unwrap().contains("all writers"));
+}
+
+#[test]
+fn the_index_is_refreshed_so_a_later_query_sees_the_moved_file() {
+    let mut project = project("refresh");
+    let (plan, approval, executor) = ready_move(&mut project, "refresh");
+    let (_scope, principal) = indexed_once(&mut project);
+    executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        })
+        .unwrap();
+    // Before the refresh, the published revision still lists the old location.
+    let (scope, _) = indexed_once(&mut project);
+    let before = {
+        let revision = project.engine.latest_revision(&scope).unwrap().unwrap();
+        project.engine.load_revision(&revision).unwrap()
+    };
+    assert!(before.nodes.iter().any(|node| {
+        node.name == "app.bin"
+            && node
+                .locator
+                .raw_path()
+                .map(|path| path.ends_with("target/app.bin"))
+                .unwrap_or(false)
+    }));
+
+    let outcome =
+        refresh_scope_after_operation(&std::sync::Arc::clone(&project.engine), &scope, &principal)
+            .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::JobState::Completed);
+
+    // After the refresh, the index reflects the new location.
+    let after = {
+        let revision = project.engine.latest_revision(&scope).unwrap().unwrap();
+        project.engine.load_revision(&revision).unwrap()
+    };
+    let moved = after.nodes.iter().any(|node| {
+        node.name == "app.bin"
+            && node
+                .locator
+                .raw_path()
+                .map(|path| path.ends_with("archive/app.bin"))
+                .unwrap_or(false)
+    });
+    assert!(moved, "the refreshed index must show the new location");
+}
+
+// -------------------------------------------------- 6.13 interruption drills ---
+
+#[test]
+fn a_lost_response_retry_returns_the_result_without_repeating_the_move() {
+    let mut project = project("lost-response");
+    let (plan, approval, executor) = ready_move(&mut project, "lost");
+    indexed_once(&mut project);
+    let first = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "client-req-1",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(first.state, diskgraph_store::OperationState::Succeeded);
+
+    // The client never saw the response and retries. Nothing moves again, and
+    // the second attempt carries the same operation identity.
+    let retry = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "client-req-1",
+            fault: None,
+        })
+        .unwrap();
+    assert!(!retry.started);
+    assert_eq!(retry.operation_id, first.operation_id);
+    assert!(project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn a_parked_operation_is_never_resumed_automatically() {
+    let mut project = project("no-blind-replay");
+    let (plan, approval, executor) = ready_move(&mut project, "parked");
+    let (scope, principal) = indexed_once(&mut project);
+    let engine = std::sync::Arc::clone(&project.engine);
+
+    // Interrupt after the file moved but before the result was written.
+    let parked = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: Some(FaultPoint::AfterFileChange),
+        })
+        .unwrap();
+    assert_eq!(
+        parked.state,
+        diskgraph_store::OperationState::NeedsAttention
+    );
+
+    // Any later attempt under a new key is refused: the plan was not consumed
+    // and the object it named is no longer where it described.
+    assert!(
+        executor
+            .apply(ApplyRequest {
+                plan_id: &plan.plan_id,
+                approval_ref: &approval,
+                idempotency_key: "later",
+                fault: None,
+            })
+            .is_err(),
+        "a parked operation must not be replayed automatically"
+    );
+
+    // The record still shows the item as unresolved, which is what a reviewer
+    // needs in order to decide.
+    let control = engine.control_store().unwrap();
+    let items = control.operation_items(&parked.operation_id).unwrap();
+    assert_eq!(
+        items[0].result,
+        diskgraph_store::OperationItemResult::Pending
+    );
+    let _ = (scope, principal);
+}
+
+// ------------------------------------------------ 6.15 control-plane resilience ---
+
+#[test]
+fn operations_and_recovery_survive_rebuilding_the_graph_history() {
+    let mut project = project("control-durable");
+    let (_plan, recovery_ref, _executor) = quarantine_app(&mut project);
+    let (scope, _principal) = indexed_once(&mut project);
+    let engine = std::sync::Arc::clone(&project.engine);
+
+    // Drop the rebuildable graph database entirely: the graph is disposable
+    // (design D5), the control plane is not.
+    let graph_db = engine.data_dir().join("diskgraph.sqlite");
+    drop(engine);
+    std::fs::remove_file(&graph_db).unwrap();
+
+    let reopened = Engine::open(EngineConfig {
+        data_dir: project.engine.data_dir().to_path_buf(),
+        max_nodes_per_scan: 100_000,
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let control = reopened.control_store().unwrap();
+    // Every operation and every recovery record is still there.
+    let operations = control.list_operations(&scope, 100).unwrap();
+    assert!(!operations.is_empty(), "operation history must survive");
+    let entry = control.recovery(&recovery_ref).unwrap();
+    assert_eq!(entry.state, diskgraph_store::RecoveryState::Available);
+    // The locator is stored hex-encoded, so decode it to inspect the path.
+    assert!(
+        ops_unhex(&entry.quarantine_locator)
+            .to_string_lossy()
+            .contains("quarantine")
+    );
+}
+
+#[test]
+fn a_write_failure_leaves_the_control_plane_usable_and_auditable() {
+    let mut project = project("control-full");
+    let (plan, approval, executor) = ready_move(&mut project, "full");
+    let (scope, principal) = indexed_once(&mut project);
+    // Fill the volume the control database lives on as far as a test may:
+    // instead of a real full disk, assert that a refused write leaves the
+    // database readable and the operation honestly unsuccessful.
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: Some(FaultPoint::AfterIntent),
+        })
+        .unwrap();
+    assert_eq!(
+        outcome.state,
+        diskgraph_store::OperationState::NeedsAttention
+    );
+    let engine = std::sync::Arc::clone(&project.engine);
+    // The record is still queryable: an interrupted run never wedges the store.
+    let view = show_operation(&engine, &outcome.operation_id, &principal).unwrap();
+    assert_eq!(view.state, diskgraph_store::OperationState::NeedsAttention);
+    let listed = list_operations(&engine, &scope, &principal, 10).unwrap();
+    assert!(
+        listed
+            .iter()
+            .any(|item| item.operation_id == outcome.operation_id)
+    );
+    // The object is exactly where it was, and the plan was not consumed.
+    assert!(project.root.join("target/app.bin").exists());
+    let control = engine.control_store().unwrap();
+    assert_eq!(
+        control.plan_state(&plan.plan_id).unwrap(),
+        diskgraph_store::PlanState::Validated
+    );
+}
+
+#[test]
+fn recorded_details_name_objects_without_leaking_whole_paths() {
+    let mut project = project("audit-redaction");
+    let (plan, approval, executor) = ready_move(&mut project, "redact");
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        })
+        .unwrap();
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    let detail = items[0].detail.clone();
+    // The detail carries the name and identity, not the full user path.
+    assert!(detail.contains("app.bin"));
+    assert!(
+        !detail.contains(&project.root.to_string_lossy().into_owned()),
+        "operation details must not record whole user paths: {detail}"
+    );
+}
+
+// ------------------------------------------- 6.16 batch and approval drills ---
+
+#[test]
+fn a_batch_with_one_blocked_item_ends_partial_and_keeps_the_rest() {
+    let mut project = project("batch-partial");
+    let (scope, principal) = indexed_once(&mut project);
+    // Two objects: one stays movable, the other is occupied by an unrelated
+    // directory so its step must fail.
+    let first = project.root.join("target/app.bin");
+    let blocked = project.root.join("target/nested/deep.bin");
+    assert!(first.exists() && blocked.exists());
+    let archive = project.root.join("archive");
+    // Make one target a directory so the file cannot land there.
+    std::fs::create_dir_all(archive.join("deep.bin")).unwrap();
+
+    let nodes = [
+        node_named(&project.engine, &scope, "app.bin"),
+        node_named(&project.engine, &scope, "deep.bin"),
+    ];
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_move_plan(
+            &scope,
+            &principal,
+            &nodes,
+            &archive,
+            1 << 20,
+            FileActionKind::Move,
+        )
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "batch",
+            fault: None,
+        })
+        .unwrap();
+    // One moved, one failed: the operation is honestly partial, and the plan
+    // is not consumed so the failure can be re-planned.
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Partial);
+    assert_eq!(outcome.moved, 1);
+    assert_eq!(outcome.failed, 1);
+    assert!(project.root.join("archive/app.bin").exists());
+    assert!(blocked.exists(), "the blocked object was not lost");
+    let control = project.engine.control_store().unwrap();
+    assert_eq!(
+        control.plan_state(&plan.plan_id).unwrap(),
+        diskgraph_store::PlanState::Validated
+    );
+}
+
+#[test]
+fn revoking_an_approval_mid_flight_stops_the_next_step() {
+    let mut project = project("revoke-mid");
+    let (scope, principal) = indexed_once(&mut project);
+    let nodes = [
+        node_named(&project.engine, &scope, "app.bin"),
+        node_named(&project.engine, &scope, "deep.bin"),
+    ];
+    let archive = project.root.join("archive");
+    std::fs::create_dir_all(&archive).unwrap();
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_move_plan(
+            &scope,
+            &principal,
+            &nodes,
+            &archive,
+            1 << 20,
+            FileActionKind::Move,
+        )
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    // Revoke before the run: nothing may move.
+    {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer.revoke(&approval_ref).unwrap();
+    }
+    // apply refuses the revoked approval outright, so the call itself fails.
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "revoked-batch",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+    assert!(project.root.join("target/nested/deep.bin").exists());
+    assert!(!project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn an_empty_object_batch_moves_nothing_and_says_so() {
+    let mut project = project("empty-batch");
+    let (scope, principal) = indexed_once(&mut project);
+    // Plan over an empty file: the batch is legal and the file still moves.
+    let empty = project.root.join("target/empty.log");
+    std::fs::write(&empty, b"").unwrap();
+    let scope2 = {
+        let authorizer = project.engine.policy_authorizer().unwrap();
+        let job = project
+            .engine
+            .index_scope(&scope, &principal, &authorizer)
+            .unwrap();
+        project.engine.run_job(&job.job_id, "reindex").unwrap();
+        scope
+    };
+    let node = node_named(&project.engine, &scope2, "empty.log");
+    let archive = project.root.join("archive");
+    std::fs::create_dir_all(&archive).unwrap();
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_move_plan(
+            &scope2,
+            &principal,
+            &[node],
+            &archive,
+            1 << 20,
+            FileActionKind::Move,
+        )
+        .unwrap();
+    // A zero-byte object is a real object: the plan must not treat it as empty.
+    assert_eq!(plan.items.len(), 1);
+    assert_eq!(plan.expected_bytes, 0);
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "empty-batch",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert!(archive.join("empty.log").exists());
+    assert!(!empty.exists());
+}

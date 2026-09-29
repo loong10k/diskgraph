@@ -380,6 +380,7 @@ dependencies = [
  "diskgraph-core",
  "diskgraph-engine",
  "diskgraph-store",
+ "libc",
  "serde",
  "serde_json",
  "tempfile",

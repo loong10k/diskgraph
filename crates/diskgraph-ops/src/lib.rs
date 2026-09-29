@@ -989,6 +989,144 @@ pub fn revalidate_below(trusted_root: &Path, path: &Path, side: Side) -> Result<
     Ok(())
 }
 
+/// What a completed operation did to the volume, reported honestly. The three
+/// numbers are deliberately separate: bytes the operation processed, bytes the
+/// quarantine still holds (so the user knows the space is not free), and the
+/// measured free-space delta on the volume (OP-10).
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct VolumeReport {
+    /// Logical bytes the operation moved, copied, quarantined, or restored.
+    pub processed_bytes: u64,
+    /// Bytes still held in the quarantine for this operation.
+    pub retained_in_quarantine_bytes: u64,
+    /// Free bytes on the volume before the operation.
+    pub free_before_bytes: u64,
+    /// Free bytes on the volume after the operation.
+    pub free_after_bytes: u64,
+    /// When the free-space measurement was taken, milliseconds since epoch.
+    pub measured_at_unix_ms: u64,
+    /// Why the delta must not be read as "this operation freed that much".
+    pub caveat: &'static str,
+}
+
+impl VolumeReport {
+    /// The measured difference, which is what a real user should see.
+    pub fn free_delta_bytes(&self) -> i64 {
+        self.free_after_bytes as i64 - self.free_before_bytes as i64
+    }
+
+    pub fn to_json(&self) -> serde_json::Value {
+        serde_json::json!({
+            "processed_bytes": self.processed_bytes.to_string(),
+            "retained_in_quarantine_bytes": self.retained_in_quarantine_bytes.to_string(),
+            "free_before_bytes": self.free_before_bytes.to_string(),
+            "free_after_bytes": self.free_after_bytes.to_string(),
+            "free_delta_bytes": self.free_delta_bytes().to_string(),
+            "measured_at_unix_ms": self.measured_at_unix_ms,
+            "caveat": self.caveat,
+        })
+    }
+}
+
+/// Measures free space on the volume holding `path`, without shelling out to
+/// `df` (EC-01). Returns None where the platform cannot answer.
+pub fn volume_free_bytes(path: &Path) -> Option<u64> {
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    {
+        // Find the nearest existing ancestor, since a destination may not exist
+        // yet, and read the filesystem's own block accounting.
+        let mut probe = path.to_path_buf();
+        loop {
+            match std::fs::symlink_metadata(&probe) {
+                Ok(_) => break,
+                Err(_) => probe = probe.parent()?.to_path_buf(),
+            }
+        }
+        let c_path = std::ffi::CString::new(probe.to_str()?).ok()?;
+        // SAFETY: c_path is a valid NUL-terminated string and stat is a valid
+        // pointer to a fully initialised statfs. libc owns the layout, so the
+        // struct is the platform's, not a hand-written approximation.
+        unsafe {
+            let mut stat: libc::statfs = std::mem::zeroed();
+            if libc::statfs(c_path.as_ptr(), &mut stat) != 0 {
+                return None;
+            }
+            // Linux reports u64 blocks, macOS reports u32; normalise both.
+            #[cfg(target_os = "linux")]
+            let bytes = stat.f_bavail as u64 * stat.f_frsize as u64;
+            #[cfg(target_os = "macos")]
+            let bytes = stat.f_bavail as u64 * stat.f_bsize as u64;
+            Some(bytes)
+        }
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+    {
+        // Other platforms report a value or nothing; guessing would be worse
+        // than admitting the measurement is unavailable.
+        let _ = path;
+        None
+    }
+}
+
+/// Sums the bytes a completed operation still holds in quarantine.
+pub fn quarantine_retained_bytes(
+    engine: &std::sync::Arc<Engine>,
+    scope_id: &ScopeId,
+) -> Result<u64, OpsError> {
+    let control = engine.control_store()?;
+    let mut total = 0u64;
+    for operation in control.list_operations(scope_id, 1_000)? {
+        for item in control.operation_items(&operation.operation_id)? {
+            if item.result != diskgraph_store::OperationItemResult::Quarantined {
+                continue;
+            }
+            if let Some(recovery_ref) = item.recovery_ref
+                && let Ok(entry) = control.recovery(&recovery_ref)
+                && entry.state == diskgraph_store::RecoveryState::Available
+            {
+                total = total.saturating_add(quarantine_bytes(&entry));
+            }
+        }
+    }
+    Ok(total)
+}
+
+fn quarantine_bytes(entry: &diskgraph_store::RecoveryEntry) -> u64 {
+    unhex_key(&entry.quarantine_locator)
+        .and_then(|path| std::fs::metadata(path).ok())
+        .map(|metadata| metadata.len())
+        .unwrap_or(0)
+}
+
+/// Refreshes the index for the scope an operation touched, so a later query
+/// reflects the file system instead of the plan's snapshot (OP-10).
+pub fn refresh_scope_after_operation(
+    engine: &std::sync::Arc<Engine>,
+    scope_id: &ScopeId,
+    principal: &PrincipalId,
+) -> Result<JobOutcome, OpsError> {
+    let authorizer = engine
+        .policy_authorizer()
+        .map_err(|error| OpsError::Stale(error.to_string()))?;
+    let job = engine
+        .index_scope(scope_id, principal, &authorizer)
+        .map_err(|error| OpsError::Stale(error.to_string()))?;
+    let finished = engine
+        .run_job(&job.job_id, "ops-refresh")
+        .map_err(|error| OpsError::Stale(error.to_string()))?;
+    Ok(JobOutcome {
+        job_id: finished.job_id,
+        state: finished.state,
+    })
+}
+
+/// The result of the post-operation refresh.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct JobOutcome {
+    pub job_id: String,
+    pub state: diskgraph_store::JobState,
+}
+
 /// One operation as an agent sees it.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperationView {

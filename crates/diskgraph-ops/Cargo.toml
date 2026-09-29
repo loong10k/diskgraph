@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 diskgraph-core.workspace = true
+libc = "0.2"
 diskgraph-engine.workspace = true
 diskgraph-store.workspace = true
 serde.workspace = true
