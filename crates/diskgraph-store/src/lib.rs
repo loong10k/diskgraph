@@ -24,6 +24,16 @@ pub enum StoreError {
     ScopeNotFound(String),
     #[error("job not found: {0}")]
     JobNotFound(String),
+    #[error("plan not found: {0}")]
+    PlanNotFound(String),
+    #[error("operation not found: {0}")]
+    OperationNotFound(String),
+    #[error("recovery entry not found: {0}")]
+    RecoveryNotFound(String),
+    #[error("approval required: {0}")]
+    ApprovalRequired(String),
+    #[error("the idempotency key was reused for a different request")]
+    IdempotencyConflict,
     #[error("another owner holds this job or resource")]
     StaleOwner,
     #[error("conflict: {0}")]
@@ -41,8 +51,13 @@ pub enum StoreError {
 pub type Result<T> = std::result::Result<T, StoreError>;
 
 mod control;
+mod execution;
 
 pub use control::{ControlStore, JobKind, JobRecord, JobState, ScopeRecord};
+pub use execution::{
+    Approval, IntentState, Operation, OperationItem, OperationItemResult, OperationState, Plan,
+    PlanItem, PlanState, RecoveryEntry, RecoveryRule, RecoveryState,
+};
 
 /// A store owns only observed metadata. It never opens or removes scanned paths.
 pub struct SqliteSnapshotStore {

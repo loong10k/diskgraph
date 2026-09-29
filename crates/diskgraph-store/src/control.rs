@@ -124,8 +124,11 @@ impl ControlStore {
     }
 
     fn initialize(connection: Connection) -> Result<Self> {
-        let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        if version != 0 && version != 1 && version != 2 {
+        // `version` is the schema version we migrate FROM; it advances as each
+        // migration runs, so a fresh database walks exactly the same path an
+        // older file would and never skips a step.
+        let mut version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+        if !(0..=3).contains(&version) {
             return Err(StoreError::UnsupportedSchema(version));
         }
         if version == 0 {
@@ -177,7 +180,13 @@ impl ControlStore {
         }
         if version < 2 {
             Self::migrate_v1_to_v2(&connection)?;
+            version = 2;
         }
+        if version < 3 {
+            Self::migrate_v2_to_v3(&connection)?;
+            version = 3;
+        }
+        debug_assert_eq!(version, 3, "every control migration must have run");
         Ok(Self { connection })
     }
 
@@ -202,6 +211,106 @@ impl ControlStore {
              COMMIT;",
         )?;
         Ok(())
+    }
+
+    /// Adds the execution control plane (P5 tasks 6.1-6.5): immutable plans,
+    /// digest-bound approvals, operations with per-principal idempotency
+    /// keys, per-item intents, and durable recovery records. A fresh database
+    /// walks this same migration, so no path skips it.
+    fn migrate_v2_to_v3(connection: &Connection) -> Result<()> {
+        connection.execute_batch(
+            "BEGIN IMMEDIATE;
+             CREATE TABLE plans (
+                 plan_id TEXT PRIMARY KEY,
+                 scope_id TEXT NOT NULL REFERENCES scopes (scope_id),
+                 principal TEXT NOT NULL,
+                 action TEXT NOT NULL,
+                 plan_json TEXT NOT NULL,
+                 digest TEXT NOT NULL,
+                 created_at_unix_ms INTEGER NOT NULL,
+                 expires_at_unix_ms INTEGER NOT NULL,
+                 state TEXT NOT NULL
+             );
+             CREATE INDEX plans_by_scope ON plans (scope_id, state);
+             CREATE TABLE approvals (
+                 approval_ref TEXT PRIMARY KEY,
+                 plan_id TEXT NOT NULL REFERENCES plans (plan_id),
+                 plan_digest TEXT NOT NULL,
+                 principal TEXT NOT NULL,
+                 action TEXT NOT NULL,
+                 issued_by TEXT NOT NULL,
+                 issued_at_unix_ms INTEGER NOT NULL,
+                 expires_at_unix_ms INTEGER NOT NULL,
+                 revoked INTEGER NOT NULL DEFAULT 0
+             );
+             CREATE TABLE operations (
+                 operation_id TEXT PRIMARY KEY,
+                 plan_id TEXT NOT NULL REFERENCES plans (plan_id),
+                 scope_id TEXT NOT NULL,
+                 principal TEXT NOT NULL,
+                 idempotency_key TEXT NOT NULL,
+                 request_digest TEXT NOT NULL,
+                 state TEXT NOT NULL,
+                 created_at_unix_ms INTEGER NOT NULL,
+                 updated_at_unix_ms INTEGER NOT NULL
+             );
+             CREATE UNIQUE INDEX operations_by_idempotency
+                 ON operations (principal, idempotency_key);
+             CREATE TABLE operation_items (
+                 operation_id TEXT NOT NULL REFERENCES operations (operation_id),
+                 item_index INTEGER NOT NULL,
+                 intent_state TEXT NOT NULL,
+                 result_state TEXT NOT NULL,
+                 detail TEXT NOT NULL DEFAULT '',
+                 recovery_ref TEXT,
+                 PRIMARY KEY (operation_id, item_index)
+             );
+             CREATE TABLE recovery_entries (
+                 recovery_ref TEXT PRIMARY KEY,
+                 operation_id TEXT NOT NULL,
+                 scope_id TEXT NOT NULL,
+                 original_locator TEXT NOT NULL,
+                 quarantine_locator TEXT NOT NULL,
+                 identity TEXT NOT NULL,
+                 created_at_unix_ms INTEGER NOT NULL,
+                 state TEXT NOT NULL
+             );
+             CREATE INDEX recovery_by_scope ON recovery_entries (scope_id, state);
+             PRAGMA user_version = 3;
+             COMMIT;",
+        )?;
+        Ok(())
+    }
+
+    /// Inserts a scope row with a caller-chosen id. Used by the execution
+    /// layer's fixtures so plans and operations can reference it directly.
+    #[cfg(test)]
+    pub(crate) fn insert_scope_row(
+        &mut self,
+        scope_id: &str,
+        root: &diskgraph_core::Locator,
+    ) -> Result<()> {
+        self.connection.execute(
+            "INSERT INTO scopes (scope_id, root_kind, root_raw_b64, root_display, volume_id, created_at_unix_ms, revoked)
+             VALUES (?1, 'native_path', ?2, ?3, NULL, ?4, 0)",
+            params![
+                scope_id,
+                root.raw_b64,
+                root.display,
+                Self::now_ms() as i64,
+            ],
+        )?;
+        Ok(())
+    }
+
+    /// Runs one closure against the store's connection, so the execution layer
+    /// keeps plans, approvals, operations, and recovery in the same control
+    /// database as scopes and jobs.
+    pub(crate) fn with_connection<T>(
+        &self,
+        work: impl FnOnce(&Connection) -> Result<T>,
+    ) -> Result<T> {
+        work(&self.connection)
     }
 
     /// Mints the server identity on first use and returns the stored one after.
