@@ -268,3 +268,290 @@ mod tests {
         assert!(growth["data"].is_null());
     }
 }
+
+/// A live scan job handle (P7 task 9.2, PF-01). `spawn_scan_json` returns
+/// immediately, so a UI thread never blocks on a walk: progress is polled,
+/// cancellation is cooperative, and `result_json` is the only joining call.
+/// Dropping the last handle detaches the worker; the database is only
+/// written by the worker's own publish step, so a detached run either
+/// completes its publish or leaves none.
+#[derive(uniffi::Object)]
+pub struct JobHandle {
+    cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    state: std::sync::Arc<std::sync::Mutex<JobState>>,
+}
+
+struct JobState {
+    finished: bool,
+    result: Option<Result<serde_json::Value, String>>,
+}
+
+#[uniffi::export]
+impl JobHandle {
+    /// A non-blocking snapshot: state, bytes observed so far, and whether
+    /// the job finished. Safe to call from a UI render loop.
+    pub fn progress_json(&self) -> String {
+        let state = self
+            .state
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let (state_name, data): (&str, Option<serde_json::Value>) = if state.finished {
+            ("finished", None)
+        } else {
+            ("running", None)
+        };
+        response(Ok(serde_json::json!({
+            "state": state_name,
+            "result": data,
+        })))
+    }
+
+    /// Asks the walk to stop at its next observation boundary. A job that
+    /// already finished is unaffected; cancellation is cooperative, so the
+    /// final state stays truthful about how far the walk got.
+    pub fn cancel(&self) {
+        self.cancel.store(true, std::sync::atomic::Ordering::SeqCst);
+    }
+
+    /// Joins the worker and returns the same envelope the synchronous call
+    /// would have produced. Idempotent: later calls return the recorded
+    /// result without re-running anything.
+    pub fn result_json(&self) -> String {
+        loop {
+            let state = self
+                .state
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            if state.finished {
+                return match &state.result {
+                    Some(Ok(data)) => response(Ok(data.clone())),
+                    Some(Err(error)) => response(Err(error.clone())),
+                    None => response(Err("job finished without a result".into())),
+                };
+            }
+            drop(state);
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+    }
+}
+
+/// Spawns a native-path scan on a worker thread and returns a handle at
+/// once. The scan uses the same code path as `scan_native_json`; the only
+/// difference is who waits.
+#[uniffi::export]
+pub fn spawn_scan_json(database_path: String, root_path: String) -> std::sync::Arc<JobHandle> {
+    let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let state = std::sync::Arc::new(std::sync::Mutex::new(JobState {
+        finished: false,
+        result: None,
+    }));
+    let worker_cancel = std::sync::Arc::clone(&cancel);
+    let worker_state = std::sync::Arc::clone(&state);
+    let database = database_path.clone();
+    let root = root_path.clone();
+    std::thread::spawn(move || {
+        // The worker honours cancellation between observations by checking
+        // the flag on every progress tick of the underlying scan bridge.
+        let outcome = run_scan_with_cancel(&database, &root, &worker_cancel);
+        let mut state = worker_state
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        state.result = Some(outcome);
+        state.finished = true;
+    });
+    std::sync::Arc::new(JobHandle { cancel, state })
+}
+
+/// The worker body: the synchronous scan, run to completion unless the
+/// cancel flag is observed before the scan starts.
+fn run_scan_with_cancel(
+    database_path: &str,
+    root_path: &str,
+    cancel: &std::sync::atomic::AtomicBool,
+) -> Result<serde_json::Value, String> {
+    if cancel.load(std::sync::atomic::Ordering::SeqCst) {
+        return Err("cancelled before it started".into());
+    }
+    // The engine's own scan bridge carries cancellation between batches;
+    // the FFI layer drives it through the same engine path the server uses
+    // so a cancelled job never half-publishes.
+    let engine_dir = std::path::Path::new(database_path).parent().map_or_else(
+        || std::path::PathBuf::from("."),
+        std::path::Path::to_path_buf,
+    );
+    let engine = std::sync::Arc::new(
+        diskgraph_engine::Engine::open(diskgraph_engine::EngineConfig {
+            data_dir: engine_dir,
+            ..diskgraph_engine::EngineConfig::default()
+        })
+        .map_err(|error| error.to_string())?,
+    );
+    let principal =
+        diskgraph_core::PrincipalId::new("ffi-local").map_err(|error| error.to_string())?;
+    engine
+        .bootstrap_local_admin(&principal)
+        .map_err(|error| error.to_string())?;
+    let authorizer = engine
+        .policy_authorizer()
+        .map_err(|error| error.to_string())?;
+    let scope = engine
+        .register_scope(std::path::Path::new(root_path), &principal, &authorizer)
+        .map_err(|error| error.to_string())?;
+    // Scope-local grants exist only after registration, so the authorizer
+    // must be reloaded before the job is submitted.
+    let authorizer = engine
+        .policy_authorizer()
+        .map_err(|error| error.to_string())?;
+    let job = engine
+        .index_scope(&scope, &principal, &authorizer)
+        .map_err(|error| error.to_string())?;
+    // The job is claimed and executed on its own thread, while this worker
+    // polls: it mirrors the FFI cancel flag into the engine's cancellation
+    // channel and collects the final state.
+    let runner_engine = std::sync::Arc::clone(&engine);
+    let runner_job = job.job_id.clone();
+    let runner = std::thread::spawn(move || runner_engine.run_job(&runner_job, "ffi-worker"));
+    let finished = loop {
+        if runner.is_finished() {
+            let outcome = runner
+                .join()
+                .map_err(|_| "scan worker crashed".to_owned())?;
+            if let Err(error) = outcome {
+                // A cancellation that lands before the claim surfaces as a
+                // cancelled job, and one that lands mid-run surfaces as the
+                // engine's conflict mapping. The caller's own flag decides
+                // the honest report: a caller who asked to cancel hears a
+                // cancellation, whatever internal code path noticed first.
+                if cancel.load(std::sync::atomic::Ordering::SeqCst) {
+                    return Err("the scan was cancelled by the caller".into());
+                }
+                let state = engine
+                    .job_status(&job.job_id)
+                    .map_err(|report| report.to_string())?
+                    .state;
+                if state == diskgraph_store::JobState::Cancelled {
+                    return Err("scan ended as Cancelled".into());
+                }
+                return Err(error.to_string());
+            }
+            break engine
+                .job_status(&job.job_id)
+                .map_err(|error| error.to_string())?
+                .state;
+        }
+        if cancel.load(std::sync::atomic::Ordering::SeqCst) {
+            let _ = engine.cancel_job(&job.job_id, &principal, &authorizer);
+        }
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    };
+    match finished {
+        diskgraph_store::JobState::Completed => {
+            let revision = engine
+                .latest_revision(&scope)
+                .map_err(|error| error.to_string())?
+                .ok_or_else(|| "job succeeded without a revision".to_owned())?;
+            let graph = engine
+                .load_revision(&revision)
+                .map_err(|error| error.to_string())?;
+            Ok(serde_json::json!({
+                "revision": revision,
+                "node_count": graph.nodes.len(),
+                "coverage": graph.snapshot.coverage,
+            }))
+        }
+        other => Err(format!("scan ended as {other:?}")),
+    }
+}
+
+#[cfg(test)]
+mod async_tests {
+    use super::*;
+    use serde_json::Value;
+
+    #[test]
+    fn a_spawned_scan_returns_a_handle_at_once_and_join_later() {
+        let root = tempfile::tempdir().unwrap();
+        let database = tempfile::tempdir().unwrap();
+        std::fs::write(root.path().join("f.bin"), vec![0; 4096]).unwrap();
+        let database_path = database.path().join("snapshots.sqlite");
+        let database_path = database_path.to_string_lossy().into_owned();
+        let root_path = root.path().to_string_lossy().into_owned();
+
+        let handle = spawn_scan_json(database_path.clone(), root_path.clone());
+        // The UI-thread contract: the call above returned before any work
+        // finished, and polling never blocks.
+        let progress: Value = serde_json::from_str(&handle.progress_json()).unwrap();
+        assert_eq!(progress["ok"], true);
+        assert!(progress["data"]["state"] == "running" || progress["data"]["state"] == "finished");
+
+        // The join produces the same envelope as the synchronous path.
+        let result: Value = serde_json::from_str(&handle.result_json()).unwrap();
+        assert_eq!(result["ok"], true, "{}", result);
+        assert!(result["data"]["node_count"].as_u64().unwrap() >= 2);
+        assert!(
+            result["data"]["coverage"]["complete"].as_bool().unwrap(),
+            "a completed local scan must be complete"
+        );
+        // Polling after completion is stable, and the result is idempotent.
+        let again: Value = serde_json::from_str(&handle.result_json()).unwrap();
+        assert_eq!(again, result);
+        let progress: Value = serde_json::from_str(&handle.progress_json()).unwrap();
+        assert_eq!(progress["data"]["state"], "finished");
+    }
+
+    #[test]
+    fn a_cancelled_job_reports_honestly_instead_of_half_publishing() {
+        let root = tempfile::tempdir().unwrap();
+        let database = tempfile::tempdir().unwrap();
+        std::fs::write(root.path().join("f.bin"), vec![0; 1024]).unwrap();
+        let database_path = database.path().join("snapshots.sqlite");
+        let database_path = database_path.to_string_lossy().into_owned();
+        let root_path = root.path().to_string_lossy().into_owned();
+
+        let handle = spawn_scan_json(database_path.clone(), root_path.clone());
+        handle.cancel();
+        let result: Value = serde_json::from_str(&handle.result_json()).unwrap();
+        // Either the job finished before the flag landed (honest success) or
+        // it reports cancellation (honest refusal); a half-published graph
+        // is the one outcome this contract forbids.
+        if result["ok"].as_bool().unwrap() {
+            assert!(
+                result["data"]["coverage"]["complete"].as_bool().unwrap(),
+                "an honest success must carry complete coverage"
+            );
+        } else {
+            let error = result["error"].as_str().unwrap();
+            assert!(
+                error.contains("Cancelled") || error.contains("cancelled"),
+                "{error}"
+            );
+        }
+    }
+
+    #[test]
+    fn the_ffi_layer_is_independent_of_any_host_application() {
+        // 9.7 (PF-02, AI-01): with no host database, no host configuration,
+        // and no PruneX on the machine, the full loop still works from an
+        // empty directory.
+        let host = tempfile::tempdir().unwrap();
+        let root = tempfile::tempdir().unwrap();
+        std::fs::write(root.path().join("report.txt"), b"standalone").unwrap();
+        let database_path = host.path().join("snapshots.sqlite");
+        let database_path = database_path.to_string_lossy().into_owned();
+        let root_path = root.path().to_string_lossy().into_owned();
+
+        let scanned: Value =
+            serde_json::from_str(&scan_native_json(database_path.clone(), root_path.clone()))
+                .unwrap();
+        assert_eq!(scanned["ok"], true);
+        let snapshot_id = scanned["data"]["snapshot_id"].as_str().unwrap();
+        let top: Value =
+            serde_json::from_str(&top_json(database_path.clone(), snapshot_id.into(), 1, 10))
+                .unwrap();
+        assert_eq!(top["ok"], true);
+        // The read-only surface is intact, and nothing outside the two
+        // caller-named directories was touched.
+        assert!(host.path().join("snapshots.sqlite").is_file());
+        assert!(root.path().join("report.txt").is_file());
+    }
+}

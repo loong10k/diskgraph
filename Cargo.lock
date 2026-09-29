@@ -352,6 +352,7 @@ version = "0.1.0"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",
+ "diskgraph-engine",
  "diskgraph-store",
  "disktree-core",
  "serde_json",
