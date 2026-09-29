@@ -13,6 +13,7 @@ mod model;
 mod permissions;
 mod ports;
 mod query;
+mod scan;
 
 pub use budget::{
     BudgetTracker, CursorContext, CursorRejection, PagingCursor, QueryBudget, TruncationReason,
@@ -43,4 +44,9 @@ pub use ports::{
 pub use query::{
     Candidate, Change, Changes, ChildListing, Growth, Incompatibility, NodeExplanation, Page,
     SizeFilter,
+};
+pub use scan::{
+    BudgetDecision, BudgetFault, BudgetUsage, CapacityReading, ExcludedPath, ExclusionReason,
+    PlaceholderPolicy, RescanComparison, ScanBudget, ScanBudgetStop, ScanExclusions, ScanWindow,
+    StorageArea, Watermark, WatermarkVerdict, compare_rescan,
 };

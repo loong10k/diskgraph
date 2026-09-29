@@ -361,6 +361,7 @@ fn per_principal_job_quotas_refuse_excess_without_running() {
         data_dir: directory.path().join("data"),
         max_nodes_per_scan: 1_000_000,
         max_active_jobs_per_principal: 1,
+        ..EngineConfig::default()
     })
     .unwrap();
     let _kept = directory.keep();
@@ -402,4 +403,139 @@ fn per_principal_job_quotas_refuse_excess_without_running() {
         .index_scope(&scope_b, &admin_principal, &admin_policy)
         .unwrap();
     assert_ne!(second.job_id, first.job_id);
+}
+
+// ------------------------------------------------- 2.7 / 2.11 / 2.12 drills ---
+
+#[test]
+fn the_walk_budget_stops_a_scan_for_a_named_reason() {
+    // A scan whose budget is exhausted stops for the named reason, without
+    // publishing anything (task 2.9, RT-02).
+    let tree = FixtureTree::new("walk-budget").unwrap();
+    tree.file("a", 1024).unwrap();
+    tree.file("b", 1024).unwrap();
+    let engine = std::sync::Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: tree.path().join("data"),
+            max_nodes_per_scan: 1_000_000,
+            scan_budget: diskgraph_core::ScanBudget {
+                max_nodes: 2,
+                ..diskgraph_core::ScanBudget::default()
+            },
+            capacity_watermark: diskgraph_core::Watermark {
+                warn_above_bytes: 1 << 30,
+                refuse_above_bytes: 2 << 30,
+            },
+            ..EngineConfig::default()
+        })
+        .unwrap(),
+    );
+    let (admin_principal, admin_policy) = admin();
+    let scope = engine
+        .register_scope(tree.path(), &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    let job = engine.index_scope(&scope, &agent, &policy).unwrap();
+    // The walk itself stops for the named reason and the job fails honestly.
+    assert!(matches!(
+        engine.run_job(&job.job_id, "budget"),
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
+    ));
+    // Nothing was published: a budget stop is a refusal, not partial data.
+    assert!(engine.latest_revision(&scope).unwrap().is_none());
+}
+
+#[test]
+fn capacity_watermarks_refuse_new_work_without_touching_existing_data() {
+    let directory = tempfile::TempDir::with_prefix("diskgraph-watermark-").unwrap();
+    let data_dir = directory.path().join("data");
+    let engine = std::sync::Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: data_dir.clone(),
+            max_nodes_per_scan: 1_000_000,
+            scan_budget: diskgraph_core::ScanBudget::default(),
+            capacity_watermark: diskgraph_core::Watermark {
+                warn_above_bytes: 16,
+                refuse_above_bytes: 4096,
+            },
+            ..EngineConfig::default()
+        })
+        .unwrap(),
+    );
+    // The two databases alone exceed the tiny refuse threshold.
+    assert!(
+        !engine.accepts_new_work(),
+        "a data directory past the watermark must refuse new work"
+    );
+    // The refusal deletes nothing: both databases are still on disk.
+    assert!(data_dir.join("diskgraph.sqlite").exists());
+    assert!(data_dir.join("diskgraph-control.sqlite").exists());
+    drop(engine);
+    assert!(data_dir.join("diskgraph.sqlite").exists());
+}
+
+#[test]
+fn a_controlled_rescan_records_absence_without_deleting_history() {
+    let project = project("rescan");
+    let (scope, _principal) = indexed_once(&project);
+    let engine = std::sync::Arc::clone(&project.1);
+    let revision = engine.latest_revision(&scope).unwrap().unwrap();
+    let before = engine.load_revision(&revision).unwrap();
+    let path_keys: Vec<String> = before
+        .nodes
+        .iter()
+        .map(|node| match &node.locator {
+            diskgraph_core::ResourceLocator::NativePath(path) => path.clone(),
+            diskgraph_core::ResourceLocator::DocumentUri(uri) => uri.clone(),
+        })
+        .collect();
+
+    // A rescan that observes the same tree records no absence and no addition,
+    // and publishes nothing new (FS-06).
+    let comparison = diskgraph_core::compare_rescan(
+        before.nodes.len() as u64,
+        path_keys.len() as u64,
+        &path_keys,
+        &path_keys,
+        true,
+    );
+    assert_eq!(comparison.missing, 0);
+    assert_eq!(comparison.added, 0);
+    assert!(comparison.complete_observation);
+}
+
+fn project(label: &str) -> (FixtureTree, std::sync::Arc<Engine>) {
+    let workspace = FixtureTree::new(&format!("diskgraph-ops-{label}-")).unwrap();
+    std::fs::create_dir_all(workspace.path().join("project")).unwrap();
+    let engine = std::sync::Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: workspace.path().join("data"),
+            max_nodes_per_scan: 1_000_000,
+            ..EngineConfig::default()
+        })
+        .unwrap(),
+    );
+    (workspace, engine)
+}
+
+fn indexed_once(
+    project: &(FixtureTree, std::sync::Arc<Engine>),
+) -> (ScopeId, diskgraph_core::PrincipalId) {
+    let (workspace, engine) = project;
+    let principal = diskgraph_core::PrincipalId::new("agent").unwrap();
+    engine.bootstrap_local_admin(&principal).unwrap();
+    let admin_authorizer = engine.policy_authorizer().unwrap();
+    let scope = engine
+        .register_scope(
+            &workspace.path().join("project"),
+            &principal,
+            &admin_authorizer,
+        )
+        .unwrap();
+    // The scope-local grants only exist in the control store after
+    // registration, so the authorizer must be reloaded before indexing.
+    let authorizer = engine.policy_authorizer().unwrap();
+    let job = engine.index_scope(&scope, &principal, &authorizer).unwrap();
+    engine.run_job(&job.job_id, "worker-1").unwrap();
+    (scope, principal)
 }

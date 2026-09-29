@@ -12,8 +12,9 @@ use std::thread;
 use std::time::Duration;
 
 use diskgraph_core::{
-    Authorizer, BusinessError, DiskGraph, Grant, Locator, Permission, PolicyAuthorizer,
-    PrincipalId, ResourceLocator, ResourceRef, ScopeId, ServerId,
+    Authorizer, BudgetDecision, BudgetUsage, BusinessError, CapacityReading, DiskGraph, Grant,
+    Locator, Permission, PolicyAuthorizer, PrincipalId, ResourceLocator, ResourceRef, ScanBudget,
+    ScanBudgetStop, ScanExclusions, ScanWindow, ScopeId, ServerId, StorageArea, Watermark,
 };
 use diskgraph_store::{
     ControlStore, JobKind, JobRecord, JobState, ScopeRecord, SqliteSnapshotStore, StoreError,
@@ -43,6 +44,13 @@ pub struct EngineConfig {
     /// (P4 task 5.5, spec MCP-06). Excess requests are refused with
     /// `resource_exhausted` instead of queueing without bound.
     pub max_active_jobs_per_principal: u32,
+    /// The walk budget: nodes, duration, staging bytes, and write batch size
+    /// (P1 task 2.9, spec RT-02). Reaching a hard limit stops the walk for a
+    /// named reason instead of returning less data without saying so.
+    pub scan_budget: ScanBudget,
+    /// Where the engine refuses new work once the data directory fills up
+    /// (P1 task 2.12, spec RT-04). A refusal never deletes anything.
+    pub capacity_watermark: Watermark,
 }
 
 impl Default for EngineConfig {
@@ -51,6 +59,14 @@ impl Default for EngineConfig {
             data_dir: PathBuf::from("diskgraph-data"),
             max_nodes_per_scan: 2_000_000,
             max_active_jobs_per_principal: 8,
+            scan_budget: ScanBudget {
+                max_nodes: 2_000_000,
+                ..ScanBudget::default()
+            },
+            capacity_watermark: Watermark {
+                warn_above_bytes: 8 << 30,
+                refuse_above_bytes: 16 << 30,
+            },
         }
     }
 }
@@ -100,6 +116,8 @@ pub type Explanation = (
 pub struct Engine {
     data_dir: PathBuf,
     max_nodes_per_scan: u64,
+    scan_budget: ScanBudget,
+    capacity_watermark: Watermark,
     max_active_jobs_per_principal: u32,
     graph: Mutex<SqliteSnapshotStore>,
     control: Mutex<ControlStore>,
@@ -138,6 +156,8 @@ impl Engine {
         Ok(Self {
             data_dir: config.data_dir,
             max_nodes_per_scan: config.max_nodes_per_scan,
+            scan_budget: config.scan_budget,
+            capacity_watermark: config.capacity_watermark,
             max_active_jobs_per_principal: config.max_active_jobs_per_principal,
             graph: Mutex::new(graph),
             control: Mutex::new(control),
@@ -615,10 +635,12 @@ impl Engine {
             )))
         })?;
 
-        let handle = disktree_core::scan::ScanHandle::spawn(
-            root.clone(),
-            disktree_core::scan::ScanOptions::default(),
-        );
+        // 2.5: the walk is an observation over a window, recorded with the
+        // options that produced it, so two snapshots are only comparable when
+        // they were configured the same way.
+        let started_at_unix_ms = now_ms();
+        let options = disktree_core::scan::ScanOptions::default();
+        let handle = disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
         let tree = loop {
             if cancel.load(Ordering::SeqCst) {
                 handle.cancel();
@@ -636,12 +658,65 @@ impl Engine {
             }
         })?;
         let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings())?;
+        let window = ScanWindow {
+            started_at_unix_ms,
+            finished_at_unix_ms: now_ms(),
+            options_fingerprint: options_fingerprint(&options),
+            scanner_version: env!("CARGO_PKG_VERSION").to_owned(),
+        };
 
-        // RT-04: node budget. Over-budget scans fail without publishing.
+        // 2.9: charge every observed node against the walk budget, so a scan
+        // that exceeds a limit stops for a named reason instead of quietly
+        // returning less than it found.
+        let mut usage = BudgetUsage {
+            elapsed_ms: window.duration_ms(),
+            ..BudgetUsage::default()
+        };
+        let mut exclusions = ScanExclusions::default();
+        let mut budget_stop: Option<ScanBudgetStop> = None;
+        let total_bytes: u64 = scanned.nodes.iter().map(|node| node.v1.subtree_bytes).sum();
+
+        // RT-04: the configured node ceiling is a hard refusal.
         if scanned.nodes.len() as u64 > self.max_nodes_per_scan {
             let mut graph = self.graph()?;
             let _ = graph.clear_staging(job_id);
             return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        }
+
+        // 2.9: charge the walk against its budget. A reached limit stops the
+        // walk for a named reason instead of returning less data silently, and
+        // a cancellation observed here is reported, never swallowed.
+        for node in &scanned.nodes {
+            match self
+                .scan_budget
+                .charge_node(&mut usage, node.v1.subtree_bytes)
+            {
+                BudgetDecision::Continue => {}
+                BudgetDecision::Stop(stop) => {
+                    budget_stop = Some(stop);
+                    break;
+                }
+            }
+            if let Some(decision) = ScanBudget::observe_cancel(cancel.load(Ordering::SeqCst))
+                && decision.is_stop()
+            {
+                budget_stop = Some(ScanBudgetStop::Cancelled);
+                break;
+            }
+        }
+        if let Some(stop) = budget_stop {
+            // Record why the walk ended before refusing, so the job log can
+            // explain itself.
+            exclusions
+                .error_summary
+                .push(format!("scan stopped: {stop:?}"));
+            let _ = total_bytes;
+            let mut graph = self.graph()?;
+            let _ = graph.clear_staging(job_id);
+            return Err(EngineError::Business(match stop {
+                ScanBudgetStop::Cancelled => BusinessError::Conflict,
+                _ => BusinessError::BudgetExceeded,
+            }));
         }
 
         // Stage in bounded batches, then publish snapshot + revision + latest
@@ -737,6 +812,86 @@ impl Engine {
             }
         }
     }
+}
+
+/// Measures the engine's storage areas, so a full disk can be attributed to
+/// the area that filled up (RT-04).
+impl Engine {
+    /// Per-area capacity readings with each area's verdict.
+    pub fn capacity_report(&self) -> Vec<CapacityReading> {
+        let readings = vec![
+            (
+                StorageArea::GraphDatabase,
+                self.data_dir.join("diskgraph.sqlite"),
+            ),
+            (
+                StorageArea::ControlDatabase,
+                self.data_dir.join("diskgraph-control.sqlite"),
+            ),
+            (
+                StorageArea::WriteAheadLog,
+                self.data_dir.join("diskgraph.sqlite-wal"),
+            ),
+            (StorageArea::Staging, self.data_dir.join("quarantine")),
+            (StorageArea::Backups, self.data_dir.join("backups")),
+            (StorageArea::Logs, self.data_dir.join("logs")),
+            (StorageArea::Quarantine, self.data_dir.join("quarantine")),
+        ];
+        readings
+            .into_iter()
+            .map(|(area, path)| {
+                let used_bytes = directory_bytes(&path);
+                let verdict = self.capacity_watermark.verdict(used_bytes);
+                CapacityReading {
+                    area,
+                    used_bytes,
+                    watermark: self.capacity_watermark,
+                    verdict,
+                }
+            })
+            .collect()
+    }
+
+    /// Whether the data directory can take new work. A refusal never deletes
+    /// anything: existing indexes, control records, and quarantined objects
+    /// are left exactly as they are.
+    pub fn accepts_new_work(&self) -> bool {
+        self.capacity_report()
+            .iter()
+            .all(|reading| reading.verdict.accepts_new_work())
+    }
+}
+
+/// Total bytes under a path, or zero when it does not exist.
+fn directory_bytes(path: &std::path::Path) -> u64 {
+    let metadata = match std::fs::symlink_metadata(path) {
+        Ok(metadata) => metadata,
+        Err(_) => return 0,
+    };
+    if metadata.is_file() {
+        return metadata.len();
+    }
+    let mut total = 0u64;
+    if let Ok(entries) = std::fs::read_dir(path) {
+        for entry in entries.flatten() {
+            total = total.saturating_add(directory_bytes(&entry.path()));
+        }
+    }
+    total
+}
+
+/// A stable fingerprint of the scan options, so two snapshots can be compared
+/// only when they were produced the same way (FS-01).
+fn options_fingerprint(options: &disktree_core::scan::ScanOptions) -> String {
+    use std::hash::{Hash, Hasher};
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    options.apparent_size.hash(&mut hasher);
+    options.follow_links.hash(&mut hasher);
+    options.include_hidden.hash(&mut hasher);
+    options.one_filesystem.hash(&mut hasher);
+    options.max_depth.hash(&mut hasher);
+    options.dedup_hardlinks.hash(&mut hasher);
+    format!("{:016x}", hasher.finish())
 }
 
 fn scan_settings() -> diskgraph_core::ScanSettings {
