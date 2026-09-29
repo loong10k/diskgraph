@@ -1,6 +1,10 @@
 /target/
 /generated-bindings/
 *.db
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 *.db-shm
 *.db-wal
 .DS_Store
+/dist/

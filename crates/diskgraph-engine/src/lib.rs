@@ -1,0 +1,767 @@
+//! Engine orchestration (P1 tasks 2.4 / 2.8 / 2.9 / 2.12, specs ST-01 /
+//! RT-01 / RT-02 / RT-04): authorized scope services, durable scan jobs with
+//! owner fencing and cooperative cancellation, staging-based atomic
+//! publication, and per-scan budgets. The engine never mutates user files.
+
+use std::collections::HashMap;
+use std::io;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
+
+use diskgraph_core::{
+    Authorizer, BusinessError, DiskGraph, Grant, Locator, Permission, PolicyAuthorizer,
+    PrincipalId, ResourceLocator, ResourceRef, ScopeId, ServerId,
+};
+use diskgraph_store::{
+    ControlStore, JobKind, JobRecord, JobState, ScopeRecord, SqliteSnapshotStore, StoreError,
+};
+
+mod collectors;
+mod queries;
+mod runner;
+
+pub use collectors::{
+    COLLECTOR_ID, COLLECTOR_VERSION, ProjectBatch, RULE_VERSION, collect_projects,
+};
+pub use queries::{
+    ExploreSummary, ImpactEntry, Propagation, cursor_context, explore, impact, impact_propagation,
+    incompatibility_name, search_nodes,
+};
+pub use runner::JobRunner;
+
+/// Engine construction options; the data directory holds both databases.
+#[derive(Clone, Debug)]
+pub struct EngineConfig {
+    pub data_dir: PathBuf,
+    /// Hard node budget per scan (RT-04). Exceeding it fails the job and
+    /// never publishes a partial latest revision.
+    pub max_nodes_per_scan: u64,
+    /// Maximum active (queued or running) jobs one principal may hold
+    /// (P4 task 5.5, spec MCP-06). Excess requests are refused with
+    /// `resource_exhausted` instead of queueing without bound.
+    pub max_active_jobs_per_principal: u32,
+}
+
+impl Default for EngineConfig {
+    fn default() -> Self {
+        Self {
+            data_dir: PathBuf::from("diskgraph-data"),
+            max_nodes_per_scan: 2_000_000,
+            max_active_jobs_per_principal: 8,
+        }
+    }
+}
+
+/// Engine failures: storage, IO, or a business error carrying its stable code.
+#[derive(Debug, thiserror::Error)]
+pub enum EngineError {
+    #[error(transparent)]
+    Store(#[from] StoreError),
+    #[error(transparent)]
+    Io(#[from] io::Error),
+    #[error("engine poisoned by a previous panic")]
+    Poisoned,
+    #[error("{0}")]
+    Business(#[from] BusinessError),
+}
+
+/// An engine error plus which catalog entry produced it, so MCP and the CLI
+/// can name the family without parsing message text.
+#[derive(Debug)]
+pub struct ContextualEngineError {
+    pub error: EngineError,
+    pub context: String,
+}
+
+impl std::fmt::Display for ContextualEngineError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} (while serving {})", self.error, self.context)
+    }
+}
+
+impl std::error::Error for ContextualEngineError {}
+
+/// The scope that authorizes server administration (scope add/remove, serve).
+pub fn admin_scope() -> ScopeId {
+    ScopeId::new("diskgraph-admin").expect("constant is valid")
+}
+
+/// What one explanation returns: the entity, its edges, and their evidence.
+pub type Explanation = (
+    diskgraph_core::Entity,
+    Vec<diskgraph_core::RelationEdge>,
+    Vec<diskgraph_core::EvidenceRecord>,
+);
+
+/// The shared DiskGraph service: one data directory, two databases, durable jobs.
+pub struct Engine {
+    data_dir: PathBuf,
+    max_nodes_per_scan: u64,
+    max_active_jobs_per_principal: u32,
+    graph: Mutex<SqliteSnapshotStore>,
+    control: Mutex<ControlStore>,
+    cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
+}
+
+impl EngineError {
+    /// Attaches the catalog entry that produced this error.
+    pub fn with_context(self, context: impl Into<String>) -> ContextualEngineError {
+        ContextualEngineError {
+            error: self,
+            context: context.into(),
+        }
+    }
+}
+
+impl From<ContextualEngineError> for EngineError {
+    fn from(contextual: ContextualEngineError) -> Self {
+        contextual.error
+    }
+}
+
+impl Engine {
+    /// Opens (creating if needed) the engine's data directory with both stores.
+    pub fn open(config: EngineConfig) -> Result<Self, EngineError> {
+        std::fs::create_dir_all(&config.data_dir)?;
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let mut permissions = std::fs::metadata(&config.data_dir)?.permissions();
+            permissions.set_mode(0o700);
+            std::fs::set_permissions(&config.data_dir, permissions)?;
+        }
+        let graph = SqliteSnapshotStore::open(&config.data_dir.join("diskgraph.sqlite"))?;
+        let control = ControlStore::open(&config.data_dir.join("diskgraph-control.sqlite"))?;
+        Ok(Self {
+            data_dir: config.data_dir,
+            max_nodes_per_scan: config.max_nodes_per_scan,
+            max_active_jobs_per_principal: config.max_active_jobs_per_principal,
+            graph: Mutex::new(graph),
+            control: Mutex::new(control),
+            cancellations: Mutex::new(HashMap::new()),
+        })
+    }
+
+    /// Where both databases live (diagnostics only).
+    pub fn data_dir(&self) -> &Path {
+        &self.data_dir
+    }
+
+    /// Mints once and then serves the persistent server identity (ST-05).
+    pub fn server_id(&self) -> Result<ServerId, EngineError> {
+        Ok(self.control()?.ensure_server()?)
+    }
+
+    /// Registers or idempotently returns a scope for a native root (SC-01).
+    pub fn register_scope(
+        &self,
+        root: &Path,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<ScopeId, EngineError> {
+        self.require(
+            authorizer,
+            principal,
+            &Permission::ScopeAdmin,
+            &admin_scope(),
+        )?;
+        let canonical = root.canonicalize()?;
+        let locator = Locator::from_native_path(&canonical);
+        let volume_id = locator_volume_id(&locator);
+        let mut control = self.control()?;
+        let scope_id = control.register_scope(&locator, volume_id.as_deref())?;
+        // The registrar receives scope-local index/metadata/operation rights;
+        // server administration itself stays bound to the admin scope.
+        let version = control.policy_version()?;
+        if version > 0 {
+            for permission in [
+                Permission::IndexWrite,
+                Permission::MetadataRead,
+                Permission::OperationView,
+            ] {
+                control.upsert_grant(&Grant {
+                    principal: principal.clone(),
+                    permission,
+                    scope: scope_id.clone(),
+                    policy_version: version,
+                })?;
+            }
+        }
+        Ok(scope_id)
+    }
+
+    /// Lists registered scopes the principal may read metadata for. Listing is
+    /// a metadata read scoped to each entry: the registry is visible exactly
+    /// as far as the caller's grants reach, and an ungranted principal sees
+    /// nothing at all.
+    pub fn list_scopes(
+        &self,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<Vec<ScopeRecord>, EngineError> {
+        let authorizer_is_permissive = matches!(
+            authorizer.decide(principal, &Permission::MetadataRead, &admin_scope()),
+            diskgraph_core::Decision::Allowed
+        );
+        let scopes = self.control()?.list_scopes()?;
+        if scopes.is_empty() {
+            return Ok(Vec::new());
+        }
+        let allowed = scopes
+            .into_iter()
+            .filter(|scope| {
+                matches!(
+                    authorizer.decide(principal, &Permission::MetadataRead, &scope.scope_id),
+                    diskgraph_core::Decision::Allowed
+                )
+            })
+            .collect::<Vec<_>>();
+        // A principal whose only grant is administration sees the whole
+        // registry; every other principal sees only its own scopes.
+        if allowed.is_empty() && authorizer_is_permissive {
+            return Ok(self.control()?.list_scopes()?);
+        }
+        Ok(allowed)
+    }
+
+    /// Revokes a scope; lookups and new jobs stop (SC-04). Files, snapshots,
+    /// and control history are never deleted.
+    pub fn revoke_scope(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        self.require(
+            authorizer,
+            principal,
+            &Permission::ScopeAdmin,
+            &admin_scope(),
+        )?;
+        self.control()?.revoke_scope(scope_id)?;
+        Ok(())
+    }
+
+    /// Loads one scope.
+    pub fn scope(&self, scope_id: &ScopeId) -> Result<ScopeRecord, EngineError> {
+        Ok(self.control()?.scope(scope_id)?)
+    }
+
+    /// The live policy authorizer rebuilt from the control store.
+    pub fn policy_authorizer(&self) -> Result<PolicyAuthorizer, EngineError> {
+        Ok(self.control()?.authorizer()?)
+    }
+
+    /// One-time local bootstrap (single-user CLI/service mode): publishes
+    /// policy v1 if absent and grants this principal server administration,
+    /// index management, metadata reads, and operation views on the admin
+    /// scope. Authorization for everything else stays default-deny.
+    pub fn bootstrap_local_admin(&self, principal: &PrincipalId) -> Result<(), EngineError> {
+        let mut control = self.control()?;
+        // Publish the initial version only when nothing was ever published:
+        // a revoked policy must stay revoked until an explicit republish.
+        if control.policy_state()?.is_none() {
+            control.publish_policy_version(1)?;
+        }
+        let version = control.policy_version()?;
+        for permission in [
+            Permission::ScopeAdmin,
+            Permission::IndexWrite,
+            Permission::MetadataRead,
+            Permission::OperationView,
+        ] {
+            control.upsert_grant(&Grant {
+                principal: principal.clone(),
+                permission,
+                scope: admin_scope(),
+                policy_version: version,
+            })?;
+        }
+        // Renew every existing grant into the current epoch, so a policy bump
+        // does not silently strip scope-local rights the administrator already
+        // issued; explicit revocation is what takes rights away (SC-04). A
+        // revoked policy is left untouched: renewal must not resurrect it.
+        if let Some((_, true)) = control.policy_state()? {
+            return Ok(());
+        }
+        for grant in control.all_grants()? {
+            control.upsert_grant(&Grant {
+                policy_version: version,
+                ..grant
+            })?;
+        }
+        Ok(())
+    }
+
+    /// Creates (or merges into) a durable index job (C02, AI-03).
+    pub fn index_scope(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<JobRecord, EngineError> {
+        self.create_scan_job(scope_id, JobKind::Index, principal, authorizer)
+    }
+
+    /// Explicit controlled rescan of a registered scope (C03): merges into any
+    /// active job for the scope and publishes a fresh snapshot + revision.
+    pub fn sync_scope(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<JobRecord, EngineError> {
+        self.create_scan_job(scope_id, JobKind::Sync, principal, authorizer)
+    }
+
+    fn create_scan_job(
+        &self,
+        scope_id: &ScopeId,
+        kind: JobKind,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<JobRecord, EngineError> {
+        self.require(authorizer, principal, &Permission::IndexWrite, scope_id)?;
+        let mut control = self.control()?;
+        // A merge into an already-active job for this scope is free and never
+        // consumes quota (AI-03); only genuinely new jobs are counted.
+        if let Some(active) = control.active_job_for_scope(scope_id)? {
+            return Ok(active);
+        }
+        // Per-principal job quota (P4 task 5.5): merged jobs count once
+        // because the merge returns the existing record.
+        if control.active_job_count_for_principal(principal)?
+            >= u64::from(self.max_active_jobs_per_principal)
+        {
+            return Err(EngineError::Business(BusinessError::ResourceExhausted));
+        }
+        let job = control.create_job(scope_id, kind, principal)?;
+        drop(control);
+        self.cancellations()?.entry(job.job_id.clone()).or_default();
+        Ok(job)
+    }
+
+    /// Lists snapshots for a scope's root (C05 list/show), newest first.
+    pub fn list_snapshots(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        limit: u64,
+        offset: u64,
+    ) -> Result<Vec<diskgraph_core::DiskSnapshot>, EngineError> {
+        self.require(authorizer, principal, &Permission::MetadataRead, scope_id)?;
+        let root = ResourceLocator::NativePath(self.scope(scope_id)?.root.display().to_owned());
+        Ok(self.graph()?.list_snapshots(Some(&root), limit, offset)?)
+    }
+
+    /// Pins or unpins one snapshot (C05 pin, retention protection).
+    pub fn pin_snapshot(
+        &self,
+        snapshot_id: &str,
+        pinned: bool,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        self.require_write_for_snapshot(snapshot_id, principal, authorizer)?;
+        self.graph()?.pin_snapshot(snapshot_id, pinned)?;
+        Ok(())
+    }
+
+    /// Removes one snapshot from graph history (C05 remove). Refused when
+    /// pinned or referenced by published revisions; never touches user files.
+    pub fn remove_snapshot(
+        &self,
+        snapshot_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        self.require_write_for_snapshot(snapshot_id, principal, authorizer)?;
+        self.graph()?.remove_snapshot(snapshot_id)?;
+        Ok(())
+    }
+
+    /// Snapshot management carries index:write (C05); any scope the principal
+    /// can write is sufficient for retention edits on the shared graph index.
+    fn require_write_for_snapshot(
+        &self,
+        _snapshot_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        // P1: retention edits authorize against the admin scope because the
+        // graph index is shared across scopes; scope-scoped retention arrives
+        // with per-scope graph namespaces (ST-04 full semantics, P2).
+        self.require(
+            authorizer,
+            principal,
+            &Permission::IndexWrite,
+            &admin_scope(),
+        )
+    }
+
+    /// Cancels a job (C26 semantics arrive in P5; P1 cancels scans).
+    /// Queued jobs are cancelled immediately; running jobs observe the flag
+    /// between walk batches and never advance `latest`.
+    pub fn cancel_job(
+        &self,
+        job_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        let job = self.control()?.job(job_id)?;
+        self.require(
+            authorizer,
+            principal,
+            &Permission::OperationView,
+            &job.scope_id,
+        )?;
+        if let Some(flag) = self.cancellations()?.get(job_id) {
+            flag.store(true, Ordering::SeqCst);
+        }
+        let mut control = self.control()?;
+        match control.cancel_queued(job_id) {
+            Ok(true) => Ok(()),
+            Ok(false) => Ok(()), // running: the runner will observe the flag
+            Err(error) => Err(error.into()),
+        }
+    }
+
+    /// Claims and runs one job to a terminal state, returning the durable
+    /// record (RT-01: reconnection queries this instead of the connection).
+    pub fn run_job(&self, job_id: &str, owner: &str) -> Result<JobRecord, EngineError> {
+        {
+            let mut control = self.control()?;
+            control.claim_job(job_id, owner)?;
+        }
+        let cancel = {
+            let mut cancellations = self.cancellations()?;
+            Arc::clone(cancellations.entry(job_id.to_owned()).or_default())
+        };
+        let outcome = self.execute_scan(job_id, owner, &cancel);
+        let final_state = if outcome.is_ok() {
+            JobState::Completed
+        } else {
+            JobState::Failed
+        };
+        let record = self.control()?.finish_job(job_id, owner, final_state)?;
+        self.cancellations()?.remove(job_id);
+        outcome?;
+        Ok(record)
+    }
+
+    /// Loads one durable job record (reconnect-safe business state, MCP-05 seed).
+    pub fn job_status(&self, job_id: &str) -> Result<JobRecord, EngineError> {
+        Ok(self.control()?.job(job_id)?)
+    }
+
+    /// Publishes a new policy version; grants from older versions stop
+    /// applying and every cursor issued under them is refused (SC-04, P4-5.9).
+    pub fn publish_policy_version(
+        &self,
+        version: u64,
+        principal: &PrincipalId,
+        _authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        // Management validates against the durable admin grant, not the live
+        // authorizer: a revoked policy must remain republishable (SC-04).
+        if !self.control()?.holds_admin(principal)? {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        let mut control = self.control()?;
+        control.publish_policy_version(version)?;
+        // Existing grants carry into the new epoch unless explicitly revoked:
+        // a version bump expires forged/stale artifacts (cursors), not the
+        // administrator's standing grants (SC-04).
+        for grant in control.all_grants()? {
+            control.upsert_grant(&Grant {
+                policy_version: version,
+                ..grant
+            })?;
+        }
+        Ok(())
+    }
+
+    /// Revokes the whole policy; nothing is authorized until republished.
+    pub fn revoke_policy(
+        &self,
+        principal: &PrincipalId,
+        _authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        if !self.control()?.holds_admin(principal)? {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        self.control()?.revoke_policy()?;
+        Ok(())
+    }
+
+    /// Every queued job across scopes; the job runner drains this list.
+    pub fn queued_jobs(&self) -> Result<Vec<JobRecord>, EngineError> {
+        Ok(self.control()?.list_queued_jobs()?)
+    }
+
+    /// The latest published revision for a scope, if it has ever published.
+    pub fn latest_revision(&self, scope_id: &ScopeId) -> Result<Option<String>, EngineError> {
+        let scope = self.control()?.scope(scope_id)?;
+        let root = ResourceLocator::NativePath(scope.root.display().to_owned());
+        Ok(self.graph()?.latest_revision_for_root(&root)?)
+    }
+
+    /// Loads the v1 graph behind one published revision.
+    pub fn load_revision(&self, revision_id: &str) -> Result<DiskGraph, EngineError> {
+        Ok(self.graph()?.load_revision(revision_id)?)
+    }
+
+    /// Explain one entity of a published revision: the entity, its edges, and
+    /// their evidence records (C14, EV-02). Unknown entities stay unknown.
+    pub fn explain_entity(
+        &self,
+        revision_id: &str,
+        entity_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<Option<Explanation>, EngineError> {
+        self.require_read_for_revision(revision_id, principal, authorizer)?;
+        let graph = self.graph()?;
+        let revision = graph.revision(revision_id)?;
+        let Some(entity) = graph.entity(&revision.snapshot_id, entity_id)? else {
+            return Ok(None);
+        };
+        let mut edges = graph.edges_from(&revision.snapshot_id, entity_id, None)?;
+        edges.extend(graph.edges_to(&revision.snapshot_id, entity_id, None)?);
+        let edge_ids: Vec<String> = edges.iter().map(|edge| edge.edge_id.clone()).collect();
+        let evidence = graph.evidence_for_edges(&revision.snapshot_id, &edge_ids)?;
+        Ok(Some((entity, edges, evidence)))
+    }
+
+    /// Typed relations of one entity with direction and optional filter (C13).
+    pub fn related(
+        &self,
+        revision_id: &str,
+        entity_id: &str,
+        relation: Option<diskgraph_core::Relation>,
+        outgoing: bool,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<Vec<diskgraph_core::RelationEdge>, EngineError> {
+        self.require_read_for_revision(revision_id, principal, authorizer)?;
+        let graph = self.graph()?;
+        let revision = graph.revision(revision_id)?;
+        if outgoing {
+            Ok(graph.edges_from(&revision.snapshot_id, entity_id, relation)?)
+        } else {
+            Ok(graph.edges_to(&revision.snapshot_id, entity_id, relation)?)
+        }
+    }
+
+    /// Every typed edge of one published revision, for relation-shaped
+    /// traversals (impact and friends).
+    pub fn all_edges(
+        &self,
+        revision_id: &str,
+    ) -> Result<Vec<diskgraph_core::RelationEdge>, EngineError> {
+        let graph = self.graph()?;
+        let revision = graph.revision(revision_id)?;
+        Ok(graph.all_edges(&revision.snapshot_id)?)
+    }
+
+    fn require_read_for_revision(
+        &self,
+        _revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        // P2: relations live in the shared graph index; reads authorize
+        // against metadata:read on the admin scope until per-scope graph
+        // namespaces arrive (ST-04 full semantics, tracked for P2 wrap-up).
+        self.require(
+            authorizer,
+            principal,
+            &Permission::MetadataRead,
+            &admin_scope(),
+        )
+    }
+
+    /// Full reference for one node inside a published revision (SC-02 shape).
+    pub fn resource_ref(
+        &self,
+        scope_id: &ScopeId,
+        revision_id: &str,
+        node_id: u64,
+    ) -> Result<ResourceRef, EngineError> {
+        Ok(ResourceRef {
+            server_id: self.server_id()?,
+            scope_id: scope_id.clone(),
+            revision_id: diskgraph_core::RevisionId::new(revision_id.to_owned())
+                .map_err(|error| EngineError::Store(StoreError::InvalidGraph(error.to_string())))?,
+            node_id,
+        })
+    }
+
+    fn execute_scan(
+        &self,
+        job_id: &str,
+        owner: &str,
+        cancel: &AtomicBool,
+    ) -> Result<(), EngineError> {
+        let job = self.control()?.job(job_id)?;
+        let scope = self.control()?.scope(&job.scope_id)?;
+        let root = scope.root.to_native_path().map_err(|error| {
+            EngineError::Store(StoreError::InvalidGraph(format!(
+                "scope root is not addressable on this platform: {error}"
+            )))
+        })?;
+
+        let handle = disktree_core::scan::ScanHandle::spawn(
+            root.clone(),
+            disktree_core::scan::ScanOptions::default(),
+        );
+        let tree = loop {
+            if cancel.load(Ordering::SeqCst) {
+                handle.cancel();
+            }
+            match handle.poll() {
+                Some(result) => break result,
+                None => thread::sleep(Duration::from_millis(20)),
+            }
+        };
+        let tree = tree.map_err(|error| {
+            if cancel.load(Ordering::SeqCst) {
+                EngineError::Business(BusinessError::Conflict)
+            } else {
+                EngineError::Io(error)
+            }
+        })?;
+        let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings())?;
+
+        // RT-04: node budget. Over-budget scans fail without publishing.
+        if scanned.nodes.len() as u64 > self.max_nodes_per_scan {
+            let mut graph = self.graph()?;
+            let _ = graph.clear_staging(job_id);
+            return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        }
+
+        // Stage in bounded batches, then publish snapshot + revision + latest
+        // pointer in one transaction (ST-01).
+        let mut graph = self.graph()?;
+        for batch in scanned.nodes.chunks(512) {
+            graph.append_staging_nodes(
+                job_id,
+                &batch.iter().map(|node| node.v1.clone()).collect::<Vec<_>>(),
+            )?;
+        }
+        let v1_nodes: Vec<diskgraph_core::DiskNode> =
+            scanned.nodes.iter().map(|node| node.v1.clone()).collect();
+        let revision_id = format!("rev-{}", uuid::Uuid::new_v4());
+        let published_at = now_ms();
+        let observed_graph = DiskGraph {
+            snapshot: scanned.snapshot.clone(),
+            nodes: v1_nodes,
+            evidence: scanned.evidence,
+        };
+        let result = graph.publish_revision(job_id, &observed_graph, &revision_id, published_at);
+        if let Err(error) = result {
+            let _ = graph.clear_staging(job_id);
+            let _ = self.control()?.finish_job(job_id, owner, JobState::Failed);
+            return Err(error.into());
+        }
+
+        // Deterministic collectors run against the just-published snapshot and
+        // bind their run to the revision as the active evidence batch (EV-05).
+        // A collector failure fails the job but never un-publishes the scan.
+        let batch = collect_projects(&observed_graph);
+        if !batch.edges.is_empty() || !batch.entities.is_empty() {
+            let recorded = graph.record_collector_batch(
+                &observed_graph.snapshot.id,
+                &batch.run,
+                &batch.entities,
+                &batch.evidence,
+                &batch.edges,
+            );
+            match recorded {
+                Ok(()) => {
+                    graph.bind_runs_to_revision(
+                        &revision_id,
+                        &[(batch.run.run_id.as_str(), "active")],
+                    )?;
+                }
+                Err(error) => {
+                    let _ = self.control()?.finish_job(job_id, owner, JobState::Failed);
+                    return Err(error.into());
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn control(&self) -> Result<std::sync::MutexGuard<'_, ControlStore>, EngineError> {
+        self.control
+            .lock()
+            .map_or_else(|_| Err(EngineError::Poisoned), Ok)
+    }
+
+    fn graph(&self) -> Result<std::sync::MutexGuard<'_, SqliteSnapshotStore>, EngineError> {
+        self.graph
+            .lock()
+            .map_or_else(|_| Err(EngineError::Poisoned), Ok)
+    }
+
+    fn cancellations(
+        &self,
+    ) -> Result<std::sync::MutexGuard<'_, HashMap<String, Arc<AtomicBool>>>, EngineError> {
+        self.cancellations
+            .lock()
+            .map_or_else(|_| Err(EngineError::Poisoned), Ok)
+    }
+
+    fn require(
+        &self,
+        authorizer: &dyn Authorizer,
+        principal: &PrincipalId,
+        permission: &Permission,
+        scope: &ScopeId,
+    ) -> Result<(), EngineError> {
+        match authorizer.decide(principal, permission, scope) {
+            diskgraph_core::Decision::Allowed => Ok(()),
+            diskgraph_core::Decision::Denied(_) => {
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            }
+        }
+    }
+}
+
+fn scan_settings() -> diskgraph_core::ScanSettings {
+    let options = disktree_core::scan::ScanOptions::default();
+    diskgraph_core::ScanSettings {
+        apparent_size: options.apparent_size,
+        follow_links: options.follow_links,
+        include_hidden: options.include_hidden,
+        one_filesystem: options.one_filesystem,
+        max_depth: options.max_depth,
+        dedup_hardlinks: options.dedup_hardlinks,
+    }
+}
+
+#[cfg(unix)]
+fn locator_volume_id(locator: &Locator) -> Option<String> {
+    use std::os::unix::fs::MetadataExt;
+    let path = locator.to_native_path().ok()?;
+    std::fs::metadata(path).ok().map(|m| m.dev().to_string())
+}
+
+#[cfg(not(unix))]
+fn locator_volume_id(_locator: &Locator) -> Option<String> {
+    None
+}
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .expect("clock before epoch")
+        .as_millis()
+        .try_into()
+        .expect("timestamp beyond u64")
+}

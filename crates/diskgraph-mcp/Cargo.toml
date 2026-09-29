@@ -1,19 +1,26 @@
 [package]
-name = "diskgraph-store"
-description = "Immutable SQLite snapshots for DiskGraph"
+name = "diskgraph-mcp"
+description = "MCP protocol adapter for DiskGraph (stdio, Streamable HTTP, legacy SSE)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "diskgraph-mcp"
+path = "src/main.rs"
+
 [dependencies]
+base64.workspace = true
 diskgraph-core.workspace = true
-rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+diskgraph-engine.workspace = true
+diskgraph-store.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror = "2"
 uuid.workspace = true
 
 [dev-dependencies]
+diskgraph-testkit.workspace = true
 tempfile = "3"

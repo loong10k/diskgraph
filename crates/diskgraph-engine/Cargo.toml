@@ -1,6 +1,6 @@
 [package]
-name = "diskgraph-store"
-description = "Immutable SQLite snapshots for DiskGraph"
+name = "diskgraph-engine"
+description = "Job orchestration, staging, and authorized scope services for DiskGraph"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -9,11 +9,13 @@ repository.workspace = true
 
 [dependencies]
 diskgraph-core.workspace = true
-rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+diskgraph-store.workspace = true
+diskgraph-disktree.workspace = true
+disktree-core.workspace = true
 serde.workspace = true
-serde_json.workspace = true
 thiserror = "2"
 uuid.workspace = true
 
 [dev-dependencies]
+diskgraph-testkit.workspace = true
 tempfile = "3"

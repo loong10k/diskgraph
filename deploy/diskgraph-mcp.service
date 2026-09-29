@@ -1,0 +1,46 @@
+# systemd unit for the DiskGraph MCP server (P4 task 5.10, spec AI-01 / ST-05).
+#
+# Install (as root):
+#   install -m 0644 diskgraph-mcp.service /etc/systemd/system/
+#   install -m 0755 diskgraph-mcp /usr/local/bin/
+#   systemctl daemon-reload
+#   systemctl enable --now diskgraph-mcp
+#
+# Contract notes:
+# - Runs as a dedicated unprivileged user; never as root.
+# - The ExecStart below binds loopback. A network-facing deployment MUST add
+#   --auth ISSUER AUDIENCE KEY and serve TLS in front (the server refuses a
+#   non-loopback bind without both).
+# - Both SQLite databases live under StateDirectory; do NOT place them on a
+#   network share (WAL is local-only by design, spec ST-05).
+
+[Unit]
+Description=DiskGraph MCP server (read-only disk relationship engine)
+Documentation=https://github.com/loong10k/diskgraph
+After=network.target
+
+[Service]
+Type=simple
+User=diskgraph
+Group=diskgraph
+StateDirectory=diskgraph
+ExecStart=/usr/local/bin/diskgraph-mcp \
+    --data-dir /var/lib/diskgraph \
+    --profile read-full \
+    --transport streamable-http \
+    --host 127.0.0.1 \
+    --port 18443
+Restart=on-failure
+RestartSec=2
+
+# Hardening: the server only reads indexed metadata, writes only its own state.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=-/var/lib/diskgraph
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

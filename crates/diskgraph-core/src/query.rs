@@ -183,8 +183,183 @@ fn has_blocked_descendant(
     })
 }
 
+/// One observed difference between two comparable snapshots.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Change<'a> {
+    Added {
+        node: &'a DiskNode,
+    },
+    Removed {
+        locator: &'a ResourceLocator,
+        subtree_bytes: u64,
+        name: &'a str,
+    },
+    SizeChanged {
+        node: &'a DiskNode,
+        previous_bytes: u64,
+    },
+}
+
+/// Why two snapshots cannot be compared; always reported, never guessed away.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Incompatibility {
+    DifferentRoot,
+    DifferentVolume,
+    UnknownVolume,
+    DifferentSettings,
+    OutOfOrder,
+    IncompleteCoverage,
+}
+
+/// Result of comparing two snapshots by exact lossless locator.
+pub struct Changes<'a> {
+    pub incompatible: Option<Incompatibility>,
+    pub changes: Vec<Change<'a>>,
+}
+
+impl DiskGraph {
+    /// Differences between two snapshots by exact locator. Renames are
+    /// intentionally reported as removal + addition, never inferred (Q-04).
+    pub fn changes<'a>(&'a self, previous: &'a Self) -> Changes<'a> {
+        let incompatible = if self.snapshot.root != previous.snapshot.root {
+            Some(Incompatibility::DifferentRoot)
+        } else if self.snapshot.volume_id.is_none() || previous.snapshot.volume_id.is_none() {
+            Some(Incompatibility::UnknownVolume)
+        } else if self.snapshot.volume_id != previous.snapshot.volume_id {
+            Some(Incompatibility::DifferentVolume)
+        } else if self.snapshot.settings != previous.snapshot.settings {
+            Some(Incompatibility::DifferentSettings)
+        } else if self.snapshot.captured_at_unix_ms < previous.snapshot.captured_at_unix_ms {
+            Some(Incompatibility::OutOfOrder)
+        } else if !self.snapshot.coverage.complete || !previous.snapshot.coverage.complete {
+            Some(Incompatibility::IncompleteCoverage)
+        } else {
+            None
+        };
+        let mut changes = Vec::new();
+        if incompatible.is_some() {
+            return Changes {
+                incompatible,
+                changes,
+            };
+        }
+        let after: HashMap<&ResourceLocator, &DiskNode> = self
+            .nodes
+            .iter()
+            .map(|node| (&node.locator, node))
+            .collect();
+        let before: HashMap<&ResourceLocator, &DiskNode> = previous
+            .nodes
+            .iter()
+            .map(|node| (&node.locator, node))
+            .collect();
+        for (locator, node) in &after {
+            match before.get(locator) {
+                Some(previous_node) => {
+                    if previous_node.subtree_bytes != node.subtree_bytes {
+                        changes.push(Change::SizeChanged {
+                            node,
+                            previous_bytes: previous_node.subtree_bytes,
+                        });
+                    }
+                }
+                None => changes.push(Change::Added { node }),
+            }
+        }
+        for (locator, node) in &before {
+            if !after.contains_key(locator) {
+                changes.push(Change::Removed {
+                    locator,
+                    subtree_bytes: node.subtree_bytes,
+                    name: &node.name,
+                });
+            }
+        }
+        changes.sort_by_key(|change| match change {
+            Change::Added { node } | Change::SizeChanged { node, .. } => node.name.clone(),
+            Change::Removed { name, .. } => (*name).to_owned(),
+        });
+        Changes {
+            incompatible: None,
+            changes,
+        }
+    }
+}
+
+/// A size filter for listing queries; `Unknown` keeps unscanned or
+/// unreported sizes visible instead of silently dropping them (Q-06).
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum SizeFilter {
+    /// Only nodes with a reported subtree size above the threshold.
+    AtLeast(u64),
+    /// Only nodes with no reported size (unscanned, denied, or provider-limited).
+    UnknownOnly,
+}
+
+/// How a child listing ended, including honest coverage reporting.
+pub struct ChildListing<'a> {
+    pub items: Vec<&'a DiskNode>,
+    pub next_offset: Option<usize>,
+    /// Nodes whose size could not be reported, kept out of the ordering.
+    pub unknown_count: usize,
+    pub truncated: bool,
+}
+
+impl DiskGraph {
+    /// Direct children with a size filter, stable ordering, and paging.
+    /// Unknown sizes are counted separately and never mixed into byte order.
+    pub fn children_filtered<'a>(
+        &'a self,
+        parent_id: u64,
+        filter: Option<SizeFilter>,
+        offset: usize,
+        limit: usize,
+    ) -> ChildListing<'a> {
+        let mut known: Vec<&DiskNode> = Vec::new();
+        let mut unknown_count = 0usize;
+        for node in &self.nodes {
+            if node.parent_id != Some(parent_id) {
+                continue;
+            }
+            // A node that is a directory but unreadable, or a provider resource
+            // with no size, is "unknown" rather than zero bytes.
+            let sized = !node.read_error && node.size_known;
+            match (&filter, sized) {
+                (Some(SizeFilter::AtLeast(minimum)), true) if node.subtree_bytes >= *minimum => {
+                    known.push(node)
+                }
+                (Some(SizeFilter::AtLeast(_)), true) => {}
+                (Some(SizeFilter::AtLeast(_)), false) => unknown_count += 1,
+                (Some(SizeFilter::UnknownOnly), false) => known.push(node),
+                (Some(SizeFilter::UnknownOnly), true) => {}
+                (None, true) => known.push(node),
+                (None, false) => unknown_count += 1,
+            }
+        }
+        known.sort_by(|a, b| {
+            b.subtree_bytes
+                .cmp(&a.subtree_bytes)
+                .then_with(|| a.name.cmp(&b.name))
+                .then_with(|| a.id.cmp(&b.id))
+        });
+        let total = known.len();
+        let end = offset.saturating_add(limit).min(total);
+        let items = known
+            .get(offset..end)
+            .map(|slice| slice.to_vec())
+            .unwrap_or_default();
+        ChildListing {
+            items,
+            next_offset: (end < total).then_some(end),
+            unknown_count,
+            truncated: false,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use super::{Change, Incompatibility, SizeFilter};
     use crate::{
         DiskGraph, DiskNode, DiskSnapshot, EvidenceEdge, EvidenceRelation, NodeKind,
         ResourceLocator, ScanCoverage, ScanSettings,
@@ -198,6 +373,7 @@ mod tests {
             name: name.to_owned(),
             kind: NodeKind::Directory,
             subtree_bytes: bytes,
+            size_known: true,
             direct_bytes: 0,
             files: 0,
             directories: 1,
@@ -289,5 +465,101 @@ mod tests {
         let encoded = serde_json::to_string(&graph).unwrap();
         let decoded: DiskGraph = serde_json::from_str(&encoded).unwrap();
         assert_eq!(decoded, graph);
+    }
+
+    #[test]
+    fn changes_report_additions_removals_and_size_shifts_without_renames() {
+        let before = graph(100);
+        let mut after = graph(150);
+        let mut extra = node(4, Some(1), "added", 25);
+        extra.locator = ResourceLocator::NativePath("/tmp/added".into());
+        after.nodes.push(extra);
+
+        let report = after.changes(&before);
+        assert!(report.incompatible.is_none());
+        assert!(
+            report
+                .changes
+                .iter()
+                .any(|change| matches!(change, Change::Added { node } if node.name == "added"))
+        );
+        assert!(report.changes.iter().any(|change| matches!(
+            change,
+            Change::SizeChanged {
+                previous_bytes: 100,
+                ..
+            }
+        )));
+
+        let mut pruned = graph(150);
+        pruned.nodes.retain(|node| node.id != 3);
+        let report = pruned.changes(&before);
+        assert!(report.changes.iter().any(|change| matches!(
+            change,
+            Change::Removed { name, .. } if *name == "protected"
+        )));
+    }
+
+    #[test]
+    fn changes_refuse_incompatible_snapshots_with_reasons() {
+        let before = graph(100);
+        let mut after = graph(100);
+        after.snapshot.volume_id = Some("other-volume".into());
+        assert!(matches!(
+            after.changes(&before).incompatible,
+            Some(Incompatibility::DifferentVolume)
+        ));
+        let mut partial = graph(100);
+        partial.snapshot.coverage.complete = false;
+        assert!(matches!(
+            partial.changes(&before).incompatible,
+            Some(Incompatibility::IncompleteCoverage)
+        ));
+        let mut other_root = graph(100);
+        other_root.snapshot.root = ResourceLocator::NativePath("/elsewhere".into());
+        other_root.nodes[0].locator = ResourceLocator::NativePath("/elsewhere".into());
+        assert!(matches!(
+            other_root.changes(&before).incompatible,
+            Some(Incompatibility::DifferentRoot)
+        ));
+    }
+
+    #[test]
+    fn children_filtering_keeps_unknown_sizes_visible_and_out_of_byte_order() {
+        let mut graph = graph(150);
+        // A node whose size could not be reported.
+        let mut unknown = node(5, Some(1), "denied", 0);
+        unknown.size_known = false;
+        unknown.read_error = true;
+        graph.nodes.push(unknown);
+
+        // Default listing sorts by bytes and counts the unknown separately.
+        // The root owns `cache` and the unsized `denied`; `protected` sits
+        // under `cache`.
+        let listing = graph.children_filtered(1, None, 0, 10);
+        assert_eq!(listing.items.len(), 1);
+        assert_eq!(listing.items[0].name, "cache");
+        assert_eq!(listing.unknown_count, 1);
+        assert!(listing.items.iter().all(|node| node.size_known));
+
+        // Unknown-only surfaces exactly the unsized node.
+        let unknown_only = graph.children_filtered(1, Some(SizeFilter::UnknownOnly), 0, 10);
+        assert_eq!(unknown_only.items.len(), 1);
+        assert_eq!(unknown_only.items[0].name, "denied");
+
+        // A size threshold never admits an unknown size as zero.
+        let threshold = graph.children_filtered(1, Some(SizeFilter::AtLeast(100)), 0, 10);
+        assert!(threshold.items.iter().all(|node| node.subtree_bytes >= 100));
+        assert_eq!(threshold.unknown_count, 1);
+
+        // Paging over the two direct children is stable and resumable.
+        let unsized_first = graph.children_filtered(1, Some(SizeFilter::UnknownOnly), 0, 1);
+        let unsized_all = graph.children_filtered(1, Some(SizeFilter::UnknownOnly), 0, 10);
+        assert_eq!(unsized_first.items.len(), 1);
+        assert_eq!(unsized_all.next_offset, None);
+        // A zero threshold admits every node with a known size.
+        let all_known = graph.children_filtered(1, Some(SizeFilter::AtLeast(0)), 0, 10);
+        assert_eq!(all_known.items.len(), 1);
+        assert_eq!(all_known.unknown_count, 1);
     }
 }

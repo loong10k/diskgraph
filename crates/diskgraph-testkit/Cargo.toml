@@ -1,0 +1,17 @@
+[package]
+name = "diskgraph-testkit"
+description = "Isolated filesystem fixtures and cross-language test support"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+diskgraph-core.workspace = true
+tempfile = "3"
+
+[dev-dependencies]
+diskgraph-disktree.workspace = true
+diskgraph-store.workspace = true
+disktree-core.workspace = true

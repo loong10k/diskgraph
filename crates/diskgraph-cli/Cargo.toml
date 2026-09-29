@@ -1,19 +1,23 @@
 [package]
-name = "diskgraph-store"
-description = "Immutable SQLite snapshots for DiskGraph"
+name = "diskgraph-cli"
+description = "DiskGraph command line entry point"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
-[dependencies]
-diskgraph-core.workspace = true
-rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
-serde.workspace = true
-serde_json.workspace = true
-thiserror = "2"
-uuid.workspace = true
+[[bin]]
+name = "diskgraph"
+path = "src/main.rs"
 
+[dependencies]
+clap.workspace = true
+diskgraph-core.workspace = true
+diskgraph-engine.workspace = true
+diskgraph-mcp.workspace = true
+diskgraph-store.workspace = true
+serde_json.workspace = true
 [dev-dependencies]
 tempfile = "3"
+

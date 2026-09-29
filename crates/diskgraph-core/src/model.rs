@@ -64,6 +64,9 @@ pub struct DiskNode {
     pub kind: NodeKind,
     pub subtree_bytes: u64,
     pub direct_bytes: u64,
+    /// False when the provider could not report a size (denied, unscanned, or
+    /// unsupported); `subtree_bytes` must then be read as unknown, not zero.
+    pub size_known: bool,
     pub files: u64,
     pub directories: u64,
     pub modified_unix_seconds: Option<i64>,
