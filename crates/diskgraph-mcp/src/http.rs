@@ -8,7 +8,7 @@
 //! a client-supplied path as anything but an opaque string.
 
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, ErrorKind, Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -376,11 +376,20 @@ impl HttpResponse {
     /// An empty 202 for JSON-RPC notifications: per the Streamable HTTP
     /// contract the response carries no body and no Content-Type at all.
     pub fn accepted() -> Self {
-        // rmcp-based hosts validate the notification response's content type
-        // even for an empty 202, so the header is present with an empty body.
         Self {
             status: 202,
             content_type: "application/json",
+            body: String::new(),
+            session: None,
+        }
+    }
+
+    /// An empty event-stream answer, for hosts whose client reads every POST
+    /// response as a stream.
+    pub fn accepted_stream() -> Self {
+        Self {
+            status: 202,
+            content_type: "text/event-stream",
             body: String::new(),
             session: None,
         }
@@ -861,23 +870,42 @@ pub fn serve_config(
                 // long-lived: hold the connection, emit keep-alives, and let
                 // the client's disconnect end it (Streamable HTTP contract).
                 if request.method == "GET" && request.path == MCP_ENDPOINT {
+                    // Long-lived server-to-client stream. It must outlive the
+                    // read timeout: a read timeout on the probe is an idle
+                    // tick, not a client disconnect, and treating it as one
+                    // makes the stream die every few seconds and sends
+                    // rmcp-based hosts into a reconnect loop.
                     let head = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-cache\r\nConnection: keep-alive\r\n\r\n";
                     if stream.write_all(head.as_bytes()).is_err() {
                         break;
                     }
                     let _ = stream.flush();
-                    // Hold silently: any content here (even a comment) can be
-                    // parsed by strict clients as a malformed first event.
                     let mut probe = [0u8; 1];
                     loop {
                         match stream.peek(&mut probe) {
-                            Err(_) => break,
                             Ok(0) => break,
                             Ok(_) => {
-                                // Client data on a GET stream is protocol
-                                // noise; drain it and keep holding.
+                                // Unexpected client bytes on a GET stream are
+                                // protocol noise; drain and keep holding.
                                 let _ = stream.read(&mut probe);
                             }
+                            Err(error)
+                                if matches!(
+                                    error.kind(),
+                                    ErrorKind::WouldBlock | ErrorKind::TimedOut
+                                ) =>
+                            {
+                                // Idle tick: a comment keeps intermediaries
+                                // from reaping the connection.
+                                if stream
+                                    .write_all(crate::legacy::keepalive_event().as_bytes())
+                                    .is_err()
+                                {
+                                    break;
+                                }
+                                let _ = stream.flush();
+                            }
+                            Err(_) => break,
                         }
                     }
                     continue;
@@ -2307,6 +2335,77 @@ mod tests {
         assert_eq!(
             service.engine().latest_revision(&scope).unwrap().unwrap(),
             revision
+        );
+    }
+
+    /// Regression: a GET /mcp stream must outlive the socket read timeout.
+    /// Treating an idle probe as a disconnect killed the stream every few
+    /// seconds and sent rmcp-based hosts into a reconnect loop.
+    #[test]
+    fn the_server_stream_survives_read_timeouts() {
+        use std::io::Read as _;
+
+        let (service, _keep) = service("stream-lifetime");
+        let limits = HttpLimits {
+            // A short timeout makes the regression surface quickly.
+            read_timeout: Duration::from_millis(200),
+            max_requests_per_second_per_client: 1_000,
+            ..HttpLimits::default()
+        };
+        let (listener, address) = bind("127.0.0.1", 0).unwrap();
+        let port = address.port;
+        std::thread::spawn(move || {
+            let sink = Vec::new();
+            let _ = serve_config(
+                service,
+                listener,
+                ServerConfig::modern(limits, Security::local(None)),
+                sink,
+            );
+        });
+        std::thread::sleep(Duration::from_millis(100));
+
+        let mut stream = std::net::TcpStream::connect(("127.0.0.1", port)).unwrap();
+        stream
+            .write_all(b"GET /mcp HTTP/1.1\r\nHost: x\r\nAccept: text/event-stream\r\n\r\n")
+            .unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(5)))
+            .unwrap();
+        let mut reader = BufReader::new(stream.try_clone().unwrap());
+        let mut status = String::new();
+        reader.read_line(&mut status).unwrap();
+        assert!(status.contains("200"), "stream handshake: {status}");
+        loop {
+            let mut line = String::new();
+            reader.read_line(&mut line).unwrap();
+            if line == "\r\n" || line == "\n" || line.is_empty() {
+                break;
+            }
+        }
+
+        // Wait well past the server's read timeout: a keep-alive comment must
+        // still arrive, proving the stream survived the idle ticks.
+        let mut saw_keepalive = false;
+        stream
+            .set_read_timeout(Some(Duration::from_secs(3)))
+            .unwrap();
+        let mut buffer = [0u8; 256];
+        let deadline = std::time::Instant::now() + Duration::from_secs(2);
+        while std::time::Instant::now() < deadline {
+            if let Ok(count) = stream.read(&mut buffer) {
+                if count == 0 {
+                    break;
+                }
+                if String::from_utf8_lossy(&buffer[..count]).contains("keep-alive") {
+                    saw_keepalive = true;
+                    break;
+                }
+            }
+        }
+        assert!(
+            saw_keepalive,
+            "the stream must stay open across read timeouts and emit keep-alives"
         );
     }
 }
