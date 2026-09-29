@@ -8,6 +8,8 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+serde_json.workspace = true
+libc = "0.2"
 diskgraph-core.workspace = true
 diskgraph-store.workspace = true
 diskgraph-disktree.workspace = true

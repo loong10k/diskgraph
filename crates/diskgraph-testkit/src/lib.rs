@@ -139,6 +139,12 @@ pub enum RealOsRequirement {
     PlatformTrashBackend,
     /// Android/iOS provider grants and revocations on real devices.
     MobileProviderLifecycle,
+    /// A real Windows host: volume/file IDs, reparse points, and Recycle Bin
+    /// semantics can only be validated where they exist (P7 8.9/8.10).
+    WindowsNativeSemantics,
+    /// A Linux host with the desktop trash and permissions matrix exercised
+    /// end to end (P7 8.10).
+    LinuxDesktopMatrix,
 }
 
 impl RealOsRequirement {
@@ -156,6 +162,12 @@ impl RealOsRequirement {
             Self::MobileProviderLifecycle => {
                 "requires real Android/iOS devices to grant and revoke provider access"
             }
+            Self::WindowsNativeSemantics => {
+                "requires a real Windows host for volume/file IDs, reparse points, and the Recycle Bin"
+            }
+            Self::LinuxDesktopMatrix => {
+                "requires a real Linux desktop session for the trash, permission, and fidelity matrix"
+            }
         }
     }
 }
@@ -167,6 +179,14 @@ pub fn real_os_requirements() -> &'static [(RealOsRequirement, &'static str)] {
         (RealOsRequirement::MountReplacement, "FS-04 / OP-04"),
         (RealOsRequirement::PlatformTrashBackend, "OP-06"),
         (RealOsRequirement::MobileProviderLifecycle, "PF-04 / PF-05"),
+        (
+            RealOsRequirement::WindowsNativeSemantics,
+            "FS-02 / PF-03 (8.9, 8.10)",
+        ),
+        (
+            RealOsRequirement::LinuxDesktopMatrix,
+            "OP-06 / RE-04 (8.10)",
+        ),
     ]
 }
 

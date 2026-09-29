@@ -21,6 +21,8 @@ use diskgraph_store::{
 };
 
 mod collectors;
+pub mod content;
+pub mod live_evidence;
 mod queries;
 mod runner;
 
