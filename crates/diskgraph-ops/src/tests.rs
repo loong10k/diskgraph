@@ -705,3 +705,272 @@ fn a_plan_cannot_be_applied_twice() {
         Err(OpsError::Stale(_))
     ));
 }
+
+// ------------------------------------------------------ trash and restore ---
+
+/// Trashes `app.bin`, returning the recovery reference it produced.
+fn quarantine_app(project: &mut Project) -> (Plan, String, Executor) {
+    let (scope, principal) = indexed_once(project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_trash_plan(&scope, &principal, &[app], 1 << 20)
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "trash-1",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    let recovery_ref = items[0]
+        .recovery_ref
+        .clone()
+        .expect("trash records recovery");
+    (plan, recovery_ref, executor)
+}
+
+#[test]
+fn trash_moves_into_quarantine_and_never_deletes() {
+    let mut project = project("trash");
+    let source = project.root.join("target/app.bin");
+    let (_plan, recovery_ref, _executor) = quarantine_app(&mut project);
+
+    // The original is gone, but the object is held, not destroyed.
+    assert!(!source.exists());
+    let control = project.engine.control_store().unwrap();
+    let entry = control.recovery(&recovery_ref).unwrap();
+    assert_eq!(entry.state, diskgraph_store::RecoveryState::Available);
+    let held = PathBuf::from(&entry.quarantine_locator);
+    // The stored locator is the hex key, so decode it the same way the ops
+    // layer does before asserting the bytes survived.
+    let decoded = ops_unhex(&entry.quarantine_locator);
+    assert!(decoded.exists(), "the held object is still on disk");
+    assert_eq!(std::fs::metadata(&decoded).unwrap().len(), 4096);
+    let _ = held;
+}
+
+/// Decodes a hex locator key; mirrors the ops helper for assertions.
+fn ops_unhex(key: &str) -> PathBuf {
+    let bytes: Vec<u8> = key
+        .as_bytes()
+        .chunks(2)
+        .filter_map(|pair| u8::from_str_radix(std::str::from_utf8(pair).ok()?, 16).ok())
+        .collect();
+    PathBuf::from(String::from_utf8_lossy(&bytes).into_owned())
+}
+
+#[test]
+fn a_restored_object_returns_to_its_original_place() {
+    let mut project = project("restore");
+    let (_plan, recovery_ref, executor) = quarantine_app(&mut project);
+    let (scope, principal) = indexed_once(&mut project);
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_restore_plan(&scope, &principal, &recovery_ref, None)
+        .unwrap();
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "restore-1",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+
+    // Back where it started, byte for byte.
+    let source = project.root.join("target/app.bin");
+    assert!(source.exists());
+    assert_eq!(std::fs::metadata(&source).unwrap().len(), 4096);
+    let control = project.engine.control_store().unwrap();
+    assert_eq!(
+        control.recovery(&recovery_ref).unwrap().state,
+        diskgraph_store::RecoveryState::Restored
+    );
+}
+
+#[test]
+fn a_restore_never_overwrites_a_reoccupied_original() {
+    let mut project = project("restore-occupied");
+    let (_plan, recovery_ref, executor) = quarantine_app(&mut project);
+    // Something new occupies the original name.
+    let source = project.root.join("target/app.bin");
+    std::fs::write(&source, b"new work").unwrap();
+    let (scope, principal) = indexed_once(&mut project);
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_restore_plan(&scope, &principal, &recovery_ref, None)
+        .unwrap();
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "restore-2",
+            fault: None,
+        })
+        .unwrap();
+    assert_ne!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    // The new file survives untouched, and the held object is still held.
+    assert_eq!(std::fs::read(&source).unwrap(), b"new work");
+    let control = project.engine.control_store().unwrap();
+    assert_eq!(
+        control.recovery(&recovery_ref).unwrap().state,
+        diskgraph_store::RecoveryState::Available
+    );
+}
+
+#[test]
+fn a_restore_can_target_another_authorized_location() {
+    let mut project = project("restore-elsewhere");
+    let (_plan, recovery_ref, executor) = quarantine_app(&mut project);
+    let (scope, principal) = indexed_once(&mut project);
+    let elsewhere = project.root.join("archive");
+    std::fs::create_dir_all(&elsewhere).unwrap();
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_restore_plan(&scope, &principal, &recovery_ref, Some(&elsewhere))
+        .unwrap();
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "restore-3",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert!(elsewhere.join("app.bin").exists());
+    assert!(!project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn a_restore_of_a_vanished_object_is_refused() {
+    let mut project = project("restore-vanished");
+    let (_plan, recovery_ref, _executor) = quarantine_app(&mut project);
+    // The held object disappears (a user cleared the quarantine by hand).
+    let control = project.engine.control_store().unwrap();
+    let entry = control.recovery(&recovery_ref).unwrap();
+    let held = ops_unhex(&entry.quarantine_locator);
+    std::fs::remove_file(&held).unwrap();
+    drop(control);
+
+    let (scope, principal) = indexed_once(&mut project);
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    // Planning itself refuses: there is nothing left to restore.
+    assert!(matches!(
+        builder.build_restore_plan(&scope, &principal, &recovery_ref, None),
+        Err(OpsError::Stale(_))
+    ));
+}
+
+#[test]
+fn purging_is_refused_rather_than_silently_enabled() {
+    let mut project = project("purge-refused");
+    let (scope, principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let source = project.root.join("target/app.bin");
+    // Even a well-formed plan cannot route to a permanent delete today.
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    assert!(matches!(
+        builder.build_move_plan(
+            &scope,
+            &principal,
+            &[app],
+            &project.root,
+            1 << 20,
+            FileActionKind::Purge,
+        ),
+        Err(OpsError::ActionMismatch)
+    ));
+    assert!(source.exists());
+}
+
+#[test]
+fn an_empty_file_round_trips_through_trash_and_restore() {
+    let mut project = project("empty-file");
+    // A zero-byte object is still a real object: it must be held and returned
+    // like any other, not skipped for having no size.
+    let empty = project.root.join("target/empty.log");
+    std::fs::write(&empty, b"").unwrap();
+    let scope = {
+        let (scope, _) = indexed_once(&mut project);
+        scope
+    };
+    let principal = PrincipalId::new("agent").unwrap();
+    // Re-index so the new file is in the revision the plan is built from.
+    let authorizer = project.engine.policy_authorizer().unwrap();
+    let job = project
+        .engine
+        .index_scope(&scope, &principal, &authorizer)
+        .unwrap();
+    project.engine.run_job(&job.job_id, "reindex").unwrap();
+    let node = node_named(&project.engine, &scope, "empty.log");
+
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_trash_plan(&scope, &principal, &[node], 1 << 20)
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "empty-1",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert!(!empty.exists());
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    let recovery_ref = items[0].recovery_ref.clone().unwrap();
+    let held = ops_unhex(&control.recovery(&recovery_ref).unwrap().quarantine_locator);
+    assert!(held.exists());
+    assert_eq!(std::fs::metadata(&held).unwrap().len(), 0);
+}

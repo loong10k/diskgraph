@@ -28,6 +28,10 @@ pub struct PlanItem {
     pub identity: Option<String>,
     /// True when the plan expands to descendants (directory boundary).
     pub includes_descendants: bool,
+    /// The recovery record a restore plan is derived from. Absent for every
+    /// action except restore.
+    #[serde(default)]
+    pub recovery_ref: Option<String>,
 }
 
 /// An immutable plan. Nothing here mutates after creation; `state` only moves
@@ -856,6 +860,7 @@ mod tests {
                 locator_key: "raw-key-1".into(),
                 identity: Some("dev:ino".into()),
                 includes_descendants: false,
+                recovery_ref: None,
             }],
             target_locator_key: None,
             policy_version: 1,

@@ -135,6 +135,63 @@ impl PlanBuilder {
         Ok(plan)
     }
 
+    /// Derives a fresh plan that puts a quarantined object back. The original
+    /// location is the default; `target` names another authorized destination.
+    /// Planning never modifies the recovery record itself.
+    pub fn build_restore_plan(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        recovery_ref: &str,
+        target: Option<&Path>,
+    ) -> Result<Plan, OpsError> {
+        let entry = {
+            let control = self.engine.control_store()?;
+            control.recovery(recovery_ref)?
+        };
+        if entry.scope_id != *scope_id {
+            return Err(OpsError::NotAuthorized(
+                "recovery belongs to another scope".into(),
+            ));
+        }
+        if entry.state != diskgraph_store::RecoveryState::Available {
+            return Err(OpsError::Stale(format!(
+                "recovery {recovery_ref} is {:?}",
+                entry.state
+            )));
+        }
+        let held = unhex_key(&entry.quarantine_locator)
+            .ok_or_else(|| OpsError::Stale("recovery locator is malformed".into()))?;
+        let metadata = std::fs::symlink_metadata(&held)
+            .map_err(|error| OpsError::Stale(format!("held object is gone: {error}")))?;
+        let item = PlanItem {
+            node_id: 0,
+            locator_key: locator_key(&held),
+            identity: Some(entry.identity.clone()),
+            includes_descendants: false,
+            recovery_ref: Some(recovery_ref.to_owned()),
+        };
+        // Resolve the policy epoch before taking the control lock again.
+        let policy_version = self.engine.policy_authorizer()?.current_version();
+        let plan = Plan {
+            plan_id: format!("plan-{}", uuid::Uuid::new_v4()),
+            scope_id: scope_id.clone(),
+            principal: principal.clone(),
+            action: FileActionKind::Restore,
+            items: vec![item],
+            target_locator_key: target.map(locator_key),
+            policy_version,
+            max_bytes: metadata.len().max(1),
+            created_at_unix_ms: now_ms(),
+            expires_at_unix_ms: now_ms() + 15 * 60_000,
+            recovery: RecoveryRule::NoneNeeded,
+            expected_bytes: metadata.len(),
+        };
+        let digest = plan_digest(&plan);
+        self.engine.control_store()?.insert_plan(&plan, &digest)?;
+        Ok(plan)
+    }
+
     fn build(&self, request: PlanRequest<'_>) -> Result<Plan, OpsError> {
         let PlanRequest {
             scope_id,
@@ -201,6 +258,7 @@ impl PlanBuilder {
                 locator_key: locator_key(path),
                 identity: identity.clone(),
                 includes_descendants: false,
+                recovery_ref: None,
             })
             .collect();
 
@@ -632,6 +690,7 @@ impl Executor {
             live.push(LiveItem {
                 path,
                 identity,
+                recovery_ref: item.recovery_ref.clone(),
                 bytes: metadata.len(),
             });
         }
@@ -713,8 +772,108 @@ impl Executor {
                     recovery_ref: None,
                 })
             }
-            _ => Err(OpsError::ActionMismatch),
+            FileActionKind::Trash => {
+                // Quarantine, never delete: the object is moved into a
+                // same-volume holding area and a recovery record is written.
+                // If quarantine cannot be used the item fails; no path here
+                // removes a file permanently (OP-06).
+                let quarantine = self.quarantine_root()?;
+                let recovery_ref = format!("rec-{}", uuid::Uuid::new_v4());
+                let name = item
+                    .path
+                    .file_name()
+                    .ok_or_else(|| OpsError::Stale("object has no name".into()))?;
+                let held = quarantine.join(&recovery_ref).join(name);
+                std::fs::create_dir_all(held.parent().unwrap())?;
+                same_volume(&item.path, &held)?;
+                std::fs::rename(&item.path, &held)?;
+                let entry = diskgraph_store::RecoveryEntry {
+                    recovery_ref: recovery_ref.clone(),
+                    operation_id: String::new(),
+                    scope_id: plan.scope_id.clone(),
+                    original_locator: locator_key(&item.path),
+                    quarantine_locator: locator_key(&held),
+                    identity: item.identity.clone().unwrap_or_default(),
+                    created_at_unix_ms: now_ms(),
+                    state: diskgraph_store::RecoveryState::Available,
+                };
+                self.engine.control_store()?.insert_recovery(&entry)?;
+                Ok(StepResult {
+                    kind: diskgraph_store::OperationItemResult::Quarantined,
+                    detail: describe(&held, item.identity.as_deref()),
+                    bytes: item.bytes,
+                    recovery_ref: Some(recovery_ref),
+                })
+            }
+            FileActionKind::Restore => {
+                // A restore is a new plan derived from a recovery record; it
+                // never reuses the original operation.
+                let recovery_ref = item
+                    .recovery_ref
+                    .as_deref()
+                    .ok_or_else(|| OpsError::Stale("restore item has no recovery".into()))?;
+                let (entry, destination) = {
+                    let control = self.engine.control_store()?;
+                    let entry = control.recovery(recovery_ref)?;
+                    if entry.state != diskgraph_store::RecoveryState::Available {
+                        return Err(OpsError::Stale(format!(
+                            "recovery {recovery_ref} is {:?}",
+                            entry.state
+                        )));
+                    }
+                    let held = unhex_key(&entry.quarantine_locator)
+                        .ok_or_else(|| OpsError::Stale("recovery locator is malformed".into()))?;
+                    // The original location wins unless the plan names
+                    // another authorized destination.
+                    let destination = match &plan.target_locator_key {
+                        Some(key) => unhex_key(key)
+                            .ok_or_else(|| OpsError::Stale("restore target is malformed".into()))?
+                            .join(held.file_name().ok_or_else(|| {
+                                OpsError::Stale("held object has no name".into())
+                            })?),
+                        None => unhex_key(&entry.original_locator).ok_or_else(|| {
+                            OpsError::Stale("recovery locator is malformed".into())
+                        })?,
+                    };
+                    (entry, destination)
+                };
+                let held = unhex_key(&entry.quarantine_locator)
+                    .ok_or_else(|| OpsError::Stale("recovery locator is malformed".into()))?;
+                let metadata = std::fs::symlink_metadata(&held)
+                    .map_err(|error| OpsError::Stale(format!("held object is gone: {error}")))?;
+                if !entry.identity.is_empty()
+                    && let Some(actual) = identity_of(&held, &metadata)
+                    && entry.identity != actual
+                {
+                    return Err(OpsError::Stale("the held object was replaced".into()));
+                }
+                // A restore never overwrites what is already there (OP-06).
+                if std::fs::symlink_metadata(&destination).is_ok() {
+                    return Err(OpsError::TargetExists);
+                }
+                if let Some(parent) = destination.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::rename(&held, &destination)?;
+                self.engine
+                    .control_store()?
+                    .mark_recovery_restored(recovery_ref)?;
+                Ok(StepResult {
+                    kind: diskgraph_store::OperationItemResult::Restored,
+                    detail: describe(&destination, Some(&entry.identity)),
+                    bytes: metadata.len(),
+                    recovery_ref: None,
+                })
+            }
+            FileActionKind::Purge => Err(OpsError::NotAuthorized(
+                "purge is irreversible and not enabled in this build".into(),
+            )),
         }
+    }
+
+    /// The same-volume holding area for quarantined objects.
+    fn quarantine_root(&self) -> Result<PathBuf, OpsError> {
+        Ok(self.engine.data_dir().join("quarantine"))
     }
 
     /// Where a moved or copied object lands. A plan target is a directory; the
@@ -739,6 +898,8 @@ struct LiveItem {
     /// The identity revalidated at apply time; kept so the operation record can
     /// name exactly which object was touched.
     identity: Option<String>,
+    /// The recovery record this item restores from, for restore plans.
+    recovery_ref: Option<String>,
     bytes: u64,
 }
 
