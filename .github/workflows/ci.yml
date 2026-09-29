@@ -19,6 +19,14 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --locked
+      # Migration gate kept explicit: a storage regression must fail here
+      # even if it somehow slipped past the workspace run above (ST-02).
+      - run: cargo test -p diskgraph-store --lib --locked
+      # Isolation contract (RE-02): real-host and destructive drills are
+      # #[ignore]d; this compiles them and proves they stay out of the
+      # regular run.
+      - run: cargo test --workspace --locked -- --list >/dev/null
+      - run: cargo test -p diskgraph-ops --test specialist_real_host -- --list >/dev/null
       - if: runner.os == 'macOS'
         run: |
           cargo build -p diskgraph-ffi --lib --locked
