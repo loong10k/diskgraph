@@ -582,6 +582,29 @@ impl crate::ControlStore {
         })
     }
 
+    /// The operation recorded for one principal's idempotency key, if any.
+    pub fn operation_for_key(
+        &self,
+        principal: &PrincipalId,
+        idempotency_key: &str,
+    ) -> Result<Option<Operation>> {
+        let id: Option<String> = self.with_connection(|connection| {
+            connection
+                .query_row(
+                    "SELECT operation_id FROM operations
+                     WHERE principal = ?1 AND idempotency_key = ?2",
+                    params![principal.as_str(), idempotency_key],
+                    |row| row.get(0),
+                )
+                .optional()
+                .map_err(StoreError::from)
+        })?;
+        match id {
+            Some(id) => Ok(Some(self.operation(&id)?)),
+            None => Ok(None),
+        }
+    }
+
     /// Loads one operation.
     pub fn operation(&self, operation_id: &str) -> Result<Operation> {
         self.with_connection(|connection| {

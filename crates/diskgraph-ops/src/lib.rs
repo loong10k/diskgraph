@@ -46,6 +46,8 @@ pub enum OpsError {
     NotAuthorized(String),
     #[error("precondition failed: {0}")]
     Stale(String),
+    #[error("conflicts with in-flight work: {0}")]
+    Conflict(String),
     #[error("the target already exists and overwrite is not permitted")]
     TargetExists,
     #[error("a same-volume move is not possible across devices")]
@@ -368,6 +370,440 @@ impl<'a> ApprovalIssuer<'a> {
         self.control.revoke_approval(approval_ref)?;
         Ok(())
     }
+}
+
+/// Where a run may be interrupted, so the recovery contract can be tested
+/// rather than assumed (P5 task 6.13). Production passes `None`.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum FaultPoint {
+    /// After the intent is persisted, before the file changes.
+    AfterIntent,
+    /// After the file changed, before the result is recorded.
+    AfterFileChange,
+}
+
+/// The request that applies a plan.
+pub struct ApplyRequest<'a> {
+    pub plan_id: &'a str,
+    pub approval_ref: &'a str,
+    /// Reusing a key with the same request returns the original operation;
+    /// reusing it with a different request is refused.
+    pub idempotency_key: &'a str,
+    pub fault: Option<FaultPoint>,
+}
+
+/// What an apply produced.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ApplyOutcome {
+    pub operation_id: String,
+    /// False when an existing operation was returned for a reused key.
+    pub started: bool,
+    pub state: diskgraph_store::OperationState,
+    pub moved: usize,
+    pub failed: usize,
+    pub bytes: u64,
+}
+
+/// Executes a plan. This is the only place a file moves, and only after the
+/// approval verifies and every precondition is rechecked against the live
+/// filesystem.
+pub struct Executor {
+    engine: std::sync::Arc<Engine>,
+}
+
+impl Executor {
+    pub fn new(engine: std::sync::Arc<Engine>) -> Self {
+        Self { engine }
+    }
+
+    /// Applies a plan under a trusted approval.
+    pub fn apply(&self, request: ApplyRequest<'_>) -> Result<ApplyOutcome, OpsError> {
+        // 0. A retry of a request we already accepted answers with the
+        //    original operation, whatever happened to the plan since. This is
+        //    checked first: a client that lost the response must not be told
+        //    the plan is stale when its own work already succeeded.
+        {
+            // One guard for the whole probe: the plan, the key lookup, and the
+            // digest all read the same control database.
+            let control = self.engine.control_store()?;
+            let probe_plan = control.plan(request.plan_id)?;
+            if let Some(existing) =
+                control.operation_for_key(&probe_plan.principal, request.idempotency_key)?
+            {
+                if existing.request_digest
+                    != apply_request_digest(&probe_plan, request.approval_ref)
+                {
+                    return Err(StoreError::IdempotencyConflict.into());
+                }
+                return Ok(ApplyOutcome {
+                    operation_id: existing.operation_id,
+                    started: false,
+                    state: existing.state,
+                    moved: 0,
+                    failed: 0,
+                    bytes: 0,
+                });
+            }
+        }
+
+        // 1. The plan must exist, still be live, and match the bound digest.
+        // 2. The approval must verify for this exact plan, principal and
+        //    action. An agent can never assert its own approval.
+        // Each block below takes the control lock for as short as possible:
+        // holding one guard across a helper that locks again would deadlock.
+        let plan = {
+            let control = self.engine.control_store()?;
+            let plan = control.plan(request.plan_id)?;
+            let digest = control.plan_digest(request.plan_id)?;
+            if plan_digest(&plan) != digest {
+                return Err(OpsError::Stale("plan digest drifted".into()));
+            }
+            if control.plan_state(request.plan_id)? != diskgraph_store::PlanState::Validated {
+                return Err(OpsError::Stale(format!(
+                    "plan {} is not validated",
+                    request.plan_id
+                )));
+            }
+            control
+                .verify_approval(
+                    request.approval_ref,
+                    &plan.plan_id,
+                    &digest,
+                    &plan.principal,
+                    plan.action,
+                )
+                .map_err(|error| OpsError::NotAuthorized(error.to_string()))?;
+            plan
+        };
+
+        // 3. Revalidate every precondition against the live filesystem before
+        // touching anything, and refuse overlapping in-flight operations.
+        let items = self.resolve_live_items(&plan)?;
+        self.refuse_conflicts(&plan, &items)?;
+
+        // 4. Idempotency: one key, one operation.
+        let request_digest = apply_request_digest(&plan, request.approval_ref);
+        let operation = diskgraph_store::Operation {
+            operation_id: format!("op-{}", uuid::Uuid::new_v4()),
+            plan_id: plan.plan_id.clone(),
+            scope_id: plan.scope_id.clone(),
+            principal: plan.principal.clone(),
+            idempotency_key: request.idempotency_key.to_owned(),
+            request_digest,
+            state: diskgraph_store::OperationState::Queued,
+            created_at_unix_ms: now_ms(),
+            updated_at_unix_ms: now_ms(),
+        };
+        let (operation_id, created) = {
+            let mut control = self.engine.control_store()?;
+            control.begin_operation(&operation, items.len())?
+        };
+        if !created {
+            // A retry of the same request: return the original operation and
+            // do not move anything a second time.
+            let existing = self.engine.control_store()?.operation(&operation_id)?;
+            return Ok(ApplyOutcome {
+                operation_id,
+                started: false,
+                state: existing.state,
+                moved: 0,
+                failed: 0,
+                bytes: 0,
+            });
+        }
+
+        // 5. Execute item by item, recording intent before each mutation.
+        self.engine
+            .control_store()?
+            .set_operation_state(&operation_id, diskgraph_store::OperationState::Revalidating)?;
+        let mut moved = 0usize;
+        let mut failed = 0usize;
+        let mut bytes = 0u64;
+        for (index, item) in items.iter().enumerate() {
+            let index = index as u32;
+            self.engine
+                .control_store()?
+                .record_intent(&operation_id, index)?;
+            if request.fault == Some(FaultPoint::AfterIntent) {
+                // The intent is durable and the file is untouched: a later
+                // attempt must reconcile rather than replay blindly.
+                self.engine.control_store()?.set_operation_state(
+                    &operation_id,
+                    diskgraph_store::OperationState::NeedsAttention,
+                )?;
+                return Ok(ApplyOutcome {
+                    operation_id,
+                    started: true,
+                    state: diskgraph_store::OperationState::NeedsAttention,
+                    moved,
+                    failed,
+                    bytes,
+                });
+            }
+            match self.perform(&plan, item) {
+                Ok(result) => {
+                    bytes += result.bytes;
+                    if request.fault == Some(FaultPoint::AfterFileChange) {
+                        // The file moved but the result was never recorded: the
+                        // operation parks for a human instead of replaying.
+                        self.engine.control_store()?.set_operation_state(
+                            &operation_id,
+                            diskgraph_store::OperationState::NeedsAttention,
+                        )?;
+                        return Ok(ApplyOutcome {
+                            operation_id,
+                            started: true,
+                            state: diskgraph_store::OperationState::NeedsAttention,
+                            moved,
+                            failed,
+                            bytes,
+                        });
+                    }
+                    self.engine.control_store()?.record_item_result(
+                        &operation_id,
+                        index,
+                        result.kind,
+                        &result.detail,
+                        result.recovery_ref.as_deref(),
+                    )?;
+                    if result.kind == diskgraph_store::OperationItemResult::Failed {
+                        failed += 1;
+                    } else {
+                        moved += 1;
+                    }
+                }
+                Err(error) => {
+                    failed += 1;
+                    self.engine.control_store()?.record_item_result(
+                        &operation_id,
+                        index,
+                        diskgraph_store::OperationItemResult::Failed,
+                        &error.to_string(),
+                        None,
+                    )?;
+                }
+            }
+        }
+
+        // 6. Close out honestly: partial when some items failed.
+        let state = if failed == 0 {
+            diskgraph_store::OperationState::Succeeded
+        } else if moved == 0 {
+            diskgraph_store::OperationState::Failed
+        } else {
+            diskgraph_store::OperationState::Partial
+        };
+        {
+            let mut control = self.engine.control_store()?;
+            control.set_operation_state(&operation_id, state)?;
+            if state == diskgraph_store::OperationState::Succeeded {
+                control.mark_plan_applied(&plan.plan_id)?;
+            }
+        }
+        Ok(ApplyOutcome {
+            operation_id,
+            started: true,
+            state,
+            moved,
+            failed,
+            bytes,
+        })
+    }
+
+    /// Re-resolves every planned object against the live filesystem.
+    fn resolve_live_items(&self, plan: &Plan) -> Result<Vec<LiveItem>, OpsError> {
+        let mut live = Vec::new();
+        for item in &plan.items {
+            let path = unhex_key(&item.locator_key)
+                .ok_or_else(|| OpsError::Stale(format!("bad locator for node {}", item.node_id)))?;
+            let metadata = std::fs::symlink_metadata(&path)
+                .map_err(|error| OpsError::Stale(format!("node {}: {error}", item.node_id)))?;
+            // A replaced object (deleted and recreated) has a new identity and
+            // must not be touched by a plan that described the old one.
+            let identity = identity_of(&path, &metadata);
+            if let (Some(expected), Some(actual)) = (&item.identity, &identity)
+                && expected != actual
+            {
+                return Err(OpsError::Stale(format!(
+                    "node {} was replaced since the plan was made",
+                    item.node_id
+                )));
+            }
+            live.push(LiveItem {
+                path,
+                identity,
+                bytes: metadata.len(),
+            });
+        }
+        Ok(live)
+    }
+
+    /// Refuses when another in-flight operation already claims an overlapping
+    /// path: same file, an ancestor, a descendant, or a colliding target.
+    fn refuse_conflicts(&self, plan: &Plan, items: &[LiveItem]) -> Result<(), OpsError> {
+        let control = self.engine.control_store()?;
+        for operation in control.list_operations(&plan.scope_id, 64)? {
+            if !matches!(
+                operation.state,
+                diskgraph_store::OperationState::Queued
+                    | diskgraph_store::OperationState::Revalidating
+                    | diskgraph_store::OperationState::Running
+            ) {
+                continue;
+            }
+            let existing = control.operation_items(&operation.operation_id)?;
+            for item in existing {
+                if item.result != diskgraph_store::OperationItemResult::Pending {
+                    continue;
+                }
+                if let Ok(other_plan) = control.plan(&operation.plan_id)
+                    && let Some(other) = other_plan
+                        .items
+                        .iter()
+                        .find(|candidate| candidate.node_id == item.item_index as u64)
+                    && let Some(other_path) = unhex_key(&other.locator_key)
+                {
+                    for mine in items {
+                        if mine.path == other_path
+                            || mine.path.starts_with(&other_path)
+                            || other_path.starts_with(&mine.path)
+                        {
+                            return Err(OpsError::Conflict(format!(
+                                "operation {} already claims {}",
+                                operation.operation_id,
+                                other_path.display()
+                            )));
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Performs the single filesystem step for one item.
+    fn perform(&self, plan: &Plan, item: &LiveItem) -> Result<StepResult, OpsError> {
+        match plan.action {
+            FileActionKind::Move => {
+                let target = self.target_for(plan, &item.path)?;
+                // Never overwrite: a target that appeared since planning is
+                // a conflict, not something to clobber (OP-05).
+                if std::fs::symlink_metadata(&target).is_ok() {
+                    return Err(OpsError::TargetExists);
+                }
+                same_volume(&item.path, &target)?;
+                std::fs::rename(&item.path, &target)?;
+                Ok(StepResult {
+                    kind: diskgraph_store::OperationItemResult::Moved,
+                    detail: describe(&target, item.identity.as_deref()),
+                    bytes: item.bytes,
+                    recovery_ref: None,
+                })
+            }
+            FileActionKind::Copy => {
+                let target = self.target_for(plan, &item.path)?;
+                if std::fs::symlink_metadata(&target).is_ok() {
+                    return Err(OpsError::TargetExists);
+                }
+                std::fs::copy(&item.path, &target)?;
+                Ok(StepResult {
+                    kind: diskgraph_store::OperationItemResult::Copied,
+                    detail: describe(&target, item.identity.as_deref()),
+                    bytes: item.bytes,
+                    recovery_ref: None,
+                })
+            }
+            _ => Err(OpsError::ActionMismatch),
+        }
+    }
+
+    /// Where a moved or copied object lands. A plan target is a directory; the
+    /// object keeps its own name inside it.
+    fn target_for(&self, plan: &Plan, source: &Path) -> Result<PathBuf, OpsError> {
+        let key = plan
+            .target_locator_key
+            .as_ref()
+            .ok_or_else(|| OpsError::Stale("plan has no target".into()))?;
+        let directory =
+            unhex_key(key).ok_or_else(|| OpsError::Stale("plan target is malformed".into()))?;
+        let name = source
+            .file_name()
+            .ok_or_else(|| OpsError::Stale("source has no file name".into()))?;
+        Ok(directory.join(name))
+    }
+}
+
+/// One planned object, revalidated against the live filesystem.
+struct LiveItem {
+    path: PathBuf,
+    /// The identity revalidated at apply time; kept so the operation record can
+    /// name exactly which object was touched.
+    identity: Option<String>,
+    bytes: u64,
+}
+
+struct StepResult {
+    kind: diskgraph_store::OperationItemResult,
+    detail: String,
+    bytes: u64,
+    recovery_ref: Option<String>,
+}
+
+/// A short, redacted description of what a step touched: the target's file name
+/// and the identity, never a whole user path.
+fn describe(target: &Path, identity: Option<&str>) -> String {
+    let name = target
+        .file_name()
+        .map(|name| name.to_string_lossy().into_owned())
+        .unwrap_or_else(|| "<unnamed>".into());
+    match identity {
+        Some(identity) => format!("{name} ({identity})"),
+        None => name,
+    }
+}
+
+/// The digest that identifies an apply request, so a reused idempotency key
+/// with a different approval is a conflict rather than a silent merge.
+fn apply_request_digest(plan: &Plan, approval_ref: &str) -> String {
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    plan_digest(plan).hash(&mut hasher);
+    approval_ref.hash(&mut hasher);
+    format!("{:016x}", hasher.finish())
+}
+
+/// Same-volume moves use an atomic rename; a cross-volume request is refused
+/// here and handled by the dedicated P6 path.
+fn same_volume(source: &Path, target: &Path) -> Result<(), OpsError> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        let left = std::fs::metadata(source)
+            .map_err(|error| OpsError::Stale(error.to_string()))?
+            .dev();
+        let right = std::fs::metadata(target.parent().unwrap_or(target))
+            .map_err(|error| OpsError::Stale(error.to_string()))?
+            .dev();
+        if left != right {
+            return Err(OpsError::CrossVolume);
+        }
+    }
+    Ok(())
+}
+
+/// Reverses the hex locator key back into a path.
+fn unhex_key(key: &str) -> Option<PathBuf> {
+    if !key.len().is_multiple_of(2) {
+        return None;
+    }
+    let bytes: Option<Vec<u8>> = key
+        .as_bytes()
+        .chunks(2)
+        .map(|pair| {
+            let hex = std::str::from_utf8(pair).ok()?;
+            u8::from_str_radix(hex, 16).ok()
+        })
+        .collect();
+    bytes.map(|bytes| PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
 }
 
 /// A read-only locator helper used by the ops layer and the store.

@@ -1,6 +1,7 @@
 use super::*;
+use diskgraph_core::PrincipalId;
 use diskgraph_engine::EngineConfig;
-use diskgraph_store::PlanState;
+use diskgraph_store::{PlanState, StoreError};
 use tempfile::TempDir;
 
 /// A project on disk plus a published engine, the precondition every plan test
@@ -9,6 +10,8 @@ struct Project {
     _workspace: TempDir,
     engine: std::sync::Arc<Engine>,
     root: PathBuf,
+    /// Set once a scope has been registered and indexed.
+    indexed: Option<(ScopeId, diskgraph_core::PrincipalId)>,
 }
 
 fn project(label: &str) -> Project {
@@ -34,6 +37,7 @@ fn project(label: &str) -> Project {
         _workspace: workspace,
         engine,
         root,
+        indexed: None,
     }
 }
 
@@ -387,4 +391,317 @@ fn a_plan_show_and_validate_surface_the_exact_object_set() {
         control.plan_state(&plan.plan_id).unwrap(),
         PlanState::Applied
     );
+}
+
+// ---------------------------------------------------------------- execution ---
+
+/// A move plan over `app.bin` into an `archive/` directory, approved and ready.
+fn ready_move(project: &mut Project, label: &str) -> (Plan, String, Executor) {
+    let (scope, principal) = indexed_once(project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let archive = project.root.join("archive");
+    std::fs::create_dir_all(&archive).unwrap();
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_move_plan(
+            &scope,
+            &principal,
+            &[app],
+            &archive,
+            1 << 20,
+            FileActionKind::Move,
+        )
+        .unwrap();
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    let _ = label;
+    (
+        plan,
+        approval_ref,
+        Executor::new(std::sync::Arc::clone(&project.engine)),
+    )
+}
+
+/// Indexes once; later helpers reuse the same revision.
+fn indexed_once(project: &mut Project) -> (ScopeId, PrincipalId) {
+    match project.indexed {
+        Some(ref pair) => pair.clone(),
+        None => {
+            let pair = indexed(project);
+            project.indexed = Some(pair.clone());
+            pair
+        }
+    }
+}
+
+#[test]
+fn applying_a_move_moves_the_file_once_and_records_it() {
+    let mut project = project("apply-move");
+    let (plan, approval, executor) = ready_move(&mut project, "move");
+    let source = project.root.join("target/app.bin");
+    let target = project.root.join("archive/app.bin");
+    assert!(source.exists());
+
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k-1",
+            fault: None,
+        })
+        .unwrap();
+    assert!(outcome.started);
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert_eq!(outcome.moved, 1);
+    assert_eq!(outcome.bytes, 4096);
+    assert!(!source.exists(), "the source is gone after a move");
+    assert!(target.exists(), "the target carries the same bytes");
+    assert_eq!(std::fs::metadata(&target).unwrap().len(), 4096);
+
+    // The durable record says the same thing.
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    assert_eq!(
+        items[0].intent,
+        diskgraph_store::IntentState::IntentRecorded
+    );
+    assert_eq!(items[0].result, diskgraph_store::OperationItemResult::Moved);
+}
+
+#[test]
+fn a_retried_key_returns_the_original_operation_without_moving_twice() {
+    let mut project = project("idempotent");
+    let (plan, approval, executor) = ready_move(&mut project, "idem");
+    let first = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "same-key",
+            fault: None,
+        })
+        .unwrap();
+    // A client that lost the response retries: the original operation comes
+    // back, and nothing is moved a second time.
+    let second = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "same-key",
+            fault: None,
+        })
+        .unwrap();
+    assert!(!second.started);
+    assert_eq!(first.operation_id, second.operation_id);
+    assert_eq!(second.moved, 0);
+    assert!(project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn a_reused_key_with_a_different_approval_is_refused() {
+    let mut project = project("key-conflict");
+    let (plan, approval, executor) = ready_move(&mut project, "conflict");
+    executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        })
+        .unwrap();
+    // A second approval for the same plan, applied under the same key, is a
+    // different request and must not merge into the finished operation.
+    let other_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console-2", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &other_ref,
+            idempotency_key: "k",
+            fault: None,
+        }),
+        Err(OpsError::Store(StoreError::IdempotencyConflict))
+    ));
+}
+
+#[test]
+fn apply_without_a_valid_approval_moves_nothing() {
+    let mut project = project("no-approval");
+    let (plan, _approval, executor) = ready_move(&mut project, "no-approval");
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: "ap-does-not-exist",
+            idempotency_key: "k",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(
+        project.root.join("target/app.bin").exists(),
+        "the file is untouched"
+    );
+    assert!(!project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn an_object_replaced_after_planning_is_refused() {
+    let mut project = project("replaced");
+    let (plan, approval, executor) = ready_move(&mut project, "replaced");
+    // Replace the object after the plan was approved: same path, new identity.
+    let source = project.root.join("target/app.bin");
+    std::fs::remove_file(&source).unwrap();
+    std::fs::write(&source, vec![7; 4096]).unwrap();
+
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        }),
+        Err(OpsError::Stale(_))
+    ));
+    // Nothing moved: the stale object stays where the user put it.
+    assert!(source.exists());
+    assert!(!project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn an_occupied_target_is_never_overwritten() {
+    let mut project = project("occupied");
+    let (plan, approval, executor) = ready_move(&mut project, "occupied");
+    // A file appears at the target after planning.
+    let target = project.root.join("archive/app.bin");
+    std::fs::write(&target, b"someone else's data").unwrap();
+
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        })
+        .unwrap();
+    // The operation is not a success, and the existing file is intact.
+    assert_ne!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert_eq!(std::fs::read(&target).unwrap(), b"someone else's data");
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn a_crash_after_intent_leaves_the_operation_needing_attention() {
+    let mut project = project("crash-intent");
+    let (plan, approval, executor) = ready_move(&mut project, "crash");
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: Some(FaultPoint::AfterIntent),
+        })
+        .unwrap();
+    assert_eq!(
+        outcome.state,
+        diskgraph_store::OperationState::NeedsAttention
+    );
+    assert_eq!(outcome.moved, 0);
+    // The file is still exactly where it was: an intent is not a mutation.
+    assert!(project.root.join("target/app.bin").exists());
+    assert!(!project.root.join("archive/app.bin").exists());
+
+    // The intent is durable, so a reviewer can see what was about to happen.
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    assert_eq!(
+        items[0].intent,
+        diskgraph_store::IntentState::IntentRecorded
+    );
+    assert_eq!(
+        items[0].result,
+        diskgraph_store::OperationItemResult::Pending
+    );
+}
+
+#[test]
+fn a_crash_after_the_file_moved_is_never_replayed_blindly() {
+    let mut project = project("crash-moved");
+    let (plan, approval, executor) = ready_move(&mut project, "crash-moved");
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: Some(FaultPoint::AfterFileChange),
+        })
+        .unwrap();
+    assert_eq!(
+        outcome.state,
+        diskgraph_store::OperationState::NeedsAttention
+    );
+    // The file did move, but no result was recorded: the operation is parked
+    // for a human rather than retried.
+    assert!(project.root.join("archive/app.bin").exists());
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    assert_eq!(
+        items[0].result,
+        diskgraph_store::OperationItemResult::Pending
+    );
+}
+
+#[test]
+fn a_revoked_approval_blocks_execution() {
+    let mut project = project("revoked-approval");
+    let (plan, approval, executor) = ready_move(&mut project, "revoked");
+    {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer.revoke(&approval).unwrap();
+    }
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn a_plan_cannot_be_applied_twice() {
+    let mut project = project("double-apply");
+    let (plan, approval, executor) = ready_move(&mut project, "double");
+    executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "first",
+            fault: None,
+        })
+        .unwrap();
+    // A fresh key cannot re-consume a plan that was already applied.
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "second",
+            fault: None,
+        }),
+        Err(OpsError::Stale(_))
+    ));
 }
