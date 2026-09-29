@@ -1690,3 +1690,338 @@ fn an_empty_object_batch_moves_nothing_and_says_so() {
     assert!(archive.join("empty.log").exists());
     assert!(!empty.exists());
 }
+
+// ------------------------------------------------- P6: cross-volume and purge ---
+
+#[test]
+fn a_cross_volume_copy_stages_verifies_then_publishes() {
+    let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-").unwrap();
+    let source = workspace.path().join("source.bin");
+    std::fs::write(&source, vec![7_u8; 4096]).unwrap();
+    let target = workspace.path().join("elsewhere").join("source.bin");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    let identity = identity_of(&source, &std::fs::symlink_metadata(&source).unwrap());
+
+    let transfer = CrossVolumeCopy::open(&target, "copy").unwrap();
+    let staged = transfer.staged_path().to_path_buf();
+    assert_eq!(transfer.stage_and_verify(&source, &identity).unwrap(), 4096);
+    // Before the publish step the destination does not exist, only staging.
+    assert!(!target.exists());
+    assert!(staged.exists());
+    transfer.publish().unwrap();
+    assert!(target.exists(), "the verified copy is published");
+    assert_eq!(std::fs::metadata(&target).unwrap().len(), 4096);
+    assert!(
+        !staged.exists() && transfer.staging_dir_absent(),
+        "the staging area is cleaned up after publishing"
+    );
+}
+
+#[test]
+fn a_source_that_changes_during_a_cross_volume_copy_invalidates_the_transfer() {
+    let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-race-").unwrap();
+    let source = workspace.path().join("source.bin");
+    std::fs::write(&source, vec![7_u8; 4096]).unwrap();
+    let target = workspace.path().join("elsewhere").join("source.bin");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    let identity = identity_of(&source, &std::fs::symlink_metadata(&source).unwrap());
+
+    let transfer = CrossVolumeCopy::open(&target, "copy").unwrap();
+    transfer.stage_and_verify(&source, &identity).unwrap();
+    // The source is deleted and recreated after staging: the copy describes a
+    // different object, and the identity check must refuse to publish it as
+    // if it were the planned one (OP-05).
+    std::fs::remove_file(&source).unwrap();
+    std::fs::write(&source, vec![9_u8; 4096]).unwrap();
+    assert!(matches!(
+        transfer.stage_and_verify(&source, &identity),
+        Err(OpsError::Stale(message)) if message.contains("changed")
+    ));
+    transfer.discard();
+    assert!(!target.exists(), "a stale copy is never published");
+    assert!(
+        transfer.staging_dir_absent(),
+        "the failed transfer leaves no staged bytes behind"
+    );
+}
+
+#[test]
+fn a_failed_cross_volume_copy_leaves_the_destination_untouched() {
+    let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-fail-").unwrap();
+    // A directory as the "source" makes the copy itself fail, which is the
+    // same surface an out-of-space failure hits: an io error mid-transfer.
+    let source = workspace.path().join("not-a-file");
+    std::fs::create_dir_all(&source).unwrap();
+    let target = workspace.path().join("elsewhere").join("not-a-file");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    let identity = None;
+
+    let transfer = CrossVolumeCopy::open(&target, "copy").unwrap();
+    assert!(transfer.stage_and_verify(&source, &identity).is_err());
+    transfer.discard();
+    assert!(!target.exists());
+    assert!(transfer.staging_dir_absent());
+}
+
+#[test]
+fn a_cross_volume_move_publishes_before_the_source_is_removed() {
+    let mut project = project("xmove");
+    let (scope, _principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let source = project.root.join("target/app.bin");
+    let target = project.root.join("elsewhere/app.bin");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    // The live item revalidation normally runs in resolve_live_items; the
+    // drill drives the move step directly against the same record shape.
+    let metadata = std::fs::symlink_metadata(&source).unwrap();
+    let item = LiveItem {
+        path: source.clone(),
+        identity: identity_of(&source, &metadata),
+        recovery_ref: None,
+        bytes: metadata.len(),
+    };
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let _ = (scope, app);
+
+    executor.cross_volume_move(&item, &target, None).unwrap();
+    assert!(target.exists(), "the verified copy carries the bytes");
+    assert_eq!(std::fs::metadata(&target).unwrap().len(), 4096);
+    assert!(!source.exists(), "only a published copy retires the source");
+}
+
+#[test]
+fn a_cross_volume_move_parked_at_the_source_seam_keeps_both_sides() {
+    let mut project = project("xmove-park");
+    let (_scope, _principal) = indexed_once(&mut project);
+    let source = project.root.join("target/app.bin");
+    let target = project.root.join("elsewhere/app.bin");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    let metadata = std::fs::symlink_metadata(&source).unwrap();
+    let item = LiveItem {
+        path: source.clone(),
+        identity: identity_of(&source, &metadata),
+        recovery_ref: None,
+        bytes: metadata.len(),
+    };
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+
+    // The drill interrupts exactly between "copy published" and "source
+    // removed": both sides survive and the caller is told to reconcile.
+    assert!(matches!(
+        executor.cross_volume_move(
+            &item,
+            &target,
+            Some(FaultPoint::AfterCopyBeforeSourceRemoval)
+        ),
+        Err(OpsError::ParkNeedsAttention(_))
+    ));
+    assert!(target.exists(), "the published copy stays");
+    assert!(
+        source.exists(),
+        "the source is never removed by a parked run"
+    );
+    assert!(
+        executor_staging_is_clean(&target),
+        "no staging bytes are left behind"
+    );
+}
+
+/// True when no `.dg-*-staging-*` directory sits next to `target`.
+fn executor_staging_is_clean(target: &Path) -> bool {
+    std::fs::read_dir(target.parent().unwrap())
+        .unwrap()
+        .filter_map(Result::ok)
+        .all(|entry| !entry.file_name().to_string_lossy().contains("staging"))
+}
+
+#[test]
+fn purge_requires_a_configured_authority() {
+    let mut project = project("purge-default");
+    let (scope, principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_purge_plan(&scope, &principal, &[app], 1 << 20)
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    // No authority configured: purge is disabled outright, whoever approves.
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "purge-1",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(message)) if message.contains("no purge authority")
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn only_the_configured_authority_may_approve_a_purge() {
+    let mut project = project("purge-authority");
+    let (scope, principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_purge_plan(&scope, &principal, &[app], 1 << 20)
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine))
+        .with_purge_authority("human-review-console");
+    let issue = |by: &str| {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer.issue(&plan, by, 60_000).unwrap().approval_ref
+    };
+    // The ordinary operation surface approves: refused, even though the plan
+    // and digest are identical.
+    let agent_approval = issue("admin-console");
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &agent_approval,
+            idempotency_key: "purge-wrong",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(message)) if message.contains("purge authority")
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+    // The configured authority approves: the object is removed for good and
+    // the record says "purged", not "quarantined".
+    let trusted_approval = issue("human-review-console");
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &trusted_approval,
+            idempotency_key: "purge-right",
+            fault: None,
+        })
+        .unwrap();
+    assert_eq!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert!(!project.root.join("target/app.bin").exists());
+    let control = project.engine.control_store().unwrap();
+    let items = control.operation_items(&outcome.operation_id).unwrap();
+    assert_eq!(
+        items[0].result,
+        diskgraph_store::OperationItemResult::Purged
+    );
+}
+
+#[test]
+fn restoring_after_a_purge_reports_irrecoverable() {
+    let mut project = project("purge-restore");
+    let (scope, principal) = indexed_once(&mut project);
+    let _ = scope;
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    // A purged object has no recovery record; a restore attempt must hear
+    // "irrecoverable", never receive a plan that pretends otherwise (OP-07).
+    assert!(matches!(
+        builder.build_restore_plan(&scope, &principal, "rec-never-existed", None),
+        Err(OpsError::Irrecoverable(message)) if message.contains("cannot be restored")
+    ));
+}
+
+#[test]
+fn a_purge_refuses_a_swapped_object_and_never_touches_the_imposter() {
+    let mut project = project("purge-swap");
+    let (scope, principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_purge_plan(&scope, &principal, &[app], 1 << 20)
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine))
+        .with_purge_authority("human-review-console");
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "human-review-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    // The planned object is replaced by a different file at the same path
+    // after planning: the identity check stops the purge before any byte is
+    // removed, and the imposter survives (OP-04).
+    let outside = tempfile::TempDir::with_prefix("diskgraph-ops-imposter-").unwrap();
+    let imposter = outside.path().join("innocent.bin");
+    std::fs::write(&imposter, b"precious").unwrap();
+    std::fs::remove_file(project.root.join("target/app.bin")).unwrap();
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(&imposter, project.root.join("target/app.bin")).unwrap();
+    #[cfg(not(unix))]
+    std::fs::copy(&imposter, project.root.join("target/app.bin")).unwrap();
+
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "purge-swap",
+            fault: None,
+        }),
+        Err(OpsError::Stale(message)) if message.contains("replaced")
+    ));
+    assert_eq!(
+        std::fs::read(&imposter).unwrap(),
+        b"precious",
+        "the imposter's target was never touched"
+    );
+}
+
+#[test]
+fn a_parked_purge_retry_returns_the_same_operation_without_replaying() {
+    let mut project = project("purge-park");
+    let (scope, principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_purge_plan(&scope, &principal, &[app], 1 << 20)
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine))
+        .with_purge_authority("human-review-console");
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "human-review-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    // Crash after the intent is durable, before the file is removed: the
+    // object survives and the operation parks (OP-08).
+    let parked = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "purge-crash",
+            fault: Some(FaultPoint::AfterIntent),
+        })
+        .unwrap();
+    assert_eq!(
+        parked.state,
+        diskgraph_store::OperationState::NeedsAttention
+    );
+    assert!(project.root.join("target/app.bin").exists());
+    // The client retries with the same key: the parked operation comes back
+    // unchanged, and nothing is deleted by the retry itself.
+    let retried = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "purge-crash",
+            fault: None,
+        })
+        .unwrap();
+    assert!(!retried.started);
+    assert_eq!(retried.operation_id, parked.operation_id);
+    assert_eq!(retried.state, parked.state);
+    assert!(project.root.join("target/app.bin").exists());
+}

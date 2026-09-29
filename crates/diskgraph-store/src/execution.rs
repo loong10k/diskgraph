@@ -231,6 +231,8 @@ pub enum OperationItemResult {
     Copied,
     Quarantined,
     Restored,
+    /// Permanently removed under an independent purge authority (OP-07).
+    Purged,
     Skipped,
     Failed,
 }
@@ -246,6 +248,7 @@ impl OperationItemResult {
             Self::Copied => "copied",
             Self::Quarantined => "quarantined",
             Self::Restored => "restored",
+            Self::Purged => "purged",
             Self::Skipped => "skipped",
             Self::Failed => "failed",
         }
@@ -258,6 +261,7 @@ impl OperationItemResult {
             "copied" => Self::Copied,
             "quarantined" => Self::Quarantined,
             "restored" => Self::Restored,
+            "purged" => Self::Purged,
             "skipped" => Self::Skipped,
             "failed" => Self::Failed,
             _ => return None,
@@ -467,11 +471,11 @@ impl crate::ControlStore {
         wanted_principal: &PrincipalId,
         wanted_action: FileActionKind,
     ) -> Result<Approval> {
-        let row: Option<(String, String, String, String, i64, i64, i64)> =
-            self.with_connection(|connection| {
+        type ApprovalRow = (String, String, String, String, String, i64, i64, i64);
+        let row: Option<ApprovalRow> = self.with_connection(|connection| {
                 connection
                     .query_row(
-                        "SELECT plan_id, plan_digest, principal, action, issued_at_unix_ms, expires_at_unix_ms, revoked
+                        "SELECT plan_id, plan_digest, principal, action, issued_by, issued_at_unix_ms, expires_at_unix_ms, revoked
                          FROM approvals WHERE approval_ref = ?1",
                         [approval_ref],
                         |row| {
@@ -483,13 +487,14 @@ impl crate::ControlStore {
                                 row.get(4)?,
                                 row.get(5)?,
                                 row.get(6)?,
+                                row.get(7)?,
                             ))
                         },
                     )
                     .optional()
                     .map_err(StoreError::from)
             })?;
-        let (plan_id, plan_digest, principal, action, issued_at, expires_at, revoked) =
+        let (plan_id, plan_digest, principal, action, issued_by, issued_at, expires_at, revoked) =
             row.ok_or_else(|| StoreError::ApprovalRequired("unknown approval".into()))?;
         if revoked != 0 {
             return Err(StoreError::ApprovalRequired("approval revoked".into()));
@@ -521,7 +526,7 @@ impl crate::ControlStore {
             principal: PrincipalId::new(principal)
                 .map_err(|error| StoreError::InvalidGraph(error.to_string()))?,
             action,
-            issued_by: String::new(),
+            issued_by,
             issued_at_unix_ms: issued_at.max(0) as u64,
             expires_at_unix_ms: expires_at.max(0) as u64,
             revoked: false,

@@ -52,6 +52,13 @@ pub enum OpsError {
     TargetExists,
     #[error("a same-volume move is not possible across devices")]
     CrossVolume,
+    #[error("irrecoverable: {0}")]
+    Irrecoverable(String),
+    /// Internal: a drill fault parked the operation for reconciliation. The
+    /// apply loop turns this into a NeedsAttention state; production code
+    /// never returns it.
+    #[error("parked for attention: {0}")]
+    ParkNeedsAttention(String),
     #[error(transparent)]
     Store(#[from] StoreError),
     #[error(transparent)]
@@ -139,6 +146,27 @@ impl PlanBuilder {
         Ok(plan)
     }
 
+    /// Resolves a purge plan over exact objects. A purge is planned like any
+    /// other action, but applying it requires an approval issued by the
+    /// configured purge authority, and no recovery record is written (OP-07).
+    pub fn build_purge_plan(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        node_ids: &[u64],
+        max_bytes: u64,
+    ) -> Result<Plan, OpsError> {
+        self.build(PlanRequest {
+            scope_id,
+            principal,
+            action: FileActionKind::Purge,
+            node_ids,
+            target: None,
+            max_bytes,
+            recovery: RecoveryRule::NoneNeeded,
+        })
+    }
+
     /// Derives a fresh plan that puts a quarantined object back. The original
     /// location is the default; `target` names another authorized destination.
     /// Planning never modifies the recovery record itself.
@@ -151,7 +179,18 @@ impl PlanBuilder {
     ) -> Result<Plan, OpsError> {
         let entry = {
             let control = self.engine.control_store()?;
-            control.recovery(recovery_ref)?
+            // An object with no recovery record — above all a purged one — is
+            // gone for good; the caller hears that, never a fabricated plan
+            // that pretends a restore is possible (OP-07).
+            match control.recovery(recovery_ref) {
+                Ok(entry) => entry,
+                Err(StoreError::RecoveryNotFound(_)) => {
+                    return Err(OpsError::Irrecoverable(
+                        "no recovery record exists; a purged object cannot be restored".into(),
+                    ));
+                }
+                Err(error) => return Err(error.into()),
+            }
         };
         if entry.scope_id != *scope_id {
             return Err(OpsError::NotAuthorized(
@@ -442,6 +481,10 @@ pub enum FaultPoint {
     AfterIntent,
     /// After the file changed, before the result is recorded.
     AfterFileChange,
+    /// A cross-volume move published the verified copy but has not yet removed
+    /// the source. Drilling this exact seam proves the contract that the copy
+    /// may be trusted and the source kept, never the other way round (OP-05).
+    AfterCopyBeforeSourceRemoval,
 }
 
 /// The request that applies a plan.
@@ -471,11 +514,25 @@ pub struct ApplyOutcome {
 /// filesystem.
 pub struct Executor {
     engine: std::sync::Arc<Engine>,
+    /// The trusted surface whose approvals may authorize a purge. `None`
+    /// (the default) means purge is disabled outright: nothing in this build
+    /// can be removed permanently until an operator names the authority (OP-07).
+    purge_authority: Option<String>,
 }
 
 impl Executor {
     pub fn new(engine: std::sync::Arc<Engine>) -> Self {
-        Self { engine }
+        Self {
+            engine,
+            purge_authority: None,
+        }
+    }
+
+    /// Names the only approval issuer whose approvals may authorize purge.
+    /// Any other issuer's approval for a purge plan is refused at apply time.
+    pub fn with_purge_authority(mut self, authority: &str) -> Self {
+        self.purge_authority = Some(authority.to_owned());
+        self
     }
 
     /// Applies a plan under a trusted approval.
@@ -526,7 +583,10 @@ impl Executor {
                     request.plan_id
                 )));
             }
-            control
+            // The verified approval record is kept so a purge can prove its
+            // approval came from the configured authority, never from the
+            // agent or an ordinary operation surface (OP-07).
+            let approval = control
                 .verify_approval(
                     request.approval_ref,
                     &plan.plan_id,
@@ -535,6 +595,18 @@ impl Executor {
                     plan.action,
                 )
                 .map_err(|error| OpsError::NotAuthorized(error.to_string()))?;
+            if plan.action == FileActionKind::Purge {
+                let authority = self.purge_authority.as_deref().ok_or_else(|| {
+                    OpsError::NotAuthorized(
+                        "purge is irreversible and no purge authority is configured".into(),
+                    )
+                })?;
+                if approval.issued_by != authority {
+                    return Err(OpsError::NotAuthorized(
+                        "a purge may only be approved by the configured purge authority".into(),
+                    ));
+                }
+            }
             plan
         };
 
@@ -602,7 +674,7 @@ impl Executor {
                     bytes,
                 });
             }
-            match self.perform(&plan, item) {
+            match self.perform(&plan, item, request.fault) {
                 Ok(result) => {
                     bytes += result.bytes;
                     if request.fault == Some(FaultPoint::AfterFileChange) {
@@ -633,6 +705,30 @@ impl Executor {
                     } else {
                         moved += 1;
                     }
+                }
+                Err(OpsError::ParkNeedsAttention(detail)) => {
+                    // The step got part-way (for example a cross-volume move
+                    // published its verified copy): park for reconciliation
+                    // instead of replaying an irreversible remainder (OP-08).
+                    self.engine.control_store()?.set_operation_state(
+                        &operation_id,
+                        diskgraph_store::OperationState::NeedsAttention,
+                    )?;
+                    self.engine.control_store()?.record_item_result(
+                        &operation_id,
+                        index,
+                        diskgraph_store::OperationItemResult::Pending,
+                        &format!("parked mid-step: {detail}"),
+                        None,
+                    )?;
+                    return Ok(ApplyOutcome {
+                        operation_id,
+                        started: true,
+                        state: diskgraph_store::OperationState::NeedsAttention,
+                        moved,
+                        failed,
+                        bytes,
+                    });
                 }
                 Err(error) => {
                     failed += 1;
@@ -744,8 +840,14 @@ impl Executor {
         Ok(())
     }
 
-    /// Performs the single filesystem step for one item.
-    fn perform(&self, plan: &Plan, item: &LiveItem) -> Result<StepResult, OpsError> {
+    /// Performs the single filesystem step for one item. `fault` is a drill
+    /// seam; production passes `None`.
+    fn perform(
+        &self,
+        plan: &Plan,
+        item: &LiveItem,
+        fault: Option<FaultPoint>,
+    ) -> Result<StepResult, OpsError> {
         match plan.action {
             FileActionKind::Move => {
                 let target = self.target_for(plan, &item.path)?;
@@ -760,21 +862,46 @@ impl Executor {
                 if std::fs::symlink_metadata(&target).is_ok() {
                     return Err(OpsError::TargetExists);
                 }
-                same_volume(&item.path, &target)?;
-                std::fs::rename(&item.path, &target)?;
-                Ok(StepResult {
-                    kind: diskgraph_store::OperationItemResult::Moved,
-                    detail: describe(&target, item.identity.as_deref()),
-                    bytes: item.bytes,
-                    recovery_ref: None,
-                })
+                if are_same_volume(&item.path, &target)? {
+                    std::fs::rename(&item.path, &target)?;
+                    return Ok(StepResult {
+                        kind: diskgraph_store::OperationItemResult::Moved,
+                        detail: describe(&target, item.identity.as_deref()),
+                        bytes: item.bytes,
+                        recovery_ref: None,
+                    });
+                }
+                // Cross volume (OP-05, OP-09): stage, verify, publish, and only
+                // then remove the source. No cross-volume atomicity is claimed;
+                // the operation record names exactly which step finished.
+                self.cross_volume_move(item, &target, fault)
             }
             FileActionKind::Copy => {
                 let target = self.target_for(plan, &item.path)?;
                 if std::fs::symlink_metadata(&target).is_ok() {
                     return Err(OpsError::TargetExists);
                 }
-                std::fs::copy(&item.path, &target)?;
+                if are_same_volume(&item.path, &target)? {
+                    std::fs::copy(&item.path, &target)?;
+                    return Ok(StepResult {
+                        kind: diskgraph_store::OperationItemResult::Copied,
+                        detail: describe(&target, item.identity.as_deref()),
+                        bytes: item.bytes,
+                        recovery_ref: None,
+                    });
+                }
+                // Cross volume (OP-05): stage on the target's volume, verify
+                // the byte count and the source's stability, then publish with
+                // a same-volume rename. A half-written file never appears at
+                // the destination.
+                let transfer = CrossVolumeCopy::open(&target, "copy")?;
+                let transferred = transfer
+                    .stage_and_verify(&item.path, &item.identity)
+                    .and_then(|copied| transfer.publish().map(|()| copied));
+                if let Err(error) = transferred {
+                    transfer.discard();
+                    return Err(error);
+                }
                 Ok(StepResult {
                     kind: diskgraph_store::OperationItemResult::Copied,
                     detail: describe(&target, item.identity.as_deref()),
@@ -795,7 +922,11 @@ impl Executor {
                     .ok_or_else(|| OpsError::Stale("object has no name".into()))?;
                 let held = quarantine.join(&recovery_ref).join(name);
                 std::fs::create_dir_all(held.parent().unwrap())?;
-                same_volume(&item.path, &held)?;
+                if !are_same_volume(&item.path, &held)? {
+                    // Quarantine is same-volume by design: a cross-volume
+                    // holding area would not preserve recoverability (OP-06).
+                    return Err(OpsError::CrossVolume);
+                }
                 std::fs::rename(&item.path, &held)?;
                 let entry = diskgraph_store::RecoveryEntry {
                     recovery_ref: recovery_ref.clone(),
@@ -875,10 +1006,58 @@ impl Executor {
                     recovery_ref: None,
                 })
             }
-            FileActionKind::Purge => Err(OpsError::NotAuthorized(
-                "purge is irreversible and not enabled in this build".into(),
-            )),
+            FileActionKind::Purge => {
+                // The identity already matched in resolve_live_items; the
+                // component-wise check here closes the remaining race where a
+                // planned path was relinked or re-rooted before execution
+                // (OP-04). Purge is irreversible: there is no recovery record,
+                // and the result says so plainly (OP-07).
+                revalidate_below(&self.scope_root(plan)?, &item.path, Side::Source)
+                    .map_err(|fault| OpsError::Stale(format!("purge: {fault}")))?;
+                remove_source(&item.path)?;
+                Ok(StepResult {
+                    kind: diskgraph_store::OperationItemResult::Purged,
+                    detail: describe(&item.path, item.identity.as_deref()),
+                    bytes: item.bytes,
+                    recovery_ref: None,
+                })
+            }
         }
+    }
+
+    /// Completes a cross-volume move. When this runs the verified copy is not
+    /// yet published; the sequence is stage → verify → publish → remove the
+    /// source, and the drill fault parks between publish and removal so a
+    /// crash at that seam is observable and retry returns the parked
+    /// operation instead of replaying an irreversible step (OP-05, OP-08).
+    pub(crate) fn cross_volume_move(
+        &self,
+        item: &LiveItem,
+        target: &Path,
+        fault: Option<FaultPoint>,
+    ) -> Result<StepResult, OpsError> {
+        let transfer = CrossVolumeCopy::open(target, "move")?;
+        let transferred = transfer
+            .stage_and_verify(&item.path, &item.identity)
+            .and_then(|copied| transfer.publish().map(|()| copied));
+        if let Err(error) = transferred {
+            transfer.discard();
+            return Err(error);
+        }
+        if fault == Some(FaultPoint::AfterCopyBeforeSourceRemoval) {
+            // The copy is complete and verified; the source is untouched. A
+            // retry must reconcile this state with a human, not delete first.
+            return Err(OpsError::ParkNeedsAttention(
+                "the verified copy is published; the source removal did not run".into(),
+            ));
+        }
+        remove_source(&item.path)?;
+        Ok(StepResult {
+            kind: diskgraph_store::OperationItemResult::Moved,
+            detail: describe(target, item.identity.as_deref()),
+            bytes: item.bytes,
+            recovery_ref: None,
+        })
     }
 
     /// The registered root of the plan's scope; the trusted base for path
@@ -1270,9 +1449,9 @@ fn apply_request_digest(plan: &Plan, approval_ref: &str) -> String {
     format!("{:016x}", hasher.finish())
 }
 
-/// Same-volume moves use an atomic rename; a cross-volume request is refused
-/// here and handled by the dedicated P6 path.
-fn same_volume(source: &Path, target: &Path) -> Result<(), OpsError> {
+/// Same-volume operations use an atomic rename; the cross-volume paths are
+/// handled by the dedicated P6 staging flow.
+fn are_same_volume(source: &Path, target: &Path) -> Result<bool, OpsError> {
     #[cfg(unix)]
     {
         use std::os::unix::fs::MetadataExt;
@@ -1282,11 +1461,122 @@ fn same_volume(source: &Path, target: &Path) -> Result<(), OpsError> {
         let right = std::fs::metadata(target.parent().unwrap_or(target))
             .map_err(|error| OpsError::Stale(error.to_string()))?
             .dev();
-        if left != right {
-            return Err(OpsError::CrossVolume);
-        }
+        Ok(left == right)
+    }
+    #[cfg(not(unix))]
+    {
+        // Without device ids the platform cannot prove same-volume, so every
+        // transfer takes the staged path: correct, just slower.
+        let _ = (source, target);
+        Ok(false)
+    }
+}
+
+/// Removes a file, symlink, or directory tree for good. Callers have already
+/// proven the object's identity and its path boundary; nothing here re-checks
+/// them, so nothing here is reachable without a verified purge plan.
+fn remove_source(path: &Path) -> Result<(), OpsError> {
+    let metadata = std::fs::symlink_metadata(path)?;
+    if metadata.is_dir() && !metadata.file_type().is_symlink() {
+        std::fs::remove_dir_all(path)?;
+    } else {
+        std::fs::remove_file(path)?;
     }
     Ok(())
+}
+
+/// A staged cross-volume transfer (OP-05). The staged file lives on the
+/// target's own volume, so publishing is a same-volume rename: an interrupted
+/// transfer leaves a staging directory behind and the destination untouched.
+pub(crate) struct CrossVolumeCopy {
+    staging_dir: PathBuf,
+    staged: PathBuf,
+    target: PathBuf,
+}
+
+impl CrossVolumeCopy {
+    /// Opens a transfer that will publish `target` from a staging directory
+    /// next to it. The directory name is unique per transfer, so concurrent
+    /// transfers into one directory never remove each other's work.
+    pub(crate) fn open(target: &Path, purpose: &str) -> Result<Self, OpsError> {
+        let directory = target
+            .parent()
+            .ok_or_else(|| OpsError::Stale("target has no parent directory".into()))?;
+        let staging_dir = directory.join(format!(
+            ".dg-{purpose}-staging-{}",
+            uuid::Uuid::new_v4().simple()
+        ));
+        std::fs::create_dir_all(&staging_dir)?;
+        let name = target
+            .file_name()
+            .ok_or_else(|| OpsError::Stale("target has no file name".into()))?
+            .to_owned();
+        Ok(Self {
+            staged: staging_dir.join(&name),
+            staging_dir,
+            target: target.to_path_buf(),
+        })
+    }
+
+    /// Copies the source into staging, then verifies the byte count and that
+    /// the source itself did not change underneath the copy.
+    pub(crate) fn stage_and_verify(
+        &self,
+        source: &Path,
+        expected_identity: &Option<String>,
+    ) -> Result<u64, OpsError> {
+        let copied = std::fs::copy(source, &self.staged)?;
+        let staged_len = std::fs::symlink_metadata(&self.staged)?.len();
+        if copied != staged_len {
+            return Err(OpsError::Stale("the staged copy is incomplete".into()));
+        }
+        // The source must still be the object the plan described: a file that
+        // changed while it was being read invalidates the transfer (OP-05).
+        let metadata = std::fs::symlink_metadata(source)?;
+        if let Some(expected) = expected_identity {
+            let actual = identity_of(source, &metadata);
+            if actual.as_deref() != Some(expected.as_str()) {
+                return Err(OpsError::Stale("the source changed during the copy".into()));
+            }
+        }
+        if metadata.len() != staged_len {
+            return Err(OpsError::Stale(
+                "the source changed size during the copy".into(),
+            ));
+        }
+        Ok(staged_len)
+    }
+
+    /// Publishes the verified copy with a same-volume rename. The destination
+    /// is rechecked so a file that appeared during the transfer is never
+    /// overwritten.
+    pub(crate) fn publish(&self) -> Result<(), OpsError> {
+        if std::fs::symlink_metadata(&self.target).is_ok() {
+            return Err(OpsError::TargetExists);
+        }
+        std::fs::rename(&self.staged, &self.target)?;
+        let _ = std::fs::remove_dir_all(&self.staging_dir);
+        Ok(())
+    }
+
+    /// Best-effort cleanup after a failed transfer.
+    pub(crate) fn discard(&self) {
+        let _ = std::fs::remove_file(&self.staged);
+        let _ = std::fs::remove_dir_all(&self.staging_dir);
+    }
+
+    /// True once no staging directory remains, so drills can prove a transfer
+    /// left no bytes behind.
+    #[cfg(test)]
+    pub(crate) fn staging_dir_absent(&self) -> bool {
+        !self.staging_dir.exists()
+    }
+
+    /// The staged path, for drills that must observe the transfer directly.
+    #[cfg(test)]
+    fn staged_path(&self) -> &Path {
+        &self.staged
+    }
 }
 
 /// The canonical form of a directory that may not exist yet: canonicalize the
@@ -1348,6 +1638,14 @@ impl RawPath for diskgraph_core::ResourceLocator {
         }
     }
 }
+
+pub mod docker;
+pub mod specialist;
+pub use docker::{DockerInventory, DockerObject, UsageCheck, VM_CAVEAT};
+pub use specialist::{
+    AdapterRegistry, AdapterStatus, CARGO_CLEAN, CleanupInventory, CommandRunner, CommandSpec,
+    DOCKER_CLEAN, DOCKER_INVENTORY, InventoryObject, SandboxedRunner, SpecialistVerdict,
+};
 
 #[cfg(test)]
 mod tests;
