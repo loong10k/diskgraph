@@ -166,6 +166,104 @@ impl DiskGraph {
     }
 }
 
+/// A depth-bounded tree view of one published revision, in the shape a tree
+/// UI consumes: each node carries its aggregate size, its own bytes, and
+/// children sorted largest-first. Cutting at the depth bound is reported
+/// with `truncated: true` and the child count, so the JSON never claims to
+/// have shown more than it did.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TreeView {
+    pub root: serde_json::Value,
+}
+
+pub fn render_tree(
+    graph: &DiskGraph,
+    depth: usize,
+    min_bytes: u64,
+) -> Result<TreeView, TreeRenderError> {
+    use serde_json::json;
+
+    let root = graph
+        .nodes
+        .iter()
+        .find(|node| node.parent_id.is_none())
+        .ok_or(TreeRenderError::NoRoot)?;
+    let children_of: std::collections::HashMap<u64, Vec<&DiskNode>> =
+        graph
+            .nodes
+            .iter()
+            .fold(std::collections::HashMap::new(), |mut map, node| {
+                if let Some(parent) = node.parent_id {
+                    map.entry(parent).or_default().push(node);
+                }
+                map
+            });
+
+    fn render(
+        current: &crate::DiskNode,
+        children_of: &std::collections::HashMap<u64, Vec<&DiskNode>>,
+        depth: usize,
+        max_depth: usize,
+        min_bytes: u64,
+    ) -> serde_json::Value {
+        let mut value = json!({
+            "name": current.name,
+            "kind": current.kind,
+            "size_bytes": current.subtree_bytes,
+            "own_bytes": current.direct_bytes,
+            "files": current.files,
+            "dirs": current.directories,
+        });
+        if current.read_error {
+            value["read_error"] = json!(true);
+        }
+        let kids = children_of.get(&current.id).cloned().unwrap_or_default();
+        if depth >= max_depth || kids.is_empty() {
+            if !kids.is_empty() {
+                value["truncated"] = json!(true);
+                value["children_count"] = json!(kids.len());
+            }
+            return value;
+        }
+        let kept: Vec<_> = kids
+            .iter()
+            .filter(|kid| kid.subtree_bytes >= min_bytes)
+            .cloned()
+            .collect();
+        let hidden = kids.len() - kept.len();
+        let mut ordered = kept;
+        ordered.sort_by_key(|kid| (std::cmp::Reverse(kid.subtree_bytes), kid.name.clone()));
+        value["children"] = json!(
+            ordered
+                .iter()
+                .map(|kid| render(kid, children_of, depth + 1, max_depth, min_bytes))
+                .collect::<Vec<_>>()
+        );
+        if hidden > 0 {
+            value["hidden_below_min_bytes"] = json!(hidden);
+        }
+        value
+    }
+
+    Ok(TreeView {
+        root: render(root, &children_of, 1, depth, min_bytes),
+    })
+}
+
+/// Why a tree view could not be rendered.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TreeRenderError {
+    NoRoot,
+}
+
+impl std::fmt::Display for TreeRenderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::NoRoot => "the revision has no root node",
+        })
+    }
+}
+
 fn has_blocked_descendant(
     node_id: u64,
     blocked: &HashSet<u64>,
@@ -359,7 +457,7 @@ impl DiskGraph {
 
 #[cfg(test)]
 mod tests {
-    use super::{Change, Incompatibility, SizeFilter};
+    use super::{Change, Incompatibility, SizeFilter, TreeRenderError, render_tree};
     use crate::{
         DiskGraph, DiskNode, DiskSnapshot, EvidenceEdge, EvidenceRelation, NodeKind,
         ResourceLocator, ScanCoverage, ScanSettings,
@@ -457,6 +555,75 @@ mod tests {
         graph.snapshot.coverage.complete = false;
         graph.evidence.pop();
         assert!(graph.candidates(100).is_empty());
+    }
+
+    /// root → cache(large) → {beta, alpha}; cache carries a read error.
+    fn tree_fixture() -> DiskGraph {
+        let mut graph = graph(100);
+        graph.nodes.retain(|node| node.id != 3); // drop the protected child
+        let mut alpha = node(4, Some(2), "alpha", 10);
+        alpha.kind = crate::NodeKind::Directory;
+        alpha.directories = 1;
+        let mut beta = node(5, Some(2), "beta", 20);
+        beta.kind = crate::NodeKind::Directory;
+        beta.directories = 1;
+        graph.nodes.push(alpha);
+        graph.nodes.push(beta);
+        graph
+    }
+
+    #[test]
+    fn tree_view_sorts_children_largest_first() {
+        let graph = tree_fixture();
+        let view = render_tree(&graph, 3, 0).unwrap();
+        let cache = &view.root["children"][0];
+        let names: Vec<&str> = cache["children"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|kid| kid["name"].as_str().unwrap())
+            .collect();
+        assert_eq!(names, vec!["beta", "alpha"], "largest first");
+        assert_eq!(cache["truncated"], serde_json::Value::Null);
+    }
+
+    #[test]
+    fn tree_view_marks_truncation_and_hides_below_min_bytes() {
+        let graph = tree_fixture();
+
+        // Depth 2 cuts inside cache: the cut is declared, never silent.
+        let view = render_tree(&graph, 2, 0).unwrap();
+        let cache = &view.root["children"][0];
+        assert_eq!(cache["truncated"], true);
+        assert_eq!(cache["children_count"], 2);
+        assert!(cache.get("children").is_none());
+
+        // A min-bytes floor hides the small child and says how many.
+        let view = render_tree(&graph, 3, 15).unwrap();
+        let cache = &view.root["children"][0];
+        let names: Vec<&str> = cache["children"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|kid| kid["name"].as_str().unwrap())
+            .collect();
+        assert_eq!(names, vec!["beta"]);
+        assert_eq!(cache["hidden_below_min_bytes"], 1);
+    }
+
+    #[test]
+    fn tree_view_carries_read_errors_and_requires_a_root() {
+        let mut graph = tree_fixture();
+        graph.nodes[1].read_error = true; // cache
+        let view = render_tree(&graph, 3, 0).unwrap();
+        assert_eq!(view.root["children"][0]["read_error"], true);
+
+        let mut empty = graph;
+        empty.nodes.clear();
+        assert!(matches!(
+            render_tree(&empty, 2, 0),
+            Err(TreeRenderError::NoRoot)
+        ));
     }
 
     #[test]

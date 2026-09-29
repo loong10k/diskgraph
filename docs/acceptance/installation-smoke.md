@@ -26,7 +26,7 @@ scope add → index --wait（completed + revision 发布）→ node（coverage c
 
 ## 追加：真实主目录全量扫描（2026-09-29）
 
-对 `/Users/wandl`（453 万真实节点）完成全量索引发布：4 分 17 秒，coverage 完整，revision `rev-c3bffcb9`。disktree 风格 JSON tree 由 `scripts/disktree_json.py`（只读视图）渲染：深度 3 全树 454 KB / 39.6 秒，可交互钻取（home → workspaces 119 GB → workspace-partme-ai → diskgraph 仓 target 3.4 GB）。
+对 `/Users/wandl`（453 万真实节点）完成全量索引发布：4 分 17 秒，coverage 完整，revision `rev-c3bffcb9`。disktree 风格 JSON tree 现由 CLI 一等命令渲染：`diskgraph tree --scope ID [--revision REV] --depth N [--min-bytes N]`——core `render_tree` 走正式查询层（metadata 授权 + 信封），depth 截断与 min_bytes 过滤均诚实标注（`truncated`/`children_count`/`hidden_below_min_bytes`）。首版曾用临时 Python 脚本直读 SQLite 渲染，`diskgraph tree` 落地后与之逐字节对账一致（430 万节点树，Rust 23.8s vs Python 39.6s），脚本随即退役：深度 3 全树 454 KB / 39.6 秒，可交互钻取（home → workspaces 119 GB → workspace-partme-ai → diskgraph 仓 target 3.4 GB）。
 
 **验证过程抓到并修复的真实缺陷**（回归测试 `byte_charges_bill_each_file_once_not_once_per_ancestor` 锁定）：
 

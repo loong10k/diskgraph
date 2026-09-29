@@ -79,6 +79,20 @@ enum Command {
         #[arg(long, default_value_t = 0)]
         offset: u64,
     },
+    /// Depth-bounded tree view of a published revision (disktree-style JSON).
+    Tree {
+        #[arg(long)]
+        scope: String,
+        /// Explicit revision; the scope's latest revision by default.
+        #[arg(long)]
+        revision: Option<String>,
+        /// Expand to this depth (1 = root only).
+        #[arg(long, default_value_t = 3)]
+        depth: usize,
+        /// Hide children whose subtree is smaller than this many bytes.
+        #[arg(long, default_value_t = 0)]
+        min_bytes: u64,
+    },
     /// C10: load the published revision of a scope and report root facts.
     Node {
         #[arg(long)]
@@ -532,6 +546,37 @@ fn dispatch(
                         "captured_at_unix_ms": snapshot.captured_at_unix_ms,
                         "complete": snapshot.coverage.complete,
                     })).collect::<Vec<_>>(),
+                })),
+            ));
+            Ok(())
+        }
+        Command::Tree {
+            scope,
+            revision,
+            depth,
+            min_bytes,
+        } => {
+            let scope_id = ScopeId::new(scope.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.scope(&scope_id)?;
+            require_metadata(authorizer, principal, &scope_id)?;
+            let revision = match revision {
+                Some(revision) => revision.clone(),
+                None => engine
+                    .latest_revision(&scope_id)?
+                    .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
+            };
+            let graph = engine.load_revision(&revision)?;
+            // A revision without a root is not a permission probe: report
+            // it as the missing object it is.
+            let view = diskgraph_core::render_tree(&graph, *depth, *min_bytes)
+                .map_err(|_| EngineError::Business(BusinessError::NotFound))?;
+            out.push(envelope_line(
+                engine,
+                Ok(serde_json::json!({
+                    "revision_id": revision,
+                    "rendered_depth": depth,
+                    "tree": view.root,
                 })),
             ));
             Ok(())

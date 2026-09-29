@@ -45,7 +45,7 @@ pub use ports::{
 };
 pub use query::{
     Candidate, Change, Changes, ChildListing, Growth, Incompatibility, NodeExplanation, Page,
-    SizeFilter,
+    SizeFilter, TreeRenderError, TreeView, render_tree,
 };
 pub use scan::{
     BudgetDecision, BudgetFault, BudgetUsage, CapacityReading, ExcludedPath, ExclusionReason,
