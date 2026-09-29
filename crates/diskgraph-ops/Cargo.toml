@@ -8,6 +8,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+hex.workspace = true
 diskgraph-core.workspace = true
 libc = "0.2"
 diskgraph-engine.workspace = true

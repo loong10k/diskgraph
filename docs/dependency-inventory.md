@@ -14,6 +14,9 @@
 | `uuid` | 1.x | Apache-2.0 OR MIT | 快照 ID（v4） |
 | `base64` | 0.22 | MIT OR Apache-2.0 | v2 无损 Locator 的原始字节编码 |
 | `rusqlite`（bundled SQLite） | 0.40 | MIT | `diskgraph.sqlite` 持久化 |
+| `sha2` | 0.10 | MIT OR Apache-2.0 | 内容确认哈希与 JWT 签名（RustCrypto；替代手写实现） |
+| `hmac` | 0.12 | MIT OR Apache-2.0 | JWT HS256（RustCrypto；替代手写实现） |
+| `hex` | 0.4 | MIT OR Apache-2.0 | 计划定位键与导出编码（替代手写实现） |
 | `thiserror` | 2.x | MIT OR Apache-2.0 | store 错误类型 |
 | `uniffi` | 0.32 | MPL-2.0 | Swift/Kotlin 绑定脚手架（构建期） |
 | `rayon`（经 disktree-core 传递） | 1.12 | MIT OR Apache-2.0 | 上游并行扫描 |

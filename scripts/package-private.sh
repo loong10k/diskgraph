@@ -49,7 +49,7 @@ cp docs/dependency-inventory.md "$OUT_DIR/DEPENDENCIES.md"
 echo "==> bundling the licences"
 cp LICENSE "$OUT_DIR/LICENSE"
 mkdir -p "$OUT_DIR/licenses"
-for dependency in disktree-core serde serde_json uuid base64 rusqlite thiserror uniffi clap; do
+for dependency in disktree-core serde serde_json uuid base64 rusqlite thiserror uniffi clap sha2 hmac hex libc; do
     echo "$dependency" >> "$OUT_DIR/licenses/THIRD-PARTY.txt"
 done
 {

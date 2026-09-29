@@ -409,11 +409,7 @@ fn drop_nested(items: &[Resolved]) -> Result<Vec<Resolved>, OpsError> {
 /// A stable, reversible key for a path (the raw bytes, hex-encoded). It is the
 /// identity used in plans and recovery records, never a display string.
 fn locator_key(path: &Path) -> String {
-    let bytes = path.to_string_lossy().into_owned();
-    bytes
-        .bytes()
-        .map(|byte| format!("{byte:02x}"))
-        .collect::<String>()
+    hex::encode(path.to_string_lossy().as_bytes())
 }
 
 /// The identity used to detect a replaced object between plan and apply: on
@@ -1611,18 +1607,9 @@ fn path_of(locator: &diskgraph_core::Locator) -> Option<PathBuf> {
 
 /// Reverses the hex locator key back into a path.
 fn unhex_key(key: &str) -> Option<PathBuf> {
-    if !key.len().is_multiple_of(2) {
-        return None;
-    }
-    let bytes: Option<Vec<u8>> = key
-        .as_bytes()
-        .chunks(2)
-        .map(|pair| {
-            let hex = std::str::from_utf8(pair).ok()?;
-            u8::from_str_radix(hex, 16).ok()
-        })
-        .collect();
-    bytes.map(|bytes| PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
+    hex::decode(key)
+        .ok()
+        .map(|bytes| PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
 }
 
 /// A read-only locator helper used by the ops layer and the store.
