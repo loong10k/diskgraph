@@ -686,7 +686,7 @@ fn a_revoked_approval_blocks_execution() {
 fn a_plan_cannot_be_applied_twice() {
     let mut project = project("double-apply");
     let (plan, approval, executor) = ready_move(&mut project, "double");
-    executor
+    let first = executor
         .apply(ApplyRequest {
             plan_id: &plan.plan_id,
             approval_ref: &approval,
@@ -694,16 +694,35 @@ fn a_plan_cannot_be_applied_twice() {
             fault: None,
         })
         .unwrap();
+    {
+        let control = project.engine.control_store().unwrap();
+        let items = control.operation_items(&first.operation_id).unwrap();
+        assert_eq!(
+            first.state,
+            diskgraph_store::OperationState::Succeeded,
+            "first apply should succeed, item said {:?}: {first:?}",
+            items.first().map(|item| item.detail.clone())
+        );
+    }
+    {
+        let control = project.engine.control_store().unwrap();
+        assert_eq!(
+            control.plan_state(&plan.plan_id).unwrap(),
+            diskgraph_store::PlanState::Applied,
+            "a succeeded apply must consume its plan"
+        );
+    }
     // A fresh key cannot re-consume a plan that was already applied.
-    assert!(matches!(
-        executor.apply(ApplyRequest {
-            plan_id: &plan.plan_id,
-            approval_ref: &approval,
-            idempotency_key: "second",
-            fault: None,
-        }),
-        Err(OpsError::Stale(_))
-    ));
+    let second = executor.apply(ApplyRequest {
+        plan_id: &plan.plan_id,
+        approval_ref: &approval,
+        idempotency_key: "second",
+        fault: None,
+    });
+    assert!(
+        matches!(second, Err(OpsError::Stale(_))),
+        "second apply should be refused, got {second:?}"
+    );
 }
 
 // ------------------------------------------------------ trash and restore ---
@@ -973,4 +992,275 @@ fn an_empty_file_round_trips_through_trash_and_restore() {
     let held = ops_unhex(&control.recovery(&recovery_ref).unwrap().quarantine_locator);
     assert!(held.exists());
     assert_eq!(std::fs::metadata(&held).unwrap().len(), 0);
+}
+
+// -------------------------------------------- 6.8 path and link revalidation ---
+
+#[test]
+fn a_link_planted_in_the_source_after_planning_stops_the_move() {
+    let mut project = project("link-source");
+    let (scope, principal) = indexed_once(&mut project);
+    // Plan against the real layout first, so the plan names a real object.
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let archive = project.root.join("archive");
+    std::fs::create_dir_all(&archive).unwrap();
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_move_plan(
+            &scope,
+            &principal,
+            &[app],
+            &archive,
+            1 << 20,
+            FileActionKind::Move,
+        )
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+
+    // After approval, swap the planned directory for a symlink pointing
+    // somewhere else: the plan described a directory, and now it is a link.
+    let swap = project.root.join("target");
+    let real = project.root.join("real-target");
+    std::fs::rename(&swap, &real).unwrap();
+    let elsewhere = project.root.join("elsewhere");
+    std::fs::create_dir_all(&elsewhere).unwrap();
+    std::os::unix::fs::symlink(&elsewhere, &swap).unwrap();
+
+    // The plan's object is no longer reachable the way it described, so the
+    // apply is refused rather than redirected through the link.
+    let outcome = executor.apply(ApplyRequest {
+        plan_id: &plan.plan_id,
+        approval_ref: &approval_ref,
+        idempotency_key: "link",
+        fault: None,
+    });
+    match outcome {
+        Err(OpsError::Stale(_)) => {}
+        Ok(outcome) => assert_ne!(
+            outcome.state,
+            diskgraph_store::OperationState::Succeeded,
+            "a link in the path must not complete the move: {outcome:?}"
+        ),
+        Err(other) => panic!("unexpected refusal: {other}"),
+    }
+    assert!(
+        real.join("app.bin").exists(),
+        "the real object is untouched"
+    );
+    assert!(
+        !elsewhere.join("app.bin").exists(),
+        "the link was not followed"
+    );
+}
+
+#[test]
+fn a_link_planted_in_the_destination_stops_the_move() {
+    let mut project = project("link-target");
+    let (scope, principal) = indexed_once(&mut project);
+    let app = node_named(&project.engine, &scope, "app.bin");
+    let archive = project.root.join("archive");
+    let hidden = project.root.join("hidden");
+    std::fs::create_dir_all(&hidden).unwrap();
+    let builder = PlanBuilder::new(std::sync::Arc::clone(&project.engine));
+    let plan = builder
+        .build_move_plan(
+            &scope,
+            &principal,
+            &[app],
+            &archive,
+            1 << 20,
+            FileActionKind::Move,
+        )
+        .unwrap();
+    let executor = Executor::new(std::sync::Arc::clone(&project.engine));
+    let approval_ref = {
+        let mut control = project.engine.control_store().unwrap();
+        let mut issuer = ApprovalIssuer::new(&mut control);
+        issuer
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    // Plant a symlink where the destination directory will be.
+    std::os::unix::fs::symlink(&hidden, &archive).unwrap();
+
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval_ref,
+            idempotency_key: "link-target",
+            fault: None,
+        })
+        .unwrap();
+    assert_ne!(outcome.state, diskgraph_store::OperationState::Succeeded);
+    assert!(project.root.join("target/app.bin").exists());
+    assert!(
+        !hidden.join("app.bin").exists(),
+        "the link was not followed"
+    );
+}
+
+#[test]
+fn revalidation_reports_the_fault_it_refused() {
+    let directory = tempfile::tempdir().unwrap();
+    let real = directory.path().join("real");
+    std::fs::create_dir_all(&real).unwrap();
+    std::fs::write(real.join("f"), b"x").unwrap();
+    let root = directory.path();
+    // A plain path below the trusted root passes on both sides.
+    assert!(revalidate_below(root, &real, Side::Source).is_ok());
+    // A missing source is a vanished component, not a link.
+    assert_eq!(
+        revalidate_below(root, &root.join("absent"), Side::Source),
+        Err(PathFault::ComponentVanished)
+    );
+    // A missing destination is fine: the move will create it.
+    assert!(revalidate_below(root, &root.join("new"), Side::Target).is_ok());
+    // A symlinked component below the root is refused on whichever side it
+    // appears.
+    let link = root.join("link");
+    std::os::unix::fs::symlink(&real, &link).unwrap();
+    assert_eq!(
+        revalidate_below(root, &link.join("f"), Side::Source),
+        Err(PathFault::SourceIsLink)
+    );
+    assert_eq!(
+        revalidate_below(root, &link.join("f"), Side::Target),
+        Err(PathFault::TargetIsLink)
+    );
+    // A path outside the trusted root is refused outright rather than trusted
+    // by default.
+    assert_eq!(
+        revalidate_below(root, &std::env::temp_dir().join("elsewhere"), Side::Source),
+        Err(PathFault::ComponentVanished)
+    );
+    // A system-level symlink in the prefix is trusted: on macOS /var points
+    // into /private/var, and refusing it would break every real operation.
+    #[cfg(target_os = "macos")]
+    if std::fs::symlink_metadata("/var")
+        .map(|m| m.file_type().is_symlink())
+        .unwrap_or(false)
+    {
+        assert!(
+            revalidate_below(
+                &PathBuf::from("/var"),
+                &PathBuf::from("/var/folders"),
+                Side::Source
+            )
+            .is_ok()
+        );
+    }
+}
+
+// ------------------------------------------------------- 6.12 operations API ---
+
+#[test]
+fn operations_are_listed_and_shown_only_to_their_principal() {
+    let mut project = project("ops-list");
+    let (plan, approval, executor) = ready_move(&mut project, "ops");
+    let (_scope, principal) = indexed_once(&mut project);
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        })
+        .unwrap();
+    let engine = std::sync::Arc::clone(&project.engine);
+
+    let listed = list_operations(&engine, &plan.scope_id, &principal, 10).unwrap();
+    assert_eq!(listed.len(), 1);
+    assert_eq!(listed[0].operation_id, outcome.operation_id);
+    assert_eq!(listed[0].state, diskgraph_store::OperationState::Succeeded);
+
+    // Another principal sees nothing and cannot show it.
+    let stranger = PrincipalId::new("stranger").unwrap();
+    assert!(
+        list_operations(&engine, &plan.scope_id, &stranger, 10)
+            .unwrap()
+            .is_empty()
+    );
+    assert!(matches!(
+        show_operation(&engine, &outcome.operation_id, &stranger),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(show_operation(&engine, &outcome.operation_id, &principal).is_ok());
+}
+
+#[test]
+fn cancelling_a_finished_operation_leaves_it_untouched() {
+    let mut project = project("ops-cancel-done");
+    let (plan, approval, executor) = ready_move(&mut project, "cancel");
+    let (_scope, principal) = indexed_once(&mut project);
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: None,
+        })
+        .unwrap();
+    let engine = std::sync::Arc::clone(&project.engine);
+    let view = cancel_operation(&engine, &outcome.operation_id, &principal).unwrap();
+    // A finished operation is never rewritten by a late cancellation.
+    assert_eq!(view.state, diskgraph_store::OperationState::Succeeded);
+    assert_eq!(view.completed, 1);
+}
+
+#[test]
+fn cancelling_a_stalled_operation_stops_only_the_remaining_items() {
+    let mut project = project("ops-cancel-stalled");
+    let (plan, approval, executor) = ready_move(&mut project, "stall");
+    let (_scope, principal) = indexed_once(&mut project);
+    // Stop right after the intent: the file has not moved, and one item is
+    // still outstanding.
+    let stalled = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: Some(FaultPoint::AfterIntent),
+        })
+        .unwrap();
+    let engine = std::sync::Arc::clone(&project.engine);
+    let view = cancel_operation(&engine, &stalled.operation_id, &principal).unwrap();
+    // An operation parked for a human is already terminal: cancelling it would
+    // rewrite the very state a reviewer needs to see.
+    assert_eq!(
+        view.state,
+        diskgraph_store::OperationState::NeedsAttention,
+        "a parked operation keeps its state so a reviewer can reconcile it"
+    );
+    // The object is exactly where the plan left it.
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn another_principal_cannot_cancel_someone_elses_operation() {
+    let mut project = project("ops-cancel-foreign");
+    let (plan, approval, executor) = ready_move(&mut project, "foreign");
+    let (_scope, _principal) = indexed_once(&mut project);
+    let outcome = executor
+        .apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "k",
+            fault: Some(FaultPoint::AfterIntent),
+        })
+        .unwrap();
+    let engine = std::sync::Arc::clone(&project.engine);
+    let stranger = PrincipalId::new("stranger").unwrap();
+    assert!(matches!(
+        cancel_operation(&engine, &outcome.operation_id, &stranger),
+        Err(OpsError::NotAuthorized(_))
+    ));
 }

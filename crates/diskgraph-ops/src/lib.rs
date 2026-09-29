@@ -123,12 +123,16 @@ impl PlanBuilder {
         } else {
             RecoveryRule::NoneNeeded
         };
+        // Resolve the destination now, so the plan records the same canonical
+        // form as the objects it names. A caller-supplied path through a system
+        // alias would otherwise not share a prefix with the scope root.
+        let resolved = canonical_dir(target);
         let plan = self.build(PlanRequest {
             scope_id,
             principal,
             action,
             node_ids,
-            target: Some(target),
+            target: Some(&resolved),
             max_bytes,
             recovery,
         })?;
@@ -745,6 +749,12 @@ impl Executor {
         match plan.action {
             FileActionKind::Move => {
                 let target = self.target_for(plan, &item.path)?;
+                // Component-wise revalidation: a link planted in either path
+                // after planning must stop the move, not redirect it (OP-04).
+                revalidate_below(&self.scope_root(plan)?, &item.path, Side::Source)
+                    .map_err(|fault| OpsError::Stale(format!("source: {fault}")))?;
+                revalidate_below(&self.scope_root(plan)?, &target, Side::Target)
+                    .map_err(|fault| OpsError::Stale(format!("target: {fault}")))?;
                 // Never overwrite: a target that appeared since planning is
                 // a conflict, not something to clobber (OP-05).
                 if std::fs::symlink_metadata(&target).is_ok() {
@@ -871,6 +881,17 @@ impl Executor {
         }
     }
 
+    /// The registered root of the plan's scope; the trusted base for path
+    /// revalidation.
+    fn scope_root(&self, plan: &Plan) -> Result<PathBuf, OpsError> {
+        let record = self
+            .engine
+            .scope(&plan.scope_id)
+            .map_err(|error| OpsError::Stale(format!("scope is unavailable: {error}")))?;
+        path_of(&record.root)
+            .ok_or_else(|| OpsError::Stale("scope root is not a native path".into()))
+    }
+
     /// The same-volume holding area for quarantined objects.
     fn quarantine_root(&self) -> Result<PathBuf, OpsError> {
         Ok(self.engine.data_dir().join("quarantine"))
@@ -890,6 +911,185 @@ impl Executor {
             .ok_or_else(|| OpsError::Stale("source has no file name".into()))?;
         Ok(directory.join(name))
     }
+}
+
+/// Why a path failed pre-execution revalidation.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PathFault {
+    /// A component of the source path is a symbolic link.
+    SourceIsLink,
+    /// A component of the destination path is a symbolic link.
+    TargetIsLink,
+    /// A path component vanished between planning and apply.
+    ComponentVanished,
+}
+
+impl std::fmt::Display for PathFault {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::SourceIsLink => "a source path component is a symbolic link",
+            Self::TargetIsLink => "a destination path component is a symbolic link",
+            Self::ComponentVanished => "a path component vanished",
+        })
+    }
+}
+
+/// Which end of a move a path belongs to.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Side {
+    Source,
+    Target,
+}
+
+/// Revalidates the components of `path` that live **below** `trusted_root`,
+/// without following links.
+///
+/// Only the managed subtree is checked. System prefixes are deliberately
+/// trusted: on macOS `/var` is itself a symlink into `/private/var`, so a naive
+/// walk from the filesystem root would refuse every legitimate operation
+/// (OP-04, scoped to what the deployment actually manages).
+pub fn revalidate_below(trusted_root: &Path, path: &Path, side: Side) -> Result<(), PathFault> {
+    let relative = path
+        .strip_prefix(trusted_root)
+        .map_err(|_| PathFault::ComponentVanished)?;
+    // Walk the real components under the root, resolving each one without
+    // following links, so a link planted mid-path is seen as a link.
+    let mut current = trusted_root.to_path_buf();
+    for component in relative.components() {
+        use std::path::Component;
+        match component {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                current.pop();
+            }
+            Component::Normal(name) => {
+                current.push(name);
+                match std::fs::symlink_metadata(&current) {
+                    Ok(metadata) => {
+                        if metadata.file_type().is_symlink() {
+                            return Err(match side {
+                                Side::Source => PathFault::SourceIsLink,
+                                Side::Target => PathFault::TargetIsLink,
+                            });
+                        }
+                    }
+                    // A destination that does not exist yet is normal; a
+                    // source that does not is not.
+                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                        if matches!(side, Side::Source) {
+                            return Err(PathFault::ComponentVanished);
+                        }
+                    }
+                    Err(_) => return Err(PathFault::ComponentVanished),
+                }
+            }
+            Component::RootDir | Component::Prefix(_) => {}
+        }
+    }
+    Ok(())
+}
+
+/// One operation as an agent sees it.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OperationView {
+    pub operation_id: String,
+    pub plan_id: String,
+    pub scope_id: ScopeId,
+    pub state: diskgraph_store::OperationState,
+    pub items: Vec<diskgraph_store::OperationItem>,
+    /// Items that already ran; a cancellation never rewrites these.
+    pub completed: usize,
+    pub remaining: usize,
+}
+
+fn view_of(
+    operation: &diskgraph_store::Operation,
+    control: &diskgraph_store::ControlStore,
+) -> Result<OperationView, OpsError> {
+    let items = control.operation_items(&operation.operation_id)?;
+    let completed = items
+        .iter()
+        .filter(|item| item.result != diskgraph_store::OperationItemResult::Pending)
+        .count();
+    Ok(OperationView {
+        operation_id: operation.operation_id.clone(),
+        plan_id: operation.plan_id.clone(),
+        scope_id: operation.scope_id.clone(),
+        state: operation.state,
+        remaining: items.len() - completed,
+        items,
+        completed,
+    })
+}
+
+/// Lists a principal's operations for a scope, newest first (C26).
+pub fn list_operations(
+    engine: &std::sync::Arc<Engine>,
+    scope_id: &ScopeId,
+    principal: &PrincipalId,
+    limit: u64,
+) -> Result<Vec<OperationView>, OpsError> {
+    let control = engine.control_store()?;
+    let mut views = Vec::new();
+    for operation in control.list_operations(scope_id, limit)? {
+        // Another principal's operation is not visible here (SC-04).
+        if &operation.principal != principal {
+            continue;
+        }
+        views.push(view_of(&operation, &control)?);
+    }
+    Ok(views)
+}
+
+/// Shows one operation the principal owns.
+pub fn show_operation(
+    engine: &std::sync::Arc<Engine>,
+    operation_id: &str,
+    principal: &PrincipalId,
+) -> Result<OperationView, OpsError> {
+    let control = engine.control_store()?;
+    let operation = control.operation(operation_id)?;
+    if &operation.principal != principal {
+        return Err(OpsError::NotAuthorized(
+            "the operation belongs to another principal".into(),
+        ));
+    }
+    view_of(&operation, &control)
+}
+
+/// Cancels an operation. Items that already ran keep their result; only the
+/// remaining ones stop, and a finished operation is never rewritten (OP-09).
+pub fn cancel_operation(
+    engine: &std::sync::Arc<Engine>,
+    operation_id: &str,
+    principal: &PrincipalId,
+) -> Result<OperationView, OpsError> {
+    let mut control = engine.control_store()?;
+    let operation = control.operation(operation_id)?;
+    if &operation.principal != principal {
+        return Err(OpsError::NotAuthorized(
+            "the operation belongs to another principal".into(),
+        ));
+    }
+    if operation.state.is_terminal() {
+        // Cancelling finished work would rewrite history.
+        return view_of(&operation, &control);
+    }
+    let items = control.operation_items(operation_id)?;
+    for item in &items {
+        if item.result == diskgraph_store::OperationItemResult::Pending {
+            control.record_item_result(
+                operation_id,
+                item.item_index,
+                diskgraph_store::OperationItemResult::Failed,
+                "cancelled before it ran",
+                None,
+            )?;
+        }
+    }
+    control.set_operation_state(operation_id, diskgraph_store::OperationState::Cancelled)?;
+    let operation = control.operation(operation_id)?;
+    view_of(&operation, &control)
 }
 
 /// One planned object, revalidated against the live filesystem.
@@ -949,6 +1149,36 @@ fn same_volume(source: &Path, target: &Path) -> Result<(), OpsError> {
         }
     }
     Ok(())
+}
+
+/// The canonical form of a directory that may not exist yet: canonicalize the
+/// deepest existing ancestor and re-attach the rest.
+fn canonical_dir(path: &Path) -> PathBuf {
+    if let Ok(canonical) = path.canonicalize() {
+        return canonical;
+    }
+    let mut existing = path.to_path_buf();
+    let mut trailing: Vec<std::ffi::OsString> = Vec::new();
+    while let Some(parent) = existing.parent().map(Path::to_path_buf) {
+        if let Some(name) = existing.file_name() {
+            trailing.push(name.to_os_string());
+        }
+        if let Ok(canonical) = parent.canonicalize() {
+            let mut result = canonical;
+            for name in trailing.iter().rev() {
+                result.push(name);
+            }
+            return result;
+        }
+        existing = parent;
+    }
+    path.to_path_buf()
+}
+
+/// The native path behind a scope record's root locator.
+fn path_of(locator: &diskgraph_core::Locator) -> Option<PathBuf> {
+    let bytes = locator.raw_bytes().ok()?;
+    Some(PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
 }
 
 /// Reverses the hex locator key back into a path.
