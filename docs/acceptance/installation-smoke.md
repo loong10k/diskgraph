@@ -23,3 +23,15 @@ scope add → index --wait（completed + revision 发布）→ node（coverage c
 ## 结论
 
 安装 → 注册 → CLI 全链 → 模型驱动调用，四层全部真实通过；未通过的调用（scope 管理）是授权模型按设计拒绝，不是缺陷。
+
+## 追加：真实主目录全量扫描（2026-09-29）
+
+对 `/Users/wandl`（453 万真实节点）完成全量索引发布：4 分 17 秒，coverage 完整，revision `rev-c3bffcb9`。disktree 风格 JSON tree 由 `scripts/disktree_json.py`（只读视图）渲染：深度 3 全树 454 KB / 39.6 秒，可交互钻取（home → workspaces 119 GB → workspace-partme-ai → diskgraph 仓 target 3.4 GB）。
+
+**验证过程抓到并修复的真实缺陷**（回归测试 `byte_charges_bill_each_file_once_not_once_per_ancestor` 锁定）：
+
+1. **预算计费随深度放大**：`execute_scan` 按 `subtree_bytes` 逐节点计费，每个文件的字节被所有祖先重复计费——深树把 395 GB 内容虚增为数 TB，触发 `StagingLimit` 停止。修复为按节点自身 `direct_bytes` 计费。
+2. **CLI 预算参数不可配置**：新增全局 `--max-nodes-per-scan` 与 `--max-staging-bytes`，同一参数同步驱动硬拒绝上限与逐节点计费预算（此前只动硬上限会被计费预算拦住）。
+3. **预算停止无诊断输出**：`budget_stop` 分支现在向 stderr 打印具名原因与计费水位（`scan stopped: StagingLimit after N nodes / M bytes / T ms`），失败作业无需调试器即可归因。
+
+门禁：325 测试全绿，fmt/clippy 干净。

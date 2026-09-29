@@ -29,6 +29,14 @@ struct Cli {
     /// Principal the CLI acts as (default single-user identity).
     #[arg(long, global = true, default_value = "local-user")]
     principal: String,
+    /// Hard node ceiling for one scan (RT-04). A walk past it refuses to
+    /// publish instead of returning partial data silently.
+    #[arg(long, global = true, default_value_t = 2_000_000)]
+    max_nodes_per_scan: u64,
+    /// Charged byte budget for one scan (RT-02 backpressure): the walk
+    /// stops for a named reason once the observed content passes it.
+    #[arg(long, global = true, default_value_t = 2 << 30)]
+    max_staging_bytes: u64,
 
     #[command(subcommand)]
     command: Command,
@@ -407,9 +415,17 @@ fn engine_business(error: &EngineError) -> BusinessError {
 }
 
 fn run(cli: Cli) -> Result<(), EngineError> {
+    // One knob drives both budget layers: the per-node charged ScanBudget
+    // must not be tighter than the hard refusal ceiling, or a caller raising
+    // the ceiling would still stop at the old charged limit (RT-02/RT-04).
     let engine = std::sync::Arc::new(Engine::open(EngineConfig {
         data_dir: cli.data_dir.clone(),
-        max_nodes_per_scan: 2_000_000,
+        max_nodes_per_scan: cli.max_nodes_per_scan,
+        scan_budget: diskgraph_core::ScanBudget {
+            max_nodes: cli.max_nodes_per_scan,
+            max_staging_bytes: cli.max_staging_bytes,
+            ..diskgraph_core::ScanBudget::default()
+        },
         ..EngineConfig::default()
     })?);
     // Queued jobs progress without their connection; the CLI runner keeps the

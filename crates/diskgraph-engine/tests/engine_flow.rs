@@ -408,6 +408,50 @@ fn per_principal_job_quotas_refuse_excess_without_running() {
 // ------------------------------------------------- 2.7 / 2.11 / 2.12 drills ---
 
 #[test]
+fn byte_charges_bill_each_file_once_not_once_per_ancestor() {
+    // A deep tree whose every level nests a 1 KB file: the aggregate bytes
+    // grow with depth, but the real content is 1 KB per level. A staging
+    // budget that bills subtree aggregates would stop on phantom bytes
+    // (regression: the home-directory scan stopped at 2 GB of a 395 GB tree).
+    let tree = FixtureTree::new("charge-depth").unwrap();
+    let depth = 30;
+    let mut path = tree.path().to_path_buf();
+    for level in 0..depth {
+        path = path.join(format!("level-{level}"));
+        std::fs::create_dir_all(&path).unwrap();
+        std::fs::write(path.join("payload.bin"), vec![0_u8; 1024]).unwrap();
+    }
+    // The engine's data directory lives OUTSIDE the scanned tree: inside,
+    // the walk would bill the very databases the scan is writing (and a
+    // growing WAL), which is a deployment mistake this test need not copy.
+    let outside = tempfile::TempDir::with_prefix("diskgraph-charge-data-").unwrap();
+    let engine = std::sync::Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: outside.path().join("data"),
+            max_nodes_per_scan: 1_000_000,
+            scan_budget: diskgraph_core::ScanBudget {
+                // 61 nodes x 1 block (4 KB) = ~245 KB real per-file charge;
+                // the depth-multiplying subtree charge would be ~2.1 MB.
+                max_staging_bytes: 400 * 1024,
+                ..diskgraph_core::ScanBudget::default()
+            },
+            ..EngineConfig::default()
+        })
+        .unwrap(),
+    );
+    let (admin_principal, admin_policy) = admin();
+    let scope = engine
+        .register_scope(tree.path(), &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    let job = engine.index_scope(&scope, &agent, &policy).unwrap();
+    // The honest per-file charge fits the budget: the scan completes.
+    let finished = engine.run_job(&job.job_id, "charge-depth").unwrap();
+    assert_eq!(finished.state, JobState::Completed);
+    assert!(engine.latest_revision(&scope).unwrap().is_some());
+}
+
+#[test]
 fn the_walk_budget_stops_a_scan_for_a_named_reason() {
     // A scan whose budget is exhausted stops for the named reason, without
     // publishing anything (task 2.9, RT-02).

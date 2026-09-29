@@ -687,11 +687,14 @@ impl Engine {
 
         // 2.9: charge the walk against its budget. A reached limit stops the
         // walk for a named reason instead of returning less data silently, and
-        // a cancellation observed here is reported, never swallowed.
+        // a cancellation observed here is reported, never swallowed. The byte
+        // charge is the node's OWN bytes, never its subtree aggregate: every
+        // ancestor would otherwise bill the same file again, so a deep tree
+        // would multiply its real size by its depth and stop on phantom bytes.
         for node in &scanned.nodes {
             match self
                 .scan_budget
-                .charge_node(&mut usage, node.v1.subtree_bytes)
+                .charge_node(&mut usage, node.v1.direct_bytes)
             {
                 BudgetDecision::Continue => {}
                 BudgetDecision::Stop(stop) => {
@@ -708,10 +711,15 @@ impl Engine {
         }
         if let Some(stop) = budget_stop {
             // Record why the walk ended before refusing, so the job log can
-            // explain itself.
+            // explain itself. The named reason goes to the operator's stderr
+            // too: a failed job must be diagnosable without a debugger.
             exclusions
                 .error_summary
                 .push(format!("scan stopped: {stop:?}"));
+            eprintln!(
+                "diskgraph: scan stopped: {stop:?} after {} nodes / {} charged bytes / {} ms",
+                usage.nodes, usage.staged_bytes, usage.elapsed_ms
+            );
             let _ = total_bytes;
             let mut graph = self.graph()?;
             let _ = graph.clear_staging(job_id);
