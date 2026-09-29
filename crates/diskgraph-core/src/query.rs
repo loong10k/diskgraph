@@ -166,6 +166,23 @@ impl DiskGraph {
     }
 }
 
+/// The fields a tree view actually renders. The full `DiskNode` carries
+/// locators, hints, and identities that a tree never shows; building one
+/// from this narrow shape skips all of that (the store's fast read path
+/// passes these through without any JSON at all).
+#[derive(Clone, Copy, Debug)]
+pub struct TreeNode<'a> {
+    pub id: u64,
+    pub parent_id: Option<u64>,
+    pub name: &'a str,
+    pub kind: crate::NodeKind,
+    pub subtree_bytes: u64,
+    pub direct_bytes: u64,
+    pub files: u64,
+    pub directories: u64,
+    pub read_error: bool,
+}
+
 /// A depth-bounded tree view of one published revision, in the shape a tree
 /// UI consumes: each node carries its aggregate size, its own bytes, and
 /// children sorted largest-first. Cutting at the depth bound is reported
@@ -181,17 +198,38 @@ pub fn render_tree(
     depth: usize,
     min_bytes: u64,
 ) -> Result<TreeView, TreeRenderError> {
+    let rows: Vec<TreeNode<'_>> = graph
+        .nodes
+        .iter()
+        .map(|node| TreeNode {
+            id: node.id,
+            parent_id: node.parent_id,
+            name: node.name.as_str(),
+            kind: node.kind,
+            subtree_bytes: node.subtree_bytes,
+            direct_bytes: node.direct_bytes,
+            files: node.files,
+            directories: node.directories,
+            read_error: node.read_error,
+        })
+        .collect();
+    render_tree_rows(&rows, depth, min_bytes)
+}
+
+/// Renders a tree view from narrow node rows (the store's fast read path).
+pub fn render_tree_rows(
+    rows: &[TreeNode<'_>],
+    depth: usize,
+    min_bytes: u64,
+) -> Result<TreeView, TreeRenderError> {
     use serde_json::json;
 
-    let root = graph
-        .nodes
+    let root = rows
         .iter()
         .find(|node| node.parent_id.is_none())
         .ok_or(TreeRenderError::NoRoot)?;
-    let children_of: std::collections::HashMap<u64, Vec<&DiskNode>> =
-        graph
-            .nodes
-            .iter()
+    let children_of: std::collections::HashMap<u64, Vec<&TreeNode<'_>>> =
+        rows.iter()
             .fold(std::collections::HashMap::new(), |mut map, node| {
                 if let Some(parent) = node.parent_id {
                     map.entry(parent).or_default().push(node);
@@ -200,8 +238,8 @@ pub fn render_tree(
             });
 
     fn render(
-        current: &crate::DiskNode,
-        children_of: &std::collections::HashMap<u64, Vec<&DiskNode>>,
+        current: &TreeNode<'_>,
+        children_of: &std::collections::HashMap<u64, Vec<&TreeNode<'_>>>,
         depth: usize,
         max_depth: usize,
         min_bytes: u64,
@@ -232,7 +270,7 @@ pub fn render_tree(
             .collect();
         let hidden = kids.len() - kept.len();
         let mut ordered = kept;
-        ordered.sort_by_key(|kid| (std::cmp::Reverse(kid.subtree_bytes), kid.name.clone()));
+        ordered.sort_by_key(|kid| (std::cmp::Reverse(kid.subtree_bytes), kid.name));
         value["children"] = json!(
             ordered
                 .iter()

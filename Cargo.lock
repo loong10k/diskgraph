@@ -440,6 +440,7 @@ name = "diskgraph-store"
 version = "0.1.0"
 dependencies = [
  "diskgraph-core",
+ "rayon",
  "rusqlite",
  "serde",
  "serde_json",

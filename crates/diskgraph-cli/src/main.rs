@@ -566,11 +566,11 @@ fn dispatch(
                     .latest_revision(&scope_id)?
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
             };
-            let graph = engine.load_revision(&revision)?;
-            // A revision without a root is not a permission probe: report
-            // it as the missing object it is.
-            let view = diskgraph_core::render_tree(&graph, *depth, *min_bytes)
-                .map_err(|_| EngineError::Business(BusinessError::NotFound))?;
+            // The narrow read path: no full-graph materialization. A pre-v4
+            // snapshot falls back inside the engine and renders identically.
+            let view = engine.tree_view(
+                &scope_id, &revision, principal, authorizer, *depth, *min_bytes,
+            )?;
             out.push(envelope_line(
                 engine,
                 Ok(serde_json::json!({

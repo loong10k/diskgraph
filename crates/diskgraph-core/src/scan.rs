@@ -135,7 +135,7 @@ impl Default for ScanBudget {
             max_nodes: 5_000_000,
             max_duration_ms: 600_000,
             max_staging_bytes: 2 << 30,
-            write_batch_nodes: 512,
+            write_batch_nodes: 8_192,
         }
     }
 }

@@ -607,6 +607,75 @@ impl Engine {
         )
     }
 
+    /// A depth-bounded tree view of a published revision. Uses the store's
+    /// narrow read path: no JSON payloads, no locators, no full DiskNode
+    /// materialization. Pre-v4 snapshots (NULL structured columns) fall
+    /// back to the full load so older history renders identically.
+    pub fn tree_view(
+        &self,
+        scope_id: &ScopeId,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        depth: usize,
+        min_bytes: u64,
+    ) -> Result<diskgraph_core::TreeView, EngineError> {
+        let record = self.scope(scope_id)?;
+        if record.revoked {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        self.require(authorizer, principal, &Permission::MetadataRead, scope_id)?;
+        let snapshot_id = {
+            let graph = self.graph()?;
+            graph.revision(revision_id)?.snapshot_id
+        };
+        let rows = {
+            let graph = self.graph()?;
+            graph.tree_rows(&snapshot_id)?
+        };
+        if rows.is_empty() {
+            // Pre-v4 snapshot: take the full-load path so old history works.
+            let graph = self.load_revision(revision_id)?;
+            return diskgraph_core::render_tree(&graph, depth, min_bytes)
+                .map_err(|_| EngineError::Business(BusinessError::NotFound));
+        }
+        let nodes: Vec<diskgraph_core::TreeNode<'_>> = rows
+            .iter()
+            .map(
+                |(
+                    id,
+                    parent_id,
+                    name,
+                    kind,
+                    subtree_bytes,
+                    direct_bytes,
+                    files,
+                    directories,
+                    read_error,
+                )| {
+                    diskgraph_core::TreeNode {
+                        id: *id,
+                        parent_id: *parent_id,
+                        name: name.as_str(),
+                        kind: match kind.as_str() {
+                            "directory" => diskgraph_core::NodeKind::Directory,
+                            "file" => diskgraph_core::NodeKind::File,
+                            "symlink" => diskgraph_core::NodeKind::Symlink,
+                            _ => diskgraph_core::NodeKind::Other,
+                        },
+                        subtree_bytes: *subtree_bytes as u64,
+                        direct_bytes: *direct_bytes as u64,
+                        files: *files as u64,
+                        directories: *directories as u64,
+                        read_error: *read_error != 0,
+                    }
+                },
+            )
+            .collect();
+        diskgraph_core::render_tree_rows(&nodes, depth, min_bytes)
+            .map_err(|_| EngineError::Business(BusinessError::NotFound))
+    }
+
     /// Full reference for one node inside a published revision (SC-02 shape).
     pub fn resource_ref(
         &self,

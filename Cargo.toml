@@ -25,6 +25,7 @@ serde_json = "1"
 sha2 = "0.10"
 hmac = "0.12"
 hex = "0.4"
+rayon = "1"
 uuid = { version = "1", features = ["v4"] }
 base64 = "0.22"
 diskgraph-core = { path = "crates/diskgraph-core", version = "0.1.0" }
