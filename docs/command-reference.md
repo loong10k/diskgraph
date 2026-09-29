@@ -1,7 +1,7 @@
-# DiskGraph 命令与 MCP 接口参考（目标设计）
+# DiskGraph 命令与 MCP 接口参考
 
-> 当前仓库尚无这些 CLI/MCP 实现。本文是待实现契约，不是可用命令声明；下列示例不应作为现成安装/清理命令执行。
-> 正式依据：[command-surface](../openspec/changes/implement-diskgraph-platform/specs/command-surface/spec.md)；阶段和实现任务见 [任务清单](../openspec/changes/implement-diskgraph-platform/tasks.md)。
+> 状态（2026-09-29，对照 `diskgraph --help` 与 MCP 传输实测）：`diskgraph` CLI 已实现 25 个根命令/族；MCP 服务器提供 stdio / streamable-http / legacy-sse 三种传输。查询类命令（scope/index/sync/status/snapshots/node/children/explain/related/top/growth/changes/search/explore/impact/candidates）全部可用；**变更类命令（duplicates/read/move/copy/trash/restore/purge/plan/apply）的 CLI 入口已存在但标注 not enabled in this build——其引擎与 ops 底层已实现并有测试（engine::content、diskgraph-ops），CLI→ops 的接线与产品化门禁尚未交付**；接线前它们不会执行任何文件操作。
+> 正式依据：[command-surface](../openspec/changes/implement-diskgraph-platform/specs/command-surface/spec.md)；逐条验收状态见 [要求矩阵](acceptance/requirements-matrix.md)。
 
 ## 1. 接口约定
 

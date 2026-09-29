@@ -22,20 +22,22 @@ DiskGraph reuses [DiskTree](https://github.com/tobi/disktree) scanning rather th
 
 ## 2. Current status and limits
 
-| Area | Implemented foundation | Not yet implemented/verified |
+| Area | Implemented and tested | Known boundaries |
 | :--- | :--- | :--- |
-| Models and queries | DiskSnapshot, DiskNode, EvidenceEdge; top, children, growth, explain, candidates | Typed ownership graph, service authorization, bounded graph traversal |
-| Storage | Transactional SQLite snapshots, indexed nodes/evidence, paged children | Separate control database, target migrations, retention, WAL lifecycle |
-| Scanning | Read-only native-path bridge to pinned disktree-core | Lossless end-to-end locators, app/project/process collectors, URI providers |
-| Language bridge | UniFFI JSON v1 exports and binding-generation tooling | Packaged XCFramework/AAR and verified PruneX/device integration |
-| Agent delivery | Formal OpenSpec plan and command catalog | Standalone CLI, MCP server, client installation/configuration |
-| File operations | None | Approval, move/copy/trash/restore/purge, Cargo/Docker cleanup |
+| Models and queries | Typed ownership graph and relations, bounded top/children/growth/changes/search/explore/impact/candidates, explain-with-evidence | URI providers (SAF/documents) deferred to real devices |
+| Storage | Snapshot + control databases with versioned migrations (v1→v3), staging/atomic publication, retention with dependency checks | GRDB/Room coexistence fixtures need Xcode/Gradle hosts |
+| Scanning | Lossless v2 locators with file identity, budgets and named-stop cancellation, exclusion records, watermarks; Cargo/Node/Maven/Gradle collectors | Cloud-placeholder device drills and mount-race drills documented as real-OS requirements |
+| Agent delivery | Standalone CLI (25 commands; mutation commands plan-only until wired), MCP server over stdio/streamable-http/legacy-sse with auth, quotas and origin policy | Mutation CLI wiring to the ops layer is the remaining delivery step |
+| File operations | Immutable digest-bound plans, trusted approvals, same/cross-volume moves, quarantine+restore, purge behind a dedicated authority, Cargo/Docker specialist adapters | PruneX review-UI integration and UI-level drills need the host product |
+| Language bridge | Versioned UniFFI bindings, async job handles, Swift and Kotlin hosts compiled and run for real | XCFramework/AAR packaging and mobile verification need Xcode/NDK/devices |
+
+Verification status: 324 tests green, three-OS CI, real-host acceptance records under `docs/acceptance/`; the 77-requirement evidence matrix is `docs/acceptance/requirements-matrix.md`.
 
 The current native scan produces no relationship evidence; conservative candidates therefore normally returns an empty list for a freshly scanned directory. Classification and candidates are not deletion permission.
 
 The current library accepts caller-selected database/root paths. It is intended for a trusted host, not exposure to untrusted remote callers. The planned server's scope/authorization controls are not already present in this API.
 
-CI is configured for macOS, Linux, and Windows. On this task's local macOS host, Rust 1.98.1 passed 9 existing unit tests, fmt, and Clippy. Remote CI, minimum Rust version, Swift/Kotlin compilation/runtime, and mobile-device behavior were not separately verified.
+CI runs the full gate matrix on macOS, Linux, and Windows. On the local macOS host (Apple Silicon, Rust 1.98.1), 324 tests pass with fmt and clippy clean; Swift and Kotlin binding hosts were compiled and run for real (see `docs/acceptance/ffi-bindings.md`). Mobile-device behavior and Windows-specific semantics remain documented real-OS requirements, not verified claims.
 
 ## 3. Build and verify today
 
