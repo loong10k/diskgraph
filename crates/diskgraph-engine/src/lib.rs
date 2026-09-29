@@ -697,6 +697,12 @@ impl Engine {
         Ok(())
     }
 
+    /// Gives the ops layer access to the control database (plans, approvals,
+    /// operations, recovery) without duplicating the file layout.
+    pub fn control_store(&self) -> Result<std::sync::MutexGuard<'_, ControlStore>, EngineError> {
+        self.control()
+    }
+
     fn control(&self) -> Result<std::sync::MutexGuard<'_, ControlStore>, EngineError> {
         self.control
             .lock()

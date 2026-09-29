@@ -2127,10 +2127,15 @@ mod tests {
             std::thread::sleep(Duration::from_millis(50));
         }
         assert_eq!(terminal, "completed", "disconnect must not fail the job");
-        assert_eq!(
-            observed.first().map(String::as_str),
-            Some("queued"),
-            "the first observation from the new connection is the real state"
+        // The first observation may already be `running` (the runner starts
+        // immediately); what matters is that it is a real, non-terminal state
+        // that the job moves through on its own after the client is gone.
+        assert!(
+            matches!(
+                observed.first().map(String::as_str),
+                Some("queued") | Some("running")
+            ),
+            "the first observation from the new connection is a real state: {observed:?}"
         );
         drop(runner);
     }

@@ -9,6 +9,7 @@ members = [
     "crates/diskgraph-engine",
     "crates/diskgraph-cli",
     "crates/diskgraph-mcp",
+    "crates/diskgraph-ops",
 ]
 
 [workspace.package]
@@ -30,5 +31,6 @@ diskgraph-testkit = { path = "crates/diskgraph-testkit", version = "0.1.0" }
 diskgraph-engine = { path = "crates/diskgraph-engine", version = "0.1.0" }
 diskgraph-cli = { path = "crates/diskgraph-cli", version = "0.1.0" }
 diskgraph-mcp = { path = "crates/diskgraph-mcp", version = "0.1.0" }
+diskgraph-ops = { path = "crates/diskgraph-ops", version = "0.1.0" }
 clap = { version = "4", features = ["derive"] }
 disktree-core = { git = "https://github.com/tobi/disktree", rev = "158f9cc2f0b332194a3ffc5acec47760c99146d8" }
