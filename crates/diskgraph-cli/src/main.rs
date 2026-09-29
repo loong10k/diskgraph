@@ -37,6 +37,26 @@ struct Cli {
     /// stops for a named reason once the observed content passes it.
     #[arg(long, global = true, default_value_t = 2 << 30)]
     max_staging_bytes: u64,
+    /// Measure apparent length instead of allocated blocks (disktree -a).
+    #[arg(short = 'a', long, global = true)]
+    apparent_size: bool,
+    /// Skip dotfiles and dot-directories (disktree -H).
+    #[arg(short = 'H', long, global = true)]
+    no_hidden: bool,
+    /// Stay on the root's volume (disktree -x; this is the default).
+    #[arg(short = 'x', long, global = true)]
+    one_filesystem: bool,
+    /// Cross filesystem boundaries (disktree -X).
+    #[arg(short = 'X', long, global = true)]
+    cross_filesystems: bool,
+    /// Stop descending past this depth (disktree -d); totals below it are
+    /// recorded as unknown rather than estimated.
+    #[arg(short = 'd', long, global = true)]
+    depth: Option<usize>,
+    /// Count a hardlinked file once per link instead of once (disktree's
+    /// dedup_hardlinks=false; the default matches disktree's true).
+    #[arg(long, global = true)]
+    no_dedup_hardlinks: bool,
 
     #[command(subcommand)]
     command: Command,
@@ -439,6 +459,18 @@ fn run(cli: Cli) -> Result<(), EngineError> {
             max_nodes: cli.max_nodes_per_scan,
             max_staging_bytes: cli.max_staging_bytes,
             ..diskgraph_core::ScanBudget::default()
+        },
+        // Scan behavior mirrors disktree's own flags exactly: the snapshot
+        // records these verbatim, and two snapshots are comparable only when
+        // they were taken with the same options.
+        scan_options: disktree_core::scan::ScanOptions {
+            apparent_size: cli.apparent_size,
+            follow_links: false,
+            include_hidden: !cli.no_hidden,
+            one_filesystem: !cli.cross_filesystems || cli.one_filesystem,
+            max_depth: cli.depth,
+            dedup_hardlinks: !cli.no_dedup_hardlinks,
+            ..disktree_core::scan::ScanOptions::default()
         },
         ..EngineConfig::default()
     })?);

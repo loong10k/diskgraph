@@ -344,6 +344,7 @@ dependencies = [
  "diskgraph-engine",
  "diskgraph-mcp",
  "diskgraph-store",
+ "disktree-core",
  "serde_json",
  "tempfile",
 ]

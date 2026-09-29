@@ -12,6 +12,7 @@ name = "diskgraph"
 path = "src/main.rs"
 
 [dependencies]
+disktree-core.workspace = true
 clap.workspace = true
 diskgraph-core.workspace = true
 diskgraph-engine.workspace = true

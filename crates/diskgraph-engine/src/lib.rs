@@ -53,6 +53,10 @@ pub struct EngineConfig {
     /// Where the engine refuses new work once the data directory fills up
     /// (P1 task 2.12, spec RT-04). A refusal never deletes anything.
     pub capacity_watermark: Watermark,
+    /// How the walk behaves, using disktree's own option contract: a scope
+    /// indexed with one set of options is only ever comparable with a scope
+    /// indexed the same way (the snapshot records these verbatim).
+    pub scan_options: disktree_core::scan::ScanOptions,
 }
 
 impl Default for EngineConfig {
@@ -69,6 +73,7 @@ impl Default for EngineConfig {
                 warn_above_bytes: 8 << 30,
                 refuse_above_bytes: 16 << 30,
             },
+            scan_options: disktree_core::scan::ScanOptions::default(),
         }
     }
 }
@@ -121,6 +126,7 @@ pub struct Engine {
     scan_budget: ScanBudget,
     capacity_watermark: Watermark,
     max_active_jobs_per_principal: u32,
+    scan_options: disktree_core::scan::ScanOptions,
     graph: Mutex<SqliteSnapshotStore>,
     control: Mutex<ControlStore>,
     cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
@@ -161,6 +167,7 @@ impl Engine {
             scan_budget: config.scan_budget,
             capacity_watermark: config.capacity_watermark,
             max_active_jobs_per_principal: config.max_active_jobs_per_principal,
+            scan_options: config.scan_options.clone(),
             graph: Mutex::new(graph),
             control: Mutex::new(control),
             cancellations: Mutex::new(HashMap::new()),
@@ -710,7 +717,7 @@ impl Engine {
         // options that produced it, so two snapshots are only comparable when
         // they were configured the same way.
         let started_at_unix_ms = now_ms();
-        let options = disktree_core::scan::ScanOptions::default();
+        let options = self.scan_options.clone();
         let handle = disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
         let tree = loop {
             if cancel.load(Ordering::SeqCst) {
@@ -728,7 +735,7 @@ impl Engine {
                 EngineError::Io(error)
             }
         })?;
-        let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings())?;
+        let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))?;
         let window = ScanWindow {
             started_at_unix_ms,
             finished_at_unix_ms: now_ms(),
@@ -973,8 +980,7 @@ fn options_fingerprint(options: &disktree_core::scan::ScanOptions) -> String {
     format!("{:016x}", hasher.finish())
 }
 
-fn scan_settings() -> diskgraph_core::ScanSettings {
-    let options = disktree_core::scan::ScanOptions::default();
+fn scan_settings(options: &disktree_core::scan::ScanOptions) -> diskgraph_core::ScanSettings {
     diskgraph_core::ScanSettings {
         apparent_size: options.apparent_size,
         follow_links: options.follow_links,
