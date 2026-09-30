@@ -109,7 +109,8 @@ jobs:
         with:
           path: assets
           pattern: diskgraph-*
-          merge-multiple: false
+          # Flattened: the checksum step globs assets/ directly.
+          merge-multiple: true
 
       - name: Merge checksums and verify each archive
         run: |
