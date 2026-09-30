@@ -1,0 +1,34 @@
+ demo   464 MiB  10 files   ↑↓ move · enter descend · esc/backspace up · s sort · q quit
+┌ disk usage · rev-ceb45ad0-34fb-4994-b061-7222dc1ac36f─────────────────────────────────────────────────────┐┌ selection ──────────────────────────────────────┐
+│ ┌atarget.bin 180 MiB─────────────────────beta 90.0 MiB───────gamma 4…┐LCaches 55.0 MiB   .codex …         ││workspaces                                       │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││size       310 MiB                               │
+│ │                                                                    │                                    ││files      3                                     │
+│ │                                                                    │                                    ││kind       directory                             │
+│ │                                                                    │                                    ││category   Code                                  │
+│ │                                                                    │                                    ││children   true                                  │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││↑↓ move · enter descend · esc/backspace up · s   │
+│ │                                                                    │                                    ││sort · q quit                                    │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+│ │                                                                    │ Application Supp…                  ││                                                 │
+│ │                                                                    │                                    ││                                                 │
+
+  (captured from a real `diskgraph tui` session: tmux 160x44,
+   indexed 464 MiB / 10 files. Arrows or hjkl move, enter descends,
+   esc goes up, s toggles the sort, q quits.)

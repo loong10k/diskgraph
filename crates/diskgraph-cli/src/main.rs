@@ -14,6 +14,7 @@ use diskgraph_engine::{Engine, EngineConfig, EngineError};
 
 mod html;
 mod local;
+mod tui;
 
 use local::LocalIdentity;
 
@@ -317,6 +318,17 @@ enum Command {
     /// C28: register this binary into a client configuration (P3).
     #[command(subcommand)]
     Install(InstallCommand),
+    /// Interactive treemap of a published revision (terminal).
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph tui --scope <scope-id> --data-dir ~/.diskgraph\n\nLoads one directory level at a time, so a multi-million-node index opens\nimmediately. Keys: arrows or hjkl move, enter descends, esc goes up, s toggles\nthe sort, q quits."
+    )]
+    Tui {
+        #[arg(long)]
+        scope: String,
+        /// Explicit revision; the scope's latest revision by default.
+        #[arg(long)]
+        revision: Option<String>,
+    },
     /// C29: read-only diagnostics (P3).
     Doctor,
     /// Policy epoch management: publish a new version or revoke everything.
@@ -1034,6 +1046,20 @@ fn dispatch(
                 Ok(())
             }
         },
+        Command::Tui { scope, revision } => {
+            let scope_id = ScopeId::new(scope.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.scope(&scope_id)?;
+            require_metadata(authorizer, principal, &scope_id)?;
+            let revision = match revision {
+                Some(revision) => revision.clone(),
+                None => engine
+                    .latest_revision(&scope_id)?
+                    .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
+            };
+            tui::run(engine, &revision)?;
+            Ok(())
+        }
         Command::Doctor => {
             let profile = diskgraph_mcp::protocol::ToolProfile::ReadFull;
             let report = diskgraph_mcp::doctor::diagnose(engine, profile);

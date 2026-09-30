@@ -614,6 +614,25 @@ impl Engine {
         )
     }
 
+    /// One directory level of a published revision: the node itself and its
+    /// children, ordered by observed size. The interactive surface loads a
+    /// level at a time, so a multi-million-node index opens without
+    /// materializing the whole graph.
+    pub fn revision_layer(
+        &self,
+        revision_id: &str,
+        parent_id: u64,
+        limit: usize,
+    ) -> Result<(diskgraph_core::DiskNode, Vec<diskgraph_core::DiskNode>), EngineError> {
+        let graph = self.graph()?;
+        let record = graph.revision(revision_id)?;
+        let node = graph
+            .node(&record.snapshot_id, parent_id)?
+            .ok_or(EngineError::Business(BusinessError::NotFound))?;
+        let children = graph.children(&record.snapshot_id, parent_id, 0, limit as u64)?;
+        Ok((node, children))
+    }
+
     /// A depth-bounded tree view of a published revision. Uses the store's
     /// narrow read path: no JSON payloads, no locators, no full DiskNode
     /// materialization. Pre-v4 snapshots (NULL structured columns) fall
