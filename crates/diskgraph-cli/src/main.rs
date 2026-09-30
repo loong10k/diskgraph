@@ -2,7 +2,7 @@
 //! (P2 task 3.12, specs CMD-01 / CMD-02). Commands map onto the shared engine;
 //! none of them execute file mutations.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
@@ -13,6 +13,7 @@ use diskgraph_core::{
 use diskgraph_engine::{Engine, EngineConfig, EngineError};
 
 mod html;
+mod installer;
 mod local;
 mod tui;
 
@@ -326,6 +327,49 @@ enum Command {
     /// C28: register this binary into a client configuration (P3).
     #[command(subcommand)]
     Install(InstallCommand),
+    /// Index the current directory and get an agent ready to use the index.
+    ///
+    /// Run it where you work: the current directory becomes the indexed
+    /// root, the index lives in ./.diskgraph, and the agent instruction
+    /// files for the platforms you name are written so an agent knows the
+    /// index is there. Re-running on an initialized directory refreshes the
+    /// index instead of starting over.
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph init                 # index this directory, wire up the detected agents\n  diskgraph init --root ../other --data-dir ./.diskgraph\n  diskgraph init --target codex --target claude --yes\n\nRefuses to index your home directory or a filesystem root without --force:\n  diskgraph init --force"
+    )]
+    Init {
+        /// Directory to index; the current directory by default.
+        #[arg(long)]
+        root: Option<PathBuf>,
+        /// Where the index lives; ./.diskgraph by default.
+        #[arg(long, default_value = ".diskgraph")]
+        data_dir: PathBuf,
+        /// Which agent instruction files to write: claude, codex, kimi,
+        /// auto (only the detected ones), all, or none. Repeatable.
+        #[arg(long = "target", value_delimiter = ',')]
+        targets: Vec<String>,
+        /// Answer yes to the agent-detection question.
+        #[arg(short, long)]
+        yes: bool,
+        /// Index even a home directory or a filesystem root.
+        #[arg(short, long)]
+        force: bool,
+        /// Write the instructions for every user instead of this project.
+        #[arg(long, value_parser = ["global", "local"], default_value = "local")]
+        location: String,
+        /// Index the directory but leave the agent files alone.
+        #[arg(long)]
+        no_instructions: bool,
+        /// Stop after the index; same as --no-instructions.
+        #[arg(long)]
+        index_only: bool,
+        /// Take the agent instruction blocks back out. Leaves the index alone.
+        #[arg(long)]
+        uninstall: bool,
+        /// Print the instruction block instead of writing it anywhere.
+        #[arg(long)]
+        print_only: bool,
+    },
     /// du-style size summary over one or more paths.
     ///
     /// Each path is registered as a scope (idempotent - re-running reuses
@@ -509,6 +553,130 @@ fn engine_business(error: &EngineError) -> BusinessError {
     }
 }
 
+/// The scan behavior every command records, taken from the global flags.
+/// The snapshot stores these verbatim, so two revisions are comparable only
+/// when they were taken with the same ones.
+fn scan_options_from(cli: &Cli) -> diskgraph_disktree_core::scan::ScanOptions {
+    diskgraph_disktree_core::scan::ScanOptions {
+        apparent_size: cli.apparent_size,
+        follow_links: false,
+        include_hidden: !cli.no_hidden,
+        one_filesystem: !cli.cross_filesystems || cli.one_filesystem,
+        max_depth: cli.depth,
+        dedup_hardlinks: !cli.no_dedup_hardlinks,
+        ..diskgraph_disktree_core::scan::ScanOptions::default()
+    }
+}
+
+/// Why a directory is a bad indexing root, or `None` when it is fine.
+///
+/// A home directory is hundreds of gigabytes and a filesystem root is larger,
+/// and indexing either writes an index the size of the answer. That is a
+/// legitimate thing to want, so this refuses with a reason rather than
+/// allowing it quietly; `--force` is the way through.
+fn unsafe_root_reason(root: &Path) -> Option<String> {
+    if let Some(home) = std::env::var_os("HOME").map(PathBuf::from)
+        && root == home
+    {
+        return Some(format!("the home directory {}", home.display()));
+    }
+    if root.parent().is_none() {
+        return Some(format!("the filesystem root {}", root.display()));
+    }
+    None
+}
+
+/// The data directory resolved against the working directory, so `init`
+/// writes the index where the user is standing rather than wherever the
+/// process happened to be launched from.
+fn absolute_data_dir(data_dir: &Path) -> PathBuf {
+    if data_dir.is_absolute() {
+        return data_dir.to_path_buf();
+    }
+    std::env::current_dir().map_or_else(|_| data_dir.to_path_buf(), |cwd| cwd.join(data_dir))
+}
+
+/// Registers the root, indexes it, and returns what it found.
+///
+/// The result is handed back rather than printed: `init` reports the index and
+/// the instruction files in one envelope, because a caller parsing the output
+/// should not have to reassemble it from two lines.
+fn init_index(
+    engine: &Engine,
+    root: &Path,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+) -> Result<serde_json::Value, EngineError> {
+    let started = std::time::Instant::now();
+    let scope_id = engine.register_scope(root, principal, authorizer)?;
+    // register_scope granted this principal scope-local rights in the policy
+    // store; the in-memory authorizer is a snapshot from process start, so
+    // reload it before asking for the job - otherwise the scan is refused by
+    // the very scope it is about to measure.
+    let authorizer = &crate::local::LocalIdentity::load(engine)?;
+    // A second init is a rescan, not a second scope: the same root maps to
+    // the same scope id, and index_scope is what republishes it.
+    let job = engine.index_scope(&scope_id, principal, authorizer)?;
+    let owner = format!("cli-{principal}");
+    let finished = match engine.run_job(&job.job_id, &owner) {
+        Ok(record) => record,
+        Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
+        | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => {
+            wait_for_terminal(engine, &job.job_id)?
+        }
+        Err(error) => return Err(error),
+    };
+    let revision = engine.latest_revision(&scope_id)?;
+    let root_node = revision
+        .as_deref()
+        .map(|revision| engine.revision_root_node(revision))
+        .transpose()?;
+    let index_bytes = std::fs::metadata(engine.data_dir().join("diskgraph.sqlite"))
+        .map(|meta| meta.len())
+        .unwrap_or(0);
+    Ok(serde_json::json!({
+        "root": root.display().to_string(),
+        "data_dir": engine.data_dir().display().to_string(),
+        "scope_id": scope_id.as_str(),
+        "revision_id": revision,
+        "state": format!("{:?}", finished.state).to_ascii_lowercase(),
+        "files": root_node.as_ref().map(|node| node.files),
+        "directories": root_node.as_ref().map(|node| node.directories),
+        "subtree_bytes": root_node.as_ref().map(|node| node.subtree_bytes),
+        "index_bytes": index_bytes,
+        "elapsed_ms": started.elapsed().as_millis() as u64,
+    }))
+}
+
+/// Which agents to write instructions for. `auto` is the default and covers
+/// only the platforms found on this machine; an empty list means the user
+/// asked for nothing, which is not the same as asking for auto.
+fn resolve_targets(requested: &[String]) -> Result<Vec<installer::Target>, EngineError> {
+    let wanted = if requested.is_empty() {
+        vec!["auto".to_owned()]
+    } else {
+        requested.to_vec()
+    };
+    let mut out: Vec<installer::Target> = Vec::new();
+    for value in &wanted {
+        match value.to_ascii_lowercase().as_str() {
+            "auto" => out.extend(
+                installer::Target::ALL
+                    .into_iter()
+                    .filter(|target| target.detected()),
+            ),
+            "all" => out.extend(installer::Target::ALL),
+            "none" => {}
+            other => out.extend(installer::Target::parse_list(other).map_err(|message| {
+                eprintln!("diskgraph: {message}");
+                EngineError::Business(BusinessError::InvalidArgument)
+            })?),
+        }
+    }
+    out.dedup();
+    Ok(out)
+}
+
 fn run(cli: Cli) -> Result<(), EngineError> {
     // One knob drives both budget layers: the per-node charged ScanBudget
     // must not be tighter than the hard refusal ceiling, or a caller raising
@@ -524,15 +692,7 @@ fn run(cli: Cli) -> Result<(), EngineError> {
         // Scan behavior mirrors disktree's own flags exactly: the snapshot
         // records these verbatim, and two snapshots are comparable only when
         // they were taken with the same options.
-        scan_options: diskgraph_disktree_core::scan::ScanOptions {
-            apparent_size: cli.apparent_size,
-            follow_links: false,
-            include_hidden: !cli.no_hidden,
-            one_filesystem: !cli.cross_filesystems || cli.one_filesystem,
-            max_depth: cli.depth,
-            dedup_hardlinks: !cli.no_dedup_hardlinks,
-            ..diskgraph_disktree_core::scan::ScanOptions::default()
-        },
+        scan_options: scan_options_from(&cli),
         ..EngineConfig::default()
     })?);
     // Queued jobs progress without their connection; the CLI runner keeps the
@@ -1195,6 +1355,139 @@ fn dispatch(
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
             };
             tui::run(engine, &revision, *anonymize)?;
+            Ok(())
+        }
+        Command::Init {
+            root,
+            data_dir,
+            targets,
+            yes,
+            force,
+            location,
+            no_instructions,
+            index_only,
+            uninstall,
+            print_only,
+        } => {
+            // `init` is the only command that opens a store on a directory
+            // the user did not name as a scope, so the root is resolved and
+            // checked before the engine is even constructed.
+            let root = root
+                .clone()
+                .unwrap_or_else(|| std::env::current_dir().unwrap_or_default());
+            let root = std::fs::canonicalize(&root)
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            if !root.is_dir() {
+                eprintln!(
+                    "diskgraph: init needs a directory, and {} is not one",
+                    root.display()
+                );
+                return Ok(());
+            }
+            if !*force && let Some(reason) = unsafe_root_reason(&root) {
+                eprintln!("diskgraph: refusing to index {reason}");
+                eprintln!("diskgraph: pass --force if that is what you meant");
+                return Ok(());
+            }
+            // The data directory is resolved against the directory the user is
+            // standing in, so `init` writes where they are looking.
+            let data_dir = absolute_data_dir(data_dir);
+            if data_dir != cli.data_dir {
+                // A different directory than the global flag means this
+                // command needs its own store; every other command takes one
+                // --data-dir for all of them, so this is a one-off.
+                eprintln!(
+                    "diskgraph: init will use {} for the index; pass the same \
+                     --data-dir to the other commands",
+                    data_dir.display()
+                );
+            }
+            let engine = std::sync::Arc::new(Engine::open(EngineConfig {
+                data_dir: data_dir.clone(),
+                max_nodes_per_scan: cli.max_nodes_per_scan,
+                scan_budget: diskgraph_core::ScanBudget {
+                    max_nodes: cli.max_nodes_per_scan,
+                    max_staging_bytes: cli.max_staging_bytes,
+                    ..diskgraph_core::ScanBudget::default()
+                },
+                scan_options: scan_options_from(cli),
+                ..EngineConfig::default()
+            })?);
+            let summary = init_index(&engine, &root, principal, authorizer)?;
+            let chosen = resolve_targets(targets)?;
+            let global = location == "global";
+            let body = installer::instruction_body(&installer::locale_from_env());
+            if *print_only {
+                // The block a target would get, on stdout and nowhere else:
+                // the way to read it before letting us write into a file you
+                // have been keeping for a year.
+                out.push(envelope_line(
+                    &engine,
+                    Ok(serde_json::json!({
+                        "index": summary,
+                        "instructions": body,
+                        "targets": chosen.iter().map(|target| target.name()).collect::<Vec<_>>(),
+                    })),
+                ));
+                return Ok(());
+            }
+            if *uninstall {
+                let mut removed = Vec::new();
+                for file in installer::instruction_files(&chosen, &root, global) {
+                    let outcome = installer::remove_block(&file.path)?;
+                    removed.push(serde_json::json!({
+                        "target": file.target.name(),
+                        "path": file.path.display().to_string(),
+                        "outcome": outcome.as_str(),
+                    }));
+                }
+                out.push(envelope_line(
+                    &engine,
+                    Ok(serde_json::json!({ "index": summary, "instructions": removed })),
+                ));
+                return Ok(());
+            }
+            if *no_instructions || *index_only || !*yes {
+                if !*no_instructions && !*index_only && !*yes {
+                    eprintln!(
+                        "diskgraph: index ready; pass --yes to write the agent instruction files"
+                    );
+                }
+                out.push(envelope_line(
+                    &engine,
+                    Ok(serde_json::json!({ "index": summary })),
+                ));
+                return Ok(());
+            }
+            let mut written = Vec::new();
+            let mut touched = 0_usize;
+            for file in installer::instruction_files(&chosen, &root, global) {
+                let outcome = installer::upsert_block(&file.path, body)?;
+                touched += usize::from(outcome.wrote());
+                written.push(serde_json::json!({
+                    "target": file.target.name(),
+                    "path": file.path.display().to_string(),
+                    "outcome": outcome.as_str(),
+                }));
+            }
+            if touched == 0 && !written.is_empty() {
+                // A second init that changes nothing should say so, rather
+                // than letting the file list read as if it had been rewritten.
+                eprintln!("diskgraph: the agent files already say this; nothing written");
+            }
+            if let Some(kimi_config) = installer::kimi_mcp_config_path()
+                && !installer::kimi_has_diskgraph(&kimi_config)
+            {
+                eprintln!(
+                    "diskgraph: kimi reads MCP servers from {} - add diskgraph there with",
+                    kimi_config.display()
+                );
+                eprintln!("diskgraph:   diskgraph serve --profile read-full");
+            }
+            out.push(envelope_line(
+                &engine,
+                Ok(serde_json::json!({ "index": summary, "instructions": written })),
+            ));
             Ok(())
         }
         Command::Doctor => {

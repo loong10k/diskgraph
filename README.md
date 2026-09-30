@@ -129,6 +129,19 @@ The CLI and the MCP server (`diskgraph-mcp`) install together. Prebuilt binaries
 ## Get started
 
 ```bash
+cd ~/projects/somewhere && diskgraph init
+```
+
+`init` indexes the directory you are standing in, writes the index to
+`./.diskgraph`, and — with `--yes` — drops a marked block into the
+instruction file each agent on this machine reads (`AGENTS.md`, `.claude/CLAUDE.md`).
+Your own lines in those files are never touched, and running `init` again
+refreshes the index instead of starting over. `--uninstall` takes the blocks
+back out; `--print-only` shows you the text first.
+
+To drive it by hand instead:
+
+```bash
 # 1. register a directory to watch (prints a scope id)
 diskgraph scope add --root ~/projects --data-dir ~/.diskgraph
 

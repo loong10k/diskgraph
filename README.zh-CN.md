@@ -128,6 +128,18 @@ CLI 与 MCP 服务端（`diskgraph-mcp`）一起安装。预编译二进制不�
 ## 上手
 
 ```bash
+cd ~/projects/某个目录 && diskgraph init
+```
+
+`init` 会索引你当前所在的目录，把索引写到 `./.diskgraph`，并在加上 `--yes`
+之后，往本机每个智能体读取的说明文件（`AGENTS.md`、`.claude/CLAUDE.md`）里
+写入一段带标记的说明。**这些文件里你自己写的内容一个字都不会动**；再跑一次
+`init` 是刷新索引，不是重来。`--uninstall` 把说明段取回来，`--print-only`
+先把内容打出来给你看。
+
+想手动驱动的话：
+
+```bash
 # 1. 注册要观察的目录（会打印 scope id）
 diskgraph scope add --root ~/projects --data-dir ~/.diskgraph
 
