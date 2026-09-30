@@ -180,6 +180,12 @@ impl SqliteSnapshotStore {
         if version < 4 {
             migrate_v3_to_v4(&connection)?;
         }
+        // The locator index cost a quarter of a kilobyte per node and served
+        // exactly one query, which nothing on the read path issues. Dropping
+        // it is idempotent and needs no schema version: an existing database
+        // gets the space back the next time it is opened, and a fresh one
+        // never builds it.
+        connection.execute_batch("DROP INDEX IF EXISTS nodes_by_locator;")?;
         Ok(Self { connection })
     }
 
@@ -221,8 +227,8 @@ impl SqliteSnapshotStore {
                     to_string(&node.locator)?,
                     node.name,
                     as_i64(node.subtree_bytes)?,
-                    to_string(node)?,
-                    kind_name(node.kind),
+                    payload_for(node)?,
+                    measured_kind(node),
                     as_i64(node.direct_bytes)?,
                     as_i64(node.files)?,
                     as_i64(node.directories)?,
@@ -471,30 +477,38 @@ impl SqliteSnapshotStore {
     /// instead of materializing every node.
     pub fn root_node(&self, snapshot_id: &str) -> Result<Option<DiskNode>> {
         self.snapshot(snapshot_id)?;
-        let json: Option<String> = self
-            .connection
-            .query_row(
-                "SELECT node_json FROM nodes WHERE snapshot_id = ?1 AND parent_id IS NULL",
-                [snapshot_id],
-                |row| row.get(0),
-            )
-            .optional()?;
-        json.map(|json| from_str(&json).map_err(StoreError::from))
-            .transpose()
+        self.one_node(
+            "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json,
+                    kind, direct_bytes, files, directories, modified_unix_seconds,
+                    file_volume_id, file_id, category_hint, reclaim_hint, read_error
+             FROM nodes WHERE snapshot_id = ?1 AND parent_id IS NULL LIMIT 1",
+            params![snapshot_id],
+        )
     }
 
     pub fn node(&self, snapshot_id: &str, node_id: u64) -> Result<Option<DiskNode>> {
         self.snapshot(snapshot_id)?;
-        let json: Option<String> = self
+        self.one_node(
+            "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json,
+                    kind, direct_bytes, files, directories, modified_unix_seconds,
+                    file_volume_id, file_id, category_hint, reclaim_hint, read_error
+             FROM nodes WHERE snapshot_id = ?1 AND id = ?2 LIMIT 1",
+            params![snapshot_id, as_i64(node_id)?],
+        )
+    }
+
+    /// Decodes one row of the node column list, or nothing when the row is
+    /// absent. Shared by the single-row lookups so a measured node is read
+    /// from its columns and only a pre-v4 row falls back to its payload.
+    fn one_node<P: rusqlite::Params>(&self, sql: &str, params: P) -> Result<Option<DiskNode>> {
+        let Some(row) = self
             .connection
-            .query_row(
-                "SELECT node_json FROM nodes WHERE snapshot_id = ?1 AND id = ?2",
-                params![snapshot_id, as_i64(node_id)?],
-                |row| row.get(0),
-            )
-            .optional()?;
-        json.map(|json| from_str(&json).map_err(StoreError::from))
-            .transpose()
+            .query_row(sql, params, |row| Ok(NodeRow::from(row)))
+            .optional()?
+        else {
+            return Ok(None);
+        };
+        Ok(Some(row.into_node()?))
     }
 
     /// Largest immediate children; use `offset` for deterministic paging.
@@ -507,7 +521,10 @@ impl SqliteSnapshotStore {
     ) -> Result<Vec<DiskNode>> {
         self.snapshot(snapshot_id)?;
         let mut statement = self.connection.prepare(
-            "SELECT node_json FROM nodes
+            "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json,
+                    kind, direct_bytes, files, directories, modified_unix_seconds,
+                    file_volume_id, file_id, category_hint, reclaim_hint, read_error
+             FROM nodes
              WHERE snapshot_id = ?1 AND parent_id = ?2
              ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?3 OFFSET ?4",
         )?;
@@ -518,9 +535,9 @@ impl SqliteSnapshotStore {
                 as_i64(limit)?,
                 as_i64(offset)?,
             ],
-            |row| row.get::<_, String>(0),
+            |row| Ok(NodeRow::from(row)),
         )?;
-        rows.map(|row| Ok(from_str(&row?)?)).collect()
+        rows.map(|row| row?.into_node()).collect()
     }
 
     pub fn top(&self, snapshot_id: &str, parent_id: u64, limit: u64) -> Result<Vec<DiskNode>> {
@@ -539,22 +556,31 @@ impl SqliteSnapshotStore {
         rows.map(|row| Ok(from_str(&row?)?)).collect()
     }
 
+    /// One node by its exact locator.
+    ///
+    /// A compatibility lookup, not a query path: no production read uses it,
+    /// and without the locator index it scans the snapshot. Anything on a
+    /// hot path wants a node id and `revision_layer` instead — an id is
+    /// `O(log n)` on the parent index, this is `O(n)`.
     pub fn node_by_locator(
         &self,
         snapshot_id: &str,
         locator: &ResourceLocator,
     ) -> Result<Option<DiskNode>> {
         self.snapshot(snapshot_id)?;
-        let json: Option<String> = self
-            .connection
+        // Read the structured columns, not the archived payload: a measured
+        // node no longer carries one, and this must not depend on a row's
+        // age. A pre-v4 row still falls back to its payload, which is where
+        // its fields live.
+        self.connection
             .query_row(
-                "SELECT node_json FROM nodes
+                "SELECT id FROM nodes
                  WHERE snapshot_id = ?1 AND locator_key = ?2 LIMIT 1",
                 params![snapshot_id, to_string(locator)?],
-                |row| row.get(0),
+                |row| row.get::<_, i64>(0),
             )
-            .optional()?;
-        json.map(|json| from_str(&json).map_err(StoreError::from))
+            .optional()?
+            .and_then(|id| self.node(snapshot_id, id as u64).transpose())
             .transpose()
     }
 
@@ -647,8 +673,8 @@ impl SqliteSnapshotStore {
                     to_string(&node.locator)?,
                     node.name,
                     as_i64(node.subtree_bytes)?,
-                    to_string(node)?,
-                    kind_name(node.kind),
+                    payload_for(node)?,
+                    measured_kind(node),
                     as_i64(node.direct_bytes)?,
                     as_i64(node.files)?,
                     as_i64(node.directories)?,
@@ -1142,6 +1168,121 @@ fn wal_path(database: &Path) -> PathBuf {
     PathBuf::from(name)
 }
 
+/// The archived JSON payload for one node row.
+///
+/// Every measured node also has its fields in the structured columns, and
+/// the read path reconstructs it from those — it never parses the payload
+/// for such a row. Writing it anyway cost half a kilobyte per node, so a
+/// four-million-node index carried two and a half gigabytes of a copy of
+/// data already in the row. Only a node whose size is unknown still has the
+/// payload as its record, and that is the one case that gets one.
+fn payload_for(node: &DiskNode) -> Result<String> {
+    if node.size_known {
+        Ok(String::new())
+    } else {
+        Ok(to_string(node)?)
+    }
+}
+
+/// The `kind` column doubles as the marker for a fully measured row: the read
+/// path reconstructs a node from the columns when it is set, and falls back to
+/// the archived payload when it is not.
+///
+/// A node whose size could not be measured therefore leaves it empty. Filling
+/// it anyway would read the node back as measured — "unknown" silently
+/// becoming "zero bytes", which is the one thing a size report must never
+/// do to a directory it could not open.
+fn measured_kind(node: &DiskNode) -> Option<&'static str> {
+    if node.size_known {
+        Some(kind_name(node.kind))
+    } else {
+        None
+    }
+}
+
+/// One row of a node query, in whichever of the two shapes it was stored:
+/// a measured node with its fields in columns, or a pre-v4 node whose
+/// fields live only in the archived payload.
+struct NodeRow {
+    id: i64,
+    parent_id: Option<i64>,
+    locator_key: String,
+    name: String,
+    subtree_bytes: i64,
+    node_json: String,
+    kind: Option<String>,
+    direct_bytes: Option<i64>,
+    files: Option<i64>,
+    directories: Option<i64>,
+    modified_unix_seconds: Option<i64>,
+    file_volume_id: Option<String>,
+    file_id: Option<i64>,
+    category_hint: Option<String>,
+    reclaim_hint: Option<String>,
+    read_error: Option<i64>,
+}
+
+impl<'row> From<&'row rusqlite::Row<'row>> for NodeRow {
+    fn from(row: &'row rusqlite::Row<'row>) -> Self {
+        Self {
+            id: row.get(0).unwrap_or_default(),
+            parent_id: row.get(1).unwrap_or_default(),
+            locator_key: row.get(2).unwrap_or_default(),
+            name: row.get(3).unwrap_or_default(),
+            subtree_bytes: row.get(4).unwrap_or_default(),
+            node_json: row.get(5).unwrap_or_default(),
+            kind: row.get(6).unwrap_or_default(),
+            direct_bytes: row.get(7).unwrap_or_default(),
+            files: row.get(8).unwrap_or_default(),
+            directories: row.get(9).unwrap_or_default(),
+            modified_unix_seconds: row.get(10).unwrap_or_default(),
+            file_volume_id: row.get(11).unwrap_or_default(),
+            file_id: row.get(12).unwrap_or_default(),
+            category_hint: row.get(13).unwrap_or_default(),
+            reclaim_hint: row.get(14).unwrap_or_default(),
+            read_error: row.get(15).unwrap_or_default(),
+        }
+    }
+}
+
+impl NodeRow {
+    /// The node this row describes. A row with a structured `kind` is read
+    /// from its columns; a pre-v4 row falls back to the payload, which is
+    /// where its fields live.
+    fn into_node(self) -> Result<DiskNode> {
+        let Some(kind) = self.kind else {
+            return Ok(from_str(&self.node_json)?);
+        };
+        let locator: ResourceLocator = from_str(&self.locator_key)?;
+        let file_identity = match (self.file_volume_id, self.file_id) {
+            (Some(volume_id), Some(id)) => Some(diskgraph_core::FileIdentity {
+                volume_id,
+                file_id: id as u64,
+            }),
+            _ => None,
+        };
+        Ok(DiskNode {
+            id: self.id as u64,
+            parent_id: self.parent_id.map(|value| value as u64),
+            locator,
+            name: self.name,
+            kind: kind_from_name(&kind)?,
+            subtree_bytes: self.subtree_bytes as u64,
+            direct_bytes: self.direct_bytes.unwrap_or(0) as u64,
+            files: self.files.unwrap_or(0) as u64,
+            directories: self.directories.unwrap_or(0) as u64,
+            modified_unix_seconds: self.modified_unix_seconds,
+            file_identity,
+            category_hint: self.category_hint,
+            reclaim_hint: self.reclaim_hint,
+            read_error: self.read_error.unwrap_or(0) != 0,
+            // Structured rows are only written for fully measured nodes;
+            // unknown sizes stay in the payload.
+            size_known: true,
+        })
+    }
+}
+
 /// The v1 schema, verbatim: fresh databases are created at v1 and then
 /// migrated forward, so v1 rows never skip the migration path (ST-02).
 const V1_SCHEMA: &str = "PRAGMA foreign_keys = ON;
@@ -1166,8 +1307,6 @@ const V1_SCHEMA: &str = "PRAGMA foreign_keys = ON;
      );
      CREATE INDEX IF NOT EXISTS nodes_by_parent_size
          ON nodes (snapshot_id, parent_id, subtree_bytes DESC, name ASC);
-     CREATE INDEX IF NOT EXISTS nodes_by_locator
-         ON nodes (snapshot_id, locator_key);
      CREATE TABLE IF NOT EXISTS evidence (
          snapshot_id TEXT NOT NULL REFERENCES snapshots(id) ON DELETE CASCADE,
          node_id INTEGER NOT NULL,
@@ -1458,6 +1597,107 @@ mod tests {
     }
 
     #[test]
+    fn a_measured_node_stores_no_payload_and_still_reads_back_identically() {
+        let dir = std::env::temp_dir().join(format!("diskgraph-payload-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        let original = graph("slim", 4_096);
+        {
+            let mut store = SqliteSnapshotStore::open(&path).unwrap();
+            store
+                .publish_revision("job", &original, "rev-0", 1_700_000_000)
+                .unwrap();
+        }
+        let connection = Connection::open(&path).unwrap();
+        let stored: String = connection
+            .query_row(
+                "SELECT node_json FROM nodes WHERE snapshot_id = 'slim' LIMIT 1",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert!(
+            stored.is_empty(),
+            "a measured row must not repeat itself: {stored}"
+        );
+        // Every reader goes through the columns now, and they must return the
+        // same node the writer was handed: the payload was a copy, and a
+        // copy that drifts is worse than no copy.
+        let store = SqliteSnapshotStore::open(&path).unwrap();
+        assert_eq!(store.load("slim").unwrap(), original);
+        assert_eq!(store.node("slim", 2).unwrap().unwrap(), original.nodes[1]);
+        assert_eq!(store.root_node("slim").unwrap().unwrap(), original.nodes[0]);
+        assert_eq!(
+            store.children("slim", 1, 0, 10).unwrap(),
+            vec![original.nodes[1].clone()]
+        );
+        assert_eq!(
+            store
+                .node_by_locator("slim", &original.nodes[1].locator)
+                .unwrap()
+                .unwrap(),
+            original.nodes[1]
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_node_of_unknown_size_keeps_its_payload_because_it_is_the_record() {
+        let dir = std::env::temp_dir().join(format!("diskgraph-unknown-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        // A node whose size could not be measured has its fields nowhere
+        // else: the columns are only written for fully measured nodes, so
+        // dropping its payload would erase it.
+        let mut unknown = graph("partial", 100);
+        unknown.nodes[1].size_known = false;
+        {
+            let mut store = SqliteSnapshotStore::open(&path).unwrap();
+            store
+                .publish_revision("job", &unknown, "rev-0", 1_700_000_000)
+                .unwrap();
+        }
+        let store = SqliteSnapshotStore::open(&path).unwrap();
+        assert_eq!(store.node("partial", 2).unwrap().unwrap(), unknown.nodes[1]);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn the_locator_index_is_not_rebuilt() {
+        let dir = std::env::temp_dir().join(format!("diskgraph-noindex-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        {
+            let mut store = SqliteSnapshotStore::open(&path).unwrap();
+            store
+                .publish_revision("job", &graph("slim", 100), "rev-0", 1_700_000_000)
+                .unwrap();
+        }
+        // Reopened, so the open-time drop runs against a populated database.
+        let store = SqliteSnapshotStore::open(&path).unwrap();
+        let count = |name: &str| -> i64 {
+            store
+                .connection
+                .query_row(
+                    "SELECT COUNT(*) FROM sqlite_master
+                     WHERE type = 'index' AND name = ?1",
+                    [name],
+                    |row| row.get(0),
+                )
+                .unwrap()
+        };
+        assert_eq!(
+            count("nodes_by_locator"),
+            0,
+            "the index cost a quarter kilobyte a node and served no read path"
+        );
+        // The parent index is what queries actually use, and it stays.
+        assert_eq!(count("nodes_by_parent_size"), 1);
+        assert_eq!(store.children("slim", 1, 0, 10).unwrap().len(), 1);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
     fn an_oversized_wal_is_folded_back_into_the_database_at_open() {
         let dir = std::env::temp_dir().join(format!("diskgraph-wal-heal-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
@@ -1572,34 +1812,43 @@ mod tests {
     fn v4_structured_rows_read_identically_to_their_json_payload() {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("snapshots.sqlite");
-        let graph = graph("v4", 4096);
+        // One node of each shape: a measured one that lives in the columns,
+        // and one whose payload is the only record of it.
+        let mut mixed = graph("v4", 4096);
+        mixed.nodes[1].size_known = false;
         let mut store = SqliteSnapshotStore::open(&path).unwrap();
-        store.save(&graph).unwrap();
+        store.save(&mixed).unwrap();
         drop(store);
 
-        // The v4 columns carry the same facts as node_json for every row.
+        // The `kind` column is the marker for which shape a row is in: set
+        // means the columns carry the node, empty means the payload does.
         let connection = rusqlite::Connection::open(&path).unwrap();
         let rows: Vec<(String, Option<String>)> = connection
             .prepare("SELECT node_json, kind FROM nodes WHERE snapshot_id = ?1")
             .unwrap()
-            .query_map([&graph.snapshot.id], |row| Ok((row.get(0)?, row.get(1)?)))
+            .query_map([&mixed.snapshot.id], |row| Ok((row.get(0)?, row.get(1)?)))
             .unwrap()
             .collect::<std::result::Result<_, _>>()
             .unwrap();
-        for (json, kind) in &rows {
-            let kind = kind
-                .as_deref()
-                .expect("v4 row must carry structured columns");
-            let parsed: DiskNode = serde_json::from_str(json).unwrap();
-            assert_eq!(kind_name(parsed.kind), kind);
-        }
+        assert_eq!(rows.len(), 2);
+        let measured = rows
+            .iter()
+            .find(|(_, kind)| kind.is_some())
+            .expect("a measured row carries the columns");
+        assert!(measured.0.is_empty(), "and no copy of itself");
+        let unmeasured = rows
+            .iter()
+            .find(|(_, kind)| kind.is_none())
+            .expect("an unmeasured row keeps its payload");
+        let parsed: DiskNode = serde_json::from_str(&unmeasured.0).unwrap();
+        assert!(!parsed.size_known);
 
-        // And the load path returns the full node for both code paths.
+        // Both shapes read back as the nodes that were written.
         let store = SqliteSnapshotStore::open(&path).unwrap();
-        let loaded = store.load(&graph.snapshot.id).unwrap();
-        assert_eq!(loaded.nodes.len(), graph.nodes.len());
-        for (loaded, written) in loaded.nodes.iter().zip(graph.nodes.iter()) {
-            assert_eq!(loaded, written, "v4 fast path must equal the JSON payload");
+        let loaded = store.load(&mixed.snapshot.id).unwrap();
+        assert_eq!(loaded.nodes.len(), mixed.nodes.len());
+        for (loaded, written) in loaded.nodes.iter().zip(mixed.nodes.iter()) {
+            assert_eq!(loaded, written, "the fast path must lose nothing");
         }
     }
 
