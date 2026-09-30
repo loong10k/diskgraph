@@ -90,6 +90,7 @@ impl Locator {
         }
         #[cfg(windows)]
         {
+            use std::os::windows::ffi::OsStringExt;
             let units: Vec<u16> = bytes
                 .chunks_exact(2)
                 .map(|pair| u16::from_le_bytes([pair[0], pair[1]]))
