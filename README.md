@@ -31,7 +31,8 @@ Disk usage is a picture, not a number. Three surfaces draw the same map from the
 <td width="62%"><img src="docs/assets/treemap-html.png" alt="DiskGraph browser treemap" /></td>
 <td valign="top" width="38%">
 
-**Browser** — one self-contained file, no CDN, no build step:
+**Browser** — one self-contained file, no CDN, no build step. Above: a real
+home directory, 4.5M files indexed, rendered at depth 4.
 
 ```bash
 diskgraph tree --scope <id> --html usage.html
@@ -51,14 +52,13 @@ diskgraph tui --scope <id>
 ```
 
 <pre>
- demo   464 MiB  10 files   ↑↓ move · enter descend · esc up · s sort · q quit
-┌ disk usage · rev-ceb45ad0────────────────────────────────────────────┐┌ selection ──────┐
-│ ┌atarget.bin 180 MiB───────beta 90.0 MiB──gamma 4…┐LCaches 55.0 MiB  …  ││workspaces      │
-│ │                                                 │                  ││size   310 MiB  │
-│ │                                                 │                  ││files  3        │
-│ │                                                 │                  ││kind   directory│
-│ │                                                 │                  ││category Code   │
-└──────────────────────────────────────────────────┴──────────────────┘└────────────────┘
+ workspace-partme-ai   16.8 GiB  226283 files   m threshold · q quit
+┌ disk usage · rev-6c10172a───────────────────────────────────────────────┐┌ selection ──────┐
+│ ┌debug 6.7 GiB──────┐design-v2 1.2… research 1.… workbuddy-…           ││diskgraph       │
+│ │                   │                                                  ││size    7.5 GiB │
+│ │                   │                                                  ││files  63980    │
+│ │                   │                                                  ││category Git    │
+└───────────────────┴──────────────────────────────────────────────────┘└────────────────┘
 </pre>
 
 </td>

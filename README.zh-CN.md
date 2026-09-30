@@ -31,7 +31,7 @@
 <td width="62%"><img src="docs/assets/treemap-html.png" alt="DiskGraph 浏览器 treemap" /></td>
 <td valign="top" width="38%">
 
-**浏览器** —— 单个自包含文件，零 CDN、零构建：
+**浏览器** —— 单个自包含文件，零 CDN、零构建。上图：真实家目录，453 万文件已索引，深度 4 渲染。
 
 ```bash
 diskgraph tree --scope <id> --html usage.html
@@ -51,14 +51,13 @@ diskgraph tui --scope <id>
 ```
 
 <pre>
- demo   464 MiB  10 files   ↑↓ 移动 · enter 下钻 · esc 返回 · s 排序 · q 退出
-┌ disk usage · rev-ceb45ad0────────────────────────────────────────────┐┌ selection ──────┐
-│ ┌atarget.bin 180 MiB───────beta 90.0 MiB──gamma 4…┐LCaches 55.0 MiB  …  ││workspaces      │
-│ │                                                 │                  ││size   310 MiB  │
-│ │                                                 │                  ││files  3        │
-│ │                                                 │                  ││kind   directory│
-│ │                                                 │                  ││category Code   │
-└──────────────────────────────────────────────────┴──────────────────┘└────────────────┘
+ workspace-partme-ai   16.8 GiB  226283 files   m 阈值 · q 退出
+┌ disk usage · rev-6c10172a───────────────────────────────────────────────┐┌ selection ─────┐
+│ ┌debug 6.7 GiB──────┐design-v2 1.2… research 1.… workbuddy-…           ││diskgraph      │
+│ │                   │                                                  ││size    7.5 GiB│
+│ │                   │                                                  ││files  63980   │
+│ │                   │                                                  ││category Git   │
+└───────────────────┴──────────────────────────────────────────────────┘└───────────────┘
 </pre>
 
 </td>
