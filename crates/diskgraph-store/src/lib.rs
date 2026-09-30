@@ -511,6 +511,27 @@ impl SqliteSnapshotStore {
         Ok(Some(row.into_node()?))
     }
 
+    /// The one child of `parent_id` named `name`, or nothing.
+    ///
+    /// Unlike `children` this asks for a single entry, so a directory with
+    /// ten thousand children costs one index probe instead of a page of
+    /// rows the caller would only filter down.
+    pub fn child_named(
+        &self,
+        snapshot_id: &str,
+        parent_id: u64,
+        name: &str,
+    ) -> Result<Option<DiskNode>> {
+        self.snapshot(snapshot_id)?;
+        self.one_node(
+            "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json,
+                    kind, direct_bytes, files, directories, modified_unix_seconds,
+                    file_volume_id, file_id, category_hint, reclaim_hint, read_error
+             FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND name = ?3 LIMIT 1",
+            params![snapshot_id, as_i64(parent_id)?, name],
+        )
+    }
+
     /// Largest immediate children; use `offset` for deterministic paging.
     pub fn children(
         &self,

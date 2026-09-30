@@ -35,6 +35,16 @@ pub use queries::{
 };
 pub use runner::JobRunner;
 
+/// The size change of one path between two published revisions, owned
+/// rather than borrowed: the answer costs two rows, so there is no reason to
+/// hold a whole graph alive to describe them.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RevisionGrowth {
+    pub before: diskgraph_core::DiskNode,
+    pub after: diskgraph_core::DiskNode,
+    pub delta_bytes: i128,
+}
+
 /// Engine construction options; the data directory holds both databases.
 #[derive(Clone, Debug)]
 pub struct EngineConfig {
@@ -625,6 +635,92 @@ impl Engine {
         graph
             .root_node(&record.snapshot_id)?
             .ok_or(EngineError::Business(BusinessError::NotFound))
+    }
+
+    /// One node in a published revision, addressed by its path under the
+    /// root.
+    ///
+    /// Walks the path one level at a time, so the cost is one indexed lookup
+    /// per segment rather than a scan. Loading the revision to answer "how
+    /// did this directory change" was the only way before, and on a
+    /// four-million-node index that meant materializing four million nodes to
+    /// read two of them.
+    pub fn revision_node_at(
+        &self,
+        revision_id: &str,
+        relative: &std::path::Path,
+    ) -> Result<Option<diskgraph_core::DiskNode>, EngineError> {
+        use diskgraph_core::ResourceLocator;
+        let graph = self.graph()?;
+        let record = graph.revision(revision_id)?;
+        let mut current = match graph.root_node(&record.snapshot_id)? {
+            Some(root) => root,
+            None => return Ok(None),
+        };
+        for segment in relative.components() {
+            let name = segment.as_os_str().to_string_lossy().into_owned();
+            if name == "." || name == ".." {
+                return Err(EngineError::Business(BusinessError::InvalidArgument));
+            }
+            current = match graph.child_named(&record.snapshot_id, current.id, &name)? {
+                Some(child) => child,
+                None => return Ok(None),
+            };
+        }
+        // A path that names the root itself is the root, not a miss.
+        debug_assert!(matches!(current.locator, ResourceLocator::NativePath(_)));
+        Ok(Some(current))
+    }
+
+    /// How much one path grew between two published revisions.
+    ///
+    /// Reads the two nodes it needs and nothing else: the previous answer had
+    /// to materialize both revisions, which on a four-million-node index meant
+    /// four million nodes in memory to compare two of them. The comparability
+    /// rules are the ones the in-memory version applies — a differing root,
+    /// volume, or scan setting, an unknown volume, an earlier "after", or an
+    /// incomplete scan on either side all answer "not comparable" rather than
+    /// a number, because a size delta across incomparable scans is a fiction.
+    pub fn growth_between(
+        &self,
+        before_revision: &str,
+        after_revision: &str,
+        relative: &Path,
+    ) -> Result<Option<RevisionGrowth>, EngineError> {
+        // The comparability check reads only metadata, so the store lock is
+        // released before the node lookups: those take the same lock, and
+        // holding it across them would wait on this thread's own guard.
+        {
+            let graph = self.graph()?;
+            let before_record = graph.revision(before_revision)?;
+            let after_record = graph.revision(after_revision)?;
+            let before_snapshot = graph.snapshot(&before_record.snapshot_id)?;
+            let after_snapshot = graph.snapshot(&after_record.snapshot_id)?;
+            if before_snapshot.root != after_snapshot.root
+                || before_snapshot.volume_id != after_snapshot.volume_id
+                || after_snapshot.volume_id.is_none()
+                || before_snapshot.settings != after_snapshot.settings
+                || before_snapshot.captured_at_unix_ms > after_snapshot.captured_at_unix_ms
+                || !before_snapshot.coverage.complete
+                || !after_snapshot.coverage.complete
+            {
+                return Ok(None);
+            }
+        }
+        let (Some(before), Some(after)) = (
+            self.revision_node_at(before_revision, relative)?,
+            self.revision_node_at(after_revision, relative)?,
+        ) else {
+            // A path absent from one side is a removal or an addition, never
+            // a growth. Renames are not inferred, same as before.
+            return Ok(None);
+        };
+        let delta_bytes = i128::from(after.subtree_bytes) - i128::from(before.subtree_bytes);
+        Ok(Some(RevisionGrowth {
+            before,
+            after,
+            delta_bytes,
+        }))
     }
 
     /// One directory level of a published revision: the node itself and its

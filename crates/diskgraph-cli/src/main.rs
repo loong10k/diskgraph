@@ -202,6 +202,9 @@ enum Command {
         before: String,
         #[arg(long)]
         after: String,
+        /// Path under the root to compare; the root itself by default.
+        #[arg(long, default_value = "")]
+        path: String,
     },
     /// C06: differences between two comparable snapshots; renames are never
     /// inferred (they show as removal + addition).
@@ -843,18 +846,18 @@ fn dispatch(
             scope: _,
             before,
             after,
+            path,
         } => {
             // Revision-to-scope binding arrives when revisions carry scope
             // identity in the graph store (ST-04); the comparison is already
             // revision-pinned and needs no scope lookup.
-            let graph_before = engine.load_revision(before)?;
-            let graph_after = engine.load_revision(after)?;
-            let growth = graph_after.growth(&graph_before, &graph_before.snapshot.root);
+            let growth = engine.growth_between(before, after, std::path::Path::new(path))?;
             out.push(envelope_line(
                 engine,
                 Ok(serde_json::json!({
                     "delta_bytes": growth.as_ref().map(|g| g.delta_bytes.to_string()),
                     "comparable": growth.is_some(),
+                    "path": if path.is_empty() { ".".to_owned() } else { path.clone() },
                 })),
             ));
             Ok(())
