@@ -244,7 +244,16 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Publish
         working-directory: npm
-        run: npm publish --provenance --access public
+        run: |
+          set -eu
+          version=$(node -p "require('./package.json').version")
+          # Idempotent re-runs: npm never lets a published version be
+          # overwritten, so an existing version is success, not failure.
+          if npm view "diskgraph@$version" version >/dev/null 2>&1; then
+            echo "npm already has diskgraph@$version; continuing"
+          else
+            npm publish --provenance --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
