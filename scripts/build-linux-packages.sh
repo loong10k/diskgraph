@@ -10,7 +10,7 @@ set -eu
 
 STAGE="$1"        # the directory holding bin/diskgraph and bin/diskgraph-mcp
 OUT="$2"          # where the .deb and .rpm are written
-VERSION="$3"      # e.g. 0.2.1
+VERSION="${3#v}"    # the tag arrives as v0.2.1; package versions are bare
 NAME="diskgraph"
 ARCH_DEB="amd64"
 ARCH_RPM="x86_64"
