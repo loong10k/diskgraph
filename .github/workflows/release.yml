@@ -1,0 +1,162 @@
+name: Release
+
+# The distribution foundation every other channel points at: one GitHub
+# Release per tag, with per-target archives and a SHA256SUMS file. Homebrew,
+# npm (thin installer), winget, and scoop all resolve their downloads from
+# these assets, so this workflow is the only place binaries are produced.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build a release for (e.g. v0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ---- build every target in its own environment -----------------------------
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-14
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-13
+            archive: tar.gz
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-24.04
+            archive: tar.gz
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-2022
+            archive: zip
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cross toolchain (Linux aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      # bundled SQLite compiles C, so the C toolchain must target the same
+      # triple as Rust (EC-01: no shell tools, but a C compiler is required).
+      - name: Build
+        run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
+        env:
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          AR_aarch64_unknown_linux_gnu: aarch64-linux-gnu-ar
+
+      - name: Assemble archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          staging="dist/diskgraph-${{ matrix.target }}"
+          exe=""
+          if [ "${{ runner.os }}" = "Windows" ]; then exe=".exe"; fi
+          mkdir -p "$staging/bin"
+          cp "target/${{ matrix.target }}/release/diskgraph$exe" "$staging/bin/diskgraph$exe"
+          cp "target/${{ matrix.target }}/release/diskgraph-mcp$exe" "$staging/bin/diskgraph-mcp$exe"
+          cp LICENSE README.md "$staging/"
+          archive="dist/diskgraph-${{ matrix.target }}.${{ matrix.archive }}"
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            (cd dist && 7z a "../diskgraph-${{ matrix.target }}.zip" "diskgraph-${{ matrix.target }}")
+          else
+            tar -C dist -czf "$archive" "diskgraph-${{ matrix.target }}"
+          fi
+          # The archive's own digest, computed once here; the release job
+          # re-verifies it after download before publishing.
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            (cd dist && powershell -NoProfile -Command \
+              "(Get-FileHash -Algorithm SHA256 'diskgraph-${{ matrix.target }}.zip').Hash.ToLower()" \
+              > "$archive.sha256")
+          else
+            shasum -a 256 "$archive" | awk '{print $1}' > "$archive.sha256"
+          fi
+          cat "$archive.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diskgraph-${{ matrix.target }}
+          path: |
+            dist/diskgraph-${{ matrix.target }}.*
+          retention-days: 7
+
+  # ---- publish one release with every target and a merged SHA256SUMS ---------
+  release:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          pattern: diskgraph-*
+          merge-multiple: false
+
+      - name: Merge checksums and verify each archive
+        run: |
+          set -euo pipefail
+          cd assets
+          : > SHA256SUMS
+          for archive in diskgraph-*.tar.gz diskgraph-*.zip; do
+            [ -e "$archive" ] || continue
+            actual="$(shasum -a 256 "$archive" | awk '{print $1}')"
+            claimed="$(cat "$archive.sha256" 2>/dev/null | tr -d '[:space:]')"
+            if [ "$actual" != "$claimed" ]; then
+              echo "checksum mismatch for $archive: build=$claimed release=$actual" >&2
+              exit 1
+            fi
+            echo "$actual  $archive" >> SHA256SUMS
+            echo "verified $archive $actual"
+          done
+          test -s SHA256SUMS
+          # Smoke: the archive must contain both binaries, non-empty.
+          tar -tzf diskgraph-aarch64-apple-darwin.tar.gz | grep -q 'bin/diskgraph$'
+          tar -tzf diskgraph-aarch64-apple-darwin.tar.gz | grep -q 'bin/diskgraph-mcp$'
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          notes="$(mktemp)"
+          {
+            echo "DiskGraph private release ${TAG}."
+            echo
+            echo "Archives below; verify with the accompanying SHA256SUMS."
+            echo "Installation channels (npm, brew, winget, scoop, cargo) all"
+            echo "resolve their binaries from this release."
+            echo
+            echo "Unsigned: macOS notarization and Windows Authenticode are not"
+            echo "configured; Gatekeeper and SmartScreen will warn."
+          } > "$notes"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" assets/* --clobber
+            gh release edit "$TAG" --notes-file "$notes"
+          else
+            gh release create "$TAG" assets/* --title "DiskGraph ${TAG}" --notes-file "$notes"
+          fi

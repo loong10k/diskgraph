@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.invalid.manifest.schema.json
+PackageIdentifier: loong10k.DiskGraph
+PackageVersion: 0.1.0
+DefaultLocale: en-US
+ManifestType: installer
+ManifestVersion: 1.6.0
+Publisher: loong10k
+PublisherUrl: https://github.com/loong10k
+PublisherSupportUrl: https://github.com/loong10k/diskgraph/issues
+Author: DiskGraph contributors
+PackageName: DiskGraph
+PackageUrl: https://github.com/loong10k/diskgraph
+License: MIT
+LicenseUrl: https://github.com/loong10k/diskgraph/blob/main/LICENSE
+ShortDescription: File-relationship engine for AI agents
+Description: |-
+  DiskGraph indexes a directory into a local SQLite graph so AI agents and
+  PruneX can answer bounded questions about disk usage, ownership,
+  evidence, and history without walking the filesystem again.
+
+  Install location: %LOCALAPPDATA%\Programs\DiskGraph. The archive ships
+  both the diskgraph CLI and the diskgraph-mcp MCP server (stdio,
+  Streamable HTTP, and legacy SSE transports).
+Moniker: diskgraph
+Tags:
+  - disk
+  - storage
+  - cli
+  - mcp
+  - ai
+ReleaseNotes: https://github.com/loong10k/diskgraph/releases/tag/v0.1.0
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: https://github.com/loong10k/diskgraph/releases/download/v0.1.0/diskgraph-x86_64-pc-windows-msvc.zip
+    InstallerSha256: 
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: diskgraph-x86_64-pc-windows-msvc/bin/diskgraph.exe
+        PortableCommandAlias: diskgraph
+      - RelativeFilePath: diskgraph-x86_64-pc-windows-msvc/bin/diskgraph-mcp.exe
+        PortableCommandAlias: diskgraph-mcp
+    InstallerSwitches:
+      Custom: --quiet

@@ -8,3 +8,9 @@
 *.db-wal
 .DS_Store
 /dist/
+
+# npm thin-installer: vendored platform binaries are downloaded at install
+npm/vendor/
+
+# npm thin-installer: vendored platform binaries are downloaded at install
+npm/vendor/
