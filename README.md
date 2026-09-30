@@ -1,194 +1,199 @@
+<div align="center">
+
+<img src="docs/assets/logo.svg" alt="DiskGraph" height="72" />
+
 # DiskGraph
+
+**A file-relationship engine for AI agents — disk usage, ownership, evidence, and history, indexed locally**
+
+`npx -y diskgraph --help` needs nothing on your machine. Everything stays in one directory on your disk.
+
+</div>
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A Rust file-relationship engine for AI agents and PruneX: understand disk usage, ownership, evidence, and historical growth through a reusable local index.
+[![crates.io](https://img.shields.io/badge/crates.io-diskgraph--cli-blue)](https://crates.io/crates/diskgraph-cli)
+[![npm](https://img.shields.io/badge/npm-diskgraph-blue)](https://www.npmjs.com/package/diskgraph)
+[![Homebrew](https://img.shields.io/badge/brew-loong10k%2Fdiskgraph%2Fdiskgraph-blue)](https://github.com/loong10k/homebrew-diskgraph)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**Early library foundation, not a released cleanup application.** Development remains private by project policy; public distribution is deferred. Workspace version: `0.1.0`. Documentation baseline: `a89e57a`, verified on 2026-09-28.
-
-```text
-Today:   trusted Rust / UniFFI host → four library crates → native scan + SQLite + five queries
-Target:  agents → CLI / MCP ─┐
-         PruneX → FFI ──────┴→ shared engine → graph + evidence + optional authorized operations
-```
-
-## 1. What DiskGraph is
-
-DiskGraph is intended to install independently, like a code graph tool for filesystem relationships. Persistent snapshots and bounded queries should reduce repeated traversal and oversized agent context. This efficiency is a design objective, not a measured performance claim.
-
-PruneX is the product/UI layer, analogous in responsibility to disktree-app. DiskGraph is its shared engine, analogous to disktree-core but with graph history, evidence, agent access, and controlled operations planned. The DiskGraph project is not the single internal `diskgraph-core` crate.
-
-DiskGraph reuses [DiskTree](https://github.com/tobi/disktree) scanning rather than replacing it. AgentScope-Swift/Kotlin orchestration, model selection, and PruneX business data belong to the host application. No LLM is required for the Rust foundation.
-
-## 2. Current status and limits
-
-| Area | Implemented and tested | Known boundaries |
-| :--- | :--- | :--- |
-| Models and queries | Typed ownership graph and relations, bounded top/children/growth/changes/search/explore/impact/candidates, explain-with-evidence | URI providers (SAF/documents) deferred to real devices |
-| Storage | Snapshot + control databases with versioned migrations (v1→v3), staging/atomic publication, retention with dependency checks | GRDB/Room coexistence fixtures need Xcode/Gradle hosts |
-| Scanning | Lossless v2 locators with file identity, budgets and named-stop cancellation, exclusion records, watermarks; Cargo/Node/Maven/Gradle collectors | Cloud-placeholder device drills and mount-race drills documented as real-OS requirements |
-| Agent delivery | Standalone CLI (25 commands; mutation commands plan-only until wired), MCP server over stdio/streamable-http/legacy-sse with auth, quotas and origin policy | Mutation CLI wiring to the ops layer is the remaining delivery step |
-| File operations | Immutable digest-bound plans, trusted approvals, same/cross-volume moves, quarantine+restore, purge behind a dedicated authority, Cargo/Docker specialist adapters | PruneX review-UI integration and UI-level drills need the host product |
-| Language bridge | Versioned UniFFI bindings, async job handles, Swift and Kotlin hosts compiled and run for real | XCFramework/AAR packaging and mobile verification need Xcode/NDK/devices |
-
-Verification status: 324 tests green, three-OS CI, real-host acceptance records under `docs/acceptance/`; the 77-requirement evidence matrix is `docs/acceptance/requirements-matrix.md`.
-
-The current native scan produces no relationship evidence; conservative candidates therefore normally returns an empty list for a freshly scanned directory. Classification and candidates are not deletion permission.
-
-The current library accepts caller-selected database/root paths. It is intended for a trusted host, not exposure to untrusted remote callers. The planned server's scope/authorization controls are not already present in this API.
-
-CI runs the full gate matrix on macOS, Linux, and Windows. On the local macOS host (Apple Silicon, Rust 1.98.1), 324 tests pass with fmt and clippy clean; Swift and Kotlin binding hosts were compiled and run for real (see `docs/acceptance/ffi-bindings.md`). Mobile-device behavior and Windows-specific semantics remain documented real-OS requirements, not verified claims.
-
-## 3. Build and verify today
-
-Use an authorized checkout and run from its repository root. The manifest requires Rust 1.97 or newer, Edition 2024, and native build tooling for bundled SQLite. The verified toolchain was 1.98.1; obtain pinned dependencies before using offline mode.
-
-```bash
-cargo test --workspace --locked
-cargo fmt --all --check
-cargo clippy --workspace --all-targets --locked -- -D warnings
-```
-
-A small existing end-to-end library test creates a temporary directory/database and exercises scanning, querying, and JSON responses:
-
-```bash
-cargo test -p diskgraph-ffi read_only_bindings_scan_and_query_native_directory --locked
-```
-
-Expected result: the named test passes. This is not a CLI installation or cleanup demonstration. Tests use temporary fixtures; the scanner does not delete source files. It does write snapshot metadata to the chosen SQLite database.
-
-There is no supported `cargo install diskgraph`, published-package installation, or runnable `diskgraph serve` quick start documented yet. Planned commands below are contracts, not executable instructions for this checkout.
-
-## 4. Existing Rust and FFI surface
-
-| Crate | Responsibility |
-| :--- | :--- |
-| [diskgraph-core](crates/diskgraph-core) | Serializable models and read-only query semantics |
-| [diskgraph-store](crates/diskgraph-store) | SQLite snapshot persistence and indexed queries |
-| [diskgraph-disktree](crates/diskgraph-disktree) | Native read-only scanner adapter |
-| [diskgraph-ffi](crates/diskgraph-ffi) | UniFFI exports, JSON envelope, binding generator |
-
-The existing [FFI source](crates/diskgraph-ffi/src/lib.rs) exports:
-
-| Function | Purpose |
-| :--- | :--- |
-| capabilities_json | Report current platform capabilities; URI scanning and cleanup are false |
-| scan_native_json | Scan a native root and persist its snapshot |
-| latest_native_snapshot_json | Look up the latest snapshot for a native root |
-| top_json | Rank children within a snapshot |
-| children_json | Page children using offset/limit and next_offset |
-| explain_json | Return the selected node and available evidence |
-| growth_json | Compare a locator across two compatible snapshots |
-| candidates_json | Return conservative review candidates toward a byte target |
-
-All return JSON strings: `{"schema_version":1,"ok":true,"data":...}` or `{"schema_version":1,"ok":false,"error":"..."}`. top/children accept limits from 1 through 1000. Growth's signed delta_bytes is a decimal string; unavailable/incompatible comparisons return null data. JSON v2 in the technical design is planned, not the current envelope.
-
-On macOS, generate Swift and Kotlin source bindings:
-
-```bash
-cargo build -p diskgraph-ffi --lib --locked
-cargo run -p diskgraph-ffi --bin uniffi-bindgen -- generate \
-  target/debug/libdiskgraph_ffi.dylib \
-  --language swift --language kotlin --no-format --out-dir ./generated-bindings
-```
-
-This is a binding-generation recipe, not proof of native application integration. Generated source is not an XCFramework/AAR. Other platforms need their own library artifact and packaging validation. Hosts should run scanning off the UI thread.
-
-## 5. Target architecture and storage ownership
-
-```mermaid
-flowchart TB
-    A["Local / remote agents"] --> M["diskgraph-mcp"]
-    T["Terminal / scripts"] --> C["diskgraph-cli"]
-    P["PruneX Swift / Kotlin"] --> F["diskgraph-ffi"]
-    M --> S["Shared authorization and service boundary"]
-    C --> S
-    F --> S
-    S --> E["Index / relationships / queries"]
-    S --> O["Optional approved operations"]
-    E --> D["disktree-core / providers / collectors"]
-    E --> G["diskgraph.sqlite: rebuildable graph"]
-    O --> K["diskgraph-control.sqlite: durable control"]
-    P --> B["prunex.sqlite: GRDB / Room business data"]
-```
-
-CLI, MCP, and FFI share the Rust engine; MCP does not shell out to CLI, and PruneX does not require an MCP subprocess. Separate crates may ship in one executable distribution.
-
-Rust owns graph and control schemas. PruneX owns UI preferences and model sessions in its own database. Separate databases do not by themselves solve native SQLite linking conflicts; Swift/Kotlin integration must test coexistence.
-
-Remote agents query the server's authorized scopes through protocols. They do not mount SQLite or reinterpret server paths as local paths. ResourceRef identifies an observation; it grants no permission.
-
-## 6. Planned commands and MCP transports
-
-The [command reference](docs/command-reference.md) defines 29 command families:
-
-| Group | Command families |
-| :--- | :--- |
-| Scope/index/history | scope, index, sync, status, snapshots, changes, growth |
-| Navigation and evidence | explore, search, node, children, top, related, explain, impact |
-| Review and content | candidates, duplicates, read |
-| Planned actions | move, copy, trash, restore, purge |
-| Execution records | plan, apply, operations |
-| Delivery and diagnostics | serve, install, doctor |
-
-Queries are read-only by default; indexing updates the index, content access needs separate permission, and action commands create plans rather than immediately changing files. See the catalog for exact stage, permission, and MCP mappings.
-
-Target transports:
-
-- stdio for local agent hosts; stdout contains protocol messages only.
-- Streamable HTTP for server deployment with authentication, scope isolation, budgets, and encrypted transport.
-- Legacy HTTP+SSE as a separate, optional compatibility adapter, disabled by default.
-
-Modern HTTP streaming SSE is not evidence of legacy protocol compatibility. All transports require independent client testing and share the same authorization semantics.
-
-## 7. Safety and privacy boundaries
-
-Rebuildable evidence is not permission to delete. Protection, current process-use coverage, exact identity, directory descendants, and approval must be revalidated before mutations. Unknown is not safe. Untrusted filenames/manifests cannot become agent instructions.
-
-The target workflow is inspect → immutable plan → trusted approval → live revalidation → recorded execution → reconciliation. The agent cannot issue its own arbitrary approval. No generic shell-execution tool or default global Docker prune is planned.
-
-Prefer reversible trash/quarantine where supported, but same-volume trash does not itself release occupied blocks. Purge is irreversible without backups. Restore does not overwrite conflicting destinations. Report measured free-space deltas separately from logical bytes and disclose concurrent/system effects.
-
-The foundation needs no model service. Planned content reading/hashing requires explicit permission, avoids cloud-placeholder hydration by default, and does not retain full content by default. PruneX Lite cloud export is separately controlled; Pro local operation does not depend on cloud models.
-
-Do not publish tokens, personal paths, databases, or file contents in diagnostics. A dedicated vulnerability-reporting policy/channel is still to be established; use an existing trusted private maintainer channel for sensitive reports.
-
-## 8. Platforms and roadmap
-
-| Stage | Deliverable and acceptance boundary |
-| :--- | :--- |
-| P0 | Baseline, contracts, identity, scope and compatibility decisions |
-| P1 | Snapshot/evidence storage and migration |
-| P2 | Bounded structured queries and historical comparison |
-| P3 | macOS standalone CLI/stdio delivery; real tasks in at least two agent hosts |
-| P4 | Linux remote read-only service; Streamable HTTP and separate legacy compatibility |
-| P5 | Recoverable approved operations and durable records |
-| P6 | Higher-risk actions, exact ecosystem cleanup, irreversible permission |
-| P7 | Content inspection, duplicates, Windows/desktop validation; mutations depend on P5/P6 |
-| P8 | PruneX FFI integration; mutation UI depends on P5 |
-| P9 | Android URI providers and restricted iOS document capabilities |
-| P10 | Evaluation, packaging, licensing/signing checks, private delivery |
-
-Android cannot inspect other apps' private directories merely because Rust is used. iOS is scoped to app-owned/user-selected documents, not whole-device cleanup or arbitrary app removal.
-
-The [OpenSpec change](openspec/changes/implement-diskgraph-platform/proposal.md) contains 14 capability specs, 77 requirements, 100 scenarios, and 121 unchecked implementation tasks. Planning is not completion. No public release date, benchmark result, or cross-platform runtime claim is implied.
-
-## 9. Documentation and contribution
-
-| Document | English | 简体中文 |
-| :--- | :--- | :--- |
-| Architecture | [Architecture](docs/DiskGraph-Architecture.md) | [架构设计](docs/DiskGraph-Architecture.zh_CN.md) |
-| Technical design | [Technical design](docs/DiskGraph-Technical-Design.md) | [技术方案](docs/DiskGraph-Technical-Design.zh_CN.md) |
-| Project guide | [README](README.md) | [README](README.zh-CN.md) |
-
-Additional references: [command catalog](docs/command-reference.md), [OpenSpec decisions D1–D15](openspec/changes/implement-diskgraph-platform/design.md), [tasks P0–P10](openspec/changes/implement-diskgraph-platform/tasks.md), and [historical source study](docs/reference-study.md). These supporting documents currently use Chinese. OpenSpec is the sole formal requirements/acceptance source; bilingual guides explain it.
-
-Before changes, read the applicable specifications, preserve current v1 behavior, add behavior-focused tests, and run fmt/Clippy/tests. Do not mark tasks complete from compilation alone. Use isolated fixtures for destructive tests; do not test against user data. Keep translation pairs, commands, and capability-status claims synchronized.
-
-## 10. License and provenance
-
-[MIT](LICENSE), copyright 2026 Loong Wan. disktree-core is a Git dependency pinned to `158f9cc2f0b332194a3ffc5acec47760c99146d8`, not copied into this repository. Preserve upstream attribution and review licenses when packaging. Private development policy and the source license are separate matters.
+[![macOS](https://img.shields.io/badge/macOS-supported-lightgrey)](#install) [![Linux](https://img.shields.io/badge/Linux-supported-lightgrey)](#install) [![Windows](https://img.shields.io/badge/Windows-supported-lightgrey)](#install)
+[![Codex](https://img.shields.io/badge/Codex-CLI-blueviolet)](#connect-an-agent) [![Claude Code](https://img.shields.io/badge/Claude_Code-blueviolet)](#connect-an-agent)
 
 ---
 
-Documentation version 1.1 · Updated 2026-09-28 · Design pending review; current implementation evidence is stated above.
+## See it
+
+Disk usage is a picture, not a number. Three surfaces draw the same map from the same index, so what you see in a terminal, a browser, or an agent's reply never disagrees.
+
+<table>
+<tr>
+<td width="62%"><img src="docs/assets/treemap-html.png" alt="DiskGraph browser treemap" /></td>
+<td valign="top" width="38%">
+
+**Browser** — one self-contained file, no CDN, no build step:
+
+```bash
+diskgraph tree --scope <id> --html usage.html
+```
+
+Click a block to descend, click the background to go up. Hue is the category a collector assigned; brightness is the share of the parent.
+
+</td>
+</tr>
+<tr>
+<td valign="top" width="62%">
+
+**Terminal** — walks one directory level at a time, so a four-million-node index opens instantly:
+
+```bash
+diskgraph tui --scope <id>
+```
+
+<pre>
+ demo   464 MiB  10 files   ↑↓ move · enter descend · esc up · s sort · q quit
+┌ disk usage · rev-ceb45ad0────────────────────────────────────────────┐┌ selection ──────┐
+│ ┌atarget.bin 180 MiB───────beta 90.0 MiB──gamma 4…┐LCaches 55.0 MiB  …  ││workspaces      │
+│ │                                                 │                  ││size   310 MiB  │
+│ │                                                 │                  ││files  3        │
+│ │                                                 │                  ││kind   directory│
+│ │                                                 │                  ││category Code   │
+└──────────────────────────────────────────────────┴──────────────────┘└────────────────┘
+</pre>
+
+</td>
+<td valign="top" width="38%">
+
+**Agent** — the same map as text, inside the conversation:
+
+```text
+diskgraph_top {"scope":"…","format":"treemap"}
+```
+
+<pre>
+      SIZE      TOTAL    FILES
+──────────────────────────────────────────────
+▎workspaces ███████████████████████████   310 MiB      3  Code
+ Library    ████████▌                  55.0 MiB      1  Cache
+ Media      ████▎                      25.0 MiB      1  Other
+
+3 entries · 390 MiB in 5 files
+</pre>
+
+</td>
+</tr>
+</table>
+
+## Why
+
+| You have | Its limit | DiskGraph |
+| :--- | :--- | :--- |
+| `du`, `ncdu` | one tree, no history, re-walks every run | persistent snapshots; compare two points in time |
+| Finder / Explorer | pretty, but not queryable by an agent | bounded JSON that the same engine answers from |
+| disktree | beautiful, human-only | the same squarified map, plus CLI / MCP / FFI over one index |
+| An agent with a shell | burns context listing directories | typed relations, evidence, and a map in one call |
+
+DiskGraph is a **graph, not a viewer**. Every directory is a node with typed relations — owned by a project, rebuilt by a tool, protected — and every answer points at the evidence that produced it.
+
+## Install
+
+```bash
+# macOS
+brew install loong10k/diskgraph/diskgraph
+
+# anywhere, no toolchain needed
+npx -y diskgraph --version
+
+# Debian / Ubuntu  (from the GitHub release)
+sudo dpkg -i diskgraph_0.2.1_amd64.deb
+
+# Fedora / RHEL    (from the GitHub release)
+sudo dnf install diskgraph-0.2.1-1.x86_64.rpm
+
+# Windows
+winget install loong10k.DiskGraph          # or: scoop install diskgraph
+
+# from source
+cargo install diskgraph-cli
+```
+
+The CLI and the MCP server (`diskgraph-mcp`) install together. Prebuilt binaries need no Rust; building from source needs 1.97+.
+
+## Get started
+
+```bash
+# 1. register a directory to watch (prints a scope id)
+diskgraph scope add --root ~/projects --data-dir ~/.diskgraph
+
+# 2. index it and wait for the walk to publish a revision
+diskgraph index --scope <scope-id> --data-dir ~/.diskgraph --wait
+
+# 3. look at it
+diskgraph top  --scope <scope-id> --data-dir ~/.diskgraph
+diskgraph tree --scope <scope-id> --data-dir ~/.diskgraph --depth 4 --html usage.html
+diskgraph tui  --scope <scope-id> --data-dir ~/.diskgraph
+```
+
+Every command answers with a machine-readable envelope under `--json`, and every error carries a stable code (see [`RELEASING.md`](RELEASING.md) and `diskgraph --help`).
+
+## Connect an agent
+
+```bash
+# Codex CLI
+codex mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
+
+# Claude Code, Cursor, or any MCP host
+claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
+```
+
+Eighteen read tools today; profiles (`read-minimal`, `read-full`, `manage`, `all`) decide which are listed. A non-loopback HTTP bind requires a signed token, and every connection is body-, rate-, and quota-limited.
+
+## Measured
+
+On an Apple Silicon host, against a real home directory (4,526,858 files, 261 GiB observed):
+
+| Measurement | |
+| :--- | :--- |
+| Full index: walk, stage, publish | 4 m 17 s |
+| Tree render, `--depth 3`, structured read path | 10.1 s |
+| Load path after the v4 structured-column change | 2.4× faster |
+| Peak memory during a tree render | bounded by the rendered depth, not the index size |
+
+These are measurements from this repository's acceptance records ([`docs/acceptance/`](docs/acceptance/)), not targets or estimates.
+
+## Safety
+
+- **Read-only by default.** The catalog commands that could move or delete a file answer `unsupported` until the review surface ships; nothing is quietly enabled.
+- **Local only.** Everything happens inside `--data-dir` (two SQLite files). Nothing phones home, and the HTML report has no external references at all.
+- **Honest coverage.** A walk that hits a budget, a depth limit, or an unreadable directory says so; a truncated view never renders like a complete one.
+- **Separate data and control.** The graph database is rebuildable by rescanning; the control database holds scopes, policies, and operation history and is never touched by retention.
+- **Unsigned today.** macOS Gatekeeper and Windows SmartScreen will warn until signing is configured — a recorded gap, not an oversight.
+
+## Under the hood
+
+Ten crates, one engine. `core` holds the model, the bounded queries, and the squarified layout the three surfaces share; `store` keeps snapshots and control data apart; `engine` orchestrates durable jobs and the authorized surface; `ops` plans and executes approval-gated operations; `mcp` speaks the protocol over stdio, Streamable HTTP, and legacy SSE; `ffi` reaches Swift and Kotlin.
+
+The scanner is [disktree](https://github.com/tobi/disktree)'s, vendored at a pinned revision whose per-file digests are verified on every build — reused, not reimplemented.
+
+## Documentation
+
+| | |
+| :--- | :--- |
+| Command and MCP reference | [`docs/command-reference.md`](docs/command-reference.md) |
+| Quick start (`--help` text) | [`docs/cli-quickstart.md`](docs/cli-quickstart.md) |
+| Release channels and runbook | [`RELEASING.md`](RELEASING.md) |
+| Acceptance records behind every number | [`docs/acceptance/`](docs/acceptance/) |
+| Architecture / technical design | [`docs/DiskGraph-Architecture.md`](docs/DiskGraph-Architecture.md) · [设计](docs/DiskGraph-Architecture.zh_CN.md) |
+| Requirements (the formal source) | [OpenSpec change](openspec/changes/implement-diskgraph-platform/proposal.md) — 14 specs, 77 requirements, 121 tasks |
+
+## Contributing
+
+Issues and pull requests are welcome. Run the gates before you push:
+
+```bash
+scripts/gates.sh
+```
+
+## License
+
+[MIT](LICENSE), © 2026 Loong Wan. Includes a vendored copy of disktree-core (MIT, © Tobi Lütke) at revision `158f9cc` — see [`crates/diskgraph-disktree-core/VENDORED.md`](crates/diskgraph-disktree-core/VENDORED.md).

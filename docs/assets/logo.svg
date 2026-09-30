@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80" role="img" aria-label="DiskGraph">
+  <title>DiskGraph</title>
+  <!-- a treemap: the product is a disk, drawn as the map of it -->
+  <g>
+    <rect x="8"  y="16" width="46" height="48" fill="#3f6ea8"/>
+    <rect x="58" y="16" width="26" height="30" fill="#5a9e8f"/>
+    <rect x="58" y="48" width="26" height="16" fill="#c9a227"/>
+    <rect x="88" y="16" width="18" height="48" fill="#7a6ea8"/>
+    <rect x="110" y="16" width="14" height="22" fill="#c46a7a"/>
+    <rect x="110" y="40" width="14" height="24" fill="#4a5462"/>
+    <rect x="128" y="16" width="10" height="48" fill="#a86ea0"/>
+  </g>
+  <text x="150" y="46" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif"
+        font-size="30" font-weight="700" fill="#e6edf3">Disk<tspan fill="#d9a441">Graph</tspan></text>
+  <text x="151" y="63" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" fill="#8b949e">disk · evidence · graph</text>
+</svg>
