@@ -87,7 +87,25 @@ therefore **not** a channel; source installs are
 `cargo install --path crates/diskgraph-cli` from a checkout, and binary
 users use the release, tap, npm, winget, or scoop.
 
-## 5. Windows managers
+## 5. Native Linux packages
+
+The same release carries a `.deb` (built in a Debian container, where
+`dpkg-deb` lives) and an `.rpm` (built in a Fedora container, where
+`rpmbuild` lives), assembled from the same staged binaries as the tarball
+and covered by the same `SHA256SUMS`:
+
+```bash
+sudo dpkg -i diskgraph_0.2.1_amd64.deb     # Debian, Ubuntu
+sudo dnf install diskgraph-0.2.1-1.x86_64.rpm   # Fedora, RHEL
+```
+
+Both put `diskgraph` and `diskgraph-mcp` in `/usr/bin` and ship the
+license and README under `/usr/share/doc/diskgraph`. The rpm carries no
+distribution tag, so it installs outside the distribution that built it.
+There is no repository (apt/dnf/yum) configured; these are release
+assets, and a repo would need its own signing and hosting.
+
+## 6. Windows managers
 
 `packaging/winget/loong10k.DiskGraph.yaml` and
 `packaging/scoop/diskgraph.json` are kept in-repo so each release can open
@@ -104,6 +122,8 @@ maintainer action with those repositories' own review rules.
 | GitHub Releases | direct download | prebuilt + SHA256SUMS |
 | winget | `winget install loong10k.DiskGraph` | prebuilt |
 | scoop | `scoop install diskgraph` | prebuilt |
+| deb | `sudo dpkg -i diskgraph_0.2.1_amd64.deb` | prebuilt |
+| rpm | `sudo dnf install diskgraph-0.2.1-1.x86_64.rpm` | prebuilt |
 | crates.io | `cargo add diskgraph-core` | source (library crates) |
 | source | `cargo install --path crates/diskgraph-cli` | source build |
 

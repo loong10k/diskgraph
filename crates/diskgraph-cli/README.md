@@ -7,9 +7,16 @@ durable indexing, bounded queries, and a disktree-style JSON tree.
 ## Install
 
 ```bash
-brew install loong10k/diskgraph/diskgraph
-npx -y diskgraph
-cargo install diskgraph-cli
+brew install loong10k/diskgraph/diskgraph      # macOS, Linux
+npx -y diskgraph                                # any platform, no toolchain
+cargo install diskgraph-cli                     # from source
+```
+
+Native Linux packages ship with each GitHub release:
+
+```bash
+sudo dpkg -i diskgraph_0.2.1_amd64.deb            # Debian, Ubuntu
+sudo dnf install diskgraph-0.2.1-1.x86_64.rpm     # Fedora, RHEL
 ```
 
 ## A first run
