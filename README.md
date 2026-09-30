@@ -8,8 +8,6 @@
 
 `npx -y diskgraph --help` needs nothing on your machine. Everything stays in one directory on your disk.
 
-</div>
-
 [English](README.md) | [简体中文](README.zh-CN.md)
 
 [![crates.io](https://img.shields.io/badge/crates.io-diskgraph--cli-blue)](https://crates.io/crates/diskgraph-cli)
@@ -19,6 +17,8 @@
 
 [![macOS](https://img.shields.io/badge/macOS-supported-lightgrey)](#install) [![Linux](https://img.shields.io/badge/Linux-supported-lightgrey)](#install) [![Windows](https://img.shields.io/badge/Windows-supported-lightgrey)](#install)
 [![Codex](https://img.shields.io/badge/Codex-CLI-blueviolet)](#connect-an-agent) [![Claude Code](https://img.shields.io/badge/Claude_Code-blueviolet)](#connect-an-agent)
+
+</div>
 
 ---
 

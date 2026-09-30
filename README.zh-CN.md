@@ -8,8 +8,6 @@
 
 `npx -y diskgraph --help` 不需要你机器上装任何东西。所有数据都留在磁盘上的一个目录里。
 
-</div>
-
 [English](README.md) | [简体中文](README.zh-CN.md)
 
 [![crates.io](https://img.shields.io/badge/crates.io-diskgraph--cli-blue)](https://crates.io/crates/diskgraph-cli)
@@ -19,6 +17,8 @@
 
 [![macOS](https://img.shields.io/badge/macOS-支持-lightgrey)](#安装) [![Linux](https://img.shields.io/badge/Linux-支持-lightgrey)](#安装) [![Windows](https://img.shields.io/badge/Windows-支持-lightgrey)](#安装)
 [![Codex](https://img.shields.io/badge/Codex-CLI-blueviolet)](#接入智能体) [![Claude Code](https://img.shields.io/badge/Claude_Code-blueviolet)](#接入智能体)
+
+</div>
 
 ---
 
