@@ -1,26 +1,50 @@
 {
   "name": "diskgraph",
-  "version": "0.1.0",
-  "description": "File-relationship engine for AI agents: disk usage, ownership, evidence, and history — a thin installer for the prebuilt DiskGraph binaries",
-  "keywords": ["diskgraph", "disk", "disk-usage", "mcp", "ai-agent", "treemap", "cleanup"],
+  "version": "0.2.0",
+  "description": "File-relationship engine for AI agents: disk usage, ownership, evidence, and history \u2014 a thin installer for the prebuilt DiskGraph binaries",
+  "keywords": [
+    "diskgraph",
+    "disk",
+    "disk-usage",
+    "mcp",
+    "ai-agent",
+    "treemap",
+    "cleanup"
+  ],
   "homepage": "https://github.com/loong10k/diskgraph",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/loong10k/diskgraph.git",
     "directory": "npm"
   },
-  "bugs": { "url": "https://github.com/loong10k/diskgraph/issues" },
+  "bugs": {
+    "url": "https://github.com/loong10k/diskgraph/issues"
+  },
   "license": "MIT",
   "bin": {
     "diskgraph": "bin/diskgraph.js",
     "diskgraph-mcp": "bin/diskgraph-mcp.js"
   },
-  "files": ["bin/", "lib/", "README.md", "LICENSE"],
+  "files": [
+    "bin/",
+    "lib/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "postinstall": "node lib/install.js",
     "test": "node test/install.test.js"
   },
-  "engines": { "node": ">=18" },
-  "os": ["darwin", "linux", "win32"],
-  "cpu": ["x64", "arm64"]
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
 }
