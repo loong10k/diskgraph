@@ -116,9 +116,17 @@ jobs:
           cp "target/${{ matrix.target }}/release/diskgraph" \
              "target/${{ matrix.target }}/release/diskgraph-mcp" "$staging/bin/"
           cp README.md LICENSE "$staging/"
-          sh scripts/build-linux-packages.sh "$staging" dist "$VERSION"
+          # The released source is the tag, but the packaging script is
+          # release infrastructure and follows the branch: rebuilding an
+          # older tag must still find it.
+          script="$RUNNER_TEMP/build-linux-packages.sh"
+          curl -fsSL \
+            "https://raw.githubusercontent.com/loong10k/diskgraph/${SCRIPT_REF}/scripts/build-linux-packages.sh" \
+            -o "$script"
+          sh "$script" "$staging" dist "$VERSION"
         env:
           VERSION: ${{ needs.validate-tag.outputs.version }}
+          SCRIPT_REF: ${{ github.event.repository.default_branch }}
 
       - name: Assemble archive
         shell: bash
