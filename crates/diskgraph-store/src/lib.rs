@@ -76,6 +76,11 @@ pub struct RevisionRecord {
     pub published_at_unix_ms: u64,
 }
 
+/// A WAL this size or larger is a leftover from a killed or out-of-memory
+/// run: a healthy scan checkpoints as it goes, and a clean close removes
+/// the file, so a session should never open onto one this big.
+const WAL_HEAL_THRESHOLD_BYTES: i64 = 64 << 20;
+
 impl SqliteSnapshotStore {
     pub fn open(path: &Path) -> Result<Self> {
         let connection = Connection::open(path)?;
@@ -88,7 +93,41 @@ impl SqliteSnapshotStore {
         connection.pragma_update(None, "journal_mode", "WAL")?;
         connection.pragma_update(None, "synchronous", "NORMAL")?;
         connection.pragma_update(None, "mmap_size", 1 << 31)?;
+        // Without a journal_size_limit the -wal file never shrinks below its
+        // high-water mark: a checkpoint folds the frames back into the main
+        // database but leaves the file at full size, so one scan's worth of
+        // write-ahead log stays on disk for the life of the database. A
+        // multi-million-node scan writes several gigabytes, so without this
+        // the log ends up nearly as large as the snapshot it belongs to.
+        connection.pragma_update(None, "journal_size_limit", WAL_HEAL_THRESHOLD_BYTES)?;
+        Self::heal_oversized_wal(path, &connection, WAL_HEAL_THRESHOLD_BYTES)?;
         Self::initialize(connection)
+    }
+
+    /// Folds an oversized log back into the database and truncates the file.
+    ///
+    /// A scan that is killed — SIGKILL, an OOM kill, a killed terminal —
+    /// leaves its whole write-ahead log behind, and no later session shrinks
+    /// it: the file just grows, one killed run after another, until the
+    /// volume fills. Healing at open bounds that to one run's leftovers.
+    /// A checkpoint can fail while another connection holds a read snapshot;
+    /// the log is then merely large, not corrupt, so the next publish
+    /// retries rather than failing the open.
+    fn heal_oversized_wal(path: &Path, connection: &Connection, threshold: i64) -> Result<()> {
+        let Some(size) = std::fs::metadata(wal_path(path))
+            .map(|meta| meta.len())
+            .ok()
+        else {
+            return Ok(());
+        };
+        if (size as i64) < threshold {
+            return Ok(());
+        }
+        // A checkpoint can fail while another connection holds a read
+        // snapshot. The log is then merely large, not corrupt, and the
+        // publish path retries: an open must not fail over disk headroom.
+        let _ = connection.execute_batch("PRAGMA wal_checkpoint(TRUNCATE);");
+        Ok(())
     }
 
     /// Opens the store, backing up a pre-migration database file first.
@@ -648,6 +687,15 @@ impl SqliteSnapshotStore {
         )?;
         transaction.execute("DELETE FROM scan_staging WHERE job_id = ?1", [job_id])?;
         transaction.commit()?;
+        // The scan's entire write-ahead log is now redundant. Folding it back
+        // here — rather than waiting for the next checkpoint — is what keeps a
+        // multi-million-node publish from leaving a log nearly as large as the
+        // snapshot it just wrote. A concurrent reader can hold a snapshot open
+        // and make the checkpoint a no-op; the log is then merely large, and
+        // the next open heals it.
+        let _ = self
+            .connection
+            .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);");
         Ok(())
     }
 
@@ -1086,6 +1134,14 @@ fn as_i64(value: u64) -> Result<i64> {
     value.try_into().map_err(|_| StoreError::IntegerOverflow)
 }
 
+/// The write-ahead log beside a database file, named the way SQLite names
+/// it: the database path with a `-wal` suffix.
+fn wal_path(database: &Path) -> PathBuf {
+    let mut name = database.as_os_str().to_os_string();
+    name.push("-wal");
+    PathBuf::from(name)
+}
+
 /// The v1 schema, verbatim: fresh databases are created at v1 and then
 /// migrated forward, so v1 rows never skip the migration path (ST-02).
 const V1_SCHEMA: &str = "PRAGMA foreign_keys = ON;
@@ -1392,6 +1448,124 @@ mod tests {
         invalid.evidence[0].node_id = 999;
         assert!(store.save(&invalid).is_err());
         assert!(store.snapshot("invalid").is_err());
+    }
+
+    /// The write-ahead log beside a database, as SQLite writes it.
+    fn wal_len(path: &Path) -> u64 {
+        std::fs::metadata(wal_path(path))
+            .map(|meta| meta.len())
+            .unwrap_or(0)
+    }
+
+    #[test]
+    fn an_oversized_wal_is_folded_back_into_the_database_at_open() {
+        let dir = std::env::temp_dir().join(format!("diskgraph-wal-heal-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        {
+            let mut store = SqliteSnapshotStore::open(&path).unwrap();
+            store
+                .publish_revision("job", &graph("one", 100), "rev-0", 1_700_000_000)
+                .unwrap();
+        }
+        // A run that is killed before its log is folded back: the log is a
+        // genuine one from a genuine write, left behind because the process
+        // never got to the end of its scan.
+        let killed = Connection::open(&path).unwrap();
+        killed.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+        killed
+            .execute_batch("CREATE TABLE IF NOT EXISTS fill (payload BLOB);")
+            .unwrap();
+        for _ in 0..4_000 {
+            killed
+                .execute("INSERT INTO fill VALUES (zeroblob(1024))", [])
+                .unwrap();
+        }
+        let before = wal_len(&path);
+        assert!(
+            before > 1 << 20,
+            "the killed run must leave megabytes behind, not {before} bytes"
+        );
+        // Leaked rather than dropped: a closing connection checkpoints and
+        // deletes the log, which is the case the heal exists for the *other*
+        // side of. A SIGKILL is what leaves the file on disk.
+        std::mem::forget(killed);
+
+        // A threshold of one byte is what makes the heal observable: the
+        // production threshold is far above any healthy log.
+        let connection = Connection::open(&path).unwrap();
+        SqliteSnapshotStore::heal_oversized_wal(&path, &connection, 1).unwrap();
+        let after = wal_len(&path);
+        assert!(after < before, "the log must shrink, not just be checked");
+        assert!(after <= WAL_HEAL_THRESHOLD_BYTES as u64);
+        // The data the log carried is still in the database: healing is
+        // housekeeping, never a rollback.
+        let count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM fill", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(count, 4_000);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_healthy_log_is_left_alone() {
+        let dir = std::env::temp_dir().join(format!("diskgraph-wal-quiet-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        {
+            let mut store = SqliteSnapshotStore::open(&path).unwrap();
+            store
+                .publish_revision("job", &graph("only", 100), "rev-0", 1_700_000_000)
+                .unwrap();
+        }
+        let connection = Connection::open(&path).unwrap();
+        // Below the threshold nothing is touched: a checkpoint would rewrite
+        // pages for no reason on every open.
+        let before = wal_len(&path);
+        SqliteSnapshotStore::heal_oversized_wal(&path, &connection, i64::MAX).unwrap();
+        assert_eq!(wal_len(&path), before);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_publish_leaves_no_write_ahead_log_behind() {
+        let dir =
+            std::env::temp_dir().join(format!("diskgraph-publish-wal-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        let mut store = SqliteSnapshotStore::open(&path).unwrap();
+        store
+            .publish_revision("job", &graph("one", 100), "rev-0", 1_700_000_000)
+            .unwrap();
+        // The whole log of the scan is redundant the moment the transaction
+        // commits; leaving it on disk is what made a four-million-node scan
+        // cost nearly twice its snapshot size.
+        assert_eq!(
+            wal_len(&path),
+            0,
+            "publishing must fold its log back into the database"
+        );
+        // And the snapshot is still readable: the checkpoint is housekeeping,
+        // not a second commit.
+        assert_eq!(store.load("one").unwrap().nodes.len(), 2);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn the_wal_is_capped_so_it_cannot_grow_without_bound() {
+        let dir = std::env::temp_dir().join(format!("diskgraph-wal-limit-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("diskgraph.sqlite");
+        let store = SqliteSnapshotStore::open(&path).unwrap();
+        let limit: i64 = store
+            .connection
+            .query_row("PRAGMA journal_size_limit", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(
+            limit, WAL_HEAL_THRESHOLD_BYTES,
+            "without this the log never shrinks below its high-water mark"
+        );
+        std::fs::remove_dir_all(&dir).ok();
     }
 
     #[test]
