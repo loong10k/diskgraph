@@ -1,0 +1,97 @@
+name: Publish registries
+
+# Publishes to the package registries from CI so no token ever lives on a
+# maintainer machine. npm is the primary channel (the thin installer); the
+# crates.io job covers the two publishable library crates, in dependency
+# order, with a wait for the index to propagate before the dependent crate.
+#
+# Required repository secrets:
+#   NPM_TOKEN              automation token for the npm package
+#   CARGO_REGISTRY_TOKEN   crates.io publish token
+on:
+  workflow_dispatch:
+    inputs:
+      npm:
+        description: "Publish the npm package"
+        type: boolean
+        default: true
+      crates:
+        description: "Publish the publishable library crates to crates.io"
+        type: boolean
+        default: false
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  # npm provenance: the tarball is attested against this workflow run.
+  id-token: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  npm:
+    name: publish to npm
+    if: >-
+      github.event_name == 'release' ||
+      inputs.npm
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Verify the package builds and its installer tests pass
+        working-directory: npm
+        run: |
+          node test/install.test.js
+          npm pack --dry-run
+
+      - name: Publish
+        working-directory: npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  crates-io:
+    name: publish to crates.io
+    if: >-
+      (github.event_name == 'release' || inputs.crates) &&
+      secrets.CARGO_REGISTRY_TOKEN != ''
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Only diskgraph-core and diskgraph-store are publishable: the
+      # scanner-dependent crates carry `publish = false` because disktree-core
+      # is git-pinned (upstream is not on crates.io). Order matters, and
+      # crates.io's index needs a moment to expose the first crate before the
+      # dependent one can resolve it, so the second publish retries.
+      - name: Publish diskgraph-core
+        run: cargo publish -p diskgraph-core --locked --token "$CARGO_REGISTRY_TOKEN"
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish diskgraph-store (after index propagation)
+        run: |
+          set -eu
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if cargo publish -p diskgraph-store --locked --token "$CARGO_REGISTRY_TOKEN"; then
+              echo "diskgraph-store published on attempt $attempt"
+              exit 0
+            fi
+            echo "index has not caught up yet (attempt $attempt); waiting 60s"
+            sleep 60
+          done
+          echo "diskgraph-store did not publish after 10 attempts" >&2
+          exit 1
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
