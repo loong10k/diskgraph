@@ -129,9 +129,12 @@ jobs:
             echo "verified $archive $actual"
           done
           test -s SHA256SUMS
-          # Smoke: the archive must contain both binaries, non-empty.
-          tar -tzf diskgraph-aarch64-apple-darwin.tar.gz | grep -q 'bin/diskgraph$'
-          tar -tzf diskgraph-aarch64-apple-darwin.tar.gz | grep -q 'bin/diskgraph-mcp$'
+          # Smoke: the archive must contain both binaries. (List to a file
+          # first: piping tar into grep -q kills tar with SIGPIPE, which
+          # pipefail would report as a failure.)
+          tar -tzf diskgraph-aarch64-apple-darwin.tar.gz > archive-listing.txt
+          grep -q 'bin/diskgraph$' archive-listing.txt
+          grep -q 'bin/diskgraph-mcp$' archive-listing.txt
 
       - name: Create or update the release
         env:
