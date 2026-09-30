@@ -16,7 +16,13 @@ ARCH_DEB="amd64"
 ARCH_RPM="x86_64"
 SUMMARY="File-relationship engine for AI agents"
 HOMEPAGE="https://github.com/loong10k/diskgraph"
-LICENSE="$(cd "$(dirname "$0")/.." && pwd)/LICENSE"
+# The license ships with the release; when this script runs from a checkout
+# it is one level up, and when the release chain fetches it into a temp
+# directory the working directory is the checkout instead.
+LICENSE="$PWD/LICENSE"
+if [ ! -f "$LICENSE" ]; then
+  LICENSE="$(cd "$(dirname "$0")/.." && pwd)/LICENSE"
+fi
 
 test -x "$STAGE/bin/diskgraph" || { echo "no staged binary at $STAGE/bin/diskgraph" >&2; exit 1; }
 test -f "$LICENSE" || { echo "LICENSE not found" >&2; exit 1; }
