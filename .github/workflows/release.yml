@@ -109,7 +109,9 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq >/dev/null 2>&1
-          sudo apt-get install -y -qq dpkg-dev rpm >/dev/null 2>&1
+          # file(1): rpm's %install calls it to classify every installed
+          # file, and without it the package silently ends up empty.
+          sudo apt-get install -y -qq dpkg-dev rpm file >/dev/null 2>&1
           staging="$RUNNER_TEMP/staging"
           rm -rf "$staging"
           mkdir -p "$staging/bin"

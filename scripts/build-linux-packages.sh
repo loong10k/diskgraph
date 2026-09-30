@@ -117,7 +117,9 @@ sed -i \
   "$RPM_TOP/SPECS/$NAME.spec"
 rpmbuild --define "_topdir $RPM_TOP" \
          --define "_arch $ARCH_RPM" \
-         -bb "$RPM_TOP/SPECS/$NAME.spec" >/dev/null
+         -bb "$RPM_TOP/SPECS/$NAME.spec"
+# Fail loudly: a silent rpmbuild that produced nothing used to look like a
+# packaging bug three steps later.
 find "$RPM_TOP/RPMS" -name '*.rpm' -exec cp {} "$OUT/" \;
 built=$((built + 1))
 fi
