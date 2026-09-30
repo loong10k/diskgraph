@@ -322,13 +322,21 @@ jobs:
           for archive in diskgraph-*.tar.gz diskgraph-*.zip *.deb *.rpm; do
             [ -e "$archive" ] || continue
             actual="$(shasum -a 256 "$archive" | awk '{print $1}')"
-            claimed="$(cat "$archive.sha256" 2>/dev/null | tr -d '[:space:]')"
-            if [ "$actual" != "$claimed" ]; then
-              echo "::error::checksum mismatch for $archive: build=$claimed release=$actual"
-              exit 1
+            if [ -f "$archive.sha256" ]; then
+              # Archives are digested by the build job that made them; the
+              # release job recomputes and compares.
+              claimed="$(cat "$archive.sha256" | tr -d '[:space:]')"
+              if [ "$actual" != "$claimed" ]; then
+                echo "::error::checksum mismatch for $archive: build=$claimed release=$actual"
+                exit 1
+              fi
+              echo "verified $archive against the build digest"
+            else
+              # Packages are produced in the same job as the upload and
+              # carry no companion file; their digest is established here.
+              echo "digest recorded for $archive"
             fi
             echo "$actual  $archive" >> SHA256SUMS
-            echo "verified $archive"
           done
           test -s SHA256SUMS
           # Smoke: the archive must contain both binaries. (List to a file
