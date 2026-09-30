@@ -105,3 +105,17 @@ pub struct DiskGraph {
     pub nodes: Vec<DiskNode>,
     pub evidence: Vec<EvidenceEdge>,
 }
+
+impl DiskGraph {
+    /// The node the walk started from: the one with no parent.
+    ///
+    /// Panics when a graph has no root, which `validate_graph` rules out at
+    /// every write path, so this is a programming error rather than a state a
+    /// stored snapshot can be in.
+    pub fn root(&self) -> &DiskNode {
+        self.nodes
+            .iter()
+            .find(|node| node.parent_id.is_none())
+            .expect("a validated graph has a root")
+    }
+}

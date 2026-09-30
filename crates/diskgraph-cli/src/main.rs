@@ -217,6 +217,34 @@ enum Command {
         #[arg(long)]
         after: String,
     },
+    /// Compare two trees: a release build against a working copy, two
+    /// machines, a backup. The roots may be entirely different, which is what
+    /// `changes` refuses.
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph compare --left <rev-a> --right <rev-b>\n  diskgraph compare --left-scope a --right-scope b --limit 40\n  diskgraph compare --left <rev> --right <rev> --only-differences --json\n\nEach row is one path: left-only, right-only, different, or same. The verdict\nsays which test produced it - size and timestamp, never contents. Content is\nnot read without a separate grant, so 'same' here means 'same to the depth\ntested', not 'byte-identical'."
+    )]
+    Compare {
+        /// Revision to read as the left side.
+        #[arg(long, conflicts_with = "left_scope")]
+        left: Option<String>,
+        /// Revision to read as the right side.
+        #[arg(long, conflicts_with = "right_scope")]
+        right: Option<String>,
+        /// Take each side from a scope's latest revision instead.
+        #[arg(long, conflicts_with = "left")]
+        left_scope: Option<String>,
+        #[arg(long, conflicts_with = "right")]
+        right_scope: Option<String>,
+        /// Show only rows that differ; the default shows every path.
+        #[arg(long)]
+        only_differences: bool,
+        /// Rows to print; the summary always covers the whole comparison.
+        #[arg(long, default_value_t = 50)]
+        limit: usize,
+        /// Seconds two timestamps may differ and still count as the same file.
+        #[arg(long, default_value_t = 2)]
+        tolerance: i64,
+    },
     /// C09: name/path pattern search inside a published revision (bounded).
     Search {
         #[arg(long)]
@@ -594,6 +622,29 @@ fn absolute_data_dir(data_dir: &Path) -> PathBuf {
         return data_dir.to_path_buf();
     }
     std::env::current_dir().map_or_else(|_| data_dir.to_path_buf(), |cwd| cwd.join(data_dir))
+}
+
+/// One side of a comparison, given either as a revision or as a scope whose
+/// latest revision is meant.
+fn resolve_side(
+    engine: &Engine,
+    revision: Option<&str>,
+    scope: Option<&str>,
+    side: &str,
+) -> Result<String, EngineError> {
+    if let Some(revision) = revision {
+        return Ok(revision.to_owned());
+    }
+    let Some(scope) = scope else {
+        eprintln!("diskgraph: the {side} side needs --{side} or --{side}-scope");
+        return Err(EngineError::Business(BusinessError::InvalidArgument));
+    };
+    let scope_id = ScopeId::new(scope.to_owned())
+        .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+    engine.scope(&scope_id)?;
+    engine
+        .latest_revision(&scope_id)?
+        .ok_or(EngineError::Business(BusinessError::NotIndexed))
 }
 
 /// Registers the root, indexes it, and returns what it found.
@@ -1020,6 +1071,47 @@ fn dispatch(
                     "path": if path.is_empty() { ".".to_owned() } else { path.clone() },
                 })),
             ));
+            Ok(())
+        }
+        Command::Compare {
+            left,
+            right,
+            left_scope,
+            right_scope,
+            only_differences,
+            limit,
+            tolerance,
+        } => {
+            let left_revision =
+                resolve_side(engine, left.as_deref(), left_scope.as_deref(), "left")?;
+            let right_revision =
+                resolve_side(engine, right.as_deref(), right_scope.as_deref(), "right")?;
+            let report = engine.compare_revisions(&left_revision, &right_revision, *tolerance)?;
+            if !*only_differences {
+                out.push(envelope_line(engine, Ok(report.to_json(Some(*limit)))));
+                return Ok(());
+            }
+            // The summary covers the whole comparison; only the row list is
+            // filtered, so a caller can still see what was left out.
+            let mut filtered = report.to_json(Some(usize::MAX));
+            let mut shown = 0_usize;
+            if let Some(rows) = filtered
+                .get_mut("rows")
+                .and_then(serde_json::Value::as_array_mut)
+            {
+                rows.retain(|row| {
+                    row.get("verdict")
+                        .and_then(|verdict| verdict.get("status"))
+                        .and_then(serde_json::Value::as_str)
+                        .is_some_and(|status| status != "same")
+                });
+                rows.truncate(*limit);
+                shown = rows.len();
+            }
+            if let Some(object) = filtered.as_object_mut() {
+                object.insert("entries".into(), serde_json::json!(shown));
+            }
+            out.push(envelope_line(engine, Ok(filtered)));
             Ok(())
         }
         Command::Changes {

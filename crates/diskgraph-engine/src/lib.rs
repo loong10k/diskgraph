@@ -35,8 +35,67 @@ pub use queries::{
 };
 pub use runner::JobRunner;
 
-/// The size change of one path between two published revisions, owned
-/// rather than borrowed: the answer costs two rows, so there is no reason to
+/// The result of comparing two revisions: what was compared, and what differs.
+///
+/// Carries both roots and both node counts so a caller can tell a comparison
+/// of two checkouts from a comparison of two million-file trees, and never
+/// has to assume the second.
+pub struct ComparisonReport {
+    pub left_revision: String,
+    pub right_revision: String,
+    pub left_root: diskgraph_core::ResourceLocator,
+    pub right_root: diskgraph_core::ResourceLocator,
+    pub left_nodes: usize,
+    pub right_nodes: usize,
+    pub rows: Vec<CompareRow>,
+    pub summary: diskgraph_core::Summary,
+}
+
+/// One path's comparison, owned so a report outlives the graphs it came from.
+#[derive(Clone, Debug, serde::Serialize)]
+pub struct CompareRow {
+    pub path: String,
+    pub verdict: diskgraph_core::Verdict,
+    pub left_bytes: Option<u64>,
+    pub right_bytes: Option<u64>,
+}
+
+impl ComparisonReport {
+    /// The shape a caller prints, in the order the fields matter.
+    pub fn to_json(&self, limit: Option<usize>) -> serde_json::Value {
+        let shown: Vec<serde_json::Value> = self
+            .rows
+            .iter()
+            .take(limit.unwrap_or(self.rows.len()))
+            .map(|row| {
+                serde_json::json!({
+                    "path": row.path,
+                    "verdict": row.verdict,
+                    "left_bytes": row.left_bytes,
+                    "right_bytes": row.right_bytes,
+                })
+            })
+            .collect();
+        serde_json::json!({
+            "left": {
+                "revision_id": self.left_revision,
+                "root": self.left_root,
+                "nodes": self.left_nodes,
+            },
+            "right": {
+                "revision_id": self.right_revision,
+                "root": self.right_root,
+                "nodes": self.right_nodes,
+            },
+            "summary": self.summary,
+            "actionable": self.summary.actionable(),
+            "entries": shown.len(),
+            "rows": shown,
+        })
+    }
+}
+
+/// The size change of one path between two published revisions, owned/// rather than borrowed: the answer costs two rows, so there is no reason to
 /// hold a whole graph alive to describe them.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RevisionGrowth {
@@ -552,6 +611,54 @@ impl Engine {
     /// Loads the v1 graph behind one published revision.
     pub fn load_revision(&self, revision_id: &str) -> Result<DiskGraph, EngineError> {
         Ok(self.graph()?.load_revision(revision_id)?)
+    }
+
+    /// Compares two published revisions, whatever their roots are.
+    ///
+    /// This is the one query that still loads both sides whole, because a
+    /// comparison has to see every path on both to know which are missing.
+    /// The report carries both node counts so a caller can see what that cost
+    /// before repeating it: a diff that walks both sides level by level is the
+    /// obvious next step, and until it exists, a four-million-node comparison
+    /// is a large request rather than a cheap one.
+    pub fn compare_revisions(
+        &self,
+        left_revision: &str,
+        right_revision: &str,
+        tolerance_seconds: i64,
+    ) -> Result<ComparisonReport, EngineError> {
+        let left = self.load_revision(left_revision)?;
+        let right = self.load_revision(right_revision)?;
+        // The core comparison borrows the nodes it walks, and the two graphs
+        // are local here, so what leaves this function owns only what a
+        // caller needs to render a row: the path, the verdict, and the two
+        // sizes. A caller that wants whole nodes re-reads them by path.
+        let (compared, summary) = diskgraph_core::compare::compare(
+            left.root(),
+            &left.nodes,
+            right.root(),
+            &right.nodes,
+            tolerance_seconds,
+        );
+        let rows = compared
+            .into_iter()
+            .map(|row| CompareRow {
+                path: row.path,
+                verdict: row.verdict,
+                left_bytes: row.left.map(|node| node.subtree_bytes),
+                right_bytes: row.right.map(|node| node.subtree_bytes),
+            })
+            .collect();
+        Ok(ComparisonReport {
+            left_revision: left_revision.to_owned(),
+            right_revision: right_revision.to_owned(),
+            left_root: left.root().locator.clone(),
+            right_root: right.root().locator.clone(),
+            left_nodes: left.nodes.len(),
+            right_nodes: right.nodes.len(),
+            rows,
+            summary,
+        })
     }
 
     /// Explain one entity of a published revision: the entity, its edges, and

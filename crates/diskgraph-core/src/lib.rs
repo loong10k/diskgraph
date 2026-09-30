@@ -3,6 +3,7 @@
 
 mod budget;
 mod catalog;
+pub mod compare;
 mod duplicates;
 mod entities;
 mod envelope;
@@ -21,6 +22,7 @@ pub use budget::{
     BudgetTracker, CursorContext, CursorRejection, PagingCursor, QueryBudget, TruncationReason,
 };
 pub use catalog::{CATALOG, CommandAction, CommandSpec, Stage, by_family, by_id};
+pub use compare::{Comparison, DifferentReason, Evidence, Summary, Verdict, compare};
 pub use duplicates::{ConfirmedSet, ContentRelation, SuspectGroup, confirm_group, suspect_groups};
 pub use entities::{
     AssertionKind, CollectorRun, EdgeValidationError, Entity, EntityKind, EvidenceRecord, Polarity,

@@ -98,10 +98,14 @@ diskgraph children NODE --scope project --revision REV --limit 50 --json
 diskgraph related ENTITY --scope project --relation owned_by_project --direction outgoing --json
 diskgraph explain NODE --scope project --revision REV --json
 diskgraph changes SNAPSHOT_BEFORE SNAPSHOT_AFTER --scope project --json
+diskgraph compare --left-scope release --right-scope worktree --json
+diskgraph compare --left REV_A --right REV_B --only-differences --limit 40
 diskgraph candidates --scope project --target-bytes 16106127360 --json
 diskgraph duplicates list --scope project --json
 diskgraph read NODE --scope project --offset 0 --max-bytes 4096 --json
 ```
+
+compare 回答的是"两棵树各自有什么"：根可以完全不同（发布产物对工作副本、两台机器、备份），这正是 changes 拒绝的情形——changes 问的是同一个目录随时间发生了什么。每一行给出 left-only / right-only / different / same，different 再分 size / timestamp / contents / path / unknown-size。判定只到元数据层（大小、时间戳、秒级容差），**不读文件内容**，所以 same 意味着"在测到的深度上相同"，不是"逐字节相同"；内容级判定需要单独的 ContentRead 授权。无法读取大小的一侧报 unknown-size 而不是 different——那不是差异的证据。
 
 candidates 的目标只是筛选目标，不是释放保证或自动清理指令。空候选、不足目标、未知占用覆盖都需要诚实返回，不能为了达到数字把风险规则放宽。
 
