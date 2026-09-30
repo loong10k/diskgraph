@@ -100,6 +100,7 @@ function squarify(items, area) {
   while (i < sorted.length) {
     const horizontal = free.w >= free.h;
     const side = Math.min(free.w, free.h);
+    const long = Math.max(free.w, free.h);
     const row = [];
     let weight = 0, best = Infinity;
     while (i < sorted.length) {
@@ -109,7 +110,9 @@ function squarify(items, area) {
       else break;
     }
     if (!row.length) break;
-    const thickness = Math.max(0, Math.min((weight * scale) / side, side));
+    // Thickness spans the SHORT side; the row's area is divided by the LONG
+    // side, or the row fills only part of its length and the map goes blank.
+    const thickness = Math.max(0, Math.min((weight * scale) / long, side));
     const strip = horizontal ? free.w : free.h;
     const start = horizontal ? free.x : free.y;
     let offset = start;

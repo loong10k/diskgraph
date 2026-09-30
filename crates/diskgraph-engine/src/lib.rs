@@ -614,6 +614,19 @@ impl Engine {
         )
     }
 
+    /// The root node of a published revision - the entry a du-style summary
+    /// reads its total from. One row, no graph materialization.
+    pub fn revision_root_node(
+        &self,
+        revision_id: &str,
+    ) -> Result<diskgraph_core::DiskNode, EngineError> {
+        let graph = self.graph()?;
+        let record = graph.revision(revision_id)?;
+        graph
+            .root_node(&record.snapshot_id)?
+            .ok_or(EngineError::Business(BusinessError::NotFound))
+    }
+
     /// One directory level of a published revision: the node itself and its
     /// children, ordered by observed size. The interactive surface loads a
     /// level at a time, so a multi-million-node index opens without

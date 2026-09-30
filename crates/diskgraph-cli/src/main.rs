@@ -318,6 +318,23 @@ enum Command {
     /// C28: register this binary into a client configuration (P3).
     #[command(subcommand)]
     Install(InstallCommand),
+    /// du-style size summary over one or more paths.
+    ///
+    /// Each path is registered as a scope (idempotent - re-running reuses
+    /// it), indexed with the same walk the index command runs, and
+    /// summarized from its published revision. Missing paths are reported
+    /// on stderr and skipped, like du.
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph du -h ~/Library/Caches ~/.npm ~/.cache ~/.cargo/registry\n  diskgraph du -h --total ~/workspaces/*\n\nThe summary reads the published revision's root, so the number is the\nallocated-bytes figure the index stores - not an estimate of\nreclaimable space."
+    )]
+    Du {
+        /// Paths to measure.
+        #[arg(required = true)]
+        paths: Vec<PathBuf>,
+        /// Print a combined total across the paths (du -c).
+        #[arg(short = 'c', long)]
+        total: bool,
+    },
     /// Interactive treemap of a published revision (terminal).
     #[command(
         after_help = "EXAMPLES:\n  diskgraph tui --scope <scope-id> --data-dir ~/.diskgraph\n\nLoads one directory level at a time, so a multi-million-node index opens\nimmediately. Keys: arrows or hjkl move, enter descends, esc goes up, s toggles\nthe sort, q quits."
@@ -1046,6 +1063,99 @@ fn dispatch(
                 Ok(())
             }
         },
+        Command::Du { paths, total } => {
+            let mut rows: Vec<(PathBuf, u64, String)> = Vec::new();
+            let mut failures = 0_usize;
+            for path in paths {
+                let canonical = match path.canonicalize() {
+                    Ok(canonical) => canonical,
+                    Err(_) => {
+                        eprintln!(
+                            "diskgraph: cannot access {}: No such file or directory",
+                            path.display()
+                        );
+                        failures += 1;
+                        continue;
+                    }
+                };
+                let scope_id = match engine.register_scope(&canonical, principal, authorizer) {
+                    Ok(scope_id) => scope_id,
+                    Err(error) => {
+                        eprintln!("diskgraph: {}: {error}", path.display());
+                        failures += 1;
+                        continue;
+                    }
+                };
+                // register_scope granted this principal scope-local rights in
+                // the policy store; the in-memory authorizer is a snapshot
+                // from process start, so reload it before indexing.
+                let authorizer = &crate::local::LocalIdentity::load(engine)?;
+                let job = match engine.index_scope(&scope_id, principal, authorizer) {
+                    Ok(job) => job,
+                    Err(error) => {
+                        eprintln!("diskgraph: {}: {error}", path.display());
+                        failures += 1;
+                        continue;
+                    }
+                };
+                if let Err(error) = engine.run_job(&job.job_id, "du") {
+                    eprintln!("diskgraph: {}: {error}", path.display());
+                    failures += 1;
+                    continue;
+                }
+                let Some(revision) = engine.latest_revision(&scope_id)? else {
+                    failures += 1;
+                    continue;
+                };
+                let root = engine.revision_root_node(&revision)?;
+                rows.push((canonical, root.subtree_bytes, scope_id.as_str().to_owned()));
+            }
+            if failures > 0 && rows.is_empty() {
+                return Err(EngineError::Business(BusinessError::NotFound));
+            }
+            let grand_total: u64 = rows.iter().map(|row| row.1).sum();
+            let mut data = serde_json::Map::new();
+            let _ = total;
+            for (path, bytes, _) in &rows {
+                data.insert(
+                    path.display().to_string(),
+                    serde_json::json!({ "bytes": bytes }),
+                );
+            }
+            if !cli.json {
+                // du -sh shape: size, tab, path - readable without a parser.
+                for (path, bytes, _) in &rows {
+                    println!(
+                        "{}\t{}",
+                        diskgraph_core::treemap::human_bytes(*bytes),
+                        path.display()
+                    );
+                }
+                if *total && rows.len() > 1 {
+                    println!(
+                        "{}\ttotal",
+                        diskgraph_core::treemap::human_bytes(grand_total)
+                    );
+                }
+                if failures > 0 {
+                    eprintln!("diskgraph: {failures} path(s) could not be measured");
+                }
+                return Ok(());
+            }
+            let mut payload = serde_json::Map::new();
+            payload.insert("sizes".to_owned(), serde_json::Value::Object(data));
+            if *total && rows.len() > 1 {
+                payload.insert("total_bytes".to_owned(), serde_json::json!(grand_total));
+            }
+            if failures > 0 {
+                payload.insert("failed_paths".to_owned(), serde_json::json!(failures));
+            }
+            out.push(envelope_line(
+                engine,
+                Ok(serde_json::Value::Object(payload)),
+            ));
+            Ok(())
+        }
         Command::Tui { scope, revision } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;

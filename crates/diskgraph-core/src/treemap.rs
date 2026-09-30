@@ -108,13 +108,17 @@ pub fn squarify(items: &[Weighted], area: Rect) -> Vec<Placed> {
             break;
         }
         let row_area = row_weight * scale;
-        // Lay the strip along the free area's SHORT side: on a wide area the
-        // row runs left-to-right and its items are vertical bars whose width
-        // is proportional to their weight.
+        // A row runs along the free area's LONG side (its items are bars
+        // whose length is proportional to their weight) and its thickness
+        // spans the short side. The thickness is therefore the row's area
+        // divided by the LONG side - dividing by the short side instead
+        // makes every row as thick as the area is deep, and the row then
+        // fills only part of its length, leaving the map half empty.
         let horizontal = free.width >= free.height;
-        let short_side = if horizontal { free.height } else { free.width };
-        let row_thickness = if short_side > 0.0 {
-            (row_area / short_side).clamp(0.0, short_side)
+        let long_side = free.width.max(free.height);
+        let short_side = free.width.min(free.height);
+        let row_thickness = if long_side > 0.0 {
+            (row_area / long_side).clamp(0.0, short_side)
         } else {
             0.0
         };
@@ -399,6 +403,46 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn a_row_fills_the_long_side_it_runs_along() {
+        // One dominant child must not leave the rest of the map blank: a
+        // developer workspace really does look like this (one project at
+        // 70%, a long tail of small ones), and the map has to stay honest.
+        let items = vec![
+            Weighted {
+                id: 1,
+                weight: 68.0,
+            },
+            Weighted {
+                id: 2,
+                weight: 12.0,
+            },
+            Weighted {
+                id: 3,
+                weight: 11.0,
+            },
+            Weighted { id: 4, weight: 9.0 },
+        ];
+        let area = Rect::new(1.0, 0.0, 189.0, 41.0);
+        let placed = squarify(&items, area);
+        let used: f64 = placed.iter().map(|item| item.rect.area()).sum();
+        assert!(
+            (used - area.area()).abs() < 1.0,
+            "children filled {used} of {}",
+            area.area()
+        );
+        // The widest row reaches the far edge of the map.
+        let widest = placed
+            .iter()
+            .map(|item| item.rect.x + item.rect.width)
+            .fold(0.0_f64, f64::max);
+        assert!(
+            (widest - (area.x + area.width)).abs() < 0.5,
+            "the first row stopped at {widest} of {}",
+            area.x + area.width
+        );
     }
 
     #[test]

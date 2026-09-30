@@ -84,6 +84,10 @@ pub struct Browser {
     pub selected_id: Option<u64>,
     pub sort_by_size: bool,
     pub status: String,
+    /// Children below this share of the layer total are left out of the map:
+    /// on a real workspace the top level is one huge project and forty
+    /// slivers, and forty slivers are not a picture.
+    pub min_share: f64,
 }
 
 impl Browser {
@@ -94,7 +98,9 @@ impl Browser {
             trail: vec![root],
             selected: 0,
             sort_by_size: true,
-            status: "↑↓ move · enter descend · esc/backspace up · s sort · q quit".to_owned(),
+            status: "↑↓ move · enter descend · esc/backspace up · s sort · m threshold · q quit"
+                .to_owned(),
+            min_share: 0.005,
         }
     }
 
@@ -103,8 +109,24 @@ impl Browser {
         self.trail.last().expect("the trail always has a root")
     }
 
+    /// The layer's children above the visibility threshold.
+    pub fn visible(&self) -> Vec<&Entry> {
+        let layer = self.current();
+        let floor = (layer.total_bytes as f64 * self.min_share) as u64;
+        layer
+            .children
+            .iter()
+            .filter(|entry| entry.size_bytes >= floor)
+            .collect()
+    }
+
+    /// How many children the threshold leaves out of this layer.
+    pub fn hidden(&self) -> usize {
+        self.current().children.len() - self.visible().len()
+    }
+
     fn ordered(&self) -> Vec<&Entry> {
-        let mut entries: Vec<&Entry> = self.current().children.iter().collect();
+        let mut entries = self.visible();
         if self.sort_by_size {
             entries.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes).then(a.name.cmp(&b.name)));
         } else {
@@ -114,7 +136,7 @@ impl Browser {
     }
 
     pub fn move_selection(&mut self, delta: isize) {
-        let count = self.current().children.len();
+        let count = self.visible().len();
         if count == 0 {
             return;
         }
@@ -125,6 +147,18 @@ impl Browser {
 
     pub fn toggle_sort(&mut self) {
         self.sort_by_size = !self.sort_by_size;
+        self.selected = 0;
+        self.selected_id = self.ordered().first().map(|entry| entry.id);
+    }
+
+    /// Cycles the visibility threshold: everything, then 0.5%, 2%, 8%.
+    pub fn cycle_threshold(&mut self) {
+        self.min_share = match self.min_share {
+            share if share <= 0.0001 => 0.005,
+            share if share < 0.01 => 0.02,
+            share if share < 0.06 => 0.08,
+            _ => 0.0,
+        };
         self.selected = 0;
         self.selected_id = self.ordered().first().map(|entry| entry.id);
     }
@@ -176,6 +210,7 @@ fn event_loop(
         match key.code {
             KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
             KeyCode::Char('s') => browser.toggle_sort(),
+            KeyCode::Char('m') => browser.cycle_threshold(),
             KeyCode::Up | KeyCode::Char('k') => browser.move_selection(-1),
             KeyCode::Down | KeyCode::Char('j') => browser.move_selection(1),
             KeyCode::Backspace | KeyCode::Left | KeyCode::Char('h') => {
@@ -245,7 +280,17 @@ fn status_line<'a>(browser: &'a Browser) -> Paragraph<'a> {
             Style::default().fg(Color::DarkGray),
         ),
         Span::styled(
-            format!("   {}", browser.status),
+            format!(
+                "   {}{}",
+                browser.status,
+                match (browser.hidden(), browser.min_share) {
+                    (0, _) => String::new(),
+                    (hidden, share) if share > 0.0 => {
+                        format!("  · {hidden} smaller than {:.1}% hidden", share * 100.0)
+                    }
+                    (hidden, _) => format!("  · {hidden} empty"),
+                }
+            ),
             Style::default().fg(Color::DarkGray),
         ),
     ]))
@@ -263,7 +308,15 @@ fn draw_map(frame: &mut ratatui::Frame<'_>, browser: &Browser, engine: &Engine, 
     let entries = browser.ordered();
     if entries.is_empty() {
         frame.render_widget(
-            Paragraph::new("nothing indexed here").style(Style::default().fg(Color::DarkGray)),
+            Paragraph::new(if browser.hidden() > 0 {
+                format!(
+                    "{} children are all under the threshold (press m)",
+                    browser.hidden()
+                )
+            } else {
+                "nothing indexed here".to_owned()
+            })
+            .style(Style::default().fg(Color::DarkGray)),
             inner,
         );
         return;
@@ -524,6 +577,26 @@ mod tests {
         let names: Vec<&str> = browser.ordered().iter().map(|e| e.name.as_str()).collect();
         assert_eq!(names, vec!["cache", "media", "workspaces"]);
         assert_eq!(browser.ordered().len(), 3, "sorting never drops an entry");
+    }
+
+    #[test]
+    fn the_threshold_hides_slivers_and_says_how_many() {
+        let mut big = layer();
+        big.children.push(entry(4, "a-large-one", 1_000, 10));
+        big.total_bytes += 1_000;
+        big.total_files += 10;
+        let mut browser = Browser::new("rev-1", big);
+        // 1,000 out of 1,300 is 77%: visible. The 60-byte cache is 4.6%:
+        // visible at the default 0.5% and hidden once the threshold rises.
+        assert_eq!(browser.visible().len(), 4);
+        browser.min_share = 0.05;
+        assert_eq!(browser.visible().len(), 2, "cache and media fall below 5%");
+        assert_eq!(browser.hidden(), 2, "the map says what it left out");
+        browser.cycle_threshold();
+        assert_eq!(browser.min_share, 0.08);
+        browser.cycle_threshold();
+        assert_eq!(browser.min_share, 0.0, "the cycle returns to showing all");
+        assert_eq!(browser.hidden(), 0);
     }
 
     #[test]

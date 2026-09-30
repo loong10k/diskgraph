@@ -427,6 +427,23 @@ impl SqliteSnapshotStore {
         Ok(nodes)
     }
 
+    /// The root node of one snapshot (the only node without a parent).
+    /// A summary that only needs the subtree total reads this single row
+    /// instead of materializing every node.
+    pub fn root_node(&self, snapshot_id: &str) -> Result<Option<DiskNode>> {
+        self.snapshot(snapshot_id)?;
+        let json: Option<String> = self
+            .connection
+            .query_row(
+                "SELECT node_json FROM nodes WHERE snapshot_id = ?1 AND parent_id IS NULL",
+                [snapshot_id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        json.map(|json| from_str(&json).map_err(StoreError::from))
+            .transpose()
+    }
+
     pub fn node(&self, snapshot_id: &str, node_id: u64) -> Result<Option<DiskNode>> {
         self.snapshot(snapshot_id)?;
         let json: Option<String> = self

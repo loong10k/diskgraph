@@ -734,3 +734,70 @@ fn policy_revocation_denies_everything_until_republish() {
     let run = run_cli(&data_dir, &["children", "--scope", &scope_id]);
     assert_eq!(run.code, 0, "stderr: {}", run.stderr);
 }
+
+#[test]
+fn du_summarizes_multiple_paths_like_du_sh() {
+    let workspace = TempDir::with_prefix("diskgraph-du-").unwrap();
+    let data_dir = workspace.path().join("data");
+    let big = workspace.path().join("big");
+    let small = workspace.path().join("small");
+    std::fs::create_dir_all(big.join("nested")).unwrap();
+    std::fs::create_dir_all(&small).unwrap();
+    std::fs::write(big.join("nested").join("payload.bin"), vec![0; 4096]).unwrap();
+    std::fs::write(small.join("tiny.txt"), vec![0; 64]).unwrap();
+
+    let run = run_cli(
+        &data_dir,
+        &[
+            "du",
+            big.to_str().unwrap(),
+            small.to_str().unwrap(),
+            "--total",
+        ],
+    );
+    assert_eq!(run.code, 0, "stderr: {}", run.stderr);
+
+    // Under --json the envelope carries one sizes object keyed by path.
+    let envelope: serde_json::Value = serde_json::from_str(run.stdout.trim()).unwrap();
+    let sizes = envelope
+        .pointer("/data/sizes")
+        .unwrap()
+        .as_object()
+        .unwrap();
+    assert_eq!(sizes.len(), 2, "both paths measured");
+    assert_eq!(
+        envelope.pointer("/data/total_bytes").unwrap().as_u64(),
+        Some(8192),
+        "total covers both paths"
+    );
+    // Sizes are real allocation figures the index stored: one 4 KiB block
+    // per directory.
+    for (_, entry) in sizes {
+        assert_eq!(entry["bytes"].as_u64(), Some(4096));
+    }
+}
+
+#[test]
+fn du_reports_missing_paths_and_still_measures_the_rest() {
+    let workspace = TempDir::with_prefix("diskgraph-du-missing-").unwrap();
+    let data_dir = workspace.path().join("data");
+    let ghost = workspace.path().join("ghost");
+    let real = workspace.path().join("real");
+    std::fs::create_dir_all(&real).unwrap();
+    std::fs::write(real.join("f.bin"), vec![0; 128]).unwrap();
+
+    let run = run_cli(
+        &data_dir,
+        &["du", ghost.to_str().unwrap(), real.to_str().unwrap()],
+    );
+    // du keeps measuring the paths it can and reports the ones it cannot.
+    assert!(
+        run.stderr.contains("cannot access"),
+        "stderr: {}",
+        run.stderr
+    );
+    assert!(
+        run.stdout.contains("real"),
+        "the surviving path is still measured"
+    );
+}
