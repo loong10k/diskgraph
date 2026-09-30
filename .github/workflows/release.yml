@@ -78,7 +78,8 @@ jobs:
           if [ "${{ runner.os }}" = "Windows" ]; then
             powershell -NoProfile -Command \
               "Compress-Archive -Force -Path 'dist/diskgraph-${{ matrix.target }}' -DestinationPath 'dist/diskgraph-${{ matrix.target }}.zip';
-               (Get-FileHash -Algorithm SHA256 'dist/diskgraph-${{ matrix.target }}.zip').Hash.ToLower()"
+               (Get-FileHash -Algorithm SHA256 'dist/diskgraph-${{ matrix.target }}.zip').Hash.ToLower()" \
+              > "$archive.sha256"
           else
             tar -C dist -czf "$archive" "diskgraph-${{ matrix.target }}"
             shasum -a 256 "$archive" | awk '{print $1}' > "$archive.sha256"
