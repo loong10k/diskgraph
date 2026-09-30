@@ -26,7 +26,7 @@ function archiveName(target, platform) {
 
 // The pinned version this installer expects. Kept in one place: the release
 // workflow, the formula, and this file all move together per version.
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 
 function releaseBase() {
   return (

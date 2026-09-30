@@ -1,6 +1,6 @@
 {
   "name": "diskgraph",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "File-relationship engine for AI agents: disk usage, ownership, evidence, and history \u2014 a thin installer for the prebuilt DiskGraph binaries",
   "keywords": [
     "diskgraph",
