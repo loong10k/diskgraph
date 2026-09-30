@@ -100,41 +100,23 @@ jobs:
           else
             cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
           fi
-      # Native Linux packages, built in the distribution that owns each
-      # tool: dpkg-deb on Debian, rpmbuild on Fedora. They are artifacts here
-      # only; consumers install them from the release assets.
+      # The staging tree the deb/rpm jobs read: they run in their own
+      # distribution containers, so the binaries travel as an artifact.
       - name: Stage binaries for packaging
         if: matrix.target == 'x86_64-unknown-linux-gnu'
         shell: bash
         run: |
-          staging="$PWD/staging"
-          rm -rf "$staging"
-          mkdir -p "$staging/bin"
+          rm -rf staging
+          mkdir -p staging/bin
           cp "target/${{ matrix.target }}/release/diskgraph" \
-             "target/${{ matrix.target }}/release/diskgraph-mcp" "$staging/bin/"
-          cp README.md LICENSE "$staging/"
-      - name: Build deb (Debian container)
+             "target/${{ matrix.target }}/release/diskgraph-mcp" staging/bin/
+          cp README.md LICENSE staging/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         if: matrix.target == 'x86_64-unknown-linux-gnu'
-        shell: bash
-        run: |
-          docker run --rm -v "$PWD:/src:ro" -v "$PWD/staging:/stage:ro" -v "$PWD/dist:/out" \
-            debian:stable-slim sh -c \
-            "apt-get update -qq >/dev/null 2>&1 &&
-             apt-get install -y -qq dpkg-dev >/dev/null 2>&1 &&
-             cd /src && sh scripts/build-linux-packages.sh /stage /out $VERSION"
-        env:
-          VERSION: ${{ needs.validate-tag.outputs.version }}
-      - name: Build rpm (Fedora container)
-        if: matrix.target == 'x86_64-unknown-linux-gnu'
-        shell: bash
-        run: |
-          docker run --rm --platform linux/amd64 \
-            -v "$PWD:/src:ro" -v "$PWD/staging:/stage:ro" -v "$PWD/dist:/out" \
-            fedora:41 sh -c \
-            "dnf install -y -q rpm-build >/dev/null 2>&1 &&
-             cd /src && sh scripts/build-linux-packages.sh /stage /out $VERSION"
-        env:
-          VERSION: ${{ needs.validate-tag.outputs.version }}
+        with:
+          name: diskgraph-staging
+          path: staging
+          retention-days: 7
 
       - name: Assemble archive
         shell: bash
@@ -165,6 +147,62 @@ jobs:
             dist/diskgraph-${{ matrix.target }}.*
             dist/*.deb
             dist/*.rpm
+          retention-days: 7
+
+  # ---- native Linux packages ------------------------------------------------
+  # dpkg-deb and rpmbuild belong to different distributions, so each package
+  # is built by a job running in its own container - the GitHub-native
+  # mechanism, no Docker-in-Docker on the runner required.
+  package-deb:
+    name: deb package
+    needs: build
+    runs-on: ubuntu-24.04
+    container: debian:stable-slim
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.validate-tag.outputs.version }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.8
+        with:
+          name: diskgraph-staging
+          path: staging
+      - name: Install the packaging tool
+        run: |
+          apt-get update -qq >/dev/null 2>&1
+          apt-get install -y -qq dpkg-dev >/dev/null 2>&1
+      - name: Build the .deb
+        run: sh scripts/build-linux-packages.sh "$GITHUB_WORKSPACE/staging" dist "$VERSION"
+        env:
+          VERSION: ${{ needs.validate-tag.outputs.version }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: diskgraph-packages
+          path: dist/*.deb
+          retention-days: 7
+
+  package-rpm:
+    name: rpm package
+    needs: build
+    runs-on: ubuntu-24.04
+    container: fedora:41
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.validate-tag.outputs.version }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.8
+        with:
+          name: diskgraph-staging
+          path: staging
+      - name: Install the packaging tool
+        run: dnf install -y -q rpm-build
+      - name: Build the .rpm
+        run: sh scripts/build-linux-packages.sh "$GITHUB_WORKSPACE/staging" dist "$VERSION"
+        env:
+          VERSION: ${{ needs.validate-tag.outputs.version }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: diskgraph-packages
+          path: dist/*.rpm
           retention-days: 7
 
   # ---- registry dry runs before anything is uploaded -------------------------
@@ -299,7 +337,7 @@ jobs:
   # ---- the release every installer resolves against --------------------------
   create-release:
     name: Create GitHub Release
-    needs: [validate-tag, build, publish-crates, publish-npm]
+    needs: [validate-tag, build, package-deb, package-rpm, publish-crates, publish-npm]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -311,6 +349,11 @@ jobs:
           pattern: diskgraph-*
           # Flattened: the checksum step globs assets/ directly.
           merge-multiple: true
+      - name: Collect the native packages
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.8
+        with:
+          name: diskgraph-packages
+          path: assets
       - name: Merge checksums and verify every archive
         run: |
           set -euo pipefail
