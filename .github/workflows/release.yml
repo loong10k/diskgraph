@@ -216,9 +216,11 @@ jobs:
           # and mcp take it as a dev-dependency, and crates.io resolves
           # dev-dependencies too, so anything above it must wait.
           publish crates/diskgraph-disktree-core
+          # diskgraph-mcp precedes diskgraph-cli: the CLI depends on the MCP
+          # server crate, and crates.io resolves the whole graph.
           for crate in diskgraph-core diskgraph-store diskgraph-disktree \
                       diskgraph-testkit diskgraph-engine diskgraph-ops \
-                      diskgraph-cli diskgraph-ffi diskgraph-mcp; do
+                      diskgraph-mcp diskgraph-cli diskgraph-ffi; do
             publish "crates/$crate"
           done
         env:
