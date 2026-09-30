@@ -1,29 +1,60 @@
 name: Release
 
-# The distribution foundation every other channel points at: one GitHub
-# Release per tag, with per-target archives and a SHA256SUMS file. Homebrew,
-# npm (thin installer), winget, and scoop all resolve their downloads from
-# these assets, so this workflow is the only place binaries are produced.
+# One chain, ordered so nothing is half-published: a valid tag, then binaries
+# for five targets, then a packaging dry run, then crates.io and npm, and only
+# then the GitHub Release every installer resolves against. If a registry
+# publish fails, no release exists pointing at a crate that never landed.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to build a release for (e.g. v0.1.0)"
+        description: "Existing tag to release (e.g. v0.1.0)"
         required: true
         type: string
+      registries:
+        description: "Also publish to crates.io and npm"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  # ---- build every target in its own environment -----------------------------
+  validate-tag:
+    name: Validate tag
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - name: Extract and validate
+        id: extract
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid tag format: $TAG (expected vX.Y.Z)"
+            exit 1
+          fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Validated $TAG"
+
+  # ---- binaries for five targets -------------------------------------------
   build:
     name: ${{ matrix.target }}
+    needs: validate-tag
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -45,24 +76,25 @@ jobs:
             os: windows-2022
             archive: zip
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.validate-tag.outputs.version }}
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
         with:
           targets: ${{ matrix.target }}
-
-      # Linux aarch64 goes through cargo-cross: the cross image provides the
-      # C toolchain and sysroot for the foreign target (bundled SQLite needs
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      # Linux aarch64 goes through cargo-cross: the cross image provides the C
+      # toolchain and sysroot for the foreign target (bundled SQLite needs
       # them), and cross mounts the host's cargo into that container.
       - uses: taiki-e/install-action@cross
         if: matrix.target == 'aarch64-unknown-linux-gnu'
-      - name: Build (Linux aarch64, cross)
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: cross build --release --locked -p diskgraph-cli -p diskgraph-mcp --target aarch64-unknown-linux-gnu
       - name: Build
-        if: matrix.target != 'aarch64-unknown-linux-gnu'
-        run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
-
+        run: |
+          if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
+            cross build --release --locked -p diskgraph-cli -p diskgraph-mcp --target aarch64-unknown-linux-gnu
+          else
+            cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
+          fi
       - name: Assemble archive
         shell: bash
         run: |
@@ -84,35 +116,140 @@ jobs:
             tar -C dist -czf "$archive" "diskgraph-${{ matrix.target }}"
             shasum -a 256 "$archive" | awk '{print $1}' > "$archive.sha256"
           fi
-          # The archive's own digest, computed once here; the release job
-          # re-verifies it after download before publishing.
           cat "$archive.sha256"
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0d480d1 # v4.3.3
         with:
           name: diskgraph-${{ matrix.target }}
-          path: |
-            dist/diskgraph-${{ matrix.target }}.*
+          path: dist/diskgraph-${{ matrix.target }}.*
           retention-days: 7
 
-  # ---- publish one release with every target and a merged SHA256SUMS ---------
-  release:
-    name: publish release
-    needs: build
+  # ---- registry dry runs before anything is uploaded -------------------------
+  dry-run:
+    name: Packaging dry run
+    needs: validate-tag
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ needs.validate-tag.outputs.version }}
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Validate every crate's package
+        run: |
+          set -eu
+          # The vendored scanner and the model core have no internal
+          # dependencies, so they get a full dry run; the rest are validated
+          # with cargo package --list, because their ^0.1.0 siblings are not
+          # on crates.io yet in a dry-run context.
+          (cd crates/diskgraph-disktree-core && cargo publish --dry-run --allow-dirty)
+          cargo publish --dry-run --allow-dirty -p diskgraph-core
+          for crate in diskgraph-store diskgraph-disktree diskgraph-engine \
+                      diskgraph-ops diskgraph-testkit diskgraph-cli \
+                      diskgraph-ffi diskgraph-mcp; do
+            echo "::group::Packaging $crate"
+            cargo package -p "$crate" --list --allow-dirty --locked >/dev/null \
+              || { echo "::error::$crate package validation failed"; exit 1; }
+            echo "::endgroup::"
+          done
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd622f492d2af # v4.4.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Validate the npm package
+        working-directory: npm
+        run: |
+          node test/install.test.js
+          npm pack --dry-run
 
-      - uses: actions/download-artifact@v4
+  # ---- registries ------------------------------------------------------------
+  publish-crates:
+    name: Publish to crates.io
+    needs: [validate-tag, dry-run]
+    if: github.event_name == 'push' || inputs.registries
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.validate-tag.outputs.version }}
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Publish in dependency order
+        run: |
+          set -eu
+          # Fail fast on a missing token: an empty token would otherwise
+          # retry every crate and could read as a green run.
+          if [ -z "$CARGO_REGISTRY_TOKEN" ]; then
+            echo "::error::CARGO_REGISTRY_TOKEN is not configured (repository Secrets)"
+            exit 1
+          fi
+          publish() {
+            directory="$1"
+            for attempt in 1 2 3 4 5 6 7 8 9 10; do
+              # if-capture is required: cargo exits 101 on failure, which
+              # under `set -e` in a plain assignment would kill the script.
+              if out=$(cd "$directory" && cargo publish --allow-dirty 2>&1); then
+                echo "published $directory (attempt $attempt)"
+                return 0
+              fi
+              # Idempotent re-runs: an already-uploaded version is success.
+              if echo "$out" | grep -qiE "already (uploaded|exists)"; then
+                echo "$directory is already published; continuing"
+                return 0
+              fi
+              echo "$out" | tail -3
+              echo "index has not caught up for $directory (attempt $attempt); waiting 60s"
+              sleep 60
+            done
+            echo "::error::failed to publish $directory after 10 attempts"
+            return 1
+          }
+          publish crates/diskgraph-disktree-core
+          for crate in diskgraph-core diskgraph-store diskgraph-disktree \
+                      diskgraph-engine diskgraph-ops diskgraph-testkit \
+                      diskgraph-cli diskgraph-ffi diskgraph-mcp; do
+            publish "crates/$crate"
+          done
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  publish-npm:
+    name: Publish to npm
+    needs: [validate-tag, dry-run]
+    if: github.event_name == 'push' || inputs.registries
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write # provenance: attests the tarball to this run
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.validate-tag.outputs.version }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd622f492d2af # v4.4.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Publish
+        working-directory: npm
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ---- the release every installer resolves against --------------------------
+  create-release:
+    name: Create GitHub Release
+    needs: [validate-tag, build, publish-crates, publish-npm]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e0059633721c1f7f # v4.1.8
         with:
           path: assets
           pattern: diskgraph-*
           # Flattened: the checksum step globs assets/ directly.
           merge-multiple: true
-
-      - name: Merge checksums and verify each archive
+      - name: Merge checksums and verify every archive
         run: |
           set -euo pipefail
           cd assets
@@ -122,11 +259,11 @@ jobs:
             actual="$(shasum -a 256 "$archive" | awk '{print $1}')"
             claimed="$(cat "$archive.sha256" 2>/dev/null | tr -d '[:space:]')"
             if [ "$actual" != "$claimed" ]; then
-              echo "checksum mismatch for $archive: build=$claimed release=$actual" >&2
+              echo "::error::checksum mismatch for $archive: build=$claimed release=$actual"
               exit 1
             fi
             echo "$actual  $archive" >> SHA256SUMS
-            echo "verified $archive $actual"
+            echo "verified $archive"
           done
           test -s SHA256SUMS
           # Smoke: the archive must contain both binaries. (List to a file
@@ -137,23 +274,22 @@ jobs:
           grep -q 'bin/diskgraph$' "$listing"
           grep -q 'bin/diskgraph-mcp$' "$listing"
           rm -f "$listing"
-
       - name: Create or update the release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag || github.ref_name }}
+          TAG: ${{ needs.validate-tag.outputs.version }}
         run: |
           set -euo pipefail
-          notes="$(mktemp)"
+          notes=$(mktemp)
           {
-            echo "DiskGraph private release ${TAG}."
+            echo "DiskGraph ${TAG}."
             echo
-            echo "Archives below; verify with the accompanying SHA256SUMS."
-            echo "Installation channels (npm, brew, winget, scoop, cargo) all"
-            echo "resolve their binaries from this release."
+            echo "Binaries for five targets, verified by the accompanying"
+            echo "SHA256SUMS. The Homebrew tap, the npm thin installer, winget"
+            echo "and scoop all resolve to these assets."
             echo
-            echo "Unsigned: macOS notarization and Windows Authenticode are not"
-            echo "configured; Gatekeeper and SmartScreen will warn."
+            echo "Unsigned: macOS notarization and Windows Authenticode are"
+            echo "not configured, so Gatekeeper and SmartScreen will warn."
           } > "$notes"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" assets/* --clobber

@@ -18,10 +18,13 @@ contains a token.
 Unsigned artifacts are stated as such in the release notes, the tap README,
 and this file. This is a known, recorded gap, not a silent one.
 
-## 1. GitHub release (foundation)
+## 1. The release chain (foundation)
 
-Tag and push; the workflow builds five targets, verifies each archive
-digest, and publishes with a merged `SHA256SUMS`:
+Tag and push. One workflow runs the whole chain in order — valid tag,
+binaries for five targets, a packaging dry run, crates.io, npm, and only
+then the GitHub Release that every installer resolves against. A registry
+failure therefore leaves no release pointing at a crate that never
+landed:
 
 ```bash
 git tag v0.1.0 && git push origin v0.1.0
@@ -33,8 +36,11 @@ Targets: `aarch64-apple-darwin`, `x86_64-apple-darwin`,
 against the digest the build job computed and refuses to publish on any
 mismatch, then smoke-checks that the archive contains both binaries.
 
-Re-running for an existing tag (same tag, fixed assets):
-`gh workflow run release.yml -f tag=v0.1.0` — it uploads with `--clobber`.
+Re-running for an existing tag: `gh workflow run release.yml -f tag=v0.1.0`.
+Registry publishes are idempotent (an already-uploaded version counts as
+success), and release assets are re-uploaded with `--clobber`. Set
+`-f registries=false` to rebuild and refresh the release assets without
+touching the registries.
 
 ## 2. Homebrew tap
 
@@ -45,6 +51,8 @@ four values and push:
 ```bash
 scripts/sync-release-digests.sh v0.1.0   # fills the formula in place
 ```
+
+The tag must be exactly `vX.Y.Z`; the chain refuses anything else.
 
 ## 3. npm (thin installer)
 
