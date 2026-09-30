@@ -180,7 +180,7 @@ The scanner is [disktree](https://github.com/tobi/disktree)'s, vendored at a pin
 | | |
 | :--- | :--- |
 | Command and MCP reference | [`docs/command-reference.md`](docs/command-reference.md) |
-| Quick start (`--help` text) | [`docs/cli-quickstart.md`](docs/cli-quickstart.md) |
+| Quick start (`--help` text) | [`crates/diskgraph-cli/QUICKSTART.md`](crates/diskgraph-cli/QUICKSTART.md) |
 | Release channels and runbook | [`RELEASING.md`](RELEASING.md) |
 | Acceptance records behind every number | [`docs/acceptance/`](docs/acceptance/) |
 | Architecture / technical design | [`docs/DiskGraph-Architecture.md`](docs/DiskGraph-Architecture.md) · [设计](docs/DiskGraph-Architecture.zh_CN.md) |

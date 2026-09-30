@@ -180,7 +180,7 @@ claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 | | |
 | :--- | :--- |
 | 命令与 MCP 参考 | [`docs/command-reference.md`](docs/command-reference.md) |
-| 快速上手（`--help` 全文） | [`docs/cli-quickstart.md`](docs/cli-quickstart.md) |
+| 快速上手（`--help` 全文） | [`crates/diskgraph-cli/QUICKSTART.md`](crates/diskgraph-cli/QUICKSTART.md) |
 | 发布渠道与操作手册 | [`RELEASING.md`](RELEASING.md) |
 | 每个数字背后的验收记录 | [`docs/acceptance/`](docs/acceptance/) |
 | 架构 / 技术方案 | [架构](docs/DiskGraph-Architecture.zh_CN.md) · [design](docs/DiskGraph-Technical-Design.md) |

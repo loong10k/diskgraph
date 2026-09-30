@@ -24,7 +24,7 @@ use local::LocalIdentity;
     name = "diskgraph",
     version,
     about,
-    after_long_help = include_str!("../../../docs/cli-quickstart.md"),
+    after_long_help = include_str!("../QUICKSTART.md"),
     disable_help_subcommand = false
 )]
 struct Cli {
