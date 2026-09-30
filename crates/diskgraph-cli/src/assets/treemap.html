@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DiskGraph — __TITLE__</title>
+<style>
+:root { --bg:#0f1216; --panel:#161b22; --line:#242c37; --fg:#e6edf3;
+        --muted:#8b949e; --hit:#ffffff26; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg);
+  font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
+header { display:flex; align-items:baseline; gap:14px; padding:13px 18px;
+  border-bottom:1px solid var(--line); }
+header h1 { font-size:15px; margin:0; letter-spacing:.2px; }
+header .path { color:var(--muted); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+header .rev { margin-left:auto; color:var(--muted); font-size:12px; }
+main { display:flex; height:calc(100vh - 52px); }
+#map { flex:1; position:relative; overflow:hidden; }
+.cell { position:absolute; border:1px solid #00000055; overflow:hidden; cursor:pointer; }
+.cell:hover { outline:2px solid var(--hit); outline-offset:-2px; }
+.cell span { position:absolute; left:5px; top:3px; font-size:11px; color:#fff;
+  text-shadow:0 1px 2px #000c; pointer-events:none; white-space:nowrap; }
+.cell small { position:absolute; left:5px; bottom:3px; font-size:10px; color:#ffffffcc;
+  text-shadow:0 1px 2px #000c; pointer-events:none; }
+aside { width:320px; border-left:1px solid var(--line); background:var(--panel);
+  padding:16px; overflow:auto; }
+aside h2 { margin:0 0 4px; font-size:15px; }
+aside dl { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; margin:14px 0 0; }
+aside dt { color:var(--muted); font-size:12px; }
+aside dd { margin:0; font-variant-numeric:tabular-nums; }
+.legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+.legend span { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
+.legend i { width:11px; height:11px; border-radius:2px; display:inline-block; }
+.hint { color:var(--muted); font-size:12px; }
+.notice.faint { background:#1b2028; color:var(--muted); }
+.notice { padding:7px 18px; background:#3a2f12; color:#f0d9a0; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>DiskGraph</h1>
+  <span class="path" id="crumb"></span>
+  <span class="rev">revision <code id="rev"></code></span>
+  <span class="hint">click a block to descend · click the background to go up</span>
+</header>
+__NOTICE__
+<main>
+  <div id="map"></div>
+  <aside>
+    <h2 id="sel-name">—</h2>
+    <div id="sel-children" class="path"></div>
+    <dl>
+      <dt>Size</dt><dd id="sel-size">—</dd>
+      <dt>Own bytes</dt><dd id="sel-own">—</dd>
+      <dt>Files</dt><dd id="sel-files">—</dd>
+      <dt>Directories</dt><dd id="sel-dirs">—</dd>
+      <dt>Kind</dt><dd id="sel-kind">—</dd>
+    </dl>
+    <div class="legend" id="legend"></div>
+  </aside>
+</main>
+<script>
+const DATA = __DATA__;
+const PALETTE = __PALETTE__;
+const EXPAND_DEPTH = __EXPAND__;
+
+const color = (cat) => {
+  if (!cat) return PALETTE[PALETTE.length - 1][1];
+  const c = cat.toLowerCase();
+  const hit = PALETTE.find(([name]) => name && c.includes(name));
+  return hit ? hit[1] : PALETTE[PALETTE.length - 1][1];
+};
+// Nested levels darken inside their parent, so structure stays legible.
+const shade = (hex, percent) => {
+  const n = parseInt(hex.slice(1), 16);
+  const f = 1 + percent / 100;
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+    .map((c) => Math.max(0, Math.min(255, Math.round(c * f))));
+  return "#" + ch.map((c) => c.toString(16).padStart(2, "0")).join("");
+};
+const bytes = (n) => {
+  const u = ["B", "KiB", "MiB", "GiB", "TiB"];
+  let v = n, i = 0;
+  while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+  return (i === 0 ? v : (v >= 100 ? v.toFixed(0) : v.toFixed(1))) + " " + u[i];
+};
+
+// Squarified treemap (Bruls et al.): rows keep a near-square aspect ratio so
+// area reads as bytes. Mirrors core::treemap::squarify, in JS, so the page
+// needs nothing from the network.
+function squarify(items, area) {
+  const sorted = items.filter((it) => it.weight > 0)
+    .sort((a, b) => b.weight - a.weight || a.id - b.id);
+  const total = sorted.reduce((sum, it) => sum + it.weight, 0);
+  if (total <= 0 || area.w <= 0 || area.h <= 0) return [];
+  const scale = (area.w * area.h) / total;
+  const out = [];
+  let free = { ...area }, i = 0;
+  while (i < sorted.length) {
+    const horizontal = free.w >= free.h;
+    const side = Math.min(free.w, free.h);
+    const row = [];
+    let weight = 0, best = Infinity;
+    while (i < sorted.length) {
+      const next = sorted[i], candidate = weight + next.weight;
+      const ratio = worst(row.concat([next]), candidate, side, scale);
+      if (row.length === 0 || ratio <= best) { best = ratio; row.push(next); weight = candidate; i++; }
+      else break;
+    }
+    if (!row.length) break;
+    const thickness = Math.max(0, Math.min((weight * scale) / side, side));
+    const strip = horizontal ? free.w : free.h;
+    const start = horizontal ? free.x : free.y;
+    let offset = start;
+    for (let k = 0; k < row.length; k++) {
+      const last = k === row.length - 1;
+      const extent = last
+        ? strip - (offset - start)
+        : Math.max(0, Math.min((row[k].weight * scale) / thickness, strip));
+      out.push({
+        node: row[k].node,
+        x: horizontal ? offset : free.x,
+        y: horizontal ? free.y : offset,
+        w: horizontal ? extent : thickness,
+        h: horizontal ? thickness : extent
+      });
+      offset += extent;
+    }
+    free = horizontal
+      ? { x: free.x + thickness, y: free.y, w: Math.max(0, free.w - thickness), h: free.h }
+      : { x: free.x, y: free.y + thickness, w: free.w, h: Math.max(0, free.h - thickness) };
+  }
+  return out;
+}
+function worst(row, weight, side, scale) {
+  if (weight <= 0 || side <= 0) return Infinity;
+  const thickness = Math.min((weight * scale) / side, side);
+  if (thickness <= 0) return Infinity;
+  let ratio = 0;
+  for (const it of row) ratio = Math.max(ratio, Math.sqrt((it.weight * scale) / (thickness * thickness)));
+  return ratio;
+}
+
+const map = document.getElementById("map");
+const trail = [DATA.tree];
+document.getElementById("rev").textContent = String(DATA.revision).slice(0, 12);
+document.getElementById("legend").innerHTML = PALETTE
+  .filter(([name]) => name)
+  .map(([name, hex]) => `<span><i style="background:${hex}"></i>${name}</span>`)
+  .join("");
+
+function paint(parent, node, depth) {
+  const box = parent.getBoundingClientRect();
+  const placed = squarify(
+    (node.children || []).map((c) => ({ weight: c.size_bytes, node: c })),
+    { x: 0, y: 0, w: box.width, h: box.height }
+  );
+  for (const item of placed) {
+    if (item.w < 2 || item.h < 2) continue;
+    const el = document.createElement("div");
+    el.className = "cell";
+    el.style.left = item.x + "px";
+    el.style.top = item.y + "px";
+    el.style.width = item.w + "px";
+    el.style.height = item.h + "px";
+    const base = color(item.node.category_hint);
+    el.style.background = depth > 0 ? shade(base, -depth * 13) : base;
+    el.title = `${item.node.name} — ${bytes(item.node.size_bytes)}`;
+    if (item.w > 60 && item.h > 22) {
+      const name = document.createElement("span");
+      name.textContent = item.node.name;
+      el.append(name);
+    }
+    el.addEventListener("click", (event) => {
+      event.stopPropagation();
+      select(item.node);
+      if (item.node.children && item.node.children.length) trail.push(item.node);
+      draw();
+    });
+    parent.appendChild(el);
+    if (depth + 1 < EXPAND_DEPTH && item.node.children && item.node.children.length
+        && item.w > 90 && item.h > 60) {
+      paint(el, item.node, depth + 1);
+    } else if (item.w > 60 && item.h > 40) {
+      // A leaf keeps its size, now that nothing will cover it.
+      const size = document.createElement("small");
+      size.textContent = bytes(item.node.size_bytes);
+      el.append(size);
+    }
+  }
+}
+function draw() {
+  map.querySelectorAll(".cell").forEach((el) => el.remove());
+  paint(map, trail[trail.length - 1], 0);
+  document.getElementById("crumb").textContent = trail.map((n) => n.name).join(" / ");
+  if (trail.length === 1) select(trail[0]);
+}
+map.addEventListener("click", () => {
+  if (trail.length > 1) { trail.pop(); draw(); }
+});
+function select(node) {
+  document.getElementById("sel-name").textContent = node.name;
+  document.getElementById("sel-children").textContent = (node.children || []).length + " children";
+  document.getElementById("sel-size").textContent = bytes(node.size_bytes);
+  document.getElementById("sel-own").textContent = bytes(node.own_bytes);
+  document.getElementById("sel-files").textContent = (node.files ?? 0).toLocaleString();
+  document.getElementById("sel-dirs").textContent = (node.dirs ?? 0).toLocaleString();
+  document.getElementById("sel-kind").textContent = node.kind +
+    (node.category_hint ? " · " + node.category_hint : "");
+}
+window.addEventListener("resize", draw);
+draw();
+</script>
+</body>
+</html>

@@ -659,6 +659,7 @@ impl Engine {
                     files,
                     directories,
                     read_error,
+                    category,
                 )| {
                     diskgraph_core::TreeNode {
                         id: *id,
@@ -675,6 +676,7 @@ impl Engine {
                         files: *files as u64,
                         directories: *directories as u64,
                         read_error: *read_error != 0,
+                        category_hint: category.as_deref(),
                     }
                 },
             )

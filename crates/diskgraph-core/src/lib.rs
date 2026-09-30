@@ -15,6 +15,7 @@ mod permissions;
 mod ports;
 mod query;
 mod scan;
+pub mod treemap;
 
 pub use budget::{
     BudgetTracker, CursorContext, CursorRejection, PagingCursor, QueryBudget, TruncationReason,
@@ -52,3 +53,4 @@ pub use scan::{
     PlaceholderPolicy, RescanComparison, ScanBudget, ScanBudgetStop, ScanExclusions, ScanWindow,
     StorageArea, Watermark, WatermarkVerdict, compare_rescan,
 };
+pub use treemap::{Placed, Rect, TextRow, Weighted, human_bytes, render_text, squarify};

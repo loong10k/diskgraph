@@ -181,6 +181,8 @@ pub struct TreeNode<'a> {
     pub files: u64,
     pub directories: u64,
     pub read_error: bool,
+    /// The classification a collector assigned; a view colours by it.
+    pub category_hint: Option<&'a str>,
 }
 
 /// A depth-bounded tree view of one published revision, in the shape a tree
@@ -211,6 +213,7 @@ pub fn render_tree(
             files: node.files,
             directories: node.directories,
             read_error: node.read_error,
+            category_hint: node.category_hint.as_deref(),
         })
         .collect();
     render_tree_rows(&rows, depth, min_bytes)
@@ -252,6 +255,11 @@ pub fn render_tree_rows(
             "files": current.files,
             "dirs": current.directories,
         });
+        // The category is what a view colours by; a tree that drops it cannot
+        // show a legend.
+        if let Some(category) = current.category_hint {
+            value["category_hint"] = json!(category);
+        }
         if current.read_error {
             value["read_error"] = json!(true);
         }

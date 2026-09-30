@@ -259,7 +259,7 @@ impl SqliteSnapshotStore {
     pub fn tree_rows(&self, snapshot_id: &str) -> Result<Vec<TreeRow>> {
         let mut statement = self.connection.prepare(
             "SELECT id, parent_id, name, kind, subtree_bytes, direct_bytes,
-                    files, directories, read_error
+                    files, directories, read_error, category_hint
              FROM nodes WHERE snapshot_id = ?1 AND kind IS NOT NULL ORDER BY id",
         )?;
         let rows = statement.query_map([snapshot_id], |row| {
@@ -273,6 +273,7 @@ impl SqliteSnapshotStore {
                 row.get::<_, i64>(6)?,
                 row.get::<_, i64>(7)?,
                 row.get::<_, i64>(8)?,
+                row.get::<_, Option<String>>(9)?,
             ))
         })?;
         rows.map(|row| {
@@ -286,6 +287,7 @@ impl SqliteSnapshotStore {
                 files,
                 directories,
                 read_error,
+                category,
             ) = row?;
             Ok((
                 id as u64,
@@ -297,6 +299,7 @@ impl SqliteSnapshotStore {
                 files,
                 directories,
                 read_error,
+                category,
             ))
         })
         .collect()
@@ -1049,7 +1052,18 @@ fn kind_from_name(name: &str) -> Result<diskgraph_core::NodeKind> {
 }
 
 /// One narrow node row for the tree view: no locator, no JSON payload.
-pub type TreeRow = (u64, Option<u64>, String, String, i64, i64, i64, i64, i64);
+pub type TreeRow = (
+    u64,
+    Option<u64>,
+    String,
+    String,
+    i64,
+    i64,
+    i64,
+    i64,
+    i64,
+    Option<String>,
+);
 
 fn as_i64(value: u64) -> Result<i64> {
     value.try_into().map_err(|_| StoreError::IntegerOverflow)

@@ -6,8 +6,8 @@ use std::io::{BufRead, Write};
 use std::path::PathBuf;
 
 use diskgraph_core::{
-    Authorizer, BusinessError, CursorContext, Envelope, PagingCursor, Permission, PolicyAuthorizer,
-    PrincipalId, QueryBudget, Relation, ScopeId, SizeFilter,
+    Authorizer, BusinessError, CursorContext, DiskNode, Envelope, PagingCursor, Permission,
+    PolicyAuthorizer, PrincipalId, QueryBudget, Relation, ScopeId, SizeFilter, treemap,
 };
 use diskgraph_engine::{Engine, EngineConfig, EngineError, admin_scope};
 use serde_json::{Value, json};
@@ -455,6 +455,37 @@ impl McpService {
         Ok(json!({ "node": root, "coverage": graph.snapshot.coverage }))
     }
 
+    /// Turns query results into treemap rows: the same nodes, ordered by
+    /// observed size, with the category a collector assigned as the note.
+    fn treemap_rows<'a>(items: impl Iterator<Item = &'a DiskNode>) -> Vec<treemap::TextRow> {
+        let mut rows: Vec<treemap::TextRow> = items
+            .map(|node| treemap::TextRow {
+                id: node.id,
+                name: node.name.clone(),
+                size_bytes: node.subtree_bytes,
+                files: node.files,
+                note: node.category_hint.clone(),
+                muted: node.reclaim_hint.is_none(),
+            })
+            .collect();
+        rows.sort_by(|a, b| b.size_bytes.cmp(&a.size_bytes).then(a.name.cmp(&b.name)));
+        rows
+    }
+
+    /// Whether the caller asked for the text treemap instead of JSON items.
+    /// The tool set does not grow: the same tool renders either shape.
+    fn wants_treemap(arguments: &Value) -> bool {
+        arguments
+            .get("format")
+            .and_then(Value::as_str)
+            .is_some_and(|format| format == "treemap")
+    }
+
+    /// The terminal width the caller wants, defaulting to a readable 88.
+    fn treemap_width(arguments: &Value) -> usize {
+        arguments.get("width").and_then(Value::as_u64).unwrap_or(88) as usize
+    }
+
     fn children_tool(
         &self,
         scope: &Option<ScopeId>,
@@ -473,6 +504,16 @@ impl McpService {
             .and_then(Value::as_u64)
             .map(SizeFilter::AtLeast);
         let page = graph.children_filtered(parent_id, filter, offset, limit);
+        if Self::wants_treemap(arguments) {
+            let rows = Self::treemap_rows(page.items.iter().copied());
+            let width = Self::treemap_width(arguments);
+            return Ok(json!({
+                "format": "treemap",
+                "treemap": treemap::render_text(&rows, width),
+                "items": page.items.len(),
+                "next_offset": page.next_offset,
+            }));
+        }
         Ok(json!({
             "items": page.items,
             "next_offset": page.next_offset,
@@ -488,8 +529,19 @@ impl McpService {
             .and_then(Value::as_u64)
             .unwrap_or(1);
         let limit = arguments.get("limit").and_then(Value::as_u64).unwrap_or(20) as usize;
+        let items = graph.top(parent_id, limit);
+        if Self::wants_treemap(arguments) {
+            let rows = Self::treemap_rows(items.iter().copied());
+            let width = Self::treemap_width(arguments);
+            return Ok(json!({
+                "format": "treemap",
+                "treemap": treemap::render_text(&rows, width),
+                "items": items.len(),
+                "size_kind": "allocated",
+            }));
+        }
         Ok(json!({
-            "items": graph.top(parent_id, limit),
+            "items": items,
             "size_kind": "allocated",
         }))
     }

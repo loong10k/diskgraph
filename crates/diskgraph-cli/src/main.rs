@@ -12,6 +12,7 @@ use diskgraph_core::{
 };
 use diskgraph_engine::{Engine, EngineConfig, EngineError};
 
+mod html;
 mod local;
 
 use local::LocalIdentity;
@@ -124,6 +125,10 @@ enum Command {
         /// Expand to this depth (1 = root only).
         #[arg(long, default_value_t = 3)]
         depth: usize,
+        /// Write a self-contained interactive HTML treemap here instead of
+        /// JSON (no network, no build step; open it in any browser).
+        #[arg(long, value_name = "PATH")]
+        html: Option<PathBuf>,
         /// Hide children whose subtree is smaller than this many bytes.
         #[arg(long, default_value_t = 0)]
         min_bytes: u64,
@@ -602,6 +607,7 @@ fn dispatch(
             revision,
             depth,
             min_bytes,
+            html,
         } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
@@ -618,6 +624,27 @@ fn dispatch(
             let view = engine.tree_view(
                 &scope_id, &revision, principal, authorizer, *depth, *min_bytes,
             )?;
+            if let Some(destination) = html {
+                let scope_record = engine.scope(&scope_id)?;
+                let root = scope_record
+                    .root
+                    .raw_bytes()
+                    .ok()
+                    .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
+                    .unwrap_or_else(|| scope.clone());
+                let truncated = html::tree_is_truncated(&view.root);
+                let page = html::render_page(&view.root, &root, &revision, truncated, *depth);
+                std::fs::write(destination, page)?;
+                out.push(envelope_line(
+                    engine,
+                    Ok(serde_json::json!({
+                        "revision_id": revision,
+                        "rendered_depth": depth,
+                        "written": destination.display().to_string(),
+                    })),
+                ));
+                return Ok(());
+            }
             out.push(envelope_line(
                 engine,
                 Ok(serde_json::json!({
