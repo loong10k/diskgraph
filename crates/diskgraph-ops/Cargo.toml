@@ -1,4 +1,5 @@
 [package]
+readme = "README.md"
 name = "diskgraph-ops"
 description = "Plan, approve, and execute reversible file operations for DiskGraph"
 version.workspace = true

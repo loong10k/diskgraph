@@ -1,4 +1,5 @@
 [package]
+readme = "README.md"
 name = "diskgraph-ffi"
 description = "Swift and Kotlin read-only bindings for DiskGraph"
 version.workspace = true

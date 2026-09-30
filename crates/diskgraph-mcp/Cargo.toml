@@ -1,4 +1,5 @@
 [package]
+readme = "README.md"
 name = "diskgraph-mcp"
 description = "MCP protocol adapter for DiskGraph (stdio, Streamable HTTP, legacy SSE)"
 version.workspace = true

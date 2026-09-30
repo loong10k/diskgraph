@@ -337,7 +337,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "clap",
  "diskgraph-core",
@@ -351,7 +351,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "base64",
  "serde",
@@ -361,7 +361,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-disktree"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree-core",
@@ -371,7 +371,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-disktree-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "chrono",
  "rayon",
@@ -384,7 +384,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-engine"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",
@@ -403,7 +403,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-ffi"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",
@@ -417,7 +417,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-mcp"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "base64",
  "diskgraph-core",
@@ -435,7 +435,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-ops"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "diskgraph-core",
  "diskgraph-engine",
@@ -451,7 +451,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-store"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "diskgraph-core",
  "rayon",
@@ -465,7 +465,7 @@ dependencies = [
 
 [[package]]
 name = "diskgraph-testkit"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",

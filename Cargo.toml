@@ -17,7 +17,7 @@ members = [
 exclude = ["crates/diskgraph-disktree-core"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 rust-version = "1.97"
 license = "MIT"
@@ -29,7 +29,7 @@ categories = ["filesystem", "command-line-utilities", "database-implementations"
 
 
 [workspace.dependencies]
-diskgraph-disktree-core = { path = "crates/diskgraph-disktree-core", version = "0.2.0" }
+diskgraph-disktree-core = { path = "crates/diskgraph-disktree-core", version = "0.2.1" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
@@ -38,14 +38,14 @@ hex = "0.4"
 rayon = "1"
 uuid = { version = "1", features = ["v4"] }
 base64 = "0.22"
-diskgraph-core = { path = "crates/diskgraph-core", version = "0.2.0" }
-diskgraph-store = { path = "crates/diskgraph-store", version = "0.2.0" }
-diskgraph-disktree = { path = "crates/diskgraph-disktree", version = "0.2.0" }
-diskgraph-testkit = { path = "crates/diskgraph-testkit", version = "0.2.0" }
-diskgraph-engine = { path = "crates/diskgraph-engine", version = "0.2.0" }
-diskgraph-cli = { path = "crates/diskgraph-cli", version = "0.2.0" }
-diskgraph-mcp = { path = "crates/diskgraph-mcp", version = "0.2.0" }
-diskgraph-ops = { path = "crates/diskgraph-ops", version = "0.2.0" }
+diskgraph-core = { path = "crates/diskgraph-core", version = "0.2.1" }
+diskgraph-store = { path = "crates/diskgraph-store", version = "0.2.1" }
+diskgraph-disktree = { path = "crates/diskgraph-disktree", version = "0.2.1" }
+diskgraph-testkit = { path = "crates/diskgraph-testkit", version = "0.2.1" }
+diskgraph-engine = { path = "crates/diskgraph-engine", version = "0.2.1" }
+diskgraph-cli = { path = "crates/diskgraph-cli", version = "0.2.1" }
+diskgraph-mcp = { path = "crates/diskgraph-mcp", version = "0.2.1" }
+diskgraph-ops = { path = "crates/diskgraph-ops", version = "0.2.1" }
 clap = { version = "4", features = ["derive"] }
 # The vendored upstream scanner (MIT, tobi/disktree @ 158f9cc). It lives
 # outside this workspace so our format/lint gates never rewrite the pinned

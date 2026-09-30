@@ -1,4 +1,5 @@
 [package]
+readme = "README.md"
 name = "diskgraph-testkit"
 description = "Isolated filesystem fixtures and cross-language test support"
 version.workspace = true
