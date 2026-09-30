@@ -33,7 +33,7 @@ Installers:
   - Architecture: x64
     InstallerType: zip
     InstallerUrl: https://github.com/loong10k/diskgraph/releases/download/v0.2.1/diskgraph-x86_64-pc-windows-msvc.zip
-    InstallerSha256: 
+    InstallerSha256: dce16c1f23aa02c2372fb788aa676c9ef605651242dc72b28a7ee530ace4bebe
     NestedInstallerType: portable
     NestedInstallerFiles:
       - RelativeFilePath: diskgraph-x86_64-pc-windows-msvc/bin/diskgraph.exe
