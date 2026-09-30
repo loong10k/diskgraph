@@ -33,7 +33,7 @@ jobs:
             os: macos-14
             archive: tar.gz
           - target: x86_64-apple-darwin
-            os: macos-13
+            os: macos-14
             archive: tar.gz
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-24.04
@@ -51,19 +51,20 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Cross toolchain (Linux aarch64)
+      # Linux aarch64 cross-compiles inside the standard cross image: it
+      # carries the C toolchain, the sysroot, and the SQLite build recipe for
+      # a foreign target, which a bare apt gcc on the host runner does not.
+      - name: Build (Linux aarch64, cross image)
         if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-
-      # bundled SQLite compiles C, so the C toolchain must target the same
-      # triple as Rust (EC-01: no shell tools, but a C compiler is required).
+        uses: docker://ghcr.io/cross-rs/aarch64-unknown-linux-gnu
+        with:
+          args: >-
+            cargo build --release --locked
+            -p diskgraph-cli -p diskgraph-mcp
+            --target aarch64-unknown-linux-gnu
       - name: Build
+        if: matrix.target != 'aarch64-unknown-linux-gnu'
         run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
-        env:
-          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
-          AR_aarch64_unknown_linux_gnu: aarch64-linux-gnu-ar
 
       - name: Assemble archive
         shell: bash
