@@ -1,34 +1,24 @@
- demo   464 MiB  10 files   ↑↓ move · enter descend · esc/backspace up · s sort · q quit
-┌ disk usage · rev-ceb45ad0-34fb-4994-b061-7222dc1ac36f─────────────────────────────────────────────────────┐┌ selection ──────────────────────────────────────┐
-│ ┌atarget.bin 180 MiB─────────────────────beta 90.0 MiB───────gamma 4…┐LCaches 55.0 MiB   .codex …         ││workspaces                                       │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││size       310 MiB                               │
-│ │                                                                    │                                    ││files      3                                     │
-│ │                                                                    │                                    ││kind       directory                             │
-│ │                                                                    │                                    ││category   Code                                  │
-│ │                                                                    │                                    ││children   true                                  │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││↑↓ move · enter descend · esc/backspace up · s   │
-│ │                                                                    │                                    ││sort · q quit                                    │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │                                    ││                                                 │
-│ │                                                                    │ Application Supp…                  ││                                                 │
-│ │                                                                    │                                    ││                                                 │
+ home   242 GiB  3782118 files   ↑↓ move · enter descend · esc/backspace up · s sort · m threshold ·
+┌ disk usage · rev-68989ca6-4d43-4d8a-8d37-be9564920a30────────────┐┌ selection ───────────────────┐
+│ ┌dir-300 …────────────────────────┐dir-02 37…dir-03 3…           ││dir-01                        │
+│ │                                 │                              ││                              │
+│ │                                 │                              ││size       123 GiB            │
+│ │                                 │                              ││files      2618294            │
+│ │                                 │                              ││kind       directory          │
+│ │                                 │                              ││category   Code               │
+│ │                                 │                              ││children   true               │
+│ │                                 │                              ││                              │
+│ │                                 │                              ││↑↓ move · enter descend ·     │
+│ │                                 │                              ││esc/backspace up · s sort · m │
+│ │                                 │                              ││threshold · q quit            │
+│ │                                 │                              ││                              │
+│ │                                 │                              ││                              │
+│ │                                 │                              ││                              │
+│ │                                 │                              ││                              │
+│ └─────────────────────────────────┘                              ││                              │
+│                                                                  ││                              │
+└──────────────────────────────────────────────────────────────────┘└──────────────────────────────┘
 
-  (captured from a real `diskgraph tui` session: tmux 160x44,
-   indexed 464 MiB / 10 files. Arrows or hjkl move, enter descends,
-   esc goes up, s toggles the sort, q quits.)
+  (captured from a real `diskgraph tui --anonymize` session: tmux 100x20,
+   home directory, 3,782,118 files, 242 GiB. Arrows or hjkl move, enter descends,
+   esc goes up, s toggles the sort, m cycles the threshold, q quits.)

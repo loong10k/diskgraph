@@ -31,10 +31,12 @@
 <td width="62%"><img src="docs/assets/treemap-html.png" alt="DiskGraph 浏览器 treemap" /></td>
 <td valign="top" width="38%">
 
-**浏览器** —— 单个自包含文件，零 CDN、零构建。上图：真实家目录，453 万文件已索引，深度 4 渲染。
+**浏览器** —— 单个自包含文件，零 CDN、零构建。上图：真实家目录，3,782,118 个文件已索引
+（242 GiB），深度 4 渲染。开了 `--anonymize`，所以每个目录都叫 `dir-01`、`dir-02`
+—— 图形是真的，名字不是。
 
 ```bash
-diskgraph tree --scope <id> --html usage.html
+diskgraph tree --scope <id> --anonymize --html usage.html
 ```
 
 点击色块下钻，点击背景返回。色相是采集器给出的分类，明暗是占父目录的比例。
@@ -47,17 +49,22 @@ diskgraph tree --scope <id> --html usage.html
 **终端** —— 逐层按需加载，四百万节点的索引也能秒开：
 
 ```bash
-diskgraph tui --scope <id>
+diskgraph tui --scope <id> --anonymize
 ```
 
 <pre>
- workspace-partme-ai   16.8 GiB  226283 files   m 阈值 · q 退出
-┌ disk usage · rev-6c10172a───────────────────────────────────────────────┐┌ selection ─────┐
-│ ┌debug 6.7 GiB──────┐design-v2 1.2… research 1.… workbuddy-…           ││diskgraph      │
-│ │                   │                                                  ││size    7.5 GiB│
-│ │                   │                                                  ││files  63980   │
-│ │                   │                                                  ││category Git   │
-└───────────────────┴──────────────────────────────────────────────────┘└───────────────┘
+ home   242 GiB  3782118 files   ↑↓ move · enter descend · esc/backspace up · s sort · m threshold ·
+┌ disk usage · rev-68989ca6-4d43-4d8a-8d37-be9564920a30────────────┐┌ selection ───────────────────┐
+│ ┌dir-300 …────────────────────────┐dir-02 37…dir-03 3…           ││dir-01                        │
+│ │                                 │                              ││size       123 GiB            │
+│ │                                 │                              ││files      2618294            │
+│ │                                 │                              ││kind       directory          │
+│ │                                 │                              ││category   Code               │
+│ │                                 │                              ││children   true               │
+│ │                                 │                              ││                              │
+│ └─────────────────────────────────┘                              ││                              │
+│                                                                  ││                              │
+└──────────────────────────────────────────────────────────────────┘└──────────────────────────────┘
 </pre>
 
 </td>

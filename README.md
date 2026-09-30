@@ -32,10 +32,12 @@ Disk usage is a picture, not a number. Three surfaces draw the same map from the
 <td valign="top" width="38%">
 
 **Browser** — one self-contained file, no CDN, no build step. Above: a real
-home directory, 4.5M files indexed, rendered at depth 4.
+home directory, 3,782,118 files indexed (242 GiB), rendered at depth 4.
+`--anonymize` is on, so every directory reads as `dir-01`, `dir-02` — the
+picture is real, the names are not.
 
 ```bash
-diskgraph tree --scope <id> --html usage.html
+diskgraph tree --scope <id> --anonymize --html usage.html
 ```
 
 Click a block to descend, click the background to go up. Hue is the category a collector assigned; brightness is the share of the parent.
@@ -48,17 +50,22 @@ Click a block to descend, click the background to go up. Hue is the category a c
 **Terminal** — walks one directory level at a time, so a four-million-node index opens instantly:
 
 ```bash
-diskgraph tui --scope <id>
+diskgraph tui --scope <id> --anonymize
 ```
 
 <pre>
- workspace-partme-ai   16.8 GiB  226283 files   m threshold · q quit
-┌ disk usage · rev-6c10172a───────────────────────────────────────────────┐┌ selection ──────┐
-│ ┌debug 6.7 GiB──────┐design-v2 1.2… research 1.… workbuddy-…           ││diskgraph       │
-│ │                   │                                                  ││size    7.5 GiB │
-│ │                   │                                                  ││files  63980    │
-│ │                   │                                                  ││category Git    │
-└───────────────────┴──────────────────────────────────────────────────┘└────────────────┘
+ home   242 GiB  3782118 files   ↑↓ move · enter descend · esc/backspace up · s sort · m threshold ·
+┌ disk usage · rev-68989ca6-4d43-4d8a-8d37-be9564920a30────────────┐┌ selection ───────────────────┐
+│ ┌dir-300 …────────────────────────┐dir-02 37…dir-03 3…           ││dir-01                        │
+│ │                                 │                              ││size       123 GiB            │
+│ │                                 │                              ││files      2618294            │
+│ │                                 │                              ││kind       directory          │
+│ │                                 │                              ││category   Code               │
+│ │                                 │                              ││children   true               │
+│ │                                 │                              ││                              │
+│ └─────────────────────────────────┘                              ││                              │
+│                                                                  ││                              │
+└──────────────────────────────────────────────────────────────────┘└──────────────────────────────┘
 </pre>
 
 </td>
