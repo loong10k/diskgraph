@@ -341,10 +341,10 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "diskgraph-core",
+ "diskgraph-disktree-core",
  "diskgraph-engine",
  "diskgraph-mcp",
  "diskgraph-store",
- "disktree-core",
  "serde_json",
  "tempfile",
 ]
@@ -364,9 +364,22 @@ name = "diskgraph-disktree"
 version = "0.1.0"
 dependencies = [
  "diskgraph-core",
- "disktree-core",
+ "diskgraph-disktree-core",
  "tempfile",
  "uuid",
+]
+
+[[package]]
+name = "diskgraph-disktree-core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "rayon",
+ "rustc-hash",
+ "rustix",
+ "trash",
+ "winapi-util",
+ "windows-sys",
 ]
 
 [[package]]
@@ -375,9 +388,9 @@ version = "0.1.0"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",
+ "diskgraph-disktree-core",
  "diskgraph-store",
  "diskgraph-testkit",
- "disktree-core",
  "hex",
  "libc",
  "serde",
@@ -394,9 +407,9 @@ version = "0.1.0"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",
+ "diskgraph-disktree-core",
  "diskgraph-engine",
  "diskgraph-store",
- "disktree-core",
  "serde_json",
  "tempfile",
  "uniffi",
@@ -456,23 +469,9 @@ version = "0.1.0"
 dependencies = [
  "diskgraph-core",
  "diskgraph-disktree",
+ "diskgraph-disktree-core",
  "diskgraph-store",
- "disktree-core",
  "tempfile",
-]
-
-[[package]]
-name = "disktree-core"
-version = "0.10.1"
-source = "git+https://github.com/tobi/disktree?rev=158f9cc2f0b332194a3ffc5acec47760c99146d8#158f9cc2f0b332194a3ffc5acec47760c99146d8"
-dependencies = [
- "chrono",
- "rayon",
- "rustc-hash",
- "rustix",
- "trash",
- "winapi-util",
- "windows-sys",
 ]
 
 [[package]]

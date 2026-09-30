@@ -56,7 +56,7 @@ pub struct EngineConfig {
     /// How the walk behaves, using disktree's own option contract: a scope
     /// indexed with one set of options is only ever comparable with a scope
     /// indexed the same way (the snapshot records these verbatim).
-    pub scan_options: disktree_core::scan::ScanOptions,
+    pub scan_options: diskgraph_disktree_core::scan::ScanOptions,
 }
 
 impl Default for EngineConfig {
@@ -73,7 +73,7 @@ impl Default for EngineConfig {
                 warn_above_bytes: 8 << 30,
                 refuse_above_bytes: 16 << 30,
             },
-            scan_options: disktree_core::scan::ScanOptions::default(),
+            scan_options: diskgraph_disktree_core::scan::ScanOptions::default(),
         }
     }
 }
@@ -126,7 +126,7 @@ pub struct Engine {
     scan_budget: ScanBudget,
     capacity_watermark: Watermark,
     max_active_jobs_per_principal: u32,
-    scan_options: disktree_core::scan::ScanOptions,
+    scan_options: diskgraph_disktree_core::scan::ScanOptions,
     graph: Mutex<SqliteSnapshotStore>,
     control: Mutex<ControlStore>,
     cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
@@ -718,7 +718,8 @@ impl Engine {
         // they were configured the same way.
         let started_at_unix_ms = now_ms();
         let options = self.scan_options.clone();
-        let handle = disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
+        let handle =
+            diskgraph_disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
         let tree = loop {
             if cancel.load(Ordering::SeqCst) {
                 handle.cancel();
@@ -968,7 +969,7 @@ fn directory_bytes(path: &std::path::Path) -> u64 {
 
 /// A stable fingerprint of the scan options, so two snapshots can be compared
 /// only when they were produced the same way (FS-01).
-fn options_fingerprint(options: &disktree_core::scan::ScanOptions) -> String {
+fn options_fingerprint(options: &diskgraph_disktree_core::scan::ScanOptions) -> String {
     use std::hash::{Hash, Hasher};
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     options.apparent_size.hash(&mut hasher);
@@ -980,7 +981,9 @@ fn options_fingerprint(options: &disktree_core::scan::ScanOptions) -> String {
     format!("{:016x}", hasher.finish())
 }
 
-fn scan_settings(options: &disktree_core::scan::ScanOptions) -> diskgraph_core::ScanSettings {
+fn scan_settings(
+    options: &diskgraph_disktree_core::scan::ScanOptions,
+) -> diskgraph_core::ScanSettings {
     diskgraph_core::ScanSettings {
         apparent_size: options.apparent_size,
         follow_links: options.follow_links,

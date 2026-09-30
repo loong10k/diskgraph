@@ -14,3 +14,11 @@ npm/vendor/
 
 # npm thin-installer: vendored platform binaries are downloaded at install
 npm/vendor/
+
+# The vendored upstream copy is formatted with its own upstream style; the
+# workspace fmt gate covers our crates only (see scripts/format-vendored.sh).
+
+# The vendored upstream copy builds in its own workspace; its target/ is
+# a local artifact like any other.
+crates/diskgraph-disktree-core/target/
+crates/diskgraph-disktree-core/Cargo.lock

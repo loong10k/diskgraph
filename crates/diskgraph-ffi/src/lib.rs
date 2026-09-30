@@ -36,7 +36,7 @@ pub fn scan_native_json(database_path: String, root_path: String) -> String {
         }
         let graph = diskgraph_disktree::scan_native(
             Path::new(&root_path),
-            disktree_core::scan::ScanOptions::default(),
+            diskgraph_disktree_core::scan::ScanOptions::default(),
         )
         .map_err(|error| error.to_string())?;
         let mut store = open_store(&database_path)?;

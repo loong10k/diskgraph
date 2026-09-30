@@ -10,7 +10,7 @@ use diskgraph_engine::{Engine, EngineConfig};
 
 fn engine_with_options(
     label: &str,
-    options: disktree_core::scan::ScanOptions,
+    options: diskgraph_disktree_core::scan::ScanOptions,
 ) -> (tempfile::TempDir, Arc<Engine>) {
     let workspace = tempfile::TempDir::with_prefix(format!("dg-parity-{label}-")).unwrap();
     let engine = Arc::new(
@@ -53,8 +53,11 @@ fn fixture_tree() -> tempfile::TempDir {
     tree
 }
 
-fn disktree_total(root: &std::path::Path, options: disktree_core::scan::ScanOptions) -> u64 {
-    let handle = disktree_core::scan::ScanHandle::spawn(root.to_path_buf(), options);
+fn disktree_total(
+    root: &std::path::Path,
+    options: diskgraph_disktree_core::scan::ScanOptions,
+) -> u64 {
+    let handle = diskgraph_disktree_core::scan::ScanHandle::spawn(root.to_path_buf(), options);
     let tree = loop {
         match handle.poll() {
             Some(result) => break result.unwrap(),
@@ -67,9 +70,9 @@ fn disktree_total(root: &std::path::Path, options: disktree_core::scan::ScanOpti
 #[test]
 fn apparent_size_matches_disktrees_own_walk_for_the_same_tree() {
     let tree = fixture_tree();
-    let options = disktree_core::scan::ScanOptions {
+    let options = diskgraph_disktree_core::scan::ScanOptions {
         apparent_size: true,
-        ..disktree_core::scan::ScanOptions::default()
+        ..diskgraph_disktree_core::scan::ScanOptions::default()
     };
     let (_workspace, engine) = engine_with_options("apparent", options.clone());
     let graph = scan_scope(&engine, tree.path());
@@ -92,8 +95,10 @@ fn apparent_size_matches_disktrees_own_walk_for_the_same_tree() {
 #[test]
 fn allocated_size_matches_disktrees_own_walk_for_the_same_tree() {
     let tree = fixture_tree();
-    let (_workspace, engine) =
-        engine_with_options("allocated", disktree_core::scan::ScanOptions::default());
+    let (_workspace, engine) = engine_with_options(
+        "allocated",
+        diskgraph_disktree_core::scan::ScanOptions::default(),
+    );
     let graph = scan_scope(&engine, tree.path());
     assert!(!graph.snapshot.settings.apparent_size);
     let diskgraph_total = graph
@@ -102,7 +107,10 @@ fn allocated_size_matches_disktrees_own_walk_for_the_same_tree() {
         .find(|node| node.parent_id.is_none())
         .unwrap()
         .subtree_bytes;
-    let disktree_total = disktree_total(tree.path(), disktree_core::scan::ScanOptions::default());
+    let disktree_total = disktree_total(
+        tree.path(),
+        diskgraph_disktree_core::scan::ScanOptions::default(),
+    );
     assert_eq!(
         diskgraph_total, disktree_total,
         "allocated walk must match disktree's own accounting"
@@ -112,9 +120,9 @@ fn allocated_size_matches_disktrees_own_walk_for_the_same_tree() {
 #[test]
 fn no_hidden_skips_dotfiles_and_records_the_exclusion() {
     let tree = fixture_tree();
-    let options = disktree_core::scan::ScanOptions {
+    let options = diskgraph_disktree_core::scan::ScanOptions {
         include_hidden: false,
-        ..disktree_core::scan::ScanOptions::default()
+        ..diskgraph_disktree_core::scan::ScanOptions::default()
     };
     let (_workspace, engine) = engine_with_options("hidden", options.clone());
     let graph = scan_scope(&engine, tree.path());
@@ -132,9 +140,9 @@ fn no_hidden_skips_dotfiles_and_records_the_exclusion() {
 #[test]
 fn a_depth_limit_marks_coverage_depth_limited_like_disktree() {
     let tree = fixture_tree();
-    let options = disktree_core::scan::ScanOptions {
+    let options = diskgraph_disktree_core::scan::ScanOptions {
         max_depth: Some(1),
-        ..disktree_core::scan::ScanOptions::default()
+        ..diskgraph_disktree_core::scan::ScanOptions::default()
     };
     let (_workspace, engine) = engine_with_options("depth", options.clone());
     let graph = scan_scope(&engine, tree.path());
@@ -154,13 +162,15 @@ fn differently_configured_snapshots_are_not_comparable() {
     let tree = fixture_tree();
     let (_workspace_a, engine_a) = engine_with_options(
         "cmp-a",
-        disktree_core::scan::ScanOptions {
+        diskgraph_disktree_core::scan::ScanOptions {
             apparent_size: true,
-            ..disktree_core::scan::ScanOptions::default()
+            ..diskgraph_disktree_core::scan::ScanOptions::default()
         },
     );
-    let (_workspace_b, engine_b) =
-        engine_with_options("cmp-b", disktree_core::scan::ScanOptions::default());
+    let (_workspace_b, engine_b) = engine_with_options(
+        "cmp-b",
+        diskgraph_disktree_core::scan::ScanOptions::default(),
+    );
     let graph_a = scan_scope(&engine_a, tree.path());
     let graph_b = scan_scope(&engine_b, tree.path());
     assert!(graph_a.growth(&graph_b, &graph_a.snapshot.root).is_none());
@@ -173,8 +183,10 @@ fn a_real_project_tree_scans_identically_under_both_walkers() {
     if !real.is_dir() {
         panic!("real drill directory is unavailable on this host");
     }
-    let (_workspace, engine) =
-        engine_with_options("real", disktree_core::scan::ScanOptions::default());
+    let (_workspace, engine) = engine_with_options(
+        "real",
+        diskgraph_disktree_core::scan::ScanOptions::default(),
+    );
     let graph = scan_scope(&engine, real);
     let diskgraph_total = graph
         .nodes
@@ -182,7 +194,8 @@ fn a_real_project_tree_scans_identically_under_both_walkers() {
         .find(|node| node.parent_id.is_none())
         .unwrap()
         .subtree_bytes;
-    let disktree_total = disktree_total(real, disktree_core::scan::ScanOptions::default());
+    let disktree_total =
+        disktree_total(real, diskgraph_disktree_core::scan::ScanOptions::default());
     println!(
         "REAL-PARITY diskgraph={diskgraph_total} disktree={disktree_total} nodes={}",
         graph.nodes.len()

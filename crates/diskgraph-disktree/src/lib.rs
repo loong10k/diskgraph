@@ -12,8 +12,8 @@ use diskgraph_core::{
     DiskGraph, DiskNode, DiskSnapshot, EvidenceEdge, FileIdentity, Locator, NodeKind,
     ResourceLocator, ScanCoverage, ScanSettings,
 };
-use disktree_core::scan::ScanOptions;
-use disktree_core::tree::{Node, NodeKind as DiskTreeNodeKind};
+use diskgraph_disktree_core::scan::ScanOptions;
+use diskgraph_disktree_core::tree::{Node, NodeKind as DiskTreeNodeKind};
 use uuid::Uuid;
 
 /// One scanned node: the v1 projection plus lossless v2 identity data.
@@ -65,7 +65,7 @@ pub fn scan_native_v2(root: &Path, options: ScanOptions) -> io::Result<ScanResul
         max_depth: options.max_depth,
         dedup_hardlinks: options.dedup_hardlinks,
     };
-    let tree = disktree_core::scan::scan(&root, options)?;
+    let tree = diskgraph_disktree_core::scan::scan(&root, options)?;
     convert_tree(&root, &tree, settings)
 }
 

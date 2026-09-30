@@ -11,6 +11,10 @@ members = [
     "crates/diskgraph-mcp",
     "crates/diskgraph-ops",
 ]
+# The vendored upstream scanner (MIT, tobi/disktree @ 158f9cc) builds as its
+# own workspace root so the repository's format and lint gates never rewrite
+# the bytes its pin is verified against; see its VENDORED.md.
+exclude = ["crates/diskgraph-disktree-core"]
 
 [workspace.package]
 version = "0.1.0"
@@ -23,7 +27,9 @@ documentation = "https://docs.rs/diskgraph-core"
 keywords = ["disk", "filesystem", "graph", "cleanup", "mcp", "ai-agent"]
 categories = ["filesystem", "command-line-utilities", "database-implementations"]
 
+
 [workspace.dependencies]
+diskgraph-disktree-core = { path = "crates/diskgraph-disktree-core", version = "0.1.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
@@ -41,4 +47,6 @@ diskgraph-cli = { path = "crates/diskgraph-cli", version = "0.1.0" }
 diskgraph-mcp = { path = "crates/diskgraph-mcp", version = "0.1.0" }
 diskgraph-ops = { path = "crates/diskgraph-ops", version = "0.1.0" }
 clap = { version = "4", features = ["derive"] }
-disktree-core = { git = "https://github.com/tobi/disktree", rev = "158f9cc2f0b332194a3ffc5acec47760c99146d8" }
+# The vendored upstream scanner (MIT, tobi/disktree @ 158f9cc). It lives
+# outside this workspace so our format/lint gates never rewrite the pinned
+# bytes; crates/diskgraph-disktree-core/VENDORED.md records the provenance.

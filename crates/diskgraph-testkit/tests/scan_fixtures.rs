@@ -2,7 +2,7 @@
 //! FS-03 / FS-04 / FS-05). These tests document what the pinned disktree
 //! revision actually does; changing the pin must revisit every assertion here.
 
-use disktree_core::scan::ScanOptions;
+use diskgraph_disktree_core::scan::ScanOptions;
 
 use diskgraph_core::DiskGraph;
 use diskgraph_disktree::scan_native;

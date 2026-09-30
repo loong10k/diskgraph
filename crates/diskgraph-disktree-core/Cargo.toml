@@ -1,0 +1,47 @@
+[package]
+name = "diskgraph-disktree-core"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+description = "Filesystem scanning and treemap layout for disktree (vendored into DiskGraph from tobi/disktree; see VENDORED.md)"
+
+# Its own workspace root: the parent workspace excludes it so the repository's
+# format and lint gates never rewrite the bytes the pin is verified against.
+[workspace]
+
+# Vendored from https://github.com/tobi/disktree at revision
+# 158f9cc2f0b332194a3ffc5acec47760c99146d8 (MIT, Copyright (c) 2026 Tobi
+# Lütke). The source is unmodified; the original package manifest is kept in
+# VENDORED.md together with the upstream license text.
+#
+# Vendoring (rather than a crates.io dependency) is deliberate: the upstream
+# scanner library is not published to crates.io, and pinning a git revision
+# would make crates.io publication impossible for every crate that depends on
+# it. The pinned_upstream test in diskgraph-disktree verifies this copy still
+# matches the pinned upstream revision's file digests.
+
+[dependencies]
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+rayon = { version = "1.12" }
+rustc-hash = { version = "2" }
+
+[target.'cfg(not(windows))'.dependencies]
+rustix = { version = "1.1", features = ["fs"] }
+
+[target.'cfg(windows)'.dependencies]
+trash = { version = "5.2.9", default-features = false, features = ["coinit_apartmentthreaded"] }
+winapi-util = "0.1.11"
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Com",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+trash = { version = "5.2.9", default-features = false }
+
+[dev-dependencies]
+tempfile = "3"
