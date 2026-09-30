@@ -76,10 +76,10 @@ jobs:
             os: windows-2022
             archive: zip
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
         with:
           ref: ${{ needs.validate-tag.outputs.version }}
-      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master, cross-validated in easyofd-rust
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
@@ -117,7 +117,7 @@ jobs:
             shasum -a 256 "$archive" | awk '{print $1}' > "$archive.sha256"
           fi
           cat "$archive.sha256"
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0d480d1 # v4.3.3
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         with:
           name: diskgraph-${{ matrix.target }}
           path: dist/diskgraph-${{ matrix.target }}.*
@@ -129,10 +129,10 @@ jobs:
     needs: validate-tag
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
         with:
           ref: ${{ needs.validate-tag.outputs.version }}
-      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master, cross-validated in easyofd-rust
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Validate every crate's package
         run: |
@@ -151,7 +151,7 @@ jobs:
               || { echo "::error::$crate package validation failed"; exit 1; }
             echo "::endgroup::"
           done
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd622f492d2af # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
@@ -168,10 +168,10 @@ jobs:
     if: github.event_name == 'push' || inputs.registries
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
         with:
           ref: ${{ needs.validate-tag.outputs.version }}
-      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master, cross-validated in easyofd-rust
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Publish in dependency order
         run: |
@@ -224,10 +224,10 @@ jobs:
       contents: read
       id-token: write # provenance: attests the tarball to this run
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
         with:
           ref: ${{ needs.validate-tag.outputs.version }}
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd622f492d2af # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
@@ -245,8 +245,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e0059633721c1f7f # v4.1.8
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.1.8
         with:
           path: assets
           pattern: diskgraph-*
