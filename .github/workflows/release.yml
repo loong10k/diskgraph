@@ -100,6 +100,42 @@ jobs:
           else
             cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
           fi
+      # Native Linux packages, built in the distribution that owns each
+      # tool: dpkg-deb on Debian, rpmbuild on Fedora. They are artifacts here
+      # only; consumers install them from the release assets.
+      - name: Stage binaries for packaging
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        shell: bash
+        run: |
+          staging="$PWD/staging"
+          rm -rf "$staging"
+          mkdir -p "$staging/bin"
+          cp "target/${{ matrix.target }}/release/diskgraph" \
+             "target/${{ matrix.target }}/release/diskgraph-mcp" "$staging/bin/"
+          cp README.md LICENSE "$staging/"
+      - name: Build deb (Debian container)
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        shell: bash
+        run: |
+          docker run --rm -v "$PWD:/src:ro" -v "$PWD/staging:/stage:ro" -v "$PWD/dist:/out" \
+            debian:stable-slim sh -c \
+            "apt-get update -qq >/dev/null 2>&1 &&
+             apt-get install -y -qq dpkg-dev >/dev/null 2>&1 &&
+             cd /src && sh scripts/build-linux-packages.sh /stage /out $VERSION"
+        env:
+          VERSION: ${{ needs.validate-tag.outputs.version }}
+      - name: Build rpm (Fedora container)
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        shell: bash
+        run: |
+          docker run --rm --platform linux/amd64 \
+            -v "$PWD:/src:ro" -v "$PWD/staging:/stage:ro" -v "$PWD/dist:/out" \
+            fedora:41 sh -c \
+            "dnf install -y -q rpm-build >/dev/null 2>&1 &&
+             cd /src && sh scripts/build-linux-packages.sh /stage /out $VERSION"
+        env:
+          VERSION: ${{ needs.validate-tag.outputs.version }}
+
       - name: Assemble archive
         shell: bash
         run: |
@@ -125,7 +161,10 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         with:
           name: diskgraph-${{ matrix.target }}
-          path: dist/diskgraph-${{ matrix.target }}.*
+          path: |
+            dist/diskgraph-${{ matrix.target }}.*
+            dist/*.deb
+            dist/*.rpm
           retention-days: 7
 
   # ---- registry dry runs before anything is uploaded -------------------------
@@ -277,7 +316,7 @@ jobs:
           set -euo pipefail
           cd assets
           : > SHA256SUMS
-          for archive in diskgraph-*.tar.gz diskgraph-*.zip; do
+          for archive in diskgraph-*.tar.gz diskgraph-*.zip *.deb *.rpm; do
             [ -e "$archive" ] || continue
             actual="$(shasum -a 256 "$archive" | awk '{print $1}')"
             claimed="$(cat "$archive.sha256" 2>/dev/null | tr -d '[:space:]')"
