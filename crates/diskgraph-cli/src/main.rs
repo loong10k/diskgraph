@@ -18,7 +18,13 @@ use local::LocalIdentity;
 
 /// DiskGraph — shared Rust file-relationship engine (read-only CLI surface).
 #[derive(Parser)]
-#[command(name = "diskgraph", version, about)]
+#[command(
+    name = "diskgraph",
+    version,
+    about,
+    after_long_help = include_str!("../../../docs/cli-quickstart.md"),
+    disable_help_subcommand = false
+)]
 struct Cli {
     /// Data directory holding diskgraph.sqlite and diskgraph-control.sqlite.
     #[arg(long, default_value = "diskgraph-data", global = true)]
@@ -65,11 +71,17 @@ struct Cli {
 #[derive(Subcommand)]
 enum Command {
     /// C01: manage registered scopes (admin).
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph scope add --root ~/projects --data-dir ~/.diskgraph\n  diskgraph scope list --data-dir ~/.diskgraph\n\nRemoving a scope never deletes a file; it only stops tracking."
+    )]
     Scope {
         #[command(subcommand)]
         action: ScopeAction,
     },
     /// C02: create a durable index job for a scope.
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph index --scope <scope-id> --data-dir ~/.diskgraph --wait\n  diskgraph index --scope <scope-id> --data-dir ~/.diskgraph -a --max-nodes-per-scan 10000000"
+    )]
     Index {
         /// Scope ID returned by `scope add`.
         #[arg(long)]
@@ -100,6 +112,9 @@ enum Command {
         offset: u64,
     },
     /// Depth-bounded tree view of a published revision (disktree-style JSON).
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph tree --scope <scope-id> --data-dir ~/.diskgraph --depth 4\n  diskgraph tree --scope <scope-id> --data-dir ~/.diskgraph --min-bytes 100000000 --json\n\nChildren come back largest first. A cut-off node reports truncated with its\nchild count, so a shallow tree is never mistaken for a whole one."
+    )]
     Tree {
         #[arg(long)]
         scope: String,
