@@ -24,7 +24,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
-      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master, cross-validated in easyofd-rust
+      - uses: # pinned by tag: the action's current master commit exits 1 on today's
+        # runners, while the release tag resolves and works
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
@@ -59,7 +61,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
-      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master, cross-validated in easyofd-rust
+      - uses: # pinned by tag: the action's current master commit exits 1 on today's
+        # runners, while the release tag resolves and works
+        uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Build and test the vendored crate
         working-directory: crates/diskgraph-disktree-core
@@ -70,7 +74,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1
-      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # master, cross-validated in easyofd-rust
+      - uses: # pinned by tag: the action's current master commit exits 1 on today's
+        # runners, while the release tag resolves and works
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           components: rustfmt
