@@ -4,7 +4,7 @@
   "homepage": "https://github.com/loong10k/diskgraph",
   "license": "MIT",
   "url": "https://github.com/loong10k/diskgraph/releases/download/v0.1.0/diskgraph-x86_64-pc-windows-msvc.zip",
-  "hash": "d2324a89ad054ee656f12176295f8ce80a367d612f5216c11e3bb9cc1274889f",
+  "hash": "1b1c8a94278d7a33f5b9325ca1c37183652f52679663b8a8bb42e49058102e08",
   "extract_dir": "diskgraph-x86_64-pc-windows-msvc",
   "bin": [
     "bin/diskgraph.exe",
@@ -16,7 +16,7 @@
   },
   "autoupdate": {
     "url": "https://github.com/loong10k/diskgraph/releases/download/v$version/diskgraph-x86_64-pc-windows-msvc.zip",
-    "hash": "d2324a89ad054ee656f12176295f8ce80a367d612f5216c11e3bb9cc1274889f",
+    "hash": "1b1c8a94278d7a33f5b9325ca1c37183652f52679663b8a8bb42e49058102e08",
     "extract_dir": "diskgraph-x86_64-pc-windows-msvc"
   }
 }
