@@ -203,9 +203,12 @@ jobs:
             echo "::error::failed to publish $directory after 10 attempts"
             return 1
           }
+          # Topological order. diskgraph-testkit sits here, not later: engine
+          # and mcp take it as a dev-dependency, and crates.io resolves
+          # dev-dependencies too, so anything above it must wait.
           publish crates/diskgraph-disktree-core
           for crate in diskgraph-core diskgraph-store diskgraph-disktree \
-                      diskgraph-engine diskgraph-ops diskgraph-testkit \
+                      diskgraph-testkit diskgraph-engine diskgraph-ops \
                       diskgraph-cli diskgraph-ffi diskgraph-mcp; do
             publish "crates/$crate"
           done
