@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.invalid.manifest.schema.json
 PackageIdentifier: loong10k.DiskGraph
-PackageVersion: 0.1.0
+PackageVersion: 0.2.0
 DefaultLocale: en-US
 ManifestType: installer
 ManifestVersion: 1.6.0
@@ -32,7 +32,7 @@ ReleaseNotes: https://github.com/loong10k/diskgraph/releases/tag/v0.1.0
 Installers:
   - Architecture: x64
     InstallerType: zip
-    InstallerUrl: https://github.com/loong10k/diskgraph/releases/download/v0.1.0/diskgraph-x86_64-pc-windows-msvc.zip
+    InstallerUrl: https://github.com/loong10k/diskgraph/releases/download/v0.2.0/diskgraph-x86_64-pc-windows-msvc.zip
     InstallerSha256: 
     NestedInstallerType: portable
     NestedInstallerFiles:

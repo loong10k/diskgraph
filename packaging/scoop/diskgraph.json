@@ -1,10 +1,10 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "File-relationship engine for AI agents: disk usage, ownership, evidence, and history",
   "homepage": "https://github.com/loong10k/diskgraph",
   "license": "MIT",
-  "url": "https://github.com/loong10k/diskgraph/releases/download/v0.1.0/diskgraph-x86_64-pc-windows-msvc.zip",
-  "hash": "1b1c8a94278d7a33f5b9325ca1c37183652f52679663b8a8bb42e49058102e08",
+  "url": "https://github.com/loong10k/diskgraph/releases/download/v0.2.0/diskgraph-x86_64-pc-windows-msvc.zip",
+  "hash": "3c30b5cbc5845641170145a94c69b2ac25e30af5fa556cb461120b80337fdb17",
   "extract_dir": "diskgraph-x86_64-pc-windows-msvc",
   "bin": [
     "bin/diskgraph.exe",
@@ -16,7 +16,7 @@
   },
   "autoupdate": {
     "url": "https://github.com/loong10k/diskgraph/releases/download/v$version/diskgraph-x86_64-pc-windows-msvc.zip",
-    "hash": "1b1c8a94278d7a33f5b9325ca1c37183652f52679663b8a8bb42e49058102e08",
+    "hash": "3c30b5cbc5845641170145a94c69b2ac25e30af5fa556cb461120b80337fdb17",
     "extract_dir": "diskgraph-x86_64-pc-windows-msvc"
   }
 }
