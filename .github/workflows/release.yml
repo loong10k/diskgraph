@@ -58,12 +58,10 @@ jobs:
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         uses: docker://ghcr.io/cross-rs/aarch64-unknown-linux-gnu
         with:
-          options: --entrypoint /bin/sh
           args: >-
-            -c 'export PATH=/usr/local/cargo/bin:$PATH &&
-            cargo build --release --locked
+            /usr/local/cargo/bin/cargo build --release --locked
             -p diskgraph-cli -p diskgraph-mcp
-            --target aarch64-unknown-linux-gnu'
+            --target aarch64-unknown-linux-gnu
       - name: Build
         if: matrix.target != 'aarch64-unknown-linux-gnu'
         run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}

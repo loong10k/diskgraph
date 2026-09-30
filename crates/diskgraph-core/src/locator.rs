@@ -95,7 +95,7 @@ impl Locator {
                 .chunks_exact(2)
                 .map(|pair| u16::from_le_bytes([pair[0], pair[1]]))
                 .collect();
-            std::ffi::OsString::from_wide(&units).into()
+            Ok(std::ffi::OsString::from_wide(&units).into())
         }
         #[cfg(not(any(unix, windows)))]
         {
