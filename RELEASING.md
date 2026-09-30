@@ -38,7 +38,7 @@ Re-running for an existing tag (same tag, fixed assets):
 
 ## 2. Homebrew tap
 
-`partme-ai/homebrew-diskgraph` holds `Formula/diskgraph.rb` with the
+`loong10k/homebrew-diskgraph` holds `Formula/diskgraph.rb` with the
 version and per-architecture `sha256` pinned. After a release, update those
 four values and push:
 
@@ -92,7 +92,7 @@ maintainer action with those repositories' own review rules.
 | Channel | Command | Ships |
 | :--- | :--- | :--- |
 | npm | `npx -y diskgraph --version` | prebuilt, digest-verified |
-| Homebrew | `brew install partme-ai/diskgraph/diskgraph` | prebuilt, digest-verified |
+| Homebrew | `brew install loong10k/diskgraph/diskgraph` | prebuilt, digest-verified |
 | GitHub Releases | direct download | prebuilt + SHA256SUMS |
 | winget | `winget install loong10k.DiskGraph` | prebuilt |
 | scoop | `scoop install diskgraph` | prebuilt |
