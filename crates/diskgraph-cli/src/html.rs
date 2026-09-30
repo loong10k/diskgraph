@@ -106,6 +106,42 @@ pub fn render_page(
         .replace("__EXPAND__", &expand_depth.clamp(1, 5).to_string())
 }
 
+/// Rewrites every name in a rendered tree to a stable pseudonym
+/// (`home`, `dir-01`, `dir-02`, ...), so a report can be shared without
+/// disclosing real project or user names. Sizes, structure, kinds and
+/// categories are preserved - they are the point of the report - while
+/// everything identifying is not.
+///
+/// The root path and revision id are likewise replaced by the caller's
+/// share-safe labels.
+pub fn anonymize_tree(tree: &mut Value, root_label: &str) {
+    let mut counter = 0_usize;
+    rename_names(tree, root_label, &mut counter, true);
+}
+
+fn rename_names(node: &mut Value, root_label: &str, counter: &mut usize, is_root: bool) {
+    if is_root {
+        if let Some(name) = node.get_mut("name") {
+            *name = Value::String(root_label.to_owned());
+        }
+    } else if let Some(name) = node.get_mut("name") {
+        *name = Value::String(next_pseudonym(counter));
+    }
+    if let Some(children) = node.get_mut("children").and_then(Value::as_array_mut) {
+        for child in children.iter_mut() {
+            rename_names(child, root_label, counter, false);
+        }
+    }
+}
+
+/// The next stable pseudonym (`dir-01`, `dir-02`, ...) from a shared counter,
+/// so the terminal surface can anonymize layer by layer and agree with the
+/// HTML surface's naming.
+pub fn next_pseudonym(counter: &mut usize) -> String {
+    *counter += 1;
+    format!("dir-{counter:02}")
+}
+
 /// A plain-text treemap of one layer, for terminals and agents.
 #[allow(dead_code, reason = "the terminal surface renders through here")]
 pub fn render_text_map(rows: &[treemap::TextRow], width: usize) -> String {
@@ -203,5 +239,46 @@ mod tests {
         let page = render_page(&sample(), "/tmp/demo", "rev-abc", false, 2);
         assert!(page.contains("\"name\":\"code\""));
         assert!(page.contains("\"size_bytes\":2000"));
+    }
+}
+
+#[cfg(test)]
+mod anonymize_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn names_become_pseudonyms_but_sizes_survive() {
+        let mut tree = json!({
+            "name": "wandl",
+            "kind": "directory",
+            "size_bytes": 214_000_000_000u64,
+            "own_bytes": 0,
+            "files": 3_600_000,
+            "dirs": 679_000,
+            "children": [
+                {"name": "workspace-tianyin", "kind": "directory", "size_bytes": 2_000_000_000u64,
+                 "own_bytes": 0, "files": 2, "dirs": 1},
+                {"name": "Library", "kind": "directory", "size_bytes": 48_000_000_000u64,
+                 "own_bytes": 0, "files": 3, "dirs": 1}
+            ]
+        });
+        anonymize_tree(&mut tree, "home");
+        assert_eq!(tree["name"], "home");
+        assert_eq!(tree["children"][0]["name"], "dir-01");
+        assert_eq!(tree["children"][1]["name"], "dir-02");
+        // Sizes are the point of the report; only names are redacted.
+        assert_eq!(tree["size_bytes"], 214_000_000_000u64);
+        assert_eq!(tree["children"][0]["size_bytes"], 2_000_000_000u64);
+    }
+
+    #[test]
+    fn pseudonyms_are_stable_across_calls() {
+        let mut first = json!({"name": "secret-project", "kind": "directory"});
+        let mut second = json!({"name": "another-project", "kind": "directory"});
+        anonymize_tree(&mut first, "home");
+        anonymize_tree(&mut second, "home");
+        assert_eq!(first["name"], "home");
+        assert_eq!(second["name"], "home");
     }
 }

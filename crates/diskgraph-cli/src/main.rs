@@ -130,6 +130,11 @@ enum Command {
         /// JSON (no network, no build step; open it in any browser).
         #[arg(long, value_name = "PATH")]
         html: Option<PathBuf>,
+        /// Replace every directory name with a stable pseudonym (home,
+        /// dir-01, ...) so the report can be shared without disclosing
+        /// real project or user names. Applies to --html and --json.
+        #[arg(long)]
+        anonymize: bool,
         /// Hide children whose subtree is smaller than this many bytes.
         #[arg(long, default_value_t = 0)]
         min_bytes: u64,
@@ -345,6 +350,10 @@ enum Command {
         /// Explicit revision; the scope's latest revision by default.
         #[arg(long)]
         revision: Option<String>,
+        /// Rename every directory to a stable pseudonym (home, dir-01, ...)
+        /// so a captured session can be shared without disclosing names.
+        #[arg(long)]
+        anonymize: bool,
     },
     /// C29: read-only diagnostics (P3).
     Doctor,
@@ -637,6 +646,7 @@ fn dispatch(
             depth,
             min_bytes,
             html,
+            anonymize,
         } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
@@ -650,9 +660,12 @@ fn dispatch(
             };
             // The narrow read path: no full-graph materialization. A pre-v4
             // snapshot falls back inside the engine and renders identically.
-            let view = engine.tree_view(
+            let mut view = engine.tree_view(
                 &scope_id, &revision, principal, authorizer, *depth, *min_bytes,
             )?;
+            if *anonymize {
+                html::anonymize_tree(&mut view.root, "home");
+            }
             if let Some(destination) = html {
                 let scope_record = engine.scope(&scope_id)?;
                 let root = scope_record
@@ -661,8 +674,15 @@ fn dispatch(
                     .ok()
                     .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
                     .unwrap_or_else(|| scope.clone());
+                // A shared report must not disclose the user name in the root
+                // path; the anonymized root label replaces it.
+                let root_label = if *anonymize {
+                    "home".to_owned()
+                } else {
+                    root.clone()
+                };
                 let truncated = html::tree_is_truncated(&view.root);
-                let page = html::render_page(&view.root, &root, &revision, truncated, *depth);
+                let page = html::render_page(&view.root, &root_label, &revision, truncated, *depth);
                 std::fs::write(destination, page)?;
                 out.push(envelope_line(
                     engine,
@@ -1156,7 +1176,11 @@ fn dispatch(
             ));
             Ok(())
         }
-        Command::Tui { scope, revision } => {
+        Command::Tui {
+            scope,
+            revision,
+            anonymize,
+        } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
             engine.scope(&scope_id)?;
@@ -1167,7 +1191,7 @@ fn dispatch(
                     .latest_revision(&scope_id)?
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
             };
-            tui::run(engine, &revision)?;
+            tui::run(engine, &revision, *anonymize)?;
             Ok(())
         }
         Command::Doctor => {

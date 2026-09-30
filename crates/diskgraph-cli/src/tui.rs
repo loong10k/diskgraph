@@ -6,6 +6,7 @@
 //! layout and the palette are the same ones the HTML page and the agent
 //! text format use, so all three agree on what the map means.
 
+use std::cell::Cell;
 use std::io::Stdout;
 
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
@@ -23,7 +24,7 @@ use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 use diskgraph_core::treemap::{self, Rect as MapRect, Weighted};
 use diskgraph_engine::{Engine, EngineError};
 
-use crate::html::{PALETTE, color_for};
+use crate::html::{PALETTE, color_for, next_pseudonym};
 
 /// One directory level, loaded on demand.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -33,6 +34,51 @@ pub struct Layer {
     pub total_files: u64,
     pub unreadable: bool,
     pub children: Vec<Entry>,
+}
+
+/// Loaded with `--anonymize`: the root reads as the caller's label and every
+/// child becomes a stable pseudonym, so a captured session can be shared
+/// without disclosing names. Sizes, structure and categories stay exact -
+/// they are the point of the picture.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Pseudonyms {
+    counter: usize,
+}
+
+impl Pseudonyms {
+    pub fn new() -> Self {
+        Self { counter: 0 }
+    }
+
+    /// The root's share-safe label.
+    pub fn root(&self) -> &'static str {
+        "home"
+    }
+
+    fn next(&mut self) -> String {
+        next_pseudonym(&mut self.counter)
+    }
+}
+
+fn load_layer_anon(
+    engine: &Engine,
+    revision: &str,
+    parent_id: u64,
+    pseudonyms: Option<&Cell<Pseudonyms>>,
+    is_root: bool,
+) -> Result<Layer, EngineError> {
+    let mut layer = load_layer(engine, revision, parent_id)?;
+    if let Some(cell) = pseudonyms {
+        let mut state = cell.get();
+        if is_root {
+            layer.name = state.root().to_owned();
+        }
+        for child in &mut layer.children {
+            child.name = state.next();
+        }
+        cell.set(state);
+    }
+    Ok(layer)
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -88,6 +134,9 @@ pub struct Browser {
     /// on a real workspace the top level is one huge project and forty
     /// slivers, and forty slivers are not a picture.
     pub min_share: f64,
+    /// Set with `--anonymize`: shared across every layer load so a descended
+    /// session keeps one stable numbering.
+    pub pseudonyms: Option<Cell<Pseudonyms>>,
 }
 
 impl Browser {
@@ -101,7 +150,21 @@ impl Browser {
             status: "↑↓ move · enter descend · esc/backspace up · s sort · m threshold · q quit"
                 .to_owned(),
             min_share: 0.005,
+            pseudonyms: None,
         }
+    }
+
+    pub fn with_pseudonyms(mut self, anonymize: bool) -> Self {
+        if anonymize {
+            let mut state = Pseudonyms::new();
+            let root = self.trail.last_mut().expect("the trail always has a root");
+            root.name = state.root().to_owned();
+            for child in &mut root.children {
+                child.name = state.next();
+            }
+            self.pseudonyms = Some(Cell::new(state));
+        }
+        self
     }
 
     /// The layer currently on screen, ordered the way the user asked.
@@ -166,9 +229,9 @@ impl Browser {
 
 /// Runs the browser until the user quits. Returns the error that stopped it,
 /// so a caller can report a failure the way the rest of the CLI does.
-pub fn run(engine: &Engine, revision: &str) -> Result<(), EngineError> {
+pub fn run(engine: &Engine, revision: &str, anonymize: bool) -> Result<(), EngineError> {
     let root = load_layer(engine, revision, 1)?;
-    let mut browser = Browser::new(revision, root);
+    let mut browser = Browser::new(revision, root).with_pseudonyms(anonymize);
     let mut terminal = setup().map_err(|error| {
         EngineError::Store(diskgraph_store::StoreError::InvalidGraph(error.to_string()))
     })?;
@@ -224,7 +287,13 @@ fn event_loop(
                 let entries = browser.ordered();
                 if let Some(entry) = entries.get(browser.selected) {
                     if entry.has_children {
-                        let layer = load_layer(engine, &browser.revision.clone(), entry.id)?;
+                        let layer = load_layer_anon(
+                            engine,
+                            &browser.revision.clone(),
+                            entry.id,
+                            browser.pseudonyms.as_ref(),
+                            false,
+                        )?;
                         browser.selected_id = layer.children.first().map(|child| child.id);
                         browser.trail.push(layer);
                         browser.selected = 0;
@@ -407,7 +476,13 @@ fn draw_children(
         if depth < MAX_PAINT_DEPTH && entry.has_children && cell.width > 12 && cell.height > 4 {
             // One extra query per level, not a full-graph load: this is what
             // keeps a four-million-node index instant.
-            if let Ok(layer) = load_layer(engine, &browser.revision.clone(), entry.id) {
+            if let Ok(layer) = load_layer_anon(
+                engine,
+                &browser.revision.clone(),
+                entry.id,
+                browser.pseudonyms.as_ref(),
+                false,
+            ) {
                 // One child means one column of the same colour and no
                 // information: keep the block solid and let Enter reveal it.
                 if layer.children.len() > 1 {
@@ -618,6 +693,30 @@ mod tests {
         let browser = Browser::new("rev-1", layer());
         assert_eq!(browser.current().name, "root");
         assert_eq!(browser.revision, "rev-1");
+    }
+
+    #[test]
+    fn anonymize_replaces_every_name_but_keeps_the_numbers() {
+        let mut state = Pseudonyms::new();
+        let mut root = layer();
+        root.name = state.root().to_owned();
+        for child in &mut root.children {
+            child.name = state.next();
+        }
+        assert_eq!(root.name, "home");
+        let names: Vec<&str> = root.children.iter().map(|e| e.name.as_str()).collect();
+        assert_eq!(names, vec!["dir-01", "dir-02", "dir-03"]);
+        assert_eq!(root.children[0].size_bytes, 200, "sizes survive");
+        assert_eq!(root.total_files, 30, "totals survive");
+        // A second layer keeps counting, so no two directories collide.
+        assert_eq!(state.next(), "dir-04");
+    }
+
+    #[test]
+    fn anonymize_off_leaves_names_alone() {
+        let browser = Browser::new("rev-1", layer()).with_pseudonyms(false);
+        assert!(browser.pseudonyms.is_none());
+        assert_eq!(browser.current().children[0].name, "workspaces");
     }
 
     fn channels(color: Color) -> (u8, u8, u8) {
