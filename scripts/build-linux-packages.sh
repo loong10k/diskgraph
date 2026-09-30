@@ -115,7 +115,10 @@ sed -i \
   -e "s|__LICENSE__|$LICENSE|g" \
   -e "s|__README__|$STAGE/README.md|g" \
   "$RPM_TOP/SPECS/$NAME.spec"
-rpmbuild --define "_topdir $RPM_TOP" \
+# rpmbuild resolves %{buildroot} against its own working directory, so a
+# relative _topdir makes the install and the %files check disagree about
+# where the files are. An absolute _topdir keeps both in one place.
+rpmbuild --define "_topdir $(cd "$RPM_TOP" && pwd)" \
          --define "_arch $ARCH_RPM" \
          -bb "$RPM_TOP/SPECS/$NAME.spec"
 # Fail loudly: a silent rpmbuild that produced nothing used to look like a
