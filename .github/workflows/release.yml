@@ -294,6 +294,15 @@ jobs:
   create-release:
     name: Create GitHub Release
     needs: [validate-tag, build, publish-crates, publish-npm]
+    # A registry job that was skipped (registries=false) or succeeded lets
+    # the release through; a registry that actually failed does not, so no
+    # release ever points at a crate or package that never landed.
+    if: >-
+      always() &&
+      needs.validate-tag.result == 'success' &&
+      needs.build.result == 'success' &&
+      (needs.publish-crates.result == 'success' || needs.publish-crates.result == 'skipped') &&
+      (needs.publish-npm.result == 'success' || needs.publish-npm.result == 'skipped')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
