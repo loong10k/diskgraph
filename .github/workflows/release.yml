@@ -51,17 +51,14 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      # Linux aarch64 cross-compiles inside the standard cross image: it
-      # carries the C toolchain, the sysroot, and the SQLite build recipe for
-      # a foreign target, which a bare apt gcc on the host runner does not.
-      - name: Build (Linux aarch64, cross image)
+      # Linux aarch64 goes through cargo-cross: the cross image provides the
+      # C toolchain and sysroot for the foreign target (bundled SQLite needs
+      # them), and cross mounts the host's cargo into that container.
+      - uses: taiki-e/install-action@cross
         if: matrix.target == 'aarch64-unknown-linux-gnu'
-        uses: docker://ghcr.io/cross-rs/aarch64-unknown-linux-gnu
-        with:
-          args: >-
-            /usr/local/cargo/bin/cargo build --release --locked
-            -p diskgraph-cli -p diskgraph-mcp
-            --target aarch64-unknown-linux-gnu
+      - name: Build (Linux aarch64, cross)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: cross build --release --locked -p diskgraph-cli -p diskgraph-mcp --target aarch64-unknown-linux-gnu
       - name: Build
         if: matrix.target != 'aarch64-unknown-linux-gnu'
         run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
@@ -79,19 +76,15 @@ jobs:
           cp LICENSE README.md "$staging/"
           archive="dist/diskgraph-${{ matrix.target }}.${{ matrix.archive }}"
           if [ "${{ runner.os }}" = "Windows" ]; then
-            (cd dist && 7z a "../diskgraph-${{ matrix.target }}.zip" "diskgraph-${{ matrix.target }}")
+            powershell -NoProfile -Command \
+              "Compress-Archive -Force -Path 'dist/diskgraph-${{ matrix.target }}' -DestinationPath 'dist/diskgraph-${{ matrix.target }}.zip';
+               (Get-FileHash -Algorithm SHA256 'dist/diskgraph-${{ matrix.target }}.zip').Hash.ToLower()"
           else
             tar -C dist -czf "$archive" "diskgraph-${{ matrix.target }}"
+            shasum -a 256 "$archive" | awk '{print $1}' > "$archive.sha256"
           fi
           # The archive's own digest, computed once here; the release job
           # re-verifies it after download before publishing.
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            (cd dist && powershell -NoProfile -Command \
-              "(Get-FileHash -Algorithm SHA256 'diskgraph-${{ matrix.target }}.zip').Hash.ToLower()" \
-              > "$archive.sha256")
-          else
-            shasum -a 256 "$archive" | awk '{print $1}' > "$archive.sha256"
-          fi
           cat "$archive.sha256"
 
       - uses: actions/upload-artifact@v4
