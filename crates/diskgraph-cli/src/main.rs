@@ -463,14 +463,14 @@ fn run(cli: Cli) -> Result<(), EngineError> {
         // Scan behavior mirrors disktree's own flags exactly: the snapshot
         // records these verbatim, and two snapshots are comparable only when
         // they were taken with the same options.
-        scan_options: disktree_core::scan::ScanOptions {
+        scan_options: diskgraph_disktree_core::scan::ScanOptions {
             apparent_size: cli.apparent_size,
             follow_links: false,
             include_hidden: !cli.no_hidden,
             one_filesystem: !cli.cross_filesystems || cli.one_filesystem,
             max_depth: cli.depth,
             dedup_hardlinks: !cli.no_dedup_hardlinks,
-            ..disktree_core::scan::ScanOptions::default()
+            ..diskgraph_disktree_core::scan::ScanOptions::default()
         },
         ..EngineConfig::default()
     })?);

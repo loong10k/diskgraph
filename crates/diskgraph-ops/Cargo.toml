@@ -7,12 +7,6 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
-# Not published to crates.io: this crate depends on disktree-core, which is
-# pinned to a git revision (upstream disktree is not on crates.io, and the
-# pin is what makes scans reproducible). crates.io requires registry
-# dependencies, so binary users get diskgraph through GitHub Releases, the
-# Homebrew tap, npm, winget, or scoop instead. See RELEASING.md.
-publish = false
 
 [dependencies]
 hex.workspace = true
