@@ -52,8 +52,8 @@ jobs:
         run: cargo test -p diskgraph-store --lib --locked
       - name: Real-host drills stay out of the regular run (RE-02)
         run: |
-          cargo test --workspace --locked -- --list >/dev/null
-          cargo test -p diskgraph-ops --test specialist_real_host -- --list >/dev/null
+          cargo test --workspace --locked -- --list
+          cargo test -p diskgraph-ops --test specialist_real_host -- --list
       - name: FFI bindings generate (macOS)
         if: runner.os == 'macOS'
         run: |
