@@ -72,8 +72,7 @@ impl FixtureTree {
     }
 
     /// Creates a sparse file: `apparent_len` apparent bytes, near-zero blocks.
-    /// Unix only; on other platforms it degrades to a regular file so callers
-    /// can skip the allocation assertions.
+    /// Unix only; sparse allocation semantics are not asserted elsewhere.
     #[cfg(unix)]
     pub fn sparse_file(&self, relative: &str, apparent_len: u64) -> io::Result<PathBuf> {
         let path = self.root.path().join(relative);

@@ -2,6 +2,9 @@
 //! byte budgets, link and non-plain-file refusals, placeholder skips,
 //! digests with cancellation, and metadata-only duplicate suspects. All
 //! fixtures are isolated temp directories.
+// Native content opening is available only where scoped directory handles
+// have been verified; Windows currently returns Unsupported by contract.
+#![cfg(unix)]
 
 use std::sync::atomic::AtomicBool;
 

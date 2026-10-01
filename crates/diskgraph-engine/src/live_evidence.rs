@@ -415,6 +415,7 @@ pub fn poll_changes(root: &Path, previous: &mut WatchSnapshot, max_events: usize
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(target_os = "macos")]
     use std::fs::File;
 
     #[cfg(target_os = "macos")]

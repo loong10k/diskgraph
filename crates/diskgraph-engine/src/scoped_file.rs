@@ -83,3 +83,16 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
 pub(crate) fn open_scoped(_root: &Path, _path: &Path) -> Result<std::fs::File, EngineError> {
     Err(EngineError::Business(BusinessError::Unsupported))
 }
+
+#[cfg(all(test, not(unix)))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unverified_native_content_opening_is_explicitly_unsupported() {
+        assert!(matches!(
+            open_scoped(Path::new("."), Path::new("fixture")),
+            Err(EngineError::Business(BusinessError::Unsupported))
+        ));
+    }
+}
