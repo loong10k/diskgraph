@@ -34,6 +34,7 @@ fn a_fresh_data_directory_accepts_work_when_its_volume_has_headroom() {
     assert!(engine.accepts_new_work());
 }
 
+#[cfg(unix)]
 #[test]
 fn digest_never_exceeds_its_budget_or_confirms_a_partial_file() {
     let (dir, engine, principal, scope) = setup();
@@ -58,6 +59,33 @@ fn digest_never_exceeds_its_budget_or_confirms_a_partial_file() {
     assert!(result.bytes_digested <= 1);
     assert!(!result.confirmed());
     assert!(result.digest_hex.is_empty());
+}
+
+#[cfg(windows)]
+#[test]
+fn digest_refuses_windows_without_a_verified_scoped_file_handle() {
+    let (dir, engine, principal, scope) = setup();
+    engine.set_content_read(&scope, &principal, true).unwrap();
+    let path = dir.path().join("root/file");
+    let request = InspectionRequest {
+        scope_id: &scope,
+        principal: &principal,
+        path: &path,
+        offset: 0,
+        max_bytes: 1,
+        chunk_bytes: 64,
+        cancel: None,
+    };
+    assert!(matches!(
+        engine.digest_bounded(
+            &request,
+            &ConservativeProbe,
+            &engine.policy_authorizer().unwrap(),
+        ),
+        Err(diskgraph_engine::EngineError::Business(
+            diskgraph_core::BusinessError::Unsupported
+        ))
+    ));
 }
 
 #[test]
