@@ -1879,6 +1879,7 @@ impl CrossVolumeCopy {
 
     /// Copies the source into staging, then verifies the byte count and that
     /// the source itself did not change underneath the copy.
+    #[cfg(target_os = "macos")]
     pub(crate) fn stage_and_verify(
         &self,
         source: &Path,
@@ -1958,7 +1959,6 @@ impl CrossVolumeCopy {
         if source_hash.finalize() != staged_hash.finalize() {
             return Err(OpsError::Stale("staged content digest mismatch".into()));
         }
-        #[cfg(target_os = "macos")]
         {
             use std::os::fd::AsRawFd;
             // 使用 macOS 原生 fd 元数据复制，包括权限、ACL、扩展属性和时间。
@@ -1974,10 +1974,6 @@ impl CrossVolumeCopy {
                 return Err(std::io::Error::last_os_error().into());
             }
         }
-        #[cfg(not(target_os = "macos"))]
-        return Err(OpsError::Stale(
-            "unsupported: copy metadata fidelity has not been verified on this platform".into(),
-        ));
         output.set_times(
             std::fs::FileTimes::new()
                 .set_accessed(initial.accessed()?)
@@ -1991,7 +1987,6 @@ impl CrossVolumeCopy {
                 "required copy metadata verification failed".into(),
             ));
         }
-        #[cfg(target_os = "macos")]
         metadata_fidelity::verify(&input, &output)?;
         let staged_len = output.metadata()?.len();
         if copied != staged_len {
@@ -2029,6 +2024,18 @@ impl CrossVolumeCopy {
                 });
         }
         Ok(staged_len)
+    }
+
+    /// Other platforms have no validated metadata-preserving copy path.
+    #[cfg(not(target_os = "macos"))]
+    pub(crate) fn stage_and_verify(
+        &self,
+        _source: &Path,
+        _expected_identity: &Option<String>,
+    ) -> Result<u64, OpsError> {
+        Err(OpsError::Stale(
+            "unsupported: copy metadata fidelity has not been verified on this platform".into(),
+        ))
     }
 
     /// Publishes the verified copy with a same-volume rename. The destination

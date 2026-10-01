@@ -1,6 +1,8 @@
 use crate::EngineError;
 use diskgraph_core::BusinessError;
-use std::path::{Component, Path};
+#[cfg(unix)]
+use std::path::Component;
+use std::path::Path;
 
 /// 从注册根目录句柄逐组件打开文件；禁止目录和最终对象中的链接跳转。
 #[cfg(unix)]
