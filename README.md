@@ -229,7 +229,7 @@ Pruning protects latest, pins and operation/recovery references; ambiguous old r
 
 The follow-up review also bounds HTTP framing and connection time, checks impact queries against the revision's actual owner, persists cross-process cancellation, and isolates FFI control data by graph database. Existing file-operation plans must be recreated because execution now requires a complete plan digest and source fingerprint. The TUI pages wide directories 512 entries at a time; its name sort applies to the visible page.
 
-Read-only CLI/MCP binary acceptance runs in the CI matrix and native release jobs with isolated signed-token grants. Local commands are `python scripts/accept-readonly-stdio.py` and `python scripts/accept-readonly-http.py`. The [desktop readiness record](docs/production-readiness-readonly-2026-10-02.md) tracks actual per-OS proof; a configured CI gate alone is not a production acceptance result.
+Read-only CLI/MCP binary acceptance runs in the CI matrix and native release jobs with isolated signed-token grants. Local commands are `python scripts/accept-readonly-stdio.py` and `python scripts/accept-readonly-http.py`. The [desktop readiness record](docs/production-readiness-readonly-2026-10-02.md) records the passing macOS, Linux, and Windows native package gate and its limits; production deployment has not yet occurred.
 
 ## Documentation
 

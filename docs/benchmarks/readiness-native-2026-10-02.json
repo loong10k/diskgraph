@@ -1,0 +1,132 @@
+{
+  "source_commit": "3d831bc3f467d9bbfb54d4cba5a17a0cb67444a2",
+  "ci_run": "https://github.com/loong10k/diskgraph/actions/runs/36913827691",
+  "kind": "native CI release-profile binaries, unsigned and unpublished",
+  "measurement_note": "20k 32-byte files, 32 cold CLI queries, 4 concurrent clients per native runner; hardware differs by runner; peak RSS not recorded in this matrix",
+  "artifacts": [
+    {
+      "target": "aarch64-apple-darwin",
+      "archive": "diskgraph-aarch64-apple-darwin.tar.gz",
+      "sha256": "9562abe7ae3248aa2a5ed3a9ab65d891079163107e450fd78115c1c892b7312a",
+      "version": "diskgraph 0.3.0",
+      "acceptance": {
+        "stdio": 11,
+        "http_and_sse": 13,
+        "upgrade_rollback": 7,
+        "controlled_load": 4
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.697,
+        "query_p50_ms": 39.458,
+        "query_p95_ms": 199.933,
+        "database_and_wal_bytes": 35885056,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "archive": "diskgraph-x86_64-apple-darwin.tar.gz",
+      "sha256": "9519634b9ce5dd3f25d748e13fe4a18e77cdf5e6ca19eea31667c4e3faa3b540",
+      "version": "diskgraph 0.3.0",
+      "acceptance": {
+        "stdio": 11,
+        "http_and_sse": 13,
+        "upgrade_rollback": 7,
+        "controlled_load": 4
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.829,
+        "query_p50_ms": 56.848,
+        "query_p95_ms": 672.613,
+        "database_and_wal_bytes": 35946496,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "archive": "diskgraph-x86_64-pc-windows-msvc.zip",
+      "sha256": "87f09efb60904bdf55e03fb4f16e48e8feb5215768675409f79a70079eb33b01",
+      "version": "diskgraph 0.3.0",
+      "acceptance": {
+        "stdio": 11,
+        "http_and_sse": 13,
+        "upgrade_rollback": 7,
+        "controlled_load": 4
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 4.126,
+        "query_p50_ms": 437.62,
+        "query_p95_ms": 2852.227,
+        "database_and_wal_bytes": 33329152,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "archive": "diskgraph-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256": "3a4310805e5282913b089c3e8fd4978546d2d47d350c5a40c64747b8b978225e",
+      "version": "diskgraph 0.3.0",
+      "acceptance": {
+        "stdio": 11,
+        "http_and_sse": 13,
+        "upgrade_rollback": 7,
+        "controlled_load": 4
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.633,
+        "query_p50_ms": 16.5,
+        "query_p95_ms": 245.749,
+        "database_and_wal_bytes": 29904896,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ]
+}
