@@ -117,6 +117,7 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
         // OWNER RIGHTS 只映射到已验证的文件所有者，不扩展到其他账户。
         let trusted = unsafe {
             EqualSid(sid, owner) != 0
+                || EqualSid(sid, user) != 0
                 || IsWellKnownSid(sid, WinLocalSystemSid) != 0
                 || IsWellKnownSid(sid, WinBuiltinAdministratorsSid) != 0
                 || IsWellKnownSid(sid, WinCreatorOwnerRightsSid) != 0
