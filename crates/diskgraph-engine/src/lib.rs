@@ -2125,7 +2125,13 @@ fn locator_volume_id(locator: &Locator) -> Option<String> {
     std::fs::metadata(path).ok().map(|m| m.dev().to_string())
 }
 
-#[cfg(not(unix))]
+#[cfg(windows)]
+fn locator_volume_id(locator: &Locator) -> Option<String> {
+    let path = locator.to_native_path().ok()?;
+    diskgraph_disktree_core::space::device_for(&path)
+}
+
+#[cfg(not(any(unix, windows)))]
 fn locator_volume_id(_locator: &Locator) -> Option<String> {
     None
 }
