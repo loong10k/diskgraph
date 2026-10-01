@@ -1,0 +1,2 @@
+# Preserve the pinned upstream scanner's recorded bytes on Windows checkouts.
+crates/diskgraph-disktree-core/** -text

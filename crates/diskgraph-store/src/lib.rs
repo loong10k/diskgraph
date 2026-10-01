@@ -121,6 +121,9 @@ impl SqliteSnapshotStore {
 
     pub fn open(path: &Path) -> Result<Self> {
         let connection = Connection::open(path)?;
+        // Independent CLI processes can open the same store together. The
+        // schema/journal setup below may briefly need SQLite's writer lock.
+        connection.busy_timeout(std::time::Duration::from_secs(5))?;
         // WAL + NORMAL: one fsync per checkpoint, not per commit — the
         // atomicity of staging/publish comes from the transaction, not from
         // per-commit fsyncs. WAL/NORMAL preserves consistency, but a power
