@@ -18,7 +18,12 @@ MCP = BIN_DIR / f"diskgraph-mcp{SUFFIX}"
 
 
 def run(*args):
-    result = subprocess.run(args, capture_output=True, text=True, timeout=120, check=True)
+    result = subprocess.run(args, capture_output=True, text=True, timeout=120)
+    if result.returncode:
+        raise RuntimeError(
+            f"command {args[0]} exited {result.returncode}:\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        )
     return [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
 
 
