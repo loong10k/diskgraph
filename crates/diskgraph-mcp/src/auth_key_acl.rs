@@ -23,7 +23,7 @@ fn invalid_acl() -> io::Error {
     )
 }
 
-/// 检查已打开密钥文件的所有可生效允许项，并要求文件所有者为当前进程用户。
+/// 检查已打开密钥文件的所有可生效允许项，并要求所有者为当前用户或系统管理员。
 pub(crate) fn ensure_restricted(file: &File) -> io::Result<()> {
     let mut owner: PSID = ptr::null_mut();
     let mut dacl: *mut ACL = ptr::null_mut();
@@ -86,7 +86,13 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
         return Err(io::Error::last_os_error());
     }
     let user = unsafe { (*buffer.as_ptr().cast::<TOKEN_USER>()).User.Sid };
-    if user.is_null() || unsafe { EqualSid(owner, user) } == 0 {
+    let trusted_owner = unsafe {
+        !user.is_null()
+            && (EqualSid(owner, user) != 0
+                || IsWellKnownSid(owner, WinLocalSystemSid) != 0
+                || IsWellKnownSid(owner, WinBuiltinAdministratorsSid) != 0)
+    };
+    if !trusted_owner {
         return Err(invalid_acl());
     }
     let ace_count = unsafe { (*dacl).AceCount };
