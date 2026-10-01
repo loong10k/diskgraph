@@ -423,7 +423,6 @@ mod tests {
         ))
         .unwrap();
         assert_eq!(growth["ok"], true);
-        #[cfg(unix)]
         assert!(
             growth["data"]["delta_bytes"]
                 .as_str()
@@ -432,8 +431,6 @@ mod tests {
                 .unwrap()
                 > 0
         );
-        #[cfg(not(unix))]
-        assert!(growth["data"].is_null());
     }
 }
 
