@@ -2,6 +2,7 @@
 """Isolated old-binary upgrade and backup-based rollback drill."""
 
 import argparse
+import contextlib
 import json
 import pathlib
 import shutil
@@ -19,7 +20,7 @@ def call(binary, data, *arguments):
 
 
 def schema(database):
-    with sqlite3.connect(database) as connection:
+    with contextlib.closing(sqlite3.connect(database)) as connection:
         return connection.execute("PRAGMA user_version").fetchone()[0]
 
 
