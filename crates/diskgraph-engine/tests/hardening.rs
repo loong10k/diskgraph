@@ -29,6 +29,12 @@ fn setup() -> (
 }
 
 #[test]
+fn a_fresh_data_directory_accepts_work_when_its_volume_has_headroom() {
+    let (_dir, engine, _principal, _scope) = setup();
+    assert!(engine.accepts_new_work());
+}
+
+#[test]
 fn digest_never_exceeds_its_budget_or_confirms_a_partial_file() {
     let (dir, engine, principal, scope) = setup();
     engine.set_content_read(&scope, &principal, true).unwrap();

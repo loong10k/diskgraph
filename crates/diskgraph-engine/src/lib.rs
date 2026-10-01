@@ -2024,23 +2024,9 @@ impl Engine {
 
 /// 读取卷的可用字节；容量门禁无法测量时拒绝新工作。
 fn volume_headroom(path: &Path) -> Option<u64> {
-    #[cfg(unix)]
-    {
-        use std::os::unix::ffi::OsStrExt;
-        let path = std::ffi::CString::new(path.as_os_str().as_bytes()).ok()?;
-        let mut stat = std::mem::MaybeUninit::<libc::statvfs>::uninit();
-        // 安全性：路径以 NUL 结尾，成功调用后 stat 完整初始化。
-        if unsafe { libc::statvfs(path.as_ptr(), stat.as_mut_ptr()) } != 0 {
-            return None;
-        }
-        let stat = unsafe { stat.assume_init() };
-        Some((stat.f_bavail as u64).saturating_mul(stat.f_frsize))
-    }
-    #[cfg(not(unix))]
-    {
-        let _ = path;
-        None
-    }
+    diskgraph_disktree_core::space::space_info(path)
+        .ok()
+        .map(|space| space.available)
 }
 
 /// Total bytes under a path, or zero when it does not exist.
