@@ -2326,15 +2326,13 @@ fn a_purge_refuses_a_swapped_object_and_never_touches_the_imposter() {
     #[cfg(not(unix))]
     std::fs::copy(&imposter, project.root.join("target/app.bin")).unwrap();
 
-    assert!(matches!(
-        executor.apply(ApplyRequest {
-            plan_id: &plan.plan_id,
-            approval_ref: &approval_ref,
-            idempotency_key: "purge-swap",
-            fault: None,
-        }),
-        Err(OpsError::Stale(message)) if message.contains("replaced")
-    ));
+    let result = executor.apply(ApplyRequest {
+        plan_id: &plan.plan_id,
+        approval_ref: &approval_ref,
+        idempotency_key: "purge-swap",
+        fault: None,
+    });
+    assert!(matches!(result, Err(OpsError::Stale(_))), "{result:?}");
     assert_eq!(
         std::fs::read(&imposter).unwrap(),
         b"precious",

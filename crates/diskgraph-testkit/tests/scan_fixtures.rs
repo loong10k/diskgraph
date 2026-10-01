@@ -6,7 +6,9 @@ use diskgraph_disktree_core::scan::ScanOptions;
 
 use diskgraph_core::DiskGraph;
 use diskgraph_disktree::scan_native;
-use diskgraph_testkit::{FixtureTree, UnreadableDir};
+use diskgraph_testkit::FixtureTree;
+#[cfg(unix)]
+use diskgraph_testkit::UnreadableDir;
 
 fn find<'a>(graph: &'a DiskGraph, name: &str) -> &'a diskgraph_core::DiskNode {
     graph
@@ -104,6 +106,7 @@ fn symlink_loop_neither_hangs_nor_expands_by_default() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn unreadable_directory_forces_incomplete_coverage() {
     let tree = FixtureTree::new("denied").unwrap();
