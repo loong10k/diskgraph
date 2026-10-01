@@ -612,7 +612,29 @@ fn unsupported(catalog_id: &str, stage: &str) -> EngineError {
     EngineError::Business(BusinessError::Unsupported)
 }
 
+#[cfg(windows)]
 fn main() -> ExitCode {
+    // Windows 的默认主线程栈无法容纳 Debug 构建的大型命令分发栈帧。
+    // 显式预留栈空间，让调试二进制与 Release 二进制使用同一业务路径。
+    match std::thread::Builder::new()
+        .name("diskgraph-cli".into())
+        .stack_size(8 * 1024 * 1024)
+        .spawn(cli_main)
+    {
+        Ok(worker) => worker.join().unwrap_or(ExitCode::from(10)),
+        Err(error) => {
+            eprintln!("diskgraph: cannot start CLI worker: {error}");
+            ExitCode::from(10)
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn main() -> ExitCode {
+    cli_main()
+}
+
+fn cli_main() -> ExitCode {
     let cli = Cli::parse();
     match run(cli) {
         Ok(()) => ExitCode::from(0),
