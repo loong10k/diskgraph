@@ -11,7 +11,7 @@ use windows_sys::Win32::Security::Authorization::{GetSecurityInfo, SE_FILE_OBJEC
 use windows_sys::Win32::Security::{
     ACCESS_ALLOWED_ACE, ACL, DACL_SECURITY_INFORMATION, EqualSid, GetAce, GetTokenInformation,
     INHERIT_ONLY_ACE, IsWellKnownSid, OWNER_SECURITY_INFORMATION, PSID, TOKEN_QUERY, TOKEN_USER,
-    TokenUser, WinBuiltinAdministratorsSid, WinLocalSystemSid,
+    TokenUser, WinBuiltinAdministratorsSid, WinCreatorOwnerRightsSid, WinLocalSystemSid,
 };
 use windows_sys::Win32::System::SystemServices::{ACCESS_ALLOWED_ACE_TYPE, ACCESS_DENIED_ACE_TYPE};
 use windows_sys::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken};
@@ -114,10 +114,12 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
             return Err(invalid_acl());
         }
         let sid = unsafe { ptr::addr_of_mut!((*ace).SidStart).cast::<c_void>() };
+        // OWNER RIGHTS 只映射到已验证的文件所有者，不扩展到其他账户。
         let trusted = unsafe {
             EqualSid(sid, owner) != 0
                 || IsWellKnownSid(sid, WinLocalSystemSid) != 0
                 || IsWellKnownSid(sid, WinBuiltinAdministratorsSid) != 0
+                || IsWellKnownSid(sid, WinCreatorOwnerRightsSid) != 0
         };
         if !trusted {
             return Err(invalid_acl());
