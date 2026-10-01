@@ -11,7 +11,7 @@ use std::process::ExitCode;
 use clap::{Parser, Subcommand};
 use diskgraph_core::{
     Authorizer, BusinessError, CursorContext, Envelope, PagingCursor, Permission, PrincipalId,
-    QueryBudget, Relation, ScopeId, SizeFilter,
+    QueryBudget, Relation, ScopeId,
 };
 use diskgraph_engine::{Engine, EngineConfig, EngineError};
 
@@ -1046,22 +1046,17 @@ fn dispatch(
             let Some(revision) = engine.latest_revision(&scope_id)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
-            let graph = engine.load_revision(&revision)?;
-            let root = graph.nodes.iter().find(|node| node.parent_id.is_none());
-            match root {
-                Some(root) => {
-                    out.push(envelope_line(
-                        engine,
-                        Ok(serde_json::json!({
-                            "revision_id": revision,
-                            "node": root,
-                            "coverage": graph.snapshot.coverage,
-                        })),
-                    ));
-                    Ok(())
-                }
-                None => Err(EngineError::Business(BusinessError::NotFound)),
-            }
+            let root = engine.revision_root_node(&revision)?;
+            let coverage = engine.revision_snapshot(&revision)?.coverage;
+            out.push(envelope_line(
+                engine,
+                Ok(serde_json::json!({
+                    "revision_id": revision,
+                    "node": root,
+                    "coverage": coverage,
+                })),
+            ));
+            Ok(())
         }
         Command::Children {
             scope,
@@ -1083,24 +1078,23 @@ fn dispatch(
             if *unknown_only && min_bytes.is_some() {
                 return Err(EngineError::Business(BusinessError::InvalidArgument));
             }
-            let graph = engine.load_revision(&revision)?;
-            let filter = if *unknown_only {
-                Some(SizeFilter::UnknownOnly)
+            let (items, next_offset, unknown_count) = if *unknown_only {
+                let (items, next_offset) = engine
+                    .revision_unknown_children_page(&revision, *parent_id, *offset, *limit)?;
+                (items, next_offset, 0)
             } else {
-                min_bytes.map(SizeFilter::AtLeast)
+                engine.revision_children_page(&revision, *parent_id, *min_bytes, *offset, *limit)?
             };
-            let page =
-                graph.children_filtered(*parent_id, filter, *offset as usize, *limit as usize);
             out.push(envelope_line(
                 engine,
                 Ok(serde_json::json!({
                     "revision_id": revision,
                     "size_kind": "allocated",
-                    "items": page.items,
-                    "next_offset": page.next_offset,
+                    "items": items,
+                    "next_offset": next_offset,
                     // Nodes whose size could not be reported are counted, not
                     // silently dropped or treated as zero.
-                    "unknown_size_count": page.unknown_count,
+                    "unknown_size_count": unknown_count,
                 })),
             ));
             Ok(())
@@ -1159,14 +1153,14 @@ fn dispatch(
             let Some(revision) = engine.latest_revision(&scope_id)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
-            let graph = engine.load_revision(&revision)?;
-            let items = graph.top(*parent_id, *limit as usize);
+            let (items, more) = engine.revision_top(&revision, *parent_id, *limit)?;
             out.push(envelope_line(
                 engine,
                 Ok(serde_json::json!({
                     "revision_id": revision,
                     "size_kind": "allocated",
                     "items": items,
+                    "truncated": more.then_some("node_limit"),
                 })),
             ));
             Ok(())
@@ -1394,21 +1388,23 @@ fn dispatch(
             let Some(revision) = engine.latest_revision(&scope_id)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
-            let graph = engine.load_revision(&revision)?;
             let budget = QueryBudget {
                 max_depth: *max_depth,
                 max_nodes: *max_nodes,
                 ..QueryBudget::default()
             };
-            let summary = diskgraph_engine::explore(&graph, *node_id, budget);
+            let page_limit = budget.max_nodes.min(100);
+            let (node, children, more) =
+                engine.revision_layer_page(&revision, *node_id, 0, page_limit)?;
+            let coverage = engine.revision_snapshot(&revision)?.coverage;
             out.push(envelope_line(
                 engine,
                 Ok(serde_json::json!({
                     "revision_id": revision,
-                    "node": summary.node,
-                    "children": summary.children,
-                    "coverage": summary.coverage,
-                    "truncated": summary.truncated.map(|reason| reason.wire_name()),
+                    "node": node,
+                    "children": children,
+                    "coverage": coverage,
+                    "truncated": (more || page_limit == 0).then_some("node_limit"),
                 })),
             ));
             Ok(())

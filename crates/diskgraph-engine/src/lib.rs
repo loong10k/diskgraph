@@ -1303,6 +1303,39 @@ impl Engine {
         )?)
     }
 
+    /// 读取未知大小子节点的一页；调用方必须先完成 revision 授权。
+    pub fn revision_unknown_children_page(
+        &self,
+        revision_id: &str,
+        parent_id: u64,
+        offset: u64,
+        limit: u64,
+    ) -> Result<(Vec<diskgraph_core::DiskNode>, Option<u64>), EngineError> {
+        let reader = self.revision_reader()?;
+        Ok(reader.unknown_children_page(
+            &reader.revision(revision_id)?.snapshot_id,
+            parent_id,
+            offset,
+            limit.min(100),
+        )?)
+    }
+
+    /// 读取最大子节点，不为少量 CLI 结果解码完整 revision。
+    pub fn revision_top(
+        &self,
+        revision_id: &str,
+        parent_id: u64,
+        limit: u64,
+    ) -> Result<(Vec<diskgraph_core::DiskNode>, bool), EngineError> {
+        let reader = self.revision_reader()?;
+        let snapshot_id = reader.revision(revision_id)?.snapshot_id;
+        let limit = limit.min(100);
+        let mut items = reader.top(&snapshot_id, parent_id, limit.saturating_add(1))?;
+        let more = items.len() as u64 > limit;
+        items.truncate(limit as usize);
+        Ok((items, more))
+    }
+
     /// The root node of a published revision - the entry a du-style summary
     /// reads its total from. One row, no graph materialization.
     pub fn revision_root_node(

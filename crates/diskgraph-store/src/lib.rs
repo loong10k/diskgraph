@@ -707,6 +707,37 @@ impl SqliteSnapshotStore {
         Ok((items, next, unknown.max(0) as u64))
     }
 
+    /// 只解码未知大小的当前页；与完整图的 UnknownOnly 过滤保持相同排序。
+    pub fn unknown_children_page(
+        &self,
+        snapshot_id: &str,
+        parent_id: u64,
+        offset: u64,
+        limit: u64,
+    ) -> Result<(Vec<DiskNode>, Option<u64>)> {
+        self.snapshot(snapshot_id)?;
+        let known = "COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0 AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1";
+        let sql = format!(
+            "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND NOT ({known}) ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?3 OFFSET ?4"
+        );
+        let mut stmt = self.connection.prepare(&sql)?;
+        let rows = stmt.query_map(
+            params![
+                snapshot_id,
+                as_i64(parent_id)?,
+                as_i64(limit.saturating_add(1))?,
+                as_i64(offset)?
+            ],
+            |row| Ok(NodeRow::from(row)),
+        )?;
+        let mut items = rows
+            .map(|row| row?.into_node())
+            .collect::<Result<Vec<_>>>()?;
+        let next = (items.len() as u64 > limit).then_some(offset.saturating_add(limit));
+        items.truncate(limit as usize);
+        Ok((items, next))
+    }
+
     /// Unicode 小写子串匹配，以 name/id keyset 分页；offset 仅供首次请求兼容。
     pub fn search_page(
         &self,

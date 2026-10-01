@@ -4,12 +4,14 @@
 
 use diskgraph_disktree_core::scan::ScanOptions;
 
+#[cfg(unix)]
 use diskgraph_core::DiskGraph;
 use diskgraph_disktree::scan_native;
 use diskgraph_testkit::FixtureTree;
 #[cfg(unix)]
 use diskgraph_testkit::UnreadableDir;
 
+#[cfg(unix)]
 fn find<'a>(graph: &'a DiskGraph, name: &str) -> &'a diskgraph_core::DiskNode {
     graph
         .nodes

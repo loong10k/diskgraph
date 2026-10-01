@@ -199,6 +199,15 @@ fn positive_candidate_cli_does_not_decode_an_unrelated_corrupt_node() {
             [],
         )
         .unwrap();
+    for args in [
+        vec!["node", "--scope", &scope],
+        vec!["top", "--scope", &scope],
+        vec!["children", "--scope", &scope],
+        vec!["explore", "--scope", &scope],
+    ] {
+        let query = run_cli(&data, &args);
+        assert_eq!(query.code, 0, "{args:?}: {}", query.stderr);
+    }
     let selected = run_cli(
         &data,
         &[
