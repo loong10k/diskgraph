@@ -2,6 +2,7 @@
 """Cross-platform real-binary acceptance for authenticated HTTP and legacy SSE."""
 
 import base64
+import csv
 import contextlib
 import hashlib
 import hmac
@@ -26,6 +27,18 @@ CLI = BIN_DIR / f"diskgraph{SUFFIX}"
 MCP = BIN_DIR / f"diskgraph-mcp{SUFFIX}"
 ISSUER, AUDIENCE, SUBJECT = "diskgraph-readonly-accept", "diskgraph", "remote-reader"
 ORIGIN = "http://diskgraph-accept.invalid"
+
+
+def restrict_windows_key(path):
+    """Give the fixture only its owner, SYSTEM and Administrators access."""
+    identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"],
+                              capture_output=True, text=True, check=True)
+    sid = next(csv.reader(identity.stdout.splitlines()))[1]
+    subprocess.run(["icacls", str(path), "/inheritance:r"],
+                   capture_output=True, text=True, check=True)
+    subprocess.run(["icacls", str(path), "/grant:r", f"*{sid}:F",
+                    "*S-1-5-18:F", "*S-1-5-32-544:F"],
+                   capture_output=True, text=True, check=True)
 
 
 def token(key, subject=SUBJECT):
@@ -189,6 +202,8 @@ def main():
         key_file = work / "auth.key"
         key_file.write_text(key)
         key_file.chmod(0o600)
+        if sys.platform == "win32":
+            restrict_windows_key(key_file)
         bearer = token(key)
         top = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {
             "name": "diskgraph_top", "arguments": {"scope": scope},
@@ -253,6 +268,10 @@ def main():
         if sys.platform != "win32":
             key_file.chmod(0o644)
             checks["group_readable_key_refused"] = rejects_key(key_file)
+        else:
+            subprocess.run(["icacls", str(key_file), "/grant", "*S-1-1-0:R"],
+                           capture_output=True, text=True, check=True)
+            checks["everyone_readable_key_refused"] = rejects_key(key_file)
 
     passed = sum(checks.values())
     print(json.dumps({"passed": passed, "total": len(checks), "checks": checks}, indent=2))

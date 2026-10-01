@@ -9,6 +9,9 @@ use std::process::ExitCode;
 use diskgraph_mcp::protocol::ToolProfile;
 use diskgraph_mcp::{McpConfig, McpService, http, serve_stdio};
 
+#[cfg(windows)]
+mod auth_key_acl;
+
 fn main() -> ExitCode {
     let mut data_dir = PathBuf::from("diskgraph-data");
     let mut profile = ToolProfile::ReadFull;
@@ -256,6 +259,8 @@ fn read_auth_key(path: &Path) -> io::Result<String> {
             ));
         }
     }
+    #[cfg(windows)]
+    auth_key_acl::ensure_restricted(&file)?;
     let mut key = String::new();
     file.take(4097).read_to_string(&mut key)?;
     let key = key.trim_end_matches(['\r', '\n']);
