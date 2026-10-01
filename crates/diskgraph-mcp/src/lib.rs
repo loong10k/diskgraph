@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use diskgraph_core::{
     Authorizer, BusinessError, CursorContext, DiskNode, Envelope, PagingCursor, Permission,
-    PolicyAuthorizer, PrincipalId, QueryBudget, Relation, ScopeId, SizeFilter, treemap,
+    PrincipalId, QueryBudget, Relation, ScopeId, treemap,
 };
 use diskgraph_engine::{Engine, EngineConfig, EngineError, admin_scope};
 use serde_json::{Value, json};
@@ -18,6 +18,9 @@ pub mod http;
 pub mod install;
 pub mod legacy;
 pub mod protocol;
+mod request_authorizer;
+mod request_context;
+mod sse_slot;
 
 use protocol::{
     FrameError, ToolProfile, catalog_id_for, decode_request, initialize_result, log_line,
@@ -50,9 +53,10 @@ impl Default for McpConfig {
 }
 
 /// The MCP service: an engine, the acting principal, and the tool profile.
+#[derive(Clone)]
 pub struct McpService {
     engine: std::sync::Arc<Engine>,
-    principal: PrincipalId,
+    context: request_context::RequestContext,
     profile: ToolProfile,
     legacy_sse: bool,
     initialized: bool,
@@ -62,15 +66,30 @@ impl McpService {
     /// Opens the engine and the local policy, then bootstraps the stdio
     /// principal exactly as the CLI does.
     pub fn open(config: McpConfig) -> Result<Self, EngineError> {
+        Self::open_mode(config, true)
+    }
+
+    /// 远程服务不创建本地管理员授权。
+    pub fn open_remote(config: McpConfig) -> Result<Self, EngineError> {
+        Self::open_mode(config, false)
+    }
+
+    fn open_mode(config: McpConfig, trusted_local: bool) -> Result<Self, EngineError> {
         let engine = Engine::open(EngineConfig {
             data_dir: config.data_dir,
             max_nodes_per_scan: 2_000_000,
             ..EngineConfig::default()
         })?;
-        engine.bootstrap_local_admin(&config.principal)?;
+        if trusted_local {
+            engine.bootstrap_local_admin(&config.principal)?;
+        }
         Ok(Self {
             engine: std::sync::Arc::new(engine),
-            principal: config.principal,
+            context: if trusted_local {
+                request_context::RequestContext::local(config.principal)
+            } else {
+                request_context::RequestContext::unauthenticated(config.principal)
+            },
             profile: config.profile,
             legacy_sse: config.legacy_sse,
             initialized: false,
@@ -91,8 +110,67 @@ impl McpService {
     /// The live authorizer, rebuilt from the control store so grants issued
     /// after startup (scope registration, policy changes) take effect without
     /// a restart.
-    fn authorizer(&self) -> Result<PolicyAuthorizer, EngineError> {
-        self.engine.policy_authorizer()
+    fn authorizer(&self) -> Result<request_authorizer::RequestAuthorizer, EngineError> {
+        Ok(request_authorizer::RequestAuthorizer {
+            policy: self.engine.policy_authorizer()?,
+            capabilities: self.context.capabilities(),
+            expires_at: self.context.expires_at(),
+        })
+    }
+
+    /// 为认证主体创建独立请求状态，共享 Engine，不覆盖本地主体。
+    pub fn for_identity(&self, identity: &auth::AuthenticatedPrincipal) -> Self {
+        self.for_transport_identity(identity, "http")
+    }
+
+    /// 将已认证身份固定到当前传输，请求状态不写入共享 Engine。
+    pub(crate) fn for_transport_identity(
+        &self,
+        identity: &auth::AuthenticatedPrincipal,
+        transport: &'static str,
+    ) -> Self {
+        let mut request = self.clone();
+        request.context = request_context::RequestContext::authenticated(identity, transport);
+        request
+    }
+
+    /// 当前认证主体是否仍有数据库授权，用于终止已撤权的长连接。
+    pub(crate) fn identity_is_live(&self, identity: &auth::AuthenticatedPrincipal) -> bool {
+        if identity.permissions.is_empty() {
+            return false;
+        }
+        let request = self.for_identity(identity);
+        let Ok(policy) = request.authorizer() else {
+            return false;
+        };
+        if identity.permissions.iter().any(|permission| {
+            matches!(
+                policy.decide(&identity.principal, permission, &admin_scope()),
+                diskgraph_core::Decision::Allowed
+            )
+        }) {
+            return true;
+        }
+        self.engine
+            .control_store()
+            .ok()
+            .and_then(|store| store.list_scopes().ok())
+            .is_some_and(|scopes| {
+                scopes.iter().any(|scope| {
+                    !scope.revoked
+                        && identity.permissions.iter().any(|permission| {
+                            matches!(
+                                policy.decide(&identity.principal, permission, &scope.scope_id),
+                                diskgraph_core::Decision::Allowed
+                            )
+                        })
+                })
+            })
+    }
+
+    /// 请求传输和经过校验的签发方，供日志记录使用。
+    pub fn request_transport(&self) -> (&'static str, Option<&str>) {
+        (self.context.transport(), self.context.issuer())
     }
 
     pub fn profile(&self) -> ToolProfile {
@@ -191,7 +269,30 @@ impl McpService {
         catalog_id: &str,
         arguments: &Value,
     ) -> Result<Value, EngineError> {
-        let scope = self.resolve_scope(arguments)?;
+        // Relation queries carry an explicit revision. Its persisted owner,
+        // rather than the caller's scope hint or default scope, is the only
+        // authority and the identity reported in the response envelope.
+        let explicit_revision = matches!(catalog_id, "C13" | "C14" | "C15")
+            .then(|| arguments.get("revision").and_then(Value::as_str))
+            .flatten();
+        let scope = if let Some(revision) = explicit_revision {
+            let expected = arguments
+                .get("scope")
+                .and_then(Value::as_str)
+                .map(|scope| {
+                    ScopeId::new(scope.to_owned())
+                        .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))
+                })
+                .transpose()?;
+            Some(self.engine.authorize_revision(
+                expected.as_ref(),
+                revision,
+                self.context.principal(),
+                &self.authorizer()?,
+            )?)
+        } else {
+            self.resolve_scope(arguments)?
+        };
         // Scope management is a server-administration capability, so it is
         // checked against the admin scope; everything else against the scope
         // the request actually names.
@@ -200,7 +301,7 @@ impl McpService {
         // `scope:admin` capability its sibling actions need.
         let action = arguments.get("action").and_then(Value::as_str);
         let authorization_scope =
-            if catalog_id == "C01" && action != Some("add") && action != Some("remove") {
+            if catalog_id != "C01" || (action != Some("add") && action != Some("remove")) {
                 scope.clone().unwrap_or_else(admin_scope)
             } else {
                 admin_scope()
@@ -229,14 +330,20 @@ impl McpService {
             _ => Err(EngineError::Business(BusinessError::Unsupported)),
         }
         .and_then(|data| {
-            let revision = scope
-                .as_ref()
-                .and_then(|scope| self.engine.latest_revision(scope).ok().flatten());
+            let revision = explicit_revision.map(str::to_owned).or_else(|| {
+                scope
+                    .as_ref()
+                    .and_then(|scope| self.engine.latest_revision(scope).ok().flatten())
+            });
             let revision_id =
                 revision.and_then(|revision| diskgraph_core::RevisionId::new(revision).ok());
-            Ok(Envelope::ok(data)
-                .with_ids(Some(self.engine.server_id()?), scope, revision_id)
-                .into_json())
+            let truncated = data
+                .get("truncated")
+                .is_some_and(|value| !matches!(value, Value::Null | Value::Bool(false)));
+            let mut envelope =
+                Envelope::ok(data).with_ids(Some(self.engine.server_id()?), scope, revision_id);
+            envelope.truncated = truncated;
+            Ok(envelope.into_json())
         })
     }
 
@@ -249,7 +356,7 @@ impl McpService {
             "list" => {
                 let scopes = self
                     .engine
-                    .list_scopes(&self.principal, &self.authorizer()?)?;
+                    .list_scopes(self.context.principal(), &self.authorizer()?)?;
                 Ok(json!({
                     "scopes": scopes
                         .iter()
@@ -276,10 +383,10 @@ impl McpService {
         let scope_id = self.require_scope(scope)?;
         let job = if sync {
             self.engine
-                .sync_scope(&scope_id, &self.principal, &self.authorizer()?)?
+                .sync_scope(&scope_id, self.context.principal(), &self.authorizer()?)?
         } else {
             self.engine
-                .index_scope(&scope_id, &self.principal, &self.authorizer()?)?
+                .index_scope(&scope_id, self.context.principal(), &self.authorizer()?)?
         };
         // The job ID is the durable handle a client polls after disconnect
         // (MCP-05): a cancelled connection never loses the business state.
@@ -303,6 +410,10 @@ impl McpService {
             }));
         };
         let record = self.engine.job_status(job_id)?;
+        self.require(&Permission::OperationView, &record.scope_id)?;
+        if self.engine.scope(&record.scope_id)?.revoked {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
         Ok(json!({
             "job_id": record.job_id,
             "scope_id": record.scope_id.as_str(),
@@ -320,7 +431,7 @@ impl McpService {
         let offset = arguments.get("offset").and_then(Value::as_u64).unwrap_or(0);
         let snapshots = self.engine.list_snapshots(
             &scope_id,
-            &self.principal,
+            self.context.principal(),
             &self.authorizer()?,
             limit,
             offset,
@@ -342,36 +453,28 @@ impl McpService {
         let (Some(before), Some(after)) = (before, after) else {
             return Err(EngineError::Business(BusinessError::InvalidArgument));
         };
-        let graph_before = self.engine.load_revision(before)?;
-        let graph_after = self.engine.load_revision(after)?;
+        self.engine.authorize_revision(
+            None,
+            before,
+            self.context.principal(),
+            &self.authorizer()?,
+        )?;
+        self.engine.authorize_revision(
+            None,
+            after,
+            self.context.principal(),
+            &self.authorizer()?,
+        )?;
         if catalog_id == "C07" {
-            let growth = graph_after.growth(&graph_before, &graph_before.snapshot.root);
+            let growth = self
+                .engine
+                .growth_between(before, after, std::path::Path::new(""))?;
             return Ok(json!({
                 "comparable": growth.is_some(),
                 "delta_bytes": growth.map(|growth| growth.delta_bytes.to_string()),
             }));
         }
-        let report = graph_after.changes(&graph_before);
-        Ok(json!({
-            "incompatible": report.incompatible.as_ref().map(|reason| {
-                diskgraph_engine::incompatibility_name(reason.clone())
-            }),
-            "added": report
-                .changes
-                .iter()
-                .filter(|change| matches!(change, diskgraph_core::Change::Added { .. }))
-                .count(),
-            "removed": report
-                .changes
-                .iter()
-                .filter(|change| matches!(change, diskgraph_core::Change::Removed { .. }))
-                .count(),
-            "size_changed": report
-                .changes
-                .iter()
-                .filter(|change| matches!(change, diskgraph_core::Change::SizeChanged { .. }))
-                .count(),
-        }))
+        self.engine.revision_changes(before, after)
     }
 
     fn explore_tool(
@@ -380,17 +483,29 @@ impl McpService {
         arguments: &Value,
     ) -> Result<Value, EngineError> {
         let revision = self.require_revision(scope)?;
-        let graph = self.engine.load_revision(&revision)?;
         let node_id = arguments
             .get("node_id")
             .and_then(Value::as_u64)
             .unwrap_or(1);
-        let summary = diskgraph_engine::explore(&graph, node_id, QueryBudget::default());
+        let budget = QueryBudget::default();
+        let (node, mut children) =
+            self.engine
+                .revision_layer(&revision, node_id, budget.max_nodes + 1)?;
+        let truncated = (children.len() >= budget.max_nodes).then_some("node_limit");
+        children.truncate(budget.max_nodes.saturating_sub(1));
+        let base = serde_json::to_vec(&node)
+            .map_err(diskgraph_store::StoreError::from)?
+            .len();
+        if base.saturating_add(1024) > budget.max_response_bytes {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        }
+        let (children, bytes_truncated) = Self::bound_nodes(children, base)?;
+        let truncated = bytes_truncated.or(truncated);
         Ok(json!({
-            "node": summary.node,
-            "children": summary.children,
-            "coverage": summary.coverage,
-            "truncated": summary.truncated.map(|reason| reason.wire_name()),
+            "node": node,
+            "children": children,
+            "coverage": self.engine.revision_snapshot(&revision)?.coverage,
+            "truncated": truncated,
         }))
     }
 
@@ -405,54 +520,94 @@ impl McpService {
             .get("pattern")
             .and_then(Value::as_str)
             .ok_or(EngineError::Business(BusinessError::InvalidArgument))?;
-        let limit = arguments.get("limit").and_then(Value::as_u64).unwrap_or(20) as usize;
+        let limit = arguments
+            .get("limit")
+            .and_then(Value::as_u64)
+            .unwrap_or(20)
+            .clamp(1, 100);
         let offset = arguments.get("offset").and_then(Value::as_u64).unwrap_or(0);
         // The cursor binds the principal, scope, revision, filter, sort, and
         // the policy epoch it was issued under (P4-5.9).
         let pattern_binding = format!("pattern:{pattern}");
         let authorizer = self.authorizer()?;
         let context = CursorContext {
-            principal_binding: self.principal.as_str(),
+            principal_binding: self.context.principal().as_str(),
             scope_id: scope_id.as_str(),
             revision_id: &revision,
             filter_binding: &pattern_binding,
-            sort_binding: "size_desc,name_asc",
+            sort_binding: "name_asc,id_asc,keyset_v2",
             policy_version: authorizer.policy_version(),
         };
-        let start = match arguments.get("cursor").and_then(Value::as_str) {
-            Some(encoded) => {
-                let decoded = PagingCursor::decode(encoded)
-                    .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-                decoded
-                    .verify(&context)
-                    .map_err(|rejection| EngineError::Business(rejection.business_error()))?
+        let cursor = arguments
+            .get("cursor")
+            .and_then(Value::as_str)
+            .map(|encoded| diskgraph_core::SearchCursor::decode(encoded, &context))
+            .transpose()
+            .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+        let reader = self.engine.revision_reader()?;
+        let snapshot = reader.revision(&revision)?.snapshot_id;
+        let after = cursor
+            .as_ref()
+            .map(|cursor| (cursor.last_name.as_str(), cursor.last_id));
+        let (items, more) = reader.search_page(&snapshot, pattern, after, offset, limit)?;
+        let (items, truncated) = Self::bound_nodes(items, 0)?;
+        let more = more || truncated.is_some();
+        let consumed = cursor
+            .as_ref()
+            .map_or(offset, |cursor| cursor.binding.offset)
+            .saturating_add(items.len() as u64);
+        let next = more.then_some(consumed);
+        let next_cursor = items.last().filter(|_| more).map(|last| {
+            diskgraph_core::SearchCursor {
+                version: 2,
+                binding: PagingCursor::issue(
+                    &context,
+                    pattern_binding.clone(),
+                    "name_asc,id_asc,keyset_v2",
+                    consumed,
+                ),
+                last_name: last.name.clone(),
+                last_id: last.id,
             }
-            None => offset,
-        };
-        let graph = self.engine.load_revision(&revision)?;
-        let (items, next) =
-            diskgraph_engine::search_nodes(&graph, pattern, start, limit, QueryBudget::default());
-        let next_cursor = next.map(|offset| {
-            PagingCursor::issue(
-                &context,
-                pattern_binding.clone(),
-                "size_desc,name_asc",
-                offset,
-            )
             .encode()
         });
-        Ok(json!({ "items": items, "next_cursor": next_cursor, "next_offset": next }))
+        Ok(
+            json!({ "items": items, "next_cursor": next_cursor, "next_offset": next,"truncated":truncated }),
+        )
+    }
+
+    /// 将页面编码成本限制在查询响应预算中；超大单节点明确拒绝，避免无进展游标。
+    fn bound_nodes(
+        mut items: Vec<DiskNode>,
+        base_bytes: usize,
+    ) -> Result<(Vec<DiskNode>, Option<&'static str>), EngineError> {
+        let maximum = QueryBudget::default()
+            .max_response_bytes
+            .saturating_sub(base_bytes.saturating_add(1024));
+        let mut bytes = 0usize;
+        let mut kept = 0usize;
+        for node in &items {
+            let size = serde_json::to_vec(node)
+                .map_err(diskgraph_store::StoreError::from)?
+                .len();
+            if bytes.saturating_add(size) > maximum {
+                break;
+            }
+            bytes += size;
+            kept += 1;
+        }
+        if kept == 0 && !items.is_empty() {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        }
+        let truncated = (kept < items.len()).then_some("response_byte_limit");
+        items.truncate(kept);
+        Ok((items, truncated))
     }
 
     fn node_tool(&self, scope: &Option<ScopeId>) -> Result<Value, EngineError> {
         let revision = self.require_revision(scope)?;
-        let graph = self.engine.load_revision(&revision)?;
-        let root = graph
-            .nodes
-            .iter()
-            .find(|node| node.parent_id.is_none())
-            .ok_or(EngineError::Business(BusinessError::NotFound))?;
-        Ok(json!({ "node": root, "coverage": graph.snapshot.coverage }))
+        let root = self.engine.revision_root_node(&revision)?;
+        Ok(json!({ "node": root, "coverage": self.engine.revision_snapshot(&revision)?.coverage }))
     }
 
     /// Turns query results into treemap rows: the same nodes, ordered by
@@ -492,46 +647,57 @@ impl McpService {
         arguments: &Value,
     ) -> Result<Value, EngineError> {
         let revision = self.require_revision(scope)?;
-        let graph = self.engine.load_revision(&revision)?;
         let parent_id = arguments
             .get("parent_id")
             .and_then(Value::as_u64)
             .unwrap_or(1);
-        let limit = arguments.get("limit").and_then(Value::as_u64).unwrap_or(50) as usize;
-        let offset = arguments.get("offset").and_then(Value::as_u64).unwrap_or(0) as usize;
-        let filter = arguments
-            .get("min_bytes")
+        let limit = arguments
+            .get("limit")
             .and_then(Value::as_u64)
-            .map(SizeFilter::AtLeast);
-        let page = graph.children_filtered(parent_id, filter, offset, limit);
+            .unwrap_or(50)
+            .min(100);
+        let offset = arguments.get("offset").and_then(Value::as_u64).unwrap_or(0);
+        let filter = arguments.get("min_bytes").and_then(Value::as_u64);
+        let (items, next_offset, unknown_count) = self
+            .engine
+            .revision_children_page(&revision, parent_id, filter, offset, limit)?;
+        let (items, truncated) = Self::bound_nodes(items, 0)?;
+        let next_offset = if truncated.is_some() {
+            Some(offset.saturating_add(items.len() as u64))
+        } else {
+            next_offset
+        };
         if Self::wants_treemap(arguments) {
-            let rows = Self::treemap_rows(page.items.iter().copied());
+            let rows = Self::treemap_rows(items.iter());
             let width = Self::treemap_width(arguments);
             return Ok(json!({
                 "format": "treemap",
                 "treemap": treemap::render_text(&rows, width),
-                "items": page.items.len(),
-                "next_offset": page.next_offset,
+                "items": items.len(),
+                "next_offset": next_offset,
             }));
         }
         Ok(json!({
-            "items": page.items,
-            "next_offset": page.next_offset,
-            "unknown_size_count": page.unknown_count,
+            "items": items,
+            "next_offset": next_offset,
+            "unknown_size_count": unknown_count,
+            "truncated":truncated,
         }))
     }
 
     fn top_tool(&self, scope: &Option<ScopeId>, arguments: &Value) -> Result<Value, EngineError> {
         let revision = self.require_revision(scope)?;
-        let graph = self.engine.load_revision(&revision)?;
         let parent_id = arguments
             .get("parent_id")
             .and_then(Value::as_u64)
             .unwrap_or(1);
         let limit = arguments.get("limit").and_then(Value::as_u64).unwrap_or(20) as usize;
-        let items = graph.top(parent_id, limit);
+        let (_, items) = self
+            .engine
+            .revision_layer(&revision, parent_id, limit.min(100))?;
+        let (items, truncated) = Self::bound_nodes(items, 0)?;
         if Self::wants_treemap(arguments) {
-            let rows = Self::treemap_rows(items.iter().copied());
+            let rows = Self::treemap_rows(items.iter());
             let width = Self::treemap_width(arguments);
             return Ok(json!({
                 "format": "treemap",
@@ -543,6 +709,7 @@ impl McpService {
         Ok(json!({
             "items": items,
             "size_kind": "allocated",
+            "truncated":truncated,
         }))
     }
 
@@ -565,7 +732,7 @@ impl McpService {
             &entity,
             relation,
             outgoing,
-            &self.principal,
+            self.context.principal(),
             &self.authorizer()?,
         )?;
         Ok(json!({ "edges": edges }))
@@ -576,7 +743,7 @@ impl McpService {
         match self.engine.explain_entity(
             &revision,
             &entity,
-            &self.principal,
+            self.context.principal(),
             &self.authorizer()?,
         )? {
             Some((entity, edges, evidence)) => Ok(json!({
@@ -590,25 +757,16 @@ impl McpService {
 
     fn impact_tool(&self, arguments: &Value) -> Result<Value, EngineError> {
         let (revision, entity) = self.revision_and_entity(arguments)?;
-        let edges = self.engine.all_edges(&revision)?;
-        let mut by_source: std::collections::HashMap<String, Vec<(String, Relation)>> =
-            std::collections::HashMap::new();
-        let mut by_target: std::collections::HashMap<String, Vec<(String, Relation)>> =
-            std::collections::HashMap::new();
-        for edge in edges {
-            by_source
-                .entry(edge.source_entity_id.clone())
-                .or_default()
-                .push((edge.target_entity_id.clone(), edge.relation));
-            by_target
-                .entry(edge.target_entity_id)
-                .or_default()
-                .push((edge.source_entity_id, edge.relation));
-        }
-        let entries =
-            diskgraph_engine::impact(&by_source, &by_target, &entity, QueryBudget::default())?;
+        let authorizer = self.authorizer()?;
+        let answer = self.engine.revision_impact(
+            &revision,
+            &entity,
+            QueryBudget::default(),
+            self.context.principal(),
+            &authorizer,
+        )?;
         Ok(json!({
-            "entries": entries
+            "entries": answer.entries
                 .iter()
                 .map(|entry| json!({
                     "entity_id": entry.entity_id,
@@ -616,6 +774,8 @@ impl McpService {
                     "depth": entry.depth,
                 }))
                 .collect::<Vec<_>>(),
+            "complete": answer.truncated.is_none(),
+            "truncated": answer.truncated.map(|reason| reason.wire_name()),
             // A read-only impact answer never authorizes a mutation.
             "grants_execution": false,
         }))
@@ -627,18 +787,29 @@ impl McpService {
         arguments: &Value,
     ) -> Result<Value, EngineError> {
         let revision = self.require_revision(scope)?;
-        let graph = self.engine.load_revision(&revision)?;
         let target = arguments
             .get("target_bytes")
             .and_then(Value::as_u64)
             .unwrap_or(0);
+        let authorizer = self.authorizer()?;
+        let answer = self.engine.review_candidates(
+            &revision,
+            target,
+            QueryBudget::default(),
+            self.context.principal(),
+            &authorizer,
+        )?;
         Ok(json!({
-            "candidates": graph
-                .candidates(target)
+            "candidates": answer.candidates
                 .into_iter()
-                .map(|candidate| json!({"node": candidate.node, "evidence": candidate.evidence}))
+                .map(|(node, evidence)| json!({"node": node, "evidence": evidence}))
                 .collect::<Vec<_>>(),
             "review_only": true,
+            "coverage_complete": answer.coverage_complete,
+            "complete": answer.complete,
+            "truncated": answer.truncated.map(|reason| reason.wire_name()),
+            "selected_bytes": answer.selected_bytes.to_string(),
+            "remaining_bytes": answer.remaining_bytes.to_string(),
         }))
     }
 
@@ -671,7 +842,7 @@ impl McpService {
         }
         let scopes = self
             .engine
-            .list_scopes(&self.principal, &self.authorizer()?)?;
+            .list_scopes(self.context.principal(), &self.authorizer()?)?;
         Ok(scopes
             .into_iter()
             .find(|scope| !scope.revoked)
@@ -686,16 +857,24 @@ impl McpService {
 
     fn require_revision(&self, scope: &Option<ScopeId>) -> Result<String, EngineError> {
         let scope_id = self.require_scope(scope)?;
-        self.engine
+        let revision = self
+            .engine
             .latest_revision(&scope_id)?
-            .ok_or(EngineError::Business(BusinessError::NotIndexed))
+            .ok_or(EngineError::Business(BusinessError::NotIndexed))?;
+        self.engine.authorize_revision(
+            Some(&scope_id),
+            &revision,
+            self.context.principal(),
+            &self.authorizer()?,
+        )?;
+        Ok(revision)
     }
 
     fn require(&self, permission: &Permission, scope: &ScopeId) -> Result<(), EngineError> {
         let authorizer = self
             .authorizer()
             .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
-        match authorizer.decide(&self.principal, permission, scope) {
+        match authorizer.decide(self.context.principal(), permission, scope) {
             diskgraph_core::Decision::Allowed => Ok(()),
             diskgraph_core::Decision::Denied(_) => {
                 Err(EngineError::Business(BusinessError::PermissionDenied))
@@ -816,13 +995,17 @@ mod tests {
     fn seed(service: &mut McpService, root: &std::path::Path) -> String {
         let scope_id = service
             .engine()
-            .register_scope(root, &service.principal, &service.authorizer().unwrap())
+            .register_scope(
+                root,
+                service.context.principal(),
+                &service.authorizer().unwrap(),
+            )
             .unwrap();
         let job = service
             .engine()
             .index_scope(
                 &scope_id,
-                &service.principal,
+                service.context.principal(),
                 &service.authorizer().unwrap(),
             )
             .unwrap();
@@ -925,7 +1108,11 @@ mod tests {
         std::fs::create_dir_all(&empty).unwrap();
         let empty_scope = service
             .engine()
-            .register_scope(&empty, &service.principal, &service.authorizer().unwrap())
+            .register_scope(
+                &empty,
+                service.context.principal(),
+                &service.authorizer().unwrap(),
+            )
             .unwrap();
         let unindexed = call(
             &mut service,
@@ -1080,6 +1267,225 @@ mod tests {
         assert_eq!(payload(&again)["data"], payload(&top_a)["data"]);
         drop(first);
         drop(second);
+    }
+
+    #[test]
+    fn impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied() {
+        use diskgraph_core::{Grant, Permission};
+
+        let (mut service, data) = service(ToolProfile::ReadFull, "impact-scope");
+        let (first, first_root) = cargo_project("impact-a");
+        let (second, second_root) = cargo_project("impact-b");
+        let scope_a = seed(&mut service, &first_root);
+        let scope_b = seed(&mut service, &second_root);
+        let revision_b = service
+            .engine()
+            .latest_revision(&ScopeId::new(scope_b.clone()).unwrap())
+            .unwrap()
+            .unwrap();
+        let graph_b = service.engine().load_revision(&revision_b).unwrap();
+        let target = graph_b
+            .nodes
+            .iter()
+            .find(|node| node.name == "target")
+            .unwrap();
+        let auth = auth::Authenticator::new(auth::AuthConfig::single("issuer", "aud", b"test-key"));
+        let token = auth::TokenMinter::new(b"test-key").mint(&auth::TokenClaims {
+            issuer: "issuer".into(),
+            audience: "aud".into(),
+            subject: "only-a".into(),
+            expires_at_unix_seconds: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+                + 300,
+            scope: Some("metadata:read".into()),
+        });
+        let identity = auth.authenticate(Some(&token)).unwrap();
+        let mut control =
+            diskgraph_store::ControlStore::open(&data.path().join("data/diskgraph-control.sqlite"))
+                .unwrap();
+        control
+            .upsert_grant(&Grant {
+                principal: identity.principal.clone(),
+                permission: Permission::MetadataRead,
+                scope: ScopeId::new(scope_a.clone()).unwrap(),
+                policy_version: control.policy_version().unwrap(),
+            })
+            .unwrap();
+        let mut remote = service.for_identity(&identity);
+        let response = call(
+            &mut remote,
+            "diskgraph_impact",
+            json!({"scope":scope_a,"revision":revision_b,"entity":format!("resource-{}", target.id)}),
+        );
+        assert_eq!(
+            response["error"]["data"]["business_code"], "permission_denied",
+            "{response}"
+        );
+        let mismatch = call(
+            &mut service,
+            "diskgraph_impact",
+            json!({"scope":scope_a,"revision":revision_b,"entity":format!("resource-{}",target.id)}),
+        );
+        assert_eq!(
+            mismatch["error"]["data"]["business_code"],
+            "permission_denied"
+        );
+        let authorized = call(
+            &mut service,
+            "diskgraph_impact",
+            json!({"revision":revision_b,"entity":format!("resource-{}",target.id)}),
+        );
+        assert_eq!(structured(&authorized)["scope_id"], scope_b);
+        assert_eq!(structured(&authorized)["revision_id"], revision_b);
+        drop(first);
+        drop(second);
+    }
+
+    #[test]
+    fn zero_target_candidates_do_not_decode_the_full_revision() {
+        let (mut service, data) = service(ToolProfile::ReadFull, "zero-candidates");
+        let (project, root) = cargo_project("zero-candidates");
+        let scope = seed(&mut service, &root);
+        let db = rusqlite::Connection::open(data.path().join("data/diskgraph.sqlite")).unwrap();
+        db.execute(
+            "UPDATE nodes SET kind = 'invalid-kind' WHERE name = 'bin'",
+            [],
+        )
+        .unwrap();
+        let response = call(
+            &mut service,
+            "diskgraph_candidates",
+            json!({"scope":scope,"target_bytes":0}),
+        );
+        assert_eq!(payload(&response)["candidates"], json!([]));
+        drop(project);
+    }
+
+    #[test]
+    fn positive_target_candidates_use_a_narrow_read_and_report_the_target_gap() {
+        let (mut service, data) = service(ToolProfile::ReadFull, "positive-candidates");
+        let (project, root) = cargo_project("positive-candidates");
+        let scope = seed(&mut service, &root);
+        let revision = service
+            .engine()
+            .latest_revision(&ScopeId::new(scope.clone()).unwrap())
+            .unwrap()
+            .unwrap();
+        let graph = service.engine().load_revision(&revision).unwrap();
+        let target = graph
+            .nodes
+            .iter()
+            .find(|node| node.name == "target")
+            .unwrap();
+        let db = rusqlite::Connection::open(data.path().join("data/diskgraph.sqlite")).unwrap();
+        db.execute(
+            "INSERT INTO evidence (snapshot_id, node_id, evidence_json) VALUES (?1, ?2, ?3)",
+            rusqlite::params![
+                graph.snapshot.id,
+                i64::try_from(target.id).unwrap(),
+                json!({
+                    "node_id": target.id, "relation": "rebuildable", "subject": "fixture",
+                    "source": "test", "observed_at_unix_ms": 1, "confidence": 100,
+                })
+                .to_string()
+            ],
+        )
+        .unwrap();
+        db.execute(
+            "UPDATE nodes SET kind = 'invalid-kind' WHERE name = 'bin'",
+            [],
+        )
+        .unwrap();
+        let response = call(
+            &mut service,
+            "diskgraph_candidates",
+            json!({"scope":scope,"target_bytes":u64::MAX}),
+        );
+        assert_eq!(payload(&response)["review_only"], true);
+        assert!(
+            payload(&response)["candidates"]
+                .as_array()
+                .is_some_and(|rows| !rows.is_empty())
+        );
+        assert_eq!(payload(&response)["complete"], true);
+        assert!(
+            payload(&response)["remaining_bytes"]
+                .as_str()
+                .and_then(|bytes| bytes.parse::<u64>().ok())
+                .is_some_and(|bytes| bytes > 0)
+        );
+        drop(project);
+    }
+
+    #[test]
+    fn incomplete_candidates_do_not_decode_the_full_revision() {
+        let (mut service, data) = service(ToolProfile::ReadFull, "incomplete-candidates");
+        let (project, root) = cargo_project("incomplete-candidates");
+        let scope = seed(&mut service, &root);
+        let db = rusqlite::Connection::open(data.path().join("data/diskgraph.sqlite")).unwrap();
+        db.execute(
+            "UPDATE snapshots SET snapshot_json = json_set(snapshot_json, '$.coverage.complete', json('false'))",
+            [],
+        )
+        .unwrap();
+        db.execute(
+            "UPDATE nodes SET kind = 'invalid-kind' WHERE name = 'bin'",
+            [],
+        )
+        .unwrap();
+        let response = call(
+            &mut service,
+            "diskgraph_candidates",
+            json!({"scope":scope,"target_bytes":1}),
+        );
+        assert_eq!(payload(&response)["candidates"], json!([]));
+        drop(project);
+    }
+
+    #[test]
+    fn impact_uses_entity_edges_without_decoding_unrelated_relations() {
+        let (mut service, data) = service(ToolProfile::ReadFull, "impact-narrow");
+        let (project, root) = cargo_project("impact-narrow");
+        std::fs::create_dir_all(root.join("other/target")).unwrap();
+        std::fs::write(root.join("other/Cargo.toml"), "[package]\nname='other'\n").unwrap();
+        std::fs::write(root.join("other/target/bin"), vec![0; 4096]).unwrap();
+        let scope = seed(&mut service, &root);
+        let revision = service
+            .engine()
+            .latest_revision(&ScopeId::new(scope.clone()).unwrap())
+            .unwrap()
+            .unwrap();
+        let graph = service.engine().load_revision(&revision).unwrap();
+        let target = graph
+            .nodes
+            .iter()
+            .find(|node| node.name == "target")
+            .unwrap();
+        let db = rusqlite::Connection::open(data.path().join("data/diskgraph.sqlite")).unwrap();
+        assert!(
+            db.execute(
+                "UPDATE relations SET edge_json = 'invalid JSON' WHERE source_entity_id != ?1",
+                [format!("resource-{}", target.id)],
+            )
+            .unwrap()
+                > 0
+        );
+        let response = call(
+            &mut service,
+            "diskgraph_impact",
+            json!({"scope":scope,"revision":revision,"entity":format!("resource-{}",target.id)}),
+        );
+        let entries = payload(&response)["entries"].as_array().unwrap();
+        assert!(
+            entries
+                .iter()
+                .any(|entry| entry["relation"] == "rebuildable_by"),
+            "{response}"
+        );
+        assert_eq!(payload(&response)["complete"], true);
+        drop(project);
     }
 }
 

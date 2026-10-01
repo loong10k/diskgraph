@@ -13,11 +13,13 @@ use std::time::Duration;
 
 use diskgraph_core::{
     Authorizer, BudgetDecision, BudgetUsage, BusinessError, CapacityReading, DiskGraph, Grant,
-    Locator, Permission, PolicyAuthorizer, PrincipalId, ResourceLocator, ResourceRef, ScanBudget,
-    ScanBudgetStop, ScanExclusions, ScanWindow, ScopeId, ServerId, StorageArea, Watermark,
+    Locator, Permission, PolicyAuthorizer, PrincipalId, QueryBudget, ResourceLocator, ResourceRef,
+    ScanBudget, ScanBudgetStop, ScanExclusions, ScanWindow, ScopeId, ServerId, StorageArea,
+    Watermark,
 };
 use diskgraph_store::{
-    ControlStore, JobKind, JobRecord, JobState, ScopeRecord, SqliteSnapshotStore, StoreError,
+    CandidateSelection, ControlStore, JobKind, JobRecord, JobState, ScopeRecord,
+    SqliteSnapshotStore, StoreError,
 };
 
 mod collectors;
@@ -25,14 +27,18 @@ pub mod content;
 pub mod live_evidence;
 mod queries;
 mod runner;
+mod scoped_file;
+#[cfg(test)]
+mod tests;
 pub mod verify;
 
 pub use collectors::{
     COLLECTOR_ID, COLLECTOR_VERSION, ProjectBatch, RULE_VERSION, collect_projects,
 };
 pub use queries::{
-    ExploreSummary, ImpactEntry, Propagation, cursor_context, explore, impact, impact_propagation,
-    incompatibility_name, search_nodes,
+    ExploreSummary, ImpactEntry, ImpactResult, Propagation, cursor_context, explore, impact,
+    impact_bounded, impact_bounded_with_neighbors, impact_propagation, incompatibility_name,
+    search_nodes,
 };
 pub use runner::JobRunner;
 
@@ -48,8 +54,12 @@ pub struct ComparisonReport {
     pub right_root: diskgraph_core::ResourceLocator,
     pub left_nodes: usize,
     pub right_nodes: usize,
+    /// 节点总数是否完成；查询期限中断时 0 不代表空 revision。
+    pub node_counts_complete: bool,
     pub rows: Vec<CompareRow>,
     pub summary: diskgraph_core::Summary,
+    /// 截断时 summary 仅描述已比较条目，不能解释为完整统计。
+    pub truncated: Option<&'static str>,
 }
 
 /// One path's comparison, owned so a report outlives the graphs it came from.
@@ -102,7 +112,11 @@ impl ComparisonReport {
                 "root": self.right_root,
                 "nodes": self.right_nodes,
             },
+            "node_counts_complete": self.node_counts_complete,
             "summary": self.summary,
+            "complete": self.truncated.is_none(),
+            "summary_is_partial": self.truncated.is_some(),
+            "truncation_reason": self.truncated,
             "actionable": self.summary.actionable(),
             "entries": shown.len(),
             "rows": shown,
@@ -133,6 +147,8 @@ pub struct RevisionGrowth {
 #[derive(Clone, Debug)]
 pub struct EngineConfig {
     pub data_dir: PathBuf,
+    /// 可信旧 FFI 数据库文件兼容入口；默认使用 data_dir/diskgraph.sqlite。
+    pub graph_database_path: Option<PathBuf>,
     /// Hard node budget per scan (RT-04). Exceeding it fails the job and
     /// never publishes a partial latest revision.
     pub max_nodes_per_scan: u64,
@@ -157,6 +173,7 @@ impl Default for EngineConfig {
     fn default() -> Self {
         Self {
             data_dir: PathBuf::from("diskgraph-data"),
+            graph_database_path: None,
             max_nodes_per_scan: 2_000_000,
             max_active_jobs_per_principal: 8,
             scan_budget: ScanBudget {
@@ -216,6 +233,7 @@ pub type Explanation = (
 /// The shared DiskGraph service: one data directory, two databases, durable jobs.
 pub struct Engine {
     data_dir: PathBuf,
+    graph_path: PathBuf,
     max_nodes_per_scan: u64,
     scan_budget: ScanBudget,
     capacity_watermark: Watermark,
@@ -253,10 +271,37 @@ impl Engine {
             permissions.set_mode(0o700);
             std::fs::set_permissions(&config.data_dir, permissions)?;
         }
-        let graph = SqliteSnapshotStore::open(&config.data_dir.join("diskgraph.sqlite"))?;
-        let control = ControlStore::open(&config.data_dir.join("diskgraph-control.sqlite"))?;
+        let graph_path = config
+            .graph_database_path
+            .clone()
+            .unwrap_or_else(|| config.data_dir.join("diskgraph.sqlite"));
+        let (mut graph, _) = SqliteSnapshotStore::open_with_backup(
+            &graph_path,
+            &config.data_dir.join("migration_backups"),
+        )?;
+        let mut control = ControlStore::open(&config.data_dir.join("diskgraph-control.sqlite"))?;
+        let server_id = control.ensure_server()?;
+        let roots = control
+            .list_scopes()?
+            .into_iter()
+            .map(|scope| {
+                (
+                    scope.scope_id.as_str().to_owned(),
+                    match scope.root.kind {
+                        diskgraph_core::LocatorKind::NativePath => {
+                            ResourceLocator::NativePath(scope.root.display().to_owned())
+                        }
+                        diskgraph_core::LocatorKind::DocumentUri => {
+                            ResourceLocator::DocumentUri(scope.root.display().to_owned())
+                        }
+                    },
+                )
+            })
+            .collect::<Vec<_>>();
+        graph.backfill_revision_ownership(server_id.as_str(), &roots)?;
         Ok(Self {
             data_dir: config.data_dir,
+            graph_path,
             max_nodes_per_scan: config.max_nodes_per_scan,
             scan_budget: config.scan_budget,
             capacity_watermark: config.capacity_watermark,
@@ -480,20 +525,23 @@ impl Engine {
         authorizer: &dyn Authorizer,
     ) -> Result<JobRecord, EngineError> {
         self.require(authorizer, principal, &Permission::IndexWrite, scope_id)?;
-        let mut control = self.control()?;
-        // A merge into an already-active job for this scope is free and never
-        // consumes quota (AI-03); only genuinely new jobs are counted.
-        if let Some(active) = control.active_job_for_scope(scope_id)? {
-            return Ok(active);
-        }
-        // Per-principal job quota (P4 task 5.5): merged jobs count once
-        // because the merge returns the existing record.
-        if control.active_job_count_for_principal(principal)?
-            >= u64::from(self.max_active_jobs_per_principal)
-        {
+        if !self.accepts_new_work() {
             return Err(EngineError::Business(BusinessError::ResourceExhausted));
         }
-        let job = control.create_job(scope_id, kind, principal)?;
+        let mut control = self.control()?;
+        if control.scope(scope_id)?.revoked {
+            return Err(EngineError::Store(StoreError::Conflict(format!(
+                "scope {scope_id} is revoked"
+            ))));
+        }
+        let job = control
+            .create_job_with_quota(
+                scope_id,
+                kind,
+                principal,
+                u64::from(self.max_active_jobs_per_principal),
+            )?
+            .ok_or(EngineError::Business(BusinessError::ResourceExhausted))?;
         drop(control);
         self.cancellations()?.entry(job.job_id.clone()).or_default();
         Ok(job)
@@ -509,8 +557,41 @@ impl Engine {
         offset: u64,
     ) -> Result<Vec<diskgraph_core::DiskSnapshot>, EngineError> {
         self.require(authorizer, principal, &Permission::MetadataRead, scope_id)?;
-        let root = ResourceLocator::NativePath(self.scope(scope_id)?.root.display().to_owned());
-        Ok(self.graph()?.list_snapshots(Some(&root), limit, offset)?)
+        if self.scope(scope_id)?.revoked {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        let server = self.server_id()?;
+        Ok(self.revision_reader()?.scope_snapshots(
+            server.as_str(),
+            scope_id.as_str(),
+            limit,
+            offset,
+        )?)
+    }
+
+    /// 回收 scope 旧历史；无 apply 时仅预览，引用关系不明确时保守保留。
+    pub fn prune_snapshots(
+        &self,
+        scope_id: &ScopeId,
+        keep_last: u64,
+        apply: bool,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<Vec<diskgraph_store::RevisionRecord>, EngineError> {
+        self.require(authorizer, principal, &Permission::IndexWrite, scope_id)?;
+        let server = self.server_id()?;
+        let mut graph = self.graph()?;
+        let mut control = self.control()?;
+        if control.scope(scope_id)?.revoked {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        Ok(control.with_retention_guard(scope_id, |safe| {
+            if safe {
+                graph.prune_revisions(server.as_str(), scope_id.as_str(), keep_last, apply)
+            } else {
+                Ok(Vec::new())
+            }
+        })?)
     }
 
     /// Pins or unpins one snapshot (C05 pin, retention protection).
@@ -574,36 +655,81 @@ impl Engine {
             &Permission::OperationView,
             &job.scope_id,
         )?;
+        self.control()?.request_cancel(job_id)?;
         if let Some(flag) = self.cancellations()?.get(job_id) {
             flag.store(true, Ordering::SeqCst);
         }
-        let mut control = self.control()?;
-        match control.cancel_queued(job_id) {
-            Ok(true) => Ok(()),
-            Ok(false) => Ok(()), // running: the runner will observe the flag
-            Err(error) => Err(error.into()),
-        }
+        Ok(())
     }
 
     /// Claims and runs one job to a terminal state, returning the durable
     /// record (RT-01: reconnection queries this instead of the connection).
     pub fn run_job(&self, job_id: &str, owner: &str) -> Result<JobRecord, EngineError> {
-        {
-            let mut control = self.control()?;
-            control.claim_job(job_id, owner)?;
-        }
-        let cancel = {
-            let mut cancellations = self.cancellations()?;
-            Arc::clone(cancellations.entry(job_id.to_owned()).or_default())
-        };
-        let outcome = self.execute_scan(job_id, owner, &cancel);
+        let claimed = self.control()?.claim_job_once(job_id, owner)?;
+        // An expired owner cannot write after the new claim. Reclaim only
+        // generations strictly older than the active fencing token.
+        self.graph()?
+            .clear_stale_job_staging(job_id, claimed.fencing_token)?;
+        // 每个认领代次独立取消标志；过期 owner 的标志不能取消新 owner。
+        let cancel = Arc::new(AtomicBool::new(false));
+        self.cancellations()?
+            .insert(job_id.to_owned(), Arc::clone(&cancel));
+        // 租约覆盖转换、staging 和 collector 阶段，不能只在扫描进度循环续租。
+        let outcome = std::thread::scope(|threads| {
+            let (stop, receiver) = std::sync::mpsc::channel();
+            let cancel_ref = &cancel;
+            let fence = claimed.fencing_token;
+            let keeper = threads.spawn(move || {
+                while receiver
+                    .recv_timeout(std::time::Duration::from_secs(5))
+                    .is_err()
+                {
+                    if self
+                        .control()
+                        .and_then(|mut store| {
+                            store
+                                .heartbeat_fenced(job_id, owner, fence)
+                                .map_err(EngineError::from)
+                        })
+                        .is_err()
+                    {
+                        cancel_ref.store(true, Ordering::SeqCst);
+                        break;
+                    }
+                }
+            });
+            let result = self.execute_scan(job_id, owner, claimed.fencing_token, &cancel);
+            let _ = stop.send(());
+            let _ = keeper.join();
+            result
+        });
         let final_state = if outcome.is_ok() {
             JobState::Completed
+        } else if self
+            .control()?
+            .cancellation_requested(job_id, claimed.fencing_token)?
+        {
+            JobState::Cancelled
         } else {
             JobState::Failed
         };
-        let record = self.control()?.finish_job(job_id, owner, final_state)?;
-        self.cancellations()?.remove(job_id);
+        if outcome.is_err() {
+            let staging_id = format!("{job_id}:{}", claimed.fencing_token);
+            self.graph()?.clear_staging(&staging_id)?;
+        }
+        let record =
+            self.control()?
+                .finish_job_fenced(job_id, owner, claimed.fencing_token, final_state)?;
+        self.graph()?
+            .clear_stale_job_staging(job_id, claimed.fencing_token)?;
+        let mut cancellations = self.cancellations()?;
+        if cancellations
+            .get(job_id)
+            .is_some_and(|current| Arc::ptr_eq(current, &cancel))
+        {
+            cancellations.remove(job_id);
+        }
+        drop(cancellations);
         outcome?;
         Ok(record)
     }
@@ -655,14 +781,18 @@ impl Engine {
 
     /// Every queued job across scopes; the job runner drains this list.
     pub fn queued_jobs(&self) -> Result<Vec<JobRecord>, EngineError> {
-        Ok(self.control()?.list_queued_jobs()?)
+        let mut control = self.control()?;
+        control.reap_unclaimable_jobs()?;
+        Ok(control.list_queued_jobs()?)
     }
 
     /// The latest published revision for a scope, if it has ever published.
     pub fn latest_revision(&self, scope_id: &ScopeId) -> Result<Option<String>, EngineError> {
-        let scope = self.control()?.scope(scope_id)?;
-        let root = ResourceLocator::NativePath(scope.root.display().to_owned());
-        Ok(self.graph()?.latest_revision_for_root(&root)?)
+        self.control()?.scope(scope_id)?;
+        let server = self.server_id()?;
+        Ok(self
+            .revision_reader()?
+            .latest_revision_for_scope(server.as_str(), scope_id.as_str())?)
     }
 
     /// Loads the v1 graph behind one published revision.
@@ -689,26 +819,41 @@ impl Engine {
         method: diskgraph_core::SyncMethod,
         tolerance_seconds: i64,
     ) -> Result<diskgraph_core::SyncPlan, EngineError> {
-        let left = self.load_revision(from_revision)?;
-        let right = self.load_revision(to_revision)?;
-        let (rows, _summary) = diskgraph_core::compare::compare(
-            left.root(),
-            &left.nodes,
-            right.root(),
-            &right.nodes,
-            tolerance_seconds,
-        );
-        // The index a comparison was read from is not content to synchronize.
-        // Copying it duplicates a live database; mirroring a tree that has one
-        // would delete the other tree's. It is named in the plan rather than
-        // dropped, because a plan that quietly skips something is a plan that
-        // reads as complete.
-        let excluded = self.index_paths_in_scope(left.root());
+        let report = self.compare_revisions(from_revision, to_revision, tolerance_seconds)?;
+        // 截断的比较不能生成看似完整的镜像/删除计划。
+        if report.truncated.is_some() {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        }
+        let left_root = self.revision_root_node(from_revision)?;
+        let right_root = self.revision_root_node(to_revision)?;
+        let entries = report
+            .rows
+            .iter()
+            .map(|row| {
+                let path = Path::new(&row.path);
+                Ok((
+                    self.revision_node_at(from_revision, path)?,
+                    self.revision_node_at(to_revision, path)?,
+                ))
+            })
+            .collect::<Result<Vec<_>, EngineError>>()?;
+        let rows = report
+            .rows
+            .iter()
+            .zip(&entries)
+            .map(|(row, (left, right))| diskgraph_core::compare::Comparison {
+                path: row.path.clone(),
+                verdict: row.verdict.clone(),
+                left: left.as_ref(),
+                right: right.as_ref(),
+            })
+            .collect::<Vec<_>>();
+        let excluded = self.index_paths_in_scope(&left_root);
         Ok(diskgraph_core::build_sync_plan(
             method,
             &rows,
-            &native_path(left.root())?,
-            &native_path(right.root())?,
+            &native_path(&left_root)?,
+            &native_path(&right_root)?,
             &excluded,
         ))
     }
@@ -742,56 +887,162 @@ impl Engine {
         }]
     }
 
-    /// Compares two published revisions, whatever their roots are.
-    ///
-    /// This is the one query that still loads both sides whole, because a
-    /// comparison has to see every path on both to know which are missing.
-    /// The report carries both node counts so a caller can see what that cost
-    /// before repeating it: a diff that walks both sides level by level is the
-    /// obvious next step, and until it exists, a four-million-node comparison
-    /// is a large request rather than a cheap one.
+    /// 以有序路径游标比较两份历史，不同时加载两棵完整树；截断时统计明确为局部。
     pub fn compare_revisions(
         &self,
         left_revision: &str,
         right_revision: &str,
         tolerance_seconds: i64,
     ) -> Result<ComparisonReport, EngineError> {
-        let left = self.load_revision(left_revision)?;
-        let right = self.load_revision(right_revision)?;
-        // The core comparison borrows the nodes it walks, and the two graphs
-        // are local here, so what leaves this function owns only what a
-        // caller needs to render a row: the path, the verdict, and the two
-        // sizes. A caller that wants whole nodes re-reads them by path.
-        let (compared, summary) = diskgraph_core::compare::compare(
-            left.root(),
-            &left.nodes,
-            right.root(),
-            &right.nodes,
+        self.compare_revisions_bounded(
+            left_revision,
+            right_revision,
             tolerance_seconds,
-        );
-        let rows = compared
-            .into_iter()
-            .map(|row| CompareRow {
-                path: row.path,
-                verdict: row.verdict,
-                left_bytes: row.left.map(|node| node.subtree_bytes),
-                right_bytes: row.right.map(|node| node.subtree_bytes),
-                is_file: row
-                    .left
-                    .or(row.right)
-                    .is_some_and(|node| node.kind == diskgraph_core::NodeKind::File),
-                digests: None,
+            diskgraph_core::QueryBudget::default(),
+        )
+    }
+
+    /// 使用指定节点、时间和响应预算执行历史比较，返回已逐条产出的结果。
+    pub fn compare_revisions_bounded(
+        &self,
+        left_revision: &str,
+        right_revision: &str,
+        tolerance_seconds: i64,
+        budget: diskgraph_core::QueryBudget,
+    ) -> Result<ComparisonReport, EngineError> {
+        let budget = budget.validated()?;
+        let left = SqliteSnapshotStore::open_reader(&self.graph_path, budget.deadline_ms, None)?;
+        let right = SqliteSnapshotStore::open_reader(&self.graph_path, budget.deadline_ms, None)?;
+        let left_snapshot = left.revision(left_revision)?.snapshot_id;
+        let right_snapshot = right.revision(right_revision)?.snapshot_id;
+        let left_root = left
+            .root_node(&left_snapshot)?
+            .ok_or(EngineError::Business(BusinessError::NotFound))?;
+        let right_root = right
+            .root_node(&right_snapshot)?
+            .ok_or(EngineError::Business(BusinessError::NotFound))?;
+        let left_path = native_path(&left_root)?;
+        let right_path = native_path(&right_root)?;
+        let started = std::time::Instant::now();
+        let mut rows = Vec::new();
+        let mut summary = diskgraph_core::Summary::default();
+        let result = left.with_ordered_nodes(&left_snapshot, &left_path, |left_iter| {
+            right.with_ordered_nodes(&right_snapshot, &right_path, |right_iter| {
+                let mut current_left = left_iter.next().transpose()?;
+                let mut current_right = right_iter.next().transpose()?;
+
+                let mut bytes = 0usize;
+                let mut reason = None;
+                while current_left.is_some() || current_right.is_some() {
+                    if rows.len() >= budget.max_nodes {
+                        reason = Some("node_limit");
+                        break;
+                    }
+                    if started.elapsed().as_millis() >= u128::from(budget.deadline_ms) {
+                        reason = Some("deadline");
+                        break;
+                    }
+                    let ordering = match (&current_left, &current_right) {
+                        (Some(left), Some(right)) => left.0.cmp(&right.0),
+                        (Some(_), None) => std::cmp::Ordering::Less,
+                        (None, Some(_)) => std::cmp::Ordering::Greater,
+                        _ => break,
+                    };
+                    let on_left = if ordering != std::cmp::Ordering::Greater {
+                        current_left.take()
+                    } else {
+                        None
+                    };
+                    let on_right = if ordering != std::cmp::Ordering::Less {
+                        current_right.take()
+                    } else {
+                        None
+                    };
+                    let path = on_left
+                        .as_ref()
+                        .or(on_right.as_ref())
+                        .expect("at least one node exists")
+                        .0
+                        .clone();
+                    let verdict = match (&on_left, &on_right) {
+                        (Some(left), Some(right)) => diskgraph_core::compare::compare_entry(
+                            &left.1,
+                            &right.1,
+                            tolerance_seconds,
+                        ),
+                        (Some(_), None) => diskgraph_core::Verdict::LeftOnly,
+                        _ => diskgraph_core::Verdict::RightOnly,
+                    };
+                    let row = CompareRow {
+                        path,
+                        verdict,
+                        left_bytes: on_left.as_ref().map(|node| node.1.subtree_bytes),
+                        right_bytes: on_right.as_ref().map(|node| node.1.subtree_bytes),
+                        is_file: on_left
+                            .as_ref()
+                            .or(on_right.as_ref())
+                            .is_some_and(|node| node.1.kind == diskgraph_core::NodeKind::File),
+                        digests: None,
+                    };
+                    let size = serde_json::to_vec(&row)?.len();
+                    if bytes.saturating_add(size) > budget.max_response_bytes {
+                        reason = Some("response_byte_limit");
+                        break;
+                    }
+                    bytes += size;
+                    match &row.verdict {
+                        diskgraph_core::Verdict::LeftOnly => summary.left_only += 1,
+                        diskgraph_core::Verdict::RightOnly => summary.right_only += 1,
+                        diskgraph_core::Verdict::Same { .. } => summary.same += 1,
+                        diskgraph_core::Verdict::Different { reason } => {
+                            summary.different += 1;
+                            if *reason == diskgraph_core::DifferentReason::UnknownSize {
+                                summary.unknown += 1;
+                            }
+                        }
+                    }
+                    rows.push(row);
+                    if ordering != std::cmp::Ordering::Greater {
+                        current_left = left_iter.next().transpose()?;
+                    }
+                    if ordering != std::cmp::Ordering::Less {
+                        current_right = right_iter.next().transpose()?;
+                    }
+                }
+                Ok(reason)
             })
-            .collect();
+        });
+        let mut truncated = match result {
+            Ok(reason) => reason,
+            Err(error) if error.is_interrupted() => Some("deadline"),
+            Err(error) => return Err(error.into()),
+        };
+        let mut node_counts_complete = true;
+        let mut count =
+            |store: &SqliteSnapshotStore, snapshot: &str| -> Result<usize, EngineError> {
+                match store.node_count(snapshot) {
+                    Ok(value) => Ok(value as usize),
+                    Err(error) if error.is_interrupted() => {
+                        node_counts_complete = false;
+                        truncated = Some("deadline");
+                        Ok(0)
+                    }
+                    Err(error) => Err(error.into()),
+                }
+            };
+        let left_nodes = count(&left, &left_snapshot)?;
+        let right_nodes = count(&right, &right_snapshot)?;
         Ok(ComparisonReport {
             left_revision: left_revision.to_owned(),
             right_revision: right_revision.to_owned(),
-            left_root: left.root().locator.clone(),
-            right_root: right.root().locator.clone(),
-            left_nodes: left.nodes.len(),
-            right_nodes: right.nodes.len(),
+            left_root: left_root.locator,
+            right_root: right_root.locator,
+            left_nodes,
+            right_nodes,
+            node_counts_complete,
             rows,
             summary,
+            truncated,
         })
     }
 
@@ -837,6 +1088,95 @@ impl Engine {
         }
     }
 
+    /// Reads one bounded relation page after resolving the revision's real scope.
+    #[allow(clippy::too_many_arguments)] // Mirrors the existing related() API plus a page cursor.
+    pub fn related_page(
+        &self,
+        revision_id: &str,
+        entity_id: &str,
+        outgoing: bool,
+        after_edge_id: Option<&str>,
+        limit: u64,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool), EngineError> {
+        let graph = self.revision_reader()?;
+        self.authorize_revision_with_reader(&graph, None, revision_id, principal, authorizer)?;
+        let revision = graph.revision(revision_id)?;
+        if outgoing {
+            Ok(graph.edges_from_page(&revision.snapshot_id, entity_id, after_edge_id, limit)?)
+        } else {
+            Ok(graph.edges_to_page(&revision.snapshot_id, entity_id, after_edge_id, limit)?)
+        }
+    }
+
+    /// 一次影响查询共享一个授权结果与只读连接，避免每个实体重新打开数据库。
+    pub fn revision_impact(
+        &self,
+        revision_id: &str,
+        entity_id: &str,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<ImpactResult, EngineError> {
+        let reader = self.revision_reader()?;
+        self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
+        let snapshot_id = reader.revision(revision_id)?.snapshot_id;
+        let mut interrupted = false;
+        let mut answer = impact_bounded_with_neighbors::<EngineError, _>(
+            entity_id,
+            budget,
+            |current, outgoing, limit| {
+                let page = if outgoing {
+                    reader.edges_from_page(&snapshot_id, current, None, limit as u64)
+                } else {
+                    reader.edges_to_page(&snapshot_id, current, None, limit as u64)
+                };
+                let (edges, more) = match page {
+                    Ok(page) => page,
+                    Err(error) if error.is_interrupted() => {
+                        interrupted = true;
+                        return Ok((Vec::new(), true));
+                    }
+                    Err(error) => return Err(error.into()),
+                };
+                Ok((
+                    edges
+                        .into_iter()
+                        .map(|edge| {
+                            let neighbour = if outgoing {
+                                edge.target_entity_id
+                            } else {
+                                edge.source_entity_id
+                            };
+                            (neighbour, edge.relation)
+                        })
+                        .collect(),
+                    more,
+                ))
+            },
+        )?;
+        if interrupted {
+            answer.truncated = Some(diskgraph_core::TruncationReason::Deadline);
+        }
+        Ok(answer)
+    }
+
+    /// 按 revision 的持久归属授权，再通过请求专用只读连接选择有界候选。
+    pub fn review_candidates(
+        &self,
+        revision_id: &str,
+        target_bytes: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<CandidateSelection, EngineError> {
+        let reader = self.revision_reader()?;
+        self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
+        let snapshot_id = reader.revision(revision_id)?.snapshot_id;
+        Ok(reader.candidate_selection(&snapshot_id, target_bytes, budget)?)
+    }
+
     /// Every typed edge of one published revision, for relation-shaped
     /// traversals (impact and friends).
     pub fn all_edges(
@@ -850,19 +1190,117 @@ impl Engine {
 
     fn require_read_for_revision(
         &self,
-        _revision_id: &str,
+        revision_id: &str,
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<(), EngineError> {
-        // P2: relations live in the shared graph index; reads authorize
-        // against metadata:read on the admin scope until per-scope graph
-        // namespaces arrive (ST-04 full semantics, tracked for P2 wrap-up).
-        self.require(
-            authorizer,
+        self.authorize_revision(None, revision_id, principal, authorizer)
+            .map(|_| ())
+    }
+
+    /// 按持久化归属解析 revision 并授权；客户端 scope 只能作为一致性断言。
+    pub fn authorize_revision(
+        &self,
+        expected_scope: Option<&ScopeId>,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<ScopeId, EngineError> {
+        let reader = self.revision_reader()?;
+        self.authorize_revision_with_reader(
+            &reader,
+            expected_scope,
+            revision_id,
             principal,
-            &Permission::MetadataRead,
-            &admin_scope(),
+            authorizer,
         )
+    }
+
+    fn authorize_revision_with_reader(
+        &self,
+        reader: &SqliteSnapshotStore,
+        expected_scope: Option<&ScopeId>,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<ScopeId, EngineError> {
+        let ownership = reader.revision_ownership(revision_id)?;
+        let (server, scope) =
+            ownership.ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
+        let scope = ScopeId::new(scope)
+            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
+        if server != self.server_id()?.as_str()
+            || expected_scope.is_some_and(|expected| expected != &scope)
+            || self.scope(&scope)?.revoked
+        {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        self.require(authorizer, principal, &Permission::MetadataRead, &scope)?;
+        Ok(scope)
+    }
+
+    /// 旧 snapshot API 经 revision 的实际归属授权；未绑定历史明确要求重新索引。
+    pub fn authorize_snapshot(
+        &self,
+        snapshot_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<(), EngineError> {
+        let revision = self
+            .revision_reader()?
+            .revision_for_snapshot(snapshot_id)?
+            .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
+        self.authorize_revision(None, &revision, principal, authorizer)?;
+        Ok(())
+    }
+
+    /// 请求专用只读连接，不持有共享写锁。
+    pub fn revision_reader(&self) -> Result<SqliteSnapshotStore, EngineError> {
+        Ok(SqliteSnapshotStore::open_reader(
+            &self.graph_path,
+            1000,
+            None,
+        )?)
+    }
+
+    /// 读取 revision 的快照元信息，避免加载所有节点。
+    pub fn revision_snapshot(
+        &self,
+        revision_id: &str,
+    ) -> Result<diskgraph_core::DiskSnapshot, EngineError> {
+        let reader = self.revision_reader()?;
+        Ok(reader.snapshot(&reader.revision(revision_id)?.snapshot_id)?)
+    }
+
+    /// 读取指定 revision 中单个节点。
+    pub fn revision_node(
+        &self,
+        revision_id: &str,
+        node_id: u64,
+    ) -> Result<diskgraph_core::DiskNode, EngineError> {
+        let reader = self.revision_reader()?;
+        reader
+            .node(&reader.revision(revision_id)?.snapshot_id, node_id)?
+            .ok_or(EngineError::Business(BusinessError::NotFound))
+    }
+
+    /// 读取目录的一页，保留 offset 和未知大小计数兼容字段。
+    pub fn revision_children_page(
+        &self,
+        revision_id: &str,
+        parent_id: u64,
+        minimum: Option<u64>,
+        offset: u64,
+        limit: u64,
+    ) -> Result<(Vec<diskgraph_core::DiskNode>, Option<u64>, u64), EngineError> {
+        let reader = self.revision_reader()?;
+        Ok(reader.children_page(
+            &reader.revision(revision_id)?.snapshot_id,
+            parent_id,
+            minimum,
+            offset,
+            limit.min(100),
+        )?)
     }
 
     /// The root node of a published revision - the entry a du-style summary
@@ -871,7 +1309,7 @@ impl Engine {
         &self,
         revision_id: &str,
     ) -> Result<diskgraph_core::DiskNode, EngineError> {
-        let graph = self.graph()?;
+        let graph = self.revision_reader()?;
         let record = graph.revision(revision_id)?;
         graph
             .root_node(&record.snapshot_id)?
@@ -892,7 +1330,7 @@ impl Engine {
         relative: &std::path::Path,
     ) -> Result<Option<diskgraph_core::DiskNode>, EngineError> {
         use diskgraph_core::ResourceLocator;
-        let graph = self.graph()?;
+        let graph = self.revision_reader()?;
         let record = graph.revision(revision_id)?;
         let mut current = match graph.root_node(&record.snapshot_id)? {
             Some(root) => root,
@@ -932,7 +1370,7 @@ impl Engine {
         // released before the node lookups: those take the same lock, and
         // holding it across them would wait on this thread's own guard.
         {
-            let graph = self.graph()?;
+            let graph = self.revision_reader()?;
             let before_record = graph.revision(before_revision)?;
             let after_record = graph.revision(after_revision)?;
             let before_snapshot = graph.snapshot(&before_record.snapshot_id)?;
@@ -964,6 +1402,46 @@ impl Engine {
         }))
     }
 
+    /// 有界历史变化，字段兼容；截断统计明确标为部分结果。调用方须先授权两个 revision。
+    pub fn revision_changes(
+        &self,
+        before: &str,
+        after: &str,
+    ) -> Result<serde_json::Value, EngineError> {
+        let previous = self.revision_snapshot(before)?;
+        let current = self.revision_snapshot(after)?;
+        let incompatible = if previous.root != current.root {
+            Some("different_root")
+        } else if previous.volume_id.is_none() || current.volume_id.is_none() {
+            Some("unknown_volume")
+        } else if previous.volume_id != current.volume_id {
+            Some("different_volume")
+        } else if previous.settings != current.settings {
+            Some("different_settings")
+        } else if previous.captured_at_unix_ms > current.captured_at_unix_ms {
+            Some("out_of_order")
+        } else if !previous.coverage.complete || !current.coverage.complete {
+            Some("incomplete_coverage")
+        } else {
+            None
+        };
+        if let Some(reason) = incompatible {
+            return Ok(
+                serde_json::json!({"incompatible":reason,"added":0,"removed":0,"size_changed":0,"complete":true,"summary_is_partial":false}),
+            );
+        }
+        let report = self.compare_revisions(before, after, 0)?;
+        Ok(serde_json::json!({
+            "incompatible": null,
+            "added": report.summary.right_only,
+            "removed": report.summary.left_only,
+            "size_changed": report.rows.iter().filter(|row| row.left_bytes.is_some() && row.right_bytes.is_some() && row.left_bytes != row.right_bytes).count(),
+            "complete": report.truncated.is_none(),
+            "summary_is_partial": report.truncated.is_some(),
+            "truncation_reason": report.truncated,
+        }))
+    }
+
     /// One directory level of a published revision: the node itself and its
     /// children, ordered by observed size. The interactive surface loads a
     /// level at a time, so a multi-million-node index opens without
@@ -974,13 +1452,39 @@ impl Engine {
         parent_id: u64,
         limit: usize,
     ) -> Result<(diskgraph_core::DiskNode, Vec<diskgraph_core::DiskNode>), EngineError> {
-        let graph = self.graph()?;
+        let (node, children, _) = self.revision_layer_page(revision_id, parent_id, 0, limit)?;
+        Ok((node, children))
+    }
+
+    /// A directory page with an explicit next-page indicator for wide folders.
+    pub fn revision_layer_page(
+        &self,
+        revision_id: &str,
+        parent_id: u64,
+        offset: u64,
+        limit: usize,
+    ) -> Result<
+        (
+            diskgraph_core::DiskNode,
+            Vec<diskgraph_core::DiskNode>,
+            bool,
+        ),
+        EngineError,
+    > {
+        let graph = self.revision_reader()?;
         let record = graph.revision(revision_id)?;
         let node = graph
             .node(&record.snapshot_id, parent_id)?
             .ok_or(EngineError::Business(BusinessError::NotFound))?;
-        let children = graph.children(&record.snapshot_id, parent_id, 0, limit as u64)?;
-        Ok((node, children))
+        let mut children = graph.children(
+            &record.snapshot_id,
+            parent_id,
+            offset,
+            (limit as u64).saturating_add(1),
+        )?;
+        let more = children.len() > limit;
+        children.truncate(limit);
+        Ok((node, children, more))
     }
 
     /// A depth-bounded tree view of a published revision. Uses the store's
@@ -996,62 +1500,157 @@ impl Engine {
         depth: usize,
         min_bytes: u64,
     ) -> Result<diskgraph_core::TreeView, EngineError> {
-        let record = self.scope(scope_id)?;
-        if record.revoked {
-            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        self.authorize_revision(Some(scope_id), revision_id, principal, authorizer)?;
+        self.tree_view_bounded(
+            revision_id,
+            depth,
+            min_bytes,
+            diskgraph_core::QueryBudget::default(),
+        )
+    }
+
+    /// 按层读取树；节点、期限和响应字节预算耗尽时返回明确截断诊断。
+    /// 可信内部调用必须先经 authorize_revision 验证请求主体。
+    pub fn tree_view_bounded(
+        &self,
+        revision_id: &str,
+        depth: usize,
+        min_bytes: u64,
+        budget: diskgraph_core::QueryBudget,
+    ) -> Result<diskgraph_core::TreeView, EngineError> {
+        let budget = budget.validated()?;
+        let reader = SqliteSnapshotStore::open_reader(&self.graph_path, budget.deadline_ms, None)?;
+        let snapshot = reader.revision(revision_id)?.snapshot_id;
+        let root = reader
+            .root_node(&snapshot)?
+            .ok_or(EngineError::Business(BusinessError::NotFound))?;
+        let root_id = root.id;
+        let started = std::time::Instant::now();
+        let mut nodes = vec![(root, 0usize)];
+        let mut children = HashMap::<u64, Vec<u64>>::new();
+        let mut counts = HashMap::<u64, (u64, u64)>::new();
+        let mut bytes = serde_json::to_vec(&nodes[0].0)
+            .map_err(StoreError::from)?
+            .len();
+        if bytes > budget.max_response_bytes {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded));
         }
-        self.require(authorizer, principal, &Permission::MetadataRead, scope_id)?;
-        let snapshot_id = {
-            let graph = self.graph()?;
-            graph.revision(revision_id)?.snapshot_id
-        };
-        let rows = {
-            let graph = self.graph()?;
-            graph.tree_rows(&snapshot_id)?
-        };
-        if rows.is_empty() {
-            // Pre-v4 snapshot: take the full-load path so old history works.
-            let graph = self.load_revision(revision_id)?;
-            return diskgraph_core::render_tree(&graph, depth, min_bytes)
-                .map_err(|_| EngineError::Business(BusinessError::NotFound));
-        }
-        let nodes: Vec<diskgraph_core::TreeNode<'_>> = rows
-            .iter()
-            .map(
-                |(
-                    id,
-                    parent_id,
-                    name,
-                    kind,
-                    subtree_bytes,
-                    direct_bytes,
-                    files,
-                    directories,
-                    read_error,
-                    category,
-                )| {
-                    diskgraph_core::TreeNode {
-                        id: *id,
-                        parent_id: *parent_id,
-                        name: name.as_str(),
-                        kind: match kind.as_str() {
-                            "directory" => diskgraph_core::NodeKind::Directory,
-                            "file" => diskgraph_core::NodeKind::File,
-                            "symlink" => diskgraph_core::NodeKind::Symlink,
-                            _ => diskgraph_core::NodeKind::Other,
-                        },
-                        subtree_bytes: *subtree_bytes as u64,
-                        direct_bytes: *direct_bytes as u64,
-                        files: *files as u64,
-                        directories: *directories as u64,
-                        read_error: *read_error != 0,
-                        category_hint: category.as_deref(),
+        let mut reason = None;
+        let mut index = 0;
+        while index < nodes.len() {
+            let (node, level) = &nodes[index];
+            let (id, level) = (node.id, *level);
+            if started.elapsed().as_millis() >= u128::from(budget.deadline_ms) {
+                reason = Some("deadline");
+                break;
+            }
+            let (all, kept) = match reader.child_counts(&snapshot, id, min_bytes) {
+                Ok(counts) => counts,
+                Err(error) if error.is_interrupted() => {
+                    reason = Some("deadline");
+                    break;
+                }
+                Err(error) => return Err(error.into()),
+            };
+            counts.insert(id, (all, kept));
+            if level >= depth.min(budget.max_depth) {
+                index += 1;
+                continue;
+            }
+            if nodes.len() >= budget.max_nodes {
+                if kept > 0 {
+                    reason = Some("node_limit");
+                }
+                index += 1;
+                continue;
+            }
+            let remaining = budget.max_nodes - nodes.len();
+            let page =
+                match reader.children_page(&snapshot, id, Some(min_bytes), 0, remaining as u64) {
+                    Ok(page) => page,
+                    Err(error) if error.is_interrupted() => {
+                        reason = Some("deadline");
+                        break;
                     }
-                },
-            )
-            .collect();
-        diskgraph_core::render_tree_rows(&nodes, depth, min_bytes)
-            .map_err(|_| EngineError::Business(BusinessError::NotFound))
+                    Err(error) => return Err(error.into()),
+                };
+            // tree 保留未知大小对象；children_page 的已知大小过滤仅用于普通目录列表。
+            let page = if page.2 > 0 {
+                match reader.children(&snapshot, id, 0, remaining as u64) {
+                    Ok(page) => page,
+                    Err(error) if error.is_interrupted() => {
+                        reason = Some("deadline");
+                        break;
+                    }
+                    Err(error) => return Err(error.into()),
+                }
+            } else {
+                page.0
+            };
+            let mut ids = Vec::new();
+            for child in page {
+                if child.subtree_bytes < min_bytes {
+                    continue;
+                }
+                let size = serde_json::to_vec(&child).map_err(StoreError::from)?.len();
+                if bytes.saturating_add(size) > budget.max_response_bytes {
+                    reason = Some("response_byte_limit");
+                    break;
+                }
+                bytes += size;
+                ids.push(child.id);
+                nodes.push((child, level + 1));
+            }
+            if (ids.len() as u64) < kept && reason.is_none() {
+                reason = Some("node_limit");
+            }
+            children.insert(id, ids);
+            index += 1;
+            if reason == Some("response_byte_limit") {
+                break;
+            }
+        }
+        let nodes_read = nodes.len();
+        let mut rendered = HashMap::<u64, serde_json::Value>::new();
+        for (node, level) in nodes.into_iter().rev() {
+            let mut value = serde_json::json!({"name":node.name, "kind":node.kind, "size_bytes":node.subtree_bytes, "own_bytes":node.direct_bytes, "files":node.files, "dirs":node.directories});
+            if let Some(category) = node.category_hint {
+                value["category_hint"] = serde_json::json!(category);
+            }
+            if node.read_error {
+                value["read_error"] = serde_json::json!(true);
+            }
+            let (all, kept) = counts.get(&node.id).copied().unwrap_or((0, 0));
+            let ids = children.remove(&node.id).unwrap_or_default();
+            if level < depth.min(budget.max_depth) && all > 0 {
+                let shown = ids.len() as u64;
+                value["children"] = serde_json::json!(
+                    ids.into_iter()
+                        .filter_map(|id| rendered.remove(&id))
+                        .collect::<Vec<_>>()
+                );
+                if all > kept {
+                    value["hidden_below_min_bytes"] = serde_json::json!(all - kept);
+                }
+                if shown < kept {
+                    value["truncated"] = serde_json::json!(true);
+                    value["children_count"] = serde_json::json!(all);
+                }
+            } else if all > 0 {
+                value["truncated"] = serde_json::json!(true);
+                value["children_count"] = serde_json::json!(all);
+            }
+            rendered.insert(node.id, value);
+        }
+        let mut root = rendered
+            .remove(&root_id)
+            .ok_or(EngineError::Business(BusinessError::NotFound))?;
+        if let Some(reason) = reason {
+            root["truncated"] = serde_json::json!(true);
+            root["truncation_reason"] = serde_json::json!(reason);
+            root["nodes_read"] = serde_json::json!(nodes_read);
+        }
+        Ok(diskgraph_core::TreeView { root })
     }
 
     /// Full reference for one node inside a published revision (SC-02 shape).
@@ -1074,10 +1673,25 @@ impl Engine {
         &self,
         job_id: &str,
         owner: &str,
+        fence: u64,
         cancel: &AtomicBool,
     ) -> Result<(), EngineError> {
         let job = self.control()?.job(job_id)?;
+        if job.fencing_token != fence || job.owner != owner {
+            return Err(StoreError::StaleOwner.into());
+        }
         let scope = self.control()?.scope(&job.scope_id)?;
+        if scope.revoked {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        if self.control()?.policy_state()?.is_some() {
+            self.require(
+                &self.policy_authorizer()?,
+                &job.principal,
+                &Permission::IndexWrite,
+                &job.scope_id,
+            )?;
+        }
         let root = scope.root.to_native_path().map_err(|error| {
             EngineError::Store(StoreError::InvalidGraph(format!(
                 "scope root is not addressable on this platform: {error}"
@@ -1088,11 +1702,46 @@ impl Engine {
         // options that produced it, so two snapshots are only comparable when
         // they were configured the same way.
         let started_at_unix_ms = now_ms();
+        let mut last_heartbeat = started_at_unix_ms;
+        let staging_id = format!("{job_id}:{}", job.fencing_token);
         let options = self.scan_options.clone();
         let handle =
             diskgraph_disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
+        let mut exceeded = false;
         let tree = loop {
-            if cancel.load(Ordering::SeqCst) {
+            if now_ms().saturating_sub(last_heartbeat) >= 5000 {
+                if self
+                    .control()?
+                    .heartbeat_fenced(job_id, owner, job.fencing_token)
+                    .is_err()
+                {
+                    handle.cancel();
+                    return Err(EngineError::Store(StoreError::StaleOwner));
+                }
+                last_heartbeat = now_ms();
+            }
+            let progress = handle.progress.snapshot();
+            if progress.files.saturating_add(progress.dirs)
+                > self.max_nodes_per_scan.min(self.scan_budget.max_nodes)
+                || now_ms().saturating_sub(started_at_unix_ms) > self.scan_budget.max_duration_ms
+            {
+                exceeded = true;
+                handle.cancel();
+            }
+            if cancel.load(Ordering::SeqCst)
+                || self.control()?.cancellation_requested(job_id, fence)?
+                || self.scope(&job.scope_id)?.revoked
+                || (self.control()?.policy_state()?.is_some()
+                    && !matches!(
+                        self.policy_authorizer()?.decide(
+                            &job.principal,
+                            &Permission::IndexWrite,
+                            &job.scope_id
+                        ),
+                        diskgraph_core::Decision::Allowed
+                    ))
+            {
+                cancel.store(true, Ordering::SeqCst);
                 handle.cancel();
             }
             match handle.poll() {
@@ -1100,6 +1749,9 @@ impl Engine {
                 None => thread::sleep(Duration::from_millis(20)),
             }
         };
+        if exceeded {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        }
         let tree = tree.map_err(|error| {
             if cancel.load(Ordering::SeqCst) {
                 EngineError::Business(BusinessError::Conflict)
@@ -1108,6 +1760,7 @@ impl Engine {
             }
         })?;
         let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))?;
+        drop(tree);
         let window = ScanWindow {
             started_at_unix_ms,
             finished_at_unix_ms: now_ms(),
@@ -1129,7 +1782,7 @@ impl Engine {
         // RT-04: the configured node ceiling is a hard refusal.
         if scanned.nodes.len() as u64 > self.max_nodes_per_scan {
             let mut graph = self.graph()?;
-            let _ = graph.clear_staging(job_id);
+            let _ = graph.clear_staging(&staging_id);
             return Err(EngineError::Business(BusinessError::BudgetExceeded));
         }
 
@@ -1140,10 +1793,19 @@ impl Engine {
         // ancestor would otherwise bill the same file again, so a deep tree
         // would multiply its real size by its depth and stop on phantom bytes.
         for node in &scanned.nodes {
-            match self
-                .scan_budget
-                .charge_node(&mut usage, node.v1.direct_bytes)
-            {
+            match self.scan_budget.charge_node(
+                &mut usage,
+                (serde_json::to_vec(&node.v1)
+                    .map_err(StoreError::from)?
+                    .len()
+                    + node.v1.name.to_lowercase().len()
+                    + (match &node.v1.locator {
+                        diskgraph_core::ResourceLocator::NativePath(path)
+                        | diskgraph_core::ResourceLocator::DocumentUri(path) => path,
+                    })
+                    .to_lowercase()
+                    .len()) as u64,
+            ) {
                 BudgetDecision::Continue => {}
                 BudgetDecision::Stop(stop) => {
                     budget_stop = Some(stop);
@@ -1170,7 +1832,7 @@ impl Engine {
             );
             let _ = total_bytes;
             let mut graph = self.graph()?;
-            let _ = graph.clear_staging(job_id);
+            let _ = graph.clear_staging(&staging_id);
             return Err(EngineError::Business(match stop {
                 ScanBudgetStop::Cancelled => BusinessError::Conflict,
                 _ => BusinessError::BudgetExceeded,
@@ -1180,52 +1842,86 @@ impl Engine {
         // Stage in bounded batches, then publish snapshot + revision + latest
         // pointer in one transaction (ST-01).
         let mut graph = self.graph()?;
-        for batch in scanned.nodes.chunks(512) {
-            graph.append_staging_nodes(
-                job_id,
-                &batch.iter().map(|node| node.v1.clone()).collect::<Vec<_>>(),
-            )?;
+        for batch in scanned
+            .nodes
+            .chunks(self.scan_budget.write_batch_nodes.max(1) as usize)
+        {
+            if !self.accepts_new_work() {
+                graph.clear_staging(&staging_id)?;
+                return Err(EngineError::Business(BusinessError::ResourceExhausted));
+            }
+            self.control()?
+                .heartbeat_fenced(job_id, owner, job.fencing_token)?;
+            self.control()?
+                .with_job_fence(job_id, owner, job.fencing_token, || {
+                    graph.append_staging_iter(&staging_id, batch.iter().map(|node| &node.v1))
+                })?;
         }
         let v1_nodes: Vec<diskgraph_core::DiskNode> =
-            scanned.nodes.iter().map(|node| node.v1.clone()).collect();
+            scanned.nodes.into_iter().map(|node| node.v1).collect();
         let revision_id = format!("rev-{}", uuid::Uuid::new_v4());
         let published_at = now_ms();
         let observed_graph = DiskGraph {
-            snapshot: scanned.snapshot.clone(),
+            snapshot: scanned.snapshot,
             nodes: v1_nodes,
             evidence: scanned.evidence,
         };
-        let result = graph.publish_revision(job_id, &observed_graph, &revision_id, published_at);
+        if !self.accepts_new_work() {
+            graph.clear_staging(&staging_id)?;
+            return Err(EngineError::Business(BusinessError::ResourceExhausted));
+        }
+        // 撤权和发布共用控制库锁，防止检查通过后撤权仍发布。
+        let mut control = self.control()?;
+        if control.scope(&job.scope_id)?.revoked || cancel.load(Ordering::SeqCst) {
+            graph.clear_staging(&staging_id)?;
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        if control.policy_state()?.is_some() {
+            self.require(
+                &control.authorizer()?,
+                &job.principal,
+                &Permission::IndexWrite,
+                &job.scope_id,
+            )?;
+        }
+        let server_id = control.ensure_server()?;
+        control.heartbeat_fenced(job_id, owner, job.fencing_token)?;
+        let result = control.with_job_fence(job_id, owner, job.fencing_token, || {
+            graph.publish_revision_owned(
+                &staging_id,
+                &observed_graph,
+                &revision_id,
+                published_at,
+                Some((server_id.as_str(), job.scope_id.as_str())),
+            )
+        });
+        drop(control);
         if let Err(error) = result {
-            let _ = graph.clear_staging(job_id);
-            let _ = self.control()?.finish_job(job_id, owner, JobState::Failed);
+            let _ = graph.clear_staging(&staging_id);
             return Err(error.into());
         }
 
         // Deterministic collectors run against the just-published snapshot and
         // bind their run to the revision as the active evidence batch (EV-05).
         // A collector failure fails the job but never un-publishes the scan.
+        drop(graph);
         let batch = collect_projects(&observed_graph);
+        let mut graph = self.graph()?;
         if !batch.edges.is_empty() || !batch.entities.is_empty() {
-            let recorded = graph.record_collector_batch(
-                &observed_graph.snapshot.id,
-                &batch.run,
-                &batch.entities,
-                &batch.evidence,
-                &batch.edges,
-            );
-            match recorded {
-                Ok(()) => {
+            self.control()?
+                .with_job_fence(job_id, owner, job.fencing_token, || {
+                    graph.record_collector_batch(
+                        &observed_graph.snapshot.id,
+                        &batch.run,
+                        &batch.entities,
+                        &batch.evidence,
+                        &batch.edges,
+                    )?;
                     graph.bind_runs_to_revision(
                         &revision_id,
                         &[(batch.run.run_id.as_str(), "active")],
-                    )?;
-                }
-                Err(error) => {
-                    let _ = self.control()?.finish_job(job_id, owner, JobState::Failed);
-                    return Err(error.into());
-                }
-            }
+                    )
+                })?;
         }
         Ok(())
     }
@@ -1278,20 +1974,21 @@ impl Engine {
     /// Per-area capacity readings with each area's verdict.
     pub fn capacity_report(&self) -> Vec<CapacityReading> {
         let readings = vec![
-            (
-                StorageArea::GraphDatabase,
-                self.data_dir.join("diskgraph.sqlite"),
-            ),
+            (StorageArea::GraphDatabase, self.graph_path.clone()),
             (
                 StorageArea::ControlDatabase,
                 self.data_dir.join("diskgraph-control.sqlite"),
             ),
-            (
-                StorageArea::WriteAheadLog,
-                self.data_dir.join("diskgraph.sqlite-wal"),
-            ),
+            (StorageArea::WriteAheadLog, {
+                let mut wal = self.graph_path.as_os_str().to_os_string();
+                wal.push("-wal");
+                PathBuf::from(wal)
+            }),
             (StorageArea::Staging, self.data_dir.join("quarantine")),
-            (StorageArea::Backups, self.data_dir.join("backups")),
+            (
+                StorageArea::Backups,
+                self.data_dir.join("migration_backups"),
+            ),
             (StorageArea::Logs, self.data_dir.join("logs")),
             (StorageArea::Quarantine, self.data_dir.join("quarantine")),
         ];
@@ -1314,25 +2011,62 @@ impl Engine {
     /// anything: existing indexes, control records, and quarantined objects
     /// are left exactly as they are.
     pub fn accepts_new_work(&self) -> bool {
-        self.capacity_report()
-            .iter()
-            .all(|reading| reading.verdict.accepts_new_work())
+        self.capacity_watermark
+            .verdict(directory_bytes(&self.data_dir))
+            .accepts_new_work()
+            && self
+                .capacity_report()
+                .iter()
+                .all(|reading| reading.verdict.accepts_new_work())
+            && volume_headroom(&self.data_dir).is_some_and(|free| free >= 64 * 1024 * 1024)
+    }
+}
+
+/// 读取卷的可用字节；容量门禁无法测量时拒绝新工作。
+fn volume_headroom(path: &Path) -> Option<u64> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStrExt;
+        let path = std::ffi::CString::new(path.as_os_str().as_bytes()).ok()?;
+        let mut stat = std::mem::MaybeUninit::<libc::statvfs>::uninit();
+        // 安全性：路径以 NUL 结尾，成功调用后 stat 完整初始化。
+        if unsafe { libc::statvfs(path.as_ptr(), stat.as_mut_ptr()) } != 0 {
+            return None;
+        }
+        let stat = unsafe { stat.assume_init() };
+        Some((stat.f_bavail as u64).saturating_mul(stat.f_frsize))
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = path;
+        None
     }
 }
 
 /// Total bytes under a path, or zero when it does not exist.
 fn directory_bytes(path: &std::path::Path) -> u64 {
-    let metadata = match std::fs::symlink_metadata(path) {
-        Ok(metadata) => metadata,
-        Err(_) => return 0,
-    };
-    if metadata.is_file() {
-        return metadata.len();
-    }
+    let mut pending = vec![path.to_path_buf()];
     let mut total = 0u64;
-    if let Ok(entries) = std::fs::read_dir(path) {
-        for entry in entries.flatten() {
-            total = total.saturating_add(directory_bytes(&entry.path()));
+    while let Some(path) = pending.pop() {
+        let metadata = match std::fs::symlink_metadata(&path) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(_) => return u64::MAX,
+        };
+        // 容量统计不能沿 quarantine 中的链接扫描 scope 外的数据或循环链接。
+        if !metadata.is_dir() || metadata.file_type().is_symlink() {
+            total = total.saturating_add(metadata.len());
+            continue;
+        }
+        let entries = match std::fs::read_dir(path) {
+            Ok(entries) => entries,
+            Err(_) => return u64::MAX,
+        };
+        for entry in entries {
+            match entry {
+                Ok(entry) => pending.push(entry.path()),
+                Err(_) => return u64::MAX,
+            }
         }
     }
     total

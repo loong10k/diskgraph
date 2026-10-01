@@ -36,6 +36,32 @@ fn json_field(line: &str, key: &str) -> String {
 }
 
 #[test]
+fn serve_accepts_remote_authentication_configuration_before_dispatch() {
+    let workspace = TempDir::with_prefix("diskgraph-serve-cli-").unwrap();
+    let run = run_cli(
+        workspace.path(),
+        &[
+            "serve",
+            "--transport",
+            "streamable-http",
+            "--auth",
+            "issuer",
+            "audience",
+            "fixture-key",
+            "--profile",
+            "invalid-profile",
+        ],
+    );
+    assert_eq!(run.code, 2);
+    assert_eq!(
+        json_field(run.stdout.trim(), "/error/code"),
+        "invalid_argument",
+        "serve should reach business validation rather than reject --auth: {}",
+        run.stderr
+    );
+}
+
+#[test]
 fn full_readonly_flow_with_business_exit_codes() {
     let workspace = TempDir::with_prefix("diskgraph-cli-").unwrap();
     let data_dir = workspace.path().join("data");
@@ -127,6 +153,72 @@ fn full_readonly_flow_with_business_exit_codes() {
     // Unknown jobs also report 4.
     let run = run_cli(&data_dir, &["status", "--job", "job-none"]);
     assert_eq!(run.code, 4);
+}
+
+#[test]
+fn positive_candidate_cli_does_not_decode_an_unrelated_corrupt_node() {
+    let workspace = TempDir::with_prefix("diskgraph-cli-candidate-").unwrap();
+    let data = workspace.path().join("data");
+    let root = workspace.path().join("project");
+    std::fs::create_dir_all(root.join("target")).unwrap();
+    std::fs::write(root.join("Cargo.toml"), "[package]\nname='candidate'\n").unwrap();
+    std::fs::write(root.join("target/bin"), vec![0; 4096]).unwrap();
+    let added = run_cli(&data, &["scope", "add", "--root", root.to_str().unwrap()]);
+    assert_eq!(added.code, 0);
+    let scope = json_field(added.stdout.trim(), "/data/scope_id");
+    assert_eq!(
+        run_cli(&data, &["index", "--scope", &scope, "--wait"]).code,
+        0
+    );
+
+    let database = rusqlite::Connection::open(data.join("diskgraph.sqlite")).unwrap();
+    let (snapshot, target): (String, i64) = database
+        .query_row(
+            "SELECT snapshot_id, id FROM nodes WHERE name = 'target'",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    database
+        .execute(
+            "INSERT INTO evidence (snapshot_id, node_id, evidence_json) VALUES (?1, ?2, ?3)",
+            rusqlite::params![
+                snapshot,
+                target,
+                serde_json::json!({
+                    "node_id": target, "relation": "rebuildable", "subject": "fixture",
+                    "source": "test", "observed_at_unix_ms": 1, "confidence": 100,
+                })
+                .to_string()
+            ],
+        )
+        .unwrap();
+    database
+        .execute(
+            "UPDATE nodes SET kind = 'invalid-kind' WHERE name = 'bin'",
+            [],
+        )
+        .unwrap();
+    let selected = run_cli(
+        &data,
+        &[
+            "candidates",
+            "--scope",
+            &scope,
+            "--target-bytes",
+            "18446744073709551615",
+        ],
+    );
+    assert_eq!(selected.code, 0, "{}", selected.stderr);
+    let output: serde_json::Value = serde_json::from_str(selected.stdout.trim()).unwrap();
+    assert_eq!(output["data"]["review_only"], true);
+    assert_eq!(output["data"]["complete"], true);
+    assert_eq!(output["data"]["candidates"][0]["node"]["name"], "target");
+    assert!(
+        output["data"]["remaining_bytes"]
+            .as_str()
+            .is_some_and(|value| value != "0")
+    );
 }
 
 #[test]
@@ -764,7 +856,12 @@ fn du_summarizes_multiple_paths_like_du_sh() {
         .unwrap()
         .as_object()
         .unwrap();
-    assert_eq!(sizes.len(), 2, "both paths measured");
+    assert_eq!(
+        sizes.len(),
+        2,
+        "both paths measured; stderr: {}",
+        run.stderr
+    );
     assert_eq!(
         envelope.pointer("/data/total_bytes").unwrap().as_u64(),
         Some(8192),
@@ -800,4 +897,45 @@ fn du_reports_missing_paths_and_still_measures_the_rest() {
         run.stdout.contains("real"),
         "the surviving path is still measured"
     );
+}
+
+#[test]
+fn snapshots_prune_previews_then_removes_only_old_history() {
+    let dir = tempfile::tempdir().unwrap();
+    let data = dir.path().join("data");
+    let root = dir.path().join("root");
+    std::fs::create_dir(&root).unwrap();
+    let added = run_cli(&data, &["scope", "add", "--root", root.to_str().unwrap()]);
+    assert_eq!(added.code, 0, "{}", added.stderr);
+    let scope = json_field(&added.stdout, "/data/scope_id");
+    for index in 0..3 {
+        std::fs::write(root.join(format!("file-{index}")), [0]).unwrap();
+        let indexed = run_cli(&data, &["index", "--scope", &scope, "--wait"]);
+        assert_eq!(indexed.code, 0, "{}", indexed.stderr);
+    }
+    let preview = run_cli(
+        &data,
+        &["snapshots", "prune", "--scope", &scope, "--keep-last", "1"],
+    );
+    assert_eq!(preview.code, 0, "{}", preview.stderr);
+    assert_eq!(json_field(&preview.stdout, "/data/applied"), "false");
+    let history = run_cli(&data, &["snapshots", "--scope", &scope]);
+    let value: serde_json::Value = serde_json::from_str(&history.stdout).unwrap();
+    assert_eq!(value["data"]["snapshots"].as_array().unwrap().len(), 3);
+    let applied = run_cli(
+        &data,
+        &[
+            "snapshots",
+            "prune",
+            "--scope",
+            &scope,
+            "--keep-last",
+            "1",
+            "--apply",
+        ],
+    );
+    assert_eq!(applied.code, 0, "{}", applied.stderr);
+    let history = run_cli(&data, &["snapshots", "--scope", &scope]);
+    let value: serde_json::Value = serde_json::from_str(&history.stdout).unwrap();
+    assert_eq!(value["data"]["snapshots"].as_array().unwrap().len(), 1);
 }

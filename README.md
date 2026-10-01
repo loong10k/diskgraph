@@ -166,7 +166,7 @@ codex mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 ```
 
-Eighteen read tools today; profiles (`read-minimal`, `read-full`, `manage`, `all`) decide which are listed. A non-loopback HTTP bind requires a signed token, and every connection is body-, rate-, and quota-limited.
+Eighteen read tools today; profiles (`read-minimal`, `read-full`, `manage`, `all`) decide which are listed. Every HTTP/SSE bind, including loopback, requires a signed token, and every connection is body-, rate-, and quota-limited.
 
 ## Measured
 
@@ -195,6 +195,42 @@ Ten crates, one engine. `core` holds the model, the bounded queries, and the squ
 
 The scanner is [disktree](https://github.com/tobi/disktree)'s, vendored at a pinned revision whose per-file digests are verified on every build — reused, not reimplemented.
 
+```mermaid
+flowchart TD
+    CLI["CLI / TUI / HTML"] --> E["Engine<br/>Authorization, jobs, queries, content inspection"]
+    MCP["MCP<br/>stdio / HTTP / legacy SSE"] --> S["McpService<br/>Tool dispatch"]
+    S --> E
+    E --> SC["disktree scanner"]
+    SC --> CV["Tree conversion<br/>Identity and metadata enrichment"]
+    CV --> ST["Staging → revision publication"]
+    ST --> G[("Graph database<br/>Snapshots, nodes, relations")]
+    E --> C[("Control database<br/>Scopes, permissions, jobs, operation records")]
+    OPS["Ops<br/>Planning, approval, execution, recovery"] --> E
+    FFI["Swift / Kotlin FFI"] --> E
+    E -. "Legacy FFI: narrow read after authorization" .-> G
+```
+
+Legacy FFI signatures remain compatible. Engine now checks actual snapshot/revision ownership and live authorization before opening a read connection. Raw store APIs remain trusted internal compatibility entry points. The hardening record below separates implementation from platform acceptance.
+
+### Security and performance hardening (2026-10-01)
+
+HTTP and both SSE transports require authentication, including loopback, and validate Origin. Request permissions intersect token capabilities with live database grants; remote startup grants no local administration. Revision access checks actual server/scope ownership. Issuer + subject now map to a SHA-256 principal, so old remote grants must be reissued. Ambiguous legacy ownership is denied until an administrator reindexes.
+
+For a deployed listener, pass `--auth-key-file ISSUER AUDIENCE PATH` to `diskgraph-mcp` or `diskgraph serve`; keep the key file private to the service identity. The older inline `--auth` form exposes the verifier key in process arguments and is retained only for compatibility.
+
+Common MCP node, children, top, search and positive-target candidate queries use narrow reads. Impact traversal reuses one authorized reader per request. Candidates return selected bytes, the remaining target and truncation status; they remain review-only. Unicode lowercase substring search is preserved; new keyset search cursors bind principal, scope, revision, filters, sorting and policy version. Old cursors require a fresh query. Trees and history report truncation. Jobs use 30-second leases, 5-second renewal and fencing. Scanner budgets are checked cooperatively every 20 ms; strict RSS bounds are not promised. `--max-staging-bytes` counts encoded metadata, defaults to 2 GiB, and does not charge source file capacity.
+
+```bash
+diskgraph snapshots prune --scope SCOPE_ID --keep-last 3          # preview
+diskgraph snapshots prune --scope SCOPE_ID --keep-last 3 --apply  # explicit reclamation
+```
+
+Pruning protects latest, pins and operation/recovery references; ambiguous old references retain the whole scope. Logical SQLite deletion does not immediately shrink database files. Dangerous CLI/MCP file tools remain disabled. See the [acceptance and performance record](docs/security-performance-hardening-2026-10-01.md) and [raw measurements](docs/benchmarks/hardening-2026-10-01.json). Local macOS evidence does not certify Linux/Windows native writes.
+
+The follow-up review also bounds HTTP framing and connection time, checks impact queries against the revision's actual owner, persists cross-process cancellation, and isolates FFI control data by graph database. Existing file-operation plans must be recreated because execution now requires a complete plan digest and source fingerprint. The TUI pages wide directories 512 entries at a time; its name sort applies to the visible page.
+
+Read-only CLI/MCP binary acceptance runs in the CI matrix and native release jobs with isolated signed-token grants. Local commands are `python scripts/accept-readonly-stdio.py` and `python scripts/accept-readonly-http.py`. The [desktop readiness record](docs/production-readiness-readonly-2026-10-02.md) tracks actual per-OS proof; a configured CI gate alone is not a production acceptance result.
+
 ## Documentation
 
 | | |
@@ -204,7 +240,7 @@ The scanner is [disktree](https://github.com/tobi/disktree)'s, vendored at a pin
 | Release channels and runbook | [`RELEASING.md`](RELEASING.md) |
 | Acceptance records behind every number | [`docs/acceptance/`](docs/acceptance/) |
 | Architecture / technical design | [`docs/DiskGraph-Architecture.md`](docs/DiskGraph-Architecture.md) · [设计](docs/DiskGraph-Architecture.zh_CN.md) |
-| Requirements (the formal source) | [OpenSpec change](openspec/changes/implement-diskgraph-platform/proposal.md) — 14 specs, 77 requirements, 121 tasks |
+| Requirements (the formal source) | [OpenSpec change](openspec/changes/implement-diskgraph-platform/proposal.md) — 14 specs, 84 requirements, 129 tasks |
 
 ## Contributing
 

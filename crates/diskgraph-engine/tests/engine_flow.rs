@@ -35,6 +35,131 @@ fn agent_for(scope_id: &ScopeId) -> (PrincipalId, PolicyAuthorizer) {
     (principal, policy)
 }
 
+#[test]
+fn cancellation_from_another_engine_blocks_publication() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("root");
+    std::fs::create_dir(&root).unwrap();
+    for index in 0..8_000 {
+        std::fs::write(root.join(format!("item-{index:05}")), b"x").unwrap();
+    }
+    let config = EngineConfig {
+        data_dir: directory.path().join("data"),
+        ..EngineConfig::default()
+    };
+    let first = std::sync::Arc::new(Engine::open(config.clone()).unwrap());
+    let second = Engine::open(config).unwrap();
+    let (admin_principal, admin_policy) = admin();
+    let scope = first
+        .register_scope(&root, &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    let job = first.index_scope(&scope, &agent, &policy).unwrap();
+    let job_id = job.job_id.clone();
+    let worker = std::thread::spawn(move || first.run_job(&job_id, "engine-a"));
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+    while second.job_status(&job.job_id).unwrap().state != JobState::Running {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "worker did not claim job"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
+    second.cancel_job(&job.job_id, &agent, &policy).unwrap();
+    assert!(worker.join().unwrap().is_err());
+    assert_eq!(
+        second.job_status(&job.job_id).unwrap().state,
+        JobState::Cancelled
+    );
+    assert!(second.latest_revision(&scope).unwrap().is_none());
+}
+
+#[test]
+fn recovering_a_job_clears_only_the_expired_fence_staging() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("root");
+    std::fs::create_dir(&root).unwrap();
+    std::fs::write(root.join("file"), b"x").unwrap();
+    let data_dir = directory.path().join("data");
+    let config = EngineConfig {
+        data_dir: data_dir.clone(),
+        ..EngineConfig::default()
+    };
+    let first = Engine::open(config.clone()).unwrap();
+    let (admin_principal, admin_policy) = admin();
+    let scope = first
+        .register_scope(&root, &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    let job = first.index_scope(&scope, &agent, &policy).unwrap();
+    let first_claim = first
+        .control_store()
+        .unwrap()
+        .claim_job_once(&job.job_id, "expired-owner")
+        .unwrap();
+    let stale_id = format!("{}:{}", job.job_id, first_claim.fencing_token);
+    let graph_path = data_dir.join("diskgraph.sqlite");
+    let graph_connection = rusqlite::Connection::open(&graph_path).unwrap();
+    graph_connection
+        .execute(
+            "INSERT INTO scan_staging (job_id, node_seq, node_json) VALUES (?1, 1, '{}')",
+            [&stale_id],
+        )
+        .unwrap();
+    drop(graph_connection);
+    let control_connection =
+        rusqlite::Connection::open(data_dir.join("diskgraph-control.sqlite")).unwrap();
+    control_connection
+        .execute(
+            "UPDATE jobs SET lease_expires_unix_ms = 0 WHERE job_id = ?1",
+            [&job.job_id],
+        )
+        .unwrap();
+    drop(control_connection);
+    let second = Engine::open(config).unwrap();
+    let finished = second.run_job(&job.job_id, "new-owner").unwrap();
+    assert_eq!(finished.state, JobState::Completed);
+    assert!(finished.fencing_token > first_claim.fencing_token);
+    let graph = diskgraph_store::SqliteSnapshotStore::open(&graph_path).unwrap();
+    assert_eq!(graph.staging_node_count(&stale_id).unwrap(), 0);
+    assert!(second.latest_revision(&scope).unwrap().is_some());
+}
+
+#[test]
+fn directory_pages_cover_all_children_without_silent_clipping() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("root");
+    std::fs::create_dir(&root).unwrap();
+    for index in 0..11 {
+        std::fs::write(root.join(format!("item-{index:02}")), b"x").unwrap();
+    }
+    let engine = Engine::open(EngineConfig {
+        data_dir: directory.path().join("data"),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let (admin_principal, admin_policy) = admin();
+    let scope = engine
+        .register_scope(&root, &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    let job = engine.index_scope(&scope, &agent, &policy).unwrap();
+    engine.run_job(&job.job_id, "worker").unwrap();
+    let revision = engine.latest_revision(&scope).unwrap().unwrap();
+    let root_node = engine.revision_root_node(&revision).unwrap();
+    let mut names = Vec::new();
+    for (offset, expected_more) in [(0, true), (5, true), (10, false)] {
+        let (_, page, more) = engine
+            .revision_layer_page(&revision, root_node.id, offset, 5)
+            .unwrap();
+        assert_eq!(more, expected_more);
+        names.extend(page.into_iter().map(|node| node.name));
+    }
+    names.sort();
+    names.dedup();
+    assert_eq!(names.len(), 11);
+}
+
 /// Engine rooted in a kept temp directory; the OS reclaims it after the run.
 fn engine_in(label: &str, max_nodes: u64) -> Engine {
     let directory = tempfile::TempDir::with_prefix(format!("diskgraph-engine-{label}-")).unwrap();
@@ -307,14 +432,7 @@ fn cargo_fixture_produces_typed_evidence_bound_to_the_revision() {
     // edges (resource -> project / recipe), and by direct explanation.
     let resource_id = format!("resource-{}", target.id);
     let outgoing = engine
-        .related(
-            &revision,
-            &resource_id,
-            None,
-            true,
-            &admin_principal,
-            &admin_policy,
-        )
+        .related(&revision, &resource_id, None, true, &agent, &policy)
         .unwrap();
     assert!(
         outgoing
@@ -330,7 +448,7 @@ fn cargo_fixture_produces_typed_evidence_bound_to_the_revision() {
     );
 
     let (entity, edges, evidence) = engine
-        .explain_entity(&revision, &resource_id, &admin_principal, &admin_policy)
+        .explain_entity(&revision, &resource_id, &agent, &policy)
         .unwrap()
         .expect("resource entity exists");
     assert_eq!(entity.kind, diskgraph_core::EntityKind::Resource);
@@ -338,13 +456,13 @@ fn cargo_fixture_produces_typed_evidence_bound_to_the_revision() {
     assert!(!evidence.is_empty());
     assert!(evidence.iter().all(|record| record.confidence <= 100));
 
-    // An agent without metadata:read on the admin scope cannot explain.
+    // 只有 admin scope 的读取授权不能替代 revision 的实际 scope 授权。
     let unprivileged = PrincipalId::new("unprivileged").unwrap();
     let mut limited = PolicyAuthorizer::new(1);
     limited.grant(
         unprivileged.clone(),
         Permission::MetadataRead,
-        scope_id.clone(),
+        admin_scope(),
     );
     assert!(matches!(
         engine.explain_entity(&revision, &resource_id, &unprivileged, &limited),

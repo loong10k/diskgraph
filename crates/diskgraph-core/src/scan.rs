@@ -123,6 +123,7 @@ impl PlaceholderPolicy {
 pub struct ScanBudget {
     pub max_nodes: u64,
     pub max_duration_ms: u64,
+    /// 实际编码元数据字节预算，不代表被扫描文件容量。
     pub max_staging_bytes: u64,
     /// Nodes written per batch, so a slow consumer cannot force one huge
     /// transaction.

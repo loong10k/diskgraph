@@ -177,8 +177,9 @@ pub fn compare<'a>(
     (out, summary)
 }
 
-/// Compares one entry that exists on both sides.
-fn compare_entry(left: &DiskNode, right: &DiskNode, tolerance_seconds: i64) -> Verdict {
+/// 比较两侧同一路径的单个节点，返回元数据证据支持的判定。
+/// tolerance_seconds 指定时间差容忍值；缺失时间不推断差异。
+pub fn compare_entry(left: &DiskNode, right: &DiskNode, tolerance_seconds: i64) -> Verdict {
     // A directory's own size and timestamp say nothing about whether its
     // contents match - they move whenever anything under them is touched, and
     // a restored tree keeps its directory timestamps. A directory is compared
@@ -222,7 +223,10 @@ fn compare_entry(left: &DiskNode, right: &DiskNode, tolerance_seconds: i64) -> V
     let left_time = left.modified_unix_seconds;
     let right_time = right.modified_unix_seconds;
     let times_differ = match (left_time, right_time) {
-        (Some(left_time), Some(right_time)) => (left_time - right_time).abs() > tolerance_seconds,
+        (Some(left_time), Some(right_time)) => {
+            (i128::from(left_time) - i128::from(right_time)).abs()
+                > i128::from(tolerance_seconds.max(0))
+        }
         // One side has no timestamp and the other does: not evidence of a
         // difference, so the entries stay the same.
         _ => false,

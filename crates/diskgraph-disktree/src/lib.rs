@@ -158,44 +158,48 @@ fn append_node(
     nodes: &mut Vec<NodeV2>,
     unreadable_nodes: &mut u64,
 ) {
-    let id = nodes.len() as u64 + 1;
-    if source.read_error {
-        *unreadable_nodes += 1;
-    }
-    let (identity, self_modified) = observe(path);
-    let v1_identity = identity.clone();
-    nodes.push(NodeV2 {
-        locator: Locator::from_native_path(path),
-        identity,
-        self_modified,
-        v1: DiskNode {
-            id,
-            parent_id,
-            locator: ResourceLocator::NativePath(path.to_string_lossy().into_owned()),
-            name: source.name.to_string(),
-            kind: match source.kind {
-                DiskTreeNodeKind::Directory => NodeKind::Directory,
-                DiskTreeNodeKind::File => NodeKind::File,
-                DiskTreeNodeKind::Symlink => NodeKind::Symlink,
-                DiskTreeNodeKind::Other => NodeKind::Other,
+    // 显式栈保持上游 preorder 顺序，转换不依赖调用栈深度。
+    let mut pending = vec![(source, path.to_path_buf(), parent_id)];
+    while let Some((source, path, parent_id)) = pending.pop() {
+        let id = nodes.len() as u64 + 1;
+        if source.read_error {
+            *unreadable_nodes += 1;
+        }
+        let (identity, self_modified) = observe(&path);
+        let v1_identity = identity.clone();
+        nodes.push(NodeV2 {
+            locator: Locator::from_native_path(&path),
+            identity,
+            self_modified,
+            v1: DiskNode {
+                id,
+                parent_id,
+                locator: ResourceLocator::NativePath(path.to_string_lossy().into_owned()),
+                name: source.name.to_string(),
+                kind: match source.kind {
+                    DiskTreeNodeKind::Directory => NodeKind::Directory,
+                    DiskTreeNodeKind::File => NodeKind::File,
+                    DiskTreeNodeKind::Symlink => NodeKind::Symlink,
+                    DiskTreeNodeKind::Other => NodeKind::Other,
+                },
+                subtree_bytes: source.bytes,
+                // A scanned node with a recorded byte count is a known size; the
+                // upstream scanner never reports an unknown size today.
+                size_known: true,
+                direct_bytes: source.own_bytes,
+                files: source.files,
+                directories: source.dirs,
+                modified_unix_seconds: (source.modified > 0).then_some(source.modified),
+                file_identity: v1_identity,
+                category_hint: Some(source.category.label().to_owned()),
+                reclaim_hint: source.reclaim.map(|hint| hint.label().to_owned()),
+                read_error: source.read_error,
             },
-            subtree_bytes: source.bytes,
-            // A scanned node with a recorded byte count is a known size; the
-            // upstream scanner never reports an unknown size today.
-            size_known: true,
-            direct_bytes: source.own_bytes,
-            files: source.files,
-            directories: source.dirs,
-            modified_unix_seconds: (source.modified > 0).then_some(source.modified),
-            file_identity: v1_identity,
-            category_hint: Some(source.category.label().to_owned()),
-            reclaim_hint: source.reclaim.map(|hint| hint.label().to_owned()),
-            read_error: source.read_error,
-        },
-    });
-    for child in &source.children {
-        let child_path: PathBuf = path.join(child.name.as_ref());
-        append_node(child, &child_path, Some(id), nodes, unreadable_nodes);
+        });
+        for child in source.children.iter().rev() {
+            let child_path: PathBuf = path.join(child.name.as_ref());
+            pending.push((child, child_path, Some(id)));
+        }
     }
 }
 

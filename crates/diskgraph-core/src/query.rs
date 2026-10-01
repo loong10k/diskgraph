@@ -126,7 +126,12 @@ impl DiskGraph {
         let mut eligible: Vec<_> = self
             .nodes
             .iter()
-            .filter(|node| node.kind == crate::NodeKind::Directory && node.subtree_bytes > 0)
+            .filter(|node| {
+                node.kind == crate::NodeKind::Directory
+                    && node.subtree_bytes > 0
+                    && node.size_known
+                    && !node.read_error
+            })
             .filter(|node| {
                 by_node.get(&node.id).is_some_and(|edges| {
                     edges.iter().any(|edge| {
@@ -601,6 +606,16 @@ mod tests {
         graph.snapshot.coverage.complete = false;
         graph.evidence.pop();
         assert!(graph.candidates(100).is_empty());
+    }
+
+    #[test]
+    fn candidates_do_not_treat_unknown_directory_size_as_reclaimable() {
+        let mut observed = graph(150);
+        observed.nodes[1].size_known = false;
+        assert!(observed.candidates(100).is_empty());
+        observed.nodes[1].size_known = true;
+        observed.nodes[1].read_error = true;
+        assert!(observed.candidates(100).is_empty());
     }
 
     /// root → cache(large) → {beta, alpha}; cache carries a read error.

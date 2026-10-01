@@ -2,6 +2,9 @@
 //! (P2 task 3.12, specs CMD-01 / CMD-02). Commands map onto the shared engine;
 //! none of them execute file mutations.
 
+use crate::snapshot_action::SnapshotAction;
+mod snapshot_action;
+
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -42,8 +45,8 @@ struct Cli {
     /// publish instead of returning partial data silently.
     #[arg(long, global = true, default_value_t = 2_000_000)]
     max_nodes_per_scan: u64,
-    /// Charged byte budget for one scan (RT-02 backpressure): the walk
-    /// stops for a named reason once the observed content passes it.
+    /// Encoded metadata staging budget for one scan (default 2 GiB).
+    /// Observed file sizes do not consume this storage budget.
     #[arg(long, global = true, default_value_t = 2 << 30)]
     max_staging_bytes: u64,
     /// Measure apparent length instead of allocated blocks (disktree -a).
@@ -108,11 +111,13 @@ enum Command {
     /// C05: list snapshots of a scope.
     Snapshots {
         #[arg(long)]
-        scope: String,
+        scope: Option<String>,
         #[arg(long, default_value_t = 20)]
         limit: u64,
         #[arg(long, default_value_t = 0)]
         offset: u64,
+        #[command(subcommand)]
+        action: Option<SnapshotAction>,
     },
     /// Depth-bounded tree view of a published revision (disktree-style JSON).
     #[command(
@@ -397,6 +402,24 @@ enum Command {
         /// Port for streamable-http; 0 picks a free one.
         #[arg(long, default_value_t = 0)]
         port: u16,
+        /// Remote bearer-token verifier: issuer, audience and HS256 key.
+        #[arg(long, num_args = 3, value_names = ["ISSUER", "AUDIENCE", "KEY"])]
+        auth: Option<Vec<String>>,
+        /// Read the verifier key from a protected file; no secret enters process arguments.
+        #[arg(long, num_args = 3, value_names = ["ISSUER", "AUDIENCE", "PATH"], conflicts_with = "auth")]
+        auth_key_file: Option<Vec<String>>,
+        /// Allowed browser Origin; repeat for multiple origins.
+        #[arg(long)]
+        allowed_origin: Vec<String>,
+        /// Permit a null Origin when the caller has a valid bearer token.
+        #[arg(long)]
+        allow_null_origin: bool,
+        /// Assert that TLS or an encrypted tunnel terminates before this listener.
+        #[arg(long)]
+        secure_transport: bool,
+        /// Trusted reverse proxy address; repeat for multiple proxies.
+        #[arg(long)]
+        trusted_proxy: Vec<String>,
     },
     /// C28: register this binary into a client configuration (P3).
     #[command(subcommand)]
@@ -911,9 +934,30 @@ fn dispatch(
             scope,
             limit,
             offset,
+            action,
         } => {
-            let scope_id = ScopeId::new(scope.clone())
-                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            if let Some(SnapshotAction::Prune {
+                scope,
+                keep_last,
+                apply,
+            }) = action
+            {
+                let scope_id = ScopeId::new(scope.clone())
+                    .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+                let candidates =
+                    engine.prune_snapshots(&scope_id, *keep_last, *apply, principal, authorizer)?;
+                out.push(envelope_line(
+                    engine,
+                    Ok(serde_json::json!({"applied":apply, "candidates":candidates})),
+                ));
+                return Ok(());
+            }
+            let scope_id = ScopeId::new(
+                scope
+                    .clone()
+                    .ok_or(EngineError::Business(BusinessError::InvalidArgument))?,
+            )
+            .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
             let snapshots =
                 engine.list_snapshots(&scope_id, principal, authorizer, *limit, *offset)?;
             out.push(envelope_line(
@@ -1133,9 +1177,8 @@ fn dispatch(
             after,
             path,
         } => {
-            // Revision-to-scope binding arrives when revisions carry scope
-            // identity in the graph store (ST-04); the comparison is already
-            // revision-pinned and needs no scope lookup.
+            engine.authorize_revision(None, before, principal, authorizer)?;
+            engine.authorize_revision(None, after, principal, authorizer)?;
             let growth = engine.growth_between(before, after, std::path::Path::new(path))?;
             out.push(envelope_line(
                 engine,
@@ -1197,6 +1240,13 @@ fn dispatch(
                 );
                 return Err(EngineError::Business(BusinessError::InvalidArgument));
             }
+            engine.authorize_revision(
+                from_scope_id.as_ref(),
+                &from_revision,
+                principal,
+                authorizer,
+            )?;
+            engine.authorize_revision(to_scope_id.as_ref(), &to_revision, principal, authorizer)?;
             let mut verification = None;
 
             if *plan {
@@ -1257,32 +1307,11 @@ fn dispatch(
             before,
             after,
         } => {
-            // See Growth for the scope-pinned revision note.
-            let graph_before = engine.load_revision(before)?;
-            let graph_after = engine.load_revision(after)?;
-            let report = graph_after.changes(&graph_before);
-            let incompatible = report.incompatible.as_ref().map(|reason| match reason {
-                diskgraph_core::Incompatibility::DifferentRoot => "different_root",
-                diskgraph_core::Incompatibility::DifferentVolume => "different_volume",
-                diskgraph_core::Incompatibility::UnknownVolume => "unknown_volume",
-                diskgraph_core::Incompatibility::DifferentSettings => "different_settings",
-                diskgraph_core::Incompatibility::OutOfOrder => "out_of_order",
-                diskgraph_core::Incompatibility::IncompleteCoverage => "incomplete_coverage",
-            });
-            fn count(
-                changes: &[diskgraph_core::Change],
-                predicate: impl Fn(&diskgraph_core::Change) -> bool,
-            ) -> usize {
-                changes.iter().filter(|change| predicate(change)).count()
-            }
+            engine.authorize_revision(None, before, principal, authorizer)?;
+            engine.authorize_revision(None, after, principal, authorizer)?;
             out.push(envelope_line(
                 engine,
-                Ok(serde_json::json!({
-                    "incompatible": incompatible,
-                    "added": count(&report.changes, |change| matches!(change, diskgraph_core::Change::Added { .. })),
-                    "removed": count(&report.changes, |change| matches!(change, diskgraph_core::Change::Removed { .. })),
-                    "size_changed": count(&report.changes, |change| matches!(change, diskgraph_core::Change::SizeChanged { .. })),
-                })),
+                engine.revision_changes(before, after),
             ));
             Ok(())
         }
@@ -1301,45 +1330,43 @@ fn dispatch(
             // A cursor is only honored when it was issued for this same
             // principal, scope, revision, pattern, and sort order (Q-02).
             let pattern_binding = format!("pattern:{pattern}");
-            let sort_binding = "size_desc,name_asc";
-            let policy_version = authorizer.policy_version();
             let context = CursorContext {
                 principal_binding: &cli.principal,
                 scope_id: scope_id.as_str(),
                 revision_id: &revision,
                 filter_binding: &pattern_binding,
-                sort_binding,
-                policy_version,
+                sort_binding: "name_asc,id_asc,keyset_v2",
+                policy_version: authorizer.policy_version(),
             };
-            let start = match cursor {
-                Some(encoded) => {
-                    let decoded = PagingCursor::decode(encoded)
-                        .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-                    decoded
-                        .verify(&context)
-                        .map_err(|rejection| EngineError::Business(rejection.business_error()))?
+            let cursor = cursor
+                .as_ref()
+                .map(|encoded| diskgraph_core::SearchCursor::decode(encoded, &context))
+                .transpose()
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.authorize_revision(Some(&scope_id), &revision, principal, authorizer)?;
+            let reader = engine.revision_reader()?;
+            let snapshot = reader.revision(&revision)?.snapshot_id;
+            let after = cursor
+                .as_ref()
+                .map(|cursor| (cursor.last_name.as_str(), cursor.last_id));
+            let (items, more) =
+                reader.search_page(&snapshot, pattern, after, *offset, (*limit).clamp(1, 100))?;
+            let consumed = cursor
+                .as_ref()
+                .map_or(*offset, |cursor| cursor.binding.offset)
+                .saturating_add(items.len() as u64);
+            let next_cursor = items.last().filter(|_| more).map(|last| {
+                diskgraph_core::SearchCursor {
+                    version: 2,
+                    binding: PagingCursor::issue(
+                        &context,
+                        pattern_binding.clone(),
+                        context.sort_binding,
+                        consumed,
+                    ),
+                    last_name: last.name.clone(),
+                    last_id: last.id,
                 }
-                None => *offset,
-            };
-            // A scope that does not exist is not_found, never a permission
-            // probe; only live scopes reach the authorization check.
-            engine.scope(&scope_id)?;
-            require_metadata(authorizer, principal, &scope_id)?;
-            let graph = engine.load_revision(&revision)?;
-            let (items, next) = diskgraph_engine::search_nodes(
-                &graph,
-                pattern,
-                start,
-                *limit as usize,
-                QueryBudget::default(),
-            );
-            let next_cursor = next.map(|offset| {
-                PagingCursor::issue(
-                    &context,
-                    format!("pattern:{pattern}"),
-                    "size_desc,name_asc",
-                    offset,
-                )
                 .encode()
             });
             out.push(envelope_line(
@@ -1432,6 +1459,12 @@ fn dispatch(
             profile,
             host,
             port,
+            auth,
+            auth_key_file,
+            allowed_origin,
+            allow_null_origin,
+            secure_transport,
+            trusted_proxy,
         } => {
             let Some(profile) = diskgraph_mcp::protocol::ToolProfile::parse(profile) else {
                 return Err(EngineError::Business(BusinessError::InvalidArgument));
@@ -1440,8 +1473,13 @@ fn dispatch(
             // and the child owns the transport.
             let binary = std::env::current_exe()
                 .map_err(|error| EngineError::Store(diskgraph_store::StoreError::Io(error)))?
-                .with_file_name("diskgraph-mcp");
-            let status = std::process::Command::new(binary)
+                .with_file_name(if cfg!(windows) {
+                    "diskgraph-mcp.exe"
+                } else {
+                    "diskgraph-mcp"
+                });
+            let mut child = std::process::Command::new(binary);
+            child
                 .arg("--data-dir")
                 .arg(&cli.data_dir)
                 .arg("--profile")
@@ -1451,7 +1489,26 @@ fn dispatch(
                 .arg("--host")
                 .arg(host)
                 .arg("--port")
-                .arg(port.to_string())
+                .arg(port.to_string());
+            if let Some(auth) = auth {
+                child.arg("--auth").args(auth);
+            }
+            if let Some(auth_key_file) = auth_key_file {
+                child.arg("--auth-key-file").args(auth_key_file);
+            }
+            for origin in allowed_origin {
+                child.arg("--allowed-origin").arg(origin);
+            }
+            if *allow_null_origin {
+                child.arg("--allow-null-origin");
+            }
+            if *secure_transport {
+                child.arg("--secure-transport");
+            }
+            for proxy in trusted_proxy {
+                child.arg("--trusted-proxy").arg(proxy);
+            }
+            let status = child
                 .status()
                 .map_err(|error| EngineError::Store(diskgraph_store::StoreError::Io(error)))?;
             // The child owns the streams; propagate its exit code.
@@ -1740,20 +1797,34 @@ fn dispatch(
             let Some(revision) = engine.latest_revision(&scope_id)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
-            let graph = engine.load_revision(&revision)?;
-            let candidates: Vec<_> = graph
-                .candidates(*target_bytes)
+            let answer = engine.review_candidates(
+                &revision,
+                *target_bytes,
+                QueryBudget::default(),
+                principal,
+                authorizer,
+            )?;
+            let candidates: Vec<_> = answer
+                .candidates
                 .into_iter()
-                .map(|candidate| {
+                .map(|(node, evidence)| {
                     serde_json::json!({
-                        "node": candidate.node,
-                        "evidence": candidate.evidence,
+                        "node": node,
+                        "evidence": evidence,
                     })
                 })
                 .collect();
             out.push(envelope_line(
                 engine,
-                Ok(serde_json::json!({ "candidates": candidates, "review_only": true })),
+                Ok(serde_json::json!({
+                    "candidates": candidates,
+                    "review_only": true,
+                    "coverage_complete": answer.coverage_complete,
+                    "complete": answer.complete,
+                    "truncated": answer.truncated.map(|reason| reason.wire_name()),
+                    "selected_bytes": answer.selected_bytes.to_string(),
+                    "remaining_bytes": answer.remaining_bytes.to_string(),
+                })),
             ));
             Ok(())
         }

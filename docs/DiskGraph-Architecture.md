@@ -64,6 +64,27 @@ Evidence: [models](../crates/diskgraph-core/src/model.rs), [queries](../crates/d
 
 ## 3. Overall structure
 
+### Current implementation call paths (2026-10-01)
+
+```mermaid
+flowchart TD
+    CLI["CLI / TUI / HTML"] --> E["Engine<br/>Authorization, jobs, queries, content inspection"]
+    MCP["MCP<br/>stdio / HTTP / legacy SSE"] --> S["McpService<br/>Tool dispatch"]
+    S --> E
+    E --> SC["disktree scanner"]
+    SC --> CV["Tree conversion<br/>Identity and metadata enrichment"]
+    CV --> ST["Staging → revision publication"]
+    ST --> G[("Graph database<br/>Snapshots, nodes, relations")]
+    E --> C[("Control database<br/>Scopes, permissions, jobs, operation records")]
+    OPS["Ops<br/>Planning, approval, execution, recovery"] --> E
+    FFI["Swift / Kotlin FFI"] --> E
+    E -. "Legacy FFI: narrow read after authorization" .-> G
+```
+
+Legacy FFI signatures remain compatible. Engine now checks actual snapshot/revision ownership and live authorization before opening a read connection. Raw store APIs remain trusted internal compatibility entry points. The hardening record below separates implementation from platform acceptance.
+
+### Target architecture
+
 ```mermaid
 flowchart TB
     AG["Local or remote agents"] --> MCP["diskgraph-mcp<br/>stdio / Streamable HTTP / legacy SSE"]
@@ -362,3 +383,46 @@ This document adapts the complete architecture template with runtime, extension,
 **Created**: 2026-09-28\
 **Updated**: 2026-09-28\
 **Status**: pending review; design completeness is not implementation completion.
+
+## 2026-10-01 hardening implementation boundary
+
+The following flow is implemented in this change. Earlier sections marked Target remain subject to platform acceptance.
+
+```mermaid
+sequenceDiagram
+    participant R as HTTP / SSE request
+    participant A as Origin + token validation
+    participant E as Engine request authorization
+    participant C as Control database
+    participant G as Independent graph reader
+    R->>A: Request and credentials
+    A->>E: Immutable principal, capabilities, transport, expiry
+    E->>G: Resolve actual revision server / scope
+    E->>C: Read live policy and revocation
+    C-->>E: Database grants
+    E->>E: Token capabilities ∩ live grants
+    E->>G: Deadline-bound narrow reads / ordered merge
+    G-->>R: Data and truncation diagnostics
+```
+
+A serial graph writer handles mutations. Conditional job claims increment fencing; a control transaction validates lease, fence, scope and live IndexWrite before staging batches, revision publication and collector writes. Expired claims rescan in a new staging namespace. The upstream scanner pin, source and digests remain unchanged. Conversion traverses iteratively; publication generates formal rows from staging.
+
+SQLite consistent backups, including committed WAL, precede migrations in `migration_backups/`. Graph schema 6 adds ownership and normalized search; schema 7 adds sparse unknown-size, relation-page and ordered-path indexes; schema 8 adds review-candidate size and evidence-relation indexes. Candidate selection and impact traversal use request-scoped readers with deadlines and explicit truncation. Control schema 4 adds leases/fencing, and schema 5 persists cancellation. Old running jobs wait for heartbeat + 30 seconds instead of being stolen at startup. Graph WAL/NORMAL preserves transaction consistency but may lose recent reconstructible index commits on power loss. Control FULL preserves the required operation-record durability. There is still no cross-database atomic transaction guarantee.
+
+```mermaid
+flowchart LR
+    X["Cancel or revoke"] --> C[("Control DB: durable intent")]
+    C --> F{"Lease + fence + live grant"}
+    F -- valid --> S["Write current staging namespace"]
+    F -- cancelled / stale --> R["Stop; leave old revision intact"]
+    S --> F2{"Publication fence"}
+    F2 -- valid --> P["Atomic revision publication"]
+    F2 -- cancelled / stale --> R
+    O["Approved file plan"] --> V["Live auth + source fingerprint"]
+    V --> A["Immediate transaction: path + file identity claim"]
+    A --> H["Handle-bound, no-replace operation"]
+```
+
+FFI derives its control-data realm from the lossless graph database path; ambiguous legacy shared control data is rejected. Operation plans require a complete digest and fresh source evidence, so old plans must be recreated. Positive-target candidate selection still loads a full revision; relation impact is paged but opens a read connection per page/direction. These remain explicit query-cost limits.
+
+See the [acceptance record](security-performance-hardening-2026-10-01.md) for compatibility, fidelity checks, cancellation overshoot, physical retention costs and local measurements. CLI/MCP dangerous tools remain closed; Linux/Windows native writes and strict scanner RSS bounds are not accepted capabilities.

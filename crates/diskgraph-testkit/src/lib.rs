@@ -352,10 +352,18 @@ pub mod legacy_client {
     impl SseStream {
         /// Connects and waits for the endpoint event, as a legacy client must.
         pub fn connect(port: u16) -> std::io::Result<Self> {
+            Self::connect_with_headers(port, &[])
+        }
+
+        /// 带认证头连接 SSE，等待会话 endpoint 事件。
+        pub fn connect_with_headers(port: u16, headers: &[(&str, &str)]) -> std::io::Result<Self> {
             let mut stream = TcpStream::connect(("127.0.0.1", port))?;
-            stream.write_all(
-                b"GET /sse HTTP/1.1\r\nHost: 127.0.0.1\r\nAccept: text/event-stream\r\nConnection: keep-alive\r\n\r\n",
-            )?;
+            let mut head = "GET /sse HTTP/1.1\r\nHost: 127.0.0.1\r\nAccept: text/event-stream\r\nConnection: keep-alive\r\n".to_owned();
+            for (name, value) in headers {
+                head.push_str(&format!("{name}: {value}\r\n"));
+            }
+            head.push_str("\r\n");
+            stream.write_all(head.as_bytes())?;
             stream.flush()?;
             let mut reader = BufReader::new(stream);
             let mut status = String::new();

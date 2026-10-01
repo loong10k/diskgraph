@@ -26,5 +26,6 @@ thiserror = "2"
 uuid.workspace = true
 
 [dev-dependencies]
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
 diskgraph-testkit.workspace = true
 tempfile = "3"

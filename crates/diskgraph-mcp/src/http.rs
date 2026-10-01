@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use std::io::{BufRead, BufReader, ErrorKind, Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 
@@ -23,6 +23,9 @@ use crate::protocol::{PROTOCOL_VERSION, log_line, protocol_error};
 pub const MCP_ENDPOINT: &str = "/mcp";
 /// A lightweight readiness endpoint; it exposes no indexed data.
 pub const HEALTH_ENDPOINT: &str = "/healthz";
+const MAX_REQUEST_LINE_BYTES: usize = 8 * 1024;
+const MAX_HEADER_BYTES: usize = 32 * 1024;
+const MAX_HEADER_COUNT: usize = 100;
 
 /// Server limits, applied before any work (spec MCP-06 / RT-02).
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -38,8 +41,8 @@ pub struct HttpLimits {
     pub max_concurrent_connections: usize,
     /// Token-bucket rate for one client across its connections.
     pub max_requests_per_second_per_client: u32,
-    /// How long one read may stall before the connection is closed: a
-    /// slow-loris client cannot hold its thread forever.
+    /// Absolute deadline for reading one complete request, including its
+    /// line, headers, and body. Receiving another byte does not renew it.
     pub read_timeout: Duration,
 }
 
@@ -458,12 +461,21 @@ pub fn handle_secured(
     }
     // Authentication precedes every other MCP concern, so an unauthenticated
     // caller learns nothing beyond the fact that the endpoint exists.
-    if let Some(authenticator) = &security.authenticator {
+    let mut authenticated_service;
+    let service = if let Some(authenticator) = &security.authenticator {
         let token = token_from_headers(&request.headers);
-        if let Err(failure) = authenticator.authenticate(token.as_deref()) {
-            return unauthorized(failure);
+        match authenticator.authenticate(token.as_deref()) {
+            Ok(identity) => {
+                authenticated_service = service.for_identity(&identity);
+                &mut authenticated_service
+            }
+            Err(failure) => return unauthorized(failure),
         }
-    }
+    } else if service.context.trusted_local() {
+        service
+    } else {
+        return unauthorized(AuthFailure::Missing);
+    };
     match request.method.as_str() {
         "POST" => handle_post(service, request, limits),
         // GET /mcp is answered inline by the serve loop as a long-lived
@@ -587,10 +599,10 @@ pub fn read_request(
     reader: &mut BufReader<TcpStream>,
     limits: &HttpLimits,
 ) -> std::io::Result<Option<HttpRequest>> {
-    let mut request_line = String::new();
-    if reader.read_line(&mut request_line)? == 0 {
+    let deadline = Instant::now() + limits.read_timeout;
+    let Some(request_line) = read_bounded_line(reader, MAX_REQUEST_LINE_BYTES, deadline)? else {
         return Ok(None);
-    }
+    };
     let mut parts = request_line.split_whitespace();
     let method = parts.next().unwrap_or_default().to_owned();
     let target = parts.next().unwrap_or_default().to_owned();
@@ -605,40 +617,85 @@ pub fn read_request(
         .to_owned();
 
     let mut headers = HashMap::new();
+    let mut header_bytes = 0usize;
+    let mut header_count = 0usize;
     loop {
-        let mut line = String::new();
-        if reader.read_line(&mut line)? == 0 {
-            break;
+        let remaining = MAX_HEADER_BYTES.saturating_sub(header_bytes);
+        let Some(line) = read_bounded_line(reader, remaining, deadline)? else {
+            return Err(std::io::Error::new(
+                ErrorKind::UnexpectedEof,
+                "incomplete HTTP headers",
+            ));
+        };
+        header_bytes += line.len();
+        header_count += 1;
+        if header_count > MAX_HEADER_COUNT {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "too many HTTP headers",
+            ));
         }
         let line = line.trim_end();
         if line.is_empty() {
             break;
         }
-        if let Some((name, value)) = line.split_once(':') {
-            headers
-                .entry(name.trim().to_ascii_lowercase())
-                .or_insert_with(|| value.trim().to_owned());
+        let (name, value) = line
+            .split_once(':')
+            .ok_or_else(|| std::io::Error::new(ErrorKind::InvalidData, "malformed HTTP header"))?;
+        let name = name.trim().to_ascii_lowercase();
+        if name.is_empty()
+            || (matches!(
+                name.as_str(),
+                "content-length" | "transfer-encoding" | "authorization" | "origin" | "host"
+            ) && headers.contains_key(&name))
+        {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "ambiguous HTTP header",
+            ));
         }
-        // Duplicate headers keep their first value: a later header cannot
-        // silently override the length or host a client presented first.
+        headers
+            .entry(name)
+            .or_insert_with(|| value.trim().to_owned());
+        // Non-security duplicate headers retain their first value. Framing,
+        // identity, host and Origin headers must be singular.
     }
 
+    if headers.contains_key("transfer-encoding") {
+        return Err(std::io::Error::new(
+            ErrorKind::InvalidData,
+            "transfer encoding is unsupported",
+        ));
+    }
     let length: usize = headers
         .get("content-length")
-        .and_then(|value| value.parse().ok())
+        .map(|value| {
+            value
+                .parse()
+                .map_err(|_| std::io::Error::new(ErrorKind::InvalidData, "invalid content length"))
+        })
+        .transpose()?
         .unwrap_or(0);
     if length > limits.max_body_bytes {
-        return Ok(Some(HttpRequest {
-            method,
-            path,
-            query,
-            headers,
-            body: String::new(),
-        }));
+        return Err(std::io::Error::new(
+            ErrorKind::InvalidData,
+            "HTTP body exceeds limit",
+        ));
     }
     let mut body = vec![0u8; length];
-    if length > 0 {
-        reader.read_exact(&mut body)?;
+    let mut filled = 0usize;
+    while filled < length {
+        apply_read_deadline(reader, deadline)?;
+        let count = reader
+            .read(&mut body[filled..])
+            .map_err(normalize_request_timeout)?;
+        if count == 0 {
+            return Err(std::io::Error::new(
+                ErrorKind::UnexpectedEof,
+                "incomplete HTTP body",
+            ));
+        }
+        filled += count;
     }
     Ok(Some(HttpRequest {
         method,
@@ -647,6 +704,69 @@ pub fn read_request(
         headers,
         body: String::from_utf8_lossy(&body).into_owned(),
     }))
+}
+
+/// Reads at most `limit` bytes, including CRLF, without allowing BufRead's
+/// unbounded `read_line` allocation or a slow client to renew the deadline.
+fn read_bounded_line(
+    reader: &mut BufReader<TcpStream>,
+    limit: usize,
+    deadline: Instant,
+) -> std::io::Result<Option<String>> {
+    let mut line = Vec::new();
+    loop {
+        apply_read_deadline(reader, deadline)?;
+        let available = reader.fill_buf().map_err(normalize_request_timeout)?;
+        if available.is_empty() {
+            return if line.is_empty() {
+                Ok(None)
+            } else {
+                Err(std::io::Error::new(
+                    ErrorKind::UnexpectedEof,
+                    "incomplete HTTP line",
+                ))
+            };
+        }
+        let take = available
+            .iter()
+            .position(|byte| *byte == b'\n')
+            .map_or(available.len(), |index| index + 1);
+        if line.len().saturating_add(take) > limit {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidData,
+                "HTTP line exceeds limit",
+            ));
+        }
+        line.extend_from_slice(&available[..take]);
+        reader.consume(take);
+        if line.last() == Some(&b'\n') {
+            return String::from_utf8(line).map(Some).map_err(|_| {
+                std::io::Error::new(ErrorKind::InvalidData, "HTTP line is not UTF-8")
+            });
+        }
+    }
+}
+
+fn apply_read_deadline(
+    reader: &mut BufReader<TcpStream>,
+    deadline: Instant,
+) -> std::io::Result<()> {
+    let remaining = deadline.saturating_duration_since(Instant::now());
+    if remaining.is_zero() {
+        return Err(std::io::Error::new(
+            ErrorKind::TimedOut,
+            "HTTP request deadline exceeded",
+        ));
+    }
+    reader.get_ref().set_read_timeout(Some(remaining))
+}
+
+fn normalize_request_timeout(error: std::io::Error) -> std::io::Error {
+    if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) {
+        std::io::Error::new(ErrorKind::TimedOut, "HTTP request deadline exceeded")
+    } else {
+        error
+    }
 }
 
 /// Serializes a response as an HTTP/1.1 message.
@@ -729,7 +849,8 @@ pub fn serve_config(
     let limits = config.limits;
     let security = config.security;
     let registry = crate::legacy::SessionRegistry::new();
-    let shared_service = Arc::new(Mutex::new(service));
+    let shared_service = Arc::new(service);
+    let sse_counts = Arc::new(Mutex::new(std::collections::HashMap::new()));
     let shared_log = Arc::new(Mutex::new(log));
     let limiter = Arc::new(RateLimiter::new(&limits));
     let active = Arc::new(AtomicUsize::new(0));
@@ -770,6 +891,7 @@ pub fn serve_config(
             continue;
         }
         let shared_service = Arc::clone(&shared_service);
+        let sse_counts = Arc::clone(&sse_counts);
         let shared_log = Arc::clone(&shared_log);
         let limiter = Arc::clone(&limiter);
         let active = Arc::clone(&active);
@@ -780,6 +902,7 @@ pub fn serve_config(
         std::thread::spawn(move || {
             let _release_slot = ReleaseSlot(active);
             let _ = stream.set_read_timeout(Some(limits.read_timeout));
+            let _ = stream.set_write_timeout(Some(limits.read_timeout));
             let mut reader = BufReader::new(match stream.try_clone() {
                 Ok(clone) => clone,
                 Err(_) => return,
@@ -828,13 +951,84 @@ pub fn serve_config(
                     }
                     continue;
                 }
+                let mut stream_identity = None;
+                let mut stream_slot = None;
+                // 所有 SSE 握手先通过与 POST 相同的 Origin/认证边界。
+                if request.method == "GET"
+                    && (request.path == MCP_ENDPOINT
+                        || request.path == crate::legacy::LEGACY_SSE_PATH)
+                {
+                    if security.policy.origin_decision(request.header("origin"))
+                        == OriginDecision::Refused
+                    {
+                        let _ = write_response(
+                            &mut stream,
+                            &HttpResponse::json(403, json!({"error": "forbidden_origin"})),
+                        );
+                        break;
+                    }
+                    if let Some(authenticator) = &security.authenticator {
+                        let token = token_from_headers(&request.headers);
+                        match authenticator.authenticate(token.as_deref()) {
+                            Ok(identity) => stream_identity = Some(identity),
+                            Err(failure) => {
+                                let _ = write_response(&mut stream, &unauthorized(failure));
+                                break;
+                            }
+                        }
+                    }
+                    if security.authenticator.is_none() && !shared_service.context.trusted_local() {
+                        let _ = write_response(&mut stream, &unauthorized(AuthFailure::Missing));
+                        break;
+                    }
+                    let principal = stream_identity
+                        .as_ref()
+                        .map(|identity| identity.principal.as_str())
+                        .unwrap_or("trusted-local")
+                        .to_owned();
+                    stream_slot =
+                        crate::sse_slot::SseSlot::acquire(Arc::clone(&sse_counts), principal);
+                    if stream_slot.is_none() {
+                        let _ = write_response(
+                            &mut stream,
+                            &HttpResponse::json(
+                                429,
+                                json!({"error":"sse_principal_limit", "max":4}),
+                            ),
+                        );
+                        break;
+                    }
+                }
+                if stream_slot.is_some() {
+                    let principal = stream_identity
+                        .as_ref()
+                        .map(|identity| identity.principal.as_str())
+                        .unwrap_or(shared_service.context.principal().as_str());
+                    let _ = shared_log.lock().map(|mut log| {
+                        writeln!(
+                            log,
+                            "{}",
+                            log_line(
+                                "sse_open",
+                                &[("principal", principal), ("path", &request.path)]
+                            )
+                        )
+                    });
+                }
+                let _stream_slot = stream_slot;
                 // The legacy adapter owns its two paths outright; every other
                 // request follows the modern transport pipeline.
                 if legacy_sse
                     && request.method == "GET"
                     && request.path == crate::legacy::LEGACY_SSE_PATH
                 {
-                    serve_legacy_sse(&mut stream, &registry, &security, &shared_log);
+                    serve_legacy_sse(
+                        &mut stream,
+                        &registry,
+                        stream_identity.as_ref(),
+                        &shared_service,
+                        &shared_log,
+                    );
                     break;
                 }
                 if request.method == "POST"
@@ -880,8 +1074,19 @@ pub fn serve_config(
                         break;
                     }
                     let _ = stream.flush();
+                    // A cloned request reader has just adjusted the socket's
+                    // receive timeout. Use nonblocking probes so liveness
+                    // never depends on which descriptor last changed it.
+                    if stream.set_nonblocking(true).is_err() {
+                        break;
+                    }
                     let mut probe = [0u8; 1];
                     loop {
+                        if stream_identity.as_ref().is_some_and(|identity| {
+                            !stream_identity_valid(&shared_service, identity)
+                        }) {
+                            break;
+                        }
                         match stream.peek(&mut probe) {
                             Ok(0) => break,
                             Ok(_) => {
@@ -895,6 +1100,7 @@ pub fn serve_config(
                                     ErrorKind::WouldBlock | ErrorKind::TimedOut
                                 ) =>
                             {
+                                std::thread::sleep(Duration::from_secs(1));
                                 // Idle tick: a comment keeps intermediaries
                                 // from reaping the connection.
                                 if stream
@@ -908,23 +1114,36 @@ pub fn serve_config(
                             Err(_) => break,
                         }
                     }
-                    continue;
+                    break;
                 }
                 let response = {
-                    let mut service = shared_service
-                        .lock()
-                        .expect("the service mutex is never poisoned by design");
+                    let mut service = shared_service.as_ref().clone();
                     handle_secured(&mut service, &request, &limits, &security)
                 };
                 if write_response(&mut stream, &response).is_err() {
                     break;
                 }
                 handled.fetch_add(1, Ordering::SeqCst);
+                let principal = if let Some(authenticator) = &security.authenticator {
+                    authenticator
+                        .authenticate(token_from_headers(&request.headers).as_deref())
+                        .map(|identity| identity.principal.as_str().to_owned())
+                        .unwrap_or_else(|_| "anonymous".to_owned())
+                } else {
+                    shared_service.context.principal().as_str().to_owned()
+                };
                 let _ = shared_log.lock().map(|mut log| {
                     let _ = writeln!(
                         log,
                         "{}",
-                        log_line("request", &[("client", &client), ("path", &request.path)])
+                        log_line(
+                            "request",
+                            &[
+                                ("principal", &principal),
+                                ("client", &client),
+                                ("path", &request.path)
+                            ]
+                        )
                     );
                 });
             }
@@ -963,12 +1182,13 @@ impl ServerConfig {
 fn serve_legacy_sse(
     stream: &mut TcpStream,
     registry: &crate::legacy::SessionRegistry,
-    security: &Security,
+    identity: Option<&crate::auth::AuthenticatedPrincipal>,
+    service: &McpService,
     log: &Arc<Mutex<impl Write + Send>>,
 ) {
     use std::io::ErrorKind;
-    let _ = security;
-    let (session_id, receiver) = registry.open();
+    let (session_id, receiver) =
+        registry.open_bound(identity.map(|identity| identity.principal.as_str().to_owned()));
     let head = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-cache\r\nConnection: keep-alive\r\n\r\n";
     if stream.write_all(head.as_bytes()).is_err()
         || stream
@@ -979,10 +1199,17 @@ fn serve_legacy_sse(
         return;
     }
     let _ = stream.flush();
+    if stream.set_nonblocking(true).is_err() {
+        registry.close(&session_id);
+        return;
+    }
     // Liveness: a client that vanishes is detected by the write failing after
     // a channel message, or by the periodic keep-alive when the stream idles.
-    let keepalive = Duration::from_secs(30);
+    let keepalive = Duration::from_secs(1);
     loop {
+        if identity.is_some_and(|identity| !stream_identity_valid(service, identity)) {
+            break;
+        }
         match receiver.recv_timeout(keepalive) {
             Ok(frame) => {
                 if stream.write_all(frame.as_bytes()).is_err() || stream.flush().is_err() {
@@ -1000,11 +1227,12 @@ fn serve_legacy_sse(
             }
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
         }
-        // Peek with the read timeout: a closed client shows up as EOF/Err.
+        // The channel wait above supplies the idle tick; probing the socket
+        // without blocking keeps revocation and expiry checks timely.
         let mut probe = [0u8; 1];
         match stream.peek(&mut probe) {
             Ok(0) => break,
-            Err(error) if error.kind() == ErrorKind::WouldBlock => {}
+            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
             Err(error) => {
                 if std::env::var("DISKGRAPH_LEGACY_DEBUG").is_ok() {
                     eprintln!("[legacy-debug] peek error: {error}");
@@ -1028,6 +1256,17 @@ fn serve_legacy_sse(
     });
 }
 
+fn stream_identity_valid(
+    service: &McpService,
+    identity: &crate::auth::AuthenticatedPrincipal,
+) -> bool {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|time| time.as_secs())
+        .unwrap_or(u64::MAX);
+    now < identity.expires_at_unix_seconds && service.identity_is_live(identity)
+}
+
 /// Handles one legacy message POST: validate, acknowledge with 202, then
 /// deliver the response on the session's SSE stream. Returns false when the
 /// connection should close.
@@ -1036,39 +1275,56 @@ fn serve_legacy_post(
     request: &HttpRequest,
     registry: &crate::legacy::SessionRegistry,
     security: &Security,
-    shared_service: &Arc<Mutex<McpService>>,
+    shared_service: &Arc<McpService>,
     _log: &Arc<Mutex<impl Write + Send>>,
 ) -> bool {
-    let Some(session_id) = request.query_param("session_id") else {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(400, json!({"error": "missing_session_id"})),
-        );
-        return true;
-    };
-    let Some(sender) = registry.lookup(&session_id) else {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(404, json!({"error": "unknown_session"})),
-        );
-        return true;
-    };
-    // The same bearer-token authentication as the modern transport.
-    if let Some(authenticator) = &security.authenticator {
-        let token = token_from_headers(&request.headers);
-        if let Err(failure) = authenticator.authenticate(token.as_deref()) {
-            let _ = write_response(stream, &unauthorized(failure));
-            return true;
-        }
-    }
-    // The same origin policy as the modern transport.
     if security.policy.origin_decision(request.header("origin")) == OriginDecision::Refused {
         let _ = write_response(
             stream,
-            &HttpResponse::json(403, json!({"error": "forbidden_origin"})),
+            &HttpResponse::json(403, json!({"error":"forbidden_origin"})),
         );
         return true;
     }
+    let identity = if let Some(authenticator) = &security.authenticator {
+        match authenticator.authenticate(token_from_headers(&request.headers).as_deref()) {
+            Ok(identity) => Some(identity),
+            Err(failure) => {
+                let _ = write_response(stream, &unauthorized(failure));
+                return true;
+            }
+        }
+    } else if shared_service.context.trusted_local() {
+        None
+    } else {
+        let _ = write_response(stream, &unauthorized(AuthFailure::Missing));
+        return true;
+    };
+    let Some(session_id) = request.query_param("session_id") else {
+        let _ = write_response(
+            stream,
+            &HttpResponse::json(400, json!({"error":"missing_session_id"})),
+        );
+        return true;
+    };
+    if registry.lookup(&session_id).is_none() {
+        let _ = write_response(
+            stream,
+            &HttpResponse::json(404, json!({"error":"unknown_session"})),
+        );
+        return true;
+    }
+    let Some(sender) = registry.lookup_bound(
+        &session_id,
+        identity
+            .as_ref()
+            .map(|identity| identity.principal.as_str()),
+    ) else {
+        let _ = write_response(
+            stream,
+            &HttpResponse::json(403, json!({"error":"session_principal_mismatch"})),
+        );
+        return true;
+    };
     // Validate before acknowledging: a malformed message gets 400, not a
     // silent 202 with nothing on the stream.
     let value: Result<serde_json::Value, _> = serde_json::from_str(request.body.trim());
@@ -1119,16 +1375,20 @@ fn serve_legacy_post(
         return false;
     }
     let response = {
-        let mut service = shared_service
-            .lock()
-            .expect("the service mutex is never poisoned by design");
-        service.handle(&decoded)
+        let mut service = shared_service.as_ref().clone();
+        if let Some(identity) = &identity {
+            service
+                .for_transport_identity(identity, "legacy_sse")
+                .handle(&decoded)
+        } else {
+            service.handle(&decoded)
+        }
     };
     let payload = serde_json::to_string(&response).unwrap_or_default();
     // A dead session answers the POST with what it can: the client learns the
     // stream is gone on its next read, which is the legacy protocol's own
     // disconnect semantics.
-    let _ = sender.send(crate::legacy::message_event(&payload));
+    let _ = sender.try_send(crate::legacy::message_event(&payload));
     true
 }
 
@@ -1148,6 +1408,86 @@ mod tests {
     use crate::protocol::ToolProfile;
     use diskgraph_core::Authorizer as _;
     use diskgraph_testkit::http_client;
+
+    #[test]
+    fn request_line_and_headers_are_bounded_before_authentication() {
+        for request in [
+            format!("GET /{} HTTP/1.1\r\nHost: x\r\n\r\n", "x".repeat(16 * 1024)),
+            format!(
+                "GET /mcp HTTP/1.1\r\nX-Pad: {}\r\n\r\n",
+                "x".repeat(64 * 1024)
+            ),
+        ] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let mut client = TcpStream::connect(address).unwrap();
+            client.write_all(request.as_bytes()).unwrap();
+            let (server, _) = listener.accept().unwrap();
+            let mut reader = BufReader::new(server);
+            let error = read_request(&mut reader, &HttpLimits::default()).unwrap_err();
+            assert_eq!(error.kind(), ErrorKind::InvalidData, "{error}");
+        }
+    }
+
+    #[test]
+    fn request_deadline_does_not_restart_after_each_received_byte() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let sender = std::thread::spawn(move || {
+            let mut client = TcpStream::connect(address).unwrap();
+            for _ in 0..30 {
+                if client.write_all(b"x").is_err() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+        });
+        let (server, _) = listener.accept().unwrap();
+        server
+            .set_read_timeout(Some(Duration::from_millis(100)))
+            .unwrap();
+        let mut reader = BufReader::new(server);
+        let limits = HttpLimits {
+            read_timeout: Duration::from_millis(100),
+            ..HttpLimits::default()
+        };
+        let started = std::time::Instant::now();
+        let error = read_request(&mut reader, &limits).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::TimedOut, "{error}");
+        assert!(
+            started.elapsed() < Duration::from_millis(300),
+            "{:?}",
+            started.elapsed()
+        );
+        sender.join().unwrap();
+    }
+
+    #[test]
+    fn unsupported_or_ambiguous_http_framing_is_rejected() {
+        for request in [
+            "POST /mcp HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n",
+            "POST /mcp HTTP/1.1\r\nContent-Length: 1\r\nContent-Length: 2\r\n\r\nx",
+            "POST /mcp HTTP/1.1\r\nContent-Length: bogus\r\n\r\n",
+            "POST /mcp HTTP/1.1\r\nContent-Length: 1000\r\n\r\n",
+        ] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            let mut client = TcpStream::connect(address).unwrap();
+            client.write_all(request.as_bytes()).unwrap();
+            let (server, _) = listener.accept().unwrap();
+            server
+                .set_read_timeout(Some(Duration::from_millis(100)))
+                .unwrap();
+            let mut reader = BufReader::new(server);
+            let limits = HttpLimits {
+                max_body_bytes: 32,
+                read_timeout: Duration::from_millis(100),
+                ..HttpLimits::default()
+            };
+            let error = read_request(&mut reader, &limits).unwrap_err();
+            assert_eq!(error.kind(), ErrorKind::InvalidData, "{request:?}: {error}");
+        }
+    }
 
     fn service(label: &str) -> (McpService, tempfile::TempDir) {
         service_with_profile(label, ToolProfile::ReadFull)
@@ -1987,6 +2327,11 @@ mod tests {
         };
         let token = TokenMinter::new(b"key").mint(&claims);
         let (service, _keep) = service("legacy-gate");
+        let identity = authenticator.authenticate(Some(&token)).unwrap();
+        service
+            .engine()
+            .bootstrap_local_admin(&identity.principal)
+            .unwrap();
         let limits = HttpLimits {
             read_timeout: Duration::from_secs(5),
             max_requests_per_second_per_client: 100,
@@ -2017,7 +2362,11 @@ mod tests {
         assert_eq!(status, 404);
 
         // Real session, no token: 401.
-        let mut sse = legacy_client::SseStream::connect(port).unwrap();
+        let mut sse = legacy_client::SseStream::connect_with_headers(
+            port,
+            &[("Authorization", &format!("Bearer {token}"))],
+        )
+        .unwrap();
         let status = legacy_client::post_message(
             port,
             &sse.message_endpoint,
@@ -2317,7 +2666,7 @@ mod tests {
             .engine()
             .publish_policy_version(
                 2,
-                &service.principal,
+                service.context.principal(),
                 &service.engine().policy_authorizer().unwrap(),
             )
             .unwrap();

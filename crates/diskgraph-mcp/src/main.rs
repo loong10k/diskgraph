@@ -2,8 +2,8 @@
 //! and logging to stderr (spec MCP-02); on Streamable HTTP the same service is
 //! served over loopback (spec MCP-01).
 
-use std::io::{self, BufReader};
-use std::path::PathBuf;
+use std::io::{self, BufReader, Read};
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use diskgraph_mcp::protocol::ToolProfile;
@@ -56,6 +56,26 @@ fn main() -> ExitCode {
                 else {
                     return usage("--auth requires ISSUER AUDIENCE KEY");
                 };
+                if issuer.is_some() {
+                    return usage("configure only one authentication source");
+                }
+                issuer = Some((iss, aud, key));
+            }
+            "--auth-key-file" => {
+                let (Some(iss), Some(aud), Some(path)) = (args.next(), args.next(), args.next())
+                else {
+                    return usage("--auth-key-file requires ISSUER AUDIENCE PATH");
+                };
+                if issuer.is_some() {
+                    return usage("configure only one authentication source");
+                }
+                let key = match read_auth_key(Path::new(&path)) {
+                    Ok(key) => key,
+                    Err(error) => {
+                        eprintln!("invalid authentication key file: {error}");
+                        return ExitCode::from(6);
+                    }
+                };
                 issuer = Some((iss, aud, key));
             }
             "--secure-transport" => secure_transport = true,
@@ -68,6 +88,10 @@ fn main() -> ExitCode {
                 Some(value) => trusted_proxies.push(value),
                 None => return usage("--trusted-proxy requires an address"),
             },
+            "--version" | "-V" => {
+                println!("diskgraph-mcp {}", env!("CARGO_PKG_VERSION"));
+                return ExitCode::SUCCESS;
+            }
             "--help" | "-h" => return usage(""),
             other => return usage(&format!("unknown argument: {other}")),
         }
@@ -85,6 +109,12 @@ fn main() -> ExitCode {
         ))
     });
     if transport != "stdio" {
+        if authenticator.is_none() {
+            eprintln!(
+                "HTTP and SSE require --auth ISSUER AUDIENCE KEY, including loopback listeners"
+            );
+            return ExitCode::from(6);
+        }
         use diskgraph_mcp::http::BindPolicy;
         match http::bind_decision(&host, authenticator.is_some(), secure_transport) {
             BindPolicy::LoopbackPlaintext | BindPolicy::NetworkWithTunnel => {}
@@ -107,7 +137,12 @@ fn main() -> ExitCode {
         trusted_proxies,
     };
 
-    let mut service = match McpService::open(McpConfig {
+    let open_service = if transport == "stdio" {
+        McpService::open
+    } else {
+        McpService::open_remote
+    };
+    let mut service = match open_service(McpConfig {
         data_dir,
         profile,
         legacy_sse,
@@ -181,8 +216,9 @@ fn usage(problem: &str) -> ExitCode {
     eprintln!(
         "diskgraph-mcp — MCP server\n\
          \n\
-         USAGE:\n    diskgraph-mcp [--data-dir PATH] [--profile PROFILE]\n\
+         USAGE:\n    diskgraph-mcp [--version] [--data-dir PATH] [--profile PROFILE]\n\
          \x20                     [--transport stdio|streamable-http] [--host ADDR] [--port PORT]\n\
+         \x20                     [--auth-key-file ISSUER AUDIENCE PATH]\n\
          \n\
          TRANSPORT:\n    stdio             local process; protocol on stdout, logs on stderr\n    \
          streamable-http   HTTP server; loopback hosts only\n    \
@@ -199,4 +235,35 @@ fn usage(problem: &str) -> ExitCode {
     } else {
         ExitCode::from(2)
     }
+}
+
+fn read_auth_key(path: &Path) -> io::Result<String> {
+    let file = std::fs::File::open(path)?;
+    let metadata = file.metadata()?;
+    if !metadata.is_file() || metadata.len() == 0 || metadata.len() > 4096 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "authentication key must be a nonempty regular file of at most 4096 bytes",
+        ));
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if metadata.permissions().mode() & 0o077 != 0 {
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "authentication key file must not be accessible by group or others",
+            ));
+        }
+    }
+    let mut key = String::new();
+    file.take(4097).read_to_string(&mut key)?;
+    let key = key.trim_end_matches(['\r', '\n']);
+    if key.len() < 32 || key.len() > 4096 || key.contains('\0') {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "authentication key must contain 32 to 4096 UTF-8 bytes",
+        ));
+    }
+    Ok(key.to_owned())
 }

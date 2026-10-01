@@ -6,7 +6,6 @@
 //! layout and the palette are the same ones the HTML page and the agent
 //! text format use, so all three agree on what the map means.
 
-use std::cell::Cell;
 use std::io::Stdout;
 
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
@@ -24,11 +23,14 @@ use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 use diskgraph_core::treemap::{self, Rect as MapRect, Weighted};
 use diskgraph_engine::{Engine, EngineError};
 
-use crate::html::{PALETTE, color_for, next_pseudonym};
+use crate::html::{PALETTE, color_for};
 
 /// One directory level, loaded on demand.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Layer {
+    pub parent_id: u64,
+    pub offset: u64,
+    pub has_more: bool,
     pub name: String,
     pub total_bytes: u64,
     pub total_files: u64,
@@ -37,17 +39,15 @@ pub struct Layer {
 }
 
 /// Loaded with `--anonymize`: the root reads as the caller's label and every
-/// child becomes a stable pseudonym, so a captured session can be shared
-/// without disclosing names. Sizes, structure and categories stay exact -
-/// they are the point of the picture.
+/// child becomes a stable pseudonym based on its revision-local node ID.
+/// This avoids retaining every visited node when paging a wide directory.
+/// Sizes, structure and categories stay exact.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct Pseudonyms {
-    counter: usize,
-}
+pub struct Pseudonyms;
 
 impl Pseudonyms {
     pub fn new() -> Self {
-        Self { counter: 0 }
+        Self
     }
 
     /// The root's share-safe label.
@@ -55,8 +55,8 @@ impl Pseudonyms {
         "home"
     }
 
-    fn next(&mut self) -> String {
-        next_pseudonym(&mut self.counter)
+    fn label_for(&self, node_id: u64) -> String {
+        format!("dir-{node_id:02}")
     }
 }
 
@@ -64,19 +64,28 @@ fn load_layer_anon(
     engine: &Engine,
     revision: &str,
     parent_id: u64,
-    pseudonyms: Option<&Cell<Pseudonyms>>,
+    pseudonyms: Option<&Pseudonyms>,
     is_root: bool,
 ) -> Result<Layer, EngineError> {
-    let mut layer = load_layer(engine, revision, parent_id)?;
-    if let Some(cell) = pseudonyms {
-        let mut state = cell.get();
+    load_layer_page_anon(engine, revision, parent_id, 0, pseudonyms, is_root)
+}
+
+fn load_layer_page_anon(
+    engine: &Engine,
+    revision: &str,
+    parent_id: u64,
+    offset: u64,
+    pseudonyms: Option<&Pseudonyms>,
+    is_root: bool,
+) -> Result<Layer, EngineError> {
+    let mut layer = load_layer_page(engine, revision, parent_id, offset)?;
+    if let Some(state) = pseudonyms {
         if is_root {
             layer.name = state.root().to_owned();
         }
         for child in &mut layer.children {
-            child.name = state.next();
+            child.name = state.label_for(child.id);
         }
-        cell.set(state);
     }
     Ok(layer)
 }
@@ -96,9 +105,24 @@ pub struct Entry {
 /// What the browser surface calls a revision tree, loaded one level at a
 /// time. A scope without an index is a clean "not indexed" report, not a
 /// panic.
+const PAGE_SIZE: usize = 512;
+
 pub fn load_layer(engine: &Engine, revision: &str, parent_id: u64) -> Result<Layer, EngineError> {
-    let (node, children) = engine.revision_layer(revision, parent_id, 5_000)?;
+    load_layer_page(engine, revision, parent_id, 0)
+}
+
+fn load_layer_page(
+    engine: &Engine,
+    revision: &str,
+    parent_id: u64,
+    offset: u64,
+) -> Result<Layer, EngineError> {
+    let (node, children, has_more) =
+        engine.revision_layer_page(revision, parent_id, offset, PAGE_SIZE)?;
     Ok(Layer {
+        parent_id,
+        offset,
+        has_more,
         name: node.name.clone(),
         total_bytes: node.subtree_bytes,
         total_files: node.files,
@@ -136,7 +160,7 @@ pub struct Browser {
     pub min_share: f64,
     /// Set with `--anonymize`: shared across every layer load so a descended
     /// session keeps one stable numbering.
-    pub pseudonyms: Option<Cell<Pseudonyms>>,
+    pub pseudonyms: Option<Pseudonyms>,
 }
 
 impl Browser {
@@ -147,7 +171,7 @@ impl Browser {
             trail: vec![root],
             selected: 0,
             sort_by_size: true,
-            status: "↑↓ move · enter descend · esc/backspace up · s sort · m threshold · q quit"
+            status: "↑↓ move · enter descend · n/p pages · backspace up · s sort page · m threshold · q quit"
                 .to_owned(),
             min_share: 0.005,
             pseudonyms: None,
@@ -156,13 +180,13 @@ impl Browser {
 
     pub fn with_pseudonyms(mut self, anonymize: bool) -> Self {
         if anonymize {
-            let mut state = Pseudonyms::new();
+            let state = Pseudonyms::new();
             let root = self.trail.last_mut().expect("the trail always has a root");
             root.name = state.root().to_owned();
             for child in &mut root.children {
-                child.name = state.next();
+                child.name = state.label_for(child.id);
             }
-            self.pseudonyms = Some(Cell::new(state));
+            self.pseudonyms = Some(state);
         }
         self
     }
@@ -206,6 +230,22 @@ impl Browser {
         let next = self.selected as isize + delta;
         self.selected = next.clamp(0, count as isize - 1) as usize;
         self.selected_id = self.ordered().get(self.selected).map(|entry| entry.id);
+    }
+
+    pub fn page_target(&self, direction: isize) -> Option<u64> {
+        let layer = self.current();
+        match direction {
+            1 if layer.has_more => Some(layer.offset.saturating_add(PAGE_SIZE as u64)),
+            -1 if layer.offset > 0 => Some(layer.offset.saturating_sub(PAGE_SIZE as u64)),
+            _ => None,
+        }
+    }
+
+    pub fn replace_current_page(&mut self, layer: Layer) {
+        let selected_id = layer.children.first().map(|entry| entry.id);
+        *self.trail.last_mut().expect("the trail always has a root") = layer;
+        self.selected = 0;
+        self.selected_id = selected_id;
     }
 
     pub fn toggle_sort(&mut self) {
@@ -274,6 +314,34 @@ fn event_loop(
             KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
             KeyCode::Char('s') => browser.toggle_sort(),
             KeyCode::Char('m') => browser.cycle_threshold(),
+            KeyCode::Char('n') | KeyCode::PageDown => {
+                if let Some(offset) = browser.page_target(1) {
+                    let parent_id = browser.current().parent_id;
+                    let layer = load_layer_page_anon(
+                        engine,
+                        &browser.revision,
+                        parent_id,
+                        offset,
+                        browser.pseudonyms.as_ref(),
+                        browser.trail.len() == 1,
+                    )?;
+                    browser.replace_current_page(layer);
+                }
+            }
+            KeyCode::Char('p') | KeyCode::PageUp => {
+                if let Some(offset) = browser.page_target(-1) {
+                    let parent_id = browser.current().parent_id;
+                    let layer = load_layer_page_anon(
+                        engine,
+                        &browser.revision,
+                        parent_id,
+                        offset,
+                        browser.pseudonyms.as_ref(),
+                        browser.trail.len() == 1,
+                    )?;
+                    browser.replace_current_page(layer);
+                }
+            }
             KeyCode::Up | KeyCode::Char('k') => browser.move_selection(-1),
             KeyCode::Down | KeyCode::Char('j') => browser.move_selection(1),
             KeyCode::Backspace | KeyCode::Left | KeyCode::Char('h') => {
@@ -350,6 +418,19 @@ fn status_line<'a>(browser: &'a Browser) -> Paragraph<'a> {
         ),
         Span::styled(
             format!(
+                "  page {}{}{}",
+                layer.offset / PAGE_SIZE as u64 + 1,
+                if layer.offset > 0 {
+                    " · p previous"
+                } else {
+                    ""
+                },
+                if layer.has_more { " · n next" } else { "" },
+            ),
+            Style::default().fg(Color::Yellow),
+        ),
+        Span::styled(
+            format!(
                 "   {}{}",
                 browser.status,
                 match (browser.hidden(), browser.min_share) {
@@ -423,9 +504,11 @@ fn draw_children(
         .max()
         .unwrap_or(1)
         .max(1);
+    let by_id: std::collections::HashMap<u64, &Entry> =
+        entries.iter().map(|entry| (entry.id, *entry)).collect();
 
     for item in placed {
-        let Some(entry) = entries.iter().find(|entry| entry.id == item.id) else {
+        let Some(entry) = by_id.get(&item.id).copied() else {
             continue;
         };
         let x = item.rect.x as u16;
@@ -621,6 +704,9 @@ mod tests {
 
     fn layer() -> Layer {
         Layer {
+            parent_id: 1,
+            offset: 0,
+            has_more: false,
             name: "root".into(),
             total_bytes: 300,
             total_files: 30,
@@ -642,6 +728,36 @@ mod tests {
         assert_eq!(browser.selected, 2, "cannot move past the last entry");
         browser.move_selection(-1);
         assert_eq!(browser.selected, 1);
+    }
+
+    #[test]
+    fn wide_directory_can_navigate_bounded_pages_without_losing_parent() {
+        let mut first = layer();
+        first.parent_id = 17;
+        first.has_more = true;
+        let mut browser = Browser::new("rev-1", first);
+        assert_eq!(browser.page_target(1), Some(PAGE_SIZE as u64));
+        assert_eq!(browser.page_target(-1), None);
+
+        let mut second = layer();
+        second.parent_id = 17;
+        second.offset = PAGE_SIZE as u64;
+        second.has_more = false;
+        second.children = vec![entry(99, "last", 1, 1)];
+        browser.replace_current_page(second);
+        assert_eq!(browser.current().parent_id, 17);
+        assert_eq!(browser.selected_id, Some(99));
+        assert_eq!(browser.page_target(1), None);
+        assert_eq!(browser.page_target(-1), Some(0));
+    }
+
+    #[test]
+    fn anonymized_nodes_keep_their_labels_when_a_page_is_revisited() {
+        let pseudonyms = Pseudonyms::new();
+        let first = pseudonyms.label_for(11);
+        let second = pseudonyms.label_for(12);
+        assert_ne!(first, second);
+        assert_eq!(pseudonyms.label_for(11), first);
     }
 
     #[test]
@@ -697,19 +813,19 @@ mod tests {
 
     #[test]
     fn anonymize_replaces_every_name_but_keeps_the_numbers() {
-        let mut state = Pseudonyms::new();
+        let state = Pseudonyms::new();
         let mut root = layer();
         root.name = state.root().to_owned();
         for child in &mut root.children {
-            child.name = state.next();
+            child.name = state.label_for(child.id);
         }
         assert_eq!(root.name, "home");
         let names: Vec<&str> = root.children.iter().map(|e| e.name.as_str()).collect();
         assert_eq!(names, vec!["dir-01", "dir-02", "dir-03"]);
         assert_eq!(root.children[0].size_bytes, 200, "sizes survive");
         assert_eq!(root.total_files, 30, "totals survive");
-        // A second layer keeps counting, so no two directories collide.
-        assert_eq!(state.next(), "dir-04");
+        // Revisited pages and later layers map the same ID to the same label.
+        assert_eq!(state.label_for(4), "dir-04");
     }
 
     #[test]

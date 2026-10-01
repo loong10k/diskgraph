@@ -13,6 +13,7 @@
 //! - Result interpretation is conservative: an unprovable outcome parks as
 //!   [`SpecialistVerdict::NeedsAttention`] instead of claiming success.
 
+#[cfg(unix)]
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
@@ -283,6 +284,7 @@ impl CommandRunner for SandboxedRunner {
     }
 }
 
+#[cfg(unix)]
 fn run_once(spec: &CommandSpec) -> Result<RunOutcome, OpsError> {
     use std::process::{Command, Stdio};
 
@@ -300,6 +302,20 @@ fn run_once(spec: &CommandSpec) -> Result<RunOutcome, OpsError> {
     command.stdin(Stdio::null());
     command.stdout(Stdio::piped());
     command.stderr(Stdio::piped());
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        // Put the command and ordinary descendants in their own process
+        // group so timeout can close pipes inherited by background children.
+        unsafe {
+            command.pre_exec(|| {
+                if libc::setsid() < 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                Ok(())
+            });
+        }
+    }
     let mut child = command.spawn().map_err(|error| {
         OpsError::Stale(format!(
             "specialist program {} is unavailable: {error}",
@@ -309,18 +325,22 @@ fn run_once(spec: &CommandSpec) -> Result<RunOutcome, OpsError> {
 
     // Readers own their pipes so the poll loop never blocks on a quiet child.
     let cap = spec.max_output_bytes.max(1);
+    let deadline = Instant::now() + Duration::from_millis(spec.timeout_ms.max(1));
     let stdout_pipe = child.stdout.take();
     let stderr_pipe = child.stderr.take();
-    let stdout_reader = std::thread::spawn(move || drain(stdout_pipe, cap));
-    let stderr_reader = std::thread::spawn(move || drain(stderr_pipe, cap));
+    let stdout_reader = std::thread::spawn(move || drain(stdout_pipe, cap, deadline));
+    let stderr_reader = std::thread::spawn(move || drain(stderr_pipe, cap, deadline));
 
-    let deadline = Instant::now() + Duration::from_millis(spec.timeout_ms.max(1));
     let mut timed_out = false;
     loop {
         match child.try_wait()? {
             Some(_status) => break,
             None if Instant::now() >= deadline => {
                 timed_out = true;
+                #[cfg(unix)]
+                unsafe {
+                    let _ = libc::kill(-(child.id() as i32), libc::SIGKILL);
+                }
                 let _ = child.kill();
                 let _ = child.wait();
                 break;
@@ -334,6 +354,14 @@ fn run_once(spec: &CommandSpec) -> Result<RunOutcome, OpsError> {
     let (stderr, stderr_truncated) = stderr_reader
         .join()
         .map_err(|_| OpsError::Stale("stderr reader failed".into()))?;
+    if Instant::now() >= deadline && (stdout_truncated || stderr_truncated) {
+        timed_out = true;
+        // The direct child may have exited while a background descendant
+        // retained stdout/stderr; its process group can still be alive.
+        unsafe {
+            let _ = libc::kill(-(child.id() as i32), libc::SIGKILL);
+        }
+    }
     let exit_code = match child.try_wait()? {
         Some(status) => status.code().unwrap_or(-1),
         None if timed_out => -1,
@@ -348,15 +376,38 @@ fn run_once(spec: &CommandSpec) -> Result<RunOutcome, OpsError> {
     })
 }
 
+#[cfg(not(unix))]
+fn run_once(_spec: &CommandSpec) -> Result<RunOutcome, OpsError> {
+    Err(OpsError::Stale(
+        "unsupported: bounded specialist subprocesses are not implemented on this platform".into(),
+    ))
+}
+
 /// Reads a pipe to the end, keeping at most `cap` bytes and discarding the
 /// rest (so a chatty child can still finish), and reporting the discard.
-fn drain(pipe: Option<impl Read>, cap: usize) -> (Vec<u8>, bool) {
+#[cfg(unix)]
+fn drain(
+    pipe: Option<impl Read + std::os::fd::AsRawFd>,
+    cap: usize,
+    deadline: Instant,
+) -> (Vec<u8>, bool) {
     let mut buffer = Vec::new();
     let Some(mut pipe) = pipe else {
         return (buffer, false);
     };
+    let fd = std::os::fd::AsRawFd::as_raw_fd(&pipe);
+    // SAFETY: fd stays owned by this reader for its whole lifetime.
+    unsafe {
+        let flags = libc::fcntl(fd, libc::F_GETFL);
+        if flags < 0 || libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) < 0 {
+            return (buffer, true);
+        }
+    }
     let mut chunk = [0_u8; 8_192];
     loop {
+        if Instant::now() >= deadline {
+            return (buffer, true);
+        }
         match pipe.read(&mut chunk) {
             Ok(0) => return (buffer, false),
             Ok(read) => {
@@ -366,19 +417,32 @@ fn drain(pipe: Option<impl Read>, cap: usize) -> (Vec<u8>, bool) {
                     if keep < read {
                         // The cap is hit; keep draining so the child is not
                         // blocked on a full pipe, but the tail is lost.
-                        drain_rest(&mut pipe);
+                        drain_rest(&mut pipe, deadline);
                         return (buffer, true);
                     }
                 }
             }
-            Err(_) => return (buffer, false),
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            Err(_) => return (buffer, true),
         }
     }
 }
 
-fn drain_rest(pipe: &mut impl Read) {
+#[cfg(unix)]
+fn drain_rest(pipe: &mut impl Read, deadline: Instant) {
     let mut chunk = [0_u8; 8_192];
-    while matches!(pipe.read(&mut chunk), Ok(read) if read > 0) {}
+    while Instant::now() < deadline {
+        match pipe.read(&mut chunk) {
+            Ok(0) => return,
+            Ok(_) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            Err(_) => return,
+        }
+    }
 }
 
 /// What an external run proved. Interpretation is conservative: only a clean
@@ -688,6 +752,37 @@ mod tests {
         assert!(outcome.timed_out);
         assert_eq!(outcome.exit_code, -1);
         assert!(started.elapsed() < Duration::from_secs(5));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn timeout_kills_descendants_that_inherit_output_pipes() {
+        let started = Instant::now();
+        let mut spec = spec_for(PathBuf::from("/bin/sh"), &["-c", "sleep 2 & wait"]);
+        spec.timeout_ms = 50;
+        let outcome = SandboxedRunner.run(&spec).unwrap();
+        assert!(outcome.timed_out);
+        assert!(
+            started.elapsed() < Duration::from_millis(800),
+            "descendant kept the reader threads alive after timeout"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn timeout_kills_a_descendant_after_the_direct_child_exits() {
+        let workspace = tempfile::tempdir().unwrap();
+        let marker = workspace.path().join("escaped");
+        let script = format!(
+            "(/bin/sleep 1; /usr/bin/touch {}) & exit 0",
+            marker.display()
+        );
+        let mut spec = spec_for(PathBuf::from("/bin/sh"), &["-c", &script]);
+        spec.timeout_ms = 50;
+        let outcome = SandboxedRunner.run(&spec).unwrap();
+        assert!(outcome.timed_out);
+        std::thread::sleep(Duration::from_millis(1_200));
+        assert!(!marker.exists(), "a descendant survived the timeout");
     }
 
     #[test]

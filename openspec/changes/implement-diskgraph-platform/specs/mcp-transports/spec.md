@@ -46,6 +46,20 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 ### Requirement: MCP-06 Network controls
 远程服务 SHALL 要求认证、配置的 TLS/可信加密隧道、Origin 策略、请求体/响应/连接预算及限流；服务监听和反向代理信任边界必须显式配置。
 
+生产服务配置 SHALL 从受限文件读取签名密钥，不得将密钥展开到服务进程参数；旧内联参数保留兼容但不得用于交付示例。`diskgraph serve` 在 Windows SHALL 正确定位 MCP `.exe` 子进程。
+
 #### Scenario: Hostile origin or forged identity
 - **WHEN** 请求带不允许的 Origin 或未验证身份头
 - **THEN** 拒绝请求且不执行工具。
+
+#### Scenario: Oversized or slowly streamed headers
+- **WHEN** 未认证连接持续发送超大请求行或请求头，或仅滴流字节以保持连接活动
+- **THEN** 在有界总头字节、单字段长度与绝对期限内关闭连接，不占满服务工作线程。
+
+#### Scenario: Remote serve from the CLI
+- **WHEN** 本机管理员通过 `diskgraph serve` 指定远程认证与 Origin 配置
+- **THEN** 配置完整传给 MCP 子进程，服务正常启动且无 token 请求被拒绝。
+
+#### Scenario: Protected verifier key and Windows delegation
+- **WHEN** 部署使用受限密钥文件，或 Windows CLI 启动本机 MCP 子进程
+- **THEN** 验收进程真实完成授权调用，密钥不出现在子进程参数中；不安全权限、空密钥或缺失文件使服务启动失败。

@@ -32,9 +32,58 @@ SCOPE="$("$CLI_BIN" --data-dir "$DATA" --json scope add --root "$WORK/fixtures/p
     | sed -n 's/.*"scope_id":"\([^"]*\)".*/\1/p' | head -1)"
 "$CLI_BIN" --data-dir "$DATA" --json index --scope "$SCOPE" --wait > /dev/null
 
+# Exercise the same remote identity and policy boundary as a deployed
+# listener. The key and token exist only in this isolated fixture.
+AUTH_ISSUER="diskgraph-legacy-accept"
+AUTH_AUDIENCE="diskgraph"
+AUTH_SUBJECT="legacy-client"
+AUTH_KEY="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+ALLOWED_ORIGIN="http://diskgraph-accept.invalid"
+DISKGRAPH_ACCEPT_DATA="$DATA" \
+DISKGRAPH_ACCEPT_SCOPE="$SCOPE" \
+DISKGRAPH_ACCEPT_WORK="$WORK" \
+DISKGRAPH_ACCEPT_ISSUER="$AUTH_ISSUER" \
+DISKGRAPH_ACCEPT_AUDIENCE="$AUTH_AUDIENCE" \
+DISKGRAPH_ACCEPT_SUBJECT="$AUTH_SUBJECT" \
+DISKGRAPH_ACCEPT_KEY="$AUTH_KEY" \
+python3 <<'PY'
+import base64, hashlib, hmac, json, os, pathlib, sqlite3, time
+
+issuer = os.environ["DISKGRAPH_ACCEPT_ISSUER"]
+audience = os.environ["DISKGRAPH_ACCEPT_AUDIENCE"]
+subject = os.environ["DISKGRAPH_ACCEPT_SUBJECT"]
+key = os.environ["DISKGRAPH_ACCEPT_KEY"].encode()
+digest = hashlib.sha256()
+digest.update(len(issuer.encode()).to_bytes(8, "big"))
+digest.update(issuer.encode())
+digest.update(subject.encode())
+principal = ("subject-" + digest.hexdigest())[:64]
+database = pathlib.Path(os.environ["DISKGRAPH_ACCEPT_DATA"]) / "diskgraph-control.sqlite"
+with sqlite3.connect(database) as connection:
+    version = connection.execute("SELECT version FROM policy WHERE id = 1").fetchone()[0]
+    connection.execute(
+        "INSERT INTO grants (principal_id, permission, scope_id, policy_version) VALUES (?, ?, ?, ?)",
+        (principal, "metadata:read", os.environ["DISKGRAPH_ACCEPT_SCOPE"], version),
+    )
+
+def segment(value):
+    return base64.urlsafe_b64encode(json.dumps(value, separators=(",", ":")).encode()).rstrip(b"=").decode()
+
+message = segment({"alg": "HS256", "typ": "JWT"}) + "." + segment({
+    "iss": issuer, "aud": audience, "sub": subject,
+    "exp": int(time.time()) + 3600, "scope": "metadata:read",
+})
+signature = base64.urlsafe_b64encode(hmac.new(key, message.encode(), hashlib.sha256).digest()).rstrip(b"=").decode()
+token_file = pathlib.Path(os.environ["DISKGRAPH_ACCEPT_WORK"]) / "token"
+token_file.write_text(message + "." + signature)
+token_file.chmod(0o600)
+PY
+
 # Server with the legacy adapter on.
 SERVER_LOG="$OUT_DIR/server.log"
 "$MCP_BIN" --data-dir "$DATA" --profile read-full \
+    --auth "$AUTH_ISSUER" "$AUTH_AUDIENCE" "$AUTH_KEY" \
+    --allowed-origin "$ALLOWED_ORIGIN" \
     --transport legacy-sse --host 127.0.0.1 --port "$PORT" \
     > /dev/null 2> "$SERVER_LOG" &
 SERVER_PID=$!
@@ -48,6 +97,8 @@ grep -q "listening on" "$SERVER_LOG" || { echo "server did not start" >&2; cat "
 # A modern-only server to prove the default-off diagnostic.
 OFF_LOG="$OUT_DIR/server-off.log"
 "$MCP_BIN" --data-dir "$DATA-off" --profile read-full \
+    --auth "$AUTH_ISSUER" "$AUTH_AUDIENCE" "$AUTH_KEY" \
+    --allowed-origin "$ALLOWED_ORIGIN" \
     --transport streamable-http --host 127.0.0.1 --port "$((PORT + 1))" \
     > /dev/null 2> "$OFF_LOG" &
 OFF_PID=$!
@@ -60,6 +111,8 @@ done
 export DISKGRAPH_LEGACY_PORT="$PORT"
 export DISKGRAPH_LEGACY_OFF_PORT="$((PORT + 1))"
 export DISKGRAPH_LEGACY_SCOPE="$SCOPE"
+export DISKGRAPH_LEGACY_TOKEN_FILE="$WORK/token"
+export DISKGRAPH_LEGACY_ORIGIN="$ALLOWED_ORIGIN"
 python3 <<'PY' > "$WORK/result.json"
 import json, os, pathlib, sys
 
@@ -73,6 +126,8 @@ import socket
 port = int(os.environ["DISKGRAPH_LEGACY_PORT"])
 off_port = int(os.environ["DISKGRAPH_LEGACY_OFF_PORT"])
 scope = os.environ["DISKGRAPH_LEGACY_SCOPE"]
+token = pathlib.Path(os.environ["DISKGRAPH_LEGACY_TOKEN_FILE"]).read_text()
+origin = os.environ["DISKGRAPH_LEGACY_ORIGIN"]
 checks = {}
 
 
@@ -116,7 +171,10 @@ def sse_connect(port):
     # After the handshake, read events blocking: an SSE client waits for the
     # server, and the server log proves the frame is on its way.
     sock.settimeout(None)
-    sock.sendall(b"GET /sse HTTP/1.1\r\nHost: x\r\nAccept: text/event-stream\r\n\r\n")
+    sock.sendall((
+        f"GET /sse HTTP/1.1\r\nHost: x\r\nAccept: text/event-stream\r\n"
+        f"Authorization: Bearer {token}\r\nOrigin: {origin}\r\n\r\n"
+    ).encode())
     reader = LineReader(sock)
     status = reader.readline().decode()
     assert "200" in status, status
@@ -129,14 +187,14 @@ def sse_connect(port):
     return sock, reader, data
 
 
-def post(port, endpoint, body, token=None):
+def post(port, endpoint, body, authorized=True):
     sock = socket.create_connection(("127.0.0.1", port), timeout=10)
     head = (
         f"POST {endpoint} HTTP/1.1\r\nHost: x\r\n"
         f"Content-Type: application/json\r\nContent-Length: {len(body)}\r\n"
     )
-    if token:
-        head += f"Authorization: Bearer {token}\r\n"
+    if authorized:
+        head += f"Authorization: Bearer {token}\r\nOrigin: {origin}\r\n"
     head += "Connection: close\r\n\r\n"
     sock.sendall(head.encode() + body.encode())
     reader = LineReader(sock)
@@ -146,6 +204,21 @@ def post(port, endpoint, body, token=None):
 
 
 # 1. The full legacy contract on the enabled server.
+
+def get_status(path, token_value=None, origin_value=None, target_port=port):
+    probe = socket.create_connection(("127.0.0.1", target_port), timeout=10)
+    head = f"GET {path} HTTP/1.1\r\nHost: x\r\nAccept: text/event-stream\r\n"
+    if token_value:
+        head += f"Authorization: Bearer {token_value}\r\n"
+    if origin_value:
+        head += f"Origin: {origin_value}\r\n"
+    probe.sendall((head + "Connection: close\r\n\r\n").encode())
+    status = probe.recv(4096).split(b"\r\n", 1)[0].decode()
+    probe.close()
+    return int(status.split()[1])
+
+checks["anonymous_sse_rejected"] = get_status("/sse") == 401
+checks["malicious_origin_rejected"] = get_status("/sse", token, "http://evil.invalid") == 403
 sock, reader, endpoint = sse_connect(port)
 checks["endpoint_event_contract"] = endpoint.startswith("/messages/?session_id=")
 status = post(port, endpoint, json.dumps(
@@ -166,7 +239,10 @@ checks["unknown_session_refused_404"] = status == 404
 
 # 3. The adapter is off unless opted in: probing a modern-only server says so.
 probe = socket.create_connection(("127.0.0.1", off_port), timeout=10)
-probe.sendall(b"GET /sse HTTP/1.1\r\nHost: x\r\n\r\n")
+probe.sendall((
+    f"GET /sse HTTP/1.1\r\nHost: x\r\nAuthorization: Bearer {token}\r\n"
+    f"Origin: {origin}\r\n\r\n"
+).encode())
 reader = probe.makefile("rb")
 status = reader.readline().decode()
 length = 0

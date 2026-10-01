@@ -58,3 +58,22 @@
 #### Scenario: Model exposure
 - **WHEN** 云模型宿主仅被授予去标识摘要导出
 - **THEN** 响应移除未授权原始路径、内容和秘密，日志同样脱敏。
+
+### Requirement: SC-06 Request-bound identities and revisions
+服务 SHALL 对每次远程请求执行 token 能力与实时主体授权的交集，并验证 revision 的持久 server/scope 归属。
+
+#### Scenario: Token without capabilities
+- **WHEN** 有效 token 无权限 scope 请求目录或工具
+- **THEN** 不返回索引信息，不使用本地管理员身份。
+
+#### Scenario: Foreign revision
+- **WHEN** 仅获 scope A 权限的主体携带 scope B revision
+- **THEN** 返回拒绝，不泄露 B 的数据。
+
+#### Scenario: Impact traversal with a foreign revision
+- **WHEN** 仅获 scope A 权限的主体对 scope B revision 调用关系影响分析
+- **THEN** 在读取任何关系前按 B 的实际归属拒绝，不以客户端传入的 A scope 代替 B。
+
+#### Scenario: Revoked queued scan
+- **WHEN** 任务排队后 scope 被撤销
+- **THEN** 不扫描或发布，并停止已有运行任务。

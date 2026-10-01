@@ -1,5 +1,5 @@
 use super::*;
-use diskgraph_core::PrincipalId;
+use diskgraph_core::{Grant, Permission, PrincipalId};
 use diskgraph_engine::EngineConfig;
 use diskgraph_store::{PlanState, StoreError};
 use tempfile::TempDir;
@@ -53,6 +53,26 @@ fn indexed(project: &mut Project) -> (ScopeId, PrincipalId) {
             &project.engine.policy_authorizer().unwrap(),
         )
         .unwrap();
+    {
+        let mut control = project.engine.control_store().unwrap();
+        let policy_version = control.policy_version().unwrap();
+        for action in [
+            FileActionKind::Move,
+            FileActionKind::Copy,
+            FileActionKind::Trash,
+            FileActionKind::Restore,
+            FileActionKind::Purge,
+        ] {
+            control
+                .upsert_grant(&Grant {
+                    principal: principal.clone(),
+                    permission: Permission::FileAction(action),
+                    scope: scope.clone(),
+                    policy_version,
+                })
+                .unwrap();
+        }
+    }
     let authorizer = project.engine.policy_authorizer().unwrap();
     let job = project
         .engine
@@ -92,6 +112,14 @@ fn tree(root: &Path) -> Vec<(PathBuf, u64)> {
     }
     out.sort();
     out
+}
+
+#[cfg(unix)]
+#[test]
+fn operation_locators_round_trip_non_utf8_bytes() {
+    use std::os::unix::ffi::OsStringExt;
+    let path = PathBuf::from(std::ffi::OsString::from_vec(b"/tmp/dg-\xff".to_vec()));
+    assert_eq!(unhex_key(&locator_key(&path)), Some(path));
 }
 
 #[test]
@@ -141,12 +169,12 @@ fn a_plan_is_immutable_and_digest_addressed() {
         );
     }
 
-    // Rebuilding an identical request yields an identical digest, so the same
-    // approval can be reviewed once; a different target changes it.
+    // A fresh plan has a fresh identity and deadline, so approval cannot be
+    // replayed for it even if the selected file has not changed.
     let again = builder
         .build_trash_plan(&scope, &principal, &[app], 1 << 20)
         .unwrap();
-    assert_eq!(plan_digest(&again), plan_digest(&plan));
+    assert_ne!(plan_digest(&again), plan_digest(&plan));
 
     let moved = builder
         .build_move_plan(
@@ -159,6 +187,26 @@ fn a_plan_is_immutable_and_digest_addressed() {
         )
         .unwrap();
     assert_ne!(plan_digest(&moved), plan_digest(&plan));
+}
+
+#[test]
+fn approval_digest_binds_deadline_recovery_and_exact_bytes() {
+    let mut project = project("complete-digest");
+    let (scope, principal) = indexed_once(&mut project);
+    let node = node_named(&project.engine, &scope, "app.bin");
+    let plan = PlanBuilder::new(project.engine.clone())
+        .build_trash_plan(&scope, &principal, &[node], 1 << 20)
+        .unwrap();
+    let original = plan_digest(&plan);
+    let mut changed = plan.clone();
+    changed.expires_at_unix_ms += 60_000;
+    assert_ne!(plan_digest(&changed), original);
+    let mut changed = plan.clone();
+    changed.expected_bytes += 1;
+    assert_ne!(plan_digest(&changed), original);
+    let mut changed = plan.clone();
+    changed.items[0].recovery_ref = Some("foreign-recovery".into());
+    assert_ne!(plan_digest(&changed), original);
 }
 
 #[test]
@@ -472,6 +520,315 @@ fn applying_a_move_moves_the_file_once_and_records_it() {
         diskgraph_store::IntentState::IntentRecorded
     );
     assert_eq!(items[0].result, diskgraph_store::OperationItemResult::Moved);
+}
+
+#[test]
+fn revoked_scope_cannot_apply_an_already_approved_move() {
+    let mut project = project("apply-revoked-scope");
+    let (plan, approval, executor) = ready_move(&mut project, "revoked");
+    let (scope, principal) = indexed_once(&mut project);
+    project
+        .engine
+        .revoke_scope(
+            &scope,
+            &principal,
+            &project.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "revoked",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+    assert!(!project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn withdrawn_action_cannot_apply_an_already_approved_move() {
+    let mut project = project("apply-revoked-action");
+    let (plan, approval, executor) = ready_move(&mut project, "revoked");
+    let (scope, principal) = indexed_once(&mut project);
+    project
+        .engine
+        .control_store()
+        .unwrap()
+        .revoke_grant(
+            &principal,
+            &Permission::FileAction(FileActionKind::Move),
+            &scope,
+        )
+        .unwrap();
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "revoked-action",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn changed_same_inode_cannot_exceed_approved_bytes() {
+    let mut project = project("changed-same-inode");
+    let (plan, approval, executor) = ready_move(&mut project, "changed");
+    let source = project.root.join("target/app.bin");
+    std::fs::write(&source, vec![7_u8; (1 << 20) + 1]).unwrap();
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "changed",
+            fault: None,
+        }),
+        Err(OpsError::Stale(_))
+    ));
+    assert!(source.exists());
+    assert!(!project.root.join("archive/app.bin").exists());
+}
+
+#[test]
+fn same_size_rewrite_cannot_use_an_old_approval() {
+    let mut project = project("same-size-rewrite");
+    let (plan, approval, executor) = ready_move(&mut project, "rewrite");
+    let source = project.root.join("target/app.bin");
+    std::fs::write(&source, vec![9_u8; 4096]).unwrap();
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "rewritten",
+            fault: None,
+        }),
+        Err(OpsError::Stale(_))
+    ));
+    assert_eq!(std::fs::read(&source).unwrap(), vec![9_u8; 4096]);
+}
+
+#[test]
+fn old_plan_without_source_fingerprint_requires_replanning() {
+    let mut project = project("legacy-fingerprint");
+    let (plan, _approval, executor) = ready_move(&mut project, "legacy");
+    let mut old = plan.clone();
+    old.plan_id = "legacy-plan".into();
+    old.items[0].source_fingerprint = None;
+    let approval = {
+        let mut control = project.engine.control_store().unwrap();
+        control.insert_plan(&old, &plan_digest(&old)).unwrap();
+        ApprovalIssuer::new(&mut control)
+            .issue(&old, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &old.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "legacy",
+            fault: None,
+        }),
+        Err(OpsError::Stale(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn expired_plan_refuses_a_still_live_approval() {
+    let mut project = project("expired-plan");
+    let (plan, _approval, executor) = ready_move(&mut project, "expired");
+    let mut expired = plan.clone();
+    expired.plan_id = "expired-plan".into();
+    expired.expires_at_unix_ms = now_ms().saturating_sub(1);
+    let approval = {
+        let mut control = project.engine.control_store().unwrap();
+        control
+            .insert_plan(&expired, &plan_digest(&expired))
+            .unwrap();
+        ApprovalIssuer::new(&mut control)
+            .issue(&expired, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &expired.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "expired-plan",
+            fault: None,
+        }),
+        Err(OpsError::Stale(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn policy_epoch_change_invalidates_approved_plan() {
+    let mut project = project("epoch-drift");
+    let (plan, approval, executor) = ready_move(&mut project, "epoch");
+    {
+        let mut control = project.engine.control_store().unwrap();
+        let next = control.policy_version().unwrap() + 1;
+        control.publish_policy_version(next).unwrap();
+    }
+    assert!(matches!(
+        executor.apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "epoch-drift",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn copy_plan_rejects_unregistered_destination() {
+    let mut project = project("copy-outside");
+    let (scope, principal) = indexed_once(&mut project);
+    let node = node_named(&project.engine, &scope, "app.bin");
+    let outside = project._workspace.path().join("outside");
+    std::fs::create_dir(&outside).unwrap();
+    let builder = PlanBuilder::new(project.engine.clone());
+    assert!(matches!(
+        builder.build_move_plan(
+            &scope,
+            &principal,
+            &[node],
+            &outside,
+            1 << 20,
+            FileActionKind::Copy,
+        ),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(!outside.join("app.bin").exists());
+}
+
+#[test]
+fn unresolved_parent_components_cannot_escape_the_destination_scope() {
+    let mut project = project("copy-parent-escape");
+    let (scope, principal) = indexed_once(&mut project);
+    let node = node_named(&project.engine, &scope, "app.bin");
+    let path = project
+        .root
+        .join("missing")
+        .join("..")
+        .join("..")
+        .join("outside");
+    let builder = PlanBuilder::new(project.engine.clone());
+    assert!(
+        builder
+            .build_move_plan(
+                &scope,
+                &principal,
+                &[node],
+                &path,
+                1 << 20,
+                FileActionKind::Copy,
+            )
+            .is_err()
+    );
+}
+
+#[test]
+fn copy_plan_requires_an_action_grant_not_only_metadata_read() {
+    let mut project = project("copy-action");
+    let (scope, principal) = indexed_once(&mut project);
+    project
+        .engine
+        .control_store()
+        .unwrap()
+        .revoke_grant(
+            &principal,
+            &Permission::FileAction(FileActionKind::Copy),
+            &scope,
+        )
+        .unwrap();
+    let node = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(project.engine.clone());
+    assert!(matches!(
+        builder.build_move_plan(
+            &scope,
+            &principal,
+            &[node],
+            &project.root.join("archive"),
+            1 << 20,
+            FileActionKind::Copy,
+        ),
+        Err(OpsError::NotAuthorized(_))
+    ));
+}
+
+#[test]
+fn revoked_destination_scope_blocks_previously_approved_copy() {
+    let mut project = project("copy-revoked-destination");
+    let (scope, principal) = indexed_once(&mut project);
+    let node = node_named(&project.engine, &scope, "app.bin");
+    let outside = project._workspace.path().join("outside");
+    std::fs::create_dir(&outside).unwrap();
+    let destination_scope = project
+        .engine
+        .register_scope(
+            &outside,
+            &principal,
+            &project.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    {
+        let mut control = project.engine.control_store().unwrap();
+        let policy_version = control.policy_version().unwrap();
+        control
+            .upsert_grant(&Grant {
+                principal: principal.clone(),
+                permission: Permission::FileAction(FileActionKind::Copy),
+                scope: destination_scope.clone(),
+                policy_version,
+            })
+            .unwrap();
+    }
+    let builder = PlanBuilder::new(project.engine.clone());
+    let plan = builder
+        .build_move_plan(
+            &scope,
+            &principal,
+            &[node],
+            &outside,
+            1 << 20,
+            FileActionKind::Copy,
+        )
+        .unwrap();
+    let approval = {
+        let mut control = project.engine.control_store().unwrap();
+        ApprovalIssuer::new(&mut control)
+            .issue(&plan, "admin-console", 60_000)
+            .unwrap()
+            .approval_ref
+    };
+    project
+        .engine
+        .revoke_scope(
+            &destination_scope,
+            &principal,
+            &project.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    assert!(matches!(
+        Executor::new(project.engine.clone()).apply(ApplyRequest {
+            plan_id: &plan.plan_id,
+            approval_ref: &approval,
+            idempotency_key: "copy-revoked",
+            fault: None,
+        }),
+        Err(OpsError::NotAuthorized(_))
+    ));
+    assert!(!outside.join("app.bin").exists());
 }
 
 #[test]
@@ -1290,13 +1647,13 @@ fn a_volume_report_separates_processed_retained_and_measured_space() {
         measured_at_unix_ms: 1,
         caveat: "the delta reflects all writers on this volume, not only this operation",
     };
-    // A same-volume move changes no free space at all, and the report says so
-    // by keeping the numbers apart rather than implying space was freed.
-    assert_eq!(report.free_delta_bytes(), 0);
+    // 整卷有其他并发写入者；报告必须保留实际测量，不能断言两次测量相等。
+    let measured = i128::from(free_after) - i128::from(free_before);
+    assert_eq!(i128::from(report.free_delta_bytes()), measured);
     let json = report.to_json();
     assert_eq!(json["processed_bytes"], "4096");
     assert_eq!(json["retained_in_quarantine_bytes"], "4096");
-    assert_eq!(json["free_delta_bytes"], "0");
+    assert_eq!(json["free_delta_bytes"], measured.to_string());
     assert!(json["caveat"].as_str().unwrap().contains("all writers"));
 }
 
@@ -2024,4 +2381,184 @@ fn a_parked_purge_retry_returns_the_same_operation_without_replaying() {
     assert_eq!(retried.operation_id, parked.operation_id);
     assert_eq!(retried.state, parked.state);
     assert!(project.root.join("target/app.bin").exists());
+}
+
+#[test]
+fn competing_copy_publications_never_overwrite_each_other() {
+    for _ in 0..40 {
+        let dir = tempfile::tempdir().unwrap();
+        let source = dir.path().join("source");
+        std::fs::write(&source, b"original").unwrap();
+        let target = dir.path().join("destination");
+        let transfers = [
+            CrossVolumeCopy::open(&target, "race").unwrap(),
+            CrossVolumeCopy::open(&target, "race").unwrap(),
+        ];
+        for transfer in &transfers {
+            transfer.stage_and_verify(&source, &None).unwrap();
+        }
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(3));
+        let workers = transfers
+            .into_iter()
+            .map(|transfer| {
+                let barrier = barrier.clone();
+                std::thread::spawn(move || {
+                    barrier.wait();
+                    let success = transfer.publish().is_ok();
+                    transfer.discard();
+                    success
+                })
+            })
+            .collect::<Vec<_>>();
+        barrier.wait();
+        assert_eq!(
+            workers
+                .into_iter()
+                .map(|worker| worker.join().unwrap())
+                .filter(|success| *success)
+                .count(),
+            1
+        );
+    }
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn replacing_the_copy_parent_never_redirects_publication_or_cleanup() {
+    use std::os::unix::fs::symlink;
+    let dir = tempfile::tempdir().unwrap();
+    let source = dir.path().join("source");
+    std::fs::write(&source, b"verified content").unwrap();
+    let target_dir = dir.path().join("target");
+    let held = dir.path().join("held");
+    let outside = dir.path().join("outside");
+    std::fs::create_dir(&target_dir).unwrap();
+    std::fs::create_dir(&outside).unwrap();
+    let transfer = CrossVolumeCopy::open(&target_dir.join("copy"), "fixture").unwrap();
+    transfer.stage_and_verify(&source, &None).unwrap();
+    std::fs::rename(&target_dir, &held).unwrap();
+    symlink(&outside, &target_dir).unwrap();
+    transfer.publish().unwrap();
+    transfer.discard();
+    assert_eq!(
+        std::fs::read(held.join("copy")).unwrap(),
+        b"verified content"
+    );
+    assert!(std::fs::read_dir(&outside).unwrap().next().is_none());
+}
+
+#[test]
+fn an_ungranted_subject_cannot_resolve_a_file_operation_plan() {
+    let mut project = project("plan-auth");
+    let (scope, _principal) = indexed_once(&mut project);
+    let node = node_named(&project.engine, &scope, "app.bin");
+    let builder = PlanBuilder::new(project.engine.clone());
+    assert!(
+        builder
+            .build_trash_plan(
+                &scope,
+                &PrincipalId::new("stranger").unwrap(),
+                &[node],
+                u64::MAX
+            )
+            .is_err()
+    );
+}
+
+#[test]
+fn recovery_references_protect_scope_history_from_pruning() {
+    let mut project = project("retention-reference");
+    let (_plan, _recovery, _executor) = quarantine_app(&mut project);
+    let (scope, principal) = indexed_once(&mut project);
+    let engine = project.engine.clone();
+    for _ in 0..2 {
+        let job = engine
+            .index_scope(&scope, &principal, &engine.policy_authorizer().unwrap())
+            .unwrap();
+        engine.run_job(&job.job_id, "fixture").unwrap();
+    }
+    assert!(
+        engine
+            .prune_snapshots(
+                &scope,
+                1,
+                true,
+                &principal,
+                &engine.policy_authorizer().unwrap()
+            )
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        engine
+            .list_snapshots(
+                &scope,
+                &principal,
+                &engine.policy_authorizer().unwrap(),
+                100,
+                0
+            )
+            .unwrap()
+            .len()
+            >= 3
+    );
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn native_copy_verifies_extended_attributes_and_acl() {
+    let dir = tempfile::tempdir().unwrap();
+    let source = dir.path().join("source");
+    let target = dir.path().join("copy");
+    std::fs::write(&source, b"content").unwrap();
+    assert!(
+        std::process::Command::new("/usr/bin/xattr")
+            .args(["-w", "com.diskgraph.fixture", "metadata-proof"])
+            .arg(&source)
+            .status()
+            .unwrap()
+            .success()
+    );
+    assert!(
+        std::process::Command::new("/bin/chmod")
+            .args(["+a", "everyone allow read"])
+            .arg(&source)
+            .status()
+            .unwrap()
+            .success()
+    );
+    let transfer = CrossVolumeCopy::open(&target, "metadata").unwrap();
+    transfer.stage_and_verify(&source, &None).unwrap();
+    transfer.publish().unwrap();
+    let observed = std::process::Command::new("/usr/bin/xattr")
+        .args(["-p", "com.diskgraph.fixture"])
+        .arg(&target)
+        .output()
+        .unwrap();
+    assert!(observed.status.success());
+    assert_eq!(
+        String::from_utf8(observed.stdout).unwrap().trim(),
+        "metadata-proof"
+    );
+    metadata_fidelity::verify(
+        &std::fs::File::open(source).unwrap(),
+        &std::fs::File::open(target).unwrap(),
+    )
+    .unwrap();
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn modifying_verified_staging_prevents_publication() {
+    let dir = tempfile::tempdir().unwrap();
+    let source = dir.path().join("source");
+    let target = dir.path().join("copy");
+    std::fs::write(&source, b"verified").unwrap();
+    let transfer = CrossVolumeCopy::open(&target, "tamper").unwrap();
+    transfer.stage_and_verify(&source, &None).unwrap();
+    std::fs::write(transfer.staged_path(), b"tampered").unwrap();
+    assert!(transfer.publish().is_err());
+    assert!(!target.exists());
+    assert_eq!(std::fs::read(source).unwrap(), b"verified");
+    transfer.discard();
 }

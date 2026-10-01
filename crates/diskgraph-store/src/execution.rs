@@ -26,6 +26,11 @@ pub struct PlanItem {
     pub locator_key: String,
     /// Volume + file identity captured at plan time, re-checked before apply.
     pub identity: Option<String>,
+    /// Digest of the exact file contents and high-resolution metadata, or
+    /// the complete directory membership and descendant contents. Legacy
+    /// plans without this field must be re-planned before a file action.
+    #[serde(default)]
+    pub source_fingerprint: Option<String>,
     /// True when the plan expands to descendants (directory boundary).
     pub includes_descendants: bool,
     /// The recovery record a restore plan is derived from. Absent for every
@@ -553,6 +558,11 @@ impl crate::ControlStore {
         items: usize,
     ) -> Result<(String, bool)> {
         self.with_connection(|connection| {
+            // A single immediate transaction serializes claim checks across
+            // independent processes; a check before this lock can both pass
+            // and let two writers touch the same source or destination.
+            connection.execute_batch("BEGIN IMMEDIATE")?;
+            let result = (|| -> Result<(String, bool)> {
             let existing: Option<(String, String)> = connection
                 .query_row(
                     "SELECT operation_id, request_digest FROM operations
@@ -566,6 +576,36 @@ impl crate::ControlStore {
                     return Err(StoreError::IdempotencyConflict);
                 }
                 return Ok((operation_id, false));
+            }
+            let new_json: String = connection.query_row(
+                "SELECT plan_json FROM plans WHERE plan_id = ?1",
+                [&operation.plan_id],
+                |row| row.get(0),
+            )?;
+            let new_plan: Plan = serde_json::from_str(&new_json)?;
+            if new_plan.scope_id != operation.scope_id || new_plan.principal != operation.principal {
+                return Err(StoreError::Conflict(
+                    "operation subject or scope does not match its plan".into(),
+                ));
+            }
+            let requested = claim_keys(&new_plan);
+            let mut statement = connection.prepare(
+                "SELECT o.operation_id, p.plan_json FROM operations o
+                 JOIN plans p ON p.plan_id = o.plan_id
+                 WHERE o.state IN ('queued', 'revalidating', 'running', 'needs_attention')",
+            )?;
+            let active = statement.query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+            })?;
+            for row in active {
+                let (other_id, other_json) = row?;
+                let other_plan: Plan = serde_json::from_str(&other_json)?;
+                let held = claim_keys(&other_plan);
+                if requested.iter().any(|mine| held.iter().any(|other| key_overlap(mine, other))) {
+                    return Err(StoreError::Conflict(format!(
+                        "operation {other_id} already claims an overlapping source or target"
+                    )));
+                }
             }
             connection.execute(
                 "INSERT INTO operations (operation_id, plan_id, scope_id, principal, idempotency_key, request_digest, state, created_at_unix_ms, updated_at_unix_ms)
@@ -588,6 +628,17 @@ impl crate::ControlStore {
                 )?;
             }
             Ok((operation.operation_id.clone(), true))
+            })();
+            match result {
+                Ok(value) => {
+                    connection.execute_batch("COMMIT")?;
+                    Ok(value)
+                }
+                Err(error) => {
+                    let _ = connection.execute_batch("ROLLBACK");
+                    Err(error)
+                }
+            }
         })
     }
 
@@ -839,6 +890,50 @@ fn action_name(action: FileActionKind) -> &'static str {
     }
 }
 
+/// Lossless locator keys are hex-encoded path bytes. Component boundaries are
+/// the encoded separator, so /a and /ab do not spuriously overlap.
+fn key_overlap(left: &str, right: &str) -> bool {
+    // Inode claims are exact; path claims retain component-aware ancestry.
+    // Prefixing identity claims keeps them disjoint from hex path keys.
+    if left.starts_with("identity:") || right.starts_with("identity:") {
+        return left == right;
+    }
+    left == right
+        || left == "2f"
+        || right == "2f"
+        || left
+            .strip_prefix(right)
+            .is_some_and(|tail| tail.starts_with("2f"))
+        || right
+            .strip_prefix(left)
+            .is_some_and(|tail| tail.starts_with("2f"))
+}
+
+fn claim_keys(plan: &Plan) -> Vec<String> {
+    let mut keys = Vec::with_capacity(plan.items.len() * 3);
+    for item in &plan.items {
+        keys.push(item.locator_key.clone());
+        if let Some(identity) = item.identity.as_deref() {
+            keys.push(format!("identity:{identity}"));
+        }
+        if let Some(directory) = &plan.target_locator_key {
+            let basename_start = item
+                .locator_key
+                .as_bytes()
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .rposition(|chunk| chunk == b"2f")
+                .map(|index| (index + 1) * 2)
+                .unwrap_or(0);
+            let basename = &item.locator_key[basename_start..];
+            let separator = if directory.ends_with("2f") { "" } else { "2f" };
+            keys.push(format!("{directory}{separator}{basename}"));
+        }
+    }
+    keys
+}
+
 fn action_from_name(value: &str) -> Option<FileActionKind> {
     Some(match value {
         "move" => FileActionKind::Move,
@@ -864,6 +959,7 @@ mod tests {
                 node_id: 1,
                 locator_key: "raw-key-1".into(),
                 identity: Some("dev:ino".into()),
+                source_fingerprint: None,
                 includes_descendants: false,
                 recovery_ref: None,
             }],
@@ -1084,6 +1180,12 @@ mod tests {
             .insert_plan(
                 &Plan {
                     scope_id: ScopeId::new("scope-2").unwrap(),
+                    principal: PrincipalId::new("other").unwrap(),
+                    items: vec![PlanItem {
+                        locator_key: "other-resource".into(),
+                        identity: Some("other-dev:ino".into()),
+                        ..plan("unused").items[0].clone()
+                    }],
                     ..plan("plan-2")
                 },
                 "plan-digest-2",
@@ -1095,6 +1197,131 @@ mod tests {
         other.plan_id = "plan-2".into();
         let (_, created) = store.begin_operation(&other, 1).unwrap();
         assert!(created);
+    }
+
+    #[test]
+    fn overlapping_sources_and_targets_are_claimed_in_one_transaction() {
+        let mut store = scoped_store("atomic-claims");
+        let mut first = plan("plan-1");
+        first.items[0].locator_key = "2f746d702f736f75726365".into(); // /tmp/source
+        first.target_locator_key = Some("2f746d702f746172676574".into()); // /tmp/target
+        store.insert_plan(&first, "first").unwrap();
+        store
+            .begin_operation(&operation("op-1", "claim-a", "digest-a"), 1)
+            .unwrap();
+
+        let mut second = plan("plan-2");
+        second.items[0].locator_key = "2f746d702f736f757263652f6368696c64".into(); // descendant
+        store.insert_plan(&second, "second").unwrap();
+        let mut second_op = operation("op-2", "claim-b", "digest-b");
+        second_op.plan_id = second.plan_id.clone();
+        assert!(matches!(
+            store.begin_operation(&second_op, 1),
+            Err(StoreError::Conflict(_))
+        ));
+
+        let mut third = plan("plan-3");
+        third.items[0].locator_key = "2f746d702f6f746865722f736f75726365".into(); // /tmp/other/source
+        third.target_locator_key = first.target_locator_key.clone();
+        store.insert_plan(&third, "third").unwrap();
+        let mut third_op = operation("op-3", "claim-c", "digest-c");
+        third_op.plan_id = third.plan_id.clone();
+        assert!(matches!(
+            store.begin_operation(&third_op, 1),
+            Err(StoreError::Conflict(_))
+        ));
+        assert_eq!(store.operation_items("op-1").unwrap().len(), 1);
+        assert!(matches!(
+            store.operation("op-2"),
+            Err(StoreError::OperationNotFound(_))
+        ));
+    }
+
+    #[test]
+    fn hardlink_aliases_claim_the_same_source_identity() {
+        let mut store = scoped_store("hardlink-claim");
+        let mut first = plan("plan-1");
+        first.items[0].locator_key = "2f746d702f6669727374".into();
+        first.items[0].identity = Some("42:7".into());
+        store.insert_plan(&first, "first").unwrap();
+        store
+            .begin_operation(&operation("op-1", "claim-first", "digest-first"), 1)
+            .unwrap();
+
+        let mut alias = plan("plan-2");
+        alias.items[0].locator_key = "2f746d702f616c696173".into();
+        alias.items[0].identity = Some("42:7".into());
+        store.insert_plan(&alias, "alias").unwrap();
+        let mut request = operation("op-2", "claim-alias", "digest-alias");
+        request.plan_id = alias.plan_id;
+        assert!(matches!(
+            store.begin_operation(&request, 1),
+            Err(StoreError::Conflict(_))
+        ));
+    }
+
+    #[test]
+    fn encoded_separator_detection_stays_on_byte_boundaries() {
+        let mut example = plan("hex-boundary");
+        example.items[0].locator_key = "2f12f3".into(); // / followed by bytes 0x12, 0xf3
+        example.target_locator_key = Some("2f746d70".into()); // /tmp
+        assert_eq!(
+            claim_keys(&example),
+            vec![
+                "2f12f3".to_string(),
+                "identity:dev:ino".to_string(),
+                "2f746d702f12f3".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn independent_connections_cannot_claim_the_same_source() {
+        let workspace = tempfile::tempdir().unwrap();
+        let path = workspace.path().join("control.sqlite");
+        {
+            let mut store = crate::ControlStore::open(&path).unwrap();
+            store
+                .insert_scope_row(
+                    FIXTURE_SCOPE,
+                    &diskgraph_core::Locator::from_native_path(std::path::Path::new(
+                        "/tmp/fixture",
+                    )),
+                )
+                .unwrap();
+            store.insert_plan(&plan("plan-1"), "first").unwrap();
+            store.insert_plan(&plan("plan-2"), "second").unwrap();
+        }
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
+        let handles = (0..2)
+            .map(|index| {
+                let path = path.clone();
+                let barrier = barrier.clone();
+                std::thread::spawn(move || {
+                    let mut store = crate::ControlStore::open(&path).unwrap();
+                    let mut request = operation(
+                        &format!("op-{index}"),
+                        &format!("key-{index}"),
+                        &format!("digest-{index}"),
+                    );
+                    request.plan_id = format!("plan-{}", index + 1);
+                    barrier.wait();
+                    store.begin_operation(&request, 1)
+                })
+            })
+            .collect::<Vec<_>>();
+        let results = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
+        assert_eq!(
+            results
+                .iter()
+                .filter(|result| matches!(result, Err(StoreError::Conflict(_))))
+                .count(),
+            1
+        );
     }
 
     #[test]
@@ -1154,8 +1381,29 @@ mod tests {
         store
             .begin_operation(&operation("op-1", "k1", "d"), 1)
             .unwrap();
+        store
+            .insert_scope_row(
+                "scope-2",
+                &diskgraph_core::Locator::from_native_path(std::path::Path::new("/tmp/second")),
+            )
+            .unwrap();
+        store
+            .insert_plan(
+                &Plan {
+                    scope_id: ScopeId::new("scope-2").unwrap(),
+                    items: vec![PlanItem {
+                        locator_key: "another-resource".into(),
+                        identity: Some("another-dev:ino".into()),
+                        ..plan("unused").items[0].clone()
+                    }],
+                    ..plan("plan-2")
+                },
+                "plan-digest-2",
+            )
+            .unwrap();
         let mut other_scope = operation("op-2", "k2", "d");
         other_scope.scope_id = ScopeId::new("scope-2").unwrap();
+        other_scope.plan_id = "plan-2".into();
         store.begin_operation(&other_scope, 1).unwrap();
         let listed = store
             .list_operations(&ScopeId::new("scope-1").unwrap(), 10)

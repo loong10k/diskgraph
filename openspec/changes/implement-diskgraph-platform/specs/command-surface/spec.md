@@ -18,6 +18,10 @@
 - **WHEN** 脚本执行无权 scope 的 JSON 查询
 - **THEN** 获得非成功退出码和结构化 permission_denied，不混入进度文本。
 
+#### Scenario: HTML report contains untrusted names
+- **WHEN** 索引名称或根路径含 HTML 标签、事件属性或 `</script>` 序列
+- **THEN** 离线报告只把它们当数据呈现，不新增可执行元素或脚本片段。
+
 ### Requirement: CMD-03 Mutation commands create plans
 move/copy/trash/restore/purge SHALL 默认只创建或预览不可变计划；apply 才进入批准校验和执行。read、duplicates 和 index 的非修改文件行为仍需各自的内容/管理权限。
 

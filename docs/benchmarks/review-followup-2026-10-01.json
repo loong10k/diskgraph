@@ -1,0 +1,287 @@
+{
+  "date": "2026-10-01",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "profile": "release",
+  "fixture": "isolated temp directories; 32-byte files; 20k/200k wide and 300-level deep; one process per case",
+  "method": "same isolated release benchmark source and sample counts; sequential run of current workspace after full-code-review fixes; prior_after from earlier hardening run is contextual and susceptible to run variance",
+  "prior_after": [
+    {
+      "after_narrow_top20": {
+        "p50_ms": 0.133542,
+        "p95_ms": 0.27275,
+        "samples": 31
+      },
+      "before_full_revision_top20": {
+        "p50_ms": 11.749667,
+        "p95_ms": 13.309917,
+        "samples": 7
+      },
+      "budgeted_tree": {
+        "p50_ms": 3.527375,
+        "p95_ms": 5.706833,
+        "samples": 11
+      },
+      "concurrent_4_readers": [
+        {
+          "p50_ms": 0.886208,
+          "p95_ms": 1.13075,
+          "samples": 31
+        },
+        {
+          "p50_ms": 0.8689169999999999,
+          "p95_ms": 1.282292,
+          "samples": 31
+        },
+        {
+          "p50_ms": 0.85675,
+          "p95_ms": 1.357916,
+          "samples": 31
+        },
+        {
+          "p50_ms": 0.793042,
+          "p95_ms": 1.370333,
+          "samples": 31
+        }
+      ],
+      "database_bytes": 28291072,
+      "files": 20000,
+      "process_scan_high_water_rss_bytes": 36159488,
+      "process_total_high_water_rss_bytes": 101957632,
+      "scan_seconds": 0.449505791,
+      "shape": "wide",
+      "wal_bytes": 0
+    },
+    {
+      "after_narrow_top20": {
+        "p50_ms": 0.14162499999999997,
+        "p95_ms": 0.217375,
+        "samples": 31
+      },
+      "before_full_revision_top20": {
+        "p50_ms": 108.438292,
+        "p95_ms": 119.7765,
+        "samples": 7
+      },
+      "budgeted_tree": {
+        "p50_ms": 34.39625,
+        "p95_ms": 40.913875,
+        "samples": 11
+      },
+      "concurrent_4_readers": [
+        {
+          "p50_ms": 1.289459,
+          "p95_ms": 1.680542,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.194959,
+          "p95_ms": 1.751542,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.2795409999999998,
+          "p95_ms": 1.5874579999999998,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.238583,
+          "p95_ms": 1.697041,
+          "samples": 31
+        }
+      ],
+      "database_bytes": 285216768,
+      "files": 200000,
+      "process_scan_high_water_rss_bytes": 224100352,
+      "process_total_high_water_rss_bytes": 648003584,
+      "scan_seconds": 3.368875417,
+      "shape": "wide",
+      "wal_bytes": 0
+    },
+    {
+      "after_narrow_top20": {
+        "p50_ms": 0.128833,
+        "p95_ms": 0.220916,
+        "samples": 31
+      },
+      "before_full_revision_top20": {
+        "p50_ms": 0.399334,
+        "p95_ms": 0.5049170000000001,
+        "samples": 7
+      },
+      "budgeted_tree": {
+        "p50_ms": 0.208,
+        "p95_ms": 0.48475,
+        "samples": 11
+      },
+      "concurrent_4_readers": [
+        {
+          "p50_ms": 1.299167,
+          "p95_ms": 1.850584,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.1695,
+          "p95_ms": 1.908458,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.252125,
+          "p95_ms": 1.82175,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.311709,
+          "p95_ms": 2.184542,
+          "samples": 31
+        }
+      ],
+      "database_bytes": 1826816,
+      "files": 300,
+      "process_scan_high_water_rss_bytes": 14745600,
+      "process_total_high_water_rss_bytes": 16252928,
+      "scan_seconds": 0.042052791,
+      "shape": "deep",
+      "wal_bytes": 0
+    }
+  ],
+  "review_followup": [
+    {
+      "after_narrow_top20": {
+        "p50_ms": 0.151375,
+        "p95_ms": 0.24375,
+        "samples": 31
+      },
+      "before_full_revision_top20": {
+        "p50_ms": 11.911959,
+        "p95_ms": 12.925666,
+        "samples": 7
+      },
+      "budgeted_tree": {
+        "p50_ms": 1.456125,
+        "p95_ms": 1.860875,
+        "samples": 11
+      },
+      "concurrent_4_readers": [
+        {
+          "p50_ms": 1.228375,
+          "p95_ms": 1.625833,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.235375,
+          "p95_ms": 1.5979169999999998,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.25875,
+          "p95_ms": 1.582208,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.2979580000000002,
+          "p95_ms": 1.632833,
+          "samples": 31
+        }
+      ],
+      "database_bytes": 31342592,
+      "files": 20000,
+      "process_scan_high_water_rss_bytes": 36601856,
+      "process_total_high_water_rss_bytes": 101384192,
+      "scan_seconds": 0.360994167,
+      "shape": "wide",
+      "wal_bytes": 0
+    },
+    {
+      "after_narrow_top20": {
+        "p50_ms": 0.151125,
+        "p95_ms": 0.230292,
+        "samples": 31
+      },
+      "before_full_revision_top20": {
+        "p50_ms": 101.464875,
+        "p95_ms": 105.55375,
+        "samples": 7
+      },
+      "budgeted_tree": {
+        "p50_ms": 9.835917,
+        "p95_ms": 10.544583,
+        "samples": 11
+      },
+      "concurrent_4_readers": [
+        {
+          "p50_ms": 1.149958,
+          "p95_ms": 1.703125,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.136209,
+          "p95_ms": 1.5465,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.162834,
+          "p95_ms": 1.554708,
+          "samples": 31
+        },
+        {
+          "p50_ms": 1.120166,
+          "p95_ms": 1.551375,
+          "samples": 31
+        }
+      ],
+      "database_bytes": 315617280,
+      "files": 200000,
+      "process_scan_high_water_rss_bytes": 224002048,
+      "process_total_high_water_rss_bytes": 761053184,
+      "scan_seconds": 4.506129542,
+      "shape": "wide",
+      "wal_bytes": 0
+    },
+    {
+      "after_narrow_top20": {
+        "p50_ms": 0.128709,
+        "p95_ms": 0.150333,
+        "samples": 31
+      },
+      "before_full_revision_top20": {
+        "p50_ms": 0.385333,
+        "p95_ms": 0.50725,
+        "samples": 7
+      },
+      "budgeted_tree": {
+        "p50_ms": 0.208459,
+        "p95_ms": 0.32175,
+        "samples": 11
+      },
+      "concurrent_4_readers": [
+        {
+          "p50_ms": 0.8131250000000001,
+          "p95_ms": 0.955667,
+          "samples": 31
+        },
+        {
+          "p50_ms": 0.8466250000000001,
+          "p95_ms": 1.028875,
+          "samples": 31
+        },
+        {
+          "p50_ms": 0.8185830000000001,
+          "p95_ms": 1.010417,
+          "samples": 31
+        },
+        {
+          "p50_ms": 0.841208,
+          "p95_ms": 1.208792,
+          "samples": 31
+        }
+      ],
+      "database_bytes": 2121728,
+      "files": 300,
+      "process_scan_high_water_rss_bytes": 14696448,
+      "process_total_high_water_rss_bytes": 16154624,
+      "scan_seconds": 0.040556958,
+      "shape": "deep",
+      "wal_bytes": 0
+    }
+  ]
+}

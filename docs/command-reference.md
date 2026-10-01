@@ -196,3 +196,13 @@ serve/install 不作为远程 MCP 工具；不能让服务器改本地智能体�
 有界查询正常截断可返回 ok+truncated，不与业务 partial 混淆。MCP 使用结构化业务结果及适当工具错误标志，协议格式错误和业务拒绝分开；HTTP 网络状态也不代替业务结果。
 
 验收必须覆盖每个命令的成功、无匹配、拒绝、过期、部分覆盖和不支持场景；命令存在、HTTP 200、返回 job ID、配置写入、绑定生成都不能单独算完成。
+
+
+## 2026-10-01 加固接口补充
+
+- `snapshots prune --scope SCOPE_ID --keep-last N` 默认仅预览；`--apply` 才执行逻辑删除。最新 revision、pin、操作/恢复引用受保护；不自动清理历史或用户文件。
+- `--max-staging-bytes` 表示本次扫描编码元数据预算（JSON 与规范化搜索字段），默认 2 GiB；与源文件逻辑/物理容量分别记录。
+- 搜索新游标使用 keyset 并绑定主体/scope/revision/过滤/排序/策略版本；显式 offset 继续支持，旧游标拒绝并提示重新查询。目录页仍提供兼容 offset。
+- 树及历史比较新增 `truncation_reason`；比较新增 `complete`、`summary_is_partial`、`node_counts_complete`，超时未完成的节点总数不能解释为 0 个节点。
+- `diskgraph-mcp --transport streamable-http|legacy-sse --auth-key-file ISSUER AUDIENCE PATH` 在 loopback 也要求认证；密钥文件须为至少 32 字节的普通文件，Unix 上仅限所有者访问，Windows 部署须限制服务账户 ACL。`diskgraph serve` 也接受相同参数并转发给 MCP 子进程。旧 `--auth ISSUER AUDIENCE KEY` 仅供兼容，密钥会暴露于进程参数，不应用于部署。网络绑定另须 TLS/隧道及 `--secure-transport`。默认每主体最多 4 条 SSE。
+- 旧库不能唯一确定归属的 revision 拒绝对外访问，需管理员重新索引。旧远程 principal 映射更新后需重新授权。CLI/MCP 危险文件工具保持禁用。

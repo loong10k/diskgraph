@@ -33,6 +33,13 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Build
         run: cargo build --workspace --all-targets --locked
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Read-only CLI, stdio and authenticated HTTP acceptance
+        run: |
+          python scripts/accept-readonly-stdio.py
+          python scripts/accept-readonly-http.py
       - name: Test
         run: cargo test --workspace --all-targets --locked
       - name: Clippy
@@ -82,5 +89,7 @@ jobs:
           components: rustfmt
       - name: Check formatting (workspace crates; the vendored copy is excluded by design)
         run: |
-          CRATES=$(ls crates | grep -v diskgraph-disktree-core | sed 's/^/-p /' | tr '\n' ' ')
-          cargo fmt $CRATES -- --check
+          cargo fmt \
+            -p diskgraph-core -p diskgraph-store -p diskgraph-disktree \
+            -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-engine \
+            -p diskgraph-cli -p diskgraph-mcp -p diskgraph-ops -- --check

@@ -37,9 +37,56 @@ SCOPE="$("$CLI_BIN" --data-dir "$DATA" --json scope add --root "$FIXTURES/projec
     | sed -n 's/.*"scope_id":"\([^"]*\)".*/\1/p' | head -1)"
 "$CLI_BIN" --data-dir "$DATA" --json index --scope "$SCOPE" --wait > /dev/null
 
+# This acceptance database is isolated. Grant a real remote subject metadata
+# access so the socket checks exercise the token capability ∩ live DB policy.
+AUTH_ISSUER="diskgraph-http-accept"
+AUTH_AUDIENCE="diskgraph"
+AUTH_SUBJECT="acceptance-client"
+AUTH_KEY="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+DISKGRAPH_ACCEPT_DATA="$DATA" \
+DISKGRAPH_ACCEPT_SCOPE="$SCOPE" \
+DISKGRAPH_ACCEPT_WORK="$WORK" \
+DISKGRAPH_ACCEPT_ISSUER="$AUTH_ISSUER" \
+DISKGRAPH_ACCEPT_AUDIENCE="$AUTH_AUDIENCE" \
+DISKGRAPH_ACCEPT_SUBJECT="$AUTH_SUBJECT" \
+DISKGRAPH_ACCEPT_KEY="$AUTH_KEY" \
+python3 <<'PY'
+import base64, hashlib, hmac, json, os, pathlib, sqlite3, time
+
+issuer = os.environ["DISKGRAPH_ACCEPT_ISSUER"]
+audience = os.environ["DISKGRAPH_ACCEPT_AUDIENCE"]
+subject = os.environ["DISKGRAPH_ACCEPT_SUBJECT"]
+key = os.environ["DISKGRAPH_ACCEPT_KEY"].encode()
+digest = hashlib.sha256()
+digest.update(len(issuer.encode()).to_bytes(8, "big"))
+digest.update(issuer.encode())
+digest.update(subject.encode())
+principal = ("subject-" + digest.hexdigest())[:64]
+database = pathlib.Path(os.environ["DISKGRAPH_ACCEPT_DATA"]) / "diskgraph-control.sqlite"
+with sqlite3.connect(database) as connection:
+    version = connection.execute("SELECT version FROM policy WHERE id = 1").fetchone()[0]
+    connection.execute(
+        "INSERT INTO grants (principal_id, permission, scope_id, policy_version) VALUES (?, ?, ?, ?)",
+        (principal, "metadata:read", os.environ["DISKGRAPH_ACCEPT_SCOPE"], version),
+    )
+
+def segment(value):
+    return base64.urlsafe_b64encode(json.dumps(value, separators=(",", ":")).encode()).rstrip(b"=").decode()
+
+message = segment({"alg": "HS256", "typ": "JWT"}) + "." + segment({
+    "iss": issuer, "aud": audience, "sub": subject,
+    "exp": int(time.time()) + 3600, "scope": "metadata:read",
+})
+signature = base64.urlsafe_b64encode(hmac.new(key, message.encode(), hashlib.sha256).digest()).rstrip(b"=").decode()
+token_file = pathlib.Path(os.environ["DISKGRAPH_ACCEPT_WORK"]) / "token"
+token_file.write_text(message + "." + signature)
+token_file.chmod(0o600)
+PY
+
 # ------------------------------------------------------------------ server ---
 SERVER_LOG="$OUT_DIR/server.log"
 "$MCP_BIN" --data-dir "$DATA" --profile read-full \
+    --auth "$AUTH_ISSUER" "$AUTH_AUDIENCE" "$AUTH_KEY" \
     --transport streamable-http --host 127.0.0.1 --port "$PORT" \
     > /dev/null 2> "$SERVER_LOG" &
 SERVER_PID=$!
@@ -62,6 +109,7 @@ DISKGRAPH_ACCEPT_PORT="$PORT" \
 DISKGRAPH_ACCEPT_SCOPE="$SCOPE" \
 DISKGRAPH_ACCEPT_FIXTURES="$FIXTURES" \
 DISKGRAPH_ACCEPT_OUT="$OUT_DIR" \
+DISKGRAPH_ACCEPT_TOKEN_FILE="$WORK/token" \
 python3 <<'PY' > "$WORK/result.json"
 import json, os, pathlib, urllib.error, urllib.request
 
@@ -70,13 +118,16 @@ port = os.environ["DISKGRAPH_ACCEPT_PORT"]
 scope = os.environ["DISKGRAPH_ACCEPT_SCOPE"]
 fixtures = os.environ["DISKGRAPH_ACCEPT_FIXTURES"]
 base = f"http://127.0.0.1:{port}"
+token = pathlib.Path(os.environ["DISKGRAPH_ACCEPT_TOKEN_FILE"]).read_text()
 
 
-def post(path, body, headers=None):
+def post(path, body, headers=None, authenticated=True):
     request = urllib.request.Request(
         f"{base}{path}",
         data=body.encode(),
-        headers={"Content-Type": "application/json", **(headers or {})},
+        headers={"Content-Type": "application/json",
+                 **({"Authorization": f"Bearer {token}"} if authenticated else {}),
+                 **(headers or {})},
         method="POST",
     )
     try:
@@ -92,6 +143,12 @@ def get(path):
 
 
 checks = {}
+
+status, anonymous = post(
+    "/mcp", json.dumps({"jsonrpc": "2.0", "id": 0, "method": "tools/list"}),
+    authenticated=False,
+)
+checks["anonymous_request_is_rejected"] = status == 401
 
 status, health = get("/healthz")
 checks["health_reports_no_indexed_data"] = (

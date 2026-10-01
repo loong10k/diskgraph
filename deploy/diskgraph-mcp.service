@@ -8,9 +8,13 @@
 #
 # Contract notes:
 # - Runs as a dedicated unprivileged user; never as root.
-# - The ExecStart below binds loopback. A network-facing deployment MUST add
-#   --auth ISSUER AUDIENCE KEY and serve TLS in front (the server refuses a
-#   non-loopback bind without both).
+# - All HTTP/SSE listeners require authentication, including loopback.
+#   Configure DISKGRAPH_ISSUER and DISKGRAPH_AUDIENCE in
+#   /etc/diskgraph/mcp.env. Store a random 32+ byte verifier key in
+#   /etc/diskgraph/mcp.key (regular file, owner diskgraph, mode 0400/0600).
+#   Never expand the verifier key into ExecStart or a process argument.
+#   Network-facing deployment additionally requires TLS/tunnel in front
+#   and --secure-transport (the server refuses a non-loopback bind without it).
 # - Both SQLite databases live under StateDirectory; do NOT place them on a
 #   network share (WAL is local-only by design, spec ST-05).
 
@@ -24,12 +28,14 @@ Type=simple
 User=diskgraph
 Group=diskgraph
 StateDirectory=diskgraph
+EnvironmentFile=/etc/diskgraph/mcp.env
 ExecStart=/usr/local/bin/diskgraph-mcp \
     --data-dir /var/lib/diskgraph \
     --profile read-full \
     --transport streamable-http \
     --host 127.0.0.1 \
-    --port 18443
+    --port 18443 \
+    --auth-key-file ${DISKGRAPH_ISSUER} ${DISKGRAPH_AUDIENCE} /etc/diskgraph/mcp.key
 Restart=on-failure
 RestartSec=2
 

@@ -77,3 +77,16 @@ fn the_packaging_script_runs_on_linux_hosts_not_darwin() {
     assert!(script.contains("uname -s"));
     assert!(script.contains("cargo build --release --locked"));
 }
+
+#[test]
+fn the_http_unit_requires_operator_authentication_configuration() {
+    let unit = deploy_unit();
+    assert!(unit.contains("EnvironmentFile=/etc/diskgraph/mcp.env"));
+    assert!(unit.contains(
+        "--auth-key-file ${DISKGRAPH_ISSUER} ${DISKGRAPH_AUDIENCE} /etc/diskgraph/mcp.key"
+    ));
+    assert!(
+        !unit.contains("${DISKGRAPH_KEY}"),
+        "the key must not enter argv"
+    );
+}

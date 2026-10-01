@@ -25,3 +25,4 @@ uuid.workspace = true
 [dev-dependencies]
 diskgraph-testkit.workspace = true
 tempfile = "3"
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }

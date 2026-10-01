@@ -42,3 +42,14 @@
 #### Scenario: Planning validated
 - **WHEN** OpenSpec 文档与任务通过校验
 - **THEN** 只说明规划完整，所有未执行实现任务仍未勾选，不自动发布或 apply。
+
+### Requirement: RE-06 Desktop read-only production gate
+本次生产就绪范围限定为 macOS、Linux、Windows 的只读 CLI 与 MCP。每个目标 OS SHALL 通过可复现构建、测试和实际二进制的 stdio、现代 HTTP 与 legacy SSE 协议验收；网络传输必须使用隔离库、有效签名 token 和真实数据库授权，并覆盖未认证及恶意 Origin 拒绝。发布证据 SHALL 包含目标 OS、版本、制品摘要、升级/回滚演练、资源预算和受控运行观察。未取得某 OS 的实际证据时不得宣称该 OS 生产就绪。
+
+#### Scenario: Legacy acceptance script lacks authentication
+- **WHEN** 验收脚本启动 legacy SSE 服务但没有配置认证与隔离授权
+- **THEN** 脚本失败，不能以跳过安全门禁的方式标记协议通过。
+
+#### Scenario: CI source check without released binary proof
+- **WHEN** 三平台源码测试通过，但对应制品尚未完成真实协议和升级/回滚验收
+- **THEN** 只能标记源码门禁通过，不能标记完整生产就绪。

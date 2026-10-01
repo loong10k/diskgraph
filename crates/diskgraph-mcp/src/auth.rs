@@ -8,7 +8,6 @@
 
 use hmac::Mac as _;
 use std::collections::HashMap;
-use std::hash::{Hash, Hasher};
 
 use diskgraph_core::{Authorizer as _, Permission, PolicyAuthorizer, PrincipalId};
 use serde_json::{Value, json};
@@ -38,10 +37,7 @@ impl TokenClaims {
             issuer: payload.get("iss")?.as_str()?.to_owned(),
             audience: payload.get("aud")?.as_str()?.to_owned(),
             subject: payload.get("sub")?.as_str()?.to_owned(),
-            expires_at_unix_seconds: payload
-                .get("exp")
-                .and_then(Value::as_u64)
-                .or_else(|| payload.get("exp").and_then(Value::as_i64).map(|v| v as u64))?,
+            expires_at_unix_seconds: payload.get("exp").and_then(Value::as_u64)?,
             scope: payload
                 .get("scope")
                 .and_then(Value::as_str)
@@ -143,6 +139,8 @@ pub struct AuthenticatedPrincipal {
     pub issuer: String,
     /// Permissions the token's scope maps to. An empty set authorizes nothing.
     pub permissions: Vec<Permission>,
+    /// 长连接到期边界，不使用认证时钟偏差延长连接生命周期。
+    pub expires_at_unix_seconds: u64,
 }
 
 /// Verifies bearer tokens for the HTTP transport. Verification is
@@ -226,10 +224,11 @@ impl Authenticator {
             return Err(AuthFailure::BadSignature);
         }
 
-        let principal = PrincipalId::new(subject_to_principal(&claims.subject))
+        let principal = PrincipalId::new(subject_to_principal(&claims.issuer, &claims.subject))
             .map_err(|_| AuthFailure::Malformed)?;
         Ok(AuthenticatedPrincipal {
             principal,
+            expires_at_unix_seconds: claims.expires_at_unix_seconds,
             issuer: claims.issuer,
             permissions: permissions_from_scope(claims.scope.as_deref(), &self.config),
         })
@@ -299,10 +298,13 @@ pub fn permissions_from_scope(scope: Option<&str>, config: &AuthConfig) -> Vec<P
 }
 
 /// Derives a stable principal id from a token subject.
-fn subject_to_principal(subject: &str) -> String {
-    let mut hasher = std::collections::hash_map::DefaultHasher::new();
-    subject.hash(&mut hasher);
-    format!("subject-{:016x}", hasher.finish())
+fn subject_to_principal(issuer: &str, subject: &str) -> String {
+    use sha2::Digest;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update((issuer.len() as u64).to_be_bytes());
+    hasher.update(issuer.as_bytes());
+    hasher.update(subject.as_bytes());
+    format!("subject-{:x}", hasher.finalize())[..64].to_owned()
 }
 
 /// Splits a compact JWS into its three segments.

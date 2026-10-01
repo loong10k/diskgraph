@@ -29,6 +29,10 @@ apply SHALL 验证可信人机交互或管理员预授权策略产生的批准�
 - **WHEN** 批准过期或策略已撤销
 - **THEN** 要求重新审阅，不按旧许可继续。
 
+#### Scenario: Scope revoked after approval
+- **WHEN** scope 或动作授权在批准后、apply 前或批量执行途中撤销
+- **THEN** 未执行项不得修改文件，操作记录准确区分已完成项和被阻断项。
+
 ### Requirement: OP-04 Execution revalidation
 执行 SHALL 重验源/目标身份、范围、保护、占用覆盖、目录内容、挂载和覆盖冲突；变化返回 stale_plan，安全前提未知则阻断，不仅比较展示路径。
 
@@ -40,6 +44,10 @@ apply SHALL 验证可信人机交互或管理员预授权策略产生的批准�
 - **WHEN** 批准后目录新增受保护后代
 - **THEN** 停止该目录操作并要求重新计划。
 
+#### Scenario: Same inode changed after approval
+- **WHEN** 已批准源文件保持 inode 但大小、修改时间或内容变化，或超过计划字节预算
+- **THEN** 拒绝执行并要求重新计划，不以执行时的新大小重写旧批准。
+
 ### Requirement: OP-05 Move and copy contracts
 move/copy SHALL 默认拒绝覆盖并校验源目标授权；同卷移动与跨卷复制后删除分别处理，跨卷流程在完整校验目标前不得删除源，失败不得伪装原子完成。
 
@@ -50,6 +58,10 @@ move/copy SHALL 默认拒绝覆盖并校验源目标授权；同卷移动与跨�
 #### Scenario: Unsupported metadata preservation
 - **WHEN** 平台不能满足计划要求的权限或扩展属性保真
 - **THEN** 明确阻断或要求重新批准降级计划，不静默丢失。
+
+#### Scenario: Unauthorized copy destination
+- **WHEN** 源 scope 有授权而 Copy 目标未注册或未授予对应动作权限
+- **THEN** 计划及执行均拒绝，目标不产生文件。
 
 ### Requirement: OP-06 Trash and recovery records
 trash SHALL 在可验证的回收能力下保存恢复条目、原位置、资源身份与元数据，禁止回收失败自动退化为永久删除；restore 必须重新计划并校验原位置冲突和权限。
@@ -83,6 +95,10 @@ purge SHALL 具有独立权限与明确不可恢复说明，仅处理已批准�
 - **WHEN** 部分文件已回收时收到取消
 - **THEN** 报告部分完成及可恢复项，不将已执行项标记未执行。
 
+#### Scenario: Concurrent overlapping operations
+- **WHEN** 两个已批准操作并发声明相同源、重叠目录或同一目标
+- **THEN** 仅一个操作能在持久事务中认领资源，另一个返回冲突且不发生文件副作用。
+
 ### Requirement: OP-10 Verify space and index
 执行后 SHALL 刷新受影响观察并分别报告逻辑处理字节、回收区保留字节和卷空闲前后值；并发活动、快照/硬链接/打开句柄影响必须作为测量限制说明。
 
@@ -93,3 +109,14 @@ purge SHALL 具有独立权限与明确不可恢复说明，仅处理已批准�
 #### Scenario: External writes during cleanup
 - **WHEN** 执行期间有其他进程写入磁盘
 - **THEN** 实测差值附限制，不把估算大小当作净释放量。
+
+### Requirement: OP-10 Bound staging and atomic publication
+The system SHALL bind staging creation, file writes, publication and cleanup to directory handles, exclusively create temporary files, verify content digests and required metadata before publication, and use native atomic no-replace publication. Unsupported fidelity conditions SHALL be refused. CLI and MCP dangerous tools SHALL remain disabled regardless of library tests.
+
+#### Scenario: Two publishers race for one target
+- **WHEN** two verified copies attempt publication to the same target
+- **THEN** exactly one succeeds and the other reports a conflict without overwriting the winner
+
+#### Scenario: Copy parent is replaced
+- **WHEN** the target parent path is replaced with a symlink after verification
+- **THEN** publication and cleanup operate on the fixed original directory handles and do not touch the replacement target

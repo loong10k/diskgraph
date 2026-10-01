@@ -61,3 +61,6 @@ pub use syncplan::{
     build_plan as build_sync_plan,
 };
 pub use treemap::{Placed, Rect, TextRow, Weighted, human_bytes, render_text, squarify};
+
+mod search_cursor;
+pub use search_cursor::SearchCursor;

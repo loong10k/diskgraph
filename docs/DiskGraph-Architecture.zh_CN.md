@@ -64,6 +64,27 @@ DiskGraph 是建立文件、目录、应用、项目、进程与生成规则关�
 
 ## 3. 总体结构
 
+### 当前实现调用路径（2026-10-01）
+
+```mermaid
+flowchart TD
+    CLI["CLI / TUI / HTML"] --> E["Engine<br/>权限、任务、查询、内容检查"]
+    MCP["MCP<br/>stdio / HTTP / legacy SSE"] --> S["McpService<br/>工具分发"]
+    S --> E
+    E --> SC["disktree 扫描器"]
+    SC --> CV["树转换<br/>补充身份和元数据"]
+    CV --> ST["staging → 发布 revision"]
+    ST --> G[("图数据库<br/>快照、节点、关系")]
+    E --> C[("控制数据库<br/>scope、权限、job、操作记录")]
+    OPS["Ops<br/>计划、批准、执行、恢复"] --> E
+    FFI["Swift / Kotlin FFI"] --> E
+    E -. "旧 FFI：授权后窄读" .-> G
+```
+
+此图概括当前组件调用路径。旧 FFI 签名保留，读取前先由 Engine 核验 snapshot/revision 归属与实时授权，再使用只读连接。底层 store API 属于可信内部兼容入口。平台能力与验证边界见下方加固记录。
+
+### 目标架构
+
 ```mermaid
 flowchart TB
     AG["本地或远程智能体"] --> MCP["diskgraph-mcp<br/>stdio / Streamable HTTP / legacy SSE"]
@@ -362,3 +383,46 @@ stateDiagram-v2
 **创建日期**：2026-09-28\
 **最后更新**：2026-09-28\
 **文档状态**：待评审；设计完整性不代表实现完成。
+
+## 2026-10-01 加固实现边界
+
+以下为本轮已落地调用链；前述标记 Target 的总体路线仍需对应平台验收。
+
+```mermaid
+sequenceDiagram
+    participant R as HTTP / SSE 请求
+    participant A as Origin + Token 校验
+    participant E as Engine 请求授权
+    participant C as 控制库
+    participant G as 独立图库读连接
+    R->>A: 请求与认证信息
+    A->>E: 不可变主体、能力、传输、到期时间
+    E->>G: 查询 revision 实际 server / scope
+    E->>C: 读取实时策略与撤权状态
+    C-->>E: 数据库授权
+    E->>E: token 能力 ∩ 实时授权
+    E->>G: 有期限的窄读 / 有界路径合并
+    G-->>R: 数据与截断诊断
+```
+
+写入由串行图库连接执行。job 以条件 UPDATE 认领，控制库事务内校验租约、fencing、scope 和实时 IndexWrite，保护 staging 批次、revision 发布和 collector 写入。过期认领使用新 staging 命名空间并重扫。上游扫描器源和摘要保持原 pin；转换使用迭代遍历，发布从 staging 生成正式节点。
+
+迁移前使用 SQLite 一致性备份（包含已提交 WAL）至 `migration_backups/`；图库 schema 6 记录归属及规范化搜索字段，schema 7 增加未知大小稀疏索引、关系分页与有序路径索引，schema 8 增加候选目录大小与证据关系索引。候选选择和影响遍历使用请求专用读连接、期限与明确截断诊断。控制库 schema 4 记录租约/fencing，schema 5 持久化取消意图。旧 running job 等待 heartbeat + 30 秒租约到期，不在启动时抢占。图库 WAL/NORMAL 保证事务一致性，但断电可能丢失最近提交的可重建索引；控制库 FULL 保持操作记录持久性要求。两库仍无跨库原子事务承诺。
+
+```mermaid
+flowchart LR
+    X["取消或撤权"] --> C[("控制库：持久意图")]
+    C --> F{"租约 + fence + 实时授权"}
+    F -- 有效 --> S["写当前 staging 命名空间"]
+    F -- 取消 / 失效 --> R["停止；旧 revision 不变"]
+    S --> F2{"发布 fence"}
+    F2 -- 有效 --> P["原子发布 revision"]
+    F2 -- 取消 / 失效 --> R
+    O["已批准文件计划"] --> V["实时授权 + 源指纹"]
+    V --> A["Immediate 事务：路径 + 文件身份认领"]
+    A --> H["句柄约束、禁止覆盖操作"]
+```
+
+FFI 从无损图库路径派生控制数据隔离域；归属不明的旧共享控制数据拒绝复用。操作计划要求完整摘要和新鲜源证据，因此旧计划须重新创建。正目标候选仍加载完整 revision；关系 impact 虽按页读取，每页/方向仍打开读连接。这些是明确保留的查询成本限制。
+
+兼容入口、保真检查、扫描超限余量、历史物理容量及本机测量详见[中文验收记录](security-performance-hardening-2026-10-01.zh-CN.md)。CLI/MCP 写工具关闭；Linux/Windows 原生操作与严格扫描 RSS 上限不在已完成能力中。

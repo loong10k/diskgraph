@@ -42,3 +42,14 @@
 #### Scenario: Two hosts
 - **WHEN** 本地智能体连接服务器
 - **THEN** 通过查询协议获取结果，而不是挂载并并发写服务器 SQLite。
+
+### Requirement: ST-05 Owned history and consistent upgrade backup
+The system SHALL persist revision server/scope ownership, list and resolve latest revisions by ownership, and backfill legacy ownership only for one exact matching registered locator. Unbound history SHALL be denied externally. Graph and control schema upgrades SHALL first use SQLite consistent backups including committed WAL frames. Explicit pruning SHALL preserve the latest revision, pins and operation/recovery references; preview SHALL be the default.
+
+#### Scenario: Ambiguous display root
+- **WHEN** distinct lossless scope locators share the same legacy display root
+- **THEN** the old revision remains unbound and externally unreadable
+
+#### Scenario: Retained history
+- **WHEN** pruning old revisions with keep-last one
+- **THEN** pinned and latest revisions survive and no referenced operation/recovery data is removed

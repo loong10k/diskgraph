@@ -12,13 +12,22 @@
 //!   digest still matches an unexpired approval, after revalidating every
 //!   precondition against the live filesystem.
 
+mod atomic_publish;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+mod bound_path;
+#[cfg(target_os = "macos")]
+mod metadata_fidelity;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+mod verified_source;
+
 use std::collections::HashSet;
-use std::hash::{Hash, Hasher};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use diskgraph_core::{FileActionKind, PrincipalId, ScopeId};
+use diskgraph_core::{Authorizer, Decision, FileActionKind, Permission, PrincipalId, ScopeId};
 use diskgraph_engine::Engine;
 use diskgraph_store::{Approval, ControlStore, Plan, PlanItem, RecoveryRule, StoreError};
+use sha2::{Digest, Sha256};
 
 /// Milliseconds since the epoch for control-plane timestamps.
 fn now_ms() -> u64 {
@@ -26,6 +35,65 @@ fn now_ms() -> u64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|duration| duration.as_millis() as u64)
         .unwrap_or(0)
+}
+
+fn require_action(
+    engine: &Engine,
+    scope_id: &ScopeId,
+    principal: &PrincipalId,
+    action: FileActionKind,
+) -> Result<(), OpsError> {
+    if engine.scope(scope_id)?.revoked {
+        return Err(OpsError::NotAuthorized("scope is revoked".into()));
+    }
+    if !matches!(
+        engine
+            .policy_authorizer()?
+            .decide(principal, &Permission::FileAction(action), scope_id),
+        Decision::Allowed
+    ) {
+        return Err(OpsError::NotAuthorized(format!(
+            "{} action grant is required in scope {scope_id}",
+            action_name(action)
+        )));
+    }
+    Ok(())
+}
+
+/// The most specific registered scope owns a destination. A writable path
+/// outside the registry never inherits the source scope's permission.
+fn require_destination(
+    engine: &Engine,
+    directory: &Path,
+    principal: &PrincipalId,
+    action: FileActionKind,
+) -> Result<PathBuf, OpsError> {
+    let directory = canonical_dir(directory);
+    if directory
+        .components()
+        .any(|component| matches!(component, std::path::Component::ParentDir))
+    {
+        return Err(OpsError::NotAuthorized(
+            "destination contains an unresolved parent component".into(),
+        ));
+    }
+    let scopes = engine.control_store()?.list_scopes()?;
+    let owner = scopes
+        .into_iter()
+        .filter_map(|scope| {
+            let root = path_of(&scope.root)?;
+            directory
+                .starts_with(&root)
+                .then_some((root, scope.scope_id))
+        })
+        .max_by_key(|(root, _)| root.components().count())
+        .ok_or_else(|| {
+            OpsError::NotAuthorized("destination is outside registered scopes".into())
+        })?;
+    require_action(engine, &owner.1, principal, action)?;
+    revalidate_below(&owner.0, &directory, Side::Target)
+        .map_err(|fault| OpsError::Stale(format!("destination: {fault}")))?;
+    Ok(owner.0)
 }
 
 /// Errors surfaced by the ops layer. They mirror the business error codes so
@@ -125,6 +193,14 @@ impl PlanBuilder {
         if !matches!(action, FileActionKind::Move | FileActionKind::Copy) {
             return Err(OpsError::ActionMismatch);
         }
+        if target
+            .components()
+            .any(|component| matches!(component, std::path::Component::ParentDir))
+        {
+            return Err(OpsError::NotAuthorized(
+                "destination contains a parent component".into(),
+            ));
+        }
         let recovery = if action == FileActionKind::Move {
             RecoveryRule::MoveBack
         } else {
@@ -177,6 +253,29 @@ impl PlanBuilder {
         recovery_ref: &str,
         target: Option<&Path>,
     ) -> Result<Plan, OpsError> {
+        if target.is_some_and(|path| {
+            path.components()
+                .any(|component| matches!(component, std::path::Component::ParentDir))
+        }) {
+            return Err(OpsError::NotAuthorized(
+                "restore target contains a parent component".into(),
+            ));
+        }
+        if self.engine.scope(scope_id)?.revoked
+            || !matches!(
+                self.engine.policy_authorizer()?.decide(
+                    principal,
+                    &Permission::MetadataRead,
+                    scope_id
+                ),
+                Decision::Allowed
+            )
+        {
+            return Err(OpsError::NotAuthorized(
+                "recovery scope metadata grant is required".into(),
+            ));
+        }
+        require_action(&self.engine, scope_id, principal, FileActionKind::Restore)?;
         let entry = {
             let control = self.engine.control_store()?;
             // An object with no recovery record — above all a purged one — is
@@ -205,12 +304,22 @@ impl PlanBuilder {
         }
         let held = unhex_key(&entry.quarantine_locator)
             .ok_or_else(|| OpsError::Stale("recovery locator is malformed".into()))?;
+        let original = unhex_key(&entry.original_locator)
+            .ok_or_else(|| OpsError::Stale("original locator is malformed".into()))?;
+        let destination_dir = target.unwrap_or_else(|| original.parent().unwrap_or(&original));
+        require_destination(
+            &self.engine,
+            destination_dir,
+            principal,
+            FileActionKind::Restore,
+        )?;
         let metadata = std::fs::symlink_metadata(&held)
             .map_err(|error| OpsError::Stale(format!("held object is gone: {error}")))?;
         let item = PlanItem {
             node_id: 0,
             locator_key: locator_key(&held),
             identity: Some(entry.identity.clone()),
+            source_fingerprint: Some(capture_source(&held, metadata.len())?.fingerprint),
             includes_descendants: false,
             recovery_ref: Some(recovery_ref.to_owned()),
         };
@@ -222,7 +331,7 @@ impl PlanBuilder {
             principal: principal.clone(),
             action: FileActionKind::Restore,
             items: vec![item],
-            target_locator_key: target.map(locator_key),
+            target_locator_key: Some(locator_key(&canonical_dir(destination_dir))),
             policy_version,
             max_bytes: metadata.len().max(1),
             created_at_unix_ms: now_ms(),
@@ -253,11 +362,21 @@ impl PlanBuilder {
         if scope.revoked {
             return Err(OpsError::NotAuthorized("scope is revoked".into()));
         }
+        require_action(&self.engine, scope_id, principal, action)?;
+        if let Some(directory) = target {
+            require_destination(&self.engine, directory, principal, action)?;
+        }
         let revision = self
             .engine
             .latest_revision(scope_id)
             .map_err(|_| OpsError::NoSuchScope(scope_id.as_str().to_owned()))?
             .ok_or_else(|| OpsError::Stale("scope has no published revision".into()))?;
+        self.engine.authorize_revision(
+            Some(scope_id),
+            &revision,
+            principal,
+            &self.engine.policy_authorizer()?,
+        )?;
         let graph = self.engine.load_revision(&revision)?;
 
         // Resolve every requested node to a live path and identity.
@@ -287,19 +406,41 @@ impl PlanBuilder {
         // Remove parent/child overlaps: keeping both would move the same bytes
         // twice and double-count the space (OP-02).
         let resolved = drop_nested(&resolved)?;
-        let expected_bytes: u64 = resolved.iter().map(|item| item.3).sum();
+        let planned_bytes = resolved.iter().try_fold(0_u64, |sum, item| {
+            sum.checked_add(item.3)
+                .ok_or_else(|| OpsError::Stale("plan byte count overflowed".into()))
+        })?;
+        if planned_bytes > max_bytes {
+            return Err(OpsError::Stale(format!(
+                "plan needs {planned_bytes} bytes, budget is {max_bytes}"
+            )));
+        }
+        let mut evidenced: Vec<(u64, PathBuf, SourceEvidence)> = Vec::with_capacity(resolved.len());
+        let mut remaining = max_bytes;
+        for (node_id, path, _, _) in &resolved {
+            let evidence = capture_source(path, remaining)?;
+            remaining = remaining
+                .checked_sub(evidence.bytes)
+                .ok_or_else(|| OpsError::Stale("plan exceeded its byte budget".into()))?;
+            evidenced.push((*node_id, path.clone(), evidence));
+        }
+        let expected_bytes = evidenced.iter().try_fold(0_u64, |sum, item| {
+            sum.checked_add(item.2.bytes)
+                .ok_or_else(|| OpsError::Stale("plan byte count overflowed".into()))
+        })?;
         if expected_bytes > max_bytes {
             return Err(OpsError::Stale(format!(
                 "plan needs {expected_bytes} bytes, budget is {max_bytes}"
             )));
         }
 
-        let items: Vec<PlanItem> = resolved
+        let items: Vec<PlanItem> = evidenced
             .iter()
-            .map(|(node_id, path, identity, _)| PlanItem {
+            .map(|(node_id, path, evidence)| PlanItem {
                 node_id: *node_id,
                 locator_key: locator_key(path),
-                identity: identity.clone(),
+                identity: evidence.identity.clone(),
+                source_fingerprint: Some(evidence.fingerprint.clone()),
                 includes_descendants: false,
                 recovery_ref: None,
             })
@@ -342,37 +483,14 @@ fn action_name(action: FileActionKind) -> &'static str {
     }
 }
 
-/// The stable recovery name used in digests.
-fn recovery_name(recovery: RecoveryRule) -> &'static str {
-    match recovery {
-        RecoveryRule::Quarantine => "quarantine",
-        RecoveryRule::MoveBack => "move_back",
-        RecoveryRule::NoneNeeded => "none_needed",
-    }
-}
-
-/// The canonical digest of a plan. It covers every field that would change what
-/// an approval authorizes, in a fixed order, so two identical requests digest
-/// the same and any mutation changes the digest.
+/// The canonical SHA-256 digest of one complete immutable plan. A new plan,
+/// even for the same files, needs its own approval.
 pub fn plan_digest(plan: &Plan) -> String {
-    let mut hasher = std::collections::hash_map::DefaultHasher::new();
-    plan.scope_id.as_str().hash(&mut hasher);
-    plan.principal.as_str().hash(&mut hasher);
-    action_name(plan.action).hash(&mut hasher);
-    for item in &plan.items {
-        item.node_id.hash(&mut hasher);
-        item.locator_key.hash(&mut hasher);
-        item.identity.hash(&mut hasher);
-        item.includes_descendants.hash(&mut hasher);
-    }
-    plan.target_locator_key.hash(&mut hasher);
-    plan.policy_version.hash(&mut hasher);
-    plan.max_bytes.hash(&mut hasher);
-    // The deadline is deliberately not part of the digest: the digest
-    // identifies WHAT an approval authorizes, and two identical requests must
-    // review as one even if issued a millisecond apart.
-    recovery_name(plan.recovery).hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
+    // Plan consists only of deterministic serde fields. Including the plan
+    // ID, deadline, recovery reference and exact byte count means an old
+    // approval cannot authorize a newly issued or extended plan.
+    let encoded = serde_json::to_vec(plan).expect("plan serialization is infallible");
+    hex::encode(Sha256::digest(encoded))
 }
 
 /// A requested object resolved to a live path, its identity, and its size.
@@ -397,9 +515,9 @@ fn drop_nested(items: &[Resolved]) -> Result<Vec<Resolved>, OpsError> {
     }
     // Two items that are the same path would double-count; that is an overlap
     // we cannot resolve by dropping one, so refuse.
-    let mut seen: HashSet<String> = HashSet::new();
+    let mut seen: HashSet<PathBuf> = HashSet::new();
     for item in &keep {
-        if !seen.insert(item.1.to_string_lossy().into_owned()) {
+        if !seen.insert(item.1.clone()) {
             return Err(OpsError::OverlappingObjects(item.0));
         }
     }
@@ -409,7 +527,15 @@ fn drop_nested(items: &[Resolved]) -> Result<Vec<Resolved>, OpsError> {
 /// A stable, reversible key for a path (the raw bytes, hex-encoded). It is the
 /// identity used in plans and recovery records, never a display string.
 fn locator_key(path: &Path) -> String {
-    hex::encode(path.to_string_lossy().as_bytes())
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStrExt;
+        hex::encode(path.as_os_str().as_bytes())
+    }
+    #[cfg(not(unix))]
+    {
+        hex::encode(path.to_string_lossy().as_bytes())
+    }
 }
 
 /// The identity used to detect a replaced object between plan and apply: on
@@ -432,6 +558,88 @@ fn identity_of(path: &Path, metadata: &std::fs::Metadata) -> Option<String> {
     {
         let _ = (path, metadata);
         None
+    }
+}
+
+/// Evidence bound into an approval. The digest covers bytes and nanosecond
+/// metadata; the identity alone cannot detect an in-place rewrite.
+struct SourceEvidence {
+    identity: Option<String>,
+    fingerprint: String,
+    bytes: u64,
+}
+
+fn capture_source(path: &Path, max_bytes: u64) -> Result<SourceEvidence, OpsError> {
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    {
+        use std::os::unix::fs::MetadataExt;
+        let bound = bound_path::BoundPath::open(path)
+            .map_err(|error| OpsError::Stale(format!("source path changed: {error}")))?;
+        let mut file = bound
+            .read()
+            .map_err(|error| OpsError::Stale(format!("source path changed: {error}")))?;
+        let before = file.metadata()?;
+        if !before.is_file() {
+            return Err(OpsError::Stale(
+                "unsupported: this operation needs a regular file source".into(),
+            ));
+        }
+        if before.len() > max_bytes {
+            return Err(OpsError::Stale(format!(
+                "source needs {} bytes, budget is {max_bytes}",
+                before.len()
+            )));
+        }
+        let mut digest = Sha256::new();
+        let mut bytes = 0_u64;
+        let mut chunk = [0_u8; 8192];
+        loop {
+            let read_limit = usize::try_from(max_bytes.saturating_sub(bytes).saturating_add(1))
+                .unwrap_or(chunk.len())
+                .min(chunk.len());
+            let count = file.read(&mut chunk[..read_limit])?;
+            if count == 0 {
+                break;
+            }
+            bytes = bytes.saturating_add(count as u64);
+            if bytes > max_bytes {
+                return Err(OpsError::Stale(
+                    "source exceeded the approved byte budget".into(),
+                ));
+            }
+            digest.update(&chunk[..count]);
+        }
+        let after = file.metadata()?;
+        if before.dev() != after.dev()
+            || before.ino() != after.ino()
+            || before.len() != after.len()
+            || before.mtime() != after.mtime()
+            || before.mtime_nsec() != after.mtime_nsec()
+            || before.ctime() != after.ctime()
+            || before.ctime_nsec() != after.ctime_nsec()
+            || bytes != before.len()
+        {
+            return Err(OpsError::Stale(
+                "source changed while being evidenced".into(),
+            ));
+        }
+        digest.update(before.len().to_le_bytes());
+        digest.update(before.mtime().to_le_bytes());
+        digest.update(before.mtime_nsec().to_le_bytes());
+        digest.update(before.ctime().to_le_bytes());
+        digest.update(before.ctime_nsec().to_le_bytes());
+        Ok(SourceEvidence {
+            identity: identity_of(path, &before),
+            fingerprint: hex::encode(digest.finalize()),
+            bytes,
+        })
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+    {
+        let _ = (path, max_bytes);
+        Err(OpsError::Stale(
+            "unsupported: this platform has no verified source handles".into(),
+        ))
     }
 }
 
@@ -612,11 +820,12 @@ impl Executor {
             }
             plan
         };
+        self.check_plan_authorization(&plan)?;
 
         // 3. Revalidate every precondition against the live filesystem before
-        // touching anything, and refuse overlapping in-flight operations.
+        // touching anything. The control store claims overlapping paths in
+        // the same transaction that creates the operation.
         let items = self.resolve_live_items(&plan)?;
-        self.refuse_conflicts(&plan, &items)?;
 
         // 4. Idempotency: one key, one operation.
         let request_digest = apply_request_digest(&plan, request.approval_ref);
@@ -633,7 +842,12 @@ impl Executor {
         };
         let (operation_id, created) = {
             let mut control = self.engine.control_store()?;
-            control.begin_operation(&operation, items.len())?
+            control
+                .begin_operation(&operation, items.len())
+                .map_err(|error| match error {
+                    StoreError::Conflict(message) => OpsError::Conflict(message),
+                    other => OpsError::Store(other),
+                })?
         };
         if !created {
             // A retry of the same request: return the original operation and
@@ -658,6 +872,35 @@ impl Executor {
         let mut bytes = 0u64;
         for (index, item) in items.iter().enumerate() {
             let index = index as u32;
+            // A long batch must stop at the first withdrawn approval or
+            // action grant. No later item may be retried under old authority.
+            if let Err(error) = self.check_plan_authorization(&plan).and_then(|()| {
+                self.engine
+                    .control_store()?
+                    .verify_approval(
+                        request.approval_ref,
+                        &plan.plan_id,
+                        &plan_digest(&plan),
+                        &plan.principal,
+                        plan.action,
+                    )
+                    .map(|_| ())
+                    .map_err(|error| OpsError::NotAuthorized(error.to_string()))
+            }) {
+                let detail = error.to_string();
+                let mut control = self.engine.control_store()?;
+                for remaining in index..items.len() as u32 {
+                    control.record_item_result(
+                        &operation_id,
+                        remaining,
+                        diskgraph_store::OperationItemResult::Failed,
+                        &format!("blocked before execution: {detail}"),
+                        None,
+                    )?;
+                    failed += 1;
+                }
+                break;
+            }
             self.engine
                 .control_store()?
                 .record_intent(&operation_id, index)?;
@@ -774,71 +1017,99 @@ impl Executor {
     /// Re-resolves every planned object against the live filesystem.
     fn resolve_live_items(&self, plan: &Plan) -> Result<Vec<LiveItem>, OpsError> {
         let mut live = Vec::new();
+        let mut total = 0_u64;
         for item in &plan.items {
             let path = unhex_key(&item.locator_key)
                 .ok_or_else(|| OpsError::Stale(format!("bad locator for node {}", item.node_id)))?;
             let metadata = std::fs::symlink_metadata(&path)
                 .map_err(|error| OpsError::Stale(format!("node {}: {error}", item.node_id)))?;
-            // A replaced object (deleted and recreated) has a new identity and
-            // must not be touched by a plan that described the old one.
-            let identity = identity_of(&path, &metadata);
-            if let (Some(expected), Some(actual)) = (&item.identity, &identity)
-                && expected != actual
-            {
+            if item.identity != identity_of(&path, &metadata) {
                 return Err(OpsError::Stale(format!(
                     "node {} was replaced since the plan was made",
                     item.node_id
                 )));
             }
+            let evidence = capture_source(&path, plan.max_bytes.saturating_sub(total))?;
+            if item.identity != evidence.identity {
+                return Err(OpsError::Stale(format!(
+                    "node {} was replaced since the plan was made",
+                    item.node_id
+                )));
+            }
+            if item.source_fingerprint.as_deref() != Some(&evidence.fingerprint) {
+                return Err(OpsError::Stale(format!(
+                    "node {} changed since approval; create a fresh plan",
+                    item.node_id
+                )));
+            }
+            total = total
+                .checked_add(evidence.bytes)
+                .ok_or_else(|| OpsError::Stale("plan byte count overflowed".into()))?;
+            if total > plan.max_bytes {
+                return Err(OpsError::Stale(
+                    "plan exceeded its approved byte budget".into(),
+                ));
+            }
             live.push(LiveItem {
                 path,
-                identity,
+                identity: evidence.identity,
                 recovery_ref: item.recovery_ref.clone(),
-                bytes: metadata.len(),
+                bytes: evidence.bytes,
             });
+        }
+        if total != plan.expected_bytes {
+            return Err(OpsError::Stale(
+                "source bytes no longer match the approved plan".into(),
+            ));
         }
         Ok(live)
     }
 
-    /// Refuses when another in-flight operation already claims an overlapping
-    /// path: same file, an ancestor, a descendant, or a colliding target.
-    fn refuse_conflicts(&self, plan: &Plan, items: &[LiveItem]) -> Result<(), OpsError> {
-        let control = self.engine.control_store()?;
-        for operation in control.list_operations(&plan.scope_id, 64)? {
-            if !matches!(
-                operation.state,
-                diskgraph_store::OperationState::Queued
-                    | diskgraph_store::OperationState::Revalidating
-                    | diskgraph_store::OperationState::Running
-            ) {
-                continue;
+    fn check_plan_authorization(&self, plan: &Plan) -> Result<(), OpsError> {
+        if now_ms() >= plan.expires_at_unix_ms {
+            return Err(OpsError::Stale("plan expired; review a new plan".into()));
+        }
+        let policy = self.engine.policy_authorizer()?;
+        if plan.policy_version != policy.current_version() {
+            return Err(OpsError::NotAuthorized(
+                "policy changed since the plan was approved".into(),
+            ));
+        }
+        require_action(&self.engine, &plan.scope_id, &plan.principal, plan.action)?;
+        match plan.action {
+            FileActionKind::Move | FileActionKind::Copy => {
+                let directory = plan
+                    .target_locator_key
+                    .as_deref()
+                    .and_then(unhex_key)
+                    .ok_or_else(|| OpsError::Stale("plan target is malformed".into()))?;
+                require_destination(&self.engine, &directory, &plan.principal, plan.action)?;
             }
-            let existing = control.operation_items(&operation.operation_id)?;
-            for item in existing {
-                if item.result != diskgraph_store::OperationItemResult::Pending {
-                    continue;
-                }
-                if let Ok(other_plan) = control.plan(&operation.plan_id)
-                    && let Some(other) = other_plan
-                        .items
-                        .iter()
-                        .find(|candidate| candidate.node_id == item.item_index as u64)
-                    && let Some(other_path) = unhex_key(&other.locator_key)
-                {
-                    for mine in items {
-                        if mine.path == other_path
-                            || mine.path.starts_with(&other_path)
-                            || other_path.starts_with(&mine.path)
-                        {
-                            return Err(OpsError::Conflict(format!(
-                                "operation {} already claims {}",
-                                operation.operation_id,
-                                other_path.display()
-                            )));
-                        }
+            FileActionKind::Restore => {
+                let directory = match plan.target_locator_key.as_deref() {
+                    Some(key) => unhex_key(key)
+                        .ok_or_else(|| OpsError::Stale("restore target is malformed".into()))?,
+                    None => {
+                        let recovery = plan
+                            .items
+                            .first()
+                            .and_then(|item| item.recovery_ref.as_deref())
+                            .ok_or_else(|| OpsError::Stale("restore recovery is missing".into()))?;
+                        let entry = self.engine.control_store()?.recovery(recovery)?;
+                        let original = unhex_key(&entry.original_locator).ok_or_else(|| {
+                            OpsError::Stale("restore original locator is malformed".into())
+                        })?;
+                        original
+                            .parent()
+                            .ok_or_else(|| {
+                                OpsError::Stale("restore original parent is missing".into())
+                            })?
+                            .to_path_buf()
                     }
-                }
+                };
+                require_destination(&self.engine, &directory, &plan.principal, plan.action)?;
             }
+            FileActionKind::Trash | FileActionKind::Purge => {}
         }
         Ok(())
     }
@@ -851,6 +1122,20 @@ impl Executor {
         item: &LiveItem,
         fault: Option<FaultPoint>,
     ) -> Result<StepResult, OpsError> {
+        let expected = plan
+            .items
+            .iter()
+            .find(|candidate| unhex_key(&candidate.locator_key).as_deref() == Some(&item.path))
+            .ok_or_else(|| OpsError::Stale("live source is not in the approved plan".into()))?;
+        if expected.source_fingerprint.as_deref()
+            != Some(
+                capture_source(&item.path, plan.max_bytes)?
+                    .fingerprint
+                    .as_str(),
+            )
+        {
+            return Err(OpsError::Stale("source changed before execution".into()));
+        }
         match plan.action {
             FileActionKind::Move => {
                 let target = self.target_for(plan, &item.path)?;
@@ -858,7 +1143,15 @@ impl Executor {
                 // after planning must stop the move, not redirect it (OP-04).
                 revalidate_below(&self.scope_root(plan)?, &item.path, Side::Source)
                     .map_err(|fault| OpsError::Stale(format!("source: {fault}")))?;
-                revalidate_below(&self.scope_root(plan)?, &target, Side::Target)
+                let target_root = require_destination(
+                    &self.engine,
+                    target
+                        .parent()
+                        .ok_or_else(|| OpsError::Stale("target has no parent".into()))?,
+                    &plan.principal,
+                    plan.action,
+                )?;
+                revalidate_below(&target_root, &target, Side::Target)
                     .map_err(|fault| OpsError::Stale(format!("target: {fault}")))?;
                 // Never overwrite: a target that appeared since planning is
                 // a conflict, not something to clobber (OP-05).
@@ -866,7 +1159,11 @@ impl Executor {
                     return Err(OpsError::TargetExists);
                 }
                 if are_same_volume(&item.path, &target)? {
-                    std::fs::rename(&item.path, &target)?;
+                    atomic_publish::rename_no_replace(
+                        &item.path,
+                        &target,
+                        item.identity.as_deref(),
+                    )?;
                     return Ok(StepResult {
                         kind: diskgraph_store::OperationItemResult::Moved,
                         detail: describe(&target, item.identity.as_deref()),
@@ -881,22 +1178,22 @@ impl Executor {
             }
             FileActionKind::Copy => {
                 let target = self.target_for(plan, &item.path)?;
+                revalidate_below(&self.scope_root(plan)?, &item.path, Side::Source)
+                    .map_err(|fault| OpsError::Stale(format!("source: {fault}")))?;
+                let target_root = require_destination(
+                    &self.engine,
+                    target
+                        .parent()
+                        .ok_or_else(|| OpsError::Stale("target has no parent".into()))?,
+                    &plan.principal,
+                    plan.action,
+                )?;
+                revalidate_below(&target_root, &target, Side::Target)
+                    .map_err(|fault| OpsError::Stale(format!("target: {fault}")))?;
                 if std::fs::symlink_metadata(&target).is_ok() {
                     return Err(OpsError::TargetExists);
                 }
-                if are_same_volume(&item.path, &target)? {
-                    std::fs::copy(&item.path, &target)?;
-                    return Ok(StepResult {
-                        kind: diskgraph_store::OperationItemResult::Copied,
-                        detail: describe(&target, item.identity.as_deref()),
-                        bytes: item.bytes,
-                        recovery_ref: None,
-                    });
-                }
-                // Cross volume (OP-05): stage on the target's volume, verify
-                // the byte count and the source's stability, then publish with
-                // a same-volume rename. A half-written file never appears at
-                // the destination.
+                // 同卷复制也使用独占 staging 和摘要验证，避免半成品及目标竞态。
                 let transfer = CrossVolumeCopy::open(&target, "copy")?;
                 let transferred = transfer
                     .stage_and_verify(&item.path, &item.identity)
@@ -930,7 +1227,7 @@ impl Executor {
                     // holding area would not preserve recoverability (OP-06).
                     return Err(OpsError::CrossVolume);
                 }
-                std::fs::rename(&item.path, &held)?;
+                atomic_publish::rename_no_replace(&item.path, &held, item.identity.as_deref())?;
                 let entry = diskgraph_store::RecoveryEntry {
                     recovery_ref: recovery_ref.clone(),
                     operation_id: String::new(),
@@ -983,6 +1280,16 @@ impl Executor {
                 };
                 let held = unhex_key(&entry.quarantine_locator)
                     .ok_or_else(|| OpsError::Stale("recovery locator is malformed".into()))?;
+                let target_root = require_destination(
+                    &self.engine,
+                    destination
+                        .parent()
+                        .ok_or_else(|| OpsError::Stale("restore target has no parent".into()))?,
+                    &plan.principal,
+                    plan.action,
+                )?;
+                revalidate_below(&target_root, &destination, Side::Target)
+                    .map_err(|fault| OpsError::Stale(format!("restore target: {fault}")))?;
                 let metadata = std::fs::symlink_metadata(&held)
                     .map_err(|error| OpsError::Stale(format!("held object is gone: {error}")))?;
                 if !entry.identity.is_empty()
@@ -998,7 +1305,7 @@ impl Executor {
                 if let Some(parent) = destination.parent() {
                     std::fs::create_dir_all(parent)?;
                 }
-                std::fs::rename(&held, &destination)?;
+                atomic_publish::rename_no_replace(&held, &destination, Some(&entry.identity))?;
                 self.engine
                     .control_store()?
                     .mark_recovery_restored(recovery_ref)?;
@@ -1054,7 +1361,29 @@ impl Executor {
                 "the verified copy is published; the source removal did not run".into(),
             ));
         }
-        remove_source(&item.path)?;
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        {
+            let verified = transfer
+                .verified_source
+                .lock()
+                .map_err(|_| OpsError::Stale("transfer state poisoned".into()))?;
+            let source = verified
+                .as_ref()
+                .ok_or_else(|| OpsError::Stale("source verification is missing".into()))?;
+            let _pinned = source.file.metadata()?;
+            source
+                .path
+                .remove_verified(&source.metadata)
+                .map_err(|error| {
+                    OpsError::ParkNeedsAttention(format!(
+                        "verified copy is published; source removal refused: {error}"
+                    ))
+                })?;
+        }
+        #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+        return Err(OpsError::Stale(
+            "unsupported: verified source removal".into(),
+        ));
         Ok(StepResult {
             kind: diskgraph_store::OperationItemResult::Moved,
             detail: describe(target, item.identity.as_deref()),
@@ -1142,7 +1471,7 @@ pub fn revalidate_below(trusted_root: &Path, path: &Path, side: Side) -> Result<
         match component {
             Component::CurDir => {}
             Component::ParentDir => {
-                current.pop();
+                return Err(PathFault::ComponentVanished);
             }
             Component::Normal(name) => {
                 current.push(name);
@@ -1446,10 +1775,9 @@ fn describe(target: &Path, identity: Option<&str>) -> String {
 /// The digest that identifies an apply request, so a reused idempotency key
 /// with a different approval is a conflict rather than a silent merge.
 fn apply_request_digest(plan: &Plan, approval_ref: &str) -> String {
-    let mut hasher = std::collections::hash_map::DefaultHasher::new();
-    plan_digest(plan).hash(&mut hasher);
-    approval_ref.hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
+    let encoded = serde_json::to_vec(&(plan_digest(plan), approval_ref))
+        .expect("apply request serialization is infallible");
+    hex::encode(Sha256::digest(encoded))
 }
 
 /// Same-volume operations use an atomic rename; the cross-volume paths are
@@ -1492,9 +1820,17 @@ fn remove_source(path: &Path) -> Result<(), OpsError> {
 /// target's own volume, so publishing is a same-volume rename: an interrupted
 /// transfer leaves a staging directory behind and the destination untouched.
 pub(crate) struct CrossVolumeCopy {
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    target_handle: bound_path::BoundPath,
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    staged_handle: bound_path::BoundPath,
     staging_dir: PathBuf,
+    #[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
     staged: PathBuf,
     target: PathBuf,
+    verified: std::sync::Mutex<Option<(std::fs::File, std::fs::Metadata)>>,
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    verified_source: std::sync::Mutex<Option<verified_source::VerifiedSource>>,
 }
 
 impl CrossVolumeCopy {
@@ -1509,15 +1845,35 @@ impl CrossVolumeCopy {
             ".dg-{purpose}-staging-{}",
             uuid::Uuid::new_v4().simple()
         ));
-        std::fs::create_dir_all(&staging_dir)?;
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        let target_handle = bound_path::BoundPath::open(target)?;
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        let staged_handle = target_handle.staging(
+            staging_dir
+                .file_name()
+                .ok_or_else(|| OpsError::Stale("staging has no name".into()))?,
+        )?;
+        #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+        return Err(OpsError::Stale(
+            "unsupported: bound staging directory".into(),
+        ));
+        #[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
         let name = target
             .file_name()
             .ok_or_else(|| OpsError::Stale("target has no file name".into()))?
             .to_owned();
         Ok(Self {
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
+            target_handle,
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
+            staged_handle,
+            #[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
             staged: staging_dir.join(&name),
             staging_dir,
             target: target.to_path_buf(),
+            verified: std::sync::Mutex::new(None),
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
+            verified_source: std::sync::Mutex::new(None),
         })
     }
 
@@ -1528,8 +1884,116 @@ impl CrossVolumeCopy {
         source: &Path,
         expected_identity: &Option<String>,
     ) -> Result<u64, OpsError> {
-        let copied = std::fs::copy(source, &self.staged)?;
-        let staged_len = std::fs::symlink_metadata(&self.staged)?.len();
+        use sha2::Digest;
+        use std::io::{Read, Seek, Write};
+        let before = std::fs::symlink_metadata(source)?;
+        if !before.is_file() || before.file_type().is_symlink() {
+            return Err(OpsError::Stale("source is not a plain file".into()));
+        }
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        let source_handle = bound_path::BoundPath::open(source)?;
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        let mut input = source_handle.read()?;
+        #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+        let mut input = std::fs::File::open(source)?;
+        let initial = input.metadata()?;
+        if expected_identity
+            .as_ref()
+            .is_some_and(|expected| identity_of(source, &initial).as_ref() != Some(expected))
+        {
+            return Err(OpsError::Stale("source changed before copy".into()));
+        }
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        let mut output = self.staged_handle.create()?;
+        #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+        let mut output = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(&self.staged)?;
+        if identity_of(source, &initial) != identity_of(source, &before) {
+            return Err(OpsError::Stale("source was replaced before copy".into()));
+        }
+        let mut source_hash = sha2::Sha256::new();
+        let mut buffer = [0_u8; 64 * 1024];
+        let mut copied = 0_u64;
+        loop {
+            let count = input.read(&mut buffer)?;
+            if count == 0 {
+                break;
+            }
+            output.write_all(&buffer[..count])?;
+            source_hash.update(&buffer[..count]);
+            copied = copied.saturating_add(count as u64);
+        }
+        output.set_permissions(initial.permissions())?;
+        output.set_times(
+            std::fs::FileTimes::new()
+                .set_accessed(initial.accessed()?)
+                .set_modified(initial.modified()?),
+        )?;
+        output.sync_all()?;
+        output.rewind()?;
+        let mut staged_hash = sha2::Sha256::new();
+        loop {
+            let count = output.read(&mut buffer)?;
+            if count == 0 {
+                break;
+            }
+            staged_hash.update(&buffer[..count]);
+        }
+        let after = input.metadata()?;
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt;
+            if initial.len() != after.len()
+                || initial.mtime() != after.mtime()
+                || initial.mtime_nsec() != after.mtime_nsec()
+                || initial.ctime() != after.ctime()
+                || initial.ctime_nsec() != after.ctime_nsec()
+            {
+                return Err(OpsError::Stale("source changed during copy".into()));
+            }
+        }
+        if source_hash.finalize() != staged_hash.finalize() {
+            return Err(OpsError::Stale("staged content digest mismatch".into()));
+        }
+        #[cfg(target_os = "macos")]
+        {
+            use std::os::fd::AsRawFd;
+            // 使用 macOS 原生 fd 元数据复制，包括权限、ACL、扩展属性和时间。
+            let result = unsafe {
+                libc::fcopyfile(
+                    input.as_raw_fd(),
+                    output.as_raw_fd(),
+                    std::ptr::null_mut(),
+                    libc::COPYFILE_METADATA,
+                )
+            };
+            if result != 0 {
+                return Err(std::io::Error::last_os_error().into());
+            }
+        }
+        #[cfg(not(target_os = "macos"))]
+        return Err(OpsError::Stale(
+            "unsupported: copy metadata fidelity has not been verified on this platform".into(),
+        ));
+        output.set_times(
+            std::fs::FileTimes::new()
+                .set_accessed(initial.accessed()?)
+                .set_modified(initial.modified()?),
+        )?;
+        output.sync_all()?;
+        if output.metadata()?.modified()? != initial.modified()?
+            || output.metadata()?.permissions() != initial.permissions()
+        {
+            return Err(OpsError::Stale(
+                "required copy metadata verification failed".into(),
+            ));
+        }
+        #[cfg(target_os = "macos")]
+        metadata_fidelity::verify(&input, &output)?;
+        let staged_len = output.metadata()?.len();
         if copied != staged_len {
             return Err(OpsError::Stale("the staged copy is incomplete".into()));
         }
@@ -1547,6 +2011,23 @@ impl CrossVolumeCopy {
                 "the source changed size during the copy".into(),
             ));
         }
+        *self
+            .verified
+            .lock()
+            .map_err(|_| OpsError::Stale("transfer state poisoned".into()))? =
+            Some((output.try_clone()?, output.metadata()?));
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        {
+            *self
+                .verified_source
+                .lock()
+                .map_err(|_| OpsError::Stale("transfer state poisoned".into()))? =
+                Some(verified_source::VerifiedSource {
+                    path: source_handle,
+                    file: input.try_clone()?,
+                    metadata: initial,
+                });
+        }
         Ok(staged_len)
     }
 
@@ -1557,15 +2038,36 @@ impl CrossVolumeCopy {
         if std::fs::symlink_metadata(&self.target).is_ok() {
             return Err(OpsError::TargetExists);
         }
-        std::fs::rename(&self.staged, &self.target)?;
-        let _ = std::fs::remove_dir_all(&self.staging_dir);
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        {
+            let verified = self
+                .verified
+                .lock()
+                .map_err(|_| OpsError::Stale("transfer state poisoned".into()))?;
+            let (_file, metadata) = verified
+                .as_ref()
+                .ok_or_else(|| OpsError::Stale("copy is not verified".into()))?;
+            self.staged_handle
+                .rename_verified_to(&self.target_handle, metadata)?;
+        }
+        #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+        return Err(OpsError::Stale("unsupported: bound publication".into()));
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        if let Some(name) = self.staging_dir.file_name() {
+            self.target_handle.remove_directory(name);
+        }
         Ok(())
     }
 
     /// Best-effort cleanup after a failed transfer.
     pub(crate) fn discard(&self) {
-        let _ = std::fs::remove_file(&self.staged);
-        let _ = std::fs::remove_dir_all(&self.staging_dir);
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        {
+            self.staged_handle.discard();
+            if let Some(name) = self.staging_dir.file_name() {
+                self.target_handle.remove_directory(name);
+            }
+        }
     }
 
     /// True once no staging directory remains, so drills can prove a transfer
@@ -1609,14 +2111,29 @@ fn canonical_dir(path: &Path) -> PathBuf {
 /// The native path behind a scope record's root locator.
 fn path_of(locator: &diskgraph_core::Locator) -> Option<PathBuf> {
     let bytes = locator.raw_bytes().ok()?;
-    Some(PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStringExt;
+        Some(PathBuf::from(std::ffi::OsString::from_vec(bytes)))
+    }
+    #[cfg(not(unix))]
+    {
+        Some(PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
+    }
 }
 
 /// Reverses the hex locator key back into a path.
 fn unhex_key(key: &str) -> Option<PathBuf> {
-    hex::decode(key)
-        .ok()
-        .map(|bytes| PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
+    let bytes = hex::decode(key).ok()?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::ffi::OsStringExt;
+        Some(PathBuf::from(std::ffi::OsString::from_vec(bytes)))
+    }
+    #[cfg(not(unix))]
+    {
+        Some(PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
+    }
 }
 
 /// A read-only locator helper used by the ops layer and the store.

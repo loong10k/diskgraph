@@ -15,6 +15,7 @@ use diskgraph_testkit::FixtureTree;
 
 /// Engine plus an indexed scope over the fixture tree.
 struct Content {
+    _workspace: tempfile::TempDir,
     engine: std::sync::Arc<Engine>,
     scope: diskgraph_core::ScopeId,
     principal: PrincipalId,
@@ -60,6 +61,7 @@ fn content(label: &str, tree: &FixtureTree) -> Content {
     let job = engine.index_scope(&scope, &principal, &authorizer).unwrap();
     engine.run_job(&job.job_id, "content-test").unwrap();
     Content {
+        _workspace: workspace,
         engine,
         scope,
         principal,

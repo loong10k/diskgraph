@@ -95,15 +95,54 @@ pub fn render_page(
         .iter()
         .map(|(name, color)| [*name, *color])
         .collect();
-    TEMPLATE
-        .replace("__TITLE__", root)
-        .replace("__NOTICE__", notice)
-        .replace("__DATA__", &payload.to_string())
-        .replace(
-            "__PALETTE__",
-            &serde_json::to_string(&palette).unwrap_or_default(),
-        )
-        .replace("__EXPAND__", &expand_depth.clamp(1, 5).to_string())
+    let title = escape_html_text(root);
+    // JSON is valid JavaScript, but HTML parses the script element before JS.
+    // Escape '<' so a scanned filename cannot terminate the inline script.
+    let data = payload.to_string().replace('<', "\\u003c");
+    let palette = serde_json::to_string(&palette).unwrap_or_default();
+    let expand = expand_depth.clamp(1, 5).to_string();
+    let replacements = [
+        ("__TITLE__", title.as_str()),
+        ("__NOTICE__", notice),
+        ("__DATA__", data.as_str()),
+        ("__PALETTE__", palette.as_str()),
+        ("__EXPAND__", expand.as_str()),
+    ];
+    // Resolve placeholders in one pass over the trusted template. Replacing
+    // sequentially could interpret a placeholder embedded in a filename.
+    let mut result = String::with_capacity(TEMPLATE.len() + data.len());
+    let mut rest = TEMPLATE;
+    while let Some(start) = rest.find("__") {
+        result.push_str(&rest[..start]);
+        let tail = &rest[start..];
+        if let Some((placeholder, replacement)) = replacements
+            .iter()
+            .find(|(placeholder, _)| tail.starts_with(placeholder))
+        {
+            result.push_str(replacement);
+            rest = &tail[placeholder.len()..];
+        } else {
+            result.push_str("__");
+            rest = &tail[2..];
+        }
+    }
+    result.push_str(rest);
+    result
+}
+
+fn escape_html_text(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' => escaped.push_str("&quot;"),
+            '\'' => escaped.push_str("&#39;"),
+            other => escaped.push(other),
+        }
+    }
+    escaped
 }
 
 /// Rewrites every name in a rendered tree to a stable pseudonym
@@ -239,6 +278,19 @@ mod tests {
         let page = render_page(&sample(), "/tmp/demo", "rev-abc", false, 2);
         assert!(page.contains("\"name\":\"code\""));
         assert!(page.contains("\"size_bytes\":2000"));
+    }
+
+    #[test]
+    fn untrusted_names_cannot_create_html_elements_or_end_the_data_script() {
+        let root = "</title><img src=x onerror=alert(1)>";
+        let tree = json!({"name": "</script><img src=x onerror=alert(2)>", "children": []});
+        let page = render_page(&tree, root, "rev-1", false, 2);
+
+        assert_eq!(page.matches("</title>").count(), 1);
+        assert_eq!(page.matches("</script>").count(), 1);
+        assert!(!page.contains("<img src=x onerror="));
+        assert!(page.contains("&lt;/title&gt;"));
+        assert!(page.contains("\\u003c/script>"));
     }
 }
 

@@ -52,6 +52,8 @@ pub enum InspectionStop {
     Cancelled,
     /// The object changed while being read: the result is void.
     Unstable,
+    /// 字节预算不足以确认完整内容。
+    ByteLimit,
 }
 
 /// What a bounded read produced. The bytes are the caller's to use and drop;
@@ -134,31 +136,21 @@ pub struct InspectionRequest<'a> {
     pub chunk_bytes: usize,
 }
 
-/// Opens a path without following its final component (CT-02): a link
-/// planted at the planned path must fail the open, not redirect the read.
-fn open_no_follow(path: &Path) -> std::io::Result<std::fs::File> {
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        std::fs::OpenOptions::new()
-            .read(true)
-            .custom_flags(libc::O_NOFOLLOW)
-            .open(path)
-    }
-    #[cfg(not(unix))]
-    {
-        std::fs::File::open(path)
-    }
-}
-
-/// The unix-style file identity used for before/after comparison. On
-/// platforms without device/inode metadata the outcome simply carries None,
-/// and the stability evidence says so rather than pretending.
+/// 身份指纹同时记录长度及高精度修改信息，原地写入也使结果失效。
 fn file_identity(metadata: &std::fs::Metadata) -> Option<String> {
     #[cfg(unix)]
     {
         use std::os::unix::fs::MetadataExt;
-        Some(format!("{}:{}", metadata.dev(), metadata.ino()))
+        Some(format!(
+            "{}:{}:{}:{}:{}:{}:{}",
+            metadata.dev(),
+            metadata.ino(),
+            metadata.len(),
+            metadata.mtime(),
+            metadata.mtime_nsec(),
+            metadata.ctime(),
+            metadata.ctime_nsec()
+        ))
     }
     #[cfg(not(unix))]
     {
@@ -167,17 +159,11 @@ fn file_identity(metadata: &std::fs::Metadata) -> Option<String> {
     }
 }
 
-/// True when the object at `path` still is the object `before` names. An
-/// object that vanished mid-read is the definition of unstable, and a
-/// platform without identities can only stay silent about it.
 fn identity_stable(before: &Option<String>, path: &Path) -> bool {
-    match std::fs::symlink_metadata(path) {
-        Ok(after) => match (file_identity(&after), before.as_ref()) {
-            (Some(after_id), Some(before_id)) => &after_id == before_id,
-            _ => true,
-        },
-        Err(_) => false,
-    }
+    std::fs::symlink_metadata(path)
+        .ok()
+        .and_then(|after| file_identity(&after))
+        .is_some_and(|after| Some(&after) == before.as_ref())
 }
 
 /// Refuses everything that is not a plain file (CT-01): directories,
@@ -251,10 +237,8 @@ impl Engine {
         }
         let root = record
             .root
-            .raw_bytes()
-            .ok()
-            .map(|bytes| PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
-            .ok_or_else(|| EngineError::Business(BusinessError::Unsupported))?;
+            .to_native_path()
+            .map_err(|_| EngineError::Business(BusinessError::Unsupported))?;
         ensure_inside_scope(&root, request.path)?;
         let metadata = std::fs::symlink_metadata(request.path)?;
         ensure_plain_file(request.path, &metadata)?;
@@ -274,15 +258,36 @@ impl Engine {
             });
         }
         let identity_before = file_identity(&metadata);
-        let mut file = open_no_follow(request.path)?;
+        let mut file = crate::scoped_file::open_scoped(&root, request.path)?;
+        if file_identity(&file.metadata()?) != identity_before {
+            return Err(EngineError::Business(BusinessError::Conflict));
+        }
         use std::io::Seek;
         file.seek(std::io::SeekFrom::Start(request.offset))?;
-        let chunk = request.chunk_bytes.max(1);
+        let chunk = request.chunk_bytes.clamp(1, 64 * 1024).min(
+            usize::try_from(request.max_bytes)
+                .unwrap_or(usize::MAX)
+                .max(1),
+        );
         let mut bytes = Vec::new();
         let mut buffer = vec![0_u8; chunk];
         let mut truncated = false;
         let mut stopped = None;
         loop {
+            self.require(
+                authorizer,
+                request.principal,
+                &diskgraph_core::Permission::ContentRead,
+                request.scope_id,
+            )?;
+            if self.control_store()?.live_permission(
+                request.principal,
+                &diskgraph_core::Permission::ContentRead,
+                request.scope_id,
+            )? == Some(false)
+            {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
             if bytes.len() as u64 >= request.max_bytes {
                 truncated = true;
                 break;
@@ -293,16 +298,23 @@ impl Engine {
                 stopped = Some(InspectionStop::Cancelled);
                 break;
             }
-            let want = ((request.max_bytes - bytes.len() as u64) as usize).min(chunk);
+            let want = usize::try_from(request.max_bytes - bytes.len() as u64)
+                .unwrap_or(usize::MAX)
+                .min(chunk);
             let buffer = &mut buffer[..want];
             let read = file.read(buffer)?;
             if read == 0 {
                 break;
             }
+            bytes
+                .try_reserve_exact(read)
+                .map_err(|_| EngineError::Business(BusinessError::ResourceExhausted))?;
             bytes.extend_from_slice(&buffer[..read]);
         }
         // The file must still be the object the read started on.
-        if !identity_stable(&identity_before, request.path) {
+        if file_identity(&file.metadata()?) != identity_before
+            || !identity_stable(&identity_before, request.path)
+        {
             stopped = Some(InspectionStop::Unstable);
         }
         Ok(ReadOutcome {
@@ -338,10 +350,8 @@ impl Engine {
         }
         let root = record
             .root
-            .raw_bytes()
-            .ok()
-            .map(|bytes| PathBuf::from(String::from_utf8_lossy(&bytes).into_owned()))
-            .ok_or_else(|| EngineError::Business(BusinessError::Unsupported))?;
+            .to_native_path()
+            .map_err(|_| EngineError::Business(BusinessError::Unsupported))?;
         ensure_inside_scope(&root, request.path)?;
         let metadata = std::fs::symlink_metadata(request.path)?;
         ensure_plain_file(request.path, &metadata)?;
@@ -355,20 +365,49 @@ impl Engine {
             });
         }
         let identity_before = file_identity(&metadata);
-        let mut file = open_no_follow(request.path)?;
-        let chunk = request.chunk_bytes.max(1);
+        let mut file = crate::scoped_file::open_scoped(&root, request.path)?;
+        if file_identity(&file.metadata()?) != identity_before {
+            return Err(EngineError::Business(BusinessError::Conflict));
+        }
+        let chunk = request.chunk_bytes.clamp(1, 64 * 1024).min(
+            usize::try_from(request.max_bytes)
+                .unwrap_or(usize::MAX)
+                .max(1),
+        );
         let mut hasher = sha2::Sha256::new();
         let mut total = 0_u64;
         let mut stopped = None;
         let mut buffer = vec![0_u8; chunk];
         loop {
+            self.require(
+                authorizer,
+                request.principal,
+                &diskgraph_core::Permission::ContentRead,
+                request.scope_id,
+            )?;
+            if self.control_store()?.live_permission(
+                request.principal,
+                &diskgraph_core::Permission::ContentRead,
+                request.scope_id,
+            )? == Some(false)
+            {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
             if let Some(cancel) = request.cancel
                 && cancel.load(std::sync::atomic::Ordering::SeqCst)
             {
                 stopped = Some(InspectionStop::Cancelled);
                 break;
             }
-            let read = file.read(&mut buffer)?;
+            if total >= request.max_bytes {
+                if total < metadata.len() {
+                    stopped = Some(InspectionStop::ByteLimit);
+                }
+                break;
+            }
+            let remaining = usize::try_from(request.max_bytes - total).unwrap_or(usize::MAX);
+            let want = remaining.min(buffer.len());
+            let read = file.read(&mut buffer[..want])?;
             if read == 0 {
                 break;
             }
@@ -377,10 +416,19 @@ impl Engine {
             // A file written or removed mid-digest voids the run: re-stat
             // between chunks so the recorded digest is never half of two
             // versions, or a digest of a file that is already gone.
-            if !identity_stable(&identity_before, request.path) {
+            if file_identity(&file.metadata()?) != identity_before
+                || !identity_stable(&identity_before, request.path)
+            {
                 stopped = Some(InspectionStop::Unstable);
                 break;
             }
+        }
+        if stopped.is_none()
+            && (total != metadata.len()
+                || file_identity(&file.metadata()?) != identity_before
+                || !identity_stable(&identity_before, request.path))
+        {
+            stopped = Some(InspectionStop::Unstable);
         }
         Ok(DigestOutcome {
             requested_path: request.path.to_path_buf(),
@@ -412,20 +460,22 @@ impl Engine {
 
 /// The suspects of one graph, as pure metadata (exported for tests).
 pub fn suspects_of(graph: &DiskGraph) -> Vec<diskgraph_core::SuspectGroup> {
-    let objects: Vec<(u64, u64, Option<&str>)> = graph
+    let identities: Vec<Option<String>> = graph
         .nodes
         .iter()
         .filter(|node| node.kind == diskgraph_core::NodeKind::File)
         .map(|node| {
-            (
-                node.id,
-                node.direct_bytes,
-                node.file_identity
-                    .as_ref()
-                    .map(|identity| format!("{}:{}", identity.volume_id, identity.file_id))
-                    .map(|identity| -> &str { Box::leak(identity.into_boxed_str()) }),
-            )
+            node.file_identity
+                .as_ref()
+                .map(|identity| format!("{}:{}", identity.volume_id, identity.file_id))
         })
+        .collect();
+    let objects: Vec<(u64, u64, Option<&str>)> = graph
+        .nodes
+        .iter()
+        .filter(|node| node.kind == diskgraph_core::NodeKind::File)
+        .zip(&identities)
+        .map(|(node, identity)| (node.id, node.direct_bytes, identity.as_deref()))
         .collect();
     diskgraph_core::suspect_groups(&objects)
 }
@@ -453,6 +503,7 @@ impl ExportPolicy {
                 InspectionStop::Placeholder => "placeholder",
                 InspectionStop::Cancelled => "cancelled",
                 InspectionStop::Unstable => "unstable",
+                InspectionStop::ByteLimit => "byte_limit",
             }),
             "observed_at_unix_ms": outcome.observed_at_unix_ms,
         });

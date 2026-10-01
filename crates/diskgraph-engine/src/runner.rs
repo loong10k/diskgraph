@@ -80,14 +80,15 @@ impl JobRunner {
 
 fn run_one_queued(engine: &Arc<Engine>, owner: &str) -> Result<Option<JobRecord>, EngineError> {
     let queued = engine.queued_jobs()?;
-    let Some(job) = queued.first() else {
-        return Ok(None);
-    };
-    match engine.run_job(&job.job_id, owner) {
-        Ok(record) => Ok(Some(record)),
-        // Another runner (or a --wait CLI) claimed it first: not an error.
-        Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
-        | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => Ok(None),
-        Err(error) => Err(error),
+    for job in queued {
+        match engine.run_job(&job.job_id, owner) {
+            Ok(record) => return Ok(Some(record)),
+            // A competing runner may win any candidate. Continue to the next
+            // eligible job rather than starving the rest of the queue.
+            Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
+            | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => continue,
+            Err(error) => return Err(error),
+        }
     }
+    Ok(None)
 }

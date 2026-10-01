@@ -164,7 +164,7 @@ codex mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 ```
 
-当前提供 18 个只读工具；profile（`read-minimal`、`read-full`、`manage`、`all`）决定列出哪些。非回环地址的 HTTP 绑定需要签名令牌，每个连接都有限制请求体大小、速率与配额。
+当前提供 18 个只读工具；profile（`read-minimal`、`read-full`、`manage`、`all`）决定列出哪些。HTTP/SSE 绑定（包括回环地址）需要签名令牌，每个连接都有限制请求体大小、速率与配额。
 
 ## 实测数据
 
@@ -193,6 +193,42 @@ claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 
 扫描器来自 [disktree](https://github.com/tobi/disktree)，以固定 revision 引入并在每次构建中逐文件校验摘要 —— 是复用，不是重写。
 
+```mermaid
+flowchart TD
+    CLI["CLI / TUI / HTML"] --> E["Engine<br/>权限、任务、查询、内容检查"]
+    MCP["MCP<br/>stdio / HTTP / legacy SSE"] --> S["McpService<br/>工具分发"]
+    S --> E
+    E --> SC["disktree 扫描器"]
+    SC --> CV["树转换<br/>补充身份和元数据"]
+    CV --> ST["staging → 发布 revision"]
+    ST --> G[("图数据库<br/>快照、节点、关系")]
+    E --> C[("控制数据库<br/>scope、权限、job、操作记录")]
+    OPS["Ops<br/>计划、批准、执行、恢复"] --> E
+    FFI["Swift / Kotlin FFI"] --> E
+    E -. "旧 FFI：授权后窄读" .-> G
+```
+
+此图概括当前组件调用路径。旧 FFI 签名保留，读取前先由 Engine 核验 snapshot/revision 归属与实时授权，再使用只读连接。底层 store API 属于可信内部兼容入口。平台能力与验证边界见下方加固记录。
+
+### 安全与性能加固（2026-10-01）
+
+HTTP 与两种 SSE 均要求认证（包括 loopback），并校验 Origin；请求权限为 token 能力与实时数据库授权的交集。远程启动不授予本地管理员，revision 按实际 server/scope 授权。旧远程主体标识已改为 issuer + subject 的 SHA-256 映射，需要重新授予授权；无法唯一绑定 scope 的旧 revision 拒绝外部读取，需由管理员重新索引。
+
+部署监听服务时，使用 `diskgraph-mcp` 或 `diskgraph serve` 的 `--auth-key-file ISSUER AUDIENCE PATH`，只允许服务身份读取密钥文件。旧内联 `--auth` 会把验证密钥放进进程参数，仅为兼容保留，不用于部署。
+
+常用 MCP 节点、目录、top、搜索与正目标候选走窄读；影响遍历每次请求复用一个已授权读连接。候选返回已选字节、目标缺口与截断状态，仍仅供审阅。搜索保留 Unicode 小写子串匹配，新 keyset 游标绑定主体、scope、revision、过滤、排序和策略版本，旧游标需重新查询。树与历史比较返回截断诊断。任务使用 30 秒租约、5 秒续租和 fencing；扫描预算每 20 ms 协作检查，不承诺严格 RSS 上限。`--max-staging-bytes` 计编码元数据，默认 2 GiB，不按源文件容量计费。
+
+```bash
+diskgraph snapshots prune --scope SCOPE_ID --keep-last 3          # 仅预览
+diskgraph snapshots prune --scope SCOPE_ID --keep-last 3 --apply  # 显式回收
+```
+
+回收保护 latest、pin 和操作/恢复引用；旧引用不精确时保留整个 scope。SQLite 逻辑删除不保证文件立即缩小。CLI/MCP 危险文件工具继续关闭。详见[验收与性能对比](docs/security-performance-hardening-2026-10-01.zh-CN.md)和[原始数据](docs/benchmarks/hardening-2026-10-01.json)。本机 macOS 测试不代表 Linux/Windows 原生写能力验收。
+
+后续复审还限制 HTTP 帧与连接时间，impact 查询按 revision 实际归属鉴权，跨进程取消持久生效，FFI 控制数据按图库隔离。文件操作执行现要求完整计划摘要和源指纹，旧计划需重新生成。TUI 对宽目录每页显示 512 项；按名称排序只作用于当前页。
+
+只读 CLI/MCP 二进制验收已接入 CI 矩阵及原生 release 构建，使用隔离的签名 token 与数据库授权。本地可运行 `python scripts/accept-readonly-stdio.py` 和 `python scripts/accept-readonly-http.py`。[桌面生产就绪记录](docs/production-readiness-readonly-2026-10-02.zh-CN.md)按实际 OS 证据更新；CI 门禁已配置不等于已取得生产验收结果。
+
 ## 文档
 
 | | |
@@ -202,7 +238,7 @@ claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 | 发布渠道与操作手册 | [`RELEASING.md`](RELEASING.md) |
 | 每个数字背后的验收记录 | [`docs/acceptance/`](docs/acceptance/) |
 | 架构 / 技术方案 | [架构](docs/DiskGraph-Architecture.zh_CN.md) · [design](docs/DiskGraph-Technical-Design.md) |
-| 需求（正式来源） | [OpenSpec 变更](openspec/changes/implement-diskgraph-platform/proposal.md) —— 14 份规格、77 条要求、121 项任务 |
+| 需求（正式来源） | [OpenSpec 变更](openspec/changes/implement-diskgraph-platform/proposal.md) —— 14 份规格、84 条要求、129 项任务 |
 
 ## 参与贡献
 

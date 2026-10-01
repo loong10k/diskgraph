@@ -38,3 +38,34 @@ doctor/status SHALL 展示平台、协议、依赖、权限、数据版本、任
 #### Scenario: Doctor finds missing dependency
 - **WHEN** 诊断发现 Docker 不可用或数据库锁定
 - **THEN** 提供具体原因和建议，不自动安装或强制移除锁。
+
+### Requirement: RT-06 Executable limits and fenced leases
+容量门禁 SHALL 阻止超限任务入队和发布；任务 SHALL 使用条件认领、30 秒租约、5 秒续租及递增 fencing token。扫描器保持原 pin，运行预算通过现有进度接口每 20ms 检查并协作取消。
+
+#### Scenario: Capacity refusal
+- **WHEN** 容量报告拒绝新工作
+- **THEN** 不创建新任务，不自动删除历史。
+
+#### Scenario: Owner expired
+- **WHEN** owner 租约过期并被新 owner 接管
+- **THEN** 新 owner 从头扫描，旧 owner 不得发布。
+
+#### Scenario: Cancellation from another process
+- **WHEN** 一个 Engine 取消另一个 Engine 正在扫描的任务
+- **THEN** 取消意图持久化且扫描与发布 fence 均能观察，返回成功不允许随后发布。
+
+#### Scenario: Revoked expired job precedes eligible work
+- **WHEN** 被撤权 scope 的 running 任务租约过期且队列中还有其他 scope 的任务
+- **THEN** 前者持久终结或跳过，其他任务仍可被认领执行。
+
+#### Scenario: Recovered job leaves old staging
+- **WHEN** 新 fencing owner 从头扫描并成功发布
+- **THEN** 已确认失效的旧代次 staging 被安全回收，当前 owner 的 staging 不被误删。
+
+### Requirement: RT-07 Explicit history reclamation
+The CLI SHALL preview `snapshots prune --scope S --keep-last N` without deletion and SHALL require `--apply` to remove old history. Reclamation SHALL preserve latest revisions, pins, and data needed by operation or recovery records. Ambiguous legacy references SHALL cause conservative retention.
+
+#### Scenario: Preview followed by apply
+- **GIVEN** three unpinned revisions and no operation references
+- **WHEN** keep-last is one
+- **THEN** preview changes no data and apply preserves the current revision

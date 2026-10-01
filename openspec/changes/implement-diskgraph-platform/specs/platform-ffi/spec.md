@@ -18,6 +18,10 @@ Rust/Swift/Kotlin 入口 SHALL 使用同一版本化核心服务与授权语义�
 - **WHEN** 服务端没有 PruneX 或其数据库
 - **THEN** 仍可验证授权并查询操作/恢复记录。
 
+#### Scenario: Two graph files under one parent directory
+- **WHEN** 原生宿主同时打开同一目录下两个不同图库路径
+- **THEN** 两者使用独立 control/job 存储归属，或在旧库归属不明时明确拒绝；一个任务的完成不得指向另一个图库的 revision。
+
 ### Requirement: PF-03 Platform capability matrix
 macOS/Linux/Windows 的路径、身份、占用、回收和操作能力 SHALL 分别实测声明；操作不支持的平台返回 unsupported，不采用危险通用 Shell 降级。
 

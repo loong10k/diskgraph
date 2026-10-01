@@ -137,6 +137,12 @@ pub struct ImpactEntry {
     pub depth: usize,
 }
 
+/// Impact entries together with the reason traversal stopped before completion.
+pub struct ImpactResult {
+    pub entries: Vec<ImpactEntry>,
+    pub truncated: Option<TruncationReason>,
+}
+
 /// Bounded forward impact: which entities a change here would plausibly reach,
 /// following each relation's own direction. This is an observation surface,
 /// never an execution authorization (C15).
@@ -146,6 +152,40 @@ pub fn impact(
     start: &str,
     budget: QueryBudget,
 ) -> Result<Vec<ImpactEntry>, BusinessError> {
+    impact_bounded(edges_by_source, edges_by_target, start, budget).map(|result| result.entries)
+}
+
+/// Runs impact with explicit completeness diagnostics for clients that need to
+/// distinguish the first bounded page from an exhaustive graph answer.
+pub fn impact_bounded(
+    edges_by_source: &HashMap<String, Vec<(String, Relation)>>,
+    edges_by_target: &HashMap<String, Vec<(String, Relation)>>,
+    start: &str,
+    budget: QueryBudget,
+) -> Result<ImpactResult, BusinessError> {
+    impact_bounded_with_neighbors(start, budget, |entity, outgoing, _limit| {
+        let map = if outgoing {
+            edges_by_source
+        } else {
+            edges_by_target
+        };
+        Ok((map.get(entity).cloned().unwrap_or_default(), false))
+    })
+}
+
+/// Bounded traversal over a per-entity edge reader. The fetcher receives a
+/// maximum page size and returns (neighbour, relation) pairs plus a `more`
+/// flag. If a page leaves unread edges, this answer is explicitly partial.
+pub fn impact_bounded_with_neighbors<E, F>(
+    start: &str,
+    budget: QueryBudget,
+    mut neighbours_for: F,
+) -> Result<ImpactResult, E>
+where
+    E: From<BusinessError>,
+    F: FnMut(&str, bool, usize) -> Result<(Vec<(String, Relation)>, bool), E>,
+{
+    let started = std::time::Instant::now();
     let mut tracker = BudgetTracker::new(budget)?;
     let mut seen: HashSet<(String, Relation)> = HashSet::new();
     seen.insert((start.to_owned(), Relation::Contains));
@@ -159,38 +199,84 @@ pub fn impact(
         }
         let mut next = Vec::new();
         for entity in &frontier {
-            for (relation, neighbours) in [
-                (Relation::Contains, edges_by_target.get(entity)),
-                (Relation::OwnedByProject, edges_by_target.get(entity)),
-                (Relation::RebuildableBy, edges_by_source.get(entity)),
-                (Relation::Declares, edges_by_source.get(entity)),
+            if started.elapsed() >= std::time::Duration::from_millis(budget.deadline_ms) {
+                return Ok(ImpactResult {
+                    entries: out,
+                    truncated: Some(TruncationReason::Deadline),
+                });
+            }
+            let page_limit = budget
+                .max_edges
+                .saturating_sub(tracker.edges())
+                .min(budget.max_nodes.saturating_sub(tracker.nodes()))
+                .max(1);
+            let (incoming, incoming_more) = neighbours_for(entity, false, page_limit)?;
+            if started.elapsed() >= std::time::Duration::from_millis(budget.deadline_ms) {
+                return Ok(ImpactResult {
+                    entries: out,
+                    truncated: Some(TruncationReason::Deadline),
+                });
+            }
+            let (outgoing, outgoing_more) = neighbours_for(entity, true, page_limit)?;
+            for relation in [
+                Relation::Contains,
+                Relation::Declares,
+                Relation::OwnedByProject,
+                Relation::OwnedByApplication,
+                Relation::UsedByProcess,
+                Relation::RebuildableBy,
+                Relation::ProtectedBy,
+                Relation::SameContentAs,
             ] {
-                let Some(neighbours) = neighbours else {
+                let Some(propagation) = impact_propagation(relation) else {
                     continue;
                 };
-                for (neighbour, observed_relation) in neighbours.iter() {
-                    if *observed_relation != relation {
+                for (direction, neighbours) in [
+                    (Propagation::Incoming, incoming.as_slice()),
+                    (Propagation::Outgoing, outgoing.as_slice()),
+                ] {
+                    if propagation != direction && propagation != Propagation::Both {
                         continue;
                     }
-                    let key = (neighbour.clone(), relation);
-                    if !seen.insert(key.clone()) {
-                        continue;
+                    for (neighbour, observed_relation) in neighbours {
+                        if *observed_relation != relation
+                            || !seen.insert((neighbour.clone(), relation))
+                        {
+                            continue;
+                        }
+                        // The JSON envelope adds fixed fields around these
+                        // entries; reserve a conservative per-entry overhead.
+                        if !tracker.charge_edge()
+                            || !tracker.charge_node()
+                            || !tracker.charge_bytes(neighbour.len().saturating_add(128))
+                        {
+                            return Ok(ImpactResult {
+                                entries: out,
+                                truncated: tracker.truncated(),
+                            });
+                        }
+                        out.push(ImpactEntry {
+                            entity_id: neighbour.clone(),
+                            relation,
+                            depth,
+                        });
+                        next.push(neighbour.clone());
                     }
-                    if !tracker.charge_edge() {
-                        return Ok(out);
-                    }
-                    out.push(ImpactEntry {
-                        entity_id: neighbour.clone(),
-                        relation,
-                        depth,
-                    });
-                    next.push(neighbour.clone());
                 }
+            }
+            if incoming_more || outgoing_more {
+                return Ok(ImpactResult {
+                    entries: out,
+                    truncated: Some(TruncationReason::EdgeLimit),
+                });
             }
         }
         frontier = next;
     }
-    Ok(out)
+    Ok(ImpactResult {
+        entries: out,
+        truncated: tracker.truncated(),
+    })
 }
 
 /// Renders an incompatibility reason as the stable wire name.
@@ -369,6 +455,99 @@ mod tests {
         };
         let entries = impact(&empty, &by_target, "project", budget).unwrap();
         assert_eq!(entries.len(), 1);
+    }
+
+    #[test]
+    fn impact_reports_that_an_edge_budget_made_the_answer_partial() {
+        let mut by_target: HashMap<String, Vec<(String, Relation)>> = HashMap::new();
+        by_target.insert(
+            "project".into(),
+            vec![
+                ("a".into(), Relation::OwnedByProject),
+                ("b".into(), Relation::OwnedByProject),
+            ],
+        );
+        let empty = HashMap::new();
+        let answer = impact_bounded(
+            &empty,
+            &by_target,
+            "project",
+            QueryBudget {
+                max_edges: 1,
+                ..QueryBudget::default()
+            },
+        )
+        .unwrap();
+        assert_eq!(answer.entries.len(), 1);
+        assert_eq!(answer.truncated, Some(TruncationReason::EdgeLimit));
+    }
+
+    #[test]
+    fn impact_uses_the_declared_bidirectional_relations() {
+        let mut by_source = HashMap::new();
+        let mut by_target = HashMap::new();
+        by_source.insert(
+            "resource".into(),
+            vec![("application".into(), Relation::OwnedByApplication)],
+        );
+        by_target.insert(
+            "application".into(),
+            vec![("resource".into(), Relation::OwnedByApplication)],
+        );
+        assert!(
+            impact(&by_source, &by_target, "resource", QueryBudget::default())
+                .unwrap()
+                .iter()
+                .any(|entry| entry.entity_id == "application")
+        );
+        assert!(
+            impact(
+                &by_source,
+                &by_target,
+                "application",
+                QueryBudget::default()
+            )
+            .unwrap()
+            .iter()
+            .any(|entry| entry.entity_id == "resource")
+        );
+    }
+
+    #[test]
+    fn paged_impact_does_not_claim_completion_when_edges_remain_unread() {
+        let result = impact_bounded_with_neighbors::<BusinessError, _>(
+            "root",
+            QueryBudget::default(),
+            |_entity, outgoing, limit| {
+                assert!(limit <= QueryBudget::default().max_nodes);
+                if outgoing {
+                    Ok((Vec::new(), false))
+                } else {
+                    Ok((vec![("ignored".into(), Relation::ProtectedBy)], true))
+                }
+            },
+        )
+        .unwrap();
+        assert!(result.entries.is_empty());
+        assert_eq!(result.truncated, Some(TruncationReason::EdgeLimit));
+    }
+
+    #[test]
+    fn impact_deadline_stops_before_fetching_the_second_direction() {
+        let result = impact_bounded_with_neighbors::<BusinessError, _>(
+            "root",
+            QueryBudget {
+                deadline_ms: 1,
+                ..QueryBudget::default()
+            },
+            |_entity, outgoing, _limit| {
+                assert!(!outgoing, "deadline should stop the second query");
+                std::thread::sleep(std::time::Duration::from_millis(20));
+                Ok((Vec::new(), false))
+            },
+        )
+        .unwrap();
+        assert_eq!(result.truncated, Some(TruncationReason::Deadline));
     }
 
     #[test]

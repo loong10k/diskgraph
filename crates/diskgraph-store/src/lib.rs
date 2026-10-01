@@ -48,11 +48,20 @@ pub enum StoreError {
     UnsupportedSchema(i64),
 }
 
+impl StoreError {
+    /// SQLite 期限或取消中断；调用者可保留已读取结果并标记截断。
+    pub fn is_interrupted(&self) -> bool {
+        matches!(self, Self::Sqlite(rusqlite::Error::SqliteFailure(error, _)) if error.code == rusqlite::ErrorCode::OperationInterrupted)
+    }
+}
+
 pub type Result<T> = std::result::Result<T, StoreError>;
 
+mod candidate_query;
 mod control;
 mod execution;
 
+pub use candidate_query::CandidateSelection;
 pub use control::{ControlStore, JobKind, JobRecord, JobState, ScopeRecord};
 pub use execution::{
     Approval, IntentState, Operation, OperationItem, OperationItemResult, OperationState, Plan,
@@ -66,7 +75,9 @@ pub struct SqliteSnapshotStore {
 
 /// The newest schema this build understands; older binaries refuse newer files
 /// through [`StoreError::UnsupportedSchema`] (design D6, spec ST-02).
-pub const SUPPORTED_SCHEMA_VERSION: i64 = 4;
+pub const SUPPORTED_SCHEMA_VERSION: i64 = 8;
+
+const ORDERED_NODES_SQL: &str = "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error, CASE WHEN substr(json_extract(locator_key, '$.value'), 1, length(?2)) = ?2 THEN ltrim(substr(json_extract(locator_key, '$.value'), length(?2) + 1), '/') ELSE name END AS relative_path FROM nodes WHERE snapshot_id = ?1 AND parent_id IS NOT NULL ORDER BY json_extract(locator_key, '$.value') ASC, id ASC";
 
 /// One published graph revision bound to a snapshot.
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -82,12 +93,38 @@ pub struct RevisionRecord {
 const WAL_HEAL_THRESHOLD_BYTES: i64 = 64 << 20;
 
 impl SqliteSnapshotStore {
+    /// 独立只读连接，不执行迁移、恢复或 checkpoint；SQLite 执行受期限和取消约束。
+    pub fn open_reader(
+        path: &Path,
+        deadline_ms: u64,
+        cancel: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    ) -> Result<Self> {
+        let connection = Connection::open_with_flags(
+            path,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+        )?;
+        connection.busy_timeout(std::time::Duration::from_millis(deadline_ms.min(1000)))?;
+        connection.pragma_update(None, "temp_store", "FILE")?;
+        connection.pragma_update(None, "cache_size", -8192)?;
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(deadline_ms);
+        connection.progress_handler(
+            1000,
+            Some(move || {
+                std::time::Instant::now() >= deadline
+                    || cancel
+                        .as_ref()
+                        .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Relaxed))
+            }),
+        )?;
+        Ok(Self { connection })
+    }
+
     pub fn open(path: &Path) -> Result<Self> {
         let connection = Connection::open(path)?;
         // WAL + NORMAL: one fsync per checkpoint, not per commit — the
         // atomicity of staging/publish comes from the transaction, not from
-        // per-commit fsyncs, and a crash between checkpoints can only lose
-        // a not-yet-published staging batch, never a published snapshot.
+        // per-commit fsyncs. WAL/NORMAL preserves consistency, but a power
+        // failure can lose recently committed staging or published revisions.
         // A large read window keeps multi-million-row loads off the page
         // cache cold path.
         connection.pragma_update(None, "journal_mode", "WAL")?;
@@ -136,7 +173,6 @@ impl SqliteSnapshotStore {
     pub fn open_with_backup(path: &Path, backup_dir: &Path) -> Result<(Self, Option<PathBuf>)> {
         let probe = Connection::open(path)?;
         let version: i64 = probe.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        drop(probe);
         if version >= SUPPORTED_SCHEMA_VERSION || version == 0 {
             return Ok((Self::open(path)?, None));
         }
@@ -147,7 +183,8 @@ impl SqliteSnapshotStore {
                 .and_then(|name| name.to_str())
                 .ok_or_else(|| StoreError::InvalidGraph("unrepresentable db path".into()))?
         ));
-        std::fs::copy(path, &backup)?;
+        probe.backup(rusqlite::MAIN_DB, &backup, None)?;
+        drop(probe);
         match Self::open(path) {
             Ok(store) => Ok((store, Some(backup))),
             Err(error) => {
@@ -162,12 +199,13 @@ impl SqliteSnapshotStore {
     }
 
     fn initialize(connection: Connection) -> Result<Self> {
+        connection.pragma_update(None, "foreign_keys", "ON")?;
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
         match version {
             0 => {
                 connection.execute_batch(V1_SCHEMA)?;
             }
-            1..=4 => {}
+            1..=8 => {}
             other => return Err(StoreError::UnsupportedSchema(other)),
         }
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
@@ -179,6 +217,68 @@ impl SqliteSnapshotStore {
         }
         if version < 4 {
             migrate_v3_to_v4(&connection)?;
+        }
+        if version < 5 {
+            connection.execute_batch("BEGIN IMMEDIATE; CREATE TABLE revision_ownership (revision_id TEXT PRIMARY KEY REFERENCES graph_revisions(revision_id), server_id TEXT NOT NULL, scope_id TEXT NOT NULL); PRAGMA user_version = 5; COMMIT;")?;
+        }
+        if version < 6 {
+            connection.execute_batch("BEGIN IMMEDIATE; CREATE TABLE IF NOT EXISTS node_search (snapshot_id TEXT NOT NULL, id INTEGER NOT NULL, name_fold TEXT NOT NULL, path_fold TEXT NOT NULL, PRIMARY KEY(snapshot_id, id), FOREIGN KEY(snapshot_id, id) REFERENCES nodes(snapshot_id, id) ON DELETE CASCADE); CREATE TABLE IF NOT EXISTS scan_staging_search (job_id TEXT NOT NULL, node_seq INTEGER NOT NULL, name_fold TEXT NOT NULL, path_fold TEXT NOT NULL, PRIMARY KEY(job_id, node_seq));")?;
+            {
+                let mut query =
+                    connection.prepare("SELECT snapshot_id, id, name, locator_key FROM nodes")?;
+                let mut rows = query.query([])?;
+                while let Some(row) = rows.next()? {
+                    let locator: ResourceLocator = from_str(&row.get::<_, String>(3)?)?;
+                    let path = match locator {
+                        ResourceLocator::NativePath(path) | ResourceLocator::DocumentUri(path) => {
+                            path
+                        }
+                    };
+                    connection.execute(
+                        "INSERT OR REPLACE INTO node_search VALUES (?1, ?2, ?3, ?4)",
+                        params![
+                            row.get::<_, String>(0)?,
+                            row.get::<_, i64>(1)?,
+                            row.get::<_, String>(2)?.to_lowercase(),
+                            path.to_lowercase()
+                        ],
+                    )?;
+                }
+            }
+            connection.execute_batch("CREATE INDEX IF NOT EXISTS nodes_by_name ON nodes(snapshot_id, name, id); PRAGMA user_version = 6; COMMIT;")?;
+        }
+        if version < 7 {
+            connection.execute_batch(
+                "BEGIN IMMEDIATE;
+                 CREATE INDEX IF NOT EXISTS relations_by_source_edge
+                     ON relations (snapshot_id, source_entity_id, edge_id);
+                 CREATE INDEX IF NOT EXISTS relations_by_target_edge
+                     ON relations (snapshot_id, target_entity_id, edge_id);
+                 CREATE INDEX IF NOT EXISTS nodes_by_locator_path
+                     ON nodes (snapshot_id, json_extract(locator_key, '$.value'), id)
+                     WHERE parent_id IS NOT NULL;
+                 CREATE INDEX IF NOT EXISTS nodes_by_unknown_parent
+                     ON nodes (snapshot_id, parent_id)
+                     WHERE NOT (
+                         COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0
+                         AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1
+                     );
+                 PRAGMA user_version = 7;
+                 COMMIT;",
+            )?;
+        }
+        if version < 8 {
+            connection.execute_batch(
+                "BEGIN IMMEDIATE;
+                 CREATE INDEX IF NOT EXISTS nodes_by_candidate_size
+                     ON nodes (snapshot_id, subtree_bytes DESC, id ASC)
+                     WHERE (kind = 'directory' OR (kind IS NULL AND json_extract(NULLIF(node_json, ''), '$.kind') = 'directory'))
+                       AND subtree_bytes > 0;
+                 CREATE INDEX IF NOT EXISTS evidence_by_relation_node
+                     ON evidence (snapshot_id, json_extract(evidence_json, '$.relation'), node_id);
+                 PRAGMA user_version = 8;
+                 COMMIT;",
+            )?;
         }
         // The locator index cost a quarter of a kilobyte per node and served
         // exactly one query, which nothing on the read path issues. Dropping
@@ -239,6 +339,18 @@ impl SqliteSnapshotStore {
                     node.reclaim_hint,
                     node.read_error as i64,
                 ])?;
+                let path = match &node.locator {
+                    ResourceLocator::NativePath(path) | ResourceLocator::DocumentUri(path) => path,
+                };
+                transaction.execute(
+                    "INSERT INTO node_search VALUES (?1, ?2, ?3, ?4)",
+                    params![
+                        graph.snapshot.id,
+                        as_i64(node.id)?,
+                        node.name.to_lowercase(),
+                        path.to_lowercase()
+                    ],
+                )?;
             }
         }
         {
@@ -561,6 +673,110 @@ impl SqliteSnapshotStore {
         rows.map(|row| row?.into_node()).collect()
     }
 
+    /// 仅解码当前页节点；未知大小单独计数，保持原有列表语义。
+    pub fn children_page(
+        &self,
+        snapshot_id: &str,
+        parent_id: u64,
+        minimum: Option<u64>,
+        offset: u64,
+        limit: u64,
+    ) -> Result<(Vec<DiskNode>, Option<u64>, u64)> {
+        self.snapshot(snapshot_id)?;
+        let known = "COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0 AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1";
+        let unknown: i64 = self.connection.query_row(&format!("SELECT COUNT(*) FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND NOT ({known})"), params![snapshot_id, as_i64(parent_id)?], |row| row.get(0))?;
+        let sql = format!(
+            "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND ({known}) AND subtree_bytes >= ?3 ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?4 OFFSET ?5"
+        );
+        let mut stmt = self.connection.prepare(&sql)?;
+        let rows = stmt.query_map(
+            params![
+                snapshot_id,
+                as_i64(parent_id)?,
+                as_i64(minimum.unwrap_or(0))?,
+                as_i64(limit.saturating_add(1))?,
+                as_i64(offset)?
+            ],
+            |row| Ok(NodeRow::from(row)),
+        )?;
+        let mut items = rows
+            .map(|row| row?.into_node())
+            .collect::<Result<Vec<_>>>()?;
+        let next = (items.len() as u64 > limit).then_some(offset.saturating_add(limit));
+        items.truncate(limit as usize);
+        Ok((items, next, unknown.max(0) as u64))
+    }
+
+    /// Unicode 小写子串匹配，以 name/id keyset 分页；offset 仅供首次请求兼容。
+    pub fn search_page(
+        &self,
+        snapshot_id: &str,
+        pattern: &str,
+        after: Option<(&str, u64)>,
+        offset: u64,
+        limit: u64,
+    ) -> Result<(Vec<DiskNode>, bool)> {
+        let mut statement = self.connection.prepare("SELECT n.id, n.parent_id, n.locator_key, n.name, n.subtree_bytes, n.node_json, n.kind, n.direct_bytes, n.files, n.directories, n.modified_unix_seconds, n.file_volume_id, n.file_id, n.category_hint, n.reclaim_hint, n.read_error FROM nodes n JOIN node_search s ON s.snapshot_id = n.snapshot_id AND s.id = n.id WHERE n.snapshot_id = ?1 AND (instr(s.name_fold, ?2) > 0 OR instr(s.path_fold, ?2) > 0) AND (?3 IS NULL OR n.name > ?3 OR (n.name = ?3 AND n.id > ?4)) ORDER BY n.name ASC, n.id ASC LIMIT ?5 OFFSET ?6")?;
+        let rows = statement.query_map(
+            params![
+                snapshot_id,
+                pattern.to_lowercase(),
+                after.map(|key| key.0),
+                after.map(|key| as_i64(key.1)).transpose()?,
+                as_i64(limit.saturating_add(1))?,
+                as_i64(if after.is_some() { 0 } else { offset })?
+            ],
+            |row| Ok(NodeRow::from(row)),
+        )?;
+        let mut items = rows
+            .map(|row| row?.into_node())
+            .collect::<Result<Vec<_>>>()?;
+        let more = items.len() as u64 > limit;
+        items.truncate(limit as usize);
+        Ok((items, more))
+    }
+
+    /// 目录总数和过滤后的数量，仅聚合索引列，不解码节点。
+    pub fn child_counts(
+        &self,
+        snapshot_id: &str,
+        parent_id: u64,
+        minimum: u64,
+    ) -> Result<(u64, u64)> {
+        let (all, kept): (i64, i64) = self.connection.query_row("SELECT COUNT(*), COALESCE(SUM(CASE WHEN subtree_bytes >= ?3 THEN 1 ELSE 0 END), 0) FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2", params![snapshot_id, as_i64(parent_id)?, as_i64(minimum)?], |row| Ok((row.get(0)?, row.get(1)?)))?;
+        Ok((all.max(0) as u64, kept.max(0) as u64))
+    }
+
+    /// 通过 SQLite 有序路径游标逐条解码节点，调用者只保留两侧当前条目。
+    pub fn with_ordered_nodes<T>(
+        &self,
+        snapshot_id: &str,
+        root: &str,
+        work: impl FnOnce(&mut dyn Iterator<Item = Result<(String, DiskNode)>>) -> Result<T>,
+    ) -> Result<T> {
+        let mut statement = self.connection.prepare(ORDERED_NODES_SQL)?;
+        let mapped = statement.query_map(params![snapshot_id, root], |row| {
+            Ok((row.get::<_, String>(16)?, NodeRow::from(row)))
+        })?;
+        let mut nodes = mapped.map(|row| {
+            let (path, row) = row?;
+            Ok((path, row.into_node()?))
+        });
+        work(&mut nodes)
+    }
+
+    /// 精确节点总数，统计不要求加载节点内容。
+    pub fn node_count(&self, snapshot_id: &str) -> Result<u64> {
+        Ok(self
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM nodes WHERE snapshot_id = ?1",
+                [snapshot_id],
+                |row| row.get::<_, i64>(0),
+            )?
+            .max(0) as u64)
+    }
+
     pub fn top(&self, snapshot_id: &str, parent_id: u64, limit: u64) -> Result<Vec<DiskNode>> {
         self.children(snapshot_id, parent_id, 0, limit)
     }
@@ -608,6 +824,15 @@ impl SqliteSnapshotStore {
     /// Appends scanned nodes to invisible staging for a running job; ordinary
     /// queries never read staging, so a crash before publish exposes nothing.
     pub fn append_staging_nodes(&mut self, job_id: &str, nodes: &[DiskNode]) -> Result<()> {
+        self.append_staging_iter(job_id, nodes.iter())
+    }
+
+    /// 从借用迭代器按批编码 staging，不克隆扫描节点。
+    pub fn append_staging_iter<'a>(
+        &mut self,
+        job_id: &str,
+        nodes: impl Iterator<Item = &'a DiskNode>,
+    ) -> Result<()> {
         let transaction = self.connection.transaction()?;
         {
             let mut statement = transaction.prepare(
@@ -618,12 +843,24 @@ impl SqliteSnapshotStore {
                 [job_id],
                 |row| row.get(0),
             )?;
-            for (offset, node) in nodes.iter().enumerate() {
+            for (offset, node) in nodes.enumerate() {
                 statement.execute(params![
                     job_id,
                     existing + offset as i64 + 1,
                     to_string(node)?
                 ])?;
+                let path = match &node.locator {
+                    ResourceLocator::NativePath(path) | ResourceLocator::DocumentUri(path) => path,
+                };
+                transaction.execute(
+                    "INSERT INTO scan_staging_search VALUES (?1, ?2, ?3, ?4)",
+                    params![
+                        job_id,
+                        existing + offset as i64 + 1,
+                        node.name.to_lowercase(),
+                        path.to_lowercase()
+                    ],
+                )?;
             }
         }
         transaction.commit()?;
@@ -642,8 +879,46 @@ impl SqliteSnapshotStore {
 
     /// Drops staging for a job without publishing anything.
     pub fn clear_staging(&mut self, job_id: &str) -> Result<()> {
-        self.connection
-            .execute("DELETE FROM scan_staging WHERE job_id = ?1", [job_id])?;
+        let tx = self.connection.transaction()?;
+        tx.execute("DELETE FROM scan_staging WHERE job_id = ?1", [job_id])?;
+        tx.execute(
+            "DELETE FROM scan_staging_search WHERE job_id = ?1",
+            [job_id],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// 清理已被更新 fencing token 取代的扫描暂存代次。调用者必须先在控制库成功认领
+    /// `active_fence`；当前和更新的代次、其他 job 的暂存均保留。
+    pub fn clear_stale_job_staging(&mut self, job_id: &str, active_fence: u64) -> Result<()> {
+        let prefix = format!("{job_id}:");
+        let tx = self.connection.transaction()?;
+        let stale: Vec<String> = {
+            let mut statement = tx.prepare(
+                "SELECT job_id FROM scan_staging WHERE substr(job_id, 1, length(?1)) = ?1
+                 UNION SELECT job_id FROM scan_staging_search WHERE substr(job_id, 1, length(?1)) = ?1",
+            )?;
+            statement
+                .query_map([&prefix], |row| row.get::<_, String>(0))?
+                .collect::<std::result::Result<Vec<_>, _>>()?
+                .into_iter()
+                .filter(|namespace| {
+                    namespace
+                        .strip_prefix(&prefix)
+                        .and_then(|fence| fence.parse::<u64>().ok())
+                        .is_some_and(|fence| fence < active_fence)
+                })
+                .collect()
+        };
+        for namespace in stale {
+            tx.execute("DELETE FROM scan_staging WHERE job_id = ?1", [&namespace])?;
+            tx.execute(
+                "DELETE FROM scan_staging_search WHERE job_id = ?1",
+                [&namespace],
+            )?;
+        }
+        tx.commit()?;
         Ok(())
     }
 
@@ -656,6 +931,18 @@ impl SqliteSnapshotStore {
         graph: &DiskGraph,
         revision_id: &str,
         published_at_unix_ms: u64,
+    ) -> Result<()> {
+        self.publish_revision_owned(job_id, graph, revision_id, published_at_unix_ms, None)
+    }
+
+    /// 在发布事务中绑定 revision 的实际 server/scope；None 仅用于可信内部兼容接口。
+    pub fn publish_revision_owned(
+        &mut self,
+        job_id: &str,
+        graph: &DiskGraph,
+        revision_id: &str,
+        published_at_unix_ms: u64,
+        ownership: Option<(&str, &str)>,
     ) -> Result<()> {
         validate_graph(graph)?;
         let root_key = to_string(&graph.snapshot.root)?;
@@ -671,41 +958,70 @@ impl SqliteSnapshotStore {
             ],
         )?;
         {
-            let mut statement = transaction.prepare(
+            if ownership.is_some() {
+                let count: i64 = transaction.query_row(
+                    "SELECT COUNT(*) FROM scan_staging WHERE job_id = ?1",
+                    [job_id],
+                    |row| row.get(0),
+                )?;
+                if count as usize != graph.nodes.len() {
+                    return Err(StoreError::InvalidGraph(
+                        "staging does not match the completed scan".into(),
+                    ));
+                }
+                transaction.execute("INSERT INTO nodes (snapshot_id, id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error) SELECT ?2, json_extract(node_json, '$.id'), json_extract(node_json, '$.parent_id'), json_extract(node_json, '$.locator'), json_extract(node_json, '$.name'), json_extract(node_json, '$.subtree_bytes'), CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN '' ELSE node_json END, CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN json_extract(node_json, '$.kind') ELSE NULL END, json_extract(node_json, '$.direct_bytes'), json_extract(node_json, '$.files'), json_extract(node_json, '$.directories'), json_extract(node_json, '$.modified_unix_seconds'), json_extract(node_json, '$.file_identity.volume_id'), json_extract(node_json, '$.file_identity.file_id'), json_extract(node_json, '$.category_hint'), json_extract(node_json, '$.reclaim_hint'), json_extract(node_json, '$.read_error') FROM scan_staging WHERE job_id = ?1", params![job_id, graph.snapshot.id])?;
+                transaction.execute("INSERT INTO node_search SELECT ?2, json_extract(s.node_json, '$.id'), f.name_fold, f.path_fold FROM scan_staging s JOIN scan_staging_search f ON f.job_id = s.job_id AND f.node_seq = s.node_seq WHERE s.job_id = ?1", params![job_id, graph.snapshot.id])?;
+            } else {
+                let mut statement = transaction.prepare(
                 "INSERT INTO nodes (snapshot_id, id, parent_id, locator_key, name, subtree_bytes,
                  node_json, kind, direct_bytes, files, directories, modified_unix_seconds,
                  file_volume_id, file_id, category_hint, reclaim_hint, read_error)
                  VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
             )?;
-            for node in &graph.nodes {
-                let (file_volume_id, file_id) =
-                    node.file_identity
-                        .as_ref()
-                        .map_or((None, None), |identity| {
-                            (
-                                Some(identity.volume_id.clone()),
-                                Some(identity.file_id as i64),
-                            )
-                        });
-                statement.execute(params![
-                    graph.snapshot.id,
-                    as_i64(node.id)?,
-                    node.parent_id.map(as_i64).transpose()?,
-                    to_string(&node.locator)?,
-                    node.name,
-                    as_i64(node.subtree_bytes)?,
-                    payload_for(node)?,
-                    measured_kind(node),
-                    as_i64(node.direct_bytes)?,
-                    as_i64(node.files)?,
-                    as_i64(node.directories)?,
-                    node.modified_unix_seconds,
-                    file_volume_id,
-                    file_id,
-                    node.category_hint,
-                    node.reclaim_hint,
-                    node.read_error as i64,
-                ])?;
+                for node in &graph.nodes {
+                    let (file_volume_id, file_id) =
+                        node.file_identity
+                            .as_ref()
+                            .map_or((None, None), |identity| {
+                                (
+                                    Some(identity.volume_id.clone()),
+                                    Some(identity.file_id as i64),
+                                )
+                            });
+                    statement.execute(params![
+                        graph.snapshot.id,
+                        as_i64(node.id)?,
+                        node.parent_id.map(as_i64).transpose()?,
+                        to_string(&node.locator)?,
+                        node.name,
+                        as_i64(node.subtree_bytes)?,
+                        payload_for(node)?,
+                        measured_kind(node),
+                        as_i64(node.direct_bytes)?,
+                        as_i64(node.files)?,
+                        as_i64(node.directories)?,
+                        node.modified_unix_seconds,
+                        file_volume_id,
+                        file_id,
+                        node.category_hint,
+                        node.reclaim_hint,
+                        node.read_error as i64,
+                    ])?;
+                    let path = match &node.locator {
+                        ResourceLocator::NativePath(path) | ResourceLocator::DocumentUri(path) => {
+                            path
+                        }
+                    };
+                    transaction.execute(
+                        "INSERT INTO node_search VALUES (?1, ?2, ?3, ?4)",
+                        params![
+                            graph.snapshot.id,
+                            as_i64(node.id)?,
+                            node.name.to_lowercase(),
+                            path.to_lowercase()
+                        ],
+                    )?;
+                }
             }
             let mut evidence = transaction.prepare(
                 "INSERT INTO evidence (snapshot_id, node_id, evidence_json) VALUES (?1, ?2, ?3)",
@@ -727,12 +1043,22 @@ impl SqliteSnapshotStore {
                 as_i64(published_at_unix_ms)?
             ],
         )?;
+        if let Some((server_id, scope_id)) = ownership {
+            transaction.execute(
+                "INSERT INTO revision_ownership VALUES (?1, ?2, ?3)",
+                params![revision_id, server_id, scope_id],
+            )?;
+        }
         transaction.execute(
             "INSERT INTO latest_revision (root_key, revision_id) VALUES (?1, ?2)
              ON CONFLICT(root_key) DO UPDATE SET revision_id = ?2",
             params![root_key, revision_id],
         )?;
         transaction.execute("DELETE FROM scan_staging WHERE job_id = ?1", [job_id])?;
+        transaction.execute(
+            "DELETE FROM scan_staging_search WHERE job_id = ?1",
+            [job_id],
+        )?;
         transaction.commit()?;
         // The scan's entire write-ahead log is now redundant. Folding it back
         // here — rather than waiting for the next checkpoint — is what keeps a
@@ -744,6 +1070,52 @@ impl SqliteSnapshotStore {
             .connection
             .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);");
         Ok(())
+    }
+
+    /// 返回持久化的实际归属；旧记录未绑定时返回 None，调用者必须拒绝对外访问。
+    pub fn revision_ownership(&self, revision_id: &str) -> Result<Option<(String, String)>> {
+        Ok(self
+            .connection
+            .query_row(
+                "SELECT server_id, scope_id FROM revision_ownership WHERE revision_id = ?1",
+                [revision_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .optional()?)
+    }
+
+    /// 仅在根定位唯一匹配时回填旧 revision；已绑定记录不覆盖。
+    pub fn backfill_revision_ownership(
+        &mut self,
+        server_id: &str,
+        roots: &[(String, ResourceLocator)],
+    ) -> Result<()> {
+        let tx = self.connection.transaction()?;
+        let rows: Vec<(String, String)> = {
+            let mut stmt = tx.prepare("SELECT r.revision_id, s.root_key FROM graph_revisions r JOIN snapshots s ON s.id = r.snapshot_id LEFT JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE o.revision_id IS NULL")?;
+            stmt.query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+                .collect::<std::result::Result<_, _>>()?
+        };
+        for (revision, root_key) in rows {
+            let root: ResourceLocator = from_str(&root_key)?;
+            let matches: Vec<_> = roots
+                .iter()
+                .filter(|(_, registered)| registered == &root)
+                .collect();
+            if matches.len() == 1 {
+                tx.execute(
+                    "INSERT INTO revision_ownership VALUES (?1, ?2, ?3)",
+                    params![revision, server_id, matches[0].0],
+                )?;
+            }
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// 将旧 snapshot 标识解析到已绑定归属的 revision，未绑定数据返回 None。
+    pub fn revision_for_snapshot(&self, snapshot_id: &str) -> Result<Option<String>> {
+        Ok(self.connection.query_row("SELECT r.revision_id FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE r.snapshot_id = ?1 ORDER BY r.published_at_unix_ms DESC, r.revision_id DESC LIMIT 1", [snapshot_id], |row| row.get(0)).optional()?)
     }
 
     /// One published revision.
@@ -830,6 +1202,100 @@ impl SqliteSnapshotStore {
             return Err(StoreError::SnapshotNotFound(snapshot_id.to_owned()));
         }
         Ok(())
+    }
+
+    /// 显式回收 scope 的旧 revision；默认预览，始终保留最新指针和 pin。
+    /// 控制库中的操作/恢复引用保护由 Engine 在控制库写事务内执行。
+    pub fn prune_revisions(
+        &mut self,
+        server_id: &str,
+        scope_id: &str,
+        keep_last: u64,
+        apply: bool,
+    ) -> Result<Vec<RevisionRecord>> {
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        let revisions: Vec<(RevisionRecord, bool, bool)> = {
+            let mut stmt = tx.prepare("SELECT r.revision_id, r.snapshot_id, r.published_at_unix_ms, s.pinned, EXISTS(SELECT 1 FROM latest_revision l WHERE l.revision_id = r.revision_id) FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id JOIN snapshots s ON s.id = r.snapshot_id WHERE o.server_id = ?1 AND o.scope_id = ?2 ORDER BY r.published_at_unix_ms DESC, r.revision_id DESC")?;
+            stmt.query_map(params![server_id, scope_id], |row| {
+                Ok((
+                    RevisionRecord {
+                        revision_id: row.get(0)?,
+                        snapshot_id: row.get(1)?,
+                        published_at_unix_ms: row.get::<_, i64>(2)?.max(0) as u64,
+                    },
+                    row.get(3)?,
+                    row.get(4)?,
+                ))
+            })?
+            .collect::<std::result::Result<_, _>>()?
+        };
+        let candidates = revisions
+            .into_iter()
+            .enumerate()
+            .filter_map(|(index, (record, pinned, latest))| {
+                (index as u64 >= keep_last.max(1) && !pinned && !latest).then_some(record)
+            })
+            .collect::<Vec<_>>();
+        if apply {
+            for record in &candidates {
+                tx.execute(
+                    "DELETE FROM revision_runs WHERE revision_id = ?1",
+                    [&record.revision_id],
+                )?;
+                tx.execute(
+                    "DELETE FROM revision_ownership WHERE revision_id = ?1",
+                    [&record.revision_id],
+                )?;
+                tx.execute(
+                    "DELETE FROM graph_revisions WHERE revision_id = ?1",
+                    [&record.revision_id],
+                )?;
+                let remaining: i64 = tx.query_row(
+                    "SELECT COUNT(*) FROM graph_revisions WHERE snapshot_id = ?1",
+                    [&record.snapshot_id],
+                    |row| row.get(0),
+                )?;
+                if remaining == 0 {
+                    for table in [
+                        "relations",
+                        "evidence_records",
+                        "entities",
+                        "collector_runs",
+                    ] {
+                        tx.execute(
+                            &format!("DELETE FROM {table} WHERE snapshot_id = ?1"),
+                            [&record.snapshot_id],
+                        )?;
+                    }
+                    tx.execute("DELETE FROM snapshots WHERE id = ?1", [&record.snapshot_id])?;
+                }
+            }
+        }
+        tx.commit()?;
+        Ok(candidates)
+    }
+
+    /// 根据持久 server/scope 归属读取最新 revision，不使用显示路径替代隔离键。
+    pub fn latest_revision_for_scope(&self, server: &str, scope: &str) -> Result<Option<String>> {
+        Ok(self.connection.query_row("SELECT r.revision_id FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE o.server_id = ?1 AND o.scope_id = ?2 ORDER BY r.published_at_unix_ms DESC,r.revision_id DESC LIMIT 1",params![server,scope],|row| row.get(0)).optional()?)
+    }
+
+    /// 只返回实际归属当前 scope 的历史快照；未绑定旧历史不进入外部列表。
+    pub fn scope_snapshots(
+        &self,
+        server: &str,
+        scope: &str,
+        limit: u64,
+        offset: u64,
+    ) -> Result<Vec<DiskSnapshot>> {
+        let mut statement=self.connection.prepare("SELECT s.snapshot_json FROM snapshots s WHERE EXISTS(SELECT 1 FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE r.snapshot_id = s.id AND o.server_id = ?1 AND o.scope_id = ?2) ORDER BY s.captured_at_unix_ms DESC,s.id DESC LIMIT ?3 OFFSET ?4")?;
+        let rows = statement.query_map(
+            params![server, scope, as_i64(limit)?, as_i64(offset)?],
+            |row| row.get::<_, String>(0),
+        )?;
+        rows.map(|row| Ok(from_str(&row?)?)).collect()
     }
 
     /// Lists snapshots (optionally for one root), newest first, paged.
@@ -999,6 +1465,80 @@ impl SqliteSnapshotStore {
         relation: Option<diskgraph_core::Relation>,
     ) -> Result<Vec<diskgraph_core::RelationEdge>> {
         self.select_edges(snapshot_id, "target_entity_id", entity_id, relation)
+    }
+
+    /// Outgoing edges of one entity, decoded only up to the requested page.
+    pub fn edges_from_page(
+        &self,
+        snapshot_id: &str,
+        entity_id: &str,
+        after_edge_id: Option<&str>,
+        limit: u64,
+    ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool)> {
+        self.select_edges_page(
+            snapshot_id,
+            "source_entity_id",
+            entity_id,
+            after_edge_id,
+            limit,
+        )
+    }
+
+    /// Incoming edges of one entity, decoded only up to the requested page.
+    pub fn edges_to_page(
+        &self,
+        snapshot_id: &str,
+        entity_id: &str,
+        after_edge_id: Option<&str>,
+        limit: u64,
+    ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool)> {
+        self.select_edges_page(
+            snapshot_id,
+            "target_entity_id",
+            entity_id,
+            after_edge_id,
+            limit,
+        )
+    }
+
+    fn select_edges_page(
+        &self,
+        snapshot_id: &str,
+        side: &str,
+        entity_id: &str,
+        after_edge_id: Option<&str>,
+        limit: u64,
+    ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool)> {
+        if limit == 0 {
+            return Err(StoreError::InvalidGraph(
+                "relation page limit must be positive".into(),
+            ));
+        }
+        let sql = format!(
+            "SELECT edge_json FROM relations WHERE snapshot_id = ?1 AND {side} = ?2
+             AND (?3 IS NULL OR edge_id > ?3) ORDER BY edge_id LIMIT ?4"
+        );
+        let mut statement = self.connection.prepare(&sql)?;
+        let rows = statement.query_map(
+            params![
+                snapshot_id,
+                entity_id,
+                after_edge_id,
+                as_i64(limit.saturating_add(1))?
+            ],
+            |row| row.get::<_, String>(0),
+        )?;
+        let mut edges = Vec::new();
+        let mut more = false;
+        for row in rows {
+            let json = row?;
+            if edges.len() as u64 == limit {
+                more = true;
+                break;
+            }
+            edges.push(from_str(&json)?);
+        }
+        Ok((edges, more))
     }
 
     fn select_edges(
@@ -2014,6 +2554,37 @@ mod tests {
     }
 
     #[test]
+    fn stale_fencing_staging_is_removed_without_touching_current_or_other_jobs() {
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        let nodes = graph("staged", 10).nodes;
+        for namespace in ["job-a:1", "job-a:2", "job-a:3", "job-b:1"] {
+            store.append_staging_nodes(namespace, &nodes).unwrap();
+        }
+
+        store.clear_stale_job_staging("job-a", 3).unwrap();
+
+        assert_eq!(store.staging_node_count("job-a:1").unwrap(), 0);
+        assert_eq!(store.staging_node_count("job-a:2").unwrap(), 0);
+        assert_eq!(
+            store.staging_node_count("job-a:3").unwrap(),
+            nodes.len() as u64
+        );
+        assert_eq!(
+            store.staging_node_count("job-b:1").unwrap(),
+            nodes.len() as u64
+        );
+        let stale_search_rows: i64 = store
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM scan_staging_search WHERE job_id IN ('job-a:1', 'job-a:2')",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(stale_search_rows, 0);
+    }
+
+    #[test]
     fn snapshot_removal_respects_pins_and_revision_dependencies() {
         let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
         let pinned = graph("pinned", 10);
@@ -2183,6 +2754,129 @@ mod tests {
             store
                 .record_collector_batch("snap", &run, &entities, &evidence, &dangling)
                 .is_err()
+        );
+    }
+
+    #[test]
+    fn relation_pages_decode_only_requested_edges_and_keep_a_stable_cursor() {
+        use diskgraph_core::{AssertionKind, Relation, RelationEdge};
+
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        store
+            .publish_revision("job", &graph("edge-page", 10), "rev-edge-page", 1)
+            .unwrap();
+        for number in 1..=2 {
+            let edge = RelationEdge {
+                edge_id: format!("edge-{number}"),
+                source_entity_id: "source".into(),
+                relation: Relation::Contains,
+                target_entity_id: "target".into(),
+                assertion_kind: AssertionKind::Observed,
+                evidence_refs: vec![],
+            };
+            store
+                .connection
+                .execute(
+                    "INSERT INTO relations VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    params![
+                        "edge-page",
+                        edge.edge_id,
+                        edge.source_entity_id,
+                        edge.relation.wire_name(),
+                        edge.target_entity_id,
+                        to_string(&edge).unwrap()
+                    ],
+                )
+                .unwrap();
+        }
+        // The next edge is deliberately undecodable. A one-edge page must
+        // still succeed; only an attempt to read that edge may report error.
+        store.connection.execute(
+            "INSERT INTO relations VALUES ('edge-page', 'edge-3', 'source', 'contains', 'target', '{bad-json')",
+            [],
+        ).unwrap();
+
+        let (first, more) = store
+            .edges_from_page("edge-page", "source", None, 1)
+            .unwrap();
+        assert_eq!(
+            first
+                .iter()
+                .map(|edge| edge.edge_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["edge-1"]
+        );
+        assert!(more);
+        let (second, more) = store
+            .edges_from_page("edge-page", "source", Some("edge-1"), 1)
+            .unwrap();
+        assert_eq!(
+            second
+                .iter()
+                .map(|edge| edge.edge_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["edge-2"]
+        );
+        assert!(more);
+        let (incoming, _) = store.edges_to_page("edge-page", "target", None, 1).unwrap();
+        assert_eq!(incoming[0].edge_id, "edge-1");
+        assert!(
+            store
+                .edges_from_page("edge-page", "source", Some("edge-2"), 1)
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn ordered_history_cursor_uses_an_index_before_decoding_nodes() {
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        store
+            .publish_revision("job", &graph("ordered", 10), "rev-ordered", 1)
+            .unwrap();
+        let plans: Vec<String> = {
+            let mut statement = store
+                .connection
+                .prepare(&format!("EXPLAIN QUERY PLAN {ORDERED_NODES_SQL}"))
+                .unwrap();
+            statement
+                .query_map(params!["ordered", "/tmp/diskgraph-test"], |row| {
+                    row.get::<_, String>(3)
+                })
+                .unwrap()
+                .collect::<std::result::Result<_, _>>()
+                .unwrap()
+        };
+        assert!(
+            plans
+                .iter()
+                .any(|plan| plan.contains("USING INDEX nodes_by_locator_path")),
+            "{plans:?}"
+        );
+        assert!(
+            !plans.iter().any(|plan| plan.contains("TEMP B-TREE")),
+            "{plans:?}"
+        );
+    }
+
+    #[test]
+    fn unknown_child_count_uses_a_sparse_index() {
+        let store = SqliteSnapshotStore::open_in_memory().unwrap();
+        let known = "COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0 AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1";
+        let plans: Vec<String> = store
+            .connection
+            .prepare(&format!(
+                "EXPLAIN QUERY PLAN SELECT COUNT(*) FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND NOT ({known})"
+            ))
+            .unwrap()
+            .query_map(params!["snapshot", 1], |row| row.get::<_, String>(3))
+            .unwrap()
+            .collect::<std::result::Result<_, _>>()
+            .unwrap();
+        assert!(
+            plans
+                .iter()
+                .any(|plan| plan.contains("nodes_by_unknown_parent")),
+            "{plans:?}"
         );
     }
 

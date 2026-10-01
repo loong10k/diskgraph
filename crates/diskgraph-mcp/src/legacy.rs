@@ -37,9 +37,11 @@ pub fn keepalive_event() -> String {
 }
 
 /// Live legacy sessions and the channel each SSE connection drains.
+type SessionChannel = (Option<String>, mpsc::SyncSender<String>);
+
 #[derive(Clone, Default)]
 pub struct SessionRegistry {
-    inner: Arc<Mutex<HashMap<String, mpsc::Sender<String>>>>,
+    inner: Arc<Mutex<HashMap<String, SessionChannel>>>,
 }
 
 impl SessionRegistry {
@@ -49,16 +51,36 @@ impl SessionRegistry {
 
     /// Opens one session; the receiver belongs to the SSE connection thread.
     pub fn open(&self) -> (String, mpsc::Receiver<String>) {
+        self.open_bound(None)
+    }
+
+    /// 绑定认证主体并限制待发送队列，防止跨主体注入和无界积压。
+    pub fn open_bound(&self, principal: Option<String>) -> (String, mpsc::Receiver<String>) {
         let session_id = format!("legacy-{}", uuid::Uuid::new_v4());
-        let (sender, receiver) = mpsc::channel();
+        let (sender, receiver) = mpsc::sync_channel(64);
         if let Ok(mut sessions) = self.inner.lock() {
-            sessions.insert(session_id.clone(), sender);
+            sessions.insert(session_id.clone(), (principal, sender));
         }
         (session_id, receiver)
     }
 
-    pub fn lookup(&self, session_id: &str) -> Option<mpsc::Sender<String>> {
-        self.inner.lock().ok()?.get(session_id).cloned()
+    pub fn lookup(&self, session_id: &str) -> Option<mpsc::SyncSender<String>> {
+        self.inner
+            .lock()
+            .ok()?
+            .get(session_id)
+            .map(|(_, sender)| sender.clone())
+    }
+
+    /// 会话仅可由握手时绑定的主体投递。
+    pub fn lookup_bound(
+        &self,
+        session_id: &str,
+        principal: Option<&str>,
+    ) -> Option<mpsc::SyncSender<String>> {
+        let state = self.inner.lock().ok()?;
+        let (owner, sender) = state.get(session_id)?;
+        (owner.as_deref() == principal).then(|| sender.clone())
     }
 
     pub fn close(&self, session_id: &str) {

@@ -39,3 +39,14 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 #### Scenario: Remote model response
 - **WHEN** 导出策略允许元数据但禁止内容
 - **THEN** 不得借 explain、日志或错误消息泄露读取内容。
+
+### Requirement: CT-05 Enforced digest budget
+内容摘要 SHALL 每次读取扣除字节预算，验证打开句柄的资源身份与稳定性；无法确认完整内容时不得返回 confirmed 摘要。
+
+#### Scenario: One byte budget
+- **WHEN** 1024 字节文件请求 max_bytes=1
+- **THEN** 最多读取 1 字节并返回未确认，摘要为空。
+
+#### Scenario: Parent replacement or in-place change
+- **WHEN** 父路径被替换为链接或同 inode 被原地修改
+- **THEN** 拒绝范围逃逸或返回 unstable，不确认混合版本。

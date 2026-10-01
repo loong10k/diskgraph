@@ -152,9 +152,13 @@ mod tests {
                 assert!(v1.contains('\u{FFFD}'), "v1 must be shown lossy: {v1}");
                 let locator = Locator::from_native_path(&path);
                 assert_eq!(locator.display(), v1);
+                // The locator round-trips the whole path, not the name: the
+                // comparison below used to hold the file name against a
+                // restored path, and only a byte-transparent filesystem
+                // reaches this branch, so a mac build never saw it.
                 let restored = locator.to_native_path().unwrap();
-                assert_eq!(restored.as_os_str(), lossy_name.as_os_str());
-                assert_eq!(locator.raw_bytes().unwrap(), lossy_name.as_bytes());
+                assert_eq!(restored.as_os_str(), path.as_os_str());
+                assert_eq!(locator.raw_bytes().unwrap(), path.as_os_str().as_bytes());
             }
             Err(error) => {
                 // macOS APFS rejects non-UTF-8 names outright (EILSEQ); that is

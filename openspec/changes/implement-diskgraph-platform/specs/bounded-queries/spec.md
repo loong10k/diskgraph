@@ -60,3 +60,37 @@ v2 SHALL 为不透明 ID、字节数和跨语言不安全整数提供无损编�
 #### Scenario: Large byte count
 - **WHEN** 大小超过 JavaScript 安全整数范围
 - **THEN** CLI/MCP/Swift/Kotlin 往返不损失精度且 v1 数字类型不被无声改变。
+
+### Requirement: Q-08 Narrow reads and bounded historical comparison
+The system SHALL decode only the requested page or bounded tree nodes, use independent SQLite read connections with deadlines, preserve Rust Unicode lowercase substring search, and bind v2 keyset cursors to principal, scope, revision, filters, actual ordering and policy version. Explicit offsets SHALL remain supported. Legacy cursors SHALL be rejected and require a fresh query. Ordered history merge SHALL retain no more than the output budget plus current iterator entries; truncated statistics SHALL be labelled partial.
+
+#### Scenario: Small page avoids unrelated node decoding
+- **WHEN** an unrelated node outside a node/top/search page contains an invalid locator
+- **THEN** the requested page succeeds without decoding that node
+
+#### Scenario: Wide tree and history exhaust the node budget
+- **WHEN** the requested tree or historical comparison exceeds its node budget
+- **THEN** the result reports its truncation reason and historical totals are not represented as complete comparison statistics
+
+#### Scenario: High-degree relation and impact budget
+- **WHEN** one entity has more relations than the remaining impact edge budget
+- **THEN** the query reads only a bounded page and reports an explicit truncation reason rather than loading every edge or claiming a complete traversal.
+
+#### Scenario: Wide TUI directory
+- **WHEN** a directory contains more children than one TUI page
+- **THEN** the UI exposes that more children exist and supports bounded navigation to subsequent pages.
+
+### Requirement: Q-09 Bounded review-candidate preparation
+For a positive target, CLI and MCP SHALL select review candidates through a deadline-bound database query without decoding an entire revision. The query SHALL preserve rebuildable evidence, protection/occupancy checks over ancestors and descendants, non-overlapping selections, and descending size priority. Budget exhaustion SHALL report an incomplete result and the unfulfilled target amount; it SHALL never imply that a partial review queue reaches the requested bytes.
+
+#### Scenario: Unrelated corrupt node does not affect a candidate page
+- **WHEN** a complete revision has a rebuildable directory and an unrelated node whose archived locator cannot be decoded
+- **THEN** CLI and MCP return the candidate without loading the unrelated node.
+
+#### Scenario: Protected descendant blocks a large candidate
+- **WHEN** a rebuildable directory contains a protected or process-used descendant
+- **THEN** the directory is excluded even if it is larger than every other candidate.
+
+#### Scenario: Candidate preparation reaches its deadline
+- **WHEN** the database query or selection walk exceeds its budget
+- **THEN** the response reports `complete=false`, a truncation reason, selected bytes and the remaining target bytes.
