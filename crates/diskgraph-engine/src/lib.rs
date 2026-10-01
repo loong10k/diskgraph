@@ -59,6 +59,16 @@ pub struct CompareRow {
     pub verdict: diskgraph_core::Verdict,
     pub left_bytes: Option<u64>,
     pub right_bytes: Option<u64>,
+    /// Whether the path is a file rather than a directory. Recorded by the
+    /// comparison that read the node, because a content pass would otherwise
+    /// have to guess from the name, and a directory's verdict is a statement
+    /// about what it holds rather than about bytes anyone can hash.
+    pub is_file: bool,
+    /// The content digest each side hashed to, when the comparison was
+    /// verified. Carrying the value rather than only the verdict is what
+    /// lets a caller see *why* two files were called identical, and reuse the
+    /// hash instead of reading both files again to find that out.
+    pub digests: Option<(String, String)>,
 }
 
 impl ComparisonReport {
@@ -74,6 +84,10 @@ impl ComparisonReport {
                     "verdict": row.verdict,
                     "left_bytes": row.left_bytes,
                     "right_bytes": row.right_bytes,
+                    "is_file": row.is_file,
+                    "digests": row.digests.as_ref().map(|(left, right)| {
+                        serde_json::json!({ "left": left, "right": right })
+                    }),
                 })
             })
             .collect();
@@ -664,15 +678,19 @@ impl Engine {
     /// that did not see every path would be a plan of what it happened to
     /// look at. It writes nothing, and there is no argument that would make
     /// it.
+    /// `from_revision` is the source and `to_revision` the side being
+    /// corrected. The plan builder reads `from` as the comparison's left, so
+    /// swapping them is what `--from b --to a` means: a different question,
+    /// not the same one asked backwards.
     pub fn sync_plan(
         &self,
-        left_revision: &str,
-        right_revision: &str,
+        from_revision: &str,
+        to_revision: &str,
         method: diskgraph_core::SyncMethod,
         tolerance_seconds: i64,
     ) -> Result<diskgraph_core::SyncPlan, EngineError> {
-        let left = self.load_revision(left_revision)?;
-        let right = self.load_revision(right_revision)?;
+        let left = self.load_revision(from_revision)?;
+        let right = self.load_revision(to_revision)?;
         let (rows, _summary) = diskgraph_core::compare::compare(
             left.root(),
             &left.nodes,
@@ -722,6 +740,11 @@ impl Engine {
                 verdict: row.verdict,
                 left_bytes: row.left.map(|node| node.subtree_bytes),
                 right_bytes: row.right.map(|node| node.subtree_bytes),
+                is_file: row
+                    .left
+                    .or(row.right)
+                    .is_some_and(|node| node.kind == diskgraph_core::NodeKind::File),
+                digests: None,
             })
             .collect();
         Ok(ComparisonReport {

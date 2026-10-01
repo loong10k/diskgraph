@@ -14,41 +14,42 @@
 
 use crate::compare::{Comparison, Verdict};
 
-/// Which way a sync travels, and whether it removes.
+/// What a sync from one tree to another would do.
+///
+/// The direction is not in the method. The caller names a source and a
+/// destination, and the method says how strictly the destination should be
+/// made to match: `Update` brings across what it is missing, `Mirror` also
+/// removes what it has that the source does not. Encoding "left" and "right"
+/// in the method instead would make `--from a --to b` and `--from b --to a`
+/// differ by a name the caller has to keep straight, and a mirror that copies
+/// in the wrong direction is worse than no mirror.
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum SyncMethod {
-    /// Copy what the right side has or has newer, into the left. Deletes
-    /// nothing: the safest method, and the one to reach for by default.
-    UpdateLeft,
-    /// The mirror image of `UpdateLeft`.
-    UpdateRight,
-    /// Copy newer files both ways. A file that differs goes whichever way its
-    /// timestamp points, so this is not idempotent when the clock is wrong.
+    /// Copy what the destination is missing, and what the source has newer.
+    /// Removes nothing: the safe method, and the one to reach for first.
+    Update,
+    /// Copy both ways: the newer side wins. Not idempotent when a file
+    /// differs and neither side is newer, because both copies happen.
     UpdateBoth,
-    /// Make the left side exactly match the right, **including deleting what
-    /// is only on the left**.
-    MirrorLeft,
-    /// The mirror image of `MirrorLeft`, deletions included.
-    MirrorRight,
+    /// Make the destination exactly match the source, **including deleting
+    /// what only the destination has**.
+    Mirror,
 }
 
 impl SyncMethod {
-    pub const ALL: [SyncMethod; 5] = [
-        SyncMethod::UpdateLeft,
-        SyncMethod::UpdateRight,
+    pub const ALL: [SyncMethod; 3] = [
+        SyncMethod::Update,
         SyncMethod::UpdateBoth,
-        SyncMethod::MirrorLeft,
-        SyncMethod::MirrorRight,
+        SyncMethod::Mirror,
     ];
 
     pub fn name(self) -> &'static str {
         match self {
-            SyncMethod::UpdateLeft => "update-left",
-            SyncMethod::UpdateRight => "update-right",
+            SyncMethod::Update => "update",
             SyncMethod::UpdateBoth => "update-both",
-            SyncMethod::MirrorLeft => "mirror-left",
-            SyncMethod::MirrorRight => "mirror-right",
+            SyncMethod::Mirror => "mirror",
         }
     }
 
@@ -62,7 +63,7 @@ impl SyncMethod {
     /// header, not only in its action list: a caller that wants to know
     /// whether to be frightened should not have to read the steps.
     pub fn deletes(self) -> bool {
-        matches!(self, SyncMethod::MirrorLeft | SyncMethod::MirrorRight)
+        matches!(self, SyncMethod::Mirror)
     }
 }
 
@@ -134,14 +135,21 @@ impl SyncPlan {
 
 /// Builds the plan a method would produce from a comparison.
 ///
-/// `left_root` and `right_root` are the directories the relative paths in the
-/// comparison hang off, so every action names a real path rather than a
-/// fragment a caller has to reassemble.
+/// `from_root` is the tree being treated as the source and `to_root` the one
+/// being corrected; every action names a real path under the root it touches,
+/// so a plan reads as something a person can check against their file manager.
+///
+/// The contract callers rely on: `from_root` must be the tree the comparison
+/// reports on the left, because `LeftOnly` and `RightOnly` are statements
+/// about that comparison. Swapping the two roots swaps which side a plan
+/// reads as the source, which is exactly what `--from a --to b` versus
+/// `--from b --to a` is meant to do - but the caller has to make the swap
+/// before the comparison, not after.
 pub fn build_plan(
     method: SyncMethod,
     rows: &[Comparison<'_>],
-    left_root: &str,
-    right_root: &str,
+    from_root: &str,
+    to_root: &str,
 ) -> SyncPlan {
     let mut actions = Vec::new();
     let mut unresolved = Vec::new();
@@ -149,116 +157,69 @@ pub fn build_plan(
     let mut deleted_bytes = 0_u64;
 
     for row in rows {
-        let left_path = join(left_root, &row.path);
-        let right_path = join(right_root, &row.path);
+        let from_path = join(from_root, &row.path);
+        let to_path = join(to_root, &row.path);
         match row.verdict {
-            // Which side a one-sided path is removed from is the side the
-            // method is making match: mirroring the left onto the right deletes
-            // what is only on the right, because that is the side being
-            // corrected. Deleting the other one would be deleting a file the
-            // method is about to copy in.
-            Verdict::LeftOnly => match method {
-                SyncMethod::MirrorLeft => {
-                    let bytes = left_bytes(row);
-                    actions.push(SyncAction::Delete {
-                        path: left_path,
-                        bytes,
-                    });
-                    deleted_bytes += bytes;
-                }
-                // The right does not have it and the right is the target -
-                // including under a mirror, which copies before it deletes.
-                SyncMethod::UpdateRight | SyncMethod::UpdateBoth | SyncMethod::MirrorRight => {
-                    let bytes = left_bytes(row);
-                    actions.push(SyncAction::Copy {
-                        from: left_path,
-                        to: right_path,
-                        bytes,
-                        reason: CopyReason::Missing,
-                    });
-                    copied_bytes += bytes;
-                }
-                // The left is the target and already has it: nothing to do.
-                SyncMethod::UpdateLeft => {}
-            },
+            // `LeftOnly` means the source has it and the destination does
+            // not, so under every method it travels across.
+            Verdict::LeftOnly => {
+                let bytes = left_bytes(row);
+                actions.push(SyncAction::Copy {
+                    from: from_path,
+                    to: to_path,
+                    bytes,
+                    reason: CopyReason::Missing,
+                });
+                copied_bytes += bytes;
+            }
+            // `RightOnly` means only the destination has it. A mirror removes
+            // it - that is what makes the destination match. An update leaves
+            // it alone: removing what the caller did not ask to remove is the
+            // part worth being careful about.
             Verdict::RightOnly => match method {
-                SyncMethod::MirrorRight => {
+                SyncMethod::Mirror => {
                     let bytes = right_bytes(row);
                     actions.push(SyncAction::Delete {
-                        path: right_path,
+                        path: to_path,
                         bytes,
                     });
                     deleted_bytes += bytes;
                 }
-                SyncMethod::UpdateLeft | SyncMethod::UpdateBoth | SyncMethod::MirrorLeft => {
-                    let bytes = right_bytes(row);
-                    actions.push(SyncAction::Copy {
-                        from: right_path,
-                        to: left_path,
-                        bytes,
-                        reason: CopyReason::Missing,
-                    });
-                    copied_bytes += bytes;
-                }
-                SyncMethod::UpdateRight => {}
+                SyncMethod::Update | SyncMethod::UpdateBoth => {}
             },
             Verdict::Same { .. } => {}
             Verdict::Different { reason } => {
                 use crate::compare::DifferentReason;
                 if reason == DifferentReason::UnknownSize {
-                    // One side could not report a size, so the plan cannot
-                    // say what copying or deleting it would cost. Leaving it
-                    // out of the action list and naming it instead is the
-                    // difference between a plan and a guess.
+                    // One side could not report a size, so the plan cannot say
+                    // what copying or deleting it would cost. Naming it beats
+                    // leaving it out, which would read as a complete answer.
                     unresolved.push(row.path.clone());
                     continue;
                 }
                 match method {
-                    SyncMethod::UpdateLeft | SyncMethod::MirrorLeft => {
-                        // The left is made to match the right.
+                    // The source wins: the destination is corrected.
+                    SyncMethod::Update | SyncMethod::Mirror => {
                         let bytes = right_bytes(row);
                         actions.push(SyncAction::Copy {
-                            from: right_path,
-                            to: left_path,
-                            bytes,
-                            reason: copy_reason_for(right_is_newer(row)),
-                        });
-                        copied_bytes += bytes;
-                    }
-                    SyncMethod::UpdateRight | SyncMethod::MirrorRight => {
-                        let bytes = left_bytes(row);
-                        actions.push(SyncAction::Copy {
-                            from: left_path,
-                            to: right_path,
+                            from: from_path.clone(),
+                            to: to_path,
                             bytes,
                             reason: copy_reason_for(left_is_newer(row)),
                         });
                         copied_bytes += bytes;
                     }
+                    // Whichever side is newer wins; when neither is, the
+                    // destination wins, so the result is at least stable.
                     SyncMethod::UpdateBoth => {
-                        // Both directions: the newer side wins, and when
-                        // neither is newer both copies happen and the second
-                        // one wins. That is what "update both" means, and it
-                        // is why the method is not the default.
-                        if left_is_newer(row) {
-                            let bytes = left_bytes(row);
-                            actions.push(SyncAction::Copy {
-                                from: left_path.clone(),
-                                to: right_path,
-                                bytes,
-                                reason: CopyReason::Newer,
-                            });
-                            copied_bytes += bytes;
-                        } else {
-                            let bytes = right_bytes(row);
-                            actions.push(SyncAction::Copy {
-                                from: right_path,
-                                to: left_path,
-                                bytes,
-                                reason: copy_reason_for(right_is_newer(row)),
-                            });
-                            copied_bytes += bytes;
-                        }
+                        let bytes = right_bytes(row);
+                        actions.push(SyncAction::Copy {
+                            from: from_path,
+                            to: to_path,
+                            bytes,
+                            reason: copy_reason_for(left_is_newer(row)),
+                        });
+                        copied_bytes += bytes;
                     }
                 }
             }
@@ -275,8 +236,10 @@ pub fn build_plan(
     }
 }
 
-/// Newer wins; when neither is newer the copy is still wanted - the method
-/// decided that - and the plan says so rather than calling it an update.
+/// Newer wins. When neither side is newer the copy is still wanted - the
+/// method decided that - and the plan says so rather than calling it an
+/// update, because the source's bytes travelling over a file the destination
+/// also has is not the same event as the destination being out of date.
 fn copy_reason_for(newer: bool) -> CopyReason {
     if newer {
         CopyReason::Newer
@@ -305,18 +268,6 @@ fn left_is_newer(row: &Comparison<'_>) -> bool {
         (Some(left), Some(right)) => {
             match (left.modified_unix_seconds, right.modified_unix_seconds) {
                 (Some(left), Some(right)) => left > right,
-                _ => false,
-            }
-        }
-        _ => false,
-    }
-}
-
-fn right_is_newer(row: &Comparison<'_>) -> bool {
-    match (row.left, row.right) {
-        (Some(left), Some(right)) => {
-            match (left.modified_unix_seconds, right.modified_unix_seconds) {
-                (Some(left), Some(right)) => right > left,
                 _ => false,
             }
         }
@@ -361,30 +312,41 @@ mod tests {
         }
     }
 
-    /// Three rows covering what a plan has to decide about: a path only the
-    /// left has, a path only the right has, and one that differs with the
-    /// right side newer.
-    fn rows() -> (Vec<DiskNode>, Vec<Comparison<'static>>) {
-        let left_only: &'static DiskNode =
-            Box::leak(Box::new(file(1, "/a/only-left.bin", 100, Some(500))));
-        let right_only: &'static DiskNode =
-            Box::leak(Box::new(file(2, "/b/only-right.bin", 200, Some(500))));
-        let older: &'static DiskNode =
-            Box::leak(Box::new(file(3, "/a/differs.bin", 300, Some(400))));
-        let newer: &'static DiskNode =
-            Box::leak(Box::new(file(3, "/b/differs.bin", 300, Some(600))));
-        let comparisons = vec![
+    /// A comparison where the first argument's root is the source side and
+    /// the second is the destination.
+    struct Pair {
+        rows: Vec<Comparison<'static>>,
+    }
+
+    /// `source_newer` decides which side of the differing file is newer, so a
+    /// test can check that the source's bytes are the ones that travel.
+    fn pair(source_newer: bool) -> Pair {
+        let leak = |node: DiskNode| -> &'static DiskNode { Box::leak(Box::new(node)) };
+        let source_only = leak(file(1, "/src/only-in-source.bin", 100, Some(500)));
+        let dest_only = leak(file(2, "/dest/only-in-dest.bin", 200, Some(500)));
+        let (older, newer) = if source_newer {
+            (
+                leak(file(3, "/dest/differs.bin", 300, Some(400))),
+                leak(file(3, "/src/differs.bin", 300, Some(600))),
+            )
+        } else {
+            (
+                leak(file(3, "/src/differs.bin", 300, Some(400))),
+                leak(file(3, "/dest/differs.bin", 300, Some(600))),
+            )
+        };
+        let rows = vec![
             Comparison {
-                path: "only-left.bin".into(),
+                path: "only-in-source.bin".into(),
                 verdict: Verdict::LeftOnly,
-                left: Some(left_only),
+                left: Some(source_only),
                 right: None,
             },
             Comparison {
-                path: "only-right.bin".into(),
+                path: "only-in-dest.bin".into(),
                 verdict: Verdict::RightOnly,
                 left: None,
-                right: Some(right_only),
+                right: Some(dest_only),
             },
             Comparison {
                 path: "differs.bin".into(),
@@ -395,122 +357,189 @@ mod tests {
                 right: Some(newer),
             },
         ];
-        // The leaked nodes outlive the caller's use of the plan; returning
-        // the owner list keeps the signature honest about what is borrowed.
-        (Vec::new(), comparisons)
+        Pair { rows }
     }
 
-    #[test]
-    fn update_left_copies_and_deletes_nothing() {
-        let (_owned, rows) = rows();
-        let plan = build_plan(SyncMethod::UpdateLeft, &rows, "/a", "/b");
-        assert!(!plan.deletes);
-        assert_eq!(plan.deletions(), 0);
-        assert_eq!(plan.copies(), 2, "the right-only file and the newer one");
-        assert_eq!(plan.copied_bytes, 200 + 300);
+    fn plan_for(method: SyncMethod, source_newer: bool) -> SyncPlan {
+        let pair = pair(source_newer);
+        build_plan(method, &pair.rows, "/src", "/dest")
     }
 
-    #[test]
-    fn update_right_mirrors_the_direction_without_deleting() {
-        let (_owned, rows) = rows();
-        let plan = build_plan(SyncMethod::UpdateRight, &rows, "/a", "/b");
-        assert!(!plan.deletes);
-        // The left-only file has nowhere to be copied to on the right that
-        // does not overwrite something, so an update leaves it alone.
-        assert!(
-            plan.actions
-                .iter()
-                .all(|action| !matches!(action, SyncAction::Delete { .. })),
-            "an update method never removes"
-        );
-    }
-
-    #[test]
-    fn a_mirror_names_every_deletion_as_its_own_step() {
-        let (_owned, rows) = rows();
-        // Mirroring onto the right deletes what is only on the right, because
-        // that is the side being corrected - not what is only on the left,
-        // which is the file it is about to copy in.
-        let plan = build_plan(SyncMethod::MirrorRight, &rows, "/a", "/b");
-        assert!(plan.deletes, "the header says so before the steps are read");
-        let deletions: Vec<&SyncAction> = plan
-            .actions
+    fn deletions(plan: &SyncPlan) -> Vec<&SyncAction> {
+        plan.actions
             .iter()
             .filter(|action| matches!(action, SyncAction::Delete { .. }))
+            .collect()
+    }
+
+    fn copies(plan: &SyncPlan) -> Vec<&SyncAction> {
+        plan.actions
+            .iter()
+            .filter(|action| matches!(action, SyncAction::Copy { .. }))
+            .collect()
+    }
+
+    fn plan_deleted_paths(plan: &SyncPlan) -> Vec<String> {
+        deletions(plan)
+            .iter()
+            .filter_map(|action| match action {
+                SyncAction::Delete { path, .. } => Some(path.clone()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn update_copies_into_the_destination_and_deletes_nothing() {
+        let plan = plan_for(SyncMethod::Update, true);
+        assert!(!plan.deletes);
+        assert!(deletions(&plan).is_empty());
+        // Only the source knows are copied into the destination.
+        let moved: Vec<&str> = copies(&plan)
+            .iter()
+            .filter_map(|action| match action {
+                SyncAction::Copy { from, .. } => Some(from.as_str()),
+                _ => None,
+            })
             .collect();
-        assert_eq!(deletions.len(), 1);
         assert!(
-            matches!(deletions[0], SyncAction::Delete { path, bytes: 200 } if path == "/b/only-right.bin"),
-            "and it is the right-only file: {deletions:?}"
+            moved.iter().all(|from| from.starts_with("/src")),
+            "update never reads from the destination: {moved:?}"
+        );
+        assert_eq!(plan.copied_bytes, 100 + 300);
+    }
+
+    #[test]
+    fn update_both_still_deletes_nothing() {
+        let plan = plan_for(SyncMethod::UpdateBoth, true);
+        assert!(!plan.deletes);
+        assert!(deletions(&plan).is_empty());
+    }
+
+    #[test]
+    fn mirroring_a_into_b_removes_what_is_only_in_b() {
+        // `--from a --to b --method mirror` is "make b look like a": the
+        // file only in b is the one that goes.
+        let plan = plan_for(SyncMethod::Mirror, true);
+        assert!(plan.deletes, "the header says so before the steps are read");
+        let gone = deletions(&plan);
+        assert_eq!(gone.len(), 1, "exactly one file is only in the destination");
+        assert!(
+            matches!(gone[0], SyncAction::Delete { path, bytes: 200 } if path == "/dest/only-in-dest.bin"),
+            "{gone:?}"
         );
         assert_eq!(plan.deleted_bytes, 200);
-        // The left-only file is copied across, not removed.
-        assert!(plan.actions.iter().any(|action| matches!(
-            action,
-            SyncAction::Copy { from, to, .. } if from == "/a/only-left.bin" && to == "/b/only-left.bin"
-        )));
     }
 
     #[test]
-    fn mirror_left_travels_the_other_way_and_also_deletes() {
-        let (_owned, rows) = rows();
-        let plan = build_plan(SyncMethod::MirrorLeft, &rows, "/a", "/b");
-        assert!(plan.deletes);
+    fn mirroring_a_into_b_keeps_what_is_only_in_a_by_copying_it_over() {
+        let plan = plan_for(SyncMethod::Mirror, true);
         assert!(
-            plan.actions.iter().any(|action| matches!(
+            copies(&plan).iter().any(|action| matches!(
                 action,
-                SyncAction::Delete { path, bytes: 100 } if path == "/a/only-left.bin"
+                SyncAction::Copy { from, to, .. }
+                    if from == "/src/only-in-source.bin" && to == "/dest/only-in-source.bin"
             )),
-            "the left is the side being corrected, so the left-only path is \
-             what goes: {actions:?}",
-            actions = plan.actions
+            "the source-only file travels across rather than being deleted: {:?}",
+            plan.actions
+        );
+    }
+
+    /// The same tree pair seen the other way round: the source's files are
+    /// now on the comparison's right, which is what a caller asking to
+    /// mirror b into a necessarily has.
+    fn pair_from_the_other_side(source_newer: bool) -> Pair {
+        let forward = pair(source_newer);
+        let rows = forward
+            .rows
+            .into_iter()
+            .map(|row| {
+                // Swapping the sides swaps what LeftOnly and RightOnly mean:
+                // a path only the left had is now a path only the right has.
+                let verdict = match row.verdict {
+                    Verdict::LeftOnly => Verdict::RightOnly,
+                    Verdict::RightOnly => Verdict::LeftOnly,
+                    other => other,
+                };
+                Comparison {
+                    path: row.path,
+                    verdict,
+                    left: row.right,
+                    right: row.left,
+                }
+            })
+            .collect();
+        Pair { rows }
+    }
+
+    #[test]
+    fn the_direction_is_the_callers_not_the_methods() {
+        // `--from a --to b` and `--from b --to a` are the same comparison
+        // with the two sides swapped - both the roots and the rows - and they
+        // must remove opposite files. The caller owns that swap: a plan
+        // builder told `from_root` is the comparison's left, and handing it a
+        // right instead would make it copy from a tree the file is not in.
+        let forwards = build_plan(SyncMethod::Mirror, &pair(true).rows, "/src", "/dest");
+        let backwards = build_plan(
+            SyncMethod::Mirror,
+            &pair_from_the_other_side(true).rows,
+            "/dest",
+            "/src",
+        );
+        assert_eq!(
+            plan_deleted_paths(&forwards),
+            vec!["/dest/only-in-dest.bin"]
+        );
+        assert_eq!(
+            plan_deleted_paths(&backwards),
+            vec!["/src/only-in-source.bin"]
         );
     }
 
     #[test]
-    fn update_both_goes_the_newer_way_only() {
-        let (_owned, rows) = rows();
-        let plan = build_plan(SyncMethod::UpdateBoth, &rows, "/a", "/b");
-        assert!(!plan.deletes);
-        let differing_copy = plan
-            .actions
+    fn the_source_wins_for_a_differing_file() {
+        let plan = plan_for(SyncMethod::Update, true);
+        let differing = copies(&plan)
             .iter()
-            .find(|action| {
-                matches!(action, SyncAction::Copy { to, .. } if to.ends_with("differs.bin"))
+            .find_map(|action| match action {
+                SyncAction::Copy { to, .. } if to.ends_with("differs.bin") => Some(*action),
+                _ => None,
             })
             .expect("the differing file is copied");
-        // The right side is newer, so the right's bytes win.
-        assert!(matches!(differing_copy, SyncAction::Copy { from, .. } if from.starts_with("/b")));
+        assert!(
+            matches!(differing, SyncAction::Copy { from, .. } if from.starts_with("/src")),
+            "the source is the side a sync corrects towards: {differing:?}"
+        );
     }
 
     #[test]
     fn a_row_nobody_could_measure_is_named_rather_than_acted_on() {
-        let node: &'static DiskNode = Box::leak(Box::new(file(9, "/b/vague.bin", 0, None)));
+        let node: &'static DiskNode = Box::leak(Box::new(file(9, "/src/vague.bin", 0, None)));
         let rows = vec![Comparison {
             path: "vague.bin".into(),
             verdict: Verdict::Different {
                 reason: DifferentReason::UnknownSize,
             },
-            left: None,
+            left: Some(node),
             right: Some(node),
         }];
-        let plan = build_plan(SyncMethod::MirrorLeft, &rows, "/a", "/b");
+        let plan = build_plan(SyncMethod::Mirror, &rows, "/src", "/dest");
         assert!(plan.actions.is_empty(), "an unknown size is not an action");
         assert_eq!(plan.unresolved, vec!["vague.bin".to_owned()]);
     }
 
     #[test]
     fn identical_rows_produce_an_empty_plan() {
-        let owned: &'static DiskNode = Box::leak(Box::new(file(1, "/a/x", 5, Some(1))));
+        let node: &'static DiskNode = Box::leak(Box::new(file(1, "/src/x", 5, Some(1))));
         let rows = vec![Comparison {
             path: "x".into(),
             verdict: Verdict::Same {
                 evidence: Evidence::Metadata,
             },
-            left: Some(owned),
-            right: Some(owned),
+            left: Some(node),
+            right: Some(node),
         }];
-        assert!(build_plan(SyncMethod::MirrorLeft, &rows, "/a", "/b").is_empty());
+        assert!(build_plan(SyncMethod::Mirror, &rows, "/src", "/dest").is_empty());
     }
 
     #[test]
@@ -518,28 +547,23 @@ mod tests {
         for method in SyncMethod::ALL {
             assert_eq!(SyncMethod::parse(method.name()), Some(method));
         }
-        assert_eq!(
-            SyncMethod::parse("MIRROR-LEFT"),
-            Some(SyncMethod::MirrorLeft)
-        );
+        assert_eq!(SyncMethod::parse("MIRROR"), Some(SyncMethod::Mirror));
         assert_eq!(SyncMethod::parse("sideways"), None);
-        assert!(SyncMethod::MirrorLeft.deletes());
-        assert!(SyncMethod::MirrorRight.deletes());
-        assert!(!SyncMethod::UpdateLeft.deletes());
-        assert!(!SyncMethod::UpdateRight.deletes());
+        assert!(SyncMethod::Mirror.deletes());
+        assert!(!SyncMethod::Update.deletes());
         assert!(!SyncMethod::UpdateBoth.deletes());
     }
 
     #[test]
     fn paths_are_joined_without_doubling_separators() {
-        let owned: &'static DiskNode = Box::leak(Box::new(file(1, "/a/x", 5, Some(1))));
+        let node: &'static DiskNode = Box::leak(Box::new(file(1, "/src/x", 5, Some(1))));
         let rows = vec![Comparison {
             path: "x".into(),
-            verdict: Verdict::RightOnly,
-            left: None,
-            right: Some(owned),
+            verdict: Verdict::LeftOnly,
+            left: Some(node),
+            right: None,
         }];
-        let plan = build_plan(SyncMethod::UpdateLeft, &rows, "/a/", "/b/");
+        let plan = build_plan(SyncMethod::Update, &rows, "/src/", "/dest/");
         assert!(plan.actions.iter().all(|action| match action {
             SyncAction::Copy { from, to, .. } => !from.contains("//") && !to.contains("//"),
             SyncAction::Delete { path, .. } => !path.contains("//"),

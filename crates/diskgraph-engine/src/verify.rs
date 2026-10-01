@@ -90,7 +90,13 @@ pub fn verify_same_rows(
         // Only the rows metadata already called the same. A difference has
         // already been decided, and re-deciding it with a costlier test would
         // make the two paths disagree about the same pair of files.
-        let promotable = matches!(row.verdict, Verdict::Same { .. })
+        // A directory is not hashed: its verdict comes from what it holds,
+        // and asking for its contents fails, which would report every
+        // directory in the tree as unverified and bury the files that
+        // actually could not be read.
+        let is_file = row.is_file;
+        let promotable = is_file
+            && matches!(row.verdict, Verdict::Same { .. })
             && row
                 .left_bytes
                 .is_some_and(|bytes| bytes <= budget.max_bytes_per_file);
@@ -102,7 +108,7 @@ pub fn verify_same_rows(
             // over budget, over the per-file ceiling, or unreadable - has no
             // answer beyond the metadata one, and the summary must say so
             // rather than let it read as settled.
-            if matches!(row.verdict, Verdict::Same { .. }) {
+            if is_file && matches!(row.verdict, Verdict::Same { .. }) {
                 summary.unverified += 1;
             }
             rows.push(row);
@@ -125,21 +131,24 @@ pub fn verify_same_rows(
         ) {
             (Some(left), Some(right)) => {
                 summary.bytes_read += left.bytes_read + right.bytes_read;
+                let mut row = row;
+                // The values travel with the row, not just the conclusion: a
+                // caller comparing against a manifest elsewhere needs the
+                // hash, and a caller that trusts the verdict has to be able to
+                // see which bytes were hashed to reach it.
+                row.digests = Some((left.digest.clone(), right.digest.clone()));
                 if left.digest == right.digest {
                     summary.confirmed_same += 1;
-                    let mut row = row;
                     row.verdict = Verdict::Same {
                         evidence: diskgraph_core::Evidence::Content,
                     };
-                    rows.push(row);
                 } else {
                     summary.confirmed_different += 1;
-                    let mut row = row;
                     row.verdict = Verdict::Different {
                         reason: diskgraph_core::DifferentReason::Content,
                     };
-                    rows.push(row);
                 }
+                rows.push(row);
             }
             _ => {
                 // A file neither side could be read says nothing about whether

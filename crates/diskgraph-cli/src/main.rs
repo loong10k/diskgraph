@@ -237,30 +237,30 @@ enum Command {
         #[arg(long)]
         revoke_content_read: bool,
     },
-    /// What a sync between two trees would do. Prints the plan; changes
-    /// nothing.
+    /// What a sync from one tree to another would do. Prints the plan;
+    /// changes nothing.
     ///
-    /// The five methods are the ones a two-directory sync has always had.
-    /// Three of them only ever copy; the two mirrors also delete, and their
-    /// deletions appear in the plan as their own steps with `deletes: true`
-    /// in the header - so nothing here is ever a surprise the steps hide.
+    /// The direction is `--from` and `--to`: `mirror` makes the destination
+    /// look exactly like the source, which means deleting what only the
+    /// destination has. The header says `deletes: true` and every deletion is
+    /// its own step, so nothing is hidden inside a recursive copy.
     #[command(
-        after_help = "EXAMPLES:\n  diskgraph sync-plan --left-scope release --right-scope worktree --method update-right\n  diskgraph sync-plan --left-scope a --right-scope b --method mirror-left --json\n\nThis command never writes, moves or deletes a file. It is a plan, and a\nplan is what a person reads before deciding."
+        after_help = "EXAMPLES:\n  diskgraph sync-plan --from ./release --to ./worktree --method update\n  diskgraph sync-plan --from-scope release --to-scope worktree --method mirror --json\n  diskgraph sync-plan --from a --to b --method mirror --limit 100\n\nThis command never writes, moves or deletes a file. It is a plan, and a\nplan is what a person reads before deciding."
     )]
     SyncPlan {
-        /// Revision to read as the left side.
-        #[arg(long, conflicts_with = "left_scope")]
-        left: Option<String>,
-        /// Revision to read as the right side.
-        #[arg(long, conflicts_with = "right_scope")]
-        right: Option<String>,
-        #[arg(long, conflicts_with = "left")]
-        left_scope: Option<String>,
-        #[arg(long, conflicts_with = "right")]
-        right_scope: Option<String>,
-        /// update-left, update-right, update-both, mirror-left or
-        /// mirror-right.
-        #[arg(long, default_value = "update-right")]
+        /// Revision that is the source of the sync.
+        #[arg(long, conflicts_with = "from_scope")]
+        from: Option<String>,
+        /// Revision that is being made to match the source.
+        #[arg(long, conflicts_with = "to_scope")]
+        to: Option<String>,
+        /// Take a side from a scope's latest revision instead.
+        #[arg(long, conflicts_with = "from")]
+        from_scope: Option<String>,
+        #[arg(long, conflicts_with = "to")]
+        to_scope: Option<String>,
+        /// update (copy only), update-both, or mirror (also deletes).
+        #[arg(long, default_value = "update")]
         method: String,
         /// Seconds two timestamps may differ and still count as the same file.
         #[arg(long, default_value_t = 2)]
@@ -1158,10 +1158,10 @@ fn dispatch(
             Ok(())
         }
         Command::SyncPlan {
-            left,
-            right,
-            left_scope,
-            right_scope,
+            from,
+            to,
+            from_scope,
+            to_scope,
             method,
             tolerance,
             limit,
@@ -1178,18 +1178,17 @@ fn dispatch(
                 );
                 return Err(EngineError::Business(BusinessError::InvalidArgument));
             };
-            let (left_revision, _) =
-                resolve_side(engine, left.as_deref(), left_scope.as_deref(), "left")?;
-            let (right_revision, _) =
-                resolve_side(engine, right.as_deref(), right_scope.as_deref(), "right")?;
-            let plan = engine.sync_plan(&left_revision, &right_revision, method, *tolerance)?;
+            let (from_revision, _) =
+                resolve_side(engine, from.as_deref(), from_scope.as_deref(), "from")?;
+            let (to_revision, _) = resolve_side(engine, to.as_deref(), to_scope.as_deref(), "to")?;
+            let plan = engine.sync_plan(&from_revision, &to_revision, method, *tolerance)?;
             let shown: Vec<serde_json::Value> = plan
                 .actions
                 .iter()
                 .take(*limit)
-                // The actions are plain data with derived Serialize; a
-                // failure would be a bug, not a runtime condition, so the
-                // fallback keeps the envelope well formed.
+                // The actions are plain data with derived Serialize; a failure
+                // would be a bug, not a runtime condition, so the fallback
+                // keeps the envelope well formed.
                 .map(|action| serde_json::to_value(action).unwrap_or(serde_json::Value::Null))
                 .collect();
             let deletes = plan.deletions();

@@ -101,7 +101,7 @@ diskgraph changes SNAPSHOT_BEFORE SNAPSHOT_AFTER --scope project --json
 diskgraph compare --left-scope release --right-scope worktree --json
 diskgraph compare --left REV_A --right REV_B --only-differences --limit 40
 diskgraph compare --left-scope a --right-scope b --verify-content --verify-files 200 --json
-diskgraph sync-plan --left-scope a --right-scope b --method mirror-left --json
+diskgraph sync-plan --from-scope release --to-scope worktree --method mirror --json
 diskgraph candidates --scope project --target-bytes 16106127360 --json
 diskgraph duplicates list --scope project --json
 diskgraph read NODE --scope project --offset 0 --max-bytes 4096 --json
@@ -109,7 +109,9 @@ diskgraph read NODE --scope project --offset 0 --max-bytes 4096 --json
 
 `compare --verify-content` 需要先 `diskgraph grant --scope <id> --content-read`：内容读取是独立授权，不随 scope 注册而来。它只读取元数据已判为相同的行，并受 `--verify-files` 与 `--verify-bytes-per-file` 双重预算约束；未能核验的行计入 `verification.unverified`，summary 的 `is_complete` 相应为 false。`diskgraph grant --scope <id> --revoke-content-read` 收回该授权。
 
-`sync-plan` 从比较结果生成同步计划，**不写、不移、不删任何文件，也没有能让它这么做的参数**。五种方法：`update-left` / `update-right` / `update-both` 只复制；`mirror-left` / `mirror-right` 额外删除，且 `deletes: true` 在 header 里显式声明，删除步骤在 `steps` 中各自成条——不会出现"递归覆盖"里藏着删除的情况。`update-both` 会把较新的一侧复制到另一侧，两侧同样新时复制两次（后一次生效），所以它不是幂等的，不是默认选择。无法读取大小（unknown-size）的行不产生动作，只进 `unresolved` 列表。
+`sync-plan --from A --to B` 从比较结果生成同步计划，**不写、不移、不删任何文件，也没有能让它这么做的参数**。方向由 `--from`/`--to` 决定，不由方法名决定：`--from a --to b --method mirror` 的含义是"把 a 镜像到 b"，即让 b 完全变成 a 的样子——**删除 b 独有的文件**，把 a 独有的复制过去。三种方法：`update` 只复制（目标缺什么补什么、源更新就覆盖），`update-both` 双向更新较新的一侧（两侧同样新时复制两次，后者生效，因此不幂等），`mirror` 额外删除且 `deletes: true` 在 header 显式声明、删除步骤各自成条。无法读取大小（unknown-size）的行不产生动作，只进 `unresolved`。
+
+内容哈希：核验通过的行带 `digests: {left, right}`，两侧哈希值都给出，可直接与外部清单比对。**用的是 SHA-256 而非 MD5**——抗碰撞更强，且 `digest_bounded` 已实现；`Evidence::Content` 表示该哈希确实读出，`Evidence::Metadata` 表示只比了大小和时间戳。
 
 compare 回答的是"两棵树各自有什么"：根可以完全不同（发布产物对工作副本、两台机器、备份），这正是 changes 拒绝的情形——changes 问的是同一个目录随时间发生了什么。每一行给出 left-only / right-only / different / same，different 再分 size / timestamp / contents / path / unknown-size。判定只到元数据层（大小、时间戳、秒级容差），**不读文件内容**，所以 same 意味着"在测到的深度上相同"，不是"逐字节相同"；内容级判定需要单独的 ContentRead 授权。无法读取大小的一侧报 unknown-size 而不是 different——那不是差异的证据。
 
