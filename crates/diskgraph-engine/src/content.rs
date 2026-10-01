@@ -542,6 +542,7 @@ mod tests {
         );
     }
 
+    #[cfg(unix)]
     #[test]
     fn stability_is_void_when_the_object_vanishes_mid_read() {
         let workspace = tempfile::TempDir::with_prefix("dg-content-stable-").unwrap();
