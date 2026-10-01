@@ -16,7 +16,7 @@
 #[cfg(unix)]
 use std::io::Read;
 use std::path::{Path, PathBuf};
-#[cfg(any(unix, test))]
+#[cfg(unix)]
 use std::time::{Duration, Instant};
 
 use crate::OpsError;
@@ -639,7 +639,29 @@ fn build_lock_is_contended(lock: &Path) -> bool {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, windows))]
+mod unsupported_windows_tests {
+    use super::*;
+
+    #[test]
+    fn bounded_external_tool_execution_refuses_without_a_windows_sandbox() {
+        let spec = CommandSpec {
+            program: PathBuf::from("missing-tool.exe"),
+            args: Vec::new(),
+            cwd: None,
+            env: Vec::new(),
+            timeout_ms: 1000,
+            max_output_bytes: 1024,
+            retries: 0,
+        };
+        assert!(matches!(
+            SandboxedRunner.run(&spec),
+            Err(OpsError::Stale(message)) if message.contains("unsupported")
+        ));
+    }
+}
+
+#[cfg(all(test, unix))]
 mod tests {
     use super::*;
     use std::io::Write;
