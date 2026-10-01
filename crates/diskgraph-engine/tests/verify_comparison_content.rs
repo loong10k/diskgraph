@@ -8,7 +8,9 @@
 
 use std::sync::Arc;
 
-use diskgraph_core::{Evidence, PrincipalId, ScopeId, Verdict};
+#[cfg(unix)]
+use diskgraph_core::Evidence;
+use diskgraph_core::{PrincipalId, ScopeId, Verdict};
 use diskgraph_engine::verify::{VerifyBudget, verify_same_rows};
 use diskgraph_engine::{Engine, EngineConfig};
 
@@ -129,6 +131,7 @@ fn metadata_alone_calls_two_different_files_the_same() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn reading_contents_separates_the_two_files_metadata_confused() {
     let fixture = fixture();
@@ -229,6 +232,7 @@ fn the_file_budget_bounds_the_pass() {
     assert!(!summary.is_complete());
 }
 
+#[cfg(unix)]
 #[test]
 fn withdrawing_the_grant_stops_the_reads() {
     let fixture = fixture();
@@ -253,6 +257,7 @@ fn withdrawing_the_grant_stops_the_reads() {
     assert_eq!(withdrawn.unverified, 2);
 }
 
+#[cfg(unix)]
 #[test]
 fn a_verified_row_says_it_was_read_not_inferred() {
     let fixture = fixture();
@@ -277,4 +282,23 @@ fn a_verified_row_says_it_was_read_not_inferred() {
         "a caller that skips a copy on this row is relying on bytes that \
          were actually read"
     );
+}
+
+#[cfg(windows)]
+#[test]
+fn a_windows_content_grant_still_reports_unverified_without_scoped_handles() {
+    let fixture = fixture();
+    let principal = PrincipalId::new("verify").unwrap();
+    for scope in [&fixture.left_scope, &fixture.right_scope] {
+        fixture
+            .engine
+            .set_content_read(scope, &principal, true)
+            .unwrap();
+    }
+    let (_, summary) = verify(&fixture, compare(&fixture), VerifyBudget::default());
+    assert_eq!(summary.confirmed_same, 0);
+    assert_eq!(summary.confirmed_different, 0);
+    assert_eq!(summary.unverified, 2);
+    assert_eq!(summary.bytes_read, 0);
+    assert!(!summary.is_complete());
 }
