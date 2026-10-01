@@ -96,9 +96,15 @@ def main():
             "accept-readonly-upgrade.py", packaged_bin,
             "--old-cli", old_cli, "--new-cli", packaged_bin / binaries[0],
         )
+        load = accepted(
+            "accept-readonly-load.py", packaged_bin,
+            "--bin-dir", packaged_bin,
+            "--output", output / f"{archive_name}.load.json",
+        )
     print(json.dumps({"target": args.target, "archive": str(archive),
                       "sha256": archive_hash, "stdio": stdio,
-                      "http": http, "upgrade_rollback": upgrade}, indent=2))
+                      "http": http, "upgrade_rollback": upgrade,
+                      "controlled_load": load}, indent=2))
 
 
 if __name__ == "__main__":
