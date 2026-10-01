@@ -794,6 +794,10 @@ impl SqliteSnapshotStore {
         })?;
         let mut nodes = mapped.map(|row| {
             let (path, row) = row?;
+            // 比较结果使用跨平台 `/` 相对路径；Windows SQL 路径保留原生 `\`，
+            // 且前导分隔符不会被 SQL 的 Unix ltrim 去掉。
+            #[cfg(windows)]
+            let path = path.trim_start_matches('\\').replace('\\', "/");
             Ok((path, row.into_node()?))
         });
         work(&mut nodes)
