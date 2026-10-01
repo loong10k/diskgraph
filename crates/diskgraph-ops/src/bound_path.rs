@@ -68,6 +68,7 @@ impl BoundPath {
             libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC,
         )
     }
+    #[cfg(target_os = "macos")]
     pub(crate) fn create(&self) -> Result<File, OpsError> {
         Self::open_at(
             &self.parent,

@@ -1353,6 +1353,7 @@ fn an_empty_file_round_trips_through_trash_and_restore() {
 
 // -------------------------------------------- 6.8 path and link revalidation ---
 
+#[cfg(unix)]
 #[test]
 fn a_link_planted_in_the_source_after_planning_stops_the_move() {
     let mut project = project("link-source");
@@ -1418,6 +1419,7 @@ fn a_link_planted_in_the_source_after_planning_stops_the_move() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn a_link_planted_in_the_destination_stops_the_move() {
     let mut project = project("link-target");
@@ -1465,6 +1467,7 @@ fn a_link_planted_in_the_destination_stops_the_move() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn revalidation_reports_the_fault_it_refused() {
     let directory = tempfile::tempdir().unwrap();
@@ -2050,6 +2053,7 @@ fn an_empty_object_batch_moves_nothing_and_says_so() {
 
 // ------------------------------------------------- P6: cross-volume and purge ---
 
+#[cfg(target_os = "macos")]
 #[test]
 fn a_cross_volume_copy_stages_verifies_then_publishes() {
     let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-").unwrap();
@@ -2074,6 +2078,7 @@ fn a_cross_volume_copy_stages_verifies_then_publishes() {
     );
 }
 
+#[cfg(target_os = "macos")]
 #[test]
 fn a_source_that_changes_during_a_cross_volume_copy_invalidates_the_transfer() {
     let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-race-").unwrap();
@@ -2102,6 +2107,7 @@ fn a_source_that_changes_during_a_cross_volume_copy_invalidates_the_transfer() {
     );
 }
 
+#[cfg(target_os = "macos")]
 #[test]
 fn a_failed_cross_volume_copy_leaves_the_destination_untouched() {
     let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-fail-").unwrap();
@@ -2120,6 +2126,7 @@ fn a_failed_cross_volume_copy_leaves_the_destination_untouched() {
     assert!(transfer.staging_dir_absent());
 }
 
+#[cfg(target_os = "macos")]
 #[test]
 fn a_cross_volume_move_publishes_before_the_source_is_removed() {
     let mut project = project("xmove");
@@ -2146,6 +2153,7 @@ fn a_cross_volume_move_publishes_before_the_source_is_removed() {
     assert!(!source.exists(), "only a published copy retires the source");
 }
 
+#[cfg(target_os = "macos")]
 #[test]
 fn a_cross_volume_move_parked_at_the_source_seam_keeps_both_sides() {
     let mut project = project("xmove-park");
@@ -2383,6 +2391,7 @@ fn a_parked_purge_retry_returns_the_same_operation_without_replaying() {
     assert!(project.root.join("target/app.bin").exists());
 }
 
+#[cfg(target_os = "macos")]
 #[test]
 fn competing_copy_publications_never_overwrite_each_other() {
     for _ in 0..40 {

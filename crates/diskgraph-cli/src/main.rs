@@ -1568,10 +1568,33 @@ fn dispatch(
                         continue;
                     }
                 };
-                if let Err(error) = engine.run_job(&job.job_id, "du") {
-                    eprintln!("diskgraph: {}: {error}", path.display());
-                    failures += 1;
-                    continue;
+                // The process also runs a background worker. Its claim may
+                // win this race, so wait for that exact job rather than
+                // treating a competing owner as a failed measurement.
+                let completed = match engine.run_job(&job.job_id, "du") {
+                    Ok(record) => Ok(record),
+                    Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
+                    | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => {
+                        wait_for_terminal(engine, &job.job_id)
+                    }
+                    Err(error) => Err(error),
+                };
+                match completed {
+                    Ok(record) if record.state == diskgraph_store::JobState::Completed => {}
+                    Ok(record) => {
+                        eprintln!(
+                            "diskgraph: {}: job ended {:?}",
+                            path.display(),
+                            record.state
+                        );
+                        failures += 1;
+                        continue;
+                    }
+                    Err(error) => {
+                        eprintln!("diskgraph: {}: {error}", path.display());
+                        failures += 1;
+                        continue;
+                    }
                 }
                 let Some(revision) = engine.latest_revision(&scope_id)? else {
                     failures += 1;

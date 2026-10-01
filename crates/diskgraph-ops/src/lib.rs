@@ -21,6 +21,7 @@ mod metadata_fidelity;
 mod verified_source;
 
 use std::collections::HashSet;
+#[cfg(unix)]
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
@@ -1384,6 +1385,7 @@ impl Executor {
         return Err(OpsError::Stale(
             "unsupported: verified source removal".into(),
         ));
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
         Ok(StepResult {
             kind: diskgraph_store::OperationItemResult::Moved,
             detail: describe(target, item.identity.as_deref()),
@@ -1819,13 +1821,14 @@ fn remove_source(path: &Path) -> Result<(), OpsError> {
 /// A staged cross-volume transfer (OP-05). The staged file lives on the
 /// target's own volume, so publishing is a same-volume rename: an interrupted
 /// transfer leaves a staging directory behind and the destination untouched.
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub(crate) struct CrossVolumeCopy {
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     target_handle: bound_path::BoundPath,
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     staged_handle: bound_path::BoundPath,
     staging_dir: PathBuf,
-    #[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
+    #[cfg(all(test, target_os = "macos"))]
     staged: PathBuf,
     target: PathBuf,
     verified: std::sync::Mutex<Option<(std::fs::File, std::fs::Metadata)>>,
@@ -1833,6 +1836,7 @@ pub(crate) struct CrossVolumeCopy {
     verified_source: std::sync::Mutex<Option<verified_source::VerifiedSource>>,
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 impl CrossVolumeCopy {
     /// Opens a transfer that will publish `target` from a staging directory
     /// next to it. The directory name is unique per transfer, so concurrent
@@ -1857,7 +1861,7 @@ impl CrossVolumeCopy {
         return Err(OpsError::Stale(
             "unsupported: bound staging directory".into(),
         ));
-        #[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
+        #[cfg(all(test, target_os = "macos"))]
         let name = target
             .file_name()
             .ok_or_else(|| OpsError::Stale("target has no file name".into()))?
@@ -1867,7 +1871,7 @@ impl CrossVolumeCopy {
             target_handle,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             staged_handle,
-            #[cfg(any(test, not(any(target_os = "macos", target_os = "linux"))))]
+            #[cfg(all(test, target_os = "macos"))]
             staged: staging_dir.join(&name),
             staging_dir,
             target: target.to_path_buf(),
@@ -2079,16 +2083,45 @@ impl CrossVolumeCopy {
 
     /// True once no staging directory remains, so drills can prove a transfer
     /// left no bytes behind.
-    #[cfg(test)]
+    #[cfg(all(test, target_os = "macos"))]
     pub(crate) fn staging_dir_absent(&self) -> bool {
         !self.staging_dir.exists()
     }
 
     /// The staged path, for drills that must observe the transfer directly.
-    #[cfg(test)]
+    #[cfg(all(test, target_os = "macos"))]
     fn staged_path(&self) -> &Path {
         &self.staged
     }
+}
+
+/// Cross-volume publication has no verified Windows implementation yet.
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
+pub(crate) struct CrossVolumeCopy;
+
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
+impl CrossVolumeCopy {
+    pub(crate) fn open(_target: &Path, _purpose: &str) -> Result<Self, OpsError> {
+        Err(OpsError::Stale(
+            "unsupported: bound staging directory".into(),
+        ))
+    }
+
+    pub(crate) fn stage_and_verify(
+        &self,
+        _source: &Path,
+        _expected_identity: &Option<String>,
+    ) -> Result<u64, OpsError> {
+        Err(OpsError::Stale(
+            "unsupported: copy metadata fidelity has not been verified on this platform".into(),
+        ))
+    }
+
+    pub(crate) fn publish(&self) -> Result<(), OpsError> {
+        Err(OpsError::Stale("unsupported: bound publication".into()))
+    }
+
+    pub(crate) fn discard(&self) {}
 }
 
 /// The canonical form of a directory that may not exist yet: canonicalize the
