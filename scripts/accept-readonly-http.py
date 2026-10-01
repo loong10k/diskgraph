@@ -82,9 +82,13 @@ def server(data, transport, key_file, work):
             "--transport", transport, "--host", "127.0.0.1", "--port", str(port),
         ], stdout=subprocess.DEVNULL, stderr=log)
         try:
-            for _ in range(100):
-                if process.poll() is not None:
-                    raise RuntimeError(f"server exited early: {log_path.read_text()}")
+        for _ in range(100):
+            if process.poll() is not None:
+                acl = ""
+                if sys.platform == "win32":
+                    acl = subprocess.run(["icacls", str(key_file)], capture_output=True,
+                                         text=True).stdout
+                raise RuntimeError(f"server exited early: {log_path.read_text()}\nkey ACL: {acl}")
                 try:
                     with socket.create_connection(("127.0.0.1", port), timeout=0.1):
                         break
