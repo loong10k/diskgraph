@@ -415,7 +415,14 @@ fn locator_key(path: &Path) -> String {
 /// The identity used to detect a replaced object between plan and apply: on
 /// unix this is the device and inode, which survive a rename but not a
 /// delete-and-recreate.
-fn identity_of(_path: &Path, metadata: &std::fs::Metadata) -> Option<String> {
+fn identity_of(path: &Path, metadata: &std::fs::Metadata) -> Option<String> {
+    // Both branches name the parameters they were handed. Only a unix
+    // filesystem records a device and inode that survive a rename, and the
+    // other platforms get None rather than a guess. A branch that referred
+    // to a name it did not have would not compile there - and a mac-only
+    // build never notices, which is how this sat broken for weeks.
+    #[cfg(unix)]
+    let _ = path;
     #[cfg(unix)]
     {
         use std::os::unix::fs::MetadataExt;
