@@ -698,12 +698,48 @@ impl Engine {
             &right.nodes,
             tolerance_seconds,
         );
+        // The index a comparison was read from is not content to synchronize.
+        // Copying it duplicates a live database; mirroring a tree that has one
+        // would delete the other tree's. It is named in the plan rather than
+        // dropped, because a plan that quietly skips something is a plan that
+        // reads as complete.
+        let excluded = self.index_paths_in_scope(left.root());
         Ok(diskgraph_core::build_sync_plan(
             method,
             &rows,
             &native_path(left.root())?,
             &native_path(right.root())?,
+            &excluded,
         ))
+    }
+
+    /// The store's data directory, as paths relative to an indexed root, when
+    /// it sits inside that root at all. A store kept outside the tree it
+    /// describes - `~/.diskgraph` alongside a project - has nothing to
+    /// exclude, because it is not in the comparison to begin with.
+    fn index_paths_in_scope(
+        &self,
+        root: &diskgraph_core::DiskNode,
+    ) -> Vec<diskgraph_core::PlanExclusion> {
+        let Ok(root_path) = native_path(root) else {
+            return Vec::new();
+        };
+        let data_dir = match std::fs::canonicalize(self.data_dir()) {
+            Ok(path) => path,
+            Err(_) => return Vec::new(),
+        };
+        let data_dir = data_dir.to_string_lossy().into_owned();
+        let relative = match data_dir
+            .strip_prefix(&root_path)
+            .map(|rest| rest.trim_start_matches('/'))
+        {
+            Some(relative) if !relative.is_empty() => relative,
+            _ => return Vec::new(),
+        };
+        vec![diskgraph_core::PlanExclusion {
+            path: relative.to_owned(),
+            reason: diskgraph_core::ExcludeReason::IndexData,
+        }]
     }
 
     /// Compares two published revisions, whatever their roots are.

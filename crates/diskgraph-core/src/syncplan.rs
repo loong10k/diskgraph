@@ -109,6 +109,27 @@ pub struct SyncPlan {
     /// Paths the comparison could not decide, carried through untouched. A
     /// plan that silently omits them reads as a complete answer.
     pub unresolved: Vec<String>,
+    /// Paths the caller kept out of the plan on purpose, with the reason.
+    /// Named rather than dropped: a plan that quietly skips something reads
+    /// as a complete answer, and the one thing a sync must never copy is the
+    /// live index it is reading.
+    pub excluded: Vec<PlanExclusion>,
+}
+
+/// A path the plan deliberately does not act on.
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+pub struct PlanExclusion {
+    pub path: String,
+    pub reason: ExcludeReason,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ExcludeReason {
+    /// The index this comparison was read from. Copying it would duplicate a
+    /// live database, and mirroring a tree that has one would delete the
+    /// other tree's.
+    IndexData,
 }
 
 impl SyncPlan {
@@ -150,13 +171,24 @@ pub fn build_plan(
     rows: &[Comparison<'_>],
     from_root: &str,
     to_root: &str,
+    excluded: &[PlanExclusion],
 ) -> SyncPlan {
     let mut actions = Vec::new();
     let mut unresolved = Vec::new();
     let mut copied_bytes = 0_u64;
     let mut deleted_bytes = 0_u64;
+    let is_excluded = |path: &str| {
+        excluded
+            .iter()
+            .any(|entry| path == entry.path || path.starts_with(&format!("{}/", entry.path)))
+    };
 
     for row in rows {
+        // A path the caller excluded is named in the plan and acted on never,
+        // which is a different thing from the path being absent.
+        if is_excluded(&row.path) {
+            continue;
+        }
         let from_path = join(from_root, &row.path);
         let to_path = join(to_root, &row.path);
         match row.verdict {
@@ -233,6 +265,7 @@ pub fn build_plan(
         copied_bytes,
         deleted_bytes,
         unresolved,
+        excluded: excluded.to_vec(),
     }
 }
 
@@ -362,7 +395,7 @@ mod tests {
 
     fn plan_for(method: SyncMethod, source_newer: bool) -> SyncPlan {
         let pair = pair(source_newer);
-        build_plan(method, &pair.rows, "/src", "/dest")
+        build_plan(method, &pair.rows, "/src", "/dest", &[])
     }
 
     fn deletions(plan: &SyncPlan) -> Vec<&SyncAction> {
@@ -479,12 +512,13 @@ mod tests {
         // must remove opposite files. The caller owns that swap: a plan
         // builder told `from_root` is the comparison's left, and handing it a
         // right instead would make it copy from a tree the file is not in.
-        let forwards = build_plan(SyncMethod::Mirror, &pair(true).rows, "/src", "/dest");
+        let forwards = build_plan(SyncMethod::Mirror, &pair(true).rows, "/src", "/dest", &[]);
         let backwards = build_plan(
             SyncMethod::Mirror,
             &pair_from_the_other_side(true).rows,
             "/dest",
             "/src",
+            &[],
         );
         assert_eq!(
             plan_deleted_paths(&forwards),
@@ -523,7 +557,7 @@ mod tests {
             left: Some(node),
             right: Some(node),
         }];
-        let plan = build_plan(SyncMethod::Mirror, &rows, "/src", "/dest");
+        let plan = build_plan(SyncMethod::Mirror, &rows, "/src", "/dest", &[]);
         assert!(plan.actions.is_empty(), "an unknown size is not an action");
         assert_eq!(plan.unresolved, vec!["vague.bin".to_owned()]);
     }
@@ -539,7 +573,7 @@ mod tests {
             left: Some(node),
             right: Some(node),
         }];
-        assert!(build_plan(SyncMethod::Mirror, &rows, "/src", "/dest").is_empty());
+        assert!(build_plan(SyncMethod::Mirror, &rows, "/src", "/dest", &[]).is_empty());
     }
 
     #[test]
@@ -555,6 +589,76 @@ mod tests {
     }
 
     #[test]
+    fn an_excluded_path_is_named_and_never_acted_on() {
+        let leak = |node: DiskNode| -> &'static DiskNode { Box::leak(Box::new(node)) };
+        let index = leak(file(7, "/src/.diskgraph/diskgraph.sqlite", 5_000, Some(1)));
+        let ordinary = leak(file(8, "/src/notes.md", 100, Some(1)));
+        let rows = vec![
+            Comparison {
+                path: ".diskgraph/diskgraph.sqlite".into(),
+                verdict: Verdict::LeftOnly,
+                left: Some(index),
+                right: None,
+            },
+            Comparison {
+                path: ".diskgraph".into(),
+                verdict: Verdict::LeftOnly,
+                left: Some(index),
+                right: None,
+            },
+            Comparison {
+                path: "notes.md".into(),
+                verdict: Verdict::LeftOnly,
+                left: Some(ordinary),
+                right: None,
+            },
+        ];
+        let exclusion = [PlanExclusion {
+            path: ".diskgraph".into(),
+            reason: ExcludeReason::IndexData,
+        }];
+        let plan = build_plan(SyncMethod::Update, &rows, "/src", "/dest", &exclusion);
+        // Neither the directory itself nor anything under it is copied: a
+        // plan that duplicated a live database, or mirrored one tree's index
+        // over another's, would be the worst thing this command could do.
+        assert!(
+            plan.actions
+                .iter()
+                .all(|action| !path_of(action).contains(".diskgraph")),
+            "{:?}",
+            plan.actions
+        );
+        assert_eq!(plan.copies(), 1, "the one file that is not the index");
+        assert_eq!(plan.excluded, exclusion, "and the exclusion is reported");
+    }
+
+    #[test]
+    fn excluding_one_side_leaves_the_others_untouched() {
+        let leak = |node: DiskNode| -> &'static DiskNode { Box::leak(Box::new(node)) };
+        let rows = vec![Comparison {
+            path: "notes.md".into(),
+            verdict: Verdict::RightOnly,
+            left: None,
+            right: Some(leak(file(1, "/dest/notes.md", 10, Some(1)))),
+        }];
+        let plan = build_plan(
+            SyncMethod::Mirror,
+            &rows,
+            "/src",
+            "/dest",
+            &[PlanExclusion {
+                path: ".diskgraph".into(),
+                reason: ExcludeReason::IndexData,
+            }],
+        );
+        assert_eq!(
+            plan.deletions(),
+            1,
+            "an unrelated exclusion changes nothing"
+        );
+    }
+
+    #[test]
     fn paths_are_joined_without_doubling_separators() {
         let node: &'static DiskNode = Box::leak(Box::new(file(1, "/src/x", 5, Some(1))));
         let rows = vec![Comparison {
@@ -563,7 +667,7 @@ mod tests {
             left: Some(node),
             right: None,
         }];
-        let plan = build_plan(SyncMethod::Update, &rows, "/src/", "/dest/");
+        let plan = build_plan(SyncMethod::Update, &rows, "/src/", "/dest/", &[]);
         assert!(plan.actions.iter().all(|action| match action {
             SyncAction::Copy { from, to, .. } => !from.contains("//") && !to.contains("//"),
             SyncAction::Delete { path, .. } => !path.contains("//"),

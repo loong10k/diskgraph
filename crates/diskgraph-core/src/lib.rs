@@ -56,5 +56,8 @@ pub use scan::{
     PlaceholderPolicy, RescanComparison, ScanBudget, ScanBudgetStop, ScanExclusions, ScanWindow,
     StorageArea, Watermark, WatermarkVerdict, compare_rescan,
 };
-pub use syncplan::{CopyReason, SyncAction, SyncMethod, SyncPlan, build_plan as build_sync_plan};
+pub use syncplan::{
+    CopyReason, ExcludeReason, PlanExclusion, SyncAction, SyncMethod, SyncPlan,
+    build_plan as build_sync_plan,
+};
 pub use treemap::{Placed, Rect, TextRow, Weighted, human_bytes, render_text, squarify};

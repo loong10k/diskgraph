@@ -1203,6 +1203,7 @@ fn dispatch(
                     "copied_bytes": plan.copied_bytes,
                     "deleted_bytes": plan.deleted_bytes,
                     "unresolved": plan.unresolved,
+                    "excluded": plan.excluded,
                     "steps_shown": shown.len(),
                     "steps": shown,
                 })),
