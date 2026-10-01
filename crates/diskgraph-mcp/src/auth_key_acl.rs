@@ -16,10 +16,10 @@ use windows_sys::Win32::Security::{
 use windows_sys::Win32::System::SystemServices::{ACCESS_ALLOWED_ACE_TYPE, ACCESS_DENIED_ACE_TYPE};
 use windows_sys::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken};
 
-fn invalid_acl() -> io::Error {
+fn invalid_acl(reason: &str) -> io::Error {
     io::Error::new(
         io::ErrorKind::PermissionDenied,
-        "authentication key file ACL must grant access only to its owner, SYSTEM, and Administrators",
+        format!("authentication key file ACL is not restricted ({reason})"),
     )
 }
 
@@ -51,7 +51,7 @@ pub(crate) fn ensure_restricted(file: &File) -> io::Result<()> {
 
 fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
     if owner.is_null() || dacl.is_null() {
-        return Err(invalid_acl());
+        return Err(invalid_acl("missing owner or DACL"));
     }
     let mut token = ptr::null_mut();
     if unsafe { OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &mut token) } == 0 {
@@ -70,7 +70,7 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
         )
     };
     if needed < std::mem::size_of::<TOKEN_USER>() as u32 || needed > 4096 {
-        return Err(invalid_acl());
+        return Err(invalid_acl("unreadable token identity"));
     }
     let mut buffer = vec![0_usize; (needed as usize).div_ceil(std::mem::size_of::<usize>())];
     if unsafe {
@@ -93,13 +93,13 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
                 || IsWellKnownSid(owner, WinBuiltinAdministratorsSid) != 0)
     };
     if !trusted_owner {
-        return Err(invalid_acl());
+        return Err(invalid_acl("untrusted owner"));
     }
     let ace_count = unsafe { (*dacl).AceCount };
     for index in 0..u32::from(ace_count) {
         let mut entry: *mut c_void = ptr::null_mut();
         if unsafe { GetAce(dacl, index, &mut entry) } == 0 || entry.is_null() {
-            return Err(invalid_acl());
+            return Err(invalid_acl("unreadable ACE"));
         }
         let ace = entry.cast::<ACCESS_ALLOWED_ACE>();
         let header = unsafe { (*ace).Header };
@@ -111,7 +111,7 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
             continue;
         }
         if u32::from(header.AceType) != ACCESS_ALLOWED_ACE_TYPE || header.AceSize < 12 {
-            return Err(invalid_acl());
+            return Err(invalid_acl("unsupported ACE"));
         }
         let sid = unsafe { ptr::addr_of_mut!((*ace).SidStart).cast::<c_void>() };
         // OWNER RIGHTS 只映射到已验证的文件所有者，不扩展到其他账户。
@@ -122,7 +122,7 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
                 || IsWellKnownSid(sid, WinCreatorOwnerRightsSid) != 0
         };
         if !trusted {
-            return Err(invalid_acl());
+            return Err(invalid_acl("extra trustee"));
         }
     }
     Ok(())
