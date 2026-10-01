@@ -123,7 +123,7 @@ fn validate_acl(owner: PSID, dacl: *mut ACL) -> io::Result<()> {
                 || IsWellKnownSid(sid, WinCreatorOwnerRightsSid) != 0
         };
         if !trusted {
-            return Err(invalid_acl("extra trustee"));
+            return Err(invalid_acl(&format!("extra trustee in ACE {index}")));
         }
     }
     Ok(())
