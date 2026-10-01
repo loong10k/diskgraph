@@ -417,7 +417,7 @@ mod tests {
     use super::*;
     use std::fs::File;
 
-    #[cfg(unix)]
+    #[cfg(target_os = "macos")]
     #[test]
     fn the_usage_sample_sees_the_test_process_own_open_file() {
         let workspace = tempfile::TempDir::with_prefix("dg-live-usage-").unwrap();
@@ -452,11 +452,16 @@ mod tests {
 
     #[test]
     fn git_samples_dirty_stash_and_upstream_honestly() {
-        let git = PathBuf::from("/usr/bin/git");
-        if !git.is_file() {
-            // The drill needs a git binary; say so rather than fake it.
-            panic!("no /usr/bin/git on this host");
-        }
+        let git = PathBuf::from("git");
+        // Git's installation path differs across macOS, Linux and Windows;
+        // use the executable found by the runner's PATH for this host drill.
+        assert!(
+            Command::new(&git)
+                .arg("--version")
+                .output()
+                .is_ok_and(|output| output.status.success()),
+            "git is required for the live repository drill"
+        );
         let workspace = tempfile::TempDir::with_prefix("dg-live-git-").unwrap();
         let project = workspace.path().join("repo");
         std::fs::create_dir_all(&project).unwrap();

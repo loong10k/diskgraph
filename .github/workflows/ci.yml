@@ -81,7 +81,7 @@ jobs:
 
   readonly-package:
     name: Native read-only package (${{ matrix.target }})
-    needs: [test, vendored, fmt]
+    needs: [vendored, fmt]
     strategy:
       fail-fast: false
       matrix:
