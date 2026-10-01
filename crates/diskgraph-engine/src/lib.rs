@@ -96,6 +96,16 @@ impl ComparisonReport {
     }
 }
 
+/// The filesystem path a root node was indexed from.
+fn native_path(root: &diskgraph_core::DiskNode) -> Result<String, EngineError> {
+    match &root.locator {
+        diskgraph_core::ResourceLocator::NativePath(path) => Ok(path.clone()),
+        diskgraph_core::ResourceLocator::DocumentUri(_) => Err(EngineError::Business(
+            diskgraph_core::BusinessError::InvalidArgument,
+        )),
+    }
+}
+
 /// The size change of one path between two published revisions, owned/// rather than borrowed: the answer costs two rows, so there is no reason to
 /// hold a whole graph alive to describe them.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -644,6 +654,38 @@ impl Engine {
     /// Loads the v1 graph behind one published revision.
     pub fn load_revision(&self, revision_id: &str) -> Result<DiskGraph, EngineError> {
         Ok(self.graph()?.load_revision(revision_id)?)
+    }
+
+    /// What a sync between two revisions would do, as a plan and nothing
+    /// else.
+    ///
+    /// Reads both sides the way `compare_revisions` does, because a plan is
+    /// built from the comparison and not from a second, cheaper walk: a plan
+    /// that did not see every path would be a plan of what it happened to
+    /// look at. It writes nothing, and there is no argument that would make
+    /// it.
+    pub fn sync_plan(
+        &self,
+        left_revision: &str,
+        right_revision: &str,
+        method: diskgraph_core::SyncMethod,
+        tolerance_seconds: i64,
+    ) -> Result<diskgraph_core::SyncPlan, EngineError> {
+        let left = self.load_revision(left_revision)?;
+        let right = self.load_revision(right_revision)?;
+        let (rows, _summary) = diskgraph_core::compare::compare(
+            left.root(),
+            &left.nodes,
+            right.root(),
+            &right.nodes,
+            tolerance_seconds,
+        );
+        Ok(diskgraph_core::build_sync_plan(
+            method,
+            &rows,
+            &native_path(left.root())?,
+            &native_path(right.root())?,
+        ))
     }
 
     /// Compares two published revisions, whatever their roots are.

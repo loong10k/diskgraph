@@ -237,6 +237,38 @@ enum Command {
         #[arg(long)]
         revoke_content_read: bool,
     },
+    /// What a sync between two trees would do. Prints the plan; changes
+    /// nothing.
+    ///
+    /// The five methods are the ones a two-directory sync has always had.
+    /// Three of them only ever copy; the two mirrors also delete, and their
+    /// deletions appear in the plan as their own steps with `deletes: true`
+    /// in the header - so nothing here is ever a surprise the steps hide.
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph sync-plan --left-scope release --right-scope worktree --method update-right\n  diskgraph sync-plan --left-scope a --right-scope b --method mirror-left --json\n\nThis command never writes, moves or deletes a file. It is a plan, and a\nplan is what a person reads before deciding."
+    )]
+    SyncPlan {
+        /// Revision to read as the left side.
+        #[arg(long, conflicts_with = "left_scope")]
+        left: Option<String>,
+        /// Revision to read as the right side.
+        #[arg(long, conflicts_with = "right_scope")]
+        right: Option<String>,
+        #[arg(long, conflicts_with = "left")]
+        left_scope: Option<String>,
+        #[arg(long, conflicts_with = "right")]
+        right_scope: Option<String>,
+        /// update-left, update-right, update-both, mirror-left or
+        /// mirror-right.
+        #[arg(long, default_value = "update-right")]
+        method: String,
+        /// Seconds two timestamps may differ and still count as the same file.
+        #[arg(long, default_value_t = 2)]
+        tolerance: i64,
+        /// Steps to print; the counts always cover the whole plan.
+        #[arg(long, default_value_t = 50)]
+        limit: usize,
+    },
     /// Compare two trees: a release build against a working copy, two
     /// machines, a backup. The roots may be entirely different, which is what
     /// `changes` refuses.
@@ -1121,6 +1153,59 @@ fn dispatch(
                 Ok(serde_json::json!({
                     "scope_id": scope_id.as_str(),
                     "content_read": if allow { "granted" } else { "revoked" },
+                })),
+            ));
+            Ok(())
+        }
+        Command::SyncPlan {
+            left,
+            right,
+            left_scope,
+            right_scope,
+            method,
+            tolerance,
+            limit,
+        } => {
+            let Some(method) = diskgraph_core::SyncMethod::parse(method) else {
+                eprintln!("diskgraph: unknown sync method: {method}");
+                eprintln!(
+                    "diskgraph: one of {}",
+                    diskgraph_core::SyncMethod::ALL
+                        .iter()
+                        .map(|method| method.name())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                );
+                return Err(EngineError::Business(BusinessError::InvalidArgument));
+            };
+            let (left_revision, _) =
+                resolve_side(engine, left.as_deref(), left_scope.as_deref(), "left")?;
+            let (right_revision, _) =
+                resolve_side(engine, right.as_deref(), right_scope.as_deref(), "right")?;
+            let plan = engine.sync_plan(&left_revision, &right_revision, method, *tolerance)?;
+            let shown: Vec<serde_json::Value> = plan
+                .actions
+                .iter()
+                .take(*limit)
+                // The actions are plain data with derived Serialize; a
+                // failure would be a bug, not a runtime condition, so the
+                // fallback keeps the envelope well formed.
+                .map(|action| serde_json::to_value(action).unwrap_or(serde_json::Value::Null))
+                .collect();
+            let deletes = plan.deletions();
+            let copies = plan.copies();
+            out.push(envelope_line(
+                engine,
+                Ok(serde_json::json!({
+                    "method": plan.method.name(),
+                    "deletes": plan.deletes,
+                    "copies": copies,
+                    "deletions": deletes,
+                    "copied_bytes": plan.copied_bytes,
+                    "deleted_bytes": plan.deleted_bytes,
+                    "unresolved": plan.unresolved,
+                    "steps_shown": shown.len(),
+                    "steps": shown,
                 })),
             ));
             Ok(())
