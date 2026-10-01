@@ -181,7 +181,7 @@ def main():
         scope = json.loads(added.stdout)["data"]["scope_id"]
         subprocess.run([CLI, "--data-dir", data, "--json", "index", "--scope", scope, "--wait"],
                        capture_output=True, text=True, check=True, timeout=120)
-        with sqlite3.connect(data / "diskgraph-control.sqlite") as connection:
+        with contextlib.closing(sqlite3.connect(data / "diskgraph-control.sqlite")) as connection, connection:
             version = connection.execute("SELECT version FROM policy WHERE id = 1").fetchone()[0]
             connection.execute("INSERT INTO grants (principal_id, permission, scope_id, policy_version) "
                                "VALUES (?, ?, ?, ?)", (principal(), "metadata:read", scope, version))
@@ -206,13 +206,13 @@ def main():
             checks["modern_authorized_scope_read"] = (status == 200 and
                 answer["result"]["structuredContent"]["scope_id"] == scope and
                 bool(answer["result"]["structuredContent"]["data"]["items"]))
-            with sqlite3.connect(data / "diskgraph-control.sqlite") as connection:
+            with contextlib.closing(sqlite3.connect(data / "diskgraph-control.sqlite")) as connection, connection:
                 connection.execute("DELETE FROM grants WHERE principal_id = ?", (principal(),))
             revoked, revoked_answer = request(port, "/mcp", top, bearer, ORIGIN)
             checks["modern_live_revocation_denied"] = (revoked == 200 and
                 revoked_answer["error"]["data"]["business_code"] == "permission_denied")
 
-        with sqlite3.connect(data / "diskgraph-control.sqlite") as connection:
+        with contextlib.closing(sqlite3.connect(data / "diskgraph-control.sqlite")) as connection, connection:
             connection.execute("INSERT INTO grants (principal_id, permission, scope_id, policy_version) "
                                "VALUES (?, ?, ?, ?)", (principal(), "metadata:read", scope, version))
 
