@@ -33,7 +33,7 @@ def restrict_windows_key(path):
     """Give the fixture only its owner, SYSTEM and Administrators access."""
     identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"],
                               capture_output=True, text=True, check=True)
-    sid = next(csv.reader(identity.stdout.splitlines()))[1]
+    sid = next(csv.reader(line for line in identity.stdout.splitlines() if line.strip()))[1]
     subprocess.run(["icacls", str(path), "/inheritance:r"],
                    capture_output=True, text=True, check=True)
     subprocess.run(["icacls", str(path), "/grant:r", f"*{sid}:F",
