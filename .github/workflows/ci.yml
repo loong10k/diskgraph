@@ -44,7 +44,7 @@ jobs:
           python scripts/accept-readonly-stdio.py
           python scripts/accept-readonly-http.py
       - name: Test
-        run: cargo test --workspace --all-targets --locked
+        run: cargo test --workspace --all-targets --locked --no-fail-fast
       - name: Clippy
         if: matrix.rust == 'stable'
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
