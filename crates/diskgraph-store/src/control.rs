@@ -486,6 +486,25 @@ impl ControlStore {
         Ok(())
     }
 
+    /// Withdraws a grant across every policy version it was recorded under.
+    ///
+    /// The table's key includes the version, so a grant can exist more than
+    /// once; removing only the current one would leave the right standing
+    /// under an epoch that has not been reached yet.
+    pub fn revoke_grant(
+        &mut self,
+        principal: &PrincipalId,
+        permission: &Permission,
+        scope: &ScopeId,
+    ) -> Result<()> {
+        self.connection.execute(
+            "DELETE FROM grants
+             WHERE principal_id = ?1 AND permission = ?2 AND scope_id = ?3",
+            params![principal.as_str(), permission.wire_name(), scope.as_str(),],
+        )?;
+        Ok(())
+    }
+
     /// The raw policy row: None when never published, Some((version, revoked))
     /// after. Distinct from `policy_version`, which flattens revocation into 0
     /// and therefore cannot distinguish "never published" from "revoked".

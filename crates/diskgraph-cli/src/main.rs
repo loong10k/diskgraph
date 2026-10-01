@@ -217,6 +217,26 @@ enum Command {
         #[arg(long)]
         after: String,
     },
+    /// Grant or withdraw the right to read file contents inside one scope.
+    ///
+    /// Registering a scope hands out index, metadata and view rights and
+    /// nothing more: reading a file's bytes is a different question from
+    /// reading its size, and a grant nobody asked for is the kind that
+    /// outlives its reason. `--content-read` is what
+    /// `compare --verify-content` needs before it can read anything.
+    #[command(
+        after_help = "EXAMPLES:\n  diskgraph grant --scope project --content-read\n  diskgraph grant --scope project --revoke-content-read"
+    )]
+    Grant {
+        #[arg(long)]
+        scope: String,
+        /// Allow reading file contents inside this scope.
+        #[arg(long, conflicts_with = "revoke_content_read")]
+        content_read: bool,
+        /// Take that right back.
+        #[arg(long)]
+        revoke_content_read: bool,
+    },
     /// Compare two trees: a release build against a working copy, two
     /// machines, a backup. The roots may be entirely different, which is what
     /// `changes` refuses.
@@ -244,6 +264,17 @@ enum Command {
         /// Seconds two timestamps may differ and still count as the same file.
         #[arg(long, default_value_t = 2)]
         tolerance: i64,
+        /// Read the contents of rows the metadata pass called the same, and
+        /// report what that shows. Needs the content read grant.
+        #[arg(long)]
+        verify_content: bool,
+        /// Files --verify-content may read.
+        #[arg(long, default_value_t = 256)]
+        verify_files: u64,
+        /// Bytes --verify-content may read per file; a larger file is left
+        /// unverified, because hashing it costs more than copying it.
+        #[arg(long, default_value_t = 67108864)]
+        verify_bytes_per_file: u64,
     },
     /// C09: name/path pattern search inside a published revision (bounded).
     Search {
@@ -625,15 +656,16 @@ fn absolute_data_dir(data_dir: &Path) -> PathBuf {
 }
 
 /// One side of a comparison, given either as a revision or as a scope whose
-/// latest revision is meant.
+/// latest revision is meant. The scope comes back too, because reading a
+/// file's contents is a grant held per scope and a bare revision carries none.
 fn resolve_side(
     engine: &Engine,
     revision: Option<&str>,
     scope: Option<&str>,
     side: &str,
-) -> Result<String, EngineError> {
+) -> Result<(String, Option<ScopeId>), EngineError> {
     if let Some(revision) = revision {
-        return Ok(revision.to_owned());
+        return Ok((revision.to_owned(), None));
     }
     let Some(scope) = scope else {
         eprintln!("diskgraph: the {side} side needs --{side} or --{side}-scope");
@@ -642,9 +674,10 @@ fn resolve_side(
     let scope_id = ScopeId::new(scope.to_owned())
         .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
     engine.scope(&scope_id)?;
-    engine
+    let revision = engine
         .latest_revision(&scope_id)?
-        .ok_or(EngineError::Business(BusinessError::NotIndexed))
+        .ok_or(EngineError::Business(BusinessError::NotIndexed))?;
+    Ok((revision, Some(scope_id)))
 }
 
 /// Registers the root, indexes it, and returns what it found.
@@ -1073,6 +1106,25 @@ fn dispatch(
             ));
             Ok(())
         }
+        Command::Grant {
+            scope,
+            content_read,
+            revoke_content_read,
+        } => {
+            let scope_id = ScopeId::new(scope.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.scope(&scope_id)?;
+            let allow = *content_read || !*revoke_content_read;
+            engine.set_content_read(&scope_id, principal, allow)?;
+            out.push(envelope_line(
+                engine,
+                Ok(serde_json::json!({
+                    "scope_id": scope_id.as_str(),
+                    "content_read": if allow { "granted" } else { "revoked" },
+                })),
+            ));
+            Ok(())
+        }
         Command::Compare {
             left,
             right,
@@ -1081,14 +1133,52 @@ fn dispatch(
             only_differences,
             limit,
             tolerance,
+            verify_content,
+            verify_files,
+            verify_bytes_per_file,
         } => {
-            let left_revision =
+            let (left_revision, left_scope_id) =
                 resolve_side(engine, left.as_deref(), left_scope.as_deref(), "left")?;
-            let right_revision =
+            let (right_revision, right_scope_id) =
                 resolve_side(engine, right.as_deref(), right_scope.as_deref(), "right")?;
-            let report = engine.compare_revisions(&left_revision, &right_revision, *tolerance)?;
+            let mut report =
+                engine.compare_revisions(&left_revision, &right_revision, *tolerance)?;
+            // Verification needs a scope on each side: the content grant is
+            // granted per scope, and reading a path is only allowed inside the
+            // scope that covers it.
+            let mut verification = None;
+            if *verify_content {
+                let (Some(left_scope_id), Some(right_scope_id)) =
+                    (left_scope_id.as_ref(), right_scope_id.as_ref())
+                else {
+                    eprintln!(
+                        "diskgraph: --verify-content needs --left-scope and --right-scope: \
+                         content is read inside a scope, not from a bare revision"
+                    );
+                    return Err(EngineError::Business(BusinessError::InvalidArgument));
+                };
+                let budget = diskgraph_engine::verify::VerifyBudget {
+                    max_files: *verify_files,
+                    max_bytes_per_file: *verify_bytes_per_file,
+                };
+                let (promoted, summary) = diskgraph_engine::verify::verify_same_rows(
+                    engine,
+                    report,
+                    left_scope_id,
+                    right_scope_id,
+                    principal,
+                    authorizer,
+                    budget,
+                )?;
+                report = promoted;
+                verification = Some(summary);
+            }
             if !*only_differences {
-                out.push(envelope_line(engine, Ok(report.to_json(Some(*limit)))));
+                let mut json = report.to_json(Some(*limit));
+                if let (Some(summary), Some(object)) = (verification, json.as_object_mut()) {
+                    object.insert("verification".into(), serde_json::json!(summary));
+                }
+                out.push(envelope_line(engine, Ok(json)));
                 return Ok(());
             }
             // The summary covers the whole comparison; only the row list is
@@ -1110,6 +1200,9 @@ fn dispatch(
             }
             if let Some(object) = filtered.as_object_mut() {
                 object.insert("entries".into(), serde_json::json!(shown));
+                if let Some(summary) = verification {
+                    object.insert("verification".into(), serde_json::json!(summary));
+                }
             }
             out.push(envelope_line(engine, Ok(filtered)));
             Ok(())

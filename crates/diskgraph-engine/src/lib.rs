@@ -25,6 +25,7 @@ pub mod content;
 pub mod live_evidence;
 mod queries;
 mod runner;
+pub mod verify;
 
 pub use collectors::{
     COLLECTOR_ID, COLLECTOR_VERSION, ProjectBatch, RULE_VERSION, collect_projects,
@@ -390,6 +391,38 @@ impl Engine {
                 policy_version: version,
                 ..grant
             })?;
+        }
+        Ok(())
+    }
+
+    /// Grants or withdraws the right to read file contents inside one scope.
+    ///
+    /// Registering a scope hands out index, metadata and view rights and
+    /// nothing more, because reading a file's bytes is a different question
+    /// from reading its size (D13). A caller that wants to verify a
+    /// comparison against contents asks for this first, and can take it back;
+    /// a grant nobody asked for is exactly the kind that outlives its reason.
+    pub fn set_content_read(
+        &self,
+        scope_id: &ScopeId,
+        principal: &PrincipalId,
+        allow: bool,
+    ) -> Result<(), EngineError> {
+        let mut control = self.control_store()?;
+        let version = control.policy_version()?;
+        if version == 0 {
+            // No policy epoch means no grants exist to add one to.
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        if allow {
+            control.upsert_grant(&Grant {
+                principal: principal.clone(),
+                permission: Permission::ContentRead,
+                scope: scope_id.clone(),
+                policy_version: version,
+            })?;
+        } else {
+            control.revoke_grant(principal, &Permission::ContentRead, scope_id)?;
         }
         Ok(())
     }
