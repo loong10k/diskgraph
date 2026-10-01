@@ -112,9 +112,13 @@ fn volume_id(path: &Path) -> Option<String> {
         .map(|metadata| metadata.dev().to_string())
 }
 
-#[cfg(not(unix))]
+#[cfg(windows)]
+fn volume_id(path: &Path) -> Option<String> {
+    diskgraph_disktree_core::space::device_for(path)
+}
+
+#[cfg(not(any(unix, windows)))]
 fn volume_id(_path: &Path) -> Option<String> {
-    // Windows volume identity needs a dedicated platform adapter (FS-02).
     None
 }
 
@@ -206,6 +210,14 @@ fn append_node(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(any(unix, windows))]
+    #[test]
+    fn a_native_scan_records_the_owning_volume() {
+        let directory = tempfile::tempdir().unwrap();
+        let graph = scan_native(directory.path(), ScanOptions::default()).unwrap();
+        assert!(graph.snapshot.volume_id.is_some());
+    }
 
     #[test]
     fn scans_hidden_files_without_granting_delete_authority() {
