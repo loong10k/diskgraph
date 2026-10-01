@@ -237,21 +237,23 @@ enum Command {
         #[arg(long)]
         revoke_content_read: bool,
     },
-    /// What a sync from one tree to another would do. Prints the plan;
-    /// changes nothing.
+    /// Compare two trees, and plan a sync between them.
     ///
-    /// The direction is `--from` and `--to`: `mirror` makes the destination
-    /// look exactly like the source, which means deleting what only the
-    /// destination has. The header says `deletes: true` and every deletion is
-    /// its own step, so nothing is hidden inside a recursive copy.
+    /// The roots may be entirely different, which is what `changes` refuses:
+    /// this answers "what does this release build have that the working copy
+    /// does not", not "what happened to one directory over time".
+    ///
+    /// With `--plan` the same comparison becomes the steps a sync would take,
+    /// in the direction `--from` to `--to`. It is still only a plan: nothing
+    /// is written, moved or deleted, and no argument makes it.
     #[command(
-        after_help = "EXAMPLES:\n  diskgraph sync-plan --from ./release --to ./worktree --method update\n  diskgraph sync-plan --from-scope release --to-scope worktree --method mirror --json\n  diskgraph sync-plan --from a --to b --method mirror --limit 100\n\nThis command never writes, moves or deletes a file. It is a plan, and a\nplan is what a person reads before deciding."
+        after_help = "EXAMPLES:\n  diskgraph compare --from ./release --to ./worktree\n  diskgraph compare --from-scope release --to-scope worktree --limit 40\n  diskgraph compare --from a --to b --only-differences --json\n  diskgraph compare --from ./release --to ./worktree --plan --method mirror\n\nPlain, each row is a path: only-in-from, only-in-to, different, or same.\nWith --plan, those rows become copy and delete steps.\n\nThe verdict always says which test produced it - size and timestamp, never\ncontents, unless --verify-content was asked for. 'same' means 'same to the\ndepth tested', not 'byte-identical'."
     )]
-    SyncPlan {
-        /// Revision that is the source of the sync.
+    Compare {
+        /// The tree being compared from.
         #[arg(long, conflicts_with = "from_scope")]
         from: Option<String>,
-        /// Revision that is being made to match the source.
+        /// The tree being compared to.
         #[arg(long, conflicts_with = "to_scope")]
         to: Option<String>,
         /// Take a side from a scope's latest revision instead.
@@ -259,34 +261,15 @@ enum Command {
         from_scope: Option<String>,
         #[arg(long, conflicts_with = "to")]
         to_scope: Option<String>,
-        /// update (copy only), update-both, or mirror (also deletes).
-        #[arg(long, default_value = "update")]
+        /// Plan a sync rather than report a comparison: turns the rows into
+        /// the copy and delete steps a sync from --from to --to would take.
+        #[arg(long)]
+        plan: bool,
+        /// How the --plan should treat what is already there: update (copy
+        /// only), update-both, or mirror (also delete what --to has that
+        /// --from does not).
+        #[arg(long, default_value = "mirror", value_parser = ["update", "update-both", "mirror"])]
         method: String,
-        /// Seconds two timestamps may differ and still count as the same file.
-        #[arg(long, default_value_t = 2)]
-        tolerance: i64,
-        /// Steps to print; the counts always cover the whole plan.
-        #[arg(long, default_value_t = 50)]
-        limit: usize,
-    },
-    /// Compare two trees: a release build against a working copy, two
-    /// machines, a backup. The roots may be entirely different, which is what
-    /// `changes` refuses.
-    #[command(
-        after_help = "EXAMPLES:\n  diskgraph compare --left <rev-a> --right <rev-b>\n  diskgraph compare --left-scope a --right-scope b --limit 40\n  diskgraph compare --left <rev> --right <rev> --only-differences --json\n\nEach row is one path: left-only, right-only, different, or same. The verdict\nsays which test produced it - size and timestamp, never contents. Content is\nnot read without a separate grant, so 'same' here means 'same to the depth\ntested', not 'byte-identical'."
-    )]
-    Compare {
-        /// Revision to read as the left side.
-        #[arg(long, conflicts_with = "left_scope")]
-        left: Option<String>,
-        /// Revision to read as the right side.
-        #[arg(long, conflicts_with = "right_scope")]
-        right: Option<String>,
-        /// Take each side from a scope's latest revision instead.
-        #[arg(long, conflicts_with = "left")]
-        left_scope: Option<String>,
-        #[arg(long, conflicts_with = "right")]
-        right_scope: Option<String>,
         /// Show only rows that differ; the default shows every path.
         #[arg(long)]
         only_differences: bool,
@@ -685,6 +668,32 @@ fn absolute_data_dir(data_dir: &Path) -> PathBuf {
         return data_dir.to_path_buf();
     }
     std::env::current_dir().map_or_else(|_| data_dir.to_path_buf(), |cwd| cwd.join(data_dir))
+}
+
+/// The plan a `compare --plan` produced, in the shape a caller reads: the
+/// counts first, so a caller can decide whether to look at the steps at all.
+fn plan_to_json(plan: &diskgraph_core::SyncPlan, limit: usize) -> serde_json::Value {
+    let steps: Vec<serde_json::Value> = plan
+        .actions
+        .iter()
+        .take(limit)
+        // The actions are plain data with derived Serialize; a failure would
+        // be a bug, not a runtime condition, so the fallback keeps the
+        // envelope well formed.
+        .map(|action| serde_json::to_value(action).unwrap_or(serde_json::Value::Null))
+        .collect();
+    serde_json::json!({
+        "method": plan.method.name(),
+        "deletes": plan.deletes,
+        "copies": plan.copies(),
+        "deletions": plan.deletions(),
+        "copied_bytes": plan.copied_bytes,
+        "deleted_bytes": plan.deleted_bytes,
+        "unresolved": plan.unresolved,
+        "excluded": plan.excluded,
+        "steps_shown": steps.len(),
+        "steps": steps,
+    })
 }
 
 /// One side of a comparison, given either as a revision or as a scope whose
@@ -1157,64 +1166,13 @@ fn dispatch(
             ));
             Ok(())
         }
-        Command::SyncPlan {
+        Command::Compare {
             from,
             to,
             from_scope,
             to_scope,
+            plan,
             method,
-            tolerance,
-            limit,
-        } => {
-            let Some(method) = diskgraph_core::SyncMethod::parse(method) else {
-                eprintln!("diskgraph: unknown sync method: {method}");
-                eprintln!(
-                    "diskgraph: one of {}",
-                    diskgraph_core::SyncMethod::ALL
-                        .iter()
-                        .map(|method| method.name())
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                );
-                return Err(EngineError::Business(BusinessError::InvalidArgument));
-            };
-            let (from_revision, _) =
-                resolve_side(engine, from.as_deref(), from_scope.as_deref(), "from")?;
-            let (to_revision, _) = resolve_side(engine, to.as_deref(), to_scope.as_deref(), "to")?;
-            let plan = engine.sync_plan(&from_revision, &to_revision, method, *tolerance)?;
-            let shown: Vec<serde_json::Value> = plan
-                .actions
-                .iter()
-                .take(*limit)
-                // The actions are plain data with derived Serialize; a failure
-                // would be a bug, not a runtime condition, so the fallback
-                // keeps the envelope well formed.
-                .map(|action| serde_json::to_value(action).unwrap_or(serde_json::Value::Null))
-                .collect();
-            let deletes = plan.deletions();
-            let copies = plan.copies();
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "method": plan.method.name(),
-                    "deletes": plan.deletes,
-                    "copies": copies,
-                    "deletions": deletes,
-                    "copied_bytes": plan.copied_bytes,
-                    "deleted_bytes": plan.deleted_bytes,
-                    "unresolved": plan.unresolved,
-                    "excluded": plan.excluded,
-                    "steps_shown": shown.len(),
-                    "steps": shown,
-                })),
-            ));
-            Ok(())
-        }
-        Command::Compare {
-            left,
-            right,
-            left_scope,
-            right_scope,
             only_differences,
             limit,
             tolerance,
@@ -1222,26 +1180,36 @@ fn dispatch(
             verify_files,
             verify_bytes_per_file,
         } => {
-            let (left_revision, left_scope_id) =
-                resolve_side(engine, left.as_deref(), left_scope.as_deref(), "left")?;
-            let (right_revision, right_scope_id) =
-                resolve_side(engine, right.as_deref(), right_scope.as_deref(), "right")?;
-            let mut report =
-                engine.compare_revisions(&left_revision, &right_revision, *tolerance)?;
+            let (from_revision, from_scope_id) =
+                resolve_side(engine, from.as_deref(), from_scope.as_deref(), "from")?;
+            let (to_revision, to_scope_id) =
+                resolve_side(engine, to.as_deref(), to_scope.as_deref(), "to")?;
+
             // Verification needs a scope on each side: the content grant is
             // granted per scope, and reading a path is only allowed inside the
             // scope that covers it.
+            // Content is read inside a scope, so verification needs one on
+            // each side; a bare revision carries no grant to check against.
+            if *verify_content && (from_scope_id.is_none() || to_scope_id.is_none()) {
+                eprintln!(
+                    "diskgraph: --verify-content needs --from-scope and --to-scope: \
+                     content is read inside a scope, not from a bare revision"
+                );
+                return Err(EngineError::Business(BusinessError::InvalidArgument));
+            }
             let mut verification = None;
+
+            if *plan {
+                let sync_method = diskgraph_core::SyncMethod::parse(method)
+                    .ok_or(EngineError::Business(BusinessError::InvalidArgument))?;
+                let sync =
+                    engine.sync_plan(&from_revision, &to_revision, sync_method, *tolerance)?;
+                out.push(envelope_line(engine, Ok(plan_to_json(&sync, *limit))));
+                return Ok(());
+            }
+
+            let mut report = engine.compare_revisions(&from_revision, &to_revision, *tolerance)?;
             if *verify_content {
-                let (Some(left_scope_id), Some(right_scope_id)) =
-                    (left_scope_id.as_ref(), right_scope_id.as_ref())
-                else {
-                    eprintln!(
-                        "diskgraph: --verify-content needs --left-scope and --right-scope: \
-                         content is read inside a scope, not from a bare revision"
-                    );
-                    return Err(EngineError::Business(BusinessError::InvalidArgument));
-                };
                 let budget = diskgraph_engine::verify::VerifyBudget {
                     max_files: *verify_files,
                     max_bytes_per_file: *verify_bytes_per_file,
@@ -1249,8 +1217,8 @@ fn dispatch(
                 let (promoted, summary) = diskgraph_engine::verify::verify_same_rows(
                     engine,
                     report,
-                    left_scope_id,
-                    right_scope_id,
+                    from_scope_id.as_ref().expect("checked above"),
+                    to_scope_id.as_ref().expect("checked above"),
                     principal,
                     authorizer,
                     budget,
@@ -1258,38 +1226,30 @@ fn dispatch(
                 report = promoted;
                 verification = Some(summary);
             }
-            if !*only_differences {
-                let mut json = report.to_json(Some(*limit));
-                if let (Some(summary), Some(object)) = (verification, json.as_object_mut()) {
-                    object.insert("verification".into(), serde_json::json!(summary));
+            let mut json = report.to_json(Some(*limit));
+            if *only_differences {
+                let mut shown = 0_usize;
+                if let Some(rows) = json
+                    .get_mut("rows")
+                    .and_then(serde_json::Value::as_array_mut)
+                {
+                    rows.retain(|row| {
+                        row.get("verdict")
+                            .and_then(|verdict| verdict.get("status"))
+                            .and_then(serde_json::Value::as_str)
+                            .is_some_and(|status| status != "same")
+                    });
+                    rows.truncate(*limit);
+                    shown = rows.len();
                 }
-                out.push(envelope_line(engine, Ok(json)));
-                return Ok(());
-            }
-            // The summary covers the whole comparison; only the row list is
-            // filtered, so a caller can still see what was left out.
-            let mut filtered = report.to_json(Some(usize::MAX));
-            let mut shown = 0_usize;
-            if let Some(rows) = filtered
-                .get_mut("rows")
-                .and_then(serde_json::Value::as_array_mut)
-            {
-                rows.retain(|row| {
-                    row.get("verdict")
-                        .and_then(|verdict| verdict.get("status"))
-                        .and_then(serde_json::Value::as_str)
-                        .is_some_and(|status| status != "same")
-                });
-                rows.truncate(*limit);
-                shown = rows.len();
-            }
-            if let Some(object) = filtered.as_object_mut() {
-                object.insert("entries".into(), serde_json::json!(shown));
-                if let Some(summary) = verification {
-                    object.insert("verification".into(), serde_json::json!(summary));
+                if let Some(object) = json.as_object_mut() {
+                    object.insert("entries".into(), serde_json::json!(shown));
                 }
             }
-            out.push(envelope_line(engine, Ok(filtered)));
+            if let (Some(summary), Some(object)) = (verification, json.as_object_mut()) {
+                object.insert("verification".into(), serde_json::json!(summary));
+            }
+            out.push(envelope_line(engine, Ok(json)));
             Ok(())
         }
         Command::Changes {

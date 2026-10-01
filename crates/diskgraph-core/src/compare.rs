@@ -34,9 +34,15 @@ pub enum Evidence {
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
 #[serde(tag = "status", rename_all = "kebab-case")]
 pub enum Verdict {
-    /// Present on the left, absent on the right.
+    /// Present on the comparison's left - the `--from` side - and absent
+    /// from its right. Named for the side rather than for the parameter,
+    /// because the comparison is a fact about two trees and only the caller
+    /// knows which one it called "from".
+    #[serde(rename = "from-only")]
     LeftOnly,
-    /// Present on the right, absent on the left.
+    /// Present on the comparison's right - the `--to` side - and absent from
+    /// its left.
+    #[serde(rename = "to-only")]
     RightOnly,
     /// Present on both, and not the same.
     Different {
@@ -529,6 +535,25 @@ mod tests {
                 reason: DifferentReason::UnknownSize
             },
             "an unreadable child must not roll up as an ordinary difference"
+        );
+    }
+
+    #[test]
+    fn the_verdicts_are_named_for_the_sides_the_caller_gave_them() {
+        // The report says "from-only" and "to-only" because the caller wrote
+        // --from and --to. A verdict that said "left" would leave the reader
+        // mapping the word back onto the arguments, which is the confusion
+        // the arguments were named to remove.
+        let left_only = serde_json::to_value(Verdict::LeftOnly).unwrap();
+        let right_only = serde_json::to_value(Verdict::RightOnly).unwrap();
+        assert_eq!(left_only, serde_json::json!({ "status": "from-only" }));
+        assert_eq!(right_only, serde_json::json!({ "status": "to-only" }));
+        assert_eq!(
+            serde_json::to_value(Verdict::Same {
+                evidence: Evidence::Metadata
+            })
+            .unwrap(),
+            serde_json::json!({ "status": "same", "evidence": "metadata" })
         );
     }
 
