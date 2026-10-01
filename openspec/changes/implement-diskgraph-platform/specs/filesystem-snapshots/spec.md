@@ -18,6 +18,10 @@
 - **WHEN** 两个原生名称展示为相同替换字符
 - **THEN** 底层定位和节点保持可区分；无法无损处理时报告限制并禁止定位型修改。
 
+#### Scenario: Malformed Windows native encoding
+- **WHEN** Windows 原生定位的解码字节不是完整的 UTF-16 代码单元序列
+- **THEN** 返回无效原生编码错误，不截断末尾字节或改用展示文本定位。
+
 #### Scenario: Reused inode
 - **WHEN** 历史快照的文件 ID 被新文件复用
 - **THEN** 不能仅凭文件 ID 宣称它是原文件。

@@ -37,6 +37,7 @@ pub struct Locator {
 pub enum LocatorDecodeError {
     NotBase64(DecodeError),
     NotUtf8Uri,
+    InvalidNativeEncoding,
 }
 
 impl core::fmt::Display for LocatorDecodeError {
@@ -44,6 +45,9 @@ impl core::fmt::Display for LocatorDecodeError {
         match self {
             Self::NotBase64(error) => write!(f, "locator raw_b64 is not valid base64: {error}"),
             Self::NotUtf8Uri => write!(f, "document URI locator is not valid UTF-8"),
+            Self::InvalidNativeEncoding => {
+                write!(f, "native locator has invalid platform encoding")
+            }
         }
     }
 }
@@ -91,10 +95,11 @@ impl Locator {
         #[cfg(windows)]
         {
             use std::os::windows::ffi::OsStringExt;
-            let units: Vec<u16> = bytes
-                .chunks_exact(2)
-                .map(|pair| u16::from_le_bytes([pair[0], pair[1]]))
-                .collect();
+            let (pairs, remainder) = bytes.as_chunks::<2>();
+            if !remainder.is_empty() {
+                return Err(LocatorDecodeError::InvalidNativeEncoding);
+            }
+            let units: Vec<u16> = pairs.iter().map(|pair| u16::from_le_bytes(*pair)).collect();
             Ok(std::ffi::OsString::from_wide(&units).into())
         }
         #[cfg(not(any(unix, windows)))]
@@ -210,5 +215,19 @@ mod tests {
         };
         let error = locator.raw_bytes().unwrap_err();
         assert!(matches!(error, LocatorDecodeError::NotBase64(_)));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn odd_length_native_utf16_bytes_are_rejected_without_truncation() {
+        let locator = Locator {
+            kind: LocatorKind::NativePath,
+            raw_b64: BASE64.encode([0x41]),
+            display: "not-an-operation-target".into(),
+        };
+        assert_eq!(
+            locator.to_native_path(),
+            Err(LocatorDecodeError::InvalidNativeEncoding)
+        );
     }
 }
