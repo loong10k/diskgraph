@@ -16,7 +16,7 @@
 #[cfg(unix)]
 use std::io::Read;
 use std::path::{Path, PathBuf};
-#[cfg(unix)]
+#[cfg(any(unix, test))]
 use std::time::{Duration, Instant};
 
 use crate::OpsError;

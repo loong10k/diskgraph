@@ -2192,6 +2192,7 @@ fn a_cross_volume_move_parked_at_the_source_seam_keeps_both_sides() {
 }
 
 /// True when no `.dg-*-staging-*` directory sits next to `target`.
+#[cfg(target_os = "macos")]
 fn executor_staging_is_clean(target: &Path) -> bool {
     std::fs::read_dir(target.parent().unwrap())
         .unwrap()
