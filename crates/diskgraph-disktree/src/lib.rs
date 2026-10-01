@@ -255,9 +255,9 @@ mod tests {
             .iter()
             .find(|node| node.v1.name == "data.bin")
             .unwrap();
-        // Lossless locator: raw bytes end with the file name.
-        let raw = file.locator.raw_bytes().unwrap();
-        assert!(raw.ends_with(b"data.bin"));
+        // The native locator round-trips on Unix bytes and Windows UTF-16.
+        let expected = directory.path().canonicalize().unwrap().join("data.bin");
+        assert_eq!(file.locator.to_native_path().unwrap(), expected);
         // Self mtime is observed independently of the subtree aggregate.
         assert!(file.self_modified.is_some());
         // v1 projection stays aligned with the v2 locator display.
