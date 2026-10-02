@@ -6,8 +6,12 @@ import uniffi.diskgraph_ffi.scanNativeJson
 fun good(text: String): String { check(text.contains("\"ok\":true")) { text }; return text }
 fun snapshot(text: String): String = Regex("\"snapshot_id\":\"([^\"]+)\"").find(text)!!.groupValues[1]
 fun main(args: Array<String>) {
-    val service = NativeService(args[1])
-    val handle = service.spawnScan(args[0])
+    fun path(index: Int): String = if (args.getOrNull(3)=="utf8-base64")
+        String(java.util.Base64.getDecoder().decode(args[index]), Charsets.UTF_8) else args[index]
+    val rootPath = path(0)
+    val databasePath = path(1)
+    val service = NativeService(databasePath)
+    val handle = service.spawnScan(rootPath)
     good(handle.progressJson())
     val deadline = System.nanoTime()+30_000_000_000L
     var result = handle.pollResultJson()
@@ -22,14 +26,14 @@ fun main(args: Array<String>) {
     check(children.contains("\"items\":["))
     check(!children.contains("\"next_offset\":null"))
     good(service.candidatesJson(id,1u))
-    val legacy=snapshot(good(scanNativeJson(args[1],args[0])))
-    check(good(topJson(args[1],legacy,1u,10u)).contains("blob.bin"))
+    val legacy=snapshot(good(scanNativeJson(databasePath,rootPath)))
+    check(good(topJson(databasePath,legacy,1u,10u)).contains("blob.bin"))
     good(capabilitiesJson())
     service.shutdown()
     check(service.nodeJson(id,1u).contains("\"ok\":false"))
     handle.close()
     service.close()
-    val reopened = NativeService(args[1])
+    val reopened = NativeService(databasePath)
     check(good(reopened.nodeJson(id,1u)).contains("\"id\":1"))
     reopened.shutdown()
     reopened.close()

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """PF-01: compile and execute Kotlin/JVM against this host's native Rust library."""
+import base64
 import hashlib
 import os
 import pathlib
@@ -65,8 +66,12 @@ def main():
         if len(jna) != 1 or hashlib.sha256(jna[0].read_bytes()).hexdigest() != JNA_SHA:
             raise RuntimeError("JNA 5.17.0 runtime digest mismatch")
         runtime = os.pathsep.join([str(project / "target" / "classes"), *jars])
+        # Windows JDK 21 的启动参数会经过本地 ANSI code page；用 ASCII 传输，
+        # 宿主再恢复真正的 Unicode String，仍以原 Unicode 路径调用 Rust FFI。
+        paths = [base64.b64encode(str(path).encode("utf-8")).decode("ascii")
+                 for path in (root, data / "graph.sqlite")]
         run([java, f"-Djna.library.path={library_directory}", "-Djna.encoding=UTF-8",
-             "-cp", runtime, "KotlinHostKt", str(root), str(data / "graph.sqlite"), "4"], project)
+             "-cp", runtime, "KotlinHostKt", *paths, "4", "utf8-base64"], project)
     print("Native Kotlin/JVM acceptance passed; temporary graph/control files were cleaned")
 
 
