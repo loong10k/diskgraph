@@ -231,6 +231,8 @@ The follow-up review also bounds HTTP framing and connection time, checks impact
 
 Read-only CLI/MCP binary acceptance runs in the CI matrix and native release jobs with isolated signed-token grants. Local commands are `python scripts/accept-readonly-stdio.py` and `python scripts/accept-readonly-http.py`. The [desktop readiness record](docs/production-readiness-readonly-2026-10-02.md) records the passing macOS, Linux, and Windows native package gate and its limits; production deployment has not yet occurred. The full-platform expansion is still in progress. Native FFI, mobile providers, native writes and signed distribution have separate gates; see the [full-platform status and current fixes](docs/production-readiness-full-platform-2026-10-02.md).
 
+Windows local ordinary-file content inspection now uses retained native directory/file handles, bounded reads and complete native identity checks. NTFS CI covers mutation, writer/parent conflicts, junction refusal, byte limits and live revocation. Real cloud-provider no-download behavior, other filesystems and native writes remain separate gates; see the [native-content acceptance record](docs/production-readiness-full-platform-2026-10-02.md).
+
 ## Documentation
 
 | | |

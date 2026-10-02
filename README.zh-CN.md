@@ -229,6 +229,8 @@ diskgraph snapshots prune --scope SCOPE_ID --keep-last 3 --apply  # 显式回收
 
 只读 CLI/MCP 二进制验收已接入 CI 矩阵及原生 release 构建，使用隔离的签名 token 与数据库授权。本地可运行 `python scripts/accept-readonly-stdio.py` 和 `python scripts/accept-readonly-http.py`。[桌面生产就绪记录](docs/production-readiness-readonly-2026-10-02.zh-CN.md)记录了 macOS、Linux、Windows 原生制品门禁通过的证据与适用边界；尚未实际部署到生产环境。 全平台扩展仍在实施；原生 FFI、移动 provider、原生写操作和签名发行分别验收，见[全平台状态与本轮修复](docs/production-readiness-full-platform-2026-10-02.zh-CN.md)。
 
+Windows 本地普通文件内容检查已采用保留的原生目录/文件句柄、有界读取和完整原生身份复核。NTFS CI 覆盖修改、writer/父目录冲突、junction 拒绝、字节预算与实时撤权；真实云 provider 不下载、其他文件系统及原生写操作仍分别验收，见[原生内容验收记录](docs/production-readiness-full-platform-2026-10-02.zh-CN.md)。
+
 ## 文档
 
 | | |

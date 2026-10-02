@@ -4,20 +4,20 @@
 
 本轮已实现并以隔离回归验证：MCP 实际参数 schema、显式 revision/non-root node 和未知参数拒绝；双向关系稳定分页与解码前实体/证据/游标字节预算；失败的内容核验计入尝试次数与真实读取成本；Ops 逐块复核撤权、批准、期限和取消，批准版本绑定原子发布，终态不被覆盖；持久 FFI 服务、真实扫描进度、共享句柄、关闭取消、按 job/fence 固定结果 revision；单项撤权阻止运行和已完成句柄返回缓存数据。Engine 的 scope 列表与 admin fallback 同样复核实时授权。没有持久策略的可信内部兼容入口不用于远程服务。
 
-扫描器 pin/source/digest 保持不变。无法无损恢复的非 Unicode 名称拒绝发布，避免显示名称碰撞选错文件；合法 U+FFFD 名称每个父目录只检查一次。Windows 新增属性句柄观察真实卷序列号和 file ID，128 位 ID 无法无损放入旧 64 位字段时返回 unknown，不截断或猜测。macOS 内容/复制在当前线程关闭 dataless 物化并恢复原策略；这项本机策略测试不代替真实云文件试验，也不代表 Linux/Windows 已有同等保护。
+扫描器 pin/source/digest 保持不变。无法无损恢复的非 Unicode 名称拒绝发布，避免显示名称碰撞选错文件；合法 U+FFFD 名称每个父目录只检查一次。Windows 属性句柄观察真实卷序列号和 file ID，128 位 ID 无法无损放入旧快照 64 位字段时返回 unknown，不截断或猜测；内容检查另在私有句柄状态保留完整原生 ID。macOS 内容/复制在当前线程关闭 dataless 物化并恢复原策略；本机策略测试及 Windows 线程暴露/NTFS 夹具均不代替真实云 provider 不下载验收，Linux 保护仍未完成。
 
 | 平台/能力 | 已取得证据 | 完整门禁缺口 |
 | --- | --- | --- |
 | macOS arm64 CLI/MCP | 当前 release 二进制 stdio 18/18、认证 HTTP/legacy SSE 13/13；完整 workspace 与窄读基准 | 生产目录长期运行、SLO、备份监控与签名发行 |
-| macOS Intel、Linux x64/arm64、Windows x64 | Legacy 投递代码提交 2bef5e5 的 22/22 项 CI 通过，含八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主和五个原生包 | 真实云/写操作、发行和生产长期运行验收仍缺 |
+| macOS Intel、Linux x64/arm64、Windows x64 | 原生内容代码提交 ae0223c 的 22/22 项 CI 通过，含八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主和五个原生包 | 真实云/写操作、发行和生产长期运行验收仍缺 |
 | Swift/Kotlin FFI | 两种真实语言宿主扫描/查询/轮询/v1 兼容；Rust FFI 18 项；Swift 动态库与固定 GRDB 的并发 CRUD、描述符释放和重开 | 静态嵌入、Room、GUI 调度、正式 XCFramework/AAR 与应用闭环 |
 | 原生文件操作 | macOS 库内隔离回归覆盖撤权、取消、原地修改、目标冲突及保真预算 | Linux/Windows 原生适配、真实卷/占用/权限/恢复与复制保真；公开写入口仍关闭 |
 | Android/iOS | URI/provider 模型与明确 unsupported 的能力报告 | provider 实现、授权生命周期、移动包、模拟器与真机验收 |
-| 云占位与非 Unicode | macOS 线程策略、本机身份/预算测试；不可逆名称 fail-closed | 真实云 provider 不下载；对应 Linux/Windows 自动化回归已通过；真实云 provider 和卷/设备场景仍缺 |
+| 云占位与非 Unicode | macOS 线程策略、Windows 线程暴露及本地 NTFS offline/reparse 拒绝；不可逆名称 fail-closed | 真实 provider 不下载验收、Linux 保护及其他卷/设备场景仍缺 |
 
 当前本机只有 `aarch64-apple-darwin` Rust target、Command Line Tools、Android SDK/adb、Swift/Kotlin 命令行宿主；没有 Android NDK、Gradle、完整 Xcode、连接设备或发行签名材料。工具链安装确认尚待用户回复。设备/provider 场景不能用编译、模拟测试或另一平台的成功代替。
 
-当前连接接纳增量的本机完整 workspace 为 584 passed / 13 ignored，Clippy `-D warnings` 通过。独立审查发现并复现了 runner 停止后的认领、无常驻服务的过期任务恢复和取消终态三个边界；针对性修复已先红后绿。[历史 4edfac0 CI](https://github.com/loong10k/diskgraph/actions/runs/36976148057) 为 20/22，Windows 四进程查询报 SQLite I/O，macOS ARM 的扫描预算拒绝偶尔返回成功。后续 [f57aa40 CI](https://github.com/loong10k/diskgraph/actions/runs/36980741836) 已 22/22 全绿，包含两个受影响的原生包。这证明该增量门禁通过，尚不能锁定唯一 Windows VFS 根因或代替生产长期运行证据。
+历史连接接纳增量的本机完整 workspace 为 584 passed / 13 ignored，Clippy `-D warnings` 通过。独立审查发现并复现了 runner 停止后的认领、无常驻服务的过期任务恢复和取消终态三个边界；针对性修复已先红后绿。[历史 4edfac0 CI](https://github.com/loong10k/diskgraph/actions/runs/36976148057) 为 20/22，Windows 四进程查询报 SQLite I/O，macOS ARM 的扫描预算拒绝偶尔返回成功。后续 [f57aa40 CI](https://github.com/loong10k/diskgraph/actions/runs/36980741836) 已 22/22 全绿，包含两个受影响的原生包。这证明该增量门禁通过，尚不能锁定唯一 Windows VFS 根因或代替生产长期运行证据。
 
 单次 CLI 查询现不启动后台队列，`--wait` 核验实际任务终态并按该任务/fence 取得 revision；只条件接管指定的过期任务，或终结该任务的过期取消/撤权 owner，不修改无关任务、不抢占存活租约。等待期限仅覆盖等待和开始接管，扫描有独立 Engine 预算。runner Drop 在队列读前、返回后及每次认领前检查停止；已通过检查的工作继续受原预算/租约约束，不承诺瞬时取消。SQLite 错误保留扩展码，启动失败带阶段标记。该行为增量已通过上述 f57aa40 跨平台 CI。
 
@@ -85,3 +85,17 @@ f57aa40 的 release 二进制通过 stdio 18/18、HTTP/SSE 13/13 与四进程负
 v5→v6 升级先做一致性 pre-v6 备份，再原子迁移。失败注入回归确认回滚、原策略数据保留及备份存在；跨连接授权变更、保留另一 scope 权限时的单项撤销、重复/回滚变更和 generation 溢出均有回归。升级前须停止旧服务/宿主，迁移不会修复正在运行的旧传输代码，不承诺混合版本滚动安全。Store 的 `lib.rs` 当前为 94 行，仍只声明和重导出；授权计数逻辑位于独立文件。
 
 本机 workspace 为 **614 passed / 0 failed / 13 ignored**；Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过。release stdio 18/18、认证 HTTP/SSE 13/13、隔离四进程负载 4/4。[新增原始负载数据](benchmarks/legacy-delivery-load-2026-10-02.json)为 20k 文件扫描 0.541 秒、32 次 top/children 查询 p50 11.973 ms/p95 16.864 ms、数据库/WAL 37,449,728 字节；本次不据此宣称提速或生产 SLO。独立代码和架构复审批准本增量，包含外部序列化及锁/撤权探针。[源码提交 2bef5e5 的同 SHA 22/22 CI](https://github.com/loong10k/diskgraph/actions/runs/37005829815)全绿；Windows stable 和 1.97.0 日志逐项确认 21 项新增单元回归（传输七项、预留六项、授权计数六项、编码两项）、三项认证 legacy socket 回归及 MCP 单元 120 passed。五个原生包的升级/备份回滚和协议门禁也通过。15.10 按此有界行为完成，15.2–15.6 的其余能力保持未完成。
+
+## Windows 普通文件内容句柄（CT-01/02/05 / 15.11）
+
+Windows 本地普通文件的 `read_bounded` 与摘要检查已接入原生句柄，替代此前一律 unsupported 的路径。路径计划拒绝父目录穿越、ADS、UNC/设备命名空间、超长路径及超多组件；要求注册根的精确组件拼写，不猜测大小写或 8.3 别名等价。逐组件相对保留的父目录句柄打开已有对象，在申请文件数据前检查原生类型、卷与 reparse/占位属性。私有状态保留完整 128 位 file ID、卷、长度、创建/写入/change 时间和待删除状态；未扩大旧快照的 64 位身份及秒级时间契约。
+
+当前线程通过动态解析的可选 Windows API 暴露占位属性，RAII 恢复原模式；能力缺失映射公开 `unsupported`。属性获取阶段不能冻结新 writer，数据打开前观察到变化返回 `Conflict`。数据句柄限制普通写入/删除共享；活动 writer 冲突，检查期间父目录重命名被拒绝，读取中及结束后复核原生状态。这些约束不能排除所有可写映射、内核或过滤器修改，观察稳定不等于原子内容快照；原生时间单位也不保证文件系统精度。`FILE_OPEN_NO_RECALL` 约束打开过程，不能保证所有 provider 的后续读取；offline 属性夹具不是真实 provider 不下载试验。打开/读取仍同步，期限与取消检查采用协作方式。
+
+真实 Windows RED 来自[测试先行的 4b307a9](https://github.com/loong10k/diskgraph/actions/runs/37012219071)：编译成功后，线程模式回归及最初十一项内容测试中的八项失败。[第一版实现](https://github.com/loong10k/diskgraph/actions/runs/37013605248)通过十项内容测试，暴露了属性阶段 writer 假设错误；随后修正契约与测试，要求获取时修改产生冲突，并另加确定性测试验证数据读取/摘要期间 writer 受限。[下一次原生运行](https://github.com/loong10k/diskgraph/actions/runs/37015675642)十二项内容及九项内容比较全部通过，但公共预算夹具使用了 TEMP 根的 8.3 别名。仅对可信夹具根 canonicalize，未放宽生产范围边界。
+
+独立审查还复现了跨平台摘要缺陷：100 ms 期限在控制锁等待 300 ms 后仍读取字节，或确认空文件摘要。现于阻塞授权之后、下次读取之前复核期限；EOF、精确预算及最终版本检查后重新检查授权、实时 scope、期限与取消。真实第二数据库连接先复现可信无 policy 兼容路径忽略末段 scope 撤销，再于实时检查加入后通过。三项公共回归覆盖这些边界；期限不能抢占锁等待本身，不返回已确认的局部或过期摘要。
+
+当前本机 workspace 为 **619 passed / 0 failed / 13 ignored**；完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 和 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。独立代码审查在运行 37 项目标测试及外部期限/撤销探针后批准，架构审查放行最终 scope 检查并独立运行三项期限测试。源码 SHA `ae0223cecdc1710b8c4544b1c84359e1df778882` 的 Windows 两个 Rust 版本均逐项通过十二项原生内容、两项线程模式/能力、两项公开错误映射、三项期限/末段检查、公共哈希预算及九项内容比较测试；[同 SHA 的 22/22 项 CI 全绿](https://github.com/loong10k/diskgraph/actions/runs/37017346676)，包含五个原生包、八个 Rust、五个 Kotlin 和两个 Swift/GRDB 宿主。15.11 按此本地普通文件行为完成。
+
+本增量没有新增 p50/p95 或 RSS 测量，不宣称提速；原生证据覆盖 CI NTFS 夹具。其他文件系统、真实云 provider、Linux 占位保护、原生写操作、移动 provider/包/设备、签名和生产长期运行仍分别验收。8.2、8.9、15.2–15.6 保持未完成；公开危险文件工具保持关闭，vendor 源码/pin/digest 未变，全平台生产就绪仍未完成。
