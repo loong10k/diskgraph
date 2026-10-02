@@ -21,6 +21,8 @@ mod macos_probe_tests;
 mod probe_budget;
 mod probe_execution;
 mod probe_failure;
+#[cfg(test)]
+mod probe_isolation_tests;
 mod probe_limits;
 mod probe_output;
 #[cfg(test)]

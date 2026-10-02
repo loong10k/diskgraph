@@ -158,3 +158,7 @@ stash 存在时仅支持 files 后端。Git 只定位 metadata common 根，代�
 测试先行先复现十项原语义失败，再补出非法 XY、悬空 symbolic HEAD、旧 stash 漏计、合法消息分隔符及日志链接预解析的真实失败；另有回归覆盖同字节改版。独立代码复审实际通过 44 项 Git 回归、三项结构门禁及 15 项隔离公开 API 探针；架构复审放行此实现边界。最终本机 workspace/协议和新源码原生 CI 结果须另记后才能勾选 15.13c。配置/filter/fsmonitor 隔离、懒取、可选 index 写入及离线/只读执行继续由 8.7 和父项 15.13 验收。不新增延迟/RSS 测量或提速声明，全平台生产就绪仍未完成。
 
 最终本机门禁为 **701 passed / 0 failed / 13 ignored**，含 83 项实时证据测试；全 workspace Clippy `-D warnings`、定向 fmt、OpenSpec strict、release CLI/MCP/FFI 构建均通过。当前 release stdio 18/18、认证 HTTP/legacy SSE 13/13，通过 14 份上游摘要核对。ignored 不计通过；新源码原生 CI 仍待完成，15.13c 保持未勾选。
+
+源码 `9f83a647f3d4864b6ffaa797c3e14b7c8fa125dd` 的[首轮原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37054669648)为 **20/22 项通过**。Windows 两个 Rust 版本的测试通过，但 stable Clippy 拒绝用绝对分隔符 join 构造根路径；修复按原生 Prefix/RootDir 组件构造，并明确拒绝驱动器相对路径。macOS Intel 取消隔离测试的未取消子进程退出码为 88，来自夹具的三秒 watchdog；有限次 sleep 不能保证在负载下及时结束，后续改为父进程确认另一采样已取消并清理后才释放独立子进程的握手。此失败未证明跨采样误杀，修复仍须真实验证正常退出与隔离，不能删除 watchdog 或取消断言。最终源码的原生 CI 继续是验收门禁，15.13c 尚未完成。
+
+CI 修复后的最终本机门禁仍为 **701 passed / 0 failed / 13 ignored**；完整 Clippy、定向 fmt、OpenSpec strict 和 release 构建通过，当前 release 协议为 stdio 18/18、HTTP/legacy SSE 13/13，14 份上游摘要一致。取消隔离测试移入独立文件，原自执行子进程路径保留，各文件少于 500 行；A/B 专用夹具有独立十秒 watchdog、八秒 runner 预算，清理后首次完整心跳与后续严格递增分别有有限等待，未知不以零值兜底。Windows 根组件回归须等待实际 Windows CI，本机未执行不计通过。Git 配置隔离及全平台其余门禁保持未完成。

@@ -34,9 +34,17 @@ fn probe_child_fixture() {
     let Ok(mode) = std::env::var("DG_PROBE_CASE") else {
         return;
     };
-    // 独立有限寿命 watchdog：实际 RED 不能永久挂住 cargo 或留下后代。
-    std::thread::spawn(|| {
-        std::thread::sleep(Duration::from_secs(3));
+    // 父进程显式释放的活跃 fixture 仍有独立 watchdog；测试预算更短。
+    let watchdog = if matches!(
+        mode.as_str(),
+        "heartbeat_until_release" | "cancellable_descendant" | "cancellable_heartbeat"
+    ) {
+        Duration::from_secs(10)
+    } else {
+        Duration::from_secs(3)
+    };
+    std::thread::spawn(move || {
+        std::thread::sleep(watchdog);
         std::process::exit(88);
     });
     match mode.as_str() {
@@ -91,8 +99,12 @@ fn probe_child_fixture() {
         "short" => {
             std::thread::sleep(Duration::from_millis(150));
         }
-        "descendant" | "closed_descendant" => {
-            let mut child = fixture("heartbeat");
+        "descendant" | "closed_descendant" | "cancellable_descendant" => {
+            let mut child = fixture(if mode == "cancellable_descendant" {
+                "cancellable_heartbeat"
+            } else {
+                "heartbeat"
+            });
             child.env(
                 "DG_PROBE_MARKER",
                 std::env::var_os("DG_PROBE_MARKER").unwrap(),
@@ -110,10 +122,29 @@ fn probe_child_fixture() {
                 std::thread::sleep(Duration::from_millis(5));
             }
         }
-        "heartbeat" | "heartbeat_then_exit" => {
+        "heartbeat" => {
             let marker = std::env::var_os("DG_PROBE_MARKER").unwrap();
-            for index in 0..if mode == "heartbeat" { 500 } else { 60 } {
+            for index in 0..500 {
                 std::fs::write(&marker, index.to_string()).unwrap();
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        }
+        "heartbeat_until_release" => {
+            let marker = std::env::var_os("DG_PROBE_MARKER").unwrap();
+            let release = std::env::var_os("DG_PROBE_RELEASE").unwrap();
+            let mut index = 0u64;
+            while !std::path::Path::new(&release).exists() {
+                std::fs::write(&marker, index.to_string()).unwrap();
+                index += 1;
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        }
+        "cancellable_heartbeat" => {
+            let marker = std::env::var_os("DG_PROBE_MARKER").unwrap();
+            let mut index = 0u64;
+            loop {
+                std::fs::write(&marker, index.to_string()).unwrap();
+                index += 1;
                 std::thread::sleep(Duration::from_millis(10));
             }
         }
@@ -276,7 +307,8 @@ fn cancellation_before_spawn_and_during_wait_is_not_success() {
     });
 }
 
-fn assert_heartbeat_stopped(path: &std::path::Path) {
+/// 确认已清理后代不再更新心跳；参数 path 为隔离夹具标记，失败时断言中止。
+pub(super) fn assert_heartbeat_stopped(path: &std::path::Path) {
     std::thread::sleep(Duration::from_millis(80));
     let before = std::fs::read(path).unwrap();
     std::thread::sleep(Duration::from_millis(100));
@@ -328,45 +360,6 @@ fn continuous_output_does_not_starve_deadline_checks() {
         run_probe(&mut fixture("stream"), &mut budget),
         Err(ProbeFailure::Deadline)
     ));
-}
-
-#[test]
-fn cancelling_one_sample_does_not_terminate_another() {
-    let temp = tempfile::tempdir().unwrap();
-    let a = temp.path().join("a");
-    let b = temp.path().join("b");
-    let config = ProbeLimits::default();
-    std::thread::scope(|scope| {
-        let cancelled = scope.spawn(|| {
-            let mut command = fixture("descendant");
-            command.env("DG_PROBE_MARKER", &a);
-            let mut budget = ProbeBudget::new(&config).unwrap();
-            run_probe(&mut command, &mut budget)
-        });
-        scope.spawn(|| {
-            let start = Instant::now();
-            while !(a.exists() && b.exists()) {
-                assert!(
-                    start.elapsed() < Duration::from_secs(2),
-                    "missing handshake"
-                );
-                std::thread::sleep(Duration::from_millis(5));
-            }
-            config.cancel.store(true, Ordering::Release);
-        });
-        let mut other = fixture("heartbeat_then_exit");
-        other.env("DG_PROBE_MARKER", &b);
-        let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
-        assert_eq!(
-            run_probe(&mut other, &mut budget).unwrap().exit_code,
-            Some(0)
-        );
-        assert!(matches!(
-            cancelled.join().unwrap(),
-            Err(ProbeFailure::Cancelled)
-        ));
-    });
-    assert_heartbeat_stopped(&a);
 }
 
 #[cfg(unix)]

@@ -238,20 +238,57 @@ fn open_windows(
     budget: &mut ProbeBudget,
 ) -> Result<Option<crate::windows_scoped_file::WindowsScopedFile>, String> {
     use crate::EngineError;
-    use std::path::Component;
-
-    let Some(Component::Prefix(prefix)) = path.components().next() else {
-        return Err("unsupported stash path prefix".into());
-    };
     for _ in path.components() {
         budget.check().map_err(|error| error.to_string())?;
     }
-    let root = std::path::PathBuf::from(prefix.as_os_str()).join("\\");
+    let root = windows_root(path)?;
     let result = crate::windows_scoped_file::WindowsScopedFile::open(&root, path);
     budget.check().map_err(|error| error.to_string())?;
     match result {
         Ok(lease) => Ok(Some(lease)),
         Err(EngineError::Io(error)) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
         Err(error) => Err(format!("open stash reflog: {error}")),
+    }
+}
+
+#[cfg(windows)]
+fn windows_root(path: &Path) -> Result<std::path::PathBuf, String> {
+    use std::path::Component;
+
+    let mut components = path.components();
+    if !matches!(components.next(), Some(Component::Prefix(_)))
+        || !matches!(components.next(), Some(Component::RootDir))
+    {
+        return Err("unsupported stash path root".into());
+    }
+    // 保留磁盘或 UNC 前缀与根组件；驱动器相对路径不能获得绝对目录权限。
+    Ok(path.components().take(2).collect())
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::windows_root;
+    use std::path::Path;
+
+    #[test]
+    fn absolute_roots_preserve_native_prefixes() {
+        for (path, root) in [
+            (r"C:\repo\logs\refs\stash", r"C:\"),
+            (r"\\server\share\repo\logs\refs\stash", r"\\server\share\"),
+            (r"\\?\C:\repo\logs\refs\stash", r"\\?\C:\"),
+            (
+                r"\\?\UNC\server\share\repo\logs\refs\stash",
+                r"\\?\UNC\server\share\",
+            ),
+        ] {
+            assert_eq!(windows_root(Path::new(path)).unwrap(), Path::new(root));
+        }
+    }
+
+    #[test]
+    fn relative_roots_are_refused() {
+        for path in [r"C:repo\logs\refs\stash", r"\repo\logs\refs\stash", "repo"] {
+            assert!(windows_root(Path::new(path)).is_err());
+        }
     }
 }
