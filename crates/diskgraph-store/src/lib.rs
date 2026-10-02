@@ -10,7 +10,7 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum StoreError {
-    #[error("SQLite error: {0}")]
+    #[error("SQLite error: {0} (extended_code={code:?})", code = .0.sqlite_extended_error_code())]
     Sqlite(#[from] rusqlite::Error),
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
@@ -67,6 +67,8 @@ mod child_aggregate_tests;
 mod control;
 mod directory_aggregates;
 mod execution;
+#[cfg(test)]
+mod search_keyset_tests;
 
 pub use candidate_query::CandidateSelection;
 pub use control::{ControlStore, JobKind, JobRecord, JobState, ScopeRecord};
@@ -135,11 +137,11 @@ impl SqliteSnapshotStore {
         // atomicity of staging/publish comes from the transaction, not from
         // per-commit fsyncs. WAL/NORMAL preserves consistency, but a power
         // failure can lose recently committed staging or published revisions.
-        // A large read window keeps multi-million-row loads off the page
-        // cache cold path.
         connection.pragma_update(None, "journal_mode", "WAL")?;
         connection.pragma_update(None, "synchronous", "NORMAL")?;
-        connection.pragma_update(None, "mmap_size", 1 << 31)?;
+        // 之前的 1 << 31 推断为 i32 负数，实际并未启用映射；明确维持关闭。
+        // 大窗口 mmap 需要单独的平台/生命周期验收，当前读者使用 SQLite 页缓存。
+        connection.pragma_update(None, "mmap_size", 0_i64)?;
         // Without a journal_size_limit the -wal file never shrinks below its
         // high-water mark: a checkpoint folds the frames back into the main
         // database but leaves the file at full size, so one scan's worth of
@@ -715,7 +717,8 @@ impl SqliteSnapshotStore {
             "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND ({known}) AND subtree_bytes >= ?3 ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?4 OFFSET ?5"
         );
         let mut stmt = self.connection.prepare(&sql)?;
-        let rows = stmt.query_map(
+        let (items, more) = read_node_page(
+            &mut stmt,
             params![
                 snapshot_id,
                 as_i64(parent_id)?,
@@ -723,13 +726,9 @@ impl SqliteSnapshotStore {
                 as_i64(limit.saturating_add(1))?,
                 as_i64(offset)?
             ],
-            |row| Ok(NodeRow::from(row)),
+            limit,
         )?;
-        let mut items = rows
-            .map(|row| row?.into_node())
-            .collect::<Result<Vec<_>>>()?;
-        let next = (items.len() as u64 > limit).then_some(offset.saturating_add(limit));
-        items.truncate(limit as usize);
+        let next = more.then_some(offset.saturating_add(items.len() as u64));
         Ok((items, next, unknown.max(0) as u64))
     }
 
@@ -747,21 +746,72 @@ impl SqliteSnapshotStore {
             "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND NOT ({known}) ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?3 OFFSET ?4"
         );
         let mut stmt = self.connection.prepare(&sql)?;
-        let rows = stmt.query_map(
+        let (items, more) = read_node_page(
+            &mut stmt,
             params![
                 snapshot_id,
                 as_i64(parent_id)?,
                 as_i64(limit.saturating_add(1))?,
                 as_i64(offset)?
             ],
-            |row| Ok(NodeRow::from(row)),
+            limit,
         )?;
-        let mut items = rows
-            .map(|row| row?.into_node())
-            .collect::<Result<Vec<_>>>()?;
-        let next = (items.len() as u64 > limit).then_some(offset.saturating_add(limit));
-        items.truncate(limit as usize);
+        let next = more.then_some(offset.saturating_add(items.len() as u64));
         Ok((items, next))
+    }
+
+    /// 有界目录 keyset 读取。参数 after 为上页最后的尺寸/名称/ID；首次保留 offset。
+    /// 返回节点、是否有后续页及未知大小总数，最多解码 limit 个节点及一行存在探针。
+    pub fn children_keyset_page(
+        &self,
+        snapshot_id: &str,
+        parent_id: u64,
+        minimum: Option<u64>,
+        after: Option<(u64, &str, u64)>,
+        offset: u64,
+        limit: u64,
+    ) -> Result<(Vec<DiskNode>, bool, u64)> {
+        let Some((last_bytes, last_name, last_id)) = after else {
+            let (items, next, unknown) =
+                self.children_page(snapshot_id, parent_id, minimum, offset, limit)?;
+            return Ok((items, next.is_some(), unknown));
+        };
+        self.snapshot(snapshot_id)?;
+        let unknown = self
+            .connection
+            .query_row(
+                "SELECT unknown_count FROM directory_counts WHERE snapshot_id=?1 AND parent_id=?2",
+                params![snapshot_id, as_i64(parent_id)?],
+                |row| row.get::<_, i64>(0),
+            )
+            .optional()?
+            .unwrap_or(0);
+        let known = directory_aggregates::KNOWN_SIZE;
+        let columns = "id,parent_id,locator_key,name,subtree_bytes,node_json,kind,direct_bytes,files,directories,modified_unix_seconds,file_volume_id,file_id,category_hint,reclaim_hint,read_error";
+        // 分别 seek 同尺寸的 name/id 和较小尺寸；每支先 LIMIT，合并最多两页。
+        // 不能以带 OR 的全序条件让 SQLite 从目录开头重新过滤所有前置节点。
+        let sql = format!(
+            "SELECT {columns} FROM (
+                SELECT * FROM (SELECT {columns} FROM nodes WHERE snapshot_id=?1 AND parent_id=?2 AND ({known}) AND subtree_bytes>=?3 AND subtree_bytes=?4 AND (name,id)>(?5,?6) ORDER BY subtree_bytes DESC,name ASC,id ASC LIMIT ?7)
+                UNION ALL
+                SELECT * FROM (SELECT {columns} FROM nodes WHERE snapshot_id=?1 AND parent_id=?2 AND ({known}) AND subtree_bytes>=?3 AND subtree_bytes<?4 ORDER BY subtree_bytes DESC,name ASC,id ASC LIMIT ?7)
+             ) ORDER BY subtree_bytes DESC,name ASC,id ASC LIMIT ?7"
+        );
+        let mut statement = self.connection.prepare(&sql)?;
+        let (items, more) = read_node_page(
+            &mut statement,
+            params![
+                snapshot_id,
+                as_i64(parent_id)?,
+                as_i64(minimum.unwrap_or(0))?,
+                as_i64(last_bytes)?,
+                last_name,
+                as_i64(last_id)?,
+                as_i64(limit.saturating_add(1))?
+            ],
+            limit,
+        )?;
+        Ok((items, more, unknown.max(0) as u64))
     }
 
     /// Unicode 小写子串匹配，以 name/id keyset 分页；offset 仅供首次请求兼容。
@@ -773,8 +823,18 @@ impl SqliteSnapshotStore {
         offset: u64,
         limit: u64,
     ) -> Result<(Vec<DiskNode>, bool)> {
-        let mut statement = self.connection.prepare("SELECT n.id, n.parent_id, n.locator_key, n.name, n.subtree_bytes, n.node_json, n.kind, n.direct_bytes, n.files, n.directories, n.modified_unix_seconds, n.file_volume_id, n.file_id, n.category_hint, n.reclaim_hint, n.read_error FROM nodes n JOIN node_search s ON s.snapshot_id = n.snapshot_id AND s.id = n.id WHERE n.snapshot_id = ?1 AND (instr(s.name_fold, ?2) > 0 OR instr(s.path_fold, ?2) > 0) AND (?3 IS NULL OR n.name > ?3 OR (n.name = ?3 AND n.id > ?4)) ORDER BY n.name ASC, n.id ASC LIMIT ?5 OFFSET ?6")?;
-        let rows = statement.query_map(
+        self.snapshot(snapshot_id)?;
+        let seek = if after.is_some() {
+            "AND (n.name,n.id)>(?3,?4)"
+        } else {
+            ""
+        };
+        let sql = format!(
+            "SELECT n.id, n.parent_id, n.locator_key, n.name, n.subtree_bytes, n.node_json, n.kind, n.direct_bytes, n.files, n.directories, n.modified_unix_seconds, n.file_volume_id, n.file_id, n.category_hint, n.reclaim_hint, n.read_error FROM nodes n JOIN node_search s ON s.snapshot_id = n.snapshot_id AND s.id = n.id WHERE n.snapshot_id = ?1 AND (instr(s.name_fold, ?2) > 0 OR instr(s.path_fold, ?2) > 0) {seek} ORDER BY n.name ASC, n.id ASC LIMIT ?5 OFFSET ?6"
+        );
+        let mut statement = self.connection.prepare(&sql)?;
+        read_node_page(
+            &mut statement,
             params![
                 snapshot_id,
                 pattern.to_lowercase(),
@@ -783,14 +843,8 @@ impl SqliteSnapshotStore {
                 as_i64(limit.saturating_add(1))?,
                 as_i64(if after.is_some() { 0 } else { offset })?
             ],
-            |row| Ok(NodeRow::from(row)),
-        )?;
-        let mut items = rows
-            .map(|row| row?.into_node())
-            .collect::<Result<Vec<_>>>()?;
-        let more = items.len() as u64 > limit;
-        items.truncate(limit as usize);
-        Ok((items, more))
+            limit,
+        )
     }
 
     /// 精确目录总数与任意尺寸阈值计数，各做一次索引探针，不遍历子项。
@@ -970,8 +1024,8 @@ impl SqliteSnapshotStore {
         Ok(())
     }
 
-    /// 清理已被更新 fencing token 取代的扫描暂存代次。调用者必须先在控制库成功认领
-    /// `active_fence`；当前和更新的代次、其他 job 的暂存均保留。
+    /// 清理低于 `active_fence` 的扫描暂存代次。调用者须先在控制库认领该 fence，
+    /// 或持久终结该 job 后以最后 fence + 1 清理；当前/更新代次及其他 job 均保留。
     pub fn clear_stale_job_staging(&mut self, job_id: &str, active_fence: u64) -> Result<()> {
         let prefix = format!("{job_id}:");
         let tx = self.connection.transaction()?;
@@ -2010,6 +2064,24 @@ impl<'row> From<&'row rusqlite::Row<'row>> for NodeRow {
             read_error: row.get(15).unwrap_or_default(),
         }
     }
+}
+
+/// 页节点才构造/解析负载；多出来的一行只确认存在，不复制它的 JSON/定位字符串。
+fn read_node_page(
+    statement: &mut rusqlite::Statement<'_>,
+    parameters: impl rusqlite::Params,
+    limit: u64,
+) -> Result<(Vec<DiskNode>, bool)> {
+    let mut rows = statement.query(parameters)?;
+    let mut items = Vec::new();
+    while (items.len() as u64) < limit {
+        let Some(row) = rows.next()? else {
+            break;
+        };
+        items.push(NodeRow::from(row).into_node()?);
+    }
+    let more = rows.next()?.is_some();
+    Ok((items, more))
 }
 
 impl NodeRow {

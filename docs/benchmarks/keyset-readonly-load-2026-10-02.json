@@ -1,0 +1,20 @@
+{
+  "version": "diskgraph 0.3.0",
+  "platform": "darwin",
+  "files": 20000,
+  "queries": 32,
+  "concurrent_clients": 4,
+  "scan_seconds": 0.406,
+  "query_p50_ms": 6.272,
+  "query_p95_ms": 9.534,
+  "database_and_wal_bytes": 37445632,
+  "passed": 4,
+  "total": 4,
+  "checks": {
+    "full_index_published": true,
+    "concurrent_reads_bound_to_revision": true,
+    "query_results_bounded": true,
+    "node_budget_refuses_partial_publish": true
+  },
+  "source_state": "worktree based on 4edfac0 with directory/search keyset and explicit CLI recovery fixes"
+}

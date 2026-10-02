@@ -156,6 +156,43 @@ fn full_readonly_flow_with_business_exit_codes() {
 }
 
 #[test]
+fn synchronous_budget_failure_never_returns_a_success_envelope() {
+    let directory = TempDir::new().unwrap();
+    let root = directory.path().join("project");
+    std::fs::create_dir(&root).unwrap();
+    for index in 0..120 {
+        std::fs::write(root.join(index.to_string()), "data").unwrap();
+    }
+    let data = directory.path().join("data");
+    let registered = run_cli(&data, &["scope", "add", "--root", root.to_str().unwrap()]);
+    assert_eq!(registered.code, 0, "{}", registered.stderr);
+    let scope = json_field(registered.stdout.trim(), "/data/scope_id");
+    let result = run_cli(
+        &data,
+        &[
+            "--max-nodes-per-scan",
+            "100",
+            "index",
+            "--scope",
+            &scope,
+            "--wait",
+        ],
+    );
+    assert_eq!(result.code, 7, "{} {}", result.stdout, result.stderr);
+    assert_eq!(
+        json_field(result.stdout.trim(), "/error/code"),
+        "budget_exceeded"
+    );
+    assert_eq!(json_field(result.stdout.trim(), "/ok"), "false");
+    let status = run_cli(&data, &["node", "--scope", &scope]);
+    assert_eq!(
+        status.code, 4,
+        "partial scan must not publish: {}",
+        status.stdout
+    );
+}
+
+#[test]
 fn positive_candidate_cli_does_not_decode_an_unrelated_corrupt_node() {
     let workspace = TempDir::with_prefix("diskgraph-cli-candidate-").unwrap();
     let data = workspace.path().join("data");

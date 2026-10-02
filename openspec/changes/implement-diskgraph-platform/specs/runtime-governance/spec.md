@@ -4,6 +4,17 @@
 
 ## ADDED Requirements
 
+### Requirement: RT-08 Runner lifetime follows its owner
+The system SHALL stop scheduling at its next admission check when a runner handle is dropped, including a check after a blocking queue read and before each claim. An idle worker SHALL release its Engine and SQLite connections; drop SHALL not block the caller on an in-flight scan. Work already admitted MAY complete under its existing budgets and lease. Explicit stop MAY wait for current cooperative work to complete. This SHALL not be represented as instantaneous cancellation of an active scan.
+
+#### Scenario: Idle runner released
+- **WHEN** a host drops an idle runner and its final Engine reference
+- **THEN** the worker stops at its next scheduling boundary and releases the Engine instead of retaining it indefinitely
+
+#### Scenario: Stop during queue lock contention
+- **WHEN** a runner is stopped while waiting for the control lock to read its queue
+- **THEN** it checks stop after that read, leaves queued jobs unclaimed, and releases its Engine
+
 ### Requirement: RT-01 Durable jobs and leases
 长任务 SHALL 具有持久 ID、所有者、进度和终态；同 scope 的冲突扫描合并或排队，租约不能只依赖 PID，崩溃后可识别并恢复或明确失败。
 
@@ -49,6 +60,16 @@ doctor/status SHALL 展示平台、协议、依赖、权限、数据版本、任
 #### Scenario: Owner expired
 - **WHEN** owner 租约过期并被新 owner 接管
 - **THEN** 新 owner 从头扫描，旧 owner 不得发布。
+
+#### Scenario: Synchronous CLI recovers an expired owner
+- **WHEN** a CLI explicitly waits for one job and its foreign owner expires without a long-lived runner
+- **THEN** that CLI conditionally reclaims only that job, rescans with a new fencing generation and leaves unrelated queued jobs untouched
+- **AND** it does not preempt a live lease; failed or cancelled terminal states return a nonzero outcome
+
+#### Scenario: Cancelled or revoked expired owner without a runner
+- **WHEN** the job being explicitly waited on has an expired owner and a persisted cancellation or revoked scope
+- **THEN** the waiter conditionally settles only that job as cancelled and reports an incomplete outcome without another 120-second wait
+- **AND** live leases and unrelated expired/unclaimable jobs remain unchanged
 
 #### Scenario: Cancellation from another process
 - **WHEN** 一个 Engine 取消另一个 Engine 正在扫描的任务

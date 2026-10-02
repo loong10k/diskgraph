@@ -170,7 +170,7 @@
 
 | ID | 状态 | 证据与边界 |
 | --- | --- | --- |
-| Q-08 | partial | 有界有序历史、邻接 UNION ALL keyset、解码前实体/证据预算及 200k 无关关系 VM 工作量回归；TUI 单连接共同预算及最终授权；schema 9 精确宽目录聚合/known 页的 200k VM 工作量与 8 项聚合/迁移/旧 writer 回归通过。显式 offset 仍有跳读成本，完整分页覆盖与增量平台门禁继续验证 |
+| Q-08 | partial | 有界有序历史、邻接 UNION ALL keyset、解码前实体/证据预算及 200k 无关关系 VM 工作量回归；TUI 单连接共同预算及最终授权；schema 9 精确宽目录聚合/known 页的 200k VM 工作量与 10 项聚合/迁移/旧 writer/目录续页回归通过；绑定 v2 children 和 search seek 深页 VM 工作量及页外 probe 不解码通过。显式 offset 仍有跳读成本，增量平台门禁继续验证 |
 | Q-09 | supported | 正目标候选窄读、完整/截断/缺口报告、20k/200k 配对 release 基准 |
 | OP-13 | partial | macOS 库内逐块实时授权/期限/批准/取消、源版本绑定和终态 CAS 回归；对应 OS 原生门禁仍未全部完成 |
 | PF-06 | partial | 持久服务、关闭、撤权、真实进度、同根共享句柄/last-drop 与 job/fence revision 18 项回归；GUI/provider 调度及正式包未验收 |
@@ -179,5 +179,5 @@
 | CT-05 | supported | 总文件/字节/期限预算，失败读取真实成本、部分摘要不确认、取消/撤权回归 |
 | RT-06 | supported | 20 ms 协作取消、实际编码 staging、容量入队拒绝、30 秒租约/5 秒续租与 fencing 夹具；非严格 RSS |
 | RT-07 | supported | prune 默认预览，保护 latest/pin/操作与恢复引用；SQLite 不自动 VACUUM |
-| RE-06 | partial | a0ea22a 的 17 项同 SHA 桌面门禁通过，含 Linux ARM；1901f89 五个 Kotlin/两个 Swift GRDB 宿主通过，但 Windows 原生包并发门禁失败。schema 9/重复授权修复的本机 568 测试、18/13 协议及 4/4 负载通过，新提交全矩阵仍待验收；未生产部署 |
+| RE-06 | partial | 4edfac0 20/22 同 SHA CI：Windows 并发包 I/O 和 macOS ARM 预算失败终态门禁未过。后续任务恢复/runner/keyset 增量本机 581 测试、Clippy 通过，原生跨平台重验待完成；未部署生产 |
 | RE-07 | partial | 本轮独立审查、真实 FFI、release 性能与桌面 CI 工作流；移动/provider/原生写/签名/生产证据尚缺，不能宣称全平台就绪 |

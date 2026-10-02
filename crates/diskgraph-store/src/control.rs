@@ -786,6 +786,19 @@ impl ControlStore {
         Ok(changed as u64)
     }
 
+    /// 仅终结指定 ID 的过期且因取消/范围撤销不可认领任务。
+    /// 返回是否条件更新成功；存活租约、已完成和其他任务均保持不变。
+    pub fn reap_unclaimable_job(&mut self, job_id: &str) -> Result<bool> {
+        let changed = self.connection.execute(
+            "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?2
+             WHERE job_id = ?1 AND state = 'running' AND lease_expires_unix_ms <= ?2
+               AND (cancel_requested = 1 OR EXISTS
+                   (SELECT 1 FROM scopes WHERE scopes.scope_id = jobs.scope_id AND scopes.revoked = 1))",
+            params![job_id, Self::now_ms() as i64],
+        )?;
+        Ok(changed == 1)
+    }
+
     /// Active (queued or running) jobs attributed to one principal. Merged
     /// jobs count once, because the merge returns the existing record.
     pub fn active_job_count_for_principal(&self, principal: &PrincipalId) -> Result<u64> {

@@ -100,6 +100,22 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **THEN** existing grants are not rewritten and unchanged graph schemas do not acquire a write transaction merely to drop an absent legacy index
 - **AND** a genuine grant change remains durable and continues to enforce the current policy epoch
 
+#### Scenario: Deep directory continuation
+- **WHEN** MCP children continues a page using its returned v2 cursor
+- **THEN** the next query seeks by actual subtree-bytes descending, name ascending and ID ascending, without walking the preceding siblings
+- **AND** the cursor binds principal, actual scope/revision, parent, minimum-size filter, ordering and policy epoch; obsolete or mismatched cursors require a fresh query
+- **AND** explicit offset inputs and next_offset outputs remain compatible, while a cursor resumes from its last returned item even when the byte budget shortens a page
+
+#### Scenario: Deep search continuation
+- **WHEN** search continues after a name/ID key in a large matching revision
+- **THEN** it seeks through the ordered index rather than revisiting the preceding matches and retains Unicode lowercase substring semantics
+- **AND** a probe outside the returned page is not decoded into an archived node
+
+#### Scenario: Read-only query does not consume queued scans
+- **WHEN** a one-shot CLI metadata query opens a store with a queued job
+- **THEN** it does not start a background scanner; explicit synchronous indexing or the long-lived server runner owns execution
+- **AND** CLI waiting on a failed/cancelled foreign job returns a nonzero incomplete outcome, never success with state failed
+
 ### Requirement: Q-09 Bounded review-candidate preparation
 For a positive target, CLI and MCP SHALL select review candidates through a deadline-bound database query without decoding an entire revision. The query SHALL preserve rebuildable evidence, protection/occupancy checks over ancestors and descendants, non-overlapping selections, and descending size priority. Budget exhaustion SHALL report an incomplete result and the unfulfilled target amount; it SHALL never imply that a partial review queue reaches the requested bytes.
 

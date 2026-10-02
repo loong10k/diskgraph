@@ -30,7 +30,8 @@ pub struct JobRunner {
 
 impl JobRunner {
     /// Starts the runner thread. Keep the returned handle alive for as long
-    /// as jobs should progress; dropping it detaches the thread.
+    /// as jobs should progress; dropping it stops subsequent scheduling without
+    /// blocking on any scan already running.
     pub fn start(engine: Arc<Engine>) -> Self {
         let owner = format!("runner-{}", uuid::Uuid::new_v4());
         let stop = Arc::new(AtomicBool::new(false));
@@ -41,7 +42,8 @@ impl JobRunner {
             .name("diskgraph-job-runner".into())
             .spawn(move || {
                 while !worker_stop.load(Ordering::SeqCst) {
-                    if let Err(error) = run_one_queued(&worker_engine, &worker_owner) {
+                    if let Err(error) = run_one_queued(&worker_engine, &worker_owner, &worker_stop)
+                    {
                         // Claim races are routine: whoever claimed first wins.
                         // Real failures stay visible on stderr.
                         eprintln!("diskgraph job runner: {error}");
@@ -59,9 +61,9 @@ impl JobRunner {
     }
 
     /// Stops the runner at the next poll boundary and waits for the thread.
-    pub fn stop(self) {
+    pub fn stop(mut self) {
         self.stop.store(true, Ordering::SeqCst);
-        if let Some(worker) = self.worker {
+        if let Some(worker) = self.worker.take() {
             let _ = worker.join();
         }
     }
@@ -74,13 +76,32 @@ impl JobRunner {
     /// Claims and runs at most one queued job. Exposed for tests that want a
     /// deterministic single tick instead of the polling thread.
     pub fn tick(&self) -> Result<Option<JobRecord>, EngineError> {
-        run_one_queued(&self.engine, &self.owner)
+        run_one_queued(&self.engine, &self.owner, &self.stop)
     }
 }
 
-fn run_one_queued(engine: &Arc<Engine>, owner: &str) -> Result<Option<JobRecord>, EngineError> {
+impl Drop for JobRunner {
+    fn drop(&mut self) {
+        // 关闭宿主 handle 后在下一次认领检查停止；已通过检查的扫描按预算/租约完成。
+        // Drop 不等待长扫描，空闲 worker 在下个 100ms 调度边界释放 Engine。
+        self.stop.store(true, Ordering::SeqCst);
+    }
+}
+
+fn run_one_queued(
+    engine: &Arc<Engine>,
+    owner: &str,
+    stop: &AtomicBool,
+) -> Result<Option<JobRecord>, EngineError> {
+    if stop.load(Ordering::SeqCst) {
+        return Ok(None);
+    }
     let queued = engine.queued_jobs()?;
     for job in queued {
+        // 队列读取可能等待控制锁；返回后及每次竞争失败后的认领都重新检查停止。
+        if stop.load(Ordering::SeqCst) {
+            return Ok(None);
+        }
         match engine.run_job(&job.job_id, owner) {
             Ok(record) => return Ok(Some(record)),
             // A competing runner may win any candidate. Continue to the next

@@ -71,6 +71,10 @@ pub(crate) fn input_schema(catalog_id: &str) -> Value {
             );
             if catalog_id == "C11" {
                 fields.insert("min_bytes".into(), unsigned(0));
+                fields.insert(
+                    "cursor".into(),
+                    text("Opaque v2 directory cursor; obsolete cursors require a fresh query"),
+                );
             }
         }
         "C13" | "C14" | "C15" => {

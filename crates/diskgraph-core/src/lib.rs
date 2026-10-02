@@ -3,6 +3,7 @@
 
 mod budget;
 mod catalog;
+mod children_cursor;
 pub mod compare;
 mod duplicates;
 mod entities;
@@ -23,6 +24,7 @@ pub use budget::{
     BudgetTracker, CursorContext, CursorRejection, PagingCursor, QueryBudget, TruncationReason,
 };
 pub use catalog::{CATALOG, CommandAction, CommandSpec, Stage, by_family, by_id};
+pub use children_cursor::ChildrenCursor;
 pub use compare::{Comparison, DifferentReason, Evidence, Summary, Verdict, compare};
 pub use duplicates::{ConfirmedSet, ContentRelation, SuspectGroup, confirm_group, suspect_groups};
 pub use entities::{

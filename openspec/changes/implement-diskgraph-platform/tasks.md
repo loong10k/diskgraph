@@ -202,7 +202,7 @@
 
 - [ ] 12.8 Linux/Windows 原生文件操作、设备/provider 云占位不下载、真实宿主端到端验收；本机夹具不替代这些证据。（PF-03/04/05、CT-02、RE-04）
 
-流式扫描、严格 RSS 上限按批准计划排除；本轮仍保留上游完整树，取消可能在目录边界后产生短暂额外工作。目录列表显式 offset 兼容保留，新 keyset 游标用于搜索。SQLite prune 为逻辑回收，不自动 VACUUM。历史比较超时保留局部结果并声明统计是否完整。
+流式扫描、严格 RSS 上限按批准计划排除；本轮仍保留上游完整树，取消可能在目录边界后产生短暂额外工作。目录列表显式 offset 兼容保留，新 keyset 游标用于搜索及 MCP children。SQLite prune 为逻辑回收，不自动 VACUUM。历史比较超时保留局部结果并声明统计是否完整。
 
 本轮最终门禁：workspace 470 passed / 12 ignored，upstream 124 passed / 2 ignored，release 隔离基准显式执行通过，fmt、Clippy `-D warnings`、OpenSpec strict 和 20 个 vendor 非 target 文件原始摘要全部通过。证据及成本变化见双语加固记录。
 
@@ -218,7 +218,7 @@
 - [ ] 13.6 影响分析准确报告截断，关系遍历和候选读取预算覆盖准备阶段；宽目录统计、历史比较、TUI 宽目录的实际工作量与展示限制可观测且有界。
 - [x] 13.7 发布门禁先验证二进制再发布注册表；运行目标及 workspace 测试、fmt、Clippy、OpenSpec strict 和隔离性能探针，更新中英文文档及剩余平台限制。
 
-13.6 的查询工作持续由第 14.1/14.2 与 15.2 项验证：正目标候选通过图库有期限窄读和 schema 8 索引选择；impact 每请求复用一个授权读连接；历史有序 merge、关系有界邻接、TUI 整帧共同预算/末段授权与 schema 9 精确宽目录聚合已完成隔离回归。200k 聚合/known 页工作量低于 1,500 VM 步；任意 minimum、未知大小 JSON fallback、旧连接 writer 拒绝和缺缓存 fail-closed 通过。显式 offset 仍为 O(offset+page)，完整分页覆盖及新提交的跨平台验收继续核对。release 聚合原始数据明确区分迁移、备份、发布和采样临时成本，不承诺严格 RSS/空间上界。
+13.6 的查询工作持续由第 14.1/14.2 与 15.2 项验证：正目标候选通过图库有期限窄读和 schema 8 索引选择；impact 每请求复用一个授权读连接；历史有序 merge、关系有界邻接、TUI 整帧共同预算/末段授权与 schema 9 精确宽目录聚合已完成隔离回归。200k 聚合/known 页工作量低于 1,500 VM 步；任意 minimum、未知大小 JSON fallback、旧连接 writer 拒绝和缺缓存 fail-closed 通过。显式 offset 仍为 O(offset+page)；MCP children v2 绑定游标和尺寸/name/id seek、搜索 name/id seek 已完成深页工作量与字节截页回归，新提交跨平台验收继续核对。release 聚合原始数据明确区分迁移、备份、发布和采样临时成本，不承诺严格 RSS/空间上界。
 
 ## 14. 桌面只读生产就绪（2026-10-02）
 
@@ -242,4 +242,4 @@
 - [ ] 15.5 完成 10.1–10.9 的 provider 批量观测、授权生命周期、Android/iOS 包与真机门禁。（PF-04/05）
 - [ ] 15.6 把同 SHA 的所有已启用平台行为门禁接入发布前置，补 Linux arm64 原生运行及签名/设备/生产环境证据，更新完整支持矩阵。（RE-04/07）
 
-15.1 的 MCP 契约、真实协议与跨 scope 回归已通过；提交 a0ea22a 的 17 项桌面 CI 全绿。1901f89 的五个 Kotlin Unicode 宿主及两个 Swift/GRDB 宿主通过，但 Windows 原生包四进程查询失败；重复 grant 写入已先红后绿，本机 release 四进程验证通过，等待新提交 CI。15.4 的持久 FFI 子集、18 项 FFI 测试、真实语言 release 宿主、SwiftPM/GRDB 并发 CRUD/FD 释放重开已通过。13.6 的 TUI 共同预算、末段授权、错误传播和宽目录精确聚合已补齐，schema 9 全量本机为 568 passed / 13 ignored；新增聚合 release 基准单独执行，其余真实环境/昂贵夹具不计为通过。9.3 的静态嵌入和 Room 不以桌面动态夹具替代。15.2/15.3/15.4/15.5/15.6 仍包含未验收平台能力，不勾选。8.2/9.2 的旧完成标记按真实设备与 GUI 证据口径重新打开。详细成本与剩余能力见全平台实施记录；第 12/14 节保留为历史阶段门禁。
+15.1 的 MCP 契约、真实协议与跨 scope 回归已通过；早期 a0ea22a 的 17 项桌面 CI 全绿。4edfac0 最新 CI 为 20/22：八个 Rust、五个 Kotlin、两个 Swift/GRDB 及三个原生包通过，Windows 包并发查询报 I/O，macOS ARM 包扫描预算失败误报成功。后续增量先红后绿修复 CLI 终态/指定任务过期接管/取消回收、runner 生命周期与认领停止、目录绑定 keyset 和搜索实际 seek；本机 workspace 581 passed / 13 ignored、Clippy 通过，增量跨平台 CI 尚待完成。15.4 的持久 FFI 子集和实际语言动态宿主、GRDB 并发/释放重开属于已有证据，不能替代静态嵌入、Room 或 GUI/设备。聚合 ignored release 基准已单独执行，其余真实环境/昂贵夹具不计通过。15.2/15.3/15.4/15.5/15.6 仍含未完成平台能力，保持未勾选；8.2/9.2 同样等待真实 provider/GUI 验收。第 12/14 节保留为历史阶段门禁。

@@ -823,6 +823,22 @@ impl Engine {
         Ok(self.control()?.job(job_id)?)
     }
 
+    /// 可信执行器按任务 ID 回收过期且取消/撤销的 owner；返回持久任务状态。
+    /// 不认领其他任务、不抢占存活租约，远程调用仍需先做任务范围授权。
+    pub fn settle_expired_job(&self, job_id: &str) -> Result<JobRecord, EngineError> {
+        let (changed, job) = {
+            let mut control = self.control()?;
+            let changed = control.reap_unclaimable_job(job_id)?;
+            (changed, control.job(job_id)?)
+        };
+        if changed {
+            // 此代次已持久终结，旧 owner 的 fence 无法再写/发布；只删除图暂存数据。
+            self.graph()?
+                .clear_stale_job_staging(job_id, job.fencing_token.saturating_add(1))?;
+        }
+        Ok(job)
+    }
+
     /// Publishes a new policy version; grants from older versions stop
     /// applying and every cursor issued under them is refused (SC-04, P4-5.9).
     pub fn publish_policy_version(

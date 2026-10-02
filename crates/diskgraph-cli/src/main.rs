@@ -802,11 +802,12 @@ fn init_index(
         Ok(record) => record,
         Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
         | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => {
-            wait_for_terminal(engine, &job.job_id)?
+            wait_for_terminal(engine, &job.job_id, &owner)?
         }
         Err(error) => return Err(error),
     };
-    let revision = engine.latest_revision(&scope_id)?;
+    ensure_completed(&finished)?;
+    let revision = Some(engine.revision_for_job(&finished.job_id, principal, authorizer)?);
     let root_node = revision
         .as_deref()
         .map(|revision| engine.revision_root_node(revision))
@@ -861,23 +862,27 @@ fn run(cli: Cli) -> Result<(), EngineError> {
     // One knob drives both budget layers: the per-node charged ScanBudget
     // must not be tighter than the hard refusal ceiling, or a caller raising
     // the ceiling would still stop at the old charged limit (RT-02/RT-04).
-    let engine = std::sync::Arc::new(Engine::open(EngineConfig {
-        data_dir: cli.data_dir.clone(),
-        max_nodes_per_scan: cli.max_nodes_per_scan,
-        scan_budget: diskgraph_core::ScanBudget {
-            max_nodes: cli.max_nodes_per_scan,
-            max_staging_bytes: cli.max_staging_bytes,
-            ..diskgraph_core::ScanBudget::default()
-        },
-        // Scan behavior mirrors disktree's own flags exactly: the snapshot
-        // records these verbatim, and two snapshots are comparable only when
-        // they were taken with the same options.
-        scan_options: scan_options_from(&cli),
-        ..EngineConfig::default()
-    })?);
-    // Queued jobs progress without their connection; the CLI runner keeps the
-    // process alive for them and dies with it (MCP-05).
-    let _job_runner = diskgraph_engine::JobRunner::start(std::sync::Arc::clone(&engine));
+    let engine = std::sync::Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: cli.data_dir.clone(),
+            max_nodes_per_scan: cli.max_nodes_per_scan,
+            scan_budget: diskgraph_core::ScanBudget {
+                max_nodes: cli.max_nodes_per_scan,
+                max_staging_bytes: cli.max_staging_bytes,
+                ..diskgraph_core::ScanBudget::default()
+            },
+            // Scan behavior mirrors disktree's own flags exactly: the snapshot
+            // records these verbatim, and two snapshots are comparable only when
+            // they were taken with the same options.
+            scan_options: scan_options_from(&cli),
+            ..EngineConfig::default()
+        })
+        .inspect_err(|_error| {
+            // 标记故障发生在打开阶段；具体 SQLite 扩展错误码由原错误保留。
+            eprintln!("diskgraph: engine startup failed");
+        })?,
+    );
+    // 单次 CLI 查询不消费扫描队列；--wait 由当前请求执行，远程队列由长期服务执行。
     let principal = PrincipalId::new(cli.principal.clone())
         .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
     // The CLI authorizes against the local policy store; an empty policy is
@@ -1609,14 +1614,12 @@ fn dispatch(
                         continue;
                     }
                 };
-                // The process also runs a background worker. Its claim may
-                // win this race, so wait for that exact job rather than
-                // treating a competing owner as a failed measurement.
+                // 其他长期服务可能已认领任务；等待或接管该任务，不运行其他队列项。
                 let completed = match engine.run_job(&job.job_id, "du") {
                     Ok(record) => Ok(record),
                     Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
                     | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => {
-                        wait_for_terminal(engine, &job.job_id)
+                        wait_for_terminal(engine, &job.job_id, "du")
                     }
                     Err(error) => Err(error),
                 };
@@ -1921,17 +1924,17 @@ fn run_scan(
         return Ok(());
     }
     let owner = format!("cli-{principal}");
-    // The background runner may claim the job before we do; --wait means
-    // "wait for the terminal state", whoever runs it.
+    // 其他长期服务可能认领任务；--wait 必须核验该 owner 的实际终态。
     let finished = match engine.run_job(&job.job_id, &owner) {
         Ok(record) => record,
         Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
         | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => {
-            wait_for_terminal(engine, &job.job_id)?
+            wait_for_terminal(engine, &job.job_id, &owner)?
         }
         Err(error) => return Err(error),
     };
-    let revision = engine.latest_revision(&scope_id)?;
+    ensure_completed(&finished)?;
+    let revision = engine.revision_for_job(&finished.job_id, principal, authorizer)?;
     out.push(envelope_line(
         engine,
         Ok(serde_json::json!({
@@ -2027,25 +2030,81 @@ fn adjacency(
     map
 }
 
-/// Polls a job owned by another runner until it reaches a terminal state.
+/// 等待指定任务；仅在其排队或租约过期时尝试条件认领，不启动后台队列。
 fn wait_for_terminal(
     engine: &Engine,
     job_id: &str,
+    owner: &str,
+) -> Result<diskgraph_store::JobRecord, EngineError> {
+    wait_for_terminal_until(
+        engine,
+        job_id,
+        owner,
+        std::time::Instant::now() + std::time::Duration::from_secs(120),
+    )
+}
+
+fn wait_for_terminal_until(
+    engine: &Engine,
+    job_id: &str,
+    owner: &str,
+    deadline: std::time::Instant,
 ) -> Result<diskgraph_store::JobRecord, EngineError> {
     use diskgraph_store::JobState;
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(120);
     loop {
         let record = engine.job_status(job_id)?;
         if matches!(
             record.state,
             JobState::Completed | JobState::Failed | JobState::Cancelled
         ) {
+            ensure_completed(&record)?;
             return Ok(record);
         }
         if std::time::Instant::now() >= deadline {
             return Err(EngineError::Business(BusinessError::Timeout));
         }
+        let now_ms = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
+        if record.state == JobState::Queued
+            || (record.state == JobState::Running && record.lease_expires_unix_ms <= now_ms)
+        {
+            let settled = engine.settle_expired_job(job_id)?;
+            if matches!(
+                settled.state,
+                JobState::Completed | JobState::Failed | JobState::Cancelled
+            ) {
+                ensure_completed(&settled)?;
+                return Ok(settled);
+            }
+            // 数据库条件更新与 fencing 决定唯一 owner；存活 owner 不被抢占。
+            // 认领成功后的扫描仍使用 Engine 扫描预算，deadline 仅限制等待。
+            match engine.run_job(job_id, owner) {
+                Ok(record) => {
+                    ensure_completed(&record)?;
+                    return Ok(record);
+                }
+                Err(EngineError::Store(diskgraph_store::StoreError::Conflict(_)))
+                | Err(EngineError::Store(diskgraph_store::StoreError::StaleOwner)) => {}
+                Err(error) => return Err(error),
+            }
+        }
         std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+}
+
+#[cfg(test)]
+mod scan_terminal_tests;
+
+/// 失败/取消的其他 owner 结果没有持久原因码，诚实返回 partial，不能猜测成功。
+fn ensure_completed(record: &diskgraph_store::JobRecord) -> Result<(), EngineError> {
+    match record.state {
+        diskgraph_store::JobState::Completed => Ok(()),
+        diskgraph_store::JobState::Failed | diskgraph_store::JobState::Cancelled => {
+            Err(EngineError::Business(BusinessError::Partial))
+        }
+        _ => Err(EngineError::Business(BusinessError::Conflict)),
     }
 }
 

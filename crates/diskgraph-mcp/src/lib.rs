@@ -13,6 +13,8 @@ use diskgraph_engine::{Engine, EngineConfig, EngineError, admin_scope};
 use serde_json::{Value, json};
 
 pub mod auth;
+#[cfg(test)]
+mod children_cursor_tests;
 pub mod doctor;
 pub mod http;
 pub mod install;
@@ -687,6 +689,7 @@ impl McpService {
         scope: &Option<ScopeId>,
         arguments: &Value,
     ) -> Result<Value, EngineError> {
+        let scope_id = self.require_scope(scope)?;
         let revision = self.require_revision(scope, arguments)?;
         let parent_id = arguments
             .get("parent_id")
@@ -699,31 +702,62 @@ impl McpService {
             .min(100);
         let offset = arguments.get("offset").and_then(Value::as_u64).unwrap_or(0);
         let filter = arguments.get("min_bytes").and_then(Value::as_u64);
-        let (items, next_offset, unknown_count) = self
-            .engine
-            .revision_children_page(&revision, parent_id, filter, offset, limit)?;
-        let (items, truncated) = Self::bound_nodes(items, 0)?;
-        let next_offset = if truncated.is_some() {
-            Some(offset.saturating_add(items.len() as u64))
-        } else {
-            next_offset
+        let filter_binding = format!("parent:{parent_id},min_bytes:{}", filter.unwrap_or(0));
+        let sort = "subtree_bytes_desc,name_asc,id_asc,children_keyset_v2";
+        let authorizer = self.authorizer()?;
+        let context = CursorContext {
+            principal_binding: self.context.principal().as_str(),
+            scope_id: scope_id.as_str(),
+            revision_id: &revision,
+            filter_binding: &filter_binding,
+            sort_binding: sort,
+            policy_version: authorizer.policy_version(),
         };
-        if Self::wants_treemap(arguments) {
-            let rows = Self::treemap_rows(items.iter());
-            let width = Self::treemap_width(arguments);
-            return Ok(json!({
-                "format": "treemap",
-                "treemap": treemap::render_text(&rows, width),
-                "items": items.len(),
-                "next_offset": next_offset,
-            }));
-        }
-        Ok(json!({
-            "items": items,
-            "next_offset": next_offset,
-            "unknown_size_count": unknown_count,
-            "truncated":truncated,
-        }))
+        let cursor = arguments
+            .get("cursor")
+            .and_then(Value::as_str)
+            .map(|encoded| diskgraph_core::ChildrenCursor::decode(encoded, &context))
+            .transpose()
+            .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+        self.engine.with_authorized_revision_reader(
+            &revision, self.context.principal(), &authorizer,
+            QueryBudget::default().deadline_ms, |reader, snapshot, _deadline| {
+                let after = cursor.as_ref().map(|cursor| (cursor.last_bytes, cursor.last_name.as_str(), cursor.last_id));
+                let (items, more, unknown_count) = reader.children_keyset_page(snapshot, parent_id, filter, after, offset, limit)?;
+                // 游标本身计入预算；最后一个返回节点决定位置，不能使用 SQL 探针行。
+                let (items, truncated) = Self::bound_nodes(items, 16_384)?;
+                let more = more || truncated.is_some();
+                let consumed = cursor.as_ref().map_or(offset, |cursor| cursor.binding.offset)
+                    .saturating_add(items.len() as u64);
+                let next_offset = more.then_some(consumed);
+                let next_cursor = items.last().filter(|_| more).map(|last| {
+                    diskgraph_core::ChildrenCursor {
+                        version: 2,
+                        binding: PagingCursor::issue(&context, &filter_binding, sort, consumed),
+                        last_bytes: last.subtree_bytes,
+                        last_name: last.name.clone(),
+                        last_id: last.id,
+                    }.encode()
+                });
+                if next_cursor.as_ref().is_some_and(|encoded| encoded.len() > 16_384) {
+                    return Err(EngineError::Business(BusinessError::BudgetExceeded));
+                }
+                let data = if Self::wants_treemap(arguments) {
+                    let rows = Self::treemap_rows(items.iter());
+                    json!({"format":"treemap","treemap":treemap::render_text(&rows, Self::treemap_width(arguments)),
+                        "items":items.len(),"next_offset":next_offset,"next_cursor":next_cursor,
+                        "unknown_size_count":unknown_count,"truncated":truncated})
+                } else {
+                    json!({"items":items,"next_offset":next_offset,"next_cursor":next_cursor,
+                        "unknown_size_count":unknown_count,"truncated":truncated})
+                };
+                if serde_json::to_vec(&data).map_err(diskgraph_store::StoreError::from)?.len()
+                    > QueryBudget::default().max_response_bytes.saturating_sub(1024) {
+                    return Err(EngineError::Business(BusinessError::BudgetExceeded));
+                }
+                Ok(data)
+            },
+        )
     }
 
     fn top_tool(&self, scope: &Option<ScopeId>, arguments: &Value) -> Result<Value, EngineError> {

@@ -6,7 +6,7 @@ use std::sync::{
 
 use crate::{SqliteSnapshotStore, tests::graph};
 
-fn wide_store(unknown: bool) -> SqliteSnapshotStore {
+pub(super) fn wide_store(unknown: bool) -> SqliteSnapshotStore {
     let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
     store.save(&graph("wide", 100)).unwrap();
     let payload = if unknown {
@@ -17,7 +17,7 @@ fn wide_store(unknown: bool) -> SqliteSnapshotStore {
     store.connection.execute(
         "WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<200000)
          INSERT INTO nodes(snapshot_id,id,parent_id,locator_key,name,subtree_bytes,node_json,kind,read_error)
-         SELECT 'wide',x+2,1,'{}',printf('child-%09d',x),
+         SELECT 'wide',x+2,1,json_object('type','native_path','value',printf('/tmp/child-%09d',x)),printf('child-%09d',x),
                 CASE WHEN ?1 THEN 1000 ELSE x END,?2,CASE WHEN ?1 THEN NULL ELSE 'file' END,0 FROM n",
         rusqlite::params![unknown, payload],
     ).unwrap();
@@ -35,7 +35,7 @@ fn wide_store(unknown: bool) -> SqliteSnapshotStore {
     SqliteSnapshotStore::initialize(store.connection).unwrap()
 }
 
-fn count_steps(store: &SqliteSnapshotStore) -> Arc<AtomicU64> {
+pub(super) fn count_steps(store: &SqliteSnapshotStore) -> Arc<AtomicU64> {
     let steps = Arc::new(AtomicU64::new(0));
     let observed = steps.clone();
     store
@@ -81,6 +81,69 @@ fn known_page_does_not_walk_higher_ranked_unknown_siblings() {
     assert!(
         steps.load(Ordering::Relaxed) < 1500,
         "known page walked unknown siblings: {} VM steps",
+        steps.load(Ordering::Relaxed)
+    );
+}
+
+#[test]
+fn a_directory_page_does_not_decode_its_continuation_probe() {
+    let store = wide_store(false);
+    store
+        .connection
+        .execute(
+            "UPDATE nodes SET locator_key='\"broken\"' WHERE snapshot_id='wide' AND id=200001",
+            [],
+        )
+        .unwrap();
+    let (items, next, _) = store.children_page("wide", 1, None, 0, 1).unwrap();
+    assert_eq!(items[0].id, 200002);
+    assert_eq!(next, Some(1));
+    assert!(store.children_page("wide", 1, None, 1, 1).is_err());
+}
+
+#[test]
+fn directory_keyset_seeks_past_large_prefixes_and_equal_sizes() {
+    let store = wide_store(false);
+    let steps = count_steps(&store);
+    let (items, more, unknown) = store
+        .children_keyset_page("wide", 1, None, Some((3, "child-000000003", 5)), 199_999, 1)
+        .unwrap();
+    assert_eq!(items[0].subtree_bytes, 2);
+    assert!(more);
+    assert_eq!(unknown, 0);
+    assert!(
+        steps.load(Ordering::Relaxed) < 1500,
+        "keyset walked preceding siblings: {}",
+        steps.load(Ordering::Relaxed)
+    );
+    store
+        .connection
+        .progress_handler(0, None::<fn() -> bool>)
+        .unwrap();
+    store
+        .connection
+        .execute(
+            "UPDATE nodes SET subtree_bytes=1000 WHERE snapshot_id='wide' AND id>2",
+            [],
+        )
+        .unwrap();
+    super::directory_aggregates::rebuild(&store.connection, Some("wide")).unwrap();
+    let steps = count_steps(&store);
+    let (items, more, _) = store
+        .children_keyset_page(
+            "wide",
+            1,
+            None,
+            Some((1000, "child-000199998", 200000)),
+            199_999,
+            1,
+        )
+        .unwrap();
+    assert_eq!(items[0].id, 200001);
+    assert!(more);
+    assert!(
+        steps.load(Ordering::Relaxed) < 1500,
+        "equal-size keyset walked preceding siblings: {}",
         steps.load(Ordering::Relaxed)
     );
 }
