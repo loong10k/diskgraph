@@ -2080,6 +2080,70 @@ fn a_cross_volume_copy_stages_verifies_then_publishes() {
 
 #[cfg(target_os = "macos")]
 #[test]
+fn copy_staging_refuses_growth_and_the_approved_byte_ceiling() {
+    let workspace = TempDir::new().unwrap();
+    let source = workspace.path().join("source.bin");
+    let target = workspace.path().join("target.bin");
+    std::fs::write(&source, vec![7_u8; 128 * 1024]).unwrap();
+    let transfer = CrossVolumeCopy::open(&target, "budget").unwrap();
+    let check = || Ok(());
+    assert!(
+        transfer
+            .stage_and_verify_bounded(&source, &None, 1, None, &check)
+            .is_err()
+    );
+    assert!(!transfer.staged_path().exists());
+    let calls = std::cell::Cell::new(0);
+    let check = || {
+        calls.set(calls.get() + 1);
+        if calls.get() == 3 {
+            use std::io::Write;
+            std::fs::OpenOptions::new()
+                .append(true)
+                .open(&source)?
+                .write_all(&[9; 64 * 1024])?;
+        }
+        Ok(())
+    };
+    assert!(
+        transfer
+            .stage_and_verify_bounded(&source, &None, 256 * 1024, None, &check)
+            .is_err()
+    );
+    assert!(std::fs::metadata(transfer.staged_path()).unwrap().len() <= 128 * 1024);
+    transfer.discard();
+    assert!(!target.exists());
+    assert!(transfer.staging_dir_absent());
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn copy_staging_stops_on_live_authorization_failure() {
+    let workspace = TempDir::new().unwrap();
+    let source = workspace.path().join("source.bin");
+    let target = workspace.path().join("target.bin");
+    std::fs::write(&source, vec![7_u8; 128 * 1024]).unwrap();
+    let transfer = CrossVolumeCopy::open(&target, "revoked").unwrap();
+    let calls = std::cell::Cell::new(0);
+    let check = || {
+        calls.set(calls.get() + 1);
+        if calls.get() > 2 {
+            return Err(OpsError::NotAuthorized("revoked".into()));
+        }
+        Ok(())
+    };
+    assert!(
+        transfer
+            .stage_and_verify_bounded(&source, &None, 128 * 1024, None, &check)
+            .is_err()
+    );
+    transfer.discard();
+    assert!(!target.exists());
+    assert!(transfer.staging_dir_absent());
+}
+
+#[cfg(target_os = "macos")]
+#[test]
 fn a_source_that_changes_during_a_cross_volume_copy_invalidates_the_transfer() {
     let workspace = TempDir::with_prefix("diskgraph-ops-xcopy-race-").unwrap();
     let source = workspace.path().join("source.bin");
@@ -2143,6 +2207,7 @@ fn a_cross_volume_move_publishes_before_the_source_is_removed() {
         identity: identity_of(&source, &metadata),
         recovery_ref: None,
         bytes: metadata.len(),
+        approved_version: Some(metadata.clone()),
     };
     let executor = Executor::new(std::sync::Arc::clone(&project.engine));
     let _ = (scope, app);
@@ -2167,6 +2232,7 @@ fn a_cross_volume_move_parked_at_the_source_seam_keeps_both_sides() {
         identity: identity_of(&source, &metadata),
         recovery_ref: None,
         bytes: metadata.len(),
+        approved_version: Some(metadata.clone()),
     };
     let executor = Executor::new(std::sync::Arc::clone(&project.engine));
 
@@ -2569,4 +2635,136 @@ fn modifying_verified_staging_prevents_publication() {
     assert!(!target.exists());
     assert_eq!(std::fs::read(source).unwrap(), b"verified");
     transfer.discard();
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn real_approval_revocation_and_operation_cancel_stop_staging() {
+    for cancel in [false, true] {
+        let mut project = project("live-copy-authority");
+        std::fs::write(
+            project.root.join("target/app.bin"),
+            vec![7u8; 32 * 1024 * 1024],
+        )
+        .unwrap();
+        let destination = project.root.join("destination");
+        std::fs::create_dir(&destination).unwrap();
+        let (scope, principal) = indexed_once(&mut project);
+        let node = node_named(&project.engine, &scope, "app.bin");
+        let plan = PlanBuilder::new(project.engine.clone())
+            .build_move_plan(
+                &scope,
+                &principal,
+                &[node],
+                &destination,
+                64 * 1024 * 1024,
+                FileActionKind::Copy,
+            )
+            .unwrap();
+        let approval = ApprovalIssuer::new(&mut project.engine.control_store().unwrap())
+            .issue(&plan, "console", 60_000)
+            .unwrap();
+        let engine = project.engine.clone();
+        let plan_id = plan.plan_id.clone();
+        let approval_ref = approval.approval_ref.clone();
+        let worker = std::thread::spawn(move || {
+            Executor::new(engine).apply(ApplyRequest {
+                plan_id: &plan_id,
+                approval_ref: &approval_ref,
+                idempotency_key: "live-copy",
+                fault: None,
+            })
+        });
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        while !std::fs::read_dir(&destination).unwrap().any(|entry| {
+            entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".dg-copy-staging")
+        }) {
+            assert!(
+                !worker.is_finished(),
+                "copy ended before its cancellation observation"
+            );
+            assert!(std::time::Instant::now() < deadline);
+            std::thread::sleep(std::time::Duration::from_micros(100));
+        }
+        if cancel {
+            let operation = project
+                .engine
+                .control_store()
+                .unwrap()
+                .operation_for_key(&principal, "live-copy")
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                cancel_operation(&project.engine, &operation.operation_id, &principal)
+                    .unwrap()
+                    .state,
+                diskgraph_store::OperationState::Cancelled
+            );
+        } else {
+            project
+                .engine
+                .control_store()
+                .unwrap()
+                .revoke_approval(&approval.approval_ref)
+                .unwrap();
+        }
+        let outcome = worker.join().unwrap().unwrap();
+        assert_ne!(outcome.state, diskgraph_store::OperationState::Succeeded);
+        if cancel {
+            assert_eq!(outcome.state, diskgraph_store::OperationState::Cancelled);
+        }
+        assert!(!destination.join("app.bin").exists());
+        assert_eq!(
+            project
+                .engine
+                .control_store()
+                .unwrap()
+                .operation(&outcome.operation_id)
+                .unwrap()
+                .state,
+            outcome.state
+        );
+    }
+}
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+#[test]
+fn mutation_uses_the_approved_version_without_refreshing_expected_metadata() {
+    let root = tempfile::tempdir().unwrap();
+    let source = root.path().join("file");
+    std::fs::write(&source, b"aaaa").unwrap();
+    let approved = capture_source(&source, 4096).unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(2));
+    std::fs::write(&source, b"bbbb").unwrap();
+    let target = root.path().join("renamed");
+    assert!(
+        atomic_publish::rename_approved_no_replace(&source, &target, &approved.metadata).is_err()
+    );
+    assert!(
+        bound_path::BoundPath::open(&source)
+            .unwrap()
+            .remove_verified(&approved.metadata)
+            .is_err()
+    );
+    assert_eq!(std::fs::read(&source).unwrap(), b"bbbb");
+    assert!(!target.exists());
+    #[cfg(target_os = "macos")]
+    {
+        let copy = CrossVolumeCopy::open(&root.path().join("copy"), "approved-version").unwrap();
+        assert!(
+            copy.stage_and_verify_bounded(
+                &source,
+                &approved.identity,
+                4096,
+                Some(&approved.metadata),
+                &|| Ok(())
+            )
+            .is_err()
+        );
+        assert!(!root.path().join("copy").exists());
+    }
 }

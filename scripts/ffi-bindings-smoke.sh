@@ -40,16 +40,26 @@ swiftc "$WORK/main.swift" dist/ffi/swift/diskgraph_ffi.swift \
 DYLD_LIBRARY_PATH="$PWD/target/debug" "$WORK/swift-host" "$WORK/host" "$WORK/data/swift.sqlite"
 
 echo "== Kotlin host =="
-JNA="$(find "$HOME/.m2/repository/net/java/dev/jna/jna" -name 'jna-5*.jar' | sort -V | tail -1)"
-if [ -z "$JNA" ]; then
-  echo "no jna jar in ~/.m2; install one or skip the Kotlin run" >&2
+if [ "${1:-}" = "--swift-only" ]; then
+  echo "Swift FFI host checks passed; Kotlin was not requested by this job"
+  exit 0
+fi
+JNA="${JNA_JAR:-$WORK/jna-5.17.0.jar}"
+if [ ! -f "$JNA" ]; then
+  curl --fail --location --silent --show-error https://repo.maven.apache.org/maven2/net/java/dev/jna/jna/5.17.0/jna-5.17.0.jar -o "$JNA"
+fi
+JNA_SHA="$(shasum -a 256 "$JNA" | cut -d ' ' -f1)"
+if [ "$JNA_SHA" != "b3a9408e7c51e08ef0e3bfcc08f443f6ec0f6191ba8cd7c18d53d2b22e5bdbc0" ]; then
+  echo "JNA 5.17.0 digest mismatch" >&2
   exit 1
 fi
 # The main class name follows the source file name; pin it.
 cp scripts/ffi-smoke-host.kt "$WORK/KotlinHost.kt"
-kotlinc -cp "$JNA" dist/ffi/kotlin/uniffi/diskgraph_ffi/diskgraph_ffi.kt \
-  "$WORK/KotlinHost.kt" -include-runtime -d "$WORK/kotlin-host.jar" 2>&1 \
-  | grep -v "^warning" || true
+if ! kotlinc -cp "$JNA" dist/ffi/kotlin/uniffi/diskgraph_ffi/diskgraph_ffi.kt \
+  "$WORK/KotlinHost.kt" -include-runtime -d "$WORK/kotlin-host.jar" >"$WORK/kotlin-build.log" 2>&1; then
+  cat "$WORK/kotlin-build.log" >&2
+  exit 1
+fi
 java -cp "$WORK/kotlin-host.jar:$JNA" \
   -Djna.library.path="$PWD/target/debug" KotlinHostKt "$WORK/host" "$WORK/data/kotlin.sqlite"
 

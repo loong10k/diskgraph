@@ -3,6 +3,7 @@
 //! owner fencing and cooperative cancellation, staging-based atomic
 //! publication, and per-scan budgets. The engine never mutates user files.
 
+mod scan_progress_guard;
 use std::collections::HashMap;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -26,11 +27,14 @@ mod collectors;
 pub mod content;
 pub mod live_evidence;
 mod queries;
+mod relation_queries;
 mod runner;
 mod scoped_file;
 #[cfg(test)]
 mod tests;
 pub mod verify;
+mod verify_limits;
+pub use verify_limits::VerifyLimits;
 
 pub use collectors::{
     COLLECTOR_ID, COLLECTOR_VERSION, ProjectBatch, RULE_VERSION, collect_projects,
@@ -242,6 +246,7 @@ pub struct Engine {
     graph: Mutex<SqliteSnapshotStore>,
     control: Mutex<ControlStore>,
     cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
+    scan_progress: Mutex<HashMap<(String, u64), diskgraph_disktree_core::scan::ScanSnapshot>>,
 }
 
 impl EngineError {
@@ -310,6 +315,7 @@ impl Engine {
             graph: Mutex::new(graph),
             control: Mutex::new(control),
             cancellations: Mutex::new(HashMap::new()),
+            scan_progress: Mutex::new(HashMap::new()),
         })
     }
 
@@ -370,27 +376,35 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Vec<ScopeRecord>, EngineError> {
-        let authorizer_is_permissive = matches!(
-            authorizer.decide(principal, &Permission::MetadataRead, &admin_scope()),
-            diskgraph_core::Decision::Allowed
-        );
-        let scopes = self.control()?.list_scopes()?;
+        let control = self.control()?;
+        let permitted = |scope: &ScopeId| -> Result<bool, EngineError> {
+            match Self::require_with_control(
+                &control,
+                authorizer,
+                principal,
+                &Permission::MetadataRead,
+                scope,
+            ) {
+                Ok(()) => Ok(true),
+                Err(EngineError::Business(BusinessError::PermissionDenied)) => Ok(false),
+                Err(error) => Err(error),
+            }
+        };
+        let authorizer_is_permissive = permitted(&admin_scope())?;
+        let scopes = control.list_scopes()?;
         if scopes.is_empty() {
             return Ok(Vec::new());
         }
-        let allowed = scopes
-            .into_iter()
-            .filter(|scope| {
-                matches!(
-                    authorizer.decide(principal, &Permission::MetadataRead, &scope.scope_id),
-                    diskgraph_core::Decision::Allowed
-                )
-            })
-            .collect::<Vec<_>>();
+        let mut allowed = Vec::new();
+        for scope in scopes {
+            if permitted(&scope.scope_id)? {
+                allowed.push(scope);
+            }
+        }
         // A principal whose only grant is administration sees the whole
         // registry; every other principal sees only its own scopes.
         if allowed.is_empty() && authorizer_is_permissive {
-            return Ok(self.control()?.list_scopes()?);
+            return Ok(control.list_scopes()?);
         }
         Ok(allowed)
     }
@@ -524,6 +538,28 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<JobRecord, EngineError> {
+        {
+            let control = self.control()?;
+            // 保留已获授权调用方对已撤 scope 的既有 conflict/退出码契约。
+            // 未获 token 或实时数据库 grant 的主体仍只能得到 permission_denied。
+            if control.scope(scope_id)?.revoked
+                && matches!(
+                    authorizer.decide(principal, &Permission::IndexWrite, scope_id),
+                    diskgraph_core::Decision::Allowed
+                )
+                && (control.policy_state()?.is_none()
+                    || matches!(
+                        control
+                            .authorizer()?
+                            .decide(principal, &Permission::IndexWrite, scope_id),
+                        diskgraph_core::Decision::Allowed
+                    ))
+            {
+                return Err(EngineError::Store(StoreError::Conflict(format!(
+                    "scope {scope_id} is revoked"
+                ))));
+            }
+        }
         self.require(authorizer, principal, &Permission::IndexWrite, scope_id)?;
         if !self.accepts_new_work() {
             return Err(EngineError::Business(BusinessError::ResourceExhausted));
@@ -666,6 +702,10 @@ impl Engine {
     /// record (RT-01: reconnection queries this instead of the connection).
     pub fn run_job(&self, job_id: &str, owner: &str) -> Result<JobRecord, EngineError> {
         let claimed = self.control()?.claim_job_once(job_id, owner)?;
+        let _progress_cleanup = scan_progress_guard::ScanProgressGuard {
+            entries: &self.scan_progress,
+            key: (job_id.to_owned(), claimed.fencing_token),
+        };
         // An expired owner cannot write after the new claim. Reclaim only
         // generations strictly older than the active fencing token.
         self.graph()?
@@ -732,6 +772,50 @@ impl Engine {
         drop(cancellations);
         outcome?;
         Ok(record)
+    }
+
+    /// 按作业实际 scope 授权读取真实扫描进度；非扫描阶段不捏造计数。
+    pub fn job_progress(
+        &self,
+        job_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<serde_json::Value, EngineError> {
+        let job = self.job_status(job_id)?;
+        self.require(
+            authorizer,
+            principal,
+            &Permission::OperationView,
+            &job.scope_id,
+        )?;
+        let entries = self
+            .scan_progress
+            .lock()
+            .map_err(|_| EngineError::Business(BusinessError::InternalError))?;
+        let counts=entries.get(&(job_id.to_owned(),job.fencing_token)).map(|p|serde_json::json!({"files":p.files,"directories":p.dirs,"bytes":p.bytes.to_string(),"read_errors":p.errors}));
+        Ok(serde_json::json!({"job_id":job_id,"state":job.state,"observed":counts}))
+    }
+
+    /// 解析已完成作业实际发布的 revision；认领代次固定，不能返回后来更新的 latest。
+    pub fn revision_for_job(
+        &self,
+        job_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<String, EngineError> {
+        let job = self.job_status(job_id)?;
+        self.require(
+            authorizer,
+            principal,
+            &Permission::OperationView,
+            &job.scope_id,
+        )?;
+        if job.state != JobState::Completed {
+            return Err(EngineError::Business(BusinessError::Conflict));
+        }
+        let revision = format!("rev-{}-{}", job_id, job.fencing_token);
+        self.authorize_revision(Some(&job.scope_id), &revision, principal, authorizer)?;
+        Ok(revision)
     }
 
     /// Loads one durable job record (reconnect-safe business state, MCP-05 seed).
@@ -1263,6 +1347,18 @@ impl Engine {
         )?)
     }
 
+    /// 创建带会话取消标志的独立只读连接；关闭会话会中断 SQLite 执行。
+    pub fn revision_reader_with_cancel(
+        &self,
+        cancel: Arc<AtomicBool>,
+    ) -> Result<SqliteSnapshotStore, EngineError> {
+        Ok(SqliteSnapshotStore::open_reader(
+            &self.graph_path,
+            1000,
+            Some(cancel),
+        )?)
+    }
+
     /// 读取 revision 的快照元信息，避免加载所有节点。
     pub fn revision_snapshot(
         &self,
@@ -1754,6 +1850,9 @@ impl Engine {
                 last_heartbeat = now_ms();
             }
             let progress = handle.progress.snapshot();
+            if let Ok(mut entries) = self.scan_progress.lock() {
+                entries.insert((job_id.to_owned(), job.fencing_token), progress.clone());
+            }
             if progress.files.saturating_add(progress.dirs)
                 > self.max_nodes_per_scan.min(self.scan_budget.max_nodes)
                 || now_ms().saturating_sub(started_at_unix_ms) > self.scan_budget.max_duration_ms
@@ -1792,7 +1891,14 @@ impl Engine {
                 EngineError::Io(error)
             }
         })?;
-        let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))?;
+        let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))
+            .map_err(|error| {
+                if error.kind() == io::ErrorKind::Unsupported {
+                    EngineError::Business(BusinessError::Unsupported)
+                } else {
+                    EngineError::Io(error)
+                }
+            })?;
         drop(tree);
         let window = ScanWindow {
             started_at_unix_ms,
@@ -1892,7 +1998,7 @@ impl Engine {
         }
         let v1_nodes: Vec<diskgraph_core::DiskNode> =
             scanned.nodes.into_iter().map(|node| node.v1).collect();
-        let revision_id = format!("rev-{}", uuid::Uuid::new_v4());
+        let revision_id = format!("rev-{}-{}", job_id, job.fencing_token);
         let published_at = now_ms();
         let observed_graph = DiskGraph {
             snapshot: scanned.snapshot,
@@ -1910,7 +2016,8 @@ impl Engine {
             return Err(EngineError::Business(BusinessError::PermissionDenied));
         }
         if control.policy_state()?.is_some() {
-            self.require(
+            Self::require_with_control(
+                &control,
                 &control.authorizer()?,
                 &job.principal,
                 &Permission::IndexWrite,
@@ -1992,8 +2099,38 @@ impl Engine {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<(), EngineError> {
+        let control = self.control()?;
+        Self::require_with_control(&control, authorizer, principal, permission, scope)
+    }
+
+    fn require_with_control(
+        control: &diskgraph_store::ControlStore,
+        authorizer: &dyn Authorizer,
+        principal: &PrincipalId,
+        permission: &Permission,
+        scope: &ScopeId,
+    ) -> Result<(), EngineError> {
         match authorizer.decide(principal, permission, scope) {
-            diskgraph_core::Decision::Allowed => Ok(()),
+            diskgraph_core::Decision::Allowed => {
+                // 请求能力只是上限；持久策略存在时，始终与当前数据库授权取交集。
+                let denied = if scope == &admin_scope() {
+                    control.policy_state()?.is_some()
+                        && !matches!(
+                            control.authorizer()?.decide(principal, permission, scope),
+                            diskgraph_core::Decision::Allowed
+                        )
+                } else if control.policy_state()?.is_some() {
+                    control.live_permission(principal, permission, scope)? == Some(false)
+                } else {
+                    // 没有持久策略的可信内部兼容入口仍由传入 authorizer 决定。
+                    false
+                };
+                if denied {
+                    Err(EngineError::Business(BusinessError::PermissionDenied))
+                } else {
+                    Ok(())
+                }
+            }
             diskgraph_core::Decision::Denied(_) => {
                 Err(EngineError::Business(BusinessError::PermissionDenied))
             }

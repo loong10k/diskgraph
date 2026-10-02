@@ -175,6 +175,10 @@ enum Command {
         revision: String,
         #[arg(long)]
         entity: String,
+        #[arg(long, default_value_t = 300)]
+        limit: u64,
+        #[arg(long)]
+        after_edge: Option<String>,
     },
     /// C13: typed relations of one entity.
     Related {
@@ -190,6 +194,10 @@ enum Command {
         /// Outgoing (source) edges; omit for incoming.
         #[arg(long)]
         outgoing: bool,
+        #[arg(long, default_value_t = 300)]
+        limit: u64,
+        #[arg(long)]
+        after_edge: Option<String>,
     },
     /// C12: largest direct children of a node (bounded, explicit size kind).
     Top {
@@ -1125,18 +1133,22 @@ fn dispatch(
             scope,
             revision,
             entity,
+            limit,
+            after_edge,
         } => {
-            let _ = scope;
-            match engine.explain_entity(revision, entity, principal, authorizer)? {
-                Some((entity, edges, evidence)) => {
-                    out.push(envelope_line(
-                        engine,
-                        Ok(serde_json::json!({ "entity": entity, "edges": edges, "evidence": evidence })),
-                    ));
-                    Ok(())
-                }
-                None => Err(EngineError::Business(BusinessError::NotFound)),
-            }
+            let scope_id = ScopeId::new(scope.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.authorize_revision(Some(&scope_id), revision, principal, authorizer)?;
+            let data = engine.explain_bounded(
+                revision,
+                entity,
+                after_edge.as_deref(),
+                *limit,
+                principal,
+                authorizer,
+            )?;
+            out.push(envelope_line(engine, Ok(data)));
+            Ok(())
         }
         Command::Related {
             scope,
@@ -1144,8 +1156,12 @@ fn dispatch(
             entity,
             relation,
             outgoing,
+            limit,
+            after_edge,
         } => {
-            let _ = scope;
+            let scope_id = ScopeId::new(scope.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.authorize_revision(Some(&scope_id), revision, principal, authorizer)?;
             let relation = match relation {
                 Some(name) => Some(
                     Relation::parse(name)
@@ -1153,12 +1169,17 @@ fn dispatch(
                 ),
                 None => None,
             };
-            let edges =
-                engine.related(revision, entity, relation, *outgoing, principal, authorizer)?;
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({ "edges": edges })),
-            ));
+            let data = engine.related_bounded(
+                revision,
+                entity,
+                relation,
+                *outgoing,
+                after_edge.as_deref(),
+                *limit,
+                principal,
+                authorizer,
+            )?;
+            out.push(envelope_line(engine, Ok(data)));
             Ok(())
         }
         Command::Top {

@@ -19,6 +19,7 @@ use std::path::PathBuf;
 
 use diskgraph_core::{Authorizer, PrincipalId, ResourceLocator, ScopeId, Verdict};
 
+use crate::VerifyLimits;
 use crate::content::{ConservativeProbe, DigestOutcome, InspectionRequest};
 use crate::{ComparisonReport, Engine, EngineError};
 
@@ -46,6 +47,8 @@ impl Default for VerifyBudget {
 /// What a verification pass did, and what it could not do.
 #[derive(Clone, Copy, Debug, Default, serde::Serialize)]
 pub struct VerifySummary {
+    /// 已尝试核验的文件对，任一侧失败也消耗文件预算。
+    pub attempted_files: u64,
     /// Files whose contents were read on both sides and matched.
     pub confirmed_same: u64,
     /// Files whose contents were read and differ.
@@ -78,6 +81,32 @@ pub fn verify_same_rows(
     authorizer: &dyn Authorizer,
     budget: VerifyBudget,
 ) -> Result<(ComparisonReport, VerifySummary), EngineError> {
+    verify_same_rows_with_limits(
+        engine,
+        report,
+        left_scope,
+        right_scope,
+        principal,
+        authorizer,
+        budget,
+        &VerifyLimits::default(),
+    )
+}
+
+/// 使用累计字节、绝对期限与取消信号核验；已有 API 使用保守默认上限。
+#[allow(clippy::too_many_arguments)] // 比较上下文与共享预算是独立必需参数。
+pub fn verify_same_rows_with_limits(
+    engine: &Engine,
+    report: ComparisonReport,
+    left_scope: &ScopeId,
+    right_scope: &ScopeId,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+    budget: VerifyBudget,
+    limits: &VerifyLimits,
+) -> Result<(ComparisonReport, VerifySummary), EngineError> {
+    let deadline =
+        std::time::Instant::now() + std::time::Duration::from_millis(limits.max_duration_ms);
     // The paths come from the roots the report recorded, not from the scope
     // ids: a scope id is an identifier, and joining a relative path onto one
     // would produce a path the engine's containment check rightly refuses.
@@ -100,8 +129,13 @@ pub fn verify_same_rows(
             && row
                 .left_bytes
                 .is_some_and(|bytes| bytes <= budget.max_bytes_per_file);
-        let out_of_budget =
-            summary.confirmed_same + summary.confirmed_different >= budget.max_files;
+        let out_of_budget = summary.attempted_files >= budget.max_files
+            || summary.bytes_read >= limits.max_total_bytes
+            || std::time::Instant::now() >= deadline
+            || limits
+                .cancel
+                .as_ref()
+                .is_some_and(|cancel| cancel.load(std::sync::atomic::Ordering::Relaxed));
         if !promotable || out_of_budget {
             // A row that was already a difference has an answer and needs no
             // verification. A row that was "same" and did not get verified -
@@ -116,28 +150,42 @@ pub fn verify_same_rows(
         }
         let left_path = left_root.join(&row.path);
         let right_path = right_root.join(&row.path);
-        match (
-            digest_of(
-                engine, left_scope, principal, authorizer, &left_path, budget,
-            ),
-            digest_of(
-                engine,
-                right_scope,
-                principal,
-                authorizer,
-                &right_path,
-                budget,
-            ),
-        ) {
+        summary.attempted_files += 1;
+        let left = digest_of(
+            engine,
+            left_scope,
+            principal,
+            authorizer,
+            &left_path,
+            budget
+                .max_bytes_per_file
+                .min(limits.max_total_bytes.saturating_sub(summary.bytes_read)),
+            limits,
+            deadline,
+        );
+        summary.bytes_read = summary.bytes_read.saturating_add(left.bytes_read);
+        let right = digest_of(
+            engine,
+            right_scope,
+            principal,
+            authorizer,
+            &right_path,
+            budget
+                .max_bytes_per_file
+                .min(limits.max_total_bytes.saturating_sub(summary.bytes_read)),
+            limits,
+            deadline,
+        );
+        summary.bytes_read = summary.bytes_read.saturating_add(right.bytes_read);
+        match (left.digest, right.digest) {
             (Some(left), Some(right)) => {
-                summary.bytes_read += left.bytes_read + right.bytes_read;
                 let mut row = row;
                 // The values travel with the row, not just the conclusion: a
                 // caller comparing against a manifest elsewhere needs the
                 // hash, and a caller that trusts the verdict has to be able to
                 // see which bytes were hashed to reach it.
-                row.digests = Some((left.digest.clone(), right.digest.clone()));
-                if left.digest == right.digest {
+                row.digests = Some((left.clone(), right.clone()));
+                if left == right {
                     summary.confirmed_same += 1;
                     row.verdict = Verdict::Same {
                         evidence: diskgraph_core::Evidence::Content,
@@ -176,37 +224,51 @@ fn native_root(locator: &ResourceLocator) -> Result<PathBuf, EngineError> {
 
 /// One side's digest, or nothing when it could not be read.
 struct OneDigest {
-    digest: String,
+    digest: Option<String>,
     bytes_read: u64,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn digest_of(
     engine: &Engine,
     scope: &ScopeId,
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     path: &PathBuf,
-    budget: VerifyBudget,
-) -> Option<OneDigest> {
+    max_bytes: u64,
+    limits: &VerifyLimits,
+    deadline: std::time::Instant,
+) -> OneDigest {
+    if max_bytes == 0 || std::time::Instant::now() >= deadline {
+        return OneDigest {
+            digest: None,
+            bytes_read: 0,
+        };
+    }
     let request = InspectionRequest {
         scope_id: scope,
         principal,
         path,
         offset: 0,
-        max_bytes: budget.max_bytes_per_file,
-        cancel: None,
+        max_bytes,
+        cancel: limits.cancel.as_deref(),
         chunk_bytes: 1 << 20,
     };
-    let outcome: DigestOutcome = engine
-        .digest_bounded(&request, &ConservativeProbe, authorizer)
-        .ok()?;
+    let outcome: DigestOutcome =
+        match engine.digest_bounded_until(&request, &ConservativeProbe, authorizer, deadline) {
+            Ok(outcome) => outcome,
+            Err(_) => {
+                return OneDigest {
+                    digest: None,
+                    bytes_read: 0,
+                };
+            }
+        };
     // A digest that stopped is not a digest: the bytes were not all read, so
     // the hash says nothing about the file.
-    if !outcome.confirmed() || outcome.digest_hex.is_empty() {
-        return None;
-    }
-    Some(OneDigest {
-        digest: outcome.digest_hex,
+    OneDigest {
+        digest: (outcome.confirmed() && !outcome.digest_hex.is_empty())
+            .then_some(outcome.digest_hex),
         bytes_read: outcome.bytes_digested,
-    })
+    }
 }

@@ -120,7 +120,14 @@ fn node_and_top_do_not_decode_unrelated_revision_rows() {
     )
     .unwrap();
     for tool in ["diskgraph_node", "diskgraph_top", "diskgraph_search"] {
-        let frame = diskgraph_mcp::protocol::decode_request(&serde_json::json!({"jsonrpc":"2.0", "id":1, "method":"tools/call", "params":{"name":tool, "arguments":{"scope":scope.as_str(), "limit":1, "pattern":"largest"}}}).to_string()).unwrap();
+        let mut arguments = serde_json::json!({"scope":scope.as_str()});
+        if tool != "diskgraph_node" {
+            arguments["limit"] = serde_json::json!(1);
+        }
+        if tool == "diskgraph_search" {
+            arguments["pattern"] = serde_json::json!("largest");
+        }
+        let frame = diskgraph_mcp::protocol::decode_request(&serde_json::json!({"jsonrpc":"2.0", "id":1, "method":"tools/call", "params":{"name":tool, "arguments":arguments}}).to_string()).unwrap();
         let response = service.handle(&frame);
         assert_eq!(response["result"]["isError"], false, "{tool}: {response}");
     }

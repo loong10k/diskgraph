@@ -234,6 +234,82 @@ fn the_file_budget_bounds_the_pass() {
 
 #[cfg(unix)]
 #[test]
+fn failed_pairs_consume_the_attempt_and_successful_side_bytes() {
+    let fixture = fixture();
+    let principal = PrincipalId::new("verify").unwrap();
+    fixture
+        .engine
+        .set_content_read(&fixture.left_scope, &principal, true)
+        .unwrap();
+    let report = compare(&fixture);
+    let expected = report
+        .rows
+        .iter()
+        .find(|row| row.is_file && matches!(row.verdict, Verdict::Same { .. }))
+        .unwrap()
+        .left_bytes
+        .unwrap();
+    let (_, summary) = verify(
+        &fixture,
+        report,
+        VerifyBudget {
+            max_files: 1,
+            max_bytes_per_file: 1 << 20,
+        },
+    );
+    assert_eq!(
+        summary.bytes_read, expected,
+        "failed right side must not erase left-side cost or reset the file budget"
+    );
+    assert_eq!(summary.unverified, 2);
+}
+
+#[cfg(unix)]
+#[test]
+fn cumulative_budget_and_expired_deadline_never_confirm_partial_hashes() {
+    let fixture = fixture();
+    let principal = PrincipalId::new("verify").unwrap();
+    for scope in [&fixture.left_scope, &fixture.right_scope] {
+        fixture
+            .engine
+            .set_content_read(scope, &principal, true)
+            .unwrap();
+    }
+    let policy = fixture.engine.policy_authorizer().unwrap();
+    for limits in [
+        diskgraph_engine::VerifyLimits {
+            max_total_bytes: 6000,
+            max_duration_ms: 30_000,
+            cancel: None,
+        },
+        diskgraph_engine::VerifyLimits {
+            max_total_bytes: u64::MAX,
+            max_duration_ms: 0,
+            cancel: None,
+        },
+    ] {
+        let (_, summary) = diskgraph_engine::verify::verify_same_rows_with_limits(
+            &fixture.engine,
+            compare(&fixture),
+            &fixture.left_scope,
+            &fixture.right_scope,
+            &principal,
+            &policy,
+            VerifyBudget::default(),
+            &limits,
+        )
+        .unwrap();
+        assert!(summary.bytes_read <= limits.max_total_bytes);
+        if limits.max_duration_ms == 0 {
+            assert_eq!(summary.bytes_read, 0);
+        }
+        assert_eq!(summary.confirmed_same + summary.confirmed_different, 0);
+        assert!(!summary.is_complete());
+    }
+}
+
+#[cfg(unix)]
+#[test]
 fn withdrawing_the_grant_stops_the_reads() {
     let fixture = fixture();
     let principal = PrincipalId::new("verify").unwrap();

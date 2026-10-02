@@ -1,0 +1,30 @@
+# Full-platform readiness implementation record — 2026-10-02
+
+**The full-platform gate is incomplete.** OpenSpec `implement-diskgraph-platform`, section 15 and RE-07, is the source of truth. The earlier desktop read-only gate does not certify mobile providers, native hosts, platform file operations or distribution. Dangerous CLI/MCP file tools remain disabled. Nothing has been published or connected to production data.
+
+Implemented with isolated regressions: actual MCP input schemas, explicit revision/non-root node queries and unknown-argument rejection; stable bidirectional relation pagination with entity/evidence/cursor byte checks before decoding; failed content verification charged to attempt and actual byte budgets; per-chunk Ops authorization/approval/deadline/cancellation checks, approved source versions bound to atomic publication, and immutable terminal states; persistent FFI services, real scan progress, shared handles, shutdown cancellation and result revisions fixed to job/fence. Individual grant revocation prevents running and completed handles returning cached data. Engine scope listing and its admin fallback also check live grants. Trusted internal compatibility without a persisted policy is excluded from remote entry points.
+
+The scanner pin, source and digests are unchanged. Irrecoverable non-Unicode names reject publication to avoid addressing another file through a lossy display name. Valid U+FFFD names cause at most one additional enumeration per parent. The Windows observer reads actual volume/file identity through an attribute handle; a 128-bit ID that cannot fit the existing 64-bit field remains unknown. macOS content/copy operations disable dataless materialization for the current thread and restore its original policy. This local policy test does not certify a real cloud provider or equivalent Linux/Windows protection.
+
+| Platform/capability | Evidence obtained | Remaining gate |
+| --- | --- | --- |
+| macOS arm64 CLI/MCP | Current release binary: stdio 18/18, authenticated HTTP/legacy SSE 13/13; workspace and narrow-read benchmark | Production soak, SLO, backup/monitoring and signed distribution |
+| macOS Intel, Linux x64/arm64, Windows x64 | Historical native read-only gate; native Linux ARM CI and Windows identity regression added | Record the current SHA's remote results separately; configuration is not execution evidence |
+| Swift/Kotlin FFI | Both real language hosts scan/query/poll and exercise v1 compatibility; 18 Rust FFI tests; Swift system SQLite CRUD in the same process | GRDB/Room coexistence, GUI scheduling, XCFramework/AAR and application workflows |
+| Native file operations | macOS library fixtures cover revocation, cancellation, in-place mutation, target conflicts and fidelity budgets | Linux/Windows adapters and real-volume permissions/usage/recovery/fidelity; public writes stay disabled |
+| Android/iOS | URI/provider models and explicit unsupported capability reporting | Providers, grant lifecycle, mobile packages, simulators and real devices |
+| Cloud placeholders/non-Unicode | macOS thread policy, local identity/budget tests, fail-closed lossy names | Real cloud no-download tests; native Linux collision and Windows handle checks |
+
+This host has only the `aarch64-apple-darwin` Rust target, Command Line Tools, Android SDK/adb and Swift/Kotlin command-line hosts. Android NDK, Gradle, full Xcode, connected devices and signing material are missing. Toolchain installation confirmation is pending. Compilation, fakes and another OS's success do not substitute for device/provider acceptance.
+
+Workspace tests, Clippy with `-D warnings`, package-directed fmt and OpenSpec strict have run locally. The subsequently added scope-listing revocation regression and affected MCP/FFI targets also passed. Independent code review is APPROVE and architecture review is CLEAR; these are source/contract evidence. Final full-suite and remote results will be appended when available.
+
+The release benchmark uses isolated temporary fixtures with 32-byte files, and separate processes for 20k/200k wide directories and a 300-level deep tree. [Raw measurements](benchmarks/full-platform-2026-10-02.json) include p50/p95, scan/process peak RSS, database/WAL and four-reader concurrency. Paired full-load versus narrow top-20 p95 is 12.77→0.23 ms and 108.70→0.38 ms; positive candidates are 12.69→1.89 ms and 102.81→0.44 ms. Scans take 0.37/4.94 seconds, with scan high-water RSS of 36.2/222.6 MB and database sizes of 31.4/315.6 MB. Whole-process peaks of 116.5/923.0 MB include the old full-load comparison and are not narrow-query peaks. These hot-cache observations are neither cross-platform comparisons nor SLAs. There is no strict scan RSS cap.
+
+The relation fixture with 200k unrelated edges verifies adjacency work using SQLite VM steps. Deep-path FFI paging checks response bytes and advances by the actual returned count. Exact wide-directory aggregation, a total TUI frame budget and real device/distribution capabilities remain incomplete.
+
+Reproduce with package-directed `cargo fmt … -- --check` without touching vendored source, `cargo test --workspace --all-targets --locked --no-fail-fast`, workspace Clippy `-D warnings`, OpenSpec strict, the two `scripts/accept-readonly-*.py` protocol scripts against current binaries, and `scripts/ffi-bindings-smoke.sh`. `--swift-only` proves only Swift. Linux ARM CI and release jobs use a native runner and execute protocol acceptance.
+
+Graph schema remains 8 with WAL/NORMAL; control durability remains FULL. Power loss can discard recent rebuildable index commits, and the databases have no shared atomic transaction. Consistent migration backups and isolated upgrade/rollback gates remain. Unknown legacy ownership and unsupported fidelity fail closed; refusal is not an implemented platform feature.
+
+Final local full-suite gate: 556 passed / 12 ignored; current binaries passed stdio 18/18 and authenticated HTTP/SSE 13/13; both Swift/Kotlin hosts passed. Ignored real-environment/expensive fixtures are not counted as passing; the isolated release benchmark was executed separately.

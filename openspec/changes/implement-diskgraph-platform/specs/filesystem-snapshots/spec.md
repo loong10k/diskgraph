@@ -26,6 +26,10 @@
 - **WHEN** 历史快照的文件 ID 被新文件复用
 - **THEN** 不能仅凭文件 ID 宣称它是原文件。
 
+#### Scenario: Windows native identity cannot fit the compatibility field
+- **WHEN** Windows 的原生 128 位 file ID 无法无损放入已有 64 位兼容字段，或读取句柄身份失败
+- **THEN** 身份返回 unknown，不截断、散列或采用路径冒充；NTFS 可表示的身份以实际卷序列号限定，并通过硬链接与替换夹具验证。
+
 ### Requirement: FS-03 Size semantics
 系统 SHALL 分别表达 apparent、allocated、direct/subtree 尺寸与未知数量，区分自身 mtime 和子树聚合时间；硬链接统计口径明确且不把观察尺寸当作可释放保证。
 

@@ -4,6 +4,13 @@
 
 ## ADDED Requirements
 
+### Requirement: PF-07 Cached native job responses obey live grants
+系统 SHALL 对运行中、已完成及合并原生作业的进度与结果重新检查当前任务查看和元数据授权；不得用启动授权快照或缓存结果绕过单项撤权。没有持久策略的可信内部兼容路径保持独立，不进入远程服务。
+
+#### Scenario: Individual permission revocation
+- **WHEN** 保留索引写权限而单独撤销元数据读取或任务查看
+- **THEN** 运行中进度与新返回的结果被拒绝；已经完成句柄的轮询和缓存结果同样被拒绝，不要求同时撤销两个权限才生效。
+
 ### Requirement: PF-01 Shared native API
 Rust/Swift/Kotlin 入口 SHALL 使用同一版本化核心服务与授权语义，支持后台作业、分页、取消及结构化错误，不要求 PruneX 经 MCP 子进程调用本机引擎。
 
@@ -42,3 +49,23 @@ iOS SHALL 从最初契约就限制在 App 自有及用户授予的文档范围�
 #### Scenario: Selected document lifecycle
 - **WHEN** 用户选择文档后访问结束或授权失效
 - **THEN** 宿主释放访问资源，后续作业重验或拒绝，不保留无限访问假设。
+
+### Requirement: PF-06 Native service lifetime
+Native hosts SHALL have a persistent read-only service session. Closing the session SHALL deny subsequent work and cancel active session jobs. Query results SHALL use authorized revision ownership and bounded reads. Existing stateless FFI signatures SHALL remain trusted local compatibility entry points and SHALL not be used for a remote identity.
+
+#### Scenario: Host closes while a scan is running
+- **WHEN** a host closes its native service or releases its final scan handle
+- **THEN** cancellation is requested cooperatively and new session queries are refused; no detached job is silently treated as a completed host request.
+
+#### Scenario: Scope revoked during host lifetime
+- **WHEN** the registered scope is revoked after the native service opens
+- **THEN** subsequent node/page queries use current authorization and cannot return the revoked revision.
+
+#### Scenario: Historical query ignores unrelated corrupt node
+- **WHEN** a host asks for one locator's growth or a bounded candidate page
+- **THEN** unrelated nodes in either revision are not decoded.
+
+#### Scenario: Coalesced native scans
+- **WHEN** two native handles request the same active scope scan
+- **THEN** both can await the shared durable job and obtain its same revision, without a second ownership-claim failure
+- **AND** results resolve the published job/fencing generation rather than an unrelated later scope revision

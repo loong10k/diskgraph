@@ -1,34 +1,26 @@
 use crate::OpsError;
 use std::path::Path;
 
-/// 将父目录固定到句柄，逐组件拒绝链接，原子发布时禁止覆盖任何既有目标。
+/// 将批准时捕获的文件版本绑定到禁止覆盖发布，不重新采集预期版本。
 #[cfg(any(target_os = "macos", target_os = "linux"))]
-pub(crate) fn rename_no_replace(
+pub(crate) fn rename_approved_no_replace(
     source: &Path,
     target: &Path,
-    expected_identity: Option<&str>,
+    approved: &std::fs::Metadata,
 ) -> Result<(), OpsError> {
-    let bound_source = crate::bound_path::BoundPath::open(source)?;
-    let before = bound_source.read()?.metadata()?;
-    if expected_identity.is_none()
-        || crate::identity_of(source, &before).as_deref() != expected_identity
-    {
-        return Err(OpsError::Stale(
-            "source identity changed before publication".into(),
-        ));
-    }
+    let source = crate::bound_path::BoundPath::open(source)?;
     let target = crate::bound_path::BoundPath::open(target)?;
-    bound_source.rename_verified_to(&target, &before)
+    source.rename_verified_to(&target, approved)
 }
 
-/// 无法提供原子禁止覆盖的平台拒绝发布。
+/// 无可靠句柄语义时拒绝批准版本发布。
 #[cfg(not(any(target_os = "macos", target_os = "linux")))]
-pub(crate) fn rename_no_replace(
+pub(crate) fn rename_approved_no_replace(
     _source: &Path,
     _target: &Path,
-    _expected_identity: Option<&str>,
+    _approved: &std::fs::Metadata,
 ) -> Result<(), OpsError> {
     Err(OpsError::Stale(
-        "unsupported: atomic no-replace publication".into(),
+        "unsupported: approved version publication".into(),
     ))
 }

@@ -80,6 +80,16 @@ def main():
                 "name": "diskgraph_trash", "arguments": {"scope": scopes[0]},
             }},
         ]
+        target_node = next(item for item in first_top["data"]["items"] if item["name"] == "target")
+        requests = [
+            (6,"diskgraph_node",{"scope":scopes[0],"revision":revisions[0],"node_id":target_node["id"]}),
+            (7,"diskgraph_search",{"scope":scopes[0],"pattern":"","limit":1}),
+            (8,"diskgraph_explain",{"revision":revisions[0],"entity":f"resource-{target_node['id']}","limit":1}),
+            (9,"diskgraph_related",{"revision":revisions[0],"entity":f"resource-{target_node['id']}","limit":1}),
+            (10,"diskgraph_changes",{"before":revisions[0],"after":revisions[0]}),
+        ]
+        frames.extend({"jsonrpc":"2.0","id":number,"method":"tools/call","params":{"name":name,"arguments":arguments}} for number,name,arguments in requests)
+        frames.append({"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"diskgraph_node","arguments":{"scope":scopes[0],"pattern":"unused"}}})
         session = subprocess.run(
             [MCP, "--data-dir", data, "--profile", "read-full", "--transport", "stdio"],
             input="\n".join(json.dumps(frame) for frame in frames) + "\n",
@@ -93,6 +103,20 @@ def main():
             result = responses[3 + index]["result"]["structuredContent"]
             require(f"stdio_scope_{index}_bound", result["ok"] and result["scope_id"] == scope, checks)
         require("stdio_write_tool_disabled", responses[5]["error"]["data"]["business_code"] == "unsupported", checks)
+        schemas={tool["name"]:tool["inputSchema"] for tool in responses[2]["result"]["tools"]}
+        for number,name,arguments in requests:
+            schema=schemas[name]
+            valid=set(arguments)<=set(schema["properties"]) and set(schema.get("required",[]))<=set(arguments)
+            for key,value in arguments.items():
+                field=schema["properties"][key]
+                valid=valid and ((field["type"]=="string" and isinstance(value,str)) or (field["type"]=="integer" and type(value) is int))
+                if isinstance(value,str): valid=valid and len(value)>=field.get("minLength",0)
+            result=responses[number].get("result",{}).get("structuredContent",{})
+            require(f"stdio_schema_and_dispatch_{name}",valid and result.get("ok") is True,checks)
+        node=responses[6].get("result",{}).get("structuredContent",{}).get("data",{}).get("node",{})
+        require("stdio_explicit_nonroot_node",node.get("id")==target_node["id"],checks)
+        require("stdio_unknown_argument_rejected",responses[11].get("error",{}).get("code")==-32602,checks)
+
 
         forwarded = subprocess.run(
             [CLI, "--data-dir", data, "serve", "--profile", "read-full", "--transport", "stdio"],

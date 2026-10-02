@@ -15,6 +15,7 @@ use std::path::{Path, PathBuf};
 use diskgraph_core::{BusinessError, DiskGraph, PlaceholderPolicy, PrincipalId, ScopeId};
 
 use crate::{Engine, EngineError};
+pub use diskgraph_disktree::HydrationGuard;
 
 /// Milliseconds since the epoch for logs.
 fn now_ms() -> u64 {
@@ -26,9 +27,8 @@ fn now_ms() -> u64 {
 
 /// Detects a cloud placeholder. Real platforms need platform API surface
 /// (macOS dataless-flag stat, Windows reparse cloud attributes); the
-/// production probe is therefore conservative — it never claims a file is a
-/// placeholder it cannot prove, and the read path treats "unknown" as
-/// "proceed under the no-hydration contract". Tests inject fakes.
+/// 此探针只是诊断；实际内容访问必须同时执行平台禁止物化策略。
+/// Tests inject fakes, which never replace the native access guard.
 pub trait PlaceholderProbe {
     fn is_placeholder(&self, path: &Path) -> bool;
 }
@@ -38,8 +38,17 @@ pub trait PlaceholderProbe {
 pub struct ConservativeProbe;
 
 impl PlaceholderProbe for ConservativeProbe {
-    fn is_placeholder(&self, _path: &Path) -> bool {
-        false
+    fn is_placeholder(&self, path: &Path) -> bool {
+        #[cfg(target_os = "macos")]
+        {
+            use std::os::macos::fs::MetadataExt;
+            std::fs::symlink_metadata(path).is_ok_and(|meta| meta.st_flags() & 0x40000000 != 0)
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = path;
+            false
+        }
     }
 }
 
@@ -54,6 +63,12 @@ pub enum InspectionStop {
     Unstable,
     /// 字节预算不足以确认完整内容。
     ByteLimit,
+    /// 总核验期限已到，后续摘要不可作为确认结果。
+    Deadline,
+    /// 已读内容后发生撤权，读取成本仍须保留。
+    PermissionRevoked,
+    /// 读取中断或 I/O 错误，部分摘要作废。
+    ReadError,
 }
 
 /// What a bounded read produced. The bytes are the caller's to use and drop;
@@ -225,6 +240,7 @@ impl Engine {
         probe: &dyn PlaceholderProbe,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<ReadOutcome, EngineError> {
+        let _hydration = diskgraph_disktree::HydrationGuard::enter()?;
         self.require(
             authorizer,
             request.principal,
@@ -338,6 +354,28 @@ impl Engine {
         probe: &dyn PlaceholderProbe,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<DigestOutcome, EngineError> {
+        let outcome = self.digest_bounded_until(
+            request,
+            probe,
+            authorizer,
+            std::time::Instant::now() + std::time::Duration::from_secs(30),
+        )?;
+        // 旧接口保留撤权错误语义；批量核验用 until 接口保留已读取成本。
+        if outcome.stopped == Some(InspectionStop::PermissionRevoked) {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        Ok(outcome)
+    }
+
+    /// 在共享绝对期限之前核验内容；失败和撤权后仍返回实际读取成本。
+    pub fn digest_bounded_until(
+        &self,
+        request: &InspectionRequest<'_>,
+        probe: &dyn PlaceholderProbe,
+        authorizer: &dyn diskgraph_core::Authorizer,
+        deadline: std::time::Instant,
+    ) -> Result<DigestOutcome, EngineError> {
+        let _hydration = diskgraph_disktree::HydrationGuard::enter()?;
         self.require(
             authorizer,
             request.principal,
@@ -379,19 +417,40 @@ impl Engine {
         let mut stopped = None;
         let mut buffer = vec![0_u8; chunk];
         loop {
-            self.require(
-                authorizer,
-                request.principal,
-                &diskgraph_core::Permission::ContentRead,
-                request.scope_id,
-            )?;
-            if self.control_store()?.live_permission(
-                request.principal,
-                &diskgraph_core::Permission::ContentRead,
-                request.scope_id,
-            )? == Some(false)
+            if std::time::Instant::now() >= deadline {
+                stopped = Some(InspectionStop::Deadline);
+                break;
+            }
+            if self
+                .require(
+                    authorizer,
+                    request.principal,
+                    &diskgraph_core::Permission::ContentRead,
+                    request.scope_id,
+                )
+                .is_err()
             {
-                return Err(EngineError::Business(BusinessError::PermissionDenied));
+                stopped = Some(InspectionStop::PermissionRevoked);
+                break;
+            }
+            match self.control_store().and_then(|store| {
+                store
+                    .live_permission(
+                        request.principal,
+                        &diskgraph_core::Permission::ContentRead,
+                        request.scope_id,
+                    )
+                    .map_err(EngineError::from)
+            }) {
+                Ok(Some(false)) => {
+                    stopped = Some(InspectionStop::PermissionRevoked);
+                    break;
+                }
+                Err(_) => {
+                    stopped = Some(InspectionStop::ReadError);
+                    break;
+                }
+                _ => {}
             }
             if let Some(cancel) = request.cancel
                 && cancel.load(std::sync::atomic::Ordering::SeqCst)
@@ -407,7 +466,13 @@ impl Engine {
             }
             let remaining = usize::try_from(request.max_bytes - total).unwrap_or(usize::MAX);
             let want = remaining.min(buffer.len());
-            let read = file.read(&mut buffer[..want])?;
+            let read = match file.read(&mut buffer[..want]) {
+                Ok(read) => read,
+                Err(_) => {
+                    stopped = Some(InspectionStop::ReadError);
+                    break;
+                }
+            };
             if read == 0 {
                 break;
             }
@@ -416,7 +481,9 @@ impl Engine {
             // A file written or removed mid-digest voids the run: re-stat
             // between chunks so the recorded digest is never half of two
             // versions, or a digest of a file that is already gone.
-            if file_identity(&file.metadata()?) != identity_before
+            if !file
+                .metadata()
+                .is_ok_and(|metadata| file_identity(&metadata) == identity_before)
                 || !identity_stable(&identity_before, request.path)
             {
                 stopped = Some(InspectionStop::Unstable);
@@ -425,7 +492,9 @@ impl Engine {
         }
         if stopped.is_none()
             && (total != metadata.len()
-                || file_identity(&file.metadata()?) != identity_before
+                || !file
+                    .metadata()
+                    .is_ok_and(|metadata| file_identity(&metadata) == identity_before)
                 || !identity_stable(&identity_before, request.path))
         {
             stopped = Some(InspectionStop::Unstable);
@@ -504,6 +573,9 @@ impl ExportPolicy {
                 InspectionStop::Cancelled => "cancelled",
                 InspectionStop::Unstable => "unstable",
                 InspectionStop::ByteLimit => "byte_limit",
+                InspectionStop::Deadline => "deadline",
+                InspectionStop::PermissionRevoked => "permission_revoked",
+                InspectionStop::ReadError => "read_error",
             }),
             "observed_at_unix_ms": outcome.observed_at_unix_ms,
         });

@@ -120,3 +120,18 @@ The system SHALL bind staging creation, file writes, publication and cleanup to 
 #### Scenario: Copy parent is replaced
 - **WHEN** the target parent path is replaced with a symlink after verification
 - **THEN** publication and cleanup operate on the fixed original directory handles and do not touch the replacement target
+
+### Requirement: OP-13 Live execution authority and approved source version
+A transfer SHALL recheck the plan expiry, policy version, approval and operation state at each bounded copy observation and before publication/removal. An executor SHALL NOT replace a cancelled or other terminal operation state with success. Irreversible removal SHALL use the file version evidenced against the approved fingerprint.
+
+#### Scenario: Approval withdrawn during staging
+- **WHEN** an approval is revoked after exclusive staging exists
+- **THEN** the copy stops, does not publish a destination, and records an unsuccessful operation
+
+#### Scenario: Cancellation during staging
+- **WHEN** the owner cancels an operation while a transfer is staging
+- **THEN** publication stops and the stored and returned state remains cancelled
+
+#### Scenario: Source rewritten after fingerprint verification
+- **WHEN** the approved inode changes in place between evidence verification and removal
+- **THEN** removal rejects the new version and leaves the source intact

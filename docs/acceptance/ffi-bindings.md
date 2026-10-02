@@ -1,5 +1,13 @@
 # FFI 绑定验收（P7 任务 9.1 / 9.2 / 9.7；9.3 部分）
 
+## 2026-10-02 持久服务复验
+
+当前 `scripts/ffi-bindings-smoke.sh` 重新构建并生成绑定，Swift 6.4 与 Kotlin 2.4.10/JNA 5.17.0 的真实宿主均通过：持久 NativeService、按实际返回数量推进的字节受限分页、结果轮询、关闭会话、v1 查询，以及 Swift 同进程系统 SQLite CRUD。Kotlin 编译失败现在会使脚本失败，JNA 文件摘要须与固定版本一致。Rust FFI 18 项回归覆盖单项撤权、关闭末段竞态、合并句柄与最后引用释放。
+
+轮询不等待扫描完成，但实时授权需要数据库读取，宿主应从后台线程调用。`result_json` 保留旧阻塞兼容入口；新宿主使用 `poll_result_json`。同根扫描共享句柄与 durable job，所有订阅看到同一 job/fence 发布的 revision。Swift 宿主动态链接 Rust dylib 与系统 SQLite；这不证明静态库与 GRDB/Room 的工程级符号隔离，后者仍未完成。
+
+以下 2026-09-29 记录是旧版历史证据，旧“立即/UI 不阻塞”和系统 SQLite 版本查询不代表完整生产宿主验收。当前平台缺口见[全平台实施记录](../production-readiness-full-platform-2026-10-02.zh-CN.md)。
+
 日期：2026-09-29 · 主机：macOS（darwin 27.0.0，arm64，Apple Silicon，Swift 6.4 CLI / Kotlin 2.x + JNA 5.17 / OpenJDK 21）· 执行：`scripts/ffi-bindings-smoke.sh`
 
 结果：**全部通过**。脚本从构建产物重新生成版本化绑定，然后用两种真实语言宿主编译并运行。

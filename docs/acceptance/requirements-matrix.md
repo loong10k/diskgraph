@@ -1,4 +1,6 @@
-# 77 条要求证据矩阵（P10 任务 11.1 / 11.2）
+# 要求证据矩阵（P10 任务 11.1 / 11.2）
+
+2026-10-02 更新：当前 change 有 **88 个唯一 Requirement ID / 90 个声明**；OP-10、ST-05 在不同增量段重复声明，分母不能简单按标题行数计。以下 77 条是原始基线，补充 11 条列于末尾。`supported` 只表示具名实现/回归的限定范围，不能替代完整平台门禁；全平台状态见[当前实施记录](../production-readiness-full-platform-2026-10-02.zh-CN.md)。
 
 日期：2026-09-29 · 分母核对：14 个 spec、**77 条 Requirement**（`grep -c "Requirement:"` = 77，逐条列出于下）。状态口径：**supported** = 实现且具名测试通过；**partial** = 实现但有记录在案的边界；**deferred** = 需要 real-OS/另一产品侧，登记于 `diskgraph_testkit::real_os_requirements()` 与各验收文档，不冒充完成。测试名均为仓库内真实测试（分母 326 个唯一测试名，未编造）。
 
@@ -38,7 +40,7 @@
 | ID | 状态 | 证据 |
 | --- | --- | --- |
 | CT-01 | supported | `content_read_requires_the_content_grant`、`a_read_stops_at_the_byte_budget_and_says_truncated`、`a_read_refuses_links_directories_and_out_of_scope_paths` |
-| CT-02 | supported | `a_placeholder_is_reported_and_never_opened`；`stability_is_void_when_the_object_vanishes_mid_read`；真实云占位设备验证留档（`real_os_requirements` FS-05/CT-02） |
+| CT-02 | partial | macOS HydrationGuard 线程策略及恢复真实测试；占位 fake 与稳定性回归通过；Linux/Windows 原生不下载保护与真实云 provider 未验收 |
 | CT-03 | supported | core duplicates 组（`equal_size_is_a_suspect_never_a_verdict`）+ `digest_bounded` 不稳定即作废 + `duplicate_suspects_group_by_size_and_mark_hard_links` |
 | CT-04 | supported | `metadata_only_export_drops_bytes_and_names_their_count`、`the_redacted_log_never_carries_content`、`the_metadata_only_export_cannot_carry_body_bytes` |
 
@@ -56,10 +58,10 @@
 | ID | 状态 | 证据 |
 | --- | --- | --- |
 | FS-01 | supported | `ScanWindow` 起止/选项指纹（P1-2.5，`ScanWindow.duration_ms` 测试） |
-| FS-02 | supported | v2 无损定位器（disktree 非 UTF-8 往返、identity=stat 对照）；Windows 语义 deferred（8.9 留档） |
+| FS-02 | partial | 定位器原始字节/UTF-16 往返通过；pinned scanner 不可逆名称拒绝发布；Windows 属性句柄身份已实现，原生回归待 CI，不宣称已支持全部名称 |
 | FS-03 | supported | 硬链接去重一次（`hardlinks_count_once`）；st_blocks≠可释放口径（P1-2.6） |
 | FS-04 | supported | 排除与错误分离（`ScanExclusions`）；挂载替换 real-OS 留档 |
-| FS-05 | supported | 不跟随链接/环（`symlink_loop`）；占位不下载（PlaceholderPolicy 默认降级）；真设备留档 |
+| FS-05 | partial | 不跟随链接/环（`symlink_loop`）；占位不下载（PlaceholderPolicy 默认降级）；真设备留档 |
 | FS-06 | supported | `a_rescan_counts_a_missing_path_without_deleting_it`、`a_controlled_rescan_records_absence_without_deleting_history`；事件订阅轮询语义（`the_polling_watcher_reports_...`，平台事件绑定留档） |
 
 ## mcp-transports
@@ -78,7 +80,7 @@
 | ID | 状态 | 证据 |
 | --- | --- | --- |
 | PF-01 | partial | 绑定生成+Swift/Kotlin 真实宿主运行（`ffi-bindings.md`）；异步句柄+取消（ffi 4 测试）；AAR/XCFramework 打包 deferred（9.9） |
-| PF-02 | supported | 引擎/控制双库独立生命周期（P1-2.2）；`the_ffi_layer_is_independent_of_any_host_application`；GRDB/Room 工程夹具 deferred |
+| PF-02 | partial | 引擎/控制双库独立生命周期（P1-2.2）；`the_ffi_layer_is_independent_of_any_host_application`；GRDB/Room 工程夹具 deferred |
 | PF-03 | partial | macOS 真实验收；Windows/Linux 矩阵 deferred（8.9/8.10 留档） |
 | PF-04 | deferred | 无 NDK/设备（`mobile-platforms.md`） |
 | PF-05 | deferred | 无 Xcode/设备（`mobile-platforms.md`） |
@@ -121,9 +123,9 @@
 | OP-01 | supported | `purging_is_refused_rather_than_silently_enabled`、purge 默认无 authority 即禁用 |
 | OP-02 | supported | `a_plan_is_immutable_and_digest_addressed`、`parent_and_child_requests_collapse_to_the_child` |
 | OP-03 | supported | `an_approval_is_bound_to_the_plan_and_its_principal`、`an_expired_approval_does_not_verify`、purge 独立授权（`only_the_configured_authority_may_approve_a_purge`） |
-| OP-04 | supported | `an_object_replaced_after_planning_is_refused`、链接植入拒绝（2 测试）、`a_purge_refuses_a_swapped_object_and_never_touches_the_imposter` |
-| OP-05 | supported | 跨卷 staging 校验发布（`a_cross_volume_copy_stages_verifies_then_publishes`）、确认后删源（`a_cross_volume_move_publishes_before_the_source_is_removed`）、`an_occupied_target_is_never_overwritten` |
-| OP-06 | supported | `trash_moves_into_quarantine_and_never_deletes`、`a_restore_never_overwrites_a_reoccupied_original`、无安全回收即 unsupported |
+| OP-04 | partial | `an_object_replaced_after_planning_is_refused`、链接植入拒绝（2 测试）、`a_purge_refuses_a_swapped_object_and_never_touches_the_imposter` |
+| OP-05 | partial | 跨卷 staging 校验发布（`a_cross_volume_copy_stages_verifies_then_publishes`）、确认后删源（`a_cross_volume_move_publishes_before_the_source_is_removed`）、`an_occupied_target_is_never_overwritten` |
+| OP-06 | partial | `trash_moves_into_quarantine_and_never_deletes`、`a_restore_never_overwrites_a_reoccupied_original`、无安全回收即 unsupported |
 | OP-07 | supported | `restoring_after_a_purge_reports_irrecoverable`、purge 不可恢复语义 + 独立授权 |
 | OP-08 | supported | `a_retried_key_returns_the_original_operation_without_moving_twice`、`a_parked_purge_retry_returns_the_same_operation_without_replaying` |
 | OP-09 | supported | `cancelling_a_finished_operation_leaves_it_untouched`、部分完成 Partial 状态（批量测试） |
@@ -163,3 +165,19 @@
 | 满盘 | `capacity_watermarks_refuse_new_work_without_touching_existing_data`、迁移备份不足测试 |
 | 取消 | `queued_jobs_cancel_without_running_and_terminal_jobs_never_rerun`、`cancelling_a_finished_operation_leaves_it_untouched`、digest cancel void |
 | 恢复冲突 | `a_restore_never_overwrites_a_reoccupied_original`、`a_restore_of_a_vanished_object_is_refused` |
+
+## 2026-10-02 增量要求
+
+| ID | 状态 | 证据与边界 |
+| --- | --- | --- |
+| Q-08 | partial | 有界有序历史、邻接 UNION ALL keyset、解码前实体/证据预算及 200k 无关关系 VM 工作量回归；宽目录聚合/TUI 总预算未完成 |
+| Q-09 | supported | 正目标候选窄读、完整/截断/缺口报告、20k/200k 配对 release 基准 |
+| OP-13 | partial | macOS 库内逐块实时授权/期限/批准/取消、源版本绑定和终态 CAS 回归；对应 OS 原生门禁仍未全部完成 |
+| PF-06 | partial | 持久服务、关闭、撤权、真实进度、同根共享句柄/last-drop 与 job/fence revision 18 项回归；GUI/provider 调度及正式包未验收 |
+| PF-07 | supported | MetadataRead/OperationView 分别在 running/completed 撤销，progress/poll/result 均拒绝；Engine stale authorizer 与 scope/admin fallback 回归 |
+| SC-06 | supported | 请求主体/token 与实时授权交集，真实 socket、跨 scope revision、显式旧 revision/non-root node 回归 |
+| CT-05 | supported | 总文件/字节/期限预算，失败读取真实成本、部分摘要不确认、取消/撤权回归 |
+| RT-06 | supported | 20 ms 协作取消、实际编码 staging、容量入队拒绝、30 秒租约/5 秒续租与 fencing 夹具；非严格 RSS |
+| RT-07 | supported | prune 默认预览，保护 latest/pin/操作与恢复引用；SQLite 不自动 VACUUM |
+| RE-06 | partial | 历史四原生目标只读门禁及当前本机 18/13 协议；本轮新增 Linux ARM/Swift CI 须以同 SHA 结果补记；未生产部署 |
+| RE-07 | partial | 本轮独立审查、真实 FFI、release 性能与桌面 CI 工作流；移动/provider/原生写/签名/生产证据尚缺，不能宣称全平台就绪 |

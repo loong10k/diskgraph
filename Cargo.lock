@@ -534,6 +534,7 @@ dependencies = [
  "diskgraph-disktree-core",
  "tempfile",
  "uuid",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -579,9 +580,11 @@ dependencies = [
  "diskgraph-engine",
  "diskgraph-store",
  "hex",
+ "rusqlite",
  "serde_json",
  "sha2",
  "tempfile",
+ "thiserror",
  "uniffi",
 ]
 

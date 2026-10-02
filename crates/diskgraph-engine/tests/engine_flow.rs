@@ -208,6 +208,87 @@ fn index_flow_publishes_latest_revision_and_v1_graph() {
 }
 
 #[test]
+fn completed_job_keeps_its_revision_after_a_later_publication() {
+    let engine = engine_in("job-revision", 1000);
+    let tree = FixtureTree::new("job-revision").unwrap();
+    tree.file("first.bin", 8).unwrap();
+    let (admin_principal, admin_policy) = admin();
+    let scope = engine
+        .register_scope(tree.path(), &admin_principal, &admin_policy)
+        .unwrap();
+    let (principal, policy) = agent_for(&scope);
+    let first = engine.index_scope(&scope, &principal, &policy).unwrap();
+    engine.run_job(&first.job_id, "owner-a").unwrap();
+    let first_revision = engine.latest_revision(&scope).unwrap().unwrap();
+    tree.file("second.bin", 16).unwrap();
+    let second = engine.index_scope(&scope, &principal, &policy).unwrap();
+    engine.run_job(&second.job_id, "owner-b").unwrap();
+    let latest = engine.latest_revision(&scope).unwrap().unwrap();
+    assert_ne!(first_revision, latest);
+    assert_eq!(
+        engine
+            .revision_for_job(&first.job_id, &principal, &policy)
+            .unwrap(),
+        first_revision
+    );
+    assert_eq!(
+        engine
+            .revision_for_job(&second.job_id, &principal, &policy)
+            .unwrap(),
+        latest
+    );
+}
+
+#[test]
+fn scope_listing_intersects_stale_policy_with_live_scope_and_admin_grants() {
+    let engine = engine_in("scope-list-live", 1000);
+    let tree = FixtureTree::new("scope-list-live").unwrap();
+    let registrar = PrincipalId::new("local-admin").unwrap();
+    engine.bootstrap_local_admin(&registrar).unwrap();
+    let scope = engine
+        .register_scope(
+            tree.path(),
+            &registrar,
+            &engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    let reader = PrincipalId::new("list-reader").unwrap();
+    engine
+        .control_store()
+        .unwrap()
+        .upsert_grant(&diskgraph_core::Grant {
+            principal: reader.clone(),
+            permission: Permission::MetadataRead,
+            scope: scope.clone(),
+            policy_version: 1,
+        })
+        .unwrap();
+    let stale = engine.policy_authorizer().unwrap();
+    assert_eq!(engine.list_scopes(&reader, &stale).unwrap().len(), 1);
+    engine
+        .control_store()
+        .unwrap()
+        .revoke_grant(&reader, &Permission::MetadataRead, &scope)
+        .unwrap();
+    assert!(engine.list_scopes(&reader, &stale).unwrap().is_empty());
+    let admin_stale = engine.policy_authorizer().unwrap();
+    let mut control = engine.control_store().unwrap();
+    control
+        .revoke_grant(&registrar, &Permission::MetadataRead, &scope)
+        .unwrap();
+    control
+        .revoke_grant(&registrar, &Permission::MetadataRead, &admin_scope())
+        .unwrap();
+    drop(control);
+    assert!(
+        engine
+            .list_scopes(&registrar, &admin_stale)
+            .unwrap()
+            .is_empty()
+    );
+}
+
+#[test]
 fn server_identity_and_scope_survive_an_engine_restart() {
     let directory = tempfile::TempDir::with_prefix("diskgraph-engine-restart-").unwrap();
     let data_dir = directory.path().join("data");

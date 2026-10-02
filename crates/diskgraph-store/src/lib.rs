@@ -44,6 +44,8 @@ pub enum StoreError {
     InvalidGraph(String),
     #[error("value is too large for SQLite INTEGER")]
     IntegerOverflow,
+    #[error("query response budget exceeded by one record")]
+    BudgetExceeded,
     #[error("unsupported SQLite schema version: {0}")]
     UnsupportedSchema(i64),
 }
@@ -1539,6 +1541,103 @@ impl SqliteSnapshotStore {
         )
     }
 
+    /// 按方向、类型和稳定 edge_id 读取一页，解码前限制原始 JSON 总字节。
+    #[allow(clippy::too_many_arguments)] // 方向、过滤条件和两个独立预算属于一次分页请求。
+    pub fn edges_filtered_page(
+        &self,
+        snapshot_id: &str,
+        entity_id: &str,
+        outgoing: Option<bool>,
+        relation: Option<diskgraph_core::Relation>,
+        after_edge_id: Option<&str>,
+        limit: u64,
+        max_bytes: usize,
+    ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool)> {
+        if limit == 0 {
+            return Err(StoreError::InvalidGraph(
+                "relation page limit must be positive".into(),
+            ));
+        }
+        // 不使用双向 OR 谓词：SQLite 可归并两个邻接索引，而无需扫整个 revision。
+        let comparison = if after_edge_id.is_some() { ">" } else { ">=" };
+        let predicate = |side: &str| {
+            format!(
+                "snapshot_id = ?1 AND {side} = ?2 AND edge_id {comparison} ?3 AND (?4 IS NULL OR relation = ?4)"
+            )
+        };
+        let sql = match outgoing {
+            Some(side) => format!(
+                "SELECT edge_json FROM relations WHERE {} ORDER BY edge_id LIMIT ?5",
+                predicate(if side {
+                    "source_entity_id"
+                } else {
+                    "target_entity_id"
+                })
+            ),
+            None => format!(
+                "SELECT edge_json,edge_id FROM relations WHERE {} UNION ALL SELECT edge_json,edge_id FROM relations WHERE {} AND source_entity_id != ?2 ORDER BY edge_id LIMIT ?5",
+                predicate("source_entity_id"),
+                predicate("target_entity_id")
+            ),
+        };
+        let mut statement = self.connection.prepare(&sql)?;
+        let mut rows = statement.query(params![
+            snapshot_id,
+            entity_id,
+            after_edge_id.unwrap_or(""),
+            relation.map(|r| r.wire_name()),
+            as_i64(limit.saturating_add(1))?
+        ])?;
+        let mut edges = Vec::new();
+        let mut bytes = 0usize;
+        while let Some(row) = rows.next()? {
+            if edges.len() as u64 >= limit {
+                return Ok((edges, true));
+            }
+            let json = row.get_ref(0)?.as_bytes().map_err(|error| {
+                rusqlite::Error::FromSqlConversionFailure(
+                    0,
+                    rusqlite::types::Type::Text,
+                    Box::new(error),
+                )
+            })?;
+            if bytes.saturating_add(json.len()) > max_bytes {
+                if edges.is_empty() {
+                    return Err(StoreError::BudgetExceeded);
+                }
+                return Ok((edges, true));
+            }
+            bytes += json.len();
+            edges.push(serde_json::from_slice(json)?);
+        }
+        Ok((edges, false))
+    }
+
+    /// 单条证据仅在编码长度不超过剩余预算时解码，避免超大 provenance 分配。
+    pub fn evidence_record_bounded(
+        &self,
+        snapshot_id: &str,
+        evidence_id: &str,
+        max_bytes: usize,
+    ) -> Result<Option<diskgraph_core::EvidenceRecord>> {
+        let mut statement = self.connection.prepare("SELECT evidence_json FROM evidence_records WHERE snapshot_id = ?1 AND evidence_id = ?2")?;
+        let mut rows = statement.query(params![snapshot_id, evidence_id])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let json = row.get_ref(0)?.as_bytes().map_err(|error| {
+            rusqlite::Error::FromSqlConversionFailure(
+                0,
+                rusqlite::types::Type::Text,
+                Box::new(error),
+            )
+        })?;
+        if json.len() > max_bytes {
+            return Err(StoreError::BudgetExceeded);
+        }
+        Ok(Some(serde_json::from_slice(json)?))
+    }
+
     fn select_edges_page(
         &self,
         snapshot_id: &str,
@@ -1609,6 +1708,33 @@ impl SqliteSnapshotStore {
             .map(|row| Ok(from_str::<diskgraph_core::RelationEdge>(&row?)?))
             .collect::<Result<Vec<_>>>()?;
         Ok(edges)
+    }
+
+    /// 原始 entity JSON 超出预算时先拒绝，不分配 String 或执行反序列化。
+    pub fn entity_bounded(
+        &self,
+        snapshot_id: &str,
+        entity_id: &str,
+        max_bytes: usize,
+    ) -> Result<Option<diskgraph_core::Entity>> {
+        let mut statement = self
+            .connection
+            .prepare("SELECT entity_json FROM entities WHERE snapshot_id=?1 AND entity_id=?2")?;
+        let mut rows = statement.query(params![snapshot_id, entity_id])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let json = row.get_ref(0)?.as_bytes().map_err(|error| {
+            rusqlite::Error::FromSqlConversionFailure(
+                0,
+                rusqlite::types::Type::Text,
+                Box::new(error),
+            )
+        })?;
+        if json.len() > max_bytes {
+            return Err(StoreError::BudgetExceeded);
+        }
+        Ok(Some(serde_json::from_slice(json)?))
     }
 
     /// Every typed edge of one snapshot (bounded by the caller).
@@ -2077,6 +2203,38 @@ fn validate_graph(graph: &DiskGraph) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn bidirectional_relation_page_uses_adjacency_indexes() {
+        use std::sync::{
+            Arc,
+            atomic::{AtomicU64, Ordering},
+        };
+        let store = super::SqliteSnapshotStore::open_in_memory().unwrap();
+        store.connection.execute_batch("WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<200000) INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) SELECT 'fixture',printf('edge-%09d',x),'unrelated','other','contains','not-json' FROM n;").unwrap();
+        let steps = Arc::new(AtomicU64::new(0));
+        let observed = steps.clone();
+        store
+            .connection
+            .progress_handler(
+                100,
+                Some(move || {
+                    observed.fetch_add(100, Ordering::Relaxed);
+                    false
+                }),
+            )
+            .unwrap();
+        let (edges, more) = store
+            .edges_filtered_page("fixture", "absent", None, None, None, 1, 4096)
+            .unwrap();
+        assert!(edges.is_empty());
+        assert!(!more);
+        assert!(
+            steps.load(Ordering::Relaxed) < 1000,
+            "empty entity page walked unrelated relations: {} VM steps",
+            steps.load(Ordering::Relaxed)
+        );
+    }
+
     use diskgraph_core::{
         DiskNode, DiskSnapshot, EvidenceEdge, EvidenceRelation, NodeKind, ScanCoverage,
         ScanSettings,

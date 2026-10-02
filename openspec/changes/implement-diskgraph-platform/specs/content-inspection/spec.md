@@ -50,3 +50,11 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 #### Scenario: Parent replacement or in-place change
 - **WHEN** 父路径被替换为链接或同 inode 被原地修改
 - **THEN** 拒绝范围逃逸或返回 unstable，不确认混合版本。
+
+#### Scenario: Verification pair fails on one side
+- **WHEN** a content comparison reaches a readable left file but the right side fails or loses authorization
+- **THEN** the attempt still consumes its file allowance, all bytes already read remain in the cost report, and the pair stays unverified.
+
+#### Scenario: Verification deadline or cumulative budget
+- **WHEN** a verification pass exhausts its cumulative byte allowance or deadline
+- **THEN** no new reads begin, in-progress hashing stops between chunks, and incomplete hashes cannot be promoted to confirmed results.

@@ -719,6 +719,19 @@ impl crate::ControlStore {
         })
     }
 
+    /// 原子推进非终态操作；已取消、结束或需要恢复的状态不允许被执行器覆盖。
+    pub fn advance_operation_state(
+        &mut self,
+        operation_id: &str,
+        state: OperationState,
+    ) -> Result<OperationState> {
+        self.with_connection(|connection| {
+            connection.execute("UPDATE operations SET state=?2,updated_at_unix_ms=?3 WHERE operation_id=?1 AND state IN ('queued','revalidating','running')", params![operation_id,state.wire_name(),now_ms() as i64])?;
+            let value: String = connection.query_row("SELECT state FROM operations WHERE operation_id=?1", [operation_id],|row| row.get(0))?;
+            OperationState::parse(&value).ok_or_else(|| bad_state("operations",&value))
+        })
+    }
+
     /// Every item of an operation, in index order.
     pub fn operation_items(&self, operation_id: &str) -> Result<Vec<OperationItem>> {
         self.with_connection(|connection| {

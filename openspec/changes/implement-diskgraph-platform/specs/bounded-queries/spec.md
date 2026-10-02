@@ -76,6 +76,10 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **WHEN** one entity has more relations than the remaining impact edge budget
 - **THEN** the query reads only a bounded page and reports an explicit truncation reason rather than loading every edge or claiming a complete traversal.
 
+#### Scenario: Explain and filtered related page
+- **WHEN** related/explain asks for one edge from an entity with hundreds of relationships
+- **THEN** only bounded pages and their corresponding evidence are decoded, the filter is applied before the limit, and the response identifies truncation and a stable continuation position.
+
 #### Scenario: Wide TUI directory
 - **WHEN** a directory contains more children than one TUI page
 - **THEN** the UI exposes that more children exist and supports bounded navigation to subsequent pages.

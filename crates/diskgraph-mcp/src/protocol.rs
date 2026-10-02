@@ -107,16 +107,7 @@ impl ToolDescriptor {
         json!({
             "name": self.name,
             "description": self.description,
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "scope": {"type": "string", "description": "Scope ID from diskgraph_scope"},
-                    "revision": {"type": "string", "description": "Published graph revision ID"},
-                    "limit": {"type": "integer", "minimum": 1},
-                    "cursor": {"type": "string", "description": "Opaque paging cursor"},
-                },
-                "additionalProperties": false,
-            },
+            "inputSchema": crate::tool_input_schema::input_schema(self.catalog_id),
         })
     }
 }
@@ -422,6 +413,72 @@ mod tests {
                 .required_permissions
                 .contains(&"files:trash".to_owned())
         );
+    }
+
+    #[test]
+    fn advertised_schemas_describe_actual_dispatch_arguments() {
+        let cases = [
+            ("C01", json!({"action":"list"})),
+            ("C04", json!({"job_id":"job-one"})),
+            ("C05", json!({"scope":"one","limit":20,"offset":0})),
+            (
+                "C06",
+                json!({"before":"revision-old","after":"revision-new"}),
+            ),
+            (
+                "C07",
+                json!({"before":"revision-old","after":"revision-new"}),
+            ),
+            (
+                "C08",
+                json!({"scope":"one","revision":"revision-old","node_id":2}),
+            ),
+            (
+                "C09",
+                json!({"scope":"one","pattern":"Cargo","offset":0,"cursor":"opaque"}),
+            ),
+            ("C10", json!({"revision":"revision-old","node_id":2})),
+            (
+                "C11",
+                json!({"parent_id":2,"min_bytes":10,"offset":0,"format":"treemap","width":88}),
+            ),
+            (
+                "C12",
+                json!({"parent_id":2,"limit":20,"format":"treemap","width":88}),
+            ),
+            (
+                "C13",
+                json!({"revision":"revision-old","entity":"resource-2","direction":"incoming","relation":"contains"}),
+            ),
+            (
+                "C14",
+                json!({"revision":"revision-old","entity":"resource-2"}),
+            ),
+            (
+                "C15",
+                json!({"revision":"revision-old","entity":"resource-2"}),
+            ),
+            ("C16", json!({"scope":"one","target_bytes":1024})),
+        ];
+        for (id, arguments) in cases {
+            let schema = descriptor(by_id(id).unwrap()).unwrap().schema();
+            let input = &schema["inputSchema"];
+            assert_eq!(input["additionalProperties"], false);
+            for name in arguments.as_object().unwrap().keys() {
+                assert!(
+                    input["properties"][name].is_object(),
+                    "{id} schema rejects supported {name}"
+                );
+            }
+        }
+        for (id, required) in [
+            ("C09", vec!["pattern"]),
+            ("C06", vec!["before", "after"]),
+            ("C14", vec!["revision", "entity"]),
+        ] {
+            let schema = descriptor(by_id(id).unwrap()).unwrap().schema();
+            assert_eq!(schema["inputSchema"]["required"], json!(required));
+        }
     }
 
     #[test]

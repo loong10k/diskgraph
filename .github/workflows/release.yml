@@ -70,7 +70,7 @@ jobs:
             os: ubuntu-24.04
             archive: tar.gz
           - target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04
+            os: ubuntu-24.04-arm
             archive: tar.gz
           - target: x86_64-pc-windows-msvc
             os: windows-2022
@@ -85,27 +85,16 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
-      # Linux aarch64 goes through cargo-cross: the cross image provides the C
-      # toolchain and sysroot for the foreign target (bundled SQLite needs
-      # them), and cross mounts the host's cargo into that container.
-      - uses: taiki-e/install-action@cross
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
       - name: Build
         # bash on every runner: the cross-conditional is POSIX shell, and
         # the Windows default shell is PowerShell.
         shell: bash
         run: |
-          if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
-            cross build --release --locked -p diskgraph-cli -p diskgraph-mcp --target aarch64-unknown-linux-gnu
-          else
-            cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
-          fi
+          cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        if: matrix.target == 'aarch64-apple-darwin' || matrix.target == 'x86_64-apple-darwin' || matrix.target == 'x86_64-unknown-linux-gnu' || matrix.target == 'x86_64-pc-windows-msvc'
         with:
           python-version: '3.13'
       - name: Accept native read-only release binaries
-        if: matrix.target == 'aarch64-apple-darwin' || matrix.target == 'x86_64-apple-darwin' || matrix.target == 'x86_64-unknown-linux-gnu' || matrix.target == 'x86_64-pc-windows-msvc'
         env:
           DISKGRAPH_ACCEPT_BIN_DIR: target/${{ matrix.target }}/release
         run: |

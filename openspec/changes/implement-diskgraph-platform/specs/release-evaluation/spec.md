@@ -53,3 +53,14 @@
 #### Scenario: CI source check without released binary proof
 - **WHEN** 三平台源码测试通过，但对应制品尚未完成真实协议和升级/回滚验收
 - **THEN** 只能标记源码门禁通过，不能标记完整生产就绪。
+
+### Requirement: RE-07 Full platform production readiness
+全平台目标 SHALL 覆盖已定义的 macOS/Linux/Windows 桌面能力、Swift/Kotlin 原生接口、Android SAF 与 iOS 授权文档。每项平台能力必须同时具备实现、正式库包、真实宿主行为和升级恢复证据；Android/iOS 真机验收、签名及生产部署仍按独立授权与环境条件执行。禁用或 unsupported 是安全边界，不得作为该能力已完成的证明。发布必须依赖同一源码版本的行为门禁。
+
+#### Scenario: Provider is only a capability declaration
+- **WHEN** URI 类型和 provider 能力声明存在，但无法在授权生命周期内发布真实快照
+- **THEN** Android/iOS provider 保持未完成，不以绑定生成或桌面 CLI 通过替代。
+
+#### Scenario: Native library package lacks host proof
+- **WHEN** XCFramework/AAR 只有生成源码、编译或解包证据
+- **THEN** 不标记原生嵌入就绪，必须验证库加载、SQLite 共存、查询、取消与授权撤销。

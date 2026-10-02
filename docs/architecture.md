@@ -12,3 +12,5 @@ This document has moved to complete, independent language editions. This entry r
 The [OpenSpec change](../openspec/changes/implement-diskgraph-platform/proposal.md) remains the sole formal requirements and acceptance source.
 
 Updated / 更新：2026-09-28。
+
+全平台实施与运行证据 / Full-platform implementation and runtime evidence: [English](production-readiness-full-platform-2026-10-02.md) · [简体中文](production-readiness-full-platform-2026-10-02.zh-CN.md)。

@@ -568,9 +568,11 @@ struct SourceEvidence {
     identity: Option<String>,
     fingerprint: String,
     bytes: u64,
+    metadata: std::fs::Metadata,
 }
 
 fn capture_source(path: &Path, max_bytes: u64) -> Result<SourceEvidence, OpsError> {
+    let _hydration = diskgraph_engine::content::HydrationGuard::enter()?;
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     {
         use std::os::unix::fs::MetadataExt;
@@ -633,6 +635,7 @@ fn capture_source(path: &Path, max_bytes: u64) -> Result<SourceEvidence, OpsErro
             identity: identity_of(path, &before),
             fingerprint: hex::encode(digest.finalize()),
             bytes,
+            metadata: before,
         })
     }
     #[cfg(not(any(target_os = "macos", target_os = "linux")))]
@@ -865,9 +868,10 @@ impl Executor {
         }
 
         // 5. Execute item by item, recording intent before each mutation.
-        self.engine
-            .control_store()?
-            .set_operation_state(&operation_id, diskgraph_store::OperationState::Revalidating)?;
+        self.engine.control_store()?.advance_operation_state(
+            &operation_id,
+            diskgraph_store::OperationState::Revalidating,
+        )?;
         let mut moved = 0usize;
         let mut failed = 0usize;
         let mut bytes = 0u64;
@@ -908,33 +912,39 @@ impl Executor {
             if request.fault == Some(FaultPoint::AfterIntent) {
                 // The intent is durable and the file is untouched: a later
                 // attempt must reconcile rather than replay blindly.
-                self.engine.control_store()?.set_operation_state(
+                let actual = self.engine.control_store()?.advance_operation_state(
                     &operation_id,
                     diskgraph_store::OperationState::NeedsAttention,
                 )?;
                 return Ok(ApplyOutcome {
                     operation_id,
                     started: true,
-                    state: diskgraph_store::OperationState::NeedsAttention,
+                    state: actual,
                     moved,
                     failed,
                     bytes,
                 });
             }
-            match self.perform(&plan, item, request.fault) {
+            match self.perform(
+                &plan,
+                item,
+                request.fault,
+                request.approval_ref,
+                &operation_id,
+            ) {
                 Ok(result) => {
                     bytes += result.bytes;
                     if request.fault == Some(FaultPoint::AfterFileChange) {
                         // The file moved but the result was never recorded: the
                         // operation parks for a human instead of replaying.
-                        self.engine.control_store()?.set_operation_state(
+                        let actual = self.engine.control_store()?.advance_operation_state(
                             &operation_id,
                             diskgraph_store::OperationState::NeedsAttention,
                         )?;
                         return Ok(ApplyOutcome {
                             operation_id,
                             started: true,
-                            state: diskgraph_store::OperationState::NeedsAttention,
+                            state: actual,
                             moved,
                             failed,
                             bytes,
@@ -957,7 +967,7 @@ impl Executor {
                     // The step got part-way (for example a cross-volume move
                     // published its verified copy): park for reconciliation
                     // instead of replaying an irreversible remainder (OP-08).
-                    self.engine.control_store()?.set_operation_state(
+                    let actual = self.engine.control_store()?.advance_operation_state(
                         &operation_id,
                         diskgraph_store::OperationState::NeedsAttention,
                     )?;
@@ -971,7 +981,7 @@ impl Executor {
                     return Ok(ApplyOutcome {
                         operation_id,
                         started: true,
-                        state: diskgraph_store::OperationState::NeedsAttention,
+                        state: actual,
                         moved,
                         failed,
                         bytes,
@@ -998,13 +1008,14 @@ impl Executor {
         } else {
             diskgraph_store::OperationState::Partial
         };
-        {
+        let state = {
             let mut control = self.engine.control_store()?;
-            control.set_operation_state(&operation_id, state)?;
-            if state == diskgraph_store::OperationState::Succeeded {
+            let actual = control.advance_operation_state(&operation_id, state)?;
+            if actual == diskgraph_store::OperationState::Succeeded {
                 control.mark_plan_applied(&plan.plan_id)?;
             }
-        }
+            actual
+        };
         Ok(ApplyOutcome {
             operation_id,
             started: true,
@@ -1056,6 +1067,7 @@ impl Executor {
                 identity: evidence.identity,
                 recovery_ref: item.recovery_ref.clone(),
                 bytes: evidence.bytes,
+                approved_version: Some(evidence.metadata),
             });
         }
         if total != plan.expected_bytes {
@@ -1122,21 +1134,41 @@ impl Executor {
         plan: &Plan,
         item: &LiveItem,
         fault: Option<FaultPoint>,
+        approval_ref: &str,
+        operation_id: &str,
     ) -> Result<StepResult, OpsError> {
+        let _hydration = diskgraph_engine::content::HydrationGuard::enter()?;
+        let digest = plan_digest(plan);
+        let check_live = || {
+            self.check_plan_authorization(plan)?;
+            let control = self.engine.control_store()?;
+            control
+                .verify_approval(
+                    approval_ref,
+                    &plan.plan_id,
+                    &digest,
+                    &plan.principal,
+                    plan.action,
+                )
+                .map_err(|error| OpsError::NotAuthorized(error.to_string()))?;
+            if control.operation(operation_id)?.state.is_terminal() {
+                return Err(OpsError::NotAuthorized(
+                    "operation stopped before completion".into(),
+                ));
+            }
+            Ok(())
+        };
+        check_live()?;
         let expected = plan
             .items
             .iter()
             .find(|candidate| unhex_key(&candidate.locator_key).as_deref() == Some(&item.path))
             .ok_or_else(|| OpsError::Stale("live source is not in the approved plan".into()))?;
-        if expected.source_fingerprint.as_deref()
-            != Some(
-                capture_source(&item.path, plan.max_bytes)?
-                    .fingerprint
-                    .as_str(),
-            )
-        {
+        let verified = capture_source(&item.path, plan.max_bytes)?;
+        if expected.source_fingerprint.as_deref() != Some(verified.fingerprint.as_str()) {
             return Err(OpsError::Stale("source changed before execution".into()));
         }
+        check_live()?;
         match plan.action {
             FileActionKind::Move => {
                 let target = self.target_for(plan, &item.path)?;
@@ -1160,10 +1192,11 @@ impl Executor {
                     return Err(OpsError::TargetExists);
                 }
                 if are_same_volume(&item.path, &target)? {
-                    atomic_publish::rename_no_replace(
+                    check_live()?;
+                    atomic_publish::rename_approved_no_replace(
                         &item.path,
                         &target,
-                        item.identity.as_deref(),
+                        &verified.metadata,
                     )?;
                     return Ok(StepResult {
                         kind: diskgraph_store::OperationItemResult::Moved,
@@ -1175,7 +1208,7 @@ impl Executor {
                 // Cross volume (OP-05, OP-09): stage, verify, publish, and only
                 // then remove the source. No cross-volume atomicity is claimed;
                 // the operation record names exactly which step finished.
-                self.cross_volume_move(item, &target, fault)
+                self.cross_volume_move_checked(item, &target, fault, &check_live)
             }
             FileActionKind::Copy => {
                 let target = self.target_for(plan, &item.path)?;
@@ -1197,8 +1230,17 @@ impl Executor {
                 // 同卷复制也使用独占 staging 和摘要验证，避免半成品及目标竞态。
                 let transfer = CrossVolumeCopy::open(&target, "copy")?;
                 let transferred = transfer
-                    .stage_and_verify(&item.path, &item.identity)
-                    .and_then(|copied| transfer.publish().map(|()| copied));
+                    .stage_and_verify_bounded(
+                        &item.path,
+                        &item.identity,
+                        item.bytes.min(plan.max_bytes),
+                        Some(&verified.metadata),
+                        &check_live,
+                    )
+                    .and_then(|copied| {
+                        check_live()?;
+                        transfer.publish().map(|()| copied)
+                    });
                 if let Err(error) = transferred {
                     transfer.discard();
                     return Err(error);
@@ -1228,10 +1270,11 @@ impl Executor {
                     // holding area would not preserve recoverability (OP-06).
                     return Err(OpsError::CrossVolume);
                 }
-                atomic_publish::rename_no_replace(&item.path, &held, item.identity.as_deref())?;
+                check_live()?;
+                atomic_publish::rename_approved_no_replace(&item.path, &held, &verified.metadata)?;
                 let entry = diskgraph_store::RecoveryEntry {
                     recovery_ref: recovery_ref.clone(),
-                    operation_id: String::new(),
+                    operation_id: operation_id.to_owned(),
                     scope_id: plan.scope_id.clone(),
                     original_locator: locator_key(&item.path),
                     quarantine_locator: locator_key(&held),
@@ -1306,7 +1349,12 @@ impl Executor {
                 if let Some(parent) = destination.parent() {
                     std::fs::create_dir_all(parent)?;
                 }
-                atomic_publish::rename_no_replace(&held, &destination, Some(&entry.identity))?;
+                check_live()?;
+                atomic_publish::rename_approved_no_replace(
+                    &held,
+                    &destination,
+                    &verified.metadata,
+                )?;
                 self.engine
                     .control_store()?
                     .mark_recovery_restored(recovery_ref)?;
@@ -1325,7 +1373,27 @@ impl Executor {
                 // and the result says so plainly (OP-07).
                 revalidate_below(&self.scope_root(plan)?, &item.path, Side::Source)
                     .map_err(|fault| OpsError::Stale(format!("purge: {fault}")))?;
-                remove_source(&item.path)?;
+                #[cfg(any(target_os = "macos", target_os = "linux"))]
+                {
+                    let source = bound_path::BoundPath::open(&item.path)?;
+                    let pinned = source.read()?;
+                    let metadata = pinned.metadata()?;
+                    if !metadata.is_file()
+                        || item.identity.is_none()
+                        || identity_of(&item.path, &metadata) != item.identity
+                    {
+                        return Err(OpsError::Stale(
+                            "purge needs the approved regular file identity".into(),
+                        ));
+                    }
+                    check_live()?;
+                    source.remove_verified(&verified.metadata)?;
+                }
+                #[cfg(not(any(target_os = "macos", target_os = "linux")))]
+                return Err(OpsError::Stale(
+                    "unsupported: verified purge handles".into(),
+                ));
+                #[cfg(any(target_os = "macos", target_os = "linux"))]
                 Ok(StepResult {
                     kind: diskgraph_store::OperationItemResult::Purged,
                     detail: describe(&item.path, item.identity.as_deref()),
@@ -1341,16 +1409,36 @@ impl Executor {
     /// source, and the drill fault parks between publish and removal so a
     /// crash at that seam is observable and retry returns the parked
     /// operation instead of replaying an irreversible step (OP-05, OP-08).
+    #[cfg(all(test, target_os = "macos"))]
     pub(crate) fn cross_volume_move(
         &self,
         item: &LiveItem,
         target: &Path,
         fault: Option<FaultPoint>,
     ) -> Result<StepResult, OpsError> {
+        self.cross_volume_move_checked(item, target, fault, &|| Ok(()))
+    }
+
+    fn cross_volume_move_checked(
+        &self,
+        item: &LiveItem,
+        target: &Path,
+        fault: Option<FaultPoint>,
+        check_live: &dyn Fn() -> Result<(), OpsError>,
+    ) -> Result<StepResult, OpsError> {
         let transfer = CrossVolumeCopy::open(target, "move")?;
         let transferred = transfer
-            .stage_and_verify(&item.path, &item.identity)
-            .and_then(|copied| transfer.publish().map(|()| copied));
+            .stage_and_verify_bounded(
+                &item.path,
+                &item.identity,
+                item.bytes,
+                item.approved_version.as_ref(),
+                check_live,
+            )
+            .and_then(|copied| {
+                check_live()?;
+                transfer.publish().map(|()| copied)
+            });
         if let Err(error) = transferred {
             transfer.discard();
             return Err(error);
@@ -1364,6 +1452,11 @@ impl Executor {
         }
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         {
+            check_live().map_err(|error| {
+                OpsError::ParkNeedsAttention(format!(
+                    "copy published; source removal denied: {error}"
+                ))
+            })?;
             let verified = transfer
                 .verified_source
                 .lock()
@@ -1733,12 +1826,12 @@ pub fn cancel_operation(
                 operation_id,
                 item.item_index,
                 diskgraph_store::OperationItemResult::Failed,
-                "cancelled before it ran",
+                "cancelled; executor stops at its next observation boundary",
                 None,
             )?;
         }
     }
-    control.set_operation_state(operation_id, diskgraph_store::OperationState::Cancelled)?;
+    control.advance_operation_state(operation_id, diskgraph_store::OperationState::Cancelled)?;
     let operation = control.operation(operation_id)?;
     view_of(&operation, &control)
 }
@@ -1752,6 +1845,7 @@ struct LiveItem {
     /// The recovery record this item restores from, for restore plans.
     recovery_ref: Option<String>,
     bytes: u64,
+    approved_version: Option<std::fs::Metadata>,
 }
 
 struct StepResult {
@@ -1803,19 +1897,6 @@ fn are_same_volume(source: &Path, target: &Path) -> Result<bool, OpsError> {
         let _ = (source, target);
         Ok(false)
     }
-}
-
-/// Removes a file, symlink, or directory tree for good. Callers have already
-/// proven the object's identity and its path boundary; nothing here re-checks
-/// them, so nothing here is reachable without a verified purge plan.
-fn remove_source(path: &Path) -> Result<(), OpsError> {
-    let metadata = std::fs::symlink_metadata(path)?;
-    if metadata.is_dir() && !metadata.file_type().is_symlink() {
-        std::fs::remove_dir_all(path)?;
-    } else {
-        std::fs::remove_file(path)?;
-    }
-    Ok(())
 }
 
 /// A staged cross-volume transfer (OP-05). The staged file lives on the
@@ -1883,14 +1964,30 @@ impl CrossVolumeCopy {
 
     /// Copies the source into staging, then verifies the byte count and that
     /// the source itself did not change underneath the copy.
-    #[cfg(target_os = "macos")]
+    #[cfg(all(test, target_os = "macos"))]
     pub(crate) fn stage_and_verify(
         &self,
         source: &Path,
         expected_identity: &Option<String>,
     ) -> Result<u64, OpsError> {
+        let budget = std::fs::symlink_metadata(source)?.len();
+        self.stage_and_verify_bounded(source, expected_identity, budget, None, &|| Ok(()))
+    }
+
+    #[cfg(target_os = "macos")]
+    pub(crate) fn stage_and_verify_bounded(
+        &self,
+        source: &Path,
+        expected_identity: &Option<String>,
+        max_bytes: u64,
+        approved: Option<&std::fs::Metadata>,
+        check_live: &dyn Fn() -> Result<(), OpsError>,
+    ) -> Result<u64, OpsError> {
         use sha2::Digest;
         use std::io::{Read, Seek, Write};
+        let _hydration = diskgraph_engine::content::HydrationGuard::enter()?;
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+        check_live()?;
         let before = std::fs::symlink_metadata(source)?;
         if !before.is_file() || before.file_type().is_symlink() {
             return Err(OpsError::Stale("source is not a plain file".into()));
@@ -1902,12 +1999,33 @@ impl CrossVolumeCopy {
         #[cfg(not(any(target_os = "macos", target_os = "linux")))]
         let mut input = std::fs::File::open(source)?;
         let initial = input.metadata()?;
+        if let Some(approved) = approved {
+            use std::os::unix::fs::MetadataExt;
+            if initial.dev() != approved.dev()
+                || initial.ino() != approved.ino()
+                || initial.len() != approved.len()
+                || initial.mtime() != approved.mtime()
+                || initial.mtime_nsec() != approved.mtime_nsec()
+                || initial.ctime() != approved.ctime()
+                || initial.ctime_nsec() != approved.ctime_nsec()
+            {
+                return Err(OpsError::Stale(
+                    "source differs from approved copy version".into(),
+                ));
+            }
+        }
+        if initial.len() > max_bytes {
+            return Err(OpsError::Stale(
+                "source exceeds approved copy byte budget".into(),
+            ));
+        }
         if expected_identity
             .as_ref()
             .is_some_and(|expected| identity_of(source, &initial).as_ref() != Some(expected))
         {
             return Err(OpsError::Stale("source changed before copy".into()));
         }
+        metadata_fidelity::preflight(&input)?;
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         let mut output = self.staged_handle.create()?;
         #[cfg(not(any(target_os = "macos", target_os = "linux")))]
@@ -1922,8 +2040,33 @@ impl CrossVolumeCopy {
         let mut source_hash = sha2::Sha256::new();
         let mut buffer = [0_u8; 64 * 1024];
         let mut copied = 0_u64;
-        loop {
-            let count = input.read(&mut buffer)?;
+        while copied < initial.len() {
+            check_live()?;
+            if std::time::Instant::now() >= deadline {
+                return Err(OpsError::Stale("copy deadline exceeded".into()));
+            }
+            use std::os::unix::fs::MetadataExt;
+            let current = input.metadata()?;
+            if current.len() != initial.len()
+                || current.mtime() != initial.mtime()
+                || current.mtime_nsec() != initial.mtime_nsec()
+                || current.ctime() != initial.ctime()
+                || current.ctime_nsec() != initial.ctime_nsec()
+            {
+                return Err(OpsError::Stale("source changed during bounded copy".into()));
+            }
+            let want = usize::try_from(
+                initial
+                    .len()
+                    .saturating_sub(copied)
+                    .min(max_bytes.saturating_sub(copied)),
+            )
+            .unwrap_or(buffer.len())
+            .min(buffer.len());
+            if want == 0 {
+                return Err(OpsError::Stale("copy byte budget exhausted".into()));
+            }
+            let count = input.read(&mut buffer[..want])?;
             if count == 0 {
                 break;
             }
@@ -1932,6 +2075,7 @@ impl CrossVolumeCopy {
             copied = copied.saturating_add(count as u64);
         }
         output.set_permissions(initial.permissions())?;
+        check_live()?;
         output.set_times(
             std::fs::FileTimes::new()
                 .set_accessed(initial.accessed()?)
@@ -1940,12 +2084,21 @@ impl CrossVolumeCopy {
         output.sync_all()?;
         output.rewind()?;
         let mut staged_hash = sha2::Sha256::new();
+        let mut verified_bytes = 0u64;
         loop {
+            check_live()?;
+            if std::time::Instant::now() >= deadline {
+                return Err(OpsError::Stale("verification deadline exceeded".into()));
+            }
             let count = output.read(&mut buffer)?;
             if count == 0 {
                 break;
             }
             staged_hash.update(&buffer[..count]);
+            verified_bytes = verified_bytes.saturating_add(count as u64);
+            if verified_bytes > initial.len() {
+                return Err(OpsError::Stale("staging grew during verification".into()));
+            }
         }
         let after = input.metadata()?;
         #[cfg(unix)]
@@ -1963,15 +2116,24 @@ impl CrossVolumeCopy {
         if source_hash.finalize() != staged_hash.finalize() {
             return Err(OpsError::Stale("staged content digest mismatch".into()));
         }
+        let check_metadata = || {
+            check_live()?;
+            if std::time::Instant::now() >= deadline {
+                return Err(OpsError::Stale("copy metadata deadline exceeded".into()));
+            }
+            Ok(())
+        };
+        check_metadata()?;
+        metadata_fidelity::copy_attributes(&input, &output, &check_metadata)?;
         {
             use std::os::fd::AsRawFd;
-            // 使用 macOS 原生 fd 元数据复制，包括权限、ACL、扩展属性和时间。
+            // 原生复制仅处理有界预检的 ACL 和 stat；xattr 使用上面的有界复制。
             let result = unsafe {
                 libc::fcopyfile(
                     input.as_raw_fd(),
                     output.as_raw_fd(),
                     std::ptr::null_mut(),
-                    libc::COPYFILE_METADATA,
+                    libc::COPYFILE_STAT | libc::COPYFILE_ACL,
                 )
             };
             if result != 0 {
@@ -1991,7 +2153,9 @@ impl CrossVolumeCopy {
                 "required copy metadata verification failed".into(),
             ));
         }
+        check_metadata()?;
         metadata_fidelity::verify(&input, &output)?;
+        check_metadata()?;
         let staged_len = output.metadata()?.len();
         if copied != staged_len {
             return Err(OpsError::Stale("the staged copy is incomplete".into()));
@@ -2040,6 +2204,18 @@ impl CrossVolumeCopy {
         Err(OpsError::Stale(
             "unsupported: copy metadata fidelity has not been verified on this platform".into(),
         ))
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    pub(crate) fn stage_and_verify_bounded(
+        &self,
+        source: &Path,
+        expected: &Option<String>,
+        _max_bytes: u64,
+        _approved: Option<&std::fs::Metadata>,
+        _check: &dyn Fn() -> Result<(), OpsError>,
+    ) -> Result<u64, OpsError> {
+        self.stage_and_verify(source, expected)
     }
 
     /// Publishes the verified copy with a same-volume rename. The destination
@@ -2115,6 +2291,17 @@ impl CrossVolumeCopy {
         Err(OpsError::Stale(
             "unsupported: copy metadata fidelity has not been verified on this platform".into(),
         ))
+    }
+
+    pub(crate) fn stage_and_verify_bounded(
+        &self,
+        source: &Path,
+        expected: &Option<String>,
+        _max_bytes: u64,
+        _approved: Option<&std::fs::Metadata>,
+        _check: &dyn Fn() -> Result<(), OpsError>,
+    ) -> Result<u64, OpsError> {
+        self.stage_and_verify(source, expected)
     }
 
     pub(crate) fn publish(&self) -> Result<(), OpsError> {

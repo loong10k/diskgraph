@@ -36,6 +36,14 @@ move/copy/trash/restore/purge SHALL 默认只创建或预览不可变计划；ap
 - **WHEN** 管理员启用完整只读工具组
 - **THEN** 客户端可发现并调用 search/related/impact 等工具且共享查询语义。
 
+#### Scenario: Strict client constructs tool arguments
+- **WHEN** 客户端按 tools/list 的 inputSchema 构造搜索、历史、目录、关系及任务状态请求
+- **THEN** schema 声明处理函数实际支持的参数、类型与必填项；未知字段和错误类型被明确拒绝，不能静默使用默认值。
+
+#### Scenario: Explicit historical node query
+- **WHEN** node/top/children/explore/search/candidates 携带已授权旧 revision，或 node 携带非根 node_id
+- **THEN** 查询和响应身份绑定指定 revision 与节点；scope 不匹配被拒绝，不改查 latest 或根节点。
+
 ### Requirement: CMD-05 Scope and aliases are not deletion
 scope remove SHALL 只撤销注册/访问，索引删除必须单独显式请求；children 的 ls 等别名不计为新业务能力，不要求存在同名系统命令。
 

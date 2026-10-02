@@ -17,6 +17,40 @@ pub(crate) fn verify(source: &File, copy: &File) -> Result<(), OpsError> {
     Ok(())
 }
 
+/// 在有界分配中复制 xattr；不调用可能复制任意大小 ResourceFork 的原生全属性复制。
+pub(crate) fn copy_attributes(
+    source: &File,
+    copy: &File,
+    check_live: &dyn Fn() -> Result<(), OpsError>,
+) -> Result<(), OpsError> {
+    for (name, value) in attributes(source)? {
+        check_live()?;
+        let name = std::ffi::CString::new(name)
+            .map_err(|_| OpsError::Stale("invalid attribute name".into()))?;
+        if unsafe {
+            libc::fsetxattr(
+                copy.as_raw_fd(),
+                name.as_ptr(),
+                value.as_ptr().cast(),
+                value.len(),
+                0,
+                0,
+            )
+        } != 0
+        {
+            return Err(std::io::Error::last_os_error().into());
+        }
+    }
+    Ok(())
+}
+
+/// 在任何原生元数据复制之前验证属性/ACL 总成本，过大数据不进入 staging。
+pub(crate) fn preflight(source: &File) -> Result<(), OpsError> {
+    let _ = attributes(source)?;
+    let _ = acl(source)?;
+    Ok(())
+}
+
 fn attributes(file: &File) -> Result<BTreeMap<Vec<u8>, Vec<u8>>, OpsError> {
     let length = unsafe { libc::flistxattr(file.as_raw_fd(), std::ptr::null_mut(), 0, 0) };
     if length < 0 {

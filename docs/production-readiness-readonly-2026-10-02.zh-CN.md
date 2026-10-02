@@ -1,5 +1,7 @@
 # 桌面只读生产就绪记录 — 2026-10-02
 
+> 历史门禁：本文只覆盖提交 `3d831bc3` 的桌面只读子集。全平台扩展与随后复现的 FFI/MCP 契约问题见[当前实施记录](production-readiness-full-platform-2026-10-02.zh-CN.md)；本表不得作为最新源码的全平台验收。
+
 macOS arm64/x86_64、Linux x86_64、Windows x86_64 的**只读 CLI 与 MCP stdio、现代 HTTP、legacy SSE 原生代码及制品门禁已通过**，可进入受控生产部署。二进制尚未签名、发布，也未连接生产数据目录运行。文件写工具继续关闭；Windows 内容读取仍不支持。本轮范围与门禁以 OpenSpec `implement-diskgraph-platform` 的 RE-06、Q-09 为准。
 
 [CI 运行 36913827691](https://github.com/loong10k/diskgraph/actions/runs/36913827691) 在源码提交 `3d831bc3f467d9bbfb54d4cba5a17a0cb67444a2` 上的 13 个任务全部通过：rustfmt、vendored 扫描器校验、stable 与 Rust 1.97 workspace 矩阵、四种原生 release 配置制品。每个平台的解包二进制都通过 stdio 11/11、带认证的 HTTP/SSE 13/13、隔离升级/回滚 7/7，以及 20k 文件并发运行 4/4。协议测试使用有效签名 token、数据库授权和隔离目录，覆盖匿名、无授权、撤权、恶意 Origin 拒绝。Windows 还验证了 `Everyone` 可读的验证密钥必须被拒绝。打包脚本核对解包二进制与原构建二进制的摘要；下表归档 SHA-256 另与下载的 `.sha256` 文件逐一核对。[原始原生测量](benchmarks/readiness-native-2026-10-02.json)保留了精确数值和检查项。

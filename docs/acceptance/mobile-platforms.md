@@ -1,5 +1,7 @@
 # P9 移动平台验收边界（任务 10.1–10.9）
 
+> 2026-10-02 重查：当前仅安装 `aarch64-apple-darwin` Rust target；旧表的 Android targets 状态已过期。Android SDK/adb 存在，但没有 NDK、Gradle、已连接设备或完整 Xcode。安装工具链的确认仍待用户回复，尚未新增移动构建或设备证据。
+
 日期：2026-09-29 · 主机：macOS（darwin 27.0.0，arm64）· 结论：**P9 九项全部不勾选**，逐项如实留档如下。这些场景被机器可查清单 `diskgraph_testkit::real_os_requirements()`（`MobileProviderLifecycle` 等）覆盖，验收不属于"可以模拟"的类别（RE-02）。
 
 ## 本机具备与缺失

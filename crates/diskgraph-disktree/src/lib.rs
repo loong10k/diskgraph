@@ -16,6 +16,11 @@ use diskgraph_disktree_core::scan::ScanOptions;
 use diskgraph_disktree_core::tree::{Node, NodeKind as DiskTreeNodeKind};
 use uuid::Uuid;
 
+mod hydration_guard;
+pub use hydration_guard::HydrationGuard;
+#[cfg(any(windows, test))]
+mod windows_native_observer;
+
 /// One scanned node: the v1 projection plus lossless v2 identity data.
 #[derive(Clone, Debug, PartialEq)]
 pub struct NodeV2 {
@@ -75,6 +80,12 @@ pub fn scan_native_v2(root: &Path, options: ScanOptions) -> io::Result<ScanResul
 /// blocking entry point (FS-01).
 pub fn convert_tree(root: &Path, tree: &Node, settings: ScanSettings) -> io::Result<ScanResultV2> {
     let root = root.canonicalize()?;
+    if root.to_str().is_none() {
+        return Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "pinned scanner cannot publish a lossless non-Unicode root",
+        ));
+    }
     let captured_at_unix_ms = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_err(io::Error::other)?
@@ -83,7 +94,7 @@ pub fn convert_tree(root: &Path, tree: &Node, settings: ScanSettings) -> io::Res
         .map_err(io::Error::other)?;
     let mut nodes = Vec::new();
     let mut unreadable_nodes = 0;
-    append_node(tree, &root, None, &mut nodes, &mut unreadable_nodes);
+    append_node(tree, &root, None, &mut nodes, &mut unreadable_nodes)?;
     let depth_limited = settings.max_depth.is_some();
     Ok(ScanResultV2 {
         snapshot: DiskSnapshot {
@@ -114,7 +125,9 @@ fn volume_id(path: &Path) -> Option<String> {
 
 #[cfg(windows)]
 fn volume_id(path: &Path) -> Option<String> {
-    diskgraph_disktree_core::space::device_for(path)
+    windows_native_observer::observe(path)
+        .ok()
+        .and_then(|(identity, _)| identity.map(|identity| identity.volume_id))
 }
 
 #[cfg(not(any(unix, windows)))]
@@ -125,6 +138,11 @@ fn volume_id(_path: &Path) -> Option<String> {
 /// Captures identity and the node's own mtime with one non-following stat.
 /// This costs one extra metadata call per node; correctness beats the syscall.
 fn observe(path: &Path) -> (Option<FileIdentity>, Option<i64>) {
+    #[cfg(windows)]
+    {
+        windows_native_observer::observe(path).unwrap_or((None, None))
+    }
+    #[cfg(not(windows))]
     match std::fs::symlink_metadata(path) {
         Ok(metadata) => {
             #[cfg(unix)]
@@ -161,7 +179,7 @@ fn append_node(
     parent_id: Option<u64>,
     nodes: &mut Vec<NodeV2>,
     unreadable_nodes: &mut u64,
-) {
+) -> io::Result<()> {
     // 显式栈保持上游 preorder 顺序，转换不依赖调用栈深度。
     let mut pending = vec![(source, path.to_path_buf(), parent_id)];
     while let Some((source, path, parent_id)) = pending.pop() {
@@ -200,16 +218,74 @@ fn append_node(
                 read_error: source.read_error,
             },
         });
+        // 只在必要时枚举一次父目录，避免合法替换字符名称导致 O(k*n) 重扫。
+        let lossy_names: std::collections::HashSet<String> = if source
+            .children
+            .iter()
+            .any(|child| child.name.contains('\u{fffd}'))
+        {
+            std::fs::read_dir(&path)?.try_fold(
+                std::collections::HashSet::new(),
+                |mut names, entry| {
+                    let name = entry?.file_name();
+                    if name.to_str().is_none() {
+                        names.insert(name.to_string_lossy().into_owned());
+                    }
+                    Ok::<_, io::Error>(names)
+                },
+            )?
+        } else {
+            std::collections::HashSet::new()
+        };
         for child in source.children.iter().rev() {
+            // 上游仅保留显示名称；替换字符可能对应非 Unicode 名称或碰撞。
+            // 不能用显示文本选中另一个真实文件，拒绝发布这一不支持的扫描。
+            if lossy_names.contains(child.name.as_ref()) {
+                return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    "pinned scanner cannot publish lossless non-Unicode names; no revision published",
+                ));
+            }
             let child_path: PathBuf = path.join(child.name.as_ref());
             pending.push((child, child_path, Some(id)));
         }
     }
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn valid_replacement_character_names_remain_distinct_and_supported() {
+        let root = tempfile::tempdir().unwrap();
+        for n in 0..200 {
+            std::fs::write(root.path().join(format!("file-\u{fffd}-{n:04}")), b"x").unwrap();
+        }
+        let graph = scan_native(root.path(), ScanOptions::default()).unwrap();
+        assert_eq!(graph.nodes.len(), 201);
+        let names: std::collections::HashSet<_> =
+            graph.nodes.iter().map(|node| &node.name).collect();
+        assert_eq!(names.len(), 201);
+        assert!(graph.snapshot.coverage.complete);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn non_unicode_collision_cannot_publish_the_wrong_file_path() {
+        use std::os::unix::ffi::OsStringExt;
+        let root = tempfile::tempdir().unwrap();
+        std::fs::write(
+            root.path()
+                .join(std::ffi::OsString::from_vec(b"file-\xff".to_vec())),
+            b"raw",
+        )
+        .unwrap();
+        std::fs::write(root.path().join("file-\u{fffd}"), b"unicode").unwrap();
+        let error = scan_native(root.path(), ScanOptions::default()).unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::Unsupported);
+    }
 
     #[cfg(any(unix, windows))]
     #[test]
