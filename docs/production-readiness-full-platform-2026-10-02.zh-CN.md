@@ -127,3 +127,18 @@ Windows 本地普通文件的 `read_bounded` 与摘要检查已接入原生句�
 本机最终 workspace 为 **636 passed / 0 failed / 13 ignored**；证据测试 18/18、Engine 结构门禁 3/3。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过；当前 release stdio 18/18、认证 HTTP/SSE 13/13。两路独立复审批准本子项。扫描器 14 份上游摘要全部一致，vendor 源码/pin 未变。
 
 源码 SHA `533986775cee33b4d9372253178e7af67c262f2c` 的[同源码原生 CI 全部 22 项通过](https://github.com/loong10k/diskgraph/actions/runs/37033696892)，包含八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主及五个原生包。Windows stable 与 Rust 1.97.0 日志均逐项确认十三项解析回归通过；人工记录不代表原生 Windows lsof provider 已实现。macOS stable 日志确认十四项解析回归，包括真实 lsof 换行/控制字符显示碰撞测试。15.13a 仅按结果解释及覆盖语义完成，8.7 和父项 15.13 保持未完成。
+
+
+## 实时证据共享执行器（EC-04 / 15.13b，2026-10-03）
+
+Engine 内新增私有平台执行器，共用于进程及 Git 采样。新增 `ProbeLimits`、`sample_process_usage_bounded`、`sample_git_bounded`，既有公开签名及结果类型保留。兼容入口默认整次协作期限 15 秒、所有子命令 stdout/stderr 共计 1 MiB，超过 64 MiB 的配置拒绝；Git 多条命令借用同一预算，不逐条重置。两条管道在进程运行期间按固定小块排空；字节恰好耗尽仍须实际 EOF、正常退出及末段期限/取消核验。资源失败、异常退出或清理失败停止后续命令，主错误和次级清理诊断均保留。
+
+Unix 使用自有进程组和非阻塞管道，WNOWAIT 保留 leader 至清理/回收完成；leader 离开原组时只终止仍自有的 PID，不跟随新 PGID。宿主 auto-reap 明确拒绝，外部回收则 fail-closed，主动脱离组的后代不受组约束。Darwin 仅 zombie 的 EPERM 需要两次完整成员集合一致、全部 SZOMB 及 leader 正确父身份；50 ms 有界重试覆盖退出过渡，不把 INEXIT 本身当已完成。
+
+Windows 创建时用 JOB_LIST/HANDLE_LIST、KILL_ON_JOB_CLOSE 和固定地址 overlapped 管道，不采用运行后分配 fallback。成功零字节读不等于 EOF，意外取消是读取失败；属性列表持有参数数组直到销毁，命令/环境编码在累计超限前停止分配。Job 终止后最多观察计数一秒，未知或非零拒绝完整结果，即便由外部引用持有已退出进程造成也保守失败。关闭 Job 提供终止后备，自有 pending I/O 只有确认最终完成后才释放；leader/I/O 安全等待可能超过观察期及采样协作期限。要求支持创建属性、受信 .exe 和绝对项目目录，拒绝相对程序路径及脚本。这是协作资源控制，不是严格 RSS 或调度 SLA。
+
+测试先行在旧 runner 上实际产生 12 项中 11 项失败；后续补出的 Git HEAD 异常终止和 leader 逃组也先红，旧逃组清理等待约两秒。最终本机证据 suite 41/41，含 128 轮快速退出/预算/回收、真实 Git/lsof 与并发独立取消。独立绑定源码的探针确认 HEAD/upstream 信号失败阻止后续命令、逃组 leader 及时终止，以及 1000 轮结束后无未回收 child；这些是本地夹具观测，不能当性能分位数。
+
+初次全量运行因共享构建产物消失（ENOENT）未执行部分二进制，不计通过；独立 target 重建后完成 **659 passed / 0 failed / 13 ignored**。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。扫描器 14 份摘要一致，上游 pin/源码不变。当前源码的原生 CI、特别是 Windows Job/管道/外部引用回归仍待运行，15.13b 在该门禁完成前保持未勾选。
+
+本增量没有新 p50/p95 或 RSS 结果，不宣称提速。Git 配置隔离、可执行 filter、离线/只读保证、unborn 修改与引用格式错误仍由 8.7 和父项 15.13 验收；原生写操作、provider/设备、签名和生产 soak 继续分别验收，不宣称全平台生产就绪。

@@ -98,12 +98,36 @@ tests; source organization alone does not prove production readiness.
 coverage: successful exit does not verify permission scope or PID start identity.
 Byte parsing rejects malformed records; potentially escaped/annotated path names
 remain unknown instead of being guessed into native identities. Empty-query
-`Full` is only a compatibility result for zero objects. The subprocess runner's
-pipe/deadline/output and Git configuration boundaries remain outstanding; see
+`Full` is only a compatibility result for zero objects. `ProbeLimits` and the
+additive `sample_process_usage_bounded` / `sample_git_bounded` entries share one
+absolute deadline, cancellation flag and cumulative stdout/stderr limit across
+the entire sample. Existing entries default to 15 seconds and 1 MiB. Fixed pipe
+buffers still verify actual EOF at the exact limit; an extra byte, abnormal exit
+or failed cleanup cannot become a completed observation. Cleanup can exceed the
+cooperative deadline and does not establish a strict RSS or latency ceiling.
+
+Unix retains the leader until group termination and reaping. Hosts must not
+auto-reap or independently wait for this child; those conditions fail closed.
+Ordinary descendants remain in the owned group; descendants that actively leave
+it are outside this containment. Windows requires Windows 10+, a trusted absolute
+`.exe` or simple executable name in explicit absolute PATH entries, and an
+absolute project directory; relative program paths and scripts are refused.
+Native execution uses creation-time Job/standard-handle attributes and owned
+overlapped pipes. Job accounting has a separate one-second observation window;
+unknown or nonzero state refuses completed evidence, including externally held
+references to an exited process. Leader waits and safe pending-I/O completion
+can exceed that window. Its final native acceptance is recorded in
 the [full-platform evidence](../../docs/production-readiness-full-platform-2026-10-02.md).
+Git configuration isolation, offline/read-only execution and unborn/reference
+semantics remain outstanding; bounded execution does not certify those behaviors.
 
 占用采样保留正向观察并报告 partial；空结果、转义/标注名称或无法确认的身份不说明无人使用。
-原生字节键不等于文件句柄/PID 启动身份；子进程预算与 Git 隔离仍需单独完成。
+原生字节键不等于文件句柄/PID 启动身份。新增有界采样入口共用整次期限、取消和
+stdout/stderr 累计字节，兼容入口默认 15 秒/1 MiB；预算耗尽仍核验实际 EOF，
+异常退出与清理失败不能变成完整样本。清理可能超过协作期限，不承诺严格 RSS/SLA。
+Unix 宿主不得 auto-reap 或外部回收该 child，主动脱离组的后代不受组约束。
+Windows 要求 Windows 10+、受信 .exe 和绝对项目目录，拒绝相对程序路径及脚本；
+平台原生验收见上述记录。Git 配置隔离、离线/只读执行和 unborn/引用语义仍待完成。
 
 ## License
 

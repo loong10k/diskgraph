@@ -1,24 +1,38 @@
 //! 按精确路径采样可见占用并保留覆盖诊断。
 
+use super::probe_budget::ProbeBudget;
+use super::probe_execution::{configure_probe_env, run_probe};
 use super::sampling_clock::now_ms;
-use super::{UsageCoverage, UsageSample};
-use std::io::Read;
+use super::{ProbeLimits, UsageCoverage, UsageSample};
 use std::path::Path;
-use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+use std::process::Command;
 
 /// 按精确路径采样可见占用并保留覆盖诊断。
 /// 参数：lsof 为受信程序路径，paths 为精确采样路径。
 /// 返回：使用样本；无法运行/观察时不可当作无人占用。
 /// 仅保留可见正向观察；未核验权限范围/PID 启动身份时返回 partial。
 /// 空请求没有观察对象，保留兼容空样本，不能将其套用于任何文件。
-/// Samples visible open handles for exact paths with `lsof`. The program is fixed,
-/// the arguments are structured and there is no shell. Child polling uses a
-/// 15-second timeout, but pipe draining has no hard byte/deadline bound in
-/// this compatibility implementation. A missing or failing lsof is an
-/// `Unobservable` sample, never evidence that a file is unused.
+/// 默认整次采样为 15 秒、两管道累计 1 MiB，安全回收可能超过协作期限。
 pub fn sample_process_usage(lsof: &Path, paths: &[&Path]) -> UsageSample {
+    sample_process_usage_bounded(lsof, paths, &ProbeLimits::default())
+}
+
+/// 使用调用方的整次期限、累计输出与取消配置采样可见句柄。
+/// 参数：lsof 为受信程序，paths 为精确路径，limits 为整次采样配置。
+/// 返回：完整执行后解释出的 partial 样本，或带资源/平台诊断的不可观察样本。
+pub fn sample_process_usage_bounded(
+    lsof: &Path,
+    paths: &[&Path],
+    limits: &ProbeLimits,
+) -> UsageSample {
     let sampled_at_unix_ms = now_ms();
+    let mut budget = match ProbeBudget::new(limits) {
+        Ok(budget) => budget,
+        Err(error) => return unobservable(sampled_at_unix_ms, error.to_string()),
+    };
+    if let Err(error) = budget.check() {
+        return unobservable(sampled_at_unix_ms, error.to_string());
+    }
     if paths.is_empty() {
         return UsageSample {
             sampled_at_unix_ms,
@@ -32,65 +46,27 @@ pub fn sample_process_usage(lsof: &Path, paths: &[&Path]) -> UsageSample {
     // with `-` is still a path.
     command.args(["-w", "-F", "pcn0", "--"]);
     command.args(paths);
-    command.env_clear();
-    if let Some(path_env) = std::env::var_os("PATH") {
-        command.env("PATH", path_env);
-    }
-    command.stdout(Stdio::piped());
-    command.stderr(Stdio::piped());
-    command.stdin(Stdio::null());
-    let mut child = match command.spawn() {
-        Ok(child) => child,
-        Err(error) => {
-            return UsageSample {
-                sampled_at_unix_ms,
-                coverage: UsageCoverage::Unobservable {
-                    reason: format!("the handle probe could not run: {error}"),
-                },
-                holders: Vec::new(),
-            };
-        }
+    configure_probe_env(&mut command);
+    let output = match run_probe(&mut command, &mut budget) {
+        Ok(output) => output,
+        Err(error) => return unobservable(sampled_at_unix_ms, error.to_string()),
     };
-    let deadline = Instant::now() + Duration::from_secs(15);
-    let mut timed_out = false;
-    loop {
-        match child.try_wait() {
-            Ok(Some(_)) => break,
-            Ok(None) if Instant::now() >= deadline => {
-                timed_out = true;
-                let _ = child.kill();
-                let _ = child.wait();
-                break;
-            }
-            Ok(None) => std::thread::sleep(Duration::from_millis(10)),
-            Err(error) => {
-                return UsageSample {
-                    sampled_at_unix_ms,
-                    coverage: UsageCoverage::Unobservable {
-                        reason: format!("the handle probe failed: {error}"),
-                    },
-                    holders: Vec::new(),
-                };
-            }
-        }
+    let sample = super::process_output::interpret_process_output(
+        &output.stdout,
+        output.exit_code,
+        paths,
+        sampled_at_unix_ms,
+    );
+    if let Err(error) = budget.check() {
+        return unobservable(sampled_at_unix_ms, error.to_string());
     }
-    let mut output = Vec::new();
-    if let Some(mut pipe) = child.stdout.take() {
-        let _ = pipe.read_to_end(&mut output);
+    sample
+}
+
+fn unobservable(sampled_at_unix_ms: u64, reason: String) -> UsageSample {
+    UsageSample {
+        sampled_at_unix_ms,
+        coverage: UsageCoverage::Unobservable { reason },
+        holders: Vec::new(),
     }
-    let exit = child
-        .try_wait()
-        .ok()
-        .flatten()
-        .and_then(|status| status.code());
-    if timed_out {
-        return UsageSample {
-            sampled_at_unix_ms,
-            coverage: UsageCoverage::Unobservable {
-                reason: "the handle probe timed out".into(),
-            },
-            holders: Vec::new(),
-        };
-    }
-    super::process_output::interpret_process_output(&output, exit, paths, sampled_at_unix_ms)
 }

@@ -187,3 +187,11 @@ EV-06 的占用证据首先保留原生路径身份：按 NUL 字段的字节标
 解析与覆盖子项不等于 EC-04 的执行边界完成。后续 runner 必须同时排空 stdout/stderr，共用绝对期限、累计输出与取消预算，在全部失败路径清理本次采样资源。Unix 进程组仅约束未自行脱离的后代；Windows 必须在执行前建立 Job/继承句柄边界，不能以 spawn 后分配补偿竞态。异步 I/O 的取消与最终释放需要对应原生环境验收，不宣称内核 I/O 的严格墙钟上界。
 
 Git 尚无 HEAD 时仍需报告实际修改，预算/I/O/格式失败不得被解释为无 HEAD/upstream。仓库的 clean/process filter、fsmonitor 等可以让 status 启动外部程序；仅使用固定 Git 子命令或在执行前读取一次配置不能解决竞态。实现须采用受限不可变配置边界或显式拒绝，并以隔离哨兵证明不执行外部程序/不联网/不产生可选索引写入。支持的 Git 版本、特殊仓库配置和未验收平台分别记录，不能借用本机新版 Git 的结果。
+
+### D18 探针的共享资源执行器
+
+15.13b 在 Engine 内建立私有执行器，避免 Engine→Ops→Engine 循环依赖；原有两个采样函数作为默认 15 秒/1 MiB 兼容入口，新增带期限、累计输出与取消配置的入口。每次采样持有独立预算，Git 多个命令复用同一绝对期限和两管道累计字节；任何资源失败立即终止，不由 `.ok()` 降级为无 HEAD/upstream。默认值不是生产 SLA，缓冲和输出有界不代表全部探针内存或内核 I/O 可被硬抢占。
+
+Unix 使用本次子进程的独立进程组与非阻塞管道，轮询两管道及进程状态；WNOWAIT 保留 leader 身份至清理和回收完成。仍存活的 leader 即使离开原组也按自有 PID 终止，不追随新 PGID；主动 setsid 逃离的后代不在组约束内。Darwin 对仅 zombie 的组返回 EPERM 时，最多 50 ms 重试，最终要求全部 SZOMB、leader 父身份及两次完整成员集合一致，未知/变化仍失败；退出过渡本身不等于已退出。Windows 10+ 使用原生 CreateProcessW 的 JOB_LIST/HANDLE_LIST 原子绑定 KILL_ON_JOB_CLOSE Job 和三个标准句柄，禁用 breakaway；不以运行后 Assign 或缺能力 fallback 代替。父读端是自有 overlapped named pipe，每条固定缓冲与 OVERLAPPED 地址稳定，CancelIoEx 后等待最终完成再释放。终止 Job 后保留句柄，最多观察 1 秒以确认 ActiveProcesses 为零；查询失败或超期明确返回清理失败，即便只因外部句柄仍引用已退出进程也保守失败。关闭 Job 提供 KILL 后备；leader 等待及自有 pending I/O 最终完成不受这一秒硬限，安全清理可能超过协作采样期限；平台行为必须在对应 CI 执行真实后代/管道与并发回归。
+
+成功要求正常进程退出状态、stdout/stderr EOF 和末段期限/取消同时有效；信号死亡或 Windows 高位异常状态不得降级成无 HEAD/upstream。恰好耗尽字节预算仍以固定小缓冲检查 EOF，多一个字节即拒绝完整结果。stderr 同样扣预算，不因解析器未消费它而忽略。Windows 零字节成功读取不等于 EOF，意外 abort 是业务失败，仅本 owner 的清理取消可作已终止 I/O。显式清理必须保留主错误及次级清理诊断，Drop 仅作兜底。Windows 兼容入口明确要求绝对项目目录和受信 .exe，不能宣称全部旧平台行为相同。该资源子项不关闭 Git 配置、执行 filter、离线/只读保证、unborn 或引用格式语义；父项 15.13 和 8.7 继续单独验收。

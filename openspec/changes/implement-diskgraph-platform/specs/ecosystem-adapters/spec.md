@@ -44,6 +44,22 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 子进程退出但后代持有管道，或执行、读取、等待、取消失败
 - **THEN** 有界读取仍检查期限，释放本次采样的进程与句柄；平台无法可靠建立清理边界时拒绝，不影响其他并发采样。
 
+#### Scenario: Windows creation and I/O ownership
+- **WHEN** Windows 启动证据探针，或取消未完成的异步管道读取
+- **THEN** 创建时通过 Job 与限定继承句柄建立清理边界，缺少能力时拒绝；取消请求之后继续持有读取缓冲及 OVERLAPPED，确认最终完成后才释放，不声明内核 I/O 的严格墙钟上限。
+
+#### Scenario: Exact output limit and terminal checks
+- **WHEN** 两管道和多个命令累计恰好达到输出上限，或进程退出后管道未 EOF
+- **THEN** 继续以固定小缓冲检查 EOF 与期限/取消，只有全部管道完整结束且终态预算仍有效才成功；额外字节、失败或晚到结果不能成为完整证据。
+
+#### Scenario: Abnormal exit and cleanup diagnostics
+- **WHEN** 探针因信号或异常状态退出，或主采样失败后清理也失败
+- **THEN** 停止整次采样及后续命令，不降级成缺少引用；返回主错误并保留次级清理诊断，Drop 只能兜底。
+
+#### Scenario: Retained leader and Windows cleanup observation
+- **WHEN** Unix leader 离开原组，或 Windows 已终止进程仍由外部句柄引用
+- **THEN** Unix 只终止仍拥有的 leader PID，不跟随新组；Windows 清理计数采用有限观察期，不能因外部引用无限等待或把未确认清理表示为完整成功，未完成自有 I/O 的安全释放仍按原生完成契约执行。
+
 #### Scenario: Git configuration execution
 - **WHEN** 仓库配置提供 fsmonitor、clean/process filter 或其他外部程序能力
 - **THEN** 只读 Git 采样必须使用不执行这些程序的受限配置或明确拒绝；配置检查后的竞态不得恢复外部执行，不能仅按命令名称声称离线。
