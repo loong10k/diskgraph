@@ -179,7 +179,7 @@
 | CT-05 | supported | 总文件/字节/期限预算，失败读取真实成本、部分摘要不确认、取消/撤权回归 |
 | RT-06 | supported | 20 ms 协作取消、实际编码 staging、容量入队拒绝、30 秒租约/5 秒续租与 fencing 夹具；非严格 RSS |
 | RT-07 | supported | prune 默认预览，保护 latest/pin/操作与恢复引用；SQLite 不自动 VACUUM |
-| RE-06 | partial | f57aa40 与存储结构 63bc6c7 的同 SHA 22/22 CI 已通过；后续纯文档 1ba56aa 为 21/22，Windows 连接上限发生 TCP reset，已在本机先红后绿修复并通过 584 测试/Clippy/协议和独立复审，等待新 SHA 原生验收。真实长期生产运行/签名发行仍缺；未部署生产 |
+| RE-06 | partial | f57aa40 与存储结构 63bc6c7 的同 SHA 22/22 CI 已通过；后续纯文档 1ba56aa 为 21/22，Windows 连接上限发生 TCP reset，已先红后绿修复，23cfb52 的[同 SHA 22/22 CI](https://github.com/loong10k/diskgraph/actions/runs/36989443313)及本机 584 测试/Clippy/协议和独立复审通过。真实长期生产运行/签名发行仍缺；未部署生产 |
 | RE-07 | partial | 本轮独立审查、真实 FFI、release 性能与桌面 CI 工作流；移动/provider/原生写/签名/生产证据尚缺，不能宣称全平台就绪 |
 | RT-08 | supported | `dropping_an_idle_runner_releases_its_engine` 和 `dropping_a_runner_blocked_on_queue_read_prevents_a_new_claim` 先红后绿；f57aa40 跨平台通过；已开始扫描仍按预算/租约协作结束，不承诺瞬时取消 |
 | ST-06 | supported | 入口 93 行、每类型独立文件、中文实际来源和参数/返回、无生产 wildcard/stub；`production_storage_entry_types_and_imports_follow_the_rust_contract` 先红后绿。store 76 passed / 5 ignored，workspace 582 / 13；两位独立复审确认旧 API/事务与 185 处 SQL 不变；[63bc6c7 的 22/22 跨平台 CI](https://github.com/loong10k/diskgraph/actions/runs/36986111434)通过 |
