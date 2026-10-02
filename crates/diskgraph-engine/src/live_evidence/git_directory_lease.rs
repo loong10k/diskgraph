@@ -34,6 +34,12 @@ impl GitDirectoryLease {
         GitDirectoryVersion::capture(&self.file)
     }
 
+    /// 借用租约持有的叶目录句柄，供相对目录的受约束文件操作使用。
+    /// 参数：无。返回：借用的目录文件；调用方不能转移句柄或延长租约寿命。
+    pub(super) fn leaf_file(&self) -> &File {
+        &self.file
+    }
+
     /// 捕获持有祖先的身份记录。参数：probe 为同一次期限/取消。返回：按解析顺序排列的版本，不转移句柄。
     pub(super) fn parent_versions(
         &self,
@@ -104,7 +110,9 @@ impl GitDirectoryLease {
         use std::os::windows::ffi::OsStrExt;
         let mut names = Vec::new();
         // shareREAD 租约保留所有父目录；前后完整状态复核，不能称为原子枚举。
-        for entry in std::fs::read_dir(path).map_err(|error| error.to_string())? {
+        for entry in std::fs::read_dir(path)
+            .map_err(|error| format!("git metadata directory enumeration: {error}"))?
+        {
             budget.check(probe)?;
             let name = entry.map_err(|error| error.to_string())?.file_name();
             budget.charge_entry(probe)?;
@@ -222,8 +230,9 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
         )
         .open(&plan.drive_root)
-        .map_err(|error| error.to_string())?;
-    let drive_state = WindowsFileState::capture(&file).map_err(|error| error.to_string())?;
+        .map_err(|error| format!("git metadata drive open: {error}"))?;
+    let drive_state = WindowsFileState::capture(&file)
+        .map_err(|error| format!("git metadata drive state: {error}"))?;
     drive_state
         .validate(true)
         .map_err(|error| error.to_string())?;
@@ -231,7 +240,8 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
     for name in plan.components {
         probe.check().map_err(|error| error.to_string())?;
         let next = open_windows_child(&file, &name)?;
-        let state = WindowsFileState::capture(&next).map_err(|error| error.to_string())?;
+        let state = WindowsFileState::capture(&next)
+            .map_err(|error| format!("git metadata child state: {error}"))?;
         state.validate(true).map_err(|error| error.to_string())?;
         if state.volume != drive_state.volume {
             return Err("git metadata directory volume changed".into());
@@ -249,8 +259,8 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
     use std::os::windows::io::{AsRawHandle, FromRawHandle};
     use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
     use windows_sys::Wdk::Storage::FileSystem::{
-        FILE_DIRECTORY_FILE, FILE_OPEN, FILE_OPEN_NO_RECALL, FILE_OPEN_REPARSE_POINT,
-        FILE_SYNCHRONOUS_IO_NONALERT, NtCreateFile,
+        FILE_OPEN, FILE_OPEN_NO_RECALL, FILE_OPEN_REPARSE_POINT, FILE_SYNCHRONOUS_IO_NONALERT,
+        NtCreateFile,
     };
     use windows_sys::Win32::Foundation::{
         CloseHandle, INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
@@ -285,10 +295,9 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
             0,
             FILE_SHARE_READ,
             FILE_OPEN,
-            FILE_DIRECTORY_FILE
-                | FILE_SYNCHRONOUS_IO_NONALERT
-                | FILE_OPEN_REPARSE_POINT
-                | FILE_OPEN_NO_RECALL,
+            // FILE_DIRECTORY_FILE 只兼容有限的 CreateOptions；与 no-follow/no-recall
+            // 同用会得到 STATUS_INVALID_PARAMETER。类型由同一返回句柄校验。
+            FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL,
             std::ptr::null(),
             0,
         )
@@ -297,10 +306,9 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
         if !handle.is_null() && handle != INVALID_HANDLE_VALUE {
             unsafe { CloseHandle(handle) };
         }
-        return Err(std::io::Error::from_raw_os_error(unsafe {
-            RtlNtStatusToDosError(status) as i32
-        })
-        .to_string());
+        let error =
+            std::io::Error::from_raw_os_error(unsafe { RtlNtStatusToDosError(status) as i32 });
+        return Err(format!("git metadata directory NtCreateFile: {error}"));
     }
     Ok(unsafe { File::from_raw_handle(handle) })
 }

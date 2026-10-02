@@ -14,9 +14,10 @@ use std::path::Path;
 /// 返回：本地 Git 样本或错误；默认整次 15 秒/管道及 stash 日志累计 1 MiB。
 /// Samples a supported repository through private configuration, index and
 /// reference copies. External filter/fsmonitor commands are never copied.
-/// Unsupported semantics and resource failures are errors. Host system-data
-/// discovery and a borrowed recursive object store still have separate input
-/// and snapshot limits; this is not an atomic repository snapshot.
+/// Unsupported semantics and resource failures are errors. A fixed printer
+/// discovers the host config path before bounded native capture; it requires
+/// the trusted Git package's shell. A borrowed recursive object store retains
+/// separate input/access limits; this is not an atomic repository snapshot.
 /// Windows 工具/绝对目录及 Unix 宿主条件见 sample_git_bounded 与 ProbeLimits。
 pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
     sample_git_bounded(git, project, &ProbeLimits::default())
@@ -29,6 +30,7 @@ pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
 /// stash 存在时仅支持可核验的 files 引用后端，不把跳过的日志记录当完整计数。
 /// 固定禁用 pager、懒取与可选锁写入；特殊 filter/index/配置无法保真时明确拒绝。
 /// 准备与复核同期限/取消；元数据另有两轮累计 64 MiB/32k 条目额度，非严格 RSS 上限。
+/// 私有对象另限原生报告分配 128 MiB，卷余量至少 64 MiB；时点检查不预留空间。
 /// 工具在首次命令前解析成固定绝对路径，仅搜索绝对 PATH 项；Windows 要求原生 .exe。
 pub fn sample_git_bounded(
     git: &Path,

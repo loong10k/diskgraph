@@ -21,7 +21,7 @@ pub(super) struct GitView {
     context: GitCommandContext,
     metadata: GitMetadataTree,
     metadata_budget: GitMetadataBudget,
-    system_observation: Vec<u8>,
+    system_observation: PathBuf,
     has_filters: bool,
 }
 
@@ -40,21 +40,21 @@ impl GitView {
             std::fs::canonicalize(project).map_err(|error| format!("Git project: {error}"))?;
         let mut directory = GitPrivateDirectory::new(probe)?;
         let private = directory.path().join("repo");
-        let context = (|| {
+        let context = (|| -> Result<(GitCommandContext, PathBuf), String> {
             for child in ["objects/info", "refs", "info", "hooks"] {
-                std::fs::create_dir_all(private.join(child))
-                    .map_err(|error| format!("private Git bootstrap: {error}"))?;
+                directory.create_dir_all(&private.join(child), probe)?;
             }
-            std::fs::write(directory.path().join("empty"), b"")
-                .map_err(|error| error.to_string())?;
-            std::fs::write(
-                private.join("HEAD"),
+            directory.write(&directory.path().join("empty"), b"", probe)?;
+            directory.write(
+                &private.join("HEAD"),
                 b"ref: refs/heads/diskgraph-bootstrap\n",
-            )
-            .map_err(|error| error.to_string())?;
-            GitCommandContext::new(git, directory.path(), &project, probe)
+                probe,
+            )?;
+            let context = GitCommandContext::new(git, directory.path(), &project, probe)?;
+            let system_observation = git_system_configuration::read(&context, probe)?;
+            Ok((context, system_observation))
         })();
-        let context = match context {
+        let (context, system_observation) = match context {
             Ok(context) => context,
             Err(error) => return directory.complete(Err(error)),
         };
@@ -63,12 +63,11 @@ impl GitView {
             context,
             metadata: GitMetadataTree::default(),
             metadata_budget: GitMetadataBudget::default(),
-            system_observation: Vec::new(),
+            system_observation,
             has_filters: false,
         };
         let prepared = (|| -> Result<(), String> {
             let mut configuration = GitConfiguration::default();
-            view.system_observation = git_system_configuration::read(&view.context, probe)?;
             view.capture_system_configuration(&mut configuration, probe)?;
             let (worktree, git_dir) = view.locate(&project, probe)?;
             view.context.bind_worktree(&worktree);
@@ -136,25 +135,13 @@ impl GitView {
                     layout.has_untracked_cache,
                 );
                 let modified = file.modified().ok_or("unsupported Git index timestamp")?;
-                let copy = std::fs::OpenOptions::new()
-                    .read(true)
-                    .write(true)
-                    .open(private.join("index"))
-                    .map_err(|error| error.to_string())?;
-                copy.set_times(std::fs::FileTimes::new().set_modified(modified))
-                    .map_err(|error| format!("private Git index timestamp: {error}"))?;
-                if copy
-                    .metadata()
-                    .and_then(|metadata| metadata.modified())
-                    .map_err(|error| error.to_string())?
-                    != modified
-                {
-                    return Err("unsupported Git index timestamp precision".into());
-                }
+                view.directory
+                    .set_modified(&private.join("index"), modified, probe)?;
             }
             view.metadata.copy_refs(
                 &common.join("refs"),
                 &private.join("refs"),
+                &mut view.directory,
                 &mut view.metadata_budget,
                 probe,
             )?;
@@ -163,11 +150,13 @@ impl GitView {
                     view.metadata.copy_refs(
                         &git_dir.join("refs").join(namespace),
                         &private.join("refs").join(namespace),
+                        &mut view.directory,
                         &mut view.metadata_budget,
                         probe,
                     )?;
                 }
             }
+            let mut has_packed_replace = false;
             for relative in [
                 "packed-refs",
                 "shallow",
@@ -175,7 +164,17 @@ impl GitView {
                 "info/exclude",
                 "logs/refs/stash",
             ] {
-                view.copy_optional(&common.join(relative), &private.join(relative), probe)?;
+                if let Some(index) =
+                    view.copy_optional(&common.join(relative), &private.join(relative), probe)?
+                    && relative == "packed-refs"
+                {
+                    has_packed_replace = packed_replace(
+                        view.metadata
+                            .get(index)
+                            .bytes()
+                            .expect("captured packed refs"),
+                    );
+                }
             }
             if let Some(index) = view.capture(&common.join("info/grafts"), probe)?
                 && !view
@@ -192,7 +191,7 @@ impl GitView {
                 .metadata
                 .directory(&replace, &mut view.metadata_budget, probe)?
                 && !view.metadata.names(&replace).is_empty())
-                || packed_replace(&private.join("packed-refs"))?
+                || has_packed_replace
             {
                 return Err("unsupported Git replacement references".into());
             }
@@ -220,20 +219,22 @@ impl GitView {
                 view.configured_data(configuration.last("core.excludesfile"), &worktree, probe)?;
             let attributes_path = view.directory.path().join("attributes");
             let excludes_path = view.directory.path().join("exclude");
-            std::fs::write(&attributes_path, attributes).map_err(|error| error.to_string())?;
-            std::fs::write(&excludes_path, excludes).map_err(|error| error.to_string())?;
+            view.directory.write(&attributes_path, &attributes, probe)?;
+            view.directory.write(&excludes_path, &excludes, probe)?;
             let config = configuration.render(
                 &git_native_path::bytes(&attributes_path)?,
                 &git_native_path::bytes(&excludes_path)?,
             )?;
-            std::fs::write(private.join("config"), config).map_err(|error| error.to_string())?;
+            view.directory
+                .write(&private.join("config"), &config, probe)?;
             // 接上源 ODB 后只运行读取命令；alternate 的递归范围/输入并非严格快照或 RSS 边界。
-            std::fs::write(
-                private.join("objects/info/alternates"),
-                git_native_path::alternate(&objects)?,
-            )
-            .map_err(|error| error.to_string())?;
+            view.directory.write(
+                &private.join("objects/info/alternates"),
+                &git_native_path::alternate(&objects)?,
+                probe,
+            )?;
             view.metadata_budget.check(probe)?;
+            view.directory.verify_capacity(probe)?;
             Ok(())
         })();
         match prepared {
@@ -266,7 +267,8 @@ impl GitView {
         if git_system_configuration::read(&self.context, probe)? != self.system_observation {
             return Err("Git system configuration changed during sampling".into());
         }
-        self.metadata.verify(&mut self.metadata_budget, probe)
+        self.metadata.verify(&mut self.metadata_budget, probe)?;
+        self.directory.verify_capacity(probe)
     }
 
     /// 在成功或失败终态显式清理私有目录，保留主错误及次级清理诊断。
@@ -288,13 +290,13 @@ impl GitView {
         let Some(index) = self.capture(source, probe)? else {
             return Ok(None);
         };
-        std::fs::create_dir_all(target.parent().ok_or("invalid private Git target")?)
-            .map_err(|error| error.to_string())?;
-        std::fs::write(
+        self.directory
+            .create_dir_all(target.parent().ok_or("invalid private Git target")?, probe)?;
+        self.directory.write(
             target,
             self.metadata.get(index).bytes().expect("captured metadata"),
-        )
-        .map_err(|error| error.to_string())?;
+            probe,
+        )?;
         Ok(Some(index))
     }
 
@@ -331,13 +333,8 @@ impl GitView {
         configuration: &mut GitConfiguration,
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
-        let Some((origin, expected)) = git_system_configuration::source(&self.system_observation)?
-        else {
-            return Ok(());
-        };
-        if self.parse_configuration(&origin, "system.config", configuration, probe)? != expected {
-            return Err("Git system configuration changed during capture".into());
-        }
+        let origin = self.system_observation.clone();
+        self.parse_configuration(&origin, "system.config", configuration, probe)?;
         Ok(())
     }
 
@@ -442,12 +439,8 @@ fn trim_line(bytes: &[u8]) -> &[u8] {
         .unwrap_or(bytes.strip_suffix(b"\n").unwrap_or(bytes))
 }
 
-fn packed_replace(path: &Path) -> Result<bool, String> {
-    match std::fs::read(path) {
-        Ok(bytes) => Ok(bytes
-            .split(|byte| *byte == b'\n')
-            .any(|line| line.windows(13).any(|part| part == b"refs/replace/"))),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
-        Err(error) => Err(format!("private packed refs: {error}")),
-    }
+fn packed_replace(bytes: &[u8]) -> bool {
+    bytes
+        .split(|byte| *byte == b'\n')
+        .any(|line| line.windows(13).any(|part| part == b"refs/replace/"))
 }

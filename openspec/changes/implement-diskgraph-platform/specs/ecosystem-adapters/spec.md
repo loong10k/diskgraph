@@ -76,9 +76,21 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 有界元数据视图捕获多个目录并保留来源复核记录
 - **THEN** 捕获与枚举期间持有安全路径解析所需句柄，记录身份、版本、祖先身份和名单后释放；最终复核重新安全打开并比较，不为每个历史记录长期占用一组目录句柄。
 
+#### Scenario: Host configuration is bounded before parsing
+- **WHEN** 采样需要保留受信 Git 的宿主系统配置，而其原始文件超预算、是特殊文件或引用 include
+- **THEN** 只使用已核验且不读写目标配置的固定路径发现接口；发现后先原生有界捕获，再解析私有副本，超限或特殊文件不能先交给 Git 解析。发现接口若依赖固定可信 shell，能力与测试必须明确该条件，宿主路径别名在终态重新发现，不能称为原子快照。
+
+#### Scenario: Private allocation and volume headroom are checked separately
+- **WHEN** 原始输入额度仍足够但许多短文件的原生报告分配超限，或临时卷可用空间不足或不可观测
+- **THEN** 在准备创建和后续写入门禁拒绝；以对象原生报告的分配和卷可用空间分别计量，不能把逻辑内容字节当实际分配。只允许覆盖本 owner 登记的普通文件，末段复核未知项或分配变化并保留显式清理诊断；不宣称卷空间 reservation 或文件系统全局元数据精确归属。
+
 #### Scenario: Private Git view preserves status semantics
 - **WHEN** 私有元数据视图关闭外部程序或遇到属性、忽略、行尾、index、子模块或引用后端的特殊语义
 - **THEN** 保留能可靠验证的状态语义；不能可靠保持的条件明确拒绝，不能删去 filter、忽略子模块或默认格式后返回正常 clean/dirty。原仓库配置及元数据的后续替换不得重新进入私有执行配置。
+
+#### Scenario: Materialized private metadata remains verifiable
+- **WHEN** 工具执行期间私有 index、配置或引用被原地修改，即使身份、长度与分配量未变，或私有根路径被替换
+- **THEN** 末段拒绝已登记文件版本变化，只有 owner 自身的受控写入能更新水位；清理不得将替换来的陌生目录当作 owner 删除。此复核是变化检测，不是对同权限进程或整个文件系统的原子隔离。
 
 #### Scenario: Racy index timestamp is copied faithfully
 - **WHEN** 工作文件同长度修改后恢复 mtime，且原 index 时间要求 Git 重新读取内容

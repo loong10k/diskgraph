@@ -3,6 +3,7 @@
 use super::git_metadata_budget::GitMetadataBudget;
 use super::git_metadata_directory::GitMetadataDirectory;
 use super::git_metadata_file::GitMetadataFile;
+use super::git_private_directory::GitPrivateDirectory;
 use super::probe_budget::ProbeBudget;
 use std::collections::BTreeMap;
 use std::ffi::OsString;
@@ -110,12 +111,13 @@ impl GitMetadataTree {
     }
 
     /// 复制所需 loose refs，不复制源 commondir/对象库/配置能力。
-    /// 参数：source/target 为原目录与私有目标；budget/probe 为共享预算。
+    /// 参数：source/target 为原目录与私有目标，private 为独占容量 owner；budget/probe 为共享预算。
     /// 返回：完整复制，或特殊路径/预算错误。
     pub(super) fn copy_refs(
         &mut self,
         source: &Path,
         target: &Path,
+        private: &mut GitPrivateDirectory,
         budget: &mut GitMetadataBudget,
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
@@ -124,8 +126,7 @@ impl GitMetadataTree {
             if !self.directory(&source, budget, probe)? {
                 continue;
             }
-            std::fs::create_dir_all(&target)
-                .map_err(|error| format!("private Git refs: {error}"))?;
+            private.create_dir_all(&target, probe)?;
             let names = self.names(&source).to_vec();
             for name in names {
                 budget.check(probe)?;
@@ -141,11 +142,11 @@ impl GitMetadataTree {
                     let index = self
                         .file(&path, budget, probe)?
                         .ok_or("Git ref disappeared")?;
-                    std::fs::write(
-                        target.join(name),
+                    private.write(
+                        &target.join(name),
                         self.get(index).bytes().expect("captured file"),
-                    )
-                    .map_err(|error| format!("private Git ref: {error}"))?;
+                        probe,
+                    )?;
                 }
             }
         }

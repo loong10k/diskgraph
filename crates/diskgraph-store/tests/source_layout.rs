@@ -147,6 +147,10 @@ fn production_storage_entry_types_and_imports_follow_the_rust_contract() {
     let mut violations = Vec::new();
     for (path, file) in files {
         let label = path.file_name().unwrap().to_string_lossy();
+        let lines = std::fs::read_to_string(&path).unwrap().lines().count();
+        if lines >= 500 {
+            violations.push(format!("{label}: {lines} 行，生产模块必须少于 500 行"));
+        }
         if label == "lib.rs" || label == "mod.rs" {
             for item in &file.items {
                 if !matches!(item, syn::Item::Mod(_) | syn::Item::Use(_)) {

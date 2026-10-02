@@ -36,7 +36,13 @@ mod git_native_path;
 #[cfg(test)]
 mod git_native_path_tests;
 mod git_output;
+mod git_private_allocation;
+mod git_private_capacity;
+#[cfg(test)]
+mod git_private_capacity_tests;
 mod git_private_directory;
+#[cfg(test)]
+mod git_private_integrity_tests;
 mod git_references;
 mod git_reflog_file;
 #[cfg(test)]
@@ -48,6 +54,8 @@ mod git_stash;
 #[cfg(test)]
 mod git_stash_tests;
 mod git_system_configuration;
+#[cfg(test)]
+mod git_system_configuration_tests;
 mod git_usage;
 mod git_view;
 #[cfg(target_os = "macos")]
