@@ -1,3 +1,4 @@
+#[cfg(unix)]
 use std::fs::Metadata;
 use std::time::SystemTime;
 
