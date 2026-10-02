@@ -41,6 +41,13 @@ impl GitIsolationFixture {
         &self.project
     }
 
+    /// 构造供 Git 工具创建的同级夹具路径，不把 Windows verbatim 前缀传给工具。
+    /// 参数：name 为本测试固定的单个叶名称；返回：尚未创建的临时目录内原生路径。
+    pub(super) fn sibling_path(&self, name: &str) -> PathBuf {
+        assert!(matches!(name, "linked"));
+        self.temp.path().join(name)
+    }
+
     /// 创建仅访问本夹具的 Git 命令，禁用系统和用户配置。
     /// 参数：args 为固定 Git 参数；返回：尚未启动的独立命令。
     pub(super) fn command(&self, args: &[&str]) -> Command {

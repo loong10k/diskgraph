@@ -222,8 +222,8 @@ impl GitView {
             view.directory.write(&attributes_path, &attributes, probe)?;
             view.directory.write(&excludes_path, &excludes, probe)?;
             let config = configuration.render(
-                &git_native_path::bytes(&attributes_path)?,
-                &git_native_path::bytes(&excludes_path)?,
+                &git_native_path::tool_bytes(&attributes_path)?,
+                &git_native_path::tool_bytes(&excludes_path)?,
             )?;
             view.directory
                 .write(&private.join("config"), &config, probe)?;
@@ -311,11 +311,12 @@ impl GitView {
         if self.copy_optional(source, &target, probe)?.is_none() {
             return Ok(Vec::new());
         }
+        let tool_target = super::git_tool_path::from_native(&target)?;
         let parsed = successful(self.context.bootstrap(
             &[
                 OsStr::new("config"),
                 OsStr::new("--file"),
-                target.as_os_str(),
+                tool_target.as_os_str(),
                 OsStr::new("--no-includes"),
                 OsStr::new("--null"),
                 OsStr::new("--list"),

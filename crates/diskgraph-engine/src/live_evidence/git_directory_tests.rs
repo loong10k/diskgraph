@@ -135,9 +135,14 @@ fn directory_capture_rejects_relative_parent_and_regular_file_paths() {
     let (_temp, root) = fixture();
     let file = root.as_path().join("file");
     std::fs::write(&file, b"").unwrap();
+    // verbatim Windows PathBuf::push 会消除父步；OsString 拼接保留待验证的原始输入。
+    let mut parent = root.as_path().as_os_str().to_os_string();
+    parent.push(std::path::MAIN_SEPARATOR_STR);
+    parent.push("..");
+    parent.push(std::path::MAIN_SEPARATOR_STR);
     for path in [
         std::path::PathBuf::from("."),
-        root.as_path().join("../"),
+        std::path::PathBuf::from(parent),
         file,
     ] {
         assert!(

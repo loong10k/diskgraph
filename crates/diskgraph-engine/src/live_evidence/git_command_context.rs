@@ -1,6 +1,7 @@
 //! 采样和准备命令只在私有 Git 目录中执行，统一环境与累计预算。
 
 use super::git_executable::GitExecutable;
+use super::git_tool_path;
 use super::probe_budget::ProbeBudget;
 use super::probe_execution::run_probe;
 use super::probe_output::ProbeOutput;
@@ -29,13 +30,20 @@ impl GitCommandContext {
         worktree: &Path,
         probe: &mut ProbeBudget,
     ) -> Result<Self, String> {
+        // 私有及源路径的原生边界保持不变；工具表示不可保真时在 spawn 前拒绝。
+        git_tool_path::from_native(directory)?;
+        git_tool_path::from_native(worktree)?;
         Ok(Self {
             tool: GitExecutable::resolve(tool, probe)?,
             directory: directory.to_owned(),
             worktree: worktree.to_owned(),
             shell_path: trusted_shell_path(probe)?,
             #[cfg(windows)]
-            system_root: std::env::var_os("SystemRoot"),
+            system_root: std::env::var_os("SystemRoot")
+                .map(|root| {
+                    git_tool_path::from_native(Path::new(&root)).map(PathBuf::into_os_string)
+                })
+                .transpose()?,
         })
     }
 
@@ -53,7 +61,7 @@ impl GitCommandContext {
         args: &[&str],
         probe: &mut ProbeBudget,
     ) -> Result<ProbeOutput, String> {
-        let mut command = self.command(args.iter().map(OsStr::new), false);
+        let mut command = self.command(args.iter().map(OsStr::new), false)?;
         run_probe(&mut command, probe).map_err(|error| error.to_string())
     }
 
@@ -78,7 +86,7 @@ impl GitCommandContext {
         {
             return Err("unsupported Git host configuration discovery command".into());
         }
-        let mut command = self.command(args.iter().copied(), true);
+        let mut command = self.command(args.iter().copied(), true)?;
         if host_system {
             // NOSYSTEM 始终为 1；只计算安装包选择的路径，固定 printer 不读写目标。
             // Git 以独立 argv 传路径，路径字节从不成为 shell 程序文本。
@@ -92,16 +100,21 @@ impl GitCommandContext {
         run_probe(&mut command, probe).map_err(|error| error.to_string())
     }
 
-    fn command(&self, args: impl Iterator<Item = impl AsRef<OsStr>>, bootstrap: bool) -> Command {
+    fn command(
+        &self,
+        args: impl Iterator<Item = impl AsRef<OsStr>>,
+        bootstrap: bool,
+    ) -> Result<Command, String> {
+        let directory = git_tool_path::from_native(&self.directory)?;
+        let worktree = git_tool_path::from_native(&self.worktree)?;
+        let repo = git_tool_path::from_native(&self.directory.join("repo"))?;
+        let index = git_tool_path::from_native(&self.directory.join("repo/index"))?;
+        let empty = git_tool_path::from_native(&self.directory.join("empty"))?;
         let mut command = Command::new(self.tool.path());
         command
             .args(["--no-pager", "--no-lazy-fetch", "--no-optional-locks"])
             .args(args);
-        command.current_dir(if bootstrap {
-            &self.directory
-        } else {
-            &self.worktree
-        });
+        command.current_dir(if bootstrap { &directory } else { &worktree });
         // 清空 BASH_ENV/ENV/loader 等启动注入；后续只使用构造时捕获的宿主环境。
         command.env_clear();
         match &self.shell_path {
@@ -117,26 +130,22 @@ impl GitCommandContext {
             command.env("SystemRoot", root);
         }
         command
-            .env("GIT_DIR", self.directory.join("repo"))
-            .env("GIT_INDEX_FILE", self.directory.join("repo/index"))
+            .env("GIT_DIR", repo)
+            .env("GIT_INDEX_FILE", index)
             .env(
                 "GIT_WORK_TREE",
-                if bootstrap {
-                    &self.directory
-                } else {
-                    &self.worktree
-                },
+                if bootstrap { &directory } else { &worktree },
             )
             .env("GIT_CONFIG_NOSYSTEM", "1")
-            .env("GIT_CONFIG_SYSTEM", self.directory.join("empty"))
-            .env("GIT_CONFIG_GLOBAL", self.directory.join("empty"))
+            .env("GIT_CONFIG_SYSTEM", &empty)
+            .env("GIT_CONFIG_GLOBAL", &empty)
             .env("GIT_ATTR_NOSYSTEM", "1")
             .env("GIT_NO_REPLACE_OBJECTS", "1")
             .env("GIT_TERMINAL_PROMPT", "0")
             .env("GIT_TRACE2", "0")
             .env("GIT_TRACE2_EVENT", "0")
             .env("GIT_TRACE2_PERF", "0");
-        command
+        Ok(command)
     }
 }
 
@@ -149,7 +158,7 @@ fn trusted_shell_path(probe: &mut ProbeBudget) -> Result<Option<OsString>, Strin
         probe.check().map_err(|error| error.to_string())?;
         if directory.is_absolute() {
             // 绝对目录的程序内容仍由宿主信任，不认证管理员可写安装包。
-            directories.push(directory);
+            directories.push(git_tool_path::from_native(&directory)?);
         }
     }
     if directories.is_empty() {

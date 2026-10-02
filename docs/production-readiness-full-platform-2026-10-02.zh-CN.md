@@ -200,3 +200,13 @@ Store 入口仍为 94 行，只声明和导出模块。56 个生产源码文件�
 冻结后的本机门禁为 workspace 全目标 **790 passed / 0 failed / 13 ignored**；完整 Clippy（警告拒绝）、定向 fmt、OpenSpec strict、14 份 vendor 摘要及 release CLI/MCP/FFI 构建通过。实际 release stdio 18/18、认证 HTTP/legacy SSE 13/13 通过。两路独立复审确认修正后的完整性/计量路径，各自排除自己编写的文件。这些是本机功能结果，不是新增性能测量或全平台生产验收；新源码 CI 结果另行记录。
 
 源码 `57546dfb2d1200a937577c8f63c2a4475ae29d2f` 的 [CI](https://github.com/loong10k/diskgraph/actions/runs/37073529881) 在 Windows 警告拒绝构建中发现两条仅用于 Unix 测试的导入；两个 Windows Rust 任务均未进入测试。导入现添加 `cfg(unix)`；这次仅测试代码的修正后，配置 12/12、Engine 全目标 Clippy 及定向 fmt 通过。Windows 行为仍须新一轮原生验证，其余任务的成功不能关闭该门禁。
+
+## Windows Git 工具路径修复（EC-04 / D20，2026-10-03）
+
+源码 `14203e1d2134ed8edd55ed12cf4718fc9d4fb281` 的 [CI 终态为 20/22](https://github.com/loong10k/diskgraph/actions/runs/37074169662)。两个 Windows Rust 版本均完成构建及只读协议验收；Engine 单元测试各为 134 passed / 34 failed。12 项原生私有容量回归、目录枚举和替换根清理已逐项通过。32 项失败发生于 Git 读取配置，另两项分别是目录测试的 `..` 被 PathBuf 预先消去、linked-worktree 夹具直接向 Git 传入 verbatim 路径；这些失败不能记为通过。
+
+该 Windows 宿主安装 Git for Windows 2.55.0.windows.5。其 [mingw 实现](https://raw.githubusercontent.com/git-for-windows/git/v2.55.0.windows.5/compat/mingw.c) 对 `access()` 与 `fopen()` 使用不同路径校验，默认 NTFS 保护拒绝后者中的 `?`；[配置实现](https://raw.githubusercontent.com/git-for-windows/git/v2.55.0.windows.5/config.c) 对显式 GLOBAL 先检查访问、再打开。结合实际错误，私有空配置的 `\\?\C:\…` 表示是主要失败原因；原生配对测试用于进一步验证该推断。
+
+新的唯一工具路径适配器只在严格校验后移除合法本地驱动器 verbatim 前缀，保留 UTF-16 名称、大小写和单末尾目录分隔符；拒绝点组件、ADS、保留设备名、名称改写及不可保真的命名空间。普通工具路径最多 259 个 UTF-16 单元，超限明确拒绝。Git cwd、路径环境变量、绝对 PATH/SystemRoot、配置参数、属性/忽略路径及对象库 alternate 均使用该边界；原生捕获与 owner 路径继续保持原表示及句柄身份校验，不启用宿主 Git 配置，也不关闭 NTFS 保护。两项夹具现分别保留真实词法 `..`、从普通临时路径创建 linked-worktree 后再执行原生采样。
+
+词法门禁先在旧直传实现上 5 项失败，末尾目录分隔符回归另外确认 1 项失败；最终词法 8/8、配置 12/12、上下文 2/2 和结构门禁 3/3 通过。冻结源码本机 workspace 全目标为 **798 passed / 0 failed / 13 ignored**，Clippy、定向 fmt、OpenSpec strict、14 份 vendor 摘要及 release CLI/MCP/FFI 构建通过，实际 release stdio 18/18、认证 HTTP/legacy SSE 13/13 通过。独立代码及架构 lane 均批准该路径增量，各自排除编写过的文件；批准范围不含尚未运行的原生行为或其余 D20 能力。新增 Windows 实际 Git 配对测试核对普通/verbatim 名称的完整原生文件状态、GLOBAL 与 `--file` 行为及宿主配置不变；该测试尚未在 Windows 执行。原生 CI 结果继续记录，15.13d/D20 及全平台父项保持未完成。没有新增延迟、RSS 或提速测量。

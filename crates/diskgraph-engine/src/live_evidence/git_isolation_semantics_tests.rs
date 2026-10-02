@@ -73,7 +73,7 @@ fn linked_worktree_keeps_its_own_head_index_and_the_common_stash() {
     let fixture = GitIsolationFixture::new("sha1");
     std::fs::write(fixture.path().join("tracked"), b"stash\n").unwrap();
     fixture.git(&["stash", "push", "-q"]);
-    let linked = fixture.path().parent().unwrap().join("linked");
+    let linked = fixture.sibling_path("linked");
     fixture.git(&[
         "worktree",
         "add",

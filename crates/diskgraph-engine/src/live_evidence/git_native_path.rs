@@ -41,6 +41,12 @@ pub(super) fn bytes(path: &Path) -> Result<Vec<u8>, String> {
     }
 }
 
+/// 将已验证路径序列化为 Git 可表示的配置数据，保留原生身份路径用于句柄检查。
+/// 参数：path 为已捕获的本地路径；返回：Unix 原字节或无歧义的 Windows drive 路径字节。
+pub(super) fn tool_bytes(path: &Path) -> Result<Vec<u8>, String> {
+    bytes(&super::git_tool_path::from_native(path)?)
+}
+
 /// 只消除已验证 base 上的前置父组件，不擦掉未经原生验证的路径组件。
 /// 参数：base 为已验证的绝对工作目录，path 为元数据中的相对或绝对路径。
 /// 返回：绝对原始路径；Normal 后再 ..、越根及驱动器相对路径明确拒绝。
@@ -89,7 +95,7 @@ pub(super) fn resolve(base: &Path, path: &Path) -> Result<PathBuf, String> {
 /// 参数：path 为 source ODB 的绝对路径。返回：带引号与换行的 alternates 记录。
 pub(super) fn alternate(path: &Path) -> Result<Vec<u8>, String> {
     let mut out = vec![b'"'];
-    for byte in bytes(path)? {
+    for byte in tool_bytes(path)? {
         match byte {
             b'"' | b'\\' => {
                 out.push(b'\\');

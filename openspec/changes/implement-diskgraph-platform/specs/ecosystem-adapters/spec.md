@@ -72,6 +72,10 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** PATH 包含当前目录、空项或相对目录，准备和采样使用不同工作目录
 - **THEN** 只从绝对 PATH 目录解析受信工具一次并固定绝对程序路径；后续不能因进入工作树而运行仓库内同名程序，没有可用受信程序时明确拒绝。
 
+#### Scenario: Native Windows paths remain distinct from tool representation
+- **WHEN** 受控私有目录或已验证工作树在 Windows 使用 verbatim drive 路径，而 Git 的配置、环境、参数或 alternates 不接受该前缀
+- **THEN** 原生身份检查继续使用原路径；工具路径只对无歧义本地 drive 名称进行精确适配，不能 canonicalize 元数据叶、关闭 protectNTFS、继承宿主 Git 配置或将设备/UNC/点步/ADS/不可表示路径规范化成其他对象。实际 Windows 夹具须比较同一文件的原生身份及工具读写行为，普通仓库采样和 linked-worktree 回归仍须通过。
+
 #### Scenario: Captured directories do not accumulate live handles
 - **WHEN** 有界元数据视图捕获多个目录并保留来源复核记录
 - **THEN** 捕获与枚举期间持有安全路径解析所需句柄，记录身份、版本、祖先身份和名单后释放；最终复核重新安全打开并比较，不为每个历史记录长期占用一组目录句柄。

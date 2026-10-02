@@ -56,6 +56,9 @@ mod git_stash_tests;
 mod git_system_configuration;
 #[cfg(test)]
 mod git_system_configuration_tests;
+mod git_tool_path;
+#[cfg(test)]
+mod git_tool_path_tests;
 mod git_usage;
 mod git_view;
 #[cfg(target_os = "macos")]
