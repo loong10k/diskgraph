@@ -71,3 +71,27 @@ mod tests {
         assert_eq!(unsafe { setiopolicy_np(3, 1, original) }, 0);
     }
 }
+
+#[cfg(all(test, windows))]
+mod windows_tests {
+    use super::HydrationGuard;
+    use windows_sys::Wdk::Storage::FileSystem::{
+        RtlQueryThreadPlaceholderCompatibilityMode, RtlSetThreadPlaceholderCompatibilityMode,
+    };
+
+    #[test]
+    fn native_windows_placeholder_mode_is_exposed_and_restored_when_nested() {
+        let original = unsafe { RtlSetThreadPlaceholderCompatibilityMode(1) };
+        assert!(original >= 0);
+        {
+            let _outer = HydrationGuard::enter().unwrap();
+            assert_eq!(unsafe { RtlQueryThreadPlaceholderCompatibilityMode() }, 2);
+            {
+                let _inner = HydrationGuard::enter().unwrap();
+            }
+            assert_eq!(unsafe { RtlQueryThreadPlaceholderCompatibilityMode() }, 2);
+        }
+        assert_eq!(unsafe { RtlQueryThreadPlaceholderCompatibilityMode() }, 1);
+        assert!(unsafe { RtlSetThreadPlaceholderCompatibilityMode(original) } >= 0);
+    }
+}

@@ -22,6 +22,10 @@ read SHALL 要求独立内容权限、精确资源引用与字节/范围预算�
 - **WHEN** 重复检查遇到云端占位文件
 - **THEN** 标记 skipped/unsupported，不触发下载来计算哈希。
 
+#### Scenario: Windows native content acquisition
+- **WHEN** an authorized caller reads a local ordinary Windows file
+- **THEN** resolve single name components relative to retained directory handles, expose native placeholder attributes on the calling thread, acquire only attributes before approving data access, reject reparse/offline/recall objects before reading data, and retain no-write/no-delete sharing and full native identity/size/high-resolution version checks for the inspection lifetime. Restore the calling thread's prior compatibility mode. Unknown acquisition or volume capabilities fail explicitly; real cloud-provider no-hydration acceptance remains separate from local NTFS and attribute fixtures.
+
 ### Requirement: CT-03 Staged duplicate confirmation
 duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有预算的内容哈希与确认；硬链接、共享块和独立重复副本分别说明，结果不能自动触发删除。
 
@@ -58,3 +62,7 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 #### Scenario: Verification deadline or cumulative budget
 - **WHEN** a verification pass exhausts its cumulative byte allowance or deadline
 - **THEN** no new reads begin, in-progress hashing stops between chunks, and incomplete hashes cannot be promoted to confirmed results.
+
+#### Scenario: Windows native ordinary file regression
+- **WHEN** a Windows NTFS fixture is inspected under explicit content grants
+- **THEN** bounded ranges and complete digests work, one-byte digests remain unconfirmed, cancellation/deadline and revocation return no confirmed content, alternate data streams and namespace escapes are refused, and a conflicting writer or parent replacement cannot alter the held inspection object.
