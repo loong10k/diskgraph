@@ -80,7 +80,7 @@
 | ID | 状态 | 证据 |
 | --- | --- | --- |
 | PF-01 | partial | 绑定生成+Swift/Kotlin 真实宿主运行（`ffi-bindings.md`）；异步句柄+取消（ffi 4 测试）；AAR/XCFramework 打包 deferred（9.9） |
-| PF-02 | partial | 引擎/控制双库独立生命周期（P1-2.2）；`the_ffi_layer_is_independent_of_any_host_application`；GRDB/Room 工程夹具 deferred |
+| PF-02 | partial | 引擎/控制双库独立生命周期（P1-2.2）；`the_ffi_layer_is_independent_of_any_host_application`；SwiftPM/GRDB 动态宿主真实并发 CRUD、FD 释放和重开；静态嵌入/Room deferred |
 | PF-03 | partial | macOS 真实验收；Windows/Linux 矩阵 deferred（8.9/8.10 留档） |
 | PF-04 | deferred | 无 NDK/设备（`mobile-platforms.md`） |
 | PF-05 | deferred | 无 Xcode/设备（`mobile-platforms.md`） |
@@ -170,7 +170,7 @@
 
 | ID | 状态 | 证据与边界 |
 | --- | --- | --- |
-| Q-08 | partial | 有界有序历史、邻接 UNION ALL keyset、解码前实体/证据预算及 200k 无关关系 VM 工作量回归；宽目录聚合/TUI 总预算未完成 |
+| Q-08 | partial | 有界有序历史、邻接 UNION ALL keyset、解码前实体/证据预算及 200k 无关关系 VM 工作量回归；TUI 单连接共同期限/行数/嵌套页/展示成本预算、最终授权后提交帧；宽目录精确聚合仍未完成 |
 | Q-09 | supported | 正目标候选窄读、完整/截断/缺口报告、20k/200k 配对 release 基准 |
 | OP-13 | partial | macOS 库内逐块实时授权/期限/批准/取消、源版本绑定和终态 CAS 回归；对应 OS 原生门禁仍未全部完成 |
 | PF-06 | partial | 持久服务、关闭、撤权、真实进度、同根共享句柄/last-drop 与 job/fence revision 18 项回归；GUI/provider 调度及正式包未验收 |

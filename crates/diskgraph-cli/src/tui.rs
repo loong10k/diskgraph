@@ -1,10 +1,8 @@
 //! The terminal surface: an interactive treemap over a published revision.
 //!
-//! Where `diskgraph tree` hands the whole tree over in one go, this walks
-//! it: every directory you enter pulls only that directory's children, so a
-//! four-million-node home index opens instantly and memory stays flat. The
-//! layout and the palette are the same ones the HTML page and the agent
-//! text format use, so all three agree on what the map means.
+//! Navigation loads one bounded directory page. Recursive paint uses a single
+//! authorized read connection, a shared 50 ms SQLite deadline and combined
+//! row/query/display budgets. Exhaustion leaves parent blocks visible.
 
 use std::io::Stdout;
 
@@ -21,9 +19,12 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 
 use diskgraph_core::treemap::{self, Rect as MapRect, Weighted};
+use diskgraph_core::{Authorizer, DiskNode, PrincipalId};
 use diskgraph_engine::{Engine, EngineError};
 
 use crate::html::{PALETTE, color_for};
+use crate::tui_frame_reader::TuiFrameReader;
+use crate::tui_request::TuiRequest;
 
 /// One directory level, loaded on demand.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -61,24 +62,22 @@ impl Pseudonyms {
 }
 
 fn load_layer_anon(
-    engine: &Engine,
-    revision: &str,
+    request: &TuiRequest<'_>,
     parent_id: u64,
     pseudonyms: Option<&Pseudonyms>,
     is_root: bool,
 ) -> Result<Layer, EngineError> {
-    load_layer_page_anon(engine, revision, parent_id, 0, pseudonyms, is_root)
+    load_layer_page_anon(request, parent_id, 0, pseudonyms, is_root)
 }
 
 fn load_layer_page_anon(
-    engine: &Engine,
-    revision: &str,
+    request: &TuiRequest<'_>,
     parent_id: u64,
     offset: u64,
     pseudonyms: Option<&Pseudonyms>,
     is_root: bool,
 ) -> Result<Layer, EngineError> {
-    let mut layer = load_layer_page(engine, revision, parent_id, offset)?;
+    let mut layer = load_layer_page(request, parent_id, offset)?;
     if let Some(state) = pseudonyms {
         if is_root {
             layer.name = state.root().to_owned();
@@ -107,40 +106,64 @@ pub struct Entry {
 /// panic.
 const PAGE_SIZE: usize = 512;
 
-pub fn load_layer(engine: &Engine, revision: &str, parent_id: u64) -> Result<Layer, EngineError> {
-    load_layer_page(engine, revision, parent_id, 0)
+pub fn load_layer(request: &TuiRequest<'_>, parent_id: u64) -> Result<Layer, EngineError> {
+    load_layer_page(request, parent_id, 0)
 }
 
 fn load_layer_page(
-    engine: &Engine,
-    revision: &str,
+    request: &TuiRequest<'_>,
     parent_id: u64,
     offset: u64,
 ) -> Result<Layer, EngineError> {
-    let (node, children, has_more) =
-        engine.revision_layer_page(revision, parent_id, offset, PAGE_SIZE)?;
-    Ok(Layer {
-        parent_id,
+    request.engine.with_authorized_revision_reader(
+        request.revision,
+        request.principal,
+        request.authorizer,
+        1000,
+        |reader, snapshot, _| {
+            let node = reader
+                .node(snapshot, parent_id)?
+                .ok_or(EngineError::Business(
+                    diskgraph_core::BusinessError::NotFound,
+                ))?;
+            let mut children =
+                reader.children(snapshot, parent_id, offset, PAGE_SIZE as u64 + 1)?;
+            let has_more = children.len() > PAGE_SIZE;
+            children.truncate(PAGE_SIZE);
+            Ok(layer_from_nodes(node, children, offset, has_more))
+        },
+    )
+}
+
+/// 将已读取节点投影为展示层，丢弃完整定位等不参与绘图的数据。
+pub(crate) fn layer_from_nodes(
+    node: DiskNode,
+    children: Vec<DiskNode>,
+    offset: u64,
+    has_more: bool,
+) -> Layer {
+    Layer {
+        parent_id: node.id,
         offset,
         has_more,
-        name: node.name.clone(),
+        name: node.name,
         total_bytes: node.subtree_bytes,
         total_files: node.files,
         unreadable: node.read_error,
         children: children
-            .iter()
+            .into_iter()
             .map(|child| Entry {
                 id: child.id,
-                name: child.name.clone(),
+                name: child.name,
                 size_bytes: child.subtree_bytes,
                 files: child.files,
                 kind: format!("{:?}", child.kind).to_lowercase(),
-                category: child.category_hint.clone(),
+                category: child.category_hint,
                 has_children: child.directories > 0,
                 read_error: child.read_error,
             })
             .collect(),
-    })
+    }
 }
 
 /// The interactive state: where we are, what is selected, how the map is
@@ -269,13 +292,25 @@ impl Browser {
 
 /// Runs the browser until the user quits. Returns the error that stopped it,
 /// so a caller can report a failure the way the rest of the CLI does.
-pub fn run(engine: &Engine, revision: &str, anonymize: bool) -> Result<(), EngineError> {
-    let root = load_layer(engine, revision, 1)?;
+pub fn run(
+    engine: &Engine,
+    revision: &str,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+    anonymize: bool,
+) -> Result<(), EngineError> {
+    let request = TuiRequest {
+        engine,
+        revision,
+        principal,
+        authorizer,
+    };
+    let root = load_layer(&request, 1)?;
     let mut browser = Browser::new(revision, root).with_pseudonyms(anonymize);
     let mut terminal = setup().map_err(|error| {
         EngineError::Store(diskgraph_store::StoreError::InvalidGraph(error.to_string()))
     })?;
-    let outcome = event_loop(&mut terminal, engine, &mut browser);
+    let outcome = event_loop(&mut terminal, &request, &mut browser);
     restore(&mut terminal).ok();
     outcome
 }
@@ -297,13 +332,22 @@ fn restore(terminal: &mut Term) -> std::io::Result<()> {
 
 fn event_loop(
     terminal: &mut Term,
-    engine: &Engine,
+    request: &TuiRequest<'_>,
     browser: &mut Browser,
 ) -> Result<(), EngineError> {
     loop {
-        terminal
-            .draw(|frame| draw(frame, browser, engine))
-            .map_err(io_to_engine)?;
+        draw_authorized_frame(terminal, request, browser.current(), |frame, reads| {
+            draw(frame, browser, reads);
+        })?;
+        // 空闲时仅复核授权，不重复读取/绘制整个地图；撤权不等待下一次按键。
+        while !event::poll(std::time::Duration::from_millis(250)).map_err(io_to_engine)? {
+            request.engine.authorize_revision(
+                None,
+                request.revision,
+                request.principal,
+                request.authorizer,
+            )?;
+        }
         let Event::Key(key) = event::read().map_err(io_to_engine)? else {
             continue;
         };
@@ -318,8 +362,7 @@ fn event_loop(
                 if let Some(offset) = browser.page_target(1) {
                     let parent_id = browser.current().parent_id;
                     let layer = load_layer_page_anon(
-                        engine,
-                        &browser.revision,
+                        request,
                         parent_id,
                         offset,
                         browser.pseudonyms.as_ref(),
@@ -332,8 +375,7 @@ fn event_loop(
                 if let Some(offset) = browser.page_target(-1) {
                     let parent_id = browser.current().parent_id;
                     let layer = load_layer_page_anon(
-                        engine,
-                        &browser.revision,
+                        request,
                         parent_id,
                         offset,
                         browser.pseudonyms.as_ref(),
@@ -355,13 +397,8 @@ fn event_loop(
                 let entries = browser.ordered();
                 if let Some(entry) = entries.get(browser.selected) {
                     if entry.has_children {
-                        let layer = load_layer_anon(
-                            engine,
-                            &browser.revision.clone(),
-                            entry.id,
-                            browser.pseudonyms.as_ref(),
-                            false,
-                        )?;
+                        let layer =
+                            load_layer_anon(request, entry.id, browser.pseudonyms.as_ref(), false)?;
                         browser.selected_id = layer.children.first().map(|child| child.id);
                         browser.trail.push(layer);
                         browser.selected = 0;
@@ -376,12 +413,58 @@ fn event_loop(
     }
 }
 
+/// 先绘入终端的内存缓冲，整帧最终授权通过后才提交到后端。
+fn draw_authorized_frame<B: ratatui::backend::Backend>(
+    terminal: &mut Terminal<B>,
+    request: &TuiRequest<'_>,
+    cached_layer: &Layer,
+    paint: impl FnOnce(&mut ratatui::Frame<'_>, &mut TuiFrameReader<'_>),
+) -> Result<(), EngineError>
+where
+    B::Error: std::fmt::Display,
+{
+    terminal
+        .autoresize()
+        .map_err(|error| EngineError::Io(std::io::Error::other(error.to_string())))?;
+    request.engine.with_authorized_revision_reader(
+        request.revision,
+        request.principal,
+        request.authorizer,
+        50,
+        |reader, snapshot, deadline| {
+            let bytes = TuiFrameReader::display_bytes(cached_layer);
+            if bytes > 256 * 1024 {
+                return Err(EngineError::Business(
+                    diskgraph_core::BusinessError::BudgetExceeded,
+                ));
+            }
+            let mut reads = TuiFrameReader::new(
+                reader,
+                snapshot,
+                deadline,
+                cached_layer.children.len() + 1,
+                bytes,
+            );
+            let mut frame = terminal.get_frame();
+            paint(&mut frame, &mut reads);
+            if let Some(error) = reads.take_error() {
+                return Err(error);
+            }
+            Ok(())
+        },
+    )?;
+    terminal
+        .apply_buffer()
+        .map_err(|error| EngineError::Io(std::io::Error::other(error.to_string())))?;
+    Ok(())
+}
+
 fn io_to_engine(error: std::io::Error) -> EngineError {
     EngineError::Store(diskgraph_store::StoreError::InvalidGraph(error.to_string()))
 }
 
 /// Paints one frame: a status bar, the map, and the selection's details.
-fn draw(frame: &mut ratatui::Frame<'_>, browser: &Browser, engine: &Engine) {
+fn draw(frame: &mut ratatui::Frame<'_>, browser: &Browser, reads: &mut TuiFrameReader<'_>) {
     let area = frame.area();
     let rows = Layout::default()
         .direction(Direction::Vertical)
@@ -392,12 +475,12 @@ fn draw(frame: &mut ratatui::Frame<'_>, browser: &Browser, engine: &Engine) {
         .constraints([Constraint::Percentage(68), Constraint::Percentage(32)])
         .split(rows[1]);
 
-    frame.render_widget(status_line(browser), rows[0]);
-    draw_map(frame, browser, engine, columns[0]);
+    draw_map(frame, browser, reads, columns[0]);
     draw_details(frame, browser, columns[1]);
+    frame.render_widget(status_line(browser, reads.truncation_reason), rows[0]);
 }
 
-fn status_line<'a>(browser: &'a Browser) -> Paragraph<'a> {
+fn status_line<'a>(browser: &'a Browser, truncation: Option<&'static str>) -> Paragraph<'a> {
     let layer = browser.current();
     Paragraph::new(Line::from(vec![
         Span::styled(
@@ -406,6 +489,12 @@ fn status_line<'a>(browser: &'a Browser) -> Paragraph<'a> {
                 .fg(Color::Black)
                 .bg(Color::Cyan)
                 .add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(
+            truncation
+                .map(|reason| format!("  nested view truncated: {reason} · Enter to inspect "))
+                .unwrap_or_default(),
+            Style::default().fg(Color::Yellow),
         ),
         Span::raw("  "),
         Span::styled(
@@ -448,7 +537,12 @@ fn status_line<'a>(browser: &'a Browser) -> Paragraph<'a> {
 
 /// The treemap itself: every child gets an area proportional to its bytes,
 /// drawn with the block glyphs that share the other surfaces' palette.
-fn draw_map(frame: &mut ratatui::Frame<'_>, browser: &Browser, engine: &Engine, area: Rect) {
+fn draw_map(
+    frame: &mut ratatui::Frame<'_>,
+    browser: &Browser,
+    reads: &mut TuiFrameReader<'_>,
+    area: Rect,
+) {
     let block = Block::default()
         .borders(Borders::ALL)
         .title(format!(" disk usage · {}", browser.revision));
@@ -471,7 +565,7 @@ fn draw_map(frame: &mut ratatui::Frame<'_>, browser: &Browser, engine: &Engine, 
         );
         return;
     }
-    draw_children(frame, browser, engine, &entries, inner, 0);
+    draw_children(frame, browser, reads, &entries, inner, 0);
 }
 
 /// Paints one directory's children into `area`, and recurses while a child is
@@ -480,7 +574,7 @@ fn draw_map(frame: &mut ratatui::Frame<'_>, browser: &Browser, engine: &Engine, 
 fn draw_children(
     frame: &mut ratatui::Frame<'_>,
     browser: &Browser,
-    engine: &Engine,
+    reads: &mut TuiFrameReader<'_>,
     entries: &[&Entry],
     area: Rect,
     depth: usize,
@@ -557,20 +651,18 @@ fn draw_children(
             );
         }
         if depth < MAX_PAINT_DEPTH && entry.has_children && cell.width > 12 && cell.height > 4 {
-            // One extra query per level, not a full-graph load: this is what
-            // keeps a four-million-node index instant.
-            if let Ok(layer) = load_layer_anon(
-                engine,
-                &browser.revision.clone(),
-                entry.id,
-                browser.pseudonyms.as_ref(),
-                false,
-            ) {
+            // 整帧共享工作预算；预算耗尽后仍保留可进入的父块。
+            if let Some(mut layer) = reads.load_layer(entry.id, PAGE_SIZE) {
+                if let Some(pseudonyms) = browser.pseudonyms.as_ref() {
+                    for child in &mut layer.children {
+                        child.name = pseudonyms.label_for(child.id);
+                    }
+                }
                 // One child means one column of the same colour and no
                 // information: keep the block solid and let Enter reveal it.
                 if layer.children.len() > 1 {
                     let deeper: Vec<&Entry> = layer.children.iter().collect();
-                    draw_children(frame, browser, engine, &deeper, cell, depth + 1);
+                    draw_children(frame, browser, reads, &deeper, cell, depth + 1);
                 }
             }
         }
@@ -717,6 +809,175 @@ mod tests {
                 entry(3, "media", 40, 2),
             ],
         }
+    }
+
+    #[test]
+    fn nested_frame_limits_queries_and_keeps_navigation_visible() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("root");
+        std::fs::create_dir(&root).unwrap();
+        for index in 0..6 {
+            let child = root.join(format!("directory-{index}"));
+            std::fs::create_dir(&child).unwrap();
+            for file in 0..10 {
+                std::fs::write(child.join(format!("file-{file}")), b"x").unwrap();
+            }
+        }
+        let engine = Engine::open(diskgraph_engine::EngineConfig {
+            data_dir: directory.path().join("data"),
+            ..Default::default()
+        })
+        .unwrap();
+        let principal = PrincipalId::new("tui-test").unwrap();
+        engine.bootstrap_local_admin(&principal).unwrap();
+        let scope = engine
+            .register_scope(&root, &principal, &engine.policy_authorizer().unwrap())
+            .unwrap();
+        let policy = engine.policy_authorizer().unwrap();
+        let job = engine.index_scope(&scope, &principal, &policy).unwrap();
+        engine.run_job(&job.job_id, "tui-test").unwrap();
+        let revision = engine.latest_revision(&scope).unwrap().unwrap();
+        engine
+            .with_authorized_revision_reader(
+                &revision,
+                &principal,
+                &policy,
+                1000,
+                |reader, snapshot, deadline| {
+                    let node = reader.root_node(snapshot)?.unwrap();
+                    let children = reader.children(snapshot, node.id, 0, 6)?;
+                    let browser =
+                        Browser::new(&revision, layer_from_nodes(node, children, 0, false));
+                    let mut reads = TuiFrameReader::new(
+                        reader,
+                        snapshot,
+                        deadline,
+                        7,
+                        TuiFrameReader::display_bytes(browser.current()),
+                    );
+                    for child in &browser.current().children[..4] {
+                        let page = reads.load_layer(child.id, PAGE_SIZE).unwrap();
+                        assert_eq!(page.children.len(), 10);
+                    }
+                    assert!(
+                        reads
+                            .load_layer(browser.current().children[4].id, PAGE_SIZE)
+                            .is_none()
+                    );
+                    assert_eq!(reads.truncation_reason, Some("query_budget"));
+                    let backend = ratatui::backend::TestBackend::new(160, 30);
+                    let mut terminal = Terminal::new(backend).unwrap();
+                    terminal
+                        .draw(|frame| draw(frame, &browser, &mut reads))
+                        .unwrap();
+                    let text: String = terminal
+                        .backend()
+                        .buffer()
+                        .content()
+                        .iter()
+                        .map(|cell| cell.symbol())
+                        .collect();
+                    assert!(text.contains("nested view truncated: query_budget"));
+                    assert!(
+                        text.contains("directory-"),
+                        "parent blocks remain inspectable"
+                    );
+                    let mut expired =
+                        TuiFrameReader::new(reader, snapshot, std::time::Instant::now(), 7, 0);
+                    assert!(expired.load_layer(1, PAGE_SIZE).is_none());
+                    assert_eq!(expired.truncation_reason, Some("deadline"));
+                    let mut no_rows = TuiFrameReader::new(reader, snapshot, deadline, 2048, 0);
+                    assert!(no_rows.load_layer(1, PAGE_SIZE).is_none());
+                    assert_eq!(no_rows.truncation_reason, Some("node_budget"));
+                    let mut no_bytes =
+                        TuiFrameReader::new(reader, snapshot, deadline, 7, 256 * 1024);
+                    assert!(
+                        no_bytes
+                            .load_layer(browser.current().children[0].id, PAGE_SIZE)
+                            .is_none()
+                    );
+                    assert_eq!(no_bytes.truncation_reason, Some("byte_budget"));
+                    let mut wide_page = TuiFrameReader::new(reader, snapshot, deadline, 7, 0);
+                    assert!(
+                        wide_page
+                            .load_layer(browser.current().parent_id, 2)
+                            .is_none(),
+                        "partial nested children must not be scaled to fill the parent's full size"
+                    );
+                    assert_eq!(wide_page.truncation_reason, Some("nested_page"));
+                    Ok(())
+                },
+            )
+            .unwrap();
+
+        let request = TuiRequest {
+            engine: &engine,
+            revision: &revision,
+            principal: &principal,
+            authorizer: &policy,
+        };
+        let cached = load_layer(&request, 1).unwrap();
+        let browser = Browser::new(&revision, cached.clone());
+        let mut broken_terminal =
+            Terminal::new(ratatui::backend::TestBackend::new(160, 30)).unwrap();
+        let missing =
+            draw_authorized_frame(&mut broken_terminal, &request, &cached, |frame, reads| {
+                assert!(reads.load_layer(999999, PAGE_SIZE).is_none());
+                draw(frame, &browser, reads);
+            });
+        assert!(matches!(
+            missing,
+            Err(EngineError::Business(
+                diskgraph_core::BusinessError::NotFound
+            ))
+        ));
+        let output: String = broken_terminal
+            .backend()
+            .buffer()
+            .content()
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect();
+        assert!(
+            output.trim().is_empty(),
+            "non-budget failures must not commit a misleading partial frame"
+        );
+        let mut terminal = Terminal::new(ratatui::backend::TestBackend::new(160, 30)).unwrap();
+        let denied = draw_authorized_frame(&mut terminal, &request, &cached, |frame, reads| {
+            draw(frame, &browser, reads);
+            let mut control = engine.control_store().unwrap();
+            control
+                .revoke_grant(
+                    &principal,
+                    &diskgraph_core::Permission::MetadataRead,
+                    &scope,
+                )
+                .unwrap();
+            control
+                .revoke_grant(
+                    &principal,
+                    &diskgraph_core::Permission::MetadataRead,
+                    &diskgraph_engine::admin_scope(),
+                )
+                .unwrap();
+        });
+        assert!(matches!(
+            denied,
+            Err(EngineError::Business(
+                diskgraph_core::BusinessError::PermissionDenied
+            ))
+        ));
+        let output: String = terminal
+            .backend()
+            .buffer()
+            .content()
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect();
+        assert!(
+            output.trim().is_empty(),
+            "a grant revoked during paint must not commit sensitive frame data"
+        );
     }
 
     #[test]

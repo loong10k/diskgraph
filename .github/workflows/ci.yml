@@ -78,6 +78,29 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
       - name: Generate, compile and run real Swift host and system SQLite CRUD
         run: scripts/ffi-bindings-smoke.sh --swift-only
+      - name: GRDB concurrent CRUD alongside Rust FFI, close and reopen
+        run: scripts/ffi-grdb-smoke.sh
+
+  ffi-kotlin-host:
+    name: Kotlin native host (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel, ubuntu-24.04, ubuntu-24.04-arm, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+      - name: Generate, compile and execute Kotlin with the native library
+        run: python scripts/accept-ffi-kotlin.py
 
   # The vendored upstream scanner is its own workspace root, excluded from
   # this one so the format/lint gates never rewrite its pinned bytes; it

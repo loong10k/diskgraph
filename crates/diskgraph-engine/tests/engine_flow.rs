@@ -36,6 +36,106 @@ fn agent_for(scope_id: &ScopeId) -> (PrincipalId, PolicyAuthorizer) {
 }
 
 #[test]
+fn authorized_reader_refuses_revoked_grant_before_calling_consumer() {
+    let fixture = FixtureTree::new("authorized-reader").unwrap();
+    fixture.file("one.txt", 1).unwrap();
+    let directory = tempfile::tempdir().unwrap();
+    let engine = Engine::open(EngineConfig {
+        data_dir: directory.path().join("data"),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let (admin_principal, admin_policy) = admin();
+    let scope = engine
+        .register_scope(fixture.path(), &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    engine
+        .control_store()
+        .unwrap()
+        .publish_policy_version(1)
+        .unwrap();
+    for permission in [
+        Permission::IndexWrite,
+        Permission::MetadataRead,
+        Permission::OperationView,
+    ] {
+        engine
+            .control_store()
+            .unwrap()
+            .upsert_grant(&diskgraph_core::Grant {
+                principal: agent.clone(),
+                permission,
+                scope: scope.clone(),
+                policy_version: 1,
+            })
+            .unwrap();
+    }
+    let job = engine.index_scope(&scope, &agent, &policy).unwrap();
+    engine.run_job(&job.job_id, "frame-test").unwrap();
+    let revision = engine.latest_revision(&scope).unwrap().unwrap();
+    let rows = engine
+        .with_authorized_revision_reader(
+            &revision,
+            &agent,
+            &policy,
+            50,
+            |reader, snapshot, _deadline| Ok(reader.children(snapshot, 1, 0, 1)?.len()),
+        )
+        .unwrap();
+    assert_eq!(rows, 1);
+    engine
+        .control_store()
+        .unwrap()
+        .revoke_grant(&agent, &Permission::MetadataRead, &scope)
+        .unwrap();
+    let called = std::cell::Cell::new(false);
+    let denied =
+        engine.with_authorized_revision_reader(&revision, &agent, &policy, 50, |_, _, _| {
+            called.set(true);
+            Ok(())
+        });
+    assert!(matches!(
+        denied,
+        Err(EngineError::Business(BusinessError::PermissionDenied))
+    ));
+    assert!(!called.get(), "revoked consumers must not receive a reader");
+}
+
+#[test]
+fn authorized_reader_refuses_scope_revoked_during_consumer_without_persisted_policy() {
+    let engine = engine_in("reader-mid-revoke", 1000);
+    let tree = FixtureTree::new("reader-mid-revoke").unwrap();
+    tree.file("one", 1).unwrap();
+    let (admin_principal, admin_policy) = admin();
+    let scope = engine
+        .register_scope(tree.path(), &admin_principal, &admin_policy)
+        .unwrap();
+    let (agent, policy) = agent_for(&scope);
+    let job = engine.index_scope(&scope, &agent, &policy).unwrap();
+    engine.run_job(&job.job_id, "test-owner").unwrap();
+    let revision = engine.latest_revision(&scope).unwrap().unwrap();
+    let result = engine.with_authorized_revision_reader(
+        &revision,
+        &agent,
+        &policy,
+        1000,
+        |reader, snapshot, _| {
+            let name = reader.root_node(snapshot)?.unwrap().name;
+            engine.revoke_scope(&scope, &admin_principal, &admin_policy)?;
+            Ok(name)
+        },
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "scope revoked during consumer returned {result:?}"
+    );
+}
+
+#[test]
 fn cancellation_from_another_engine_blocks_publication() {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().join("root");

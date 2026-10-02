@@ -1359,6 +1359,42 @@ impl Engine {
         )?)
     }
 
+    /// 在一次授权读取中复用独立 SQLite 连接和共同截止时间。
+    /// 参数为实际 revision、请求主体、能力授权器和 1–1000 毫秒预算；
+    /// 消费者仅接收该 revision 的快照 ID，返回前再次检查实时元数据权限。
+    /// 供可信本机展示适配器使用，消费者不得查询其他快照。
+    pub fn with_authorized_revision_reader<T>(
+        &self,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline_ms: u64,
+        consumer: impl FnOnce(&SqliteSnapshotStore, &str, std::time::Instant) -> Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
+        if !(1..=1000).contains(&deadline_ms) {
+            return Err(EngineError::Business(BusinessError::InvalidArgument));
+        }
+        let deadline = std::time::Instant::now() + Duration::from_millis(deadline_ms);
+        let reader = SqliteSnapshotStore::open_reader(&self.graph_path, deadline_ms, None)?;
+        let scope =
+            self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
+        let snapshot_id = reader.revision(revision_id)?.snapshot_id;
+        let result = consumer(&reader, &snapshot_id, deadline)?;
+        // 撤销与单项权限在同一控制库锁下复核，可信兼容模式同样不能越过撤销。
+        let control = self.control_store()?;
+        if control.scope(&scope)?.revoked {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        Self::require_with_control(
+            &control,
+            authorizer,
+            principal,
+            &Permission::MetadataRead,
+            &scope,
+        )?;
+        Ok(result)
+    }
+
     /// 读取 revision 的快照元信息，避免加载所有节点。
     pub fn revision_snapshot(
         &self,

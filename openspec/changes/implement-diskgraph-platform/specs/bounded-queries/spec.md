@@ -84,6 +84,11 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **WHEN** a directory contains more children than one TUI page
 - **THEN** the UI exposes that more children exist and supports bounded navigation to subsequent pages.
 
+#### Scenario: Recursive TUI frame
+- **WHEN** multiple visible directories need nested treemap data in one frame
+- **THEN** all nested reads share one SQLite deadline and a combined row/query budget; exhaustion leaves the parent blocks visible and identifies the truncation reason
+- **AND** each frame and navigation rechecks the revision's actual scope and current metadata grant
+
 ### Requirement: Q-09 Bounded review-candidate preparation
 For a positive target, CLI and MCP SHALL select review candidates through a deadline-bound database query without decoding an entire revision. The query SHALL preserve rebuildable evidence, protection/occupancy checks over ancestors and descendants, non-overlapping selections, and descending size priority. Budget exhaustion SHALL report an incomplete result and the unfulfilled target amount; it SHALL never imply that a partial review queue reaches the requested bytes.
 

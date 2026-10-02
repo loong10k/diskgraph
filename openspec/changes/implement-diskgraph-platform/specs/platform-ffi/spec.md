@@ -18,6 +18,11 @@ Rust/Swift/Kotlin 入口 SHALL 使用同一版本化核心服务与授权语义�
 - **WHEN** Swift 或 Kotlin 宿主取消长扫描
 - **THEN** 界面线程不阻塞，作业按契约停止且不错误推进 latest。
 
+#### Scenario: Kotlin desktop library loading
+- **WHEN** Kotlin/JVM 宿主在 macOS ARM64/Intel、Linux x64/ARM64 和 Windows x64 加载对应本机 Rust 动态库
+- **THEN** 实际扫描 Unicode/空格目录、分页、轮询、旧 API 和关闭重开均通过；临时库可正常清理
+- **AND** 此门禁不替代 Android ABI、Room、SAF 或设备验收
+
 ### Requirement: PF-02 Separate storage ownership
 图索引及服务端操作记录 SHALL 由 Rust 管理，PruneX 自身会话和界面状态由其业务存储管理；同一进程原生数据库依赖需验证链接及生命周期，不因使用两个文件就假定无冲突。
 
@@ -28,6 +33,11 @@ Rust/Swift/Kotlin 入口 SHALL 使用同一版本化核心服务与授权语义�
 #### Scenario: Two graph files under one parent directory
 - **WHEN** 原生宿主同时打开同一目录下两个不同图库路径
 - **THEN** 两者使用独立 control/job 存储归属，或在旧库归属不明时明确拒绝；一个任务的完成不得指向另一个图库的 revision。
+
+#### Scenario: GRDB and Rust dynamic library in one process
+- **WHEN** macOS Swift 宿主动态链接 DiskGraph，并在同一进程使用固定版本 GRDB 的连接池并发读写宿主数据库，同时扫描及查询独立图索引
+- **THEN** 宿主业务行与图节点均完整、两库可关闭后重开，Rust 动态库不得向宿主导出 SQLite 符号
+- **AND** 此证据仅覆盖该动态链接组合，静态嵌入、Room 与移动设备需独立验收
 
 ### Requirement: PF-03 Platform capability matrix
 macOS/Linux/Windows 的路径、身份、占用、回收和操作能力 SHALL 分别实测声明；操作不支持的平台返回 unsupported，不采用危险通用 Shell 降级。

@@ -19,6 +19,8 @@ mod html;
 mod installer;
 mod local;
 mod tui;
+mod tui_frame_reader;
+mod tui_request;
 
 use local::LocalIdentity;
 
@@ -1703,7 +1705,8 @@ fn dispatch(
                     .latest_revision(&scope_id)?
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
             };
-            tui::run(engine, &revision, *anonymize)?;
+            engine.authorize_revision(Some(&scope_id), &revision, principal, authorizer)?;
+            tui::run(engine, &revision, principal, authorizer, *anonymize)?;
             Ok(())
         }
         Command::Init {

@@ -22,3 +22,8 @@ npm/vendor/
 # a local artifact like any other.
 crates/diskgraph-disktree-core/target/
 crates/diskgraph-disktree-core/Cargo.lock
+
+# SwiftPM fixture bindings are regenerated from the current Rust build.
+/fixtures/ffi_grdb_host/bindings/
+/fixtures/ffi_grdb_host/.build/
+/fixtures/ffi_grdb_host/.swiftpm/
