@@ -5,9 +5,9 @@
 /// How much of the system the sample could actually see.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum UsageCoverage {
-    /// The probe ran and answered for every named path.
+    /// 在经明确验证的权限与观察范围内回答全部查询对象；不代表删除许可。
     Full,
-    /// The probe ran but could not see everything (partial permissions).
+    /// 保留可见正向观察，但权限范围或进程启动身份尚未完整核验。
     Partial { reason: String },
     /// The probe could not run or could not answer at all.
     Unobservable { reason: String },

@@ -113,3 +113,15 @@ Windows 本地普通文件的 `read_bounded` 与摘要检查已接入原生句�
 [同源码原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37025049488) 已完成：**22/22 项全部通过**，包含八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主及五个原生包。Windows stable 与 1.97.0 日志逐项确认三个结构回归及十二项原生内容测试通过，macOS stable 日志也确认三个结构回归通过。15.12 按此结构增量完成。本机 macOS 的 Windows 测试目标为零项，不计原生验收。
 
 此次迁移保留既有实时探针限制：lsof 子进程轮询有协作 timeout，但管道读取缺少严格字节/期限预算；轮询跳过不可读条目，之前条目可能表现为 Removed。拆分没有增强这些行为保证。原生写操作、真实 provider 不下载、移动 provider/制品/设备、签名与生产 soak 仍未完成，全平台生产就绪仍不成立。
+
+## 进程证据解释（EV-06 / 15.13a，2026-10-03）
+
+本子项改变 lsof 结果解释，不改变子进程执行。正常成功及 stdout 为空的退出码 1 均保留 partial，因为系统权限、警告及 PID 启动身份未核验；正向观察继续保留，verdict 显示观察数，空 partial 结果仍为 unknown。旧空请求的 Full 仅表示没有查询对象，不能据此证明某文件或系统无人使用。公开签名与结果类型保持兼容。
+
+解析按字节标签与 NUL 边界处理，不在 UTF-8 字节 1 切片；非法标签/PID、缺少进程上下文和未终止字段为不可观察。查询键保留原生字节，但 NUL 模式中的 lsof 名称仍是显示字段，可包含反斜杠、caret 或十六进制转义。没有经验证的可逆协议时，潜在转义、控制/非 ASCII 字节或 deleted 标注均不匹配；其他无歧义 ASCII 正向观察继续保留。Unicode、非 UTF-8 和带标注/转义名称的身份为 unknown，不宣称已支持这些名称的真实工具观测；无法无损表示的 Windows 查询明确不可观察，也不声明原生 Windows lsof provider 可用。这是路径观察，不是打开文件句柄的身份核验。参见 [lsof 官方输出契约](https://github.com/lsof-org/lsof/blob/master/docs/manpage.md)。
+
+先将旧后处理原样提取，四项既有观察通过；新增十项解释测试有九项实际失败。复审又补出 deleted 后缀误匹配的真正 RED，以及两个真实 macOS lsof 显示碰撞：换行变为字面反斜杠序列、字节 0x01 变为 caret-A。两个真实反例都先在当时解析器上失败，再通过拒绝歧义字段修复。人工 ASCII/原生字节夹具只能证明解析行为，不能替代特殊名称或各系统的实际工具可见性；本机与同源码 CI 的结果仅在实际执行后记录。
+
+8.7 的默认离线完成声明已撤回；15.13 仍未完成：同时有界排空管道、累计输出/期限/取消、原生后代清理及 Git 配置隔离没有在此实现。lsof 先等待后读取、未排空 stderr，以及无界 Git 命令仍存在；unborn/HEAD/upstream 错误语义和 Git 可执行 filter 继续分别整改。本增量没有新增 p50/p95 或 RSS 测量，不宣称提速。原生写操作、provider/设备、签名和生产 soak 同样未完成，全平台生产就绪仍不成立。
+
+本机最终 workspace 为 **636 passed / 0 failed / 13 ignored**；证据测试 18/18、Engine 结构门禁 3/3。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过；当前 release stdio 18/18、认证 HTTP/SSE 13/13。两路独立复审批准本子项。扫描器 14 份上游摘要全部一致，vendor 源码/pin 未变。同源码原生 CI 待执行，15.13a 在该门禁完成前保持未勾选。

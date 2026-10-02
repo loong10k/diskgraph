@@ -5,9 +5,9 @@ use super::{ProcessHolder, UsageCoverage};
 /// 记录进程占用样本与覆盖说明，仅完整空样本说明未观察到句柄。
 /// 来源：原生 Rust diskgraph-engine::live_evidence::UsageSample。
 /// One sample of who is using the named paths, with the visibility caveat
-/// attached. Only `Full` coverage with an empty holder list means "nobody
-/// is using it"; any other coverage means "unknown", whatever the list
-/// holds (EV-06).
+/// attached. Even `Full` describes observations within a verified scope, never a
+/// deletion authorization. Partial coverage retains positive observations,
+/// but an empty partial sample leaves usage unknown (EV-06).
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UsageSample {
     pub sampled_at_unix_ms: u64,
@@ -27,7 +27,14 @@ impl UsageSample {
             }
             UsageCoverage::Full => format!("{} process(es) hold open handles", self.holders.len()),
             UsageCoverage::Partial { reason } => {
-                format!("the probe saw only part of the system: {reason}")
+                if self.holders.is_empty() {
+                    format!("usage is unknown: {reason}")
+                } else {
+                    format!(
+                        "{} observed process(es) hold open handles; coverage is partial: {reason}",
+                        self.holders.len()
+                    )
+                }
             }
             UsageCoverage::Unobservable { reason } => {
                 format!("usage is unobservable: {reason}")

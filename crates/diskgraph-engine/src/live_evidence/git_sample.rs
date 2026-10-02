@@ -2,10 +2,11 @@
 
 /// 保存本地 Git 状态、stash 与 upstream 差异；无 upstream 不表示已推送。
 /// 来源：原生 Rust diskgraph-engine::live_evidence::GitSample。
-/// What a local Git repository says about itself, sampled without any
-/// network access (EC-02, EV-02): dirty state, stashes, and the ahead/behind
+/// What a local Git repository says about itself (EC-02, EV-02):
+/// dirty state, stashes, and the ahead/behind
 /// counts against the configured upstream — which stay `None` (unknown)
 /// when there is no upstream, because "no upstream" is not "pushed".
+/// The compatibility sampler's offline/configuration isolation is not verified.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GitSample {
     pub head: Option<String>,

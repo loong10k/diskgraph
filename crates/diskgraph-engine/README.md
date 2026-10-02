@@ -93,6 +93,18 @@ paths, Chinese contracts, no wildcard imports or placeholder/empty functions,
 and no unmounted source files. It supplements behavioral and native-platform
 tests; source organization alone does not prove production readiness.
 
+
+`sample_process_usage` preserves visible positive observations with `Partial`
+coverage: successful exit does not verify permission scope or PID start identity.
+Byte parsing rejects malformed records; potentially escaped/annotated path names
+remain unknown instead of being guessed into native identities. Empty-query
+`Full` is only a compatibility result for zero objects. The subprocess runner's
+pipe/deadline/output and Git configuration boundaries remain outstanding; see
+the [full-platform evidence](../../docs/production-readiness-full-platform-2026-10-02.md).
+
+占用采样保留正向观察并报告 partial；空结果、转义/标注名称或无法确认的身份不说明无人使用。
+原生字节键不等于文件句柄/PID 启动身份；子进程预算与 Git 隔离仍需单独完成。
+
 ## License
 
 MIT

@@ -35,3 +35,19 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 #### Scenario: Argument injection
 - **WHEN** 文件名含选项前缀或 shell 元字符
 - **THEN** 作为校验后的独立数据参数处理或拒绝，不成为命令语句或额外选项。
+
+#### Scenario: Shared sample execution budget
+- **WHEN** 一次证据采样执行多个子命令或 stdout/stderr 持续输出
+- **THEN** 全部命令与两条管道共用绝对期限、累计字节预算与取消状态；失败停止后续工作，不返回完整成功样本。
+
+#### Scenario: Inherited pipes and cleanup
+- **WHEN** 子进程退出但后代持有管道，或执行、读取、等待、取消失败
+- **THEN** 有界读取仍检查期限，释放本次采样的进程与句柄；平台无法可靠建立清理边界时拒绝，不影响其他并发采样。
+
+#### Scenario: Git configuration execution
+- **WHEN** 仓库配置提供 fsmonitor、clean/process filter 或其他外部程序能力
+- **THEN** 只读 Git 采样必须使用不执行这些程序的受限配置或明确拒绝；配置检查后的竞态不得恢复外部执行，不能仅按命令名称声称离线。
+
+#### Scenario: Unborn or failed Git observation
+- **WHEN** 仓库尚无提交但存在未跟踪或暂存文件，或 HEAD/upstream 查询因预算、取消、I/O 或格式错误失败
+- **THEN** 尚无提交时仍报告实际修改；探针失败不得降级成没有提交、没有 upstream 或零计数。

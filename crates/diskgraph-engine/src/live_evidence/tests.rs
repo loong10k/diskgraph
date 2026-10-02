@@ -14,7 +14,10 @@ fn the_usage_sample_sees_the_test_process_own_open_file() {
     // Keep the handle open for the duration of the sample.
     let _held = File::open(&path).unwrap();
     let sample = sample_process_usage(Path::new("/usr/sbin/lsof"), &[&path]);
-    assert_eq!(sample.coverage, UsageCoverage::Full, "{sample:?}");
+    assert!(
+        matches!(sample.coverage, UsageCoverage::Partial { .. }),
+        "{sample:?}"
+    );
     assert!(
         !sample.holders.is_empty(),
         "this process holds the file open; the probe must see it"

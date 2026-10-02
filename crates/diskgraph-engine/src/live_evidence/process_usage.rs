@@ -1,16 +1,18 @@
 //! 按精确路径采样可见占用并保留覆盖诊断。
 
 use super::sampling_clock::now_ms;
-use super::{ProcessHolder, UsageCoverage, UsageSample};
+use super::{UsageCoverage, UsageSample};
 use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 /// 按精确路径采样可见占用并保留覆盖诊断。
 /// 参数：lsof 为受信程序路径，paths 为精确采样路径。
 /// 返回：使用样本；无法运行/观察时不可当作无人占用。
-/// Samples open handles for exact paths with `lsof`. The program is fixed,
+/// 仅保留可见正向观察；未核验权限范围/PID 启动身份时返回 partial。
+/// 空请求没有观察对象，保留兼容空样本，不能将其套用于任何文件。
+/// Samples visible open handles for exact paths with `lsof`. The program is fixed,
 /// the arguments are structured and there is no shell. Child polling uses a
 /// 15-second timeout, but pipe draining has no hard byte/deadline bound in
 /// this compatibility implementation. A missing or failing lsof is an
@@ -90,70 +92,5 @@ pub fn sample_process_usage(lsof: &Path, paths: &[&Path]) -> UsageSample {
             holders: Vec::new(),
         };
     }
-    if exit != Some(0) {
-        // lsof exits 1 when it found nothing at all — which is a real
-        // answer, not a failure; any other code is a probe problem.
-        if exit == Some(1) && output.is_empty() {
-            return UsageSample {
-                sampled_at_unix_ms,
-                coverage: UsageCoverage::Full,
-                holders: Vec::new(),
-            };
-        }
-        return UsageSample {
-            sampled_at_unix_ms,
-            coverage: UsageCoverage::Unobservable {
-                reason: format!("the handle probe exited with {exit:?}"),
-            },
-            holders: Vec::new(),
-        };
-    }
-    // Parse `p<pid>\0c<comm>\0n<path>\0` records into holders.
-    let text = String::from_utf8_lossy(&output);
-    let mut holders: Vec<ProcessHolder> = Vec::new();
-    let mut current_pid: Option<u32> = None;
-    let mut current_command: Option<String> = None;
-    // lsof prints the kernel's view of a path (on macOS `/var` is
-    // `/private/var`) and marks deleted-but-open files with a suffix, so
-    // matching canonicalizes what was asked for and strips the marker.
-    let canonical_asked: Vec<PathBuf> = paths
-        .iter()
-        .map(|asked| asked.canonicalize().unwrap_or_else(|_| asked.to_path_buf()))
-        .collect();
-    for record in text.split('\0') {
-        let record = record.trim_start_matches('\n');
-        if record.is_empty() {
-            continue;
-        }
-        let (tag, value) = record.split_at(1);
-        match tag {
-            "p" => {
-                current_pid = value.parse().ok();
-                current_command = None;
-            }
-            "c" => current_command = Some(value.to_owned()),
-            "n" => {
-                let reported = value.strip_suffix(" (deleted)").unwrap_or(value);
-                // Only paths that were asked for count as holders.
-                if let (Some(pid), Some(command_name)) = (current_pid, current_command.clone())
-                    && canonical_asked
-                        .iter()
-                        .any(|asked| asked.to_string_lossy() == reported)
-                {
-                    holders.push(ProcessHolder {
-                        pid,
-                        command: command_name,
-                    });
-                }
-            }
-            _ => {}
-        }
-    }
-    holders.sort();
-    holders.dedup();
-    UsageSample {
-        sampled_at_unix_ms,
-        coverage: UsageCoverage::Full,
-        holders,
-    }
+    super::process_output::interpret_process_output(&output, exit, paths, sampled_at_unix_ms)
 }

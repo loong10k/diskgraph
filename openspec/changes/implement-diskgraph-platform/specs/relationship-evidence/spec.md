@@ -49,3 +49,23 @@
 #### Scenario: No visible processes
 - **WHEN** 低权限观察返回空结果
 - **THEN** 仍报告受限覆盖，不能断言没有使用者。
+
+#### Scenario: Unverified external probe coverage
+- **WHEN** 外部进程探针成功返回可见句柄，但未验证系统权限范围或 PID 启动上下文
+- **THEN** 保留正向观察，覆盖为 partial；退出码 0 或空结果退出码 1 均不能独自证明完整覆盖。
+
+#### Scenario: Malformed process records
+- **WHEN** 探针输出包含非法字段、无效 PID、缺少进程上下文或未完整终止的记录
+- **THEN** 返回不可确认的诊断，不 panic，不将解析失败解释为完整空样本。
+
+#### Scenario: Native path identity in process evidence
+- **WHEN** 两条原生路径仅在有损 UTF-8 显示转换后相同
+- **THEN** 不将其当作同一采样对象；只有可确认的字段才按原生路径键匹配，无法保真匹配的编码或平台明确保持 unknown。
+
+#### Scenario: Ambiguous display suffix
+- **WHEN** 探针路径文本带有可能也是合法文件名的 deleted 标记
+- **THEN** 没有可靠身份依据时不删后缀猜测另一个对象；无法确认的观察保持 unknown，不据此报告未占用。
+
+#### Scenario: Escaped display path identity
+- **WHEN** NUL 字段中的路径显示包含转义或无法确认的名称编码，可能等于另一个对象的原生名称
+- **THEN** 不猜测解码、不把显示文本当原始身份；保持 partial/unknown，保留其他无歧义的正向观察。

@@ -7,10 +7,12 @@ use std::process::Command;
 
 /// 用既有本地 Git 命令采样项目状态。
 /// 参数：git 为受信程序路径，project 为项目目录。
-/// 返回：本地 Git 样本或命令错误；不访问网络。
+/// 返回：本地 Git 样本或命令错误；兼容实现的配置隔离与执行预算尚未完成。
 /// Samples one repository with the local `git` binary. Everything runs with
-/// the project as cwd and a minimal environment; no command here talks to
-/// the network.
+/// the project as cwd and a minimal environment. It does not explicitly invoke
+/// fetch, but repository configuration can execute external programs. This
+/// trusted compatibility path cannot certify offline/read-only execution and
+/// still lacks a complete subprocess budget/configuration isolation boundary.
 pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
     let run = |args: &[&str]| -> Result<String, String> {
         let output = Command::new(git)

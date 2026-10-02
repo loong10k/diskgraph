@@ -5,6 +5,9 @@ mod fs_event_kind;
 mod git_sample;
 mod git_usage;
 mod process_holder;
+mod process_output;
+#[cfg(test)]
+mod process_output_tests;
 mod process_usage;
 mod sampling_clock;
 #[cfg(test)]
