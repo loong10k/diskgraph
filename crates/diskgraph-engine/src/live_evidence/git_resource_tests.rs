@@ -21,6 +21,12 @@ fn head_and_upstream_signal_death_stop_the_entire_sample() {
         let temp = tempfile::tempdir().unwrap();
         let program = temp.path().join("git-probe-fixture");
         let marker = temp.path().join("unexpected-command");
+        let initialized = Command::new("git")
+            .args(["init", "-q"])
+            .current_dir(temp.path())
+            .output()
+            .unwrap();
+        assert!(initialized.status.success(), "{initialized:?}");
         // 在独立 writer 进程中生成并关闭脚本，再回收 writer。
         // 其他并发 fixture 的 fork 不能继承写描述符，避免 Linux ETXTBSY；
         // 不重试生产错误，也不将目标的异常退出断言放宽为任意 I/O 失败。
@@ -69,7 +75,7 @@ fn signal_fixture_writer() {
     };
     let quoted_marker = format!("'{}'", marker.replace('\'', "'\"'\"'"));
     let source = format!(
-        "#!/bin/sh\n[ \"$1\" = '--no-pager' ] && [ \"$2\" = '--no-lazy-fetch' ] && [ \"$3\" = '--no-optional-locks' ] || exit 64\nshift 3\ncase \"$*\" in\n 'rev-parse --verify --quiet HEAD^{{commit}}') {head};;\n 'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n 'check-ref-format '*) :;;\n 'show-ref --exists refs/stash') exit 2;;\n 'status --porcelain=v1 -z --untracked-files=all'|'stash list --format=%H') :;;\n 'for-each-ref --format=%(refname)%00%(objectname)%00%(upstream)%00 -- refs/heads/main') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
+        "#!/bin/sh\n[ \"$1\" = '--no-pager' ] && [ \"$2\" = '--no-lazy-fetch' ] && [ \"$3\" = '--no-optional-locks' ] || exit 64\nshift 3\ncase \"$*\" in\n config*|var*) exec git --no-pager --no-lazy-fetch --no-optional-locks \"$@\";;\n 'rev-parse --verify --quiet HEAD^{{commit}}') {head};;\n 'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n 'check-ref-format '*) :;;\n 'show-ref --exists refs/stash') exit 2;;\n 'status --porcelain=v1 -z --untracked-files=all'|'stash list --format=%H') :;;\n 'for-each-ref --format=%(refname)%00%(objectname)%00%(upstream)%00 -- refs/heads/main') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
     );
     std::fs::write(&program, source).unwrap();
     std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o700)).unwrap();

@@ -1,24 +1,22 @@
 //! 用既有本地 Git 命令采样项目状态。
 
 use super::git_output::{commit_count, status_count, successful};
+use super::git_view::GitView;
 use super::probe_budget::ProbeBudget;
-use super::probe_execution::{configure_probe_env, run_probe};
 use super::probe_output::ProbeOutput;
 use super::sampling_clock::now_ms;
 use super::{GitSample, ProbeLimits};
 use super::{git_references, git_stash};
 use std::path::Path;
-use std::process::Command;
 
 /// 用既有本地 Git 命令采样项目状态。
 /// 参数：git 为受信程序路径，project 为项目目录。
 /// 返回：本地 Git 样本或错误；默认整次 15 秒/管道及 stash 日志累计 1 MiB。
-/// Samples one repository with the local `git` binary. Everything runs with
-/// the project as cwd and a minimal environment. It does not explicitly invoke
-/// fetch and disables Git's lazy fetch and optional lock-based updates, but
-/// repository configuration can still execute external programs. This
-/// trusted compatibility path cannot certify offline/read-only execution and
-/// configuration isolation remains unverified. Resource failures are errors.
+/// Samples a supported repository through private configuration, index and
+/// reference copies. External filter/fsmonitor commands are never copied.
+/// Unsupported semantics and resource failures are errors. Host system-data
+/// discovery and a borrowed recursive object store still have separate input
+/// and snapshot limits; this is not an atomic repository snapshot.
 /// Windows 工具/绝对目录及 Unix 宿主条件见 sample_git_bounded 与 ProbeLimits。
 pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
     sample_git_bounded(git, project, &ProbeLimits::default())
@@ -26,37 +24,39 @@ pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
 
 /// Git 多个子命令共用一次采样期限、累计输出与取消配置。
 /// 参数：git 为受信工具，project 为项目目录，limits 为整次资源配置。
-/// 返回：本地样本或明确错误；资源失败不能表示无 HEAD/upstream，配置隔离仍待验收。
+/// 返回：私有视图的本地样本或明确错误；资源失败不能表示无 HEAD/upstream。
 /// 要求 Git 2.46+ 的引用存在性接口；不支持时返回错误，不回退为猜测缺引用。
 /// stash 存在时仅支持可核验的 files 引用后端，不把跳过的日志记录当完整计数。
-/// 固定禁用 pager、懒取与可选锁写入；这不隔离 filter/fsmonitor 或 shared index 刷新。
-/// Windows 要求 project 为绝对目录，工具为受信 .exe 或显式 PATH 中的 .exe。
+/// 固定禁用 pager、懒取与可选锁写入；特殊 filter/index/配置无法保真时明确拒绝。
+/// 准备与复核同期限/取消；元数据另有两轮累计 64 MiB/32k 条目额度，非严格 RSS 上限。
+/// 工具在首次命令前解析成固定绝对路径，仅搜索绝对 PATH 项；Windows 要求原生 .exe。
 pub fn sample_git_bounded(
     git: &Path,
     project: &Path,
     limits: &ProbeLimits,
 ) -> Result<GitSample, String> {
     let mut budget = ProbeBudget::new(limits).map_err(|error| error.to_string())?;
+    let mut view = GitView::prepare(git, project, &mut budget)?;
+    let result = observe(&mut view, &mut budget);
+    view.complete(result).and_then(|sample| {
+        // 安全删除可以跨过协作期限；清理后的取消或超期仍不得发布成功样本。
+        budget.check().map_err(|error| error.to_string())?;
+        Ok(sample)
+    })
+}
+
+fn observe(view: &mut GitView, budget: &mut ProbeBudget) -> Result<GitSample, String> {
     let mut run = |args: &[&str], budget: &mut ProbeBudget| -> Result<ProbeOutput, String> {
-        let mut command = Command::new(git);
-        // 所有 HEAD/status/stash/upstream 命令采用同一策略，缺对象不能隐式下载。
-        // optional locks 不是完整只读边界，配置回调与 shared index 仍待私有视图隔离。
-        command
-            .args(["--no-pager", "--no-lazy-fetch", "--no-optional-locks"])
-            .args(args)
-            .current_dir(project);
-        configure_probe_env(&mut command);
-        command.env("GIT_TERMINAL_PROMPT", "0");
-        run_probe(&mut command, budget).map_err(|error| error.to_string())
+        view.run(args, budget)
     };
 
-    let observed_head = git_references::head(&mut |args| run(args, &mut budget))?;
+    let observed_head = git_references::head(&mut |args| run(args, budget))?;
     let dirty_count = status_count(&successful(run(
         &["status", "--porcelain=v1", "-z", "--untracked-files=all"],
-        &mut budget,
+        budget,
     )?)?)?;
-    let stash_count = if git_references::exists(&mut |args| run(args, &mut budget), "refs/stash")? {
-        git_stash::count(&mut run, &mut budget)?
+    let stash_count = if git_references::exists(&mut |args| run(args, budget), "refs/stash")? {
+        git_stash::count(&mut run, budget)?
     } else {
         0
     };
@@ -65,16 +65,16 @@ pub fn sample_git_bounded(
     let mut behind = None;
     if let (Some(head), Some(branch)) = (&observed_head.0, &observed_head.1) {
         let (upstream, mapped) =
-            git_references::upstream(&mut |args| run(args, &mut budget), branch, head)?;
+            git_references::upstream(&mut |args| run(args, budget), branch, head)?;
         if let Some(upstream) = upstream {
             // 只使用完整 OID 范围，引用名不成为 revision 表达式或额外选项。
             ahead = Some(commit_count(&successful(run(
                 &["rev-list", "--count", &format!("{upstream}..{head}")],
-                &mut budget,
+                budget,
             )?)?)?);
             behind = Some(commit_count(&successful(run(
                 &["rev-list", "--count", &format!("{head}..{upstream}")],
-                &mut budget,
+                budget,
             )?)?)?);
         } else if mapped {
             notes.push("configured upstream reference is unavailable locally; whether commits are pushed is unknown and is never reported as pushed".into());
@@ -88,9 +88,10 @@ pub fn sample_git_bounded(
     } else {
         notes.push("detached HEAD has no branch upstream; whether commits are pushed is unknown and is never reported as pushed".into());
     }
-    if git_references::head(&mut |args| run(args, &mut budget))? != observed_head {
+    if git_references::head(&mut |args| run(args, budget))? != observed_head {
         return Err("HEAD changed during Git sampling".into());
     }
+    view.verify(budget)?;
     budget.check().map_err(|error| error.to_string())?;
     Ok(GitSample {
         head: observed_head.0,

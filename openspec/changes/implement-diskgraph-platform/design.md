@@ -208,6 +208,8 @@ upstream 从当前分支的 for-each-ref 固定 NUL 格式解析；没有可解�
 
 15.13d 首先建立本次采样独占的私有 bootstrap 与预算，再进行准备。全部工具调用固定关闭 pager、懒取与 optional locks，清空继承的 Git/loader/trace 环境；解析复制配置时显式使用私有目录、空 system/global 文件及 `config --file --no-includes --null --list`，只把配置当数据。不能在原仓库调用 `rev-parse --shared-index-path`：真实夹具已经证明它会执行 fsmonitor、刷新 shared index 时间，即使 no-lazy-fetch/no-optional-locks 也无效。其他 metadata plumbing 的安全性限定到固定参数和格式，不把默认 for-each-ref 等会解析对象的形式泛化为安全。
 
+工具只从绝对 PATH 目录解析一次并固定绝对程序路径，私有准备和源工作树采样不得重新选择程序。目录租约仅存活于单次 no-follow 捕获/枚举，历史记录保存身份、完整版本、祖先身份和名单；最终复核重新打开，避免目录数量累积 FD/HANDLE。原生名称名单未命中时必须查证实际路径，大小写或其他别名不能被报告为缺失；无法可靠映射时明确 Unsupported。准备和公开终态显式清理私有目录，主错误与次级清理诊断均保留，清理后再次核验预算，Drop 只兜底。
+
 由原生有界读取捕获 `.git`/gitfile/commondir、config、index、HEAD、loose/packed refs、stash 日志、shallow 与必要属性/忽略文件，拒绝链接、非普通文件、不可核验版本和超限输入。linked worktree 的 HEAD/index 与 common 根的 refs/logs/objects 分别解析，私有视图不能保留指向原元数据的 commondir/config/index/refs/reflog。元数据身份、版本和字节在末段复核，变化报错；这不是原子仓库快照。复制 index 后恢复并读回确认原高精度 mtime；较新的复制时间会改变 Git racy-index 内容复核，已在同长度改写并恢复文件 mtime 的夹具中真实产生假 clean。零时间会关闭该判定，不能作为安全备选；精度无法保真必须拒绝或另验保守重验。
 
 配置生成采取类型校验的 allowlist，保留 filemode、ignorecase、symlinks、autocrlf/eol、必要属性/忽略/rename 与 branch/upstream 映射等状态语义；不复制外部命令、URL、helper、hook 或 pager。不能简单关闭 filter 后把透传内容当正常状态：初版可明确拒绝外部 clean/process driver；支持未使用 driver 时须以无执行命令的 required 失败兜底，另验属性替换/宏展开竞态。include/includeIf、split/sparse index、gitlink 子模块、reftable、partial/promisor、replace/grafts 和未知扩展在没有等价实现时明确 Unsupported；这些支持边界不表示永远删除相关能力，也不能把所有 Git 仓库关闭后宣称完成。普通 files/SHA-1/SHA-256/full-index、linked worktree 与 shallow 的兼容性分别通过实际差分验收。
@@ -215,3 +217,5 @@ upstream 从当前分支的 for-each-ref 固定 NUL 格式解析；没有可解�
 执行时只使用私有 git-dir/index/refs/shallow/config，原 worktree 作为实时数据读取。源对象库只读借用可以降低整 pack 复制成本，但 alternate 会递归读取源 info/alternates；若采用该方案，不能宣称对象访问范围仅限原 ODB、对象快照不可变或对象输入严格有界。严格文件访问范围需要额外的扁平 ODB 视图或原生隔离能力，不能由一次预检查证明。接上源对象库后禁止写对象 plumbing，避免源对象时间刷新；所有来源元数据和对象时间、lock 文件以只读哨兵核验。
 
 准备、采样和终态复核共用唯一绝对期限及取消，分别明确管道/原始输入累计字节、元数据条目和临时容量上限；限制不是全部 Git RSS 或内核调度上界。先把已复现的 fsmonitor/filter/懒取/shared-index/racy-index 探针转为回归，再实现视图、运行普通状态差分与失败清理，独立复审及同源码三桌面原生 CI 后验收。15.13c 的语义测试和已有只读包 CI 都不能替代该边界，父项 15.13、8.7 与全平台其余能力继续未完成。
+
+当前实现差距（不降低以上验收要求）：宿主系统 config 的编译时路径由固定 `config --system --no-includes --show-origin --show-scope --null --get-regexp '^'` 首次发现，此次 Git 读取只有共享期限、取消和管道输出额度，没有读取前的原生原始输入/RSS 上限。发现后才对唯一原始来源有界捕获、解析副本和终态复核。64 MiB/32k 元数据额度约束累计输入与复制内容，尚不是实际分配磁盘空间或卷剩余容量门禁；单次路径解析仍临时占用 O(depth) 句柄。源 ODB 的递归 alternates 也不是严格输入/访问范围上限。上述差距及未执行的原生平台测试阻止勾选 15.13d。

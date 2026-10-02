@@ -203,7 +203,7 @@ fn linux_non_utf8_status_paths_are_counted_without_text_conversion() {
 
 #[cfg(unix)]
 fn assert_bad_fixture(stage: &str, diagnostic: &str) {
-    let temp = tempfile::tempdir().unwrap();
+    let (temp, project) = repository(true);
     let program = temp.path().join("git-fixture");
     let oid = "1111111111111111111111111111111111111111";
     let upstream = "2222222222222222222222222222222222222222";
@@ -244,6 +244,7 @@ fn assert_bad_fixture(stage: &str, diagnostic: &str) {
     };
     let source = format!(
         "#!/bin/sh\n[ \"$1\" = '--no-pager' ] && [ \"$2\" = '--no-lazy-fetch' ] && [ \"$3\" = '--no-optional-locks' ] || exit 64\nshift 3\ncase \"$*\" in\n\
+        config*|var*) exec git --no-pager --no-lazy-fetch --no-optional-locks \"$@\";;\n\
         'rev-parse HEAD'|'rev-parse --verify --quiet HEAD^{{commit}}') {head_command};;\n\
         'symbolic-ref --quiet HEAD'|'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n\
         'check-ref-format '*) :;;\n\
@@ -271,7 +272,7 @@ fn assert_bad_fixture(stage: &str, diagnostic: &str) {
         .output()
         .unwrap();
     assert!(written.status.success(), "{written:?}");
-    let error = sample_git(&program, temp.path()).unwrap_err();
+    let error = sample_git(&program, &project).unwrap_err();
     assert!(error.contains(diagnostic), "{stage}: {error}");
 }
 

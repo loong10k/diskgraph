@@ -68,6 +68,14 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 为采样定位元数据、解析配置或检查 index 依赖
 - **THEN** 准备阶段同样遵守整次期限、取消及资源预算，从首次工具调用关闭 pager、继承 trace/loader 配置、懒取与可选写入；原 index 不得交给可能执行 fsmonitor 或刷新 shared index 的准备命令。复制的配置作为数据解析，不调用原配置程序。
 
+#### Scenario: Git executable stays fixed across working directories
+- **WHEN** PATH 包含当前目录、空项或相对目录，准备和采样使用不同工作目录
+- **THEN** 只从绝对 PATH 目录解析受信工具一次并固定绝对程序路径；后续不能因进入工作树而运行仓库内同名程序，没有可用受信程序时明确拒绝。
+
+#### Scenario: Captured directories do not accumulate live handles
+- **WHEN** 有界元数据视图捕获多个目录并保留来源复核记录
+- **THEN** 捕获与枚举期间持有安全路径解析所需句柄，记录身份、版本、祖先身份和名单后释放；最终复核重新安全打开并比较，不为每个历史记录长期占用一组目录句柄。
+
 #### Scenario: Private Git view preserves status semantics
 - **WHEN** 私有元数据视图关闭外部程序或遇到属性、忽略、行尾、index、子模块或引用后端的特殊语义
 - **THEN** 保留能可靠验证的状态语义；不能可靠保持的条件明确拒绝，不能删去 filter、忽略子模块或默认格式后返回正常 clean/dirty。原仓库配置及元数据的后续替换不得重新进入私有执行配置。

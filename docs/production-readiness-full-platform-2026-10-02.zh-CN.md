@@ -173,4 +173,14 @@ CI 修复后的最终本机门禁仍为 **701 passed / 0 failed / 13 ignored**�
 
 该子项不阻止仓库 filter/fsmonitor，也不阻止 Git 读取 split index 时刷新 shared index 时间；不认证无其他源 metadata 写入、完整离线或只读执行。D20 私有视图仍须实现。真实审查还复现较新私有 index mtime 导致假 clean，精确保留原 mtime 才恢复修改观察；不能以关闭危险配置后返回假状态替代安全实现。父项 15.13、8.7 及原生写/provider/移动设备/签名/生产 soak 门禁保持未完成，不新增 p50/p95/RSS 或提速声明。
 
-最终 release CLI/MCP/FFI 构建与当前 release stdio 18/18、HTTP/legacy SSE 13/13 通过，OpenSpec strict 与 14 份上游摘要核对通过，vendor pin/源码不变。新源码原生 CI 仍待执行，15.13d1 继续未勾选。禁止源 stat 缓存的可选更新可能增加后续重复内容检查，该性能取舍尚未测量，不能宣称优化了延迟。
+最终 release CLI/MCP/FFI 构建与当前 release stdio 18/18、HTTP/legacy SSE 13/13 通过，OpenSpec strict 与 14 份上游摘要核对通过，vendor pin/源码不变。源码 `06011ddc885c9e0227220d0851cd8a9fbf61b38f` 的[同源码原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37059408918) **22/22 全部通过**，无 skipped 项。Windows stable/1.97.0 分别为 Engine 106 passed，Linux stable 111 passed，macOS Intel 113 passed；逐项核对两项真实 policy 回归与 helper fixture 均通过。15.13d1 据此完成；15.13d、15.13、8.7 及全平台其余门禁仍未完成。禁止源 stat 缓存的可选更新可能增加后续重复内容检查，该性能取舍尚未测量，不能宣称优化了延迟。
+
+## Git 私有执行视图（EC-04 / D20，实施中，2026-10-03）
+
+准备阶段现将受支持的配置、index 和引用复制到私有执行视图。原生元数据读取拒绝链接、特殊文件、来源变化及超预算输入；index 预检验证 SHA-1/SHA-256 完整摘要与受支持布局，保留普通 assume-valid 标志及原 index 的精确 mtime。私有配置不包含 fsmonitor 外部命令；配置过的 filter driver 不含执行命令，实际使用时按 required 明确失败。include、split/sparse index、gitlink、replace/grafts、特殊后端和 promisor 等不能保真的语义明确拒绝。普通、linked、shallow、CRLF、忽略、rename、racy-index 及 SHA-256 夹具比较实际 Git 状态，不引入伪造 clean 的兜底。
+
+独立审查先复现再修复三处额外边界：相对 PATH 项使切换工作目录后选择仓库伪造 Git；长期保留祖先目录句柄使 64-FD 子宿主第七次捕获耗尽；精确名称名单在大小写不敏感卷丢弃 CONFIG/INDEX。现工具只从绝对 PATH 目录解析一次，目录记录捕获后释放句柄，原生别名明确拒绝。64 个记录捕获及复核后 FD 回到初始值。显式完成会拒绝私有目录删除失败，保留主错误及次级清理诊断，清理后再核验期限和取消。Windows DACL、HANDLE 计数及阻塞删除原生回归已加入，但不计为本机执行通过。
+
+本机 workspace 验证为 **762 passed / 0 failed / 13 ignored**；这是功能证据，没有新增 release 延迟、峰值 RSS 或提速测量。D20 仍未完成：固定宿主系统配置发现先由 Git 读取编译时配置路径，发现后才原生捕获，首次读取仅有期限/取消/输出额度，没有原生原始输入/RSS 上限；元数据字节/条目额度不是实际临时分配及卷剩余容量门禁；源对象库递归 alternates 不是严格访问范围/输入上限。单次路径解析仍临时使用 O(depth) 句柄。新源码原生 CI 及全平台其余门禁仍须完成，不能用此前 06011dd 的 CI 验证本次实现。
+
+最后本机门禁还包括 workspace Clippy（警告拒绝）、定向 workspace fmt、OpenSpec strict、vendored 扫描器摘要、release CLI/MCP/FFI 构建；当前实际 release stdio 18/18、认证 HTTP/legacy SSE 13/13 验收通过。独立代码复审在 Git 105/105 及结构门禁通过后批准该本地增量，明确不批准未闭合 D20 或原生平台边界。按已有授权提交推送后运行新源码 GitHub CI。

@@ -1,0 +1,148 @@
+//! Git 私有目录删除失败的真实 I/O 回归；仅操作隔离临时夹具。
+
+use super::ProbeLimits;
+#[cfg(unix)]
+use super::git_isolation_fixture::GitIsolationFixture;
+use super::git_private_directory::GitPrivateDirectory;
+use super::probe_budget::ProbeBudget;
+#[cfg(unix)]
+use super::{GitSample, sample_git_bounded};
+#[cfg(unix)]
+use std::path::{Path, PathBuf};
+
+#[test]
+fn explicit_completion_removes_private_data_before_success() {
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
+    let path = private.path().to_path_buf();
+    std::fs::write(path.join("secret"), b"private").unwrap();
+    assert_eq!(private.complete(Ok(7)).unwrap(), 7);
+    assert!(!path.exists());
+    assert_eq!(private.complete(Ok(8)).unwrap(), 8);
+}
+
+#[test]
+fn missing_private_directory_counts_as_already_removed() {
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
+    let path = private.path().to_path_buf();
+    std::fs::remove_dir_all(&path).unwrap();
+    assert_eq!(private.complete(Ok(9)).unwrap(), 9);
+}
+
+#[test]
+fn primary_error_is_retained_when_cleanup_succeeds() {
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
+    let path = private.path().to_path_buf();
+    let error = private
+        .complete::<()>(Err("original failure".into()))
+        .unwrap_err();
+    assert_eq!(error, "original failure");
+    assert!(!path.exists());
+}
+
+#[cfg(unix)]
+fn quote(path: &Path) -> String {
+    format!("'{}'", path.to_str().unwrap().replace('\'', "'\"'\"'"))
+}
+
+#[cfg(unix)]
+fn poisoned_public_sample(primary_failure: bool) -> (Result<GitSample, String>, bool) {
+    use std::os::unix::fs::PermissionsExt;
+    let fixture = GitIsolationFixture::new("sha1");
+    let marker = fixture
+        .path()
+        .parent()
+        .unwrap()
+        .join("cleanup-private-path");
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let actual = super::git_executable::GitExecutable::resolve(Path::new("git"), &mut probe)
+        .unwrap()
+        .path()
+        .to_path_buf();
+    let failure = if primary_failure {
+        "printf 'fixture primary failure\\n' >&2; exit 47"
+    } else {
+        ""
+    };
+    let script = fixture.script(
+        "trusted-cleanup-shim",
+        &format!(
+            "#!/bin/sh\nif [ \"$4\" = status ]; then\n  printf '%s\\n' \"$GIT_DIR\" > {}\n  mkdir \"$GIT_DIR/blocked\" || exit 48\n  chmod 000 \"$GIT_DIR/blocked\" || exit 49\n  {}\nfi\nexec {} \"$@\"\n",
+            quote(&marker),
+            failure,
+            quote(&actual),
+        ),
+    );
+    let result = sample_git_bounded(&script, fixture.path(), &ProbeLimits::default());
+    let private_repo = PathBuf::from(
+        std::fs::read_to_string(&marker)
+            .expect("trusted shim ran")
+            .trim_end(),
+    );
+    let private_root = private_repo.parent().expect("private repo parent");
+    // RED 及 GREEN 都先尝试原生删除，再恢复权限；绝不遗留 chmod000 私有数据。
+    let native_cleanup_failed = std::fs::remove_dir_all(private_root).is_err();
+    if private_root.exists() {
+        let blocked = private_repo.join("blocked");
+        if blocked.exists() {
+            std::fs::set_permissions(&blocked, std::fs::Permissions::from_mode(0o700)).unwrap();
+        }
+        std::fs::remove_dir_all(private_root).unwrap();
+    }
+    (result, native_cleanup_failed)
+}
+
+#[cfg(unix)]
+#[test]
+fn successful_public_sample_refuses_unremoved_private_source() {
+    let (result, native_cleanup_failed) = poisoned_public_sample(false);
+    assert!(
+        native_cleanup_failed,
+        "fixture did not cause an actual removal error"
+    );
+    let error = result.expect_err("sample succeeded while private data remained");
+    assert!(error.contains("cleanup"), "{error}");
+    assert!(
+        error.contains("diskgraph-git-"),
+        "missing controlled path: {error}"
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn primary_error_preserves_cleanup_failure_diagnostic() {
+    let (result, native_cleanup_failed) = poisoned_public_sample(true);
+    assert!(
+        native_cleanup_failed,
+        "fixture did not cause an actual removal error"
+    );
+    let error = result.expect_err("primary Git failure was swallowed");
+    assert!(error.contains("fixture primary failure"), "{error}");
+    assert!(error.contains("cleanup"), "{error}");
+    assert!(
+        error.contains("diskgraph-git-"),
+        "missing controlled path: {error}"
+    );
+}
+
+#[cfg(windows)]
+#[test]
+fn open_native_handle_prevents_successful_completion() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::FILE_SHARE_READ;
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
+    let path = private.path().join("held");
+    std::fs::write(&path, b"private").unwrap();
+    let held = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&path)
+        .unwrap();
+    let result = private.complete(Ok(7));
+    assert!(result.unwrap_err().contains("cleanup"));
+    drop(held);
+    private.complete(Ok(())).unwrap();
+}
