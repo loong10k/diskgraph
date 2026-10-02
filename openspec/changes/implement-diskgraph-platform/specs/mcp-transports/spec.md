@@ -68,6 +68,10 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** 客户端使用 IPv6、IPv4 映射地址或通过可信代理发送 X-Forwarded-For
 - **THEN** 限流与诊断使用规范化 IP，不混淆端口或 IPv6 分段；重复 X-Forwarded-For 字段按接收顺序合并且受总头字节预算约束；仅接受由实际可信 peer 传递的最多 32 个合法 IP，从右向左跨越可信代理，停在第一个不可信 hop，不能用客户端伪造前缀刷新额度。无效或过长链回退到实际 peer，转发头不建立授权主体。
 
+#### Scenario: Legacy response and queued delivery budgets
+- **WHEN** legacy SSE 产生超过配置响应上限的结果，或慢消费者使待发送数据积压
+- **THEN** 与现代 HTTP 执行同一响应字节门禁，累计队列按实际字节和条数有界；拥塞在执行工具前明确拒绝，不能发送 202 后静默丢弃结果或无限分配。超限结果使用有界协议错误，断线、撤权和发送失败释放所有预留资源；可信内部兼容接口不能被远程路径用于绕过预算。
+
 #### Scenario: Remote serve from the CLI
 - **WHEN** 本机管理员通过 `diskgraph serve` 指定远程认证与 Origin 配置
 - **THEN** 配置完整传给 MCP 子进程，服务正常启动且无 token 请求被拒绝。
