@@ -63,3 +63,11 @@ f57aa40 的 release 二进制通过 stdio 18/18、HTTP/SSE 13/13 与四进程负
 完整正文/Content-Length/关闭响应回归与两个真实 socket 的静默/超量预算测试通过。完整 workspace 584 passed / 13 ignored，Clippy、定向 fmt、OpenSpec strict 与 release 二进制通过，stdio 18/18、HTTP/SSE 13/13。两位独立复审者批准；审查者额外滴流探针中，首连接每 20 ms 发送字节，第二连接于 51.373 ms 收到拒绝；这是一次观察值，不是 SLA。源码实现阶段仍待新 SHA 的 Windows 原生 CI；本机回归和旧 SHA 的全绿不能代替它。
 
 后续源码提交 23cfb52 的[同 SHA 22/22 项 CI 全绿](https://github.com/loong10k/diskgraph/actions/runs/36989443313)。Windows stable 和 Rust 1.97.0 均通过完整响应、静默客户端和 64 KiB 清理回归；Windows stable MCP 日志实际为 99 passed / 0 failed。五个原生包、八个 Rust、五个 Kotlin 宿主和两个 Swift/GRDB 宿主全部通过；15.8 按这条有界拒绝行为关闭，不代替移动 provider、原生写操作、签名或生产长期运行验收。
+
+## 客户端限流与代理边界（MCP-06 / 15.9）
+
+本轮先复现五项失败：新客户端可无限扩张限流表、超长键被保留、较早时钟观测重复补充额度、IPv6 被冒号截断，以及可信代理链选择攻击者伪造的左端前缀。限流实现现以单调时钟和共享时间水位补充，最多 4096 桶、64 字节键；满表不逐出活跃桶，只允许 60 秒闲置桶回收，扫描最多每秒一次。已存在的键借用查找，避免逐请求分配同一个键。状态按 IP、每个服务实例独立，NAT 共用额度，重启清空；满表时包括有权限主体在内的新 IP 也得到 429，活跃桶可持续占位，`retry_after_ms=1000` 不保证一秒后恢复容量。这里只保证状态与扫描成本有界，不承诺精确 RSS 字节或洪流公平性。
+
+网络输入使用规范化 IPv4/IPv6（映射地址统一），可信代理用精确 IP 匹配，最多解析 32 个合法 hop，从右向左跨越可信代理并停在第一个不可信 hop。代理须覆盖不可信输入或追加实际 peer；非法/过长链回退到直接 peer，多用户可能共用代理额度。授权仍由 token 与实时 grant 决定。两位独立审查者进一步发现 HTTP parser 只保留第一条重复 XFF，会丢失代理追加字段；新的真实 socket 夹具也先红，再修复为按接收顺序合并，原总头预算不变。列表字段合并顺序依据 [RFC 9110 §5.3](https://www.rfc-editor.org/rfc/rfc9110.html#name-field-order)。
+
+旧 `http::RateLimiter` 与 `http::observed_client_ip` 公开路径保留，新增实现每类型独立文件并使用中文原生来源说明。六项新回归先红后绿，完整 workspace 为 590 passed / 13 ignored；Clippy `-D warnings`、定向 fmt、OpenSpec strict、上游 pin/一致性回归通过，vendor 源码与摘要未变。release CLI/MCP/FFI 构建、stdio 18/18 与 HTTP/SSE 13/13 通过。独立代码与架构复审已批准并关闭重复 XFF 阻断；代码审查者独立重跑六项回归、两项 framing/header-budget 及外部重复头 socket 探针。新 SHA 原生 CI 继续执行，15.9 在此证据完成前保持未勾选。全平台 15.2–15.6 的其余能力仍未完成。

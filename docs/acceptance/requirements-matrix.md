@@ -73,7 +73,7 @@
 | MCP-03 | supported | `origins_are_validated_before_anything_else`、非回环绑定需认证、客户端同名目录不被当作服务端目标（P4-5.1 验收） |
 | MCP-04 | supported | 统一授权执行（engine require 贯穿三传输） |
 | MCP-05 | supported | `the_server_stream_survives_read_timeouts`；连接身份与业务 job ID 分离（P4-5.8） |
-| MCP-06 | supported | `HttpLimits`（body/连接/速率/并发）+ 慢连接不拖垮扫描查询（P4-5.5 验收） |
+| MCP-06 | supported | `HttpLimits`（body/连接/速率/并发）及有界 503 关闭；15.9 增量覆盖 4096 桶/64 字节键、单调补充、安全闲置回收、IPv6/可信链和重复 XFF socket 回归，三平台新 SHA CI 待核对；IP/单实例配额及满表取舍见 MCP README |
 
 ## platform-ffi
 

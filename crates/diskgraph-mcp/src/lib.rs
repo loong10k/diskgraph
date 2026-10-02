@@ -15,15 +15,19 @@ use serde_json::{Value, json};
 pub mod auth;
 #[cfg(test)]
 mod children_cursor_tests;
+mod client_address;
 mod connection_rejection;
 pub mod doctor;
 pub mod http;
 pub mod install;
 pub mod legacy;
 pub mod protocol;
+mod rate_limit_state;
+mod rate_limiter;
 mod request_authorizer;
 mod request_context;
 mod sse_slot;
+mod token_bucket;
 mod tool_input_schema;
 
 use protocol::{

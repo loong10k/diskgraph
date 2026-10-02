@@ -19,6 +19,9 @@ use crate::McpService;
 use crate::auth::{AuthFailure, Authenticator, token_from_headers, unauthorized_body};
 use crate::protocol::{PROTOCOL_VERSION, log_line, protocol_error};
 
+pub use crate::client_address::observed_client_ip;
+pub use crate::rate_limiter::RateLimiter;
+
 /// The single endpoint a Streamable HTTP client posts to.
 pub const MCP_ENDPOINT: &str = "/mcp";
 /// A lightweight readiness endpoint; it exposes no indexed data.
@@ -59,70 +62,6 @@ impl Default for HttpLimits {
     }
 }
 
-/// A token bucket per client, shared across connections (P4 task 5.5).
-pub struct RateLimiter {
-    inner: Mutex<HashMap<String, TokenBucket>>,
-    /// Tokens added per second.
-    refill_per_second: f64,
-    /// Bucket capacity: burst tolerance.
-    burst: f64,
-    now_ms: Box<dyn Fn() -> u128 + Send + Sync>,
-}
-
-struct TokenBucket {
-    tokens: f64,
-    last_refill_ms: u128,
-}
-
-impl RateLimiter {
-    pub fn new(limits: &HttpLimits) -> Self {
-        let burst = f64::from(limits.max_requests_per_second_per_client).max(1.0);
-        Self {
-            inner: Mutex::new(HashMap::new()),
-            refill_per_second: burst,
-            burst,
-            now_ms: Box::new(|| {
-                std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|duration| duration.as_millis())
-                    .unwrap_or(0)
-            }),
-        }
-    }
-
-    /// Test hook: drive the bucket with a manual clock.
-    #[cfg(test)]
-    fn with_clock(mut self, clock: impl Fn() -> u128 + Send + Sync + 'static) -> Self {
-        self.now_ms = Box::new(clock);
-        self
-    }
-
-    /// Admits one request from `client`. Returns the retry delay in
-    /// milliseconds when the bucket is empty.
-    pub fn check(&self, client: &str) -> Result<(), u64> {
-        self.check_at(client, (self.now_ms)())
-    }
-
-    fn check_at(&self, client: &str, now_ms: u128) -> Result<(), u64> {
-        let mut buckets = self.inner.lock().map_err(|_| 1_000u64)?;
-        let bucket = buckets.entry(client.to_owned()).or_insert(TokenBucket {
-            tokens: self.burst,
-            last_refill_ms: now_ms,
-        });
-        let elapsed_ms = now_ms.saturating_sub(bucket.last_refill_ms);
-        bucket.tokens = (bucket.tokens + (elapsed_ms as f64 / 1_000.0) * self.refill_per_second)
-            .min(self.burst);
-        bucket.last_refill_ms = now_ms;
-        if bucket.tokens >= 1.0 {
-            bucket.tokens -= 1.0;
-            Ok(())
-        } else {
-            let deficit_ms = ((1.0 - bucket.tokens) / self.refill_per_second * 1_000.0) as u64;
-            Err(deficit_ms.max(1))
-        }
-    }
-}
-
 /// Origin and proxy policy for the HTTP transport (P4 task 5.4, spec MCP-06).
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct NetworkPolicy {
@@ -132,9 +71,8 @@ pub struct NetworkPolicy {
     /// Whether an explicit `Origin: null` is accepted. Off by default: null is
     /// what a sandboxed page sends, and nothing about it proves locality.
     pub allow_null_origin: bool,
-    /// Proxy addresses whose `X-Forwarded-For` may inform diagnostics. These
-    /// headers never establish identity: authorization always needs a bearer
-    /// token regardless of how trusted the proxy is.
+    /// 精确可信代理 IP；其追加的 XFF 用于诊断与限流，按链从右向左解析。
+    /// 转发地址不建立主体身份，授权仍需 bearer 与实时 grant。
     pub trusted_proxies: Vec<String>,
 }
 
@@ -269,30 +207,6 @@ pub fn bind_decision(host: &str, has_auth: bool, secure_transport: bool) -> Bind
         return BindPolicy::RefusePlaintext;
     }
     BindPolicy::NetworkWithTunnel
-}
-
-/// The client address recorded for diagnostics. A forwarded header is honored
-/// only when the direct peer is a configured trusted proxy, and even then it
-/// affects logging alone — never authorization.
-pub fn observed_client_ip(
-    peer: &str,
-    headers: &HashMap<String, String>,
-    policy: &NetworkPolicy,
-) -> String {
-    let peer_host = peer.split(':').next().unwrap_or(peer);
-    if policy
-        .trusted_proxies
-        .iter()
-        .any(|proxy| proxy == peer_host)
-        && let Some(forwarded) = headers.get("x-forwarded-for")
-        && let Some(first) = forwarded.split(',').next()
-    {
-        let first = first.trim();
-        if !first.is_empty() {
-            return first.to_owned();
-        }
-    }
-    peer_host.to_owned()
 }
 
 /// The bound address, reported for diagnostics.
@@ -654,11 +568,19 @@ pub fn read_request(
                 "ambiguous HTTP header",
             ));
         }
+        let forwarded = name == "x-forwarded-for";
         headers
             .entry(name)
+            .and_modify(|existing: &mut String| {
+                // XFF 是有序地址列表；保留代理追加的后续字段，不能只信第一行。
+                // 所有原始字段仍计入总头预算；合并只增加有界逗号分隔符。
+                if forwarded {
+                    existing.push_str(", ");
+                    existing.push_str(value.trim());
+                }
+            })
             .or_insert_with(|| value.trim().to_owned());
-        // Non-security duplicate headers retain their first value. Framing,
-        // identity, host and Origin headers must be singular.
+        // 其他非安全重复头保留第一值；framing、身份、host 与 Origin 必须单一。
     }
 
     if headers.contains_key("transfer-encoding") {
@@ -1511,6 +1433,35 @@ mod tests {
         }
     }
 
+    #[test]
+    fn duplicate_forwarded_fields_keep_the_proxy_appended_client() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let limits = HttpLimits {
+            max_requests_per_second_per_client: 1,
+            ..HttpLimits::default()
+        };
+        let policy = NetworkPolicy {
+            trusted_proxies: vec!["127.0.0.1".into(), "10.0.0.1".into()],
+            ..NetworkPolicy::default()
+        };
+        let limiter = RateLimiter::new(&limits);
+        for (index, spoofed) in ["192.0.2.98", "192.0.2.99"].iter().enumerate() {
+            let mut client = TcpStream::connect(address).unwrap();
+            let request = format!(
+                "GET /healthz HTTP/1.1\r\nHost: x\r\nX-Forwarded-For: {spoofed}\r\nx-FORWARDED-for: 203.0.113.9, 10.0.0.1\r\n\r\n"
+            );
+            client.write_all(request.as_bytes()).unwrap();
+            let (server, peer) = listener.accept().unwrap();
+            let parsed = read_request(&mut BufReader::new(server), &limits)
+                .unwrap()
+                .unwrap();
+            let observed = observed_client_ip(&peer.to_string(), &parsed.headers, &policy);
+            assert_eq!(observed, "203.0.113.9");
+            assert_eq!(limiter.check_at(&observed, 0).is_ok(), index == 0);
+        }
+    }
+
     fn service(label: &str) -> (McpService, tempfile::TempDir) {
         service_with_profile(label, ToolProfile::ReadFull)
     }
@@ -2093,10 +2044,9 @@ mod tests {
         );
     }
 
-    /// Forwarded headers only count from a trusted proxy, and only for
-    /// diagnostics: they never feed authorization.
+    /// 转发地址只在实际 peer 为可信代理时用于诊断和限流，不建立授权身份。
     #[test]
-    fn forwarded_headers_are_diagnostic_only_and_proxy_gated() {
+    fn forwarded_addresses_are_proxy_gated() {
         let policy = NetworkPolicy {
             trusted_proxies: vec!["10.0.0.1".to_owned()],
             ..NetworkPolicy::default()
@@ -2109,7 +2059,7 @@ mod tests {
             observed_client_ip("198.51.100.4:5555", &headers, &policy),
             "198.51.100.4"
         );
-        // A trusted proxy's forwarded chain is honored for the log line.
+        // 可信代理追加的地址链用于诊断和限流键。
         assert_eq!(
             observed_client_ip("10.0.0.1:5555", &headers, &policy),
             "203.0.113.9"
@@ -2143,6 +2093,105 @@ mod tests {
         assert!(limiter.check_at("10.0.0.9", 0).is_ok());
         // After one second the bucket has refilled.
         assert!(limiter.check_at(client, 1_000).is_ok());
+    }
+
+    #[test]
+    fn rate_state_is_bounded_without_evicting_active_clients() {
+        let limits = HttpLimits {
+            max_requests_per_second_per_client: 2,
+            ..HttpLimits::default()
+        };
+        let limiter = RateLimiter::new(&limits);
+        for client in 0..4_096 {
+            assert!(limiter.check_at(&format!("client-{client}"), 0).is_ok());
+        }
+        assert_eq!(limiter.check_at("new-client", 0), Err(1_000));
+        assert!(limiter.check_at("client-0", 0).is_ok());
+        assert!(limiter.check_at("client-0", 0).is_err());
+        assert_eq!(limiter.check_at("new-client", 59_999), Err(1_000));
+        assert!(limiter.check_at("client-0", 59_999).is_ok());
+        assert!(limiter.check_at("client-0", 60_998).is_ok());
+        assert!(limiter.check_at("client-0", 60_998).is_ok());
+        assert!(limiter.check_at("new-client", 61_000).is_ok());
+        // 刚活跃的 client-0 不因满表清理而获得一个新桶。
+        assert!(limiter.check_at("client-0", 61_000).is_err());
+    }
+
+    #[test]
+    fn rate_state_rejects_oversized_keys() {
+        let limiter = RateLimiter::new(&HttpLimits::default());
+        assert_eq!(limiter.check_at(&"x".repeat(65), 0), Err(1_000));
+        assert_eq!(limiter.check_at("", 0), Err(1_000));
+    }
+
+    #[test]
+    fn rate_state_does_not_refill_twice_after_stale_clock_observations() {
+        let limits = HttpLimits {
+            max_requests_per_second_per_client: 1,
+            ..HttpLimits::default()
+        };
+        let limiter = RateLimiter::new(&limits);
+        assert!(limiter.check_at("client", 1_000).is_ok());
+        assert!(limiter.check_at("client", 1_500).is_err());
+        assert!(limiter.check_at("client", 1_000).is_err());
+        // 旧观测不能把 last_refill 倒拨并再次补出这半秒的额度。
+        assert!(limiter.check_at("client", 1_500).is_err());
+        assert!(limiter.check_at("client", 2_000).is_ok());
+    }
+
+    #[test]
+    fn client_addresses_preserve_ipv6_and_normalize_mapped_ipv4() {
+        let empty = HashMap::new();
+        let policy = NetworkPolicy::default();
+        assert_eq!(
+            observed_client_ip("[2001:db8::1]:5555", &empty, &policy),
+            "2001:db8::1"
+        );
+        assert_eq!(
+            observed_client_ip("[2001:db8::2]:5555", &empty, &policy),
+            "2001:db8::2"
+        );
+        assert_eq!(
+            observed_client_ip("[::ffff:192.0.2.1]:5555", &empty, &policy),
+            "192.0.2.1"
+        );
+        assert_eq!(observed_client_ip("[::1]:5555", &empty, &policy), "::1");
+    }
+
+    #[test]
+    fn forwarded_chains_cannot_launder_a_spoofed_prefix() {
+        let policy = NetworkPolicy {
+            trusted_proxies: vec!["2001:db8::1".into(), "10.0.0.1".into()],
+            ..NetworkPolicy::default()
+        };
+        let mut headers = HashMap::new();
+        headers.insert(
+            "x-forwarded-for".into(),
+            "192.0.2.99, 203.0.113.9, 10.0.0.1".into(),
+        );
+        assert_eq!(
+            observed_client_ip("10.0.0.1:5555", &headers, &policy),
+            "203.0.113.9"
+        );
+        assert_eq!(
+            observed_client_ip("[2001:db8::1]:5555", &headers, &policy),
+            "203.0.113.9"
+        );
+        headers.insert("x-forwarded-for".into(), "::ffff:203.0.113.9".into());
+        assert_eq!(
+            observed_client_ip("10.0.0.1:5555", &headers, &policy),
+            "203.0.113.9"
+        );
+        headers.insert("x-forwarded-for".into(), "not-an-ip, 203.0.113.9".into());
+        assert_eq!(
+            observed_client_ip("10.0.0.1:5555", &headers, &policy),
+            "10.0.0.1"
+        );
+        headers.insert("x-forwarded-for".into(), vec!["203.0.113.9"; 33].join(","));
+        assert_eq!(
+            observed_client_ip("10.0.0.1:5555", &headers, &policy),
+            "10.0.0.1"
+        );
     }
 
     /// A slow connection cannot starve other clients: its thread dies on the

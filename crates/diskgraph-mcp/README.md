@@ -58,6 +58,19 @@ the tools it serves; catalog families this build does not implement answer
   exposes the key in process arguments and must not be used for deployment.
 - Body, connection, rate, and per-principal job limits are enforced, and
   a slow consumer cannot stall a scan.
+  Rate state is per service instance and client IP, with at most 4096 buckets
+  and 64-byte keys. Only buckets idle for 60 seconds are reclaimed; a full
+  table rejects new IPs with 429, including authenticated users, and active
+  buckets can continue occupying it. `retry_after_ms` is a retry hint, not a
+  guarantee that capacity returns after that interval. NAT clients share a
+  bucket, and restart clears this in-memory state.
+- Trusted proxies are exact IPs. They must replace untrusted forwarded input
+  with the actual source, or append the actual peer to the chain. Duplicate
+  `X-Forwarded-For` fields are combined in received order within the header
+  budget. The server walks at most 32 valid IPs from right to left through
+  configured proxies, stopping at the first untrusted hop. Invalid or excessive
+  chains fall back to the direct peer, sharing its quota. IPv6 and mapped IPv4
+  spellings are canonicalized; forwarding never establishes a principal.
 - Connection identity and business job ids are separate, so a
   disconnected client can reconnect and still query its job.
 - The server is read-only in every profile this build ships.

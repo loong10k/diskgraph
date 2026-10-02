@@ -60,6 +60,14 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** 连接上限已满且客户端发送普通完整请求
 - **THEN** 返回完整 503 与 Connection: close，再半关闭写端并以 50 ms 绝对期限、64 KiB 接收清理预算释放连接；不启动工具、业务工作线程或无限等待客户端。超过清理预算的输入允许直接终止，不承诺完整错误响应，OS 调度不属于严格墙钟上限。
 
+#### Scenario: Bounded client rate state and monotonic refill
+- **WHEN** 未认证请求不断更换客户端地址，或时钟观测倒退、请求并发导致较早观测延后进入限流锁
+- **THEN** 限流表最多保留 4096 个客户端、单个键最多 64 字节，满表拒绝新客户端而不逐出仍活跃的额度；60 秒未访问且已经完全可补充的桶允许回收，清理最多每秒一次，补充基于单调时钟且旧观测不重复产生额度。满表和非法键均返回现有 429/retry_after_ms 语义，不进入认证或工具执行。
+
+#### Scenario: Canonical client IP and trusted proxy boundary
+- **WHEN** 客户端使用 IPv6、IPv4 映射地址或通过可信代理发送 X-Forwarded-For
+- **THEN** 限流与诊断使用规范化 IP，不混淆端口或 IPv6 分段；重复 X-Forwarded-For 字段按接收顺序合并且受总头字节预算约束；仅接受由实际可信 peer 传递的最多 32 个合法 IP，从右向左跨越可信代理，停在第一个不可信 hop，不能用客户端伪造前缀刷新额度。无效或过长链回退到实际 peer，转发头不建立授权主体。
+
 #### Scenario: Remote serve from the CLI
 - **WHEN** 本机管理员通过 `diskgraph serve` 指定远程认证与 Origin 配置
 - **THEN** 配置完整传给 MCP 子进程，服务正常启动且无 token 请求被拒绝。
