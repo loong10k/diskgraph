@@ -99,3 +99,17 @@ Windows 本地普通文件的 `read_bounded` 与摘要检查已接入原生句�
 当前本机 workspace 为 **619 passed / 0 failed / 13 ignored**；完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 和 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。独立代码审查在运行 37 项目标测试及外部期限/撤销探针后批准，架构审查放行最终 scope 检查并独立运行三项期限测试。源码 SHA `ae0223cecdc1710b8c4544b1c84359e1df778882` 的 Windows 两个 Rust 版本均逐项通过十二项原生内容、两项线程模式/能力、两项公开错误映射、三项期限/末段检查、公共哈希预算及九项内容比较测试；[同 SHA 的 22/22 项 CI 全绿](https://github.com/loong10k/diskgraph/actions/runs/37017346676)，包含五个原生包、八个 Rust、五个 Kotlin 和两个 Swift/GRDB 宿主。15.11 按此本地普通文件行为完成。
 
 本增量没有新增 p50/p95 或 RSS 测量，不宣称提速；原生证据覆盖 CI NTFS 夹具。其他文件系统、真实云 provider、Linux 占位保护、原生写操作、移动 provider/包/设备、签名和生产长期运行仍分别验收。8.2、8.9、15.2–15.6 保持未完成；公开危险文件工具保持关闭，vendor 源码/pin/digest 未变，全平台生产就绪仍未完成。
+
+## Engine 源码边界（RT-09 / 15.12）
+
+源码提交 `9dbb6347eb8b9f00da8e1ad50bac0dd38d4cdff7` 将 Engine 入口从 2,344 行降至 67 行，最大生产模块为 320 行的扫描执行模块。唯一 Engine 继续持有状态；范围/策略/revision 授权、任务、fenced 发布、历史回收、查询/历史及容量模块在同一对象上提供真实实现。每个生产对象含私有记录、trait 与 alias 独立文件。根公开导出及 `content`、`live_evidence`、`verify` 路径保持兼容。Store 入口仍为 94 行，见 [Engine 源码图与职责映射](../crates/diskgraph-engine/README.md#source-boundaries--源码边界)。
+
+全平台 AST 门禁先在真实多对象、超长入口及缺失中文契约上失败，再于迁移真实实现后通过；同时拒绝隐藏对象、私有空函数、限定路径占位宏、wildcard import 和未挂载文件。另一次真实 RED→GREEN 核验 `all(test, …)` 属于测试，而 `any(test, windows)` 不能隐藏原生生产对象。中文来源和参数/返回契约说明实际原生 Rust 行为，没有虚构 Java 对应。
+
+独立迁移审计去掉文档、规范化内部限定可见性及可选签名尾逗号后，198 条类型、常量和方法记录全部一致；55 项公开模块/根导出清单一致。该核对补充编译和行为回归，不能当成通用运行等价证明。独立代码审查批准，架构审查 CLEAR，核对了 graph→control 顺序、同 guard 授权、reader/期限复用、fence/取消代次与 RAII 清理。
+
+本机 Engine 全目标为 **105 passed / 0 failed / 5 ignored**；workspace 为 **622 passed / 0 failed / 13 ignored**。完整 Clippy `-D warnings`、定向格式、OpenSpec strict 和 release CLI/MCP/FFI 构建通过；release stdio 18/18、认证 HTTP/SSE 13/13、隔离四读者负载 4/4。[本机原始样本](benchmarks/engine-structure-load-2026-10-02.json)为 20k 文件、扫描 0.456 秒、32 次查询 p50 7.301 ms/p95 11.783 ms、数据库/WAL 37,449,728 字节；不宣称提速或生产延迟保证。扫描器 14 份上游摘要及 pin 保持不变。
+
+[同源码原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37025049488) 已完成：**22/22 项全部通过**，包含八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主及五个原生包。Windows stable 与 1.97.0 日志逐项确认三个结构回归及十二项原生内容测试通过，macOS stable 日志也确认三个结构回归通过。15.12 按此结构增量完成。本机 macOS 的 Windows 测试目标为零项，不计原生验收。
+
+此次迁移保留既有实时探针限制：lsof 子进程轮询有协作 timeout，但管道读取缺少严格字节/期限预算；轮询跳过不可读条目，之前条目可能表现为 Removed。拆分没有增强这些行为保证。原生写操作、真实 provider 不下载、移动 provider/制品/设备、签名与生产 soak 仍未完成，全平台生产就绪仍不成立。
