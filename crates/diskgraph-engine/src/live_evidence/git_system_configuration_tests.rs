@@ -2,7 +2,9 @@
 
 use super::ProbeLimits;
 use super::git_command_context::GitCommandContext;
+#[cfg(unix)]
 use super::git_metadata_budget::GitMetadataBudget;
+#[cfg(unix)]
 use super::git_metadata_file::GitMetadataFile;
 use super::git_system_configuration;
 use super::probe_budget::ProbeBudget;

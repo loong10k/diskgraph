@@ -198,3 +198,5 @@ CI 修复后的最终本机门禁仍为 **701 passed / 0 failed / 13 ignored**�
 Store 入口仍为 94 行，只声明和导出模块。56 个生产源码文件现增加 AST 门禁，拒绝 500 行及以上的文件；最大文件是 410 行的任务存储。Store 全目标 82 项通过、5 项明确 ignored。行数门禁辅助职责和事务边界复审，不能作为架构质量分数。D20 及父项继续未勾选，等待其余验收证据。
 
 冻结后的本机门禁为 workspace 全目标 **790 passed / 0 failed / 13 ignored**；完整 Clippy（警告拒绝）、定向 fmt、OpenSpec strict、14 份 vendor 摘要及 release CLI/MCP/FFI 构建通过。实际 release stdio 18/18、认证 HTTP/legacy SSE 13/13 通过。两路独立复审确认修正后的完整性/计量路径，各自排除自己编写的文件。这些是本机功能结果，不是新增性能测量或全平台生产验收；新源码 CI 结果另行记录。
+
+源码 `57546dfb2d1200a937577c8f63c2a4475ae29d2f` 的 [CI](https://github.com/loong10k/diskgraph/actions/runs/37073529881) 在 Windows 警告拒绝构建中发现两条仅用于 Unix 测试的导入；两个 Windows Rust 任务均未进入测试。导入现添加 `cfg(unix)`；这次仅测试代码的修正后，配置 12/12、Engine 全目标 Clippy 及定向 fmt 通过。Windows 行为仍须新一轮原生验证，其余任务的成功不能关闭该门禁。
