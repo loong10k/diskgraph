@@ -362,6 +362,30 @@ where
 }
 
 #[cfg(test)]
+fn duplicate_handle_for_test(
+    raw: HANDLE,
+    context: &'static str,
+) -> Result<OwnedHandle, ProbeFailure> {
+    let process = unsafe { GetCurrentProcess() };
+    let mut copy = null_mut();
+    if unsafe {
+        DuplicateHandle(
+            process,
+            raw,
+            process,
+            &mut copy,
+            0,
+            0,
+            DUPLICATE_SAME_ACCESS,
+        )
+    } == 0
+    {
+        return Err(last(context));
+    }
+    OwnedHandle::from_raw(copy, context)
+}
+
+#[cfg(test)]
 mod tests {
     use super::observe_job_empty;
     use crate::live_evidence::probe_failure::ProbeFailure;
@@ -388,28 +412,4 @@ mod tests {
             matches!(error, ProbeFailure::Io(message) if message == "injected accounting failure")
         );
     }
-}
-
-#[cfg(test)]
-fn duplicate_handle_for_test(
-    raw: HANDLE,
-    context: &'static str,
-) -> Result<OwnedHandle, ProbeFailure> {
-    let process = unsafe { GetCurrentProcess() };
-    let mut copy = null_mut();
-    if unsafe {
-        DuplicateHandle(
-            process,
-            raw,
-            process,
-            &mut copy,
-            0,
-            0,
-            DUPLICATE_SAME_ACCESS,
-        )
-    } == 0
-    {
-        return Err(last(context));
-    }
-    OwnedHandle::from_raw(copy, context)
 }

@@ -144,3 +144,5 @@ Windows 创建时用 JOB_LIST/HANDLE_LIST、KILL_ON_JOB_CLOSE 和固定地址 ov
 本增量没有新 p50/p95 或 RSS 结果，不宣称提速。Git 配置隔离、可执行 filter、离线/只读保证、unborn 修改与引用格式错误仍由 8.7 和父项 15.13 验收；原生写操作、provider/设备、签名和生产 soak 继续分别验收，不宣称全平台生产就绪。
 
 首轮[原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37043023057)尚未通过：Linux stable 的脚本夹具执行前遇到 ETXTBSY，改由独立 writer 写完并退出，目标信号断言不放宽。Windows 两个 Rust 版本均为 71 passed / 1 failed，其他所有执行器原生回归通过；唯一失败是测试假定持有用户 HANDLE 必须阻止 Job 计数归零，而实际 cleanup 返回 Ok。验收改为直接核验持有外部 HANDLE 时的 signaled 状态和实际 Job 计数，另以明确注入非零计数验证有界失败；注入覆盖不冒充真实外部引用故障。生产观察策略仍依据实际查询，最终源码原生门禁继续保持未完成。
+
+源码 `ddf6e934bebddf89783039f92d40e1f0cdf76d66` 的[第二轮原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37044718593)为 20/22 项通过。Windows stable 的 74 项 Engine 单元测试全部通过，随后 Clippy 拒绝测试模块后的辅助函数；修正只移动该函数，不改变实现。macOS Intel stable 的期限夹具假定首条 150 ms 命令在 270 ms 内完成，在负载下失败。新回归先完成轻量命令，再耗尽真实的整次五秒预算，最后确认第二条命令返回 Deadline 且未创建 marker。它去掉了 120 ms 启动假设，仍以可观察副作用检查后续命令不能重置整次期限。最终源码原生 CI 仍是必需门禁。

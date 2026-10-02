@@ -230,12 +230,22 @@ fn deadline_applies_to_a_silent_child() {
 
 #[test]
 fn multiple_commands_do_not_reset_the_deadline() {
-    let mut budget = ProbeBudget::new(&limits(1 << 20, Duration::from_millis(270))).unwrap();
-    run_probe(&mut fixture("short"), &mut budget).unwrap();
+    let temp = tempfile::tempdir().unwrap();
+    let marker = temp.path().join("late-command");
+    let timeout = Duration::from_secs(5);
+    let mut budget = ProbeBudget::new(&limits(1 << 20, timeout)).unwrap();
+    let started = Instant::now();
+    run_probe(&mut fixture("tiny"), &mut budget).unwrap();
+    // 以同一预算实际经历的时间耗尽整次期限，不假定宿主启动延迟小于 120 ms。
+    // 下一条命令有握手副作用；若重置预算，它将执行并留下 marker。
+    std::thread::sleep(timeout.saturating_sub(started.elapsed()) + Duration::from_millis(20));
+    let mut late = fixture("stamp");
+    late.env("DG_PROBE_MARKER", &marker);
     assert!(matches!(
-        run_probe(&mut fixture("short"), &mut budget),
+        run_probe(&mut late, &mut budget),
         Err(ProbeFailure::Deadline)
     ));
+    assert!(!marker.exists(), "expired sample started a later command");
 }
 
 #[test]
