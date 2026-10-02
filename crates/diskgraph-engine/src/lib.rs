@@ -30,11 +30,19 @@ pub mod live_evidence;
 mod queries;
 mod relation_queries;
 mod runner;
+mod scoped_content;
+#[cfg(not(windows))]
 mod scoped_file;
 #[cfg(test)]
 mod tests;
 pub mod verify;
 mod verify_limits;
+#[cfg(windows)]
+mod windows_file_state;
+#[cfg(windows)]
+mod windows_path_plan;
+#[cfg(windows)]
+mod windows_scoped_file;
 pub use verify_limits::VerifyLimits;
 
 pub use collectors::{

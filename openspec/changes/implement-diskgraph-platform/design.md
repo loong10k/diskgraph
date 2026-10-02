@@ -163,3 +163,11 @@ SC-06、CT-05、Q-08、RT-06/07、OP-10、ST-05 为本轮验收依据。请求�
 取舍与限制：扫描仍先收集完整上游树，不承诺流式扫描或严格内存上限；规范化字段/索引及实时门禁增加扫描和物理数据库成本，收益主要是窄读和并发查询。旧操作引用无法精确到 revision 时保留整个 scope，逻辑 prune 不等于 SQLite 文件压缩。Linux/Windows、移动 provider 与真实宿主能力不以 macOS 夹具测试替代。完整证据见仓库双语加固记录及 benchmark JSON。
 
 图库 schema 9 为不可变快照增加节点总数、目录总数/未知数、按不同 subtree_bytes 的降序累计计数。save、可信 publish 与 staging publish 在原发布事务内共用 SQL 聚合；v8 升级在一致性备份后事务回填，删除随 snapshot 外键级联。snapshot 的 writer 标记与 INSERT trigger 拒绝升级后仍打开的旧 writer；查询发现计数元数据缺失时 fail-closed，不能将缺失当成空快照。任意 minimum 的树计数仍包含未知大小节点的现有数值字段，children 的 known/unknown 谓词与 partial index 共用旧 JSON fallback。计数为索引探针；显式 OFFSET 页仍需 O(offset+page) 跳读。聚合与额外排序索引增加 O(N) 存储及发布/迁移耗时，并延长发布的控制库 fencing 锁；release 数据记录完整发布阶段而非精确持锁增量，1 ms 采样空间峰值不是上界。已有授权按完整 principal/permission/scope/policy_version 键只读返回，新增授权仍 INSERT ON CONFLICT；撤权 epoch 语义不变，避免只读 CLI 初始化重复授权写入。
+
+### D14 Windows 本地普通文件内容句柄
+
+15.11 保留 read/digest 的 wire 字段与 Unix 行为，将 Windows 获取步骤放入私有平台模块。路径规划只接受本地绝对 drive 路径与注册根下的原始组件，不用 canonicalize 跟随客户端路径；ADS、父级跳转、UNC/设备命名空间和过长路径明确拒绝。先持有 drive 根，再用 NtCreateFile 的 RootDirectory 逐个组件打开，禁止 reparse，并保留目录句柄直到检查结束。
+
+当前线程通过 RAII 暴露占位属性，先只请求 FILE_READ_ATTRIBUTES，再检查文件类型及 reparse/offline/recall 属性，最后才对同一被持有父目录下的普通文件请求 FILE_READ_DATA。检查期间仅共享读取，常规 writer、删除及父目录替换与已有句柄冲突；完整 128 位文件 ID、64 位卷 ID、长度及原生高精度写入/变更时间检查结果是否稳定，不能用截断 ID 或路径重开代替。局部模块分别拥有路径规划、原生状态、目录租约和跨平台内容准备，入口不新增业务类型堆积。
+
+共享限制不是对内核/filter 或已有 writable mapping 的普遍冻结；版本检查也不是原子内容快照。FILE_OPEN_NO_RECALL 约束打开步骤，不能据此保证任意真实云 provider 的后续读取无下载。线程模式只覆盖调用线程，不能代表上游 scanner 的所有 worker。Windows 普通文件与属性/junction 夹具必须在实际原生 CI 通过，真实 provider、Linux 占位保护、写操作保真及移动端继续由 15.2–15.6 单独验收。

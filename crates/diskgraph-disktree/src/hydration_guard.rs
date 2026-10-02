@@ -2,11 +2,14 @@ use std::io;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-/// 当前线程的禁止云文件物化策略；与 Apple TN3150 保持一致，离开作用域恢复。
+/// 当前线程的平台占位策略；来源：Apple TN3150 / Windows placeholder compatibility。
+/// macOS 禁止物化，Windows 暴露占位属性以供原生打开门禁检查；其他系统无策略。
 /// guard 不能跨线程移动，避免在另一线程恢复错误的 I/O 策略。
 pub struct HydrationGuard {
     #[cfg(target_os = "macos")]
     previous: i32,
+    #[cfg(windows)]
+    previous: i8,
     thread_bound: PhantomData<Rc<()>>,
 }
 
@@ -31,7 +34,23 @@ impl HydrationGuard {
                 thread_bound: PhantomData,
             })
         }
-        #[cfg(not(target_os = "macos"))]
+        #[cfg(windows)]
+        {
+            use windows_sys::Wdk::Storage::FileSystem::RtlSetThreadPlaceholderCompatibilityMode;
+            // EXPOSE=2：不能用系统默认 DISGUISE 隐藏后的属性批准数据读取。
+            let previous = unsafe { RtlSetThreadPlaceholderCompatibilityMode(2) };
+            if previous < 0 {
+                return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    "placeholder mode unavailable",
+                ));
+            }
+            Ok(Self {
+                previous,
+                thread_bound: PhantomData,
+            })
+        }
+        #[cfg(not(any(target_os = "macos", windows)))]
         Ok(Self {
             thread_bound: PhantomData,
         })
@@ -45,6 +64,15 @@ impl Drop for HydrationGuard {
             // 本类型 !Send，析构发生在设置策略的同一线程。
             unsafe {
                 setiopolicy_np(3, 1, self.previous);
+            }
+        }
+        #[cfg(windows)]
+        {
+            // guard !Send，嵌套恢复本线程的原模式；不能替代 worker 线程设置。
+            unsafe {
+                windows_sys::Wdk::Storage::FileSystem::RtlSetThreadPlaceholderCompatibilityMode(
+                    self.previous,
+                );
             }
         }
     }

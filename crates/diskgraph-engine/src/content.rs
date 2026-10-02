@@ -12,7 +12,7 @@ use sha2::Digest;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use diskgraph_core::{BusinessError, DiskGraph, PlaceholderPolicy, PrincipalId, ScopeId};
+use diskgraph_core::{BusinessError, DiskGraph, PrincipalId, ScopeId};
 
 use crate::{Engine, EngineError};
 pub use diskgraph_disktree::HydrationGuard;
@@ -152,7 +152,8 @@ pub struct InspectionRequest<'a> {
 }
 
 /// 身份指纹同时记录长度及高精度修改信息，原地写入也使结果失效。
-fn file_identity(metadata: &std::fs::Metadata) -> Option<String> {
+#[cfg(unix)]
+pub(super) fn file_identity(metadata: &std::fs::Metadata) -> Option<String> {
     #[cfg(unix)]
     {
         use std::os::unix::fs::MetadataExt;
@@ -174,7 +175,8 @@ fn file_identity(metadata: &std::fs::Metadata) -> Option<String> {
     }
 }
 
-fn identity_stable(before: &Option<String>, path: &Path) -> bool {
+#[cfg(unix)]
+pub(super) fn identity_stable(before: &Option<String>, path: &Path) -> bool {
     std::fs::symlink_metadata(path)
         .ok()
         .and_then(|after| file_identity(&after))
@@ -183,7 +185,11 @@ fn identity_stable(before: &Option<String>, path: &Path) -> bool {
 
 /// Refuses everything that is not a plain file (CT-01): directories,
 /// FIFOs, sockets, and devices are not content objects.
-fn ensure_plain_file(path: &Path, metadata: &std::fs::Metadata) -> Result<(), EngineError> {
+#[cfg(unix)]
+pub(super) fn ensure_plain_file(
+    path: &Path,
+    metadata: &std::fs::Metadata,
+) -> Result<(), EngineError> {
     let _ = path;
     #[cfg(unix)]
     {
@@ -211,7 +217,8 @@ fn ensure_plain_file(path: &Path, metadata: &std::fs::Metadata) -> Result<(), En
 /// Checks the object is inside the scope and not a link at any planned
 /// component: the final component must be a real object, and the canonical
 /// parent must stay under the canonical scope root (SC-03).
-fn ensure_inside_scope(root: &Path, path: &Path) -> Result<(), EngineError> {
+#[cfg(unix)]
+pub(super) fn ensure_inside_scope(root: &Path, path: &Path) -> Result<(), EngineError> {
     let metadata = std::fs::symlink_metadata(path)
         .map_err(|_| EngineError::Business(BusinessError::NotFound))?;
     if metadata.file_type().is_symlink() {
@@ -255,29 +262,23 @@ impl Engine {
             .root
             .to_native_path()
             .map_err(|_| EngineError::Business(BusinessError::Unsupported))?;
-        ensure_inside_scope(&root, request.path)?;
-        let metadata = std::fs::symlink_metadata(request.path)?;
-        ensure_plain_file(request.path, &metadata)?;
-        // Hydration is never available: whatever the caller asked for, a
-        // placeholder is reported, not downloaded (CT-02).
-        let policy = PlaceholderPolicy::resolve(PlaceholderPolicy::Hydrate);
-        let _ = policy;
-        if probe.is_placeholder(request.path) {
+        let mut prepared = crate::scoped_content::ScopedContent::open(&root, request.path, probe)?;
+        if prepared.file.is_none() {
             return Ok(ReadOutcome {
                 requested_path: request.path.to_path_buf(),
                 offset: request.offset,
                 bytes: Vec::new(),
-                file_len: metadata.len(),
+                file_len: prepared.metadata.len(),
                 truncated: false,
                 stopped: Some(InspectionStop::Placeholder),
                 observed_at_unix_ms: now_ms(),
             });
         }
-        let identity_before = file_identity(&metadata);
-        let mut file = crate::scoped_file::open_scoped(&root, request.path)?;
-        if file_identity(&file.metadata()?) != identity_before {
-            return Err(EngineError::Business(BusinessError::Conflict));
-        }
+        // 文件先于 prepared 析构，原生父目录与属性租约覆盖整个读取过程。
+        let mut file = prepared
+            .file
+            .take()
+            .ok_or(EngineError::Business(BusinessError::Unsupported))?;
         use std::io::Seek;
         file.seek(std::io::SeekFrom::Start(request.offset))?;
         let chunk = request.chunk_bytes.clamp(1, 64 * 1024).min(
@@ -328,16 +329,14 @@ impl Engine {
             bytes.extend_from_slice(&buffer[..read]);
         }
         // The file must still be the object the read started on.
-        if file_identity(&file.metadata()?) != identity_before
-            || !identity_stable(&identity_before, request.path)
-        {
+        if !prepared.matches(&file) {
             stopped = Some(InspectionStop::Unstable);
         }
         Ok(ReadOutcome {
             requested_path: request.path.to_path_buf(),
             offset: request.offset,
             bytes,
-            file_len: metadata.len(),
+            file_len: prepared.metadata.len(),
             truncated,
             stopped,
             observed_at_unix_ms: now_ms(),
@@ -390,10 +389,8 @@ impl Engine {
             .root
             .to_native_path()
             .map_err(|_| EngineError::Business(BusinessError::Unsupported))?;
-        ensure_inside_scope(&root, request.path)?;
-        let metadata = std::fs::symlink_metadata(request.path)?;
-        ensure_plain_file(request.path, &metadata)?;
-        if probe.is_placeholder(request.path) {
+        let mut prepared = crate::scoped_content::ScopedContent::open(&root, request.path, probe)?;
+        if prepared.file.is_none() {
             return Ok(DigestOutcome {
                 requested_path: request.path.to_path_buf(),
                 digest_hex: String::new(),
@@ -402,11 +399,10 @@ impl Engine {
                 observed_at_unix_ms: now_ms(),
             });
         }
-        let identity_before = file_identity(&metadata);
-        let mut file = crate::scoped_file::open_scoped(&root, request.path)?;
-        if file_identity(&file.metadata()?) != identity_before {
-            return Err(EngineError::Business(BusinessError::Conflict));
-        }
+        let mut file = prepared
+            .file
+            .take()
+            .ok_or(EngineError::Business(BusinessError::Unsupported))?;
         let chunk = request.chunk_bytes.clamp(1, 64 * 1024).min(
             usize::try_from(request.max_bytes)
                 .unwrap_or(usize::MAX)
@@ -459,7 +455,7 @@ impl Engine {
                 break;
             }
             if total >= request.max_bytes {
-                if total < metadata.len() {
+                if total < prepared.metadata.len() {
                     stopped = Some(InspectionStop::ByteLimit);
                 }
                 break;
@@ -481,22 +477,12 @@ impl Engine {
             // A file written or removed mid-digest voids the run: re-stat
             // between chunks so the recorded digest is never half of two
             // versions, or a digest of a file that is already gone.
-            if !file
-                .metadata()
-                .is_ok_and(|metadata| file_identity(&metadata) == identity_before)
-                || !identity_stable(&identity_before, request.path)
-            {
+            if !prepared.matches(&file) {
                 stopped = Some(InspectionStop::Unstable);
                 break;
             }
         }
-        if stopped.is_none()
-            && (total != metadata.len()
-                || !file
-                    .metadata()
-                    .is_ok_and(|metadata| file_identity(&metadata) == identity_before)
-                || !identity_stable(&identity_before, request.path))
-        {
+        if stopped.is_none() && (total != prepared.metadata.len() || !prepared.matches(&file)) {
             stopped = Some(InspectionStop::Unstable);
         }
         Ok(DigestOutcome {
