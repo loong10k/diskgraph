@@ -6,6 +6,8 @@ use std::path::Path;
 
 /// 从注册根目录句柄逐组件打开文件；禁止目录和最终对象中的链接跳转。
 #[cfg(unix)]
+/// 参数：root/path 为注册根与请求路径。
+/// 返回：Unix 普通文件句柄或路径/链接/类型错误；其他平台返回 unsupported。
 pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, EngineError> {
     use std::ffi::CString;
     use std::os::fd::{AsRawFd, FromRawFd};
@@ -80,13 +82,18 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
 
 /// 无法验证原生目录句柄的平台明确拒绝内容检查。
 #[cfg(not(unix))]
+/// 参数：root/path 为注册根与请求路径。
+/// 返回：Unix 普通文件句柄或路径/链接/类型错误；其他平台返回 unsupported。
 pub(crate) fn open_scoped(_root: &Path, _path: &Path) -> Result<std::fs::File, EngineError> {
     Err(EngineError::Business(BusinessError::Unsupported))
 }
 
 #[cfg(all(test, not(unix)))]
 mod tests {
-    use super::*;
+    use super::open_scoped;
+    use crate::EngineError;
+    use diskgraph_core::BusinessError;
+    use std::path::Path;
 
     #[test]
     fn unverified_native_content_opening_is_explicitly_unsupported() {

@@ -212,6 +212,8 @@ flowchart TD
 
 Legacy FFI signatures remain compatible. Engine now checks actual snapshot/revision ownership and live authorization before opening a read connection. Raw store APIs remain trusted internal compatibility entry points. The hardening record below separates implementation from platform acceptance.
 
+Store and Engine entry files now contain declarations and stable reexports. Real implementations are grouped by responsibility, with each production object in its own file. Engine remains the single owner of connection and task state; this source organization adds no runtime service layer. See the [Engine source boundaries](crates/diskgraph-engine/README.md#source-boundaries--源码边界) and [store boundaries](crates/diskgraph-store/README.md#source-boundaries--源码边界).
+
 ### Security and performance hardening (2026-10-01)
 
 HTTP and both SSE transports require authentication, including loopback, and validate Origin. Request permissions intersect token capabilities with live database grants; remote startup grants no local administration. Revision access checks actual server/scope ownership. Issuer + subject now map to a SHA-256 principal, so old remote grants must be reissued. Ambiguous legacy ownership is denied until an administrator reindexes.

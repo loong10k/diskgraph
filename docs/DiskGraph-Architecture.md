@@ -83,6 +83,23 @@ flowchart TD
 
 Legacy FFI signatures remain compatible. Engine now checks actual snapshot/revision ownership and live authorization before opening a read connection. Raw store APIs remain trusted internal compatibility entry points. The hardening record below separates implementation from platform acceptance.
 
+### Current Engine source boundaries (RT-09, 2026-10-02)
+
+The entry only declares modules and preserves exports. Types, including private records, traits and aliases, have separate files; production modules contain fewer than 500 physical lines. Scope/policy/revision authorization, job scheduling and fenced scanning, retention, bounded queries/history, content and live evidence retain real implementations on one shared Engine. Public `content`, `live_evidence` and `verify` module paths remain stable through façades. Trusted raw readers and control access still require authorization at the caller.
+
+```mermaid
+flowchart TD
+    A["CLI / MCP / FFI / Ops"] --> P["Scope / policy / revision authorization"]
+    P --> J["Jobs / fenced scanning / retention"]
+    P --> Q["Queries / history / content inspection"]
+    J --> E["One Engine state owner"]
+    Q --> E
+    E --> G[("Graph writer / independent readers")]
+    E --> C[("Control authority")]
+```
+
+Modules preserve graph→control lock order, same-guard authorization, per-generation cancellation and RAII cleanup. This is a source-boundary change, not a new runtime service layer or an atomic transaction across databases. The [Engine README](../crates/diskgraph-engine/README.md#source-boundaries--源码边界) maps each responsibility; its AST gate supplements the existing behavior and native-platform gates.
+
 ### Target architecture
 
 ```mermaid

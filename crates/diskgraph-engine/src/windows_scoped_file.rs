@@ -36,6 +36,8 @@ pub(crate) struct WindowsScopedFile {
 
 impl WindowsScopedFile {
     /// 按注册根的原始组件获取属性句柄；返回租约，数据读取尚未开始。
+    /// 参数：root/path 为注册根与精确路径。
+    /// 返回：保留父目录及属性句柄的租约，或路径/平台/冲突错误；尚未读取数据。
     pub(crate) fn open(root: &Path, path: &Path) -> Result<Self, EngineError> {
         let plan = WindowsPathPlan::new(root, path)?;
         let drive: Vec<u16> = plan
@@ -84,6 +86,8 @@ impl WindowsScopedFile {
     }
 
     /// 从同一持有父目录申请读取数据，并再次核验版本；变化时返回冲突。
+    /// 参数：无；使用当前租约的父目录与 leaf。
+    /// 返回：同一版本的数据句柄；占位或版本变化返回冲突。
     pub(crate) fn open_data(&self) -> Result<File, EngineError> {
         if self.state.placeholder() || WindowsFileState::capture(&self.leaf)? != self.state {
             return Err(EngineError::Business(BusinessError::Conflict));
@@ -100,12 +104,16 @@ impl WindowsScopedFile {
     }
 
     /// 比较数据和属性句柄的完整版本；返回 false 时内容/摘要必须标记不稳定。
+    /// 参数：file 为持有的数据句柄。
+    /// 返回：数据与属性句柄的完整身份版本均符合原指纹时 true。
     pub(crate) fn matches(&self, file: &File) -> bool {
         WindowsFileState::capture(file).is_ok_and(|state| state == self.state)
             && WindowsFileState::capture(&self.leaf).is_ok_and(|state| state == self.state)
     }
 
     /// 只从已持有属性句柄取兼容元数据；返回值不经过客户端路径重开。
+    /// 参数：无。
+    /// 返回：已持有 leaf 的兼容元数据，或句柄元数据读取错误。
     pub(crate) fn metadata(&self) -> Result<std::fs::Metadata, EngineError> {
         Ok(self.leaf.metadata()?)
     }

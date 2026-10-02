@@ -1,72 +1,15 @@
-//! Promoting a metadata-only comparison to a content one, one file at a
-//! time.
-//!
-//! A comparison that stops at size and timestamp answers "are these the same
-//! file?" with a weaker claim than a reader usually takes it for. Two files
-//! of identical length edited in place compare the same, and a caller that
-//! skips a copy on that row ships a stale file. Closing the gap means reading
-//! both, which is expensive and is a separate grant, so it is opt-in and
-//! bounded on both axes.
-//!
-//! Two rules make the result trustworthy. The comparison only reads a file
-//! the metadata pass already called the same, so a difference is never
-//! re-decided by a different test. And a file that could not be read (a cloud
-//! placeholder, a revoked grant, bytes that moved underneath the read) is
-//! reported as unverified rather than as identical, because "I could not
-//! check" and "they match" are different sentences.
+//! 逐文件对提升比较证据并记录失败成本。
 
+use super::one_digest::OneDigest;
+use super::{VerifyBudget, VerifySummary};
+use crate::content::{ConservativeProbe, DigestOutcome, InspectionRequest};
+use crate::{ComparisonReport, Engine, EngineError, VerifyLimits};
+use diskgraph_core::{Authorizer, PrincipalId, ResourceLocator, ScopeId, Verdict};
 use std::path::PathBuf;
 
-use diskgraph_core::{Authorizer, PrincipalId, ResourceLocator, ScopeId, Verdict};
-
-use crate::VerifyLimits;
-use crate::content::{ConservativeProbe, DigestOutcome, InspectionRequest};
-use crate::{ComparisonReport, Engine, EngineError};
-
-/// How far a content verification may go.
-#[derive(Clone, Copy, Debug)]
-pub struct VerifyBudget {
-    /// Files whose contents may be read in one comparison.
-    pub max_files: u64,
-    /// Bytes one file may be read for. A file larger than this is left
-    /// unverified: hashing it would cost more than re-copying it.
-    pub max_bytes_per_file: u64,
-}
-
-impl Default for VerifyBudget {
-    fn default() -> Self {
-        Self {
-            // Small on purpose. A verification is for the handful of files a
-            // caller is about to act on, not for re-hashing a tree.
-            max_files: 256,
-            max_bytes_per_file: 64 << 20,
-        }
-    }
-}
-
-/// What a verification pass did, and what it could not do.
-#[derive(Clone, Copy, Debug, Default, serde::Serialize)]
-pub struct VerifySummary {
-    /// 已尝试核验的文件对，任一侧失败也消耗文件预算。
-    pub attempted_files: u64,
-    /// Files whose contents were read on both sides and matched.
-    pub confirmed_same: u64,
-    /// Files whose contents were read and differ.
-    pub confirmed_different: u64,
-    /// Files left unverified: over the budget, unreadable, or a placeholder.
-    pub unverified: u64,
-    /// Bytes read across every file, on both sides.
-    pub bytes_read: u64,
-}
-
-impl VerifySummary {
-    /// Whether anything was left unsaid, which a caller must not mistake for
-    /// "everything checked out".
-    pub fn is_complete(&self) -> bool {
-        self.unverified == 0
-    }
-}
-
+/// 仅对元数据比较的同类普通文件尝试内容升级。
+/// 参数：engine/report、双侧 scope、请求身份与 budget为文件对及单文件预算。
+/// 返回：更新报告与真实成本统计或定位失败；不可读取者保留未核验。
 /// Verifies the rows a comparison called the same, reading contents.
 ///
 /// Takes the report by value and returns it with the promoted rows: the
@@ -92,7 +35,9 @@ pub fn verify_same_rows(
         &VerifyLimits::default(),
     )
 }
-
+/// 仅对元数据比较的同类普通文件尝试内容升级。
+/// 参数：engine/report、双侧 scope、请求身份与 budget/limits 为累计字节/期限/取消约束。
+/// 返回：更新报告与真实成本统计或定位失败；不可读取者保留未核验。
 /// 使用累计字节、绝对期限与取消信号核验；已有 API 使用保守默认上限。
 #[allow(clippy::too_many_arguments)] // 比较上下文与共享预算是独立必需参数。
 pub fn verify_same_rows_with_limits(
@@ -210,7 +155,6 @@ pub fn verify_same_rows_with_limits(
     report.rows = rows;
     Ok((report, summary))
 }
-
 /// The filesystem path behind a locator. A comparison is between two
 /// directories on this machine, so a document URI is not something to read.
 fn native_root(locator: &ResourceLocator) -> Result<PathBuf, EngineError> {
@@ -221,13 +165,6 @@ fn native_root(locator: &ResourceLocator) -> Result<PathBuf, EngineError> {
         )),
     }
 }
-
-/// One side's digest, or nothing when it could not be read.
-struct OneDigest {
-    digest: Option<String>,
-    bytes_read: u64,
-}
-
 #[allow(clippy::too_many_arguments)]
 fn digest_of(
     engine: &Engine,

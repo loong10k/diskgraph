@@ -21,6 +21,8 @@ const POLL_INTERVAL: Duration = Duration::from_millis(100);
 /// The runner is deliberately separate from `Engine::open`: engine-level tests
 /// hold jobs queued on purpose (quota tests), so nothing runs them unless a
 /// server or an explicit test asks for it.
+/// 持有后台 runner 的生命周期与协作停止状态。
+/// 来源：原生 Rust diskgraph-engine::JobRunner。
 pub struct JobRunner {
     engine: Arc<Engine>,
     stop: Arc<AtomicBool>,
@@ -32,6 +34,8 @@ impl JobRunner {
     /// Starts the runner thread. Keep the returned handle alive for as long
     /// as jobs should progress; dropping it stops subsequent scheduling without
     /// blocking on any scan already running.
+    /// 参数：engine 为已有共享引擎。
+    /// 返回：后台调度句柄；原实现保留启动线程失败时无 worker 的行为。
     pub fn start(engine: Arc<Engine>) -> Self {
         let owner = format!("runner-{}", uuid::Uuid::new_v4());
         let stop = Arc::new(AtomicBool::new(false));
@@ -61,6 +65,8 @@ impl JobRunner {
     }
 
     /// Stops the runner at the next poll boundary and waits for the thread.
+    /// 参数：消费当前 runner。
+    /// 返回：等待后台线程退出后返回；已开始的扫描按既有预算/租约结束。
     pub fn stop(mut self) {
         self.stop.store(true, Ordering::SeqCst);
         if let Some(worker) = self.worker.take() {
@@ -69,12 +75,16 @@ impl JobRunner {
     }
 
     /// The fencing owner this runner claims jobs under (diagnostics/tests).
+    /// 参数：无。
+    /// 返回：本 runner 用于认领任务的 owner 标识。
     pub fn owner(&self) -> &str {
         &self.owner
     }
 
     /// Claims and runs at most one queued job. Exposed for tests that want a
     /// deterministic single tick instead of the polling thread.
+    /// 参数：无。
+    /// 返回：至多一个任务的执行记录、无可执行任务的 None 或执行错误。
     pub fn tick(&self) -> Result<Option<JobRecord>, EngineError> {
         run_one_queued(&self.engine, &self.owner, &self.stop)
     }

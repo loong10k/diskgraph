@@ -83,6 +83,23 @@ flowchart TD
 
 此图概括当前组件调用路径。旧 FFI 签名保留，读取前先由 Engine 核验 snapshot/revision 归属与实时授权，再使用只读连接。底层 store API 属于可信内部兼容入口。平台能力与验证边界见下方加固记录。
 
+### 当前 Engine 源码边界（RT-09，2026-10-02）
+
+入口只声明模块并保留导出；对象含私有记录、trait 和 alias 各自独立文件，生产模块少于 500 行。范围/策略/revision 授权、任务调度与 fenced 扫描、历史回收、有界查询/历史、内容和实时证据保留真实实现，复用唯一 Engine。公开 `content`、`live_evidence` 与 `verify` 路径通过 façade 保持兼容。可信原始 reader 与控制访问仍由调用方完成请求授权。
+
+```mermaid
+flowchart TD
+    A["CLI / MCP / FFI / Ops"] --> P["范围 / 策略 / revision 授权"]
+    P --> J["任务 / fenced 扫描 / 历史回收"]
+    P --> Q["查询 / 历史 / 内容检查"]
+    J --> E["唯一 Engine 状态持有者"]
+    Q --> E
+    E --> G[("图写连接 / 独立读连接")]
+    E --> C[("控制库权威")]
+```
+
+模块保留 graph→control 锁顺序、同一 guard 的授权检查、每代次取消及 RAII 清理。这是源码边界整改，没有增加运行时服务层或跨数据库原子事务承诺。[Engine README](../crates/diskgraph-engine/README.md#source-boundaries--源码边界)列出职责与对应文件；AST 门禁补充既有行为及原生平台门禁。
+
 ### 目标架构
 
 ```mermaid

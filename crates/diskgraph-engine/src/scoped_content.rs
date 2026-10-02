@@ -23,6 +23,8 @@ pub(crate) struct ScopedContent {
 
 impl ScopedContent {
     /// 进入本线程原生策略；返回 RAII guard，无法提供策略时拒绝内容访问。
+    /// 参数：无；作用于调用线程。
+    /// 返回：平台原生线程策略 guard。macOS 禁止 dataless 物化，Windows 暴露占位属性；provider 不下载须另行验收，无法提供策略返回 unsupported 或 I/O 错误。
     pub(crate) fn hydration_guard() -> Result<diskgraph_disktree::HydrationGuard, EngineError> {
         diskgraph_disktree::HydrationGuard::enter().map_err(Self::hydration_error)
     }
@@ -36,6 +38,8 @@ impl ScopedContent {
     }
 
     /// 对根下路径执行原生获取；返回占位结果时 file 为 None，绝不读取数据。
+    /// 参数：root/path 为注册根与精确路径，probe 为占位诊断。
+    /// 返回：原生租约与元数据，占位对象无数据句柄；获取或验证失败返回错误。
     pub(crate) fn open(
         root: &Path,
         path: &Path,
@@ -86,6 +90,8 @@ impl ScopedContent {
     }
 
     /// 核验已打开文件与原生租约；返回 false 时部分内容及摘要不能确认稳定。
+    /// 参数：file 为本轮已打开的数据句柄。
+    /// 返回：身份和版本仍符合原租约时 true；失败结果不能确认内容稳定。
     pub(crate) fn matches(&self, file: &File) -> bool {
         #[cfg(unix)]
         {

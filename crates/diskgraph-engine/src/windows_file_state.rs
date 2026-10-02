@@ -28,6 +28,8 @@ pub(crate) struct WindowsFileState {
 
 impl WindowsFileState {
     /// 从借用句柄查询状态；API/身份不可用时拒绝，不降级为截断的 file ID。
+    /// 参数：file 为调用方持有的原生属性或数据句柄。
+    /// 返回：卷、完整 file ID、版本及属性；API 或身份不可验证时返回 unsupported。
     pub(crate) fn capture(file: &File) -> Result<Self, EngineError> {
         let handle = file.as_raw_handle();
         // 安全性：句柄仍由 File 持有，三块输出有正确类型及精确大小。
@@ -74,6 +76,8 @@ impl WindowsFileState {
     }
 
     /// 判断句柄是否暴露云占位/离线属性；返回 true 时不得申请数据访问。
+    /// 参数：无。
+    /// 返回：观察到离线或回调物化属性时 true；此时不得申请数据访问。
     pub(crate) fn placeholder(&self) -> bool {
         self.attributes
             & (FILE_ATTRIBUTE_OFFLINE
@@ -83,6 +87,8 @@ impl WindowsFileState {
     }
 
     /// 检查属性句柄是否可继续使用；目录重解析与待删除对象明确拒绝。
+    /// 参数：directory 指定期望对象类型。
+    /// 返回：类型、删除状态与重解析门禁通过，或对应业务错误。
     pub(crate) fn validate(&self, directory: bool) -> Result<(), EngineError> {
         if self.directory != directory {
             return Err(EngineError::Business(BusinessError::InvalidArgument));

@@ -171,3 +171,11 @@ SC-06、CT-05、Q-08、RT-06/07、OP-10、ST-05 为本轮验收依据。请求�
 当前线程通过 RAII 暴露占位属性，先只请求 FILE_READ_ATTRIBUTES，再检查文件类型及 reparse/offline/recall 属性，最后才对同一被持有父目录下的普通文件请求 FILE_READ_DATA。属性访问不冻结新 writer，获取期间的改变必须在申请数据前以 Conflict 拒绝；读取时的数据句柄仅共享读取，常规 writer/删除冲突。完整 128 位文件 ID、64 位卷 ID、长度及原生写入/变更时间检查结果是否稳定，不能用截断 ID 或路径重开代替；100ns 是表示单位，不保证各文件系统的实际精度或单调版本。局部模块分别拥有路径规划、原生状态、目录租约和跨平台内容准备，入口不新增业务类型堆积。
 
 共享限制不是对内核/filter 或已有 writable mapping 的普遍冻结；版本检查也不是原子内容快照。FILE_OPEN_NO_RECALL 约束打开步骤，不能据此保证任意真实云 provider 的后续读取无下载。线程模式只覆盖调用线程，不能代表上游 scanner 的所有 worker；动态解析该可选 API，缺导出时返回 Unsupported，避免新增静态导入导致旧宿主 loader 失败。取消/期限在同步获取后及块之间检查，不抢占内核打开/读取。Windows 普通文件与属性/junction 夹具必须在实际原生 CI 通过，真实 provider、Linux 占位保护、写操作保真及移动端继续由 15.2–15.6 单独验收。
+
+### D16 Engine 源码与状态边界
+
+15.12 按 RT-09 整改整个 Engine crate：入口只声明及明确导出，对象含私有记录/trait/alias 每文件一个，生产文件少于 500 行，真实行为按 scope、policy、authorization、jobs、scan execution、retention、revision/history/tree、capacity 等责任组织。保留唯一 Engine 的连接、Mutex、取消/进度状态；既有 public content/live_evidence/verify 路径通过声明与重导出保留，对应类型、真实实现及测试分别归档。原生实现标注实际 Rust 来源，不虚构 Java 对应；每个 pub 方法说明中文用途、参数与返回。
+
+结构迁移不抽新的 Service/Repository owner，不统一不同语义的时钟，也不添加授权或改变可信兼容入口的错误行为。graph→control 持锁顺序、已有 control guard 上的 require_with_control、发布后 collector 的独立结果、每 fence 的新取消 Arc、keeper/ProgressGuard 作用域及 ptr_eq 清理按原方法体保留。必要字段/helper 限于 pub(super) 或同等祖先范围的原 crate 协作权限；子模块迁移后的 crate 内重导出不得新增外部可调用通道。
+
+先以 AST 门禁复现入口/多类型/行数/文档违例，再迁移并复核公开路径、类型/签名/Default/序列化及方法体。结构检查不证明并发授权安全；原行为测试、release 协议与同 SHA 三桌面系统/宿主/制品门禁仍必须实际运行。完成该增量不能替代原生写、真实 provider、移动和生产环境验收。

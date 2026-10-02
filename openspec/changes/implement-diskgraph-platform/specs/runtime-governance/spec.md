@@ -4,6 +4,21 @@
 
 ## ADDED Requirements
 
+### Requirement: RT-09 Maintainable Rust Engine boundaries
+The Engine crate SHALL keep lib.rs and mod.rs to module declarations and explicit reexports. Every production source file SHALL define at most one object, including private records, traits and aliases, and SHALL contain fewer than 500 physical lines. Real implementations SHALL be grouped by responsibility; a file split SHALL NOT introduce placeholder implementations or duplicate state owners. Types SHALL have Chinese documentation with actual native provenance, and public functions/methods SHALL document their parameters and return semantics in Chinese. Production wildcard imports SHALL be absent.
+
+The structural change SHALL preserve existing root exports, the public content/live_evidence/verify module paths, function signatures, tuple aliases, wire fields, error conversions, default values, SQL/JSON constants and observable behavior. Engine SHALL remain the single owner of its graph/control connections, cancellation flags and progress state. Internal visibility MAY change only as needed for the same crate-level collaboration; no new externally accessible fields or helpers SHALL be introduced.
+
+#### Scenario: Production source organization
+- **WHEN** the source-layout gate parses every Engine production module, including modules for other target platforms
+- **THEN** entries contain only declarations/reexports, each file has at most one object and fewer than 500 lines, Chinese contracts are present, and wildcard imports, unmounted source files and empty/placeholder function implementations are rejected
+- **AND** test-only modules are distinguished from production instead of being used to hide production objects
+
+#### Scenario: Structural move preserves runtime contracts
+- **WHEN** Engine implementation and return objects move into responsibility modules
+- **THEN** the existing graph-before-control lock order, same-guard publication/retention authorization, fenced staging/publication, per-generation cancellation flags, progress cleanup and terminal authorization checks remain unchanged
+- **AND** callers compile against the same public paths, the existing behavioral regressions pass, and enabled native platform gates execute at the resulting source SHA
+
 ### Requirement: RT-08 Runner lifetime follows its owner
 The system SHALL stop scheduling at its next admission check when a runner handle is dropped, including a check after a blocking queue read and before each claim. An idle worker SHALL release its Engine and SQLite connections; drop SHALL not block the caller on an in-flight scan. Work already admitted MAY complete under its existing budgets and lease. Explicit stop MAY wait for current cooperative work to complete. This SHALL not be represented as instantaneous cancellation of an active scan.
 

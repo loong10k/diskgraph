@@ -29,3 +29,4 @@ windows-sys = { version = "0.61.2", features = ["Wdk_Foundation", "Wdk_Storage_F
 diskgraph-testkit.workspace = true
 tempfile = "3"
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+syn = { version = "2.0.119", features = ["full", "visit"] }

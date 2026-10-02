@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 /// 扫描进度仅保留活动认领代次，退出和失败时释放，旧 owner 不能污染新代次。
+/// 按 job/fence 的 RAII 清除扫描进度。
+/// 来源：原生 Rust diskgraph-engine::ScanProgressGuard。
 pub(crate) struct ScanProgressGuard<'a> {
     pub(crate) entries: &'a Mutex<HashMap<(String, u64), ScanSnapshot>>,
     pub(crate) key: (String, u64),

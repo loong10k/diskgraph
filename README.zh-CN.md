@@ -210,6 +210,8 @@ flowchart TD
 
 此图概括当前组件调用路径。旧 FFI 签名保留，读取前先由 Engine 核验 snapshot/revision 归属与实时授权，再使用只读连接。底层 store API 属于可信内部兼容入口。平台能力与验证边界见下方加固记录。
 
+Store 与 Engine 入口现只保留声明和稳定导出，实际实现按职责组织，每个生产对象独立文件。Engine 继续唯一持有连接与任务状态，源码拆分没有增加运行时服务层。详见 [Engine 源码边界](crates/diskgraph-engine/README.md#source-boundaries--源码边界)与 [store 源码边界](crates/diskgraph-store/README.md#source-boundaries--源码边界)。
+
 ### 安全与性能加固（2026-10-01）
 
 HTTP 与两种 SSE 均要求认证（包括 loopback），并校验 Origin；请求权限为 token 能力与实时数据库授权的交集。远程启动不授予本地管理员，revision 按实际 server/scope 授权。旧远程主体标识已改为 issuer + subject 的 SHA-256 映射，需要重新授予授权；无法唯一绑定 scope 的旧 revision 拒绝外部读取，需由管理员重新索引。

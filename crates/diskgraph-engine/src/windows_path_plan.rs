@@ -15,6 +15,8 @@ pub(crate) struct WindowsPathPlan {
 
 impl WindowsPathPlan {
     /// 检查注册根和请求路径，返回 drive 根及完整逐组件计划；拒绝 ADS 和逃逸。
+    /// 参数：root/path 为注册根和精确 Windows 本地 drive 路径。
+    /// 返回：drive 根及逐组件计划；ADS、逃逸或不支持路径返回错误。
     pub(crate) fn new(root: &Path, path: &Path) -> Result<Self, EngineError> {
         let (root_drive, root_parts) = parts(root)?;
         let (path_drive, path_parts) = parts(path)?;

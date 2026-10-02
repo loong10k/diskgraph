@@ -9,6 +9,8 @@ use std::collections::HashSet;
 impl Engine {
     /// 按真实 revision 授权读取关系页；字节、边数及期限均适用，返回继续位置。
     #[allow(clippy::too_many_arguments)] // 保持 related 接口并增加分页位置和页大小。
+    /// 参数：revision/entity 指定对象，relation/outgoing 指定过滤，after/limit 指定页；principal/authorizer 绑定请求。
+    /// 返回：关系页 JSON 与继续/截断诊断，或授权、预算、存储错误。
     pub fn related_bounded(
         &self,
         revision: &str,
@@ -34,6 +36,8 @@ impl Engine {
 
     /// 有界解释一个实体，同时读取双向关系和相应证据；未知实体返回 not_found。
     #[allow(clippy::too_many_arguments)] // 解释上下文和继续位置不可互相替代。
+    /// 参数：revision/entity 指定对象，after/limit 指定页，principal/authorizer 为请求身份。
+    /// 返回：实体、关系及证据 JSON；未知对象、预算或授权失败返回错误。
     pub fn explain_bounded(
         &self,
         revision: &str,
