@@ -39,7 +39,8 @@ fn a_fresh_data_directory_accepts_work_when_its_volume_has_headroom() {
 fn digest_never_exceeds_its_budget_or_confirms_a_partial_file() {
     let (dir, engine, principal, scope) = setup();
     engine.set_content_read(&scope, &principal, true).unwrap();
-    let path = dir.path().join("root/file");
+    // 隔离夹具使用注册根的实际名称；Windows runner 的 TEMP 可能含 8.3 别名。
+    let path = dir.path().join("root/file").canonicalize().unwrap();
     let request = InspectionRequest {
         scope_id: &scope,
         principal: &principal,

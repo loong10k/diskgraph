@@ -448,6 +448,11 @@ impl Engine {
                 }
                 _ => {}
             }
+            // 授权或实时策略查询可能等待；耗尽期限后不得再开始一个读取块。
+            if std::time::Instant::now() >= deadline {
+                stopped = Some(InspectionStop::Deadline);
+                break;
+            }
             if let Some(cancel) = request.cancel
                 && cancel.load(std::sync::atomic::Ordering::SeqCst)
             {
@@ -482,6 +487,27 @@ impl Engine {
         }
         if stopped.is_none() && (total != prepared.metadata.len() || !prepared.matches(&file)) {
             stopped = Some(InspectionStop::Unstable);
+        }
+        if stopped.is_none() {
+            // EOF/精确预算和最终元数据查询也可能耗时；包括空文件，确认前重验授权。
+            if self
+                .require(
+                    authorizer,
+                    request.principal,
+                    &diskgraph_core::Permission::ContentRead,
+                    request.scope_id,
+                )
+                .is_err()
+            {
+                stopped = Some(InspectionStop::PermissionRevoked);
+            } else if std::time::Instant::now() >= deadline {
+                stopped = Some(InspectionStop::Deadline);
+            } else if request
+                .cancel
+                .is_some_and(|cancel| cancel.load(std::sync::atomic::Ordering::SeqCst))
+            {
+                stopped = Some(InspectionStop::Cancelled);
+            }
         }
         Ok(DigestOutcome {
             requested_path: request.path.to_path_buf(),

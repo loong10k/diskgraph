@@ -63,6 +63,14 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 - **WHEN** a verification pass exhausts its cumulative byte allowance or deadline
 - **THEN** no new reads begin, in-progress hashing stops between chunks, and incomplete hashes cannot be promoted to confirmed results.
 
+#### Scenario: Authorization wait consumes the deadline
+- **WHEN** native acquisition or current authorization waits until after the digest deadline
+- **THEN** recheck the deadline after authorization and before any new read; return an unconfirmed deadline result with the actual bytes already read, including zero bytes for an empty file.
+
+#### Scenario: Terminal digest confirmation
+- **WHEN** EOF, an exact byte limit, or final identity observation completes a digest
+- **THEN** recheck current authorization, cancellation and the deadline before confirming, including empty files; a stop voids the digest without erasing read costs. Synchronous waits are not hard-preempted, but a late result cannot be confirmed.
+
 #### Scenario: Windows native ordinary file regression
 - **WHEN** a Windows NTFS fixture is inspected under explicit content grants
 - **THEN** bounded ranges and complete digests work, one-byte digests remain unconfirmed, cancellation/deadline and revocation return no confirmed content, and alternate data streams and namespace escapes are refused. A writer present when acquiring data conflicts; mutation during the attribute-only acquisition is rejected as conflict without body/confirmed digest; a writer opened while reading conflicts with the data handle, and the retained parents prevent replacement. Cancellation/deadline are cooperative between native I/O operations, not hard preemption of a synchronous open or read.
