@@ -133,6 +133,25 @@ fn unix_native_bytes_are_not_changed_or_normalized() {
     assert_eq!(git_tool_path::from_native(path).unwrap(), path);
 }
 
+#[test]
+fn context_reports_the_executable_resolution_stage() {
+    use super::ProbeLimits;
+    use super::git_command_context::GitCommandContext;
+    use super::probe_budget::ProbeBudget;
+    let temp = tempfile::tempdir().unwrap();
+    let root = temp.path().canonicalize().unwrap();
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let error = GitCommandContext::new(
+        &root.join("not-present-native-git.exe"),
+        &root,
+        &root,
+        &mut budget,
+    )
+    .err()
+    .unwrap();
+    assert!(error.starts_with("Git executable resolution:"), "{error}");
+}
+
 #[cfg(windows)]
 #[test]
 fn installed_windows_git_pairs_verbatim_and_ordinary_config_paths() {
@@ -220,6 +239,7 @@ fn installed_windows_git_pairs_verbatim_and_ordinary_config_paths() {
         }
     }
     // 生产上下文必须也使用相同表示；不能由独立正向控制掩盖接线缺失。
+    windows_host_path_diagnostics();
     let context = GitCommandContext::new(git.path(), &root, &root, &mut budget).unwrap();
     assert_eq!(
         git_system_configuration::read(&context, &mut budget).unwrap(),
@@ -235,6 +255,100 @@ fn installed_windows_git_pairs_verbatim_and_ordinary_config_paths() {
         before
     );
     assert_eq!(std::fs::read(&empty).unwrap(), b"");
+}
+
+#[cfg(windows)]
+fn windows_host_path_diagnostics() {
+    if let Some(path) = std::env::var_os("PATH") {
+        for entry in std::env::split_paths(&path) {
+            if entry.is_absolute()
+                && let Err(error) = git_tool_path::from_native(&entry)
+            {
+                eprintln!("excluded host shell PATH entry {entry:?}: {error}");
+            }
+        }
+    }
+    let root = std::env::var_os("SystemRoot");
+    eprintln!(
+        "host SystemRoot: {:?}",
+        root.as_ref()
+            .map(|root| (root, git_tool_path::from_native(Path::new(root))))
+    );
+}
+
+#[cfg(windows)]
+#[test]
+fn unsupported_shell_path_entries_do_not_block_fixed_git_printer() {
+    use super::ProbeLimits;
+    use super::git_executable::GitExecutable;
+    use super::probe_budget::ProbeBudget;
+    use std::process::Command;
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let git = GitExecutable::resolve(Path::new("git"), &mut budget).unwrap();
+    let temp = tempfile::tempdir().unwrap();
+    let root = temp.path().canonicalize().unwrap();
+    for name in ["objects", "refs"] {
+        std::fs::create_dir_all(root.join("repo").join(name)).unwrap();
+    }
+    std::fs::write(root.join("repo/HEAD"), b"ref: refs/heads/fixture\n").unwrap();
+    std::fs::write(root.join("empty"), b"").unwrap();
+    // 使用原始 OsString，避免 PathBuf::push 在 verbatim 根上先擦掉点步。
+    let mut invalid = root.as_os_str().to_owned();
+    invalid.push("\\unused\\..\\directory");
+    let mut doubled = root.as_os_str().to_owned();
+    doubled.push("\\unused\\\\directory");
+    let mut directories = vec![
+        std::path::PathBuf::from(invalid),
+        std::path::PathBuf::from(doubled),
+        root.join("unused."),
+        std::path::PathBuf::from("C:\\unused\\file:stream"),
+        std::path::PathBuf::from("."),
+    ];
+    directories.extend(std::env::split_paths(&std::env::var_os("PATH").unwrap()));
+    let output = Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "live_evidence::git_tool_path_tests::filtered_shell_path_child",
+            "--nocapture",
+            "--test-threads=1",
+        ])
+        .env("PATH", std::env::join_paths(directories).unwrap())
+        .env("DG_FILTERED_SHELL_TOOL", git.path())
+        .env("DG_FILTERED_SHELL_ROOT", &root)
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{output:?}");
+    eprintln!("{}", String::from_utf8_lossy(&output.stdout));
+    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+}
+
+#[cfg(windows)]
+#[test]
+fn filtered_shell_path_child() {
+    use super::ProbeLimits;
+    use super::git_command_context::GitCommandContext;
+    use super::git_system_configuration;
+    use super::probe_budget::ProbeBudget;
+    let Some(tool) = std::env::var_os("DG_FILTERED_SHELL_TOOL") else {
+        return;
+    };
+    let root = std::path::PathBuf::from(std::env::var_os("DG_FILTERED_SHELL_ROOT").unwrap());
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    windows_host_path_diagnostics();
+    let context = GitCommandContext::new(Path::new(&tool), &root, &root, &mut budget).unwrap();
+    let filtered = context.shell_path_for_test().unwrap();
+    for path in std::env::split_paths(filtered) {
+        assert!(path.is_absolute(), "{path:?}");
+        assert!(git_tool_path::from_native(&path).is_ok(), "{path:?}");
+    }
+    let host = git_system_configuration::read(&context, &mut budget).unwrap();
+    assert!(host.is_absolute());
+    let before = windows_host_state(&host);
+    assert_eq!(
+        git_system_configuration::read(&context, &mut budget).unwrap(),
+        host
+    );
+    assert_eq!(windows_host_state(&host), before);
 }
 
 #[cfg(windows)]

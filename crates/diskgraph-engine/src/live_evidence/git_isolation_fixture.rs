@@ -1,6 +1,7 @@
 //! Git 隔离回归的原生临时仓库；不接触用户仓库或远端网络。
 
 use super::{GitSample, ProbeLimits, sample_git_bounded};
+use std::collections::BTreeSet;
 use std::fs::{FileTimes, OpenOptions};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
@@ -120,12 +121,17 @@ impl GitIsolationFixture {
 
     /// 对比每项源字节和 mtime，只输出变化路径，避免失败时倾倒全部对象字节。
     /// 参数：before 为采样前哨兵；返回：无，变化或条目增减时断言失败。
+    #[track_caller]
     pub(super) fn assert_metadata_unchanged(&self, before: &[(PathBuf, Vec<u8>, SystemTime)]) {
         let after = self.metadata();
+        let previous_paths: BTreeSet<_> = before.iter().map(|item| item.0.as_path()).collect();
+        let current_paths: BTreeSet<_> = after.iter().map(|item| item.0.as_path()).collect();
+        let added: Vec<_> = current_paths.difference(&previous_paths).collect();
+        let removed: Vec<_> = previous_paths.difference(&current_paths).collect();
         assert_eq!(
             after.len(),
             before.len(),
-            "source metadata entry count changed"
+            "source metadata entry count changed: added={added:?}, removed={removed:?}"
         );
         for (current, previous) in after.iter().zip(before) {
             assert!(

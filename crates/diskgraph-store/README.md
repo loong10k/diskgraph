@@ -78,7 +78,10 @@ flowchart TD
 没有 Java 来源的类型不虚构 Java 映射。新结构不代表平台写操作已验收。
 
 `cargo test -p diskgraph-store --test source_layout` parses production ASTs
-to enforce entry/type/import/documentation boundaries and reject stubs.
+to enforce entry/type/import/documentation boundaries and reject stubs. It also
+rejects production files with 500 or more lines; the current maximum is the
+410-line job store. The limit supports responsibility review rather than
+replacing transaction, compatibility or performance verification.
 Existing isolated tests continue to verify migrations, atomic publication,
 fencing, ownership, retention and bounded queries.
 

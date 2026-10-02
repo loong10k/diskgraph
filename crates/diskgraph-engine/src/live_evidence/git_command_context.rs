@@ -31,10 +31,12 @@ impl GitCommandContext {
         probe: &mut ProbeBudget,
     ) -> Result<Self, String> {
         // 私有及源路径的原生边界保持不变；工具表示不可保真时在 spawn 前拒绝。
-        git_tool_path::from_native(directory)?;
-        git_tool_path::from_native(worktree)?;
+        git_tool_path::from_native(directory)
+            .map_err(|error| format!("Git private directory: {error}"))?;
+        git_tool_path::from_native(worktree).map_err(|error| format!("Git worktree: {error}"))?;
         Ok(Self {
-            tool: GitExecutable::resolve(tool, probe)?,
+            tool: GitExecutable::resolve(tool, probe)
+                .map_err(|error| format!("Git executable resolution: {error}"))?,
             directory: directory.to_owned(),
             worktree: worktree.to_owned(),
             shell_path: trusted_shell_path(probe)?,
@@ -43,7 +45,8 @@ impl GitCommandContext {
                 .map(|root| {
                     git_tool_path::from_native(Path::new(&root)).map(PathBuf::into_os_string)
                 })
-                .transpose()?,
+                .transpose()
+                .map_err(|error| format!("Git SystemRoot: {error}"))?,
         })
     }
 
@@ -51,6 +54,13 @@ impl GitCommandContext {
     /// 参数：worktree 为已核验的工作树；返回：无，不重新解析 PATH。
     pub(super) fn bind_worktree(&mut self, worktree: &Path) {
         self.worktree = worktree.to_owned();
+    }
+
+    #[cfg(all(test, windows))]
+    /// 借用构造时筛选的 shell 搜索路径，只供隔离宿主回归核验。
+    /// 参数：无；返回：筛选后的 PATH，缺少可安全表示的目录时为 None。
+    pub(super) fn shell_path_for_test(&self) -> Option<&OsStr> {
+        self.shell_path.as_deref()
     }
 
     /// 执行固定采样命令，源 config/index/refs 从不成为 Git 元数据入口。
@@ -105,11 +115,16 @@ impl GitCommandContext {
         args: impl Iterator<Item = impl AsRef<OsStr>>,
         bootstrap: bool,
     ) -> Result<Command, String> {
-        let directory = git_tool_path::from_native(&self.directory)?;
-        let worktree = git_tool_path::from_native(&self.worktree)?;
-        let repo = git_tool_path::from_native(&self.directory.join("repo"))?;
-        let index = git_tool_path::from_native(&self.directory.join("repo/index"))?;
-        let empty = git_tool_path::from_native(&self.directory.join("empty"))?;
+        let directory = git_tool_path::from_native(&self.directory)
+            .map_err(|error| format!("Git private directory: {error}"))?;
+        let worktree = git_tool_path::from_native(&self.worktree)
+            .map_err(|error| format!("Git worktree: {error}"))?;
+        let repo = git_tool_path::from_native(&self.directory.join("repo"))
+            .map_err(|error| format!("Git private metadata directory: {error}"))?;
+        let index = git_tool_path::from_native(&self.directory.join("repo/index"))
+            .map_err(|error| format!("Git private index: {error}"))?;
+        let empty = git_tool_path::from_native(&self.directory.join("empty"))
+            .map_err(|error| format!("Git private empty configuration: {error}"))?;
         let mut command = Command::new(self.tool.path());
         command
             .args(["--no-pager", "--no-lazy-fetch", "--no-optional-locks"])
@@ -156,9 +171,12 @@ fn trusted_shell_path(probe: &mut ProbeBudget) -> Result<Option<OsString>, Strin
     let mut directories = Vec::new();
     for directory in std::env::split_paths(&path) {
         probe.check().map_err(|error| error.to_string())?;
-        if directory.is_absolute() {
+        if directory.is_absolute()
+            && let Ok(directory) = git_tool_path::from_native(&directory)
+        {
             // 绝对目录的程序内容仍由宿主信任，不认证管理员可写安装包。
-            directories.push(git_tool_path::from_native(&directory)?);
+            // 不能安全表示的宿主搜索项不进入子进程，不让无关项阻断固定工具。
+            directories.push(directory);
         }
     }
     if directories.is_empty() {

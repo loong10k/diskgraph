@@ -233,11 +233,13 @@ fn source_metadata_is_unchanged_on_success_budget_failure_and_precancel() {
     let fixture = GitIsolationFixture::new("sha1");
     let before = fixture.metadata();
     fixture.sample().unwrap();
+    fixture.assert_metadata_unchanged(&before);
     let limits = ProbeLimits {
         max_output_bytes: 1,
         ..ProbeLimits::default()
     };
     assert!(sample_git_bounded(Path::new("git"), fixture.path(), &limits).is_err());
+    fixture.assert_metadata_unchanged(&before);
     let cancelled = ProbeLimits::default();
     cancelled.cancel.store(true, Ordering::Release);
     assert!(sample_git_bounded(Path::new("git"), fixture.path(), &cancelled).is_err());

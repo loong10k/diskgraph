@@ -76,6 +76,10 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 受控私有目录或已验证工作树在 Windows 使用 verbatim drive 路径，而 Git 的配置、环境、参数或 alternates 不接受该前缀
 - **THEN** 原生身份检查继续使用原路径；工具路径只对无歧义本地 drive 名称进行精确适配，不能 canonicalize 元数据叶、关闭 protectNTFS、继承宿主 Git 配置或将设备/UNC/点步/ADS/不可表示路径规范化成其他对象。实际 Windows 夹具须比较同一文件的原生身份及工具读写行为，普通仓库采样和 linked-worktree 回归仍须通过。
 
+#### Scenario: Unrepresentable shell search entries cannot block the fixed tool
+- **WHEN** 宿主 PATH 同时包含可用的受信工具目录及不能安全表示的其他搜索项
+- **THEN** Git 绝对程序仍只解析一次；子进程 shell PATH 只保留可安全表示的绝对目录，逐项检查取消及期限，不把不支持的搜索项改写为其他目录。缺少必要 shell 或程序时传播真实启动失败；工作树、私有元数据及 SystemRoot 等实际执行路径仍须严格校验，不能以过滤搜索项代替身份或资源检查。
+
 #### Scenario: Captured directories do not accumulate live handles
 - **WHEN** 有界元数据视图捕获多个目录并保留来源复核记录
 - **THEN** 捕获与枚举期间持有安全路径解析所需句柄，记录身份、版本、祖先身份和名单后释放；最终复核重新安全打开并比较，不为每个历史记录长期占用一组目录句柄。
