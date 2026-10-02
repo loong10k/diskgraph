@@ -22,7 +22,7 @@ impl ControlStore {
     pub fn open(path: &Path) -> Result<Self> {
         let connection = Connection::open(path)?;
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        if (1..5).contains(&version) {
+        if (1..6).contains(&version) {
             let backup_dir = path
                 .parent()
                 .unwrap_or(Path::new("."))
@@ -38,7 +38,13 @@ impl ControlStore {
                 rusqlite::MAIN_DB,
                 backup_dir.join(format!(
                     "{name}.pre-v{}.bak",
-                    if version < 4 { 4 } else { 5 }
+                    if version < 4 {
+                        4
+                    } else if version < 5 {
+                        5
+                    } else {
+                        6
+                    }
                 )),
                 None,
             )?;
@@ -68,7 +74,7 @@ impl ControlStore {
         // migration runs, so a fresh database walks exactly the same path an
         // older file would and never skips a step.
         let mut version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        if !(0..=5).contains(&version) {
+        if !(0..=6).contains(&version) {
             return Err(StoreError::UnsupportedSchema(version));
         }
         if version == 0 {
@@ -134,7 +140,11 @@ impl ControlStore {
             connection.execute_batch("BEGIN IMMEDIATE; ALTER TABLE jobs ADD COLUMN cancel_requested INTEGER NOT NULL DEFAULT 0; PRAGMA user_version = 5; COMMIT;")?;
             version = 5;
         }
-        debug_assert_eq!(version, 5, "every control migration must have run");
+        if version < 6 {
+            Self::migrate_authorization_generation(&connection)?;
+            version = 6;
+        }
+        debug_assert_eq!(version, 6, "every control migration must have run");
         Ok(Self { connection })
     }
 

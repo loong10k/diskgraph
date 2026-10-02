@@ -25,6 +25,7 @@ use diskgraph_store::{
 
 mod collectors;
 pub mod content;
+mod control_access;
 pub mod live_evidence;
 mod queries;
 mod relation_queries;

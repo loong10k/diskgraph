@@ -155,8 +155,16 @@ fn v4_jobs_migrate_to_persistent_cancellation_with_backup() {
         .unwrap();
     drop(first);
     let connection = rusqlite::Connection::open(&path).unwrap();
+    // 夹具必须真实退回 v4 的结构，而非只伪造 user_version 留下 v6 对象。
+    for table in ["policy", "grants", "scopes"] {
+        for event in ["insert", "update", "delete"] {
+            connection
+                .execute_batch(&format!("DROP TRIGGER auth_generation_{table}_{event};"))
+                .unwrap();
+        }
+    }
     connection
-        .execute_batch("ALTER TABLE jobs DROP COLUMN cancel_requested; PRAGMA user_version = 4;")
+        .execute_batch("DROP TABLE authorization_state; ALTER TABLE jobs DROP COLUMN cancel_requested; PRAGMA user_version = 4;")
         .unwrap();
     drop(connection);
     let mut migrated = ControlStore::open(&path).unwrap();

@@ -315,7 +315,15 @@ fn migration_preserves_a_live_legacy_running_lease() {
     let claimed = store.claim_job(&job.job_id, "old-owner").unwrap();
     drop(store);
     let connection = rusqlite::Connection::open(&path).unwrap();
-    connection.execute_batch("ALTER TABLE jobs DROP COLUMN cancel_requested; ALTER TABLE jobs DROP COLUMN lease_expires_unix_ms; ALTER TABLE jobs DROP COLUMN fencing_token; PRAGMA user_version=3;").unwrap();
+    // 从最新结构制作真实 v3 夹具，移除之后所有版本增加的对象。
+    for table in ["policy", "grants", "scopes"] {
+        for event in ["insert", "update", "delete"] {
+            connection
+                .execute_batch(&format!("DROP TRIGGER auth_generation_{table}_{event};"))
+                .unwrap();
+        }
+    }
+    connection.execute_batch("DROP TABLE authorization_state; ALTER TABLE jobs DROP COLUMN cancel_requested; ALTER TABLE jobs DROP COLUMN lease_expires_unix_ms; ALTER TABLE jobs DROP COLUMN fencing_token; PRAGMA user_version=3;").unwrap();
     drop(connection);
     let mut upgraded = ControlStore::open(&path).unwrap();
     let migrated = upgraded.job(&job.job_id).unwrap();

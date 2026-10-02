@@ -13,6 +13,7 @@ use diskgraph_engine::{Engine, EngineConfig, EngineError, admin_scope};
 use serde_json::{Value, json};
 
 pub mod auth;
+mod bounded_json_writer;
 #[cfg(test)]
 mod children_cursor_tests;
 mod client_address;
@@ -21,6 +22,14 @@ pub mod doctor;
 pub mod http;
 pub mod install;
 pub mod legacy;
+mod legacy_delivery_error;
+mod legacy_delivery_registry;
+mod legacy_delivery_session;
+mod legacy_delivery_state;
+mod legacy_frame;
+mod legacy_reservation;
+mod legacy_session_receiver;
+mod legacy_transport;
 pub mod protocol;
 mod rate_limit_state;
 mod rate_limiter;

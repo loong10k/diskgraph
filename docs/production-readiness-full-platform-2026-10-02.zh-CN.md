@@ -72,4 +72,16 @@ f57aa40 的 release 二进制通过 stdio 18/18、HTTP/SSE 13/13 与四进程负
 
 旧 `http::RateLimiter` 与 `http::observed_client_ip` 公开路径保留，新增实现每类型独立文件并使用中文原生来源说明。六项新回归先红后绿，完整 workspace 为 590 passed / 13 ignored；Clippy `-D warnings`、定向 fmt、OpenSpec strict、上游 pin/一致性回归通过，vendor 源码与摘要未变。release CLI/MCP/FFI 构建、stdio 18/18 与 HTTP/SSE 13/13 通过。独立代码与架构复审已批准并关闭重复 XFF 阻断；代码审查者独立重跑六项回归、两项 framing/header-budget 及外部重复头 socket 探针。[源码提交 9fefc78 的同 SHA 22/22 原生 CI](https://github.com/loong10k/diskgraph/actions/runs/36997233647)全部通过；Windows stable 与 1.97.0 日志逐项记录六项新回归通过、MCP 105 passed。15.9 按此限定行为完成，全平台 15.2–15.6 的其余能力仍未完成。
 
-后续隔离认证 socket 探针发现另一独立缺口：`max_response_bytes=128` 时 legacy tools/list 仍投递 7511 字节，`serve_legacy_post` 没有经过现代 HTTP 的结果字节门禁；legacy 待发送队列只有 64 条计数，没有累计字节预算。该探针使用临时数据库、远程模式、有效签名 token 与可信夹具显式 grant，stdout 仅输出字节数，断言失败；并不证明发生了实际 OOM。此项列为 15.10，要求预算/拥塞/关闭释放的回归和真实传输验收，仍未实现，因此 MCP-06 总体状态恢复为 partial。旧阶段有限协议全绿不覆盖这一新边界。
+后续隔离认证 socket 探针发现另一独立缺口：`max_response_bytes=128` 时 legacy tools/list 仍投递 7511 字节，原分发绕过现代 HTTP 结果字节门禁，待发送队列只有 64 条计数。临时数据库探针复现了断言失败，并不证明发生实际 OOM。修复及验收记录如下，不从旧阶段协议成功推导该边界已通过。
+
+## Legacy 投递与实时授权（MCP-05/06 / 15.10）
+
+远程 legacy 投递现使用私有预留注册表。在应答或执行工具之前，按配置的最坏响应加 22 字节 SSE 包装预留，每会话最多 64 条/16 MiB、每监听器共 64 MiB，覆盖执行、编码、排队和分块写入。容量耗尽在副作用前返回 HTTP 429，单次预留无法容纳时返回 413；默认最大响应下每会话最多三个、监听器最多十五个最坏预留。编码后缩减为实际 UTF-8 wire 字节，队列/在途/已关闭会话的预留在完成或 Drop 时退款；断线后仍在执行的工作保留占额直到退出。远程路径不暴露裸 sender；旧 `SessionRegistry` 只保留为可信内部兼容 API。
+
+共用 JSON writer 在序列化时拒绝超量输出。Legacy 超限返回保留原请求 ID 的完整 `response_too_large` JSON-RPC 错误；连这一关联错误也无法容纳时，在执行前返回 HTTP 413。同一认证探针现通过：**128 字节限制下，结果从 7511 降为 79 payload 字节**。现代 HTTP 共用有界 writer，原错误状态及 wire 字段保留。预算不覆盖工具已构造的 `serde_json::Value`、分配器开销、内核缓冲，也不构成严格 RSS 上限；固定小型传输诊断另有明确最小开销。
+
+控制库 v6 用事务触发器维护 policy/grant/scope 的独立授权 generation，不依赖 policy epoch，任务/操作更新不使流失效。结果记录其 generation；分块写入之间检查 token 到期及窄读 generation，任何授权变更都会保守关闭旧结果流，包括无关 grant 的变化。共享 Engine 锁采用非阻塞尝试，SQLite 执行和锁等待使用剩余绝对写入期限，实际 socket 写入前再次检查期限。helper 还原真实原 busy_timeout，并清除自身执行回调。独立审查先复现旧 bug：100 ms 期限遇到 300 ms 控制锁仍发送私有字节；修复后探针于 100.2645 ms 超时且发送零字节。这是一次观测，不是端到端 SLA；外层完整授权检查仍可能等待策略访问，撤权也无法收回内核已接受的字节。
+
+v5→v6 升级先做一致性 pre-v6 备份，再原子迁移。失败注入回归确认回滚、原策略数据保留及备份存在；跨连接授权变更、保留另一 scope 权限时的单项撤销、重复/回滚变更和 generation 溢出均有回归。升级前须停止旧服务/宿主，迁移不会修复正在运行的旧传输代码，不承诺混合版本滚动安全。Store 的 `lib.rs` 当前为 94 行，仍只声明和重导出；授权计数逻辑位于独立文件。
+
+本机 workspace 为 **614 passed / 0 failed / 13 ignored**；Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过。release stdio 18/18、认证 HTTP/SSE 13/13、隔离四进程负载 4/4。[新增原始负载数据](benchmarks/legacy-delivery-load-2026-10-02.json)为 20k 文件扫描 0.541 秒、32 次 top/children 查询 p50 11.973 ms/p95 16.864 ms、数据库/WAL 37,449,728 字节；本次不据此宣称提速或生产 SLO。独立代码和架构复审批准本增量，包含外部序列化及锁/撤权探针。新 SHA 仍待原生 CI，15.10 与 MCP-06 在该门禁前保持未完成；15.2–15.6 仍有未完成能力。

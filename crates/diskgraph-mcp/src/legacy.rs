@@ -7,6 +7,10 @@
 //! transport: it is disabled by default, it shares no routing with `/mcp`, and
 //! it answers the same service under the same authorization — a tool that is
 //! refused over the modern transport is refused here too.
+//!
+//! `SessionRegistry` is a trusted in-process compatibility API. Its raw
+//! sender has a message-count cap only; remote HTTP uses the private
+//! `LegacyDeliveryRegistry` and cannot reach this bypass of byte admission.
 
 use std::collections::HashMap;
 use std::sync::mpsc;

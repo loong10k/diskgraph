@@ -73,6 +73,36 @@ the tools it serves; catalog families this build does not implement answer
   spellings are canonicalized; forwarding never establishes a principal.
 - Connection identity and business job ids are separate, so a
   disconnected client can reconnect and still query its job.
+- Legacy delivery reserves capacity before 202 and tool execution: 64 messages
+  and 16 MiB per session, 64 MiB across one listener, including pending tools,
+  encoding, queued frames and writes. A reservation starts at the configured
+  response limit plus 22 SSE framing bytes and shrinks to actual encoded bytes.
+  Admission refuses congestion with 429. A single reservation above 16 MiB, or
+  a budget unable to fit a JSON-RPC error with the original request id, gets
+  413 before execution. Oversized tool results become a bounded JSON-RPC
+  `response_too_large` error. Small HTTP refusal diagnostics have a fixed size
+  even when a configured budget is too small to carry any protocol error.
+  The default 4 MiB limit admits at most three simultaneous worst-case
+  reservations per session and fifteen per listener; smaller encoded frames
+  free the difference. Queued-byte budgets do not cover tool-internal `Value`
+  memory, allocator overhead, kernel socket buffers or a strict RSS limit.
+- Legacy data writes retry partial nonblocking progress under one absolute
+  `read_timeout` deadline, including control-lock admission and SQLite reads.
+  Each chunk rechecks token expiry and the persistent authorization generation;
+  policy, grant or scope changes conservatively close older result streams,
+  including unrelated subjects' changes. Job heartbeats do not invalidate them.
+  Reconnect after closure and query durable job state; bytes already handed to
+  the kernel cannot be retracted. Outer idle liveness checks may wait on policy
+  access, so this is not a strict one-second revocation/cleanup SLA. Receiver
+  closure frees queued frames; pending tool reservations remain charged until
+  their work exits. Admission-after-disconnect races close and log the session.
+  The public raw `legacy::SessionRegistry` remains a trusted internal
+  compatibility interface and is never used by remote HTTP.
+- Stop existing services and hosts before upgrading to control schema 6. The
+  upgrade has a SQLite consistent backup and transactional triggers; an older
+  program rejects the new schema when reopening. A surviving old connection
+  does not acquire these transport fixes automatically. This is not a rolling
+  mixed-version security upgrade.
 - The server is read-only in every profile this build ships.
 
 ## License

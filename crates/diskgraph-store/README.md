@@ -44,11 +44,20 @@ let mut store = SqliteSnapshotStore::open(Path::new("/tmp/diskgraph/diskgraph.sq
 
 ## Source boundaries / 源码边界
 
-`lib.rs` is 93 lines, down from 3,247, and only declares modules and reexports
+`lib.rs` is 94 lines, down from 3,247, and only declares modules and reexports
 the existing API. Each record,
 enum and row type has its own file. The two original stores still own their
 connections; implementation modules share that ownership and preserve the
 existing SQL, transaction boundaries, wire fields and error behavior.
+
+Control schema 6 adds a separate `authorization_generation()` counter maintained
+transactionally by policy/grant/scope triggers. It changes on individual grant
+revocation even when the policy epoch is unchanged; job heartbeat writes leave
+it alone. `authorization_generation_until()` bounds SQLite lock/execution time,
+restores the actual `busy_timeout` and owns/clears its internal progress callback.
+Stop old services before migration; existing old connections are not upgraded
+transport implementations. v5 upgrades have a consistent pre-v6 backup, and
+failed migration rolls back the new objects without enabling a v6 store.
 
 ```mermaid
 flowchart TD

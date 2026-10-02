@@ -1,0 +1,19 @@
+{
+  "version": "diskgraph 0.3.0",
+  "platform": "darwin",
+  "files": 20000,
+  "queries": 32,
+  "concurrent_clients": 4,
+  "scan_seconds": 0.541,
+  "query_p50_ms": 11.973,
+  "query_p95_ms": 16.864,
+  "database_and_wal_bytes": 37449728,
+  "passed": 4,
+  "total": 4,
+  "checks": {
+    "full_index_published": true,
+    "concurrent_reads_bound_to_revision": true,
+    "query_results_bounded": true,
+    "node_budget_refuses_partial_publish": true
+  }
+}

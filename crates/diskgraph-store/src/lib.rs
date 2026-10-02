@@ -3,6 +3,7 @@
 mod approval;
 mod approval_row;
 mod approval_store;
+mod authorization_generation;
 mod candidate_query;
 mod candidate_selection;
 mod collector_store;

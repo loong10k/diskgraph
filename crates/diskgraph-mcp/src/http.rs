@@ -10,7 +10,6 @@
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, ErrorKind, Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
@@ -480,19 +479,23 @@ fn handle_post(
         );
     }
     let response = service.handle(&decoded);
-    let mut http = HttpResponse::json(200, response);
+    let Some(body) =
+        crate::bounded_json_writer::BoundedJsonWriter::encode(&response, limits.max_response_bytes)
+    else {
+        return HttpResponse::json(
+            500,
+            json!({"error":"response_too_large", "limit":limits.max_response_bytes}),
+        );
+    };
+    let mut http = HttpResponse {
+        status: 200,
+        content_type: "application/json",
+        body,
+        session: None,
+    };
     // The session header lets a client resume; the business state it points at
     // is durable in the control store, not in this process.
     http.session = Some(session_for(&decoded.id));
-    if http.body.len() > limits.max_response_bytes {
-        return HttpResponse::json(
-            500,
-            json!({
-                "error": "response_too_large",
-                "limit": limits.max_response_bytes,
-            }),
-        );
-    }
     http
 }
 
@@ -795,7 +798,7 @@ pub fn serve_config(
 
     let limits = config.limits;
     let security = config.security;
-    let registry = crate::legacy::SessionRegistry::new();
+    let legacy_transport = crate::legacy_transport::LegacyTransport::new(limits);
     let shared_service = Arc::new(service);
     let sse_counts = Arc::new(Mutex::new(std::collections::HashMap::new()));
     let shared_log = Arc::new(Mutex::new(log));
@@ -841,7 +844,7 @@ pub fn serve_config(
         let active = Arc::clone(&active);
         let handled = Arc::clone(&handled);
         let security = security.clone();
-        let registry = registry.clone();
+        let legacy_transport = legacy_transport.clone();
         let legacy_sse = config.legacy_sse;
         std::thread::spawn(move || {
             let _release_slot = ReleaseSlot(active);
@@ -966,9 +969,8 @@ pub fn serve_config(
                     && request.method == "GET"
                     && request.path == crate::legacy::LEGACY_SSE_PATH
                 {
-                    serve_legacy_sse(
+                    legacy_transport.serve_stream(
                         &mut stream,
-                        &registry,
                         stream_identity.as_ref(),
                         &shared_service,
                         &shared_log,
@@ -985,10 +987,9 @@ pub fn serve_config(
                         );
                         continue;
                     }
-                    if serve_legacy_post(
+                    if legacy_transport.post(
                         &mut stream,
                         &request,
-                        &registry,
                         &security,
                         &shared_service,
                         &shared_log,
@@ -1121,86 +1122,8 @@ impl ServerConfig {
     }
 }
 
-/// Holds one legacy SSE connection: sends the endpoint event, then forwards
-/// session messages until the client goes away.
-fn serve_legacy_sse(
-    stream: &mut TcpStream,
-    registry: &crate::legacy::SessionRegistry,
-    identity: Option<&crate::auth::AuthenticatedPrincipal>,
-    service: &McpService,
-    log: &Arc<Mutex<impl Write + Send>>,
-) {
-    use std::io::ErrorKind;
-    let (session_id, receiver) =
-        registry.open_bound(identity.map(|identity| identity.principal.as_str().to_owned()));
-    let head = "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nCache-Control: no-cache\r\nConnection: keep-alive\r\n\r\n";
-    if stream.write_all(head.as_bytes()).is_err()
-        || stream
-            .write_all(crate::legacy::endpoint_event(&session_id).as_bytes())
-            .is_err()
-    {
-        registry.close(&session_id);
-        return;
-    }
-    let _ = stream.flush();
-    if stream.set_nonblocking(true).is_err() {
-        registry.close(&session_id);
-        return;
-    }
-    // Liveness: a client that vanishes is detected by the write failing after
-    // a channel message, or by the periodic keep-alive when the stream idles.
-    let keepalive = Duration::from_secs(1);
-    loop {
-        if identity.is_some_and(|identity| !stream_identity_valid(service, identity)) {
-            break;
-        }
-        match receiver.recv_timeout(keepalive) {
-            Ok(frame) => {
-                if stream.write_all(frame.as_bytes()).is_err() || stream.flush().is_err() {
-                    break;
-                }
-            }
-            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-                if stream
-                    .write_all(crate::legacy::keepalive_event().as_bytes())
-                    .is_err()
-                {
-                    break;
-                }
-                let _ = stream.flush();
-            }
-            Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
-        }
-        // The channel wait above supplies the idle tick; probing the socket
-        // without blocking keeps revocation and expiry checks timely.
-        let mut probe = [0u8; 1];
-        match stream.peek(&mut probe) {
-            Ok(0) => break,
-            Err(error) if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => {}
-            Err(error) => {
-                if std::env::var("DISKGRAPH_LEGACY_DEBUG").is_ok() {
-                    eprintln!("[legacy-debug] peek error: {error}");
-                }
-                break;
-            }
-            Ok(n) => {
-                if std::env::var("DISKGRAPH_LEGACY_DEBUG").is_ok() {
-                    eprintln!("[legacy-debug] peek readable: {n} bytes");
-                }
-            }
-        }
-    }
-    registry.close(&session_id);
-    let _ = log.lock().map(|mut log| {
-        let _ = writeln!(
-            log,
-            "{}",
-            log_line("legacy_session_closed", &[("session", &session_id)])
-        );
-    });
-}
-
-fn stream_identity_valid(
+/// 检查流身份是否到期或完全撤权；参数为共享服务与认证主体，返回实时可用性。
+pub(crate) fn stream_identity_valid(
     service: &McpService,
     identity: &crate::auth::AuthenticatedPrincipal,
 ) -> bool {
@@ -1209,131 +1132,6 @@ fn stream_identity_valid(
         .map(|time| time.as_secs())
         .unwrap_or(u64::MAX);
     now < identity.expires_at_unix_seconds && service.identity_is_live(identity)
-}
-
-/// Handles one legacy message POST: validate, acknowledge with 202, then
-/// deliver the response on the session's SSE stream. Returns false when the
-/// connection should close.
-fn serve_legacy_post(
-    stream: &mut TcpStream,
-    request: &HttpRequest,
-    registry: &crate::legacy::SessionRegistry,
-    security: &Security,
-    shared_service: &Arc<McpService>,
-    _log: &Arc<Mutex<impl Write + Send>>,
-) -> bool {
-    if security.policy.origin_decision(request.header("origin")) == OriginDecision::Refused {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(403, json!({"error":"forbidden_origin"})),
-        );
-        return true;
-    }
-    let identity = if let Some(authenticator) = &security.authenticator {
-        match authenticator.authenticate(token_from_headers(&request.headers).as_deref()) {
-            Ok(identity) => Some(identity),
-            Err(failure) => {
-                let _ = write_response(stream, &unauthorized(failure));
-                return true;
-            }
-        }
-    } else if shared_service.context.trusted_local() {
-        None
-    } else {
-        let _ = write_response(stream, &unauthorized(AuthFailure::Missing));
-        return true;
-    };
-    let Some(session_id) = request.query_param("session_id") else {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(400, json!({"error":"missing_session_id"})),
-        );
-        return true;
-    };
-    if registry.lookup(&session_id).is_none() {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(404, json!({"error":"unknown_session"})),
-        );
-        return true;
-    }
-    let Some(sender) = registry.lookup_bound(
-        &session_id,
-        identity
-            .as_ref()
-            .map(|identity| identity.principal.as_str()),
-    ) else {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(403, json!({"error":"session_principal_mismatch"})),
-        );
-        return true;
-    };
-    // Validate before acknowledging: a malformed message gets 400, not a
-    // silent 202 with nothing on the stream.
-    let value: Result<serde_json::Value, _> = serde_json::from_str(request.body.trim());
-    match value {
-        Ok(value) if value.is_array() => {
-            let _ = write_response(
-                stream,
-                &HttpResponse::json(
-                    400,
-                    protocol_error(
-                        serde_json::Value::Null,
-                        -32600,
-                        "batched requests are not supported; send one message per POST",
-                    ),
-                ),
-            );
-            return true;
-        }
-        Ok(_) => {}
-        Err(error) => {
-            let _ = write_response(
-                stream,
-                &HttpResponse::json(
-                    400,
-                    protocol_error(
-                        serde_json::Value::Null,
-                        -32700,
-                        &format!("parse error: {error}"),
-                    ),
-                ),
-            );
-            return true;
-        }
-    }
-    let Ok(decoded) = crate::protocol::decode_request(request.body.trim()) else {
-        let _ = write_response(
-            stream,
-            &HttpResponse::json(
-                400,
-                protocol_error(serde_json::Value::Null, -32600, "malformed frame"),
-            ),
-        );
-        return true;
-    };
-    // The legacy protocol acknowledges first and answers on the stream.
-    let accepted = "HTTP/1.1 202 Accepted\r\nContent-Length: 0\r\n\r\n";
-    if stream.write_all(accepted.as_bytes()).is_err() || stream.flush().is_err() {
-        return false;
-    }
-    let response = {
-        let mut service = shared_service.as_ref().clone();
-        if let Some(identity) = &identity {
-            service
-                .for_transport_identity(identity, "legacy_sse")
-                .handle(&decoded)
-        } else {
-            service.handle(&decoded)
-        }
-    };
-    let payload = serde_json::to_string(&response).unwrap_or_default();
-    // A dead session answers the POST with what it can: the client learns the
-    // stream is gone on its next read, which is the legacy protocol's own
-    // disconnect semantics.
-    let _ = sender.try_send(crate::legacy::message_event(&payload));
-    true
 }
 
 /// Drops the connection cap slot when the connection thread ends.
