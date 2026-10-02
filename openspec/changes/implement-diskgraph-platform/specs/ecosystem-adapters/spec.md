@@ -64,6 +64,22 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 仓库配置提供 fsmonitor、clean/process filter 或其他外部程序能力
 - **THEN** 只读 Git 采样必须使用不执行这些程序的受限配置或明确拒绝；配置检查后的竞态不得恢复外部执行，不能仅按命令名称声称离线。
 
+#### Scenario: Git preparation uses the same boundary
+- **WHEN** 为采样定位元数据、解析配置或检查 index 依赖
+- **THEN** 准备阶段同样遵守整次期限、取消及资源预算，从首次工具调用关闭 pager、继承 trace/loader 配置、懒取与可选写入；原 index 不得交给可能执行 fsmonitor 或刷新 shared index 的准备命令。复制的配置作为数据解析，不调用原配置程序。
+
+#### Scenario: Private Git view preserves status semantics
+- **WHEN** 私有元数据视图关闭外部程序或遇到属性、忽略、行尾、index、子模块或引用后端的特殊语义
+- **THEN** 保留能可靠验证的状态语义；不能可靠保持的条件明确拒绝，不能删去 filter、忽略子模块或默认格式后返回正常 clean/dirty。原仓库配置及元数据的后续替换不得重新进入私有执行配置。
+
+#### Scenario: Racy index timestamp is copied faithfully
+- **WHEN** 工作文件同长度修改后恢复 mtime，且原 index 时间要求 Git 重新读取内容
+- **THEN** 私有 index 仍发现该修改；复制字节后保留并通过句柄读回确认原 index 的高精度 mtime。无法表达时明确拒绝或使用另经原生验收的保守重验策略，不能用复制完成时间或零时间假定等价。
+
+#### Scenario: Git sampling leaves source metadata unchanged
+- **WHEN** 采样普通、特殊或缺对象的仓库，以及准备失败、超限或取消
+- **THEN** 不执行仓库 filter/fsmonitor/远端 helper，不产生联网或原 index/config/refs/logs/对象时间及 lock 文件写入；使用受控哨兵和源数据前后核验验收。元数据复核只是变化检测，不得称为原子仓库快照或严格 RSS 上限。
+
 #### Scenario: Unborn or failed Git observation
 - **WHEN** 仓库尚无提交但存在未跟踪或暂存文件，或 HEAD/upstream 查询因预算、取消、I/O 或格式错误失败
 - **THEN** 尚无提交时仍报告实际修改；探针失败不得降级成没有提交、没有 upstream 或零计数。

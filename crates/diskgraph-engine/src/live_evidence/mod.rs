@@ -2,6 +2,8 @@
 
 mod fs_event;
 mod fs_event_kind;
+#[cfg(test)]
+mod git_execution_policy_tests;
 mod git_output;
 mod git_references;
 mod git_reflog_file;

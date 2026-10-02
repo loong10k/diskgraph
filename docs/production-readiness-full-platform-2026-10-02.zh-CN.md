@@ -162,3 +162,15 @@ stash 存在时仅支持 files 后端。Git 只定位 metadata common 根，代�
 源码 `9f83a647f3d4864b6ffaa797c3e14b7c8fa125dd` 的[首轮原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37054669648)为 **20/22 项通过**。Windows 两个 Rust 版本的测试通过，但 stable Clippy 拒绝用绝对分隔符 join 构造根路径；修复按原生 Prefix/RootDir 组件构造，并明确拒绝驱动器相对路径。macOS Intel 取消隔离测试的未取消子进程退出码为 88，来自夹具的三秒 watchdog；有限次 sleep 不能保证在负载下及时结束，后续改为父进程确认另一采样已取消并清理后才释放独立子进程的握手。此失败未证明跨采样误杀，修复仍须真实验证正常退出与隔离，不能删除 watchdog 或取消断言。最终源码的原生 CI 继续是验收门禁，15.13c 尚未完成。
 
 CI 修复后的最终本机门禁仍为 **701 passed / 0 failed / 13 ignored**；完整 Clippy、定向 fmt、OpenSpec strict 和 release 构建通过，当前 release 协议为 stdio 18/18、HTTP/legacy SSE 13/13，14 份上游摘要一致。取消隔离测试移入独立文件，原自执行子进程路径保留，各文件少于 500 行；A/B 专用夹具有独立十秒 watchdog、八秒 runner 预算，清理后首次完整心跳与后续严格递增分别有有限等待，未知不以零值兜底。Windows 根组件回归须等待实际 Windows CI，本机未执行不计通过。Git 配置隔离及全平台其余门禁保持未完成。
+
+源码 `d699ff9c4397c1b8aac6d793198dd5d8d7325a45` 的[同源码原生 CI 全部 22 项通过](https://github.com/loong10k/diskgraph/actions/runs/37057731602)，无 skipped 项。Windows stable 与 Rust 1.97.0 日志逐项确认两项根组件回归与取消隔离通过，各为 Engine 单元 **103 passed / 0 failed**；stable Clippy 通过。macOS Intel Engine 单元 **110 passed / 0 failed**，新取消隔离回归通过；Intel 原生包的实际 archive、升级/回退与打包后二进制验收也通过。15.13c 按 Git 可观察语义完成；这不是后续配置执行限制、私有视图或全平台验收证明。
+
+## Git 懒取和可选写入限制（EC-04 / 15.13d1，2026-10-03）
+
+在唯一命令入口固定前置 `--no-pager --no-lazy-fetch --no-optional-locks`，所有 HEAD、status、stash 及 upstream 命令采用同一策略，保留公开签名、原环境、整次期限/累计字节/取消与错误传播。对象不在本地时拒绝，不能由 Git 自动向 promisor remote 获取；普通 full index 的可选 stat 刷新不落盘。旗标与现有 Git 2.46 最低版本兼容，见 [官方参数契约](https://git-scm.com/docs/git/2.46.0)。
+
+两项真实 RED 分别确认旧采样修改了内容未变文件的 index 字节、触发缺失 HEAD 的本地 remote-ext helper。后者先由直接 cat-file 实证 helper 能实际启动，再清除 marker 测试采样，只有受控测试程序写标记并退出，没有实际远端联网。固定旗标后两项与专用 helper fixture 3/3 通过；保留普通 dirty=0、index 字节/mtime 与最终无 lock 断言。原错误/信号夹具明确检查并移除固定前置旗标，非法 OID/计数、HEAD 变化和异常退出断言保留。独立代码复审通过 policy 3/3、resource 3/3、semantics 19/19；架构复审通过全部 Git 47/47。当前本机 workspace **704 passed / 0 failed / 13 ignored**、实时证据 86/86，Clippy 与格式通过；release/协议与新源码原生结果须继续记录，15.13d1 未勾选。
+
+该子项不阻止仓库 filter/fsmonitor，也不阻止 Git 读取 split index 时刷新 shared index 时间；不认证无其他源 metadata 写入、完整离线或只读执行。D20 私有视图仍须实现。真实审查还复现较新私有 index mtime 导致假 clean，精确保留原 mtime 才恢复修改观察；不能以关闭危险配置后返回假状态替代安全实现。父项 15.13、8.7 及原生写/provider/移动设备/签名/生产 soak 门禁保持未完成，不新增 p50/p95/RSS 或提速声明。
+
+最终 release CLI/MCP/FFI 构建与当前 release stdio 18/18、HTTP/legacy SSE 13/13 通过，OpenSpec strict 与 14 份上游摘要核对通过，vendor pin/源码不变。新源码原生 CI 仍待执行，15.13d1 继续未勾选。禁止源 stat 缓存的可选更新可能增加后续重复内容检查，该性能取舍尚未测量，不能宣称优化了延迟。

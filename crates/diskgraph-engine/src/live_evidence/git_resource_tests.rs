@@ -69,7 +69,7 @@ fn signal_fixture_writer() {
     };
     let quoted_marker = format!("'{}'", marker.replace('\'', "'\"'\"'"));
     let source = format!(
-        "#!/bin/sh\ncase \"$*\" in\n 'rev-parse --verify --quiet HEAD^{{commit}}') {head};;\n 'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n 'check-ref-format '*) :;;\n 'show-ref --exists refs/stash') exit 2;;\n 'status --porcelain=v1 -z --untracked-files=all'|'stash list --format=%H') :;;\n 'for-each-ref --format=%(refname)%00%(objectname)%00%(upstream)%00 -- refs/heads/main') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
+        "#!/bin/sh\n[ \"$1\" = '--no-pager' ] && [ \"$2\" = '--no-lazy-fetch' ] && [ \"$3\" = '--no-optional-locks' ] || exit 64\nshift 3\ncase \"$*\" in\n 'rev-parse --verify --quiet HEAD^{{commit}}') {head};;\n 'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n 'check-ref-format '*) :;;\n 'show-ref --exists refs/stash') exit 2;;\n 'status --porcelain=v1 -z --untracked-files=all'|'stash list --format=%H') :;;\n 'for-each-ref --format=%(refname)%00%(objectname)%00%(upstream)%00 -- refs/heads/main') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
     );
     std::fs::write(&program, source).unwrap();
     std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o700)).unwrap();

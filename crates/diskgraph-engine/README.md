@@ -132,6 +132,12 @@ enumeration is explicitly unsupported. Terminal reference/version checks detect
 changes but do not form an atomic Git snapshot. Native acceptance for this
 semantic increment is recorded separately in the full-platform evidence.
 Git configuration isolation and offline/read-only execution remain outstanding.
+Every sampling command disables the pager, lazy object fetching and optional
+lock-based updates. Missing objects fail rather than invoking a promisor remote.
+This does not prevent repository filters/fsmonitor or split-index timestamp
+refreshes; those still require the private configuration/metadata view.
+Skipping persisted stat refreshes can repeat content checks in later samples;
+no performance improvement is claimed for this policy.
 
 占用采样保留正向观察并报告 partial；空结果、转义/标注名称或无法确认的身份不说明无人使用。
 原生字节键不等于文件句柄/PID 启动身份。新增有界采样入口共用整次期限、取消和
@@ -145,6 +151,9 @@ stash 存在时仅支持可核验的 files 后端：共用整次预算读取原�
 及完整逆序列表；reftable 明确拒绝。日志路径来自 Git common 根与固定后缀，
 合法 drop/delete/expiry 和明确缺日志保留可见列表语义。末段版本复核不是 Git 原子快照。
 Git 配置隔离、离线/只读执行仍待完成，此语义增量的原生验收单独记录。
+每条采样命令固定禁用 pager、对象懒取和可选锁写入，缺对象明确失败。
+这不阻止仓库 filter/fsmonitor 或 split index 时间刷新，完整私有视图仍待实施。
+源 stat 缓存不落盘可能增加后续重复内容检查，此策略不声明提速。
 
 ## License
 

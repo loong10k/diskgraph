@@ -203,3 +203,15 @@ Unix 使用本次子进程的独立进程组与非阻塞管道，轮询两管道
 stash list 即使成功也可能跳过坏 reflog 或缺失旧 commit。stash 存在时完整计数仅支持 Git 明确报告的 files 引用后端，由 rev-parse --path-format=absolute --git-common-dir 定位 Git metadata common 根，再追加固定 logs/refs/stash，保留 linked worktree 共享语义。不能直接 canonicalize 完整日志路径，否则 leaf/日志目录链接已在 nofollow 之前被解析；metadata common 根自身由 Git 定位并不构成 scope 或配置隔离认证。读取在同一整次期限/取消/累计字节预算内完成，拒绝固定日志路径中的链接/reparse/非普通文件及无法无损解释的路径。校验固定 old/new OID 前缀与 committer/timestamp/timezone 格式，每个留存 new OID 必须是 commit；记录反序与固定 %H 列表逐条核对，不以集合去重。drop、无 rewrite 删除及 expire 的合法语义不要求 old/new 连续、old 对象仍存在或消息非空，有效 tip 与合法空日志或明确缺日志可计零。末段复核 tip 与日志身份/版本及完整内容，变化拒绝；reftable 或未确认日志明确拒绝，不从工具空成功推断完整。该读取及复核不提供原子 Git 快照或配置隔离保证。
 
 upstream 从当前分支的 for-each-ref 固定 NUL 格式解析；没有可解析跟踪映射或本地跟踪引用缺失都保持 unknown，并分别说明原因，不能声称已推送。已存在但损坏/缺对象的引用报错。比较只传校验后的完整 OID 范围，提交数量必须是完整十进制 u64，格式/溢出错误传播。采样末段重新读取 HEAD/分支，变化时拒绝混合结果；这只是检测，不是原子 Git 快照。特殊 Git 配置、filter、懒取对象、可选 index 写入及不可变配置边界继续由 8.7/15.13 验收，语义子项不能关闭完整生产门禁。
+
+### D20 — Git 私有配置和元数据视图
+
+15.13d 首先建立本次采样独占的私有 bootstrap 与预算，再进行准备。全部工具调用固定关闭 pager、懒取与 optional locks，清空继承的 Git/loader/trace 环境；解析复制配置时显式使用私有目录、空 system/global 文件及 `config --file --no-includes --null --list`，只把配置当数据。不能在原仓库调用 `rev-parse --shared-index-path`：真实夹具已经证明它会执行 fsmonitor、刷新 shared index 时间，即使 no-lazy-fetch/no-optional-locks 也无效。其他 metadata plumbing 的安全性限定到固定参数和格式，不把默认 for-each-ref 等会解析对象的形式泛化为安全。
+
+由原生有界读取捕获 `.git`/gitfile/commondir、config、index、HEAD、loose/packed refs、stash 日志、shallow 与必要属性/忽略文件，拒绝链接、非普通文件、不可核验版本和超限输入。linked worktree 的 HEAD/index 与 common 根的 refs/logs/objects 分别解析，私有视图不能保留指向原元数据的 commondir/config/index/refs/reflog。元数据身份、版本和字节在末段复核，变化报错；这不是原子仓库快照。复制 index 后恢复并读回确认原高精度 mtime；较新的复制时间会改变 Git racy-index 内容复核，已在同长度改写并恢复文件 mtime 的夹具中真实产生假 clean。零时间会关闭该判定，不能作为安全备选；精度无法保真必须拒绝或另验保守重验。
+
+配置生成采取类型校验的 allowlist，保留 filemode、ignorecase、symlinks、autocrlf/eol、必要属性/忽略/rename 与 branch/upstream 映射等状态语义；不复制外部命令、URL、helper、hook 或 pager。不能简单关闭 filter 后把透传内容当正常状态：初版可明确拒绝外部 clean/process driver；支持未使用 driver 时须以无执行命令的 required 失败兜底，另验属性替换/宏展开竞态。include/includeIf、split/sparse index、gitlink 子模块、reftable、partial/promisor、replace/grafts 和未知扩展在没有等价实现时明确 Unsupported；这些支持边界不表示永远删除相关能力，也不能把所有 Git 仓库关闭后宣称完成。普通 files/SHA-1/SHA-256/full-index、linked worktree 与 shallow 的兼容性分别通过实际差分验收。
+
+执行时只使用私有 git-dir/index/refs/shallow/config，原 worktree 作为实时数据读取。源对象库只读借用可以降低整 pack 复制成本，但 alternate 会递归读取源 info/alternates；若采用该方案，不能宣称对象访问范围仅限原 ODB、对象快照不可变或对象输入严格有界。严格文件访问范围需要额外的扁平 ODB 视图或原生隔离能力，不能由一次预检查证明。接上源对象库后禁止写对象 plumbing，避免源对象时间刷新；所有来源元数据和对象时间、lock 文件以只读哨兵核验。
+
+准备、采样和终态复核共用唯一绝对期限及取消，分别明确管道/原始输入累计字节、元数据条目和临时容量上限；限制不是全部 Git RSS 或内核调度上界。先把已复现的 fsmonitor/filter/懒取/shared-index/racy-index 探针转为回归，再实现视图、运行普通状态差分与失败清理，独立复审及同源码三桌面原生 CI 后验收。15.13c 的语义测试和已有只读包 CI 都不能替代该边界，父项 15.13、8.7 与全平台其余能力继续未完成。

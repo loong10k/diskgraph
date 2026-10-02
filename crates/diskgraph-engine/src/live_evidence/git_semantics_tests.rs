@@ -243,7 +243,7 @@ fn assert_bad_fixture(stage: &str, diagnostic: &str) {
         "exit 2"
     };
     let source = format!(
-        "#!/bin/sh\ncase \"$*\" in\n\
+        "#!/bin/sh\n[ \"$1\" = '--no-pager' ] && [ \"$2\" = '--no-lazy-fetch' ] && [ \"$3\" = '--no-optional-locks' ] || exit 64\nshift 3\ncase \"$*\" in\n\
         'rev-parse HEAD'|'rev-parse --verify --quiet HEAD^{{commit}}') {head_command};;\n\
         'symbolic-ref --quiet HEAD'|'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n\
         'check-ref-format '*) :;;\n\

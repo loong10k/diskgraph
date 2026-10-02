@@ -15,7 +15,8 @@ use std::process::Command;
 /// 返回：本地 Git 样本或错误；默认整次 15 秒/管道及 stash 日志累计 1 MiB。
 /// Samples one repository with the local `git` binary. Everything runs with
 /// the project as cwd and a minimal environment. It does not explicitly invoke
-/// fetch, but repository configuration can execute external programs. This
+/// fetch and disables Git's lazy fetch and optional lock-based updates, but
+/// repository configuration can still execute external programs. This
 /// trusted compatibility path cannot certify offline/read-only execution and
 /// configuration isolation remains unverified. Resource failures are errors.
 /// Windows 工具/绝对目录及 Unix 宿主条件见 sample_git_bounded 与 ProbeLimits。
@@ -28,6 +29,7 @@ pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
 /// 返回：本地样本或明确错误；资源失败不能表示无 HEAD/upstream，配置隔离仍待验收。
 /// 要求 Git 2.46+ 的引用存在性接口；不支持时返回错误，不回退为猜测缺引用。
 /// stash 存在时仅支持可核验的 files 引用后端，不把跳过的日志记录当完整计数。
+/// 固定禁用 pager、懒取与可选锁写入；这不隔离 filter/fsmonitor 或 shared index 刷新。
 /// Windows 要求 project 为绝对目录，工具为受信 .exe 或显式 PATH 中的 .exe。
 pub fn sample_git_bounded(
     git: &Path,
@@ -37,7 +39,12 @@ pub fn sample_git_bounded(
     let mut budget = ProbeBudget::new(limits).map_err(|error| error.to_string())?;
     let mut run = |args: &[&str], budget: &mut ProbeBudget| -> Result<ProbeOutput, String> {
         let mut command = Command::new(git);
-        command.args(args).current_dir(project);
+        // 所有 HEAD/status/stash/upstream 命令采用同一策略，缺对象不能隐式下载。
+        // optional locks 不是完整只读边界，配置回调与 shared index 仍待私有视图隔离。
+        command
+            .args(["--no-pager", "--no-lazy-fetch", "--no-optional-locks"])
+            .args(args)
+            .current_dir(project);
         configure_probe_env(&mut command);
         command.env("GIT_TERMINAL_PROMPT", "0");
         run_probe(&mut command, budget).map_err(|error| error.to_string())
