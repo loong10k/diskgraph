@@ -17,27 +17,27 @@ fn limits(bytes: usize, timeout: Duration) -> ProbeLimits {
 #[test]
 fn head_and_upstream_signal_death_stop_the_entire_sample() {
     use super::{ProbeLimits, sample_git_bounded};
-    use std::os::unix::fs::PermissionsExt;
     for stage in ["head", "upstream"] {
         let temp = tempfile::tempdir().unwrap();
         let program = temp.path().join("git-probe-fixture");
         let marker = temp.path().join("unexpected-command");
-        let head = if stage == "head" {
-            "kill -TERM $$"
-        } else {
-            "printf 'oid\\n'"
-        };
-        let upstream = if stage == "upstream" {
-            "kill -TERM $$"
-        } else {
-            "printf 'origin/main\\n'"
-        };
-        let quoted_marker = format!("'{}'", marker.to_str().unwrap().replace('\'', "'\"'\"'"));
-        let source = format!(
-            "#!/bin/sh\ncase \"$*\" in\n 'rev-parse HEAD') {head};;\n 'status --porcelain'|'stash list') :;;\n 'rev-parse --abbrev-ref --symbolic-full-name @{{upstream}}') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
-        );
-        std::fs::write(&program, source).unwrap();
-        std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o700)).unwrap();
+        // 在独立 writer 进程中生成并关闭脚本，再回收 writer。
+        // 其他并发 fixture 的 fork 不能继承写描述符，避免 Linux ETXTBSY；
+        // 不重试生产错误，也不将目标的异常退出断言放宽为任意 I/O 失败。
+        let written = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "live_evidence::git_resource_tests::signal_fixture_writer",
+                "--quiet",
+                "--nocapture",
+            ])
+            .env_clear()
+            .env("DG_GIT_STAGE", stage)
+            .env("DG_GIT_PROGRAM", &program)
+            .env("DG_GIT_MARKER", &marker)
+            .output()
+            .unwrap();
+        assert!(written.status.success(), "{written:?}");
         let error = sample_git_bounded(&program, temp.path(), &ProbeLimits::default()).unwrap_err();
         assert!(error.contains("normal exit status"), "{stage}: {error}");
         assert!(
@@ -45,6 +45,34 @@ fn head_and_upstream_signal_death_stop_the_entire_sample() {
             "{stage}: failed observation started a subsequent command"
         );
     }
+}
+
+#[cfg(unix)]
+#[test]
+fn signal_fixture_writer() {
+    use std::os::unix::fs::PermissionsExt;
+    let Ok(stage) = std::env::var("DG_GIT_STAGE") else {
+        return;
+    };
+    assert!(matches!(stage.as_str(), "head" | "upstream"));
+    let program = std::env::var_os("DG_GIT_PROGRAM").unwrap();
+    let marker = std::env::var("DG_GIT_MARKER").unwrap();
+    let head = if stage == "head" {
+        "kill -TERM $$"
+    } else {
+        "printf 'oid\\n'"
+    };
+    let upstream = if stage == "upstream" {
+        "kill -TERM $$"
+    } else {
+        "printf 'origin/main\\n'"
+    };
+    let quoted_marker = format!("'{}'", marker.replace('\'', "'\"'\"'"));
+    let source = format!(
+        "#!/bin/sh\ncase \"$*\" in\n 'rev-parse HEAD') {head};;\n 'status --porcelain'|'stash list') :;;\n 'rev-parse --abbrev-ref --symbolic-full-name @{{upstream}}') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
+    );
+    std::fs::write(&program, source).unwrap();
+    std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o700)).unwrap();
 }
 
 #[test]

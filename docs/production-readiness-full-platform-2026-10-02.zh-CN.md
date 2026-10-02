@@ -135,10 +135,12 @@ Engine 内新增私有平台执行器，共用于进程及 Git 采样。新增 `
 
 Unix 使用自有进程组和非阻塞管道，WNOWAIT 保留 leader 至清理/回收完成；leader 离开原组时只终止仍自有的 PID，不跟随新 PGID。宿主 auto-reap 明确拒绝，外部回收则 fail-closed，主动脱离组的后代不受组约束。Darwin 仅 zombie 的 EPERM 需要两次完整成员集合一致、全部 SZOMB 及 leader 正确父身份；50 ms 有界重试覆盖退出过渡，不把 INEXIT 本身当已完成。
 
-Windows 创建时用 JOB_LIST/HANDLE_LIST、KILL_ON_JOB_CLOSE 和固定地址 overlapped 管道，不采用运行后分配 fallback。成功零字节读不等于 EOF，意外取消是读取失败；属性列表持有参数数组直到销毁，命令/环境编码在累计超限前停止分配。Job 终止后最多观察计数一秒，未知或非零拒绝完整结果，即便由外部引用持有已退出进程造成也保守失败。关闭 Job 提供终止后备，自有 pending I/O 只有确认最终完成后才释放；leader/I/O 安全等待可能超过观察期及采样协作期限。要求支持创建属性、受信 .exe 和绝对项目目录，拒绝相对程序路径及脚本。这是协作资源控制，不是严格 RSS 或调度 SLA。
+Windows 创建时用 JOB_LIST/HANDLE_LIST、KILL_ON_JOB_CLOSE 和固定地址 overlapped 管道，不采用运行后分配 fallback。成功零字节读不等于 EOF，意外取消是读取失败；属性列表持有参数数组直到销毁，命令/环境编码在累计超限前停止分配。Job 终止后最多观察计数一秒，未知或实际非零超期拒绝完整结果，用户 HANDLE 本身不推导计数状态。关闭 Job 提供终止后备，自有 pending I/O 只有确认最终完成后才释放；leader/I/O 安全等待可能超过观察期及采样协作期限。要求支持创建属性、受信 .exe 和绝对项目目录，拒绝相对程序路径及脚本。这是协作资源控制，不是严格 RSS 或调度 SLA。
 
-测试先行在旧 runner 上实际产生 12 项中 11 项失败；后续补出的 Git HEAD 异常终止和 leader 逃组也先红，旧逃组清理等待约两秒。最终本机证据 suite 41/41，含 128 轮快速退出/预算/回收、真实 Git/lsof 与并发独立取消。独立绑定源码的探针确认 HEAD/upstream 信号失败阻止后续命令、逃组 leader 及时终止，以及 1000 轮结束后无未回收 child；这些是本地夹具观测，不能当性能分位数。
+测试先行在旧 runner 上实际产生 12 项中 11 项失败；后续补出的 Git HEAD 异常终止和 leader 逃组也先红，旧逃组清理等待约两秒。最终本机证据 suite 42/42，含 128 轮快速退出/预算/回收、真实 Git/lsof 与并发独立取消。独立绑定源码的探针确认 HEAD/upstream 信号失败阻止后续命令、逃组 leader 及时终止，以及 1000 轮结束后无未回收 child；这些是本地夹具观测，不能当性能分位数。
 
-初次全量运行因共享构建产物消失（ENOENT）未执行部分二进制，不计通过；独立 target 重建后完成 **659 passed / 0 failed / 13 ignored**。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。扫描器 14 份摘要一致，上游 pin/源码不变。当前源码的原生 CI、特别是 Windows Job/管道/外部引用回归仍待运行，15.13b 在该门禁完成前保持未勾选。
+初次全量运行因共享构建产物消失（ENOENT）未执行部分二进制，不计通过；独立 target 重建后完成 **660 passed / 0 failed / 13 ignored**。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。扫描器 14 份摘要一致，上游 pin/源码不变。当前源码的原生 CI、特别是 Windows Job/管道/外部引用回归仍待运行，15.13b 在该门禁完成前保持未勾选。
 
 本增量没有新 p50/p95 或 RSS 结果，不宣称提速。Git 配置隔离、可执行 filter、离线/只读保证、unborn 修改与引用格式错误仍由 8.7 和父项 15.13 验收；原生写操作、provider/设备、签名和生产 soak 继续分别验收，不宣称全平台生产就绪。
+
+首轮[原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37043023057)尚未通过：Linux stable 的脚本夹具执行前遇到 ETXTBSY，改由独立 writer 写完并退出，目标信号断言不放宽。Windows 两个 Rust 版本均为 71 passed / 1 failed，其他所有执行器原生回归通过；唯一失败是测试假定持有用户 HANDLE 必须阻止 Job 计数归零，而实际 cleanup 返回 Ok。验收改为直接核验持有外部 HANDLE 时的 signaled 状态和实际 Job 计数，另以明确注入非零计数验证有界失败；注入覆盖不冒充真实外部引用故障。生产观察策略仍依据实际查询，最终源码原生门禁继续保持未完成。

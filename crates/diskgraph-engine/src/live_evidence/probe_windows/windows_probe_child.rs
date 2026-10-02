@@ -155,7 +155,7 @@ impl WindowsProbeChild {
                 .eq_ignore_ascii_case("DG_WINDOWS_NATIVE_FAULT")
                 && value.is_some_and(|value| value.to_string_lossy() == "post_create")
         }) {
-            // 线程句柄也是进程引用，必须在 accounting 观察前释放。
+            // 清理前释放本 owner 已完成的线程句柄，保持句柄生命周期明确。
             drop(thread);
             let error = ProbeFailure::Unsupported("injected post-create failure");
             return Err(error.with_cleanup(child.cleanup()));
@@ -276,7 +276,7 @@ impl WindowsProbeChild {
         } else {
             false
         };
-        // 先关闭 leader 句柄，避免它作为进程引用妨碍 ActiveProcesses 归零。
+        // 先等待并关闭本 owner 的 leader 句柄；Job 终态以随后实际查询为准。
         if let Some(process) = self.process.take() {
             if unsafe { WaitForSingleObject(process.as_raw(), INFINITE) } != WAIT_OBJECT_0 {
                 record_failure(&mut failure, last("WaitForSingleObject(cleanup)"));
@@ -285,9 +285,8 @@ impl WindowsProbeChild {
         }
         if terminated && let Some(active_job) = job.as_ref() {
             // TerminateJobObject 的返回不证明所有普通后代已退出。固定结构逐次查询；
-            // 外部进程句柄可延迟计数归零，所以只在有限观察期内等待。
-            let observed_at = Instant::now();
-            loop {
+            // 只在有限观察期内等待，避免无法确认 Job 终态时无限循环。
+            let observed = observe_job_empty(Duration::from_secs(1), || {
                 let mut accounting = JOBOBJECT_BASIC_ACCOUNTING_INFORMATION::default();
                 if unsafe {
                     QueryInformationJobObject(
@@ -299,23 +298,12 @@ impl WindowsProbeChild {
                     )
                 } == 0
                 {
-                    record_failure(&mut failure, last("QueryInformationJobObject(cleanup)"));
-                    break;
+                    return Err(last("QueryInformationJobObject(cleanup)"));
                 }
-                if accounting.ActiveProcesses == 0 {
-                    break;
-                }
-                if observed_at.elapsed() >= Duration::from_secs(1) {
-                    record_failure(
-                        &mut failure,
-                        ProbeFailure::Io(
-                            "QueryInformationJobObject(cleanup): ActiveProcesses remained nonzero after 1 s"
-                                .to_owned(),
-                        ),
-                    );
-                    break;
-                }
-                std::thread::sleep(Duration::from_millis(5));
+                Ok(accounting.ActiveProcesses)
+            });
+            if let Err(error) = observed {
+                record_failure(&mut failure, error);
             }
         }
         // 查询失败时仍关闭 Job 触发后备终止，但明确返回不完整清理错误。
@@ -352,6 +340,54 @@ fn record_failure(current: &mut Option<ProbeFailure>, error: ProbeFailure) {
         Some(primary) => primary.with_cleanup(Err(error)),
         None => error,
     });
+}
+
+fn observe_job_empty<F>(limit: Duration, mut active_processes: F) -> Result<(), ProbeFailure>
+where
+    F: FnMut() -> Result<u32, ProbeFailure>,
+{
+    let observed_at = Instant::now();
+    loop {
+        if active_processes()? == 0 {
+            return Ok(());
+        }
+        if observed_at.elapsed() >= limit {
+            return Err(ProbeFailure::Io(format!(
+                "QueryInformationJobObject(cleanup): ActiveProcesses remained nonzero after {} ms",
+                limit.as_millis()
+            )));
+        }
+        std::thread::sleep(Duration::from_millis(5));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::observe_job_empty;
+    use crate::live_evidence::probe_failure::ProbeFailure;
+    use std::time::{Duration, Instant};
+
+    #[test]
+    fn injected_nonzero_accounting_stops_at_observation_limit() {
+        let started = Instant::now();
+        let error = observe_job_empty(Duration::from_millis(25), || Ok(1)).unwrap_err();
+        assert!(
+            matches!(error, ProbeFailure::Io(message) if message.contains("ActiveProcesses remained nonzero"))
+        );
+        assert!(started.elapsed() >= Duration::from_millis(25));
+        assert!(started.elapsed() < Duration::from_secs(2));
+    }
+
+    #[test]
+    fn injected_accounting_query_error_fails_without_retrying_as_success() {
+        let error = observe_job_empty(Duration::from_secs(1), || {
+            Err(ProbeFailure::Io("injected accounting failure".to_owned()))
+        })
+        .unwrap_err();
+        assert!(
+            matches!(error, ProbeFailure::Io(message) if message == "injected accounting failure")
+        );
+    }
 }
 
 #[cfg(test)]

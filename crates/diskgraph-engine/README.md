@@ -114,8 +114,8 @@ it are outside this containment. Windows requires Windows 10+, a trusted absolut
 absolute project directory; relative program paths and scripts are refused.
 Native execution uses creation-time Job/standard-handle attributes and owned
 overlapped pipes. Job accounting has a separate one-second observation window;
-unknown or nonzero state refuses completed evidence, including externally held
-references to an exited process. Leader waits and safe pending-I/O completion
+unknown or nonzero state refuses completed evidence. An externally held process
+handle does not itself imply a nonzero Job count; the actual query decides. Leader waits and safe pending-I/O completion
 can exceed that window. Its final native acceptance is recorded in
 the [full-platform evidence](../../docs/production-readiness-full-platform-2026-10-02.md).
 Git configuration isolation, offline/read-only execution and unborn/reference

@@ -247,22 +247,27 @@ fn cleanup_waits_until_job_has_no_active_descendant_after_leader_exit() {
 }
 
 #[test]
-fn externally_held_exited_process_handle_bounds_accounting_wait() {
+fn externally_held_exited_process_handle_does_not_prevent_verified_cleanup() {
     let mut command = fixture("silent");
     let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut child = WindowsProbeChild::spawn(&mut command, &mut budget).unwrap();
     let external_process_reference = child.duplicate_leader_for_test().unwrap();
+    let retained_job = child.duplicate_job_for_test().unwrap();
     let started = Instant::now();
-    let error = child.cleanup().unwrap_err();
-    assert!(
-        error
-            .to_string()
-            .contains("ActiveProcesses remained nonzero"),
-        "{error}"
-    );
+    child.cleanup().unwrap();
     assert!(
         started.elapsed() < Duration::from_secs(3),
-        "cleanup exceeded its accounting observation window"
+        "cleanup exceeded the expected native observation interval"
+    );
+    assert_eq!(
+        unsafe { WaitForSingleObject(external_process_reference.as_raw(), 0) },
+        windows_sys::Win32::Foundation::WAIT_OBJECT_0,
+        "held process handle must refer to an exited leader"
+    );
+    assert_eq!(
+        job_accounting(retained_job.as_raw()).ActiveProcesses,
+        0,
+        "Job must have no active process while external handle is retained"
     );
     drop(external_process_reference);
 }
