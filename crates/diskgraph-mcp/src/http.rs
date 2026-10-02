@@ -770,7 +770,27 @@ fn normalize_request_timeout(error: std::io::Error) -> std::io::Error {
 }
 
 /// Serializes a response as an HTTP/1.1 message.
+/// 参数：stream：已连接的 TCP 流；response：待发送的协议响应。
+/// 返回：序列化/发送成功为 ()，连接错误向调用者传播。
 pub fn write_response(stream: &mut TcpStream, response: &HttpResponse) -> std::io::Result<()> {
+    write_response_with_connection(stream, response, true)
+}
+
+/// 发送声明关闭的响应，接收端清理由调用方在独立预算内完成。
+/// 参数：stream：已连接的 TCP 流；response：待发送的拒绝响应。
+/// 返回：发送成功为 ()；此函数不关闭或清理接收端。
+pub(crate) fn write_closing_response(
+    stream: &mut TcpStream,
+    response: &HttpResponse,
+) -> std::io::Result<()> {
+    write_response_with_connection(stream, response, false)
+}
+
+fn write_response_with_connection(
+    stream: &mut TcpStream,
+    response: &HttpResponse,
+    keep_alive: bool,
+) -> std::io::Result<()> {
     let reason = match response.status {
         200 => "OK",
         202 => "Accepted",
@@ -779,6 +799,7 @@ pub fn write_response(stream: &mut TcpStream, response: &HttpResponse) -> std::i
         405 => "Method Not Allowed",
         413 => "Payload Too Large",
         500 => "Internal Server Error",
+        503 => "Service Unavailable",
         _ => "Unknown",
     };
     let mut head = format!("HTTP/1.1 {} {}\r\n", response.status, reason,);
@@ -789,7 +810,11 @@ pub fn write_response(stream: &mut TcpStream, response: &HttpResponse) -> std::i
     if let Some(session) = &response.session {
         head.push_str(&format!("Mcp-Session-Id: {session}\r\n"));
     }
-    head.push_str("Connection: keep-alive\r\n\r\n");
+    head.push_str(if keep_alive {
+        "Connection: keep-alive\r\n\r\n"
+    } else {
+        "Connection: close\r\n\r\n"
+    });
     stream.write_all(head.as_bytes())?;
     stream.write_all(response.body.as_bytes())?;
     stream.flush()
@@ -881,12 +906,9 @@ pub fn serve_config(
         // flood can never starve the engine's workers.
         if active.fetch_add(1, Ordering::SeqCst) >= limits.max_concurrent_connections {
             active.fetch_sub(1, Ordering::SeqCst);
-            let _ = write_response(
+            let _ = crate::connection_rejection::reject_connection(
                 &mut stream,
-                &HttpResponse::json(
-                    503,
-                    json!({"error": "connection_limit", "max": limits.max_concurrent_connections}),
-                ),
+                limits.max_concurrent_connections,
             );
             continue;
         }
@@ -2203,6 +2225,26 @@ mod tests {
             status.contains("503"),
             "over-cap connections must be refused, got: {status}"
         );
+        let mut remainder = String::new();
+        reader.read_to_string(&mut remainder).unwrap();
+        assert!(
+            remainder.contains("Connection: close\r\n"),
+            "a refused connection must declare close: {remainder}"
+        );
+        let (headers, body) = remainder.split_once("\r\n\r\n").unwrap();
+        let length: usize = headers
+            .lines()
+            .find_map(|line| line.strip_prefix("Content-Length: "))
+            .unwrap()
+            .parse()
+            .unwrap();
+        assert_eq!(
+            body.len(),
+            length,
+            "the complete rejection body must arrive"
+        );
+        let body: Value = serde_json::from_str(body).unwrap();
+        assert_eq!(body["error"], "connection_limit");
     }
 
     /// Over-limit request rates get 429 while staying well-formed.

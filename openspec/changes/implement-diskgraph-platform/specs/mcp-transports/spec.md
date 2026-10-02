@@ -56,6 +56,10 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** 未认证连接持续发送超大请求行或请求头，或仅滴流字节以保持连接活动
 - **THEN** 在有界总头字节、单字段长度与绝对期限内关闭连接，不占满服务工作线程。
 
+#### Scenario: Connection cap response and bounded shutdown
+- **WHEN** 连接上限已满且客户端发送普通完整请求
+- **THEN** 返回完整 503 与 Connection: close，再半关闭写端并以 50 ms 绝对期限、64 KiB 接收清理预算释放连接；不启动工具、业务工作线程或无限等待客户端。超过清理预算的输入允许直接终止，不承诺完整错误响应，OS 调度不属于严格墙钟上限。
+
 #### Scenario: Remote serve from the CLI
 - **WHEN** 本机管理员通过 `diskgraph serve` 指定远程认证与 Origin 配置
 - **THEN** 配置完整传给 MCP 子进程，服务正常启动且无 token 请求被拒绝。

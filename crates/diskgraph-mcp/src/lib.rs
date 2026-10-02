@@ -15,6 +15,7 @@ use serde_json::{Value, json};
 pub mod auth;
 #[cfg(test)]
 mod children_cursor_tests;
+mod connection_rejection;
 pub mod doctor;
 pub mod http;
 pub mod install;
