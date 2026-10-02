@@ -195,3 +195,11 @@ Git 尚无 HEAD 时仍需报告实际修改，预算/I/O/格式失败不得被�
 Unix 使用本次子进程的独立进程组与非阻塞管道，轮询两管道及进程状态；WNOWAIT 保留 leader 身份至清理和回收完成。仍存活的 leader 即使离开原组也按自有 PID 终止，不追随新 PGID；主动 setsid 逃离的后代不在组约束内。Darwin 对仅 zombie 的组返回 EPERM 时，最多 50 ms 重试，最终要求全部 SZOMB、leader 父身份及两次完整成员集合一致，未知/变化仍失败；退出过渡本身不等于已退出。Windows 10+ 使用原生 CreateProcessW 的 JOB_LIST/HANDLE_LIST 原子绑定 KILL_ON_JOB_CLOSE Job 和三个标准句柄，禁用 breakaway；不以运行后 Assign 或缺能力 fallback 代替。父读端是自有 overlapped named pipe，每条固定缓冲与 OVERLAPPED 地址稳定，CancelIoEx 后等待最终完成再释放。终止 Job 后保留句柄，最多观察 1 秒以确认 ActiveProcesses 为零；查询失败或实际非零超期明确返回清理失败；用户 HANDLE 本身不是失败原因，不假设它必然维持非零计数。关闭 Job 提供 KILL 后备；leader 等待及自有 pending I/O 最终完成不受这一秒硬限，安全清理可能超过协作采样期限；平台行为必须在对应 CI 执行真实后代/管道与并发回归。
 
 成功要求正常进程退出状态、stdout/stderr EOF 和末段期限/取消同时有效；信号死亡或 Windows 高位异常状态不得降级成无 HEAD/upstream。恰好耗尽字节预算仍以固定小缓冲检查 EOF，多一个字节即拒绝完整结果。stderr 同样扣预算，不因解析器未消费它而忽略。Windows 零字节成功读取不等于 EOF，意外 abort 是业务失败，仅本 owner 的清理取消可作已终止 I/O。显式清理必须保留主错误及次级清理诊断，Drop 仅作兜底。Windows 兼容入口明确要求绝对项目目录和受信 .exe，不能宣称全部旧平台行为相同。该资源子项不关闭 Git 配置、执行 filter、离线/只读保证、unborn 或引用格式语义；父项 15.13 和 8.7 继续单独验收。
+
+### D19 — Git 可观察语义
+
+15.13c 使用同一受限执行器与整次预算，但不声称已隔离仓库配置。采样要求 Git 2.46 或更新版本，利用 show-ref --exists 的 0/2/1 明确区分存在、缺失和查询错误；不兼容工具明确拒绝。symbolic-ref --no-recurse 保留 HEAD 的直接目标，只有直接本地分支明确不存在时才表示 unborn；已存在的悬空 symbolic branch、损坏引用、非 commit 对象、执行错误与格式错误不能降级。状态采用 porcelain v1 -z 与 untracked-files=all，按原生 NUL 记录计数，rename/copy 的第二路径不额外计数。
+
+stash list 即使成功也可能跳过坏 reflog 或缺失旧 commit。stash 存在时完整计数仅支持 Git 明确报告的 files 引用后端，由 rev-parse --path-format=absolute --git-common-dir 定位 Git metadata common 根，再追加固定 logs/refs/stash，保留 linked worktree 共享语义。不能直接 canonicalize 完整日志路径，否则 leaf/日志目录链接已在 nofollow 之前被解析；metadata common 根自身由 Git 定位并不构成 scope 或配置隔离认证。读取在同一整次期限/取消/累计字节预算内完成，拒绝固定日志路径中的链接/reparse/非普通文件及无法无损解释的路径。校验固定 old/new OID 前缀与 committer/timestamp/timezone 格式，每个留存 new OID 必须是 commit；记录反序与固定 %H 列表逐条核对，不以集合去重。drop、无 rewrite 删除及 expire 的合法语义不要求 old/new 连续、old 对象仍存在或消息非空，有效 tip 与合法空日志或明确缺日志可计零。末段复核 tip 与日志身份/版本及完整内容，变化拒绝；reftable 或未确认日志明确拒绝，不从工具空成功推断完整。该读取及复核不提供原子 Git 快照或配置隔离保证。
+
+upstream 从当前分支的 for-each-ref 固定 NUL 格式解析；没有可解析跟踪映射或本地跟踪引用缺失都保持 unknown，并分别说明原因，不能声称已推送。已存在但损坏/缺对象的引用报错。比较只传校验后的完整 OID 范围，提交数量必须是完整十进制 u64，格式/溢出错误传播。采样末段重新读取 HEAD/分支，变化时拒绝混合结果；这只是检测，不是原子 Git 快照。特殊 Git 配置、filter、懒取对象、可选 index 写入及不可变配置边界继续由 8.7/15.13 验收，语义子项不能关闭完整生产门禁。

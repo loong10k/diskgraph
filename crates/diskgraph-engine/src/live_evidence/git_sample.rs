@@ -7,6 +7,8 @@
 /// counts against the configured upstream — which stay `None` (unknown)
 /// when there is no upstream, because "no upstream" is not "pushed".
 /// The compatibility sampler's offline/configuration isolation is not verified.
+/// Existing stash history requires the verifiable files reference backend;
+/// unsupported or incomplete observations return an error rather than a count.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GitSample {
     pub head: Option<String>,

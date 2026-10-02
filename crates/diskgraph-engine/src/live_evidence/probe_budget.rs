@@ -48,7 +48,7 @@ impl ProbeBudget {
         Ok(())
     }
 
-    /// 两条管道及所有子命令在追加输出前扣除同一额度。
+    /// 两条管道、所有子命令及 Git stash 日志在保留读取数据前扣除同一额度。
     /// 参数：bytes 为固定读取缓冲中实际观察的字节数。
     /// 返回：扣费成功，或累计超限；超读缓冲不得加入成功输出。
     pub(super) fn consume(&mut self, bytes: usize) -> Result<(), ProbeFailure> {

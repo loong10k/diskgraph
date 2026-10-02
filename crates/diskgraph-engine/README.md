@@ -118,8 +118,20 @@ unknown or nonzero state refuses completed evidence. An externally held process
 handle does not itself imply a nonzero Job count; the actual query decides. Leader waits and safe pending-I/O completion
 can exceed that window. Its final native acceptance is recorded in
 the [full-platform evidence](../../docs/production-readiness-full-platform-2026-10-02.md).
-Git configuration isolation, offline/read-only execution and unborn/reference
-semantics remain outstanding; bounded execution does not certify those behaviors.
+Git sampling requires Git 2.46+ and distinguishes missing references from broken
+references and failed commands. Unborn repositories retain actual dirty files;
+NUL status records count each untracked file and one entry per rename/copy.
+Invalid OIDs and commit counts fail the sample. Existing stash history requires
+the `files` reference backend: bounded raw reflog reads, retained commit checks
+and exact reverse-order comparison detect records silently omitted by Git.
+The common metadata directory is located by Git; its fixed log suffix is opened
+without following links. This location is not scope or configuration isolation.
+Legitimate drop/delete/expiry and absent logs preserve visible-list semantics.
+Both raw reads share the sample byte/deadline/cancellation budget; reftable stash
+enumeration is explicitly unsupported. Terminal reference/version checks detect
+changes but do not form an atomic Git snapshot. Native acceptance for this
+semantic increment is recorded separately in the full-platform evidence.
+Git configuration isolation and offline/read-only execution remain outstanding.
 
 占用采样保留正向观察并报告 partial；空结果、转义/标注名称或无法确认的身份不说明无人使用。
 原生字节键不等于文件句柄/PID 启动身份。新增有界采样入口共用整次期限、取消和
@@ -127,7 +139,12 @@ stdout/stderr 累计字节，兼容入口默认 15 秒/1 MiB；预算耗尽仍�
 异常退出与清理失败不能变成完整样本。清理可能超过协作期限，不承诺严格 RSS/SLA。
 Unix 宿主不得 auto-reap 或外部回收该 child，主动脱离组的后代不受组约束。
 Windows 要求 Windows 10+、受信 .exe 和绝对项目目录，拒绝相对程序路径及脚本；
-平台原生验收见上述记录。Git 配置隔离、离线/只读执行和 unborn/引用语义仍待完成。
+平台原生验收见上述记录。Git 采样要求 2.46+，明确区分缺失、损坏及执行失败；
+unborn 仍报告实际修改，NUL 原生记录按文件及 rename/copy 计数，非法 OID/数量报错。
+stash 存在时仅支持可核验的 files 后端：共用整次预算读取原始日志、核验留存 commit
+及完整逆序列表；reftable 明确拒绝。日志路径来自 Git common 根与固定后缀，
+合法 drop/delete/expiry 和明确缺日志保留可见列表语义。末段版本复核不是 Git 原子快照。
+Git 配置隔离、离线/只读执行仍待完成，此语义增量的原生验收单独记录。
 
 ## License
 

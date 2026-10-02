@@ -148,3 +148,13 @@ Windows 创建时用 JOB_LIST/HANDLE_LIST、KILL_ON_JOB_CLOSE 和固定地址 ov
 源码 `ddf6e934bebddf89783039f92d40e1f0cdf76d66` 的[第二轮原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37044718593)为 20/22 项通过。Windows stable 的 74 项 Engine 单元测试全部通过，随后 Clippy 拒绝测试模块后的辅助函数；修正只移动该函数，不改变实现。macOS Intel stable 的期限夹具假定首条 150 ms 命令在 270 ms 内完成，在负载下失败。新回归先完成轻量命令，再耗尽真实的整次五秒预算，最后确认第二条命令返回 Deadline 且未创建 marker。它去掉了 120 ms 启动假设，仍以可观察副作用检查后续命令不能重置整次期限。最终源码原生 CI 仍是必需门禁。
 
 源码 SHA `ef0ba765fc48db3c8fbd27d1f3dc1f4e6bb363e4` 的[同源码原生 CI 全部 22 项通过](https://github.com/loong10k/diskgraph/actions/runs/37046771798)：八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主、五个原生包，加上格式及 vendor 门禁。Windows 两个 Rust 版本日志均记录 Engine 单元测试 74 passed / 0 failed，逐项确认创建时句柄隔离、两管道 pending 清理、后代清理、外部持有句柄、零字节写入和注入的计数失败回归通过。Windows stable Clippy 通过，Rust 1.97.0 按现有 CI 策略跳过此步骤。macOS Intel stable 为 Engine 单元测试 69 passed / 0 failed，新的共享期限回归通过。15.13b 按本次协作执行边界完成；Git 配置/错误语义、8.7 和父项 15.13 保持未完成，不代表全平台生产就绪。
+
+## Git 可观察语义（EC-02/04 / 15.13c，2026-10-03）
+
+候选保留公开签名和 GitSample 字段，要求 Git 2.46+ 的明确引用存在性接口。HEAD 保留直接 symbolic 目标，已存在的悬空/损坏引用不能降级成 unborn；unborn 与 detached 仍报告真实修改。porcelain v1 NUL 记录逐个计入未跟踪文件，rename/copy 仅计一个状态；非法记录、OID、数量及溢出均报错。本地跟踪数据缺失仍是 unknown，不说明已推送。
+
+stash 存在时仅支持 files 后端。Git 只定位 metadata common 根，代码追加固定 logs/refs/stash，避免 Git 先 canonicalize 日志目录/leaf 链接。原始日志读取共用整次预算，核验留存 commit 与完整逆序列表，保留重复次数；合法 drop、无 rewrite 删除、expiry 和缺日志保留可见列表语义。Unix 保留初始文件版本并复核路径，Windows 保留既有原生父目录/文件租约。FIFO、链接、坏日志、预算失败及已观察变化均拒绝。这是变化检测，不是 Git 原子快照或同步内核 I/O 的硬期限；reftable stash 枚举明确 unsupported，common 根定位本身不认证 scope 或隔离配置。
+
+测试先行先复现十项原语义失败，再补出非法 XY、悬空 symbolic HEAD、旧 stash 漏计、合法消息分隔符及日志链接预解析的真实失败；另有回归覆盖同字节改版。独立代码复审实际通过 44 项 Git 回归、三项结构门禁及 15 项隔离公开 API 探针；架构复审放行此实现边界。最终本机 workspace/协议和新源码原生 CI 结果须另记后才能勾选 15.13c。配置/filter/fsmonitor 隔离、懒取、可选 index 写入及离线/只读执行继续由 8.7 和父项 15.13 验收。不新增延迟/RSS 测量或提速声明，全平台生产就绪仍未完成。
+
+最终本机门禁为 **701 passed / 0 failed / 13 ignored**，含 83 项实时证据测试；全 workspace Clippy `-D warnings`、定向 fmt、OpenSpec strict、release CLI/MCP/FFI 构建均通过。当前 release stdio 18/18、认证 HTTP/legacy SSE 13/13，通过 14 份上游摘要核对。ignored 不计通过；新源码原生 CI 仍待完成，15.13c 保持未勾选。

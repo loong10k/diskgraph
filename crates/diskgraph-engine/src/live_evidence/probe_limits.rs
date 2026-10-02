@@ -10,7 +10,7 @@ use std::time::Duration;
 pub struct ProbeLimits {
     /// 整次采样的协作期限，安全回收和内核等待可能超过该期限。
     pub timeout: Duration,
-    /// 全部子命令 stdout/stderr 累计允许保留的字节，最多 64 MiB。
+    /// 全部子命令 stdout/stderr 与 Git stash 日志读取的累计字节，最多 64 MiB。
     pub max_output_bytes: usize,
     /// 调用方设置为 true 后停止后续采样并回收本次执行域。
     pub cancel: Arc<AtomicBool>,

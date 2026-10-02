@@ -67,3 +67,19 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 #### Scenario: Unborn or failed Git observation
 - **WHEN** 仓库尚无提交但存在未跟踪或暂存文件，或 HEAD/upstream 查询因预算、取消、I/O 或格式错误失败
 - **THEN** 尚无提交时仍报告实际修改；探针失败不得降级成没有提交、没有 upstream 或零计数。
+
+#### Scenario: Native Git status records
+- **WHEN** 文件名包含换行、非 UTF-8 或选项前缀，未跟踪目录含多个文件，或状态包含 rename/copy 的两个路径
+- **THEN** 按 NUL 分隔的原生状态记录计数，每个未跟踪文件独立计入，rename/copy 的源和目标仅计为一个状态；未终止/非法记录必须返回错误，不能用显示行数或 lossy 文本替代。
+
+#### Scenario: Git reference and numeric failures
+- **WHEN** 当前分支引用损坏、工具正常非零退出，或已成功命令返回非法 OID/计数
+- **THEN** 仅明确缺少引用可表示 unborn 或未知跟踪引用；其他错误停止整次采样，非法及溢出计数不能被解释为 unknown 或零。
+
+#### Scenario: Dangling symbolic branch
+- **WHEN** HEAD 的直接分支已存在，但该 symbolic branch 指向缺失引用
+- **THEN** 保留直接分支身份并返回无法解析的错误，不能通过递归解析将其降级成 unborn。
+
+#### Scenario: Complete stash enumeration
+- **WHEN** stash reflog 含损坏记录或缺失的留存 commit，或采样期间日志改变
+- **THEN** 返回错误，不能把 Git 静默跳过后的局部列表当成完整 stash 数；只支持能验证的引用后端。合法 drop、无 rewrite 删除及 expire 后的空日志保留 Git 语义，旧 OID 不要求连续或仍存在。

@@ -60,16 +60,16 @@ fn signal_fixture_writer() {
     let head = if stage == "head" {
         "kill -TERM $$"
     } else {
-        "printf 'oid\\n'"
+        "printf '1111111111111111111111111111111111111111\\n'"
     };
     let upstream = if stage == "upstream" {
         "kill -TERM $$"
     } else {
-        "printf 'origin/main\\n'"
+        "printf '%s\\0%s\\0%s\\0\\n' 'refs/heads/main' '1111111111111111111111111111111111111111' 'refs/remotes/origin/main'"
     };
     let quoted_marker = format!("'{}'", marker.replace('\'', "'\"'\"'"));
     let source = format!(
-        "#!/bin/sh\ncase \"$*\" in\n 'rev-parse HEAD') {head};;\n 'status --porcelain'|'stash list') :;;\n 'rev-parse --abbrev-ref --symbolic-full-name @{{upstream}}') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
+        "#!/bin/sh\ncase \"$*\" in\n 'rev-parse --verify --quiet HEAD^{{commit}}') {head};;\n 'symbolic-ref --quiet --no-recurse HEAD') printf 'refs/heads/main\\n';;\n 'check-ref-format '*) :;;\n 'show-ref --exists refs/stash') exit 2;;\n 'status --porcelain=v1 -z --untracked-files=all'|'stash list --format=%H') :;;\n 'for-each-ref --format=%(refname)%00%(objectname)%00%(upstream)%00 -- refs/heads/main') {upstream};;\n *) : > {quoted_marker}; printf 'true\\n';;\nesac\n"
     );
     std::fs::write(&program, source).unwrap();
     std::fs::set_permissions(&program, std::fs::Permissions::from_mode(0o700)).unwrap();
@@ -112,7 +112,7 @@ fn git_head_and_upstream_resource_errors_cannot_be_missing_references() {
         "-m",
         "first",
     ]);
-    // HEAD 成功输出已耗尽额度，随后无 upstream 的错误 stderr 也必须扣费，
+    // HEAD 输出已耗尽额度，后续引用观测必须共用预算并失败，
     // 不能将资源失败吞成正常“未配置 upstream”样本。
     let head = Command::new(git)
         .args(["rev-parse", "HEAD"])

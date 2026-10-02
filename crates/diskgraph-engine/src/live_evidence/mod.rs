@@ -2,9 +2,17 @@
 
 mod fs_event;
 mod fs_event_kind;
+mod git_output;
+mod git_references;
+mod git_reflog_file;
 #[cfg(test)]
 mod git_resource_tests;
 mod git_sample;
+#[cfg(test)]
+mod git_semantics_tests;
+mod git_stash;
+#[cfg(test)]
+mod git_stash_tests;
 mod git_usage;
 #[cfg(target_os = "macos")]
 mod macos_probe_group;
