@@ -124,4 +124,6 @@ Windows 本地普通文件的 `read_bounded` 与摘要检查已接入原生句�
 
 8.7 的默认离线完成声明已撤回；15.13 仍未完成：同时有界排空管道、累计输出/期限/取消、原生后代清理及 Git 配置隔离没有在此实现。lsof 先等待后读取、未排空 stderr，以及无界 Git 命令仍存在；unborn/HEAD/upstream 错误语义和 Git 可执行 filter 继续分别整改。本增量没有新增 p50/p95 或 RSS 测量，不宣称提速。原生写操作、provider/设备、签名和生产 soak 同样未完成，全平台生产就绪仍不成立。
 
-本机最终 workspace 为 **636 passed / 0 failed / 13 ignored**；证据测试 18/18、Engine 结构门禁 3/3。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过；当前 release stdio 18/18、认证 HTTP/SSE 13/13。两路独立复审批准本子项。扫描器 14 份上游摘要全部一致，vendor 源码/pin 未变。同源码原生 CI 待执行，15.13a 在该门禁完成前保持未勾选。
+本机最终 workspace 为 **636 passed / 0 failed / 13 ignored**；证据测试 18/18、Engine 结构门禁 3/3。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过；当前 release stdio 18/18、认证 HTTP/SSE 13/13。两路独立复审批准本子项。扫描器 14 份上游摘要全部一致，vendor 源码/pin 未变。
+
+源码 SHA `533986775cee33b4d9372253178e7af67c262f2c` 的[同源码原生 CI 全部 22 项通过](https://github.com/loong10k/diskgraph/actions/runs/37033696892)，包含八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主及五个原生包。Windows stable 与 Rust 1.97.0 日志均逐项确认十三项解析回归通过；人工记录不代表原生 Windows lsof provider 已实现。macOS stable 日志确认十四项解析回归，包括真实 lsof 换行/控制字符显示碰撞测试。15.13a 仅按结果解释及覆盖语义完成，8.7 和父项 15.13 保持未完成。
