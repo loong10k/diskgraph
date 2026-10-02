@@ -69,7 +69,7 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 
 #### Scenario: Terminal digest confirmation
 - **WHEN** EOF, an exact byte limit, or final identity observation completes a digest
-- **THEN** recheck current authorization, cancellation and the deadline before confirming, including empty files; a stop voids the digest without erasing read costs. Synchronous waits are not hard-preempted, but a late result cannot be confirmed.
+- **THEN** recheck current authorization, scope revocation, cancellation and the deadline before confirming, including empty files and trusted compatibility calls with no persisted policy; a stop voids the digest without erasing read costs. Synchronous waits are not hard-preempted, but a late result cannot be confirmed.
 
 #### Scenario: Windows native ordinary file regression
 - **WHEN** a Windows NTFS fixture is inspected under explicit content grants

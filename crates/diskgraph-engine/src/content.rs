@@ -500,11 +500,28 @@ impl Engine {
                 .is_err()
             {
                 stopped = Some(InspectionStop::PermissionRevoked);
-            } else if std::time::Instant::now() >= deadline {
+            } else {
+                // 可信兼容入口可能没有持久 policy，但数据库 scope 撤销仍然有效。
+                match self.control_store().and_then(|store| {
+                    store
+                        .live_permission(
+                            request.principal,
+                            &diskgraph_core::Permission::ContentRead,
+                            request.scope_id,
+                        )
+                        .map_err(EngineError::from)
+                }) {
+                    Ok(Some(false)) => stopped = Some(InspectionStop::PermissionRevoked),
+                    Err(_) => stopped = Some(InspectionStop::ReadError),
+                    _ => {}
+                }
+            }
+            if stopped.is_none() && std::time::Instant::now() >= deadline {
                 stopped = Some(InspectionStop::Deadline);
-            } else if request
-                .cancel
-                .is_some_and(|cancel| cancel.load(std::sync::atomic::Ordering::SeqCst))
+            } else if stopped.is_none()
+                && request
+                    .cancel
+                    .is_some_and(|cancel| cancel.load(std::sync::atomic::Ordering::SeqCst))
             {
                 stopped = Some(InspectionStop::Cancelled);
             }

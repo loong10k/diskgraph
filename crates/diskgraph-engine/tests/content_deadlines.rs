@@ -176,3 +176,83 @@ fn terminal_cancellation_and_authorization_never_confirm_an_empty_digest() {
         assert!(result.digest_hex.is_empty());
     }
 }
+
+#[test]
+fn terminal_scope_revocation_also_denies_trusted_compatibility_without_a_policy() {
+    struct Allow;
+    impl Authorizer for Allow {
+        fn decide(&self, _: &PrincipalId, _: &Permission, _: &ScopeId) -> Decision {
+            Decision::Allowed
+        }
+    }
+    struct RevokeAtTerminal {
+        control_path: PathBuf,
+        calls: AtomicUsize,
+    }
+    impl Authorizer for RevokeAtTerminal {
+        fn decide(&self, _: &PrincipalId, _: &Permission, scope: &ScopeId) -> Decision {
+            if self.calls.fetch_add(1, Ordering::SeqCst) == 2 {
+                // 第二隔离连接模拟真正的数据库撤销；不递归获取 Engine 的控制锁。
+                let control = rusqlite::Connection::open(&self.control_path).unwrap();
+                assert_eq!(
+                    control
+                        .execute(
+                            "UPDATE scopes SET revoked=1 WHERE scope_id=?1",
+                            [scope.as_str()]
+                        )
+                        .unwrap(),
+                    1
+                );
+            }
+            Decision::Allowed
+        }
+    }
+    let workspace = tempfile::tempdir().unwrap();
+    let root = workspace.path().join("project");
+    std::fs::create_dir(&root).unwrap();
+    let root = root.canonicalize().unwrap();
+    let path = root.join("empty.bin");
+    std::fs::write(&path, []).unwrap();
+    let data_dir = workspace.path().join("data");
+    let engine = Engine::open(EngineConfig {
+        data_dir: data_dir.clone(),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let principal = PrincipalId::new("trusted-compatibility-fixture").unwrap();
+    let scope = engine.register_scope(&root, &principal, &Allow).unwrap();
+    assert!(
+        engine
+            .control_store()
+            .unwrap()
+            .policy_state()
+            .unwrap()
+            .is_none()
+    );
+    let authorizer = RevokeAtTerminal {
+        control_path: data_dir.join("diskgraph-control.sqlite"),
+        calls: AtomicUsize::new(0),
+    };
+    let request = InspectionRequest {
+        scope_id: &scope,
+        principal: &principal,
+        path: &path,
+        offset: 0,
+        max_bytes: 100,
+        chunk_bytes: 32,
+        cancel: None,
+    };
+    let result = engine
+        .digest_bounded_until(
+            &request,
+            &ConservativeProbe,
+            &authorizer,
+            Instant::now() + Duration::from_secs(10),
+        )
+        .unwrap();
+    assert!(engine.scope(&scope).unwrap().revoked);
+    assert_eq!(result.stopped, Some(InspectionStop::PermissionRevoked));
+    assert!(!result.confirmed());
+    assert!(result.digest_hex.is_empty());
+    assert_eq!(result.bytes_digested, 0);
+}
