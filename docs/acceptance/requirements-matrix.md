@@ -73,7 +73,7 @@
 | MCP-03 | supported | `origins_are_validated_before_anything_else`、非回环绑定需认证、客户端同名目录不被当作服务端目标（P4-5.1 验收） |
 | MCP-04 | supported | 统一授权执行（engine require 贯穿三传输） |
 | MCP-05 | supported | `the_server_stream_survives_read_timeouts`；连接身份与业务 job ID 分离（P4-5.8） |
-| MCP-06 | partial | 15.9 的客户端状态/可信代理/503 关闭已通过[同 SHA 22/22 CI](https://github.com/loong10k/diskgraph/actions/runs/36997233647)。15.10 已先红后绿修复 legacy 有界编码、64 条/16 MiB 每会话及 64 MiB 每监听器预执行门禁、关闭退款、授权 generation 与锁等待/写入期限；本机 workspace 614 passed / 13 ignored、release 协议及两位独立复审通过，新 SHA 原生 CI 待完成。预算范围、默认最坏并发、保守断流与升级边界见 MCP README |
+| MCP-06 | supported | 客户端状态/可信代理/503 关闭及 legacy 有界编码、64 条/16 MiB 每会话和 64 MiB 每监听器预执行门禁、关闭退款、授权 generation 与锁等待/写入期限先红后绿；本机 workspace 614 passed / 13 ignored、release 协议及两位独立复审通过。[2bef5e5 同 SHA 22/22 CI](https://github.com/loong10k/diskgraph/actions/runs/37005829815)全绿，Windows 两个 Rust 版本逐项核对 21 项新增单元及三项真实 socket 回归。预算范围、默认最坏并发、保守断流与停止旧宿主的升级边界见 MCP README |
 
 ## platform-ffi
 
