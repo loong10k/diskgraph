@@ -4,6 +4,17 @@
 
 ## ADDED Requirements
 
+### Requirement: ST-06 Maintainable Rust storage boundaries
+The storage crate SHALL keep lib.rs and mod.rs to module declarations and public reexports. Each production Rust source file SHALL define no more than one type and SHALL contain real implementation rather than placeholders. Public interfaces SHALL keep their existing root exports and wire/SQLite semantics during the structural change. Production wildcard imports SHALL be absent. Types and public methods SHALL have Chinese documentation with actual provenance and parameter/return semantics; a native Rust implementation SHALL not invent a Java counterpart.
+
+#### Scenario: Storage entry and source structure
+- **WHEN** the source-layout gate parses production storage modules
+- **THEN** entry files only declare modules and reexports, each type has its own file, wildcard imports and placeholder bodies are rejected, and required documentation is present
+
+#### Scenario: Existing storage consumers
+- **WHEN** existing engines, bindings, queries, migration and fenced-publication tests use storage after the split
+- **THEN** unchanged public exports, SQL/data formats, transaction order, authorization and query budgets retain their prior behavior
+
 ### Requirement: ST-01 Immutable atomic publication
 系统 SHALL 将未完成批次与可查询版本隔离，原子发布完整或明确标记的 partial 版本；失败和取消不得无声替换最新完成版本。
 

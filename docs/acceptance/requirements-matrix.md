@@ -1,6 +1,6 @@
 # 要求证据矩阵（P10 任务 11.1 / 11.2）
 
-2026-10-02 更新：当前 change 有 **88 个唯一 Requirement ID / 90 个声明**；OP-10、ST-05 在不同增量段重复声明，分母不能简单按标题行数计。以下 77 条是原始基线，补充 11 条列于末尾。`supported` 只表示具名实现/回归的限定范围，不能替代完整平台门禁；全平台状态见[当前实施记录](../production-readiness-full-platform-2026-10-02.zh-CN.md)。
+2026-10-02 更新：当前 change 有 **90 个唯一 Requirement ID / 92 个声明**；OP-10、ST-05 在不同增量段重复声明，分母不能简单按标题行数计。以下 77 条是原始基线，补充 13 条列于末尾。`supported` 只表示具名实现/回归的限定范围，不能替代完整平台门禁；全平台状态见[当前实施记录](../production-readiness-full-platform-2026-10-02.zh-CN.md)。
 
 日期：2026-09-29 · 分母核对：14 个 spec、**77 条 Requirement**（`grep -c "Requirement:"` = 77，逐条列出于下）。状态口径：**supported** = 实现且具名测试通过；**partial** = 实现但有记录在案的边界；**deferred** = 需要 real-OS/另一产品侧，登记于 `diskgraph_testkit::real_os_requirements()` 与各验收文档，不冒充完成。测试名均为仓库内真实测试（分母 326 个唯一测试名，未编造）。
 
@@ -179,5 +179,7 @@
 | CT-05 | supported | 总文件/字节/期限预算，失败读取真实成本、部分摘要不确认、取消/撤权回归 |
 | RT-06 | supported | 20 ms 协作取消、实际编码 staging、容量入队拒绝、30 秒租约/5 秒续租与 fencing 夹具；非严格 RSS |
 | RT-07 | supported | prune 默认预览，保护 latest/pin/操作与恢复引用；SQLite 不自动 VACUUM |
-| RE-06 | partial | 4edfac0 20/22 同 SHA CI：Windows 并发包 I/O 和 macOS ARM 预算失败终态门禁未过。后续任务恢复/runner/keyset 增量本机 581 测试、Clippy 通过，原生跨平台重验待完成；未部署生产 |
+| RE-06 | partial | f57aa40 的同 SHA 22/22 CI 已通过，含两个此前失败的原生包；后续存储结构本机 582 测试/Clippy/协议和独立复审通过，增量跨平台重验待完成。真实长期生产运行/签名发行仍缺；未部署生产 |
 | RE-07 | partial | 本轮独立审查、真实 FFI、release 性能与桌面 CI 工作流；移动/provider/原生写/签名/生产证据尚缺，不能宣称全平台就绪 |
+| RT-08 | supported | `dropping_an_idle_runner_releases_its_engine` 和 `dropping_a_runner_blocked_on_queue_read_prevents_a_new_claim` 先红后绿；f57aa40 跨平台通过；已开始扫描仍按预算/租约协作结束，不承诺瞬时取消 |
+| ST-06 | supported | 入口 93 行、每类型独立文件、中文实际来源和参数/返回、无生产 wildcard/stub；`production_storage_entry_types_and_imports_follow_the_rust_contract` 先红后绿。store 76 passed / 5 ignored，workspace 582 / 13；两位独立复审确认旧 API/事务与 185 处 SQL 不变；本次跨平台 CI 单独核验 |

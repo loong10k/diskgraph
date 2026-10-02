@@ -1,4 +1,5 @@
 //! 不可变目录的精确计数索引；聚合成本只在发布/迁移事务承担。
+
 use rusqlite::{Connection, params_from_iter};
 
 use crate::Result;
@@ -6,6 +7,9 @@ use crate::Result;
 pub(crate) const KNOWN_SIZE: &str = "COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0 AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1";
 
 /// 在当前调用者事务中生成计数；snapshot 为 None 时回填所有旧快照。
+/// 在已有事务策略下升级结构或构建精确计数，失败向调用者传播。
+/// 参数：connection：调用者控制的 SQLite 连接；snapshot：可选快照，None 表示全部旧快照。
+/// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
 pub(crate) fn rebuild(connection: &Connection, snapshot: Option<&str>) -> Result<()> {
     let filter = if snapshot.is_some() {
         "snapshot_id = ?1"
@@ -39,6 +43,9 @@ pub(crate) fn rebuild(connection: &Connection, snapshot: Option<&str>) -> Result
 }
 
 /// v8→v9 同一事务创建索引并回填；失败时计数结构与版本一起回滚。
+/// 在已有事务策略下升级结构或构建精确计数，失败向调用者传播。
+/// 参数：connection：调用者控制的 SQLite 连接。
+/// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
 pub(crate) fn migrate(connection: &Connection) -> Result<()> {
     let transaction = connection.unchecked_transaction()?;
     transaction.execute_batch(

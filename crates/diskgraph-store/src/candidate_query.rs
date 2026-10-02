@@ -3,39 +3,10 @@
 use std::collections::HashSet;
 use std::time::{Duration, Instant};
 
-use diskgraph_core::{DiskNode, EvidenceEdge, QueryBudget, TruncationReason};
+use diskgraph_core::{QueryBudget, TruncationReason};
 use rusqlite::{OptionalExtension, params};
 
-use crate::{Result, SqliteSnapshotStore, StoreError};
-
-/// 一次候选审阅的结果；字节缺口和截断状态不能被当成删除授权。
-#[derive(Clone, Debug)]
-pub struct CandidateSelection {
-    pub candidates: Vec<(DiskNode, Vec<EvidenceEdge>)>,
-    pub selected_bytes: u64,
-    pub remaining_bytes: u64,
-    pub coverage_complete: bool,
-    pub complete: bool,
-    pub truncated: Option<TruncationReason>,
-}
-
-impl CandidateSelection {
-    fn empty(target_bytes: u64, coverage_complete: bool) -> Self {
-        Self {
-            candidates: Vec::new(),
-            selected_bytes: 0,
-            remaining_bytes: target_bytes,
-            coverage_complete,
-            complete: coverage_complete,
-            truncated: None,
-        }
-    }
-
-    fn stop(&mut self, reason: TruncationReason) {
-        self.complete = false;
-        self.truncated = Some(reason);
-    }
-}
+use crate::{CandidateSelection, Result, SqliteSnapshotStore, StoreError};
 
 // A blocked node excludes both its ancestors and descendants. The recursive
 // sets stay inside SQLite's deadline-bound reader; no O(revision) Rust map is
@@ -80,6 +51,9 @@ fn interrupted(error: &rusqlite::Error) -> bool {
 
 impl SqliteSnapshotStore {
     /// 按大小选择不重叠的可审阅目录；仅解码结果节点，期限由只读连接和预算共同约束。
+    /// 准备有界审阅候选、目标缺口和真实截断状态。
+    /// 参数：snapshot_id：固定快照 ID；target_bytes：审阅目标字节数；budget：节点、字节和期限预算。
+    /// 返回：`Result<CandidateSelection>` 的当前持久查询结果；数据库/格式/状态错误向调用者传播。
     pub fn candidate_selection(
         &self,
         snapshot_id: &str,

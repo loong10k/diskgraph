@@ -184,6 +184,8 @@ Swift/Kotlin do not independently implement DiskGraph schema management. Native 
 
 Scanning, databases and effects remain on the server containing the resources. A local agent accesses authorized results through the protocol, without mounting SQLite or treating remote paths as local. Server recovery does not depend on a PruneX installation.
 
+The storage source follows ST-06: `lib.rs` declares modules and preserves root exports; each type has its own file. Connection/version/WAL ownership stays with `SqliteSnapshotStore`, and durable authority stays with `ControlStore`. Node/directory/search/history/relationship reads, staging/publication, graph retention, and scope/policy/job/operation/recovery persistence have separate implementation modules. Control retention guards live separately from the job queue. These are real implementations on the existing connections, not new wrapper layers or a cross-database transaction. See the [source-boundary diagram and gate](../crates/diskgraph-store/README.md#source-boundaries--源码边界).
+
 ## 7. Complete command surface and three MCP forms
 
 The target has **29 commands or command families**:
@@ -423,6 +425,6 @@ flowchart LR
     A --> H["Handle-bound, no-replace operation"]
 ```
 
-FFI derives its control-data realm from the lossless graph database path; ambiguous legacy shared control data is rejected. Operation plans require a complete digest and fresh source evidence, so old plans must be recreated. Positive-target candidate selection still loads a full revision; relation impact is paged but opens a read connection per page/direction. These remain explicit query-cost limits.
+FFI derives its control-data realm from the lossless graph database path; ambiguous legacy shared control data is rejected. Operation plans require a complete digest and fresh source evidence, so old plans must be recreated. Positive-target candidate selection now uses bounded preparation, and relation impact shares one authorized read connection across pages and directions. Explicit offset compatibility still incurs offset traversal; scanner cancellation does not provide a strict RSS limit.
 
 See the [acceptance record](security-performance-hardening-2026-10-01.md) for compatibility, fidelity checks, cancellation overshoot, physical retention costs and local measurements. CLI/MCP dangerous tools remain closed; Linux/Windows native writes and strict scanner RSS bounds are not accepted capabilities.
