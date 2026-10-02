@@ -24,7 +24,7 @@ read SHALL 要求独立内容权限、精确资源引用与字节/范围预算�
 
 #### Scenario: Windows native content acquisition
 - **WHEN** an authorized caller reads a local ordinary Windows file
-- **THEN** resolve single name components relative to retained directory handles, expose native placeholder attributes on the calling thread, acquire only attributes before approving data access, reject reparse/offline/recall objects before reading data, and retain no-write/no-delete sharing and full native identity/size/high-resolution version checks for the inspection lifetime. Restore the calling thread's prior compatibility mode. Unknown acquisition or volume capabilities fail explicitly; real cloud-provider no-hydration acceptance remains separate from local NTFS and attribute fixtures.
+- **THEN** resolve single name components relative to retained directory handles, expose native placeholder attributes on the calling thread, acquire only attributes before approving data access, and reject reparse/offline/recall objects before reading data. Acquisition changes must return conflict before data access; once acquired, the data handle denies ordinary write/delete sharing for the read lifetime. Retain directory/attribute leases and full native identity/size/version checks, restore the calling thread's prior compatibility mode, and refuse a missing mode API explicitly. Native timestamp units are not a guaranteed atomic/monotonic content version. Real cloud-provider no-hydration acceptance remains separate from local NTFS and attribute fixtures.
 
 ### Requirement: CT-03 Staged duplicate confirmation
 duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有预算的内容哈希与确认；硬链接、共享块和独立重复副本分别说明，结果不能自动触发删除。
@@ -65,4 +65,4 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 
 #### Scenario: Windows native ordinary file regression
 - **WHEN** a Windows NTFS fixture is inspected under explicit content grants
-- **THEN** bounded ranges and complete digests work, one-byte digests remain unconfirmed, cancellation/deadline and revocation return no confirmed content, alternate data streams and namespace escapes are refused, and a conflicting writer or parent replacement cannot alter the held inspection object.
+- **THEN** bounded ranges and complete digests work, one-byte digests remain unconfirmed, cancellation/deadline and revocation return no confirmed content, and alternate data streams and namespace escapes are refused. A writer present when acquiring data conflicts; mutation during the attribute-only acquisition is rejected as conflict without body/confirmed digest; a writer opened while reading conflicts with the data handle, and the retained parents prevent replacement. Cancellation/deadline are cooperative between native I/O operations, not hard preemption of a synchronous open or read.

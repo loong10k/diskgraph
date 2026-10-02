@@ -20,6 +20,8 @@ mod hydration_guard;
 pub use hydration_guard::HydrationGuard;
 #[cfg(any(windows, test))]
 mod windows_native_observer;
+#[cfg(windows)]
+mod windows_placeholder_mode;
 
 /// One scanned node: the v1 projection plus lossless v2 identity data.
 #[derive(Clone, Debug, PartialEq)]

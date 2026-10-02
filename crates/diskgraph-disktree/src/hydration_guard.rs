@@ -9,7 +9,7 @@ pub struct HydrationGuard {
     #[cfg(target_os = "macos")]
     previous: i32,
     #[cfg(windows)]
-    previous: i8,
+    _windows_mode: crate::windows_placeholder_mode::WindowsPlaceholderMode,
     thread_bound: PhantomData<Rc<()>>,
 }
 
@@ -36,17 +36,8 @@ impl HydrationGuard {
         }
         #[cfg(windows)]
         {
-            use windows_sys::Wdk::Storage::FileSystem::RtlSetThreadPlaceholderCompatibilityMode;
-            // EXPOSE=2：不能用系统默认 DISGUISE 隐藏后的属性批准数据读取。
-            let previous = unsafe { RtlSetThreadPlaceholderCompatibilityMode(2) };
-            if previous < 0 {
-                return Err(io::Error::new(
-                    io::ErrorKind::Unsupported,
-                    "placeholder mode unavailable",
-                ));
-            }
             Ok(Self {
-                previous,
+                _windows_mode: crate::windows_placeholder_mode::WindowsPlaceholderMode::enter()?,
                 thread_bound: PhantomData,
             })
         }
@@ -57,6 +48,7 @@ impl HydrationGuard {
     }
 }
 
+#[cfg(target_os = "macos")]
 impl Drop for HydrationGuard {
     fn drop(&mut self) {
         #[cfg(target_os = "macos")]
@@ -64,15 +56,6 @@ impl Drop for HydrationGuard {
             // 本类型 !Send，析构发生在设置策略的同一线程。
             unsafe {
                 setiopolicy_np(3, 1, self.previous);
-            }
-        }
-        #[cfg(windows)]
-        {
-            // guard !Send，嵌套恢复本线程的原模式；不能替代 worker 线程设置。
-            unsafe {
-                windows_sys::Wdk::Storage::FileSystem::RtlSetThreadPlaceholderCompatibilityMode(
-                    self.previous,
-                );
             }
         }
     }

@@ -449,3 +449,20 @@ flowchart TD
 Legacy sessions use a private registry rather than the public trusted-compatibility raw sender. Limits are 64 messages/16 MiB per session and 64 MiB per listener, including pending execution, encoding and sending; admission reserves `max_response_bytes + 22` and encoding shrinks it. The default 4 MiB response budget admits three simultaneous worst-case reservations per session and fifteen per listener. Oversized correlated errors and reservations are refused before 202; congestion returns 429. The bounded writer also serves modern HTTP while preserving its response fields and error status. These are delivery-buffer limits, not tool `Value`, allocator, kernel-buffer or strict RSS bounds.
 
 Every data chunk checks expiry and the narrow persistent generation under the same absolute deadline as writing, including nonblocking control-lock admission and bounded SQLite execution. Generation changes conservatively terminate older results even for an unrelated subject or newly added grant; job/operation writes do not change it. Bytes already in the kernel cannot be recalled. Outer idle liveness can wait on shared policy access and has no strict one-second cleanup SLA. Receiver closure frees queued frames; still-running tools keep their global reservation until exit. A disconnect after 202 closes/logs failed delivery and leaves durable jobs queryable. This migration requires stopping old hosts before upgrading, rather than relying on schema rejection to terminate already-open old processes.
+
+### Windows ordinary-file content acquisition
+
+```mermaid
+flowchart TD
+    A["Engine content:read<br/>Current subject + live grant"] --> H["HydrationGuard<br/>Expose thread placeholder attributes"]
+    H --> P["WindowsPathPlan<br/>Local drive + exact scope components"]
+    P --> D["WindowsScopedFile<br/>Retain parents; one relative component per open"]
+    D --> S["WindowsFileState<br/>Attribute-only handle + full native identity"]
+    S --> G{"Regular file<br/>No reparse / offline / recall?"}
+    G -->|refused| R["Placeholder / unsupported / conflict<br/>No body or confirmed digest"]
+    G -->|admitted| F["Data handle from the same held parent<br/>Read-only sharing"]
+    F --> B["ScopedContent + bounded read/digest<br/>Budget, revocation, cancellation, version checks"]
+    B --> X["Drop data and directory leases<br/>Restore thread mode"]
+```
+
+This addition preserves public result fields and the Unix path. The path plan refuses ADS, parent traversal, UNC/device namespaces and oversized inputs without canonicalizing the client path. Full 128-bit file IDs and native write/change versions stay private rather than being truncated to the existing snapshot ID field. Attribute acquisition does not freeze new writers: changes are rejected as conflict before data access. The data handle then denies ordinary write/delete sharing, while retained parents prevent replacement. This is not an atomic snapshot or a freeze of all mappings/kernel/filter activity; 100ns is a representation unit, not guaranteed filesystem precision or a monotonic version. The optional thread API (Windows 10 1709+) is dynamically resolved and missing support returns the public unsupported code. Thread mode does not cover scanner workers, and the open no-recall flag does not certify a real provider's subsequent reads. Deadline/cancellation are cooperative and cannot preempt synchronous native I/O. Native regression evidence covers CI NTFS fixtures, separately from other filesystems/provider acceptance in the [full-platform record](production-readiness-full-platform-2026-10-02.md); public file writes remain disabled.

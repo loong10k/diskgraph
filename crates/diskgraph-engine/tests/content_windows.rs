@@ -2,10 +2,12 @@
 #![cfg(windows)]
 
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
-use diskgraph_core::{BusinessError, Grant, Permission, PolicyAuthorizer, PrincipalId, ScopeId};
+use diskgraph_core::{
+    Authorizer, BusinessError, Decision, Grant, Permission, PolicyAuthorizer, PrincipalId, ScopeId,
+};
 use diskgraph_engine::content::{
     ConservativeProbe, InspectionRequest, InspectionStop, PlaceholderProbe,
 };
@@ -339,7 +341,7 @@ fn native_windows_junction_cannot_redirect_a_content_request() {
 }
 
 #[test]
-fn native_windows_metadata_mutation_attempt_cannot_change_read_bytes() {
+fn native_windows_acquisition_mutation_returns_conflict_before_read_or_digest() {
     struct WriterProbe {
         blocked: Mutex<Option<bool>>,
     }
@@ -363,7 +365,83 @@ fn native_windows_metadata_mutation_attempt_cannot_change_read_bytes() {
     let result = fixture
         .engine
         .read_bounded(&fixture.request(&path), &probe, &fixture.policy);
-    assert_eq!(*probe.blocked.lock().unwrap(), Some(true));
-    assert_eq!(result.unwrap().bytes, b"stable bytes");
-    assert_eq!(std::fs::read(path).unwrap(), b"stable bytes");
+    // 仅属性访问不冻结新 writer；必须在申请数据之前拒绝被改变的版本。
+    assert_eq!(*probe.blocked.lock().unwrap(), Some(false));
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(BusinessError::Conflict))
+    ));
+    assert!(std::fs::read(&path).unwrap().is_empty());
+    std::fs::write(&path, b"stable bytes").unwrap();
+    assert!(matches!(
+        fixture
+            .engine
+            .digest_bounded(&fixture.request(&path), &probe, &fixture.policy),
+        Err(EngineError::Business(BusinessError::Conflict))
+    ));
+}
+
+#[test]
+fn native_windows_data_handle_blocks_new_writer_for_reads_and_digests() {
+    struct ReadPhaseAuthorizer {
+        policy: PolicyAuthorizer,
+        path: PathBuf,
+        calls: AtomicUsize,
+        blocked: AtomicBool,
+    }
+    impl Authorizer for ReadPhaseAuthorizer {
+        fn policy_version(&self) -> u64 {
+            self.policy.policy_version()
+        }
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &ScopeId,
+        ) -> Decision {
+            // 第二次授权在数据句柄获取后、第一个读取块之前；无需时间竞态或 sleep。
+            if self.calls.fetch_add(1, Ordering::SeqCst) == 1 {
+                self.blocked.store(
+                    std::fs::OpenOptions::new()
+                        .write(true)
+                        .truncate(true)
+                        .open(&self.path)
+                        .is_err(),
+                    Ordering::SeqCst,
+                );
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let fixture = NativeContent::open();
+    let path = fixture.file("read-phase.bin", b"stable bytes");
+    for digest in [false, true] {
+        let authorizer = ReadPhaseAuthorizer {
+            policy: fixture.policy.clone(),
+            path: path.clone(),
+            calls: AtomicUsize::new(0),
+            blocked: AtomicBool::new(false),
+        };
+        if digest {
+            let result = fixture
+                .engine
+                .digest_bounded(&fixture.request(&path), &ConservativeProbe, &authorizer)
+                .unwrap();
+            assert!(result.confirmed());
+            assert_eq!(
+                result.digest_hex,
+                hex::encode(Sha256::digest(b"stable bytes"))
+            );
+        } else {
+            let result = fixture
+                .engine
+                .read_bounded(&fixture.request(&path), &ConservativeProbe, &authorizer)
+                .unwrap();
+            assert_eq!(result.stopped, None);
+            assert_eq!(result.bytes, b"stable bytes");
+        }
+        assert!(authorizer.calls.load(Ordering::SeqCst) >= 2);
+        assert!(authorizer.blocked.load(Ordering::SeqCst));
+        assert_eq!(std::fs::read(&path).unwrap(), b"stable bytes");
+    }
 }

@@ -1,8 +1,8 @@
 //! Bounded content inspection (P7 tasks 8.1–8.5, CT-01..CT-04). Reads and
 //! digests run under their own authorization (`content:read`), a byte
-//! budget, and an identity contract: the object is re-stat'ed before and
-//! after, so a file that changed underneath the read is reported unstable
-//! instead of quietly producing a hash of half of each version.
+//! budget, and an identity contract: observed identity/version changes void
+//! the result. Native metadata checks are not an atomic content snapshot;
+//! writable mappings or kernel/filter activity may evade those observations.
 //!
 //! Nothing here persists content: outcomes carry the bytes only in memory
 //! for the caller, and every log/export helper is metadata-shaped by
@@ -247,7 +247,7 @@ impl Engine {
         probe: &dyn PlaceholderProbe,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<ReadOutcome, EngineError> {
-        let _hydration = diskgraph_disktree::HydrationGuard::enter()?;
+        let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
         self.require(
             authorizer,
             request.principal,
@@ -374,7 +374,7 @@ impl Engine {
         authorizer: &dyn diskgraph_core::Authorizer,
         deadline: std::time::Instant,
     ) -> Result<DigestOutcome, EngineError> {
-        let _hydration = diskgraph_disktree::HydrationGuard::enter()?;
+        let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
         self.require(
             authorizer,
             request.principal,
@@ -474,9 +474,7 @@ impl Engine {
             }
             hasher.update(&buffer[..read]);
             total += read as u64;
-            // A file written or removed mid-digest voids the run: re-stat
-            // between chunks so the recorded digest is never half of two
-            // versions, or a digest of a file that is already gone.
+            // 每块重新观察身份和版本；发现变化则作废摘要，但元数据不是原子快照。
             if !prepared.matches(&file) {
                 stopped = Some(InspectionStop::Unstable);
                 break;

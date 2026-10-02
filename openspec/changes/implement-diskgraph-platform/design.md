@@ -168,6 +168,6 @@ SC-06、CT-05、Q-08、RT-06/07、OP-10、ST-05 为本轮验收依据。请求�
 
 15.11 保留 read/digest 的 wire 字段与 Unix 行为，将 Windows 获取步骤放入私有平台模块。路径规划只接受本地绝对 drive 路径与注册根下的原始组件，不用 canonicalize 跟随客户端路径；ADS、父级跳转、UNC/设备命名空间和过长路径明确拒绝。先持有 drive 根，再用 NtCreateFile 的 RootDirectory 逐个组件打开，禁止 reparse，并保留目录句柄直到检查结束。
 
-当前线程通过 RAII 暴露占位属性，先只请求 FILE_READ_ATTRIBUTES，再检查文件类型及 reparse/offline/recall 属性，最后才对同一被持有父目录下的普通文件请求 FILE_READ_DATA。检查期间仅共享读取，常规 writer、删除及父目录替换与已有句柄冲突；完整 128 位文件 ID、64 位卷 ID、长度及原生高精度写入/变更时间检查结果是否稳定，不能用截断 ID 或路径重开代替。局部模块分别拥有路径规划、原生状态、目录租约和跨平台内容准备，入口不新增业务类型堆积。
+当前线程通过 RAII 暴露占位属性，先只请求 FILE_READ_ATTRIBUTES，再检查文件类型及 reparse/offline/recall 属性，最后才对同一被持有父目录下的普通文件请求 FILE_READ_DATA。属性访问不冻结新 writer，获取期间的改变必须在申请数据前以 Conflict 拒绝；读取时的数据句柄仅共享读取，常规 writer/删除冲突。完整 128 位文件 ID、64 位卷 ID、长度及原生写入/变更时间检查结果是否稳定，不能用截断 ID 或路径重开代替；100ns 是表示单位，不保证各文件系统的实际精度或单调版本。局部模块分别拥有路径规划、原生状态、目录租约和跨平台内容准备，入口不新增业务类型堆积。
 
-共享限制不是对内核/filter 或已有 writable mapping 的普遍冻结；版本检查也不是原子内容快照。FILE_OPEN_NO_RECALL 约束打开步骤，不能据此保证任意真实云 provider 的后续读取无下载。线程模式只覆盖调用线程，不能代表上游 scanner 的所有 worker。Windows 普通文件与属性/junction 夹具必须在实际原生 CI 通过，真实 provider、Linux 占位保护、写操作保真及移动端继续由 15.2–15.6 单独验收。
+共享限制不是对内核/filter 或已有 writable mapping 的普遍冻结；版本检查也不是原子内容快照。FILE_OPEN_NO_RECALL 约束打开步骤，不能据此保证任意真实云 provider 的后续读取无下载。线程模式只覆盖调用线程，不能代表上游 scanner 的所有 worker；动态解析该可选 API，缺导出时返回 Unsupported，避免新增静态导入导致旧宿主 loader 失败。取消/期限在同步获取后及块之间检查，不抢占内核打开/读取。Windows 普通文件与属性/junction 夹具必须在实际原生 CI 通过，真实 provider、Linux 占位保护、写操作保真及移动端继续由 15.2–15.6 单独验收。

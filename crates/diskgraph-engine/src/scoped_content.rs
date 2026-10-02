@@ -3,7 +3,6 @@ use std::path::Path;
 #[cfg(unix)]
 use std::path::PathBuf;
 
-#[cfg(not(windows))]
 use diskgraph_core::BusinessError;
 
 use crate::EngineError;
@@ -23,6 +22,19 @@ pub(crate) struct ScopedContent {
 }
 
 impl ScopedContent {
+    /// 进入本线程原生策略；返回 RAII guard，无法提供策略时拒绝内容访问。
+    pub(crate) fn hydration_guard() -> Result<diskgraph_disktree::HydrationGuard, EngineError> {
+        diskgraph_disktree::HydrationGuard::enter().map_err(Self::hydration_error)
+    }
+
+    fn hydration_error(error: std::io::Error) -> EngineError {
+        if error.kind() == std::io::ErrorKind::Unsupported {
+            EngineError::Business(BusinessError::Unsupported)
+        } else {
+            error.into()
+        }
+    }
+
     /// 对根下路径执行原生获取；返回占位结果时 file 为 None，绝不读取数据。
     pub(crate) fn open(
         root: &Path,
@@ -90,5 +102,35 @@ impl ScopedContent {
             let _ = file;
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ScopedContent;
+    use crate::EngineError;
+    use diskgraph_core::BusinessError;
+
+    #[test]
+    fn a_missing_native_guard_api_reports_publicly_unsupported() {
+        let error = ScopedContent::hydration_error(std::io::Error::new(
+            std::io::ErrorKind::Unsupported,
+            "missing native mode export",
+        ));
+        assert!(matches!(
+            error,
+            EngineError::Business(BusinessError::Unsupported)
+        ));
+    }
+
+    #[test]
+    fn other_native_guard_failures_preserve_io_error_semantics() {
+        let error = ScopedContent::hydration_error(std::io::Error::new(
+            std::io::ErrorKind::PermissionDenied,
+            "native policy rejected",
+        ));
+        assert!(
+            matches!(error, EngineError::Io(error) if error.kind() == std::io::ErrorKind::PermissionDenied)
+        );
     }
 }

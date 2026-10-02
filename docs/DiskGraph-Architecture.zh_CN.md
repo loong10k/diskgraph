@@ -449,3 +449,20 @@ flowchart TD
 远程 legacy 使用私有预算注册表，公开裸 sender 仅保留为可信内部兼容接口。每会话 64 条/16 MiB、每监听实例合计 64 MiB，包含待执行、编码及发送中的预留；准入先按 `max_response_bytes + 22` 认领，编码后缩为实际帧。默认 4 MiB 允许每会话三个、全实例十五个同时执行的最坏预留。无法容纳关联错误或单条预留时先返回 413，拥塞先返回 429；共用有界编码器保留现代 HTTP 的字段与超限状态。它约束投递缓冲，不约束工具 Value、分配器、内核缓冲或严格 RSS。
 
 数据帧每次分段写检查到期与持久授权计数；非阻塞控制锁准入、SQLite 等待/执行和 socket 写入共用同一绝对期限。任何授权相关变更（包括无关主体、新增 grant）都会保守关闭旧结果，任务/操作表不触发；已经交给内核的字节无法撤回。外层闲置存活检查仍可能等待共享策略访问，没有严格一秒撤权/清理 SLA。接收端关闭释放排队帧，仍在运行的业务继续占用全局预留直到退出。202 后若断线则明确关闭并记录，持久 job 可重查。升级必须先停止旧宿主，不能用 schema 重开门禁冒充对存活旧进程的修复。
+
+### Windows 普通文件内容获取
+
+```mermaid
+flowchart TD
+    A["Engine content:read<br/>真实主体 + 实时授权"] --> H["HydrationGuard<br/>当前线程暴露占位属性"]
+    H --> P["WindowsPathPlan<br/>本地 drive + 精确 scope 组件"]
+    P --> D["WindowsScopedFile<br/>保留父句柄；每次相对打开一个组件"]
+    D --> S["WindowsFileState<br/>仅属性句柄 + 完整原生身份"]
+    S --> G{"普通文件<br/>无 reparse / offline / recall?"}
+    G -->|拒绝| R["Placeholder / unsupported / conflict<br/>无内容或确认摘要"]
+    G -->|准入| F["同一持有父目录下的数据句柄<br/>只共享读取"]
+    F --> B["ScopedContent + 有界读取/摘要<br/>预算、撤权、取消、版本核验"]
+    B --> X["释放数据及目录租约<br/>恢复线程模式"]
+```
+
+此增量保留公开结果字段及 Unix 路径。路径规划直接拒绝 ADS、父级跳转、UNC/设备命名空间及过长输入，不对客户端路径执行 canonicalize。完整 128 位 file ID 与原生写入/变更版本保持私有，不截断填入现有快照 ID 字段。属性获取不冻结新 writer：变化在数据访问前以 Conflict 拒绝；数据句柄随后拒绝普通写入/删除共享，持有父目录防止替换。这不构成原子快照或对所有 mapping/kernel/filter 活动的冻结；100ns 是表示单位，不保证文件系统实际精度或单调版本。可选线程 API（Windows 10 1709+）动态解析，缺能力返回公开 unsupported 错误码。线程模式不覆盖 scanner worker，打开时 no-recall 标志也不能证明真实 provider 后续读取不下载。取消/期限是协作式，不能抢占同步原生 I/O。原生回归证据限 CI 的 NTFS 夹具，其他文件系统/provider 验收分别记录于[全平台记录](production-readiness-full-platform-2026-10-02.zh-CN.md)；公开文件写能力继续关闭。
