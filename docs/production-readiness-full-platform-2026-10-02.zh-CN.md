@@ -139,10 +139,12 @@ Windows 创建时用 JOB_LIST/HANDLE_LIST、KILL_ON_JOB_CLOSE 和固定地址 ov
 
 测试先行在旧 runner 上实际产生 12 项中 11 项失败；后续补出的 Git HEAD 异常终止和 leader 逃组也先红，旧逃组清理等待约两秒。最终本机证据 suite 42/42，含 128 轮快速退出/预算/回收、真实 Git/lsof 与并发独立取消。独立绑定源码的探针确认 HEAD/upstream 信号失败阻止后续命令、逃组 leader 及时终止，以及 1000 轮结束后无未回收 child；这些是本地夹具观测，不能当性能分位数。
 
-初次全量运行因共享构建产物消失（ENOENT）未执行部分二进制，不计通过；独立 target 重建后完成 **660 passed / 0 failed / 13 ignored**。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。扫描器 14 份摘要一致，上游 pin/源码不变。当前源码的原生 CI、特别是 Windows Job/管道/外部引用回归仍待运行，15.13b 在该门禁完成前保持未勾选。
+初次全量运行因共享构建产物消失（ENOENT）未执行部分二进制，不计通过；独立 target 重建后完成 **660 passed / 0 failed / 13 ignored**。完整 Clippy `-D warnings`、定向 fmt、OpenSpec strict 与 release CLI/MCP/FFI 构建通过，当前 release stdio 18/18、认证 HTTP/SSE 13/13。扫描器 14 份摘要一致，上游 pin/源码不变。实现阶段的原生验收保持未完成，最终源码的实际结果记录如下。
 
 本增量没有新 p50/p95 或 RSS 结果，不宣称提速。Git 配置隔离、可执行 filter、离线/只读保证、unborn 修改与引用格式错误仍由 8.7 和父项 15.13 验收；原生写操作、provider/设备、签名和生产 soak 继续分别验收，不宣称全平台生产就绪。
 
 首轮[原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37043023057)尚未通过：Linux stable 的脚本夹具执行前遇到 ETXTBSY，改由独立 writer 写完并退出，目标信号断言不放宽。Windows 两个 Rust 版本均为 71 passed / 1 failed，其他所有执行器原生回归通过；唯一失败是测试假定持有用户 HANDLE 必须阻止 Job 计数归零，而实际 cleanup 返回 Ok。验收改为直接核验持有外部 HANDLE 时的 signaled 状态和实际 Job 计数，另以明确注入非零计数验证有界失败；注入覆盖不冒充真实外部引用故障。生产观察策略仍依据实际查询，最终源码原生门禁继续保持未完成。
 
 源码 `ddf6e934bebddf89783039f92d40e1f0cdf76d66` 的[第二轮原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37044718593)为 20/22 项通过。Windows stable 的 74 项 Engine 单元测试全部通过，随后 Clippy 拒绝测试模块后的辅助函数；修正只移动该函数，不改变实现。macOS Intel stable 的期限夹具假定首条 150 ms 命令在 270 ms 内完成，在负载下失败。新回归先完成轻量命令，再耗尽真实的整次五秒预算，最后确认第二条命令返回 Deadline 且未创建 marker。它去掉了 120 ms 启动假设，仍以可观察副作用检查后续命令不能重置整次期限。最终源码原生 CI 仍是必需门禁。
+
+源码 SHA `ef0ba765fc48db3c8fbd27d1f3dc1f4e6bb363e4` 的[同源码原生 CI 全部 22 项通过](https://github.com/loong10k/diskgraph/actions/runs/37046771798)：八个 Rust、五个 Kotlin、两个 Swift/GRDB 宿主、五个原生包，加上格式及 vendor 门禁。Windows 两个 Rust 版本日志均记录 Engine 单元测试 74 passed / 0 failed，逐项确认创建时句柄隔离、两管道 pending 清理、后代清理、外部持有句柄、零字节写入和注入的计数失败回归通过。Windows stable Clippy 通过，Rust 1.97.0 按现有 CI 策略跳过此步骤。macOS Intel stable 为 Engine 单元测试 69 passed / 0 failed，新的共享期限回归通过。15.13b 按本次协作执行边界完成；Git 配置/错误语义、8.7 和父项 15.13 保持未完成，不代表全平台生产就绪。
