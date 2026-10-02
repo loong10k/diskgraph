@@ -1,0 +1,66 @@
+[
+  {
+    "after_counts": {
+      "p50_ms": 0.006167000000000001,
+      "p95_ms": 0.007791,
+      "samples": 100
+    },
+    "arch": "aarch64",
+    "backup_bytes": 7077888,
+    "before_counts": {
+      "p50_ms": 0.57475,
+      "p95_ms": 0.697667,
+      "samples": 100
+    },
+    "children": 20000,
+    "db_after_migration_bytes": 8593408,
+    "db_after_publish_bytes": 19886080,
+    "db_before_migration_bytes": 7077888,
+    "distinct_sizes": 20000,
+    "fixture": "synthetic immutable metadata",
+    "migration_including_backup_ms": 54.677125,
+    "migration_sampled_peak_sqlite_temp_bytes": 684700,
+    "migration_sampled_peak_wal_bytes": 2224832,
+    "os": "macos",
+    "owned_staging_fenced_publish_ms": 194.30379200000002,
+    "profile": "release",
+    "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+    "publish_sampled_peak_sqlite_temp_bytes": 1763000,
+    "publish_sampled_peak_wal_bytes": 17308152,
+    "space_sampling_interval_ms": 1,
+    "staging_db_before_publish_bytes": 9838592,
+    "temp_sampling_is_upper_bound": false
+  },
+  {
+    "after_counts": {
+      "p50_ms": 0.006,
+      "p95_ms": 0.007042,
+      "samples": 100
+    },
+    "arch": "aarch64",
+    "backup_bytes": 71536640,
+    "before_counts": {
+      "p50_ms": 6.984,
+      "p95_ms": 7.350292,
+      "samples": 100
+    },
+    "children": 200000,
+    "db_after_migration_bytes": 88027136,
+    "db_after_publish_bytes": 203468800,
+    "db_before_migration_bytes": 71536640,
+    "distinct_sizes": 200000,
+    "fixture": "synthetic immutable metadata",
+    "migration_including_backup_ms": 611.512375,
+    "migration_sampled_peak_sqlite_temp_bytes": 14345173,
+    "migration_sampled_peak_wal_bytes": 23657072,
+    "os": "macos",
+    "owned_staging_fenced_publish_ms": 1901.112709,
+    "profile": "release",
+    "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+    "publish_sampled_peak_sqlite_temp_bytes": 9208600,
+    "publish_sampled_peak_wal_bytes": 178321872,
+    "space_sampling_interval_ms": 1,
+    "staging_db_before_publish_bytes": 97738752,
+    "temp_sampling_is_upper_bound": false
+  }
+]

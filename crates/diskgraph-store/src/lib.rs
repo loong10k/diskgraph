@@ -60,7 +60,12 @@ impl StoreError {
 pub type Result<T> = std::result::Result<T, StoreError>;
 
 mod candidate_query;
+#[cfg(test)]
+mod child_aggregate_benchmark;
+#[cfg(test)]
+mod child_aggregate_tests;
 mod control;
+mod directory_aggregates;
 mod execution;
 
 pub use candidate_query::CandidateSelection;
@@ -77,7 +82,7 @@ pub struct SqliteSnapshotStore {
 
 /// The newest schema this build understands; older binaries refuse newer files
 /// through [`StoreError::UnsupportedSchema`] (design D6, spec ST-02).
-pub const SUPPORTED_SCHEMA_VERSION: i64 = 8;
+pub const SUPPORTED_SCHEMA_VERSION: i64 = 9;
 
 const ORDERED_NODES_SQL: &str = "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error, CASE WHEN substr(json_extract(locator_key, '$.value'), 1, length(?2)) = ?2 THEN ltrim(substr(json_extract(locator_key, '$.value'), length(?2) + 1), '/') ELSE name END AS relative_path FROM nodes WHERE snapshot_id = ?1 AND parent_id IS NOT NULL ORDER BY json_extract(locator_key, '$.value') ASC, id ASC";
 
@@ -210,7 +215,7 @@ impl SqliteSnapshotStore {
             0 => {
                 connection.execute_batch(V1_SCHEMA)?;
             }
-            1..=8 => {}
+            1..=9 => {}
             other => return Err(StoreError::UnsupportedSchema(other)),
         }
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
@@ -285,6 +290,9 @@ impl SqliteSnapshotStore {
                  COMMIT;",
             )?;
         }
+        if version < 9 {
+            directory_aggregates::migrate(&connection)?;
+        }
         // The locator index cost a quarter of a kilobyte per node and served
         // exactly one query, which nothing on the read path issues. Dropping
         // it is idempotent and needs no schema version: an existing database
@@ -299,8 +307,8 @@ impl SqliteSnapshotStore {
         validate_graph(graph)?;
         let transaction = self.connection.transaction()?;
         transaction.execute(
-            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json)
-             VALUES (?1, ?2, ?3, ?4)",
+            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, count_schema)
+             VALUES (?1, ?2, ?3, ?4, 9)",
             params![
                 graph.snapshot.id,
                 to_string(&graph.snapshot.root)?,
@@ -371,6 +379,7 @@ impl SqliteSnapshotStore {
                 ])?;
             }
         }
+        directory_aggregates::rebuild(&transaction, Some(&graph.snapshot.id))?;
         transaction.commit()?;
         Ok(())
     }
@@ -385,7 +394,19 @@ impl SqliteSnapshotStore {
             )
             .optional()?;
         match json {
-            Some(json) => Ok(from_str(&json)?),
+            Some(json) => {
+                let confirmed: bool = self.connection.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM snapshot_counts WHERE snapshot_id=?1)",
+                    [id],
+                    |row| row.get(0),
+                )?;
+                if !confirmed {
+                    return Err(StoreError::InvalidGraph(
+                        "snapshot count indexes are missing; reindex this scope".into(),
+                    ));
+                }
+                Ok(from_str(&json)?)
+            }
             None => Err(StoreError::SnapshotNotFound(id.to_owned())),
         }
     }
@@ -688,8 +709,8 @@ impl SqliteSnapshotStore {
         limit: u64,
     ) -> Result<(Vec<DiskNode>, Option<u64>, u64)> {
         self.snapshot(snapshot_id)?;
-        let known = "COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0 AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1";
-        let unknown: i64 = self.connection.query_row(&format!("SELECT COUNT(*) FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND NOT ({known})"), params![snapshot_id, as_i64(parent_id)?], |row| row.get(0))?;
+        let known = directory_aggregates::KNOWN_SIZE;
+        let unknown: i64 = self.connection.query_row("SELECT unknown_count FROM directory_counts WHERE snapshot_id = ?1 AND parent_id = ?2", params![snapshot_id, as_i64(parent_id)?], |row| row.get(0)).optional()?.unwrap_or(0);
         let sql = format!(
             "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND ({known}) AND subtree_bytes >= ?3 ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?4 OFFSET ?5"
         );
@@ -721,7 +742,7 @@ impl SqliteSnapshotStore {
         limit: u64,
     ) -> Result<(Vec<DiskNode>, Option<u64>)> {
         self.snapshot(snapshot_id)?;
-        let known = "COALESCE(read_error, json_extract(NULLIF(node_json, ''), '$.read_error'), 0) = 0 AND COALESCE(json_extract(NULLIF(node_json, ''), '$.size_known'), 1) = 1";
+        let known = directory_aggregates::KNOWN_SIZE;
         let sql = format!(
             "SELECT id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2 AND NOT ({known}) ORDER BY subtree_bytes DESC, name ASC, id ASC LIMIT ?3 OFFSET ?4"
         );
@@ -772,14 +793,24 @@ impl SqliteSnapshotStore {
         Ok((items, more))
     }
 
-    /// 目录总数和过滤后的数量，仅聚合索引列，不解码节点。
+    /// 精确目录总数与任意尺寸阈值计数，各做一次索引探针，不遍历子项。
     pub fn child_counts(
         &self,
         snapshot_id: &str,
         parent_id: u64,
         minimum: u64,
     ) -> Result<(u64, u64)> {
-        let (all, kept): (i64, i64) = self.connection.query_row("SELECT COUNT(*), COALESCE(SUM(CASE WHEN subtree_bytes >= ?3 THEN 1 ELSE 0 END), 0) FROM nodes WHERE snapshot_id = ?1 AND parent_id = ?2", params![snapshot_id, as_i64(parent_id)?, as_i64(minimum)?], |row| Ok((row.get(0)?, row.get(1)?)))?;
+        self.node_count(snapshot_id)?;
+        let all: i64 = self
+            .connection
+            .query_row(
+                "SELECT child_count FROM directory_counts WHERE snapshot_id=?1 AND parent_id=?2",
+                params![snapshot_id, as_i64(parent_id)?],
+                |row| row.get(0),
+            )
+            .optional()?
+            .unwrap_or(0);
+        let kept: i64 = self.connection.query_row("SELECT cumulative_count FROM child_size_prefix WHERE snapshot_id=?1 AND parent_id=?2 AND subtree_bytes>=?3 ORDER BY subtree_bytes ASC LIMIT 1", params![snapshot_id, as_i64(parent_id)?, as_i64(minimum)?], |row| row.get(0)).optional()?.unwrap_or(0);
         Ok((all.max(0) as u64, kept.max(0) as u64))
     }
 
@@ -807,14 +838,24 @@ impl SqliteSnapshotStore {
 
     /// 精确节点总数，统计不要求加载节点内容。
     pub fn node_count(&self, snapshot_id: &str) -> Result<u64> {
-        Ok(self
+        let count = self
             .connection
             .query_row(
-                "SELECT COUNT(*) FROM nodes WHERE snapshot_id = ?1",
+                "SELECT node_count FROM snapshot_counts WHERE snapshot_id = ?1",
                 [snapshot_id],
                 |row| row.get::<_, i64>(0),
-            )?
-            .max(0) as u64)
+            )
+            .optional()?;
+        match count {
+            Some(count) => Ok(count.max(0) as u64),
+            None => match self.snapshot(snapshot_id) {
+                Err(StoreError::SnapshotNotFound(_)) => Ok(0),
+                Err(error) => Err(error),
+                Ok(_) => Err(StoreError::InvalidGraph(
+                    "snapshot count indexes are missing; reindex this scope".into(),
+                )),
+            },
+        }
     }
 
     pub fn top(&self, snapshot_id: &str, parent_id: u64, limit: u64) -> Result<Vec<DiskNode>> {
@@ -988,8 +1029,8 @@ impl SqliteSnapshotStore {
         let root_key = to_string(&graph.snapshot.root)?;
         let transaction = self.connection.transaction()?;
         transaction.execute(
-            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, pinned)
-             VALUES (?1, ?2, ?3, ?4, 0)",
+            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, pinned, count_schema)
+             VALUES (?1, ?2, ?3, ?4, 0, 9)",
             params![
                 graph.snapshot.id,
                 root_key,
@@ -1099,6 +1140,7 @@ impl SqliteSnapshotStore {
             "DELETE FROM scan_staging_search WHERE job_id = ?1",
             [job_id],
         )?;
+        directory_aggregates::rebuild(&transaction, Some(&graph.snapshot.id))?;
         transaction.commit()?;
         // The scan's entire write-ahead log is now redundant. Folding it back
         // here — rather than waiting for the next checkpoint — is what keeps a
@@ -2242,7 +2284,7 @@ mod tests {
 
     use super::*;
 
-    fn graph(id: &str, bytes: u64) -> DiskGraph {
+    pub(super) fn graph(id: &str, bytes: u64) -> DiskGraph {
         let root = ResourceLocator::NativePath("/tmp/diskgraph-test".into());
         DiskGraph {
             snapshot: DiskSnapshot {

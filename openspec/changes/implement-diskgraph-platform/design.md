@@ -161,3 +161,5 @@ SC-06、CT-05、Q-08、RT-06/07、OP-10、ST-05 为本轮验收依据。请求�
 扫描保持 vendor pin，以既有 progress/cancel 每 20 ms 合作止损；staging 按实际编码计费、批次写入、SQL 发布。30 秒租约/5 秒续租及递增 fencing 贯穿写阶段。runner 严格认领，同名 owner 不复用尚未过期执行；取消标志按认领代次隔离，过期 owner 不能取消或清理新代次状态。目录/文件句柄与原子 no-replace 发布约束操作，复制在独占 staging 校验摘要与元数据，验证条件不足即拒绝。危险对外文件工具保持关闭。
 
 取舍与限制：扫描仍先收集完整上游树，不承诺流式扫描或严格内存上限；规范化字段/索引及实时门禁增加扫描和物理数据库成本，收益主要是窄读和并发查询。旧操作引用无法精确到 revision 时保留整个 scope，逻辑 prune 不等于 SQLite 文件压缩。Linux/Windows、移动 provider 与真实宿主能力不以 macOS 夹具测试替代。完整证据见仓库双语加固记录及 benchmark JSON。
+
+图库 schema 9 为不可变快照增加节点总数、目录总数/未知数、按不同 subtree_bytes 的降序累计计数。save、可信 publish 与 staging publish 在原发布事务内共用 SQL 聚合；v8 升级在一致性备份后事务回填，删除随 snapshot 外键级联。snapshot 的 writer 标记与 INSERT trigger 拒绝升级后仍打开的旧 writer；查询发现计数元数据缺失时 fail-closed，不能将缺失当成空快照。任意 minimum 的树计数仍包含未知大小节点的现有数值字段，children 的 known/unknown 谓词与 partial index 共用旧 JSON fallback。计数为索引探针；显式 OFFSET 页仍需 O(offset+page) 跳读。聚合与额外排序索引增加 O(N) 存储及发布/迁移耗时，并延长发布的控制库 fencing 锁；release 数据记录完整发布阶段而非精确持锁增量，1 ms 采样空间峰值不是上界。已有授权按完整 principal/permission/scope/policy_version 键只读返回，新增授权仍 INSERT ON CONFLICT；撤权 epoch 语义不变，避免只读 CLI 初始化重复授权写入。

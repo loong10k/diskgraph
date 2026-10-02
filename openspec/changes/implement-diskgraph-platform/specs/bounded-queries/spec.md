@@ -89,6 +89,17 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **THEN** all nested reads share one SQLite deadline and a combined row/query budget; exhaustion leaves the parent blocks visible and identifies the truncation reason
 - **AND** each frame and navigation rechecks the revision's actual scope and current metadata grant
 
+#### Scenario: Exact counts in a wide immutable directory
+- **WHEN** tree or children requests a small page from a directory with hundreds of thousands of children, including unknown sizes
+- **THEN** exact total, unknown and arbitrary minimum-size counts use published count/prefix indexes without traversing all siblings; known and unknown pages use matching ordered indexes
+- **AND** count indexes are built atomically with the snapshot, backfilled transactionally on upgrade with a consistent pre-upgrade backup, and removed with the snapshot
+- **AND** arbitrary minimum-size tree counts retain the existing numeric subtree-size semantics; the indexes add storage and publication work rather than promising a strict scan RSS cap
+
+#### Scenario: Concurrent read-only CLI startup
+- **WHEN** multiple trusted local CLI processes open an already initialized policy and repeat an existing grant
+- **THEN** existing grants are not rewritten and unchanged graph schemas do not acquire a write transaction merely to drop an absent legacy index
+- **AND** a genuine grant change remains durable and continues to enforce the current policy epoch
+
 ### Requirement: Q-09 Bounded review-candidate preparation
 For a positive target, CLI and MCP SHALL select review candidates through a deadline-bound database query without decoding an entire revision. The query SHALL preserve rebuildable evidence, protection/occupancy checks over ancestors and descendants, non-overlapping selections, and descending size priority. Budget exhaustion SHALL report an incomplete result and the unfulfilled target amount; it SHALL never imply that a partial review queue reaches the requested bytes.
 

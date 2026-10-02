@@ -523,9 +523,18 @@ impl ControlStore {
 
     /// Upserts one grant bound to the current policy version.
     pub fn upsert_grant(&mut self, grant: &Grant) -> Result<()> {
+        // 重复本地 bootstrap 只读已有键，避免每个查询进程重写权限和争夺提交锁。
+        let existing: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM grants WHERE principal_id=?1 AND permission=?2 AND scope_id=?3 AND policy_version=?4)",
+            params![grant.principal.as_str(), grant.permission.wire_name(), grant.scope.as_str(), grant.policy_version as i64],
+            |row| row.get(0),
+        )?;
+        if existing {
+            return Ok(());
+        }
         self.connection.execute(
-            "INSERT OR REPLACE INTO grants (principal_id, permission, scope_id, policy_version)
-             VALUES (?1, ?2, ?3, ?4)",
+            "INSERT INTO grants (principal_id, permission, scope_id, policy_version)
+             VALUES (?1, ?2, ?3, ?4) ON CONFLICT DO NOTHING",
             params![
                 grant.principal.as_str(),
                 grant.permission.wire_name(),
@@ -1049,6 +1058,32 @@ fn parse_permission(value: &str) -> Option<Permission> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn a_repeated_grant_does_not_require_a_write_lock() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("control.sqlite");
+        let mut store = super::ControlStore::open(&path).unwrap();
+        let grant = diskgraph_core::Grant {
+            principal: diskgraph_core::PrincipalId::new("local").unwrap(),
+            permission: diskgraph_core::Permission::MetadataRead,
+            scope: diskgraph_core::ScopeId::new("fixture").unwrap(),
+            policy_version: 1,
+        };
+        store.upsert_grant(&grant).unwrap();
+        let observer = rusqlite::Connection::open(&path).unwrap();
+        observer
+            .execute_batch("BEGIN; SELECT * FROM grants;")
+            .unwrap();
+        store
+            .connection
+            .busy_timeout(std::time::Duration::from_millis(20))
+            .unwrap();
+        let changed = store.connection.total_changes();
+        // 活跃共享读事务不妨碍幂等 bootstrap；旧 REPLACE 会等待独占提交并失败。
+        store.upsert_grant(&grant).unwrap();
+        assert_eq!(store.connection.total_changes(), changed);
+        observer.execute_batch("ROLLBACK;").unwrap();
+    }
     use super::*;
     use diskgraph_core::{Authorizer as _, LocatorKind, Permission};
 

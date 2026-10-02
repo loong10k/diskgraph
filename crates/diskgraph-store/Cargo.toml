@@ -18,4 +18,5 @@ thiserror = "2"
 uuid.workspace = true
 
 [dev-dependencies]
+libc = "0.2"
 tempfile = "3"

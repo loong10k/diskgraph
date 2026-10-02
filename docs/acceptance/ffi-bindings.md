@@ -18,7 +18,9 @@
 
 `python3 scripts/accept-ffi-kotlin.py` 使用本机 release 动态库，临时 Maven 工程生成并编译 UniFFI Kotlin 绑定；Kotlin 2.4.10、JNA 5.17.0（摘要校验）、resources/compiler/dependency 插件均固定，用户与全局 settings 隔离，所有仓库强制指向 Maven Central。编译不启动驻留 Kotlin daemon。脚本只使用已存在的 Maven/Java，不安装工具。
 
-本机 macOS ARM64 已实际运行成功，断言四个节点、非 ASCII 根路径及 Unicode 子节点、分页/轮询/v1、关闭拒绝、释放后重开与持久数据。CI 增加 macOS ARM64/Intel、Linux x64/ARM64、Windows x64 五项真实 JVM 宿主，远端结果以对应提交为准；桌面 JVM 不代替 Android Room、AAR、GUI 或真机验收。
+本机 macOS ARM64 已实际运行成功，断言四个节点、非 ASCII 根路径及 Unicode 子节点、分页/轮询/v1、关闭拒绝、释放后重开与持久数据。[1901f89 CI](https://github.com/loong10k/diskgraph/actions/runs/36973238346) 的 macOS ARM64/Intel、Linux x64/ARM64、Windows x64 五项真实 JVM 宿主，以及两个 Swift/GRDB 宿主均通过；该次完整矩阵为 21/22，Windows 原生包并发查询另有失败，后续增量仍按自身 SHA 验收。
+
+Windows JVM 启动参数夹具以 UTF-8 Base64 ASCII 参数传递非 ASCII 根路径和数据库路径，Kotlin 的可选 `utf8-base64` 标记解码后将真正的 Unicode String 传给 FFI，包括 v1 查询；原两参数模式保留。此修复避免 Windows 启动器参数转换丢失路径，不将 Unicode 文件重命名或替换为 ASCII fixture。桌面 JVM 不代替 Android Room、AAR、GUI 或真机验收。
 
 以下 2026-09-29 记录是旧版历史证据，旧“立即/UI 不阻塞”和系统 SQLite 版本查询不代表完整生产宿主验收。当前平台缺口见[全平台实施记录](../production-readiness-full-platform-2026-10-02.zh-CN.md)。
 

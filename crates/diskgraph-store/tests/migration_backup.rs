@@ -4,7 +4,7 @@ fn migration_backup_includes_committed_wal_frames() {
     let path = dir.path().join("graph.sqlite");
     let store = diskgraph_store::SqliteSnapshotStore::open(&path).unwrap();
     let writer = rusqlite::Connection::open(&path).unwrap();
-    writer.execute_batch("DROP TABLE revision_ownership; PRAGMA user_version = 4; PRAGMA wal_autocheckpoint = 0; CREATE TABLE backup_probe (value TEXT); INSERT INTO backup_probe VALUES ('committed-in-wal');").unwrap();
+    writer.execute_batch("DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts; DROP INDEX nodes_by_known_parent_size; DROP TABLE revision_ownership; PRAGMA user_version = 4; PRAGMA wal_autocheckpoint = 0; CREATE TABLE backup_probe (value TEXT); INSERT INTO backup_probe VALUES ('committed-in-wal');").unwrap();
     let (_, backup) =
         diskgraph_store::SqliteSnapshotStore::open_with_backup(&path, &dir.path().join("backups"))
             .unwrap();
@@ -24,7 +24,11 @@ fn v7_upgrade_backs_up_the_previous_schema_and_builds_candidate_indexes() {
     let writer = rusqlite::Connection::open(&path).unwrap();
     writer
         .execute_batch(
-            "DROP INDEX nodes_by_candidate_size;
+            "DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE child_size_prefix;
+         DROP TABLE directory_counts;
+         DROP TABLE snapshot_counts;
+         DROP INDEX nodes_by_known_parent_size;
+         DROP INDEX nodes_by_candidate_size;
          DROP INDEX evidence_by_relation_node;
          PRAGMA user_version = 7;
          PRAGMA wal_autocheckpoint = 0;
