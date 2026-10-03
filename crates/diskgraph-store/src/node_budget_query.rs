@@ -1,10 +1,29 @@
 use crate::node_codec::as_i64;
 use crate::node_row::NodeRow;
 use crate::{Result, SqliteSnapshotStore, StoreError};
-use diskgraph_core::{DiskNode, QueryReadBudget};
+use diskgraph_core::{DiskNode, QueryReadBudget, ResourceLocator};
 use rusqlite::params;
 
 impl SqliteSnapshotStore {
+    /// 按精确定位查询一行，并在分配与解码前计入共享账本。
+    /// 参数：snapshot/locator 为固定资源，budget 为双侧历史共用的额度和期限。
+    /// 返回：节点或 None；借用字段过大时拒绝，不加载其他节点。
+    pub fn node_by_locator_with_budget(
+        &self,
+        snapshot: &str,
+        locator: &ResourceLocator,
+        budget: &mut QueryReadBudget,
+    ) -> Result<Option<DiskNode>> {
+        let locator = serde_json::to_string(locator)?;
+        // 根不在路径表达式的部分索引内，先走父索引；非根走既有路径索引。
+        // 最后的原始 locator 相等条件保留类型与无损定位语义。
+        let root = self.one_node_with_budget("SELECT id,parent_id,locator_key,name,subtree_bytes,node_json,kind,direct_bytes,files,directories,modified_unix_seconds,file_volume_id,file_id,category_hint,reclaim_hint,read_error FROM nodes WHERE snapshot_id=?1 AND parent_id IS NULL AND locator_key=?2 LIMIT 1", params![snapshot,locator], budget)?;
+        if root.is_some() {
+            return Ok(root);
+        }
+        self.one_node_with_budget("SELECT id,parent_id,locator_key,name,subtree_bytes,node_json,kind,direct_bytes,files,directories,modified_unix_seconds,file_volume_id,file_id,category_hint,reclaim_hint,read_error FROM nodes WHERE snapshot_id=?1 AND parent_id IS NOT NULL AND json_extract(locator_key,'$.value')=json_extract(?2,'$.value') AND locator_key=?2 LIMIT 1", params![snapshot,locator], budget)
+    }
+
     /// 读取根之前对借用列与实际解码数量准入。
     /// 参数：snapshot 为固定快照，budget 为准备及数据阶段共享账本。
     /// 返回：根或 None；预算拒绝不拥有其字符串，真实错误保留。

@@ -62,6 +62,10 @@
 - **WHEN** 历史读取中预算内字段发生格式错误，而错误诊断的实际转义编码超过默认响应额度
 - **THEN** CLI JSON 错误 envelope 与 MCP 业务错误诊断用有界信息保留原业务错误码和退出码，不返回成功或将格式错误无声改成预算错误。JSON-RPC 请求 ID、文本嵌套和 HTTP/SSE 外包装仍分别受传输预算约束。
 
+#### Scenario: Legacy native growth shares both snapshot budgets and terminal authorization
+- **WHEN** 旧 UniFFI growth_json 比较两个 snapshot 的精确 locator，包含空匹配、不兼容、读取错误、响应转义或末段撤权/到期
+- **THEN** 从解析/打开引擎前共用一个期限；两个 snapshot 元数据和节点共用原始字段/节点账本，先准入再解码，保持精确窄读，根与非根使用既有索引，200k行精确单节点读取含根探测少于500 VM步，同value不同locator类型不得误命中。完整成功 envelope 编码后成组复检双侧实际 revision 的 scope/grant；任一撤权、超限或到期拒绝数据。保留导出签名、schema、兼容时的 before/after 与字符串 delta_bytes，以及原不兼容/缺失的 null；失败诊断有界，不添加后台 owner 或重置期限。
+
 ### Requirement: Q-03 Explainable explore
 explore SHALL 使用明确定位、模式和过滤条件聚合主要子项、尺寸、关系摘要、证据与下一步 ID；自然语言解释由宿主完成，名称歧义不得静默猜选。
 

@@ -1,0 +1,184 @@
+{
+  "date": "2026-10-03",
+  "scope": "D25 / task 15.18; legacy FFI growth budgets, terminal authorization and indexed point lookup",
+  "baseline_commit": "5b7777fa2d8026e7f57f447b812ff758966f8e49",
+  "status": "local_validation_complete_same_source_native_ci_pending",
+  "red": {
+    "public_ffi": {
+      "passed": 0,
+      "failed": 2,
+      "reason": "100 KB row and cumulative two 40 KB rows returned ok=true before implementation"
+    },
+    "point_lookup": {
+      "passed": 0,
+      "failed": 1,
+      "fixture_rows": 200000,
+      "observed_vm_steps": 1000000,
+      "required_vm_steps_upper_exclusive": 500,
+      "sampling_interval": 100,
+      "interpretation": "Approximate old VM-step counter sampled every 100 instructions; final regression counts every instruction."
+    }
+  },
+  "targeted": {
+    "ffi": {
+      "passed": 34,
+      "failed": 0,
+      "ignored": 0
+    },
+    "store": {
+      "passed": 84,
+      "failed": 0,
+      "ignored": 1
+    }
+  },
+  "source_files": {
+    "crates/diskgraph-ffi/src/lib.rs": "cbb26e51f6eeb310596b4e88a3636f7f6c7010aec0cf636c4e6d22ceeab62407",
+    "crates/diskgraph-ffi/src/native_reply.rs": "1ef1a182712bd6106924153ffabc40c92c666e24cddb47906ed187457d371da6",
+    "crates/diskgraph-ffi/src/native_growth.rs": "7186919ee1a97074f2a45fba20aa24b3e7b165d83b25720e43c5345ec7d461ad",
+    "crates/diskgraph-ffi/src/native_growth_tests.rs": "a637d32260cc64cc86682d788e80625cf32bb40caf99bef12f13bb0577de03ee",
+    "crates/diskgraph-store/src/node_budget_query.rs": "25c09d704f92d5d47dc78bb53081f712914e5d194955269b385a97133d6b3bbe",
+    "crates/diskgraph-store/src/lib.rs": "2a7b2a7601b44ae20349e84767a758785306bc9c4533c80a67f0972511cb4d11",
+    "crates/diskgraph-store/src/locator_budget_tests.rs": "cd0b2b78ee91fffea17df7ea9f4e829525835646cc62f0051b05a8517f1b0b5f"
+  },
+  "logs": {
+    "directory": "native_growth_acceptance_2026_10_03_logs",
+    "files": {
+      "growth-red.log.gz": {
+        "sha256_uncompressed": "7f5aafc7e7c62b29eec922255521d52d932f53ab9d261286a82b664294254ed8",
+        "sha256_gzip": "30c50f3e04875b96d58211b8b4e009727dabca5db618839f9301c7beaa50bcfc"
+      },
+      "locator-red.log.gz": {
+        "sha256_uncompressed": "bd02c2bac1f09fcdaa2c27c566763eceb0d11ae277fce77b24560c6775e2ab95",
+        "sha256_gzip": "8c950f691b339b8cdf15438bfd38a549cf03754a7397e964160801e2719a2e37"
+      },
+      "locator-green.log.gz": {
+        "sha256_uncompressed": "73c58c3936826918bba44f80757ce2425ec9ea57f0c45d41ed045d5a7c3794dc",
+        "sha256_gzip": "f4a774196c94e6267b31d1eb0ff75a60a9c9969816f60577998a31f24407bc92"
+      },
+      "store-verified.log.gz": {
+        "sha256_uncompressed": "ce05a636e51e37ccf460311e4fbd3f7d7fb6f77ddc582ee421aeb676afa1c79b",
+        "sha256_gzip": "597fb26dbc8f8f3e95b7eb3624d026235a7668ff8a53050d1b4149d7fd2138ad"
+      },
+      "ffi-final.log.gz": {
+        "sha256_uncompressed": "3e38215e2ac6f86b36ba58a0bdd1c6f62fff7bde67fc871dce251052779e3867",
+        "sha256_gzip": "d72603f84d942d5047a9ce3e2d39bf244f5cda2f4cbab838cafaac23f32e80d5"
+      },
+      "growth-initial-compile.log.gz": {
+        "sha256_uncompressed": "13682dd3a92361c9f05003c14d70609bd800dba50fd0cded9c885d67eca99810",
+        "sha256_gzip": "6ccf2556ab22a244b2a7f2e65f32b14c3852f39f604bb9a76cff746f93cea9cc"
+      },
+      "prior-ci-toolchain-network-failure.log.gz": {
+        "sha256_uncompressed": "9aed16ba93221b63a97c846333ae607f585af7152436561c9dd6af21e97d65ee",
+        "sha256_gzip": "bd27a4e3d5844bafa186a2c3161dc102fe72d8a811b120fb4813c395e63f1a15"
+      },
+      "workspace.log.gz": {
+        "sha256_uncompressed": "fc6a0bc74faeb598c035a0226e6a05f468db8337ce4468b695132e9d485522ed",
+        "sha256_gzip": "816e96b95ecb9902ebbb9f5244b4f92eda63364b228d3b62d1cfa06abcd3c7f6"
+      },
+      "ffi-reviewed.log.gz": {
+        "sha256_uncompressed": "e0cfc8306a968eac171620210d3e7d687b6ac1cb176d27401d3dc4c76174b409",
+        "sha256_gzip": "bbc8959bbc788dd081e2e1ad3a628ae0051ede343654e9a6906b4b25f9420142"
+      },
+      "clippy.log.gz": {
+        "sha256_uncompressed": "d2607b2a26e909f25b2f06ca459a7732413abb29a91f17e32a42b15f73241acb",
+        "sha256_gzip": "045e439c218238a45b3a16dd291e4ab293d015c7b90bb3dfbd514a7470ee3d37"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "3ae2bd27d338be73f917fcc978e6f8ff9c22e106026d6120bad4d86fcd452d91",
+        "sha256_gzip": "3a5b2be3e4f14e14f782ee68c07bb6d1aacbada484f1ded55d85d4b21c3ee217"
+      },
+      "fmt-final.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "locator-final.log.gz": {
+        "sha256_uncompressed": "68c1d77f37d9781e77024d3c7667a3edc80bfb2240734e92a5128f26b0901471",
+        "sha256_gzip": "576d399e5f6ddfe73fd61fea6a9c64e6ddcd35a401d41bc59abb8668d2fc73e3"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "3837410223742779eaa73054485b01241404a3a155aae58afaca4f321256574a",
+        "sha256_gzip": "cc5c118b9434aef53e1eb7ac8449dd34da945d1af828949c85fbfff8e594e31f"
+      },
+      "openspec-final.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "locator-verified.log.gz": {
+        "sha256_uncompressed": "49e3e5fc884091c75660ee0966fc31f7dd13a349122d93f6c3da8bcbd5175e8d",
+        "sha256_gzip": "51424652666882448e4299df2d8069c12451b0b8a5b0af064470d34bb1c3fcd0"
+      },
+      "clippy-verified.log.gz": {
+        "sha256_uncompressed": "0cec34e1b41a0842cd5883076beb8dbafa6c3c1c453d46676007acc91a6fbc0e",
+        "sha256_gzip": "160051f2c8068b92753deb5a929ea204e3a76b6af72ccdd3ebe0d926a38d0000"
+      },
+      "fmt-verified.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    }
+  },
+  "non_acceptance_observations": [
+    "An initial compile attempted a non-existent revision_reader_until method; implementation uses the existing revision_reader_with_cancel_until. Compiler failure is not target-behavior RED.",
+    "An initial Store test compile required checked u64-to-i64 fixture ID conversion; this was corrected before the final Store run.",
+    "clippy-final.log records the initial every-instruction counter setup ignoring its Result. The test now requires successful installation; locator-verified 2/0 and clippy-verified exit 0 are final acceptance, with no lint suppression."
+  ],
+  "limits": [
+    "The final exact every-instruction counter observed 91 VM steps; this does not establish wall-clock speedup or RSS guarantees.",
+    "Default 15-second Windows Git probe performance remains unproven; unrelated to this FFI change.",
+    "UniFFI 19 executed checksums match; same-source native CI and parent platform gates remain pending."
+  ],
+  "point_lookup_final": {
+    "fixture_rows": 200000,
+    "vm_steps": 91,
+    "count_interval": 1,
+    "required_vm_steps_upper_exclusive": 500
+  },
+  "uniffi": {
+    "library_sha256": "ed32813d88011ae17ad17812d75c14fe16e8f36259e2189ba484ddac5f19f774",
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "exact_matches": 19,
+    "total": 19
+  },
+  "workspace": {
+    "passed": 950,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0,
+    "note": "Complete run preceded a success-only synchronization-hook guard; entire affected FFI suite subsequently revalidated 34/0 on the final implementation. The final locator test changed only instrumentation to count each VM instruction and passed 2/0."
+  },
+  "independent_review": {
+    "code": "APPROVE; success-only encoded-reply synchronization verified; final counter setup requires successful installation",
+    "architecture": "CLEAR; terminal authorization delta confirmed"
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "fmt_exit_code": 0,
+    "openspec_exit_code": 0,
+    "release_build_exit_code": 0
+  }
+}

@@ -3,11 +3,14 @@
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use diskgraph_core::{DiskGraph, ResourceLocator};
+use diskgraph_core::ResourceLocator;
 use diskgraph_store::SqliteSnapshotStore;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
+mod native_growth;
+#[cfg(test)]
+mod native_growth_tests;
 mod native_reply;
 mod native_service;
 mod native_service_error;
@@ -146,33 +149,12 @@ pub fn growth_json(
     after_snapshot_id: String,
     locator_json: String,
 ) -> String {
-    response((|| {
-        let locator: ResourceLocator =
-            serde_json::from_str(&locator_json).map_err(|error| error.to_string())?;
-        let store = open_store(&database_path, &[&before_snapshot_id, &after_snapshot_id])?;
-        let load_one = |id: &str| -> Result<DiskGraph, String> {
-            Ok(DiskGraph {
-                snapshot: store.snapshot(id).map_err(|error| error.to_string())?,
-                nodes: store
-                    .node_by_locator(id, &locator)
-                    .map_err(|error| error.to_string())?
-                    .into_iter()
-                    .collect(),
-                evidence: Vec::new(),
-            })
-        };
-        let before = load_one(&before_snapshot_id)?;
-        let after = load_one(&after_snapshot_id)?;
-        let growth = after.growth(&before, &locator);
-        Ok(match growth {
-            Some(growth) => json!({
-                "before": growth.before,
-                "after": growth.after,
-                "delta_bytes": growth.delta_bytes.to_string()
-            }),
-            None => Value::Null,
-        })
-    })())
+    native_growth::legacy(
+        &database_path,
+        &before_snapshot_id,
+        &after_snapshot_id,
+        &locator_json,
+    )
 }
 
 /// Returns candidates for review only, never paths to execute automatically.

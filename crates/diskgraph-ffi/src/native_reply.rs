@@ -96,7 +96,8 @@ pub(crate) fn query(
     encoded
 }
 
-fn encode(data: &Value) -> Result<String, String> {
+/// 对成功 envelope 计量并编码；参数为数据，返回有限文本或明确预算错误。
+pub(crate) fn encode(data: &Value) -> Result<String, String> {
     let cap = QueryBudget::default().max_response_bytes;
     // 先有限计量借用数据，阻止构造 envelope 时复制超大字符串。
     if measure_json_bounded(data, cap)

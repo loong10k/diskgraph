@@ -1,6 +1,6 @@
 {
   "date": "2026-10-03",
-  "scope": "D24 / task 15.17; local acceptance followed by failed native CI; test-contract correction in progress",
+  "scope": "D24 / task 15.17; local and same-source native CI acceptance complete; full-platform parent tasks remain open",
   "baseline_commit": "c67d22a2e2593dc766a85e774ed855ad79bc8fff",
   "host": {
     "target": "aarch64-apple-darwin",
@@ -333,6 +333,22 @@
       "ci-workspace-final.log.gz": {
         "sha256_uncompressed": "afc3319d0c2524258b032fff7510bb40eb03fa0564b0bfe82e0c909624b1edd3",
         "sha256_gzip": "631d165744586df48b0c836d664f170411c2bafd0ef654717eb91e60d03bb548"
+      },
+      "ci-37130439708-111224305753.log.gz": {
+        "sha256_uncompressed": "409a0ba3a2334905e0eaaa47afabc4c11b4a9e14d3bfa8aeab63489d1e842c35",
+        "sha256_gzip": "ea3c03155fc7c844e2b33cc734d13d2dd09af7d9294957f3d10da9cec03eb5e5"
+      },
+      "ci-37130439708-111224305773.log.gz": {
+        "sha256_uncompressed": "95f4028b289c68e2687dcb113466ea6dbe84214fdbf6ebf8e4ac0c3ec8677899",
+        "sha256_gzip": "1e6a17e644ecb582540134a712451900e01ebc458d87ca2eb0d436952bc624c4"
+      },
+      "ci-37130439708-111224305812.log.gz": {
+        "sha256_uncompressed": "33dd1570860717992618465ddb88de548226cb27fe1ac7e723ae847a64712e55",
+        "sha256_gzip": "ff424585c55a8a5852da7e0bbc2bbfdfd0f16aac98a5d008e40fefd324684151"
+      },
+      "ci-37130439708-111224305823.log.gz": {
+        "sha256_uncompressed": "3015012868f7a6d5e2a18e96a98be8941aa936fd49a5aa0d602f4c1057736629",
+        "sha256_gzip": "a6366fcbcbd1214597b0c356a4d462936434d7830e595c2b1e7141f6b4a442a5"
       }
     }
   },
@@ -349,19 +365,58 @@
   ],
   "native_ci": {
     "status": "completed",
-    "conclusion": "failure",
-    "tested_commit": "5081ed746d655b39ff74fb288c65d601360aae2f",
-    "run_id": 37128474835,
-    "url": "https://github.com/loong10k/diskgraph/actions/runs/37128474835",
-    "passed_jobs": 18,
+    "conclusion": "success",
+    "tested_commit": "5b7777fa2d8026e7f57f447b812ff758966f8e49",
+    "run_id": 37130439708,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37130439708",
+    "passed_jobs": 22,
     "total_jobs": 22,
-    "failure_categories": [
-      "History fixture required a partial report despite its 1 ms deadline covering preparation; actual Store(BudgetExceeded) is permitted before a verified report exists.",
-      "Windows Rust 1.97 stash semantic baseline exhausted the unchanged production default 15 s probe deadline before the reflog mutation. I/O or scheduling cause remains unproven."
+    "retry_note": "Attempt 1: 21/22; Intel Kotlin failed downloading the Rust toolchain with TCP timeout before building code. Only the failed job was rerun on the same SHA; final 22/22.",
+    "case_verification": [
+      {
+        "job": {
+          "conclusion": "success",
+          "databaseId": 111224305753,
+          "name": "Test (windows-latest / Rust 1.97.0)"
+        },
+        "verified_d24_cases": 47,
+        "verified_correction_cases": 4,
+        "missing": []
+      },
+      {
+        "job": {
+          "conclusion": "success",
+          "databaseId": 111224305773,
+          "name": "Test (windows-latest / Rust stable)"
+        },
+        "verified_d24_cases": 47,
+        "verified_correction_cases": 4,
+        "missing": []
+      },
+      {
+        "job": {
+          "conclusion": "success",
+          "databaseId": 111224305812,
+          "name": "Test (ubuntu-24.04-arm / Rust stable)"
+        },
+        "verified_d24_cases": 47,
+        "verified_correction_cases": 4,
+        "missing": []
+      },
+      {
+        "job": {
+          "conclusion": "success",
+          "databaseId": 111224305823,
+          "name": "Test (macos-15-intel / Rust stable)"
+        },
+        "verified_d24_cases": 47,
+        "verified_correction_cases": 4,
+        "missing": []
+      }
     ]
   },
   "ci_correction": {
-    "status": "local_validation_passed_native_ci_pending",
+    "status": "local_and_same_source_native_ci_passed",
     "production_behavior_changed": false,
     "semantic_fixture_timeout_seconds": 60,
     "production_default_timeout_seconds": 15,
@@ -390,5 +445,18 @@
     "clippy_exit_code": 0,
     "fmt_exit_code": 0,
     "openspec_exit_code": 0
+  },
+  "native_ci_failed_attempt": {
+    "status": "completed",
+    "conclusion": "failure",
+    "tested_commit": "5081ed746d655b39ff74fb288c65d601360aae2f",
+    "run_id": 37128474835,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37128474835",
+    "passed_jobs": 18,
+    "total_jobs": 22,
+    "failure_categories": [
+      "History fixture required a partial report despite its 1 ms deadline covering preparation; actual Store(BudgetExceeded) is permitted before a verified report exists.",
+      "Windows Rust 1.97 stash semantic baseline exhausted the unchanged production default 15 s probe deadline before the reflog mutation. I/O or scheduling cause remains unproven."
+    ]
   }
 }

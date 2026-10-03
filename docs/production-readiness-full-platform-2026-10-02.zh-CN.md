@@ -364,3 +364,11 @@ CLI/MCP 树和历史入口从准备前到实际 revision 归属、有限读取�
 15.17等待修正后的同源码原生CI验证，暂不勾选。独立控制连接间授权仍协作观察，同步锁/I/O不可抢占；旧内容包装默认30秒协作期限，typed until入口沿用原期限。旧FFI历史、真实provider不下载、原生写保真、移动端/设备/签名及生产环境验收仍由15.2–15.6父项跟进，危险工具保持关闭。
 
 修正后的最终布局已通过与CI参数一致的本机全目标workspace回归：**939通过 / 0失败 / 18忽略**，以及严格workspace Clippy、限定包fmt和OpenSpec strict。生产源码和默认值未变；修正后的原生CI仍待验证。
+
+D24现已在 `5b7777fa2d8026e7f57f447b812ff758966f8e49` 完成[22项原生CI全通过](https://github.com/loong10k/diskgraph/actions/runs/37130439708)。首次仅Intel Kotlin下载Rust工具链TCP超时，原SHA仅重试该失败任务后通过。两Windows Rust、Linux ARM及macOS Intel原始日志保存47项D24用例和4项修正用例的实际成功执行记录。15.17已勾选；默认Git 15秒性能观察和全平台父项继续开放。
+
+## 旧 FFI growth 与精确定位索引读取（D25 / 15.18）
+
+`growth_json`保持UniFFI签名、null语义及before/after/字符串delta字段。真实逻辑移至私有模块，从打开Engine之前共用一个期限；双侧snapshot头与节点列使用同一原始字段/解码账本，完整JSON envelope有界编码后复检两侧实际revision权限。任一撤权或到期均拒绝全部数据，包括原本返回null的结果；错误诊断也有界。精确定位分别复用已有根和路径表达式索引，无数据库迁移，最后完整locator等值条件保留类型区别。
+
+[D25验收记录](benchmarks/native_growth_acceptance_2026_10_03.json)保留两项公开FFI超大/累计行真实RED、200k行原查询约100万采样VM步，以及修正后逐步精确计数 **91步**。这是查询工作量证据，不是墙钟/RSS保证。本机workspace **950/0/18**；最终受影响FFI全套 **34/0**、Store **84/0/1**、最终精确定位 **2/0**、严格Clippy/fmt/OpenSpec及release FFI通过，实际调用的 **19项UniFFI校验值全部一致**。完整workspace运行后收紧了已复审的测试成功同步点，随后重跑全部受影响FFI测试。D25同源码原生CI待验证，15.18及全平台生产就绪声明仍开放。

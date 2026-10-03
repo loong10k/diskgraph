@@ -25,6 +25,8 @@ mod job_kind;
 mod job_record;
 mod job_state;
 mod job_store;
+#[cfg(test)]
+mod locator_budget_tests;
 mod node_budget_query;
 mod node_codec;
 mod node_queries;

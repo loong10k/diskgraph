@@ -286,6 +286,10 @@
 
 - [x] 15.16 按 Q-02/08/09、D23 收敛关系查询的整次期限、末段撤权、实际 JSON 字节和原始字段分配前门禁；impact 按实际解码的全部方向累计边数，候选节点/必需证据原子计费并保持保护、缺口和排序语义。保留公开 API、旧 FFI partial/session 语义及 UniFFI 元数据；先将已复现隔离探针转为真实 RED，再实施、独立复审、实际 envelope/读取成本和同源码三桌面原生验收。已确认旧业务6项、CLI2项、MCP期限、FFI终态2项和公开FFI错误envelope真实RED；非作者复审发现的双向节点上限、NonePolicy跨连接撤权、终态SQLite重复期限和旧TEXT类型边界已补回归并修复。最终内核27文件、适配器10文件均独立复审CLEAR且哈希一致；本机889/0/18（41 suites）、严格Clippy/fmt/OpenSpec、14份vendor摘要、release构建、真实stdio18/18、HTTP/SSE13/13、实际UniFFI校验19/19通过；真实20k/200k各4/4负载检查与观测值已记录。源码d565077a2d7efca2648a384b9a5f533346b48cfc的CI37109528510终态22/22 success；四原始workspace执行日志各41 suites，LinuxARM877/0/18、Windows双Rust各756/0/16、macIntel889/0/18，新32模块+CLI2+Engine8在四份日志均实际ok。非作者完成边界复核CLEAR，仅完成15.16，不据此完成15.2、13.6、provider或全平台父项；ignored及旧91f4091 ARM runner失联不计通过。
 
-- [ ] 15.17 按 Q-02/08、CT-01、D24 修复树与历史的整次期限、双侧终态归属/撤权、实际报告/envelope 字节、累计解码节点及通用授权 reader 的末检顺序；正文读取在 EOF/精确额度/身份末检后复核撤权与取消。保留旧可信签名、partial 与 wire 字段，不增加新状态 owner；隔离探针转真实 RED 后实施，覆盖 CLI 进程和 MCP 实际入口/认证 socket、无持久策略、最小诊断/转义及双侧 grant 撤销，非作者复审和同源码三桌面门禁后再勾选。不替代 15.2–15.6 的 provider、写操作及设备验收。
+- [x] 15.17 按 Q-02/08、CT-01、D24 修复树与历史的整次期限、双侧终态归属/撤权、实际报告/envelope 字节、累计解码节点及通用授权 reader 的末检顺序；正文读取在 EOF/精确额度/身份末检后复核撤权与取消。保留旧可信签名、partial 与 wire 字段，不增加新状态 owner；隔离探针转真实 RED 后实施，覆盖 CLI 进程和 MCP 实际入口/认证 socket、无持久策略、最小诊断/转义及双侧 grant 撤销，非作者复审和同源码三桌面门禁后再勾选。不替代 15.2–15.6 的 provider、写操作及设备验收。
 
 15.1 的 MCP 契约、真实协议与跨 scope 回归已通过；早期 a0ea22a 的 17 项桌面 CI 全绿。历史 4edfac0 CI 为 20/22：Windows 包并发查询报 I/O，macOS ARM 包扫描预算失败误报成功。后续 f57aa40 先红后绿修复 CLI 终态/指定任务过期接管/取消回收、runner 生命周期与认领停止、目录绑定 keyset 和搜索实际 seek；同 SHA 22/22 CI 已通过，包含八个 Rust、五个 Kotlin、两个 Swift/GRDB 与五个原生包。15.7 的存储结构增量本机 workspace 582 passed / 13 ignored、Clippy 及协议/负载通过，63bc6c7 的同 SHA 22/22 跨平台 CI 已通过。15.4 的持久 FFI 子集和实际语言动态宿主、GRDB 并发/释放重开属于已有证据，不能替代静态嵌入、Room 或 GUI/设备。聚合 ignored release 基准已单独执行，其余真实环境/昂贵夹具不计通过。15.2/15.3/15.4/15.5/15.6 仍含未完成平台能力，保持未勾选；8.2/9.2 同样等待真实 provider/GUI 验收。第 12/14 节保留为历史阶段门禁。
+
+  - 15.17 验收：5b7777fa2d8026e7f57f447b812ff758966f8e49 原生CI37130439708最终22/22；首次21/22仅Intel Kotlin的Rust工具链下载TCP超时，原SHA仅重试失败任务。Windows stable/1.97、Linux ARM、macOS Intel原始日志逐项确认47个D24新增用例及4个期限修正用例实际ok，原始日志/摘要保存在D24验收记录。未关闭默认15秒Git性能观察和15.2–15.6父项。
+
+- [ ] 15.18 收口旧 UniFFI growth_json 的双侧实际归属、整次期限、共享原始字段/节点预算和完整 envelope 后成组末检；保留原签名/null/字符串 delta 与窄读，增加真实公开入口超限 RED、末段撤权/到期、旧行/坏无关行和ABI兼容验收。全平台原生CI通过后再勾选，不替代15.2–15.6。
