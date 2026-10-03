@@ -325,3 +325,10 @@ workspace Clippy严格零警告、定向fmt及独立原生helper格式、OpenSpe
 该夹具直接向工作树编译，却假定编译只产生一个文件；失败日志未记录原始status路径，不能据此指认第二项的具体副产物。窄修把编译放到工作树外的独占目录，只复制指定程序，再由固定绝对Git的真实NUL status先确认唯一精确未跟踪项。marker正控制与公共采样隔离、精确dirty数、源元数据和child完成检查全部保留。修正源码的本机检查、非作者复审与Windows原生CI仍待记录；15.15、D20与全平台父项保持开放。
 
 修正后的141行夹具以SHA256 `cd1acf04e8b0cb8a26b65677870a81302c96dde267828648b9327e0cc557190d` 冻结，并通过非作者独立复审。本机新完整全目标再次 **844/0/18**，显式workspace构建、严格Clippy、限定包fmt及OpenSpec strict通过；native-shadow目标 **1/1**、Engine结构 **3/3**，Store结构另重新验证 **1/1**。本次窄修没有改变生产源码、helper、上游扫描器、公开API或测试skip。先前release/协议结果仅作为相同生产源码的既有证据，没有冒称本次重新运行release验收。修正源码的Windows原生CI仍待。
+
+后续源码`b176b24803247ab778d584cea5f841aecfc3926b`的[原生CI全部22项通过](https://github.com/loong10k/diskgraph/actions/runs/37100440853)。两个Windows Rust版本实际通过修正后的repo-shadow、四项native callback和宽status回归；Engine均为 **202/0/3**，stable Clippy也成功。Linux/macOS构建、原生语言宿主、只读包、格式与vendor均通过。OP-15生产源码自70f9d29以来未改，15.15完成这一计划窄读增量。D20仍需规格已有的prepare后配置/属性替换测试：静态callback、private-index改写与晚到对象alternate不能替代该独立验收。全平台父项继续开放。
+
+
+又补三项portable测试：真实`GitView::prepare`完成后替换源fsmonitor配置，以及实时属性宏激活已捕获但原先unused的clean/process driver。真实Git正控制必须执行原生helper；同长度tracked内容和明确不同mtime确保确实触发转换。配置夹具确认路径名单不变且唯一变化的普通文件为config，避免其他index写入替代终检证据。私有视图不得产生marker，且必须在终检拒绝源配置变化，或对新应用driver返回Unsupported；显式complete移除私有根，正控制后源水位不再变化。199行测试冻结SHA256 `c228385b56809f9dcef5e54ed0f9ae8459f3f08b96d4d1bf62bac03535d89fef`；macOS **3/3**、旧callback **4/4**、结构 **3/3**通过，非作者窄审CLEAR。独占artifact分别撤去status私有GIT_DIR、末段metadata.verify、required-driver守护，在对应断言得到 **0/1、0/1、0/2**，恢复生产基线后 **3/3**。这是已有守护的负控制补验收；首轮 **1/3**因fixture长度快路径未触发转换而在正控制准备失败，setup/cache观察均不计守护证据。生产/helper/vendor/旧shadow与skip未改。新SHA Linux/Windows实际执行及最终本机workspace仍待，D20和全平台父项保持开放。
+
+本机最终验证为39个suite共 **847 passed / 0 failed / 18 ignored**，终态exit0；显式workspace构建、严格Clippy、限定包fmt、OpenSpec strict及全部14份未变vendor摘要通过。本次仅补测试，没有声称新release/协议基准或新的生产性能变化。Q-02/08/09关系预算问题已经记为 **未实现** 的D23/15.16增量，规格不是修复证据；新SHA原生CI仍待。

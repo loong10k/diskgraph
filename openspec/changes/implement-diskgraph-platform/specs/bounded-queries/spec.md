@@ -22,6 +22,18 @@
 - **WHEN** 库调用者提交的响应字节增量使累计 usize 溢出，或在可表示的精确上限后继续计费
 - **THEN** 返回 ByteLimit 截断并保留原累计量，后续计费仍拒绝；debug 与 release 行为一致，不 panic、回绕或错误接受。可表示的精确上限本身仍可接受，不将溢出饱和成合法额度。
 
+#### Scenario: Relation preparation and terminal authorization share one deadline
+- **WHEN** related、explain、impact 或 candidates 的解析、授权、连接准备、读取或返回前授权等待耗尽请求期限
+- **THEN** 全阶段使用同一个绝对协作期限，不在授权后重新计时；空结果、零目标和未完整覆盖同样不能成为晚到完整成功。能表示部分结果时保留已计费前缀并明确 Deadline，否则返回明确预算错误；同步 I/O、锁和调度不被描述为可抢占的严格墙钟保证。
+
+#### Scenario: Response bytes include JSON escaping
+- **WHEN** 关系 ID、名称、证据或诊断包含控制字符、引号、反斜杠或 Unicode
+- **THEN** 查询字节预算按实际 JSON 编码计费，包含所承诺数据/诊断 envelope 的字段与分隔符，不用字符串原始长度近似转义成本；不能容纳最小诊断时返回预算错误。tools/call 的文本嵌套、HTTP/SSE 外层封装与传输上限仍分别校验，不把这些不同计量点混作一个保证。
+
+#### Scenario: Raw fields are checked before owned decoding
+- **WHEN** 有界关系或候选读取遇到超过剩余额度的原始证据/实体/选中节点字段，即使该字段解码后还会出现类型或格式错误
+- **THEN** 在 Rust 拥有字符串、节点或证据及反序列化前执行原始字节门禁；预算内的真实解码错误继续传播，合法 NULL、旧 JSON 和未知大小语义保持。该门禁不声称限制 SQLite 内部页缓存、JSON 运算或整个查询 RSS。
+
 ### Requirement: Q-03 Explainable explore
 explore SHALL 使用明确定位、模式和过滤条件聚合主要子项、尺寸、关系摘要、证据与下一步 ID；自然语言解释由宿主完成，名称歧义不得静默猜选。
 
@@ -84,6 +96,14 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **WHEN** related/explain asks for one edge from an entity with hundreds of relationships
 - **THEN** only bounded pages and their corresponding evidence are decoded, the filter is applied before the limit, and the response identifies truncation and a stable continuation position.
 
+#### Scenario: Relation response is revoked after its data read
+- **WHEN** 数据读取完成后实际 revision 所属 scope 或请求主体的元数据授权被撤销
+- **THEN** related、explain、impact 与 candidates 在返回数据前重新检查实时 scope 和授权交集，拒绝返回完整或部分数据；客户端 scope 提示不能替代真实 revision 归属，不增加共享请求状态或绕过旧授权路径。
+
+#### Scenario: Traversed edges are cumulative across directions
+- **WHEN** impact 读取同一实体的入边与出边，或遇到重复、自循环和不传播的关系
+- **THEN** 实际解码边共用累计额度，不按方向重建预算，也不只对最终传播项计费；额外存在性探针不解码为完整关系，未读取部分明确报告截断，传播和排序语义保持兼容。
+
 #### Scenario: Wide TUI directory
 - **WHEN** a directory contains more children than one TUI page
 - **THEN** the UI exposes that more children exist and supports bounded navigation to subsequent pages.
@@ -134,3 +154,7 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 #### Scenario: Candidate preparation reaches its deadline
 - **WHEN** the database query or selection walk exceeds its budget
 - **THEN** the response reports `complete=false`, a truncation reason, selected bytes and the remaining target bytes.
+
+#### Scenario: Candidate evidence fits atomically within the remaining budget
+- **WHEN** 一项候选的节点与必需证据超过剩余累计边数或原始/编码字节额度
+- **THEN** 不提交缺证据候选，也不先增加 selected bytes 或减少 target 缺口；保留先前完整候选前缀并报告 EdgeLimit/ByteLimit 和精确缺口。保护/占用祖先与后代检查不能因缩短返回页而被省略，不能把实际两条证据当一项候选计作一条边。

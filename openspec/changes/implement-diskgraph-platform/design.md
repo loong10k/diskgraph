@@ -251,3 +251,15 @@ PlanBuilder 保持原有全部行为与批准顺序。Executor 仍是唯一执�
 OP-15 是 OP-14 结构整理后的行为优化，不回溯更改 D21 的方法体保留结论。当前 PlanBuilder 为少量选择加载完整 revision，并对每个 ID 线性查找；本增量改为按原选择顺序复用已有授权 reader 精确查询。保留 `authorize_revision(Some(scope))` 的真实归属断言，`with_authorized_revision_reader` 在读取后再次检查实时元数据授权；同一 1000 ms 元数据期限从 revision 解析前开始，在每项读取/原路径解析和最终授权后检查。期限失败拒绝整份计划，不截断为可批准的部分计划。每个 ID 的读取→原生路径→live stat 顺序保持，后续 source evidence、重叠处理、摘要、批准和持久化顺序不改。
 
 窄读依赖的 NodeRow 改为 fallible SQLite 列解码；合法 NULL 仍为 Option，kind=NULL 的旧 JSON/未知大小行为不变，字段类型错误不再默认为 0/空值。本阶段不增加跨文件系统长事务，固定不可变 revision/snapshot；并发历史回收或损坏导致明确失败，不宣称多语句原子快照。查找与节点分配不再随完整 revision 大小增长，但 source evidence 的实际读取、drop_nested 的 M² 比较、数据库打开/授权、同步 stat 和锁等待分别具有自身成本，不将局部优化宣传为全计划 O(M)、严格墙钟或 RSS 上限。以损坏未选行/选中行、旧行和未知大小、范围/错误顺序夹具先红后绿，再作同一隔离数据上的 release 前后测量及原生 CI。公开危险工具与未验收写平台仍关闭。
+
+### D23 关系查询的完整请求预算
+
+Q-02/08/09 的下一增量延续一个共享 Engine 和独立只读连接。请求局部绝对期限在最外层查询解析/首次授权前生成，贯穿真实 revision 归属、连接、数据读取、envelope 和末段授权；新的内部 until 路径传递同一 Instant，旧公开签名仍作为兼容包装。原有通用授权 reader 的 1–1000 ms 契约保留，不能将该私有限制静默施加给原本接受更大 deadline 的 typed QueryBudget。期限生成/字节相加使用 checked 运算，不允许溢出、重复计时或空结果绕过。同步控制锁、SQLite busy 与文件系统调用仍只能协作检查，不能宣称硬实时抢占。
+
+数据后使用实际 scope 和同一 control guard 检查撤销与现有授权交集，不在 guard 内重入 policy 构造或增加新 owner、线程、事务及图写锁。授权失败拒绝数据；授权成功但返回前过期时，以现有结果形态保留有界前缀并报告 Deadline，不能容纳最小诊断则明确预算错误。consumer 的真实格式/存储错误保持原有传播。CLI、MCP 和 NativeService 对相同预算维持语义；旧 FFI 的 partial 报错与 session 的 partial 输出分别保持，UniFFI 导出路径、签名和文档校验元数据不借本次改动迁移。
+
+证据、实体、选中节点与 impact 邻接页先对 SQLite 借用原始字段计费，再分配 Rust 拥有对象/解码；lookahead 只探存在。此约束不覆盖 SQLite 内部 JSON 求值或页缓存，不能用 SQL 丢弃大证据后将保护/占用判断标为完整。impact 的入/出边、重复和不传播项按实际解码累计；候选的节点及必需证据原子计费后才更新选中字节、缺口和重叠集合。不足时保持此前完整前缀，未知与保护条件仍保守处理。
+
+有限计数 writer 按实际 Serialize 编码计算控制字符、引号/反斜杠、Unicode、键和分隔符成本，避免先生成巨大的完整 Vec。可以保守预留固定 envelope 余量后做最终精确验证，并明确可能提早截断；不能由适配器盲删候选而忘记重算 selected/remaining。查询数据/诊断 envelope 与外层 tools/call 文本、HTTP/SSE 传输分别有自己的预算，不把 64 KiB 查询保证称为 4 MiB 传输漏洞修复。
+
+实施前把已复现的四种行为转为回归：40 ms 授权延迟下 1 ms 预算仍 complete（含零目标/空 impact）；max_edges=1 的候选返回两条证据；100,108 字节且 confidence=300 的证据在门禁前发生解码错误；含 11,000 NUL 的 impact 数据编码为 66,126 字节仍未截断。终态撤权/实际控制锁等待用确定性、仅 test 的读后同步点，不能在 Authorizer::decide 内重入控制锁。补精确上限/超一字节、累计短证据、坏 lookahead、Unicode/旧行与保护后代，实际 MCP/FFI envelope 及三桌面原生验收。已有 /tmp 探针是隔离公共库或重建数据 JSON，不能被描述为真实 socket 或远程写入数据能力的证明。

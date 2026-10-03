@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, SystemTime};
 
-fn helper(fixture: &GitIsolationFixture) -> PathBuf {
+pub(super) fn helper(fixture: &GitIsolationFixture) -> PathBuf {
     let native = fixture
         .path()
         .parent()
@@ -41,7 +41,7 @@ fn quote(path: &Path) -> String {
     format!("'{}'", text.replace('\'', "'\"'\"'"))
 }
 
-fn command(program: &Path, mode: &str, marker: &Path) -> String {
+pub(super) fn command(program: &Path, mode: &str, marker: &Path) -> String {
     format!("{} {mode} {}", quote(program), quote(marker))
 }
 

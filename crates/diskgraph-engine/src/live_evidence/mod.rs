@@ -74,6 +74,8 @@ mod git_tool_path;
 mod git_tool_path_tests;
 mod git_usage;
 mod git_view;
+#[cfg(test)]
+mod git_view_race_tests;
 #[cfg(target_os = "macos")]
 mod macos_probe_group;
 #[cfg(all(test, target_os = "macos"))]
