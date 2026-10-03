@@ -5,12 +5,15 @@ use std::path::{Component, Path};
 use std::{ffi::CString, fs::File};
 
 /// 文件名与已固定的父目录句柄，后续打开、发布和清理不再次按完整路径解析。
+/// 来源：DiskGraph 原生 Rust `diskgraph_ops::bound_path::BoundPath`。
 pub(crate) struct BoundPath {
     parent: File,
     name: CString,
 }
 
 impl BoundPath {
+    /// 参数：path 为原生路径；保持原有系统别名映射，逐组件固定父目录。
+    /// 返回：含固定父句柄与叶名称的 BoundPath 或路径/I/O 错误。
     pub(crate) fn open(path: &Path) -> Result<Self, OpsError> {
         let absolute = if path.is_absolute() {
             path.to_path_buf()
@@ -61,6 +64,8 @@ impl BoundPath {
         Ok(unsafe { File::from_raw_fd(fd) })
     }
 
+    /// 参数：self 为已固定父句柄与叶名称。
+    /// 返回：nofollow、nonblock 的文件句柄或 I/O 错误。
     pub(crate) fn read(&self) -> Result<File, OpsError> {
         Self::open_at(
             &self.parent,
@@ -69,6 +74,8 @@ impl BoundPath {
         )
     }
     #[cfg(target_os = "macos")]
+    /// 参数：self 为独占暂存文件定位。
+    /// 返回：macOS 独占新建的读写文件句柄，目标已存在则错误。
     pub(crate) fn create(&self) -> Result<File, OpsError> {
         Self::open_at(
             &self.parent,
@@ -78,6 +85,8 @@ impl BoundPath {
     }
 
     /// 在目标父目录句柄中独占创建 staging 目录，返回其中的文件定位。
+    /// 参数：directory_name 为同一父目录内的独占暂存目录名称。
+    /// 返回：暂存目录中同叶名称的定位或创建错误。
     pub(crate) fn staging(&self, directory_name: &std::ffi::OsStr) -> Result<Self, OpsError> {
         let directory_name = Self::cstring(directory_name)?;
         if unsafe { libc::mkdirat(self.parent.as_raw_fd(), directory_name.as_ptr(), 0o700) } != 0 {
@@ -95,6 +104,8 @@ impl BoundPath {
     }
 
     /// 使用两个固定的父目录句柄原子发布，既有目标永不覆盖。
+    /// 参数：target 为已固定目标父句柄和叶名称。
+    /// 返回：原子禁止覆盖改名成功或冲突、跨卷、I/O 错误。
     pub(crate) fn rename_to(&self, target: &Self) -> Result<(), OpsError> {
         #[cfg(target_os = "macos")]
         let result = unsafe {
@@ -127,6 +138,8 @@ impl BoundPath {
     }
 
     /// 将源身份与原子操作绑定；发布后核对对象，竞态时禁止覆盖地回滚。
+    /// 参数：target 为固定目标定位；expected 为批准的源元数据。
+    /// 返回：复核版本并禁止覆盖发布成功；变化时尝试原有禁止覆盖回滚。
     pub(crate) fn rename_verified_to(
         &self,
         target: &Self,
@@ -170,6 +183,8 @@ impl BoundPath {
     }
 
     /// 先转入独占目录并核对身份，再按固定父句柄删除源，拒绝目录递归删除。
+    /// 参数：expected 为已验证普通文件元数据。
+    /// 返回：固定句柄移入独占目录后删除成功，或冲突、I/O、需关注错误。
     pub(crate) fn remove_verified(&self, expected: &std::fs::Metadata) -> Result<(), OpsError> {
         if !expected.is_file() {
             return Err(OpsError::Stale(
@@ -195,11 +210,15 @@ impl BoundPath {
         Ok(())
     }
 
+    /// 参数：self 为固定的独占暂存定位。
+    /// 返回：无返回值；保留既有 unlinkat 尽力清理语义。
     pub(crate) fn discard(&self) {
         unsafe {
             libc::unlinkat(self.parent.as_raw_fd(), self.name.as_ptr(), 0);
         }
     }
+    /// 参数：directory_name 为固定父句柄下的暂存目录名称。
+    /// 返回：无返回值；保留既有非递归、尽力删除语义。
     pub(crate) fn remove_directory(&self, directory_name: &std::ffi::OsStr) {
         if let Ok(name) = Self::cstring(directory_name) {
             unsafe {

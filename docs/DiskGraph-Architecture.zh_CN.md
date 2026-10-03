@@ -100,6 +100,22 @@ flowchart TD
 
 模块保留 graph→control 锁顺序、同一 guard 的授权检查、每代次取消及 RAII 清理。这是源码边界整改，没有增加运行时服务层或跨数据库原子事务承诺。[Engine README](../crates/diskgraph-engine/README.md#source-boundaries--源码边界)列出职责与对应文件；AST 门禁补充既有行为及原生平台门禁。
 
+### 当前 Ops 源码边界（OP-14，2026-10-03）
+
+入口及公开 `specialist`/`docker` façade 只声明模块并保留导出。计划生成、批准签发、执行校验、传输、路径核验、查询及适配器分别保留真实实现。执行方法共享唯一 `Executor`；跨卷传输保留唯一 `CrossVolumeCopy` 资源持有者。下图表示操作顺序与所有权边界。
+
+```mermaid
+flowchart LR
+    P["PlanBuilder<br/>不可变计划与源证据"] --> A["ApprovalIssuer<br/>摘要、权限与期限"]
+    A --> E["唯一 Executor<br/>应用 / 校验 / 执行"]
+    E --> H["绑定路径和源句柄<br/>实时权限与批准版本"]
+    H --> T["CrossVolumeCopy<br/>staging / 校验 / 发布 / 清理"]
+    T --> R["经 Engine 刷新"]
+    E --> C[("控制库<br/>认领、步骤与恢复")]
+```
+
+拆分保留公开路径、规范化函数体、平台条件、事务/锁顺序及显式清理，没有增加运行时服务或资源持有者。原不支持平台的 `CrossVolumeCopy::discard` 继续作为零资源对象的已注明空清理；构造与发布仍拒绝执行。CLI/MCP 危险工具保持关闭，原生写入保真仍须单独平台验收。[Ops README](../crates/diskgraph-ops/README.md#source-boundaries--源码边界)列出文件与职责；结构门禁和原生 CI 验证本次源码边界增量。
+
 ### 目标架构
 
 ```mermaid

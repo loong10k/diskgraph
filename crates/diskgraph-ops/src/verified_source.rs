@@ -1,6 +1,7 @@
 use crate::bound_path::BoundPath;
 
 /// 复制验证期间固定的源目录、文件句柄与元数据，删除源时必须再次匹配。
+/// 来源：DiskGraph 原生 Rust `diskgraph_ops::verified_source::VerifiedSource`。
 pub(crate) struct VerifiedSource {
     pub(crate) path: BoundPath,
     pub(crate) file: std::fs::File,

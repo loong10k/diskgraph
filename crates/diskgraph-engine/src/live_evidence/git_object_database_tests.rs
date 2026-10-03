@@ -272,6 +272,11 @@ fn captured_loose_content_changes_are_detected_at_the_terminal_guard() {
     #[cfg(windows)]
     {
         let mut permissions = std::fs::metadata(&source).unwrap().permissions();
+        // Windows 仅清除临时对象的 FILE_ATTRIBUTE_READONLY；Unix 已单独只补 owner 写位。
+        #[allow(
+            clippy::permissions_set_readonly_false,
+            reason = "仅 Windows 测试夹具调整只读属性，不修改 Unix 权限或 Windows ACL"
+        )]
         permissions.set_readonly(false);
         std::fs::set_permissions(&source, permissions).unwrap();
     }

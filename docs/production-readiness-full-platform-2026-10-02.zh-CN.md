@@ -264,3 +264,18 @@ Unix specialist 的脚本产物现由独立 Rust 测试子进程写入、同步�
 源码 `830b7c8a99b7fce354a125fca7eae3d860454f74` 的 [CI 终态为 20/22 成功](https://github.com/loong10k/diskgraph/actions/runs/37086380783)。两个 Windows Rust 任务的 Engine 均为 **192 passed / 4 failed / 1 helper ignored**：四个新资源 wrapper 在 child 夹具的 `git init` 配置读取时失败，尚未执行预算或清理断言。源码将 canonical Windows 临时根经 child 临时目录环境传入配置文件路径，verbatim 路径拒绝是有源码支持的候选原因，仍待原生双路径对照。窄夹具修复保留 canonical 身份，只给临时环境使用现有验证过的工具表示，额度、源水位、清理及实际执行 marker 均保留。本机 Unix 目标 **4/0/1**，修复源码的 Windows CI 尚待；本次失败及其 20 项成功都不能完成 D20 或全平台门禁。
 
 随后 [dbc1f05 的 CI](https://github.com/loong10k/diskgraph/actions/runs/37087667994) 仍为 20/22。两 Windows 夹具现已通过 `git init`，但新增 raw 路径负向对照的 `git config --list` 返回 128/`fatal: error processing config file(s)`，原断言只接纳初始化阶段的措辞。窄修仅接纳这两种已观察的配置错误，并保留退出码要求；普通路径必须成功并读出唯一完整 NUL 标记，raw 若成功也必须读出同一标记。资源、源水位和清理断言不变，在 Windows 尚未到达。本机目标与独立复审通过，仍须新原生 CI。
+
+后续 FFI 结构只读审计确认入口 1,343 物理行，约 737 行生产代码、606 行内联测试。锁定 UniFFI 0.32.2 将模块路径和导出文档纳入元数据/checksum，C 符号名却只用 crate 名，所以移宏到普通子模块再 Rust 重导出不足以证明旧 Swift/Kotlin 绑定兼容。已在本机冻结 `830b7c8` release 库及从它生成的旧绑定：全部 118 动态导出、23 元数据符号和 19 个实际执行的 checksum。独立编译器实验确认 root `include!` 保留宏模块路径，但实际库等价和旧绑定交叉加载门禁尚未实现。另已确认条件中文 rustdoc 属性不改变普通编译的宏文档；它不等同用户要求的无条件中文 `///`。本次未改 FFI 生产源码，不声明结构或 ABI 已整改完成。
+
+[26b6f1c 的 CI](https://github.com/loong10k/diskgraph/actions/runs/37090184096) 终态 21/22。两个 Windows Rust 任务逐项通过四个资源/源水位/清理 wrapper，Engine 均 **196 passed / 0 failed / 1 helper ignored**。唯一失败步骤是 Windows stable Clippy，针对 cfg(windows) 测试的 `set_readonly(false)`；该语句现加局部测试 lint 许可。[Rust 官方文档](https://doc.rust-lang.org/std/fs/struct.Permissions.html#method.set_readonly) 区分 Windows 只读文件属性与 Unix 写权限位，Unix 夹具仍只补 owner 写位。没有改变生产行为或全局 lint 策略；冻结新源码的原生 Clippy 以及 D20/其余平台门禁尚待。
+
+
+## 操作源码边界（OP-14 / 15.14，2026-10-03）
+
+Ops 入口从 2,406 行降到 83 物理行，62 个生产文件保留各职责的真实实现，最大 373 行。根路径与 `specialist`、`docker` 公开路径保持兼容；唯一 Executor/CrossVolumeCopy 状态持有者、原锁、事务、批准版本及显式失败清理保留。中文注释写明真实原生 Rust 来源与实际参数/返回。Ops README 和双语架构图说明边界；没有增加运行时服务、所有权层，也没有性能提速测量结论。
+
+原多对象入口在新增 AST 结构门禁中真实失败。后续 union 反例在补 Visitor 前实际 5 通过/2 失败，补齐后 7/0，两项 mutation 共用真实门禁。门禁遍历平台分支，只精确放行既有不支持平台的零资源 discard 空清理；构造/发布仍拒绝，不将该空清理计作平台写能力。独立规范化源码对照确认 103 个生产、222 个含测试函数体，有效平台条件及 impl header 不变，86 项解析后公开 API 路径等价，不需函数体或限定路径豁免。两路非作者复审批准本增量，最终窄复核再确认注释、union 检查、架构图和冻结 70 文件摘要。
+
+最终本机 workspace 全目标 **828 passed / 0 failed / 15 ignored**；Ops 单元 **96/0/1**，结构 **7/0/0**，三项真实宿主操作测试仍 ignored。workspace Clippy 严格零警告、限定包 fmt、OpenSpec strict 与 14 份上游摘要通过。重建后的 release CLI/MCP/FFI 及 Ops 库构建通过；实际隔离 release stdio **18/18**、认证 HTTP/legacy SSE **13/13**。运行中构建产物及部分依赖缓存消失，最终按锁文件恢复并对重建产物执行验证；先前缺二进制和缺依赖的失败不计验收。扫描器 pin、源码和摘要未改。
+
+新源码仍须同 SHA 原生 CI，包含 Windows stable 测试语句局部 Clippy 修正；15.14 因此继续未勾选。D20、移动端/provider/真机、原生写保真、宿主打包签名与生产持续运行门禁也保持开放。源码整改不启用 CLI/MCP 危险工具，不代表全平台生产就绪。

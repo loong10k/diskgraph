@@ -143,6 +143,7 @@ The operation crate SHALL keep lib.rs and mod.rs to module declarations and expl
 - **WHEN** the layout gate walks every production operation module, including specialist and docker modules
 - **THEN** entry files contain declarations and reexports, each distinct type has its own file, production files stay below the line bound, and wildcard imports, placeholder implementations and fabricated Java provenance are refused
 - **AND** test-only modules are excluded without excluding platform production branches
+- **AND** the existing zero-resource `CrossVolumeCopy::discard` under `not(any(target_os = "macos", target_os = "linux"))` retains its documented empty cleanup body: its constructors and publication explicitly refuse unsupported operations; the gate recognizes only this exact preexisting case and does not count it as an implemented platform write capability
 
 #### Scenario: Existing operation clients and failure boundaries
 - **WHEN** existing clients import their previous public paths and operation regressions exercise approval, cancellation, overlapping claims, transfer failure and recovery after the split

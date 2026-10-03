@@ -1,7 +1,17 @@
 use super::*;
+use crate::cross_volume_copy::CrossVolumeCopy;
+use crate::live_item::LiveItem;
+use crate::ops_time::now_ms;
+use crate::path_codec::{locator_key, unhex_key};
+use crate::raw_path::RawPath;
+use crate::source_evidence::{capture_source, identity_of};
+use diskgraph_core::{FileActionKind, ScopeId};
 use diskgraph_core::{Grant, Permission, PrincipalId};
+use diskgraph_engine::Engine;
 use diskgraph_engine::EngineConfig;
+use diskgraph_store::{Plan, RecoveryRule};
 use diskgraph_store::{PlanState, StoreError};
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 /// A project on disk plus a published engine, the precondition every plan test

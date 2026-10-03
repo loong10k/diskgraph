@@ -100,6 +100,22 @@ flowchart TD
 
 Modules preserve graph→control lock order, same-guard authorization, per-generation cancellation and RAII cleanup. This is a source-boundary change, not a new runtime service layer or an atomic transaction across databases. The [Engine README](../crates/diskgraph-engine/README.md#source-boundaries--源码边界) maps each responsibility; its AST gate supplements the existing behavior and native-platform gates.
 
+### Current Ops source boundaries (OP-14, 2026-10-03)
+
+The entry and the public `specialist`/`docker` façades declare modules and preserve exports. Plan creation, approval issuance, execution validation, transfer, path checks, queries and adapters each retain their actual implementations. Execution methods share one `Executor`; cross-volume transfer retains one `CrossVolumeCopy` resource owner. The following diagram describes the operation sequence and ownership boundaries.
+
+```mermaid
+flowchart LR
+    P["PlanBuilder<br/>Immutable plan and source evidence"] --> A["ApprovalIssuer<br/>Digest, authority and expiry"]
+    A --> E["One Executor<br/>Apply / validation / perform"]
+    E --> H["Bound paths and source handles<br/>Live authority and approved versions"]
+    H --> T["CrossVolumeCopy<br/>Staging / verify / publish / cleanup"]
+    T --> R["Refresh through Engine"]
+    E --> C[("Control database<br/>Claims, steps and recovery")]
+```
+
+The split preserves public paths, normalized function bodies, platform conditions, transaction/lock order and explicit cleanup. It adds no runtime service or resource owner. The existing unsupported-platform `CrossVolumeCopy::discard` remains a documented empty cleanup for a zero-resource type; its constructors and publication still refuse execution. Dangerous CLI/MCP tools remain closed, and native write fidelity requires its separate platform acceptance. The [Ops README](../crates/diskgraph-ops/README.md#source-boundaries--源码边界) maps files to responsibilities; source-layout gates and native CI verify this structural increment.
+
 ### Target architecture
 
 ```mermaid

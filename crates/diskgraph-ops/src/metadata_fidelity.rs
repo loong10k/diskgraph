@@ -4,6 +4,8 @@ use std::fs::File;
 use std::os::fd::AsRawFd;
 
 /// 比较原生 ACL、扩展属性和 flags；无法在预算内确认时拒绝发布。
+/// 参数：source、copy 为已打开源和副本句柄。
+/// 返回：ACL、xattr、flags 相同则 Ok；不同或超属性预算返回错误。
 pub(crate) fn verify(source: &File, copy: &File) -> Result<(), OpsError> {
     use std::os::macos::fs::MetadataExt;
     if attributes(source)? != attributes(copy)?
@@ -18,6 +20,8 @@ pub(crate) fn verify(source: &File, copy: &File) -> Result<(), OpsError> {
 }
 
 /// 在有界分配中复制 xattr；不调用可能复制任意大小 ResourceFork 的原生全属性复制。
+/// 参数：source、copy 为已打开句柄；check_live 在每个属性写入前复核授权。
+/// 返回：有界扩展属性复制成功或授权、大小、I/O 错误。
 pub(crate) fn copy_attributes(
     source: &File,
     copy: &File,
@@ -45,6 +49,8 @@ pub(crate) fn copy_attributes(
 }
 
 /// 在任何原生元数据复制之前验证属性/ACL 总成本，过大数据不进入 staging。
+/// 参数：source 为已打开的源普通文件句柄。
+/// 返回：属性与 ACL 在原有预算内可读取则 Ok；否则错误。
 pub(crate) fn preflight(source: &File) -> Result<(), OpsError> {
     let _ = attributes(source)?;
     let _ = acl(source)?;
