@@ -50,8 +50,68 @@ pub fn verify_same_rows_with_limits(
     budget: VerifyBudget,
     limits: &VerifyLimits,
 ) -> Result<(ComparisonReport, VerifySummary), EngineError> {
-    let deadline =
-        std::time::Instant::now() + std::time::Duration::from_millis(limits.max_duration_ms);
+    let deadline = std::time::Instant::now()
+        .checked_add(std::time::Duration::from_millis(limits.max_duration_ms))
+        .ok_or(diskgraph_core::BusinessError::InvalidArgument)?;
+    verify_same_rows_with_limits_until(
+        engine,
+        report,
+        left_scope,
+        right_scope,
+        principal,
+        authorizer,
+        budget,
+        limits,
+        deadline,
+    )
+}
+
+/// 内容核验沿用比较请求已经建立的绝对期限。
+/// 参数：engine/report、双侧 scope、身份与 budget 沿用旧契约，deadline 为首次准备前期限。
+/// 返回：报告和实际双侧读取成本；到期标记 deadline，不重新获得默认三十秒。
+#[allow(clippy::too_many_arguments)] // 双侧内容上下文与请求期限独立。
+pub fn verify_same_rows_until(
+    engine: &Engine,
+    report: ComparisonReport,
+    left_scope: &ScopeId,
+    right_scope: &ScopeId,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+    budget: VerifyBudget,
+    deadline: std::time::Instant,
+) -> Result<(ComparisonReport, VerifySummary), EngineError> {
+    verify_same_rows_with_limits_until(
+        engine,
+        report,
+        left_scope,
+        right_scope,
+        principal,
+        authorizer,
+        budget,
+        &VerifyLimits::default(),
+        deadline,
+    )
+}
+
+/// 核验自有文件/累计字节上限与查询共同期限取更早者。
+/// 参数：旧 engine/report/scope/identity/budget/limits 上下文，以及最外层 deadline。
+/// 返回：报告和实际失败成本；内容权限拒绝不确认摘要，适配器负责报告元数据末检。
+#[allow(clippy::too_many_arguments)] // 保留既有独立限制与双侧请求上下文。
+pub fn verify_same_rows_with_limits_until(
+    engine: &Engine,
+    report: ComparisonReport,
+    left_scope: &ScopeId,
+    right_scope: &ScopeId,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+    budget: VerifyBudget,
+    limits: &VerifyLimits,
+    deadline: std::time::Instant,
+) -> Result<(ComparisonReport, VerifySummary), EngineError> {
+    let own_deadline = std::time::Instant::now()
+        .checked_add(std::time::Duration::from_millis(limits.max_duration_ms))
+        .ok_or(diskgraph_core::BusinessError::InvalidArgument)?;
+    let deadline = deadline.min(own_deadline);
     // The paths come from the roots the report recorded, not from the scope
     // ids: a scope id is an identifier, and joining a relative path onto one
     // would produce a path the engine's containment check rightly refuses.
@@ -153,6 +213,9 @@ pub fn verify_same_rows_with_limits(
         }
     }
     report.rows = rows;
+    if std::time::Instant::now() >= deadline {
+        report.truncated = Some("deadline");
+    }
     Ok((report, summary))
 }
 /// The filesystem path behind a locator. A comparison is between two

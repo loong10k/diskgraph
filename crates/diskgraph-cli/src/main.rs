@@ -15,10 +15,14 @@ use diskgraph_core::{
 };
 use diskgraph_engine::{Engine, EngineConfig, EngineError};
 
+mod error_reply;
 mod html;
 mod installer;
 mod local;
+#[cfg(test)]
+mod query_terminal_tests;
 mod relation_reply;
+mod snapshot_reply;
 mod tui;
 mod tui_frame_reader;
 mod tui_request;
@@ -652,11 +656,7 @@ fn cli_main() -> ExitCode {
         Err(error) => {
             let business = engine_business(&error);
             if std::env::args().any(|arg| arg == "--json") {
-                println!(
-                    "{}",
-                    serde_json::to_string(&Envelope::failure(business, error.to_string()))
-                        .unwrap_or_default()
-                );
+                println!("{}", error_reply::line(&error));
             } else {
                 eprintln!("{error}");
             }
@@ -677,6 +677,8 @@ fn engine_business(error: &EngineError) -> BusinessError {
                 BusinessError::Conflict
             }
             diskgraph_store::StoreError::RetentionViolation(_) => BusinessError::Conflict,
+            diskgraph_store::StoreError::BudgetExceeded => BusinessError::BudgetExceeded,
+            error if error.is_interrupted() => BusinessError::BudgetExceeded,
             _ => BusinessError::InternalError,
         },
         EngineError::Io(_) | EngineError::Poisoned => BusinessError::InternalError,
@@ -760,6 +762,7 @@ fn resolve_side(
     revision: Option<&str>,
     scope: Option<&str>,
     side: &str,
+    deadline: std::time::Instant,
 ) -> Result<(String, Option<ScopeId>), EngineError> {
     if let Some(revision) = revision {
         return Ok((revision.to_owned(), None));
@@ -772,7 +775,7 @@ fn resolve_side(
         .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
     engine.scope(&scope_id)?;
     let revision = engine
-        .latest_revision(&scope_id)?
+        .latest_revision_until(&scope_id, deadline)?
         .ok_or(EngineError::Business(BusinessError::NotIndexed))?;
     Ok((revision, Some(scope_id)))
 }
@@ -1034,13 +1037,20 @@ fn dispatch(
             let revision = match revision {
                 Some(revision) => revision.clone(),
                 None => engine
-                    .latest_revision(&scope_id)?
+                    .latest_revision_until(&scope_id, deadline)?
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
             };
             // The narrow read path: no full-graph materialization. A pre-v4
             // snapshot falls back inside the engine and renders identically.
-            let mut view = engine.tree_view(
-                &scope_id, &revision, principal, authorizer, *depth, *min_bytes,
+            let mut view = engine.tree_view_until(
+                &scope_id,
+                &revision,
+                principal,
+                authorizer,
+                *depth,
+                *min_bytes,
+                snapshot_reply::budget(),
+                deadline,
             )?;
             if *anonymize {
                 html::anonymize_tree(&mut view.root, "home");
@@ -1062,6 +1072,12 @@ fn dispatch(
                 };
                 let truncated = html::tree_is_truncated(&view.root);
                 let page = html::render_page(&view.root, &root_label, &revision, truncated, *depth);
+                #[cfg(test)]
+                query_terminal_tests::before_reply();
+                if !snapshot_reply::finalize(engine, principal, authorizer, &[&revision], deadline)?
+                {
+                    return Err(BusinessError::BudgetExceeded.into());
+                }
                 std::fs::write(destination, page)?;
                 out.push(envelope_line(
                     engine,
@@ -1073,14 +1089,18 @@ fn dispatch(
                 ));
                 return Ok(());
             }
-            out.push(envelope_line(
+            out.push(snapshot_reply::finish(
                 engine,
-                Ok(serde_json::json!({
+                principal,
+                authorizer,
+                &[&revision],
+                serde_json::json!({
                     "revision_id": revision,
                     "rendered_depth": depth,
                     "tree": view.root,
-                })),
-            ));
+                }),
+                deadline,
+            )?);
             Ok(())
         }
         Command::Node { scope } => {
@@ -1246,22 +1266,47 @@ fn dispatch(
             Ok(())
         }
         Command::Growth {
-            scope: _,
+            scope,
             before,
             after,
             path,
         } => {
-            engine.authorize_revision(None, before, principal, authorizer)?;
-            engine.authorize_revision(None, after, principal, authorizer)?;
-            let growth = engine.growth_between(before, after, std::path::Path::new(path))?;
-            out.push(envelope_line(
+            let scope = ScopeId::new(scope.clone()).map_err(|_| BusinessError::InvalidArgument)?;
+            engine.authorize_revision_until(
+                Some(&scope),
+                before,
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            engine.authorize_revision_until(
+                Some(&scope),
+                after,
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            let growth = engine.growth_between_until(
+                before,
+                after,
+                std::path::Path::new(path),
+                snapshot_reply::budget(),
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            out.push(snapshot_reply::finish(
                 engine,
-                Ok(serde_json::json!({
+                principal,
+                authorizer,
+                &[before, after],
+                serde_json::json!({
                     "delta_bytes": growth.as_ref().map(|g| g.delta_bytes.to_string()),
                     "comparable": growth.is_some(),
                     "path": if path.is_empty() { ".".to_owned() } else { path.clone() },
-                })),
-            ));
+                }),
+                deadline,
+            )?);
             Ok(())
         }
         Command::Grant {
@@ -1297,10 +1342,15 @@ fn dispatch(
             verify_files,
             verify_bytes_per_file,
         } => {
-            let (from_revision, from_scope_id) =
-                resolve_side(engine, from.as_deref(), from_scope.as_deref(), "from")?;
+            let (from_revision, from_scope_id) = resolve_side(
+                engine,
+                from.as_deref(),
+                from_scope.as_deref(),
+                "from",
+                deadline,
+            )?;
             let (to_revision, to_scope_id) =
-                resolve_side(engine, to.as_deref(), to_scope.as_deref(), "to")?;
+                resolve_side(engine, to.as_deref(), to_scope.as_deref(), "to", deadline)?;
 
             // Verification needs a scope on each side: the content grant is
             // granted per scope, and reading a path is only allowed inside the
@@ -1314,31 +1364,61 @@ fn dispatch(
                 );
                 return Err(EngineError::Business(BusinessError::InvalidArgument));
             }
-            engine.authorize_revision(
+            engine.authorize_revision_until(
                 from_scope_id.as_ref(),
                 &from_revision,
                 principal,
                 authorizer,
+                deadline,
             )?;
-            engine.authorize_revision(to_scope_id.as_ref(), &to_revision, principal, authorizer)?;
+            engine.authorize_revision_until(
+                to_scope_id.as_ref(),
+                &to_revision,
+                principal,
+                authorizer,
+                deadline,
+            )?;
             let mut verification = None;
 
             if *plan {
                 let sync_method = diskgraph_core::SyncMethod::parse(method)
                     .ok_or(EngineError::Business(BusinessError::InvalidArgument))?;
-                let sync =
-                    engine.sync_plan(&from_revision, &to_revision, sync_method, *tolerance)?;
-                out.push(envelope_line(engine, Ok(plan_to_json(&sync, *limit))));
+                let sync = engine.sync_plan_until(
+                    &from_revision,
+                    &to_revision,
+                    sync_method,
+                    *tolerance,
+                    snapshot_reply::budget(),
+                    principal,
+                    authorizer,
+                    deadline,
+                )?;
+                out.push(snapshot_reply::finish_plan(
+                    engine,
+                    principal,
+                    authorizer,
+                    &[&from_revision, &to_revision],
+                    plan_to_json(&sync, *limit),
+                    deadline,
+                )?);
                 return Ok(());
             }
 
-            let mut report = engine.compare_revisions(&from_revision, &to_revision, *tolerance)?;
+            let mut report = engine.compare_revisions_until(
+                &from_revision,
+                &to_revision,
+                *tolerance,
+                snapshot_reply::budget(),
+                principal,
+                authorizer,
+                deadline,
+            )?;
             if *verify_content {
                 let budget = diskgraph_engine::verify::VerifyBudget {
                     max_files: *verify_files,
                     max_bytes_per_file: *verify_bytes_per_file,
                 };
-                let (promoted, summary) = diskgraph_engine::verify::verify_same_rows(
+                let (promoted, summary) = diskgraph_engine::verify::verify_same_rows_until(
                     engine,
                     report,
                     from_scope_id.as_ref().expect("checked above"),
@@ -1346,6 +1426,7 @@ fn dispatch(
                     principal,
                     authorizer,
                     budget,
+                    deadline,
                 )?;
                 report = promoted;
                 verification = Some(summary);
@@ -1373,20 +1454,52 @@ fn dispatch(
             if let (Some(summary), Some(object)) = (verification, json.as_object_mut()) {
                 object.insert("verification".into(), serde_json::json!(summary));
             }
-            out.push(envelope_line(engine, Ok(json)));
+            out.push(snapshot_reply::finish(
+                engine,
+                principal,
+                authorizer,
+                &[&from_revision, &to_revision],
+                json,
+                deadline,
+            )?);
             Ok(())
         }
         Command::Changes {
-            scope: _,
+            scope,
             before,
             after,
         } => {
-            engine.authorize_revision(None, before, principal, authorizer)?;
-            engine.authorize_revision(None, after, principal, authorizer)?;
-            out.push(envelope_line(
+            let scope = ScopeId::new(scope.clone()).map_err(|_| BusinessError::InvalidArgument)?;
+            engine.authorize_revision_until(
+                Some(&scope),
+                before,
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            engine.authorize_revision_until(
+                Some(&scope),
+                after,
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            let data = engine.revision_changes_until(
+                before,
+                after,
+                snapshot_reply::budget(),
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            out.push(snapshot_reply::finish(
                 engine,
-                engine.revision_changes(before, after),
-            ));
+                principal,
+                authorizer,
+                &[before, after],
+                data,
+                deadline,
+            )?);
             Ok(())
         }
         Command::Search {

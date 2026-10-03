@@ -519,3 +519,27 @@ flowchart TD
 ```
 
 The private view closes recursive source-object inputs; it is not an atomic repository snapshot or a full filesystem/RSS sandbox. Copies and verification add byte-dependent cost; retained initial buffers and terminal reads increase memory. Larger packs or status output may exceed defaults and return explicit errors. Local regressions, raw copy-cost measurements and native acceptance are recorded separately in the [full-platform record](production-readiness-full-platform-2026-10-02.md). Public write tools remain disabled and the remaining device/provider/production gates are unchanged.
+
+## Tree and history request boundary — D24
+
+The Store entry contains only declarations and reexports. Tree windows and
+ordered history cursors borrow raw SQLite fields before admission and decoding;
+history shares one ledger across both sides and any sync-plan rereads. Both
+actual revision owners are rechecked after encoding, including persisted grants
+after the last capability callback. Numeric minimum-size counts keep their
+existing prefix index and unknown-size diagnostics. Late reports are partial;
+late plans are refused. Failure diagnostics preserve business codes while
+bounding actual JSON escaping. Content reads check scope, grants and cancellation
+after EOF/exact-range and final identity checks; the legacy read wrapper now
+uses a cooperative 30-second default, and `read_bounded_until` inherits the caller's
+deadline. This establishes neither atomic cross-connection authorization nor
+strict I/O time or RSS bounds. [Acceptance boundaries](production-readiness-full-platform-2026-10-02.md) remain separate.
+
+```mermaid
+flowchart LR
+    R["Request identity + one deadline"] --> A["Actual revision ownership"]
+    A --> Q["Bounded SQL + shared raw ledger"]
+    Q --> J["Finite JSON encoding"]
+    J --> F["All capabilities, then both persisted grants"]
+    F --> O["Response or refusal<br/>Plans require complete results"]
+```

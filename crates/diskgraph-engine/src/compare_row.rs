@@ -20,3 +20,16 @@ pub struct CompareRow {
     /// hash instead of reading both files again to find that out.
     pub digests: Option<(String, String)>,
 }
+
+impl CompareRow {
+    /// 按报告现有 wire 字段编码一个路径条目。
+    /// 参数：无；使用本条路径及可选双侧摘要。
+    /// 返回：兼容 JSON，计量与完整报告共用该表示。
+    pub(super) fn to_json(&self) -> serde_json::Value {
+        serde_json::json!({
+            "path":self.path,"verdict":self.verdict,"left_bytes":self.left_bytes,
+            "right_bytes":self.right_bytes,"is_file":self.is_file,
+            "digests":self.digests.as_ref().map(|(left,right)|serde_json::json!({"left":left,"right":right})),
+        })
+    }
+}

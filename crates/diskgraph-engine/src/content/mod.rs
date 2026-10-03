@@ -10,6 +10,10 @@ mod inspection_stop;
 mod placeholder_probe;
 mod read_content;
 mod read_outcome;
+#[cfg(test)]
+mod read_terminal_fixture;
+#[cfg(test)]
+mod read_terminal_tests;
 mod suspect_groups;
 #[cfg(test)]
 mod tests;

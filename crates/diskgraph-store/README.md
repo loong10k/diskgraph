@@ -44,11 +44,23 @@ let mut store = SqliteSnapshotStore::open(Path::new("/tmp/diskgraph/diskgraph.sq
 
 ## Source boundaries / 源码边界
 
-`lib.rs` is 98 lines, down from 3,247, and only declares modules and reexports
-the existing API. Each record,
+`lib.rs` is 104 lines, down from 3,247, and only declares modules and stable
+API reexports. Each record,
 enum and row type has its own file. The two original stores still own their
 connections; implementation modules share that ownership and preserve the
 existing SQL, transaction boundaries, wire fields and error behavior.
+
+D24 adds bounded tree windows and an ordered history cursor that admits raw
+fields before Rust allocation and counts actual decoded nodes on both sides.
+Minimum-size tree counts continue to use the existing numeric size-prefix
+index; unknown nodes retain explicit `size_known=false` diagnostics. The
+200k-child VM regressions cover sparse and dense unknown entries. These source
+boundaries and query budgets do not establish a strict process RSS limit.
+
+D24 的树窗口与历史游标先检查原始字段预算，再分配或解码；历史按双方实际
+读取节点累计计费。树 minimum 继续使用现有数值尺寸累计索引，未知节点明确
+标记 `size_known=false`。20 万子项的 VM 门禁覆盖稀疏及密集未知项；源码拆分
+和查询预算不能单独证明进程 RSS 有严格上限。
 
 Control schema 6 adds a separate `authorization_generation()` counter maintained
 transactionally by policy/grant/scope triggers. It changes on individual grant

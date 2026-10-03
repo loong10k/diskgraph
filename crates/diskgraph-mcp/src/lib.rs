@@ -19,6 +19,9 @@ mod children_cursor_tests;
 mod client_address;
 mod connection_rejection;
 pub mod doctor;
+mod error_reply;
+#[cfg(test)]
+mod history_budget_tests;
 pub mod http;
 pub mod install;
 pub mod legacy;
@@ -38,13 +41,15 @@ mod relation_budget_tests;
 mod relation_reply;
 mod request_authorizer;
 mod request_context;
+mod snapshot_reply;
 mod sse_slot;
 mod token_bucket;
 mod tool_input_schema;
 
+use error_reply::tool_error;
 use protocol::{
     FrameError, ToolProfile, catalog_id_for, decode_request, initialize_result, log_line,
-    protocol_error, served, success_response, tool_error, tools_list_result,
+    protocol_error, served, success_response, tools_list_result,
 };
 
 /// The principal a stdio server acts as. stdio binds the local user; scope and
@@ -235,6 +240,8 @@ impl McpService {
         };
         #[cfg(test)]
         relation_budget_tests::request_started();
+        #[cfg(test)]
+        history_budget_tests::request_started();
         let Some(name) = params.get("name").and_then(Value::as_str) else {
             return protocol_error(id.clone(), -32602, "tools/call requires a tool name");
         };
@@ -271,6 +278,17 @@ impl McpService {
             .and_then(|data| {
                 if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
                     relation_reply::finish(self, data, deadline)
+                        .map_err(|error| error.with_context(catalog_id))
+                } else if matches!(catalog_id, "C06" | "C07") {
+                    let mut revisions = [""; 2];
+                    for (position, key) in ["before", "after"].into_iter().enumerate() {
+                        revisions[position] =
+                            arguments.get(key).and_then(Value::as_str).ok_or_else(|| {
+                                EngineError::Business(BusinessError::InvalidArgument)
+                                    .with_context(catalog_id)
+                            })?;
+                    }
+                    snapshot_reply::finish(self, data, &revisions, deadline)
                         .map_err(|error| error.with_context(catalog_id))
                 } else {
                     let text = data.to_string();
@@ -333,22 +351,24 @@ impl McpService {
                 })
                 .transpose()?;
             let authorizer = self.authorizer()?;
-            Some(if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
-                self.engine.authorize_revision_until(
-                    expected.as_ref(),
-                    revision,
-                    self.context.principal(),
-                    &authorizer,
-                    deadline,
-                )?
-            } else {
-                self.engine.authorize_revision(
-                    expected.as_ref(),
-                    revision,
-                    self.context.principal(),
-                    &authorizer,
-                )?
-            })
+            Some(
+                if matches!(catalog_id, "C06" | "C07" | "C13" | "C14" | "C15" | "C16") {
+                    self.engine.authorize_revision_until(
+                        expected.as_ref(),
+                        revision,
+                        self.context.principal(),
+                        &authorizer,
+                        deadline,
+                    )?
+                } else {
+                    self.engine.authorize_revision(
+                        expected.as_ref(),
+                        revision,
+                        self.context.principal(),
+                        &authorizer,
+                    )?
+                },
+            )
         } else {
             self.resolve_scope(arguments)?
         };
@@ -398,7 +418,7 @@ impl McpService {
             "C03" => self.index_tool(&scope, arguments, true),
             "C04" => self.status_tool(arguments),
             "C05" => self.snapshots_tool(&scope, arguments),
-            "C06" | "C07" => self.history_tool(catalog_id, arguments),
+            "C06" | "C07" => self.history_tool(catalog_id, arguments, deadline),
             "C08" => self.explore_tool(&scope, arguments),
             "C09" => self.search_tool(&scope, arguments),
             "C10" => self.node_tool(&scope, arguments),
@@ -530,7 +550,12 @@ impl McpService {
         }))
     }
 
-    fn history_tool(&self, catalog_id: &str, arguments: &Value) -> Result<Value, EngineError> {
+    fn history_tool(
+        &self,
+        catalog_id: &str,
+        arguments: &Value,
+        deadline: std::time::Instant,
+    ) -> Result<Value, EngineError> {
         let before = arguments.get("before").and_then(Value::as_str);
         let after = arguments.get("after").and_then(Value::as_str);
         let (Some(before), Some(after)) = (before, after) else {
@@ -544,28 +569,43 @@ impl McpService {
                     .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))
             })
             .transpose()?;
-        self.engine.authorize_revision(
+        self.engine.authorize_revision_until(
             expected.as_ref(),
             before,
             self.context.principal(),
             &self.authorizer()?,
+            deadline,
         )?;
-        self.engine.authorize_revision(
+        self.engine.authorize_revision_until(
             expected.as_ref(),
             after,
             self.context.principal(),
             &self.authorizer()?,
+            deadline,
         )?;
         if catalog_id == "C07" {
-            let growth = self
-                .engine
-                .growth_between(before, after, std::path::Path::new(""))?;
+            let growth = self.engine.growth_between_until(
+                before,
+                after,
+                std::path::Path::new(""),
+                snapshot_reply::budget(),
+                self.context.principal(),
+                &self.authorizer()?,
+                deadline,
+            )?;
             return Ok(json!({
                 "comparable": growth.is_some(),
                 "delta_bytes": growth.map(|growth| growth.delta_bytes.to_string()),
             }));
         }
-        self.engine.revision_changes(before, after)
+        self.engine.revision_changes_until(
+            before,
+            after,
+            snapshot_reply::budget(),
+            self.context.principal(),
+            &self.authorizer()?,
+            deadline,
+        )
     }
 
     fn explore_tool(
@@ -1049,6 +1089,8 @@ fn business_of(error: &EngineError) -> BusinessError {
             diskgraph_store::StoreError::Conflict(_)
             | diskgraph_store::StoreError::StaleOwner
             | diskgraph_store::StoreError::RetentionViolation(_) => BusinessError::Conflict,
+            diskgraph_store::StoreError::BudgetExceeded => BusinessError::BudgetExceeded,
+            error if error.is_interrupted() => BusinessError::BudgetExceeded,
             _ => BusinessError::InternalError,
         },
         EngineError::Io(_) | EngineError::Poisoned => BusinessError::InternalError,

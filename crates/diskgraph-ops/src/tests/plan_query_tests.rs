@@ -237,15 +237,19 @@ fn final_authorization_lock_wait_cannot_extend_the_metadata_deadline() {
             .unwrap();
         owned_threads.lock().unwrap().push(owner);
     }));
-    assert!(matches!(
-        builder.build_trash_plan(&scope, &principal, &[app], 1 << 20),
-        Err(OpsError::Engine(EngineError::Business(
-            BusinessError::BudgetExceeded
-        )))
-    ));
+    let result = builder.build_trash_plan(&scope, &principal, &[app], 1 << 20);
     for owner in threads.lock().unwrap().drain(..) {
         owner.join().unwrap();
     }
+    assert!(
+        matches!(
+            result,
+            Err(OpsError::Engine(EngineError::Business(
+                BusinessError::BudgetExceeded
+            )))
+        ),
+        "metadata deadline changed its business result: {result:?}"
+    );
     assert_eq!(persisted_plan_count(&project), before_count);
     assert_eq!(tree(&project.root), before);
 }

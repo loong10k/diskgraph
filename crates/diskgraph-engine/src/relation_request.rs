@@ -50,9 +50,10 @@ impl Engine {
         Ok(result)
     }
 
-    // 参数为已经持有的本 Engine guard 与实际请求；返回末段授权结果。
-    // Authorizer 期间其他连接也能撤 scope，NonePolicy 的可信兼容路径同样必须复读。
-    fn require_terminal_relation(
+    /// 在既有 guard 下复核真实 scope 及授权器返回之后的撤销状态。
+    /// 参数：control 为本 Engine guard，authorizer/principal/scope 为真实请求身份。
+    /// 返回：末段授权结果；独立连接在 Authorizer 期间撤 scope 同样拒绝。
+    pub(super) fn require_terminal_relation(
         control: &diskgraph_store::ControlStore,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
@@ -74,6 +75,31 @@ impl Engine {
         Ok(())
     }
 
+    /// 完成全部能力回调后，再纯读取每一侧的持久授权。
+    /// 参数：control 为现有 guard，authorizer/principal/scopes 为同请求真实身份与范围。
+    /// 返回：各侧均仍允许；后侧回调撤前侧权限不能由顺序检查遗漏。
+    pub(super) fn require_terminal_relations(
+        control: &diskgraph_store::ControlStore,
+        authorizer: &dyn Authorizer,
+        principal: &PrincipalId,
+        scopes: &[&ScopeId],
+    ) -> Result<(), EngineError> {
+        for scope in scopes {
+            Self::require_terminal_relation(control, authorizer, principal, scope)?;
+        }
+        // 不再次调用能力授权器，避免最后一个回调继续使前侧复检失效。
+        // guard 不冻结独立 SQLite 连接；此处是协作式末段观察边界。
+        for scope in scopes {
+            if control.scope(scope)?.revoked
+                || control.live_permission(principal, &Permission::MetadataRead, scope)?
+                    == Some(false)
+            {
+                return Err(BusinessError::PermissionDenied.into());
+            }
+        }
+        Ok(())
+    }
+
     /// 适配器完成真实 envelope 编码后再复核 revision 权限与共同期限。
     /// 参数：revision/principal/authorizer 为真实资源请求，deadline 为最外层开始的期限。
     /// 返回：Ok(true) 仍有时间，Ok(false) 已到期；先检查实时撤权，拒绝完整或部分数据。
@@ -84,18 +110,47 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<bool, EngineError> {
+        self.finalize_revisions_read_until(&[revision], principal, authorizer, deadline)
+    }
+
+    /// 对成组 revision 完成全部能力回调后，再复核所有持久 scope/grant。
+    /// 参数：revisions 为真实读取列表，principal/authorizer 与 deadline 沿用整个请求。
+    /// 返回：Ok(true) 尚未过期、Ok(false) 已过期；任一侧撤权均拒绝全部数据。
+    pub fn finalize_revisions_read_until(
+        &self,
+        revisions: &[&str],
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+    ) -> Result<bool, EngineError> {
+        if revisions.is_empty() {
+            return Err(BusinessError::InvalidArgument.into());
+        }
         // 末段授权必须可读实际归属；到期不能被用作跳过权限检查的理由。
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let (server, scope) = reader
-            .revision_ownership(revision)?
-            .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
-        let scope = ScopeId::new(scope)
-            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
+        let ownerships = revisions
+            .iter()
+            .map(|revision| {
+                let (server, scope) = reader
+                    .revision_ownership(revision)?
+                    .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
+                let scope = ScopeId::new(scope)
+                    .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
+                Ok((server, scope))
+            })
+            .collect::<Result<Vec<_>, EngineError>>()?;
         let mut control = self.control_store()?;
-        if server != control.ensure_server()?.as_str() || control.scope(&scope)?.revoked {
-            return Err(BusinessError::PermissionDenied.into());
+        let server_id = control.ensure_server()?;
+        for (server, scope) in &ownerships {
+            if server != server_id.as_str() || control.scope(scope)?.revoked {
+                return Err(BusinessError::PermissionDenied.into());
+            }
         }
-        Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+        let scopes = ownerships
+            .iter()
+            .map(|(_, scope)| scope)
+            .collect::<Vec<_>>();
+        Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
         Ok(Instant::now() < deadline)
     }
 }

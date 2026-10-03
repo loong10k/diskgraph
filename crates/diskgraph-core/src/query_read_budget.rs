@@ -93,6 +93,16 @@ impl QueryReadBudget {
     pub fn remaining_edges(&self) -> usize {
         self.budget.max_edges - self.edges
     }
+    /// 获取尚可实际解码的节点数，两侧历史与重读共用同一额度。
+    /// 参数：无。返回：剩余节点数量，不把结果条数当作读取条数。
+    pub fn remaining_nodes(&self) -> usize {
+        self.budget.max_nodes - self.nodes
+    }
+    /// 获取本请求实际准入的节点解码数。
+    /// 参数：无。返回：已计费数量，额外存在探针不计为解码。
+    pub fn nodes_read(&self) -> usize {
+        self.nodes
+    }
     /// 获取当前剩余借用字段字节额度。
     /// 参数：无。返回：剩余原始字段字节，独立于实际 JSON 响应计量。
     pub fn remaining_raw_bytes(&self) -> usize {

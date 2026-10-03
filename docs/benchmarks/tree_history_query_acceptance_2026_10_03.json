@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-03",
+  "scope": "D24 / task 15.17; final-source local acceptance; same-source native CI pending",
+  "baseline_commit": "c67d22a2e2593dc766a85e774ed855ad79bc8fff",
+  "host": {
+    "target": "aarch64-apple-darwin",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  "source": {
+    "files": {
+      "crates/diskgraph-cli/src/error_reply.rs": "43601ff10f13aad25af2f3d80c7a02525e84ef69249b0758a6c5448e0a2f8ff0",
+      "crates/diskgraph-cli/src/main.rs": "ba858d8bfd004a7e31556e866672deaf8b4055d1527f93a8d1e469e7f71af8a9",
+      "crates/diskgraph-cli/src/query_terminal_tests.rs": "76ee8ce804c830a23b817308feab28cb2ab42f73f5a8a5f060ae747579e1d128",
+      "crates/diskgraph-cli/src/snapshot_reply.rs": "35b911f7e0c23ad4604f9523b5992974be0757aba388ae1dc18daa1aa08ee1eb",
+      "crates/diskgraph-cli/tests/cli_flow.rs": "702844d25ed66e9d31e4aa5e6b031da2438c183241850e2ce53eb55581b4072b",
+      "crates/diskgraph-cli/tests/history_budget.rs": "310a7e30ba95a472127c921245be4e0b19681a5ef22e024f97cd71d2a7e4f032",
+      "crates/diskgraph-core/src/query_read_budget.rs": "a886f19a17232dc91cf4d0c479c8cf5baa243dbcd9788406d6bde86da5a9a2ac",
+      "crates/diskgraph-engine/src/compare_row.rs": "8ae1ec4d73d5e1f9f1df745b654312a22231fd55126715eb0037f5ef258fd03c",
+      "crates/diskgraph-engine/src/comparison_report.rs": "d9e07ade1bae7c12c04a1abbc0c6e01cdb7d542506834547c7fa65080ea74142",
+      "crates/diskgraph-engine/src/content/mod.rs": "7df031d902543c9dc29aa3b8e66a400e83298d9fd45d13fb14e5fcc8bed536fd",
+      "crates/diskgraph-engine/src/content/read_content.rs": "7bbdfd6ce51aec0157e71dedc74057d43ddefc772a6f4c65f39e1247af5bede0",
+      "crates/diskgraph-engine/src/content/read_terminal_fixture.rs": "ac542f0818bf824d4a0bbc7b3729a20925eeb2c99a79db46f479eba57b3e180d",
+      "crates/diskgraph-engine/src/content/read_terminal_tests.rs": "a5aee4a375fe1572f0b8d7c9b1462c1c5212dbdf20bd46ca9f8939982198be32",
+      "crates/diskgraph-engine/src/history_node_lookup.rs": "dfe482ae2471d62408b079298e6954ff8d8a4af999c6759a4b283d08bea45643",
+      "crates/diskgraph-engine/src/history_request.rs": "938e45da282a12779a4bb75f844bbc17240ec801933983154f30c3c3c9af2fcb",
+      "crates/diskgraph-engine/src/lib.rs": "933d550e71e8fd2b6dd672900aee00e6223b15ffa6c5eb48fa656a4d028dddbb",
+      "crates/diskgraph-engine/src/relation_request.rs": "11efeef5caa1a57dfa4dd77e35042e84a80695c3cfbfb3bd18c78d6b1146071c",
+      "crates/diskgraph-engine/src/revision_authorization.rs": "36357c95d1579cb802e7849b507f509bb5caab4b8d91951b85b06bb154bf8093",
+      "crates/diskgraph-engine/src/revision_comparison.rs": "698edd0f127d6b3b8e118aa06081899f3bf56a7d4793bfbb9eb42117f86d3fbe",
+      "crates/diskgraph-engine/src/revision_history.rs": "049d854540f0061c17ae9e2e134181cfcb5a826cb3402f5d4a829f0a4114ea97",
+      "crates/diskgraph-engine/src/sync_plan.rs": "cb8aad92c1ec1603f767ea53635bee098adf920d1ec7dbade8966876d79ba0f9",
+      "crates/diskgraph-engine/src/tree_queries.rs": "cb3d94b83431c8b5f89557fd2698e648c73c09f19c7e4ed544bb9027dbbef8c0",
+      "crates/diskgraph-engine/src/verify/mod.rs": "496d7ff504960dbaedf7271fab5adffd89e0b136e140da3408943d57785e144f",
+      "crates/diskgraph-engine/src/verify/verification.rs": "c02635578ca5ace673c4f4b60dca9b8f0626619bee51f9553cf4eb1656188833",
+      "crates/diskgraph-engine/tests/query_finalizer_budget.rs": "cf227f7fea05a7fb375185b9322b1fa6ba7269bb07791bac15165c0d3b8f8998",
+      "crates/diskgraph-engine/tests/query_request_budget.rs": "ec9142151da5d84154c6ac7eff2644c0804f6b8498bf5d0f5e24e79f6419f027",
+      "crates/diskgraph-engine/tests/query_request_budget/callback_authorizer.rs": "bf35b9d795f5020da1c5921eb75c040f4e17088aa5383b9e682b6f54770cf1d2",
+      "crates/diskgraph-engine/tests/query_request_budget/fixture.rs": "4cfec39ff266849744d625f46ed11dfa17e17999b8fe90bb3b46357c46c2be5e",
+      "crates/diskgraph-engine/tests/query_until_budget.rs": "2c684f48977d0830321a02d667af33427b8cf6d8fad608a470c432e0df6e21c7",
+      "crates/diskgraph-mcp/src/error_reply.rs": "f3585c86bdfcf4f309fdbc16b5708bc54255f3cdd9a48fc2f795a5a892a0cec8",
+      "crates/diskgraph-mcp/src/history_budget_tests.rs": "69b46ca2ffb9969242c2ef1cc1d333631a0e5dbdd672b333a793eef6dad86426",
+      "crates/diskgraph-mcp/src/lib.rs": "07a1f895adc14844b9a2aca4b54716b71759041c8ba59229786756597a74c032",
+      "crates/diskgraph-mcp/src/snapshot_reply.rs": "9c1e84dc25215f40858f580908937ae3d5977ca1b0182dfd082cc6df912ab3de",
+      "crates/diskgraph-ops/src/tests/plan_query_tests.rs": "713dd6ac0a6754f44b3b3b2e74330537b0be806e6097fe6b24dc6213df7bff40",
+      "crates/diskgraph-store/src/history_metadata_query.rs": "ea8309dfd4a8bfcf89b24749f57fd2506b2968ef4c7b6ec5c8862e449e75916c",
+      "crates/diskgraph-store/src/history_node_cursor.rs": "fd3f97249f9e699780f8fe29ad8fc1acb16b8b37d0a66193f59b7d2fdf813b2e",
+      "crates/diskgraph-store/src/history_queries.rs": "3308e3e862398caddfc2ac059adc2480250dde2dd4a938f3a214dd6d2972663d",
+      "crates/diskgraph-store/src/lib.rs": "5296c537c54726c83b9c86aa1f297f69a7a698d712b948fd372cca655999f7a7",
+      "crates/diskgraph-store/src/node_budget_query.rs": "b3452a2eae07e3597aa12d580179aa220f845ee184689e5a42284f17acfa920a",
+      "crates/diskgraph-store/src/tree_budget_query.rs": "755632d793053550235a6ebedd63f7ad3fd6045db5b3bf3034f3fc331ac38032",
+      "crates/diskgraph-store/src/tree_budget_tests.rs": "87990c1dcf8bb70e9529cca71d7f3007ce3d96e55df66fddff2c0b8538e1d8de"
+    },
+    "sha256": "d03a4b83028b70946e70b49c6a9db03f324d040c188903bec3df203e956d9051",
+    "text_manifest_sha256": "f17eb88618b09a9c08cfbf49bcae44b17ffd11876b374da4d986fa27e1b42a06"
+  },
+  "validation": {
+    "workspace": {
+      "suites": 45,
+      "passed": 936,
+      "failed": 0,
+      "ignored": 18
+    },
+    "strict_workspace_clippy": true,
+    "scoped_fmt": true,
+    "strict_openspec": true,
+    "unchanged_vendor_digests": 14,
+    "vendored_independent_tests": {
+      "passed": 124,
+      "failed": 0,
+      "ignored": 2
+    },
+    "release_build_packages": [
+      "diskgraph-cli",
+      "diskgraph-mcp",
+      "diskgraph-ffi"
+    ],
+    "post_format_ops_contract_test": {
+      "passed": 1,
+      "failed": 0
+    },
+    "new_d24_cases_executed_ok": [
+      "a_partial_history_cannot_become_a_usable_sync_plan",
+      "all_until_entry_points_refuse_an_already_expired_request",
+      "comparison_fits_the_complete_cli_envelope_and_reports_partial",
+      "completed_read_does_not_hide_cancellation_behind_the_exhausted_byte_budget",
+      "content::read_terminal_tests::completed_range_rechecks_cancellation_after_identity_validation",
+      "content::read_terminal_tests::completed_range_refuses_actual_scope_revoked_at_return",
+      "content::read_terminal_tests::completed_range_refuses_single_content_grant_revoked_at_return",
+      "content::read_terminal_tests::eof_rechecks_cancellation_after_identity_validation",
+      "content::read_terminal_tests::eof_refuses_actual_scope_revoked_at_return_without_persistent_policy",
+      "content::read_terminal_tests::eof_refuses_single_content_grant_revoked_at_return",
+      "empty_reply_revision_set_cannot_be_considered_authorized",
+      "escaped_history_root_is_measured_in_the_complete_report",
+      "exhausted_history_budget_does_not_decode_the_next_corrupt_node",
+      "final_right_authorizer_cannot_revoke_the_already_checked_left_grant",
+      "final_right_authorizer_cannot_revoke_the_already_checked_left_scope",
+      "generic_reader_refuses_scope_revoked_inside_the_final_authorizer",
+      "grouped_reply_refuses_one_grant_revoked_by_the_last_authorizer",
+      "grouped_reply_refuses_scope_revoked_by_the_last_authorizer",
+      "history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides",
+      "history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides",
+      "history_budget_tests::encoded_socket_history_rechecks_both_grant_sides",
+      "history_budget_tests::encoded_socket_history_rechecks_both_scope_sides",
+      "history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership",
+      "history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket",
+      "history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline",
+      "history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline",
+      "history_decode_failure_keeps_a_bounded_business_error_envelope",
+      "history_header_that_cannot_fit_returns_an_explicit_budget_error",
+      "history_keeps_the_completed_pair_without_decoding_the_next_corrupt_pair",
+      "initial_tree_authorization_belongs_to_the_default_request_deadline",
+      "matching_history_nodes_on_both_sides_share_the_node_budget",
+      "published_unknown_tree_size_keeps_its_diagnostic_and_numeric_minimum_contract",
+      "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+      "query_terminal_tests::encoded_changes_refuses_terminal_scope_revocation",
+      "query_terminal_tests::encoded_comparison_refuses_terminal_grant_revocation",
+      "query_terminal_tests::encoded_growth_refuses_terminal_grant_revocation",
+      "query_terminal_tests::encoded_tree_refuses_terminal_scope_revocation",
+      "query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation",
+      "query_terminal_tests::plan_cannot_escape_as_usable_steps_when_encoding_terminal_authorization_expires",
+      "query_terminal_tests::tree_and_history_do_not_complete_after_the_dispatch_deadline",
+      "read_preparation_cannot_open_content_after_the_shared_deadline",
+      "terminal_scope_revocation_is_checked_after_the_encoded_history",
+      "terminal_single_metadata_grant_revocation_refuses_the_encoded_history",
+      "tree_budget_tests::dense_mixed_unknown_tree_counts_do_not_walk_the_threshold_prefix",
+      "tree_budget_tests::merged_tree_window_does_not_decode_a_corrupt_unknown_continuation",
+      "tree_budget_tests::sparse_unknown_tree_page_seeks_without_visiting_the_known_prefix",
+      "typed_history_deadline_keeps_the_existing_more_than_one_second_contract"
+    ],
+    "independent_code_review": "APPROVE; final 41-file source hashes verified",
+    "independent_architecture_review": "CLEAR; final 41-file source hashes verified"
+  },
+  "uniffi": {
+    "library_sha256": "c0560248869b6923711674bf34f6f468d318dcf61e3a64294fe99b33d6e4a521",
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "exact_matches": 19,
+    "total": 19
+  },
+  "protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "load": {
+    "20k": {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 20000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 0.431,
+      "query_p50_ms": 8.434,
+      "query_p95_ms": 11.915,
+      "database_and_wal_bytes": 37449728,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    },
+    "200k": {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 200000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 4.529,
+      "query_p50_ms": 6.396,
+      "query_p95_ms": 8.744,
+      "database_and_wal_bytes": 377393152,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    },
+    "interpretation": "32 top/children queries, four clients; current-source observations, not paired D24 tree/history speedup, peak RSS, cold-cache or cross-platform SLA. 20k was run concurrently with isolated protocol acceptance; 200k ran afterward."
+  },
+  "tree_work": {
+    "fixture_nodes": 200000,
+    "asserted_vm_steps_upper_exclusive": 1500,
+    "cases": [
+      "tree_budget_tests::sparse_unknown_tree_page_seeks_without_visiting_the_known_prefix",
+      "tree_budget_tests::dense_mixed_unknown_tree_counts_do_not_walk_the_threshold_prefix"
+    ],
+    "interpretation": "actual passing VM-step assertions, not a recorded exact step value or a wall-clock/RSS bound"
+  },
+  "logs": {
+    "directory": "tree_history_query_acceptance_2026_10_03_logs",
+    "files": {
+      "workspace-verified.log.gz": {
+        "sha256_uncompressed": "88747d11d7bf769e7d0c1756d44f62a23caf109ed0c71acbaa3fd55e6761be05",
+        "sha256_gzip": "1dce80375688ab48108f115aa041e0fdf772c5d6dafafa11425be5f5d8a376e2"
+      },
+      "clippy-verified.log.gz": {
+        "sha256_uncompressed": "cfe2d5ee365954bb0bd384c5d09b128cd668ab5f39b7d9648b8116be772add76",
+        "sha256_gzip": "d473ec894b925c5b694402661d66abd9246a3c24fa8545a7834d48a85146f705"
+      },
+      "fmt-green.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec-verified.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "vendor-verified.log.gz": {
+        "sha256_uncompressed": "f6ef70910bef843f6c924c7f565a7ac89a4c99261394d7a884a932c67bea4be9",
+        "sha256_gzip": "ae2c9ba75eb5f393720f97a96d907ffb4d3ba7b98985eb4d7ec9ce8418e44e81"
+      },
+      "release-verified.log.gz": {
+        "sha256_uncompressed": "98bd86d4ee88e19d81923e885f0b0dd115150647ce4e2c0cd0511e47ae88e8b9",
+        "sha256_gzip": "48eaef05a1c42e09a4a378b40c61119a545a8f2bfdf9253832c220fd0816a6e7"
+      },
+      "ops-fmt-green.log.gz": {
+        "sha256_uncompressed": "bc5d33169184e72075cdf84481e9effa1ae7e7918179df00527869581b528a6e",
+        "sha256_gzip": "9e0dace7599d0692b19b87b8aaa70dd2c8887f4602e1700778af75b904407002"
+      },
+      "fmt-verified.log.gz": {
+        "sha256_uncompressed": "adf988dd004af8199b2fc57c1da0b8618148570ca04b5f2e081345d252ef4b42",
+        "sha256_gzip": "3b34603459665a416a43fc9165aba8634627474b108771df0633bee01848b476"
+      },
+      "ops-fmt-verified.log.gz": {
+        "sha256_uncompressed": "fa3c5e04515d19fb07b7c4b0e43ed40fa7421a2ab45174ce0e92ba4565fcd4bb",
+        "sha256_gzip": "c5eb5fc90037a7040f65ad25d3785561a63036f7bd9f9e81d8b2f4849b720dcf"
+      }
+    }
+  },
+  "non_acceptance_observations": [
+    "Earlier complete workspace failed 935/1/18 at the existing Ops BudgetExceeded contract; corrected final run passed 936/0/18. Earlier temporary RED logs are no longer available on disk, so they are not included as independently replayable raw receipts.",
+    "fmt-verified records the initial test assertion formatting failure; fmt-green is the corrected check.",
+    "ops-fmt-verified used an incorrect exact filter and ran zero tests; it is not acceptance. ops-fmt-green executed the actual qualified case."
+  ],
+  "remaining_limits": [
+    "Cooperative synchronous locks and I/O; no strict wall-clock or RSS claim.",
+    "Grouped terminal authorization rereads all durable grants after all callbacks, but is not an atomic cross-connection revocation guarantee.",
+    "Query raw and encoded ledgers, MCP text wrapping and HTTP/SSE transport limits remain distinct.",
+    "Legacy FFI history routing and provider/no-hydration, native writes, mobile/device/signing and production gates remain open under their parent tasks."
+  ],
+  "native_ci": {
+    "status": "pending",
+    "tested_commit": null
+  }
+}

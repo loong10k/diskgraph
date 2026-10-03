@@ -220,6 +220,12 @@ HTTP 与两种 SSE 均要求认证（包括 loopback），并校验 Origin；请
 
 常用 MCP 节点、目录、top、搜索与正目标候选走窄读；影响遍历每次请求复用一个已授权读连接。候选返回已选字节、目标缺口与截断状态，仍仅供审阅。搜索保留 Unicode 小写子串匹配，新 keyset 游标绑定主体、scope、revision、过滤、排序和策略版本，旧游标需重新查询。树与历史比较返回截断诊断。任务使用 30 秒租约、5 秒续租和 fencing；扫描预算每 20 ms 协作检查，不承诺严格 RSS 上限。`--max-staging-bytes` 计编码元数据，默认 2 GiB，不按源文件容量计费。
 
+树与 CLI/MCP 历史查询从准备、窄读、编码到末段授权共用一个期限，历史按双侧
+实际解码节点累计计费。全部能力检查完成后，再复核双方持久授权。晚到报告明确
+局部统计，晚到同步计划直接拒绝；CLI JSON 错误及 MCP 业务诊断也计实际转义
+字节。保留数值 minimum 过滤语义，不承诺严格墙钟或 RSS 上限；全平台验收
+仍按独立门禁推进。
+
 ```bash
 diskgraph snapshots prune --scope SCOPE_ID --keep-last 3          # 仅预览
 diskgraph snapshots prune --scope SCOPE_ID --keep-last 3 --apply  # 显式回收

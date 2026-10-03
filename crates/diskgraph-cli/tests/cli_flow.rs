@@ -612,7 +612,7 @@ fn changes_and_growth_refuse_incomparable_revisions_honestly() {
     let run = run_cli(&data_dir, &["index", "--scope", &scope_b, "--wait"]);
     let revision_b = json_field(run.stdout.trim(), "/data/revision_id");
 
-    // Cross-scope comparison is refused with a named reason, never guessed.
+    // 单 scope 命令不能用 A 的提示替代 B revision 的实际归属。
     let run = run_cli(
         &data_dir,
         &[
@@ -625,12 +625,12 @@ fn changes_and_growth_refuse_incomparable_revisions_honestly() {
             &revision_b,
         ],
     );
-    assert_eq!(run.code, 0, "stderr: {}", run.stderr);
+    assert_eq!(run.code, 3, "stderr: {}", run.stderr);
     let report: serde_json::Value = serde_json::from_str(run.stdout.trim()).unwrap();
-    assert_eq!(report["data"]["incompatible"], "different_root");
-    assert_eq!(report["data"]["added"], 0);
+    assert_eq!(report["error"]["code"], "permission_denied");
+    assert!(report.get("data").is_none());
 
-    // Growth across roots is not comparable either.
+    // growth 对双方实际 scope 采用同样的检查。
     let run = run_cli(
         &data_dir,
         &[
@@ -643,8 +643,21 @@ fn changes_and_growth_refuse_incomparable_revisions_honestly() {
             &revision_b,
         ],
     );
+    assert_eq!(run.code, 3, "stderr: {}", run.stderr);
+    let report: serde_json::Value = serde_json::from_str(run.stdout.trim()).unwrap();
+    assert_eq!(report["error"]["code"], "permission_denied");
+    assert!(report.get("data").is_none());
+
+    // 双 scope 比较分别授权双方，仍可报告真实路径差异。
+    let run = run_cli(
+        &data_dir,
+        &["compare", "--from", &revision_a, "--to", &revision_b],
+    );
     assert_eq!(run.code, 0, "stderr: {}", run.stderr);
-    assert!(run.stdout.contains("\"comparable\":false"));
+    let report: serde_json::Value = serde_json::from_str(run.stdout.trim()).unwrap();
+    assert_eq!(report["data"]["left"]["revision_id"], revision_a);
+    assert_eq!(report["data"]["right"]["revision_id"], revision_b);
+    assert_eq!(report["data"]["complete"], true);
 
     // Same revision against itself: comparable and no difference.
     let run = run_cli(

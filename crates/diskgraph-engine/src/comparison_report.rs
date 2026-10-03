@@ -34,18 +34,7 @@ impl ComparisonReport {
             .rows
             .iter()
             .take(limit.unwrap_or(self.rows.len()))
-            .map(|row| {
-                serde_json::json!({
-                    "path": row.path,
-                    "verdict": row.verdict,
-                    "left_bytes": row.left_bytes,
-                    "right_bytes": row.right_bytes,
-                    "is_file": row.is_file,
-                    "digests": row.digests.as_ref().map(|(left, right)| {
-                        serde_json::json!({ "left": left, "right": right })
-                    }),
-                })
-            })
+            .map(CompareRow::to_json)
             .collect();
         serde_json::json!({
             "left": {

@@ -5,6 +5,9 @@ mod verification;
 mod verify_budget;
 mod verify_summary;
 
-pub use verification::{verify_same_rows, verify_same_rows_with_limits};
+pub use verification::{
+    verify_same_rows, verify_same_rows_until, verify_same_rows_with_limits,
+    verify_same_rows_with_limits_until,
+};
 pub use verify_budget::VerifyBudget;
 pub use verify_summary::VerifySummary;

@@ -222,6 +222,14 @@ For a deployed listener, pass `--auth-key-file ISSUER AUDIENCE PATH` to `diskgra
 
 Common MCP node, children, top, search and positive-target candidate queries use narrow reads. Impact traversal reuses one authorized reader per request. Candidates return selected bytes, the remaining target and truncation status; they remain review-only. Unicode lowercase substring search is preserved; new keyset search cursors bind principal, scope, revision, filters, sorting and policy version. Old cursors require a fresh query. Trees and history report truncation. Jobs use 30-second leases, 5-second renewal and fencing. Scanner budgets are checked cooperatively every 20 ms; strict RSS bounds are not promised. `--max-staging-bytes` counts encoded metadata, defaults to 2 GiB, and does not charge source file capacity.
 
+Trees and CLI/MCP history share one deadline across preparation, bounded reads,
+encoding and terminal authorization. History counts both sides' decoded nodes;
+all capability checks finish before both sides' persisted grants are rechecked.
+Late reports identify partial statistics; late sync plans return an error.
+CLI JSON errors and MCP business diagnostics also bound actual JSON escaping.
+These checks preserve numeric minimum-size filtering and do not promise hard
+wall-clock or RSS limits. Full-platform acceptance remains tracked separately.
+
 ```bash
 diskgraph snapshots prune --scope SCOPE_ID --keep-last 3          # preview
 diskgraph snapshots prune --scope SCOPE_ID --keep-last 3 --apply  # explicit reclamation

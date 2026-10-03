@@ -133,7 +133,7 @@ impl Engine {
 
     /// 共用 reader/期限执行授权读取并在返回前复检。
     /// 参数：revision、请求身份、deadline_ms 与 consumer 指定读取范围。
-    /// 返回：consumer 结果或授权/存储失败；consumer 仅可读取获准快照。
+    /// 返回：consumer 结果或授权/存储失败；末段期限耗尽返回 BudgetExceeded，consumer 仅可读取获准快照。
     /// 在一次授权读取中复用独立 SQLite 连接和共同截止时间。
     /// 参数为实际 revision、请求主体、能力授权器和 1–1000 毫秒预算；
     /// 消费者仅接收该 revision 的快照 ID，返回前再次检查实时元数据权限。
@@ -149,24 +149,20 @@ impl Engine {
         if !(1..=1000).contains(&deadline_ms) {
             return Err(EngineError::Business(BusinessError::InvalidArgument));
         }
-        let deadline = std::time::Instant::now() + Duration::from_millis(deadline_ms);
-        let reader = SqliteSnapshotStore::open_reader(&self.graph_path, deadline_ms, None)?;
+        let deadline = std::time::Instant::now()
+            .checked_add(Duration::from_millis(deadline_ms))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let scope =
             self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
         let snapshot_id = reader.revision(revision_id)?.snapshot_id;
         let result = consumer(&reader, &snapshot_id, deadline)?;
         // 撤销与单项权限在同一控制库锁下复核，可信兼容模式同样不能越过撤销。
         let control = self.control_store()?;
-        if control.scope(&scope)?.revoked {
-            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
         }
-        Self::require_with_control(
-            &control,
-            authorizer,
-            principal,
-            &Permission::MetadataRead,
-            &scope,
-        )?;
         Ok(result)
     }
 }

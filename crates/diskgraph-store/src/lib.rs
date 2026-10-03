@@ -17,6 +17,8 @@ mod execution_codec;
 mod full_node_row;
 mod graph_migrations;
 mod graph_validation;
+mod history_metadata_query;
+mod history_node_cursor;
 mod history_queries;
 mod intent_state;
 mod job_kind;
@@ -58,6 +60,9 @@ mod snapshot_queries;
 mod snapshot_writer;
 mod sqlite_snapshot_store;
 mod store_error;
+mod tree_budget_query;
+#[cfg(test)]
+mod tree_budget_tests;
 mod tree_row;
 
 #[cfg(test)]
@@ -76,6 +81,7 @@ mod tests;
 pub use approval::Approval;
 pub use candidate_selection::CandidateSelection;
 pub use control_store::ControlStore;
+pub use history_node_cursor::HistoryNodeCursor;
 pub use intent_state::IntentState;
 pub use job_kind::JobKind;
 pub use job_record::JobRecord;

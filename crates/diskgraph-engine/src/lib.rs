@@ -12,6 +12,8 @@ mod engine_config;
 mod engine_error;
 mod engine_startup;
 mod explanation;
+mod history_node_lookup;
+mod history_request;
 pub mod live_evidence;
 mod native_locator;
 mod policy_service;

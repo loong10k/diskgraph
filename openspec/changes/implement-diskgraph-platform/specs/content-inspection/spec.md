@@ -15,6 +15,10 @@ read SHALL 要求独立内容权限、精确资源引用与字节/范围预算�
 - **WHEN** 只具备元数据权限的主体请求正文
 - **THEN** 拒绝且不把正文写入响应或日志。
 
+#### Scenario: Terminal bounded content read
+- **WHEN** 有限正文读取抵达 EOF、精确字节额度或最终身份检查，期间实际 scope/内容授权被撤销或取消已触发
+- **THEN** 返回前再次检查 scope、当前内容授权交集及取消；撤权拒绝正文，取消保留实际读取成本并明确 stopped，不把最后额度分支作为成功旁路。无持久策略也不能越过 scope 撤销。有期限调用沿用原绝对期限；原无期限兼容接口不声称拥有硬时间上限。
+
 ### Requirement: CT-02 No implicit remote hydration
 内容检查 SHALL 不默认下载云端占位文件、不跟随链接读取越界目标；文件在检查期间变化时结果必须标记失效。
 

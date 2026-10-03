@@ -6,6 +6,20 @@ use diskgraph_core::DiskNode;
 use rusqlite::params;
 
 impl SqliteSnapshotStore {
+    /// 在同一只读 statement 内提供逐条原始字段准入的历史游标。
+    /// 参数：snapshot_id/root 指定固定历史与根，work 为 statement 存活期间的消费者。
+    /// 返回：消费者结果；账本由双侧消费者共同持有，不重置期限或解码数量。
+    pub fn with_ordered_nodes_bounded<T>(
+        &self,
+        snapshot_id: &str,
+        root: &str,
+        work: impl FnOnce(&mut crate::HistoryNodeCursor<'_>) -> Result<T>,
+    ) -> Result<T> {
+        let mut statement = self.connection.prepare(ORDERED_NODES_SQL)?;
+        let rows = statement.query(params![snapshot_id, root])?;
+        work(&mut crate::HistoryNodeCursor { rows })
+    }
+
     /// 通过 SQLite 有序路径游标逐条解码节点，调用者只保留两侧当前条目。
     /// 在同一读连接内按路径顺序逐行访问历史节点。
     /// 参数：snapshot_id：固定快照 ID；root：无损根定位或根过滤条件；work：有效事务期间的内部回调。

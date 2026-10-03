@@ -34,6 +34,30 @@
 - **WHEN** 有界关系或候选读取遇到超过剩余额度的原始证据/实体/选中节点字段，即使该字段解码后还会出现类型或格式错误
 - **THEN** 在 Rust 拥有字符串、节点或证据及反序列化前执行原始字节门禁；预算内的真实解码错误继续传播，合法 NULL、旧 JSON 和未知大小语义保持。该门禁不声称限制 SQLite 内部页缓存、JSON 运算或整个查询 RSS。
 
+#### Scenario: Tree and history share their preparation deadline
+- **WHEN** 树、比较、changes 或 growth 的首次授权、归属解析、读连接准备或末段授权等待耗尽请求期限
+- **THEN** 所有阶段继承解析前生成的同一个绝对期限，空结果和不兼容历史也不得晚到完整成功；保留旧可信 API 契约，有界前缀明确 Deadline，无法确认归属或容纳诊断则拒绝，不承诺抢占同步等待。
+
+#### Scenario: Tree and comparison include the complete encoded report
+- **WHEN** 树或历史路径含转义字符，或者最小报告头和诊断已超过正数响应额度
+- **THEN** 预算覆盖实际 JSON 数据/报告头/诊断及承诺 envelope 的完整编码；不以路径长度近似，不容纳最小报告时明确预算错误。外层 truncated 与数据完成度保持一致；节点额度按双侧实际解码累计，超限 lookahead 不解码未返回节点。
+
+#### Scenario: Both history revisions are authorized at return
+- **WHEN** 历史数据生成或编码后，任一实际 revision 所属 scope 或主体的元数据 grant 被另一控制连接撤销
+- **THEN** CLI/MCP 在返回前复核双侧实际归属和当前权限，拒绝数据；客户端 scope 不替代真实归属。第二侧最后能力回调撤销第一侧时，回调全部结束后的双方纯持久复检同样拒绝数据，不以逐侧检查成功代替整次末检。树 JSON/HTML 及通用授权 reader 同样执行末检，HTML 在写文件前复核；无持久策略的可信兼容 authorizer 回调也不能越过 scope 撤销。
+
+#### Scenario: Tree unknown size retains numeric filter compatibility
+- **WHEN** 已发布目录页含未知大小，且 minimum 过滤或节点预算限制展示范围
+- **THEN** 继续沿用既有数值 subtree-size 过滤及精确聚合计数；返回未知节点明确 size_known=false，不将其数值解释为确定大小。稀疏或密集未知项的当前有界页不为补算任意阈值遍历所有兄弟，不引入未经验证的计数迁移。
+
+#### Scenario: Terminal expiry cannot produce a usable plan
+- **WHEN** 比较报告或同步计划编码后，末段授权等待耗尽整次期限
+- **THEN** 普通报告若保留前缀，complete=false、外层 truncated 与已有 summary_is_partial 同时表示局部结果；同步计划直接拒绝，不输出可使用的 steps。
+
+#### Scenario: Failure diagnostics include actual JSON escaping
+- **WHEN** 历史读取中预算内字段发生格式错误，而错误诊断的实际转义编码超过默认响应额度
+- **THEN** CLI JSON 错误 envelope 与 MCP 业务错误诊断用有界信息保留原业务错误码和退出码，不返回成功或将格式错误无声改成预算错误。JSON-RPC 请求 ID、文本嵌套和 HTTP/SSE 外包装仍分别受传输预算约束。
+
 ### Requirement: Q-03 Explainable explore
 explore SHALL 使用明确定位、模式和过滤条件聚合主要子项、尺寸、关系摘要、证据与下一步 ID；自然语言解释由宿主完成，名称歧义不得静默猜选。
 
