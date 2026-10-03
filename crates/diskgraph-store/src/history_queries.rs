@@ -18,7 +18,7 @@ impl SqliteSnapshotStore {
     ) -> Result<T> {
         let mut statement = self.connection.prepare(ORDERED_NODES_SQL)?;
         let mapped = statement.query_map(params![snapshot_id, root], |row| {
-            Ok((row.get::<_, String>(16)?, NodeRow::from(row)))
+            Ok((row.get::<_, String>(16)?, NodeRow::from_row(row)?))
         })?;
         let mut nodes = mapped.map(|row| {
             let (path, row) = row?;

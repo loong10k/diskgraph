@@ -163,7 +163,7 @@ impl SqliteSnapshotStore {
     ) -> Result<Option<DiskNode>> {
         let Some(row) = self
             .connection
-            .query_row(sql, params, |row| Ok(NodeRow::from(row)))
+            .query_row(sql, params, NodeRow::from_row)
             .optional()?
         else {
             return Ok(None);

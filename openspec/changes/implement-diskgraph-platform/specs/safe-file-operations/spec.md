@@ -149,3 +149,21 @@ The operation crate SHALL keep lib.rs and mod.rs to module declarations and expl
 - **WHEN** existing clients import their previous public paths and operation regressions exercise approval, cancellation, overlapping claims, transfer failure and recovery after the split
 - **THEN** observable behavior, persistent formats and the side-effect/cleanup order remain unchanged
 - **AND** a source comparison and the same-commit native CI verify the structural increment; passing library tests does not enable unverified write capabilities
+
+### Requirement: OP-15 Narrow authorized plan resolution
+Plan construction SHALL resolve only explicitly selected node IDs from the scope's published revision through an authorized independent read connection. The graph metadata phase SHALL share a 1000 ms cooperative deadline across revision resolution, authorization and selected-node reads, including a final check after authorization returns. Expiration SHALL refuse the whole plan before source evidence capture or plan persistence. It SHALL NOT load a complete revision for a small selection, omit selected nodes as a truncated plan, change per-selection error order or weaken actual server/scope ownership checks. SQLite column decoding failures SHALL propagate instead of becoming default field values; valid nullable fields, legacy JSON rows and unknown-size representations SHALL remain compatible.
+
+#### Scenario: Selected nodes among unrelated damaged metadata
+- **WHEN** one or several valid native nodes are selected in a revision containing unrelated malformed rows
+- **THEN** only the selected rows are decoded and the plan retains its exact item set, digest and live evidence semantics
+- **AND** selecting a malformed row fails without persisting a partial plan or modifying source files
+
+#### Scenario: Scope and selection compatibility
+- **WHEN** a latest-revision pointer belongs to another scope, a selected ID is absent or outside the database integer range, or selections duplicate or overlap
+- **THEN** actual revision ownership is enforced and existing missing-node, duplicate and overlap behavior is preserved
+- **AND** errors are resolved in the original requested order; an earlier stale path is not hidden by a later missing node
+
+#### Scenario: Metadata deadline and measured scaling
+- **WHEN** the metadata deadline expires during selection or final authorization, or release measurements compare a fixed selection against 20k and 200k metadata rows
+- **THEN** expired resolution fails before source evidence capture or persistence, while successful lookup work and result allocation depend on the selection rather than loading all revision nodes
+- **AND** measurements separately report selection size, timing and RSS; this does not claim a hard filesystem wall-clock/RSS bound or linear complexity for subsequent overlap resolution

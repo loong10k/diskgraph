@@ -243,3 +243,9 @@ OP-14 延续已经完成的 Store 与 Engine 结构约束，整改完整 Ops cra
 PlanBuilder 保持原有全部行为与批准顺序。Executor 仍是唯一执行状态 owner，其既有方法按 apply、validation、perform、transfer、paths 分为实际 impl 模块，不新增 facade service、线程、锁、事务或接口。CrossVolumeCopy 保持互斥平台实现、两个 Mutex、句柄和批准 Metadata 所有权，stage/publish/discard 顺序不变，不通过自动 Drop 改变 NeedsAttention 或失败清理时序。相邻私有模块所需的可见性只扩大至 crate 内，不变为公共 API。
 
 实现先记录公开导出、类型和方法体基线，再使 AST 结构门禁真实失败，拆分后对照规范化源码与已有安全/并发/恢复测试。中文注释使用实际 Rust 来源，不虚构 Java 类型；不借本次整理改造 specialist runner 或启用危险工具。全 workspace 与同 SHA 原生 CI 验收后才能完成结构子项，其余平台写操作、provider 和移动端门禁保持独立。
+
+### D22 操作计划的有期限窄读
+
+OP-15 是 OP-14 结构整理后的行为优化，不回溯更改 D21 的方法体保留结论。当前 PlanBuilder 为少量选择加载完整 revision，并对每个 ID 线性查找；本增量改为按原选择顺序复用已有授权 reader 精确查询。保留 `authorize_revision(Some(scope))` 的真实归属断言，`with_authorized_revision_reader` 在读取后再次检查实时元数据授权；同一 1000 ms 元数据期限从 revision 解析前开始，在每项读取/原路径解析和最终授权后检查。期限失败拒绝整份计划，不截断为可批准的部分计划。每个 ID 的读取→原生路径→live stat 顺序保持，后续 source evidence、重叠处理、摘要、批准和持久化顺序不改。
+
+窄读依赖的 NodeRow 改为 fallible SQLite 列解码；合法 NULL 仍为 Option，kind=NULL 的旧 JSON/未知大小行为不变，字段类型错误不再默认为 0/空值。本阶段不增加跨文件系统长事务，固定不可变 revision/snapshot；并发历史回收或损坏导致明确失败，不宣称多语句原子快照。查找与节点分配不再随完整 revision 大小增长，但 source evidence 的实际读取、drop_nested 的 M² 比较、数据库打开/授权、同步 stat 和锁等待分别具有自身成本，不将局部优化宣传为全计划 O(M)、严格墙钟或 RSS 上限。以损坏未选行/选中行、旧行和未知大小、范围/错误顺序夹具先红后绿，再作同一隔离数据上的 release 前后测量及原生 CI。公开危险工具与未验收写平台仍关闭。

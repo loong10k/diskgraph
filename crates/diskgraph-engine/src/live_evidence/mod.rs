@@ -3,6 +3,8 @@
 mod fs_event;
 mod fs_event_kind;
 #[cfg(test)]
+mod git_callback_tests;
+#[cfg(test)]
 mod git_cleanup_tests;
 mod git_command_context;
 #[cfg(all(test, unix))]
@@ -18,6 +20,8 @@ mod git_directory_security;
 mod git_directory_tests;
 mod git_directory_version;
 mod git_executable;
+#[cfg(test)]
+mod git_executable_native_tests;
 #[cfg(test)]
 mod git_execution_policy_tests;
 mod git_index_layout;
@@ -60,6 +64,8 @@ mod git_semantics_tests;
 mod git_stash;
 #[cfg(test)]
 mod git_stash_tests;
+#[cfg(test)]
+mod git_status_output_tests;
 mod git_system_configuration;
 #[cfg(test)]
 mod git_system_configuration_tests;

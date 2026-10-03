@@ -14,7 +14,8 @@ diskgraph-ops = "0.2"
 
 ## The shape of an operation
 
-1. **Plan** — resolve node ids to live paths, identities, and sizes; drop
+1. **Plan** — read exact authorized node rows and resolve their live paths,
+   identities, and sizes; drop
    parent/child overlaps so the same bytes are never counted twice; write
    a digest over the exact object set. Planning reads source evidence and records
    the plan without modifying source files.
@@ -65,6 +66,16 @@ CLI/MCP dangerous tools remain disabled.
 AST 门禁检查各平台分支，拒绝入口定义、多对象混放、大生产文件、通配导入及
 占位实现。唯一空方法例外是原有不支持平台的零资源 `CrossVolumeCopy::discard`，
 不表示写能力已实现。原生文件操作仍须平台及保真验收；CLI/MCP 危险工具保持关闭。
+
+Plan selection uses one authorized revision reader and a shared 1,000ms
+cooperative metadata deadline, including the final authorization check. It
+does not load unselected nodes. Source evidence runs afterward; synchronous
+filesystem calls and lock waits are not preemptible. The separate OP-15 change
+adds this behavior after the OP-14 source split described above.
+
+计划选择复用一个已授权 revision reader，以共同1,000ms协作期限读取精确节点并
+复核最终授权，不加载未选节点。后续源证据独立执行，同步文件系统调用和锁等待
+不能被抢占。此行为属于源码拆分之后的独立 OP-15 增量。
 
 ## License
 

@@ -1,0 +1,323 @@
+{
+  "kind": "plan_metadata_narrow_read_paired_release",
+  "date": "2026-10-03",
+  "baseline_source_sha": "d2b427aa2538692ab74f7336df31a3921db10d62",
+  "candidate_measured_source_sha256": {
+    "crates/diskgraph-ops/src/plan_builder.rs": "c80e483e6b23444a504c9891b45ae99eaf5118a904fd528dc8d628a3e781da26",
+    "crates/diskgraph-store/src/node_row.rs": "bb51645aedd29e91398a7581dd24dfa7cb0422883a825b20ee607149f525c114",
+    "crates/diskgraph-store/src/node_queries.rs": "bdaaf7540380343544c1d9ba5daf27bf2a0e2355da01a6333771a29b2856fec0",
+    "crates/diskgraph-store/src/directory_queries.rs": "cdd0cbdffdb49f3e72292464e0ccb6a7030a90a0357b760e376564ac87cf7525",
+    "crates/diskgraph-store/src/history_queries.rs": "663fea6ef1c8278fc3e702f61d869ac140955bfabbf7b2f020ee5dd627ee9b61",
+    "crates/diskgraph-store/src/node_codec.rs": "3bdb390d524aa0b9d6e83b4acf2fb3991786f9d4917dbd5f4a221142c40c0038",
+    "crates/diskgraph-ops/src/tests/plan_query_tests/plan_query_benchmark.rs": "63db6f1812c402fb8b6c7d2ee7be4f5713998446d092280c7592ef591ae1578a"
+  },
+  "candidate_test_binary_sha256": "1b49087c3db0c26272e29bc468f973f9eb75b9b6b6ff8063df1d585e52d23f08",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "host": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "method": {
+    "entry": "actual public PlanBuilder::build_trash_plan, source evidence, authorization and persistent plan insertion included",
+    "command": "DISKGRAPH_PLAN_METADATA_BENCH_MANIFEST=<isolated-pair-manifest> cargo test --locked --release -p diskgraph-ops --lib release_plan_metadata_scaling -- --ignored --exact tests::plan_query_tests::plan_query_benchmark::release_plan_metadata_scaling --nocapture",
+    "fixtures": "Same two isolated graph/control databases and physical sources reused across phases; 20k/200k synthetic immutable metadata rows; selected 1/16 actual 64-byte files. This is not a 20k/200k physical scan.",
+    "samples": "Fresh child per scale/selection/phase, 9 real builds: first separately, 8 warm observations; p50 median, p95 nearest-rank=max of 8.",
+    "rss": "Child RUSAGE_SELF ru_maxrss, Darwin bytes; fixture construction remains in the parent. Includes Engine opening and actual builds, excludes parent seeding RSS. No aggregate concurrent-process or strict memory cap claim.",
+    "source_check": "The physical fixture tree paths/bytes are equal before and after each scale/phase. This is not a full native inode/time watermark.",
+    "control_history": "Successful builds persist unique plans; no database reset between phases. Per fixture, before adds 18 plans, candidate_first_pass adds another 18, candidate_final adds another 18. Each phase orders selected=1 before selected=16.",
+    "scope": "Local macOS aarch64 small warm-cache sample; no cold cache, cross-platform SLA, filesystem scan, universal production or whole-plan O(M) claim. Existing overlap filtering is O(M squared), synchronous stat/control waits are not preemptible.",
+    "final_repeat": "Final candidate repeat includes lint-only Resolved return alias and release-profile guard adjustment; original paired candidate observations are retained.",
+    "source_layout": "After measurement, test files moved to standard module directories without changing benchmark bytes or module names; structure gate stays unchanged."
+  },
+  "actual_sql_vm_work": {
+    "counter": "SQLite progress_handler invoked every instruction on actual store.node calls, including snapshot lookup; executed in isolated valid fixtures.",
+    "metadata_rows": [
+      20000,
+      200000
+    ],
+    "selected_1_vm_steps": [
+      59,
+      59
+    ],
+    "selected_16_vm_steps": [
+      944,
+      944
+    ],
+    "test": "actual_point_lookup_vm_work_scales_with_selection_not_snapshot_size",
+    "scope": "Point node lookup only; not whole PlanBuilder, EXPLAIN estimate or history/overlap cost."
+  },
+  "results": {
+    "before": [
+      {
+        "arch": "aarch64",
+        "first_ms": 13.862957999999999,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 20000,
+        "os": "macos",
+        "peak_rss_bytes": 90226688,
+        "samples_ms": [
+          13.862957999999999,
+          13.517709,
+          13.793333,
+          13.537166999999998,
+          12.635334,
+          12.582042,
+          12.846084000000001,
+          13.099084000000001,
+          12.769167
+        ],
+        "selected": 1,
+        "warm_p50_ms": 12.972584000000001,
+        "warm_p95_ms": 13.793333
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 15.0845,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 20000,
+        "os": "macos",
+        "peak_rss_bytes": 90701824,
+        "samples_ms": [
+          15.0845,
+          14.516041,
+          13.626208,
+          14.5145,
+          13.584000000000001,
+          13.456790999999999,
+          13.511459,
+          14.031958000000001,
+          14.275625
+        ],
+        "selected": 16,
+        "warm_p50_ms": 13.829083,
+        "warm_p95_ms": 14.516041
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 108.88637499999999,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 200000,
+        "os": "macos",
+        "peak_rss_bytes": 635977728,
+        "samples_ms": [
+          108.88637499999999,
+          104.740334,
+          102.09025,
+          103.989583,
+          101.174125,
+          105.920959,
+          103.590167,
+          107.543792,
+          102.72704200000001
+        ],
+        "selected": 1,
+        "warm_p50_ms": 103.789875,
+        "warm_p95_ms": 107.543792
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 128.12520899999998,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 200000,
+        "os": "macos",
+        "peak_rss_bytes": 620232704,
+        "samples_ms": [
+          128.12520899999998,
+          111.68675,
+          103.317917,
+          104.090042,
+          101.263,
+          99.147791,
+          99.505292,
+          102.656792,
+          104.13283399999999
+        ],
+        "selected": 16,
+        "warm_p50_ms": 102.9873545,
+        "warm_p95_ms": 111.68675
+      }
+    ],
+    "candidate_first_pass": [
+      {
+        "arch": "aarch64",
+        "first_ms": 2.248167,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 20000,
+        "os": "macos",
+        "peak_rss_bytes": 9879552,
+        "samples_ms": [
+          2.248167,
+          1.3823329999999998,
+          1.0660830000000001,
+          1.26325,
+          1.095625,
+          0.998708,
+          0.990417,
+          1.2704579999999999,
+          0.95825
+        ],
+        "selected": 1,
+        "warm_p50_ms": 1.080854,
+        "warm_p95_ms": 1.3823329999999998
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 5.523,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 20000,
+        "os": "macos",
+        "peak_rss_bytes": 10207232,
+        "samples_ms": [
+          5.523,
+          2.427,
+          2.321416,
+          2.32275,
+          2.478292,
+          2.317708,
+          2.3098340000000004,
+          2.481666,
+          2.2200420000000003
+        ],
+        "selected": 16,
+        "warm_p50_ms": 2.322083,
+        "warm_p95_ms": 2.481666
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 1.987,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 200000,
+        "os": "macos",
+        "peak_rss_bytes": 9879552,
+        "samples_ms": [
+          1.987,
+          1.199541,
+          1.000125,
+          1.355958,
+          0.9675,
+          0.958875,
+          0.929542,
+          0.905208,
+          0.9398749999999999
+        ],
+        "selected": 1,
+        "warm_p50_ms": 0.9631875000000001,
+        "warm_p95_ms": 1.355958
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 4.717833000000001,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 200000,
+        "os": "macos",
+        "peak_rss_bytes": 10059776,
+        "samples_ms": [
+          4.717833000000001,
+          2.2316670000000003,
+          2.3974159999999998,
+          2.1320419999999998,
+          2.189666,
+          2.074167,
+          2.206416,
+          2.1284170000000002,
+          2.315583
+        ],
+        "selected": 16,
+        "warm_p50_ms": 2.198041,
+        "warm_p95_ms": 2.3974159999999998
+      }
+    ],
+    "candidate_final": [
+      {
+        "arch": "aarch64",
+        "first_ms": 2.384666,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 20000,
+        "os": "macos",
+        "peak_rss_bytes": 9781248,
+        "samples_ms": [
+          2.384666,
+          1.2451249999999998,
+          1.2878340000000001,
+          1.466709,
+          1.285834,
+          1.0205,
+          0.9953329999999999,
+          0.939791,
+          0.91925
+        ],
+        "selected": 1,
+        "warm_p50_ms": 1.1328125,
+        "warm_p95_ms": 1.466709
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 5.510209000000001,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 20000,
+        "os": "macos",
+        "peak_rss_bytes": 10108928,
+        "samples_ms": [
+          5.510209000000001,
+          2.021083,
+          1.895416,
+          1.933667,
+          2.639417,
+          2.1211659999999997,
+          2.063083,
+          2.067958,
+          2.2009999999999996
+        ],
+        "selected": 16,
+        "warm_p50_ms": 2.0655205,
+        "warm_p95_ms": 2.639417
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 2.2929169999999996,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 200000,
+        "os": "macos",
+        "peak_rss_bytes": 9781248,
+        "samples_ms": [
+          2.2929169999999996,
+          1.04275,
+          1.074334,
+          0.906584,
+          1.033709,
+          1.298375,
+          0.969,
+          1.112917,
+          1.139833
+        ],
+        "selected": 1,
+        "warm_p50_ms": 1.058542,
+        "warm_p95_ms": 1.298375
+      },
+      {
+        "arch": "aarch64",
+        "first_ms": 4.989375,
+        "fixture": "synthetic metadata, selected real 64-byte files",
+        "metadata_rows": 200000,
+        "os": "macos",
+        "peak_rss_bytes": 9994240,
+        "samples_ms": [
+          4.989375,
+          2.234291,
+          2.0626249999999997,
+          2.1107080000000003,
+          1.954708,
+          2.1706659999999998,
+          2.001416,
+          2.212208,
+          2.164125
+        ],
+        "selected": 16,
+        "warm_p50_ms": 2.1374165,
+        "warm_p95_ms": 2.234291
+      }
+    ]
+  },
+  "raw_logs_sha256": {
+    "before": "c07515e4eddabf99575e216bb6028d86db3fc0cc3c12bf55403d248039b6b4de",
+    "candidate_first_pass": "cabecd4684e6fdfa6349ecaa058236c5cafe9c791d748cadcf607617452f2554",
+    "candidate_final": "7ae111d98dc5301f6e5bc56fea79cf0e67696815cd87071d33d3eddaccd96bf0"
+  }
+}

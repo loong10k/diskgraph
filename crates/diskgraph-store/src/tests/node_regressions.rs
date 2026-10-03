@@ -147,3 +147,138 @@ fn v4_structured_rows_read_identically_to_their_json_payload() {
         assert_eq!(loaded, written, "the fast path must lose nothing");
     }
 }
+
+#[test]
+fn narrow_reads_refuse_wrong_column_types_instead_of_defaulting_them() {
+    // SQLite 的非严格列允许存入其他类型；窄读必须传播解码错误，不能将它变成零。
+    for column in [
+        "direct_bytes",
+        "files",
+        "directories",
+        "modified_unix_seconds",
+        "file_id",
+        "read_error",
+        "name",
+        "category_hint",
+        "reclaim_hint",
+    ] {
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        let original = graph("typed", 4096);
+        store.save(&original).unwrap();
+        let invalid = if matches!(column, "name" | "category_hint" | "reclaim_hint") {
+            "X'FF'"
+        } else {
+            "'not-an-integer'"
+        };
+        store
+            .connection
+            .execute(
+                &format!("UPDATE nodes SET {column}={invalid} WHERE snapshot_id='typed' AND id=2"),
+                [],
+            )
+            .unwrap();
+        assert!(
+            store.node("typed", 2).is_err(),
+            "node defaulted invalid {column}"
+        );
+        assert!(
+            store.children("typed", 1, 0, 10).is_err(),
+            "children defaulted invalid {column}"
+        );
+        // read_error 不为 0 的行不符合 known 页谓词；验证实际会返回的行。
+        if column != "read_error" {
+            assert!(
+                store.children_page("typed", 1, None, 0, 10).is_err(),
+                "page defaulted invalid {column}"
+            );
+        }
+        assert!(
+            store
+                .with_ordered_nodes("typed", "/fixture", |rows| {
+                    rows.collect::<crate::Result<Vec<_>>>()
+                })
+                .is_err(),
+            "history defaulted invalid {column}"
+        );
+    }
+}
+
+#[test]
+fn narrow_legacy_reads_refuse_payload_id_that_disagrees_with_the_row() {
+    let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+    let mut original = graph("legacy-id", 4096);
+    original.nodes[1].size_known = false;
+    store.save(&original).unwrap();
+    let mut corrupted = original.nodes[1].clone();
+    corrupted.id = 77;
+    store
+        .connection
+        .execute(
+            "UPDATE nodes SET node_json=?1 WHERE snapshot_id='legacy-id' AND id=2",
+            [serde_json::to_string(&corrupted).unwrap()],
+        )
+        .unwrap();
+    assert!(
+        store.node("legacy-id", 2).is_err(),
+        "a row cannot authorize another payload ID"
+    );
+    assert!(store.children("legacy-id", 1, 0, 10).is_err());
+}
+
+#[test]
+fn actual_point_lookup_vm_work_scales_with_selection_not_snapshot_size() {
+    use std::sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    };
+    let mut results = Vec::new();
+    for count in [20_000_u64, 200_000] {
+        let mut fixture = graph("point-work", 4096);
+        let template = fixture.nodes[1].clone();
+        for id in 3..=count {
+            let mut node = template.clone();
+            node.id = id;
+            node.name = format!("metadata-{id}");
+            node.locator =
+                diskgraph_core::ResourceLocator::NativePath(format!("/fixture/metadata-{id}"));
+            node.file_identity = None;
+            fixture.nodes.push(node);
+        }
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        store.save(&fixture).unwrap();
+        drop(fixture);
+        let steps = Arc::new(AtomicU64::new(0));
+        let observed = steps.clone();
+        store
+            .connection
+            .progress_handler(
+                1,
+                Some(move || {
+                    observed.fetch_add(1, Ordering::Relaxed);
+                    false
+                }),
+            )
+            .unwrap();
+        assert_eq!(store.node("point-work", 2).unwrap().unwrap().id, 2);
+        let one = steps.swap(0, Ordering::Relaxed);
+        for id in 2..18 {
+            assert_eq!(store.node("point-work", id).unwrap().unwrap().id, id);
+        }
+        let sixteen = steps.load(Ordering::Relaxed);
+        store
+            .connection
+            .progress_handler(0, None::<fn() -> bool>)
+            .unwrap();
+        println!("POINT_NODE_VM rows={count} selected=1 steps={one} selected=16 steps={sixteen}");
+        assert!(one > 0 && sixteen >= one * 12 && sixteen <= one * 20);
+        results.push((one, sixteen));
+    }
+    assert!(
+        results[1].0 <= results[0].0 + 512,
+        "one lookup walked the larger snapshot: {results:?}"
+    );
+    assert!(
+        results[1].1 <= results[0].1 + 512,
+        "selection walked the larger snapshot: {results:?}"
+    );
+}

@@ -9,29 +9,35 @@ use crate::path_codec::unhex_key;
 use crate::plan_digest::plan_digest;
 use crate::plan_request::PlanRequest;
 use crate::raw_path::RawPath;
-use crate::resolved::drop_nested;
+use crate::resolved::{Resolved, drop_nested};
 use crate::source_evidence::SourceEvidence;
 use crate::source_evidence::capture_source;
 use crate::source_evidence::identity_of;
 use diskgraph_core::Authorizer;
+use diskgraph_core::BusinessError;
 use diskgraph_core::Decision;
 use diskgraph_core::FileActionKind;
 use diskgraph_core::Permission;
 use diskgraph_core::PrincipalId;
 use diskgraph_core::ScopeId;
-use diskgraph_engine::Engine;
+use diskgraph_engine::{Engine, EngineError};
 use diskgraph_store::Plan;
 use diskgraph_store::PlanItem;
 use diskgraph_store::RecoveryRule;
+use diskgraph_store::SqliteSnapshotStore;
 use diskgraph_store::StoreError;
 use std::path::Path;
 use std::path::PathBuf;
+use std::time::{Duration, Instant};
 
 /// 从已发布修订读取源证据并持久化不可变计划，不在构建阶段修改源文件。
 /// 来源：DiskGraph 原生 Rust `diskgraph_ops::PlanBuilder`，保留既有语义。
 /// Builds immutable plans from a request against a published revision.
 pub struct PlanBuilder {
     engine: std::sync::Arc<Engine>,
+    /// 仅测试强制最终授权锁等待；生产构建没有此字段或回调。
+    #[cfg(test)]
+    pub(super) metadata_read_observer: Option<Box<dyn Fn() + Send + Sync>>,
 }
 
 impl PlanBuilder {
@@ -39,7 +45,11 @@ impl PlanBuilder {
     /// 参数：engine 为计划查询和控制库写入使用的共享引擎。
     /// 返回：持有相同依赖的新对象。
     pub fn new(engine: std::sync::Arc<Engine>) -> Self {
-        Self { engine }
+        Self {
+            engine,
+            #[cfg(test)]
+            metadata_read_observer: None,
+        }
     }
 
     /// 构建可恢复隔离计划。
@@ -266,39 +276,40 @@ impl PlanBuilder {
         if let Some(directory) = target {
             require_destination(&self.engine, directory, principal, action)?;
         }
+        let deadline = Instant::now() + Duration::from_millis(1000);
         let revision = self
             .engine
             .latest_revision(scope_id)
             .map_err(|_| OpsError::NoSuchScope(scope_id.as_str().to_owned()))?
             .ok_or_else(|| OpsError::Stale("scope has no published revision".into()))?;
-        self.engine.authorize_revision(
-            Some(scope_id),
+        let authorizer = self.engine.policy_authorizer()?;
+        self.engine
+            .authorize_revision(Some(scope_id), &revision, principal, &authorizer)?;
+        Self::check_metadata_deadline(deadline)?;
+        let remaining_ms = deadline
+            .saturating_duration_since(Instant::now())
+            .as_millis() as u64;
+        if remaining_ms == 0 {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded).into());
+        }
+        // 复用授权 reader 精确取选中行；嵌套结果保留每个 ID 的业务错误顺序。
+        let resolved = self.engine.with_authorized_revision_reader(
             &revision,
             principal,
-            &self.engine.policy_authorizer()?,
+            &authorizer,
+            remaining_ms,
+            |reader, snapshot, _| {
+                let resolved = Self::resolve_selected(reader, snapshot, node_ids, deadline);
+                #[cfg(test)]
+                if let Some(observer) = &self.metadata_read_observer {
+                    observer();
+                }
+                Ok(resolved)
+            },
         )?;
-        let graph = self.engine.load_revision(&revision)?;
-
-        // Resolve every requested node to a live path and identity.
-        let mut resolved: Vec<(u64, PathBuf, Option<String>, u64)> = Vec::new();
-        for &node_id in node_ids {
-            let node = graph
-                .nodes
-                .iter()
-                .find(|node| node.id == node_id)
-                .ok_or(OpsError::NoSuchNode(node_id))?;
-            let path = node
-                .locator
-                .raw_path()
-                .ok_or_else(|| OpsError::Stale(format!("node {node_id} has no native path")))?;
-            let live = std::fs::symlink_metadata(&path)
-                .map_err(|error| OpsError::Stale(format!("node {node_id}: {error}")))?;
-            let identity = identity_of(&path, &live);
-            // Budget against the object's own live size, not the scan-time
-            // subtree aggregate: after overlaps are dropped, a directory and a
-            // file inside it would otherwise be counted twice.
-            resolved.push((node_id, path, identity, live.len()));
-        }
+        // 最终授权可能等待控制锁，返回后的共同期限同样必须确认。
+        Self::check_metadata_deadline(deadline)?;
+        let resolved = resolved?;
         if resolved.is_empty() {
             return Err(OpsError::EmptyPlan);
         }
@@ -369,5 +380,48 @@ impl PlanBuilder {
         let mut control = self.engine.control_store()?;
         control.insert_plan(&plan, &digest)?;
         Ok(plan)
+    }
+
+    /// 按请求顺序读取选中节点、原路径及 live 元数据，不物化完整图。
+    /// 参数：reader/snapshot 是已授权固定快照，node_ids 是完整选择，deadline 是共同期限。
+    /// 返回：全部定位或原有缺失/路径/存储错误；超时不返回部分选择。
+    pub(super) fn resolve_selected(
+        reader: &SqliteSnapshotStore,
+        snapshot: &str,
+        node_ids: &[u64],
+        deadline: Instant,
+    ) -> Result<Vec<Resolved>, OpsError> {
+        let mut resolved = Vec::new();
+        for &node_id in node_ids {
+            Self::check_metadata_deadline(deadline)?;
+            if node_id > i64::MAX as u64 {
+                return Err(OpsError::NoSuchNode(node_id));
+            }
+            let node = reader
+                .node(snapshot, node_id)
+                .map_err(EngineError::from)?
+                .ok_or(OpsError::NoSuchNode(node_id))?;
+            let path = node
+                .locator
+                .raw_path()
+                .ok_or_else(|| OpsError::Stale(format!("node {node_id} has no native path")))?;
+            let live = std::fs::symlink_metadata(&path)
+                .map_err(|error| OpsError::Stale(format!("node {node_id}: {error}")))?;
+            let identity = identity_of(&path, &live);
+            // 继续按对象自身 live 长度计费；重叠去除和目录证据仍在后续原有阶段。
+            resolved.push((node_id, path, identity, live.len()));
+        }
+        Self::check_metadata_deadline(deadline)?;
+        Ok(resolved)
+    }
+
+    /// 拒绝已过期的元数据解析，含最终授权返回后的检查。
+    /// 参数：deadline 为整次图元数据阶段的固定截止时间。
+    /// 返回：尚未到期为 ()，到期为预算错误；不延长期限。
+    pub(super) fn check_metadata_deadline(deadline: Instant) -> Result<(), OpsError> {
+        if Instant::now() >= deadline {
+            return Err(EngineError::Business(BusinessError::BudgetExceeded).into());
+        }
+        Ok(())
     }
 }

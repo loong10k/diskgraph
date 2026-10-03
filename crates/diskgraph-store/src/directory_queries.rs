@@ -37,7 +37,7 @@ impl SqliteSnapshotStore {
                 as_i64(limit)?,
                 as_i64(offset)?,
             ],
-            |row| Ok(NodeRow::from(row)),
+            NodeRow::from_row,
         )?;
         rows.map(|row| row?.into_node()).collect()
     }

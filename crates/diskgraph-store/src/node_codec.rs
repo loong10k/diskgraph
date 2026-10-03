@@ -95,7 +95,7 @@ pub(crate) fn read_node_page(
         let Some(row) = rows.next()? else {
             break;
         };
-        items.push(NodeRow::from(row).into_node()?);
+        items.push(NodeRow::from_row(row)?.into_node()?);
     }
     let more = rows.next()?.is_some();
     Ok((items, more))

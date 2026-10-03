@@ -18,6 +18,8 @@ use diskgraph_store::{PlanState, StoreError};
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
+mod plan_query_tests;
+
 /// A project on disk plus a published engine, the precondition every plan test
 /// needs. Everything lives in a temp directory: no test touches a real path.
 struct Project {

@@ -620,6 +620,7 @@ dependencies = [
  "diskgraph-store",
  "hex",
  "libc",
+ "rusqlite",
  "serde",
  "serde_json",
  "sha2",
