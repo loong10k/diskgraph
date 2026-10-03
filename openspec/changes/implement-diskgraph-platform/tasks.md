@@ -297,4 +297,6 @@
 - [x] 15.19 按D26收口旧top/children与session目录页的首末授权、整次期限、借用字段准入、存在探针和真实响应预算；保持各自排序/未知大小/分页/wire与UniFFI校验值。公开入口RED、错误诊断、撤权/关闭/到期及原生CI实际通过后勾选。 验收：5f66862544d1dc3cb2aae9bda65ded6c223f5267 / CI37133537230终态22/22；两Windows Rust、Linux ARM及macOS Intel日志各确认12项新增用例实际ok，证据见native_listing_acceptance_2026_10_03.json。
 
 
-D28（15.13 / EV-05前置）本机证据见`docs/benchmarks/revision_collector_acceptance_2026_10_04.json`：revision隔离、原子批次发布、封存选择、v9成员/节点/来源闭包迁移、candidate阻止语义及active-run邻接分页已实现；workspace1001/0/18、Clippy/fmt/OpenSpec/release/实际协议和扫描一致性通过。独立代码复审APPROVE，最终架构lane因agent线程服务限制未取得新证据，同源码原生CI待执行。本项不新增完成勾选，不关闭15.13及全平台父项。
+D28（15.13 / EV-05前置）本机证据见`docs/benchmarks/revision_collector_acceptance_2026_10_04.json`：revision隔离、原子批次发布、封存选择、v9成员/节点/来源闭包迁移、candidate阻止语义及active-run邻接分页已实现；workspace1001/0/18、Clippy/fmt/OpenSpec/release/实际协议和扫描一致性通过。独立代码复审APPROVE，恢复后的架构lane重读最终源码返回CLEAR，9份提供的摘要匹配；45份D28源码未改，f42f769同SHA CI37140491445最终22/22成功，四份原始workspace日志实际确认19个发布/协议/迁移用例通过。本项不新增完成勾选，不关闭15.13及全平台父项。
+
+D29（15.13 / EC-04前置）：新增EvidenceProbeSession跨多个Git/进程目标共享绝对期限、输出、取消与Git元数据额度；任意Git错误或进程Unobservable锁存，Partial保留，清理末检成功后才归还真实余额。旧独立bounded入口保持每次新预算兼容。真实旧调用方式RED 0/2，目标20/20和workspace1021/0/18通过；代码APPROVE/架构CLEAR且10份源码清单摘要匹配。Clippy/fmt/OpenSpec strict、release CLI/MCP/FFI、真实stdio18/18、HTTP/SSE13/13与UniFFI19/19通过；证据见docs/benchmarks/evidence_probe_session_acceptance_2026_10_04.json。新同源码原生CI待执行，不新增完成勾选，不替代授权持久采集任务/真实provider/设备与15.13父项。

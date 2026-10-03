@@ -396,4 +396,30 @@ Legacy migration verifies each revision's actual run snapshot, roles, JSON prove
 
 Release one-edge pages with 20k/200k inactive historical edges each executed **196 individually counted VM instructions**. The preceding query was interrupted at approximately101,000 instructions with 20k historical edges. This proves query work, not wall-clock/RSS bounds. Current-build 20k/200k-file workloads each passed4/4: scan **0.942/4.538s**; top/children p50/p95 **13.939/19.892ms** and **7.509/9.569ms**; database plus WAL **37,502,976/377,446,400 bytes**, with32 queries and4 concurrent clients. These observations are not a paired speedup, cold-cache SLA or peak-RSS measurement.
 
-Independent code review returned APPROVE; eleven supplied source hashes match. The final independent architecture lane could not restart or be replaced because the service returned `agent thread limit reached`. The code-review skill therefore keeps `independent review unavailable`; no two-lane final approval is claimed. Same-source native CI remains pending for this increment. Task15.13 and full-platform parents remain open for live Git/process/application service integration, providers, native writes, hosts, devices and signing. The scan deadline check is cooperative admission inside the fence transaction before graph writes, not preemption during SQL commit. Trusted legacy snapshot lists and offset compatibility paths retain their prior cost guarantees.
+Independent code review returned APPROVE; eleven supplied source hashes match. The architecture lane subsequently resumed, reread the final source and returned CLEAR; its nine provided hashes match, and all 45 D28 source hashes remain unchanged. Same-source commit `f42f769175053b77e71db988d650ee840d36bf7b`, [CI37140491445](https://github.com/loong10k/diskgraph/actions/runs/37140491445), completed **22/22 success**. Four archived native workspace logs contain 45 suites each: Windows stable/1.97 **868/0/16**, Linux ARM **989/0/18**, macOS Intel **1001/0/18**; all four actually passed the 19 selected publication/protocol/migration cases. The receipt preserves the earlier unavailable-review state and subsequent closure; this is approval for this increment only. Task15.13 and full-platform parents remain open for live Git/process/application service integration, providers, native writes, hosts, devices and signing. The scan deadline check is cooperative admission inside the fence transaction before graph writes, not preemption during SQL commit. Trusted legacy snapshot lists and offset compatibility paths retain their prior cost guarantees.
+
+## Multi-target evidence sessions (D29 / task15.13 prerequisite, 2026-10-04)
+
+The trusted `EvidenceProbeSession` owns one absolute deadline, cumulative
+stdout/stderr/stash output and cancellation state across successive Git/process
+observations. Git capture and terminal verification reuse the remaining
+64 MiB / 32768-entry input quota. Only successful explicit cleanup followed by
+the original budget check returns the actual remainder. Any Git error or process
+Unobservable latches the first diagnostic; later calls do not launch a program,
+including empty-path requests. Positive Partial observations remain partial.
+Existing standalone bounded functions retain independent per-call budgets.
+
+[The receipt](benchmarks/evidence_probe_session_acceptance_2026_10_04.json)
+retains two actual RED cases using old independent calls as a task, 20 passing
+current-source target tests and **1021/0/18 across 45 workspace suites**, with no
+compile warnings. Strict Clippy, scoped fmt, OpenSpec, release CLI/MCP/FFI,
+real stdio **18/18**, authenticated HTTP/SSE **13/13**, and executed UniFFI
+checksums **19/19** passed. Fourteen vendor digests remain unchanged. Independent
+code APPROVE and architecture CLEAR match the same ten-file source manifest.
+
+New same-source native CI is pending. Twenty tests are applicable on Unix and
+ten on Windows; Unix fault/lsof scripts are not Windows collector evidence.
+Reduced metadata caps and Instant expiration are test-only deterministic
+controls, not latency/RSS claims. This prerequisite does not complete the live
+authorized durable collector job/CLI/MCP entry, provider, host, device, native
+write, signing or production gates; task15.13 and full-platform parents stay open.

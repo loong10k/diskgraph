@@ -62,4 +62,10 @@ impl GitMetadataBudget {
     pub(super) fn remaining_bytes(&self) -> usize {
         self.remaining_bytes
     }
+
+    /// 读取真实剩余条目用于跨项目累计回归。参数：无。返回：尚未消费的输入条目。
+    #[cfg(test)]
+    pub(super) fn remaining_entries(&self) -> usize {
+        self.remaining_entries
+    }
 }

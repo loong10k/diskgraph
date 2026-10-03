@@ -131,11 +131,12 @@ Both raw reads share the sample byte/deadline/cancellation budget; reftable stas
 enumeration is explicitly unsupported. Terminal reference/version checks detect
 changes but do not form an atomic Git snapshot. Native acceptance for this
 semantic increment is recorded separately in the full-platform evidence.
-Git configuration isolation and offline/read-only execution remain outstanding.
-Every sampling command disables the pager, lazy object fetching and optional
-lock-based updates. Missing objects fail rather than invoking a promisor remote.
-This does not prevent repository filters/fsmonitor or split-index timestamp
-refreshes; those still require the private configuration/metadata view.
+Supported full-index repositories now execute through private configuration,
+index, reference and bounded object copies. External filter/fsmonitor drivers,
+split/sparse indexes and unsupported metadata semantics are rejected; commands
+disable pager, lazy fetching and optional locks. Missing objects fail without
+a promisor fetch. The trusted sampler is not a scope-authorized service entry;
+real collector-task integration and provider acceptance remain open.
 Skipping persisted stat refreshes can repeat content checks in later samples;
 no performance improvement is claimed for this policy.
 
@@ -150,10 +151,35 @@ unborn 仍报告实际修改，NUL 原生记录按文件及 rename/copy 计数�
 stash 存在时仅支持可核验的 files 后端：共用整次预算读取原始日志、核验留存 commit
 及完整逆序列表；reftable 明确拒绝。日志路径来自 Git common 根与固定后缀，
 合法 drop/delete/expiry 和明确缺日志保留可见列表语义。末段版本复核不是 Git 原子快照。
-Git 配置隔离、离线/只读执行仍待完成，此语义增量的原生验收单独记录。
-每条采样命令固定禁用 pager、对象懒取和可选锁写入，缺对象明确失败。
-这不阻止仓库 filter/fsmonitor 或 split index 时间刷新，完整私有视图仍待实施。
+支持的完整 index 仓库现在使用私有配置、index、引用及有界对象副本；外部
+filter/fsmonitor、split/sparse index 和不能保真的语义明确拒绝。每条命令禁用
+pager、懒取和可选锁，缺对象不触发 promisor fetch。受信采样接口不自行授权
+scope，实时任务接入及真实 provider 验收仍未完成。
 源 stat 缓存不落盘可能增加后续重复内容检查，此策略不声明提速。
+
+## Multi-target evidence budgets / 多目标证据预算
+
+`live_evidence::EvidenceProbeSession` owns one deadline, cumulative output quota
+and cancellation state for successive Git/process observations. Its Git metadata
+quota is cumulative across projects (64 MiB / 32768 entries). The deadline starts
+when the session is created and includes idle time between calls. Successful Git
+cleanup and the final deadline/cancellation check return the actual remaining
+metadata quota; failure never replenishes it. Any Git error or process
+`Unobservable` closes the session, including for later empty-path requests.
+Normal positive `Partial` observations remain partial and allow further probes.
+
+The existing `sample_*_bounded` functions keep independent per-call budgets.
+Use one session for a multi-target task. This trusted library interface does not
+replace program/target validation, scope authorization, durable job fencing or
+revocation checks. Private allocation checks apply to each live view; no strict
+RSS or synchronous-I/O latency ceiling is claimed. Native acceptance remains
+separate from the local tests in the full-platform record.
+
+同一多目标任务使用一个不可克隆的会话，累计输出、Git 输入字节/条目，并从
+创建时起计时。成功清理和末检后才归还真实余额；任意 Git 错误或进程
+Unobservable 锁存首次错误，后续空请求也不能绕过。正常 Partial 保留正向
+观察且可继续。旧独立入口不改变语义；授权任务、撤权、fencing 和真实平台
+验收仍需由对应服务与门禁完成，不以本接口关闭全平台任务。
 
 ## License
 

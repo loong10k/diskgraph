@@ -303,3 +303,10 @@ D28复审收敛：v10增加独立writer_generation，保留目录计数count_sch
 有界关系页采用relation_membership_adjacency按snapshot/run/方向/entity/edge建立索引，事务触发器从规范化成员生成投影；RevisionEdgeCursor只枚举active运行并按各运行keyset持有一个键，用最小堆合并、去重。运行/键及容器准入使用共享raw预算，完整枚举失败不能返回排序不确定的前缀；关系payload仅在入选后准入和解码。可信旧列表/分页Store兼容入口不声明新分页成本保证。扫描采用单调时间并在实际fence事务内提交前末检，包含暂存/项目准备/锁等待；此门禁不承诺SQL提交中抢占或严格RSS上限。
 
 迁移完整性补充：资源节点映射与新writer共用验证；逐revision检查有效role、actual snapshot、run JSON来源、所选实体的原始来源及active边的两个端点来源。已知成员诊断只影响选择该run的旧revision，未知来源诊断仍保守作用于同snapshot历史；不替旧版本自动追加上游。迁移先确认再封存触发器，新发布使用相同来源检查并整体回滚。
+
+
+### D29 多目标证据任务的共享采样预算
+
+新增可信库内 EvidenceProbeSession，独占一个 ProbeBudget、可移动的 GitMetadataBudget 和首次失败原因；不保存 bearer，不新增授权 owner。创建时固定绝对期限，后续多个 Git/进程目标借用同一执行预算；Git 准备/对象复制/终检累计原始输入与条目。GitView 消费自身，在显式清理和清理后预算复核均成功时交回元数据余额，失败不补默认额度。任意 Git String 错误及进程 Unobservable 均关闭会话；保留正常 Partial，失败后空路径也不可返回 Full。既有独立 sample_*_bounded 公开签名与每次新预算行为不变。
+
+本项是持久实时采集任务接入的必要前置，不代表已实现 Engine/CLI/MCP 的授权采集入口。私有对象容量仍按每个实际存活视图检查；不宣称累计临时分配、全局 RSS 或同步 I/O 的严格抢占上限。先以真实进程两次采样额度重置和失败后空请求转成功复现 RED，再验证跨 Git/进程额度、Git 元数据累计、创建期限、取消锁存、语义/复核/清理错误及旧入口兼容；各平台行为以同源码原生验收为准。

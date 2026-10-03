@@ -1,0 +1,196 @@
+{
+  "date": "2026-10-04",
+  "scope": "D29 / task15.13 EC-04 prerequisite: trusted multi-target EvidenceProbeSession; authorized durable collector integration remains open",
+  "baseline_commit": "f42f769175053b77e71db988d650ee840d36bf7b",
+  "status": "local_validation_complete_two_lane_review_approved_native_ci_pending",
+  "source_files": {
+    "crates/diskgraph-engine/src/live_evidence/evidence_probe_completion_tests.rs": "775d97c9da95b0e771601d125af2673e4e3f95997b7d7d4222c51d72bddd279a",
+    "crates/diskgraph-engine/src/live_evidence/evidence_probe_failure_tests.rs": "d05787b12692a07409da975808c9eec9c011218a190b65290358c23f89d00e7c",
+    "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs": "59524b9cb0e9964d5c574f9973c036932bd8d284aab978ba56ac75ad9101197e",
+    "crates/diskgraph-engine/src/live_evidence/evidence_probe_session_tests.rs": "621764a028cc7c15252f53f3f38c3b54c7fb5bc79a1161bbb045e24e3526cf50",
+    "crates/diskgraph-engine/src/live_evidence/git_metadata_budget.rs": "cf78bf96e9eaf5fa6c5ad64b46ca6e5383aa1700c32024c0086afe9a876ad06d",
+    "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "b424a7befc1282210bedb9e1fa30ec15f5ca7493551d7a0e50235302e0eb7871",
+    "crates/diskgraph-engine/src/live_evidence/git_view.rs": "3fca04b599cf74427b07e6d6fbefc1dbe8918504fac57fe47fc966c156b3aaa5",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "0fadb611a914f3a05835dfbaad639e5fbe28768a7da0d702a24800d597f127bd",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "083093b8d7be670f0ef8232a492222910d02d40ef0b9b100570445718bf2bab3",
+    "crates/diskgraph-engine/src/live_evidence/process_usage.rs": "35ccd50e862487149750a44b1c097d10aeadafc64725d77d742d7f8ca5017fe3"
+  },
+  "red": {
+    "failed": 2,
+    "passed": 0,
+    "production_source": "unchanged f42f769 standalone wrappers, called repeatedly as a multi-target task; new session API not yet present",
+    "cases": [
+      "second process observation obtains fresh output quota",
+      "failed process observation followed by empty request returns Full"
+    ],
+    "compatibility": "Standalone bounded wrappers retain independent per-call budgets; final task regression uses the additive session."
+  },
+  "targeted": {
+    "passed": 20,
+    "failed": 0,
+    "ignored": 0,
+    "unix_cases": 20,
+    "windows_applicable_cases": 10,
+    "windows_execution": "pending same-source native CI",
+    "deadline_case": "cfg(test) expiration of the original Instant; no hard wall-clock I/O preemption proof",
+    "metadata_cases": "cfg(test) smaller initial metadata caps plus actual raw byte/entry charges and successive real Git observations"
+  },
+  "workspace": {
+    "passed": 1021,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0,
+    "warnings": 0
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "scoped_fmt_exit_code": 0,
+    "openspec_strict_exit_code": 0,
+    "release_cli_mcp_ffi_exit_code": 0,
+    "vendor_source_digests_unchanged": 14
+  },
+  "protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http_sse": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "uniffi": {
+    "passed": 19,
+    "total": 19,
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    }
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "source_manifest_sha256": "5f771aa507b33445528f2871617df7c212ed6efa79d449b5d41484da91f9ec82",
+    "verified_source_files": 10,
+    "scope": "current trusted session implementation and tests; not authorization task integration, full-platform readiness or native CI proof"
+  },
+  "native_ci": {
+    "status": "pending_same_source_run"
+  },
+  "logs": {
+    "directory": "evidence_probe_session_acceptance_2026_10_04_logs",
+    "files": {
+      "session-red.log.gz": {
+        "sha256_uncompressed": "2d3d73e046d714ee45de89f0723dd4f18d3bf23f8783467a73d7f149b5ac4bc9",
+        "sha256_gzip": "aaf12a7f059ad9d785ea71a6f4963a26216120f4f8f8cc7dd6320347a78a66c0"
+      },
+      "session-green-initial.log.gz": {
+        "sha256_uncompressed": "2a9130915bc4de68713bcdc2ad689b29369537e00f80bb8e5e9528a7a88f5312",
+        "sha256_gzip": "2fe345d1b3e05febeedd98eb0875c0a883e46c08829fd2f65e8a1c868208dc2b"
+      },
+      "session-final-before-warning-fix.log.gz": {
+        "sha256_uncompressed": "1043ce75dbc75164047caa076d9c2612ba1f00a9373523489070a1ed77f9dfd8",
+        "sha256_gzip": "ddba5ebf8bf2188cced0eaa5431c6aa308f4d76a4c974475a559f2c19e842b9f"
+      },
+      "session-verified.log.gz": {
+        "sha256_uncompressed": "2bc73a82593587cdc965c620f3d3d0e62ed36bb3faa7bdcbeaa382b9726dddb7",
+        "sha256_gzip": "fa622f1dd9e34f2c68b617ef890caafda622c7df2a6ad6be6da1bed72fff6839"
+      },
+      "workspace.log.gz": {
+        "sha256_uncompressed": "3959ee6a14ad34c861de0011aa267e19343028b2db0e7d54f33f64ee66c9810b",
+        "sha256_gzip": "adf7d23177e98209aadc2397f89b6b9be20103ff6cb18e4a9ee12553fcfa60a9"
+      },
+      "clippy.log.gz": {
+        "sha256_uncompressed": "ef63059b356cd7aa7a5a63e6e6b639c7fe1dc05d526ee45425db88ef14e3d97d",
+        "sha256_gzip": "13d2213d0660c4ca7cad82bfec4ba07e64a070548333adb29aa0c5af536228fa"
+      },
+      "fmt.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "66c199112d7368344a726319696f55f4f25d0caafae0122ac7a1e45aa79a2c41",
+        "sha256_gzip": "f5a5f13be958219e20686381a08cd0f2d7b84a721b582c1ac3eee07a580d7975"
+      },
+      "stdio.json.gz": {
+        "sha256_uncompressed": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+        "sha256_gzip": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+      },
+      "http.json.gz": {
+        "sha256_uncompressed": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+        "sha256_gzip": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+      },
+      "uniffi.json.gz": {
+        "sha256_uncompressed": "c1ad9e24bf048416c61cce12e8a4a64ff692758106f39037c7419963d7ff5b78",
+        "sha256_gzip": "f5194656b466210410e53d9e53853bd2c7a10f56db972de48220f6eab93d4b44"
+      }
+    }
+  },
+  "limits": [
+    "Task15.13 and full-platform parent obligations remain open.",
+    "Engine/CLI/MCP live Git/process/application collection is not wired to authorized durable jobs.",
+    "Unix shell fault/lsof fixtures do not constitute Windows process collector acceptance.",
+    "Positive process observations remain Partial without verified PID start context or permission coverage.",
+    "Git metadata inputs share 64MiB/32768 entries across the session; private allocation is checked per live view and does not reserve volume space.",
+    "Cooperative deadlines and safe cleanup do not establish strict RSS, synchronous I/O or process latency ceilings.",
+    "Initial target logs with test-only warnings are retained; current frozen-source workspace and strict Clippy completed without warnings.",
+    "Real providers, native file writes, host integration, mobile devices, signing and production deployment remain separate open gates."
+  ]
+}

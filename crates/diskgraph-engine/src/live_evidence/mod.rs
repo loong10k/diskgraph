@@ -1,5 +1,12 @@
 //! live_evidence 的稳定模块路径，仅声明与明确重导出。
 
+#[cfg(test)]
+mod evidence_probe_completion_tests;
+#[cfg(all(test, unix))]
+mod evidence_probe_failure_tests;
+mod evidence_probe_session;
+#[cfg(test)]
+mod evidence_probe_session_tests;
 mod fs_event;
 mod fs_event_kind;
 #[cfg(test)]
@@ -109,6 +116,7 @@ mod watch_poll;
 mod watch_report;
 mod watch_snapshot;
 
+pub use evidence_probe_session::EvidenceProbeSession;
 pub use fs_event::FsEvent;
 pub use fs_event_kind::FsEventKind;
 pub use git_sample::GitSample;

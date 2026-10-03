@@ -66,4 +66,16 @@ impl ProbeBudget {
     pub(super) fn fail(&mut self, failure: ProbeFailure) -> ProbeFailure {
         self.failure.get_or_insert(failure).clone()
     }
+
+    /// 读取真实剩余额度用于累计扣费回归。参数：无。返回：尚未消费的输出字节。
+    #[cfg(test)]
+    pub(super) fn remaining_bytes(&self) -> usize {
+        self.remaining
+    }
+
+    /// 将原绝对期限推进到已耗尽水位，不重建预算。参数：无。返回：无，仅供确定性期限回归。
+    #[cfg(test)]
+    pub(super) fn expire_for_test(&mut self) {
+        self.deadline = Instant::now();
+    }
 }

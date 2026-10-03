@@ -40,6 +40,14 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 一次证据采样执行多个子命令或 stdout/stderr 持续输出
 - **THEN** 全部命令与两条管道共用绝对期限、累计字节预算与取消状态；失败停止后续工作，不返回完整成功样本。
 
+#### Scenario: Shared budget across multiple observations
+- **WHEN** 同一证据任务连续采样多个 Git 项目或进程路径集合
+- **THEN** 使用独占且不可克隆的会话共享从创建时起的绝对期限、累计 stdout/stderr/stash 输出和取消状态；调用间耗时也计入期限。Git 元数据字节和条目累计扣费，成功清理后的真实余额可继续使用，不为下一目标补充额度。
+
+#### Scenario: Observation failure closes the session
+- **WHEN** 会话中的 Git 准备、执行、解释、复核或清理失败，或进程解释返回 unobservable
+- **THEN** 锁存首次完整错误，后续 Git/进程调用不启动程序，空路径请求也不得绕过失败；正常 partial 正向观察可继续但不提升为 full。旧独立 bounded 函数保留各自新建采样预算的兼容语义，会话不替代请求授权。
+
 #### Scenario: Inherited pipes and cleanup
 - **WHEN** 子进程退出但后代持有管道，或执行、读取、等待、取消失败
 - **THEN** 有界读取仍检查期限，释放本次采样的进程与句柄；平台无法可靠建立清理边界时拒绝，不影响其他并发采样。

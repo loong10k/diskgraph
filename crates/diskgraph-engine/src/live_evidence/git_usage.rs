@@ -64,20 +64,39 @@ pub(super) fn sample_git_with_resources(
     min_free: u64,
 ) -> Result<GitSample, String> {
     let mut budget = ProbeBudget::new(limits).map_err(|error| error.to_string())?;
-    let mut view = GitView::prepare(
+    sample_git_using_budget(
         git,
         project,
         &mut budget,
         metadata_budget,
         allocation_quota,
         min_free,
+    )
+    .map(|(sample, _remaining)| sample)
+}
+
+/// 借用任务预算并移动元数据额度，多个目标不能重新获得期限或字节。
+/// 参数：git/project 为受信工具及目录，budget 为共享执行预算，metadata_budget 为原剩余额度；
+/// allocation_quota/min_free 为当前私有视图分配与卷余量门禁。
+/// 返回：完整样本及清理后真实剩余输入额度，或包含清理诊断的失败。
+pub(super) fn sample_git_using_budget(
+    git: &Path,
+    project: &Path,
+    budget: &mut ProbeBudget,
+    metadata_budget: GitMetadataBudget,
+    allocation_quota: u64,
+    min_free: u64,
+) -> Result<(GitSample, GitMetadataBudget), String> {
+    let mut view = GitView::prepare(
+        git,
+        project,
+        budget,
+        metadata_budget,
+        allocation_quota,
+        min_free,
     )?;
-    let result = observe(&mut view, &mut budget);
-    view.complete(result).and_then(|sample| {
-        // 安全删除可以跨过协作期限；清理后的取消或超期仍不得发布成功样本。
-        budget.check().map_err(|error| error.to_string())?;
-        Ok(sample)
-    })
+    let result = observe(&mut view, budget);
+    view.complete_with_metadata(result, budget)
 }
 
 fn observe(view: &mut GitView, budget: &mut ProbeBudget) -> Result<GitSample, String> {

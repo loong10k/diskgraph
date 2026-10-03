@@ -269,6 +269,20 @@ impl GitView {
         self.directory.complete(result)
     }
 
+    /// 消费执行视图，在显式清理与终态预算复核后交还真实元数据余额。
+    /// 参数：result 为完整观察结果，probe 为原任务的唯一预算。
+    /// 返回：成功样本和剩余输入额度；任何失败均不交还可重用额度。
+    pub(super) fn complete_with_metadata<T>(
+        mut self,
+        result: Result<T, String>,
+        probe: &mut ProbeBudget,
+    ) -> Result<(T, GitMetadataBudget), String> {
+        let sample = self.complete(result)?;
+        // 安全清理可能跨过协作期限，清理后的取消或超期仍不得交付成功。
+        probe.check().map_err(|error| error.to_string())?;
+        Ok((sample, self.metadata_budget))
+    }
+
     fn capture(&mut self, path: &Path, probe: &mut ProbeBudget) -> Result<Option<usize>, String> {
         self.metadata.file(path, &mut self.metadata_budget, probe)
     }

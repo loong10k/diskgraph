@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D28 / EV-05: revision-scoped evidence, atomic collector publication, legacy integrity and bounded active-run adjacency; prerequisite for task15.13 live integration",
   "baseline_commit": "109dd7571e96a2314e4878eee43b50bf7f1ab103",
-  "status": "local_validation_complete_architecture_review_unavailable_native_ci_pending",
+  "status": "local_and_same_source_native_validation_complete_two_lane_review_approved",
   "source_files": {
     "crates/diskgraph-core/src/collector_batch.rs": "0a2265ef51dfbdfaed5849cd7390f9c36a7a676d737cc16a49425f9977d43670",
     "crates/diskgraph-core/src/lib.rs": "0ffe1963c552f10849a010ec4a59b031a3128579d88538e18c4da58bd3458fdc",
@@ -241,12 +241,161 @@
     "code": "APPROVE",
     "code_review_source_hashes_verified": 11,
     "code_review_34_file_manifest_sha256": "bcf261b748e06d9938bafffbe9d5c8c43a3ec8da351936296b080c993e9b3a21",
-    "architecture": "independent review unavailable",
-    "reason": "Existing architect identified the migration blocker before repair; final restart and replacement agent were rejected by the service with agent thread limit reached. No author-review substitution or final approval claim.",
-    "final_approval": "blocked_pending_independent_architecture_evidence"
+    "architecture": "CLEAR",
+    "reason": "Independent architecture lane resumed and reviewed current unchanged source after the earlier service limit cleared. All nine provided hashes match.",
+    "final_approval": "APPROVE_for_D28_increment_only",
+    "architecture_scope": "D28 migration, provenance closure, sealed revision, owner/base CAS and revision evidence reads; not full-platform approval",
+    "architecture_source_hashes": {
+      "crates/diskgraph-store/src/collector_protocol.rs": "25eb723220949a2fceab9fe3fa093e547901071581387177b72a1fb2fdece238",
+      "crates/diskgraph-store/src/collector_membership_migration.rs": "9f9bc39eb12079a390e3457b99d700540361c8ccdb7d72211e0a20351c044c4b",
+      "crates/diskgraph-store/src/revision_source_validation.rs": "993ed50e5982f97581afee441fd1111ad9484b481ec2035397d6fb44cba6e012",
+      "crates/diskgraph-store/src/resource_node_identity.rs": "19a336bc69352513bc16f2c8fec712d97783451e0a6021b809bd323b74eda209",
+      "crates/diskgraph-store/src/collector_publication.rs": "15fd59018177d6fff835ee4c5a627483e8567b2da87c35e4498587f8a91b6fbe",
+      "crates/diskgraph-store/src/revision_writer.rs": "badd35def1aebf7b62390e39a374a5cca0fa957d5523479419bc0bde61256c67",
+      "crates/diskgraph-store/src/revision_evidence_reader.rs": "e0c674699f0388573c0437aa1f5f58805bd4f0e32c4ee230239e688453b1587f",
+      "crates/diskgraph-store/src/revision_edge_cursor.rs": "18dd6ba305939f3e850016fcea300afeed9322b11218fe04eac6dcb24b453b62",
+      "crates/diskgraph-store/src/collector_migration_integrity_tests.rs": "1816d12b32d0dff98bbf45ce14241c28f31879ffb4192b08430516043ca7a394"
+    },
+    "previous_unavailable_reason": "Existing architect identified the migration blocker before repair; final restart and replacement agent were rejected by the service with agent thread limit reached. No author-review substitution or final approval claim."
   },
   "native_ci": {
-    "status": "pending_same_source_run"
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 37140491445,
+    "commit": "f42f769175053b77e71db988d650ee840d36bf7b",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37140491445",
+    "passed_jobs": 22,
+    "total_jobs": 22,
+    "native_logs": [
+      {
+        "platform": "windows-197",
+        "job_id": 111253744044,
+        "workspace_suites": 45,
+        "workspace_counts": {
+          "passed": 868,
+          "failed": 0,
+          "ignored": 16
+        },
+        "d28_tests_verified": [
+          "scan_publication_tests::scan_expiring_after_staging_cannot_publish_a_revision_or_collector",
+          "collector_migration_integrity_tests::legacy_occupied_resource_requires_valid_snapshot_node_mapping",
+          "collector_migration_integrity_tests::legacy_revision_must_select_edge_endpoint_sources_and_valid_roles",
+          "collector_migration_integrity_tests::legacy_revision_rejects_selected_run_from_another_snapshot",
+          "collector_migration_integrity_tests::legacy_three_generation_sources_require_explicit_upstream_selection",
+          "collector_protocol_tests::existing_v9_writer_cannot_publish_after_v10_upgrade",
+          "collector_protocol_tests::occupied_resources_require_an_existing_snapshot_node",
+          "collector_protocol_tests::recollection_recovers_new_revision_without_rewriting_ambiguous_history",
+          "collector_protocol_tests::sealed_revision_rejects_late_batch_append",
+          "collector_protocol_tests::sealed_selection_rejects_raw_mutations_and_allows_parent_prune",
+          "collector_protocol_tests::selected_existing_runs_require_their_original_entity_sources",
+          "collector_protocol_tests::selecting_incomplete_legacy_run_cannot_claim_complete",
+          "collector_protocol_tests::stale_collector_publication_cannot_replace_a_newer_file_scan",
+          "collector_publication_tests::collector_publication_database_failure_rolls_back_every_layer",
+          "collector_publication_tests::collector_publication_keeps_revision_selection_and_reuses_immutable_entities",
+          "collector_publication_tests::collector_publication_rejects_owner_snapshot_role_and_forged_provenance",
+          "collector_publication_tests::compatibility_binding_rejects_cross_snapshot_and_rolls_back_partial_selection",
+          "collector_publication_tests::migration_v9_preserves_only_unambiguous_membership",
+          "collector_publication_tests::scan_publication_includes_batch_or_rolls_back_snapshot_and_staging"
+        ],
+        "log": "native-ci-windows-197.log.gz"
+      },
+      {
+        "platform": "windows-stable",
+        "job_id": 111253744027,
+        "workspace_suites": 45,
+        "workspace_counts": {
+          "passed": 868,
+          "failed": 0,
+          "ignored": 16
+        },
+        "d28_tests_verified": [
+          "scan_publication_tests::scan_expiring_after_staging_cannot_publish_a_revision_or_collector",
+          "collector_migration_integrity_tests::legacy_occupied_resource_requires_valid_snapshot_node_mapping",
+          "collector_migration_integrity_tests::legacy_revision_must_select_edge_endpoint_sources_and_valid_roles",
+          "collector_migration_integrity_tests::legacy_revision_rejects_selected_run_from_another_snapshot",
+          "collector_migration_integrity_tests::legacy_three_generation_sources_require_explicit_upstream_selection",
+          "collector_protocol_tests::existing_v9_writer_cannot_publish_after_v10_upgrade",
+          "collector_protocol_tests::occupied_resources_require_an_existing_snapshot_node",
+          "collector_protocol_tests::recollection_recovers_new_revision_without_rewriting_ambiguous_history",
+          "collector_protocol_tests::sealed_revision_rejects_late_batch_append",
+          "collector_protocol_tests::sealed_selection_rejects_raw_mutations_and_allows_parent_prune",
+          "collector_protocol_tests::selected_existing_runs_require_their_original_entity_sources",
+          "collector_protocol_tests::stale_collector_publication_cannot_replace_a_newer_file_scan",
+          "collector_protocol_tests::selecting_incomplete_legacy_run_cannot_claim_complete",
+          "collector_publication_tests::collector_publication_database_failure_rolls_back_every_layer",
+          "collector_publication_tests::collector_publication_keeps_revision_selection_and_reuses_immutable_entities",
+          "collector_publication_tests::collector_publication_rejects_owner_snapshot_role_and_forged_provenance",
+          "collector_publication_tests::compatibility_binding_rejects_cross_snapshot_and_rolls_back_partial_selection",
+          "collector_publication_tests::scan_publication_includes_batch_or_rolls_back_snapshot_and_staging",
+          "collector_publication_tests::migration_v9_preserves_only_unambiguous_membership"
+        ],
+        "log": "native-ci-windows-stable.log.gz"
+      },
+      {
+        "platform": "linux-arm",
+        "job_id": 111253744150,
+        "workspace_suites": 45,
+        "workspace_counts": {
+          "passed": 989,
+          "failed": 0,
+          "ignored": 18
+        },
+        "d28_tests_verified": [
+          "scan_publication_tests::scan_expiring_after_staging_cannot_publish_a_revision_or_collector",
+          "collector_migration_integrity_tests::legacy_occupied_resource_requires_valid_snapshot_node_mapping",
+          "collector_migration_integrity_tests::legacy_revision_must_select_edge_endpoint_sources_and_valid_roles",
+          "collector_migration_integrity_tests::legacy_revision_rejects_selected_run_from_another_snapshot",
+          "collector_protocol_tests::existing_v9_writer_cannot_publish_after_v10_upgrade",
+          "collector_migration_integrity_tests::legacy_three_generation_sources_require_explicit_upstream_selection",
+          "collector_protocol_tests::occupied_resources_require_an_existing_snapshot_node",
+          "collector_protocol_tests::recollection_recovers_new_revision_without_rewriting_ambiguous_history",
+          "collector_protocol_tests::sealed_revision_rejects_late_batch_append",
+          "collector_protocol_tests::sealed_selection_rejects_raw_mutations_and_allows_parent_prune",
+          "collector_protocol_tests::selected_existing_runs_require_their_original_entity_sources",
+          "collector_protocol_tests::stale_collector_publication_cannot_replace_a_newer_file_scan",
+          "collector_publication_tests::collector_publication_database_failure_rolls_back_every_layer",
+          "collector_protocol_tests::selecting_incomplete_legacy_run_cannot_claim_complete",
+          "collector_publication_tests::collector_publication_keeps_revision_selection_and_reuses_immutable_entities",
+          "collector_publication_tests::collector_publication_rejects_owner_snapshot_role_and_forged_provenance",
+          "collector_publication_tests::compatibility_binding_rejects_cross_snapshot_and_rolls_back_partial_selection",
+          "collector_publication_tests::scan_publication_includes_batch_or_rolls_back_snapshot_and_staging",
+          "collector_publication_tests::migration_v9_preserves_only_unambiguous_membership"
+        ],
+        "log": "native-ci-linux-arm.log.gz"
+      },
+      {
+        "platform": "macos-intel",
+        "job_id": 111253743999,
+        "workspace_suites": 45,
+        "workspace_counts": {
+          "passed": 1001,
+          "failed": 0,
+          "ignored": 18
+        },
+        "d28_tests_verified": [
+          "scan_publication_tests::scan_expiring_after_staging_cannot_publish_a_revision_or_collector",
+          "collector_migration_integrity_tests::legacy_revision_must_select_edge_endpoint_sources_and_valid_roles",
+          "collector_migration_integrity_tests::legacy_revision_rejects_selected_run_from_another_snapshot",
+          "collector_migration_integrity_tests::legacy_three_generation_sources_require_explicit_upstream_selection",
+          "collector_migration_integrity_tests::legacy_occupied_resource_requires_valid_snapshot_node_mapping",
+          "collector_protocol_tests::existing_v9_writer_cannot_publish_after_v10_upgrade",
+          "collector_protocol_tests::recollection_recovers_new_revision_without_rewriting_ambiguous_history",
+          "collector_protocol_tests::occupied_resources_require_an_existing_snapshot_node",
+          "collector_protocol_tests::sealed_revision_rejects_late_batch_append",
+          "collector_protocol_tests::sealed_selection_rejects_raw_mutations_and_allows_parent_prune",
+          "collector_protocol_tests::selected_existing_runs_require_their_original_entity_sources",
+          "collector_protocol_tests::stale_collector_publication_cannot_replace_a_newer_file_scan",
+          "collector_publication_tests::collector_publication_database_failure_rolls_back_every_layer",
+          "collector_protocol_tests::selecting_incomplete_legacy_run_cannot_claim_complete",
+          "collector_publication_tests::collector_publication_keeps_revision_selection_and_reuses_immutable_entities",
+          "collector_publication_tests::collector_publication_rejects_owner_snapshot_role_and_forged_provenance",
+          "collector_publication_tests::compatibility_binding_rejects_cross_snapshot_and_rolls_back_partial_selection",
+          "collector_publication_tests::scan_publication_includes_batch_or_rolls_back_snapshot_and_staging",
+          "collector_publication_tests::migration_v9_preserves_only_unambiguous_membership"
+        ],
+        "log": "native-ci-macos-intel.log.gz"
+      }
+    ]
   },
   "logs": {
     "directory": "revision_collector_acceptance_2026_10_04_logs",
@@ -334,14 +483,28 @@
       "load-200k.json.gz": {
         "sha256_uncompressed": "87b5abd7ce9e72b7217a0372fb4d540f24e835e0f2f88aac2569edf417a22a1c",
         "sha256_gzip": "a1b8cfe5f076d67b93d2dc8057dd76cd0066c842436d846a998daf47688a6014"
+      },
+      "native-ci-windows-197.log.gz": {
+        "sha256_uncompressed": "e72776eb1c4d255b08877f68318f5b7473716691004d4ff4a678ebd35d226dbe",
+        "sha256_gzip": "34c956967f267f656a62d5bd1394c64b3bc65b2a4c22eb895a8b4414e5fd525c"
+      },
+      "native-ci-windows-stable.log.gz": {
+        "sha256_uncompressed": "a88c279a71b876f8f5d02e25a765835cccc9e23ee91c1fa9e90f3875ef8297f5",
+        "sha256_gzip": "610e23724e8d4f1d7b2cd7368c4cacbb78b3a934f5f3913cccbd595e2601002a"
+      },
+      "native-ci-linux-arm.log.gz": {
+        "sha256_uncompressed": "ad5e68bd0aece0d7bf0d9f31e88f57426b9a3f174f8b4a8553ae057c3938e17d",
+        "sha256_gzip": "98a1744e2fecab8f9d92269666553854d3444d435390dbd82e1e1f075533a15b"
+      },
+      "native-ci-macos-intel.log.gz": {
+        "sha256_uncompressed": "f6066a7c239cd1e55031529a2c886d61ed1e21ef264bd5ba2c45a7b7305789d1",
+        "sha256_gzip": "182d0868276730105dae21d9033a59455e15c9f8c211d4c73b54f6fc824bed43"
       }
     }
   },
   "limits": [
     "Task15.13 and all full-platform parent obligations remain open.",
     "Live Git/process/application samples are not yet integrated into authorized Engine/CLI/MCP jobs.",
-    "Independent final architecture evidence remains unavailable; code lane APPROVE is not two-lane approval.",
-    "Same-source native CI is still required for this increment; previous D27 CI is not D28 acceptance.",
     "Trusted legacy snapshot lists/offset pagination retain historical scan costs; new bounded-page guarantee applies to the revision reader path.",
     "Unknown-source legacy diagnostics conservatively reject affected snapshot history; new confirmed recollection is the recovery path.",
     "Deadline check is cooperative publication admission before graph SQL; no hard SQL commit preemption or strict RSS bound is claimed.",

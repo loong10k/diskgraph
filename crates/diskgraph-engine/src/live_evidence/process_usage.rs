@@ -30,6 +30,18 @@ pub fn sample_process_usage_bounded(
         Ok(budget) => budget,
         Err(error) => return unobservable(sampled_at_unix_ms, error.to_string()),
     };
+    sample_process_usage_using_budget(lsof, paths, &mut budget)
+}
+
+/// 借用任务原预算观察下一组路径，不能补充额度或重新起算期限。
+/// 参数：lsof 为受信程序，paths 为精确路径，budget 为共享执行预算。
+/// 返回：原覆盖语义的样本；执行、格式和终态失败均不可观察。
+pub(super) fn sample_process_usage_using_budget(
+    lsof: &Path,
+    paths: &[&Path],
+    budget: &mut ProbeBudget,
+) -> UsageSample {
+    let sampled_at_unix_ms = now_ms();
     if let Err(error) = budget.check() {
         return unobservable(sampled_at_unix_ms, error.to_string());
     }
@@ -47,7 +59,7 @@ pub fn sample_process_usage_bounded(
     command.args(["-w", "-F", "pcn0", "--"]);
     command.args(paths);
     configure_probe_env(&mut command);
-    let output = match run_probe(&mut command, &mut budget) {
+    let output = match run_probe(&mut command, budget) {
         Ok(output) => output,
         Err(error) => return unobservable(sampled_at_unix_ms, error.to_string()),
     };
@@ -63,7 +75,8 @@ pub fn sample_process_usage_bounded(
     sample
 }
 
-fn unobservable(sampled_at_unix_ms: u64, reason: String) -> UsageSample {
+/// 构造没有成功占用断言的失败样本。参数：sampled_at_unix_ms 为观察时间，reason 为完整诊断。返回：不可观察覆盖。
+pub(super) fn unobservable(sampled_at_unix_ms: u64, reason: String) -> UsageSample {
     UsageSample {
         sampled_at_unix_ms,
         coverage: UsageCoverage::Unobservable { reason },

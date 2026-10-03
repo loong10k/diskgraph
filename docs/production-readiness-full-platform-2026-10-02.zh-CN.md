@@ -396,4 +396,24 @@ D24现已在 `5b7777fa2d8026e7f57f447b812ff758966f8e49` 完成[22项原生CI全�
 
 release相同实体的2万/20万inactive历史页各执行 **196条精确VM指令**，旧查询在2万条时约101,000指令被预算中断；不是墙钟/RSS保证。20k/200k文件负载各4/4通过：扫描 **0.942/4.538秒**，top/children p50/p95分别 **13.939/19.892ms**与 **7.509/9.569ms**，数据库加WAL **37,502,976/377,446,400字节**。每组32查询、4并发客户端；这些是当前构建观测，没有配对提速、冷缓存或峰值RSS证明。
 
-独立代码复审APPROVE，11份提供的源码摘要已匹配。最终独立架构复审因服务返回`agent thread limit reached`无法重启或替换，按code-review技能保持`independent review unavailable`，没有两路最终审批。本增量仍待同源码原生CI；15.13和全平台父项继续未完成。实时Git/进程/应用采样服务集成、真实provider、原生写、宿主、设备及签名仍由原清单完成。扫描期限门禁发生在fence事务内、图库写入前，不承诺SQL提交中抢占；可信旧snapshot列表/offset兼容入口未获新keyset成本保证。
+独立代码复审APPROVE，11份提供的源码摘要已匹配。随后架构lane恢复并重读最终源码，返回CLEAR；9份提供的摘要匹配，D28的45份源码摘要也均未改变。`f42f769175053b77e71db988d650ee840d36bf7b`的[同源码CI37140491445](https://github.com/loong10k/diskgraph/actions/runs/37140491445)最终 **22/22 success**。四份已归档原生workspace日志各45 suites：Windows stable/1.97各 **868/0/16**、Linux ARM **989/0/18**、macOS Intel **1001/0/18**；四份日志逐项确认19个发布/协议/迁移用例实际通过。验收记录保留先前不可用与后续闭环证据，此批准仅覆盖本增量；15.13和全平台父项继续未完成。实时Git/进程/应用采样服务集成、真实provider、原生写、宿主、设备及签名仍由原清单完成。扫描期限门禁发生在fence事务内、图库写入前，不承诺SQL提交中抢占；可信旧snapshot列表/offset兼容入口未获新keyset成本保证。
+
+## 多目标证据采样会话（D29 / 15.13前置，2026-10-04）
+
+受信库内 `EvidenceProbeSession` 在多次Git/进程目标之间共享从创建时起的
+绝对期限、stdout/stderr/stash累计输出与取消。Git捕获与末检共用剩余
+64 MiB/32768条目输入额度，显式清理和原预算末检都成功才交回真实余额。
+任意Git错误或进程Unobservable锁存首次诊断，之后包括空请求均不启动程序；
+正常Partial保持正向观察且仍为partial。旧独立bounded入口继续每次新预算。
+
+[验收记录](benchmarks/evidence_probe_session_acceptance_2026_10_04.json)保留
+旧独立调用被用于同任务的两个真实RED；最终目标 **20/20**、workspace
+**1021/0/18（45 suites）**，没有编译警告。严格Clippy、指定包fmt、OpenSpec、
+release CLI/MCP/FFI、真实stdio **18/18**、认证HTTP/SSE **13/13** 与执行的
+UniFFI校验 **19/19** 均通过；14份vendor摘要未改。独立代码APPROVE、架构
+CLEAR，10份源码清单摘要匹配。初期test-only警告日志与最终无警告证据均保留。
+
+新同源码原生CI待执行；Unix适用20项、Windows适用10项，Unix故障/lsof脚本
+不能作Windows进程采集证据。缩小初始元数据额度与推进Instant只用于确定性
+回归，不证明严格RSS/同步I/O抢占。授权持久采集任务及CLI/MCP入口、provider、
+宿主、真机、原生写、签名与生产环境仍待完成，15.13及全平台父项继续开放。
