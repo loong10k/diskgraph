@@ -12,6 +12,8 @@ use diskgraph_core::{
 use crate::EngineError;
 use crate::windows_native_scan_root::WindowsNativeScanRoot;
 
+mod root_binding_tests;
+
 thread_local! {
     static BETWEEN_CAPTURES: RefCell<Option<Box<dyn FnOnce()>>> = RefCell::new(None);
 }
@@ -266,20 +268,6 @@ fn native_alignment_refuses_type_size_and_unknown_size_assumptions() {
         .observe(&path, &expected, None, &settings(), &|| Ok(()))
         .unwrap();
     assert_eq!(gap, Some(WindowsObservationGap::TreeMismatch));
-}
-
-#[test]
-fn held_root_blocks_directory_replacement_and_allows_directory_time_change() {
-    let workspace = tempfile::tempdir().unwrap();
-    let parent = root(&workspace);
-    let root = parent.join("scope");
-    std::fs::create_dir(&root).unwrap();
-    let lease = WindowsNativeScanRoot::open(&root, &|| Ok(())).unwrap();
-    assert!(std::fs::rename(&root, parent.join("replaced")).is_err());
-    std::fs::write(root.join("later"), b"later").unwrap();
-    lease.validate_root(&|| Ok(())).unwrap();
-    drop(lease);
-    std::fs::rename(&root, parent.join("replaced")).unwrap();
 }
 
 #[test]
