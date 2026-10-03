@@ -1,6 +1,6 @@
 {
   "date": "2026-10-03",
-  "scope": "D23 / task 15.16; final-source local acceptance, native CI pending",
+  "scope": "D23 / task 15.16; final-source local and native acceptance only",
   "host": {
     "target": "aarch64-apple-darwin",
     "rustc": "1.98.1"
@@ -46,7 +46,8 @@
       "crates/diskgraph-ffi/src/native_reply.rs": "10c2d25ad8aea29d7e4f1c9123cec1ece3603e9b507aefd28f71b030086e24e1",
       "crates/diskgraph-ffi/src/native_reply_budget_tests.rs": "0636fd7d4af5086bde30a3475365f6a9b06c8b4210e1598aebfe318c0f897ee2"
     },
-    "sha256": "454e0b94ba9d23700036cbfd576a65e48a43e7c92ca0d265927def09a869c46b"
+    "sha256": "454e0b94ba9d23700036cbfd576a65e48a43e7c92ca0d265927def09a869c46b",
+    "tested_commit": "d565077a2d7efca2648a384b9a5f533346b48cfc"
   },
   "validation": {
     "workspace": {
@@ -65,7 +66,8 @@
       "diskgraph-ffi",
       "diskgraph-ops"
     ],
-    "independent_review": "final kernel and adapters CLEAR"
+    "independent_review": "final kernel and adapters CLEAR",
+    "independent_completion_review": "CLEAR; only task 15.16 may be completed; native logs independently verified"
   },
   "uniffi": {
     "checksums": {
@@ -182,5 +184,219 @@
     "Peak RSS, cold-cache behavior and cross-platform performance SLA were not measured in this run.",
     "Local UniFFI checksum equality does not substitute for real Swift/Kotlin native hosts.",
     "No strict RSS or wall-clock guarantee; upstream scanner cancellation remains cooperative."
-  ]
+  ],
+  "native_ci": {
+    "run_id": 37109528510,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37109528510",
+    "head_sha": "d565077a2d7efca2648a384b9a5f533346b48cfc",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 111164580101,
+        "name": "Swift native host (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580169,
+        "name": "Test (ubuntu-latest / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580182,
+        "name": "Kotlin native host (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580193,
+        "name": "Vendored scanner",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580202,
+        "name": "Kotlin native host (windows-2022)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580203,
+        "name": "Kotlin native host (ubuntu-24.04-arm)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580210,
+        "name": "Kotlin native host (macos-15-intel)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580219,
+        "name": "rustfmt",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580222,
+        "name": "Swift native host (macos-15-intel)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580250,
+        "name": "Kotlin native host (ubuntu-24.04)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580263,
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580273,
+        "name": "Test (macos-latest / Rust 1.97.0)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580294,
+        "name": "Test (macos-latest / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580300,
+        "name": "Test (ubuntu-latest / Rust 1.97.0)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580317,
+        "name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580387,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164580417,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164628796,
+        "name": "Native read-only package (x86_64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164628799,
+        "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164628835,
+        "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164628846,
+        "name": "Native read-only package (aarch64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111164628847,
+        "name": "Native read-only package (x86_64-pc-windows-msvc)",
+        "conclusion": "success"
+      }
+    ],
+    "required_cases": {
+      "module_budget_tests": [
+        "native_service::native_reply_budget_tests::legacy_explain_rejects_raw_evidence_before_invalid_confidence_decode",
+        "native_service::native_reply_budget_tests::native_envelope_accepts_the_exact_byte_cap_and_refuses_one_more",
+        "native_service::native_reply_budget_tests::native_error_diagnostic_is_bounded_after_json_escaping",
+        "native_service::native_reply_budget_tests::native_node_rejects_an_oversized_borrowed_name_before_owned_decode",
+        "native_service::native_reply_budget_tests::native_partial_deadline_preserves_the_selected_prefix_and_gap",
+        "native_service::native_reply_budget_tests::reply_wait_cannot_return_an_expired_native_success",
+        "native_service::native_reply_budget_tests::scope_revoked_at_reply_boundary_cannot_escape_the_session",
+        "query_budget_tests::actual_json_encoding_has_exact_limits_for_escape_unicode_and_keys",
+        "query_budget_tests::actual_serialize_errors_are_not_a_byte_limit",
+        "query_budget_tests::expired_absolute_deadline_is_observed_even_without_rows",
+        "query_budget_tests::raw_admission_is_checked_atomic_and_cumulative",
+        "relation_budget_tests::bad_huge_lookahead_is_only_an_existence_probe",
+        "relation_budget_tests::bounded_candidate_evidence_preserves_the_legacy_text_column_contract",
+        "relation_budget_tests::candidate_late_node_is_atomic_and_gap_stays_exact",
+        "relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope",
+        "relation_budget_tests::evidence_raw_exact_limit_and_one_byte_excess_precede_deserialization",
+        "relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation",
+        "relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline",
+        "relation_budget_tests::legacy_relation_page_preserves_text_type_without_decoding_its_lookahead",
+        "relation_budget_tests::legacy_unknown_and_unicode_node_behavior_is_preserved",
+        "relation_budget_tests::legacy_zero_raw_cap_keeps_empty_and_format_error_semantics",
+        "relation_budget_tests::malformed_budgeted_edge_is_not_hidden_as_a_truncation",
+        "relation_budget_tests::required_evidence_cumulative_bytes_do_not_return_a_partial_node",
+        "relation_budget_tests::selected_node_raw_fields_are_gated_before_bad_locator_parse",
+        "relation_budget_tests::self_loop_decoded_in_both_directions_uses_two_units",
+        "relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result",
+        "relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read",
+        "relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains",
+        "relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish",
+        "relation_request_tests::an_unrepresentable_partial_still_requires_live_terminal_authorization",
+        "relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call",
+        "relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget"
+      ],
+      "new_cli_cases": [
+        "impact_does_not_decode_an_unrelated_corrupt_relation",
+        "impact_refuses_a_scope_hint_that_does_not_own_the_revision"
+      ],
+      "new_engine_business_cases": [
+        "authorization_time_exhausts_empty_and_positive_candidate_requests",
+        "authorization_time_exhausts_empty_impact_request",
+        "candidate_required_evidence_is_atomic_under_the_edge_cap",
+        "decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges",
+        "escaped_impact_data_must_fit_the_actual_json_budget",
+        "impact_keeps_its_text_contract_while_filtered_relations_keep_blob_compatibility",
+        "oversized_candidate_raw_evidence_is_refused_before_invalid_u8_decoding",
+        "two_direction_pages_cannot_exceed_a_single_output_node_slot"
+      ]
+    },
+    "actual_log_proof": {
+      "linux-arm": {
+        "suites": 41,
+        "passed": 877,
+        "failed": 0,
+        "ignored": 18,
+        "workspace_log_sha256": "6e1299ee99e48ea940fa5b95025485296822828fd22e3506020a5e324ed01417",
+        "job_log_sha256": "5b7a278c378d98171b3738d6b7e67eaae688db7524f1a3baf682d9429f36ef4b",
+        "all_required_cases_actually_passed": true
+      },
+      "windows-stable": {
+        "suites": 41,
+        "passed": 756,
+        "failed": 0,
+        "ignored": 16,
+        "workspace_log_sha256": "195646329995c1719f5dd7c8e7bf1a352e432f8f7f6dd08da2671e9d1da4ba12",
+        "job_log_sha256": "ad912c0fd4adbc81fb8158786f309989bf837a03c927639c1cbd794d3750ce43",
+        "all_required_cases_actually_passed": true
+      },
+      "windows-msrv": {
+        "suites": 41,
+        "passed": 756,
+        "failed": 0,
+        "ignored": 16,
+        "workspace_log_sha256": "32430173c212a78e4b424a485578e731dfa457d4b3becb877a90f3a87131060d",
+        "job_log_sha256": "d78ff43193458955224c3a152c54d8207c90bfedf58c669e81c391ec2376ec4b",
+        "all_required_cases_actually_passed": true
+      },
+      "mac-intel": {
+        "suites": 41,
+        "passed": 889,
+        "failed": 0,
+        "ignored": 18,
+        "workspace_log_sha256": "6da14d4485780724824171106637a2518f41f3ecc6f1b2ba8e822856d14e98e0",
+        "job_log_sha256": "7896b422c789c3b0b797e91294bfec38af25e21781aec0ddcfc1fa09144ffa55",
+        "all_required_cases_actually_passed": true
+      }
+    }
+  },
+  "preceding_documentation_ci": {
+    "head_sha": "91f4091264a1922641fb47a5711d94f8245a7540",
+    "run_id": 37104058595,
+    "conclusion": "failure",
+    "arm_job_id": 111149058807,
+    "annotation": "The hosted runner lost communication with the server.",
+    "boundary": "ARM Build did not finish and Test did not start; this run is not used as passed acceptance."
+  }
 }

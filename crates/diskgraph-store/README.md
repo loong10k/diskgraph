@@ -44,7 +44,7 @@ let mut store = SqliteSnapshotStore::open(Path::new("/tmp/diskgraph/diskgraph.sq
 
 ## Source boundaries / 源码边界
 
-`lib.rs` is 94 lines, down from 3,247, and only declares modules and reexports
+`lib.rs` is 98 lines, down from 3,247, and only declares modules and reexports
 the existing API. Each record,
 enum and row type has its own file. The two original stores still own their
 connections; implementation modules share that ownership and preserve the
