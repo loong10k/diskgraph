@@ -310,3 +310,13 @@ D28复审收敛：v10增加独立writer_generation，保留目录计数count_sch
 新增可信库内 EvidenceProbeSession，独占一个 ProbeBudget、可移动的 GitMetadataBudget 和首次失败原因；不保存 bearer，不新增授权 owner。创建时固定绝对期限，后续多个 Git/进程目标借用同一执行预算；Git 准备/对象复制/终检累计原始输入与条目。GitView 消费自身，在显式清理和清理后预算复核均成功时交回元数据余额，失败不补默认额度。任意 Git String 错误及进程 Unobservable 均关闭会话；保留正常 Partial，失败后空路径也不可返回 Full。既有独立 sample_*_bounded 公开签名与每次新预算行为不变。
 
 本项是持久实时采集任务接入的必要前置，不代表已实现 Engine/CLI/MCP 的授权采集入口。私有对象容量仍按每个实际存活视图检查；不宣称累计临时分配、全局 RSS 或同步 I/O 的严格抢占上限。先以真实进程两次采样额度重置和失败后空请求转成功复现 RED，再验证跨 Git/进程额度、Git 元数据累计、创建期限、取消锁存、语义/复核/清理错误及旧入口兼容；各平台行为以同源码原生验收为准。
+
+### D30 扫描定位的编码来源与原子持久化
+
+当前 NodeV2 保存原始 Locator 和自身 mtime，但 Engine 仅将 v1 节点交给 staging，正式 nodes 没有原始定位列。新增 QualifiedLocator 保留明确的 unix_bytes/windows_utf16_le/utf8_uri 来源、原始字节与展示文本，原有 Locator/ResourceLocator 的可信兼容签名和 JSON 不变。新定位验证 kind/编码、空值、NUL、UTF-16 单元长度和展示一致性；原生寻址拒绝其他平台编码，合法未配对 UTF-16 单元作为 Windows 原生字节保留，不用展示字符串寻址。
+
+图库 v11 在暂存和正式节点同一行增加可空 kind/encoding/raw/self_modified；迁移不推断历史平台或回填字节。扫描只为当前进程新捕获的 NodeV2 标记编码，不把同一方法用于旧数据。统一成本函数计入实际 JSON、搜索字段和定位字段；批次事务和发布搬运、清理、fencing、项目批次及 latest 继续保持原子。新增独立 locator writer generation 门禁防止已经打开的旧写者静默丢弃新列，不改变目录 count_schema=9 与 D28 writer_generation=10 的含义。
+
+按 (snapshot_id,node_id) 精确读取使用同一请求期限与 QueryReadBudget：先准入 SQLite 借用字段再拥有或解码，区分节点不存在、旧定位不可用、编码不支持与损坏。Engine 包装通过 revision 实际归属进行首末实时授权；客户端不能提供另一快照来替代归属。旧可信 Store API 保留，写入的旧节点定位字段为空。无需定位的历史展示仍可查询。
+
+本项不改变 pinned disktree：上游丢失原始名称后适配器仍拒绝发现的非 Unicode 名称/碰撞，不能宣称已实现任意非 UTF-8 完整扫描。注册 scope 的旧 Locator 已保存 raw，但缺编码来源；本次不能把历史 scope 自动标记为当前平台。Git 子进程读取根约束、授权采集任务、真实 provider、原生写和移动端仍分别验收，不因定位前置完成而勾选全平台父项。

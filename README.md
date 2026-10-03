@@ -243,6 +243,14 @@ Read-only CLI/MCP binary acceptance runs in the CI matrix and native release job
 
 Windows local ordinary-file content inspection now uses retained native directory/file handles, bounded reads and complete native identity checks. NTFS CI covers mutation, writer/parent conflicts, junction refusal, byte limits and live revocation. Real cloud-provider no-download behavior, other filesystems and native writes remain separate gates; see the [native-content acceptance record](docs/production-readiness-full-platform-2026-10-02.md).
 
+Graph schema 11 retains new scan locators as encoding-qualified raw bytes and
+stores each node's own modification time alongside the v1 display projection.
+Staging budgets include these fields. Authorized node reads refuse unknown,
+foreign-platform or legacy display-only locators; old snapshots remain available
+for display queries and need reindexing before reliable native addressing.
+The pinned scanner still rejects unsupported non-Unicode names; this migration
+does not establish arbitrary non-UTF-8 scan support or enable native writes.
+
 ## Documentation
 
 | | |

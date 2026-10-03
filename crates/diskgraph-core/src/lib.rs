@@ -14,9 +14,14 @@ mod freshness;
 mod ids;
 mod json_size_writer;
 mod locator;
+mod locator_encoding;
 mod model;
 mod permissions;
 mod ports;
+mod qualified_locator;
+mod qualified_locator_error;
+#[cfg(test)]
+mod qualified_locator_tests;
 mod query;
 #[cfg(test)]
 mod query_budget_tests;
@@ -44,6 +49,7 @@ pub use freshness::{FingerprintMap, FingerprintSource, Freshness, classify, edge
 pub use ids::{InvalidId, PrincipalId, ResourceRef, RevisionId, ScopeId, ServerId};
 pub use json_size_writer::measure_json_bounded;
 pub use locator::{Locator, LocatorDecodeError, LocatorKind};
+pub use locator_encoding::LocatorEncoding;
 pub use model::{
     DiskGraph, DiskNode, DiskSnapshot, EvidenceEdge, EvidenceRelation, FileIdentity, NodeKind,
     ResourceLocator, ScanCoverage, ScanSettings,
@@ -57,6 +63,8 @@ pub use ports::{
     ProviderCapabilities, ProviderKind, ProviderOperation, RefreshSchedulerPort, ResourceProvider,
     SizeCapability, VolumeMeter, capability_decision,
 };
+pub use qualified_locator::QualifiedLocator;
+pub use qualified_locator_error::QualifiedLocatorError;
 pub use query::{
     Candidate, Change, Changes, ChildListing, Growth, Incompatibility, NodeExplanation, Page,
     SizeFilter, TreeNode, TreeRenderError, TreeView, render_tree, render_tree_rows,

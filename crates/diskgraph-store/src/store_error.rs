@@ -40,6 +40,9 @@ pub enum StoreError {
     IntegerOverflow,
     #[error("query response budget exceeded by one record")]
     BudgetExceeded,
+    /// 合法定位类型或编码不支持当前宿主的原生寻址。
+    #[error("unsupported native locator: {0}")]
+    UnsupportedLocator(String),
     #[error("unsupported SQLite schema version: {0}")]
     UnsupportedSchema(i64),
 }

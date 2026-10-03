@@ -1,9 +1,9 @@
 //! 有界扫描暂存与失效 fencing 代次清理。
 
+use crate::staging_node_encoding::{StagingNodeEncoding, kind_name};
 use crate::{Result, SqliteSnapshotStore};
-use diskgraph_core::{DiskNode, ResourceLocator};
+use diskgraph_core::{DiskNode, QualifiedLocator};
 use rusqlite::params;
-use serde_json::to_string;
 
 impl SqliteSnapshotStore {
     /// Appends scanned nodes to invisible staging for a running job; ordinary
@@ -24,33 +24,58 @@ impl SqliteSnapshotStore {
         job_id: &str,
         nodes: impl Iterator<Item = &'a DiskNode>,
     ) -> Result<()> {
+        self.append_encoded_staging_iter(job_id, nodes.map(|node| (node, None, None)))
+    }
+
+    /// 按同一个暂存批次原子保存原生定位和节点自身时间，保留既有 fencing 命名空间。
+    /// 参数：job_id 为当前任务代次；每项为节点、qualified locator、自身修改秒数。
+    /// 返回：批次整体成功或全部回滚，编码损坏不会留下半个批次。
+    pub fn append_staging_located_iter<'a>(
+        &mut self,
+        job_id: &str,
+        nodes: impl Iterator<Item = (&'a DiskNode, &'a QualifiedLocator, Option<i64>)>,
+    ) -> Result<()> {
+        self.append_encoded_staging_iter(
+            job_id,
+            nodes.map(|(node, locator, modified)| (node, Some(locator), modified)),
+        )
+    }
+
+    fn append_encoded_staging_iter<'a>(
+        &mut self,
+        job_id: &str,
+        nodes: impl Iterator<Item = (&'a DiskNode, Option<&'a QualifiedLocator>, Option<i64>)>,
+    ) -> Result<()> {
         let transaction = self.connection.transaction()?;
         {
             let mut statement = transaction.prepare(
-                "INSERT INTO scan_staging (job_id, node_seq, node_json) VALUES (?1, ?2, ?3)",
+                "INSERT INTO scan_staging (job_id,node_seq,node_json,native_locator_kind,native_locator_encoding,native_locator_raw,self_modified_unix_seconds) VALUES (?1,?2,?3,?4,?5,?6,?7)",
             )?;
             let existing: i64 = transaction.query_row(
-                "SELECT COALESCE(MAX(node_seq), 0) FROM scan_staging WHERE job_id = ?1",
+                "SELECT COALESCE(MAX(node_seq),0) FROM scan_staging WHERE job_id=?1",
                 [job_id],
                 |row| row.get(0),
             )?;
-            for (offset, node) in nodes.enumerate() {
+            for (offset, (node, locator, modified)) in nodes.enumerate() {
+                let encoded = StagingNodeEncoding::encode(node, locator, modified)?;
+                let sequence = existing
+                    .checked_add(
+                        i64::try_from(offset).map_err(|_| crate::StoreError::IntegerOverflow)?,
+                    )
+                    .and_then(|value| value.checked_add(1))
+                    .ok_or(crate::StoreError::IntegerOverflow)?;
                 statement.execute(params![
                     job_id,
-                    existing + offset as i64 + 1,
-                    to_string(node)?
+                    sequence,
+                    encoded.json,
+                    locator.map(|value| kind_name(value.kind())),
+                    locator.map(|value| value.encoding().wire_name()),
+                    locator.map(|value| value.raw_bytes()),
+                    modified
                 ])?;
-                let path = match &node.locator {
-                    ResourceLocator::NativePath(path) | ResourceLocator::DocumentUri(path) => path,
-                };
                 transaction.execute(
-                    "INSERT INTO scan_staging_search VALUES (?1, ?2, ?3, ?4)",
-                    params![
-                        job_id,
-                        existing + offset as i64 + 1,
-                        node.name.to_lowercase(),
-                        path.to_lowercase()
-                    ],
+                    "INSERT INTO scan_staging_search VALUES (?1,?2,?3,?4)",
+                    params![job_id, sequence, encoded.name_fold, encoded.path_fold],
                 )?;
             }
         }

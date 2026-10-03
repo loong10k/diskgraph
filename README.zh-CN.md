@@ -239,6 +239,12 @@ diskgraph snapshots prune --scope SCOPE_ID --keep-last 3 --apply  # 显式回收
 
 Windows 本地普通文件内容检查已采用保留的原生目录/文件句柄、有界读取和完整原生身份复核。NTFS CI 覆盖修改、writer/父目录冲突、junction 拒绝、字节预算与实时撤权；真实云 provider 不下载、其他文件系统及原生写操作仍分别验收，见[原生内容验收记录](docs/production-readiness-full-platform-2026-10-02.zh-CN.md)。
 
+图库 schema 11 保存新扫描定位的明确编码、原始字节和节点自身修改时间，
+同时保留 v1 展示字段；暂存预算包含新增字段。授权节点窄读拒绝未知、外平台
+编码及旧展示定位。旧快照仍可展示，需要可靠原生寻址时应重新索引。
+固定上游扫描器仍拒绝无法支持的非 Unicode 名称；此迁移不代表已支持任意
+非 UTF-8 完整扫描，也不启用原生写操作。
+
 ## 文档
 
 | | |

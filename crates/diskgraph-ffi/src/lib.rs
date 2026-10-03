@@ -17,6 +17,8 @@ mod native_listing_tests;
 mod native_reply;
 #[cfg(test)]
 mod native_revision_candidate_tests;
+#[cfg(test)]
+mod native_scan_gate;
 mod native_service;
 mod native_service_error;
 pub use native_service::NativeService;
@@ -1193,7 +1195,7 @@ mod native_service_tests {
     }
 
     #[test]
-    fn running_native_job_handle_observes_individual_grant_revocation() {
+    fn active_native_job_handle_observes_individual_grant_revocation() {
         for permission in [
             diskgraph_core::Permission::OperationView,
             diskgraph_core::Permission::MetadataRead,
@@ -1202,41 +1204,45 @@ mod native_service_tests {
         }
     }
 
-    fn revoked_job_handle(permission: diskgraph_core::Permission, running: bool) {
+    fn revoked_job_handle(permission: diskgraph_core::Permission, active: bool) {
         let root = tempfile::tempdir().unwrap();
         let data = tempfile::tempdir().unwrap();
-        if running {
-            for n in 0..2000 {
-                std::fs::write(root.path().join(format!("file-{n}")), b"x").unwrap();
-            }
-        }
         let path = data
             .path()
             .join("graph.sqlite")
             .to_string_lossy()
             .into_owned();
         let service = NativeService::new(path).unwrap();
+        let (mut gate, hook) = crate::native_scan_gate::NativeScanGate::new();
+        service.set_scan_progress_hook(hook);
         let handle = service
             .spawn_scan(root.path().to_string_lossy().into_owned())
             .unwrap();
         let principal = local_principal().unwrap();
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
-        let job_id = loop {
-            let progress: Value = serde_json::from_str(&handle.progress_json()).unwrap();
-            if let Some(id) = progress["data"]["progress"]["job_id"].as_str() {
-                break id.to_owned();
-            }
-            assert!(std::time::Instant::now() < deadline);
-            std::thread::sleep(std::time::Duration::from_millis(1));
-        };
-        if running {
+        let queued = gate.wait_queued();
+        let job_id = queued["job_id"].as_str().unwrap().to_owned();
+        assert_eq!(queued["state"], "queued", "{queued}");
+        assert_eq!(
+            service.engine.job_status(&job_id).unwrap().state,
+            diskgraph_store::JobState::Queued,
+            "synchronization must observe a real persisted queued job"
+        );
+        let progress: Value = serde_json::from_str(&handle.progress_json()).unwrap();
+        assert_eq!(progress["ok"], true, "{progress}");
+        assert_eq!(progress["data"]["progress"]["job_id"], job_id);
+        if active {
             assert!(
                 handle.poll_result_json().is_none(),
-                "fixture must revoke a running scan"
+                "fixture revokes an active FFI handle; durable scan is still queued"
             );
         } else {
+            gate.release();
             let result: Value = serde_json::from_str(&handle.result_json()).unwrap();
-            assert_eq!(result["ok"], true);
+            assert_eq!(result["ok"], true, "{result}");
+            assert_eq!(
+                service.engine.job_status(&job_id).unwrap().state,
+                diskgraph_store::JobState::Completed
+            );
         }
         let job = service.engine.job_status(&job_id).unwrap();
         let scope = job.scope_id;
@@ -1254,7 +1260,7 @@ mod native_service_tests {
                     .is_err(),
                 "Engine must intersect stale capability with live grant"
             );
-        } else if !running {
+        } else if !active {
             assert!(
                 service
                     .engine
@@ -1264,6 +1270,10 @@ mod native_service_tests {
         }
         let progress: Value = serde_json::from_str(&handle.progress_json()).unwrap();
         assert_eq!(progress["ok"], false);
+        // 即使真实 worker 尚未返回，poll 也必须立即应用刚撤销的授权。
+        let pending: Value = serde_json::from_str(&handle.poll_result_json().unwrap()).unwrap();
+        assert_eq!(pending["ok"], false, "{pending}");
+        gate.release();
         let result: Value = serde_json::from_str(&handle.result_json()).unwrap();
         assert_eq!(
             result["ok"], false,
@@ -1273,6 +1283,8 @@ mod native_service_tests {
         assert_eq!(progress["ok"], false);
         let polled: Value = serde_json::from_str(&handle.poll_result_json().unwrap()).unwrap();
         assert_eq!(polled["ok"], false);
+        // 独立的清理 watchdog；不把准备时间算作后台 owner 的退出预算。
+        let cleanup_deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
         while !matches!(
             service.engine.job_status(&job_id).unwrap().state,
             diskgraph_store::JobState::Completed
@@ -1280,7 +1292,7 @@ mod native_service_tests {
                 | diskgraph_store::JobState::Failed
         ) {
             assert!(
-                std::time::Instant::now() < deadline,
+                std::time::Instant::now() < cleanup_deadline,
                 "background owner must terminate before fixture cleanup"
             );
             std::thread::sleep(std::time::Duration::from_millis(5));

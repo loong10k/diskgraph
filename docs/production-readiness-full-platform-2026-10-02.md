@@ -417,9 +417,45 @@ real stdio **18/18**, authenticated HTTP/SSE **13/13**, and executed UniFFI
 checksums **19/19** passed. Fourteen vendor digests remain unchanged. Independent
 code APPROVE and architecture CLEAR match the same ten-file source manifest.
 
-New same-source native CI is pending. Twenty tests are applicable on Unix and
-ten on Windows; Unix fault/lsof scripts are not Windows collector evidence.
+Same-source `4f470d0` [CI37142949065](https://github.com/loong10k/diskgraph/actions/runs/37142949065) terminated with **21/22 jobs successful**. The Windows Rust1.97 FFI fixture timed out before obtaining its first job ID, so it did not reach revocation assertions. The original log is retained in the receipt. D30 replaces file-count/timing setup with a request-local test gate after real durable Queued progress and authorization binding; this proves an active queued handle, not durable Running. Corrected-source native CI is still required. Twenty session tests are applicable on Unix and ten on Windows; Unix fault/lsof scripts are not Windows collector evidence.
 Reduced metadata caps and Instant expiration are test-only deterministic
 controls, not latency/RSS claims. This prerequisite does not complete the live
 authorized durable collector job/CLI/MCP entry, provider, host, device, native
 write, signing or production gates; task15.13 and full-platform parents stay open.
+
+## Qualified scan locator persistence (D30 prerequisite, 2026-10-04)
+
+Schema 11 carries freshly captured raw locator bytes, explicit encoding and own
+seconds mtime through staging and atomic publication. Borrowed native validation
+rejects foreign encodings without allocating a discarded path. Actual revision
+ownership, the original deadline and terminal live authorization protect the
+point reader; all raw SQLite fields are admitted before owning/decoding.
+Legacy fields stay NULL and require reindexing. Count schema 9, collector writer
+10 and locator writer 11 remain independent; old open writers cannot silently
+publish without the new generation. Existing v1/UniFFI signatures remain intact.
+
+[The receipt](benchmarks/qualified_locator_acceptance_2026_10_04.json) retains
+actual old-behavior RED, corrected setup/layout/lint failures and final raw logs.
+Core/Store/Engine target tests each passed 11, the FFI gate Drop regression
+passed, and final workspace recorded **1055/0/18 across 45 suites**. Strict
+Clippy, scoped fmt, OpenSpec, release CLI/MCP/FFI, 14 vendor digests, real stdio
+**18/18**, HTTP/SSE **13/13** and executed UniFFI **19/19** passed. Independent
+code APPROVE and architecture CLEAR cover the frozen 36-file source manifest.
+The D29 FFI correction synchronizes an actual durable Queued job and active
+handle after authorization binding; production deadlines are unchanged.
+
+Release native locator selection executed **18 VM instructions** at both 20k
+and 200k unrelated records. Isolated 20k/200k file loads each passed four checks:
+scan **0.463/5.096 seconds**, concurrent top/children p50/p95
+**6.745/8.084 ms** and **7.229/10.709 ms**, database+WAL
+**42,536,960/427,798,528 bytes**. Direct waited CLI child maximum RSS observations
+were **43,417,600/263,520,256 bytes**. These are separate observations, not a
+paired speedup or an RSS bound; native fields add approximately 13% storage
+against the earlier D28 fixtures, whose measurements are retained in the receipt.
+
+Corrected-source native CI remains pending. Pinned scanner name limitations,
+old scope encoding provenance, full128 Windows scan identity, root capability,
+authorized live collectors, real providers/no-download, native writes,
+host/mobile integration and signing/deployment remain separate open gates.
+Own seconds mtime is not a high-precision content version or atomic snapshot.
+No full-platform parent item is marked complete by this prerequisite.

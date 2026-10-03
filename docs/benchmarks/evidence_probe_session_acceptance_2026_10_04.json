@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D29 / task15.13 EC-04 prerequisite: trusted multi-target EvidenceProbeSession; authorized durable collector integration remains open",
   "baseline_commit": "f42f769175053b77e71db988d650ee840d36bf7b",
-  "status": "local_validation_complete_two_lane_review_approved_native_ci_pending",
+  "status": "local_validation_complete_native_ci_failed_windows_ffi_fixture",
   "source_files": {
     "crates/diskgraph-engine/src/live_evidence/evidence_probe_completion_tests.rs": "775d97c9da95b0e771601d125af2673e4e3f95997b7d7d4222c51d72bddd279a",
     "crates/diskgraph-engine/src/live_evidence/evidence_probe_failure_tests.rs": "d05787b12692a07409da975808c9eec9c011218a190b65290358c23f89d00e7c",
@@ -31,7 +31,7 @@
     "ignored": 0,
     "unix_cases": 20,
     "windows_applicable_cases": 10,
-    "windows_execution": "pending same-source native CI",
+    "windows_execution": "Both Windows Engine D29 test suites passed in original CI; overall CI failed in separate FFI fixture. Corrected-source native gate remains required.",
     "deadline_case": "cfg(test) expiration of the original Instant; no hard wall-clock I/O preemption proof",
     "metadata_cases": "cfg(test) smaller initial metadata caps plus actual raw byte/entry charges and successive real Git observations"
   },
@@ -128,7 +128,17 @@
     "scope": "current trusted session implementation and tests; not authorization task integration, full-platform readiness or native CI proof"
   },
   "native_ci": {
-    "status": "pending_same_source_run"
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "4f470d0e6e28b2e3e2b7a561d86ada83862c7835",
+    "run_id": 37142949065,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37142949065",
+    "passed_jobs": 21,
+    "total_jobs": 22,
+    "failed_job_id": 111260971899,
+    "failed_job": "Test (windows-latest / Rust 1.97.0)",
+    "failure": "FFI running_native_job_handle_observes_individual_grant_revocation timed out before first progress/job_id; running and revocation assertions were not reached.",
+    "correction": "D30 adds a request-local cfg(test) synchronization gate after real durable Queued progress and authorization binding; active queued handle is not described as a durable Running scan. New-source native CI still required."
   },
   "logs": {
     "directory": "evidence_probe_session_acceptance_2026_10_04_logs",
@@ -180,6 +190,10 @@
       "uniffi.json.gz": {
         "sha256_uncompressed": "c1ad9e24bf048416c61cce12e8a4a64ff692758106f39037c7419963d7ff5b78",
         "sha256_gzip": "f5194656b466210410e53d9e53853bd2c7a10f56db972de48220f6eab93d4b44"
+      },
+      "native-windows-msrv-failed.log.gz": {
+        "sha256_uncompressed": "4909f4beb3b9639871dbf8abd5bc6b0f04c02c65a64eb06ea7a31be061ac10f7",
+        "sha256_gzip": "bfdca26354d83826dc8a06e72a85572988909d831ee4c9217b6bf4bc29ca2ab8"
       }
     }
   },

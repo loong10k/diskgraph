@@ -1,0 +1,401 @@
+{
+  "date": "2026-10-04",
+  "scope": "D30 / FS-02 raw locator persistence prerequisite and D29 deterministic active FFI revocation fixture correction",
+  "baseline_commit": "4f470d0e6e28b2e3e2b7a561d86ada83862c7835",
+  "status": "local_validation_complete_two_lane_review_approved_native_ci_pending",
+  "source_files": {
+    "crates/diskgraph-core/src/lib.rs": "d5655508485dd647df45580dab1d4b31ea17ff85919b969eb8bacd89c4576c82",
+    "crates/diskgraph-core/src/locator_encoding.rs": "7655b254c93199ffc8b9ab28921be6bec92665f15784e2756d3716dffca03740",
+    "crates/diskgraph-core/src/qualified_locator.rs": "4f27875e8586d5385d3f5fedcea2cc9f6e42caa65b28ad58b8f4eeaf8de92751",
+    "crates/diskgraph-core/src/qualified_locator_error.rs": "ab65583a526fe5f07ab0a026b031a420c0bfb6f4b3c20ebc139c787e295c0ec0",
+    "crates/diskgraph-core/src/qualified_locator_tests.rs": "f6a940640870424be930691217d0176878fada7719a889c91bbe32b909393147",
+    "crates/diskgraph-engine/src/lib.rs": "7b4ea70348baa7ce57c90ba858b9562fee5a309c58e7e04ae69bee9977b66893",
+    "crates/diskgraph-engine/src/revision_evidence_tests.rs": "9a702e939d61152dce5a9050720d1e5c2646acfd35a8aa82209f1834c60d5bb4",
+    "crates/diskgraph-engine/src/revision_locator.rs": "7def06f926b587f7e03c663d0e02cb91506189729f6699ec96aeebff00ea1094",
+    "crates/diskgraph-engine/src/revision_locator_tests.rs": "f2cbe50bd8cb4b0f1fd90b716971c142e2cd2cfdf1f06982dd60489d1f74ce58",
+    "crates/diskgraph-engine/src/scan_execution.rs": "8449305bdba19ebea7ef19577dd824b4494cb35d7f92cfd603d3cac35093b361",
+    "crates/diskgraph-engine/src/scan_locator_tests.rs": "f7dff3039e35f2b667b56a6be29a1d6ceecdb2864d131a6098a1532756a87119",
+    "crates/diskgraph-engine/src/scan_node_locator.rs": "e758be56e7fce4fabec215751969fcd8a93ad9c94bf32506effedf9cbf77677f",
+    "crates/diskgraph-ffi/src/lib.rs": "433d5bde07d4690c460e3342faa174587ed8041e9a09860417e7e49be9a47b5d",
+    "crates/diskgraph-ffi/src/native_revision_candidate_tests.rs": "f72f00d10b862fbb7913949d84aee7904555d3f47f435820d4618ef055a7f980",
+    "crates/diskgraph-ffi/src/native_scan_gate.rs": "fd99b0b71d924dde1db5c57dcfb7619f64340251be9baadc106b0ace068d48b9",
+    "crates/diskgraph-ffi/src/native_service.rs": "5a7cead57a548083cae39c2ee363e8b6effad66ab8e88419fe2c2a6331fe9f18",
+    "crates/diskgraph-store/src/child_aggregate_benchmark.rs": "6e32775f9f4a40c303ea1be9ec99776aa6c79de7fcd56338fefe0e3b36acb458",
+    "crates/diskgraph-store/src/child_aggregate_tests.rs": "baf5068118205719a49fe94b61d77632e050e38d67ba63db00fe207299370df7",
+    "crates/diskgraph-store/src/collector_protocol_tests.rs": "e2fbb816b50a97aec273e800ce85a0ee7621542f4ff9c59942d463fce01ee5cf",
+    "crates/diskgraph-store/src/collector_publication.rs": "386f8e4eecf566e91c97a9e378c6fcc2e0776f1db3f7a5fca7bfb9cf7386217f",
+    "crates/diskgraph-store/src/collector_publication_tests.rs": "a069fa9fa1229b03b1634b616752bfcb02f72dc2ef95f48464c997e92fd7e51d",
+    "crates/diskgraph-store/src/graph_validation.rs": "8768bb7c288fe8ae5ab73fe2664a9acd65ec7319c0aaf6be46634d83aa5e69cc",
+    "crates/diskgraph-store/src/lib.rs": "53e491e24778b6e8d60b5151a24d24a6ecfe2c5eee3b1e7bec4341cb3b133108",
+    "crates/diskgraph-store/src/native_locator_migration.rs": "d4eb0680e02544a58e7df8ef22dee87290b636507a189511692bf066c8e33cd1",
+    "crates/diskgraph-store/src/native_locator_query.rs": "96cca74ac0fd92b499c688ead9138b980e7a641642fafd9df6c2d16364704e54",
+    "crates/diskgraph-store/src/native_locator_tests.rs": "23d1cc1a1a71564cf9dbf377df6bb12d91194251fc3f44a71751305f655d887c",
+    "crates/diskgraph-store/src/revision_candidate_tests.rs": "476d2391f6eb0a2bfa9d949cf0443f5551eed5403fa1c222e8a7a947e7fb92c9",
+    "crates/diskgraph-store/src/revision_evidence_tests.rs": "d01cadbf103c26b2a02da497a96691ce7960911397930d439463e1f85f6095fc",
+    "crates/diskgraph-store/src/revision_writer.rs": "c6660ddf9a913601d2371ca8e576f3d2cadea916cc42f282eb6eadcbf2d0bebf",
+    "crates/diskgraph-store/src/scan_staging_store.rs": "6b56028566bd911d4e4c07a241a2d40da97e75c12b6ccbfaf35c0152c0eed2a7",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "48fc005df0c7922a84ac0c0bef14669cc2658f0c2954a1e0fff0cc86146b1a08",
+    "crates/diskgraph-store/src/staging_locator_validation.rs": "504b932ba4c9729d911415929198b16297ea258b3996d64b99f90d67f23892af",
+    "crates/diskgraph-store/src/staging_node_encoding.rs": "28625a9032369f7cb5831221150095e97bd1c1d1fb040635d1a1107c114db1d4",
+    "crates/diskgraph-store/src/store_error.rs": "caed096b476d0274d6d18017694d9cd9e967adf40c69078cf5848eb96ddc3492",
+    "crates/diskgraph-store/src/stored_node_locator.rs": "1c66cedfa0012bc2babe70c2cae274f744024a1b5f323f9f896207382d4b1579",
+    "crates/diskgraph-store/tests/migration_backup.rs": "57841b6c7bc1bcbfe4a263c326be421cabf722fbce95d6c3485abfc3f9d8d040"
+  },
+  "schema": {
+    "graph": 11,
+    "count_schema": 9,
+    "collector_writer_generation": 10,
+    "locator_writer_generation": 11,
+    "legacy_locator": "NULL; no encoding/display/own-time inference; reindex required"
+  },
+  "red": {
+    "foreign_encoding_security_baseline": {
+      "passed": 0,
+      "failed": 1,
+      "production": "old trusted Locator accepts foreign raw under host encoding; new additive QualifiedLocator rejects"
+    },
+    "schema_columns": {
+      "passed": 0,
+      "failed": 1,
+      "production": "unchanged old graph schema"
+    },
+    "scan_persistence_and_budget": {
+      "passed": 0,
+      "failed": 2,
+      "production": "unchanged old Engine omits raw fields and accepts old v1-only metadata quota"
+    }
+  },
+  "targeted": {
+    "core_passed": 11,
+    "store_passed": 11,
+    "engine_passed": 11,
+    "new_gate_drop_passed": 1,
+    "ffi_full_passed": 46,
+    "failed": 0,
+    "windows_execution": "pending corrected-source native CI"
+  },
+  "workspace": {
+    "passed": 1055,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0,
+    "warnings": 0
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "scoped_fmt_exit_code": 0,
+    "openspec_strict_exit_code": 0,
+    "release_cli_mcp_ffi_exit_code": 0,
+    "vendor_source_digests_unchanged": 14
+  },
+  "protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "uniffi": {
+    "passed": 19,
+    "total": 19,
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    }
+  },
+  "performance": {
+    "native_locator_release_point_read": {
+      "selected_nodes": 1,
+      "unrelated_nodes": [
+        20000,
+        200000
+      ],
+      "sqlite_vm_instructions": [
+        18,
+        18
+      ],
+      "note": "fixed-primary-key reader with malformed unselected columns and borrowed budget admission; not end-to-end latency/RSS bound"
+    },
+    "file_load": [
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.463,
+        "query_p50_ms": 6.745,
+        "query_p95_ms": 8.084,
+        "database_and_wal_bytes": 42536960,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "cli_children_max_rss_bytes": 43417600,
+        "rss_measurement": "getrusage(RUSAGE_CHILDREN).ru_maxrss maximum of directly waited CLI processes, platform units converted to bytes; observation, not a bound or per-query sample"
+      },
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 5.096,
+        "query_p50_ms": 7.229,
+        "query_p95_ms": 10.709,
+        "database_and_wal_bytes": 427798528,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "cli_children_max_rss_bytes": 263520256,
+        "rss_measurement": "getrusage(RUSAGE_CHILDREN).ru_maxrss maximum of directly waited CLI processes, platform units converted to bytes; observation, not a bound or per-query sample"
+      }
+    ],
+    "historical_D28_reference": [
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.942,
+        "query_p50_ms": 13.939,
+        "query_p95_ms": 19.892,
+        "database_and_wal_bytes": 37502976,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 4.538,
+        "query_p50_ms": 7.509,
+        "query_p95_ms": 9.569,
+        "database_and_wal_bytes": 377446400,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    ],
+    "comparison_note": "D28 and D30 are separate observations, not paired speedup/cold-cache measurements. Raw locator/encoding/own-time fields increase this fixture database+WAL by approximately 13%; direct CLI child RSS has no historical paired baseline."
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "source_manifest_sha256": "7543ca88919d649a26931b2b276d5fe61fda5a0392d1a7f2a7f6f2aeb7263973",
+    "verified_source_files": 36,
+    "architecture_final_delta": "initial 36-file verification, then re-read the only changed Core lint delta and verified its new SHA; 35 other hashes unchanged",
+    "scope": "source increment only; no provider/device/native write/full-platform approval"
+  },
+  "previous_ci": {
+    "run_id": 37142949065,
+    "head_sha": "4f470d0e6e28b2e3e2b7a561d86ada83862c7835",
+    "conclusion": "failure",
+    "passed_jobs": 21,
+    "total_jobs": 22,
+    "failure": "Windows Rust1.97 FFI five-second setup poll timed out before job_id; revocation assertions not reached",
+    "correction": "request-local cfg(test) real durable Queued progress/authorization gate, RAII release; all permission assertions retained; production deadlines/ABI unchanged"
+  },
+  "native_ci": {
+    "status": "pending_corrected_source_run"
+  },
+  "logs": {
+    "directory": "qualified_locator_acceptance_2026_10_04_logs",
+    "files": {
+      "encoding-red.log.gz": {
+        "sha256_uncompressed": "5944b1d923c148f2156965c7c6a4575df905a73bbb67cd1b97cd36dbc2c1a1d6",
+        "sha256_gzip": "909d686fb76b924c1f3657aca965caaeedffcc101e0a1bc034d0220f0cb8722d"
+      },
+      "schema-red.log.gz": {
+        "sha256_uncompressed": "d2fe5a78ca34100bdec7b0fab88532a89c137a52781a1a6642aded7ecd5da3f1",
+        "sha256_gzip": "9404eb140ee8e733850872ae97e5eff21b99dec0a19288e021e0e99adfc2c541"
+      },
+      "scan-red.log.gz": {
+        "sha256_uncompressed": "d98e25ba8c344b96264e1a55d3c1080b63baf74f7b6f3d7dcd4125fcce3a8cb5",
+        "sha256_gzip": "af46d5438e9e26da27530d88846c5ca4fbe71d9155c0fd284df43f4647e8d4f0"
+      },
+      "core-green.log.gz": {
+        "sha256_uncompressed": "c4e4bd5f55b93799cff4f2726f2f696f5d5c7ea47be2846d120e7149edd71c2c",
+        "sha256_gzip": "b661163e30d3edda39a4ec9c9d11a11c555de858fa6c9940b88b1ac11be08dd3"
+      },
+      "store-green-final.log.gz": {
+        "sha256_uncompressed": "6d629360b0bf41ffedf2c0cc08bbbec5a79dc95b379f84b87482dceaa637930d",
+        "sha256_gzip": "ebf9ac894d3e14d4fb8459b2f336cfddaa84a279d30121f376baab34b882d812"
+      },
+      "engine-green-verified.log.gz": {
+        "sha256_uncompressed": "2f0a0da894fc225711cac5aaa97b9fbe2db33720b97e8fa591e25644600bac2d",
+        "sha256_gzip": "44747d68daada635710c1a94eed32ce5f590291cc960862df160547c6f499650"
+      },
+      "store-all.log.gz": {
+        "sha256_uncompressed": "2d113874ee880ae9264265bb4d0c52f1ced471bc8cb75b84e2bd3639283931d1",
+        "sha256_gzip": "f28543adbe2218d77351d896a5b6d67ae5a09c970c5151469ff9323c313ab5d1"
+      },
+      "ffi-all.log.gz": {
+        "sha256_uncompressed": "c31e47a2992e6883b1e8727d64f6cf388b031e020cb0707a9f39ed67d0cb34e0",
+        "sha256_gzip": "9c7c0f3bcd7024d8f3c07b063908301066f33e9af80174b481ca96bf87a8fb2e"
+      },
+      "workspace.log.gz": {
+        "sha256_uncompressed": "86a50cc99c669662c42c96aefbceac9733accf8a8026f9375fb3aaf7c9f11473",
+        "sha256_gzip": "7d7f35621c39a3df031007004478f37147ad01e08225f66c277d32b1dcb7d179"
+      },
+      "workspace-final.log.gz": {
+        "sha256_uncompressed": "7bec75d186797104af9ee95adc41777600bdc1f73a0446a0621742cd4498a571",
+        "sha256_gzip": "687eef435e388e15b73b6a4de2d5159f67ee25538102c56a02ddf093335f9e5e"
+      },
+      "workspace-verified.log.gz": {
+        "sha256_uncompressed": "1c7c865f1f3c86906db497f37a9a1ddc99007a077afad3b7926cbbfadac2f188",
+        "sha256_gzip": "fac766eca16157815b682b2741a3ec978855af45a3926f9d837512fcdaef193d"
+      },
+      "clippy.log.gz": {
+        "sha256_uncompressed": "e657ab8aff2c5bd4ef61a37445000f30297a109dea298d203f487f4616b54b33",
+        "sha256_gzip": "2e49142677297b35bd0a97c80c11893797590779c531681163e909048d6dd9b7"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "8a3f5b871c518060c58375fbd15813a78a1978ac645d52b7a9b09b33e0f332da",
+        "sha256_gzip": "9cda055a3943cec891e520841d59f8001fb3aaab7c7dc7a44367fbbc17798e2d"
+      },
+      "fmt-final.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "e4a288a1263e9e80d880ebc9d7fd93f04d08a393269d72b9496a76ef7c492ee0",
+        "sha256_gzip": "516f8862f22e0c378b4022b34fcd64144f8d20dc0fc1185a04947dcc564101e8"
+      },
+      "vm-release.log.gz": {
+        "sha256_uncompressed": "3bc79c08331e5ea252f9630d56f8ca13f50f1b1bbe87bda3ca3433752abc8424",
+        "sha256_gzip": "b9181f1324e38ab5c4480364001321872f5054ca7f559fe6e79ea4404ec535a3"
+      },
+      "stdio.json.gz": {
+        "sha256_uncompressed": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+        "sha256_gzip": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+      },
+      "http.json.gz": {
+        "sha256_uncompressed": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+        "sha256_gzip": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+      },
+      "uniffi.json.gz": {
+        "sha256_uncompressed": "c1ad9e24bf048416c61cce12e8a4a64ff692758106f39037c7419963d7ff5b78",
+        "sha256_gzip": "f5194656b466210410e53d9e53853bd2c7a10f56db972de48220f6eab93d4b44"
+      },
+      "load-20000.json.gz": {
+        "sha256_uncompressed": "1f541dc5284ce8331996fe8ef25a8bb609643f5d8d4ce44a2dab6acd66cbb4ab",
+        "sha256_gzip": "a1b8f2197b5e8e0d3cf0f1c637748f585b996e270cc4f051e655974bfdc6db6a"
+      },
+      "load-200000.json.gz": {
+        "sha256_uncompressed": "b96acc59e923d20fd20cccbef16ddf72fcf74c71a51fe6e48a1268349c703cce",
+        "sha256_gzip": "6b1d16c2dc2d393a193581e626b7d06a825b2ff99d25aebc8e23207a5b852c89"
+      },
+      "engine-green.log.gz": {
+        "sha256_uncompressed": "642cb41d197a407ddaf914f6290f71c940ebd5656d2004e53bb492a605ad2b51",
+        "sha256_gzip": "a226d4a72184d6e65eddee1c88f6852afd144de633b11954bcd0b0d163d0baef"
+      },
+      "engine-green-final.log.gz": {
+        "sha256_uncompressed": "a8f782bff556f1cc79faa11320dbf2312d3989cf8c8fd0b4f8ae3575af62464e",
+        "sha256_gzip": "8424aa6916ade06ec7c0709c6c9e0da70909d7c4ec4197fcaeaab680c37e1e2c"
+      },
+      "store-green.log.gz": {
+        "sha256_uncompressed": "cf07ba0fdebb08c6a91ad3ee5e1232f598211454d3231aa48c86e97eb7a5a542",
+        "sha256_gzip": "4c4cc8385949ed148ca81be490592453f127dab978e90b3f29e8cb98159d9ef7"
+      },
+      "fmt-core-before.log.gz": {
+        "sha256_uncompressed": "ba86215599cd11d32a96132bb687d2a50ab34b5b8d7aef82ca2e5089805565b8",
+        "sha256_gzip": "a6fdbf2e936ceb53050c0d9b714b4d6909f95540bbc6b7faafc8691fc88146a5"
+      }
+    }
+  },
+  "limits": [
+    "Task8.9/15.13 and full-platform parent obligations remain open; no new checkbox completed.",
+    "Old trusted Locator and registered scope raw encoding provenance remain compatible and separately unresolved; no historical platform guessing.",
+    "Pinned scanner still refuses names it cannot represent losslessly; not arbitrary non-UTF8 scanning support or strict RSS.",
+    "Own mtime uses the existing seconds observation and is not a native high-precision content version or atomic file snapshot.",
+    "Windows full128 scan identity is still unknown when it cannot be projected to legacy u64; D30 does not truncate or manufacture it.",
+    "Staging field cost excludes SQLite pages/indexes/global allocations; alias completeness checks still retain O(N) sets.",
+    "D29 corrected FFI fixture proves an active durable Queued handle, not a durable Running scan.",
+    "Authorized root capability, Git subprocess confinement, live collector jobs, real providers/no-download, native writes, host/mobile/signing/deployment remain separate open gates.",
+    "Early Store comment-layout failure, setup-only fixture failures and initial Clippy errors were corrected without weakening tests; raw logs retained."
+  ]
+}

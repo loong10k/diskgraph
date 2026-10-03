@@ -29,11 +29,17 @@ mod revision_comparison;
 mod revision_evidence_tests;
 mod revision_growth;
 mod revision_history;
+mod revision_locator;
+#[cfg(test)]
+mod revision_locator_tests;
 mod revision_queries;
 mod revision_reader;
 mod runner;
 mod scan_execution;
 mod scan_jobs;
+#[cfg(test)]
+mod scan_locator_tests;
+mod scan_node_locator;
 mod scan_progress_guard;
 #[cfg(test)]
 mod scan_publication_tests;

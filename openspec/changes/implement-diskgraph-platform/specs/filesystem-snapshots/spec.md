@@ -22,6 +22,22 @@
 - **WHEN** Windows 原生定位的解码字节不是完整的 UTF-16 代码单元序列
 - **THEN** 返回无效原生编码错误，不截断末尾字节或改用展示文本定位。
 
+#### Scenario: Qualified native locator survives publication
+- **WHEN** 当前进程的原生扫描产生无损定位，并完成暂存、事务发布及数据库重开
+- **THEN** 按实际 revision 所属快照和节点 ID 可窄读同一原始字节、明确编码和自身修改时间；编码数据预算包含定位原始字节，失败发布不留下半份定位。
+
+#### Scenario: Historical locator has no encoding provenance
+- **WHEN** 旧快照只有展示定位，或原始定位没有明确的原生编码来源
+- **THEN** 迁移不猜测回填原始字节或平台；需要可靠原生定位的入口返回 unavailable/unsupported 并提示重新索引，原有可信展示查询保持兼容。
+
+#### Scenario: Foreign or unknown native encoding
+- **WHEN** 持久定位标记了其他平台或不支持的编码，或 kind、编码和原始字段损坏/不一致
+- **THEN** 在文件访问之前明确拒绝；不得依赖当前宿主猜测字节含义、截断 UTF-16 或从展示文本恢复路径。
+
+#### Scenario: Oversized stored locator
+- **WHEN** 单行或累计持久定位字段超过请求的原始字节/节点额度
+- **THEN** 在从 SQLite 借用字段分配拥有对象之前拒绝，空结果及终态仍检查共享期限；不为精确节点读取整棵树。
+
 #### Scenario: Reused inode
 - **WHEN** 历史快照的文件 ID 被新文件复用
 - **THEN** 不能仅凭文件 ID 宣称它是原文件。

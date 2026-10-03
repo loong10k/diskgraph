@@ -413,7 +413,32 @@ release CLI/MCP/FFI、真实stdio **18/18**、认证HTTP/SSE **13/13** 与执行
 UniFFI校验 **19/19** 均通过；14份vendor摘要未改。独立代码APPROVE、架构
 CLEAR，10份源码清单摘要匹配。初期test-only警告日志与最终无警告证据均保留。
 
-新同源码原生CI待执行；Unix适用20项、Windows适用10项，Unix故障/lsof脚本
-不能作Windows进程采集证据。缩小初始元数据额度与推进Instant只用于确定性
+`4f470d0`的[同源码CI37142949065](https://github.com/loong10k/diskgraph/actions/runs/37142949065)终态 **21/22通过**。Windows Rust1.97的FFI夹具在首次job_id前超时，未进入撤权断言；原始日志已归档。D30改用请求局部测试门，在真实持久Queued进度及授权绑定后同步，明确证明active queued句柄，不冒称durable Running；修复后仍须新源码原生CI。Unix会话测试适用20项、Windows适用10项，Unix故障/lsof脚本不能作Windows进程采集证据。缩小初始元数据额度与推进Instant只用于确定性
 回归，不证明严格RSS/同步I/O抢占。授权持久采集任务及CLI/MCP入口、provider、
 宿主、真机、原生写、签名与生产环境仍待完成，15.13及全平台父项继续开放。
+
+## 扫描定位的明确编码持久化（D30前置，2026-10-04）
+
+schema11把本次NodeV2原始定位BLOB、明确编码和自身秒mtime经staging原子发布。
+借用原生验证拒绝外平台编码，不再生成后丢弃PathBuf；actual revision归属、原始期限
+和首末实时授权保护主键读取，SQLite原始字段先准入再拥有/解码。旧行不猜测来源，
+保持NULL并要求重索引。count_schema9/collector writer10/locator writer11独立，
+已打开旧writer不能静默丢字段；v1/UniFFI公开签名兼容。
+
+[验收记录](benchmarks/qualified_locator_acceptance_2026_10_04.json)保留真实旧行为RED、
+初期夹具/注释/Clippy失败及修复后的原始日志。Core/Store/Engine各11目标、gate Drop
+回归通过，最终workspace **1055/0/18（45 suites）**；严格Clippy、指定包fmt、OpenSpec、
+release CLI/MCP/FFI、14vendor摘要、真实stdio **18/18**、HTTP/SSE **13/13**、执行
+UniFFI **19/19**通过。独立代码APPROVE/架构CLEAR，冻结36文件源码清单匹配。
+D29的FFI修复同步真实持久Queued、授权绑定后的active句柄，不冒称Running，生产期限未改。
+
+release定位窄读在20k/200k未选记录下均执行 **18条VM指令**；真实20k/200k文件负载
+各4/4通过，扫描 **0.463/5.096秒**，并发top/children p50/p95 **6.745/8.084ms**及
+**7.229/10.709ms**，数据库+WAL **42,536,960/427,798,528字节**。直接等待的CLI子进程
+最大RSS观察值 **43,417,600/263,520,256字节**。这些独立观测不证明配对提速或严格RSS；
+新增字段相对D28夹具增加约13%存储成本，前次数据保留在记录中。
+
+修复后新源码原生CI仍待；pinned扫描器名称限制、旧scope编码来源、Windows full128扫描
+身份、原生root capability、授权采集任务、真实provider不下载、原生写、宿主/mobile及
+签名/部署门禁继续开放。自身秒mtime不是高精度content version或原子快照；本前置不关闭
+全平台父项。

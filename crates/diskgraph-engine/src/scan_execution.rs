@@ -1,5 +1,6 @@
 //! 共享 Engine 的 scan_execution 职责；原调用与持锁顺序保持。
 
+use crate::scan_node_locator::qualify_scan_locator;
 use crate::{Engine, EngineError, collect_projects};
 use diskgraph_core::{
     Authorizer, BudgetDecision, BudgetUsage, BusinessError, DiskGraph, Permission, ScanBudget,
@@ -151,18 +152,14 @@ impl Engine {
         // ancestor would otherwise bill the same file again, so a deep tree
         // would multiply its real size by its depth and stop on phantom bytes.
         for node in &scanned.nodes {
+            let locator = qualify_scan_locator(node)?;
             match self.scan_budget.charge_node(
                 &mut usage,
-                (serde_json::to_vec(&node.v1)
-                    .map_err(StoreError::from)?
-                    .len()
-                    + node.v1.name.to_lowercase().len()
-                    + (match &node.v1.locator {
-                        diskgraph_core::ResourceLocator::NativePath(path)
-                        | diskgraph_core::ResourceLocator::DocumentUri(path) => path,
-                    })
-                    .to_lowercase()
-                    .len()) as u64,
+                diskgraph_store::staging_node_encoded_cost(
+                    &node.v1,
+                    Some(&locator),
+                    node.self_modified,
+                )?,
             ) {
                 BudgetDecision::Continue => {}
                 BudgetDecision::Stop(stop) => {
@@ -210,9 +207,20 @@ impl Engine {
             }
             self.control()?
                 .heartbeat_fenced(job_id, owner, job.fencing_token)?;
+            // 仅保留当前有界写入批次的额外定位对象，不复制整份扫描图。
+            let locators = batch
+                .iter()
+                .map(qualify_scan_locator)
+                .collect::<Result<Vec<_>, _>>()?;
             self.control()?
                 .with_job_fence(job_id, owner, job.fencing_token, || {
-                    graph.append_staging_iter(&staging_id, batch.iter().map(|node| &node.v1))
+                    graph.append_staging_located_iter(
+                        &staging_id,
+                        batch
+                            .iter()
+                            .zip(&locators)
+                            .map(|(node, locator)| (&node.v1, locator, node.self_modified)),
+                    )
                 })?;
         }
         let v1_nodes: Vec<diskgraph_core::DiskNode> =

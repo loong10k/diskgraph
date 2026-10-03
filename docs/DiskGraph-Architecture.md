@@ -83,6 +83,29 @@ flowchart TD
 
 Legacy FFI signatures remain compatible. Engine now checks actual snapshot/revision ownership and live authorization before opening a read connection. Raw store APIs remain trusted internal compatibility entry points. The hardening record below separates implementation from platform acceptance.
 
+### Qualified scan locators (D30, 2026-10-04)
+
+New scan observations retain explicit native encoding, original bytes and own
+mtime in schema11 staging and nodes. Display paths remain the v1 compatibility
+projection. The same publication transaction moves all fields, binds ownership
+and updates latest; an independent locator generation rejects obsolete writers.
+Exact node reads check borrowed-field budgets before allocation and require the
+revision's actual scope authorization again before returning. Legacy rows are
+not reconstructed from display text and require reindexing for native addressing.
+
+```mermaid
+flowchart LR
+    N["New NodeV2 capture<br/>raw locator + own mtime"] --> Q["QualifiedLocator<br/>explicit encoding + validation"]
+    Q --> S["Budgeted staging<br/>same row / same fence"]
+    S --> P["Atomic publication<br/>nodes + revision + latest"]
+    P --> R["Exact node read<br/>borrowed fields admitted first"]
+    R --> A["Actual revision scope<br/>initial and terminal authorization"]
+```
+
+The old trusted Locator/Store APIs remain compatible. Pinned scanner limitations,
+legacy scope encoding provenance, file-handle authorization, live collector jobs,
+provider and native write acceptance remain independent obligations.
+
 ### Current Engine source boundaries (RT-09, 2026-10-02)
 
 The entry only declares modules and preserves exports. Types, including private records, traits and aliases, have separate files; production modules contain fewer than 500 physical lines. Scope/policy/revision authorization, job scheduling and fenced scanning, retention, bounded queries/history, content and live evidence retain real implementations on one shared Engine. Public `content`, `live_evidence` and `verify` module paths remain stable through façades. Trusted raw readers and control access still require authorization at the caller.

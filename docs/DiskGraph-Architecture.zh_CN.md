@@ -83,6 +83,26 @@ flowchart TD
 
 此图概括当前组件调用路径。旧 FFI 签名保留，读取前先由 Engine 核验 snapshot/revision 归属与实时授权，再使用只读连接。底层 store API 属于可信内部兼容入口。平台能力与验证边界见下方加固记录。
 
+### 扫描定位的明确编码与持久化（D30，2026-10-04）
+
+schema 11 将新扫描观测的明确编码、原始字节与自身 mtime 保存在 staging
+和 nodes 同一行，展示路径继续作为 v1 兼容投影。发布事务一起搬运字段、绑定
+归属并更新 latest；独立定位 writer generation 阻止旧程序静默丢弃新字段。
+精确节点读取先对借用字段执行预算准入，返回前再次核验 revision 实际 scope
+授权。旧行不从展示文本恢复原始字节，可靠原生寻址须重新索引。
+
+```mermaid
+flowchart LR
+    N["新 NodeV2 捕获<br/>原始定位 + 自身时间"] --> Q["QualifiedLocator<br/>明确编码 + 校验"]
+    Q --> S["有预算暂存<br/>同一行 / 同一 fence"]
+    S --> P["原子发布<br/>节点 + revision + latest"]
+    P --> R["精确节点窄读<br/>借用字段先准入"]
+    R --> A["revision 实际范围<br/>首检与终态授权"]
+```
+
+旧可信 Locator/Store API 保持兼容。固定扫描器限制、旧 scope 的编码来源、
+文件句柄授权、实时采集任务、真实 provider 和原生写能力仍分别验收。
+
 ### 当前 Engine 源码边界（RT-09，2026-10-02）
 
 入口只声明模块并保留导出；对象含私有记录、trait 和 alias 各自独立文件，生产模块少于 500 行。范围/策略/revision 授权、任务调度与 fenced 扫描、历史回收、有界查询/历史、内容和实时证据保留真实实现，复用唯一 Engine。公开 `content`、`live_evidence` 与 `verify` 路径通过 façade 保持兼容。可信原始 reader 与控制访问仍由调用方完成请求授权。

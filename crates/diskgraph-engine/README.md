@@ -54,6 +54,21 @@ cancellation checks are cooperative and cannot preempt synchronous native
 opens or reads. Native evidence covers CI NTFS fixtures, not every local
 filesystem. See the [full-platform acceptance record](../../docs/production-readiness-full-platform-2026-10-02.md).
 
+## Qualified scan locators / 扫描定位的编码来源
+
+Schema 11 persists a fresh scan node's raw locator bytes, explicit Unix/Windows
+encoding and own modification time through the same staging/publication
+transaction. `revision_node_locator` reads one node under the actual revision
+owner, a shared deadline/field budget and terminal live authorization checks.
+Native validation borrows the saved fields rather than allocating a path that
+would immediately be discarded. This metadata does not itself authorize file
+access or replace live root/file handle identity checks.
+
+历史节点缺少编码来源时明确返回 unsupported，需要重新索引；不把展示字符串
+或目录聚合时间补成原始身份。旧可信 `Locator` 接口继续兼容，注册 scope 根定位
+的跨平台编码来源还需单独落地。上游扫描器仍拒绝不能无损表示的名字；这项持久化
+不宣称完整非 UTF-8 扫描、严格 RSS 上限或 provider/写操作验收完成。
+
 ## Source boundaries / 源码边界
 
 `lib.rs` only declares modules and preserves public exports. `Engine` remains

@@ -1,3 +1,5 @@
+#[cfg(test)]
+use crate::native_scan_gate::NativeScanProgressHook;
 use crate::{JobHandle, NativeServiceError, native_reply, open_engine};
 use diskgraph_engine::Engine;
 use diskgraph_store::SqliteSnapshotStore;
@@ -18,6 +20,8 @@ pub struct NativeService {
     // None 表示已经关闭。锁同时覆盖任务登记与关闭，避免漏掉竞争中新建的任务。
     jobs: Mutex<Option<NativeJobs>>,
     closed: Arc<AtomicBool>,
+    #[cfg(test)]
+    scan_progress_hook: Mutex<Option<NativeScanProgressHook>>,
 }
 
 #[uniffi::export]
@@ -31,6 +35,8 @@ impl NativeService {
             engine: Arc::new(engine),
             jobs: Mutex::new(Some(Vec::new())),
             closed: Arc::new(AtomicBool::new(false)),
+            #[cfg(test)]
+            scan_progress_hook: Mutex::new(None),
         }))
     }
 
@@ -87,8 +93,22 @@ impl NativeService {
                 reason: "unsupported: pinned scanner requires a lossless Unicode root".into(),
             })?
             .to_owned();
+        #[cfg(test)]
+        let scan_progress_hook = self.scan_progress_hook.lock().unwrap().take();
         let handle = crate::spawn_job(move |cancel, progress| {
-            crate::run_scan_on_engine(engine, &root_path, cancel, progress)
+            #[cfg(test)]
+            {
+                crate::run_scan_on_engine(engine, &root_path, cancel, &|value, engine| {
+                    progress(value.clone(), engine);
+                    if let Some(hook) = &scan_progress_hook {
+                        hook(&value);
+                    }
+                })
+            }
+            #[cfg(not(test))]
+            {
+                crate::run_scan_on_engine(engine, &root_path, cancel, progress)
+            }
         });
         jobs.push((root, Arc::downgrade(&handle)));
         Ok(handle)
@@ -147,6 +167,12 @@ impl NativeService {
 }
 
 impl NativeService {
+    /// 为下一次本会话扫描安装请求局部测试回调，生产构建无此入口。
+    #[cfg(test)]
+    pub(crate) fn set_scan_progress_hook(&self, hook: NativeScanProgressHook) {
+        *self.scan_progress_hook.lock().unwrap() = Some(hook);
+    }
+
     #[cfg(test)]
     fn query(
         &self,

@@ -38,6 +38,10 @@ mod job_state;
 mod job_store;
 #[cfg(test)]
 mod locator_budget_tests;
+mod native_locator_migration;
+mod native_locator_query;
+#[cfg(test)]
+mod native_locator_tests;
 mod node_budget_query;
 mod node_codec;
 mod node_queries;
@@ -81,7 +85,10 @@ mod search_queries;
 mod snapshot_queries;
 mod snapshot_writer;
 mod sqlite_snapshot_store;
+mod staging_locator_validation;
+mod staging_node_encoding;
 mod store_error;
+mod stored_node_locator;
 mod tree_budget_query;
 #[cfg(test)]
 mod tree_budget_tests;
@@ -135,3 +142,6 @@ mod collector_protocol_tests;
 
 #[cfg(test)]
 mod revision_history_budget_tests;
+
+pub use staging_node_encoding::staging_node_encoded_cost;
+pub use stored_node_locator::StoredNodeLocator;

@@ -6,6 +6,13 @@ use std::collections::HashSet;
 /// 参数：graph：完整观测图。
 /// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
 pub(crate) fn validate_graph(graph: &DiskGraph) -> Result<()> {
+    validate_graph_display_aliases(graph, false)
+}
+
+/// 有无损暂存身份的发布可允许显示别名；原始身份唯一性由同一发布事务检查。
+/// 参数：graph 为完整观测图，allow_aliases 表示发布事务另行验证原始定位唯一性。
+/// 返回：图结构有效时成功；身份、父节点或覆盖冲突返回 InvalidGraph。
+pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: bool) -> Result<()> {
     if graph.snapshot.id.is_empty() || graph.nodes.is_empty() {
         return Err(StoreError::InvalidGraph(
             "missing snapshot ID or nodes".into(),
@@ -33,7 +40,7 @@ pub(crate) fn validate_graph(graph: &DiskGraph) -> Result<()> {
         ));
     }
     let locators: HashSet<_> = graph.nodes.iter().map(|node| &node.locator).collect();
-    if locators.len() != graph.nodes.len() {
+    if !allow_aliases && locators.len() != graph.nodes.len() {
         return Err(StoreError::InvalidGraph(
             "duplicate resource locators".into(),
         ));

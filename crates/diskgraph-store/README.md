@@ -29,7 +29,9 @@ let mut store = SqliteSnapshotStore::open(Path::new("/tmp/diskgraph/diskgraph.sq
 - Migrations run on open: v1 → v2 (revisions, staging, pins) → v3
   (typed entities and relations) → v4 (structured node columns so
   multi-million-row loads never need a full JSON parse per row), then through
-  v9 (owned history, bounded-query indexes and exact directory aggregates).
+  v9 (owned history, bounded-query indexes and exact directory aggregates),
+  v10 (revision-scoped collector membership and sealed selection), and v11
+  (encoding-qualified raw node locators and each node's own modification time).
 - `open_with_backup` writes a pre-migration copy first, and a failed
   migration leaves the original readable.
 - Publication is one transaction: snapshot rows, the revision, the latest
@@ -44,7 +46,7 @@ let mut store = SqliteSnapshotStore::open(Path::new("/tmp/diskgraph/diskgraph.sq
 
 ## Source boundaries / 源码边界
 
-`lib.rs` is 104 lines, down from 3,247, and only declares modules and stable
+`lib.rs`, reduced from 3,247 lines, only declares modules and stable
 API reexports. Each record,
 enum and row type has its own file. The two original stores still own their
 connections; implementation modules share that ownership and preserve the
@@ -96,6 +98,22 @@ rejects production files with 500 or more lines; the current maximum is the
 replacing transaction, compatibility or performance verification.
 Existing isolated tests continue to verify migrations, atomic publication,
 fencing, ownership, retention and bounded queries.
+
+Schema 11 does not backfill raw bytes, platform encoding or own mtime from old
+display paths and aggregate timestamps. `append_staging_located_iter` retains
+qualified observations in the same staging/node row and publication transaction.
+`staging_node_encoded_cost` includes JSON, folded search fields, raw bytes,
+encoding/kind labels and observed timestamps; it excludes SQLite page overhead.
+`native_locator_bounded` admits borrowed fields against the request budget before
+allocation and resolves only `(snapshot_id,node_id)`. Legacy locator absence is
+distinct from a missing node; foreign encoding, corrupt fields and limits fail
+explicitly. The independent locator writer generation rejects obsolete revision
+writers without changing schema9 directory count or schema10 collector markers.
+
+schema 11 不从历史展示路径或聚合时间推断原始定位与自身时间。新节点的明确
+编码、原始字节和时间随同一批暂存和发布事务保存；原始字段先按预算准入再
+分配，按快照/节点 ID 精确读取。旧定位不可用与节点不存在分别处理，不回退
+展示路径。原有可信 v1 Store 接口保持兼容，原生访问仍需调用方授权及句柄验证。
 
 ## License
 
