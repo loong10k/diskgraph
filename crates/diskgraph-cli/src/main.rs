@@ -18,6 +18,7 @@ use diskgraph_engine::{Engine, EngineConfig, EngineError};
 mod html;
 mod installer;
 mod local;
+mod relation_reply;
 mod tui;
 mod tui_frame_reader;
 mod tui_request;
@@ -859,6 +860,7 @@ fn resolve_targets(requested: &[String]) -> Result<Vec<installer::Target>, Engin
 }
 
 fn run(cli: Cli) -> Result<(), EngineError> {
+    let deadline = diskgraph_core::query_deadline(QueryBudget::default())?;
     // One knob drives both budget layers: the per-node charged ScanBudget
     // must not be tighter than the hard refusal ceiling, or a caller raising
     // the ceiling would still stop at the old charged limit (RT-02/RT-04).
@@ -889,7 +891,14 @@ fn run(cli: Cli) -> Result<(), EngineError> {
     // default-deny, and first-run setup grants the local user administration.
     let authorizer = LocalIdentity::load(&engine)?;
     let mut json_output = Vec::new();
-    let outcome = dispatch(&engine, &cli, &principal, &authorizer, &mut json_output);
+    let outcome = dispatch(
+        &engine,
+        &cli,
+        &principal,
+        &authorizer,
+        &mut json_output,
+        deadline,
+    );
     if cli.json {
         for line in json_output {
             println!("{line}");
@@ -904,6 +913,7 @@ fn dispatch(
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     out: &mut Vec<String>,
+    deadline: std::time::Instant,
 ) -> Result<(), EngineError> {
     match &cli.command {
         Command::Scope { action } => match action {
@@ -1145,16 +1155,26 @@ fn dispatch(
         } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            engine.authorize_revision(Some(&scope_id), revision, principal, authorizer)?;
-            let data = engine.explain_bounded(
+            engine.authorize_revision_until(
+                Some(&scope_id),
+                revision,
+                principal,
+                authorizer,
+                deadline,
+            )?;
+            let data = engine.explain_bounded_until(
                 revision,
                 entity,
                 after_edge.as_deref(),
                 *limit,
+                QueryBudget::default(),
                 principal,
                 authorizer,
+                deadline,
             )?;
-            out.push(envelope_line(engine, Ok(data)));
+            out.push(relation_reply::finish(
+                engine, principal, authorizer, revision, data, deadline,
+            )?);
             Ok(())
         }
         Command::Related {
@@ -1168,7 +1188,13 @@ fn dispatch(
         } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            engine.authorize_revision(Some(&scope_id), revision, principal, authorizer)?;
+            engine.authorize_revision_until(
+                Some(&scope_id),
+                revision,
+                principal,
+                authorizer,
+                deadline,
+            )?;
             let relation = match relation {
                 Some(name) => Some(
                     Relation::parse(name)
@@ -1176,17 +1202,21 @@ fn dispatch(
                 ),
                 None => None,
             };
-            let data = engine.related_bounded(
+            let data = engine.related_bounded_until(
                 revision,
                 entity,
                 relation,
                 *outgoing,
                 after_edge.as_deref(),
                 *limit,
+                QueryBudget::default(),
                 principal,
                 authorizer,
+                deadline,
             )?;
-            out.push(envelope_line(engine, Ok(data)));
+            out.push(relation_reply::finish(
+                engine, principal, authorizer, revision, data, deadline,
+            )?);
             Ok(())
         }
         Command::Top {
@@ -1460,34 +1490,47 @@ fn dispatch(
             Ok(())
         }
         Command::Impact {
-            scope: _,
+            scope,
             revision,
             entity,
             max_depth,
             max_edges,
         } => {
-            let edges = engine.all_edges(revision)?;
-            let by_source = adjacency(&edges, true);
-            let by_target = adjacency(&edges, false);
+            let scope_id = ScopeId::new(scope.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            engine.authorize_revision_until(
+                Some(&scope_id),
+                revision,
+                principal,
+                authorizer,
+                deadline,
+            )?;
             let budget = QueryBudget {
                 max_depth: *max_depth,
                 max_edges: *max_edges,
                 ..QueryBudget::default()
             };
-            let entries = diskgraph_engine::impact(&by_source, &by_target, entity, budget)?;
-            out.push(envelope_line(
+            let answer = engine
+                .revision_impact_until(revision, entity, budget, principal, authorizer, deadline)?;
+            out.push(relation_reply::finish(
                 engine,
-                Ok(serde_json::json!({
+                principal,
+                authorizer,
+                revision,
+                serde_json::json!({
                     "revision_id": revision,
                     "entity": entity,
-                    "entries": entries.iter().map(|entry| serde_json::json!({
+                    "entries": answer.entries.iter().map(|entry| serde_json::json!({
                         "entity_id": entry.entity_id,
                         "relation": entry.relation.wire_name(),
                         "depth": entry.depth,
                     })).collect::<Vec<_>>(),
                     "grants_execution": false,
-                })),
-            ));
+                    "complete": answer.truncated.is_none(),
+                    "truncated": answer.truncated.map(|reason|reason.wire_name()),
+                }),
+                deadline,
+            )?);
             Ok(())
         }
         Command::Duplicates => Err(unsupported("C17", "P7")),
@@ -1862,15 +1905,16 @@ fn dispatch(
             // probe; only live scopes reach the authorization check.
             engine.scope(&scope_id)?;
             require_metadata(authorizer, principal, &scope_id)?;
-            let Some(revision) = engine.latest_revision(&scope_id)? else {
+            let Some(revision) = engine.latest_revision_until(&scope_id, deadline)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
-            let answer = engine.review_candidates(
+            let answer = engine.review_candidates_until(
                 &revision,
                 *target_bytes,
                 QueryBudget::default(),
                 principal,
                 authorizer,
+                deadline,
             )?;
             let candidates: Vec<_> = answer
                 .candidates
@@ -1882,9 +1926,12 @@ fn dispatch(
                     })
                 })
                 .collect();
-            out.push(envelope_line(
+            out.push(relation_reply::finish(
                 engine,
-                Ok(serde_json::json!({
+                principal,
+                authorizer,
+                &revision,
+                serde_json::json!({
                     "candidates": candidates,
                     "review_only": true,
                     "coverage_complete": answer.coverage_complete,
@@ -1892,8 +1939,9 @@ fn dispatch(
                     "truncated": answer.truncated.map(|reason| reason.wire_name()),
                     "selected_bytes": answer.selected_bytes.to_string(),
                     "remaining_bytes": answer.remaining_bytes.to_string(),
-                })),
-            ));
+                }),
+                deadline,
+            )?);
             Ok(())
         }
     }
@@ -2010,24 +2058,6 @@ fn install_tool(action: &InstallCommand) -> Result<(), EngineError> {
             diskgraph_store::StoreError::InvalidGraph(error.to_string()),
         )),
     }
-}
-
-/// Builds source/target adjacency maps from one revision's typed edges.
-fn adjacency(
-    edges: &[diskgraph_core::RelationEdge],
-    by_source: bool,
-) -> std::collections::HashMap<String, Vec<(String, diskgraph_core::Relation)>> {
-    let mut map: std::collections::HashMap<String, Vec<(String, diskgraph_core::Relation)>> =
-        std::collections::HashMap::new();
-    for edge in edges.iter().cloned() {
-        let (key, other) = if by_source {
-            (edge.source_entity_id.clone(), edge.target_entity_id)
-        } else {
-            (edge.target_entity_id.clone(), edge.source_entity_id)
-        };
-        map.entry(key).or_default().push((other, edge.relation));
-    }
-    map
 }
 
 /// 等待指定任务；仅在其排队或租约过期时尝试条件认领，不启动后台队列。

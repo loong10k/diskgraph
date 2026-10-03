@@ -1,8 +1,12 @@
 //! 共享 Engine 的 relation_access 职责；原调用与持锁顺序保持。
 
-use crate::{Engine, EngineError, Explanation, ImpactResult, impact_bounded_with_neighbors};
-use diskgraph_core::{Authorizer, PrincipalId, QueryBudget};
+use crate::{Engine, EngineError, Explanation, ImpactResult};
+use diskgraph_core::{
+    Authorizer, PrincipalId, QueryBudget, TruncationReason, measure_json_bounded, query_deadline,
+};
 use diskgraph_store::CandidateSelection;
+use diskgraph_store::StoreError;
+use std::time::Instant;
 
 impl Engine {
     /// 可信内部读取 revision 的全部关系。
@@ -112,10 +116,52 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<CandidateSelection, EngineError> {
-        let reader = self.revision_reader()?;
-        self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
-        let snapshot_id = reader.revision(revision_id)?.snapshot_id;
-        Ok(reader.candidate_selection(&snapshot_id, target_bytes, budget)?)
+        self.review_candidates_until(
+            revision_id,
+            target_bytes,
+            budget,
+            principal,
+            authorizer,
+            query_deadline(budget)?,
+        )
+    }
+
+    /// 在最外层共享期限上选择候选并完成末段实时授权。
+    /// 参数：原查询参数与 deadline；预算从最初准备起计入，typed 期限没有 1000ms 新限制。
+    /// 返回：完整候选前缀/缺口或拒权/真实格式错误，最小诊断也放不下则预算失败。
+    pub fn review_candidates_until(
+        &self,
+        revision_id: &str,
+        target_bytes: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+    ) -> Result<CandidateSelection, EngineError> {
+        budget.validated()?;
+        let answer = self.with_relation_reader_until(
+            revision_id,
+            principal,
+            authorizer,
+            deadline,
+            |reader, snapshot| {
+                Ok(reader.candidate_selection_until(snapshot, target_bytes, budget, deadline)?)
+            },
+            |answer, expired| {
+                if expired {
+                    answer.complete = false;
+                    answer.truncated = Some(TruncationReason::Deadline);
+                }
+                if measure_json_bounded(answer, budget.max_response_bytes)
+                    .map_err(StoreError::from)?
+                    .is_none()
+                {
+                    return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+                }
+                Ok(())
+            },
+        )?;
+        Ok(answer)
     }
 }
 
@@ -132,46 +178,89 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<ImpactResult, EngineError> {
-        let reader = self.revision_reader()?;
-        self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
-        let snapshot_id = reader.revision(revision_id)?.snapshot_id;
-        let mut interrupted = false;
-        let mut answer = impact_bounded_with_neighbors::<EngineError, _>(
+        self.revision_impact_until(
+            revision_id,
             entity_id,
             budget,
-            |current, outgoing, limit| {
-                let page = if outgoing {
-                    reader.edges_from_page(&snapshot_id, current, None, limit as u64)
-                } else {
-                    reader.edges_to_page(&snapshot_id, current, None, limit as u64)
-                };
-                let (edges, more) = match page {
-                    Ok(page) => page,
-                    Err(error) if error.is_interrupted() => {
-                        interrupted = true;
-                        return Ok((Vec::new(), true));
-                    }
-                    Err(error) => return Err(error.into()),
-                };
-                Ok((
-                    edges
-                        .into_iter()
-                        .map(|edge| {
-                            let neighbour = if outgoing {
-                                edge.target_entity_id
-                            } else {
-                                edge.source_entity_id
-                            };
-                            (neighbour, edge.relation)
-                        })
-                        .collect(),
-                    more,
-                ))
+            principal,
+            authorizer,
+            query_deadline(budget)?,
+        )
+    }
+
+    /// 在整次请求期限与原始字段账本上进行影响遍历。
+    /// 参数：原查询参数和 deadline；入/出方向、重复及不传播边按实际解码累计。
+    /// 返回：有界条目/截断，末段撤权拒绝全部数据；不授予操作权限。
+    pub fn revision_impact_until(
+        &self,
+        revision_id: &str,
+        entity_id: &str,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+    ) -> Result<ImpactResult, EngineError> {
+        budget.validated()?;
+        let answer = self.with_relation_reader_until(
+            revision_id,
+            principal,
+            authorizer,
+            deadline,
+            |reader, snapshot| {
+                crate::queries::impact_with_budget::<EngineError, _>(
+                    entity_id,
+                    budget,
+                    deadline,
+                    |current, outgoing, limit, reads| {
+                        let (edges, more) = match reader.edges_text_with_budget_page(
+                            snapshot,
+                            current,
+                            Some(outgoing),
+                            None,
+                            None,
+                            u64::try_from(limit).map_err(|_| StoreError::IntegerOverflow)?,
+                            reads,
+                        ) {
+                            Ok(page) => page,
+                            Err(StoreError::BudgetExceeded) => return Ok((Vec::new(), true)),
+                            Err(error) if error.is_interrupted() => {
+                                reads.stop(TruncationReason::Deadline);
+                                return Ok((Vec::new(), true));
+                            }
+                            Err(error) => return Err(error.into()),
+                        };
+                        Ok((
+                            edges
+                                .into_iter()
+                                .map(|edge| {
+                                    (
+                                        if outgoing {
+                                            edge.target_entity_id
+                                        } else {
+                                            edge.source_entity_id
+                                        },
+                                        edge.relation,
+                                    )
+                                })
+                                .collect(),
+                            more,
+                        ))
+                    },
+                )
+            },
+            |answer, expired| {
+                if expired {
+                    answer.truncated = Some(TruncationReason::Deadline);
+                }
+                if measure_json_bounded(answer, budget.max_response_bytes)
+                    .map_err(StoreError::from)?
+                    .is_none()
+                {
+                    return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+                }
+                Ok(())
             },
         )?;
-        if interrupted {
-            answer.truncated = Some(diskgraph_core::TruncationReason::Deadline);
-        }
         Ok(answer)
     }
 }

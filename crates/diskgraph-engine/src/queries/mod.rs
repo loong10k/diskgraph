@@ -13,6 +13,7 @@ mod tests;
 pub use explore_summary::ExploreSummary;
 pub use explore_summary::explore;
 pub use impact_entry::ImpactEntry;
+pub(crate) use impact_query::impact_with_budget;
 pub use impact_query::{impact, impact_bounded, impact_bounded_with_neighbors};
 pub use impact_result::ImpactResult;
 pub use propagation::Propagation;

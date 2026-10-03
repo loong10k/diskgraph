@@ -1,0 +1,186 @@
+{
+  "date": "2026-10-03",
+  "scope": "D23 / task 15.16; final-source local acceptance, native CI pending",
+  "host": {
+    "target": "aarch64-apple-darwin",
+    "rustc": "1.98.1"
+  },
+  "interface_baseline_head": "91f4091264a1922641fb47a5711d94f8245a7540",
+  "source": {
+    "files": {
+      "crates/diskgraph-core/src/lib.rs": "6e245105a55943cec41ef7da06eef63c6452d5a51a1bc1fc878e563c0e8e8c5e",
+      "crates/diskgraph-core/src/json_size_writer.rs": "8dc36a1c6e7daa59be715232844d9363490e8b8738c411d42d421d7127c7c736",
+      "crates/diskgraph-core/src/query_deadline.rs": "2dfb91d5f4b8b0f64f657cd38b9d17bce938da7451dcd25641565e47685c1e5a",
+      "crates/diskgraph-core/src/query_read_budget.rs": "118159633c857d6e8edeabddd38af6beafaa1f46edd7013c475a6b2ec9d92d75",
+      "crates/diskgraph-core/src/query_budget_tests.rs": "ebdcb2583d7c7752604f96202ab468ae49dbd2fa59c49673ff1500dddf8f2282",
+      "crates/diskgraph-store/src/lib.rs": "c0dea2c5bdb66cefd8cf57fdd56d449dd03eb1124822859c60c80c9249175559",
+      "crates/diskgraph-store/src/node_row.rs": "a5c96399a09595a10d1003f63b6140d4e0f3a76c1cca9f245642c35bcf4bd276",
+      "crates/diskgraph-store/src/node_budget_query.rs": "7f518c9af7bba560ec3a568dfa6fe035a9a408bfc34e7a2fff9ebf9fea979c9b",
+      "crates/diskgraph-store/src/evidence_queries.rs": "f1ffaa1e3837cdcb6f68c0b944e69c2118a7d408058775fd67f5fdd9d2ba5929",
+      "crates/diskgraph-store/src/candidate_query.rs": "7d60e481ea1766e964270bdabcdb5439bd85479fdbae40ee62f6dad4a7362a12",
+      "crates/diskgraph-store/src/candidate_selection.rs": "f8814b1ba0b3e25c58f7d12d59ef5d96ab22a45891a70d7258c2c176499816fa",
+      "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "4330928a0695d5cd27b033abadc4bf1b513dbe0a942d578b91ad37dfef824812",
+      "crates/diskgraph-store/src/relation_queries.rs": "e48880f8e5a2ecab8aa3ab90d719d82a64becf519effa73c1adb56c504bc46e4",
+      "crates/diskgraph-store/src/relation_page_queries.rs": "3d1de8a7fd5d2224d72c89420548b3c1453c558815719718fd54a22b88bf0e94",
+      "crates/diskgraph-store/src/relation_budget_tests.rs": "5535798c7a7b06273e98ffd3786228d6dadee769efd28b39ae381717dd7e72b7",
+      "crates/diskgraph-engine/src/lib.rs": "86cf78070068d08ad273a3f60c573c09a49a54098a9bea604d769489f17a7b79",
+      "crates/diskgraph-engine/src/relation_access.rs": "1fe3dc74891affc927babca79f58ed3a6b709668802fc1c9ae9b092ff3412d46",
+      "crates/diskgraph-engine/src/relation_queries.rs": "317055632d820b7501bfcf97030c3e2427bcf395ab1a7bc0145b19aa5b381bf7",
+      "crates/diskgraph-engine/src/relation_request.rs": "be61b9a64992c783c6ffb24499667b5903f288c41160d2fa1b6a8c77f1ea053f",
+      "crates/diskgraph-engine/src/relation_request_tests.rs": "7ce0cf3209b844ff0dd10035eef12b29e20d892846b2c77929c8a948c916676d",
+      "crates/diskgraph-engine/src/queries/impact_query.rs": "122d988c9fd3b288c1d5d1cfb94ef5844028f888e1d7c16c7e6613fea307fb05",
+      "crates/diskgraph-engine/src/queries/impact_entry.rs": "ad084ebc2d0830072cc0cc0c072132310d9f2b0125089a65d8b327570e31c7bb",
+      "crates/diskgraph-engine/src/queries/impact_result.rs": "75ff054f25d1d7d0da5a2b02c9a50c5aeda66354eb239c5dcb41f9ac199a14db",
+      "crates/diskgraph-engine/src/queries/mod.rs": "309aa229e20007cdfbb51a56578e3403b1191c788bc3e387c6fd7f2017bd728b",
+      "crates/diskgraph-engine/tests/relation_request_budget.rs": "4069cfc008b6b44ea03cb25c9c5c7003925e2e5b6633911077d1ce18cdf214de",
+      "crates/diskgraph-engine/src/revision_reader.rs": "34d7beb284af31de9e3b5ef4b971ff544ba17e594742e81e205f167871abf3a7",
+      "crates/diskgraph-engine/src/revision_authorization.rs": "22c37be08010ba636a3c052cb36dad5db5c304117c0f947e5d274242e72c2b10",
+      "crates/diskgraph-cli/src/main.rs": "5857cd6968584c25d99c72277876100189b61db1619382743b78349b909ebac7",
+      "crates/diskgraph-cli/src/relation_reply.rs": "840f54bf3d3dbf486a15fe52d49a58cbc1a350feb5e30763d7a672389d26a4ed",
+      "crates/diskgraph-cli/tests/relation_budget.rs": "0e22d4ad73fb445018fd11afc7c6c5e55f6cecd634cf0862f0acf501114bc3d3",
+      "crates/diskgraph-mcp/src/lib.rs": "598efc0a78ff8dc0ec406a5f203c26e60c9ed2f36ffccee284f97ba5dc01414e",
+      "crates/diskgraph-mcp/src/relation_reply.rs": "305479902ea477708444ff686f09060498332ad75dd7a8ba2b0f54e4f7eaefa6",
+      "crates/diskgraph-mcp/src/relation_budget_tests.rs": "12332638bf9279609dbb97bc2dadddc94d171ddeaf248199aba3ef7a8fa9dd78",
+      "crates/diskgraph-ffi/src/lib.rs": "20f1f1cf24a8280f7070bc83672f843a364899457e448236ab690f33904ad1a2",
+      "crates/diskgraph-ffi/src/native_service.rs": "9189cb033c8887a579ef99571b91a18831724cb17ae4c8bb2acf89a6e6f86ba9",
+      "crates/diskgraph-ffi/src/native_reply.rs": "10c2d25ad8aea29d7e4f1c9123cec1ece3603e9b507aefd28f71b030086e24e1",
+      "crates/diskgraph-ffi/src/native_reply_budget_tests.rs": "0636fd7d4af5086bde30a3475365f6a9b06c8b4210e1598aebfe318c0f897ee2"
+    },
+    "sha256": "454e0b94ba9d23700036cbfd576a65e48a43e7c92ca0d265927def09a869c46b"
+  },
+  "validation": {
+    "workspace": {
+      "passed": 889,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 41
+    },
+    "strict_workspace_clippy": true,
+    "scoped_fmt": true,
+    "strict_openspec": true,
+    "unchanged_vendor_digests": 14,
+    "release_build_packages": [
+      "diskgraph-cli",
+      "diskgraph-mcp",
+      "diskgraph-ffi",
+      "diskgraph-ops"
+    ],
+    "independent_review": "final kernel and adapters CLEAR"
+  },
+  "uniffi": {
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "exact_matches": 19
+  },
+  "protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "load": {
+    "20k": {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 20000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 0.642,
+      "query_p50_ms": 6.775,
+      "query_p95_ms": 8.992,
+      "database_and_wal_bytes": 37449728,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    },
+    "200k": {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 200000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 7.37,
+      "query_p50_ms": 7.218,
+      "query_p95_ms": 9.007,
+      "database_and_wal_bytes": 377393152,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    }
+  },
+  "measurement_limits": [
+    "Physical 32-byte files in isolated temporary directories; release CLI process per query; 32 top/children queries, four concurrent clients.",
+    "Current-source acceptance measurements; no paired D23 before/after impact or relation latency comparison.",
+    "Peak RSS, cold-cache behavior and cross-platform performance SLA were not measured in this run.",
+    "Local UniFFI checksum equality does not substitute for real Swift/Kotlin native hosts.",
+    "No strict RSS or wall-clock guarantee; upstream scanner cancellation remains cooperative."
+  ]
+}

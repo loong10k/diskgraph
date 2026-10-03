@@ -23,6 +23,7 @@ mod job_kind;
 mod job_record;
 mod job_state;
 mod job_store;
+mod node_budget_query;
 mod node_codec;
 mod node_queries;
 mod node_row;
@@ -40,6 +41,9 @@ mod recovery_entry;
 mod recovery_rule;
 mod recovery_state;
 mod recovery_store;
+#[cfg(test)]
+mod relation_budget_tests;
+mod relation_page_queries;
 mod relation_queries;
 mod result;
 mod retention_store;

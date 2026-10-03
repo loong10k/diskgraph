@@ -28,6 +28,25 @@ pub(crate) struct NodeRow {
 }
 
 impl NodeRow {
+    /// 计算列借用的总长度，不先拥有 String 或解码旧 JSON。
+    /// 参数：row 为既有 16 列节点行。返回：checked 原始字段成本或列类型错误。
+    pub(crate) fn raw_bytes(row: &rusqlite::Row<'_>) -> Result<usize> {
+        let mut bytes = 0usize;
+        for column in 0..16 {
+            let length = match row.get_ref(column)? {
+                rusqlite::types::ValueRef::Null => 0,
+                rusqlite::types::ValueRef::Integer(_) | rusqlite::types::ValueRef::Real(_) => 8,
+                rusqlite::types::ValueRef::Text(value) | rusqlite::types::ValueRef::Blob(value) => {
+                    value.len()
+                }
+            };
+            bytes = bytes
+                .checked_add(length)
+                .ok_or(StoreError::BudgetExceeded)?;
+        }
+        Ok(bytes)
+    }
+
     /// 按原有列类型解码一行，非法类型向上传播，不默认为零或空字段。
     /// 参数：row 为固定节点查询的 SQLite 行；合法 NULL 仅由 Option 字段接收。
     /// 返回：完整行或 SQLite 解码错误；不在出错时构造可用节点。

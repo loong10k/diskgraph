@@ -1,7 +1,7 @@
 //! 方向与预算约束的影响遍历。
 
 use super::{ImpactEntry, ImpactResult, Propagation, impact_propagation};
-use diskgraph_core::{BudgetTracker, BusinessError, QueryBudget, Relation, TruncationReason};
+use diskgraph_core::{BusinessError, QueryBudget, Relation, TruncationReason};
 use std::collections::{HashMap, HashSet};
 
 /// 按关系方向执行有界影响遍历。
@@ -53,39 +53,87 @@ where
     E: From<BusinessError>,
     F: FnMut(&str, bool, usize) -> Result<(Vec<(String, Relation)>, bool), E>,
 {
-    let started = std::time::Instant::now();
-    let mut tracker = BudgetTracker::new(budget)?;
+    let deadline = diskgraph_core::query_deadline(budget)?;
+    impact_with_budget(start, budget, deadline, |entity, outgoing, limit, reads| {
+        let (neighbours, more) = neighbours_for(entity, outgoing, limit)?;
+        let mut page = Vec::new();
+        let mut unread = more;
+        for (neighbour, relation) in neighbours {
+            if page.len() >= limit || !reads.admit(0, 1, neighbour.len()) {
+                unread = true;
+                break;
+            }
+            page.push((neighbour, relation));
+        }
+        Ok((page, unread))
+    })
+}
+
+/// 按实际读取账本及同一期限遍历已授权邻接。
+/// 参数：start/budget/deadline 和 reader 为同一次请求。
+/// 返回：条目及截断；reader 真实错误保持原样。
+pub(crate) fn impact_with_budget<E, F>(
+    start: &str,
+    budget: QueryBudget,
+    deadline: std::time::Instant,
+    mut neighbours_for: F,
+) -> Result<ImpactResult, E>
+where
+    E: From<BusinessError>,
+    F: FnMut(
+        &str,
+        bool,
+        usize,
+        &mut diskgraph_core::QueryReadBudget,
+    ) -> Result<(Vec<(String, Relation)>, bool), E>,
+{
+    let mut reads = diskgraph_core::QueryReadBudget::new(budget, deadline)?;
     let mut seen: HashSet<(String, Relation)> = HashSet::new();
     seen.insert((start.to_owned(), Relation::Contains));
-    let mut out = Vec::new();
+    let mut answer = ImpactResult {
+        entries: Vec::new(),
+        truncated: None,
+    };
     let mut frontier = vec![start.to_owned()];
     let mut depth = 0usize;
-    while !frontier.is_empty() {
+    let response_cap = budget.max_response_bytes.saturating_sub(2048);
+    let mut response_bytes = 0usize;
+    'walk: while !frontier.is_empty() {
+        if std::time::Instant::now() >= deadline {
+            answer.truncated = Some(TruncationReason::Deadline);
+            break;
+        }
         depth += 1;
-        if !tracker.allows_depth(depth) {
+        if depth > budget.max_depth {
+            answer.truncated = Some(TruncationReason::DepthLimit);
             break;
         }
         let mut next = Vec::new();
         for entity in &frontier {
-            if started.elapsed() >= std::time::Duration::from_millis(budget.deadline_ms) {
-                return Ok(ImpactResult {
-                    entries: out,
-                    truncated: Some(TruncationReason::Deadline),
-                });
+            if std::time::Instant::now() >= deadline {
+                answer.truncated = Some(TruncationReason::Deadline);
+                break 'walk;
             }
-            let page_limit = budget
-                .max_edges
-                .saturating_sub(tracker.edges())
-                .min(budget.max_nodes.saturating_sub(tracker.nodes()))
-                .max(1);
-            let (incoming, incoming_more) = neighbours_for(entity, false, page_limit)?;
-            if started.elapsed() >= std::time::Duration::from_millis(budget.deadline_ms) {
-                return Ok(ImpactResult {
-                    entries: out,
-                    truncated: Some(TruncationReason::Deadline),
-                });
+            let limit = reads
+                .remaining_edges()
+                .min(budget.max_nodes.saturating_sub(answer.entries.len()));
+            let (incoming, incoming_more) = neighbours_for(entity, false, limit, &mut reads)?;
+            if std::time::Instant::now() >= deadline {
+                answer.truncated = Some(TruncationReason::Deadline);
+                break 'walk;
             }
-            let (outgoing, outgoing_more) = neighbours_for(entity, true, page_limit)?;
+            let limit = reads
+                .remaining_edges()
+                .min(budget.max_nodes.saturating_sub(answer.entries.len()));
+            let (outgoing, outgoing_more) = if reads.stopped().is_none() {
+                neighbours_for(entity, true, limit, &mut reads)?
+            } else {
+                (Vec::new(), true)
+            };
+            if std::time::Instant::now() >= deadline {
+                answer.truncated = Some(TruncationReason::Deadline);
+                break 'walk;
+            }
             for relation in [
                 Relation::Contains,
                 Relation::Declares,
@@ -107,42 +155,70 @@ where
                         continue;
                     }
                     for (neighbour, observed_relation) in neighbours {
+                        if std::time::Instant::now() >= deadline {
+                            answer.truncated = Some(TruncationReason::Deadline);
+                            break 'walk;
+                        }
                         if *observed_relation != relation
-                            || !seen.insert((neighbour.clone(), relation))
+                            || seen.contains(&(neighbour.clone(), relation))
                         {
                             continue;
                         }
-                        // The JSON envelope adds fixed fields around these
-                        // entries; reserve a conservative per-entry overhead.
-                        if !tracker.charge_edge()
-                            || !tracker.charge_node()
-                            || !tracker.charge_bytes(neighbour.len().saturating_add(128))
-                        {
-                            return Ok(ImpactResult {
-                                entries: out,
-                                truncated: tracker.truncated(),
+                        if answer.entries.len() >= budget.max_nodes {
+                            // 输出节点门禁独立于已解码边余额；同时耗尽保留旧 EdgeLimit 优先级。
+                            answer.truncated = Some(if reads.remaining_edges() == 0 {
+                                TruncationReason::EdgeLimit
+                            } else {
+                                TruncationReason::NodeLimit
                             });
+                            break 'walk;
                         }
-                        out.push(ImpactEntry {
+                        let entry = ImpactEntry {
                             entity_id: neighbour.clone(),
                             relation,
                             depth,
-                        });
+                        };
+                        let cost = diskgraph_core::measure_json_bounded(
+                            &entry,
+                            response_cap.saturating_sub(response_bytes),
+                        )
+                        .map_err(|_| BusinessError::InternalError)?;
+                        let Some(total) = cost
+                            .and_then(|n| response_bytes.checked_add(n))
+                            .and_then(|n| n.checked_add(1))
+                            .filter(|n| *n <= response_cap)
+                        else {
+                            answer.truncated = Some(TruncationReason::ByteLimit);
+                            break 'walk;
+                        };
+                        response_bytes = total;
+                        seen.insert((neighbour.clone(), relation));
+                        answer.entries.push(entry);
                         next.push(neighbour.clone());
                     }
                 }
             }
             if incoming_more || outgoing_more {
-                return Ok(ImpactResult {
-                    entries: out,
-                    truncated: Some(TruncationReason::EdgeLimit),
-                });
+                answer.truncated = Some(reads.stopped().unwrap_or(
+                    if answer.entries.len() >= budget.max_nodes && reads.remaining_edges() > 0 {
+                        TruncationReason::NodeLimit
+                    } else {
+                        TruncationReason::EdgeLimit
+                    },
+                ));
+                break 'walk;
             }
         }
         frontier = next;
     }
-    Ok(ImpactResult {
-        entries: out,
-        truncated: tracker.truncated(),
-    })
+    if std::time::Instant::now() >= deadline {
+        answer.truncated = Some(TruncationReason::Deadline);
+    }
+    if diskgraph_core::measure_json_bounded(&answer, budget.max_response_bytes)
+        .map_err(|_| BusinessError::InternalError)?
+        .is_none()
+    {
+        return Err(BusinessError::BudgetExceeded.into());
+    }
+    Ok(answer)
 }

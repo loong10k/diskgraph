@@ -18,6 +18,9 @@ mod policy_service;
 mod queries;
 mod relation_access;
 mod relation_queries;
+mod relation_request;
+#[cfg(test)]
+mod relation_request_tests;
 mod revision_authorization;
 mod revision_comparison;
 mod revision_growth;

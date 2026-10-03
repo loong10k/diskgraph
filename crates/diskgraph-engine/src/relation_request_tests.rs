@@ -1,0 +1,361 @@
+use crate::{Engine, EngineConfig, EngineError};
+use diskgraph_core::{
+    BusinessError, Permission, PrincipalId, QueryBudget, TruncationReason, query_deadline,
+};
+use std::cell::RefCell;
+use std::sync::{Arc, mpsc};
+use std::time::Instant;
+
+// 仅测试的读后一次性同步；不进入生产模块或 Engine 状态。
+type AfterRead = Box<dyn FnOnce(Instant)>;
+thread_local! {
+    static AFTER_READ: RefCell<Option<AfterRead>> = RefCell::new(None);
+}
+
+pub(super) fn after_read(deadline: Instant) {
+    if let Some(callback) = AFTER_READ.with(|slot| slot.borrow_mut().take()) {
+        callback(deadline);
+    }
+}
+
+fn fixture() -> (
+    tempfile::TempDir,
+    Arc<Engine>,
+    PrincipalId,
+    diskgraph_core::ScopeId,
+    diskgraph_core::ScopeId,
+    String,
+) {
+    let dir = tempfile::tempdir().unwrap();
+    for name in ["root", "other"] {
+        std::fs::create_dir(dir.path().join(name)).unwrap();
+    }
+    std::fs::write(dir.path().join("root/file"), b"payload").unwrap();
+    let engine = Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: dir.path().join("data"),
+            ..EngineConfig::default()
+        })
+        .unwrap(),
+    );
+    let principal = PrincipalId::new("terminal-reader").unwrap();
+    engine.bootstrap_local_admin(&principal).unwrap();
+    let scope = engine
+        .register_scope(
+            &dir.path().join("root"),
+            &principal,
+            &engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    let other = engine
+        .register_scope(
+            &dir.path().join("other"),
+            &principal,
+            &engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    let job = engine
+        .index_scope(&scope, &principal, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    engine.run_job(&job.job_id, "terminal-reader").unwrap();
+    let revision = engine.latest_revision(&scope).unwrap().unwrap();
+    let snapshot = engine
+        .revision_reader()
+        .unwrap()
+        .revision(&revision)
+        .unwrap()
+        .snapshot_id;
+    let entity = serde_json::json!({"entity_id":"fixture","kind":"resource","identity":"fixture","display":"fixture","source_run_id":"fixture"});
+    rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap().execute("INSERT INTO entities(snapshot_id,entity_id,kind,entity_json) VALUES (?1,'fixture','resource',?2)", rusqlite::params![snapshot,entity.to_string()]).unwrap();
+    (dir, engine, principal, scope, other, revision)
+}
+
+fn query(
+    engine: &Engine,
+    principal: &PrincipalId,
+    policy: &dyn diskgraph_core::Authorizer,
+    revision: &str,
+    kind: u8,
+    budget: QueryBudget,
+) -> Result<(), EngineError> {
+    let deadline = query_deadline(budget)?;
+    match kind {
+        0 => engine
+            .review_candidates_until(revision, 0, budget, principal, policy, deadline)
+            .map(|_| ()),
+        1 => engine
+            .revision_impact_until(revision, "fixture", budget, principal, policy, deadline)
+            .map(|_| ()),
+        2 => engine
+            .related_bounded_until(
+                revision, "fixture", None, true, None, 1, budget, principal, policy, deadline,
+            )
+            .map(|_| ()),
+        3 => engine
+            .explain_bounded_until(
+                revision, "fixture", None, 1, budget, principal, policy, deadline,
+            )
+            .map(|_| ()),
+        _ => panic!("invalid fixture query"),
+    }
+}
+
+#[test]
+fn all_relation_answers_refuse_actual_scope_revoked_after_data_read() {
+    for kind in 0..4 {
+        let (_dir, engine, principal, scope, _other, revision) = fixture();
+        let policy = engine.policy_authorizer().unwrap();
+        let callback_engine = engine.clone();
+        let callback_principal = principal.clone();
+        let callback_policy = policy.clone();
+        AFTER_READ.with(|slot| {
+            *slot.borrow_mut() = Some(Box::new(move |_| {
+                callback_engine
+                    .revoke_scope(&scope, &callback_principal, &callback_policy)
+                    .unwrap();
+            }))
+        });
+        assert!(
+            matches!(
+                query(
+                    &engine,
+                    &principal,
+                    &policy,
+                    &revision,
+                    kind,
+                    QueryBudget::default()
+                ),
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "query {kind} returned a revoked scope response"
+        );
+        assert!(
+            AFTER_READ.with(|slot| slot.borrow().is_none()),
+            "terminal synchronization was not reached"
+        );
+    }
+}
+
+#[test]
+fn all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains() {
+    for kind in 0..4 {
+        let (_dir, engine, principal, scope, other, revision) = fixture();
+        let policy = engine.policy_authorizer().unwrap();
+        let callback_engine = engine.clone();
+        let callback_principal = principal.clone();
+        AFTER_READ.with(|slot| {
+            *slot.borrow_mut() = Some(Box::new(move |_| {
+                let mut control = callback_engine.control_store().unwrap();
+                control
+                    .revoke_grant(&callback_principal, &Permission::MetadataRead, &scope)
+                    .unwrap();
+                assert_eq!(
+                    control
+                        .live_permission(&callback_principal, &Permission::MetadataRead, &other)
+                        .unwrap(),
+                    Some(true)
+                );
+            }))
+        });
+        assert!(
+            matches!(
+                query(
+                    &engine,
+                    &principal,
+                    &policy,
+                    &revision,
+                    kind,
+                    QueryBudget::default()
+                ),
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "query {kind} returned a individually revoked response"
+        );
+        assert!(AFTER_READ.with(|slot| slot.borrow().is_none()));
+    }
+}
+
+#[test]
+fn actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result() {
+    let (_dir, engine, principal, _scope, _other, revision) = fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    let (ready_tx, ready_rx) = mpsc::channel();
+    let (resume_tx, resume_rx) = mpsc::channel();
+    let worker_engine = engine.clone();
+    let worker = std::thread::spawn(move || {
+        AFTER_READ.with(|slot| {
+            *slot.borrow_mut() = Some(Box::new(move |deadline| {
+                ready_tx.send(deadline).unwrap();
+                resume_rx.recv().unwrap();
+            }))
+        });
+        worker_engine
+            .review_candidates(&revision, 0, QueryBudget::default(), &principal, &policy)
+            .unwrap()
+    });
+    let deadline = ready_rx
+        .recv_timeout(std::time::Duration::from_secs(10))
+        .unwrap();
+    let guard = engine.control_store().unwrap();
+    resume_tx.send(()).unwrap();
+    // 同步点之后确实由另一线程持有真实 control guard，直到原绝对期限过后才释放。
+    std::thread::sleep(
+        deadline.saturating_duration_since(Instant::now()) + std::time::Duration::from_millis(20),
+    );
+    drop(guard);
+    let answer = worker.join().unwrap();
+    assert!(!answer.complete);
+    assert_eq!(answer.truncated, Some(TruncationReason::Deadline));
+}
+
+#[test]
+fn an_unrepresentable_partial_still_requires_live_terminal_authorization() {
+    for kind in 0..4 {
+        let (_dir, engine, principal, scope, _other, revision) = fixture();
+        let policy = engine.policy_authorizer().unwrap();
+        let callback_engine = engine.clone();
+        let callback_principal = principal.clone();
+        let callback_policy = policy.clone();
+        AFTER_READ.with(|slot| {
+            *slot.borrow_mut() = Some(Box::new(move |_| {
+                callback_engine
+                    .revoke_scope(&scope, &callback_principal, &callback_policy)
+                    .unwrap();
+            }));
+        });
+        assert!(
+            matches!(
+                query(
+                    &engine,
+                    &principal,
+                    &policy,
+                    &revision,
+                    kind,
+                    QueryBudget {
+                        max_response_bytes: 1,
+                        ..QueryBudget::default()
+                    }
+                ),
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "query {kind} reported a budget error before checking actual revocation"
+        );
+        assert!(AFTER_READ.with(|slot| slot.borrow().is_none()));
+    }
+}
+
+#[test]
+fn the_minimum_diagnostic_must_fit_its_own_actual_json_budget() {
+    let (_dir, engine, principal, _scope, _other, revision) = fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    for kind in 0..4 {
+        assert!(
+            matches!(
+                query(
+                    &engine,
+                    &principal,
+                    &policy,
+                    &revision,
+                    kind,
+                    QueryBudget {
+                        max_response_bytes: 1,
+                        ..QueryBudget::default()
+                    }
+                ),
+                Err(EngineError::Business(BusinessError::BudgetExceeded))
+                    | Err(EngineError::Store(
+                        diskgraph_store::StoreError::BudgetExceeded
+                    ))
+            ),
+            "query {kind} returned an unrepresentable diagnostic"
+        );
+    }
+}
+
+#[test]
+fn an_independent_control_connection_can_revoke_the_scope_during_finish() {
+    let (dir, engine, principal, scope, _other, revision) = fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    let path = dir.path().join("data/diskgraph-control.sqlite");
+    rusqlite::Connection::open(&path)
+        .unwrap()
+        .execute("DELETE FROM policy", [])
+        .unwrap();
+    assert_eq!(
+        engine.control_store().unwrap().policy_state().unwrap(),
+        None
+    );
+    let mut independent = diskgraph_store::ControlStore::open(&path).unwrap();
+    let budget = QueryBudget::default();
+    let result = engine.with_relation_reader_until(
+        &revision,
+        &principal,
+        &policy,
+        query_deadline(budget).unwrap(),
+        |_, _| Ok(serde_json::json!({"complete":true})),
+        |answer, _| {
+            assert!(
+                diskgraph_core::measure_json_bounded(answer, budget.max_response_bytes)
+                    .unwrap()
+                    .is_some()
+            );
+            // 原生第二连接完成真实撤销；不得回入当前 Engine 的 control Mutex。
+            independent.revoke_scope(&scope).unwrap();
+            Ok(())
+        },
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "finish returned data after an independent connection revoked its actual scope"
+    );
+}
+
+#[test]
+fn final_envelope_authorization_refuses_revocation_during_its_authorizer_call() {
+    struct RevokeDuringDecision {
+        policy: diskgraph_core::PolicyAuthorizer,
+        independent: RefCell<diskgraph_store::ControlStore>,
+    }
+    impl diskgraph_core::Authorizer for RevokeDuringDecision {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.independent.borrow_mut().revoke_scope(scope).unwrap();
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let (dir, engine, principal, _scope, _other, revision) = fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    let path = dir.path().join("data/diskgraph-control.sqlite");
+    rusqlite::Connection::open(&path)
+        .unwrap()
+        .execute("DELETE FROM policy", [])
+        .unwrap();
+    assert_eq!(
+        engine.control_store().unwrap().policy_state().unwrap(),
+        None
+    );
+    let authorizer = RevokeDuringDecision {
+        policy,
+        independent: RefCell::new(diskgraph_store::ControlStore::open(&path).unwrap()),
+    };
+    let result = engine.finalize_revision_read_until(
+        &revision,
+        &principal,
+        &authorizer,
+        query_deadline(QueryBudget::default()).unwrap(),
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "the adapter finalizer passed a scope revoked during its authorizer call"
+    );
+}

@@ -44,6 +44,27 @@ impl Engine {
 }
 
 impl Engine {
+    /// 初次 revision 解析与授权继承整次请求期限。
+    /// 参数：expected_scope 为一致性断言，revision_id/主体/授权器为真实请求，deadline 由最外层生成。
+    /// 返回：实际 scope 或拒权/存储失败；不重新建立 SQLite 执行期限。
+    pub fn authorize_revision_until(
+        &self,
+        expected_scope: Option<&ScopeId>,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+    ) -> Result<ScopeId, EngineError> {
+        let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+        self.authorize_revision_with_reader(
+            &reader,
+            expected_scope,
+            revision_id,
+            principal,
+            authorizer,
+        )
+    }
+
     /// 复用当前 reader 解析真实归属后授权。
     /// 参数：reader、expected_scope、revision 及请求身份为上下文。
     /// 返回：真实 scope 或拒绝/存储失败。
@@ -92,6 +113,24 @@ impl Engine {
 }
 
 impl Engine {
+    /// 初次 snapshot 到 revision 归属解析沿用同一期限及 reader。
+    /// 参数：snapshot_id、请求身份和最外层 deadline；旧 snapshot 包装签名保留。
+    /// 返回：实际归属授权成功或拒权/存储失败；不把客户端 scope 当作归属。
+    pub fn authorize_snapshot_until(
+        &self,
+        snapshot_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+    ) -> Result<(), EngineError> {
+        let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+        let revision = reader
+            .revision_for_snapshot(snapshot_id)?
+            .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
+        self.authorize_revision_with_reader(&reader, None, &revision, principal, authorizer)
+            .map(|_| ())
+    }
+
     /// 共用 reader/期限执行授权读取并在返回前复检。
     /// 参数：revision、请求身份、deadline_ms 与 consumer 指定读取范围。
     /// 返回：consumer 结果或授权/存储失败；consumer 仅可读取获准快照。

@@ -45,14 +45,33 @@ impl SqliteSnapshotStore {
         deadline_ms: u64,
         cancel: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     ) -> Result<Self> {
+        let deadline = std::time::Instant::now()
+            .checked_add(std::time::Duration::from_millis(deadline_ms))
+            .ok_or_else(|| {
+                StoreError::InvalidGraph("reader deadline is not representable".into())
+            })?;
+        Self::open_reader_until(path, deadline, cancel)
+    }
+
+    /// 独立只读连接继承请求的绝对期限，打开及配置不重新计时。
+    /// 参数：path 为原生数据库路径，deadline 为首次准备前的期限，cancel 为取消标志。
+    /// 返回：只读连接或打开/配置失败；同步调用只可协作检查，不保证硬实时。
+    pub fn open_reader_until(
+        path: &Path,
+        deadline: std::time::Instant,
+        cancel: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
+    ) -> Result<Self> {
         let connection = Connection::open_with_flags(
             path,
             rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
         )?;
-        connection.busy_timeout(std::time::Duration::from_millis(deadline_ms.min(1000)))?;
+        connection.busy_timeout(
+            deadline
+                .saturating_duration_since(std::time::Instant::now())
+                .min(std::time::Duration::from_secs(1)),
+        )?;
         connection.pragma_update(None, "temp_store", "FILE")?;
         connection.pragma_update(None, "cache_size", -8192)?;
-        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(deadline_ms);
         connection.progress_handler(
             1000,
             Some(move || {

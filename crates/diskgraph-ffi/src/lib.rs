@@ -8,6 +8,7 @@ use diskgraph_store::SqliteSnapshotStore;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
+mod native_reply;
 mod native_service;
 mod native_service_error;
 pub use native_service::NativeService;
@@ -120,19 +121,21 @@ pub fn children_json(
 
 #[uniffi::export]
 pub fn explain_json(database_path: String, snapshot_id: String, node_id: u64) -> String {
-    response((|| {
-        let store = open_store(&database_path, &[&snapshot_id])?;
+    native_reply::legacy(&database_path, &snapshot_id, |store, deadline| {
+        let mut budget =
+            diskgraph_core::QueryReadBudget::new(diskgraph_core::QueryBudget::default(), deadline)
+                .map_err(|error| error.to_string())?;
         let node = store
-            .node(&snapshot_id, node_id)
+            .node_with_budget(&snapshot_id, node_id, &mut budget)
             .map_err(|error| error.to_string())?;
         let Some(node) = node else {
             return Ok(Value::Null);
         };
         let evidence = store
-            .evidence(&snapshot_id, node_id)
+            .evidence_with_budget(&snapshot_id, node_id, &mut budget)
             .map_err(|error| error.to_string())?;
         Ok(json!({ "node": node, "evidence": evidence }))
-    })())
+    })
 }
 
 /// Compares a locator in two complete, compatible snapshots.
@@ -175,13 +178,13 @@ pub fn growth_json(
 /// Returns candidates for review only, never paths to execute automatically.
 #[uniffi::export]
 pub fn candidates_json(database_path: String, snapshot_id: String, target_bytes: u64) -> String {
-    response((|| {
-        let store = open_store(&database_path, &[&snapshot_id])?;
+    native_reply::legacy(&database_path, &snapshot_id, |store, deadline| {
         let selection = store
-            .candidate_selection(
+            .candidate_selection_until(
                 &snapshot_id,
                 target_bytes,
                 diskgraph_core::QueryBudget::default(),
+                deadline,
             )
             .map_err(|error| error.to_string())?;
         if selection.truncated.is_some() {
@@ -195,7 +198,7 @@ pub fn candidates_json(database_path: String, snapshot_id: String, target_bytes:
             .map(|(node, evidence)| json!({"node":node,"evidence":evidence}))
             .collect();
         Ok(json!(candidates))
-    })())
+    })
 }
 
 fn local_principal() -> Result<diskgraph_core::PrincipalId, String> {

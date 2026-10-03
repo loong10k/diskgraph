@@ -1,0 +1,325 @@
+//! D23 真实请求预算回归，数据库与扫描根均为独占临时夹具。
+
+use diskgraph_core::{
+    Authorizer, Decision, Permission, PolicyAuthorizer, PrincipalId, QueryBudget, ScopeId,
+    TruncationReason,
+};
+use diskgraph_engine::{Engine, EngineConfig};
+use rusqlite::{Connection, params};
+use std::time::Duration;
+
+struct Fixture {
+    _directory: tempfile::TempDir,
+    engine: Engine,
+    principal: PrincipalId,
+    revision: String,
+    snapshot: String,
+    db: Connection,
+    root_id: i64,
+}
+
+impl Fixture {
+    fn new() -> Self {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("root");
+        std::fs::create_dir(&root).unwrap();
+        std::fs::write(root.join("payload"), [0; 4096]).unwrap();
+        let engine = Engine::open(EngineConfig {
+            data_dir: directory.path().join("data"),
+            ..EngineConfig::default()
+        })
+        .unwrap();
+        let principal = PrincipalId::new("request-budget").unwrap();
+        engine.bootstrap_local_admin(&principal).unwrap();
+        let policy = engine.policy_authorizer().unwrap();
+        let scope = engine.register_scope(&root, &principal, &policy).unwrap();
+        let job = engine
+            .index_scope(&scope, &principal, &engine.policy_authorizer().unwrap())
+            .unwrap();
+        engine.run_job(&job.job_id, "budget-owner").unwrap();
+        let revision = engine.latest_revision(&scope).unwrap().unwrap();
+        let snapshot = engine
+            .revision_reader()
+            .unwrap()
+            .revision(&revision)
+            .unwrap()
+            .snapshot_id;
+        let db = Connection::open(directory.path().join("data/diskgraph.sqlite")).unwrap();
+        let root_id = db
+            .query_row(
+                "SELECT id FROM nodes WHERE snapshot_id=?1 AND parent_id IS NULL",
+                [&snapshot],
+                |row| row.get(0),
+            )
+            .unwrap();
+        Self {
+            _directory: directory,
+            engine,
+            principal,
+            revision,
+            snapshot,
+            db,
+            root_id,
+        }
+    }
+
+    fn evidence(&self, subject: &str, confidence: u64) {
+        let edge = serde_json::json!({"node_id":self.root_id,"relation":"rebuildable","subject":subject,"source":"test","observed_at_unix_ms":1,"confidence":confidence});
+        self.db
+            .execute(
+                "INSERT INTO evidence(snapshot_id,node_id,evidence_json) VALUES (?1,?2,?3)",
+                params![self.snapshot, self.root_id, edge.to_string()],
+            )
+            .unwrap();
+    }
+}
+
+struct Slow(PolicyAuthorizer);
+impl Authorizer for Slow {
+    fn decide(
+        &self,
+        principal: &PrincipalId,
+        permission: &Permission,
+        scope: &ScopeId,
+    ) -> Decision {
+        std::thread::sleep(Duration::from_millis(40));
+        self.0.decide(principal, permission, scope)
+    }
+    fn policy_version(&self) -> u64 {
+        self.0.policy_version()
+    }
+}
+
+#[test]
+fn authorization_time_exhausts_empty_and_positive_candidate_requests() {
+    let f = Fixture::new();
+    f.evidence("one", 100);
+    let auth = Slow(f.engine.policy_authorizer().unwrap());
+    let observed: Vec<_> = [0, 1]
+        .into_iter()
+        .map(|target| {
+            (
+                target,
+                f.engine
+                    .review_candidates(
+                        &f.revision,
+                        target,
+                        QueryBudget {
+                            deadline_ms: 1,
+                            ..QueryBudget::default()
+                        },
+                        &f.principal,
+                        &auth,
+                    )
+                    .unwrap(),
+            )
+        })
+        .collect();
+    for (target, result) in observed {
+        assert!(!result.complete, "late target {target} was complete");
+        assert_eq!(result.truncated, Some(TruncationReason::Deadline));
+        assert_eq!(result.remaining_bytes, target);
+        assert!(result.candidates.is_empty());
+    }
+}
+
+#[test]
+fn authorization_time_exhausts_empty_impact_request() {
+    let f = Fixture::new();
+    let auth = Slow(f.engine.policy_authorizer().unwrap());
+    let result = f
+        .engine
+        .revision_impact(
+            &f.revision,
+            "absent",
+            QueryBudget {
+                deadline_ms: 1,
+                ..QueryBudget::default()
+            },
+            &f.principal,
+            &auth,
+        )
+        .unwrap();
+    assert_eq!(result.truncated, Some(TruncationReason::Deadline));
+    assert!(result.entries.is_empty());
+}
+
+#[test]
+fn candidate_required_evidence_is_atomic_under_the_edge_cap() {
+    let f = Fixture::new();
+    f.evidence("one", 100);
+    f.evidence("two", 100);
+    let result = f
+        .engine
+        .review_candidates(
+            &f.revision,
+            1,
+            QueryBudget {
+                max_edges: 1,
+                ..QueryBudget::default()
+            },
+            &f.principal,
+            &f.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    assert_eq!(result.truncated, Some(TruncationReason::EdgeLimit));
+    assert!(!result.complete);
+    assert!(result.candidates.is_empty());
+    assert_eq!((result.selected_bytes, result.remaining_bytes), (0, 1));
+}
+
+#[test]
+fn oversized_candidate_raw_evidence_is_refused_before_invalid_u8_decoding() {
+    let f = Fixture::new();
+    f.evidence(&"x".repeat(100_000), 300);
+    let result = f
+        .engine
+        .review_candidates(
+            &f.revision,
+            1,
+            QueryBudget::default(),
+            &f.principal,
+            &f.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    assert_eq!(result.truncated, Some(TruncationReason::ByteLimit));
+    assert!(result.candidates.is_empty());
+    assert_eq!((result.selected_bytes, result.remaining_bytes), (0, 1));
+}
+
+#[test]
+fn escaped_impact_data_must_fit_the_actual_json_budget() {
+    let f = Fixture::new();
+    let target = "\0".repeat(11_000);
+    let edge = serde_json::json!({"edge_id":"edge", "source_entity_id":"start", "relation":"rebuildable_by", "target_entity_id":target, "assertion_kind":"observed", "evidence_refs":[]});
+    f.db.execute("INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)", params![f.snapshot,"edge","start",target,"rebuildable_by",edge.to_string()]).unwrap();
+    let result = f
+        .engine
+        .revision_impact(
+            &f.revision,
+            "start",
+            QueryBudget::default(),
+            &f.principal,
+            &f.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    let data = serde_json::json!({"entries":result.entries.iter().map(|entry|serde_json::json!({"entity_id":entry.entity_id,"relation":entry.relation.wire_name(),"depth":entry.depth})).collect::<Vec<_>>(),"complete":result.truncated.is_none(),"truncated":result.truncated.map(|reason|reason.wire_name()),"grants_execution":false});
+    assert!(data.to_string().len() <= QueryBudget::default().max_response_bytes);
+    assert_eq!(result.truncated, Some(TruncationReason::ByteLimit));
+}
+
+#[test]
+fn decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges() {
+    let f = Fixture::new();
+    for (id, source, relation, target) in [
+        ("a", "other", "protected_by", "start"),
+        ("b", "start", "rebuildable_by", "recipe"),
+    ] {
+        let edge = serde_json::json!({"edge_id":id, "source_entity_id":source, "relation":relation, "target_entity_id":target, "assertion_kind":"observed", "evidence_refs":[]});
+        f.db.execute("INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)", params![f.snapshot,id,source,target,relation,edge.to_string()]).unwrap();
+    }
+    let result = f
+        .engine
+        .revision_impact(
+            &f.revision,
+            "start",
+            QueryBudget {
+                max_edges: 1,
+                ..QueryBudget::default()
+            },
+            &f.principal,
+            &f.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    assert!(
+        result.entries.is_empty(),
+        "a nonpropagating incoming edge must still consume its decode allowance"
+    );
+    assert_eq!(result.truncated, Some(TruncationReason::EdgeLimit));
+}
+
+#[test]
+fn two_direction_pages_cannot_exceed_a_single_output_node_slot() {
+    let f = Fixture::new();
+    for (id, source, relation, target) in [
+        ("incoming", "a", "contains", "start"),
+        ("outgoing", "start", "rebuildable_by", "b"),
+    ] {
+        let edge = serde_json::json!({"edge_id":id,"source_entity_id":source,"target_entity_id":target,"relation":relation,"assertion_kind":"observed","evidence_refs":[]});
+        f.db.execute(
+            "INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)",
+            params![f.snapshot,id,source,target,relation,edge.to_string()],
+        ).unwrap();
+    }
+    let result = f
+        .engine
+        .revision_impact(
+            &f.revision,
+            "start",
+            QueryBudget {
+                max_nodes: 1,
+                max_edges: 2,
+                ..QueryBudget::default()
+            },
+            &f.principal,
+            &f.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap();
+    assert_eq!(
+        result.entries.len(),
+        1,
+        "two already-decoded direction pages exceeded the output node cap"
+    );
+    assert_eq!(result.entries[0].entity_id, "a");
+    assert_eq!(result.truncated, Some(TruncationReason::EdgeLimit));
+}
+
+#[test]
+fn impact_keeps_its_text_contract_while_filtered_relations_keep_blob_compatibility() {
+    let f = Fixture::new();
+    let edge = serde_json::json!({"edge_id":"blob-edge","source_entity_id":"blob-start","target_entity_id":"blob-target","relation":"rebuildable_by","assertion_kind":"observed","evidence_refs":[]});
+    let bytes = serde_json::to_vec(&edge).unwrap();
+    assert!(
+        bytes.len() < 4096,
+        "this is an in-budget column type regression"
+    );
+    f.db.execute(
+        "INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,'blob-edge','blob-start','blob-target','rebuildable_by',?2)",
+        params![f.snapshot,bytes],
+    ).unwrap();
+    let policy = f.engine.policy_authorizer().unwrap();
+    let impact = f.engine.revision_impact(
+        &f.revision,
+        "blob-start",
+        QueryBudget::default(),
+        &f.principal,
+        &policy,
+    );
+    let filtered = f
+        .engine
+        .related_bounded(
+            &f.revision,
+            "blob-start",
+            None,
+            true,
+            None,
+            1,
+            &f.principal,
+            &policy,
+        )
+        .unwrap();
+    assert_eq!(
+        filtered["edges"].as_array().unwrap().len(),
+        1,
+        "the old filtered byte-reader path still accepts a JSON BLOB"
+    );
+    assert!(
+        matches!(
+            impact,
+            Err(diskgraph_engine::EngineError::Store(
+                diskgraph_store::StoreError::Sqlite(_)
+            ))
+        ),
+        "impact silently promoted a BLOB column that its old TEXT page rejects"
+    );
+}

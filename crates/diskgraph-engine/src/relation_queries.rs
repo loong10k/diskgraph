@@ -1,16 +1,18 @@
-//! 关系和解释查询共用独立只读连接，限制实际解码、证据和响应成本。
-
+//! 关系/解释读取共享原始字段账本与绝对期限，结果有限计量后实时复核授权。
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, BusinessError, PrincipalId, QueryBudget, Relation};
+use diskgraph_core::{
+    Authorizer, BusinessError, PrincipalId, QueryBudget, QueryReadBudget, Relation,
+    TruncationReason, measure_json_bounded, query_deadline,
+};
 use diskgraph_store::{SqliteSnapshotStore, StoreError};
 use serde_json::{Value, json};
 use std::collections::HashSet;
+use std::time::Instant;
 
 impl Engine {
-    /// 按真实 revision 授权读取关系页；字节、边数及期限均适用，返回继续位置。
-    #[allow(clippy::too_many_arguments)] // 保持 related 接口并增加分页位置和页大小。
-    /// 参数：revision/entity 指定对象，relation/outgoing 指定过滤，after/limit 指定页；principal/authorizer 绑定请求。
-    /// 返回：关系页 JSON 与继续/截断诊断，或授权、预算、存储错误。
+    /// 按真实 revision 授权读取默认预算关系页。
+    /// 参数：原 revision/entity/过滤/分页及请求身份。返回：关系前缀、继续位置与截断或失败。
+    #[allow(clippy::too_many_arguments)]
     pub fn related_bounded(
         &self,
         revision: &str,
@@ -22,22 +24,23 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Value, EngineError> {
-        self.relation_answer(
+        let budget = QueryBudget::default();
+        self.related_bounded_until(
             revision,
             entity,
             relation,
-            Some(outgoing),
+            outgoing,
             after,
             limit,
+            budget,
             principal,
             authorizer,
+            query_deadline(budget)?,
         )
     }
-
-    /// 有界解释一个实体，同时读取双向关系和相应证据；未知实体返回 not_found。
-    #[allow(clippy::too_many_arguments)] // 解释上下文和继续位置不可互相替代。
-    /// 参数：revision/entity 指定对象，after/limit 指定页，principal/authorizer 为请求身份。
-    /// 返回：实体、关系及证据 JSON；未知对象、预算或授权失败返回错误。
+    /// 默认预算解释实体；未知对象保持 not_found。
+    /// 参数：原 revision/entity/分页及请求身份。返回：实体与完整关系/必需证据前缀，或失败。
+    #[allow(clippy::too_many_arguments)]
     pub fn explain_bounded(
         &self,
         revision: &str,
@@ -47,164 +50,282 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Value, EngineError> {
-        self.relation_answer(
-            revision, entity, None, None, after, limit, principal, authorizer,
+        let budget = QueryBudget::default();
+        self.explain_bounded_until(
+            revision,
+            entity,
+            after,
+            limit,
+            budget,
+            principal,
+            authorizer,
+            query_deadline(budget)?,
         )
     }
-
+    /// 关系页采用最外层期限及累计读取额度。
+    /// 参数：原参数、budget 和 deadline 为一次请求，实际归属用于授权。
+    /// 返回：有界 JSON 前缀与诊断，末段撤权拒绝完整/部分数据。
     #[allow(clippy::too_many_arguments)]
-    fn relation_answer(
+    pub fn related_bounded_until(
         &self,
         revision: &str,
-        entity_id: &str,
+        entity: &str,
+        relation: Option<Relation>,
+        outgoing: bool,
+        after: Option<&str>,
+        limit: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+    ) -> Result<Value, EngineError> {
+        self.relation_answer_until(
+            revision,
+            entity,
+            relation,
+            Some(outgoing),
+            after,
+            limit,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+        )
+    }
+    /// 解释页共用最外层期限；实体、关系及实际证据读取逐项累计。
+    /// 参数：原参数、budget 和 deadline；原默认包装签名不改变。
+    /// 返回：有界 JSON、准确继续位置与诊断或真实授权/格式失败。
+    #[allow(clippy::too_many_arguments)]
+    pub fn explain_bounded_until(
+        &self,
+        revision: &str,
+        entity: &str,
+        after: Option<&str>,
+        limit: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+    ) -> Result<Value, EngineError> {
+        self.relation_answer_until(
+            revision, entity, None, None, after, limit, budget, principal, authorizer, deadline,
+        )
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn relation_answer_until(
+        &self,
+        revision: &str,
+        entity: &str,
         relation: Option<Relation>,
         direction: Option<bool>,
         after: Option<&str>,
         limit: u64,
+        budget: QueryBudget,
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
+        deadline: Instant,
     ) -> Result<Value, EngineError> {
-        let budget = QueryBudget::default();
+        budget.validated()?;
         if limit == 0 {
-            return Err(EngineError::Business(BusinessError::InvalidArgument));
+            return Err(BusinessError::InvalidArgument.into());
         }
-        let started = std::time::Instant::now();
-        let reader = SqliteSnapshotStore::open_reader(&self.graph_path, budget.deadline_ms, None)?;
-        self.authorize_revision_with_reader(&reader, None, revision, principal, authorizer)?;
-        let snapshot = reader.revision(revision)?.snapshot_id;
-        let entity = if direction.is_none() {
-            Some(
-                reader
-                    .entity_bounded(
-                        &snapshot,
-                        entity_id,
-                        budget.max_response_bytes.saturating_sub(2048),
-                    )
-                    .map_err(|error| match error {
-                        StoreError::BudgetExceeded => {
-                            EngineError::Business(BusinessError::BudgetExceeded)
-                        }
-                        other => other.into(),
-                    })?
-                    .ok_or(EngineError::Business(BusinessError::NotFound))?,
-            )
-        } else {
-            None
-        };
-        let mut remaining = budget.max_response_bytes.saturating_sub(2048);
-        if let Some(entity) = &entity {
-            let cost = serde_json::to_vec(entity).map_err(StoreError::from)?.len();
-            if cost > remaining {
-                return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        let answer = self.with_relation_reader_until(
+            revision,
+            principal,
+            authorizer,
+            deadline,
+            |reader, snapshot| {
+                relation_data(
+                    reader, snapshot, entity, relation, direction, after, limit, budget, deadline,
+                )
+            },
+            |answer, expired| {
+                if expired {
+                    answer["complete"] = json!(false);
+                    answer["truncated"] = json!("deadline");
+                }
+                if measure_json_bounded(answer, budget.max_response_bytes)
+                    .map_err(StoreError::from)?
+                    .is_none()
+                {
+                    return Err(BusinessError::BudgetExceeded.into());
+                }
+                Ok(())
+            },
+        )?;
+        Ok(answer)
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn relation_data(
+    reader: &SqliteSnapshotStore,
+    snapshot: &str,
+    entity_id: &str,
+    relation: Option<Relation>,
+    direction: Option<bool>,
+    after: Option<&str>,
+    limit: u64,
+    budget: QueryBudget,
+    deadline: Instant,
+) -> Result<Value, EngineError> {
+    let mut reads = QueryReadBudget::new(budget, deadline)?;
+    let mut entity = None;
+    let mut reason = None;
+    if direction.is_none() && reads.check() {
+        match reader.entity_with_budget(snapshot, entity_id, &mut reads) {
+            Ok(Some(value)) => entity = Some(value),
+            Ok(None) => return Err(BusinessError::NotFound.into()),
+            Err(StoreError::BudgetExceeded)
+                if reads.stopped() != Some(TruncationReason::Deadline) =>
+            {
+                return Err(BusinessError::BudgetExceeded.into());
             }
-            remaining -= cost;
+            Err(StoreError::BudgetExceeded) => reason = reads.stopped(),
+            Err(error) if error.is_interrupted() => reason = Some(TruncationReason::Deadline),
+            Err(error) => return Err(error.into()),
         }
-        let limit = limit.min(budget.max_edges as u64);
-        let mut truncated = None;
-        let candidates = match reader.edges_filtered_page(
-            &snapshot, entity_id, direction, relation, after, limit, remaining,
+    }
+    let cap = budget.max_response_bytes.saturating_sub(2048);
+    let mut encoded = match &entity {
+        Some(entity) => measure_json_bounded(entity, cap)
+            .map_err(StoreError::from)?
+            .ok_or(BusinessError::BudgetExceeded)?,
+        None => 0,
+    };
+    let limit =
+        limit.min(u64::try_from(budget.max_edges).map_err(|_| StoreError::IntegerOverflow)?);
+    let candidates = if reads.check() && reason.is_none() {
+        match reader.edges_with_budget_page(
+            snapshot, entity_id, direction, relation, after, limit, &mut reads,
         ) {
             Ok((page, more)) => {
                 if more {
-                    truncated = Some("edge_or_byte_limit");
+                    reason = Some(reads.stopped().unwrap_or(TruncationReason::EdgeLimit));
                 }
                 page
             }
-            Err(error) if error.is_interrupted() => {
-                truncated = Some("deadline");
+            Err(StoreError::BudgetExceeded) => {
+                reason = Some(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
                 Vec::new()
             }
-            Err(StoreError::BudgetExceeded) => {
-                return Err(EngineError::Business(BusinessError::BudgetExceeded));
+            Err(error) if error.is_interrupted() => {
+                reason = Some(TruncationReason::Deadline);
+                Vec::new()
             }
             Err(error) => return Err(error.into()),
+        }
+    } else {
+        Vec::new()
+    };
+    let mut edges = Vec::new();
+    let mut evidence = Vec::new();
+    let mut seen = HashSet::new();
+    let mut cursor_bytes = 0usize;
+    for edge in candidates {
+        if Instant::now() >= deadline {
+            reason = Some(TruncationReason::Deadline);
+            break;
+        }
+        let Some(mut cost) =
+            measure_json_bounded(&edge, cap.saturating_sub(encoded)).map_err(StoreError::from)?
+        else {
+            reason = Some(TruncationReason::ByteLimit);
+            break;
         };
-        let mut edges = Vec::new();
-        let mut evidence = Vec::new();
-        let mut seen = HashSet::new();
-        let mut cursor_bytes = 0usize;
-        for edge in candidates {
-            if edges.len() as u64 >= limit {
-                truncated = Some("edge_limit");
-                break;
-            }
-            if started.elapsed().as_millis() >= budget.deadline_ms as u128 {
-                truncated = Some("deadline");
-                break;
-            }
-            let mut cost = serde_json::to_vec(&edge).map_err(StoreError::from)?.len();
-            let mut records = Vec::new();
-            let mut blocked = false;
-            if direction.is_none() {
-                let mut edge_seen = HashSet::new();
-                for (id, _) in &edge.evidence_refs {
-                    if seen.contains(id) || !edge_seen.insert(id) {
-                        continue;
-                    }
-                    match reader.evidence_record_bounded(
-                        &snapshot,
-                        id,
-                        remaining.saturating_sub(cost),
-                    ) {
-                        Ok(Some(record)) => {
-                            cost = cost.saturating_add(
-                                serde_json::to_vec(&record).map_err(StoreError::from)?.len(),
-                            );
-                            records.push(record);
-                        }
-                        Ok(None) => {
-                            return Err(
-                                StoreError::InvalidGraph(format!("missing evidence {id}")).into()
-                            );
-                        }
-                        Err(StoreError::BudgetExceeded) => {
-                            truncated = Some("response_byte_limit");
+        let mut records = Vec::new();
+        let mut edge_seen = HashSet::new();
+        let mut blocked = false;
+        if direction.is_none() {
+            for (id, _) in &edge.evidence_refs {
+                if seen.contains(id) || !edge_seen.insert(id) {
+                    continue;
+                }
+                match reader.evidence_record_with_budget(snapshot, id, &mut reads) {
+                    Ok(Some(record)) => {
+                        let Some(bytes) = measure_json_bounded(
+                            &record,
+                            cap.saturating_sub(encoded).saturating_sub(cost),
+                        )
+                        .map_err(StoreError::from)?
+                        else {
+                            reason = Some(TruncationReason::ByteLimit);
                             blocked = true;
                             break;
-                        }
-                        Err(error) if error.is_interrupted() => {
-                            truncated = Some("deadline");
-                            blocked = true;
-                            break;
-                        }
-                        Err(error) => return Err(error.into()),
+                        };
+                        cost = cost
+                            .checked_add(bytes)
+                            .and_then(|n| n.checked_add(1))
+                            .ok_or(BusinessError::BudgetExceeded)?;
+                        records.push(record);
                     }
+                    Ok(None) => {
+                        return Err(
+                            StoreError::InvalidGraph(format!("missing evidence {id}")).into()
+                        );
+                    }
+                    Err(StoreError::BudgetExceeded) => {
+                        reason = Some(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
+                        blocked = true;
+                        break;
+                    }
+                    Err(error) if error.is_interrupted() => {
+                        reason = Some(TruncationReason::Deadline);
+                        blocked = true;
+                        break;
+                    }
+                    Err(error) => return Err(error.into()),
                 }
             }
-            let next_cursor_bytes = serde_json::to_vec(&edge.edge_id)
-                .map_err(StoreError::from)?
-                .len();
-            if cost.saturating_add(next_cursor_bytes) > remaining.saturating_add(cursor_bytes)
-                || blocked
-            {
-                if truncated.is_none() {
-                    truncated = Some("response_byte_limit");
-                }
-                if edges.is_empty() && truncated != Some("deadline") {
-                    return Err(EngineError::Business(BusinessError::BudgetExceeded));
-                }
-                break;
-            }
-            remaining = remaining
-                .saturating_add(cursor_bytes)
-                .saturating_sub(cost)
-                .saturating_sub(next_cursor_bytes);
-            cursor_bytes = next_cursor_bytes;
-            for record in records {
-                seen.insert(record.evidence_id.clone());
-                evidence.push(record);
-            }
-            edges.push(edge);
         }
-        let next = edges
-            .last()
-            .filter(|_| truncated.is_some())
-            .map(|edge| edge.edge_id.clone());
-        let mut answer = json!({"edges":edges,"complete":truncated.is_none(),"truncated":truncated,"next_after_edge":next});
-        if let Some(entity) = entity {
-            answer["entity"] = json!(entity);
-            answer["evidence"] = json!(evidence);
+        if blocked {
+            break;
         }
-        Ok(answer)
+        let Some(next_cursor) = measure_json_bounded(&edge.edge_id, cap.saturating_sub(encoded))
+            .map_err(StoreError::from)?
+        else {
+            reason = Some(TruncationReason::ByteLimit);
+            break;
+        };
+        let Some(total) = encoded
+            .checked_sub(cursor_bytes)
+            .and_then(|n| n.checked_add(cost))
+            .and_then(|n| n.checked_add(next_cursor))
+            .and_then(|n| n.checked_add(1))
+            .filter(|n| *n <= cap)
+        else {
+            reason = Some(TruncationReason::ByteLimit);
+            break;
+        };
+        if Instant::now() >= deadline {
+            reason = Some(TruncationReason::Deadline);
+            break;
+        }
+        encoded = total;
+        cursor_bytes = next_cursor;
+        for record in records {
+            seen.insert(record.evidence_id.clone());
+            evidence.push(record);
+        }
+        edges.push(edge);
     }
+    if Instant::now() >= deadline {
+        reason = Some(TruncationReason::Deadline);
+    }
+    let next = edges
+        .last()
+        .filter(|_| reason.is_some())
+        .map(|edge| edge.edge_id.clone());
+    let mut answer = json!({"edges":edges,"complete":reason.is_none(),"truncated":reason.map(TruncationReason::wire_name),"next_after_edge":next});
+    if direction.is_none() {
+        answer["entity"] = json!(entity);
+        answer["evidence"] = json!(evidence);
+    }
+    if measure_json_bounded(&answer, budget.max_response_bytes)
+        .map_err(StoreError::from)?
+        .is_none()
+    {
+        return Err(BusinessError::BudgetExceeded.into());
+    }
+    Ok(answer)
 }

@@ -1,4 +1,4 @@
-use crate::{JobHandle, NativeServiceError, local_principal, open_engine, response};
+use crate::{JobHandle, NativeServiceError, native_reply, open_engine};
 use diskgraph_engine::Engine;
 use diskgraph_store::SqliteSnapshotStore;
 use serde_json::{Value, json};
@@ -7,6 +7,9 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 type NativeJobs = Vec<(std::path::PathBuf, Weak<JobHandle>)>;
+#[cfg(test)]
+#[path = "native_reply_budget_tests.rs"]
+mod native_reply_budget_tests;
 
 /// 可信本地的持久原生会话：共享 Engine，每次请求重新授权，关闭时取消关联任务。
 #[derive(uniffi::Object)]
@@ -93,12 +96,21 @@ impl NativeService {
 
     /// 按节点 ID 查询；snapshot 的真实 scope 和实时数据库权限决定访问。
     pub fn node_json(&self, snapshot_id: String, node_id: u64) -> String {
-        response(self.query(&snapshot_id, |store| {
-            store
-                .node(&snapshot_id, node_id)
-                .map(|node| json!(node))
-                .map_err(|error| error.to_string())
-        }))
+        native_reply::respond(self.query_until_then(
+            &snapshot_id,
+            |store, deadline| {
+                let mut budget = diskgraph_core::QueryReadBudget::new(
+                    diskgraph_core::QueryBudget::default(),
+                    deadline,
+                )
+                .map_err(|error| error.to_string())?;
+                store
+                    .node_with_budget(&snapshot_id, node_id, &mut budget)
+                    .map(|node| json!(node))
+                    .map_err(|error| error.to_string())
+            },
+            || {},
+        ))
     }
 
     /// 按稳定顺序读取目录页，保留 offset 兼容输入，返回实际截断信息。
@@ -109,7 +121,7 @@ impl NativeService {
         offset: u64,
         limit: u32,
     ) -> String {
-        response(self.query(&snapshot_id,|store| {
+        native_reply::respond(self.query(&snapshot_id,|store| {
             let limit = crate::bounded_limit(limit)?.min(100);
             let (nodes,next,unknown) = store.children_page(&snapshot_id,parent_id,None,offset,u64::from(limit)).map_err(|error|error.to_string())?;
             let budget=diskgraph_core::QueryBudget::default().max_response_bytes.saturating_sub(2048);
@@ -130,10 +142,10 @@ impl NativeService {
 
     /// 返回有界候选及覆盖/字节缺口；结果只用于审阅，不构成文件操作授权。
     pub fn candidates_json(&self, snapshot_id: String, target_bytes: u64) -> String {
-        response(self.query(&snapshot_id,|store| {
-            let answer = store.candidate_selection(&snapshot_id,target_bytes,diskgraph_core::QueryBudget::default()).map_err(|error|error.to_string())?;
+        native_reply::respond(self.query_until_then(&snapshot_id,|store, deadline| {
+            let answer = store.candidate_selection_until(&snapshot_id,target_bytes,diskgraph_core::QueryBudget::default(), deadline).map_err(|error|error.to_string())?;
             Ok(json!({"candidates":answer.candidates.into_iter().map(|(node,evidence)|json!({"node":node,"evidence":evidence})).collect::<Vec<_>>(),"review_only":true,"complete":answer.complete,"coverage_complete":answer.coverage_complete,"truncated":answer.truncated.map(|reason|reason.wire_name()),"selected_bytes":answer.selected_bytes.to_string(),"remaining_bytes":answer.remaining_bytes.to_string()}))
-        }))
+        }, || {}))
     }
 }
 
@@ -142,7 +154,7 @@ impl NativeService {
         &self,
         snapshot: &str,
         read: impl FnOnce(&SqliteSnapshotStore) -> Result<Value, String>,
-    ) -> Result<Value, String> {
+    ) -> Result<String, String> {
         self.query_then(snapshot, read, || {})
     }
 
@@ -151,51 +163,26 @@ impl NativeService {
         snapshot: &str,
         read: impl FnOnce(&SqliteSnapshotStore) -> Result<Value, String>,
         before_reply: impl FnOnce(),
-    ) -> Result<Value, String> {
-        if self.closed.load(Ordering::SeqCst) {
-            return Err("session closed".into());
-        }
-        let principal = local_principal()?;
-        let policy = self
-            .engine
-            .policy_authorizer()
+    ) -> Result<String, String> {
+        self.query_until_then(snapshot, |store, _| read(store), before_reply)
+    }
+
+    fn query_until_then(
+        &self,
+        snapshot: &str,
+        read: impl FnOnce(&SqliteSnapshotStore, std::time::Instant) -> Result<Value, String>,
+        before_reply: impl FnOnce(),
+    ) -> Result<String, String> {
+        let deadline = diskgraph_core::query_deadline(diskgraph_core::QueryBudget::default())
             .map_err(|error| error.to_string())?;
-        self.engine
-            .authorize_snapshot(snapshot, &principal, &policy)
-            .map_err(|error| error.to_string())?;
-        let reader = self
-            .engine
-            .revision_reader_with_cancel(self.closed.clone())
-            .map_err(|error| error.to_string())?;
-        let answer = read(&reader)?;
-        if self.closed.load(Ordering::SeqCst) {
-            return Err("session closed".into());
-        }
-        // 响应返回前重新确认撤权；关闭的取消标志不依赖共享服务锁。
-        self.engine
-            .authorize_snapshot(
-                snapshot,
-                &principal,
-                &self
-                    .engine
-                    .policy_authorizer()
-                    .map_err(|error| error.to_string())?,
-            )
-            .map_err(|error| error.to_string())?;
-        if serde_json::to_vec(&answer)
-            .map_err(|error| error.to_string())?
-            .len()
-            > diskgraph_core::QueryBudget::default()
-                .max_response_bytes
-                .saturating_sub(128)
-        {
-            return Err("budget_exceeded: response bytes".into());
-        }
-        before_reply();
-        if self.closed.load(Ordering::SeqCst) {
-            return Err("session closed".into());
-        }
-        Ok(answer)
+        native_reply::query(
+            &self.engine,
+            snapshot,
+            deadline,
+            self.closed.clone(),
+            read,
+            before_reply,
+        )
     }
 }
 

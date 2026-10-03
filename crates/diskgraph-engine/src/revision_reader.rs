@@ -38,6 +38,23 @@ impl Engine {
 }
 
 impl Engine {
+    /// 创建继承整次请求期限和会话取消的可信只读连接。
+    /// 参数：cancel 为会话取消标志，deadline 在最外层首次准备前生成。
+    /// 返回：独立 reader 或打开失败；调用方负责实际资源授权，不持共享图写锁。
+    pub fn revision_reader_with_cancel_until(
+        &self,
+        cancel: Arc<AtomicBool>,
+        deadline: std::time::Instant,
+    ) -> Result<SqliteSnapshotStore, EngineError> {
+        Ok(SqliteSnapshotStore::open_reader_until(
+            &self.graph_path,
+            deadline,
+            Some(cancel),
+        )?)
+    }
+}
+
+impl Engine {
     /// 可信内部查找范围的最新 revision。
     /// 参数：scope_id 为注册范围；调用方负责请求授权。
     /// 返回：可选 revision 或注册/读取失败。
@@ -52,6 +69,22 @@ impl Engine {
 }
 
 impl Engine {
+    /// 隐式最新 revision 解析使用整次请求的 SQLite 期限。
+    /// 参数：scope_id 为真实注册范围，deadline 在首次准备前生成；调用方负责请求授权。
+    /// 返回：可选最新 revision 或范围/读取失败，保留旧查 scope、server、reader 的顺序。
+    pub fn latest_revision_until(
+        &self,
+        scope_id: &ScopeId,
+        deadline: std::time::Instant,
+    ) -> Result<Option<String>, EngineError> {
+        self.control()?.scope(scope_id)?;
+        let server = self.server_id()?;
+        Ok(
+            SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?
+                .latest_revision_for_scope(server.as_str(), scope_id.as_str())?,
+        )
+    }
+
     /// 可信内部加载完整旧图兼容结果。
     /// 参数：revision_id 为历史标识；调用方须先授权。
     /// 返回：完整 DiskGraph 或存储失败。

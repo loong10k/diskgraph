@@ -334,3 +334,14 @@ workspace Clippy严格零警告、定向fmt及独立原生helper格式、OpenSpe
 本机最终验证为39个suite共 **847 passed / 0 failed / 18 ignored**，终态exit0；显式workspace构建、严格Clippy、限定包fmt、OpenSpec strict及全部14份未变vendor摘要通过。本次仅补测试，没有声称新release/协议基准或新的生产性能变化。Q-02/08/09关系预算问题已经记为 **未实现** 的D23/15.16增量，规格不是修复证据；新SHA原生CI仍待。
 
 源码`dad0aadd3e85247121e4bc0b54420db273aa8d04`的[同源码原生CI全部22项通过](https://github.com/loong10k/diskgraph/actions/runs/37102899820)。原始日志确认三新race在Windows双Rust、LinuxARM及macOS Intel均逐项实际ok；Engine分别 **205/0/3** 与 **237/0/3**。其余Linux/macOS构建、真实语言宿主、只读包、格式、vendor和stable Clippy成功。watch曾遇网络EOF，结论来自另行查询的终态API及下载原始job日志。非作者完成边界复核CLEAR，**15.13d**完成；历史生产原语沿用此前非作者审查，不把本次窄测冒称全部原语重新审批。支持边界仍为受信Git2.46+发行包/shell及文档声明的ordinary full index/files/SHA1/SHA256、packed/linked/shallow，不支持配置明确拒绝；累计原始输入/条目 **64MiB/32k**、对象报告分配 **128MiB**、卷余量 **64MiB**、默认管道输出 **1MiB**分别计量。不承诺原子工作树、同UID完全隔离、严格RSS或空间reservation，私有复制的实测成本保留。15.13、8.7、provider和全平台父项保持开放，D23/15.16未完成。
+
+
+## 整次关系查询预算（D23 / 15.16，2026-10-03）
+
+本增量按 Q-02/08/09 共用最外层绝对期限，覆盖关系/解释/impact/候选的实际归属、准备、读取、有限 envelope 编码及最后实时授权。CLI impact 已从加载全部边改为按实体窄读，并拒绝不拥有 revision 的 scope 提示。选中节点、实体、证据和邻接 payload 在拥有/解码前对 SQLite 借用字段累计准入；查询 raw 账本和实际 JSON 编码账本独立，包含转义、键和分隔符。候选节点与完整必需证据一起提交，保留 selected/remaining、保护和重叠语义。
+
+原始业务六项、CLI 两项、MCP 首次授权等待和 FFI 终态两项已真实复现失败并完成首轮目标修复。独立预审另发现双向节点上限、NonePolicy 跨连接撤权、终态 SQL 新期限及旧 TEXT/BLOB 类型语义，补回归后修复，不把首轮冻结作为最终批准。最终内核27文件与适配器10文件的哈希已核对，均通过非作者独立复审。最终源码的本机 workspace 为 **889 passed / 0 failed / 18 ignored，41 个 suite**；严格 workspace Clippy、限定包 fmt、OpenSpec strict及14份未变vendor摘要通过。release CLI/MCP/FFI/Ops构建通过，真实stdio **18/18**、认证HTTP/legacy SSE **13/13**通过；实际执行全部 **19/19** UniFFI校验函数，其值与修改适配器前一致。公开FFI错误envelope也先真实失败：11k NUL生成66,076字节诊断；修复后错误回复有界且保留错误schema。同SHA原生CI仍待，15.16保持未完成。新增最小诊断/字节边界测试不冒称旧实现的原始 RED；测试协议断言和编译接线错误也不作为业务 RED。
+
+有限 guard 只串行本 Engine，独立控制连接仍可撤权，因此每段末检重新读取实际 scope；到期无法完成终态实际归属确认时明确失败，不能承诺任何过期请求都返回前缀。此次 raw 门禁针对上述集合，不覆盖 snapshot header、SQLite 内部 JSON/页缓存或旧可信纯内存邻接容器的输入克隆；保守 2048 字节余量可能提前截断，最终仍精确验证完整查询 envelope。64 KiB 查询结果与外层工具文本/JSON-RPC/HTTP/SSE 的 4 MiB 传输预算分别计算。同步锁/系统调用仍协作检查，没有严格墙钟或 RSS 上限；危险工具和未验收平台写能力保持关闭。
+
+[最终源码本机验收记录](benchmarks/relation_query_acceptance_2026_10_03.json)保存真实文件release负载结果：**20k**文件扫描 **0.642秒**，查询p50/p95 **6.775/8.992ms**，数据库加WAL **37,449,728字节**；**200k**扫描 **7.370秒**，查询p50/p95 **7.218/9.007ms**，数据库加WAL **377,393,152字节**。两组各 **4/4**检查通过，使用32次top/children查询、4并发客户端。这些是当前源码验收观测，没有D23关系/impact前后配对提速、峰值RSS、冷缓存或跨平台SLA的证据；此前OP15配对测量单独保留。

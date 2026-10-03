@@ -3,7 +3,7 @@ use diskgraph_core::{DiskNode, EvidenceEdge, TruncationReason};
 /// 有界候选、已选字节、缺口和完整性诊断，不代表批准。
 /// 来源：DiskGraph 原生 Rust 存储设计；无 Java 对应实现。
 /// 一次候选审阅的结果；字节缺口和截断状态不能被当成删除授权。
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize)]
 pub struct CandidateSelection {
     pub candidates: Vec<(DiskNode, Vec<EvidenceEdge>)>,
     pub selected_bytes: u64,

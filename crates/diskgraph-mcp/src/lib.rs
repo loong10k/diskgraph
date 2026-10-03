@@ -33,6 +33,9 @@ mod legacy_transport;
 pub mod protocol;
 mod rate_limit_state;
 mod rate_limiter;
+#[cfg(test)]
+mod relation_budget_tests;
+mod relation_reply;
 mod request_authorizer;
 mod request_context;
 mod sse_slot;
@@ -226,6 +229,12 @@ impl McpService {
 
     /// Executes one tool call after checking the catalog stage and permissions.
     fn call_tool(&mut self, id: &Value, params: &Value) -> Value {
+        let deadline = match diskgraph_core::query_deadline(QueryBudget::default()) {
+            Ok(deadline) => deadline,
+            Err(error) => return tool_error(id, error, &error.to_string()),
+        };
+        #[cfg(test)]
+        relation_budget_tests::request_started();
         let Some(name) = params.get("name").and_then(Value::as_str) else {
             return protocol_error(id.clone(), -32602, "tools/call requires a tool name");
         };
@@ -257,11 +266,21 @@ impl McpService {
         if let Err(message) = tool_input_schema::validate_arguments(catalog_id, &arguments) {
             return protocol_error(id.clone(), -32602, &message);
         }
-        match self.dispatch(catalog_id, &arguments) {
-            Ok(data) => success_response(
+        match self
+            .dispatch(catalog_id, &arguments, deadline)
+            .and_then(|data| {
+                if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
+                    relation_reply::finish(self, data, deadline)
+                        .map_err(|error| error.with_context(catalog_id))
+                } else {
+                    let text = data.to_string();
+                    Ok((data, text))
+                }
+            }) {
+            Ok((data, text)) => success_response(
                 id,
                 json!({
-                    "content": [{"type": "text", "text": data.to_string()}],
+                    "content": [{"type": "text", "text": text}],
                     "structuredContent": data,
                     "isError": false,
                 }),
@@ -276,8 +295,9 @@ impl McpService {
         &mut self,
         catalog_id: &str,
         arguments: &Value,
+        deadline: std::time::Instant,
     ) -> Result<Value, diskgraph_engine::ContextualEngineError> {
-        let outcome = self.dispatch_inner(catalog_id, arguments);
+        let outcome = self.dispatch_inner(catalog_id, arguments, deadline);
         match outcome {
             Ok(data) => Ok(data),
             Err(error) => Err(error.with_context(catalog_id)),
@@ -288,6 +308,7 @@ impl McpService {
         &mut self,
         catalog_id: &str,
         arguments: &Value,
+        deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
         // Relation queries carry an explicit revision. Its persisted owner,
         // rather than the caller's scope hint or default scope, is the only
@@ -311,12 +332,23 @@ impl McpService {
                         .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))
                 })
                 .transpose()?;
-            Some(self.engine.authorize_revision(
-                expected.as_ref(),
-                revision,
-                self.context.principal(),
-                &self.authorizer()?,
-            )?)
+            let authorizer = self.authorizer()?;
+            Some(if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
+                self.engine.authorize_revision_until(
+                    expected.as_ref(),
+                    revision,
+                    self.context.principal(),
+                    &authorizer,
+                    deadline,
+                )?
+            } else {
+                self.engine.authorize_revision(
+                    expected.as_ref(),
+                    revision,
+                    self.context.principal(),
+                    &authorizer,
+                )?
+            })
         } else {
             self.resolve_scope(arguments)?
         };
@@ -324,7 +356,13 @@ impl McpService {
         if matches!(catalog_id, "C08" | "C09" | "C10" | "C11" | "C12" | "C16")
             && explicit_revision.is_none()
         {
-            let revision = self.require_revision(&scope, arguments)?;
+            let revision = if catalog_id == "C16" {
+                self.engine
+                    .latest_revision_until(&self.require_scope(&scope)?, deadline)?
+                    .ok_or(EngineError::Business(BusinessError::NotIndexed))?
+            } else {
+                self.require_revision(&scope, arguments)?
+            };
             pinned_arguments["revision"] = json!(revision);
         }
         let arguments = &pinned_arguments;
@@ -366,10 +404,10 @@ impl McpService {
             "C10" => self.node_tool(&scope, arguments),
             "C11" => self.children_tool(&scope, arguments),
             "C12" => self.top_tool(&scope, arguments),
-            "C13" => self.related_tool(arguments),
-            "C14" => self.explain_tool(arguments),
-            "C15" => self.impact_tool(arguments),
-            "C16" => self.candidates_tool(&scope, arguments),
+            "C13" => self.related_tool(arguments, deadline),
+            "C14" => self.explain_tool(arguments, deadline),
+            "C15" => self.impact_tool(arguments, deadline),
+            "C16" => self.candidates_tool(&scope, arguments, deadline),
             // Any catalog entry without a handler here has not shipped; the
             // business code names that, and the wrapper adds the catalog ID.
             _ => Err(EngineError::Business(BusinessError::Unsupported)),
@@ -802,7 +840,11 @@ impl McpService {
         }))
     }
 
-    fn related_tool(&self, arguments: &Value) -> Result<Value, EngineError> {
+    fn related_tool(
+        &self,
+        arguments: &Value,
+        deadline: std::time::Instant,
+    ) -> Result<Value, EngineError> {
         let (revision, entity) = self.revision_and_entity(arguments)?;
         let relation = arguments
             .get("relation")
@@ -816,7 +858,7 @@ impl McpService {
             .and_then(Value::as_str)
             .map(|direction| direction == "outgoing")
             .unwrap_or(true);
-        self.engine.related_bounded(
+        self.engine.related_bounded_until(
             &revision,
             &entity,
             relation,
@@ -826,14 +868,20 @@ impl McpService {
                 .get("limit")
                 .and_then(Value::as_u64)
                 .unwrap_or(QueryBudget::default().max_edges as u64),
+            QueryBudget::default(),
             self.context.principal(),
             &self.authorizer()?,
+            deadline,
         )
     }
 
-    fn explain_tool(&self, arguments: &Value) -> Result<Value, EngineError> {
+    fn explain_tool(
+        &self,
+        arguments: &Value,
+        deadline: std::time::Instant,
+    ) -> Result<Value, EngineError> {
         let (revision, entity) = self.revision_and_entity(arguments)?;
-        self.engine.explain_bounded(
+        self.engine.explain_bounded_until(
             &revision,
             &entity,
             arguments.get("after_edge").and_then(Value::as_str),
@@ -841,20 +889,27 @@ impl McpService {
                 .get("limit")
                 .and_then(Value::as_u64)
                 .unwrap_or(QueryBudget::default().max_edges as u64),
+            QueryBudget::default(),
             self.context.principal(),
             &self.authorizer()?,
+            deadline,
         )
     }
 
-    fn impact_tool(&self, arguments: &Value) -> Result<Value, EngineError> {
+    fn impact_tool(
+        &self,
+        arguments: &Value,
+        deadline: std::time::Instant,
+    ) -> Result<Value, EngineError> {
         let (revision, entity) = self.revision_and_entity(arguments)?;
         let authorizer = self.authorizer()?;
-        let answer = self.engine.revision_impact(
+        let answer = self.engine.revision_impact_until(
             &revision,
             &entity,
             QueryBudget::default(),
             self.context.principal(),
             &authorizer,
+            deadline,
         )?;
         Ok(json!({
             "entries": answer.entries
@@ -876,6 +931,7 @@ impl McpService {
         &self,
         scope: &Option<ScopeId>,
         arguments: &Value,
+        deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
         let revision = self.require_revision(scope, arguments)?;
         let target = arguments
@@ -883,12 +939,13 @@ impl McpService {
             .and_then(Value::as_u64)
             .unwrap_or(0);
         let authorizer = self.authorizer()?;
-        let answer = self.engine.review_candidates(
+        let answer = self.engine.review_candidates_until(
             &revision,
             target,
             QueryBudget::default(),
             self.context.principal(),
             &authorizer,
+            deadline,
         )?;
         Ok(json!({
             "candidates": answer.candidates
@@ -1054,7 +1111,7 @@ pub fn serve_stdio<R: BufRead, W: Write, L: Write>(
 mod tests {
     use super::*;
 
-    fn service(profile: ToolProfile, label: &str) -> (McpService, tempfile::TempDir) {
+    pub(super) fn service(profile: ToolProfile, label: &str) -> (McpService, tempfile::TempDir) {
         let directory = tempfile::TempDir::with_prefix(format!("diskgraph-mcp-{label}-")).unwrap();
         let service = McpService::open(McpConfig {
             data_dir: directory.path().join("data"),
@@ -1066,7 +1123,7 @@ mod tests {
         (service, directory)
     }
 
-    fn call(service: &mut McpService, tool: &str, arguments: Value) -> Value {
+    pub(super) fn call(service: &mut McpService, tool: &str, arguments: Value) -> Value {
         let request = protocol::Request {
             id: json!(1),
             method: "tools/call".to_owned(),
@@ -1090,7 +1147,7 @@ mod tests {
         &structured(response)["data"]
     }
 
-    fn seed(service: &mut McpService, root: &std::path::Path) -> String {
+    pub(super) fn seed(service: &mut McpService, root: &std::path::Path) -> String {
         let scope_id = service
             .engine()
             .register_scope(
@@ -1111,7 +1168,7 @@ mod tests {
         scope_id.as_str().to_owned()
     }
 
-    fn cargo_project(label: &str) -> (tempfile::TempDir, std::path::PathBuf) {
+    pub(super) fn cargo_project(label: &str) -> (tempfile::TempDir, std::path::PathBuf) {
         let workspace =
             tempfile::TempDir::with_prefix(format!("diskgraph-mcp-data-{label}-")).unwrap();
         let root = workspace.path().join("project");

@@ -75,81 +75,6 @@ impl SqliteSnapshotStore {
         )
     }
 
-    /// 按方向、类型和稳定 edge_id 读取一页，解码前限制原始 JSON 总字节。
-    #[allow(clippy::too_many_arguments)] // 方向、过滤条件和两个独立预算属于一次分页请求。
-    /// 按对应邻接/实体条件读取记录，分页保持稳定排序与预算。
-    /// 参数：snapshot_id：固定快照 ID；entity_id：实体 ID；outgoing：Some(true) 查询出边、Some(false) 查询入边、None 查询双向；relation：可选关系类型过滤；after_edge_id：上页实际关系 ID，按固定 edge_id 顺序继续；limit：最大页条数；max_bytes：本页累计原始 JSON 字节预算。
-    /// 返回：(本页关系, has_more)；true 表示存在后续或因预算未读完，false 表示已读完；首条超字节预算返回 BudgetExceeded。
-    pub fn edges_filtered_page(
-        &self,
-        snapshot_id: &str,
-        entity_id: &str,
-        outgoing: Option<bool>,
-        relation: Option<diskgraph_core::Relation>,
-        after_edge_id: Option<&str>,
-        limit: u64,
-        max_bytes: usize,
-    ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool)> {
-        if limit == 0 {
-            return Err(StoreError::InvalidGraph(
-                "relation page limit must be positive".into(),
-            ));
-        }
-        // 不使用双向 OR 谓词：SQLite 可归并两个邻接索引，而无需扫整个 revision。
-        let comparison = if after_edge_id.is_some() { ">" } else { ">=" };
-        let predicate = |side: &str| {
-            format!(
-                "snapshot_id = ?1 AND {side} = ?2 AND edge_id {comparison} ?3 AND (?4 IS NULL OR relation = ?4)"
-            )
-        };
-        let sql = match outgoing {
-            Some(side) => format!(
-                "SELECT edge_json FROM relations WHERE {} ORDER BY edge_id LIMIT ?5",
-                predicate(if side {
-                    "source_entity_id"
-                } else {
-                    "target_entity_id"
-                })
-            ),
-            None => format!(
-                "SELECT edge_json,edge_id FROM relations WHERE {} UNION ALL SELECT edge_json,edge_id FROM relations WHERE {} AND source_entity_id != ?2 ORDER BY edge_id LIMIT ?5",
-                predicate("source_entity_id"),
-                predicate("target_entity_id")
-            ),
-        };
-        let mut statement = self.connection.prepare(&sql)?;
-        let mut rows = statement.query(params![
-            snapshot_id,
-            entity_id,
-            after_edge_id.unwrap_or(""),
-            relation.map(|r| r.wire_name()),
-            as_i64(limit.saturating_add(1))?
-        ])?;
-        let mut edges = Vec::new();
-        let mut bytes = 0usize;
-        while let Some(row) = rows.next()? {
-            if edges.len() as u64 >= limit {
-                return Ok((edges, true));
-            }
-            let json = row.get_ref(0)?.as_bytes().map_err(|error| {
-                rusqlite::Error::FromSqlConversionFailure(
-                    0,
-                    rusqlite::types::Type::Text,
-                    Box::new(error),
-                )
-            })?;
-            if bytes.saturating_add(json.len()) > max_bytes {
-                if edges.is_empty() {
-                    return Err(StoreError::BudgetExceeded);
-                }
-                return Ok((edges, true));
-            }
-            bytes += json.len();
-            edges.push(serde_json::from_slice(json)?);
-        }
-        Ok((edges, false))
-    }
-
     /// 单条证据仅在编码长度不超过剩余预算时解码，避免超大 provenance 分配。
     /// 读取对应证据，有界接口在解码前检查单条成本。
     /// 参数：snapshot_id：固定快照 ID；evidence_id：证据记录 ID；max_bytes：单条记录字节上限。
@@ -196,24 +121,25 @@ impl SqliteSnapshotStore {
              AND (?3 IS NULL OR edge_id > ?3) ORDER BY edge_id LIMIT ?4"
         );
         let mut statement = self.connection.prepare(&sql)?;
-        let rows = statement.query_map(
-            params![
-                snapshot_id,
-                entity_id,
-                after_edge_id,
-                as_i64(limit.saturating_add(1))?
-            ],
-            |row| row.get::<_, String>(0),
-        )?;
+        let mut rows = statement.query(params![
+            snapshot_id,
+            entity_id,
+            after_edge_id,
+            as_i64(limit.checked_add(1).ok_or(StoreError::IntegerOverflow)?)?
+        ])?;
         let mut edges = Vec::new();
         let mut more = false;
-        for row in rows {
-            let json = row?;
+        while let Some(row) = rows.next()? {
             if edges.len() as u64 == limit {
                 more = true;
                 break;
             }
-            edges.push(from_str(&json)?);
+            // 已有旧页接受 TEXT；lookahead 先判存在，不能把 JSON BLOB 静默提升为有效关系。
+            let value = row.get_ref(0)?;
+            let json = value.as_str().map_err(|error| {
+                rusqlite::Error::FromSqlConversionFailure(0, value.data_type(), Box::new(error))
+            })?;
+            edges.push(serde_json::from_str(json)?);
         }
         Ok((edges, more))
     }

@@ -1,9 +1,11 @@
 //! 有界审阅候选查询：筛选工作留在 SQLite，仅读取被选中的节点和证据。
 
 use std::collections::HashSet;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
-use diskgraph_core::{QueryBudget, TruncationReason};
+use diskgraph_core::{
+    QueryBudget, QueryReadBudget, TruncationReason, measure_json_bounded, query_deadline,
+};
 use rusqlite::{OptionalExtension, params};
 
 use crate::{CandidateSelection, Result, SqliteSnapshotStore, StoreError};
@@ -60,24 +62,38 @@ impl SqliteSnapshotStore {
         target_bytes: u64,
         budget: QueryBudget,
     ) -> Result<CandidateSelection> {
-        if budget.max_nodes == 0 || budget.max_response_bytes == 0 || budget.deadline_ms == 0 {
-            return Err(StoreError::InvalidGraph(
-                "candidate budget must be positive".into(),
-            ));
-        }
+        let deadline =
+            query_deadline(budget).map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
+        self.candidate_selection_until(snapshot_id, target_bytes, budget, deadline)
+    }
+
+    /// 共用请求期限选择候选，节点与全部必需证据整体提交。
+    /// 参数：snapshot_id/target_bytes/budget 保持旧契约，deadline 在首次准备前产生。
+    /// 返回：完整候选前缀与精确目标缺口；真实格式错误传播，预算不伪造可用候选。
+    pub fn candidate_selection_until(
+        &self,
+        snapshot_id: &str,
+        target_bytes: u64,
+        budget: QueryBudget,
+        deadline: Instant,
+    ) -> Result<CandidateSelection> {
+        let mut reads = QueryReadBudget::new(budget, deadline)
+            .map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
         let coverage_complete = self.snapshot(snapshot_id)?.coverage.complete;
         let mut result = CandidateSelection::empty(target_bytes, coverage_complete);
-        if target_bytes == 0 || !coverage_complete {
-            return Ok(result);
+        if !reads.check() {
+            result.stop(TruncationReason::Deadline);
+            return bounded_selection(result, budget);
         }
-
-        let deadline = Instant::now() + Duration::from_millis(budget.deadline_ms);
+        if target_bytes == 0 || !coverage_complete {
+            return bounded_selection(result, budget);
+        }
         let mut statement = self.connection.prepare(CANDIDATE_SQL)?;
         let mut rows = match statement.query([snapshot_id]) {
             Ok(rows) => rows,
             Err(error) if interrupted(&error) => {
                 result.stop(TruncationReason::Deadline);
-                return Ok(result);
+                return bounded_selection(result, budget);
             }
             Err(error) => return Err(error.into()),
         };
@@ -86,10 +102,11 @@ impl SqliteSnapshotStore {
             .prepare("SELECT parent_id FROM nodes WHERE snapshot_id = ?1 AND id = ?2")?;
         let mut selected = HashSet::new();
         let mut selected_lineage = HashSet::new();
-        let mut response_bytes = 0_usize;
-
+        // 预留诊断/envelope，末段仍对实际 typed 数据精确计量。raw 账本独立。
+        let response_cap = budget.max_response_bytes.saturating_sub(2048);
+        let mut response_bytes = 0usize;
         loop {
-            if Instant::now() >= deadline {
+            if !reads.check() {
                 result.stop(TruncationReason::Deadline);
                 break;
             }
@@ -102,28 +119,38 @@ impl SqliteSnapshotStore {
                 }
                 Err(error) => return Err(error.into()),
             };
+            if !reads.admit(0, 0, 24) {
+                result.stop(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
+                break;
+            }
             let id =
                 u64::try_from(row.get::<_, i64>(0)?).map_err(|_| StoreError::IntegerOverflow)?;
             let mut parent = row.get::<_, Option<i64>>(1)?;
             let bytes =
                 u64::try_from(row.get::<_, i64>(2)?).map_err(|_| StoreError::IntegerOverflow)?;
-
-            // A selected descendant or ancestor makes this directory overlap.
             if selected_lineage.contains(&id) {
                 continue;
             }
             let mut lineage = Vec::new();
+            let mut visited = HashSet::new();
             let mut overlaps = false;
             while let Some(parent_id) = parent {
-                if Instant::now() >= deadline {
+                if !reads.check() {
                     result.stop(TruncationReason::Deadline);
-                    return Ok(result);
+                    return bounded_selection(result, budget);
                 }
                 let parent_id_u64 =
                     u64::try_from(parent_id).map_err(|_| StoreError::IntegerOverflow)?;
+                if !visited.insert(parent_id_u64) {
+                    return Err(StoreError::InvalidGraph("candidate parent cycle".into()));
+                }
                 if selected.contains(&parent_id_u64) {
                     overlaps = true;
                     break;
+                }
+                if !reads.admit(0, 0, 16) {
+                    result.stop(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
+                    return bounded_selection(result, budget);
                 }
                 lineage.push(parent_id_u64);
                 parent = match parent_statement
@@ -138,7 +165,7 @@ impl SqliteSnapshotStore {
                     }
                     Err(error) if interrupted(&error) => {
                         result.stop(TruncationReason::Deadline);
-                        return Ok(result);
+                        return bounded_selection(result, budget);
                     }
                     Err(error) => return Err(error.into()),
                 };
@@ -146,38 +173,59 @@ impl SqliteSnapshotStore {
             if overlaps {
                 continue;
             }
-            if result.candidates.len() >= budget.max_nodes {
-                result.stop(TruncationReason::NodeLimit);
-                break;
-            }
-            let node = match self.node(snapshot_id, id) {
+            let node = match self.node_with_budget(snapshot_id, id, &mut reads) {
                 Ok(Some(node)) => node,
                 Ok(None) => {
                     return Err(StoreError::InvalidGraph("candidate node is missing".into()));
                 }
+                Err(StoreError::BudgetExceeded) => {
+                    result.stop(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
+                    break;
+                }
                 Err(error) if error.is_interrupted() => {
                     result.stop(TruncationReason::Deadline);
                     break;
                 }
                 Err(error) => return Err(error),
             };
-            let evidence = match self.evidence(snapshot_id, id) {
+            let evidence = match self.evidence_with_budget(snapshot_id, id, &mut reads) {
                 Ok(evidence) => evidence,
+                Err(StoreError::BudgetExceeded) => {
+                    result.stop(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
+                    break;
+                }
                 Err(error) if error.is_interrupted() => {
                     result.stop(TruncationReason::Deadline);
                     break;
                 }
                 Err(error) => return Err(error),
             };
-            let charge = serde_json::to_vec(&(&node, &evidence))?
-                .len()
-                .saturating_add(128);
-            if response_bytes.saturating_add(charge) > budget.max_response_bytes {
+            let Some(charge) = measure_json_bounded(
+                &(&node, &evidence),
+                response_cap.saturating_sub(response_bytes),
+            )?
+            else {
                 result.stop(TruncationReason::ByteLimit);
                 break;
+            };
+            // 只有完整节点及必需证据准入成功才更新选择与空间目标，逗号按实际逐项预留。
+            let Some(total) = response_bytes
+                .checked_add(charge)
+                .and_then(|n| n.checked_add(1))
+                .filter(|n| *n <= response_cap)
+            else {
+                result.stop(TruncationReason::ByteLimit);
+                break;
+            };
+            if !reads.check() {
+                result.stop(TruncationReason::Deadline);
+                break;
             }
-            response_bytes += charge;
-            result.selected_bytes = result.selected_bytes.saturating_add(bytes);
+            response_bytes = total;
+            result.selected_bytes = result
+                .selected_bytes
+                .checked_add(bytes)
+                .ok_or(StoreError::IntegerOverflow)?;
             result.remaining_bytes = target_bytes.saturating_sub(result.selected_bytes);
             result.candidates.push((node, evidence));
             selected.insert(id);
@@ -187,6 +235,19 @@ impl SqliteSnapshotStore {
                 break;
             }
         }
-        Ok(result)
+        if !reads.check() && reads.stopped() == Some(TruncationReason::Deadline) {
+            result.stop(TruncationReason::Deadline);
+        }
+        bounded_selection(result, budget)
     }
+}
+
+fn bounded_selection(
+    result: CandidateSelection,
+    budget: QueryBudget,
+) -> Result<CandidateSelection> {
+    if measure_json_bounded(&result, budget.max_response_bytes)?.is_none() {
+        return Err(StoreError::BudgetExceeded);
+    }
+    Ok(result)
 }

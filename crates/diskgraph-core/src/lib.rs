@@ -11,11 +11,16 @@ mod envelope;
 mod errors;
 mod freshness;
 mod ids;
+mod json_size_writer;
 mod locator;
 mod model;
 mod permissions;
 mod ports;
 mod query;
+#[cfg(test)]
+mod query_budget_tests;
+mod query_deadline;
+mod query_read_budget;
 mod scan;
 pub mod syncplan;
 pub mod treemap;
@@ -35,6 +40,7 @@ pub use envelope::{API_VERSION, Envelope, EnvelopeError};
 pub use errors::BusinessError;
 pub use freshness::{FingerprintMap, FingerprintSource, Freshness, classify, edge_freshness};
 pub use ids::{InvalidId, PrincipalId, ResourceRef, RevisionId, ScopeId, ServerId};
+pub use json_size_writer::measure_json_bounded;
 pub use locator::{Locator, LocatorDecodeError, LocatorKind};
 pub use model::{
     DiskGraph, DiskNode, DiskSnapshot, EvidenceEdge, EvidenceRelation, FileIdentity, NodeKind,
@@ -53,6 +59,8 @@ pub use query::{
     Candidate, Change, Changes, ChildListing, Growth, Incompatibility, NodeExplanation, Page,
     SizeFilter, TreeNode, TreeRenderError, TreeView, render_tree, render_tree_rows,
 };
+pub use query_deadline::query_deadline;
+pub use query_read_budget::QueryReadBudget;
 pub use scan::{
     BudgetDecision, BudgetFault, BudgetUsage, CapacityReading, ExcludedPath, ExclusionReason,
     PlaceholderPolicy, RescanComparison, ScanBudget, ScanBudgetStop, ScanExclusions, ScanWindow,
