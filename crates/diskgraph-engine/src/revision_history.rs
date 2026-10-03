@@ -3,7 +3,7 @@
 use crate::{Engine, EngineError, RevisionGrowth};
 use diskgraph_core::{
     Authorizer, BusinessError, DiskSnapshot, PrincipalId, QueryBudget, QueryReadBudget,
-    measure_json_bounded, query_deadline,
+    comparable_growth_delta, measure_json_bounded, query_deadline,
 };
 use diskgraph_store::{SqliteSnapshotStore, StoreError};
 use std::path::Path;
@@ -12,7 +12,7 @@ use std::time::Instant;
 impl Engine {
     /// 可信读取可比较历史中同一路径的增长。
     /// 参数：before/after revision 与 relative 须由调用方先授权。
-    /// 返回：可选前后节点；不兼容或缺一侧时 None，准备计入默认期限。
+    /// 返回：可比较的前后节点；不兼容、缺一侧、类型不同或大小未知/读取失败时 None，准备计入默认期限。
     pub fn growth_between(
         &self,
         before: &str,
@@ -95,8 +95,11 @@ impl Engine {
         ) else {
             return Ok(None);
         };
+        let Some(delta_bytes) = comparable_growth_delta(&before, &after) else {
+            return Ok(None);
+        };
         Ok(Some(RevisionGrowth {
-            delta_bytes: i128::from(after.subtree_bytes) - i128::from(before.subtree_bytes),
+            delta_bytes,
             before,
             after,
         }))
@@ -197,8 +200,24 @@ impl Engine {
             budget,
             &mut ledger,
         )?;
+        // 类型替换与未知大小不能贡献数值增长；目录 Contents 仍可携带有效大小变化。
+        let size_changed = report
+            .rows
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.verdict,
+                    diskgraph_core::Verdict::Different {
+                        reason: diskgraph_core::DifferentReason::Size
+                            | diskgraph_core::DifferentReason::Contents
+                    }
+                ) && row.left_bytes.is_some()
+                    && row.right_bytes.is_some()
+                    && row.left_bytes != row.right_bytes
+            })
+            .count();
         Ok(
-            serde_json::json!({"incompatible":null,"added":report.summary.right_only,"removed":report.summary.left_only,"size_changed":report.rows.iter().filter(|row|row.left_bytes.is_some()&&row.right_bytes.is_some()&&row.left_bytes!=row.right_bytes).count(),"complete":report.truncated.is_none(),"summary_is_partial":report.truncated.is_some(),"truncation_reason":report.truncated}),
+            serde_json::json!({"incompatible":null,"added":report.summary.right_only,"removed":report.summary.left_only,"size_changed":size_changed,"complete":report.truncated.is_none(),"summary_is_partial":report.truncated.is_some(),"truncation_reason":report.truncated}),
         )
     }
 }

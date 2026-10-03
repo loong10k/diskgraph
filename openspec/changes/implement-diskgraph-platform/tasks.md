@@ -54,7 +54,7 @@
 - [x] 3.6 交付 C04 status、C10 node、C11 children 和 C12 top，覆盖口径、排序、过滤、分页及未扫描/未知大小显示。（Q-01、Q-02、Q-06）
 - [x] 3.7 交付 C08 explore、C09 search，返回限定范围的目录/关系摘要和可继续查询的 ID；测试名称歧义和无匹配结果。（Q-03）
 - [x] 3.8 交付 C13 related、C14 explain、C15 impact，验证关系专属影响传播和保护后代解释，避免无界图展开。（Q-01、Q-05）
-- [x] 3.9 交付 C06 changes、C07 growth，测试同卷可比、换卷、扫描选项不同、partial 覆盖及未知大小；不默认推断重命名。（Q-04）
+- [ ] 3.9 交付 C06 changes、C07 growth，测试同卷可比、换卷、扫描选项不同、partial 覆盖及未知大小；不默认推断重命名。（Q-04） D33复审复现节点未知/读取失败和类型替换错误：新增Core11、Engine9、FFI5真实回归及共同资格修复，本机与独立复审通过后仍需同源码原生CI；未完成前重新开放本项。
 - [x] 3.10 交付 C16 candidates，覆盖 eligible_for_review/blocked/unknown、目标不足、父子重叠和共享块；候选不产生批准。（Q-05）
 - [x] 3.11 实现统一返回 envelope、深度/节点/边/字节/时间预算和游标校验；测试 UTF-8 边界截断、过期 revision 及跨授权复用游标。（Q-02、Q-07）
 - [x] 3.12 实现 CLI JSON stdout、stderr 进度、稳定退出码和适用公共参数；为 C01–C16 加帮助与集成测试，未实现命令返回明确 unsupported。（CMD-01、CMD-02）

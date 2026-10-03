@@ -338,3 +338,10 @@ WindowsNativeScanRoot 在上游walk前逐组件取得drive到注册root的属性
 schema12在staging/nodes同一行加nullable native_observation_format/raw/gap，独立native_observation_writer_generation=12，保留count9/collector10/locator11。完整record与gap互斥，历史全null为未捕获；迁移不回填。新可信append与cost接口保留旧签名，包含实际BLOB/标签成本；INSERT SELECT/清理/fence/项目批次/latest保持原子。PK窄读先借用准入，未知、损坏、未捕获分别表达；Engine包装只读actual revision/node并首末实时授权。不接新UniFFI字段、不据此声称历史同对象/同内容或开启写能力。
 
 先记录旧schema/持久化缺失真实RED，再测高位ID/volume、同秒不同ticks、固定codec损坏、旧结构literal consumer、v11备份与旧writer、原生hardlink/replacement、root/parent/junction负控、取消/撤权/失效fence、20k/200k窄读与最终同源码Windows NTFS。ReFS高128真实值、SMB/云provider、上游walk边界及移动/写/宿主仍独立开放。
+
+
+### D33 历史节点大小的共同资格判断
+
+沿用 Q-04/06/08：快照头可比不代表每个节点尺寸已观察。Core 提供无状态纯函数，共同判断 size_known、read_error 和同 kind 的有符号尺寸差；Core growth/changes、Engine 窄读增长和比较行共用判断，旧 FFI growth 通过既有 Core 调用继承行为。比较先拒绝未知/读取失败事实，再检查准确 kind 与目录聚合，使用现有 UnknownSize/Path verdict，不添加文件ID或根相等条件到跨根元数据比较。CompareRow 保留字段，未知尺寸编码 null；变化统计不能把 unknown 或类型替换计作 size_changed。保持默认预算、SQLite 读量、授权末检、终态错误与 UniFFI 校验值。
+
+先用真实公共 API 复现双方 unknown/read_error、未知目录提前 Same、同路径类型替换及错误统计，再实施共享判断。当前 Core query/compare 超过项目单文件限制，涉及对象/测试提取时保留现有根导出与 compare 公共路径，真实对象分文件，入口明确导出，不使用兼容壳或 include。该批不声称解决 Windows 历史永久身份、实时正文绑定快照、不同scope兼容性、provider、写操作或移动设备验收；这些仍须按原父项闭合。

@@ -4,7 +4,7 @@ use crate::native_locator::native_path;
 use crate::{CompareRow, ComparisonReport, Engine, EngineError};
 use diskgraph_core::{
     Authorizer, BusinessError, PrincipalId, QueryBudget, QueryReadBudget, TruncationReason,
-    measure_json_bounded, query_deadline,
+    measure_json_bounded, observed_node_size, query_deadline,
 };
 use diskgraph_store::{SqliteSnapshotStore, StoreError};
 use std::time::Instant;
@@ -208,8 +208,12 @@ impl Engine {
                     let row = CompareRow {
                         path: source.0.clone(),
                         verdict,
-                        left_bytes: on_left.as_ref().map(|node| node.1.subtree_bytes),
-                        right_bytes: on_right.as_ref().map(|node| node.1.subtree_bytes),
+                        left_bytes: on_left
+                            .as_ref()
+                            .and_then(|node| observed_node_size(&node.1)),
+                        right_bytes: on_right
+                            .as_ref()
+                            .and_then(|node| observed_node_size(&node.1)),
                         is_file: source.1.kind == diskgraph_core::NodeKind::File,
                         digests: None,
                     };

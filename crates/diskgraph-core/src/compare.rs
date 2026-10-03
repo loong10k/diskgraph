@@ -14,109 +14,20 @@
 //! identical because its bytes were compared, and a caller that has to
 //! decide whether to re-copy a file needs to know which one it got.
 
+use crate::{DiskNode, ResourceLocator, observed_node_size};
 use std::collections::HashMap;
 
-use crate::model::{DiskNode, ResourceLocator};
+mod comparison;
+mod different_reason;
+mod evidence;
+mod summary;
+mod verdict;
 
-/// How thoroughly two entries were compared.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum Evidence {
-    /// The path exists on one side only. No test ran.
-    Presence,
-    /// Size and modification time were compared; contents were not read.
-    Metadata,
-    /// Contents were read and compared byte for byte.
-    Content,
-}
-
-/// What is true of one path across two trees.
-#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
-#[serde(tag = "status", rename_all = "kebab-case")]
-pub enum Verdict {
-    /// Present on the comparison's left - the `--from` side - and absent
-    /// from its right. Named for the side rather than for the parameter,
-    /// because the comparison is a fact about two trees and only the caller
-    /// knows which one it called "from".
-    #[serde(rename = "from-only")]
-    LeftOnly,
-    /// Present on the comparison's right - the `--to` side - and absent from
-    /// its left.
-    #[serde(rename = "to-only")]
-    RightOnly,
-    /// Present on both, and not the same.
-    Different {
-        /// The first test that separated them, most specific first.
-        reason: DifferentReason,
-    },
-    /// Present on both, and the same to the depth tested.
-    Same { evidence: Evidence },
-}
-
-impl Verdict {
-    /// Whether the two sides disagree, in the sense a caller cares about:
-    /// something would have to be copied or removed.
-    pub fn is_difference(&self) -> bool {
-        !matches!(self, Verdict::Same { .. })
-    }
-
-    /// The deepest test that was actually run for this verdict.
-    pub fn evidence(&self) -> Evidence {
-        match self {
-            Verdict::LeftOnly | Verdict::RightOnly => Evidence::Presence,
-            Verdict::Different { .. } | Verdict::Same { .. } => Evidence::Metadata,
-        }
-    }
-}
-
-/// Why two entries that both exist still differ.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum DifferentReason {
-    /// Different bytes, or different size with contents not read.
-    Content,
-    /// Same content length, different bytes.
-    Size,
-    /// The same bytes, but a different modification time.
-    Timestamp,
-    /// The same file, reached by two different paths.
-    Path,
-    /// One side reported a size the other did not.
-    UnknownSize,
-    /// A directory whose children disagree; the directory itself may match.
-    Contents,
-}
-
-/// One path's worth of comparison.
-#[derive(Clone, Debug, serde::Serialize)]
-pub struct Comparison<'a> {
-    /// The path relative to the compared root, in display form.
-    pub path: String,
-    pub verdict: Verdict,
-    pub left: Option<&'a DiskNode>,
-    pub right: Option<&'a DiskNode>,
-}
-
-/// Counts per verdict, so a caller can report a shape without walking the
-/// whole list.
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize)]
-pub struct Summary {
-    pub left_only: u64,
-    pub right_only: u64,
-    pub different: u64,
-    pub same: u64,
-    /// Entries skipped because one side could not report a size.
-    pub unknown: u64,
-    /// Entries not visited because the caller bounded the depth.
-    pub skipped: u64,
-}
-
-impl Summary {
-    /// Paths that would have to be copied or removed to make the trees match.
-    pub fn actionable(&self) -> u64 {
-        self.left_only + self.right_only + self.different
-    }
-}
+pub use comparison::Comparison;
+pub use different_reason::DifferentReason;
+pub use evidence::Evidence;
+pub use summary::Summary;
+pub use verdict::Verdict;
 
 /// Compares two trees that share a root prefix, entry by entry.
 ///
@@ -124,6 +35,9 @@ impl Summary {
 /// at `src/lib.rs` on one side is matched against `src/lib.rs` on the other
 /// and a directory that only exists on one side is reported as such instead of
 /// being compared entry by entry against nothing.
+/// 允许不同根的相对路径对齐；只比较已观察元数据，不要求两个文件身份相同。
+/// 参数：left_root/left 与 right_root/right 为两侧根及节点，tolerance_seconds 为时间容忍秒数。
+/// 返回：逐路径判定及汇总，单侧存在按对应侧报告，未知尺寸单独计数。
 pub fn compare<'a>(
     left_root: &DiskNode,
     left: &'a [DiskNode],
@@ -178,8 +92,20 @@ pub fn compare<'a>(
 }
 
 /// 比较两侧同一路径的单个节点，返回元数据证据支持的判定。
-/// tolerance_seconds 指定时间差容忍值；缺失时间不推断差异。
+/// 参数：left/right 为两侧节点，tolerance_seconds 为时间差容忍秒数；缺失时间不推断差异。
+/// 返回：未知优先于类型差异，然后检查目录聚合、大小及时间的元数据判定。
 pub fn compare_entry(left: &DiskNode, right: &DiskNode, tolerance_seconds: i64) -> Verdict {
+    // 未观察到的尺寸优先于类型和目录聚合，不能用占位数字推断差异或相同。
+    if observed_node_size(left).is_none() || observed_node_size(right).is_none() {
+        return Verdict::Different {
+            reason: DifferentReason::UnknownSize,
+        };
+    }
+    if left.kind != right.kind {
+        return Verdict::Different {
+            reason: DifferentReason::Path,
+        };
+    }
     // A directory's own size and timestamp say nothing about whether its
     // contents match - they move whenever anything under them is touched, and
     // a restored tree keeps its directory timestamps. A directory is compared
@@ -197,19 +123,6 @@ pub fn compare_entry(left: &DiskNode, right: &DiskNode, tolerance_seconds: i64) 
             Verdict::Different {
                 reason: DifferentReason::Contents,
             }
-        };
-    }
-    if is_directory(left) != is_directory(right) {
-        return Verdict::Different {
-            reason: DifferentReason::Path,
-        };
-    }
-    // A size either side could not report is unknown, not different. Reporting
-    // it as a difference would send a caller to re-copy a file that may be
-    // byte-identical and simply unreadable.
-    if !left.size_known || !right.size_known {
-        return Verdict::Different {
-            reason: DifferentReason::UnknownSize,
         };
     }
     if left.subtree_bytes != right.subtree_bytes {
@@ -278,6 +191,8 @@ fn locator_path(locator: &ResourceLocator) -> String {
 /// A directory whose only child changed is a directory that changed, and a
 /// caller asking "did this tree change" wants that said about the top of the
 /// tree rather than only about leaves.
+/// 子项未知优先于普通差异，单侧子项表示目录内容变化，不能声称其余子项相同。
+/// 参数：verdicts 为已比较的子项判定；返回：目录的元数据汇总判定。
 pub fn roll_up(verdicts: &[Verdict]) -> Verdict {
     let mut differing = 0_u64;
     let mut on_left_only = 0_u64;
@@ -314,285 +229,5 @@ pub fn roll_up(verdicts: &[Verdict]) -> Verdict {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::model::{FileIdentity, NodeKind};
-
-    fn node(id: u64, parent: Option<u64>, path: &str, bytes: u64, mtime: Option<i64>) -> DiskNode {
-        DiskNode {
-            id,
-            parent_id: parent,
-            locator: ResourceLocator::NativePath(path.to_owned()),
-            name: path.rsplit('/').next().unwrap_or(path).to_owned(),
-            kind: NodeKind::File,
-            subtree_bytes: bytes,
-            direct_bytes: bytes,
-            size_known: true,
-            files: 1,
-            directories: 0,
-            modified_unix_seconds: mtime,
-            file_identity: Some(FileIdentity {
-                volume_id: "v".into(),
-                file_id: id,
-            }),
-            category_hint: None,
-            reclaim_hint: None,
-            read_error: false,
-        }
-    }
-
-    fn dir(id: u64, parent: Option<u64>, path: &str, files: u64, bytes: u64) -> DiskNode {
-        DiskNode {
-            kind: NodeKind::Directory,
-            direct_bytes: 0,
-            files,
-            directories: 1,
-            ..node(id, parent, path, bytes, Some(1_000))
-        }
-    }
-
-    fn sides() -> (DiskNode, Vec<DiskNode>, DiskNode, Vec<DiskNode>) {
-        // Two different roots, same relative paths: this is the case the
-        // whole module exists for, and the one `changes` refuses.
-        let left_root = dir(1, None, "/build/release", 3, 3_000);
-        let left = vec![
-            dir(1, None, "/build/release", 3, 3_000),
-            node(2, Some(1), "/build/release/same.bin", 1_000, Some(500)),
-            node(3, Some(1), "/build/release/newer.bin", 1_000, Some(900)),
-            node(4, Some(1), "/build/release/grown.bin", 1_000, Some(500)),
-            node(5, Some(1), "/build/release/only-left.bin", 100, Some(500)),
-        ];
-        let right_root = dir(1, None, "/src/worktree", 3, 2_000);
-        let right = vec![
-            dir(1, None, "/src/worktree", 3, 2_000),
-            node(2, Some(1), "/src/worktree/same.bin", 1_000, Some(500)),
-            node(3, Some(1), "/src/worktree/newer.bin", 1_000, Some(500)),
-            node(4, Some(1), "/src/worktree/grown.bin", 2_000, Some(500)),
-            node(6, Some(1), "/src/worktree/only-right.bin", 100, Some(500)),
-        ];
-        (left_root, left, right_root, right)
-    }
-
-    #[test]
-    fn two_different_roots_compare_by_relative_path() {
-        let (left_root, left, right_root, right) = sides();
-        let (rows, summary) = compare(&left_root, &left, &right_root, &right, 1);
-        let find = |name: &str| {
-            rows.iter()
-                .find(|row| row.path == name)
-                .map(|row| row.verdict.clone())
-                .unwrap_or_else(|| panic!("{name} is missing"))
-        };
-        assert_eq!(
-            find("same.bin"),
-            Verdict::Same {
-                evidence: Evidence::Metadata
-            }
-        );
-        assert_eq!(
-            find("only-left.bin"),
-            Verdict::LeftOnly,
-            "a path absent on one side is a presence fact, not a difference"
-        );
-        assert_eq!(find("only-right.bin"), Verdict::RightOnly);
-        assert_eq!(
-            find("grown.bin"),
-            Verdict::Different {
-                reason: DifferentReason::Size
-            }
-        );
-        assert_eq!(
-            find("newer.bin"),
-            Verdict::Different {
-                reason: DifferentReason::Timestamp
-            }
-        );
-        assert_eq!(summary.same, 1);
-        assert_eq!(summary.different, 2);
-        assert_eq!(summary.left_only, 1);
-        assert_eq!(summary.right_only, 1);
-        assert_eq!(summary.actionable(), 4);
-    }
-
-    #[test]
-    fn a_timestamp_within_tolerance_is_the_same_file() {
-        let (left_root, left, right_root, right) = sides();
-        // One second of clock skew between two machines must not turn every
-        // file into a difference.
-        let mut right = right;
-        if let Some(entry) = right.iter_mut().find(|node| node.name == "same.bin") {
-            entry.modified_unix_seconds = Some(501);
-        }
-        let (rows, _) = compare(&left_root, &left, &right_root, &right, 2);
-        let same = rows
-            .iter()
-            .find(|row| row.path == "same.bin")
-            .expect("row present");
-        assert_eq!(
-            same.verdict,
-            Verdict::Same {
-                evidence: Evidence::Metadata
-            }
-        );
-    }
-
-    #[test]
-    fn an_unreadable_side_is_unknown_rather_than_different() {
-        let left_root = dir(1, None, "/a", 1, 1_000);
-        let left = vec![
-            dir(1, None, "/a", 1, 1_000),
-            node(2, Some(1), "/a/x", 10, Some(1)),
-        ];
-        let right_root = dir(1, None, "/b", 1, 1_000);
-        let mut unreadable = node(2, Some(1), "/b/x", 0, None);
-        unreadable.size_known = false;
-        unreadable.read_error = true;
-        let right = vec![dir(1, None, "/b", 1, 1_000), unreadable];
-        let (rows, summary) = compare(&left_root, &left, &right_root, &right, 0);
-        let row = rows
-            .iter()
-            .find(|row| row.path == "x")
-            .expect("row present");
-        assert_eq!(
-            row.verdict,
-            Verdict::Different {
-                reason: DifferentReason::UnknownSize
-            },
-            "a size nobody could read is not evidence of a difference"
-        );
-        assert_eq!(summary.unknown, 1);
-    }
-
-    #[test]
-    fn a_directory_is_judged_by_what_it_holds_not_by_its_own_timestamp() {
-        let left_root = dir(1, None, "/a", 2, 2_000);
-        let left = vec![
-            dir(1, None, "/a", 2, 2_000),
-            node(2, Some(1), "/a/one", 1_000, Some(1)),
-            node(3, Some(1), "/a/two", 1_000, Some(1)),
-        ];
-        let right_root = dir(1, None, "/b", 2, 2_000);
-        let mut touched = right_root.clone();
-        touched.modified_unix_seconds = Some(9_999);
-        let right = vec![
-            touched.clone(),
-            node(2, Some(1), "/b/one", 1_000, Some(1)),
-            node(3, Some(1), "/b/two", 1_000, Some(1)),
-        ];
-        let (rows, _) = compare(&left_root, &left, &right_root, &right, 1);
-        // The roots themselves are not rows: both sides always have one, so
-        // it can never be a presence fact, and its verdict is a roll-up the
-        // caller makes from the rows below it.
-        let children: Vec<&str> = rows.iter().map(|row| row.path.as_str()).collect();
-        assert_eq!(children, vec!["one", "two"]);
-        for row in &rows {
-            assert_eq!(
-                row.verdict,
-                Verdict::Same {
-                    evidence: Evidence::Metadata
-                },
-                "{} moved only because its parent did",
-                row.path
-            );
-        }
-    }
-
-    #[test]
-    fn a_path_that_is_a_file_on_one_side_and_a_directory_on_the_other_is_a_path_difference() {
-        let left_root = dir(1, None, "/a", 1, 1_000);
-        let left = vec![
-            dir(1, None, "/a", 1, 1_000),
-            dir(2, Some(1), "/a/thing", 0, 0),
-        ];
-        let right_root = dir(1, None, "/b", 1, 1_000);
-        let right = vec![
-            dir(1, None, "/b", 1, 1_000),
-            node(2, Some(1), "/b/thing", 0, None),
-        ];
-        let (rows, _) = compare(&left_root, &left, &right_root, &right, 0);
-        let row = rows.iter().find(|row| row.path == "thing").expect("row");
-        assert_eq!(
-            row.verdict,
-            Verdict::Different {
-                reason: DifferentReason::Path
-            }
-        );
-    }
-
-    #[test]
-    fn a_parent_only_says_itself_that_its_contents_disagree() {
-        let same = Verdict::Same {
-            evidence: Evidence::Metadata,
-        };
-        assert_eq!(roll_up(&[same.clone(), same.clone()]), same);
-        assert_eq!(
-            roll_up(&[same.clone(), Verdict::LeftOnly]),
-            Verdict::Different {
-                reason: DifferentReason::Contents
-            }
-        );
-        assert_eq!(
-            roll_up(&[Verdict::Different {
-                reason: DifferentReason::UnknownSize
-            }]),
-            Verdict::Different {
-                reason: DifferentReason::UnknownSize
-            },
-            "an unreadable child must not roll up as an ordinary difference"
-        );
-    }
-
-    #[test]
-    fn the_verdicts_are_named_for_the_sides_the_caller_gave_them() {
-        // The report says "from-only" and "to-only" because the caller wrote
-        // --from and --to. A verdict that said "left" would leave the reader
-        // mapping the word back onto the arguments, which is the confusion
-        // the arguments were named to remove.
-        let left_only = serde_json::to_value(Verdict::LeftOnly).unwrap();
-        let right_only = serde_json::to_value(Verdict::RightOnly).unwrap();
-        assert_eq!(left_only, serde_json::json!({ "status": "from-only" }));
-        assert_eq!(right_only, serde_json::json!({ "status": "to-only" }));
-        assert_eq!(
-            serde_json::to_value(Verdict::Same {
-                evidence: Evidence::Metadata
-            })
-            .unwrap(),
-            serde_json::json!({ "status": "same", "evidence": "metadata" })
-        );
-    }
-
-    #[test]
-    fn a_summary_of_no_differences_has_nothing_actionable() {
-        let summary = Summary {
-            same: 10,
-            ..Summary::default()
-        };
-        assert_eq!(summary.actionable(), 0);
-    }
-
-    #[test]
-    fn evidence_is_never_claimed_beyond_what_ran() {
-        // Nothing in this module reads file contents, so no verdict may claim
-        // a content comparison: a caller that trusts that claim to skip a copy
-        // would skip a file that differs.
-        let left_root = dir(1, None, "/a", 1, 1_000);
-        let left = vec![
-            dir(1, None, "/a", 1, 1_000),
-            node(2, Some(1), "/a/x", 7, Some(3)),
-        ];
-        let right_root = dir(1, None, "/b", 1, 1_000);
-        let right = vec![
-            dir(1, None, "/b", 1, 1_000),
-            node(2, Some(1), "/b/x", 7, Some(3)),
-        ];
-        let (rows, _) = compare(&left_root, &left, &right_root, &right, 0);
-        for row in &rows {
-            assert_ne!(
-                row.verdict.evidence(),
-                Evidence::Content,
-                "{} claimed a content comparison that never ran",
-                row.path
-            );
-        }
-    }
-}
+#[path = "compare_tests.rs"]
+mod tests;

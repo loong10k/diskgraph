@@ -443,39 +443,4 @@ release定位窄读在20k/200k未选记录下均执行 **18条VM指令**；真�
 签名/部署门禁继续开放。自身秒mtime不是高精度content version或原子快照；本前置不关闭
 全平台父项。
 
-
-## Windows 完整原生属性与暂存末检（D31前置，2026-10-04）
-
-schema12 用独立80字节版本记录保存完整128位文件ID、u64卷序号、EOF和原始创建/写入/变更时间。
-保留根链约束属性相对打开，每项内核查询前后检查原期限/取消；实时授权与fence最多复用20ms，
-批次/发布强制复验。采样不占数据库写锁，末组件只观测reparse对象本身，旧content策略未放宽。
-旧行保持未捕获；明确不一致记gap，旧allocated/dedup/目录尺寸或未知身份保持Unverified。
-
-独立审查复现“等待图库锁逾期后仍提交2行staging，随后cleanup隐藏写入”，现暂存/发布fence回调
-在等待锁之后末检原时钟及本机取消。回归保留独立写入事件，RED0/1、GREEN1/0覆盖超时与取消。
-[验收记录](benchmarks/windows_observation_acceptance_2026_10_04.json)保留原始日志：Core9/9、
-Store观测过滤10/10、Engine观测过滤24/24（包含既有用例），最终workspace **1089/0/18（45 suites）**，
-严格Clippy/fmt/OpenSpec/release、14vendor摘要、stdio18/18、HTTP/SSE13/13、执行UniFFI19/19通过。
-非作者代码APPROVE/架构CLEAR，最终44份源码摘要匹配；Windows新增10个Native和1个Engine
-流水线用例须本批同源码CI执行，本机不能替代。
-
-release观测主键窄读在20k/200k未选记录下均18条VM；macOS真实文件负载各4/4，扫描
-**0.437/4.391秒**，top/children p50/p95 **6.469/8.564ms**和 **6.773/7.999ms**，数据库+WAL
-**43,442,176/436,916,224字节**，直接CLI子进程最大RSS观察 **44,826,624/263,307,264字节**。
-相对D30字段增加约2.1%存储；独立观测不证明配对提速、严格RSS或Windows原生规模扫描成本。
-
-上游walk仍按路径；本批根句柄只约束补充采样。真实ReFS高位ID、provider不下载、旧scope编码
-来源、可信历史身份利用、原生写、授权采集任务、宿主/mobile和签名部署仍开放；不新增完成勾选。
-
-
-## 根名称重新绑定与 FFI 源码边界（D32，2026-10-04）
-
-D31 源码 `45d732c9` 原生 CI 终态 20/22：两个 Windows Rust 任务证明属性句柄不必然阻止目录重命名。先补测试的 `5963dd0a` 也为 20/22：注册根被重命名并重新绑定后，旧实现仍返回 `Ok(())`。D31 记录保留两轮失败与原生日志。后续修复从保留父句柄核对当前 drive 和各原名称，比较完整卷/128位ID/创建时间及安全目录状态，允许目录修改时间变化。有限协作复核仍有检查后的竞态窗口，每次复核的原生工作量随根深度增长；新原生 CI 和 Windows 规模成本尚待验证。
-
-FFI 按 API、realm、扫描、JobHandle、共享 JobState 和别名拆分真实实现。两份固定 include 保留旧 UniFFI 词法根；普通 mod 提取初版曾导致19项校验全部变化，修正后真实执行恢复19/19，没有覆盖checksum或包装函数。中文契约使用精确 Rustdoc 条件 `cfg_attr(doc, doc = literal)`。生产 AST 门禁解析真实包含源，并拒绝其他位置的 include；两个遗漏负例实际 RED 后 GREEN，门禁8/8。最终本机workspace **1097/0/18（46 suites）**、严格Clippy、限定fmt和OpenSpec strict通过。同源码原生验收仍待完成，全平台父项不勾选。
-
-release Swift/Kotlin 绑定已重新生成；真实 Swift 宿主编译运行通过会话、分页、轮询、v1及系统 SQLite 共存调用，4份生成Rustdoc页面保留中文参数/返回契约。[D32验收记录](benchmarks/ffi_structure_root_binding_acceptance_2026_10_04.json)保存真实RED/GREEN日志、执行19/19校验及最终源码清单。Kotlin原生运行与Windows行为仍等待新的同源码CI。
-
-首轮D32原生运行 `ca5292b` 的两个Windows Rust构建因测试专用 `path_digest` 重导出未使用而被 `-D warnings` 拒绝，根回归尚未执行。后续仅将该导入条件与唯一Unix测试调用方对齐，保持严格警告及生产行为不变；全部受影响FFI目标54/0、FFI Clippy及全目标workspace构建通过。上述1097/0/18属于前一完整运行，仍须新的Windows原生执行证据。
-
-同一 `ca5292b` 的Windows release包实际通过20k文件原生负载4/4：扫描 **15.738秒**、查询p50/p95 **27.290/42.900ms**、数据库+WAL **54,067,200字节**。此证据覆盖修复后的真实扫描，不替代尚未执行的根单元回归，也不证明配对性能改善；Windows200k和峰值RSS仍未测量。
+Windows观测、根重新绑定及后续历史查询验收见[2026-10-04续篇](production-readiness-full-platform-2026-10-04.zh-CN.md)。

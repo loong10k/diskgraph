@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D32 FFI structural compatibility and D31 registered-root rebinding fix; full-platform goal remains open",
   "baseline_commit": "5963dd0a0443a0f106d89cbf7d9ad7d9d22c3ba3",
-  "status": "native_ci_build_failure_test_only_import_corrected_pending_new_ci",
+  "status": "native_ci_same_source_success_for_d32_increment",
   "source_files": {
     "crates/diskgraph-engine/src/windows_file_state.rs": "af9346f75f84e090e1a717fd28415f13bf148957278cc36366ae0b87d5a6fd6d",
     "crates/diskgraph-engine/src/windows_native_scan_root.rs": "55ac700604ec1b372991ae8cab60a7670e62300815768760faec94e7952f4843",
@@ -126,8 +126,8 @@
     "mismatches": {}
   },
   "host": {
-    "swift": "actual release binding generated, compiled and executed: session/paging/poll/v1 and host SQLite CRUD passed",
-    "kotlin": "bindings generated; actual host execution deferred to same-source native CI"
+    "swift": "actual native Swift and GRDB host CI passed on macOS Intel/ARM at c8ff781",
+    "kotlin": "actual native Kotlin host CI passed on Windows, Linux x64/ARM and macOS Intel/ARM at c8ff781"
   },
   "independent_review": {
     "code": "APPROVE",
@@ -138,7 +138,7 @@
     "scope": "source/ABI and final gate delta; native CI remains separate"
   },
   "native_ci": {
-    "status": "windows_build_failed",
+    "status": "original_build_failure_preserved_followup_same_source_success",
     "run_id": 37155313318,
     "source_sha": "ca5292bd6aa8b7a58247847c55eac543ebb08967",
     "url": "https://github.com/loong10k/diskgraph/actions/runs/37155313318",
@@ -147,9 +147,93 @@
       111297397120
     ],
     "failure": "test-only path_digest reexport was unused on Windows under -D warnings",
-    "native_root_regressions": "not executed because build failed",
-    "followup_ci": "pending_new_source_push",
-    "windows_cases_expected": 13
+    "native_root_regressions": "13 distinct selected native observation/root/publication cases passed on both Windows Rust versions at c8ff781; earlier failed run did not execute them",
+    "followup_ci": {
+      "run_id": 37155851104,
+      "source_sha": "c8ff78174e7d7b3f23e8410afc3d16595a48188c",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37155851104",
+      "conclusion": "success",
+      "passed_jobs": 22,
+      "total_jobs": 22,
+      "native_workspace_logs": {
+        "111298953823": {
+          "job_name": "Test (windows-latest / Rust 1.97.0)",
+          "suite_outputs": 47,
+          "summed_passed": 1097,
+          "summed_failed": 0,
+          "summed_ignored": 17,
+          "selected_native_cases": [
+            "windows_native_scan_tests::attribute_observation_does_not_require_read_data_permission",
+            "windows_native_scan_tests::cancellation_deadline_authorization_and_fence_errors_are_not_gap_labels",
+            "windows_native_scan_tests::junction_leaf_is_observed_without_following_and_parent_junction_is_rejected",
+            "windows_native_scan_tests::native_alignment_refuses_type_size_and_unknown_size_assumptions",
+            "windows_native_scan_tests::native_hardlinks_keep_full_identity_and_replacement_is_tree_mismatch",
+            "windows_native_scan_tests::native_scan_observes_root_directory_file_and_drive_root",
+            "windows_native_scan_tests::native_state_checks_between_each_query_and_preserves_caller_error",
+            "windows_native_scan_tests::relative_planning_rejects_outside_root_dot_ads_namespace_and_case_guessing",
+            "windows_native_scan_tests::root_binding_tests::held_root_allows_directory_time_change_without_replacement",
+            "windows_native_scan_tests::root_binding_tests::renamed_and_rebound_ancestor_is_conflict",
+            "windows_native_scan_tests::root_binding_tests::renamed_and_rebound_registered_root_is_conflict",
+            "windows_native_scan_tests::same_handle_change_between_captures_is_not_confirmed",
+            "windows_observation_publication_tests::windows_observation_gaps_survive_publish_and_fenced_cleanup_removes_metadata"
+          ],
+          "note": "summed suite output includes subprocess and repeated suites; selected native cases are distinct names"
+        },
+        "111298953954": {
+          "job_name": "Test (windows-latest / Rust stable)",
+          "suite_outputs": 47,
+          "summed_passed": 1097,
+          "summed_failed": 0,
+          "summed_ignored": 17,
+          "selected_native_cases": [
+            "windows_native_scan_tests::attribute_observation_does_not_require_read_data_permission",
+            "windows_native_scan_tests::cancellation_deadline_authorization_and_fence_errors_are_not_gap_labels",
+            "windows_native_scan_tests::junction_leaf_is_observed_without_following_and_parent_junction_is_rejected",
+            "windows_native_scan_tests::native_alignment_refuses_type_size_and_unknown_size_assumptions",
+            "windows_native_scan_tests::native_hardlinks_keep_full_identity_and_replacement_is_tree_mismatch",
+            "windows_native_scan_tests::native_scan_observes_root_directory_file_and_drive_root",
+            "windows_native_scan_tests::native_state_checks_between_each_query_and_preserves_caller_error",
+            "windows_native_scan_tests::relative_planning_rejects_outside_root_dot_ads_namespace_and_case_guessing",
+            "windows_native_scan_tests::root_binding_tests::held_root_allows_directory_time_change_without_replacement",
+            "windows_native_scan_tests::root_binding_tests::renamed_and_rebound_ancestor_is_conflict",
+            "windows_native_scan_tests::root_binding_tests::renamed_and_rebound_registered_root_is_conflict",
+            "windows_native_scan_tests::same_handle_change_between_captures_is_not_confirmed",
+            "windows_observation_publication_tests::windows_observation_gaps_survive_publish_and_fenced_cleanup_removes_metadata"
+          ],
+          "note": "summed suite output includes subprocess and repeated suites; selected native cases are distinct names"
+        },
+        "111298953912": {
+          "job_name": "Test (ubuntu-24.04-arm / Rust stable)",
+          "suite_outputs": 47,
+          "summed_passed": 1222,
+          "summed_failed": 0,
+          "summed_ignored": 19,
+          "selected_native_cases": [
+            "windows_observation_publication_tests::windows_observation_gaps_survive_publish_and_fenced_cleanup_removes_metadata"
+          ],
+          "note": "summed suite output includes subprocess and repeated suites; selected native cases are distinct names"
+        },
+        "111298953769": {
+          "job_name": "Test (macos-15-intel / Rust stable)",
+          "suite_outputs": 47,
+          "summed_passed": 1234,
+          "summed_failed": 0,
+          "summed_ignored": 19,
+          "selected_native_cases": [
+            "windows_observation_publication_tests::windows_observation_gaps_survive_publish_and_fenced_cleanup_removes_metadata"
+          ],
+          "note": "summed suite output includes subprocess and repeated suites; selected native cases are distinct names"
+        }
+      }
+    },
+    "windows_cases_expected": 13,
+    "prior_run_terminal": {
+      "status": "completed",
+      "conclusion": "failure",
+      "passed_jobs": 20,
+      "total_jobs": 22
+    }
   },
   "performance": {
     "measured_windows_scale": "20k actual native package drill inspected; 200k and peak RSS remain unmeasured",
@@ -184,8 +268,8 @@
   "limits": [
     "finite checks do not freeze or atomically snapshot the namespace",
     "pinned scanner remains path-based; post-validation mutation window remains",
-    "actual Windows GREEN and Windows scale performance are pending",
-    "real providers/no-download/native writes/mobile devices/host GUI/signing/deployment remain open"
+    "real providers/no-download/native writes/mobile devices/host GUI/signing/deployment remain open",
+    "Windows 200k and peak RSS remain unmeasured; 20k is an unpaired hosted-runner observation"
   ],
   "logs": {
     "directory": "ffi_structure_root_binding_acceptance_2026_10_04_logs",
@@ -277,6 +361,30 @@
       "windows-package-load.json.gz": {
         "sha256_uncompressed": "abece2478c68749260826b87a3999451b30419561b696f9f33b0277a520b0c83",
         "sha256_gzip": "9fd42f47ccfbbab6114db9f388a910bad57468b130887ab68279538f151634e1"
+      },
+      "ci-ca5292b-terminal.json.gz": {
+        "sha256_uncompressed": "8e0454eca64925104c5f8323054e351b93d026594f48fbc047c1c2efaeadc9bb",
+        "sha256_gzip": "9daa7630a6539eefc4b6b979431e3e29b8b3dc979b8afdd4e28970f5af3cc940"
+      },
+      "ci-c8ff781-terminal.json.gz": {
+        "sha256_uncompressed": "d96d93078c8473d29e804232ca8b9b377dd418395dc1b2f1808bc429afb784c3",
+        "sha256_gzip": "89d181eb1d9931d08a1ccd47bcecd73469ec30d6b5a7227e6b544a512775258a"
+      },
+      "ci-c8ff781-111298953823.log.gz": {
+        "sha256_uncompressed": "2564dd407b3441636eb1a06805572d79fc2e37683f04cb577a326c4057f29062",
+        "sha256_gzip": "0799d60a9db4c541689bffd6f07f02bee876d6abe647a25964799195ab0d2535"
+      },
+      "ci-c8ff781-111298953954.log.gz": {
+        "sha256_uncompressed": "86fe5163f9cf929c4cb3fda81a15850a457913676c8888bc766d71c2f9f0c4c3",
+        "sha256_gzip": "1641f6eb74751f559498870755a19561e7c5bfbe1a33251c6b1b06fe4225507c"
+      },
+      "ci-c8ff781-111298953912.log.gz": {
+        "sha256_uncompressed": "c81792173e3aaa212162faa92dad5f21553fc194cd1a47f37a1d18b016bdb22d",
+        "sha256_gzip": "772f7beaca1b935f4e7a27d0b4b709f018d289a8dc2d3441680d1005f5613960"
+      },
+      "ci-c8ff781-111298953769.log.gz": {
+        "sha256_uncompressed": "11e87ffa2548bf2a9c449e9772227d44a54c5916ca6aefab014bed1430cfc696",
+        "sha256_gzip": "4a85d5c5c2ce9ad511fbde4ad85a9e7738451ab4c1e8bee2893e6e27d9ff9d54"
       }
     }
   },

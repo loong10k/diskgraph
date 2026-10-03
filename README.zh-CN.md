@@ -249,7 +249,9 @@ Windows 补充扫描观测通过独立版本记录保存完整 128 位文件 ID�
 采样采用保留根链上的相对属性打开，上游树遍历仍按路径进行；旧行保持未捕获，
 缺失或冲突明确表达。实现和平台验收边界见[全平台状态](docs/production-readiness-full-platform-2026-10-02.zh-CN.md)。
 
-FFI 已按 API、realm、扫描与作业状态拆分真实实现文件。两份固定包含文件保留旧 UniFFI 词法路径，源码门禁解析其真实实现并拒绝其他 include。最新 Windows 回归复现了注册根名称被重新绑定；修复仍须通过新的原生 CI 才能验收本增量，见上述全平台记录。
+FFI 已按 API、realm、扫描与作业状态拆分真实实现文件。两份固定包含文件保留旧 UniFFI 词法路径，源码门禁解析其真实实现并拒绝其他 include。注册根重新绑定回归已在 `c8ff781` 的22/22 CI中通过两个Windows Rust版本；剩余能力门禁见上述全平台记录。
+
+历史增长要求双方节点类型相同且大小已观察。未知大小、读取失败不返回数值增量，比较行中不可用的一侧保留为 `null`；类型替换仍是路径差异。`changes.size_changed == 0` 只表示未观察到符合资格的尺寸变化，不能证明所有对象未变。Core 查询和比较对象已真实分文件，保留既有公开导出。
 
 ## 文档
 
@@ -260,7 +262,7 @@ FFI 已按 API、realm、扫描与作业状态拆分真实实现文件。两份�
 | 发布渠道与操作手册 | [`RELEASING.md`](RELEASING.md) |
 | 每个数字背后的验收记录 | [`docs/acceptance/`](docs/acceptance/) |
 | 架构 / 技术方案 | [架构](docs/DiskGraph-Architecture.zh_CN.md) · [design](docs/DiskGraph-Technical-Design.md) |
-| 需求（正式来源） | [OpenSpec 变更](openspec/changes/implement-diskgraph-platform/proposal.md) —— 14 份规格、84 条要求、129 项任务 |
+| 需求（正式来源） | [OpenSpec 变更](openspec/changes/implement-diskgraph-platform/proposal.md) —— 规格、设计决策与验收任务 |
 
 ## 参与贡献
 

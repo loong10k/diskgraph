@@ -1,0 +1,386 @@
+{
+  "date": "2026-10-04",
+  "scope": "D33 Q04 historical size qualification plus real query/compare source organization; full-platform objective remains open",
+  "baseline_commit": "c8ff78174e7d7b3f23e8410afc3d16595a48188c",
+  "status": "local_and_independent_acceptance_passed_native_ci_pending",
+  "source_manifest_sha256": "5b9b93460ff7a77f44b1d32f666d0505cc93b1ec66bb24c39130d77ba066ff94",
+  "source_files": {
+    "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
+    "crates/diskgraph-core/Cargo.toml": "9b5d37c14b3e44624aa0898e704da2b20b380df60e77e8ce3d589db231e48d3d",
+    "crates/diskgraph-core/src/compare.rs": "5244ccf0058645e130467a266931a972d97ff4fe813eac71316e619006aa7638",
+    "crates/diskgraph-core/src/compare/comparison.rs": "022a66789da062267ca8fe305c01684fb5e71b95472256643981a358f35ff3bf",
+    "crates/diskgraph-core/src/compare/different_reason.rs": "f2851c33ba54e5b49a7bb3090c351b8184a8835827ea3ee63d4418b27e5cee15",
+    "crates/diskgraph-core/src/compare/evidence.rs": "bbbcead89170e7518d1482884e995d033d917c92457703ff2063354df7ca19e6",
+    "crates/diskgraph-core/src/compare/summary.rs": "e0fa8c965494541ab158d51fdece04a1b8ddce837e17c0a4cea4ce0daab53ca9",
+    "crates/diskgraph-core/src/compare/verdict.rs": "0ecf4750af067602693502dd7248e7b6eb00f9385f1010fd6586780f07fd13e6",
+    "crates/diskgraph-core/src/compare_tests.rs": "354537ed5aec596660d81e09d84f2794a050ed82b470104ceaa58874ed10dee3",
+    "crates/diskgraph-core/src/historical_node_size.rs": "0eaec4524976a96de6c87ac6e64f071b6561405cd444757a43b87ece0381e778",
+    "crates/diskgraph-core/src/historical_size_tests.rs": "d1dbb83ddbbe349d963734613cbcbd2bff77e15404f03a5e8bd321c53dcda9ba",
+    "crates/diskgraph-core/src/lib.rs": "e5270e0041c0e84e4c34d69d240d8d38a6be513be6d7eaa13987702d7a8c1d93",
+    "crates/diskgraph-core/src/query.rs": "753d2e32aefe62bf95eaaca1b95ce97031b828e842851cdebb2613ab348e8f32",
+    "crates/diskgraph-core/src/query/candidate.rs": "41cdd183aa7f742b39dc3709f5b4e30bad86df566af93f5f4f88fd83eab527a3",
+    "crates/diskgraph-core/src/query/change.rs": "d5ce1f5af23595475fdfd1e05818a80fb544f3aec3568d862591f872fe6d2edb",
+    "crates/diskgraph-core/src/query/changes.rs": "54b20ed86cc51f049b0d4ac3e78b059e8815a0d10e4298845ae1fb6368a151d8",
+    "crates/diskgraph-core/src/query/child_listing.rs": "8b13ab9dd8abd9fd09adc13b369a2f2a62a1c1962f2c507029139584fd23019a",
+    "crates/diskgraph-core/src/query/growth.rs": "0a1ce93137e9d74f3838525da649487a34be0a28ea47663e8483f26d3975da6c",
+    "crates/diskgraph-core/src/query/incompatibility.rs": "712a47f38111c80bd184e08035bb5aec73f549aea255776f5c2fb49f64042527",
+    "crates/diskgraph-core/src/query/node_explanation.rs": "c8edc7880998888c2d50deeb3520b5d3683992dbebfd900cb79d4a1d2fb5384c",
+    "crates/diskgraph-core/src/query/page.rs": "525c170ef796119584a0b9d767dc6f5d68c347637772dcb996b67ed66f84499d",
+    "crates/diskgraph-core/src/query/size_filter.rs": "7635856360ff575b802349d347648bf3ef5fccaa07f7f0b5e1862a1509336080",
+    "crates/diskgraph-core/src/query/tree_node.rs": "a03b9cede241ebaf1c4cc7ad3d15893b79f5e0e139b2f72b43ed8ad0fe7c0d99",
+    "crates/diskgraph-core/src/query/tree_render_error.rs": "ae4dc4c98eafaccb970d0cebefd03fc840baaab17d353bf3ac9b21bc44261649",
+    "crates/diskgraph-core/src/query/tree_view.rs": "ab5557641f6738183839f0ca3be66ed0b10f83fccef60f2b45e9676087f55813",
+    "crates/diskgraph-core/src/query_tests.rs": "d4a781988b84390711065bab17724b8ffd072c0fd4e003aa19d2895cfa6d3e10",
+    "crates/diskgraph-core/tests/history_source_layout.rs": "dc67dbd1dc6b66b32d1c8f53386b6e5ede9f10d186aa18ce3ef5ec62309905aa",
+    "crates/diskgraph-engine/src/revision_comparison.rs": "4f13cd3029122d1c91e17949091a205225ef2d4e78b024871cbd7b0860cd8372",
+    "crates/diskgraph-engine/src/revision_history.rs": "7b676d0f5d009954a12626b9f9e89292bbff31bd831b0cd56f122b1b5af17407",
+    "crates/diskgraph-engine/tests/history_size_eligibility.rs": "027917b3bb99bf010afe6607a3884088dba2b1dc4ad9aac2937cea9ee03250b1",
+    "crates/diskgraph-ffi/src/lib.rs": "58633315b2410a5e67042c55fe799cf7fe0c9542063b4963b6261dae483f547c",
+    "crates/diskgraph-ffi/src/native_growth_eligibility_tests.rs": "0eb4a5a3a600975210e88624cf4c4fe4d136aaa52fc7ceead3ed807b9735820b"
+  },
+  "red": {
+    "core": {
+      "passed": 3,
+      "failed": 8,
+      "total": 11
+    },
+    "engine_corrected": {
+      "passed": 3,
+      "failed": 6,
+      "total": 9,
+      "source": "git archive c8ff781 in isolated source checkout, corrected tests overlaid; no worktree rollback"
+    },
+    "ffi": {
+      "passed": 2,
+      "failed": 3,
+      "total": 5
+    },
+    "layout": {
+      "passed": 1,
+      "failed": 1
+    },
+    "path_override_gate": {
+      "passed": 0,
+      "failed": 1
+    }
+  },
+  "execution_notes": [
+    "Initial Engine 2/7 run included two invalid root-directory assumptions: roots are intentionally excluded by ORDERED_NODES_SQL. Tests now use a real scanned child directory. Corrected baseline 3/6 is authoritative; old log retained, not six additional bugs.",
+    "First candidate Core build failed missing explicit EvidenceEdge and Summary imports; imports corrected without changing test bodies.",
+    "First vendor command mistakenly invoked digest-generation CLI without an upstream path and exited 2; no source was regenerated. Read-only 14-file SHA verification and actual vendor tests then passed.",
+    "First manual MCP parity request used invalid scope_id; schema correctly rejected it. Corrected advertised scope request actually matched CLI data and passed three checks."
+  ],
+  "fix": {
+    "qualification": "size_known && !read_error; exact NodeKind for numeric growth; signed zero and negative deltas retained",
+    "comparison": "UnknownSize precedes exact kind Path; each observed byte side independently Some/null",
+    "changes": "count only observed unequal Size or Contents; count-only directories/type replacement/unknown excluded",
+    "source_organization": "17 real object files; query.rs 326 and compare.rs 233 lines; public reexports/serde preserved; no include/compat shell",
+    "function_bodies": {
+      "original": 46,
+      "unchanged": 43,
+      "changed": [
+        "DiskGraph::growth",
+        "DiskGraph::changes",
+        "compare_entry"
+      ]
+    },
+    "new_owners_locks_threads": 0
+  },
+  "green": {
+    "core_new": 11,
+    "engine_new": 9,
+    "ffi_new": 5,
+    "layout": 3,
+    "workspace": {
+      "passed": 1125,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 48,
+      "exit_code": 0
+    },
+    "checks": {
+      "layout-green": 0,
+      "fmt": 0,
+      "include-fmt": 0,
+      "openspec": 0,
+      "workspace-final": 0,
+      "build": 0,
+      "clippy": 0,
+      "vendor-digests": 0,
+      "vendor-digests-initial-command-error": 2,
+      "vendor-test": 0,
+      "release": 0
+    },
+    "upstream_digests_unchanged": 14,
+    "vendor": {
+      "passed": 124,
+      "failed": 0,
+      "ignored": 2
+    },
+    "uniffi": {
+      "total": 19,
+      "passed": 19,
+      "actual": {
+        "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+        "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+        "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+        "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+        "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+        "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+        "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+        "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+        "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+        "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+      },
+      "mismatches": {}
+    },
+    "stdio": {
+      "passed": 18,
+      "total": 18
+    },
+    "http_legacy_sse": {
+      "passed": 13,
+      "total": 13
+    },
+    "actual_cli_mcp_type_replacement": {
+      "passed": 3,
+      "total": 3
+    }
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "reviewed_files": 32,
+    "source_manifest_sha256": "5b9b93460ff7a77f44b1d32f666d0505cc93b1ec66bb24c39130d77ba066ff94",
+    "public_types_fields_derive_serde_preserved": 17,
+    "note": "both lanes read current source and matched hashes; neither claimed their own Cargo execution"
+  },
+  "performance": {
+    "20000": {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 20000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 0.673,
+      "query_p50_ms": 11.97,
+      "query_p95_ms": 18.079,
+      "database_and_wal_bytes": 43442176,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      },
+      "per_cli_child_peak_rss_bytes": 44990464,
+      "rss_observed_cli_children": 39,
+      "rss_method": "macOS /usr/bin/time -l on each actual CLI process, bytes; child maximum, not aggregate concurrent RSS"
+    },
+    "200000": {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 200000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 4.371,
+      "query_p50_ms": 8.536,
+      "query_p95_ms": 10.459,
+      "database_and_wal_bytes": 436916224,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      },
+      "per_cli_child_peak_rss_bytes": 263421952,
+      "rss_observed_cli_children": 39,
+      "rss_method": "macOS /usr/bin/time -l on each actual CLI process, bytes; child maximum, not aggregate concurrent RSS"
+    }
+  },
+  "performance_limits": [
+    "Unpaired macOS hosted-local observations, not a before/after speedup or SLO.",
+    "p50/p95 include CLI process startup, four concurrent clients, 32 top/children requests; no history-specific throughput claim.",
+    "Peak RSS is maximum of individual timed CLI children, not combined concurrent RSS and not a strict bound.",
+    "Windows 200k and peak RSS remain unmeasured."
+  ],
+  "native_ci": {
+    "status": "not_dispatched",
+    "note": "must pass the new commit; c8ff781 22/22 only covers D32"
+  },
+  "remaining": [
+    "actual same-scope/server history compatibility",
+    "Windows historical full-ID/version continuity",
+    "historical content-version binding",
+    "real provider/no-download, native write/recovery/fidelity, GUI/Room/mobile/device/signing/production-environment gates"
+  ],
+  "logs": {
+    "directory": "historical_size_acceptance_2026_10_04_logs",
+    "files": {
+      "core-red.log.gz": {
+        "sha256_uncompressed": "28ab4b1be4dbd901ac4f083306a72b3a508bc1c38f9474c905298ebe4071a972",
+        "sha256_gzip": "b82c9ec87a9b9ab70cd084850ab8f7223786084435c7c879bc4c5dc126324f9e"
+      },
+      "core-expanded-red.log.gz": {
+        "sha256_uncompressed": "21f0d2b0450c4aba8b5fa437adebdfbdd1a377cdc868e51ec770e19f50f126c0",
+        "sha256_gzip": "9c9044facbd780c91b6e907665da941e3fe6dcd60c9b5525d8006e88abe00c16"
+      },
+      "engine-red.log.gz": {
+        "sha256_uncompressed": "02ef491b78c79a0c56cc017fe049a58cb63aee27d36b186e9e4227780798ba30",
+        "sha256_gzip": "17b2a63b416b40ab0a043efe136c296f041910f8b8e79c876541e9b7d942abbc"
+      },
+      "engine-corrected-red.log.gz": {
+        "sha256_uncompressed": "ea49a8c0b1745155232cbd1daf202da4a1bb4942584892ada88531bbde777b6c",
+        "sha256_gzip": "d1d4e8987b0b0536343da8b020914a72786aa34dd86ceb7ab1ea05a0f0300963"
+      },
+      "ffi-red.log.gz": {
+        "sha256_uncompressed": "a321e4d73fabd4b756b9430a6c01bf104ce6bb78b754a6fe9392f040a912b753",
+        "sha256_gzip": "9b0110342effb3cf596c0b27663e4bd4173f4fb9ce896d1d5da5fdf9e05b6500"
+      },
+      "layout-corrected-red.log.gz": {
+        "sha256_uncompressed": "a1bd0b0a057a1078b21f1804ae2bfd86fd31dd883bb0a8634498a9db6dbc44bf",
+        "sha256_gzip": "fb3217766fd920f0ab9ad0752895684bdb4ddb4efeb4283dea80fbe263bc2826"
+      },
+      "path-gate-red.log.gz": {
+        "sha256_uncompressed": "09365498dd6d777a14174469fec128b69d08f0c5afa6800bea61ceb85d0f170a",
+        "sha256_gzip": "7ccbdc7152ad054f1876704c1a269ad23c953f27f968b5b2cb459632a28aaf39"
+      },
+      "core-green.log.gz": {
+        "sha256_uncompressed": "a5e09dab76da0c0a02ef2eea113972c302bbd9b30cd1bfbe076dbdf65ce87075",
+        "sha256_gzip": "9cff30f9c872746d5d5ebcb380b694c2f65669fe18c0dea6ec1e7d9f5c513071"
+      },
+      "core-green-final.log.gz": {
+        "sha256_uncompressed": "662170bccbd60a8e8d5a144ed22417b9b7279c5bde95203c22331d557c1ba3eb",
+        "sha256_gzip": "938d29aeea6d687d66dd790d6d58ac0a7c68eb1c7187951420f06a80fe3a9d84"
+      },
+      "engine-green.log.gz": {
+        "sha256_uncompressed": "1cb1fe5d25eadb58d4ba36afa343abfdef923368796db246aeed860bd057546f",
+        "sha256_gzip": "2e34c8dd4d56d0961b589887f919a3e2b07efd973e2df2d9bd02d024de64ee3d"
+      },
+      "ffi-green.log.gz": {
+        "sha256_uncompressed": "4ed2bcc9b1a6dd511e4cc47575b7dbda8065229dbd42c153b70213f7becc4e90",
+        "sha256_gzip": "bfcac6c443e81776f347bf0b0473a16c36d5b52a58168474c10a7bd783686163"
+      },
+      "layout-green.log.gz": {
+        "sha256_uncompressed": "8f14df2e0e7cde84155f59bbcc9ffc49955e2ca2517a6cba229abff5ba99cdf6",
+        "sha256_gzip": "7ef7bbba5c2fb25e7806d9de1beb550f94efb65c57b0a3f301a243c22c03b2f3"
+      },
+      "workspace-final.log.gz": {
+        "sha256_uncompressed": "91ed39202bf2cd47866672a36dacc3ed6e1192cde2fc722568f38eeb451d3024",
+        "sha256_gzip": "44671f149f27207eaa03b821fa4124cfdbcbcc405bb149c0dafc3bffdd923f02"
+      },
+      "build.log.gz": {
+        "sha256_uncompressed": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec",
+        "sha256_gzip": "d9151c22c3f43a538c32bcb9401f3963fac69c64b3822fe3048738f45ce67e22"
+      },
+      "clippy.log.gz": {
+        "sha256_uncompressed": "fa8eb2ad50f7e78b1a466d826bf785cef66fa71c0f85799c46e3ce9e5de6283c",
+        "sha256_gzip": "53a1fa3f5db01885ed29e73c600f7566695d9739e5d7bb58108d9862367ad82d"
+      },
+      "fmt.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "include-fmt.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "vendor-digests.log.gz": {
+        "sha256_uncompressed": "26eb65ae9dc2a397f567fcb2daf593fb8e19de7b88c7ca291c00709b1385a55f",
+        "sha256_gzip": "7c476f1b3d9d6e256e22cb620046669c39d793cc4b1b1142172bf3cfcaab5dac"
+      },
+      "vendor-digests-verified.json.gz": {
+        "sha256_uncompressed": "f2134e8c6a0970fef1b005eb3967a59d768e3ff7fcc4ad2b11aee6143754e92d",
+        "sha256_gzip": "42f741fdfe7801feb52da5ac613af978416abe3918e786365ebef10e64c751d2"
+      },
+      "vendor-test.log.gz": {
+        "sha256_uncompressed": "0667657c718d36bb7425b420e02550ae9418d213ff2e1f1ccfb571d7520ff3a3",
+        "sha256_gzip": "42fc4245acb313a7f1799643905bea595a402f0f04deec6b27123317827847dc"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "06a8fbb7957517c03db53ba6a0ca0c72a908c6c15943bda74ea3b79b2b0d87b2",
+        "sha256_gzip": "689a8e6214b4ea020aa636ff0c15227bf762572301dbf18f84e652f5ba3a3bc0"
+      },
+      "uniffi.json.gz": {
+        "sha256_uncompressed": "aba25eaadb95674aa824bce0a5ad9a6ebea3744bf2cd17dac62c9417cc95ccda",
+        "sha256_gzip": "070afcfd83f13e31b59f8aaa1695c68036fb4b6a0ae0f1bf4a468358ab8310b3"
+      },
+      "stdio.log.gz": {
+        "sha256_uncompressed": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+        "sha256_gzip": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+      },
+      "http.log.gz": {
+        "sha256_uncompressed": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+        "sha256_gzip": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+      },
+      "load-20000.log.gz": {
+        "sha256_uncompressed": "2d60f81306a5d9702e900e6a08a9ab517320a9e69b35cd0a7e113389cc55e0e3",
+        "sha256_gzip": "89e81f0bb160bef402bb8b03a55e5c155c3530f6a15d1aded543d41e87324c29"
+      },
+      "load-20000.json.gz": {
+        "sha256_uncompressed": "b4eac6265934e7c62cfe09dc233ae9ae98c5d003f2f85d329357568a8b8e70a7",
+        "sha256_gzip": "188411b7dfa75f9755f2439db98865baacd71ee105bfabc371ee323c22962ba4"
+      },
+      "load-20000-rss.json.gz": {
+        "sha256_uncompressed": "e9e39807a3195296f35b50be4308ebf74e834f56f6ddf5f403458d0f4e5fecda",
+        "sha256_gzip": "6b0e3fbdaf36be76a4ebb0f2cf1e9741121366bb5311a104562bb00497a1381e"
+      },
+      "load-200000.log.gz": {
+        "sha256_uncompressed": "ae789ddf1c29d5fd7c0c77ca581e0b398caae2c8c732133dfdab891605e353eb",
+        "sha256_gzip": "d2bd3af6cf9e2152b54633de274dd096bc343b4922a8b8cf7b54624bd7963de8"
+      },
+      "load-200000.json.gz": {
+        "sha256_uncompressed": "6fc7c57ccad9ecb9897bdfd8e83e872f62f87f5668a519f993329c8e6dcb51f5",
+        "sha256_gzip": "bb9e2c86ecf1f7cad410f78dd24531f63f6475c8588807f68865e836fbe35b1a"
+      },
+      "load-200000-rss.json.gz": {
+        "sha256_uncompressed": "01f2feb65492d2a7e3a9836ac19413164e97153ec743ac6a64fb88c9389cc080",
+        "sha256_gzip": "64438cfc1c8ef5f6f7a18d033b06ffb60fff09834c8d222ccb4029d391634864"
+      },
+      "measure-load.py.gz": {
+        "sha256_uncompressed": "52966d7c65127c125df7ebf439578d29c22206dbd2be582f8199512dda5585a5",
+        "sha256_gzip": "357192f67cdb6d17011c89ac53ba8e3572f7a009d062b6766340baf781d1361a"
+      },
+      "wire-type-replacement.json.gz": {
+        "sha256_uncompressed": "5b01a6df5c9bf4bfd482ddc0b6442879c67793e9f69eec4ddcea1a8d8b48e308",
+        "sha256_gzip": "618a762722d015d17ac087aecae78fffd4afebe2faa5c058a3d3eeaffc20c3b3"
+      },
+      "wire-parity.py.gz": {
+        "sha256_uncompressed": "41134e4de4cb7be888a0b64439d88980b45bc8838fb5222f1047a665401ac5db",
+        "sha256_gzip": "84f6a589cfccf2ecf5cd077de482fd4206e11886a092733b210a2ad3c7f573bb"
+      },
+      "wire-parity.log.gz": {
+        "sha256_uncompressed": "e95381ca7f0f191c25b0fefccdd800389f1e5699c5c767ee6a7ad3f4f368b828",
+        "sha256_gzip": "8128c6b9bd8845103215a9be8285839f4eaf85a002dfb31f315b3e72645cfb1a"
+      },
+      "wire-parity.json.gz": {
+        "sha256_uncompressed": "e95381ca7f0f191c25b0fefccdd800389f1e5699c5c767ee6a7ad3f4f368b828",
+        "sha256_gzip": "8128c6b9bd8845103215a9be8285839f4eaf85a002dfb31f315b3e72645cfb1a"
+      },
+      "quality-results.json.gz": {
+        "sha256_uncompressed": "8b611e15bd19d3931511679c5e1432e333e60395fddda1172b9f6294c269ec33",
+        "sha256_gzip": "9231e9e801f3c01a377050d9db952df155c5cf49eecf8e5d17581152e355604b"
+      },
+      "core-body-preservation.json.gz": {
+        "sha256_uncompressed": "2566bdd47e42dff2f332bb25adea9316ba2c4dd91b2e684e4daa52454c6bb42c",
+        "sha256_gzip": "ca2b2d50ea10e03c06eabb014ed74c430d21ea998c96685a4c1a941056e08b7d"
+      }
+    }
+  }
+}

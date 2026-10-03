@@ -11,6 +11,9 @@ mod entities;
 mod envelope;
 mod errors;
 mod freshness;
+mod historical_node_size;
+#[cfg(test)]
+mod historical_size_tests;
 mod ids;
 mod json_size_writer;
 mod locator;
@@ -55,6 +58,7 @@ pub use entities::{
 pub use envelope::{API_VERSION, Envelope, EnvelopeError};
 pub use errors::BusinessError;
 pub use freshness::{FingerprintMap, FingerprintSource, Freshness, classify, edge_freshness};
+pub use historical_node_size::{comparable_growth_delta, observed_node_size};
 pub use ids::{InvalidId, PrincipalId, ResourceRef, RevisionId, ScopeId, ServerId};
 pub use json_size_writer::measure_json_bounded;
 pub use locator::{Locator, LocatorDecodeError, LocatorKind};

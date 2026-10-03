@@ -84,6 +84,20 @@ changes/growth SHALL 检查 server/scope、卷/provider、扫描设置、口径�
 - **WHEN** 相同路径的两次快照来自不同卷
 - **THEN** 拒绝直接计算可信增长并说明卷不一致。
 
+#### Scenario: Historical node sizes require observable facts
+- **WHEN** either matched node has unknown size or a recorded read error, even when an imported snapshot header claims complete coverage
+- **THEN** growth returns no numeric delta and paired size-change statistics do not treat stored placeholder bytes as observed sizes; comparison reports the existing unknown-size outcome instead of SameMetadata, including directories with equal aggregate counts
+- **AND** owned comparison rows retain their existing fields but use null for unavailable sizes; actual decoding, budget, timeout and authorization failures remain errors rather than becoming normal unknown data
+
+#### Scenario: Type replacement is not size growth
+- **WHEN** a locator changes between file, directory, symlink or another recorded kind
+- **THEN** growth refuses a delta and changes do not count the replacement as numeric size growth; comparable known/readable nodes of different kinds produce the existing path/type difference verdict
+- **AND** known zero and negative growth remain real answers; neither file identity equality nor matching roots is added as a requirement for the separate cross-root metadata comparison API
+
+#### Scenario: Unknown results retain terminal authorization and budgets
+- **WHEN** Engine or legacy FFI growth has produced an unknown result
+- **THEN** both revisions still undergo the existing terminal authorization, cancellation, deadline and response-budget checks; no early unknown return bypasses those checks
+
 ### Requirement: Q-05 Conservative candidates and impact
 candidates SHALL 区分 eligible_for_review、blocked、unknown，要求明确重建依据与保护/占用及后代检查；impact 按关系专属传播规则计算已知影响，两者均不授予操作权限。
 

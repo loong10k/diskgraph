@@ -46,3 +46,6 @@ include!("api_exports.rs");
 include!("job_handle.rs");
 
 uniffi::setup_scaffolding!();
+
+#[cfg(test)]
+mod native_growth_eligibility_tests;

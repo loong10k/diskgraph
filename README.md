@@ -258,7 +258,9 @@ Legacy rows stay uncaptured, and missing or conflicting facts are explicit.
 The current implementation and its platform acceptance boundaries are recorded
 in the [full-platform status](docs/production-readiness-full-platform-2026-10-02.md).
 
-FFI implementations now have separate API, realm, scan and job-state files. Two fixed includes preserve the existing UniFFI lexical namespace; a source gate parses their real implementations and rejects other includes. The latest Windows regression reproduced registered-root rebinding; its fix must pass new native CI before this increment is accepted. See the full-platform record above.
+FFI implementations now have separate API, realm, scan and job-state files. Two fixed includes preserve the existing UniFFI lexical namespace; a source gate parses their real implementations and rejects other includes. Registered-root rebinding regressions passed both Windows Rust versions in the 22/22 CI at `c8ff781`. See the full-platform record above for remaining capability gates.
+
+Historical growth requires the same node kind and observed sizes on both sides. Unknown sizes and read errors yield no numeric delta; comparison preserves an unavailable side as `null`. Type replacement remains a path difference. `changes.size_changed == 0` means no qualifying size change was observed; it does not prove that every object is unchanged. Core query and comparison types now reside in individual source files with their existing public exports.
 
 ## Documentation
 
@@ -269,7 +271,7 @@ FFI implementations now have separate API, realm, scan and job-state files. Two 
 | Release channels and runbook | [`RELEASING.md`](RELEASING.md) |
 | Acceptance records behind every number | [`docs/acceptance/`](docs/acceptance/) |
 | Architecture / technical design | [`docs/DiskGraph-Architecture.md`](docs/DiskGraph-Architecture.md) · [设计](docs/DiskGraph-Architecture.zh_CN.md) |
-| Requirements (the formal source) | [OpenSpec change](openspec/changes/implement-diskgraph-platform/proposal.md) — 14 specs, 84 requirements, 129 tasks |
+| Requirements (the formal source) | [OpenSpec change](openspec/changes/implement-diskgraph-platform/proposal.md) — specifications, design decisions and acceptance tasks |
 
 ## Contributing
 
