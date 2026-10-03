@@ -1,8 +1,35 @@
 //! 真实仓库夹具：Git 的 stash list 成功退出仍可能静默跳过损坏 reflog 条目。
 
-use super::sample_git;
+use super::{GitSample, ProbeLimits, sample_git_bounded};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::{Duration, Instant};
+
+// 此夹具验证 stash 语义；显式有限测试期限容纳共享 CI 调度，生产默认仍为 15 秒。
+// 输出、取消和私有输入/分配额度沿用真实默认值，不重试失败采样。
+fn sample_semantics(git: &Path, project: &Path) -> Result<GitSample, String> {
+    let limits = ProbeLimits {
+        timeout: Duration::from_secs(60),
+        ..ProbeLimits::default()
+    };
+    let started = Instant::now();
+    sample_git_bounded(git, project, &limits).map_err(|error| {
+        format!(
+            "{error}; stash semantic fixture elapsed={}ms, timeout={}ms",
+            started.elapsed().as_millis(),
+            limits.timeout.as_millis()
+        )
+    })
+}
+
+// 负例必须因目标语义被拒绝；超时、取消或资源耗尽均不能替代校验成功。
+fn assert_semantic_rejection(project: &Path, expected: &[&str]) {
+    let error = sample_semantics(Path::new("git"), project).unwrap_err();
+    assert!(
+        expected.iter().any(|prefix| error.starts_with(prefix)),
+        "mutated stash fixture expected {expected:?}, observed {error}"
+    );
+}
 
 fn git(project: &Path, args: &[&str]) -> Vec<u8> {
     let output = Command::new("git")
@@ -28,7 +55,9 @@ fn two_stashes() -> (tempfile::TempDir, PathBuf) {
         git(&project, &["stash", "push", "-q"]);
     }
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .expect("baseline: two valid stash entries must be observable")
+            .stash_count,
         2
     );
     (temp, project)
@@ -49,7 +78,7 @@ fn damaged_older_reflog_record_cannot_be_silently_omitted() {
     };
     lines[41..81].fill(missing);
     std::fs::write(&log, lines).unwrap();
-    assert!(sample_git(Path::new("git"), &project).is_err());
+    assert_semantic_rejection(&project, &["git exit status Some(128);"]);
 }
 
 #[test]
@@ -63,7 +92,7 @@ fn missing_older_stash_commit_cannot_be_silently_omitted() {
         "fixture expects the isolated loose stash object"
     );
     std::fs::remove_file(object).unwrap();
-    assert!(sample_git(Path::new("git"), &project).is_err());
+    assert_semantic_rejection(&project, &["git exit status Some(128);"]);
 }
 
 #[test]
@@ -71,7 +100,9 @@ fn drop_and_expire_are_not_mistaken_for_corruption() {
     let (_temp, project) = two_stashes();
     git(&project, &["stash", "drop", "-q", "stash@{1}"]);
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .unwrap()
+            .stash_count,
         1
     );
     git(
@@ -79,7 +110,9 @@ fn drop_and_expire_are_not_mistaken_for_corruption() {
         &["reflog", "expire", "--expire=all", "refs/stash"],
     );
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .unwrap()
+            .stash_count,
         0
     );
 }
@@ -91,7 +124,7 @@ fn malformed_raw_record_is_not_a_valid_stash_count() {
     let mut bytes = std::fs::read(&log).unwrap();
     bytes[40] = b'X';
     std::fs::write(log, bytes).unwrap();
-    assert!(sample_git(Path::new("git"), &project).is_err());
+    assert_semantic_rejection(&project, &["invalid stash reflog record"]);
 }
 
 #[test]
@@ -99,7 +132,9 @@ fn valid_stash_ref_without_raw_log_has_zero_listed_stashes() {
     let (_temp, project) = two_stashes();
     std::fs::remove_file(project.join(".git/logs/refs/stash")).unwrap();
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .unwrap()
+            .stash_count,
         0
     );
 }
@@ -109,7 +144,9 @@ fn reflog_delete_without_rewrite_does_not_require_old_oid_chain() {
     let (_temp, project) = two_stashes();
     git(&project, &["reflog", "delete", "stash@{1}"]);
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .unwrap()
+            .stash_count,
         1
     );
 }
@@ -128,7 +165,9 @@ fn committer_name_containing_tab_is_a_valid_raw_record() {
     edited.splice(pos..pos + needle.len(), b"fix\tture <".iter().copied());
     std::fs::write(log, edited).unwrap();
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .unwrap()
+            .stash_count,
         2
     );
 }
@@ -143,7 +182,9 @@ fn message_containing_angle_brackets_and_greater_than_is_not_identity() {
         &["stash", "push", "-q", "-m", "compare > value <sample>"],
     );
     assert_eq!(
-        sample_git(Path::new("git"), &project).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &project)
+            .unwrap()
+            .stash_count,
         3
     );
 }
@@ -164,7 +205,9 @@ fn linked_worktree_uses_gits_shared_reflog_location() {
         ],
     );
     assert_eq!(
-        sample_git(Path::new("git"), &linked).unwrap().stash_count,
+        sample_semantics(Path::new("git"), &linked)
+            .unwrap()
+            .stash_count,
         2
     );
 }
@@ -182,8 +225,15 @@ fn symlinked_reflog_is_rejected_even_if_contents_are_valid() {
     std::fs::rename(&log, &moved).unwrap();
     symlink(&moved, &log).unwrap();
     let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
-    assert!(GitReflogFile::open(&log, &mut budget).is_err());
-    assert!(sample_git(Path::new("git"), &project).is_err());
+    let error = GitReflogFile::open(&log, &mut budget)
+        .err()
+        .expect("reject link");
+    assert!(error.starts_with("open stash reflog:"), "{error}");
+    let link_error = format!(
+        "git metadata leaf: {}",
+        std::io::Error::from_raw_os_error(libc::ELOOP)
+    );
+    assert_semantic_rejection(&project, &[&link_error]);
 }
 
 #[cfg(unix)]
@@ -196,7 +246,7 @@ fn fifo_reflog_is_rejected_without_waiting_for_a_writer() {
     std::fs::remove_file(&log).unwrap();
     let native = CString::new(log.as_os_str().as_bytes()).unwrap();
     assert_eq!(unsafe { libc::mkfifo(native.as_ptr(), 0o600) }, 0);
-    assert!(sample_git(Path::new("git"), &project).is_err());
+    assert_semantic_rejection(&project, &["git metadata is not a regular file"]);
 }
 
 #[cfg(unix)]
@@ -212,8 +262,17 @@ fn symlinked_reflog_parent_is_rejected() {
     std::fs::rename(&refs, &moved).unwrap();
     symlink(&moved, &refs).unwrap();
     let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
-    assert!(GitReflogFile::open(&refs.join("stash"), &mut budget).is_err());
-    assert!(sample_git(Path::new("git"), &project).is_err());
+    let error = GitReflogFile::open(&refs.join("stash"), &mut budget)
+        .err()
+        .expect("reject linked parent");
+    assert!(error.starts_with("stash path parent:"), "{error}");
+    assert_semantic_rejection(
+        &project,
+        &[
+            "unsupported Git metadata directory type",
+            "unsupported Git ref link",
+        ],
+    );
 }
 
 #[cfg(unix)]
@@ -281,4 +340,19 @@ fn same_bytes_with_new_file_version_cannot_pass_second_read() {
             .unwrap_err()
             .contains("changed")
     );
+}
+
+#[test]
+fn stash_observation_cannot_turn_an_expired_request_into_a_count() {
+    let (_temp, project) = two_stashes();
+    let error = sample_git_bounded(
+        Path::new("git"),
+        &project,
+        &ProbeLimits {
+            timeout: Duration::ZERO,
+            ..ProbeLimits::default()
+        },
+    )
+    .unwrap_err();
+    assert!(error.contains("deadline"), "{error}");
 }

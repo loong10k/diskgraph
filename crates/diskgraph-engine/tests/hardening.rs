@@ -443,7 +443,7 @@ fn withdrawing_content_authorization_after_preflight_prevents_hashing() {
 }
 
 #[test]
-fn sqlite_history_deadline_returns_a_partial_report() {
+fn sqlite_history_deadline_refuses_unprepared_data_or_marks_a_verified_prefix() {
     let (dir, engine, principal, scope) = setup();
     for index in 0..10_000 {
         std::fs::write(dir.path().join(format!("root/item-{index}")), [0]).unwrap();
@@ -453,19 +453,26 @@ fn sqlite_history_deadline_returns_a_partial_report() {
         .unwrap();
     engine.run_job(&job.job_id, "deadline-fixture").unwrap();
     let revision = engine.latest_revision(&scope).unwrap().unwrap();
-    let report = engine
-        .compare_revisions_bounded(
-            &revision,
-            &revision,
-            0,
-            diskgraph_core::QueryBudget {
-                deadline_ms: 1,
-                ..Default::default()
-            },
-        )
-        .unwrap();
-    assert_eq!(report.to_json(None)["complete"], false);
-    assert_eq!(report.to_json(None)["truncation_reason"], "deadline");
+    let result = engine.compare_revisions_bounded(
+        &revision,
+        &revision,
+        0,
+        diskgraph_core::QueryBudget {
+            deadline_ms: 1,
+            ..Default::default()
+        },
+    );
+    // 1 ms 覆盖连接与根读取；未取得可验证报告时只能拒绝，不能凭空补 partial。
+    match result {
+        Ok(report) => {
+            let value = report.to_json(None);
+            assert_eq!(value["complete"], false);
+            assert_eq!(value["truncation_reason"], "deadline");
+            assert_eq!(value["summary_is_partial"], true);
+        }
+        Err(diskgraph_engine::EngineError::Store(diskgraph_store::StoreError::BudgetExceeded)) => {}
+        Err(error) => panic!("unexpected history deadline result: {error:?}"),
+    }
 }
 
 #[test]

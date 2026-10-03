@@ -1,6 +1,6 @@
 {
   "date": "2026-10-03",
-  "scope": "D24 / task 15.17; final-source local acceptance; same-source native CI pending",
+  "scope": "D24 / task 15.17; local acceptance followed by failed native CI; test-contract correction in progress",
   "baseline_commit": "c67d22a2e2593dc766a85e774ed855ad79bc8fff",
   "host": {
     "target": "aarch64-apple-darwin",
@@ -289,6 +289,50 @@
       "ops-fmt-verified.log.gz": {
         "sha256_uncompressed": "fa3c5e04515d19fb07b7c4b0e43ed40fa7421a2ab45174ce0e92ba4565fcd4bb",
         "sha256_gzip": "c5eb5fc90037a7040f65ad25d3785561a63036f7bd9f9e81d8b2f4849b720dcf"
+      },
+      "ci-37128474835-failed.log.gz": {
+        "sha256_uncompressed": "edaabec85074fe6d049363cb8fe3b74f07638a3aae6f51ac53ae9fa2c827744f",
+        "sha256_gzip": "790fb2dc33aa5d52a50d5a81e53d3b56752bae55c879d900ba2913fbab5662ac"
+      },
+      "ci-stash-strict-initial.log.gz": {
+        "sha256_uncompressed": "84b7578cf9c1de4937336cad0b486e11ad80df05ac950d1568941185cd44c56b",
+        "sha256_gzip": "0d7692c55a4cd2becb530e5d1716cbfde36ae49555dfcdc259dd20fcb5f3eca7"
+      },
+      "ci-stash-final.log.gz": {
+        "sha256_uncompressed": "c7ac2a5a575046ea193760c201242afbb3c6f2d9bf1f949cf43b3fe8f86081e8",
+        "sha256_gzip": "dbdbc463adada1f67a45c2ff5b58f4442b143dc1ca6ff4d4b48aa59657d8f365"
+      },
+      "ci-history-green.log.gz": {
+        "sha256_uncompressed": "944dddc2abd25373aeb2d8c21a0d60230c66f313b7b0225994067fe319b476e1",
+        "sha256_gzip": "0dcb5e2d78d986bb42eb32dc0ecee63d685b692186f608313e2a5dc0af566a1a"
+      },
+      "ci-workspace.log.gz": {
+        "sha256_uncompressed": "200d56cae20b961dc657d094e10f79e4857d932de04823f399d9028ebd37d4c5",
+        "sha256_gzip": "e4d21be5414a9b2e8f817c821ee0bf88b1b0637a66b8d31c4000cf615c378127"
+      },
+      "ci-clippy.log.gz": {
+        "sha256_uncompressed": "1efa30976ff66946faad085f46d47df9ef7aa618640f0ea2d5574ff173938c85",
+        "sha256_gzip": "61903a20b647526664791b50d2447a113110b0bfdfa55732e77af92482998b60"
+      },
+      "ci-clippy-final.log.gz": {
+        "sha256_uncompressed": "4b1b014d198c087c4c9bb1ae6bd28fdffec4c55ec32cddc158ce91b6927f30f4",
+        "sha256_gzip": "197a9a25a27d33584edf1050345ef354e2118da9ce74764fbf4f2b8d68819fa6"
+      },
+      "ci-history-final.log.gz": {
+        "sha256_uncompressed": "caa80c2c49efc2307f7923c858690d058806e8a861ed2910e83c19b7253d3b77",
+        "sha256_gzip": "f5e8740c04930bb963ab4d7ec3238f793d426ff06cad43c2079188dd2b5d4e10"
+      },
+      "ci-fmt-final.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "ci-openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "ci-workspace-final.log.gz": {
+        "sha256_uncompressed": "afc3319d0c2524258b032fff7510bb40eb03fa0564b0bfe82e0c909624b1edd3",
+        "sha256_gzip": "631d165744586df48b0c836d664f170411c2bafd0ef654717eb91e60d03bb548"
       }
     }
   },
@@ -304,7 +348,47 @@
     "Legacy FFI history routing and provider/no-hydration, native writes, mobile/device/signing and production gates remain open under their parent tasks."
   ],
   "native_ci": {
-    "status": "pending",
-    "tested_commit": null
+    "status": "completed",
+    "conclusion": "failure",
+    "tested_commit": "5081ed746d655b39ff74fb288c65d601360aae2f",
+    "run_id": 37128474835,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37128474835",
+    "passed_jobs": 18,
+    "total_jobs": 22,
+    "failure_categories": [
+      "History fixture required a partial report despite its 1 ms deadline covering preparation; actual Store(BudgetExceeded) is permitted before a verified report exists.",
+      "Windows Rust 1.97 stash semantic baseline exhausted the unchanged production default 15 s probe deadline before the reflog mutation. I/O or scheduling cause remains unproven."
+    ]
+  },
+  "ci_correction": {
+    "status": "local_validation_passed_native_ci_pending",
+    "production_behavior_changed": false,
+    "semantic_fixture_timeout_seconds": 60,
+    "production_default_timeout_seconds": 15,
+    "notes": [
+      "Semantic stash negatives require target rejection reasons; resource exhaustion cannot satisfy them.",
+      "Strict assertion calibration first observed 13 passed / 2 failed because native metadata guards reject links and FIFOs before stash-specific guards; corrected assertions target actual native rejection. This is not a production defect RED.",
+      "Explicit expired-before-preparation and terminal-expiry-after-read history cases exercise distinct contracts. These do not alone prove SQLite VM interruption.",
+      "A larger finite semantic fixture deadline does not prove production default-deadline performance is resolved.",
+      "The initial strict Clippy run rejected unused Fixture fields in a separate integration binary. The new phase tests were moved into the existing query_request_budget suite with unchanged test bodies; no lint suppression. Final targeted suite 9/0 and strict Clippy passed."
+    ],
+    "source_files": {
+      "crates/diskgraph-engine/src/live_evidence/git_stash_tests.rs": "742aa84e864eb57f0fcfe68af56ff372449f029eb0eab972525748408dd92da4",
+      "crates/diskgraph-engine/tests/hardening.rs": "bb9258ea3299ea0e85eb51ae4f3dbf03a840e986ec184a13964ed06dd17ce455",
+      "crates/diskgraph-engine/tests/query_request_budget.rs": "94e45998969977613e4daf47925ceb08f01ee1ad2993ac4b3e0140d0de54202d",
+      "crates/diskgraph-engine/tests/query_request_budget/history_deadline_phases.rs": "a4ddb3cf08c37ededfca05877e2b94b36ea7716b4215cd820ed1fdb1fb33f18b",
+      "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "260c09725d37b373095623d507e20123bb5d801f8173501052d2e8e755ec306e"
+    },
+    "workspace": {
+      "suites": 45,
+      "passed": 939,
+      "failed": 0,
+      "ignored": 18
+    },
+    "workspace_command": "CARGO_TARGET_DIR=/private/tmp/diskgraph-d24-validation-target cargo test --workspace --all-targets --locked --no-fail-fast",
+    "workspace_exit_code": 0,
+    "clippy_exit_code": 0,
+    "fmt_exit_code": 0,
+    "openspec_exit_code": 0
   }
 }

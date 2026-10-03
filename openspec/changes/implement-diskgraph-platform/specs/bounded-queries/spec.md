@@ -38,6 +38,10 @@
 - **WHEN** 树、比较、changes 或 growth 的首次授权、归属解析、读连接准备或末段授权等待耗尽请求期限
 - **THEN** 所有阶段继承解析前生成的同一个绝对期限，空结果和不兼容历史也不得晚到完整成功；保留旧可信 API 契约，有界前缀明确 Deadline，无法确认归属或容纳诊断则拒绝，不承诺抢占同步等待。
 
+#### Scenario: History deadline fixtures distinguish preparation from a verified prefix
+- **WHEN** 历史查询在连接/根元数据尚未完成时到期，或已经生成可验证报告后在最终授权阶段到期
+- **THEN** 前者返回明确预算错误，不伪造报告；后者保留已比较条目并同时标记 deadline、complete=false 和 summary_is_partial=true。回归分别固定这两个阶段，不要求任意宿主在 1 ms 内完成准备，也不接受其他错误或晚到完整成功。
+
 #### Scenario: Tree and comparison include the complete encoded report
 - **WHEN** 树或历史路径含转义字符，或者最小报告头和诊断已超过正数响应额度
 - **THEN** 预算覆盖实际 JSON 数据/报告头/诊断及承诺 envelope 的完整编码；不以路径长度近似，不容纳最小报告时明确预算错误。外层 truncated 与数据完成度保持一致；节点额度按双侧实际解码累计，超限 lookahead 不解码未返回节点。

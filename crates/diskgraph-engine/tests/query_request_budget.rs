@@ -3,6 +3,7 @@
 mod query_request_budget {
     pub(super) mod callback_authorizer;
     pub(super) mod fixture;
+    mod history_deadline_phases;
 }
 
 use diskgraph_core::{BusinessError, QueryBudget};
