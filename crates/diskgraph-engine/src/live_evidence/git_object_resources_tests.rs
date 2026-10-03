@@ -175,9 +175,11 @@ fn assert_windows_config_paths(fixture: &GitIsolationFixture, case: &str) {
         );
     } else {
         assert_eq!(raw.status.code(), Some(128), "native config: {raw:?}");
+        // init 与 config --list 的配置读取诊断不同；只接受已由 Windows 原生复现的两种错误。
+        let stderr = String::from_utf8_lossy(&raw.stderr);
         assert!(
-            String::from_utf8_lossy(&raw.stderr)
-                .contains("unknown error occurred while reading the configuration files"),
+            stderr.contains("unknown error occurred while reading the configuration files")
+                || stderr.contains("error processing config file(s)"),
             "native config: {raw:?}"
         );
     }
