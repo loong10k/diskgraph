@@ -1,10 +1,11 @@
 //! 共享 Engine 的 scan_execution 职责；原调用与持锁顺序保持。
 
 use crate::scan_node_locator::qualify_scan_locator;
+use crate::scan_observation_guard::ScanObservationGuard;
 use crate::{Engine, EngineError, collect_projects};
 use diskgraph_core::{
-    Authorizer, BudgetDecision, BudgetUsage, BusinessError, DiskGraph, Permission, ScanBudget,
-    ScanBudgetStop, ScanExclusions, ScanWindow,
+    Authorizer, BudgetDecision, BudgetUsage, BusinessError, DiskGraph, Permission, ScanBudgetStop,
+    ScanWindow, WindowsFileObservation, WindowsObservationGap,
 };
 use diskgraph_store::StoreError;
 use std::io;
@@ -54,6 +55,16 @@ impl Engine {
         let mut last_heartbeat = started_at_unix_ms;
         let staging_id = format!("{job_id}:{}", job.fencing_token);
         let options = self.scan_options.clone();
+        let observation_guard = ScanObservationGuard::new(self, &job, cancel, scan_started);
+        observation_guard.check_now()?;
+        #[cfg(windows)]
+        let _hydration_guard = diskgraph_disktree::HydrationGuard::enter()
+            .map_err(|_| EngineError::Business(BusinessError::Unsupported))?;
+        #[cfg(windows)]
+        let native_root =
+            crate::windows_native_scan_root::WindowsNativeScanRoot::open(&root, &|| {
+                observation_guard.check()
+            })?;
         let handle =
             diskgraph_disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
         let mut exceeded = false;
@@ -134,92 +145,94 @@ impl Engine {
             elapsed_ms: window.duration_ms(),
             ..BudgetUsage::default()
         };
-        let mut exclusions = ScanExclusions::default();
-        let mut budget_stop: Option<ScanBudgetStop> = None;
-        let total_bytes: u64 = scanned.nodes.iter().map(|node| node.v1.subtree_bytes).sum();
-
-        // RT-04: the configured node ceiling is a hard refusal.
-        if scanned.nodes.len() as u64 > self.max_nodes_per_scan {
-            let mut graph = self.graph()?;
-            let _ = graph.clear_staging(&staging_id);
-            return Err(EngineError::Business(BusinessError::BudgetExceeded));
+        if scanned.nodes.len() as u64 > self.max_nodes_per_scan.min(self.scan_budget.max_nodes) {
+            return Err(BusinessError::BudgetExceeded.into());
         }
 
-        // 2.9: charge the walk against its budget. A reached limit stops the
-        // walk for a named reason instead of returning less data silently, and
-        // a cancellation observed here is reported, never swallowed. The byte
-        // charge is the node's OWN bytes, never its subtree aggregate: every
-        // ancestor would otherwise bill the same file again, so a deep tree
-        // would multiply its real size by its depth and stop on phantom bytes.
-        for node in &scanned.nodes {
-            let locator = qualify_scan_locator(node)?;
-            match self.scan_budget.charge_node(
-                &mut usage,
-                diskgraph_store::staging_node_encoded_cost(
-                    &node.v1,
-                    Some(&locator),
-                    node.self_modified,
-                )?,
-            ) {
-                BudgetDecision::Continue => {}
-                BudgetDecision::Stop(stop) => {
-                    budget_stop = Some(stop);
-                    break;
-                }
-            }
-            if let Some(decision) = ScanBudget::observe_cancel(cancel.load(Ordering::SeqCst))
-                && decision.is_stop()
-            {
-                budget_stop = Some(ScanBudgetStop::Cancelled);
-                break;
-            }
-        }
-        if let Some(stop) = budget_stop {
-            // Record why the walk ended before refusing, so the job log can
-            // explain itself. The named reason goes to the operator's stderr
-            // too: a failed job must be diagnosable without a debugger.
-            exclusions
-                .error_summary
-                .push(format!("scan stopped: {stop:?}"));
-            eprintln!(
-                "diskgraph: scan stopped: {stop:?} after {} nodes / {} charged bytes / {} ms",
-                usage.nodes, usage.staged_bytes, usage.elapsed_ms
-            );
-            let _ = total_bytes;
-            let mut graph = self.graph()?;
-            let _ = graph.clear_staging(&staging_id);
-            return Err(EngineError::Business(match stop {
-                ScanBudgetStop::Cancelled => BusinessError::Conflict,
-                _ => BusinessError::BudgetExceeded,
-            }));
-        }
-
-        // Stage in bounded batches, then publish snapshot + revision + latest
-        // pointer in one transaction (ST-01).
-        let mut graph = self.graph()?;
+        // 采样和编码发生于数据库写锁外，额外对象只保留当前配置批次。
         for batch in scanned
             .nodes
             .chunks(self.scan_budget.write_batch_nodes.max(1) as usize)
         {
+            observation_guard.check_now()?;
             if !self.accepts_new_work() {
-                graph.clear_staging(&staging_id)?;
-                return Err(EngineError::Business(BusinessError::ResourceExhausted));
+                return Err(BusinessError::ResourceExhausted.into());
             }
-            self.control()?
-                .heartbeat_fenced(job_id, owner, job.fencing_token)?;
-            // 仅保留当前有界写入批次的额外定位对象，不复制整份扫描图。
-            let locators = batch
-                .iter()
-                .map(qualify_scan_locator)
-                .collect::<Result<Vec<_>, _>>()?;
+            let mut locators = Vec::with_capacity(batch.len());
+            let mut observations: Vec<(
+                Option<WindowsFileObservation>,
+                Option<WindowsObservationGap>,
+            )> = Vec::with_capacity(batch.len());
+            for node in batch {
+                observation_guard.check()?;
+                let locator = qualify_scan_locator(node)?;
+                #[cfg(windows)]
+                let observed = native_root.observe(
+                    &locator
+                        .to_native_path()
+                        .map_err(|_| BusinessError::Unsupported)?,
+                    &node.v1,
+                    node.self_modified,
+                    &scanned.snapshot.settings,
+                    &|| observation_guard.check(),
+                )?;
+                #[cfg(not(windows))]
+                let observed = (None, Some(WindowsObservationGap::Unsupported));
+                #[cfg(test)]
+                crate::scan_observation_tests::after_observe(&job.job_id);
+                observation_guard.check()?;
+                usage.elapsed_ms =
+                    u64::try_from(scan_started.elapsed().as_millis()).unwrap_or(u64::MAX);
+                let cost = diskgraph_store::staging_observed_node_encoded_cost(
+                    &node.v1,
+                    Some(&locator),
+                    node.self_modified,
+                    observed.0.as_ref(),
+                    observed.1,
+                )?;
+                if let BudgetDecision::Stop(stop) = self.scan_budget.charge_node(&mut usage, cost) {
+                    eprintln!(
+                        "diskgraph: scan stopped: {stop:?} after {} nodes / {} charged bytes / {} ms",
+                        usage.nodes, usage.staged_bytes, usage.elapsed_ms
+                    );
+                    return Err(match stop {
+                        ScanBudgetStop::Cancelled => BusinessError::Conflict,
+                        _ => BusinessError::BudgetExceeded,
+                    }
+                    .into());
+                }
+                locators.push(locator);
+                observations.push(observed);
+            }
+            observation_guard.check_now()?;
+            // 原生调用已结束；遵循既有 graph→control 写锁顺序，并在原子 fence 下暂存。
+            #[cfg(test)]
+            crate::scan_observation_tests::before_stage_lock(&job.job_id);
+            let mut graph = self.graph()?;
             self.control()?
                 .with_job_fence(job_id, owner, job.fencing_token, || {
-                    graph.append_staging_located_iter(
+                    // 已等待图锁和控制事务，写入前只检查本代次原始时钟与取消，避免重入控制锁。
+                    if cancel.load(Ordering::SeqCst) {
+                        return Err(StoreError::Conflict("scan cancelled before staging".into()));
+                    }
+                    if scan_started.elapsed()
+                        > Duration::from_millis(self.scan_budget.max_duration_ms)
+                    {
+                        return Err(StoreError::BudgetExceeded);
+                    }
+                    graph.append_staging_observed_iter(
                         &staging_id,
-                        batch
-                            .iter()
-                            .zip(&locators)
-                            .map(|(node, locator)| (&node.v1, locator, node.self_modified)),
+                        batch.iter().zip(&locators).zip(&observations).map(
+                            |((node, locator), (observed, gap))| {
+                                (
+                                    &node.v1,
+                                    locator,
+                                    node.self_modified,
+                                    observed.as_ref(),
+                                    *gap,
+                                )
+                            },
+                        ),
                     )
                 })?;
         }
@@ -233,7 +246,6 @@ impl Engine {
             evidence: scanned.evidence,
         };
         // 项目证据在公开 revision 前准备；计算期间不占用图库写锁。
-        drop(graph);
         let project = collect_projects(&observed_graph);
         let collector = diskgraph_core::CollectorBatch {
             run: project.run,
@@ -241,6 +253,9 @@ impl Engine {
             evidence: project.evidence,
             edges: project.edges,
         };
+        observation_guard.check_now()?;
+        #[cfg(windows)]
+        native_root.validate_root(&|| observation_guard.check())?;
         let mut graph = self.graph()?;
         if !self.accepts_new_work() {
             graph.clear_staging(&staging_id)?;
@@ -264,6 +279,11 @@ impl Engine {
         let server_id = control.ensure_server()?;
         control.heartbeat_fenced(job_id, owner, job.fencing_token)?;
         let result = control.with_job_fence(job_id, owner, job.fencing_token, || {
+            if cancel.load(Ordering::SeqCst) {
+                return Err(StoreError::Conflict(
+                    "scan cancelled before publication".into(),
+                ));
+            }
             let elapsed = scan_started.elapsed();
             #[cfg(test)]
             let elapsed = crate::scan_publication_tests::publication_elapsed(job_id, elapsed);

@@ -1,0 +1,394 @@
+{
+  "date": "2026-10-04",
+  "scope": "D31 / FS-02 complete Windows supplementary attribute persistence prerequisite; original full-platform goal remains open",
+  "baseline_commit": "949c3b85ea37fbb54f6e2b60dd42d46166cb9236",
+  "status": "local_validation_complete_independent_reviews_approved_native_ci_pending",
+  "schema": {
+    "graph": 12,
+    "count_schema": 9,
+    "collector_writer_generation": 10,
+    "locator_writer_generation": 11,
+    "native_observation_writer_generation": 12,
+    "legacy": "NULL/NotCaptured, no guessing or backfill"
+  },
+  "source_files": {
+    "crates/diskgraph-core/src/lib.rs": "a90efd17ce41b7e2cab0a556961d6f62172cede2c4a2c43b0a98b0bdd3aec50c",
+    "crates/diskgraph-core/src/windows_file_observation.rs": "ebbb078f4b874f2fb5ad48022005bd19ebe4c82bed5a47a69df9e276e26a52a9",
+    "crates/diskgraph-core/src/windows_file_observation_tests.rs": "89b1b7d38e21fbc4435d25526cee874aa04fda114e0241999ab47842eab7b699",
+    "crates/diskgraph-core/src/windows_observation_error.rs": "afff7f05fb28bd8cc7ae6a430a5c955dfcaa3450dcc8743da357e9680c16e5ca",
+    "crates/diskgraph-core/src/windows_observation_gap.rs": "5f863a4ce076d3bf4a1cbf44ed8562448793b6f6ad66f07d2b391679cc06ffa5",
+    "crates/diskgraph-core/src/windows_tree_alignment.rs": "f16d645dc482e86db7afb3bbfdde8c625a3f336b132dff1bc2d900c3ac6a90bc",
+    "crates/diskgraph-disktree/src/lib.rs": "a9f8285935828dc4e8c58e50c156564c7b08decc3913f66770930c153e708c81",
+    "crates/diskgraph-disktree/src/windows_native_observer.rs": "c7339bf6f6ed3b0f732462a150a287a19d10103f53c53434a9e12740b8ab602a",
+    "crates/diskgraph-engine/src/lib.rs": "71c475603483f1ae95dbd43b193469f47e97039172045cf831249edb4988c81a",
+    "crates/diskgraph-engine/src/revision_evidence_tests.rs": "fcee85c4d036db0b9d951096b84688c3757a03e95266fa7b0c3ef2c3990f2676",
+    "crates/diskgraph-engine/src/revision_windows_observation.rs": "6ca03fbee5d2f153ceceeef509f473030febe9b793af862e7562d27934bfd794",
+    "crates/diskgraph-engine/src/revision_windows_observation_tests.rs": "f5d0da20e6f21d557763a42754e591f9481c9bcf6b86e0fbf6ce877258bf79b3",
+    "crates/diskgraph-engine/src/scan_execution.rs": "98d253335cb00092dc379736ac5aa361dba959bb842193244f58ef9ed22c6791",
+    "crates/diskgraph-engine/src/scan_observation_guard.rs": "283ac2fe81f64c3ae71c212d45ba1afbf5070ca4409ad51a2672e54ffe54560d",
+    "crates/diskgraph-engine/src/scan_observation_tests.rs": "b70e21d04a46ac68f900b84ebe5938715c0cf0354bb93f8ecdab28c1627799b7",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "f509d6397ae821005de5a09e65d04be9a57fe17f658ffa3da49ad616e095e7b2",
+    "crates/diskgraph-engine/src/windows_native_open.rs": "9ca04c2c605ef9bd3c0d2f869a4854de61eb6185a7f85fe477dbb55bca603d07",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "805d4a0755635a8b618810d280772cea3b4dc06ccee63f853263d90b16349e5d",
+    "crates/diskgraph-engine/src/windows_native_scan_tests.rs": "c7b1292d45377acf76a95a8efb0767c2ab03b8090a1144e635df07f657375673",
+    "crates/diskgraph-engine/src/windows_path_plan.rs": "df1c0e28eade77002b367623befa649dbc3e405662e32ea6beb9e70470c62d81",
+    "crates/diskgraph-ffi/src/native_revision_candidate_tests.rs": "3ee757ca87daf66a1eae3ef37a6c4db6789f6e8f9c8e5e1f9b513b42f00f7e05",
+    "crates/diskgraph-store/src/child_aggregate_benchmark.rs": "564244338589e7eccf681b76e08a5d0b38835a48669b724342e298ec1e2f013f",
+    "crates/diskgraph-store/src/child_aggregate_tests.rs": "baf86de3d346f4107683b77de9f07eb907ca07e6931fa0b2542372e57fa46d89",
+    "crates/diskgraph-store/src/collector_protocol_tests.rs": "c5a90ad73eac70236e7af84c98488723de9749acbd5349bdb46e6e8169dfa2ab",
+    "crates/diskgraph-store/src/collector_publication.rs": "3242d9ca000e66fb77cb1f4e213df6d1a3244b275117e8216e31076cdced5127",
+    "crates/diskgraph-store/src/collector_publication_tests.rs": "ce510698cfd59d82ebe63934334213029b74d6a80a8cbd187f25ab378975620a",
+    "crates/diskgraph-store/src/lib.rs": "a638a6d7edb308692b5a4662f3a1c317602dac4b3859f3d2e5875fbe25fe6ef5",
+    "crates/diskgraph-store/src/native_locator_point_query_tests.rs": "7afeb101e8f6675bfe68133a8c4149d74cdbba3f7d7cec865cfc3770c319a299",
+    "crates/diskgraph-store/src/native_locator_tests.rs": "89b75c4b52494c29e4353bebca604e2d2071dd16a8453ca85fb2c1df2a9ca965",
+    "crates/diskgraph-store/src/revision_candidate_tests.rs": "6a717d5226391d0fd26eeb89c3274af1f3ae41b84344dae66ae78b724030a14f",
+    "crates/diskgraph-store/src/revision_evidence_tests.rs": "e39835acfe444542c38440a62a3edcc3dcd279d32b24bf568923d38de2f3a758",
+    "crates/diskgraph-store/src/revision_writer.rs": "857420d1e03a9d6d22f9373ef690421a6b59ab7720a2a991190b23d5cd181161",
+    "crates/diskgraph-store/src/scan_staging_store.rs": "94241e4362c8d2c8a703c29a72992648857dca07fac38d5081a1a86ea5655f9f",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "db7575a0ac736edf1a5630c9cdee1a3e4b66c1624a5c47e1cf340e162c4d3afd",
+    "crates/diskgraph-store/src/staging_locator_validation.rs": "00d3255c54dcc2965f3c4a6d195a4b7c3666e1522c904f46c0c1ce1c785a6f81",
+    "crates/diskgraph-store/src/staging_node_encoding.rs": "22751629ae1408a484351d087697e50c05390bf2be240c7c0b05383f91798e28",
+    "crates/diskgraph-store/src/stored_windows_observation.rs": "3aa1368bdb944ed55e1619c939245c9358c2c807ee2f7696e8f3a534efdbd12e",
+    "crates/diskgraph-store/src/windows_observation_codec.rs": "70257de6c024db686638eadf8880aaffa9ad58df544cf27cfcbbf8477f64646c",
+    "crates/diskgraph-store/src/windows_observation_fixtures.rs": "1b133c7d9631cce002b21b233182402aa2022355e1036e3b8e81f1ecf5b77ea9",
+    "crates/diskgraph-store/src/windows_observation_migration.rs": "1cb17c7dfa5e66976be34e173ef3541ad4e3b261f72d1a6150ec5f3b33f8434f",
+    "crates/diskgraph-store/src/windows_observation_publication_tests.rs": "4d3e9b6ca477c71b39ef97cc032cf4d4e79d3cfd4418ceaaef7274fc3c5c8f11",
+    "crates/diskgraph-store/src/windows_observation_query.rs": "05bdf29d407b72322ed58dc647c3e83163c12c6b827802c6275f970f520aa2b4",
+    "crates/diskgraph-store/src/windows_observation_tests.rs": "9080d108af31cee6366ebcc216d18cfe507ff50093efc30459c2d9c092d66012",
+    "crates/diskgraph-store/tests/migration_backup.rs": "f96c4707cb84bcb585876aabbfa1e195fb49125b6bc5753045f6d33fbebe77c6"
+  },
+  "red": {
+    "old_schema": {
+      "passed": 0,
+      "failed": 1,
+      "note": "old nodes/staging lacked observation fields"
+    },
+    "core_api": {
+      "exit_code": 101,
+      "note": "missing public API compile failure, not a behavior-failure claim"
+    },
+    "scan_publication": {
+      "passed": 0,
+      "failed": 1,
+      "actual": "NotCaptured",
+      "expected": "explicit Unsupported on unsupported host"
+    },
+    "staging_lock_wait": {
+      "passed": 0,
+      "failed": 1,
+      "actual_committed_staging_rows": 2,
+      "note": "actual graph Mutex contention; independent stage_seen trigger survives later cleanup; RED fixture used shorter deadline, GREEN uses 5-second isolated setup margin"
+    }
+  },
+  "targeted": {
+    "core_codec_passed": 9,
+    "store_observation_filtered_passed": 10,
+    "engine_observation_filtered_passed": 24,
+    "engine_filter_note": "includes existing observation tests; not 24 new D31 cases",
+    "stage_lock_wait_passed": 1,
+    "stage_lock_wait_branches": [
+      "expired original clock after real graph wait",
+      "local cancellation during real graph wait"
+    ],
+    "affected_five_crates": {
+      "passed": 746,
+      "failed": 0,
+      "ignored": 13,
+      "suites": 29,
+      "note": "before final stage-clock fix; final workspace below covers final source"
+    },
+    "windows_native_and_pipeline_tests": {
+      "count": 11,
+      "execution": "pending same-source native CI, not runnable on local macOS"
+    }
+  },
+  "workspace": {
+    "passed": 1089,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0,
+    "warnings": 0
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "scoped_fmt_exit_code": 0,
+    "openspec_strict_exit_code": 0,
+    "release_cli_mcp_ffi_exit_code": 0,
+    "vendor_source_digests_unchanged": 14
+  },
+  "protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "uniffi": {
+    "passed": 19,
+    "total": 19,
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    }
+  },
+  "performance": {
+    "windows_observation_release_point_read": {
+      "selected_nodes": 1,
+      "unrelated_nodes": [
+        20000,
+        200000
+      ],
+      "sqlite_vm_instructions": [
+        18,
+        18
+      ]
+    },
+    "file_load": [
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.437,
+        "query_p50_ms": 6.469,
+        "query_p95_ms": 8.564,
+        "database_and_wal_bytes": 43442176,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "cli_children_max_rss_bytes": 44826624,
+        "rss_measurement": "maximum direct waited CLI child ru_maxrss, Darwin bytes; observation, not hard bound or per-query sample"
+      },
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 4.391,
+        "query_p50_ms": 6.773,
+        "query_p95_ms": 7.999,
+        "database_and_wal_bytes": 436916224,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "cli_children_max_rss_bytes": 263307264,
+        "rss_measurement": "maximum direct waited CLI child ru_maxrss, Darwin bytes; observation, not hard bound or per-query sample"
+      }
+    ],
+    "historical_D30_reference": [
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.463,
+        "query_p50_ms": 6.745,
+        "query_p95_ms": 8.084,
+        "database_and_wal_bytes": 42536960,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "cli_children_max_rss_bytes": 43417600,
+        "rss_measurement": "getrusage(RUSAGE_CHILDREN).ru_maxrss maximum of directly waited CLI processes, platform units converted to bytes; observation, not a bound or per-query sample"
+      },
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 5.096,
+        "query_p50_ms": 7.229,
+        "query_p95_ms": 10.709,
+        "database_and_wal_bytes": 427798528,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "cli_children_max_rss_bytes": 263520256,
+        "rss_measurement": "getrusage(RUSAGE_CHILDREN).ru_maxrss maximum of directly waited CLI processes, platform units converted to bytes; observation, not a bound or per-query sample"
+      }
+    ],
+    "comparison_note": "Separate macOS observations, not a paired speedup/cold-cache or strict RSS proof. Explicit gap fields increase fixture DB+WAL by approximately 2.1%. Windows ancestor attribute-query cost needs native scale measurements."
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "source_manifest_sha256": "422a0635c882058c5257d1eb9bd04f2c579bb0e260e2f69ec1c4278c61f53645",
+    "verified_source_files": 44,
+    "scope": "source increment and read real local logs; native Windows/provider/write/host/mobile are not certified"
+  },
+  "native_ci": {
+    "status": "pending_new_source_push"
+  },
+  "remaining_limits": [
+    "pinned walk remains path-based; held root only constrains supplementary attributes",
+    "own native capture window does not make tree or content atomic",
+    "ReFS actual high128, cloud provider no-download and SMB not certified",
+    "scope root encoding provenance, live collector tasks and history identity use still separate",
+    "native writes remain disabled; host/mobile/signing/deployment gates open"
+  ],
+  "logs": {
+    "directory": "windows_observation_acceptance_2026_10_04_logs",
+    "files": {
+      "schema-red.log.gz": {
+        "sha256_uncompressed": "a25756336b7632e008f9108118c0040835688a4760e65c468ab536121894901f",
+        "sha256_gzip": "2b044114239c015e8bf44d4b898edcd96bd1e88df13548a3346cc13c90d38e05"
+      },
+      "core-api-red.log.gz": {
+        "sha256_uncompressed": "6aa16b681503efbe6f79545bab797c3bc62cb0a9073d7f30efa3adea2b80dd05",
+        "sha256_gzip": "1bfacc77f89c4c00285afeb18bdbeb9a59570885b618d0f3466d49836360e168"
+      },
+      "scan-red.log.gz": {
+        "sha256_uncompressed": "219134a3a1f978b7502d83753dc233b809d1a4b18d3608daf639a1c7ade7e56b",
+        "sha256_gzip": "25d16f89e880e98ca0e79896c58bfe07e4524d59a5241cf859f3ae3cd8101ffc"
+      },
+      "stage-lock-red.log.gz": {
+        "sha256_uncompressed": "8216d1fbb8e6ce0df5719e4577ab587901475eb88a64f64ca1fec2037b89a7df",
+        "sha256_gzip": "d5cd39b5a165ea5d53dc5b5e210d90ecd5205e0b06f50bdeb2e3c68065ba2164"
+      },
+      "stage-lock-green.log.gz": {
+        "sha256_uncompressed": "e34b3ed5606f19cac166ecc1fd9eaa00720d9631b5185f1010e66ac585ced955",
+        "sha256_gzip": "b1bbcd17a8c69880d54c3b006f132e442fd1e40c1de4a03526a5dd368af31182"
+      },
+      "core-green.log.gz": {
+        "sha256_uncompressed": "ae62ad4542be0b792c992a297fd69b55a028f3c2ca3fc256b3a4a8f5615f464b",
+        "sha256_gzip": "e9d767caff7e2876c59e1dd9991a9e0ee6fc8daf0d3c9bbd875704a754ad5576"
+      },
+      "store-green.log.gz": {
+        "sha256_uncompressed": "8a9f2507451d546aefc495908ea2730a9342b79da98e5e703232fd89cad20196",
+        "sha256_gzip": "0cf764f72d6a4e5fd64980b1201c187c0bc4079fee447d3e629213434b5d58e0"
+      },
+      "engine-green.log.gz": {
+        "sha256_uncompressed": "0c66dcb585c810a592176449f19a1b3373d30b277b0360a3376c3ae14e875a07",
+        "sha256_gzip": "de2593ffccc89b61f83f6eb3c0176a9140986d033f3fe47972739605c3f02d24"
+      },
+      "targets.log.gz": {
+        "sha256_uncompressed": "9c3563fc64aaa78687e75eaf7dff4ced56fc43ac194a931ad5c34ad45d9fe15f",
+        "sha256_gzip": "6222bd8575c263247cbc14fb8858ef84bb56e49d0dccae62a88ce350f3abc2a9"
+      },
+      "workspace-final.log.gz": {
+        "sha256_uncompressed": "4d4d4496200ef3da06055f62ab788da3b876e793bec87032520f090d3ef51c6d",
+        "sha256_gzip": "103b2d216b9e502aff7dbfa74706be5e96e7cb258083fc0e28581b55bba6ab17"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "e63652ae42e890d2e09b148bb481532858cc35ed118a78e4b6697d3ebdff5aa6",
+        "sha256_gzip": "2fa2da61f8807d11cf4bc74bf265a355372505418ba70448bb7ac77869f9e1c7"
+      },
+      "release-final.log.gz": {
+        "sha256_uncompressed": "65898058342ae5ea7e70181becd74a5e6da2ce53d33d0c00beaa592ef7fb9b07",
+        "sha256_gzip": "2825dece57adb158976d9f23c9a6de036786b06f30bcaa01402139ce6fe4df47"
+      },
+      "vm-release.log.gz": {
+        "sha256_uncompressed": "93734cf9d75d8f23e744ad895749b310f9e33a43bc9254560bbe7fc0199c8f92",
+        "sha256_gzip": "131dfcce026bc82ce20edcc38dfff13202a4b9a31225e21f8c1b97fdbf2e811d"
+      },
+      "fmt-final.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "stdio.json.gz": {
+        "sha256_uncompressed": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+        "sha256_gzip": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+      },
+      "http.json.gz": {
+        "sha256_uncompressed": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+        "sha256_gzip": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+      },
+      "uniffi.json.gz": {
+        "sha256_uncompressed": "c1ad9e24bf048416c61cce12e8a4a64ff692758106f39037c7419963d7ff5b78",
+        "sha256_gzip": "f5194656b466210410e53d9e53853bd2c7a10f56db972de48220f6eab93d4b44"
+      },
+      "load-20000.json.gz": {
+        "sha256_uncompressed": "e7bfc130238f947a688029e265c9132199d63344aa1640392478f07b08a9cf14",
+        "sha256_gzip": "922831e3366cf614442351b7d405c6fcc722c5d65165e17715661e3d3f9d070c"
+      },
+      "load-200000.json.gz": {
+        "sha256_uncompressed": "0685c39383d5a9881921df79ddad96a5505495938c78dcc633385c0824c5d161",
+        "sha256_gzip": "0f2f079d34d2f72cc073f55805b6aacc7e1e992f4283d16e67c10a87bf581665"
+      }
+    }
+  }
+}

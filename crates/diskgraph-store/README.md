@@ -115,6 +115,19 @@ schema 11 不从历史展示路径或聚合时间推断原始定位与自身时�
 分配，按快照/节点 ID 精确读取。旧定位不可用与节点不存在分别处理，不回退
 展示路径。原有可信 v1 Store 接口保持兼容，原生访问仍需调用方授权及句柄验证。
 
+schema 12 在同一节点/暂存行增加完整 Windows 观测的格式标签、固定 80 字节 BLOB
+与互斥缺失原因。`append_staging_observed_iter` 和
+`staging_observed_node_encoded_cost` 共用编码与实际字段成本；定位必须是明确的
+Windows 原生编码才接受完整观测。旧 append/save 接口保持全空，历史记录读取为
+`NotCaptured`，迁移备份保留 v11，不用旧身份、显示路径或秒时间补出原生观测。
+
+`windows_observation_bounded` 按快照/节点主键读取，在拥有或解码前累计借用字段
+的节点、字节及绝对期限预算；跨宿主可读纯元数据，不执行路径转换。协议版本、
+长度、字段类型、半字段和互斥冲突明确失败。独立 observation writer generation 12
+阻止已打开的旧发布写者，目录 9、collector 10、locator 11 代次保持原义。暂存、
+项目批次、发布、latest 和清理仍在原事务内。该持久化接口不证明真实 Windows
+捕获、云占位不下载、身份长期稳定或原生写能力已经验收。
+
 ## License
 
 MIT

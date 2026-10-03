@@ -453,9 +453,46 @@ were **43,417,600/263,520,256 bytes**. These are separate observations, not a
 paired speedup or an RSS bound; native fields add approximately 13% storage
 against the earlier D28 fixtures, whose measurements are retained in the receipt.
 
-Corrected-source native CI remains pending. Pinned scanner name limitations,
+Same-source `949c3b85` [CI37146795537](https://github.com/loong10k/diskgraph/actions/runs/37146795537) completed with **22/22 jobs successful**, including Windows stable/MSRV and native packages. This covers D30, not the later D31 changes. Pinned scanner name limitations,
 old scope encoding provenance, full128 Windows scan identity, root capability,
 authorized live collectors, real providers/no-download, native writes,
 host/mobile integration and signing/deployment remain separate open gates.
 Own seconds mtime is not a high-precision content version or atomic snapshot.
 No full-platform parent item is marked complete by this prerequisite.
+
+
+## Complete Windows attributes and post-lock staging checks (D31 prerequisite, 2026-10-04)
+
+Schema 12 stores a separate fixed 80-byte record for full 128-bit file IDs, u64
+volume serials, EOF and native creation/write/change times. A held root chain
+constrains relative attribute opens; each native query checks the original
+clock/cancellation. Durable grants/fencing refresh within 20ms and are forced
+before staging/publication. Native I/O holds no database write lock, leaf
+reparse objects are inspected without following, and old content policy stays.
+Legacy rows remain uncaptured; conflicting facts produce gaps. Allocated/dedup,
+directory and insufficient old identity observations remain Unverified.
+
+Independent review reproduced two committed staging rows after an expired graph
+lock wait, hidden by later cleanup. Staging/publication fence callbacks now
+check clock/local cancellation after lock waits. The regression retains separate
+write events: actual RED 0/1, GREEN 1/0 with expiry and cancellation branches.
+[The receipt](benchmarks/windows_observation_acceptance_2026_10_04.json) contains
+Core 9/9, Store observation-filter 10/10, Engine observation-filter 24/24 (including
+existing cases), final workspace **1089/0/18 across 45 suites**, strict
+Clippy/fmt/OpenSpec/release, 14 vendor digests, real stdio 18/18, HTTP/SSE 13/13
+and executed UniFFI 19/19. Non-author code APPROVE/architecture CLEAR cover the
+44-file final manifest. Ten native Windows and one Engine pipeline regression
+require same-source native CI; local macOS does not provide their execution proof.
+
+Release observation point reads executed 18 VM instructions with both 20k/200k
+unselected records. Isolated macOS file loads each passed four checks: scans
+**0.437/4.391 seconds**, top/children p50/p95 **6.469/8.564 ms** and **6.773/7.999 ms**,
+database+WAL **43,442,176/436,916,224 bytes**, direct CLI child maximum RSS
+observations **44,826,624/263,307,264 bytes**. Explicit gaps add about 2.1% storage
+against D30. Separate observations do not establish paired speedups, a hard RSS
+bound or Windows attribute-scan scale cost.
+
+The pinned walk remains path-based; held roots constrain supplementary sampling.
+Actual ReFS high IDs, real-provider no-download, old scope encoding provenance,
+identity-sensitive history use, native writes, authorized collectors, host/mobile
+and signing/deployment gates remain open. No parent checkbox is completed.

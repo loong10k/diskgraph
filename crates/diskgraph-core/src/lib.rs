@@ -30,6 +30,15 @@ mod query_read_budget;
 mod scan;
 pub mod syncplan;
 pub mod treemap;
+mod windows_file_observation;
+mod windows_observation_error;
+mod windows_observation_gap;
+mod windows_tree_alignment;
+
+pub use windows_file_observation::WindowsFileObservation;
+pub use windows_observation_error::WindowsObservationError;
+pub use windows_observation_gap::WindowsObservationGap;
+pub use windows_tree_alignment::WindowsTreeAlignment;
 
 pub use budget::{
     BudgetTracker, CursorContext, CursorRejection, PagingCursor, QueryBudget, TruncationReason,
@@ -84,3 +93,6 @@ pub use treemap::{Placed, Rect, TextRow, Weighted, human_bytes, render_text, squ
 
 mod search_cursor;
 pub use search_cursor::SearchCursor;
+
+#[cfg(test)]
+mod windows_file_observation_tests;

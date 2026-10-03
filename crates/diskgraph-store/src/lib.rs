@@ -145,3 +145,21 @@ mod revision_history_budget_tests;
 
 pub use staging_node_encoding::staging_node_encoded_cost;
 pub use stored_node_locator::StoredNodeLocator;
+
+#[cfg(test)]
+mod windows_observation_tests;
+
+mod stored_windows_observation;
+mod windows_observation_codec;
+mod windows_observation_migration;
+mod windows_observation_query;
+pub use staging_node_encoding::staging_observed_node_encoded_cost;
+pub use stored_windows_observation::StoredWindowsObservation;
+
+#[cfg(test)]
+mod windows_observation_fixtures;
+#[cfg(test)]
+mod windows_observation_publication_tests;
+
+#[cfg(test)]
+mod native_locator_point_query_tests;

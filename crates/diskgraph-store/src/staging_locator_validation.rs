@@ -18,7 +18,7 @@ pub(crate) fn validate_aliases(tx: &Connection, job: &str, graph: &DiskGraph) ->
         .collect::<HashMap<_, _>>();
     let mut seen = HashSet::new();
     let mut identities = HashSet::new();
-    let mut stmt = tx.prepare("SELECT node_json,native_locator_kind,native_locator_encoding,native_locator_raw,self_modified_unix_seconds FROM scan_staging WHERE job_id=?1")?;
+    let mut stmt = tx.prepare("SELECT node_json,native_locator_kind,native_locator_encoding,native_locator_raw,self_modified_unix_seconds,native_observation_format,native_observation_raw,native_observation_gap FROM scan_staging WHERE job_id=?1")?;
     let mut rows = stmt.query([job])?;
     while let Some(row) = rows.next()? {
         let node: DiskNode = serde_json::from_str(&row.get::<_, String>(0)?)?;
@@ -52,7 +52,20 @@ pub(crate) fn validate_aliases(tx: &Connection, job: &str, graph: &DiskGraph) ->
         };
         let locator = QualifiedLocator::from_parts(kind, encoding, raw, display)
             .map_err(|error| invalid(&error.to_string()))?;
-        crate::staging_node_encoding::StagingNodeEncoding::encode(&node, Some(&locator), modified)?;
+        let observation = crate::windows_observation_codec::decode(
+            row.get_ref(5)?,
+            row.get_ref(6)?,
+            row.get_ref(7)?,
+            row.get_ref(1)?,
+            row.get_ref(2)?,
+        )?;
+        crate::staging_node_encoding::StagingNodeEncoding::encode_observed(
+            &node,
+            Some(&locator),
+            modified,
+            observation.observation.as_ref(),
+            observation.gap,
+        )?;
     }
     if seen.len() != expected.len() {
         return Err(invalid("staged node set does not match completed graph"));

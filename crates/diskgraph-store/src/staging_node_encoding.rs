@@ -1,7 +1,10 @@
 //! 暂存节点编码及 Engine/Store 共享的实际字段成本。
 
 use crate::{Result, StoreError};
-use diskgraph_core::{DiskNode, LocatorKind, QualifiedLocator, ResourceLocator};
+use diskgraph_core::{
+    DiskNode, LocatorEncoding, LocatorKind, QualifiedLocator, ResourceLocator,
+    WindowsFileObservation, WindowsObservationGap,
+};
 
 /// 单个暂存节点实际写入的 JSON 和搜索字段，避免计量与写入采用不同编码。
 /// 来源：DiskGraph 原生 Rust D30；无 Java 对应对象。
@@ -10,6 +13,7 @@ pub(crate) struct StagingNodeEncoding {
     pub(crate) name_fold: String,
     pub(crate) path_fold: String,
     pub(crate) cost: u64,
+    pub(crate) observation_raw: Option<[u8; WindowsFileObservation::ENCODED_LEN]>,
 }
 
 impl StagingNodeEncoding {
@@ -21,6 +25,41 @@ impl StagingNodeEncoding {
         locator: Option<&QualifiedLocator>,
         self_modified: Option<i64>,
     ) -> Result<Self> {
+        Self::encode_observed(node, locator, self_modified, None, None)
+    }
+
+    /// 校验并编码节点、原始定位及互斥的完整观测或缺失原因。
+    /// 参数：node/locator/self_modified 为节点定位，observation/gap 为原生观测与固定失败原因。
+    /// 返回：实际写入编码及 checked 字节成本；不一致数据返回错误。
+    pub(crate) fn encode_observed(
+        node: &DiskNode,
+        locator: Option<&QualifiedLocator>,
+        self_modified: Option<i64>,
+        observation: Option<&WindowsFileObservation>,
+        gap: Option<WindowsObservationGap>,
+    ) -> Result<Self> {
+        if observation.is_some() && gap.is_some() {
+            return Err(StoreError::InvalidGraph(
+                "native observation and gap are mutually exclusive".into(),
+            ));
+        }
+        let observation_raw = if let Some(observation) = observation {
+            if !locator.is_some_and(|value| {
+                value.kind() == LocatorKind::NativePath
+                    && value.encoding() == LocatorEncoding::WindowsUtf16Le
+            }) {
+                return Err(StoreError::InvalidGraph(
+                    "Windows observation requires a Windows native locator".into(),
+                ));
+            }
+            Some(
+                observation
+                    .encode()
+                    .map_err(|error| StoreError::InvalidGraph(error.to_string()))?,
+            )
+        } else {
+            None
+        };
         let path = match &node.locator {
             ResourceLocator::NativePath(path) | ResourceLocator::DocumentUri(path) => path,
         };
@@ -63,7 +102,15 @@ impl StagingNodeEncoding {
         if self_modified.is_some() {
             cost = cost.checked_add(8).ok_or(StoreError::IntegerOverflow)?;
         }
+        if observation_raw.is_some() {
+            cost = add_size(cost, WindowsFileObservation::ENCODED_LEN)?;
+            cost = add_size(cost, WindowsFileObservation::FORMAT_LABEL.len())?;
+        }
+        if let Some(gap) = gap {
+            cost = add_size(cost, gap.code().len())?;
+        }
         Ok(Self {
+            observation_raw,
             json,
             name_fold,
             path_fold,
@@ -97,4 +144,17 @@ fn add_size(total: u64, size: usize) -> Result<u64> {
     total
         .checked_add(u64::try_from(size).map_err(|_| StoreError::IntegerOverflow)?)
         .ok_or(StoreError::IntegerOverflow)
+}
+
+/// 返回包含完整原生观测或缺失原因的实际暂存编码成本。
+/// 参数：node、可选 locator、自身时间和互斥 observation/gap；旧节点使用空观测。
+/// 返回：全部 JSON、搜索、定位和观测字段的 checked 字节总数。
+pub fn staging_observed_node_encoded_cost(
+    node: &DiskNode,
+    locator: Option<&QualifiedLocator>,
+    self_modified: Option<i64>,
+    observation: Option<&WindowsFileObservation>,
+    gap: Option<WindowsObservationGap>,
+) -> Result<u64> {
+    Ok(StagingNodeEncoding::encode_observed(node, locator, self_modified, observation, gap)?.cost)
 }

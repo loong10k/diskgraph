@@ -34,12 +34,18 @@ mod revision_locator;
 mod revision_locator_tests;
 mod revision_queries;
 mod revision_reader;
+mod revision_windows_observation;
+#[cfg(test)]
+mod revision_windows_observation_tests;
 mod runner;
 mod scan_execution;
 mod scan_jobs;
 #[cfg(test)]
 mod scan_locator_tests;
 mod scan_node_locator;
+mod scan_observation_guard;
+#[cfg(test)]
+mod scan_observation_tests;
 mod scan_progress_guard;
 #[cfg(test)]
 mod scan_publication_tests;
@@ -56,6 +62,12 @@ pub mod verify;
 mod verify_limits;
 #[cfg(windows)]
 mod windows_file_state;
+#[cfg(windows)]
+mod windows_native_open;
+#[cfg(windows)]
+mod windows_native_scan_root;
+#[cfg(all(test, windows))]
+mod windows_native_scan_tests;
 #[cfg(windows)]
 mod windows_path_plan;
 #[cfg(windows)]

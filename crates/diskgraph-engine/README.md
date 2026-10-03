@@ -69,6 +69,27 @@ access or replace live root/file handle identity checks.
 的跨平台编码来源还需单独落地。上游扫描器仍拒绝不能无损表示的名字；这项持久化
 不宣称完整非 UTF-8 扫描、严格 RSS 上限或 provider/写操作验收完成。
 
+## Complete Windows scan observations / Windows 完整扫描观测
+
+Schema 12 stores a separate 80-byte versioned `WindowsFileObservation`, keeping
+full volume/file identity, EOF and raw native creation/write/change times.
+`WindowsNativeScanRoot` retains drive-to-root attribute handles before the walk;
+relative attribute opens and before/after native checks run outside database
+write locks. The upstream path-based tree remains a separate observation.
+Unverified tree alignment and fixed gaps preserve that distinction.
+
+`revision_windows_observation` reuses actual revision ownership, shared deadline,
+borrowed byte admission and terminal MetadataRead authorization. It reads pure
+metadata on any host; it does not convert foreign paths or authorize content.
+Legacy rows are NotCaptured. Scan metadata budgets include the actual blob/label
+cost. Durable checks may be cached for at most 20ms; staging/publication fences
+and original clock/local cancellation are checked again after lock waits.
+The existing five-second keeper covers all scan phases. Native synchronous I/O
+is cooperative, with no hard latency/RSS claim.
+
+Windows 本地 NTFS 原生门禁须以本批同源码 CI 为证据；ReFS 真实高位 ID、云 provider、
+移动/写/宿主门禁各自开放。完整原生时间不是原子内容版本；v1 与 UniFFI 签名保持兼容。
+
 ## Source boundaries / 源码边界
 
 `lib.rs` only declares modules and preserves public exports. `Engine` remains

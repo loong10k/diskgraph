@@ -20,11 +20,11 @@ fn reads(edges: usize, bytes: usize) -> QueryReadBudget {
 fn fixture() -> SqliteSnapshotStore {
     let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
     store.save(&graph("snapshot", 100)).unwrap();
-    store.connection.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) VALUES ('old','snapshot',1,10,11)",[]).unwrap();
+    store.connection.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) VALUES ('old','snapshot',1,10,11,12)",[]).unwrap();
     store
         .connection
         .execute(
-            "INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) VALUES ('new','snapshot',2,10,11)",
+            "INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) VALUES ('new','snapshot',2,10,11,12)",
             [],
         )
         .unwrap();
@@ -205,7 +205,7 @@ fn revision_evidence_ignores_cross_snapshot_members_even_with_corrupt_binding() 
             [],
         )
         .unwrap();
-    store.connection.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) VALUES ('corrupt','snapshot',3,10,11)",[]).unwrap();
+    store.connection.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) VALUES ('corrupt','snapshot',3,10,11,12)",[]).unwrap();
     store
         .connection
         .execute(

@@ -27,7 +27,7 @@ use diskgraph_core::{QualifiedLocator, QueryBudget, QueryReadBudget, ResourceLoc
 use rusqlite::params;
 use std::time::{Duration, Instant};
 
-fn budget(bytes: usize, nodes: usize) -> QueryReadBudget {
+pub(super) fn budget(bytes: usize, nodes: usize) -> QueryReadBudget {
     QueryReadBudget::new(
         QueryBudget {
             max_response_bytes: bytes,
@@ -39,7 +39,7 @@ fn budget(bytes: usize, nodes: usize) -> QueryReadBudget {
     .unwrap()
 }
 
-fn located_store() -> SqliteSnapshotStore {
+pub(super) fn located_store() -> SqliteSnapshotStore {
     let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
     let graph = graph("located", 100);
     let locators: Vec<_> = graph
@@ -396,7 +396,15 @@ fn display_aliases_reject_old_staging_missing_identity_and_mismatched_exact_node
 fn downgrade_v11_to_v10(connection: &rusqlite::Connection) {
     connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_locator_writer;
+            "DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
         ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
         ALTER TABLE nodes DROP COLUMN native_locator_kind;
         ALTER TABLE nodes DROP COLUMN native_locator_encoding;
@@ -445,45 +453,14 @@ fn v10_migration_backups_preserve_unknown_locators_and_reject_already_open_old_w
     assert!(legacy.locator.is_none());
     assert_eq!(legacy.self_modified, None);
     let refused=old.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation) VALUES ('obsolete','legacy',1,10)",[]).unwrap_err();
-    assert!(refused.to_string().contains("obsolete locator writer"));
+    assert!(
+        refused
+            .to_string()
+            .contains("obsolete native observation writer")
+    );
     current
         .publish_revision("current", &graph("current", 101), "current", 2)
         .unwrap();
     let generations:(i64,i64,i64)=current.connection.query_row("SELECT r.writer_generation,r.locator_writer_generation,s.count_schema FROM graph_revisions r JOIN snapshots s ON s.id=r.snapshot_id WHERE r.revision_id='current'",[],|row|Ok((row.get(0)?,row.get(1)?,row.get(2)?))).unwrap();
     assert_eq!(generations, (10, 11, 9));
-}
-
-#[test]
-fn native_locator_point_query_does_not_scan_or_decode_unrelated_nodes() {
-    use std::sync::{
-        Arc,
-        atomic::{AtomicUsize, Ordering},
-    };
-    for unrelated in [20_000, 200_000] {
-        let store = located_store();
-        store.connection.execute("WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<?1)
-        INSERT INTO nodes(snapshot_id,id,parent_id,locator_key,name,subtree_bytes,node_json,native_locator_kind,native_locator_encoding,native_locator_raw)
-        SELECT 'located',x+2,1,'null','unrelated',0,'null','invalid','invalid',zeroblob(100) FROM n;", [unrelated]).unwrap();
-        let steps = Arc::new(AtomicUsize::new(0));
-        let observed = steps.clone();
-        store
-            .connection
-            .progress_handler(
-                1,
-                Some(move || observed.fetch_add(1, Ordering::Relaxed) > 500),
-            )
-            .unwrap();
-        let result = store
-            .native_locator_bounded("located", 2, &mut budget(4096, 1))
-            .unwrap()
-            .unwrap();
-        store
-            .connection
-            .progress_handler(0, None::<fn() -> bool>)
-            .unwrap();
-        assert!(result.locator.is_some());
-        let work = steps.load(Ordering::Relaxed);
-        eprintln!("D30 native locator: unrelated={unrelated}, selected=1, sqlite_vm_steps={work}");
-        assert!(work < 500);
-    }
 }

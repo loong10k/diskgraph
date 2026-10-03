@@ -207,7 +207,7 @@ fn ambiguous_legacy_evidence_refuses_claims_but_preserves_file_tree() {
     let snapshot = reader.revision(&before).unwrap().snapshot_id;
     let (_, scope) = reader.revision_ownership(&before).unwrap().unwrap();
     let db = rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap();
-    db.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) VALUES ('ambiguous',?1,4,10,11)",[&snapshot]).unwrap();
+    db.execute("INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) VALUES ('ambiguous',?1,4,10,11,12)",[&snapshot]).unwrap();
     db.execute("INSERT INTO revision_ownership SELECT 'ambiguous',server_id,scope_id FROM revision_ownership WHERE revision_id=?1",[&before]).unwrap();
     db.execute("UPDATE graph_revisions SET selection_sealed=1,evidence_complete=0 WHERE revision_id='ambiguous'",[]).unwrap();
     let before = "ambiguous".to_owned();

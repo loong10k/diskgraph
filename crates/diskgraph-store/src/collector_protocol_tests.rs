@@ -198,7 +198,15 @@ fn occupied_resources_require_an_existing_snapshot_node() {
 }
 
 pub(super) fn downgrade_to_v9(connection: &rusqlite::Connection) {
-    connection.execute_batch("DROP TRIGGER revisions_require_locator_writer;
+    connection.execute_batch("DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
          ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_locator_kind;
          ALTER TABLE nodes DROP COLUMN native_locator_encoding;

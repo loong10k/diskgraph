@@ -17,7 +17,7 @@ pub struct SqliteSnapshotStore {
 
 /// The newest schema this build understands; older binaries refuse newer files
 /// through [`StoreError::UnsupportedSchema`] (design D6, spec ST-02).
-pub const SUPPORTED_SCHEMA_VERSION: i64 = 11;
+pub const SUPPORTED_SCHEMA_VERSION: i64 = 12;
 
 /// A WAL this size or larger is a leftover from a killed or out-of-memory
 /// run: a healthy scan checkpoints as it goes, and a clean close removes
@@ -192,7 +192,7 @@ impl SqliteSnapshotStore {
             0 => {
                 connection.execute_batch(V1_SCHEMA)?;
             }
-            1..=11 => {}
+            1..=12 => {}
             other => return Err(StoreError::UnsupportedSchema(other)),
         }
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
@@ -275,6 +275,9 @@ impl SqliteSnapshotStore {
         }
         if version < 11 {
             crate::native_locator_migration::migrate(&connection)?;
+        }
+        if version < 12 {
+            crate::windows_observation_migration::migrate(&connection)?;
         }
         // The locator index cost a quarter of a kilobyte per node and served
         // exactly one query, which nothing on the read path issues. Dropping

@@ -438,7 +438,31 @@ release定位窄读在20k/200k未选记录下均执行 **18条VM指令**；真�
 最大RSS观察值 **43,417,600/263,520,256字节**。这些独立观测不证明配对提速或严格RSS；
 新增字段相对D28夹具增加约13%存储成本，前次数据保留在记录中。
 
-修复后新源码原生CI仍待；pinned扫描器名称限制、旧scope编码来源、Windows full128扫描
+同源码`949c3b85`的[CI37146795537](https://github.com/loong10k/diskgraph/actions/runs/37146795537)已终态 **22/22通过**，包括Windows stable/MSRV及原生包；这是D30源码验收，不包含后续D31改动。pinned扫描器名称限制、旧scope编码来源、Windows full128扫描
 身份、原生root capability、授权采集任务、真实provider不下载、原生写、宿主/mobile及
 签名/部署门禁继续开放。自身秒mtime不是高精度content version或原子快照；本前置不关闭
 全平台父项。
+
+
+## Windows 完整原生属性与暂存末检（D31前置，2026-10-04）
+
+schema12 用独立80字节版本记录保存完整128位文件ID、u64卷序号、EOF和原始创建/写入/变更时间。
+保留根链约束属性相对打开，每项内核查询前后检查原期限/取消；实时授权与fence最多复用20ms，
+批次/发布强制复验。采样不占数据库写锁，末组件只观测reparse对象本身，旧content策略未放宽。
+旧行保持未捕获；明确不一致记gap，旧allocated/dedup/目录尺寸或未知身份保持Unverified。
+
+独立审查复现“等待图库锁逾期后仍提交2行staging，随后cleanup隐藏写入”，现暂存/发布fence回调
+在等待锁之后末检原时钟及本机取消。回归保留独立写入事件，RED0/1、GREEN1/0覆盖超时与取消。
+[验收记录](benchmarks/windows_observation_acceptance_2026_10_04.json)保留原始日志：Core9/9、
+Store观测过滤10/10、Engine观测过滤24/24（包含既有用例），最终workspace **1089/0/18（45 suites）**，
+严格Clippy/fmt/OpenSpec/release、14vendor摘要、stdio18/18、HTTP/SSE13/13、执行UniFFI19/19通过。
+非作者代码APPROVE/架构CLEAR，最终44份源码摘要匹配；Windows新增10个Native和1个Engine
+流水线用例须本批同源码CI执行，本机不能替代。
+
+release观测主键窄读在20k/200k未选记录下均18条VM；macOS真实文件负载各4/4，扫描
+**0.437/4.391秒**，top/children p50/p95 **6.469/8.564ms**和 **6.773/7.999ms**，数据库+WAL
+**43,442,176/436,916,224字节**，直接CLI子进程最大RSS观察 **44,826,624/263,307,264字节**。
+相对D30字段增加约2.1%存储；独立观测不证明配对提速、严格RSS或Windows原生规模扫描成本。
+
+上游walk仍按路径；本批根句柄只约束补充采样。真实ReFS高位ID、provider不下载、旧scope编码
+来源、可信历史身份利用、原生写、授权采集任务、宿主/mobile和签名部署仍开放；不新增完成勾选。

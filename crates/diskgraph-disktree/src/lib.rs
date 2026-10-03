@@ -127,9 +127,7 @@ fn volume_id(path: &Path) -> Option<String> {
 
 #[cfg(windows)]
 fn volume_id(path: &Path) -> Option<String> {
-    windows_native_observer::observe(path)
-        .ok()
-        .and_then(|(identity, _)| identity.map(|identity| identity.volume_id))
+    windows_native_observer::observe_volume(path).ok()
 }
 
 #[cfg(not(any(unix, windows)))]

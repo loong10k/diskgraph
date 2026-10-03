@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D30 / FS-02 raw locator persistence prerequisite and D29 deterministic active FFI revocation fixture correction",
   "baseline_commit": "4f470d0e6e28b2e3e2b7a561d86ada83862c7835",
-  "status": "local_validation_complete_two_lane_review_approved_native_ci_pending",
+  "status": "local_and_native_ci_complete_two_lane_review_approved",
   "source_files": {
     "crates/diskgraph-core/src/lib.rs": "d5655508485dd647df45580dab1d4b31ea17ff85919b969eb8bacd89c4576c82",
     "crates/diskgraph-core/src/locator_encoding.rs": "7655b254c93199ffc8b9ab28921be6bec92665f15784e2756d3716dffca03740",
@@ -72,7 +72,7 @@
     "new_gate_drop_passed": 1,
     "ffi_full_passed": 46,
     "failed": 0,
-    "windows_execution": "pending corrected-source native CI"
+    "windows_execution": "same-source Windows stable/MSRV CI passed; D31 native observation tests are separate"
   },
   "workspace": {
     "passed": 1055,
@@ -276,7 +276,125 @@
     "correction": "request-local cfg(test) real durable Queued progress/authorization gate, RAII release; all permission assertions retained; production deadlines/ABI unchanged"
   },
   "native_ci": {
-    "status": "pending_corrected_source_run"
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 37146795537,
+    "head_sha": "949c3b85ea37fbb54f6e2b60dd42d46166cb9236",
+    "passed_jobs": 22,
+    "total_jobs": 22,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37146795537",
+    "jobs": [
+      {
+        "id": 111272311598,
+        "name": "Vendored scanner",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311672,
+        "name": "Swift native host (macos-15-intel)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311708,
+        "name": "Test (macos-latest / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311715,
+        "name": "Swift native host (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311751,
+        "name": "rustfmt",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311764,
+        "name": "Kotlin native host (ubuntu-24.04-arm)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311775,
+        "name": "Test (macos-latest / Rust 1.97.0)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311780,
+        "name": "Kotlin native host (ubuntu-24.04)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311786,
+        "name": "Kotlin native host (windows-2022)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311803,
+        "name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311815,
+        "name": "Kotlin native host (macos-15)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311829,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311830,
+        "name": "Test (ubuntu-latest / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311841,
+        "name": "Kotlin native host (macos-15-intel)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311853,
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311858,
+        "name": "Test (ubuntu-latest / Rust 1.97.0)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272311859,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272384141,
+        "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272384162,
+        "name": "Native read-only package (x86_64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272384169,
+        "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272384198,
+        "name": "Native read-only package (aarch64-apple-darwin)",
+        "conclusion": "success"
+      },
+      {
+        "id": 111272384236,
+        "name": "Native read-only package (x86_64-pc-windows-msvc)",
+        "conclusion": "success"
+      }
+    ]
   },
   "logs": {
     "directory": "qualified_locator_acceptance_2026_10_04_logs",
@@ -384,6 +502,10 @@
       "fmt-core-before.log.gz": {
         "sha256_uncompressed": "ba86215599cd11d32a96132bb687d2a50ab34b5b8d7aef82ca2e5089805565b8",
         "sha256_gzip": "a6fdbf2e936ceb53050c0d9b714b4d6909f95540bbc6b7faafc8691fc88146a5"
+      },
+      "native-ci.json.gz": {
+        "sha256_uncompressed": "74612c79afe75eb07007bcd191854bed2e105bac990b37009b5bd47c2260a139",
+        "sha256_gzip": "dd0a121d447af3453b2b5f5f72ab359844c19789d72021194c536e91f0913cc8"
       }
     }
   },

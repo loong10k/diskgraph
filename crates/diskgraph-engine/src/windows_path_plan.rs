@@ -14,6 +14,29 @@ pub(crate) struct WindowsPathPlan {
 }
 
 impl WindowsPathPlan {
+    /// 规划注册根本身；允许本地 drive 根，不跟随任何路径链接。
+    /// 参数：root 为完整本地 drive 路径，组件保留原生名称。
+    /// 返回：drive 根及到注册根的组件，或词法/namespace 错误。
+    pub(crate) fn for_root(root: &Path) -> Result<Self, EngineError> {
+        let (drive, components) = parts(root)?;
+        Ok(Self {
+            drive_root: PathBuf::from(format!("{}:\\", char::from(drive))),
+            components,
+        })
+    }
+
+    /// 取得注册根下的精确相对组件；相等路径返回空组件用于根属性读取。
+    /// 参数：root/path 为同一 drive 的原生绝对路径，名称不做大小写猜测。
+    /// 返回：安全的相对组件；越界、点步、ADS 或不支持 namespace 明确拒绝。
+    pub(crate) fn relative_to_root(root: &Path, path: &Path) -> Result<Vec<OsString>, EngineError> {
+        let (root_drive, root_parts) = parts(root)?;
+        let (path_drive, path_parts) = parts(path)?;
+        if root_drive != path_drive || !path_parts.starts_with(&root_parts) {
+            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        Ok(path_parts[root_parts.len()..].to_vec())
+    }
+
     /// 检查注册根和请求路径，返回 drive 根及完整逐组件计划；拒绝 ADS 和逃逸。
     /// 参数：root/path 为注册根和精确 Windows 本地 drive 路径。
     /// 返回：drive 根及逐组件计划；ADS、逃逸或不支持路径返回错误。

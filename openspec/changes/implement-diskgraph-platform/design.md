@@ -320,3 +320,17 @@ D28复审收敛：v10增加独立writer_generation，保留目录计数count_sch
 按 (snapshot_id,node_id) 精确读取使用同一请求期限与 QueryReadBudget：先准入 SQLite 借用字段再拥有或解码，区分节点不存在、旧定位不可用、编码不支持与损坏。Engine 包装通过 revision 实际归属进行首末实时授权；客户端不能提供另一快照来替代归属。旧可信 Store API 保留，写入的旧节点定位字段为空。无需定位的历史展示仍可查询。
 
 本项不改变 pinned disktree：上游丢失原始名称后适配器仍拒绝发现的非 Unicode 名称/碰撞，不能宣称已实现任意非 UTF-8 完整扫描。注册 scope 的旧 Locator 已保存 raw，但缺编码来源；本次不能把历史 scope 自动标记为当前平台。Git 子进程读取根约束、授权采集任务、真实 provider、原生写和移动端仍分别验收，不因定位前置完成而勾选全平台父项。
+
+### D31 Windows 完整原生属性的根约束捕获与持久化
+
+选择 Engine 批次补充观测；不向公开可 struct-literal 构造的 NodeV2/ScanResultV2/FileIdentity 添加字段，不增加完整扫描 sidecar owner。新增 core WindowsFileObservation 纯值对象、固定失败原因与树对齐 enum，完整保存 volume u64、file ID 16字节、EOF u64、creation/last-write/change i64 原生ticks、attributes/type/delete以及独立捕获窗口。访问时间不进入版本；100ns为表示单位，不承诺文件系统精度、永久身份或原子内容快照。固定版本BLOB codec避免SQLite有符号整数/JSON number丢位；未知/变化不得填零。
+
+WindowsNativeScanRoot 在上游walk前逐组件取得drive到注册root的属性句柄并保留到发布末检；原生root是本次任务能力，不新增共享Engine/授权owner。所有父/根拒绝reparse、非本地namespace和跨卷，末组件经过单组件长度/分隔/ADS校验，以RootDirectory及OPEN_REPARSE_POINT仅打开对象本身属性，末组件不设与其语义不清的DONT_REPARSE；父/root仍DONT_REPARSE。属性share READ|WRITE而不含DELETE减少活动文件冲突；它不是metadata冻结保证。保留既有content shareREAD、reparse/placeholder拒绝和open_data策略；不放宽旧入口。
+
+每次最多持有一个观测对象的临时父链，batch只保留纯值。采样在图库/控制写锁之外，逐组件和native调用前后检查原scan_started期限及本机取消；实时scope/grant/fence至多复用20ms，并在每批暂存及发布前强制复验，阻止失效owner写入/发布。native同步调用不承诺硬期限。独立HydrationGuard及NO_RECALL属性打开不申请data；真实provider不下载仍需验收。根末检只核对完整ID/volume/type/reparse/delete，不把允许的目录mtime变化当root替换。pinned walk仍走路径线程池，不声明整体扫描已有原生句柄约束。
+
+同句柄前后全版本一致才保存Observed。旧树辅助identity可无损比较且一致、type一致，尺寸仅在明确apparent且非dedup的普通文件可比时参与对齐；目录聚合/allocated/dedup或128无法投影的旧未知身份保持Unverified，不由同路径/同秒mtime推断Matched。明确冲突保存固定Gap而不把后来身份配到旧尺寸；v1值不覆盖。adapter根volume独立来自真实volume字段，不依赖旧u64投影成功，旧高位非零identity仍None。
+
+schema12在staging/nodes同一行加nullable native_observation_format/raw/gap，独立native_observation_writer_generation=12，保留count9/collector10/locator11。完整record与gap互斥，历史全null为未捕获；迁移不回填。新可信append与cost接口保留旧签名，包含实际BLOB/标签成本；INSERT SELECT/清理/fence/项目批次/latest保持原子。PK窄读先借用准入，未知、损坏、未捕获分别表达；Engine包装只读actual revision/node并首末实时授权。不接新UniFFI字段、不据此声称历史同对象/同内容或开启写能力。
+
+先记录旧schema/持久化缺失真实RED，再测高位ID/volume、同秒不同ticks、固定codec损坏、旧结构literal consumer、v11备份与旧writer、原生hardlink/replacement、root/parent/junction负控、取消/撤权/失效fence、20k/200k窄读与最终同源码Windows NTFS。ReFS高128真实值、SMB/云provider、上游walk边界及移动/写/宿主仍独立开放。

@@ -46,6 +46,22 @@
 - **WHEN** Windows 的原生 128 位 file ID 无法无损放入已有 64 位兼容字段，或读取句柄身份失败
 - **THEN** 身份返回 unknown，不截断、散列或采用路径冒充；NTFS 可表示的身份以实际卷序列号限定，并通过硬链接与替换夹具验证。
 
+#### Scenario: Full Windows native observation persists independently
+- **WHEN** 一个安全属性句柄提供卷序列号、完整 128 位 file ID、长度及 creation/last-write/change 原生时间
+- **THEN** 保存完整位模式、100ns 表示与独立捕获窗口，经批次暂存、原子发布和重开保持一致；不能投影到旧 u64 时兼容身份仍 unknown，不截断/散列，不把访问时间纳入版本比较。
+
+#### Scenario: Windows attributes remain bound to the held scope root
+- **WHEN** 文件树遍历后进行补充属性采样，或父/根目录发生替换、重解析
+- **THEN** 使用遍历开始前固定且保留的原生根句柄逐组件解析；父组件和根拒绝重解析及跨卷，末组件只能从安全父句柄打开对象本身属性，不能申请正文权限或回退到完整路径重开；旧路径扫描不因此被称为原生句柄遍历。
+
+#### Scenario: Native observation and old tree projection are not atomic
+- **WHEN** 补充观测与旧树的可比辅助身份、类型或明确可比的尺寸矛盾，或同一句柄前后版本变化
+- **THEN** 记录固定类型的 changed/unknown 原因，不用零值、旧秒时间或路径补出完整身份；不可比较的 allocated/dedup/聚合尺寸明确标为未对齐，不覆盖 v1 尺寸或认定内容相同。
+
+#### Scenario: Full native observation bounded read and migration
+- **WHEN** 按 revision/node 读取完整原生观测，或从 v11 数据库升级
+- **THEN** 在 SQLite 借用字段拥有/解码前计费，使用实际 revision 归属和首末实时授权、同一绝对期限；历史全空字段为未捕获，版本/长度/类型不一致明确失败，迁移一致性备份不猜测回填，旧已打开 writer 不得静默发布缺少新协议的数据。
+
 ### Requirement: FS-03 Size semantics
 系统 SHALL 分别表达 apparent、allocated、direct/subtree 尺寸与未知数量，区分自身 mtime 和子树聚合时间；硬链接统计口径明确且不把观察尺寸当作可释放保证。
 

@@ -180,6 +180,39 @@ Arrows show runtime calls. Compile-time dependencies use core ports. CLI, MCP an
 
 ops requests refresh through a port; engine and ops must not form a dependency cycle. Split additional platform crates only when packaging or maintenance warrants it.
 
+### Complete Windows attribute observations (D31, 2026-10-04)
+
+Schema 12 stores full 128-bit file IDs, u64 volume serials, EOF and raw native
+creation/write/change times as an independent fixed-version observation. A held
+root chain constrains attribute-only relative opens; the pinned walk still uses
+paths. Per-node before/after state and comparison with available old tree facts
+produce either an observation (Matched/Unverified) or an explicit gap. No old
+size/time field is overwritten or promoted to an atomic content version.
+
+Native I/O occurs outside graph/control write locks. Every native query checks
+the original monotonic deadline and local cancellation; durable authorization
+and fencing are refreshed within 20ms and forced before staging/publication.
+The write callbacks also check clock/cancel after lock waits. Schema migration
+keeps legacy columns NULL, consistent backups precede upgrade, and an independent
+writer generation prevents old open writers from dropping the new fields.
+`revision_windows_observation` reads one authorized node using borrowed byte
+admission and terminal authorization, without converting foreign paths.
+
+```mermaid
+flowchart TD
+    R["Registered native root"] --> H["Held attribute root chain before walk"]
+    R --> W["Pinned path-based walk"]
+    W --> V["Compatible NodeV2 tree"]
+    H --> O["Relative attributes only<br/>full ID and native version"]
+    O --> A["Before/after check and tree alignment"]
+    V --> A
+    A --> B["Observed or explicit gap<br/>current batch only"]
+    B --> S["Encoded-byte budget → staging"]
+    S --> P["Live grant + fence + clock/cancel → atomic publish"]
+    P --> Q["Authorized primary-key metadata read"]
+```
+
+
 ## 4. Reuse, CodeGraph and operating-system commands
 
 Keep `disktree-core` pinned behind a bridge. A small source-file count does not remove platform, safety and upstream maintenance costs. Consider patches, a fork or vendoring only when demonstrated requirements cannot be met by adaptation, preserving provenance, licenses and a change ledger.

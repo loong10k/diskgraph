@@ -338,7 +338,15 @@ fn migration_v9_preserves_only_unambiguous_membership() {
             [serde_json::to_string(&forged).unwrap()],
         )
         .unwrap();
-    store.connection.execute_batch("DROP TRIGGER revisions_require_locator_writer;
+    store.connection.execute_batch("DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
          ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_locator_kind;
          ALTER TABLE nodes DROP COLUMN native_locator_encoding;
@@ -364,7 +372,7 @@ fn migration_v9_preserves_only_unambiguous_membership() {
         )
         .unwrap();
     let store = SqliteSnapshotStore::initialize(store.connection).unwrap();
-    assert_eq!(SUPPORTED_SCHEMA_VERSION, 11);
+    assert_eq!(SUPPORTED_SCHEMA_VERSION, 12);
     assert_eq!(count(&store, "relation_run_memberships"), 2);
     assert_eq!(count(&store, "entity_run_memberships"), 3);
     assert_eq!(count(&store, "collector_membership_diagnostics"), 4);

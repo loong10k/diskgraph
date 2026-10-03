@@ -70,7 +70,7 @@ impl SqliteSnapshotStore {
             &batch.edges,
         )?;
         tx.execute(
-            "INSERT INTO graph_revisions (revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) VALUES (?1,?2,?3,10,11)",
+            "INSERT INTO graph_revisions (revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) VALUES (?1,?2,?3,10,11,12)",
             params![revision_id, snapshot, as_i64(published_at_unix_ms)?],
         )?;
         tx.execute(

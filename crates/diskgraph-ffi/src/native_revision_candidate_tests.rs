@@ -102,7 +102,7 @@ fn publish_block(database: &str, snapshot: &str, old_revision: &str, node: i64, 
         [snapshot],
     )
     .unwrap();
-    db.execute("INSERT INTO graph_revisions (revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) SELECT 'ffi-new',snapshot_id,published_at_unix_ms+1,10,11 FROM graph_revisions WHERE revision_id=?1",[old_revision]).unwrap();
+    db.execute("INSERT INTO graph_revisions (revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) SELECT 'ffi-new',snapshot_id,published_at_unix_ms+1,10,11,12 FROM graph_revisions WHERE revision_id=?1",[old_revision]).unwrap();
     db.execute("INSERT INTO revision_ownership SELECT 'ffi-new',server_id,scope_id FROM revision_ownership WHERE revision_id=?1",[old_revision]).unwrap();
     db.execute(
         "INSERT INTO revision_runs VALUES ('ffi-new','ffi-run','active')",

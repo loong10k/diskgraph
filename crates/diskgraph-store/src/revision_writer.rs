@@ -99,7 +99,7 @@ impl SqliteSnapshotStore {
                         graph,
                     )?;
                 }
-                transaction.execute("INSERT INTO nodes (snapshot_id, id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error, native_locator_kind, native_locator_encoding, native_locator_raw, self_modified_unix_seconds) SELECT ?2, json_extract(node_json, '$.id'), json_extract(node_json, '$.parent_id'), json_extract(node_json, '$.locator'), json_extract(node_json, '$.name'), json_extract(node_json, '$.subtree_bytes'), CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN '' ELSE node_json END, CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN json_extract(node_json, '$.kind') ELSE NULL END, json_extract(node_json, '$.direct_bytes'), json_extract(node_json, '$.files'), json_extract(node_json, '$.directories'), json_extract(node_json, '$.modified_unix_seconds'), json_extract(node_json, '$.file_identity.volume_id'), json_extract(node_json, '$.file_identity.file_id'), json_extract(node_json, '$.category_hint'), json_extract(node_json, '$.reclaim_hint'), json_extract(node_json, '$.read_error'), native_locator_kind, native_locator_encoding, native_locator_raw, self_modified_unix_seconds FROM scan_staging WHERE job_id = ?1", params![job_id, graph.snapshot.id])?;
+                transaction.execute("INSERT INTO nodes (snapshot_id, id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error, native_locator_kind, native_locator_encoding, native_locator_raw, self_modified_unix_seconds, native_observation_format, native_observation_raw, native_observation_gap) SELECT ?2, json_extract(node_json, '$.id'), json_extract(node_json, '$.parent_id'), json_extract(node_json, '$.locator'), json_extract(node_json, '$.name'), json_extract(node_json, '$.subtree_bytes'), CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN '' ELSE node_json END, CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN json_extract(node_json, '$.kind') ELSE NULL END, json_extract(node_json, '$.direct_bytes'), json_extract(node_json, '$.files'), json_extract(node_json, '$.directories'), json_extract(node_json, '$.modified_unix_seconds'), json_extract(node_json, '$.file_identity.volume_id'), json_extract(node_json, '$.file_identity.file_id'), json_extract(node_json, '$.category_hint'), json_extract(node_json, '$.reclaim_hint'), json_extract(node_json, '$.read_error'), native_locator_kind, native_locator_encoding, native_locator_raw, self_modified_unix_seconds, native_observation_format, native_observation_raw, native_observation_gap FROM scan_staging WHERE job_id = ?1", params![job_id, graph.snapshot.id])?;
                 transaction.execute("INSERT INTO node_search SELECT ?2, json_extract(s.node_json, '$.id'), f.name_fold, f.path_fold FROM scan_staging s JOIN scan_staging_search f ON f.job_id = s.job_id AND f.node_seq = s.node_seq WHERE s.job_id = ?1", params![job_id, graph.snapshot.id])?;
             } else {
                 let mut statement = transaction.prepare(
@@ -165,8 +165,8 @@ impl SqliteSnapshotStore {
             }
         }
         transaction.execute(
-            "INSERT INTO graph_revisions (revision_id, snapshot_id, published_at_unix_ms, writer_generation, locator_writer_generation)
-             VALUES (?1, ?2, ?3, 10, 11)",
+            "INSERT INTO graph_revisions (revision_id, snapshot_id, published_at_unix_ms, writer_generation, locator_writer_generation, native_observation_writer_generation)
+             VALUES (?1, ?2, ?3, 10, 11, 12)",
             params![
                 revision_id,
                 graph.snapshot.id,

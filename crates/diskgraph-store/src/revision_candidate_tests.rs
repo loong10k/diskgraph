@@ -134,7 +134,7 @@ fn dependency_only_assertions_do_not_block_current_candidates() {
     store
         .connection
         .execute(
-            "INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation) VALUES ('dependency','snapshot',3,10,11)",
+            "INSERT INTO graph_revisions(revision_id,snapshot_id,published_at_unix_ms,writer_generation,locator_writer_generation,native_observation_writer_generation) VALUES ('dependency','snapshot',3,10,11,12)",
             [],
         )
         .unwrap();

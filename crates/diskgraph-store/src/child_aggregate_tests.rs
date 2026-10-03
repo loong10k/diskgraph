@@ -26,7 +26,15 @@ pub(super) fn wide_store(unknown: bool) -> SqliteSnapshotStore {
     store
         .connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_locator_writer;
+            "DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
          ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_locator_kind;
          ALTER TABLE nodes DROP COLUMN native_locator_encoding;
@@ -244,7 +252,15 @@ fn v8_backup_contains_old_counts_and_failed_migration_rolls_back() {
     store
         .connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_locator_writer;
+            "DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
          ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_locator_kind;
          ALTER TABLE nodes DROP COLUMN native_locator_encoding;
@@ -297,7 +313,15 @@ fn v8_backup_contains_old_counts_and_failed_migration_rolls_back() {
     legacy
         .connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_locator_writer;
+            "DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
          ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_locator_kind;
          ALTER TABLE nodes DROP COLUMN native_locator_encoding;
@@ -361,7 +385,15 @@ fn old_open_writer_cannot_publish_after_schema_upgrade() {
     let mut store = SqliteSnapshotStore::open(&path).unwrap();
     store.save(&graph("current", 100)).unwrap();
     store.connection.execute_batch(
-        "DROP TRIGGER revisions_require_locator_writer;
+        "DROP TRIGGER revisions_require_native_observation_writer;
+         ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
+         ALTER TABLE nodes DROP COLUMN native_observation_format;
+         ALTER TABLE nodes DROP COLUMN native_observation_raw;
+         ALTER TABLE nodes DROP COLUMN native_observation_gap;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_format;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_raw;
+         ALTER TABLE scan_staging DROP COLUMN native_observation_gap;
+         DROP TRIGGER revisions_require_locator_writer;
          ALTER TABLE graph_revisions DROP COLUMN locator_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_locator_kind;
          ALTER TABLE nodes DROP COLUMN native_locator_encoding;

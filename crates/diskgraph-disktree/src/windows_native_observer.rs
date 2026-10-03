@@ -7,9 +7,45 @@ fn qualified_identity(volume: u64, identifier: [u8; 16]) -> Option<FileIdentity>
         return None;
     }
     Some(FileIdentity {
-        volume_id: format!("windows-volume-{volume:016x}"),
+        volume_id: volume_key(volume),
         file_id: u64::from_le_bytes(identifier[..8].try_into().ok()?),
     })
+}
+
+/// 卷键来自完整卷序号；与旧文件 ID 是否能无损投影无关。
+fn volume_key(volume: u64) -> String {
+    format!("windows-volume-{volume:016x}")
+}
+
+/// 独立读取根卷序号，128 位文件 ID 不可投影时仍保留卷事实。
+/// 参数：path 为当前扫描根；返回：实际内核卷键或属性读取失败，不从盘符推断。
+#[cfg(windows)]
+pub(crate) fn observe_volume(path: &std::path::Path) -> std::io::Result<String> {
+    use std::os::windows::{fs::OpenOptionsExt, io::AsRawHandle};
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_ID_INFO, FILE_READ_ATTRIBUTES, FileIdInfo, GetFileInformationByHandleEx,
+    };
+    let handle = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .custom_flags(
+            FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_NO_RECALL,
+        )
+        .open(path)?;
+    let mut info = FILE_ID_INFO::default();
+    // 即便 ID 的高位非零，VolumeSerialNumber 仍为独立原生事实；不截断 ID。
+    if unsafe {
+        GetFileInformationByHandleEx(
+            handle.as_raw_handle(),
+            FileIdInfo,
+            (&mut info as *mut FILE_ID_INFO).cast(),
+            std::mem::size_of::<FILE_ID_INFO>() as u32,
+        )
+    } == 0
+    {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(volume_key(info.VolumeSerialNumber))
 }
 
 /// 只用属性权限打开重解析点本身；身份与修改时间从同一句柄观察。
@@ -61,6 +97,11 @@ mod tests {
         assert_eq!(qualified_identity(7, identifier).unwrap().file_id, 42);
         identifier[15] = 1;
         assert!(qualified_identity(7, identifier).is_none());
+        assert_eq!(super::volume_key(7), "windows-volume-0000000000000007");
+        assert_eq!(
+            super::volume_key(u64::MAX),
+            "windows-volume-ffffffffffffffff"
+        );
     }
 
     #[cfg(windows)]
@@ -73,6 +114,10 @@ mod tests {
         std::fs::hard_link(&source, &link).unwrap();
         let (before, modified) = super::observe(&source).unwrap();
         assert!(before.is_some(), "NTFS fixture must report native identity");
+        assert_eq!(
+            super::observe_volume(&source).unwrap(),
+            before.as_ref().unwrap().volume_id
+        );
         assert!(modified.is_some());
         assert_eq!(before, super::observe(&link).unwrap().0);
         std::fs::remove_file(&source).unwrap();
