@@ -49,7 +49,7 @@ impl GitIsolationFixture {
         self.temp.path().join(name)
     }
 
-    /// 创建仅访问本夹具的 Git 命令，禁用系统和用户配置。
+    /// 创建仅访问本夹具的 Git 命令，禁用宿主配置与准备命令的后台自动维护。
     /// 参数：args 为固定 Git 参数；返回：尚未启动的独立命令。
     pub(super) fn command(&self, args: &[&str]) -> Command {
         let mut command = Command::new("git");
@@ -66,6 +66,8 @@ impl GitIsolationFixture {
             .env("GIT_CONFIG_GLOBAL", self.temp.path().join("empty-config"))
             .env("GIT_CONFIG_SYSTEM", self.temp.path().join("empty-config"))
             .env("GIT_TERMINAL_PROMPT", "0")
+            // 取源哨兵前不能留下 commit 自动启动的维护进程，避免异步删除维护锁。
+            .args(["-c", "maintenance.auto=false"])
             .args(args)
             .current_dir(self.path());
         command

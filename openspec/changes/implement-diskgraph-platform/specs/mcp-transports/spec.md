@@ -43,6 +43,10 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** 服务端可能已执行而客户端未收到结果
 - **THEN** 重连查询原操作，不能自动创建第二次删除或宣称已回滚。
 
+#### Scenario: Reconnect after the job has completed
+- **WHEN** 客户端获得持久 job ID 后断线，而任务在新的状态查询到达前已经完成
+- **THEN** 新连接可以首轮直接观察 completed，不要求客户端先看见 queued 或 running；再次独立连接查询仍返回同一个 job ID 的 completed 状态，不能因原连接关闭丢失结果或创建替代任务。
+
 ### Requirement: MCP-06 Network controls
 远程服务 SHALL 要求认证、配置的 TLS/可信加密隧道、Origin 策略、请求体/响应/连接预算及限流；服务监听和反向代理信任边界必须显式配置。
 

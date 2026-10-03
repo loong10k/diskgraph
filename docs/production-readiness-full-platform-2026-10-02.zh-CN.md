@@ -216,3 +216,16 @@ Store 入口仍为 94 行，只声明和导出模块。56 个生产源码文件�
 后续冻结增量将 shell PATH 视作搜索列表：只保留绝对且能安全表示的宿主目录，每项在筛选前检查整次取消/期限；私有目录、工作树、SystemRoot 与实际 Git 参数继续严格拒绝不可表示路径，固定 Git 程序不重选。构造与 spawn 的错误带独立阶段标签，不输出完整环境。Windows 子进程夹具注入点步、重复分隔符、尾点、ADS 与相对 PATH，核验实际传入的搜索列表并两次调用生产 printer；新增真实宿主 PATH 分类诊断用于下次原生定位。原生测试尚未通过，不能仅凭旧构造错误指认具体 PATH 字符串。
 
 本机阶段诊断先红后绿，词法/阶段 9/9、system 12/12、context 2/2、结构 3/3；workspace 全目标 **799 passed / 0 failed / 13 ignored**，完整 Clippy、定向 fmt、OpenSpec strict、14 份 vendor 摘要、release CLI/MCP/FFI 构建及实际 stdio 18/18、HTTP/legacy SSE 13/13 通过。独立代码与非作者架构 lane 批准路径筛选及严格源哨兵增量。CI 另加仅 macOS 的固定 20 次源哨兵原生观察，要求每次确实执行一条回归且通过；第一次失败停止并保留诊断，单次 60 秒、step 5 分钟上限。该步不替代完整套件，不把原生 42→41 原因视为已解释。新 SHA 结果继续记录，D20 与全平台父项仍未完成。
+
+
+## 原生 CI 配置兼容与夹具竞态修复（D20，2026-10-03）
+
+源码 `ac10c416bb11f0594a20853835574466d3fa4ddf` 的[原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37079509314)终态 **19/22**。两个 Windows Engine 单元套件各 **153 passed / 26 failed**；实际普通/verbatim 配对与注入宿主 PATH 的受控 child 已通过，26 项采样错误现在明确为 `unsupported Git core semantics: core.fscache`。Windows stable 的 MCP 另有 **119 passed / 1 failed**：断线任务已完成，但夹具错误地要求新连接的首状态必须为 queued/running；MCP-05 不要求客户端观测每个中间态。最小修正允许合法 completed，并另开独立连接断言同一 job ID 的 completed 记录仍可查询，不改生产状态机或加入等待。
+
+macOS Rust 1.97.0 的 Engine 为 **207 passed / 1 failed**，新增路径诊断捕获源 metadata 消失的路径 `objects/maintenance.lock`。Git 2.55 的[自动维护入口](https://raw.githubusercontent.com/git/git/v2.55.0/run-command.c)默认允许 detach，[维护实现](https://raw.githubusercontent.com/git/git/v2.55.0/builtin/gc.c)在后台结束时释放该锁。这一调用链与夹具 commit 后立即取水位吻合；路径差异本身不确认删除者 PID，也不能回溯证明旧 8d1ccba 的计数变化。新增 Trace2 回归先在本机 Git 2.48.1 真实 RED，观察到 commit 启动 `maintenance run --auto --quiet --detach`；随后仅给临时夹具准备命令固定 `-c maintenance.auto=false`，回归 GREEN，原生产采样与完整 path/count/bytes/mtime 哨兵不变。
+
+CI 现在对源哨兵与上述实际失败的 SHA256 语义分别固定重复 20 次，每次必须真实执行且通过一条测试，首次失败立即停止，原有期限门禁保留。提取同一脚本的本机 **20×2** 已通过；这不是 Git 2.55 原生验证。Windows fscache 的受支持配置实现、最终冻结门禁、非作者复审及新源码 CI 结果继续记录；15.13d/D20 及全平台父项保持未完成，不增加性能或生产就绪声明。
+
+Windows fscache 的最小增量现只将 `core.fscache` 加入既有布尔允许列表，原字段/覆盖顺序回放；依据精确版本的[布尔解析](https://github.com/git-for-windows/git/blob/v2.55.0.windows.5/compat/mingw.c#L303-L305)及[进程内缓存实现](https://github.com/git-for-windows/git/blob/v2.55.0.windows.5/compat/win32/fscache.c#L450-L545)。三项策略/真实 Git 重解析/公开采样回归实际 **0/3 RED → 3/3 GREEN**；源完整哨兵、dirty/stash/upstream 与下一次采样新增文件观察保持。未知 core、非法 bool、fsmonitor/filter 边界未扩大，配置 renderer 及公开签名未改。
+
+最终冻结本机 workspace 全目标 **803 passed / 0 failed / 13 ignored**，Clippy 警告拒绝、定向 fmt、OpenSpec strict、14 份上游摘要及 release CLI/MCP/FFI 构建通过；实际 release stdio **18/18**、认证 HTTP/legacy SSE **13/13**。独立代码 lane 批准 fscache/Trace2/CI（排除其编写的 HTTP 测试），非作者架构 lane 另批准 HTTP/spec 及同一 Git/CI 增量。批准不含整项 D20 或未执行 Windows 缓存验收。新源码提交推送后仍须原生 CI，15.13d 及父项不勾选。

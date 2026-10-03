@@ -245,3 +245,50 @@ fn source_metadata_is_unchanged_on_success_budget_failure_and_precancel() {
     assert!(sample_git_bounded(Path::new("git"), fixture.path(), &cancelled).is_err());
     fixture.assert_metadata_unchanged(&before);
 }
+
+#[test]
+fn fixture_commit_does_not_start_background_maintenance() {
+    let fixture = GitIsolationFixture::new("sha1");
+    let trace = fixture
+        .path()
+        .parent()
+        .unwrap()
+        .join("preparation_trace.json");
+    let tool_trace = super::git_tool_path::from_native(&trace).unwrap();
+    let output = fixture
+        .command(&[
+            "commit",
+            "--allow-empty",
+            "-q",
+            "-m",
+            "controlled preparation",
+        ])
+        .env("GIT_TRACE2_EVENT", &tool_trace)
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "fixture commit failed: {output:?}");
+    let events: Vec<serde_json::Value> = std::fs::read_to_string(&trace)
+        .unwrap()
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    assert!(
+        events.iter().any(|event| event["event"] == "start")
+            && events
+                .iter()
+                .any(|event| event["event"] == "cmd_name" && event["name"] == "commit"),
+        "actual Git did not record the commit"
+    );
+    let children: Vec<_> = events
+        .iter()
+        .filter(|event| event["event"] == "child_start")
+        .map(|event| &event["argv"])
+        .collect();
+    assert!(
+        !children.iter().any(|argv| {
+            argv.as_array()
+                .is_some_and(|arguments| arguments.iter().any(|argument| argument == "maintenance"))
+        }),
+        "fixture preparation started a maintenance child: {children:?}"
+    );
+}

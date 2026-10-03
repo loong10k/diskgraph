@@ -229,3 +229,7 @@ upstream 从当前分支的 for-each-ref 固定 NUL 格式解析；没有可解�
 Windows 工具表示与原生身份路径分开：Git for Windows 2.55.0.windows.5 的真实 CI 在配置读取时拒绝 `\\?\C:\…`，`worktree add` 也报告 `//?/C:/…` 为无效路径。Git 工具环境、工作目录、`config --file`、私有属性/忽略配置及 alternates 经同一词法适配；仅对本地 drive 的无歧义名称移除 verbatim 前缀，原生 no-follow/身份路径保持不变。拒绝 UNC/设备命名空间、点步、ADS、尾点/尾空格、保留设备名、无法表示的编码及普通工具路径超过 259 UTF-16 单元；不关闭 protectNTFS、不继承宿主 Git 配置。原生夹具比较适配前后同一文件身份、实际配置与 printer 输出，普通/linked 仓库回归通过后才有 Windows 支持证据。词法验证本机通过不等于 Windows 原生验收。
 
 宿主 shell PATH 是搜索目录列表，不替代实际执行路径的身份边界。固定 Git 程序仍先从受信绝对目录解析一次；shell PATH 仅捕获可安全表示的绝对项，不把无关且不可表示的项带入 child 或据此拒绝已定位程序。每项仍执行整次取消/期限检查；SystemRoot、worktree 和私有目录/文件依旧严格拒绝不可保真输入，缺少实际 shell 时传播启动错误。构造与 spawn 的分段诊断不输出整个宿主环境；原生测试记录被排除的 PATH 路径与具体阶段，以区分列表兼容问题和实际身份拒绝。
+
+源 metadata 哨兵的夹具准备必须在取水位前结束自己的后台写入。Git 2.55 的 commit 会启动自动维护，默认允许 detach；维护持有 `objects/maintenance.lock` 并在后台结束后删除它。夹具通过每次准备命令的固定 `-c maintenance.auto=false` 在首个 commit 前阻止此后台任务，Trace2 回归确认实际 commit 已执行且没有启动 maintenance child。此设置仅约束临时夹具，不改变生产采样策略；完整路径名单、字节、mtime 与数量断言继续保留，原生 CI 仍须验证 SHA256 语义及源哨兵。
+
+Git for Windows v2.55.0.windows.5 的 `core.fscache` 属于明确的布尔配置，原值依宿主/仓库的捕获顺序回放。官方 `compat/mingw.c` 通过布尔解析器处理，`compat/win32/fscache.c` 只实现每个 Git 子进程内的只读目录/stat 缓存，不调用配置程序或写回源元数据；启用期间不会反映其后工作树变化。支持此字段不得泛放未知 core 字段、fsmonitor 或 driver，不构成原子状态或严格 RSS 保证。类型/覆盖顺序、真实 dirty/stash/upstream 与跨次独立采样的缓存释放均须回归；本机 Git 能证明字段回放，缓存行为仍需 Windows 原生验收。

@@ -2326,7 +2326,7 @@ mod tests {
             )
         };
 
-        // Connection A: request the index, then die without waiting.
+        // A 连接请求索引并取得持久 job ID，不等待业务任务完成。
         let body = http_client::post_json(port, MCP_ENDPOINT, &call_index(1));
         let response: Value =
             serde_json::from_str(&body).unwrap_or_else(|_| panic!("response must be JSON: {body}"));
@@ -2334,11 +2334,9 @@ mod tests {
             .as_str()
             .unwrap_or_else(|| panic!("a durable job id in {body}"))
             .to_owned();
-        // The client "disconnects" by simply never talking again; the socket
-        // closes when it drops at end of this block.
+        // HTTP helper 返回时 A socket 已关闭，后续不再使用原连接。
 
-        // Connection B (new connection, no session continuity): poll the job
-        // by id alone until it reaches a terminal state.
+        // B 无会话连续性，每次凭 job ID 重新建立连接查询，直到业务终态。
         let deadline = std::time::Instant::now() + Duration::from_secs(10);
         let mut observed: Vec<String> = Vec::new();
         let terminal;
@@ -2365,16 +2363,21 @@ mod tests {
             std::thread::sleep(Duration::from_millis(50));
         }
         assert_eq!(terminal, "completed", "disconnect must not fail the job");
-        // The first observation may already be `running` (the runner starts
-        // immediately); what matters is that it is a real, non-terminal state
-        // that the job moves through on its own after the client is gone.
+        // runner 可以在新连接首轮查询前完成；重连读取持久状态，
+        // 不要求客户端逐一观察所有中间态。
         assert!(
             matches!(
                 observed.first().map(String::as_str),
-                Some("queued") | Some("running")
+                Some("queued") | Some("running") | Some("completed")
             ),
             "the first observation from the new connection is a real state: {observed:?}"
         );
+        // C 连接也完全独立；观察连接关闭后仍应返回同一 job ID 的 completed 状态。
+        let body = http_client::post_json(port, MCP_ENDPOINT, &call_status(&job_id, 3));
+        let response: Value = serde_json::from_str(&body).unwrap();
+        let data = &response["result"]["structuredContent"]["data"];
+        assert_eq!(data["job_id"], job_id, "the durable job id stays bound");
+        assert_eq!(data["state"], "completed", "the completed result persists");
         drop(runner);
     }
 

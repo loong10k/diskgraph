@@ -14,9 +14,13 @@ pub(super) fn boolean(value: &[u8]) -> Option<bool> {
 /// 参数：key 为大小写规范化后的字段名，value 为原始值。
 /// 返回：已知安全语义字段为 true；无关字段为 false；未知 core 状态语义拒绝。
 pub(super) fn preserved(key: &str, value: &[u8]) -> Result<bool, String> {
+    // Git for Windows v2.55.0.windows.5 的 mingw_core_config 将 fscache 作为 bool；
+    // win32/fscache.c 仅缓存该子进程内的目录/stat，不执行配置程序或写回源元数据。
+    // 启用期间不反映工作树新变化，原值回放不构成原子状态或严格 RSS 保证。
     let bool_key = matches!(
         key,
         "core.filemode"
+            | "core.fscache"
             | "core.ignorecase"
             | "core.symlinks"
             | "core.trustctime"

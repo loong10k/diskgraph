@@ -96,6 +96,10 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 私有元数据视图关闭外部程序或遇到属性、忽略、行尾、index、子模块或引用后端的特殊语义
 - **THEN** 保留能可靠验证的状态语义；不能可靠保持的条件明确拒绝，不能删去 filter、忽略子模块或默认格式后返回正常 clean/dirty。原仓库配置及元数据的后续替换不得重新进入私有执行配置。
 
+#### Scenario: Git for Windows filesystem cache remains typed data
+- **WHEN** 已捕获宿主或仓库配置包含 Git for Windows 的 `core.fscache` 布尔字段，或后续层覆盖该值
+- **THEN** 只按明确的布尔类型校验并依原顺序回放，普通 dirty、stash 与 upstream 观察保持实际 Git 语义且源元数据不变；非法值和未知 `core.*` 仍拒绝，不能为接受缓存字段放开 fsmonitor、filter 或外部程序。缓存限定于各次 Git 子进程，启用期间的 stat/目录缓存不构成原子工作树快照或严格 RSS 上限；Windows 实际行为须由原生夹具验收。
+
 #### Scenario: Materialized private metadata remains verifiable
 - **WHEN** 工具执行期间私有 index、配置或引用被原地修改，即使身份、长度与分配量未变，或私有根路径被替换
 - **THEN** 末段拒绝已登记文件版本变化，只有 owner 自身的受控写入能更新水位；清理不得将替换来的陌生目录当作 owner 删除。此复核是变化检测，不是对同权限进程或整个文件系统的原子隔离。

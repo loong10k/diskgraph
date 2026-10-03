@@ -8,6 +8,8 @@ mod git_command_context;
 #[cfg(all(test, unix))]
 mod git_command_context_tests;
 mod git_config_policy;
+#[cfg(test)]
+mod git_config_policy_tests;
 mod git_configuration;
 mod git_directory_lease;
 #[cfg(windows)]

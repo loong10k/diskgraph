@@ -54,21 +54,25 @@ jobs:
           python - <<'PY'
           import subprocess
           subprocess.run(["git", "--version"], check=True)
-          name = "live_evidence::git_isolation_tests::source_metadata_is_unchanged_on_success_budget_failure_and_precancel"
-          command = ["cargo", "test", "-p", "diskgraph-engine", "--lib", "--locked", "--offline", name,
-                     "--", "--exact", "--nocapture", "--test-threads=1"]
+          names = [
+              "live_evidence::git_isolation_tests::source_metadata_is_unchanged_on_success_budget_failure_and_precancel",
+              "live_evidence::git_isolation_semantics_tests::sha256_format_and_tracking_counts_are_preserved_without_skipping_capability",
+          ]
           for attempt in range(20):
-              try:
-                  result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                          text=True, timeout=60)
-              except subprocess.TimeoutExpired as error:
-                  output = error.stdout or ""
-                  print(output.decode(errors="replace") if isinstance(output, bytes) else output, flush=True)
-                  raise SystemExit(f"native metadata sentinel timed out on attempt {attempt + 1}")
-              if result.returncode or "test result: ok. 1 passed; 0 failed;" not in result.stdout:
-                  print(result.stdout, flush=True)
-                  raise SystemExit(f"native metadata sentinel failed on attempt {attempt + 1}")
-              print(f"native metadata sentinel {attempt + 1}/20 passed", flush=True)
+              for name in names:
+                  command = ["cargo", "test", "-p", "diskgraph-engine", "--lib", "--locked", "--offline", name,
+                             "--", "--exact", "--nocapture", "--test-threads=1"]
+                  try:
+                      result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                              text=True, timeout=60)
+                  except subprocess.TimeoutExpired as error:
+                      output = error.stdout or ""
+                      print(output.decode(errors="replace") if isinstance(output, bytes) else output, flush=True)
+                      raise SystemExit(f"native metadata sentinel {name} timed out on attempt {attempt + 1}")
+                  if result.returncode or "test result: ok. 1 passed; 0 failed;" not in result.stdout:
+                      print(result.stdout, flush=True)
+                      raise SystemExit(f"native metadata sentinel {name} failed on attempt {attempt + 1}")
+                  print(f"native metadata sentinel {name} {attempt + 1}/20 passed", flush=True)
           PY
       - name: Clippy
         if: matrix.rust == 'stable'
