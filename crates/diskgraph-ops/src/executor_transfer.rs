@@ -3,6 +3,7 @@ use crate::cross_volume_copy::CrossVolumeCopy;
 use crate::executor::Executor;
 use crate::fault_point::FaultPoint;
 use crate::live_item::LiveItem;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use crate::operation_description::describe;
 use crate::ops_error::OpsError;
 use crate::step_result::StepResult;

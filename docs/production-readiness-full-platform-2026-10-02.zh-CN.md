@@ -279,3 +279,6 @@ Ops 入口从 2,406 行降到 83 物理行，62 个生产文件保留各职责�
 最终本机 workspace 全目标 **828 passed / 0 failed / 15 ignored**；Ops 单元 **96/0/1**，结构 **7/0/0**，三项真实宿主操作测试仍 ignored。workspace Clippy 严格零警告、限定包 fmt、OpenSpec strict 与 14 份上游摘要通过。重建后的 release CLI/MCP/FFI 及 Ops 库构建通过；实际隔离 release stdio **18/18**、认证 HTTP/legacy SSE **13/13**。运行中构建产物及部分依赖缓存消失，最终按锁文件恢复并对重建产物执行验证；先前缺二进制和缺依赖的失败不计验收。扫描器 pin、源码和摘要未改。
 
 新源码仍须同 SHA 原生 CI，包含 Windows stable 测试语句局部 Clippy 修正；15.14 因此继续未勾选。D20、移动端/provider/真机、原生写保真、宿主打包签名与生产持续运行门禁也保持开放。源码整改不启用 CLI/MCP 危险工具，不代表全平台生产就绪。
+
+
+后续源码 `7c41ffd45714df5695e0bb88893c5981dd4645d0` 的[原生 CI 终态 17/22](https://github.com/loong10k/diskgraph/actions/runs/37092918161)。三个 Linux Rust 构建拒绝显式测试导入 CrossVolumeCopy、LiveItem、identity_of，两个 Windows Rust 构建拒绝 executor_transfer 的 describe 导入；均在严格零警告 Build 阶段失败、未进入测试，不计原生行为验收，也不是已复现运行时缺陷。窄修按原有实际使用点加导入条件：三条测试导入限 macOS，describe 限 macOS/Linux，capture_source 保持共同回归可用。函数/测试条件及函数体、公开 API、零警告策略不变。本机 Ops **96/0/1**、结构 **7/0/0**、三项宿主 ignored，Clippy/fmt 及重建 release Ops 通过；非作者窄复审批准两个导入区域与冻结源码。修正源码仍须新原生 CI，15.14 与全平台父项保持开放。

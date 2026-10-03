@@ -1,10 +1,14 @@
 use super::*;
+#[cfg(target_os = "macos")]
 use crate::cross_volume_copy::CrossVolumeCopy;
+#[cfg(target_os = "macos")]
 use crate::live_item::LiveItem;
 use crate::ops_time::now_ms;
 use crate::path_codec::{locator_key, unhex_key};
 use crate::raw_path::RawPath;
-use crate::source_evidence::{capture_source, identity_of};
+use crate::source_evidence::capture_source;
+#[cfg(target_os = "macos")]
+use crate::source_evidence::identity_of;
 use diskgraph_core::{FileActionKind, ScopeId};
 use diskgraph_core::{Grant, Permission, PrincipalId};
 use diskgraph_engine::Engine;
