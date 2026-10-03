@@ -496,3 +496,12 @@ The pinned walk remains path-based; held roots constrain supplementary sampling.
 Actual ReFS high IDs, real-provider no-download, old scope encoding provenance,
 identity-sensitive history use, native writes, authorized collectors, host/mobile
 and signing/deployment gates remain open. No parent checkbox is completed.
+
+
+## Root namespace rebinding and FFI source boundaries (D32, 2026-10-04)
+
+D31 native CI at `45d732c9` completed 20/22: both Windows Rust jobs showed that an attributes-only handle does not necessarily prevent directory rename. Test-first commit `5963dd0a` also completed 20/22: the renamed and rebound registered root incorrectly validated as `Ok(())`. Both failures and native logs are retained in the D31 receipt. The subsequent fix checks the current drive and each original name relative to retained parent handles against full volume, 128-bit ID, creation and safe directory state. Directory modification-time changes remain allowed. Validation is cooperative and finite, with a post-check race window; each root validation adds native work proportional to root depth. New native CI and a Windows scale measurement are still required.
+
+FFI implementation files now separate API, realm, scanning, JobHandle, shared JobState and aliases. Two fixed real includes preserve UniFFI's old lexical root. Ordinary module extraction initially changed all 19 binding checksums; the corrected build actually restores 19/19 without checksum overrides or wrappers. Chinese contracts use exact Rustdoc-only `cfg_attr(doc, doc = literal)` supplements. The production AST gate parses the real includes and rejects includes elsewhere; two newly reproduced bypasses went RED then GREEN, with 8/8 gate tests. The final local workspace passed 1097/0/18 in 46 suites; Clippy, scoped fmt and OpenSpec strict passed. Same-source native acceptance remains pending; no full-platform parent task is closed.
+
+Release Swift and Kotlin bindings were regenerated. The actual Swift host compiled and ran session, paging, polling, v1 and concurrent system-SQLite calls; four generated Rustdoc pages retain Chinese parameter/return contracts. The [D32 receipt](benchmarks/ffi_structure_root_binding_acceptance_2026_10_04.json) preserves raw RED/GREEN logs, executed 19/19 checksums and the final source manifest. Kotlin native execution and Windows behavior await the new same-source CI.

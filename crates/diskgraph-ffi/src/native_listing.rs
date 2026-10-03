@@ -43,6 +43,9 @@ fn legacy_page(
 }
 
 /// 保留旧top数组；参数为固定父目录/limit/期限，返回完整数组或错误。
+/// 读取旧 top 完整数组。
+/// 参数：store/snapshot 为快照，parent 为父节点，limit 为上限，deadline 为固定期限。
+/// 返回：节点数组 JSON 值或超预算错误。
 pub(crate) fn top(
     store: &SqliteSnapshotStore,
     snapshot: &str,
@@ -55,6 +58,9 @@ pub(crate) fn top(
 }
 
 /// 保留旧children分页对象；参数为固定目录页/期限，next_offset按真实返回条数推进。
+/// 读取旧 children 完整页。
+/// 参数：store/snapshot 为快照，parent 为父节点，offset/limit 为分页，deadline 为期限。
+/// 返回：items 和按实际条数推进的 next_offset 对象或错误。
 pub(crate) fn children(
     store: &SqliteSnapshotStore,
     snapshot: &str,
@@ -75,6 +81,9 @@ pub(crate) fn children(
 }
 
 /// 会话保留有界前缀和精确未知大小数；参数为固定页/期限，返回带停止原因的部分页。
+/// 读取会话目录页并保留有界前缀。
+/// 参数：store/snapshot 为快照，parent 为父节点，offset/limit 为分页，deadline 为期限。
+/// 返回：含精确未知大小数和停止原因的部分页对象。
 pub(crate) fn session_children(
     store: &SqliteSnapshotStore,
     snapshot: &str,

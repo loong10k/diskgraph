@@ -89,11 +89,12 @@ impl WindowsFileState {
     }
 
     /// 比较根租约的完整身份与目录安全状态；允许目录时间和普通属性变化。
-    /// 参数：current 为从同一保留句柄重新读取的当前状态。
-    /// 返回：卷、128 位 ID、目录类型及非重解析/未删除条件保持时 true。
+    /// 参数：current 为保留句柄或其当前名称绑定重新读取的状态。
+    /// 返回：卷、128 位 ID、创建时间、目录类型及非重解析/未删除条件保持时 true。
     pub(crate) fn matches_scan_root(&self, current: &Self) -> bool {
         self.volume == current.volume
             && self.id == current.id
+            && self.creation == current.creation
             && self.directory
             && current.directory
             && current.attributes & 0x10 != 0

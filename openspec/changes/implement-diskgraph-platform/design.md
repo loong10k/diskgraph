@@ -321,13 +321,17 @@ D28复审收敛：v10增加独立writer_generation，保留目录计数count_sch
 
 本项不改变 pinned disktree：上游丢失原始名称后适配器仍拒绝发现的非 Unicode 名称/碰撞，不能宣称已实现任意非 UTF-8 完整扫描。注册 scope 的旧 Locator 已保存 raw，但缺编码来源；本次不能把历史 scope 自动标记为当前平台。Git 子进程读取根约束、授权采集任务、真实 provider、原生写和移动端仍分别验收，不因定位前置完成而勾选全平台父项。
 
+### D32 FFI 入口与作业状态的源码边界
+
+延续 RT-09 和已确认的 Rust 源码规范，FFI lib.rs 的同步导出、数据库 realm 解析、异步句柄、私有作业状态及扫描协调按真实责任移动；不新增状态 owner、不改 worker/租约/取消或授权算法。入口保留恰一次 UniFFI 必需 scaffolding，恰两份固定真实 api_exports.rs/job_handle.rs 的 include!，其余只声明和明确导出。实际 release 对比发现普通 mod 迁移及导出文档修改导致旧校验值 0/19；标准 include 保留旧词法根，不硬编码/覆盖 checksum、不增加包装函数。旧运行期 metadata 文档不变，中文契约以明确 cfg_attr(doc, doc = literal) 出现在真实 Rustdoc 中；AST 门禁只接受这两份文件和该精确条件，逐一挂载解析生产源码，任意其他 include、重复挂载或隐藏 stub 均拒绝。JobHandle 与 JobState 分文件，别名不与主对象堆积；既有测试迁为 test-only 模块，路径属性仍纳入挂载/来源检查。所有生产源逐平台 AST 检查一对象、少于 500 行、中文用途/来源和参数返回、无 wildcard/stub。先复现当前入口和文档违例，再移动；对旧 API 公开路径、真实 UniFFI 校验值及已有权限/取消/realm 回归执行兼容验证。该结构增量不关闭 GUI、静态链接、Room、真机或全平台父项。
+
 ### D31 Windows 完整原生属性的根约束捕获与持久化
 
 选择 Engine 批次补充观测；不向公开可 struct-literal 构造的 NodeV2/ScanResultV2/FileIdentity 添加字段，不增加完整扫描 sidecar owner。新增 core WindowsFileObservation 纯值对象、固定失败原因与树对齐 enum，完整保存 volume u64、file ID 16字节、EOF u64、creation/last-write/change i64 原生ticks、attributes/type/delete以及独立捕获窗口。访问时间不进入版本；100ns为表示单位，不承诺文件系统精度、永久身份或原子内容快照。固定版本BLOB codec避免SQLite有符号整数/JSON number丢位；未知/变化不得填零。
 
 WindowsNativeScanRoot 在上游walk前逐组件取得drive到注册root的属性句柄并保留到发布末检；原生root是本次任务能力，不新增共享Engine/授权owner。所有父/根拒绝reparse、非本地namespace和跨卷，末组件经过单组件长度/分隔/ADS校验，以RootDirectory及OPEN_REPARSE_POINT仅打开对象本身属性，末组件不设与其语义不清的DONT_REPARSE；父/root仍DONT_REPARSE。属性share READ|WRITE而不含DELETE减少活动文件冲突；它不是metadata冻结保证。保留既有content shareREAD、reparse/placeholder拒绝和open_data策略；不放宽旧入口。
 
-每次最多持有一个观测对象的临时父链，batch只保留纯值。采样在图库/控制写锁之外，逐组件和native调用前后检查原scan_started期限及本机取消；实时scope/grant/fence至多复用20ms，并在每批暂存及发布前强制复验，阻止失效owner写入/发布。native同步调用不承诺硬期限。独立HydrationGuard及NO_RECALL属性打开不申请data；真实provider不下载仍需验收。根末检只核对完整ID/volume/type/reparse/delete，不把允许的目录mtime变化当root替换。pinned walk仍走路径线程池，不声明整体扫描已有原生句柄约束。
+每次最多持有一个观测对象的临时父链，batch只保留纯值。采样在图库/控制写锁之外，逐组件和native调用前后检查原scan_started期限及本机取消；实时scope/grant/fence至多复用20ms，并在每批暂存及发布前强制复验，阻止失效owner写入/发布。native同步调用不承诺硬期限。独立HydrationGuard及NO_RECALL属性打开不申请data；真实provider不下载仍需验收。根末检核对完整ID/volume/creation/type/reparse/delete，并从保留父句柄重新打开各原名称，验证当前命名空间仍绑定原对象；目录mtime变化允许。原生Windows回归已证明属性句柄不必然阻止目录重命名，不能把只验证held句柄视作验证注册名称。逐组件复核不是原子命名空间快照；发布前锁外末检后仍有竞态窗口。每次复核随注册根深度增加原生属性打开成本，Windows规模性能须实际测量。pinned walk仍走路径线程池，不声明整体扫描已有原生句柄约束。
 
 同句柄前后全版本一致才保存Observed。旧树辅助identity可无损比较且一致、type一致，尺寸仅在明确apparent且非dedup的普通文件可比时参与对齐；目录聚合/allocated/dedup或128无法投影的旧未知身份保持Unverified，不由同路径/同秒mtime推断Matched。明确冲突保存固定Gap而不把后来身份配到旧尺寸；v1值不覆盖。adapter根volume独立来自真实volume字段，不依赖旧u64投影成功，旧高位非零identity仍None。
 

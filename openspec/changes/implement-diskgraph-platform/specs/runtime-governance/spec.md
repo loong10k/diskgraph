@@ -19,6 +19,13 @@ The structural change SHALL preserve existing root exports, the public content/l
 - **THEN** the existing graph-before-control lock order, same-guard publication/retention authorization, fenced staging/publication, per-generation cancellation flags, progress cleanup and terminal authorization checks remain unchanged
 - **AND** callers compile against the same public paths, the existing behavioral regressions pass, and enabled native platform gates execute at the resulting source SHA
 
+#### Scenario: FFI source organization preserves the binding contract
+- **WHEN** the FFI source-layout gate parses all production modules before and after extracting the existing entry implementation
+- **THEN** lib.rs contains declarations, explicit exports, exactly one required UniFFI scaffolding macro and exactly two literal ABI includes of the real api_exports.rs/job_handle.rs implementations; these includes retain the old lexical namespace participating in binding checksums, and the gate parses both actual sources once as production rather than hiding objects behind macros; includes in blocks, expressions, inline modules or any other source file are rejected, even when the included basename matches a permitted ABI file
+- **AND** real API functions, realm resolution, scan execution, JobHandle, private job state and aliases have separate responsibility files, each with at most one object and fewer than 500 lines; only exact cfg_attr(doc, doc = literal) Chinese rustdoc supplements are accepted where runtime metadata must retain old docstrings
+- **AND** Chinese documentation states actual Rust provenance and callable parameter/return semantics; test-only modules and explicit path attributes cannot hide or duplicate production sources
+- **AND** public root paths, exported signatures and UniFFI checksum values remain unchanged, including worker cancellation, panic containment, per-database realms, session closure and terminal authorization; structural movement does not certify GUI scheduling, Room coexistence or device behavior
+
 ### Requirement: RT-08 Runner lifetime follows its owner
 The system SHALL stop scheduling at its next admission check when a runner handle is dropped, including a check after a blocking queue read and before each claim. An idle worker SHALL release its Engine and SQLite connections; drop SHALL not block the caller on an in-flight scan. Work already admitted MAY complete under its existing budgets and lease. Explicit stop MAY wait for current cooperative work to complete. This SHALL not be represented as instantaneous cancellation of an active scan.
 

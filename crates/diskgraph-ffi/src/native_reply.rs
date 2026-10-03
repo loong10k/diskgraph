@@ -100,6 +100,9 @@ pub(crate) fn query_with_revision(
 }
 
 /// 保留两参数内部回调；参数为原请求上下文，返回共享终态校验后的文本。
+/// 以固定期限执行查询并在完整编码后复核授权。
+/// 参数：engine/snapshot 为资源，deadline 为期限，cancel 为关闭标志，read 为读取闭包，before_reply 为末检前回调。
+/// 返回：已编码成功文本或授权、关闭和预算失败。
 pub(crate) fn query(
     engine: &Engine,
     snapshot: &str,
@@ -119,6 +122,9 @@ pub(crate) fn query(
 }
 
 /// 对成功 envelope 计量并编码；参数为数据，返回有限文本或明确预算错误。
+/// 在响应大小上限内编码成功 envelope。
+/// 参数：data 为待返回的 JSON 值。
+/// 返回：有界编码字符串或字节上限错误。
 pub(crate) fn encode(data: &Value) -> Result<String, String> {
     let cap = QueryBudget::default().max_response_bytes;
     // 先有限计量借用数据，阻止构造 envelope 时复制超大字符串。
@@ -184,6 +190,9 @@ pub(crate) fn legacy(
 
 /// 旧导出候选入口使用首次解析的 revision；参数为路径、snapshot 与固定 revision 回调。
 /// 返回：沿用原 JSON envelope，不在数据读取阶段重新选择最新批次。
+/// 为旧接口读取固定 revision 并保留完整响应语义。
+/// 参数：path/snapshot 为目标资源，read 接收 Store、固定 revision 和期限。
+/// 返回：已编码 JSON envelope；授权或预算失败不返回部分成功。
 pub(crate) fn legacy_with_revision(
     path: &str,
     snapshot: &str,

@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D31 / FS-02 complete Windows supplementary attribute persistence prerequisite; original full-platform goal remains open",
   "baseline_commit": "949c3b85ea37fbb54f6e2b60dd42d46166cb9236",
-  "status": "local_validation_complete_independent_reviews_approved_native_ci_pending",
+  "status": "native_ci_failed_registered_root_binding_fix_pending_new_source_ci",
   "schema": {
     "graph": 12,
     "count_schema": 9,
@@ -297,7 +297,17 @@
     "scope": "source increment and read real local logs; native Windows/provider/write/host/mobile are not certified"
   },
   "native_ci": {
-    "status": "pending_new_source_push"
+    "status": "completed_failure",
+    "source_sha": "45d732c9b875542269de38e17719020c6e3a5ec0",
+    "run_id": 37151008912,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37151008912",
+    "passed_jobs": 20,
+    "total_jobs": 22,
+    "failed_jobs": [
+      111284728271,
+      111284728307
+    ],
+    "failure": "attributes-only root handle does not necessarily prevent directory rename; old test incorrectly required rename failure"
   },
   "remaining_limits": [
     "pinned walk remains path-based; held root only constrains supplementary attributes",
@@ -388,7 +398,45 @@
       "load-200000.json.gz": {
         "sha256_uncompressed": "0685c39383d5a9881921df79ddad96a5505495938c78dcc633385c0824c5d161",
         "sha256_gzip": "0f2f079d34d2f72cc073f55805b6aacc7e1e992f4283d16e67c10a87bf581665"
+      },
+      "windows-msrv-native-failure.log.gz": {
+        "sha256_uncompressed": "95e5502e8778de549cea3e98a04e342901442f774d7aabe18646f70b5ae2d0ad",
+        "sha256_gzip": "c25c5dc858618d0e980d41981da995937631ccadc0ba28454691a17496e1ef00"
+      },
+      "windows-stable-native-failure.log.gz": {
+        "sha256_uncompressed": "88055d330e88a717aba37062fed119ba42097c0bf4033da2824f3bf89951c7d4",
+        "sha256_gzip": "52c60012b82a7495c1220db3f0c841ba3455cfb5e85a6650e54a8a3ce304efb2"
+      },
+      "windows-stable-binding-red.log.gz": {
+        "sha256_uncompressed": "3006237026e25a781103e1bb6622aa764351ed9c63df444321738ce9a69f84d2",
+        "sha256_gzip": "811f2a19a2ce9b9e732b64f8477a3371bb3a05cdc49c61cc5b5eb4761ed15684"
+      },
+      "windows-msrv-binding-red.log.gz": {
+        "sha256_uncompressed": "af4162fafc96b26bfb7ba8855ccdb21657cb1950b27d6c331e7409a0d72d40b2",
+        "sha256_gzip": "149a6ee60c009b47b9a2eac2495250f4085622512b301d621a6e6520a945df99"
+      },
+      "ci-original-terminal.json.gz": {
+        "sha256_uncompressed": "40286421b81344e8f94172e881fde1d6589ef5ce5fcb8da8d5b1dc6747d18173",
+        "sha256_gzip": "7385effb8fa4d019957794f774e617350c918775238130aa9a075c981a445101"
+      },
+      "ci-binding-red-terminal.json.gz": {
+        "sha256_uncompressed": "9adbb663916b490ebdbce2ac683635fc99ac234911766206d422277e0d7dffb7",
+        "sha256_gzip": "8bff47d557db74ff92890d08e5124eb9adc1d69b753dfbd5a184b2002bc544a4"
       }
     }
+  },
+  "root_binding_followup_red": {
+    "source_sha": "5963dd0a0443a0f106d89cbf7d9ad7d9d22c3ba3",
+    "run_id": 37153284610,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37153284610",
+    "passed_jobs": 20,
+    "total_jobs": 22,
+    "failed_jobs": [
+      111291376566,
+      111291376458
+    ],
+    "actual": "renamed and rebound root validates Ok(())",
+    "expected": "BusinessError::Conflict",
+    "note": "production fix is subsequent uncommitted source; root and ancestor namespace scenarios preserve stronger rename-denied branch with explicit verification"
   }
 }

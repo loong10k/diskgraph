@@ -1,0 +1,222 @@
+{
+  "date": "2026-10-04",
+  "scope": "D32 FFI structural compatibility and D31 registered-root rebinding fix; full-platform goal remains open",
+  "baseline_commit": "5963dd0a0443a0f106d89cbf7d9ad7d9d22c3ba3",
+  "status": "local_validation_complete_native_fix_ci_pending",
+  "source_files": {
+    "crates/diskgraph-engine/src/windows_file_state.rs": "af9346f75f84e090e1a717fd28415f13bf148957278cc36366ae0b87d5a6fd6d",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "55ac700604ec1b372991ae8cab60a7670e62300815768760faec94e7952f4843",
+    "crates/diskgraph-engine/src/windows_native_scan_tests.rs": "94173c86fb12c0e9e393eb0ab4991099153fcf2d40cd0886434b607c774ae060",
+    "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "2fc0ff0d49fbd3552fe657a02776f943f4a683d4fb55e8e8f09ce5340a094f17",
+    "crates/diskgraph-ffi/Cargo.toml": "9f369a8a5a398a24559a834bbe6500c9a8cbafd32433551ddfa0ac6f41b93c92",
+    "crates/diskgraph-ffi/README.md": "65ed7d90037ebd761b724b4614d4bc1761da4bbda8a48e9cd6b29d7d5a88dc72",
+    "crates/diskgraph-ffi/src/api_exports.rs": "471b839f98683d5ddd5b73523b182cfaf9da0bf06e723d11a3e4db551ddaeac2",
+    "crates/diskgraph-ffi/src/api_response.rs": "38de08a769bd83b9f29d16d5ee32c8590c1b8cd9495575b62ea31e6fa153fcb6",
+    "crates/diskgraph-ffi/src/api_result.rs": "0ce4ac7933ce8fe74d7ea1bc12d0f3c2b01d060c8470a1c78d22bd8e0fe55d53",
+    "crates/diskgraph-ffi/src/async_tests.rs": "233e11a249586474082f70be239fef8ff70dab8d70202375c42b712f64c652af",
+    "crates/diskgraph-ffi/src/authorization_tests.rs": "8ca6de30c5f86d3d62c4ad0b9729533e218f4edb34cf998907cc00b76c9831db",
+    "crates/diskgraph-ffi/src/bin/uniffi_bindgen.rs": "f7a2dd11fb370e9595bdfa6c32fc41a9b67a60bbab06ec711cb7a03eb873ffa6",
+    "crates/diskgraph-ffi/src/job_authorization.rs": "b57150d195358e3d65564323c1a91fc97be10c3f334cba09d101a2c57d9d5e1e",
+    "crates/diskgraph-ffi/src/job_handle.rs": "ef2a5d39948bfd6305c156c7adf36399318d00e270e7c873f3e3835e82dc2e3c",
+    "crates/diskgraph-ffi/src/job_state.rs": "a00d11648924f6f70820f7e0b40fe8ec3b9e7bb9495997388306dbef38d0d3c1",
+    "crates/diskgraph-ffi/src/lib.rs": "394b8f7a924b377c09a11617e0547ef318a15856c5f7f7c85773eb4c1fffd9e5",
+    "crates/diskgraph-ffi/src/native_growth.rs": "7186919ee1a97074f2a45fba20aa24b3e7b165d83b25720e43c5345ec7d461ad",
+    "crates/diskgraph-ffi/src/native_growth_tests.rs": "a637d32260cc64cc86682d788e80625cf32bb40caf99bef12f13bb0577de03ee",
+    "crates/diskgraph-ffi/src/native_jobs.rs": "0ca5c8980604dd78127ad8d7da9bb70045d67efdd60829fca1b6d42d9800e4c1",
+    "crates/diskgraph-ffi/src/native_listing.rs": "844b15767e916282986402060550768338f20bbb84beabe19ce68b1071d9c0e6",
+    "crates/diskgraph-ffi/src/native_listing_tests.rs": "239145ff85ea85824ce736e1d17150b938936810efacd2622abd6fb4185821cd",
+    "crates/diskgraph-ffi/src/native_realm.rs": "2a1b8b2aa6599ee5a0021b2fd849ba71d8e7de17609889d22fb03073d3bc56b6",
+    "crates/diskgraph-ffi/src/native_reply.rs": "f1797f1bfd65bec627b7ac61f79ed27da44da4cffc801ef1f8934024c83133a3",
+    "crates/diskgraph-ffi/src/native_reply_budget_tests.rs": "0636fd7d4af5086bde30a3475365f6a9b06c8b4210e1598aebfe318c0f897ee2",
+    "crates/diskgraph-ffi/src/native_revision_candidate_tests.rs": "3ee757ca87daf66a1eae3ef37a6c4db6789f6e8f9c8e5e1f9b513b42f00f7e05",
+    "crates/diskgraph-ffi/src/native_scan_gate.rs": "fd99b0b71d924dde1db5c57dcfb7619f64340251be9baadc106b0ace068d48b9",
+    "crates/diskgraph-ffi/src/native_service.rs": "46965d308e67b91d620c09d386199429551c960c4c9d9fb9803dd901b498b0fa",
+    "crates/diskgraph-ffi/src/native_service_error.rs": "8708897ec3d3611d978af85c74afabe925f16365e3b4fcc636928fafad418464",
+    "crates/diskgraph-ffi/src/native_service_tests.rs": "a90f479334ba358ec25144c8f8af7b8597dcf49c3a5f5cc44b1402d5cf26d1f8",
+    "crates/diskgraph-ffi/src/scan_coordinator.rs": "4666e3668c8333f9fcb0bc4b5ddd01208c4a74a9f26652211e992bcceba63b70",
+    "crates/diskgraph-ffi/src/tests.rs": "7fd5bfa25980f47d59a790c3223a820d49d25b8c87dbaf46513e3362e3fbf8fa",
+    "crates/diskgraph-ffi/tests/source_layout.rs": "8ce1c9e12fe0ceb0f87b31f1b6946e8216fbb6ae3376dd6fd7f4e6e5607669fa",
+    "crates/diskgraph-ffi/tests/source_layout/negative_cases.rs": "eafdfafad39b9f4217cfd8db91d87c83361444f66cfa8233fd8d5ec6edd9cab1"
+  },
+  "red": {
+    "layout": "original FFI root/type/documentation violations; 2 passed/1 failed",
+    "include_gate": {
+      "passed": 1,
+      "failed": 2,
+      "actual": [
+        "block include accepted",
+        "non-root same basename include accepted"
+      ]
+    },
+    "workspace_module_path": "E0583 after test extraction; corrected explicit path and full suite rerun",
+    "uniffi_initial": {
+      "passed": 0,
+      "total": 19,
+      "cause": "ordinary modules changed lexical namespace and added docs changed metadata"
+    }
+  },
+  "fix": {
+    "ffi": "real source extraction; two standard root includes preserve lexical namespace; Chinese Rustdoc-only contracts; no checksum overrides or wrappers",
+    "native_root": "reopen drive and each original name relative to held parent, compare full volume/128bit ID/creation/safe directory; allow directory mtime changes"
+  },
+  "checks": {
+    "ast_gate_passed": 8,
+    "ast_gate_failed": 0,
+    "clippy_exit_code": 0,
+    "scoped_fmt_exit_code": 0,
+    "explicit_include_rustfmt_exit_code": 0,
+    "openspec_strict_exit_code": 0,
+    "release_ffi_exit_code": 0,
+    "upstream_digests_unchanged": 14,
+    "rustdoc": {
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "fn.scan_native_json.html": {
+          "parameters": true,
+          "returns": true
+        },
+        "fn.spawn_scan_json.html": {
+          "parameters": true,
+          "returns": true
+        },
+        "struct.JobHandle.html": {
+          "parameters": true,
+          "returns": true
+        },
+        "struct.NativeService.html": {
+          "parameters": true,
+          "returns": true
+        }
+      }
+    },
+    "workspace_all_targets_build_exit_code": 0
+  },
+  "workspace": {
+    "passed": 1097,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 46,
+    "exit_code": 0
+  },
+  "uniffi": {
+    "total": 19,
+    "passed": 19,
+    "actual": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "mismatches": {}
+  },
+  "host": {
+    "swift": "actual release binding generated, compiled and executed: session/paging/poll/v1 and host SQLite CRUD passed",
+    "kotlin": "bindings generated; actual host execution deferred to same-source native CI"
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "source_manifest_sha256": "6ded46aa5b9403b8b36fc65d392185858d467b72fd8077520b2328f8dac215e4",
+    "source_file_count": 33,
+    "function_signature_body_definitions_preserved": 60,
+    "scope": "source/ABI and final gate delta; native CI remains separate"
+  },
+  "native_ci": {
+    "status": "pending_new_source_push",
+    "windows_cases_expected": 13,
+    "red_run": 37153284610,
+    "red_actual": "renamed and rebound root validates Ok(())",
+    "red_expected": "Conflict"
+  },
+  "performance": {
+    "measured_windows_scale": "not run",
+    "additional_root_validation": "linear in root components; current binding adds native attribute opens; no throughput improvement claim"
+  },
+  "limits": [
+    "finite checks do not freeze or atomically snapshot the namespace",
+    "pinned scanner remains path-based; post-validation mutation window remains",
+    "actual Windows GREEN and Windows scale performance are pending",
+    "real providers/no-download/native writes/mobile devices/host GUI/signing/deployment remain open"
+  ],
+  "logs": {
+    "directory": "ffi_structure_root_binding_acceptance_2026_10_04_logs",
+    "files": {
+      "layout-red.log.gz": {
+        "sha256_uncompressed": "fcf16dd796b77d02f61c2361dc22f6e9c329b07082ee7ae002ee393565f565a3",
+        "sha256_gzip": "8f82d13363c49816eff61c9a9c661d1d7c33890e29463ab7e56da205b81db0ff"
+      },
+      "include-red.log.gz": {
+        "sha256_uncompressed": "9f41bb5bc100b578c450e1c05a8d9b390b682c577a6ed2fab793893baa9fe916",
+        "sha256_gzip": "0601c95d2ffa102e06c7e48bf5c5fc4213d6fc316dbdef8d9c6f222ea90c47c2"
+      },
+      "include-green.log.gz": {
+        "sha256_uncompressed": "c437e6aa0537c15473d36179b163c1f81044115a56a6cb6481db5adf0bdfc0cf",
+        "sha256_gzip": "0f3d92366ace540e055df9a15479782f7fd6f6a8850e5ba879306395288465ec"
+      },
+      "workspace-path-error.log.gz": {
+        "sha256_uncompressed": "f4bcf3e52a8cc4952baeb7938f92ac45d7f4eda175a01e75d641df716aef1261",
+        "sha256_gzip": "5afd29a15a842584bf7a45d6ccc12cf116345bcb7f08220bd9f649182045ab91"
+      },
+      "workspace-final.log.gz": {
+        "sha256_uncompressed": "23068e3cf91fb616a8f4813a452d068528b94787d5e68b30fe0df966acb9d08d",
+        "sha256_gzip": "31e9c9832d5ba6230718427ecc2525b74b4fa80d180e5a4a09d455a8dff90053"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "459604fcfe14d9638d4bafa73df178d0348ce3eaafa66ab2c4ceae1ce3c8ad2f",
+        "sha256_gzip": "2485289d182648bee20d1fba280929b39cd5c2665a04164446020600a1dd4cdf"
+      },
+      "rustdoc-build.log.gz": {
+        "sha256_uncompressed": "4ee46ff792e96311fcd5c97580df67a0bb9ccb4bb44b2efd16a55fc333d3b1e8",
+        "sha256_gzip": "7f47a978f79afd4aaed9771d651674e6b01f1014796f7a15d4b2d0f461555c71"
+      },
+      "rustdoc-pages.json.gz": {
+        "sha256_uncompressed": "01d472cf594a324308f8e150097b81dde85f526f28fb1b427162230f239048f1",
+        "sha256_gzip": "c3646d3553985b876f2f9f752f9940b8b2e9b363b13dbf2a9e868d43e007ae46"
+      },
+      "release-final.log.gz": {
+        "sha256_uncompressed": "8d1547e362699bcdada3021a18fec1770be452b434bca323c44bbf02389b22e7",
+        "sha256_gzip": "8c9433e0926eb7f0591946a6192571053e945ac18f31676380f0568e8bb5aa6f"
+      },
+      "uniffi-initial-incompatible.json.gz": {
+        "sha256_uncompressed": "fffd84563c4f247624f9f4ac86764150674d886662e30d5d708116a36aa70e4d",
+        "sha256_gzip": "b9770a4d977b3b60a81758f359a0cfd7d2c8ed0731126484b25b8bbfe8261ab0"
+      },
+      "uniffi-final-compatible.json.gz": {
+        "sha256_uncompressed": "aba25eaadb95674aa824bce0a5ad9a6ebea3744bf2cd17dac62c9417cc95ccda",
+        "sha256_gzip": "070afcfd83f13e31b59f8aaa1695c68036fb4b6a0ae0f1bf4a468358ab8310b3"
+      },
+      "ffi-compat-tests.log.gz": {
+        "sha256_uncompressed": "c0f9af9281b3c96d9f09cb26fc7507548818cacc410a2e07dac92d7b888a5b4b",
+        "sha256_gzip": "3904d0608883169e6e9b0845b59f07bbabe7604ea5f67294b18e681d1abf4a7e"
+      },
+      "binding-generation.log.gz": {
+        "sha256_uncompressed": "855912a56843681b9c79ab3ed146e2646aa610ece0902adb4700d44870c16eba",
+        "sha256_gzip": "3dfb6b4ede3e24651231d88c8621b1c4aafac977c3835a2e40d66d24d800932f"
+      },
+      "swift-host.log.gz": {
+        "sha256_uncompressed": "87779fa201b29034e2aca7711682bde8b656d312606d884d32fce1b65e03b6e5",
+        "sha256_gzip": "2a64ad446d10c7be4a598928509c290358db410f4af86722c50def7a0f4f58e4"
+      },
+      "build-final.log.gz": {
+        "sha256_uncompressed": "5604fc8f0c276397a55db4bd7008236712075c0ad37d3b3a0f1fe362b1b85a36",
+        "sha256_gzip": "d41d9e184bc92b458850b6c579594b81c4badd499e25b8c4e789a47db6a74d38"
+      }
+    }
+  }
+}

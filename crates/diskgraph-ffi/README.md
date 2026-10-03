@@ -44,3 +44,11 @@ or application UI scheduling. See the [current platform evidence](../../docs/pro
 ## License
 
 MIT
+
+源码按职责拆为 UniFFI 函数导出、数据库 realm、扫描协调、作业句柄与共享状态。
+`lib.rs` 保留模块声明、明确导出和必需 UniFFI scaffolding。两份真实 API/JobHandle
+实现通过固定 `include!` 保持旧词法根及绑定 metadata 校验值；源码门禁解析实际包含文件，
+不允许其他包含路径或重复挂载。运行期 metadata 文档保持兼容，中文契约通过
+`cfg_attr(doc, doc = ...)` 显示在 Rustdoc 中；原有函数和对象仍从 crate 根公开。JSON envelope、作业取消/授权、会话锁与 Engine 所有权保持原义。
+内部结果、授权闭包和任务弱引用列表各自独立文件，不新增运行时包装层。
+生成器源文件使用 `bin/uniffi_bindgen.rs`，Cargo 显式维持 `uniffi-bindgen` 命令名。

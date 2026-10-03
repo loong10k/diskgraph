@@ -466,3 +466,12 @@ release观测主键窄读在20k/200k未选记录下均18条VM；macOS真实文�
 
 上游walk仍按路径；本批根句柄只约束补充采样。真实ReFS高位ID、provider不下载、旧scope编码
 来源、可信历史身份利用、原生写、授权采集任务、宿主/mobile和签名部署仍开放；不新增完成勾选。
+
+
+## 根名称重新绑定与 FFI 源码边界（D32，2026-10-04）
+
+D31 源码 `45d732c9` 原生 CI 终态 20/22：两个 Windows Rust 任务证明属性句柄不必然阻止目录重命名。先补测试的 `5963dd0a` 也为 20/22：注册根被重命名并重新绑定后，旧实现仍返回 `Ok(())`。D31 记录保留两轮失败与原生日志。后续修复从保留父句柄核对当前 drive 和各原名称，比较完整卷/128位ID/创建时间及安全目录状态，允许目录修改时间变化。有限协作复核仍有检查后的竞态窗口，每次复核的原生工作量随根深度增长；新原生 CI 和 Windows 规模成本尚待验证。
+
+FFI 按 API、realm、扫描、JobHandle、共享 JobState 和别名拆分真实实现。两份固定 include 保留旧 UniFFI 词法根；普通 mod 提取初版曾导致19项校验全部变化，修正后真实执行恢复19/19，没有覆盖checksum或包装函数。中文契约使用精确 Rustdoc 条件 `cfg_attr(doc, doc = literal)`。生产 AST 门禁解析真实包含源，并拒绝其他位置的 include；两个遗漏负例实际 RED 后 GREEN，门禁8/8。最终本机workspace **1097/0/18（46 suites）**、严格Clippy、限定fmt和OpenSpec strict通过。同源码原生验收仍待完成，全平台父项不勾选。
+
+release Swift/Kotlin 绑定已重新生成；真实 Swift 宿主编译运行通过会话、分页、轮询、v1及系统 SQLite 共存调用，4份生成Rustdoc页面保留中文参数/返回契约。[D32验收记录](benchmarks/ffi_structure_root_binding_acceptance_2026_10_04.json)保存真实RED/GREEN日志、执行19/19校验及最终源码清单。Kotlin原生运行与Windows行为仍等待新的同源码CI。

@@ -1,3 +1,4 @@
+use crate::native_jobs::NativeJobs;
 #[cfg(test)]
 use crate::native_scan_gate::NativeScanProgressHook;
 use crate::{JobHandle, NativeServiceError, native_reply, open_engine};
@@ -5,15 +6,15 @@ use diskgraph_engine::Engine;
 use diskgraph_store::SqliteSnapshotStore;
 use serde_json::{Value, json};
 use std::sync::{
-    Arc, Mutex, Weak,
+    Arc, Mutex,
     atomic::{AtomicBool, Ordering},
 };
-type NativeJobs = Vec<(std::path::PathBuf, Weak<JobHandle>)>;
 #[cfg(test)]
 #[path = "native_reply_budget_tests.rs"]
 mod native_reply_budget_tests;
 
 /// 可信本地的持久原生会话：共享 Engine，每次请求重新授权，关闭时取消关联任务。
+/// 来源：DiskGraph 原生 Rust UniFFI 绑定；无 Java 对应对象。
 #[derive(uniffi::Object)]
 pub struct NativeService {
     pub(crate) engine: Arc<Engine>,
@@ -27,6 +28,10 @@ pub struct NativeService {
 #[uniffi::export]
 impl NativeService {
     /// 打开一个数据库的可信本地会话；失败返回类型错误，不启用半初始化服务。
+    #[cfg_attr(
+        doc,
+        doc = "打开一个数据库的可信本地会话；失败返回类型错误，不启用半初始化服务。\n打开可信本地持久会话。\n参数：database_path 为目标图库路径。\n返回：共享会话或类型化初始化错误，不返回半初始化对象。"
+    )]
     #[uniffi::constructor]
     pub fn new(database_path: String) -> Result<Arc<Self>, NativeServiceError> {
         let engine = open_engine(&database_path)
@@ -41,6 +46,10 @@ impl NativeService {
     }
 
     /// 关闭会话并请求取消所有尚存作业句柄；之后的请求明确失败。
+    #[cfg_attr(
+        doc,
+        doc = "关闭会话并请求取消所有尚存作业句柄；之后的请求明确失败。\n关闭会话并请求取消所有现存关联作业。\n参数：无额外输入，使用当前会话作业登记。\n返回：无；后续请求明确失败。"
+    )]
     pub fn shutdown(&self) {
         self.closed.store(true, Ordering::SeqCst);
         if let Ok(mut state) = self.jobs.lock()
@@ -55,6 +64,10 @@ impl NativeService {
     }
 
     /// 从后台扫描本地目录，返回立即可轮询和取消的句柄。
+    #[cfg_attr(
+        doc,
+        doc = "从后台扫描本地目录，返回立即可轮询和取消的句柄。\n启动本机根目录扫描并复用同根活动句柄。\n参数：root_path 为可规范化的扫描根路径。\n返回：共享作业句柄或已关闭、路径及状态错误。"
+    )]
     pub fn spawn_scan(&self, root_path: String) -> Result<Arc<JobHandle>, NativeServiceError> {
         let root = std::path::Path::new(&root_path)
             .canonicalize()
@@ -115,6 +128,10 @@ impl NativeService {
     }
 
     /// 按节点 ID 查询；snapshot 的真实 scope 和实时数据库权限决定访问。
+    #[cfg_attr(
+        doc,
+        doc = "按节点 ID 查询；snapshot 的真实 scope 和实时数据库权限决定访问。\n按实际快照归属与实时权限读取一个节点。\n参数：snapshot_id 为目标快照，node_id 为目标节点。\n返回：有限节点 JSON envelope 或失败。"
+    )]
     pub fn node_json(&self, snapshot_id: String, node_id: u64) -> String {
         native_reply::respond(self.query_until_then(
             &snapshot_id,
@@ -134,6 +151,10 @@ impl NativeService {
     }
 
     /// 按稳定顺序读取目录页，保留 offset 兼容输入，返回实际截断信息。
+    #[cfg_attr(
+        doc,
+        doc = "按稳定顺序读取目录页，保留 offset 兼容输入，返回实际截断信息。\n按稳定顺序读取目录页并报告实际截断。\n参数：snapshot_id 为快照，parent_id 为父节点，offset/limit 为分页范围。\n返回：含子节点、下一页与预算诊断的 JSON envelope。"
+    )]
     pub fn children_json(
         &self,
         snapshot_id: String,
@@ -158,6 +179,10 @@ impl NativeService {
     }
 
     /// 返回有界候选及覆盖/字节缺口；结果只用于审阅，不构成文件操作授权。
+    #[cfg_attr(
+        doc,
+        doc = "返回有界候选及覆盖/字节缺口；结果只用于审阅，不构成文件操作授权。\n读取供审阅的候选与覆盖和字节缺口。\n参数：snapshot_id 为目标快照，target_bytes 为期望总字节数。\n返回：候选及截断诊断 JSON envelope，不构成操作授权。"
+    )]
     pub fn candidates_json(&self, snapshot_id: String, target_bytes: u64) -> String {
         native_reply::respond(self.query_revision_until_then(&snapshot_id,|store, revision, deadline| {
             let answer = store.candidate_selection_for_revision_until(revision,target_bytes,diskgraph_core::QueryBudget::default(), deadline).map_err(|error|error.to_string())?;
@@ -168,6 +193,10 @@ impl NativeService {
 
 impl NativeService {
     /// 为下一次本会话扫描安装请求局部测试回调，生产构建无此入口。
+    #[cfg_attr(
+        doc,
+        doc = "为下一次本会话扫描安装请求局部测试回调，生产构建无此入口。\n安装下一次扫描的请求局部测试回调。\n参数：hook 为真实进度发布后的测试回调。\n返回：无；仅测试构建包含此方法。"
+    )]
     #[cfg(test)]
     pub(crate) fn set_scan_progress_hook(&self, hook: NativeScanProgressHook) {
         *self.scan_progress_hook.lock().unwrap() = Some(hook);

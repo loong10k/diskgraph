@@ -258,6 +258,8 @@ Legacy rows stay uncaptured, and missing or conflicting facts are explicit.
 The current implementation and its platform acceptance boundaries are recorded
 in the [full-platform status](docs/production-readiness-full-platform-2026-10-02.md).
 
+FFI implementations now have separate API, realm, scan and job-state files. Two fixed includes preserve the existing UniFFI lexical namespace; a source gate parses their real implementations and rejects other includes. The latest Windows regression reproduced registered-root rebinding; its fix must pass new native CI before this increment is accepted. See the full-platform record above.
+
 ## Documentation
 
 | | |

@@ -1,3 +1,4 @@
+use std::ffi::OsString;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -17,6 +18,8 @@ use crate::windows_path_plan::WindowsPathPlan;
 /// 它约束补充属性读取，不把上游路径线程池扫描或文件内容称为原子快照。
 pub(crate) struct WindowsNativeScanRoot {
     path: PathBuf,
+    drive_root: PathBuf,
+    components: Vec<OsString>,
     chain: Vec<File>,
     identities: Vec<WindowsFileState>,
 }
@@ -37,9 +40,9 @@ impl WindowsNativeScanRoot {
         let volume = state.volume;
         let mut chain = vec![drive];
         let mut identities = vec![state];
-        for name in plan.components {
+        for name in &plan.components {
             let parent = chain.last().expect("drive lease exists");
-            let child = checked(check, || open_child(parent, &name, true))??;
+            let child = checked(check, || open_child(parent, name, true))??;
             let state = WindowsFileState::capture_checked(&child, check)??;
             checked(check, || state.validate(true))??;
             if state.volume != volume {
@@ -50,6 +53,8 @@ impl WindowsNativeScanRoot {
         }
         let lease = Self {
             path: root.to_path_buf(),
+            drive_root: plan.drive_root,
+            components: plan.components,
             chain,
             identities,
         };
@@ -165,9 +170,9 @@ impl WindowsNativeScanRoot {
         Ok((Some(observation), None))
     }
 
-    /// 发布前重新验证保留根链的完整身份，不比较允许变化的目录时间。
+    /// 发布前重新验证保留根链及当前名称绑定，不比较允许变化的目录修改时间。
     /// 参数：check 为任务原始期限、取消、实时授权与 fencing 检查。
-    /// 返回：根链身份/卷/目录/非重解析/未删除保持时成功，否则直接拒绝发布。
+    /// 返回：根链与当前绑定的身份/卷/目录/非重解析/未删除保持时成功，否则拒绝发布。
     pub(crate) fn validate_root(
         &self,
         check: &dyn Fn() -> Result<(), EngineError>,
@@ -185,6 +190,31 @@ impl WindowsNativeScanRoot {
             if !identity.matches_scan_root(&current) {
                 return Err(BusinessError::Conflict.into());
             }
+        }
+        // 属性句柄不冻结目录名称。原对象即使被重命名，其句柄身份也可能不变。
+        // 重新核对 drive 与保留父句柄下每个名称，绝不从注册根的完整路径追随新对象。
+        let drive = checked(check, || open_drive(&self.drive_root))?
+            .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
+        self.validate_binding(&drive, &self.identities[0], check)?;
+        for (index, name) in self.components.iter().enumerate() {
+            let current = checked(check, || open_child(&self.chain[index], name, true))?
+                .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
+            self.validate_binding(&current, &self.identities[index + 1], check)?;
+        }
+        check()
+    }
+
+    fn validate_binding(
+        &self,
+        file: &File,
+        identity: &WindowsFileState,
+        check: &dyn Fn() -> Result<(), EngineError>,
+    ) -> Result<(), EngineError> {
+        // 外层检查错误原样传播；无法确认当前 namespace 绑定则保守拒绝该根。
+        let current = WindowsFileState::capture_checked(file, check)?
+            .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
+        if !identity.matches_scan_root(&current) || current.validate(true).is_err() {
+            return Err(BusinessError::Conflict.into());
         }
         check()
     }
