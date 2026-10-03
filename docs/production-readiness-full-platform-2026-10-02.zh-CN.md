@@ -260,3 +260,5 @@ Unix specialist 的脚本产物现由独立 Rust 测试子进程写入、同步�
 | 25,174,555 | 232.08 → 390.88 ms | 239.53 → 462.71 ms | 10.49 → 57.90 MB |
 
 复制与内容复核随捕获字节增加，另有目录排序、路径解析和记账成本；初始对象buffer仍保留，终检可另持一份。大pack和宽status会明确超过原默认额度。该增量只覆盖可信库，未发现生产CLI/MCP/FFI采样调用。原子快照、严格RSS/调度、真实provider不下载、原生写、移动设备、宿主应用、签名和生产持续运行尚未由此验收。
+
+源码 `830b7c8a99b7fce354a125fca7eae3d860454f74` 的 [CI 终态为 20/22 成功](https://github.com/loong10k/diskgraph/actions/runs/37086380783)。两个 Windows Rust 任务的 Engine 均为 **192 passed / 4 failed / 1 helper ignored**：四个新资源 wrapper 在 child 夹具的 `git init` 配置读取时失败，尚未执行预算或清理断言。源码将 canonical Windows 临时根经 child 临时目录环境传入配置文件路径，verbatim 路径拒绝是有源码支持的候选原因，仍待原生双路径对照。窄夹具修复保留 canonical 身份，只给临时环境使用现有验证过的工具表示，额度、源水位、清理及实际执行 marker 均保留。本机 Unix 目标 **4/0/1**，修复源码的 Windows CI 尚待；本次失败及其 20 项成功都不能完成 D20 或全平台门禁。

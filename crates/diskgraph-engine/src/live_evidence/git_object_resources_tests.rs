@@ -3,6 +3,7 @@
 use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_metadata_budget::GitMetadataBudget;
+use super::git_tool_path::from_native;
 use super::git_usage::sample_git_with_resources;
 use super::git_view::GitView;
 use super::probe_budget::ProbeBudget;
@@ -12,6 +13,9 @@ use std::process::Command;
 fn run_isolated(case: &str) {
     let temp = tempfile::tempdir().unwrap();
     let root = temp.path().canonicalize().unwrap();
+    // 子宿主会把临时根用于 Git 配置路径；工具表示必须仍定位到同一原生目录。
+    let tool_root = from_native(&root).unwrap();
+    assert_eq!(tool_root.canonicalize().unwrap(), root);
     let mut command = Command::new(std::env::current_exe().unwrap());
     command
         .args([
@@ -22,9 +26,10 @@ fn run_isolated(case: &str) {
             "--test-threads=1",
         ])
         .env("DG_OBJECT_RESOURCE_CASE", case)
-        .env("TMPDIR", &root)
-        .env("TEMP", &root)
-        .env("TMP", &root);
+        .env("DG_OBJECT_RESOURCE_ROOT", &root)
+        .env("TMPDIR", &tool_root)
+        .env("TEMP", &tool_root)
+        .env("TMP", &tool_root);
     let output = command.output().unwrap();
     assert!(
         output.status.success(),
@@ -36,6 +41,12 @@ fn run_isolated(case: &str) {
         String::from_utf8_lossy(&output.stdout)
             .contains(&format!("OBJECT_RESOURCE_COMPLETE:{case}")),
         "isolated helper did not execute its exact case"
+    );
+    #[cfg(windows)]
+    assert!(
+        String::from_utf8_lossy(&output.stdout)
+            .contains(&format!("OBJECT_RESOURCE_PATH_CONTROL:{case}")),
+        "isolated helper did not exercise the native Git configuration path controls"
     );
 }
 
@@ -63,7 +74,14 @@ fn sampler_terminal_input_failure_removes_private_data() {
 #[ignore = "仅由四个真实子宿主回归以隔离临时根调用"]
 fn resource_child_fixture() {
     let case = std::env::var("DG_OBJECT_RESOURCE_CASE").unwrap();
+    let root = std::env::temp_dir();
+    let expected_root = std::env::var_os("DG_OBJECT_RESOURCE_ROOT").unwrap();
+    assert_eq!(root.canonicalize().unwrap(), Path::new(&expected_root));
+    #[cfg(windows)]
+    assert_eq!(from_native(&root).unwrap(), root);
     let fixture = GitIsolationFixture::new("sha1");
+    #[cfg(windows)]
+    assert_windows_config_paths(&fixture, &case);
     // 真实不易压缩 blob，确保额度用于对象文件，而不是少量 bootstrap 配置。
     let mut value = 7_u64;
     let bytes: Vec<_> = (0..262_144)
@@ -124,4 +142,63 @@ fn resource_child_fixture() {
     };
     assert!(error.contains(expected), "{case}: {error}");
     println!("OBJECT_RESOURCE_COMPLETE:{case}");
+}
+
+/// 用同一临时文件对照原生及工具路径，确认真实 Git 读取配置的边界。
+/// 参数：fixture 为已成功初始化的子宿主仓库，case 为必须回传的执行标识。
+/// 返回：无；工具路径必须读出唯一记录，原生路径成功时也须读出同一记录。
+#[cfg(windows)]
+fn assert_windows_config_paths(fixture: &GitIsolationFixture, case: &str) {
+    let config = fixture.path().parent().unwrap().join("config-path-control");
+    std::fs::write(&config, format!("[dgpathcontrol]\n marker = {case}\n")).unwrap();
+    let native_config = config.canonicalize().unwrap();
+    let tool_config = from_native(&native_config).unwrap();
+    assert_ne!(native_config, tool_config);
+    assert_eq!(tool_config.canonicalize().unwrap(), native_config);
+
+    let args = ["config", "--no-includes", "--null", "--list"];
+    let raw = fixture
+        .command(&args)
+        .env("GIT_CONFIG_GLOBAL", &native_config)
+        .output()
+        .unwrap();
+    let expected = format!("dgpathcontrol.marker\n{case}\0");
+    if raw.status.success() {
+        // 新 Git 若能读取 verbatim 路径，必须证明读取了同一个文件，不固化旧错误。
+        assert_eq!(
+            raw.stdout
+                .split_inclusive(|byte| *byte == 0)
+                .filter(|record| *record == expected.as_bytes())
+                .count(),
+            1,
+            "native config record: {raw:?}"
+        );
+    } else {
+        assert_eq!(raw.status.code(), Some(128), "native config: {raw:?}");
+        assert!(
+            String::from_utf8_lossy(&raw.stderr)
+                .contains("unknown error occurred while reading the configuration files"),
+            "native config: {raw:?}"
+        );
+    }
+    let ordinary = fixture
+        .command(&args)
+        .env("GIT_CONFIG_GLOBAL", &tool_config)
+        .output()
+        .unwrap();
+    assert!(ordinary.status.success(), "tool config: {ordinary:?}");
+    assert_eq!(
+        ordinary
+            .stdout
+            .split_inclusive(|byte| *byte == 0)
+            .filter(|record| *record == expected.as_bytes())
+            .count(),
+        1,
+        "tool config record: {ordinary:?}"
+    );
+    println!(
+        "OBJECT_RESOURCE_PATH_CONTROL:{case}:raw={:?},ordinary={:?}",
+        raw.status.code(),
+        ordinary.status.code()
+    );
 }

@@ -135,3 +135,16 @@ A transfer SHALL recheck the plan expiry, policy version, approval and operation
 #### Scenario: Source rewritten after fingerprint verification
 - **WHEN** the approved inode changes in place between evidence verification and removal
 - **THEN** removal rejects the new version and leaves the source intact
+
+### Requirement: OP-14 Maintainable operation boundaries
+The operation crate SHALL keep lib.rs and mod.rs to module declarations and explicit reexports. Each production source file SHALL define one distinct type at most, keep fewer than 500 physical lines and contain actual behavior rather than placeholders. Mutually exclusive platform definitions of the same type SHALL keep one owner. Types and public methods SHALL document their actual native Rust provenance and parameter/return semantics in Chinese. The split SHALL preserve existing root, specialist and docker public paths, method signatures, error and serialized representations, SQL, transaction and lock order, approved-version checks, resource ownership and explicit cleanup timing. It SHALL NOT enable dangerous CLI/MCP tools or replace unsupported platform actions with generic filesystem or shell fallbacks.
+
+#### Scenario: Complete operation source structure
+- **WHEN** the layout gate walks every production operation module, including specialist and docker modules
+- **THEN** entry files contain declarations and reexports, each distinct type has its own file, production files stay below the line bound, and wildcard imports, placeholder implementations and fabricated Java provenance are refused
+- **AND** test-only modules are excluded without excluding platform production branches
+
+#### Scenario: Existing operation clients and failure boundaries
+- **WHEN** existing clients import their previous public paths and operation regressions exercise approval, cancellation, overlapping claims, transfer failure and recovery after the split
+- **THEN** observable behavior, persistent formats and the side-effect/cleanup order remain unchanged
+- **AND** a source comparison and the same-commit native CI verify the structural increment; passing library tests does not enable unverified write capabilities

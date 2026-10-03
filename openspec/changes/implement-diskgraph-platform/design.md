@@ -235,3 +235,11 @@ Windows 工具表示与原生身份路径分开：Git for Windows 2.55.0.windows
 源 metadata 哨兵的夹具准备必须在取水位前结束自己的后台写入。Git 2.55 的 commit 会启动自动维护，默认允许 detach；维护持有 `objects/maintenance.lock` 并在后台结束后删除它。夹具通过每次准备命令的固定 `-c maintenance.auto=false` 在首个 commit 前阻止此后台任务，Trace2 回归确认实际 commit 已执行且没有启动 maintenance child。此设置仅约束临时夹具，不改变生产采样策略；完整路径名单、字节、mtime 与数量断言继续保留，原生 CI 仍须验证 SHA256 语义及源哨兵。
 
 Git for Windows v2.55.0.windows.5 的 `core.fscache` 属于明确的布尔配置，原值依宿主/仓库的捕获顺序回放。官方 `compat/mingw.c` 通过布尔解析器处理，`compat/win32/fscache.c` 只实现每个 Git 子进程内的只读目录/stat 缓存，不调用配置程序或写回源元数据；启用期间不会反映其后工作树变化。支持此字段不得泛放未知 core 字段、fsmonitor 或 driver，不构成原子状态或严格 RSS 保证。类型/覆盖顺序、真实 dirty/stash/upstream 与跨次独立采样的缓存释放均须回归；本机 Git 能证明字段回放，缓存行为仍需 Windows 原生验收。
+
+### D21 Ops 源码与副作用边界
+
+OP-14 延续已经完成的 Store 与 Engine 结构约束，整改完整 Ops crate，而不只移动入口中的测试。当前入口 2406 行、specialist 生产段约 641 行，docker 虽生产段不足 500 行却包含多个独立对象；三者一起纳入源结构门禁。每个真实对象独立文件，函数按授权、摘要、路径编码、实时重验、容量、操作查询和刷新职责组织；specialist/docker 保留旧公开模块路径和精确根重导出。
+
+PlanBuilder 保持原有全部行为与批准顺序。Executor 仍是唯一执行状态 owner，其既有方法按 apply、validation、perform、transfer、paths 分为实际 impl 模块，不新增 facade service、线程、锁、事务或接口。CrossVolumeCopy 保持互斥平台实现、两个 Mutex、句柄和批准 Metadata 所有权，stage/publish/discard 顺序不变，不通过自动 Drop 改变 NeedsAttention 或失败清理时序。相邻私有模块所需的可见性只扩大至 crate 内，不变为公共 API。
+
+实现先记录公开导出、类型和方法体基线，再使 AST 结构门禁真实失败，拆分后对照规范化源码与已有安全/并发/恢复测试。中文注释使用实际 Rust 来源，不虚构 Java 类型；不借本次整理改造 specialist runner 或启用危险工具。全 workspace 与同 SHA 原生 CI 验收后才能完成结构子项，其余平台写操作、provider 和移动端门禁保持独立。
