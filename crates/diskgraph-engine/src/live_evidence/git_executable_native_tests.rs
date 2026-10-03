@@ -22,22 +22,56 @@ fn native_repository_git_shadow_is_not_selected_after_worktree_switch() {
     let name = if cfg!(windows) { "git.exe" } else { "git" };
     let native = fixture.path().join(name);
     let program = from_native(&native).unwrap();
+    // 编译器可以生成同级副产物；全部留在工作树外，只将可执行夹具复制到仓库。
+    let build = fixture.path().parent().unwrap().join("shadow-build");
+    std::fs::create_dir(&build).unwrap();
+    let compiled_program = from_native(&build.join(name)).unwrap();
     let source =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/git_callback_helper.rs");
     let compiled = Command::new("rustc")
         .args(["--edition=2024", "-O", "-D", "warnings"])
         .arg(source)
         .arg("-o")
-        .arg(&program)
+        .arg(&compiled_program)
         .output()
         .unwrap();
     assert!(
         compiled.status.success(),
         "native shadow compile: {compiled:?}"
     );
+    std::fs::copy(&compiled_program, &native).unwrap();
     assert_eq!(
         program.canonicalize().unwrap(),
         native.canonicalize().unwrap()
+    );
+
+    // 固定绝对 Git，沿用夹具的隔离环境；原始 NUL 输出必须精确确认唯一工作树变更。
+    let prepared = fixture.command(&[
+        "--no-optional-locks",
+        "--no-lazy-fetch",
+        "-c",
+        "core.fsmonitor=false",
+        "status",
+        "--porcelain=v1",
+        "-z",
+        "--untracked-files=all",
+    ]);
+    let status = Command::new(installed.path())
+        .env_clear()
+        .envs(
+            prepared
+                .get_envs()
+                .filter_map(|(key, value)| value.map(|value| (key, value))),
+        )
+        .args(prepared.get_args())
+        .current_dir(fixture.path())
+        .output()
+        .unwrap();
+    assert!(status.status.success(), "native shadow status: {status:?}");
+    assert_eq!(
+        status.stdout,
+        format!("?? {name}\0").into_bytes(),
+        "native shadow worktree entries: {status:?}"
     );
 
     let installed_parent = from_native(installed.path().parent().unwrap()).unwrap();

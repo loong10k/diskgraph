@@ -319,3 +319,9 @@ NodeRow 现传播全部 SQL 列解码错误，并拒绝旧 JSON 节点 ID 与 SQ
 最终本机全目标验证为 **844 passed / 0 failed / 18 ignored**。首轮完整运行843/1/18：唯一失败来自未修改的Ops AST结构门禁，新增测试使用`#[path]`但门禁按默认模块路径寻找文件。现将两个自有测试移至标准模块目录，benchmark字节和实际模块名不变，没有加门禁豁免或改生产行为；恢复结构7/7、计划目标7/7与完整suite后通过，非作者代码窄复审批准路径/lint修正。
 
 workspace Clippy严格零警告、定向fmt及独立原生helper格式、OpenSpec strict、14份上游摘要、release CLI/MCP/FFI/Ops构建通过。重建制品真实隔离stdio **18/18**、认证HTTP/legacy SSE **13/13**。新增三项ignored为两个由wrapper显式实际执行的child夹具，以及另行已执行的release基准；其余真实宿主/provider夹具不计通过。测量源码及冻结原生测试摘要再次一致。此本机冻结仍须记录新SHA原生CI和最后非作者shadow复审，15.15及D20暂不勾选。
+
+最后的非作者shadow复审随后批准冻结夹具。源码`70f9d298f5f8e5a94bcb144a089b5dd7917a92e3`的[原生CI终态为20/22](https://github.com/loong10k/diskgraph/actions/runs/37098969655)。两个Windows Rust仅新增repo-shadow child精确dirty断言失败：公共采样成功且未启动仓库marker，但返回2而非1；Engine均为 **201 passed / 1 failed / 3 ignored**。Linux、两macOS架构、原生语言宿主、只读包、格式与vendor任务均成功。Windows的callback和宽status回归实际通过，不能替代完整Rust suite的失败终态。
+
+该夹具直接向工作树编译，却假定编译只产生一个文件；失败日志未记录原始status路径，不能据此指认第二项的具体副产物。窄修把编译放到工作树外的独占目录，只复制指定程序，再由固定绝对Git的真实NUL status先确认唯一精确未跟踪项。marker正控制与公共采样隔离、精确dirty数、源元数据和child完成检查全部保留。修正源码的本机检查、非作者复审与Windows原生CI仍待记录；15.15、D20与全平台父项保持开放。
+
+修正后的141行夹具以SHA256 `cd1acf04e8b0cb8a26b65677870a81302c96dde267828648b9327e0cc557190d` 冻结，并通过非作者独立复审。本机新完整全目标再次 **844/0/18**，显式workspace构建、严格Clippy、限定包fmt及OpenSpec strict通过；native-shadow目标 **1/1**、Engine结构 **3/3**，Store结构另重新验证 **1/1**。本次窄修没有改变生产源码、helper、上游扫描器、公开API或测试skip。先前release/协议结果仅作为相同生产源码的既有证据，没有冒称本次重新运行release验收。修正源码的Windows原生CI仍待。

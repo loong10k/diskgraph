@@ -72,6 +72,10 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** PATH 包含当前目录、空项或相对目录，准备和采样使用不同工作目录
 - **THEN** 只从绝对 PATH 目录解析受信工具一次并固定绝对程序路径；后续不能因进入工作树而运行仓库内同名程序，没有可用受信程序时明确拒绝。
 
+#### Scenario: Native repository shadow acceptance is isolated from compiler artifacts
+- **WHEN** 原生验收通过编译同名程序检验真实工作目录搜索与公共采样隔离
+- **THEN** 编译输出位于工作树外的独占夹具目录，只将指定可执行文件放入工作树；固定绝对 Git 的真实 NUL status 必须先证明唯一预期未跟踪项。实际同名程序执行 marker、公共采样不执行 marker、精确 dirty 数及源元数据不变均须成立，不能以放宽数量、跳过平台或假设编译只有一个产物替代验收。
+
 #### Scenario: Native Windows paths remain distinct from tool representation
 - **WHEN** 受控私有目录或已验证工作树在 Windows 使用 verbatim drive 路径，而 Git 的配置、环境、参数或 alternates 不接受该前缀
 - **THEN** 原生身份检查继续使用原路径；工具路径只对无歧义本地 drive 名称进行精确适配，不能 canonicalize 元数据叶、关闭 protectNTFS、继承宿主 Git 配置或将设备/UNC/点步/ADS/不可表示路径规范化成其他对象。实际 Windows 夹具须比较同一文件的原生身份及工具读写行为，普通仓库采样和 linked-worktree 回归仍须通过。

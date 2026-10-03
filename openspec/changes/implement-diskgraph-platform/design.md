@@ -236,6 +236,8 @@ Windows 工具表示与原生身份路径分开：Git for Windows 2.55.0.windows
 
 Git for Windows v2.55.0.windows.5 的 `core.fscache` 属于明确的布尔配置，原值依宿主/仓库的捕获顺序回放。官方 `compat/mingw.c` 通过布尔解析器处理，`compat/win32/fscache.c` 只实现每个 Git 子进程内的只读目录/stat 缓存，不调用配置程序或写回源元数据；启用期间不会反映其后工作树变化。支持此字段不得泛放未知 core 字段、fsmonitor 或 driver，不构成原子状态或严格 RSS 保证。类型/覆盖顺序、真实 dirty/stash/upstream 与跨次独立采样的缓存释放均须回归；本机 Git 能证明字段回放，缓存行为仍需 Windows 原生验收。
 
+原生同名程序验收的编译阶段位于工作树外的专属父级目录，只复制指定可执行文件到工作树，不假定 Rust/原生 linker 只输出一个文件。取源元数据水位前，用已固定的受信绝对 Git 执行真实 NUL status，要求唯一精确未跟踪项；非预期项输出实际路径诊断并拒绝夹具。之后的工作目录搜索正控制、marker、精确 dirty 数、独立 child 完成和源水位断言保持不变。这只修正验收夹具，不改变生产工具解析和私有视图策略。
+
 ### D21 Ops 源码与副作用边界
 
 OP-14 延续已经完成的 Store 与 Engine 结构约束，整改完整 Ops crate，而不只移动入口中的测试。当前入口 2406 行、specialist 生产段约 641 行，docker 虽生产段不足 500 行却包含多个独立对象；三者一起纳入源结构门禁。每个真实对象独立文件，函数按授权、摘要、路径编码、实时重验、容量、操作查询和刷新职责组织；specialist/docker 保留旧公开模块路径和精确根重导出。
