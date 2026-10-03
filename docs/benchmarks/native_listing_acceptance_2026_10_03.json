@@ -1,0 +1,189 @@
+{
+  "date": "2026-10-03",
+  "scope": "D26 / task 15.19; legacy and session FFI directory pages",
+  "baseline_commit": "00401e692c9c8fd9fa4681ef7e709dc79968e5f4",
+  "status": "local_validation_complete_same_source_native_ci_pending",
+  "source_files": {
+    "crates/diskgraph-ffi/src/lib.rs": "741853cdcad9f0024abaffc0d56c5905eacc4c49ec88a810dffe9a8e96e948a9",
+    "crates/diskgraph-ffi/src/native_listing.rs": "2409614ea1b5f5f6b7d130f5fd6ee86ce94661e67a4d1e1c29845a8eb6e054c6",
+    "crates/diskgraph-ffi/src/native_listing_tests.rs": "239145ff85ea85824ce736e1d17150b938936810efacd2622abd6fb4185821cd",
+    "crates/diskgraph-ffi/src/native_reply.rs": "034cea7661cb03f5ebf8e3128aa4b5fecc1f23e12944d6ce545385de81721e64",
+    "crates/diskgraph-ffi/src/native_service.rs": "99d5a15d7d5fa0915c02caafe0e2594607a795ef5e8a5954130cc80dc1ab1d36",
+    "crates/diskgraph-store/src/directory_budget_query.rs": "58e9ac9a901ab42c75fb2b7fc523d705e674bae5da832d6581828213d2cff884",
+    "crates/diskgraph-store/src/directory_budget_tests.rs": "1a905ab3699d5005926c1e9335f8788024caaec79b9cb3abe59c853bd9d535b1",
+    "crates/diskgraph-store/src/lib.rs": "d7971af59f8ec0e9f0bed8a2572f31ec6d284c9cc2979460d55fad4e6889922b"
+  },
+  "red": {
+    "verified_baseline": {
+      "passed": 0,
+      "failed": 3,
+      "ignored": 0,
+      "suites": 1
+    },
+    "restoration": {
+      "baseline_exit_code": 101,
+      "restored_exactly": true
+    },
+    "invalid_limit_priority": {
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "suites": 1
+    },
+    "review_negative_size_filter": {
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "suites": 1
+    }
+  },
+  "targeted": {
+    "ffi": {
+      "passed": 43,
+      "failed": 0,
+      "ignored": 0,
+      "suites": 1
+    },
+    "store": {
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0,
+      "suites": 1
+    }
+  },
+  "workspace": {
+    "passed": 962,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0
+  },
+  "query_work": {
+    "fixture_rows": 200000,
+    "counter_interval": 1,
+    "pages": [
+      {
+        "limit": 1,
+        "nodes_decoded": 1,
+        "vm_steps": 121
+      },
+      {
+        "limit": 5,
+        "nodes_decoded": 5,
+        "vm_steps": 209
+      }
+    ],
+    "known_only": {
+      "unknown_count": 200000,
+      "nodes_decoded": 1,
+      "vm_steps": 194
+    },
+    "vm_steps_upper_exclusive": 1000
+  },
+  "uniffi": {
+    "library_sha256": "830beaced2173ec14d47221a953fda23f840c040b1b547dcc03b7f3b75b56dc1",
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "exact_matches": 19,
+    "total": 19
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "fmt_exit_code": 0,
+    "openspec_exit_code": 0,
+    "release_build_exit_code": 0
+  },
+  "independent_review": {
+    "code": "APPROVE after negative-size compatibility fix; reviewed source hashes verified",
+    "architecture": "CLEAR after negative-size compatibility fix; no new state owner or protocol signature",
+    "nonblocking_coverage_note": "Positive limit1000 and additional nonzero-offset controls were suggested, not executed as dedicated new cases. Existing pagination regressions and source bounds reviewed.",
+    "individual_file_hashes_matched": 8
+  },
+  "logs": {
+    "directory": "native_listing_acceptance_2026_10_03_logs",
+    "files": {
+      "listing-red.log.gz": {
+        "sha256_uncompressed": "35da9e870c4a8aece4b4cb443a35be3172b8974acac2b310e4df768ed76820eb",
+        "sha256_gzip": "d3e0c31cc113d83ec7e1535f3c7baa69c382af5687ecb972e47bc9eafff6ee58"
+      },
+      "listing-verified-red.log.gz": {
+        "sha256_uncompressed": "afada287214e0cb0128d00740167f806f1e2d30421eb324289b4c31cc3845e29",
+        "sha256_gzip": "d6ad5aade63850097ebcf0cbfda9005ca0519f66f0aa4d1bfc480141f0ffeacd"
+      },
+      "red-replay.json.gz": {
+        "sha256_uncompressed": "ccdc58edda5eff73de1a48c17c53066b30ffd4c261bbe23b4b6965111c398d89",
+        "sha256_gzip": "21f157830c4830213aeb5841c000ee4d406e5e2ed2aab1c5cb2ec80b0810e24f"
+      },
+      "limit-red.log.gz": {
+        "sha256_uncompressed": "a57b980da26cd3ae4f863e56ad2bc1d44431f1035cad8cbf297ed8069f23a043",
+        "sha256_gzip": "f5fec2be9c7e6033cb3eac44d132c91c0b85ca3c48b3edb8680852c6861aaf05"
+      },
+      "negative-red.log.gz": {
+        "sha256_uncompressed": "5d9514e82441bc40fd88a10c057d10bc71d75e0724c793ad50901d00f28c78a0",
+        "sha256_gzip": "1abb45eb6339b693be9e45137fdd55adccce302c94c8d0c5b14d529a890d394e"
+      },
+      "ffi-final.log.gz": {
+        "sha256_uncompressed": "e112d7bd2c0b91a5346496e65daf8e997a0025243d776f5906d5bd0dc3f0057b",
+        "sha256_gzip": "ae4c841d3e89648da07f27a4c0e6967e1b85d10ad2541ec9db5b88fd8620f988"
+      },
+      "store-final.log.gz": {
+        "sha256_uncompressed": "1b79e833bbf2181700a5b7a788b878bccab3fdf05964fce64a98605a58140e05",
+        "sha256_gzip": "775ba29958d71cf549d74bf73a660472ad4bc9fb01e86e2455d8ca0a623f3e46"
+      },
+      "workspace-final.log.gz": {
+        "sha256_uncompressed": "659e51a579dae59fdd4c887f5274febeed7e70fc267425ad145a89bedc5c74b8",
+        "sha256_gzip": "1627912691e9c05e814e693a36b57714d827d2ef194cacbcb48df6367fb17e39"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "883ddc7d7b68281aed9c40a5a42cfd623f9a8e20514fd3f45c0cfba8d69fa75c",
+        "sha256_gzip": "576ff3148095a8a0564b3c8c22577494543a902108d6c4d8de6d6a8cbf9f73bd"
+      },
+      "release-final.log.gz": {
+        "sha256_uncompressed": "f9988c5504851a4d979272674219b9f099345385bd4910db65a52971938da63e",
+        "sha256_gzip": "731c11fa93e078865f5a5caad67d7aaee4e1e5239fb6da4886015e67303b0b0e"
+      },
+      "fmt-final.log.gz": {
+        "sha256_uncompressed": "9b85d1430cdd1c05fd10578fa344aba2479e53931f144a112f03415ab4ca826f",
+        "sha256_gzip": "ae8a24c75d2232e7df9fe72e1dcd8d2e8115f5d42a809eb2ba2e9cd1f1d3def7"
+      },
+      "fmt-verified.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec-final.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      }
+    }
+  },
+  "non_acceptance_observations": [
+    "The initial oversized-row fixture relied on filesystem allocated-byte ordering and is excluded. Corrected explicit sorting keys were replayed against the prior production source: 0 passed / 3 failed, with exact source restoration.",
+    "An initial fmt command named nonexistent packages; fmt-final.log is a failed invocation, not acceptance. fmt-verified.log checks all nine actual workspace members and passed.",
+    "Prior to the negative-size compatibility fix, known-only work measured158 VM steps. The final194 is authoritative."
+  ],
+  "limits": [
+    "Same-source native CI is required before checking task15.19.",
+    "Explicit OFFSET can traverse the skipped prefix; request deadline bounds execution, not constant-time deep offsets.",
+    "VM instruction counts and decoded rows do not prove wall-clock speedup or strict RSS limits.",
+    "Parent provider, native write fidelity, mobile, real-host and production gates remain open."
+  ]
+}

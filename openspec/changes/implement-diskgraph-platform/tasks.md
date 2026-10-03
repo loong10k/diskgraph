@@ -292,4 +292,6 @@
 
   - 15.17 验收：5b7777fa2d8026e7f57f447b812ff758966f8e49 原生CI37130439708最终22/22；首次21/22仅Intel Kotlin的Rust工具链下载TCP超时，原SHA仅重试失败任务。Windows stable/1.97、Linux ARM、macOS Intel原始日志逐项确认47个D24新增用例及4个期限修正用例实际ok，原始日志/摘要保存在D24验收记录。未关闭默认15秒Git性能观察和15.2–15.6父项。
 
-- [ ] 15.18 收口旧 UniFFI growth_json 的双侧实际归属、整次期限、共享原始字段/节点预算和完整 envelope 后成组末检；保留原签名/null/字符串 delta 与窄读，增加真实公开入口超限 RED、末段撤权/到期、旧行/坏无关行和ABI兼容验收。全平台原生CI通过后再勾选，不替代15.2–15.6。
+- [x] 15.18 收口旧 UniFFI growth_json 的双侧实际归属、整次期限、共享原始字段/节点预算和完整 envelope 后成组末检；保留原签名/null/字符串 delta 与窄读，增加真实公开入口超限 RED、末段撤权/到期、旧行/坏无关行和ABI兼容验收。全平台原生CI通过后再勾选，不替代15.2–15.6。 验收：00401e692c9c8fd9fa4681ef7e709dc79968e5f4 / CI37131890057终态22/22；两Windows Rust、Linux ARM、macOS Intel日志各确认11项新增用例实际ok，证据见native_growth_acceptance_2026_10_03.json。
+
+- [ ] 15.19 按D26收口旧top/children与session目录页的首末授权、整次期限、借用字段准入、存在探针和真实响应预算；保持各自排序/未知大小/分页/wire与UniFFI校验值。公开入口RED、错误诊断、撤权/关闭/到期及原生CI实际通过后勾选。

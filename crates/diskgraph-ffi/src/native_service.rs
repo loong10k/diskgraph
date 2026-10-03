@@ -121,23 +121,20 @@ impl NativeService {
         offset: u64,
         limit: u32,
     ) -> String {
-        native_reply::respond(self.query(&snapshot_id,|store| {
-            let limit = crate::bounded_limit(limit)?.min(100);
-            let (nodes,next,unknown) = store.children_page(&snapshot_id,parent_id,None,offset,u64::from(limit)).map_err(|error|error.to_string())?;
-            let budget=diskgraph_core::QueryBudget::default().max_response_bytes.saturating_sub(2048);
-            let mut items=Vec::new();
-            let mut bytes=0usize;
-            let mut clipped=false;
-            for node in nodes {
-                let cost=serde_json::to_vec(&node).map_err(|error|error.to_string())?.len();
-                if bytes.saturating_add(cost)>budget { clipped=true;break; }
-                bytes+=cost;
-                items.push(node);
-            }
-            if clipped && items.is_empty() { return Err("budget_exceeded: a node cannot fit in the response".into()); }
-            let next=if clipped { Some(offset.saturating_add(items.len() as u64)) } else { next };
-            Ok(json!({"items":items,"next_offset":next,"unknown_size_count":unknown,"complete":next.is_none(),"truncated":if clipped {Some("response_byte_limit")} else {None}}))
-        }))
+        native_reply::respond(self.query_until_then(
+            &snapshot_id,
+            |store, deadline| {
+                crate::native_listing::session_children(
+                    store,
+                    &snapshot_id,
+                    parent_id,
+                    offset,
+                    limit,
+                    deadline,
+                )
+            },
+            || {},
+        ))
     }
 
     /// 返回有界候选及覆盖/字节缺口；结果只用于审阅，不构成文件操作授权。
@@ -150,6 +147,7 @@ impl NativeService {
 }
 
 impl NativeService {
+    #[cfg(test)]
     fn query(
         &self,
         snapshot: &str,
@@ -158,6 +156,7 @@ impl NativeService {
         self.query_then(snapshot, read, || {})
     }
 
+    #[cfg(test)]
     fn query_then(
         &self,
         snapshot: &str,

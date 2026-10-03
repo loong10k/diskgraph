@@ -11,6 +11,9 @@ use sha2::{Digest, Sha256};
 mod native_growth;
 #[cfg(test)]
 mod native_growth_tests;
+mod native_listing;
+#[cfg(test)]
+mod native_listing_tests;
 mod native_reply;
 mod native_service;
 mod native_service_error;
@@ -85,14 +88,12 @@ pub fn latest_native_snapshot_json(database_path: String, root_path: String) -> 
 
 #[uniffi::export]
 pub fn top_json(database_path: String, snapshot_id: String, parent_id: u64, limit: u32) -> String {
-    response((|| {
-        let limit = bounded_limit(limit)?;
-        let store = open_store(&database_path, &[&snapshot_id])?;
-        let nodes = store
-            .top(&snapshot_id, parent_id, u64::from(limit))
-            .map_err(|error| error.to_string())?;
-        Ok(json!(nodes))
-    })())
+    if let Err(error) = bounded_limit(limit) {
+        return native_reply::respond(Err(error));
+    }
+    native_reply::legacy(&database_path, &snapshot_id, |store, deadline| {
+        native_listing::top(store, &snapshot_id, parent_id, limit, deadline)
+    })
 }
 
 #[uniffi::export]
@@ -103,23 +104,12 @@ pub fn children_json(
     offset: u64,
     limit: u32,
 ) -> String {
-    response((|| {
-        let limit = bounded_limit(limit)?;
-        let store = open_store(&database_path, &[&snapshot_id])?;
-        let mut nodes = store
-            .children(&snapshot_id, parent_id, offset, u64::from(limit) + 1)
-            .map_err(|error| error.to_string())?;
-        let has_more = nodes.len() > limit as usize;
-        nodes.truncate(limit as usize);
-        Ok(json!({
-            "items": nodes,
-            "next_offset": if has_more {
-                Some(offset.saturating_add(u64::from(limit)))
-            } else {
-                None
-            }
-        }))
-    })())
+    if let Err(error) = bounded_limit(limit) {
+        return native_reply::respond(Err(error));
+    }
+    native_reply::legacy(&database_path, &snapshot_id, |store, deadline| {
+        native_listing::children(store, &snapshot_id, parent_id, offset, limit, deadline)
+    })
 }
 
 #[uniffi::export]
@@ -331,20 +321,6 @@ fn open_engine(path: &str) -> Result<diskgraph_engine::Engine, String> {
         .bootstrap_local_admin(&local_principal()?)
         .map_err(|error| error.to_string())?;
     Ok(engine)
-}
-
-fn open_store(path: &str, snapshots: &[&str]) -> Result<SqliteSnapshotStore, String> {
-    let engine = open_engine(path)?;
-    let principal = local_principal()?;
-    let policy = engine
-        .policy_authorizer()
-        .map_err(|error| error.to_string())?;
-    for snapshot in snapshots {
-        engine
-            .authorize_snapshot(snapshot, &principal, &policy)
-            .map_err(|error| format!("{error}; unbound history requires reindexing"))?;
-    }
-    engine.revision_reader().map_err(|error| error.to_string())
 }
 
 fn bounded_limit(limit: u32) -> Result<u32, String> {

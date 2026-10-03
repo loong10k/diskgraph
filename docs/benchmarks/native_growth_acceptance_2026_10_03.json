@@ -2,7 +2,7 @@
   "date": "2026-10-03",
   "scope": "D25 / task 15.18; legacy FFI growth budgets, terminal authorization and indexed point lookup",
   "baseline_commit": "5b7777fa2d8026e7f57f447b812ff758966f8e49",
-  "status": "local_validation_complete_same_source_native_ci_pending",
+  "status": "native_ci_accepted",
   "red": {
     "public_ffi": {
       "passed": 0,
@@ -118,6 +118,22 @@
       "fmt-verified.log.gz": {
         "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "native-111228461050.log.gz": {
+        "sha256_uncompressed": "a3801dbfb4809909e6bca8bcfc77036024c037d71dd066d79b0c356dbf08c4dd",
+        "sha256_gzip": "402a7b83411f6d2acc63f57d19f3be91f9b3061d1289b7846c0bae7d4de776fb"
+      },
+      "native-111228461134.log.gz": {
+        "sha256_uncompressed": "ebb34a03571ec2644ddd36cc2c7c9c673ac6a3c6765ef46a0683fda6e37137fc",
+        "sha256_gzip": "7fd2eea0d67d279cd81914977b64544aee7a39f9e88996e46940dff52f957547"
+      },
+      "native-111228461139.log.gz": {
+        "sha256_uncompressed": "b019e833648ff8eae91d94c02341d0de34741e212a78ea32c5a4b6b74aaa06cc",
+        "sha256_gzip": "938985310048c45d95d4b799bb117a3fc76c86be2746ef57a586a01a5e71af9e"
+      },
+      "native-111228461214.log.gz": {
+        "sha256_uncompressed": "e5ddd571be3c316d0111bf28e4bc3e915f94f713a7c1ffa0923daa86d03f5e11",
+        "sha256_gzip": "d809766aac4e3e5cbbc8e87fd5e73b7c656ad5972cd285f1c7b25449c4ad5b30"
       }
     }
   },
@@ -129,7 +145,7 @@
   "limits": [
     "The final exact every-instruction counter observed 91 VM steps; this does not establish wall-clock speedup or RSS guarantees.",
     "Default 15-second Windows Git probe performance remains unproven; unrelated to this FFI change.",
-    "UniFFI 19 executed checksums match; same-source native CI and parent platform gates remain pending."
+    "All 19 executed UniFFI checksums match and same-source native CI passed; parent full-platform gates remain open."
   ],
   "point_lookup_final": {
     "fixture_rows": 200000,
@@ -180,5 +196,90 @@
     "fmt_exit_code": 0,
     "openspec_exit_code": 0,
     "release_build_exit_code": 0
+  },
+  "native_ci": {
+    "run_id": 37131890057,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37131890057",
+    "commit": "00401e692c9c8fd9fa4681ef7e709dc79968e5f4",
+    "jobs_passed": 22,
+    "jobs_total": 22,
+    "case_execution_evidence": [
+      {
+        "databaseId": 111228461050,
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope",
+          "native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget",
+          "native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind",
+          "native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode",
+          "native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics",
+          "native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null",
+          "native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null",
+          "native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null",
+          "native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants",
+          "locator_budget_tests::exact_locator_seeks_in_a_wide_revision_without_scanning_siblings",
+          "locator_budget_tests::indexed_locator_preserves_type_unicode_and_legacy_unknown_size"
+        ],
+        "raw_log": "native-111228461050.log.gz"
+      },
+      {
+        "databaseId": 111228461134,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope",
+          "native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget",
+          "native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind",
+          "native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode",
+          "native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics",
+          "native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null",
+          "native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null",
+          "native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null",
+          "native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants",
+          "locator_budget_tests::exact_locator_seeks_in_a_wide_revision_without_scanning_siblings",
+          "locator_budget_tests::indexed_locator_preserves_type_unicode_and_legacy_unknown_size"
+        ],
+        "raw_log": "native-111228461134.log.gz"
+      },
+      {
+        "databaseId": 111228461139,
+        "name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope",
+          "native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget",
+          "native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind",
+          "native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode",
+          "native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics",
+          "native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null",
+          "native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null",
+          "native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null",
+          "native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants",
+          "locator_budget_tests::exact_locator_seeks_in_a_wide_revision_without_scanning_siblings",
+          "locator_budget_tests::indexed_locator_preserves_type_unicode_and_legacy_unknown_size"
+        ],
+        "raw_log": "native-111228461139.log.gz"
+      },
+      {
+        "databaseId": 111228461214,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope",
+          "native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget",
+          "native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind",
+          "native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode",
+          "native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics",
+          "native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null",
+          "native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null",
+          "native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null",
+          "native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants",
+          "locator_budget_tests::exact_locator_seeks_in_a_wide_revision_without_scanning_siblings",
+          "locator_budget_tests::indexed_locator_preserves_type_unicode_and_legacy_unknown_size"
+        ],
+        "raw_log": "native-111228461214.log.gz"
+      }
+    ]
   }
 }

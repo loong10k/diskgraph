@@ -279,3 +279,7 @@ read_bounded 在 EOF、精确额度和最终身份检查之后再次检查实际
 旧 growth_json 仍通过只做初始授权的 open_store 读取两份 snapshot，未共享数据预算、编码额度及双侧末检。保留 UniFFI 根导出和旧 JSON 形态，真实逻辑移至私有 native_growth 模块；在解析 locator/打开 Engine 前建立默认绝对期限，经实际 snapshot→revision 映射授权后使用一个独立 reader 与 QueryReadBudget。精确 locator 读取复用 Store 借用列准入逻辑，两个元数据/节点累计计费；不加载全树，不修改扫描器、索引迁移或原兼容性判断。原生完整响应编码复用 native_reply 的计量，编码后通过已有 finalize_revisions_read_until 成组检查两侧，过期/撤权失败不泄露数据。边界测试同步点仅使用闭包，不增加共享请求状态。保留原 null 和字符串 delta；未验收平台能力继续关闭。
 
 精确定位另用200k真实行回归确认原SQL约执行1,000,000个VM步。根走既有父索引、非根走schema7路径表达式部分索引，并保留locator_key精确匹配以区分定位类型；不新增迁移。目标读取含根探测低于500 VM步，并验证同value不同type不误命中。
+
+### D26 原生目录分页预算
+
+旧top/children使用open_store仅首检，children还解码limit+1条；持久session先拥有整页、再to_vec测量。将旧入口路由到已有native_reply::legacy；新增Store有界目录读取，共享snapshot元数据和NodeRow借用列账本，保留父索引排序及已知/未知过滤契约，额外行仅存在探测。私有native_listing模块适配旧完整列表与session带诊断部分页，session响应使用有限计量而非先序列化大Vec，并按实际返回条数推进offset。复用既有native_reply首末授权/取消，不创建新owner。旧limit仍为1–1000，显式limit定义本次有限节点上限；session保持最多100。不添加迁移，offset深页仍受执行期限约束，不声称offset为keyset或严格RSS限制。

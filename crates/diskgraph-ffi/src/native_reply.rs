@@ -60,7 +60,10 @@ pub(crate) fn query(
         }
     };
     let encoded = encode(&answer);
-    before_reply();
+    // 同步点只表示成功文本已编码，前段编码失败不能冒充终态阶段。
+    if encoded.is_ok() {
+        before_reply();
+    }
     let live = engine
         .finalize_revision_read_until(
             &revision,

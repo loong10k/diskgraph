@@ -11,6 +11,9 @@ mod control_codec;
 mod control_retention;
 mod control_store;
 mod directory_aggregates;
+mod directory_budget_query;
+#[cfg(test)]
+mod directory_budget_tests;
 mod directory_queries;
 mod evidence_queries;
 mod execution_codec;

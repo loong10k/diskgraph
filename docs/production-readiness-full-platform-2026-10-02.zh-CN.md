@@ -371,4 +371,10 @@ D24现已在 `5b7777fa2d8026e7f57f447b812ff758966f8e49` 完成[22项原生CI全�
 
 `growth_json`保持UniFFI签名、null语义及before/after/字符串delta字段。真实逻辑移至私有模块，从打开Engine之前共用一个期限；双侧snapshot头与节点列使用同一原始字段/解码账本，完整JSON envelope有界编码后复检两侧实际revision权限。任一撤权或到期均拒绝全部数据，包括原本返回null的结果；错误诊断也有界。精确定位分别复用已有根和路径表达式索引，无数据库迁移，最后完整locator等值条件保留类型区别。
 
-[D25验收记录](benchmarks/native_growth_acceptance_2026_10_03.json)保留两项公开FFI超大/累计行真实RED、200k行原查询约100万采样VM步，以及修正后逐步精确计数 **91步**。这是查询工作量证据，不是墙钟/RSS保证。本机workspace **950/0/18**；最终受影响FFI全套 **34/0**、Store **84/0/1**、最终精确定位 **2/0**、严格Clippy/fmt/OpenSpec及release FFI通过，实际调用的 **19项UniFFI校验值全部一致**。完整workspace运行后收紧了已复审的测试成功同步点，随后重跑全部受影响FFI测试。D25同源码原生CI待验证，15.18及全平台生产就绪声明仍开放。
+[D25验收记录](benchmarks/native_growth_acceptance_2026_10_03.json)保留两项公开FFI超大/累计行真实RED、200k行原查询约100万采样VM步，以及修正后逐步精确计数 **91步**。这是查询工作量证据，不是墙钟/RSS保证。本机workspace **950/0/18**；最终受影响FFI全套 **34/0**、Store **84/0/1**、最终精确定位 **2/0**、严格Clippy/fmt/OpenSpec及release FFI通过，实际调用的 **19项UniFFI校验值全部一致**。完整workspace运行后收紧了已复审的测试成功同步点，随后重跑全部受影响FFI测试。D25已在 `00401e692c9c8fd9fa4681ef7e709dc79968e5f4` 完成[22项原生CI全通过](https://github.com/loong10k/diskgraph/actions/runs/37131890057)。保留的两Windows Rust、Linux ARM及macOS Intel原始日志确认11项growth/locator新增用例全部实际执行成功。15.18已勾选，全平台父门禁仍开放。
+
+## 原生目录分页预算（D26 / 15.19）
+
+旧top/children与session children共用拥有和解码行之前的借用字段准入、页外存在探针、原请求期限，以及有界envelope编码后的终态授权。旧列表保留1–1000的limit与不完整页显式失败；session保留100节点上限、已知大小过滤（包括原有非负下界）、精确未知数量，以及按实际返回节点推进的部分页offset。公共签名和数据库迁移均未改变。
+
+[D26验收记录](benchmarks/native_listing_acceptance_2026_10_03.json)保留对上一版生产源码的公开入口真实RED重放、非法limit错误优先级回归，以及独立复审发现的负数大小过滤回归。最早超大字段夹具依赖文件系统块排序，不作为验收证据；修正后的夹具明确固定排序键并重放。200k目录测试逐条计数SQLite VM指令，证明解码量随页面变化，不声称墙钟提速或RSS改善。最终本机workspace **962/0/18**、FFI **43/0**、Store新增用例 **3/0**，Clippy、fmt、OpenSpec和release通过；实际执行 **19/19 UniFFI校验值一致**。最终普通页1/5条为 **121/209 VM指令**，过滤20万未知条目为 **194 VM指令**。两路独立复审APPROVE/CLEAR，记录保留原始日志和源码摘要。15.19仍须同源码原生CI通过后关闭。显式深offset仍可能按跳过前缀产生工作量，并受请求期限约束；本改动不声称旧offset接口已变为keyset分页。

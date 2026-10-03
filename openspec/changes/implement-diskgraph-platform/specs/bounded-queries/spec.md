@@ -66,6 +66,10 @@
 - **WHEN** 旧 UniFFI growth_json 比较两个 snapshot 的精确 locator，包含空匹配、不兼容、读取错误、响应转义或末段撤权/到期
 - **THEN** 从解析/打开引擎前共用一个期限；两个 snapshot 元数据和节点共用原始字段/节点账本，先准入再解码，保持精确窄读，根与非根使用既有索引，200k行精确单节点读取含根探测少于500 VM步，同value不同locator类型不得误命中。完整成功 envelope 编码后成组复检双侧实际 revision 的 scope/grant；任一撤权、超限或到期拒绝数据。保留导出签名、schema、兼容时的 before/after 与字符串 delta_bytes，以及原不兼容/缺失的 null；失败诊断有界，不添加后台 owner 或重置期限。
 
+#### Scenario: Native directory pages share raw admission and terminal request checks
+- **WHEN** 旧 top_json/children_json 或 NativeService.children_json 读取目录页，遇到超大借用字段、坏 continuation、末段撤权/关闭/到期或 JSON 转义放大
+- **THEN** 从打开引擎/首次准备前共用期限，snapshot头与当前页节点在分配/解码前累计准入，额度外 continuation 仅检查存在。旧 top/children 保留全部节点的尺寸/名称/ID排序、limit/offset和成功形态，预算不足明确失败；session继续仅列已知大小并返回精确unknown_size_count、实际页长推进的next_offset和准确截断原因。完整envelope编码后授权与取消仍须通过，错误诊断同样有界，不重置期限或引入共享请求状态。
+
 ### Requirement: Q-03 Explainable explore
 explore SHALL 使用明确定位、模式和过滤条件聚合主要子项、尺寸、关系摘要、证据与下一步 ID；自然语言解释由宿主完成，名称歧义不得静默猜选。
 
