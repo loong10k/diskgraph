@@ -104,10 +104,6 @@ impl SqliteSnapshotStore {
         if apply {
             for record in &candidates {
                 tx.execute(
-                    "DELETE FROM revision_runs WHERE revision_id = ?1",
-                    [&record.revision_id],
-                )?;
-                tx.execute(
                     "DELETE FROM revision_ownership WHERE revision_id = ?1",
                     [&record.revision_id],
                 )?;

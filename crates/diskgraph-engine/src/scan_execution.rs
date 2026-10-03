@@ -10,12 +10,12 @@ use std::io;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 impl Engine {
     /// 在当前 fence 下扫描、转换、暂存并原子发布 revision。
     /// 参数：job_id/owner/fence 确定代次，cancel 为该代次协作取消标志。
-    /// 返回：成功或扫描/容量/授权/fence/存储失败；collector 失败不撤回已发布图。
+    /// 返回：成功或扫描/容量/授权/fence/存储失败；采集发布失败整批回滚，既有版本保持不变。
     pub(super) fn execute_scan(
         &self,
         job_id: &str,
@@ -49,6 +49,7 @@ impl Engine {
         // options that produced it, so two snapshots are only comparable when
         // they were configured the same way.
         let started_at_unix_ms = now_ms();
+        let scan_started = Instant::now();
         let mut last_heartbeat = started_at_unix_ms;
         let staging_id = format!("{job_id}:{}", job.fencing_token);
         let options = self.scan_options.clone();
@@ -73,7 +74,7 @@ impl Engine {
             }
             if progress.files.saturating_add(progress.dirs)
                 > self.max_nodes_per_scan.min(self.scan_budget.max_nodes)
-                || now_ms().saturating_sub(started_at_unix_ms) > self.scan_budget.max_duration_ms
+                || scan_started.elapsed() > Duration::from_millis(self.scan_budget.max_duration_ms)
             {
                 exceeded = true;
                 handle.cancel();
@@ -223,6 +224,16 @@ impl Engine {
             nodes: v1_nodes,
             evidence: scanned.evidence,
         };
+        // 项目证据在公开 revision 前准备；计算期间不占用图库写锁。
+        drop(graph);
+        let project = collect_projects(&observed_graph);
+        let collector = diskgraph_core::CollectorBatch {
+            run: project.run,
+            entities: project.entities,
+            evidence: project.evidence,
+            edges: project.edges,
+        };
+        let mut graph = self.graph()?;
         if !self.accepts_new_work() {
             graph.clear_staging(&staging_id)?;
             return Err(EngineError::Business(BusinessError::ResourceExhausted));
@@ -245,12 +256,20 @@ impl Engine {
         let server_id = control.ensure_server()?;
         control.heartbeat_fenced(job_id, owner, job.fencing_token)?;
         let result = control.with_job_fence(job_id, owner, job.fencing_token, || {
-            graph.publish_revision_owned(
+            let elapsed = scan_started.elapsed();
+            #[cfg(test)]
+            let elapsed = crate::scan_publication_tests::publication_elapsed(job_id, elapsed);
+            // 包括转换、暂存、项目采集和锁等待；提交前再次协作检查整次扫描期限。
+            if elapsed > Duration::from_millis(self.scan_budget.max_duration_ms) {
+                return Err(StoreError::BudgetExceeded);
+            }
+            graph.publish_revision_owned_with_batch(
                 &staging_id,
                 &observed_graph,
                 &revision_id,
                 published_at,
                 Some((server_id.as_str(), job.scope_id.as_str())),
+                Some(&collector),
             )
         });
         drop(control);
@@ -259,28 +278,6 @@ impl Engine {
             return Err(error.into());
         }
 
-        // Deterministic collectors run against the just-published snapshot and
-        // bind their run to the revision as the active evidence batch (EV-05).
-        // A collector failure fails the job but never un-publishes the scan.
-        drop(graph);
-        let batch = collect_projects(&observed_graph);
-        let mut graph = self.graph()?;
-        if !batch.edges.is_empty() || !batch.entities.is_empty() {
-            self.control()?
-                .with_job_fence(job_id, owner, job.fencing_token, || {
-                    graph.record_collector_batch(
-                        &observed_graph.snapshot.id,
-                        &batch.run,
-                        &batch.entities,
-                        &batch.evidence,
-                        &batch.edges,
-                    )?;
-                    graph.bind_runs_to_revision(
-                        &revision_id,
-                        &[(batch.run.run_id.as_str(), "active")],
-                    )
-                })?;
-        }
         Ok(())
     }
 }

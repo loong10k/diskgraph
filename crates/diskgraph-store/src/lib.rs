@@ -6,6 +6,14 @@ mod approval_store;
 mod authorization_generation;
 mod candidate_query;
 mod candidate_selection;
+mod collector_batch_writer;
+mod collector_membership_migration;
+#[cfg(test)]
+mod collector_migration_integrity_tests;
+mod collector_protocol;
+mod collector_publication;
+#[cfg(test)]
+mod collector_publication_tests;
 mod collector_store;
 mod control_codec;
 mod control_retention;
@@ -50,12 +58,21 @@ mod recovery_state;
 mod recovery_store;
 #[cfg(test)]
 mod relation_budget_tests;
+mod relation_membership_index;
 mod relation_page_queries;
 mod relation_queries;
+mod resource_node_identity;
 mod result;
 mod retention_store;
+mod revision_edge_cursor;
+mod revision_evidence_reader;
+#[cfg(test)]
+mod revision_evidence_tests;
 mod revision_queries;
 mod revision_record;
+mod revision_relation_page_queries;
+mod revision_relation_queries;
+mod revision_source_validation;
 mod revision_writer;
 mod scan_staging_store;
 mod scope_record;
@@ -107,3 +124,14 @@ pub use scope_record::ScopeRecord;
 pub use sqlite_snapshot_store::{SUPPORTED_SCHEMA_VERSION, SqliteSnapshotStore};
 pub use store_error::StoreError;
 pub use tree_row::TreeRow;
+
+pub use revision_evidence_reader::RevisionEvidenceReader;
+
+#[cfg(test)]
+mod revision_candidate_tests;
+
+#[cfg(test)]
+mod collector_protocol_tests;
+
+#[cfg(test)]
+mod revision_history_budget_tests;

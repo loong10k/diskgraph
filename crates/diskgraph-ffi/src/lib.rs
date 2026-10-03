@@ -15,6 +15,8 @@ mod native_listing;
 #[cfg(test)]
 mod native_listing_tests;
 mod native_reply;
+#[cfg(test)]
+mod native_revision_candidate_tests;
 mod native_service;
 mod native_service_error;
 pub use native_service::NativeService;
@@ -150,10 +152,10 @@ pub fn growth_json(
 /// Returns candidates for review only, never paths to execute automatically.
 #[uniffi::export]
 pub fn candidates_json(database_path: String, snapshot_id: String, target_bytes: u64) -> String {
-    native_reply::legacy(&database_path, &snapshot_id, |store, deadline| {
+    native_reply::legacy_with_revision(&database_path, &snapshot_id, |store, revision, deadline| {
         let selection = store
-            .candidate_selection_until(
-                &snapshot_id,
+            .candidate_selection_for_revision_until(
+                revision,
                 target_bytes,
                 diskgraph_core::QueryBudget::default(),
                 deadline,

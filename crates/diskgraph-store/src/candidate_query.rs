@@ -47,6 +47,24 @@ WHERE n.snapshot_id = ?1
   AND NOT EXISTS (SELECT 1 FROM blocked_down WHERE id = n.id)
 ORDER BY n.subtree_bytes DESC, n.id ASC";
 
+// 仅由固定 revision 的 active 批次生成阻止项；dependency_only 只解析实体来源。
+const TYPED_BLOCKED_SEED: &str = "
+    UNION
+    SELECT json_extract(json_extract(e.entity_json, '$.identity'), '$.node_id')
+    FROM revision_runs rr
+    JOIN collector_runs cr ON cr.run_id=rr.run_id AND cr.snapshot_id=?1
+    JOIN relation_run_memberships m ON m.run_id=rr.run_id AND m.snapshot_id=?1
+    JOIN relations r ON r.snapshot_id=m.snapshot_id AND r.edge_id=m.edge_id
+    JOIN entities e ON e.snapshot_id=r.snapshot_id AND e.entity_id=r.source_entity_id
+    WHERE rr.revision_id=?2 AND rr.role='active'
+      AND r.relation IN ('used_by_process','protected_by') AND e.kind='resource'
+      AND EXISTS(SELECT 1 FROM entity_run_memberships em
+          JOIN revision_runs er ON er.run_id=em.run_id AND er.revision_id=?2
+          JOIN collector_runs ec ON ec.run_id=em.run_id AND ec.snapshot_id=em.snapshot_id
+          WHERE em.snapshot_id=e.snapshot_id AND em.entity_id=e.entity_id
+            AND er.role IN ('active','dependency_only'))
+";
+
 fn interrupted(error: &rusqlite::Error) -> bool {
     matches!(error, rusqlite::Error::SqliteFailure(fault, _) if fault.code == rusqlite::ErrorCode::OperationInterrupted)
 }
@@ -77,6 +95,38 @@ impl SqliteSnapshotStore {
         budget: QueryBudget,
         deadline: Instant,
     ) -> Result<CandidateSelection> {
+        self.candidate_selection_query(snapshot_id, None, target_bytes, budget, deadline)
+    }
+
+    /// 按固定 revision 的有效证据选择审阅候选，保留旧静态证据与预算语义。
+    /// 参数：revision_id 为已授权版本，其余参数为目标和整个请求的共享预算。
+    /// 返回：有界候选；有效占用/保护排除节点及祖先和后代，歧义旧来源要求重新索引。
+    pub fn candidate_selection_for_revision_until(
+        &self,
+        revision_id: &str,
+        target_bytes: u64,
+        budget: QueryBudget,
+        deadline: Instant,
+    ) -> Result<CandidateSelection> {
+        let evidence = self.revision_evidence(revision_id)?;
+        evidence.require_confirmed_membership()?;
+        self.candidate_selection_query(
+            evidence.snapshot_id(),
+            Some(revision_id),
+            target_bytes,
+            budget,
+            deadline,
+        )
+    }
+
+    fn candidate_selection_query(
+        &self,
+        snapshot_id: &str,
+        revision_id: Option<&str>,
+        target_bytes: u64,
+        budget: QueryBudget,
+        deadline: Instant,
+    ) -> Result<CandidateSelection> {
         let mut reads = QueryReadBudget::new(budget, deadline)
             .map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
         let coverage_complete = self.snapshot(snapshot_id)?.coverage.complete;
@@ -88,8 +138,22 @@ impl SqliteSnapshotStore {
         if target_bytes == 0 || !coverage_complete {
             return bounded_selection(result, budget);
         }
-        let mut statement = self.connection.prepare(CANDIDATE_SQL)?;
-        let mut rows = match statement.query([snapshot_id]) {
+        let sql = if revision_id.is_some() {
+            CANDIDATE_SQL.replacen(
+                "\n),\nblocked_up",
+                &format!("{TYPED_BLOCKED_SEED}\n),\nblocked_up"),
+                1,
+            )
+        } else {
+            CANDIDATE_SQL.to_owned()
+        };
+        let mut statement = self.connection.prepare(&sql)?;
+        let rows = if let Some(revision) = revision_id {
+            statement.query(params![snapshot_id, revision])
+        } else {
+            statement.query(params![snapshot_id])
+        };
+        let mut rows = match rows {
             Ok(rows) => rows,
             Err(error) if interrupted(&error) => {
                 result.stop(TruncationReason::Deadline);

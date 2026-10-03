@@ -10,7 +10,6 @@ fn collector_batches_store_validate_and_explain() {
     let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
     let graph = graph("snap", 100);
     // publish_revision creates the snapshot row the batch attaches to.
-    store.publish_revision("job", &graph, "rev-x", 1).unwrap();
 
     let run = CollectorRun {
         run_id: "run-1".into(),
@@ -72,9 +71,16 @@ fn collector_batches_store_validate_and_explain() {
             evidence_refs: vec![("ev-1".into(), Polarity::Supports)],
         },
     ];
+    let batch = diskgraph_core::CollectorBatch {
+        run: run.clone(),
+        entities: entities.clone(),
+        evidence: evidence.clone(),
+        edges: edges.clone(),
+    };
     store
-        .record_collector_batch("snap", &run, &entities, &evidence, &edges)
+        .publish_revision_owned_with_batch("job", &graph, "rev-x", 1, None, Some(&batch))
         .unwrap();
+    // 兼容入口只能幂等重放封存后的已有选择。
     store
         .bind_runs_to_revision("rev-x", &[("run-1", "active")])
         .unwrap();

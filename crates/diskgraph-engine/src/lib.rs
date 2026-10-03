@@ -25,6 +25,8 @@ mod relation_request;
 mod relation_request_tests;
 mod revision_authorization;
 mod revision_comparison;
+#[cfg(test)]
+mod revision_evidence_tests;
 mod revision_growth;
 mod revision_history;
 mod revision_queries;
@@ -33,6 +35,8 @@ mod runner;
 mod scan_execution;
 mod scan_jobs;
 mod scan_progress_guard;
+#[cfg(test)]
+mod scan_publication_tests;
 mod scope_service;
 mod scoped_content;
 #[cfg(not(windows))]

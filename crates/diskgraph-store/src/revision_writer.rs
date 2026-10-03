@@ -5,7 +5,7 @@ use crate::directory_aggregates;
 use crate::graph_validation::validate_graph;
 use crate::node_codec::{as_i64, measured_kind, payload_for};
 use crate::{Result, SqliteSnapshotStore, StoreError};
-use diskgraph_core::{DiskGraph, ResourceLocator};
+use diskgraph_core::{CollectorBatch, DiskGraph, ResourceLocator};
 use rusqlite::params;
 use serde_json::to_string;
 
@@ -37,6 +37,28 @@ impl SqliteSnapshotStore {
         revision_id: &str,
         published_at_unix_ms: u64,
         ownership: Option<(&str, &str)>,
+    ) -> Result<()> {
+        self.publish_revision_owned_with_batch(
+            job_id,
+            graph,
+            revision_id,
+            published_at_unix_ms,
+            ownership,
+            None,
+        )
+    }
+
+    /// 在扫描发布事务内同时写入可选采集批次，并将其绑定为 active。
+    /// 参数：暂存任务、文件图、revision、时间、实际归属及可选项目采集批次。
+    /// 返回：文件图、采集数据与最新指针一起提交，任一失败整体回滚。
+    pub fn publish_revision_owned_with_batch(
+        &mut self,
+        job_id: &str,
+        graph: &DiskGraph,
+        revision_id: &str,
+        published_at_unix_ms: u64,
+        ownership: Option<(&str, &str)>,
+        batch: Option<&CollectorBatch>,
     ) -> Result<()> {
         validate_graph(graph)?;
         let root_key = to_string(&graph.snapshot.root)?;
@@ -129,14 +151,30 @@ impl SqliteSnapshotStore {
             }
         }
         transaction.execute(
-            "INSERT INTO graph_revisions (revision_id, snapshot_id, published_at_unix_ms)
-             VALUES (?1, ?2, ?3)",
+            "INSERT INTO graph_revisions (revision_id, snapshot_id, published_at_unix_ms, writer_generation)
+             VALUES (?1, ?2, ?3, 10)",
             params![
                 revision_id,
                 graph.snapshot.id,
                 as_i64(published_at_unix_ms)?
             ],
         )?;
+        if let Some(batch) = batch {
+            crate::collector_batch_writer::write_batch(
+                &transaction,
+                &graph.snapshot.id,
+                &batch.run,
+                &batch.entities,
+                &batch.evidence,
+                &batch.edges,
+            )?;
+            crate::collector_batch_writer::bind_runs(
+                &transaction,
+                revision_id,
+                &graph.snapshot.id,
+                &[(&batch.run.run_id, "active")],
+            )?;
+        }
         if let Some((server_id, scope_id)) = ownership {
             transaction.execute(
                 "INSERT INTO revision_ownership VALUES (?1, ?2, ?3)",
@@ -154,6 +192,7 @@ impl SqliteSnapshotStore {
             [job_id],
         )?;
         directory_aggregates::rebuild(&transaction, Some(&graph.snapshot.id))?;
+        crate::collector_protocol::seal(&transaction, revision_id)?;
         transaction.commit()?;
         // The scan's entire write-ahead log is now redundant. Folding it back
         // here — rather than waiting for the next checkpoint — is what keeps a

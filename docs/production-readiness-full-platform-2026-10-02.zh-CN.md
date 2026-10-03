@@ -377,10 +377,23 @@ D24现已在 `5b7777fa2d8026e7f57f447b812ff758966f8e49` 完成[22项原生CI全�
 
 旧top/children与session children共用拥有和解码行之前的借用字段准入、页外存在探针、原请求期限，以及有界envelope编码后的终态授权。旧列表保留1–1000的limit与不完整页显式失败；session保留100节点上限、已知大小过滤（包括原有非负下界）、精确未知数量，以及按实际返回节点推进的部分页offset。公共签名和数据库迁移均未改变。
 
-[D26验收记录](benchmarks/native_listing_acceptance_2026_10_03.json)保留对上一版生产源码的公开入口真实RED重放、非法limit错误优先级回归，以及独立复审发现的负数大小过滤回归。最早超大字段夹具依赖文件系统块排序，不作为验收证据；修正后的夹具明确固定排序键并重放。200k目录测试逐条计数SQLite VM指令，证明解码量随页面变化，不声称墙钟提速或RSS改善。最终本机workspace **962/0/18**、FFI **43/0**、Store新增用例 **3/0**，Clippy、fmt、OpenSpec和release通过；实际执行 **19/19 UniFFI校验值一致**。最终普通页1/5条为 **121/209 VM指令**，过滤20万未知条目为 **194 VM指令**。两路独立复审APPROVE/CLEAR，记录保留原始日志和源码摘要。15.19仍须同源码原生CI通过后关闭。显式深offset仍可能按跳过前缀产生工作量，并受请求期限约束；本改动不声称旧offset接口已变为keyset分页。
+[D26验收记录](benchmarks/native_listing_acceptance_2026_10_03.json)保留对上一版生产源码的公开入口真实RED重放、非法limit错误优先级回归，以及独立复审发现的负数大小过滤回归。最早超大字段夹具依赖文件系统块排序，不作为验收证据；修正后的夹具明确固定排序键并重放。200k目录测试逐条计数SQLite VM指令，证明解码量随页面变化，不声称墙钟提速或RSS改善。最终本机workspace **962/0/18**、FFI **43/0**、Store新增用例 **3/0**，Clippy、fmt、OpenSpec和release通过；实际执行 **19/19 UniFFI校验值一致**。最终普通页1/5条为 **121/209 VM指令**，过滤20万未知条目为 **194 VM指令**。两路独立复审APPROVE/CLEAR，记录保留原始日志和源码摘要。D26已在 `5f66862544d1dc3cb2aae9bda65ded6c223f5267` 完成[22项原生CI全通过](https://github.com/loong10k/diskgraph/actions/runs/37133537230)。两Windows Rust、Linux ARM及macOS Intel原始日志各确认12项新增用例实际成功执行，15.19已关闭；全平台父项保持开放。显式深offset仍可能按跳过前缀产生工作量，并受请求期限约束；本改动不声称旧offset接口已变为keyset分页。
 
 ## 进程占用解析的分配放大（D27 / 15.13 子集）
 
 有界lsof输出此前仍会放大临时命令字符串：解析器对每个匹配句柄克隆当前command，最后才去重。现在从输出借用命令文本，按 `(pid, command)` 保留排序唯一结果，最终只拥有一次命令。同一进程/命令上下文只在首次匹配句柄时进入集合；之后字段仍逐一校验，不能跳过坏记录或歧义路径。
 
-隔离分配回归输入 **53,254字节**，包含16 KiB命令和4,096条重复句柄。累计成功请求的分配量从真实RED的 **67,518,538字节** 降至 **16,898字节**。这是分配流量，不是活跃内存峰值或RSS。目标测试 **17/0**，包含真实macOS lsof转义回归；隔离子进程结果不重复计数。完整workspace **965/0/18**、严格Clippy通过。[验收记录](benchmarks/process_allocation_acceptance_2026_10_03.json)保存最终构建、复审和源码证据。release CLI/MCP/FFI及19/19 UniFFI校验通过，两路复审APPROVE/CLEAR且4个源码摘要完全匹配。本增量原生CI仍待验证；PID启动身份、provider权限、实时样本进入授权Engine/CLI/MCP revision证据的集成仍由原父项继续完成。
+隔离分配回归输入 **53,254字节**，包含16 KiB命令和4,096条重复句柄。累计成功请求的分配量从真实RED的 **67,518,538字节** 降至 **16,898字节**。这是分配流量，不是活跃内存峰值或RSS。目标测试 **17/0**，包含真实macOS lsof转义回归；隔离子进程结果不重复计数。完整workspace **965/0/18**、严格Clippy通过。[验收记录](benchmarks/process_allocation_acceptance_2026_10_03.json)保存最终构建、复审和源码证据。release CLI/MCP/FFI及19/19 UniFFI校验通过，两路复审APPROVE/CLEAR且4个源码摘要完全匹配。D27已在`109dd7571e96a2314e4878eee43b50bf7f1ab103`完成[22项原生CI全通过](https://github.com/loong10k/diskgraph/actions/runs/37134318291)。首轮Windows Rust 1.97作业报告runner失去连接，没有验证到断言失败；确认终态后仅重跑失败作业，同SHA通过。保留的两Windows Rust、Linux ARM及macOS Intel原始日志各确认三项新增进程用例实际成功。PID启动身份、provider权限、实时样本进入授权Engine/CLI/MCP revision证据的集成仍由原父项继续完成。
+
+
+## 采集版本隔离与原子发布（D28 / 15.13 前置，2026-10-04）
+
+对外关系、解释、影响及候选读取固定到所选revision。active批次提供断言，dependency_only仅解析来源；未发布或其他revision的批次不进入结果。扫描文件树和确定性项目证据在同一图库事务发布；后续采集发布检查actual ownership及latest基线CAS，迟到结果不能回退最新扫描。v10写入代次与封存触发器拒绝旧writer追加、改写或解封选择，历史回收经父revision级联删除。
+
+旧证据迁移逐revision检查run实际snapshot、role、JSON来源、active边双端点来源和占用/保护资源的真实节点映射。来源不足的历史版本明确要求重采；合法旧来源仍可查询，新完整重采不改写旧版本。候选按所选active占用/保护排除资源及祖先、后代，partial或过期正观察仍保留阻止语义。FFI沿用公开签名，并把首检捕获的同一revision用于读取和末检。
+
+[本机验收记录](benchmarks/revision_collector_acceptance_2026_10_04.json)保留Engine隔离3项、写入协议两组各3项、迁移完整性3项、暂存后期限1项及历史页面成本的真实RED；期限RED带有cfg(test)时钟注入，不冒称未改动基线。最终workspace **1001/0/18（45 suites）**，Store **116/0/1**，精确BudgetExceeded期限断言追加重跑 **1/0**；Clippy、fmt、OpenSpec、release CLI/MCP/FFI、stdio **18/18**、HTTP/SSE **13/13**及UniFFI **19/19**通过。14份上游摘要未变，独立扫描器 **124/0/2**；本机项目194,016节点扫描两实现均为 **10,396,008,448字节**，数据库使用隔离夹具。
+
+release相同实体的2万/20万inactive历史页各执行 **196条精确VM指令**，旧查询在2万条时约101,000指令被预算中断；不是墙钟/RSS保证。20k/200k文件负载各4/4通过：扫描 **0.942/4.538秒**，top/children p50/p95分别 **13.939/19.892ms**与 **7.509/9.569ms**，数据库加WAL **37,502,976/377,446,400字节**。每组32查询、4并发客户端；这些是当前构建观测，没有配对提速、冷缓存或峰值RSS证明。
+
+独立代码复审APPROVE，11份提供的源码摘要已匹配。最终独立架构复审因服务返回`agent thread limit reached`无法重启或替换，按code-review技能保持`independent review unavailable`，没有两路最终审批。本增量仍待同源码原生CI；15.13和全平台父项继续未完成。实时Git/进程/应用采样服务集成、真实provider、原生写、宿主、设备及签名仍由原清单完成。扫描期限门禁发生在fence事务内、图库写入前，不承诺SQL提交中抢占；可信旧snapshot列表/offset兼容入口未获新keyset成本保证。

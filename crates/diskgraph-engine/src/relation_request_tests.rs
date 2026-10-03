@@ -65,8 +65,45 @@ fn fixture() -> (
         .revision(&revision)
         .unwrap()
         .snapshot_id;
-    let entity = serde_json::json!({"entity_id":"fixture","kind":"resource","identity":"fixture","display":"fixture","source_run_id":"fixture"});
-    rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap().execute("INSERT INTO entities(snapshot_id,entity_id,kind,entity_json) VALUES (?1,'fixture','resource',?2)", rusqlite::params![snapshot,entity.to_string()]).unwrap();
+    let run = diskgraph_core::CollectorRun {
+        run_id: "fixture".into(),
+        snapshot_id: snapshot.clone(),
+        collector_id: "terminal-authorization-fixture".into(),
+        collector_version: 1,
+        rule_version: 1,
+        observed_at_unix_ms: 1,
+        coverage_complete: true,
+        errors: vec![],
+    };
+    let entity = diskgraph_core::Entity {
+        entity_id: "fixture".into(),
+        kind: diskgraph_core::EntityKind::Resource,
+        identity: "fixture".into(),
+        display: "fixture".into(),
+        source_run_id: run.run_id.clone(),
+    };
+    let mut store =
+        diskgraph_store::SqliteSnapshotStore::open(&dir.path().join("data/diskgraph.sqlite"))
+            .unwrap();
+    let owner = store.revision_ownership(&revision).unwrap().unwrap();
+    let next_revision = format!("{revision}-fixture");
+    let batch = diskgraph_core::CollectorBatch {
+        run: run.clone(),
+        entities: vec![entity],
+        evidence: vec![],
+        edges: vec![],
+    };
+    store
+        .publish_collector_revision(
+            &revision,
+            &next_revision,
+            2,
+            (&owner.0, &owner.1),
+            &batch,
+            &[(&run.run_id, "active")],
+        )
+        .unwrap();
+    let revision = next_revision;
     (dir, engine, principal, scope, other, revision)
 }
 

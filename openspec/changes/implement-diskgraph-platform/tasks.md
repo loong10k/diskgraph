@@ -294,4 +294,7 @@
 
 - [x] 15.18 收口旧 UniFFI growth_json 的双侧实际归属、整次期限、共享原始字段/节点预算和完整 envelope 后成组末检；保留原签名/null/字符串 delta 与窄读，增加真实公开入口超限 RED、末段撤权/到期、旧行/坏无关行和ABI兼容验收。全平台原生CI通过后再勾选，不替代15.2–15.6。 验收：00401e692c9c8fd9fa4681ef7e709dc79968e5f4 / CI37131890057终态22/22；两Windows Rust、Linux ARM、macOS Intel日志各确认11项新增用例实际ok，证据见native_growth_acceptance_2026_10_03.json。
 
-- [ ] 15.19 按D26收口旧top/children与session目录页的首末授权、整次期限、借用字段准入、存在探针和真实响应预算；保持各自排序/未知大小/分页/wire与UniFFI校验值。公开入口RED、错误诊断、撤权/关闭/到期及原生CI实际通过后勾选。
+- [x] 15.19 按D26收口旧top/children与session目录页的首末授权、整次期限、借用字段准入、存在探针和真实响应预算；保持各自排序/未知大小/分页/wire与UniFFI校验值。公开入口RED、错误诊断、撤权/关闭/到期及原生CI实际通过后勾选。 验收：5f66862544d1dc3cb2aae9bda65ded6c223f5267 / CI37133537230终态22/22；两Windows Rust、Linux ARM及macOS Intel日志各确认12项新增用例实际ok，证据见native_listing_acceptance_2026_10_03.json。
+
+
+D28（15.13 / EV-05前置）本机证据见`docs/benchmarks/revision_collector_acceptance_2026_10_04.json`：revision隔离、原子批次发布、封存选择、v9成员/节点/来源闭包迁移、candidate阻止语义及active-run邻接分页已实现；workspace1001/0/18、Clippy/fmt/OpenSpec/release/实际协议和扫描一致性通过。独立代码复审APPROVE，最终架构lane因agent线程服务限制未取得新证据，同源码原生CI待执行。本项不新增完成勾选，不关闭15.13及全平台父项。

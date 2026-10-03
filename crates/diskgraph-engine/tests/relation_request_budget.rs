@@ -44,6 +44,40 @@ impl Fixture {
             .revision(&revision)
             .unwrap()
             .snapshot_id;
+        let mut store = diskgraph_store::SqliteSnapshotStore::open(
+            &directory.path().join("data/diskgraph.sqlite"),
+        )
+        .unwrap();
+        let run = diskgraph_core::CollectorRun {
+            run_id: "request-budget-relations".into(),
+            snapshot_id: snapshot.clone(),
+            collector_id: "request-budget-fixture".into(),
+            collector_version: 1,
+            rule_version: 1,
+            observed_at_unix_ms: 1,
+            coverage_complete: true,
+            errors: vec![],
+        };
+        let owner = store.revision_ownership(&revision).unwrap().unwrap();
+        let next_revision = format!("{revision}-fixture");
+        let batch = diskgraph_core::CollectorBatch {
+            run: run.clone(),
+            entities: vec![],
+            evidence: vec![],
+            edges: vec![],
+        };
+        store
+            .publish_collector_revision(
+                &revision,
+                &next_revision,
+                2,
+                (&owner.0, &owner.1),
+                &batch,
+                &[(&run.run_id, "active")],
+            )
+            .unwrap();
+        let revision = next_revision;
+        drop(store);
         let db = Connection::open(directory.path().join("data/diskgraph.sqlite")).unwrap();
         let root_id = db
             .query_row(
@@ -61,6 +95,16 @@ impl Fixture {
             db,
             root_id,
         }
+    }
+
+    // 原始 JSON/BLOB/高扇出测试仍直接注入载荷，只补充合法 revision 选择。
+    fn bind_edge(&self, edge_id: &str) {
+        self.db
+            .execute(
+                "INSERT INTO relation_run_memberships VALUES (?1,'request-budget-relations',?2)",
+                params![self.snapshot, edge_id],
+            )
+            .unwrap();
     }
 
     fn evidence(&self, subject: &str, confidence: u64) {
@@ -193,6 +237,7 @@ fn escaped_impact_data_must_fit_the_actual_json_budget() {
     let target = "\0".repeat(11_000);
     let edge = serde_json::json!({"edge_id":"edge", "source_entity_id":"start", "relation":"rebuildable_by", "target_entity_id":target, "assertion_kind":"observed", "evidence_refs":[]});
     f.db.execute("INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)", params![f.snapshot,"edge","start",target,"rebuildable_by",edge.to_string()]).unwrap();
+    f.bind_edge("edge");
     let result = f
         .engine
         .revision_impact(
@@ -217,6 +262,7 @@ fn decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges() {
     ] {
         let edge = serde_json::json!({"edge_id":id, "source_entity_id":source, "relation":relation, "target_entity_id":target, "assertion_kind":"observed", "evidence_refs":[]});
         f.db.execute("INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)", params![f.snapshot,id,source,target,relation,edge.to_string()]).unwrap();
+        f.bind_edge(id);
     }
     let result = f
         .engine
@@ -250,6 +296,7 @@ fn two_direction_pages_cannot_exceed_a_single_output_node_slot() {
             "INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)",
             params![f.snapshot,id,source,target,relation,edge.to_string()],
         ).unwrap();
+        f.bind_edge(id);
     }
     let result = f
         .engine
@@ -287,6 +334,7 @@ fn impact_keeps_its_text_contract_while_filtered_relations_keep_blob_compatibili
         "INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,'blob-edge','blob-start','blob-target','rebuildable_by',?2)",
         params![f.snapshot,bytes],
     ).unwrap();
+    f.bind_edge("blob-edge");
     let policy = f.engine.policy_authorizer().unwrap();
     let impact = f.engine.revision_impact(
         &f.revision,

@@ -129,9 +129,17 @@ fn measure_directory_aggregate_costs() {
         let path = directory.path().join("legacy.sqlite");
         let mut legacy = SqliteSnapshotStore::open(&path).unwrap();
         legacy.save(&fixture).unwrap();
-        // 恢复真正 v8 结构并压缩夹具，避免已删除的 v9 表空闲页抬高基线。
+        // 移除 v10 成员表并恢复真正 v8 结构，压缩已删除表的空闲页避免抬高基线。
         legacy.connection.execute_batch(
-            "DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema;
+            "DROP TRIGGER revisions_require_collector_writer; DROP TRIGGER collectors_require_member_writer;
+         DROP TRIGGER revisions_preserve_seal; DROP TRIGGER selected_runs_no_append;
+         DROP TRIGGER selected_runs_no_rewrite; DROP TRIGGER selected_runs_no_remove;
+         ALTER TABLE graph_revisions DROP COLUMN writer_generation;
+         ALTER TABLE graph_revisions DROP COLUMN selection_sealed;
+         ALTER TABLE graph_revisions DROP COLUMN evidence_complete;
+         ALTER TABLE collector_runs DROP COLUMN writer_generation;
+         DROP TRIGGER relation_membership_retarget; DROP TABLE relation_membership_adjacency; DROP TABLE relation_run_memberships; DROP TABLE entity_run_memberships; DROP TABLE collector_membership_diagnostics;
+             DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema;
              DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts;
              DROP INDEX nodes_by_known_parent_size; DROP INDEX nodes_by_unknown_parent; DROP INDEX nodes_by_parent_size;
              CREATE INDEX nodes_by_parent_size ON nodes(snapshot_id,parent_id,subtree_bytes DESC,name ASC);

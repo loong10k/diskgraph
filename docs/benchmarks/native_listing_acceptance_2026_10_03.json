@@ -2,7 +2,7 @@
   "date": "2026-10-03",
   "scope": "D26 / task 15.19; legacy and session FFI directory pages",
   "baseline_commit": "00401e692c9c8fd9fa4681ef7e709dc79968e5f4",
-  "status": "local_validation_complete_same_source_native_ci_pending",
+  "status": "native_ci_accepted",
   "source_files": {
     "crates/diskgraph-ffi/src/lib.rs": "741853cdcad9f0024abaffc0d56c5905eacc4c49ec88a810dffe9a8e96e948a9",
     "crates/diskgraph-ffi/src/native_listing.rs": "2409614ea1b5f5f6b7d130f5fd6ee86ce94661e67a4d1e1c29845a8eb6e054c6",
@@ -172,6 +172,22 @@
       "openspec-final.log.gz": {
         "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
         "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "native-111233285583.log.gz": {
+        "sha256_uncompressed": "0e5ca749211d8e0cea87172a8c268a24100548810e7d3767310f6572c6f50d6f",
+        "sha256_gzip": "cfe7799bf0f6d07dc2072825500a11801151458097467bd5a05e6a92679f391c"
+      },
+      "native-111233285726.log.gz": {
+        "sha256_uncompressed": "bdc73be603ddf2386302c18dd51eaa259eed925ae84068a3bddafd74c1ad60f7",
+        "sha256_gzip": "982dbe3fb3209371ab227aa1387baaf7df5773f8b5772efa8e3ac385b7b9d522"
+      },
+      "native-111233285791.log.gz": {
+        "sha256_uncompressed": "73eddbd77aec74d6d9d924f5839fe3ce4214f03e732651a71caeebd036e88835",
+        "sha256_gzip": "4e25afd7541ad8c0c013fefffa93f231b5d2e59731b595943a57647ce55358bc"
+      },
+      "native-111233285783.log.gz": {
+        "sha256_uncompressed": "791404b078fa365afabd6306cdc291f46df99c662a204b9e2b9107b4c48abfab",
+        "sha256_gzip": "8a9c0725240947f483f73b232a3582300812f4d1159711c7febba15a4307d294"
       }
     }
   },
@@ -181,9 +197,98 @@
     "Prior to the negative-size compatibility fix, known-only work measured158 VM steps. The final194 is authoritative."
   ],
   "limits": [
-    "Same-source native CI is required before checking task15.19.",
+    "Same-source native CI accepted; parent full-platform gates remain open.",
     "Explicit OFFSET can traverse the skipped prefix; request deadline bounds execution, not constant-time deep offsets.",
     "VM instruction counts and decoded rows do not prove wall-clock speedup or strict RSS limits.",
     "Parent provider, native write fidelity, mobile, real-host and production gates remain open."
-  ]
+  ],
+  "native_ci": {
+    "run_id": 37133537230,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37133537230",
+    "commit": "5f66862544d1dc3cb2aae9bda65ded6c223f5267",
+    "jobs_passed": 22,
+    "jobs_total": 22,
+    "case_execution_evidence": [
+      {
+        "databaseId": 111233285583,
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it",
+          "native_listing_tests::legacy_children_do_not_decode_the_continuation",
+          "native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind",
+          "native_listing_tests::invalid_legacy_limits_do_not_open_or_create_a_database",
+          "native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation",
+          "native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count",
+          "native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping",
+          "native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding",
+          "native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows",
+          "directory_budget_tests::wide_directory_decoding_scales_with_the_page_and_not_the_snapshot",
+          "directory_budget_tests::known_page_skips_unknown_siblings_without_decoding_their_payloads",
+          "directory_budget_tests::node_budget_and_page_limit_do_not_decode_a_bad_continuation"
+        ],
+        "raw_log": "native-111233285583.log.gz"
+      },
+      {
+        "databaseId": 111233285726,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it",
+          "native_listing_tests::legacy_children_do_not_decode_the_continuation",
+          "native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind",
+          "native_listing_tests::invalid_legacy_limits_do_not_open_or_create_a_database",
+          "native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation",
+          "native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count",
+          "native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping",
+          "native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding",
+          "native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows",
+          "directory_budget_tests::wide_directory_decoding_scales_with_the_page_and_not_the_snapshot",
+          "directory_budget_tests::known_page_skips_unknown_siblings_without_decoding_their_payloads",
+          "directory_budget_tests::node_budget_and_page_limit_do_not_decode_a_bad_continuation"
+        ],
+        "raw_log": "native-111233285726.log.gz"
+      },
+      {
+        "databaseId": 111233285791,
+        "name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it",
+          "native_listing_tests::legacy_children_do_not_decode_the_continuation",
+          "native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind",
+          "native_listing_tests::invalid_legacy_limits_do_not_open_or_create_a_database",
+          "native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation",
+          "native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count",
+          "native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping",
+          "native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding",
+          "native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows",
+          "directory_budget_tests::wide_directory_decoding_scales_with_the_page_and_not_the_snapshot",
+          "directory_budget_tests::known_page_skips_unknown_siblings_without_decoding_their_payloads",
+          "directory_budget_tests::node_budget_and_page_limit_do_not_decode_a_bad_continuation"
+        ],
+        "raw_log": "native-111233285791.log.gz"
+      },
+      {
+        "databaseId": 111233285783,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success",
+        "actual_cases_passed": [
+          "native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it",
+          "native_listing_tests::legacy_children_do_not_decode_the_continuation",
+          "native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind",
+          "native_listing_tests::invalid_legacy_limits_do_not_open_or_create_a_database",
+          "native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation",
+          "native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count",
+          "native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping",
+          "native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding",
+          "native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows",
+          "directory_budget_tests::wide_directory_decoding_scales_with_the_page_and_not_the_snapshot",
+          "directory_budget_tests::known_page_skips_unknown_siblings_without_decoding_their_payloads",
+          "directory_budget_tests::node_budget_and_page_limit_do_not_decode_a_bad_continuation"
+        ],
+        "raw_log": "native-111233285783.log.gz"
+      }
+    ]
+  }
 }

@@ -4,7 +4,7 @@ use diskgraph_core::{
     Authorizer, BusinessError, PrincipalId, QueryBudget, QueryReadBudget, Relation,
     TruncationReason, measure_json_bounded, query_deadline,
 };
-use diskgraph_store::{SqliteSnapshotStore, StoreError};
+use diskgraph_store::{RevisionEvidenceReader, StoreError};
 use serde_json::{Value, json};
 use std::collections::HashSet;
 use std::time::Instant;
@@ -134,9 +134,10 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |reader, snapshot| {
+            |_store, reader| {
+                reader.require_confirmed_membership()?;
                 relation_data(
-                    reader, snapshot, entity, relation, direction, after, limit, budget, deadline,
+                    reader, entity, relation, direction, after, limit, budget, deadline,
                 )
             },
             |answer, expired| {
@@ -159,8 +160,7 @@ impl Engine {
 
 #[allow(clippy::too_many_arguments)]
 fn relation_data(
-    reader: &SqliteSnapshotStore,
-    snapshot: &str,
+    reader: &RevisionEvidenceReader<'_>,
     entity_id: &str,
     relation: Option<Relation>,
     direction: Option<bool>,
@@ -173,7 +173,7 @@ fn relation_data(
     let mut entity = None;
     let mut reason = None;
     if direction.is_none() && reads.check() {
-        match reader.entity_with_budget(snapshot, entity_id, &mut reads) {
+        match reader.entity_with_budget(entity_id, &mut reads) {
             Ok(Some(value)) => entity = Some(value),
             Ok(None) => return Err(BusinessError::NotFound.into()),
             Err(StoreError::BudgetExceeded)
@@ -196,9 +196,9 @@ fn relation_data(
     let limit =
         limit.min(u64::try_from(budget.max_edges).map_err(|_| StoreError::IntegerOverflow)?);
     let candidates = if reads.check() && reason.is_none() {
-        match reader.edges_with_budget_page(
-            snapshot, entity_id, direction, relation, after, limit, &mut reads,
-        ) {
+        match reader
+            .edges_with_budget_page(entity_id, direction, relation, after, limit, &mut reads)
+        {
             Ok((page, more)) => {
                 if more {
                     reason = Some(reads.stopped().unwrap_or(TruncationReason::EdgeLimit));
@@ -241,7 +241,7 @@ fn relation_data(
                 if seen.contains(id) || !edge_seen.insert(id) {
                     continue;
                 }
-                match reader.evidence_record_with_budget(snapshot, id, &mut reads) {
+                match reader.evidence_record_with_budget(id, &mut reads) {
                     Ok(Some(record)) => {
                         let Some(bytes) = measure_json_bounded(
                             &record,

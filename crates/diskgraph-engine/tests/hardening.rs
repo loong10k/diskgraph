@@ -99,6 +99,39 @@ fn high_degree_impact_reads_a_page_and_revocation_blocks_the_next_request() {
     let reader = engine.revision_reader().unwrap();
     let snapshot_id = reader.revision(&revision).unwrap().snapshot_id;
     drop(reader);
+    let run = diskgraph_core::CollectorRun {
+        run_id: "impact-fixture".into(),
+        snapshot_id: snapshot_id.clone(),
+        collector_id: "impact-fixture".into(),
+        collector_version: 1,
+        rule_version: 1,
+        observed_at_unix_ms: 1,
+        coverage_complete: true,
+        errors: vec![],
+    };
+    let mut store =
+        diskgraph_store::SqliteSnapshotStore::open(&dir.path().join("data/diskgraph.sqlite"))
+            .unwrap();
+    let owner = store.revision_ownership(&revision).unwrap().unwrap();
+    let next_revision = format!("{revision}-fixture");
+    let batch = diskgraph_core::CollectorBatch {
+        run: run.clone(),
+        entities: vec![],
+        evidence: vec![],
+        edges: vec![],
+    };
+    store
+        .publish_collector_revision(
+            &revision,
+            &next_revision,
+            2,
+            (&owner.0, &owner.1),
+            &batch,
+            &[(&run.run_id, "active")],
+        )
+        .unwrap();
+    let revision = next_revision;
+    drop(store);
     let mut database =
         rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap();
     let transaction = database.transaction().unwrap();
@@ -125,6 +158,8 @@ fn high_degree_impact_reads_a_page_and_revocation_blocks_the_next_request() {
             )
             .unwrap();
     }
+    // 完整选择同一批次的全部边；尾部坏 JSON 仍用于证明分页预算先于解码。
+    transaction.execute("INSERT INTO relation_run_memberships SELECT snapshot_id,'impact-fixture',edge_id FROM relations WHERE snapshot_id=?1 AND edge_id LIKE 'impact-%'",[&snapshot_id]).unwrap();
     transaction
         .execute(
             "UPDATE relations SET edge_json = '{bad-json' WHERE edge_id = 'impact-0999'",

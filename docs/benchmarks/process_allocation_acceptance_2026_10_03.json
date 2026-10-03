@@ -2,7 +2,7 @@
   "date": "2026-10-03",
   "scope": "D27 / EV-06 / task15.13 subset: bound process command allocation amplification",
   "baseline_commit": "5f66862544d1dc3cb2aae9bda65ded6c223f5267",
-  "status": "local_validation_complete_same_source_native_ci_pending",
+  "status": "same_source_native_ci_accepted",
   "source_files": {
     "crates/diskgraph-engine/src/live_evidence/mod.rs": "95a442aa59bf0026d2669bbd45b6e146089741a1eae168e3de89d33da416dc92",
     "crates/diskgraph-engine/src/live_evidence/process_output.rs": "d5c8d65a471f0e35947cc28d759a9aeaaa4e4c2500dc1184d6b1fbc17181088d",
@@ -101,13 +101,89 @@
       "openspec.log.gz": {
         "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
         "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "native-111246364112.log.gz": {
+        "sha256_uncompressed": "d2cb2c3c0a069fa2aa89baad3fa5cbca8b09ecb3f47c57dbbe747cbe5b16445d",
+        "sha256_gzip": "1f12b25cbb8b2e31a1d9745a041aa34fc026c16536df5dcb85d5a416522061ae"
+      },
+      "native-111246364289.log.gz": {
+        "sha256_uncompressed": "9ee47f8e40ddb9dd20e9bde9e35ccf11fff59a6fdcf9e356a40f63d24d3a9205",
+        "sha256_gzip": "8a8cf67b0b7a1d06ac52d24aef5ac80b02794e09a8c33202c3931e604a34cddb"
+      },
+      "native-111246364926.log.gz": {
+        "sha256_uncompressed": "436cbee512250cbbd3899da604487268bd33ebea9afc8904b34a9c67625852ae",
+        "sha256_gzip": "2cd5c2969021ecdfdd8b4cfa89536a8089a65b1ed6aada5b909e0164b468f795"
+      },
+      "native-111246395419.log.gz": {
+        "sha256_uncompressed": "0e94005a4515e3a08b5f353491c40b2de74ed2e3633a2831538b12944cbcf9a1",
+        "sha256_gzip": "738dab64a4c31a8de9cef90ce484db5b39b1337c4926bd4cc79950f1db11d0b2"
       }
     }
   },
   "limits": [
-    "Same-source native CI pending; D26 CI is not D27 acceptance.",
     "Cumulative allocations do not prove strict peak memory, RSS, or wall-clock bounds.",
     "The test allocator is cfg(test) only; production uses the existing allocator.",
     "Task15.13 remains open for live integration, process start identity and other documented parent obligations."
-  ]
+  ],
+  "native_ci": {
+    "run_id": 37134318291,
+    "source_commit": "109dd7571e96a2314e4878eee43b50bf7f1ab103",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37134318291",
+    "conclusion": "success",
+    "jobs_success": 22,
+    "jobs_total": 22,
+    "attempt": 2,
+    "native_case_receipts": [
+      {
+        "job_id": 111246364112,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success",
+        "new_cases_executed_ok": [
+          "live_evidence::process_allocation_tests::repeated_handles_do_not_multiply_command_allocations",
+          "live_evidence::process_output_tests::repeated_contexts_keep_sorted_unique_pid_and_command_observations",
+          "live_evidence::process_output_tests::an_observed_context_still_checks_later_ambiguous_and_malformed_records"
+        ],
+        "log": "native-111246364112.log.gz"
+      },
+      {
+        "job_id": 111246364289,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success",
+        "new_cases_executed_ok": [
+          "live_evidence::process_allocation_tests::repeated_handles_do_not_multiply_command_allocations",
+          "live_evidence::process_output_tests::repeated_contexts_keep_sorted_unique_pid_and_command_observations",
+          "live_evidence::process_output_tests::an_observed_context_still_checks_later_ambiguous_and_malformed_records"
+        ],
+        "log": "native-111246364289.log.gz"
+      },
+      {
+        "job_id": 111246364926,
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success",
+        "new_cases_executed_ok": [
+          "live_evidence::process_allocation_tests::repeated_handles_do_not_multiply_command_allocations",
+          "live_evidence::process_output_tests::repeated_contexts_keep_sorted_unique_pid_and_command_observations",
+          "live_evidence::process_output_tests::an_observed_context_still_checks_later_ambiguous_and_malformed_records"
+        ],
+        "log": "native-111246364926.log.gz"
+      },
+      {
+        "job_id": 111246395419,
+        "name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success",
+        "new_cases_executed_ok": [
+          "live_evidence::process_allocation_tests::repeated_handles_do_not_multiply_command_allocations",
+          "live_evidence::process_output_tests::repeated_contexts_keep_sorted_unique_pid_and_command_observations",
+          "live_evidence::process_output_tests::an_observed_context_still_checks_later_ambiguous_and_malformed_records"
+        ],
+        "log": "native-111246395419.log.gz"
+      }
+    ],
+    "prior_attempt_failure": {
+      "job_id": 111235606986,
+      "reported_reason": "The hosted runner lost communication with the server.",
+      "test_assertion_failure_verified": false,
+      "retry": "Terminal failure verified before rerunning failed jobs on the same SHA."
+    }
+  }
 }

@@ -43,6 +43,50 @@
 - **WHEN** 文件快照不变而进程信息更新
 - **THEN** 新旧 revision 可分别查询，不原地改写旧结果。
 
+#### Scenario: Evidence batches remain revision isolated
+- **WHEN** 同一文件快照产生多个采集批次，或新批次尚未发布
+- **THEN** 对外关系、解释、影响与候选查询仅观察指定revision的active断言；dependency_only批次只用于解析引用来源，未绑定批次和歧义旧数据不得进入结果。可信snapshot级Store入口保留兼容。
+
+#### Scenario: Atomic collector publication
+- **WHEN** 新采集批次发布，或首次扫描同时发布确定性项目证据
+- **THEN** run、实体、证据、关系、归属、批次绑定和新revision在同一图库事务提交；失败没有可见半成品，旧revision的绑定不可变。跨snapshot、未知role、伪造来源和冲突实体拒绝整批。
+
+#### Scenario: Safe legacy membership migration
+- **WHEN** 旧数据库升级到按revision选择采集批次的结构
+- **THEN** 使用一致性备份，仅在实体来源或边引用证据可唯一确认run时回填成员关系；歧义条目对外不可见并提供重新采集诊断，不把同snapshot所有批次自动加入所有revision。
+
+#### Scenario: Revision-scoped candidate blockers
+- **WHEN** 一个文件快照被多个revision复用，某revision选择的active批次包含进程占用或保护关系
+- **THEN** Engine、CLI/MCP与原生FFI候选查询按本请求捕获的revision排除该资源及祖先/后代；其他revision和dependency_only断言不污染本次选择。保留旧静态重建条件，正向观察即使过期也不自动变为无占用证明，结果始终仅供审阅。
+
+#### Scenario: Legacy revision integrity
+- **WHEN** 旧占用或保护观察缺少实际快照中的有效节点定位，或历史版本遗漏 active 边端点的原始来源、选择非法 role 或跨快照运行
+- **THEN** 迁移把该版本标记为 incomplete，候选及关系入口要求重采；不得猜测节点或自动追加上游。来源可确认的其他版本保持可查询，partial 或过期正观察仍阻止对应候选。
+
+#### Scenario: Ambiguous evidence does not disable unrelated metadata
+- **WHEN** 旧证据成员来源无法确认
+- **THEN** 关系、解释、影响及候选入口明确要求重采或重新索引；同一快照的文件树等不依赖证据的元数据查询继续经过原有权限与预算门禁。
+
+#### Scenario: Writer generation and sealed selection
+- **WHEN** 一个v9写进程已打开图库，另一个进程升级到v10，或调用者尝试改写已发布版本的批次选择
+- **THEN** 数据库拒绝旧代次创建collector/revision及已封存选择的追加、更新、直接删除和重新解封；显式历史回收通过删除父revision级联删除其选择，并保持失败回滚。
+
+#### Scenario: Complete selected provenance and recollection recovery
+- **WHEN** 新版本选择已有采集运行，或在存在歧义旧证据的文件快照上重新采集
+- **THEN** 封存前验证全部所选运行的原始实体来源闭包；新版本不能把有歧义的旧运行提升为完整。只选择已确认的新批次可以恢复，同快照旧版本仍保持incomplete。
+
+#### Scenario: Stale collector publication
+- **WHEN** 基于旧版本的采集尚未发布，另一次扫描或采集已经更新latest
+- **THEN** 旧基线发布在事务内拒绝，不把最新文件树或批次选择回退；调用者须从最新版本重新准备。
+
+#### Scenario: Historical same-entity page cost
+- **WHEN** 同一实体累积大量inactive历史关系，而所选版本只含少量active关系
+- **THEN** 有界查询只按有效批次邻接索引定位并合并keyset，准备阶段的运行与关系键纳入预算；2万/20万历史不会被逐条扫描。保留双向去重、稳定顺序和不解码lookahead。
+
+#### Scenario: Deadline expires after scan staging
+- **WHEN** 扫描已完成暂存或项目采集，但提交前的单调时钟期限已经耗尽
+- **THEN** 在实际fencing事务内、写入图库前拒绝发布并清理本代次staging；不得留下snapshot、revision或collector半成品。本检查是提交前协作门禁，不承诺事务执行中严格抢占。
+
 ### Requirement: EV-06 Application and process coverage
 应用/进程采集 SHALL 报告方法、权限范围与 unsupported/denied/partial 状态；PID 应附启动上下文，应用标识应区分安装实例。
 

@@ -11,14 +11,14 @@ use std::sync::{
 use std::time::Instant;
 
 /// 复用请求期限执行本机查询；实际成功文本在最后授权前已完成编码。
-/// 参数：engine/snapshot 为真实资源，cancel 为会话关闭标志，read/before_reply 为本请求操作。
+/// 参数：engine/snapshot 为真实资源，cancel 为关闭标志，read 接收与终态授权相同的固定 revision。
 /// 返回：已编码成功文本或失败；旧数组入口到期失败，会话有诊断的结果保留前缀。
-pub(crate) fn query(
+pub(crate) fn query_with_revision(
     engine: &Engine,
     snapshot: &str,
     deadline: Instant,
     cancel: Arc<AtomicBool>,
-    read: impl FnOnce(&SqliteSnapshotStore, Instant) -> Result<Value, String>,
+    read: impl FnOnce(&SqliteSnapshotStore, &str, Instant) -> Result<Value, String>,
     before_reply: impl FnOnce(),
 ) -> Result<String, String> {
     if cancel.load(Ordering::SeqCst) {
@@ -40,7 +40,7 @@ pub(crate) fn query(
         .revision_for_snapshot(snapshot)
         .map_err(|e| e.to_string())?
         .ok_or_else(|| "permission_denied: unbound snapshot".to_owned())?;
-    let result = read(&reader, deadline);
+    let result = read(&reader, &revision, deadline);
     if cancel.load(Ordering::SeqCst) {
         return Err("session closed".into());
     }
@@ -99,6 +99,25 @@ pub(crate) fn query(
     encoded
 }
 
+/// 保留两参数内部回调；参数为原请求上下文，返回共享终态校验后的文本。
+pub(crate) fn query(
+    engine: &Engine,
+    snapshot: &str,
+    deadline: Instant,
+    cancel: Arc<AtomicBool>,
+    read: impl FnOnce(&SqliteSnapshotStore, Instant) -> Result<Value, String>,
+    before_reply: impl FnOnce(),
+) -> Result<String, String> {
+    query_with_revision(
+        engine,
+        snapshot,
+        deadline,
+        cancel,
+        |store, _, until| read(store, until),
+        before_reply,
+    )
+}
+
 /// 对成功 envelope 计量并编码；参数为数据，返回有限文本或明确预算错误。
 pub(crate) fn encode(data: &Value) -> Result<String, String> {
     let cap = QueryBudget::default().max_response_bytes;
@@ -153,6 +172,28 @@ pub(crate) fn legacy(
             .map_err(|error| error.to_string())?;
         let engine = open_engine(path)?;
         query(
+            &engine,
+            snapshot,
+            deadline,
+            Arc::new(AtomicBool::new(false)),
+            read,
+            || {},
+        )
+    })())
+}
+
+/// 旧导出候选入口使用首次解析的 revision；参数为路径、snapshot 与固定 revision 回调。
+/// 返回：沿用原 JSON envelope，不在数据读取阶段重新选择最新批次。
+pub(crate) fn legacy_with_revision(
+    path: &str,
+    snapshot: &str,
+    read: impl FnOnce(&SqliteSnapshotStore, &str, Instant) -> Result<Value, String>,
+) -> String {
+    respond((|| {
+        let deadline = diskgraph_core::query_deadline(QueryBudget::default())
+            .map_err(|error| error.to_string())?;
+        let engine = open_engine(path)?;
+        query_with_revision(
             &engine,
             snapshot,
             deadline,

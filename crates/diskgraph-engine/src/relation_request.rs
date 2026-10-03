@@ -1,7 +1,7 @@
 //! 关系请求复用真实 revision 授权与独立 reader，返回前在同一 control guard 复检。
 use crate::{Engine, EngineError};
 use diskgraph_core::{Authorizer, BusinessError, Permission, PrincipalId, ScopeId};
-use diskgraph_store::SqliteSnapshotStore;
+use diskgraph_store::{RevisionEvidenceReader, SqliteSnapshotStore};
 use std::time::Instant;
 
 impl Engine {
@@ -14,14 +14,17 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
         deadline: Instant,
-        consumer: impl FnOnce(&SqliteSnapshotStore, &str) -> Result<T, EngineError>,
+        consumer: impl FnOnce(
+            &SqliteSnapshotStore,
+            &RevisionEvidenceReader<'_>,
+        ) -> Result<T, EngineError>,
         mut finish: impl FnMut(&mut T, bool) -> Result<(), EngineError>,
     ) -> Result<T, EngineError> {
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let scope =
             self.authorize_revision_with_reader(&reader, None, revision, principal, authorizer)?;
-        let snapshot = reader.revision(revision)?.snapshot_id;
-        let result = consumer(&reader, &snapshot);
+        let evidence = reader.revision_evidence(revision)?;
+        let result = consumer(&reader, &evidence);
         let budget_failure = matches!(
             &result,
             Err(EngineError::Business(

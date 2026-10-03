@@ -4,6 +4,7 @@
 mod budget;
 mod catalog;
 mod children_cursor;
+mod collector_batch;
 pub mod compare;
 mod duplicates;
 mod entities;
@@ -30,6 +31,7 @@ pub use budget::{
 };
 pub use catalog::{CATALOG, CommandAction, CommandSpec, Stage, by_family, by_id};
 pub use children_cursor::ChildrenCursor;
+pub use collector_batch::CollectorBatch;
 pub use compare::{Comparison, DifferentReason, Evidence, Summary, Verdict, compare};
 pub use duplicates::{ConfirmedSet, ContentRelation, SuspectGroup, confirm_group, suspect_groups};
 pub use entities::{

@@ -63,7 +63,14 @@ impl Engine {
                     principal,
                     authorizer,
                 )?;
-                tree_on_reader(reader, snapshot, depth, min_bytes, budget, deadline)
+                tree_on_reader(
+                    reader,
+                    snapshot.snapshot_id(),
+                    depth,
+                    min_bytes,
+                    budget,
+                    deadline,
+                )
             },
             |tree, expired| {
                 if expired {

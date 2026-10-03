@@ -1,0 +1,351 @@
+{
+  "date": "2026-10-04",
+  "scope": "D28 / EV-05: revision-scoped evidence, atomic collector publication, legacy integrity and bounded active-run adjacency; prerequisite for task15.13 live integration",
+  "baseline_commit": "109dd7571e96a2314e4878eee43b50bf7f1ab103",
+  "status": "local_validation_complete_architecture_review_unavailable_native_ci_pending",
+  "source_files": {
+    "crates/diskgraph-core/src/collector_batch.rs": "0a2265ef51dfbdfaed5849cd7390f9c36a7a676d737cc16a49425f9977d43670",
+    "crates/diskgraph-core/src/lib.rs": "0ffe1963c552f10849a010ec4a59b031a3128579d88538e18c4da58bd3458fdc",
+    "crates/diskgraph-engine/src/lib.rs": "66a4fc32aaaf4f060a74858cb2390c1e160b8c7cc28d7454c89e1a16bc710f4c",
+    "crates/diskgraph-engine/src/relation_access.rs": "af6d76b89fd22cf1da03094104f5619aa230b63d699178f4d28b6cdc116f1e18",
+    "crates/diskgraph-engine/src/relation_queries.rs": "aa423c98e4db80917e048270192de1604fe0386bec760a64a3ac825bf38d4973",
+    "crates/diskgraph-engine/src/relation_request.rs": "73afa0d8f61fc6b2dc887a8b4db234de0970e1057e0b729f679767f562749d2c",
+    "crates/diskgraph-engine/src/relation_request_tests.rs": "63e82b54ddb980ed7ad0eb967d6e3d92a35f11a17002191b9cc784fb92d8535f",
+    "crates/diskgraph-engine/src/revision_evidence_tests.rs": "90eb4b81ea6694bd576b09d0f8935044d6d062c82e9f48bce3a45a7c3b8adfb1",
+    "crates/diskgraph-engine/src/scan_execution.rs": "a814b6890e4c2863145f66507fccceec22403bf169d5a9d46bbec248b0825ec4",
+    "crates/diskgraph-engine/src/scan_publication_tests.rs": "8392a2f58dc8147d2f2e0c90a71112e98749fbd47b659eef6942a6c3625534eb",
+    "crates/diskgraph-engine/src/tree_queries.rs": "2c71ad603e7a145c3789e912d7880d97b94a38ed0056fef77841ba763a1b07a2",
+    "crates/diskgraph-engine/tests/hardening.rs": "6abd5ad786f14719393e6576bf3b5c0a80fa0701445176a1e2dcbb38b761fb29",
+    "crates/diskgraph-engine/tests/relation_request_budget.rs": "55b27d86f609e60ef50471c166dc238489306d7f6b70d6367957856bf0893d7a",
+    "crates/diskgraph-ffi/src/lib.rs": "42a95035a0d9912d3022aaeddce0eedc6634ea16f18bfb49ebd8f8e4577e30d2",
+    "crates/diskgraph-ffi/src/native_reply.rs": "190583993cb895e6e46f8be996c13e2286c8e8ceb5db502c93c79bbf96cef0dc",
+    "crates/diskgraph-ffi/src/native_revision_candidate_tests.rs": "28d9891819562c50842c24d5c8b8fc87e6b844e1c80c0d41e232bf326cb1b442",
+    "crates/diskgraph-ffi/src/native_service.rs": "9433e1c7a87c5bb54b2670940e68a6cc20879fe6cdd3eec157a2d0d4865e17bc",
+    "crates/diskgraph-mcp/src/lib.rs": "b6deef200b2bbe858f2e18c431bbd58ff18eef7d074833b57f5e8c5592842b15",
+    "crates/diskgraph-store/src/candidate_query.rs": "fa08ec41fcd8efff5847ab14696297e024d78d3ad43c646edbe69e53e2244d11",
+    "crates/diskgraph-store/src/child_aggregate_benchmark.rs": "ceb1d6bf7c482a4d652e829ecd3937e331e2aeddca5f20fe8637cafe50cf40bf",
+    "crates/diskgraph-store/src/child_aggregate_tests.rs": "6c153339a94a27de56732d63b7be6fc8fdc18ab87b893bcbb4676c2dd8e3ea09",
+    "crates/diskgraph-store/src/collector_batch_writer.rs": "5c552e19d63b15126e144e5379decaff1bd23c66387eb386d5cd6aac58d62d1a",
+    "crates/diskgraph-store/src/collector_membership_migration.rs": "9f9bc39eb12079a390e3457b99d700540361c8ccdb7d72211e0a20351c044c4b",
+    "crates/diskgraph-store/src/collector_migration_integrity_tests.rs": "1816d12b32d0dff98bbf45ce14241c28f31879ffb4192b08430516043ca7a394",
+    "crates/diskgraph-store/src/collector_protocol.rs": "25eb723220949a2fceab9fe3fa093e547901071581387177b72a1fb2fdece238",
+    "crates/diskgraph-store/src/collector_protocol_tests.rs": "eeb33b38fb21aa28865e718b021c7a21d6d0e2ebaf09c52111bbc92ea9809a0d",
+    "crates/diskgraph-store/src/collector_publication.rs": "15fd59018177d6fff835ee4c5a627483e8567b2da87c35e4498587f8a91b6fbe",
+    "crates/diskgraph-store/src/collector_publication_tests.rs": "3ce127b4357fe72022a50f1ffbea16c551a5fa99db5378cf07546b90481bf678",
+    "crates/diskgraph-store/src/collector_store.rs": "b400f4d88794f7fedf2127529b709644490f928b249eaaa04324105477fde151",
+    "crates/diskgraph-store/src/lib.rs": "dac1fb8ef915eaaf5910894e3c70b32da2aeafc1a6b5fb7df5b8ef37beb95315",
+    "crates/diskgraph-store/src/relation_membership_index.rs": "dfc42b770fda015b5b7d16be38585de8dc9d696accc2e6889793f0a892cf0b42",
+    "crates/diskgraph-store/src/resource_node_identity.rs": "19a336bc69352513bc16f2c8fec712d97783451e0a6021b809bd323b74eda209",
+    "crates/diskgraph-store/src/retention_store.rs": "ed8d9c779257488370a387443f92237647160c7f4163b442448400d2fc6916c8",
+    "crates/diskgraph-store/src/revision_candidate_tests.rs": "0fa882ab8f9d98e4a25f7a81de062689647e73c2fd90c124f3455f5bb7081a2e",
+    "crates/diskgraph-store/src/revision_edge_cursor.rs": "18dd6ba305939f3e850016fcea300afeed9322b11218fe04eac6dcb24b453b62",
+    "crates/diskgraph-store/src/revision_evidence_reader.rs": "e0c674699f0388573c0437aa1f5f58805bd4f0e32c4ee230239e688453b1587f",
+    "crates/diskgraph-store/src/revision_evidence_tests.rs": "919c3a53548d7b8ef9111f66fd906c25539aac003e3f3d395876085e52be514d",
+    "crates/diskgraph-store/src/revision_history_budget_tests.rs": "ce5fd1158ad7a56212d277561de4702bff4f29bd1c8ff7efe5ed4bfd8e9e375c",
+    "crates/diskgraph-store/src/revision_relation_page_queries.rs": "584f58b1e108e049c7a71173b613ff3f6982172db9d44b912f2747265bc046f1",
+    "crates/diskgraph-store/src/revision_relation_queries.rs": "4ef69f06c26677a42e1c4b34814b586e8ddfb8879ac7605250643d0ed6747665",
+    "crates/diskgraph-store/src/revision_source_validation.rs": "993ed50e5982f97581afee441fd1111ad9484b481ec2035397d6fb44cba6e012",
+    "crates/diskgraph-store/src/revision_writer.rs": "badd35def1aebf7b62390e39a374a5cca0fa957d5523479419bc0bde61256c67",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "1627c8481a6ead9449367abfb8e63123136eeec415a6944a51d91776eb680bd4",
+    "crates/diskgraph-store/src/tests/collector_regressions.rs": "ec213c518effeb2dc5a1d03cb7fcae5db922d831f68b4dda608293498a901558",
+    "crates/diskgraph-store/tests/migration_backup.rs": "c18e247bfc1b06ebd7e72592a8e739eec9ac2dcd31c6ef5d976a1a45b4504819"
+  },
+  "schema": {
+    "graph_from": 9,
+    "graph_to": 10,
+    "count_schema_unchanged": 9,
+    "backup": "Existing Engine open_with_backup SQLite consistency backup path retained.",
+    "legacy_policy": "Known memberships are recovered only from validated unique sources. Actual snapshot, roles, active edge endpoint sources and resource node mappings are verified before sealing; uncertain revisions require recollection. New complete recollection does not rewrite old revisions."
+  },
+  "red_evidence": {
+    "engine_isolation_failed": 3,
+    "initial_protocol_failed": 3,
+    "additional_protocol_failed": 3,
+    "legacy_migration_integrity_failed": 3,
+    "publication_deadline_failed": 1,
+    "deadline_red_limit": "The pre-fix source included only cfg(test) monotonic-clock injection; the final guard was absent. Not claimed to be an unmodified baseline binary.",
+    "historical_page_baseline": {
+      "historical_edges": 20000,
+      "approximate_vm_instructions_at_interrupt": 101000,
+      "query_ok": false,
+      "sample_interval": 1000
+    }
+  },
+  "workspace": {
+    "passed": 1001,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0
+  },
+  "targeted": {
+    "store": {
+      "passed": 116,
+      "failed": 0,
+      "ignored": 1
+    },
+    "final_precise_publication_deadline": {
+      "passed": 1,
+      "failed": 0,
+      "note": "Rerun after narrowing assertion to Store(BudgetExceeded); production code unchanged."
+    },
+    "vendored_scanner": {
+      "passed": 124,
+      "failed": 0,
+      "ignored": 2
+    },
+    "real_project_scan_parity": {
+      "passed": 1,
+      "nodes": 194016,
+      "diskgraph_bytes": 10396008448,
+      "upstream_bytes": 10396008448,
+      "isolated_database": true
+    }
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "fmt_exit_code": 0,
+    "openspec_exit_code": 0,
+    "release_cli_mcp_ffi_exit_code": 0,
+    "vendor_source_unchanged": true,
+    "pinned_digest_manifest_files": 14
+  },
+  "protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http_sse": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "uniffi": {
+    "library_sha256": "1895d675443ca2c4049ae90b23b7b1185a800f12f288338e88a4c32fce104d22",
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "exact_matches": 19,
+    "total": 19
+  },
+  "performance": {
+    "release_selected_edge_page": {
+      "selected_active_edges": 1,
+      "historical_inactive_same_entity_edges": [
+        20000,
+        200000
+      ],
+      "exact_vm_instructions": [
+        196,
+        196
+      ],
+      "limit": 1,
+      "lookahead_payload_decoded": false,
+      "measurement": "SQLite progress callback per VM instruction over fixed-revision reader/page execution, not end-to-end wall-clock or RSS."
+    },
+    "file_load": [
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.942,
+        "query_p50_ms": 13.939,
+        "query_p95_ms": 19.892,
+        "database_and_wal_bytes": 37502976,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 4.538,
+        "query_p50_ms": 7.509,
+        "query_p95_ms": 9.569,
+        "database_and_wal_bytes": 377446400,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    ]
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "code_review_source_hashes_verified": 11,
+    "code_review_34_file_manifest_sha256": "bcf261b748e06d9938bafffbe9d5c8c43a3ec8da351936296b080c993e9b3a21",
+    "architecture": "independent review unavailable",
+    "reason": "Existing architect identified the migration blocker before repair; final restart and replacement agent were rejected by the service with agent thread limit reached. No author-review substitution or final approval claim.",
+    "final_approval": "blocked_pending_independent_architecture_evidence"
+  },
+  "native_ci": {
+    "status": "pending_same_source_run"
+  },
+  "logs": {
+    "directory": "revision_collector_acceptance_2026_10_04_logs",
+    "files": {
+      "engine-red.log.gz": {
+        "sha256_uncompressed": "5214d71386e94430db684bd85cb62ce71d66a88a1a71645dc6f69135d3907e55",
+        "sha256_gzip": "f2a9677ec48be3dd5bac47c2829f6f57c0a0296e659f5b3eb1f1ba9ea92e77ea"
+      },
+      "protocol-red.log.gz": {
+        "sha256_uncompressed": "f96e009ac3029ea4480b19b38b296d2bfb002fcf6a1e34d4e8082e79dbd4ad17",
+        "sha256_gzip": "b834fa848a9ea242d04448cd525f0b1726974ee8bd9dfd8876964b89591df6b0"
+      },
+      "protocol-second-red.log.gz": {
+        "sha256_uncompressed": "d4a2538c2f29bf2c9317f94f6419dcbed4e84c31b380b0157b9b4f8ed3388d89",
+        "sha256_gzip": "cda88caf2014e4a7a803fcb99096e984db83ebd876b4d2ede4da400a93a65fcc"
+      },
+      "migration-integrity-red.log.gz": {
+        "sha256_uncompressed": "9c4dc3e2b056b940048f525299ae4b10e73916ca5385d2ce590d42e210d501e9",
+        "sha256_gzip": "bc380423057ada2891e4e757f7833d63b4f886bb3b4df48d810a935ffed82c84"
+      },
+      "publication-deadline-red.log.gz": {
+        "sha256_uncompressed": "18c6fc64865f3a5586c5fb778337f42ca9d7bb5d23b14d953e9b5b271ffe9db9",
+        "sha256_gzip": "c02e08d9a7f11c3bfc612d74b576bd74500d3b213cfbd734109c2aae1d4589bb"
+      },
+      "history-red.log.gz": {
+        "sha256_uncompressed": "351f48eb4edce862df8c55de374165bdccabe904c662129fcd616e1597694f4f",
+        "sha256_gzip": "05c461992eaa569127e9238e19e2bb68f479d73da8fd3525941a31ac6d365f44"
+      },
+      "store-final.log.gz": {
+        "sha256_uncompressed": "9f92b0f132d1e1556181db6c28b3f38e4c5e0d4d48801f3d6e89a5f7b52df46c",
+        "sha256_gzip": "6e37b8672beb4aefacc304ce7eca402e2b53c38209b8262745d7ce656cf41319"
+      },
+      "workspace-final.log.gz": {
+        "sha256_uncompressed": "1b1ccc0dcd9c65f067630a8a8769315a34c4fe6c4d2abbc08ef47499a69aba53",
+        "sha256_gzip": "5e3ef8dab54f3aa923e0a2c1fc36fbaa0f38e54393ec4bfe5c9050151fcce7df"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "13b977f6d828cb00139764ec80d654a339d371d1071c511cb82c377e51e99f0b",
+        "sha256_gzip": "875c0976714d24c046b0200059881ee4fad263dd9281c348a2a1a23e252a4581"
+      },
+      "fmt-final.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec-final.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "publication-deadline-final.log.gz": {
+        "sha256_uncompressed": "e0c7b9fe608786aa2f725985d5aa8b072421a0daa62ecb63c3a2105b6d2716bc",
+        "sha256_gzip": "f96e603727f11fb58b77242ec79baaa6fe3f71e55907e770e646e9f8715581cf"
+      },
+      "history-release.log.gz": {
+        "sha256_uncompressed": "d10a8661f185095a66802068dfff19c8266a34fb2b775cdb872b36e0971310b8",
+        "sha256_gzip": "f66ead463f75a671e8ccea1a4cd432f41a4d7084145c09c016d6fe0a45f96844"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "515fd7e25f513e577cd21ddd0c9b0c707c5743ea820d1d669043f97cea95539d",
+        "sha256_gzip": "dfce76f3cfa9e595593e0697eba0212deda24420244a78f53d2ed33782d667dd"
+      },
+      "vendor.log.gz": {
+        "sha256_uncompressed": "4bc2bfc06b6c300c49d2ad03da23a52f438d8dafb1c51218ad32534ddd9d1fe5",
+        "sha256_gzip": "bca5f3c83e5cea7e3e9deae99fa4b31d627b724c373c2da036470476edb25d6c"
+      },
+      "scan-parity.log.gz": {
+        "sha256_uncompressed": "9fda6e9e567c6fb5de4287935ef769b0856444d74cc076d716eb550cf04f34ab",
+        "sha256_gzip": "568cb42d5b790a0b4713b341e9f69fa07937d022419a99c1f0d2e13ec6ac96fd"
+      },
+      "stdio.json.gz": {
+        "sha256_uncompressed": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+        "sha256_gzip": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+      },
+      "http.json.gz": {
+        "sha256_uncompressed": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+        "sha256_gzip": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+      },
+      "uniffi.json.gz": {
+        "sha256_uncompressed": "e2a80bae8999fb0d19805da85c0d1edf4117ec57564e8623de7eac283ec89329",
+        "sha256_gzip": "ecb159790cfdcc8fc2c3f9e4d23434cdacd148a8efd99f00dbcce3998728458a"
+      },
+      "load-20k.json.gz": {
+        "sha256_uncompressed": "5fc0afd6089a9d683a31a81971009e7819830889cb42f1866d554da780e5b885",
+        "sha256_gzip": "8bf6fb212ce66ace4e4e1cf6fb3e09667f2e8e2a67501d92c474e95186dc2997"
+      },
+      "load-200k.json.gz": {
+        "sha256_uncompressed": "87b5abd7ce9e72b7217a0372fb4d540f24e835e0f2f88aac2569edf417a22a1c",
+        "sha256_gzip": "a1b8cfe5f076d67b93d2dc8057dd76cd0066c842436d846a998daf47688a6014"
+      }
+    }
+  },
+  "limits": [
+    "Task15.13 and all full-platform parent obligations remain open.",
+    "Live Git/process/application samples are not yet integrated into authorized Engine/CLI/MCP jobs.",
+    "Independent final architecture evidence remains unavailable; code lane APPROVE is not two-lane approval.",
+    "Same-source native CI is still required for this increment; previous D27 CI is not D28 acceptance.",
+    "Trusted legacy snapshot lists/offset pagination retain historical scan costs; new bounded-page guarantee applies to the revision reader path.",
+    "Unknown-source legacy diagnostics conservatively reject affected snapshot history; new confirmed recollection is the recovery path.",
+    "Deadline check is cooperative publication admission before graph SQL; no hard SQL commit preemption or strict RSS bound is claimed.",
+    "File load observations are current-build measurements, not paired before/after speedup, cold-cache SLA, peak RSS or per-platform performance proof.",
+    "Real providers, native file writes, desktop host integrations, mobile devices, signatures and production environment remain subject to the open full-platform gates."
+  ]
+}

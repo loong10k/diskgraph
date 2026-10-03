@@ -19,8 +19,9 @@ impl Engine {
         revision_id: &str,
     ) -> Result<Vec<diskgraph_core::RelationEdge>, EngineError> {
         let graph = self.graph()?;
-        let revision = graph.revision(revision_id)?;
-        Ok(graph.all_edges(&revision.snapshot_id)?)
+        let evidence_reader = graph.revision_evidence(revision_id)?;
+        evidence_reader.require_confirmed_membership()?;
+        Ok(evidence_reader.all_edges()?)
     }
 }
 
@@ -39,14 +40,15 @@ impl Engine {
     ) -> Result<Option<Explanation>, EngineError> {
         self.require_read_for_revision(revision_id, principal, authorizer)?;
         let graph = self.graph()?;
-        let revision = graph.revision(revision_id)?;
-        let Some(entity) = graph.entity(&revision.snapshot_id, entity_id)? else {
+        let evidence_reader = graph.revision_evidence(revision_id)?;
+        evidence_reader.require_confirmed_membership()?;
+        let Some(entity) = evidence_reader.entity(entity_id)? else {
             return Ok(None);
         };
-        let mut edges = graph.edges_from(&revision.snapshot_id, entity_id, None)?;
-        edges.extend(graph.edges_to(&revision.snapshot_id, entity_id, None)?);
+        let mut edges = evidence_reader.edges_from(entity_id, None)?;
+        edges.extend(evidence_reader.edges_to(entity_id, None)?);
         let edge_ids: Vec<String> = edges.iter().map(|edge| edge.edge_id.clone()).collect();
-        let evidence = graph.evidence_for_edges(&revision.snapshot_id, &edge_ids)?;
+        let evidence = evidence_reader.evidence_for_edges(&edge_ids)?;
         Ok(Some((entity, edges, evidence)))
     }
 }
@@ -67,11 +69,12 @@ impl Engine {
     ) -> Result<Vec<diskgraph_core::RelationEdge>, EngineError> {
         self.require_read_for_revision(revision_id, principal, authorizer)?;
         let graph = self.graph()?;
-        let revision = graph.revision(revision_id)?;
+        let evidence_reader = graph.revision_evidence(revision_id)?;
+        evidence_reader.require_confirmed_membership()?;
         if outgoing {
-            Ok(graph.edges_from(&revision.snapshot_id, entity_id, relation)?)
+            Ok(evidence_reader.edges_from(entity_id, relation)?)
         } else {
-            Ok(graph.edges_to(&revision.snapshot_id, entity_id, relation)?)
+            Ok(evidence_reader.edges_to(entity_id, relation)?)
         }
     }
 }
@@ -94,11 +97,12 @@ impl Engine {
     ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool), EngineError> {
         let graph = self.revision_reader()?;
         self.authorize_revision_with_reader(&graph, None, revision_id, principal, authorizer)?;
-        let revision = graph.revision(revision_id)?;
+        let evidence_reader = graph.revision_evidence(revision_id)?;
+        evidence_reader.require_confirmed_membership()?;
         if outgoing {
-            Ok(graph.edges_from_page(&revision.snapshot_id, entity_id, after_edge_id, limit)?)
+            Ok(evidence_reader.edges_from_page(entity_id, after_edge_id, limit)?)
         } else {
-            Ok(graph.edges_to_page(&revision.snapshot_id, entity_id, after_edge_id, limit)?)
+            Ok(evidence_reader.edges_to_page(entity_id, after_edge_id, limit)?)
         }
     }
 }
@@ -144,8 +148,13 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |reader, snapshot| {
-                Ok(reader.candidate_selection_until(snapshot, target_bytes, budget, deadline)?)
+            |reader, evidence| {
+                Ok(reader.candidate_selection_for_revision_until(
+                    evidence.revision_id(),
+                    target_bytes,
+                    budget,
+                    deadline,
+                )?)
             },
             |answer, expired| {
                 if expired {
@@ -206,14 +215,14 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |reader, snapshot| {
+            |_store, reader| {
+                reader.require_confirmed_membership()?;
                 crate::queries::impact_with_budget::<EngineError, _>(
                     entity_id,
                     budget,
                     deadline,
                     |current, outgoing, limit, reads| {
                         let (edges, more) = match reader.edges_text_with_budget_page(
-                            snapshot,
                             current,
                             Some(outgoing),
                             None,

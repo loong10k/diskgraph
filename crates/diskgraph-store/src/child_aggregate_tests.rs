@@ -22,14 +22,28 @@ pub(super) fn wide_store(unknown: bool) -> SqliteSnapshotStore {
                 CASE WHEN ?1 THEN 1000 ELSE x END,?2,CASE WHEN ?1 THEN NULL ELSE 'file' END,0 FROM n",
         rusqlite::params![unknown, payload],
     ).unwrap();
-    // 构造真实 v8 结构，升级必须补齐缓存，不能依赖新 writer 的内存图。
+    // 移除 v9 计数和 v10 成员表，构造真实 v8 结构；升级不能依赖新 writer 的内存图。
     store
         .connection
         .execute_batch(
-            "DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE IF EXISTS child_size_prefix;
+            "DROP TRIGGER revisions_require_collector_writer; DROP TRIGGER collectors_require_member_writer;
+         DROP TRIGGER revisions_preserve_seal; DROP TRIGGER selected_runs_no_append;
+         DROP TRIGGER selected_runs_no_rewrite; DROP TRIGGER selected_runs_no_remove;
+         ALTER TABLE graph_revisions DROP COLUMN writer_generation;
+         ALTER TABLE graph_revisions DROP COLUMN selection_sealed;
+         ALTER TABLE graph_revisions DROP COLUMN evidence_complete;
+         ALTER TABLE collector_runs DROP COLUMN writer_generation;
+         DROP TRIGGER relation_membership_retarget; DROP TABLE relation_membership_adjacency; DROP TABLE relation_run_memberships; DROP TABLE entity_run_memberships; DROP TABLE collector_membership_diagnostics;
+         DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE IF EXISTS child_size_prefix;
          DROP TABLE IF EXISTS directory_counts;
          DROP TABLE IF EXISTS snapshot_counts;
          DROP INDEX IF EXISTS nodes_by_known_parent_size;
+         DROP INDEX nodes_by_parent_size;
+         CREATE INDEX nodes_by_parent_size ON nodes(snapshot_id,parent_id,subtree_bytes DESC,name ASC);
+         DROP INDEX nodes_by_unknown_parent;
+         CREATE INDEX nodes_by_unknown_parent ON nodes(snapshot_id,parent_id)
+             WHERE NOT (COALESCE(read_error,json_extract(NULLIF(node_json,''),'$.read_error'),0)=0
+                        AND COALESCE(json_extract(NULLIF(node_json,''),'$.size_known'),1)=1);
          PRAGMA user_version=8;",
         )
         .unwrap();
@@ -220,8 +234,22 @@ fn v8_backup_contains_old_counts_and_failed_migration_rolls_back() {
     store
         .connection
         .execute_batch(
-            "DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts;
-         DROP INDEX nodes_by_known_parent_size; PRAGMA user_version=8;",
+            "DROP TRIGGER revisions_require_collector_writer; DROP TRIGGER collectors_require_member_writer;
+         DROP TRIGGER revisions_preserve_seal; DROP TRIGGER selected_runs_no_append;
+         DROP TRIGGER selected_runs_no_rewrite; DROP TRIGGER selected_runs_no_remove;
+         ALTER TABLE graph_revisions DROP COLUMN writer_generation;
+         ALTER TABLE graph_revisions DROP COLUMN selection_sealed;
+         ALTER TABLE graph_revisions DROP COLUMN evidence_complete;
+         ALTER TABLE collector_runs DROP COLUMN writer_generation;
+         DROP TRIGGER relation_membership_retarget; DROP TABLE relation_membership_adjacency; DROP TABLE relation_run_memberships; DROP TABLE entity_run_memberships; DROP TABLE collector_membership_diagnostics;
+         DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts;
+         DROP INDEX nodes_by_known_parent_size; DROP INDEX nodes_by_parent_size;
+         CREATE INDEX nodes_by_parent_size ON nodes(snapshot_id,parent_id,subtree_bytes DESC,name ASC);
+         DROP INDEX nodes_by_unknown_parent;
+         CREATE INDEX nodes_by_unknown_parent ON nodes(snapshot_id,parent_id)
+             WHERE NOT (COALESCE(read_error,json_extract(NULLIF(node_json,''),'$.read_error'),0)=0
+                        AND COALESCE(json_extract(NULLIF(node_json,''),'$.size_known'),1)=1);
+         PRAGMA user_version=8;",
         )
         .unwrap();
     let (upgraded, backup) =
@@ -249,8 +277,22 @@ fn v8_backup_contains_old_counts_and_failed_migration_rolls_back() {
     legacy
         .connection
         .execute_batch(
-            "DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts;
-         DROP INDEX nodes_by_known_parent_size; PRAGMA user_version=8;
+            "DROP TRIGGER revisions_require_collector_writer; DROP TRIGGER collectors_require_member_writer;
+         DROP TRIGGER revisions_preserve_seal; DROP TRIGGER selected_runs_no_append;
+         DROP TRIGGER selected_runs_no_rewrite; DROP TRIGGER selected_runs_no_remove;
+         ALTER TABLE graph_revisions DROP COLUMN writer_generation;
+         ALTER TABLE graph_revisions DROP COLUMN selection_sealed;
+         ALTER TABLE graph_revisions DROP COLUMN evidence_complete;
+         ALTER TABLE collector_runs DROP COLUMN writer_generation;
+         DROP TRIGGER relation_membership_retarget; DROP TABLE relation_membership_adjacency; DROP TABLE relation_run_memberships; DROP TABLE entity_run_memberships; DROP TABLE collector_membership_diagnostics;
+         DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema; DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts;
+         DROP INDEX nodes_by_known_parent_size; DROP INDEX nodes_by_parent_size;
+         CREATE INDEX nodes_by_parent_size ON nodes(snapshot_id,parent_id,subtree_bytes DESC,name ASC);
+         DROP INDEX nodes_by_unknown_parent;
+         CREATE INDEX nodes_by_unknown_parent ON nodes(snapshot_id,parent_id)
+             WHERE NOT (COALESCE(read_error,json_extract(NULLIF(node_json,''),'$.read_error'),0)=0
+                        AND COALESCE(json_extract(NULLIF(node_json,''),'$.size_known'),1)=1);
+         PRAGMA user_version=8;
          CREATE TABLE directory_counts(unrelated TEXT);",
         )
         .unwrap();
@@ -289,9 +331,23 @@ fn old_open_writer_cannot_publish_after_schema_upgrade() {
     let mut store = SqliteSnapshotStore::open(&path).unwrap();
     store.save(&graph("current", 100)).unwrap();
     store.connection.execute_batch(
-        "DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema;
+        "DROP TRIGGER revisions_require_collector_writer; DROP TRIGGER collectors_require_member_writer;
+         DROP TRIGGER revisions_preserve_seal; DROP TRIGGER selected_runs_no_append;
+         DROP TRIGGER selected_runs_no_rewrite; DROP TRIGGER selected_runs_no_remove;
+         ALTER TABLE graph_revisions DROP COLUMN writer_generation;
+         ALTER TABLE graph_revisions DROP COLUMN selection_sealed;
+         ALTER TABLE graph_revisions DROP COLUMN evidence_complete;
+         ALTER TABLE collector_runs DROP COLUMN writer_generation;
+         DROP TRIGGER relation_membership_retarget; DROP TABLE relation_membership_adjacency; DROP TABLE relation_run_memberships; DROP TABLE entity_run_memberships; DROP TABLE collector_membership_diagnostics;
+         DROP TRIGGER snapshots_require_count_writer; ALTER TABLE snapshots DROP COLUMN count_schema;
          DROP TABLE child_size_prefix; DROP TABLE directory_counts; DROP TABLE snapshot_counts;
-         DROP INDEX nodes_by_known_parent_size; PRAGMA user_version=8;"
+         DROP INDEX nodes_by_known_parent_size; DROP INDEX nodes_by_parent_size;
+         CREATE INDEX nodes_by_parent_size ON nodes(snapshot_id,parent_id,subtree_bytes DESC,name ASC);
+         DROP INDEX nodes_by_unknown_parent;
+         CREATE INDEX nodes_by_unknown_parent ON nodes(snapshot_id,parent_id)
+             WHERE NOT (COALESCE(read_error,json_extract(NULLIF(node_json,''),'$.read_error'),0)=0
+                        AND COALESCE(json_extract(NULLIF(node_json,''),'$.size_known'),1)=1);
+         PRAGMA user_version=8;"
     ).unwrap();
     let old_writer = rusqlite::Connection::open(&path).unwrap();
     assert_eq!(

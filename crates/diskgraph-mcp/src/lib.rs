@@ -1542,6 +1542,7 @@ mod tests {
                 "x".repeat(40_000)
             });
             db.execute("INSERT INTO relations (snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)", rusqlite::params![graph.snapshot.id,id,edge["source_entity_id"].as_str(),edge["target_entity_id"].as_str(),edge["relation"].as_str(),edge.to_string()]).unwrap();
+            db.execute("INSERT INTO relation_run_memberships SELECT ?1,run_id,?2 FROM revision_runs WHERE revision_id=?3 AND role='active'",rusqlite::params![graph.snapshot.id,id,revision]).unwrap();
         }
         let mut seen = Vec::new();
         let mut after = Value::Null;
