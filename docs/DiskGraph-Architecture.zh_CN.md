@@ -483,3 +483,23 @@ flowchart TD
 ```
 
 此增量保留公开结果字段及 Unix 路径。路径规划直接拒绝 ADS、父级跳转、UNC/设备命名空间及过长输入，不对客户端路径执行 canonicalize。完整 128 位 file ID 与原生写入/变更版本保持私有，不截断填入现有快照 ID 字段。属性获取不冻结新 writer：变化在数据访问前以 Conflict 拒绝；数据句柄随后拒绝普通写入/删除共享，持有父目录防止替换。这不构成原子快照或对所有 mapping/kernel/filter 活动的冻结；100ns 是表示单位，不保证文件系统实际精度或单调版本。可选线程 API（Windows 10 1709+）动态解析，缺能力返回公开 unsupported 错误码。线程模式不覆盖 scanner worker，打开时 no-recall 标志也不能证明真实 provider 后续读取不下载。取消/期限是协作式，不能抢占同步原生 I/O。原生回归证据限 CI 的 NTFS 夹具，其他文件系统/provider 验收分别记录于[全平台记录](production-readiness-full-platform-2026-10-02.zh-CN.md)；公开文件写能力继续关闭。
+
+
+## Git 实时证据输入隔离（EC-04 / D20）
+
+可信库采样使用私有配置、index、引用及扁平对象视图。当前调用来自库/测试，尚未建立生产CLI/MCP/FFI采样接线。普通loose对象和配对pack/index经no-follow捕获及同一私有分配owner复制；源alternates/promisor和不支持输入明确拒绝，忽略的加速文件不交Git。来源对象和元数据在准备与终检共享累计64 MiB/32k额度，私有owner另核128 MiB对象报告分配与64 MiB卷余量；ProbeLimits仍默认整次协作式15秒和累计输出1 MiB。
+
+```mermaid
+flowchart TD
+    Q["可信库请求"] --> C["原生 no-follow 捕获<br/>配置 / index / 引用 / 普通对象"]
+    C --> P["私有 owner<br/>复制文件，不硬链接或挂源 alternate"]
+    P --> G["固定受信 Git + 私有 GIT_DIR<br/>共享期限 / 输出 / 取消"]
+    G --> V["核验来源字节和版本<br/>核验私有文件与实际分配"]
+    V --> X["显式清理"]
+    X --> R["完整样本或明确错误"]
+    C -->|不支持或预算耗尽| X
+    P -->|容量失败| X
+    G -->|失败或取消| X
+```
+
+私有视图关闭递归源对象输入，但不是原子仓库快照或完整文件系统/RSS沙箱。复制和复核增加随字节量变化的成本，初始buffer保留及终检读取会增加内存；大pack或status输出可能明确超过默认额度。本机回归、复制成本原始测量与原生验收分别记于[全平台记录](production-readiness-full-platform-2026-10-02.zh-CN.md)。公开危险写工具仍关闭，其余设备/provider/生产门禁保持原要求。

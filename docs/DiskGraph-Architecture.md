@@ -483,3 +483,23 @@ flowchart TD
 ```
 
 This addition preserves public result fields and the Unix path. The path plan refuses ADS, parent traversal, UNC/device namespaces and oversized inputs without canonicalizing the client path. Full 128-bit file IDs and native write/change versions stay private rather than being truncated to the existing snapshot ID field. Attribute acquisition does not freeze new writers: changes are rejected as conflict before data access. The data handle then denies ordinary write/delete sharing, while retained parents prevent replacement. This is not an atomic snapshot or a freeze of all mappings/kernel/filter activity; 100ns is a representation unit, not guaranteed filesystem precision or a monotonic version. The optional thread API (Windows 10 1709+) is dynamically resolved and missing support returns the public unsupported code. Thread mode does not cover scanner workers, and the open no-recall flag does not certify a real provider's subsequent reads. Deadline/cancellation are cooperative and cannot preempt synchronous native I/O. Native regression evidence covers CI NTFS fixtures, separately from other filesystems/provider acceptance in the [full-platform record](production-readiness-full-platform-2026-10-02.md); public file writes remain disabled.
+
+
+## Git evidence input isolation (EC-04 / D20)
+
+The trusted library sampler uses a private configuration, index, references and flat object view. Its current callers are library/tests, with no production CLI/MCP/FFI sampler integration established. Objects are ordinary no-follow loose files or paired pack/index files copied through the same private allocation owner; source alternates/promisor and unsupported inputs are refused. Ignored accelerators are not supplied to Git. Captured objects and metadata share a cumulative 64 MiB/32k allowance across preparation and terminal verification; the private owner separately checks 128 MiB reported allocation and 64 MiB volume headroom. The unchanged ProbeLimits default is a cooperative 15-second sample with 1 MiB cumulative output.
+
+```mermaid
+flowchart TD
+    Q["Trusted library request"] --> C["Native no-follow capture<br/>Config / index / refs / ordinary objects"]
+    C --> P["Private owner<br/>Copy files, no hard links or source alternates"]
+    P --> G["Fixed trusted Git + private GIT_DIR<br/>Shared deadline / output / cancellation"]
+    G --> V["Verify captured source bytes and versions<br/>Verify private files and allocation"]
+    V --> X["Explicit cleanup"]
+    X --> R["Complete sample or explicit error"]
+    C -->|unsupported or budget failure| X
+    P -->|capacity failure| X
+    G -->|failure or cancellation| X
+```
+
+The private view closes recursive source-object inputs; it is not an atomic repository snapshot or a full filesystem/RSS sandbox. Copies and verification add byte-dependent cost; retained initial buffers and terminal reads increase memory. Larger packs or status output may exceed defaults and return explicit errors. Local regressions, raw copy-cost measurements and native acceptance are recorded separately in the [full-platform record](production-readiness-full-platform-2026-10-02.md). Public write tools remain disabled and the remaining device/provider/production gates are unchanged.

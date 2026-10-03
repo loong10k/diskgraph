@@ -236,3 +236,27 @@ Windows fscache 的最小增量现只将 `core.fscache` 加入既有布尔允许
 后续只读源审查在同一 SHA 的可信库入口上复现 ODB 边界：A的源alternates指B及B再指C均获成功样本；准备后新建alternate也成功；**68,157,551字节**的源alternates未计入64MiB元数据额度。当前私有alternate仍指整个源objects，源info/alternates和对象文件没有进入捕获账本。共享期限/取消/管道预算有效，但不能声称对象输入或访问范围已受限。未发现CLI/MCP/FFI生产调用该公开sampler，不描述为已复现远程泄露；Windows网络文件访问风险是源码推断，未做联网或原生复证。后续须以有界私有flat ODB或真正文件访问隔离关闭递归源目录输入；禁止仅作一次源alternate检查或用改变源nlink/ctime的硬链接充当只读副本。D20/d及全平台父项保持未完成。
 
 Unix specialist 的脚本产物现由独立 Rust 测试子进程写入、同步、关闭并设置0755；父测试不持有writer，核查child成功、实际1条测试/完成标记、精确字节/权限后，仍运行真实SandboxedRunner。新增ignored helper只供显式受控调用，不以其单独跳过表示验收。此整改消除父进程写句柄的继承窗口，保留实际失败状态诊断；原CI的具体原因仍未确认。最终冻结本机 workspace **803 passed / 0 failed / 14 ignored**（历史13另加该助手），workspace Clippy/fmt、OpenSpec strict、vendor14、release构建及实际stdio18/18、HTTP/legacy SSE13/13通过。非作者窄复审批准夹具与如实状态；新源码Linux/ARM及完整原生CI继续待验收，不勾选D20或全平台父项。
+
+
+源码 `28838a3e48e5c71abd98f9c82c6bcbbff8558fd8` 随后通过[同源码全部 22 个 CI 作业](https://github.com/loong10k/diskgraph/actions/runs/37082997467)。Linux ARM 日志确认新版本接受/旧版本拒绝的真实探针已通过，ops 为 **84 passed / 0 failed / 1 ignored helper**；这验证该宿主的夹具增量，不证明前次失败原因。已复现的源 ODB 输入/范围缺口仍阻止 D20 完成。EC-04 与 D20 已补充有界私有 flat 对象副本验收：禁止源 alternate 和硬链接，共享原始输入/条目/期限/取消，复核源版本并执行私有分配/卷余量门禁；实现和新源码验收尚待。桌面只读 CI 不能关闭移动 provider/设备、原生写保真、宿主对接、签名或生产持续运行门禁。
+
+
+另一个 `28838a3` 隔离公共库探针保持默认累计管道 1 MiB，并将期限设为60秒：已提交空工作树返回 dirty=0；加入12,000个空的长名未跟踪文件后，确切返回 `probe cumulative output byte limit exceeded`。这是有界拒绝，没有假 clean 或已证远程漏洞；现有20k/200k索引/查询基准不能证明 Git sampler 支持该规模。原始对象默认额度同时计算捕获和末段复核，私有分配和卷余量继续独立门禁。
+
+
+## 有界私有 Git 对象副本（D20，2026-10-03）
+
+采样现只把安全普通 loose 对象和配对 pack/index 复制进私有对象目录，不再给 Git 源对象 alternate。源 alternates/http-alternates、promisor、未知名称、链接和不支持类型明确拒绝。已知加速文件不交工具，仅 no-follow 查询类型，不读或快照其正文。对象沿用原生读取与来源集合，捕获和终态字节/版本复核共享原64 MiB/32k累计额度、期限和取消；复制走原分配/卷余量 owner，禁止硬链接。普通 packed SHA1/SHA256、linked/shallow 及 dirty/stash/upstream 回归通过。公开签名/默认值不变；小私有配额测试对共用采样实现注入资源，不表示新增公开配置API。
+
+真实RED：旧对象目标1通过/7失败，旧资源目标1通过/3失败/1专用助手ignored，sidecar父目录替换0通过/1失败。最终对象/资源16通过/0失败/1助手ignored，受影响live evidence为201/0/1。两路非作者独立复审批准增量，均排除各自编写的原语。冻结完整workspace **821 passed / 0 failed / 15 ignored**；警告拒绝Clippy、定向fmt、OpenSpec strict、14份上游摘要及release CLI/MCP/FFI构建通过，实际release stdio **18/18**、认证HTTP/legacy SSE **13/13**。新源码原生CI仍须运行，D20及全平台父项不勾选。
+
+另一个Q-02响应计费修复先复现debug溢出panic及release回绕接受，再以checked_add保留精确可表示上限；溢出时保留累计量并锁存ByteLimit。预算目标debug/release均 **6/6**，非作者窄复审批准；不关闭其余查询/provider门禁。
+
+[本机复制成本原始测量](benchmarks/git_object_copy_2026_10_03.json)在同一对隔离不可压缩packed仓库使用相同release公共采样driver，每阶段首个样本另记及8个热样本；p95为nearest rank，在8项中即观测最大值。各阶段源路径、身份、字节、mode、mtime、ctime和nlink水位不变。数据只代表macOS arm64/Git2.48.1，不称提速、冷缓存、跨平台SLA或并发子进程总RSS硬限。
+
+| Pack对象字节 | 热p50 修复前 → 后 | 热p95 修复前 → 后 | time报告峰值RSS 前 → 后 |
+| --- | --- | --- | --- |
+| 8,391,645 | 197.31 → 313.63 ms | 258.68 → 398.79 ms | 10.44 → 24.17 MB |
+| 25,174,555 | 232.08 → 390.88 ms | 239.53 → 462.71 ms | 10.49 → 57.90 MB |
+
+复制与内容复核随捕获字节增加，另有目录排序、路径解析和记账成本；初始对象buffer仍保留，终检可另持一份。大pack和宽status会明确超过原默认额度。该增量只覆盖可信库，未发现生产CLI/MCP/FFI采样调用。原子快照、严格RSS/调度、真实provider不下载、原生写、移动设备、宿主应用、签名和生产持续运行尚未由此验收。

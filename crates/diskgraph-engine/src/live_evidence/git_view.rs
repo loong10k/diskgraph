@@ -27,18 +27,26 @@ pub(super) struct GitView {
 
 impl GitView {
     /// 捕获可核验的普通仓库，建立不会执行源配置程序的执行视图。
-    /// 参数：git 为受信工具，project 为项目路径，probe 为唯一期限/输出/取消预算。
+    /// 参数：git/project 为受信工具及项目路径，probe 为唯一期限/输出/取消预算；
+    /// metadata_budget 为捕获及终检共享额度，allocation_quota/min_free 为私有分配及卷余量。
     /// 返回：私有视图；特殊配置、路径、index、变更或资源失败明确拒绝。
     pub(super) fn prepare(
         git: &Path,
         project: &Path,
         probe: &mut ProbeBudget,
+        metadata_budget: GitMetadataBudget,
+        allocation_quota: u64,
+        min_free: u64,
     ) -> Result<Self, String> {
         probe.check().map_err(|error| error.to_string())?;
         // 只归一化调用方提供的工作树根；Git 元数据中的路径始终词法解析并 nofollow。
         let project =
             std::fs::canonicalize(project).map_err(|error| format!("Git project: {error}"))?;
-        let mut directory = GitPrivateDirectory::new(probe)?;
+        let mut directory = if allocation_quota == 128 << 20 && min_free == 64 << 20 {
+            GitPrivateDirectory::new(probe)?
+        } else {
+            GitPrivateDirectory::with_limits(allocation_quota, min_free, probe)?
+        };
         let private = directory.path().join("repo");
         let context = (|| -> Result<(GitCommandContext, PathBuf), String> {
             for child in ["objects/info", "refs", "info", "hooks"] {
@@ -62,7 +70,7 @@ impl GitView {
             directory,
             context,
             metadata: GitMetadataTree::default(),
-            metadata_budget: GitMetadataBudget::default(),
+            metadata_budget,
             system_observation,
             has_filters: false,
         };
@@ -195,25 +203,15 @@ impl GitView {
             {
                 return Err("unsupported Git replacement references".into());
             }
-            let objects = common.join("objects");
-            if !view
-                .metadata
-                .directory(&objects, &mut view.metadata_budget, probe)?
-            {
-                return Err("missing Git object directory".into());
-            }
-            let pack = objects.join("pack");
-            if view
-                .metadata
-                .directory(&pack, &mut view.metadata_budget, probe)?
-                && view.metadata.names(&pack).iter().any(|name| {
-                    Path::new(name)
-                        .extension()
-                        .is_some_and(|extension| extension == "promisor")
-                })
-            {
-                return Err("unsupported Git promisor object store".into());
-            }
+            super::git_object_database::copy_flat(
+                &common.join("objects"),
+                &private.join("objects"),
+                oid_len,
+                &mut view.metadata,
+                &mut view.directory,
+                &mut view.metadata_budget,
+                probe,
+            )?;
             let attributes = view.attributes(&configuration, &worktree, probe)?;
             let excludes =
                 view.configured_data(configuration.last("core.excludesfile"), &worktree, probe)?;
@@ -227,12 +225,6 @@ impl GitView {
             )?;
             view.directory
                 .write(&private.join("config"), &config, probe)?;
-            // 接上源 ODB 后只运行读取命令；alternate 的递归范围/输入并非严格快照或 RSS 边界。
-            view.directory.write(
-                &private.join("objects/info/alternates"),
-                &git_native_path::alternate(&objects)?,
-                probe,
-            )?;
             view.metadata_budget.check(probe)?;
             view.directory.verify_capacity(probe)?;
             Ok(())

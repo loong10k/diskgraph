@@ -18,6 +18,10 @@
 - **WHEN** 目录超过请求预算
 - **THEN** 返回有界结果与游标，不加载或输出整棵树。
 
+#### Scenario: Response accounting cannot wrap
+- **WHEN** 库调用者提交的响应字节增量使累计 usize 溢出，或在可表示的精确上限后继续计费
+- **THEN** 返回 ByteLimit 截断并保留原累计量，后续计费仍拒绝；debug 与 release 行为一致，不 panic、回绕或错误接受。可表示的精确上限本身仍可接受，不将溢出饱和成合法额度。
+
 ### Requirement: Q-03 Explainable explore
 explore SHALL 使用明确定位、模式和过滤条件聚合主要子项、尺寸、关系摘要、证据与下一步 ID；自然语言解释由宿主完成，名称歧义不得静默猜选。
 

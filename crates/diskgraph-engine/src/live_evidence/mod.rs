@@ -37,6 +37,11 @@ mod git_metadata_version;
 mod git_native_path;
 #[cfg(test)]
 mod git_native_path_tests;
+mod git_object_database;
+#[cfg(test)]
+mod git_object_database_tests;
+#[cfg(test)]
+mod git_object_resources_tests;
 mod git_output;
 mod git_private_allocation;
 mod git_private_capacity;

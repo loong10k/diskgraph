@@ -1,5 +1,6 @@
 //! 用既有本地 Git 命令采样项目状态。
 
+use super::git_metadata_budget::GitMetadataBudget;
 use super::git_output::{commit_count, status_count, successful};
 use super::git_view::GitView;
 use super::probe_budget::ProbeBudget;
@@ -16,8 +17,9 @@ use std::path::Path;
 /// reference copies. External filter/fsmonitor commands are never copied.
 /// Unsupported semantics and resource failures are errors. A fixed printer
 /// discovers the host config path before bounded native capture; it requires
-/// the trusted Git package's shell. A borrowed recursive object store retains
-/// separate input/access limits; this is not an atomic repository snapshot.
+/// the trusted Git package's shell. Objects are bounded private flat copies;
+/// source alternates/promisor stores are unsupported. This is not an atomic
+/// repository snapshot, and larger object stores may exceed the shared quota.
 /// Windows 工具/绝对目录及 Unix 宿主条件见 sample_git_bounded 与 ProbeLimits。
 pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
     sample_git_bounded(git, project, &ProbeLimits::default())
@@ -31,14 +33,45 @@ pub fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
 /// 固定禁用 pager、懒取与可选锁写入；特殊 filter/index/配置无法保真时明确拒绝。
 /// 准备与复核同期限/取消；元数据另有两轮累计 64 MiB/32k 条目额度，非严格 RSS 上限。
 /// 私有对象另限原生报告分配 128 MiB，卷余量至少 64 MiB；时点检查不预留空间。
+/// loose/pack 副本及末段重读共用元数据额度；安全名单排序和对象复制增加成本。
+/// 保留初始对象 Vec，终检暂有新旧两份数据，不承诺全部 Git RSS 上限。
 /// 工具在首次命令前解析成固定绝对路径，仅搜索绝对 PATH 项；Windows 要求原生 .exe。
 pub fn sample_git_bounded(
     git: &Path,
     project: &Path,
     limits: &ProbeLimits,
 ) -> Result<GitSample, String> {
+    sample_git_with_resources(
+        git,
+        project,
+        limits,
+        GitMetadataBudget::default(),
+        128 << 20,
+        64 << 20,
+    )
+}
+
+/// 使用同一真实采样流程注入私有资源额度，不改变公开默认能力。
+/// 参数：git/project/limits 为原公开请求，metadata_budget 为全程共享输入额度；
+/// allocation_quota/min_free 为私有对象报告分配及卷余量门禁。
+/// 返回：仅完整观察及显式清理成功时返回样本，失败不重试或重置额度。
+pub(super) fn sample_git_with_resources(
+    git: &Path,
+    project: &Path,
+    limits: &ProbeLimits,
+    metadata_budget: GitMetadataBudget,
+    allocation_quota: u64,
+    min_free: u64,
+) -> Result<GitSample, String> {
     let mut budget = ProbeBudget::new(limits).map_err(|error| error.to_string())?;
-    let mut view = GitView::prepare(git, project, &mut budget)?;
+    let mut view = GitView::prepare(
+        git,
+        project,
+        &mut budget,
+        metadata_budget,
+        allocation_quota,
+        min_free,
+    )?;
     let result = observe(&mut view, &mut budget);
     view.complete(result).and_then(|sample| {
         // 安全删除可以跨过协作期限；清理后的取消或超期仍不得发布成功样本。

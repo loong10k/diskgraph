@@ -93,6 +93,7 @@ pub(super) fn resolve(base: &Path, path: &Path) -> Result<PathBuf, String> {
 
 /// 生成 Git alternates 的 C 风格独立路径行，保留冒号、换行和非 UTF-8 字节。
 /// 参数：path 为 source ODB 的绝对路径。返回：带引号与换行的 alternates 记录。
+#[cfg(test)]
 pub(super) fn alternate(path: &Path) -> Result<Vec<u8>, String> {
     let mut out = vec![b'"'];
     for byte in tool_bytes(path)? {

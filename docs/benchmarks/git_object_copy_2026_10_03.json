@@ -1,0 +1,139 @@
+{
+  "kind": "security_copy_cost_not_speedup",
+  "platform": "macOS arm64",
+  "git_version": "git version 2.48.1",
+  "baseline_source_sha": "28838a3e48e5c71abd98f9c82c6bcbbff8558fd8",
+  "candidate_source_sha256": {
+    "git_object_database.rs": "0ac24dffb41158f2b9e48dc23f5ab695ea99b2b9df34066a40595ffc7f9a694b",
+    "git_view.rs": "a79ff40b187bee974bbb4ad431cca1cedb15d357388a62c5faa21e202106586d",
+    "git_usage.rs": "30e906c65a74f677978644a071f02b16ff7539653f2f979e65c2b214fd340801",
+    "git_metadata_file.rs": "531de583edd8d974978bfbefecea064be82906c679a223b4712047852313ec85",
+    "git_metadata_tree.rs": "80adf9364f44b662aa310f34497b85d54392b3fa937ee3fd18832db22f9ac794",
+    "git_metadata_budget.rs": "862aea7cc03d138c4524c96408331253a72fc0bf3e36aa7bd1027f3ad8bf6926",
+    "git_private_directory.rs": "a1c5e51f09a319e3dfccad73bdaac49b1707986e9da70c1f43f36f7d0b3bd2e2",
+    "git_private_capacity.rs": "02346b6508e26dd6659346ba50c87324c94c4609ebb15f9a7bb502367ad37500",
+    "git_command_context.rs": "924789082b2f95ae1320003d7898a4d33ccf6d2465f8259b818d215c6310e7e3"
+  },
+  "method": {
+    "build": "release optimized rlib, identical Rust public sampler driver",
+    "samples_per_fixture_per_phase": 9,
+    "first_sample_reported_separately": true,
+    "warm_samples": 8,
+    "p95": "nearest rank, 8 warm samples => maximum observed warm value",
+    "fixtures": "same isolated ordinary repository per pair, incompressible deterministic random one-MiB tracked files, one commit, repack -ad without bitmap",
+    "source_watermark": "all .git paths, type/mode, identity, mtime_ns, ctime_ns, nlink, ordinary file SHA256 equal within each phase",
+    "rss": "macOS /usr/bin/time -lp reported maximum resident set size, bytes; no claim of aggregate concurrent-child RSS or strict cap",
+    "limits": "unchanged public default 15 seconds / 1 MiB output, candidate 64 MiB cumulative capture+verification input, 128 MiB reported allocation / 64 MiB free headroom",
+    "scope": "local synthetic pack sizes only; no cross-platform SLA, cold-cache, 20k/200k-worktree or production result"
+  },
+  "baseline": {
+    "phase": "before",
+    "base_source_sha": "28838a3e48e5c71abd98f9c82c6bcbbff8558fd8",
+    "git_version": "git version 2.48.1",
+    "architecture": "arm64",
+    "binary_sha256": "5bea92bb0762396fe811fdc012ff674e49ff0793cddbedaa1afbd8247a2e8e9b",
+    "results": [
+      {
+        "payload_bytes": 8388608,
+        "pack_bytes": 8391645,
+        "index_bytes": 1352,
+        "oid": "42d41bc8ecaef542f7ea0906d277c99943872d7e",
+        "first_ms": 265.491584,
+        "warm_samples": 8,
+        "warm_p50_ms": 197.3073335,
+        "warm_p95_nearest_rank_ms": 258.681791,
+        "raw_ms": [
+          265.491584,
+          258.681791,
+          203.392875,
+          196.182792,
+          162.411792,
+          185.6315,
+          217.61425,
+          185.173125,
+          198.431875
+        ],
+        "process_peak_rss_bytes": 10436608,
+        "source_watermark_equal": true
+      },
+      {
+        "payload_bytes": 25165824,
+        "pack_bytes": 25174555,
+        "index_bytes": 1800,
+        "oid": "24eba8f9431a55fe14e52da59b4f49bd8210787f",
+        "first_ms": 225.1275,
+        "warm_samples": 8,
+        "warm_p50_ms": 232.08024999999998,
+        "warm_p95_nearest_rank_ms": 239.534625,
+        "raw_ms": [
+          225.1275,
+          220.847208,
+          220.735416,
+          232.592708,
+          231.567792,
+          232.678458,
+          226.162459,
+          239.534625,
+          235.357792
+        ],
+        "process_peak_rss_bytes": 10485760,
+        "source_watermark_equal": true
+      }
+    ]
+  },
+  "candidate": {
+    "phase": "after",
+    "base_source_sha": "28838a3e48e5c71abd98f9c82c6bcbbff8558fd8",
+    "git_version": "git version 2.48.1",
+    "architecture": "arm64",
+    "binary_sha256": "26f00b2b76d16415b2387d23c5a83939ff0825b6161b72a4b631ebd6ebe2e97c",
+    "results": [
+      {
+        "payload_bytes": 8388608,
+        "pack_bytes": 8391645,
+        "index_bytes": 1352,
+        "oid": "42d41bc8ecaef542f7ea0906d277c99943872d7e",
+        "first_ms": 342.27075,
+        "warm_samples": 8,
+        "warm_p50_ms": 313.6315415,
+        "warm_p95_nearest_rank_ms": 398.792042,
+        "raw_ms": [
+          342.27075,
+          317.91875,
+          309.344333,
+          281.885791,
+          366.490333,
+          398.792042,
+          322.591417,
+          297.200958,
+          308.581167
+        ],
+        "process_peak_rss_bytes": 24166400,
+        "source_watermark_equal": true
+      },
+      {
+        "payload_bytes": 25165824,
+        "pack_bytes": 25174555,
+        "index_bytes": 1800,
+        "oid": "24eba8f9431a55fe14e52da59b4f49bd8210787f",
+        "first_ms": 505.546125,
+        "warm_samples": 8,
+        "warm_p50_ms": 390.8833745,
+        "warm_p95_nearest_rank_ms": 462.705416,
+        "raw_ms": [
+          505.546125,
+          348.858458,
+          383.625916,
+          445.650542,
+          449.694792,
+          398.140833,
+          373.811875,
+          462.705416,
+          339.282
+        ],
+        "process_peak_rss_bytes": 57901056,
+        "source_watermark_equal": true
+      }
+    ]
+  }
+}

@@ -96,6 +96,18 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 私有元数据视图关闭外部程序或遇到属性、忽略、行尾、index、子模块或引用后端的特殊语义
 - **THEN** 保留能可靠验证的状态语义；不能可靠保持的条件明确拒绝，不能删去 filter、忽略子模块或默认格式后返回正常 clean/dirty。原仓库配置及元数据的后续替换不得重新进入私有执行配置。
 
+#### Scenario: Object database input is closed and bounded
+- **WHEN** 源对象目录包含递归 alternates、promisor、链接或超预算对象，或在视图准备后新增外部对象路径
+- **THEN** 在把对象交给 Git 前以原生 no-follow 捕获并按同一次期限、取消、累计原始字节及条目预算复制安全普通 loose 对象和配对 pack/index；Git 只读取私有扁平对象库，不把源 objects 或 info/alternates 挂入私有 alternates。既有 alternates/promisor 明确拒绝；准备后的外部路径不能成为 Git 输入，终态拒绝源捕获集合变化。复制不得用会改变源 nlink/ctime 的硬链接，不读未计费的巨大 alternates 文件，也不能以最终报错代替已发生的外部读取隔离。
+
+#### Scenario: Git status output exhaustion is explicit
+- **WHEN** 普通宽工作树的 status NUL 记录耗尽整次累计管道额度（兼容默认 1 MiB）
+- **THEN** 返回明确资源失败并清理，不返回局部 dirty 数或假 clean。20k/200k 索引与查询基准不能作为 Git sampler 同等工作树规模可成功的证据；提高可配置输出额度仍须保留整次累计期限、取消和字节上限。
+
+#### Scenario: Flat object copies preserve ordinary Git semantics
+- **WHEN** 普通 SHA-1/SHA-256 仓库、仅 packed 对象的仓库、linked worktree 或 shallow 仓库在预算内采样
+- **THEN** 实际 dirty、stash、HEAD 和本地 upstream 差分保持一致，源对象身份、内容及高精度修改信息保持不变；私有分配和卷余量不足时公共采样返回明确资源失败并清理。全量对象复制和末段复核成本随原始对象字节增加，超限拒绝不得称为严格 RSS 上限或生产提速。
+
 #### Scenario: Git for Windows filesystem cache remains typed data
 - **WHEN** 已捕获宿主或仓库配置包含 Git for Windows 的 `core.fscache` 布尔字段，或后续层覆盖该值
 - **THEN** 只按明确的布尔类型校验并依原顺序回放，普通 dirty、stash 与 upstream 观察保持实际 Git 语义且源元数据不变；非法值和未知 `core.*` 仍拒绝，不能为接受缓存字段放开 fsmonitor、filter 或外部程序。缓存限定于各次 Git 子进程，启用期间的 stat/目录缓存不构成原子工作树快照或严格 RSS 上限；Windows 实际行为须由原生夹具验收。

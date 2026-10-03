@@ -123,16 +123,22 @@ impl BudgetTracker {
         true
     }
 
-    /// Charges an estimated response size against the byte cap.
+    /// 将估计的响应字节增量计入额度；来源：DiskGraph 原生查询预算，无 Java 对应实现。
+    /// 参数：bytes 为本次增量。返回：可表示且未超限为 true；否则标记 ByteLimit 并保留累计量。
     pub fn charge_bytes(&mut self, bytes: usize) -> bool {
         if self.expired() {
             return false;
         }
-        if self.bytes + bytes > self.budget.max_response_bytes {
+        // 溢出不能饱和成合法的 usize::MAX 额度，失败后整个 tracker 保持截断。
+        let Some(total) = self
+            .bytes
+            .checked_add(bytes)
+            .filter(|total| *total <= self.budget.max_response_bytes)
+        else {
             self.truncated = Some(TruncationReason::ByteLimit);
             return false;
-        }
-        self.bytes += bytes;
+        };
+        self.bytes = total;
         true
     }
 
@@ -325,6 +331,34 @@ mod tests {
             BudgetTracker::new(budget),
             Err(BusinessError::InvalidArgument)
         ));
+    }
+
+    #[test]
+    fn response_byte_overflow_refuses_without_changing_consumption() {
+        let mut tracker = BudgetTracker::new(QueryBudget::default()).unwrap();
+        assert!(tracker.charge_bytes(1));
+        // 非可信库参数无需实际分配巨大缓冲区，也不能使累计账本回绕。
+        assert!(!tracker.charge_bytes(usize::MAX));
+        assert_eq!(tracker.bytes(), 1);
+        assert_eq!(tracker.truncated(), Some(TruncationReason::ByteLimit));
+        assert!(!tracker.charge_bytes(0));
+        assert!(!tracker.charge_node());
+    }
+
+    #[test]
+    fn maximum_representable_byte_cap_is_exact_and_cannot_saturate_overflow() {
+        let mut tracker = BudgetTracker::new(QueryBudget {
+            max_response_bytes: usize::MAX,
+            ..QueryBudget::default()
+        })
+        .unwrap();
+        assert!(tracker.charge_bytes(usize::MAX - 1));
+        assert!(tracker.charge_bytes(1));
+        assert_eq!(tracker.bytes(), usize::MAX);
+        assert_eq!(tracker.truncated(), None);
+        assert!(!tracker.charge_bytes(1));
+        assert_eq!(tracker.bytes(), usize::MAX);
+        assert_eq!(tracker.truncated(), Some(TruncationReason::ByteLimit));
     }
 
     #[test]
