@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D32 FFI structural compatibility and D31 registered-root rebinding fix; full-platform goal remains open",
   "baseline_commit": "5963dd0a0443a0f106d89cbf7d9ad7d9d22c3ba3",
-  "status": "local_validation_complete_native_fix_ci_pending",
+  "status": "native_ci_build_failure_test_only_import_corrected_pending_new_ci",
   "source_files": {
     "crates/diskgraph-engine/src/windows_file_state.rs": "af9346f75f84e090e1a717fd28415f13bf148957278cc36366ae0b87d5a6fd6d",
     "crates/diskgraph-engine/src/windows_native_scan_root.rs": "55ac700604ec1b372991ae8cab60a7670e62300815768760faec94e7952f4843",
@@ -19,7 +19,7 @@
     "crates/diskgraph-ffi/src/job_authorization.rs": "b57150d195358e3d65564323c1a91fc97be10c3f334cba09d101a2c57d9d5e1e",
     "crates/diskgraph-ffi/src/job_handle.rs": "ef2a5d39948bfd6305c156c7adf36399318d00e270e7c873f3e3835e82dc2e3c",
     "crates/diskgraph-ffi/src/job_state.rs": "a00d11648924f6f70820f7e0b40fe8ec3b9e7bb9495997388306dbef38d0d3c1",
-    "crates/diskgraph-ffi/src/lib.rs": "394b8f7a924b377c09a11617e0547ef318a15856c5f7f7c85773eb4c1fffd9e5",
+    "crates/diskgraph-ffi/src/lib.rs": "6a0d81a9b7cefac5a081506f6c29260ea062d7cfc9a766d6dab26bcd527bbdba",
     "crates/diskgraph-ffi/src/native_growth.rs": "7186919ee1a97074f2a45fba20aa24b3e7b165d83b25720e43c5345ec7d461ad",
     "crates/diskgraph-ffi/src/native_growth_tests.rs": "a637d32260cc64cc86682d788e80625cf32bb40caf99bef12f13bb0577de03ee",
     "crates/diskgraph-ffi/src/native_jobs.rs": "0ca5c8980604dd78127ad8d7da9bb70045d67efdd60829fca1b6d42d9800e4c1",
@@ -132,21 +132,54 @@
   "independent_review": {
     "code": "APPROVE",
     "architecture": "CLEAR",
-    "source_manifest_sha256": "6ded46aa5b9403b8b36fc65d392185858d467b72fd8077520b2328f8dac215e4",
+    "source_manifest_sha256": "4e4c06ae615d27f5f1a186ce69b9db11d1945e7f010025a95117cab25e180844",
     "source_file_count": 33,
     "function_signature_body_definitions_preserved": 60,
     "scope": "source/ABI and final gate delta; native CI remains separate"
   },
   "native_ci": {
-    "status": "pending_new_source_push",
-    "windows_cases_expected": 13,
-    "red_run": 37153284610,
-    "red_actual": "renamed and rebound root validates Ok(())",
-    "red_expected": "Conflict"
+    "status": "windows_build_failed",
+    "run_id": 37155313318,
+    "source_sha": "ca5292bd6aa8b7a58247847c55eac543ebb08967",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37155313318",
+    "failed_windows_jobs": [
+      111297397087,
+      111297397120
+    ],
+    "failure": "test-only path_digest reexport was unused on Windows under -D warnings",
+    "native_root_regressions": "not executed because build failed",
+    "followup_ci": "pending_new_source_push",
+    "windows_cases_expected": 13
   },
   "performance": {
-    "measured_windows_scale": "not run",
-    "additional_root_validation": "linear in root components; current binding adds native attribute opens; no throughput improvement claim"
+    "measured_windows_scale": "20k actual native package drill inspected; 200k and peak RSS remain unmeasured",
+    "additional_root_validation": "linear in root components; current binding adds native attribute opens; no throughput improvement claim",
+    "windows_20k": {
+      "source_sha": "ca5292bd6aa8b7a58247847c55eac543ebb08967",
+      "run_id": 37155313318,
+      "job_id": 111297478686,
+      "artifact_id": 11286310440,
+      "measurement": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 15.738,
+        "query_p50_ms": 27.29,
+        "query_p95_ms": 42.9,
+        "database_and_wal_bytes": 54067200,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "note": "individual hosted runner observation, no paired speedup or SLO; root fix production source included; Windows root unit regressions were blocked by unrelated test import build error"
+    }
   },
   "limits": [
     "finite checks do not freeze or atomically snapshot the namespace",
@@ -216,7 +249,79 @@
       "build-final.log.gz": {
         "sha256_uncompressed": "5604fc8f0c276397a55db4bd7008236712075c0ad37d3b3a0f1fe362b1b85a36",
         "sha256_gzip": "d41d9e184bc92b458850b6c579594b81c4badd499e25b8c4e789a47db6a74d38"
+      },
+      "windows-msrv-build-failure.log.gz": {
+        "sha256_uncompressed": "0c97642e02d875bd2f9c93a3f9b517bde87d0741ede06efc59a62a7156c5532e",
+        "sha256_gzip": "3f197b99a709ceeb805f6842c34ce7caf0c450ff0f0ba80b5dc8531211f88b27"
+      },
+      "windows-stable-build-failure.log.gz": {
+        "sha256_uncompressed": "e0fa677a880cb514b7f12e8969a0043f5054cbc5330309653dc29db310eaa9b8",
+        "sha256_gzip": "269827e316ed90fd1db7d74d34db2cf5e60b08d81798fea108020fcc0dcafe54"
+      },
+      "ffi-cfg-tests.log.gz": {
+        "sha256_uncompressed": "325c67b86a7b1d52db8841a1fe33800341337164f7fc3b7cb43f0c71bb31f2a0",
+        "sha256_gzip": "d21a7bd2f02df1734f1132a1e24b40a3835d0a6b0a329665f328f36d7cf6bf43"
+      },
+      "ffi-cfg-clippy.log.gz": {
+        "sha256_uncompressed": "4f198c966b87164ca4e59084477687090eb09c8824637c3b236e0d3304477f59",
+        "sha256_gzip": "9f169102ced5961ac16321cf1e2db931834ee754bafa125c8af7c71bbfd40a7f"
+      },
+      "ffi-cfg-build.log.gz": {
+        "sha256_uncompressed": "14a4a410063b72c10b0885b9ed4bfc6ea10488a621e4cf906417ce5f0115d18b",
+        "sha256_gzip": "e4b7ff4b0251ad00d8c94dd72af0b5b2c5e0ff17ee326e3dd8c57bee018be82d"
+      },
+      "windows-package-native.log.gz": {
+        "sha256_uncompressed": "e13e2b875e29ef526185c569b51ac1fff250b236bb57e1a20be5ac30980bddc1",
+        "sha256_gzip": "84ad9b4a123611cf7a2d039cea23cf2fad3f0e5c7e30fd44a0e4b9ece38ab4f5"
+      },
+      "windows-package-load.json.gz": {
+        "sha256_uncompressed": "abece2478c68749260826b87a3999451b30419561b696f9f33b0277a520b0c83",
+        "sha256_gzip": "9fd42f47ccfbbab6114db9f388a910bad57468b130887ab68279538f151634e1"
       }
     }
+  },
+  "initial_source_files": {
+    "crates/diskgraph-engine/src/windows_file_state.rs": "af9346f75f84e090e1a717fd28415f13bf148957278cc36366ae0b87d5a6fd6d",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "55ac700604ec1b372991ae8cab60a7670e62300815768760faec94e7952f4843",
+    "crates/diskgraph-engine/src/windows_native_scan_tests.rs": "94173c86fb12c0e9e393eb0ab4991099153fcf2d40cd0886434b607c774ae060",
+    "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "2fc0ff0d49fbd3552fe657a02776f943f4a683d4fb55e8e8f09ce5340a094f17",
+    "crates/diskgraph-ffi/Cargo.toml": "9f369a8a5a398a24559a834bbe6500c9a8cbafd32433551ddfa0ac6f41b93c92",
+    "crates/diskgraph-ffi/README.md": "65ed7d90037ebd761b724b4614d4bc1761da4bbda8a48e9cd6b29d7d5a88dc72",
+    "crates/diskgraph-ffi/src/api_exports.rs": "471b839f98683d5ddd5b73523b182cfaf9da0bf06e723d11a3e4db551ddaeac2",
+    "crates/diskgraph-ffi/src/api_response.rs": "38de08a769bd83b9f29d16d5ee32c8590c1b8cd9495575b62ea31e6fa153fcb6",
+    "crates/diskgraph-ffi/src/api_result.rs": "0ce4ac7933ce8fe74d7ea1bc12d0f3c2b01d060c8470a1c78d22bd8e0fe55d53",
+    "crates/diskgraph-ffi/src/async_tests.rs": "233e11a249586474082f70be239fef8ff70dab8d70202375c42b712f64c652af",
+    "crates/diskgraph-ffi/src/authorization_tests.rs": "8ca6de30c5f86d3d62c4ad0b9729533e218f4edb34cf998907cc00b76c9831db",
+    "crates/diskgraph-ffi/src/bin/uniffi_bindgen.rs": "f7a2dd11fb370e9595bdfa6c32fc41a9b67a60bbab06ec711cb7a03eb873ffa6",
+    "crates/diskgraph-ffi/src/job_authorization.rs": "b57150d195358e3d65564323c1a91fc97be10c3f334cba09d101a2c57d9d5e1e",
+    "crates/diskgraph-ffi/src/job_handle.rs": "ef2a5d39948bfd6305c156c7adf36399318d00e270e7c873f3e3835e82dc2e3c",
+    "crates/diskgraph-ffi/src/job_state.rs": "a00d11648924f6f70820f7e0b40fe8ec3b9e7bb9495997388306dbef38d0d3c1",
+    "crates/diskgraph-ffi/src/lib.rs": "394b8f7a924b377c09a11617e0547ef318a15856c5f7f7c85773eb4c1fffd9e5",
+    "crates/diskgraph-ffi/src/native_growth.rs": "7186919ee1a97074f2a45fba20aa24b3e7b165d83b25720e43c5345ec7d461ad",
+    "crates/diskgraph-ffi/src/native_growth_tests.rs": "a637d32260cc64cc86682d788e80625cf32bb40caf99bef12f13bb0577de03ee",
+    "crates/diskgraph-ffi/src/native_jobs.rs": "0ca5c8980604dd78127ad8d7da9bb70045d67efdd60829fca1b6d42d9800e4c1",
+    "crates/diskgraph-ffi/src/native_listing.rs": "844b15767e916282986402060550768338f20bbb84beabe19ce68b1071d9c0e6",
+    "crates/diskgraph-ffi/src/native_listing_tests.rs": "239145ff85ea85824ce736e1d17150b938936810efacd2622abd6fb4185821cd",
+    "crates/diskgraph-ffi/src/native_realm.rs": "2a1b8b2aa6599ee5a0021b2fd849ba71d8e7de17609889d22fb03073d3bc56b6",
+    "crates/diskgraph-ffi/src/native_reply.rs": "f1797f1bfd65bec627b7ac61f79ed27da44da4cffc801ef1f8934024c83133a3",
+    "crates/diskgraph-ffi/src/native_reply_budget_tests.rs": "0636fd7d4af5086bde30a3475365f6a9b06c8b4210e1598aebfe318c0f897ee2",
+    "crates/diskgraph-ffi/src/native_revision_candidate_tests.rs": "3ee757ca87daf66a1eae3ef37a6c4db6789f6e8f9c8e5e1f9b513b42f00f7e05",
+    "crates/diskgraph-ffi/src/native_scan_gate.rs": "fd99b0b71d924dde1db5c57dcfb7619f64340251be9baadc106b0ace068d48b9",
+    "crates/diskgraph-ffi/src/native_service.rs": "46965d308e67b91d620c09d386199429551c960c4c9d9fb9803dd901b498b0fa",
+    "crates/diskgraph-ffi/src/native_service_error.rs": "8708897ec3d3611d978af85c74afabe925f16365e3b4fcc636928fafad418464",
+    "crates/diskgraph-ffi/src/native_service_tests.rs": "a90f479334ba358ec25144c8f8af7b8597dcf49c3a5f5cc44b1402d5cf26d1f8",
+    "crates/diskgraph-ffi/src/scan_coordinator.rs": "4666e3668c8333f9fcb0bc4b5ddd01208c4a74a9f26652211e992bcceba63b70",
+    "crates/diskgraph-ffi/src/tests.rs": "7fd5bfa25980f47d59a790c3223a820d49d25b8c87dbaf46513e3362e3fbf8fa",
+    "crates/diskgraph-ffi/tests/source_layout.rs": "8ce1c9e12fe0ceb0f87b31f1b6946e8216fbb6ae3376dd6fd7f4e6e5607669fa",
+    "crates/diskgraph-ffi/tests/source_layout/negative_cases.rs": "eafdfafad39b9f4217cfd8db91d87c83361444f66cfa8233fd8d5ec6edd9cab1"
+  },
+  "initial_review_manifest_sha256": "6ded46aa5b9403b8b36fc65d392185858d467b72fd8077520b2328f8dac215e4",
+  "test_import_followup": {
+    "scope": "only cfg(test) reexports; path_digest now matches its sole cfg(unix) test consumer; no production behavior or ABI change",
+    "ffi_passed": 54,
+    "ffi_failed": 0,
+    "ffi_clippy_exit_code": 0,
+    "workspace_all_targets_build_exit_code": 0,
+    "workspace_note": "1097/0/18 full suite belongs to ca5292b; followup reruns all affected FFI targets and full-target build"
   }
 }

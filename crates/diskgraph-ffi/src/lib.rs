@@ -24,9 +24,11 @@ pub(crate) use api_response::{bounded_limit, response};
 pub(crate) use api_result::ApiResult;
 pub(crate) use job_authorization::JobAuthorization;
 pub(crate) use job_state::JobState;
-pub(crate) use native_realm::{local_principal, open_engine};
+#[cfg(all(test, unix))]
+pub(crate) use native_realm::path_digest;
 #[cfg(test)]
-pub(crate) use native_realm::{path_digest, realm_dir_for_database};
+pub(crate) use native_realm::realm_dir_for_database;
+pub(crate) use native_realm::{local_principal, open_engine};
 pub use native_service::NativeService;
 pub use native_service_error::NativeServiceError;
 pub(crate) use scan_coordinator::{run_scan_on_engine, run_scan_with_cancel, spawn_job};
