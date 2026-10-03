@@ -285,3 +285,6 @@ Ops 入口从 2,406 行降到 83 物理行，62 个生产文件保留各职责�
 
 
 下一轮 [eae4f06 的 CI](https://github.com/loong10k/diskgraph/actions/runs/37093532369) 终态 **20/22**。三个 Linux Rust 任务均成功，ARM 日志确认 Ops **84/0/1** 与全部七项结构回归实际通过。两个 Windows 任务进入测试编译后失败：根 Windows 测试缺少 capture_source 显式导入，specialist Windows 测试多余 Path/Duration/Instant 导入。窄修只改两个测试导入区，测试属性与主体和失败源码逐字节相同，没有增加 skip、allow、根导出或 helper 可见性变更。独立复核完整迁移的平台测试依赖，检查父模块实际导出与私有 helper 的明确路径；规范化函数体相等不能证明名称解析成功。本机受影响回归及严格 Clippy/fmt 通过，Windows-only 测试本机未执行。修正源码的 Windows 构建/测试/Clippy 及完整原生 CI 仍待；不能用 20 项成功代替 Ops 结构或全平台完成。
+
+
+最终源码 `7a0d1cf2d694b12c640339229c262ad8d7b2e13b` 的[同源码 CI 22 项全部通过](https://github.com/loong10k/diskgraph/actions/runs/37094332636)。两个 Windows Rust 版本实际执行两项迁移后的不支持能力测试与全部七项 Ops 结构回归；Ops 单元均 **7/0/0**，Engine 均 **196/0/1**，stable 构建、测试及严格 Clippy 通过。Linux/macOS Rust、真实语言宿主、原生只读包、格式及 vendor 任务也成功。15.14 至此完成 Ops 源码边界增量；Windows 测试验证明确拒绝，不代表原生写能力，没有开启危险工具。D20 及其余全平台能力/生产验收继续开放。本记录明确已验证实现 SHA，后续仅文档提交不改产品源码。
