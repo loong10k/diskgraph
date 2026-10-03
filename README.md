@@ -262,6 +262,8 @@ FFI implementations now have separate API, realm, scan and job-state files. Two 
 
 Historical growth requires the same node kind and observed sizes on both sides. Unknown sizes and read errors yield no numeric delta; comparison preserves an unavailable side as `null`. Type replacement remains a path difference. `changes.size_changed == 0` means no qualifying size change was observed; it does not prove that every object is unchanged. Core query and comparison types now reside in individual source files with their existing public exports.
 
+Engine and FFI growth also require matching actual server/scope ownership; equal display paths cannot establish compatibility. Changes preserve `different_root` and add `scope_changed: true` for scope differences. Generic comparison remains available across authorized roots. See the [architecture continuation](docs/DiskGraph-Architecture-Hardening.md) for the authorization and budget boundaries.
+
 ## Documentation
 
 | | |

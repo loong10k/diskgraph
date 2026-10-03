@@ -13,6 +13,7 @@ impl Engine {
     /// 可信读取可比较历史中同一路径的增长。
     /// 参数：before/after revision 与 relative 须由调用方先授权。
     /// 返回：可比较的前后节点；不兼容、缺一侧、类型不同或大小未知/读取失败时 None，准备计入默认期限。
+    /// 旧历史未绑定归属或属于其他服务器时拒绝，不能凭显示根推断命名空间。
     pub fn growth_between(
         &self,
         before: &str,
@@ -26,14 +27,18 @@ impl Engine {
         let left_snapshot = left.revision(before)?.snapshot_id;
         let right_snapshot = right.revision(after)?.snapshot_id;
         let mut ledger = QueryReadBudget::new(budget, deadline)?;
-        let value = Self::growth_on_readers(
-            &left,
-            &left_snapshot,
-            &right,
-            &right_snapshot,
-            relative,
-            &mut ledger,
-        )?;
+        let value = if self.history_revisions_share_namespace(&left, before, &right, after)? {
+            Self::growth_on_readers(
+                &left,
+                &left_snapshot,
+                &right,
+                &right_snapshot,
+                relative,
+                &mut ledger,
+            )?
+        } else {
+            None
+        };
         finish_growth(&value, budget, Instant::now() >= deadline)?;
         Ok(value)
     }
@@ -60,6 +65,10 @@ impl Engine {
             deadline,
             |left, left_snapshot, right, right_snapshot| {
                 let mut ledger = QueryReadBudget::new(budget, deadline)?;
+                if !self.history_revisions_share_namespace(left, before, right, after)? {
+                    // 这里只结束 consumer；外层仍执行预算编码及双侧终态授权。
+                    return Ok(None);
+                }
                 Self::growth_on_readers(
                     left,
                     left_snapshot,
@@ -108,6 +117,7 @@ impl Engine {
     /// 可信生成有界历史变化的兼容 wire 结果。
     /// 参数：before/after 为已由调用方授权历史标识。
     /// 返回：变化 JSON；截断明确标为部分统计，全部准备沿用默认同一期限。
+    /// 实际 scope 不同时保留 different_root 并补充 scope_changed；缺失或无效归属仍报错。
     pub fn revision_changes(
         &self,
         before: &str,
@@ -119,16 +129,20 @@ impl Engine {
         let right = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let left_snapshot = left.revision(before)?.snapshot_id;
         let right_snapshot = right.revision(after)?.snapshot_id;
-        let mut value = Self::changes_on_readers(
-            &left,
-            &left_snapshot,
-            before,
-            &right,
-            &right_snapshot,
-            after,
-            budget,
-            deadline,
-        )?;
+        let mut value = if self.history_revisions_share_namespace(&left, before, &right, after)? {
+            Self::changes_on_readers(
+                &left,
+                &left_snapshot,
+                before,
+                &right,
+                &right_snapshot,
+                after,
+                budget,
+                deadline,
+            )?
+        } else {
+            scope_incompatible_changes()
+        };
         finish_changes(&mut value, budget, Instant::now() >= deadline)?;
         Ok(value)
     }
@@ -152,6 +166,12 @@ impl Engine {
             authorizer,
             deadline,
             |left, left_snapshot, right, right_snapshot| {
+                // 即使无需读取节点，不可比结果也不能跳过原 typed 预算参数校验。
+                budget.validated()?;
+                if !self.history_revisions_share_namespace(left, before, right, after)? {
+                    // 不可比仍走 finish_changes 和已有末段授权，不能隐藏拒权或超时。
+                    return Ok(scope_incompatible_changes());
+                }
                 Self::changes_on_readers(
                     left,
                     left_snapshot,
@@ -220,6 +240,18 @@ impl Engine {
             serde_json::json!({"incompatible":null,"added":report.summary.right_only,"removed":report.summary.left_only,"size_changed":size_changed,"complete":report.truncated.is_none(),"summary_is_partial":report.truncated.is_some(),"truncation_reason":report.truncated}),
         )
     }
+}
+
+fn scope_incompatible_changes() -> serde_json::Value {
+    serde_json::json!({
+        "incompatible": "different_root",
+        "scope_changed": true,
+        "added": 0,
+        "removed": 0,
+        "size_changed": 0,
+        "complete": true,
+        "summary_is_partial": false
+    })
 }
 
 fn incompatibility(before: &DiskSnapshot, after: &DiskSnapshot) -> Option<&'static str> {

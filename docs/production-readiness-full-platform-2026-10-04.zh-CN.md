@@ -57,4 +57,14 @@ release Swift/Kotlin 绑定已重新生成；真实 Swift 宿主编译运行通�
 
 各夹具4/4，32次查询、4客户端。时间含CLI启动；RSS由macOS time逐个实际CLI进程测量，不是并发总RSS。非配对观察不能证明提速、严格RSS或历史查询吞吐；Windows200k/RSS仍未测。原始失败、成功命令、协议、测量脚本及摘要见[D33回执](benchmarks/historical_size_acceptance_2026_10_04.json)。
 
-新源码原生CI仍须验收，Q04任务3.9重新开放至验收完成。同scope/server兼容、Windows历史身份及历史正文绑定仍开放；本批不完成任何全平台父项，CLI/MCP危险写工具保持关闭。
+同源码 `ca7813cba28d2abdef8309d2d3176893559d68c5` 的 [CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37158622289)。两个Windows Rust版本、Linux ARM及macOS Intel日志各实际执行全部28个选定D33回归（Core11/Engine9/FFI5/结构3），回执核对32源摘要与该提交一致。本次完成D33增量原生验收，Q04任务3.9因实际scope兼容性（D34）继续开放；Windows历史身份及历史正文绑定仍为独立未完成要求；本批不完成任何全平台父项，CLI/MCP危险写工具保持关闭。
+
+## 实际历史命名空间（D34）
+
+两侧均获授权不代表命名空间相同；合法已归属旧v1记录可具有不同无损根和相同显示字符串。正确回归记录为Engine **7/2**、隔离旧源扩展 **9/2**、FFI **5/1**（通过/失败）；初次APFS建目录错误与FFI标量断言错误明确不计缺陷证据。
+
+Engine与旧FFI增长复用已有reader核对持久实际owner/server/scope，不同scope返回null增长，或保留 `different_root` 变化标签并新增 `scope_changed: true`。注册API保证scope根不可变；可信资格helper不授予权限，原响应预算与终态检查保留，包括Engine编码后复检。通用授权跨根比较和同scope已知旧历史仍可用；没有新增schema、依赖、owner、线程或修改导出。
+
+最终源码本机workspace **1142通过/0失败/18 ignored，49 suites**。Engine命名空间 **11/11**，FFI新增 **6/6**、全部受影响增长用例 **20/20**；严格Clippy、定向fmt、include fmt、OpenSpec、构建和release通过，实际UniFFI **19/19**、stdio **18/18**、HTTP/SSE **13/13**。独立代码APPROVE、架构CLEAR，最终20源摘要一致；原始失败、成功日志及源码摘要见[D34回执](benchmarks/historical_namespace_acceptance_2026_10_04.json)。
+
+Unix离线夹具以自然非法字节产生显示碰撞，Windows启用夹具以本平台自然未配对UTF16产生碰撞；均为公开API注册的合法合成元数据，不声称建过非法目录或执行过真实迁移。Linux另有2项真实原始目录用例，本机macOS未执行；现有socket验收运行过，但没有新增socket显示碰撞夹具。新同源码原生CI仍须完成，Q04任务3.9及全平台父项继续开放；命名空间相同不证明历史文件身份连续或正文版本相同。

@@ -19,9 +19,9 @@ pub(crate) fn legacy(path: &str, before: &str, after: &str, locator: &str) -> St
     })())
 }
 
-/// 双侧真实资源授权后读取同一 locator，完整编码后复核所有权限。
+/// 双侧真实资源授权后核对历史归属，再读取同一 locator，完整编码后复核所有权限。
 /// 参数：engine、snapshot、locator、原 deadline 和末检前同步闭包。
-/// 返回：原 before/after/字符串 delta 或 null；任一撤权/到期拒绝所有数据。
+/// 返回：同归属的原 before/after/字符串 delta 或 null；跨 scope 返回 null，任一撤权/到期拒绝数据。
 pub(crate) fn query(
     engine: &Engine,
     snapshots: [&str; 2],
@@ -55,6 +55,13 @@ pub(crate) fn query(
     }
     let result = (|| {
         let mut ledger = QueryReadBudget::new(budget, deadline).map_err(|e| e.to_string())?;
+        // 复用首检已固定的 revision 与 reader；不兼容只结束结果闭包，仍执行成组末检。
+        if !engine
+            .history_revisions_share_namespace(&reader, &revisions[0], &reader, &revisions[1])
+            .map_err(|e| e.to_string())?
+        {
+            return native_reply::encode(&Value::Null);
+        }
         let mut load = |snapshot: &str| -> Result<DiskGraph, String> {
             Ok(DiskGraph {
                 snapshot: reader

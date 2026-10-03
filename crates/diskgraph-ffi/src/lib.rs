@@ -49,3 +49,8 @@ uniffi::setup_scaffolding!();
 
 #[cfg(test)]
 mod native_growth_eligibility_tests;
+
+#[cfg(all(test, any(unix, windows)))]
+mod native_growth_scope_fixture;
+#[cfg(all(test, any(unix, windows)))]
+mod native_growth_scope_tests;

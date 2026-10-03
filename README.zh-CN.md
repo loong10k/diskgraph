@@ -253,6 +253,8 @@ FFI 已按 API、realm、扫描与作业状态拆分真实实现文件。两份�
 
 历史增长要求双方节点类型相同且大小已观察。未知大小、读取失败不返回数值增量，比较行中不可用的一侧保留为 `null`；类型替换仍是路径差异。`changes.size_changed == 0` 只表示未观察到符合资格的尺寸变化，不能证明所有对象未变。Core 查询和比较对象已真实分文件，保留既有公开导出。
 
+Engine 与 FFI 增长还要求实际 server/scope 归属相同，显示路径相等不能证明可比。变化保留 `different_root`，并对 scope 差异新增 `scope_changed: true`；通用比较仍允许双侧已授权的跨根查询。授权与预算边界见[架构续篇](docs/DiskGraph-Architecture-Hardening.zh_CN.md)。
+
 ## 文档
 
 | | |

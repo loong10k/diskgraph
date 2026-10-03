@@ -1,0 +1,309 @@
+{
+  "date": "2026-10-04",
+  "scope": "D34 actual historical namespace eligibility in Engine and legacy FFI; full-platform objective remains open",
+  "baseline_commit": "ca7813cba28d2abdef8309d2d3176893559d68c5",
+  "status": "local_and_independent_acceptance_passed_native_ci_pending",
+  "source_manifest_sha256": "da0ec0aaba402c2cce19e27b24985b4957d55b52c161fa40962b7c201ec1d05e",
+  "source_files": {
+    "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
+    "crates/diskgraph-engine/src/lib.rs": "0af3e21d48a0a574ea7e6effcf2d0f00b52bbb402bb6694ea9bfb55fbb93e637",
+    "crates/diskgraph-engine/src/history_namespace.rs": "fc5baf6223ac8fd4ab0bd4de50b0e4553e4124e74fa2d6a5863a644bddd29d7e",
+    "crates/diskgraph-engine/src/revision_history.rs": "dd0f725e9ac23d0e3e23d21bc014aea0f599410426e92490b277ebecc102de9c",
+    "crates/diskgraph-engine/src/history_request.rs": "938e45da282a12779a4bb75f844bbc17240ec801933983154f30c3c3c9af2fcb",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "36357c95d1579cb802e7849b507f509bb5caab4b8d91951b85b06bb154bf8093",
+    "crates/diskgraph-engine/src/relation_request.rs": "73afa0d8f61fc6b2dc887a8b4db234de0970e1057e0b729f679767f562749d2c",
+    "crates/diskgraph-engine/src/revision_comparison.rs": "4f13cd3029122d1c91e17949091a205225ef2d4e78b024871cbd7b0860cd8372",
+    "crates/diskgraph-store/src/scope_store.rs": "6eb99829301b93db83d501bd76d4e3a2ca9142ac0518553677972b644703a680",
+    "crates/diskgraph-store/src/revision_queries.rs": "5b329560a2dd009753c4c405319627a545d70fbfe71c498bcec853cb02db958c",
+    "crates/diskgraph-engine/tests/history_scope_eligibility.rs": "a74a53c7eb33ba893b2d5d36bdadf16099f5d0293bddc8585744daa09da0441c",
+    "crates/diskgraph-engine/tests/history_scope_eligibility/fixture.rs": "626cc85d2bfd3ac5af88f721c398b5003ff72dae59cbeaa8cb2e7585540aefbd",
+    "crates/diskgraph-engine/tests/history_scope_eligibility/linux_fs_tests.rs": "6016b93ef463c50a24790f39aa0cf07f657ec6cb46868365ed929fee078a5436",
+    "crates/diskgraph-engine/tests/query_request_budget/callback_authorizer.rs": "bf35b9d795f5020da1c5921eb75c040f4e17088aa5383b9e682b6f54770cf1d2",
+    "crates/diskgraph-ffi/src/lib.rs": "9214af1eee07876f315b2443552da746b978e6b676789ec23fe1a5e542faefae",
+    "crates/diskgraph-ffi/src/native_growth.rs": "30a1267fd6cf56e6bf61223547917e9b49aa9c6893e9299e12e1b2f95b374814",
+    "crates/diskgraph-ffi/src/native_growth_scope_fixture.rs": "4d53f998724ca94f38b22824f618b7e96842e08f84d6866ff68777576c6d8b41",
+    "crates/diskgraph-ffi/src/native_growth_scope_tests.rs": "85ec5284d78e9c193dcddcd525e65357df75d2964c50ac2c927205e51563cf6e",
+    "crates/diskgraph-ffi/src/api_exports.rs": "471b839f98683d5ddd5b73523b182cfaf9da0bf06e723d11a3e4db551ddaeac2",
+    "crates/diskgraph-ffi/src/native_reply.rs": "f1797f1bfd65bec627b7ac61f79ed27da44da4cffc801ef1f8934024c83133a3"
+  },
+  "behavior": {
+    "qualification": "existing readers resolve persisted owner; both local server, existing nonrevoked scopes and same immutable ScopeId",
+    "different_scopes": "growth null; changes old different_root tag plus additive scope_changed true",
+    "compatibility": "generic authorized cross-root compare unchanged; same-scope owned v1 history remains comparable; unbound/foreign trusted Engine history now explicitly errors",
+    "authorization": "no new authority; success and helper errors preserve original grouped terminal checks; Engine tests cover callbacks3/5 before/after encoding",
+    "new_owners_locks_threads_migrations_dependencies": 0
+  },
+  "red": {
+    "engine_corrected": {
+      "passed": 7,
+      "failed": 2,
+      "log": "engine-corrected-red.log.gz"
+    },
+    "engine_expanded_isolated_ca7813c": {
+      "passed": 9,
+      "failed": 2,
+      "log": "engine-expanded-red.log.gz"
+    },
+    "ffi_corrected": {
+      "passed": 5,
+      "failed": 1,
+      "log": "ffi-corrected-red.log.gz"
+    },
+    "excluded_observations": [
+      "Initial macOS APFS raw-directory creation: 0/9 fixture failure OS92, not target RED.",
+      "Initial FFI4/2 includes one wrong positive assertion (DiskNode compared to scalar); corrected5/1 is authoritative.",
+      "Initial Engine candidate execution repeated9/2 after baseline used the shared private target; same frozen production source passed11/0 after rebuilding private engine artifacts.",
+      "Initial strict Clippy rejected redundant constant assertion in test fixture; removed, Linux-only true constructor unchanged. Initial log path overwritten on resume; tool-observed failure is explicitly recorded in clippy-initial-observation.json.gz.",
+      "Initial fmt rejected Engine module declaration order; corrected ordering; raw initial fmt diff retained."
+    ]
+  },
+  "green": {
+    "engine_namespace": {
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0
+    },
+    "engine_all_targets_before_final_cleanup": {
+      "passed": 429,
+      "failed": 0,
+      "ignored": 8
+    },
+    "ffi_growth_filter": {
+      "passed": 20,
+      "failed": 0,
+      "new_namespace_cases": 6
+    },
+    "workspace_final": {
+      "passed": 1142,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 49,
+      "exit_code": 0
+    },
+    "checks": {
+      "workspace": 0,
+      "build": 0,
+      "clippy": 0,
+      "fmt": 0,
+      "include-fmt": 0,
+      "openspec": 0,
+      "release": 0
+    },
+    "upstream_source_digests_unchanged": 14,
+    "uniffi": {
+      "total": 19,
+      "passed": 19,
+      "actual": {
+        "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+        "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+        "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+        "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+        "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+        "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+        "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+        "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+        "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+        "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+      },
+      "mismatches": {}
+    },
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http_legacy_sse": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "files": 20,
+    "source_manifest_sha256": "da0ec0aaba402c2cce19e27b24985b4957d55b52c161fa40962b7c201ec1d05e",
+    "note": "both lanes directly read and independently matched final20 hashes; no Cargo execution claimed by reviewers"
+  },
+  "platform_fixtures": {
+    "local": "macOS executes11 Engine offline native-byte cases and6 FFI namespace cases; no raw invalid directory created on APFS",
+    "unix": "legal synthetic owned v1 records registered through public ControlStore; raw FF/FE naturally share lossy display",
+    "windows": "same native tests enabled with natural unpaired UTF16 D800/D801 offline records; no filesystem creation or real volume observation claimed",
+    "linux": "two additional real raw-directory cases use real mkdir/canonicalize/dev/file lengths; Linux-only, not executed on macOS",
+    "actual_socket": "existing release stdio and authenticated HTTP/SSE acceptance ran; no new socket-level display-collision fixture claimed"
+  },
+  "performance": "Adds a fixed number of metadata owner/scope lookups without full revision loading or node reads for incompatible scopes. No new paired speedup/RSS claim; prior D33 load measurements remain separately recorded.",
+  "native_ci": {
+    "status": "not_dispatched",
+    "note": "new-source native CI required; ca7813c22/22 accepts D33 only"
+  },
+  "remaining": [
+    "same-source native Windows/Linux/macOS acceptance for D34",
+    "historical Windows full-ID/version continuity",
+    "historical content-version binding",
+    "real provider/no-download, native write/recovery/fidelity, GUI/Room/mobile/device/signing/production-environment gates"
+  ],
+  "logs": {
+    "directory": "historical_namespace_acceptance_2026_10_04_logs",
+    "files": {
+      "build-pre-final.log.gz": {
+        "sha256_uncompressed": "f4403412cb20dc7d8a0a94c08c9c8853e4bac9b3e8489158834f30512311ed97",
+        "sha256_gzip": "131e806dfa9e48563e834eaa6891495ef872d43e6af613ee72bc3e61ebfb3a98"
+      },
+      "build.log.gz": {
+        "sha256_uncompressed": "32d47f791eadf1ea833d9f8c84fbfea5cab1f438e113e93be05bd5b908e1c2ac",
+        "sha256_gzip": "460cdbae77218a325236be77f4e09a7eafc5f7cd490b3b0050ab9108f7d62f28"
+      },
+      "clippy-initial-observation.json.gz": {
+        "sha256_uncompressed": "7c6dd45a8a8518ec99a24d8cec6648e960e28e53351e8416732c823e89b6be43",
+        "sha256_gzip": "e9a93181a4e32f131328a7295008aae49e60c1a077946c3c9f9efa5233a18545"
+      },
+      "clippy-pre-final.log.gz": {
+        "sha256_uncompressed": "40fcb8d05e5a1afff8308b27e4aca6fd28d7ec58c165ebd8e014b168ee2dc2e8",
+        "sha256_gzip": "9e991df43d26a01abc1a4912072ddb0b4f8f6b0fd784ca2902bbc008c9505697"
+      },
+      "clippy.log.gz": {
+        "sha256_uncompressed": "f909a05e8437fc9505eb3f5e371c589c5c8212e0bc53038730719179ace6faa9",
+        "sha256_gzip": "751435d6de3a83181f043a727667f0384644e36a9331722d668a82c07c737cab"
+      },
+      "engine-all.log.gz": {
+        "sha256_uncompressed": "d98fe201b7c621b635c2690189361f362f63d1024b674777c4412214b9e6afb6",
+        "sha256_gzip": "a3714c4954413674329125e1478b0f7238af615284cf8e2cb74408848b6a85bf"
+      },
+      "engine-corrected-red.log.gz": {
+        "sha256_uncompressed": "1012a59f1a72d68abbc1336f02db9e2ce8bc48f9ab50f3815576c12e85bbce97",
+        "sha256_gzip": "71927e942fb34d4ad3fd0ee17becb699b98f8d53256424e64eab837db348d99e"
+      },
+      "engine-expanded-red.log.gz": {
+        "sha256_uncompressed": "c47ee7a2bc31e9e15b42e0c2aaade75d346d84c9b51ff45498ead5cc4f93603a",
+        "sha256_gzip": "464332c5063f3d2bf5bb2ea599d4fffd9e9c3f857c04b574701f081e80d03eaa"
+      },
+      "engine-green.log.gz": {
+        "sha256_uncompressed": "c0847efbb62c0721b61af2d6feb1a04d8cdc37ca323cb9ae5de85c4e544a5a1c",
+        "sha256_gzip": "68be34f3ed17322b975ba4891b31399c2efa8617dfe20926347255abc6697103"
+      },
+      "engine-rebuilt-green.log.gz": {
+        "sha256_uncompressed": "961a0023a7413af98cc8f3660de80a0e2a4688fea51575ca7e2069ad08675a3a",
+        "sha256_gzip": "8906d279396dff2d8e4c6b9b3c9150f82d3587b9f0616e7c618f0aa232df64a3"
+      },
+      "engine-red.log.gz": {
+        "sha256_uncompressed": "089e3dea01478e3c449944959028182ecad63e287ad7303ad85cdaa332a134a0",
+        "sha256_gzip": "edbc603e6c295d6e7b4eb28753563e3ab240f1e233bf27f6454772121a28fbd0"
+      },
+      "ffi-corrected-red.log.gz": {
+        "sha256_uncompressed": "ce57d9d8a82b06638b76d47b1a2afa54f74eed85ef47717cfbd818e8120333a7",
+        "sha256_gzip": "37c26901ac83cb77c2b667e0b7f9e4a8e9557717f70bf5c158464fbaee9d1db6"
+      },
+      "ffi-green.log.gz": {
+        "sha256_uncompressed": "6e577d4e2d8b88070c90f94161394d077b5dcba5bdd8792b5aa421a658b9c286",
+        "sha256_gzip": "d2a408a3e7d404836895a9bc7ea0c3986e3638c559f9adc46e20b8f76e842b21"
+      },
+      "ffi-red.log.gz": {
+        "sha256_uncompressed": "e9a47916e61ce490c9662b94060db8b12da6c52aaa4bbe4d8c34108e8b2a6cf2",
+        "sha256_gzip": "54b340a0b21e974660e529c226d425b497a71e0a44e362559c306843f76ded23"
+      },
+      "fmt-initial.log.gz": {
+        "sha256_uncompressed": "d777b20dee2439a6fa1e4ec4879a0321ded59de8309074a31319d1f146798015",
+        "sha256_gzip": "21aaaf741c30b9839d291a2f2cb99e05824aa19d5dcbe9e60e69239152fba45f"
+      },
+      "fmt.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "http.json.gz": {
+        "sha256_uncompressed": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+        "sha256_gzip": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+      },
+      "include-fmt.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      },
+      "quality-final.py.gz": {
+        "sha256_uncompressed": "cbbbcda04c29a0fb784b64f7cb7538928e6f295e341a005bd93c16f0e3ae6de5",
+        "sha256_gzip": "95c376d2ad371957671bd15e6fe0064b6c5725523d922e6dfcbb1316bc48f890"
+      },
+      "quality-results.json.gz": {
+        "sha256_uncompressed": "b7498dfcc1fb40c59c46a4c578dc9b55738ba9ea93c1f6535a7bde456aa8bada",
+        "sha256_gzip": "82f753696251590c52fc391dee4a40b37688908ccd1c3e54157fba92b0afe300"
+      },
+      "quality-resume-2.py.gz": {
+        "sha256_uncompressed": "2b3680f48374f3329864c1d631f9456fbf05745341e5ca324fddb67551cf67b9",
+        "sha256_gzip": "6665f26a2d5cde5364399cb51814840230759edbb164a62ae01b5653815e82bc"
+      },
+      "quality-resume.py.gz": {
+        "sha256_uncompressed": "07cbf4553afad313bdbe01b985b0e341ef31ab4d13de708a179a76d2f465f8ed",
+        "sha256_gzip": "7a9b81fba2dae9d1df523c614ebae2dbf9c25f05b74b58e767d5dd3a6aaac010"
+      },
+      "quality.py.gz": {
+        "sha256_uncompressed": "12a9cc8c95c4de8d716ea38ec5b224aa7cc060a0fe8b27b158a97874946a6e9c",
+        "sha256_gzip": "b8f213fbefe4ce870e8caf0eacbf6c997d871cb61b1d787817965f8017025b81"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "2a2d38451553e8f9d3fa92d426034aba5daaed7515ca0b5129b50327ede2f265",
+        "sha256_gzip": "642c8c9faa22cc950617dd053e8f22c2105f8ad2d3c4a9e79e55c4838bb174d1"
+      },
+      "stdio.json.gz": {
+        "sha256_uncompressed": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+        "sha256_gzip": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+      },
+      "uniffi.json.gz": {
+        "sha256_uncompressed": "aba25eaadb95674aa824bce0a5ad9a6ebea3744bf2cd17dac62c9417cc95ccda",
+        "sha256_gzip": "070afcfd83f13e31b59f8aaa1695c68036fb4b6a0ae0f1bf4a468358ab8310b3"
+      },
+      "workspace-pre-final.log.gz": {
+        "sha256_uncompressed": "5bc65999bb359fec6818ed3b6eb47d22f8dc7599c7bf388f4745b75b3a2ee86c",
+        "sha256_gzip": "a373c3f0d49d19674115e0f829d14d8fe52f96b6db2907142135e8d1418aefd0"
+      },
+      "workspace.log.gz": {
+        "sha256_uncompressed": "675510e126ec2b82397645ab94ec945bbba787a6ba1ade13cb3cbb604b405c93",
+        "sha256_gzip": "e7e976299536624e259596d708965d118d9a09edc778b5abe705fe4dea77301a"
+      }
+    }
+  }
+}

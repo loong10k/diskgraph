@@ -140,3 +140,19 @@ flowchart LR
 ```
 
 A zero size-change count is not proof that unknown objects are unchanged. Same-scope history compatibility, Windows historical identity continuity and historical content-version binding remain separate open requirements.
+
+## Historical namespace eligibility — D34
+
+Engine growth and changes compare persisted revision ownership on the existing readers. Both revisions must belong to this server and the same valid scope; registration keeps each scope's lossless root immutable. A display string never establishes namespace identity. Different scopes produce unavailable growth or the existing `different_root` changes tag with additive `scope_changed: true`. Missing ownership, foreign servers, revocation and storage errors remain errors. The trusted helper grants no authority: each entry still performs its original authorization and response-budget checks, including checks after encoding. Legacy FFI growth uses the same helper and retains its export contract. Generic metadata comparison remains available across roots when both sides are authorized.
+
+```mermaid
+flowchart LR
+    A["Authorize both actual revisions"] --> N{"Same persisted server and scope?"}
+    N -->|Yes| H["Historical facts and bounded reads"]
+    N -->|No| U["Unavailable growth / scope diagnostic"]
+    H --> F["Encode within budget"]
+    U --> F
+    F --> T["Recheck both grants and original deadline"]
+```
+
+Namespace eligibility does not prove historical file identity continuity or content-version equality. Native CI and those remaining requirements are recorded independently.

@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D33 Q04 historical size qualification plus real query/compare source organization; full-platform objective remains open",
   "baseline_commit": "c8ff78174e7d7b3f23e8410afc3d16595a48188c",
-  "status": "local_and_independent_acceptance_passed_native_ci_pending",
+  "status": "same_source_native_ci_accepted_for_d33_increment",
   "source_manifest_sha256": "5b9b93460ff7a77f44b1d32f666d0505cc93b1ec66bb24c39130d77ba066ff94",
   "source_files": {
     "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
@@ -217,8 +217,99 @@
     "Windows 200k and peak RSS remain unmeasured."
   ],
   "native_ci": {
-    "status": "not_dispatched",
-    "note": "must pass the new commit; c8ff781 22/22 only covers D32"
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "ca7813cba28d2abdef8309d2d3176893559d68c5",
+    "run_id": 37158622289,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37158622289",
+    "passed_jobs": 22,
+    "total_jobs": 22,
+    "source_hash_verification": "all 32 reviewed source hashes match git objects at tested head_sha",
+    "selected_native_jobs": [
+      {
+        "job_id": 111307152407,
+        "name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success",
+        "distinct_selected_passed": {
+          "core": 11,
+          "engine": 9,
+          "ffi": 5,
+          "structure": 3
+        }
+      },
+      {
+        "job_id": 111307152453,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success",
+        "distinct_selected_passed": {
+          "core": 11,
+          "engine": 9,
+          "ffi": 5,
+          "structure": 3
+        }
+      },
+      {
+        "job_id": 111307152464,
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success",
+        "distinct_selected_passed": {
+          "core": 11,
+          "engine": 9,
+          "ffi": 5,
+          "structure": 3
+        }
+      },
+      {
+        "job_id": 111307152528,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success",
+        "distinct_selected_passed": {
+          "core": 11,
+          "engine": 9,
+          "ffi": 5,
+          "structure": 3
+        }
+      }
+    ],
+    "note": "Each selected native log executes 11 Core, 9 Engine, 5 FFI and 3 structure cases; no full-platform parent completion.",
+    "selected_test_names": {
+      "core": [
+        "growth_refuses_each_unknown_or_read_error_side_independently",
+        "changes_never_count_unobserved_bytes_as_size_changed",
+        "type_replacement_has_no_growth_or_numeric_size_change",
+        "each_unknown_or_read_error_side_prevents_same_metadata_for_files_and_directories",
+        "two_unknown_directories_remain_unknown_in_comparison_and_rollup",
+        "known_type_replacements_are_path_differences_even_with_equal_metadata",
+        "separate_roots_and_distinct_file_identities_allow_metadata_comparison",
+        "known_zero_and_negative_path_growth_do_not_require_equal_file_ids",
+        "unknown_or_read_error_takes_precedence_over_kind_replacement",
+        "root_growth_refuses_each_unknown_or_read_error_side",
+        "known_directory_changes_count_byte_changes_but_not_count_only_changes"
+      ],
+      "engine": [
+        "growth_refuses_unknown_or_read_error_on_either_side_in_both_public_apis",
+        "directory_unknown_comparison_has_null_bytes_and_unknown_summary_not_same",
+        "revision_changes_excludes_unknown_and_type_replacement_from_size_changed",
+        "growth_refuses_same_path_file_directory_replacement_in_both_directions",
+        "unknown_growth_still_rechecks_terminal_authorization_and_budget",
+        "unknown_growth_still_rejects_expiry_at_terminal_authorization",
+        "comparison_unknown_side_is_null_while_known_zero_remains_zero",
+        "root_unknown_growth_and_unknown_type_replacement_never_produce_delta",
+        "known_directory_size_changes_count_but_count_only_changes_do_not"
+      ],
+      "ffi": [
+        "ffi_growth_unknown_and_read_error_on_either_side_returns_success_null",
+        "ffi_growth_real_same_path_file_directory_replacement_refuses_delta",
+        "ffi_unknown_growth_still_rechecks_terminal_grant_and_deadline",
+        "ffi_unknown_growth_keeps_borrowed_row_budget_before_null_result",
+        "ffi_root_growth_unknown_or_read_error_is_success_null"
+      ],
+      "structure": [
+        "historical_implementations_are_real_documented_responsibility_files",
+        "gate_rejects_hidden_objects_private_stubs_and_glob_imports",
+        "gate_rejects_production_path_overrides_but_allows_separate_test_sources"
+      ]
+    }
   },
   "remaining": [
     "actual same-scope/server history compatibility",
@@ -380,6 +471,26 @@
       "core-body-preservation.json.gz": {
         "sha256_uncompressed": "2566bdd47e42dff2f332bb25adea9316ba2c4dd91b2e684e4daa52454c6bb42c",
         "sha256_gzip": "ca2b2d50ea10e03c06eabb014ed74c430d21ea998c96685a4c1a941056e08b7d"
+      },
+      "ci-ca7813c-111307152407.log.gz": {
+        "sha256_uncompressed": "5175599c36581d4a8f1161dd4dca7e7e3c572a9fc704b48a61b903bc59072aca",
+        "sha256_gzip": "d72125761eb8afb30eb508b6297726bd1732633341d37b08c0e04f09788fa979"
+      },
+      "ci-ca7813c-111307152453.log.gz": {
+        "sha256_uncompressed": "495db52719655b75b63f9ff889f9242a60a6ca63dadc5c28d9273056c5f81eb6",
+        "sha256_gzip": "4b0f3976bbac3c4c14ad30703f9e0853e663af612681d9a781585e051d222803"
+      },
+      "ci-ca7813c-111307152464.log.gz": {
+        "sha256_uncompressed": "f5bd8276e422649ae0ecfefae47f399688c1b06fcf8f551dbccafc992522c0c8",
+        "sha256_gzip": "f4f1c8cb20f8c35858ec421bcea91f778a90f0cffaf1d1eb7d2f9894f1654e89"
+      },
+      "ci-ca7813c-111307152528.log.gz": {
+        "sha256_uncompressed": "7e59401050697ac06726a0c9424c28ad30be1c2d23f7ffd783a6af83889d6b31",
+        "sha256_gzip": "b9471206b4978ae58ea2844be2296596543811c3d7ae64facfd7d3c3468a04d3"
+      },
+      "ci-ca7813c-terminal.json.gz": {
+        "sha256_uncompressed": "dd43c47c120f075f8800f5ec58afe4043e40dd32ce903c0b12135c2e81d17de1",
+        "sha256_gzip": "a9dfe4fe2f65df8f474d391d6a3f63a969388a60fe9b5e1cd04e295017b85f23"
       }
     }
   }

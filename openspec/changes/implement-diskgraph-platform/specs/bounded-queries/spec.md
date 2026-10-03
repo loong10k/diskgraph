@@ -84,6 +84,13 @@ changes/growth SHALL 检查 server/scope、卷/provider、扫描设置、口径�
 - **WHEN** 相同路径的两次快照来自不同卷
 - **THEN** 拒绝直接计算可信增长并说明卷不一致。
 
+#### Scenario: Historical namespaces use actual ownership rather than display equality
+- **WHEN** two owned legacy revisions have equal displayed roots, volume and scan settings, but belong to distinct actual server/scope namespaces; the principal has metadata permission on both
+- **THEN** changes/growth refuse numeric historical comparability and changes explain the namespace mismatch using compatible existing fields with additive diagnostics
+- **AND** lossless registered roots and persisted ownership remain authoritative; old display equality cannot substitute for namespace equality, including distinct raw roots with colliding legacy display strings
+- **AND** missing permissions, unbound old revisions and foreign-server ownership still return authorization failure before a normal incomparable result; terminal revocation, cancellation, deadlines and budgets remain enforced
+- **AND** the separate authorized cross-root metadata comparison API continues to allow different scopes and is not globally restricted by the growth/changes compatibility rule
+
 #### Scenario: Historical node sizes require observable facts
 - **WHEN** either matched node has unknown size or a recorded read error, even when an imported snapshot header claims complete coverage
 - **THEN** growth returns no numeric delta and paired size-change statistics do not treat stored placeholder bytes as observed sizes; comparison reports the existing unknown-size outcome instead of SameMetadata, including directories with equal aggregate counts

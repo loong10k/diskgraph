@@ -345,3 +345,8 @@ schema12在staging/nodes同一行加nullable native_observation_format/raw/gap�
 沿用 Q-04/06/08：快照头可比不代表每个节点尺寸已观察。Core 提供无状态纯函数，共同判断 size_known、read_error 和同 kind 的有符号尺寸差；Core growth/changes、Engine 窄读增长和比较行共用判断，旧 FFI growth 通过既有 Core 调用继承行为。比较先拒绝未知/读取失败事实，再检查准确 kind 与目录聚合，使用现有 UnknownSize/Path verdict，不添加文件ID或根相等条件到跨根元数据比较。CompareRow 保留字段，未知尺寸编码 null；变化统计不能把 unknown 或类型替换计作 size_changed。保持默认预算、SQLite 读量、授权末检、终态错误与 UniFFI 校验值。
 
 先用真实公共 API 复现双方 unknown/read_error、未知目录提前 Same、同路径类型替换及错误统计，再实施共享判断。当前 Core query/compare 超过项目单文件限制，涉及对象/测试提取时保留现有根导出与 compare 公共路径，真实对象分文件，入口明确导出，不使用兼容壳或 include。该批不声称解决 Windows 历史永久身份、实时正文绑定快照、不同scope兼容性、provider、写操作或移动设备验收；这些仍须按原父项闭合。
+
+
+### D34 历史实际命名空间兼容性（本机实施与验收）
+
+Q-04 已要求 server/scope 可比性。分别通过双侧授权不等于历史命名空间相同；尤其旧 v1 的两个 lossless 原始根可投影为相同 display。先用合法离线 Linux 元数据导入记录、独立注册范围和显式归属建立 RED；另在 Linux 使用真实原始目录验收，不删除唯一约束、不伪造坏 JSON，也不把外部已拒绝的 foreign server 描述为权限绕过。增长/变化额外检查实际归属；通用跨根元数据比较仍可在双侧授权后合法运行。Core 不持有实际 owner，保持既有可信纯图契约；归属检查在 Engine/FFI 授权边界落实，CLI 已有显式 scope 拒绝路径保留。诊断保留旧字段并允许新增说明，准确表达命名空间差异；不新增共享 owner、不重置期限、不以不可比覆盖终态授权、取消或预算错误。本机首次创建原始非 UTF-8 目录在 APFS 返回 OS92，9 项均是夹具错误，不计目标 RED。修正为公开 ControlStore 注册的离线 Linux 旧元数据夹具后，实际运行 7 通过 / 2 目标失败：双侧均已授权却错误返回增长及可比变化。另保留 Linux 专属真实目录测试，本机跳过不计 Linux 通过。Engine 与 FFI 已使用现有 reader 的实际 owner 核对本服务器及有效 ScopeId；同 ScopeId 由注册根不可变保证同无损命名空间。不可比结果仍走预算编码与成组终态复检，changes 保留 different_root 并新增 scope_changed。FFI 修正后的真实 RED 为5/1，GREEN为6项新增加受影响旧用例共20/0；Engine11/0，最终workspace1142/0/18，20源独立审查摘要一致，实际UniFFI19/19和stdio18/18、HTTP/SSE13/13通过。Windows离线夹具采用本平台未配对UTF16，Linux真实目录2项仅在Linux运行；本机不替代这些原生执行。新同源码 CI 尚待完成，不关闭 Q04/全平台任务。
