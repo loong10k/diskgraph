@@ -1,4 +1,5 @@
 use super::*;
+use crate::source_evidence::capture_source;
 
 #[test]
 fn native_file_operations_refuse_without_verified_source_handles() {

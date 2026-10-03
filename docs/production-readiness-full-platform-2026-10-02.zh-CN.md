@@ -282,3 +282,6 @@ Ops 入口从 2,406 行降到 83 物理行，62 个生产文件保留各职责�
 
 
 后续源码 `7c41ffd45714df5695e0bb88893c5981dd4645d0` 的[原生 CI 终态 17/22](https://github.com/loong10k/diskgraph/actions/runs/37092918161)。三个 Linux Rust 构建拒绝显式测试导入 CrossVolumeCopy、LiveItem、identity_of，两个 Windows Rust 构建拒绝 executor_transfer 的 describe 导入；均在严格零警告 Build 阶段失败、未进入测试，不计原生行为验收，也不是已复现运行时缺陷。窄修按原有实际使用点加导入条件：三条测试导入限 macOS，describe 限 macOS/Linux，capture_source 保持共同回归可用。函数/测试条件及函数体、公开 API、零警告策略不变。本机 Ops **96/0/1**、结构 **7/0/0**、三项宿主 ignored，Clippy/fmt 及重建 release Ops 通过；非作者窄复审批准两个导入区域与冻结源码。修正源码仍须新原生 CI，15.14 与全平台父项保持开放。
+
+
+下一轮 [eae4f06 的 CI](https://github.com/loong10k/diskgraph/actions/runs/37093532369) 终态 **20/22**。三个 Linux Rust 任务均成功，ARM 日志确认 Ops **84/0/1** 与全部七项结构回归实际通过。两个 Windows 任务进入测试编译后失败：根 Windows 测试缺少 capture_source 显式导入，specialist Windows 测试多余 Path/Duration/Instant 导入。窄修只改两个测试导入区，测试属性与主体和失败源码逐字节相同，没有增加 skip、allow、根导出或 helper 可见性变更。独立复核完整迁移的平台测试依赖，检查父模块实际导出与私有 helper 的明确路径；规范化函数体相等不能证明名称解析成功。本机受影响回归及严格 Clippy/fmt 通过，Windows-only 测试本机未执行。修正源码的 Windows 构建/测试/Clippy 及完整原生 CI 仍待；不能用 20 项成功代替 Ops 结构或全平台完成。
