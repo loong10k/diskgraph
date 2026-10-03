@@ -666,20 +666,61 @@ mod tests {
     use super::*;
     use std::io::Write;
 
-    /// Writes an executable shell script and returns its path, so the tests
-    /// can play the specialist tool without needing the real one installed.
+    /// 由独立 Rust 测试进程写入可执行脚本，退出后返回夹具路径。
+    /// 参数：directory/name 为隔离路径，body 为受控脚本正文；返回：已关闭的原路径。
     fn fake_tool(directory: &Path, name: &str, body: &str) -> PathBuf {
+        use std::os::unix::fs::PermissionsExt;
+
         let path = directory.join(name);
+        // 父测试进程不打开写句柄，避免其他并行 fork 暂时继承脚本 writer。
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "specialist::tests::script_writer_fixture",
+                "--ignored",
+                "--nocapture",
+            ])
+            .env_clear()
+            .env("DG_SPECIALIST_SCRIPT_PATH", &path)
+            .env("DG_SPECIALIST_SCRIPT_BODY", body)
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "script writer failed: {output:?}");
+        let stdout = String::from_utf8(output.stdout).unwrap();
+        assert!(
+            stdout.contains("test result: ok. 1 passed; 0 failed;")
+                && stdout.contains("DG_SPECIALIST_SCRIPT_WRITTEN"),
+            "script writer did not confirm completion: {stdout}"
+        );
+        assert_eq!(
+            std::fs::read(&path).unwrap(),
+            format!("#!/bin/sh\n{body}").as_bytes()
+        );
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o755
+        );
+        path
+    }
+
+    // 此 helper 不作为独立验收；fake_tool 显式调用并检查退出、实际运行数与完整产物。
+    #[test]
+    #[ignore = "独立脚本写入子进程；由 fake_tool 显式调用"]
+    fn script_writer_fixture() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let path = std::env::var_os("DG_SPECIALIST_SCRIPT_PATH")
+            .expect("script writer requires its controlled destination");
+        let body = std::env::var("DG_SPECIALIST_SCRIPT_BODY")
+            .expect("script writer requires its controlled body");
         let mut file = std::fs::File::create(&path).unwrap();
         writeln!(file, "#!/bin/sh").unwrap();
         write!(file, "{body}").unwrap();
+        file.flush().unwrap();
+        file.sync_all().unwrap();
         drop(file);
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
-        }
-        path
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+        println!("DG_SPECIALIST_SCRIPT_WRITTEN");
     }
 
     fn spec_for(program: PathBuf, args: &[&str]) -> CommandSpec {
@@ -728,14 +769,17 @@ mod tests {
         let (capability, _) = AdapterRegistry::allowing(&[("cargo-clean", new_tool.clone())])
             .capability("cargo-clean")
             .unwrap();
-        assert!(matches!(
-            probe(capability, &new_tool, &SandboxedRunner),
-            AdapterStatus::Available { version } if version.contains("1.99.0")
-        ));
-        assert!(matches!(
-            probe(capability, &old_tool, &SandboxedRunner),
-            AdapterStatus::Unavailable { reason } if reason.contains("below the required")
-        ));
+        // 只执行一次真实探针；失败时保留该次运行的状态，区分启动、期限与版本错误。
+        let new_status = probe(capability, &new_tool, &SandboxedRunner);
+        assert!(
+            matches!(&new_status, AdapterStatus::Available { version } if version.contains("1.99.0")),
+            "new-enough specialist fixture returned {new_status:?}"
+        );
+        let old_status = probe(capability, &old_tool, &SandboxedRunner);
+        assert!(
+            matches!(&old_status, AdapterStatus::Unavailable { reason } if reason.contains("below the required")),
+            "old specialist fixture returned {old_status:?}"
+        );
     }
 
     #[test]
