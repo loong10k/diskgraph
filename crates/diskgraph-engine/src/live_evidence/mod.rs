@@ -91,6 +91,8 @@ mod probe_output;
 mod probe_tests;
 #[cfg(windows)]
 mod probe_windows;
+#[cfg(test)]
+mod process_allocation_tests;
 mod process_holder;
 mod process_output;
 #[cfg(test)]

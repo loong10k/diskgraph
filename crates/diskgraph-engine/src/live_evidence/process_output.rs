@@ -1,7 +1,7 @@
 //! 保守解释占用探针：仅匹配可确认的显示路径，未确认身份保持未知。
 
 use super::{ProcessHolder, UsageCoverage, UsageSample};
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 use std::path::Path;
 
 /// 按字段字节解析占用输出，保持未经验证的权限及进程启动身份为 partial。
@@ -56,10 +56,12 @@ fn parse_holders(output: &[u8], paths: &[&Path]) -> Result<(Vec<ProcessHolder>, 
             native_path_bytes(&canonical)
         })
         .collect::<Result<_, _>>()?;
-    let mut holders = Vec::new();
+    // 借用探针输出中的命令，只为最终唯一观察分配字符串，避免重复句柄乘法放大。
+    let mut holders = BTreeSet::new();
     let mut identity_unknown = false;
     let mut current_pid = None;
     let mut current_command = None;
+    let mut context_observed = false;
     for mut record in output.split(|byte| *byte == 0) {
         while record.first() == Some(&b'\n') {
             record = &record[1..];
@@ -78,6 +80,7 @@ fn parse_holders(output: &[u8], paths: &[&Path]) -> Result<(Vec<ProcessHolder>, 
                     .ok_or("the handle probe returned an invalid PID")?;
                 current_pid = Some(pid);
                 current_command = None;
+                context_observed = false;
             }
             b'c' => {
                 if current_pid.is_none() || value.is_empty() {
@@ -85,9 +88,9 @@ fn parse_holders(output: &[u8], paths: &[&Path]) -> Result<(Vec<ProcessHolder>, 
                 }
                 current_command = Some(
                     std::str::from_utf8(value)
-                        .map_err(|_| "the handle probe returned an invalid command encoding")?
-                        .to_owned(),
+                        .map_err(|_| "the handle probe returned an invalid command encoding")?,
                 );
+                context_observed = false;
             }
             b'n' => {
                 let (Some(pid), Some(command_name)) = (current_pid, current_command.as_ref())
@@ -106,11 +109,9 @@ fn parse_holders(output: &[u8], paths: &[&Path]) -> Result<(Vec<ProcessHolder>, 
                     identity_unknown = true;
                     continue;
                 }
-                if requested.contains(value) {
-                    holders.push(ProcessHolder {
-                        pid,
-                        command: command_name.clone(),
-                    });
+                if !context_observed && requested.contains(value) {
+                    holders.insert((pid, *command_name));
+                    context_observed = true;
                 }
             }
             // lsof 可能附带文件描述符等 ASCII 字段，保留兼容但不推导新事实。
@@ -118,9 +119,16 @@ fn parse_holders(output: &[u8], paths: &[&Path]) -> Result<(Vec<ProcessHolder>, 
             _ => return Err("the handle probe returned an invalid field tag".into()),
         }
     }
-    holders.sort();
-    holders.dedup();
-    Ok((holders, identity_unknown))
+    Ok((
+        holders
+            .into_iter()
+            .map(|(pid, command)| ProcessHolder {
+                pid,
+                command: command.to_owned(),
+            })
+            .collect(),
+        identity_unknown,
+    ))
 }
 
 fn native_path_bytes(path: &Path) -> Result<Vec<u8>, String> {

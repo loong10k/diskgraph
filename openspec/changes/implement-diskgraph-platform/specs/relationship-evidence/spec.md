@@ -69,3 +69,7 @@
 #### Scenario: Escaped display path identity
 - **WHEN** NUL 字段中的路径显示包含转义或无法确认的名称编码，可能等于另一个对象的原生名称
 - **THEN** 不猜测解码、不把显示文本当原始身份；保持 partial/unknown，保留其他无歧义的正向观察。
+
+#### Scenario: Repeated process handles do not multiply command storage
+- **WHEN** 有界探针输出在同一进程上下文重复报告大量匹配文件，或重复出现相同 PID/命令上下文
+- **THEN** 在拥有命令字符串前去重，保留原有按 PID/命令排序的唯一持有者；暂存字符串总量不得随重复文件数乘以命令长度放大。异常记录、歧义路径和未验证身份的覆盖语义保持不变。

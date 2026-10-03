@@ -283,3 +283,7 @@ read_bounded 在 EOF、精确额度和最终身份检查之后再次检查实际
 ### D26 原生目录分页预算
 
 旧top/children使用open_store仅首检，children还解码limit+1条；持久session先拥有整页、再to_vec测量。将旧入口路由到已有native_reply::legacy；新增Store有界目录读取，共享snapshot元数据和NodeRow借用列账本，保留父索引排序及已知/未知过滤契约，额外行仅存在探测。私有native_listing模块适配旧完整列表与session带诊断部分页，session响应使用有限计量而非先序列化大Vec，并按实际返回条数推进offset。复用既有native_reply首末授权/取消，不创建新owner。旧limit仍为1–1000，显式limit定义本次有限节点上限；session保持最多100。不添加迁移，offset深页仍受执行期限约束，不声称offset为keyset或严格RSS限制。
+
+### D27 占用记录去重与命令存储
+
+lsof解析此前每个匹配n字段克隆当前command，最后排序去重，因此有限stdout不能限制中间字符串放大。解析期间从stdout借用命令文本，按(pid, command)保留唯一观察，同一p/c上下文只在首次匹配时加入集合；最终一次性拥有排序后的结果。保持p重置command、坏字段整体失败、歧义路径保守partial及公开ProcessHolder结构。用隔离单用例进程中的实际分配字节计数回归重复句柄，不将分配累计值冒充RSS；该修复属于15.13/EV-06子集，不替代启动身份或真实宿主集成。

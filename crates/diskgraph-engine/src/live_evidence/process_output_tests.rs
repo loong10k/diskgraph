@@ -218,3 +218,54 @@ fn ambiguous_names_do_not_erase_other_positive_observations() {
     assert!(matches!(sample.coverage, UsageCoverage::Partial { .. }));
     assert!(sample.verdict().contains("path identities are unsupported"));
 }
+
+#[test]
+fn repeated_contexts_keep_sorted_unique_pid_and_command_observations() {
+    let sample = interpret_process_output(
+        b"p9\0cz\0nfixture\0nfixture\0ca\0nfixture\0p2\0cz\0nfixture\0p9\0cz\0nfixture\0",
+        Some(0),
+        &[Path::new("fixture")],
+        1,
+    );
+    assert_eq!(
+        sample.holders,
+        vec![
+            ProcessHolder {
+                pid: 2,
+                command: "z".into()
+            },
+            ProcessHolder {
+                pid: 9,
+                command: "a".into()
+            },
+            ProcessHolder {
+                pid: 9,
+                command: "z".into()
+            },
+        ]
+    );
+    assert!(matches!(sample.coverage, UsageCoverage::Partial { .. }));
+}
+
+#[test]
+fn an_observed_context_still_checks_later_ambiguous_and_malformed_records() {
+    for (suffix, malformed) in [
+        (b"nfile\\n\0".as_slice(), false),
+        (b"n\0", true),
+        (b"p9\0nfixture\0", true),
+    ] {
+        let mut output = b"p42\0cfixture\0nfixture\0".to_vec();
+        output.extend_from_slice(suffix);
+        let sample = interpret_process_output(&output, Some(0), &[Path::new("fixture")], 1);
+        if malformed {
+            assert!(sample.holders.is_empty());
+            assert!(matches!(
+                sample.coverage,
+                UsageCoverage::Unobservable { .. }
+            ));
+        } else {
+            assert_eq!(sample.holders.len(), 1);
+            assert!(sample.verdict().contains("path identities are unsupported"));
+        }
+    }
+}

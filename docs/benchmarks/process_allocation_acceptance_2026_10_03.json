@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-03",
+  "scope": "D27 / EV-06 / task15.13 subset: bound process command allocation amplification",
+  "baseline_commit": "5f66862544d1dc3cb2aae9bda65ded6c223f5267",
+  "status": "local_validation_complete_same_source_native_ci_pending",
+  "source_files": {
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "95a442aa59bf0026d2669bbd45b6e146089741a1eae168e3de89d33da416dc92",
+    "crates/diskgraph-engine/src/live_evidence/process_output.rs": "d5c8d65a471f0e35947cc28d759a9aeaaa4e4c2500dc1184d6b1fbc17181088d",
+    "crates/diskgraph-engine/src/live_evidence/process_output_tests.rs": "508a69998eba6a3fa7dea0f380dc3a9ab3e2b2eb229c8d5c700826b9b7e404df",
+    "crates/diskgraph-engine/src/live_evidence/process_allocation_tests.rs": "4cd6aeae0b3b1009afce3cfa9746532ae3df32228a696d9b9bd82620f47aa654"
+  },
+  "allocation_regression": {
+    "input_bytes": 53254,
+    "command_bytes": 16384,
+    "repeated_handles": 4096,
+    "baseline_cumulative_allocated_bytes": 67518538,
+    "final_cumulative_allocated_bytes": 16898,
+    "asserted_maximum_exclusive": 2097152,
+    "red_target_cases_failed": 1,
+    "measurement": "Isolated exact-test child; System allocator successfully requested allocation sizes including new realloc sizes, only while interpreting the supplied output. Not retained-byte peak or RSS."
+  },
+  "targeted": {
+    "passed": 17,
+    "failed": 0,
+    "ignored": 0,
+    "child_result_counted_again": false,
+    "actual_macos_lsof_escaped_path_case": "passed"
+  },
+  "workspace": {
+    "passed": 965,
+    "failed": 0,
+    "ignored": 18,
+    "suites": 45,
+    "exit_code": 0
+  },
+  "checks": {
+    "clippy_exit_code": 0,
+    "fmt_exit_code": 0,
+    "openspec_exit_code": 0,
+    "release_cli_mcp_ffi_exit_code": 0
+  },
+  "uniffi": {
+    "library_sha256": "727f119404e5290a6be106a809efd52804420c6644634b35e8f3bbaa73ac4451",
+    "checksums": {
+      "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+      "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+      "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+      "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+      "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+      "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+      "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+      "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+      "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+      "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+      "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+      "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+    },
+    "exact_matches": 19,
+    "total": 19
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "architecture_source_hashes_matched": 4,
+    "code_source_hashes_matched": 4
+  },
+  "logs": {
+    "directory": "process_allocation_acceptance_2026_10_03_logs",
+    "files": {
+      "allocation-red.log.gz": {
+        "sha256_uncompressed": "9b04e6031c2c2c2635cf83d38031edbe2b1cc8ac3f2148e0e6d95fec43568ec8",
+        "sha256_gzip": "1dae55cd130202b6d557e04873e37a8a59697fd9e30c81b27ac91a8a6ecf373a"
+      },
+      "process-green.log.gz": {
+        "sha256_uncompressed": "0d14e16f2e9064cf95bbb563438e5bacb13efe82c3b53670413b488b53818673",
+        "sha256_gzip": "d264ba9cc50becfd43fb570e379443ec776aba77138186834001b5117977cb02"
+      },
+      "workspace.log.gz": {
+        "sha256_uncompressed": "9435732a23c0e4caa475961a7552b04489f44752971a5af0bf371a5539cba911",
+        "sha256_gzip": "be67a1e5c39539616514c9ae18aefafb9c66dfc56dce75dd150f96e30388848d"
+      },
+      "clippy-final.log.gz": {
+        "sha256_uncompressed": "dc8a1c5efde541ea7e84526ababf2b6b3f56b24f6c6a23e517291dd04b28ebde",
+        "sha256_gzip": "45c39f81011f4f3ae4a4ca469874db8a1a9659bb5c974231f7a0858ac728fb49"
+      },
+      "release.log.gz": {
+        "sha256_uncompressed": "4b33b1d57c9a1e67323f09f207fca5d5cc48b8c333821e436460a53f22d0c774",
+        "sha256_gzip": "e6d1535c29e98d8f196f8c72eb0a2b7780d0c3c4d50826dcda72021792af185f"
+      },
+      "fmt.log.gz": {
+        "sha256_uncompressed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_gzip": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "openspec.log.gz": {
+        "sha256_uncompressed": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "sha256_gzip": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+      }
+    }
+  },
+  "limits": [
+    "Same-source native CI pending; D26 CI is not D27 acceptance.",
+    "Cumulative allocations do not prove strict peak memory, RSS, or wall-clock bounds.",
+    "The test allocator is cfg(test) only; production uses the existing allocator.",
+    "Task15.13 remains open for live integration, process start identity and other documented parent obligations."
+  ]
+}
