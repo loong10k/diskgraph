@@ -148,13 +148,22 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |reader, evidence| {
-                Ok(reader.candidate_selection_for_revision_until(
-                    evidence.revision_id(),
-                    target_bytes,
-                    budget,
-                    deadline,
-                )?)
+            budget,
+            None,
+            |_reader, evidence, reads| match evidence {
+                Some(evidence) => {
+                    Ok(evidence.candidate_selection_with_budget(target_bytes, budget, reads)?)
+                }
+                // 目标未观测时不得调用快照读取；保留既有安全诊断与完整缺口。
+                None => Ok(CandidateSelection {
+                    candidates: Vec::new(),
+                    selected_bytes: 0,
+                    remaining_bytes: target_bytes,
+                    coverage_complete: false,
+                    coverage_observed: false,
+                    complete: false,
+                    truncated: Some(TruncationReason::Deadline),
+                }),
             },
             |answer, expired| {
                 if expired {
@@ -215,12 +224,20 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |_store, reader| {
+            budget,
+            None,
+            |_store, reader, reads| {
+                let Some(reader) = reader else {
+                    return Ok(ImpactResult {
+                        entries: Vec::new(),
+                        truncated: Some(TruncationReason::Deadline),
+                    });
+                };
                 reader.require_confirmed_membership()?;
                 crate::queries::impact_with_budget::<EngineError, _>(
                     entity_id,
                     budget,
-                    deadline,
+                    reads,
                     |current, outgoing, limit, reads| {
                         let (edges, more) = match reader.edges_text_with_budget_page(
                             current,

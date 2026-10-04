@@ -8,7 +8,7 @@ use diskgraph_core::{
 };
 use rusqlite::{OptionalExtension, params};
 
-use crate::{CandidateSelection, Result, SqliteSnapshotStore, StoreError};
+use crate::{CandidateSelection, Result, RevisionEvidenceReader, SqliteSnapshotStore, StoreError};
 
 // A blocked node excludes both its ancestors and descendants. The recursive
 // sets stay inside SQLite's deadline-bound reader; no O(revision) Rust map is
@@ -95,7 +95,9 @@ impl SqliteSnapshotStore {
         budget: QueryBudget,
         deadline: Instant,
     ) -> Result<CandidateSelection> {
-        self.candidate_selection_query(snapshot_id, None, target_bytes, budget, deadline)
+        let mut reads = QueryReadBudget::new(budget, deadline)
+            .map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
+        self.candidate_selection_query(snapshot_id, None, target_bytes, budget, &mut reads)
     }
 
     /// 按固定 revision 的有效证据选择审阅候选，保留旧静态证据与预算语义。
@@ -108,15 +110,33 @@ impl SqliteSnapshotStore {
         budget: QueryBudget,
         deadline: Instant,
     ) -> Result<CandidateSelection> {
-        let evidence = self.revision_evidence(revision_id)?;
-        evidence.require_confirmed_membership()?;
-        self.candidate_selection_query(
-            evidence.snapshot_id(),
-            Some(revision_id),
-            target_bytes,
-            budget,
-            deadline,
-        )
+        let mut reads = QueryReadBudget::new(budget, deadline)
+            .map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
+        if !reads.check() {
+            return bounded_selection(
+                CandidateSelection::unobserved_deadline(target_bytes),
+                budget,
+            );
+        }
+        let evidence = match self.revision_evidence_with_budget(revision_id, &mut reads) {
+            Ok(evidence) => evidence,
+            Err(StoreError::BudgetExceeded)
+                if reads.stopped() == Some(TruncationReason::Deadline) =>
+            {
+                return bounded_selection(
+                    CandidateSelection::unobserved_deadline(target_bytes),
+                    budget,
+                );
+            }
+            Err(error) if error.is_interrupted() && Instant::now() >= deadline => {
+                return bounded_selection(
+                    CandidateSelection::unobserved_deadline(target_bytes),
+                    budget,
+                );
+            }
+            Err(error) => return Err(error),
+        };
+        evidence.candidate_selection_with_budget(target_bytes, budget, &mut reads)
     }
 
     fn candidate_selection_query(
@@ -125,10 +145,9 @@ impl SqliteSnapshotStore {
         revision_id: Option<&str>,
         target_bytes: u64,
         budget: QueryBudget,
-        deadline: Instant,
+        reads: &mut QueryReadBudget,
     ) -> Result<CandidateSelection> {
-        let mut reads = QueryReadBudget::new(budget, deadline)
-            .map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
+        let deadline = reads.deadline();
         // 授权可能已经耗尽原读期；未取得覆盖头时只返回明确未观测的期限诊断。
         if !reads.check() {
             return bounded_selection(
@@ -137,7 +156,7 @@ impl SqliteSnapshotStore {
             );
         }
         // 初始覆盖头也属于准备成本；借用字段先准入，节点和证据继续使用同一余额。
-        let coverage_complete = match self.snapshot_with_budget(snapshot_id, &mut reads) {
+        let coverage_complete = match self.snapshot_with_budget(snapshot_id, reads) {
             Ok(snapshot) => snapshot.coverage.complete,
             Err(StoreError::BudgetExceeded)
                 if reads.stopped() == Some(TruncationReason::Deadline) =>
@@ -267,7 +286,7 @@ impl SqliteSnapshotStore {
             if overlaps {
                 continue;
             }
-            let node = match self.node_with_budget(snapshot_id, id, &mut reads) {
+            let node = match self.node_with_budget(snapshot_id, id, reads) {
                 Ok(Some(node)) => node,
                 Ok(None) => {
                     return Err(StoreError::InvalidGraph("candidate node is missing".into()));
@@ -282,7 +301,7 @@ impl SqliteSnapshotStore {
                 }
                 Err(error) => return Err(error),
             };
-            let evidence = match self.evidence_with_budget(snapshot_id, id, &mut reads) {
+            let evidence = match self.evidence_with_budget(snapshot_id, id, reads) {
                 Ok(evidence) => evidence,
                 Err(StoreError::BudgetExceeded) => {
                     result.stop(reads.stopped().unwrap_or(TruncationReason::ByteLimit));
@@ -333,6 +352,27 @@ impl SqliteSnapshotStore {
             result.stop(TruncationReason::Deadline);
         }
         bounded_selection(result, budget)
+    }
+}
+
+impl RevisionEvidenceReader<'_> {
+    /// 使用已准入的固定目标选择候选，不重读目标或建立新账本；来源：原生 Rust Q-08。
+    /// 参数：target_bytes/budget 为原请求限制，reads 为归属、目标与消费共同余额。
+    /// 返回：来源确认的完整候选前缀、缺口与截断，原始格式错误保持。
+    pub fn candidate_selection_with_budget(
+        &self,
+        target_bytes: u64,
+        budget: QueryBudget,
+        reads: &mut QueryReadBudget,
+    ) -> Result<CandidateSelection> {
+        self.require_confirmed_membership()?;
+        self.store.candidate_selection_query(
+            self.snapshot_id(),
+            Some(self.revision_id()),
+            target_bytes,
+            budget,
+            reads,
+        )
     }
 }
 

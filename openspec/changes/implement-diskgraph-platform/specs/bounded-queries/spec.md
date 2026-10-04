@@ -26,6 +26,10 @@
 - **WHEN** related、explain、impact 或 candidates 的解析、授权、连接准备、读取或返回前授权等待耗尽请求期限
 - **THEN** 全阶段使用同一个绝对协作期限，不在授权后重新计时；空结果、零目标和未完整覆盖同样不能成为晚到完整成功。能表示部分结果时保留已计费前缀并明确 Deadline，否则返回明确预算错误；同步 I/O、锁和调度不被描述为可抢占的严格墙钟保证。
 
+#### Scenario: Relation deadline fixtures distinguish owner preparation from authorized expiry
+- **WHEN** 请求在准入真实 revision 归属前已到期，或完成归属准入后由实际授权回调耗尽原期限
+- **THEN** 前者返回明确预算错误，不伪造已授权前缀；后者能容纳既有关系／影响／候选诊断时保留空 Deadline 截断及未完成目标。回归固定这两个阶段，不要求任意宿主在 1 ms 内完成连接／归属准备，不接受其他错误、额度重置或晚到完整成功。
+
 #### Scenario: Response bytes include JSON escaping
 - **WHEN** 关系 ID、名称、证据或诊断包含控制字符、引号、反斜杠或 Unicode
 - **THEN** 查询字节预算按实际 JSON 编码计费，包含所承诺数据/诊断 envelope 的字段与分隔符，不用字符串原始长度近似转义成本；不能容纳最小诊断时返回预算错误。tools/call 的文本嵌套、HTTP/SSE 外层封装与传输上限仍分别校验，不把这些不同计量点混作一个保证。
@@ -185,9 +189,11 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **THEN** 页面与整帧读取使用必要字段投影或读取前原始字段准入，不先拥有这些未使用字段再计算展示成本。必需的名称、路径及节点读取按整次预算计费，真实准备成本与展示成本分别报告；不把有限行数或256KiB展示额度描述为完整原始输入或RSS上限。
 
 #### Scenario: Revision target preparation shares the actual query ledger
-- **WHEN** 合法已发布 revision 的必需 snapshot ID 或实际归属字段超过 TUI 导航、整帧或历史请求的剩余原始字段额度
+- **WHEN** 合法已发布 revision 的必需 snapshot ID 或实际归属字段超过 TUI 导航、整帧、历史、related、explain、impact、candidates 或 tree 请求的剩余原始字段额度
 - **THEN** 在拥有该字段之前执行借用字段准入；归属、目标、节点及后续读取沿用从首次准备前建立的同一账本和期限，不能在消费者中重建额度。不会为不需要的 revision 元数据分配完整记录。
 - **AND** 初次目标准备失败返回明确预算错误，不能转换成可提交的缓存部分画布；实际终端后端没有提交该帧。
+- **AND** 关系、候选和树复用已准入目标，不为构造证据 reader 再拥有完整 revision 或重复读取目标；候选快照覆盖、实体、邻接和树节点沿用剩余原始余额。已解析并授权真实归属之后的目标预算失败仍执行实时末段授权，不因错误路径跳过撤权检查。
+- **AND** 无法在期限内取得目标时，树不得伪造根；关系/影响或候选如能返回既有明确 Deadline 空前缀，必须保持未观测诊断及完整目标缺口，不能读取已经到期的头来补齐成功。可信内部有界入口仍执行目标准入，其原授权责任不被更改。
 
 #### Scenario: Both historical targets consume one preparation budget
 - **WHEN** 单侧历史头可容纳，但双侧必需头与后续快照读取累计超出请求额度

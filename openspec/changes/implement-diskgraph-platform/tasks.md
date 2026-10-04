@@ -216,6 +216,7 @@
 - [x] 13.4 跨 Engine 取消持久生效且阻止发布；撤权过期任务不得饿死队列；旧 fencing staging 有安全回收路径；FFI 图库与控制库绑定唯一 storage realm。
 - [x] 13.5 HTML 报告中的路径和 JSON 无法突破 HTML/script 上下文；专业命令超时覆盖整个子进程树和输出读取；CLI serve 可传递远程认证配置并更新 HTTP 验收脚本。
 - [ ] 13.6 影响分析准确报告截断，关系遍历和候选读取预算覆盖准备阶段；宽目录统计、历史比较、TUI 宽目录的实际工作量与展示限制可观测且有界。
+  - D41 同源码 3531943 CI37190906485 22/22 成功，四平台准备 20 项及既有查询 32 项逐案通过。D43 补足 related／explain／impact／candidate／tree 及可信兼容路径的准备共享账本：隔离重编旧源码公开请求 2/9、finish 错误 0/1 RED；新 integration 11/11、helper 8/8、期限阶段 9/9。最终冻结 workspace 1414/0/18、fmt／Clippy／build／OpenSpec／vendor 124/0/2／release 通过，实际协议 18/18、13/13 与 ABI 19/19；独立复审批准。首轮 1411/2/18、编译／夹具／缓存隔离失败完整保留，未计为完成。新源码原生验收尚待，13.6 不勾选；记录见 docs/benchmarks/relation_preparation_acceptance_2026_10_04.json。
 - [x] 13.7 发布门禁先验证二进制再发布注册表；运行目标及 workspace 测试、fmt、Clippy、OpenSpec strict 和隔离性能探针，更新中英文文档及剩余平台限制。
 
 13.6 的查询工作持续由第 14.1/14.2 与 15.2 项验证：正目标候选通过图库有期限窄读和 schema 8 索引选择；impact 每请求复用一个授权读连接；历史有序 merge、关系有界邻接、TUI 整帧共同预算/末段授权与 schema 9 精确宽目录聚合已完成隔离回归。200k 聚合/known 页工作量低于 1,500 VM 步；任意 minimum、未知大小 JSON fallback、旧连接 writer 拒绝和缺缓存 fail-closed 通过。显式 offset 仍为 O(offset+page)；MCP children v2 绑定游标和尺寸/name/id seek、搜索 name/id seek 已完成深页工作量与字节截页回归，新提交跨平台验收继续核对。release 聚合原始数据明确区分迁移、备份、发布和采样临时成本，不承诺严格 RSS/空间上界。

@@ -6,7 +6,7 @@ use diskgraph_core::{
 };
 use diskgraph_engine::{Engine, EngineConfig};
 use rusqlite::{Connection, params};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 struct Fixture {
     _directory: tempfile::TempDir,
@@ -118,19 +118,25 @@ impl Fixture {
     }
 }
 
-struct Slow(PolicyAuthorizer);
-impl Authorizer for Slow {
+/// 在真实归属已经准入后的授权阶段耗尽同一绝对期限，不猜测宿主准备时长。
+struct ExpireDuringAuthorization {
+    policy: PolicyAuthorizer,
+    deadline: Instant,
+}
+impl Authorizer for ExpireDuringAuthorization {
     fn decide(
         &self,
         principal: &PrincipalId,
         permission: &Permission,
         scope: &ScopeId,
     ) -> Decision {
-        std::thread::sleep(Duration::from_millis(40));
-        self.0.decide(principal, permission, scope)
+        std::thread::sleep(
+            self.deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1),
+        );
+        self.policy.decide(principal, permission, scope)
     }
     fn policy_version(&self) -> u64 {
-        self.0.policy_version()
+        self.policy.policy_version()
     }
 }
 
@@ -138,22 +144,28 @@ impl Authorizer for Slow {
 fn authorization_time_exhausts_empty_and_positive_candidate_requests() {
     let f = Fixture::new();
     f.evidence("one", 100);
-    let auth = Slow(f.engine.policy_authorizer().unwrap());
     let observed: Vec<_> = [0, 1]
         .into_iter()
         .map(|target| {
+            let budget = QueryBudget {
+                deadline_ms: 1000,
+                ..QueryBudget::default()
+            };
+            let deadline = diskgraph_core::query_deadline(budget).unwrap();
+            let auth = ExpireDuringAuthorization {
+                policy: f.engine.policy_authorizer().unwrap(),
+                deadline,
+            };
             (
                 target,
                 f.engine
-                    .review_candidates(
+                    .review_candidates_until(
                         &f.revision,
                         target,
-                        QueryBudget {
-                            deadline_ms: 1,
-                            ..QueryBudget::default()
-                        },
+                        budget,
                         &f.principal,
                         &auth,
+                        deadline,
                     )
                     .unwrap(),
             )
@@ -170,22 +182,59 @@ fn authorization_time_exhausts_empty_and_positive_candidate_requests() {
 #[test]
 fn authorization_time_exhausts_empty_impact_request() {
     let f = Fixture::new();
-    let auth = Slow(f.engine.policy_authorizer().unwrap());
+    let budget = QueryBudget {
+        deadline_ms: 1000,
+        ..QueryBudget::default()
+    };
+    let deadline = diskgraph_core::query_deadline(budget).unwrap();
+    let auth = ExpireDuringAuthorization {
+        policy: f.engine.policy_authorizer().unwrap(),
+        deadline,
+    };
     let result = f
         .engine
-        .revision_impact(
-            &f.revision,
-            "absent",
-            QueryBudget {
-                deadline_ms: 1,
-                ..QueryBudget::default()
-            },
-            &f.principal,
-            &auth,
-        )
+        .revision_impact_until(&f.revision, "absent", budget, &f.principal, &auth, deadline)
         .unwrap();
     assert_eq!(result.truncated, Some(TruncationReason::Deadline));
     assert!(result.entries.is_empty());
+}
+
+#[test]
+fn expired_owner_preparation_refuses_a_fabricated_authorized_prefix() {
+    let f = Fixture::new();
+    let policy = f.engine.policy_authorizer().unwrap();
+    let deadline = Instant::now() - Duration::from_millis(1);
+    for result in [
+        f.engine
+            .review_candidates_until(
+                &f.revision,
+                1,
+                QueryBudget::default(),
+                &f.principal,
+                &policy,
+                deadline,
+            )
+            .map(|_| ()),
+        f.engine
+            .revision_impact_until(
+                &f.revision,
+                "absent",
+                QueryBudget::default(),
+                &f.principal,
+                &policy,
+                deadline,
+            )
+            .map(|_| ()),
+    ] {
+        assert!(matches!(
+            result,
+            Err(diskgraph_engine::EngineError::Business(
+                diskgraph_core::BusinessError::BudgetExceeded
+            )) | Err(diskgraph_engine::EngineError::Store(
+                diskgraph_store::StoreError::BudgetExceeded
+            ))
+        ));
+    }
 }
 
 #[test]

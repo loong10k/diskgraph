@@ -1,0 +1,194 @@
+{
+  "receipt_version": 1,
+  "date": "2026-10-04",
+  "change": "implement-diskgraph-platform",
+  "requirements": [
+    "Q-08: preparation and all relation/candidate/impact/tree consumers share actual read admission",
+    "Q-02: deadline diagnostics and terminal authorization retain their real phase"
+  ],
+  "status": "verified_local_native_pending",
+  "source": {
+    "base_commit": "3531943642e5d233f8b95cbd047167bc81899df6",
+    "snapshot": "/private/tmp/diskgraph-d43-final-pdz3qb3b",
+    "reviewed_manifest_sha256": "c8a4d4d0892d7fcf18d89be87e23ed751c9d44f8b26471143fe57c34b63544d6",
+    "reviewed_sources": {
+      "crates/diskgraph-store/src/candidate_query.rs": "1838f0bec8cdf2908f544f62e3a7bbdcc1f5645ee481a4d655535e005e9a15b6",
+      "crates/diskgraph-store/src/revision_evidence_reader.rs": "3efbeea7369060feb643dff58f8de43c8a4d836d2a1032ed9398dcb67c9be906",
+      "crates/diskgraph-engine/src/relation_request.rs": "dd1ab737ba5b099f1d5b6ed20f07f82aa5aa2ca0995e417f148db72c4118fdd9",
+      "crates/diskgraph-engine/src/relation_access.rs": "cc9280b8ca412ed225cd899f230437835a3c529bd257ce4e83bf24dad806489e",
+      "crates/diskgraph-engine/src/relation_queries.rs": "3e9ea6ea40a352e2399dff9dbd26cb3a31e66cf3a98fe8f76ccb595eecc6354a",
+      "crates/diskgraph-engine/src/queries/impact_query.rs": "7a41b215f22130ad1c8fd3695c17ed1334393aefa6f58171bee7a15e2452c7d1",
+      "crates/diskgraph-engine/src/tree_queries.rs": "936af4157f47576f4447d2c5ac172d86d1ae46fb1c0e85c835f5183e974be5c3",
+      "crates/diskgraph-engine/src/relation_request_tests.rs": "fc5fae6c2c36c1ca2e90dacb6226a697c9405665927b4a00479e3a2a45046928",
+      "crates/diskgraph-engine/tests/relation_preparation_budget.rs": "b6f4eed02885d84599262ff2e98a07bef22f951492ab9caa456eb35811bb9f17",
+      "crates/diskgraph-engine/tests/relation_preparation_budget/fixture.rs": "6411c4460d4f7c1cf152892fc315ae1d77895539e039d4a8a3de2878e69c8bdf",
+      "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "72f99552a2eabd668692c2342cb18406911181707f15268815b49d1dd1fdcfe9",
+      "crates/diskgraph-engine/tests/relation_request_budget.rs": "f88b55df522e28ac07cdabe227aac811bac50ebfe8ce57c52956625883eb729c"
+    }
+  },
+  "tdd": {
+    "accepted_red": {
+      "phase": "v5 with explicit Engine/Store clean and actual recompilation",
+      "integration": {
+        "passed": 2,
+        "failed": 9,
+        "causes": [
+          "seven public paths own oversized target before admission",
+          "wrong tree scope owns oversized target before refusal",
+          "cumulative related budget resets; first failing method stops this old-source loop"
+        ]
+      },
+      "encoded_terminal_revocation": {
+        "passed": 0,
+        "failed": 1,
+        "limits": "real independent scope revocation plus injected finish BudgetError, not a standalone JSON-size measurement"
+      }
+    },
+    "accepted_green": {
+      "phase": "v5 with explicit Engine/Store clean and actual recompilation",
+      "integration": 11,
+      "terminal_helpers": 8,
+      "cumulative_methods_executed": 7,
+      "adequate_budget_pairing": true
+    },
+    "non_acceptance_history": [
+      "v1 usize SQL lengths and v2 u64 SQL lengths do not implement FromSql; compile failures are not behavioral RED",
+      "v3 cumulative fixture lacked same-batch evidence; publish refused before consumer",
+      "v3 shared-target rlib reuse invalidates old-source allocation outcomes; subsequent phases clean Engine/Store before both builds",
+      "v4 legal Contains source direction did not justify one expected outgoing impact result; fixture/expectation corrected without production direction changes",
+      "v5 full workspace 1411 passed / 2 failed / 18 ignored; old 1ms deadline fixtures assumed connection and ownership had already completed",
+      "v5 standalone vendor --locked test lacked ignored fixture Cargo.lock; final snapshot copies the existing identical ignored lock only"
+    ]
+  },
+  "final_local_quality": [
+    {
+      "name": "deadline-target",
+      "exit_code": 0,
+      "seconds": 8.417,
+      "suite_count": 1,
+      "passed": 9,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "name": "workspace",
+      "exit_code": 0,
+      "seconds": 258.593,
+      "suite_count": 61,
+      "passed": 1414,
+      "failed": 0,
+      "ignored": 18
+    },
+    {
+      "name": "fmt",
+      "exit_code": 0,
+      "seconds": 0.929
+    },
+    {
+      "name": "ffi-include-fmt",
+      "exit_code": 0,
+      "seconds": 0.048
+    },
+    {
+      "name": "clippy",
+      "exit_code": 0,
+      "seconds": 6.245
+    },
+    {
+      "name": "build",
+      "exit_code": 0,
+      "seconds": 0.383
+    },
+    {
+      "name": "vendor",
+      "exit_code": 0,
+      "seconds": 3.517,
+      "suite_count": 2,
+      "passed": 124,
+      "failed": 0,
+      "ignored": 2
+    },
+    {
+      "name": "openspec",
+      "exit_code": 0,
+      "seconds": 1.179
+    },
+    {
+      "name": "release",
+      "exit_code": 0,
+      "seconds": 12.103
+    }
+  ],
+  "deadline_fixture_correction": {
+    "production_changed": false,
+    "cases": 9,
+    "contract": "pre-expired owner preparation accepts only BudgetExceeded; actual Authorizer exhausts original deadline after admission and successful diagnostics remain explicit Deadline",
+    "standalone_vendor_lock_sha256": "b33a087c88f20f6bf5cbcb422c654590eeed52217d21f1c817f7ab0cd682b83a"
+  },
+  "release_acceptance": {
+    "stdio": {
+      "passed": 18,
+      "total": 18
+    },
+    "http_sse": {
+      "passed": 13,
+      "total": 13
+    },
+    "uniffi_actual_calls": {
+      "passed": 19,
+      "total": 19
+    },
+    "binary_sha256": {
+      "diskgraph-mcp": "503f0162a108567166e65dc9c6c49c3b235d20e9946ce12a513e2871acb40c0e",
+      "diskgraph": "40a6e1bb776497ef67467294092c3abe9f79100a66016842d9ee7e45d9dd3c27",
+      "libdiskgraph_ffi.dylib": "aa12191b3c0f20c046b641b61ddcc65f3e5181a3e16abd39e0f3ec44a1118290"
+    }
+  },
+  "allocation_observations": {
+    "fixture": "publicly published legal 2MiB snapshot ID; 64KiB shared raw budget; setup outside isolated whole-call Rust allocation window",
+    "requested_rust_bytes": {
+      "red_extended_v5": {
+        "trusted_tree": 2104116,
+        "store_candidate": 2097770,
+        "related": 2100877,
+        "tree": 2107006,
+        "candidate": 4196125,
+        "impact": 2101529,
+        "explain": 2102411
+      },
+      "green_extended_v5": {
+        "related": 1793,
+        "explain": 1793,
+        "tree": 1793,
+        "impact": 1793,
+        "trusted_tree": 348,
+        "store_candidate": 604,
+        "candidate": 1793
+      }
+    },
+    "limits": "successful Rust requested allocation sums only; not RSS, peak live memory, SQLite C allocation, filesystem I/O or throughput evidence"
+  },
+  "independent_review": {
+    "v5": "APPROVE source and actual targeted tests",
+    "final_delta": "APPROVE fixed deadline phases; production hashes unchanged",
+    "limits": "v3 fixture approval withdrawn; root verified final workspace/release separately; no native proof inferred"
+  },
+  "native_acceptance": {
+    "status": "pending_new_source_ci",
+    "limits": "D41 3531943 native CI does not execute this new D43 implementation"
+  },
+  "full_platform_readiness": {
+    "status": "not_ready",
+    "total": 167,
+    "complete": 139,
+    "open": 28,
+    "task_13_6": "open pending final same-source native acceptance",
+    "limits": "query subtask does not certify collectors, providers, writes, GUI/mobile/devices, signing or deployment"
+  },
+  "archives": {
+    "count": 62,
+    "ledger": "relation_preparation_acceptance_logs/archives.json",
+    "ledger_sha256": "0d0f954032afb6c82b023567a18daad50acae5869690ef1f9b32cf5e9d8bf3da",
+    "limits": "superseded compilation/fixture/build-isolation failures retained; only identified v5/final stages count as acceptance"
+  }
+}

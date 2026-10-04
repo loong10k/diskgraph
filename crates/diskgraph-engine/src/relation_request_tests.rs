@@ -246,10 +246,19 @@ fn actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result() {
 }
 
 #[test]
-fn an_unrepresentable_partial_still_requires_live_terminal_authorization() {
+fn a_post_authorization_budget_failure_still_requires_live_terminal_authorization() {
     for kind in 0..4 {
         let (_dir, engine, principal, scope, _other, revision) = fixture();
         let policy = engine.policy_authorizer().unwrap();
+        let owner = engine
+            .revision_reader()
+            .unwrap()
+            .revision_ownership(&revision)
+            .unwrap()
+            .unwrap();
+        // 真实归属必须先能准入；仅够归属的余额在目标准备阶段耗尽。
+        // 1 字节预算无法建立授权上下文，由下方最小额度测试单独覆盖。
+        let owner_bytes = owner.0.len() + owner.1.len();
         let callback_engine = engine.clone();
         let callback_principal = principal.clone();
         let callback_policy = policy.clone();
@@ -269,7 +278,7 @@ fn an_unrepresentable_partial_still_requires_live_terminal_authorization() {
                     &revision,
                     kind,
                     QueryBudget {
-                        max_response_bytes: 1,
+                        max_response_bytes: owner_bytes,
                         ..QueryBudget::default()
                     }
                 ),
@@ -329,7 +338,9 @@ fn an_independent_control_connection_can_revoke_the_scope_during_finish() {
         &principal,
         &policy,
         query_deadline(budget).unwrap(),
-        |_, _| Ok(serde_json::json!({"complete":true})),
+        budget,
+        None,
+        |_, _, _| Ok(serde_json::json!({"complete":true})),
         |answer, _| {
             assert!(
                 diskgraph_core::measure_json_bounded(answer, budget.max_response_bytes)
@@ -394,5 +405,35 @@ fn final_envelope_authorization_refuses_revocation_during_its_authorizer_call() 
             Err(EngineError::Business(BusinessError::PermissionDenied))
         ),
         "the adapter finalizer passed a scope revoked during its authorizer call"
+    );
+}
+
+#[test]
+fn encoded_budget_failure_still_checks_the_real_terminal_revocation() {
+    let (dir, engine, principal, scope, _other, revision) = fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    let mut independent =
+        diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+            .unwrap();
+    let budget = QueryBudget::default();
+    let result = engine.with_relation_reader_until(
+        &revision,
+        &principal,
+        &policy,
+        query_deadline(budget).unwrap(),
+        budget,
+        None,
+        |_, _, _| Ok(serde_json::json!({"complete":true})),
+        |_, _| {
+            independent.revoke_scope(&scope).unwrap();
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        },
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "encoded error hid the actual terminal denial: {result:?}"
     );
 }

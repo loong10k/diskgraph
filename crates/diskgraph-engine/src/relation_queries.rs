@@ -134,10 +134,20 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |_store, reader| {
+            budget,
+            None,
+            |_store, reader, reads| {
+                let Some(reader) = reader else {
+                    let mut answer = json!({"edges":[],"complete":false,"truncated":"deadline","next_after_edge":null});
+                    if direction.is_none() {
+                        answer["entity"] = Value::Null;
+                        answer["evidence"] = json!([]);
+                    }
+                    return Ok(answer);
+                };
                 reader.require_confirmed_membership()?;
                 relation_data(
-                    reader, entity, relation, direction, after, limit, budget, deadline,
+                    reader, entity, relation, direction, after, limit, budget, reads,
                 )
             },
             |answer, expired| {
@@ -167,13 +177,13 @@ fn relation_data(
     after: Option<&str>,
     limit: u64,
     budget: QueryBudget,
-    deadline: Instant,
+    reads: &mut QueryReadBudget,
 ) -> Result<Value, EngineError> {
-    let mut reads = QueryReadBudget::new(budget, deadline)?;
+    let deadline = reads.deadline();
     let mut entity = None;
     let mut reason = None;
     if direction.is_none() && reads.check() {
-        match reader.entity_with_budget(entity_id, &mut reads) {
+        match reader.entity_with_budget(entity_id, reads) {
             Ok(Some(value)) => entity = Some(value),
             Ok(None) => return Err(BusinessError::NotFound.into()),
             Err(StoreError::BudgetExceeded)
@@ -196,9 +206,7 @@ fn relation_data(
     let limit =
         limit.min(u64::try_from(budget.max_edges).map_err(|_| StoreError::IntegerOverflow)?);
     let candidates = if reads.check() && reason.is_none() {
-        match reader
-            .edges_with_budget_page(entity_id, direction, relation, after, limit, &mut reads)
-        {
+        match reader.edges_with_budget_page(entity_id, direction, relation, after, limit, reads) {
             Ok((page, more)) => {
                 if more {
                     reason = Some(reads.stopped().unwrap_or(TruncationReason::EdgeLimit));
@@ -241,7 +249,7 @@ fn relation_data(
                 if seen.contains(id) || !edge_seen.insert(id) {
                     continue;
                 }
-                match reader.evidence_record_with_budget(id, &mut reads) {
+                match reader.evidence_record_with_budget(id, reads) {
                     Ok(Some(record)) => {
                         let Some(bytes) = measure_json_bounded(
                             &record,

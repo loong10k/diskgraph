@@ -280,9 +280,9 @@ MCP 库入口现为55行模块声明与明确导出。配置、共享服务、�
 
 `fd9330e`同源码[CI37187379023](https://github.com/loong10k/diskgraph/actions/runs/37187379023)第二次attempt终态为**22/22 success**：保留21项先前成功，仅Kotlin Intel实际重跑。[D40回执](docs/benchmarks/mcp_service_layout_acceptance_2026_10_04.json)支持Git任务8.7与持久请求授权任务15.20验收；当前清单为**139完成／28开放／167总项**，全平台生产就绪仍未完成。
 
-### 查询准备（D41，本机检查通过，原生验收待完成）
+### 查询准备（D41 原生检查通过，其余消费者修复验证中）
 
-TUI 与 Engine 历史查询先借用准入必需的 revision 归属和 snapshot ID，再将同一读取账本传给全部消费者。初始准备失败不绘制或提交缓存帧；双方已授权后的历史准备失败仍执行双侧授权末检。整请求 Rust 分配观察不代表 SQLite C 分配、文件系统 I/O 或 RSS。修正源码本机 workspace 1401/0/18、质量／构建／release 门禁、stdio 18/18、HTTP/SSE 13/13、实际 ABI 19/19 及 macOS ARM Kotlin 宿主检查通过；新源码原生验收尚未完成，任务 13.6 继续开放，见[最新就绪阶段](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)。
+TUI 与 Engine 历史查询先借用准入必需的 revision 归属和 snapshot ID，再将同一读取账本传给全部消费者。初始准备失败不绘制或提交缓存帧；双方已授权后的历史准备失败仍执行双侧授权末检。整请求 Rust 分配观察不代表 SQLite C 分配、文件系统 I/O 或 RSS。修正源码本机 workspace 1401/0/18、质量／构建／release 门禁、stdio 18/18、HTTP/SSE 13/13、实际 ABI 19/19 及 macOS ARM Kotlin 宿主检查通过；`3531943` 同源码 [CI37190906485](https://github.com/loong10k/diskgraph/actions/runs/37190906485) 已终态 22/22 成功，四份原生 workspace 日志均逐案核对准备 20 项及既有查询 32 项通过。D43 关系、影响、候选与树查询准备修复已通过本机 workspace 1414/0/18 及 release 检查，新源码原生验收仍待完成，任务 13.6 继续开放，见[最新就绪阶段](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)。
 
 ## 文档
 

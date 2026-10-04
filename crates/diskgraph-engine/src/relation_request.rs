@@ -1,41 +1,59 @@
 //! 关系请求复用真实 revision 授权与独立 reader，返回前在同一 control guard 复检。
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, BusinessError, Permission, PrincipalId, ScopeId};
+use diskgraph_core::{
+    Authorizer, BusinessError, Permission, PrincipalId, QueryBudget, QueryReadBudget, ScopeId,
+    TruncationReason,
+};
 use diskgraph_store::{RevisionEvidenceReader, SqliteSnapshotStore};
 use std::time::Instant;
 
 impl Engine {
     /// 执行一次真实归属查询，有限完成结果后复核授权与期限。
-    /// 参数：revision/身份、deadline、consumer 和 finish 只用于该请求。
+    /// 参数：revision/身份、原期限/账本、范围断言及消费/编码只用于该请求。
     /// 返回：已复核结果或失败；真实格式错误不改写，预算失败仍终检授权。
+    #[allow(clippy::too_many_arguments)] // 实际身份、范围、期限、额度与两阶段消费者均独立必需。
     pub(super) fn with_relation_reader_until<T>(
         &self,
         revision: &str,
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
         deadline: Instant,
+        budget: QueryBudget,
+        expected_scope: Option<&ScopeId>,
         consumer: impl FnOnce(
             &SqliteSnapshotStore,
-            &RevisionEvidenceReader<'_>,
+            Option<&RevisionEvidenceReader<'_>>,
+            &mut QueryReadBudget,
         ) -> Result<T, EngineError>,
         mut finish: impl FnMut(&mut T, bool) -> Result<(), EngineError>,
     ) -> Result<T, EngineError> {
+        let mut reads = QueryReadBudget::new(budget, deadline)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let scope =
-            self.authorize_revision_with_reader(&reader, None, revision, principal, authorizer)?;
-        let evidence = reader.revision_evidence(revision)?;
-        let result = consumer(&reader, &evidence);
-        let budget_failure = matches!(
-            &result,
-            Err(EngineError::Business(
-                BusinessError::BudgetExceeded | BusinessError::Timeout
-            )) | Err(EngineError::Store(
-                diskgraph_store::StoreError::BudgetExceeded
-            ))
-        );
-        if result.is_err() && !budget_failure {
-            return result;
-        }
+        let scope = self.authorize_revision_with_budget(
+            &reader,
+            expected_scope,
+            revision,
+            principal,
+            authorizer,
+            &mut reads,
+        )?;
+        // 必需目标与消费者共用最初余额；准备失败同样进入真实范围的末段授权。
+        let result = (|| {
+            let evidence = match reader.revision_evidence_with_budget(revision, &mut reads) {
+                Ok(evidence) => Some(evidence),
+                Err(diskgraph_store::StoreError::BudgetExceeded)
+                    if reads.stopped() == Some(TruncationReason::Deadline) =>
+                {
+                    None
+                }
+                Err(error) if error.is_interrupted() && Instant::now() >= deadline => {
+                    reads.stop(TruncationReason::Deadline);
+                    None
+                }
+                Err(error) => return Err(error.into()),
+            };
+            consumer(&reader, evidence.as_ref(), &mut reads)
+        })();
         // 仅测试的读后同步点不持 control guard，不添加生产回调或共享请求状态。
         #[cfg(test)]
         crate::relation_request_tests::after_read(deadline);
@@ -43,12 +61,14 @@ impl Engine {
         Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
         let mut result = result?;
         let expired = Instant::now() >= deadline;
-        finish(&mut result, expired)?;
+        let encoded = finish(&mut result, expired);
         // 本 Engine 的 guard 防止重入；独立连接仍可撤权，故编码后重新读实际 scope。
         Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+        encoded?;
         if !expired && Instant::now() >= deadline {
-            finish(&mut result, true)?;
+            let encoded = finish(&mut result, true);
             Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+            encoded?;
         }
         Ok(result)
     }

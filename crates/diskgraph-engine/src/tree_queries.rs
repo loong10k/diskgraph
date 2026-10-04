@@ -55,21 +55,17 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |reader, snapshot| {
-                self.authorize_revision_with_reader(
-                    reader,
-                    Some(scope),
-                    revision,
-                    principal,
-                    authorizer,
-                )?;
+            budget,
+            Some(scope),
+            |reader, snapshot, reads| {
+                let snapshot = snapshot.ok_or(BusinessError::BudgetExceeded)?;
                 tree_on_reader(
                     reader,
                     snapshot.snapshot_id(),
                     depth,
                     min_bytes,
                     budget,
-                    deadline,
+                    reads,
                 )
             },
             |tree, expired| {
@@ -112,10 +108,10 @@ impl Engine {
         budget: QueryBudget,
         deadline: Instant,
     ) -> Result<TreeView, EngineError> {
-        budget.validated()?;
+        let mut reads = QueryReadBudget::new(budget, deadline)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let snapshot = reader.revision(revision)?.snapshot_id;
-        tree_on_reader(&reader, &snapshot, depth, min_bytes, budget, deadline)
+        let snapshot = reader.revision_snapshot_with_budget(revision, &mut reads)?;
+        tree_on_reader(&reader, &snapshot, depth, min_bytes, budget, &mut reads)
     }
 }
 
@@ -125,11 +121,10 @@ fn tree_on_reader(
     depth: usize,
     minimum: u64,
     budget: QueryBudget,
-    deadline: Instant,
+    ledger: &mut QueryReadBudget,
 ) -> Result<TreeView, EngineError> {
-    let mut ledger = QueryReadBudget::new(budget, deadline)?;
     let root = reader
-        .root_node_with_budget(snapshot, &mut ledger)?
+        .root_node_with_budget(snapshot, ledger)?
         .ok_or(BusinessError::NotFound)?;
     let mut nodes = vec![(root, 0usize)];
     let mut children = HashMap::new();
@@ -155,7 +150,7 @@ fn tree_on_reader(
                 id,
                 minimum,
                 ledger.remaining_nodes(),
-                &mut ledger,
+                ledger,
             );
             let (page, more) = match page {
                 Ok(page) => page,

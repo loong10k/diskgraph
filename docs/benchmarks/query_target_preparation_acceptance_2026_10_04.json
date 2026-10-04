@@ -6,7 +6,7 @@
     "Q-08: revision target preparation shares the query ledger",
     "Q-04: two historical targets share preparation admission"
   ],
-  "status": "final_local_acceptance_passed_native_pending",
+  "status": "verified_same_source_native",
   "source": {
     "snapshot": "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1",
     "base_commit": "fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d",
@@ -320,14 +320,68 @@
     "nonblocking_recommendation": "public TUI head and node individually fit but cumulative budget exhausts"
   },
   "native_acceptance": {
-    "status": "pending",
-    "limits": "D40 fd9330e native acceptance cannot prove the new D41 sources",
+    "status": "verified_same_source_native",
+    "limits": "Four original workspace executions prove the named query cases; inventory is separate. Device, provider, GUI, write, signing and deployment gates remain open.",
     "local_case_inventory": {
       "path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-case-inventory.json.gz",
       "observed_local_cases": 20,
       "new_cases": 14,
       "limits": "one actual local workspace execution per qualified case; inventory is not native execution proof"
-    }
+    },
+    "source_commit": "3531943642e5d233f8b95cbd047167bc81899df6",
+    "run_id": 37190906485,
+    "attempt": 1,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37190906485",
+    "terminal_status": "completed",
+    "conclusion": "success",
+    "passed_jobs": 22,
+    "job_count": 22,
+    "verified_reviewed_source_count": 17,
+    "actual_workspace_observations": [
+      {
+        "platform": "windows-stable",
+        "passed": 1262,
+        "failed": 0,
+        "ignored": 16,
+        "suite_count": 60,
+        "d41_preparation_cases": 20,
+        "d41_new_cases": 14,
+        "prior_q08_cases": 32
+      },
+      {
+        "platform": "windows-msrv",
+        "passed": 1262,
+        "failed": 0,
+        "ignored": 16,
+        "suite_count": 60,
+        "d41_preparation_cases": 20,
+        "d41_new_cases": 14,
+        "prior_q08_cases": 32
+      },
+      {
+        "platform": "linux-arm64",
+        "passed": 1390,
+        "failed": 0,
+        "ignored": 18,
+        "suite_count": 60,
+        "d41_preparation_cases": 20,
+        "d41_new_cases": 14,
+        "prior_q08_cases": 32
+      },
+      {
+        "platform": "macos-intel",
+        "passed": 1401,
+        "failed": 0,
+        "ignored": 18,
+        "suite_count": 60,
+        "d41_preparation_cases": 20,
+        "d41_new_cases": 14,
+        "prior_q08_cases": 32
+      }
+    ],
+    "observation_archive": "query_target_preparation_acceptance_logs/diskgraph-d41-native-observations.json.gz",
+    "log_extraction": "First parallel gh run view Linux log extraction failed with a local cache zip error; direct gh api download succeeded. No CI job was rerun.",
+    "case_count_limit": "Overlapping case groups are not additive; --list and repeated migration-only test phases are excluded."
   },
   "full_platform_readiness": {
     "status": "not_established",
@@ -381,6 +435,13 @@
     {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-vendor.log.gz", "raw_sha256": "e58a23309a943dcd8bde1a72f7ea3717a9a12e44a51bc93bf3b7b4089bd6d160", "gzip_sha256": "7d7782bf2b22680c743033ee9bf16304db66e56c12116b60075e0f9fdcc21905", "raw_bytes": 9541},
     {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-openspec.log.gz", "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff", "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5", "raw_bytes": 47},
     {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-release.log.gz", "raw_sha256": "5cb60266d1ecd7ed696fe1cde681c2a210a73431ff4a1a9cc958befd9ac57c47", "gzip_sha256": "d4a745b453ad39fb9d85a4963b0fcb8439faa4dda314aa04affb0e76d6494fb8", "raw_bytes": 628},
-    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-case-inventory.json.gz", "raw_sha256": "1f602faa077e99f486b3ce0a9f3edecc1cd8d96a230664d3f85fd7a69f320d22", "gzip_sha256": "27658b1e6b872a09bfe2c70a8df37689084fe2ea932503d486a3e1d8fda4c7d4", "raw_bytes": 6893}
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-case-inventory.json.gz", "raw_sha256": "1f602faa077e99f486b3ce0a9f3edecc1cd8d96a230664d3f85fd7a69f320d22", "gzip_sha256": "27658b1e6b872a09bfe2c70a8df37689084fe2ea932503d486a3e1d8fda4c7d4", "raw_bytes": 6893},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-ci-terminal.json.gz", "raw_sha256": "03b9fbbb445230e8754486a28068906ba3c978e2b27f2555dde8e1296111f14b", "gzip_sha256": "69d0f6d1ddcca7352e261bcc214c9c709fd7d36bafd88a039d3ceb059094f93b", "raw_bytes": 62582},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-observe.py.gz", "raw_sha256": "18a1ad4944cd7d63dfbfb7e53a46d914f9f24df10c84b3764a39d255a9c95b2e", "gzip_sha256": "f9d3875cbe03760af500249499b24a7a7ed144dfd8924979628361e16108b858", "raw_bytes": 4366},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-observations.json.gz", "raw_sha256": "f6760cc5fecfcb5fd51dc568bb6821f87dffba867156a0acf82b027cf8185408", "gzip_sha256": "01ccac9253268ee2e3e2b004facbb741fcfd3f4651772d65a6f20dace29b6704", "raw_bytes": 67733},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-ci-windows-stable.log.gz", "raw_sha256": "ea2c35e53751e6f750cd0ced73167faefca89b4fd764a83467a9d2ac0c165b20", "gzip_sha256": "94785d73d160a782cf66285b3278d526f6e22f8a6b701218020506d16ad5792b", "raw_bytes": 602682},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-ci-windows-msrv.log.gz", "raw_sha256": "ecb8385447705c32adf24006bec7ff015215305c1cfdb100370cbcd632ca2c5c", "gzip_sha256": "e735eeb0560abbdb22f2d61429214dfa28b004a806c1655921f50fa5372471f6", "raw_bytes": 597815},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-ci-linux-arm64.log.gz", "raw_sha256": "ad2ba265c29c0fc81b2c6881fe0a1bc181244269cc7ad60a33f4eb6d122b4209", "gzip_sha256": "8fce882fd3af8189c32db5dcc29c593c549f2643a984265dc1b1994a051dd754", "raw_bytes": 437778},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-ci-macos-intel.log.gz", "raw_sha256": "4709feb5c490e0f9b5fcaa4669bca3d9d8a9311ee290053be0de6d1df6ad431d", "gzip_sha256": "60d07fa72dad8135559b8103b11a576c58fe07e622da85540dc633c049bf8cdc", "raw_bytes": 665315}
   ]
 }

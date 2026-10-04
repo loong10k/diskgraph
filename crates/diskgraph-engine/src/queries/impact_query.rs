@@ -54,19 +54,25 @@ where
     F: FnMut(&str, bool, usize) -> Result<(Vec<(String, Relation)>, bool), E>,
 {
     let deadline = diskgraph_core::query_deadline(budget)?;
-    impact_with_budget(start, budget, deadline, |entity, outgoing, limit, reads| {
-        let (neighbours, more) = neighbours_for(entity, outgoing, limit)?;
-        let mut page = Vec::new();
-        let mut unread = more;
-        for (neighbour, relation) in neighbours {
-            if page.len() >= limit || !reads.admit(0, 1, neighbour.len()) {
-                unread = true;
-                break;
+    let mut reads = diskgraph_core::QueryReadBudget::new(budget, deadline)?;
+    impact_with_budget(
+        start,
+        budget,
+        &mut reads,
+        |entity, outgoing, limit, reads| {
+            let (neighbours, more) = neighbours_for(entity, outgoing, limit)?;
+            let mut page = Vec::new();
+            let mut unread = more;
+            for (neighbour, relation) in neighbours {
+                if page.len() >= limit || !reads.admit(0, 1, neighbour.len()) {
+                    unread = true;
+                    break;
+                }
+                page.push((neighbour, relation));
             }
-            page.push((neighbour, relation));
-        }
-        Ok((page, unread))
-    })
+            Ok((page, unread))
+        },
+    )
 }
 
 /// 按实际读取账本及同一期限遍历已授权邻接。
@@ -75,7 +81,7 @@ where
 pub(crate) fn impact_with_budget<E, F>(
     start: &str,
     budget: QueryBudget,
-    deadline: std::time::Instant,
+    reads: &mut diskgraph_core::QueryReadBudget,
     mut neighbours_for: F,
 ) -> Result<ImpactResult, E>
 where
@@ -87,7 +93,7 @@ where
         &mut diskgraph_core::QueryReadBudget,
     ) -> Result<(Vec<(String, Relation)>, bool), E>,
 {
-    let mut reads = diskgraph_core::QueryReadBudget::new(budget, deadline)?;
+    let deadline = reads.deadline();
     let mut seen: HashSet<(String, Relation)> = HashSet::new();
     seen.insert((start.to_owned(), Relation::Contains));
     let mut answer = ImpactResult {
@@ -117,7 +123,7 @@ where
             let limit = reads
                 .remaining_edges()
                 .min(budget.max_nodes.saturating_sub(answer.entries.len()));
-            let (incoming, incoming_more) = neighbours_for(entity, false, limit, &mut reads)?;
+            let (incoming, incoming_more) = neighbours_for(entity, false, limit, reads)?;
             if std::time::Instant::now() >= deadline {
                 answer.truncated = Some(TruncationReason::Deadline);
                 break 'walk;
@@ -126,7 +132,7 @@ where
                 .remaining_edges()
                 .min(budget.max_nodes.saturating_sub(answer.entries.len()));
             let (outgoing, outgoing_more) = if reads.stopped().is_none() {
-                neighbours_for(entity, true, limit, &mut reads)?
+                neighbours_for(entity, true, limit, reads)?
             } else {
                 (Vec::new(), true)
             };

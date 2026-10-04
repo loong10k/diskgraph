@@ -2,9 +2,9 @@
 
 Continuation of the [full-platform record](production-readiness-full-platform-2026-10-02.md). The complete platform goal remains open.
 
-## Latest stage: D40 native accepted; D41 local acceptance passed
+## Latest stage: D41 native accepted; D43 query consumers under verification
 
-The checklist is **167 total / 139 complete / 28 open**, including broad parent gates, not28 independent vulnerabilities. Git task8.7 and durable request-authority task15.20 are accepted on the implemented Index/Sync/Git paths. Task13.6 remains open for D41 corrected-source native acceptance and its remaining query/TUI verification. Process/application collectors8.6/15.13, providers, native writes, GUI/mobile/devices, signing and production deployment retain their existing requirements.
+The checklist is **167 total / 139 complete / 28 open**, including broad parent gates, not28 independent vulnerabilities. Git task8.7 and durable request-authority task15.20 are accepted on the implemented Index/Sync/Git paths. D41 corrected-source native acceptance is recorded below; task13.6 remains open for the additional D43 relation, impact, candidate and tree preparation verification. Process/application collectors8.6/15.13, providers, native writes, GUI/mobile/devices, signing and production deployment retain their existing requirements.
 
 Same-source `fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d` [CI37187379023 attempt2](https://github.com/loong10k/diskgraph/actions/runs/37187379023) is terminal **22/22 success**. Attempt1's21 successful jobs retain their original execution times; only Kotlin Intel reran as job111395457676. Its first attempt failed in Maven plugin descriptor resolution before Java/JNA host execution. The log does not prove a network/cache cause. The actual same-SHA rerun reached Maven BUILD SUCCESS and session/paging/poll/v1/release/reopen host acceptance. The [D40 receipt](benchmarks/mcp_service_layout_acceptance_2026_10_04.json) preserves both attempts, the original failure, source hashes and actual native logs.
 
@@ -17,7 +17,7 @@ Same-source `fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d` [CI37187379023 attempt2](
 
 Each original workspace log also actually executes authority39, prior query/candidate32, moved MCP21 and structural9 cases once. These groups overlap and are not added into a unique-case total. Only two reviewed Unix-only Git cases are absent on Windows. Observations use the workspace execution phase, excluding inventories, migration repeats and sentinel repeats. This evidence supports8.7/15.20; it does not certify the new D41 source or every platform capability.
 
-## D41 query target preparation: implemented, native acceptance pending
+## D41 query target preparation: same-source native acceptance completed
 
 Legal large snapshot IDs exposed owned preparation before the old TUI/history consumers began their ledger. The17-source change now borrows and admits owner fields before allocation, authorizes the actual server/scope, then admits necessary snapshot IDs. Both historical sides and subsequent snapshot/node/merge/plan reads consume one original `QueryReadBudget`. Initial TUI preparation failure never reaches paint or submits a cached partial frame. After both historical owners are authorized, target/consumer failures still execute dual-side terminal authorization; encoding retains the grouped live-grant checks. Original deadlines, Complete navigation and explicitly painted Truncated canvas contracts are preserved.
 
@@ -32,7 +32,17 @@ flowchart LR
 
 Real whole-request allocation regressions cover left/right oversized headers, combined preparation, ordinary/adequate-budget successes, initial denial and terminal revocation. TUI asserts the actual backend stays empty and paint is not invoked after initial raw-budget refusal. Store3/Engine10/CLI7 targeted cases passed. The first full build then failed E0433 because a production TuiRequest import was test-conditional; that compiler failure remains recorded and is not a behavioral RED. The only correction makes the explicit import unconditional. The final17-source manifest is `116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c`.
 
-Corrected-source local workspace passed **1401/0/18 across 60 suites**. Scoped fmt, FFI include fmt, strict all-target workspace Clippy/build, OpenSpec, release CLI/MCP/FFI and unchanged vendor 124/0/2 passed. Separate release checks passed **stdio 18/18, HTTP/SSE 13/13 and 19/19 actually invoked UniFFI ABI checks**. The JDK 21 macOS ARM Kotlin host actually passed session/paging/poll/v1/release/reopen acceptance, including the new Maven `--errors` diagnostics. Its FFI library SHA is `bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5`; protocol/ABI used `86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7`. They are separate builds of the same reviewed source, not the same binary. The finalized [D41 acceptance record](benchmarks/query_target_preparation_acceptance_2026_10_04.json) retains 36 raw/QA/release/Kotlin archives, including the final local workspace record of 20 targeted cases passing once (14 new). That local record is not native CI evidence. D41 native CI has not been accepted; task 13.6 remains open.
+Corrected-source local workspace passed **1401/0/18 across 60 suites**. Scoped fmt, FFI include fmt, strict all-target workspace Clippy/build, OpenSpec, release CLI/MCP/FFI and unchanged vendor 124/0/2 passed. Separate release checks passed **stdio 18/18, HTTP/SSE 13/13 and 19/19 actually invoked UniFFI ABI checks**. The JDK 21 macOS ARM Kotlin host actually passed session/paging/poll/v1/release/reopen acceptance, including the new Maven `--errors` diagnostics. Its FFI library SHA is `bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5`; protocol/ABI used `86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7`. They are separate builds of the same reviewed source, not the same binary. The finalized [D41 acceptance record](benchmarks/query_target_preparation_acceptance_2026_10_04.json) retains 43 raw/QA/release/Kotlin/native archives, including the final local workspace record of 20 targeted cases passing once (14 new). The native archive below provides separate same-source evidence. Task 13.6 remains open because the D43 consumers still require final acceptance.
+
+
+Same-source `3531943642e5d233f8b95cbd047167bc81899df6` [CI37190906485](https://github.com/loong10k/diskgraph/actions/runs/37190906485) is terminal **22/22 success**. Each of four original workspace logs executes 20 preparation cases (14 new) and 32 prior query cases once successfully; overlapping groups are not added together. All 17 reviewed-source hashes match the commit, and all 43 gzip archives have verified raw lengths and hashes. The first Linux log retrieval failed in the local gh zip cache; direct API retrieval succeeded. This was a log-collection failure, not a CI failure or rerun.
+
+| Actual native workspace at 3531943 | Passed / failed / ignored | Suites |
+| --- | --- | ---: |
+| Windows stable | 1262 / 0 / 16 | 60 |
+| Windows Rust1.97 | 1262 / 0 / 16 | 60 |
+| Linux ARM64 | 1390 / 0 / 18 | 60 |
+| macOS Intel | 1401 / 0 / 18 | 60 |
 
 The isolated whole-call allocation window includes initial authorization and target preparation for legal, publicly published 2 MiB snapshot IDs with insufficient read budgets:
 
@@ -43,6 +53,16 @@ The isolated whole-call allocation window includes initial authorization and tar
 | TUI frame | 2,184,272 | 2,521 | Paint not invoked; actual backend remains empty |
 
 Ordinary and sufficiently budgeted requests retain successful results. Rust cumulative requested allocation measures successful Rust allocation requests, not peak live memory, SQLite C allocation/cache, filesystem I/O or RSS; it is not causal throughput evidence. Arbitrary synchronous authorizers and native I/O are still cooperative. These observations add no strict memory or wall-clock guarantee and do not complete task 13.6.
+
+## D43 relation, impact, candidate and tree preparation: local acceptance completed
+
+The shared request ledger now begins before actual revision-owner admission and is passed through required snapshot/revision fields and every consumer. Store exposes an admitted evidence reader and candidate query so Engine does not own a full revision or reload its target. Wrong supplied tree scope is denied before target ownership. Target/consumer errors and finish errors after initial authorization still undergo live terminal authorization; an independent connection revoking scope during finish takes precedence over the injected budget failure.
+
+Tests-only source at 3531943, with Engine/Store explicitly cleaned and recompiled, produced integration **2 passed / 9 failed** plus a separate finish-error **0/1 RED**. The old cumulative test stopped at its first related failure, so it does not prove all seven old consumers failed that cumulative scenario. Corrected source passed integration **11/11**, helpers **8/8** and fixed-phase deadlines **9/9**. The cumulative positive/negative pairs actually execute all seven consumers. The first full workspace **1411/2/18** and all compilation, fixture and build-isolation failures remain archived; they are not replaced with the final successful record.
+
+Final frozen-source workspace passed **1414/0/18 across 61 suites**, scoped fmt, FFI include fmt, strict all-target Clippy/build, OpenSpec, vendor **124/0/2** and release build. Real release stdio **18/18**, HTTP/SSE **13/13** and actually invoked ABI checks **19/19** passed. All 14 vendor source digests remain unchanged. The standalone ignored vendor lock was copied into the isolated fixture only. Independent review approved the final source/test delta. The [D43 receipt](benchmarks/relation_preparation_acceptance_2026_10_04.json) retains 62 raw archives and identifies which stages are acceptance.
+
+For the legal 2 MiB target fixture, whole-call Rust requested allocation fell from **2,097,770–4,196,125 bytes** to **348–1,793 bytes**, refusing before owning the oversized field. These figures do not measure RSS, SQLite C memory or throughput. New-source native CI remains pending; **13.6 stays open**, as do the 28 full-platform gates. Public wire fields and trusted compatibility signatures are preserved; the internal helper receives the original admitted reader and remaining ledger.
 
 ## Historical checkpoints retained below
 

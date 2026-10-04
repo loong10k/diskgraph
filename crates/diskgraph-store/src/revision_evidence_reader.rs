@@ -12,6 +12,25 @@ pub struct RevisionEvidenceReader<'a> {
 }
 
 impl SqliteSnapshotStore {
+    /// 在拥有固定目标之前累计准入，再建立证据读取器；来源：原生 Rust Q-08。
+    /// 参数：revision_id 为已授权版本，reads 沿用真实归属和后续消费账本。
+    /// 返回：绑定同一实际快照的 reader；预算失败不分配完整目标或 revision 记录。
+    pub fn revision_evidence_with_budget(
+        &self,
+        revision_id: &str,
+        reads: &mut QueryReadBudget,
+    ) -> Result<RevisionEvidenceReader<'_>> {
+        let snapshot_id = self.revision_snapshot_with_budget(revision_id, reads)?;
+        if !reads.admit(0, 0, revision_id.len()) {
+            return Err(StoreError::BudgetExceeded);
+        }
+        Ok(RevisionEvidenceReader {
+            store: self,
+            revision_id: revision_id.to_owned(),
+            snapshot_id,
+        })
+    }
+
     /// 创建只观察指定 revision 批次的读取器。
     /// 参数：revision_id 为已发布标识；返回：固定实际 snapshot 的读取器，未知 revision 报错。
     pub fn revision_evidence(&self, revision_id: &str) -> Result<RevisionEvidenceReader<'_>> {
