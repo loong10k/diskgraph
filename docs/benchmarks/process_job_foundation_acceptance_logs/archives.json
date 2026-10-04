@@ -198,5 +198,25 @@
     "raw_sha256": "f00dfbcd4622226c577b2016313e298be039425b660c01d46156a79b6af6a0c7",
     "gzip_sha256": "a28b524db291c5e5d161821233561863be977d72937731f2e14d56b3bfce598b",
     "raw_bytes": 12981
+  },
+  "diskgraph-d42-native-job-111429419573.log.gz": {
+    "raw_sha256": "cd9fc6792ac7ca83e68fd8ae47c20f8de591cb0b8c899c9c7e9dc865ca786bab",
+    "gzip_sha256": "a3f159f1a2d76326e760a33e59a3680fce2b12ebbf5eefc98f4e5f5733464aa7",
+    "raw_bytes": 35294
+  },
+  "diskgraph-d42-native-job-111429419616.log.gz": {
+    "raw_sha256": "5439a9d43c8aebd53efe28e68db046dd4eaa29cce054e35bf775f0a5733a9fe2",
+    "gzip_sha256": "a2003ad79ee05389467a377ed70598caafba65d34be62c5cd44d7dd21e24f700",
+    "raw_bytes": 35029
+  },
+  "diskgraph-d42-native-job-111429419621.log.gz": {
+    "raw_sha256": "a71fb5aad917d35b656477b5273660dfe01237fcfb1c23d4d01600783b67817b",
+    "gzip_sha256": "5f7e3b52e37b1eb9ff6868e86d3f3b17f8dfa8f32361d25bcc317e4da527beb5",
+    "raw_bytes": 34931
+  },
+  "diskgraph-d42-linux-execution-clock-fixture.json.gz": {
+    "raw_sha256": "d780976d113b06fc345e6ce30d9bc63a2709e69fd7b6d518bbad0746e5472e9d",
+    "gzip_sha256": "e6b6e603421f2628a3b5c138ee638ecd31cda2d18fe037d1a142c104bf87ac49",
+    "raw_bytes": 485
   }
 }

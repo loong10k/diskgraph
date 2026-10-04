@@ -12,7 +12,8 @@
     "base_commit": "66f2e4c86bd894a45e2431f96a9ceb5bf6c7b3c6",
     "frozen_manifest": "process_job_foundation_acceptance_logs/diskgraph-d42-format-final-freeze.json.gz",
     "frozen_source_count": 99,
-    "full_workspace_delta": "One assert_eq whitespace-only correction; 98/99 frozen paths byte-identical. Rechecked affected Git contract, fmt, strict Clippy and build after correction."
+    "full_workspace_delta": "One assert_eq whitespace-only correction; 98/99 frozen paths byte-identical. Rechecked affected Git contract, fmt, strict Clippy and build after correction.",
+    "foundation_commit": "f8ed6076a80c78240ee0a8f2a29586864fcf0965"
   },
   "tdd": {
     "session_work_failure_unwind": {
@@ -141,7 +142,20 @@
       "linux_process_observation",
       "linux_process_execution"
     ],
-    "requirement": "Real native execution RED must reach qualified indexed epoch and runner before the Unsupported executor is implemented; compilation or unsupported kernel prerequisites do not prove execution RED. No tests ignored to obtain green."
+    "requirement": "Real native execution RED must reach qualified indexed epoch and runner before the Unsupported executor is implemented; compilation or unsupported kernel prerequisites do not prove execution RED. No tests ignored to obtain green.",
+    "first_native_prerequisite_attempt": {
+      "source_commit": "f8ed6076a80c78240ee0a8f2a29586864fcf0965",
+      "run_id": 37199952656,
+      "linux_jobs": [
+        111429419573,
+        111429419616,
+        111429419621
+      ],
+      "outcome": "all three Build steps failed E0624: external test used private ControlStore::now_ms; no native behavior test ran",
+      "correction": "test-only standard SystemTime Unix seconds, same original +60s expiry, no assertion/API changes",
+      "corrected_test_sha256": "ddb8dbef2b11619dd28d13804a7ef0074efa3ea604245438314567391a05ac23",
+      "corrected_native_validation": "pending new commit/run; not accepted behavior RED"
+    }
   },
   "remaining": [
     "Linux process runner remains explicit Unsupported and must be replaced after actual native RED.",
@@ -151,9 +165,9 @@
     "Current entry control-mutex deadline is cooperative; it does not prove all external SQLite writer waits obey a hard one-second enqueue bound."
   ],
   "archives": {
-    "count": 40,
+    "count": 44,
     "ledger": "process_job_foundation_acceptance_logs/archives.json",
-    "ledger_sha256": "68a8343a634b060ee29c36af14ab53cd4921f056392473800cd01f4b6641328c"
+    "ledger_sha256": "54a5fdf24f127417d0c8eaa481b0b735d912f85815890dbf7ea018600979e909"
   },
   "independent_review": {
     "status": "CLEAR foundation only; no complete native executor certification",

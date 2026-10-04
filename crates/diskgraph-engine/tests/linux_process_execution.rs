@@ -97,7 +97,11 @@ impl ExecutionFixture {
             "execution-fixture",
             "http",
             vec![Permission::MetadataRead, Permission::IndexWrite],
-            ControlStore::now_ms() / 1000 + 60,
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+                + 60,
         )
         .unwrap();
         ControlStore::open(&self.data.path().join("diskgraph-control.sqlite"))

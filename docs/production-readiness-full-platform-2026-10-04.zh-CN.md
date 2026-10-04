@@ -70,7 +70,7 @@ flowchart LR
 
 真实回归复现并修复失败锁存、unwind 句柄计数、授权回调迟到及控制锁准备等待。暂存身份点查增加非唯一表达式索引，保持重复身份拒绝及原 JSON；20k／200k 节点下三次公开写入从360,234／3,600,234条 VM 指令降至各272条。索引建立增加存储与维护成本，此结果不是完整扫描或 RSS 测量。
 
-冻结本机 workspace **1474／0／18，68 suites**。首次 fmt 因一处断言排版失败；仅修正空白后，相关 Git11/11、fmt、严格 Clippy 及 build 通过。macOS 上**未执行** Linux epoch／观测／执行目标，不把零测试算原生通过。[基础回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)保留40份档案与实测失败。SQLite 外部写锁等待、根祖先绑定、真实原生执行及全平台父项分别继续验收。
+冻结本机 workspace **1474／0／18，68 suites**。首次 fmt 因一处断言排版失败；仅修正空白后，相关 Git11/11、fmt、严格 Clippy 及 build 通过。macOS 上**未执行** Linux epoch／观测／执行目标，不把零测试算原生通过。[基础回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)保留44份档案与实测失败。SQLite 外部写锁等待、根祖先绑定、真实原生执行及全平台父项分别继续验收。 首次 f8ed6076 原生 CI 三条 Linux Build 均因夹具调用 Store 私有时钟编译失败，未运行原生行为；现仅改为标准 Unix 秒数，原+60秒期限及断言未变，修正源码原生验收继续待完成。
 
 ## 以下保留历史阶段记录
 
