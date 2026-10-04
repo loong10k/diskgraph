@@ -217,3 +217,26 @@ flowchart TD
 ```
 
 增量AST门禁检查真实标准模块文件、未挂载源、对象/行数/注释/导入/函数正文规则及直接或条件路径覆盖。既有模块明确列为豁免，auth709行、http2657行、protocol538行不因入口变薄而算合规。[D40验收回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)分别记录结构负控、实际执行和原生状态。本次整理保留已启用能力，不启用危险文件工具，也不完成平台/provider/宿主/设备/发布门禁。
+
+`fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d`同源码[CI37187379023第二次attempt](https://github.com/loong10k/diskgraph/actions/runs/37187379023)终态为**22/22 success**。保留21项先前成功，仅Kotlin Intel实际重跑；其首次失败发生在宿主调用前的Maven插件描述解析，不能据此推断网络或缓存根因。四份原始workspace日志逐案确认：两个Windows Rust版本各Git157项（2个Unix-only未执行），Linux ARM与macOS Intel各Git159项，以及持久授权39、既有查询32、迁移MCP21、源码门禁9项。这些分组存在重叠。现有Git8.7与请求授权15.20已验收，清单为139完成／28开放／167总项，完整生产目标仍未完成。
+
+## 查询目标准备 — D41，本机检查通过，原生验收待完成
+
+此前TUI／历史消费者的预算没有覆盖其启动前拥有必要`RevisionRecord.snapshot_id`的成本，合法2MiB snapshot ID经真实公开请求复现了该问题。17源增量将归属与snapshot投影分离：先借用准入实际owner字段，核验真实server/scope授权，再准入必要snapshot ID。双侧历史、快照元数据、节点、有序合并及同步计划窄重读继续使用同一`QueryReadBudget`与原期限；命名空间资格直接使用已授权的scope ID，不另读归属。
+
+```mermaid
+flowchart LR
+    O["借用owner字段<br/>拥有前准入"] --> A["授权实际server/scope<br/>token能力 ∩ 实时授权"]
+    A --> S["准入snapshot ID<br/>同账本与原期限"]
+    S --> R["窄读 / 合并 / TUI缓冲绘制<br/>消费原剩余额度"]
+    S -->|准备失败| T["实时授权末检<br/>历史双侧 / TUI实际scope"]
+    R --> T
+    T -->|允许且结果可交付| D["返回结果 / 提交画布"]
+    T -->|准备失败或拒权| X["传播错误<br/>不提交画布"]
+```
+
+双方历史 owner 均已授权后，目标／消费者失败也先执行双侧末检再返回原错误，编码后的成组实时 grant 复验保留。TUI 把已计费账本移入导航／整帧读取；初始目标准备失败不调用 paint，不将缓存伪装为部分帧。既有独立 50 ms 控制终检窗口适用于 Complete、Truncated 与消费者错误结果；Complete（包括导航）必须遵守原读取期限，只有已经绘出明确截断提示的 Truncated 画布可在原图库期限后交付。控制窗口不能续租图库读取。通用可信 reader 及公开兼容包装保持原合同，没有新增 Engine、owner、线程或 schema。
+
+整请求测试覆盖左右大头、累计准备、普通／足额真实成功、初次拒权及末段撤权；TUI 检查实际后端，初始失败必须不绘制／提交。首轮目标 Store 3、Engine 10、CLI 7 通过，随后完整构建发现生产调用的显式导入误受 test 条件限制，仅将该导入改为无条件。修正后 17 源冻结的本机 workspace 1401/0/18、60 suites，fmt／include fmt、严格 all-target Clippy／build、OpenSpec 及 release 通过，vendor 124/0/2 通过。单独执行的 release stdio 18/18、HTTP/SSE 13/13 及真实调用的 UniFFI ABI 19/19 通过；JDK 21 macOS ARM Kotlin 宿主实际通过会话／分页／轮询／v1／release／重开检查，并执行新增 Maven `--errors` 诊断。Kotlin 单独构建的 FFI 库与协议／ABI 库来自同一审查源码，二进制摘要不同，均记录在 [D41 回执](benchmarks/query_target_preparation_acceptance_2026_10_04.json)。新源码原生验收尚未完成，任务 13.6 继续开放。
+
+对额度不足、使用合法 2 MiB snapshot ID 的请求，历史整调用 Rust requested 累计分配从 2,102,370–2,131,834 降至 4,528–4,541 字节，导航从 2,101,248 降至 2,521 字节，整帧从 2,184,272 降至 2,521 字节；初始整帧拒绝不再调用 paint 或提交数据。普通及足额请求仍实际成功。这些隔离分配观察不证明吞吐提升、峰值存活内存、SQLite C 分配、文件系统 I/O 或 RSS 上限；同步授权及原生 I/O 仍为协作检查。历史身份／正文绑定与 provider／移动端／原生写／签名／部署门禁见[最新就绪记录](production-readiness-full-platform-2026-10-04.zh-CN.md)。

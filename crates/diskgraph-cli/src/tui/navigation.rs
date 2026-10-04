@@ -56,29 +56,30 @@ fn load_layer_page(
     offset: u64,
 ) -> Result<Layer, EngineError> {
     let mut prepared = None;
-    request.engine.with_authorized_revision_display_reader(
-        request.revision,
-        request.principal,
-        request.authorizer,
-        1000,
-        |reader, snapshot, deadline| {
-            let mut budget = TuiRequest::read_budget(deadline);
-            let layer = TuiRequest::read_layer(
-                reader,
-                snapshot,
-                parent_id,
-                offset,
-                PAGE_SIZE,
-                &mut budget,
-            )?;
-            if TuiFrameReader::display_bytes(&layer) > TUI_DISPLAY_BYTES {
-                return Err(diskgraph_store::StoreError::BudgetExceeded.into());
-            }
-            // 导航只允许完整页；末段授权及原读取期限通过前不向浏览器交付准备结果。
-            prepared = Some(layer);
-            Ok(RevisionDisplayCompletion::Complete)
-        },
-    )?;
+    request
+        .engine
+        .with_authorized_revision_display_reader_bounded(
+            request.revision,
+            request.principal,
+            request.authorizer,
+            TuiRequest::budget(1000),
+            |reader, snapshot, mut budget| {
+                let layer = TuiRequest::read_layer(
+                    reader,
+                    snapshot,
+                    parent_id,
+                    offset,
+                    PAGE_SIZE,
+                    &mut budget,
+                )?;
+                if TuiFrameReader::display_bytes(&layer) > TUI_DISPLAY_BYTES {
+                    return Err(diskgraph_store::StoreError::BudgetExceeded.into());
+                }
+                // 导航只允许完整页；末段授权及原读取期限通过前不向浏览器交付准备结果。
+                prepared = Some(layer);
+                Ok(RevisionDisplayCompletion::Complete)
+            },
+        )?;
     prepared.ok_or_else(|| {
         diskgraph_store::StoreError::InvalidGraph(
             "authorized navigation did not prepare a layer".into(),

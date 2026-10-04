@@ -1,0 +1,386 @@
+{
+  "receipt_version": 1,
+  "date": "2026-10-04",
+  "change": "implement-diskgraph-platform",
+  "requirements": [
+    "Q-08: revision target preparation shares the query ledger",
+    "Q-04: two historical targets share preparation admission"
+  ],
+  "status": "final_local_acceptance_passed_native_pending",
+  "source": {
+    "snapshot": "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1",
+    "base_commit": "fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d",
+    "reviewed_source_manifest_sha256": "116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c",
+    "reviewed_sources": {
+      "crates/diskgraph-cli/src/tui/authorized_frame.rs": "a5d55d9cd05ae772013c8d1a9c11cf613b922f8dcc3edc97eea32b56eb6c754e",
+      "crates/diskgraph-cli/src/tui/navigation.rs": "3d84bb66220b899ceed32b2413aa7b2c8d9e61da5a5d8368c010ce460bd39810",
+      "crates/diskgraph-cli/src/tui_frame_reader.rs": "2033169b6098dcfc9fc9ce58d5560595708899a4ae223d3fef3be153c9b50abe",
+      "crates/diskgraph-cli/src/tui_input_budget_tests.rs": "8b69d07349677d080f44a115323441f77f2d5c596f0f9041ea46af96be36d2be",
+      "crates/diskgraph-cli/src/tui_request.rs": "947f773a59c9cf5ddf5660f921aab390d8ac3002e300a99775b87a8b96ad2925",
+      "crates/diskgraph-cli/src/tui_test_fixture.rs": "10c21b17b35297ab43279c2805945859c6cf04887c107cb5cc1277ea36d4f55b",
+      "crates/diskgraph-engine/src/history_namespace.rs": "8f0e9422b457ab3cbc6a50dfd31ed8740a244329cab43f4c919014143afe9ed1",
+      "crates/diskgraph-engine/src/history_request.rs": "20ad46336361a37813b5af0f20686d402ab879f2399e35e5e826f8cf74540077",
+      "crates/diskgraph-engine/src/revision_authorization.rs": "49ba54129ff94313b154790a7c4f5fee83f48643e89a915ff110b8ef51e1ebc3",
+      "crates/diskgraph-engine/src/revision_comparison.rs": "58fd72962be4ba794e4a3d7069695861c4b3e41788d5979c659f6e871c578e4e",
+      "crates/diskgraph-engine/src/revision_history.rs": "85839129d5e394f3adae240c01a83704226f2744404b542ac2da524674608c09",
+      "crates/diskgraph-engine/src/sync_plan.rs": "b28f92bf919923eccb657f20665c895cee347f2b911c2b26457df75fcc8d5568",
+      "crates/diskgraph-engine/tests/history_preparation_budget.rs": "18be6e4f9e377c72da6363a8a26e627eac243ee69d48e7b4c6de704bca6bca47",
+      "crates/diskgraph-engine/tests/history_preparation_budget/callback_authorizer.rs": "893ceeb8bc48f40530e85da7100896e913ffa98b8607a8d7383b3d9dd28b9e73",
+      "crates/diskgraph-engine/tests/history_preparation_budget/fixture.rs": "974e3ed809f17f467b05bfff35ea68c8ebe2ac14caf364da558231c3c9965557",
+      "crates/diskgraph-store/src/revision_target_query.rs": "f72ac151343994665933928d54fefedb708fd0a1566ce3889036f6b772c51bb4",
+      "crates/diskgraph-store/src/revision_target_query_tests.rs": "334257fd1284ab8a9a349908243c914d824714c37fbcadfb03f789c251efaafb"
+    }
+  },
+  "tdd": {
+    "first_tui": {
+      "passed": 5,
+      "failed": 2,
+      "cause": "whole request owned 2MiB required target before admission; frame painted"
+    },
+    "first_history": {
+      "passed": 0,
+      "failed": 8,
+      "limits": "six real allocation failures plus two incorrect fixture expectations; not eight production defects"
+    },
+    "corrected_history": {
+      "passed": 1,
+      "failed": 7,
+      "cause": "six real allocation failures and one cumulative two-header admission failure; positive fixture corrected before production edits"
+    },
+    "targeted_green": {
+      "store": 3,
+      "history": 10,
+      "tui": 7
+    },
+    "initial_full_qa": {
+      "exit_code": 101,
+      "cause": "E0433: production TuiRequest import was incorrectly cfg(test)",
+      "limits": "compiler failure is not a behavioral RED; remaining seven gates did not run"
+    },
+    "equivalent_final_delta": "restore production explicit TuiRequest import used by load_layer; other sixteen reviewed sources unchanged"
+  },
+  "local_quality": [
+    {"name": "workspace", "command": ["cargo", "test", "--workspace", "--all-targets", "--locked", "--offline", "--no-fail-fast"], "exit_code": 0, "seconds": 223.431, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-workspace.log", "suite_count": 60, "passed": 1401, "failed": 0, "ignored": 18},
+    {"name": "fmt", "command": ["cargo", "fmt", "-p", "diskgraph-core", "-p", "diskgraph-store", "-p", "diskgraph-disktree", "-p", "diskgraph-ffi", "-p", "diskgraph-testkit", "-p", "diskgraph-engine", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "-p", "diskgraph-ops", "--", "--check"], "exit_code": 0, "seconds": 0.986, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-fmt.log"},
+    {"name": "ffi-include-fmt", "command": ["rustfmt", "--check", "--edition", "2024", "crates/diskgraph-ffi/src/api_exports.rs", "crates/diskgraph-ffi/src/job_handle.rs"], "exit_code": 0, "seconds": 0.058, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-ffi-include-fmt.log"},
+    {"name": "clippy", "command": ["cargo", "clippy", "--workspace", "--all-targets", "--locked", "--offline", "--", "-D", "warnings"], "exit_code": 0, "seconds": 9.299, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-clippy.log"},
+    {"name": "build", "command": ["cargo", "build", "--workspace", "--all-targets", "--locked", "--offline"], "exit_code": 0, "seconds": 0.632, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-build.log"},
+    {"name": "vendor", "command": ["cargo", "test", "--manifest-path", "crates/diskgraph-disktree-core/Cargo.toml", "--locked", "--offline"], "exit_code": 0, "seconds": 0.917, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-vendor.log", "suite_count": 2, "passed": 124, "failed": 0, "ignored": 2},
+    {"name": "openspec", "command": ["openspec", "validate", "implement-diskgraph-platform", "--strict"], "exit_code": 0, "seconds": 1.89, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-openspec.log"},
+    {"name": "release", "command": ["cargo", "build", "--release", "--locked", "--offline", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "-p", "diskgraph-ffi"], "exit_code": 0, "seconds": 14.411, "log": "/private/tmp/diskgraph-d41-preparation-final-validation-release.log"}
+  ],
+  "release_acceptance": {
+    "protocols": [
+      {
+        "name": "stdio",
+        "command": [
+          "python3",
+          "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1/scripts/accept-readonly-stdio.py"
+        ],
+        "cwd": "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1",
+        "environment": {
+          "DISKGRAPH_ACCEPT_BIN_DIR": "/private/tmp/diskgraph-d41-candidate-release-bin"
+        },
+        "binary_dir": "/private/tmp/diskgraph-d41-candidate-release-bin",
+        "binary_sha256": {
+          "diskgraph": "dfb17649ab456be4eae78a76c00408b99104143389504cdf6a23764bc74e5f57",
+          "diskgraph-mcp": "5ff59a16ee92caea6eaf75f7a52c3d60951c7c57122c3e6f7f565d58a92d71a5",
+          "libdiskgraph_ffi.dylib": "86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7"
+        },
+        "exit_code": 0,
+        "log": "/private/tmp/diskgraph-d41-final-release-stdio.log",
+        "observation": {
+          "passed": 18,
+          "total": 18,
+          "checks": {
+            "diskgraph_version": true,
+            "diskgraph-mcp_version": true,
+            "cli_tree_revision_binding": true,
+            "cli_top_bounded": true,
+            "cli_candidates_review_only": true,
+            "stdio_initialize": true,
+            "stdio_tool_discovery": true,
+            "stdio_scope_0_bound": true,
+            "stdio_scope_1_bound": true,
+            "stdio_write_tool_disabled": true,
+            "stdio_schema_and_dispatch_diskgraph_node": true,
+            "stdio_schema_and_dispatch_diskgraph_search": true,
+            "stdio_schema_and_dispatch_diskgraph_explain": true,
+            "stdio_schema_and_dispatch_diskgraph_related": true,
+            "stdio_schema_and_dispatch_diskgraph_changes": true,
+            "stdio_explicit_nonroot_node": true,
+            "stdio_unknown_argument_rejected": true,
+            "cli_serve_delegates_to_mcp_binary": true
+          }
+        }
+      },
+      {
+        "name": "http",
+        "command": [
+          "python3",
+          "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1/scripts/accept-readonly-http.py"
+        ],
+        "cwd": "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1",
+        "environment": {
+          "DISKGRAPH_ACCEPT_BIN_DIR": "/private/tmp/diskgraph-d41-candidate-release-bin"
+        },
+        "binary_dir": "/private/tmp/diskgraph-d41-candidate-release-bin",
+        "binary_sha256": {
+          "diskgraph": "dfb17649ab456be4eae78a76c00408b99104143389504cdf6a23764bc74e5f57",
+          "diskgraph-mcp": "5ff59a16ee92caea6eaf75f7a52c3d60951c7c57122c3e6f7f565d58a92d71a5",
+          "libdiskgraph_ffi.dylib": "86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7"
+        },
+        "exit_code": 0,
+        "log": "/private/tmp/diskgraph-d41-final-release-http.log",
+        "observation": {
+          "passed": 13,
+          "total": 13,
+          "checks": {
+            "modern_anonymous_401": true,
+            "modern_hostile_origin_403": true,
+            "modern_signed_but_ungranted_denied": true,
+            "modern_authorized_scope_read": true,
+            "modern_live_revocation_denied": true,
+            "legacy_anonymous_401": true,
+            "legacy_hostile_origin_403": true,
+            "legacy_endpoint_event": true,
+            "legacy_authorized_scope_read": true,
+            "missing_key_file_refused": true,
+            "short_key_file_refused": true,
+            "cli_serve_forwards_key_file": true,
+            "group_readable_key_refused": true
+          }
+        }
+      }
+    ],
+    "uniffi": {
+      "total": 19,
+      "passed": 19,
+      "binary": "/private/tmp/diskgraph-d41-candidate-release-bin/libdiskgraph_ffi.dylib",
+      "binary_sha256": "86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7",
+      "actual": {
+        "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+        "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+        "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+        "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+        "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+        "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+        "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+        "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+        "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+        "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+      },
+      "mismatches": {}
+    },
+    "kotlin": {
+      "snapshot": "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1",
+      "base_commit": "fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d",
+      "reviewed_source_manifest_sha256": "116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c",
+      "command": [
+        "python3",
+        "scripts/accept-ffi-kotlin.py"
+      ],
+      "cwd": "/private/tmp/diskgraph-d41-preparation-final-luwzdpm1",
+      "environment": {
+        "JAVA_HOME": "/Users/wandl/Library/Java/JavaVirtualMachines/ms-21.0.12.1/Contents/Home",
+        "CARGO_TARGET_DIR": "/private/tmp/diskgraph-d24-validation-target"
+      },
+      "exit_code": 0,
+      "seconds": 22.289,
+      "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "log": "/private/tmp/diskgraph-d41-kotlin-candidate.log",
+      "log_sha256": "24415d3ef3b77255290205b7e1cb71dcf88fae85c0bc644b9391b9a7910d6a3a",
+      "source_sha256": {
+        "scripts/accept-ffi-kotlin.py": "64aed07397b904ae1dc44b1c9cdf9012a881436fd1354589d3f92b9c60ef244d",
+        "fixtures/ffi_kotlin_host/pom.xml": "29ad917263a02436057c1219bedeb192b1e7ead7366d1351e5a86b39344303d0",
+        "fixtures/ffi_kotlin_host/maven-settings.xml": "033bb330dadd095f03df71b8582a305474a6d2356d90f8f69e54999b929e1901",
+        "scripts/ffi-smoke-host.kt": "c670fc4d46d2ed807602ac36a63461beb1605d441f4ec270f3669531c6735a8f"
+      },
+      "release_sha256": {
+        "libdiskgraph_ffi.dylib": "bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5",
+        "uniffi-bindgen": "e97da2d5cca16d24b5f28f966caba7d3e7704dc45078477243ff4c1a69b04af6"
+      },
+      "observations": {
+        "maven_classpath_success": true,
+        "native_host_session_paging_poll_v1_release_reopen": true,
+        "native_acceptance_passed": true
+      },
+      "limits": [
+        "local ARM does not prove macOS Intel or other OS behavior",
+        "--errors changes diagnostics only; original CI descriptor failure root cause unknown"
+      ]
+    }
+  },
+  "allocation_observations": {
+    "history": {
+      "before": [
+        {
+          "method": "changes",
+          "left_id_bytes": 8,
+          "right_id_bytes": 2097152,
+          "requested_rust_bytes": 2102887
+        },
+        {
+          "method": "growth",
+          "left_id_bytes": 8,
+          "right_id_bytes": 2097152,
+          "requested_rust_bytes": 2102887
+        },
+        {
+          "method": "compare",
+          "left_id_bytes": 8,
+          "right_id_bytes": 2097152,
+          "requested_rust_bytes": 2131834
+        },
+        {
+          "method": "compare",
+          "left_id_bytes": 2097152,
+          "right_id_bytes": 8,
+          "requested_rust_bytes": 2131834
+        },
+        {
+          "method": "changes",
+          "left_id_bytes": 2097152,
+          "right_id_bytes": 8,
+          "requested_rust_bytes": 2102370
+        },
+        {
+          "method": "growth",
+          "left_id_bytes": 2097152,
+          "right_id_bytes": 8,
+          "requested_rust_bytes": 2102370
+        }
+      ],
+      "after": [
+        {
+          "method": "growth",
+          "left_id_bytes": 8,
+          "right_id_bytes": 2097152,
+          "requested_rust_bytes": 4541
+        },
+        {
+          "method": "compare",
+          "left_id_bytes": 8,
+          "right_id_bytes": 2097152,
+          "requested_rust_bytes": 4541
+        },
+        {
+          "method": "changes",
+          "left_id_bytes": 8,
+          "right_id_bytes": 2097152,
+          "requested_rust_bytes": 4541
+        },
+        {
+          "method": "changes",
+          "left_id_bytes": 2097152,
+          "right_id_bytes": 8,
+          "requested_rust_bytes": 4528
+        },
+        {
+          "method": "growth",
+          "left_id_bytes": 2097152,
+          "right_id_bytes": 8,
+          "requested_rust_bytes": 4528
+        },
+        {
+          "method": "compare",
+          "left_id_bytes": 2097152,
+          "right_id_bytes": 8,
+          "requested_rust_bytes": 4528
+        }
+      ]
+    },
+    "tui": {
+      "navigation_before_bytes": 2101248,
+      "navigation_after_bytes": 2521,
+      "frame_before_bytes": 2184272,
+      "frame_after_bytes": 2521,
+      "frame_before_painted": true,
+      "frame_after_painted": false
+    },
+    "meaning": "isolated whole-call requested Rust allocations for valid publicly published 2MiB snapshot IDs; ordinary and sufficiently budgeted requests retain real successful results",
+    "limits": "not peak RSS, SQLite C allocation/cache, I/O bounds, strict wall-clock guarantees or causal throughput evidence"
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "manifest_sha256": "116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c",
+    "source_count": 17,
+    "limits": "static review does not replace executed native CI",
+    "nonblocking_recommendation": "public TUI head and node individually fit but cumulative budget exhausts"
+  },
+  "native_acceptance": {
+    "status": "pending",
+    "limits": "D40 fd9330e native acceptance cannot prove the new D41 sources",
+    "local_case_inventory": {
+      "path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-case-inventory.json.gz",
+      "observed_local_cases": 20,
+      "new_cases": 14,
+      "limits": "one actual local workspace execution per qualified case; inventory is not native execution proof"
+    }
+  },
+  "full_platform_readiness": {
+    "status": "not_established",
+    "tasks_total": 167,
+    "tasks_complete": 139,
+    "tasks_open": 28,
+    "still_open": [
+      "13.6",
+      "15.2",
+      "process/application collectors",
+      "providers",
+      "native writes",
+      "GUI/GRDB/Room/packaging",
+      "mobile/device",
+      "signing/production"
+    ]
+  },
+  "archives": [
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-red-candidate.json.gz", "raw_sha256": "89f06aa450c71bba1498b76618903664dd400895e51351e343c4ee296c50150a", "gzip_sha256": "e25f4940cde7a2c71da19fec2d0fcb1c72c9d86439cf0afde0d3973eb3a64f3e", "raw_bytes": 207787},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-red-results.json.gz", "raw_sha256": "94b395ed2469749d26b125978deb99354a1c2b8148939ef561128dbaa2a8c81c", "gzip_sha256": "87fec57b84695d8c356db3cd937f6b44ea8bfc7404c9114b7b9d530a62969038", "raw_bytes": 850},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-red-tui.log.gz", "raw_sha256": "6d082bfd3ee955d1bed1d61efef750e4ecb67b07fc01bb7883c433e1e63ba971", "gzip_sha256": "a1c43a2c0987ff628f42a408a8b45754a3adbfd7e8cdca15d84470752079d859", "raw_bytes": 5510},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-red-history.log.gz", "raw_sha256": "953902479773664217a8f60bd2b022231284f8dad3776d48fa7f7f696faf1c98", "gzip_sha256": "7933766c745fad74c23614611a70a19c7c4552046e0c235506b18181312a4a1e", "raw_bytes": 15034},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-corrected-red-candidate.json.gz", "raw_sha256": "2116644f2752f9d969554a8b8b1ad3c55602507f753513765d086749650dc125", "gzip_sha256": "f326ee5f88d23ae420136e6598cca36aa42efd3e76e14901ecd2c213c5b14ca8", "raw_bytes": 207797},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-corrected-red-results.json.gz", "raw_sha256": "f3e7de5336c8eb4e36033d75153f4455bf28b2cfde60124347c2ec37cc70e3cb", "gzip_sha256": "9820ce4b380b03b61b10be21619e98b1e25dca444f1b642f45676f244ae61afe", "raw_bytes": 387},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-corrected-red-history.log.gz", "raw_sha256": "3c1f3128f59eca7d212f6aa2919918fc0f2405147b1ffff594a975c23196c773", "gzip_sha256": "e256bc64d27200c0b8cb8115b332b5f40beca95b6ffe07922093a6ddff39d31d", "raw_bytes": 15426},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-green-results.json.gz", "raw_sha256": "2ff41163971423df62f306057d9a2948d97c132171e314718149584ad4e71d08", "gzip_sha256": "da81043bbce7511df40d788c81e2bd07ce78c1a4ed561a2da24ef8d2a18baa50", "raw_bytes": 1281},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-green-store.log.gz", "raw_sha256": "0d1961914fa6262b4e58145def7142c585ada876ccd58c40956f0571428b145f", "gzip_sha256": "2dd8c6e021d07b36ca609dbb4e16d7f8ea3c9a092d428f4ab34828979fd941f1", "raw_bytes": 781},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-green-history.log.gz", "raw_sha256": "d811a7d0b413b8e12be614babc931c752f7f7d4f741c15efabfc06764d808268", "gzip_sha256": "78e1a341e26a58a953592aa74bed0595903778cc49cd33a3b5e46d5e6b13c5bd", "raw_bytes": 4058},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-green-tui.log.gz", "raw_sha256": "ae72fcc7e7ea5ae3ca0f95f6d3f2990491ecb6bcb70c15fd640a9d6cf82ced3a", "gzip_sha256": "2d1f652f43cd8b706bcad5281bddf8416de8a651099bf739f9448367a3723548", "raw_bytes": 3370},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-validation-results.json.gz", "raw_sha256": "5fc83de9197a1f709a70894a3ef9bc8c5a0bffa9d23c3bd0b9073820e0b4dff1", "gzip_sha256": "a5ab06330d18cdc626f4bbe0d6c25af1f04d86753fc9b8fcefdccbbd4f585c76", "raw_bytes": 315},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-validation-workspace.log.gz", "raw_sha256": "222f428ef540d0a2a363e391766e2bfd9a7bd0309ad7e5e7f70aed1c274915a5", "gzip_sha256": "67d9d372660acc29acb00ab39b9aa276e3f3ed84359ba2df92430d489cc574b2", "raw_bytes": 1368},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-candidate.json.gz", "raw_sha256": "efd8593a6174952213b29ae396982f05dc186b89ff4de46c80c6f4eed0feb2c6", "gzip_sha256": "cbc2999da81651471c82c7e5c93c2322a3feadc1589ec9924fa77f53eb07c373", "raw_bytes": 2424},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-results.json.gz", "raw_sha256": "1655f7127776e53090f6390d254420cc31401b329149d0adf67e5551a13cbc48", "gzip_sha256": "ba7b9f05168fbaa4e851d65e1e8e36d7dce58724c10f0b9ce5ca9407be9a485e", "raw_bytes": 2965},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-kotlin-baseline.json.gz", "raw_sha256": "49487977b7b4e0d27a4794d04126bb883bf0ee7f5c5ca5b6dcba8284d43dbef2", "gzip_sha256": "63b65b3d1fb09029750cadda331c35aa4773651531b3cb0755bb1227fc356602", "raw_bytes": 1783},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-kotlin-baseline.log.gz", "raw_sha256": "4f17179442d765e65e1737c758c15029455acc5bb66483e2e88da045d86531cd", "gzip_sha256": "4c7f1a725a2a88f466fa008ef81201957b397f8ad04ade84d6792e340ebccbd7", "raw_bytes": 3204},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-kotlin-candidate.json.gz", "raw_sha256": "05f2c0fa84ad02fa9acfad9dfb8166b0bf7f8eb377d007ddc2ad679f9982667a", "gzip_sha256": "b23eca44519bf0a85d1bf59ad67d6457ca941f633eae07b5fb1fe89f0c3ef8c3", "raw_bytes": 1833},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-kotlin-candidate.log.gz", "raw_sha256": "24415d3ef3b77255290205b7e1cb71dcf88fae85c0bc644b9391b9a7910d6a3a", "gzip_sha256": "f22831a4af82508705f9e8ed9292248bace17d1a3820a88c39eda194e041076f", "raw_bytes": 1846},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-final-release-results.json.gz", "raw_sha256": "97b9110b13e9fe43d7a147f774fde31b19d994124dd7651c7e2cac96a97f8116", "gzip_sha256": "a4f28cad629ed3d3c51d34494821871c7c4cba6025f0db85a3307bd7158ab68e", "raw_bytes": 3192},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-final-release-uniffi.json.gz", "raw_sha256": "ecaf9dd31ed0e2c867b1b0341c5c3b62b79a59eac984a33ff0bdf330b3057e6c", "gzip_sha256": "6509a0de5ea8e65cfb3ec64c3c60b19f96b516272930e95f7c6451dd3c84b2ee", "raw_bytes": 1581},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-final-release-stdio.log.gz", "raw_sha256": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd", "gzip_sha256": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb", "raw_bytes": 809},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-final-release-http.log.gz", "raw_sha256": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4", "gzip_sha256": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be", "raw_bytes": 563},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-candidate.json.gz", "raw_sha256": "116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c", "gzip_sha256": "7597f46c06625d5162f466d06e41810e58adda39ddb760ed73f3a16ccaa1924b", "raw_bytes": 2125},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d39-final-validation.py.gz", "raw_sha256": "a1d35a8a3f6f0fd1924ff6eb5a373302abef4a2c338ab7da866b6b5c9b60521e", "gzip_sha256": "6d6783ddb4998bb8b54a5982703de71f18fcb467e0da13c9a796ba5ad4db814e", "raw_bytes": 2197},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-release-execution.py.gz", "raw_sha256": "b791ab4ffbc0e0bbf812f883fe56854ae3a8eac2d6c075e63c91c0fc3c122542", "gzip_sha256": "8a8b6751050ac2a4ef7344d0e97a20b8f21c548b58a81fb7c0fe20ac00f78226", "raw_bytes": 2392},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-kotlin-execution.py.gz", "raw_sha256": "74e8cbdf655dab709f1f867dc3adf502c7ee522314bd53e3863f2be77fc31b7f", "gzip_sha256": "1d97a73147a5068ca6024c0b86675ee6ab639816f4233796c4288ee738530f49", "raw_bytes": 2678},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-workspace.log.gz", "raw_sha256": "10e9be6d011a6ba1bc31eb38c6bf5e79ead4378e0df8f27a5cda286f2d44fa3e", "gzip_sha256": "7252af81c949c5b563009b071cba0e52cfd4449ebc52ecbdbf2df048ae14417b", "raw_bytes": 142898},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-fmt.log.gz", "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64", "raw_bytes": 0},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-ffi-include-fmt.log.gz", "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64", "raw_bytes": 0},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-clippy.log.gz", "raw_sha256": "af42fda62a706918931e50008e77498104e3f993a4e78e66a3fadee782c59cf4", "gzip_sha256": "6426f91501bcde1efd608c4ad2617473cf6403074c886b963324a68c30fb799f", "raw_bytes": 867},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-build.log.gz", "raw_sha256": "29162d76fb109d9c6005d8544d63a4a438d15235d4f9b8e73d51adc9ba6e95d7", "gzip_sha256": "2275af0bb9a1b80d9817ae660aeb5745e7a9be71aebb02ba9257c15118dcaa17", "raw_bytes": 72},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-vendor.log.gz", "raw_sha256": "e58a23309a943dcd8bde1a72f7ea3717a9a12e44a51bc93bf3b7b4089bd6d160", "gzip_sha256": "7d7782bf2b22680c743033ee9bf16304db66e56c12116b60075e0f9fdcc21905", "raw_bytes": 9541},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-openspec.log.gz", "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff", "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5", "raw_bytes": 47},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-preparation-final-validation-release.log.gz", "raw_sha256": "5cb60266d1ecd7ed696fe1cde681c2a210a73431ff4a1a9cc958befd9ac57c47", "gzip_sha256": "d4a745b453ad39fb9d85a4963b0fcb8439faa4dda314aa04affb0e76d6494fb8", "raw_bytes": 628},
+    {"path": "query_target_preparation_acceptance_logs/diskgraph-d41-native-case-inventory.json.gz", "raw_sha256": "1f602faa077e99f486b3ce0a9f3edecc1cd8d96a230664d3f85fd7a69f320d22", "gzip_sha256": "27658b1e6b872a09bfe2c70a8df37689084fe2ea932503d486a3e1d8fda4c7d4", "raw_bytes": 6893}
+  ]
+}

@@ -22,38 +22,40 @@ where
     terminal
         .autoresize()
         .map_err(|error| EngineError::Io(std::io::Error::other(error.to_string())))?;
-    request.engine.with_authorized_revision_display_reader(
-        request.revision,
-        request.principal,
-        request.authorizer,
-        50,
-        |reader, snapshot, deadline| {
-            let bytes = TuiFrameReader::display_bytes(cached_layer);
-            if bytes > TUI_DISPLAY_BYTES {
-                return Err(EngineError::Business(
-                    diskgraph_core::BusinessError::BudgetExceeded,
-                ));
-            }
-            let mut reads = TuiFrameReader::new(
-                reader,
-                snapshot,
-                deadline,
-                cached_layer.children.len() + 1,
-                bytes,
-            );
-            let mut frame = terminal.get_frame();
-            paint(&mut frame, &mut reads);
-            if let Some(error) = reads.take_error() {
-                return Err(error);
-            }
-            // 只接受 paint 中已经显示的截断状态；此处不临时制造未显示的 late partial。
-            Ok(if reads.truncation_reason.is_some() {
-                RevisionDisplayCompletion::Truncated
-            } else {
-                RevisionDisplayCompletion::Complete
-            })
-        },
-    )?;
+    request
+        .engine
+        .with_authorized_revision_display_reader_bounded(
+            request.revision,
+            request.principal,
+            request.authorizer,
+            TuiRequest::budget(50),
+            |reader, snapshot, budget| {
+                let bytes = TuiFrameReader::display_bytes(cached_layer);
+                if bytes > TUI_DISPLAY_BYTES {
+                    return Err(EngineError::Business(
+                        diskgraph_core::BusinessError::BudgetExceeded,
+                    ));
+                }
+                let mut reads = TuiFrameReader::with_read_budget(
+                    reader,
+                    snapshot,
+                    budget,
+                    cached_layer.children.len() + 1,
+                    bytes,
+                );
+                let mut frame = terminal.get_frame();
+                paint(&mut frame, &mut reads);
+                if let Some(error) = reads.take_error() {
+                    return Err(error);
+                }
+                // 只接受 paint 中已经显示的截断状态；此处不临时制造未显示的 late partial。
+                Ok(if reads.truncation_reason.is_some() {
+                    RevisionDisplayCompletion::Truncated
+                } else {
+                    RevisionDisplayCompletion::Complete
+                })
+            },
+        )?;
     terminal
         .apply_buffer()
         .map_err(|error| EngineError::Io(std::io::Error::other(error.to_string())))?;

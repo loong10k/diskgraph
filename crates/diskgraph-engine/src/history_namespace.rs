@@ -1,7 +1,7 @@
 //! 历史增长与变化的实际归属资格；来源：DiskGraph 原生 Rust D34 / Q-04。
 
 use crate::{Engine, EngineError};
-use diskgraph_core::{BusinessError, ScopeId};
+use diskgraph_core::{BusinessError, QueryBudget, QueryReadBudget, ScopeId, query_deadline};
 use diskgraph_store::SqliteSnapshotStore;
 
 impl Engine {
@@ -16,11 +16,33 @@ impl Engine {
         right_reader: &SqliteSnapshotStore,
         right_revision: &str,
     ) -> Result<bool, EngineError> {
+        let budget = QueryBudget::default();
+        let mut reads = QueryReadBudget::new(budget, query_deadline(budget)?)?;
+        self.history_revisions_share_namespace_with_budget(
+            left_reader,
+            left_revision,
+            right_reader,
+            right_revision,
+            &mut reads,
+        )
+    }
+
+    /// 可信历史入口的归属资格也计入原共享账本；来源：原生 Rust Q-08 / D41。
+    /// 参数：双方 reader/revision 是固定历史，reads 为原请求准备账本。
+    /// 返回：有效本机 scope 相同为 true；未绑定、撤销、预算与读取错误明确返回。
+    pub(super) fn history_revisions_share_namespace_with_budget(
+        &self,
+        left_reader: &SqliteSnapshotStore,
+        left_revision: &str,
+        right_reader: &SqliteSnapshotStore,
+        right_revision: &str,
+        reads: &mut QueryReadBudget,
+    ) -> Result<bool, EngineError> {
         let (left_server, left_scope) = left_reader
-            .revision_ownership(left_revision)?
+            .revision_ownership_with_budget(left_revision, reads)?
             .ok_or(BusinessError::PermissionDenied)?;
         let (right_server, right_scope) = right_reader
-            .revision_ownership(right_revision)?
+            .revision_ownership_with_budget(right_revision, reads)?
             .ok_or(BusinessError::PermissionDenied)?;
         let server = self.server_id()?;
         if left_server != server.as_str() || right_server != server.as_str() {

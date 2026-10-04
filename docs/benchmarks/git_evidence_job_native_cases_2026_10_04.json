@@ -1,5 +1,5 @@
 {
-  "phase": "local_execution_observed_same_source_native_pending",
+  "phase": "local_inventory_with_corrected_source_native_execution_observations",
   "source_snapshot": "/private/tmp/diskgraph-d39-verified-mldbixd8",
   "inventory_is_not_native_execution_proof": true,
   "cases": [
@@ -234,6 +234,16 @@
       }
     ],
     "full_observations_archive": "docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-native-observations.json.gz"
-  }
+  },
+{
+  "source_commit": "fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d",
+  "run_id": 37187379023,
+  "attempt": 2,
+  "conclusion": "success",
+  "passed_jobs": 22,
+  "total_jobs": 22,
+  "receipt": "docs/benchmarks/mcp_service_layout_acceptance_2026_10_04.json",
+  "note": "Four original workspace logs contain157/159 selected cases; two reviewedUnix-only cases do not execute onWindows. Original expiry failure is retained in the previous entry.21 oldMCP paths are mapped to actual mounted modules."
+}
 ]
 }

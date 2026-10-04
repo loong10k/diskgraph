@@ -184,6 +184,16 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **WHEN** 合法快照的节点含超出展示预算的大型 reclaim_hint 或其他不用于导航绘制的元数据
 - **THEN** 页面与整帧读取使用必要字段投影或读取前原始字段准入，不先拥有这些未使用字段再计算展示成本。必需的名称、路径及节点读取按整次预算计费，真实准备成本与展示成本分别报告；不把有限行数或256KiB展示额度描述为完整原始输入或RSS上限。
 
+#### Scenario: Revision target preparation shares the actual query ledger
+- **WHEN** 合法已发布 revision 的必需 snapshot ID 或实际归属字段超过 TUI 导航、整帧或历史请求的剩余原始字段额度
+- **THEN** 在拥有该字段之前执行借用字段准入；归属、目标、节点及后续读取沿用从首次准备前建立的同一账本和期限，不能在消费者中重建额度。不会为不需要的 revision 元数据分配完整记录。
+- **AND** 初次目标准备失败返回明确预算错误，不能转换成可提交的缓存部分画布；实际终端后端没有提交该帧。
+
+#### Scenario: Both historical targets consume one preparation budget
+- **WHEN** 单侧历史头可容纳，但双侧必需头与后续快照读取累计超出请求额度
+- **THEN** comparison、changes 和 growth 共用累计准入，不能按侧或进入有序合并时重新获得额度；两侧均已解析并授权后发生的准备或编码失败仍执行双侧实时末段授权，不返回撤权后的完整或部分数据。
+- **AND** 测试从真实公开请求起点计量 Rust 分配并覆盖合法大型 snapshot ID，另有普通头和足够额度的真实成功对照；此计量不代表 SQLite C 分配、文件系统 I/O 或 RSS 上限。
+
 #### Scenario: TUI initial and navigation authorization remain bounded
 - **WHEN** 首次帧授权或导航读取遇到由另一线程持有的控制库锁
 - **THEN** 专用 TUI 路径非阻塞拒绝竞争，初次归属与权限检查及导航准备沿用原请求期限；不得等待锁释放后把已经迟到的初次授权转换为可提交部分帧。

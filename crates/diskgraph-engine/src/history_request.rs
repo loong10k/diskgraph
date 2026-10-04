@@ -1,5 +1,5 @@
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, PrincipalId};
+use diskgraph_core::{Authorizer, PrincipalId, QueryBudget, QueryReadBudget};
 use diskgraph_store::SqliteSnapshotStore;
 use std::time::Instant;
 
@@ -15,24 +15,51 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
         deadline: Instant,
+        budget: QueryBudget,
         consumer: impl FnOnce(
             &SqliteSnapshotStore,
             &str,
             &SqliteSnapshotStore,
             &str,
+            &mut QueryReadBudget,
+            bool,
         ) -> Result<T, EngineError>,
         mut finish: impl FnMut(&mut T, bool) -> Result<(), EngineError>,
     ) -> Result<T, EngineError> {
+        let mut reads = QueryReadBudget::new(budget, deadline)?;
         let left_reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let right_reader =
             SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let left_scope =
-            self.authorize_revision_with_reader(&left_reader, None, left, principal, authorizer)?;
-        let right_scope =
-            self.authorize_revision_with_reader(&right_reader, None, right, principal, authorizer)?;
-        let left_snapshot = left_reader.revision(left)?.snapshot_id;
-        let right_snapshot = right_reader.revision(right)?.snapshot_id;
-        let result = consumer(&left_reader, &left_snapshot, &right_reader, &right_snapshot);
+        let left_scope = self.authorize_revision_with_budget(
+            &left_reader,
+            None,
+            left,
+            principal,
+            authorizer,
+            &mut reads,
+        )?;
+        let right_scope = self.authorize_revision_with_budget(
+            &right_reader,
+            None,
+            right,
+            principal,
+            authorizer,
+            &mut reads,
+        )?;
+        // 双侧都已按本服务器真实归属授权；同 ScopeId 绑定同一不可变注册根。
+        // 目标准入错误与 consumer 错误一起经过原双侧末检，不提前返回错误或部分结果。
+        let result = (|| {
+            let left_snapshot = left_reader.revision_snapshot_with_budget(left, &mut reads)?;
+            let right_snapshot = right_reader.revision_snapshot_with_budget(right, &mut reads)?;
+            consumer(
+                &left_reader,
+                &left_snapshot,
+                &right_reader,
+                &right_snapshot,
+                &mut reads,
+                left_scope == right_scope,
+            )
+        })();
         let control = self.control_store()?;
         let scopes = [&left_scope, &right_scope];
         Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;

@@ -24,7 +24,7 @@
 
 ## 先看效果
 
-磁盘占用是一张图，不是一个数字。三个界面从同一份索引画同一张地图，所以你在终端、浏览器、智能体回复里看到的，永远不会互相矛盾。
+磁盘占用是一张图，不是一个数字。终端、浏览器和智能体界面共享 Engine，在同一 scope、revision 下使用一致的语义；索引更新后，不同 revision 的视图可以变化。
 
 <table>
 <tr>
@@ -175,7 +175,7 @@ claude mcp add diskgraph -- diskgraph-mcp --data-dir ~/.diskgraph --profile all
 | 完整索引：扫描、暂存、发布 | 4 分 17 秒 |
 | 树渲染（`--depth 3`，结构化读取路径） | 10.1 秒 |
 | v4 结构化列改造后的加载路径 | 快 2.4 倍 |
-| 树渲染的内存占用 | 由渲染深度决定，与索引规模无关 |
+| 渲染与导航资源约束 | 深度、分页、节点、字节及期限预算；已测工作集不构成严格 RSS 保证 |
 
 这些数字来自本仓的验收记录（[`docs/acceptance/`](docs/acceptance/)），是实测而非目标或估算。
 
@@ -257,7 +257,7 @@ Engine 与 FFI 增长还要求实际 server/scope 归属相同，显示路径相
 
 D34 命名空间增量在 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生 CI 中 22/22 通过](https://github.com/loong10k/diskgraph/actions/runs/37161135994)，20 项已审源码摘要均与该提交一致。Windows、Linux ARM 和 macOS Intel 实际执行了新增回归；[验收回执](docs/benchmarks/historical_namespace_acceptance_2026_10_04.json)记录具体用例及尚未完成的 Q-04 兼容矩阵，全平台生产就绪仍未完成。
 
-D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。`2450ab1`同源码[原生CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37164196395)，四份选定原生日志各实际通过26项新用例；授权Git采集入口及平台/provider门禁保持开放。
+D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。`2450ab1`同源码[原生CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37164196395)，四份选定原生日志各实际通过26项新用例。当时授权Git入口仍未完成，D39随后实现该入口，并由下方D40完成增量验收；平台/provider门禁继续独立验收。
 
 D36[受约束 Git 捕获](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json)与 [TUI／查询预算](docs/benchmarks/tui_budget_acceptance_2026_10_04.json)回执记录当前增量。可信 Git 采样先捕获 scope 内普通输入再执行固定命令，D36 验收范围是捕获库，持久产品入口见下方 D39；TUI 准备在原期限内准入所需原始字段，交付前复核实时授权。候选响应新增 `coverage_observed`，区分到期未读取覆盖头与实际观测的覆盖缺口。本机最终验证和同源码原生验收分别记录，本增量尚不能证明全平台生产就绪。
 
@@ -277,6 +277,12 @@ CLI 状态 data 将身份绑定真实任务与不可变回执，保留既有外�
 ## MCP 服务源码边界（D40）
 
 MCP 库入口现为55行模块声明与明确导出。配置、共享服务、分发、请求身份/范围解析、工具适配与stdio各自承载真实职责；67个原函数正文和21个测试断言保留，公开导入路径与默认值兼容。结构门禁解析实际挂载文件，拒绝隐藏实现与未挂载源码。原有auth/http/protocol大文件尚未纳入本次拆分，整crate规范和全平台验收仍未完成。[架构文档](docs/DiskGraph-Architecture-Hardening.zh_CN.md)说明保留的授权链，[就绪记录](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)分别记录本机、原生与生产证据。
+
+`fd9330e`同源码[CI37187379023](https://github.com/loong10k/diskgraph/actions/runs/37187379023)第二次attempt终态为**22/22 success**：保留21项先前成功，仅Kotlin Intel实际重跑。[D40回执](docs/benchmarks/mcp_service_layout_acceptance_2026_10_04.json)支持Git任务8.7与持久请求授权任务15.20验收；当前清单为**139完成／28开放／167总项**，全平台生产就绪仍未完成。
+
+### 查询准备（D41，本机检查通过，原生验收待完成）
+
+TUI 与 Engine 历史查询先借用准入必需的 revision 归属和 snapshot ID，再将同一读取账本传给全部消费者。初始准备失败不绘制或提交缓存帧；双方已授权后的历史准备失败仍执行双侧授权末检。整请求 Rust 分配观察不代表 SQLite C 分配、文件系统 I/O 或 RSS。修正源码本机 workspace 1401/0/18、质量／构建／release 门禁、stdio 18/18、HTTP/SSE 13/13、实际 ABI 19/19 及 macOS ARM Kotlin 宿主检查通过；新源码原生验收尚未完成，任务 13.6 继续开放，见[最新就绪阶段](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)。
 
 ## 文档
 

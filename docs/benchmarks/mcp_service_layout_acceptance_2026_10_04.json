@@ -1,7 +1,7 @@
 {
   "increment": "D40",
   "spec": "implement-diskgraph-platform / RT-10",
-  "status": "local_verified_same_source_native_pending",
+  "status": "verified_same_source_native",
   "base_commit": "bac84f72ba44b3398c15de7ef19d0717f4653820",
   "candidate_snapshot": "/private/tmp/diskgraph-d40-gate-final-yxtuaiko",
   "reviewed_source_sha256": {
@@ -419,9 +419,193 @@
     "caveat": "wall-clock test setup is bounded, not a deterministic scheduler; waiting also exceeds execution allowance, so this is precise request expiry rejection and no-publication evidence, not deadline priority or performance evidence"
   },
   "native_acceptance": {
-    "status": "pending",
-    "same_source_commit": null,
-    "ci_run": null
+    "status": "passed",
+    "same_source_commit": "fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d",
+    "ci_run": 37187379023,
+    "attempt": 2,
+    "conclusion": "success",
+    "passed_jobs": 22,
+    "total_jobs": 22,
+    "source_manifest_verified_against_commit": true,
+    "attempt_history": [
+      {
+        "attempt": 1,
+        "passed_jobs": 21,
+        "total_jobs": 22,
+        "conclusion": "failure",
+        "failed_job": "Kotlin native host (macos-15-intel)",
+        "failure_stage": "Maven dependency plugin descriptor resolution; before JNA/Java host execution",
+        "root_cause_limit": "Original log does not identify underlying transport/cache cause",
+        "metadata": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-attempt1-terminal.json.gz",
+        "log": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-kotlin-intel-failure.log.gz"
+      },
+      {
+        "attempt": 2,
+        "conclusion": "success",
+        "actual_rerun_job": 111395457676,
+        "actual_rerun_job_name": "Kotlin native host (macos-15-intel)",
+        "carry_forward_note": "The 21 earlier successful jobs retain their original execution times; they were not all executed again.",
+        "run_metadata": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-attempt2-run.json.gz",
+        "jobs_metadata": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-attempt2-jobs.json.gz",
+        "host_log": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-kotlin-intel-attempt2.log.gz"
+      }
+    ],
+    "platform_observations": [
+      {
+        "platform": "windows-stable",
+        "workspace_suites": 59,
+        "passed": 1248,
+        "failed": 0,
+        "ignored": 16,
+        "log_artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-windows-stable.log.gz",
+        "sha256": "57ebfe12d0f2d64c32eaf61faa21694b586aa804a4aaccd3117c2f4892d8edc2",
+        "groups": {
+          "git_product": {
+            "passed": 157,
+            "not_observed": 2,
+            "failed_or_nonunique": 0
+          },
+          "durable_authority": {
+            "passed": 39,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "prior_query_candidate": {
+            "passed": 32,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "moved_mcp_cases": {
+            "passed": 21,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "mcp_source_gate": {
+            "passed": 9,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          }
+        }
+      },
+      {
+        "platform": "windows-msrv",
+        "workspace_suites": 59,
+        "passed": 1248,
+        "failed": 0,
+        "ignored": 16,
+        "log_artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-windows-msrv.log.gz",
+        "sha256": "d70bfb6aef5f48ae333f2eddcaf5404b3ad8a78b00dc179dda1852435a7fef7b",
+        "groups": {
+          "git_product": {
+            "passed": 157,
+            "not_observed": 2,
+            "failed_or_nonunique": 0
+          },
+          "durable_authority": {
+            "passed": 39,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "prior_query_candidate": {
+            "passed": 32,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "moved_mcp_cases": {
+            "passed": 21,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "mcp_source_gate": {
+            "passed": 9,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          }
+        }
+      },
+      {
+        "platform": "linux-arm64",
+        "workspace_suites": 59,
+        "passed": 1376,
+        "failed": 0,
+        "ignored": 18,
+        "log_artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-linux-arm64.log.gz",
+        "sha256": "39640a580008d54fdafbe722a88dc0c8e9fd5fbf363b5e167dc8b29ca028c57c",
+        "groups": {
+          "git_product": {
+            "passed": 159,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "durable_authority": {
+            "passed": 39,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "prior_query_candidate": {
+            "passed": 32,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "moved_mcp_cases": {
+            "passed": 21,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "mcp_source_gate": {
+            "passed": 9,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          }
+        }
+      },
+      {
+        "platform": "macos-intel",
+        "workspace_suites": 59,
+        "passed": 1387,
+        "failed": 0,
+        "ignored": 18,
+        "log_artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-macos-intel.log.gz",
+        "sha256": "6ea262152f19d89d0a1ffb0e9230fc70b8873569bc13d63375e3035c21a44e7e",
+        "groups": {
+          "git_product": {
+            "passed": 159,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "durable_authority": {
+            "passed": 39,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "prior_query_candidate": {
+            "passed": 32,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "moved_mcp_cases": {
+            "passed": 21,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          },
+          "mcp_source_gate": {
+            "passed": 9,
+            "not_observed": 0,
+            "failed_or_nonunique": 0
+          }
+        }
+      }
+    ],
+    "observations_artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-native-observations.json.gz",
+    "observer_artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-native-observe.py.gz",
+    "unix_only_not_executed_on_windows": [
+      "live_evidence::git_metadata_tests::links_and_fifo_are_refused_without_blocking",
+      "live_evidence::git_metadata_tests::same_bytes_with_changed_native_version_are_rejected"
+    ],
+    "limits": [
+      "This accepts D40 and the corrected Git/authority regression set, not all platform/provider/mobile/write/production capabilities.",
+      "Original failed observations remain archived."
+    ]
   },
   "limits": [
     "unchanged legacy auth/http/protocol are explicitly outside this incremental structure gate; whole-crate RT-10 compliance is not complete",
@@ -724,6 +908,72 @@
       "raw_sha256": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
       "gzip_sha256": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be",
       "raw_bytes": 563
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-attempt1-terminal.json.gz",
+      "raw_sha256": "69533fb5610bfad8378dbfcb74b5db6ba324fe0cc3c99e7682ddc9b21f473b84",
+      "gzip_sha256": "2a7562ae5e2de51712363df7f372a12bcccac2ce20afd654a6e33c23fb2d739f",
+      "raw_bytes": 62582
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-attempt2-run.json.gz",
+      "raw_sha256": "8e4e7df387d70d7e4e747b4764ef550d059508728e3a8066c2e064e48747414a",
+      "gzip_sha256": "52d126ebd61646518eb06937d54a460f528a5fd95e9cbfde61d63f2f8e57897e",
+      "raw_bytes": 12192
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-attempt2-jobs.json.gz",
+      "raw_sha256": "11a7162f49fd941de7f08b859abf23f0f0eabd561f6e81d5de1751fb8516096c",
+      "gzip_sha256": "979ef0c00b161144ed9862c29a9e5df7fde1cb64f577654ab1d940af1faf4c5f",
+      "raw_bytes": 76557
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-native-observations.json.gz",
+      "raw_sha256": "44020d7102a95b277621f2d9d648f386d0651ca1f460999af87eae28df2f4aff",
+      "gzip_sha256": "c08cb1a372de8d5594560a17710665659cf86d6ca8d75885b6a3902878a9f922",
+      "raw_bytes": 425103
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-native-observe.py.gz",
+      "raw_sha256": "a8fbc935a4243c9a07037fcd75f294792703efda531dc6fcfacf0c4fd4ab3e92",
+      "gzip_sha256": "7a7e908bb2c41c0f6d32d893f8e80a6023ff4de08c8b2f376dacd07460d5f38b",
+      "raw_bytes": 5565
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-kotlin-intel-failure.log.gz",
+      "raw_sha256": "e319824328012dee36b2dc7c2f18e175c8a4b4cac86a2335a438421ce3d6864e",
+      "gzip_sha256": "28de50e0c7f76fc62cf6ed076ee02601300047e4739ee5b7d799eff952424758",
+      "raw_bytes": 44148
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-kotlin-intel-attempt2.log.gz",
+      "raw_sha256": "42fa062e85f2270df50dc7f68d5141bb8249a1ae8773377c49b4aa3587bd4e5c",
+      "gzip_sha256": "069a01def47781a972e5ff56c8d655919a03be14c196bb1e8430d789e579a1e1",
+      "raw_bytes": 44075
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-windows-stable.log.gz",
+      "raw_sha256": "57ebfe12d0f2d64c32eaf61faa21694b586aa804a4aaccd3117c2f4892d8edc2",
+      "gzip_sha256": "d966a3d05471fb7d818827db5baee75f1f667cb8191484a297c1b436a216dba7",
+      "raw_bytes": 414017
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-windows-msrv.log.gz",
+      "raw_sha256": "d70bfb6aef5f48ae333f2eddcaf5404b3ad8a78b00dc179dda1852435a7fef7b",
+      "gzip_sha256": "e7c3cd8b98e6d2a3b97853fcb93da9d91ba04b7b805cce70cd393d8e5c73753f",
+      "raw_bytes": 410659
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-linux-arm64.log.gz",
+      "raw_sha256": "39640a580008d54fdafbe722a88dc0c8e9fd5fbf363b5e167dc8b29ca028c57c",
+      "gzip_sha256": "7c70881097d078beb1916d05fa02fd661b0033ee6a04e08610f4909e5f1fa66b",
+      "raw_bytes": 437109
+    },
+    {
+      "artifact": "docs/benchmarks/mcp_service_layout_acceptance_logs/diskgraph-d40-ci-macos-intel.log.gz",
+      "raw_sha256": "6ea262152f19d89d0a1ffb0e9230fc70b8873569bc13d63375e3035c21a44e7e",
+      "gzip_sha256": "6003d32bb212598809bc362cab3c4e7b958d13f1d4916d35f8655745f3f93acb",
+      "raw_bytes": 453056
     }
   ]
 }

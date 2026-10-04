@@ -68,3 +68,44 @@ fn legal_large_snapshot_id_and_expired_deadline_are_refused_without_refreshing_t
     ));
     assert_eq!(expired.nodes_read(), 0);
 }
+
+#[test]
+fn separated_owner_and_target_share_exact_raw_admission_without_reset() {
+    let (_, store, input, _) = fixture();
+    let owner_bytes = input.server_id().as_str().len() + input.scope_id().as_str().len();
+    let mut ledger = reads(owner_bytes + "snapshot".len());
+    assert_eq!(
+        store
+            .revision_ownership_with_budget("base", &mut ledger)
+            .unwrap(),
+        Some((input.server_id().to_string(), input.scope_id().to_string()))
+    );
+    assert_eq!(ledger.remaining_raw_bytes(), "snapshot".len());
+    assert_eq!(
+        store
+            .revision_snapshot_with_budget("base", &mut ledger)
+            .unwrap(),
+        "snapshot"
+    );
+    assert_eq!(ledger.remaining_raw_bytes(), 0);
+    assert_eq!(ledger.nodes_read(), 0);
+    assert!(matches!(
+        store.revision_snapshot_with_budget("base", &mut ledger),
+        Err(StoreError::BudgetExceeded)
+    ));
+    assert_eq!(
+        ledger.stopped(),
+        Some(diskgraph_core::TruncationReason::ByteLimit)
+    );
+
+    let mut owner_too_small = reads(owner_bytes - 1);
+    assert!(matches!(
+        store.revision_ownership_with_budget("base", &mut owner_too_small),
+        Err(StoreError::BudgetExceeded)
+    ));
+    assert_eq!(owner_too_small.remaining_raw_bytes(), owner_bytes - 1);
+    assert_eq!(
+        owner_too_small.stopped(),
+        Some(diskgraph_core::TruncationReason::ByteLimit)
+    );
+}

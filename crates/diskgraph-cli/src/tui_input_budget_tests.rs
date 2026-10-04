@@ -199,3 +199,132 @@ fn nested_frame_admits_large_legacy_json_before_owned_decoding() {
         || nested_frame_cost(false),
     );
 }
+
+// 必需 revision 目标的计量从真实 TUI 入口之前开始，不能只量已经授权后的 consumer。
+fn header_navigation_cost(large: bool) {
+    let mut fixture = TuiFixture::new(0, true);
+    if large {
+        fixture.republish_snapshot_id(&"s".repeat(2 << 20));
+    }
+    let request = fixture.request();
+    let started = std::time::Instant::now();
+    let (result, allocated) = measured(|| load_layer(&request, 1));
+    let elapsed = started.elapsed();
+    println!("large_header={large}, whole_navigation_rust_bytes={allocated}");
+    assert!(
+        allocated < 1 << 20,
+        "revision preparation owned the oversized header: {allocated}"
+    );
+    if large {
+        assert!(
+            elapsed < std::time::Duration::from_millis(1000),
+            "navigation raw failure arrived after its deadline"
+        );
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Store(StoreError::BudgetExceeded))
+                    | Err(EngineError::Business(
+                        diskgraph_core::BusinessError::BudgetExceeded
+                    ))
+            ),
+            "large required header escaped raw admission: {result:?}"
+        );
+    } else {
+        let layer = result.unwrap();
+        assert_eq!(layer.name, "root");
+        assert_eq!(layer.children.len(), 1);
+        assert_eq!(layer.children[0].name, "parent");
+    }
+}
+
+fn header_frame_cost(large: bool) {
+    let mut fixture = TuiFixture::new(0, true);
+    let cached = load_layer(&fixture.request(), 1).unwrap();
+    if large {
+        // 旧缓存确实来自同一根的合法历史，不能令初始准备失败借缓存提交。
+        fixture.republish_snapshot_id(&"s".repeat(2 << 20));
+    }
+    let request = fixture.request();
+    let browser = super::Browser::new(&fixture.revision, cached.clone());
+    let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(80, 24)).unwrap();
+    let mut painted = false;
+    let started = std::time::Instant::now();
+    let (result, allocated) = measured(|| {
+        super::draw_authorized_frame(&mut terminal, &request, &cached, |frame, reads| {
+            painted = true;
+            super::draw(frame, &browser, reads);
+        })
+    });
+    let elapsed = started.elapsed();
+    println!("large_header={large}, whole_frame_rust_bytes={allocated}, painted={painted}");
+    assert!(
+        allocated < 1 << 20,
+        "frame preparation owned the oversized header: {allocated}"
+    );
+    let actual: String = terminal
+        .backend()
+        .buffer()
+        .content()
+        .iter()
+        .map(|cell| cell.symbol())
+        .collect();
+    if large {
+        assert!(
+            elapsed < std::time::Duration::from_millis(50),
+            "frame raw failure arrived after its deadline"
+        );
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Store(StoreError::BudgetExceeded))
+                    | Err(EngineError::Business(
+                        diskgraph_core::BusinessError::BudgetExceeded
+                    ))
+            ),
+            "initial header failure became a displayable frame: {result:?}"
+        );
+        assert!(
+            !painted,
+            "oversized initial target reached the paint consumer"
+        );
+        assert!(
+            actual.trim().is_empty(),
+            "initial raw failure applied a backend frame"
+        );
+    } else {
+        result.unwrap();
+        assert!(painted);
+        assert!(
+            actual.contains("parent"),
+            "ordinary frame was not applied: {actual}"
+        );
+    }
+}
+
+#[test]
+fn whole_navigation_admits_required_revision_target_before_owning_it() {
+    isolated(
+        "tui::input_budget_tests::whole_navigation_admits_required_revision_target_before_owning_it",
+        || header_navigation_cost(true),
+    );
+}
+
+#[test]
+fn whole_frame_admits_required_revision_target_before_painting() {
+    isolated(
+        "tui::input_budget_tests::whole_frame_admits_required_revision_target_before_painting",
+        || header_frame_cost(true),
+    );
+}
+
+#[test]
+fn ordinary_revision_target_preserves_real_navigation_and_frame() {
+    isolated(
+        "tui::input_budget_tests::ordinary_revision_target_preserves_real_navigation_and_frame",
+        || {
+            header_navigation_cost(false);
+            header_frame_cost(false);
+        },
+    );
+}

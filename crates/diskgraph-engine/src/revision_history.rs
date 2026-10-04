@@ -24,10 +24,17 @@ impl Engine {
         let deadline = query_deadline(budget)?;
         let left = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let right = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let left_snapshot = left.revision(before)?.snapshot_id;
-        let right_snapshot = right.revision(after)?.snapshot_id;
         let mut ledger = QueryReadBudget::new(budget, deadline)?;
-        let value = if self.history_revisions_share_namespace(&left, before, &right, after)? {
+        let same_scope = self.history_revisions_share_namespace_with_budget(
+            &left,
+            before,
+            &right,
+            after,
+            &mut ledger,
+        )?;
+        let left_snapshot = left.revision_snapshot_with_budget(before, &mut ledger)?;
+        let right_snapshot = right.revision_snapshot_with_budget(after, &mut ledger)?;
+        let value = if same_scope {
             Self::growth_on_readers(
                 &left,
                 &left_snapshot,
@@ -63,9 +70,9 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |left, left_snapshot, right, right_snapshot| {
-                let mut ledger = QueryReadBudget::new(budget, deadline)?;
-                if !self.history_revisions_share_namespace(left, before, right, after)? {
+            budget,
+            |left, left_snapshot, right, right_snapshot, ledger, same_scope| {
+                if !same_scope {
                     // 这里只结束 consumer；外层仍执行预算编码及双侧终态授权。
                     return Ok(None);
                 }
@@ -75,7 +82,7 @@ impl Engine {
                     right,
                     right_snapshot,
                     relative,
-                    &mut ledger,
+                    ledger,
                 )
             },
             |value, expired| finish_growth(value, budget, expired),
@@ -127,9 +134,17 @@ impl Engine {
         let deadline = query_deadline(budget)?;
         let left = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let right = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let left_snapshot = left.revision(before)?.snapshot_id;
-        let right_snapshot = right.revision(after)?.snapshot_id;
-        let mut value = if self.history_revisions_share_namespace(&left, before, &right, after)? {
+        let mut ledger = QueryReadBudget::new(budget, deadline)?;
+        let same_scope = self.history_revisions_share_namespace_with_budget(
+            &left,
+            before,
+            &right,
+            after,
+            &mut ledger,
+        )?;
+        let left_snapshot = left.revision_snapshot_with_budget(before, &mut ledger)?;
+        let right_snapshot = right.revision_snapshot_with_budget(after, &mut ledger)?;
+        let mut value = if same_scope {
             Self::changes_on_readers(
                 &left,
                 &left_snapshot,
@@ -138,7 +153,7 @@ impl Engine {
                 &right_snapshot,
                 after,
                 budget,
-                deadline,
+                &mut ledger,
             )?
         } else {
             scope_incompatible_changes()
@@ -165,10 +180,9 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |left, left_snapshot, right, right_snapshot| {
-                // 即使无需读取节点，不可比结果也不能跳过原 typed 预算参数校验。
-                budget.validated()?;
-                if !self.history_revisions_share_namespace(left, before, right, after)? {
+            budget,
+            |left, left_snapshot, right, right_snapshot, ledger, same_scope| {
+                if !same_scope {
                     // 不可比仍走 finish_changes 和已有末段授权，不能隐藏拒权或超时。
                     return Ok(scope_incompatible_changes());
                 }
@@ -180,7 +194,7 @@ impl Engine {
                     right_snapshot,
                     after,
                     budget,
-                    deadline,
+                    ledger,
                 )
             },
             |value, expired| finish_changes(value, budget, expired),
@@ -188,7 +202,7 @@ impl Engine {
     }
 
     /// 用双侧固定 reader 与同一账本产生变化前缀。
-    /// 参数：双侧 reader/snapshot/revision 及 budget/deadline 为固定上下文。
+    /// 参数：双侧 reader/snapshot/revision 及 budget/ledger 为固定上下文。
     /// 返回：兼容性诊断或局部统计；真实读取成本不因进入 merge 重置。
     #[allow(clippy::too_many_arguments)] // 双侧已解析标识与预算不能隐式替换。
     pub(super) fn changes_on_readers(
@@ -199,11 +213,10 @@ impl Engine {
         right_snapshot: &str,
         after: &str,
         budget: QueryBudget,
-        deadline: Instant,
+        ledger: &mut QueryReadBudget,
     ) -> Result<serde_json::Value, EngineError> {
-        let mut ledger = QueryReadBudget::new(budget, deadline)?;
-        let previous = left.snapshot_with_budget(left_snapshot, &mut ledger)?;
-        let current = right.snapshot_with_budget(right_snapshot, &mut ledger)?;
+        let previous = left.snapshot_with_budget(left_snapshot, ledger)?;
+        let current = right.snapshot_with_budget(right_snapshot, ledger)?;
         if let Some(reason) = incompatibility(&previous, &current) {
             return Ok(
                 serde_json::json!({"incompatible":reason,"added":0,"removed":0,"size_changed":0,"complete":true,"summary_is_partial":false}),
@@ -218,7 +231,7 @@ impl Engine {
             after,
             0,
             budget,
-            &mut ledger,
+            ledger,
         )?;
         // 类型替换与未知大小不能贡献数值增长；目录 Contents 仍可携带有效大小变化。
         let size_changed = report

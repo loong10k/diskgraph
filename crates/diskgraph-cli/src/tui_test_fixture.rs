@@ -162,6 +162,32 @@ impl TuiFixture {
         }
     }
 
+    /// 将同一合法树发布为另一短 revision，以独立控制必要 snapshot ID 的原始成本。
+    /// 参数：snapshot_id 为合法导入标识；返回：无，失败立即暴露公开发布错误。
+    pub(super) fn republish_snapshot_id(&mut self, snapshot_id: &str) {
+        let mut graph = self.engine.load_revision(&self.revision).unwrap();
+        graph.snapshot.id = snapshot_id.to_owned();
+        graph.snapshot.captured_at_unix_ms += 1;
+        let revision = "tui-header-import";
+        let mut store =
+            SqliteSnapshotStore::open(&self._directory.path().join("data/diskgraph.sqlite"))
+                .unwrap();
+        store.append_staging_nodes(revision, &graph.nodes).unwrap();
+        store
+            .publish_revision_owned(
+                revision,
+                &graph,
+                revision,
+                graph.snapshot.captured_at_unix_ms,
+                Some((
+                    self.engine.server_id().unwrap().as_str(),
+                    self.scope.as_str(),
+                )),
+            )
+            .unwrap();
+        self.revision = revision.into();
+    }
+
     /// 借用同一真实主体和持久授权建立 TUI 请求。
     /// 参数：无；返回：绑定已发布 revision 的请求，不建立替代授权器。
     pub(super) fn request(&self) -> TuiRequest<'_> {

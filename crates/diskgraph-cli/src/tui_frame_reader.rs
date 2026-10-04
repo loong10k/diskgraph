@@ -22,7 +22,10 @@ pub struct TuiFrameReader<'a> {
 }
 
 impl<'a> TuiFrameReader<'a> {
-    /// 使用该帧已授权的快照和 SQLite 连接；缓存根层同样占节点预算。
+    /// 为既有低层测试建立独立节点账本；生产入口必须继承归属准备的账本。
+    /// 参数：reader/snapshot/deadline 为测试上下文，cached_nodes/bytes 为缓存成本。
+    /// 返回：测试读取器；缓存根层同样占节点预算。
+    #[cfg(test)]
     pub fn new(
         reader: &'a SqliteSnapshotStore,
         snapshot_id: &'a str,
@@ -30,6 +33,26 @@ impl<'a> TuiFrameReader<'a> {
         cached_nodes: usize,
         cached_bytes: usize,
     ) -> Self {
+        Self::with_read_budget(
+            reader,
+            snapshot_id,
+            TuiRequest::read_budget(deadline),
+            cached_nodes,
+            cached_bytes,
+        )
+    }
+
+    /// 继承已经准入归属和目标的原账本；来源：原生 Rust Q-08 / D41。
+    /// 参数：reader/snapshot 固定，read_budget 保留准备成本，cached_nodes/bytes 为展示缓存。
+    /// 返回：同一帧的剩余额度读取器，不重新计时或补充原始字节。
+    pub fn with_read_budget(
+        reader: &'a SqliteSnapshotStore,
+        snapshot_id: &'a str,
+        read_budget: QueryReadBudget,
+        cached_nodes: usize,
+        cached_bytes: usize,
+    ) -> Self {
+        let deadline = read_budget.deadline();
         Self {
             reader,
             snapshot_id,
@@ -38,7 +61,7 @@ impl<'a> TuiFrameReader<'a> {
             remaining_queries: 4,
             remaining_bytes: TUI_DISPLAY_BYTES.saturating_sub(cached_bytes),
             // 缓存本帧没有再解码，原始输入只记录本次真正读取的必要字段。
-            read_budget: TuiRequest::read_budget(deadline),
+            read_budget,
             truncation_reason: None,
             failure: None,
         }

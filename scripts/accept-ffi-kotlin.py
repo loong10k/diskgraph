@@ -57,7 +57,7 @@ def main():
         (root / "文件-é-ß.txt").write_text("Unicode fixture\n", encoding="utf-8")
         classpath = work / "runtime-classpath.txt"
         settings = str(project / "maven-settings.xml")
-        run([maven, "--batch-mode", "--no-transfer-progress", "--settings", settings,
+        run([maven, "--batch-mode", "--errors", "--no-transfer-progress", "--settings", settings,
              "--global-settings", settings, f"-Dmaven.repo.local={ROOT / 'target' / 'ffi-kotlin-m2'}", "compile",
              "org.apache.maven.plugins:maven-dependency-plugin:3.10.0:build-classpath",
              f"-Dmdep.outputFile={classpath}"], project)

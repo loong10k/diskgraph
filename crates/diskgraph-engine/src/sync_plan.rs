@@ -3,7 +3,7 @@
 use crate::native_locator::native_path;
 use crate::{Engine, EngineError};
 use diskgraph_core::BusinessError;
-use diskgraph_core::{Authorizer, PrincipalId, QueryBudget, QueryReadBudget, measure_json_bounded};
+use diskgraph_core::{Authorizer, PrincipalId, QueryBudget, measure_json_bounded};
 use diskgraph_store::StoreError;
 use std::path::Path;
 use std::time::Instant;
@@ -30,8 +30,8 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |left, left_snapshot, right, right_snapshot| {
-                let mut ledger = QueryReadBudget::new(budget, deadline)?;
+            budget,
+            |left, left_snapshot, right, right_snapshot, ledger, _same_scope| {
                 let report = Self::compare_on_readers(
                     left,
                     left_snapshot,
@@ -41,16 +41,16 @@ impl Engine {
                     to,
                     tolerance,
                     budget,
-                    &mut ledger,
+                    ledger,
                 )?;
                 if report.truncated.is_some() {
                     return Err(BusinessError::BudgetExceeded.into());
                 }
                 let left_root = left
-                    .root_node_with_budget(left_snapshot, &mut ledger)?
+                    .root_node_with_budget(left_snapshot, ledger)?
                     .ok_or(BusinessError::NotFound)?;
                 let right_root = right
-                    .root_node_with_budget(right_snapshot, &mut ledger)?
+                    .root_node_with_budget(right_snapshot, ledger)?
                     .ok_or(BusinessError::NotFound)?;
                 // 计划需要完整节点：每次窄重读计费，绝不重新开连接或重置预算。
                 let entries = report
@@ -62,13 +62,13 @@ impl Engine {
                                 left,
                                 left_snapshot,
                                 Path::new(&row.path),
-                                &mut ledger,
+                                ledger,
                             )?,
                             Self::history_node_at(
                                 right,
                                 right_snapshot,
                                 Path::new(&row.path),
-                                &mut ledger,
+                                ledger,
                             )?,
                         ))
                     })

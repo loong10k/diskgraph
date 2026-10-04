@@ -2,6 +2,52 @@
 
 本文延续[全平台实施记录](production-readiness-full-platform-2026-10-02.zh-CN.md)，完整平台目标仍未完成。
 
+## 最新阶段：D40原生验收完成，D41本机验收通过
+
+当前清单为**167总项／139完成／28开放**，包含广泛父项，不等于28个独立漏洞。Git任务8.7与持久请求授权任务15.20已在实现的Index／Sync／Git路径验收。任务13.6继续等待D41修正源码原生及剩余查询／TUI验证；进程／应用collector8.6／15.13、provider、原生写、GUI／移动端／真机、签名和生产部署保持原要求。
+
+`fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d`同源码[CI37187379023第二次attempt](https://github.com/loong10k/diskgraph/actions/runs/37187379023)已终态**22/22 success**。第一次attempt的21项成功保留原执行时间，仅Kotlin Intel作为job111395457676实际重跑。首次失败发生在Java／JNA宿主执行前的Maven插件描述解析，日志不能证明网络或缓存根因；同SHA重跑实际取得Maven BUILD SUCCESS并通过会话／分页／轮询／v1／release／重开宿主验收。[D40回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)保留两次attempt、原始失败、源码摘要与真实原生日志。
+
+| fd9330e实际workspace日志 | 通过／失败／ignored | suites | 实际通过Git用例 |
+| --- | --- | ---: | ---: |
+| Windows stable | 1248／0／16 | 59 | 157 |
+| Windows Rust1.97 | 1248／0／16 | 59 | 157 |
+| Linux ARM64 | 1376／0／18 | 59 | 159 |
+| macOS Intel | 1387／0／18 | 59 | 159 |
+
+四份原始workspace日志还各实际执行持久授权39、既有查询／候选32、迁移MCP21、结构9项，逐案恰好一次成功。分组存在重叠，不能相加为独立用例总数；Windows仅缺两个已核验的Unix-only Git用例。观察只取workspace执行阶段，排除清单、迁移重跑及sentinel重复。此证据支持8.7／15.20，不认证新的D41源码或全部平台能力。
+
+## D41查询目标准备：已实现，原生验收待完成
+
+合法大snapshot ID复现旧TUI／历史消费者建立账本前已经拥有必要目标的成本。17源修复先借用准入owner字段、授权实际server/scope，再准入必要snapshot ID；双侧历史与后续快照／节点／合并／计划窄读沿用同一原始`QueryReadBudget`。初始TUI准备失败不进入paint，不提交缓存部分帧。双方历史owner均已授权后，目标／消费者失败仍执行双侧授权末检，编码后成组实时grant检查保留；原期限、Complete导航与已绘明确截断画布合同不变。
+
+```mermaid
+flowchart LR
+    O["借用owner字段准入"] --> A["实际scope授权"]
+    A --> S["snapshot ID与后续读取<br/>同一原始账本"]
+    S --> T["实时授权末检<br/>准备失败也执行"]
+    T -->|允许且可交付| D["结果 / 缓冲画布"]
+    T -->|错误或拒权| X["不提交画布"]
+```
+
+真实整请求分配回归覆盖左右超大头、累计准备、普通／足额成功、初次拒权及末段撤权；TUI要求初始原始预算拒绝后paint未调用、实际后端为空。目标Store3／Engine10／CLI7通过。首次完整构建随后因生产TuiRequest导入误受test条件限制而E0433失败，该编译失败保留，不能算行为RED；唯一修正是无条件显式导入。最终17源清单SHA为`116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c`。
+
+修正源码本机 workspace 已通过 **1401／0／18，60 suites**，限定 fmt、FFI include fmt、严格 all-target workspace Clippy／build、OpenSpec、release CLI／MCP／FFI 及未修改 vendor 124／0／2 通过。单独执行的 **release stdio 18/18、HTTP/SSE 13/13、真实调用的 UniFFI ABI 19/19** 通过；JDK 21 macOS ARM Kotlin 宿主实际通过会话／分页／轮询／v1／release／重开验收，并执行新增 Maven `--errors` 诊断。Kotlin FFI 库 SHA 为 `bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5`，协议／ABI 使用 `86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7`；两者来自同一审查源码的不同构建，不能称为同一二进制。已完成的 [D41 回执](benchmarks/query_target_preparation_acceptance_2026_10_04.json)保留 36 份原始／QA／release／Kotlin 档案，包含最终本机 workspace 中 20 项目标用例逐案一次通过（14 项新增）的记录；这份本机记录不能代替原生 CI。D41 新原生 CI 尚未验收，任务 13.6 继续开放。
+
+隔离的整调用分配窗口包含首次授权与目标准备，使用公开发布的合法 2 MiB snapshot ID 和不足以覆盖它的读取预算：
+
+| 公开请求 | 原 Rust requested 累计字节 | 修正后 | 实际修正行为 |
+| --- | ---: | ---: | --- |
+| 历史 compare／growth／changes，左右任一大头 | 2,102,370–2,131,834 | 4,528–4,541 | 拥有超大 ID 前明确预算拒绝 |
+| TUI 导航 | 2,101,248 | 2,521 | 不返回 Layer |
+| TUI 整帧 | 2,184,272 | 2,521 | paint 未调用，实际后端保持空白 |
+
+普通及足额请求仍返回真实成功结果。Rust 累计 requested 分配记录成功的 Rust 分配请求，不代表峰值存活内存、SQLite C 分配／缓存、文件系统 I/O 或 RSS，也不是吞吐改进的因果证据。同步 authorizer 与原生 I/O 仍为协作检查，不新增严格内存或墙钟保证，不勾任务 13.6。
+
+## 以下保留历史阶段记录
+
+后续D31–D40段落保留当时结果、失败和待完成状态；旧任务数或后来已经实现／验收能力的“仍待完成”属于对应历史时点，当前结论以顶部最新阶段为准。失败运行保留，不用后来绿色结果替换。
+
 ## Windows 完整原生属性与暂存末检（D31前置，2026-10-04）
 
 schema12 用独立80字节版本记录保存完整128位文件ID、u64卷序号、EOF和原始创建/写入/变更时间。
@@ -142,4 +188,4 @@ RT-10已实现55行入口，服务/配置/分发/身份/范围/工具/stdio承�
 
 最终固定候选为**workspace1387/0/18、59 suites**，限定fmt、FFI独立include格式、workspace all-target严格Clippy/build、OpenSpec strict、上游124/0/2、release CLI/MCP/FFI构建通过；14份上游来源摘要一致。实际release stdio18/18、认证HTTP/SSE13/13、调用UniFFI校验值19/19通过，最终release摘要与这些实际执行二进制一致。本次源码组织不改扫描/查询算法，不声明新的性能或RSS结果。[D40回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)保存真实阶段、源码摘要、失败及边界。
 
-修正后的同源码原生CI仍待完成。清单仍为167项/137完成/30开放，全平台生产就绪尚未成立。
+**D40原生CI之前的历史时点：**当时修正源码原生CI仍待完成，清单为167项／137完成／30开放。顶部最新阶段记录后续同源码验收及139／28状态；全平台生产就绪尚未成立。

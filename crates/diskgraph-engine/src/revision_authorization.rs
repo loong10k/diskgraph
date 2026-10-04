@@ -1,7 +1,9 @@
 //! 共享 Engine 的 revision_authorization 职责；原调用与持锁顺序保持。
 
 use crate::{Engine, EngineError, admin_scope};
-use diskgraph_core::{Authorizer, BusinessError, Permission, PrincipalId, ScopeId};
+use diskgraph_core::{
+    Authorizer, BusinessError, Permission, PrincipalId, QueryBudget, QueryReadBudget, ScopeId,
+};
 use diskgraph_store::SqliteSnapshotStore;
 use std::time::Duration;
 
@@ -77,6 +79,32 @@ impl Engine {
         authorizer: &dyn Authorizer,
     ) -> Result<ScopeId, EngineError> {
         let ownership = reader.revision_ownership(revision_id)?;
+        self.authorize_revision_owner(ownership, expected_scope, principal, authorizer)
+    }
+
+    /// 真实归属的原始字段与后续历史读取共用账本；来源：原生 Rust Q-08 / D41。
+    /// 参数：reader/revision、可选范围断言及请求身份固定，reads 不得重置。
+    /// 返回：实际授权 scope；预算、缺失归属与拒权保留原错误。
+    pub(super) fn authorize_revision_with_budget(
+        &self,
+        reader: &SqliteSnapshotStore,
+        expected_scope: Option<&ScopeId>,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        reads: &mut QueryReadBudget,
+    ) -> Result<ScopeId, EngineError> {
+        let ownership = reader.revision_ownership_with_budget(revision_id, reads)?;
+        self.authorize_revision_owner(ownership, expected_scope, principal, authorizer)
+    }
+
+    fn authorize_revision_owner(
+        &self,
+        ownership: Option<(String, String)>,
+        expected_scope: Option<&ScopeId>,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+    ) -> Result<ScopeId, EngineError> {
         let (server, scope) =
             ownership.ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
         let scope = ScopeId::new(scope)
@@ -172,6 +200,7 @@ impl Engine {
     /// 导航必须给出 Complete 并遵守原读取期限，只有已绘制真实提示的画布可以给出 Truncated。
     /// 图 SQL 永远沿用最初 deadline；末段授权另有固定 50ms 控制窗口，不续租图请求。
     /// 控制锁竞争立即拒绝；SQL 和同步授权回调返回后的期限失败均不能变成部分画布。
+    /// 此兼容包装以默认原始字节额度准备目标；实际 TUI 使用 bounded 方法传递整份账本。
     pub fn with_authorized_revision_display_reader(
         &self,
         revision: &str,
@@ -184,6 +213,34 @@ impl Engine {
             std::time::Instant,
         ) -> Result<crate::RevisionDisplayCompletion, EngineError>,
     ) -> Result<(), EngineError> {
+        self.with_authorized_revision_display_reader_bounded(
+            revision,
+            principal,
+            authorizer,
+            QueryBudget {
+                deadline_ms,
+                ..QueryBudget::default()
+            },
+            |reader, snapshot, reads| consumer(reader, snapshot, reads.deadline()),
+        )
+    }
+
+    /// 从真实归属准备到 TUI 节点消费传递同一读取账本；来源：原生 Rust Q-08 / D41。
+    /// 参数：revision/身份固定，budget 是整次原始准入额度，consumer 接收已计费账本。
+    /// 返回：初始完整准备及末段授权后的提交许可；初始 ByteLimit 不进入画布消费者。
+    pub fn with_authorized_revision_display_reader_bounded(
+        &self,
+        revision: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        budget: QueryBudget,
+        consumer: impl FnOnce(
+            &SqliteSnapshotStore,
+            &str,
+            QueryReadBudget,
+        ) -> Result<crate::RevisionDisplayCompletion, EngineError>,
+    ) -> Result<(), EngineError> {
+        let deadline_ms = budget.validated()?.deadline_ms;
         if deadline_ms == 0 || deadline_ms > 1000 {
             return Err(BusinessError::InvalidArgument.into());
         }
@@ -194,8 +251,9 @@ impl Engine {
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        let mut reads = QueryReadBudget::new(budget, deadline)?;
         let (server, scope) = reader
-            .revision_ownership(revision)?
+            .revision_ownership_with_budget(revision, &mut reads)?
             .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
         let scope = ScopeId::new(scope)
             .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
@@ -223,11 +281,13 @@ impl Engine {
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
-        let snapshot_id = reader.revision(revision)?.snapshot_id;
-        if std::time::Instant::now() >= deadline {
-            return Err(BusinessError::BudgetExceeded.into());
-        }
-        let completion = consumer(&reader, &snapshot_id, deadline)?;
+        let completion = (|| {
+            let snapshot_id = reader.revision_snapshot_with_budget(revision, &mut reads)?;
+            if std::time::Instant::now() >= deadline {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            consumer(&reader, &snapshot_id, reads)
+        })();
         // 归属来自读取前解析的不可变已发布 revision，不在过期 graph reader 上追加查询。
         let authorization_deadline = std::time::Instant::now()
             .checked_add(Duration::from_millis(50))
@@ -256,6 +316,8 @@ impl Engine {
             }
             other => other?,
         }
+        // 已授权准备和消费的错误也先通过终检；撤权不能被预算错误遮盖。
+        let completion = completion?;
         if completion == crate::RevisionDisplayCompletion::Complete
             && std::time::Instant::now() >= deadline
         {

@@ -24,7 +24,7 @@
 
 ## See it
 
-Disk usage is a picture, not a number. Three surfaces draw the same map from the same index, so what you see in a terminal, a browser, or an agent's reply never disagrees.
+Disk usage is a picture, not a number. The terminal, browser and agent surfaces share the Engine and use consistent semantics for the same scope and revision. Views of different revisions can change as the index is updated.
 
 <table>
 <tr>
@@ -177,7 +177,7 @@ On an Apple Silicon host, against a real home directory (4,526,858 files, 261 Gi
 | Full index: walk, stage, publish | 4 m 17 s |
 | Tree render, `--depth 3`, structured read path | 10.1 s |
 | Load path after the v4 structured-column change | 2.4× faster |
-| Peak memory during a tree render | bounded by the rendered depth, not the index size |
+| Rendering and navigation resource controls | depth, page, node, byte and deadline budgets; measured worksets do not establish a strict RSS cap |
 
 These are measurements from this repository's acceptance records ([`docs/acceptance/`](docs/acceptance/)), not targets or estimates.
 
@@ -266,7 +266,7 @@ Engine and FFI growth also require matching actual server/scope ownership; equal
 
 The D34 namespace increment passed [22/22 native CI jobs](https://github.com/loong10k/diskgraph/actions/runs/37161135994) at `407125f62fda994826a7858737b22fa95efe4cb4`, with all 20 reviewed source hashes verified against that commit. Windows, Linux ARM and macOS Intel executed the new regressions; the [acceptance receipt](docs/benchmarks/historical_namespace_acceptance_2026_10_04.json) records the actual cases and remaining Q-04 compatibility matrix. Full-platform readiness remains open.
 
-The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its same-source [native CI passed 22/22](https://github.com/loong10k/diskgraph/actions/runs/37164196395) at `2450ab1`; all four selected native logs contain the 26 new cases. The authorized Git collection entry and platform/provider gates remain open.
+The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its same-source [native CI passed 22/22](https://github.com/loong10k/diskgraph/actions/runs/37164196395) at `2450ab1`; all four selected native logs contain the 26 new cases. At that checkpoint the authorized Git entry remained open; D39 implemented it and the D40 acceptance below completes that increment. Platform/provider gates remain separate.
 
 The D36 [scoped Git capture](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json) and [TUI/query budget](docs/benchmarks/tui_budget_acceptance_2026_10_04.json) receipts track the current increment. Trusted Git sampling now captures scope-bound ordinary inputs before fixed commands execute; D36 covered the capture library; the D39 section below describes the durable product entry. TUI preparation admits narrow raw fields within the original deadline and rechecks live grants before delivery. Candidate responses add `coverage_observed` to distinguish an expired, unread header from an observed coverage gap. Final local and same-source native acceptance are recorded separately; this increment does not establish full-platform production readiness.
 
@@ -286,6 +286,12 @@ CLI status data binds IDs to the actual job and immutable receipt; its existing 
 ## MCP service source boundaries (D40)
 
 The MCP library entry now declares modules and explicit exports in55 lines. Configuration, the shared service, dispatch, request identity/scope access, tool adapters and stdio framing have real responsibility modules. All67 original function bodies and21 test assertions are preserved; public imports and defaults remain compatible. The structural gate resolves mounted files and rejects hidden implementations and orphan sources. Existing large auth/http/protocol modules remain outside this increment; whole-crate conformance and full-platform acceptance are still open. The [architecture](docs/DiskGraph-Architecture-Hardening.md) describes the unchanged authorization flow, and the [readiness record](docs/production-readiness-full-platform-2026-10-04.md) separates local, native and production evidence.
+
+Same-source `fd9330e` [CI37187379023](https://github.com/loong10k/diskgraph/actions/runs/37187379023) finished attempt2 at **22/22 success**: 21 earlier successes were retained and only Kotlin Intel actually reran. The [D40 receipt](docs/benchmarks/mcp_service_layout_acceptance_2026_10_04.json) supports acceptance of Git task8.7 and durable request-authority task15.20. The checklist is **139 complete / 28 open / 167 total**; full-platform production readiness remains open.
+
+### Query preparation (D41, local checks passed; native acceptance pending)
+
+TUI and Engine history now admit necessary revision-owner and snapshot-ID fields before owning them, then pass one read ledger through preparation and all consumers. Failed initial TUI preparation never paints or submits a cached frame; after both historical owners are authorized, preparation failures still undergo both sides' terminal authorization. Whole-request Rust allocation observations do not measure SQLite C allocation, filesystem I/O or RSS. Corrected-source local workspace passed 1401/0/18, with quality/build/release gates, stdio 18/18, HTTP/SSE 13/13, actual ABI 19/19 and macOS ARM Kotlin host checks passing. New-source native acceptance remains pending, so task 13.6 stays open. See the [current readiness stage](docs/production-readiness-full-platform-2026-10-04.md).
 
 ## Documentation
 

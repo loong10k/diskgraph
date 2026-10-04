@@ -55,9 +55,9 @@ impl Engine {
         let left_reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let right_reader =
             SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let left_snapshot = left_reader.revision(left)?.snapshot_id;
-        let right_snapshot = right_reader.revision(right)?.snapshot_id;
         let mut ledger = QueryReadBudget::new(budget, deadline)?;
+        let (left_snapshot, _) = left_reader.revision_target_with_budget(left, &mut ledger)?;
+        let (right_snapshot, _) = right_reader.revision_target_with_budget(right, &mut ledger)?;
         let mut report = Self::compare_on_readers(
             &left_reader,
             &left_snapshot,
@@ -93,8 +93,8 @@ impl Engine {
             principal,
             authorizer,
             deadline,
-            |left_reader, left_snapshot, right_reader, right_snapshot| {
-                let mut ledger = QueryReadBudget::new(budget, deadline)?;
+            budget,
+            |left_reader, left_snapshot, right_reader, right_snapshot, ledger, _same_scope| {
                 Self::compare_on_readers(
                     left_reader,
                     left_snapshot,
@@ -104,7 +104,7 @@ impl Engine {
                     right,
                     tolerance,
                     budget,
-                    &mut ledger,
+                    ledger,
                 )
             },
             |report, expired| Self::finish_comparison(report, budget, expired),

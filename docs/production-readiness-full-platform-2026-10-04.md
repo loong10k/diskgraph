@@ -2,6 +2,52 @@
 
 Continuation of the [full-platform record](production-readiness-full-platform-2026-10-02.md). The complete platform goal remains open.
 
+## Latest stage: D40 native accepted; D41 local acceptance passed
+
+The checklist is **167 total / 139 complete / 28 open**, including broad parent gates, not28 independent vulnerabilities. Git task8.7 and durable request-authority task15.20 are accepted on the implemented Index/Sync/Git paths. Task13.6 remains open for D41 corrected-source native acceptance and its remaining query/TUI verification. Process/application collectors8.6/15.13, providers, native writes, GUI/mobile/devices, signing and production deployment retain their existing requirements.
+
+Same-source `fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d` [CI37187379023 attempt2](https://github.com/loong10k/diskgraph/actions/runs/37187379023) is terminal **22/22 success**. Attempt1's21 successful jobs retain their original execution times; only Kotlin Intel reran as job111395457676. Its first attempt failed in Maven plugin descriptor resolution before Java/JNA host execution. The log does not prove a network/cache cause. The actual same-SHA rerun reached Maven BUILD SUCCESS and session/paging/poll/v1/release/reopen host acceptance. The [D40 receipt](benchmarks/mcp_service_layout_acceptance_2026_10_04.json) preserves both attempts, the original failure, source hashes and actual native logs.
+
+| Actual workspace log at fd9330e | Passed / failed / ignored | Suites | Git cases observed passing |
+| --- | --- | ---: | ---: |
+| Windows stable | 1248 / 0 / 16 | 59 | 157 |
+| Windows Rust1.97 | 1248 / 0 / 16 | 59 | 157 |
+| Linux ARM64 | 1376 / 0 / 18 | 59 | 159 |
+| macOS Intel | 1387 / 0 / 18 | 59 | 159 |
+
+Each original workspace log also actually executes authority39, prior query/candidate32, moved MCP21 and structural9 cases once. These groups overlap and are not added into a unique-case total. Only two reviewed Unix-only Git cases are absent on Windows. Observations use the workspace execution phase, excluding inventories, migration repeats and sentinel repeats. This evidence supports8.7/15.20; it does not certify the new D41 source or every platform capability.
+
+## D41 query target preparation: implemented, native acceptance pending
+
+Legal large snapshot IDs exposed owned preparation before the old TUI/history consumers began their ledger. The17-source change now borrows and admits owner fields before allocation, authorizes the actual server/scope, then admits necessary snapshot IDs. Both historical sides and subsequent snapshot/node/merge/plan reads consume one original `QueryReadBudget`. Initial TUI preparation failure never reaches paint or submits a cached partial frame. After both historical owners are authorized, target/consumer failures still execute dual-side terminal authorization; encoding retains the grouped live-grant checks. Original deadlines, Complete navigation and explicitly painted Truncated canvas contracts are preserved.
+
+```mermaid
+flowchart LR
+    O["Borrowed owner admission"] --> A["Actual-scope authorization"]
+    A --> S["Snapshot IDs + reads<br/>one original ledger"]
+    S --> T["Terminal live checks<br/>also after preparation errors"]
+    T -->|Allowed completion| D["Result / buffered frame"]
+    T -->|Error or denied| X["No frame submission"]
+```
+
+Real whole-request allocation regressions cover left/right oversized headers, combined preparation, ordinary/adequate-budget successes, initial denial and terminal revocation. TUI asserts the actual backend stays empty and paint is not invoked after initial raw-budget refusal. Store3/Engine10/CLI7 targeted cases passed. The first full build then failed E0433 because a production TuiRequest import was test-conditional; that compiler failure remains recorded and is not a behavioral RED. The only correction makes the explicit import unconditional. The final17-source manifest is `116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c`.
+
+Corrected-source local workspace passed **1401/0/18 across 60 suites**. Scoped fmt, FFI include fmt, strict all-target workspace Clippy/build, OpenSpec, release CLI/MCP/FFI and unchanged vendor 124/0/2 passed. Separate release checks passed **stdio 18/18, HTTP/SSE 13/13 and 19/19 actually invoked UniFFI ABI checks**. The JDK 21 macOS ARM Kotlin host actually passed session/paging/poll/v1/release/reopen acceptance, including the new Maven `--errors` diagnostics. Its FFI library SHA is `bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5`; protocol/ABI used `86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7`. They are separate builds of the same reviewed source, not the same binary. The finalized [D41 acceptance record](benchmarks/query_target_preparation_acceptance_2026_10_04.json) retains 36 raw/QA/release/Kotlin archives, including the final local workspace record of 20 targeted cases passing once (14 new). That local record is not native CI evidence. D41 native CI has not been accepted; task 13.6 remains open.
+
+The isolated whole-call allocation window includes initial authorization and target preparation for legal, publicly published 2 MiB snapshot IDs with insufficient read budgets:
+
+| Public request | Rust requested bytes before | After | Observed corrected behavior |
+| --- | ---: | ---: | --- |
+| History compare/growth/changes, either oversized side | 2,102,370–2,131,834 | 4,528–4,541 | Explicit budget refusal before owning the oversized ID |
+| TUI navigation | 2,101,248 | 2,521 | No layer returned |
+| TUI frame | 2,184,272 | 2,521 | Paint not invoked; actual backend remains empty |
+
+Ordinary and sufficiently budgeted requests retain successful results. Rust cumulative requested allocation measures successful Rust allocation requests, not peak live memory, SQLite C allocation/cache, filesystem I/O or RSS; it is not causal throughput evidence. Arbitrary synchronous authorizers and native I/O are still cooperative. These observations add no strict memory or wall-clock guarantee and do not complete task 13.6.
+
+## Historical checkpoints retained below
+
+The following D31–D40 sections preserve results, failures and pending states at their original checkpoint. Earlier checklist counts or statements that a later-implemented feature/native run was pending are historical; the latest stage above is current. Failed runs are retained rather than replaced with the later green result.
+
 ## Complete Windows attributes and post-lock staging checks (D31 prerequisite, 2026-10-04)
 
 Schema 12 stores a separate fixed 80-byte record for full 128-bit file IDs, u64
@@ -155,4 +201,4 @@ Structural TDD recorded5/1 RED against the old entry, then7/2 RED for real direc
 
 The final immutable candidate passed **1387/0/18 across59 workspace suites**, scoped fmt, FFI include fmt, strict all-target workspace Clippy/build, OpenSpec strict, vendored124/0/2 and release CLI/MCP/FFI build. All14 upstream source digests matched. Actual release stdio18/18, authenticated HTTP/SSE13/13 and invoked UniFFI checksums19/19 passed; final release hashes equal those executed binaries. These organization changes do not alter scanning/query algorithms, and no new performance or RSS result is claimed. The [D40 receipt](benchmarks/mcp_service_layout_acceptance_2026_10_04.json) archives the actual stages, source hashes, failures and limits.
 
-Corrected-source native CI remains pending. The checklist remains167 total/137 complete/30 open; full-platform readiness has not been established.
+**Historical D40 checkpoint before native CI:** corrected-source native CI remained pending and the checklist was167 total/137 complete/30 open. The latest stage above records the subsequent same-source acceptance and139/28 status; full-platform readiness has not been established.

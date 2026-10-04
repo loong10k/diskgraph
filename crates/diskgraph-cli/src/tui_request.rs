@@ -1,6 +1,7 @@
 use diskgraph_core::{Authorizer, PrincipalId, QueryBudget, QueryReadBudget};
 use diskgraph_engine::{Engine, EngineError};
 use diskgraph_store::SqliteSnapshotStore;
+#[cfg(test)]
 use std::time::Instant;
 
 use crate::tui::{Layer, layer_from_navigation_nodes};
@@ -19,18 +20,23 @@ pub struct TuiRequest<'a> {
 }
 
 impl TuiRequest<'_> {
-    /// 为导航或整帧建立必要字段读取账本，不重新计时或将展示字节冒充原始输入。
+    /// 给首次归属准备和后续节点提供同一固定额度；来源：原生 Rust Q-08 / D41。
+    /// 参数：deadline_ms 为导航/整帧原期限；返回：必要原始输入预算，不代表 RSS。
+    pub(crate) fn budget(deadline_ms: u64) -> QueryBudget {
+        QueryBudget {
+            max_nodes: TUI_NODE_LIMIT,
+            max_response_bytes: TUI_PREPARATION_BYTES,
+            deadline_ms,
+            ..QueryBudget::default()
+        }
+    }
+
+    /// 为既有独立节点测试建立读取账本；生产导航/整帧继承已准入目标的账本。
     /// 参数：deadline 来自已授权 reader。返回：固定正数预算的请求局部账本。
+    #[cfg(test)]
     pub(crate) fn read_budget(deadline: Instant) -> QueryReadBudget {
-        QueryReadBudget::new(
-            QueryBudget {
-                max_nodes: TUI_NODE_LIMIT,
-                max_response_bytes: TUI_PREPARATION_BYTES,
-                ..QueryBudget::default()
-            },
-            deadline,
-        )
-        .expect("TUI has fixed nonzero read limits")
+        QueryReadBudget::new(Self::budget(1000), deadline)
+            .expect("TUI has fixed nonzero read limits")
     }
 
     /// 在同一账本读取父节点和一个子页，不读取导航之外的定位或回收提示。

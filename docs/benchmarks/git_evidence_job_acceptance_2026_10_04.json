@@ -1,6 +1,6 @@
 {
   "increment": "D39",
-  "status": "local_verified_native_failed_fixture_correction_pending",
+  "status": "verified_via_corrected_source_native_followup",
   "spec": "implement-diskgraph-platform",
   "base_commit": "fb7757c3727ee9d2839b2b1a7a404d2a1f924295",
   "candidate_snapshot": "/private/tmp/diskgraph-d39-verified-mldbixd8",
@@ -222,7 +222,23 @@
       "cfg(unix) links_and_fifo_are_refused_without_blocking",
       "cfg(unix) same_bytes_with_changed_native_version_are_rejected"
     ],
-    "correction": "D40 test-only expiry window and exact persistent rejection assertions; requires corrected-source native CI"
+    "correction": "D40 test-only expiry window and exact persistent rejection assertions; requires corrected-source native CI",
+    "corrected_source_followup": {
+      "source_commit": "fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d",
+      "ci_run": 37187379023,
+      "attempt": 2,
+      "conclusion": "success",
+      "passed_jobs": 22,
+      "total_jobs": 22,
+      "receipt": "docs/benchmarks/mcp_service_layout_acceptance_2026_10_04.json",
+      "git_cases": {
+        "windows_stable": 157,
+        "windows_msrv": 157,
+        "linux_arm64": 159,
+        "macos_intel": 159
+      },
+      "note": "Original bac84f72 native failure is retained above. Corrected original-expiry fixture passes on all four native logs. Only Kotlin Intel was actually rerun in attempt2; prior21 successful jobs retain original execution evidence."
+    }
   },
   "limits": ["no cross-database transaction; committed graph receipt is reconciled with control state","safe-summary/request observation fingerprint is not a full source content hash","CLI status data preserves real IDs and existing null outer scope/revision; MCP binds outer IDs to the same projection","private allocation and free-space checks neither reserve space nor enforce strict disk/RSS","CLI/MCP dangerous filesystem tools stay disabled; native provider/host/mobile/release gates remain open"],
   "archives": [

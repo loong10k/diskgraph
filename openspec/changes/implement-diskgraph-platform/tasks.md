@@ -139,7 +139,7 @@
 - [x] 8.4 实现单独授权的分段哈希/内容确认作业及预算，覆盖中途变化、碰撞处理和跨范围权限；结果不能自动删除。（CT-03、RT-02）
 - [x] 8.5 实现内容/哈希保留与导出策略，测试仅元数据授权时 explain/错误/日志也不会泄露正文。（CT-04、SC-05）
 - [ ] 8.6 实现应用归属和进程占用 collector，记录可见覆盖与采样时间；低权限/不可观测不能返回“无人使用”。（EV-06、EC-02）复核重新打开：可信库进程采样已实现时间、partial/unobservable、解析及共享资源预算；仍缺应用安装实例归属采集、实际授权产品调用、PID启动/资源身份绑定、证据来源持久化与原子revision发布的端到端验收。15.13a/b及已验收库层子能力保持完成。
-- [ ] 8.7 实现 Git 脏状态、stash 与相对已知引用的提交差异采集；默认不联网，缺少 upstream 不等于已推送。（EC-02、EV-02）库层配置/filter隔离、unborn/失败语义及共享探针预算已按15.13b/c/d和D29完成同源码原生验收；仍缺已授权采集入口、持久化与实际revision原子发布的端到端验收，8.7/15.13保持未完成。
+- [x] 8.7 实现 Git 脏状态、stash 与相对已知引用的提交差异采集；默认不联网，缺少 upstream 不等于已推送。（EC-02、EV-02）D39真实授权CLI/MCP入口、来源持久化、同图库事务revision/唯一回执及恢复已实现；D40修正源码fd9330e原生CI37187379023终态22/22，四原始workspace日志逐案Git157/159通过，Windows两个Unix-only明确未执行。原bac84f72到期夹具失败与本次Kotlin Intel首次Maven解析失败保留，后者实际同SHA重跑成功；见mcp_service_layout_acceptance_2026_10_04.json。8.6/15.13进程、安装实例及全平台父项保持开放。
 - [x] 8.8 实现桌面文件事件订阅与失效提示，处理丢事件、溢出、重命名和范围撤销，必要时调度受控重扫。（FS-06、EV-03）
 - [ ] 8.9 在 Windows 实现并测试原生路径、卷/file ID、大小和 reparse point 语义；身份不足时阻止可信历史比较。（FS-02、PF-03）
 - [ ] 8.10 在 Linux/macOS/Windows 分别测试回收、权限、占用和复制保真；写适配未通过前保持禁用，记录平台差异。（PF-03、RE-04）
@@ -295,7 +295,7 @@
 - [x] 15.18 收口旧 UniFFI growth_json 的双侧实际归属、整次期限、共享原始字段/节点预算和完整 envelope 后成组末检；保留原签名/null/字符串 delta 与窄读，增加真实公开入口超限 RED、末段撤权/到期、旧行/坏无关行和ABI兼容验收。全平台原生CI通过后再勾选，不替代15.2–15.6。 验收：00401e692c9c8fd9fa4681ef7e709dc79968e5f4 / CI37131890057终态22/22；两Windows Rust、Linux ARM、macOS Intel日志各确认11项新增用例实际ok，证据见native_growth_acceptance_2026_10_03.json。
 
 - [x] 15.19 按D26收口旧top/children与session目录页的首末授权、整次期限、借用字段准入、存在探针和真实响应预算；保持各自排序/未知大小/分页/wire与UniFFI校验值。公开入口RED、错误诊断、撤权/关闭/到期及原生CI实际通过后勾选。 验收：5f66862544d1dc3cb2aae9bda65ded6c223f5267 / CI37133537230终态22/22；两Windows Rust、Linux ARM及macOS Intel日志各确认12项新增用例实际ok，证据见native_listing_acceptance_2026_10_03.json。
-- [ ] 15.20 将原始认证主体、token能力上限与绝对到期时间持久绑定到Index/Sync及collector任务；入队、合并、认领、运行、staging和图库commit前求实时授权交集，strict远程runner拒绝来源未知的旧任务，不允许租约或重连延长原token期限。真实socket队列到期、运行中到期/撤权、可信兼容入口、旧库迁移和图事务回滚回归通过后再验收。（SC-06、RT-01）
+- [x] 15.20 将原始认证主体、token能力上限与绝对到期时间持久绑定到Index/Sync及已实现GitEvidence任务；入队、合并、认领、运行、staging和图库commit前求实时授权交集，strict远程runner拒绝来源未知的旧任务，不允许租约或重连延长原token期限。（SC-06、RT-01）D37/D38基础加D39产品闭环已独立审查；fd9330e同SHA原生CI37187379023终态22/22，四原始workspace各39持久授权案及157/159Git案实际ok，含真实socket、旧库迁移、原期限/撤权及图事务拒绝；日志和首次失败保留于D40回执。未来进程/应用collector仍须沿用此合同并单独通过8.6/15.13，不宣称两库原子或全部provider完成。
 
 
 D28（15.13 / EV-05前置）本机证据见`docs/benchmarks/revision_collector_acceptance_2026_10_04.json`：revision隔离、原子批次发布、封存选择、v9成员/节点/来源闭包迁移、candidate阻止语义及active-run邻接分页已实现；workspace1001/0/18、Clippy/fmt/OpenSpec/release/实际协议和扫描一致性通过。独立代码复审APPROVE，恢复后的架构lane重读最终源码返回CLEAR，9份提供的摘要匹配；45份D28源码未改，f42f769同SHA CI37140491445最终22/22成功，四份原始workspace日志实际确认19个发布/协议/迁移用例通过。本项不新增完成勾选，不关闭15.13及全平台父项。
@@ -330,3 +330,7 @@ D40实施步骤（RT-10，尚未验收）：先建立对当前MCP大入口实际
 D39原生终态：bac84f72的CI37184551143最终21/22，Windows Rust1.97.0的到期夹具未进入采集后发布回调，其余21job成功；四份日志分别1239/0/16、1238/1/16、1367/0/18、1378/0/18。159个选定用例中Windows实际157（MSRV156/1），两项Unix-only未运行；ARM/Intel各159/159。原始日志和逐项观察已归档，失败不计全绿。
 
 D40本机最终：入口1950→55、67body tokens与21原断言保持、36既有非入口来源字节未变；两路独立审查通过最终24源71a59232。结构门禁5/1 RED，条件路径真实反例7/2 RED→9/0；Windows夹具根因控制为原3秒exp+4秒准备在真实持久gate拒绝，测试-only修正固定原exp并精确验证拒绝/身份不变/无发布，相同延迟1/1 GREEN，生产限额未改。最终完整固定候选1387/0/18（59 suites）、fmt/FFI include/严格Clippy/build/OpenSpec/vendor124/0/2+14摘要/release通过；实际stdio18/HTTP13/ABI19及最终二进制摘要一致，见mcp_service_layout_acceptance_2026_10_04.json。新源码原生CI待完成，旧auth/http/protocol仍未完整规范化；不关闭8.7/15.13/15.20或其余30项。
+
+D40原生最终：fd9330e的CI37187379023第一次21/22（Kotlin Intel Maven描述符解析失败，尚未宿主执行），实际只重跑该失败job后第二次终态22/22；21旧成功job沿用原执行时刻。四原始workspace分别1248/0/16、1248/0/16、1376/0/18、1387/0/18，均59suite；Git157/159、authority39、query32、搬迁21、AST9逐案恰好一次ok。独立核验CLEAR后仅关闭8.7与15.20；167项/139完成/28开放，13.6待D41修复及同源码原生，其他父项保持开放。
+
+D41本机最终：已复现真实请求准备阶段大型snapshot ID先拥有后预算（TUI5/2、修正正控后的history1/7）；原history两处root计数夹具错误另存，不计生产缺陷。共享归属/目标/后续账本定向Store3、history10、TUI7通过；首次全workspace的TuiRequest条件导入编译错误已作等价纠正并保留原失败。最终17源116af7b0经两路独立APPROVE/CLEAR，完整workspace1401/0/18（60 suites）、fmt/FFI include/严格Clippy/build/OpenSpec/vendor124/0/2及14摘要/release通过。冻结二进制实际stdio18/18、HTTP/SSE13/13、UniFFI19/19通过；macOS ARM Kotlin/JVM真实宿主执行也通过，新脚本仅增加Maven错误诊断、不归因原Intel解析故障。超预算2MiB目标的历史请求Rust累计分配由约2.1MiB降至4528–4541字节，TUI导航/整帧由2101248/2184272降至2521字节且整帧未绘制；这不代表RSS、SQLite C、I/O或严格时限上界。完整回执为docs/benchmarks/query_target_preparation_acceptance_2026_10_04.json；新同源码原生仍待验收，13.6和其余28项保持开放。
