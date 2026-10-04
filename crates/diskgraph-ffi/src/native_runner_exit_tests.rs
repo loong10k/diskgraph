@@ -1,6 +1,6 @@
 //! PF-06 内层实际 Engine runner：持久终态、权限错误和 unwind 均不能遗弃其 JoinHandle。
 //! 旧实现的裸句柄会丢弃；RED 只观察提前 result，不宣称已经 join 旧 runner。
-use crate::native_worker_exit_barrier::NativeWorkerExitBarrier;
+use crate::native_worker_exit_barrier::{NativeWorkerExitBarrier, serialize_tls_fixture};
 use crate::{NativeService, local_principal};
 use diskgraph_core::Permission;
 use diskgraph_store::JobState;
@@ -47,6 +47,7 @@ fn coordinator_unwind_does_not_abandon_its_actual_inner_runner() {
 }
 
 fn inner_runner_exit(mode: &'static str) {
+    let _fixture = serialize_tls_fixture();
     let data = tempfile::tempdir().unwrap();
     let root = tempfile::tempdir().unwrap();
     std::fs::write(root.path().join("ordinary"), b"real inner runner").unwrap();
@@ -129,17 +130,29 @@ fn inner_runner_exit(mode: &'static str) {
             .revoke_grant(&principal, &Permission::MetadataRead, &committed.scope_id)
             .unwrap();
     }
-    // coordinator 已检查过尚未返回的 runner；现在放其进入实际 TLS，再放终态分支。
-    let return_sent = return_tx.send(());
-    let returned = returned_rx.recv_timeout(Duration::from_secs(10));
-    let tls_reached = tls_rx.recv_timeout(Duration::from_secs(10));
+    // runner 仍停在普通返回门；先确认 reader 已启动，再允许真实 TLS 析构开始。
+    let (reader_ready_tx, reader_ready_rx) = channel();
+    let (reader_start_tx, reader_start_rx) = channel();
+    let (calling_tx, calling_rx) = channel();
     let (result_tx, result_rx) = channel();
     let reader_handle = handle.clone();
     let reader = thread::spawn(move || {
+        let _ = reader_ready_tx.send(());
+        reader_start_rx
+            .recv_timeout(Duration::from_secs(60))
+            .unwrap();
+        let _ = calling_tx.send(());
         let result = reader_handle.result_json();
         let _ = result_tx.send(result.clone());
         result
     });
+    let reader_ready = reader_ready_rx.recv_timeout(Duration::from_secs(5));
+    // coordinator 已检查过尚未返回的 runner；现在放其进入实际 TLS，再放终态分支。
+    let return_sent = return_tx.send(());
+    let returned = returned_rx.recv_timeout(Duration::from_secs(10));
+    let tls_reached = tls_rx.recv_timeout(Duration::from_secs(10));
+    let reader_started = reader_start_tx.send(());
+    let calling = calling_rx.recv_timeout(Duration::from_secs(5));
     let inspection_release = inspect_release_tx.send(());
     let inspection_released = inspection_released_rx.recv_timeout(Duration::from_secs(10));
     let early_result = result_rx.recv_timeout(Duration::from_millis(100));
@@ -157,9 +170,17 @@ fn inner_runner_exit(mode: &'static str) {
         inspected.is_ok() && engine_returned.is_ok(),
         "阶段未到达: {inspected:?}/{engine_returned:?}"
     );
+    assert!(
+        reader_ready.is_ok(),
+        "reader 必须在 TLS 之前启动: {reader_ready:?}"
+    );
     assert_eq!(committed.state, JobState::Completed);
     assert_eq!(committed.owner.as_str(), "ffi-worker");
     assert!(committed.fencing_token > 0);
+    assert!(
+        reader_started.is_ok() && calling.is_ok(),
+        "真实 result 入口未到达: {calling:?}"
+    );
     assert!(return_sent.is_ok() && returned.unwrap());
     assert!(tls_reached.is_ok() && inspection_release.is_ok() && inspection_released.unwrap());
     assert!(

@@ -1,6 +1,6 @@
 //! PF-06 显式 Rust 宿主 owner：真实协调线程 drain 与 manager 最终 join 分层验收。
 //! 新构造接口尚缺时只记录接口缺失；旧同步 try_join 的实际 60s RED 已独立保存。
-use crate::native_worker_exit_barrier::NativeWorkerExitBarrier;
+use crate::native_worker_exit_barrier::{NativeWorkerExitBarrier, serialize_tls_fixture};
 use crate::{NativeService, NativeServiceError};
 use serde_json::Value;
 use std::cell::RefCell;
@@ -29,6 +29,7 @@ pub(crate) fn install_manager_start_hook(hook: Box<dyn FnOnce() + Send>) {
 
 #[test]
 fn managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads() {
+    let _fixture = serialize_tls_fixture();
     let data = tempfile::tempdir().unwrap();
     let source = tempfile::tempdir().unwrap();
     std::fs::write(source.path().join("file"), b"owned worker").unwrap();
@@ -138,6 +139,7 @@ fn managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads(
 
 #[test]
 fn host_owner_drop_finalizes_manager_after_service_has_been_dropped() {
+    let _fixture = serialize_tls_fixture();
     let data = tempfile::tempdir().unwrap();
     let database = data
         .path()

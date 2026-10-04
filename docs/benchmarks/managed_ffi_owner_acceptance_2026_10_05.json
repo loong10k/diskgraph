@@ -1,6 +1,6 @@
 {
   "change": "implement-diskgraph-platform",
-  "boundary": "Current acceptance covers Rust managed coordinator and actual inner Engine runner; physical upstream scanner and native managed hosts remain open. Top-level source_tree/source_files/local retain the earlier managed-owner checkpoint; inner_runner_acceptance records the latest candidate.",
+  "boundary": "Top-level source_tree/source_files/local and next_inner_runner/independent_review retain historical managed-owner checkpoints. inner_runner_acceptance records the earlier accepted local inner-runner checkpoint; its native CI terminated with failures. tls_fixture_prestart_acceptance records the latest tests-only candidate, whose native CI remains pending. Physical upstream scanner and native managed hosts remain open.",
   "candidate_manifest_sha256": "7787b6614eaa7cf10098c7256faf888ee766429f951b6076041962f7ffed5e86",
   "source_tree": "efee4d085c4f05f9b3ffd8bd477eb5e27fa7e271",
   "source_files": [
@@ -232,6 +232,82 @@
     ],
     "independent_review": "5/5 final source APPROVE; other 17 managed baseline files unchanged",
     "boundary": "coordinator retains and joins actual inner Engine runner; typed deny and original cancellation bind successful claimed generation; physical pinned scanner, managed native hosts and parent gates remain open",
-    "native_ci": "pending for this new source"
+    "native_ci": "7ff7d52: run 37230714544 completed failure, 20/22 jobs successful; terminal failures and separate causes are retained in tls_fixture_prestart_acceptance. Earlier local checkpoint remains valid within its recorded scope."
+  },
+  "tls_fixture_prestart_acceptance": {
+    "manifest_sha256": "55bee1335cf7c7104c88599e2c896410b6d89853336fd2b9e5ce25bcc2f442d6",
+    "sources": [
+      {
+        "path": "crates/diskgraph-ffi/src/native_lifecycle_tests.rs",
+        "sha256": "e5e4a3b5bfe109c618bb153f41b687390f15e9e36ae513e1761309601012117f",
+        "lines": 219,
+        "before_path": "/private/tmp/diskgraph-ffi-tls-prestart-before/native_lifecycle_tests.rs",
+        "before_sha256": "b8e713d22a6037c4e041f4f9c61e86d3fdd40cac4a9a9e4cb646de59fe68d413"
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_runner_exit_tests.rs",
+        "sha256": "4edd8aafec49dbcc0805e6229e36fc9ba2b707ea444fdc665e0d2625ed868c8c",
+        "lines": 215,
+        "before_path": "/private/tmp/diskgraph-ffi-tls-prestart-before/native_runner_exit_tests.rs",
+        "before_sha256": "da1eef81be9603de923083bfbf9bf5a0601e428a2d2dd1b39fa59a865030561e"
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_service_owner_tests.rs",
+        "sha256": "212766b5d49f45efe3a82feeb7f468a1c6318029dd868fc4a64377eb9faa1ec0",
+        "lines": 215,
+        "before_path": "/private/tmp/diskgraph-ffi-tls-prestart-before/native_service_owner_tests.rs",
+        "before_sha256": "f98c7071fd180304ada8b011bacc7d7aafd0a8b5aa33459477528bcbc351fe75"
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_worker_exit_barrier.rs",
+        "sha256": "f402eb0c0533cf979191b3f0f19fcb0103f91ea760edb8b471d424c933a770ec",
+        "lines": 50,
+        "before_path": "/private/tmp/diskgraph-ffi-tls-prestart-before/native_worker_exit_barrier.rs",
+        "before_sha256": "6d6994b41e2101a8d2f650816bff6cff6a286f3d96e67f1b48d260c086e73cde"
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_worker_exit_tests.rs",
+        "sha256": "0e15871cf72db96c2d82379761b22e5af1ecadabe7171424fe9f15e77274b261",
+        "lines": 212,
+        "before_path": "/private/tmp/diskgraph-ffi-tls-prestart-before/native_worker_exit_tests.rs",
+        "before_sha256": "15efed2691e6255e465b128116a3f944fe5411e47da4f93fa10701fdec5b9e0e"
+      }
+    ],
+    "local": {
+      "targets": [
+        3,
+        0,
+        0
+      ],
+      "ffi": [
+        89,
+        0,
+        0
+      ],
+      "fmt_exit": 0,
+      "clippy_exit": 0,
+      "build_exit": 0
+    },
+    "independent_review": "5/5 current and before hashes,39 unchanged source files; no weakened timeouts or exit facts; APPROVE",
+    "baseline_native": {
+      "managed_owner": {
+        "sha": "ddd1aeb2a9309910d6a019b847e498049c0e4a7d",
+        "run": 37229628269,
+        "success": 21,
+        "failed": 1
+      },
+      "inner_runner": {
+        "sha": "7ff7d520a75488a9faca67644d2bb5c48532cc86",
+        "run": 37230714544,
+        "success": 20,
+        "failed": 2
+      }
+    },
+    "qualification": "Windows MSRV original TLS caller startup timeouts; no observed premature join result; prestart all participants before actual TLS, retain calling witness and original pending/active-release/real-join assertions",
+    "separate_engine_failure": "Windows stable 7ff7d52 keeper test did not reach post-capture publication boundary; cause not yet known, diagnostics pending",
+    "reference": "https://raw.githubusercontent.com/rust-lang/rust/1.97.0/library/std/src/thread/local.rs#L98",
+    "host_tls_risk": "static owner can be placed in TLS and Drop synchronously joins manager; separate structural risk, not runtime confirmed or fixed by this test-only change",
+    "native_ci": "pending for prestart fixture source",
+    "scope": "tests only; production39 files unchanged; physical scanner and platform/host gates remain open"
   }
 }

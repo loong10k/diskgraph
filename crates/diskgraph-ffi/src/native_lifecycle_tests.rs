@@ -1,6 +1,6 @@
 //! PF-06 真实线程与有界登记回归；不把这些协调线程当作 pinned walker。
 use crate::native_lifecycle::NativeLifecycle;
-use crate::native_worker_exit_barrier::NativeWorkerExitBarrier;
+use crate::native_worker_exit_barrier::{NativeWorkerExitBarrier, serialize_tls_fixture};
 use crate::{NativeService, NativeServiceError, NativeServiceOwner};
 use serde_json::{Value, json};
 use std::sync::{
@@ -13,6 +13,7 @@ use std::time::{Duration, Instant};
 
 #[test]
 fn tls_pending_record_survives_deadline_then_concurrent_waiters_join_it() {
+    let _fixture = serialize_tls_fixture();
     let closed = Arc::new(AtomicBool::new(false));
     let lifecycle = Arc::new(NativeLifecycle::managed(closed, 8).unwrap());
     let mut owner = NativeServiceOwner::start(lifecycle.clone()).unwrap();
@@ -20,29 +21,66 @@ fn tls_pending_record_survives_deadline_then_concurrent_waiters_join_it() {
     let (reached_tx, reached_rx) = channel();
     let (release_tx, release_rx) = channel();
     let (released_tx, released_rx) = channel();
+    let (exit_tx, exit_rx) = channel();
     let handle = lifecycle
         .register(root.path().to_path_buf(), || {
             crate::scan_coordinator::try_spawn_job(move |_, _| {
                 NativeWorkerExitBarrier::install(reached_tx, release_rx, released_tx);
+                exit_rx
+                    .recv_timeout(Duration::from_secs(60))
+                    .map_err(|error| error.to_string())?;
                 Ok(json!({"marker":"retained_tls"}))
             })
         })
         .unwrap();
+    let worker = handle.worker.clone();
+    let subscriber = Arc::downgrade(&handle);
+    let (ready_tx, ready_rx) = channel();
+    let (calling_tx, calling_rx) = channel();
+    let (result_start_tx, result_start_rx) = channel();
+    let reader_ready = ready_tx.clone();
+    let reader_calling = calling_tx.clone();
+    let result_handle = handle.clone();
+    let result_reader = thread::spawn(move || {
+        let _ = reader_ready.send(());
+        result_start_rx
+            .recv_timeout(Duration::from_secs(60))
+            .unwrap();
+        let _ = reader_calling.send(());
+        result_handle.result_json()
+    });
+    let mut starts = vec![result_start_tx];
+    let drains: Vec<_> = (0..2)
+        .map(|_| {
+            let lifecycle = lifecycle.clone();
+            let ready = ready_tx.clone();
+            let calling = calling_tx.clone();
+            let (start_tx, start_rx) = channel();
+            starts.push(start_tx);
+            thread::spawn(move || {
+                let _ = ready.send(());
+                start_rx.recv_timeout(Duration::from_secs(60)).unwrap();
+                let _ = calling.send(());
+                lifecycle.drain_until(Instant::now() + Duration::from_secs(10))
+            })
+        })
+        .collect();
+    // 所有参与者必须在真实 TLS 析构之前启动；调用仍在 reached 之后发生。
+    let ready: Vec<_> = (0..3)
+        .map(|_| ready_rx.recv_timeout(Duration::from_secs(5)))
+        .collect();
+    let exit_sent = exit_tx.send(());
     let reached = reached_rx.recv_timeout(Duration::from_secs(10));
     let polled = handle.poll_result_json();
     lifecycle.close();
     let drain_started = Instant::now();
     let pending = lifecycle.drain_until(Instant::now() + Duration::from_millis(30));
     let drain_elapsed = drain_started.elapsed();
-    let worker = handle.worker.clone();
     let still_unjoined = !worker.is_joined();
-    let subscriber = Arc::downgrade(&handle);
-    let result_reader = thread::spawn(move || handle.result_json());
-    let drains: Vec<_> = (0..2)
-        .map(|_| {
-            let lifecycle = lifecycle.clone();
-            thread::spawn(move || lifecycle.drain_until(Instant::now() + Duration::from_secs(10)))
-        })
+    drop(handle);
+    let started: Vec<_> = starts.into_iter().map(|start| start.send(())).collect();
+    let calling: Vec<_> = (0..3)
+        .map(|_| calling_rx.recv_timeout(Duration::from_secs(5)))
         .collect();
     let release_sent = release_tx.send(());
     let released = released_rx.recv_timeout(Duration::from_secs(10));
@@ -51,6 +89,15 @@ fn tls_pending_record_survives_deadline_then_concurrent_waiters_join_it() {
 
     eprintln!(
         "tls_drain elapsed={drain_elapsed:?} release_sent={release_sent:?} released={released:?} pending={pending:?}"
+    );
+    assert!(
+        ready.iter().all(Result::is_ok),
+        "调用者必须先启动: {ready:?}"
+    );
+    assert!(exit_sent.is_ok() && started.iter().all(Result::is_ok));
+    assert!(
+        calling.iter().all(Result::is_ok),
+        "调用者必须到达真实入口: {calling:?}"
     );
     assert!(reached.is_ok());
     assert!(
