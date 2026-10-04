@@ -1,0 +1,99 @@
+{
+  "scope": "tests-only writer-contention fixture; no production deadline change",
+  "source": "crates/diskgraph-store/src/process_job_enqueue_deadline_tests.rs",
+  "source_sha256": "5a9961a136fd33f0128cce80ee4e657961c9a55b9818446e2f7f81a8f0bcd406",
+  "review": "independent tests-only APPROVE bound to source hash",
+  "acceptance": {
+    "target": {
+      "passed": 10,
+      "failed": 0
+    },
+    "store_lib": {
+      "passed": 289,
+      "failed": 0,
+      "ignored": 1
+    },
+    "clippy_exit": 0,
+    "fmt_exit": 0
+  },
+  "mutation": {
+    "exit": 101,
+    "ran": 1,
+    "failed": 1,
+    "failure": "original deadline refreshed: injected request age + real write wait exceeds 550ms",
+    "held_at_call": true,
+    "returned_while_held": true,
+    "remaining_at_call_us": 149999,
+    "call_wall_us": 400762,
+    "budget_age_us": 650762,
+    "classification": "isolated sensitivity mutation, not historical product RED",
+    "definition": {
+      "mutated_source": "crates/diskgraph-store/src/process_job_enqueue_until.rs",
+      "before_sha256": "f19f0bb87e217c7f8fe9de6b2c52b7b26d38b3fb1d4daee5178b9dd653af40b9",
+      "after_sha256": "85f15050d9c67e8c7187bbf7c39a112a51fb2b151d206b6482242c367f4fa787",
+      "classification": "Test sensitivity mutation, not a new product RED or historical source rerun",
+      "mutation": "Refresh write guard deadline to call-now +400ms, leaving all real SQLite/authority/input code unchanged",
+      "test_fixture_source_sha256": "5a9961a136fd33f0128cce80ee4e657961c9a55b9818446e2f7f81a8f0bcd406",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-d44-mutant-idm1t3fe/Cargo.toml",
+        "-p",
+        "diskgraph-store",
+        "--lib",
+        "--locked",
+        "process_job_enqueue_deadline_tests::process_enqueue_running_merge_cannot_wait_past_the_original_deadline",
+        "--",
+        "--exact",
+        "--nocapture"
+      ]
+    }
+  },
+  "invalid_run": {
+    "classification": "discarded: isolated mutant reused through shared Cargo target; no production source modification",
+    "observed": {
+      "passed": 286,
+      "failed": 3,
+      "ignored": 1
+    },
+    "recovery": "cargo clean -p diskgraph-store, confirmed explicit compilation from real repository, then successful complete store lib rerun"
+  },
+  "limits": [
+    "250ms request age is injected, not measured preparation wall time",
+    "400ms original window and original strict assertions retained",
+    "native CI pending; scheduling can still exhaust pre-call qualification"
+  ],
+  "evidence": [
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-writer-age-local.log.gz",
+      "raw_sha256": "600d615acc06de8aadd5af32e62aa7b31bbe6d0226c7d7b762bf83b89135f0ca",
+      "gzip_sha256": "1d49728d694c05fb1ad65292359763728c0caa2557fe8ff6e59afa6c95a360f1"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-writer-age-mutation.log.gz",
+      "raw_sha256": "d0bec0d2eeaa568da5351151f0ecc91e990a69b113715fa2334829a2532108e3",
+      "gzip_sha256": "0b720cfc68487d629093f29c91fc91b43f0bbaef00206f2c9f87aa82f47214cd"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-writer-age-store-regression.log.gz",
+      "raw_sha256": "c73fd23623c1244cbe90c634a0fefc654681a33a4298f0761497cb9109c8f00d",
+      "gzip_sha256": "670c80300f782f5b32da0f3f4630b289b52fa7e15cc85294a178955751d62267"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-invalid-shared-cache.log.gz",
+      "raw_sha256": "d2107784c59d9ca7b0037401a80ed6663731fcf7cf37ff1111eb26d2ea70170a",
+      "gzip_sha256": "f7ce8563d3aed6d053f50ad8b0a2dbe7b7a6959277a2092af0b09e05a223f8f3"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-deadline-diagnostics-clippy.log.gz",
+      "raw_sha256": "63cc4c77c15b7c13d183be28d476a1274ae4c1c35b43523a853c7e3211580568",
+      "gzip_sha256": "449aa90ec30a1c7cb0c23986d1c2102df17f64d4ede104d5320eeb03762bd05b"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-deadline-diagnostics-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  ]
+}

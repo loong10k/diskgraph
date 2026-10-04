@@ -47,33 +47,60 @@ fn writer_contention(running_merge: bool) {
         let joined = locker.join();
         panic!("external writer never acquired the real transaction: {error:?}; {joined:?}");
     }
-    let started = Instant::now();
-    let deadline = started + Duration::from_millis(400);
-    // 同一请求准备已经消耗多数时间，不能从真正开始写时重建400ms。
-    std::thread::sleep(Duration::from_millis(250));
+    let call_wall_started = Instant::now();
+    // 注入250ms请求年龄，非实际准备墙钟；避免 sleep 过调度令真正调用尚未开始便失去资格。
+    // 原总预算仍是400ms，真实写入只剩约150ms；生产收到的原绝对期限仅生成一次。
+    let Some(original_started) = call_wall_started.checked_sub(Duration::from_millis(250)) else {
+        let _ = release_tx.send(());
+        locker.join().unwrap();
+        panic!("fixture cannot represent the injected original request age");
+    };
+    let deadline = original_started + Duration::from_millis(400);
     let remaining_at_call = deadline.saturating_duration_since(Instant::now());
+    let held_at_call = observed.load(Ordering::SeqCst);
     let result = fixture.store.create_process_evidence_job_until(
         &fixture.input,
         &fixture.authority,
         64,
         deadline,
     );
-    let elapsed = started.elapsed();
+    let call_wall_elapsed = call_wall_started.elapsed();
+    let budget_age_elapsed = original_started.elapsed();
     let returned_while_held = observed.load(Ordering::SeqCst);
     let _ = release_tx.send(());
     locker.join().unwrap();
+    eprintln!(
+        "D44_ENQUEUE_WRITER_AGE {}",
+        serde_json::json!({
+            "running_merge": running_merge,
+            "original_window_ms": 400,
+            "injected_preconsume_ms": 250,
+            "injected_age_is_measured_wall": false,
+            "remaining_at_call_us": remaining_at_call.as_micros(),
+            "call_wall_us": call_wall_elapsed.as_micros(),
+            "budget_age_us": budget_age_elapsed.as_micros(),
+            "held_at_call": held_at_call,
+            "returned_while_held": returned_while_held,
+            "result": format!("{result:?}")
+        })
+    );
     assert!(
         !remaining_at_call.is_zero(),
         "fixture expired before the actual enqueue call; remaining={remaining_at_call:?}"
     );
+    assert!(held_at_call, "external writer was not held at actual call");
     assert!(
         matches!(result, Err(StoreError::BudgetExceeded)),
-        "late queue admission/merge: elapsed={elapsed:?}, actual={result:?}"
+        "late queue admission/merge: call_wall={call_wall_elapsed:?}, budget_age={budget_age_elapsed:?}, actual={result:?}"
     );
     assert!(returned_while_held, "waited for external writer release");
     assert!(
-        elapsed < Duration::from_millis(550),
-        "deadline refreshed: {elapsed:?}"
+        call_wall_elapsed < Duration::from_millis(550),
+        "strict actual call wall bound failed: {call_wall_elapsed:?}"
+    );
+    assert!(
+        budget_age_elapsed < Duration::from_millis(550),
+        "original deadline refreshed: budget_age={budget_age_elapsed:?}, call_wall={call_wall_elapsed:?}"
     );
     assert_eq!(
         fixture.persisted_state(),
