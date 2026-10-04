@@ -1,3 +1,4 @@
+use crate::ScanCoverage;
 use serde::{Deserialize, Serialize};
 
 /// A platform-specific resource identifier. A display path is not an authorization token.
@@ -33,14 +34,6 @@ pub struct ScanSettings {
     pub one_filesystem: bool,
     pub max_depth: Option<usize>,
     pub dedup_hardlinks: bool,
-}
-
-/// A scan is not complete when it is depth-limited or contains unreadable nodes.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ScanCoverage {
-    pub complete: bool,
-    pub unreadable_nodes: u64,
-    pub depth_limited: bool,
 }
 
 /// A single observation of one accessible scope, not a claim about the whole device.

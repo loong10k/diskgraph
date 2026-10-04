@@ -85,7 +85,10 @@ impl GitMetadataFile {
     }
 }
 
-fn read_chunks(
+/// 按初始长度及剩余原始输入额度读取普通文件，增长不允许额外正文探测。
+/// 参数：file 为已核验句柄，len 为捕获长度，budget/probe 共享原额度、期限与取消。
+/// 返回：恰好完整的原始字节；短读取、长度变化及资源失败返回错误。
+pub(super) fn read_chunks(
     file: &mut File,
     len: u64,
     budget: &mut GitMetadataBudget,
@@ -96,10 +99,18 @@ fn read_chunks(
     }
     let mut bytes = Vec::with_capacity(len as usize);
     let mut chunk = [0u8; 4096];
-    loop {
+    while bytes.len() < len as usize {
         budget.check(probe)?;
+        // 先限定这次实际读取，不能在 read 后才发现已读到预算外的数据。
+        let allowed = chunk
+            .len()
+            .min(len as usize - bytes.len())
+            .min(budget.remaining_bytes());
+        if allowed == 0 {
+            return Err("git metadata byte limit exceeded".into());
+        }
         let size = file
-            .read(&mut chunk)
+            .read(&mut chunk[..allowed])
             .map_err(|error| format!("git metadata read: {error}"))?;
         if size == 0 {
             break;
@@ -115,7 +126,13 @@ fn read_chunks(
         bytes.extend_from_slice(&chunk[..size]);
     }
     budget.check(probe)?;
-    if bytes.len() as u64 != len {
+    if bytes.len() as u64 != len
+        || file
+            .metadata()
+            .map_err(|error| format!("git metadata stat: {error}"))?
+            .len()
+            != len
+    {
         return Err("git metadata length changed during read".into());
     }
     Ok(bytes)

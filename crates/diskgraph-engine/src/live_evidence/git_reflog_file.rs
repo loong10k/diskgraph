@@ -1,6 +1,7 @@
 //! 原始 Git reflog 的句柄租约；逐组件拒绝链接、非普通文件及不可验证的读取。
 
 use super::probe_budget::ProbeBudget;
+use super::probe_failure::ProbeFailure;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -142,13 +143,31 @@ fn same_unix_version(a: &std::fs::Metadata, b: &std::fs::Metadata) -> bool {
         && a.ctime_nsec() == b.ctime_nsec()
 }
 
-fn read_chunks(file: &mut File, budget: &mut ProbeBudget) -> Result<Vec<u8>, String> {
-    let mut bytes = Vec::new();
+/// 在读取前按普通 reflog 的长度准入，完整读取不使用额外正文作 EOF 探测。
+/// 参数：file 为已核验且位于起点的句柄，budget 为同一次执行及输出额度。
+/// 返回：完整日志或明确错误；实际超限输入不会先读取一块再拒绝。
+pub(super) fn read_chunks(file: &mut File, budget: &mut ProbeBudget) -> Result<Vec<u8>, String> {
+    budget.check().map_err(|error| error.to_string())?;
+    let len = file
+        .metadata()
+        .map_err(|error| format!("stash metadata: {error}"))?
+        .len();
+    if len > budget.remaining_bytes() as u64 || len > usize::MAX as u64 {
+        return Err(budget.fail(ProbeFailure::OutputLimit).to_string());
+    }
+    let mut bytes = Vec::with_capacity(len as usize);
     let mut chunk = [0u8; 4096];
-    loop {
+    while bytes.len() < len as usize {
         budget.check().map_err(|error| error.to_string())?;
+        let allowed = chunk
+            .len()
+            .min(len as usize - bytes.len())
+            .min(budget.remaining_bytes());
+        if allowed == 0 {
+            return Err(budget.fail(ProbeFailure::OutputLimit).to_string());
+        }
         let size = file
-            .read(&mut chunk)
+            .read(&mut chunk[..allowed])
             .map_err(|error| format!("stash reflog read: {error}"))?;
         if size == 0 {
             break;
@@ -157,6 +176,15 @@ fn read_chunks(file: &mut File, budget: &mut ProbeBudget) -> Result<Vec<u8>, Str
         bytes.extend_from_slice(&chunk[..size]);
     }
     budget.check().map_err(|error| error.to_string())?;
+    if bytes.len() as u64 != len
+        || file
+            .metadata()
+            .map_err(|error| format!("stash metadata: {error}"))?
+            .len()
+            != len
+    {
+        return Err("stash reflog changed during read".into());
+    }
     Ok(bytes)
 }
 

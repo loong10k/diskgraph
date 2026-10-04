@@ -260,9 +260,13 @@ in the [full-platform status](docs/production-readiness-full-platform-2026-10-02
 
 FFI implementations now have separate API, realm, scan and job-state files. Two fixed includes preserve the existing UniFFI lexical namespace; a source gate parses their real implementations and rejects other includes. Registered-root rebinding regressions passed both Windows Rust versions in the 22/22 CI at `c8ff781`. See the full-platform record above for remaining capability gates.
 
-Historical growth requires the same node kind and observed sizes on both sides. Unknown sizes and read errors yield no numeric delta; comparison preserves an unavailable side as `null`. Type replacement remains a path difference. `changes.size_changed == 0` means no qualifying size change was observed; it does not prove that every object is unchanged. Core query and comparison types now reside in individual source files with their existing public exports.
+Historical growth requires the same node kind and observed sizes on both sides. Complete coverage additionally requires zero unreadable nodes and no depth gap; a contradictory complete flag cannot qualify growth, changes or review candidates. Unknown sizes and read errors yield no numeric delta; comparison preserves an unavailable side as `null`. Type replacement remains a path difference. `changes.size_changed == 0` means no qualifying size change was observed; it does not prove that every object is unchanged. Core query and comparison types now reside in individual source files with their existing public exports.
 
 Engine and FFI growth also require matching actual server/scope ownership; equal display paths cannot establish compatibility. Changes preserve `different_root` and add `scope_changed: true` for scope differences. Generic comparison remains available across authorized roots. See the [architecture continuation](docs/DiskGraph-Architecture-Hardening.md) for the authorization and budget boundaries.
+
+The D34 namespace increment passed [22/22 native CI jobs](https://github.com/loong10k/diskgraph/actions/runs/37161135994) at `407125f62fda994826a7858737b22fa95efe4cb4`, with all 20 reviewed source hashes verified against that commit. Windows, Linux ARM and macOS Intel executed the new regressions; the [acceptance receipt](docs/benchmarks/historical_namespace_acceptance_2026_10_04.json) records the actual cases and remaining Q-04 compatibility matrix. Full-platform readiness remains open.
+
+The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its new native CI remains required; the authorized Git collection entry and platform/provider gates are still open.
 
 ## Documentation
 

@@ -265,7 +265,7 @@ fn incompatibility(before: &DiskSnapshot, after: &DiskSnapshot) -> Option<&'stat
         Some("different_settings")
     } else if before.captured_at_unix_ms > after.captured_at_unix_ms {
         Some("out_of_order")
-    } else if !before.coverage.complete || !after.coverage.complete {
+    } else if !before.coverage.is_complete() || !after.coverage.is_complete() {
         Some("incomplete_coverage")
     } else {
         None

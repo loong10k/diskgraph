@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "scope": "D34 actual historical namespace eligibility in Engine and legacy FFI; full-platform objective remains open",
   "baseline_commit": "ca7813cba28d2abdef8309d2d3176893559d68c5",
-  "status": "local_and_independent_acceptance_passed_native_ci_pending",
+  "status": "local_independent_and_same_source_native_acceptance_passed",
   "source_manifest_sha256": "da0ec0aaba402c2cce19e27b24985b4957d55b52c161fa40962b7c201ec1d05e",
   "source_files": {
     "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
@@ -176,11 +176,69 @@
   },
   "performance": "Adds a fixed number of metadata owner/scope lookups without full revision loading or node reads for incompatible scopes. No new paired speedup/RSS claim; prior D33 load measurements remain separately recorded.",
   "native_ci": {
-    "status": "not_dispatched",
-    "note": "new-source native CI required; ca7813c22/22 accepts D33 only"
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 37161135994,
+    "head_sha": "407125f62fda994826a7858737b22fa95efe4cb4",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37161135994",
+    "successful_jobs": 22,
+    "total_jobs": 22,
+    "source_manifest_sha256": "da0ec0aaba402c2cce19e27b24985b4957d55b52c161fa40962b7c201ec1d05e",
+    "verified_source_files": 20,
+    "terminal_archive": "ci-37161135994-terminal.json.gz",
+    "case_evidence": "ci-37161135994-case-acceptance.json",
+    "case_evidence_sha256": "9056734acea57915ac8bb05baae8fee04c4388eff01c10914f4e5f8089f61c1c",
+    "counting_rule": "Each exact test name must have exactly one executed test ... ok result. Discovery listings and other binary summaries are excluded.",
+    "jobs": [
+      {
+        "job_id": 111314628153,
+        "job_name": "Test (windows-latest / Rust stable)",
+        "conclusion": "success",
+        "log_file": "ci-37161135994-windows-stable.log.gz",
+        "executed_ok_once": 17,
+        "engine_cases": 11,
+        "ffi_cases": 6,
+        "linux_native_cases": 0
+      },
+      {
+        "job_id": 111314628257,
+        "job_name": "Test (windows-latest / Rust 1.97.0)",
+        "conclusion": "success",
+        "log_file": "ci-37161135994-windows-msrv.log.gz",
+        "executed_ok_once": 17,
+        "engine_cases": 11,
+        "ffi_cases": 6,
+        "linux_native_cases": 0
+      },
+      {
+        "job_id": 111314628120,
+        "job_name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "conclusion": "success",
+        "log_file": "ci-37161135994-linux-arm.log.gz",
+        "executed_ok_once": 19,
+        "engine_cases": 11,
+        "ffi_cases": 6,
+        "linux_native_cases": 2
+      },
+      {
+        "job_id": 111314628249,
+        "job_name": "Test (macos-15-intel / Rust stable)",
+        "conclusion": "success",
+        "log_file": "ci-37161135994-macos-intel.log.gz",
+        "executed_ok_once": 17,
+        "engine_cases": 11,
+        "ffi_cases": 6,
+        "linux_native_cases": 0
+      }
+    ],
+    "archive_retrieval_observations": [
+      "gh run view macOS log retrieval first failed with a local invalid ZIP cache entry; this was a log-client failure, not a CI or test failure.",
+      "Direct job logs were retrieved through gh api --allow-escape-sequences after its default terminal-escape guard rejected the raw response. The captured bytes are archived as data."
+    ],
+    "note": "D34 increment accepted at the exact reviewed commit. Windows collision cases remain offline UTF-16 metadata fixtures; Linux ARM additionally executed two real raw-byte filesystem cases. This does not close Q-04 or full-platform parent tasks."
   },
   "remaining": [
-    "same-source native Windows/Linux/macOS acceptance for D34",
+    "Q-04 complete C06/C07 compatibility acceptance matrix, including changed scan settings/size basis and provider limitations",
     "historical Windows full-ID/version continuity",
     "historical content-version binding",
     "real provider/no-download, native write/recovery/fidelity, GUI/Room/mobile/device/signing/production-environment gates"
@@ -303,6 +361,26 @@
       "workspace.log.gz": {
         "sha256_uncompressed": "675510e126ec2b82397645ab94ec945bbba787a6ba1ade13cb3cbb604b405c93",
         "sha256_gzip": "e7e976299536624e259596d708965d118d9a09edc778b5abe705fe4dea77301a"
+      },
+      "ci-37161135994-terminal.json.gz": {
+        "sha256_uncompressed": "15bbfb3981483f639334f7beef0da5b4b305b30f94ead3f5297a3933e4294d95",
+        "sha256_gzip": "50588665f7147b6477a23bde5252b4927c201a3aedb49a200ccba14c144eef15"
+      },
+      "ci-37161135994-windows-stable.log.gz": {
+        "sha256_uncompressed": "03fff600404318e220f79483629d4227cf9c391fdb9ad81d367fcd10746c3a8f",
+        "sha256_gzip": "1cc752197a98f5785c3a612a0cb8d69f9ebe2b85be650acc186e85c5b2e51040"
+      },
+      "ci-37161135994-windows-msrv.log.gz": {
+        "sha256_uncompressed": "58c12237d92f2b6fa82d934e95d7f8b4805998e48cca29661f276b921e38779b",
+        "sha256_gzip": "d02df1d5a636b787286595ec7971389eb2c8dffb24c5ecab608c57bf47eacdc2"
+      },
+      "ci-37161135994-linux-arm.log.gz": {
+        "sha256_uncompressed": "d48088592b99befb13cdd9213a034f1d3aa134d78036d0fba943a0df34a550d8",
+        "sha256_gzip": "704f84ea28b942c21b8266663be00b0134fe5b15f48c176ace59c45a492f0170"
+      },
+      "ci-37161135994-macos-intel.log.gz": {
+        "sha256_uncompressed": "d1d6821c31a391ee3d6c5b0c2669caf6e81d6dd85cedd4773e37cda38c49249f",
+        "sha256_gzip": "56555b3da766ef9c4140f62f2b8ccc12328de2095ebaf40586b162a222480651"
       }
     }
   }

@@ -125,3 +125,9 @@ Tasks 12.1–12.7 are checked within this local acceptance scope. Task 12.8 and 
 | Vendored upstream source/pin/digests | Unchanged from HEAD; dedicated pin/digest suite 4/4 passed |
 
 Tasks 13.1–13.5 and 13.7 are verified locally. Task 13.6 stays open for positive-target candidate preparation and request-scoped relation-reader reuse. Linux/Windows native writes and installed mobile hosts remain unverified; no commit, push or publication occurred.
+
+## D34 native follow-up, 2026-10-04
+
+Actual historical namespace eligibility passed [22/22 native CI jobs](https://github.com/loong10k/diskgraph/actions/runs/37161135994) at `407125f62fda994826a7858737b22fa95efe4cb4`. All 20 reviewed source hashes match that commit. Both Windows Rust versions and macOS Intel executed Engine11/FFI6; Linux ARM also executed two real raw-byte filesystem cases. The [D34 receipt](benchmarks/historical_namespace_acceptance_2026_10_04.json) preserves exact cases, raw logs and earlier failed observations. Existing authorization, bounded responses and terminal checks remain; dangerous CLI/MCP write tools remain disabled.
+
+Q-04 task3.9 remains open for the complete settings, size-basis and provider compatibility matrix. Git library configuration/filter isolation, unborn/failure semantics and shared probe budgets have native acceptance under 15.13b/c/d and D29; task8.7/15.13 still requires an authorized sampling entry, persistence and actual revision publication acceptance. No full-platform readiness parent is complete.

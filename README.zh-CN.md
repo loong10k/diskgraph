@@ -251,9 +251,13 @@ Windows 补充扫描观测通过独立版本记录保存完整 128 位文件 ID�
 
 FFI 已按 API、realm、扫描与作业状态拆分真实实现文件。两份固定包含文件保留旧 UniFFI 词法路径，源码门禁解析其真实实现并拒绝其他 include。注册根重新绑定回归已在 `c8ff781` 的22/22 CI中通过两个Windows Rust版本；剩余能力门禁见上述全平台记录。
 
-历史增长要求双方节点类型相同且大小已观察。未知大小、读取失败不返回数值增量，比较行中不可用的一侧保留为 `null`；类型替换仍是路径差异。`changes.size_changed == 0` 只表示未观察到符合资格的尺寸变化，不能证明所有对象未变。Core 查询和比较对象已真实分文件，保留既有公开导出。
+历史增长要求双方节点类型相同且大小已观察。完整覆盖还要求不可读节点为零且没有深度缺口；矛盾的完整标志不能使增长、变化或审阅候选成立。未知大小、读取失败不返回数值增量，比较行中不可用的一侧保留为 `null`；类型替换仍是路径差异。`changes.size_changed == 0` 只表示未观察到符合资格的尺寸变化，不能证明所有对象未变。Core 查询和比较对象已真实分文件，保留既有公开导出。
 
 Engine 与 FFI 增长还要求实际 server/scope 归属相同，显示路径相等不能证明可比。变化保留 `different_root`，并对 scope 差异新增 `scope_changed: true`；通用比较仍允许双侧已授权的跨根查询。授权与预算边界见[架构续篇](docs/DiskGraph-Architecture-Hardening.zh_CN.md)。
+
+D34 命名空间增量在 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生 CI 中 22/22 通过](https://github.com/loong10k/diskgraph/actions/runs/37161135994)，20 项已审源码摘要均与该提交一致。Windows、Linux ARM 和 macOS Intel 实际执行了新增回归；[验收回执](docs/benchmarks/historical_namespace_acceptance_2026_10_04.json)记录具体用例及尚未完成的 Q-04 兼容矩阵，全平台生产就绪仍未完成。
+
+D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。新源码仍需原生CI；授权Git采集入口及平台/provider门禁保持开放。
 
 ## 文档
 

@@ -101,6 +101,11 @@ changes/growth SHALL 检查 server/scope、卷/provider、扫描设置、口径�
 - **THEN** growth refuses a delta and changes do not count the replacement as numeric size growth; comparable known/readable nodes of different kinds produce the existing path/type difference verdict
 - **AND** known zero and negative growth remain real answers; neither file identity equality nor matching roots is added as a requirement for the separate cross-root metadata comparison API
 
+#### Scenario: Coverage diagnostics cannot be overridden by a complete flag
+- **WHEN** 原生库消费者直接构造快照，或历史数据的 complete=true 与 unreadable_nodes>0 或 depth_limited=true 同时存在
+- **THEN** growth 不提供可信数值，changes 返回 incomplete_coverage 而不推断移除或尺寸变化，审阅候选不把此覆盖提升为可确定重建范围
+- **AND** 公开 Store 发布仍拒绝矛盾覆盖并整体回滚；合法完整及显式 partial 的既有 JSON 字段、未知大小和不可比原因保持兼容。
+
 #### Scenario: Unknown results retain terminal authorization and budgets
 - **WHEN** Engine or legacy FFI growth has produced an unknown result
 - **THEN** both revisions still undergo the existing terminal authorization, cancellation, deadline and response-budget checks; no early unknown return bypasses those checks

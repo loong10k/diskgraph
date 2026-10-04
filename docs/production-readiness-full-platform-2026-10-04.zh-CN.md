@@ -57,7 +57,7 @@ release Swift/Kotlin 绑定已重新生成；真实 Swift 宿主编译运行通�
 
 各夹具4/4，32次查询、4客户端。时间含CLI启动；RSS由macOS time逐个实际CLI进程测量，不是并发总RSS。非配对观察不能证明提速、严格RSS或历史查询吞吐；Windows200k/RSS仍未测。原始失败、成功命令、协议、测量脚本及摘要见[D33回执](benchmarks/historical_size_acceptance_2026_10_04.json)。
 
-同源码 `ca7813cba28d2abdef8309d2d3176893559d68c5` 的 [CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37158622289)。两个Windows Rust版本、Linux ARM及macOS Intel日志各实际执行全部28个选定D33回归（Core11/Engine9/FFI5/结构3），回执核对32源摘要与该提交一致。本次完成D33增量原生验收，Q04任务3.9因实际scope兼容性（D34）继续开放；Windows历史身份及历史正文绑定仍为独立未完成要求；本批不完成任何全平台父项，CLI/MCP危险写工具保持关闭。
+同源码 `ca7813cba28d2abdef8309d2d3176893559d68c5` 的 [CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37158622289)。两个Windows Rust版本、Linux ARM及macOS Intel日志各实际执行全部28个选定D33回归（Core11/Engine9/FFI5/结构3），回执核对32源摘要与该提交一致。本次完成D33增量原生验收，当时Q04任务3.9因实际scope兼容性（D34）继续开放；Windows历史身份及历史正文绑定仍为独立未完成要求；本批不完成任何全平台父项，CLI/MCP危险写工具保持关闭。
 
 ## 实际历史命名空间（D34）
 
@@ -67,4 +67,21 @@ Engine与旧FFI增长复用已有reader核对持久实际owner/server/scope，�
 
 最终源码本机workspace **1142通过/0失败/18 ignored，49 suites**。Engine命名空间 **11/11**，FFI新增 **6/6**、全部受影响增长用例 **20/20**；严格Clippy、定向fmt、include fmt、OpenSpec、构建和release通过，实际UniFFI **19/19**、stdio **18/18**、HTTP/SSE **13/13**。独立代码APPROVE、架构CLEAR，最终20源摘要一致；原始失败、成功日志及源码摘要见[D34回执](benchmarks/historical_namespace_acceptance_2026_10_04.json)。
 
-Unix离线夹具以自然非法字节产生显示碰撞，Windows启用夹具以本平台自然未配对UTF16产生碰撞；均为公开API注册的合法合成元数据，不声称建过非法目录或执行过真实迁移。Linux另有2项真实原始目录用例，本机macOS未执行；现有socket验收运行过，但没有新增socket显示碰撞夹具。新同源码原生CI仍须完成，Q04任务3.9及全平台父项继续开放；命名空间相同不证明历史文件身份连续或正文版本相同。
+Unix离线夹具以自然非法字节产生显示碰撞，Windows启用夹具以本平台自然未配对UTF16产生碰撞；均为公开API注册的合法合成元数据，不声称建过非法目录或执行过真实迁移。Linux另有2项真实原始目录用例，本机macOS未执行；现有socket验收运行过，但没有新增socket显示碰撞夹具。
+
+同源码 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37161135994)。两个Windows Rust版本和macOS Intel各实际执行全部 **17** 个选定用例（Engine11/FFI6）；Linux ARM另执行 **2** 项真实文件系统用例，共 **19** 项。20项已审源码摘要均与该提交一致；[D34回执](benchmarks/historical_namespace_acceptance_2026_10_04.json)保留终态元数据、原始job日志、实际执行用例名称和此前失败观察。
+
+Q04任务3.9的完整C06/C07矩阵在下方D35继续，新源码仍需原生验收。D34完成命名空间增量原生验收，不完成全平台父项；命名空间相同不证明历史文件身份连续或正文版本相同。
+
+## 原生输入准入与完整历史语义（D35，2026-10-04）
+
+Git元数据和stash日志已知超限时先拒绝正文读取；每块同时受初始未读长度和剩余共享额度限制，终态核验长度及既有强身份/版本。reflog保留原OutputLimit分类和首次失败锁存；精确额度与空文件有效，管道EOF和清理契约未改。真实句柄偏移复现原4096字节及零长度超读，Git目标从4通过/3失败到8/8。
+
+ScanCoverage以独立真实对象文件统一覆盖判定，字段、serde及公开导出不变。Core增长/变化/候选和Engine历史不能以complete标志覆盖不可读或深度缺口；Store原先就拒绝矛盾发布且继续整体回滚。Core真实RED为5通过/3失败，随后8/8；Engine10项涵盖六种设置双向变化、正负/零增长、未知/类型替换、卷/provider域值、partial、无重命名推断及真实宿主扫描增长/重命名。合成导入与opaque URI语义不证明挂载换卷或provider操作。
+
+最终本机workspace **1168通过/0失败/18 ignored，51 suites**；构建、严格Clippy、fmt、OpenSpec及release通过。实际UniFFI **19/19**、stdio **18/18**、HTTP/SSE **13/13**及14项上游摘要通过。独立代码APPROVE、架构CLEAR与最终18源清单一致。[D35回执](benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)保留两组真实RED、初次错误分类/Clippy失败及新鲜最终日志，不声称配对吞吐或RSS提升。
+
+任务3.9等待本源码原生CI；Git8.7/15.13仍需授权私有工作树捕获、持久typed输入/能力上限、内容权限fence、证据发布及CLI/MCP验收。现有OpenSpec设计仅记录下一实施契约，未启用新collector。原生写、真实provider、GUI/GRDB/Room、mobile/设备、签名和生产父项保持开放。
+
+
+任务状态复核：166项中136项已完成、30项开放（包含汇总父项，不等于30个独立漏洞）。8.6重新打开：可信库进程采样不等于已授权产品collector；尚缺应用安装实例采集、PID启动及资源身份绑定、来源持久化与原子revision发布的端到端验收。已验收的解析、预算和通用发布子能力保持完成。

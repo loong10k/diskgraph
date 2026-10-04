@@ -349,4 +349,57 @@ schema12在staging/nodes同一行加nullable native_observation_format/raw/gap�
 
 ### D34 历史实际命名空间兼容性（本机实施与验收）
 
-Q-04 已要求 server/scope 可比性。分别通过双侧授权不等于历史命名空间相同；尤其旧 v1 的两个 lossless 原始根可投影为相同 display。先用合法离线 Linux 元数据导入记录、独立注册范围和显式归属建立 RED；另在 Linux 使用真实原始目录验收，不删除唯一约束、不伪造坏 JSON，也不把外部已拒绝的 foreign server 描述为权限绕过。增长/变化额外检查实际归属；通用跨根元数据比较仍可在双侧授权后合法运行。Core 不持有实际 owner，保持既有可信纯图契约；归属检查在 Engine/FFI 授权边界落实，CLI 已有显式 scope 拒绝路径保留。诊断保留旧字段并允许新增说明，准确表达命名空间差异；不新增共享 owner、不重置期限、不以不可比覆盖终态授权、取消或预算错误。本机首次创建原始非 UTF-8 目录在 APFS 返回 OS92，9 项均是夹具错误，不计目标 RED。修正为公开 ControlStore 注册的离线 Linux 旧元数据夹具后，实际运行 7 通过 / 2 目标失败：双侧均已授权却错误返回增长及可比变化。另保留 Linux 专属真实目录测试，本机跳过不计 Linux 通过。Engine 与 FFI 已使用现有 reader 的实际 owner 核对本服务器及有效 ScopeId；同 ScopeId 由注册根不可变保证同无损命名空间。不可比结果仍走预算编码与成组终态复检，changes 保留 different_root 并新增 scope_changed。FFI 修正后的真实 RED 为5/1，GREEN为6项新增加受影响旧用例共20/0；Engine11/0，最终workspace1142/0/18，20源独立审查摘要一致，实际UniFFI19/19和stdio18/18、HTTP/SSE13/13通过。Windows离线夹具采用本平台未配对UTF16，Linux真实目录2项仅在Linux运行；本机不替代这些原生执行。新同源码 CI 尚待完成，不关闭 Q04/全平台任务。
+Q-04 已要求 server/scope 可比性。分别通过双侧授权不等于历史命名空间相同；尤其旧 v1 的两个 lossless 原始根可投影为相同 display。先用合法离线 Linux 元数据导入记录、独立注册范围和显式归属建立 RED；另在 Linux 使用真实原始目录验收，不删除唯一约束、不伪造坏 JSON，也不把外部已拒绝的 foreign server 描述为权限绕过。增长/变化额外检查实际归属；通用跨根元数据比较仍可在双侧授权后合法运行。Core 不持有实际 owner，保持既有可信纯图契约；归属检查在 Engine/FFI 授权边界落实，CLI 已有显式 scope 拒绝路径保留。诊断保留旧字段并允许新增说明，准确表达命名空间差异；不新增共享 owner、不重置期限、不以不可比覆盖终态授权、取消或预算错误。本机首次创建原始非 UTF-8 目录在 APFS 返回 OS92，9 项均是夹具错误，不计目标 RED。修正为公开 ControlStore 注册的离线 Linux 旧元数据夹具后，实际运行 7 通过 / 2 目标失败：双侧均已授权却错误返回增长及可比变化。另保留 Linux 专属真实目录测试，本机跳过不计 Linux 通过。Engine 与 FFI 已使用现有 reader 的实际 owner 核对本服务器及有效 ScopeId；同 ScopeId 由注册根不可变保证同无损命名空间。不可比结果仍走预算编码与成组终态复检，changes 保留 different_root 并新增 scope_changed。FFI 修正后的真实 RED 为5/1，GREEN为6项新增加受影响旧用例共20/0；Engine11/0，最终workspace1142/0/18，20源独立审查摘要一致，实际UniFFI19/19和stdio18/18、HTTP/SSE13/13通过。Windows离线夹具采用本平台未配对UTF16，Linux真实目录2项仅在Linux运行；本机不替代这些原生执行。同源码407125f的CI37161135994已终态22/22通过，20份来源摘要一致；Windows两工具链与macOS Intel各实际执行11个Engine及6个FFI新用例，Linux ARM另执行2个真实原始目录用例。D34子项验收已归档，但完整Q04矩阵及全平台任务仍开放。
+
+### D35 Git 授权采集的下一实施契约（设计，产品接入待实施）
+
+沿用 EC-02/04、EV-02/03/05、SC-02/03/04/06、CT-01/02/04、RT-01/02/04/06 与 CMD-02/04。此节记录 8.7/15.13 的下一闭环，不创建第二份变更或缩减全平台目标。库内 Git 语义、私有元数据和多目标会话已有独立验收；这不代表已实现工作树捕获、授权产品入口或持久 Git 任务。当前正式扫描只发布项目标记批次，GitSample 尚未进入该发布链。8.7 的旧 filter/unborn/config 备注不能代表当前代码差距，但任务不能仅因库内回归通过而勾选。
+
+```mermaid
+flowchart TD
+    A["CLI sync / MCP diskgraph_sync<br/>显式 collector=git"] --> B["Engine 授权入口<br/>实际 server/scope/revision/node"]
+    B --> C["持久 Git 任务<br/>真实主体、请求上限、lease/fence"]
+    C --> D["GitScopeBoundary<br/>注册原生根与无损节点定位"]
+    D --> E["有界锚定捕获<br/>私有工作树 + 元数据 + ODB"]
+    E --> F["EvidenceProbeSession<br/>单一期限、累计输入/输出、取消"]
+    F --> G["最小化 CollectorBatch<br/>来源、时间、unknown 与覆盖"]
+    G --> H["control fence 内实时权限末检<br/>graph 原子发布与 latest-base CAS"]
+    H --> I["新 revision / run ID<br/>旧 snapshot 与旧解释保留"]
+    I --> J["有界 explain / related / status<br/>编码后授权复检"]
+```
+
+Git status 可重新读取 tracked 文件，现有私有 ODB 也复制正文对象；仅输出数量不改变底层内容访问性质。请求首检、实际执行及发布须检查真实 scope 的 MetadataRead、IndexWrite、ContentRead 交集，不因注册 scope、客户端传入 scope 或已有元数据权限自动授予 ContentRead。持久任务记录主体、已验证请求能力上限和服务提供的认证到期上下文，不保存 bearer；断线不丢失业务任务，失效请求能力不能被 runner 的本地身份补足。
+
+当前可信 GitView 会向父目录发现 .git、解析外部 gitdir/commondir/属性路径，并在真实工作树运行子进程。读取前检查路径再在末段检查变化，不能阻止 Git 在目录替换期间已经读到范围外内容。因此安全捕获是开放产品入口的前置：GitScopeBoundary 绑定实际注册原生根及固定 revision/node 的 QualifiedLocator，旧节点缺少无损定位则拒绝并要求重索引，不从 display 恢复路径。产品请求只接受明确 Git 根节点，不自动向授权根外或其他 Git 根扩大。
+
+首选 GitWorktreeCapture，在现有 GitPrivateDirectory owner 下以原生目录/文件句柄锚定、逐组件 no-follow、有界独立复制允许读取的工作树；Git 只使用私有 worktree、ODB、config/index/refs。源 gitfile、commondir、attributes/excludes、对象目录均在读取前核验实际范围，不因最后返回错误容忍先读取外部来源。可信 Git 安装包及明确配置的宿主输入单独受服务允许列表约束，不能作为仓库任意外部路径的例外。旧可信库内函数保留签名和行为，新的 scoped 路径不得回退到真实工作树采样。
+
+第一阶段只接受能够保真捕获的普通工作树；链接/reparse、特殊文件、不可保真的路径/属性/精度及未验证的占位或禁止物化条件明确拒绝。ContentRead 不表示同意下载云端内容。捕获文件字节、原生名称、必要模式及属性/忽略语义，保留私有 index 原高精度时间，并实际验证新 dev/inode/ctime 对 Git stat 缓存的影响；不能用假 clean 或删除配置掩盖差异。源身份、版本和目录名单末检检测变化；它不是原子文件系统快照，也不抵抗全部同权限进程竞态。
+
+另一方案是逐平台原生文件系统沙箱约束 Git 全部读取，但当前没有该已验收边界，会增加平台及宿主依赖。选择私有捕获以复用现有容量 owner 与清理机制；代价是工作树字节、条目和元数据复核成本增加，大型或特殊仓库可明确超限。若本增量只完成捕获前置，授权入口、持久任务、8.7/15.13 仍保持未完成。
+
+准备、定位、捕获、Git 命令、终检及清理共享一次 EvidenceProbeSession 的绝对期限和取消状态。元数据与工作树的原始输入/条目累计，stdout/stderr/stash 共用输出额度；实际分配和卷余量继续分别计量，不给后续目标补额度。每次读取前按真实剩余额度限制缓冲，不以初始长度检查代替实际读取预算；无法在余量内确认完整结果时拒绝，不允许额外读取后才报超限。耗时 I/O 和子进程不持 graph/control 写锁；持久取消、撤权和 owner 失效经有界轮询通知同一取消状态。
+
+建议入口为现有 C03 的显式模式：`sync --scope S --revision R --node-id N --collector git --wait`，MCP 对应 diskgraph_sync 的同语义参数，省略 collector 的旧 sync 保持原行为。当前 catalog/schema 尚无这些参数，实施前须在本 change 的 CMD 场景与实际工具 schema 中共同明确；模型不能提供任意程序、argv、shell、路径或网络开关。返回持久 job_id，status 查询有界终态及新 revision/run ID，具体参数和限额以实施前正式场景为准。
+
+Engine 增加单一 collect_git_revision 管理入口及独立请求对象，解析 revision 实际 local server/scope，读取同 snapshot 的 node 原始定位和真实 ScopeRecord。任务保存固定 base revision/node/限额及请求身份。现有任务只有 Index/Sync，合并条件仅 scope/principal；不能让 Git 请求被合并成不同类型或目标的扫描。新增明确 GitEvidence 类型和持久输入，保留旧标签/API，仅相同主体、类型及目标幂等合并，其余明确排队或冲突；迁移及旧库行为须回归。对象分文件，保持单一 Engine 与状态 owner。
+
+复用条件认领、30 秒租约、5 秒续租、真实主体配额和容量门禁，按类型分派；过期新 owner 从头捕获和采样，不复用未完成结果。现有 with_job_fence 仅检查 index:write，需要带所需权限集合的共用 fence；旧方法继续保持原契约。在实际 control IMMEDIATE 事务内检查当前 scope/grants、请求上限、lease/owner/fence/cancel，回调内再做纯时钟和本机取消末检，不重入 control。发布沿用 graph→control 持锁顺序，不能以请求开始时的允许替代终态授权。
+
+发布复用 publish_collector_revision，单个图库事务写 batch、归属、完整运行选择、revision 与 latest；latest-base CAS 拒绝迟到采样回退新扫描。保留文件 snapshot，采样实体和边用 run 级 ID，不原地覆盖旧解释；替换同 collector 的旧 active，保留其他 active，所引用实体来源按完整闭包选入 dependency_only。run/revision 使用 job/fence 的确定性身份，核对图已提交而控制终态未保存的恢复窗口，不宣称跨库原子性。
+
+CollectorRun 保存实际方法、collector/rule 版本、观察时间、覆盖和有界诊断。Git 根与真实资源节点确认绑定后，才建立 run 级 Project 及 Resource→Project 的 Observed 归属边；不能仅凭名称声明项目归属。EvidenceRecord 保存结构化数量、相对本地已知引用的 Option 差分、方法/范围/时间及不透明输入指纹。缺 upstream 保持 null/unknown，不能写成 0 或“已推送”；有限本地观察完成不等于已验证真实远端。采样失败不发布完整成功批次，不凭 Git 数量创建删除许可或可重建结论。
+
+正文、patch、stash 消息/committer、raw stdout/stderr、配置秘密、HEAD/ref 原文默认不进入元数据可见的实体、basis、日志或错误。若后续保留精确引用，须有内容/导出策略保护，不能使现有 MetadataRead-only explain 成为旁路。错误采用有界分类及阶段诊断；unsupported/denied/resource/conflict 可区分，不能把资源失败当成干净仓库。查询复用现有 revision 关系窄读、预算及编码后末检，不另建授权或查询 owner。
+
+下一轮按以下可观察场景推进 TDD，各阶段真实 RED/GREEN 和同源码原生结果分别保存：
+
+- 普通真实 Git 仓库经授权产品请求取得任务，采样后重开数据库可查询 dirty/stash/本地跟踪差分及来源；新旧 revision 共享文件 snapshot，旧解释不变。
+- 缺 ContentRead、token 能力缺项、伪造 scope/revision/node 或过期身份在源读取及入队前拒绝，不产生采集批次或额外权限。
+- ancestor 仓库、外部 gitdir/commondir/属性引用及父目录替换不读取未授权来源；子进程读取只来自实际私有捕获，最终变化检测不能充当读取隔离证明。
+- 捕获后源文件增长、缩短、同长度改写、空文件和精确额度验证真实读取字节，预算耗尽不额外读取或返回完整计数；原 index 时间及普通 Git 差分保持。
+- 成功捕获/编码后的确定性同步点撤权、取消、到期或失效 owner 拒绝发布；确认已经进入该阶段，不能用前段资源错误代替末段守护回归。
+- 双进程认领、不同请求合并、latest 已推进、迁移及提交后崩溃恢复保持 fence、来源闭包和旧 revision 不变。
+- MCP 公告 schema 与真实 socket 调用、CLI JSON/退出码、status 和 explain 内容最小化一致；三桌面原生句柄/路径/清理回归单独验收。
+
+此设计及任一前置修复不关闭 15.13 的进程启动身份/实际覆盖、provider、不物化、原生写、移动端、签名与生产运行门禁，不把本机或绿色 CI 当作全部能力批准。

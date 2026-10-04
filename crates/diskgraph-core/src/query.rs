@@ -87,8 +87,8 @@ impl DiskGraph {
             || self.snapshot.volume_id.is_none()
             || self.snapshot.settings != previous.snapshot.settings
             || self.snapshot.captured_at_unix_ms < previous.snapshot.captured_at_unix_ms
-            || !self.snapshot.coverage.complete
-            || !previous.snapshot.coverage.complete
+            || !self.snapshot.coverage.is_complete()
+            || !previous.snapshot.coverage.is_complete()
         {
             return None;
         }
@@ -108,7 +108,7 @@ impl DiskGraph {
     /// This is a review queue, not authorization or an estimate of bytes actually freed.
     /// 参数：target_bytes 为期望审阅字节数；返回：互不重叠且有重建证据的目录，不授予文件操作权限。
     pub fn candidates(&self, target_bytes: u64) -> Vec<Candidate<'_>> {
-        if !self.snapshot.coverage.complete || target_bytes == 0 {
+        if !self.snapshot.coverage.is_complete() || target_bytes == 0 {
             return Vec::new();
         }
         let by_node: HashMap<u64, Vec<&EvidenceEdge>> =
@@ -212,7 +212,8 @@ impl DiskGraph {
             Some(Incompatibility::DifferentSettings)
         } else if self.snapshot.captured_at_unix_ms < previous.snapshot.captured_at_unix_ms {
             Some(Incompatibility::OutOfOrder)
-        } else if !self.snapshot.coverage.complete || !previous.snapshot.coverage.complete {
+        } else if !self.snapshot.coverage.is_complete() || !previous.snapshot.coverage.is_complete()
+        {
             Some(Incompatibility::IncompleteCoverage)
         } else {
             None

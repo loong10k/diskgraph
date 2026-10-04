@@ -126,3 +126,9 @@ OpenSpec 保持 active、未归档；跨平台任务继续未勾选，本记录�
 | 上游 vendor 源码、pin、摘要 | 与 HEAD 相同；专用 pin/摘要测试 4/4 通过 |
 
 任务 13.1–13.5、13.7 完成本机验证。13.6 的正目标候选准备阶段和关系请求级读连接复用仍未完成。Linux/Windows 原生写与已安装移动宿主未验收；本轮无提交、推送或发布。
+
+## D34原生验收续记，2026-10-04
+
+实际历史命名空间资格在 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生CI中22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37161135994)，20项已审源码摘要均与该提交一致。两个Windows Rust版本和macOS Intel实际执行Engine11/FFI6，Linux ARM另执行2项真实原始字节文件系统用例。[D34回执](benchmarks/historical_namespace_acceptance_2026_10_04.json)保留准确用例、原始日志及此前失败观察；原有授权、响应预算与终态检查保留，CLI/MCP危险写工具仍关闭。
+
+Q-04任务3.9仍缺完整设置、尺寸口径与provider兼容矩阵。Git库层配置/filter隔离、unborn/失败语义和共享探针预算已按15.13b/c/d及D29完成原生验收；任务8.7/15.13仍缺已授权采集入口、持久化及实际revision发布验收。全平台生产就绪父项保持未完成。

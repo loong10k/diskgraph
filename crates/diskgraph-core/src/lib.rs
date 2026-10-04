@@ -31,6 +31,7 @@ mod query_budget_tests;
 mod query_deadline;
 mod query_read_budget;
 mod scan;
+mod scan_coverage;
 pub mod syncplan;
 pub mod treemap;
 mod windows_file_observation;
@@ -65,7 +66,7 @@ pub use locator::{Locator, LocatorDecodeError, LocatorKind};
 pub use locator_encoding::LocatorEncoding;
 pub use model::{
     DiskGraph, DiskNode, DiskSnapshot, EvidenceEdge, EvidenceRelation, FileIdentity, NodeKind,
-    ResourceLocator, ScanCoverage, ScanSettings,
+    ResourceLocator, ScanSettings,
 };
 pub use permissions::{
     Authorizer, Decision, DenyAllAuthorizer, DenyReason, FileActionKind, Grant, Permission,
@@ -89,6 +90,7 @@ pub use scan::{
     PlaceholderPolicy, RescanComparison, ScanBudget, ScanBudgetStop, ScanExclusions, ScanWindow,
     StorageArea, Watermark, WatermarkVerdict, compare_rescan,
 };
+pub use scan_coverage::ScanCoverage;
 pub use syncplan::{
     CopyReason, ExcludeReason, PlanExclusion, SyncAction, SyncMethod, SyncPlan,
     build_plan as build_sync_plan,

@@ -1,0 +1,428 @@
+{
+  "date": "2026-10-04",
+  "increment": "D35 / Q-04 coverage and EC-04 native input reads",
+  "baseline_commit": "407125f62fda994826a7858737b22fa95efe4cb4",
+  "status": "local_and_independent_acceptance_passed_native_ci_pending",
+  "source_manifest_sha256": "f5607bd32a47b46140b09a0d2fd5fb0d94d41e5c3fa76cbafbdb8f296dc7b441",
+  "source_files": {
+    "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
+    "crates/diskgraph-core/src/lib.rs": "72cf58822a7ef010d6f550342be777122abbd1ea9c429b9dd86a27106b858b80",
+    "crates/diskgraph-core/src/model.rs": "0d97957e96f288bdc4f4b2ec8165aea4f85a56326aa0e42db924560668c71092",
+    "crates/diskgraph-core/src/query.rs": "8704279337b7675f74afe05bdfd549ccb37e3863c4bd455e2387e1d76753c2b4",
+    "crates/diskgraph-core/src/scan_coverage.rs": "a799ba6a0739b1a6cf491a054fe0e435f4eb6101a1dfafbd5fcf5f295086c0f7",
+    "crates/diskgraph-core/tests/history_compatibility_matrix.rs": "2c346a265c1a656541ec3f374e5d7e933dfffa1e43f191cc334592b27beca93e",
+    "crates/diskgraph-engine/src/live_evidence/git_input_read_tests.rs": "b72b90b65df70bfd5b07b8a446091d268bd66577c974c69df556e39f0ef52e18",
+    "crates/diskgraph-engine/src/live_evidence/git_metadata_file.rs": "aa1165ce4a7a9e937f8ef6a985605ecbe985858cb7df0d562d53a801868711d9",
+    "crates/diskgraph-engine/src/live_evidence/git_reflog_file.rs": "03239ddd5f15010d5dab9831692aa790f3be69c482269d12c19007221c1ee074",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "922f1602067300fa1df74fa36b0535f8cea8c3ce0f452b89d2df906e69ac1747",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "201f873adb0c64749b79d7a629f9c586f014f165693e7eeee12f80bb919a44d5",
+    "crates/diskgraph-engine/src/revision_history.rs": "00458bec3b0adaab6a83e6a6c589007471f67f410b8f49aa69b3a8d8993c1b73",
+    "crates/diskgraph-engine/tests/history_compatibility/fixture.rs": "06ffc42d6f0df3e79fdaf9e1952f12dc768387cd5b737cad6b93e8cf1ed82e63",
+    "crates/diskgraph-engine/tests/history_compatibility_matrix.rs": "eceaa3fa9188f3c180a560a0eee91b63ed3e83bfd9c5e55c6bb09de484e174d8",
+    "crates/diskgraph-ffi/src/api_exports.rs": "471b839f98683d5ddd5b73523b182cfaf9da0bf06e723d11a3e4db551ddaeac2",
+    "openspec/changes/implement-diskgraph-platform/design.md": "18ad931f388fed152db6cfe6ab4fc5aae08e50587d1e454b72e55c88bb07e8f1",
+    "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "5c01b2f1d953103aa36f37416284962f798619010b77167bbf02ab374daf5485",
+    "openspec/changes/implement-diskgraph-platform/specs/ecosystem-adapters/spec.md": "a56706791edd51ec4fd4bfc3633cfee95426faaf46971c4f0924e8b13790c542"
+  },
+  "behavior": [
+    "Known oversized Git metadata and stash inputs are refused before a body read. Every native file read is capped by initial unread length and remaining input bytes; final length and existing identity/version checks remain required.",
+    "Reflog preflight retains the original OutputLimit classification and first-failure latch. Empty or exact-budget inputs remain valid; subprocess pipe EOF and cleanup contracts are unchanged.",
+    "ScanCoverage is one real object file with unchanged fields, serde representation and root public export. is_complete requires complete and no unreadable or depth gaps.",
+    "Core growth/changes/candidates and Engine historical compatibility consume the same constant-cost coverage predicate. Store public publication already rejected contradictory headers and still rolls back them.",
+    "No Git product collection entry, new task kind, schema migration, new authorization owner or dangerous tool enablement is introduced. The existing formal design records the authorized private-worktree capture and durable publication work still required."
+  ],
+  "red": {
+    "git_input": {
+      "passed": 4,
+      "failed": 3,
+      "evidence": "input-red.log.gz",
+      "observed_cursor_overreads": [
+        {
+          "input": "reflog",
+          "remaining_bytes": 4,
+          "cursor": 4096
+        },
+        {
+          "input": "zero-length metadata observation",
+          "remaining_bytes": 0,
+          "cursor": 5
+        }
+      ]
+    },
+    "core_coverage": {
+      "passed": 5,
+      "failed": 3,
+      "evidence": "core-red.log.gz",
+      "targets": [
+        "contradictory_complete_coverage_never_yields_known_growth",
+        "contradictory_complete_coverage_never_claims_removed_or_resized_nodes",
+        "contradictory_complete_coverage_never_promotes_rebuildable_candidate"
+      ]
+    },
+    "retained_verification_failures": [
+      "Initial Engine library run: 311 passed, 1 failed, 3 ignored. The old reflog resource regression required the output classification; production was corrected to use the existing latched ProbeFailure::OutputLimit, without weakening its assertions.",
+      "Initial strict Clippy rejected a test tuple/function-pointer array as type_complexity. A local SettingChange alias preserves all six mutations, loops and assertions; no lint suppression was added. Final checks use a separate full fresh pipeline."
+    ]
+  },
+  "green": {
+    "git_input": {
+      "passed": 8,
+      "failed": 0
+    },
+    "core_matrix": {
+      "passed": 8,
+      "failed": 0
+    },
+    "engine_matrix": {
+      "passed": 10,
+      "failed": 0,
+      "initial_run_is_regression_not_target_red": true
+    },
+    "workspace_final": {
+      "passed": 1168,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 51,
+      "exit_code": 0
+    },
+    "checks": {
+      "workspace": 0,
+      "build": 0,
+      "clippy": 0,
+      "fmt": 0,
+      "include-fmt": 0,
+      "openspec": 0,
+      "release": 0
+    },
+    "vendor_digests_unchanged": 14,
+    "uniffi": {
+      "total": 19,
+      "passed": 19,
+      "actual": {
+        "uniffi_diskgraph_ffi_checksum_constructor_nativeservice_new": 5457,
+        "uniffi_diskgraph_ffi_checksum_func_candidates_json": 21525,
+        "uniffi_diskgraph_ffi_checksum_func_capabilities_json": 23217,
+        "uniffi_diskgraph_ffi_checksum_func_children_json": 43629,
+        "uniffi_diskgraph_ffi_checksum_func_explain_json": 37146,
+        "uniffi_diskgraph_ffi_checksum_func_growth_json": 21415,
+        "uniffi_diskgraph_ffi_checksum_func_latest_native_snapshot_json": 11225,
+        "uniffi_diskgraph_ffi_checksum_func_scan_native_json": 22906,
+        "uniffi_diskgraph_ffi_checksum_func_spawn_scan_json": 29507,
+        "uniffi_diskgraph_ffi_checksum_func_top_json": 48309,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_cancel": 24453,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_poll_result_json": 11438,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_progress_json": 17230,
+        "uniffi_diskgraph_ffi_checksum_method_jobhandle_result_json": 5527,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_candidates_json": 25185,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_children_json": 61631,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_node_json": 52432,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_shutdown": 27616,
+        "uniffi_diskgraph_ffi_checksum_method_nativeservice_spawn_scan": 31336
+      },
+      "mismatches": {}
+    },
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http_legacy_sse": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "reviewed_manifest_sha256": "f5607bd32a47b46140b09a0d2fd5fb0d94d41e5c3fa76cbafbdb8f296dc7b441",
+    "verified_files": 18,
+    "note": "Neither reviewer ran Cargo or claimed pending native CI. The architecture reviewer authored the future Git design and did not count it as independently reviewed implementation."
+  },
+  "platform_fixtures": {
+    "real_local_native": "Engine invokes actual host scan, growth and rename on fresh temp directories; this local run is macOS only.",
+    "synthetic_imports": "Public Store APIs import volume/provider domains and six scan-settings variations under an actual registered scope. Core DocumentUri cases are opaque value semantics, not physical provider operations.",
+    "not_proven": [
+      "physical mounted-volume switching",
+      "real cloud/provider behavior or no hydration",
+      "Linux/Windows execution of this new increment",
+      "atomic filesystem or Git snapshot",
+      "hard RSS or synchronous kernel deadlines"
+    ]
+  },
+  "performance": {
+    "effect": "Known excessive input can be refused with zero body bytes instead of a 4096-byte overread. Coverage qualification adds constant-time field checks; Store query plans and scan persistence are unchanged.",
+    "measurement": "Regression file offsets establish user-space read volume, not filesystem readahead or paired end-to-end speedup. No new 20k/200k release benchmark is claimed."
+  },
+  "native_ci": {
+    "status": "not_dispatched",
+    "note": "After push, require the same exact source commit and actual Git input/Core/Engine matrix test results in native job logs."
+  },
+  "remaining": [
+    "Q-04 task3.9 remains open until same-source native validation of the completed semantic matrix.",
+    "Git8.7/15.13 still require safe authorized capture, durable input and capability ceiling, content-aware fencing, atomic evidence revision publication and CLI/MCP end-to-end acceptance.",
+    "Provider, native writes/recovery, GUI/GRDB/Room, packaging/mobile/device/signing/production parent gates remain open.",
+    "Task 8.6 reopened after product-path audit: application installation collection and authorized process sampling with PID/resource identity, durable provenance and atomic revision publication remain unaccepted. Checklist: 136 complete, 30 open of 166, including parent gates."
+  ],
+  "logs": [
+    {
+      "file": "input-red.log.gz",
+      "sha256": "179bd046042fba9cc8f1d6ebe064d442419c35fcf15620fec2601a546fc2703a",
+      "raw_sha256": "e6f69216f5665c56075833211f833945433e2e1dafd0b98b78d0ad0e53374074"
+    },
+    {
+      "file": "input-green.log.gz",
+      "sha256": "bb71e77c6eba3d245578adc1ea0d0d920d5d473e6cc1979c32766d77c9269b0c",
+      "raw_sha256": "39794f8ee9ec179aed4cc940fbc8ff7d6eae65131ecdd592b921c1df0bc65618"
+    },
+    {
+      "file": "input-green-final.log.gz",
+      "sha256": "257b5edf286145988cc66138a063b07971b3f4f8da2d8eadeb49532fcb7ce950",
+      "raw_sha256": "0281b9a62c9c8b82cbfbf22f5392b378198bc685388ca650b3b7e507ebdeea46"
+    },
+    {
+      "file": "input-build.log.gz",
+      "sha256": "cc7bf484ddc909fbf852d5fb245c2c1ec8576d4af330d121a9d3d433e459fb49",
+      "raw_sha256": "caa71cdaddd92e4bd8b59f33a2eb89ca8f6eb3de43e73263adaae150dbfdb346"
+    },
+    {
+      "file": "engine-lib.log.gz",
+      "sha256": "29c2ea6c1ef9efa16e846055c4c166ad897aace1f650976399657d6ccd216dc0",
+      "raw_sha256": "00f50dc2edcef47a32fd3852a381a593ccaecc17ab0fb17154d524479c0b4c42"
+    },
+    {
+      "file": "core-red.log.gz",
+      "sha256": "7bb816f3187fef6ad329dcb4e83d298ac429ab3092eb2887ee2ad8d884dddd08",
+      "raw_sha256": "17e862a06cc554fe11e1f41444b46092af095e8400e91af4703ce1d108786267"
+    },
+    {
+      "file": "core-green.log.gz",
+      "sha256": "bc7236d4c2d67edd2356009cee04263285e36d5d44eda0fcb85a4a035b0f7960",
+      "raw_sha256": "26ae8364ef5dadb52bfd5ec5b375e834154043a7a601512b8a4d792d02538df6"
+    },
+    {
+      "file": "engine-matrix-initial.log.gz",
+      "sha256": "fc6dd24da4230b25915efa143c94480cce9e54619cff7fe0f7996c49c3c202eb",
+      "raw_sha256": "60f024976427c2daff5b46c3fd54df96dc2616b06183340d15d90133c0600e71"
+    },
+    {
+      "file": "workspace.log.gz",
+      "sha256": "c91831ec99fe336937481c293fc77296b7c635de3a0d8192f70cd5cd762c7de5",
+      "raw_sha256": "b3ba8ff78d90ac4eebebe36037f2c5c3a7b628e013051feee033241bab5d9fe1"
+    },
+    {
+      "file": "build.log.gz",
+      "sha256": "d9151c22c3f43a538c32bcb9401f3963fac69c64b3822fe3048738f45ce67e22",
+      "raw_sha256": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec"
+    },
+    {
+      "file": "clippy.log.gz",
+      "sha256": "6e4c163f0a0fae041d4066758d828619083f2fc89822cc6cb4f17b1ac458431a",
+      "raw_sha256": "b3f593ad4ff3fcef3a560734add9821c1c10599dc59aa8bef5fc1d1305a40c59"
+    },
+    {
+      "file": "quality-results.json.gz",
+      "sha256": "a474e56ace286a0fd266cb045c995ccd519b9884f38c20632a7c0b8044c97a40",
+      "raw_sha256": "6ed07cbd1d0a7d02d2ccbb11ca0792c4435d4c825c2060981714e3313e8303b7"
+    },
+    {
+      "file": "quality.py.gz",
+      "sha256": "e52239712b60a70a0c2f2e689edb227871675e974eb9094570e4e3d1844d01f9",
+      "raw_sha256": "43927c0ae09dc11b2d64bbe4d43ab453a36c7a87f0050ded6ea375547b86a5d7"
+    },
+    {
+      "file": "quality-final.py.gz",
+      "sha256": "22cf01b4372bc3336722a00a9edb77c2551d02425ea0971650a3483cc06844a3",
+      "raw_sha256": "da1b4502b2746571e6109ad4754559f2e6dd4132725c501d389ca6a608491135"
+    },
+    {
+      "file": "final-workspace.log.gz",
+      "sha256": "de5b718c04043bad31facc8a093b7fa52604829dff8f190dc3d41afc86dd3119",
+      "raw_sha256": "04cad2bce14980169e9a2921aeae91d7a36fb8bc9d5a82964c628d4071500488"
+    },
+    {
+      "file": "final-build.log.gz",
+      "sha256": "131e806dfa9e48563e834eaa6891495ef872d43e6af613ee72bc3e61ebfb3a98",
+      "raw_sha256": "f4403412cb20dc7d8a0a94c08c9c8853e4bac9b3e8489158834f30512311ed97"
+    },
+    {
+      "file": "final-clippy.log.gz",
+      "sha256": "dc56226e87e78bd86df136b8e9901cc03ce7731b2043f930219d9ceda1b42ca9",
+      "raw_sha256": "50bcb126895762d5c5c3c46407634d9525179119e33bf08143e22a130338ad7b"
+    },
+    {
+      "file": "final-fmt.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-include-fmt.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "final-openspec.log.gz",
+      "sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    {
+      "file": "final-release.log.gz",
+      "sha256": "b6787752699458ae8ebe5f62bd468a3fd79cea17ca654c84bc3d2b4f35d6146e",
+      "raw_sha256": "c59ffcf0977065364651da6b403486f3f735b7f9a647d9cbd8a89d588c26e2d2"
+    },
+    {
+      "file": "final-quality-results.json.gz",
+      "sha256": "82f753696251590c52fc391dee4a40b37688908ccd1c3e54157fba92b0afe300",
+      "raw_sha256": "b7498dfcc1fb40c59c46a4c578dc9b55738ba9ea93c1f6535a7bde456aa8bada"
+    },
+    {
+      "file": "stdio.json.gz",
+      "sha256": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb",
+      "raw_sha256": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd"
+    },
+    {
+      "file": "stdio-stderr.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "http.json.gz",
+      "sha256": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be",
+      "raw_sha256": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4"
+    },
+    {
+      "file": "http-stderr.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "uniffi.json.gz",
+      "sha256": "070afcfd83f13e31b59f8aaa1695c68036fb4b6a0ae0f1bf4a468358ab8310b3",
+      "raw_sha256": "aba25eaadb95674aa824bce0a5ad9a6ebea3744bf2cd17dac62c9417cc95ccda"
+    },
+    {
+      "file": "vendor.json.gz",
+      "sha256": "3507f31b4ca24c9372e91bcc189149f7df57268ba2196f1e33ed0ef25dc5786e",
+      "raw_sha256": "89977f7310a9d362e87e115565ad8f7226bc70ef5f57503986bc740901709220"
+    },
+    {
+      "file": "prepush-workspace.log.gz",
+      "sha256": "df1ba9805d69c14ed33a93478f4e450c79af725819e7feb14a7743f824257221",
+      "raw_sha256": "045f5795e4d58bf19d072ab6f300c4bc4a3b2d0d3f0d92df477a629c286b6d78"
+    },
+    {
+      "file": "prepush-build.log.gz",
+      "sha256": "72bc8566e5fdc7b8318809c9c796151263cb655e1ff7527484b2d47086e0097f",
+      "raw_sha256": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+    },
+    {
+      "file": "prepush-clippy.log.gz",
+      "sha256": "d9151c22c3f43a538c32bcb9401f3963fac69c64b3822fe3048738f45ce67e22",
+      "raw_sha256": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec"
+    },
+    {
+      "file": "prepush-fmt.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "prepush-include-fmt.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "prepush-openspec.log.gz",
+      "sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    {
+      "file": "prepush-release.log.gz",
+      "sha256": "fe50d1d94237130be5423a385cb0efaffecd8d0b43a37e69f943c51bf8466aaf",
+      "raw_sha256": "d1235ea4563620b53ef5bdd2da5f595fec9d54f9efb48376378c20547dd95e57"
+    },
+    {
+      "file": "prepush-quality-results.json.gz",
+      "sha256": "82f753696251590c52fc391dee4a40b37688908ccd1c3e54157fba92b0afe300",
+      "raw_sha256": "b7498dfcc1fb40c59c46a4c578dc9b55738ba9ea93c1f6535a7bde456aa8bada"
+    },
+    {
+      "file": "prepush-stdio.json.gz",
+      "sha256": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb",
+      "raw_sha256": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd"
+    },
+    {
+      "file": "prepush-stdio-stderr.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "prepush-http.json.gz",
+      "sha256": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be",
+      "raw_sha256": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4"
+    },
+    {
+      "file": "prepush-http-stderr.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "prepush-quality.py.gz",
+      "sha256": "45f0e866c63e442253c0753b66a23277c5e00d848681af42d3e34f73da9cb574",
+      "raw_sha256": "6dcfb63955820a87704cf6d10400b3592e27292816f23d81b9949b04dacaefa6"
+    }
+  ],
+  "prepush_verification": {
+    "same_frozen_source_manifest": "f5607bd32a47b46140b09a0d2fd5fb0d94d41e5c3fa76cbafbdb8f296dc7b441",
+    "workspace": {
+      "passed": 1168,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 51
+    },
+    "quality_checks": {
+      "workspace": 0,
+      "build": 0,
+      "clippy": 0,
+      "fmt": 0,
+      "include-fmt": 0,
+      "openspec": 0,
+      "release": 0
+    },
+    "stdio_passed": 18,
+    "http_passed": 13,
+    "note": "Fresh full verification before commit; prior failures and final acceptance logs retained separately."
+  }
+}

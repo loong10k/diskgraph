@@ -67,8 +67,8 @@ impl ProbeBudget {
         self.failure.get_or_insert(failure).clone()
     }
 
-    /// 读取真实剩余额度用于累计扣费回归。参数：无。返回：尚未消费的输出字节。
-    #[cfg(test)]
+    /// 读取真实剩余额度用于普通文件读取前准入及累计扣费回归。
+    /// 参数：无。返回：尚未消费的输出及 stash 输入字节，不补充预算。
     pub(super) fn remaining_bytes(&self) -> usize {
         self.remaining
     }

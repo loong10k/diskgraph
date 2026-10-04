@@ -33,6 +33,8 @@ mod git_executable_native_tests;
 mod git_execution_policy_tests;
 mod git_index_layout;
 #[cfg(test)]
+mod git_input_read_tests;
+#[cfg(test)]
 mod git_isolation_fixture;
 #[cfg(test)]
 mod git_isolation_semantics_tests;
