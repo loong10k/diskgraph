@@ -37,6 +37,10 @@ The system SHALL stop scheduling at its next admission check when a runner handl
 - **WHEN** a runner is stopped while waiting for the control lock to read its queue
 - **THEN** it checks stop after that read, leaves queued jobs unclaimed, and releases its Engine
 
+#### Scenario: Execution unwind stops its lease keeper
+- **WHEN** 已认领且仍有真实有效权限的执行任务在发布前抛出 panic，执行栈释放其停止通道
+- **THEN** keeper 区分正常轮询超时和通道断连，断连立即停止续租并允许作用域线程实际 join；原 panic 不被吞掉，不要求撤权或额外取消才能返回。该代次取消/进度句柄释放，未提交的结果不发布；这不证明 pinned scanner 的底层 detached 线程已退出。
+
 ### Requirement: RT-01 Durable jobs and leases
 长任务 SHALL 具有持久 ID、所有者、进度和终态；同 scope 的冲突扫描合并或排队，租约不能只依赖 PID，崩溃后可识别并恢复或明确失败。
 

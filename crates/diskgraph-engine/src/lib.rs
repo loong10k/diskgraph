@@ -41,6 +41,8 @@ mod job_authorization_tests;
 mod job_cancellation_guard;
 #[cfg(test)]
 mod job_cancellation_guard_tests;
+#[cfg(test)]
+mod job_keeper_unwind_tests;
 pub mod live_evidence;
 mod native_locator;
 pub mod native_process;

@@ -1,5 +1,7 @@
 # 全平台验收续篇 — 2026-10-04
 
+最新核对：`2b69cb5` 的 [CI37219976453](https://github.com/loong10k/diskgraph/actions/runs/37219976453) 已终态 **21/22**，Windows stable 的最后 INSERT 超时回滚测试报告未到指定故障点，需修正阶段资格并重新验收，不能计通过。执行 panic 导致续租线程在通道断开后继续循环的问题已真实 RED→GREEN，本机 workspace **1529/0/18、70 suites** 与 fmt/Clippy/OpenSpec 通过；原生验收待执行。此修复不证明上游扫描线程物理退出。清单仍为 **140/167 完成、27开放**。
+
 `2a2f828` 的 [CI37216693860](https://github.com/loong10k/diskgraph/actions/runs/37216693860) 已终态：20／22 job 成功。三条 Linux Rust lane 各 workspace 1537／0／18、70 suites，原父目录替换负控与兄弟目录变化正控均通过，确认 `5c9985b` 的三平台原生 RED 已转 GREEN。macOS Intel 的后续 Migration gate 入队权限夹具失败，Windows MSRV 的提交后恢复及 MCP 重连查询失败，整体 CI 仍未通过。恢复夹具现加强真实已提交阶段及原 token 自然到期见证；状态查询新增同一原期限内的控制锁等待，短暂竞争不立即误报预算。本机整仓 1528／0／18、70 suites、九包 fmt、严格 Clippy、OpenSpec 及独立审查通过；新原生 CI 尚待完成。20k／200k／300 深目录配对 release 性能验收脚本已准备，尚无性能结果；深子树不等同于更深的注册根链，不宣称原子快照、冷缓存或严格 RSS。
 
 

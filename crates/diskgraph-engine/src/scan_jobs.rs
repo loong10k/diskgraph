@@ -240,10 +240,11 @@ impl Engine {
             let keeper = threads.spawn(move || {
                 let mut heartbeat = std::time::Instant::now();
                 // 转换与项目采集也属于执行窗口；同一 keeper 每 20ms 复验权限，租约仍每 5s 续租。
-                while receiver
-                    .recv_timeout(std::time::Duration::from_millis(20))
-                    .is_err()
-                {
+                // 执行栈 unwind 会释放 stop sender；断连是停止，不得忙循环续租阻止 scope join。
+                while matches!(
+                    receiver.recv_timeout(std::time::Duration::from_millis(20)),
+                    Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+                ) {
                     let checked = self.control().and_then(|mut store| {
                         store.with_job_fence(job_id, owner, fence, || Ok(()))?;
                         if heartbeat.elapsed() >= std::time::Duration::from_secs(5) {
