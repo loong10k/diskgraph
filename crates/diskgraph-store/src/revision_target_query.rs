@@ -12,13 +12,32 @@ impl SqliteSnapshotStore {
         revision_id: &str,
         reads: &mut QueryReadBudget,
     ) -> Result<Option<(String, String)>> {
-        check(reads)?;
+        self.revision_ownership_with_admission(revision_id, &mut |raw, _, _| {
+            if reads.admit(
+                0,
+                0,
+                usize::try_from(raw).map_err(|_| StoreError::BudgetExceeded)?,
+            ) {
+                Ok(())
+            } else {
+                Err(StoreError::BudgetExceeded)
+            }
+        })
+    }
+
+    /// 参数：固定revision和原会话回调；返回：实际归属，所有TEXT在拥有前共享准入。
+    pub fn revision_ownership_with_admission(
+        &self,
+        revision_id: &str,
+        admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+    ) -> Result<Option<(String, String)>> {
+        admit(0, 0, 0)?;
         let mut statement = self
             .connection
             .prepare("SELECT server_id,scope_id FROM revision_ownership WHERE revision_id=?1")?;
         let mut rows = statement.query([revision_id])?;
         let row = rows.next()?;
-        check(reads)?;
+        admit(0, 0, 0)?;
         let Some(row) = row else {
             return Ok(None);
         };
@@ -28,11 +47,9 @@ impl SqliteSnapshotStore {
             .len()
             .checked_add(scope.len())
             .ok_or(StoreError::BudgetExceeded)?;
-        if !reads.admit(0, 0, bytes) {
-            return Err(StoreError::BudgetExceeded);
-        }
+        crate::metadata_read_cost::charge(admit, bytes, 0, 2 * std::mem::size_of::<String>(), 1)?;
         let owner = (server.to_owned(), scope.to_owned());
-        check(reads)?;
+        admit(0, 0, 0)?;
         Ok(Some(owner))
     }
 
@@ -43,20 +60,43 @@ impl SqliteSnapshotStore {
         revision_id: &str,
         reads: &mut QueryReadBudget,
     ) -> Result<String> {
-        check(reads)?;
+        self.revision_snapshot_with_admission(revision_id, &mut |raw, _, _| {
+            if reads.admit(
+                0,
+                0,
+                usize::try_from(raw).map_err(|_| StoreError::BudgetExceeded)?,
+            ) {
+                Ok(())
+            } else {
+                Err(StoreError::BudgetExceeded)
+            }
+        })
+    }
+
+    /// 参数：已授权revision及原会话回调；返回：快照标识，绝不新建独立默认读取账本。
+    pub fn revision_snapshot_with_admission(
+        &self,
+        revision_id: &str,
+        admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+    ) -> Result<String> {
+        admit(0, 0, 0)?;
         let mut statement = self
             .connection
             .prepare("SELECT snapshot_id FROM graph_revisions WHERE revision_id=?1")?;
         let mut rows = statement.query([revision_id])?;
         let row = rows.next()?;
-        check(reads)?;
+        admit(0, 0, 0)?;
         let row = row.ok_or_else(|| StoreError::RevisionNotFound(revision_id.into()))?;
         let snapshot = text(row.get_ref(0)?)?;
-        if !reads.admit(0, 0, snapshot.len()) {
-            return Err(StoreError::BudgetExceeded);
-        }
+        crate::metadata_read_cost::charge(
+            admit,
+            snapshot.len(),
+            0,
+            std::mem::size_of::<String>(),
+            1,
+        )?;
         let snapshot = snapshot.to_owned();
-        check(reads)?;
+        admit(0, 0, 0)?;
         Ok(snapshot)
     }
 

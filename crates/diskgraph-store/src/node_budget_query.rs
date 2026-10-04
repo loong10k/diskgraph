@@ -54,18 +54,54 @@ impl SqliteSnapshotStore {
         parameters: impl rusqlite::Params,
         budget: &mut QueryReadBudget,
     ) -> Result<Option<DiskNode>> {
-        if !budget.check() {
-            return Err(StoreError::BudgetExceeded);
-        }
+        self.one_node_with_admission(sql, parameters, &mut |raw, entries, _| {
+            if budget.admit(
+                usize::try_from(entries).map_err(|_| StoreError::BudgetExceeded)?,
+                0,
+                usize::try_from(raw).map_err(|_| StoreError::BudgetExceeded)?,
+            ) {
+                Ok(())
+            } else {
+                Err(StoreError::BudgetExceeded)
+            }
+        })
+    }
+
+    fn one_node_with_admission(
+        &self,
+        sql: &str,
+        parameters: impl rusqlite::Params,
+        admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+    ) -> Result<Option<DiskNode>> {
+        admit(0, 0, 0)?;
         let mut statement = self.connection.prepare(sql)?;
         let mut rows = statement.query(parameters)?;
-        let Some(row) = rows.next()? else {
+        let row = rows.next()?;
+        admit(0, 0, 0)?;
+        let Some(row) = row else {
             return Ok(None);
         };
-        if !budget.admit(1, 0, NodeRow::raw_bytes(row)?) {
-            return Err(StoreError::BudgetExceeded);
-        }
-        Ok(Some(NodeRow::from_row(row)?.into_node()?))
+        let json_column = if row.get_ref(6)? == rusqlite::types::ValueRef::Null {
+            5
+        } else {
+            2
+        };
+        let json = match row.get_ref(json_column)? {
+            rusqlite::types::ValueRef::Text(bytes) | rusqlite::types::ValueRef::Blob(bytes) => {
+                bytes.len()
+            }
+            _ => 0,
+        };
+        crate::metadata_read_cost::charge(
+            admit,
+            NodeRow::raw_bytes(row)?,
+            json,
+            std::mem::size_of::<NodeRow>() + std::mem::size_of::<DiskNode>(),
+            1,
+        )?;
+        let node = NodeRow::from_row(row)?.into_node()?;
+        admit(0, 0, 0)?;
+        Ok(Some(node))
     }
 
     /// 对精确节点的所有借用列先准入，再拥有字符串/解码旧 JSON。
@@ -77,18 +113,18 @@ impl SqliteSnapshotStore {
         node_id: u64,
         budget: &mut QueryReadBudget,
     ) -> Result<Option<DiskNode>> {
-        let mut statement = self.connection.prepare("SELECT id,parent_id,locator_key,name,subtree_bytes,node_json,kind,direct_bytes,files,directories,modified_unix_seconds,file_volume_id,file_id,category_hint,reclaim_hint,read_error FROM nodes WHERE snapshot_id=?1 AND id=?2 LIMIT 1")?;
-        let mut rows = statement.query(params![snapshot, as_i64(node_id)?])?;
-        if !budget.check() {
-            return Err(StoreError::BudgetExceeded);
-        }
-        let Some(row) = rows.next()? else {
-            return Ok(None);
-        };
-        let bytes = NodeRow::raw_bytes(row)?;
-        if !budget.admit(1, 0, bytes) {
-            return Err(StoreError::BudgetExceeded);
-        }
-        Ok(Some(NodeRow::from_row(row)?.into_node()?))
+        self.one_node_with_budget(NODE_SQL, params![snapshot, as_i64(node_id)?], budget)
+    }
+
+    /// 参数：固定快照/node及原会话回调；返回：解码前raw/容器放大准入的完整节点。
+    pub fn node_with_admission(
+        &self,
+        snapshot: &str,
+        node_id: u64,
+        admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+    ) -> Result<Option<DiskNode>> {
+        self.one_node_with_admission(NODE_SQL, params![snapshot, as_i64(node_id)?], admit)
     }
 }
+
+const NODE_SQL: &str = "SELECT id,parent_id,locator_key,name,subtree_bytes,node_json,kind,direct_bytes,files,directories,modified_unix_seconds,file_volume_id,file_id,category_hint,reclaim_hint,read_error FROM nodes WHERE snapshot_id=?1 AND id=?2 LIMIT 1";

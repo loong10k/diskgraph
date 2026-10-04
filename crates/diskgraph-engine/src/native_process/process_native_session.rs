@@ -70,6 +70,13 @@ impl<'a> ProcessNativeSession<'a> {
         }
         result
     }
+    /// 参数：无；返回：原请求认证回调已明确拒绝，不表示当前数据库权限已获准。
+    /// Engine 传入的是已捕获绝对 exp 的纯检查；此入口不刷新时钟、不读 SQL、不清除首错锁存。
+    /// 仅用于期限耗尽时仍保留已知认证拒绝；未知实时 grant/owner 必须继续走原事务 fence。
+    #[cfg(any(target_os = "linux", test))]
+    pub(crate) fn request_authority_denied(&self) -> bool {
+        matches!((self.check_authority)(), Err(Failure::PermissionDenied))
+    }
     /// 参数：即将读取的最大元数据、条目及拥有分配字节；返回：读取/分配前累计准入。
     pub fn admit(&self, raw: u64, entries: u64, allocation: u64) -> Result<(), Failure> {
         self.check()?;
@@ -103,13 +110,7 @@ impl<'a> ProcessNativeSession<'a> {
         count: u32,
         work: impl FnOnce() -> Result<T, Failure>,
     ) -> Result<T, Failure> {
-        self.check()?;
-        let next = self.handles.get().checked_add(count);
-        if next.is_none_or(|v| v > self.limits.max_handles()) {
-            return self.fail(Failure::BudgetExceeded);
-        }
-        self.handles.set(next.expect("admitted"));
-        let reservation = HandleReservation::new(&self.handles, count);
+        let reservation = self.reserve_handles(count)?;
         let result = work();
         drop(reservation);
         match result {
@@ -119,6 +120,16 @@ impl<'a> ProcessNativeSession<'a> {
             }
             Err(error) => self.fail(error),
         }
+    }
+    /// 参数：在租约整个存活期保留的句柄峰值；返回：借用原账本的释放器，不拥有原生资源。
+    pub(super) fn reserve_handles(&self, count: u32) -> Result<HandleReservation<'_>, Failure> {
+        self.check()?;
+        let next = self.handles.get().checked_add(count);
+        if next.is_none_or(|v| v > self.limits.max_handles()) {
+            return self.fail(Failure::BudgetExceeded);
+        }
+        self.handles.set(next.expect("admitted"));
+        Ok(HandleReservation::new(&self.handles, count))
     }
     /// 参数：无；返回：实际累计元数据、条目、分配与结果额度，非 SQLite C/RSS 计量。
     pub fn usage(&self) -> (u64, u64, u64, u64) {

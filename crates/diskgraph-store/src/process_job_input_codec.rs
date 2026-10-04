@@ -5,6 +5,36 @@ use rusqlite::Connection;
 
 /// 参数：连接、实际任务；返回：严格固定输入或缺失/损坏错误，不猜测客户端路径。
 pub(crate) fn read(connection: &Connection, job_id: &str) -> Result<ProcessEvidenceJobInput> {
+    read_with_admission(connection, job_id, &mut |_, _, _| Ok(()))
+}
+
+/// 参数：同一连接、任务与原会话准入；返回：事前 raw/分配累计准入后严格解码的固定输入。
+pub(crate) fn read_with_admission(
+    connection: &Connection,
+    job_id: &str,
+    admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+) -> Result<ProcessEvidenceJobInput> {
+    admit(0, 0, 0)?;
+    with_raw(connection, job_id, |raw, scope, server, digest, bytes| {
+        crate::metadata_read_cost::charge(admit, bytes, raw.len(), 4096, 1)?;
+        let input: ProcessEvidenceJobInput = serde_json::from_str(raw).map_err(|_| invalid())?;
+        if input.scope_id().as_str() != scope
+            || input.server_id().as_str() != server
+            || input.digest() != digest
+        {
+            return Err(invalid());
+        }
+        admit(0, 0, 0)?;
+        Ok(input)
+    })
+}
+
+/// 参数：连接、真实任务与借用消费者；返回：硬准入后的投影，未拥有完整输入。
+pub(crate) fn with_raw<T>(
+    connection: &Connection,
+    job_id: &str,
+    consume: impl FnOnce(&str, &str, &str, &str, usize) -> Result<T>,
+) -> Result<T> {
     let mut statement = connection.prepare(
         "SELECT j.scope_id,j.kind,i.schema_version,i.input_sha256,
         CASE WHEN length(CAST(i.input_json AS BLOB))<=16384 THEN i.input_json ELSE NULL END,
@@ -15,7 +45,6 @@ pub(crate) fn read(connection: &Connection, job_id: &str) -> Result<ProcessEvide
     let row = rows
         .next()?
         .ok_or_else(|| StoreError::JobNotFound(job_id.into()))?;
-    let invalid = || StoreError::InvalidGraph("invalid or missing Process job input".into());
     // JSON 和冗余身份列共用原始准入；任何大字段都不得先拥有，再用等值比较拒绝。
     let fields = [0, 1, 3, 4, 5].map(|column| row.get_ref(column)?.as_str().map_err(|_| invalid()));
     let [scope, kind, digest, raw, server] = fields;
@@ -30,14 +59,13 @@ pub(crate) fn read(connection: &Connection, job_id: &str) -> Result<ProcessEvide
     {
         return Err(invalid());
     }
-    let input: ProcessEvidenceJobInput = serde_json::from_str(raw).map_err(|_| invalid())?;
-    if input.scope_id().as_str() != scope
-        || input.server_id().as_str() != server
-        || input.digest() != digest
-    {
-        return Err(invalid());
-    }
-    Ok(input)
+    // 原有字符串硬门禁不变；实际读取还包含 schema_version 这个 INTEGER。
+    let read_bytes = bytes.checked_add(8).ok_or(StoreError::BudgetExceeded)?;
+    consume(raw, scope, server, digest, read_bytes)
+}
+
+fn invalid() -> StoreError {
+    StoreError::InvalidGraph("invalid or missing Process job input".into())
 }
 
 /// 参数：连接、候选输入；返回：当前服务器与真实范围匹配，否则明确拒绝。

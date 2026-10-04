@@ -100,7 +100,7 @@ impl LinuxScanRoot {
             Err(error) => Ok((None, Some(gap(error)))),
         }
     }
-    /// 参数：原扫描检查；返回：注册根路由仍指同一 held 对象，拒绝祖先替换。
+    /// 参数：原扫描检查；返回：当前根路径仍指同一 held 根对象；本扫描补充不保存逐祖先绑定链。
     pub(crate) fn validate(
         &self,
         check: &dyn Fn() -> Result<(), EngineError>,

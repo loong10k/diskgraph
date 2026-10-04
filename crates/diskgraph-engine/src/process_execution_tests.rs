@@ -5,9 +5,10 @@ use diskgraph_core::{
     BusinessError, Permission, ProcessEvidenceFailureCode as Code, ProcessEvidenceFailurePhase,
     ProcessEvidenceLimits, Watermark,
 };
-use diskgraph_store::{JobState, StoreError};
+use diskgraph_store::{JobRecord, JobState, StoreError};
 use std::cell::RefCell;
 use std::sync::atomic::Ordering;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 type Hook = (String, Box<dyn FnOnce()>);
@@ -72,6 +73,21 @@ fn assert_failure(f: &ProcessExecutionFixture, id: &str, state: JobState, code: 
     f.assert_no_publication();
     assert!(!f.engine.cancellations().unwrap().contains_key(id));
 }
+// 复合 fence 的 StaleOwner 也表示真实取消/IndexWrite 失权；见证排除其他 owner 抢占。
+fn running_witness(engine: &crate::Engine, id: &str, expected_owner: &str) -> JobRecord {
+    let record = engine.job_status(id).unwrap();
+    assert_eq!(record.state, JobState::Running);
+    assert_eq!(record.owner, expected_owner);
+    assert!(record.fencing_token > 0);
+    assert!(record.lease_expires_unix_ms > now() * 1000 + 1000);
+    record
+}
+fn assert_same_generation(engine: &crate::Engine, id: &str, original: &JobRecord) {
+    let terminal = engine.job_status(id).unwrap();
+    assert_eq!(terminal.owner, original.owner);
+    assert_eq!(terminal.fencing_token, original.fencing_token);
+    assert!(terminal.lease_expires_unix_ms > now() * 1000 + 1000);
+}
 #[test]
 fn process_publication_cancel_is_real_cancelled_and_has_no_orphan_run() {
     let f = ProcessExecutionFixture::new();
@@ -79,7 +95,10 @@ fn process_publication_cancel_is_real_cancelled_and_has_no_orphan_run() {
     let engine = f.engine.clone();
     let actor = f.actor.clone();
     let id = job.job_id.clone();
+    let witness = Arc::new(Mutex::new(None));
+    let captured = witness.clone();
     at_publication(&job.job_id, move || {
+        *captured.lock().unwrap() = Some(running_witness(&engine, &id, "cancel-owner"));
         engine
             .cancel_job(&id, &actor, &engine.policy_authorizer().unwrap())
             .unwrap()
@@ -87,10 +106,15 @@ fn process_publication_cancel_is_real_cancelled_and_has_no_orphan_run() {
     let result = f.engine.run_job_strict(&job.job_id, "cancel-owner");
     assert_reached();
     assert!(
-        matches!(result, Err(EngineError::Store(StoreError::Conflict(_)))),
+        matches!(result, Err(EngineError::Store(StoreError::StaleOwner))),
         "{result:?}"
     );
     assert_failure(&f, &job.job_id, JobState::Cancelled, Code::Cancelled);
+    assert_same_generation(
+        &f.engine,
+        &job.job_id,
+        witness.lock().unwrap().as_ref().unwrap(),
+    );
 }
 #[test]
 fn process_metadata_revocation_after_capture_prevents_publication() {
@@ -122,12 +146,14 @@ fn process_keeper_observes_index_grant_loss_in_actual_capture_window() {
     let actor = f.actor.clone();
     let scope = f.scope.clone();
     let id = job.job_id.clone();
+    let witness = Arc::new(Mutex::new(None));
+    let captured = witness.clone();
     CAPTURE.with(|slot| {
         *slot.borrow_mut() = Some((
             id.clone(),
             Box::new(move || {
                 let flag = engine.cancellations().unwrap().get(&id).unwrap().clone();
-                assert_eq!(engine.job_status(&id).unwrap().state, JobState::Running);
+                *captured.lock().unwrap() = Some(running_witness(&engine, &id, "keeper-owner"));
                 engine
                     .control_store()
                     .unwrap()
@@ -147,10 +173,15 @@ fn process_keeper_observes_index_grant_loss_in_actual_capture_window() {
     let result = f.engine.run_job_strict(&job.job_id, "keeper-owner");
     CAPTURE.with(|slot| assert!(slot.borrow().is_none(), "capture boundary not reached"));
     assert!(
-        matches!(result, Err(EngineError::Store(StoreError::Conflict(_)))),
+        matches!(result, Err(EngineError::Store(StoreError::StaleOwner))),
         "{result:?}"
     );
     assert_failure(&f, &job.job_id, JobState::Failed, Code::Conflict);
+    assert_same_generation(
+        &f.engine,
+        &job.job_id,
+        witness.lock().unwrap().as_ref().unwrap(),
+    );
 }
 #[test]
 fn process_old_owner_cannot_publish_or_finish_new_owner() {

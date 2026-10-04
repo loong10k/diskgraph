@@ -43,7 +43,7 @@ impl LinuxPid {
     /// 参数：本资源 held target、PID 和原账本；返回：逐资源真实匹配，前后启动身份变化拒绝。
     pub(super) fn matches(
         &self,
-        target: &LinuxTarget,
+        target: &LinuxTarget<'_>,
         pid: u32,
         session: &ProcessNativeSession<'_>,
     ) -> Result<bool, Failure> {

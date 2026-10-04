@@ -1,4 +1,3 @@
-use crate::process_evidence_codec::{field, object};
 use serde::{Deserialize, Deserializer, Serialize};
 /// 认领开始全程共享的服务端占用观察限额；来源：原生 Rust D42 / EC-04。
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -93,29 +92,10 @@ impl ProcessEvidenceLimits {
 }
 impl<'de> Deserialize<'de> for ProcessEvidenceLimits {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let value = serde_json::Value::deserialize(deserializer)?;
-        let o = object(
-            &value,
-            &[
-                "max_duration_ms",
-                "max_metadata_bytes",
-                "max_entries",
-                "max_result_bytes",
-                "max_allocation_bytes",
-                "max_retries",
-                "max_handles",
-            ],
-        )
-        .map_err(serde::de::Error::custom)?;
-        Self::new(
-            field(o, "max_duration_ms").map_err(serde::de::Error::custom)?,
-            field(o, "max_metadata_bytes").map_err(serde::de::Error::custom)?,
-            field(o, "max_entries").map_err(serde::de::Error::custom)?,
-            field(o, "max_result_bytes").map_err(serde::de::Error::custom)?,
-            field(o, "max_allocation_bytes").map_err(serde::de::Error::custom)?,
-            field(o, "max_retries").map_err(serde::de::Error::custom)?,
-            field(o, "max_handles").map_err(serde::de::Error::custom)?,
-        )
+        crate::process_evidence_limits_fields::ProcessEvidenceLimitsFields::deserialize(
+            deserializer,
+        )?
+        .into_limits()
         .map_err(serde::de::Error::custom)
     }
 }

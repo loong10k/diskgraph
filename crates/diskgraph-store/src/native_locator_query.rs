@@ -17,11 +17,32 @@ impl SqliteSnapshotStore {
         node_id: u64,
         budget: &mut QueryReadBudget,
     ) -> Result<Option<StoredNodeLocator>> {
-        check(budget)?;
+        self.native_locator_with_admission(snapshot_id, node_id, &mut |raw, entries, _| {
+            if budget.admit(
+                usize::try_from(entries).map_err(|_| StoreError::BudgetExceeded)?,
+                0,
+                usize::try_from(raw).map_err(|_| StoreError::BudgetExceeded)?,
+            ) {
+                Ok(())
+            } else {
+                Err(StoreError::BudgetExceeded)
+            }
+        })
+    }
+
+    /// 参数：固定snapshot/node及原会话回调；返回：原始/显示字段拥有前准入的本机无损定位。
+    /// 保留完整kind/encoding/display和validate_native_path验证，不用显示值回退寻址。
+    pub fn native_locator_with_admission(
+        &self,
+        snapshot_id: &str,
+        node_id: u64,
+        admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+    ) -> Result<Option<StoredNodeLocator>> {
+        admit(0, 0, 0)?;
         let mut statement = self.connection.prepare("SELECT native_locator_kind,native_locator_encoding,native_locator_raw,locator_key,self_modified_unix_seconds FROM nodes WHERE snapshot_id=?1 AND id=?2")?;
         let mut rows = statement.query(params![snapshot_id, as_i64(node_id)?])?;
         let Some(row) = rows.next()? else {
-            check(budget)?;
+            admit(0, 0, 0)?;
             return Ok(None);
         };
         let fields = [
@@ -39,9 +60,17 @@ impl SqliteSnapshotStore {
             };
             size.checked_add(len).ok_or(StoreError::BudgetExceeded)
         })?;
-        if !budget.admit(1, 0, bytes) {
-            return Err(StoreError::BudgetExceeded);
-        }
+        let json = match fields[3] {
+            ValueRef::Text(bytes) | ValueRef::Blob(bytes) => bytes.len(),
+            _ => 0,
+        };
+        crate::metadata_read_cost::charge(
+            admit,
+            bytes,
+            json,
+            std::mem::size_of::<StoredNodeLocator>() + 2048,
+            1,
+        )?;
         let self_modified = match fields[4] {
             ValueRef::Null => None,
             ValueRef::Integer(value) => Some(value),
@@ -81,7 +110,7 @@ impl SqliteSnapshotStore {
             }
             _ => return Err(invalid("partial or invalid locator columns")),
         };
-        check(budget)?;
+        admit(0, 0, 0)?;
         Ok(Some(StoredNodeLocator {
             locator,
             self_modified,
@@ -89,13 +118,6 @@ impl SqliteSnapshotStore {
     }
 }
 
-fn check(budget: &mut QueryReadBudget) -> Result<()> {
-    if budget.check() {
-        Ok(())
-    } else {
-        Err(StoreError::BudgetExceeded)
-    }
-}
 fn invalid(reason: &str) -> StoreError {
     StoreError::InvalidGraph(reason.into())
 }

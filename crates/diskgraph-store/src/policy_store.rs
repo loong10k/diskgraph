@@ -127,7 +127,7 @@ impl ControlStore {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<Option<bool>> {
-        let revoked = self.scope(scope)?.revoked;
+        let revoked = self.scope_revoked(scope)?;
         if revoked {
             return Ok(Some(false));
         }

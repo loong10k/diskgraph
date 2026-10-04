@@ -1,7 +1,7 @@
 //! 有界逐资源正向观察批次；来源：Rust D42 / EV-06，保留 Partial，永不生成无占用断言。
 use crate::EngineError;
 use crate::native_process::ProcessNativeSession;
-use crate::process_evidence_execution::native_error;
+use crate::process_native_error::native_error;
 use diskgraph_core::{
     AssertionKind, BusinessError, CollectorBatch, CollectorRun, Entity, EntityKind, EvidenceRecord,
     Polarity, ProcessEvidenceJobInput, ProcessEvidenceSummary, ProcessObservationCoverage,

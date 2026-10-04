@@ -6,8 +6,12 @@ use diskgraph_core::{
 };
 use diskgraph_store::{JobKind, JobRecord, JobState, StoreError};
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::{Duration, Instant};
+use std::sync::atomic::AtomicBool;
+#[cfg(not(target_os = "linux"))]
+use std::sync::atomic::Ordering;
+#[cfg(not(target_os = "linux"))]
+use std::time::Duration;
+use std::time::Instant;
 
 impl Engine {
     /// 参数：实际认领的任务代次、取消标志和原始时钟；返回：资格检查后的实际执行结果。
@@ -20,29 +24,32 @@ impl Engine {
         cancel: &Arc<AtomicBool>,
         started: Instant,
     ) -> Result<(), EngineError> {
-        let mut control = self.control()?;
-        control.with_job_fence(job_id, owner, fence, || Ok(()))?;
-        let job = control.job(job_id)?;
-        let input = control.process_evidence_job_input(job_id)?;
-        if job.kind != JobKind::ProcessEvidence
-            || &job.scope_id != input.scope_id()
-            || &control.existing_server_id()? != input.server_id()
-        {
-            return Err(BusinessError::PermissionDenied.into());
-        }
-        if cancel.load(Ordering::SeqCst) {
-            return Err(BusinessError::Conflict.into());
-        }
-        if started.elapsed() >= Duration::from_millis(input.limits().max_duration_ms()) {
-            return Err(BusinessError::BudgetExceeded.into());
-        }
-        drop(control);
         #[cfg(target_os = "linux")]
-        if input.method() == diskgraph_core::ProcessObservationMethod::LinuxProcfsV1 {
-            return self.execute_process_evidence(job_id, owner, fence, cancel, started);
+        {
+            self.execute_process_evidence(job_id, owner, fence, cancel, started)
         }
-        Err(BusinessError::Unsupported.into())
+        #[cfg(not(target_os = "linux"))]
+        {
+            let mut control = self.control()?;
+            control.with_job_fence(job_id, owner, fence, || Ok(()))?;
+            let job = control.job(job_id)?;
+            let input = control.process_evidence_job_input(job_id)?;
+            if job.kind != JobKind::ProcessEvidence
+                || &job.scope_id != input.scope_id()
+                || &control.existing_server_id()? != input.server_id()
+            {
+                return Err(BusinessError::PermissionDenied.into());
+            }
+            if cancel.load(Ordering::SeqCst) {
+                return Err(BusinessError::Conflict.into());
+            }
+            if started.elapsed() >= Duration::from_millis(input.limits().max_duration_ms()) {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            Err(BusinessError::Unsupported.into())
+        }
     }
+
     /// 参数：任务及拟认领 owner；返回：同一唯一回执的历史完成事实，不延长执行权限或重采样。
     pub(super) fn recover_process_publication(
         &self,

@@ -9,6 +9,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+base64.workspace = true
 rayon.workspace = true
 diskgraph-core.workspace = true
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled", "backup", "hooks"] }

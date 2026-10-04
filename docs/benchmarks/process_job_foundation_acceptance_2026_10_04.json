@@ -17,83 +17,31 @@
   },
   "tdd": {
     "session_work_failure_unwind": {
-      "red": [
-        3,
-        2,
-        0
-      ],
-      "green": [
-        5,
-        0,
-        0
-      ]
+      "red": [3, 2, 0],
+      "green": [5, 0, 0]
     },
     "late_callback_deadline_cancel": {
-      "red": [
-        5,
-        2,
-        0
-      ],
-      "green": [
-        7,
-        0,
-        0
-      ]
+      "red": [5, 2, 0],
+      "green": [7, 0, 0]
     },
     "real_control_mutex_entry_wait": {
-      "red": [
-        0,
-        1,
-        0
-      ],
-      "green": [
-        1,
-        0,
-        0
-      ]
+      "red": [0, 1, 0],
+      "green": [1, 0, 0]
     },
     "staging_20k_200k": {
-      "red": [
-        2,
-        2,
-        0
-      ],
-      "green_with_upgrade_and_reopen": [
-        6,
-        0,
-        0
-      ]
+      "red": [2, 2, 0],
+      "green_with_upgrade_and_reopen": [6, 0, 0]
     },
     "migration_v13_and_current_v14_reopen": {
-      "red_each": [
-        0,
-        1,
-        0
-      ]
+      "red_each": [0, 1, 0]
     },
     "cli_process_entry": {
-      "red": [
-        1,
-        1,
-        0
-      ],
-      "green": [
-        2,
-        0,
-        0
-      ]
+      "red": [1, 1, 0],
+      "green": [2, 0, 0]
     },
     "mcp_process_entry": {
-      "red": [
-        1,
-        3,
-        0
-      ],
-      "green": [
-        4,
-        0,
-        0
-      ]
+      "red": [1, 3, 0],
+      "green": [4, 0, 0]
     },
     "retained_failures": "First full workspace 1470/1/18 failed a renamed private AST module expectation; strict Clippy reported two redundant test closures; final first fmt failed one assertion layout. Compiler/fixture prerequisites are not counted as behavior RED."
   },
@@ -105,11 +53,7 @@
       "ignored": 18,
       "suites": 68
     },
-    "affected_git_contract": [
-      11,
-      0,
-      0
-    ],
+    "affected_git_contract": [11, 0, 0],
     "fmt_exit": 0,
     "clippy_exit": 0,
     "build_exit": 0,
@@ -146,11 +90,7 @@
     "first_native_prerequisite_attempt": {
       "source_commit": "f8ed6076a80c78240ee0a8f2a29586864fcf0965",
       "run_id": 37199952656,
-      "linux_jobs": [
-        111429419573,
-        111429419616,
-        111429419621
-      ],
+      "linux_jobs": [111429419573, 111429419616, 111429419621],
       "outcome": "all three Build steps failed E0624: external test used private ControlStore::now_ms; no native behavior test ran",
       "correction": "test-only standard SystemTime Unix seconds, same original +60s expiry, no assertion/API changes",
       "corrected_test_sha256": "ddb8dbef2b11619dd28d13804a7ef0074efa3ea604245438314567391a05ac23",
@@ -159,11 +99,7 @@
     "corrected_native_attempt": {
       "source_commit": "0ea5da7ecd667f4452aea3cea9c2b11329cd8f9d",
       "run_id": 37200624741,
-      "linux_jobs": [
-        111431399999,
-        111431400024,
-        111431400087
-      ],
+      "linux_jobs": [111431399999, 111431400024, 111431400087],
       "qualified_library_cases_each": 4,
       "actual_execution_red_cases_each": 2,
       "outcome": "Three native builds pass. Real scan and indexed epoch/holder prerequisites pass; both durable run_job_strict tests fail exactly Unsupported. This is behavior RED, not product acceptance.",
@@ -192,49 +128,123 @@
       "sources": 30,
       "stage_cases": 16,
       "expected_identity_red": 3,
-      "macos_engine": [
-        547,
-        0,
-        8
-      ],
+      "macos_engine": [547, 0, 8],
       "macos_suites": 28,
       "workspace_fmt_exit": 0,
       "engine_build_exit": 0,
       "engine_clippy_exit": 0,
       "limits": "Linux stage cases are not run by macOS. Independent review requests changes: retain held root/file through encoding and reverify before publication; original ancestor route must remain bound. SQL preparation and native byte/allocation budgets still need one ledger. No production acceptance.",
       "expected_identity_and_preparation_red": 4,
-      "allocation_observation_cases": 1
+      "allocation_observation_cases": 1,
+      "scan_root_separate_gap": "The process held-ancestor candidate does not cover LinuxScanRoot supplement: its existing final-root identity check alone does not prove the original ancestor route survives replacement with the same leaf moved back. Retain this separate scanner regression/repair requirement; no process result closes it.",
+      "identity_preparation_engine_freeze": {
+        "source_count": 37,
+        "manifest": "process_job_foundation_acceptance_logs/diskgraph-d42-linux-identity-preparation-engine-candidate.json.gz",
+        "manifest_sha256": "82aa82afeedcb0a21b2cfac7ef3eb4bd8b6bfa776e9da7352e249b13d4182f34",
+        "current_source_hashes_verified": true,
+        "status": "Engine author implementation frozen; Store dependency not yet final; no compiled/native GREEN claim",
+        "remaining_boundary": "Scanner ancestor binding remains separate; old keeper fixed verification overhead is not whole-call hard Rust/RSS accounting."
+      }
     },
     "process_enqueue_deadline": {
       "status": "local actual RED to GREEN accepted; native CI pending",
-      "v1_cases": [
-        6,
-        4,
-        0
-      ],
-      "v2_writer_cases_each": [
-        0,
-        1,
-        0
-      ],
+      "v1_cases": [6, 4, 0],
+      "v2_writer_cases_each": [0, 1, 0],
       "v2_positive_remaining_witness": true,
       "limits": "Both real independent-writer waits start with original deadline still live, then return success after ~1.23s. Successful compiler/config controls do not close deadline fix.",
-      "green_original_ten": [
-        10,
-        0,
-        0
-      ],
-      "green_additional_guard": [
-        3,
-        0,
-        0
-      ],
+      "green_original_ten": [10, 0, 0],
+      "green_additional_guard": [3, 0, 0],
       "actual_sqlite_vm_interrupt_witness": true
     },
     "retained_validation_corrections": [
       "First native-session name filter matched zero tests; corrected exact integration target actually passes seven tests.",
       "cargo fmt --all incorrectly traverses the unchanged pinned upstream path dependency; correct workspace package gate passes. Neither command changed vendored sources."
-    ]
+    ],
+    "core_limits_preflight": {
+      "scope": "partial Core-only snapshot, before author READY",
+      "exit": 101,
+      "classification": "assembly compiler failure, not behavior RED",
+      "error": "E0433 missing root declaration for process_evidence_limits_fields; tests did not run",
+      "freeze": "process_job_foundation_acceptance_logs/diskgraph-d42-core-limits-freeze.json.gz",
+      "log": "process_job_foundation_acceptance_logs/diskgraph-d42-core-limits-test.log.gz",
+      "next": "author finishes actual root wiring and Store interfaces; validate complete candidate"
+    },
+    "core_limits_stream": {
+      "source_count": 4,
+      "manifest_sha256": "45e03f90e24f9534a5f652eda37096ef435f768970d982101bb0b2846b45be04",
+      "manifest": "process_job_foundation_acceptance_logs/diskgraph-d42-stream-limits-candidate.json.gz",
+      "old_production_actual_red": {
+        "passed": 1,
+        "failed": 1,
+        "ignored": 0,
+        "description": "unchanged 80d Core production plus identical two tests/root test mod: malformed rejection fails after successful compile"
+      },
+      "new_production_green": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0
+      },
+      "previous_process_protocol_green": {
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0
+      },
+      "fmt_exit": 0,
+      "scope": "Core parser/canonical wire only; Store/Engine shared budget and native identity not proven by these tests"
+    },
+    "assembly_preflight": {
+      "build_exit": 0,
+      "store_process": {
+        "passed": 51,
+        "failed": 5,
+        "ignored": 0
+      },
+      "fence_failures_classification": "Four normal authorized tests reproduce production bug: new ceiling SQL compares DB wire permission labels against canonical serde labels. Canonical production correction pending; do not add fixture grants to bypass it.",
+      "projection_failure_classification": "Malformed JSON UPDATE is rejected by existing expression index before budget read. Tests-only v2 uses valid {} with missing typed fields; preserves Budget/Json assertions.",
+      "engine_filter": {
+        "matched": 0,
+        "limits": "process_evidence_ lib name filter matched no tests and is not acceptance; exact entry/native-budget integration targets and broader Engine suite still required"
+      },
+      "sources": "process_job_foundation_acceptance_logs/diskgraph-d42-assembly-preflight-freeze.json.gz",
+      "original_store_final_v1_manifest": "process_job_foundation_acceptance_logs/diskgraph-d42-preparation-store-core-ready-v1.json.gz"
+    },
+    "combined_v2": {
+      "sources": 58,
+      "manifest": "process_job_foundation_acceptance_logs/diskgraph-d42-identity-preparation-v2-freeze.json.gz",
+      "store_new_projection": [6, 0, 0],
+      "store_new_fence": [5, 0, 0],
+      "engine_native_budget": [7, 0, 0],
+      "engine_dispatch": [1, 0, 0],
+      "engine_library": [383, 0, 3],
+      "large_scope_refusal_rust_requested_bytes": 0,
+      "limits": "Measured requested bytes only at borrowed scope refusal, excluding SQLite C and whole call; macOS does not execute Linux-only stage tests.",
+      "retained_target_correction": "process_job_entry is not an existing integration target; exact process_job_dispatch and complete Engine lib actually run instead.",
+      "review": "REQUEST: expired original SQL deadline precedes actual token denial in post-capture expiry combination; preserve original exact denial assertion and add actual regression, do not refresh deadline. Full QA not yet started."
+    },
+    "expiry_deadline_priority": {
+      "red": {
+        "passed": 1,
+        "failed": 1,
+        "ignored": 0,
+        "actual": "Business::Timeout instead of exact Store authority-denied Conflict after actual original expiry and elapsed execution deadline"
+      },
+      "scope": "actual shared Process fence helper, successful legal create/claim/work prerequisites and owner/MetadataRead controls; macOS real helper tests, not Linux native publication acceptance",
+      "freeze": "process_job_foundation_acceptance_logs/diskgraph-d42-priority-red-freeze.json.gz",
+      "log": "process_job_foundation_acceptance_logs/diskgraph-d42-priority-red.log.gz",
+      "next": "pure captured immutable expiry priority; no deadline renewal, no unbounded live grant lookup and no stale snapshot permission grant",
+      "green": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "native_budget_basis": [7, 0, 0],
+        "source_manifest_sha256": "6f776f5d636d3bba79959aa5af884f518ddd1f5a0ae22497cb04429d539a7f35"
+      },
+      "status": "actual Mac shared-helper RED to GREEN; original Linux expiry case still awaits native execution"
+    },
+    "process_entry_scope_cost": {
+      "review": "Non-author static APPROVE; unchanged whole-call tests GREEN5/0; local full QA passed, native acceptance pending.",
+      "required_result": "Nonessential large display/volume metadata must not be copied or change ordinary platform eligibility result; missing token capabilities must deny without large copies. Necessary root projection shares original QueryReadBudget."
+    }
   },
   "final_candidate_local_quality": {
     "source_count": 40,
@@ -248,6 +258,178 @@
     "clippy_exit": 0,
     "build_exit": 0,
     "source_manifest": "process_job_foundation_acceptance_logs/diskgraph-d44-final-freeze.json.gz",
-    "limitations": "No Linux native acceptance from macOS; four explicit identity/preparation negatives await actual RED and fixes; kernel/COMMIT I/O is cooperative."
+    "limitations": "Local macOS acceptance only; same-source native Linux logs now confirm four identity/preparation behavior RED and two error-contract failures. macOS queue timing gates fail; native acceptance remains open. Kernel/COMMIT I/O is cooperative."
+  },
+  "native_candidate_run_37204315054": {
+    "commit": "80d0622a06eabae3944d2efecbde08907272a6d5",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37204315054",
+    "status": "completed failure; all eight Rust lanes failed, remaining fourteen jobs succeeded",
+    "raw_job_logs": [
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216460.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216325.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216415.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216440.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216470.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216475.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216437.log.gz",
+      "process_job_foundation_acceptance_logs/diskgraph-d44-native-job-111442216420.log.gz"
+    ],
+    "linux_three_lanes": {
+      "engine_library": {
+        "passed": 392,
+        "failed": 6,
+        "ignored": 3
+      },
+      "confirmed_identity_preparation_red": [
+        "ancestor route replaced with surviving original leaf",
+        "tiny preparation budget reaches native capture",
+        "target replaced after observation and encoding still completes",
+        "registered root replaced after observation and encoding still completes"
+      ],
+      "additional_failed_cases": [
+        "cancel: unexpected Store::StaleOwner; subsequent terminal assertions not executed",
+        "IndexWrite revocation: unexpected Store::StaleOwner; subsequent terminal assertions not executed"
+      ],
+      "deadline_cases_each": {
+        "passed": 13,
+        "failed": 0,
+        "each_case_occurrences": 1
+      }
+    },
+    "macos_three_lanes": {
+      "failed_queue_tests": [
+        "external writer remaining-deadline wall bound",
+        "running merge remaining-deadline wall bound",
+        "commit read-lock wall bound on both ARM lanes"
+      ],
+      "important_limits": "Observed writer/merge results are BudgetExceeded and return while lock held; wall assertions fail at 625–961ms, and one fixture already expired before enqueue. Diagnose scheduler/IO versus implementation; do not declare native deadline acceptance or silently weaken assertions."
+    },
+    "passed_other_jobs": "Both Swift hosts, all five Kotlin hosts, vendored scanner, rustfmt, and all five native read-only packages completed success. These do not replace Rust behavior acceptance.",
+    "local_serial_control": {
+      "source_snapshot": "/private/tmp/diskgraph-d44-final-v04hqqia",
+      "enqueue_original_ten": {
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0,
+        "duration_seconds": 3.83
+      },
+      "deadline_guard": {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "duration_seconds": 0.3
+      },
+      "commands": [
+        "cargo test -p diskgraph-store --lib --locked process_job_enqueue_deadline_tests -- --test-threads=1",
+        "cargo test -p diskgraph-store --lib --locked control_write_deadline_tests -- --test-threads=1"
+      ],
+      "limits": "Actual local frozen-source execution; does not diagnose remote scheduler definitively or replace original concurrent native tests. CI adds serial gate before unchanged full workspace tests."
+    },
+    "windows_msrv": {
+      "job": 111442216437,
+      "status": "completed failure",
+      "mcp_library": {
+        "passed": 130,
+        "failed": 1,
+        "ignored": 0
+      },
+      "store_library": {
+        "passed": 251,
+        "failed": 2,
+        "ignored": 1
+      },
+      "failures": [
+        "disconnected-client job lookup returns Null job_id; actual response diagnosis pending",
+        "VM/unwind short deadline interrupts partial INSERT prerequisite; later cleanup assertions not reached"
+      ],
+      "limits": "Actual workspace failures: MCP response-body diagnosis pending; short deadline interrupts VM/unwind prerequisite INSERT before later cleanup assertions. Stable Windows workspace passes but later migration repetition fails."
+    },
+    "exact_deadline_case_observations": "process_job_foundation_acceptance_logs/diskgraph-d44-native-case-observations.json.gz",
+    "allocation_limits": "Native parent test output does not retain successful child requested-allocation values without nocapture; do not report a before/after measured delta from these logs.",
+    "ci_gate_validation": {
+      "parser": "existing /opt/anaconda3/bin/python3 PyYAML",
+      "result": "valid; added serial queue/guard steps immediately precede unchanged concurrent full workspace tests",
+      "native_execution": "pending next committed candidate; no assertion weakening"
+    },
+    "workspace_totals_receipt": "process_job_foundation_acceptance_logs/diskgraph-d44-native-workspace-observations.json.gz",
+    "windows_stable": {
+      "job": 111442216420,
+      "workspace": {
+        "passed": 1348,
+        "failed": 0,
+        "ignored": 16,
+        "suites": 69
+      },
+      "actual_failed_stage": "later Migration gate repeats Store lib; unwind prerequisite INSERT interrupted, original partial-write witness not reached",
+      "migration_store": {
+        "passed": 252,
+        "failed": 1,
+        "ignored": 1
+      }
+    }
+  },
+  "mcp_diagnostic_candidate": {
+    "tested_source_sha256": "52516b6a7de25951de3729522f66fc10af500bd275cec9da593fdc3069175c84",
+    "formatted_source_sha256": "52b31bcb739201a94b9251a8a436d1d7882103bc81a9d5a421bd949c8abe5a05",
+    "exact_test": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "changes": "tests-only full response JSON/body and timing diagnostics; original exact identity, completion and deadlines preserved",
+    "native_diagnosis": "pending; old failed log lacks response body; do not declare control-lock contention the proven original cause",
+    "evidence": "process_job_foundation_acceptance_logs/diskgraph-d44-mcp-diagnostic-results.json.gz"
+  },
+  "process_entry_scope_budget_red": {
+    "status": "qualified_runtime_red_repaired_locally_native_pending",
+    "snapshot": "/private/tmp/diskgraph-d42-entry-scope-red-umi78ywl",
+    "passed": 2,
+    "failed": 3,
+    "ignored": 0,
+    "legal_optional_fields_each_bytes": 2097152,
+    "whole_call_rust_requested_bytes": {
+      "ordinary_giant_scope": 62918098,
+      "missing_index_capability": 8389002,
+      "missing_metadata_capability": 4194465
+    },
+    "preserved_results": "ordinary macOS Unsupported; missing capabilities PermissionDenied; registration, scan and current ownership prerequisites passed",
+    "required_behavior": "Skip unnecessary display/volume ownership; necessary root/server/target preparation consumes one original entry ledger; scalar live-permission checks do not clone full scope. Preserve ordinary platform qualification and denial semantics.",
+    "limits": "Rust allocator cumulative requested bytes for complete public entry in isolated subprocess; not live memory, peak RSS, C allocation or native-platform acceptance.",
+    "log": "process_job_foundation_acceptance_logs/diskgraph-d42-entry-scope-red.log.gz",
+    "freeze": "process_job_foundation_acceptance_logs/diskgraph-d42-entry-scope-red-freeze.json.gz"
+  },
+  "process_entry_scope_budget_green": {
+    "status": "local_full_quality_passed_native_pending",
+    "snapshot": "/private/tmp/diskgraph-d42-entry-green-qwi8ef5w",
+    "entry": [5, 0, 0],
+    "store_projection": [7, 0, 0],
+    "store_all_targets": [298, 0, 5],
+    "engine_library": [385, 0, 3],
+    "whole_call_rust_requested_bytes": {
+      "ordinary_giant_scope": 1363,
+      "missing_index_capability": 104,
+      "missing_metadata_capability": 16
+    },
+    "same_red_tests": "Public-entry source hashes unchanged from qualified RED freeze; same legal data and exact platform/denial assertions",
+    "static_review": "Non-author APPROVE: Engine41 and Core/Store24 match frozen hashes; no remaining blocker in this batch. Does not replace native/platform tests.",
+    "freeze": "process_job_foundation_acceptance_logs/diskgraph-d42-entry-green-freeze.json.gz",
+    "results": "process_job_foundation_acceptance_logs/diskgraph-d42-entry-green-results.json.gz",
+    "quality_preflight": "First cargo fmt --all -- --check included immutable vendor and exited1 with184 vendor-only formatting locations, zero owned-source differences. No vendor edits; rerun uses existing CI explicit nine-package formatting gate. Failure retained, not behavior RED.",
+    "limits": "Cumulative requested Rust allocation on macOS; no peak RSS, C allocator, Linux publication or whole-platform production claim.",
+    "full_workspace": {
+      "passed": 1514,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 70,
+      "seconds": 223.759
+    },
+    "quality": {
+      "fmt_exit": 0,
+      "clippy_exit": 0,
+      "build_exit": 0,
+      "openspec_strict_exit": 0,
+      "vendor_digests_verified": 14,
+      "results": "process_job_foundation_acceptance_logs/diskgraph-d42-entry-quality-v2-results.json.gz"
+    }
   }
 }

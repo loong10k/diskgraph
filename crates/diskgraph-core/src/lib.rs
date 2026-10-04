@@ -136,6 +136,7 @@ mod process_evidence_failure_code;
 mod process_evidence_failure_phase;
 mod process_evidence_job_input;
 mod process_evidence_limits;
+mod process_evidence_limits_fields;
 mod process_evidence_summary;
 mod process_job_publication_receipt;
 mod process_observation_code;
@@ -161,3 +162,5 @@ pub use unix_observation_gap::UnixObservationGap;
 
 #[cfg(test)]
 mod process_evidence_contract_tests;
+#[cfg(test)]
+mod process_limits_stream_tests;

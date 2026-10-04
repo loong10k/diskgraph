@@ -54,11 +54,19 @@ mod process_evidence_entry;
 #[cfg(target_os = "linux")]
 mod process_evidence_execution;
 mod process_evidence_target;
+#[cfg(any(target_os = "linux", test))]
+mod process_execution_fence;
 #[cfg(all(test, target_os = "linux"))]
 mod process_execution_fixture;
+#[cfg(target_os = "linux")]
+mod process_execution_target;
 #[cfg(all(test, target_os = "linux"))]
 mod process_execution_tests;
+#[cfg(test)]
+mod process_fence_priority_tests;
 mod process_job_status;
+#[cfg(any(target_os = "linux", test))]
+mod process_native_error;
 #[cfg(all(test, target_os = "linux"))]
 mod process_publication_tests;
 mod queries;

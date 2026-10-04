@@ -1,0 +1,16 @@
+{
+  "developer_directory": "/Library/Developer/CommandLineTools",
+  "xcode_select_exit": 0,
+  "xcode_apps_in_standard_locations": [],
+  "default_xcrun_xcodebuild_available": false,
+  "android_adb_available": true,
+  "connected_android_devices": 0,
+  "limits": "Read-only toolchain/device inventory; no SDK install, device run, simulator or mobile functionality acceptance.",
+  "recorded_at_utc": "2026-10-04T13:39:23.381448+00:00",
+  "commands": [
+    "xcrun xcodebuild -showsdks",
+    "xcode-select -p",
+    "adb devices -l",
+    "enumerate *Xcode*.app only in /Applications and /Users/wandl/Applications"
+  ]
+}

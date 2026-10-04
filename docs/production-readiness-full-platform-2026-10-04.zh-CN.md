@@ -2,9 +2,13 @@
 
 本文延续[全平台实施记录](production-readiness-full-platform-2026-10-02.zh-CN.md)，完整平台目标仍未完成。
 
-## 最新阶段：D43 查询准备修复同源码原生验收完成
+## 最新阶段：D42 进程身份与准备预算修复，原生门禁仍未通过
 
 当前清单为**167总项／140完成／27开放**，包含广泛父项，不等于27个独立漏洞。Git任务8.7与持久请求授权任务15.20已在实现的Index／Sync／Git路径验收。D41 修正源码原生验收已记录于下文，D43 同源码原生验收也已记录于下文；任务13.6已完成全项源码与实际原生日志复核；进程／应用collector8.6／15.13、provider、原生写、GUI／移动端／真机、签名和生产部署保持原要求。
+
+当前80d0622的原生CI已终态：八条Rust lane失败，其余十四项通过；实际细节与保留原始日志见下文。Process身份／准备修复仍为未验收候选。本机只读设备盘点显示选中 `/Library/Developer/CommandLineTools`，标准应用目录未找到Xcode，adb可用但没有连接Android设备；这仅是环境事实，不代表移动端构建或真机验收，未安装SDK或执行设备任务。 [设备盘点记录](benchmarks/full_platform_device_inventory_2026_10_04.json)。
+
+Process公开入口新增回归实际为2通过／3失败：合法scope的display与volume各2MiB时，整次调用累计Rust分配申请62,918,098字节；缺少IndexWrite或MetadataRead时分别申请8,389,002与4,194,465字节后仍正确拒权。问题是预算前不必要的完整scope复制。相同测试修复后5/5通过，三个对应整次调用累计申请降为1,363／104／16字节；Store新投影7/7、全部目标298／0／5与Engine库385／0／3通过，非作者静态复审批准。本机完整workspace为1514／0／18（70 suites），fmt／严格Clippy／完整构建／OpenSpec及14份vendor摘要通过；新原生CI仍待验收。该值不是峰值RSS，macOS的Unsupported结果也不是Linux原生验收。原始日志与冻结测试见[D42回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)。
 
 `fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d`同源码[CI37187379023第二次attempt](https://github.com/loong10k/diskgraph/actions/runs/37187379023)已终态**22/22 success**。第一次attempt的21项成功保留原执行时间，仅Kotlin Intel作为job111395457676实际重跑。首次失败发生在Java／JNA宿主执行前的Maven插件描述解析，日志不能证明网络或缓存根因；同SHA重跑实际取得Maven BUILD SUCCESS并通过会话／分页／轮询／v1／release／重开宿主验收。[D40回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)保留两次attempt、原始失败、源码摘要与真实原生日志。
 
@@ -73,6 +77,8 @@ flowchart LR
 冻结本机 workspace **1474／0／18，68 suites**。首次 fmt 因一处断言排版失败；仅修正空白后，相关 Git11/11、fmt、严格 Clippy 及 build 通过。macOS 上**未执行** Linux epoch／观测／执行目标，不把零测试算原生通过。[基础回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)保留96份档案与实测失败。SQLite 外部写锁等待、根祖先绑定、真实原生执行及全平台父项分别继续验收。 首次 f8ed6076 原生 CI 三条 Linux Build 均因夹具调用 Store 私有时钟编译失败，未运行原生行为；现仅改为标准 Unix 秒数，原+60秒期限及断言未变；修正源码0ea5da7的三条Linux原生Build通过，各实际执行epoch2/2、observer2/2，随后两项持久执行在真实scan／holder前置通过后精确Unsupported失败。这是实施执行器所需的行为RED，不是产品原生验收通过。
 
 候选本机 Engine 为 **547／0／8，28 suites**，编译、严格 Clippy 与限定 workspace fmt 通过；Linux 专属阶段用例未在 macOS 执行。D44 原入队期限的 10 项回归先实际 **6／4／0**，补强见证后两项 writer 仍约 1.23 秒返回成功。守卫修复后原 10 项 **10／0／0**，新增提交读锁、实际 SQLite VM 中断见证和 Rust unwind 清理 **3／0／0**，均完整回滚并恢复连接。最终候选本机 workspace **1487／0／18，69 suites**，限定 fmt、严格 Clippy 和 build 通过。Linux 增至 16 项阶段测试（预期 4 项身份／准备负例）及 1 项整调用 Rust 分配观测，真实平台验收仍待完成。这些新增失败及修正验证命令已保留，不以此前基线通过代替当前完成。
+
+同源码 `80d0622` 的 CI37204315054 已取得三条 Linux 原始失败日志：Engine 库各 **392／6／3**。四项身份／准备缺口真实复现；另两项取消／IndexWrite 撤权返回 `StaleOwner`，随后状态断言尚未执行。三条 macOS Rust lane 的入队期限测试也失败：已返回 Budget 且外部锁仍持有，但墙钟为625–961ms，另一次夹具在真正调用前已过期；仍需区分调度／同步 I/O 和实现，不宣称原生通过。Swift 两宿主、Kotlin 五宿主、五种只读原生包均通过；CI现已终止，八条Rust lane均失败、其余十四项成功。Windows stable完整workspace为1348／0／16（69 suites），后续迁移重复测试的unwind准备INSERT被短期限中断；MSRV另有MCP重连响应缺少job_id，旧日志无正文，诊断原因仍待证明。回执保留八条Rust原始日志和完整workspace分阶段统计。MCP仅增强诊断的精确本机测试1／0／0，原身份／终态／超时断言未放宽；首次格式四处布局失败已仅修正空白。
 
 ## 以下保留历史阶段记录
 

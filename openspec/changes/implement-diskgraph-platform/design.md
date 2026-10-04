@@ -438,7 +438,7 @@ Q-08 applies to the preparation before the existing TUI/history consumers as wel
 
 The same-source D40 macOS Intel Kotlin job failed in Maven dependency-plugin descriptor resolution before Java/JNA execution. Its log does not identify an underlying network/cache cause. Add Maven --errors diagnostics while keeping pinned dependencies, isolated settings/repository, the original goals and failure/timeout behavior. A successful local ARM host is evidence for that host only; the Intel failure and its eventual native rerun remain separate records. These steps do not close mobile/provider, native-write, signing or production gates.
 
-## D42 固定资源的持久进程元数据观察（规格设计，尚未实现）
+## D42 固定资源的持久进程元数据观察（基础已实现，原生执行待验收）
 
 延续 EV-02/03/05/06、EC-02/04、SC-06 与 C03/RT 的既有任务合同；本段不是新 change 或第二套计划。2026-10-04 冻结 release CLI 的真实探针在注册、授权、索引普通文件后，对 `collector=process` 的 wait/nonwait 两请求均返回解析 exit2、空 stdout、无业务错误码，任务/图库不变；原扫描 sync 正控 Completed 并发布新 revision。探针15项检查证明这个产品入口缺口，未执行进程后端，不是15项进程验收或授权漏洞。来源为 `/private/tmp/diskgraph-d42-process-entry-probe.json`（SHA256 `c09892738d7a996f3ece545b76c45b8971df811beba1e42f55698aaf2b54eea9`）和只读调查（SHA256 `5ed75452a156fe58ffc220d79002017c6400fa4a11e5fb6d0bb84d828b518313`）。
 
@@ -478,6 +478,8 @@ Core 增加真实单对象的 process输入/限额、启动身份、逐资源观
 
 当前 typed协议／存储发布回执／授权入口及原生预算基础已通过本机回归；Linux真实Unsupported执行RED已取得，执行器与阶段用例候选待验收；编码后held身份、祖先绑定及准备共享预算尚未完成，macOS/Windows后端仍待验收，8.6/15.13不勾；应用安装实例、目录递归、全部占用方式和全局可见性保留原验收。provider、不物化、移动端、危险写、签名和部署父项不由此代替；D41原生CI仍单独验收。
 
+
+同源码80d0622的三条Linux原生日志均实际复现编码后目标／注册根替换仍发布、祖先替换后原叶移回仍通过、准备一字节预算已到native capture四处缺口；不能以本机Linux cfg未运行作通过。取消和IndexWrite失权测试先在既有复合fence的StaleOwner精确拒绝，后置终态尚未验收，按实际契约保留状态／诊断／零残留断言。macOS原期限墙钟与Windows短期限准备夹具分别失败，需保留日志并以同断言串行和并发区分实际阶段，不能当作已证明额度刷新或cleanup失败。
 
 ### D44 Process 入队写事务沿用原 admission 期限（本机回归通过，原生 CI 待验收）
 

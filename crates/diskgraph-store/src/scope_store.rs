@@ -86,8 +86,7 @@ impl ControlStore {
         let record = self
             .connection
             .query_row(
-                "SELECT root_kind, root_raw_b64, root_display, volume_id, created_at_unix_ms, revoked
-                 FROM scopes WHERE scope_id = ?1",
+                crate::scope_preparation_store::SCOPE_SQL,
                 [scope_id.as_str()],
                 |row| {
                     Ok(ScopeRecord {

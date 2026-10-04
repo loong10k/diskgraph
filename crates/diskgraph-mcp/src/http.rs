@@ -2337,32 +2337,63 @@ mod tests {
         // HTTP helper 返回时 A socket 已关闭，后续不再使用原连接。
 
         // B 无会话连续性，每次凭 job ID 重新建立连接查询，直到业务终态。
-        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        let polling_started = std::time::Instant::now();
+        let deadline = polling_started + Duration::from_secs(10);
         let mut observed: Vec<String> = Vec::new();
         let terminal;
+        let terminal_response;
+        let terminal_body;
         loop {
+            let request_started = std::time::Instant::now();
             let body = http_client::post_json(port, MCP_ENDPOINT, &call_status(&job_id, 2));
-            let response: Value = serde_json::from_str(&body).unwrap();
+            let response: Value = serde_json::from_str(&body).unwrap_or_else(|error| {
+                panic!(
+                    "job_id={job_id}; request_id=2; elapsed={:?}; request_elapsed={:?}; status JSON parse error={error}; HTTP body={body:?}",
+                    polling_started.elapsed(),
+                    request_started.elapsed()
+                )
+            });
             let data = &response["result"]["structuredContent"]["data"];
             assert_eq!(
-                data["job_id"], job_id,
-                "the job id binds across connections"
+                data["job_id"],
+                job_id,
+                "the job id binds across connections; job_id={job_id}; request_id=2; elapsed={:?}; request_elapsed={:?}; status JSON={response}; HTTP body={body:?}",
+                polling_started.elapsed(),
+                request_started.elapsed()
             );
-            let state = data["state"].as_str().unwrap().to_owned();
+            let state = data["state"]
+                .as_str()
+                .unwrap_or_else(|| {
+                    panic!(
+                        "job_id={job_id}; request_id=2; elapsed={:?}; request_elapsed={:?}; missing status state; status JSON={response}; HTTP body={body:?}",
+                        polling_started.elapsed(),
+                        request_started.elapsed()
+                    )
+                })
+                .to_owned();
             if observed.last() != Some(&state) {
                 observed.push(state.clone());
             }
             if matches!(state.as_str(), "completed" | "failed" | "cancelled") {
                 terminal = state;
+                terminal_response = response;
+                terminal_body = body;
                 break;
             }
             assert!(
                 std::time::Instant::now() < deadline,
-                "job {job_id} never finished; saw {observed:?}"
+                "job {job_id} never finished; saw {observed:?}; request_id=2; elapsed={:?}; request_elapsed={:?}; status JSON={response}; HTTP body={body:?}",
+                polling_started.elapsed(),
+                request_started.elapsed()
             );
             std::thread::sleep(Duration::from_millis(50));
         }
-        assert_eq!(terminal, "completed", "disconnect must not fail the job");
+        assert_eq!(
+            terminal,
+            "completed",
+            "disconnect must not fail the job; job_id={job_id}; request_id=2; elapsed={:?}; status JSON={terminal_response}; HTTP body={terminal_body:?}",
+            polling_started.elapsed()
+        );
         // runner 可以在新连接首轮查询前完成；重连读取持久状态，
         // 不要求客户端逐一观察所有中间态。
         assert!(
@@ -2373,11 +2404,30 @@ mod tests {
             "the first observation from the new connection is a real state: {observed:?}"
         );
         // C 连接也完全独立；观察连接关闭后仍应返回同一 job ID 的 completed 状态。
+        let request_started = std::time::Instant::now();
         let body = http_client::post_json(port, MCP_ENDPOINT, &call_status(&job_id, 3));
-        let response: Value = serde_json::from_str(&body).unwrap();
+        let response: Value = serde_json::from_str(&body).unwrap_or_else(|error| {
+            panic!(
+                "job_id={job_id}; request_id=3; elapsed={:?}; request_elapsed={:?}; status JSON parse error={error}; HTTP body={body:?}",
+                polling_started.elapsed(),
+                request_started.elapsed()
+            )
+        });
         let data = &response["result"]["structuredContent"]["data"];
-        assert_eq!(data["job_id"], job_id, "the durable job id stays bound");
-        assert_eq!(data["state"], "completed", "the completed result persists");
+        assert_eq!(
+            data["job_id"],
+            job_id,
+            "the durable job id stays bound; job_id={job_id}; request_id=3; elapsed={:?}; request_elapsed={:?}; status JSON={response}; HTTP body={body:?}",
+            polling_started.elapsed(),
+            request_started.elapsed()
+        );
+        assert_eq!(
+            data["state"],
+            "completed",
+            "the completed result persists; job_id={job_id}; request_id=3; elapsed={:?}; request_elapsed={:?}; status JSON={response}; HTTP body={body:?}",
+            polling_started.elapsed(),
+            request_started.elapsed()
+        );
         drop(runner);
     }
 

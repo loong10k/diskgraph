@@ -13,6 +13,16 @@ impl SqliteSnapshotStore {
     ) -> Result<Option<StoredUnixObservation>> {
         read(&self.connection, snapshot, node, reads)
     }
+
+    /// 参数：固定节点及原会话回调；返回：完整Unix记录在拥有/JSON解码前累计准入的结果。
+    pub fn unix_observation_with_admission(
+        &self,
+        snapshot: &str,
+        node: u64,
+        admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+    ) -> Result<Option<StoredUnixObservation>> {
+        read_with_admission(&self.connection, snapshot, node, admit)
+    }
 }
 /// 参数：同一连接、实际节点与共享账本；返回：借用准入后的有限持久观察。
 pub(crate) fn read(
@@ -21,15 +31,30 @@ pub(crate) fn read(
     node: u64,
     reads: &mut QueryReadBudget,
 ) -> Result<Option<StoredUnixObservation>> {
-    if !reads.check() {
-        return Err(StoreError::BudgetExceeded);
-    }
+    read_with_admission(connection, snapshot, node, &mut |raw, entries, _| {
+        if reads.admit(
+            usize::try_from(entries).map_err(|_| StoreError::BudgetExceeded)?,
+            0,
+            usize::try_from(raw).map_err(|_| StoreError::BudgetExceeded)?,
+        ) {
+            Ok(())
+        } else {
+            Err(StoreError::BudgetExceeded)
+        }
+    })
+}
+
+fn read_with_admission(
+    connection: &Connection,
+    snapshot: &str,
+    node: u64,
+    admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
+) -> Result<Option<StoredUnixObservation>> {
+    admit(0, 0, 0)?;
     let mut statement=connection.prepare("SELECT u.observation_raw,u.gap,u.writer_generation,n.native_locator_kind,n.native_locator_encoding FROM nodes n LEFT JOIN node_unix_observations u ON u.snapshot_id=n.snapshot_id AND u.node_id=n.id WHERE n.snapshot_id=?1 AND n.id=?2")?;
     let mut rows = statement.query(params![snapshot, crate::node_codec::as_i64(node)?])?;
     let Some(row) = rows.next()? else {
-        if !reads.check() {
-            return Err(StoreError::BudgetExceeded);
-        }
+        admit(0, 0, 0)?;
         return Ok(None);
     };
     let fields = [
@@ -47,9 +72,17 @@ pub(crate) fn read(
         })
         .ok_or(StoreError::BudgetExceeded)
     })?;
-    if !reads.admit(1, 0, bytes) {
-        return Err(StoreError::BudgetExceeded);
-    }
+    let json = match fields[0] {
+        ValueRef::Blob(bytes) => bytes.len(),
+        _ => 0,
+    };
+    crate::metadata_read_cost::charge(
+        admit,
+        bytes,
+        json,
+        std::mem::size_of::<StoredUnixObservation>() + 4096,
+        1,
+    )?;
     let invalid = || StoreError::InvalidGraph("invalid Unix observation columns".into());
     let value = match (fields[0], fields[1], fields[2]) {
         (ValueRef::Null, ValueRef::Null, ValueRef::Null) => StoredUnixObservation {
@@ -80,8 +113,6 @@ pub(crate) fn read(
         }
         _ => return Err(invalid()),
     };
-    if !reads.check() {
-        return Err(StoreError::BudgetExceeded);
-    }
+    admit(0, 0, 0)?;
     Ok(Some(value))
 }

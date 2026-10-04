@@ -639,6 +639,7 @@ dependencies = [
 name = "diskgraph-store"
 version = "0.3.0"
 dependencies = [
+ "base64",
  "diskgraph-core",
  "libc",
  "rayon",

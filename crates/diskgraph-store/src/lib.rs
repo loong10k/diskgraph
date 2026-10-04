@@ -91,6 +91,7 @@ mod job_state;
 mod job_store;
 #[cfg(test)]
 mod locator_budget_tests;
+mod metadata_read_cost;
 mod native_locator_migration;
 mod native_locator_query;
 #[cfg(test)]
@@ -141,6 +142,7 @@ mod revision_target_query;
 mod revision_target_query_tests;
 mod revision_writer;
 mod scan_staging_store;
+mod scope_preparation_store;
 mod scope_record;
 mod scope_store;
 mod search_queries;
@@ -233,12 +235,16 @@ mod process_collector_publication;
 mod process_collector_selection;
 mod process_collector_target;
 mod process_entity_identity;
+mod process_fence_admission;
+mod process_fence_authorization;
 mod process_job_enqueue_until;
 mod process_job_failure_store;
 mod process_job_input_codec;
+mod process_job_limits_view;
 mod process_job_migration;
 mod process_job_recovery;
 mod process_job_store;
+mod process_preparation_store;
 mod process_receipt_migration;
 mod process_receipt_query;
 mod stored_unix_observation;
@@ -248,6 +254,8 @@ pub use stored_unix_observation::StoredUnixObservation;
 
 #[cfg(test)]
 mod process_collector_publication_tests;
+#[cfg(test)]
+mod process_fence_admission_tests;
 #[cfg(test)]
 mod process_job_authorization_tests;
 #[cfg(test)]
@@ -259,8 +267,12 @@ mod process_job_recovery_tests;
 #[cfg(test)]
 mod process_job_test_fixtures;
 #[cfg(test)]
+mod process_preparation_projection_tests;
+#[cfg(test)]
 mod process_raw_allocation_tests;
 #[cfg(test)]
 mod process_unix_observation_tests;
 #[cfg(test)]
 mod process_unix_staging_query_tests;
+#[cfg(test)]
+mod scope_native_projection_tests;

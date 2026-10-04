@@ -3,9 +3,9 @@ use crate::process_evidence_target::ProcessEvidenceTarget;
 use crate::{Engine, EngineError};
 use diskgraph_core::{
     Authorizer, BusinessError, JobRequestAuthority, ProcessEvidenceJobInput, ProcessEvidenceLimits,
-    ProcessObservationMethod, ScopeId,
+    ProcessObservationMethod, QueryBudget, QueryReadBudget, ScopeId,
 };
-use diskgraph_store::JobRecord;
+use diskgraph_store::{JobRecord, StoreError};
 use std::time::{Duration, Instant};
 
 impl Engine {
@@ -24,6 +24,8 @@ impl Engine {
         if base_revision.is_empty() || base_revision.len() > 128 || node_id == 0 {
             return Err(BusinessError::InvalidArgument.into());
         }
+        // 原入口时钟与读取账本在任何必要字段拥有前建立，目标与控制投影继承同一余额。
+        let mut reads = QueryReadBudget::new(QueryBudget::default(), deadline)?;
         let check = || self.require_process_entry(scope, authority, authorizer, deadline);
         check()?;
         let target = ProcessEvidenceTarget::load(
@@ -31,7 +33,7 @@ impl Engine {
             scope,
             base_revision,
             node_id,
-            deadline,
+            &mut reads,
             None,
             &check,
         )?;
@@ -40,15 +42,14 @@ impl Engine {
                 .try_control_store()?
                 .ok_or(BusinessError::BudgetExceeded)?;
             control.with_read_deadline(deadline, |control| {
-                let actual = control.scope(scope)?;
-                if actual.revoked {
+                if control.scope_revoked(scope)? {
                     return Err(EngineError::Business(BusinessError::PermissionDenied));
                 }
-                let registered = actual
-                    .root
-                    .to_native_path()
-                    .map_err(|_| BusinessError::Unsupported)?;
-                Ok::<_, EngineError>((registered, control.existing_server_id()?))
+                let mut admit = |raw, _, _| admit_entry_raw(&mut reads, raw);
+                // 显示名/卷描述不是地址或授权依据，不构造整份 ScopeRecord。
+                let registered = control.scope_native_root_with_admission(scope, &mut admit)?;
+                let server = control.existing_server_id_with_admission(&mut admit)?;
+                Ok::<_, EngineError>((registered, server))
             })?
         };
         let native = target
@@ -111,7 +112,7 @@ impl Engine {
             .ok_or(BusinessError::BudgetExceeded)?;
         control.with_read_deadline(deadline, |control| {
             let now = crate::job_authorization::unix_seconds()?;
-            if control.scope(scope)?.revoked {
+            if control.scope_revoked(scope)? {
                 return Err(BusinessError::PermissionDenied.into());
             }
             for permission in diskgraph_store::JobKind::ProcessEvidence.required_permissions() {
@@ -138,5 +139,18 @@ impl Engine {
             }
             Ok(())
         })
+    }
+}
+
+/// 参数：同一原请求账本与借用字段成本；返回：拥有前准入结果，不重建期限或额度。
+pub(super) fn admit_entry_raw(
+    reads: &mut QueryReadBudget,
+    raw: u64,
+) -> diskgraph_store::Result<()> {
+    let raw = usize::try_from(raw).map_err(|_| StoreError::BudgetExceeded)?;
+    if reads.admit(0, 0, raw) {
+        Ok(())
+    } else {
+        Err(StoreError::BudgetExceeded)
     }
 }

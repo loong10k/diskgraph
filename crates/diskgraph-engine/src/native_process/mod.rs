@@ -7,6 +7,8 @@ mod linux_metadata;
 #[cfg(all(test, target_os = "linux"))]
 mod linux_namespace_tests;
 #[cfg(target_os = "linux")]
+mod linux_observation_lease;
+#[cfg(target_os = "linux")]
 mod linux_observer;
 #[cfg(target_os = "linux")]
 mod linux_open;
@@ -14,6 +16,8 @@ mod linux_open;
 mod linux_pid;
 #[cfg(target_os = "linux")]
 mod linux_proc_root;
+#[cfg(target_os = "linux")]
+mod linux_root_namespace;
 #[cfg(target_os = "linux")]
 mod linux_scan_root;
 #[cfg(target_os = "linux")]
@@ -23,3 +27,6 @@ mod process_native_session;
 #[cfg(target_os = "linux")]
 pub(crate) use linux_scan_root::{LinuxScanRoot, gap as linux_scan_gap};
 pub use process_native_session::ProcessNativeSession;
+
+#[cfg(target_os = "linux")]
+pub(crate) use linux_observation_lease::LinuxObservationLease;
