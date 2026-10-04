@@ -1,5 +1,5 @@
 {
-  "source": "D37 exact candidate actual local execution; named39 required in next Windows/LinuxARM/macIntel workspace phase",
+  "source": "D37 commit b680a1ce35a118d1b5c396c046eaa9a26193978f; 39 named cases actually passed once in each selected native workspace phase",
   "new_cross_platform_authority_cases": [
     "a_database_writer_with_a_narrow_token_cannot_queue_index_or_sync",
     "an_authenticated_queued_index_cannot_outlive_its_original_token",
@@ -43,5 +43,45 @@
     "live_evidence::git_scope_boundary_tests::in_scope_gitdir_does_not_authorize_an_external_common_directory",
     "live_evidence::git_scope_boundary_tests::replaced_registered_root_ancestor_rejects_terminal_without_reopening_source"
   ],
-  "native_executed": false
+  "native_executed": true,
+  "source_commit": "b680a1ce35a118d1b5c396c046eaa9a26193978f",
+  "run_id": 37176087169,
+  "observations": {
+    "windowsstable": {
+      "required_passed": 39,
+      "required_total": 39,
+      "missing_or_duplicate": [],
+      "suites": 52,
+      "passed": 1131,
+      "failed": 0,
+      "ignored": 16
+    },
+    "windows197": {
+      "required_passed": 39,
+      "required_total": 39,
+      "missing_or_duplicate": [],
+      "suites": 52,
+      "passed": 1131,
+      "failed": 0,
+      "ignored": 16
+    },
+    "linuxarm": {
+      "required_passed": 39,
+      "required_total": 39,
+      "missing_or_duplicate": [],
+      "suites": 52,
+      "passed": 1259,
+      "failed": 0,
+      "ignored": 18
+    },
+    "macintel": {
+      "required_passed": 39,
+      "required_total": 39,
+      "missing_or_duplicate": [],
+      "suites": 52,
+      "passed": 1270,
+      "failed": 0,
+      "ignored": 18
+    }
+  }
 }

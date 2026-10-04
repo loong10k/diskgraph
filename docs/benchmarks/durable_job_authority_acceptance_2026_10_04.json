@@ -1,6 +1,6 @@
 {
   "date": "2026-10-04",
-  "status": "local_security_candidate_verified_native_pending",
+  "status": "native_behavior_verified_windows_stable_clippy_failed_hotfix_local_verified",
   "change": "implement-diskgraph-platform",
   "tasks": [
     "15.20",
@@ -201,12 +201,56 @@
     "engine_manifest_sha256": "ba7fe1a0fe05915086e48eb4460737faa96b38f271ad67d97e765f1cc0cfb24e"
   },
   "native": {
-    "corrected_source_run": "pending",
+    "source_commit": "b680a1ce35a118d1b5c396c046eaa9a26193978f",
+    "corrected_source_run": 37176087169,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37176087169",
+    "status": "completed",
+    "result": "21/22; all test phases passed; Windows stable strict Clippy failed three equivalent-expression lints",
+    "case_inventory": "docs/benchmarks/durable_job_authority_native_cases_2026_10_04.json",
+    "original_inventory_sha256": "6db5e7da0941545f768cf4c9d39bcb44e23e5e38e0d2c97e1a4685b6b98986d3",
+    "case_inventory_sha256": "cd69a5c534d4122b12a59bad7da4e66638289becb441bb3bd9d4a9b982d8f8b7",
+    "observations": {
+      "windowsstable": {
+        "required_passed": 39,
+        "required_total": 39,
+        "missing_or_duplicate": [],
+        "suites": 52,
+        "passed": 1131,
+        "failed": 0,
+        "ignored": 16
+      },
+      "windows197": {
+        "required_passed": 39,
+        "required_total": 39,
+        "missing_or_duplicate": [],
+        "suites": 52,
+        "passed": 1131,
+        "failed": 0,
+        "ignored": 16
+      },
+      "linuxarm": {
+        "required_passed": 39,
+        "required_total": 39,
+        "missing_or_duplicate": [],
+        "suites": 52,
+        "passed": 1259,
+        "failed": 0,
+        "ignored": 18
+      },
+      "macintel": {
+        "required_passed": 39,
+        "required_total": 39,
+        "missing_or_duplicate": [],
+        "suites": 52,
+        "passed": 1270,
+        "failed": 0,
+        "ignored": 18
+      }
+    },
+    "source_hashes_verified": 36,
     "previous_run": 37171948796,
     "previous_result": "20/22; two Windows jobs each two scope-boundary failures",
-    "observation_receipt": "docs/benchmarks/d36_native_observation_2026_10_04.json",
-    "case_inventory": "docs/benchmarks/durable_job_authority_native_cases_2026_10_04.json",
-    "case_inventory_sha256": "6db5e7da0941545f768cf4c9d39bcb44e23e5e38e0d2c97e1a4685b6b98986d3"
+    "observation_receipt": "docs/benchmarks/d36_native_observation_2026_10_04.json"
   },
   "remaining_limits": [
     "Malformed/oversized/foreign-principal stored authority fails InvalidGraph and stops tick; administrator repair required, not automatic quarantine",
@@ -310,6 +354,67 @@
     "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-openspec.log.gz": {
       "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
       "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-ci-windows-stable-failed.log.gz": {
+      "raw_sha256": "076645970b9c61d0172185d4d0b9035b32f7bc729985678830286387600c6b03",
+      "gzip_sha256": "248a9b379fc0e33bd02aa92deccb02d4d5843951e320ad1a79b2d27e67649bac"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-ci-native-windows197.log.gz": {
+      "raw_sha256": "7f87d924200b1c993c886488e2ff5905e4d03be4138b86070db5228b00a5e43b",
+      "gzip_sha256": "0aa54759b3de0e216421f605828c1bb444fc326330144a3b90ec85f7332c5f6b"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-ci-native-linuxarm.log.gz": {
+      "raw_sha256": "75bd991cf1f3a20bb4766642bbd7815c03adb7875e1d66720bfd6272cd2321fc",
+      "gzip_sha256": "3a7c85916a266f4065499c32bd39a977fae4e4258183a5d9aedc2c21f52fbb1a"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-ci-native-macintel.log.gz": {
+      "raw_sha256": "3d439badca671e51032992ae306695125aa7ffddcd667b44b3e9f21aebdedfb5",
+      "gzip_sha256": "8404229d11455571a15ccca5841235d7f9e828144077a0d1138a6c85665cc75a"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-ci-observed.json.gz": {
+      "raw_sha256": "1de2cc45a5909036aeb196785d88df68a0f0a9312867e1c9615d0fee14245246",
+      "gzip_sha256": "ea624aacd395d88397dc7bae02b9f54e587a495e6d849ebdd0533317f373172d"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-native-case-observation.json.gz": {
+      "raw_sha256": "afc70805375256996e8dbe5dfea67063c97387fed2a5be27a05977c7d315cdd1",
+      "gzip_sha256": "10346a542fe8e7b0dd3a702e428ecf56234437c49a83aabc80f9679509a5910d"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-clippy-quality-results.json.gz": {
+      "raw_sha256": "254c49028022179e28ba580d30ca6aa13374f5119ae009c80f50ae9442110192",
+      "gzip_sha256": "8997b4b774dc75d3fece69bfa1f94fce5cab10198b42f2189e7bf21521aab099"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-clippy-fmt.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-clippy-scope-tests.log.gz": {
+      "raw_sha256": "f8ba09b84f8ed0394403b1d6777e44ee1b799f8165a8e37a5dd55d2bc2d921ac",
+      "gzip_sha256": "751f202811d40886e847d24cf54617cb664138234cdaac572c4907e88528336d"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-clippy-clippy.log.gz": {
+      "raw_sha256": "644b243aa19a8098485edfd78095d4ca0af4f090fba08db70a13e2133f889a79",
+      "gzip_sha256": "d9d8df8d5928f2dc42570a0f84f4528976b1d99e2546523182159868f7a80817"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-clippy-build.log.gz": {
+      "raw_sha256": "4377f4af2e98ad76f80962a1589339ca6a9a8e839b233b00b99deb9fe61477ee",
+      "gzip_sha256": "57eaa14f80c998b2f10228c886a629e0daf77cba23b901df8b438a57531661d6"
     }
+  },
+  "windows_clippy_hotfix": {
+    "base_commit": "b680a1ce35a118d1b5c396c046eaa9a26193978f",
+    "source_sha256": {
+      "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs": "54ea104aea3821d0d2ddc802df44019cdf08b3af4f4bbb6bcb52168e1fa3e88d",
+      "crates/diskgraph-engine/src/live_evidence/git_source_windows.rs": "4b7eb3745c1c56d860df93bb933d6542e894b73495fa74774b35f7a9c8b5f453"
+    },
+    "change": "Windows cfg tail expression and usize is_multiple_of; no lint relaxation or behavior change",
+    "local_quality_exit_codes": {
+      "fmt": 0,
+      "scope-tests": 0,
+      "clippy": 0,
+      "build": 0
+    },
+    "local_scope_cases_passed": 13,
+    "same_source_native_ci": "pending",
+    "future_git_worktree_not_staged": true
   }
 }

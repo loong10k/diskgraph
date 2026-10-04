@@ -216,9 +216,9 @@ pub(super) fn names(
             let row = unsafe { &*bytes.as_ptr().add(offset).cast::<FILE_FULL_DIR_INFO>() };
             let len = row.FileNameLength as usize;
             let next = row.NextEntryOffset as usize;
-            if len % 2 != 0
+            if !len.is_multiple_of(2)
                 || offset + prefix + len > bytes.len()
-                || (next != 0 && (next < prefix + len || next % 8 != 0))
+                || (next != 0 && (next < prefix + len || !next.is_multiple_of(8)))
             {
                 return Err("invalid native Git directory name".into());
             }

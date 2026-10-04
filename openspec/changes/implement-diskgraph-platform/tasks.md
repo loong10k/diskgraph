@@ -315,3 +315,6 @@ D38 原生纠正进展：e32214d 的 CI37171948796 已终态20/22，两个 Windo
 
 
 D37持久请求授权进展：三组真实RED→GREEN（socket原始expiry、runner64候选、claim后50ms预算/100ms图锁等待），不可变authority及Controlv7、strict未知来源拒绝、live交集与staging/commit末检已实施；非作者复审34源及Windows2源摘要匹配。原始开发worktree1273/7/18（Git未来入口唯一7fail）完整保留；排除两个从未tracked未来功能测试的精确安全候选1270/0/18（52 suites），构建/严格Clippy/fmt/OpenSpec/release及stdio18/18、HTTP13/13、UniFFI19/19通过，20k/200k各4/4。见docs/benchmarks/durable_job_authority_acceptance_2026_10_04.json；新源码原生CI待完成，15.20不勾选，不关闭8.7/15.13/全平台父项。
+
+
+D37原生终态：b680a1ce的CI37176087169为21/22，四个选定原生workspace阶段均实际39/39新增用例通过；Windows stable仅三处Clippy失败，不能视为全绿。D38等价语法纠正的精确暂存候选fmt/13范围回归/严格Clippy/build通过，新SHA原生CI待运行；未验收Git collector与15.20/8.7/15.13及其余30项保持开放。原始日志、逐项记录和本机hotfix证据已入D37回执。

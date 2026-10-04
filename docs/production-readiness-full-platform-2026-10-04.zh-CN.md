@@ -108,3 +108,10 @@ Index/Sync任务持久保存不可变请求来源、token能力上限和原始�
 开发工作区为**1273通过/7失败/18 ignored，54 suites**，7项全部属于尚未实现的CLI/MCP Git产品入口合同。精确暂存安全候选导出时未包含两个从未tracked的未来功能测试文件，**1270/0/18，52 suites**；原有测试和新增授权回归全部执行。未来测试原文保留在工作区，失败日志归档，不据此验收Git8.7/15.13。候选构建、严格Clippy、限定crate的fmt、FFI独立include格式、OpenSpec strict及release CLI/MCP/FFI通过；实际release stdio18/18、认证HTTP/SSE13/13、实际调用UniFFI公开校验值19/19通过。非作者复审确认34份安全来源及另2份Windows纠正，摘要全部一致。
 
 [D37回执](benchmarks/durable_job_authority_acceptance_2026_10_04.json)保存两种候选范围、原始日志、摘要及边界。Release20k/200k各4/4检查通过；扫描0.477/4.396秒，查询p50/p95为7.001/9.744及6.925/8.676毫秒，数据库+WAL43,458,560/436,932,608字节。非配对观察，不声明提速，本增量未测RSS。修改后原生CI仍待完成，15.20及30项未完成实现/验收/父项继续开放。本机存在Android平台/构建工具，但无NDK和连接设备；仅macOS命令行工具，无iOS SDK/模拟器。这些环境观察不能替代设备验收。
+
+
+## D37 原生结果与 Windows Clippy 纠正
+
+`b680a1ce35a118d1b5c396c046eaa9a26193978f` 的 [CI37176087169](https://github.com/loong10k/diskgraph/actions/runs/37176087169) 已终态 **21/22**。Windows stable/1.97、Linux ARM、macOS Intel 的选定 workspace 阶段均实际通过39项授权/范围边界回归；对应总数为1131/0/16、1131/0/16、1259/0/18、1270/0/18。Windows stable 在测试通过后因三处严格 Clippy 检查失败，不能算完整流水线通过。D37回执已保存终态、四份原生日志及逐项执行清单。
+
+后续仅改 Windows 尾表达式和两处等价整除判断；精确暂存候选的本机fmt、13项范围回归、workspace严格Clippy及all-target构建通过，新源码原生CI仍待。未来Git产品代码和CLI拆分尚未暂存或验收；15.20仍包含collector授权门禁，不关闭任何父项。

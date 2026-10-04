@@ -90,7 +90,7 @@ impl GitScopeBoundary {
 fn relative(root: &Path, path: &Path) -> Result<PathBuf, String> {
     #[cfg(windows)]
     {
-        return crate::windows_path_plan::WindowsPathPlan::relative_to_root(root, path)
+        crate::windows_path_plan::WindowsPathPlan::relative_to_root(root, path)
             .map(|parts| parts.into_iter().collect())
             .map_err(|error| match error {
                 // 范围拒绝保持跨平台一致的诊断；名称/namespace 不支持仍保留原错误。
@@ -98,7 +98,7 @@ fn relative(root: &Path, path: &Path) -> Result<PathBuf, String> {
                     "Git source is outside authorized scope".into()
                 }
                 error => error.to_string(),
-            });
+            })
     }
     #[cfg(not(windows))]
     {
