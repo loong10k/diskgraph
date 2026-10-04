@@ -7,7 +7,8 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, mpsc};
 use std::time::{Duration, Instant};
 
-// 配对仅改变宿主原 busy 配置：731ms 受剩余请求期限限制，40ms 必须保留真实 SQL BUSY。
+// 两案验证不同因果边界：731ms 受400ms原请求限制；40ms须先于仍有效请求返回原BUSY。
+// 后者2s只保证宿主比较阶段资格，非响应门限；两案总耗时仍严格小于550ms。
 fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
     let fixture = ProcessEnqueueFixture::new();
     fixture.set_busy_timeout(host_busy_ms);
@@ -34,7 +35,8 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
     }
 
     let started = Instant::now();
-    let deadline = started + Duration::from_millis(400);
+    let original_window_ms = if request_limited { 400 } else { 2000 };
+    let deadline = started + Duration::from_millis(original_window_ms);
     std::thread::sleep(Duration::from_millis(250));
     let preconsume_elapsed = started.elapsed();
     let remaining_at_call = deadline.saturating_duration_since(Instant::now());
@@ -90,7 +92,7 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
         "D44_WRITER_PHASE {}",
         serde_json::json!({
             "host_busy_ms": host_busy_ms,
-            "original_window_ms": 400,
+            "original_window_ms": original_window_ms,
             "preconsume_us": preconsume_elapsed.as_micros(),
             "remaining_at_call_us": remaining_at_call.as_micros(),
             "new_us": new_elapsed.as_micros(),
@@ -134,7 +136,7 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
             "host40 comparison did not reach BEGIN with a full host timeout remaining"
         );
         assert!(
-            matches!(&result, Err(error) if error.is_busy()),
+            matches!(&result, Err(StoreError::Sqlite(rusqlite::Error::SqliteFailure(code, _))) if code.extended_code == rusqlite::ffi::SQLITE_BUSY),
             "actual={result:?}"
         );
         assert!(

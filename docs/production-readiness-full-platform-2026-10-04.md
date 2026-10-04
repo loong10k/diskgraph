@@ -1,5 +1,8 @@
 # Full-platform acceptance continuation — 2026-10-04
 
+The macOS stable native job111472086096 for `2e33519` succeeded: workspace 1523/0/18 across 70 suites. Linux encountered a callback lifetime compilation error before tests; `5c9985b` restores the original borrowed callback constraint through a separate type alias and its native CI is running. macOS MSRV passed the original queue10 and guard4; the new host40 diagnostic expired during preparation before BEGIN. Only its preparation qualification was adjusted: local diagnostics2 and Store library283/0/1 passed, preserving the550ms total bound. Overall platform acceptance remains incomplete.
+
+
 D44 boundary candidate passed local acceptance: 22 targeted tests, full workspace 1523/0/18 (70 suites), formatting and strict Clippy; independent static review approved. The prepare-time interruption regression failed against the initial candidate, passed against the old implementation, then passed after the minimal fix. Only ordinary BUSY is retried at BEGIN/COMMIT; original deadlines, live interruption errors, commit facts and single consumer execution are retained. Native CI remains pending; Linux scan ancestor-rebinding tests still require native RED and the implementation is not claimed repaired.
 
 
