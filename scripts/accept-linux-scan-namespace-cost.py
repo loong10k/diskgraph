@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -125,9 +126,9 @@ def verify_fixture(root, expected):
     assert identities.hexdigest() == expected["file_identity_sha256"]
 
 
-def build_pair(repo, work, output, report):
+def build_pair(repo, work, output, report, baseline=BASE, candidate=NEW):
     binaries = {}
-    for label, revision in [("baseline", BASE), ("candidate", NEW)]:
+    for label, revision in [("baseline", baseline), ("candidate", candidate)]:
         exists = command(["git", "cat-file", "-e", f"{revision}^{{commit}}"], repo,
                          output, f"{label}-object", report, required=False)
         if exists["exit_code"] != 0:
@@ -217,11 +218,22 @@ def measure(binaries, work, output, report, smoke):
                     pair["candidate"]["process_scan_high_water_rss_bytes"] - pair["baseline"]["process_scan_high_water_rss_bytes"]})
 
 
+def commit_sha(value):
+    """仅接受完整不可变提交 SHA，禁止把可变 ref 或 Git revision 语法用于配对。"""
+    if re.fullmatch(r"[0-9a-f]{40}", value) is None:
+        raise argparse.ArgumentTypeError("requires a full lowercase 40-character commit SHA")
+    return value
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--smoke", action="store_true", help="32-wide/3-deep only; not release scale acceptance")
+    parser.add_argument("--baseline-sha", type=commit_sha, default=BASE)
+    parser.add_argument("--candidate-sha", type=commit_sha, default=NEW)
     args = parser.parse_args()
+    if args.baseline_sha == args.candidate_sha:
+        parser.error("baseline and candidate must be distinct immutable commits")
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
     repo = Path(__file__).resolve().parents[1]
@@ -244,7 +256,7 @@ def main():
         command(["cargo", "--version"], repo, output, "cargo-version", report)
         with tempfile.TemporaryDirectory(prefix="diskgraph-scan-cost-", dir=os.environ.get("RUNNER_TEMP")) as directory:
             work = Path(directory)
-            binaries = build_pair(repo, work, output, report)
+            binaries = build_pair(repo, work, output, report, args.baseline_sha, args.candidate_sha)
             measure(binaries, work, output, report, args.smoke)
         report["status"] = "passed"
     except BaseException as error:

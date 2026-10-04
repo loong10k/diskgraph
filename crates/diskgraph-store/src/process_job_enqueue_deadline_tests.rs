@@ -3,7 +3,7 @@ use crate::process_job_enqueue_fixture::ProcessEnqueueFixture;
 use crate::{ControlStore, JobState, StoreError};
 use diskgraph_core::{JobRequestAuthority, Permission};
 use rusqlite::{Connection, ErrorCode};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::{Arc, mpsc};
 use std::time::{Duration, Instant};
 
@@ -104,17 +104,37 @@ fn process_enqueue_last_input_insert_expiry_rolls_back_all_durable_tables() {
     let before = fixture.persisted_state();
     let reached = Arc::new(AtomicBool::new(false));
     let mark = Arc::clone(&reached);
-    let deadline = Instant::now() + Duration::from_millis(150);
+    let inserted = Arc::new(AtomicU8::new(0));
+    let seen = Arc::clone(&inserted);
+    let qualified = Arc::new(AtomicBool::new(false));
+    let live = Arc::clone(&qualified);
+    // 此窗口用于到达真实最后 INSERT，不是性能 SLA；注入等待仍消耗同一原期限。
+    let deadline = Instant::now() + Duration::from_secs(2);
     fixture
         .store
         .connection
         .update_hook(Some(
             move |action: rusqlite::hooks::Action, _: &str, table: &str, _: i64| {
-                if action == rusqlite::hooks::Action::SQLITE_INSERT
-                    && table == "process_evidence_job_inputs"
-                {
-                    mark.store(true, Ordering::SeqCst);
-                    wait_past(deadline);
+                if action != rusqlite::hooks::Action::SQLITE_INSERT {
+                    return;
+                }
+                match table {
+                    "jobs" => {
+                        seen.fetch_or(1, Ordering::SeqCst);
+                    }
+                    "job_request_authorities" => {
+                        seen.fetch_or(2, Ordering::SeqCst);
+                    }
+                    "process_evidence_job_inputs" => {
+                        live.store(
+                            Instant::now() < deadline && seen.load(Ordering::SeqCst) == 3,
+                            Ordering::SeqCst,
+                        );
+                        seen.fetch_or(4, Ordering::SeqCst);
+                        mark.store(true, Ordering::SeqCst);
+                        wait_past(deadline);
+                    }
+                    _ => {}
                 }
             },
         ))
@@ -132,7 +152,16 @@ fn process_enqueue_last_input_insert_expiry_rolls_back_all_durable_tables() {
         .unwrap();
     assert!(
         reached.load(Ordering::SeqCst),
-        "never reached actual final input INSERT"
+        "never reached actual final input INSERT; actual={result:?}"
+    );
+    assert!(
+        qualified.load(Ordering::SeqCst),
+        "final INSERT must start before original expiry after both predecessor writes; actual={result:?}"
+    );
+    assert_eq!(
+        inserted.load(Ordering::SeqCst),
+        7,
+        "all three actual writes required"
     );
     assert!(
         matches!(result, Err(StoreError::BudgetExceeded)),

@@ -3,6 +3,8 @@ mod handle_reservation;
 #[cfg(target_os = "linux")]
 mod linux_directory;
 #[cfg(target_os = "linux")]
+mod linux_directory_identity;
+#[cfg(target_os = "linux")]
 mod linux_metadata;
 #[cfg(all(test, target_os = "linux"))]
 mod linux_namespace_tests;
@@ -20,6 +22,8 @@ mod linux_proc_root;
 mod linux_root_namespace;
 #[cfg(target_os = "linux")]
 mod linux_scan_namespace;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_scan_namespace_tests;
 #[cfg(target_os = "linux")]
 mod linux_scan_root;
 #[cfg(target_os = "linux")]
