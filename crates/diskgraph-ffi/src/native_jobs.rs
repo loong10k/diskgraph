@@ -1,7 +1,10 @@
-use crate::JobHandle;
-use std::path::PathBuf;
-use std::sync::Weak;
+use crate::native_job_entry::NativeJobEntry;
 
-/// 会话持有的规范根目录与扫描句柄弱引用列表，不延长作业订阅者生命周期。
-/// 来源：DiskGraph 原生 Rust NativeService 作业登记；无 Java 对应对象。
-pub(crate) type NativeJobs = Vec<(PathBuf, Weak<JobHandle>)>;
+/// 单会话准入与线程登记，manager 错误独立于业务完成事实。
+/// 来源：DiskGraph 原生 Rust PF-06 生命周期状态。
+#[derive(Default)]
+pub(crate) struct NativeJobs {
+    pub(crate) in_flight: usize,
+    pub(crate) entries: Vec<NativeJobEntry>,
+    pub(crate) failure: Option<&'static str>,
+}

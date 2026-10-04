@@ -9,6 +9,7 @@
 pub struct JobHandle {
     pub(crate) cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
     pub(crate) state: std::sync::Arc<std::sync::Mutex<JobState>>,
+    pub(crate) worker: std::sync::Arc<crate::native_worker::NativeWorker>,
 }
 
 #[uniffi::export]
@@ -85,23 +86,21 @@ impl JobHandle {
         doc = "Joins the worker and returns the same envelope the synchronous call\nwould have produced. Idempotent: later calls return the recorded\nresult without re-running anything.\n等待作业状态完成并返回持久结果。\n参数：无额外输入，重复调用读取同一共享结果。\n返回：同步调用形态的 JSON envelope，返回前再次授权。"
     )]
     pub fn result_json(&self) -> String {
-        loop {
-            let state = self
-                .state
-                .lock()
-                .unwrap_or_else(|poisoned| poisoned.into_inner());
-            if state.finished {
-                let result = state
-                    .result
-                    .clone()
-                    .unwrap_or_else(|| Err("job finished without a result".into()));
-                let authorization = state.authorization.clone();
-                drop(state);
-                return job_response(authorization, result);
-            }
-            drop(state);
-            std::thread::sleep(std::time::Duration::from_millis(5));
-        }
+        // 先等待真实线程（含 TLS 析构），再读取结果；不能持 JobState 锁执行 join。
+        let joined = self.worker.join();
+        let state = self
+            .state
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let result = joined.map_err(str::to_owned).and_then(|()| {
+            state
+                .result
+                .clone()
+                .unwrap_or_else(|| Err("job finished without a result".into()))
+        });
+        let authorization = state.authorization.clone();
+        drop(state);
+        job_response(authorization, result)
     }
 }
 

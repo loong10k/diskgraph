@@ -4,13 +4,23 @@ mod api_response;
 mod api_result;
 mod job_authorization;
 mod job_state;
+mod native_admission;
+#[cfg(test)]
+mod native_admission_tests;
 mod native_growth;
 #[cfg(test)]
 mod native_growth_tests;
+mod native_job_entry;
 mod native_jobs;
+mod native_join_task;
+mod native_lifecycle;
+#[cfg(test)]
+mod native_lifecycle_tests;
 mod native_listing;
 #[cfg(test)]
 mod native_listing_tests;
+#[cfg(test)]
+mod native_manager_tests;
 mod native_realm;
 mod native_reply;
 #[cfg(test)]
@@ -19,6 +29,14 @@ mod native_revision_candidate_tests;
 mod native_scan_gate;
 mod native_service;
 mod native_service_error;
+mod native_service_owner;
+#[cfg(test)]
+mod native_service_owner_tests;
+mod native_worker;
+#[cfg(test)]
+mod native_worker_exit_barrier;
+#[cfg(test)]
+mod native_worker_exit_tests;
 mod scan_coordinator;
 pub(crate) use api_response::{bounded_limit, response};
 pub(crate) use api_result::ApiResult;
@@ -31,6 +49,7 @@ pub(crate) use native_realm::realm_dir_for_database;
 pub(crate) use native_realm::{local_principal, open_engine};
 pub use native_service::NativeService;
 pub use native_service_error::NativeServiceError;
+pub use native_service_owner::NativeServiceOwner;
 pub(crate) use scan_coordinator::{run_scan_on_engine, run_scan_with_cancel, spawn_job};
 #[cfg(test)]
 mod async_tests;

@@ -228,17 +228,18 @@ fn revoked_job_handle(permission: diskgraph_core::Permission, active: bool) {
 
 #[test]
 fn last_job_handle_drop_requests_cancel_and_poll_never_joins() {
-    let flag = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-    let handle = JobHandle {
-        cancel: flag.clone(),
-        state: std::sync::Arc::new(std::sync::Mutex::new(JobState {
-            finished: false,
-            result: None,
-            progress: None,
-            authorization: None,
-        })),
-    };
+    let (release, waiting) = std::sync::mpsc::channel();
+    let handle = crate::spawn_job(move |_, _| {
+        waiting
+            .recv_timeout(std::time::Duration::from_secs(60))
+            .unwrap();
+        Ok(serde_json::json!({"released":true}))
+    });
+    let flag = handle.cancel.clone();
+    let worker = handle.worker.clone();
     assert!(handle.poll_result_json().is_none());
     drop(handle);
     assert!(flag.load(std::sync::atomic::Ordering::SeqCst));
+    release.send(()).unwrap();
+    worker.join().unwrap();
 }

@@ -1,14 +1,13 @@
-use crate::native_jobs::NativeJobs;
+use crate::native_lifecycle::NativeLifecycle;
 #[cfg(test)]
 use crate::native_scan_gate::NativeScanProgressHook;
 use crate::{JobHandle, NativeServiceError, native_reply, open_engine};
 use diskgraph_engine::Engine;
 use diskgraph_store::SqliteSnapshotStore;
 use serde_json::{Value, json};
-use std::sync::{
-    Arc, Mutex,
-    atomic::{AtomicBool, Ordering},
-};
+#[cfg(test)]
+use std::sync::Mutex;
+use std::sync::{Arc, atomic::AtomicBool};
 #[cfg(test)]
 #[path = "native_reply_budget_tests.rs"]
 mod native_reply_budget_tests;
@@ -18,8 +17,7 @@ mod native_reply_budget_tests;
 #[derive(uniffi::Object)]
 pub struct NativeService {
     pub(crate) engine: Arc<Engine>,
-    // None 表示已经关闭。锁同时覆盖任务登记与关闭，避免漏掉竞争中新建的任务。
-    jobs: Mutex<Option<NativeJobs>>,
+    lifecycle: Arc<NativeLifecycle>,
     closed: Arc<AtomicBool>,
     #[cfg(test)]
     scan_progress_hook: Mutex<Option<NativeScanProgressHook>>,
@@ -36,10 +34,13 @@ impl NativeService {
     pub fn new(database_path: String) -> Result<Arc<Self>, NativeServiceError> {
         let engine = open_engine(&database_path)
             .map_err(|message| NativeServiceError::Unavailable { reason: message })?;
+        let closed = Arc::new(AtomicBool::new(false));
+        let limit =
+            diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
         Ok(Arc::new(Self {
             engine: Arc::new(engine),
-            jobs: Mutex::new(Some(Vec::new())),
-            closed: Arc::new(AtomicBool::new(false)),
+            lifecycle: Arc::new(NativeLifecycle::new(closed.clone(), limit)),
+            closed,
             #[cfg(test)]
             scan_progress_hook: Mutex::new(None),
         }))
@@ -51,16 +52,7 @@ impl NativeService {
         doc = "关闭会话并请求取消所有尚存作业句柄；之后的请求明确失败。\n关闭会话并请求取消所有现存关联作业。\n参数：无额外输入，使用当前会话作业登记。\n返回：无；后续请求明确失败。"
     )]
     pub fn shutdown(&self) {
-        self.closed.store(true, Ordering::SeqCst);
-        if let Ok(mut state) = self.jobs.lock()
-            && let Some(jobs) = state.take()
-        {
-            for (_, job) in jobs {
-                if let Some(job) = job.upgrade() {
-                    job.cancel();
-                }
-            }
-        }
+        self.lifecycle.close();
     }
 
     /// 从后台扫描本地目录，返回立即可轮询和取消的句柄。
@@ -69,36 +61,16 @@ impl NativeService {
         doc = "从后台扫描本地目录，返回立即可轮询和取消的句柄。\n启动本机根目录扫描并复用同根活动句柄。\n参数：root_path 为可规范化的扫描根路径。\n返回：共享作业句柄或已关闭、路径及状态错误。"
     )]
     pub fn spawn_scan(&self, root_path: String) -> Result<Arc<JobHandle>, NativeServiceError> {
+        let _admission = self.lifecycle.admit()?;
+        #[cfg(test)]
+        crate::native_admission_tests::before_canonicalize();
+        self.lifecycle.ensure_open()?;
+        self.lifecycle.reap()?;
         let root = std::path::Path::new(&root_path)
             .canonicalize()
             .map_err(|error| NativeServiceError::Unavailable {
                 reason: error.to_string(),
             })?;
-        let mut guard = self
-            .jobs
-            .lock()
-            .map_err(|_| NativeServiceError::Unavailable {
-                reason: "session state poisoned".into(),
-            })?;
-        let jobs = guard
-            .as_mut()
-            .ok_or_else(|| NativeServiceError::Unavailable {
-                reason: "session closed".into(),
-            })?;
-        if self.closed.load(Ordering::SeqCst) {
-            return Err(NativeServiceError::Unavailable {
-                reason: "session closed".into(),
-            });
-        }
-        jobs.retain(|(_, job)| job.strong_count() > 0);
-        // 同目录在本会话中共用句柄；释放一个订阅者不会取消其他订阅者。
-        if let Some(handle) = jobs
-            .iter()
-            .filter(|(path, _)| path == &root)
-            .find_map(|(_, job)| job.upgrade().filter(|job| !job.is_finished()))
-        {
-            return Ok(handle);
-        }
         let engine = self.engine.clone();
         let root_path = root
             .to_str()
@@ -108,23 +80,23 @@ impl NativeService {
             .to_owned();
         #[cfg(test)]
         let scan_progress_hook = self.scan_progress_hook.lock().unwrap().take();
-        let handle = crate::spawn_job(move |cancel, progress| {
-            #[cfg(test)]
-            {
-                crate::run_scan_on_engine(engine, &root_path, cancel, &|value, engine| {
-                    progress(value.clone(), engine);
-                    if let Some(hook) = &scan_progress_hook {
-                        hook(&value);
-                    }
-                })
-            }
-            #[cfg(not(test))]
-            {
-                crate::run_scan_on_engine(engine, &root_path, cancel, progress)
-            }
-        });
-        jobs.push((root, Arc::downgrade(&handle)));
-        Ok(handle)
+        self.lifecycle.register(root, || {
+            crate::scan_coordinator::try_spawn_job(move |cancel, progress| {
+                #[cfg(test)]
+                {
+                    crate::run_scan_on_engine(engine, &root_path, cancel, &|value, engine| {
+                        progress(value.clone(), engine);
+                        if let Some(hook) = &scan_progress_hook {
+                            hook(&value);
+                        }
+                    })
+                }
+                #[cfg(not(test))]
+                {
+                    crate::run_scan_on_engine(engine, &root_path, cancel, progress)
+                }
+            })
+        })
     }
 
     /// 按节点 ID 查询；snapshot 的真实 scope 和实时数据库权限决定访问。
@@ -192,6 +164,41 @@ impl NativeService {
 }
 
 impl NativeService {
+    /// 在非 UI 宿主创建带唯一 join manager 的服务；原 UniFFI 构造入口保持旧模式。
+    /// 参数：database_path 为图库路径；返回：可共享 Service 和必须在后台持有/释放的非 Send/Sync owner。
+    /// Service 可先释放，owner 仍负责两级实际回收；本接口不导出到 UniFFI。
+    pub fn new_with_owner(
+        database_path: String,
+    ) -> Result<(Arc<Self>, crate::NativeServiceOwner), NativeServiceError> {
+        let engine = open_engine(&database_path)
+            .map_err(|reason| NativeServiceError::Unavailable { reason })?;
+        let closed = Arc::new(AtomicBool::new(false));
+        let limit =
+            diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
+        let lifecycle = Arc::new(NativeLifecycle::managed(closed.clone(), limit)?);
+        let owner = crate::NativeServiceOwner::start(lifecycle.clone())?;
+        // owner 已接管 manager；后续构造 unwind 也由其后台 Drop 完成回收。
+        let service = Arc::new(Self {
+            engine: Arc::new(engine),
+            lifecycle,
+            closed,
+            #[cfg(test)]
+            scan_progress_hook: Mutex::new(None),
+        });
+        Ok((service, owner))
+    }
+
+    /// 关闭准入并等待 managed 会话的协调线程退出；旧模式明确不支持，UniFFI ABI 不变。
+    /// 参数：deadline 为原调用绝对期限；返回：全部准入归还且 coordinator 已 join，或未退场错误。
+    /// shutdown/Drop 仍只请求取消；本方法必须在宿主后台线程调用，不代表 pinned scanner drain。
+    pub fn drain_coordinators_until(
+        &self,
+        deadline: std::time::Instant,
+    ) -> Result<(), NativeServiceError> {
+        self.shutdown();
+        self.lifecycle.drain_until(deadline)
+    }
+
     /// 为下一次本会话扫描安装请求局部测试回调，生产构建无此入口。
     #[cfg_attr(
         doc,

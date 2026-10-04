@@ -1,0 +1,153 @@
+{
+  "change": "implement-diskgraph-platform",
+  "boundary": "Rust managed coordinator only; inner runner, upstream scanner exit and Swift/Kotlin managed hosts remain open",
+  "candidate_manifest_sha256": "7787b6614eaa7cf10098c7256faf888ee766429f951b6076041962f7ffed5e86",
+  "source_tree": "efee4d085c4f05f9b3ffd8bd477eb5e27fa7e271",
+  "source_files": [
+    {
+      "path": "crates/diskgraph-ffi/src/native_admission.rs",
+      "sha256": "abe2b9ecf9428be98006fc0f60429014d833ead03febbe4052c3d4457e71909c",
+      "lines": 14
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_admission_tests.rs",
+      "sha256": "8f4ba85ea85a59b05d65dd68c40face60b25aeeeb5bd5726c6c02f2d9be9bad8",
+      "lines": 232
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_job_entry.rs",
+      "sha256": "6f789b32f137bd7f435df5c376ad4b33257d4aa026b407ebc5ce63c33476f224",
+      "lines": 25
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_jobs.rs",
+      "sha256": "f58ae8b6628b071a42aeb06a71c262879ee568c92039ce5a3ceaa1b96940e97e",
+      "lines": 10
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_lifecycle.rs",
+      "sha256": "b2b893e5caf8636bd171aa7f69d546a3fd3c72dcaf8ef7a32580464749b6212f",
+      "lines": 277
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_lifecycle_tests.rs",
+      "sha256": "b8e713d22a6037c4e041f4f9c61e86d3fdd40cac4a9a9e4cb646de59fe68d413",
+      "lines": 172
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service.rs",
+      "sha256": "d46dfad8a5e43cc4c255896f01207a845522c57b16c4e621b3fe0cccb1ab86cf",
+      "lines": 347
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_worker.rs",
+      "sha256": "d297e2acc65fea460c719e7a066e57ffcc3b7c4b7c933387b223e0a73630baa9",
+      "lines": 164
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_worker/tests.rs",
+      "sha256": "8e5d4800df558b0a6ad7cb050627cc10e1fa2fca06d78164cf46f934e0e1d02c",
+      "lines": 41
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_worker_exit_barrier.rs",
+      "sha256": "6d6994b41e2101a8d2f650816bff6cff6a286f3d96e67f1b48d260c086e73cde",
+      "lines": 38
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_worker_exit_tests.rs",
+      "sha256": "15efed2691e6255e465b128116a3f944fe5411e47da4f93fa10701fdec5b9e0e",
+      "lines": 163
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/job_handle.rs",
+      "sha256": "8c2ec1ea7eff66f56812556f02466176ed3e498c775318fe26bc5366ecc5da37",
+      "lines": 132
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/scan_coordinator.rs",
+      "sha256": "2b1eada33f93fabdfc088bd1cb96f5cc0c3c7a9e1aea696ad4dd635cc9985e0c",
+      "lines": 277
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service_tests.rs",
+      "sha256": "260a4f1ae2742cb7be149f010f774cd97939e4b0129c8a72fcf3cf4e42a54b3d",
+      "lines": 245
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/lib.rs",
+      "sha256": "b960705e83b7454b2985a930780aa0ec47255ecb2a03ccaa5e0825919ed752f0",
+      "lines": 75
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_join_task.rs",
+      "sha256": "e778fdcb2e10142fc876e15cda1d9ef8070e44a2f2baabc3f48342bab442cc73",
+      "lines": 41
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service_owner.rs",
+      "sha256": "d188a15a26336ee0432d6ab0884c6576a5e6fd11cb91be5ed24690d98e928cea",
+      "lines": 64
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service_owner_tests.rs",
+      "sha256": "f98c7071fd180304ada8b011bacc7d7aafd0a8b5aa33459477528bcbc351fe75",
+      "lines": 213
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_manager_tests.rs",
+      "sha256": "6065a9fce97f57e1baefa3452a278048a366073191f45f84c1d083c83589eff8",
+      "lines": 192
+    }
+  ],
+  "local": {
+    "workspace": [
+      1562,
+      0,
+      18
+    ],
+    "suites": 70,
+    "ffi": [
+      82,
+      0,
+      0
+    ],
+    "owned_nine_package_fmt_exit": 0,
+    "workspace_clippy_exit": 0,
+    "build_exit": 0,
+    "abi_checks": [
+      19,
+      19
+    ],
+    "openspec_exit": 0
+  },
+  "retained_failure": "fmt --all finds unchanged diskgraph-disktree-core/src formatting; vendor pin and source preserved independently; nine owned packages pass",
+  "tls": {
+    "original_budget_ms": 30,
+    "actual_elapsed_ms": 40.106792,
+    "active_release": true,
+    "scope": "bounded coordinator wait; not strict OS scheduling guarantee"
+  },
+  "next_inner_runner": {
+    "runtime_red": [
+      0,
+      3,
+      0
+    ],
+    "actual_release": true,
+    "stage": "tests only; not staged in this source"
+  },
+  "previous_commit_native": {
+    "sha": "fd71b508f20f16b8c550e8b093ac998a91c8dcff",
+    "run": 37226948350,
+    "conclusion": "success",
+    "jobs": 22
+  },
+  "independent_review": "19/19 final source APPROVE before frozen export; inner runner not accepted",
+  "tasks": {
+    "total": 167,
+    "complete": 140,
+    "open": 27
+  },
+  "archive_manifest": "process_job_foundation_acceptance_logs/archives_lifecycle.json"
+}

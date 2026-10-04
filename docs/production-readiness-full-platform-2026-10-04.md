@@ -1,5 +1,9 @@
 # Full-platform acceptance continuation — 2026-10-04
 
+Managed FFI coordinator candidate `7787b661` passed an isolated export of index tree `efee4d08`: full workspace **1562/0/18 (70 suites)**, nine owned packages fmt, strict workspace Clippy, build, OpenSpec and **19/19 old ABI checksums**. The original 30 ms TLS drain test returned pending in 40.107 ms with active release; this is not a strict scheduling guarantee. Rust host ownership is implemented; inner runner and physical scanner exit, native managed hosts and platform parent gates remain open. New inner-runner tests reproduced premature return in all three completed/denied/unwind cases (**0/3/0**); those next-slice sources are excluded from this candidate. Previous commit `fd71b50` completed [native CI](https://github.com/loong10k/diskgraph/actions/runs/37226948350) successfully. Evidence: [managed owner receipt](benchmarks/managed_ffi_owner_acceptance_2026_10_05.json).
+
+Earlier checkpoints follow.
+
 The staged source was separately exported from Git index tree `76b632c6`, excluding the unfinished FFI owner: full workspace **1545/0/18 (70 suites)**, nine-package fmt, strict workspace Clippy and OpenSpec passed. This is local acceptance; native CI for the new source has not run.
 
 The scanner cache commit `f435582` completed [CI37222271476](https://github.com/loong10k/diskgraph/actions/runs/37222271476) with **22/22 successful jobs**. Its same-host, same-fixture release AB/BA comparison against fixed `2a2f828` used 12 qualified Linux measurements: 20k wide scans took 5–7% less time and 200k wide scans 6–11% less; the 300-level subtree was approximately unchanged. All 67 artifact file hashes and signed storage deltas were verified. These are paired observations, not general throughput, cold-cache, atomic-snapshot or strict RSS guarantees. The original-held-directory cache still rereads every current ancestor identity; the upstream scanner pin and bytes remain unchanged.

@@ -40,14 +40,14 @@ fn authorized_job_progress(engine: &diskgraph_engine::Engine, job_id: &str) -> A
 /// 建立取消和结果共享状态并在线程执行扫描闭包。
 /// 参数：work 接收取消标志与进度回调，回调绑定实时作业授权。
 /// 返回：可取消和轮询的共享句柄；worker 恐慌记录为失败。
-pub(crate) fn spawn_job(
+pub(crate) fn try_spawn_job(
     work: impl FnOnce(
         &std::sync::atomic::AtomicBool,
         &dyn Fn(Value, std::sync::Arc<diskgraph_engine::Engine>),
     ) -> ApiResult
     + Send
     + 'static,
-) -> std::sync::Arc<JobHandle> {
+) -> Result<std::sync::Arc<JobHandle>, crate::NativeServiceError> {
     let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let state = std::sync::Arc::new(std::sync::Mutex::new(JobState {
         finished: false,
@@ -57,30 +57,60 @@ pub(crate) fn spawn_job(
     }));
     let worker_cancel = cancel.clone();
     let worker_state = state.clone();
-    std::thread::spawn(move || {
-        let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            work(&worker_cancel, &|value, engine| {
-                let mut state = worker_state
-                    .lock()
-                    .unwrap_or_else(|poisoned| poisoned.into_inner());
-                if state.authorization.is_none()
-                    && let Some(job_id) = value["job_id"].as_str().map(str::to_owned)
-                {
-                    state.authorization = Some(std::sync::Arc::new(move || {
-                        authorized_job_progress(&engine, &job_id).map(|_| ())
-                    }));
-                }
-                state.progress = Some(value);
-            })
-        }))
-        .unwrap_or_else(|_| Err("scan worker crashed".into()));
-        let mut state = worker_state
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
-        state.result = Some(outcome);
-        state.finished = true;
-    });
-    std::sync::Arc::new(JobHandle { cancel, state })
+    let (start_tx, start_rx) = std::sync::mpsc::channel();
+    let worker = std::thread::Builder::new()
+        .name("diskgraph-native-scan".into())
+        .spawn(move || {
+            if start_rx.recv().is_err() {
+                return;
+            }
+            let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                work(&worker_cancel, &|value, engine| {
+                    let mut state = worker_state
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                    if state.authorization.is_none()
+                        && let Some(job_id) = value["job_id"].as_str().map(str::to_owned)
+                    {
+                        state.authorization = Some(std::sync::Arc::new(move || {
+                            authorized_job_progress(&engine, &job_id).map(|_| ())
+                        }));
+                    }
+                    state.progress = Some(value);
+                })
+            }))
+            .unwrap_or_else(|_| Err("scan worker crashed".into()));
+            let mut state = worker_state
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            state.result = Some(outcome);
+            state.finished = true;
+        })
+        .map_err(|error| crate::NativeServiceError::Unavailable {
+            reason: format!("scan worker spawn failed: {error}"),
+        })?;
+    Ok(std::sync::Arc::new(JobHandle {
+        cancel,
+        state,
+        worker: std::sync::Arc::new(crate::native_worker::NativeWorker::with_start(
+            worker, start_tx,
+        )),
+    }))
+}
+
+/// 保留旧无错误返回的内部/UniFFI 包装，线程创建失败仍遵循原 spawn 恐慌行为。
+/// 参数：work 为真实工作闭包；返回：原共享句柄，不改变旧 ABI。
+pub(crate) fn spawn_job(
+    work: impl FnOnce(
+        &std::sync::atomic::AtomicBool,
+        &dyn Fn(Value, std::sync::Arc<diskgraph_engine::Engine>),
+    ) -> ApiResult
+    + Send
+    + 'static,
+) -> std::sync::Arc<JobHandle> {
+    let handle = try_spawn_job(work).expect("native scan worker spawn failed");
+    handle.worker.start();
+    handle
 }
 
 /// The worker body: the synchronous scan, run to completion unless the

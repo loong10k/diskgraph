@@ -1,5 +1,9 @@
 # 全平台验收续篇 — 2026-10-04
 
+FFI 协调层候选 `7787b661` 从 index tree `efee4d08` 隔离导出验收：workspace **1562/0/18（70 suites）**、九个自有包 fmt、严格 workspace Clippy、构建、OpenSpec 和 **19/19 旧 ABI 校验值**通过。原 30 毫秒 TLS drain 在 40.107 毫秒返回 pending，随后主动释放；不代表严格调度上限。已实现 Rust 宿主所有权，但内部 runner、上游扫描器物理退出、真实宿主及平台父门禁仍开放。下一批内部 runner 回归实际复现正常完成／撤权／unwind 三条路径提前返回（**0/3/0**）；其源码不包含在本候选中。上一提交 `fd71b50` 的[原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37226948350) 已成功。证据见[owner 回执](benchmarks/managed_ffi_owner_acceptance_2026_10_05.json)。
+
+下方为历史阶段记录。
+
 待提交源码另以 Git index tree `76b632c6` 隔离导出，排除未完成 FFI owner，完整 workspace **1545/0/18（70 suites）**、九包 fmt、严格 workspace Clippy 与 OpenSpec 通过；这是本机验收，新提交原生 CI 尚未运行。
 
 扫描缓存提交 `f435582` 的 [CI37222271476](https://github.com/loong10k/diskgraph/actions/runs/37222271476) 已终态 **22/22 成功**。同机、同夹具 release AB/BA 配对固定 `2a2f828`，12 份 Linux 测量具备阶段资格：20k 宽目录耗时降低约 5–7%，200k 降低约 6–11%，300 层子树基本持平。67 份产物文件摘要及有符号存储增量已核验。这是配对观测，不代表通用吞吐、冷缓存、原子快照或严格 RSS 保证。原持有目录身份缓存仍每次重读当前完整祖先链，上游扫描器 pin 和源码字节保持不变。
