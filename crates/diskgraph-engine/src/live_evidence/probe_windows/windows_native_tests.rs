@@ -16,7 +16,7 @@ use windows_sys::Win32::System::JobObjects::{
 };
 use windows_sys::Win32::System::Threading::{CreateEventW, SetEvent, WaitForSingleObject};
 
-use super::owned_handle::OwnedHandle;
+use crate::native_child::OwnedHandle;
 
 fn fixture(mode: &str) -> Command {
     let mut command = Command::new(std::env::current_exe().unwrap());

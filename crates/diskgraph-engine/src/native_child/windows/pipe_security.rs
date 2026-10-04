@@ -13,7 +13,7 @@ use windows_sys::Win32::Security::{
 };
 use windows_sys::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken};
 
-use super::super::probe_failure::ProbeFailure;
+use super::super::ChildError;
 use super::owned_handle::OwnedHandle;
 
 /// 持有 LocalAlloc 安全描述符。来源：Win32 SDDL 当前用户 DACL 与 LocalFree。
@@ -23,7 +23,7 @@ pub(super) struct PipeSecurity {
 
 impl PipeSecurity {
     /// 获取当前用户 SID 并建立受保护 DACL。参数：无。返回：描述符所有权或 Win32 错误。
-    pub(super) fn for_current_user() -> Result<Self, ProbeFailure> {
+    pub(super) fn for_current_user() -> Result<Self, ChildError> {
         let mut token = null_mut();
         if unsafe { OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &mut token) } == 0 {
             return Err(last("OpenProcessToken"));
@@ -73,10 +73,10 @@ impl PipeSecurity {
         };
         unsafe { LocalFree(sid_text.cast()) };
         if sid_units.is_empty() || sid_units.len() == 256 {
-            return Err(ProbeFailure::Unsupported("invalid current-user SID"));
+            return Err(ChildError::Unsupported("invalid current-user SID"));
         }
         let sid = String::from_utf16(&sid_units)
-            .map_err(|_| ProbeFailure::Unsupported("invalid current-user SID encoding"))?;
+            .map_err(|_| ChildError::Unsupported("invalid current-user SID encoding"))?;
         let sddl: Vec<u16> = format!("D:P(A;;GA;;;{sid})(A;;GA;;;SY)")
             .encode_utf16()
             .chain(std::iter::once(0))
@@ -112,6 +112,6 @@ impl Drop for PipeSecurity {
     }
 }
 
-fn last(context: &'static str) -> ProbeFailure {
-    ProbeFailure::io(context, io::Error::last_os_error())
+fn last(context: &'static str) -> ChildError {
+    ChildError::io(context, io::Error::last_os_error())
 }

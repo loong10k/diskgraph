@@ -5,7 +5,7 @@ use std::os::windows::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use super::super::probe_failure::ProbeFailure;
+use super::super::ChildError;
 
 const MAX_INPUT_UNITS: usize = 32_767;
 
@@ -19,7 +19,7 @@ pub(super) struct WindowsCommandLine {
 
 impl WindowsCommandLine {
     /// 将 Command 显式参数与环境编码。参数：command 为私有 env_clear 调用方配置。返回：有界宽字符输入或拒绝原因。
-    pub(super) fn from_command(command: &Command) -> Result<Self, ProbeFailure> {
+    pub(super) fn from_command(command: &Command) -> Result<Self, ChildError> {
         let executable = resolve_executable(command)?;
         let application = wide_nul(executable.as_os_str())?;
         let mut quoted = Vec::new();
@@ -32,7 +32,7 @@ impl WindowsCommandLine {
             }
             quote_crt(&wide(part)?, &mut quoted);
             if quoted.len() >= MAX_INPUT_UNITS {
-                return Err(ProbeFailure::InvalidLimits);
+                return Err(ChildError::InvalidLimits);
             }
         }
         quoted.push(0);
@@ -41,9 +41,7 @@ impl WindowsCommandLine {
             .get_current_dir()
             .map(|path| {
                 if !path.is_absolute() {
-                    return Err(ProbeFailure::Unsupported(
-                        "relative probe working directory",
-                    ));
+                    return Err(ChildError::Unsupported("relative probe working directory"));
                 }
                 wide_nul(path.as_os_str())
             })
@@ -79,7 +77,7 @@ impl WindowsCommandLine {
     }
 }
 
-fn resolve_executable(command: &Command) -> Result<PathBuf, ProbeFailure> {
+fn resolve_executable(command: &Command) -> Result<PathBuf, ChildError> {
     let program = command.get_program();
     let path = Path::new(program);
     let candidate = if path.is_absolute() {
@@ -90,13 +88,13 @@ fn resolve_executable(command: &Command) -> Result<PathBuf, ProbeFailure> {
             .filter(|name| {
                 !name.is_empty() && !name.chars().any(|unit| matches!(unit, '\\' | '/' | ':'))
             })
-            .ok_or(ProbeFailure::Unsupported(
+            .ok_or(ChildError::Unsupported(
                 "probe program must be an absolute .exe or simple name",
             ))?;
         let name = if name.to_ascii_lowercase().ends_with(".exe") {
             name.to_owned()
         } else if name.contains('.') {
-            return Err(ProbeFailure::Unsupported(
+            return Err(ChildError::Unsupported(
                 "probe scripts and non-.exe programs are forbidden",
             ));
         } else {
@@ -106,27 +104,27 @@ fn resolve_executable(command: &Command) -> Result<PathBuf, ProbeFailure> {
             .get_envs()
             .find(|(key, _)| key.to_string_lossy().eq_ignore_ascii_case("PATH"))
             .and_then(|(_, value)| value)
-            .ok_or(ProbeFailure::Unsupported(
+            .ok_or(ChildError::Unsupported(
                 "simple probe name requires explicit PATH",
             ))?;
         std::env::split_paths(explicit_path)
             .filter(|directory| directory.is_absolute())
             .map(|directory| directory.join(&name))
             .find(|candidate| candidate.is_file())
-            .ok_or(ProbeFailure::Unsupported(
+            .ok_or(ChildError::Unsupported(
                 "probe executable absent from explicit absolute PATH",
             ))?
     };
     let executable = candidate
         .canonicalize()
-        .map_err(|error| ProbeFailure::io("canonicalize probe executable", error))?;
+        .map_err(|error| ChildError::io("canonicalize probe executable", error))?;
     if !executable.is_file()
         || !executable
             .extension()
             .and_then(OsStr::to_str)
             .is_some_and(|extension| extension.eq_ignore_ascii_case("exe"))
     {
-        return Err(ProbeFailure::Unsupported(
+        return Err(ChildError::Unsupported(
             "probe executable must be an .exe file",
         ));
     }
@@ -138,14 +136,14 @@ fn resolve_executable(command: &Command) -> Result<PathBuf, ProbeFailure> {
         .iter()
         .any(|shell| basename.eq_ignore_ascii_case(shell))
     {
-        return Err(ProbeFailure::Unsupported(
+        return Err(ChildError::Unsupported(
             "shell probe executables are forbidden",
         ));
     }
     Ok(executable)
 }
 
-fn explicit_environment(command: &Command) -> Result<Vec<u16>, ProbeFailure> {
+fn explicit_environment(command: &Command) -> Result<Vec<u16>, ChildError> {
     let mut entries: Vec<(String, Vec<u16>, Vec<u16>)> = Vec::new();
     let mut encoded_units = 0usize;
     for (key, value) in command.get_envs() {
@@ -153,11 +151,11 @@ fn explicit_environment(command: &Command) -> Result<Vec<u16>, ProbeFailure> {
         // 预留最终 NUL、当前条目的 '=' 和 NUL；每个字段最多只编码剩余额度加一单位。
         let available = MAX_INPUT_UNITS - encoded_units - 1;
         if available < 3 {
-            return Err(ProbeFailure::InvalidLimits);
+            return Err(ChildError::InvalidLimits);
         }
         let key_units = wide_bounded(key, available - 2)?;
         if key_units.is_empty() || key_units.contains(&(b'=' as u16)) {
-            return Err(ProbeFailure::Unsupported("invalid probe environment key"));
+            return Err(ChildError::Unsupported("invalid probe environment key"));
         }
         let value_units = wide_bounded(value, available - key_units.len() - 2)?;
         encoded_units += key_units.len() + value_units.len() + 2;
@@ -165,9 +163,7 @@ fn explicit_environment(command: &Command) -> Result<Vec<u16>, ProbeFailure> {
     }
     entries.sort_by(|left, right| left.0.cmp(&right.0));
     if entries.windows(2).any(|pair| pair[0].0 == pair[1].0) {
-        return Err(ProbeFailure::Unsupported(
-            "duplicate probe environment keys",
-        ));
+        return Err(ChildError::Unsupported("duplicate probe environment keys"));
     }
     let mut block = Vec::new();
     for (_, key, value) in entries {
@@ -191,19 +187,19 @@ fn explicit_environment(command: &Command) -> Result<Vec<u16>, ProbeFailure> {
     Ok(block)
 }
 
-fn wide(value: &OsStr) -> Result<Vec<u16>, ProbeFailure> {
+fn wide(value: &OsStr) -> Result<Vec<u16>, ChildError> {
     wide_bounded(value, MAX_INPUT_UNITS - 1)
 }
 
-fn wide_bounded(value: &OsStr, max_units: usize) -> Result<Vec<u16>, ProbeFailure> {
+fn wide_bounded(value: &OsStr, max_units: usize) -> Result<Vec<u16>, ChildError> {
     let units: Vec<u16> = value.encode_wide().take(max_units + 1).collect();
     if units.contains(&0) || units.len() > max_units {
-        return Err(ProbeFailure::InvalidLimits);
+        return Err(ChildError::InvalidLimits);
     }
     Ok(units)
 }
 
-fn wide_nul(value: &OsStr) -> Result<Vec<u16>, ProbeFailure> {
+fn wide_nul(value: &OsStr) -> Result<Vec<u16>, ChildError> {
     let mut units = wide(value)?;
     units.push(0);
     Ok(units)
@@ -233,7 +229,7 @@ fn quote_crt(argument: &[u16], output: &mut Vec<u16>) {
 #[cfg(test)]
 mod tests {
     use super::{MAX_INPUT_UNITS, explicit_environment, quote_crt, wide};
-    use crate::live_evidence::probe_failure::ProbeFailure;
+    use crate::native_child::ChildError;
     use std::ffi::OsStr;
     use std::process::Command;
 
@@ -265,7 +261,7 @@ mod tests {
         let input = "长".repeat(1_000_000);
         assert!(matches!(
             wide(OsStr::new(&input)),
-            Err(ProbeFailure::InvalidLimits)
+            Err(ChildError::InvalidLimits)
         ));
     }
 
@@ -282,7 +278,7 @@ mod tests {
         command.env("K", "x".repeat(MAX_INPUT_UNITS - 3));
         assert!(matches!(
             explicit_environment(&command),
-            Err(ProbeFailure::InvalidLimits)
+            Err(ChildError::InvalidLimits)
         ));
     }
 
@@ -295,7 +291,7 @@ mod tests {
         }
         assert!(matches!(
             explicit_environment(&command),
-            Err(ProbeFailure::InvalidLimits)
+            Err(ChildError::InvalidLimits)
         ));
     }
 }

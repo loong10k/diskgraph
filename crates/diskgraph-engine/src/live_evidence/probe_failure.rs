@@ -49,3 +49,62 @@ impl ProbeFailure {
         Self::Io(format!("{context}: {error}"))
     }
 }
+
+// OS 层不持业务错误；原探针边界逐项恢复既有类型、文本与清理原因。
+impl From<crate::native_child::ChildError> for ProbeFailure {
+    fn from(error: crate::native_child::ChildError) -> Self {
+        use crate::native_child::ChildError;
+        match error {
+            #[cfg(windows)]
+            ChildError::InvalidLimits => Self::InvalidLimits,
+            ChildError::Unsupported(reason) => Self::Unsupported(reason),
+            ChildError::Io(reason) => Self::Io(reason),
+            ChildError::Cleanup { primary, cleanup } => Self::Cleanup {
+                primary: Box::new(Self::from(*primary)),
+                cleanup: Box::new(Self::from(*cleanup)),
+            },
+        }
+    }
+}
+
+impl From<crate::native_child::ChildSpawnError<ProbeFailure>> for ProbeFailure {
+    fn from(error: crate::native_child::ChildSpawnError<Self>) -> Self {
+        use crate::native_child::ChildSpawnError;
+        match error {
+            ChildSpawnError::Operation(error) => Self::from(error),
+            ChildSpawnError::Checkpoint { primary, cleanup } => {
+                primary.with_cleanup(cleanup.map_or(Ok(()), |error| Err(Self::from(error))))
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ProbeFailure;
+    use crate::native_child::{ChildError, ChildSpawnError};
+
+    #[test]
+    fn original_probe_checkpoint_and_cleanup_errors_keep_their_types_and_text() {
+        let source = ProbeFailure::Cancelled.with_cleanup(Err(ProbeFailure::Io("reap".into())));
+        let moved = ProbeFailure::from(
+            ChildSpawnError::checkpoint(ProbeFailure::Cancelled)
+                .with_cleanup(Err(ChildError::Io("reap".into()))),
+        );
+        assert_eq!(moved.to_string(), source.to_string());
+        assert!(matches!(moved, ProbeFailure::Cleanup { primary, cleanup }
+            if matches!(*primary, ProbeFailure::Cancelled)
+            && matches!(*cleanup, ProbeFailure::Io(ref value) if value == "reap")));
+    }
+
+    #[test]
+    fn nested_os_cleanup_is_mapped_without_changing_the_original_probe_diagnostic() {
+        let old = ProbeFailure::Io("read".into())
+            .with_cleanup(Err(ProbeFailure::Io("terminate".into())))
+            .with_cleanup(Err(ProbeFailure::Unsupported("lost owner")));
+        let error = ChildError::Io("read".into())
+            .with_cleanup(Err(ChildError::Io("terminate".into())))
+            .with_cleanup(Err(ChildError::Unsupported("lost owner")));
+        assert_eq!(ProbeFailure::from(error).to_string(), old.to_string());
+    }
+}

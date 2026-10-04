@@ -115,3 +115,13 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **THEN** owner 能力借用库内普通栈上的唯一实际线程所有者，不能通过安全 Rust 返回、写入 static/thread_local 或传入另一线程。能力显式 finalize 或提前 Drop 仍执行相同真实 finalization；受管阻塞入口返回前必须回收 manager。
 - **AND** 即使宿主对借用能力调用 mem::forget，库内独立栈守卫仍在正常返回或 unwind 时关闭准入并实际 join，不能遗弃真实句柄或报告伪完成。清理失败必须保留错误，不替代原 panic；不持有数据库或 registry 锁 join。
 - **AND** 本约束防止 owner 逃逸至静态 TLS，不能判断调用者是否在 TLS 析构、DllMain 或 UI 中直接调用整个阻塞入口。这些调用上下文仍不受支持，需真实宿主后台线程验收。旧 UniFFI 签名和可信本地兼容构造入口保持不变，不保留新增受管 tuple 构造的逃逸后门。
+
+#### Scenario: Scanner result delivery does not prove physical exit
+- **WHEN** 固定上游扫描已产生真实结果，但受控桌面扫描 helper 进程仍未退出
+- **THEN** 结果消息、End、EOF 或逻辑 finished 不能完成阻塞结果／退场许可，必须实际等待该 OS 进程退出，之后才进入原转换、身份观测、staging 与发布。
+- **AND** 父 Engine 保留原授权、claim 期限、fencing 与根／祖先租约，helper 不获得数据库或授权能力。上游源码／pin／摘要不变，不把外层线程 join 或进程退出描述为上游 TLS 析构全部完成。
+
+#### Scenario: Scanner process failure retains cleanup and publication gates
+- **WHEN** 扫描期间撤权、取消、超限、协议坏帧／早 EOF、执行失败或父端 unwind
+- **THEN** 唯一 OS owner 停止并实际回收受控扫描进程及管道，未回收不能宣称成功；原错误与清理失败均保留，不能发布新 revision。结果到达后／等待退场期间的根与祖先替换仍由原身份租约拒绝，合法 sibling 变化保持原语义。
+- **AND** 完整原路径与 ScanOptions 保持，与原扫描逐字段／顺序配对；有界传输成本与真实 staging 编码分别计费。可信 helper 定位／完整性、源读取隔离、真实 provider、签名和移动宿主独立验收，不据此关闭全平台父项。

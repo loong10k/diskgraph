@@ -52,6 +52,7 @@ mod job_stop_registration_tests;
 #[cfg(test)]
 mod job_stop_signals_tests;
 pub mod live_evidence;
+mod native_child;
 mod native_locator;
 pub mod native_process;
 mod policy_service;

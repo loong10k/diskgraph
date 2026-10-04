@@ -158,7 +158,7 @@ impl<'ast> Visit<'ast> for ProductionVisitor {
 
 fn module_base(path: &Path) -> PathBuf {
     match path.file_stem().unwrap().to_str().unwrap() {
-        "lib" | "mod" => path.parent().unwrap().to_path_buf(),
+        "lib" | "main" | "mod" => path.parent().unwrap().to_path_buf(),
         stem => path.parent().unwrap().join(stem),
     }
 }
@@ -222,10 +222,21 @@ fn rust_sources(path: &Path, out: &mut BTreeSet<PathBuf>) {
 
 #[test]
 fn all_platform_engine_sources_follow_the_rust_contract() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    check_rust_contract(Path::new(env!("CARGO_MANIFEST_DIR")).join("src"));
+}
+
+#[test]
+fn scan_worker_sources_follow_the_same_rust_contract() {
+    check_rust_contract(Path::new(env!("CARGO_MANIFEST_DIR")).join("../diskgraph-scan-worker/src"));
+}
+
+fn check_rust_contract(root: PathBuf) {
     let mut mounted = BTreeSet::new();
     let mut sources = Vec::new();
     source(&root.join("lib.rs"), true, &mut mounted, &mut sources);
+    if root.join("main.rs").exists() {
+        source(&root.join("main.rs"), true, &mut mounted, &mut sources);
+    }
     let mut disk = BTreeSet::new();
     rust_sources(&root, &mut disk);
     assert_eq!(disk, mounted, "存在未挂载或缺失的 Rust 源文件");

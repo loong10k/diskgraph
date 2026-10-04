@@ -1,0 +1,275 @@
+{
+  "schema": "diskgraph.scan_process_foundation_acceptance.v1",
+  "base_commit": "4db8de8",
+  "status": "reviewed foundation; native CI and final full QA not accepted",
+  "review_status": "independent source and receipt reviews APPROVE; final full QA and new native CI remain unaccepted",
+  "scope": {
+    "implemented": [
+      "shared Null OS child ownership without changing probe semantics",
+      "bounded flat protocol and iterative decoded tree disposal",
+      "pre-copy name admission and real writer IO error latch",
+      "workspace Rust contract coverage and TUI phase diagnostics"
+    ],
+    "not_implemented": [
+      "helper executable or Engine integration",
+      "nonblocking control pipe",
+      "normal whole-group exit proof",
+      "trusted executable/package qualification"
+    ]
+  },
+  "local_tests": {
+    "engine_lib": {
+      "passed": 404,
+      "failed": 0,
+      "ignored": 3,
+      "exit_code": 0
+    },
+    "initial_protocol": {
+      "passed": 34,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "initial_structural_red": {
+      "passed": 2,
+      "failed": 10,
+      "exit_code": 101
+    },
+    "preparation_red": {
+      "passed": 1,
+      "failed": 3,
+      "exit_code": 101
+    },
+    "protocol_final": {
+      "passed": 39,
+      "failed": 0,
+      "exit_code": 0,
+      "nested_allocator_subprocess_cases_not_double_counted": true
+    },
+    "source_contract_red": {
+      "passed": 0,
+      "failed": 1,
+      "exit_code": 101
+    },
+    "source_contract_final": {
+      "passed": 4,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "workspace_before_preparation_fix": {
+      "suites": 78,
+      "passed": 1611,
+      "failed": 0,
+      "ignored": 18,
+      "exit_code": 0
+    },
+    "final_workspace_before_diagnostic": {
+      "suites": 80,
+      "passed": 1616,
+      "failed": 1,
+      "ignored": 18,
+      "exit_code": 101,
+      "failure": "tui::deadline_frame_tests::expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend",
+      "observation": "paint not entered; Business BudgetExceeded",
+      "test_source_sha256": "f625949a96a36d594203a9e1d8696752693ea0f39ebb5e2e4a36bff8f9140808",
+      "mixed_validation": "owned-package fmt overlapped this run; causal impact unknown, failure retained"
+    },
+    "diagnostic_target": {
+      "passed": 1,
+      "failed": 0,
+      "exit_code": 0,
+      "before_paint_us": 649,
+      "total_us": 132601,
+      "deadline_ms": 50,
+      "does_not_prove_prior_failure_fixed": true
+    },
+    "vendor_pin": {
+      "passed": 4,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "strict_workspace_clippy_exit_code": 0,
+    "owned_package_fmt_exit_code": 0,
+    "openspec_strict_exit_code": 0
+  },
+  "allocation_comparison": {
+    "fixture_name_bytes": 2097152,
+    "measurement": "System requested allocation bytes during one bounded write, not RSS or peak live memory",
+    "tiny_frame": {
+      "before": 2097376,
+      "after": 86
+    },
+    "zero_nodes": {
+      "after": 86
+    },
+    "exhausted_stream": {
+      "before": 2098323,
+      "after": 1033,
+      "accepted_prefix_bytes": 235
+    },
+    "ample_budget": {
+      "after": 14683998,
+      "nodes": 3,
+      "wire_bytes": 2097899
+    }
+  },
+  "native_ci": "pending for these source hashes; b3b3746 CI22/22 belongs to prior source",
+  "full_platform_tasks": {
+    "total": 167,
+    "completed": 140,
+    "open": 27
+  },
+  "limits": [
+    "original TUI50ms failure cause remains unknown; no budget widening or retry acceptance",
+    "protocol read_tree/expect_eof are blocking standalone tools, not Engine20ms polling",
+    "PGID and process observations are not strong confinement; hidden/unknown group membership must fail closed",
+    "provider, managed-host, device, signing and scan physical exit gates remain open"
+  ],
+  "sources_sha256": {
+    ".github/workflows/ci.yml": "2d6a8e16906ad5d4071c99e335f96e61b9088756aaebdd9aec279e0804d26d5d",
+    "Cargo.lock": "eed626534a1075960a76033682f0e280a77c3d73553268d42a1647cc5a2f8445",
+    "Cargo.toml": "47250c4e34f45aa5ec224af3a6d092e4120447f5b6eccbfe077dd932faab9eb9",
+    "crates/diskgraph-cli/src/tui_deadline_frame_tests.rs": "fe3d69d045e42564a823b98dd6936414fe3bfc1ca0894a04595d5b61449a220c",
+    "crates/diskgraph-engine/src/lib.rs": "f0859dba3dbd2c27e26955f4e3247762af3b9daad2865581195bb3608adf3da5",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "00d681863d66b304ad0b24ab881fcaba5b12f5490e39985163d1dcc79f8ddb70",
+    "crates/diskgraph-engine/src/live_evidence/probe_failure.rs": "34351d5d9510c7b36228fbb79a201d1865f18da9304794f815341efaeca04c66",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/mod.rs": "ed6329ae2a0584be78a35d3dff416a7b487d84dad1bd9c9357835b45276f24a5",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "2f31458709c6db43aa5f0e55c19c9217e5320d0d957f704fde2c22e3e404923e",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "ff91352c5a942cfb75d122f87a397aed3afe6dc86769c009dae74bfb715a63f8",
+    "crates/diskgraph-engine/src/live_evidence/unix_probe_child.rs": "712138d7aeda3475015b70ce96a5d8036f2746463d0c123f061c2c1596627d99",
+    "crates/diskgraph-engine/src/native_child/checkpoint_tests.rs": "1438fd6e923234a8c53bdd915be2dc2c0a5bc45fdf7507b2e90212308d6df7b6",
+    "crates/diskgraph-engine/src/native_child/child_error.rs": "a80645e62a4111c839407f21ef86e1a79141dbc98d6ea0d3ff9519838197dab3",
+    "crates/diskgraph-engine/src/native_child/child_spawn_error.rs": "ecb4e4ae15e848bbf468a4f68f37bdc1e951a28fbb0eede93fbfbda1f8f4f386",
+    "crates/diskgraph-engine/src/native_child/macos_child_group.rs": "e31b638235ff4749ba57444b52ead6b025164ba08b61e9be8ccb976f96b0cba3",
+    "crates/diskgraph-engine/src/native_child/mod.rs": "98fb8416459c7d0964ec70cd5e5002cfc107545ba032a130d724f9dc595127a5",
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "6c530072bb8c9dbd13cda7873d5844b12c8c655417ce43ec3eb63755b6e549a9",
+    "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "bfb4c02db40d5403ed3e9a347f360ebf190e99a908c1542f36d512524d98c4f7",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "3ce7911dd18f50d48f78dd3f7c2791e2df6f0021464f2cf5225dd8359f017ec3",
+    "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "97d2b74729de84923205f6c5ed386ca0516614c187718f4fe8945650bacf110f",
+    "crates/diskgraph-engine/src/native_child/windows/pipe_security.rs": "d21c5272a147438e86575ca7a157a90056b2cd05a21fcb85e0a62802ccfc32d7",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "efef296dc8063a28de472c78ce8ddee8bccc4cd50e522d91ff2233b74b1d2df0",
+    "crates/diskgraph-engine/src/native_child/windows/windows_command_line.rs": "7158796a32a4eb8515ecf5e04634ae9aa1f22e6298fff911772dee3903194dc8",
+    "crates/diskgraph-engine/tests/source_layout.rs": "621960165adcb27ede7d76d64c7be524073dca7c187b45aa5f1b39daf87e77ed",
+    "crates/diskgraph-scan-worker/Cargo.toml": "82fd5deb7c6304e437526a7cae0298accad0fe02ebb3615408959f5132f33081",
+    "crates/diskgraph-scan-worker/src/decoded_tree.rs": "cf9ad11e3f0a32d8614110e2ee94d4e4683b31c93ce505771e9dd2b5e06383ac",
+    "crates/diskgraph-scan-worker/src/flat_node.rs": "e53c8c87a978a99d79147bfde93b529dbd60044d2384e28f8647ff8a14b447f1",
+    "crates/diskgraph-scan-worker/src/flat_nodes.rs": "92a70c285866886015a13280c59432bda69fc177e442ec2f5ad7f2b06189f535",
+    "crates/diskgraph-scan-worker/src/frame.rs": "316ef9fdefca58147fe38f3060a84e0c717e8302bb80eef6c5b5fa7a532140d6",
+    "crates/diskgraph-scan-worker/src/frame_reader.rs": "5a7debec40f844a5c3c4a4771aa2a42a33de0b11b3c26dd5e87d39157c3e9323",
+    "crates/diskgraph-scan-worker/src/frame_writer.rs": "690af84f8ae8f1e5ec97bec7effaabcbb8b95e8b4634fe9f7191b1d4142a1d29",
+    "crates/diskgraph-scan-worker/src/lib.rs": "d36d6990f18ea53e98d97816261e2b114523582055c926fc021b37f7733d1598",
+    "crates/diskgraph-scan-worker/src/native_path.rs": "ce0ba152e73f31a84a46facbb603d1a5f4d9cb4a9d1371f7eb7331e7bdd0e26f",
+    "crates/diskgraph-scan-worker/src/node_tags.rs": "5c0f6f8d514016b231092630b59fcf3433b9ab400734e7a2c7d4ad5226c83f5a",
+    "crates/diskgraph-scan-worker/src/payload_buffer.rs": "a57ab1f7b5b769bb76079b1d345875a5f674b90d93d6de1a28c14c6fe1dc115f",
+    "crates/diskgraph-scan-worker/src/protocol_limits.rs": "4ac79d1b54032ce60def56f14502eafed1a2e7fb7e40f9f96d4a509c31ad546a",
+    "crates/diskgraph-scan-worker/src/scan_options.rs": "54d0c32bd2bd1172588456f764b2c6ff3baa760112c602d9bd0b2b003a4b5bd3",
+    "crates/diskgraph-scan-worker/src/scan_progress.rs": "9c1e4aaaccd2dfa209780caae1ff2c7c04f5cd6f11735a5f1f83168ba384a4a7",
+    "crates/diskgraph-scan-worker/src/scan_request.rs": "f7240f65b286f93670a21384564ed9ae9a5c1cd77748bcb44305eae9f689fdaa",
+    "crates/diskgraph-scan-worker/src/tree_codec.rs": "f6604397a83faad09177fa3c82a0d1e93f66a97dd01e12753800fc8028875067",
+    "crates/diskgraph-scan-worker/src/tree_state.rs": "ea97f7a41e563443431cafff143c041089987b316965fe31ba66796c8839bd6a",
+    "crates/diskgraph-scan-worker/src/tree_writer.rs": "a1959ec05173847ebdb27c7e620622af4ba17c128e5ec1366c0554ce41e83ade",
+    "crates/diskgraph-scan-worker/tests/deep_disposal.rs": "978c9e355339ec419d28274a14c8107a33b44dcf5f72017c907f167efd325691",
+    "crates/diskgraph-scan-worker/tests/framing.rs": "8d3c52813bf8333f55c30a0d7ac1cf7c42407919413414f2faaee7a876262f49",
+    "crates/diskgraph-scan-worker/tests/platform_components.rs": "14af6cf68b99a3567786c3580775729b933c7bce12648949f3129febd3f9f22b",
+    "crates/diskgraph-scan-worker/tests/reader_failure.rs": "794ee8f129fe6dc77daa51361dd9ff38ffc8b182d6ee4b859927085983648e00",
+    "crates/diskgraph-scan-worker/tests/roundtrip.rs": "e8c7c54b61ff1807a10787ce5f9c6be2c8747b7c10d6fd49252796286dce55cf",
+    "crates/diskgraph-scan-worker/tests/structural_limits.rs": "bb7ad94a48e58a354b6691851d26e4f9ef6e7370c56377c15aae52e715dc66e1",
+    "crates/diskgraph-scan-worker/tests/writer_io_failure.rs": "cd737f9ef57650b07b6dcf2e24aef83ec055be4367f8d0b2b9c5dfe370fddd09",
+    "crates/diskgraph-scan-worker/tests/writer_limits.rs": "729e608310498f75ebdcffe1fca5e33d652c07ce09d2e9097d83cede95766938",
+    "crates/diskgraph-scan-worker/tests/writer_preparation.rs": "d7ebcf084ba79a095e44102fcf0c1960fc77977b54d22c26f6de4f8c23d82663",
+    "docs/production-readiness-full-platform-2026-10-04.md": "21e89877f464aab01af9f272fb939a501b6191c4bf074aff6f21f0fab3a02f99",
+    "docs/production-readiness-full-platform-2026-10-04.zh-CN.md": "cb7099eeffbb36c01a49039a366982d556d705755e52eea6c1be217dfc63bd96",
+    "openspec/changes/implement-diskgraph-platform/design.md": "b635ebc36bba497a84ccddef916fb16efc83d59006bdd62ead255272cc19e712",
+    "openspec/changes/implement-diskgraph-platform/physical-scan-process.md": "f42e89836216b62b60f33f67bec37f4b4763600c53c7f7f160b92844b8307dda",
+    "openspec/changes/implement-diskgraph-platform/specs/platform-ffi/spec.md": "612d121cc2a94d455e791cfa191affdb59a4b9cedb4411b3ba1635a3c9b21d74",
+    "scripts/gates.sh": "8848606d94046199b22d7d40014a099333d9dee5636cbe5be33450665f9b43a1"
+  },
+  "archives": [
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-worker-roundtrip-red-baseline.log.gz",
+      "raw_sha256": "bdad60290dcf2bede3e5aa91b2284221fbfd111d7402ec8cde86073c10c7b81c",
+      "gzip_sha256": "1a503422563b3f21e6476c1c0fee317fd842d0919c0c8d527ec649276dc9ed64"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-worker-framing-red-baseline.log.gz",
+      "raw_sha256": "b51c5fdad74c8fd8da82d78d13a7ca50fd5b89abf0844b3312741a7c7aebc3cd",
+      "gzip_sha256": "8d67c931b50db962201fb126eb14d07fceb498cffa8159cbedca7a8581a0306d"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-worker-structural-red.log.gz",
+      "raw_sha256": "ac21e105d5ad06aebe324c0643d0ad46d64068ff81356602cb2b65db8cece04d",
+      "gzip_sha256": "f67c4c2ba8cd34d44d5b2e56033912e3265ba9645f0632ea702c4b4412de147c"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-worker-protocol-green.log.gz",
+      "raw_sha256": "10d2e339b50b87435e1433606ac752e91616e0e1519175159008df991b26d1ca",
+      "gzip_sha256": "394bc61581e2ed7df87e20e6e3eb8c6f099e038e8a448ca1623003e487d4cc1d"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-worker-preparation-red.log.gz",
+      "raw_sha256": "8ed25afb2ee6e3f707abb7b505a8a889b9e5e4bfaea6aed7dc8978ff943bd22f",
+      "gzip_sha256": "d21ab1337b2ad2978ac16876a29652c40699f9e1ff4261958eec53490cf148c6"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-worker-final-green.log.gz",
+      "raw_sha256": "f4c43e73dd9a83f2308a69d62e84a3484a1ba1944d1c3ea81b27c63350265e1e",
+      "gzip_sha256": "1b7808f60c7da873eb8d2f4338d905424840948aa7344a5f212c0c4c06679db8"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-source-layout-red.log.gz",
+      "raw_sha256": "7e737e7883b49e34c7a032f929542d004f1f2ce90698f3f926c2f893ed4551ef",
+      "gzip_sha256": "53704197339abc4a417403347f7961f8e7b1aee88b816dbba0e6c00568ab1556"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-foundation-source-layout-final.log.gz",
+      "raw_sha256": "3cae9ac873aca21c901a5bfa0845ae818ace8140c0a1faf5fd67041e01bd2f83",
+      "gzip_sha256": "706ade803382fcd2b21a630ff7581eb5fb50b00b9e7af31ee86be98e7ee6c37a"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-shared-child-engine-lib.log.gz",
+      "raw_sha256": "e2d84967546cd0eac26a79058b1e6270aca11cd59184bb13d3b2ae18e9eee47f",
+      "gzip_sha256": "23e4a8c0b8c6de9794402ed22875d9d7b53114d5ec83398081a70442cfeec3f4"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-foundation-workspace.log.gz",
+      "raw_sha256": "93ab8ba8f364bfd75dffd8397727eb7017aec66298c54bf675eb19936bccd074",
+      "gzip_sha256": "c8d00065bf8fcb1db8cbb48f6797111da7e4721a4830f15a72a02c30e4034e30"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-foundation-final-workspace.log.gz",
+      "raw_sha256": "8848efd5b5e4f740538f30cb7f6c624f98cc3539c50e47870ea84c95fca8ee88",
+      "gzip_sha256": "bca3154ec7d07c73c83c5751a0e0aa4ee99b3b2fe44b0d8e8e31ded401ad73d0"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-foundation-clippy-terminal.log.gz",
+      "raw_sha256": "cb6bc611e8bb49218a1db4e9333cd4b3f98f480fc0fe0e070871c4607a6aaf3f",
+      "gzip_sha256": "ac698cc1684d81f5b35fb13fdf40ccd3640713f68bd0e3e6b32f142eee961da3"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-foundation-fmt-terminal.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-shared-child-pinned-upstream.log.gz",
+      "raw_sha256": "5ab7db4baff61144c8c27d04c82e3dd9065d1e518763e2c265f5baa8f4d33ebc",
+      "gzip_sha256": "98a5d21decb9e7e34cf0496b929348cc4d44aede848b68ffee5c4ad9db6a2901"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scan-foundation-openspec-terminal.log.gz",
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-tui-frame-phase-target.log.gz",
+      "raw_sha256": "6ce016c5a60c66cc24e171a0b4c94a651cec5ed28a4c23058f5daf5f5cb5edff",
+      "gzip_sha256": "6b4748da5bca992c47d9bda19aa67ca5c756f7ee69e1b32e3aceee0fbae14aa0"
+    }
+  ],
+  "independent_receipt_review": {
+    "reviewed_sha256": "44a125b1426c3b51a96429af9ecc699b0e64a98378ae022bc65273b0eca37049",
+    "sources_verified": 58,
+    "archives_verified": 16,
+    "decision": "APPROVE material accuracy only"
+  }
+}

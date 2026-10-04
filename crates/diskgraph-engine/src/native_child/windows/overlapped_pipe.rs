@@ -20,7 +20,7 @@ use windows_sys::Win32::System::Threading::{
     CreateEventW, INFINITE, ResetEvent, WaitForSingleObject,
 };
 
-use super::super::probe_failure::ProbeFailure;
+use super::super::ChildError;
 use super::owned_handle::OwnedHandle;
 use super::pipe_security::PipeSecurity;
 
@@ -41,7 +41,7 @@ impl OverlappedPipe {
     pub(super) fn create(
         name: &[u16],
         security: &PipeSecurity,
-    ) -> Result<(Self, OwnedHandle), ProbeFailure> {
+    ) -> Result<(Self, OwnedHandle), ChildError> {
         let read = OwnedHandle::from_raw(
             unsafe {
                 CreateNamedPipeW(
@@ -119,7 +119,7 @@ impl OverlappedPipe {
     }
 
     /// 非阻塞收取一次最多 4096 字节。参数：无。返回：数据切片、暂无数据/EOF 或 Win32 错误。
-    pub(super) fn read_next(&mut self) -> Result<Option<&[u8]>, ProbeFailure> {
+    pub(super) fn read_next(&mut self) -> Result<Option<&[u8]>, ChildError> {
         if self.eof {
             return Ok(None);
         }
@@ -161,7 +161,7 @@ impl OverlappedPipe {
     }
 
     /// 取消并确认唯一 pending 读完成。参数：无。返回：安全清理成功或 Win32 错误。
-    pub(super) fn cancel_pending(&mut self) -> Result<(), ProbeFailure> {
+    pub(super) fn cancel_pending(&mut self) -> Result<(), ChildError> {
         if !self.pending {
             return Ok(());
         }
@@ -179,7 +179,7 @@ impl OverlappedPipe {
         &mut self,
         wait: bool,
         owner_cancelled: bool,
-    ) -> Result<Option<&[u8]>, ProbeFailure> {
+    ) -> Result<Option<&[u8]>, ChildError> {
         let mut transferred = 0u32;
         let result = loop {
             let result = unsafe {
@@ -244,8 +244,8 @@ fn is_terminal_read(error: u32, owner_cancelled: bool) -> bool {
     is_eof(error) || (owner_cancelled && error == ERROR_OPERATION_ABORTED)
 }
 
-fn last(context: &'static str) -> ProbeFailure {
-    ProbeFailure::io(context, io::Error::last_os_error())
+fn last(context: &'static str) -> ChildError {
+    ChildError::io(context, io::Error::last_os_error())
 }
 
 #[cfg(test)]

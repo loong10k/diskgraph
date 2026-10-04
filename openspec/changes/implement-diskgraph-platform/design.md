@@ -488,3 +488,5 @@ D42 的一秒入队准备账本尚未传入控制写事务，默认五秒 SQLite
 以隔离控制库外部 writer、真实 INSERT update_hook、merge 分支和重开副作用验证先红后绿；此方法只证明控制事务预算，不冒充 Linux 原生身份验收，不改变认领后执行时钟或宣称内核 I/O 硬抢占。
 
 受管 owner 的作用域约束与验收实施细节见 [scoped-native-owner.md](scoped-native-owner.md)，仍属于本变更 PF-06，不关闭平台父项。
+
+扫描器物理退场的后续实施顺序与不变约束见 [受控扫描进程阶段](physical-scan-process.md)，不得据协调线程回收关闭该父门禁。

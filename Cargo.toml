@@ -4,6 +4,7 @@ members = [
     "crates/diskgraph-core",
     "crates/diskgraph-store",
     "crates/diskgraph-disktree",
+    "crates/diskgraph-scan-worker",
     "crates/diskgraph-ffi",
     "crates/diskgraph-testkit",
     "crates/diskgraph-engine",

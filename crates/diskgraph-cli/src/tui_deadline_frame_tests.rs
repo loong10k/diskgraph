@@ -31,14 +31,23 @@ fn expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend() {
     let browser = Browser::new(&fixture.revision, cached.clone());
     let mut terminal = Terminal::new(TestBackend::new(160, 30)).unwrap();
     let mut painted = false;
+    let call_started = Instant::now();
+    let mut before_paint = None;
     let result = draw_authorized_frame(&mut terminal, &request, &cached, |frame, reads| {
         painted = true;
+        before_paint = Some(call_started.elapsed());
         // 真实绘制开始后越过 50ms 期限，不要求宿主在极短时间完成数据库准备。
         std::thread::sleep(Duration::from_millis(120));
         assert!(reads.load_layer(2, PAGE_SIZE).is_none());
         assert_eq!(reads.truncation_reason, Some("deadline"));
         draw(frame, &browser, reads);
     });
+    // 原调用完成后才输出诊断；不放宽 50ms 原期限，也不把准备失败接受为通过。
+    eprintln!(
+        "tui_frame_phase deadline_ms=50 before_paint_us={:?} total_us={} painted={painted} result={result:?}",
+        before_paint.map(|elapsed| elapsed.as_micros()),
+        call_started.elapsed().as_micros(),
+    );
     assert!(
         painted,
         "the real paint phase was never reached: {result:?}"

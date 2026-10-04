@@ -110,8 +110,6 @@ mod git_view_sources;
 mod git_worktree_capture;
 #[cfg(test)]
 mod git_worktree_capture_tests;
-#[cfg(target_os = "macos")]
-mod macos_probe_group;
 #[cfg(all(test, target_os = "macos"))]
 mod macos_probe_tests;
 mod probe_budget;

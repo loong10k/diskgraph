@@ -6,7 +6,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 
-CRATES="diskgraph-core diskgraph-store diskgraph-disktree diskgraph-ffi \
+CRATES="diskgraph-core diskgraph-store diskgraph-disktree diskgraph-scan-worker diskgraph-ffi \
 diskgraph-testkit diskgraph-engine diskgraph-cli diskgraph-mcp diskgraph-ops"
 
 fmt_args=""

@@ -636,6 +636,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "diskgraph-scan-worker"
+version = "0.3.0"
+dependencies = [
+ "diskgraph-disktree-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "diskgraph-store"
 version = "0.3.0"
 dependencies = [

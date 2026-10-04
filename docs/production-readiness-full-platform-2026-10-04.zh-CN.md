@@ -1,5 +1,9 @@
 # 全平台验收续篇 — 2026-10-04
 
+扫描进程基础候选已完成共享 OS-child 的保真提取和有界协议库；尚无 helper 可执行程序、正常整组回收、控制管道或 Engine 接入。协议 **39/0**、源码规范 **4/0**、严格 workspace Clippy、自有包 fmt 及上游摘要检查通过，独立源码审查通过。真实分配负控已先失败后通过：2MiB 名称拒绝路径的 Rust requested bytes 从约2MiB降至86字节；剩余额度不足且保留已写前缀的场景降至1033字节，不是峰值 RSS。
+
+最终全 workspace 实际为 **1616/1/18（80 suites，exit101）**：原 TUI 50ms 用例未进入 paint 即 BudgetExceeded。本次校验与 fmt 有重叠，但原因未确认，不据此排除失败。只增加阶段诊断后的单次目标 **1/0**，进入 paint 为649µs；原期限、120ms超时和实际 backend 断言保持。单测成功不代表旧失败修复；新源码原生 CI 尚待验收，旧 b3b3746 的绿色结果仅属于下方历史源码。**27 个父门禁继续开放**。详见[扫描基础验收回执](benchmarks/scan_process_foundation_acceptance_2026_10_05.json)。
+
 源码 `b3b3746` 的 [CI37237018524](https://github.com/loong10k/diskgraph/actions/runs/37237018524) 已完成，**22/22 任务成功**。下载核对八份原生编译器回执：**64 个合格案例**，Cargo 产物来源、探针自身位置的生命周期／Send／Sync 诊断及摘要一致；Windows 源码摘要仅对应精确 LF→CRLF 转换，不误称原始字节相同。每条原生 workspace 真实执行四个作用域 owner 运行用例各一次、原期限 running merge 各一次及原 50ms 正向 reader 各一次。workspace 汇总：Windows stable/MSRV **1434/0/16**，macOS ARM stable/MSRV 与 Intel **1573/0/18**，Linux x64 stable/MSRV 与 ARM64 **1592/0/18**，均70 suites；不重复计入迁移重跑或测试清单。此前 Windows reader 失败本轮未复现，其耗时原因仍未确认。证据见[原生作用域 owner 回执](benchmarks/scoped_owner_native_acceptance_2026_10_05.json)。
 
 完整平台清单仍为 **140/167 完成、27 开放**。本轮仅验收原生 Rust 类型约束与协调层／manager 回收；pinned 扫描器物理退出／读取隔离、受管语言宿主、provider／设备及签名门禁继续开放。下方阶段记录保留各自当时的状态。

@@ -241,5 +241,6 @@ jobs:
         run: |
           cargo fmt \
             -p diskgraph-core -p diskgraph-store -p diskgraph-disktree \
+            -p diskgraph-scan-worker \
             -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-engine \
             -p diskgraph-cli -p diskgraph-mcp -p diskgraph-ops -- --check

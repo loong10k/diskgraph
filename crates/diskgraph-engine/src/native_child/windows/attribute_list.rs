@@ -9,7 +9,7 @@ use windows_sys::Win32::System::Threading::{
     PROC_THREAD_ATTRIBUTE_HANDLE_LIST, PROC_THREAD_ATTRIBUTE_JOB_LIST, UpdateProcThreadAttribute,
 };
 
-use super::super::probe_failure::ProbeFailure;
+use super::super::ChildError;
 
 /// 两个扩展属性及其值的对齐所有者。来源：Win32 UpdateProcThreadAttribute 的 lpValue 存活契约。
 pub(super) struct AttributeList {
@@ -21,11 +21,11 @@ pub(super) struct AttributeList {
 
 impl AttributeList {
     /// 创建 JOB_LIST 和 HANDLE_LIST 容器。参数：无。返回：已初始化的属性列表或 Win32 错误。
-    pub(super) fn new() -> Result<Self, ProbeFailure> {
+    pub(super) fn new() -> Result<Self, ChildError> {
         let mut bytes = 0usize;
         unsafe { InitializeProcThreadAttributeList(null_mut(), 2, 0, &mut bytes) };
         if bytes == 0 || bytes > 1 << 20 {
-            return Err(ProbeFailure::io(
+            return Err(ChildError::io(
                 "InitializeProcThreadAttributeList(size)",
                 io::Error::last_os_error(),
             ));
@@ -39,7 +39,7 @@ impl AttributeList {
         };
         if unsafe { InitializeProcThreadAttributeList(list.as_raw(), 2, 0, &mut bytes) } == 0 {
             // 初始化失败时不能调用 DeleteProcThreadAttributeList。
-            let error = ProbeFailure::io(
+            let error = ChildError::io(
                 "InitializeProcThreadAttributeList",
                 io::Error::last_os_error(),
             );
@@ -51,9 +51,9 @@ impl AttributeList {
 
     /// 在创建时绑定本次 Job，属性值持有到 DeleteProcThreadAttributeList 后。
     /// 参数：jobs 为仍存活的 Job 句柄数组，只允许设置一次。返回：设置成功或错误。
-    pub(super) fn set_jobs(&mut self, jobs: [HANDLE; 1]) -> Result<(), ProbeFailure> {
+    pub(super) fn set_jobs(&mut self, jobs: [HANDLE; 1]) -> Result<(), ChildError> {
         if self.jobs.is_some() {
-            return Err(ProbeFailure::Unsupported("probe Job attribute already set"));
+            return Err(ChildError::Unsupported("probe Job attribute already set"));
         }
         self.jobs = Some(Box::new(jobs));
         let value = self
@@ -71,9 +71,9 @@ impl AttributeList {
 
     /// 限定子进程可继承的标准句柄，属性值持有到 DeleteProcThreadAttributeList 后。
     /// 参数：handles 为三个仍存活的标准句柄数组，只允许设置一次。返回：设置成功或错误。
-    pub(super) fn set_handles(&mut self, handles: [HANDLE; 3]) -> Result<(), ProbeFailure> {
+    pub(super) fn set_handles(&mut self, handles: [HANDLE; 3]) -> Result<(), ChildError> {
         if self.handles.is_some() {
-            return Err(ProbeFailure::Unsupported(
+            return Err(ChildError::Unsupported(
                 "probe handle attribute already set",
             ));
         }
@@ -96,12 +96,7 @@ impl AttributeList {
         self.words.as_mut_ptr().cast()
     }
 
-    fn update(
-        &mut self,
-        kind: u32,
-        value: *const c_void,
-        bytes: usize,
-    ) -> Result<(), ProbeFailure> {
+    fn update(&mut self, kind: u32, value: *const c_void, bytes: usize) -> Result<(), ChildError> {
         if unsafe {
             UpdateProcThreadAttribute(
                 self.as_raw(),
@@ -114,7 +109,7 @@ impl AttributeList {
             )
         } == 0
         {
-            return Err(ProbeFailure::io(
+            return Err(ChildError::io(
                 "UpdateProcThreadAttribute",
                 io::Error::last_os_error(),
             ));
