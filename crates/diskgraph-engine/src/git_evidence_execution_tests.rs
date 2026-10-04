@@ -4,7 +4,6 @@ use crate::git_evidence_fixture::{GitEvidenceFixture, now, wait_until};
 use diskgraph_core::BusinessError;
 use diskgraph_store::JobState;
 use std::cell::RefCell;
-
 type Hook = (String, Box<dyn FnOnce()>);
 thread_local! {
     static CAPTURE: RefCell<Option<Hook>> = RefCell::new(None);
@@ -20,6 +19,10 @@ fn take(slot: &RefCell<Option<Hook>>, job: &str) {
     if let Some((_, callback)) = callback {
         callback();
     }
+}
+/// 为指定任务挂载真实捕获前观察回调；参数为任务和回调，返回无。来源：本模块原生执行同步点。
+pub(super) fn at_capture(job: &str, callback: impl FnOnce() + 'static) {
+    CAPTURE.with(|slot| *slot.borrow_mut() = Some((job.to_owned(), Box::new(callback))));
 }
 pub(super) fn before_capture(job: &str) {
     CAPTURE.with(|slot| take(slot, job));
@@ -73,7 +76,6 @@ pub(super) fn after_publication(job: &str) -> Result<(), EngineError> {
         Ok(())
     }
 }
-
 #[test]
 fn git_content_revocation_after_capture_prevents_any_publication() {
     let f = GitEvidenceFixture::new();

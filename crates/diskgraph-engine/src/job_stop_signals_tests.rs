@@ -216,11 +216,20 @@ fn running_keeper_distinguishes_request_cancel_from_verified_deny_stop() {
 fn keeper_authorization_failure_is_not_inferred_from_the_stop_atomic() {
     let f = GitEvidenceFixture::new();
     let job = f.enqueue(&f.base, now() + 300);
+    // 仅观察既有真实阶段；捕获前见证不代表采样已成功，权限变更仍只发生在发布前。
+    let capture_reached = Arc::new(AtomicBool::new(false));
+    let capture_witness = capture_reached.clone();
+    git_evidence_execution_tests::at_capture(&job.job_id, move || {
+        capture_witness.store(true, Ordering::SeqCst);
+    });
+    let publication_reached = Arc::new(AtomicBool::new(false));
+    let publication_witness = publication_reached.clone();
     let engine = f.engine.clone();
     let id = job.job_id.clone();
     let scope = f.scope.clone();
     let actor = f.actor.clone();
     git_evidence_execution_tests::at_publication(&job.job_id, move || {
+        publication_witness.store(true, Ordering::SeqCst);
         let active = engine.cancellations().unwrap().get(&id).unwrap().clone();
         engine
             .control_store()
@@ -237,11 +246,28 @@ fn keeper_authorization_failure_is_not_inferred_from_the_stop_atomic() {
         }
     });
     let (request, denied) = flags();
+    let call_started = Instant::now();
     let result = f.engine.run_job_with_stop_signals(
         &job.job_id,
         "real-grant-denial",
         request.clone(),
         denied.clone(),
+    );
+    let call_elapsed = call_started.elapsed();
+    // 在阶段断言前保留真实返回及持久诊断；诊断读取失败也打印原 Result，不遮住执行错误。
+    let terminal_diagnostic = f.engine.job_status(&job.job_id);
+    let failure_diagnostic = f
+        .engine
+        .control_store()
+        .map(|control| control.git_job_failure(&job.job_id));
+    let captured = capture_reached.load(Ordering::SeqCst);
+    let publication = publication_reached.load(Ordering::SeqCst);
+    eprintln!(
+        "keeper_boundary_diagnostic: capture_before={captured}, publication_before={publication}, call_elapsed={call_elapsed:?}, result={result:?}, terminal={terminal_diagnostic:?}, persisted_failure={failure_diagnostic:?}"
+    );
+    assert!(
+        captured && publication,
+        "required real capture/publication phases not reached: capture_before={captured}, publication_before={publication}, call_elapsed={call_elapsed:?}, result={result:?}, terminal={terminal_diagnostic:?}, persisted_failure={failure_diagnostic:?}"
     );
     git_evidence_execution_tests::assert_publication_reached();
     assert!(

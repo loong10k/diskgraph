@@ -1,0 +1,88 @@
+{
+  "scope": "tests-only keeper pre-publication diagnostic; no production or deadline changes",
+  "candidate_sha256": "39df38dad3963c46d929ac714063ae5151f6743840b5ff90caede7807433a199",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/src/job_stop_signals_tests.rs",
+      "sha256": "c0b9d02cda3918c38e0af2e3e76929a8a8aca64d85965ff41d13dcb770325785",
+      "lines": 374,
+      "before": "/private/tmp/diskgraph-keeper-boundary-diagnostic-before/job_stop_signals_tests.rs",
+      "before_sha256": "b585b451a7e615586e90e296f3adfff3233aa44efdaa7ef936be607868b4bf2e"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/git_evidence_execution_tests.rs",
+      "sha256": "074f02d25749bb69d52b67823dcda1622b7146dcf1641bb50b4eed0f81ed81bf",
+      "lines": 498,
+      "before": "/private/tmp/diskgraph-keeper-boundary-diagnostic-before/git_evidence_execution_tests.rs",
+      "before_sha256": "341150d72dfea27eed89e85f1cf2ba64ed31951584eb28072f5cee4f2fa4195c"
+    }
+  ],
+  "local": {
+    "job_stop_signals_tests": {
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    "engine_lib": {
+      "passed": 400,
+      "failed": 0,
+      "ignored": 3,
+      "seconds": 20.63
+    },
+    "strict_clippy_lib_tests_exit": 0,
+    "rustfmt_edition_2024_exit": 0
+  },
+  "actual_keeper_observation": {
+    "capture_before": true,
+    "publication_before": true,
+    "run_elapsed_ms": 386.23925,
+    "result": "Store Conflict: live job authorization withdrawn",
+    "durable_state": "Failed",
+    "persisted_failure": "Execution / Conflict"
+  },
+  "limits": [
+    "Capture-before is not proof of completed capture.",
+    "Windows 7ff7d52 failure cause remains unknown until native diagnostic execution.",
+    "Original assertions, authority expiry (300 seconds) and execution budget (15 seconds) remain unchanged.",
+    "Three existing ignored Engine cases are not treated as passed.",
+    "Default-edition rustfmt check reported formatting differences; edition-2024 check matches the actual crate and passed."
+  ],
+  "native_ci": "pending for this tests-only diagnostic candidate",
+  "archives": {
+    "diskgraph-keeper-boundary-diagnostic-candidate.json.gz": {
+      "gzip_sha256": "fd9f2259344aa9783979bde2c4eb38223564cf9d9b3a1960e89866ab916780fc",
+      "raw_bytes": 1649,
+      "raw_sha256": "39df38dad3963c46d929ac714063ae5151f6743840b5ff90caede7807433a199"
+    },
+    "diskgraph-keeper-boundary-diagnostic-targets.log.gz": {
+      "gzip_sha256": "b7931e558a3e5ffde2b1ded430955c281a88d03fab735f3263494c373f9b9880",
+      "raw_bytes": 1774,
+      "raw_sha256": "3f67a783c24ebceeb0fbcf77da6618e1b9e000641c32f59a04e1a418f0c4ba1a"
+    },
+    "diskgraph-keeper-boundary-diagnostic-engine-lib.log.gz": {
+      "gzip_sha256": "03165efb75d55b52f8d7614270fc23b20f1fc3e697203b9e11223a070f671ddc",
+      "raw_bytes": 42880,
+      "raw_sha256": "1e294b12411bacac9847d14b78f7b54fc42818c3d2f097da706af1fe19afe7ef"
+    },
+    "diskgraph-keeper-boundary-diagnostic-clippy.log.gz": {
+      "gzip_sha256": "a7a56d6e769126fb1936618406aa5428610e332b58e9b161977aa19261139cba",
+      "raw_bytes": 188,
+      "raw_sha256": "98972a0e0fe3b0d4671512686f6218b2760e34d39398a76ca93d599012ae0ba3"
+    },
+    "diskgraph-keeper-boundary-diagnostic-fmt.log.gz": {
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diskgraph-keeper-before-job_stop_signals_tests.rs.gz": {
+      "gzip_sha256": "6b5931022c227046bdd9e31437a0280596973702766dd2a4e2ff24edd022c657",
+      "raw_bytes": 12781,
+      "raw_sha256": "b585b451a7e615586e90e296f3adfff3233aa44efdaa7ef936be607868b4bf2e"
+    },
+    "diskgraph-keeper-before-git_evidence_execution_tests.rs.gz": {
+      "gzip_sha256": "ff80d2e4ee9e2b71402f8c4de958eda67a11bf61afbb94ec6cedb07d4f844e1b",
+      "raw_bytes": 16357,
+      "raw_sha256": "341150d72dfea27eed89e85f1cf2ba64ed31951584eb28072f5cee4f2fa4195c"
+    }
+  }
+}
