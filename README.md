@@ -266,7 +266,7 @@ Engine and FFI growth also require matching actual server/scope ownership; equal
 
 The D34 namespace increment passed [22/22 native CI jobs](https://github.com/loong10k/diskgraph/actions/runs/37161135994) at `407125f62fda994826a7858737b22fa95efe4cb4`, with all 20 reviewed source hashes verified against that commit. Windows, Linux ARM and macOS Intel executed the new regressions; the [acceptance receipt](docs/benchmarks/historical_namespace_acceptance_2026_10_04.json) records the actual cases and remaining Q-04 compatibility matrix. Full-platform readiness remains open.
 
-The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its new native CI remains required; the authorized Git collection entry and platform/provider gates are still open.
+The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its same-source [native CI passed 22/22](https://github.com/loong10k/diskgraph/actions/runs/37164196395) at `2450ab1`; all four selected native logs contain the 26 new cases. The authorized Git collection entry and platform/provider gates remain open.
 
 ## Documentation
 

@@ -81,7 +81,7 @@ ScanCoverage以独立真实对象文件统一覆盖判定，字段、serde及公
 
 最终本机workspace **1168通过/0失败/18 ignored，51 suites**；构建、严格Clippy、fmt、OpenSpec及release通过。实际UniFFI **19/19**、stdio **18/18**、HTTP/SSE **13/13**及14项上游摘要通过。独立代码APPROVE、架构CLEAR与最终18源清单一致。[D35回执](benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)保留两组真实RED、初次错误分类/Clippy失败及新鲜最终日志，不声称配对吞吐或RSS提升。
 
-任务3.9等待本源码原生CI；Git8.7/15.13仍需授权私有工作树捕获、持久typed输入/能力上限、内容权限fence、证据发布及CLI/MCP验收。现有OpenSpec设计仅记录下一实施契约，未启用新collector。原生写、真实provider、GUI/GRDB/Room、mobile/设备、签名和生产父项保持开放。
+任务3.9已在2450ab1同源码原生CI37164196395终态22/22及四份日志各26项实际成功验收；Git8.7/15.13仍需授权私有工作树捕获、持久typed输入/能力上限、内容权限fence、证据发布及CLI/MCP验收。现有OpenSpec设计仅记录下一实施契约，未启用新collector。原生写、真实provider、GUI/GRDB/Room、mobile/设备、签名和生产父项保持开放。
 
 
-任务状态复核：166项中136项已完成、30项开放（包含汇总父项，不等于30个独立漏洞）。8.6重新打开：可信库进程采样不等于已授权产品collector；尚缺应用安装实例采集、PID启动及资源身份绑定、来源持久化与原子revision发布的端到端验收。已验收的解析、预算和通用发布子能力保持完成。
+任务状态复核：166项中137项已完成、29项开放（包含汇总父项，不等于30个独立漏洞）。8.6重新打开：可信库进程采样不等于已授权产品collector；尚缺应用安装实例采集、PID启动及资源身份绑定、来源持久化与原子revision发布的端到端验收。已验收的解析、预算和通用发布子能力保持完成。

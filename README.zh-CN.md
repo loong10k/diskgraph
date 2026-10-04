@@ -257,7 +257,7 @@ Engine 与 FFI 增长还要求实际 server/scope 归属相同，显示路径相
 
 D34 命名空间增量在 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生 CI 中 22/22 通过](https://github.com/loong10k/diskgraph/actions/runs/37161135994)，20 项已审源码摘要均与该提交一致。Windows、Linux ARM 和 macOS Intel 实际执行了新增回归；[验收回执](docs/benchmarks/historical_namespace_acceptance_2026_10_04.json)记录具体用例及尚未完成的 Q-04 兼容矩阵，全平台生产就绪仍未完成。
 
-D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。新源码仍需原生CI；授权Git采集入口及平台/provider门禁保持开放。
+D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。`2450ab1`同源码[原生CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37164196395)，四份选定原生日志各实际通过26项新用例；授权Git采集入口及平台/provider门禁保持开放。
 
 ## 文档
 

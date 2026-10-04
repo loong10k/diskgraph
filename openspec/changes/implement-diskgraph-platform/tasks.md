@@ -54,7 +54,7 @@
 - [x] 3.6 交付 C04 status、C10 node、C11 children 和 C12 top，覆盖口径、排序、过滤、分页及未扫描/未知大小显示。（Q-01、Q-02、Q-06）
 - [x] 3.7 交付 C08 explore、C09 search，返回限定范围的目录/关系摘要和可继续查询的 ID；测试名称歧义和无匹配结果。（Q-03）
 - [x] 3.8 交付 C13 related、C14 explain、C15 impact，验证关系专属影响传播和保护后代解释，避免无界图展开。（Q-01、Q-05）
-- [ ] 3.9 交付 C06 changes、C07 growth，测试同卷可比、换卷、扫描选项不同、partial 覆盖及未知大小；不默认推断重命名。（Q-04） D33节点未知/读取失败和类型替换已修复：Core11、Engine9、FFI5及结构3，同源码ca7813c原生CI22/22通过。D34合法旧历史scope碰撞已修复：本机workspace1142/0/18，同源码407125f原生CI22/22，Windows双Rust/macOS Intel各实际Engine11+FFI6，Linux ARM另含2项真实文件系统用例；D35已补Core8/Engine10完整设置/口径、卷域/partial/未知/类型及真实宿主增长/重命名矩阵，并修复公开Core矛盾覆盖；本机workspace1168/0/18及独立APPROVE/CLEAR通过，本新源码原生CI完成前保持开放，真实provider/物理换卷属于平台父项。
+- [x] 3.9 交付 C06 changes、C07 growth，测试同卷可比、换卷、扫描选项不同、partial 覆盖及未知大小；不默认推断重命名。（Q-04） D33节点未知/读取失败和类型替换已修复：Core11、Engine9、FFI5及结构3，同源码ca7813c原生CI22/22通过。D34合法旧历史scope碰撞已修复：本机workspace1142/0/18，同源码407125f原生CI22/22，Windows双Rust/macOS Intel各实际Engine11+FFI6，Linux ARM另含2项真实文件系统用例；D35完整语义矩阵及覆盖修复在2450ab1d15ea70cc605d4aed8705f0ccba85e95e同源码CI37164196395终态22/22通过，Windows双Rust、Linux ARM、macOS Intel各实际Git8/Core8/Engine10共26项成功；18已审来源与提交逐项一致，证据见native_input_history_matrix_acceptance_2026_10_04.json。真实provider/物理换卷属于独立平台父项。
 - [x] 3.10 交付 C16 candidates，覆盖 eligible_for_review/blocked/unknown、目标不足、父子重叠和共享块；候选不产生批准。（Q-05）
 - [x] 3.11 实现统一返回 envelope、深度/节点/边/字节/时间预算和游标校验；测试 UTF-8 边界截断、过期 revision 及跨授权复用游标。（Q-02、Q-07）
 - [x] 3.12 实现 CLI JSON stdout、stderr 进度、稳定退出码和适用公共参数；为 C01–C16 加帮助与集成测试，未实现命令返回明确 unsupported。（CMD-01、CMD-02）
@@ -306,4 +306,4 @@ D30（FS-02 / 8.9前置）：QualifiedLocator明确编码、原始BLOB、自身�
 
 D31（FS-02 / 8.9前置）：独立完整Windows属性观测与schema12字段，保留旧NodeV2/FFI；held根链仅约束补充采样，pinned walk仍路径方式。属性API逐项时钟/取消、20ms持久复验、批次/发布fence且采样锁外执行；旧树未验证不升级，旧行NotCaptured。审查真实复现锁等待超时后暂存2行，已补锁内clock/cancel末检，RED0/1和GREEN1/0两种等待分支；最终workspace1089/0/18、严格Clippy/fmt/OpenSpec/release/vendor/stdio18/18/HTTP13/13/UniFFI19/19通过，独立APPROVE/CLEAR且44源码最终清单匹配。release20k/200k主键均18VM；macOS负载各4/4并保留RSS/尺寸原始数据，不作配对性能结论。证据见docs/benchmarks/windows_observation_acceptance_2026_10_04.json。Windows新增Native10+流水线1仍须同源码原生CI；高位ReFS、真实provider、身份历史利用、旧scope编码、写、宿主/mobile及父项不勾选。
 
-D35（3.9 / 15.13前置）：Git普通文件输入先按长度准入并限制每块至剩余额度，保留OutputLimit锁存及终态版本；真实句柄超读RED4/3→8/0。ScanCoverage独立对象及一致覆盖判定，Core矛盾覆盖RED5/3→8/0；Engine10项合法发布矩阵。最终workspace1168/0/18（51 suites），Clippy/fmt/build/OpenSpec/release、14vendor、UniFFI19/19、stdio18/18、HTTP/SSE13/13通过；最终18源独立APPROVE/CLEAR。证据见docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json。未新增勾选；3.9待新源码原生CI，Git授权捕获/持久job/发布及平台父项未完成。
+D35（3.9 / 15.13前置）：Git普通文件输入先按长度准入并限制每块至剩余额度，保留OutputLimit锁存及终态版本；真实句柄超读RED4/3→8/0。ScanCoverage独立对象及一致覆盖判定，Core矛盾覆盖RED5/3→8/0；Engine10项合法发布矩阵。最终workspace1168/0/18（51 suites），Clippy/fmt/build/OpenSpec/release、14vendor、UniFFI19/19、stdio18/18、HTTP/SSE13/13通过；最终18源独立APPROVE/CLEAR。证据见docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json。2450ab1同源码原生CI37164196395终态22/22、四份日志各26项实际ok及18源一致，3.9完成；Git授权捕获/持久job/发布及平台父项未完成。

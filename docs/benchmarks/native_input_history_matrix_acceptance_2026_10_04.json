@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "increment": "D35 / Q-04 coverage and EC-04 native input reads",
   "baseline_commit": "407125f62fda994826a7858737b22fa95efe4cb4",
-  "status": "local_and_independent_acceptance_passed_native_ci_pending",
+  "status": "local_independent_and_same_source_native_acceptance_passed",
   "source_manifest_sha256": "f5607bd32a47b46140b09a0d2fd5fb0d94d41e5c3fa76cbafbdb8f296dc7b441",
   "source_files": {
     "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
@@ -188,14 +188,33 @@
     "measurement": "Regression file offsets establish user-space read volume, not filesystem readahead or paired end-to-end speedup. No new 20k/200k release benchmark is claimed."
   },
   "native_ci": {
-    "status": "not_dispatched",
-    "note": "After push, require the same exact source commit and actual Git input/Core/Engine matrix test results in native job logs."
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 37164196395,
+    "head_sha": "2450ab1d15ea70cc605d4aed8705f0ccba85e95e",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37164196395",
+    "successful_jobs": 22,
+    "reviewed_sources_verified_against_git_objects": 18,
+    "case_acceptance_file": "ci-37164196395-case-acceptance.json",
+    "case_acceptance_sha256": "f4c7ef28c6352ee2dd6dce2b10a9c532a3ebe5bece8a4b08d1071a93cf480a8b",
+    "required_job_ids": [
+      111323658499,
+      111323658570,
+      111323658633,
+      111323658700
+    ],
+    "actual_ok_per_required_job": {
+      "git_input": 8,
+      "core_matrix": 8,
+      "engine_matrix": 10
+    },
+    "note": "Every selected case executes exactly once in each required native log. Source validation uses the frozen commit, not later worktree edits."
   },
   "remaining": [
-    "Q-04 task3.9 remains open until same-source native validation of the completed semantic matrix.",
+    "Q-04 task3.9 accepted after same-source native validation of the semantic matrix. Physical volume and real provider acceptance remain in platform parent gates.",
     "Git8.7/15.13 still require safe authorized capture, durable input and capability ceiling, content-aware fencing, atomic evidence revision publication and CLI/MCP end-to-end acceptance.",
     "Provider, native writes/recovery, GUI/GRDB/Room, packaging/mobile/device/signing/production parent gates remain open.",
-    "Task 8.6 reopened after product-path audit: application installation collection and authorized process sampling with PID/resource identity, durable provenance and atomic revision publication remain unaccepted. Checklist: 136 complete, 30 open of 166, including parent gates."
+    "Task 8.6 reopened after product-path audit: application installation collection and authorized process sampling with PID/resource identity, durable provenance and atomic revision publication remain unaccepted. Checklist: 137 complete, 29 open of 166, including parent gates."
   ],
   "logs": [
     {
@@ -402,6 +421,36 @@
       "file": "prepush-quality.py.gz",
       "sha256": "45f0e866c63e442253c0753b66a23277c5e00d848681af42d3e34f73da9cb574",
       "raw_sha256": "6dcfb63955820a87704cf6d10400b3592e27292816f23d81b9949b04dacaefa6"
+    },
+    {
+      "file": "ci-37164196395-terminal.json.gz",
+      "sha256": "6235b1c9e916676a14d1007d16846271d77cb521e693bc1758b1bcd02b362625",
+      "raw_sha256": "0d6784421c0411178dc517ac872ee4a81cc382846d4081d565590967d15e4a90"
+    },
+    {
+      "file": "ci-37164196395-windows-stable.log.gz",
+      "sha256": "c9ccceebfc0d14e340a55b92450294c359b20e6d560e33d0c639993673fb399b",
+      "raw_sha256": "3aff56355ae4e59d6bba75f536c4bb06229d017c09755ac43230986be06ff332"
+    },
+    {
+      "file": "ci-37164196395-windows-msrv.log.gz",
+      "sha256": "66b18baab498f596d666adefed0fb9543ef09d97d958b8bfd6cc58a6a0310821",
+      "raw_sha256": "2e6dea024047dcddb250b542ec7d55d84d56674b7eb69cd28affb7a59c650e82"
+    },
+    {
+      "file": "ci-37164196395-linux-arm.log.gz",
+      "sha256": "8cce4999ce1fd68ce63f9f783bc99d7e30e7c3c8c54a1f4bd8b3aa1c0e93172c",
+      "raw_sha256": "497ac810b8a843b90afad84a4d37a6203026396e92b045e72f582730d1df80ea"
+    },
+    {
+      "file": "ci-37164196395-macos-intel.log.gz",
+      "sha256": "086048abe4a6f758c92212818f94b8719633f7bd8d0eaf2f3c329c095c1459e9",
+      "raw_sha256": "a32ef0781f58e119b64b878582bef80a117f1b70f58dab9e209e665f7dbb4a6e"
+    },
+    {
+      "file": "ci-37164196395-retrieval-observations.json.gz",
+      "sha256": "d11491332966caf5e671a1fba878feb2e3750082042ccadb29bc8a8d7b468153",
+      "raw_sha256": "a33f9122dc3f3effdc6b1bb5835c78da7e3502a9e78f5944b591e7a60673fcd4"
     }
   ],
   "prepush_verification": {
