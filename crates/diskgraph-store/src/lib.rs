@@ -84,6 +84,9 @@ mod job_authority_migration_tests;
 mod job_authority_store;
 #[cfg(test)]
 mod job_authority_tests;
+mod job_cancel_generation;
+#[cfg(test)]
+mod job_cancel_generation_tests;
 mod job_kind;
 #[cfg(test)]
 mod job_publication_check_tests;

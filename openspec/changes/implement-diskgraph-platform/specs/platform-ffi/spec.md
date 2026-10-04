@@ -67,6 +67,30 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **WHEN** a host closes its native service or releases its final scan handle
 - **THEN** cancellation is requested cooperatively and new session queries are refused; no detached job is silently treated as a completed host request.
 
+#### Scenario: Finished result waits for its actual coordinator exit
+- **WHEN** 工作线程已经保存业务结果，但真实线程仍在执行线程局部析构或退出清理
+- **THEN** 非阻塞 poll 可以报告业务结果；阻塞 result 等待唯一实际 coordinator JoinHandle 完成，不能把 finished 标志、消息送达或数据库终态作为线程已经退出的证明。并发等待共享同一 join 结果，不重复消费句柄。
+
+#### Scenario: Close races with native scan admission
+- **WHEN** spawn_scan 已进入会话但仍在规范化路径，另一线程关闭会话并等待 coordinator 退出
+- **THEN** 准入计数在路径 I/O 前登记；关闭后拒绝新准入，先前准入重验关闭状态后不能创建新任务。等待覆盖准入与会话拥有的 coordinator，超时报告未退场并保留等待能力；不在状态或数据库锁内 join。
+- **AND** 既有 shutdown 和 Drop 仅请求取消、保持非阻塞；最后订阅者释放仍请求取消，独立 worker 记录不得延长订阅者生命周期。coordinator 等待不是 pinned scanner 的物理 drain 验收，不据此关闭全平台父项。
+
+#### Scenario: Native coordinator retention is bounded without breaking coalescing
+- **WHEN** 宿主重复启动扫描，只轮询业务结果而没有调用阻塞结果或 drain
+- **THEN** 每受管会话准入和保留 worker 记录分别受既有 Engine 默认主体活动任务额度约束；同根合并先于新 worker 容量检查。真实 join 由宿主明确拥有的独立 join owner 在 registry 锁外执行，回收只读取共享的实际 joined 结果并按原记录身份移除；drain、准入和 poll 的调用栈不得执行阻塞 join。不能以 finished、is_finished 或弱订阅消失代替实际退出，也不能让普通顺序第九次扫描永久拒绝。
+- **AND** 仍未退场的线程和未结束的路径准入耗尽额度时明确背压；poll 不负责 join，不新增全局清理线程，不改变 EngineConfig Default，不宣称同步 I/O 或操作系统线程退出具有硬实时期限。
+
+#### Scenario: Host owns coordinator and manager finalization separately
+- **WHEN** 后台宿主通过受管 Rust 构造入口取得服务与独立 owner，服务引用可以先被释放
+- **THEN** owner 保留唯一 manager JoinHandle，服务和 manager 不反向强持 owner。原绝对期限的 coordinator drain 仅等待实际 coordinator joined 结果；非 UI 宿主的显式 blocking finalization 另行实际 join manager，其线程局部析构未完成时不能报告 manager 已退场。
+- **AND** 新 Rust owner 不可 Clone、Send 或 Sync，后台宿主最后释放 owner 时执行相同 finalization 兜底；原 Service/JobHandle shutdown 和 Drop 仍仅请求取消、非阻塞。构造失败不能遗留已启动的无主线程，manager 异常退出不得使 pending 记录假装成功或遗弃待回收句柄。
+
+#### Scenario: Compatibility constructor does not create an unowned manager
+- **WHEN** 可信本地调用者继续使用原 new 或静态 FFI 签名，没有取得独立 owner
+- **THEN** 不暗中创建无最终 owner 的 manager，原阻塞 result 仍实际等待 coordinator；无法提供有界 drain 的兼容模式明确返回 unsupported，不进入同步 try-join。
+- **AND** 此兼容边界不豁免原生宿主完整生命周期验收；Swift/Kotlin、GUI 和设备宿主尚须接入明确 owner 与非 UI finalization，Rust 层通过不代表 PF-06 或上游 scanner 的物理退场完成。
+
 #### Scenario: Scope revoked during host lifetime
 - **WHEN** the registered scope is revoked after the native service opens
 - **THEN** subsequent node/page queries use current authorization and cannot return the revoked revision.

@@ -70,6 +70,11 @@ The system SHALL stop scheduling at its next admission check when a runner handl
 ### Requirement: RT-02 Cancellation and backpressure
 任务 SHALL 有有界队列、并发数、时间和输出预算；取消信号与已发生副作用分别记录，网络断线不能导致静默丢失业务状态。
 
+#### Scenario: Trusted cancellation remains limited to its owned generation
+- **WHEN** 可信本地 coordinator 已认领任务的实际 owner/fence，随后其访问授权被撤销或宿主请求取消
+- **THEN** 仅拒绝能力的取消信号不依赖已撤销的结果读取权限；条件更新只作用于同一 running owner/fence，不续租、不发布、不授予查询权限。旧代次的请求不能取消重新认领的新代次或按 job ID 找到的最新取消标志。
+- **AND** 请求取消与授权拒绝分别记录；既有授权失败不因共享取消标志而被改写为成功或无条件 Cancelled。协作 keeper 沿用20ms检查，claim 到取消标志登记之间的请求也不能丢失。
+
 #### Scenario: Slow consumer
 - **WHEN** 消费者持续慢于扫描数据生产
 - **THEN** 背压限制内存，取消后释放资源并保存可查询状态。

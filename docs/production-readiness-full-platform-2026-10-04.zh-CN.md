@@ -1,8 +1,14 @@
 # 全平台验收续篇 — 2026-10-04
 
-扫描优化候选：原目录 FD 的 dev/inode/unique-mount 仅捕获一次，当前祖先链仍每轮完整重开并复核；原 scanner 负/正控保持，新 Linux 专属 5 案待原生。Windows 最后 INSERT 夹具新增真实三表写入与原期限有效见证，本机目标10/10。组合候选 workspace1529/0/18、fmt/Clippy/OpenSpec 与独立复审通过；性能接线比较固定2a与实际CI提交，尚未获得优化性能结果。305872a 的 Linux MSRV 本次 TUI 大header失败报告整帧迟于原期限，原始日志已保留，正在定位。
+待提交源码另以 Git index tree `76b632c6` 隔离导出，排除未完成 FFI owner，完整 workspace **1545/0/18（70 suites）**、九包 fmt、严格 workspace Clippy 与 OpenSpec 通过；这是本机验收，新提交原生 CI 尚未运行。
 
-最新核对：`2b69cb5` 的 [CI37219976453](https://github.com/loong10k/diskgraph/actions/runs/37219976453) 已终态 **21/22**，Windows stable 的最后 INSERT 超时回滚测试报告未到指定故障点，需修正阶段资格并重新验收，不能计通过。执行 panic 导致续租线程在通道断开后继续循环的问题已真实 RED→GREEN，本机 workspace **1529/0/18、70 suites** 与 fmt/Clippy/OpenSpec 通过；原生验收待执行。此修复不证明上游扫描线程物理退出。清单仍为 **140/167 完成、27开放**。
+扫描缓存提交 `f435582` 的 [CI37222271476](https://github.com/loong10k/diskgraph/actions/runs/37222271476) 已终态 **22/22 成功**。同机、同夹具 release AB/BA 配对固定 `2a2f828`，12 份 Linux 测量具备阶段资格：20k 宽目录耗时降低约 5–7%，200k 降低约 6–11%，300 层子树基本持平。67 份产物文件摘要及有符号存储增量已核验。这是配对观测，不代表通用吞吐、冷缓存、原子快照或严格 RSS 保证。原持有目录身份缓存仍每次重读当前完整祖先链，上游扫描器 pin 和源码字节保持不变。
+
+后续仅增加诊断的 `1fa36ba`，[CI37222674248](https://github.com/loong10k/diskgraph/actions/runs/37222674248) 已终态 **21/22 成功**。macOS stable 的 writer 探针准备阶段实际耗时 409801 微秒，超过原 400 毫秒期限；守卫在 2 微秒内正确拒绝，没有执行 BEGIN。该失败不能验收目标 writer 锁阶段，原始证据已保留，未放宽原 400/550 毫秒断言。
+
+未提交的 FFI 生命周期候选已复现真实阻塞：30 毫秒 coordinator drain 等待 TLS 夹具的 60 秒救援后失败（0/1/0）。`JoinHandle::is_finished()` 后同步 join 不足以保证限时等待。Engine/Store 取消桥随后修复了登记等待期间漏消费停止信号和改写独立身份冲突错误的问题：登记真实 RED 0/2、身份真实 RED 1/1，修复后目标 10/0，广回归 **882/0/13（36 suites）**、两包 fmt/严格 Clippy 和独立审查通过。这些候选结果不能验收 PF-06，也不证明上游扫描线程物理退出。原始证据单独索引于[生命周期档案](benchmarks/process_job_foundation_acceptance_logs/archives_lifecycle.json)，清单仍为 **140/167 完成、27 开放**。
+
+下文保留历史失败和当时待验收状态；其中 CI 与缓存性能的旧待定描述以以上已核验结果为准。
 
 `2a2f828` 的 [CI37216693860](https://github.com/loong10k/diskgraph/actions/runs/37216693860) 已终态：20／22 job 成功。三条 Linux Rust lane 各 workspace 1537／0／18、70 suites，原父目录替换负控与兄弟目录变化正控均通过，确认 `5c9985b` 的三平台原生 RED 已转 GREEN。macOS Intel 的后续 Migration gate 入队权限夹具失败，Windows MSRV 的提交后恢复及 MCP 重连查询失败，整体 CI 仍未通过。恢复夹具现加强真实已提交阶段及原 token 自然到期见证；状态查询新增同一原期限内的控制锁等待，短暂竞争不立即误报预算。本机整仓 1528／0／18、70 suites、九包 fmt、严格 Clippy、OpenSpec 及独立审查通过；新原生 CI 尚待完成。20k／200k／300 深目录配对 release 性能验收脚本已准备，尚无性能结果；深子树不等同于更深的注册根链，不宣称原子快照、冷缓存或严格 RSS。
 
