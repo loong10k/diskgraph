@@ -109,3 +109,9 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **WHEN** two native handles request the same active scope scan
 - **THEN** both can await the shared durable job and obtain its same revision, without a second ownership-claim failure
 - **AND** results resolve the published job/fencing generation rather than an unrelated later scope revision
+
+#### Scenario: Managed owner cannot escape its host execution scope
+- **WHEN** 后台 Rust 宿主进入受管服务回调，并取得共享服务与不可 Clone/Send/Sync 的 owner 能力
+- **THEN** owner 能力借用库内普通栈上的唯一实际线程所有者，不能通过安全 Rust 返回、写入 static/thread_local 或传入另一线程。能力显式 finalize 或提前 Drop 仍执行相同真实 finalization；受管阻塞入口返回前必须回收 manager。
+- **AND** 即使宿主对借用能力调用 mem::forget，库内独立栈守卫仍在正常返回或 unwind 时关闭准入并实际 join，不能遗弃真实句柄或报告伪完成。清理失败必须保留错误，不替代原 panic；不持有数据库或 registry 锁 join。
+- **AND** 本约束防止 owner 逃逸至静态 TLS，不能判断调用者是否在 TLS 析构、DllMain 或 UI 中直接调用整个阻塞入口。这些调用上下文仍不受支持，需真实宿主后台线程验收。旧 UniFFI 签名和可信本地兼容构造入口保持不变，不保留新增受管 tuple 构造的逃逸后门。

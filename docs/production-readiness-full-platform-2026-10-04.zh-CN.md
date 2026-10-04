@@ -1,5 +1,9 @@
 # 全平台验收续篇 — 2026-10-04
 
+作用域 owner 候选 `29b1ec30` 将本轮新增的 Rust tuple 构造改为生命周期约束的回调能力，由私有栈守卫独占真实 manager 句柄。旧 API 的安全静态 TLS 存储实际编译成功，新外部生命周期反例明确拒绝；这是结构约束回归，不是 Windows 死锁运行复现。提前 Drop 仍真实 finalize，忘记能力及 callback unwind 不会遗弃 manager。已通过本机 FFI **93/0**、workspace **1573/0/18（70 suites）**、严格 workspace Clippy、九包 fmt、OpenSpec、**19/19 实际 ABI 校验值**及 **8/8 合格编译案例**，实现与 CI harness 均通过独立审查。八条原生测试配置已接入精确 Cargo 产物编译门禁，新源码原生 CI 尚待运行。基线 `7e64340` 的 CI 终态 **20/22**：macOS MSRV 入队调用前期限耗尽，Windows MSRV 首次正向 engine_flow reader 在成功消费及末段授权后被最终 50ms 期限检查拒绝，耗时分布仍待诊断。两 Windows Rust 版本的此前 TLS 与 keeper 案例均实际通过；该基线结果不作为作用域 owner 候选的验收。整阻塞入口直接在 TLS／DllMain／UI 调用、扫描器物理退场／读取隔离、正式语言宿主及全平台父门禁仍开放。证据见[作用域 owner 回执](benchmarks/scoped_owner_acceptance_2026_10_05.json)。
+
+下方阶段记录保留各自当时的状态。
+
 原生 CI 暴露剩余资格失败：`ddd1aeb` 终态 **21/22**，`7ff7d52` **20/22**。Windows MSRV 的 TLS 夹具调用线程未在观察期限前启动，没有观察到产品 join 提前返回；Windows stable 另有 Engine keeper 测试未到发布边界，底层结果仍待诊断。仅测试候选 `55bee133` 在进入 TLS 前启动并确认参与线程，保留原期限／主动释放／真实 join，本机 FFI **89/0**、fmt、严格 Clippy、构建和独立审查通过，实际 Windows CI 尚待验证。[Rust 1.97 TLS 说明](https://raw.githubusercontent.com/rust-lang/rust/1.97.0/library/std/src/thread/local.rs#L98) 支持 loader-lock 机制判断，仍需原生验证资格。宿主 TLS／DllMain 中 finalize 是另一结构性风险，不由本次夹具修正解决；作用域生命周期 API 与扫描器物理隔离仍开放。
 
 内部 Engine runner 候选 `41abc8f6` 已通过真实 TLS 退出 **3/0**、代次信号 **4/0**、FFI **89/0**；index tree `24d288db` 隔离导出的 workspace **1569/0/18（70 suites）**、九包 fmt、严格 workspace Clippy、构建、OpenSpec 和 **19/19 ABI 校验值**通过，最终五源独立审查通过。首次权限 wire 回归及错误表名夹具失败均保留，不误称最终成功或额外行为 RED。协调线程正常／异常退出实际 join 内部 runner，typed 拒权与原取消信号仅绑定其成功认领代次。该历史本机验收随后对应 7ff7d52 的原生 CI 37230714544，终态为 20/22，通过项及失败分类见上方记录。上游扫描器物理退出、源读取隔离、真实受管宿主和平台父门禁仍未验收。

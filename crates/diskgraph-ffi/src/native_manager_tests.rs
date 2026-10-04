@@ -1,7 +1,8 @@
 //! PF-06 manager 异常的真实 active/queued 句柄责任，以及旧入口无隐含 manager。
 use crate::native_lifecycle::NativeLifecycle;
+use crate::native_service_host_guard::NativeServiceHostGuard;
 use crate::native_service_owner_tests::install_manager_start_hook;
-use crate::{NativeService, NativeServiceError, NativeServiceOwner};
+use crate::{NativeService, NativeServiceError};
 use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::sync::{Arc, atomic::AtomicBool, mpsc::channel};
@@ -43,7 +44,7 @@ fn manager_panic_retains_active_and_queued_handles_until_host_reclaims_them() {
         }));
         let lifecycle =
             Arc::new(NativeLifecycle::managed(Arc::new(AtomicBool::new(false)), 8).unwrap());
-        let mut owner = NativeServiceOwner::start(lifecycle.clone()).unwrap();
+        let owner = NativeServiceHostGuard::start(lifecycle.clone()).unwrap();
         let active = lifecycle
             .register("active".into(), || {
                 crate::scan_coordinator::try_spawn_job(move |_, _| {
@@ -157,7 +158,7 @@ fn managed_worker_cannot_wait_for_its_own_record_after_manager_takes_handle() {
     }));
     let lifecycle =
         Arc::new(NativeLifecycle::managed(Arc::new(AtomicBool::new(false)), 8).unwrap());
-    let mut owner = NativeServiceOwner::start(lifecycle.clone()).unwrap();
+    let owner = NativeServiceHostGuard::start(lifecycle.clone()).unwrap();
     let worker_lifecycle = lifecycle.clone();
     let (check_tx, check_rx) = channel();
     let (answer_tx, answer_rx) = channel();

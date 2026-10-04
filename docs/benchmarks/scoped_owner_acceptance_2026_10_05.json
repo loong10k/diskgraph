@@ -1,0 +1,265 @@
+{
+  "schema": "diskgraph.scoped_owner_acceptance.v1",
+  "scope": "Rust managed service scoped owner; full-platform readiness remains open",
+  "candidate_sha256": "29b1ec3014e70e153d263e5e38a4eadc57f4c62f019a5ec3053fea5f398733d0",
+  "sources": [
+    {
+      "path": "crates/diskgraph-ffi/src/lib.rs",
+      "sha256": "fc849fb34b7714aa2298310482f784144660ef04b77621dc1ee13c89104492e8",
+      "lines": 83,
+      "before_sha256": "3edc229b0f40d5e4975d0cadc8193da92f8b02b551b8c07f8da754325e77c0aa"
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service.rs",
+      "sha256": "64186927dc48891567c3ee185564adea0ca99e3d7d7b31247b681dcbd812b7e9",
+      "lines": 353,
+      "before_sha256": "d46dfad8a5e43cc4c255896f01207a845522c57b16c4e621b3fe0cccb1ab86cf"
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service_owner.rs",
+      "sha256": "b4c9f84fc0b9fe21abb3c2b7d9c768d321542c81879170ca1b8bed2913d1a535",
+      "lines": 37,
+      "before_sha256": "d188a15a26336ee0432d6ab0884c6576a5e6fd11cb91be5ed24690d98e928cea"
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service_host_guard.rs",
+      "sha256": "ee17ba0f93808942876263643c46a19a2bd348c27932f309a69ab468f9ee684a",
+      "lines": 67,
+      "before_sha256": null
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_scoped_owner_tests.rs",
+      "sha256": "82815c324a9e5520b236da836c0925ae3d6912e19c70c93f7d39a8d20642d92e",
+      "lines": 149,
+      "before_sha256": null
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_admission_tests.rs",
+      "sha256": "8cc129e57448f0132aa7d01ace51c011ae52eb322ed2bb71c525be650d5f3444",
+      "lines": 238,
+      "before_sha256": "8f4ba85ea85a59b05d65dd68c40face60b25aeeeb5bd5726c6c02f2d9be9bad8"
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_lifecycle_tests.rs",
+      "sha256": "99bed110603a4441b5abceeb3c916625e7495d35a196eb3ef905f47a79859c9b",
+      "lines": 223,
+      "before_sha256": "e5e4a3b5bfe109c618bb153f41b687390f15e9e36ae513e1761309601012117f"
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_service_owner_tests.rs",
+      "sha256": "a9781eb2fcd3176f7c703de261601c6830a15dad34f7e9f11b498755dfd7c18b",
+      "lines": 222,
+      "before_sha256": "212766b5d49f45efe3a82feeb7f468a1c6318029dd868fc4a64377eb9faa1ec0"
+    },
+    {
+      "path": "crates/diskgraph-ffi/src/native_manager_tests.rs",
+      "sha256": "509ac0b5c2b9549bc25662ccfc4d6160f6d2a3158a352cb8df8e84ea371f5742",
+      "lines": 193,
+      "before_sha256": "6065a9fce97f57e1baefa3452a278048a366073191f45f84c1d083c83589eff8"
+    }
+  ],
+  "harness_sha256": "90ef715bb47bc9ae1d559fe2647c85d05bcb649c85ea57214ca159437f558b51",
+  "harness_files": [
+    {
+      "path": "scripts/accept-ffi-scoped-owner.py",
+      "sha256": "2a4948915a082739cd6b5a09805151f0b3aad10570e0dfc466444fdd05b5568d",
+      "lines": 127
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_any_owner.rs",
+      "sha256": "d3ba406483401d11c64bf5222310baca6bd850c25d218007d088184b5a924565",
+      "lines": 8
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_erased_owner.rs",
+      "sha256": "219efbcbfeced4ca5accdc7b1cfd44cde971acf71af5e2fa59ed8d93c727d127",
+      "lines": 9
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_nested_swap.rs",
+      "sha256": "9b93f3acff15113398b86cb2344d53f1d87eb6aa38e16701a770a6e96e251a06",
+      "lines": 12
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_positive.rs",
+      "sha256": "9dc3427265d1b867cb64be5e23665be77749aeeb778109b350abf1479d8e01b3",
+      "lines": 27
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_return_owner.rs",
+      "sha256": "e7175f6ebd4b03546bdfe007f9bf529b1c5f3eee2dea740208de54daa4ae2ebd",
+      "lines": 7
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_send_owner.rs",
+      "sha256": "d78dd35f582c3531d759d17c7b48e40fe40911f0bea92b2c4f72b0fbab695e46",
+      "lines": 11
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_sync_owner.rs",
+      "sha256": "1307e766a23e7dc2dd8ad77624b80c61a56c902f32d23acb8990425a4cb4238a",
+      "lines": 15
+    },
+    {
+      "path": "crates/diskgraph-ffi/tests/compile_probes/scoped_tls_owner.rs",
+      "sha256": "ea3052876760690ac05309785c59f43fdce68465e4729425f2b6628ce2766548",
+      "lines": 14
+    }
+  ],
+  "workflow_sha256": "cfe35add0d6c989fff23f8bae4e9522787a41c3a1e85f173e13566991845b897",
+  "baseline": "scoped_owner_baseline_2026_10_05.json",
+  "local": {
+    "ffi": {
+      "passed": 93,
+      "failed": 0,
+      "ignored": 0,
+      "unit": 85,
+      "layout": 8
+    },
+    "workspace": {
+      "passed": 1573,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 70
+    },
+    "ffi_clippy_exit": 0,
+    "workspace_clippy_exit": 0,
+    "owned_nine_package_fmt_exit": 0,
+    "build_exit": 0,
+    "openspec_strict_exit": 0,
+    "abi_checks": {
+      "passed": 19,
+      "total": 19,
+      "library_sha256": "c61543e77a727003772f40901add25fa5f9d1adfaab693eef0fb30bba2a1bdd9"
+    },
+    "compile_checks": {
+      "passed": true,
+      "cases": 8,
+      "positive_compiles": 1,
+      "qualified_negative_rejections": 7,
+      "artifact_mode": "cargo-artifacts"
+    },
+    "vendored_digests_verified": 14
+  },
+  "independent_review": {
+    "implementation": "APPROVE 29b1ec3014e70e153d263e5e38a4eadc57f4c62f019a5ec3053fea5f398733d0",
+    "harness": "APPROVE 90ef715bb47bc9ae1d559fe2647c85d05bcb649c85ea57214ca159437f558b51",
+    "workflow": "APPROVE cfe35add0d6c989fff23f8bae4e9522787a41c3a1e85f173e13566991845b897"
+  },
+  "native_ci": "Pending for this scoped-owner candidate. Baseline 7e64340 run37233265476 completed failure with 20/22 jobs successful: macOS MSRV enqueue fixture expired before the call; Windows MSRV engine_flow first positive authorized-reader call returned Business BudgetExceeded at its final 50ms deadline check after the consumer and terminal authorization succeeded; time distribution remains under investigation. The earlier in-progress snapshot is retained as history. Both Windows Rust variants actually passed prior worker/inner-runner TLS and keeper cases. Baseline is not scoped implementation acceptance.",
+  "limits": [
+    "Whole blocking entry invoked directly from TLS/DllMain/UI remains unsupported; type-level scope prevents static owner escape only.",
+    "Pinned scanner physical exit/source confinement, managed Swift/Kotlin hosts, providers, device packages and production signing remain incomplete.",
+    "18 ignored workspace cases are not passed.",
+    "Compile-only baseline never executed risky TLS path; not a runtime deadlock reproduction.",
+    "No OpenSpec parent task is closed by this slice.",
+    "Python YAML parser unavailable locally; no installation performed or YAML parser success claimed. Final narrow workflow diff is independently reviewed, native validation pending."
+  ],
+  "archives": {
+    "diskgraph-scoped-owner-candidate.json.gz": {
+      "gzip_sha256": "9da7febb484ff378b74c7b5d5158138bfcc739434bc7a60adb685dd21a0bb326",
+      "raw_bytes": 5387,
+      "raw_sha256": "29b1ec3014e70e153d263e5e38a4eadc57f4c62f019a5ec3053fea5f398733d0"
+    },
+    "diskgraph-scoped-owner-harness.json.gz": {
+      "gzip_sha256": "ee82f459f417280762bae42f6edcc4c105051f83e8fd4d0a5f105d287832cb4c",
+      "raw_bytes": 3861,
+      "raw_sha256": "90ef715bb47bc9ae1d559fe2647c85d05bcb649c85ea57214ca159437f558b51"
+    },
+    "diskgraph-scoped-owner.diff.gz": {
+      "gzip_sha256": "97b98bfb0841aaf1eaac274f0dbf50647b584bb8f7950fe90e3df8e5dbfd149a",
+      "raw_bytes": 34858,
+      "raw_sha256": "aa832fbc23028c7d7d23ebd78084b5845874c7b2158b33533990647782b77fb3"
+    },
+    "diskgraph-scoped-owner-preservation.json.gz": {
+      "gzip_sha256": "9d9cb77ce40c4b90260a769efc20e708a2e7f432dfa3ffe4190a804dac4aebb6",
+      "raw_bytes": 773,
+      "raw_sha256": "4c32c34d452ccc675d5955f338324e01cb6181ffc5d2a42dec377319b26a6f41"
+    },
+    "diskgraph-scoped-owner-ffi.log.gz": {
+      "gzip_sha256": "fa35afa575620a80b2196c3c0734101de7b5805c99dab335bb95d61b08da24eb",
+      "raw_bytes": 9817,
+      "raw_sha256": "0fe08f8b0952c8397d7144dd0f58c84a47498120c54203ded15df722854c1816"
+    },
+    "diskgraph-scoped-owner-workspace.log.gz": {
+      "gzip_sha256": "162a85d201fdf9f46e8df6e0fd84582d59f5c7c59cf5622cf7e56e08bb392ebb",
+      "raw_bytes": 160566,
+      "raw_sha256": "9b8e212df12002e693f8805dbccf7ece0f590d93aace3601c6c131f4635be8cf"
+    },
+    "diskgraph-scoped-owner-workspace-summary.json.gz": {
+      "gzip_sha256": "f12e816ec8ac1062b9ff5fd77c61a8e51928b46c9ceb1d2c4c2428040947b41f",
+      "raw_bytes": 69,
+      "raw_sha256": "b50ee177b0328a4206c312c1a7af8e98641fa55c5d48540c464f137e7c69f95d"
+    },
+    "diskgraph-scoped-owner-build.log.gz": {
+      "gzip_sha256": "ec3627633514f5da6adf8286b976609e3703423b7b5cd02248234e70c0a9b7cd",
+      "raw_bytes": 182,
+      "raw_sha256": "4899a60d957abb4da8c1cd1f6187ce74c3c79eed5092b863c6da9253d5f29ae1"
+    },
+    "diskgraph-scoped-owner-ffi-clippy.log.gz": {
+      "gzip_sha256": "51dcfa675536b2c99232ee65e1999a4c7d5e811b6ec78655e1bdfa0f1762cfa3",
+      "raw_bytes": 182,
+      "raw_sha256": "614ec9b8ca6568b61d9548919101527afdd416106065d3aac0636c447f963ea9"
+    },
+    "diskgraph-scoped-owner-workspace-clippy.log.gz": {
+      "gzip_sha256": "700b11baa1915dec318597950c48aec3c38436e756903d20367e3f202aa4bb36",
+      "raw_bytes": 298,
+      "raw_sha256": "3d23e3842c2d00d57b6ce5663af1f183caec0fa6afcdb28dee65d99cbb5808a3"
+    },
+    "diskgraph-scoped-owner-owned-fmt.log.gz": {
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diskgraph-scoped-owner-openspec.log.gz": {
+      "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+      "raw_bytes": 47,
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    "diskgraph-scoped-owner-abi19.json.gz": {
+      "gzip_sha256": "448ad0f04a640cc024703e3363226118bbf8ba8137a1d77af114964f00490dd3",
+      "raw_bytes": 1600,
+      "raw_sha256": "c6405fd79e341ba2cd79ac25b74c8bc815d5271475fc1c5baab2cd18fe742378"
+    },
+    "diskgraph-scoped-owner-compile-results.json.gz": {
+      "gzip_sha256": "bc9c38511bf12eae559a6743ef9c9950f68aee42e12c08e80d843138932fb7d0",
+      "raw_bytes": 153850,
+      "raw_sha256": "da7508072023083e017577906bbf53f11dcc00f7950518d2a6ea8d9cf0baf2c0"
+    },
+    "diskgraph-scoped-owner-cargo-build.json.gz": {
+      "gzip_sha256": "bfadfd3fc740a114e0215e06e924f150d569bbf4b0a5bf2c3a500e537809374e",
+      "raw_bytes": 140176,
+      "raw_sha256": "760f00d9d80e857c855c6e06e572ef766f957b315e3345f34fb378bd20e52760"
+    },
+    "diskgraph-7e64340-native-observation.json.gz": {
+      "gzip_sha256": "1cad6baee246477adc06a460743a8ee9b5bfd7b0db285083c0cd71a7994f7817",
+      "raw_bytes": 68629,
+      "raw_sha256": "94d7d09c4d7b2aa6bfa69b5d6edba37af12e19bdb42f4abe869bb0e2b94845a0"
+    },
+    "diskgraph-7e64340-macos-msrv-failure.log.gz": {
+      "gzip_sha256": "07107bb724440875301778c652497c99d642340f956cae6a340d241bdef23aca",
+      "raw_bytes": 44340,
+      "raw_sha256": "bcf662263c1c0fd0912784f8fb9d5c1d4aa46b814a5485359fa14953b49ea78d"
+    },
+    "diskgraph-scoped-owner-vendor.json.gz": {
+      "gzip_sha256": "4bb9e000a1c0dc2308f79c64437444ce29a1d31cacb6f490085f3eaafa551d2e",
+      "raw_bytes": 420,
+      "raw_sha256": "cdabf9225c5d23a695574447d13cfb9b33c35dbc1b0ecf9a3e0500b5b5304750"
+    },
+    "diskgraph-7e64340-native-terminal.json.gz": {
+      "gzip_sha256": "3a21402d4a7ab07f631563c07afb615e243195226882ffe94601adb307ae57c8",
+      "raw_bytes": 69633,
+      "raw_sha256": "173a0e208c8375d9f25a6e52cb2d41b2309ffcf65b16024a16dd68a2b0f3865a"
+    },
+    "diskgraph-7e64340-windows-msrv-failure.log.gz": {
+      "gzip_sha256": "112e71ab58aa5e5c5d6def7ea8bbf89b52d3ec3d813df23285a137827f5cdf20",
+      "raw_bytes": 256277,
+      "raw_sha256": "48d9a1dc5ae5ffdac38163fbbe96b268082ee24aae223be6c27dde800a979c00"
+    },
+    "diskgraph-7e64340-windows-stable.log.gz": {
+      "gzip_sha256": "66d612d53a116452b893436d98c8f99ddb9b14b8ca3a4c08cb3aaedd5280ebaf",
+      "raw_bytes": 485696,
+      "raw_sha256": "618271594c43c36c24150ffaec6c29eb45330358ee244f7793b2311937ad4f07"
+    }
+  }
+}

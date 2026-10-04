@@ -1,0 +1,61 @@
+{
+  "schema": "diskgraph.scoped_owner_baseline.v1",
+  "scope": "Compile-only structural constraint regression; no runtime deadlock claim",
+  "observation": {
+    "requirement": "Managed owning capability must not escape to static TLS in safe Rust",
+    "baseline_commit": "7e643406f234edce915ca3814ffe81211c343759",
+    "test_manifest_sha256": "45437521ef57f2f80a0911a5520ecc45123ea66292a5c91ef06ddf8c5af5d48b",
+    "actual_safe_static_tls_compile_exit": 0,
+    "security_constraint_satisfied": false,
+    "classification": "structural constraint RED; not a runtime deadlock reproduction",
+    "probe_executed": false,
+    "fresh_build_log": "/private/tmp/diskgraph-ffi-scoped-owner-baseline-build.log",
+    "compile_report": "/private/tmp/diskgraph-ffi-scoped-owner-baseline-compile/results.json",
+    "rlib_sha256": "cabd9519f88cb62af3a19e847bdafbdf9a6f31ae722871e5f9afc6b9a4d5ab2b"
+  },
+  "fresh_build_stdout_stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.18s\n",
+  "safe_rust_probe": {
+    "sha256": "861b19239c41ab45fe35bb64b6257ad7a780102a984899a708cd08348278a790",
+    "source": "//! PF-06 旧 owning API 的 safe Rust 静态 TLS 存储证明；只编译，不执行死锁风险路径。\n#![forbid(unsafe_code)]\nuse diskgraph_ffi::{NativeService, NativeServiceError, NativeServiceOwner};\nuse std::cell::RefCell;\n\nthread_local! {\n    static OWNER: RefCell<Option<NativeServiceOwner>> = const { RefCell::new(None) };\n}\n\npub fn store_owner(database: String) -> Result<(), NativeServiceError> {\n    let (service, owner) = NativeService::new_with_owner(database)?;\n    OWNER.with(|slot| *slot.borrow_mut() = Some(owner));\n    drop(service);\n    Ok(())\n}\n"
+  },
+  "actual_compile": {
+    "phase": "baseline",
+    "rlib": "/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/deps/libdiskgraph_ffi.rlib",
+    "rlib_sha256": "cabd9519f88cb62af3a19e847bdafbdf9a6f31ae722871e5f9afc6b9a4d5ab2b",
+    "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "cases": [
+      {
+        "name": "baseline_tls_owner",
+        "source_sha256": "861b19239c41ab45fe35bb64b6257ad7a780102a984899a708cd08348278a790",
+        "command": [
+          "rustc",
+          "--edition=2024",
+          "--crate-type=lib",
+          "--emit=metadata",
+          "--crate-name",
+          "baseline_tls_owner",
+          "/private/tmp/diskgraph-ffi-scoped-owner-tests/probes/baseline_tls_owner.rs",
+          "--extern",
+          "diskgraph_ffi=/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/deps/libdiskgraph_ffi.rlib",
+          "-L",
+          "dependency=/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/deps",
+          "-o",
+          "/private/tmp/diskgraph-ffi-scoped-owner-baseline-compile/baseline_tls_owner.rmeta"
+        ],
+        "exit_code": 0,
+        "expected_success": true,
+        "accepted": true,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "scope": "compile only; API absence is not runtime RED",
+    "passed": true
+  },
+  "limitations": [
+    "The probe was compiled, never executed.",
+    "Fresh baseline library is from commit 7e643406f234edce915ca3814ffe81211c343759 before the scoped-owner implementation.",
+    "The passing compilation proves missing static-TLS exclusion, not observed Windows deadlock.",
+    "New scoped API, real exit tests, ABI and native CI require separate post-implementation verification."
+  ]
+}

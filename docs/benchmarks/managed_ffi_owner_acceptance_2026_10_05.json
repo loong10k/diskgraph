@@ -1,6 +1,6 @@
 {
   "change": "implement-diskgraph-platform",
-  "boundary": "Top-level source_tree/source_files/local and next_inner_runner/independent_review retain historical managed-owner checkpoints. inner_runner_acceptance records the earlier accepted local inner-runner checkpoint; its native CI terminated with failures. tls_fixture_prestart_acceptance records the latest tests-only candidate, whose native CI remains pending. Physical upstream scanner and native managed hosts remain open.",
+  "boundary": "All layers in this receipt are historical coordinator/inner-runner/TLS-fixture checkpoints. The newest scoped-owner implementation and native compile harness are recorded separately in scoped_owner_acceptance_2026_10_05.json. Physical upstream scanner and native managed hosts remain open.",
   "candidate_manifest_sha256": "7787b6614eaa7cf10098c7256faf888ee766429f951b6076041962f7ffed5e86",
   "source_tree": "efee4d085c4f05f9b3ffd8bd477eb5e27fa7e271",
   "source_files": [

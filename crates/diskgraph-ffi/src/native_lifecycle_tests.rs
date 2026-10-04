@@ -1,7 +1,8 @@
 //! PF-06 真实线程与有界登记回归；不把这些协调线程当作 pinned walker。
 use crate::native_lifecycle::NativeLifecycle;
+use crate::native_service_host_guard::NativeServiceHostGuard;
 use crate::native_worker_exit_barrier::{NativeWorkerExitBarrier, serialize_tls_fixture};
-use crate::{NativeService, NativeServiceError, NativeServiceOwner};
+use crate::{NativeService, NativeServiceError};
 use serde_json::{Value, json};
 use std::sync::{
     Arc,
@@ -16,7 +17,7 @@ fn tls_pending_record_survives_deadline_then_concurrent_waiters_join_it() {
     let _fixture = serialize_tls_fixture();
     let closed = Arc::new(AtomicBool::new(false));
     let lifecycle = Arc::new(NativeLifecycle::managed(closed, 8).unwrap());
-    let mut owner = NativeServiceOwner::start(lifecycle.clone()).unwrap();
+    let owner = NativeServiceHostGuard::start(lifecycle.clone()).unwrap();
     let root = tempfile::tempdir().unwrap();
     let (reached_tx, reached_rx) = channel();
     let (release_tx, release_rx) = channel();
@@ -127,7 +128,7 @@ fn retained_limit_allows_same_root_and_last_subscriber_cancels() {
     let limit = diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
     let lifecycle =
         Arc::new(NativeLifecycle::managed(Arc::new(AtomicBool::new(false)), limit).unwrap());
-    let mut owner = NativeServiceOwner::start(lifecycle.clone()).unwrap();
+    let owner = NativeServiceHostGuard::start(lifecycle.clone()).unwrap();
     let root = tempfile::tempdir().unwrap();
     let mut handles = Vec::new();
     let mut releases = Vec::new();
@@ -185,35 +186,38 @@ fn poll_only_host_can_complete_more_scans_than_the_retained_limit() {
     let root = tempfile::tempdir().unwrap();
     let data = tempfile::tempdir().unwrap();
     std::fs::write(root.path().join("ordinary"), b"native lifecycle").unwrap();
-    let (service, mut owner) = NativeService::new_with_owner(
+    NativeService::with_owner(
         data.path()
             .join("graph.sqlite")
             .to_str()
             .unwrap()
             .to_owned(),
+        |service, mut owner| {
+            let limit =
+                diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
+            for index in 0..(limit * 2 + 1) {
+                let handle = service
+                    .spawn_scan(root.path().to_str().unwrap().to_owned())
+                    .unwrap();
+                let deadline = Instant::now() + Duration::from_secs(60);
+                let answer = loop {
+                    if let Some(answer) = handle.poll_result_json() {
+                        break answer;
+                    }
+                    assert!(Instant::now() < deadline, "第 {index} 次实际扫描未完成");
+                    thread::sleep(Duration::from_millis(5));
+                };
+                let answer: Value = serde_json::from_str(&answer).unwrap();
+                assert_eq!(answer["ok"], true, "第 {index} 次扫描: {answer}");
+                assert!(answer["data"]["revision"].is_string(), "{answer}");
+                // 刻意不调用 result_json；下一次准入必须回收真正结束的 coordinator。
+                drop(handle);
+            }
+            service
+                .drain_coordinators_until(Instant::now() + Duration::from_secs(10))
+                .unwrap();
+            owner.finalize_owner().unwrap();
+        },
     )
     .unwrap();
-    let limit = diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
-    for index in 0..(limit * 2 + 1) {
-        let handle = service
-            .spawn_scan(root.path().to_str().unwrap().to_owned())
-            .unwrap();
-        let deadline = Instant::now() + Duration::from_secs(60);
-        let answer = loop {
-            if let Some(answer) = handle.poll_result_json() {
-                break answer;
-            }
-            assert!(Instant::now() < deadline, "第 {index} 次实际扫描未完成");
-            thread::sleep(Duration::from_millis(5));
-        };
-        let answer: Value = serde_json::from_str(&answer).unwrap();
-        assert_eq!(answer["ok"], true, "第 {index} 次扫描: {answer}");
-        assert!(answer["data"]["revision"].is_string(), "{answer}");
-        // 刻意不调用 result_json；下一次准入必须回收真正结束的 coordinator。
-        drop(handle);
-    }
-    service
-        .drain_coordinators_until(Instant::now() + Duration::from_secs(10))
-        .unwrap();
-    owner.finalize_owner().unwrap();
 }

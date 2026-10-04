@@ -164,20 +164,24 @@ impl NativeService {
 }
 
 impl NativeService {
-    /// 在非 UI 宿主创建带唯一 join manager 的服务；原 UniFFI 构造入口保持旧模式。
-    /// 参数：database_path 为图库路径；返回：可共享 Service 和必须在后台持有/释放的非 Send/Sync owner。
-    /// Service 可先释放，owner 仍负责两级实际回收；本接口不导出到 UniFFI。
-    pub fn new_with_owner(
+    /// 在非 UI 后台宿主的普通函数体中运行受管服务，作用域退出前实际回收协调线程。
+    /// 参数：database_path 为图库路径，host 取得共享服务和仅在该作用域有效的 owner 能力。
+    /// 返回：与 owner 生命周期无关的 R，或构造/最终回收错误；callback panic 在回收后继续传播。
+    /// 显式 finalize 和提前 Drop 均执行真实 join；forget 能力也不遗弃库内栈守卫。
+    /// 本入口不导出 UniFFI，不支持从 TLS 析构、DllMain 或 UI 调用，不认证 pinned walker 退出。
+    pub fn with_owner<R>(
         database_path: String,
-    ) -> Result<(Arc<Self>, crate::NativeServiceOwner), NativeServiceError> {
+        host: impl for<'host> FnOnce(Arc<Self>, crate::NativeServiceOwner<'host>) -> R,
+    ) -> Result<R, NativeServiceError> {
         let engine = open_engine(&database_path)
             .map_err(|reason| NativeServiceError::Unavailable { reason })?;
         let closed = Arc::new(AtomicBool::new(false));
         let limit =
             diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
         let lifecycle = Arc::new(NativeLifecycle::managed(closed.clone(), limit)?);
-        let owner = crate::NativeServiceOwner::start(lifecycle.clone())?;
-        // owner 已接管 manager；后续构造 unwind 也由其后台 Drop 完成回收。
+        let guard =
+            crate::native_service_host_guard::NativeServiceHostGuard::start(lifecycle.clone())?;
+        // manager 句柄始终留在此普通栈帧；callback 仅取得借用能力，不能带走所有者。
         let service = Arc::new(Self {
             engine: Arc::new(engine),
             lifecycle,
@@ -185,7 +189,9 @@ impl NativeService {
             #[cfg(test)]
             scan_progress_hook: Mutex::new(None),
         });
-        Ok((service, owner))
+        let result = host(service, crate::NativeServiceOwner::borrow(&guard));
+        guard.finalize_owner()?;
+        Ok(result)
     }
 
     /// 关闭准入并等待 managed 会话的协调线程退出；旧模式明确不支持，UniFFI ABI 不变。

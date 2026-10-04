@@ -56,12 +56,14 @@ fn managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads(
                 );
             }));
         });
-        let (service, mut owner) = NativeService::new_with_owner(database).unwrap();
-        service_tx.send(service).unwrap();
-        finalize_rx.recv_timeout(Duration::from_secs(60)).unwrap();
-        let result = owner.finalize_owner();
-        let _ = finalized_tx.send(result.is_ok());
-        result
+        NativeService::with_owner(database, |service, mut owner| {
+            service_tx.send(service).unwrap();
+            finalize_rx.recv_timeout(Duration::from_secs(60)).unwrap();
+            let result = owner.finalize_owner();
+            let _ = finalized_tx.send(result.is_ok());
+            result
+        })
+        .unwrap()
     });
     let service = service_rx.recv_timeout(Duration::from_secs(60)).unwrap();
     let (worker_reached_tx, worker_reached_rx) = channel();
@@ -159,11 +161,14 @@ fn host_owner_drop_finalizes_manager_after_service_has_been_dropped() {
                 NativeWorkerExitBarrier::install(reached_tx, release_rx, released_tx);
             }));
         });
-        let (service, owner) = NativeService::new_with_owner(database).unwrap();
-        service_tx.send(service).unwrap();
-        drop_rx.recv_timeout(Duration::from_secs(60)).unwrap();
-        drop(owner);
-        let _ = done_tx.send(());
+        NativeService::with_owner(database, |service, owner| {
+            service_tx.send(service).unwrap();
+            drop_rx.recv_timeout(Duration::from_secs(60)).unwrap();
+            drop(owner);
+            // 必须在公开能力提前 Drop 后、callback 返回前证明真实 manager 已回收。
+            let _ = done_tx.send(());
+        })
+        .unwrap();
     });
     let service = service_rx.recv_timeout(Duration::from_secs(60)).unwrap();
     let weak = Arc::downgrade(&service);
@@ -196,17 +201,19 @@ fn failed_database_construction_does_not_start_a_manager() {
             observed.store(true, Ordering::SeqCst);
         }));
     });
-    let result = NativeService::new_with_owner(directory_database.to_str().unwrap().to_owned());
+    let result = NativeService::with_owner(
+        directory_database.to_str().unwrap().to_owned(),
+        |service, mut owner| {
+            drop(service);
+            owner.finalize_owner().unwrap();
+        },
+    );
     let failed = match result {
         Err(NativeServiceError::Unavailable { reason }) => {
             assert!(!reason.is_empty());
             true
         }
-        Ok((service, mut owner)) => {
-            drop(service);
-            owner.finalize_owner().unwrap();
-            false
-        }
+        Ok(()) => false,
     };
     let unconsumed = take_manager_start_hook().is_some();
     assert!(failed, "合法目录不能作为 SQLite 数据库文件打开");

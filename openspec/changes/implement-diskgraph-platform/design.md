@@ -486,3 +486,5 @@ Core 增加真实单对象的 process输入/限额、启动身份、逐资源观
 D42 的一秒入队准备账本尚未传入控制写事务，默认五秒 SQLite busy 等待可能在原期限耗尽后入队。新增 `create_process_evidence_job_until`，由产品入口传入首次准备的同一绝对期限；旧签名保留可信内部兼容。事务自身对 BEGIN、合并／配额／写入、末次实时授权后与真正 COMMIT 前检查原期限，busy 等待每次按真实余量设置，不能刷新相对额度。事务内读取最终 JobRecord，禁止用提交后外层检查掩盖已入队副作用。连接 guard 保存实际 busy_timeout 并在错误／unwind 恢复临时 progress；真实 SQL／授权错误保留，只有已确认原期限耗尽的忙等／interrupt 归类为预算错误。
 
 以隔离控制库外部 writer、真实 INSERT update_hook、merge 分支和重开副作用验证先红后绿；此方法只证明控制事务预算，不冒充 Linux 原生身份验收，不改变认领后执行时钟或宣称内核 I/O 硬抢占。
+
+受管 owner 的作用域约束与验收实施细节见 [scoped-native-owner.md](scoped-native-owner.md)，仍属于本变更 PF-06，不关闭平台父项。

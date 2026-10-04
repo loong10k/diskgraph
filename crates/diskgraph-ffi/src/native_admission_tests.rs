@@ -116,117 +116,123 @@ fn close_during_admission_refuses_path_work_and_never_enqueues() {
 fn all_in_flight_admissions_are_bounded_and_remain_pending_after_close() {
     let data = tempfile::tempdir().unwrap();
     let source = tempfile::tempdir().unwrap();
-    let (service, mut owner) = NativeService::new_with_owner(
+    NativeService::with_owner(
         data.path()
             .join("graph.sqlite")
             .to_str()
             .unwrap()
             .to_owned(),
+        |service, mut owner| {
+            let limit =
+                diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
+            let (entered_tx, entered_rx) = channel();
+            let (released_tx, released_rx) = channel();
+            let mut releases = Vec::new();
+            let mut threads = Vec::new();
+            for _ in 0..limit {
+                let service = service.clone();
+                let path = source.path().to_str().unwrap().to_owned();
+                let entered = entered_tx.clone();
+                let released = released_tx.clone();
+                let (release_tx, release_rx) = channel();
+                releases.push(release_tx);
+                threads.push(thread::spawn(move || {
+                    BEFORE_CANONICALIZE.with(|slot| {
+                        *slot.borrow_mut() = Some(Box::new(move || {
+                            let _ = entered.send(());
+                            let resumed = release_rx.recv_timeout(Duration::from_secs(60)).is_ok();
+                            let _ = released.send(resumed);
+                        }));
+                    });
+                    service.spawn_scan(path)
+                }));
+            }
+            let entered: Vec<_> = (0..limit)
+                .map(|_| entered_rx.recv_timeout(Duration::from_secs(10)))
+                .collect();
+            let overflow = service.spawn_scan(source.path().to_str().unwrap().to_owned());
+            let pending = service
+                .drain_coordinators_until(std::time::Instant::now() + Duration::from_millis(30));
+            for release in releases {
+                let _ = release.send(());
+            }
+            let released: Vec<_> = (0..limit)
+                .map(|_| released_rx.recv_timeout(Duration::from_secs(10)))
+                .collect();
+            let results: Vec<_> = threads.into_iter().map(thread::JoinHandle::join).collect();
+            let drained = service
+                .drain_coordinators_until(std::time::Instant::now() + Duration::from_secs(10));
+
+            assert!(
+                entered.iter().all(Result::is_ok),
+                "所有真实路径阶段必须命中: {entered:?}"
+            );
+            assert!(released.into_iter().all(|released| released == Ok(true)));
+            match overflow {
+                Err(NativeServiceError::Unavailable { reason }) => {
+                    assert_eq!(reason, "resource_exhausted: native admissions")
+                }
+                Ok(_) => panic!("超出额度的准入启动了路径解析/工作线程"),
+            }
+            match pending {
+                Err(NativeServiceError::Unavailable { reason }) => {
+                    assert_eq!(reason, "coordinator drain deadline exceeded")
+                }
+                Ok(()) => panic!("registry 尚无线程不表示已经登记的路径请求退出"),
+            }
+            for result in results {
+                assert_closed(result.unwrap());
+            }
+            drained.unwrap();
+            assert!(
+                service
+                    .engine
+                    .control_store()
+                    .unwrap()
+                    .list_scopes()
+                    .unwrap()
+                    .is_empty()
+            );
+            assert!(service.engine.queued_jobs().unwrap().is_empty());
+            owner.finalize_owner().unwrap();
+        },
     )
     .unwrap();
-    let limit = diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
-    let (entered_tx, entered_rx) = channel();
-    let (released_tx, released_rx) = channel();
-    let mut releases = Vec::new();
-    let mut threads = Vec::new();
-    for _ in 0..limit {
-        let service = service.clone();
-        let path = source.path().to_str().unwrap().to_owned();
-        let entered = entered_tx.clone();
-        let released = released_tx.clone();
-        let (release_tx, release_rx) = channel();
-        releases.push(release_tx);
-        threads.push(thread::spawn(move || {
-            BEFORE_CANONICALIZE.with(|slot| {
-                *slot.borrow_mut() = Some(Box::new(move || {
-                    let _ = entered.send(());
-                    let resumed = release_rx.recv_timeout(Duration::from_secs(60)).is_ok();
-                    let _ = released.send(resumed);
-                }));
-            });
-            service.spawn_scan(path)
-        }));
-    }
-    let entered: Vec<_> = (0..limit)
-        .map(|_| entered_rx.recv_timeout(Duration::from_secs(10)))
-        .collect();
-    let overflow = service.spawn_scan(source.path().to_str().unwrap().to_owned());
-    let pending =
-        service.drain_coordinators_until(std::time::Instant::now() + Duration::from_millis(30));
-    for release in releases {
-        let _ = release.send(());
-    }
-    let released: Vec<_> = (0..limit)
-        .map(|_| released_rx.recv_timeout(Duration::from_secs(10)))
-        .collect();
-    let results: Vec<_> = threads.into_iter().map(thread::JoinHandle::join).collect();
-    let drained =
-        service.drain_coordinators_until(std::time::Instant::now() + Duration::from_secs(10));
-
-    assert!(
-        entered.iter().all(Result::is_ok),
-        "所有真实路径阶段必须命中: {entered:?}"
-    );
-    assert!(released.into_iter().all(|released| released == Ok(true)));
-    match overflow {
-        Err(NativeServiceError::Unavailable { reason }) => {
-            assert_eq!(reason, "resource_exhausted: native admissions")
-        }
-        Ok(_) => panic!("超出额度的准入启动了路径解析/工作线程"),
-    }
-    match pending {
-        Err(NativeServiceError::Unavailable { reason }) => {
-            assert_eq!(reason, "coordinator drain deadline exceeded")
-        }
-        Ok(()) => panic!("registry 尚无线程不表示已经登记的路径请求退出"),
-    }
-    for result in results {
-        assert_closed(result.unwrap());
-    }
-    drained.unwrap();
-    assert!(
-        service
-            .engine
-            .control_store()
-            .unwrap()
-            .list_scopes()
-            .unwrap()
-            .is_empty()
-    );
-    assert!(service.engine.queued_jobs().unwrap().is_empty());
-    owner.finalize_owner().unwrap();
 }
 
 #[test]
 fn path_failure_and_admission_unwind_return_the_original_quota() {
     let data = tempfile::tempdir().unwrap();
-    let (service, mut owner) = NativeService::new_with_owner(
+    NativeService::with_owner(
         data.path()
             .join("graph.sqlite")
             .to_str()
             .unwrap()
             .to_owned(),
+        |service, mut owner| {
+            let missing = data.path().join("not-created");
+            BEFORE_CANONICALIZE.with(|slot| {
+                *slot.borrow_mut() = Some(Box::new(|| panic!("真实准入后 unwind 夹具")));
+            });
+            let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                service.spawn_scan(missing.to_str().unwrap().to_owned())
+            }));
+            assert!(panicked.is_err());
+            let expected = missing.canonicalize().unwrap_err().to_string();
+            let limit =
+                diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
+            for _ in 0..(limit * 2 + 1) {
+                match service.spawn_scan(missing.to_str().unwrap().to_owned()) {
+                    Err(NativeServiceError::Unavailable { reason }) => assert_eq!(reason, expected),
+                    Ok(_) => panic!("不存在的路径不能启动任务"),
+                }
+            }
+            service
+                .drain_coordinators_until(std::time::Instant::now() + Duration::from_secs(10))
+                .unwrap();
+            assert!(service.engine.queued_jobs().unwrap().is_empty());
+            owner.finalize_owner().unwrap();
+        },
     )
     .unwrap();
-    let missing = data.path().join("not-created");
-    BEFORE_CANONICALIZE.with(|slot| {
-        *slot.borrow_mut() = Some(Box::new(|| panic!("真实准入后 unwind 夹具")));
-    });
-    let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        service.spawn_scan(missing.to_str().unwrap().to_owned())
-    }));
-    assert!(panicked.is_err());
-    let expected = missing.canonicalize().unwrap_err().to_string();
-    let limit = diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
-    for _ in 0..(limit * 2 + 1) {
-        match service.spawn_scan(missing.to_str().unwrap().to_owned()) {
-            Err(NativeServiceError::Unavailable { reason }) => assert_eq!(reason, expected),
-            Ok(_) => panic!("不存在的路径不能启动任务"),
-        }
-    }
-    service
-        .drain_coordinators_until(std::time::Instant::now() + Duration::from_secs(10))
-        .unwrap();
-    assert!(service.engine.queued_jobs().unwrap().is_empty());
-    owner.finalize_owner().unwrap();
 }
