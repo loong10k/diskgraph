@@ -26,6 +26,11 @@ mod native_reply;
 #[cfg(test)]
 mod native_revision_candidate_tests;
 #[cfg(test)]
+mod native_runner_exit_tests;
+mod native_runner_guard;
+#[cfg(test)]
+mod native_runner_signal_tests;
+#[cfg(test)]
 mod native_scan_gate;
 mod native_service;
 mod native_service_error;

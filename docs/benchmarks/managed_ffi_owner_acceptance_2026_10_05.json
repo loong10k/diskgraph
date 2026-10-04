@@ -1,6 +1,6 @@
 {
   "change": "implement-diskgraph-platform",
-  "boundary": "Rust managed coordinator only; inner runner, upstream scanner exit and Swift/Kotlin managed hosts remain open",
+  "boundary": "Current acceptance covers Rust managed coordinator and actual inner Engine runner; physical upstream scanner and native managed hosts remain open. Top-level source_tree/source_files/local retain the earlier managed-owner checkpoint; inner_runner_acceptance records the latest candidate.",
   "candidate_manifest_sha256": "7787b6614eaa7cf10098c7256faf888ee766429f951b6076041962f7ffed5e86",
   "source_tree": "efee4d085c4f05f9b3ffd8bd477eb5e27fa7e271",
   "source_files": [
@@ -149,5 +149,89 @@
     "complete": 140,
     "open": 27
   },
-  "archive_manifest": "process_job_foundation_acceptance_logs/archives_lifecycle.json"
+  "archive_manifest": "process_job_foundation_acceptance_logs/archives_lifecycle.json",
+  "inner_runner_acceptance": {
+    "manifest_sha256": "41abc8f65c868eefcabe880ad23fb1633864bf6845793e892b96b9407f80ca59",
+    "source_tree": "24d288db6e12427dfba12473d45f781ca382c76f",
+    "source_files": [
+      {
+        "path": "crates/diskgraph-ffi/src/scan_coordinator.rs",
+        "sha256": "496af4a524e78243aa104b5b405c2c910ed40dd991aed5a19eee73bf716fff96",
+        "lines": 321
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_runner_guard.rs",
+        "sha256": "dd69cf2ddcb3de4906414bd7eb49007f60d2f796a437df054fc617864e9d8b2f",
+        "lines": 83
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_runner_exit_tests.rs",
+        "sha256": "da1eef81be9603de923083bfbf9bf5a0601e428a2d2dd1b39fa59a865030561e",
+        "lines": 194
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/native_runner_signal_tests.rs",
+        "sha256": "dc013ba18b2486ad3a2d186946e0da203fdfc5e90f0715f866423cafc377737c",
+        "lines": 168
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/lib.rs",
+        "sha256": "3edc229b0f40d5e4975d0cadc8193da92f8b02b551b8c07f8da754325e77c0aa",
+        "lines": 80
+      }
+    ],
+    "runtime_red": [
+      0,
+      3,
+      0
+    ],
+    "first_green_attempt": {
+      "counts": [
+        2,
+        1,
+        0
+      ],
+      "failure": "typed permission wire changed; preserved and fixed without weakening test"
+    },
+    "signal_initial": {
+      "counts": [
+        0,
+        4,
+        0
+      ],
+      "failure": "fixture queried nonexistent revisions table; not target RED; corrected to graph_revisions"
+    },
+    "exit_green": [
+      3,
+      0,
+      0
+    ],
+    "signal_green": [
+      4,
+      0,
+      0
+    ],
+    "ffi": [
+      89,
+      0,
+      0
+    ],
+    "workspace": [
+      1569,
+      0,
+      18
+    ],
+    "suites": 70,
+    "owned_nine_package_fmt_exit": 0,
+    "workspace_clippy_exit": 0,
+    "build_exit": 0,
+    "openspec_exit": 0,
+    "abi": [
+      19,
+      19
+    ],
+    "independent_review": "5/5 final source APPROVE; other 17 managed baseline files unchanged",
+    "boundary": "coordinator retains and joins actual inner Engine runner; typed deny and original cancellation bind successful claimed generation; physical pinned scanner, managed native hosts and parent gates remain open",
+    "native_ci": "pending for this new source"
+  }
 }

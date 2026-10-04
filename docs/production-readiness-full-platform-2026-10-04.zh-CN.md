@@ -1,5 +1,7 @@
 # 全平台验收续篇 — 2026-10-04
 
+内部 Engine runner 候选 `41abc8f6` 已通过真实 TLS 退出 **3/0**、代次信号 **4/0**、FFI **89/0**；index tree `24d288db` 隔离导出的 workspace **1569/0/18（70 suites）**、九包 fmt、严格 workspace Clippy、构建、OpenSpec 和 **19/19 ABI 校验值**通过，最终五源独立审查通过。首次权限 wire 回归及错误表名夹具失败均保留，不误称最终成功或额外行为 RED。协调线程正常／异常退出实际 join 内部 runner，typed 拒权与原取消信号仅绑定其成功认领代次。本增量原生 CI 尚待运行。上游扫描器物理退出、源读取隔离、真实受管宿主和平台父门禁仍未验收。
+
 FFI 协调层候选 `7787b661` 从 index tree `efee4d08` 隔离导出验收：workspace **1562/0/18（70 suites）**、九个自有包 fmt、严格 workspace Clippy、构建、OpenSpec 和 **19/19 旧 ABI 校验值**通过。原 30 毫秒 TLS drain 在 40.107 毫秒返回 pending，随后主动释放；不代表严格调度上限。已实现 Rust 宿主所有权，但内部 runner、上游扫描器物理退出、真实宿主及平台父门禁仍开放。下一批内部 runner 回归实际复现正常完成／撤权／unwind 三条路径提前返回（**0/3/0**）；其源码不包含在本候选中。上一提交 `fd71b50` 的[原生 CI](https://github.com/loong10k/diskgraph/actions/runs/37226948350) 已成功。证据见[owner 回执](benchmarks/managed_ffi_owner_acceptance_2026_10_05.json)。
 
 下方为历史阶段记录。

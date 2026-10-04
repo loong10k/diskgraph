@@ -71,6 +71,12 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **WHEN** 工作线程已经保存业务结果，但真实线程仍在执行线程局部析构或退出清理
 - **THEN** 非阻塞 poll 可以报告业务结果；阻塞 result 等待唯一实际 coordinator JoinHandle 完成，不能把 finished 标志、消息送达或数据库终态作为线程已经退出的证明。并发等待共享同一 join 结果，不重复消费句柄。
 
+#### Scenario: Coordinator retains its actual inner Engine runner
+- **WHEN** 协调线程观察到已提交的 Completed 作业，或者在持有内部 Engine runner 时遇到撤权、错误、超时或 unwind
+- **THEN** 正常与异常退出均保留并实际 join 内部 runner 的唯一句柄，包括其线程局部析构；业务终态和 is_finished 提示不能代替实际退出。join 不持有状态或数据库锁。
+- **AND** 原请求取消与授权拒绝以独立的原始共享信号传入 Engine，仅在成功 claim 后绑定该 owner/fencing 代次；不能以裸 job ID 取消另一活 owner，也不能改写已经提交的 revision、owner、fencing 或终态。明确拒权优先于同时发生的调用者取消；独立 I/O 或身份冲突不伪装为拒权。
+- **AND** 正常完成的 join 不额外请求停止；异常清理仅请求协作停止。本项仍不是 pinned 上游扫描器的物理线程退场验收，不承诺严格扫描内存或调度期限。
+
 #### Scenario: Close races with native scan admission
 - **WHEN** spawn_scan 已进入会话但仍在规范化路径，另一线程关闭会话并等待 coordinator 退出
 - **THEN** 准入计数在路径 I/O 前登记；关闭后拒绝新准入，先前准入重验关闭状态后不能创建新任务。等待覆盖准入与会话拥有的 coordinator，超时报告未退场并保留等待能力；不在状态或数据库锁内 join。
