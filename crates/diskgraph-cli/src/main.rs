@@ -2048,6 +2048,7 @@ fn dispatch(
                     "candidates": candidates,
                     "review_only": true,
                     "coverage_complete": answer.coverage_complete,
+                    "coverage_observed": answer.coverage_observed,
                     "complete": answer.complete,
                     "truncated": answer.truncated.map(|reason| reason.wire_name()),
                     "selected_bytes": answer.selected_bytes.to_string(),

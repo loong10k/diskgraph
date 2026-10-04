@@ -26,6 +26,7 @@ mod relation_request;
 mod relation_request_tests;
 mod revision_authorization;
 mod revision_comparison;
+mod revision_display_completion;
 #[cfg(test)]
 mod revision_evidence_tests;
 mod revision_growth;
@@ -90,6 +91,7 @@ pub use queries::{
     impact_bounded, impact_bounded_with_neighbors, impact_propagation, incompatibility_name,
     search_nodes,
 };
+pub use revision_display_completion::RevisionDisplayCompletion;
 pub use revision_growth::RevisionGrowth;
 pub use runner::JobRunner;
 pub use verify_limits::VerifyLimits;

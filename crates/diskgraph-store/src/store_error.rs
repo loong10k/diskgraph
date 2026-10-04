@@ -48,6 +48,13 @@ pub enum StoreError {
 }
 
 impl StoreError {
+    /// 判断 SQLite 是否耗尽本连接配置的锁等待期限。
+    /// 参数：无；调用方须确认其 busy_timeout 属于当前阶段预算。
+    /// 返回：DatabaseBusy 为 true，其他真实数据库错误为 false。
+    pub fn is_busy(&self) -> bool {
+        matches!(self, Self::Sqlite(rusqlite::Error::SqliteFailure(error, _)) if error.code == rusqlite::ErrorCode::DatabaseBusy)
+    }
+
     /// SQLite 期限或取消中断；调用者可保留已读取结果并标记截断。
     /// 判断 SQLite 中断原因或操作终态。
     /// 参数：无额外输入；实例方法使用当前连接/记录。

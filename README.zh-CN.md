@@ -259,6 +259,8 @@ D34 命名空间增量在 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生 
 
 D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。`2450ab1`同源码[原生CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37164196395)，四份选定原生日志各实际通过26项新用例；授权Git采集入口及平台/provider门禁保持开放。
 
+D36[受约束 Git 捕获](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json)与 [TUI／查询预算](docs/benchmarks/tui_budget_acceptance_2026_10_04.json)回执记录当前增量。可信 Git 采样先捕获 scope 内普通输入再执行固定命令，授权持久采集任务仍待实现；TUI 准备在原期限内准入所需原始字段，交付前复核实时授权。候选响应新增 `coverage_observed`，区分到期未读取覆盖头与实际观测的覆盖缺口。本机最终验证和同源码原生验收分别记录，本增量尚不能证明全平台生产就绪。
+
 ## 文档
 
 | | |

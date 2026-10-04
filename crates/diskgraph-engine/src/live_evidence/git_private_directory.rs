@@ -177,6 +177,39 @@ impl GitPrivateDirectory {
         capacity.finish_operation(probe)
     }
 
+    /// 一次独占创建并流式写入完整捕获文件，所有块共享同一容量 owner。
+    /// 参数：path 为私有新文件，length 为已准入长度，write 为同步写入闭包，probe 为原预算。
+    /// 返回：闭包结果；源或目标失败保留 owner 供显式清理，不重建容量额度。
+    pub(super) fn write_stream<T>(
+        &mut self,
+        path: &Path,
+        length: u64,
+        probe: &mut ProbeBudget,
+        write: impl FnOnce(&mut std::fs::File, &mut ProbeBudget) -> Result<T, String>,
+    ) -> Result<T, String> {
+        let parent = path.parent().ok_or("private Git stream parent missing")?;
+        let name = path.file_name().ok_or("private Git stream name missing")?;
+        self.active_capacity()?.preflight(path, length, probe)?;
+        let lease = GitDirectoryLease::open(parent, probe)?;
+        let capacity = self.active_capacity()?;
+        capacity.check_identity(parent, lease.leaf_file(), true)?;
+        if capacity.registered(path) {
+            return Err("private Git stream target already exists".into());
+        }
+        let mut file = GitPrivateAllocation::open_write(lease.leaf_file(), name, true)?;
+        let result = write(&mut file, probe)?;
+        file.flush()
+            .map_err(|e| format!("private Git stream flush: {e}"))?;
+        if file.metadata().map_err(|e| e.to_string())?.len() != length {
+            return Err("private Git stream length mismatch".into());
+        }
+        let file = GitPrivateAllocation::finish_write(lease.leaf_file(), name, file)?;
+        capacity.observe(path, &file, probe)?;
+        capacity.observe(parent, lease.leaf_file(), probe)?;
+        capacity.finish_operation(probe)?;
+        Ok(result)
+    }
+
     /// 使用已登记原生句柄设置私有 index 时间，保留 racy index 的比较语义。
     /// 参数：path 为已登记普通文件，modified 为源文件精确时间，probe 为整次预算。返回：精确回读一致且容量确认。
     pub(super) fn set_modified(

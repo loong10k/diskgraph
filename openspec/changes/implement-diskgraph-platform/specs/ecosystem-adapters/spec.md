@@ -117,6 +117,21 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 源对象目录包含递归 alternates、promisor、链接或超预算对象，或在视图准备后新增外部对象路径
 - **THEN** 在把对象交给 Git 前以原生 no-follow 捕获并按同一次期限、取消、累计原始字节及条目预算复制安全普通 loose 对象和配对 pack/index；Git 只读取私有扁平对象库，不把源 objects 或 info/alternates 挂入私有 alternates。既有 alternates/promisor 明确拒绝；准备后的外部路径不能成为 Git 输入，终态拒绝源捕获集合变化。复制不得用会改变源 nlink/ctime 的硬链接，不读未计费的巨大 alternates 文件，也不能以最终报错代替已发生的外部读取隔离。
 
+#### Scenario: Scoped Git source capture precedes subprocess access
+- **WHEN** 新增受范围约束的 Git 采样模式捕获已明确定位的仓库根、工作树、元数据及对象库
+- **THEN** 所有源读取、枚举与终态复核均从同一保留的原生范围根句柄解析原始相对组件；不先读取或 canonicalize 后再检验范围。gitdir、commondir、仓库属性及忽略文件的外部引用在正文读取前拒绝，不能向父目录另找仓库；固定系统工具配置按独立宿主允许列表处理。
+- **AND** Unix 使用相对句柄打开及目录流，Windows 使用有目录枚举权能的相对 HANDLE 并先检查完整身份、重解析及占位状态；不回退绝对源路径枚举。不能可靠保持的链接、特殊文件、物化或名称语义明确拒绝。旧可信采样签名与原语义保持兼容，新模式不会自动授予权限或开放远程工具。
+
+#### Scenario: Captured Git commands never reopen the live source tree
+- **WHEN** 完成私有捕获后、实际 Git status 或内容探测之前，源根、父目录或工作文件名称被替换
+- **THEN** 子进程的 cwd、工作树、index、对象库、配置和引用均只指向同一 owner 的实际私有输入；真实命令输出仍来自捕获内容。随后源变化复核须拒绝整体成功，不能以最后一个错误代替已经发生的源读取隔离证明。
+- **AND** 验收记录实际中间命令输出及源读取哨兵；用真实 Git 的旧实时模式作正控制，不把缺函数编译错误、发现阶段失败或假输出算作隔离回归。
+
+#### Scenario: Scoped private capture preserves ordinary bounded Git inputs
+- **WHEN** 预算内的普通工作树包含隐藏、未跟踪、忽略文件及各层属性，并涉及原 index 的高精度时间、文件模式或行尾语义
+- **THEN** 捕获和复核共享原始输入字节、条目、期限与取消额度，私有流式写入独占创建并按实际分配及卷余量准入；不使用链接回源，不为第二轮读取补充预算。必要模式及时间通过实际私有句柄核验，不能以改变 Git 信任配置或刷新源 index 伪造 clean。
+- **AND** clean/dirty、unborn、stash、本地跟踪差分、SHA-1/SHA-256、受范围约束的 linked worktree、ignore/attributes、CRLF、filemode 与 racy-index 由真实 Git 差分及对应原生环境验收。私有捕获完成不代替授权持久任务、证据发布、provider 或生产平台门禁。
+
 #### Scenario: Git status output exhaustion is explicit
 - **WHEN** 普通宽工作树的 status NUL 记录耗尽整次累计管道额度（兼容默认 1 MiB）
 - **THEN** 返回明确资源失败并清理，不返回局部 dirty 数或假 clean。20k/200k 索引与查询基准不能作为 Git sampler 同等工作树规模可成功的证据；提高可配置输出额度仍须保留整次累计期限、取消和字节上限。

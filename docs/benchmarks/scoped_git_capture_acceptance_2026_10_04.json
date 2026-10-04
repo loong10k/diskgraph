@@ -1,0 +1,376 @@
+{
+  "date": "2026-10-04",
+  "increment": "D36 / EC-02/04 scoped Git capture foundation",
+  "baseline_commit": "3f84361f614f475e92af8f25738ad4efab689de7",
+  "status": "final_local_quality_and_release_acceptance_passed_native_pending",
+  "source_manifest_sha256": "9c967febe830faf823817872db89e0f77ec68107483ac8d385e8fa02c74f3422",
+  "source_files": {
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs": "1ffbcef9d56b0b033f313c91761386e6c6e466028868403081b5560832ba52a6",
+    "crates/diskgraph-engine/src/live_evidence/git_source_directory.rs": "e1db09f793cd211d749cf2d4c616003ecfd7eb4fc989ddb7d3945ebf15ab7b53",
+    "crates/diskgraph-engine/src/live_evidence/git_source_unix.rs": "102ab2676eb84a2f65baf0dfceee74cd1d5f1a4acd0a787d71986ef640f698b4",
+    "crates/diskgraph-engine/src/live_evidence/git_source_windows.rs": "97f6395c01bfa24778efe4a12f520f7596f0406e302b0c077030805b25a9e208",
+    "crates/diskgraph-engine/src/live_evidence/git_source_file.rs": "cc383e11401704c076b755814b5faaa508a165345ef18e6a99fdc11f79a7bd10",
+    "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs": "30a801ebaa67f96081d8c319c35faa4535262fcadd47d16fa078cb1dc7c28420",
+    "crates/diskgraph-engine/src/live_evidence/git_view_sources.rs": "374b17f630f0b1635cb70f7fdc52c293c6dc3fbeb5b3558afbf5e4de32bd823c",
+    "crates/diskgraph-engine/src/live_evidence/git_view.rs": "3a32c5238ea4b2619ebb0383338fdd2499552ce6c6b5207453b080c37a10a268",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "77451887d45a6be4c350f4d7e30ed32f64663759e97bd5caf3042a26d8a33d6c",
+    "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "db97359fd01bee094277d1d6c8e195f00ccccbcb7ef57cd61c5fe19e786b7977",
+    "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs": "9634c64c804e91b0be52942fbe1fd860b725f303bafeaef0ccfe68af156ce2dd",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "d60dbd143e4cdffeddc314a87f7161461c94df67bd9b724675abf28a6b666af3",
+    "crates/diskgraph-engine/src/live_evidence/git_scoped_fixture.rs": "6e39d8cb5fb1c69d58118d01336cb6810d526f6af40f1d053d3d32bac3fb4f28",
+    "crates/diskgraph-engine/src/live_evidence/git_worktree_capture_tests.rs": "53ae59b0975915dc934e6e60b2ecbc7e1a063d50122c3ec8c0f8cf49e6bba484",
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "9501b22424389f16c7183ec48bf8eeb75d923d7931e16e8c16c1928771b7766d",
+    "crates/diskgraph-engine/src/live_evidence/git_scoped_semantics_tests.rs": "d85fbc27bc6cb5108c708ec7927a06fc44614e9213437bff73f473a6ababe7d0",
+    "crates/diskgraph-engine/src/live_evidence/git_source_file/tests.rs": "5a1bfdb851df90c766adf344720361d2f9e367a822085dd2c3e6745390bcfd90"
+  },
+  "behavior": [
+    "Trusted library sample_git_scoped takes a registered root and explicit QualifiedLocator. Component-relative native handles reject links, nested repositories and scope-external Git dependencies before subprocess dispatch.",
+    "Captured ordinary worktree and scope-internal Git metadata/attributes/object dependencies supply an exclusive private view. Fixed supported commands do not reopen source bodies. Cumulative input/entry/time/cancellation budgets cover capture and source revalidation.",
+    "Native source identity, length and high-precision version checks reject in-place modification; final root-route checks reject renamed roots and replaced ancestors. Unix size/version come from the same metadata observation. Windows native handle enumeration is implemented but awaits D36 native execution.",
+    "Private capture preserves executable mode and modification observations. The supported fixed status command retains final private version verification and explicit cleanup. Arbitrary git diff commands are not a supported readonly contract.",
+    "The macOS hydration policy is entered before source capture and restored on success/error; actual cloud-provider no-download acceptance remains open. No remote collector command, durable job or dangerous write capability was enabled."
+  ],
+  "red": {
+    "initial_capture": {
+      "passed": 0,
+      "failed": 4
+    },
+    "initial_scope": {
+      "passed": 0,
+      "failed": 4
+    },
+    "existing_semantics_positive_controls": {
+      "passed": 6,
+      "failed": 0
+    },
+    "expanded_scope": {
+      "passed": 6,
+      "failed": 3,
+      "failures": [
+        "nested gitfile was accepted",
+        "registered root rename was accepted",
+        "legitimate absolute attributes/excludes dependency positive control failed"
+      ]
+    },
+    "replaced_ancestor": {
+      "passed": 0,
+      "failed": 1
+    }
+  },
+  "retained_diagnostics": [
+    "Initial final semantics run: 8 passed / 1 failed. Its new fixture used arbitrary git diff --summary, which modified the private index. The production private-version rejection was correct; it was not weakened.",
+    "Exact diagnostic failed 0/1 after identifying repo/index. The test was corrected to compare native source fixed STATUS with captured fixed STATUS, retain a native mode-diff positive control, inspect private modes, and keep final source/private/cleanup validation.",
+    "The other 16 frozen files remained identical across the supported-status fixture correction; independent review approved its fixed-command contract. Later formatting and the standard test-module move have separate source manifests.",
+    "The first final workspace run had 1227 passed / 2 failed / 18 ignored. Source layout failed on the explicit test path attribute; standard module placement restored the actual gate. The other failure concerned candidate header deadline compatibility and is recorded separately in the TUI/query receipt. Full final-source QA is pending.",
+    "After candidate/module fixes, full workspace passed 1233/0/18 (51 suites) and all-target build passed. Strict Clippy then rejected a redundant native inode cast. A type-only Unix identity comparison fix retains Apple signed-device semantics and widens identities without truncation; Final type-only source review is CLEAR; final seven-step local QA subsequently passed.",
+    "Second workspace/build also passed; strict Clippy then exposed three needless pub(self) imports and the preserved legacy legend reexport after TUI splitting. Private-use spelling is equivalent; the pre-existing dead legend compatibility export needs a narrowly documented lint expectation. No global warning gate is changed."
+  ],
+  "green": {
+    "debug_targets": {
+      "scope_boundary": 13,
+      "worktree_capture": 6,
+      "source_file": 5,
+      "scoped_semantics": 9,
+      "failed": 0
+    },
+    "debug_all_live_evidence": {
+      "passed": 275,
+      "failed": 0,
+      "ignored": 3,
+      "nested_child_not_double_counted": true
+    },
+    "release_git_modules": {
+      "passed": 213,
+      "failed": 0,
+      "ignored": 3,
+      "phase": "before final formatting and standard test-module move; final-source release build and native CI pending"
+    },
+    "standard_module_layout": {
+      "source_layout_passed": 3,
+      "source_file_passed": 5,
+      "failed": 0,
+      "note": "Byte-identical tests moved into git_source_file/tests.rs; no source gate weakened."
+    }
+  },
+  "independent_review": {
+    "production": "APPROVE",
+    "supported_status_fixture_delta": "CLEAR",
+    "verified_files": 17,
+    "reviewed_manifest_sha256": "9c967febe830faf823817872db89e0f77ec68107483ac8d385e8fa02c74f3422",
+    "standard_module_move": "CLEAR: tests byte-identical, only the explicit path attribute removed, production body preserved",
+    "unix_type_only_delta": "CLEAR: reverse-restored source hash matches the original; lossless inode/device comparisons, original Apple signed-device conversion retained."
+  },
+  "performance": {
+    "claim": "Bounded capture limits admitted input and avoids source reopening; no paired latency, throughput or RSS improvement is claimed. Ordinary worktree capture adds copying cost.",
+    "limits": "Existing cumulative Git metadata/input and pipe budgets remain distinct; no strict RSS, filesystem readahead, space reservation or atomic namespace snapshot guarantee.",
+    "release_load_observations": {
+      "20000": {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 0.503,
+        "query_p50_ms": 9.048,
+        "query_p95_ms": 11.323,
+        "database_and_wal_bytes": 43442176,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "maximum_individual_child_rss_bytes": 44433408
+      },
+      "200000": {
+        "version": "diskgraph 0.3.0",
+        "platform": "darwin",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 5.169,
+        "query_p50_ms": 8.492,
+        "query_p95_ms": 10.921,
+        "database_and_wal_bytes": 436916224,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        },
+        "maximum_individual_child_rss_bytes": 263274496
+      }
+    },
+    "measurement_scope": "Release load observations use 32 queries / 4 clients and isolated 20k/200k fixtures. Query latency includes CLI startup. macOS time -l records each of 39 CLI children separately; maximum individual RSS is not simultaneous total RSS. No paired acceleration or strict memory claim."
+  },
+  "native_ci": {
+    "status": "pending",
+    "note": "Earlier 3f84361 CI covers D35 source and does not prove D36 execution.",
+    "inventory": "d36_native_case_inventory_2026_10_04.json"
+  },
+  "remaining": [
+    "Authorized ContentRead/MetadataRead/IndexWrite durable typed collection job and live capability fence",
+    "Atomic evidence revision publication and CLI/MCP end-to-end acceptance",
+    "Application/process per-resource and startup identity evidence",
+    "Real cloud providers, native writes, host/mobile/device/signing/production gates"
+  ],
+  "logs_directory": "scoped_git_capture_acceptance_2026_10_04_logs",
+  "logs": [
+    {
+      "file": "git_worktree_capture_tests-red.log.gz",
+      "sha256": "25c1d120efa8efee8b1a02d4136e635cf17d72036faf83ecaabe66f5adfe1566",
+      "raw_sha256": "c2503e910e8ab7932ba601866fd601c8e9227930efcce161028f824c65c1ba7f"
+    },
+    {
+      "file": "git_scope_boundary_tests-red.log.gz",
+      "sha256": "a4768575d98bd7fa4f5f451bc061c57dc32c0ee94cad2e078dc78c5d97afcec7",
+      "raw_sha256": "5165a09804b86e664e486b78b8dca145d67f57efe2b930b22cc4fedbc894c1e8"
+    },
+    {
+      "file": "git_scoped_semantics_tests-red.log.gz",
+      "sha256": "b990e5c40cf1ead2dcd6647f387c79764bce51ad9881b2f0e64d89fad4f23b3e",
+      "raw_sha256": "fb1a299ca9b8564b02d61147098a043a7d5adb70dede4b4316cb03eb4d53f87e"
+    },
+    {
+      "file": "git-boundary-second-red.log.gz",
+      "sha256": "4614da6dd2b56637f58afc50949b225854d6f74826976aa92dd89ac79b5b481b",
+      "raw_sha256": "8a4ab70d16c2b1246d60f0ce7b503d83f52790c773432d687631fb1db531bd5f"
+    },
+    {
+      "file": "git-ancestor-red.log.gz",
+      "sha256": "4f5f45f9695d5105c922369e76af29043e2c9c9a8bd2d0b204ffa3c49d9f101e",
+      "raw_sha256": "27c247455e5f253eb018ef6aa54fb9938e9d9d36856f4c72562bbeef91247bc6"
+    },
+    {
+      "file": "git-mode-diagnostic.log.gz",
+      "sha256": "1dbacd3a39f0e2644957cf3bc3303531d8bceb5f36ae637f5fd43659815f61b4",
+      "raw_sha256": "7845a85d73f6bcca9763cb348b5237c73b43470d5c2c66b061dfb65dd154712c"
+    },
+    {
+      "file": "git-semantics-final-green.log.gz",
+      "sha256": "b41b5ce6e404a5066eaebb17be6a222790a560b7ee88b0e6c28c2d6fb7c3ec81",
+      "raw_sha256": "894e2b895ff414d994ba0bd3033542729f65f150ebf3feec92b566894a74901d"
+    },
+    {
+      "file": "git-boundary-final-green.log.gz",
+      "sha256": "cf8366d19840bda7dbfbf1d2068a6895b696f959a943c71a4d0858700fdfcb8c",
+      "raw_sha256": "f622b75df45d4229499c16be75c4f6457158fc8e6bc3d16445e0e44ffadeed85"
+    },
+    {
+      "file": "git-capture-final-green.log.gz",
+      "sha256": "43c20d80a83008f2b3163b84b6edd74c4942fabaa23762fb3a35ddad63e67e48",
+      "raw_sha256": "baff913210d21e3aa6706ea6a06c096ec4927f6717b87c469f2345f1b6718408"
+    },
+    {
+      "file": "git-source-file-final-green.log.gz",
+      "sha256": "86cfaddd48f810eadb020a271ffbbbf6df43a74af5a2dd7e252082cbe38b0991",
+      "raw_sha256": "c294bfc73008ee16f6744429514f8a7a1fb9544d8500c335fd6c53ba68e0d21b"
+    },
+    {
+      "file": "git-mode-status-green.log.gz",
+      "sha256": "d2863ac7fab941e92a7aa4e216f9a3012898778a4ffe961626b87779a874929c",
+      "raw_sha256": "6ba0395b2dfc3331f78c2b45d1bc56865661e5e92bfdd22876671c79ffc996a9"
+    },
+    {
+      "file": "git-semantics-status-green.log.gz",
+      "sha256": "8ac012f2323d11767ec7529d608f8bbbda13f120356712aebdf50054308c92fb",
+      "raw_sha256": "bb48097a255885759284b27134e334c635090edf9ee1cae92de69a0fd7b08815"
+    },
+    {
+      "file": "git-all-live-status-green.log.gz",
+      "sha256": "d4040c85165c49781cbcf55b837a53e8cddd6125cdbb1fa3f735bf7c61bd0d02",
+      "raw_sha256": "88ab95ca90d1a2ce231ae68de90aa3b00159c0f206b1e3c07153ac40ba2161c1"
+    },
+    {
+      "file": "git-release-target.log.gz",
+      "sha256": "3069ba338de78be8b2c5a9bdc329d8264cc7f2bba63a132e51d6194cbd1c9a3c",
+      "raw_sha256": "be1fb6f73ccc46ac0d23811dfe59da051d669a421e34e5695c0de78c35545af9"
+    },
+    {
+      "file": "standard-source-layout-green.log.gz",
+      "sha256": "d5479fa11dc4a861297a808ff6fd3d7c9249c745bfa909dbe5c2691ee08706a8",
+      "raw_sha256": "4cc6b78bca233e680302f7fbaca91d4bf102ec70f6e09350e75ca555f3a1a07d"
+    },
+    {
+      "file": "standard-source-file-green.log.gz",
+      "sha256": "3cf7a5e9aded437c0eca0972199ce516dde964ee7d8edf36a13221bef200bdd8",
+      "raw_sha256": "a9babc2ef61a405b220f27af47325aeb67a5c4692103b08b89394a8459d8dbb1"
+    },
+    {
+      "file": "post-inode-clippy.log.gz",
+      "sha256": "664d77a766c719f1319f4b3f8a2529c84a52b902b4e1d49673e599ae944e7e2e",
+      "raw_sha256": "099423028f2f72c7517347b8a41e42fc9926cdffc561d7d62acdeeb133570a51"
+    },
+    {
+      "file": "release-stdio.log.gz",
+      "sha256": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb",
+      "raw_sha256": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd"
+    },
+    {
+      "file": "release-http.log.gz",
+      "sha256": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be",
+      "raw_sha256": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4"
+    },
+    {
+      "file": "release-uniffi.json.gz",
+      "sha256": "070afcfd83f13e31b59f8aaa1695c68036fb4b6a0ae0f1bf4a468358ab8310b3",
+      "raw_sha256": "aba25eaadb95674aa824bce0a5ad9a6ebea3744bf2cd17dac62c9417cc95ccda"
+    },
+    {
+      "file": "release-load-20000.log.gz",
+      "sha256": "a3357481d397d9ede92f42cff9c947cc45b48718558354c4e17d6eaa7b4815d9",
+      "raw_sha256": "2f1256bdeff450e118bcf11fc82753d9a8a5b845e9aaf63bf1d1ae4822b80cc4"
+    },
+    {
+      "file": "release-load-200000.log.gz",
+      "sha256": "452b48fa24e0a9ffb4cafbb6849f96d06346ca748ddeb483b6ab09b21883cc63",
+      "raw_sha256": "1d238cf84b7d80a725e022f4302ad743530a7ee7471d158b25485eb40e0d8970"
+    },
+    {
+      "file": "load-20000.json.gz",
+      "sha256": "a3357481d397d9ede92f42cff9c947cc45b48718558354c4e17d6eaa7b4815d9",
+      "raw_sha256": "2f1256bdeff450e118bcf11fc82753d9a8a5b845e9aaf63bf1d1ae4822b80cc4"
+    },
+    {
+      "file": "load-200000.json.gz",
+      "sha256": "452b48fa24e0a9ffb4cafbb6849f96d06346ca748ddeb483b6ab09b21883cc63",
+      "raw_sha256": "1d238cf84b7d80a725e022f4302ad743530a7ee7471d158b25485eb40e0d8970"
+    },
+    {
+      "file": "load-20000-rss.json.gz",
+      "sha256": "c731cc7120b24a3319041e4df90d2c6eaffc35a8567432b65bfeb1b0491028ec",
+      "raw_sha256": "1c28005c460a122d1a3f92459afbfae8e9a90f501bf8f761031d398222a2d026"
+    },
+    {
+      "file": "load-200000-rss.json.gz",
+      "sha256": "94f9295d1e636ed8711a7008490fe409601a55294f0239e176aa3343857f58a2",
+      "raw_sha256": "6cfb71d337f3877664a46f83ffc71dd9d6afce7611b7790e07793d229e1302a5"
+    },
+    {
+      "file": "release-load-rss.py.gz",
+      "sha256": "d2be5616d962fab869cdd905c39f8c9618eb072de52b2433341501d309583cad",
+      "raw_sha256": "16f493532f4407c5924ea57285d47a22c008f9f0a4321e46f8d8f95eabde5956"
+    },
+    {
+      "file": "vendor-verified.json.gz",
+      "sha256": "2e4450de952844091367911331c91213176ef38ad099160a2ad8d8a081ea7987",
+      "raw_sha256": "b2262afd01d3324f88b4a76ea07ec01243a812a41b8d7f13b2e509cca3685e4b"
+    }
+  ],
+  "prior_target_source_manifest_sha256": "005fc0760681152a5b66f9bb2ebcf7e90c774913996838c06526766bef987242",
+  "final_validation_source_manifest_sha256": "67cbee458131b1922d3fd765927b12f64a66b6adaa11636a2cf55e7bc3b8884c",
+  "final_local_quality": {
+    "checks_exit_codes": {
+      "clippy": 0,
+      "workspace": 0,
+      "build": 0,
+      "fmt": 0,
+      "include-fmt": 0,
+      "openspec": 0,
+      "release": 0
+    },
+    "workspace": {
+      "passed": 1233,
+      "failed": 0,
+      "ignored": 18,
+      "top_level_suites": 51,
+      "nested_child_results_not_double_counted": true
+    },
+    "receipt": "tui_budget_acceptance_2026_10_04.json",
+    "source_manifest_sha256": "67cbee458131b1922d3fd765927b12f64a66b6adaa11636a2cf55e7bc3b8884c"
+  },
+  "release_acceptance": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http_sse": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    },
+    "uniffi_checksums": {
+      "passed": 19,
+      "total": 19,
+      "artifact": "release-uniffi.json.gz"
+    }
+  }
+}

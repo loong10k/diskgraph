@@ -175,6 +175,20 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **THEN** all nested reads share one SQLite deadline and a combined row/query budget; exhaustion leaves the parent blocks visible and identifies the truncation reason
 - **AND** each frame and navigation rechecks the revision's actual scope and current metadata grant
 
+#### Scenario: TUI deadline truncation reaches the actual backend
+- **WHEN** 整帧嵌套读取耗尽共同期限，但已缓存父块可以形成明确标记的部分帧
+- **THEN** 实际终端后端仍显示父块及 deadline 截断提示，不因预算错误直接退出或丢弃该部分帧；不得将晚到完整结果表示为成功。
+- **AND** 提交缓冲前再次核验真实 revision 归属、scope 和元数据权限；撤权、过期身份及实际存储错误仍阻止完整或部分数据提交。不得放宽通用授权 reader 的期限契约，后续查询不复用已经耗尽的读取额度。
+
+#### Scenario: TUI preparation excludes unnecessary owned metadata
+- **WHEN** 合法快照的节点含超出展示预算的大型 reclaim_hint 或其他不用于导航绘制的元数据
+- **THEN** 页面与整帧读取使用必要字段投影或读取前原始字段准入，不先拥有这些未使用字段再计算展示成本。必需的名称、路径及节点读取按整次预算计费，真实准备成本与展示成本分别报告；不把有限行数或256KiB展示额度描述为完整原始输入或RSS上限。
+
+#### Scenario: TUI initial and navigation authorization remain bounded
+- **WHEN** 首次帧授权或导航读取遇到由另一线程持有的控制库锁
+- **THEN** 专用 TUI 路径非阻塞拒绝竞争，初次归属与权限检查及导航准备沿用原请求期限；不得等待锁释放后把已经迟到的初次授权转换为可提交部分帧。
+- **AND** 导航只在实时终检成功且完整结果仍在原期限内时返回 Layer，不复用画布截断的晚到提交通路；通用可信 reader 的兼容契约保持不变。
+
 #### Scenario: Exact counts in a wide immutable directory
 - **WHEN** tree or children requests a small page from a directory with hundreds of thousands of children, including unknown sizes
 - **THEN** exact total, unknown and arbitrary minimum-size counts use published count/prefix indexes without traversing all siblings; known and unknown pages use matching ordered indexes
@@ -216,6 +230,14 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 #### Scenario: Candidate preparation reaches its deadline
 - **WHEN** the database query or selection walk exceeds its budget
 - **THEN** the response reports `complete=false`, a truncation reason, selected bytes and the remaining target bytes.
+
+#### Scenario: Candidate snapshot preparation shares raw admission
+- **WHEN** 候选查询读取合法持久快照头，包括体积较大的 volume/provider 标识
+- **THEN** 快照头在拥有或 JSON 解码前按同一次原始字段账本准入，后续候选节点及证据共用剩余额度；初始快照头原始字节额度不足时返回明确预算错误，不伪造覆盖状态、空完整队列或已达目标。可准入的头保留原覆盖、优先级和保护/占用语义。
+
+#### Scenario: Candidate deadline preserves an explicitly unobserved header
+- **WHEN** 候选读取在取得可信快照覆盖前已耗尽原期限
+- **THEN** 不再读取或解码快照头，保留既有空候选 Deadline 截断及完整目标缺口；coverage_observed=false 明确表示覆盖尚未确认，保守 coverage_complete=false 不能解释为已观测到覆盖缺口。成功取得头后 coverage_observed=true，CLI/MCP/FFI 均传递该新增诊断；结果仍经过原响应预算及实时授权末检，真实格式错误、缺索引或非期限预算失败不能被吞成 Deadline。
 
 #### Scenario: Candidate evidence fits atomically within the remaining budget
 - **WHEN** 一项候选的节点与必需证据超过剩余累计边数或原始/编码字节额度

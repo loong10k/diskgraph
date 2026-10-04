@@ -1,0 +1,498 @@
+{
+  "receipt_version": 1,
+  "date": "2026-10-04",
+  "change": "implement-diskgraph-platform",
+  "requirements": [
+    "Q-08 / 13.6 TUI budgets",
+    "Q-09 candidate snapshot admission and unobserved deadline coverage"
+  ],
+  "status": "final_local_quality_and_release_acceptance_passed_native_pending",
+  "evidence_scope": "\u6839\u4ee3\u7406\u5df2\u6267\u884c\u65e5\u5fd7\u7684\u5f52\u6863\uff1b\u672c\u56de\u6267\u6574\u7406\u8fc7\u7a0b\u672a\u6267\u884c Cargo/Git\uff0c\u672a\u6539\u53d8 tasks\u3002",
+  "source": {
+    "manifest_artifact": "final-reviewed-source",
+    "manifest_sha256": "67cbee458131b1922d3fd765927b12f64a66b6adaa11636a2cf55e7bc3b8884c",
+    "file_count": 53,
+    "current_files_verified_against_manifest": 53,
+    "hashes": {
+      "Cargo.lock": "9c1413433e8df50cd6656f0cc3db0a96e662b6f46f36972355bce7544de483e7",
+      "crates/diskgraph-cli/src/main.rs": "b9de881812fce4179f8226b61e525e2032e5467927415c8c520453b93fe41231",
+      "crates/diskgraph-cli/src/tui.rs": "09a67b7c5c2c2e72fa1bf8a42f45c13eee4cc9bb2162962a02f441efe7ec673d",
+      "crates/diskgraph-cli/src/tui/authorized_frame.rs": "741fa7b406657d39ad67bd96c4228fe6f17b3a81308b582089c376b861abdb3e",
+      "crates/diskgraph-cli/src/tui/browser.rs": "6fb866d8d997a51b31cec18d885988046ae988f0adfd0391dfe1b90b3317953e",
+      "crates/diskgraph-cli/src/tui/entry.rs": "66edd853dd657911cacf4cb7d8bd4d8374e21b70570598b1c3e06ef3acde4cea",
+      "crates/diskgraph-cli/src/tui/layer.rs": "1e5485567ce6827519a59dca016741630fa3ad57519c7cc2281d8b6fc87c6d27",
+      "crates/diskgraph-cli/src/tui/navigation.rs": "30d57ee72b60bf868a23202754cee2e3d861e97999d00fab9d7677a689a310bb",
+      "crates/diskgraph-cli/src/tui/palette.rs": "4dbad032f80639b97465bfc1fdc300843b9c08e5bd6881aec8c1e8d2e245a251",
+      "crates/diskgraph-cli/src/tui/pseudonyms.rs": "44f86bf997a18bcf1a824c89680971c3edaedfced0f1e953c694342bb88456f0",
+      "crates/diskgraph-cli/src/tui/renderer.rs": "97dd7a25d887e8bf779f4a47a866ab990eb7ce6fdcacd567512fc97dd6312e69",
+      "crates/diskgraph-cli/src/tui/session.rs": "e47875079514e54ae3b8811bb78c62a83e5e0771ee1691b0e627c47dde302402",
+      "crates/diskgraph-cli/src/tui/tests.rs": "b9c7240239903bafcf3791b54b8250ff2248b9ba1d7556c9ca8d41ebbc6b9b7d",
+      "crates/diskgraph-cli/src/tui/treemap.rs": "25dffac81972fe516ca97e99e5c3dc73d0d9ead287351b5c30130911d7a8c636",
+      "crates/diskgraph-cli/src/tui_deadline_frame_tests.rs": "f625949a96a36d594203a9e1d8696752693ea0f39ebb5e2e4a36bff8f9140808",
+      "crates/diskgraph-cli/src/tui_frame_reader.rs": "b4a230a577b8cb83d7cd39c96e02063d751cd35710485f1e1817048eb6ec60f7",
+      "crates/diskgraph-cli/src/tui_input_budget_tests.rs": "4f2ed07911f61018528214cb5ce07efd7ddeb046c2f1cbd580bf108174e06310",
+      "crates/diskgraph-cli/src/tui_request.rs": "0e7f95f2b2f8cf706e87fa1b33bdeadc1798559bd8a37846501ada9eb6c045ea",
+      "crates/diskgraph-cli/src/tui_test_fixture.rs": "c12642e86222cb63d461219d626505a169bc8dba3fbfc78796f5acdb0b9276a1",
+      "crates/diskgraph-engine/src/lib.rs": "f19121e94dde55220c6819057b9077c45a9ee531fda0ace56b5cbfd0b49f778f",
+      "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs": "9634c64c804e91b0be52942fbe1fd860b725f303bafeaef0ccfe68af156ce2dd",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "77451887d45a6be4c350f4d7e30ed32f64663759e97bd5caf3042a26d8a33d6c",
+      "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs": "1ffbcef9d56b0b033f313c91761386e6c6e466028868403081b5560832ba52a6",
+      "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "9501b22424389f16c7183ec48bf8eeb75d923d7931e16e8c16c1928771b7766d",
+      "crates/diskgraph-engine/src/live_evidence/git_scoped_fixture.rs": "6e39d8cb5fb1c69d58118d01336cb6810d526f6af40f1d053d3d32bac3fb4f28",
+      "crates/diskgraph-engine/src/live_evidence/git_scoped_semantics_tests.rs": "d85fbc27bc6cb5108c708ec7927a06fc44614e9213437bff73f473a6ababe7d0",
+      "crates/diskgraph-engine/src/live_evidence/git_source_directory.rs": "e1db09f793cd211d749cf2d4c616003ecfd7eb4fc989ddb7d3945ebf15ab7b53",
+      "crates/diskgraph-engine/src/live_evidence/git_source_file.rs": "cc383e11401704c076b755814b5faaa508a165345ef18e6a99fdc11f79a7bd10",
+      "crates/diskgraph-engine/src/live_evidence/git_source_file/tests.rs": "5a1bfdb851df90c766adf344720361d2f9e367a822085dd2c3e6745390bcfd90",
+      "crates/diskgraph-engine/src/live_evidence/git_source_unix.rs": "102ab2676eb84a2f65baf0dfceee74cd1d5f1a4acd0a787d71986ef640f698b4",
+      "crates/diskgraph-engine/src/live_evidence/git_source_windows.rs": "97f6395c01bfa24778efe4a12f520f7596f0406e302b0c077030805b25a9e208",
+      "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "db97359fd01bee094277d1d6c8e195f00ccccbcb7ef57cd61c5fe19e786b7977",
+      "crates/diskgraph-engine/src/live_evidence/git_view.rs": "3a32c5238ea4b2619ebb0383338fdd2499552ce6c6b5207453b080c37a10a268",
+      "crates/diskgraph-engine/src/live_evidence/git_view_sources.rs": "374b17f630f0b1635cb70f7fdc52c293c6dc3fbeb5b3558afbf5e4de32bd823c",
+      "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs": "30a801ebaa67f96081d8c319c35faa4535262fcadd47d16fa078cb1dc7c28420",
+      "crates/diskgraph-engine/src/live_evidence/git_worktree_capture_tests.rs": "53ae59b0975915dc934e6e60b2ecbc7e1a063d50122c3ec8c0f8cf49e6bba484",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "d60dbd143e4cdffeddc314a87f7161461c94df67bd9b724675abf28a6b666af3",
+      "crates/diskgraph-engine/src/revision_authorization.rs": "913bcb82eb677f4a4b1b079f62f05890a5f78aef015fe7dc8b7f81552b800dc3",
+      "crates/diskgraph-engine/src/revision_display_completion.rs": "f73afe1bbffd4d1095a1ebf3bfee2385d81065f5ff50783fe696f88af87e764c",
+      "crates/diskgraph-ffi/src/native_service.rs": "891b348b38ca8b28e00427832bdb4004a23b544b246a3c9cb7c31be06a9ad57c",
+      "crates/diskgraph-mcp/src/lib.rs": "ac007e1d6923a41880b0a3e9e8bf83c9608ab5c0eddf2ec3e7f699c6d89f078c",
+      "crates/diskgraph-store/src/candidate_query.rs": "aad73e309fa222c4e468979d253a298b8d4b5d44624bfd803750d0c84bc64bbc",
+      "crates/diskgraph-store/src/candidate_selection.rs": "509cbf93aa9a15a11b8e0a50f2f07ccbaf165ad95afa49f5b5fa2e8dfd1c4951",
+      "crates/diskgraph-store/src/control_read_budget.rs": "8793cb6f1449071196c80869308e9c1452969236e3687625ba73a34277b3d0d8",
+      "crates/diskgraph-store/src/control_read_budget_tests.rs": "ee594af1353ca69bbfd7b7bc4368a88f973a2f0bc070e4ca5f7ba4df37dce0ce",
+      "crates/diskgraph-store/src/lib.rs": "de58e0ca6c0c556bb3c0de1324ef315c60aafee1088d8b1a1c05c26456f287a5",
+      "crates/diskgraph-store/src/navigation_node.rs": "fd959303f51cb3d663ab74e335a60280e1eba6ca526f29ac4fa153179b64e2ca",
+      "crates/diskgraph-store/src/navigation_query.rs": "e15eff1fb1d8a411cc2bc6bd3b30c946bb952de249b63c52b5f3bdcadb881834",
+      "crates/diskgraph-store/src/navigation_query_tests.rs": "7eaa6d12307f31a2563d204c26495761011f34e66a426e9d74dd326b5f587720",
+      "crates/diskgraph-store/src/store_error.rs": "504c84535f076a5a86db8130d9bda367c2de3d38e4cb4e28ed6e919673a38a0f",
+      "crates/diskgraph-store/tests/candidate_query.rs": "68b7f04472454d393bb4193c8672ba2e4e347d3b44a6fe0a44a346ecef7578b4",
+      "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "0d316cf5d72fc2e9c2c6f6bc38cf3261347644399f8ef7e73b853edf27d88e51",
+      "openspec/changes/implement-diskgraph-platform/specs/ecosystem-adapters/spec.md": "483469fe597dbde6a99a4cb0962260fab25f994b953160a1a2e24011a76783da"
+    },
+    "historical_logs_note": "Historical RED and early GREEN logs retain their actual phase. Final seven-step local QA is proved by reviewed-* logs against the final 53-source manifest; native execution remains pending.",
+    "previous_validation_manifest_sha256": "6cf1b6c8a789df95ed864206b7d7c62e93eb50fa8d7a63f323394a9943a864cd"
+  },
+  "red": [
+    {
+      "artifact": "tui-deadline-red",
+      "passed": 5,
+      "failed": 2,
+      "meaning": "\u5d4c\u5957\u753b\u5e03\u5230\u671f\u672a\u6b63\u786e\u63d0\u4ea4\u7236\u5c42/Deadline\uff1b\u672b\u6bb5\u63a7\u5236\u9501\u7b49\u5f85\u672a\u6309\u5951\u7ea6\u62d2\u7edd\u3002"
+    },
+    {
+      "artifact": "tui-input-red",
+      "passed": 0,
+      "failed": 4,
+      "meaning": "4\u4e2a\u72ec\u5360\u5b50\u8fdb\u7a0b\u771f\u5b9e\u5206\u914d\u56de\u5f52\u5931\u8d25\uff1b\u53ea\u8ba1\u5916\u5c424\u4f8b\uff0c\u4e0d\u7d2f\u52a0\u91cd\u590d\u6253\u5370\u7684\u5b50\u8fdb\u7a0b\u7ed3\u679c\u3002"
+    },
+    {
+      "artifact": "tui-initial-lock-red",
+      "passed": 0,
+      "failed": 1,
+      "meaning": "\u521d\u59cb\u63a7\u5236\u9501\u7ade\u4e89\u672a\u5728\u7ed8\u5236\u6216\u9501owner\u91ca\u653e\u524d\u62d2\u7edd\u3002"
+    },
+    {
+      "artifact": "tui-navigation-lock-red",
+      "passed": 0,
+      "failed": 1,
+      "meaning": "\u5bfc\u822a\u63a7\u5236\u9501\u7ade\u4e89\u672a\u5728\u8fd4\u56delayer\u6216owner\u91ca\u653e\u524d\u62d2\u7edd\u3002"
+    },
+    {
+      "artifact": "tui-navigation-deadline-red",
+      "passed": 0,
+      "failed": 1,
+      "meaning": "\u5bfc\u822a\u63a7\u5236\u7b49\u5f85\u8d8a\u8fc7\u539f\u8bfb\u53d6\u671f\u9650\u3002"
+    },
+    {
+      "artifact": "tui-navigation-intermediate-failure",
+      "passed": 6,
+      "failed": 1,
+      "meaning": "\u4e2d\u95f4GREEN\u5019\u9009\u5b9e\u9645\u5931\u8d25\uff0c\u4fdd\u7559navigation_existence_probe_never_selects_large_invalid_legacy_payload\u5931\u8d25\uff1b\u540e\u7eed7\u4f8b\u901a\u8fc7\u3002"
+    },
+    {
+      "artifact": "candidate-header-red",
+      "passed": 4,
+      "failed": 2,
+      "meaning": "\u516c\u5f00save\u5408\u6cd52MiB\u5934\u7ed5\u8fc764KiB\u51c6\u5165\uff0c\u4ee5\u53ca\u5934\u4e0e\u5fc5\u9700\u8bc1\u636e\u989d\u5ea6\u672a\u5171\u7528\u3002"
+    },
+    {
+      "artifact": "candidate-deadline-red",
+      "passed": 6,
+      "failed": 4,
+      "meaning": "\u539f\u59cb\u5934\u51c6\u5165\u4fee\u6b63\u540e\uff0c\u5df2\u8fc7\u671f\u666e\u901a/\u5927\u5934\u53d8\u4e3a\u9519\u8bef\u4e14\u7f3a\u5c11coverage_observed\uff1b\u4fdd\u7559\u539ftyped Deadline\u5951\u7ea6\u3002"
+    }
+  ],
+  "targeted_green": [
+    {
+      "artifact": "tui-deadline-final",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "artifact": "tui-input-final",
+      "passed": 4,
+      "failed": 0,
+      "counting": "\u5916\u5c424\u4f8b\uff0c4\u4e2a\u72ec\u5360\u5b50\u8fdb\u7a0b\u4e0d\u91cd\u590d\u76f8\u52a0"
+    },
+    {
+      "artifact": "store-navigation-final",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "artifact": "control-budget-final",
+      "passed": 4,
+      "failed": 0,
+      "note": "\u65e5\u5fd7\u4e2d\u7684unwind panic\u4e3a\u6355\u83b7\u540e\u6062\u590d\u8fde\u63a5\u7684\u9884\u671f\u6d4b\u8bd5\u8def\u5f84"
+    },
+    {
+      "artifact": "authorization-generation-final",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "artifact": "tui-structure-cli-alltargets",
+      "passed": 83,
+      "failed": 0,
+      "suite_passes": [
+        60,
+        16,
+        3,
+        2,
+        2
+      ],
+      "counting": "\u4e0d\u989d\u5916\u8ba1\u51654\u4e2a\u72ec\u5360allocator\u5b50\u8fdb\u7a0b"
+    },
+    {
+      "artifact": "candidate-deadline-green",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "artifact": "engine-candidate-deadline-green",
+      "passed": 8,
+      "failed": 0
+    }
+  ],
+  "allocation": {
+    "unit": "\u7d2f\u8ba1\u8bf7\u6c42\u7684 Rust allocation/reallocation bytes\uff1b\u975e\u5b58\u6d3b/\u5cf0\u503c\u5185\u5b58",
+    "fixture": "\u516c\u5f00\u6301\u4e45\u5939\u5177\u643a\u5e262MiB\u65e0\u9700\u62e5\u6709\u7684metadata\uff1b\u51c6\u5907\u5728\u8ba1\u91cf\u7a97\u53e3\u4e4b\u5916\uff0c\u8bfb\u53d6\u5728\u72ec\u5360\u5355\u7528\u4f8b\u5b50\u8fdb\u7a0b\u8ba1\u91cf\u3002",
+    "before_artifact": "tui-input-red",
+    "after_artifact": "tui-input-final",
+    "known_size_successful_projection": {
+      "navigation_before_bytes": 4199261,
+      "navigation_after_bytes": 4099,
+      "nested_before_bytes": 6294850,
+      "nested_after_bytes": 1675,
+      "validation": "\u5f53\u524d\u6d4b\u8bd5\u5fc5\u987b\u5b9e\u9645\u8fd4\u56deroot/parent\u53ca\u771f\u5b9echildren\u548c\u5c3a\u5bf8\uff1anavigation parent=30\uff0cnested leaf-b=20/leaf-a=10\uff1b\u4e0d\u80fd\u7528\u4efb\u610f\u9519\u8bef\u6216deadline\u6ee1\u8db3\u4f4e\u5206\u914d\u3002"
+    },
+    "legacy_raw_admission_refusal": {
+      "navigation_before_bytes": 12588593,
+      "navigation_after_bytes": 1622,
+      "nested_before_bytes": 18878876,
+      "nested_after_bytes": 342,
+      "validation": "\u8d85\u5927\u65e7JSON\u88ab\u660e\u786eraw budget\u62d2\u7edd/\u622a\u65ad\uff0c\u975e\u540c\u4e00\u6210\u529f\u6295\u5f71\u541e\u5410\u5bf9\u7167\uff0c\u4e0d\u80fd\u8ba1\u7b97\u4e3a\u6b63\u5e38\u67e5\u8be2\u52a0\u901f\u3002"
+    },
+    "exclusions": [
+      "SQLite C\u5206\u914d",
+      "SQLite\u9875\u7f13\u5b58",
+      "\u78c1\u76d8I/O",
+      "RSS",
+      "\u4e25\u683c\u5cf0\u503c\u5185\u5b58",
+      "\u771f\u5b9e\u7ec8\u7aef\u4ea4\u4e92\u541e\u5410"
+    ]
+  },
+  "structure": {
+    "artifact": "tui-structure-body-preservation",
+    "functions_before": 51,
+    "functions_after": 51,
+    "exact_body_token_matches": 50,
+    "format_only_delta": "load_layer_page\u7684\u672b\u53c2\u6570rustfmt\u5c3e\u9017\u53f7\uff1b\u65e0\u989d\u5916\u51fd\u6570\u4f53\u53d8\u5316",
+    "types_preserved": [
+      "Browser",
+      "Entry",
+      "Layer",
+      "Pseudonyms"
+    ],
+    "inline_test_body_tokens_preserved": true,
+    "validation_artifact": "tui-structure-cli-alltargets",
+    "note": "\u9759\u6001token\u4fdd\u771f\u4e0e\u5b9e\u9645CLI alltargets\u662f\u4e0d\u540c\u8bc1\u636e\uff1bGit sourcefile\u6d4b\u8bd5\u6807\u51c6\u5b50\u76ee\u5f55\u79fb\u52a8\u9010\u5b57\u8282\u4fdd\u7559\u4e14source_layout\u95e8\u7981\u672a\u653e\u5bbd\u3002"
+  },
+  "initial_workspace_qa": {
+    "status": "failed",
+    "passed": 1227,
+    "failed": 2,
+    "ignored": 18,
+    "top_level_suites": 51,
+    "artifact": "initial-workspace-failure",
+    "summary_artifact": "initial-workspace-summary",
+    "nested_child_results_not_double_counted": true,
+    "failures": [
+      "Engine relation_request_budget::authorization_time_exhausts_empty_and_positive_candidate_requests\uff1a\u521d\u59cb\u5934\u9884\u7b97\u4fee\u6b63\u4e22\u5931\u539ftyped Deadline",
+      "Engine source_layout::all_platform_engine_sources_follow_the_rust_contract\uff1a\u975e\u6807\u51c6#[path]\u6d4b\u8bd5\u6a21\u5757\u8def\u5f84"
+    ],
+    "resolution": "\u539f\u5931\u8d25\u65e5\u5fd7\u4fdd\u6301\uff1b\u5bf9\u5e94\u540e\u7eedEngine8/8\u3001Store10/10\u3001source_layout3/3\u3001source_file5/5\u4ec5\u4e3a\u76ee\u6807\u9a8c\u8bc1\uff0c\u4e0d\u66ff\u4ee3\u65b0\u5168\u91cfQA\u3002"
+  },
+  "final_workspace_qa": {
+    "status": "passed",
+    "summary": {
+      "passed": 1233,
+      "failed": 0,
+      "ignored": 18,
+      "top_level_suites": 51,
+      "nested_child_results_not_double_counted": true
+    },
+    "checks_exit_codes": {
+      "clippy": 0,
+      "workspace": 0,
+      "build": 0,
+      "fmt": 0,
+      "include-fmt": 0,
+      "openspec": 0,
+      "release": 0
+    },
+    "source_manifest_sha256": "67cbee458131b1922d3fd765927b12f64a66b6adaa11636a2cf55e7bc3b8884c",
+    "log_phase": "Final53 sources after both Unix identity and TUI import lint corrections; old failed and intermediate phases remain separately archived."
+  },
+  "native_ci": {
+    "status": "pending",
+    "linux": "not_verified_for_this_frozen_source",
+    "windows": "not_verified_for_this_frozen_source",
+    "macos": "local_targeted_results_only_not_full_platform_acceptance",
+    "inventory": "d36_native_case_inventory_2026_10_04.json"
+  },
+  "limits": [
+    "\u6388\u6743\u56de\u8c03\u662f\u540c\u6b65\u534f\u4f5c\u671f\u9650\uff1a\u4e0d\u80fd\u4e25\u683c\u62a2\u5360\u8017\u65f6\u56de\u8c03\u6216\u5185\u6838I/O\uff1b\u56feSQL\u6cbf\u7528\u539fdeadline\uff0c\u663e\u793a\u7ec8\u6001\u6388\u6743\u4f7f\u7528\u72ec\u7acb\u6709\u754c\u7a97\u53e3\uff0c\u4e0d\u7ed9\u539f\u56fe\u8bfb\u53d6\u7eed\u671f\u3002",
+    "offset\u5bfc\u822aSQL\u4ecd\u4e3aO(offset)\uff0c\u6709\u754c\u8bfb\u53d6/\u5206\u914d\u4e0d\u8bc1\u660e\u5e38\u6570\u65f6\u95f4\u6216\u5168\u90e8SQLite\u626b\u63cf\u5de5\u4f5c\u6709\u754c\u3002",
+    "\u622a\u65ad\u753b\u5e03\u53ef\u63d0\u4ea4\u5df2\u8bfb\u53d6\u7236\u5c42\u53ca\u771f\u5b9eDeadline\u63d0\u793a\uff0c\u5bfc\u822a\u4e0d\u5f97\u63d0\u4ea4\u4f2a\u5b8c\u6574\u7ed3\u679c\uff1b\u9519\u8bef/\u64a4\u6743\u4ecd\u62d2\u7edd\uff0c\u4fdd\u7559\u7f16\u7801/\u7ed8\u5236\u540e\u7684\u6388\u6743\u672b\u68c0\u3002",
+    "coverage_observed=false\u53ea\u8868\u793a\u672a\u786e\u8ba4\u5934\uff0c\u4e0d\u80fd\u89e3\u91ca\u6210\u5df2\u89c2\u6d4bcoverage\u7f3a\u53e3\uff1b\u771f\u5b9epartial\u4e3acoverage_observed=true\u4e14coverage_complete=false\u3002",
+    "\u76ee\u6807\u7ec4\u6709\u91cd\u53e0\uff0c\u4e0d\u5c06\u5404\u7ec4\u901a\u8fc7\u6570\u76f8\u52a0\u5ba3\u79f0\u552f\u4e00\u6d4b\u8bd5\u603b\u6570\u3002",
+    "D36 Git\u4ea7\u54c1\u6388\u6743\u6301\u4e45\u4efb\u52a1\u4e0e\u539f\u5b50revision\u95ed\u73af\u3001provider\u53ca\u5168\u5e73\u53f0\u751f\u4ea7\u95e8\u7981\u4ecd\u672a\u5b8c\u6210\uff1b\u4e0d\u65398.7/15.13\u52fe\u9009\u3002"
+  ],
+  "artifacts": [
+    {
+      "id": "tui-deadline-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-deadline-red.log.gz",
+      "raw_sha256": "2b07b675d4466212f1cd6bba868a05aa66313fddeab0bc6e9750a1ce7caacf5d",
+      "gzip_sha256": "2b040d2baff6c3132c29cfe7801a218fe1b3276f6eee61e042e5ff9d9010acfe"
+    },
+    {
+      "id": "tui-input-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-input-red.log.gz",
+      "raw_sha256": "67b873572953c33b1f312afa2cc53e666f9da597ed7453a02b40c86b8e9e9d65",
+      "gzip_sha256": "82ca3ac8a5ca61f46271feed549018e0e11d12465b93bc42f3049d5778260a70"
+    },
+    {
+      "id": "tui-initial-lock-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-initial-lock-red.log.gz",
+      "raw_sha256": "99cd8612a8c80515d4679f6f390c21e8f6f2a637e9079b3e755be7937ec9ed4c",
+      "gzip_sha256": "9800ae3303cfc9a96975b88fc011611ebdb2195a9ce7f1c6e6b2dc3f3d4a548f"
+    },
+    {
+      "id": "tui-navigation-lock-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-navigation-lock-red.log.gz",
+      "raw_sha256": "52433655fac764ef12388234327c9c0502c983fd36fe9f88cdb63b88912a98c5",
+      "gzip_sha256": "040486c1b69b8e0015068a6abae2faf3dc9d510f0447dbd67aca76fc80012cd1"
+    },
+    {
+      "id": "tui-navigation-deadline-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-navigation-deadline-red.log.gz",
+      "raw_sha256": "dea3581dca1f40acb7765fe1e72d8218d60ea874335262e852b392613bbeadda",
+      "gzip_sha256": "50cfafaa373b5d21b83ed3d2c82b9f132224c6d99530647209f721d0a2144de5"
+    },
+    {
+      "id": "tui-navigation-intermediate-failure",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-navigation-intermediate-failure.log.gz",
+      "raw_sha256": "ac2b5ba0fb93dec2e0fb9aab7fc978584b72cbcc96e33aa529339f5dd306958b",
+      "gzip_sha256": "aaa115e8424ae772d4b41d77c448fc950728c54a74049c4ba5fb6baa9c6c8eee"
+    },
+    {
+      "id": "tui-deadline-final",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-deadline-final.log.gz",
+      "raw_sha256": "96a9a6fdeaa6b2be59b5e24c5b32998a1e7a244371f82ae060f89ba43aaec605",
+      "gzip_sha256": "b12af90a31dba5b4359c866900ce1a5100c7f4bc6c7a68c94bc9c697eb5d68c0"
+    },
+    {
+      "id": "tui-input-final",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-input-final.log.gz",
+      "raw_sha256": "86956bf7f05c2b70f7afe83f94e4d6c93b3827c698c70243e3ace5284840202e",
+      "gzip_sha256": "0518801bbacb5ffba808f050d4cae9eed6b978e13f33de8166f64c1beb8a8cb8"
+    },
+    {
+      "id": "store-navigation-final",
+      "path": "tui_budget_acceptance_2026_10_04_logs/store-navigation-final.log.gz",
+      "raw_sha256": "379c36cc2fd5d5ad6f650ea23e5cf4269874e6dc088af183ac121dbc9ff5b940",
+      "gzip_sha256": "996eff8c245b76c87130a9cfa0b0ccc288e638bd501259dd4a34988e9d28ea68"
+    },
+    {
+      "id": "control-budget-final",
+      "path": "tui_budget_acceptance_2026_10_04_logs/control-budget-final.log.gz",
+      "raw_sha256": "58fe6155cf3f27cff3cf94d5d6c543e4b847732e73f84aa04488863c1e152095",
+      "gzip_sha256": "18b3ca78fdcc25f5691b141179c73de9ca59c1a86ad2e6e85c1adbc2ea237e5c"
+    },
+    {
+      "id": "authorization-generation-final",
+      "path": "tui_budget_acceptance_2026_10_04_logs/authorization-generation-final.log.gz",
+      "raw_sha256": "76a4bebcc309407d2b50abb43e963d12b0a5585eaed5306b7a6ae95e80568d33",
+      "gzip_sha256": "8239e29fd2d50e1070d342f3228541a4e3347f33b487fe7c4704077f01e1328c"
+    },
+    {
+      "id": "tui-structure-cli-alltargets",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-structure-cli-alltargets.log.gz",
+      "raw_sha256": "d7b4183d02f810ef0af3989665253e514f91b9bd01ffb37d4ee8b01cba541f2e",
+      "gzip_sha256": "d41811fd17555d0b20d572ce489dd995b13b19f9be1fabc7da620b389f19219d"
+    },
+    {
+      "id": "candidate-header-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/candidate-header-red.log.gz",
+      "raw_sha256": "65ebcb4c95ee9eda2a20eb01eeb2756c06d92a62bd998bf624bee6a2b7d747b6",
+      "gzip_sha256": "96bd6f6deb001890cb72ffc3e6bba69f5873bc9ea00eab81919bc7ec70197f11"
+    },
+    {
+      "id": "candidate-header-green",
+      "path": "tui_budget_acceptance_2026_10_04_logs/candidate-header-green.log.gz",
+      "raw_sha256": "ccb64d5349e8e3cfc0006301e1aa9c37082c1e4ee5454147f9f568d7ff012a20",
+      "gzip_sha256": "690ba34c1b5b25f9734253054d6de710f357580f40787ea4bfa8f0c2abddd5a3"
+    },
+    {
+      "id": "candidate-deadline-red",
+      "path": "tui_budget_acceptance_2026_10_04_logs/candidate-deadline-red.log.gz",
+      "raw_sha256": "e4640abc6776b0f64ba3e3dbd5f0c2d80ddb3b102c89f49a37043472293e9929",
+      "gzip_sha256": "47a475b09d96543c29db05e27878b169d79ce4d3826697a27f878e2ad75cd2e9"
+    },
+    {
+      "id": "candidate-deadline-green",
+      "path": "tui_budget_acceptance_2026_10_04_logs/candidate-deadline-green.log.gz",
+      "raw_sha256": "eb9d2632b728974043ee35444c5fc3e8237ba25891282a26d51456d346624111",
+      "gzip_sha256": "7f5e8d11c5aa92436e0d2b8dca35e330b581f315b11681cf88277726f2bf9274"
+    },
+    {
+      "id": "engine-candidate-deadline-green",
+      "path": "tui_budget_acceptance_2026_10_04_logs/engine-candidate-deadline-green.log.gz",
+      "raw_sha256": "2d7f592770300466c64509d52be9e665a756637ae656911738f081f4e94d3166",
+      "gzip_sha256": "05421ce898331bf6a29b734a48eefb413b8361fa9d13f06f4cfd1b5341963781"
+    },
+    {
+      "id": "initial-workspace-failure",
+      "path": "tui_budget_acceptance_2026_10_04_logs/initial-workspace-failure.log.gz",
+      "raw_sha256": "c0074b7a8259fc98b5eb40b049ee14930cc2578a9e2c7c2c7415d70d64dfa0a0",
+      "gzip_sha256": "b076d681e9aa401d3ea827acfd4d055aa6f6ce8b7232ffbe98cf1a25092a2c23"
+    },
+    {
+      "id": "standard-source-layout-green",
+      "path": "tui_budget_acceptance_2026_10_04_logs/standard-source-layout-green.log.gz",
+      "raw_sha256": "4cc6b78bca233e680302f7fbaca91d4bf102ec70f6e09350e75ca555f3a1a07d",
+      "gzip_sha256": "d5479fa11dc4a861297a808ff6fd3d7c9249c745bfa909dbe5c2691ee08706a8"
+    },
+    {
+      "id": "standard-source-file-green",
+      "path": "tui_budget_acceptance_2026_10_04_logs/standard-source-file-green.log.gz",
+      "raw_sha256": "a9babc2ef61a405b220f27af47325aeb67a5c4692103b08b89394a8459d8dbb1",
+      "gzip_sha256": "3cf7a5e9aded437c0eca0972199ce516dde964ee7d8edf36a13221bef200bdd8"
+    },
+    {
+      "id": "initial-workspace-summary",
+      "path": "tui_budget_acceptance_2026_10_04_logs/initial-workspace-summary.json.gz",
+      "raw_sha256": "5a81629221b0e8ab2d0d8241150a9372c35b1a1fae8db025c40a4d7370036307",
+      "gzip_sha256": "3868f0237f352b897a4c931ae0eca941dd796c20874b7aa3f8daa8122ba81682"
+    },
+    {
+      "id": "tui-structure-body-preservation",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-structure-body-preservation.json.gz",
+      "raw_sha256": "dbe804c67890b6b5eff9209d9c1ee742599b88a459143f1237a578403fdf7e75",
+      "gzip_sha256": "4fab8139b9e9b9c856874b6637f52481151ea13be5c3a78f3e2ba32e01e6a50d"
+    },
+    {
+      "id": "tui-structure-cli-results",
+      "path": "tui_budget_acceptance_2026_10_04_logs/tui-structure-cli-results.json.gz",
+      "raw_sha256": "4ed3f1514b1aee782c86ab788b26e86ae8cf36cbd300b19fa17214852850bd80",
+      "gzip_sha256": "5c934ff3976bc0f13c228d6f4b7e6e2210e1ee2d011b48d3b39ca5f04fedd54a"
+    },
+    {
+      "id": "final-validation-source",
+      "path": "tui_budget_acceptance_2026_10_04_logs/final-validation-source.json.gz",
+      "raw_sha256": "6cf1b6c8a789df95ed864206b7d7c62e93eb50fa8d7a63f323394a9943a864cd",
+      "gzip_sha256": "5382717c923c2bc104c1526a7921b102c9cb9f176ce50a3dacd211702d9cad21"
+    },
+    {
+      "id": "before-inode-fix-final-workspace",
+      "path": "tui_budget_acceptance_2026_10_04_logs/before-inode-fix-final-workspace.log.gz",
+      "raw_sha256": "5b933b51a39fdc90b504aee2e6712f34cb1c956fa7b118e8a260afd093dabf5e",
+      "gzip_sha256": "9cda3f4860d8291aea5860b1c86b6451d0ab470838814b95c91b4a64ed920034"
+    },
+    {
+      "id": "before-inode-fix-final-build",
+      "path": "tui_budget_acceptance_2026_10_04_logs/before-inode-fix-final-build.log.gz",
+      "raw_sha256": "3985d21e0cba43e183bbf052df0e31c4f35fe4c537e3c61d96d46f3582ffd21f",
+      "gzip_sha256": "f81890204e4eec05e535a48072ac3f710054e5eac7f15a2bb8022060943da50c"
+    },
+    {
+      "id": "before-inode-fix-final-clippy",
+      "path": "tui_budget_acceptance_2026_10_04_logs/before-inode-fix-final-clippy.log.gz",
+      "raw_sha256": "a75a38818351d3504de63f3a8d717f3b9a1acc1791bec08987f6b994969630e0",
+      "gzip_sha256": "4372a700443d2100355fa2736cc4cc3fe10b4fa42fe03483b346f8d4fbc0c33f"
+    },
+    {
+      "id": "final-reviewed-source",
+      "path": "tui_budget_acceptance_2026_10_04_logs/final-reviewed-source.json.gz",
+      "raw_sha256": "67cbee458131b1922d3fd765927b12f64a66b6adaa11636a2cf55e7bc3b8884c",
+      "gzip_sha256": "aad49dbb8d1613e78a587b8765f7a48e901b4c27004f7c68bda59a8b76316e3a"
+    },
+    {
+      "id": "reviewed-clippy",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-clippy.log.gz",
+      "raw_sha256": "3442b6593e9f54d1397a3cfb3aa1fa5950264c75c18333a77cc2b729d37707c1",
+      "gzip_sha256": "e91106a5fac2377120e5bed20d8348a45bd9d22320523984b5fa293ccf8a2529"
+    },
+    {
+      "id": "reviewed-workspace",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-workspace.log.gz",
+      "raw_sha256": "83b183b1e4caba75135d655075a3b092ea4221940a75958585b67ccd4ce8f4b3",
+      "gzip_sha256": "2114ce847cf5b13670218f1e78caeb540b1f26094d688debb97a2af26e80ac82"
+    },
+    {
+      "id": "reviewed-build",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-build.log.gz",
+      "raw_sha256": "5604fc8f0c276397a55db4bd7008236712075c0ad37d3b3a0f1fe362b1b85a36",
+      "gzip_sha256": "d41d9e184bc92b458850b6c579594b81c4badd499e25b8c4e789a47db6a74d38"
+    },
+    {
+      "id": "reviewed-fmt",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "id": "reviewed-include-fmt",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-include-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "id": "reviewed-openspec",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-openspec.log.gz",
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    },
+    {
+      "id": "reviewed-release",
+      "path": "tui_budget_acceptance_2026_10_04_logs/reviewed-release.log.gz",
+      "raw_sha256": "976a480c21d5241a794c534b9ec6ab1b4568d1ef6de8da210cd464d8febf6c70",
+      "gzip_sha256": "d92a8f5bf4507abc69faed39af88374619a49fd419bb5150855e3f4a35d36fd2"
+    }
+  ],
+  "release_acceptance": {
+    "stdio": {
+      "passed": 18,
+      "total": 18
+    },
+    "http_sse": {
+      "passed": 13,
+      "total": 13
+    },
+    "uniffi_checksums": {
+      "passed": 19,
+      "total": 19
+    },
+    "log_receipt": "scoped_git_capture_acceptance_2026_10_04.json"
+  }
+}

@@ -16,6 +16,9 @@ mod collector_publication;
 mod collector_publication_tests;
 mod collector_store;
 mod control_codec;
+mod control_read_budget;
+#[cfg(test)]
+mod control_read_budget_tests;
 mod control_retention;
 mod control_store;
 mod directory_aggregates;
@@ -42,6 +45,10 @@ mod native_locator_migration;
 mod native_locator_query;
 #[cfg(test)]
 mod native_locator_tests;
+mod navigation_node;
+mod navigation_query;
+#[cfg(test)]
+mod navigation_query_tests;
 mod node_budget_query;
 mod node_codec;
 mod node_queries;
@@ -115,6 +122,7 @@ pub use intent_state::IntentState;
 pub use job_kind::JobKind;
 pub use job_record::JobRecord;
 pub use job_state::JobState;
+pub use navigation_node::NavigationNode;
 pub use operation::Operation;
 pub use operation_item::OperationItem;
 pub use operation_item_result::OperationItemResult;

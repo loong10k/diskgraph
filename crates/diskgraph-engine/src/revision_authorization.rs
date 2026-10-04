@@ -165,6 +165,104 @@ impl Engine {
         }
         Ok(result)
     }
+
+    /// 为可信 TUI 完成一次有界导航或画布读取，允许明确标记的截断画布提交。
+    /// 参数：revision/principal/authorizer 为真实请求；consumer 准备完整导航页或绘制画布并给出状态。
+    /// 返回：可以提交页面或画布的许可或错误，不返回任意晚到查询数据。
+    /// 导航必须给出 Complete 并遵守原读取期限，只有已绘制真实提示的画布可以给出 Truncated。
+    /// 图 SQL 永远沿用最初 deadline；末段授权另有固定 50ms 控制窗口，不续租图请求。
+    /// 控制锁竞争立即拒绝；SQL 和同步授权回调返回后的期限失败均不能变成部分画布。
+    pub fn with_authorized_revision_display_reader(
+        &self,
+        revision: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline_ms: u64,
+        consumer: impl FnOnce(
+            &SqliteSnapshotStore,
+            &str,
+            std::time::Instant,
+        ) -> Result<crate::RevisionDisplayCompletion, EngineError>,
+    ) -> Result<(), EngineError> {
+        if deadline_ms == 0 || deadline_ms > 1000 {
+            return Err(BusinessError::InvalidArgument.into());
+        }
+        let deadline = std::time::Instant::now()
+            .checked_add(Duration::from_millis(deadline_ms))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        let (server, scope) = reader
+            .revision_ownership(revision)?
+            .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
+        let scope = ScopeId::new(scope)
+            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
+        let control = self
+            .try_control_store()?
+            .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+        let initial_authorization = control.with_read_deadline(deadline, |control| {
+            if server != control.existing_server_id()?.as_str() {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            Self::require_terminal_relation(control, authorizer, principal, &scope)
+        });
+        match initial_authorization {
+            Err(EngineError::Store(error))
+                if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                    || error.is_interrupted()
+                    || error.is_busy() =>
+            {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            other => other?,
+        }
+        drop(control);
+        // 初次真实授权须在原读取期内完成；未完成的 initial phase 不能借 partial 通路复活。
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        let snapshot_id = reader.revision(revision)?.snapshot_id;
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        let completion = consumer(&reader, &snapshot_id, deadline)?;
+        // 归属来自读取前解析的不可变已发布 revision，不在过期 graph reader 上追加查询。
+        let authorization_deadline = std::time::Instant::now()
+            .checked_add(Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let control = self
+            .try_control_store()?
+            .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+        let authorization = control.with_read_deadline(authorization_deadline, |control| {
+            Self::require_terminal_relation(control, authorizer, principal, &scope)?;
+            // 能力回调之后纯读实际持久 grant；guard 不冻结独立数据库连接的撤权。
+            if control.scope(&scope)?.revoked
+                || control.live_permission(principal, &Permission::MetadataRead, &scope)?
+                    == Some(false)
+            {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            Ok(())
+        });
+        match authorization {
+            Err(EngineError::Store(error))
+                if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                    || error.is_interrupted()
+                    || error.is_busy() =>
+            {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            other => other?,
+        }
+        if completion == crate::RevisionDisplayCompletion::Complete
+            && std::time::Instant::now() >= deadline
+        {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        Ok(())
+    }
 }
 
 impl Engine {

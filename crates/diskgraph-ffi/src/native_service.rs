@@ -186,7 +186,7 @@ impl NativeService {
     pub fn candidates_json(&self, snapshot_id: String, target_bytes: u64) -> String {
         native_reply::respond(self.query_revision_until_then(&snapshot_id,|store, revision, deadline| {
             let answer = store.candidate_selection_for_revision_until(revision,target_bytes,diskgraph_core::QueryBudget::default(), deadline).map_err(|error|error.to_string())?;
-            Ok(json!({"candidates":answer.candidates.into_iter().map(|(node,evidence)|json!({"node":node,"evidence":evidence})).collect::<Vec<_>>(),"review_only":true,"complete":answer.complete,"coverage_complete":answer.coverage_complete,"truncated":answer.truncated.map(|reason|reason.wire_name()),"selected_bytes":answer.selected_bytes.to_string(),"remaining_bytes":answer.remaining_bytes.to_string()}))
+            Ok(json!({"candidates":answer.candidates.into_iter().map(|(node,evidence)|json!({"node":node,"evidence":evidence})).collect::<Vec<_>>(),"review_only":true,"complete":answer.complete,"coverage_complete":answer.coverage_complete,"coverage_observed":answer.coverage_observed,"truncated":answer.truncated.map(|reason|reason.wire_name()),"selected_bytes":answer.selected_bytes.to_string(),"remaining_bytes":answer.remaining_bytes.to_string()}))
         }, || {}))
     }
 }

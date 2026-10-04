@@ -99,7 +99,8 @@ pub(super) fn sample_git_using_budget(
     view.complete_with_metadata(result, budget)
 }
 
-fn observe(view: &mut GitView, budget: &mut ProbeBudget) -> Result<GitSample, String> {
+/// 复用同一视图完成真实采样。参数：view 为已准备视图，budget 为原执行预算；返回：经终检的样本。
+pub(super) fn observe(view: &mut GitView, budget: &mut ProbeBudget) -> Result<GitSample, String> {
     let mut run = |args: &[&str], budget: &mut ProbeBudget| -> Result<ProbeOutput, String> {
         view.run(args, budget)
     };

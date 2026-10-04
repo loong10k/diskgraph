@@ -268,6 +268,8 @@ The D34 namespace increment passed [22/22 native CI jobs](https://github.com/loo
 
 The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its same-source [native CI passed 22/22](https://github.com/loong10k/diskgraph/actions/runs/37164196395) at `2450ab1`; all four selected native logs contain the 26 new cases. The authorized Git collection entry and platform/provider gates remain open.
 
+The D36 [scoped Git capture](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json) and [TUI/query budget](docs/benchmarks/tui_budget_acceptance_2026_10_04.json) receipts track the current increment. Trusted Git sampling now captures scope-bound ordinary inputs before fixed commands execute; its authorized durable collection job remains pending. TUI preparation admits narrow raw fields within the original deadline and rechecks live grants before delivery. Candidate responses add `coverage_observed` to distinguish an expired, unread header from an observed coverage gap. Final local and same-source native acceptance are recorded separately; this increment does not establish full-platform production readiness.
+
 ## Documentation
 
 | | |

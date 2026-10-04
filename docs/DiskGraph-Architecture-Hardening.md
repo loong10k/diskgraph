@@ -139,7 +139,7 @@ flowchart LR
     V --> T["Encoding + terminal authorization"]
 ```
 
-A zero size-change count is not proof that unknown objects are unchanged. Same-scope history compatibility, Windows historical identity continuity and historical content-version binding remain separate open requirements.
+A zero size-change count is not proof that unknown objects are unchanged. The same-scope Q-04 compatibility matrix and canonical complete-coverage semantics were accepted in D35 task 3.9 at the same-source `2450ab1` native CI. Windows historical identity continuity and historical content-version binding remain separate open requirements.
 
 ## Historical namespace eligibility — D34
 
@@ -156,3 +156,35 @@ flowchart LR
 ```
 
 Namespace eligibility does not prove historical file identity continuity or content-version equality. Native CI and those remaining requirements are recorded independently.
+
+## Scoped Git capture and TUI admission — D36
+
+The trusted `sample_git_scoped` library entry takes a registered root and an explicit lossless repository locator. A held root and component-relative native opens constrain every worktree and Git dependency before a subprocess starts. An independent private capture supplies ordinary files, metadata, attributes and object dependencies; supported commands never reopen the live worktree. Capture and revalidation share input, entry, cancellation and time budgets. Final checks reject source or root-route replacement. Nested repositories and scope-external dependencies are explicitly unsupported. The caller still must authorize content access: this library entry does not implement the pending durable collector job or CLI/MCP collection command.
+
+```mermaid
+flowchart LR
+    R["Registered root + explicit locator"] --> H["Hold root; native relative opens"]
+    H --> C["Capture ordinary inputs within shared budgets"]
+    C --> P["Exclusive private worktree and Git metadata"]
+    P --> G["Fixed supported Git commands"]
+    G --> V["Source, root route and budget revalidation"]
+    V --> X["Explicit cleanup; return sample or error"]
+```
+
+TUI navigation and frame preparation use the dedicated display reader. Initial control-lock contention is refused without waiting. Actual revision ownership and current grants are checked within the original read deadline. Navigation projects only needed fields, admits borrowed raw data before decoding, and uses a payload-free continuation probe. All frame levels share the read ledger; retained display data has a separate budget. A prepared complete page is returned only after terminal authorization and the original deadline succeed. An explicitly truncated frame may preserve already painted data after successful terminal authorization; revocation and real storage faults remain errors.
+
+```mermaid
+flowchart LR
+    A["Try control lock; authorize actual revision"] --> B["Read with original deadline"]
+    B --> Q["Borrowed raw admission; narrow projection"]
+    Q --> F["Prepare page or memory canvas"]
+    F --> T["Try control lock; recheck live grants"]
+    T --> D{"Complete within original deadline?"}
+    D -->|Yes| O["Deliver complete page or frame"]
+    D -->|Explicit truncated frame| P["Deliver marked partial frame"]
+    D -->|Error or late complete| E["Discard prepared result"]
+```
+
+Candidate preparation also admits the snapshot header before decoding it, using the same raw-byte ledger as the selected nodes and required evidence. An expired request retains the typed empty `Deadline` result and explicitly reports `coverage_observed: false`; this cannot be interpreted as an observed coverage gap. Admitted headers report their actual coverage. A raw-byte refusal, invalid header or missing index remains an error. CLI, MCP and FFI preserve existing wire fields and add this diagnostic; Rust callers constructing `CandidateSelection` literals must supply the new field.
+
+The TUI entry file now contains module declarations and exports, with its real objects and rendering logic in separate files. The synchronous authorizer remains cooperative; no hard interruption of arbitrary callbacks, SQLite C allocation limit or strict RSS bound is claimed. Explicit navigation offsets still cost O(offset + page). D36 source and actual platform acceptance are tracked in the [Git capture](benchmarks/scoped_git_capture_acceptance_2026_10_04.json) and [TUI budget](benchmarks/tui_budget_acceptance_2026_10_04.json) receipts.

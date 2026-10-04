@@ -9,6 +9,9 @@ pub struct CandidateSelection {
     pub selected_bytes: u64,
     pub remaining_bytes: u64,
     pub coverage_complete: bool,
+    /// 是否在同次预算内成功读取并验证覆盖头；false 表示未观测，不能解释为真实覆盖缺口。
+    /// 来源：DiskGraph 原生 Rust Q-09 覆盖诊断；无 Java 对应字段。
+    pub coverage_observed: bool,
     pub complete: bool,
     pub truncated: Option<TruncationReason>,
 }
@@ -23,9 +26,19 @@ impl CandidateSelection {
             selected_bytes: 0,
             remaining_bytes: target_bytes,
             coverage_complete,
+            coverage_observed: true,
             complete: coverage_complete,
             truncated: None,
         }
+    }
+
+    /// 在覆盖头尚未取得时保留原到期部分结果，不伪造已观测到的覆盖缺口。
+    /// 参数：target_bytes 为原目标。返回：空候选、完整目标缺口及明确未观测的 Deadline 状态。
+    pub(crate) fn unobserved_deadline(target_bytes: u64) -> Self {
+        let mut result = Self::empty(target_bytes, false);
+        result.coverage_observed = false;
+        result.stop(TruncationReason::Deadline);
+        result
     }
 
     /// 准备有界审阅候选、目标缺口和真实截断状态。

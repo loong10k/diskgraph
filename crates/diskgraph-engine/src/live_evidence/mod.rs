@@ -68,8 +68,21 @@ mod git_reflog_file;
 #[cfg(test)]
 mod git_resource_tests;
 mod git_sample;
+mod git_scope_boundary;
+#[cfg(test)]
+mod git_scope_boundary_tests;
+#[cfg(test)]
+mod git_scoped_fixture;
+#[cfg(test)]
+mod git_scoped_semantics_tests;
 #[cfg(test)]
 mod git_semantics_tests;
+mod git_source_directory;
+mod git_source_file;
+#[cfg(unix)]
+mod git_source_unix;
+#[cfg(windows)]
+mod git_source_windows;
 mod git_stash;
 #[cfg(test)]
 mod git_stash_tests;
@@ -85,6 +98,10 @@ mod git_usage;
 mod git_view;
 #[cfg(test)]
 mod git_view_race_tests;
+mod git_view_sources;
+mod git_worktree_capture;
+#[cfg(test)]
+mod git_worktree_capture_tests;
 #[cfg(target_os = "macos")]
 mod macos_probe_group;
 #[cfg(all(test, target_os = "macos"))]

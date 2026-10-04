@@ -53,6 +53,46 @@ impl EvidenceProbeSession {
         }
     }
 
+    /// 在调用方已验证的注册范围内捕获完整普通 Git 输入，再只查询私有副本。
+    /// 参数：git 为可信工具，registered_root 为已授权注册根，project 为持久无损定位。
+    /// 返回：共享任务预算内的完整样本或锁存错误；这是可信库入口，不执行身份授权或创建任务。
+    pub fn sample_git_scoped(
+        &mut self,
+        git: &Path,
+        registered_root: &Path,
+        project: &diskgraph_core::QualifiedLocator,
+    ) -> Result<GitSample, String> {
+        self.ready()?;
+        let result = (|| {
+            let boundary = super::git_scope_boundary::GitScopeBoundary::new(
+                registered_root,
+                project,
+                &mut self.budget,
+            )?;
+            let metadata = self
+                .metadata
+                .take()
+                .ok_or("evidence session metadata budget unavailable")?;
+            let mut view = super::git_view::GitView::prepare_scoped(
+                git,
+                boundary,
+                &mut self.budget,
+                metadata,
+                128 << 20,
+                64 << 20,
+            )?;
+            let observed = super::git_usage::observe(&mut view, &mut self.budget);
+            view.complete_with_metadata(observed, &mut self.budget)
+        })();
+        match result {
+            Ok((sample, metadata)) => {
+                self.metadata = Some(metadata);
+                Ok(sample)
+            }
+            Err(error) => Err(self.close(error)),
+        }
+    }
+
     /// 在同一任务预算内观察下一组路径，保留正向 partial；不可观察关闭会话。
     /// 参数：lsof 为受信程序路径，paths 为精确对象路径；空请求也先检查会话状态。
     /// 返回：既有覆盖语义的样本；首次失败后任何调用均不启动新程序。

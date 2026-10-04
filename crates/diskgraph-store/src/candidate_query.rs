@@ -129,7 +129,37 @@ impl SqliteSnapshotStore {
     ) -> Result<CandidateSelection> {
         let mut reads = QueryReadBudget::new(budget, deadline)
             .map_err(|error| StoreError::InvalidGraph(error.to_string()))?;
-        let coverage_complete = self.snapshot(snapshot_id)?.coverage.complete;
+        // 授权可能已经耗尽原读期；未取得覆盖头时只返回明确未观测的期限诊断。
+        if !reads.check() {
+            return bounded_selection(
+                CandidateSelection::unobserved_deadline(target_bytes),
+                budget,
+            );
+        }
+        // 初始覆盖头也属于准备成本；借用字段先准入，节点和证据继续使用同一余额。
+        let coverage_complete = match self.snapshot_with_budget(snapshot_id, &mut reads) {
+            Ok(snapshot) => snapshot.coverage.complete,
+            Err(StoreError::BudgetExceeded)
+                if reads.stopped() == Some(TruncationReason::Deadline) =>
+            {
+                return bounded_selection(
+                    CandidateSelection::unobserved_deadline(target_bytes),
+                    budget,
+                );
+            }
+            Err(error)
+                if error.is_interrupted()
+                    && matches!(reads.stopped(), None | Some(TruncationReason::Deadline))
+                    && Instant::now() >= deadline =>
+            {
+                return bounded_selection(
+                    CandidateSelection::unobserved_deadline(target_bytes),
+                    budget,
+                );
+            }
+            // 不再次 check 改写已有 ByteLimit；真实格式、缺索引或其他故障均保持原错误。
+            Err(error) => return Err(error),
+        };
         let mut result = CandidateSelection::empty(target_bytes, coverage_complete);
         if !reads.check() {
             result.stop(TruncationReason::Deadline);
