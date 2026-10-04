@@ -1,5 +1,8 @@
 # Full-platform acceptance continuation — 2026-10-04
 
+Three native Linux Rust lanes at `5c9985b` reproduced the ancestor-rebinding defect: each workspace1536/1/18, with the sole failure being an incorrectly Completed scan; original root/file identities and stage prerequisites passed, and sibling changes were allowed. The candidate retains the original anchor and ancestor handles and validates each current name binding. Local workspace1523/0/18, layout, formatting, strict Clippy and independent static review passed; actual Linux GREEN remains pending the next CI. Per-node checks add O(root depth) native calls; release20k/200k scan costs still require measurement, with no atomic snapshot or strict RSS claim. Both Windows stable/MSRV full jobs at `2e33519` succeeded, each workspace1384/0/16.
+
+
 The macOS stable native job111472086096 for `2e33519` succeeded: workspace 1523/0/18 across 70 suites. Linux encountered a callback lifetime compilation error before tests; `5c9985b` restores the original borrowed callback constraint through a separate type alias and its native CI is running. macOS MSRV passed the original queue10 and guard4; the new host40 diagnostic expired during preparation before BEGIN. Only its preparation qualification was adjusted: local diagnostics2 and Store library283/0/1 passed, preserving the550ms total bound. Overall platform acceptance remains incomplete.
 
 

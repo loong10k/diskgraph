@@ -1,6 +1,7 @@
 use super::linux_metadata::capture;
-use super::linux_open::{open_at, unique_mount};
+use super::linux_open::open_at;
 use super::linux_proc_root::LinuxProcRoot;
+use super::linux_scan_namespace::LinuxScanNamespace;
 use super::native_work::NativeWork;
 use crate::EngineError;
 use diskgraph_core::{
@@ -10,17 +11,15 @@ use diskgraph_core::{
 use diskgraph_disktree::NodeV2;
 use std::cell::RefCell;
 use std::ffi::CString;
-use std::fs::File;
 use std::os::fd::AsRawFd;
 use std::os::unix::ffi::OsStrExt;
-use std::os::unix::fs::MetadataExt;
 use std::path::{Component, Path, PathBuf};
 
 /// 扫描期间 held 注册根与 procfs 域；来源：Linux D42，强身份只补充本次扫描普通文件。
 /// 不跨文件系统猜身份，也不把旧节点在任务执行现场升级为已捕获。
 pub(crate) struct LinuxScanRoot {
     path: PathBuf,
-    root: File,
+    namespace: LinuxScanNamespace,
     procfs: LinuxProcRoot,
 }
 impl LinuxScanRoot {
@@ -32,24 +31,19 @@ impl LinuxScanRoot {
         check()?;
         let result = checked_native(check, &|native_check| Self::open_native(path, native_check))?;
         check()?;
-        Ok(result)
+        match result {
+            // 绑定变化和资源耗尽不能降成旁表缺口并跳过末段根复核。
+            Err(Failure::Conflict) => Err(BusinessError::Conflict.into()),
+            Err(Failure::BudgetExceeded) => Err(BusinessError::BudgetExceeded.into()),
+            other => Ok(other),
+        }
     }
     fn open_native(path: &Path, check: &dyn Fn() -> Result<(), Failure>) -> Result<Self, Failure> {
-        if !path.is_absolute() {
-            return Err(Failure::Unsupported);
-        }
-        let name = CString::new(path.as_os_str().as_bytes()).map_err(|_| Failure::Unsupported)?;
-        let root = open_at(
-            libc::AT_FDCWD,
-            &name,
-            libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
-            0x04 | 0x02 | 0x20,
-        )?;
-        check()?;
+        let namespace = LinuxScanNamespace::open(path, check)?;
         let procfs = LinuxProcRoot::open(check)?;
         Ok(Self {
             path: path.to_owned(),
-            root,
+            namespace,
             procfs,
         })
     }
@@ -60,7 +54,7 @@ impl LinuxScanRoot {
         path: &Path,
         check: &dyn Fn() -> Result<(), EngineError>,
     ) -> Result<(Option<UnixFileObservation>, Option<UnixObservationGap>), EngineError> {
-        check()?;
+        self.validate(check)?;
         let relative = path
             .strip_prefix(&self.path)
             .map_err(|_| BusinessError::Conflict)?;
@@ -74,14 +68,14 @@ impl LinuxScanRoot {
             .map_err(|_| BusinessError::Unsupported)?;
         let result = checked_native(check, &|native_check| {
             let file = open_at(
-                self.root.as_raw_fd(),
+                self.namespace.root().as_raw_fd(),
                 &name,
                 libc::O_PATH | libc::O_CLOEXEC | libc::O_NOFOLLOW,
                 0x08 | 0x04 | 0x02 | 0x01 | 0x20,
             )?;
             capture(&file, &self.procfs.boot, native_check)
         })?;
-        check()?;
+        self.validate(check)?;
         match result {
             Ok(observation) => {
                 let IndexedFileEpoch::LinuxHandle { device, inode, .. } = observation.epoch()
@@ -98,35 +92,24 @@ impl LinuxScanRoot {
                 }
                 Ok((Some(observation), None))
             }
+            Err(Failure::BudgetExceeded) => Err(BusinessError::BudgetExceeded.into()),
             Err(error) => Ok((None, Some(gap(error)))),
         }
     }
-    /// 参数：原扫描检查；返回：当前根路径仍指同一 held 根对象；本扫描补充不保存逐祖先绑定链。
+    /// 参数：原扫描检查；返回：当前原生锚、逐祖先名称与原根仍绑定相同对象。
+    /// 原授权/取消/期限错误保持分类；绑定无法复核拒绝发布，不用 mtime 否认旁支活动。
     pub(crate) fn validate(
         &self,
         check: &dyn Fn() -> Result<(), EngineError>,
     ) -> Result<(), EngineError> {
         check()?;
-        let name = CString::new(self.path.as_os_str().as_bytes())
-            .map_err(|_| BusinessError::Unsupported)?;
-        let reopened = open_at(
-            libc::AT_FDCWD,
-            &name,
-            libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
-            0x04 | 0x02 | 0x20,
-        )
-        .map_err(|_| BusinessError::Conflict)?;
-        let before = self.root.metadata()?;
-        let after = reopened.metadata()?;
+        let result = checked_native(check, &|native_check| self.namespace.verify(native_check))?;
         check()?;
-        if before.dev() != after.dev()
-            || before.ino() != after.ino()
-            || unique_mount(&self.root).map_err(|_| BusinessError::Conflict)?
-                != unique_mount(&reopened).map_err(|_| BusinessError::Conflict)?
-        {
-            return Err(BusinessError::Conflict.into());
+        match result {
+            Ok(()) => Ok(()),
+            Err(Failure::BudgetExceeded) => Err(BusinessError::BudgetExceeded.into()),
+            Err(_) => Err(BusinessError::Conflict.into()),
         }
-        Ok(())
     }
 }
 /// 参数：原生有限失败；返回：扫描旁表缺口，不伪装已经验证的身份。

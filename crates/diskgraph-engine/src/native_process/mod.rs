@@ -19,6 +19,8 @@ mod linux_proc_root;
 #[cfg(target_os = "linux")]
 mod linux_root_namespace;
 #[cfg(target_os = "linux")]
+mod linux_scan_namespace;
+#[cfg(target_os = "linux")]
 mod linux_scan_root;
 #[cfg(target_os = "linux")]
 mod linux_target;
