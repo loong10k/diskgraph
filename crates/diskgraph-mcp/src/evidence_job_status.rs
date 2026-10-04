@@ -21,17 +21,19 @@ impl McpService {
         if Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
-        let data = self.engine.git_job_status_details(
+        let data = self.engine.git_job_status_details_until(
             job_id,
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
+            deadline,
         )?;
         let data = match data {
             Some(data) => Some(data),
-            None => self.engine.process_job_status_details(
+            None => self.engine.process_job_status_details_until(
                 job_id,
                 self.context.principal(),
-                &self.authorizer()?,
+                &self.authorizer_until(deadline)?,
+                deadline,
             )?,
         };
         let Some(data) = data else {

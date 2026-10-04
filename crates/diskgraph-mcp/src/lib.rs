@@ -32,6 +32,8 @@ mod request_authorizer;
 mod request_context;
 mod snapshot_reply;
 mod sse_slot;
+#[cfg(test)]
+mod status_deadline_tests;
 mod token_bucket;
 mod tool_input_schema;
 

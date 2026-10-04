@@ -206,7 +206,9 @@ fn pending_git_protects_its_base_and_survives_reap_for_receipt_reconciliation() 
 #[test]
 fn committed_receipt_recovers_after_real_expiry_cancel_revoke_and_does_not_steal_a_live_lease() {
     let (mut control, mut graph, input, original) = fixture();
-    let expiry = ControlStore::now_ms() / 1000 + 1;
+    // 先完成批次构造；固定原 token 给真实入队/认领/发布有限窗口，不修改生产期限。
+    let publication_batch = batch(&input, "run-one");
+    let expiry = ControlStore::now_ms() / 1000 + 20;
     let authority = JobRequestAuthority::authenticated_remote(
         original.principal().clone(),
         "issuer",
@@ -222,26 +224,68 @@ fn committed_receipt_recovers_after_real_expiry_cancel_revoke_and_does_not_steal
     let claim = control
         .claim_job_once_strict(&job.job_id, "publisher")
         .unwrap();
-    let receipt = graph
-        .publish_git_collector_revision_checked(
-            &job.job_id,
-            &input,
-            (claim.fencing_token, ControlStore::now_ms()),
-            "published",
-            &batch(&input, "run-one"),
-            || Ok(()),
-        )
-        .unwrap();
+    assert_eq!(claim.state, JobState::Running);
+    assert_eq!(claim.owner, "publisher");
+    assert!(claim.lease_expires_unix_ms > ControlStore::now_ms());
+    assert_eq!(
+        control.job_request_authority(&job.job_id).unwrap(),
+        Some(authority.clone())
+    );
+    let checks = std::cell::Cell::new(0_u64);
+    let receipt = control
+        .with_job_fence(&job.job_id, "publisher", claim.fencing_token, || {
+            graph.publish_git_collector_revision_checked(
+                &job.job_id,
+                &input,
+                (claim.fencing_token, ControlStore::now_ms()),
+                "published",
+                &publication_batch,
+                || {
+                    // 图事务的真正提交前仍检查原绝对 exp；不在此重入 Control。
+                    checks.set(checks.get() + 1);
+                    authority
+                        .validate_at(ControlStore::now_ms() / 1000)
+                        .map_err(|_| {
+                            StoreError::Conflict(
+                                "fixture original authority expired before commit".into(),
+                            )
+                        })
+                },
+            )
+        })
+        .unwrap_or_else(|error| {
+            panic!(
+                "qualified publication failed: {error:?}; expiry={expiry}, now_ms={}",
+                ControlStore::now_ms()
+            )
+        });
+    assert!(
+        checks.get() > 1,
+        "publication must reach checked transaction stages"
+    );
+    assert!(receipt.committed_at_unix_ms() < expiry * 1000);
+    assert_eq!(receipt.publishing_fence(), claim.fencing_token);
+    assert_eq!(receipt.input(), &input);
+    assert!(control.job(&job.job_id).unwrap().lease_expires_unix_ms > ControlStore::now_ms());
     assert!(matches!(
         control.recover_committed_git_job(&job.job_id, "other-owner", &receipt),
         Err(StoreError::StaleOwner)
     ));
     assert_eq!(control.job(&job.job_id).unwrap().owner, "publisher");
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(4);
+    let deadline = std::time::Instant::now()
+        + std::time::Duration::from_secs(expiry.saturating_sub(ControlStore::now_ms() / 1000) + 5);
     while ControlStore::now_ms() / 1000 < expiry {
         assert!(std::time::Instant::now() < deadline);
         std::thread::sleep(std::time::Duration::from_millis(5));
     }
+    assert_eq!(
+        authority.validate_at(ControlStore::now_ms() / 1000),
+        Err(diskgraph_core::BusinessError::PermissionDenied)
+    );
+    assert_eq!(
+        control.job_request_authority(&job.job_id).unwrap(),
+        Some(authority.clone())
+    );
     control
         .connection
         .execute(

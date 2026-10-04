@@ -1,6 +1,6 @@
 # 全平台验收续篇 — 2026-10-04
 
-Linux 扫描父目录替换已在 `5c9985b` 的三条原生 Rust lane 复现：各完整 workspace 1536／1／18，唯一失败是扫描错误 Completed；原有根／文件身份及阶段资格通过，兄弟目录正向用例通过。候选保留原锚与祖先句柄，逐级当前名称绑定复核；本机 workspace 1523／0／18、结构门禁、fmt、严格 Clippy 和独立静态审查通过，Linux 真正 GREEN 待下一次 CI。每节点前后增加 O(根深度) 原生调用，20k／200k release 扫描成本尚待测量，不宣称原子快照或严格 RSS。`2e33519` 的 Windows stable／MSRV 两个完整 job 均成功，各 workspace 1384／0／16。
+`2a2f828` 的 [CI37216693860](https://github.com/loong10k/diskgraph/actions/runs/37216693860) 已终态：20／22 job 成功。三条 Linux Rust lane 各 workspace 1537／0／18、70 suites，原父目录替换负控与兄弟目录变化正控均通过，确认 `5c9985b` 的三平台原生 RED 已转 GREEN。macOS Intel 的后续 Migration gate 入队权限夹具失败，Windows MSRV 的提交后恢复及 MCP 重连查询失败，整体 CI 仍未通过。恢复夹具现加强真实已提交阶段及原 token 自然到期见证；状态查询新增同一原期限内的控制锁等待，短暂竞争不立即误报预算。本机整仓 1528／0／18、70 suites、九包 fmt、严格 Clippy、OpenSpec 及独立审查通过；新原生 CI 尚待完成。20k／200k／300 深目录配对 release 性能验收脚本已准备，尚无性能结果；深子树不等同于更深的注册根链，不宣称原子快照、冷缓存或严格 RSS。
 
 
 `2e33519` 的 macOS stable 原生 job111472086096 已实际成功，完整 workspace 1523／0／18、70 suites。Linux 在测试之前遇到回调生命周期编译错误，`5c9985b` 用独立类型别名恢复旧借用约束；该修正的原生 CI 正在运行。macOS MSRV 原队列10项和guard4项通过，新增host40诊断在BEGIN前准备窗口已过期；仅修正该夹具的阶段资格，本机诊断2项及Store库283／0／1通过，保留550ms总耗时断言。整体平台验收仍未完成。

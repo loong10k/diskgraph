@@ -16,6 +16,20 @@ impl Engine {
 }
 
 impl Engine {
+    /// 在请求原始期限内构建实时授权器，锁等待和 SQL 均计入同一窗口。
+    /// 来源：DiskGraph 原生 Rust 请求授权链；无 Java 对应方法。
+    /// 参数：deadline 为本次请求原始单调截止时间。
+    /// 返回：实时策略授权器，或锁竞争/SQL 到期及原数据库错误。
+    pub fn policy_authorizer_until(
+        &self,
+        deadline: std::time::Instant,
+    ) -> Result<PolicyAuthorizer, EngineError> {
+        let control = self.control_until(deadline)?;
+        control.with_read_deadline(deadline, |store| Ok(store.authorizer()?))
+    }
+}
+
+impl Engine {
     /// 可信本机初始化管理授权并保留已撤策略状态。
     /// 参数：principal 为可信本机管理主体。
     /// 返回：初始化成功或持久化失败；不授予正文权限。

@@ -33,6 +33,15 @@ pub(super) fn at_publication(job: &str, callback: impl FnOnce() + 'static) {
 pub(super) fn crash_after_commit(job: &str) {
     CRASH_AFTER_COMMIT.with(|slot| *slot.borrow_mut() = Some(job.to_owned()));
 }
+/// 参数为已挂载模拟崩溃的任务；返回无，只有真实提交后的同步点消费才通过。
+pub(super) fn assert_crash_after_commit_reached(job: &str) {
+    CRASH_AFTER_COMMIT.with(|slot| {
+        assert!(
+            slot.borrow().is_none(),
+            "post-commit crash hook not consumed for {job}"
+        );
+    });
+}
 pub(super) fn assert_publication_reached() {
     PUBLICATION.with(|slot| {
         assert!(

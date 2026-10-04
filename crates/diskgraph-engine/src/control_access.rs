@@ -20,3 +20,29 @@ impl Engine {
         }
     }
 }
+
+impl Engine {
+    /// 在原请求期限内等待唯一控制连接，不把短暂竞争当作预算耗尽。
+    /// 来源：DiskGraph 原生 Rust 状态查询；无 Java 对应方法。
+    /// 参数：deadline 为调用链原始单调截止时间，不在此重建。
+    /// 返回：同库 guard；到期返回预算错误，中毒保留原错误。
+    pub(crate) fn control_until(
+        &self,
+        deadline: std::time::Instant,
+    ) -> Result<MutexGuard<'_, ControlStore>, EngineError> {
+        loop {
+            let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+            if remaining.is_zero() {
+                return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+            }
+            if let Some(guard) = self.try_control_store()? {
+                // 锁获取后仍复验，迟到获取不能成为有效请求。
+                if std::time::Instant::now() >= deadline {
+                    return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+                }
+                return Ok(guard);
+            }
+            std::thread::sleep(remaining.min(std::time::Duration::from_millis(1)));
+        }
+    }
+}

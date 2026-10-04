@@ -14,6 +14,20 @@ impl McpService {
         })
     }
 
+    /// 在原请求期限内构建带能力上限与 token 到期的实时授权器。
+    /// 参数：deadline 为协议分发前建立的同一截止时间。
+    /// 返回：请求授权器或有界控制锁/SQL 错误；不延长 token 有效期。
+    pub(crate) fn authorizer_until(
+        &self,
+        deadline: std::time::Instant,
+    ) -> Result<request_authorizer::RequestAuthorizer, EngineError> {
+        Ok(request_authorizer::RequestAuthorizer {
+            policy: self.engine.policy_authorizer_until(deadline)?,
+            capabilities: self.context.capabilities(),
+            expires_at: self.context.expires_at(),
+        })
+    }
+
     /// 为已认证主体创建独立 HTTP 请求状态，共享 Engine，不覆盖本地主体。
     /// 参数：identity 为已校验身份。返回：该主体的新请求服务。
     pub fn for_identity(&self, identity: &auth::AuthenticatedPrincipal) -> Self {

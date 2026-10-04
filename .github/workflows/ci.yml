@@ -98,6 +98,19 @@ jobs:
             target/debug/libdiskgraph_ffi.dylib --language swift --language kotlin \
             --no-format --out-dir "${{ runner.temp }}/diskgraph-bindings"
 
+      - name: Paired native Linux scan namespace cost
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
+        timeout-minutes: 75
+        run: python scripts/accept-linux-scan-namespace-cost.py --output-dir "${{ runner.temp }}/diskgraph-linux-scan-cost"
+      - name: Preserve paired Linux scan cost evidence
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: linux-scan-namespace-cost-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-linux-scan-cost
+          retention-days: 7
+          if-no-files-found: warn
+
   ffi-swift-host:
     name: Swift native host (${{ matrix.os }})
     strategy:

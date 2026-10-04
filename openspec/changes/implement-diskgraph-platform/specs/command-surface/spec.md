@@ -60,6 +60,10 @@ move/copy/trash/restore/purge SHALL 默认只创建或预览不可变计划；ap
 - **AND** Git C04 在通用默认 scope/catalog 门禁前使用实际任务投影；scope hint 仅作一致性断言，不匹配明确 permission_denied。Queued 只要求实际 scope 的 OperationView，外层 scope 与内层一致且不补 latest revision；Completed 外层 server/scope/revision 与同次已授权回执投影一致，不能标成默认范围或新 latest。工具/profile/schema 校验和非 Git 扫描、无 job 的服务状态合同保持。
 - **AND** 若新扫描替换 latest 后旧结果被合法 prune，Completed 历史事实及不可变回执仍存在；当前实际 server/scope 权限允许时返回最小 revision/run 和 result_available=false，结果仍存在则 true，不读取已删正文、不重新采样、不延长原任务权限。状态读取使用同一有界期限与有限响应，不能因历史结果缺失猜测新 revision。
 
+#### Scenario: Status contention shares the original request deadline
+- **WHEN** 后台任务短暂持有控制库锁，客户端在仍有效的请求期限内重连查询状态
+- **THEN** 状态投影在同一原请求期限内等待锁；正常竞争不立即伪报预算耗尽。锁未在期限内释放则返回 budget_exceeded，不重建期限；Git/Process 分类探测与最终授权均共享该期限，撤权仍拒绝。
+
 #### Scenario: Explicit historical node query
 - **WHEN** node/top/children/explore/search/candidates 携带已授权旧 revision，或 node 携带非根 node_id
 - **THEN** 查询和响应身份绑定指定 revision 与节点；scope 不匹配被拒绝，不改查 latest 或根节点。

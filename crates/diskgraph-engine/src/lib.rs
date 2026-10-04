@@ -107,6 +107,8 @@ mod scoped_content;
 #[cfg(not(windows))]
 mod scoped_file;
 mod snapshot_retention;
+#[cfg(test)]
+mod status_contention_tests;
 mod sync_plan;
 #[cfg(test)]
 mod tests;

@@ -1,4 +1,6 @@
 //! 隔离 release 夹具；旧完整加载与新窄读在同一 revision 上配对比较。
+mod benchmark_support;
+
 use diskgraph_core::{PrincipalId, QueryBudget};
 use diskgraph_engine::{Engine, EngineConfig};
 use std::{sync::Arc, time::Instant};
@@ -78,22 +80,38 @@ fn measure_isolated_release_fixtures() {
         .parse::<usize>()
         .unwrap();
     let mut results = Vec::new();
-    for (count, shape) in [(20_000usize, "wide"), (200_000, "wide"), (300, "deep")] {
+    let paired = std::env::var_os("DG_MEASURE_ROOT").is_some();
+    let cases = if paired {
+        vec![(selected, std::env::var("DG_MEASURE_SHAPE").unwrap())]
+    } else {
+        vec![
+            (20_000, "wide".into()),
+            (200_000, "wide".into()),
+            (300, "deep".into()),
+        ]
+    };
+    for (count, shape) in cases {
         if selected != count {
             continue;
         }
         let dir = tempfile::tempdir().unwrap();
-        let root = dir.path().join("root");
-        std::fs::create_dir(&root).unwrap();
-        let mut parent = root.clone();
-        for index in 0..count {
-            if shape == "deep" {
-                parent.push("d");
-                std::fs::create_dir(&parent).unwrap();
+        let root = std::env::var_os("DG_MEASURE_ROOT")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| dir.path().join("root"));
+        if !paired {
+            std::fs::create_dir(&root).unwrap();
+            let mut parent = root.clone();
+            for index in 0..count {
+                if shape == "deep" {
+                    parent.push("d");
+                    std::fs::create_dir(&parent).unwrap();
+                }
+                std::fs::write(parent.join(format!("file-{index:06}")), [0; 32]).unwrap();
             }
-            std::fs::write(parent.join(format!("file-{index:06}")), [0; 32]).unwrap();
         }
-        let data = dir.path().join("data");
+        let data = std::env::var_os("DG_MEASURE_DATA")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| dir.path().join("data"));
         let engine = Arc::new(
             Engine::open(EngineConfig {
                 data_dir: data.clone(),
@@ -110,11 +128,15 @@ fn measure_isolated_release_fixtures() {
         let job = engine
             .index_scope(&scope, &principal, &engine.policy_authorizer().unwrap())
             .unwrap();
+        let storage_before = benchmark_support::storage(&data);
         let start = Instant::now();
         engine.run_job(&job.job_id, "benchmark").unwrap();
         let scan_seconds = start.elapsed().as_secs_f64();
         let scan_peak_rss = rss();
+        let storage_after_scan = benchmark_support::storage(&data);
         let revision = engine.latest_revision(&scope).unwrap().unwrap();
+        let qualification =
+            paired.then(|| benchmark_support::qualify(&engine, &data, &revision, count, &shape));
         let narrow = timed(
             || {
                 assert!(engine.revision_layer(&revision, 1, 20).unwrap().1.len() <= 20);
@@ -203,7 +225,10 @@ fn measure_isolated_release_fixtures() {
                 .map(|worker| worker.join().unwrap())
                 .collect::<Vec<_>>()
         });
-        let result = serde_json::json!({"files":count,"shape":shape,"scan_seconds":scan_seconds,"process_scan_high_water_rss_bytes":scan_peak_rss,"process_total_high_water_rss_bytes":rss(),"database_bytes":size(&data.join("diskgraph.sqlite")),"wal_bytes":size(&data.join("diskgraph.sqlite-wal")),"before_full_revision_top20":full,"after_narrow_top20":narrow,"before_full_revision_candidates":candidate_full,"after_narrow_candidates":candidate_narrow,"budgeted_tree":budget_tree,"concurrent_4_readers":concurrent});
+        let storage_after_queries = benchmark_support::storage(&data);
+        let storage =
+            benchmark_support::phases(storage_before, storage_after_scan, storage_after_queries);
+        let result = serde_json::json!({"native_qualification":qualification,"storage_phases":storage,"files":count,"shape":shape,"scan_seconds":scan_seconds,"process_scan_high_water_rss_bytes":scan_peak_rss,"process_total_high_water_rss_bytes":rss(),"database_bytes":size(&data.join("diskgraph.sqlite")),"wal_bytes":size(&data.join("diskgraph.sqlite-wal")),"before_full_revision_top20":full,"after_narrow_top20":narrow,"before_full_revision_candidates":candidate_full,"after_narrow_candidates":candidate_narrow,"budgeted_tree":budget_tree,"concurrent_4_readers":concurrent});
         println!("{}", result);
         results.push(result);
     }

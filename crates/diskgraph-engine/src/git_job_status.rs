@@ -19,13 +19,29 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Option<Value>, EngineError> {
+        self.git_job_status_details_until(
+            job_id,
+            principal,
+            authorizer,
+            Instant::now() + Duration::from_secs(1),
+        )
+    }
+
+    /// 读取状态并继承整次请求期限，分类探测和授权末检不续期。
+    /// 来源：DiskGraph 原生 Rust 持久任务投影。
+    /// 参数：job_id 为实际任务；principal/authorizer 为本次身份；deadline 为原始期限。
+    /// 返回：有界授权投影、非本类型的 None，或期限/权限错误。
+    pub fn git_job_status_details_until(
+        &self,
+        job_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+    ) -> Result<Option<Value>, EngineError> {
         if job_id.len() > 128 {
             return Err(BusinessError::InvalidArgument.into());
         }
-        let deadline = Instant::now() + Duration::from_secs(1);
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
+        let control = self.control_until(deadline)?;
         let (job, failure, server) = control.with_read_deadline(deadline, |control| {
             let job = control.job(job_id)?;
             if job.kind != JobKind::GitEvidence {
@@ -85,9 +101,7 @@ impl Engine {
         {
             return Err(BusinessError::BudgetExceeded.into());
         }
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
+        let control = self.control_until(deadline)?;
         control.with_read_deadline(deadline, |control| {
             status_permissions(control, authorizer, principal, &job.scope_id, job.state)
         })?;
