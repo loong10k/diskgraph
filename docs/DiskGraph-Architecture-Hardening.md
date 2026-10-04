@@ -205,3 +205,18 @@ flowchart TD
 ```
 
 Final local and same-source native acceptance are separate; full-platform tasks remain open.
+
+## MCP service source boundaries — D40
+
+The55-line library entry contains standard module declarations and explicit root reexports. `mcp_config.rs` owns configuration/defaults; `mcp_service.rs` retains the single shared Engine and request context. Dispatch, identity/scope access, actual tool handlers and stdio framing reside in their own modules without another authorization or scheduling owner. Internal visibility preserves the original crate collaborators; no public fields are added. All67 original callable bodies and21 original tests retain their effective tokens, including status projection and terminal authorization.
+
+```mermaid
+flowchart TD
+    T["HTTP / SSE / stdio"] --> S["McpService<br/>shared Arc of Engine + request context"]
+    S --> D["service_dispatch<br/>original deadline / profile / schema sequence"]
+    D --> A["service_identity / scope_access<br/>actual ownership + token ceiling ∩ live grants"]
+    A --> H["snapshot / filesystem / relation / management<br/>existing handlers and response checks"]
+    H --> E["same Engine<br/>authorized queries and durable jobs"]
+```
+
+The incremental AST gate checks actual standard module files, orphan sources, object/line/documentation/import/body rules and direct or conditional path overrides. Unchanged legacy modules are explicitly registered exemptions: auth709lines, http2657 and protocol538 are not certified by a thin entry. The [D40 acceptance receipt](benchmarks/mcp_service_layout_acceptance_2026_10_04.json) records structural negative controls, execution results and native status separately. This organization preserves enabled capabilities and does not enable dangerous filesystem tools or complete platform/provider/host/device/release gates.

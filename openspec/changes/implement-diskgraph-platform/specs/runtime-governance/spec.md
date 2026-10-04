@@ -136,3 +136,19 @@ The CLI SHALL preview `snapshots prune --scope S --keep-last N` without deletion
 - **GIVEN** three unpinned revisions and no operation references
 - **WHEN** keep-last is one
 - **THEN** preview changes no data and apply preserves the current revision
+
+
+### Requirement: RT-10 Maintainable MCP source boundaries
+The MCP crate SHALL keep its library entry to standard module declarations and explicit public reexports. Existing public module paths, McpConfig/McpService/STDIO_PRINCIPAL/serve_stdio exports, method signatures, defaults and wire fields SHALL remain compatible. Real configuration, service state, dispatch, scope access, query adapters and stdio framing SHALL have responsibility modules without duplicate Engine or request-state owners. Production files SHALL contain fewer than 500 physical lines and at most one object, with Chinese documentation stating actual native provenance and public parameter/return semantics; wildcard imports and placeholder implementations SHALL be absent.
+
+#### Scenario: Thin service entry preserves the security contract
+- **WHEN** the existing MCP library configuration and service implementation move into real modules
+- **THEN** the original per-call deadline, profile/schema checks, actual revision ownership, request authority, Git status projection, final authorization and response budgets remain in their existing order
+- **AND** trusted local/remote startup, runner ownership, cursor bindings, nullable results, stdout framing and protocol error behavior remain unchanged
+- **AND** only crate-internal visibility needed by existing collaborators may change; no new public fields, wrappers or state owners are introduced
+
+#### Scenario: Incremental structure gate states its coverage
+- **WHEN** the source-layout gate checks the thin library and every new entry implementation module
+- **THEN** it resolves their actual standard module files and rejects hidden inline/path/include implementations, wildcard imports, multiple objects, missing Chinese contracts and empty/todo/unimplemented bodies
+- **AND** original service tests retain their assertions in mounted test modules; publicly imported paths and real transport/authorization regressions pass
+- **AND** any legacy transport/protocol modules outside that increment are named explicitly, remain registered and do not count as satisfying the whole-crate production-file requirement until they too have been refactored and verified

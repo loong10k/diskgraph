@@ -1,6 +1,6 @@
 {
   "increment": "D39",
-  "status": "local_verified_same_source_native_pending",
+  "status": "local_verified_native_failed_fixture_correction_pending",
   "spec": "implement-diskgraph-platform",
   "base_commit": "fb7757c3727ee9d2839b2b1a7a404d2a1f924295",
   "candidate_snapshot": "/private/tmp/diskgraph-d39-verified-mldbixd8",
@@ -146,7 +146,84 @@
   "performance": {"method":"same unchanged release load generator, ordered before/after pair; 32 queries with four concurrent CLI clients; macOS time -l per-child peak RSS","baseline_commit":"fb7757c3727ee9d2839b2b1a7a404d2a1f924295","generator_sha256":"83ffd995f096a05d224577b306439765887a2121551d986b590732fffa4e176a","comparisons":[{"files":20000,"baseline":{"version":"diskgraph 0.3.0","platform":"darwin","files":20000,"queries":32,"concurrent_clients":4,"scan_seconds":0.546,"query_p50_ms":8.433,"query_p95_ms":10.243,"database_and_wal_bytes":43458560,"passed":4,"total":4,"checks":{"full_index_published":true,"concurrent_reads_bound_to_revision":true,"query_results_bounded":true,"node_budget_refuses_partial_publish":true}},"candidate":{"version":"diskgraph 0.3.0","platform":"darwin","files":20000,"queries":32,"concurrent_clients":4,"scan_seconds":0.47,"query_p50_ms":8.387,"query_p95_ms":9.612,"database_and_wal_bytes":43495424,"passed":4,"total":4,"checks":{"full_index_published":true,"concurrent_reads_bound_to_revision":true,"query_results_bounded":true,"node_budget_refuses_partial_publish":true}},"baseline_maximum_individual_child_rss_bytes":45154304,"candidate_maximum_individual_child_rss_bytes":45023232},{"files":200000,"baseline":{"version":"diskgraph 0.3.0","platform":"darwin","files":200000,"queries":32,"concurrent_clients":4,"scan_seconds":4.654,"query_p50_ms":8.627,"query_p95_ms":9.791,"database_and_wal_bytes":436932608,"passed":4,"total":4,"checks":{"full_index_published":true,"concurrent_reads_bound_to_revision":true,"query_results_bounded":true,"node_budget_refuses_partial_publish":true}},"candidate":{"version":"diskgraph 0.3.0","platform":"darwin","files":200000,"queries":32,"concurrent_clients":4,"scan_seconds":4.699,"query_p50_ms":8.829,"query_p95_ms":10.261,"database_and_wal_bytes":436969472,"passed":4,"total":4,"checks":{"full_index_published":true,"concurrent_reads_bound_to_revision":true,"query_results_bounded":true,"node_budget_refuses_partial_publish":true}},"baseline_maximum_individual_child_rss_bytes":263831552,"candidate_maximum_individual_child_rss_bytes":263766016}],"limits":["one ordered pair cannot establish causal improvement or a statistical trend","20k/200k workload measures ordinary scan/query, not Git capture throughput","per-child maximum is not simultaneous service RSS; scanner does not promise strict RSS"]},
   "tdd_evidence": ["archived actual RED evidence covers owner-base CAS, selected-source integrity, queued cancellation/revocation, cross-Engine handle leaks, and MCP/real-socket status scope/permissions; other earlier development RED cycles are not claimed to be archived here","actual-owner base CAS, missing selected-run integrity and queued terminal lifecycle regressions","real authenticated TCP OpsView-only status and four actual-scope C04 business failures before the fix","two true cross-Engine terminal-handle leaks before running-only Map registration"],
   "fixture_corrections": ["old SQLite transaction did not reach the intended claim-before-registration window; replaced with actual Index and Engine graph Mutex","public Git publication cancellation preserves existing Store Conflict contract; second owner remains StaleOwner","7-byte metadata negative control latches failed ProbeBudget; 8-byte positive control needs an independent sampling session"],
-  "native_acceptance": {"status":"pending","same_source_commit":null,"ci_run":null,"platforms":["Windows stable","Windows 1.97","Linux arm64","macOS Intel","Linux x86_64","macOS arm64"]},
+  "native_acceptance": {
+    "status": "failed",
+    "same_source_commit": "bac84f72ba44b3398c15de7ef19d0717f4653820",
+    "ci_run": 37184551143,
+    "conclusion": "failure",
+    "passed_jobs": 21,
+    "total_jobs": 22,
+    "failed_job": "Test (windows-latest / Rust 1.97.0)",
+    "failed_case": "git_evidence_execution_tests::git_original_request_expiry_after_capture_fails_without_publication",
+    "failure": "post-capture publication hook was not consumed; original CI did not record earlier returned EngineError",
+    "platform_observations": [
+      {
+        "platform": "windows-stable",
+        "log": "/private/tmp/diskgraph-d39-ci-windows-stable.log",
+        "sha256": "d9c9bf0ba6db41b313eeb5c738b54591a7f13ec51c59bff903f2b5912c2fc72a",
+        "workspace_suites": 58,
+        "passed": 1239,
+        "failed": 0,
+        "ignored": 16,
+        "case_counts": {
+          "passed": 157,
+          "failed": 0,
+          "not_observed": 2,
+          "nonunique_or_ignored": 0
+        }
+      },
+      {
+        "platform": "windows-msrv",
+        "log": "/private/tmp/diskgraph-d39-ci-windows-msrv.log",
+        "sha256": "bae47b39a296e2f057eec2856b8c248dc423ee820bcfa1e606706df2b50ce168",
+        "workspace_suites": 58,
+        "passed": 1238,
+        "failed": 1,
+        "ignored": 16,
+        "case_counts": {
+          "passed": 156,
+          "failed": 1,
+          "not_observed": 2,
+          "nonunique_or_ignored": 0
+        }
+      },
+      {
+        "platform": "linux-arm64",
+        "log": "/private/tmp/diskgraph-d39-ci-linux-arm64.log",
+        "sha256": "7d9b65da33223b6607dc95da9b431258a9616c9dfaeb65b0d9a7a99fba6ba8ae",
+        "workspace_suites": 58,
+        "passed": 1367,
+        "failed": 0,
+        "ignored": 18,
+        "case_counts": {
+          "passed": 159,
+          "failed": 0,
+          "not_observed": 0,
+          "nonunique_or_ignored": 0
+        }
+      },
+      {
+        "platform": "macos-intel",
+        "log": "/private/tmp/diskgraph-d39-ci-macos-intel.log",
+        "sha256": "95d0df7925b5f59334c271f0dd7547c2bbcb77187d0d5f96bbdf4a16d6d65af5",
+        "workspace_suites": 58,
+        "passed": 1378,
+        "failed": 0,
+        "ignored": 18,
+        "case_counts": {
+          "passed": 159,
+          "failed": 0,
+          "not_observed": 0,
+          "nonunique_or_ignored": 0
+        }
+      }
+    ],
+    "unobserved_windows_cases": [
+      "cfg(unix) links_and_fifo_are_refused_without_blocking",
+      "cfg(unix) same_bytes_with_changed_native_version_are_rejected"
+    ],
+    "correction": "D40 test-only expiry window and exact persistent rejection assertions; requires corrected-source native CI"
+  },
   "limits": ["no cross-database transaction; committed graph receipt is reconciled with control state","safe-summary/request observation fingerprint is not a full source content hash","CLI status data preserves real IDs and existing null outer scope/revision; MCP binds outer IDs to the same projection","private allocation and free-space checks neither reserve space nor enforce strict disk/RSS","CLI/MCP dangerous filesystem tools stay disabled; native provider/host/mobile/release gates remain open"],
   "archives": [
     {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-selection-red-candidate.json.gz","raw_sha256":"eb769cc67c851b1c41bd30257da4e366ec39d798da87eba3efa98f066fdf094c","gzip_sha256":"8a2d374e21abdfeb182d37197df89eb160cf5e2af6caa2b38fd8ae30144e989b","raw_bytes":502},
@@ -255,6 +332,12 @@
     {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-engine-mcp-scope-lifecycle-final.json.gz","raw_sha256":"ddbf2deb9a5c5544adf870d470f277fd2fc2c95b987f8de1afbd62d15c6e1852","gzip_sha256":"5fb2d47bb6f1a770c125ab182d2097f39001ccc8abb51f69c0be15062e0c9e16","raw_bytes":5471},
     {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-final-validation.py.gz","raw_sha256":"a1d35a8a3f6f0fd1924ff6eb5a373302abef4a2c338ab7da866b6b5c9b60521e","gzip_sha256":"6d6783ddb4998bb8b54a5982703de71f18fcb467e0da13c9a796ba5ad4db814e","raw_bytes":2197},
     {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-release-validation.py.gz","raw_sha256":"2163d2ba4be984951f9b5528ea7fcac293e6826648974da42c9e847349ccc7c7","gzip_sha256":"8d1165a6b427facd9215dde4a85253cb72983afe6db2f4468b288336484dba57","raw_bytes":2939},
-    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-paired-load-rss.py.gz","raw_sha256":"44c794c6c0f79222da785158d0a56ea17d972ffbba21ff88b958b2eed921cd6e","gzip_sha256":"b635a37a4941b73526dcf2a59549b45a9b52960d33764f1d1c26c02f0c0b789c","raw_bytes":1106}
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-paired-load-rss.py.gz","raw_sha256":"44c794c6c0f79222da785158d0a56ea17d972ffbba21ff88b958b2eed921cd6e","gzip_sha256":"b635a37a4941b73526dcf2a59549b45a9b52960d33764f1d1c26c02f0c0b789c","raw_bytes":1106},
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-ci-terminal.json.gz","raw_sha256":"303d750593c62bd937b6db5dd95ed39507cf6081fd6c3a74209135aea1afe770","gzip_sha256":"377c97459929d374c75b968462b70bf0eaea3d0d87cce0d928ce45079e784a66","raw_bytes":62511},
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-native-observations.json.gz","raw_sha256":"b2cbcea155e5a5f370bdb17abd3d831f8022a016777cde0605ac88f4b510bc13","gzip_sha256":"e145717653fa599963b20c6de2e97d0295b2504424d04d1a98ad2a047b53af1f","raw_bytes":298816},
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-ci-windows-stable.log.gz","raw_sha256":"d9c9bf0ba6db41b313eeb5c738b54591a7f13ec51c59bff903f2b5912c2fc72a","gzip_sha256":"14e6ce81114823a4d3507c22237d9c03719993c56f6c6ce0a41cb1c7050cbd92","raw_bytes":598217},
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-ci-windows-msrv.log.gz","raw_sha256":"bae47b39a296e2f057eec2856b8c248dc423ee820bcfa1e606706df2b50ce168","gzip_sha256":"cbb8ddfa90d4a7e13a5de287aea523144673e1f050e8df4cab24d741fee21f54","raw_bytes":319144},
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-ci-linux-arm64.log.gz","raw_sha256":"7d9b65da33223b6607dc95da9b431258a9616c9dfaeb65b0d9a7a99fba6ba8ae","gzip_sha256":"e69c543ece454e8693159b17ad0a9e266c410a2e473db2d852f92b3cf939cc59","raw_bytes":647374},
+    {"artifact":"docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-ci-macos-intel.log.gz","raw_sha256":"95d0df7925b5f59334c271f0dd7547c2bbcb77187d0d5f96bbdf4a16d6d65af5","gzip_sha256":"bda7a607245bd06638e2c4a7a9aba510f1dccdafa9966d434b5d737539aec793","raw_bytes":660580}
   ]
 }

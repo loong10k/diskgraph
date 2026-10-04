@@ -146,25 +146,104 @@ fn git_actual_cancellation_after_capture_is_cancelled_without_publication() {
 #[test]
 fn git_original_request_expiry_after_capture_fails_without_publication() {
     let f = GitEvidenceFixture::new();
-    let expiry = now() + 3;
+    // 捕获允许消耗完整的服务端运行预算；测试 token 必须留出到达发布边界的窗口。
+    // 原 exp 在入队前固定，后续既不修改 authority，也不续租 token。
+    let expiry = now()
+        + diskgraph_core::GitEvidenceLimits::default()
+            .max_duration_ms()
+            .div_ceil(1000)
+        + 5;
     let job = f.enqueue(&f.base, expiry);
+    let original = f
+        .engine
+        .control_store()
+        .unwrap()
+        .job_request_authority(&job.job_id)
+        .unwrap()
+        .unwrap();
+    let engine = f.engine.clone();
+    let id = job.job_id.clone();
+    let captured_authority = original.clone();
     PUBLICATION.with(|slot| {
-        *slot.borrow_mut() = Some((job.job_id.clone(), Box::new(move || wait_until(expiry))))
+        *slot.borrow_mut() = Some((
+            job.job_id.clone(),
+            Box::new(move || {
+                assert_eq!(engine.job_status(&id).unwrap().state, JobState::Running);
+                assert_eq!(
+                    engine
+                        .control_store()
+                        .unwrap()
+                        .job_request_authority(&id)
+                        .unwrap(),
+                    Some(captured_authority.clone())
+                );
+                assert!(
+                    now() < expiry,
+                    "request expired before the publication fixture boundary"
+                );
+                // 仅在真实捕获成功后推进真实时间；有界等待不依赖 Windows 在三秒内完成 Git。
+                let deadline = std::time::Instant::now() + std::time::Duration::from_secs(25);
+                while now() < expiry {
+                    assert!(
+                        std::time::Instant::now() < deadline,
+                        "request expiry wait exceeded its fixture budget"
+                    );
+                    std::thread::sleep(std::time::Duration::from_millis(5));
+                }
+                assert_eq!(
+                    captured_authority.validate_at(now()),
+                    Err(BusinessError::PermissionDenied)
+                );
+            }),
+        ))
     });
+    let started = std::time::Instant::now();
     let error = f.engine.run_job_strict(&job.job_id, "expired").unwrap_err();
+    PUBLICATION.with(|slot| assert!(slot.borrow().is_none(),
+        "did not reach the required post-capture publication boundary: original_expiry={expiry}, now={}, elapsed={:?}, error={error:?}", now(), started.elapsed()));
     assert_publication_reached();
     assert!(
         matches!(
-            error,
+            &error,
             EngineError::Store(diskgraph_store::StoreError::Conflict(_))
         ),
         "{error:?}"
+    );
+    assert!(
+        matches!(&error, EngineError::Store(diskgraph_store::StoreError::Conflict(message)) if message == "job request authority denied"),
+        "expiry must be rejected by the real persistent authority gate: {error:?}"
     );
     assert_eq!(
         f.engine.job_status(&job.job_id).unwrap().state,
         JobState::Failed
     );
+    assert_eq!(
+        f.engine
+            .control_store()
+            .unwrap()
+            .job_request_authority(&job.job_id)
+            .unwrap(),
+        Some(original)
+    );
+    let diagnostic = f
+        .engine
+        .git_job_failure(
+            &job.job_id,
+            &f.actor,
+            &f.engine.policy_authorizer().unwrap(),
+        )
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        diagnostic.phase(),
+        diskgraph_core::GitEvidenceFailurePhase::Execution
+    );
+    assert_eq!(
+        diagnostic.code(),
+        diskgraph_core::GitEvidenceFailureCode::Conflict
+    );
     f.assert_no_git_publication();
+    assert!(!f.engine.cancellations().unwrap().contains_key(&job.job_id));
 }
 
 #[test]

@@ -162,5 +162,78 @@
     {"source":"crates/diskgraph-mcp/tests/git_evidence_socket.rs","function":"real_socket_identical_git_targets_never_merge_across_verified_principals","attributes":"","local_observations":[{"qualified":"real_socket_identical_git_targets_never_merge_across_verified_principals","result":"ok"}]},
     {"source":"crates/diskgraph-mcp/tests/git_evidence_socket.rs","function":"real_socket_queued_git_expiry_cannot_be_extended_by_reconnecting","attributes":"","local_observations":[{"qualified":"real_socket_queued_git_expiry_cannot_be_extended_by_reconnecting","result":"ok"}]},
     {"source":"crates/diskgraph-mcp/tests/git_evidence_socket.rs","function":"real_socket_queued_git_status_needs_only_actual_scope_operation_view","attributes":"","local_observations":[{"qualified":"real_socket_queued_git_status_needs_only_actual_scope_operation_view","result":"ok"}]}
-  ]
+  ],
+  "native_run_history": [
+  {
+    "run_id": 37184551143,
+    "source_commit": "bac84f72ba44b3398c15de7ef19d0717f4653820",
+    "status": "completed",
+    "conclusion": "failure",
+    "job_count": 22,
+    "passed_jobs": 21,
+    "platforms": [
+      {
+        "platform": "windows-stable",
+        "log": "/private/tmp/diskgraph-d39-ci-windows-stable.log",
+        "sha256": "d9c9bf0ba6db41b313eeb5c738b54591a7f13ec51c59bff903f2b5912c2fc72a",
+        "workspace_suites": 58,
+        "passed": 1239,
+        "failed": 0,
+        "ignored": 16,
+        "case_counts": {
+          "passed": 157,
+          "failed": 0,
+          "not_observed": 2,
+          "nonunique_or_ignored": 0
+        }
+      },
+      {
+        "platform": "windows-msrv",
+        "log": "/private/tmp/diskgraph-d39-ci-windows-msrv.log",
+        "sha256": "bae47b39a296e2f057eec2856b8c248dc423ee820bcfa1e606706df2b50ce168",
+        "workspace_suites": 58,
+        "passed": 1238,
+        "failed": 1,
+        "ignored": 16,
+        "case_counts": {
+          "passed": 156,
+          "failed": 1,
+          "not_observed": 2,
+          "nonunique_or_ignored": 0
+        }
+      },
+      {
+        "platform": "linux-arm64",
+        "log": "/private/tmp/diskgraph-d39-ci-linux-arm64.log",
+        "sha256": "7d9b65da33223b6607dc95da9b431258a9616c9dfaeb65b0d9a7a99fba6ba8ae",
+        "workspace_suites": 58,
+        "passed": 1367,
+        "failed": 0,
+        "ignored": 18,
+        "case_counts": {
+          "passed": 159,
+          "failed": 0,
+          "not_observed": 0,
+          "nonunique_or_ignored": 0
+        }
+      },
+      {
+        "platform": "macos-intel",
+        "log": "/private/tmp/diskgraph-d39-ci-macos-intel.log",
+        "sha256": "95d0df7925b5f59334c271f0dd7547c2bbcb77187d0d5f96bbdf4a16d6d65af5",
+        "workspace_suites": 58,
+        "passed": 1378,
+        "failed": 0,
+        "ignored": 18,
+        "case_counts": {
+          "passed": 159,
+          "failed": 0,
+          "not_observed": 0,
+          "nonunique_or_ignored": 0
+        }
+      }
+    ],
+    "full_observations_archive": "docs/benchmarks/git_evidence_job_acceptance_logs/diskgraph-d39-native-observations.json.gz"
+  }
+]
 }

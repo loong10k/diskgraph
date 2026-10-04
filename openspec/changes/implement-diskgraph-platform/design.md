@@ -420,3 +420,14 @@ Git status 通过共同 Engine 投影，排队/运行/失败/取消状态需要�
 CLI main.rs 聚合平台启动与明确模块声明，真实解析对象和业务责任分文件。18个旧辅助函数、33个非 Git 命令分支与原扫描 fallback 按 token 校验保持，Windows 8MiB 启动栈保留。此机械证据不能代替编译、help、真实命令权限及运行结果验证；旧适配文件未纳入本次拆分范围，不能宣称整个 CLI crate 已满足每文件500行。
 
 本增量的 RED/GREEN、完整 workspace、严格 Clippy、release 真实 CLI/MCP/FFI、性能前后观测及同源码原生 CI 分别验收。8.7、15.13、15.20 只有相关完整能力与平台证据齐备才可勾选；移动端/provider、危险写操作、宿主 UI、签名和生产运行保持原有门禁，不由本机测试替代。
+
+
+## D40 MCP library organization
+
+RT-10 continues the user's Rust object/file contract without changing MCP behavior. The current library contains two objects, service dispatch/query adapters and inline tests. Move configuration, shared service state, dispatch, scope access, management/snapshot/filesystem/relation adapters and stdio into real modules; preserve root public exports and all existing public modules. Keep a single Arc<Engine> and private request context. Existing crate-root privacy already permits crate collaborators; moving the type may require equivalent pub(crate) internal members, never public fields. Keep the dispatch validation/authorization/deadline sequence together.
+
+Move service test implementations into mounted test modules while retaining crate::tests support paths used by budget regressions. Compare original callable bodies/command behavior and test assertions, add a real structural RED gate before implementation, then run public-import, real socket/HTTP/SSE, cursor/history/relation, full-workspace and strict quality regressions. The first gate explicitly identifies unchanged legacy modules, including large auth/http/protocol files; thin lib completion does not certify the whole MCP crate or the full-platform goal.
+
+An independent review found conditional `cfg_attr(..., path=...)` could make the compiler mount a different source than the initial gate. Real nested-directory negative controls first failed7/2; recursive Meta parsing is now shared by the visitor and file traversal, with direct/nested/invalid overrides refused before selecting a child. Safe conditional attributes still mount the real standard child. The final gate is498 lines and passes9/9. It checks syntax and explicit source boundaries, not arbitrary macro expansions.
+
+The D39 Windows original-expiry fixture used a3-second token before real capture and failed before its intended publication hook. A controlled4-second preparation reproduces the same failure with exact persistent-authority denial. The test fixes its original expiry before enqueue from the existing default15-second execution allowance plus5-second setup margin, checks immutable authority/Running at publication, waits for real expiry within25 seconds and requires exact persistent denial plus no publication. It does not renew an admitted request or change production limits. Its wait also exceeds execution allowance and is not separate deadline-priority or performance evidence. Final local1387/0/18 and corrected-source native acceptance remain separate.

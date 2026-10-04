@@ -274,6 +274,10 @@ MCP `diskgraph_sync` 使用相同的 `scope`、`revision`、`node_id` 和 `colle
 
 CLI 状态 data 将身份绑定真实任务与不可变回执，保留既有外层 scope/revision 字段为空的协议；MCP 状态的外层身份与 data 来自同一授权投影。排队状态需要 `operations:view`，完成结果另需 `metadata:read`。安全数量与可空的本地跟踪差分不含正文或引用原文，不能证明远端已发布。[全平台记录](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)区分验证阶段；原生写、设备和生产验收仍未完成。
 
+## MCP 服务源码边界（D40）
+
+MCP 库入口现为55行模块声明与明确导出。配置、共享服务、分发、请求身份/范围解析、工具适配与stdio各自承载真实职责；67个原函数正文和21个测试断言保留，公开导入路径与默认值兼容。结构门禁解析实际挂载文件，拒绝隐藏实现与未挂载源码。原有auth/http/protocol大文件尚未纳入本次拆分，整crate规范和全平台验收仍未完成。[架构文档](docs/DiskGraph-Architecture-Hardening.zh_CN.md)说明保留的授权链，[就绪记录](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)分别记录本机、原生与生产证据。
+
 ## 文档
 
 | | |

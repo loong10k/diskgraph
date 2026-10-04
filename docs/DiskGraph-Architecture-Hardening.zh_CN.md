@@ -202,3 +202,18 @@ flowchart TD
 ```
 
 本机最终验证与同源码原生验收分别记录，全平台任务保持开放。
+
+## MCP 服务源码边界 — D40
+
+55行库入口仅包含标准模块声明与明确根导出。`mcp_config.rs`保存配置和默认值，`mcp_service.rs`保留共享Engine与请求上下文；分发、身份/范围解析、真实工具处理及stdio各自分文件，没有新增授权或调度owner。内部可见性维持原crate协作者访问，不增加公开字段。67个原函数正文和21个原测试的有效token一致，包含状态投影和末段授权。
+
+```mermaid
+flowchart TD
+    T["HTTP / SSE / stdio"] --> S["McpService<br/>共享Engine Arc + 请求上下文"]
+    S --> D["service_dispatch<br/>原期限 / profile / schema检查顺序"]
+    D --> A["service_identity / scope_access<br/>实际归属 + token能力 ∩ 实时授权"]
+    A --> H["快照 / 文件 / 关系 / 管理适配<br/>原处理器与响应末检"]
+    H --> E["同一Engine<br/>授权查询与持久任务"]
+```
+
+增量AST门禁检查真实标准模块文件、未挂载源、对象/行数/注释/导入/函数正文规则及直接或条件路径覆盖。既有模块明确列为豁免，auth709行、http2657行、protocol538行不因入口变薄而算合规。[D40验收回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)分别记录结构负控、实际执行和原生状态。本次整理保留已启用能力，不启用危险文件工具，也不完成平台/provider/宿主/设备/发布门禁。

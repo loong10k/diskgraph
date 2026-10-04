@@ -464,7 +464,7 @@ This document adapts the complete architecture template with runtime, extension,
 
 - [Technical design](DiskGraph-Technical-Design.md): schemas, migration, protocols, state, guards and tests.
 - [Command reference](command-reference.md): C01–C29 CLI/MCP/permission/phase mapping, currently Chinese.
-- [OpenSpec decisions](../openspec/changes/implement-diskgraph-platform/design.md): D1–D39, alternatives, risks and migration.
+- [OpenSpec decisions](../openspec/changes/implement-diskgraph-platform/design.md): D1–D40, alternatives, risks and migration.
 - [Implementation tasks](../openspec/changes/implement-diskgraph-platform/tasks.md): staged work and acceptance.
 - References: [DiskTree](https://github.com/tobi/disktree), [CodeGraph CLI](https://github.com/colbymchenry/codegraph#cli-reference), [MCP Rust SDK](https://github.com/modelcontextprotocol/rust-sdk#transports).
 

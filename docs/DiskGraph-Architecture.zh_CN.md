@@ -455,7 +455,7 @@ stateDiagram-v2
 
 - [技术方案](DiskGraph-Technical-Design.zh_CN.md)：数据表、迁移、协议、状态机、执行保护与测试。
 - [命令参考](command-reference.md)：C01–C29 的 CLI/MCP/权限/阶段映射。
-- [OpenSpec 设计决策](../openspec/changes/implement-diskgraph-platform/design.md)：D1–D39、替代方案、风险和迁移。
+- [OpenSpec 设计决策](../openspec/changes/implement-diskgraph-platform/design.md)：D1–D40、替代方案、风险和迁移。
 - [OpenSpec 实现任务](../openspec/changes/implement-diskgraph-platform/tasks.md)：分阶段工作包和验收要求。
 - 上游依据：[DiskTree](https://github.com/tobi/disktree)、[CodeGraph CLI](https://github.com/colbymchenry/codegraph#cli-reference)、[MCP Rust SDK](https://github.com/modelcontextprotocol/rust-sdk#transports)。
 

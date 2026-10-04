@@ -283,6 +283,10 @@ MCP `diskgraph_sync` accepts the same `scope`, `revision`, `node_id` and `collec
 
 CLI status data binds IDs to the actual job and immutable receipt; its existing outer scope/revision fields remain null. MCP status binds envelope IDs and data to that same authorized projection. Queued status needs `operations:view`; completed results also need `metadata:read`. Safe counts and nullable local tracking differences contain no bodies or reference text and do not prove remote publication. Verification status is in the [full-platform record](docs/production-readiness-full-platform-2026-10-04.md); native writes, devices and production acceptance remain open.
 
+## MCP service source boundaries (D40)
+
+The MCP library entry now declares modules and explicit exports in55 lines. Configuration, the shared service, dispatch, request identity/scope access, tool adapters and stdio framing have real responsibility modules. All67 original function bodies and21 test assertions are preserved; public imports and defaults remain compatible. The structural gate resolves mounted files and rejects hidden implementations and orphan sources. Existing large auth/http/protocol modules remain outside this increment; whole-crate conformance and full-platform acceptance are still open. The [architecture](docs/DiskGraph-Architecture-Hardening.md) describes the unchanged authorization flow, and the [readiness record](docs/production-readiness-full-platform-2026-10-04.md) separates local, native and production evidence.
+
 ## Documentation
 
 | | |

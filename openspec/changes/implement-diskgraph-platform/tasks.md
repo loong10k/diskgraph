@@ -323,3 +323,10 @@ D37原生终态：b680a1ce的CI37176087169为21/22，四个选定原生workspace
 
 
 D39本机验证：持久Git CLI/MCP接线、真实归属基线CAS、来源完整性、唯一图库回执恢复、原请求授权与运行代次取消已实现。完整固定候选1378/0/18（58报告suite）、134独立审查hash、fmt/严格Clippy/build/OpenSpec/vendor/release通过；实际stdio18/18、HTTP13/13、UniFFI19/19、20k/200k配对各4/4。原始RED和三处夹具纠正分开保留，见docs/benchmarks/git_evidence_job_acceptance_2026_10_04.json。本增量同源码原生CI待运行，不据本机结果关闭8.7/15.13/15.20或其余父项。
+
+
+D40实施步骤（RT-10，尚未验收）：先建立对当前MCP大入口实际失败的AST结构门禁；保留原callable/test bodies后按真实配置、服务、分发、授权和查询职责移动实现，保留公开重导出及crate::tests支持路径；目标行为/真实传输与全workspace回归通过后再独立审查、提交和同SHA原生验证。旧auth/http/protocol等未纳入本次入口范围的文件明确记录，不能把局部门禁当整个MCP规范完成。
+
+D39原生终态：bac84f72的CI37184551143最终21/22，Windows Rust1.97.0的到期夹具未进入采集后发布回调，其余21job成功；四份日志分别1239/0/16、1238/1/16、1367/0/18、1378/0/18。159个选定用例中Windows实际157（MSRV156/1），两项Unix-only未运行；ARM/Intel各159/159。原始日志和逐项观察已归档，失败不计全绿。
+
+D40本机最终：入口1950→55、67body tokens与21原断言保持、36既有非入口来源字节未变；两路独立审查通过最终24源71a59232。结构门禁5/1 RED，条件路径真实反例7/2 RED→9/0；Windows夹具根因控制为原3秒exp+4秒准备在真实持久gate拒绝，测试-only修正固定原exp并精确验证拒绝/身份不变/无发布，相同延迟1/1 GREEN，生产限额未改。最终完整固定候选1387/0/18（59 suites）、fmt/FFI include/严格Clippy/build/OpenSpec/vendor124/0/2+14摘要/release通过；实际stdio18/HTTP13/ABI19及最终二进制摘要一致，见mcp_service_layout_acceptance_2026_10_04.json。新源码原生CI待完成，旧auth/http/protocol仍未完整规范化；不关闭8.7/15.13/15.20或其余30项。
