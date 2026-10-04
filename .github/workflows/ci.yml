@@ -102,7 +102,7 @@ jobs:
         if: matrix.rust == 'stable'
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Migration gate (ST-02)
-        run: cargo test -p diskgraph-store --lib --locked
+        run: cargo test -p diskgraph-store --lib --locked -- --test-threads=1
       - name: Real-host drills stay out of the regular run (RE-02)
         run: |
           cargo test --workspace --locked -- --list
