@@ -1,5 +1,6 @@
 //! 共享 Engine 的 scan_jobs 职责；原调用与持锁顺序保持。
 
+use crate::job_cancellation_guard::JobCancellationGuard;
 use crate::scan_progress_guard;
 use crate::{Engine, EngineError};
 use diskgraph_core::{
@@ -102,7 +103,6 @@ impl Engine {
             )?
             .ok_or(EngineError::Business(BusinessError::ResourceExhausted))?;
         drop(control);
-        self.cancellations()?.entry(job.job_id.clone()).or_default();
         Ok(job)
     }
 }
@@ -120,6 +120,7 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<(), EngineError> {
+        let prior_cancel = self.cancellations()?.get(job_id).cloned();
         let job = self.control()?.job(job_id)?;
         self.require(
             authorizer,
@@ -127,10 +128,24 @@ impl Engine {
             &Permission::OperationView,
             &job.scope_id,
         )?;
-        self.control()?.request_cancel(job_id)?;
+        let terminal = {
+            let mut control = self.control()?;
+            control.request_cancel(job_id)?;
+            matches!(
+                control.job(job_id)?.state,
+                JobState::Completed | JobState::Failed | JobState::Cancelled
+            )
+        };
         if let Some(flag) = self.cancellations()?.get(job_id) {
             flag.store(true, Ordering::SeqCst);
         }
+        // DB 已终结才释放进入调用时的标志；Running 仍由活动 owner 的 guard 负责。
+        let _cleanup =
+            if terminal { prior_cancel } else { None }.map(|flag| JobCancellationGuard {
+                entries: &self.cancellations,
+                job_id: job_id.to_owned(),
+                flag,
+            });
         Ok(())
     }
 }
@@ -154,10 +169,46 @@ impl Engine {
         owner: &str,
         require_authority: bool,
     ) -> Result<JobRecord, EngineError> {
-        let claimed = if require_authority {
-            self.control()?.claim_job_once_strict(job_id, owner)?
-        } else {
-            self.control()?.claim_job_once(job_id, owner)?
+        let prior_cancel = self.cancellations()?.get(job_id).cloned();
+        if let Some(recovered) = self.recover_git_publication(job_id, owner)? {
+            // 对账成功才清理进入本次调用时的旧标志，不触碰后续并发代次。
+            let _cleanup = prior_cancel.map(|flag| JobCancellationGuard {
+                entries: &self.cancellations,
+                job_id: job_id.to_owned(),
+                flag,
+            });
+            return Ok(recovered);
+        }
+        let claimed = {
+            let mut control = self.control()?;
+            if require_authority {
+                control.claim_job_once_strict(job_id, owner)
+            } else {
+                control.claim_job_once(job_id, owner)
+            }
+        };
+        let claimed = match claimed {
+            Ok(claimed) => claimed,
+            Err(error) => {
+                // 认领可能已把排队到期/拒权写为终态；清理失败不能替换原始业务错误。
+                // 先释放控制锁再操作取消表，不引入 control/cancellation 反向嵌套。
+                let terminal = self
+                    .control()
+                    .and_then(|control| {
+                        Ok(matches!(
+                            control.job(job_id)?.state,
+                            JobState::Completed | JobState::Failed | JobState::Cancelled
+                        ))
+                    })
+                    .unwrap_or(false);
+                let _cleanup =
+                    if terminal { prior_cancel } else { None }.map(|flag| JobCancellationGuard {
+                        entries: &self.cancellations,
+                        job_id: job_id.to_owned(),
+                        flag,
+                    });
+                return Err(error.into());
+            }
         };
         // 认领后的图锁等待、旧暂存清理与权限准备也消耗同一运行预算。
         let scan_started = std::time::Instant::now();
@@ -173,6 +224,11 @@ impl Engine {
         let cancel = Arc::new(AtomicBool::new(false));
         self.cancellations()?
             .insert(job_id.to_owned(), Arc::clone(&cancel));
+        let _cancellation_cleanup = JobCancellationGuard {
+            entries: &self.cancellations,
+            job_id: job_id.to_owned(),
+            flag: Arc::clone(&cancel),
+        };
         // 租约覆盖转换、staging 和 collector 阶段，不能只在扫描进度循环续租。
         let outcome = std::thread::scope(|threads| {
             let (stop, receiver) = std::sync::mpsc::channel();
@@ -199,12 +255,35 @@ impl Engine {
                     }
                 }
             });
-            let result =
-                self.execute_scan(job_id, owner, claimed.fencing_token, &cancel, scan_started);
+            let result = match claimed.kind {
+                JobKind::GitEvidence => self.execute_git_evidence(
+                    job_id,
+                    owner,
+                    claimed.fencing_token,
+                    &cancel,
+                    scan_started,
+                ),
+                JobKind::Index | JobKind::Sync => {
+                    self.execute_scan(job_id, owner, claimed.fencing_token, &cancel, scan_started)
+                }
+            };
             let _ = stop.send(());
             let _ = keeper.join();
             result
         });
+        #[cfg(test)]
+        if claimed.kind == JobKind::GitEvidence && outcome.is_ok() {
+            crate::git_evidence_execution_tests::after_publication(job_id)?;
+        }
+        // 图事务可能已成功而 control 的独立提交失败。不能把已提交事实改为 Failed，
+        // 保留 Running 供租约到期后按唯一回执对账，且绝不在这里重新采集。
+        if claimed.kind == JobKind::GitEvidence
+            && outcome.is_err()
+            && self.graph()?.job_publication_receipt(job_id)?.is_some()
+            && let Err(error) = outcome
+        {
+            return Err(error);
+        }
         let final_state = if outcome.is_ok() {
             JobState::Completed
         } else if self
@@ -219,19 +298,24 @@ impl Engine {
             let staging_id = format!("{job_id}:{}", claimed.fencing_token);
             self.graph()?.clear_staging(&staging_id)?;
         }
-        let record =
+        let record = if claimed.kind == JobKind::GitEvidence {
+            let failure = outcome
+                .as_ref()
+                .err()
+                .map(|error| crate::git_evidence_failure::execution(error, final_state));
+            self.control()?.finish_git_job_fenced(
+                job_id,
+                owner,
+                claimed.fencing_token,
+                final_state,
+                failure.as_ref(),
+            )?
+        } else {
             self.control()?
-                .finish_job_fenced(job_id, owner, claimed.fencing_token, final_state)?;
+                .finish_job_fenced(job_id, owner, claimed.fencing_token, final_state)?
+        };
         self.graph()?
             .clear_stale_job_staging(job_id, claimed.fencing_token)?;
-        let mut cancellations = self.cancellations()?;
-        if cancellations
-            .get(job_id)
-            .is_some_and(|current| Arc::ptr_eq(current, &cancel))
-        {
-            cancellations.remove(job_id);
-        }
-        drop(cancellations);
         outcome?;
         Ok(record)
     }
@@ -285,7 +369,15 @@ impl Engine {
         if job.state != JobState::Completed {
             return Err(EngineError::Business(BusinessError::Conflict));
         }
-        let revision = format!("rev-{}-{}", job_id, job.fencing_token);
+        let revision = if job.kind == JobKind::GitEvidence {
+            self.graph()?
+                .job_publication_receipt(job_id)?
+                .ok_or(BusinessError::Conflict)?
+                .revision_id()
+                .to_owned()
+        } else {
+            format!("rev-{}-{}", job_id, job.fencing_token)
+        };
         self.authorize_revision(Some(&job.scope_id), &revision, principal, authorizer)?;
         Ok(revision)
     }

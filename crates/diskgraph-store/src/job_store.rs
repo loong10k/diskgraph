@@ -35,6 +35,11 @@ impl ControlStore {
         principal: &PrincipalId,
         maximum: u64,
     ) -> Result<Option<JobRecord>> {
+        if kind == JobKind::GitEvidence {
+            return Err(StoreError::Conflict(
+                "Git job requires typed fixed input".into(),
+            ));
+        }
         self.create_job_internal(scope_id, kind, principal, maximum, true)
     }
 
@@ -49,6 +54,11 @@ impl ControlStore {
         maximum: u64,
         require_live_grant: bool,
     ) -> Result<Option<JobRecord>> {
+        if kind == JobKind::GitEvidence {
+            return Err(StoreError::Conflict(
+                "Git job requires typed fixed input".into(),
+            ));
+        }
         let tx = self
             .connection
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
@@ -119,6 +129,7 @@ impl ControlStore {
         let changed = self.connection.execute(
             "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?1
              WHERE state = 'running' AND lease_expires_unix_ms <= ?1
+               AND NOT EXISTS(SELECT 1 FROM git_evidence_job_inputs i WHERE i.job_id=jobs.job_id)
                AND (cancel_requested = 1 OR EXISTS
                    (SELECT 1 FROM scopes WHERE scopes.scope_id = jobs.scope_id AND scopes.revoked = 1))",
             [Self::now_ms() as i64],
@@ -135,6 +146,7 @@ impl ControlStore {
         let changed = self.connection.execute(
             "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?2
              WHERE job_id = ?1 AND state = 'running' AND lease_expires_unix_ms <= ?2
+               AND NOT EXISTS(SELECT 1 FROM git_evidence_job_inputs i WHERE i.job_id=jobs.job_id)
                AND (cancel_requested = 1 OR EXISTS
                    (SELECT 1 FROM scopes WHERE scopes.scope_id = jobs.scope_id AND scopes.revoked = 1))",
             params![job_id, Self::now_ms() as i64],
@@ -323,13 +335,24 @@ impl ControlStore {
     /// 参数：job_id：持久任务 ID。
     /// 返回：指定条件是否成立；数据库失败返回错误。
     pub fn request_cancel(&mut self, job_id: &str) -> Result<bool> {
-        let changed = self.connection.execute(
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        // 排队 Git 立即终结，没有执行 owner 再补诊断；取消依据与终态必须同事务保存。
+        tx.execute(
+            "INSERT INTO git_job_failures(job_id,phase,code)
+             SELECT job_id,'admission','cancelled' FROM jobs
+             WHERE job_id=?1 AND kind='git_evidence' AND state='queued'",
+            [job_id],
+        )?;
+        let changed = tx.execute(
             "UPDATE jobs SET cancel_requested = 1,
                  state = CASE WHEN state = 'queued' THEN 'cancelled' ELSE state END,
                  heartbeat_unix_ms = ?2
              WHERE job_id = ?1 AND state IN ('queued', 'running')",
             params![job_id, Self::now_ms() as i64],
         )?;
+        tx.commit()?;
         if changed == 0 {
             self.job(job_id)?;
         }
@@ -359,11 +382,21 @@ impl ControlStore {
     /// 参数：job_id：持久任务 ID。
     /// 返回：指定条件是否成立；数据库失败返回错误。
     pub fn cancel_queued(&mut self, job_id: &str) -> Result<bool> {
-        let changed = self.connection.execute(
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        tx.execute(
+            "INSERT INTO git_job_failures(job_id,phase,code)
+             SELECT job_id,'admission','cancelled' FROM jobs
+             WHERE job_id=?1 AND kind='git_evidence' AND state='queued'",
+            [job_id],
+        )?;
+        let changed = tx.execute(
             "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?2
              WHERE job_id = ?1 AND state = 'queued'",
             params![job_id, Self::now_ms() as i64],
         )?;
+        tx.commit()?;
         Ok(changed > 0)
     }
 
@@ -380,6 +413,7 @@ impl ControlStore {
     /// 按条件 owner/lease/fencing 认领、续租或写入任务终态。
     /// 参数：job_id：持久任务 ID；owner：本代次执行 owner；fence：条件认领所得 fencing token；state：目标生命周期状态。
     /// 返回：合并/创建或更新后的持久任务，保留真实状态、owner 与 fence。
+    /// Git 任务必须使用带固定诊断的专用结算协议，旧扫描入口不能绕过该合同。
     pub fn finish_job_fenced(
         &mut self,
         job_id: &str,
@@ -395,8 +429,18 @@ impl ControlStore {
                 "finish_job requires a terminal state".into(),
             ));
         }
+        let git_job: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM jobs WHERE job_id=?1 AND kind='git_evidence')",
+            [job_id],
+            |row| row.get(0),
+        )?;
+        if git_job {
+            return Err(StoreError::Conflict(
+                "Git job requires typed terminal settlement".into(),
+            ));
+        }
         let changed = self.connection.execute(
-            "UPDATE jobs SET state = ?2, heartbeat_unix_ms = ?3 WHERE job_id = ?1 AND owner = ?4 AND fencing_token = ?5 AND state = 'running' AND lease_expires_unix_ms > ?3",
+            "UPDATE jobs SET state = ?2, heartbeat_unix_ms = ?3 WHERE job_id = ?1 AND kind != 'git_evidence' AND owner = ?4 AND fencing_token = ?5 AND state = 'running' AND lease_expires_unix_ms > ?3",
             params![job_id, state.as_str(), Self::now_ms() as i64, owner, fence as i64],
         )?;
         if changed != 1 {

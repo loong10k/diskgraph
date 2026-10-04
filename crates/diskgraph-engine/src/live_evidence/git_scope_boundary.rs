@@ -12,12 +12,30 @@ pub(super) struct GitScopeBoundary {
     root_route: Vec<GitDirectoryVersion>,
     root_path: PathBuf,
     project: PathBuf,
+    indexed: Option<super::git_indexed_directory::GitIndexedDirectory>,
 }
 impl GitScopeBoundary {
     /// 参数：root 为已授权注册根，project 为同范围持久无损定位，probe 为同一期限；返回：持有边界或拒绝。
     pub(super) fn new(
         root: &Path,
         project: &QualifiedLocator,
+        probe: &mut ProbeBudget,
+    ) -> Result<Self, String> {
+        Self::new_bound(root, project, None, probe)
+    }
+    /// 参数：indexed 为已授权 revision 原始目录身份，其他参数同可信构造；返回：身份相符的持有边界。
+    pub(super) fn new_indexed(
+        root: &Path,
+        project: &QualifiedLocator,
+        indexed: &super::git_indexed_directory::GitIndexedDirectory,
+        probe: &mut ProbeBudget,
+    ) -> Result<Self, String> {
+        Self::new_bound(root, project, Some(indexed.clone()), probe)
+    }
+    fn new_bound(
+        root: &Path,
+        project: &QualifiedLocator,
+        indexed: Option<super::git_indexed_directory::GitIndexedDirectory>,
         probe: &mut ProbeBudget,
     ) -> Result<Self, String> {
         let path = project.to_native_path().map_err(|e| e.to_string())?;
@@ -33,6 +51,7 @@ impl GitScopeBoundary {
             root_route,
             root_path: root.to_path_buf(),
             project: relative,
+            indexed,
         };
         boundary.directory(&boundary.project, probe)?;
         Ok(boundary)
@@ -83,6 +102,16 @@ impl GitScopeBoundary {
                 return Err("unsupported scoped Git relative component".into());
             };
             directory = directory.child(name)?;
+        }
+        if relative == self.project
+            && self.indexed.as_ref().is_some_and(|expected| {
+                !directory
+                    .version()
+                    .is_ok_and(|version| version.matches_indexed(expected))
+            })
+        {
+            probe.mark_identity_changed();
+            return Err("indexed Git directory identity changed; reindex required".into());
         }
         Ok(directory)
     }

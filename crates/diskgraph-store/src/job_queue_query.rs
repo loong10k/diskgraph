@@ -14,7 +14,8 @@ impl ControlStore {
         }
         let mut statement = self.connection.prepare(
             "SELECT jobs.job_id FROM jobs JOIN scopes ON scopes.scope_id=jobs.scope_id
-             WHERE jobs.state IN ('queued','running') AND scopes.revoked=0 AND jobs.cancel_requested=0
+             WHERE jobs.state IN ('queued','running') AND ((scopes.revoked=0 AND jobs.cancel_requested=0)
+                 OR EXISTS(SELECT 1 FROM git_evidence_job_inputs i WHERE i.job_id=jobs.job_id))
                AND (jobs.state='queued' OR (jobs.state='running' AND jobs.lease_expires_unix_ms<=?1))
              ORDER BY jobs.created_at_unix_ms ASC,jobs.job_id ASC LIMIT ?2",
         )?;

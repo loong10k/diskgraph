@@ -147,6 +147,13 @@ impl ControlStore {
             "UPDATE scopes SET revoked = 1 WHERE scope_id = ?1",
             [scope_id.as_str()],
         )?;
+        // 仅排队 Git 在本次撤销中直接终结；运行任务仍由原 fence 结算实际取消。
+        tx.execute(
+            "INSERT INTO git_job_failures(job_id,phase,code)
+             SELECT job_id,'admission','cancelled' FROM jobs
+             WHERE scope_id=?1 AND kind='git_evidence' AND state='queued'",
+            [scope_id.as_str()],
+        )?;
         tx.execute(
             "UPDATE jobs SET state = 'cancelled' WHERE scope_id = ?1 AND state = 'queued'",
             [scope_id.as_str()],

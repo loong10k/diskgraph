@@ -377,7 +377,7 @@ SDK versions, TTL/capacity defaults, signing identities and device resources nee
 
 ## 11. Processes, concurrency and lifecycle
 
-Current FFI functions are synchronous, some queries load whole snapshots, and no service scheduler exists yet.
+At the 2026-09-28 source baseline, FFI functions were synchronous, some queries loaded whole snapshots, and no service scheduler existed. Subsequent implementations and their acceptance boundaries are recorded in the architecture continuation.
 
 | Target mode | Process/state owner | Shutdown/failure contract |
 | :--- | :--- | :--- |
@@ -420,7 +420,7 @@ In-process Rust adapters are trusted code, not a claimed plugin sandbox. Start w
 
 ## 13. Decisions, alternatives and reversal conditions
 
-[OpenSpec D1–D15](../openspec/changes/implement-diskgraph-platform/design.md) remains the decision record. This table is an explanatory summary, not a second approval process.
+[OpenSpec D1–D39](../openspec/changes/implement-diskgraph-platform/design.md) remains the decision record. This table is an explanatory summary, not a second approval process.
 
 | Decision | Choice/rationale | Alternative/cost | Revisit when |
 | :--- | :--- | :--- | :--- |
@@ -464,7 +464,7 @@ This document adapts the complete architecture template with runtime, extension,
 
 - [Technical design](DiskGraph-Technical-Design.md): schemas, migration, protocols, state, guards and tests.
 - [Command reference](command-reference.md): C01–C29 CLI/MCP/permission/phase mapping, currently Chinese.
-- [OpenSpec decisions](../openspec/changes/implement-diskgraph-platform/design.md): D1–D15, alternatives, risks and migration.
+- [OpenSpec decisions](../openspec/changes/implement-diskgraph-platform/design.md): D1–D39, alternatives, risks and migration.
 - [Implementation tasks](../openspec/changes/implement-diskgraph-platform/tasks.md): staged work and acceptance.
 - References: [DiskTree](https://github.com/tobi/disktree), [CodeGraph CLI](https://github.com/colbymchenry/codegraph#cli-reference), [MCP Rust SDK](https://github.com/modelcontextprotocol/rust-sdk#transports).
 

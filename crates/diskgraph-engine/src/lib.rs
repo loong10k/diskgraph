@@ -12,12 +12,35 @@ mod engine_config;
 mod engine_error;
 mod engine_startup;
 mod explanation;
+#[cfg(test)]
+mod git_evidence_admission_tests;
+mod git_evidence_batch;
+mod git_evidence_entry;
+mod git_evidence_execution;
+#[cfg(test)]
+mod git_evidence_execution_tests;
+mod git_evidence_failure;
+#[cfg(test)]
+mod git_evidence_fixture;
+#[cfg(test)]
+mod git_evidence_publication_tests;
+mod git_evidence_target;
+#[cfg(test)]
+mod git_job_cancellation_tests;
+mod git_job_status;
+#[cfg(test)]
+mod git_job_status_tests;
+#[cfg(test)]
+mod git_late_enqueue_tests;
 mod history_namespace;
 mod history_node_lookup;
 mod history_request;
 mod job_authorization;
 #[cfg(test)]
 mod job_authorization_tests;
+mod job_cancellation_guard;
+#[cfg(test)]
+mod job_cancellation_guard_tests;
 pub mod live_evidence;
 mod native_locator;
 mod policy_service;

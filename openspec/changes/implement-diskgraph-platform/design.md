@@ -403,3 +403,20 @@ CollectorRun 保存实际方法、collector/rule 版本、观察时间、覆盖�
 - MCP 公告 schema 与真实 socket 调用、CLI JSON/退出码、status 和 explain 内容最小化一致；三桌面原生句柄/路径/清理回归单独验收。
 
 此设计及任一前置修复不关闭 15.13 的进程启动身份/实际覆盖、provider、不物化、原生写、移动端、签名与生产运行门禁，不把本机或绿色 CI 当作全部能力批准。
+
+
+### D39 持久 Git 产品入口与 CLI 职责拆分（实施与验收中）
+
+继续 D35 的正式契约，现有 C03 增加显式 Git 模式，省略 collector 保持原扫描。请求固定实际 server/scope/base revision/node；持久输入 v1 由服务限额构造，不接收程序、argv、路径、网络或客户端预算。MetadataRead、IndexWrite、ContentRead 必须同时满足原 token 上限、绝对到期与实时数据库授权。任务类型、目标、主体及来源均参与合并；私有捕获、准备、采样和发布消耗同一运行期限与预算。
+
+图库 schema 13 在同一 IMMEDIATE 事务写入来源、完整选择、新 revision、真实归属与不可变 JobPublicationReceipt；控制库 schema 8 保存固定输入和有限分类诊断。迁移沿用一致性备份。发布按真实 server/scope 的既有排序验证基线，不把另一个合法 scope 的同根 legacy latest 指针当作本 scope 新版本，也不覆盖该指针。更晚的未绑定历史与倒退发布时间均拒绝。丢失选中 run 的损坏历史返回 InvalidGraph，不允许 INNER JOIN 隐去来源后生成“完整”结果。
+
+Git 的安全摘要只保存数量、可空的本地跟踪差分、方法、时间与覆盖；不持久化正文、patch、消息、HEAD/ref 或 bearer。观测指纹来自规范化摘要及固定请求，不是完整工作树内容哈希。TTL 默认30秒、上限300秒；本地已知引用不证明真实远端状态。图提交后控制终态未保存时，恢复核对原输入和唯一发布回执，不重新采样、延长认证或重复发布；两库仍无跨库原子承诺。
+
+Git status 通过共同 Engine 投影，排队/运行/失败/取消状态需要真实任务 scope 的 OperationView，完成结果额外需要 MetadataRead。MCP 外层 envelope 必须使用同一任务 scope 与实际回执 revision；客户端 scope 仅可作为一致性断言，不可改写任务身份。排队任务没有已发布 revision，不能用 scope latest 补齐；历史结果已回收时保留原回执并明确 result_available=false。
+
+取消表只承担本机执行通知，不能成为第二份任务状态。认领、取消、到期、撤权及图提交恢复均以数据库记录为准；释放句柄必须匹配执行代次，不能删除新 owner 的标志。跨 Engine 的入队/终结交错须有确定性回归，内存留存不因单 Engine 的终态清理通过而自动验收。
+
+CLI main.rs 聚合平台启动与明确模块声明，真实解析对象和业务责任分文件。18个旧辅助函数、33个非 Git 命令分支与原扫描 fallback 按 token 校验保持，Windows 8MiB 启动栈保留。此机械证据不能代替编译、help、真实命令权限及运行结果验证；旧适配文件未纳入本次拆分范围，不能宣称整个 CLI crate 已满足每文件500行。
+
+本增量的 RED/GREEN、完整 workspace、严格 Clippy、release 真实 CLI/MCP/FFI、性能前后观测及同源码原生 CI 分别验收。8.7、15.13、15.20 只有相关完整能力与平台证据齐备才可勾选；移动端/provider、危险写操作、宿主 UI、签名和生产运行保持原有门禁，不由本机测试替代。

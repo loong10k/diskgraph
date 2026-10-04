@@ -50,6 +50,16 @@ move/copy/trash/restore/purge SHALL 默认只创建或预览不可变计划；ap
 - **THEN** inputSchema 声明 collector 的 git 允许值、revision 字符串及 node_id 正整数类型，实际校验要求显式目标；未知 collector、缺失目标、错误类型与未声明字段均明确拒绝。公告及实际处理均不接受客户端 path、argv、authority 或 network 字段，也不把这些值注入可信执行上下文。
 - **AND** 真实已认证请求的能力上限与数据库 grants 求交，返回的任务持久绑定已验证主体；接口测试保留无 collector 的旧 sync 正控及合法目标的业务拒绝负控，避免把参数拒绝误记为授权检查成功。
 
+#### Scenario: Completed Git job reports its committed revision
+- **WHEN** CLI --wait 或 MCP 任务状态查询观察到 GitEvidence 已完成，包括图提交后控制状态的幂等恢复
+- **THEN** 返回该 job 不可变 publication receipt 中的真实 revision，MCP 状态同时提供安全 run_id；旧 base revision 仍可按原授权读取，结果不切换到后来 latest、不按恢复 fence 拼接 ID。状态读取继续执行任务实际范围和结果 revision 的授权，接口不导出 HEAD、原始正文、patch 或工具诊断。
+
+#### Scenario: Git status uses one authorized durable projection
+- **WHEN** CLI 或 MCP 重连查询 Git 任务状态，或重复入队合并到已 Running 的同一任务
+- **THEN** 返回持久记录的真实状态，不固定误报 queued。两个适配器共用 Engine 状态投影，初次和返回前均验证任务实际 scope 的 OperationView 与实时撤销；Completed 另需 MetadataRead。返回有限安全 failure.phase/code 或回执中的 revision/run，保留旧扫描状态响应；MCP revision 字段继续兼容，revision_id 与其指向同一真实回执。
+- **AND** Git C04 在通用默认 scope/catalog 门禁前使用实际任务投影；scope hint 仅作一致性断言，不匹配明确 permission_denied。Queued 只要求实际 scope 的 OperationView，外层 scope 与内层一致且不补 latest revision；Completed 外层 server/scope/revision 与同次已授权回执投影一致，不能标成默认范围或新 latest。工具/profile/schema 校验和非 Git 扫描、无 job 的服务状态合同保持。
+- **AND** 若新扫描替换 latest 后旧结果被合法 prune，Completed 历史事实及不可变回执仍存在；当前实际 server/scope 权限允许时返回最小 revision/run 和 result_available=false，结果仍存在则 true，不读取已删正文、不重新采样、不延长原任务权限。状态读取使用同一有界期限与有限响应，不能因历史结果缺失猜测新 revision。
+
 #### Scenario: Explicit historical node query
 - **WHEN** node/top/children/explore/search/candidates 携带已授权旧 revision，或 node 携带非根 node_id
 - **THEN** 查询和响应身份绑定指定 revision 与节点；scope 不匹配被拒绝，不改查 latest 或根节点。

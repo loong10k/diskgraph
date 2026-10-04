@@ -21,6 +21,11 @@ impl ControlStore {
         authority: &JobRequestAuthority,
         maximum: u64,
     ) -> Result<Option<JobRecord>> {
+        if kind == JobKind::GitEvidence {
+            return Err(StoreError::Conflict(
+                "Git job requires typed fixed input".into(),
+            ));
+        }
         let encoded = serde_json::to_string(authority)?;
         if encoded.len() > 16384 {
             return Err(StoreError::InvalidGraph("oversized job authority".into()));
@@ -37,7 +42,7 @@ impl ControlStore {
         // 仅本地旧扫描保留 Index/Sync 同范围合并；远程必须同 kind 及原 authority。
         let trusted_scan_merge = authority.origin() == JobAuthorityOrigin::TrustedLocal;
         let existing: Option<String> = tx.query_row(
-            "SELECT j.job_id FROM jobs j JOIN job_request_authorities a ON a.job_id=j.job_id WHERE j.scope_id=?1 AND j.principal=?2 AND (j.kind=?3 OR ?4) AND a.schema_version=1 AND a.authority_json=?5 AND j.state IN ('queued','running') ORDER BY j.created_at_unix_ms DESC,j.job_id DESC LIMIT 1",
+            "SELECT j.job_id FROM jobs j JOIN job_request_authorities a ON a.job_id=j.job_id WHERE j.scope_id=?1 AND j.principal=?2 AND (j.kind=?3 OR (?4 AND j.kind IN ('index','sync'))) AND a.schema_version=1 AND a.authority_json=?5 AND j.state IN ('queued','running') ORDER BY j.created_at_unix_ms DESC,j.job_id DESC LIMIT 1",
             params![scope.as_str(),authority.principal().as_str(),kind.as_str(),trusted_scan_merge,encoded], |row| row.get(0),
         ).optional()?;
         if let Some(job_id) = existing {

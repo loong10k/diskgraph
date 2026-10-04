@@ -1,6 +1,6 @@
 //! 同一控制事务中的持久请求上限及实时权限交集，不持有另一个授权 owner。
 
-use crate::{Result, StoreError};
+use crate::{JobKind, Result, StoreError};
 use diskgraph_core::{JobAuthorityOrigin, JobRequestAuthority, Permission, ScopeId};
 use rusqlite::{Connection, OptionalExtension, params};
 
@@ -101,6 +101,23 @@ pub(crate) fn validate_job(
     required: &[Permission],
     strict: bool,
 ) -> Result<()> {
+    let kind: String =
+        connection.query_row("SELECT kind FROM jobs WHERE job_id=?1", [job_id], |row| {
+            row.get(0)
+        })?;
+    let kind = JobKind::from_str(&kind)
+        .ok_or_else(|| StoreError::InvalidGraph("invalid job kind".into()))?;
+    let cancelled: bool = connection.query_row(
+        "SELECT cancel_requested FROM jobs WHERE job_id=?1",
+        [job_id],
+        |row| row.get(0),
+    )?;
+    if cancelled {
+        return Err(StoreError::Conflict("job cancellation requested".into()));
+    }
+    if kind == JobKind::GitEvidence {
+        crate::git_job_input_codec::read(connection, job_id)?;
+    }
     match read(connection, job_id)? {
         Some(authority) => {
             let scope: String = connection.query_row(
@@ -110,9 +127,20 @@ pub(crate) fn validate_job(
             )?;
             let scope = ScopeId::new(scope)
                 .map_err(|_| StoreError::InvalidGraph("invalid job scope".into()))?;
-            validate_scope(connection, &scope, &authority, required)
+            // 固定 kind 权限先复验；旧调用方传空/窄集合也不能降 Git ContentRead。
+            validate_scope(connection, &scope, &authority, kind.required_permissions())?;
+            let extra: Vec<_> = required
+                .iter()
+                .copied()
+                .filter(|p| !kind.required_permissions().contains(p))
+                .collect();
+            if extra.is_empty() {
+                Ok(())
+            } else {
+                validate_scope(connection, &scope, &authority, &extra)
+            }
         }
-        None if strict => Err(StoreError::Conflict(
+        None if strict || kind == JobKind::GitEvidence => Err(StoreError::Conflict(
             "legacy job request authority unknown".into(),
         )),
         None => Ok(()),

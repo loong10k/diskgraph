@@ -98,3 +98,8 @@
 - **WHEN** 旧控制库的 queued 或 expired-running 任务没有可确认的请求来源与能力上限
 - **THEN** 远程自动 runner 不将缺失记录当成可信本地授权，不进行扫描或发布；保留原记录的授权查询和取消，并明确要求可信本地恢复或重新授权后重新入队。
 - **AND** running 任务的存活租约不得直接抢占；只有租约过期后才能按条件终结、隔离或明确恢复。旧可信本地兼容执行与远程严格执行路径分离，带有请求约束的任务不能借兼容入口绕过该约束。
+
+#### Scenario: Git jobs cannot lose content authority through compatibility APIs
+- **WHEN** Git 证据任务通过原可信认领、续租或发布 fence 入口执行
+- **THEN** 持久任务类型强制 MetadataRead、IndexWrite、ContentRead 与原 token 上限及实时 grants 的交集；调用方省略权限集合不得降低三项要求，缺少合法固定目标输入不得退回扫描或实时工作树采样。
+- **AND** 固定目标包含实际本机 server、scope、base revision、正整数 node 与服务端有限配置，不含 bearer、任意路径或命令；重开时重新验证类型、归属、原始长度、摘要和输入版本，同主体不同目标或不同原请求约束不得合并。

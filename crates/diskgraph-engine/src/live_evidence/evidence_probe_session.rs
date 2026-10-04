@@ -13,6 +13,8 @@ pub struct EvidenceProbeSession {
     budget: ProbeBudget,
     metadata: Option<GitMetadataBudget>,
     failure: Option<String>,
+    allocation_quota: u64,
+    min_free: u64,
 }
 
 impl EvidenceProbeSession {
@@ -26,7 +28,99 @@ impl EvidenceProbeSession {
             budget,
             metadata: Some(GitMetadataBudget::default()),
             failure: None,
+            allocation_quota: 128 << 20,
+            min_free: 64 << 20,
         })
+    }
+
+    /// 从成功认领的原起点建立产品会话。参数：limits 为服务端持久配置，started 为原 Instant，cancel 为原任务标志。
+    /// 返回：共享绝对期限、原始输入和实际分配限额的独占会话；不读取客户端配置。
+    pub(crate) fn for_git_job(
+        limits: &diskgraph_core::GitEvidenceLimits,
+        started: std::time::Instant,
+        cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    ) -> Result<Self, super::git_product_error::GitProductError> {
+        use super::git_product_error::GitProductError;
+        let deadline = started
+            .checked_add(std::time::Duration::from_millis(limits.max_duration_ms()))
+            .ok_or(GitProductError::Unverifiable)?;
+        let configured = ProbeLimits {
+            timeout: std::time::Duration::from_millis(limits.max_duration_ms()),
+            max_output_bytes: limits
+                .max_output_bytes()
+                .try_into()
+                .map_err(|_| GitProductError::Unverifiable)?,
+            cancel,
+        };
+        let mut budget = ProbeBudget::until(&configured, deadline)
+            .map_err(|error| GitProductError::from_failure(Some(&error)))?;
+        budget
+            .check()
+            .map_err(|error| GitProductError::from_failure(Some(&error)))?;
+        let metadata = GitMetadataBudget::new(
+            limits
+                .max_input_bytes()
+                .try_into()
+                .map_err(|_| GitProductError::Unverifiable)?,
+            limits
+                .max_input_entries()
+                .try_into()
+                .map_err(|_| GitProductError::Unverifiable)?,
+        )
+        .map_err(|_| GitProductError::Unverifiable)?;
+        Ok(Self {
+            budget,
+            metadata: Some(metadata),
+            failure: None,
+            allocation_quota: limits.max_capture_bytes(),
+            min_free: limits.min_free_bytes(),
+        })
+    }
+
+    /// 对固定索引身份采样；参数：工具、注册根、无损定位及已授权索引身份。
+    /// 返回：完成清理及终检的样本或有界类型化失败，绝不回传 raw 工具诊断。
+    pub(crate) fn sample_git_indexed(
+        &mut self,
+        git: &Path,
+        root: &Path,
+        locator: &diskgraph_core::QualifiedLocator,
+        indexed: &super::git_indexed_directory::GitIndexedDirectory,
+    ) -> Result<GitSample, super::git_product_error::GitProductError> {
+        let result = (|| {
+            self.ready()?;
+            let boundary = super::git_scope_boundary::GitScopeBoundary::new_indexed(
+                root,
+                locator,
+                indexed,
+                &mut self.budget,
+            )?;
+            let metadata = self
+                .metadata
+                .take()
+                .ok_or("evidence session metadata budget unavailable")?;
+            let mut view = super::git_view::GitView::prepare_scoped(
+                git,
+                boundary,
+                &mut self.budget,
+                metadata,
+                self.allocation_quota,
+                self.min_free,
+            )?;
+            let observed = super::git_usage::observe(&mut view, &mut self.budget);
+            view.complete_with_metadata(observed, &mut self.budget)
+        })();
+        match result {
+            Ok((sample, metadata)) => {
+                self.metadata = Some(metadata);
+                Ok(sample)
+            }
+            Err(error) => {
+                self.close(error);
+                Err(super::git_product_error::GitProductError::from_failure(
+                    self.budget.failure(),
+                ))
+            }
+        }
     }
 
     /// 在任务剩余额度内采样下一项目，准备、复核及清理失败均关闭整次会话。

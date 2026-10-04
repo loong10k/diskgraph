@@ -11,11 +11,19 @@ mod entities;
 mod envelope;
 mod errors;
 mod freshness;
+mod git_evidence_codec;
+mod git_evidence_failure;
+mod git_evidence_failure_code;
+mod git_evidence_failure_phase;
+mod git_evidence_job_input;
+mod git_evidence_limits;
+mod git_evidence_summary;
 mod historical_node_size;
 #[cfg(test)]
 mod historical_size_tests;
 mod ids;
 mod job_authority_origin;
+mod job_publication_receipt;
 mod job_request_authority;
 mod json_size_writer;
 mod locator;
@@ -61,9 +69,16 @@ pub use entities::{
 pub use envelope::{API_VERSION, Envelope, EnvelopeError};
 pub use errors::BusinessError;
 pub use freshness::{FingerprintMap, FingerprintSource, Freshness, classify, edge_freshness};
+pub use git_evidence_failure::GitEvidenceFailure;
+pub use git_evidence_failure_code::GitEvidenceFailureCode;
+pub use git_evidence_failure_phase::GitEvidenceFailurePhase;
+pub use git_evidence_job_input::GitEvidenceJobInput;
+pub use git_evidence_limits::GitEvidenceLimits;
+pub use git_evidence_summary::GitEvidenceSummary;
 pub use historical_node_size::{comparable_growth_delta, observed_node_size};
 pub use ids::{InvalidId, PrincipalId, ResourceRef, RevisionId, ScopeId, ServerId};
 pub use job_authority_origin::JobAuthorityOrigin;
+pub use job_publication_receipt::JobPublicationReceipt;
 pub use job_request_authority::JobRequestAuthority;
 pub use json_size_writer::measure_json_bounded;
 pub use locator::{Locator, LocatorDecodeError, LocatorKind};
@@ -107,5 +122,7 @@ pub use search_cursor::SearchCursor;
 #[cfg(test)]
 mod windows_file_observation_tests;
 
+#[cfg(test)]
+mod git_evidence_contract_tests;
 #[cfg(test)]
 mod job_request_authority_tests;

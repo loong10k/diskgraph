@@ -22,8 +22,8 @@
 | --- | --- | --- | --- | --- |
 | C01 | scope add/list/show/remove | diskgraph_scope | list/show 按授权；add/remove 需 S | P1 |
 | C02 | index --scope ID | diskgraph_index | I；创建持久扫描 job | P1 |
-| C03 | sync --scope ID | diskgraph_sync | I；更新已注册范围，合并冲突作业 | P1 |
-| C04 | status [--job ID] | diskgraph_status | M/作业所有权；版本、覆盖、能力与任务状态 | P2 |
+| C03 | sync --scope ID [--collector git --revision R --node-id N] | diskgraph_sync | 普通扫描 I；显式 Git 需 M+C+I，创建固定目标持久采集任务 | P1 / D39 |
+| C04 | status [--job ID] | diskgraph_status | 旧服务/扫描状态保持；Git 状态需实际 scope 的 O，完成结果额外 M | P2 / D39 |
 | C05 | snapshots list/show/pin/remove | diskgraph_snapshots | 查看需 M；保留/删除索引需 I | P1 |
 | C06 | changes BEFORE AFTER | diskgraph_changes | M；变化和不可比较原因 | P2 |
 | C07 | growth NODE --since SNAPSHOT | diskgraph_growth | M；明确当前 revision 的历史增长 | P2 |
@@ -206,3 +206,10 @@ serve/install 不作为远程 MCP 工具；不能让服务器改本地智能体�
 - 树及历史比较新增 `truncation_reason`；比较新增 `complete`、`summary_is_partial`、`node_counts_complete`，超时未完成的节点总数不能解释为 0 个节点。
 - `diskgraph-mcp --transport streamable-http|legacy-sse --auth-key-file ISSUER AUDIENCE PATH` 在 loopback 也要求认证；密钥文件须为至少 32 字节的普通文件，Unix 上仅限所有者访问，Windows 部署须限制服务账户 ACL。`diskgraph serve` 也接受相同参数并转发给 MCP 子进程。旧 `--auth ISSUER AUDIENCE KEY` 仅供兼容，密钥会暴露于进程参数，不应用于部署。网络绑定另须 TLS/隧道及 `--secure-transport`。默认每主体最多 4 条 SSE。
 - 旧库不能唯一确定归属的 revision 拒绝对外访问，需管理员重新索引。旧远程 principal 映射更新后需重新授权。CLI/MCP 危险文件工具保持禁用。
+
+
+## D39 Git 任务补充
+
+`sync --collector git` 必须同时提供 `--revision` 和正整数 `--node-id`；省略 collector 保持扫描，不接受外部程序、argv、路径或客户端预算。MCP 参数为 `collector: "git"`、`scope`、`revision`、`node_id`。入队并不采样；`--wait` 执行真实任务并返回已提交回执版本，非等待模式返回真实 queued/running 状态。远程 runner 保留原 token 能力上限和绝对到期，不能由服务本地身份补足正文权限。
+
+Git CLI `status` 的 data 使用真实任务 scope 和固定回执 revision，既有外层 scope/revision 字段保持为空。MCP 的 envelope 与 data 使用同一授权投影，客户端 scope 仅作为一致性断言。排队无已发布 revision；完成结果被回收后保留回执并返回 `result_available=false`，不重新采样或改用最新版本。摘要只保留有界数量、观察时间、覆盖与可空本地跟踪差分；缺 upstream 不是“已推送”。安全与平台验收阶段见[全平台记录](production-readiness-full-platform-2026-10-04.zh-CN.md)，危险写工具仍关闭。

@@ -84,7 +84,7 @@ ScanCoverage以独立真实对象文件统一覆盖判定，字段、serde及公
 任务3.9已在2450ab1同源码原生CI37164196395终态22/22及四份日志各26项实际成功验收；Git8.7/15.13仍需授权私有工作树捕获、持久typed输入/能力上限、内容权限fence、证据发布及CLI/MCP验收。现有OpenSpec设计仅记录下一实施契约，未启用新collector。原生写、真实provider、GUI/GRDB/Room、mobile/设备、签名和生产父项保持开放。
 
 
-任务状态复核：167项中137项已完成、30项开放（包含汇总父项，不等于29个独立漏洞）。8.6重新打开：可信库进程采样不等于已授权产品collector；尚缺应用安装实例采集、PID启动及资源身份绑定、来源持久化与原子revision发布的端到端验收。已验收的解析、预算和通用发布子能力保持完成。
+任务状态复核：167项中137项已完成、30项开放（包含汇总父项，不等于30个独立漏洞）。8.6重新打开：可信库进程采样不等于已授权产品collector；尚缺应用安装实例采集、PID启动及资源身份绑定、来源持久化与原子revision发布的端到端验收。已验收的解析、预算和通用发布子能力保持完成。
 
 ## 受约束捕获与查询准备（D36）
 
@@ -115,3 +115,17 @@ Index/Sync任务持久保存不可变请求来源、token能力上限和原始�
 `b680a1ce35a118d1b5c396c046eaa9a26193978f` 的 [CI37176087169](https://github.com/loong10k/diskgraph/actions/runs/37176087169) 已终态 **21/22**。Windows stable/1.97、Linux ARM、macOS Intel 的选定 workspace 阶段均实际通过39项授权/范围边界回归；对应总数为1131/0/16、1131/0/16、1259/0/18、1270/0/18。Windows stable 在测试通过后因三处严格 Clippy 检查失败，不能算完整流水线通过。D37回执已保存终态、四份原生日志及逐项执行清单。
 
 后续仅改 Windows 尾表达式和两处等价整除判断；精确暂存候选的本机fmt、13项范围回归、workspace严格Clippy及all-target构建通过，新源码原生CI仍待。未来Git产品代码和CLI拆分尚未暂存或验收；15.20仍包含collector授权门禁，不关闭任何父项。
+
+
+D38 的同源码 `fb7757c3727ee9d2839b2b1a7a404d2a1f924295` [CI37177944062](https://github.com/loong10k/diskgraph/actions/runs/37177944062) 已终态 **22/22 success**，Windows stable 的严格 Clippy 同样通过。Windows 双 Rust、Linux ARM、macOS Intel 四份原始 workspace 日志各再次确认39项授权/范围边界回归实际通过；D37失败记录仍保留，D38终态、原生日志及源码摘要已追加到同一回执。此验收完成授权基础与等价 Clippy 纠正，不验收工作区中尚未完成的 Git collector 产品闭环，也不关闭15.20或全平台父项。
+
+
+## 持久 Git 采集与 CLI 文件组织（D39）
+
+CLI/MCP 显式 Git 入口持久保存原请求授权与固定索引目标，在预算内捕获私有输入，并在同一图库事务发布revision、来源选择和唯一任务回执。恢复只核对已提交回执，不重新采样。基线按实际server/scope判断；损坏来源引用明确拒绝。取消标志仅属于本机运行代次。CLI状态data保留真实ID和既有外层字段；MCP状态envelope与data使用同一授权投影。
+
+完整固定候选包含此前未tracked的产品测试：**1378通过/0失败/18 ignored，58个报告suite**。134份独立审查来源摘要均匹配。限定crate的fmt、FFI独立include格式、workspace all-target严格Clippy/build、OpenSpec strict、未修改上游扫描器124/0/2和release CLI/MCP/FFI构建通过。实际release stdio18/18、认证HTTP/SSE13/13、调用UniFFI校验值19/19通过。真实RED与三处测试夹具纠正分别保存在[D39回执](benchmarks/git_evidence_job_acceptance_2026_10_04.json)；[159项本机清单](benchmarks/git_evidence_job_native_cases_2026_10_04.json)记录逐项实际日志，不代表其他平台已验收。
+
+同一release负载脚本前后在20k/200k文件均4/4通过。扫描0.546→0.470秒、4.654→4.699秒；查询p50/p95为8.433/10.243→8.387/9.612毫秒及8.627/9.791→8.829/10.261毫秒。单CLI子进程峰值RSS为45,154,304→45,023,232字节及263,831,552→263,766,016字节；数据库+WAL两档均增加36,864字节。单次顺序配对测的是普通扫描/查询，不证明因果提速、Git吞吐或严格RSS。CLI main为82行，18辅助函数/33命令分支保留原行为；10个旧适配模块仍未纳入新增结构门禁。
+
+D39同源码原生CI尚待完成。本机结果不关闭父项；全平台目标、默认关闭的写工具、provider/宿主/移动端及发布门禁继续开放。

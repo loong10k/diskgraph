@@ -17,8 +17,7 @@ impl Default for GitMetadataBudget {
 }
 
 impl GitMetadataBudget {
-    /// 建立夹具的元数据限额。参数：max_bytes 为两轮累计原始字节，max_entries 为文件及目录项数。返回：预算或不可表示错误。
-    #[cfg(test)]
+    /// 建立服务配置或夹具的元数据限额。参数：max_bytes 为两轮累计原始字节，max_entries 为文件及目录项数。返回：预算或不可表示错误。
     pub(super) fn new(max_bytes: usize, max_entries: usize) -> Result<Self, String> {
         if max_bytes > 64 << 20 || max_entries > 32_768 {
             return Err("unsupported git metadata limits".into());
@@ -41,20 +40,20 @@ impl GitMetadataBudget {
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
         self.check(probe)?;
-        self.remaining_bytes = self
-            .remaining_bytes
-            .checked_sub(bytes)
-            .ok_or("git metadata byte limit exceeded")?;
+        self.remaining_bytes = self.remaining_bytes.checked_sub(bytes).ok_or_else(|| {
+            probe.mark_resource_limit();
+            "git metadata byte limit exceeded"
+        })?;
         Ok(())
     }
 
     /// 对单个元数据文件或目录条目计费。参数：probe 为整次期限。返回：成功或条目超限。
     pub(super) fn charge_entry(&mut self, probe: &mut ProbeBudget) -> Result<(), String> {
         self.check(probe)?;
-        self.remaining_entries = self
-            .remaining_entries
-            .checked_sub(1)
-            .ok_or("git metadata entry limit exceeded")?;
+        self.remaining_entries = self.remaining_entries.checked_sub(1).ok_or_else(|| {
+            probe.mark_resource_limit();
+            "git metadata entry limit exceeded"
+        })?;
         Ok(())
     }
 

@@ -86,7 +86,7 @@ This addition preserves public result fields and the Unix path. The path plan re
 
 ## Git evidence input isolation (EC-04 / D20)
 
-The trusted library sampler uses a private configuration, index, references and flat object view. Its current callers are library/tests, with no production CLI/MCP/FFI sampler integration established. Objects are ordinary no-follow loose files or paired pack/index files copied through the same private allocation owner; source alternates/promisor and unsupported inputs are refused. Ignored accelerators are not supplied to Git. Captured objects and metadata share a cumulative 64 MiB/32k allowance across preparation and terminal verification; the private owner separately checks 128 MiB reported allocation and 64 MiB volume headroom. The unchanged ProbeLimits default is a cooperative 15-second sample with 1 MiB cumulative output.
+The trusted library sampler uses a private configuration, index, references and flat object view. At the D20 baseline its callers were library/tests; the D39 CLI/MCP product entry is described below, while FFI sampler integration remains separate. Objects are ordinary no-follow loose files or paired pack/index files copied through the same private allocation owner; source alternates/promisor and unsupported inputs are refused. Ignored accelerators are not supplied to Git. Captured objects and metadata share a cumulative 64 MiB/32k allowance across preparation and terminal verification; the private owner separately checks 128 MiB reported allocation and 64 MiB volume headroom. The unchanged ProbeLimits default is a cooperative 15-second sample with 1 MiB cumulative output.
 
 ```mermaid
 flowchart TD
@@ -159,7 +159,7 @@ Namespace eligibility does not prove historical file identity continuity or cont
 
 ## Scoped Git capture and TUI admission — D36
 
-The trusted `sample_git_scoped` library entry takes a registered root and an explicit lossless repository locator. A held root and component-relative native opens constrain every worktree and Git dependency before a subprocess starts. An independent private capture supplies ordinary files, metadata, attributes and object dependencies; supported commands never reopen the live worktree. Capture and revalidation share input, entry, cancellation and time budgets. Final checks reject source or root-route replacement. Nested repositories and scope-external dependencies are explicitly unsupported. The caller still must authorize content access: this library entry does not implement the pending durable collector job or CLI/MCP collection command.
+The trusted `sample_git_scoped` library entry takes a registered root and an explicit lossless repository locator. A held root and component-relative native opens constrain every worktree and Git dependency before a subprocess starts. An independent private capture supplies ordinary files, metadata, attributes and object dependencies; supported commands never reopen the live worktree. Capture and revalidation share input, entry, cancellation and time budgets. Final checks reject source or root-route replacement. Nested repositories and scope-external dependencies are explicitly unsupported. The caller still must authorize content access: the separate D39 product entry adds durable jobs and CLI/MCP collection, described below.
 
 ```mermaid
 flowchart LR
@@ -188,3 +188,20 @@ flowchart LR
 Candidate preparation also admits the snapshot header before decoding it, using the same raw-byte ledger as the selected nodes and required evidence. An expired request retains the typed empty `Deadline` result and explicitly reports `coverage_observed: false`; this cannot be interpreted as an observed coverage gap. Admitted headers report their actual coverage. A raw-byte refusal, invalid header or missing index remains an error. CLI, MCP and FFI preserve existing wire fields and add this diagnostic; Rust callers constructing `CandidateSelection` literals must supply the new field.
 
 The TUI entry file now contains module declarations and exports, with its real objects and rendering logic in separate files. The synchronous authorizer remains cooperative; no hard interruption of arbitrary callbacks, SQLite C allocation limit or strict RSS bound is claimed. Explicit navigation offsets still cost O(offset + page). D36 source and actual platform acceptance are tracked in the [Git capture](benchmarks/scoped_git_capture_acceptance_2026_10_04.json) and [TUI budget](benchmarks/tui_budget_acceptance_2026_10_04.json) receipts.
+
+
+## Durable Git collection — D39
+
+CLI C03 and MCP share immutable job input and Engine authority. Control schema8 stores original input and bounded diagnostics; graph schema13 atomically publishes a collector revision and unique receipt. Actual server/scope determines the base, independently of another owner’s legacy root pointer. Missing selected sources fail closed. Recovery reconciles an existing receipt without resampling. Queued state lives in SQLite; cancellation flags belong only to local running generations, released by Arc identity. CLI status data uses the common authorized projection while retaining its existing outer scope/revision fields. MCP status binds envelope IDs to that projection and refuses inconsistent scope hints. The observation fingerprint covers safe summary and fixed request, not every source byte.
+
+```mermaid
+flowchart TD
+    A["CLI sync / MCP diskgraph_sync<br/>collector=git + revision/node"] --> B["Engine<br/>token ceiling ∩ live grants + original expiry"]
+    B --> C[("Control: immutable input<br/>claim / lease / fence")]
+    C --> D["Held scope root + indexed identity<br/>bounded private capture / fixed Git"]
+    D --> E["Graph IMMEDIATE<br/>actual-owner base + complete sources + unique receipt"]
+    E --> F["Control terminal reconciliation<br/>committed receipt; no resampling"]
+    F --> G["Common authorized status<br/>actual scope + receipt revision"]
+```
+
+Final local and same-source native acceptance are separate; full-platform tasks remain open.

@@ -29,6 +29,7 @@ impl GitPrivateCapacity {
         let lease = GitDirectoryLease::open(root, probe)?;
         let allocation = GitPrivateAllocation::from_file(lease.leaf_file())?;
         if !allocation.is_directory() || allocation.bytes() > quota {
+            probe.mark_resource_limit();
             return Err("private Git allocation quota exceeded by root directory".into());
         }
         let used = allocation.bytes();
@@ -55,13 +56,15 @@ impl GitPrivateCapacity {
         probe.check().map_err(|error| error.to_string())?;
         let space = diskgraph_disktree_core::space::space_info(path)
             .map_err(|error| format!("private Git native space query: {error}"))?;
-        let needed = required
-            .checked_add(min_free)
-            .ok_or("private Git space requirement overflow")?;
+        let needed = required.checked_add(min_free).ok_or_else(|| {
+            probe.mark_resource_limit();
+            "private Git space requirement overflow"
+        })?;
         if space.total == 0 || space.available > space.free || space.free > space.total {
             return Err("unsupported private Git native space accounting".into());
         }
         if space.available < needed {
+            probe.mark_resource_limit();
             return Err(format!(
                 "private Git available space below required headroom: available={} required={needed}",
                 space.available
@@ -157,6 +160,7 @@ impl GitPrivateCapacity {
     ) -> Result<(), String> {
         self.validate_path(path)?;
         if !self.allocations.contains_key(path) && self.allocations.len() >= 32_768 {
+            probe.mark_resource_limit();
             return Err("private Git allocation entry limit exceeded".into());
         }
         let old = self
@@ -167,8 +171,12 @@ impl GitPrivateCapacity {
             .used
             .checked_sub(old)
             .and_then(|used| used.checked_add(logical_bytes))
-            .ok_or("private Git allocation accounting overflow")?;
+            .ok_or_else(|| {
+                probe.mark_resource_limit();
+                "private Git allocation accounting overflow"
+            })?;
         if conservative_admission > self.quota {
+            probe.mark_resource_limit();
             return Err(
                 "private Git allocation quota exceeded by conservative apparent-length admission"
                     .into(),
@@ -188,6 +196,7 @@ impl GitPrivateCapacity {
         probe.check().map_err(|error| error.to_string())?;
         self.validate_path(path)?;
         if !self.allocations.contains_key(path) && self.allocations.len() >= 32_768 {
+            probe.mark_resource_limit();
             return Err("private Git allocation entry limit exceeded".into());
         }
         let current = GitPrivateAllocation::from_file(file)?;
@@ -211,10 +220,14 @@ impl GitPrivateCapacity {
             .used
             .checked_sub(old)
             .and_then(|used| used.checked_add(current.bytes()))
-            .ok_or("private Git allocation accounting overflow")?;
+            .ok_or_else(|| {
+                probe.mark_resource_limit();
+                "private Git allocation accounting overflow"
+            })?;
         self.used = used;
         self.allocations.insert(path.to_owned(), current);
         if used > self.quota {
+            probe.mark_resource_limit();
             return Err(format!(
                 "private Git allocation quota exceeded: reported={used} quota={}",
                 self.quota
@@ -246,7 +259,7 @@ impl GitPrivateCapacity {
             if !current.is_directory() || !expected.same_identity(&current) {
                 return Err("private Git registered directory identity changed".into());
             }
-            self.add_verified_allocation(&mut reported, current.bytes())?;
+            self.add_verified_allocation(&mut reported, current.bytes(), probe)?;
             let version = lease.version()?;
             let names = lease.read_names(&path, &mut budget, probe)?;
             visited.insert(path.clone());
@@ -269,7 +282,7 @@ impl GitPrivateCapacity {
                     if !expected.same_version(&current) {
                         return Err("private Git registered file version changed".into());
                     }
-                    self.add_verified_allocation(&mut reported, current.bytes())?;
+                    self.add_verified_allocation(&mut reported, current.bytes(), probe)?;
                     visited.insert(child);
                 }
             }
@@ -283,11 +296,18 @@ impl GitPrivateCapacity {
         self.finish_operation(probe)
     }
 
-    fn add_verified_allocation(&self, total: &mut u64, bytes: u64) -> Result<(), String> {
-        *total = total
-            .checked_add(bytes)
-            .ok_or("private Git allocation accounting overflow")?;
+    fn add_verified_allocation(
+        &self,
+        total: &mut u64,
+        bytes: u64,
+        probe: &mut ProbeBudget,
+    ) -> Result<(), String> {
+        *total = total.checked_add(bytes).ok_or_else(|| {
+            probe.mark_resource_limit();
+            "private Git allocation accounting overflow"
+        })?;
         if *total > self.quota {
+            probe.mark_resource_limit();
             return Err(format!(
                 "private Git allocation quota exceeded: reported={total} quota={}",
                 self.quota

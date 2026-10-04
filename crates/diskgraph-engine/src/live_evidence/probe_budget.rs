@@ -21,6 +21,11 @@ impl ProbeBudget {
         let deadline = Instant::now()
             .checked_add(limits.timeout)
             .ok_or(ProbeFailure::InvalidLimits)?;
+        Self::until(limits, deadline)
+    }
+
+    /// 使用原任务绝对期限。参数：limits 为累计输出/取消，deadline 为认领时起算的期限；返回：唯一预算。
+    pub(super) fn until(limits: &ProbeLimits, deadline: Instant) -> Result<Self, ProbeFailure> {
         if limits.max_output_bytes > 64 << 20 {
             return Err(ProbeFailure::InvalidLimits);
         }
@@ -30,6 +35,19 @@ impl ProbeBudget {
             cancel: Arc::clone(&limits.cancel),
             failure: None,
         })
+    }
+
+    /// 标记真实资源门禁，旧可信字符串诊断仍由原调用点返回。参数：无；返回：无。
+    pub(super) fn mark_resource_limit(&mut self) {
+        self.fail(ProbeFailure::ResourceLimit);
+    }
+    /// 标记索引身份变化。参数：无；返回：无，不依据任意错误字符串猜测。
+    pub(super) fn mark_identity_changed(&mut self) {
+        self.fail(ProbeFailure::IdentityChanged);
+    }
+    /// 读取首次类型化失败供产品边界收敛。参数：无；返回：固定失败类型的借用。
+    pub(super) fn failure(&self) -> Option<&ProbeFailure> {
+        self.failure.as_ref()
     }
 
     /// 每段工作前后复核整次采样的期限与取消，锁存首次失败。

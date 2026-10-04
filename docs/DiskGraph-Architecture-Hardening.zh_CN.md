@@ -86,7 +86,7 @@ flowchart TD
 
 ## Git 实时证据输入隔离（EC-04 / D20）
 
-可信库采样使用私有配置、index、引用及扁平对象视图。当前调用来自库/测试，尚未建立生产CLI/MCP/FFI采样接线。普通loose对象和配对pack/index经no-follow捕获及同一私有分配owner复制；源alternates/promisor和不支持输入明确拒绝，忽略的加速文件不交Git。来源对象和元数据在准备与终检共享累计64 MiB/32k额度，私有owner另核128 MiB对象报告分配与64 MiB卷余量；ProbeLimits仍默认整次协作式15秒和累计输出1 MiB。
+可信库采样使用私有配置、index、引用及扁平对象视图。D20时点调用来自库/测试；下文D39记录CLI/MCP产品接线，FFI采样集成仍是独立事项。普通loose对象和配对pack/index经no-follow捕获及同一私有分配owner复制；源alternates/promisor和不支持输入明确拒绝，忽略的加速文件不交Git。来源对象和元数据在准备与终检共享累计64 MiB/32k额度，私有owner另核128 MiB对象报告分配与64 MiB卷余量；ProbeLimits仍默认整次协作式15秒和累计输出1 MiB。
 
 ```mermaid
 flowchart TD
@@ -156,7 +156,7 @@ flowchart LR
 
 ## 受约束 Git 捕获与 TUI 准入 — D36
 
-可信库入口 `sample_git_scoped` 接受已注册根和明确的无损仓库定位。保留根句柄、原生相对组件打开在启动子进程前约束工作树及 Git 依赖；独立私有捕获提供普通文件、元数据、属性和对象依赖，支持的命令不再打开实时工作树。捕获和复验共用输入、条目、取消及时间预算，终检拒绝源变化和根路径链替换。嵌套仓库、scope 外依赖明确不支持。调用者仍须授权正文访问：本库入口尚未完成持久 collector job 或 CLI/MCP 采集命令。
+可信库入口 `sample_git_scoped` 接受已注册根和明确的无损仓库定位。保留根句柄、原生相对组件打开在启动子进程前约束工作树及 Git 依赖；独立私有捕获提供普通文件、元数据、属性和对象依赖，支持的命令不再打开实时工作树。捕获和复验共用输入、条目、取消及时间预算，终检拒绝源变化和根路径链替换。嵌套仓库、scope 外依赖明确不支持。调用者仍须授权正文访问：独立 D39 产品入口接入持久 collector job 与 CLI/MCP 命令，见下文。
 
 ```mermaid
 flowchart LR
@@ -185,3 +185,20 @@ flowchart LR
 候选准备也在解码前准入快照覆盖头，与被选节点和必需证据共用原始字节账本。原请求已到期时保留类型化空 `Deadline` 结果，并明确返回 `coverage_observed: false`，不能解释为已经观测到覆盖缺口；成功准入的头保留真实覆盖状态。原始字节不足、坏头或缺索引仍返回错误。CLI、MCP 和 FFI 保留旧 wire 字段并新增该诊断；直接构造 `CandidateSelection` 字面量的 Rust 调用者需要补充新字段。
 
 TUI 入口现只包含模块声明和导出，真实对象与绘制逻辑各自分文件。同步 authorizer 仍采用合作检查，不承诺任意回调硬抢占、SQLite C 分配上限或严格 RSS 上限；显式导航 offset 仍需 O(offset + page) 工作。D36 源码及实际平台验收分别记录在 [Git 捕获回执](benchmarks/scoped_git_capture_acceptance_2026_10_04.json)和 [TUI 预算回执](benchmarks/tui_budget_acceptance_2026_10_04.json)。
+
+
+## 持久 Git 采集 — D39
+
+CLI C03 与 MCP 共用不可变输入和 Engine 授权。控制库 schema8 保存原始输入和有限诊断；图库 schema13 原子发布 collector revision 与唯一回执。基线按实际 server/scope 判断，不采用另一 owner 的 legacy 根指针；丢失选中来源时拒绝。恢复只核对已有回执，不重新采样。排队状态保存在 SQLite，取消标志只属于本机运行代次并按 Arc 身份释放。CLI 状态 data 使用共同授权投影，保留既有外层 scope/revision 字段；MCP 状态内外身份来自同一投影，拒绝不一致 scope 提示。观测指纹覆盖安全摘要和固定请求，不表示全部来源字节的内容哈希。
+
+```mermaid
+flowchart TD
+    A["CLI sync / MCP diskgraph_sync<br/>collector=git + revision/node"] --> B["Engine<br/>token 能力 ∩ 实时授权 + 原到期时间"]
+    B --> C[("控制库：不可变输入<br/>认领 / 租约 / fencing")]
+    C --> D["保留 scope 根句柄 + 索引身份<br/>有界私有捕获 / 固定 Git 命令"]
+    D --> E["图库 IMMEDIATE 事务<br/>实际归属基线 + 完整来源 + 唯一回执"]
+    E --> F["控制库终态协调<br/>核对已提交回执；不重新采样"]
+    F --> G["统一授权状态<br/>实际 scope + 回执 revision"]
+```
+
+本机最终验证与同源码原生验收分别记录，全平台任务保持开放。

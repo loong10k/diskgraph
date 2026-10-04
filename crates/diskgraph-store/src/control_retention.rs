@@ -15,7 +15,7 @@ impl ControlStore {
         let tx = self
             .connection
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
-        let referenced: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM plans WHERE scope_id = ?1 UNION ALL SELECT 1 FROM operations WHERE scope_id = ?1 UNION ALL SELECT 1 FROM recovery_entries WHERE scope_id = ?1)", [scope_id.as_str()], |row| row.get(0))?;
+        let referenced: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM plans WHERE scope_id = ?1 UNION ALL SELECT 1 FROM operations WHERE scope_id = ?1 UNION ALL SELECT 1 FROM recovery_entries WHERE scope_id = ?1 UNION ALL SELECT 1 FROM jobs j JOIN git_evidence_job_inputs i ON i.job_id=j.job_id WHERE j.scope_id=?1 AND j.state IN ('queued','running'))", [scope_id.as_str()], |row| row.get(0))?;
         let result = work(!referenced)?;
         tx.commit()?;
         Ok(result)

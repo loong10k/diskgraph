@@ -32,6 +32,11 @@ mod git_executable_native_tests;
 #[cfg(test)]
 mod git_execution_policy_tests;
 mod git_index_layout;
+mod git_indexed_directory;
+#[cfg(test)]
+mod git_indexed_identity_tests;
+#[cfg(test)]
+mod git_indexed_windows_identity_tests;
 #[cfg(test)]
 mod git_input_read_tests;
 #[cfg(test)]
@@ -63,6 +68,9 @@ mod git_private_capacity_tests;
 mod git_private_directory;
 #[cfg(test)]
 mod git_private_integrity_tests;
+mod git_product_error;
+#[cfg(test)]
+mod git_product_tests;
 mod git_references;
 mod git_reflog_file;
 #[cfg(test)]
@@ -148,3 +156,5 @@ pub use usage_sample::UsageSample;
 pub use watch_poll::poll_changes;
 pub use watch_report::WatchReport;
 pub use watch_snapshot::WatchSnapshot;
+
+pub(crate) use git_indexed_directory::GitIndexedDirectory;

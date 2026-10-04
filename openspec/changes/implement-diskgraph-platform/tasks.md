@@ -318,3 +318,8 @@ D37持久请求授权进展：三组真实RED→GREEN（socket原始expiry、run
 
 
 D37原生终态：b680a1ce的CI37176087169为21/22，四个选定原生workspace阶段均实际39/39新增用例通过；Windows stable仅三处Clippy失败，不能视为全绿。D38等价语法纠正的精确暂存候选fmt/13范围回归/严格Clippy/build通过，新SHA原生CI待运行；未验收Git collector与15.20/8.7/15.13及其余30项保持开放。原始日志、逐项记录和本机hotfix证据已入D37回执。
+
+  - D38同源码fb7757c的CI37177944062终态22/22，Windows严格Clippy通过；Windows双Rust、LinuxARM、macIntel各原始workspace39/39实际ok，回执保留D37失败并追加D38原生日志及摘要。只验收授权基础与等价Windows表达式纠正，collector产品闭环及15.20、全平台父项继续开放。
+
+
+D39本机验证：持久Git CLI/MCP接线、真实归属基线CAS、来源完整性、唯一图库回执恢复、原请求授权与运行代次取消已实现。完整固定候选1378/0/18（58报告suite）、134独立审查hash、fmt/严格Clippy/build/OpenSpec/vendor/release通过；实际stdio18/18、HTTP13/13、UniFFI19/19、20k/200k配对各4/4。原始RED和三处夹具纠正分开保留，见docs/benchmarks/git_evidence_job_acceptance_2026_10_04.json。本增量同源码原生CI待运行，不据本机结果关闭8.7/15.13/15.20或其余父项。

@@ -23,11 +23,29 @@
 - **THEN** 验证 revision 的实际本机 server/scope ownership 和同 snapshot 节点的无损原生目录定位后返回持久 job_id；队列保存固定目标与服务端验证的请求权限上下文，不把 Git 任务合并为旧扫描任务。断开连接及重开数据库仍可查询同一任务、主体与范围，入队本身不发布新的 revision。
 - **AND** 只有运行、来源复核及发布末检成功才发布 Git CollectorRun 和最小化证据；新旧 revision 共享文件 snapshot，旧解释保持不变。dirty、stash 与本地已知跟踪引用差分可由真实 Git 正控核对，无 upstream 仍为 unknown，不转换为已验证远端或可删除结论。仅参数发现或成功入队不算完成该场景的执行与发布验收。
 
+#### Scenario: Git target header shares raw admission
+- **WHEN** 合法历史 revision 头部含较大的 snapshot 或 ownership 字段，授权请求读取明确 Git 目录目标
+- **THEN** 头部、节点、无损 locator 与原生观测共用同一 QueryReadBudget 和原期限；SQL 原始字段须在拥有字符串或解码前准入，超限明确 BudgetExceeded，不能先通过无预算 revision 查询复制头部再建立账本。旧可信 Store 发布与读取签名保持兼容。
+
+#### Scenario: Cancellation handles belong only to local running generations
+- **WHEN** 一台 Engine 入队后另一台 Engine 完成相同持久 Git 任务，包括 producer 在提交后尚未完成本地返回的窗口
+- **THEN** producer 不登记排队取消句柄；持久 DB 是跨进程取消与状态的事实源，只有成功认领并在本机执行的代次持有局部 Arc。终结与恢复按同一 Arc 身份释放，不能删除活 owner 或后来代次；认领到句柄登记之间的持久取消仍由首检、续租检查及发布 fence 拒绝，不得因没有本地 flag 发布成功。
+
 #### Scenario: Git request permissions cannot be supplied by the client
 - **WHEN** Git 请求缺少 ContentRead 的真实 token ceiling 或实时数据库 grant，或请求 scope 与 revision 的实际 ownership 不匹配
 - **THEN** 源输入访问及入队前返回稳定 permission_denied，不产生额外任务、采集批次或 revision；数据库允许不能补足请求上限，请求声明也不能补足实时授权。
 - **AND** principal、issuer、ceiling 与 expiry 来自可信适配器已经验证的上下文，不从 collector 参数读取，不持久化 bearer；后续执行、取消、撤权、到期及恢复遵循 SC-06 和既有任务 fencing 契约，不能用本机 runner 身份补足。
 - **AND** 共享任务调度遵循 RT-02 的候选页门禁：每轮最多 64 项逐项检查和认领，不能为新增请求身份校验引入全队列权限 JSON 解码或单事务扫描；这不替代 Git 捕获本身的输入、输出及期限预算。
+
+#### Scenario: Durable Git failures and observation fingerprints remain minimal
+- **WHEN** Git 任务在入队后认领或执行失败，或者完整观察成功生成持久摘要
+- **THEN** 失败终态与固定 typed phase/code 在同一控制事务及 owner/fence 条件下保存，重连可按 OperationView 查看，不记录原始错误、路径、配置、stdout/stderr；真实取消为 Cancelled，权限/到期失败不得伪装成取消。无法精确区分的复合 fence 拒绝保留 Conflict，不按错误字符串猜测。
+- **AND** 成功证据的 input_fingerprint 由规范化安全观察摘要与固定请求摘要共同生成，并保留真实观察时间及服务限定 TTL；该指纹只标识方法/结果观察，不宣称完整工作树内容摘要或永续 freshness，TTL 到期后不能提升为已确认当前状态。
+
+#### Scenario: Git publication receipt reconciles committed work exactly once
+- **WHEN** Git 批次、同 snapshot 新 revision、选中 run 及唯一 job/input 摘要回执已经在图库同事务提交，但控制库任务尚未完成便中断
+- **THEN** 重领前先按实际 job 读取并验证不可变发布回执，只有 Queued 或租约已过期 Running 可条件结算已提交事实；不抢占存活 owner，不因 token 随后到期或权限撤销否认已经提交的事实，不再打开源、采样或追加第二个 revision/run。
+- **AND** 回执缺失时仍执行完整原请求授权、取消与 fencing 检查；恢复不把失败终态提升为成功，不声明两个 SQLite 数据库跨库原子提交。查询返回回执记录的真实 revision/run，不能按恢复后的 fence 拼接虚构 revision。
 
 ### Requirement: EC-03 Domain cleanup uses domain semantics
 Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计划；显示精确项目/生态对象、范围及不可恢复性，不通过直接删除数据库、Docker VM 磁盘或卷目录替代专业接口。
@@ -47,6 +65,12 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 持久 Git 任务实际执行固定 base revision/node 的采样
 - **THEN** 从已注册的原生范围根及该节点的无损定位建立 scoped capture，禁止向父目录另找仓库或退回可信旧实时工作树模式；客户端不能指定程序、argv、路径、Shell 或网络开关。准备、捕获、全部固定子命令、终检及清理共用同一任务期限、取消状态、累计输入/输出及私有分配预算。
 - **AND** 在已经到达捕获、执行及发布阶段的真实同步点撤权、取消、到期或失去 lease/fence 后，拒绝完整成功及原子发布；不能用前置参数失败代替这些末段回归。来源、版本、覆盖和有界诊断可查询，正文、patch、stash 消息、原始命令输出与配置秘密不得泄入元数据结果。库层捕获通过不代替持久任务与发布验收。
+
+#### Scenario: Git source identity remains bound to the indexed directory
+- **WHEN** 固定 revision 中的目录定位在扫描后被另一个稳定的真实 Git 仓库替换
+- **THEN** 产品捕获比较 held 目录与该 revision 持久保存的原生身份；Unix 比较 dev/inode，Windows 比较完整 volume/128bit FileId 与 creation time，不使用截断 ID、路径显示文本或 mtime 推断身份。替换目录不能产生原节点的证据。
+- **AND** Windows 目录的完整捕获身份与普通文件 EOF/树尺寸对齐分开判断；Unverified 尺寸不单独否定完整 volume/128bit FileId/creation 身份。缺少完整捕获、非法观测、待删除、重解析及物化风险仍明确拒绝，并在真正打开 held 源目录后复验身份。
+- **AND** 同一目录内正常正文或 Git 状态变化仍可采样；缺失、外国平台或无法对齐的身份明确 unsupported 并要求重新索引，不退回无索引身份的可信库入口。输入/输出/分配超限、取消、期限及 owner 丢失保留各自真实类别，不能全部折叠成 unsupported 或空成功。
 
 #### Scenario: Argument injection
 - **WHEN** 文件名含选项前缀或 shell 元字符

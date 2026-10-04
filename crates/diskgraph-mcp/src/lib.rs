@@ -20,10 +20,12 @@ mod client_address;
 mod connection_rejection;
 pub mod doctor;
 mod error_reply;
+mod git_job_status;
 #[cfg(test)]
 mod history_budget_tests;
 pub mod http;
 pub mod install;
+mod job_entry;
 pub mod legacy;
 mod legacy_delivery_error;
 mod legacy_delivery_registry;
@@ -332,6 +334,12 @@ impl McpService {
         arguments: &Value,
         deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
+        // Git C04 使用实际任务授权和回执身份，不能先用默认 scope 的通用目录权限拒绝。
+        if catalog_id == "C04"
+            && let Some(envelope) = self.git_status_envelope(arguments, deadline)?
+        {
+            return Ok(envelope);
+        }
         // Relation queries carry an explicit revision. Its persisted owner,
         // rather than the caller's scope hint or default scope, is the only
         // authority and the identity reported in the response envelope.
@@ -481,30 +489,6 @@ impl McpService {
         }
     }
 
-    fn index_tool(
-        &self,
-        scope: &Option<ScopeId>,
-        _arguments: &Value,
-        sync: bool,
-    ) -> Result<Value, EngineError> {
-        let scope_id = self.require_scope(scope)?;
-        let authority = self.context.job_authority()?;
-        let job = if sync {
-            self.engine
-                .sync_scope_with_authority(&scope_id, &authority, &self.authorizer()?)?
-        } else {
-            self.engine
-                .index_scope_with_authority(&scope_id, &authority, &self.authorizer()?)?
-        };
-        // The job ID is the durable handle a client polls after disconnect
-        // (MCP-05): a cancelled connection never loses the business state.
-        Ok(json!({
-            "job_id": job.job_id,
-            "state": "queued",
-            "poll_with": "diskgraph_status",
-        }))
-    }
-
     fn status_tool(&self, arguments: &Value) -> Result<Value, EngineError> {
         let Some(job_id) = arguments.get("job_id").and_then(Value::as_str) else {
             // With no job ID the status is service-level.
@@ -522,11 +506,12 @@ impl McpService {
         if self.engine.scope(&record.scope_id)?.revoked {
             return Err(EngineError::Business(BusinessError::PermissionDenied));
         }
-        Ok(json!({
+        let result = json!({
             "job_id": record.job_id,
             "scope_id": record.scope_id.as_str(),
             "state": format!("{:?}", record.state).to_ascii_lowercase(),
-        }))
+        });
+        Ok(result)
     }
 
     fn snapshots_tool(

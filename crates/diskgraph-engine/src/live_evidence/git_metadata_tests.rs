@@ -51,15 +51,33 @@ fn native_file_capture_and_verify_share_the_byte_budget() {
     let temp = tempfile::tempdir().unwrap();
     let path = std::fs::canonicalize(temp.path()).unwrap().join("index");
     std::fs::write(&path, b"four").unwrap();
-    let mut probe = probe();
+    // 原生四字节文件的 capture/verify 累计需要八字节；七字节负控不能刷新失败会话。
+    let mut failed_probe = probe();
     let mut budget = GitMetadataBudget::new(7, 2).unwrap();
-    let captured = GitMetadataFile::capture(&path, &mut budget, &mut probe).unwrap();
+    let captured = GitMetadataFile::capture(&path, &mut budget, &mut failed_probe).unwrap();
     assert_eq!(captured.bytes(), Some(b"four".as_slice()));
     assert!(captured.modified().is_some());
-    assert!(captured.verify(&mut budget, &mut probe).is_err());
+    assert_eq!(budget.remaining_bytes(), 3);
+    assert_eq!(
+        captured.verify(&mut budget, &mut failed_probe).unwrap_err(),
+        "git metadata byte limit exceeded"
+    );
+    assert!(matches!(
+        failed_probe.failure(),
+        Some(super::probe_failure::ProbeFailure::ResourceLimit)
+    ));
+    let mut replacement_budget = GitMetadataBudget::new(8, 2).unwrap();
+    assert!(GitMetadataFile::capture(&path, &mut replacement_budget, &mut failed_probe).is_err());
+    assert_eq!(replacement_budget.remaining_bytes(), 8);
+    assert_eq!(replacement_budget.remaining_entries(), 2);
+
+    // 独立正控创建新采样会话；两轮仍共用原始八字节/两条目账本，不在复核时补额。
+    let mut probe = probe();
     let mut budget = GitMetadataBudget::new(8, 2).unwrap();
     let captured = GitMetadataFile::capture(&path, &mut budget, &mut probe).unwrap();
     captured.verify(&mut budget, &mut probe).unwrap();
+    assert_eq!(budget.remaining_bytes(), 0);
+    assert_eq!(budget.remaining_entries(), 0);
 }
 
 #[test]

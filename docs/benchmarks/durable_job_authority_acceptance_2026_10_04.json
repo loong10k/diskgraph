@@ -1,6 +1,6 @@
 {
   "date": "2026-10-04",
-  "status": "native_behavior_verified_windows_stable_clippy_failed_hotfix_local_verified",
+  "status": "native_authority_and_windows_clippy_hotfix_verified_collector_pending",
   "change": "implement-diskgraph-platform",
   "tasks": [
     "15.20",
@@ -208,7 +208,7 @@
     "result": "21/22; all test phases passed; Windows stable strict Clippy failed three equivalent-expression lints",
     "case_inventory": "docs/benchmarks/durable_job_authority_native_cases_2026_10_04.json",
     "original_inventory_sha256": "6db5e7da0941545f768cf4c9d39bcb44e23e5e38e0d2c97e1a4685b6b98986d3",
-    "case_inventory_sha256": "cd69a5c534d4122b12a59bad7da4e66638289becb441bb3bd9d4a9b982d8f8b7",
+    "case_inventory_sha256": "783a3e74eb879c61875df341b1a2c025f3a1124526a14b35ae4b258a96c7e04e",
     "observations": {
       "windowsstable": {
         "required_passed": 39,
@@ -398,6 +398,30 @@
     "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-clippy-build.log.gz": {
       "raw_sha256": "4377f4af2e98ad76f80962a1589339ca6a9a8e839b233b00b99deb9fe61477ee",
       "gzip_sha256": "57eaa14f80c998b2f10228c886a629e0daf77cba23b901df8b438a57531661d6"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-ci-terminal.json.gz": {
+      "raw_sha256": "ea302f138060af352f73bf21fab7e32f0e02937aef66588ffd619678d75c286b",
+      "gzip_sha256": "b481f5dd167a8a9c02f8b81110c2e4ef2e5ffb3fa82713543986bc155378f23b"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-native-case-observation.json.gz": {
+      "raw_sha256": "dc34b887bbfca8c11a0bbe5bf87dd7790dc9de3931deb6d9e63b3d68727cd649",
+      "gzip_sha256": "d13cee0568d4cb9f1464cb9b15a30512538da150255296773d8b4293f369cca4"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-ci-windowsstable.log.gz": {
+      "raw_sha256": "9ad6aefef5622c40f503a10afafb7897e5b458c897301ce5cdc88ccd737c9962",
+      "gzip_sha256": "f82fb71feaca05a80e8bc931c8da64b3456c57081ebdc1441953deeb79de2d43"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-ci-windows197.log.gz": {
+      "raw_sha256": "e4d18b74a0c3acb873cb50c3c3f291c2101e03410d45ad0717e12af46da32f85",
+      "gzip_sha256": "f1a40879cfabb663d6b27a30d95f2f18376fab1dad7930a717e804048b37cbc1"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-ci-linuxarm.log.gz": {
+      "raw_sha256": "03cafe09ec1c82ee3971cd805457a3debbd1dcd26cfe099e3955ccbda853231c",
+      "gzip_sha256": "dba598f0492aba4bee6380d59c09a7df25b4d8054974998350fbea65aba5ef76"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d38-ci-macintel.log.gz": {
+      "raw_sha256": "a28914883696c56baa30d59e1800aeffd0b4be71e7a7331d61186a740e3fc8bd",
+      "gzip_sha256": "72a0ca4e869430b7d74bffc56a18b67b1e231bc120e2e8b9a840051d4f5dee71"
     }
   },
   "windows_clippy_hotfix": {
@@ -414,7 +438,17 @@
       "build": 0
     },
     "local_scope_cases_passed": 13,
-    "same_source_native_ci": "pending",
+    "same_source_native_ci": {
+      "source_commit": "fb7757c3727ee9d2839b2b1a7a404d2a1f924295",
+      "run_id": 37177944062,
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37177944062",
+      "status": "completed",
+      "result": "22/22 success",
+      "source_hashes_verified": 2,
+      "selected_cases_per_native_job": 39,
+      "selected_native_jobs": 4,
+      "native_observations": "docs/benchmarks/durable_job_authority_native_cases_2026_10_04.json#windows_clippy_hotfix_native"
+    },
     "future_git_worktree_not_staged": true
   }
 }

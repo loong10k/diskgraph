@@ -10,6 +10,10 @@ pub(super) enum ProbeFailure {
     Cancelled,
     #[error("probe cumulative output byte limit exceeded")]
     OutputLimit,
+    #[error("probe cumulative input or private resource limit exceeded")]
+    ResourceLimit,
+    #[error("indexed Git directory identity changed")]
+    IdentityChanged,
     #[error("invalid probe limits")]
     InvalidLimits,
     #[error("probe terminated without a supported normal exit status: {0:?}")]

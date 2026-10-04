@@ -70,6 +70,29 @@ impl GitDirectoryVersion {
         }
     }
 
+    /// 对照已索引目录身份。参数：expected 为持久 revision 派生身份；返回：同一原生对象时 true。
+    pub(super) fn matches_indexed(
+        &self,
+        expected: &super::git_indexed_directory::GitIndexedDirectory,
+    ) -> bool {
+        #[cfg(unix)]
+        {
+            (self.values[0], self.values[1]) == expected.unix
+        }
+        #[cfg(windows)]
+        {
+            let observation =
+                self.state
+                    .observation(0, 0, diskgraph_core::WindowsTreeAlignment::Matched);
+            (self.identity.0, self.identity.1, observation.creation_time) == expected.windows
+        }
+        #[cfg(not(any(unix, windows)))]
+        {
+            let _ = expected;
+            false
+        }
+    }
+
     /// 比较两次解析所得的完整祖先身份。参数：current 为新捕获的目录版本。
     /// 返回：同一 Unix dev/ino 或 Windows volume/128bit ID 时 true，忽略祖先无关版本变化。
     pub(super) fn same_identity(&self, current: &Self) -> bool {

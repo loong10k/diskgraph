@@ -29,6 +29,37 @@ mod directory_queries;
 mod evidence_queries;
 mod execution_codec;
 mod full_node_row;
+mod git_collector_base;
+mod git_collector_batch_validation;
+mod git_collector_publication;
+#[cfg(test)]
+mod git_collector_publication_tests;
+mod git_collector_selection;
+#[cfg(test)]
+mod git_job_authorization_tests;
+#[cfg(test)]
+mod git_job_contract_tests;
+mod git_job_failure_store;
+#[cfg(test)]
+mod git_job_failure_tests;
+mod git_job_input_codec;
+#[cfg(test)]
+mod git_job_input_tests;
+mod git_job_migration;
+#[cfg(test)]
+mod git_job_migration_tests;
+mod git_job_recovery;
+mod git_job_store;
+#[cfg(test)]
+mod git_job_test_fixtures;
+#[cfg(test)]
+mod git_legacy_terminal_tests;
+#[cfg(test)]
+mod git_owned_base_tests;
+#[cfg(test)]
+mod git_raw_allocation_tests;
+#[cfg(test)]
+mod git_selection_integrity_tests;
 mod graph_migrations;
 mod graph_validation;
 mod history_metadata_query;
@@ -50,6 +81,8 @@ mod job_publication_check_tests;
 mod job_queue_query;
 #[cfg(test)]
 mod job_queue_query_tests;
+mod job_receipt_migration;
+mod job_receipt_query;
 mod job_record;
 mod job_state;
 mod job_store;
@@ -98,6 +131,9 @@ mod revision_record;
 mod revision_relation_page_queries;
 mod revision_relation_queries;
 mod revision_source_validation;
+mod revision_target_query;
+#[cfg(test)]
+mod revision_target_query_tests;
 mod revision_writer;
 mod scan_staging_store;
 mod scope_record;

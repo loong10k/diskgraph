@@ -513,6 +513,7 @@ dependencies = [
  "ratatui",
  "rusqlite",
  "serde_json",
+ "syn 2.0.119",
  "tempfile",
 ]
 
@@ -523,6 +524,7 @@ dependencies = [
  "base64",
  "serde",
  "serde_json",
+ "sha2",
  "syn 2.0.119",
  "tempfile",
 ]

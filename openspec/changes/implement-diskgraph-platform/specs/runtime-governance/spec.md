@@ -44,6 +44,25 @@ The system SHALL stop scheduling at its next admission check when a runner handl
 - **WHEN** 两个客户端同时触发相同范围同步
 - **THEN** 获得同一活动作业或明确排队结果，不同时发布相互覆盖快照。
 
+#### Scenario: Git publication and recovery refer to one committed graph result
+- **WHEN** 固定目标的 Git 采集批次准备发布
+- **THEN** 采集批次、新 revision、真实归属、完整来源选择、latest 的基线 CAS 和唯一 job 发布回执在一个图库事务提交；图库最后一次写入后仍检查原认证到期、取消、租约与运行期限，拒绝时连同回执全部回滚，不改写基线 revision。
+- **AND** 新选择保留其他目标的 active 来源，同目标旧 Git 断言仅作为 dependency_only 来源；有界读取或来源闭包不足不得发布为完整选择。
+
+#### Scenario: A committed Git result survives request expiry before control settlement
+- **WHEN** 图库回执已提交但控制库尚未保存 Completed，原请求随后到期、被撤权或收到取消
+- **THEN** 恢复仅核对不可变回执与原固定输入、实际 job/server/scope/snapshot/revision/run 及发布代次，并按控制库条件更新结算已提交事实；此结算不重新采样、不产生第二次发布，也不以新请求续期原任务。
+- **AND** 存活 running 租约不得抢占；没有合法回执的任务仍执行原授权和取消拒绝。该协议不宣称两个数据库具有原子事务或断电不丢图库 NORMAL 提交的保证。
+
+#### Scenario: Pending Git inputs and receipts remain valid during history pruning
+- **WHEN** Git 任务 queued 或 running 时执行显式历史回收
+- **THEN** 保留其固定基线；发布回执不得随历史级联删除而使原 job 可重复发布。旧二进制不能写入新输入或回执协议，升级前具有一致性备份，迁移失败不启用新服务。
+
+#### Scenario: Git terminal diagnostics remain safe and durable across reconnection
+- **WHEN** Git 任务因实际执行/发布失败或真实取消进入终态，或排队任务因撤权、显式取消或范围撤销被终结
+- **THEN** 固定阶段与白名单错误码和真实终态在同一控制事务保存；重新连接后可查询，不保存路径、HEAD、引用、原始 Git 输出或错误文本。排队取消为 admission/cancelled，运行任务仅当前有效 owner/fence 可结算。
+- **AND** 未知或过长诊断、损坏输入、失效 owner 不得被猜测成合法状态；诊断写入失败回滚终态更新。旧扫描任务字段和取消语义保持不变。
+
 ### Requirement: RT-02 Cancellation and backpressure
 任务 SHALL 有有界队列、并发数、时间和输出预算；取消信号与已发生副作用分别记录，网络断线不能导致静默丢失业务状态。
 

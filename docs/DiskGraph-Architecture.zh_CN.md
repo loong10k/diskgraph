@@ -368,7 +368,7 @@ P3 完成后形成独立只读产品，不等待移动端；P4 前置 Linux 是�
 
 ## 11. 进程、并发与生命周期
 
-当前 FFI 是同步函数调用，部分查询加载整份快照，没有已实现的服务调度器。目标拓扑区分三种运行方式：
+2026-09-28 源码基线的 FFI 是同步函数调用，部分查询加载整份快照，尚无服务调度器。后续实现与验收边界见架构续篇。目标拓扑区分三种运行方式：
 
 | 方式 | 进程与状态所有者 | 关闭/故障行为 |
 | :--- | :--- | :--- |
@@ -411,7 +411,7 @@ stateDiagram-v2
 
 ## 13. 决策、替代方案与反转条件
 
-完整决策仍由 [OpenSpec D1–D15](../openspec/changes/implement-diskgraph-platform/design.md) 管理，下表是解释性摘要，不重复建立批准流程。
+完整决策仍由 [OpenSpec D1–D39](../openspec/changes/implement-diskgraph-platform/design.md) 管理，下表是解释性摘要，不重复建立批准流程。
 
 | 决策 | 选择与理由 | 替代方案/代价 | 重新评估条件 |
 | :--- | :--- | :--- | :--- |
@@ -455,7 +455,7 @@ stateDiagram-v2
 
 - [技术方案](DiskGraph-Technical-Design.zh_CN.md)：数据表、迁移、协议、状态机、执行保护与测试。
 - [命令参考](command-reference.md)：C01–C29 的 CLI/MCP/权限/阶段映射。
-- [OpenSpec 设计决策](../openspec/changes/implement-diskgraph-platform/design.md)：D1–D15、替代方案、风险和迁移。
+- [OpenSpec 设计决策](../openspec/changes/implement-diskgraph-platform/design.md)：D1–D39、替代方案、风险和迁移。
 - [OpenSpec 实现任务](../openspec/changes/implement-diskgraph-platform/tasks.md)：分阶段工作包和验收要求。
 - 上游依据：[DiskTree](https://github.com/tobi/disktree)、[CodeGraph CLI](https://github.com/colbymchenry/codegraph#cli-reference)、[MCP Rust SDK](https://github.com/modelcontextprotocol/rust-sdk#transports)。
 

@@ -1,3 +1,4 @@
+use diskgraph_core::Permission;
 use serde::{Deserialize, Serialize};
 
 /// 首次索引或同步的持久任务类型。
@@ -8,6 +9,7 @@ use serde::{Deserialize, Serialize};
 pub enum JobKind {
     Index,
     Sync,
+    GitEvidence,
 }
 
 impl JobKind {
@@ -18,6 +20,7 @@ impl JobKind {
         match self {
             Self::Index => "index",
             Self::Sync => "sync",
+            Self::GitEvidence => "git_evidence",
         }
     }
 
@@ -28,7 +31,20 @@ impl JobKind {
         match value {
             "index" => Some(Self::Index),
             "sync" => Some(Self::Sync),
+            "git_evidence" => Some(Self::GitEvidence),
             _ => None,
+        }
+    }
+
+    /// 参数：无；返回：持久任务类型不可降低的权限，旧入口亦必须执行。
+    pub fn required_permissions(self) -> &'static [Permission] {
+        match self {
+            Self::Index | Self::Sync => &[Permission::IndexWrite],
+            Self::GitEvidence => &[
+                Permission::MetadataRead,
+                Permission::IndexWrite,
+                Permission::ContentRead,
+            ],
         }
     }
 }

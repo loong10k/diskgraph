@@ -33,6 +33,7 @@ impl GitSourceFile {
         let version = initial_version(&file, &metadata)?;
         let length = metadata.len();
         if length > budget.remaining_bytes() as u64 {
+            probe.mark_resource_limit();
             return Err("git metadata byte limit exceeded".into());
         }
         let digest = private.write_stream(target, length, probe, |output, probe| {
@@ -138,6 +139,7 @@ fn read(
     mut consume: impl FnMut(&[u8]) -> Result<(), String>,
 ) -> Result<[u8; 32], String> {
     if length > budget.remaining_bytes() as u64 {
+        probe.mark_resource_limit();
         return Err("git metadata byte limit exceeded".into());
     }
     let mut remaining = length;
@@ -150,6 +152,7 @@ fn read(
             .min(remaining as usize)
             .min(budget.remaining_bytes());
         if allowed == 0 {
+            probe.mark_resource_limit();
             return Err("git metadata byte limit exceeded".into());
         }
         let count = file

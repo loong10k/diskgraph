@@ -34,6 +34,14 @@ pub(crate) fn input_schema(catalog_id: &str) -> Value {
                 json!({"type":"string","enum":["list"],"default":"list"}),
             );
         }
+        "C03" => {
+            fields.insert("collector".into(), json!({"type":"string","enum":["git"]}));
+            fields.insert(
+                "revision".into(),
+                text("Required published base revision when collector is git"),
+            );
+            fields.insert("node_id".into(), unsigned(1));
+        }
         "C04" => {
             fields.insert(
                 "job_id".into(),
@@ -105,7 +113,11 @@ pub(crate) fn input_schema(catalog_id: &str) -> Value {
             text("Last edge ID returned by this query"),
         );
     }
-    json!({"type":"object","properties":fields,"required":required,"additionalProperties":false})
+    let mut schema = json!({"type":"object","properties":fields,"required":required,"additionalProperties":false});
+    if catalog_id == "C03" {
+        schema["dependentRequired"] = json!({"collector":["revision","node_id"],"revision":["collector","node_id"],"node_id":["collector","revision"]});
+    }
+    schema
 }
 
 /// 按公告的平面 schema 校验参数；类型、未知字段和范围错误在分发前拒绝。
@@ -159,6 +171,17 @@ pub(crate) fn validate_arguments(catalog_id: &str, arguments: &Value) -> Result<
             .is_some_and(|allowed| !allowed.contains(value))
         {
             return Err(format!("unsupported value for {key}"));
+        }
+    }
+    if catalog_id == "C03"
+        && ["collector", "revision", "node_id"]
+            .iter()
+            .any(|key| args.contains_key(*key))
+    {
+        for key in ["collector", "revision", "node_id"] {
+            if !args.contains_key(key) {
+                return Err(format!("missing required Git argument: {key}"));
+            }
         }
     }
     Ok(())

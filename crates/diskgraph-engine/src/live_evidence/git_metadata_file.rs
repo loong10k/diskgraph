@@ -95,6 +95,7 @@ pub(super) fn read_chunks(
     probe: &mut ProbeBudget,
 ) -> Result<Vec<u8>, String> {
     if len > budget.remaining_bytes() as u64 || len > usize::MAX as u64 {
+        probe.mark_resource_limit();
         return Err("git metadata byte limit exceeded".into());
     }
     let mut bytes = Vec::with_capacity(len as usize);
@@ -107,6 +108,7 @@ pub(super) fn read_chunks(
             .min(len as usize - bytes.len())
             .min(budget.remaining_bytes());
         if allowed == 0 {
+            probe.mark_resource_limit();
             return Err("git metadata byte limit exceeded".into());
         }
         let size = file

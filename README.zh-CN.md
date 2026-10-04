@@ -259,7 +259,20 @@ D34 命名空间增量在 `407125f62fda994826a7858737b22fa95efe4cb4` 的[原生 
 
 D35[输入预算与历史矩阵回执](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json)记录读取前预算修复、六项扫描设置兼容矩阵和本机验收。`2450ab1`同源码[原生CI已22/22通过](https://github.com/loong10k/diskgraph/actions/runs/37164196395)，四份选定原生日志各实际通过26项新用例；授权Git采集入口及平台/provider门禁保持开放。
 
-D36[受约束 Git 捕获](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json)与 [TUI／查询预算](docs/benchmarks/tui_budget_acceptance_2026_10_04.json)回执记录当前增量。可信 Git 采样先捕获 scope 内普通输入再执行固定命令，授权持久采集任务仍待实现；TUI 准备在原期限内准入所需原始字段，交付前复核实时授权。候选响应新增 `coverage_observed`，区分到期未读取覆盖头与实际观测的覆盖缺口。本机最终验证和同源码原生验收分别记录，本增量尚不能证明全平台生产就绪。
+D36[受约束 Git 捕获](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json)与 [TUI／查询预算](docs/benchmarks/tui_budget_acceptance_2026_10_04.json)回执记录当前增量。可信 Git 采样先捕获 scope 内普通输入再执行固定命令，D36 验收范围是捕获库，持久产品入口见下方 D39；TUI 准备在原期限内准入所需原始字段，交付前复核实时授权。候选响应新增 `coverage_observed`，区分到期未读取覆盖头与实际观测的覆盖缺口。本机最终验证和同源码原生验收分别记录，本增量尚不能证明全平台生产就绪。
+
+## 当前源码的 Git 证据采集（D39）
+
+对已索引的普通 Git 目录，明确授予本地正文访问，并指定实际 revision/node：
+
+```bash
+diskgraph grant --scope <scope-id> --content-read --data-dir ~/.diskgraph
+diskgraph sync --scope <scope-id> --revision <revision-id> --node-id <directory-node-id> --collector git --wait --data-dir ~/.diskgraph --json
+```
+
+MCP `diskgraph_sync` 使用相同的 `scope`、`revision`、`node_id` 和 `collector: "git"`。省略 collector 保持普通重扫。远程任务同时要求 token 上限与实时 `metadata:read`、`index:write`、`content:read` 授权；续租不延长原始到期。固定命令只使用 scope 内私有捕获。默认15秒、输出1 MiB、输入64 MiB/32,768项、私有对象原生报告分配额度128 MiB及当次卷余量检查64 MiB，不预留空间或承诺严格磁盘/RSS上限；超限或不支持输入明确拒绝。
+
+CLI 状态 data 将身份绑定真实任务与不可变回执，保留既有外层 scope/revision 字段为空的协议；MCP 状态的外层身份与 data 来自同一授权投影。排队状态需要 `operations:view`，完成结果另需 `metadata:read`。安全数量与可空的本地跟踪差分不含正文或引用原文，不能证明远端已发布。[全平台记录](docs/production-readiness-full-platform-2026-10-04.zh-CN.md)区分验证阶段；原生写、设备和生产验收仍未完成。
 
 ## 文档
 

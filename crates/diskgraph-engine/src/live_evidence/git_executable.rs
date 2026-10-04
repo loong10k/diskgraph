@@ -29,7 +29,12 @@ impl GitExecutable {
             }
         } else {
             let name = executable_name(tool)?;
-            let path = std::env::var_os("PATH").ok_or("Git executable requires PATH")?;
+            let path = std::env::var_os("PATH").ok_or_else(|| {
+                probe.fail(super::probe_failure::ProbeFailure::Io(
+                    "Git executable requires PATH".into(),
+                ));
+                "Git executable requires PATH"
+            })?;
             let mut selected = None;
             for directory in std::env::split_paths(&path).filter(|path| path.is_absolute()) {
                 probe.check().map_err(|error| error.to_string())?;
@@ -39,11 +44,21 @@ impl GitExecutable {
                     break;
                 }
             }
-            selected.ok_or("Git executable absent from absolute PATH directories")?
+            selected.ok_or_else(|| {
+                probe.fail(super::probe_failure::ProbeFailure::Io(
+                    "Git executable absent".into(),
+                ));
+                "Git executable absent from absolute PATH directories"
+            })?
         };
-        let path = candidate
-            .canonicalize()
-            .map_err(|error| format!("Git executable path: {error}"))?;
+        let path = candidate.canonicalize().map_err(|error| {
+            let message = format!("Git executable path: {error}");
+            probe.fail(super::probe_failure::ProbeFailure::io(
+                "Git executable path",
+                error,
+            ));
+            message
+        })?;
         if !executable_file(&path) {
             return Err("unsupported Git executable file".into());
         }

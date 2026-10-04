@@ -22,7 +22,7 @@ impl ControlStore {
     pub fn open(path: &Path) -> Result<Self> {
         let connection = Connection::open(path)?;
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        if (1..7).contains(&version) {
+        if (1..8).contains(&version) {
             let backup_dir = path
                 .parent()
                 .unwrap_or(Path::new("."))
@@ -44,8 +44,10 @@ impl ControlStore {
                         5
                     } else if version < 6 {
                         6
-                    } else {
+                    } else if version < 7 {
                         7
+                    } else {
+                        8
                     }
                 )),
                 None,
@@ -76,7 +78,7 @@ impl ControlStore {
         // migration runs, so a fresh database walks exactly the same path an
         // older file would and never skips a step.
         let mut version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        if !(0..=7).contains(&version) {
+        if !(0..=8).contains(&version) {
             return Err(StoreError::UnsupportedSchema(version));
         }
         if version == 0 {
@@ -150,8 +152,13 @@ impl ControlStore {
             Self::migrate_job_request_authorities(&connection)?;
             version = 7;
         }
-        debug_assert_eq!(version, 7, "every control migration must have run");
+        if version < 8 {
+            Self::migrate_git_job_inputs(&connection)?;
+            version = 8;
+        }
+        debug_assert_eq!(version, 8, "every control migration must have run");
         Self::validate_job_authority_schema(&connection)?;
+        Self::validate_git_job_input_schema(&connection)?;
         Ok(Self { connection })
     }
 

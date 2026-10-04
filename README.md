@@ -268,7 +268,20 @@ The D34 namespace increment passed [22/22 native CI jobs](https://github.com/loo
 
 The D35 [native input and history matrix receipt](docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json) records the read-before-budget fix, six-setting compatibility matrix and local acceptance. Its same-source [native CI passed 22/22](https://github.com/loong10k/diskgraph/actions/runs/37164196395) at `2450ab1`; all four selected native logs contain the 26 new cases. The authorized Git collection entry and platform/provider gates remain open.
 
-The D36 [scoped Git capture](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json) and [TUI/query budget](docs/benchmarks/tui_budget_acceptance_2026_10_04.json) receipts track the current increment. Trusted Git sampling now captures scope-bound ordinary inputs before fixed commands execute; its authorized durable collection job remains pending. TUI preparation admits narrow raw fields within the original deadline and rechecks live grants before delivery. Candidate responses add `coverage_observed` to distinguish an expired, unread header from an observed coverage gap. Final local and same-source native acceptance are recorded separately; this increment does not establish full-platform production readiness.
+The D36 [scoped Git capture](docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json) and [TUI/query budget](docs/benchmarks/tui_budget_acceptance_2026_10_04.json) receipts track the current increment. Trusted Git sampling now captures scope-bound ordinary inputs before fixed commands execute; D36 covered the capture library; the D39 section below describes the durable product entry. TUI preparation admits narrow raw fields within the original deadline and rechecks live grants before delivery. Candidate responses add `coverage_observed` to distinguish an expired, unread header from an observed coverage gap. Final local and same-source native acceptance are recorded separately; this increment does not establish full-platform production readiness.
+
+## Git evidence in the current source (D39)
+
+For an indexed ordinary Git directory, explicitly grant local content access and target its actual revision/node:
+
+```bash
+diskgraph grant --scope <scope-id> --content-read --data-dir ~/.diskgraph
+diskgraph sync --scope <scope-id> --revision <revision-id> --node-id <directory-node-id> --collector git --wait --data-dir ~/.diskgraph --json
+```
+
+MCP `diskgraph_sync` accepts the same `scope`, `revision`, `node_id` and `collector: "git"`. Omitting collector retains ordinary scan sync. Remote jobs require token ceilings and live `metadata:read`, `index:write`, `content:read` grants; renewals do not extend original expiry. Fixed commands use a private scope-bound capture. Defaults: 15 seconds, 1 MiB output, 64 MiB input/32,768 entries, 128 MiB of native-reported private-object allocation and a 64 MiB volume free-space check; these checks do not reserve space or impose a strict disk/RSS bound. Unsupported or oversized inputs are refused.
+
+CLI status data binds IDs to the actual job and immutable receipt; its existing outer scope/revision fields remain null. MCP status binds envelope IDs and data to that same authorized projection. Queued status needs `operations:view`; completed results also need `metadata:read`. Safe counts and nullable local tracking differences contain no bodies or reference text and do not prove remote publication. Verification status is in the [full-platform record](docs/production-readiness-full-platform-2026-10-04.md); native writes, devices and production acceptance remain open.
 
 ## Documentation
 
