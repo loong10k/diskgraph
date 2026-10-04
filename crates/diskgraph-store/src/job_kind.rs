@@ -10,6 +10,7 @@ pub enum JobKind {
     Index,
     Sync,
     GitEvidence,
+    ProcessEvidence,
 }
 
 impl JobKind {
@@ -21,6 +22,7 @@ impl JobKind {
             Self::Index => "index",
             Self::Sync => "sync",
             Self::GitEvidence => "git_evidence",
+            Self::ProcessEvidence => "process_evidence",
         }
     }
 
@@ -32,6 +34,7 @@ impl JobKind {
             "index" => Some(Self::Index),
             "sync" => Some(Self::Sync),
             "git_evidence" => Some(Self::GitEvidence),
+            "process_evidence" => Some(Self::ProcessEvidence),
             _ => None,
         }
     }
@@ -40,6 +43,7 @@ impl JobKind {
     pub fn required_permissions(self) -> &'static [Permission] {
         match self {
             Self::Index | Self::Sync => &[Permission::IndexWrite],
+            Self::ProcessEvidence => &[Permission::MetadataRead, Permission::IndexWrite],
             Self::GitEvidence => &[
                 Permission::MetadataRead,
                 Permission::IndexWrite,

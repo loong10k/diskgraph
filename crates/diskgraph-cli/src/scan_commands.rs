@@ -27,11 +27,15 @@ pub(crate) fn run(
         } => run_scan(engine, scope, true, *wait, principal, authorizer, out),
         Command::Sync {
             collector: Some(_), ..
-        } => crate::git_sync::run(engine, cli, principal, authorizer, out),
+        } => crate::evidence_sync::run(engine, cli, principal, authorizer, out),
         Command::Status { job } => {
             // Git 状态由共同授权入口绑定实际 scope 和 revision，固定诊断不包含工具原文。
             // 非 Git 任务返回 None，继续原扫描状态字段及查询路径。
             if let Some(details) = engine.git_job_status_details(job, principal, authorizer)? {
+                out.push(envelope_line(engine, Ok(details)));
+                return Ok(());
+            }
+            if let Some(details) = engine.process_job_status_details(job, principal, authorizer)? {
                 out.push(envelope_line(engine, Ok(details)));
                 return Ok(());
             }

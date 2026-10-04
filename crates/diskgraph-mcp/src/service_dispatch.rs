@@ -142,9 +142,9 @@ impl McpService {
         arguments: &Value,
         deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
-        // Git C04 使用实际任务授权和回执身份，不能先用默认 scope 的通用目录权限拒绝。
+        // 证据 C04 使用实际任务授权和回执身份，不能先用默认 scope 的通用目录权限拒绝。
         if catalog_id == "C04"
-            && let Some(envelope) = self.git_status_envelope(arguments, deadline)?
+            && let Some(envelope) = self.evidence_status_envelope(arguments, deadline)?
         {
             return Ok(envelope);
         }

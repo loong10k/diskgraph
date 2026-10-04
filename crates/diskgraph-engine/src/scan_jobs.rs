@@ -170,7 +170,10 @@ impl Engine {
         require_authority: bool,
     ) -> Result<JobRecord, EngineError> {
         let prior_cancel = self.cancellations()?.get(job_id).cloned();
-        if let Some(recovered) = self.recover_git_publication(job_id, owner)? {
+        if let Some(recovered) = self
+            .recover_git_publication(job_id, owner)?
+            .or(self.recover_process_publication(job_id, owner)?)
+        {
             // 对账成功才清理进入本次调用时的旧标志，不触碰后续并发代次。
             let _cleanup = prior_cancel.map(|flag| JobCancellationGuard {
                 entries: &self.cancellations,
@@ -263,6 +266,13 @@ impl Engine {
                     &cancel,
                     scan_started,
                 ),
+                JobKind::ProcessEvidence => self.admit_process_execution(
+                    job_id,
+                    owner,
+                    claimed.fencing_token,
+                    &cancel,
+                    scan_started,
+                ),
                 JobKind::Index | JobKind::Sync => {
                     self.execute_scan(job_id, owner, claimed.fencing_token, &cancel, scan_started)
                 }
@@ -304,6 +314,18 @@ impl Engine {
                 .err()
                 .map(|error| crate::git_evidence_failure::execution(error, final_state));
             self.control()?.finish_git_job_fenced(
+                job_id,
+                owner,
+                claimed.fencing_token,
+                final_state,
+                failure.as_ref(),
+            )?
+        } else if claimed.kind == JobKind::ProcessEvidence {
+            let failure = outcome
+                .as_ref()
+                .err()
+                .map(|error| crate::process_evidence_admission::failure(error, final_state));
+            self.control()?.finish_process_job_fenced(
                 job_id,
                 owner,
                 claimed.fencing_token,
@@ -372,6 +394,12 @@ impl Engine {
         let revision = if job.kind == JobKind::GitEvidence {
             self.graph()?
                 .job_publication_receipt(job_id)?
+                .ok_or(BusinessError::Conflict)?
+                .revision_id()
+                .to_owned()
+        } else if job.kind == JobKind::ProcessEvidence {
+            self.graph()?
+                .process_job_publication_receipt(job_id)?
                 .ok_or(BusinessError::Conflict)?
                 .revision_id()
                 .to_owned()

@@ -35,10 +35,13 @@ pub(crate) fn input_schema(catalog_id: &str) -> Value {
             );
         }
         "C03" => {
-            fields.insert("collector".into(), json!({"type":"string","enum":["git"]}));
+            fields.insert(
+                "collector".into(),
+                json!({"type":"string","enum":["git","process"]}),
+            );
             fields.insert(
                 "revision".into(),
-                text("Required published base revision when collector is git"),
+                text("Required published base revision for Git or native process evidence"),
             );
             fields.insert("node_id".into(), unsigned(1));
         }
@@ -180,7 +183,7 @@ pub(crate) fn validate_arguments(catalog_id: &str, arguments: &Value) -> Result<
     {
         for key in ["collector", "revision", "node_id"] {
             if !args.contains_key(key) {
-                return Err(format!("missing required Git argument: {key}"));
+                return Err(format!("missing required evidence argument: {key}"));
             }
         }
     }

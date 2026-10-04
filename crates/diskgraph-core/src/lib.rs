@@ -126,3 +126,38 @@ mod windows_file_observation_tests;
 mod git_evidence_contract_tests;
 #[cfg(test)]
 mod job_request_authority_tests;
+#[cfg(test)]
+mod process_protocol_git_compatibility_tests;
+
+mod indexed_file_epoch;
+mod process_evidence_codec;
+mod process_evidence_failure;
+mod process_evidence_failure_code;
+mod process_evidence_failure_phase;
+mod process_evidence_job_input;
+mod process_evidence_limits;
+mod process_evidence_summary;
+mod process_job_publication_receipt;
+mod process_observation_code;
+mod process_observation_coverage;
+mod process_observation_method;
+mod process_startup_identity;
+mod unix_file_observation;
+mod unix_observation_gap;
+pub use indexed_file_epoch::IndexedFileEpoch;
+pub use process_evidence_failure::ProcessEvidenceFailure;
+pub use process_evidence_failure_code::ProcessEvidenceFailureCode;
+pub use process_evidence_failure_phase::ProcessEvidenceFailurePhase;
+pub use process_evidence_job_input::ProcessEvidenceJobInput;
+pub use process_evidence_limits::ProcessEvidenceLimits;
+pub use process_evidence_summary::ProcessEvidenceSummary;
+pub use process_job_publication_receipt::ProcessJobPublicationReceipt;
+pub use process_observation_code::ProcessObservationCode;
+pub use process_observation_coverage::ProcessObservationCoverage;
+pub use process_observation_method::ProcessObservationMethod;
+pub use process_startup_identity::ProcessStartupIdentity;
+pub use unix_file_observation::UnixFileObservation;
+pub use unix_observation_gap::UnixObservationGap;
+
+#[cfg(test)]
+mod process_evidence_contract_tests;

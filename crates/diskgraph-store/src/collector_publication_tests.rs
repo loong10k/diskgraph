@@ -372,7 +372,7 @@ fn migration_v9_preserves_only_unambiguous_membership() {
         )
         .unwrap();
     let store = SqliteSnapshotStore::initialize(store.connection).unwrap();
-    assert_eq!(SUPPORTED_SCHEMA_VERSION, 13);
+    assert_eq!(SUPPORTED_SCHEMA_VERSION, 14);
     assert_eq!(count(&store, "relation_run_memberships"), 2);
     assert_eq!(count(&store, "entity_run_memberships"), 3);
     assert_eq!(count(&store, "collector_membership_diagnostics"), 4);

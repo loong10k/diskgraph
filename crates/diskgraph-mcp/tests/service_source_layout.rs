@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use syn::visit::Visit;
 
 // 本批不重构这些既有适配/传输模块；明确豁免不等于已经满足整 crate 结构规范。
+// D42 的 evidence_job_status 已统一 Git/进程投影，按新模块执行完整结构检查，不列为旧模块豁免。
 const LEGACY_MODULES: &[&str] = &[
     "auth",
     "bounded_json_writer",
@@ -12,7 +13,6 @@ const LEGACY_MODULES: &[&str] = &[
     "connection_rejection",
     "doctor",
     "error_reply",
-    "git_job_status",
     "history_budget_tests",
     "http",
     "install",

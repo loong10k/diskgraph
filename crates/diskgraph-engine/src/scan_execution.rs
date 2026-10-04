@@ -74,6 +74,9 @@ impl Engine {
             crate::windows_native_scan_root::WindowsNativeScanRoot::open(&root, &|| {
                 observation_guard.check()
             })?;
+        #[cfg(target_os = "linux")]
+        let unix_root =
+            crate::native_process::LinuxScanRoot::open(&root, &|| observation_guard.check())?;
         let handle =
             diskgraph_disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
         let mut exceeded = false;
@@ -176,6 +179,8 @@ impl Engine {
                 Option<WindowsFileObservation>,
                 Option<WindowsObservationGap>,
             )> = Vec::with_capacity(batch.len());
+            #[cfg(target_os = "linux")]
+            let mut unix_observations = Vec::with_capacity(batch.len());
             for node in batch {
                 observation_guard.check()?;
                 let locator = qualify_scan_locator(node)?;
@@ -191,6 +196,24 @@ impl Engine {
                 )?;
                 #[cfg(not(windows))]
                 let observed = (None, Some(WindowsObservationGap::Unsupported));
+                #[cfg(target_os = "linux")]
+                let unix_observed = if node.v1.kind == diskgraph_core::NodeKind::File
+                    && !node.v1.read_error
+                {
+                    let observed = match &unix_root {
+                        Ok(root) => root.observe(
+                            node,
+                            &locator
+                                .to_native_path()
+                                .map_err(|_| BusinessError::Unsupported)?,
+                            &|| observation_guard.check(),
+                        )?,
+                        Err(error) => (None, Some(crate::native_process::linux_scan_gap(*error))),
+                    };
+                    Some(observed)
+                } else {
+                    None
+                };
                 #[cfg(test)]
                 crate::scan_observation_tests::after_observe(&job.job_id);
                 #[cfg(test)]
@@ -205,6 +228,11 @@ impl Engine {
                     observed.0.as_ref(),
                     observed.1,
                 )?;
+                // Unix 编码受 Core 的 1024 字节上限约束，预留整个编码额度，不能绕过原扫描预算。
+                #[cfg(target_os = "linux")]
+                let cost = cost
+                    .checked_add(if unix_observed.is_some() { 1024 } else { 0 })
+                    .ok_or(BusinessError::BudgetExceeded)?;
                 if let BudgetDecision::Stop(stop) = self.scan_budget.charge_node(&mut usage, cost) {
                     eprintln!(
                         "diskgraph: scan stopped: {stop:?} after {} nodes / {} charged bytes / {} ms",
@@ -218,6 +246,8 @@ impl Engine {
                 }
                 locators.push(locator);
                 observations.push(observed);
+                #[cfg(target_os = "linux")]
+                unix_observations.push(unix_observed);
             }
             observation_guard.check_now()?;
             // 原生调用已结束；遵循既有 graph→control 写锁顺序，并在原子 fence 下暂存。
@@ -249,7 +279,29 @@ impl Engine {
                             self.scan_budget.max_duration_ms,
                         )
                     },
-                )
+                )?;
+                #[cfg(target_os = "linux")]
+                graph.append_staging_unix_observations_checked(
+                    &staging_id,
+                    batch
+                        .iter()
+                        .zip(&unix_observations)
+                        .filter_map(|(node, observation)| {
+                            observation
+                                .as_ref()
+                                .map(|(value, gap)| (node.v1.id, value.as_ref(), *gap))
+                        }),
+                    || {
+                        crate::job_authorization::check_scan_commit(
+                            authority.as_ref(),
+                            cancel,
+                            lease_expires,
+                            scan_started,
+                            self.scan_budget.max_duration_ms,
+                        )
+                    },
+                )?;
+                Ok(())
             })?;
         }
         let v1_nodes: Vec<diskgraph_core::DiskNode> =
@@ -272,6 +324,10 @@ impl Engine {
         observation_guard.check_now()?;
         #[cfg(windows)]
         native_root.validate_root(&|| observation_guard.check())?;
+        #[cfg(target_os = "linux")]
+        if let Ok(root) = &unix_root {
+            root.validate(&|| observation_guard.check())?;
+        }
         let mut graph = self.graph()?;
         if !self.accepts_new_work() {
             graph.clear_staging(&staging_id)?;

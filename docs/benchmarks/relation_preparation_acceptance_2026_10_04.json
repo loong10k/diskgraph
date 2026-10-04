@@ -6,7 +6,7 @@
     "Q-08: preparation and all relation/candidate/impact/tree consumers share actual read admission",
     "Q-02: deadline diagnostics and terminal authorization retain their real phase"
   ],
-  "status": "verified_local_native_pending",
+  "status": "verified_same_source_native",
   "source": {
     "base_commit": "3531943642e5d233f8b95cbd047167bc81899df6",
     "snapshot": "/private/tmp/diskgraph-d43-final-pdz3qb3b",
@@ -24,7 +24,8 @@
       "crates/diskgraph-engine/tests/relation_preparation_budget/fixture.rs": "6411c4460d4f7c1cf152892fc315ae1d77895539e039d4a8a3de2878e69c8bdf",
       "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "72f99552a2eabd668692c2342cb18406911181707f15268815b49d1dd1fdcfe9",
       "crates/diskgraph-engine/tests/relation_request_budget.rs": "f88b55df522e28ac07cdabe227aac811bac50ebfe8ce57c52956625883eb729c"
-    }
+    },
+    "accepted_commit": "66f2e4c86bd894a45e2431f96a9ceb5bf6c7b3c6"
   },
   "tdd": {
     "accepted_red": {
@@ -174,21 +175,93 @@
     "limits": "v3 fixture approval withdrawn; root verified final workspace/release separately; no native proof inferred"
   },
   "native_acceptance": {
-    "status": "pending_new_source_ci",
-    "limits": "D41 3531943 native CI does not execute this new D43 implementation"
+    "status": "verified_same_source_native",
+    "source_sha": "66f2e4c86bd894a45e2431f96a9ceb5bf6c7b3c6",
+    "run_id": "37196289598",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37196289598",
+    "jobs_passed": 22,
+    "jobs_total": 22,
+    "reviewed_sources_matched": 12,
+    "case_groups": {
+      "integration": 11,
+      "helper": 8,
+      "deadline": 9
+    },
+    "cases_pass_each_once_per_workspace": 28,
+    "workspace_observations": [
+      {
+        "name": "Test (ubuntu-24.04-arm / Rust stable)",
+        "job_id": 111418751283,
+        "sha256": "586beb1a4bc1d0c50fed1e41d4f95c5d873d1108c2323be81a7609a4019ff008",
+        "workspace": {
+          "suites": 61,
+          "passed": 1403,
+          "failed": 0,
+          "ignored": 18
+        },
+        "matched_cases": 28
+      },
+      {
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "job_id": 111418751338,
+        "sha256": "b83c08e93961f7287689662e8ed455babef87752609cd32ec254abcedc0c425e",
+        "workspace": {
+          "suites": 61,
+          "passed": 1275,
+          "failed": 0,
+          "ignored": 16
+        },
+        "matched_cases": 28
+      },
+      {
+        "name": "Test (windows-latest / Rust stable)",
+        "job_id": 111418751372,
+        "sha256": "881d2dd0a9b3289d1c056fcb720ae3734b431474af1ea755902ce5b10c67a767",
+        "workspace": {
+          "suites": 61,
+          "passed": 1275,
+          "failed": 0,
+          "ignored": 16
+        },
+        "matched_cases": 28
+      },
+      {
+        "name": "Test (macos-15-intel / Rust stable)",
+        "job_id": 111418751398,
+        "sha256": "e9bcacd9826b5f0b35ada7d9e6426dfa231ac94093ad72894073feb284770639",
+        "workspace": {
+          "suites": 61,
+          "passed": 1414,
+          "failed": 0,
+          "ignored": 18
+        },
+        "matched_cases": 28
+      }
+    ],
+    "raw_case_ledger": "relation_preparation_acceptance_logs/diskgraph-d43-native-case-observations.json.gz",
+    "limits": "Actual workspace phases only; not inventories or repeat migration suites. First log retrieval refused terminal escapes, corrected read-only retrieval retained; no CI rerun. Does not certify D42 worktree, providers, native writes, GUI/mobile/devices or production deployment."
   },
   "full_platform_readiness": {
     "status": "not_ready",
     "total": 167,
-    "complete": 139,
-    "open": 28,
-    "task_13_6": "open pending final same-source native acceptance",
+    "complete": 140,
+    "open": 27,
+    "task_13_6": "complete after requirement-by-requirement source and four actual native workspace log verification",
     "limits": "query subtask does not certify collectors, providers, writes, GUI/mobile/devices, signing or deployment"
   },
   "archives": {
-    "count": 62,
+    "count": 72,
     "ledger": "relation_preparation_acceptance_logs/archives.json",
-    "ledger_sha256": "0d0f954032afb6c82b023567a18daad50acae5869690ef1f9b32cf5e9d8bf3da",
+    "ledger_sha256": "0fe9884a7040ebf2953a2844bad70f0b130f513bdd1313ac2455d69f8ddc1d18",
     "limits": "superseded compilation/fixture/build-isolation failures retained; only identified v5/final stages count as acceptance"
+  },
+  "query_requirement_closure": {
+    "task": "13.6",
+    "decision": "complete; 15.2 provider/content costs and all remaining platform parent gates remain open",
+    "independent_mapping": "relation_preparation_acceptance_logs/diskgraph-d43-task-13-6-review-mapping-candidate.json.gz",
+    "root_verification": "relation_preparation_acceptance_logs/diskgraph-d43-task-13-6-root-verification.json.gz",
+    "source_current_and_accepted_commit_matches": 24,
+    "original_group_reference_count": 55,
+    "limit": "Case groups overlap, so references are not a unique test total. Source/log audit is not an additional test run. SQLite C/RSS, hard I/O preemption and provider no-hydration are not certified."
   }
 }

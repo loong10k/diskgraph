@@ -2,9 +2,9 @@
 
 本文延续[全平台实施记录](production-readiness-full-platform-2026-10-02.zh-CN.md)，完整平台目标仍未完成。
 
-## 最新阶段：D41 原生验收完成，D43 查询消费者修复验证中
+## 最新阶段：D43 查询准备修复同源码原生验收完成
 
-当前清单为**167总项／139完成／28开放**，包含广泛父项，不等于28个独立漏洞。Git任务8.7与持久请求授权任务15.20已在实现的Index／Sync／Git路径验收。D41 修正源码原生验收已记录于下文，任务13.6继续等待新增 D43 关系、影响、候选与树查询准备验证；进程／应用collector8.6／15.13、provider、原生写、GUI／移动端／真机、签名和生产部署保持原要求。
+当前清单为**167总项／140完成／27开放**，包含广泛父项，不等于27个独立漏洞。Git任务8.7与持久请求授权任务15.20已在实现的Index／Sync／Git路径验收。D41 修正源码原生验收已记录于下文，D43 同源码原生验收也已记录于下文；任务13.6已完成全项源码与实际原生日志复核；进程／应用collector8.6／15.13、provider、原生写、GUI／移动端／真机、签名和生产部署保持原要求。
 
 `fd9330e44318c15db7a9a3ea0cb34e6da2b0e81d`同源码[CI37187379023第二次attempt](https://github.com/loong10k/diskgraph/actions/runs/37187379023)已终态**22/22 success**。第一次attempt的21项成功保留原执行时间，仅Kotlin Intel作为job111395457676实际重跑。首次失败发生在Java／JNA宿主执行前的Maven插件描述解析，日志不能证明网络或缓存根因；同SHA重跑实际取得Maven BUILD SUCCESS并通过会话／分页／轮询／v1／release／重开宿主验收。[D40回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)保留两次attempt、原始失败、源码摘要与真实原生日志。
 
@@ -32,7 +32,7 @@ flowchart LR
 
 真实整请求分配回归覆盖左右超大头、累计准备、普通／足额成功、初次拒权及末段撤权；TUI要求初始原始预算拒绝后paint未调用、实际后端为空。目标Store3／Engine10／CLI7通过。首次完整构建随后因生产TuiRequest导入误受test条件限制而E0433失败，该编译失败保留，不能算行为RED；唯一修正是无条件显式导入。最终17源清单SHA为`116af7b03bf7d97b152ef96dfe5a7b85b32d652b89cd726bf1ec822ffc11f80c`。
 
-修正源码本机 workspace 已通过 **1401／0／18，60 suites**，限定 fmt、FFI include fmt、严格 all-target workspace Clippy／build、OpenSpec、release CLI／MCP／FFI 及未修改 vendor 124／0／2 通过。单独执行的 **release stdio 18/18、HTTP/SSE 13/13、真实调用的 UniFFI ABI 19/19** 通过；JDK 21 macOS ARM Kotlin 宿主实际通过会话／分页／轮询／v1／release／重开验收，并执行新增 Maven `--errors` 诊断。Kotlin FFI 库 SHA 为 `bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5`，协议／ABI 使用 `86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7`；两者来自同一审查源码的不同构建，不能称为同一二进制。已完成的 [D41 回执](benchmarks/query_target_preparation_acceptance_2026_10_04.json)保留 43 份原始／QA／release／Kotlin／原生档案，包含最终本机 workspace 中 20 项目标用例逐案一次通过（14 项新增）的记录；下方原生档案提供独立同源码证据；D43 消费者仍需最终验收，因此任务 13.6 继续开放。
+修正源码本机 workspace 已通过 **1401／0／18，60 suites**，限定 fmt、FFI include fmt、严格 all-target workspace Clippy／build、OpenSpec、release CLI／MCP／FFI 及未修改 vendor 124／0／2 通过。单独执行的 **release stdio 18/18、HTTP/SSE 13/13、真实调用的 UniFFI ABI 19/19** 通过；JDK 21 macOS ARM Kotlin 宿主实际通过会话／分页／轮询／v1／release／重开验收，并执行新增 Maven `--errors` 诊断。Kotlin FFI 库 SHA 为 `bb4358e22cf34b025bed1c3c131745c073e5d08120b7f3b700744655ec1e72b5`，协议／ABI 使用 `86fb3c433d050d7ae7067700e96d2b02c7b148a8d5f0e96b44fd4419029b3fe7`；两者来自同一审查源码的不同构建，不能称为同一二进制。已完成的 [D41 回执](benchmarks/query_target_preparation_acceptance_2026_10_04.json)保留 43 份原始／QA／release／Kotlin／原生档案，包含最终本机 workspace 中 20 项目标用例逐案一次通过（14 项新增）的记录；下方原生档案提供独立同源码证据；D43 原生验收见下文；完整任务 13.6 要求复核仍为独立门禁。
 
 
 `3531943642e5d233f8b95cbd047167bc81899df6` 的 [CI37190906485](https://github.com/loong10k/diskgraph/actions/runs/37190906485) 已终态 **22/22 成功**。四份原始 workspace 日志均逐案确认准备 20 项（其中新增 14 项）及既有查询 32 项恰好一次通过，分组不相加。17 份审查源码摘要与提交逐项相同，43 份 gzip 档案均核验原始长度与摘要。首次 Linux 日志获取遇到本地 gh 缓存 zip 错误，直接 API 获取成功；这是日志收集失败，不是 CI 失败或重新运行。
@@ -54,15 +54,23 @@ flowchart LR
 
 普通及足额请求仍返回真实成功结果。Rust 累计 requested 分配记录成功的 Rust 分配请求，不代表峰值存活内存、SQLite C 分配／缓存、文件系统 I/O 或 RSS，也不是吞吐改进的因果证据。同步 authorizer 与原生 I/O 仍为协作检查，不新增严格内存或墙钟保证，不勾任务 13.6。
 
-## D43 关系、影响、候选与树查询准备：本机验收完成
+## D43 关系、影响、候选与树查询准备：同源码原生验收完成
 
 请求账本从实际 revision 归属准入前开始，必需 snapshot／revision 字段与所有消费者共用剩余额度。Store 提供已准入 evidence reader 与候选窄读，Engine 不再拥有完整 revision 或重复加载目标。错误的 tree scope 在拥有目标前拒绝；初次授权之后的目标／消费者错误及编码阶段错误仍进行实时末检。独立连接在 finish 阶段撤销范围后，权限拒绝优先于该阶段注入的预算错误。
 
 3531943 上先补测试、分别清理并实际重新编译 Engine／Store，取得公开请求 **2 通过／9 失败**与独立 finish 错误 **0/1 RED**。旧累计测试在首条 related 失败后停止，不能说旧七条路径都执行了累计负控。修复后 integration **11/11**、helper **8/8**及固定阶段期限 **9/9**；累计不足／足额配对实际覆盖七条消费者。首次完整 workspace **1411/2/18**以及编译、夹具、构建隔离失败全部归档，不能用最终通过结果替换。
 
-最终冻结源码 workspace **1414/0/18、61 suites**，限定 fmt、FFI include fmt、严格 all-target Clippy／build、OpenSpec、vendor **124/0/2**及 release 构建通过；真实 release stdio **18/18**、HTTP/SSE **13/13**与实际调用 ABI **19/19**通过。14 份上游源码摘要未变；独立 vendor 的 ignored 锁文件仅复制到隔离夹具。独立复审批准最终源码／测试增量。[D43 回执](benchmarks/relation_preparation_acceptance_2026_10_04.json)保留 62 份原始档案，明确区分验收与作废阶段。
+最终冻结源码 workspace **1414/0/18、61 suites**，限定 fmt、FFI include fmt、严格 all-target Clippy／build、OpenSpec、vendor **124/0/2**及 release 构建通过；真实 release stdio **18/18**、HTTP/SSE **13/13**与实际调用 ABI **19/19**通过。14 份上游源码摘要未变；独立 vendor 的 ignored 锁文件仅复制到隔离夹具。独立复审批准最终源码／测试增量。[D43 回执](benchmarks/relation_preparation_acceptance_2026_10_04.json)保留 72 份原始档案，明确区分验收与作废阶段。
 
-合法 2 MiB 目标夹具的整调用 Rust requested 累计分配从 **2,097,770–4,196,125 字节**降至 **348–1,793 字节**，在拥有超大字段前拒绝；不代表 RSS、SQLite C 内存或吞吐测量。新源码原生 CI 尚待完成，**13.6 及全平台 28 项继续开放**。公开 wire 字段和可信兼容签名保留，内部 helper 接收原始已准入 reader 与剩余额度。
+合法 2 MiB 目标夹具的整调用 Rust requested 累计分配从 **2,097,770–4,196,125 字节**降至 **348–1,793 字节**，在拥有超大字段前拒绝；不代表 RSS、SQLite C 内存或吞吐测量。`66f2e4c` 同源码 [CI37196289598](https://github.com/loong10k/diskgraph/actions/runs/37196289598) 已终态 **22/22 success**。四份原始 workspace 日志各实际执行 **D43 的 28 项逐案一次通过**（integration11、末检helper8、deadline9）。完整 workspace 为 Windows stable／MSRV 各 **1275/0/16**、Linux ARM64 **1403/0/18**、macOS Intel **1414/0/18**，各61 suites；排除迁移重复运行及清单枚举。12 份审查源码摘要与该提交一致。**13.6 已完成全项源码与实际原生日志复核，全平台仍有 27 项开放**。公开 wire 字段和可信兼容签名保留，内部 helper 接收原始已准入 reader 与剩余额度。
+
+## D42 进程任务：本机基础验收通过，原生执行仍待完成
+
+已实现 ProcessEvidence 持久类型输入、原 metadata/index 授权、fencing、独立 Unix 观测及图库发布／恢复回执；CLI/MCP 将固定 scope/revision/node 路由到同一 Engine。缺少已索引 epoch 或平台资格时先拒绝、零入队。Linux runner 当前仍明确 Unsupported，须先在原生环境取得执行回归 RED，再实现执行器；应用归属及三平台进程能力继续开放。
+
+真实回归复现并修复失败锁存、unwind 句柄计数、授权回调迟到及控制锁准备等待。暂存身份点查增加非唯一表达式索引，保持重复身份拒绝及原 JSON；20k／200k 节点下三次公开写入从360,234／3,600,234条 VM 指令降至各272条。索引建立增加存储与维护成本，此结果不是完整扫描或 RSS 测量。
+
+冻结本机 workspace **1474／0／18，68 suites**。首次 fmt 因一处断言排版失败；仅修正空白后，相关 Git11/11、fmt、严格 Clippy 及 build 通过。macOS 上**未执行** Linux epoch／观测／执行目标，不把零测试算原生通过。[基础回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)保留40份档案与实测失败。SQLite 外部写锁等待、根祖先绑定、真实原生执行及全平台父项分别继续验收。
 
 ## 以下保留历史阶段记录
 
@@ -208,4 +216,4 @@ RT-10已实现55行入口，服务/配置/分发/身份/范围/工具/stdio承�
 
 最终固定候选为**workspace1387/0/18、59 suites**，限定fmt、FFI独立include格式、workspace all-target严格Clippy/build、OpenSpec strict、上游124/0/2、release CLI/MCP/FFI构建通过；14份上游来源摘要一致。实际release stdio18/18、认证HTTP/SSE13/13、调用UniFFI校验值19/19通过，最终release摘要与这些实际执行二进制一致。本次源码组织不改扫描/查询算法，不声明新的性能或RSS结果。[D40回执](benchmarks/mcp_service_layout_acceptance_2026_10_04.json)保存真实阶段、源码摘要、失败及边界。
 
-**D40原生CI之前的历史时点：**当时修正源码原生CI仍待完成，清单为167项／137完成／30开放。顶部最新阶段记录后续同源码验收及139／28状态；全平台生产就绪尚未成立。
+**D40原生CI之前的历史时点：**当时修正源码原生CI仍待完成，清单为167项／137完成／30开放。顶部最新阶段记录后续同源码验收及140／27状态；全平台生产就绪尚未成立。

@@ -46,13 +46,18 @@ impl ControlStore {
         if let Err(error) =
             crate::job_authority_gate::validate_job(&tx, job_id, &[Permission::IndexWrite], strict)
         {
+            let process: bool = tx.query_row(
+                "SELECT kind='process_evidence' FROM jobs WHERE job_id=?1",
+                [job_id],
+                |r| r.get(0),
+            )?;
             let git: bool = tx.query_row(
                 "SELECT kind='git_evidence' FROM jobs WHERE job_id=?1",
                 [job_id],
                 |r| r.get(0),
             )?;
             if matches!(error, StoreError::Conflict(_))
-                || (git && matches!(error, StoreError::InvalidGraph(_)))
+                || ((git || process) && matches!(error, StoreError::InvalidGraph(_)))
             {
                 // 只结算 queued/已过期 running；活 owner 无论 strict 与否都不能被抢占。
                 let changed=tx.execute("UPDATE jobs SET state=CASE WHEN cancel_requested=1 THEN 'cancelled' ELSE 'failed' END,heartbeat_unix_ms=?2 WHERE job_id=?1 AND (state='queued' OR (state='running' AND lease_expires_unix_ms<=?2))", params![job_id,now as i64])?;
@@ -74,6 +79,28 @@ impl ControlStore {
                         job_id,
                         &diskgraph_core::GitEvidenceFailure::new(
                             diskgraph_core::GitEvidenceFailurePhase::Admission,
+                            code,
+                        ),
+                    )?;
+                }
+                if changed == 1 && process {
+                    let cancelled: bool = tx.query_row(
+                        "SELECT cancel_requested FROM jobs WHERE job_id=?1",
+                        [job_id],
+                        |r| r.get(0),
+                    )?;
+                    let code = if cancelled {
+                        diskgraph_core::ProcessEvidenceFailureCode::Cancelled
+                    } else if matches!(error, StoreError::InvalidGraph(_)) {
+                        diskgraph_core::ProcessEvidenceFailureCode::InternalError
+                    } else {
+                        diskgraph_core::ProcessEvidenceFailureCode::Conflict
+                    };
+                    crate::process_job_failure_store::record(
+                        &tx,
+                        job_id,
+                        &diskgraph_core::ProcessEvidenceFailure::new(
+                            diskgraph_core::ProcessEvidenceFailurePhase::Admission,
                             code,
                         ),
                     )?;

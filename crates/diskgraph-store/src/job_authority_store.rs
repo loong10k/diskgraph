@@ -21,9 +21,9 @@ impl ControlStore {
         authority: &JobRequestAuthority,
         maximum: u64,
     ) -> Result<Option<JobRecord>> {
-        if kind == JobKind::GitEvidence {
+        if matches!(kind, JobKind::GitEvidence | JobKind::ProcessEvidence) {
             return Err(StoreError::Conflict(
-                "Git job requires typed fixed input".into(),
+                "collector job requires typed fixed input".into(),
             ));
         }
         let encoded = serde_json::to_string(authority)?;
@@ -87,13 +87,14 @@ impl ControlStore {
     /// 严格调度清理可认领但失去请求权限的任务。参数：无。
     /// 返回：本轮最多 64 个候选中的终结数量；只处理 queued/过期 running。
     /// 真实取消为 cancelled，其他拒绝为 failed；runner 直接逐项 strict claim，无需此额外扫描。
+    /// Process 必须先对账图库回执再认领，故不经过此无图库上下文的兼容清理入口。
     pub fn reap_request_jobs_strict(&mut self) -> Result<u64> {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let now = Self::now_ms();
         let ids: Vec<String> = {
-            let mut statement = tx.prepare("SELECT job_id FROM jobs WHERE state IN ('queued','running') AND (state='queued' OR (state='running' AND lease_expires_unix_ms<=?1)) ORDER BY created_at_unix_ms,job_id LIMIT 64")?;
+            let mut statement = tx.prepare("SELECT job_id FROM jobs WHERE kind!='process_evidence' AND state IN ('queued','running') AND (state='queued' OR (state='running' AND lease_expires_unix_ms<=?1)) ORDER BY created_at_unix_ms,job_id LIMIT 64")?;
             statement
                 .query_map([now as i64], |row| row.get(0))?
                 .collect::<std::result::Result<_, _>>()?

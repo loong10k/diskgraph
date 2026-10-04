@@ -37,14 +37,14 @@ unsafe impl GlobalAlloc for ObservedAllocator {
         result
     }
 }
-fn measure<T>(work: impl FnOnce() -> T) -> (T, usize) {
+pub(super) fn measure<T>(work: impl FnOnce() -> T) -> (T, usize) {
     REQUESTED.store(0, Ordering::Relaxed);
     ENABLED.store(true, Ordering::SeqCst);
     let result = work();
     ENABLED.store(false, Ordering::SeqCst);
     (result, REQUESTED.load(Ordering::Relaxed))
 }
-fn isolated(name: &str) -> bool {
+pub(super) fn isolated(name: &str) -> bool {
     if std::env::var("DISKGRAPH_GIT_RAW_ALLOCATION_CHILD").as_deref() == Ok(name) {
         return false;
     }

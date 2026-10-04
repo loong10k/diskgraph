@@ -6,7 +6,7 @@ use serde_json::{Value, json};
 
 impl McpService {
     /// 参数：scope 为请求范围断言，arguments 为已通过 schema 的业务字段，sync 选择 C03。
-    /// 返回：真实持久 job handle；Git 字段存在时固定绑定 revision/node，不退化成扫描。
+    /// 返回：真实持久 job handle；证据字段存在时固定绑定 revision/node，不退化成扫描。
     pub(super) fn index_tool(
         &self,
         scope: &Option<ScopeId>,
@@ -25,13 +25,23 @@ impl McpService {
                 .get("node_id")
                 .and_then(Value::as_u64)
                 .ok_or(BusinessError::InvalidArgument)?;
-            self.engine.git_evidence_scope_with_authority(
-                &scope_id,
-                revision,
-                node,
-                &authority,
-                &authorizer,
-            )?
+            match arguments.get("collector").and_then(Value::as_str) {
+                Some("git") => self.engine.git_evidence_scope_with_authority(
+                    &scope_id,
+                    revision,
+                    node,
+                    &authority,
+                    &authorizer,
+                )?,
+                Some("process") => self.engine.process_evidence_scope_with_authority(
+                    &scope_id,
+                    revision,
+                    node,
+                    &authority,
+                    &authorizer,
+                )?,
+                _ => return Err(BusinessError::InvalidArgument.into()),
+            }
         } else if sync {
             self.engine
                 .sync_scope_with_authority(&scope_id, &authority, &authorizer)?

@@ -110,6 +110,8 @@ mod plan_item;
 mod plan_state;
 mod plan_store;
 mod policy_store;
+#[cfg(test)]
+mod process_job_protocol_contract_tests;
 mod recovery_entry;
 mod recovery_rule;
 mod recovery_state;
@@ -221,3 +223,36 @@ mod windows_observation_publication_tests;
 
 #[cfg(test)]
 mod native_locator_point_query_tests;
+
+mod process_collector_base;
+mod process_collector_batch_validation;
+mod process_collector_publication;
+mod process_collector_selection;
+mod process_collector_target;
+mod process_entity_identity;
+mod process_job_failure_store;
+mod process_job_input_codec;
+mod process_job_migration;
+mod process_job_recovery;
+mod process_job_store;
+mod process_receipt_migration;
+mod process_receipt_query;
+mod stored_unix_observation;
+mod unix_observation_query;
+mod unix_observation_staging;
+pub use stored_unix_observation::StoredUnixObservation;
+
+#[cfg(test)]
+mod process_collector_publication_tests;
+#[cfg(test)]
+mod process_job_authorization_tests;
+#[cfg(test)]
+mod process_job_recovery_tests;
+#[cfg(test)]
+mod process_job_test_fixtures;
+#[cfg(test)]
+mod process_raw_allocation_tests;
+#[cfg(test)]
+mod process_unix_observation_tests;
+#[cfg(test)]
+mod process_unix_staging_query_tests;

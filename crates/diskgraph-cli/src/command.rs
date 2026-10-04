@@ -39,12 +39,12 @@ pub(crate) enum Command {
         #[arg(long)]
         wait: bool,
         /// Explicit evidence collector; omit for the existing filesystem rescan.
-        #[arg(long, value_parser = ["git"], requires_all = ["revision", "node_id"])]
+        #[arg(long, value_parser = ["git", "process"], requires_all = ["revision", "node_id"])]
         collector: Option<String>,
-        /// Published revision containing the Git worktree target.
+        /// 包含固定 Git 目录或进程观察文件的已发布 revision。
         #[arg(long, requires = "collector")]
         revision: Option<String>,
-        /// Directory node in the selected published revision.
+        /// 已发布版本中的 Git 目录或进程观察普通文件节点。
         #[arg(long, requires = "collector", value_parser = clap::value_parser!(u64).range(1..))]
         node_id: Option<u64>,
     },

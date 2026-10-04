@@ -208,7 +208,10 @@ fn sync_schema_discovers_explicit_git_target_without_client_execution_controls()
         .iter()
         .find(|tool| tool["name"] == "diskgraph_sync")
         .unwrap()["inputSchema"];
-    assert_eq!(schema["properties"]["collector"]["enum"], json!(["git"]));
+    assert_eq!(
+        schema["properties"]["collector"]["enum"],
+        json!(["git", "process"])
+    );
     assert_eq!(schema["properties"]["revision"]["type"], "string");
     assert_eq!(schema["properties"]["node_id"]["type"], "integer");
     assert_eq!(schema["additionalProperties"], false);

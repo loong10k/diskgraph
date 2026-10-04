@@ -47,6 +47,30 @@
 - **THEN** 重领前先按实际 job 读取并验证不可变发布回执，只有 Queued 或租约已过期 Running 可条件结算已提交事实；不抢占存活 owner，不因 token 随后到期或权限撤销否认已经提交的事实，不再打开源、采样或追加第二个 revision/run。
 - **AND** 回执缺失时仍执行完整原请求授权、取消与 fencing 检查；恢复不把失败终态提升为成功，不声明两个 SQLite 数据库跨库原子提交。查询返回回执记录的真实 revision/run，不能按恢复后的 fence 拼接虚构 revision。
 
+#### Scenario: Explicit process observation is a durable metadata-only job
+- **WHEN** CLI `sync --scope S --revision R --node-id N --collector process [--wait]` 或 MCP diskgraph_sync 的对应参数选择已索引普通文件，主体的 MetadataRead 与 IndexWrite 上限及实时 grants 均允许
+- **THEN** 通过实际 revision 归属、同 snapshot 的正整数 node、无损定位和持久原生身份确认目标，返回真实 job_id/state，持久类型为 process_evidence；排队不发布，断连及重开仍可查询原主体、scope、固定目标和原请求授权。无损或原生身份缺失不能回退到按 display 路径采样。
+- **AND** 只允许固定 OS 元数据方法，入队成功不等于采样或发布通过；普通文件以外的目录、链接、特殊或无法安全观测的对象明确拒绝，不自动递归或注册范围。原 Git v1、原 JobRecord/状态字段和省略 collector 的扫描行为保持兼容，未知 collector 拒绝且不产生任务。
+
+#### Scenario: Process metadata authority cannot be forged or expanded
+- **WHEN** 请求只有 MetadataRead、缺 IndexWrite，缺任一原 token 能力，或 client scope 与 revision 实际归属不符，或参数携带 path、program、argv、budget、principal、issuer、ceiling、expiry 或可信本地声明
+- **THEN** 在实际源观察及入队前拒绝；身份与原始绝对到期只来自已认证适配器，限额由服务端固定，不保存 bearer、不用本机 runner 补足。MetadataRead+IndexWrite 的正控无需 ContentRead，但不允许读取文件正文、argv、环境或进程内存。
+- **AND** 固定输入、类型、主体和原请求约束参与合并；不同资源、方法或授权不得继承更强任务。执行、续租、兼容入口和发布均强制同一两项权限及 SC-06，排队等待不计运行预算但原绝对到期持续流逝。
+
+#### Scenario: Missing indexed native epoch cannot be repaired at enqueue
+- **WHEN** 已授权 process 请求的固定节点缺少经平台验证的扫描历代身份，或当前宿主方法尚未证明能够可靠绑定该对象
+- **THEN** 返回 unsupported 且不创建任务、打开源、重扫范围或发布 revision；旧索引提示重新索引，重新索引仍不得将零 generation、birth/change counter 或显示路径提升为强身份。当前平台的拒绝测试与合格平台的真实入队正控分别运行，不能把平台跳过计作原生功能通过。
+
+#### Scenario: Process status uses the immutable result and live viewing authority
+- **WHEN** CLI/MCP 按 job_id 查询、等待或重连 process_evidence，或其发布历史已经回收
+- **THEN** OperationView 校验真实任务 scope，完成结果再校验 MetadataRead，响应使用实际任务状态和回执的 revision/run；客户端 scope 仅作断言，未发布任务不能用 scope latest 补 revision。已回收结果保留安全历史标识并明确不可用，未知/partial 覆盖不变为完整空样本。
+- **AND** 失败或真实取消与有限 typed phase/code 同事务保存，重开仍可查询，不持久原始 OS 输出、错误路径或秘密；图已提交的恢复按 EV-05，不改变原回执、重新采样或续期请求。
+
+#### Scenario: Process protocol extends without rewriting Git records
+- **WHEN** 控制/图库升级并加入固定 process 输入与发布回执，或旧库含 Git v1、旧扫描、未确认来源任务
+- **THEN** 先执行一致性备份；新类型和版本显式分发、借用原始字段准入后验证长度/摘要/归属，未知类型或版本 fail closed。Git v1 输入、回执及旧 API 可读且不被重解释为 process；缺输入/authority 的 process 任务不能借可信扫描路径执行，存活 lease 不被抢占。
+- **AND** 批次校验与同目标选择具备 process 独立语义，复用既有单一调度/fence/原子事务边界而不新增状态 owner；partial 刷新遵循 EV-03 的旧正保护。完成该单文件入口不代表应用安装、目录递归或全部三平台验收完成。
+
 ### Requirement: EC-03 Domain cleanup uses domain semantics
 Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计划；显示精确项目/生态对象、范围及不可恢复性，不通过直接删除数据库、Docker VM 磁盘或卷目录替代专业接口。
 
@@ -60,6 +84,25 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 
 ### Requirement: EC-04 Restricted subprocess boundary
 适配器 SHALL 固定并验证程序来源、参数结构、工作目录、环境、超时和输出上限，不接受模型任意 Shell、可执行路径或无限重试；项目配置/钩子带来的执行风险必须在能力和计划中声明。
+
+#### Scenario: Native process metadata is bound before observation
+- **WHEN** 持久 process 任务开始观察固定已索引文件
+- **THEN** 从保留的授权范围根句柄逐组件安全解析，只取得必要属性并核对持久原生身份；目标替换、范围逃逸、重解析、物化风险或无法可靠绑定的原生方法拒绝。PID/FD 元数据只能经固定系统接口的允许列表取得，不按探针显示路径打开任意外部文件，不读取或物化目标正文。
+- **AND** 低权限或进程消失只形成明确受限/不可观察覆盖，不提高系统权限；可见正向元数据保留，空结果不证明全局无人使用。未核验的旧 lsof union 库 API 保持可信兼容，产品执行不能回退到它生成逐资源确定边。
+
+#### Scenario: Native process enumeration consumes one bounded running session
+- **WHEN** process 任务准备目标、枚举 PID/FD、获取启动身份、重试容量查询、编码证据及清理
+- **THEN** 从成功认领后的同一单调时钟起算，累计扣除原始记录字节、条目、结果和分配预算；每次系统调用/分配前准入，有限重试，不为另一个 PID/资源或复核重建额度，失败锁存。入队必要投影也复用请求 QueryReadBudget 并在拥有/解码前准入。
+- **AND** 原生慢调用不占图/控制写锁；每项调用前后检查原期限/取消，持久授权、租约与撤销沿用既有有界复验和强制发布 fence。安全释放不能因超时丢弃活 I/O owner，也不宣称内核调用、回收或整体 RSS 具有严格抢占上限。
+
+#### Scenario: Process terminal authority is not replaced by partial coverage
+- **WHEN** 已确认完成 native 正向观察或编码，随后原认证到期、两项 live grant 撤销、取消、owner/lease/fence 失效或实际根/文件身份改变
+- **THEN** 在真正图库提交前的原 fence 和纯终检拒绝成功发布，完整回滚新 run/revision/receipt，保存真实失败或取消；不能把授权拒绝改成可交付 partial，也不能用前段格式/预算失败代替已到达终态同步点的守护测试。
+
+#### Scenario: Native process methods are platform specific and honestly limited
+- **WHEN** macOS、Linux 或 Windows 的产品 process 后端报告方法可用
+- **THEN** macOS 的 libproc PID/FD 与原始启动字段须按 OS/ABI 和权限实测，声明私有接口稳定性限制；Linux 绑定 procfs/PID 命名空间、boot/start ticks 和 FD 原生身份，hidepid/访问限制保持 partial/denied；Windows 若使用 Restart Manager，单资源 session 才能将返回进程绑定该文件，PID 配合原始 creation FILETIME，注册成本和注册表副作用显式声明。
+- **AND** Windows 路径接口必须有实际验证的 held 目标身份绑定，否则 unsupported；不得执行 RmShutdown/RmRestart，不把目录错误归为 scope 权限，也不从 RmCancelCurrentTask 文档推断 GetList 具有 20ms 硬取消。每平台分别验收普通持有者、退出/启动变化、受限空结果、额度/取消、清理和目标不变；一个平台、mock 或绿色 CI 不替代其他平台及全局覆盖。
 
 #### Scenario: Product Git collection uses only the scoped private capture
 - **WHEN** 持久 Git 任务实际执行固定 base revision/node 的采样

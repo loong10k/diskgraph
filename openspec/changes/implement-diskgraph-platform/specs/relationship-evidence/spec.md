@@ -25,6 +25,15 @@
 - **WHEN** 进程采集已过有效期
 - **THEN** 风险状态为 stale/unknown，不把构建目录提升为可安全删除。
 
+#### Scenario: Partial process refresh preserves positive protection
+- **WHEN** 固定资源已有正向 UsedByProcess 证据，后续观察为 partial、denied、unsupported、空结果或 stale
+- **THEN** 新 revision 保留旧正向证据的保护效力及来源，标明其独立新鲜度；不能只把旧 run 降为 dependency_only 后通过空的新 active run 解除候选阻断，也不能把观察失败解释为未占用。
+- **AND** 已确认的新正向观察可追加，完整空样本也只描述已核验方法和可见范围内未见句柄，不构成全局无使用者、可重建或删除许可。
+
+#### Scenario: Process lifecycle changes do not erase observations
+- **WHEN** 同一数字 PID 对应不同启动身份，或进程在元数据采样期间退出、启动上下文改变
+- **THEN** 不合并两个进程实例；不能确认同一实例的记录保持 unknown，不生成确定的新占用边，也不撤销旧正向保护。有效期和观察起止时间不能替代启动身份复核。
+
 ### Requirement: EV-04 Deterministic project evidence
 系统 SHALL 有界解析 Cargo/package 等声明和支持的构建配置，不执行项目脚本来发现归属；对 workspace、嵌套项目、自定义与共享输出分别举证。
 
@@ -87,6 +96,16 @@
 - **WHEN** 扫描已完成暂存或项目采集，但提交前的单调时钟期限已经耗尽
 - **THEN** 在实际fencing事务内、写入图库前拒绝发布并清理本代次staging；不得留下snapshot、revision或collector半成品。本检查是提交前协作门禁，不承诺事务执行中严格抢占。
 
+#### Scenario: Process publication has a complete source closure and honest coverage
+- **WHEN** 持久 process_evidence 任务对固定文件 snapshot 生成逐资源正向观察及部分可见覆盖
+- **THEN** 单个图库事务提交 run、实体、证据、关系、完整来源选择、实际 server/scope 归属、新 revision 及唯一 job/固定输入摘要回执；原 revision 不变。证据来源完整性与进程观察覆盖分别保存，合法 partial 不能冒充全局完整，也不能复用 Git 专用完整批次校验来丢弃 partial。
+- **AND** 同一实际 server/scope 的 base/latest CAS、选中来源闭包、输入版本及最终授权/fence 检查必须成立；失败回滚全部新行和回执。其他资源、其他 collector 和旧正向保护不因本次刷新消失；丢失所选 run 或伪造目标身份拒绝整批。
+
+#### Scenario: Process receipt restores only an already committed fact
+- **WHEN** 图中唯一 process 发布回执已提交，控制终态未保存，而原 token 随后到期、grant 撤销或进程/目标路径已不存在
+- **THEN** 重领前核对原 job、固定输入摘要、实际归属及真实 revision/run，只有 Queued 或过期 Running 可条件结算已提交事实；存活 owner 不被抢占，不重新观察或重复发布，不把恢复用于续期授权。
+- **AND** 无回执仍执行原权限、到期、取消和 fencing 检查；终态失败不提升为成功，两数据库不宣称跨库原子性。未完成固定输入及其基线受历史回收保护，恢复后的查询仍按当前查看权限执行。
+
 ### Requirement: EV-06 Application and process coverage
 应用/进程采集 SHALL 报告方法、权限范围与 unsupported/denied/partial 状态；PID 应附启动上下文，应用标识应区分安装实例。
 
@@ -117,3 +136,13 @@
 #### Scenario: Repeated process handles do not multiply command storage
 - **WHEN** 有界探针输出在同一进程上下文重复报告大量匹配文件，或重复出现相同 PID/命令上下文
 - **THEN** 在拥有命令字符串前去重，保留原有按 PID/命令排序的唯一持有者；暂存字符串总量不得随重复文件数乘以命令长度放大。异常记录、歧义路径和未验证身份的覆盖语义保持不变。
+
+#### Scenario: Durable positive process edges are resource and startup specific
+- **WHEN** 两个真实进程分别持有两个已索引普通文件，或多个文件/FD 属于同一进程
+- **THEN** 每条 Observed Resource→Process 边绑定该资源实际 server/scope/snapshot/node 和 held 原生文件身份，以及该进程 PID、原始启动身份和启动/命名空间域；逐资源观察才能形成边，不能把多路径结果的进程并集广播给每个文件。重复 FD 去重，PID 或命令标签相同不能跨实例合并。
+- **AND** Unix 比较原生 dev/inode，Windows 比较完整 volume/128bit FileId 与 creation；采样前后的进程启动及文件身份复核失败保持不可确认。硬链接按同一原生对象观察，但输出仍限定已授权节点，不能扩展到未授权别名。
+
+#### Scenario: Process method scope and minimized evidence remain visible
+- **WHEN** 产品查询 process 观察的 status、explain 或 related，包含受限、空或部分观察
+- **THEN** 返回固定方法/版本、观察起止、权限/可见域、覆盖、限制及有界安全诊断，区分未知与已见正向事实。仅保留必要 PID/启动身份和可选受限标签，不采集或持久化 argv、环境、进程内存、目标正文、原始全局列表或无关资源路径；指纹只证明方法/结果观察，不冒称源字节哈希或永久 freshness。
+- **AND** 进程标签不证明应用安装归属；应用安装实例、目录递归占用、映射文件/全部使用形式及全局可见性仍须独立实现和验收，单文件句柄观察不关闭 EV-06 的完整要求。

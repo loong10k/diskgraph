@@ -1,4 +1,4 @@
-//! C03 Git 请求接线。来源：原生 CLI 与 Engine 持久采集入口；不构造执行命令或客户端预算。
+//! C03 固定证据目标接线。来源：原生 CLI 与 Engine 持久采集入口；不构造命令或客户端预算。
 use crate::cli::Cli;
 use crate::command::Command;
 use crate::output::envelope_line;
@@ -6,7 +6,7 @@ use crate::scan_jobs::{ensure_completed, wait_for_terminal};
 use diskgraph_core::{Authorizer, BusinessError, JobRequestAuthority, PrincipalId, ScopeId};
 use diskgraph_engine::{Engine, EngineError};
 
-/// 将显式 Git 目标入队，并按 --wait 获取实际发布回执的 revision。
+/// 将显式 Git/进程目标入队，并按 --wait 获取实际发布回执的 revision。
 /// 参数：engine 为共享引擎，cli 为已解析请求，principal 为真实本地主体，authorizer 为当前策略，out 为响应缓冲。
 /// 返回：真实持久任务响应或业务拒绝；扫描 sync 由既有处理器执行。
 pub(crate) fn run(
@@ -26,14 +26,18 @@ pub(crate) fn run(
     else {
         return Err(BusinessError::InvalidArgument.into());
     };
-    if collector != "git" {
-        return Err(BusinessError::InvalidArgument.into());
-    }
     let scope = ScopeId::new(scope.clone()).map_err(|_| BusinessError::InvalidArgument)?;
-    // 本地 CLI 明确绑定实际主体；预算和固定 Git 命令由服务端创建，不来自参数。
+    // 本地 CLI 明确绑定实际主体；限额与原生方法由服务端创建，不来自参数。
     let authority = JobRequestAuthority::trusted_local(principal.clone(), "cli")?;
-    let job = engine
-        .git_evidence_scope_with_authority(&scope, revision, *node_id, &authority, authorizer)?;
+    let job = match collector.as_str() {
+        "git" => engine.git_evidence_scope_with_authority(
+            &scope, revision, *node_id, &authority, authorizer,
+        )?,
+        "process" => engine.process_evidence_scope_with_authority(
+            &scope, revision, *node_id, &authority, authorizer,
+        )?,
+        _ => return Err(BusinessError::InvalidArgument.into()),
+    };
     if !*wait {
         out.push(envelope_line(
             engine,

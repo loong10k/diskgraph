@@ -193,6 +193,7 @@ impl SqliteSnapshotStore {
                 ])?;
             }
         }
+        crate::unix_observation_staging::publish(&transaction, job_id, &graph.snapshot.id)?;
         check()?;
         transaction.execute(
             "INSERT INTO graph_revisions (revision_id, snapshot_id, published_at_unix_ms, writer_generation, locator_writer_generation, native_observation_writer_generation)

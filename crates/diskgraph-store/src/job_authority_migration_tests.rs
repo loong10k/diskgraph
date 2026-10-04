@@ -20,7 +20,7 @@ fn real_v6_upgrade_keeps_a_consistent_backup_and_unknown_old_jobs() {
             .connection
             .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
-        8
+        9
     );
     assert_eq!(upgraded.job(&job.job_id).unwrap(), job);
     assert_eq!(upgraded.job_request_authority(&job.job_id).unwrap(), None);

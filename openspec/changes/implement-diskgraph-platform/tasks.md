@@ -215,7 +215,7 @@
 - [x] 13.3 Copy/Move/Restore 的目标 scope 与授权统一解析；操作资源冲突按实际对象身份原子认领，不按计划下标猜 node ID。
 - [x] 13.4 跨 Engine 取消持久生效且阻止发布；撤权过期任务不得饿死队列；旧 fencing staging 有安全回收路径；FFI 图库与控制库绑定唯一 storage realm。
 - [x] 13.5 HTML 报告中的路径和 JSON 无法突破 HTML/script 上下文；专业命令超时覆盖整个子进程树和输出读取；CLI serve 可传递远程认证配置并更新 HTTP 验收脚本。
-- [ ] 13.6 影响分析准确报告截断，关系遍历和候选读取预算覆盖准备阶段；宽目录统计、历史比较、TUI 宽目录的实际工作量与展示限制可观测且有界。
+- [x] 13.6 影响分析准确报告截断，关系遍历和候选读取预算覆盖准备阶段；宽目录统计、历史比较、TUI 宽目录的实际工作量与展示限制可观测且有界。
   - D41 同源码 3531943 CI37190906485 22/22 成功，四平台准备 20 项及既有查询 32 项逐案通过。D43 补足 related／explain／impact／candidate／tree 及可信兼容路径的准备共享账本：隔离重编旧源码公开请求 2/9、finish 错误 0/1 RED；新 integration 11/11、helper 8/8、期限阶段 9/9。最终冻结 workspace 1414/0/18、fmt／Clippy／build／OpenSpec／vendor 124/0/2／release 通过，实际协议 18/18、13/13 与 ABI 19/19；独立复审批准。首轮 1411/2/18、编译／夹具／缓存隔离失败完整保留，未计为完成。新源码原生验收尚待，13.6 不勾选；记录见 docs/benchmarks/relation_preparation_acceptance_2026_10_04.json。
 - [x] 13.7 发布门禁先验证二进制再发布注册表；运行目标及 workspace 测试、fmt、Clippy、OpenSpec strict 和隔离性能探针，更新中英文文档及剩余平台限制。
 
@@ -335,3 +335,9 @@ D40本机最终：入口1950→55、67body tokens与21原断言保持、36既有
 D40原生最终：fd9330e的CI37187379023第一次21/22（Kotlin Intel Maven描述符解析失败，尚未宿主执行），实际只重跑该失败job后第二次终态22/22；21旧成功job沿用原执行时刻。四原始workspace分别1248/0/16、1248/0/16、1376/0/18、1387/0/18，均59suite；Git157/159、authority39、query32、搬迁21、AST9逐案恰好一次ok。独立核验CLEAR后仅关闭8.7与15.20；167项/139完成/28开放，13.6待D41修复及同源码原生，其他父项保持开放。
 
 D41本机最终：已复现真实请求准备阶段大型snapshot ID先拥有后预算（TUI5/2、修正正控后的history1/7）；原history两处root计数夹具错误另存，不计生产缺陷。共享归属/目标/后续账本定向Store3、history10、TUI7通过；首次全workspace的TuiRequest条件导入编译错误已作等价纠正并保留原失败。最终17源116af7b0经两路独立APPROVE/CLEAR，完整workspace1401/0/18（60 suites）、fmt/FFI include/严格Clippy/build/OpenSpec/vendor124/0/2及14摘要/release通过。冻结二进制实际stdio18/18、HTTP/SSE13/13、UniFFI19/19通过；macOS ARM Kotlin/JVM真实宿主执行也通过，新脚本仅增加Maven错误诊断、不归因原Intel解析故障。超预算2MiB目标的历史请求Rust累计分配由约2.1MiB降至4528–4541字节，TUI导航/整帧由2101248/2184272降至2521字节且整帧未绘制；这不代表RSS、SQLite C、I/O或严格时限上界。完整回执为docs/benchmarks/query_target_preparation_acceptance_2026_10_04.json；新同源码原生仍待验收，13.6和其余28项保持开放。
+
+D43原生最终：66f2e4c的CI37196289598终态22/22；12份审查源码摘要与该提交一致。四份原始workspace各61 suites，Windows stable/MSRV各1275/0/16、LinuxARM1403/0/18、macOSIntel1414/0/18；integration11、terminal8、deadline9合计28项逐案恰好一次ok，只核对workspace实际执行阶段，不累加migration重复或inventory。D43回执70份原始档案保留下载终端转义拒绝与修正读取，不重跑CI。13.6仍待完整有界查询要求复核，未修改checkbox，139完成/28开放。
+
+  - D43 完整查询验收复核：66f2e4c 同源码四份原生 workspace 日志逐项确认关系／候选准备、impact截断、宽目录统计、双侧历史和TUI预算；24份相关源码与提交及当前文件一致。既有55组引用存在重叠，不能累加为独立用例数。独立审查与root原始日志核对完成，13.6关闭，清单140完成／27开放／167总项；15.2的内容成本与provider不下载仍未完成。映射及root核验归档至D43回执，不使用D42未提交能力作为此项证据。
+
+  - D42 基础本机验收：typed输入／原授权／fencing／Unix旁表与原子发布恢复、CLI/MCP真实分发已实现；末回调、失败锁存、句柄释放及暂存20k/200k点查真实先红后绿，最终workspace1474/0/18、相关Git11/11、修正排版后的fmt／Clippy／build通过。原生Linux执行器仍Unsupported，Linux-only目标本机零执行不算验收，8.6／15.13保持开放；完整证据与剩余边界见process_job_foundation_acceptance_2026_10_04.json。

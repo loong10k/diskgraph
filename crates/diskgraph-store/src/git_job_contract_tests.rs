@@ -25,7 +25,7 @@ fn v7_control_upgrade_has_a_consistent_pre_v8_backup_and_typed_input_table() {
             .connection
             .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
-        8
+        9
     );
     assert!(
         upgraded

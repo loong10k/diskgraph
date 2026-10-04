@@ -308,5 +308,55 @@
     "raw_sha256": "5c256ab9fe8e8e995ca236ddcd5d1dc49c29426d7c02dcc8ffb42546eded1e5d",
     "gzip_sha256": "f0c8f61673135494fbe73dc7d49b9a79173876cac5b37a4eaad4a4b2360089da",
     "raw_bytes": 568
+  },
+  "diskgraph-d43-native-job-111418751283.log.gz": {
+    "raw_sha256": "586beb1a4bc1d0c50fed1e41d4f95c5d873d1108c2323be81a7609a4019ff008",
+    "gzip_sha256": "731727d013ad69f64d93ac0611872c21e77b32e90f7ac1c69bac163e82c51055",
+    "raw_bytes": 440925
+  },
+  "diskgraph-d43-native-job-111418751338.log.gz": {
+    "raw_sha256": "b83c08e93961f7287689662e8ed455babef87752609cd32ec254abcedc0c425e",
+    "gzip_sha256": "928f990c2f25a54a49d5a87680bdf473bb5ab72d5884d58349490f91e37eda07",
+    "raw_bytes": 414513
+  },
+  "diskgraph-d43-native-job-111418751372.log.gz": {
+    "raw_sha256": "881d2dd0a9b3289d1c056fcb720ae3734b431474af1ea755902ce5b10c67a767",
+    "gzip_sha256": "60763abdea1b70ba5d60089f0ae0349932d624a8d0a8f63f87dc19b43e9cd6d2",
+    "raw_bytes": 417840
+  },
+  "diskgraph-d43-native-job-111418751398.log.gz": {
+    "raw_sha256": "e9bcacd9826b5f0b35ada7d9e6426dfa231ac94093ad72894073feb284770639",
+    "gzip_sha256": "039d788f9a3346b0fa9e6aee12e565b5126bb6ab652c098a3645e86d9e2ab7c9",
+    "raw_bytes": 456795
+  },
+  "diskgraph-d43-ci-terminal.json.gz": {
+    "raw_sha256": "7a4456d737d03c05ae26a8be9e919c986a2bd4c49a0882f7efe17b9c4b443377",
+    "gzip_sha256": "81d97e801d585f2892e33c968efad63393c76975e5ef07869ba885a2e9ff31c5",
+    "raw_bytes": 62583
+  },
+  "diskgraph-d43-native-case-observations.json.gz": {
+    "raw_sha256": "b92db0543ae69de4edf6cd3d9a2ac2741a0d3b1bb226f036db10f88f81785867",
+    "gzip_sha256": "90947138cacf3eb7b6e88eb8bfcb57815bd887347aa048c5a871b2b733b87e26",
+    "raw_bytes": 27857
+  },
+  "diskgraph-d43-native-log-download-failure.json.gz": {
+    "raw_sha256": "65ae503d840b5627a34ffb459b57e7968f5819b8b666be44c469e6c05edff6c5",
+    "gzip_sha256": "a1f58afe1c8312d6fef3597b02f6570a3a361029da418b9b15824a17028e45fd",
+    "raw_bytes": 1577
+  },
+  "diskgraph-d43-native-log-download-results.json.gz": {
+    "raw_sha256": "4e3ea3021556507b12f32dc6f1f58e9b0937543e259cc3133e93d11506e61db1",
+    "gzip_sha256": "377ec9e5c23b38a255147d2b5e86fa73525dfca95b3723a68fe1e63b59094bcb",
+    "raw_bytes": 1197
+  },
+  "diskgraph-d43-task-13-6-review-mapping-candidate.json.gz": {
+    "raw_sha256": "a0cd5b17d2b259ab916b53700cd115f7972462a81c18557a9865e825228ca6da",
+    "gzip_sha256": "c16b4af4d2bb51fa83bc3bac1e05f3af3eff39c43df79fe008663c6d53cc03b1",
+    "raw_bytes": 22948
+  },
+  "diskgraph-d43-task-13-6-root-verification.json.gz": {
+    "raw_sha256": "3f931d14ed63c9fc7bd2591b94983ed37bcd4fd0bda124d79734d243f567b3e5",
+    "gzip_sha256": "9cede3a29c8c59a7dd44be691146a53616a3b92ad023819bc00d1e80e5c086cf",
+    "raw_bytes": 2070
   }
 }

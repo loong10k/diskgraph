@@ -7,7 +7,7 @@ mod client_address;
 mod connection_rejection;
 pub mod doctor;
 mod error_reply;
-mod git_job_status;
+mod evidence_job_status;
 #[cfg(test)]
 mod history_budget_tests;
 pub mod http;

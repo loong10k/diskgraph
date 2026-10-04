@@ -154,6 +154,7 @@ impl ControlStore {
              WHERE scope_id=?1 AND kind='git_evidence' AND state='queued'",
             [scope_id.as_str()],
         )?;
+        crate::process_job_failure_store::record_queued_cancel(&tx, "scope_id", scope_id.as_str())?;
         tx.execute(
             "UPDATE jobs SET state = 'cancelled' WHERE scope_id = ?1 AND state = 'queued'",
             [scope_id.as_str()],

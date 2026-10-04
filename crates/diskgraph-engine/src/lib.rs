@@ -43,7 +43,14 @@ mod job_cancellation_guard;
 mod job_cancellation_guard_tests;
 pub mod live_evidence;
 mod native_locator;
+pub mod native_process;
 mod policy_service;
+#[cfg(test)]
+mod process_entry_budget_tests;
+mod process_evidence_admission;
+mod process_evidence_entry;
+mod process_evidence_target;
+mod process_job_status;
 mod queries;
 mod relation_access;
 mod relation_queries;

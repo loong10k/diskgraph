@@ -437,3 +437,43 @@ The D39 Windows original-expiry fixture used a3-second token before real capture
 Q-08 applies to the preparation before the existing TUI/history consumers as well as their node reads. A legal large snapshot ID currently reaches an owned RevisionRecord before the consumer constructs its read ledger. First reproduce this through actual navigation, buffered display and the public comparison/changes/growth requests, with whole-request Rust allocation observations and ordinary/adequate-budget success controls. Reuse the existing borrowed revision-target projection and one request-local QueryReadBudget through preparation and all consumers. Preserve public compatibility paths, actual revision ownership, dual-side terminal authorization, original deadlines and the distinction between a valid painted truncated frame and failed initial preparation. Do not claim a SQLite C allocation, I/O or RSS cap from Rust allocation tests.
 
 The same-source D40 macOS Intel Kotlin job failed in Maven dependency-plugin descriptor resolution before Java/JNA execution. Its log does not identify an underlying network/cache cause. Add Maven --errors diagnostics while keeping pinned dependencies, isolated settings/repository, the original goals and failure/timeout behavior. A successful local ARM host is evidence for that host only; the Intel failure and its eventual native rerun remain separate records. These steps do not close mobile/provider, native-write, signing or production gates.
+
+## D42 固定资源的持久进程元数据观察（规格设计，尚未实现）
+
+延续 EV-02/03/05/06、EC-02/04、SC-06 与 C03/RT 的既有任务合同；本段不是新 change 或第二套计划。2026-10-04 冻结 release CLI 的真实探针在注册、授权、索引普通文件后，对 `collector=process` 的 wait/nonwait 两请求均返回解析 exit2、空 stdout、无业务错误码，任务/图库不变；原扫描 sync 正控 Completed 并发布新 revision。探针15项检查证明这个产品入口缺口，未执行进程后端，不是15项进程验收或授权漏洞。来源为 `/private/tmp/diskgraph-d42-process-entry-probe.json`（SHA256 `c09892738d7a996f3ece545b76c45b8971df811beba1e42f55698aaf2b54eea9`）和只读调查（SHA256 `5ed75452a156fe58ffc220d79002017c6400fa4a11e5fb6d0bb84d828b518313`）。
+
+```mermaid
+flowchart TD
+    A["CLI sync / MCP diskgraph_sync<br/>collector=process + scope/revision/node"] --> B["Engine 实际归属与有界目标准入<br/>MetadataRead + IndexWrite"]
+    B --> C["持久 process_evidence<br/>固定输入 / 原请求授权 / 单一lease-fence"]
+    C --> D["held普通文件 + native PID/FD<br/>逐资源身份 + 进程启动身份"]
+    D --> E["正向边 + 独立覆盖/新鲜度<br/>partial保留旧正保护"]
+    E --> F["图库同事务 CAS / 来源封存<br/>新revision + 唯一job/input回执"]
+    F --> G["控制条件结算 / status<br/>已commit先恢复，不重采或续期"]
+```
+
+入口只扩展现有 `sync --scope S --revision R --node-id N --collector process [--wait]` 及 MCP 同字段，省略 collector 的扫描和 Git v1 保持兼容；未知 collector/伪造 authority/path/program/argv/budget 拒绝。首个完整纵向切片固定同 snapshot 的一个已索引普通文件，持久 kind=`process_evidence`，返回旧 job_id/真实 state。客户端不能指定 PID 列表或外部采样范围。单文件不是缩减应用安装、递归目录及三平台最终目标。
+
+权限为 MetadataRead+IndexWrite 与原 token ceiling、绝对 expiry 及 live grants 的交集；ContentRead 不是该元数据方法的前置。允许列表仅取得 PID/启动/FD→目标原生身份及必要可见域，不采集 argv/env/mem、文件正文或任意安装数据库；输出/日志同样最小化。无内容权限的真实正控须成功入队，缺任一要求先拒绝。SC-06 的持久来源、64项调度页、活 lease 不抢占、原始到期及兼容入口约束保持。
+
+借用目标投影先准入，验证实际 server/scope/revision/node 与 lossless locator；held 根/组件绑定 Unix dev/inode 或 Windows 完整 volume/128bit FileId/creation，不用显示路径、截断身份或 EOF 推断。启动身份保存原始系统精度和 server/boot/命名空间域；同 PID/名称的不同实例不合并，采样前后退出或变化不能形成确定边。Linux procfs 固定允许列表只用于内核元数据，不能沿 FD 的显示名称去读文件。Windows 路径注册若不能在调用期间可靠绑定 held 原对象，方法明确 unsupported，事后变化检查不能补足已经发生的错误观察。
+
+选择原生逐资源后端，旧 lsof union 仅保持可信库 API。替代方案是 lsof 显示匹配后补元数据：实现较少，但当前缺逐文件映射且名称/启动竞态不能承担产品正向边；不能作为安全降级。原生方案增加版本、权限与枚举成本，须真实平台验收，尚不承诺任意主机完整可见。
+
+| 平台 | 一手接口事实 | D42 方案和未验证边界 |
+| --- | --- | --- |
+| macOS | [Apple libproc](https://github.com/apple-oss-distributions/xnu/blob/main/libsyscall/wrappers/libproc/libproc.h) 将 PID/FD 接口标为私有、可能变更；[proc_info](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/proc_info.h) 提供启动及 vnode 字段，[内核权限检查](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/proc_info.c) 限制可见范围 | PID→FD/vnode 与 held目标匹配、前后启动复核；按 OS/ABI 实测，拒绝缺字段，不称稳定公开 SDK 或全系统快照 |
+| Linux | [内核 procfs](https://www.kernel.org/doc/html/latest/filesystems/proc.html) 说明 held已死PID不转向重用实例以及 hidepid/PID域；[FD手册](https://man7.org/linux/man-pages/man5/proc_pid_fd.5.html) 说明访问检查，[stat手册](https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html) 定义原始启动ticks | held procfs/PID上下文、boot/PID域/start ticks、逐FD属性匹配；不读argv/env/mem或正文，不把隐藏/退出/不可访问解释为未占用 |
+| Windows | [RM_UNIQUE_PROCESS](https://learn.microsoft.com/en-us/windows/win32/api/restartmanager/ns-restartmanager-rm_unique_process) 含PID/creation FILETIME；[GetList](https://learn.microsoft.com/en-us/windows/win32/api/restartmanager/nf-restartmanager-rmgetlist) 返回已注册资源的session结果，目录可报ACCESS_DENIED；[RegisterResources](https://learn.microsoft.com/en-us/windows/win32/api/restartmanager/nf-restartmanager-rmregisterresources) 说明昂贵写操作/注册表错误；[Cancel](https://learn.microsoft.com/en-us/windows/win32/api/restartmanager/nf-restartmanager-rmcancelcurrenttask) 详情仅列Shutdown/Restart | 一个文件/session避免并集误边，代价须公开；只元数据观察但不是“零系统写入”。不得停止/重启其他进程，GetList取消与路径绑定尚须验证，不承诺20ms硬取消；无法可靠绑定或避免物化时拒绝 |
+
+从成功认领起使用一个原始执行时钟，目标准备、PID/FD枚举、原始元数据、输出、重试、编码/清理共享累计额度；每次调用与分配先检查，失败锁存，不重置下一PID/资源余额。服务端持久配置覆盖条目/原始字节/结果/分配/有限重试及期限。慢系统调用不占控制/图写锁；原有持久状态复验、运行代次Arc及强制fence保留。合作取消和安全回收不等于同步内核调用的硬抢占或严格RSS保证。
+
+Core 增加真实单对象的 process输入/限额、启动身份、逐资源观察和安全诊断；Store 明确版本化process输入、回执及batch validator，不能把Git输入或完整/two-entity规则伪装为进程。一致性备份、原始长度/摘要准入、来源闭包及新process协议的旧writer/未知版本拒绝分别回归；Git v1按原版本可读，不能重编码既有记录，不宣称所有旧可信图库API全球拒写。Engine复用单一runner、配额与fence，CLI/MCP只做真实类型分发及现有状态投影，不另建状态owner。
+
+进程观察 coverage 与证据 selection 的来源完整性分离。partial 可发布可确认的正向边与安全限制，旧 active 正向保护保留；partial/denied/empty/stale不能只demote旧run后洗成可删候选。完整空结果只表示该方法/范围未见句柄，不证明全局未使用。观察方法/结果指纹不称源字节hash，独立时间/有限TTL不能给予永久权限。应用安装标识不得从进程标签推导。
+
+实际server/scope latest-base CAS、完整来源、run/revision/选择/唯一job+input回执在同一图库事务提交，最后SQL后纯deadline/cancel/lease/原authority检查，失败完整rollback；控制失败/取消诊断同fence事务保存。图commit控制未finish时先验回执，仅Queued/过期Running条件结算已commit事实，token后续到期不重复观察或发布，活owner不抢。无回执照常授权；跨DB无原子承诺。pending输入/基线受prune保护，status按OperationView、完成MetadataRead末检，历史回收明确result_available=false。
+
+下一步真实 TDD：公开CLI/MCP无缺失类型的入队runtime RED；随后两真实子进程分别持A/B文件仅形成A→P1、B→P2，重复FD/硬链接/非UTF8、目标替换、退出/启动变化和受限空覆盖；部分刷新仍阻断候选；已到实际采样/编码末段再撤权/expiry/cancel/lostowner完整rollback；已commit后sourceGone/expiry恢复不重采；同scope CAS及损坏来源、迁移/旧Git、全部预算与清理正反控。模拟相同PID不同启动只证明codec/绑定，不能冒称实际内核PID重用复现；三OS均需独立native证据。
+
+当前 typed协议／存储发布回执／授权入口及原生预算基础已通过本机回归；Linux执行器仍为Unsupported，实际原生RED与实现、macOS/Windows后端仍待验收，8.6/15.13不勾；应用安装实例、目录递归、全部占用方式和全局可见性保留原验收。provider、不物化、移动端、危险写、签名和部署父项不由此代替；D41原生CI仍单独验收。

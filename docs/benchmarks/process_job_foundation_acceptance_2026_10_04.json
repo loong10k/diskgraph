@@ -1,0 +1,162 @@
+{
+  "receipt_version": 1,
+  "date": "2026-10-04",
+  "change": "implement-diskgraph-platform",
+  "requirements": [
+    "D42/SC-06: immutable typed ProcessEvidence input, original authority and fenced durable publication",
+    "EV-06: indexed native epoch and per-resource process startup identity",
+    "Q-08: staging identity point lookups do not walk unrelated staged rows"
+  ],
+  "status": "local_foundation_verified_native_execution_pending",
+  "source": {
+    "base_commit": "66f2e4c86bd894a45e2431f96a9ceb5bf6c7b3c6",
+    "frozen_manifest": "process_job_foundation_acceptance_logs/diskgraph-d42-format-final-freeze.json.gz",
+    "frozen_source_count": 99,
+    "full_workspace_delta": "One assert_eq whitespace-only correction; 98/99 frozen paths byte-identical. Rechecked affected Git contract, fmt, strict Clippy and build after correction."
+  },
+  "tdd": {
+    "session_work_failure_unwind": {
+      "red": [
+        3,
+        2,
+        0
+      ],
+      "green": [
+        5,
+        0,
+        0
+      ]
+    },
+    "late_callback_deadline_cancel": {
+      "red": [
+        5,
+        2,
+        0
+      ],
+      "green": [
+        7,
+        0,
+        0
+      ]
+    },
+    "real_control_mutex_entry_wait": {
+      "red": [
+        0,
+        1,
+        0
+      ],
+      "green": [
+        1,
+        0,
+        0
+      ]
+    },
+    "staging_20k_200k": {
+      "red": [
+        2,
+        2,
+        0
+      ],
+      "green_with_upgrade_and_reopen": [
+        6,
+        0,
+        0
+      ]
+    },
+    "migration_v13_and_current_v14_reopen": {
+      "red_each": [
+        0,
+        1,
+        0
+      ]
+    },
+    "cli_process_entry": {
+      "red": [
+        1,
+        1,
+        0
+      ],
+      "green": [
+        2,
+        0,
+        0
+      ]
+    },
+    "mcp_process_entry": {
+      "red": [
+        1,
+        3,
+        0
+      ],
+      "green": [
+        4,
+        0,
+        0
+      ]
+    },
+    "retained_failures": "First full workspace 1470/1/18 failed a renamed private AST module expectation; strict Clippy reported two redundant test closures; final first fmt failed one assertion layout. Compiler/fixture prerequisites are not counted as behavior RED."
+  },
+  "final_local_quality": {
+    "platform": "aarch64-apple-darwin",
+    "workspace": {
+      "passed": 1474,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 68
+    },
+    "affected_git_contract": [
+      11,
+      0,
+      0
+    ],
+    "fmt_exit": 0,
+    "clippy_exit": 0,
+    "build_exit": 0,
+    "native_linux_execution": "not executed on macOS; cfg Linux targets reported zero tests, never counted as positive acceptance"
+  },
+  "staging_cost": {
+    "public_api_exact_vm_steps_for_three_writes": {
+      "before_20k": 360234,
+      "before_200k": 3600234,
+      "after_each": 272
+    },
+    "isolated_paired_sql_100_lookups_seconds": {
+      "20k_before": 0.714071,
+      "20k_after": 0.000659,
+      "200k_before": 8.536088,
+      "200k_after": 0.000698
+    },
+    "index_cost": {
+      "20k_build_seconds": 0.013736,
+      "20k_added_database_bytes": 466944,
+      "200k_build_seconds": 0.155159,
+      "200k_added_database_bytes": 4972544
+    },
+    "limits": "Same SQLite fixture point-lookup observations; not full-scan time, RSS, C allocator memory, platform SLA or free index maintenance."
+  },
+  "native_acceptance": {
+    "status": "pending",
+    "linux_tests": [
+      "linux_process_epoch",
+      "linux_process_observation",
+      "linux_process_execution"
+    ],
+    "requirement": "Real native execution RED must reach qualified indexed epoch and runner before the Unsupported executor is implemented; compilation or unsupported kernel prerequisites do not prove execution RED. No tests ignored to obtain green."
+  },
+  "remaining": [
+    "Linux process runner remains explicit Unsupported and must be replaced after actual native RED.",
+    "macOS and Windows native process qualification and implementation remain unaccepted.",
+    "Application installation ownership, recursive resources and full low-privilege observation remain required.",
+    "Provider no-hydration, native writes, GUI/mobile/devices, signing and production deployment remain open.",
+    "Current entry control-mutex deadline is cooperative; it does not prove all external SQLite writer waits obey a hard one-second enqueue bound."
+  ],
+  "archives": {
+    "count": 40,
+    "ledger": "process_job_foundation_acceptance_logs/archives.json",
+    "ledger_sha256": "68a8343a634b060ee29c36af14ab53cd4921f056392473800cd01f4b6641328c"
+  },
+  "independent_review": {
+    "status": "CLEAR foundation only; no complete native executor certification",
+    "record": "process_job_foundation_acceptance_logs/diskgraph-d42-independent-review.txt.gz"
+  }
+}

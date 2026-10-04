@@ -21,7 +21,7 @@ mod dispatch;
 mod du_commands;
 mod entry;
 mod error_reply;
-mod git_sync;
+mod evidence_sync;
 mod grant_commands;
 mod history_commands;
 mod html;

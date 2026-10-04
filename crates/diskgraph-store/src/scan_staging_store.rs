@@ -177,6 +177,10 @@ impl SqliteSnapshotStore {
         let tx = self.connection.transaction()?;
         tx.execute("DELETE FROM scan_staging WHERE job_id = ?1", [job_id])?;
         tx.execute(
+            "DELETE FROM scan_staging_unix_observations WHERE job_id = ?1",
+            [job_id],
+        )?;
+        tx.execute(
             "DELETE FROM scan_staging_search WHERE job_id = ?1",
             [job_id],
         )?;
@@ -195,7 +199,8 @@ impl SqliteSnapshotStore {
         let stale: Vec<String> = {
             let mut statement = tx.prepare(
                 "SELECT job_id FROM scan_staging WHERE substr(job_id, 1, length(?1)) = ?1
-                 UNION SELECT job_id FROM scan_staging_search WHERE substr(job_id, 1, length(?1)) = ?1",
+                 UNION SELECT job_id FROM scan_staging_search WHERE substr(job_id, 1, length(?1)) = ?1
+                 UNION SELECT job_id FROM scan_staging_unix_observations WHERE substr(job_id, 1, length(?1)) = ?1",
             )?;
             statement
                 .query_map([&prefix], |row| row.get::<_, String>(0))?
@@ -211,6 +216,10 @@ impl SqliteSnapshotStore {
         };
         for namespace in stale {
             tx.execute("DELETE FROM scan_staging WHERE job_id = ?1", [&namespace])?;
+            tx.execute(
+                "DELETE FROM scan_staging_unix_observations WHERE job_id = ?1",
+                [&namespace],
+            )?;
             tx.execute(
                 "DELETE FROM scan_staging_search WHERE job_id = ?1",
                 [&namespace],

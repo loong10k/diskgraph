@@ -35,9 +35,9 @@ impl ControlStore {
         principal: &PrincipalId,
         maximum: u64,
     ) -> Result<Option<JobRecord>> {
-        if kind == JobKind::GitEvidence {
+        if matches!(kind, JobKind::GitEvidence | JobKind::ProcessEvidence) {
             return Err(StoreError::Conflict(
-                "Git job requires typed fixed input".into(),
+                "collector job requires typed fixed input".into(),
             ));
         }
         self.create_job_internal(scope_id, kind, principal, maximum, true)
@@ -54,9 +54,9 @@ impl ControlStore {
         maximum: u64,
         require_live_grant: bool,
     ) -> Result<Option<JobRecord>> {
-        if kind == JobKind::GitEvidence {
+        if matches!(kind, JobKind::GitEvidence | JobKind::ProcessEvidence) {
             return Err(StoreError::Conflict(
-                "Git job requires typed fixed input".into(),
+                "collector job requires typed fixed input".into(),
             ));
         }
         let tx = self
@@ -130,6 +130,7 @@ impl ControlStore {
             "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?1
              WHERE state = 'running' AND lease_expires_unix_ms <= ?1
                AND NOT EXISTS(SELECT 1 FROM git_evidence_job_inputs i WHERE i.job_id=jobs.job_id)
+               AND kind!='process_evidence'
                AND (cancel_requested = 1 OR EXISTS
                    (SELECT 1 FROM scopes WHERE scopes.scope_id = jobs.scope_id AND scopes.revoked = 1))",
             [Self::now_ms() as i64],
@@ -147,6 +148,7 @@ impl ControlStore {
             "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?2
              WHERE job_id = ?1 AND state = 'running' AND lease_expires_unix_ms <= ?2
                AND NOT EXISTS(SELECT 1 FROM git_evidence_job_inputs i WHERE i.job_id=jobs.job_id)
+               AND kind!='process_evidence'
                AND (cancel_requested = 1 OR EXISTS
                    (SELECT 1 FROM scopes WHERE scopes.scope_id = jobs.scope_id AND scopes.revoked = 1))",
             params![job_id, Self::now_ms() as i64],
@@ -345,6 +347,7 @@ impl ControlStore {
              WHERE job_id=?1 AND kind='git_evidence' AND state='queued'",
             [job_id],
         )?;
+        crate::process_job_failure_store::record_queued_cancel(&tx, "job_id", job_id)?;
         let changed = tx.execute(
             "UPDATE jobs SET cancel_requested = 1,
                  state = CASE WHEN state = 'queued' THEN 'cancelled' ELSE state END,
@@ -391,6 +394,7 @@ impl ControlStore {
              WHERE job_id=?1 AND kind='git_evidence' AND state='queued'",
             [job_id],
         )?;
+        crate::process_job_failure_store::record_queued_cancel(&tx, "job_id", job_id)?;
         let changed = tx.execute(
             "UPDATE jobs SET state = 'cancelled', heartbeat_unix_ms = ?2
              WHERE job_id = ?1 AND state = 'queued'",
@@ -430,17 +434,17 @@ impl ControlStore {
             ));
         }
         let git_job: bool = self.connection.query_row(
-            "SELECT EXISTS(SELECT 1 FROM jobs WHERE job_id=?1 AND kind='git_evidence')",
+            "SELECT EXISTS(SELECT 1 FROM jobs WHERE job_id=?1 AND kind IN ('git_evidence','process_evidence'))",
             [job_id],
             |row| row.get(0),
         )?;
         if git_job {
             return Err(StoreError::Conflict(
-                "Git job requires typed terminal settlement".into(),
+                "collector job requires typed terminal settlement".into(),
             ));
         }
         let changed = self.connection.execute(
-            "UPDATE jobs SET state = ?2, heartbeat_unix_ms = ?3 WHERE job_id = ?1 AND kind != 'git_evidence' AND owner = ?4 AND fencing_token = ?5 AND state = 'running' AND lease_expires_unix_ms > ?3",
+            "UPDATE jobs SET state = ?2, heartbeat_unix_ms = ?3 WHERE job_id = ?1 AND kind NOT IN ('git_evidence','process_evidence') AND owner = ?4 AND fencing_token = ?5 AND state = 'running' AND lease_expires_unix_ms > ?3",
             params![job_id, state.as_str(), Self::now_ms() as i64, owner, fence as i64],
         )?;
         if changed != 1 {

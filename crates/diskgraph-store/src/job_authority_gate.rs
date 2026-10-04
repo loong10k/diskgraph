@@ -118,6 +118,9 @@ pub(crate) fn validate_job(
     if kind == JobKind::GitEvidence {
         crate::git_job_input_codec::read(connection, job_id)?;
     }
+    if kind == JobKind::ProcessEvidence {
+        crate::process_job_input_codec::read(connection, job_id)?;
+    }
     match read(connection, job_id)? {
         Some(authority) => {
             let scope: String = connection.query_row(
@@ -140,9 +143,9 @@ pub(crate) fn validate_job(
                 validate_scope(connection, &scope, &authority, &extra)
             }
         }
-        None if strict || kind == JobKind::GitEvidence => Err(StoreError::Conflict(
-            "legacy job request authority unknown".into(),
-        )),
+        None if strict || matches!(kind, JobKind::GitEvidence | JobKind::ProcessEvidence) => Err(
+            StoreError::Conflict("legacy job request authority unknown".into()),
+        ),
         None => Ok(()),
     }
 }
