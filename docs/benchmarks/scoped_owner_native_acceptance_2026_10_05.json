@@ -1,0 +1,400 @@
+{
+  "schema": "diskgraph.scoped_owner_native_acceptance.v1",
+  "source_sha": "b3b37469c047c75ca335cbb73093d06ae2caf21f",
+  "run_id": 37237018524,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37237018524",
+  "status": "completed",
+  "jobs_successful": 22,
+  "jobs_failed": 0,
+  "compile_constraints": {
+    "native_reports": 8,
+    "qualified_cases": 64,
+    "source_binding": "Every source byte digest equals repository LF bytes or exact LF-to-CRLF transformation; raw Windows digest is preserved, not called byte-identical",
+    "reports": [
+      {
+        "artifact": "scoped-owner-windows-latest-stable-37237018524",
+        "artifact_id": 11316505695,
+        "artifact_digest": "sha256:6907f481768dcf53218dfc0ab525528d190a878f889f5e74ca2d5a8c230cdde4",
+        "report_sha256": "bb38fa22567a2d5da04388f1c66efbee8a404399946ec043261eec42361de622",
+        "cargo_sha256": "2f52d44612e274ebf6c5ae6806b40ad53ed3f9f7e7fe2ed01c0e99f0ee2eeb12",
+        "rlib_sha256": "317244257902c459ae435929d07d76c2016c81a6ca95f8d8ba386af614078092",
+        "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+        "source_line_endings": [
+          "CRLF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-0-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-0-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-macos-latest-1.97.0-37237018524",
+        "artifact_id": 11316047010,
+        "artifact_digest": "sha256:3cd31636b68d4c9f726a2a5a3e9e96b16608d8017b542ec9f6f4dd4d2d3d6da4",
+        "report_sha256": "a5538c5cf85ade22d18374a43cd3635ea2f39f46be0fbcee02e5df4e494ccdf4",
+        "cargo_sha256": "ecfbd351c84d6ea5dd7c6aa7d0365c4fc140b360d0b183e8b1859080f6229136",
+        "rlib_sha256": "88a0d0726f3d7bf5ab4395bc49b37de6bc8adfd8cd7a924f2c40f4a2cbb92822",
+        "compiler": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+        "source_line_endings": [
+          "LF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-1-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-1-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-ubuntu-latest-1.97.0-37237018524",
+        "artifact_id": 11316042236,
+        "artifact_digest": "sha256:d0cfd566c17e7a38172fe36f6097d191b6b35a4e91b4f57f8f2cd67d2c3aa971",
+        "report_sha256": "ce564113c19be87e2d9e84e6b2b12535781ce53771924fdcc4f711a883cdc241",
+        "cargo_sha256": "a4af4d858724128f4e6eb05cd310ae4a0b6420dbc1ec93ec7d7043241d5f05de",
+        "rlib_sha256": "4b2261752b3a3f291195279fbd5af8ff3a30cb6a32b465d0e2bcf77522951b85",
+        "compiler": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+        "source_line_endings": [
+          "LF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-2-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-2-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-macos-15-intel-stable-37237018524",
+        "artifact_id": 11316535762,
+        "artifact_digest": "sha256:c9d1efd75630688a79563493cac01eb95c6cdb7b8ec4d50396fae3e53791521d",
+        "report_sha256": "366f9c029a9acf64fd49376120873e605eae337c1fae49fad41cf583c2bcfbd8",
+        "cargo_sha256": "0c8d72b79f158dbe7ff83ebefea38f70807c9a814ad1ad4e831fe5185d5603d9",
+        "rlib_sha256": "f43d247883bf1c8adb1cc7845f0340a8c5c9a26ad391cc757356d26b5199df2d",
+        "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+        "source_line_endings": [
+          "LF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-3-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-3-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-windows-latest-1.97.0-37237018524",
+        "artifact_id": 11316206572,
+        "artifact_digest": "sha256:eecc87fd2bbf6ba2d27d2db8fdace2fc690df6895dc216fb2cb0c590f2305e7f",
+        "report_sha256": "02ff9addc2e7aaf417df976ab99daa6510e420a889cd8f998273136a7c563f8f",
+        "cargo_sha256": "b53730d4a8bb0af2524b48426f85059084d7c32505934a6d2289df3f2a7b065d",
+        "rlib_sha256": "d2bcb29d41bb2e73db14d76655f57a76c8004d26e4451874dd878e8909ab8be9",
+        "compiler": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+        "source_line_endings": [
+          "CRLF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-4-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-4-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-ubuntu-latest-stable-37237018524",
+        "artifact_id": 11316291360,
+        "artifact_digest": "sha256:020d8d2c8fa0b6cbd341496a1f4fac931da61e0362b6b76660e1e9dd457ecfd7",
+        "report_sha256": "51c5d2eefe19afd086a969b76fe13342633a896d15d3dfba3f10ef1153c2bd05",
+        "cargo_sha256": "7742077cc8d5a64c235c2f0bd1050f17f41c487f1df4c8d113c03ecaf8da1280",
+        "rlib_sha256": "49b47bfd47d16a1a802cf4a9584657ed0e94b759b5e80c0d799469dd5d9eee57",
+        "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+        "source_line_endings": [
+          "LF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-5-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-5-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-ubuntu-24.04-arm-stable-37237018524",
+        "artifact_id": 11316106788,
+        "artifact_digest": "sha256:0745a3f2a9e900b4044447bd278004621fc3cb12da0642ea1a8cc16c25985ca3",
+        "report_sha256": "5cc25f5445ba98aa6caf7003ad0a043358991f84041d8ac02602da2f97862501",
+        "cargo_sha256": "087c8c88abe6568388fda66ccf4429a38c961a9f738ddc5d7a676fffe1f7b706",
+        "rlib_sha256": "c2b75b1b413fa587b166b4fb9d75313d59d47038f3867addb8d2e82f7e17a1bb",
+        "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+        "source_line_endings": [
+          "LF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-6-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-6-cargo.json.gz"
+      },
+      {
+        "artifact": "scoped-owner-macos-latest-stable-37237018524",
+        "artifact_id": 11316445866,
+        "artifact_digest": "sha256:13860614d465b2f1b5e6cbbceb45433611920f1b7e5cd9c95a944dc3afffce2a",
+        "report_sha256": "3e64fec0f8f4ac2df2aa51a6bee5fdc5319153ee67b6a4a4fcadc2412248cdd6",
+        "cargo_sha256": "14677c9c50833778a0baac87deaea6aa6e2a51e8e20ec00decdc85df73da1fec",
+        "rlib_sha256": "77045975a5644f628a1168e70eb9a9ece0820b5e396c3d6472ceb69744aa5de4",
+        "compiler": "rustc 1.99.0 (b940084d7 2026-09-28)",
+        "source_line_endings": [
+          "LF"
+        ],
+        "accepted_cases": 8,
+        "report_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-7-results.json.gz",
+        "cargo_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-7-cargo.json.gz"
+      }
+    ]
+  },
+  "runtime": [
+    {
+      "job": "Test (ubuntu-latest / Rust 1.97.0)",
+      "job_id": 111538078645,
+      "workspace": {
+        "suites": 70,
+        "passed": 1592,
+        "failed": 0,
+        "ignored": 18
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078645.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (macos-15-intel / Rust stable)",
+      "job_id": 111538078780,
+      "workspace": {
+        "suites": 70,
+        "passed": 1573,
+        "failed": 0,
+        "ignored": 18
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078780.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (windows-latest / Rust stable)",
+      "job_id": 111538078820,
+      "workspace": {
+        "suites": 70,
+        "passed": 1434,
+        "failed": 0,
+        "ignored": 16
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078820.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (windows-latest / Rust 1.97.0)",
+      "job_id": 111538078822,
+      "workspace": {
+        "suites": 70,
+        "passed": 1434,
+        "failed": 0,
+        "ignored": 16
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078822.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (macos-latest / Rust stable)",
+      "job_id": 111538078824,
+      "workspace": {
+        "suites": 70,
+        "passed": 1573,
+        "failed": 0,
+        "ignored": 18
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078824.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (macos-latest / Rust 1.97.0)",
+      "job_id": 111538078826,
+      "workspace": {
+        "suites": 70,
+        "passed": 1573,
+        "failed": 0,
+        "ignored": 18
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078826.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (ubuntu-latest / Rust stable)",
+      "job_id": 111538078878,
+      "workspace": {
+        "suites": 70,
+        "passed": 1592,
+        "failed": 0,
+        "ignored": 18
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078878.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    },
+    {
+      "job": "Test (ubuntu-24.04-arm / Rust stable)",
+      "job_id": 111538078903,
+      "workspace": {
+        "suites": 70,
+        "passed": 1592,
+        "failed": 0,
+        "ignored": 18
+      },
+      "original_50ms_reader_pass_count": 1,
+      "original_deadline_running_merge_pass_count": 1,
+      "raw_log_archive": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078903.log.gz",
+      "actual_scoped_runtime_case_count": 4
+    }
+  ],
+  "review_status": "independent receipt review APPROVE; raw archives, actual compiler diagnostics and all eight workspace step counts checked",
+  "full_platform_tasks": {
+    "completed": 140,
+    "total": 167,
+    "open": 27
+  },
+  "limits": [
+    "Ignored cases are not passes; totals count the workspace test step only, excluding migration repetitions and test listings",
+    "The original 50ms reader now passes but its previous scheduling/time distribution failure cause is not identified",
+    "Native Rust owner constraints and actual manager cleanup do not prove pinned scanner physical exit, source confinement, or Swift/Kotlin managed owner adoption",
+    "Direct blocking entry from TLS/DllMain/UI remains unsupported; provider/device/signing/full-platform parent gates remain open"
+  ],
+  "archives": [
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-native-terminal.json.gz",
+      "raw_sha256": "c5f8dd75496548e42776e2f07cf379970758049a9794fe95b7805010b9411cf0",
+      "gzip_sha256": "133e04d8113da5eb71e1c40da216be3373e12fde158db22c42d1a41f563144d5"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-native-owner-verified.json.gz",
+      "raw_sha256": "7c1b463dee5ccccdd9f13e3aa6877eb9f97ddab65946fc881bd1f02bfce9645c",
+      "gzip_sha256": "22225a05d8897a898cb31f8f51e06a21a64e0b8440dc079a08b151d513a3f736"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-native-runtime-verified.json.gz",
+      "raw_sha256": "bbef699a1da9c81f446cecbbef27a0fd8aea75a153894c903cff633d963c0939",
+      "gzip_sha256": "da3be068738f07b8f3115c70fd7405e0bc259e9394e0f8d06d3324ef532f102c"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-0-results.json.gz",
+      "raw_sha256": "bb38fa22567a2d5da04388f1c66efbee8a404399946ec043261eec42361de622",
+      "gzip_sha256": "94ddd27dcb32efcc51392354f9da9c38e98dca38655525ce7c7328d109b6afc4"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-0-cargo.json.gz",
+      "raw_sha256": "2f52d44612e274ebf6c5ae6806b40ad53ed3f9f7e7fe2ed01c0e99f0ee2eeb12",
+      "gzip_sha256": "71a208952dde1aa294eccc4bacf8df65b63c183a194e04a0258618b066cdb8e9"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-1-results.json.gz",
+      "raw_sha256": "a5538c5cf85ade22d18374a43cd3635ea2f39f46be0fbcee02e5df4e494ccdf4",
+      "gzip_sha256": "8554120c0b9993cb726c0cc90a4a619d84aa2673afd64b143c44fcae60ca745d"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-1-cargo.json.gz",
+      "raw_sha256": "ecfbd351c84d6ea5dd7c6aa7d0365c4fc140b360d0b183e8b1859080f6229136",
+      "gzip_sha256": "8d38b134c482f5ce1b52e573a9ca82f73ab41a2de5d523b62624d4c3831efb62"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-2-results.json.gz",
+      "raw_sha256": "ce564113c19be87e2d9e84e6b2b12535781ce53771924fdcc4f711a883cdc241",
+      "gzip_sha256": "5d8aec04e5288ee0947793faeb34346cd562cef2c195a600bea5a29fab7aa4cd"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-2-cargo.json.gz",
+      "raw_sha256": "a4af4d858724128f4e6eb05cd310ae4a0b6420dbc1ec93ec7d7043241d5f05de",
+      "gzip_sha256": "052e7fd560eda7534b0ae676a23df6c430a73cf7c00e9177f70e4fc4f92d51b2"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-3-results.json.gz",
+      "raw_sha256": "366f9c029a9acf64fd49376120873e605eae337c1fae49fad41cf583c2bcfbd8",
+      "gzip_sha256": "81aa56ce8f0272c32fe316c207237b87efd123bde2ea8cc392805e5018d5257f"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-3-cargo.json.gz",
+      "raw_sha256": "0c8d72b79f158dbe7ff83ebefea38f70807c9a814ad1ad4e831fe5185d5603d9",
+      "gzip_sha256": "dbb8d07975a01f7d60c6ae6266b75ba4dc4f9c8c8ffd3532eb24bc38ccf78d25"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-4-results.json.gz",
+      "raw_sha256": "02ff9addc2e7aaf417df976ab99daa6510e420a889cd8f998273136a7c563f8f",
+      "gzip_sha256": "ba3cf1f9732e995fb14d019b3e0471beaf76bb389309f53200f77c821992cac7"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-4-cargo.json.gz",
+      "raw_sha256": "b53730d4a8bb0af2524b48426f85059084d7c32505934a6d2289df3f2a7b065d",
+      "gzip_sha256": "80ef1a342d2613e0e43f8c5ff228419a8942d7152be95f2a554628644423f7e5"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-5-results.json.gz",
+      "raw_sha256": "51c5d2eefe19afd086a969b76fe13342633a896d15d3dfba3f10ef1153c2bd05",
+      "gzip_sha256": "fefd4d8860730fc2e2ad23ddfa689ebb1d424653dfa51c2d0e8ef43ae4a2521b"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-5-cargo.json.gz",
+      "raw_sha256": "7742077cc8d5a64c235c2f0bd1050f17f41c487f1df4c8d113c03ecaf8da1280",
+      "gzip_sha256": "f29173a0e3ba7c79f8b513a430a25206e4f8d1eee27703517168a34c93cfb2aa"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-6-results.json.gz",
+      "raw_sha256": "5cc25f5445ba98aa6caf7003ad0a043358991f84041d8ac02602da2f97862501",
+      "gzip_sha256": "49ca9b23b607d47fe2fd29b209bd1c45f70efc68889b01c8f51057d319b91b50"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-6-cargo.json.gz",
+      "raw_sha256": "087c8c88abe6568388fda66ccf4429a38c961a9f738ddc5d7a676fffe1f7b706",
+      "gzip_sha256": "5b755261e9f8d9709b66003e86b9e9ee0aa346e74b11de73168d4c0684891095"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-7-results.json.gz",
+      "raw_sha256": "3e64fec0f8f4ac2df2aa51a6bee5fdc5319153ee67b6a4a4fcadc2412248cdd6",
+      "gzip_sha256": "8880cd3b562ddae6c04345c8c57b9964ac7b42f16ad97550cba3114de815df24"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-owner-7-cargo.json.gz",
+      "raw_sha256": "14677c9c50833778a0baac87deaea6aa6e2a51e8e20ec00decdc85df73da1fec",
+      "gzip_sha256": "b34e31c1671ca985d75e6d227218b4be6e9dc2e295fb7291ed05386a10db6235"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078645.log.gz",
+      "raw_sha256": "4c5d6a13029e5c8bc3d01fee427ff99939d8eb8d2819eb02f99111bcb12f377f",
+      "gzip_sha256": "fd4c5dfea7e342eeb62ed226942c6371e739e2cc7229594b39cf2d82a9bd07a8"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078780.log.gz",
+      "raw_sha256": "811fa778644429456f76c1685f51997c46178c6e00c13833c948927cbb9c2cfe",
+      "gzip_sha256": "799c18a36b8123fae97a0fe22a92b61018467cd519ae19d14d50914f850c23f5"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078820.log.gz",
+      "raw_sha256": "f466f8bb1c8e1cb2ffa4478452ac93f6e990d5e6aae18abb5334ab30758501f0",
+      "gzip_sha256": "99c711a66e3f80df5509f0df645bff91002e2b0518083ee7c5069ef76c95abac"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078822.log.gz",
+      "raw_sha256": "9920f40ce72343a60d830f69e69313d2aef8e72f0171dacf7ae190ddba053fc7",
+      "gzip_sha256": "4e2a1c1415a5e595315c71c2beac91ab1b9c01631881ea26454d782f82983651"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078824.log.gz",
+      "raw_sha256": "16bee3e811a02fcd95759d8ad1756e93c71d4ab3c121a8b43a0b04d30727979d",
+      "gzip_sha256": "c86795917fac53820c824d2fadd774386bfeaa355496cc5380c2b73e1219682e"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078826.log.gz",
+      "raw_sha256": "4f25e7c17d9767ac2117d6c534bed1c7b0c5da4fbb17c14d0909beb7be826fa6",
+      "gzip_sha256": "f50e0874f4a63219d48c1abd1e93464bfb844418ab1a796ee1715684a71a062e"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078878.log.gz",
+      "raw_sha256": "aa9dcae53a93391420367cb657a7357cd4764303eb7460b51f9204dcb7a3954d",
+      "gzip_sha256": "8a99b4ceeb738387c7867c333153b56b216ab9c6ef08d2c94faf7fa14a8b6e69"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b3b3746-job-111538078903.log.gz",
+      "raw_sha256": "b2c56acf988679c1ca1f12d55d0622c656bfd747610da45b6ff8bdfc5e70200b",
+      "gzip_sha256": "1493db4ef54f6434c1e39a8ad7df333bf36157d527ffffa16e305e3ce36de379"
+    }
+  ],
+  "reviewed_receipt_sha256": "7bb58dc78063ee17cac733895beb1e2f8197157ca0adf272877775703cc84d24"
+}

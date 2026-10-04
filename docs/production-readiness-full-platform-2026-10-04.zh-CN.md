@@ -1,5 +1,9 @@
 # 全平台验收续篇 — 2026-10-04
 
+源码 `b3b3746` 的 [CI37237018524](https://github.com/loong10k/diskgraph/actions/runs/37237018524) 已完成，**22/22 任务成功**。下载核对八份原生编译器回执：**64 个合格案例**，Cargo 产物来源、探针自身位置的生命周期／Send／Sync 诊断及摘要一致；Windows 源码摘要仅对应精确 LF→CRLF 转换，不误称原始字节相同。每条原生 workspace 真实执行四个作用域 owner 运行用例各一次、原期限 running merge 各一次及原 50ms 正向 reader 各一次。workspace 汇总：Windows stable/MSRV **1434/0/16**，macOS ARM stable/MSRV 与 Intel **1573/0/18**，Linux x64 stable/MSRV 与 ARM64 **1592/0/18**，均70 suites；不重复计入迁移重跑或测试清单。此前 Windows reader 失败本轮未复现，其耗时原因仍未确认。证据见[原生作用域 owner 回执](benchmarks/scoped_owner_native_acceptance_2026_10_05.json)。
+
+完整平台清单仍为 **140/167 完成、27 开放**。本轮仅验收原生 Rust 类型约束与协调层／manager 回收；pinned 扫描器物理退出／读取隔离、受管语言宿主、provider／设备及签名门禁继续开放。下方阶段记录保留各自当时的状态。
+
 作用域 owner 候选 `29b1ec30` 将本轮新增的 Rust tuple 构造改为生命周期约束的回调能力，由私有栈守卫独占真实 manager 句柄。旧 API 的安全静态 TLS 存储实际编译成功，新外部生命周期反例明确拒绝；这是结构约束回归，不是 Windows 死锁运行复现。提前 Drop 仍真实 finalize，忘记能力及 callback unwind 不会遗弃 manager。已通过本机 FFI **93/0**、workspace **1573/0/18（70 suites）**、严格 workspace Clippy、九包 fmt、OpenSpec、**19/19 实际 ABI 校验值**及 **8/8 合格编译案例**，实现与 CI harness 均通过独立审查。八条原生测试配置已接入精确 Cargo 产物编译门禁，新源码原生 CI 尚待运行。基线 `7e64340` 的 CI 终态 **20/22**：macOS MSRV 入队调用前期限耗尽，Windows MSRV 首次正向 engine_flow reader 在成功消费及末段授权后被最终 50ms 期限检查拒绝，耗时分布仍待诊断。两 Windows Rust 版本的此前 TLS 与 keeper 案例均实际通过；该基线结果不作为作用域 owner 候选的验收。整阻塞入口直接在 TLS／DllMain／UI 调用、扫描器物理退场／读取隔离、正式语言宿主及全平台父门禁仍开放。证据见[作用域 owner 回执](benchmarks/scoped_owner_acceptance_2026_10_05.json)。
 
 下方阶段记录保留各自当时的状态。
