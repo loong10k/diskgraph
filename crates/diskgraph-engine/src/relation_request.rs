@@ -82,7 +82,7 @@ impl Engine {
         principal: &PrincipalId,
         scope: &ScopeId,
     ) -> Result<(), EngineError> {
-        if control.scope(scope)?.revoked {
+        if control.scope_revoked(scope)? {
             return Err(BusinessError::PermissionDenied.into());
         }
         Self::require_with_control(
@@ -92,7 +92,7 @@ impl Engine {
             &Permission::MetadataRead,
             scope,
         )?;
-        if control.scope(scope)?.revoked {
+        if control.scope_revoked(scope)? {
             return Err(BusinessError::PermissionDenied.into());
         }
         Ok(())
@@ -113,7 +113,7 @@ impl Engine {
         // 不再次调用能力授权器，避免最后一个回调继续使前侧复检失效。
         // guard 不冻结独立 SQLite 连接；此处是协作式末段观察边界。
         for scope in scopes {
-            if control.scope(scope)?.revoked
+            if control.scope_revoked(scope)?
                 || control.live_permission(principal, &Permission::MetadataRead, scope)?
                     == Some(false)
             {

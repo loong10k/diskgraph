@@ -205,6 +205,12 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **THEN** 专用 TUI 路径非阻塞拒绝竞争，初次归属与权限检查及导航准备沿用原请求期限；不得等待锁释放后把已经迟到的初次授权转换为可提交部分帧。
 - **AND** 导航只在实时终检成功且完整结果仍在原期限内时返回 Layer，不复用画布截断的晚到提交通路；通用可信 reader 的兼容契约保持不变。
 
+#### Scenario: Live scope authorization excludes unused registered metadata
+- **WHEN** 有界展示/导航请求执行首末授权，或关系请求执行末段授权；合法注册 scope 的展示根或卷说明含大型字段，但已发布 revision 归属和必需导航字段很小
+- **THEN** 首次及末段授权只读取所需的实时撤销标志，不拥有完整 ScopeRecord；原控制锁、能力回调前后检查顺序、实时 grant 查询和共同期限保持不变。缺失 scope 或所需授权字段格式错误仍传播，不缓存授权事实。
+- **AND** 同一真实 display 请求在原50ms期限和256KiB读取预算下完成消费者并经过两次实际允许决定，再验证整个调用的 Rust requested allocation 小于512KiB；超时、拒权或未进入消费者不能当作分配门禁通过。此计量不代表 SQLite C 分配、I/O 或 RSS。
+- **AND** 独立控制连接在末段能力回调撤销 scope 或 grant 时，完整结果仍返回 PermissionDenied。公开 scope() 完整记录契约不变；仅授权投影不再解码其未使用的根/展示/卷字段，不能宣称这些无关字段的损坏错误仍在授权路径被发现。
+
 #### Scenario: Exact counts in a wide immutable directory
 - **WHEN** tree or children requests a small page from a directory with hundreds of thousands of children, including unknown sizes
 - **THEN** exact total, unknown and arbitrary minimum-size counts use published count/prefix indexes without traversing all siblings; known and unknown pages use matching ordered indexes

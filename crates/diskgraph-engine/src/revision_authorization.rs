@@ -298,7 +298,7 @@ impl Engine {
         let authorization = control.with_read_deadline(authorization_deadline, |control| {
             Self::require_terminal_relation(control, authorizer, principal, &scope)?;
             // 能力回调之后纯读实际持久 grant；guard 不冻结独立数据库连接的撤权。
-            if control.scope(&scope)?.revoked
+            if control.scope_revoked(&scope)?
                 || control.live_permission(principal, &Permission::MetadataRead, &scope)?
                     == Some(false)
             {

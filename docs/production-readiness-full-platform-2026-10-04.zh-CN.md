@@ -1,5 +1,9 @@
 # 全平台验收续篇 — 2026-10-04
 
+授权投影候选仅将有界展示和共享末检的四处完整 scope 读取改成实时撤销标量，公开 scope() 及其他旧完整入口保持。真实请求在原50ms/256KiB下成功且两次实际授权允许后，合法2MiB展示/卷字段的 Rust requested 分配由20,973,344降至1,079字节；不是RSS或通用吞吐。实际 RED **3/1** 后原样测试 GREEN **4/0**，独立 scope/grant 回调撤销仍拒绝；本机 workspace **1621/0/18（81 test suites，另9 doc-test blocks，exit0）**、严格 Clippy 和 Engine fmt通过，独立源码审查批准。这不证明历史 TUI 失败原因。详见[授权投影回执](benchmarks/scope_authorization_projection_acceptance_2026_10_05.json)。
+
+扫描基础提交 `792fb4c` 的 [CI37242905214](https://github.com/loong10k/diskgraph/actions/runs/37242905214) 尚未结束，已发现 macOS MSRV Migration gate 失败：原400ms窗口准备用了407385µs，调用剩余0，守卫5µs内返回BudgetExceeded、未进入BEGIN。该原始失败保留，不放宽期限，不把其他目标通过视为完整CI验收；最新授权投影尚未运行原生CI。27个父门禁保持开放。
+
 扫描进程基础候选已完成共享 OS-child 的保真提取和有界协议库；尚无 helper 可执行程序、正常整组回收、控制管道或 Engine 接入。协议 **39/0**、源码规范 **4/0**、严格 workspace Clippy、自有包 fmt 及上游摘要检查通过，独立源码审查通过。真实分配负控已先失败后通过：2MiB 名称拒绝路径的 Rust requested bytes 从约2MiB降至86字节；剩余额度不足且保留已写前缀的场景降至1033字节，不是峰值 RSS。
 
 最终全 workspace 实际为 **1616/1/18（80 suites，exit101）**：原 TUI 50ms 用例未进入 paint 即 BudgetExceeded。本次校验与 fmt 有重叠，但原因未确认，不据此排除失败。只增加阶段诊断后的单次目标 **1/0**，进入 paint 为649µs；原期限、120ms超时和实际 backend 断言保持。单测成功不代表旧失败修复；新源码原生 CI 尚待验收，旧 b3b3746 的绿色结果仅属于下方历史源码。**27 个父门禁继续开放**。详见[扫描基础验收回执](benchmarks/scan_process_foundation_acceptance_2026_10_05.json)。

@@ -1,0 +1,119 @@
+{
+  "schema": "diskgraph.scope_authorization_projection_acceptance.v1",
+  "base_commit": "792fb4c85691cb87862cb2343f2346798dbcc09a",
+  "review_status": "independent source and material reviews APPROVE; native acceptance remains pending",
+  "scope": "four fresh scalar revocation reads only; public scope() and other legacy owner entry points unchanged",
+  "red": {
+    "exit_code": 101,
+    "passed": 3,
+    "failed": 1,
+    "giant_fixture_result": "Ok(())",
+    "consumer_entered": true,
+    "allowed_callbacks": 2,
+    "rust_requested_bytes": 20973344
+  },
+  "green": {
+    "exit_code": 0,
+    "passed": 4,
+    "failed": 0,
+    "allocation_observation": {
+      "exit_code": 0,
+      "consumer_entered": true,
+      "allowed_callbacks": 2,
+      "result": "Ok(())",
+      "rust_requested_bytes": 1079
+    }
+  },
+  "fixture": {
+    "display_bytes": 2097152,
+    "volume_bytes": 2097152,
+    "deadline_ms": 50,
+    "raw_read_budget_bytes": 262144,
+    "allocation_limit_bytes": 524288,
+    "metric": "System Rust requested allocation bytes over the public call; not SQLite C allocations, IO, RSS or general throughput"
+  },
+  "regression": {
+    "workspace_exit_code": 0,
+    "test_suites": 81,
+    "doc_test_blocks": 9,
+    "passed": 1621,
+    "failed": 0,
+    "ignored": 18,
+    "strict_clippy_exit_code": 0,
+    "engine_fmt_exit_code": 0,
+    "openspec_strict_exit_code": 0
+  },
+  "security": "both independent scope and grant withdrawals during the real terminal callback still return PermissionDenied; check positions, count, ordering, grants and original deadlines preserved",
+  "semantic_boundary": "unused root/display/volume fields are no longer decoded by these authorization projections; necessary revoked type errors and ScopeNotFound propagate; public full record decoding unchanged",
+  "native_ci": {
+    "projection_status": "not run for these source hashes",
+    "foundation_run": 37242905214,
+    "foundation_sha": "792fb4c85691cb87862cb2343f2346798dbcc09a",
+    "foundation_status": "in progress when this receipt was written; macOS MSRV Migration gate failed",
+    "failed_job": 111554989441,
+    "failed_case": "control_write_deadline_probe_tests::control_write_external_writer_original_deadline_has_real_stage_diagnostics",
+    "preparation_us": 407385,
+    "original_window_ms": 400,
+    "remaining_at_call_us": 0,
+    "refusal_us": 5,
+    "begin_entered": false,
+    "does_not_qualify_target_writer_lock_stage": true
+  },
+  "historical_tui_failure": "retained; a new local full pass does not establish cause or a fix",
+  "tasks": {
+    "completed": 140,
+    "open": 27,
+    "total": 167
+  },
+  "sources_sha256": {
+    "crates/diskgraph-engine/src/relation_request.rs": "4d4fbedd1694858ba6caeff2f7fd983bc38c19bc053beef0df156a4c9581c017",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "e85c4cd784a9f3cc533fed52750dab70215a6fb77c7e3808c99b2ef7fa799a56",
+    "crates/diskgraph-engine/tests/scope_authorization_projection_tests.rs": "2089a57d31e700fc18ef0b27da4437d1e50e1a68d069425428ecab24f41bee63",
+    "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "1dbee15bb56b4b55b22da33fcba5b4488462296f0d0c50485a75b0ba873a053d",
+    "docs/production-readiness-full-platform-2026-10-04.md": "b604fdead82868c6d45695acff199b9dafba86d12438099a7a717576332d128b",
+    "docs/production-readiness-full-platform-2026-10-04.zh-CN.md": "fe74826b2d50a4375d1bd75c2d80ca52aa3ee779aea59569083e8bae05778b80"
+  },
+  "archives": [
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-red.log.gz",
+      "raw_sha256": "ebe4da96cb6972f070943defe13f2fe69b4dc3ea3686fd65a4da1d01f7bee900",
+      "gzip_sha256": "76e2d7dc237f8cd87f635770124a385e3c28a364afddc96bcd1078745bc1d126"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-green.log.gz",
+      "raw_sha256": "d4f14879ff69e1a5ac4d630a2e6433fd7d36617f1541db05d314ce312206ee59",
+      "gzip_sha256": "df5ee64ecb6f3f53c1ede210f09c2a31c9c18cd2ffd106073feeaedee003a43e"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-allocation.log.gz",
+      "raw_sha256": "b724f87d881ae78a83885daa6b2f1752f21bc0e27037a0fa967f03ef92ae6044",
+      "gzip_sha256": "a1ad8b2f61d6c83b3ab8474fea7575bbde222901cdb37beafa4628dc86c75f4e"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-workspace.log.gz",
+      "raw_sha256": "abc0e174ebca49043600b87dbbd721fafcfc447a23b93ebbc0cd1abd9047f4e2",
+      "gzip_sha256": "327795a992eeacbfad4151fd6dbe52500167ca8e5d0e16e05e52e91ad25a3562"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-clippy.log.gz",
+      "raw_sha256": "6c6289ced0f11a2beab448ceb04c9b5da7051981963c47b729e78da18c9ed058",
+      "gzip_sha256": "a738cc5f0fb98486870f0924ac808e99cd9ffe5bcd6e3c6815e86f8a03662c21"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-scope-projection-openspec-final.log.gz",
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-792fb4c-macos-msrv-job.log.gz",
+      "raw_sha256": "003c8154c84248e3c6c2ca0150df175acb6673441156982416a660bea1c92172",
+      "gzip_sha256": "86b1f6e8a0f8354ea711794004ae7371ccb25f8231e73beb474bddfe41de9b4d"
+    }
+  ],
+  "reviewed_receipt_sha256": "791115c152225c30d731ce118ca661df5da972cfc7864a5d1809643b74c6020a"
+}
