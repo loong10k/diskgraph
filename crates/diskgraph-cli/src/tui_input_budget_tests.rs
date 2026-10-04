@@ -257,7 +257,10 @@ fn header_frame_cost(large: bool) {
         })
     });
     let elapsed = started.elapsed();
-    println!("large_header={large}, whole_frame_rust_bytes={allocated}, painted={painted}");
+    println!(
+        "large_header={large}, whole_frame_rust_bytes={allocated}, painted={painted}, elapsed_us={}, actual={result:?}",
+        elapsed.as_micros()
+    );
     assert!(
         allocated < 1 << 20,
         "frame preparation owned the oversized header: {allocated}"
@@ -270,10 +273,6 @@ fn header_frame_cost(large: bool) {
         .map(|cell| cell.symbol())
         .collect();
     if large {
-        assert!(
-            elapsed < std::time::Duration::from_millis(50),
-            "frame raw failure arrived after its deadline"
-        );
         assert!(
             matches!(
                 result,
@@ -291,6 +290,10 @@ fn header_frame_cost(large: bool) {
         assert!(
             actual.trim().is_empty(),
             "initial raw failure applied a backend frame"
+        );
+        assert!(
+            elapsed < std::time::Duration::from_millis(50),
+            "frame raw failure arrived after its deadline"
         );
     } else {
         result.unwrap();
