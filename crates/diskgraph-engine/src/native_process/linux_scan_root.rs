@@ -1,6 +1,7 @@
 use super::linux_metadata::capture;
 use super::linux_open::{open_at, unique_mount};
 use super::linux_proc_root::LinuxProcRoot;
+use super::native_work::NativeWork;
 use crate::EngineError;
 use diskgraph_core::{
     BusinessError, IndexedFileEpoch, ProcessEvidenceFailureCode as Failure, UnixFileObservation,
@@ -141,7 +142,7 @@ pub(crate) fn gap(error: Failure) -> UnixObservationGap {
 // 回调失败保留原 Engine 分类，不能降成可提交的缺口记录。
 fn checked_native<T>(
     check: &dyn Fn() -> Result<(), EngineError>,
-    work: impl FnOnce(&dyn Fn() -> Result<(), Failure>) -> Result<T, Failure>,
+    work: &NativeWork<'_, T>,
 ) -> Result<Result<T, Failure>, EngineError> {
     let original = RefCell::new(None);
     let result = work(&|| {

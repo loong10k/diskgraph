@@ -22,6 +22,8 @@ mod linux_root_namespace;
 mod linux_scan_root;
 #[cfg(target_os = "linux")]
 mod linux_target;
+#[cfg(target_os = "linux")]
+mod native_work;
 mod process_native_session;
 
 #[cfg(target_os = "linux")]
