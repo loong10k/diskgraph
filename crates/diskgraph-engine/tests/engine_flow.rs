@@ -74,15 +74,52 @@ fn authorized_reader_refuses_revoked_grant_before_calling_consumer() {
     let job = engine.index_scope(&scope, &agent, &policy).unwrap();
     engine.run_job(&job.job_id, "frame-test").unwrap();
     let revision = engine.latest_revision(&scope).unwrap().unwrap();
-    let rows = engine
-        .with_authorized_revision_reader(
-            &revision,
-            &agent,
-            &policy,
-            50,
-            |reader, snapshot, _deadline| Ok(reader.children(snapshot, 1, 0, 1)?.len()),
-        )
-        .unwrap();
+    // 原生 Rust 查询诊断：只记录原请求各阶段，全部输出移到 50ms 调用返回之后。
+    let consumer_enter = std::cell::Cell::new(None);
+    let consumer_exit = std::cell::Cell::new(None);
+    let request_deadline = std::cell::Cell::new(None);
+    let consumer_rows = std::cell::Cell::new(None);
+    let request_started = std::time::Instant::now();
+    let result = engine.with_authorized_revision_reader(
+        &revision,
+        &agent,
+        &policy,
+        50,
+        |reader, snapshot, deadline| {
+            consumer_enter.set(Some(std::time::Instant::now()));
+            request_deadline.set(Some(deadline));
+            let rows = reader.children(snapshot, 1, 0, 1);
+            consumer_exit.set(Some(std::time::Instant::now()));
+            consumer_rows.set(Some(rows.as_ref().map(Vec::len).map_err(|_| ())));
+            Ok(rows?.len())
+        },
+    );
+    let request_returned = std::time::Instant::now();
+    eprintln!(
+        "authorized_reader phases: result={result:?}, consumer_rows={:?}, deadline={:?}, \
+         total={:?}, preparation={:?}, consumer={:?}, post_consumer={:?}, \
+         remaining_at_return={:?}, overdue_at_return={:?}",
+        consumer_rows.get(),
+        request_deadline.get(),
+        request_returned.duration_since(request_started),
+        consumer_enter
+            .get()
+            .map(|entered| entered.duration_since(request_started)),
+        consumer_exit
+            .get()
+            .zip(consumer_enter.get())
+            .map(|(exited, entered)| exited.duration_since(entered)),
+        consumer_exit
+            .get()
+            .map(|exited| request_returned.duration_since(exited)),
+        request_deadline
+            .get()
+            .map(|deadline| deadline.saturating_duration_since(request_returned)),
+        request_deadline
+            .get()
+            .map(|deadline| request_returned.saturating_duration_since(deadline)),
+    );
+    let rows = result.unwrap();
     assert_eq!(rows, 1);
     engine
         .control_store()

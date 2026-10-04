@@ -1,0 +1,45 @@
+{
+  "scope": "tests-only phase measurements for original positive authorized revision reader",
+  "source": "crates/diskgraph-engine/tests/engine_flow.rs",
+  "source_sha256": "2c54a2a3941b03f6ba5da24ee305ebb5cbda1fc9ad605ec8d572e03e752eb64b",
+  "review": "independent narrow review APPROVE; other test bytes and revocation assertions preserved",
+  "acceptance": {
+    "engine_flow_passed": 20,
+    "failed": 0,
+    "deadline_ms": 50,
+    "clippy_exit": 0,
+    "fmt_exit": 0
+  },
+  "observations_macos": {
+    "total_ms": 17.269666,
+    "preparation_ms": 13.572083,
+    "consumer_ms": 1.306417,
+    "post_consumer_ms": 2.391166,
+    "remaining_ms": 32.730667
+  },
+  "limits": [
+    "Windows MSRV failure is not fixed or attributed by macOS timing",
+    "Output occurs after actual API return; original result unwrap is retained",
+    "No retries, deadline widening or BudgetExceeded acceptance",
+    "Phase boundaries do not attribute specific SQL/lock or scheduler costs",
+    "Existing integration file exceeds 500 lines; this narrow change does not certify structural cleanup",
+    "Native CI pending"
+  ],
+  "evidence": [
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-reader-phase-engine-flow.log.gz",
+      "raw_sha256": "76c382f60d930c4bf5508281e836cb2f88140cdbacba1f439dc8368d6de6265e",
+      "gzip_sha256": "15642b4780308aeed449dccda8e3644e6cae21d3b2f707806158c66223db669e"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-deadline-diagnostics-clippy.log.gz",
+      "raw_sha256": "63cc4c77c15b7c13d183be28d476a1274ae4c1c35b43523a853c7e3211580568",
+      "gzip_sha256": "449aa90ec30a1c7cb0c23986d1c2102df17f64d4ede104d5320eeb03762bd05b"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-deadline-diagnostics-fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  ]
+}
