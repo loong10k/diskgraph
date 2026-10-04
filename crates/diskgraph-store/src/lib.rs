@@ -21,7 +21,13 @@ mod control_read_budget;
 mod control_read_budget_tests;
 mod control_retention;
 mod control_store;
+#[cfg(test)]
+mod control_write_boundary_interrupt_tests;
+#[cfg(test)]
+mod control_write_boundary_retry_tests;
 mod control_write_deadline;
+#[cfg(test)]
+mod control_write_deadline_probe_tests;
 #[cfg(test)]
 mod control_write_deadline_tests;
 mod directory_aggregates;

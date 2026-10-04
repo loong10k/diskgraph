@@ -66,7 +66,7 @@ impl LinuxPid {
             let mut name_buffer = [0_u8; 12];
             let name = numeric_name(fd, &mut name_buffer);
             // procfs 的 FD magic link 是本方法唯一有意跟随的内核关联；不读取目标正文。
-            let file = match open_at(anchor.as_raw_fd(), &name, libc::O_PATH | libc::O_CLOEXEC, 0) {
+            let file = match open_at(anchor.as_raw_fd(), name, libc::O_PATH | libc::O_CLOEXEC, 0) {
                 Ok(file) => file,
                 Err(Failure::Conflict) => continue,
                 Err(error) => return Err(error),

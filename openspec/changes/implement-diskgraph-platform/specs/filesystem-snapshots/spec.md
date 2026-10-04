@@ -59,6 +59,11 @@
 - **THEN** 重新验证当前 drive 锚及各保留父句柄下的单组件名称绑定，比较完整卷/128 位身份和目录安全状态；绑定缺失、身份改变、重解析或跨卷返回 conflict，采样和发布均被拒绝
 - **AND** 目录自身修改时间变化保持允许；不为冻结名称额外申请正文/枚举/删除权限，不声称属性共享标记保证重命名失败，也不将有限复核称为原子文件系统快照
 
+#### Scenario: Linux scan observation rejects ancestor rebinding
+- **WHEN** Linux 扫描的补充原生观测完成后、发布之前，注册根的祖先目录被替换，即使原根和文件被移回相同展示路径且最终 inode 未变
+- **THEN** 使用遍历开始前固定的原生锚与逐组件名称绑定验证祖先和根；发现绑定变化时返回 conflict，任务失败并清理本次暂存，不发布 revision 或推进 latest
+- **AND** 祖先目录中无关 sibling 的增删保持允许，不用目录修改时间冒充身份，不声称该复核使旧路径遍历成为原子快照或句柄遍历
+
 #### Scenario: Native observation and old tree projection are not atomic
 - **WHEN** 补充观测与旧树的可比辅助身份、类型或明确可比的尺寸矛盾，或同一句柄前后版本变化
 - **THEN** 记录固定类型的 changed/unknown 原因，不用零值、旧秒时间或路径补出完整身份；不可比较的 allocated/dedup/聚合尺寸明确标为未对齐，不覆盖 v1 尺寸或认定内容相同。

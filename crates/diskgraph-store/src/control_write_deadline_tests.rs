@@ -2,7 +2,8 @@
 use crate::StoreError;
 use crate::control_write_deadline::ControlWriteDeadline;
 use crate::process_job_enqueue_fixture::ProcessEnqueueFixture;
-use rusqlite::Connection;
+use rusqlite::{Connection, Statement};
+use std::cell::Cell;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, mpsc};
 use std::time::{Duration, Instant};
@@ -91,11 +92,41 @@ fn process_enqueue_commit_read_lock_keeps_the_original_deadline_and_rolls_back()
     fixture.assert_connection_restored(731);
 }
 
-fn insert_partial_job(fixture: &ProcessEnqueueFixture) {
-    fixture.store.connection.execute(
-        "INSERT INTO jobs(job_id,scope_id,kind,state,created_at_unix_ms,heartbeat_unix_ms,owner,principal) VALUES('guard-partial',?1,'process_evidence','queued',1,1,'',?2)",
-        rusqlite::params![fixture.input.scope_id().as_str(), fixture.authority.principal().as_str()],
-    ).unwrap();
+const PARTIAL_INSERT: &str = "INSERT INTO jobs(job_id,scope_id,kind,state,created_at_unix_ms,heartbeat_unix_ms,owner,principal) VALUES('guard-partial',?1,'process_evidence','queued',1,1,'',?2)";
+const PARTIAL_EXISTS: &str = "SELECT count(*) FROM jobs WHERE job_id='guard-partial'";
+const VM_ROWS: &str = "WITH RECURSIVE work(n) AS (SELECT 0 UNION ALL SELECT n+1 FROM work WHERE n<1000000000) SELECT n FROM work";
+const UNWIND_SENTINEL: &str = "D44 actual Rust consumer unwind after witnessed partial write";
+
+// 语句在原时钟前准备；这里证明真实写入仍处于同一事务，而非进入阶段前的预算拒绝。
+fn write_partial_job(
+    fixture: &ProcessEnqueueFixture,
+    window: &ControlWriteDeadline<'_>,
+    insert: &mut Statement<'_>,
+    exists: &mut Statement<'_>,
+) {
+    let affected = window
+        .statement(|| {
+            Ok(insert.execute(rusqlite::params![
+                fixture.input.scope_id().as_str(),
+                fixture.authority.principal().as_str()
+            ])?)
+        })
+        .unwrap();
+    assert_eq!(affected, 1, "actual partial INSERT affected no row");
+    assert!(!fixture.store.connection.is_autocommit());
+    let rows: i64 = window
+        .statement(|| Ok(exists.query_row([], |row| row.get(0))?))
+        .unwrap();
+    assert_eq!(
+        rows, 1,
+        "partial job is not visible in the held transaction"
+    );
+}
+
+fn wait_past_original_deadline(deadline: Instant) {
+    if let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
+        std::thread::sleep(remaining + Duration::from_millis(20));
+    }
 }
 
 #[test]
@@ -103,27 +134,67 @@ fn control_write_real_vm_interrupt_clears_progress_before_partial_transaction_ro
     let fixture = ProcessEnqueueFixture::new();
     fixture.set_busy_timeout(731);
     let before = fixture.persisted_state();
+    let mut insert = fixture.store.connection.prepare(PARTIAL_INSERT).unwrap();
+    let mut exists = fixture.store.connection.prepare(PARTIAL_EXISTS).unwrap();
+    let mut query = fixture.store.connection.prepare(VM_ROWS).unwrap();
+    assert!(fixture.store.connection.is_autocommit());
+    // 2s 是一次固定的阶段准备窗口，不是性能阈值；SQL 编译不占该窗口，也不刷新它。
+    let started = Instant::now();
+    let deadline = started + Duration::from_secs(2);
     let window = ControlWriteDeadline::new(
         &fixture.store.connection,
-        Instant::now() + Duration::from_millis(20),
+        deadline,
         fixture.authority.expires_at_unix_seconds(),
     )
     .unwrap();
     window.begin().unwrap();
-    insert_partial_job(&fixture);
+    write_partial_job(&fixture, &window, &mut insert, &mut exists);
     let interrupted = AtomicBool::new(false);
-    let result = window.statement(|| -> crate::Result<i64> {
-        let actual = fixture.store.connection.query_row(
-            "WITH RECURSIVE work(n) AS (SELECT 0 UNION ALL SELECT n+1 FROM work WHERE n<1000000000) SELECT sum(n) FROM work",
-            [], |row| row.get(0),
-        );
-        // 在普通 Rust closure 观察原始 SQLite 错误，不能由进入 SQL 前的到期拒绝充数。
-        if matches!(&actual, Err(rusqlite::Error::SqliteFailure(error, _)) if error.code == rusqlite::ErrorCode::OperationInterrupted) {
-            interrupted.store(true, Ordering::SeqCst);
+    let query_started_live = Cell::new(false);
+    let observed_rows = Cell::new(0_u64);
+    let result = window.statement(|| -> crate::Result<u64> {
+        query_started_live.set(Instant::now() < deadline);
+        let mut rows = query.query([])?;
+        loop {
+            match rows.next() {
+                Ok(Some(row)) => {
+                    let actual: i64 = row.get(0)?;
+                    if observed_rows.get() == 0 {
+                        assert_eq!(actual, 0, "recursive query's first row changed");
+                    }
+                    observed_rows.set(observed_rows.get() + 1);
+                }
+                Ok(None) => return Ok(observed_rows.get()),
+                Err(error) => {
+                    // 普通 Rust 调用栈观察真实 SQLite 错误，首行见证排除预检超时冒充 VM 中断。
+                    if matches!(&error, rusqlite::Error::SqliteFailure(code, _) if code.code == rusqlite::ErrorCode::OperationInterrupted) {
+                        interrupted.store(true, Ordering::SeqCst);
+                    }
+                    return Err(error.into());
+                }
+            }
         }
-        Ok(actual?)
     });
     let result = window.finish(result);
+    eprintln!(
+        "D44_VM_STAGE {}",
+        serde_json::json!({
+            "original_window_ms": 2000,
+            "elapsed_us": started.elapsed().as_micros(),
+            "query_started_live": query_started_live.get(),
+            "observed_rows": observed_rows.get(),
+            "raw_operation_interrupted": interrupted.load(Ordering::SeqCst),
+            "result": format!("{result:?}")
+        })
+    );
+    assert!(
+        query_started_live.get(),
+        "SQL started after the original deadline"
+    );
+    assert!(
+        observed_rows.get() > 0,
+        "recursive VM emitted no actual row"
+    );
     assert!(
         interrupted.load(Ordering::SeqCst),
         "fixture did not execute an actual SQLite VM interruption"
@@ -141,8 +212,14 @@ fn control_write_rust_unwind_rolls_back_and_restores_the_real_connection() {
     let fixture = ProcessEnqueueFixture::new();
     fixture.set_busy_timeout(731);
     let before = fixture.persisted_state();
+    let mut insert = fixture.store.connection.prepare(PARTIAL_INSERT).unwrap();
+    let mut exists = fixture.store.connection.prepare(PARTIAL_EXISTS).unwrap();
+    assert!(fixture.store.connection.is_autocommit());
     let reached = AtomicBool::new(false);
-    let deadline = Instant::now() + Duration::from_millis(20);
+    let target_started_live = AtomicBool::new(false);
+    let expired_before_panic = AtomicBool::new(false);
+    let started = Instant::now();
+    let deadline = started + Duration::from_secs(2);
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let window = ControlWriteDeadline::new(
             &fixture.store.connection,
@@ -151,17 +228,58 @@ fn control_write_rust_unwind_rolls_back_and_restores_the_real_connection() {
         )
         .unwrap();
         window.begin().unwrap();
-        insert_partial_job(&fixture);
+        write_partial_job(&fixture, &window, &mut insert, &mut exists);
         reached.store(true, Ordering::SeqCst);
-        std::thread::sleep(Duration::from_millis(40));
+        target_started_live.store(Instant::now() < deadline, Ordering::SeqCst);
+        wait_past_original_deadline(deadline);
+        expired_before_panic.store(Instant::now() >= deadline, Ordering::SeqCst);
         // panic 发生在普通 Rust 调用栈，绝不跨 SQLite FFI 或在回调内重入。
-        panic!("actual Rust consumer unwind after partial write");
+        std::panic::panic_any(UNWIND_SENTINEL);
     }));
+    let payload = result
+        .as_ref()
+        .err()
+        .and_then(|value| value.downcast_ref::<&str>())
+        .copied();
+    eprintln!(
+        "D44_UNWIND_STAGE {}",
+        serde_json::json!({
+            "original_window_ms": 2000,
+            "elapsed_us": started.elapsed().as_micros(),
+            "partial_write_witnessed": reached.load(Ordering::SeqCst),
+            "target_started_live": target_started_live.load(Ordering::SeqCst),
+            "expired_before_panic": expired_before_panic.load(Ordering::SeqCst),
+            "exact_sentinel": payload == Some(UNWIND_SENTINEL)
+        })
+    );
     assert!(
         reached.load(Ordering::SeqCst),
         "unwind fixture never wrote inside transaction"
     );
-    assert!(result.is_err());
+    assert!(target_started_live.load(Ordering::SeqCst));
+    assert!(expired_before_panic.load(Ordering::SeqCst));
+    assert_eq!(
+        payload,
+        Some(UNWIND_SENTINEL),
+        "preparation panic cannot prove unwind cleanup"
+    );
+    assert_eq!(fixture.persisted_state(), before);
+    fixture.assert_connection_restored(731);
+}
+
+#[test]
+fn control_write_expired_twenty_millisecond_window_refuses_before_a_transaction() {
+    let fixture = ProcessEnqueueFixture::new();
+    fixture.set_busy_timeout(731);
+    let before = fixture.persisted_state();
+    let deadline = Instant::now() + Duration::from_millis(20);
+    wait_past_original_deadline(deadline);
+    let result = ControlWriteDeadline::new(
+        &fixture.store.connection,
+        deadline,
+        fixture.authority.expires_at_unix_seconds(),
+    );
+    assert!(matches!(result, Err(StoreError::BudgetExceeded)));
     assert_eq!(fixture.persisted_state(), before);
     fixture.assert_connection_restored(731);
 }

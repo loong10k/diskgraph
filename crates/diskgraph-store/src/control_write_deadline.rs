@@ -110,9 +110,51 @@ impl<'a> ControlWriteDeadline<'a> {
         Ok(value)
     }
 
+    // 仅重试这两个事务边界，绝不重放含准入/写入副作用的 statement consumer。
+    // SQLite 内建 busy 睡眠累计名义间隔，不能替代原绝对时钟；单次系统调用/I/O 仍不可抢占。
+    fn run_transaction_boundary(&self, commit: bool) -> Result<()> {
+        let sql = if commit { "COMMIT" } else { "BEGIN IMMEDIATE" };
+        let host_deadline = Instant::now()
+            .checked_add(self.previous_busy)
+            .ok_or(StoreError::IntegerOverflow)?;
+        self.connection.busy_timeout(Duration::ZERO)?;
+        loop {
+            self.check()?;
+            match self.connection.execute_batch(sql) {
+                Ok(()) => return Ok(()),
+                Err(error) if matches!(&error, rusqlite::Error::SqliteFailure(code, _) if code.extended_code == rusqlite::ffi::SQLITE_BUSY) =>
+                {
+                    // 只等待可重试的普通 BUSY；扩展 BUSY_SNAPSHOT、LOCKED 保留原错误。
+                    self.check()?;
+                    let host_remaining = host_deadline.saturating_duration_since(Instant::now());
+                    if host_remaining.is_zero() {
+                        return Err(error.into());
+                    }
+                    let delay = self
+                        .remaining()?
+                        .min(host_remaining)
+                        .min(Duration::from_millis(1));
+                    std::thread::sleep(delay);
+                    self.check()?;
+                    if Instant::now() >= host_deadline {
+                        return Err(error.into());
+                    }
+                }
+                Err(error) if matches!(&error, rusqlite::Error::SqliteFailure(code, _) if code.code == rusqlite::ErrorCode::OperationInterrupted) =>
+                {
+                    // 中断不重试；只在原期限/原认证确已失效时保持旧拒绝分类。
+                    self.check()?;
+                    return Err(error.into());
+                }
+                Err(error) => return Err(error.into()),
+            }
+        }
+    }
+
     /// 参数：无；返回：同一连接的 IMMEDIATE 写事务已取得，失败由守卫清理。
     pub(crate) fn begin(&self) -> Result<()> {
-        self.statement(|| Ok(self.connection.execute_batch("BEGIN IMMEDIATE")?))
+        self.run_transaction_boundary(false)?;
+        self.check()
     }
 
     fn clear_progress(&self) -> Result<()> {
@@ -128,7 +170,7 @@ impl<'a> ControlWriteDeadline<'a> {
     pub(crate) fn commit(&self) -> Result<()> {
         // 移除过期 VM 回调后再作纯末检，避免 COMMIT 成功之后的 VM 回调否认已提交事实。
         self.clear_progress()?;
-        self.run_sql(|| Ok(self.connection.execute_batch("COMMIT")?))
+        self.run_transaction_boundary(true)
     }
 
     fn cleanup(&self) -> Result<()> {

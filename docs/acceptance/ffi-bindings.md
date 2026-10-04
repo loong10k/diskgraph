@@ -43,6 +43,6 @@ Windows JVM 启动参数夹具以 UTF-8 Base64 ASCII 参数传递非 ASCII 根�
 ## 留档的边界（未完成项，不冒充）
 
 - **9.3 完整口径**：SwiftPM/GRDB 的 macOS 动态链接子集已实际验证；静态嵌入、Kotlin/Room、移动端与宿主应用仍未完成。Room 需要对应 Android 构建环境。
-- **9.4 / 9.5 / 9.6**（PruneX 界面对接、审阅/批准界面对接、AgentScope 宿主导出边界）：对接的另一侧（PruneX / AgentScope-Swift/Kotlin）不在本仓库，无法单侧完成；FFI 层的对应能力面（审批需可信签发、导出策略元数据优先）已在 ops/engine 层实现并有测试。
+- **9.4 / 9.5 / 9.6**（PruneX 界面对接、审阅/批准界面对接、AgentScope 宿主导出边界）：Oct4 只读源码盘点确认工作区中的 PruneX 已接 AgentScope-Swift，但仍使用自身 FileManager／ScanEngine 和 GRDB，尚无 DiskGraph import／调用／包依赖；本仓库也没有真实 AgentScope host tool bridge。库级 ApprovalIssuer 和导出策略测试不能替代 App 审阅签发、GUI 查询结果一致性或云请求截获验收；这些产品链仍需实现并实际构建。
 - **9.8**（macOS 原生 App 的扫描/取消/升级/回收恢复闭环）：本验收的宿主是 CLI 形态的原生宿主（覆盖扫描与查询闭环）；带 UI 的取消手势、应用升级迁移、回收/恢复在原生 App 中的闭环留待 PruneX 壳工程。
 - **9.9**（XCFramework / Kotlin AAR 打包）：`xcodebuild -create-xcframework` 需要完整 Xcode（本机仅 CLT）；AAR 需要 Android Gradle 构建（属 P9 真机切片范围）。已产出的等价物：`libdiskgraph_ffi.a`（静态库）+ 版本化绑定源 + 两种语言的真实链接运行证据。

@@ -400,3 +400,6 @@ fn non_windows_scan_publishes_explicit_unsupported_native_observation() {
         );
     }
 }
+
+#[cfg(target_os = "linux")]
+mod linux_namespace_tests;

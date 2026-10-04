@@ -1,12 +1,17 @@
 # 全平台验收续篇 — 2026-10-04
 
+D44 锁等待候选完成本机验收：22 项目标测试通过，完整 workspace 1523/0/18（70 suites），fmt 与严格 Clippy 通过，独立静态审查批准。真实准备期中断回归先在新候选失败、旧实现通过，最小修复后通过；BEGIN/COMMIT 仅重试普通 BUSY，保留原期限、有效期内中断错误、提交事实及消费者单次执行。原生 CI 待执行；Linux 扫描祖先替换新增测试仍待原生 RED，不宣称该能力已修复。
+
+
 本文延续[全平台实施记录](production-readiness-full-platform-2026-10-02.zh-CN.md)，完整平台目标仍未完成。
 
 ## 最新阶段：D42 进程身份与准备预算修复，原生门禁仍未通过
 
 当前清单为**167总项／140完成／27开放**，包含广泛父项，不等于27个独立漏洞。Git任务8.7与持久请求授权任务15.20已在实现的Index／Sync／Git路径验收。D41 修正源码原生验收已记录于下文，D43 同源码原生验收也已记录于下文；任务13.6已完成全项源码与实际原生日志复核；进程／应用collector8.6／15.13、provider、原生写、GUI／移动端／真机、签名和生产部署保持原要求。
 
-当前80d0622的原生CI已终态：八条Rust lane失败，其余十四项通过；实际细节与保留原始日志见下文。Process身份／准备修复仍为未验收候选。本机只读设备盘点显示选中 `/Library/Developer/CommandLineTools`，标准应用目录未找到Xcode，adb可用但没有连接Android设备；这仅是环境事实，不代表移动端构建或真机验收，未安装SDK或执行设备任务。 [设备盘点记录](benchmarks/full_platform_device_inventory_2026_10_04.json)。
+此前80d0622的原生CI已终态：八条Rust lane失败，其余十四项通过；实际细节与保留原始日志见下文。Process身份／准备修复仍为未验收候选。本机只读设备盘点显示选中 `/Library/Developer/CommandLineTools`，标准应用目录未找到Xcode，adb可用但没有连接Android设备；这仅是环境事实，不代表移动端构建或真机验收，未安装SDK或执行设备任务。 [设备盘点记录](benchmarks/full_platform_device_inventory_2026_10_04.json)。
+
+新提交`addf9a84d664225e58162295aac6dac911b045cf`的[CI37210806407](https://github.com/loong10k/diskgraph/actions/runs/37210806407)已终态15项成功／7项失败。Windows stable完整workspace1374／1／16、70 suites，仅VM准备INSERT中断，断连查询本次实际通过，不代表旧偶发根因已修复。三条Linux完整Test各1526／0／18、70 suites，进程身份／预算／原expiry／scope回归实际通过；MSRV整个job成功，stable两job随后仅因Linux专用Clippy失败。三macOS串行隔离仍超原墙钟断言；Windows MSRV的queue10通过，unwind在准备INSERT时中断，尚未到指定panic／cleanup。此观察不是整体验收，原始阶段日志保留于[D42回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)。
 
 Process公开入口新增回归实际为2通过／3失败：合法scope的display与volume各2MiB时，整次调用累计Rust分配申请62,918,098字节；缺少IndexWrite或MetadataRead时分别申请8,389,002与4,194,465字节后仍正确拒权。问题是预算前不必要的完整scope复制。相同测试修复后5/5通过，三个对应整次调用累计申请降为1,363／104／16字节；Store新投影7/7、全部目标298／0／5与Engine库385／0／3通过，非作者静态复审批准。本机完整workspace为1514／0／18（70 suites），fmt／严格Clippy／完整构建／OpenSpec及14份vendor摘要通过；新原生CI仍待验收。该值不是峰值RSS，macOS的Unsupported结果也不是Linux原生验收。原始日志与冻结测试见[D42回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)。
 

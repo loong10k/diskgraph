@@ -141,7 +141,7 @@ pub(crate) fn gap(error: Failure) -> UnixObservationGap {
 // 回调失败保留原 Engine 分类，不能降成可提交的缺口记录。
 fn checked_native<T>(
     check: &dyn Fn() -> Result<(), EngineError>,
-    work: &dyn Fn(&dyn Fn() -> Result<(), Failure>) -> Result<T, Failure>,
+    work: impl FnOnce(&dyn Fn() -> Result<(), Failure>) -> Result<T, Failure>,
 ) -> Result<Result<T, Failure>, EngineError> {
     let original = RefCell::new(None);
     let result = work(&|| {
