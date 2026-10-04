@@ -89,10 +89,11 @@ impl Engine {
             return Err(BusinessError::BudgetExceeded.into());
         }
         let job = control
-            .create_process_evidence_job(
+            .create_process_evidence_job_until(
                 &input,
                 authority,
                 u64::from(self.max_active_jobs_per_principal),
+                deadline,
             )?
             .ok_or(BusinessError::ResourceExhausted)?;
         Ok(job)

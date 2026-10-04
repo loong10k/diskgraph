@@ -66,11 +66,13 @@ flowchart LR
 
 ## D42 进程任务：本机基础验收通过，原生执行仍待完成
 
-已实现 ProcessEvidence 持久类型输入、原 metadata/index 授权、fencing、独立 Unix 观测及图库发布／恢复回执；CLI/MCP 将固定 scope/revision/node 路由到同一 Engine。缺少已索引 epoch 或平台资格时先拒绝、零入队。Linux runner 当前仍明确 Unsupported，须先在原生环境取得执行回归 RED，再实现执行器；应用归属及三平台进程能力继续开放。
+已实现 ProcessEvidence 持久类型输入、原 metadata/index 授权、fencing、独立 Unix 观测及图库发布／恢复回执；CLI/MCP 将固定 scope/revision/node 路由到同一 Engine。缺少已索引 epoch 或平台资格时先拒绝、零入队。Linux runner 已取得真实 Unsupported 行为 RED，执行器及 15 项阶段回归候选正在验收；编码后目标／根身份、原祖先路径和准备共享预算尚未完成。应用归属及三平台进程能力继续开放。
 
 真实回归复现并修复失败锁存、unwind 句柄计数、授权回调迟到及控制锁准备等待。暂存身份点查增加非唯一表达式索引，保持重复身份拒绝及原 JSON；20k／200k 节点下三次公开写入从360,234／3,600,234条 VM 指令降至各272条。索引建立增加存储与维护成本，此结果不是完整扫描或 RSS 测量。
 
-冻结本机 workspace **1474／0／18，68 suites**。首次 fmt 因一处断言排版失败；仅修正空白后，相关 Git11/11、fmt、严格 Clippy 及 build 通过。macOS 上**未执行** Linux epoch／观测／执行目标，不把零测试算原生通过。[基础回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)保留44份档案与实测失败。SQLite 外部写锁等待、根祖先绑定、真实原生执行及全平台父项分别继续验收。 首次 f8ed6076 原生 CI 三条 Linux Build 均因夹具调用 Store 私有时钟编译失败，未运行原生行为；现仅改为标准 Unix 秒数，原+60秒期限及断言未变，修正源码原生验收继续待完成。
+冻结本机 workspace **1474／0／18，68 suites**。首次 fmt 因一处断言排版失败；仅修正空白后，相关 Git11/11、fmt、严格 Clippy 及 build 通过。macOS 上**未执行** Linux epoch／观测／执行目标，不把零测试算原生通过。[基础回执](benchmarks/process_job_foundation_acceptance_2026_10_04.json)保留96份档案与实测失败。SQLite 外部写锁等待、根祖先绑定、真实原生执行及全平台父项分别继续验收。 首次 f8ed6076 原生 CI 三条 Linux Build 均因夹具调用 Store 私有时钟编译失败，未运行原生行为；现仅改为标准 Unix 秒数，原+60秒期限及断言未变；修正源码0ea5da7的三条Linux原生Build通过，各实际执行epoch2/2、observer2/2，随后两项持久执行在真实scan／holder前置通过后精确Unsupported失败。这是实施执行器所需的行为RED，不是产品原生验收通过。
+
+候选本机 Engine 为 **547／0／8，28 suites**，编译、严格 Clippy 与限定 workspace fmt 通过；Linux 专属阶段用例未在 macOS 执行。D44 原入队期限的 10 项回归先实际 **6／4／0**，补强见证后两项 writer 仍约 1.23 秒返回成功。守卫修复后原 10 项 **10／0／0**，新增提交读锁、实际 SQLite VM 中断见证和 Rust unwind 清理 **3／0／0**，均完整回滚并恢复连接。最终候选本机 workspace **1487／0／18，69 suites**，限定 fmt、严格 Clippy 和 build 通过。Linux 增至 16 项阶段测试（预期 4 项身份／准备负例）及 1 项整调用 Rust 分配观测，真实平台验收仍待完成。这些新增失败及修正验证命令已保留，不以此前基线通过代替当前完成。
 
 ## 以下保留历史阶段记录
 

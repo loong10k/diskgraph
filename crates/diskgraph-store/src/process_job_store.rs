@@ -2,8 +2,21 @@
 use crate::{ControlStore, JobKind, JobRecord, Result, StoreError};
 use diskgraph_core::{JobRequestAuthority, ProcessEvidenceJobInput};
 use rusqlite::{OptionalExtension, TransactionBehavior, params};
+use std::time::Instant;
 
 impl ControlStore {
+    /// 参数：固定目标、原身份、活动配额及同一请求的绝对期限；返回：合并或新任务、配额 None，或真实错误。
+    /// 来源：原生 Rust D44 / EC-04。准备、锁等待与提交共用原期限，失败不留下部分队列。
+    pub fn create_process_evidence_job_until(
+        &mut self,
+        input: &ProcessEvidenceJobInput,
+        authority: &JobRequestAuthority,
+        maximum: u64,
+        deadline: Instant,
+    ) -> Result<Option<JobRecord>> {
+        crate::process_job_enqueue_until::create(self, input, authority, maximum, deadline)
+    }
+
     /// 参数：服务端确认的固定目标、原身份和活动配额；返回：同输入/同身份合并、新任务或配额 None。
     /// 本可信存储入口不读取资源；revision/node 的图库授权仍由唯一 Engine 完成。
     pub fn create_process_evidence_job(

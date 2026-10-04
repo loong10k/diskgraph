@@ -285,14 +285,26 @@ impl Engine {
         if claimed.kind == JobKind::GitEvidence && outcome.is_ok() {
             crate::git_evidence_execution_tests::after_publication(job_id)?;
         }
+        #[cfg(all(test, target_os = "linux"))]
+        let outcome = if claimed.kind == JobKind::ProcessEvidence && outcome.is_ok() {
+            crate::process_execution_tests::after_commit(job_id)
+        } else {
+            outcome
+        };
         // 图事务可能已成功而 control 的独立提交失败。不能把已提交事实改为 Failed，
         // 保留 Running 供租约到期后按唯一回执对账，且绝不在这里重新采集。
-        if claimed.kind == JobKind::GitEvidence
-            && outcome.is_err()
-            && self.graph()?.job_publication_receipt(job_id)?.is_some()
-            && let Err(error) = outcome
-        {
-            return Err(error);
+        if outcome.is_err() {
+            let committed = match claimed.kind {
+                JobKind::GitEvidence => self.graph()?.job_publication_receipt(job_id)?.is_some(),
+                JobKind::ProcessEvidence => self
+                    .graph()?
+                    .process_job_publication_receipt(job_id)?
+                    .is_some(),
+                JobKind::Index | JobKind::Sync => false,
+            };
+            if committed {
+                return outcome.map(|()| claimed);
+            }
         }
         let final_state = if outcome.is_ok() {
             JobState::Completed
@@ -321,10 +333,10 @@ impl Engine {
                 failure.as_ref(),
             )?
         } else if claimed.kind == JobKind::ProcessEvidence {
-            let failure = outcome
-                .as_ref()
-                .err()
-                .map(|error| crate::process_evidence_admission::failure(error, final_state));
+            let method = self.control()?.process_evidence_job_input(job_id)?.method();
+            let failure = outcome.as_ref().err().map(|error| {
+                crate::process_evidence_admission::failure(error, final_state, method)
+            });
             self.control()?.finish_process_job_fenced(
                 job_id,
                 owner,

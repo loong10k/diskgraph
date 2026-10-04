@@ -136,7 +136,7 @@
     "limits": "Same SQLite fixture point-lookup observations; not full-scan time, RSS, C allocator memory, platform SLA or free index maintenance."
   },
   "native_acceptance": {
-    "status": "pending",
+    "status": "actual_execution_red_received_implementation_in_progress",
     "linux_tests": [
       "linux_process_epoch",
       "linux_process_observation",
@@ -154,23 +154,100 @@
       "outcome": "all three Build steps failed E0624: external test used private ControlStore::now_ms; no native behavior test ran",
       "correction": "test-only standard SystemTime Unix seconds, same original +60s expiry, no assertion/API changes",
       "corrected_test_sha256": "ddb8dbef2b11619dd28d13804a7ef0074efa3ea604245438314567391a05ac23",
-      "corrected_native_validation": "pending new commit/run; not accepted behavior RED"
+      "corrected_native_validation": "See corrected_native_attempt: source 0ea5da7 reaches actual Unsupported execution RED; the compiler failure itself is not behavior RED."
+    },
+    "corrected_native_attempt": {
+      "source_commit": "0ea5da7ecd667f4452aea3cea9c2b11329cd8f9d",
+      "run_id": 37200624741,
+      "linux_jobs": [
+        111431399999,
+        111431400024,
+        111431400087
+      ],
+      "qualified_library_cases_each": 4,
+      "actual_execution_red_cases_each": 2,
+      "outcome": "Three native builds pass. Real scan and indexed epoch/holder prerequisites pass; both durable run_job_strict tests fail exactly Unsupported. This is behavior RED, not product acceptance.",
+      "raw_observations": "process_job_foundation_acceptance_logs/diskgraph-d42-linux-execution-real-red-observations.json.gz"
     }
   },
   "remaining": [
-    "Linux process runner remains explicit Unsupported and must be replaced after actual native RED.",
+    "Linux executor candidate is implemented after actual Unsupported RED, but native stage/identity/ancestor/preparation-budget validation and fixes remain outstanding.",
     "macOS and Windows native process qualification and implementation remain unaccepted.",
     "Application installation ownership, recursive resources and full low-privilege observation remain required.",
     "Provider no-hydration, native writes, GUI/mobile/devices, signing and production deployment remain open.",
-    "Current entry control-mutex deadline is cooperative; it does not prove all external SQLite writer waits obey a hard one-second enqueue bound."
+    "Queue transaction original deadline is locally fixed and verified; same-source native CI is still pending. Kernel/COMMIT I/O remains cooperative."
   ],
   "archives": {
-    "count": 44,
+    "count": 96,
     "ledger": "process_job_foundation_acceptance_logs/archives.json",
-    "ledger_sha256": "54a5fdf24f127417d0c8eaa481b0b735d912f85815890dbf7ea018600979e909"
+    "ledger_sha256": "30cd46dbc4e3629858df0a0bb723b6a2286e9000636d217c585ad790b680a39d"
   },
   "independent_review": {
     "status": "CLEAR foundation only; no complete native executor certification",
     "record": "process_job_foundation_acceptance_logs/diskgraph-d42-independent-review.txt.gz"
+  },
+  "in_progress_candidates": {
+    "base_commit": "0ea5da7ecd667f4452aea3cea9c2b11329cd8f9d",
+    "linux_executor_stage": {
+      "sources": 30,
+      "stage_cases": 16,
+      "expected_identity_red": 3,
+      "macos_engine": [
+        547,
+        0,
+        8
+      ],
+      "macos_suites": 28,
+      "workspace_fmt_exit": 0,
+      "engine_build_exit": 0,
+      "engine_clippy_exit": 0,
+      "limits": "Linux stage cases are not run by macOS. Independent review requests changes: retain held root/file through encoding and reverify before publication; original ancestor route must remain bound. SQL preparation and native byte/allocation budgets still need one ledger. No production acceptance.",
+      "expected_identity_and_preparation_red": 4,
+      "allocation_observation_cases": 1
+    },
+    "process_enqueue_deadline": {
+      "status": "local actual RED to GREEN accepted; native CI pending",
+      "v1_cases": [
+        6,
+        4,
+        0
+      ],
+      "v2_writer_cases_each": [
+        0,
+        1,
+        0
+      ],
+      "v2_positive_remaining_witness": true,
+      "limits": "Both real independent-writer waits start with original deadline still live, then return success after ~1.23s. Successful compiler/config controls do not close deadline fix.",
+      "green_original_ten": [
+        10,
+        0,
+        0
+      ],
+      "green_additional_guard": [
+        3,
+        0,
+        0
+      ],
+      "actual_sqlite_vm_interrupt_witness": true
+    },
+    "retained_validation_corrections": [
+      "First native-session name filter matched zero tests; corrected exact integration target actually passes seven tests.",
+      "cargo fmt --all incorrectly traverses the unchanged pinned upstream path dependency; correct workspace package gate passes. Neither command changed vendored sources."
+    ]
+  },
+  "final_candidate_local_quality": {
+    "source_count": 40,
+    "workspace": {
+      "passed": 1487,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 69
+    },
+    "fmt_exit": 0,
+    "clippy_exit": 0,
+    "build_exit": 0,
+    "source_manifest": "process_job_foundation_acceptance_logs/diskgraph-d44-final-freeze.json.gz",
+    "limitations": "No Linux native acceptance from macOS; four explicit identity/preparation negatives await actual RED and fixes; kernel/COMMIT I/O is cooperative."
   }
 }

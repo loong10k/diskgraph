@@ -4,6 +4,8 @@ mod handle_reservation;
 mod linux_directory;
 #[cfg(target_os = "linux")]
 mod linux_metadata;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_namespace_tests;
 #[cfg(target_os = "linux")]
 mod linux_observer;
 #[cfg(target_os = "linux")]

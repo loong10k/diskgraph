@@ -48,9 +48,19 @@ mod policy_service;
 #[cfg(test)]
 mod process_entry_budget_tests;
 mod process_evidence_admission;
+#[cfg(target_os = "linux")]
+mod process_evidence_batch;
 mod process_evidence_entry;
+#[cfg(target_os = "linux")]
+mod process_evidence_execution;
 mod process_evidence_target;
+#[cfg(all(test, target_os = "linux"))]
+mod process_execution_fixture;
+#[cfg(all(test, target_os = "linux"))]
+mod process_execution_tests;
 mod process_job_status;
+#[cfg(all(test, target_os = "linux"))]
+mod process_publication_tests;
 mod queries;
 mod relation_access;
 mod relation_queries;

@@ -476,4 +476,11 @@ Core 增加真实单对象的 process输入/限额、启动身份、逐资源观
 
 下一步真实 TDD：公开CLI/MCP无缺失类型的入队runtime RED；随后两真实子进程分别持A/B文件仅形成A→P1、B→P2，重复FD/硬链接/非UTF8、目标替换、退出/启动变化和受限空覆盖；部分刷新仍阻断候选；已到实际采样/编码末段再撤权/expiry/cancel/lostowner完整rollback；已commit后sourceGone/expiry恢复不重采；同scope CAS及损坏来源、迁移/旧Git、全部预算与清理正反控。模拟相同PID不同启动只证明codec/绑定，不能冒称实际内核PID重用复现；三OS均需独立native证据。
 
-当前 typed协议／存储发布回执／授权入口及原生预算基础已通过本机回归；Linux执行器仍为Unsupported，实际原生RED与实现、macOS/Windows后端仍待验收，8.6/15.13不勾；应用安装实例、目录递归、全部占用方式和全局可见性保留原验收。provider、不物化、移动端、危险写、签名和部署父项不由此代替；D41原生CI仍单独验收。
+当前 typed协议／存储发布回执／授权入口及原生预算基础已通过本机回归；Linux真实Unsupported执行RED已取得，执行器与阶段用例候选待验收；编码后held身份、祖先绑定及准备共享预算尚未完成，macOS/Windows后端仍待验收，8.6/15.13不勾；应用安装实例、目录递归、全部占用方式和全局可见性保留原验收。provider、不物化、移动端、危险写、签名和部署父项不由此代替；D41原生CI仍单独验收。
+
+
+### D44 Process 入队写事务沿用原 admission 期限（本机回归通过，原生 CI 待验收）
+
+D42 的一秒入队准备账本尚未传入控制写事务，默认五秒 SQLite busy 等待可能在原期限耗尽后入队。新增 `create_process_evidence_job_until`，由产品入口传入首次准备的同一绝对期限；旧签名保留可信内部兼容。事务自身对 BEGIN、合并／配额／写入、末次实时授权后与真正 COMMIT 前检查原期限，busy 等待每次按真实余量设置，不能刷新相对额度。事务内读取最终 JobRecord，禁止用提交后外层检查掩盖已入队副作用。连接 guard 保存实际 busy_timeout 并在错误／unwind 恢复临时 progress；真实 SQL／授权错误保留，只有已确认原期限耗尽的忙等／interrupt 归类为预算错误。
+
+以隔离控制库外部 writer、真实 INSERT update_hook、merge 分支和重开副作用验证先红后绿；此方法只证明控制事务预算，不冒充 Linux 原生身份验收，不改变认领后执行时钟或宣称内核 I/O 硬抢占。

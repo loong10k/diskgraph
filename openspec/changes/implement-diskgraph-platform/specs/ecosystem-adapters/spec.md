@@ -95,6 +95,11 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **THEN** 从成功认领后的同一单调时钟起算，累计扣除原始记录字节、条目、结果和分配预算；每次系统调用/分配前准入，有限重试，不为另一个 PID/资源或复核重建额度，失败锁存。入队必要投影也复用请求 QueryReadBudget 并在拥有/解码前准入。
 - **AND** 原生慢调用不占图/控制写锁；每项调用前后检查原期限/取消，持久授权、租约与撤销沿用既有有界复验和强制发布 fence。安全释放不能因超时丢弃活 I/O owner，也不宣称内核调用、回收或整体 RSS 具有严格抢占上限。
 
+#### Scenario: Process admission deadline reaches the queue commit
+- **WHEN** process 入队从首次准备时生成的原始绝对期限，在外部 SQLite writer 锁等待、合并查询、真实 INSERT 或提交前授权复验期间耗尽
+- **THEN** 写事务沿用同一原期限，按剩余时间限制每次 busy 等待与 VM 执行，真正 COMMIT 前复验并完整回滚；新任务、原 authority、typed input 与诊断记录不得留下部分副作用。合并既有任务也不得在期限耗尽后返回成功或变更原任务。
+- **AND** 正常及时入队、原 token／live grant 与限额规则保持；期限内真实格式、范围、授权和 SQL 错误不被伪装为预算失败。连接实际 busy_timeout 和临时 progress 配置在成功、错误或 unwind 后恢复。已提交事实不能由外层迟到检查伪装为未提交，内核／COMMIT I/O 仍为协作界限，不承诺硬抢占。
+
 #### Scenario: Process terminal authority is not replaced by partial coverage
 - **WHEN** 已确认完成 native 正向观察或编码，随后原认证到期、两项 live grant 撤销、取消、owner/lease/fence 失效或实际根/文件身份改变
 - **THEN** 在真正图库提交前的原 fence 和纯终检拒绝成功发布，完整回滚新 run/revision/receipt，保存真实失败或取消；不能把授权拒绝改成可交付 partial，也不能用前段格式/预算失败代替已到达终态同步点的守护测试。

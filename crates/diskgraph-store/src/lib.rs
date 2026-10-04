@@ -21,6 +21,9 @@ mod control_read_budget;
 mod control_read_budget_tests;
 mod control_retention;
 mod control_store;
+mod control_write_deadline;
+#[cfg(test)]
+mod control_write_deadline_tests;
 mod directory_aggregates;
 mod directory_budget_query;
 #[cfg(test)]
@@ -230,6 +233,7 @@ mod process_collector_publication;
 mod process_collector_selection;
 mod process_collector_target;
 mod process_entity_identity;
+mod process_job_enqueue_until;
 mod process_job_failure_store;
 mod process_job_input_codec;
 mod process_job_migration;
@@ -246,6 +250,10 @@ pub use stored_unix_observation::StoredUnixObservation;
 mod process_collector_publication_tests;
 #[cfg(test)]
 mod process_job_authorization_tests;
+#[cfg(test)]
+mod process_job_enqueue_deadline_tests;
+#[cfg(test)]
+mod process_job_enqueue_fixture;
 #[cfg(test)]
 mod process_job_recovery_tests;
 #[cfg(test)]

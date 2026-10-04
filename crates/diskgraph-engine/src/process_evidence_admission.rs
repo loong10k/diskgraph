@@ -1,22 +1,23 @@
-//! Process 类型接入既有 runner 的安全边界；来源：Rust D42，原生 executor 接通前不借用 Scan。
+//! Process 原生方法准入与回执恢复；来源：Rust D42，不把未资格方法借用为 Scan。
 use crate::{Engine, EngineError};
 use diskgraph_core::{
     BusinessError, ProcessEvidenceFailure, ProcessEvidenceFailureCode as Code,
     ProcessEvidenceFailurePhase,
 };
 use diskgraph_store::{JobKind, JobRecord, JobState, StoreError};
+use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 impl Engine {
-    /// 参数：实际认领的任务代次、取消标志和原始时钟；返回：授权/归属检查后的明确能力失败。
-    /// 不触碰目标源，不创建 snapshot，不把未连接的产品执行器伪装成成功或范围重扫。
+    /// 参数：实际认领的任务代次、取消标志和原始时钟；返回：资格检查后的实际执行结果。
+    /// 只有已资格 Linux 方法进入元数据采样，其他方法不触源且不创建 snapshot。
     pub(super) fn admit_process_execution(
         &self,
         job_id: &str,
         owner: &str,
         fence: u64,
-        cancel: &AtomicBool,
+        cancel: &Arc<AtomicBool>,
         started: Instant,
     ) -> Result<(), EngineError> {
         let mut control = self.control()?;
@@ -34,6 +35,11 @@ impl Engine {
         }
         if started.elapsed() >= Duration::from_millis(input.limits().max_duration_ms()) {
             return Err(BusinessError::BudgetExceeded.into());
+        }
+        drop(control);
+        #[cfg(target_os = "linux")]
+        if input.method() == diskgraph_core::ProcessObservationMethod::LinuxProcfsV1 {
+            return self.execute_process_evidence(job_id, owner, fence, cancel, started);
         }
         Err(BusinessError::Unsupported.into())
     }
@@ -58,7 +64,11 @@ impl Engine {
 }
 
 /// 参数：真实入场失败与持久状态；返回：固定诊断，不猜测原始错误文本或暴露源路径。
-pub(super) fn failure(error: &EngineError, state: JobState) -> ProcessEvidenceFailure {
+pub(super) fn failure(
+    error: &EngineError,
+    state: JobState,
+    method: diskgraph_core::ProcessObservationMethod,
+) -> ProcessEvidenceFailure {
     let code = if state == JobState::Cancelled {
         Code::Cancelled
     } else {
@@ -68,6 +78,7 @@ pub(super) fn failure(error: &EngineError, state: JobState) -> ProcessEvidenceFa
                 BusinessError::BudgetExceeded | BusinessError::ResourceExhausted,
             )
             | EngineError::Store(StoreError::BudgetExceeded) => Code::BudgetExceeded,
+            EngineError::Business(BusinessError::Unavailable) => Code::Unavailable,
             EngineError::Business(BusinessError::PermissionDenied) => Code::PermissionDenied,
             EngineError::Business(BusinessError::Timeout) => Code::Timeout,
             EngineError::Business(BusinessError::Conflict)
@@ -77,5 +88,12 @@ pub(super) fn failure(error: &EngineError, state: JobState) -> ProcessEvidenceFa
             _ => Code::InternalError,
         }
     };
-    ProcessEvidenceFailure::new(ProcessEvidenceFailurePhase::Admission, code)
+    let phase = if cfg!(target_os = "linux")
+        && method == diskgraph_core::ProcessObservationMethod::LinuxProcfsV1
+    {
+        ProcessEvidenceFailurePhase::Execution
+    } else {
+        ProcessEvidenceFailurePhase::Admission
+    };
+    ProcessEvidenceFailure::new(phase, code)
 }
