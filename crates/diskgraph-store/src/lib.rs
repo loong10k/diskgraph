@@ -35,7 +35,21 @@ mod history_metadata_query;
 mod history_node_cursor;
 mod history_queries;
 mod intent_state;
+mod job_authority_claim;
+#[cfg(test)]
+mod job_authority_decode_tests;
+mod job_authority_gate;
+#[cfg(test)]
+mod job_authority_migration_tests;
+mod job_authority_store;
+#[cfg(test)]
+mod job_authority_tests;
 mod job_kind;
+#[cfg(test)]
+mod job_publication_check_tests;
+mod job_queue_query;
+#[cfg(test)]
+mod job_queue_query_tests;
 mod job_record;
 mod job_state;
 mod job_store;

@@ -27,6 +27,7 @@ pub struct JobRunner {
     engine: Arc<Engine>,
     stop: Arc<AtomicBool>,
     owner: String,
+    require_authority: bool,
     worker: Option<JoinHandle<()>>,
 }
 
@@ -37,6 +38,17 @@ impl JobRunner {
     /// 参数：engine 为已有共享引擎。
     /// 返回：后台调度句柄；原实现保留启动线程失败时无 worker 的行为。
     pub fn start(engine: Arc<Engine>) -> Self {
+        Self::start_mode(engine, false)
+    }
+
+    /// 启动只执行来源明确任务的远程宿主 runner。
+    /// 参数：engine 为共享引擎；返回：同一调度 owner 的生命周期句柄。
+    /// 无请求授权记录的历史任务将失败，不隐式借用宿主本机身份。
+    pub fn start_strict(engine: Arc<Engine>) -> Self {
+        Self::start_mode(engine, true)
+    }
+
+    fn start_mode(engine: Arc<Engine>, require_authority: bool) -> Self {
         let owner = format!("runner-{}", uuid::Uuid::new_v4());
         let stop = Arc::new(AtomicBool::new(false));
         let worker_engine = Arc::clone(&engine);
@@ -46,8 +58,12 @@ impl JobRunner {
             .name("diskgraph-job-runner".into())
             .spawn(move || {
                 while !worker_stop.load(Ordering::SeqCst) {
-                    if let Err(error) = run_one_queued(&worker_engine, &worker_owner, &worker_stop)
-                    {
+                    if let Err(error) = run_one_queued(
+                        &worker_engine,
+                        &worker_owner,
+                        &worker_stop,
+                        require_authority,
+                    ) {
                         // Claim races are routine: whoever claimed first wins.
                         // Real failures stay visible on stderr.
                         eprintln!("diskgraph job runner: {error}");
@@ -60,6 +76,7 @@ impl JobRunner {
             engine,
             stop,
             owner,
+            require_authority,
             worker,
         }
     }
@@ -86,7 +103,12 @@ impl JobRunner {
     /// 参数：无。
     /// 返回：至多一个任务的执行记录、无可执行任务的 None 或执行错误。
     pub fn tick(&self) -> Result<Option<JobRecord>, EngineError> {
-        run_one_queued(&self.engine, &self.owner, &self.stop)
+        run_one_queued(
+            &self.engine,
+            &self.owner,
+            &self.stop,
+            self.require_authority,
+        )
     }
 }
 
@@ -102,17 +124,24 @@ fn run_one_queued(
     engine: &Arc<Engine>,
     owner: &str,
     stop: &AtomicBool,
+    require_authority: bool,
 ) -> Result<Option<JobRecord>, EngineError> {
     if stop.load(Ordering::SeqCst) {
         return Ok(None);
     }
-    let queued = engine.queued_jobs()?;
+    // 每轮只准入一页；失效请求由逐项认领落终态，不先解码或清理全队列权限。
+    let queued = engine.queued_jobs_limited(64)?;
     for job in queued {
         // 队列读取可能等待控制锁；返回后及每次竞争失败后的认领都重新检查停止。
         if stop.load(Ordering::SeqCst) {
             return Ok(None);
         }
-        match engine.run_job(&job.job_id, owner) {
+        let outcome = if require_authority {
+            engine.run_job_strict(&job.job_id, owner)
+        } else {
+            engine.run_job(&job.job_id, owner)
+        };
+        match outcome {
             Ok(record) => return Ok(Some(record)),
             // A competing runner may win any candidate. Continue to the next
             // eligible job rather than starving the rest of the queue.
@@ -123,3 +152,6 @@ fn run_one_queued(
     }
     Ok(None)
 }
+
+#[cfg(test)]
+mod tests;

@@ -15,6 +15,9 @@ mod explanation;
 mod history_namespace;
 mod history_node_lookup;
 mod history_request;
+mod job_authorization;
+#[cfg(test)]
+mod job_authorization_tests;
 pub mod live_evidence;
 mod native_locator;
 mod policy_service;

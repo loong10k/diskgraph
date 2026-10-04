@@ -1,0 +1,315 @@
+{
+  "date": "2026-10-04",
+  "status": "local_security_candidate_verified_native_pending",
+  "change": "implement-diskgraph-platform",
+  "tasks": [
+    "15.20",
+    "D38 Windows scope-boundary correction"
+  ],
+  "base_commit": "e32214ddf70eb2fa85872416b64e62823188f1ce",
+  "source_sha256": {
+    "crates/diskgraph-core/src/job_authority_origin.rs": "97f3e01c51b8caee31a2311881d5e935c606a32f3d62734660b607d392897d99",
+    "crates/diskgraph-core/src/job_request_authority.rs": "4b22b9e064257dd92ff3187286e41f271462fb4e5adf21576bf075a417908151",
+    "crates/diskgraph-core/src/job_request_authority_tests.rs": "f171ae056586f77f13c8ecab99c365ce48ce409392e7e52641746c221c0fbc90",
+    "crates/diskgraph-core/src/lib.rs": "e6c370989cd7837994f7561aefd1bfa917402fe73c60dcfc9e696c600c052260",
+    "crates/diskgraph-mcp/tests/durable_request_authority.rs": "9ffc2210c3c8d59840f354ed0f3b7f8530cd7c01e7a335f6b2e6c23c14c493d9",
+    "crates/diskgraph-store/src/authorization_generation_tests.rs": "fad7cfba8d990c24c2274945dd7a67e37bb2e1b441d09f06a7e467d36a4cf032",
+    "crates/diskgraph-store/src/control_store.rs": "f35281e408204ddd5d99db983a3a0b77efb6ab4b9adddcff63975d2a4b2884c7",
+    "crates/diskgraph-store/src/job_authority_claim.rs": "4a9bbb3a9a118290c3fd2c39682391e5beb7f9130d5c7b2a59ffdfa5f7d434bb",
+    "crates/diskgraph-store/src/job_authority_decode_tests.rs": "55284859e9a03d8ed8a47e308a2078ab710c6e38fe459164fd8816e682ba8684",
+    "crates/diskgraph-store/src/job_authority_gate.rs": "345593eda7ecf34deb660d275330b57ad8a31f9cf40b1ed0e5fa29f7d7701071",
+    "crates/diskgraph-store/src/job_authority_migration_tests.rs": "3082a1032bff7c138d1c7a26f0b4be386de13a06d8a29cd33a3bd13863a1129a",
+    "crates/diskgraph-store/src/job_authority_store.rs": "f05c14091043df5d6e2ff61bf67bea7dd3d9c07451e8ac938334e4bb0c2e3d71",
+    "crates/diskgraph-store/src/job_authority_tests.rs": "d0bb23daaf23731b3630c3665251ba3337feff8f58aecc570eccbab09d5ef9bd",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "0959ce6a69a38aeae68982b05ebd25fc9e259c7f98dfabe4a2b7693e876040c7",
+    "crates/diskgraph-store/src/job_queue_query.rs": "534399130aa3aca5338cb8df52f5b830c27afcda97c4f096641dca356c67a295",
+    "crates/diskgraph-store/src/job_queue_query_tests.rs": "e37837c75049178bd5c4377ac3c61c07853123c9bd27bce897af9e1af23e510f",
+    "crates/diskgraph-store/src/job_store.rs": "764bb2926eb30e99a24b1d120f1a5c1e0b8108cdf7c1bde7e1508a2aba3ab92f",
+    "crates/diskgraph-store/src/lib.rs": "92f0cb8ec4be772161c098386af41bc2844afcd0d9a783ffe4af33b21b43da91",
+    "crates/diskgraph-store/src/revision_writer.rs": "a35e8abb2a15a109e12996a5c529f6cd07fc072ee8b5c973fb6bc20ff6a338a0",
+    "crates/diskgraph-store/src/scan_staging_store.rs": "c62a62607ee667adc346d63b44a7c184b932c2bdb191f45335921bf467b5b051",
+    "openspec/changes/implement-diskgraph-platform/specs/scope-authorization/spec.md": "3a76788462e70a7fd959f3850d8146ba815297618bc7128410d958e1de75db37",
+    "crates/diskgraph-engine/src/job_authorization.rs": "86fda9e5ee123f75b5adbb7ce5eb71334c192c68d5349fb94f535abe44690abc",
+    "crates/diskgraph-engine/src/job_authorization_tests.rs": "f9678848f50b6797f9621f79e370b442ad058c489d62d4970198145d6ea506fc",
+    "crates/diskgraph-engine/src/scan_jobs.rs": "9e0e72fb2ff685f5261633294e51de857b792c20506838aa19f1186aeb7ea090",
+    "crates/diskgraph-engine/src/scan_execution.rs": "6709030fb8cc04b76722c790f2e98dc30ad7a935c3d97d8ae15226595b3bd3ab",
+    "crates/diskgraph-engine/src/scan_observation_guard.rs": "b1b8b87e48e8aab71eecbb15b091429bf26d351dc5369715a67016299a266633",
+    "crates/diskgraph-engine/src/runner.rs": "d0381c689fecdd9ea2580e3f9b604d25d674a8ee778ad791564bf689e27f306b",
+    "crates/diskgraph-engine/src/lib.rs": "8ab2d49c946d1a5f69cfa651aec50ffcb8f652ad24bc9e3a063b974b9e31793b",
+    "crates/diskgraph-mcp/src/request_context.rs": "503951321c8d097ce295f8a62a04a068c23fbc4482cc8cd9a7e8563892483d48",
+    "crates/diskgraph-mcp/src/lib.rs": "025845984dd5bae634b94bb1df196b858accb8beb5af48bd67f453338d3e5980",
+    "openspec/changes/implement-diskgraph-platform/specs/ecosystem-adapters/spec.md": "7f7820e94a81e91a38c6098267b165122836e5e4b10263a064601c4f696a417a",
+    "crates/diskgraph-engine/src/scan_observation_tests.rs": "116e6eeae69413622f4e165ba607786cdf3cb409a5f46f43784fc5fcb804a378",
+    "crates/diskgraph-engine/src/runner/tests.rs": "0679db00626d7acda3d173053d01be54de8822d8e0b678da32d3b95e185d3aca",
+    "openspec/changes/implement-diskgraph-platform/specs/runtime-governance/spec.md": "5b990250a9702a4683fc6b0253b25badbbf3858a4b61145d0b65a732ea401b52",
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs": "562da42882ed3e2fa95fd35ed35489421944b04b909cb69bceb3f75073cb29ea",
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "a6e03bb7fd19bde45fd7f84d5a10dfdfa5da0c12e268953ebf657953468d40f8"
+  },
+  "candidate_workspace": {
+    "suites": 52,
+    "passed": 1270,
+    "failed": 0,
+    "ignored": 18
+  },
+  "development_worktree_workspace": {
+    "suites": 54,
+    "passed": 1273,
+    "failed": 7,
+    "ignored": 18
+  },
+  "development_worktree_known_failures": [
+    "explicit_git_sync_queues_a_durable_job_without_publishing_during_enqueue",
+    "explicit_git_sync_without_content_read_is_business_denied_before_enqueue",
+    "git_sync_requires_content_read_in_live_database_grants",
+    "authenticated_git_sync_returns_a_durable_job_for_the_verified_principal",
+    "git_sync_rejects_a_registered_scope_that_does_not_own_the_revision",
+    "sync_schema_discovers_explicit_git_target_without_client_execution_controls",
+    "git_sync_requires_content_read_in_the_verified_token_ceiling"
+  ],
+  "candidate_scope": {
+    "mechanism": "exact git index export; no branch or Git worktree creation",
+    "excluded_untracked_future_feature_tests": [
+      "crates/diskgraph-cli/tests/git_evidence_flow.rs",
+      "crates/diskgraph-mcp/tests/git_evidence_contract.rs"
+    ],
+    "excluded_tests_remain_in_development_worktree": true,
+    "excluded_feature_is_accepted": false,
+    "all_existing_and_new_authority_tests_included": true
+  },
+  "tdd": {
+    "request_expiry": {
+      "red": "2 passed /2 failed; real authenticated socket then original expiry then real runner still published",
+      "green": "4 passed; expired Index/Sync fail without revision; live disconnected and narrow capability controls pass"
+    },
+    "claim_clock": {
+      "red": "0 passed /1 failed; 50ms budget plus held graph lock100ms yielded Completed and revision",
+      "green": "1 passed; same held wait yields Failed/BudgetExceeded and latest None"
+    },
+    "runner_page": {
+      "red": "0 passed /1 failed; first tick materialized/failed65 legacy jobs and published the66th",
+      "green": "1 passed; first tick fails64 without publication; second progresses to valid publication",
+      "initial_compile_failure_is_not_behavioral_red": true
+    }
+  },
+  "quality_exit_codes": {
+    "fmt": 0,
+    "include-fmt": 0,
+    "workspace": 0,
+    "build": 0,
+    "clippy": 0,
+    "release": 0
+  },
+  "openspec_strict_exit_code": 0,
+  "release_protocol": {
+    "stdio": {
+      "passed": 18,
+      "total": 18,
+      "checks": {
+        "diskgraph_version": true,
+        "diskgraph-mcp_version": true,
+        "cli_tree_revision_binding": true,
+        "cli_top_bounded": true,
+        "cli_candidates_review_only": true,
+        "stdio_initialize": true,
+        "stdio_tool_discovery": true,
+        "stdio_scope_0_bound": true,
+        "stdio_scope_1_bound": true,
+        "stdio_write_tool_disabled": true,
+        "stdio_schema_and_dispatch_diskgraph_node": true,
+        "stdio_schema_and_dispatch_diskgraph_search": true,
+        "stdio_schema_and_dispatch_diskgraph_explain": true,
+        "stdio_schema_and_dispatch_diskgraph_related": true,
+        "stdio_schema_and_dispatch_diskgraph_changes": true,
+        "stdio_explicit_nonroot_node": true,
+        "stdio_unknown_argument_rejected": true,
+        "cli_serve_delegates_to_mcp_binary": true
+      }
+    },
+    "http": {
+      "passed": 13,
+      "total": 13,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "group_readable_key_refused": true
+      }
+    }
+  },
+  "uniffi_checksums": {
+    "passed": 19,
+    "total": 19,
+    "baseline": "D36 known public19 checksum symbols; actually called from freshly built dylib"
+  },
+  "release_load_observations": [
+    {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 20000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 0.477,
+      "query_p50_ms": 7.001,
+      "query_p95_ms": 9.744,
+      "database_and_wal_bytes": 43458560,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    },
+    {
+      "version": "diskgraph 0.3.0",
+      "platform": "darwin",
+      "files": 200000,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "scan_seconds": 4.396,
+      "query_p50_ms": 6.925,
+      "query_p95_ms": 8.676,
+      "database_and_wal_bytes": 436932608,
+      "passed": 4,
+      "total": 4,
+      "checks": {
+        "full_index_published": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    }
+  ],
+  "performance_limits": [
+    "Unpaired load observations; no acceleration or strict RSS claim",
+    "RSS not measured in this increment",
+    "SQL page tests cover actual20k queued fixture and VM steps; total tick cost with live-running/revoked/cancelled prefixes is not asserted constant"
+  ],
+  "reviews": {
+    "independent_code": "CLEAR including claim-clock;36-source candidate includes separately reviewed2 Windows correction sources",
+    "core_store_manifest_sha256": "779104ba3ff1441854b70b7aaf238b090f5ceda039f84c393e7d8bd3a65bbe22",
+    "engine_manifest_sha256": "ba7fe1a0fe05915086e48eb4460737faa96b38f271ad67d97e765f1cc0cfb24e"
+  },
+  "native": {
+    "corrected_source_run": "pending",
+    "previous_run": 37171948796,
+    "previous_result": "20/22; two Windows jobs each two scope-boundary failures",
+    "observation_receipt": "docs/benchmarks/d36_native_observation_2026_10_04.json",
+    "case_inventory": "docs/benchmarks/durable_job_authority_native_cases_2026_10_04.json",
+    "case_inventory_sha256": "6db5e7da0941545f768cf4c9d39bcb44e23e5e38e0d2c97e1a4685b6b98986d3"
+  },
+  "remaining_limits": [
+    "Malformed/oversized/foreign-principal stored authority fails InvalidGraph and stops tick; administrator repair required, not automatic quarantine",
+    "Cooperative cancellation and final pure precommit checks; no hard I/O wallclock/RSS or cross-database atomicity guarantee",
+    "Git collector authorized execution/publication/receipt recovery remains pending",
+    "Real provider no-download, native writes, GUI/Room, mobile/device, signing and production gates remain open"
+  ],
+  "logs": {
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-request-authority-red.log.gz": {
+      "raw_sha256": "47bf062d6ea6c42b7a9cfb8f22ae1aec5338a36fb8ec64ceffbe7d4304e731c5",
+      "gzip_sha256": "7ee5a9b46b4b3f763c501b92bd27042da8b13de3447ffbacfddf4f4b1011d0ab"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-claim-budget-red.log.gz": {
+      "raw_sha256": "87906cab7b1d89b25bc32045ca419973ab42cf9520a1b5a9b9ea1552d67494d2",
+      "gzip_sha256": "de6e72b3147007c355ffb69ee6cd26a798f9eb767bc9d4eef8ed95a54187f87b"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-claim-budget-green.log.gz": {
+      "raw_sha256": "ea3249e5d22033725e3b85dfc76bce360f126c1cdc11c096db1d726f15a386ff",
+      "gzip_sha256": "7cd723082f1ea152da258109d370a4859723c34b325df1d27820dd098f5d0690"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-runner-page-red.log.gz": {
+      "raw_sha256": "b7e3de2664372f57f5f14b65ec45829eccc8ce682227fe32162e9c967f281ad1",
+      "gzip_sha256": "5bb3fe07cf26f9f4a9e87fcfa29d932386845a8134686cb4eb317a9660726f6a"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-runner-page-green.log.gz": {
+      "raw_sha256": "08c09e53d92439449901b0d9d70ec5e7d008a0075b5de076959ebc75e024f62d",
+      "gzip_sha256": "3fbffa234fb88c87ed1950bf91fb5bc879b6ab894d3070b49b9f81dc67880e35"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-final-workspace.log.gz": {
+      "raw_sha256": "374c10b84412042c34388faef374141f312c59184f8229a52a5a58157690f181",
+      "gzip_sha256": "0b464f7f324f5a10a58a5c92afe3a382583d016d686fb25e4d1832732e6aebee"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-fmt.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-include-fmt.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-workspace.log.gz": {
+      "raw_sha256": "1606f7c7de91f1e11ec44fe7b04839b968fc1b90a970a3de26d8be51fa5f0673",
+      "gzip_sha256": "611e9671246dc95fa03c5daabd05f6e3f8f66b2debb44eb800123335b27a3f23"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-build.log.gz": {
+      "raw_sha256": "f2066ca264b9a8598ecd436c70919e1efe1acea4098ad2a13b5d82d67bc049ec",
+      "gzip_sha256": "d9151c22c3f43a538c32bcb9401f3963fac69c64b3822fe3048738f45ce67e22"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-clippy.log.gz": {
+      "raw_sha256": "6723143068513905be0f684c0292dde94fa66409a12c8f8a3d4afed20ba53bba",
+      "gzip_sha256": "c020e2a264fadf55236b06d1e779d4740032237302b342170a24edc87fc24d38"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-release.log.gz": {
+      "raw_sha256": "148f12d16464ce0554e3de394d513406bbc2c8ba9431700ab5002d10bad0715a",
+      "gzip_sha256": "e150b1c7527901b4c11fa47b5f2b536ff10d61653458f9dea0f70947237e45cb"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-release-stdio.log.gz": {
+      "raw_sha256": "ca607b6856a2813cf4d4fb4cd91e692cc86542fd135e73cfe17974dfa3f9c4cd",
+      "gzip_sha256": "87a79809fb4fa16f078814919b60e22d9b1acf8a2c7108351532a96eaf2d74fb"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-release-http.log.gz": {
+      "raw_sha256": "e2bb3dd7bf9484189b22b89991f7af1c2f0a078da55afe434b53647d5277baf4",
+      "gzip_sha256": "9e720c963db91bd2ca6ef5084e4611b348849e65422ca1b57e61af11ecb938be"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-release-load20k.log.gz": {
+      "raw_sha256": "e1666a9e139ef3c5fd9440cf578bc07a2b51febc4d60c92aef063874487c9931",
+      "gzip_sha256": "9b81ac6f9c0eeb1c38e211cbb93cfeeeb81614d34b724bbe8313c92b2eff7218"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-release-load200k.log.gz": {
+      "raw_sha256": "f8222ea7ed526c5478643c03caed50d0f0d3942b013980f983818224d7884ba6",
+      "gzip_sha256": "e19a8c976c9c9b833f70b4365423f689a720108bb5b8ae27b4e1a07e3913e407"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-release-uniffi.json.gz": {
+      "raw_sha256": "aba25eaadb95674aa824bce0a5ad9a6ebea3744bf2cd17dac62c9417cc95ccda",
+      "gzip_sha256": "070afcfd83f13e31b59f8aaa1695c68036fb4b6a0ae0f1bf4a468358ab8310b3"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-engine-authority-claim-clock-candidate.json.gz": {
+      "raw_sha256": "ba7fe1a0fe05915086e48eb4460737faa96b38f271ad67d97e765f1cc0cfb24e",
+      "gzip_sha256": "d3c81d9937b5628877301d5bc7fbf2a19dc4f47588632f3ad79e8e540172bdfc"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-core-store-reviewed-source.sha256.gz": {
+      "raw_sha256": "779104ba3ff1441854b70b7aaf238b090f5ceda039f84c393e7d8bd3a65bbe22",
+      "gzip_sha256": "53fc63a973b62f5e53791b44f592efd2dd77137e4f3c9df59e75880ba8b75af8"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-final-quality-results.json.gz": {
+      "raw_sha256": "b247db618de0f7ad323ab822ff482790f4b1325de605cbe1b98c4734e84e70e7",
+      "gzip_sha256": "fca1e659f33e1687496c4ff12fd84b7ba233662d98f290536e68fc7ad2e91759"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-candidate-quality-results.json.gz": {
+      "raw_sha256": "e9334449462cd9b524083cb002bb711fdd5f48311c3608f9be1a109fb1e57ea8",
+      "gzip_sha256": "7e7a1042b0521e7dcbfd41ebd78810306a601644d9916afad7aeab726d55edc4"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-release-acceptance-results.json.gz": {
+      "raw_sha256": "78e1e35f9f934f21aafa6f84829021f9a5050ebda33b52af4ef630914df24c87",
+      "gzip_sha256": "7b4616be1110345bf2d8f3ded4866bd18e984671c91bc253ac58e9be4799643b"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-mobile-tooling-observation.json.gz": {
+      "raw_sha256": "44a0858bb74a876c29828f63a7967abd5d40e483bf0dcfff16cb796169d61ed4",
+      "gzip_sha256": "af3a2b0a0f80f585734c05dcceb79ae0037df44c6fa7e63df902206cc9d3dc8f"
+    },
+    "docs/benchmarks/durable_job_authority_acceptance_logs/diskgraph-d37-openspec.log.gz": {
+      "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    }
+  }
+}

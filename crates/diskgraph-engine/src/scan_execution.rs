@@ -16,7 +16,7 @@ use std::time::{Duration, Instant};
 
 impl Engine {
     /// 在当前 fence 下扫描、转换、暂存并原子发布 revision。
-    /// 参数：job_id/owner/fence 确定代次，cancel 为该代次协作取消标志。
+    /// 参数：job_id/owner/fence 确定代次，cancel 为协作取消标志，scan_started 为成功认领后的原始起点。
     /// 返回：成功或扫描/容量/授权/fence/存储失败；采集发布失败整批回滚，既有版本保持不变。
     pub(super) fn execute_scan(
         &self,
@@ -24,10 +24,19 @@ impl Engine {
         owner: &str,
         fence: u64,
         cancel: &AtomicBool,
+        scan_started: Instant,
     ) -> Result<(), EngineError> {
+        // 进入执行前先扣除认领后的准备/锁等待；不能到扫描器启动时重新计时。
+        if scan_started.elapsed() > Duration::from_millis(self.scan_budget.max_duration_ms) {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
         let job = self.control()?.job(job_id)?;
         if job.fencing_token != fence || job.owner != owner {
             return Err(StoreError::StaleOwner.into());
+        }
+        let authority = self.control()?.job_request_authority(job_id)?;
+        if let Some(authority) = &authority {
+            authority.validate_at(crate::job_authorization::unix_seconds()?)?;
         }
         let scope = self.control()?.scope(&job.scope_id)?;
         if scope.revoked {
@@ -51,11 +60,11 @@ impl Engine {
         // options that produced it, so two snapshots are only comparable when
         // they were configured the same way.
         let started_at_unix_ms = now_ms();
-        let scan_started = Instant::now();
         let mut last_heartbeat = started_at_unix_ms;
         let staging_id = format!("{job_id}:{}", job.fencing_token);
         let options = self.scan_options.clone();
-        let observation_guard = ScanObservationGuard::new(self, &job, cancel, scan_started);
+        let observation_guard =
+            ScanObservationGuard::new(self, &job, authority.as_ref(), cancel, scan_started);
         observation_guard.check_now()?;
         #[cfg(windows)]
         let _hydration_guard = diskgraph_disktree::HydrationGuard::enter()
@@ -79,6 +88,10 @@ impl Engine {
                     return Err(EngineError::Store(StoreError::StaleOwner));
                 }
                 last_heartbeat = now_ms();
+            }
+            if observation_guard.check_now().is_err() {
+                cancel.store(true, Ordering::SeqCst);
+                handle.cancel();
             }
             let progress = handle.progress.snapshot();
             if let Ok(mut entries) = self.scan_progress.lock() {
@@ -180,6 +193,8 @@ impl Engine {
                 let observed = (None, Some(WindowsObservationGap::Unsupported));
                 #[cfg(test)]
                 crate::scan_observation_tests::after_observe(&job.job_id);
+                #[cfg(test)]
+                crate::job_authorization_tests::after_observe(&job.job_id);
                 observation_guard.check()?;
                 usage.elapsed_ms =
                     u64::try_from(scan_started.elapsed().as_millis()).unwrap_or(u64::MAX);
@@ -209,32 +224,33 @@ impl Engine {
             #[cfg(test)]
             crate::scan_observation_tests::before_stage_lock(&job.job_id);
             let mut graph = self.graph()?;
-            self.control()?
-                .with_job_fence(job_id, owner, job.fencing_token, || {
-                    // 已等待图锁和控制事务，写入前只检查本代次原始时钟与取消，避免重入控制锁。
-                    if cancel.load(Ordering::SeqCst) {
-                        return Err(StoreError::Conflict("scan cancelled before staging".into()));
-                    }
-                    if scan_started.elapsed()
-                        > Duration::from_millis(self.scan_budget.max_duration_ms)
-                    {
-                        return Err(StoreError::BudgetExceeded);
-                    }
-                    graph.append_staging_observed_iter(
-                        &staging_id,
-                        batch.iter().zip(&locators).zip(&observations).map(
-                            |((node, locator), (observed, gap))| {
-                                (
-                                    &node.v1,
-                                    locator,
-                                    node.self_modified,
-                                    observed.as_ref(),
-                                    *gap,
-                                )
-                            },
-                        ),
-                    )
-                })?;
+            let mut control = self.control()?;
+            let lease_expires = control.job(job_id)?.lease_expires_unix_ms;
+            control.with_job_fence(job_id, owner, job.fencing_token, || {
+                graph.append_staging_observed_iter_checked(
+                    &staging_id,
+                    batch.iter().zip(&locators).zip(&observations).map(
+                        |((node, locator), (observed, gap))| {
+                            (
+                                &node.v1,
+                                locator,
+                                node.self_modified,
+                                observed.as_ref(),
+                                *gap,
+                            )
+                        },
+                    ),
+                    || {
+                        crate::job_authorization::check_scan_commit(
+                            authority.as_ref(),
+                            cancel,
+                            lease_expires,
+                            scan_started,
+                            self.scan_budget.max_duration_ms,
+                        )
+                    },
+                )
+            })?;
         }
         let v1_nodes: Vec<diskgraph_core::DiskNode> =
             scanned.nodes.into_iter().map(|node| node.v1).collect();
@@ -278,12 +294,8 @@ impl Engine {
         }
         let server_id = control.ensure_server()?;
         control.heartbeat_fenced(job_id, owner, job.fencing_token)?;
+        let lease_expires = control.job(job_id)?.lease_expires_unix_ms;
         let result = control.with_job_fence(job_id, owner, job.fencing_token, || {
-            if cancel.load(Ordering::SeqCst) {
-                return Err(StoreError::Conflict(
-                    "scan cancelled before publication".into(),
-                ));
-            }
             let elapsed = scan_started.elapsed();
             #[cfg(test)]
             let elapsed = crate::scan_publication_tests::publication_elapsed(job_id, elapsed);
@@ -291,13 +303,21 @@ impl Engine {
             if elapsed > Duration::from_millis(self.scan_budget.max_duration_ms) {
                 return Err(StoreError::BudgetExceeded);
             }
-            graph.publish_revision_owned_with_batch(
+            graph.publish_revision_owned_with_batch_checked(
                 &staging_id,
                 &observed_graph,
-                &revision_id,
-                published_at,
+                (&revision_id, published_at),
                 Some((server_id.as_str(), job.scope_id.as_str())),
                 Some(&collector),
+                || {
+                    crate::job_authorization::check_scan_commit(
+                        authority.as_ref(),
+                        cancel,
+                        lease_expires,
+                        scan_started,
+                        self.scan_budget.max_duration_ms,
+                    )
+                },
             )
         });
         drop(control);

@@ -15,6 +15,8 @@ mod historical_node_size;
 #[cfg(test)]
 mod historical_size_tests;
 mod ids;
+mod job_authority_origin;
+mod job_request_authority;
 mod json_size_writer;
 mod locator;
 mod locator_encoding;
@@ -61,6 +63,8 @@ pub use errors::BusinessError;
 pub use freshness::{FingerprintMap, FingerprintSource, Freshness, classify, edge_freshness};
 pub use historical_node_size::{comparable_growth_delta, observed_node_size};
 pub use ids::{InvalidId, PrincipalId, ResourceRef, RevisionId, ScopeId, ServerId};
+pub use job_authority_origin::JobAuthorityOrigin;
+pub use job_request_authority::JobRequestAuthority;
 pub use json_size_writer::measure_json_bounded;
 pub use locator::{Locator, LocatorDecodeError, LocatorKind};
 pub use locator_encoding::LocatorEncoding;
@@ -102,3 +106,6 @@ pub use search_cursor::SearchCursor;
 
 #[cfg(test)]
 mod windows_file_observation_tests;
+
+#[cfg(test)]
+mod job_request_authority_tests;

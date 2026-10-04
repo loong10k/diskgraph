@@ -71,7 +71,7 @@ impl ControlStore {
                 ));
             }
         }
-        let existing: Option<String>=tx.query_row("SELECT job_id FROM jobs WHERE scope_id = ?1 AND principal = ?2 AND state IN ('queued','running') ORDER BY created_at_unix_ms DESC, job_id DESC LIMIT 1",params![scope_id.as_str(),principal.as_str()],|row| row.get(0)).optional()?;
+        let existing: Option<String>=tx.query_row("SELECT job_id FROM jobs WHERE scope_id = ?1 AND principal = ?2 AND state IN ('queued','running') AND NOT EXISTS(SELECT 1 FROM job_request_authorities a WHERE a.job_id=jobs.job_id) ORDER BY created_at_unix_ms DESC, job_id DESC LIMIT 1",params![scope_id.as_str(),principal.as_str()],|row| row.get(0)).optional()?;
         if let Some(job_id) = existing {
             tx.commit()?;
             return self.job(&job_id).map(Some);
@@ -252,28 +252,7 @@ impl ControlStore {
         owner: &str,
         trusted_idempotent: bool,
     ) -> Result<JobRecord> {
-        let now = Self::now_ms();
-        let changed = self.connection.execute(
-            "UPDATE jobs SET state = 'running', owner = ?2, heartbeat_unix_ms = ?3, lease_expires_unix_ms = ?4, fencing_token = fencing_token + 1 WHERE job_id = ?1 AND cancel_requested = 0 AND (state = 'queued' OR (state = 'running' AND lease_expires_unix_ms <= ?3)) AND EXISTS (SELECT 1 FROM scopes WHERE scopes.scope_id = jobs.scope_id AND revoked = 0)",
-            params![job_id, owner, now as i64, now.saturating_add(30000) as i64],
-        )?;
-        let job = self.job(job_id)?;
-        if changed == 1 {
-            return Ok(job);
-        }
-        if trusted_idempotent
-            && job.state == JobState::Running
-            && job.owner == owner
-            && job.lease_expires_unix_ms > now
-        {
-            return Ok(job);
-        }
-        if job.state == JobState::Running {
-            return Err(StoreError::StaleOwner);
-        }
-        Err(StoreError::Conflict(format!(
-            "job {job_id} is not claimable"
-        )))
+        self.claim_job_authorized(job_id, owner, trusted_idempotent, false)
     }
 
     /// 刷新当前 owner 的租约；已过期的 owner 不得续租。
@@ -290,12 +269,7 @@ impl ControlStore {
     /// 参数：job_id：持久任务 ID；owner：本代次执行 owner；fence：条件认领所得 fencing token。
     /// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
     pub fn heartbeat_fenced(&mut self, job_id: &str, owner: &str, fence: u64) -> Result<()> {
-        let now = Self::now_ms();
-        let changed = self.connection.execute("UPDATE jobs SET heartbeat_unix_ms = ?4, lease_expires_unix_ms = ?5 WHERE job_id = ?1 AND owner = ?2 AND fencing_token = ?3 AND state = 'running' AND cancel_requested = 0 AND lease_expires_unix_ms > ?4", params![job_id, owner, fence as i64, now as i64, now.saturating_add(30000) as i64])?;
-        if changed != 1 {
-            return Err(StoreError::StaleOwner);
-        }
-        Ok(())
+        self.heartbeat_job_authorized(job_id, owner, fence)
     }
 
     /// 在控制库写事务保护下验证租约并执行 staging/发布，跨进程认领不能插入中间。
@@ -309,6 +283,27 @@ impl ControlStore {
         fence: u64,
         work: impl FnOnce() -> Result<T>,
     ) -> Result<T> {
+        self.with_job_authority_fence(
+            job_id,
+            owner,
+            fence,
+            &[diskgraph_core::Permission::IndexWrite],
+            work,
+        )
+    }
+
+    /// 在原 fence 事务内检查持久请求上限及全部所需实时权限。
+    /// 参数：job/owner/fence 指向当前代次，required 是服务定义的权限集合，work 为可信回调。
+    /// 返回：全部准入后的回调结果；回调不得重入 control，图库需在自身 commit 前做纯时钟末检。
+    /// 旧未绑定入口保留原可信语义；Some authority 即使经旧方法调用也不得绕过。
+    pub fn with_job_authority_fence<T>(
+        &mut self,
+        job_id: &str,
+        owner: &str,
+        fence: u64,
+        required: &[diskgraph_core::Permission],
+        work: impl FnOnce() -> Result<T>,
+    ) -> Result<T> {
         let tx = self
             .connection
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
@@ -316,7 +311,9 @@ impl ControlStore {
         if !valid {
             return Err(StoreError::StaleOwner);
         }
+        crate::job_authority_gate::validate_job(&tx, job_id, required, false)?;
         let result = work()?;
+        // 回调可能已提交图库；不得声称此处再拒绝能回滚独立图库事务。
         tx.commit()?;
         Ok(result)
     }

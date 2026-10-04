@@ -129,7 +129,11 @@ impl McpService {
     /// independent of any client connection (P4 task 5.8, MCP-05). The server
     /// binary keeps the handle alive; tests control it explicitly.
     pub fn start_job_runner(&self) -> diskgraph_engine::JobRunner {
-        diskgraph_engine::JobRunner::start(std::sync::Arc::clone(&self.engine))
+        if self.context.trusted_local() {
+            diskgraph_engine::JobRunner::start(std::sync::Arc::clone(&self.engine))
+        } else {
+            diskgraph_engine::JobRunner::start_strict(std::sync::Arc::clone(&self.engine))
+        }
     }
 
     /// The live authorizer, rebuilt from the control store so grants issued
@@ -484,12 +488,13 @@ impl McpService {
         sync: bool,
     ) -> Result<Value, EngineError> {
         let scope_id = self.require_scope(scope)?;
+        let authority = self.context.job_authority()?;
         let job = if sync {
             self.engine
-                .sync_scope(&scope_id, self.context.principal(), &self.authorizer()?)?
+                .sync_scope_with_authority(&scope_id, &authority, &self.authorizer()?)?
         } else {
             self.engine
-                .index_scope(&scope_id, self.context.principal(), &self.authorizer()?)?
+                .index_scope_with_authority(&scope_id, &authority, &self.authorizer()?)?
         };
         // The job ID is the durable handle a client polls after disconnect
         // (MCP-05): a cancelled connection never loses the business state.

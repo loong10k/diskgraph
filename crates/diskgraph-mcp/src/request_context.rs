@@ -1,4 +1,4 @@
-use diskgraph_core::{Permission, PrincipalId};
+use diskgraph_core::{BusinessError, JobRequestAuthority, Permission, PrincipalId};
 
 /// 不可变的请求身份；与共享 Engine 分离，由认证层一次性构造。
 #[derive(Clone)]
@@ -48,6 +48,24 @@ impl RequestContext {
             transport,
             issuer: Some(identity.issuer.clone()),
             expires_at: Some(identity.expires_at_unix_seconds),
+        }
+    }
+
+    /// 将已验证请求身份转成持久任务来源；不读取工具 JSON 参数。
+    /// 参数：无，使用私有不可变上下文；返回：可信本机/已认证远程身份或拒绝未认证请求。
+    pub(crate) fn job_authority(&self) -> Result<JobRequestAuthority, BusinessError> {
+        if self.trusted_local() {
+            JobRequestAuthority::trusted_local(self.principal.clone(), self.transport)
+        } else {
+            JobRequestAuthority::authenticated_remote(
+                self.principal.clone(),
+                self.issuer.clone().ok_or(BusinessError::PermissionDenied)?,
+                self.transport,
+                self.capabilities
+                    .clone()
+                    .ok_or(BusinessError::PermissionDenied)?,
+                self.expires_at.ok_or(BusinessError::PermissionDenied)?,
+            )
         }
     }
 

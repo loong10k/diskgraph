@@ -2,7 +2,9 @@
 
 use crate::scan_progress_guard;
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, BusinessError, Permission, PrincipalId, ScopeId};
+use diskgraph_core::{
+    Authorizer, BusinessError, JobRequestAuthority, Permission, PrincipalId, ScopeId,
+};
 use diskgraph_store::{JobKind, JobRecord, JobState, StoreError};
 use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
@@ -19,7 +21,8 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<JobRecord, EngineError> {
-        self.create_scan_job(scope_id, JobKind::Index, principal, authorizer)
+        let authority = JobRequestAuthority::trusted_local(principal.clone(), "trusted-engine")?;
+        self.create_scan_job(scope_id, JobKind::Index, &authority, authorizer)
     }
 }
 
@@ -35,18 +38,29 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<JobRecord, EngineError> {
-        self.create_scan_job(scope_id, JobKind::Sync, principal, authorizer)
+        let authority = JobRequestAuthority::trusted_local(principal.clone(), "trusted-engine")?;
+        self.create_scan_job(scope_id, JobKind::Sync, &authority, authorizer)
     }
 }
 
 impl Engine {
-    fn create_scan_job(
+    /// 以不可变请求身份执行原有容量、配额与授权入队门禁。
+    /// 参数：scope_id/kind 固定工作类型，authority 固定主体与上限，authorizer 为当前请求授权。
+    /// 返回：持久记录或门禁失败；与 Store 的原子入队检查共同生效。
+    pub(super) fn create_scan_job(
         &self,
         scope_id: &ScopeId,
         kind: JobKind,
-        principal: &PrincipalId,
+        authority: &JobRequestAuthority,
         authorizer: &dyn Authorizer,
     ) -> Result<JobRecord, EngineError> {
+        let principal = authority.principal();
+        if !authority.allows(
+            &Permission::IndexWrite,
+            crate::job_authorization::unix_seconds()?,
+        ) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
         {
             let control = self.control()?;
             // 保留已获授权调用方对已撤 scope 的既有 conflict/退出码契约。
@@ -80,10 +94,10 @@ impl Engine {
             ))));
         }
         let job = control
-            .create_job_with_quota(
+            .create_job_with_authority(
                 scope_id,
                 kind,
-                principal,
+                authority,
                 u64::from(self.max_active_jobs_per_principal),
             )?
             .ok_or(EngineError::Business(BusinessError::ResourceExhausted))?;
@@ -128,7 +142,25 @@ impl Engine {
     /// Claims and runs one job to a terminal state, returning the durable
     /// record (RT-01: reconnection queries this instead of the connection).
     pub fn run_job(&self, job_id: &str, owner: &str) -> Result<JobRecord, EngineError> {
-        let claimed = self.control()?.claim_job_once(job_id, owner)?;
+        self.run_job_with_authority_mode(job_id, owner, false)
+    }
+
+    /// 复用同一执行链，按宿主信任边界选择是否允许缺来源的历史任务。
+    /// 参数：job_id/owner 绑定代次，require_authority 为远程严格模式。
+    /// 返回：真实终态或执行失败；已有请求身份在两种模式下均须复验。
+    pub(super) fn run_job_with_authority_mode(
+        &self,
+        job_id: &str,
+        owner: &str,
+        require_authority: bool,
+    ) -> Result<JobRecord, EngineError> {
+        let claimed = if require_authority {
+            self.control()?.claim_job_once_strict(job_id, owner)?
+        } else {
+            self.control()?.claim_job_once(job_id, owner)?
+        };
+        // 认领后的图锁等待、旧暂存清理与权限准备也消耗同一运行预算。
+        let scan_started = std::time::Instant::now();
         let _progress_cleanup = scan_progress_guard::ScanProgressGuard {
             entries: &self.scan_progress,
             key: (job_id.to_owned(), claimed.fencing_token),
@@ -147,25 +179,28 @@ impl Engine {
             let cancel_ref = &cancel;
             let fence = claimed.fencing_token;
             let keeper = threads.spawn(move || {
+                let mut heartbeat = std::time::Instant::now();
+                // 转换与项目采集也属于执行窗口；同一 keeper 每 20ms 复验权限，租约仍每 5s 续租。
                 while receiver
-                    .recv_timeout(std::time::Duration::from_secs(5))
+                    .recv_timeout(std::time::Duration::from_millis(20))
                     .is_err()
                 {
-                    if self
-                        .control()
-                        .and_then(|mut store| {
-                            store
-                                .heartbeat_fenced(job_id, owner, fence)
-                                .map_err(EngineError::from)
-                        })
-                        .is_err()
-                    {
+                    let checked = self.control().and_then(|mut store| {
+                        store.with_job_fence(job_id, owner, fence, || Ok(()))?;
+                        if heartbeat.elapsed() >= std::time::Duration::from_secs(5) {
+                            store.heartbeat_fenced(job_id, owner, fence)?;
+                            heartbeat = std::time::Instant::now();
+                        }
+                        Ok(())
+                    });
+                    if checked.is_err() {
                         cancel_ref.store(true, Ordering::SeqCst);
                         break;
                     }
                 }
             });
-            let result = self.execute_scan(job_id, owner, claimed.fencing_token, &cancel);
+            let result =
+                self.execute_scan(job_id, owner, claimed.fencing_token, &cancel, scan_started);
             let _ = stop.send(());
             let _ = keeper.join();
             result
@@ -296,5 +331,19 @@ impl Engine {
         let mut control = self.control()?;
         control.reap_unclaimable_jobs()?;
         Ok(control.list_queued_jobs()?)
+    }
+}
+
+impl Engine {
+    /// 为后台 runner 读取固定上限的候选页，保留原 scope/取消回收语义。
+    /// 参数：maximum 为本次最多可物化的任务记录数。
+    /// 返回：按持久创建时间及 ID 排序的候选；请求授权在逐项认领时原子复验。
+    pub(super) fn queued_jobs_limited(
+        &self,
+        maximum: usize,
+    ) -> Result<Vec<JobRecord>, EngineError> {
+        let mut control = self.control()?;
+        control.reap_unclaimable_jobs()?;
+        Ok(control.list_queued_jobs_limited(maximum)?)
     }
 }

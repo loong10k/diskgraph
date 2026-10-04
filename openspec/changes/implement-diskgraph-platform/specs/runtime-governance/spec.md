@@ -51,6 +51,11 @@ The system SHALL stop scheduling at its next admission check when a runner handl
 - **WHEN** 消费者持续慢于扫描数据生产
 - **THEN** 背压限制内存，取消后释放资源并保存可查询状态。
 
+#### Scenario: Runner admits a bounded page before request authorization
+- **WHEN** 活动队列包含多个主体的旧来源未知、认证到期或可正常执行任务
+- **THEN** 每个后台调度 tick 最多物化并尝试认领 64 个候选，按既有创建时间及任务 ID 顺序读取；不先加载全队列或在单一写事务中逐个解码全部请求权限。严格认领逐项将不可执行候选落失败终态后继续，真实取消保持 cancelled，存活 owner 的租约不被抢占。
+- **AND** 65 个不同主体的旧来源未知任务后跟随一个有效任务时，第一轮只终结 64 个且不执行第 66 个，第二轮能终结剩余旧任务并实际执行有效任务；原可信完整队列查询签名保留。有限返回行数不代表整库 I/O 或持锁时间的严格常数上限，既有 scope/取消回收成本和新增运行权限检查须单独观测。
+
 ### Requirement: RT-03 Authoritative audit and recovery
 服务端 SHALL 持久保存批准依据、逐项意图/结果、拒绝、恢复状态与关键身份；恢复记录的保留不依赖客户端或可重建图索引，日志不得记录秘密或无界正文。
 

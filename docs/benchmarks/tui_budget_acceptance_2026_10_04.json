@@ -6,7 +6,7 @@
     "Q-08 / 13.6 TUI budgets",
     "Q-09 candidate snapshot admission and unobserved deadline coverage"
   ],
-  "status": "final_local_quality_and_release_acceptance_passed_native_pending",
+  "status": "final_local_quality_and_release_acceptance_passed_native_failed",
   "evidence_scope": "\u6839\u4ee3\u7406\u5df2\u6267\u884c\u65e5\u5fd7\u7684\u5f52\u6863\uff1b\u672c\u56de\u6267\u6574\u7406\u8fc7\u7a0b\u672a\u6267\u884c Cargo/Git\uff0c\u672a\u6539\u53d8 tasks\u3002",
   "source": {
     "manifest_artifact": "final-reviewed-source",
@@ -254,11 +254,9 @@
     "log_phase": "Final53 sources after both Unix identity and TUI import lint corrections; old failed and intermediate phases remain separately archived."
   },
   "native_ci": {
-    "status": "pending",
-    "linux": "not_verified_for_this_frozen_source",
-    "windows": "not_verified_for_this_frozen_source",
-    "macos": "local_targeted_results_only_not_full_platform_acceptance",
-    "inventory": "d36_native_case_inventory_2026_10_04.json"
+    "status": "failed",
+    "inventory": "d36_native_case_inventory_2026_10_04.json",
+    "observation": "d36_native_observation_2026_10_04.json"
   },
   "limits": [
     "\u6388\u6743\u56de\u8c03\u662f\u540c\u6b65\u534f\u4f5c\u671f\u9650\uff1a\u4e0d\u80fd\u4e25\u683c\u62a2\u5360\u8017\u65f6\u56de\u8c03\u6216\u5185\u6838I/O\uff1b\u56feSQL\u6cbf\u7528\u539fdeadline\uff0c\u663e\u793a\u7ec8\u6001\u6388\u6743\u4f7f\u7528\u72ec\u7acb\u6709\u754c\u7a97\u53e3\uff0c\u4e0d\u7ed9\u539f\u56fe\u8bfb\u53d6\u7eed\u671f\u3002",

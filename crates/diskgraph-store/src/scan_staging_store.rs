@@ -24,7 +24,11 @@ impl SqliteSnapshotStore {
         job_id: &str,
         nodes: impl Iterator<Item = &'a DiskNode>,
     ) -> Result<()> {
-        self.append_encoded_staging_iter(job_id, nodes.map(|node| (node, None, None, None, None)))
+        self.append_encoded_staging_iter(
+            job_id,
+            nodes.map(|node| (node, None, None, None, None)),
+            || Ok(()),
+        )
     }
 
     /// 按同一个暂存批次原子保存原生定位和节点自身时间，保留既有 fencing 命名空间。
@@ -38,6 +42,7 @@ impl SqliteSnapshotStore {
         self.append_encoded_staging_iter(
             job_id,
             nodes.map(|(node, locator, modified)| (node, Some(locator), modified, None, None)),
+            || Ok(()),
         )
     }
 
@@ -57,11 +62,32 @@ impl SqliteSnapshotStore {
             ),
         >,
     ) -> Result<()> {
+        self.append_staging_observed_iter_checked(job_id, nodes, || Ok(()))
+    }
+
+    /// 在每项编码与实际批次 commit 前检查原授权时钟及取消。
+    /// 参数：当前代次、原观测迭代器和只读不可变上下文的纯回调，不得重入控制库。
+    /// 返回：整批提交或回滚；已有无回调接口保留可信内部兼容。
+    pub fn append_staging_observed_iter_checked<'a>(
+        &mut self,
+        job_id: &str,
+        nodes: impl Iterator<
+            Item = (
+                &'a DiskNode,
+                &'a QualifiedLocator,
+                Option<i64>,
+                Option<&'a WindowsFileObservation>,
+                Option<WindowsObservationGap>,
+            ),
+        >,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
         self.append_encoded_staging_iter(
             job_id,
             nodes.map(|(node, locator, modified, observation, gap)| {
                 (node, Some(locator), modified, observation, gap)
             }),
+            check,
         )
     }
 
@@ -77,8 +103,11 @@ impl SqliteSnapshotStore {
                 Option<WindowsObservationGap>,
             ),
         >,
+        mut check: impl FnMut() -> Result<()>,
     ) -> Result<()> {
+        check()?;
         let transaction = self.connection.transaction()?;
+        check()?;
         {
             let mut statement = transaction.prepare(
                 "INSERT INTO scan_staging (job_id,node_seq,node_json,native_locator_kind,native_locator_encoding,native_locator_raw,self_modified_unix_seconds,native_observation_format,native_observation_raw,native_observation_gap) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)",
@@ -89,6 +118,7 @@ impl SqliteSnapshotStore {
                 |row| row.get(0),
             )?;
             for (offset, (node, locator, modified, observation, gap)) in nodes.enumerate() {
+                check()?;
                 let encoded = StagingNodeEncoding::encode_observed(
                     node,
                     locator,
@@ -96,6 +126,7 @@ impl SqliteSnapshotStore {
                     observation,
                     gap,
                 )?;
+                check()?;
                 let sequence = existing
                     .checked_add(
                         i64::try_from(offset).map_err(|_| crate::StoreError::IntegerOverflow)?,
@@ -120,6 +151,7 @@ impl SqliteSnapshotStore {
                 )?;
             }
         }
+        check()?;
         transaction.commit()?;
         Ok(())
     }

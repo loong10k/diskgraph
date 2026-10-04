@@ -2,7 +2,7 @@
   "date": "2026-10-04",
   "increment": "D36 / EC-02/04 scoped Git capture foundation",
   "baseline_commit": "3f84361f614f475e92af8f25738ad4efab689de7",
-  "status": "final_local_quality_and_release_acceptance_passed_native_pending",
+  "status": "final_local_quality_and_release_acceptance_passed_native_failed",
   "source_manifest_sha256": "9c967febe830faf823817872db89e0f77ec68107483ac8d385e8fa02c74f3422",
   "source_files": {
     "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs": "1ffbcef9d56b0b033f313c91761386e6c6e466028868403081b5560832ba52a6",
@@ -148,9 +148,13 @@
     "measurement_scope": "Release load observations use 32 queries / 4 clients and isolated 20k/200k fixtures. Query latency includes CLI startup. macOS time -l records each of 39 CLI children separately; maximum individual RSS is not simultaneous total RSS. No paired acceleration or strict memory claim."
   },
   "native_ci": {
-    "status": "pending",
-    "note": "Earlier 3f84361 CI covers D35 source and does not prove D36 execution.",
-    "inventory": "d36_native_case_inventory_2026_10_04.json"
+    "status": "failed",
+    "commit": "e32214ddf70eb2fa85872416b64e62823188f1ce",
+    "run_id": 37171948796,
+    "jobs_success": 20,
+    "jobs_total": 22,
+    "inventory": "d36_native_case_inventory_2026_10_04.json",
+    "observation": "d36_native_observation_2026_10_04.json"
   },
   "remaining": [
     "Authorized ContentRead/MetadataRead/IndexWrite durable typed collection job and live capability fence",

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-04",
+  "increment": "D36 native observation / D38 correction pending",
+  "status": "native_acceptance_failed",
+  "commit": "e32214ddf70eb2fa85872416b64e62823188f1ce",
+  "run_id": 37171948796,
+  "run_url": "https://github.com/loong10k/diskgraph/actions/runs/37171948796",
+  "jobs": {
+    "total": 22,
+    "success": 20,
+    "failure": 2
+  },
+  "selected_actual_execution": {
+    "linux_arm64": {
+      "expected": 64,
+      "actual_passed": 64,
+      "missing": [],
+      "raw_log": "diskgraph-d36-native-linux-arm-job.log"
+    },
+    "macos_intel": {
+      "expected": 65,
+      "actual_passed": 65,
+      "missing": [],
+      "raw_log": "diskgraph-d36-native-macos-intel-job.log"
+    }
+  },
+  "windows_failures": [
+    {
+      "case": "live_evidence::git_scope_boundary_tests::in_scope_gitdir_does_not_authorize_an_external_common_directory",
+      "observed": "Actual scope rejection permission_denied (exit 3); diagnostic assertion expected outside authorized scope."
+    },
+    {
+      "case": "live_evidence::git_scope_boundary_tests::replaced_registered_root_ancestor_rejects_terminal_without_reopening_source",
+      "observed": "Ancestor rename failed with native OS 5 before replacement or terminal verification."
+    }
+  ],
+  "correction_status": "Local source edited; native corrected-source execution not yet verified. Task 13.6 stays open. No full-platform claim.",
+  "artifacts": [
+    {
+      "path": "d36_native_observation_logs/diskgraph-d36-ci-terminal.json.gz",
+      "raw_sha256": "c815ffe74b36b45767dc84d8d4bb64e82961621d7ffc1e98eb90cc9dce8f1c65",
+      "gzip_sha256": "50258669280e1cb4648022eb117009e77b99205e2e16e2caab94519de69e6b88"
+    },
+    {
+      "path": "d36_native_observation_logs/diskgraph-d36-ci-failed-current.log.gz",
+      "raw_sha256": "b75269cee0c339cd6a043c2717ff30cce68f991a5a6edbd355b78db440521d89",
+      "gzip_sha256": "f915c6bc386c2aa258b5378e3b357896c4fc4ce43407e41797b488e9274078b2"
+    },
+    {
+      "path": "d36_native_observation_logs/diskgraph-d36-native-linux-arm-job.log.gz",
+      "raw_sha256": "847b965639fda1386ac9c21edbc2d6c3a98026957253faa2eb27d9faa07b9326",
+      "gzip_sha256": "b0b8b4746665a3eb2814282b01fdc0ccaa756758801f7523a4e52de8ba96ac9d"
+    },
+    {
+      "path": "d36_native_observation_logs/diskgraph-d36-native-macos-intel-job.log.gz",
+      "raw_sha256": "719f66b6845ac0d1e66963e190aa5834744589544d5df9b345c1cb4a747eb321",
+      "gzip_sha256": "decd8e7c09dbcc896edeafc5f958b3d7ffbb2700fba0cb16830626c0638fe793"
+    },
+    {
+      "path": "d36_native_observation_logs/diskgraph-d38-windows-boundary-local.log.gz",
+      "raw_sha256": "dffa5856b00dcc8cac194f6550cfb770d1e879971829d7ac810d9202560fbe21",
+      "gzip_sha256": "0c82189036deb3912211a327d0a13a2fb0176b37609ca16e3d31c42589018f68"
+    }
+  ],
+  "correction": {
+    "source_sha256": {
+      "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs": "562da42882ed3e2fa95fd35ed35489421944b04b909cb69bceb3f75073cb29ea",
+      "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "a6e03bb7fd19bde45fd7f84d5a10dfdfa5da0c12e268953ebf657953468d40f8"
+    },
+    "local": {
+      "platform": "macOS",
+      "passed": 13,
+      "failed": 0,
+      "ignored": 0,
+      "command": "cargo test -p diskgraph-engine --lib live_evidence::git_scope_boundary_tests --locked"
+    },
+    "native_corrected_source": "pending; local macOS does not compile or execute the Windows-specific branch"
+  }
+}

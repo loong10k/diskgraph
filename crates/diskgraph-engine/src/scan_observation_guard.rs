@@ -1,5 +1,5 @@
 use crate::{Engine, EngineError};
-use diskgraph_core::{BusinessError, Permission};
+use diskgraph_core::{BusinessError, JobRequestAuthority, Permission};
 use diskgraph_store::JobRecord;
 use std::cell::Cell;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -10,23 +10,26 @@ use std::time::{Duration, Instant};
 pub(super) struct ScanObservationGuard<'a> {
     engine: &'a Engine,
     job: &'a JobRecord,
+    authority: Option<&'a JobRequestAuthority>,
     cancel: &'a AtomicBool,
     started: Instant,
     checked: Cell<Option<Instant>>,
 }
 
 impl<'a> ScanObservationGuard<'a> {
-    /// 创建任务局部采样门禁。参数：engine/job/cancel 为当前代次，started 为整次扫描起点。
+    /// 创建任务局部采样门禁。参数：engine/job/cancel 为当前代次，authority 为持久身份，started 为整次扫描起点。
     /// 返回：不执行 I/O、不新增授权 owner 的协作检查器。
     pub(super) fn new(
         engine: &'a Engine,
         job: &'a JobRecord,
+        authority: Option<&'a JobRequestAuthority>,
         cancel: &'a AtomicBool,
         started: Instant,
     ) -> Self {
         Self {
             engine,
             job,
+            authority,
             cancel,
             started,
             checked: Cell::new(None),
@@ -34,6 +37,9 @@ impl<'a> ScanObservationGuard<'a> {
     }
 
     fn check_fast(&self) -> Result<(), EngineError> {
+        if let Some(authority) = self.authority {
+            authority.validate_at(crate::job_authorization::unix_seconds()?)?;
+        }
         if self.cancel.load(Ordering::SeqCst) {
             return Err(BusinessError::Conflict.into());
         }

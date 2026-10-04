@@ -18,6 +18,17 @@
 - **WHEN** 仓库无跟踪分支或进程信息受权限限制
 - **THEN** 不得声称所有提交已推送或目录无人使用。
 
+#### Scenario: Explicit Git observation is a durable authorized job
+- **WHEN** CLI 或 MCP 对明确的 scope、base revision 和目录 node 请求 Git collector，且真实请求主体的 MetadataRead、IndexWrite、ContentRead 上限与实时数据库授权均允许
+- **THEN** 验证 revision 的实际本机 server/scope ownership 和同 snapshot 节点的无损原生目录定位后返回持久 job_id；队列保存固定目标与服务端验证的请求权限上下文，不把 Git 任务合并为旧扫描任务。断开连接及重开数据库仍可查询同一任务、主体与范围，入队本身不发布新的 revision。
+- **AND** 只有运行、来源复核及发布末检成功才发布 Git CollectorRun 和最小化证据；新旧 revision 共享文件 snapshot，旧解释保持不变。dirty、stash 与本地已知跟踪引用差分可由真实 Git 正控核对，无 upstream 仍为 unknown，不转换为已验证远端或可删除结论。仅参数发现或成功入队不算完成该场景的执行与发布验收。
+
+#### Scenario: Git request permissions cannot be supplied by the client
+- **WHEN** Git 请求缺少 ContentRead 的真实 token ceiling 或实时数据库 grant，或请求 scope 与 revision 的实际 ownership 不匹配
+- **THEN** 源输入访问及入队前返回稳定 permission_denied，不产生额外任务、采集批次或 revision；数据库允许不能补足请求上限，请求声明也不能补足实时授权。
+- **AND** principal、issuer、ceiling 与 expiry 来自可信适配器已经验证的上下文，不从 collector 参数读取，不持久化 bearer；后续执行、取消、撤权、到期及恢复遵循 SC-06 和既有任务 fencing 契约，不能用本机 runner 身份补足。
+- **AND** 共享任务调度遵循 RT-02 的候选页门禁：每轮最多 64 项逐项检查和认领，不能为新增请求身份校验引入全队列权限 JSON 解码或单事务扫描；这不替代 Git 捕获本身的输入、输出及期限预算。
+
 ### Requirement: EC-03 Domain cleanup uses domain semantics
 Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计划；显示精确项目/生态对象、范围及不可恢复性，不通过直接删除数据库、Docker VM 磁盘或卷目录替代专业接口。
 
@@ -31,6 +42,11 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 
 ### Requirement: EC-04 Restricted subprocess boundary
 适配器 SHALL 固定并验证程序来源、参数结构、工作目录、环境、超时和输出上限，不接受模型任意 Shell、可执行路径或无限重试；项目配置/钩子带来的执行风险必须在能力和计划中声明。
+
+#### Scenario: Product Git collection uses only the scoped private capture
+- **WHEN** 持久 Git 任务实际执行固定 base revision/node 的采样
+- **THEN** 从已注册的原生范围根及该节点的无损定位建立 scoped capture，禁止向父目录另找仓库或退回可信旧实时工作树模式；客户端不能指定程序、argv、路径、Shell 或网络开关。准备、捕获、全部固定子命令、终检及清理共用同一任务期限、取消状态、累计输入/输出及私有分配预算。
+- **AND** 在已经到达捕获、执行及发布阶段的真实同步点撤权、取消、到期或失去 lease/fence 后，拒绝完整成功及原子发布；不能用前置参数失败代替这些末段回归。来源、版本、覆盖和有界诊断可查询，正文、patch、stash 消息、原始命令输出与配置秘密不得泄入元数据结果。库层捕获通过不代替持久任务与发布验收。
 
 #### Scenario: Argument injection
 - **WHEN** 文件名含选项前缀或 shell 元字符
@@ -126,6 +142,7 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 完成私有捕获后、实际 Git status 或内容探测之前，源根、父目录或工作文件名称被替换
 - **THEN** 子进程的 cwd、工作树、index、对象库、配置和引用均只指向同一 owner 的实际私有输入；真实命令输出仍来自捕获内容。随后源变化复核须拒绝整体成功，不能以最后一个错误代替已经发生的源读取隔离证明。
 - **AND** 验收记录实际中间命令输出及源读取哨兵；用真实 Git 的旧实时模式作正控制，不把缺函数编译错误、发现阶段失败或假输出算作隔离回归。
+- **AND** 若原生句柄在替换前禁止祖先目录 rename，验收须确认原范围根与源身份未变、私有命令和终检正常，并在 owner 释放后确认 rename 成功；允许替换的平台仍须验证替换后终检拒绝。不得 ignore 平台案例或关闭 SHARE 等原生保护来强行制造替换。
 
 #### Scenario: Scoped private capture preserves ordinary bounded Git inputs
 - **WHEN** 预算内的普通工作树包含隐藏、未跟踪、忽略文件及各层属性，并涉及原 index 的高精度时间、文件模式或行尾语义

@@ -60,6 +60,31 @@ impl SqliteSnapshotStore {
         ownership: Option<(&str, &str)>,
         batch: Option<&CollectorBatch>,
     ) -> Result<()> {
+        self.publish_revision_owned_with_batch_checked(
+            job_id,
+            graph,
+            (revision_id, published_at_unix_ms),
+            ownership,
+            batch,
+            || Ok(()),
+        )
+    }
+
+    /// 在真实图库事务提交前复核原认证、取消及当前租约时钟。
+    /// 参数：暂存代次、图、(revision ID,发布时间)、实际归属、可选批次及纯检查回调。
+    /// 返回：全部提交或回滚；回调须只读既有不可变上下文，禁止重入持有的控制库。
+    /// 旧接口保持可信兼容包装；检查后的 commit 仍不构成跨库或硬墙钟原子承诺。
+    pub fn publish_revision_owned_with_batch_checked(
+        &mut self,
+        job_id: &str,
+        graph: &DiskGraph,
+        revision: (&str, u64),
+        ownership: Option<(&str, &str)>,
+        batch: Option<&CollectorBatch>,
+        mut check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        let (revision_id, published_at_unix_ms) = revision;
+        check()?;
         let has_display_aliases = graph
             .nodes
             .iter()
@@ -70,6 +95,7 @@ impl SqliteSnapshotStore {
         validate_graph_display_aliases(graph, ownership.is_some())?;
         let root_key = to_string(&graph.snapshot.root)?;
         let transaction = self.connection.transaction()?;
+        check()?;
         transaction.execute(
             "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, pinned, count_schema)
              VALUES (?1, ?2, ?3, ?4, 0, 9)",
@@ -101,6 +127,7 @@ impl SqliteSnapshotStore {
                 }
                 transaction.execute("INSERT INTO nodes (snapshot_id, id, parent_id, locator_key, name, subtree_bytes, node_json, kind, direct_bytes, files, directories, modified_unix_seconds, file_volume_id, file_id, category_hint, reclaim_hint, read_error, native_locator_kind, native_locator_encoding, native_locator_raw, self_modified_unix_seconds, native_observation_format, native_observation_raw, native_observation_gap) SELECT ?2, json_extract(node_json, '$.id'), json_extract(node_json, '$.parent_id'), json_extract(node_json, '$.locator'), json_extract(node_json, '$.name'), json_extract(node_json, '$.subtree_bytes'), CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN '' ELSE node_json END, CASE WHEN json_extract(node_json, '$.size_known') = 1 THEN json_extract(node_json, '$.kind') ELSE NULL END, json_extract(node_json, '$.direct_bytes'), json_extract(node_json, '$.files'), json_extract(node_json, '$.directories'), json_extract(node_json, '$.modified_unix_seconds'), json_extract(node_json, '$.file_identity.volume_id'), json_extract(node_json, '$.file_identity.file_id'), json_extract(node_json, '$.category_hint'), json_extract(node_json, '$.reclaim_hint'), json_extract(node_json, '$.read_error'), native_locator_kind, native_locator_encoding, native_locator_raw, self_modified_unix_seconds, native_observation_format, native_observation_raw, native_observation_gap FROM scan_staging WHERE job_id = ?1", params![job_id, graph.snapshot.id])?;
                 transaction.execute("INSERT INTO node_search SELECT ?2, json_extract(s.node_json, '$.id'), f.name_fold, f.path_fold FROM scan_staging s JOIN scan_staging_search f ON f.job_id = s.job_id AND f.node_seq = s.node_seq WHERE s.job_id = ?1", params![job_id, graph.snapshot.id])?;
+                check()?;
             } else {
                 let mut statement = transaction.prepare(
                 "INSERT INTO nodes (snapshot_id, id, parent_id, locator_key, name, subtree_bytes,
@@ -109,6 +136,7 @@ impl SqliteSnapshotStore {
                  VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
             )?;
                 for node in &graph.nodes {
+                    check()?;
                     let (file_volume_id, file_id) =
                         node.file_identity
                             .as_ref()
@@ -157,6 +185,7 @@ impl SqliteSnapshotStore {
                 "INSERT INTO evidence (snapshot_id, node_id, evidence_json) VALUES (?1, ?2, ?3)",
             )?;
             for edge in &graph.evidence {
+                check()?;
                 evidence.execute(params![
                     graph.snapshot.id,
                     as_i64(edge.node_id)?,
@@ -164,6 +193,7 @@ impl SqliteSnapshotStore {
                 ])?;
             }
         }
+        check()?;
         transaction.execute(
             "INSERT INTO graph_revisions (revision_id, snapshot_id, published_at_unix_ms, writer_generation, locator_writer_generation, native_observation_writer_generation)
              VALUES (?1, ?2, ?3, 10, 11, 12)",
@@ -174,6 +204,7 @@ impl SqliteSnapshotStore {
             ],
         )?;
         if let Some(batch) = batch {
+            check()?;
             crate::collector_batch_writer::write_batch(
                 &transaction,
                 &graph.snapshot.id,
@@ -207,6 +238,8 @@ impl SqliteSnapshotStore {
         )?;
         directory_aggregates::rebuild(&transaction, Some(&graph.snapshot.id))?;
         crate::collector_protocol::seal(&transaction, revision_id)?;
+        // 必须位于最后一次 SQL 和实际 commit 之间；失败回滚 latest、归属、节点及 staging 清理。
+        check()?;
         transaction.commit()?;
         // The scan's entire write-ahead log is now redundant. Folding it back
         // here — rather than waiting for the next checkpoint — is what keeps a

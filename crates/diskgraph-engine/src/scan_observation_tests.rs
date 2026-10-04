@@ -215,7 +215,18 @@ fn observation_guard_checks_fast_cancellation_and_original_scan_clock() {
         .claim_job_once(&job.job_id, "guard-clock")
         .unwrap();
     let cancel = AtomicBool::new(false);
-    let guard = ScanObservationGuard::new(&engine, &job, &cancel, std::time::Instant::now());
+    let authority = engine
+        .control_store()
+        .unwrap()
+        .job_request_authority(&job.job_id)
+        .unwrap();
+    let guard = ScanObservationGuard::new(
+        &engine,
+        &job,
+        authority.as_ref(),
+        &cancel,
+        std::time::Instant::now(),
+    );
     guard.check_now().unwrap();
     cancel.store(true, Ordering::SeqCst);
     assert!(matches!(
@@ -228,7 +239,7 @@ fn observation_guard_checks_fast_cancellation_and_original_scan_clock() {
             engine.scan_budget.max_duration_ms + 1,
         ))
         .unwrap();
-    let guard = ScanObservationGuard::new(&engine, &job, &cancel, start);
+    let guard = ScanObservationGuard::new(&engine, &job, authority.as_ref(), &cancel, start);
     assert!(matches!(
         guard.check(),
         Err(EngineError::Business(BusinessError::BudgetExceeded))

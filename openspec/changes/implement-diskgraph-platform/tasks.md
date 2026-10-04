@@ -295,6 +295,7 @@
 - [x] 15.18 收口旧 UniFFI growth_json 的双侧实际归属、整次期限、共享原始字段/节点预算和完整 envelope 后成组末检；保留原签名/null/字符串 delta 与窄读，增加真实公开入口超限 RED、末段撤权/到期、旧行/坏无关行和ABI兼容验收。全平台原生CI通过后再勾选，不替代15.2–15.6。 验收：00401e692c9c8fd9fa4681ef7e709dc79968e5f4 / CI37131890057终态22/22；两Windows Rust、Linux ARM、macOS Intel日志各确认11项新增用例实际ok，证据见native_growth_acceptance_2026_10_03.json。
 
 - [x] 15.19 按D26收口旧top/children与session目录页的首末授权、整次期限、借用字段准入、存在探针和真实响应预算；保持各自排序/未知大小/分页/wire与UniFFI校验值。公开入口RED、错误诊断、撤权/关闭/到期及原生CI实际通过后勾选。 验收：5f66862544d1dc3cb2aae9bda65ded6c223f5267 / CI37133537230终态22/22；两Windows Rust、Linux ARM及macOS Intel日志各确认12项新增用例实际ok，证据见native_listing_acceptance_2026_10_03.json。
+- [ ] 15.20 将原始认证主体、token能力上限与绝对到期时间持久绑定到Index/Sync及collector任务；入队、合并、认领、运行、staging和图库commit前求实时授权交集，strict远程runner拒绝来源未知的旧任务，不允许租约或重连延长原token期限。真实socket队列到期、运行中到期/撤权、可信兼容入口、旧库迁移和图事务回滚回归通过后再验收。（SC-06、RT-01）
 
 
 D28（15.13 / EV-05前置）本机证据见`docs/benchmarks/revision_collector_acceptance_2026_10_04.json`：revision隔离、原子批次发布、封存选择、v9成员/节点/来源闭包迁移、candidate阻止语义及active-run邻接分页已实现；workspace1001/0/18、Clippy/fmt/OpenSpec/release/实际协议和扫描一致性通过。独立代码复审APPROVE，恢复后的架构lane重读最终源码返回CLEAR，9份提供的摘要匹配；45份D28源码未改，f42f769同SHA CI37140491445最终22/22成功，四份原始workspace日志实际确认19个发布/协议/迁移用例通过。本项不新增完成勾选，不关闭15.13及全平台父项。
@@ -309,3 +310,8 @@ D31（FS-02 / 8.9前置）：独立完整Windows属性观测与schema12字段，
 D35（3.9 / 15.13前置）：Git普通文件输入先按长度准入并限制每块至剩余额度，保留OutputLimit锁存及终态版本；真实句柄超读RED4/3→8/0。ScanCoverage独立对象及一致覆盖判定，Core矛盾覆盖RED5/3→8/0；Engine10项合法发布矩阵。最终workspace1168/0/18（51 suites），Clippy/fmt/build/OpenSpec/release、14vendor、UniFFI19/19、stdio18/18、HTTP/SSE13/13通过；最终18源独立APPROVE/CLEAR。证据见docs/benchmarks/native_input_history_matrix_acceptance_2026_10_04.json。2450ab1同源码原生CI37164196395终态22/22、四份日志各26项实际ok及18源一致，3.9完成；Git授权捕获/持久job/发布及平台父项未完成。
 
 D36（13.6 / 8.7前置）：已实现可信 scope 内原生句柄捕获、私有普通工作树及源／根路径链复验；授权持久 collector job 和产品发布未实现。TUI 所需投影借用准入、共享帧账本、首末控制锁及时拒绝与完整／截断交付分离，入口1182→43行；候选覆盖头也计入共享原始预算，未观测到期结果新增 coverage_observed 诊断。首轮workspace1227/2/18的模块路径和期限合同失败保留；标准模块回归3+5通过、最新候选10和原Engine请求预算8通过，最终53源独立审查一致。最终53源清单67cbee45对应workspace1233/0/18（51 suites）、全部七门禁/release通过，stdio18/18、HTTP/SSE13/13、UniFFI校验19/19及20k/200k负载各4/4通过；两次Clippy失败与最小导入/类型修正保留，同源原生CI尚待完成，13.6保持开放；8.7/15.13、provider和全平台父项不勾选。真实分阶段证据见docs/benchmarks/scoped_git_capture_acceptance_2026_10_04.json与tui_budget_acceptance_2026_10_04.json。
+
+D38 原生纠正进展：e32214d 的 CI37171948796 已终态20/22，两个 Windows Rust 版本均在外部 common 的诊断断言及祖先替换准备处失败；Linux ARM64实际64/64、macOS Intel实际65/65选定用例通过，原始终态/日志与摘要见 docs/benchmarks/d36_native_observation_2026_10_04.json。范围拒绝精确诊断映射及Windows原生阻止替换的释放正控已修改，本机范围回归13/13，不替代修改后的Windows原生验收，13.6继续开放。D37真实socket回归另确认远程Index/Sync排队后原始token到期仍发布revision，持久请求授权修复进行中；新Git产品入口尚未实现，8.7/15.13保持开放。
+
+
+D37持久请求授权进展：三组真实RED→GREEN（socket原始expiry、runner64候选、claim后50ms预算/100ms图锁等待），不可变authority及Controlv7、strict未知来源拒绝、live交集与staging/commit末检已实施；非作者复审34源及Windows2源摘要匹配。原始开发worktree1273/7/18（Git未来入口唯一7fail）完整保留；排除两个从未tracked未来功能测试的精确安全候选1270/0/18（52 suites），构建/严格Clippy/fmt/OpenSpec/release及stdio18/18、HTTP13/13、UniFFI19/19通过，20k/200k各4/4。见docs/benchmarks/durable_job_authority_acceptance_2026_10_04.json；新源码原生CI待完成，15.20不勾选，不关闭8.7/15.13/全平台父项。

@@ -86,7 +86,7 @@ fn v5_upgrade_has_a_consistent_backup_and_cross_connection_invalidation() {
             .connection
             .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
-        6
+        7
     );
     let backup = rusqlite::Connection::open(
         dir.path()

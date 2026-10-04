@@ -264,7 +264,32 @@ fn replaced_registered_root_ancestor_rejects_terminal_without_reopening_source()
         64 << 20,
     )
     .unwrap();
-    std::fs::rename(&container, outer.path().join("original-container")).unwrap();
+    let moved = outer.path().join("original-container");
+    let replacement = std::fs::rename(&container, &moved);
+    #[cfg(windows)]
+    if let Err(error) = &replacement {
+        // Windows 可在持有子目录能力时直接禁止祖先替换；必须验证拒绝及释放后的恢复。
+        assert!(matches!(error.raw_os_error(), Some(5 | 32)), "{error}");
+        eprintln!(
+            "ancestor replacement blocked by Windows: {:?}",
+            error.raw_os_error()
+        );
+        assert!(container.is_dir());
+        assert!(!moved.exists());
+        assert_eq!(std::fs::read(project.join("tracked")).unwrap(), b"AAAA\n");
+        let output = view.run(&super::git_scoped_fixture::STATUS[1..], &mut probe);
+        let terminal = view.verify(&mut probe);
+        let output = view.complete(output).unwrap();
+        terminal.expect("blocked ancestor replacement preserves the original source identity");
+        assert_eq!(output.exit_code, Some(0));
+        assert!(output.stdout.is_empty());
+        // 关闭 owner 后必须解除本次持有的限制，不能靠句柄泄漏令攻击测试通过。
+        drop(view);
+        std::fs::rename(&container, &moved).expect("capture cleanup releases the route");
+        std::fs::rename(&moved, &container).unwrap();
+        return;
+    }
+    replacement.unwrap();
     std::fs::create_dir_all(container.join("scope/project")).unwrap();
     std::fs::write(
         container.join("scope/project/tracked"),
@@ -272,18 +297,17 @@ fn replaced_registered_root_ancestor_rejects_terminal_without_reopening_source()
     )
     .unwrap();
     let output = view.run(&super::git_scoped_fixture::STATUS[1..], &mut probe);
-    let terminal = view.verify(&mut probe);
-    let terminal = view.complete(terminal);
+    let error = view.verify(&mut probe).unwrap_err();
+    assert!(error.contains("registered root route changed"), "{error}");
+    let terminal = view.complete::<()>(Err(error));
     let output = output.unwrap();
     assert_eq!(output.exit_code, Some(0));
     assert!(
         output.stdout.is_empty(),
         "private output must not use the replacement ancestor route"
     );
-    assert!(
-        terminal.is_err(),
-        "ancestor route was replaced but terminal claimed stable source"
-    );
+    let error = terminal.unwrap_err();
+    assert!(error.contains("registered root route changed"), "{error}");
 }
 
 #[test]
