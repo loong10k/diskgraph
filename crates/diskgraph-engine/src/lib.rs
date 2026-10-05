@@ -95,6 +95,7 @@ mod relation_queries;
 mod relation_request;
 #[cfg(test)]
 mod relation_request_tests;
+mod request_withdrawal_witness;
 mod revision_authorization;
 mod revision_comparison;
 mod revision_display_completion;

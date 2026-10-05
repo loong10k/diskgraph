@@ -285,3 +285,36 @@ mod process_unix_observation_tests;
 mod process_unix_staging_query_tests;
 #[cfg(test)]
 mod scope_native_projection_tests;
+
+#[cfg(test)]
+mod withdrawal_capability_tests;
+#[cfg(all(test, windows))]
+mod withdrawal_native_identity_tests;
+#[cfg(all(test, windows))]
+mod withdrawal_registry_tests;
+#[cfg(all(test, windows))]
+mod withdrawal_test_fixture;
+#[cfg(all(test, windows))]
+mod withdrawal_watch_namespace_tests;
+#[cfg(all(test, windows))]
+mod withdrawal_watch_tests;
+
+mod authorization_withdrawal_status;
+
+mod authorization_withdrawal_watch;
+
+mod control_database_identity;
+
+mod control_store_incarnation;
+
+mod withdrawal_entry;
+
+mod withdrawal_registry;
+
+mod withdrawal_store;
+pub use authorization_withdrawal_status::AuthorizationWithdrawalStatus;
+pub use authorization_withdrawal_watch::AuthorizationWithdrawalWatch;
+#[cfg(test)]
+mod withdrawal_publish_hook;
+#[cfg(all(test, windows))]
+mod withdrawal_publish_order_tests;

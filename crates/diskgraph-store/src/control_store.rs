@@ -1,15 +1,19 @@
 //! 控制库连接、一致性迁移备份与内部事务访问。
 
+use crate::control_store_incarnation::ControlStoreIncarnation;
 use crate::{Result, StoreError};
 use rusqlite::Connection;
 #[cfg(test)]
 use rusqlite::params;
 use std::path::Path;
+use std::sync::Arc;
 
 /// 保存身份、授权、任务、操作与恢复记录的持久控制库。
 /// 来源：DiskGraph 原生 Rust 存储设计；无 Java 对应实现。
 /// Control-plane database: identity, scopes, policy, and jobs.
 pub struct ControlStore {
+    // 字段按声明顺序释放：先使 Weak 代次失效，再关闭 SQLite 原生文件。
+    pub(crate) withdrawal_incarnation: Arc<ControlStoreIncarnation>,
     pub(crate) connection: Connection,
 }
 
@@ -166,7 +170,11 @@ impl ControlStore {
         Self::validate_job_authority_schema(&connection)?;
         Self::validate_git_job_input_schema(&connection)?;
         Self::validate_process_job_input_schema(&connection)?;
-        Ok(Self { connection })
+        let withdrawal_incarnation = Arc::new(ControlStoreIncarnation::new(&connection));
+        Ok(Self {
+            withdrawal_incarnation,
+            connection,
+        })
     }
 
     /// 生成持久时间或非法状态诊断。

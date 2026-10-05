@@ -490,3 +490,11 @@ D42 的一秒入队准备账本尚未传入控制写事务，默认五秒 SQLite
 受管 owner 的作用域约束与验收实施细节见 [scoped-native-owner.md](scoped-native-owner.md)，仍属于本变更 PF-06，不关闭平台父项。
 
 扫描器物理退场的后续实施顺序与不变约束见 [受控扫描进程阶段](physical-scan-process.md)，不得据协调线程回收关闭该父门禁。
+
+### D45 已提交撤权的请求级负向见证（实施前合同，未验收）
+
+Windows 两个 Rust 版本的真实 FULL 撤权已多次耗尽原 50ms 末段窗口，随后 SQL 的期限处理把查询中断返回为 BudgetExceeded。修复不得延长预算、改为 NORMAL、修改原拒权断言或把所有预算失败当拒权。给实际请求增加有界、单调、只记录已确认持久撤权的负向见证；它补充期限耗尽时的已知事实，不代替任何 Allow 或外部进程变更的实时 SQL 检查。
+
+订阅在实际 revision server/scope 解析后、首次授权前建立，覆盖消费与末检；成功提交后才发布精确撤权事实，scope 的已成功 commit 即可发布，不因随后 reap 失败丢弃该事实。grant DELETE0、回滚及提交结果未知不发布；无持久策略的可信兼容路径不依赖不存在的 grant。撤销后重授不清除正在执行请求的见证，新请求重新读取实际策略。订阅依实际 Store incarnation 与实际数据库身份，有界 Weak 注册与关闭清理；registry 短锁只作登记/匹配/atomic 发布，不跨 SQL、用户回调或 OS I/O。
+
+Windows 原生身份候选使用 SQLite 正式 [WIN32_GET_HANDLE](https://www.sqlite.org/c3ref/c_fcntl_begin_atomic_write.html) 取得 SQLite 已打开 main DB 的借用 HANDLE，再读取 [FileIdInfo](https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_info) 的卷序列号与完整128bit文件ID；不重开路径、不关闭 SQLite 的句柄、不以 path/server ID 判断副本。未知 VFS、内存库、查询失败或连接替换没有该跨连接能力，继续原 SQL/期限保守语义。Unix 默认 SQLite 构建没有等价稳定公开 fd 接口，后续须独立实现并验证可靠能力，不能 cast 私有 unixFile、猜测 fd、重开/关闭同文件破坏 SQLite POSIX 锁，也不以 Windows 候选代表全平台完成。真实回归必须包括：同库两连接的 FULL 撤权耗尽原窗口仍精确拒权；仅延迟/其它主体或范围/DELETE0仍为原预算错误；复制同 server 的不同物理库不串；连接替换、订阅与提交竞争、容量及弱引用清理；撤销重授的当前/新请求差异；commit 成功后 reap 失败仍记录撤权；原始 SQLite 或另一进程没有通知时仍 fresh SQL fail closed。平台未实际运行的用例保持未验收。

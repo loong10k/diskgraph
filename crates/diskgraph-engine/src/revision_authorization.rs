@@ -181,13 +181,35 @@ impl Engine {
             .checked_add(Duration::from_millis(deadline_ms))
             .ok_or(BusinessError::InvalidArgument)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let scope =
-            self.authorize_revision_with_reader(&reader, None, revision_id, principal, authorizer)?;
+        let (server, scope) = reader
+            .revision_ownership(revision_id)?
+            .ok_or(BusinessError::PermissionDenied)?;
+        let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
+        let control = self.control_store()?;
+        // 在首次授权前绑定实际依赖；所有 SQL 仍使用请求最初的截止时间。
+        let withdrawal = control.with_read_deadline(deadline, |control| {
+            let withdrawal = crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
+                control, principal, &scope,
+            )?;
+            if server != control.existing_server_id()?.as_str() {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            let authorization =
+                Self::require_terminal_relation(control, authorizer, principal, &scope);
+            withdrawal.check(control)?;
+            authorization?;
+            Ok::<_, EngineError>(withdrawal)
+        })?;
+        drop(control);
         let snapshot_id = reader.revision(revision_id)?.snapshot_id;
         let result = consumer(&reader, &snapshot_id, deadline)?;
         // 撤销与单项权限在同一控制库锁下复核，可信兼容模式同样不能越过撤销。
         let control = self.control_store()?;
-        Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+        withdrawal.check(&control)?;
+        let authorization =
+            Self::require_terminal_relation(&control, authorizer, principal, &scope);
+        withdrawal.check(&control)?;
+        authorization?;
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
@@ -261,12 +283,19 @@ impl Engine {
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
         let initial_authorization = control.with_read_deadline(deadline, |control| {
+            let withdrawal = crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
+                control, principal, &scope,
+            )?;
             if server != control.existing_server_id()?.as_str() {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
             }
-            Self::require_terminal_relation(control, authorizer, principal, &scope)
+            let authorization =
+                Self::require_terminal_relation(control, authorizer, principal, &scope);
+            withdrawal.check(control)?;
+            authorization?;
+            Ok::<_, EngineError>(withdrawal)
         });
-        match initial_authorization {
+        let withdrawal = match initial_authorization {
             Err(EngineError::Store(error))
                 if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
                     || error.is_interrupted()
@@ -275,7 +304,7 @@ impl Engine {
                 return Err(BusinessError::BudgetExceeded.into());
             }
             other => other?,
-        }
+        };
         drop(control);
         // 初次真实授权须在原读取期内完成；未完成的 initial phase 不能借 partial 通路复活。
         if std::time::Instant::now() >= deadline {
@@ -295,8 +324,12 @@ impl Engine {
         let control = self
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+        withdrawal.check(&control)?;
         let authorization = control.with_read_deadline(authorization_deadline, |control| {
-            Self::require_terminal_relation(control, authorizer, principal, &scope)?;
+            let authorization =
+                Self::require_terminal_relation(control, authorizer, principal, &scope);
+            withdrawal.check(control)?;
+            authorization?;
             // 能力回调之后纯读实际持久 grant；guard 不冻结独立数据库连接的撤权。
             if control.scope_revoked(&scope)?
                 || control.live_permission(principal, &Permission::MetadataRead, &scope)?
@@ -316,6 +349,7 @@ impl Engine {
             }
             other => other?,
         }
+        withdrawal.check(&control)?;
         // 已授权准备和消费的错误也先通过终检；撤权不能被预算错误遮盖。
         let completion = completion?;
         if completion == crate::RevisionDisplayCompletion::Complete

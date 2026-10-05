@@ -142,6 +142,11 @@ impl ControlStore {
     pub fn revoke_scope(&mut self, scope_id: &ScopeId) -> Result<()> {
         self.scope(scope_id)?;
         let tx = self.connection.transaction()?;
+        let was_revoked: bool = tx.query_row(
+            "SELECT revoked FROM scopes WHERE scope_id=?1",
+            [scope_id.as_str()],
+            |row| row.get(0),
+        )?;
         tx.execute(
             "UPDATE scopes SET revoked = 1 WHERE scope_id = ?1",
             [scope_id.as_str()],
@@ -162,7 +167,23 @@ impl ControlStore {
             "UPDATE jobs SET cancel_requested = 1 WHERE scope_id = ?1 AND state = 'running'",
             [scope_id.as_str()],
         )?;
+        let now_revoked: bool = tx.query_row(
+            "SELECT revoked FROM scopes WHERE scope_id=?1",
+            [scope_id.as_str()],
+            |row| row.get(0),
+        )?;
+        let notice = if !was_revoked && now_revoked {
+            Some(crate::withdrawal_store::transaction_generation(&tx)?)
+        } else {
+            None
+        };
         tx.commit()?;
+        #[cfg(test)]
+        crate::withdrawal_publish_hook::after_commit();
+        // 此时撤权已持久成功；后续 reap 失败不得抹掉该事实，也不得提前在 commit hook 发布。
+        if let Some(generation) = notice {
+            crate::withdrawal_registry::publish_scope(self, scope_id, generation);
+        }
         self.reap_unclaimable_jobs()?;
         Ok(())
     }

@@ -1,5 +1,15 @@
 # 全平台验收续篇 — 2026-10-04
 
+仅 D45 暂存区隔离候选的完整 workspace 已通过 **1674/0/18（101 个结果块，exit0）**，随后仅规范排序 root 聚合声明；业务源码不变，最终严格 workspace all-target Clippy、自有九包 fmt 和 OpenSpec 校验通过。workspace 全量 fmt 的上游既有差异保留，14 份 vendor 摘要一致。非作者独审限定批准 D45，Windows 真实身份/撤权与通知竞态仍待 CI，不关闭 27 父门禁。扫描候选不在该提交范围；其首次 Mac 正常退出真实 2/5 失败及 getsid(SZOMB)=ESRCH 诊断均已保留。
+
+D45 请求级负向见证已接入 Engine 普通 revision 与显示读取，保留真实 SQL 授权及原期限；已知撤权为拒权，连接代次失效为冲突。当前本机 Store lib **291/0/1**、Store all-target 严格 Clippy exit0；Engine revision 过滤回归 **25/0，399 filtered**。该阶段临时排除三项尚缺 API 的 Unix B 测试模块声明，随后字节恢复，不是完整 Engine 通过。Unix namespace 能力仍为 None；Windows 真实身份、通知顺序及原失败断言仍待原生 CI。候选未提交，27 父门禁保持开放。
+
+Unix控制输入候选已真实通过新通道9/0、旧checkpoint2/0、旧probe19/0、源码规范4/0及限定Unix fmt。独立源码复审核对5个owned与3个shared摘要，限定批准非阻塞、单块所有权、SIGPIPE防护和失败清理。新API尚未进入扫描driver，非test库6条dead_code保持，不宣称严格Clippy通过；Windows候选未在本机原生执行。正常整组许可、Engine接线与可信安装仍未完成；本轮候选未提交，不关闭父门禁。
+
+增量协议提交 `f9311dd` 的 [CI37254775910](https://github.com/loong10k/diskgraph/actions/runs/37254775910) 已终态 **20/22成功**，Windows stable/MSRV仍在两项末段撤权断言返回BudgetExceeded，四次撤权调用124264–195921µs。此前Mac准备、Mac运行资格和Linux基线失败本次未复现，不能据此称根因修复。Linux完整两轮交替配对已取回并逐项核对stdout/stderr摘要：20k宽目录候选/基线扫描比0.874与0.946，200k为0.885与0.888；300深目录为1.492与1.104，存在变慢观察（约0.103→0.154s、0.092→0.101s），不隐去。RSS差异不足以证明改善。70份本轮原始文件已归档；这是同runner已有缓存的两轮结果，不是冷缓存、性能SLO、隔离helper总内存或全平台验收。**27个父门禁仍开放。**
+
+诊断提交 `c73fa6e` 的 [CI37253306085](https://github.com/loong10k/diskgraph/actions/runs/37253306085) 已终态 **17/22成功**。Windows stable/MSRV 的四次真实 grant/scope 撤权调用耗时135090–170427µs，超过原50ms末段窗口，仍返回 BudgetExceeded；仅定位总撤权调用耗时，未测 SQLite 内部 flush/lock 阶段。macOS ARM MSRV 的原400ms迁移准备耗时405786µs，剩余0、未进入BEGIN；macOS Intel的Cancel未取得合格运行进度且未发送动作，exit0/End1，因此不是取消行为验收。取回Linux配对原始产物后，200k**旧基线**在run_job返回Business(Conflict)，没有完整性能对比。全部失败及44份性能产物已归档，原期限、FULL和错误断言保持，未验证修复。**27个父门禁仍开放。**
+
 增量执行 v2 协议候选已通过最终本机 workspace **1672/0/18（92 个测试套件+9个 doc-test 块，exit0）**及严格 workspace all-target Clippy。worker 共79项，新增目标24项包含两项真实 helper stdout→解码器→关闭控制输入→EOF/leader wait。早期接口缺失和仅测试代码的 Clippy 失败均保留，只作等价的显式 artifact 分支修正。独立源码审查绑定最终24项摘要。该结果证明本机协议行为，不证明 Engine 启动、可信安装、正常整组/Job退出、20ms组装、严格RSS，也不修复下方原生失败。**27个父门禁仍开放。**
 
 最新已提交 helper runtime `1314087` 的 [CI37250991412](https://github.com/loong10k/diskgraph/actions/runs/37250991412) 已终态：**19/22 任务成功**。Windows stable 与 Rust 1.97.0 的末段 scope/grant 撤权两项断言均返回 `Business(BudgetExceeded)`；macOS Intel stable 的非法控制测试未捕获合格运行进度、未发出动作，worker 输出一个 End 并正常退出。失败尚未修复。诊断候选保留原期限、错误和断言，本机 Engine 规范1/0、授权投影4/0、Git 边界13/0通过；Windows 专属诊断仍待原生执行。一次完整规范检查因进行中的 worker 模块尚未挂载而失败，原日志保留。没有关闭父门禁，**27项仍开放**。

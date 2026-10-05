@@ -1467,5 +1467,1363 @@
       }
     ],
     "open_parent_tasks": 27
+  },
+  "native_diagnostic_outcome_c73fa6e": {
+    "commit": "c73fa6e84af9d5bc6fc8f65f99be8944c349dbd7",
+    "run_id": 37253306085,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37253306085",
+    "status": "completed",
+    "successful_jobs": 17,
+    "failed_jobs": [
+      {
+        "conclusion": "failure",
+        "databaseId": 111585177562,
+        "name": "Test (windows-latest / Rust stable)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 111585177585,
+        "name": "Test (macos-latest / Rust 1.97.0)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 111585177589,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 111585177592,
+        "name": "Test (macos-15-intel / Rust stable)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 111585177599,
+        "name": "Test (ubuntu-latest / Rust stable)",
+        "status": "completed"
+      }
+    ],
+    "windows_terminal_revocation": {
+      "stable_grant_us": 135090,
+      "stable_scope_us": 170427,
+      "rust_1_97_grant_us": 137215,
+      "rust_1_97_scope_us": 158622,
+      "original_terminal_window_ms": 50,
+      "actual_result": "Err(Business(BudgetExceeded))",
+      "required_result": "PermissionDenied",
+      "withdrawal_completed_before_callback_return": true,
+      "cause_limit": "Total revoke call exceeds the original terminal deadline; internal SQLite flush/lock phases are not measured."
+    },
+    "macos_arm_msrv_preparation": {
+      "preconsume_us": 405786,
+      "original_window_ms": 400,
+      "remaining_at_call_us": 0,
+      "begin_entered": false,
+      "new_us": 3,
+      "actual_result": "Err(BudgetExceeded)"
+    },
+    "macos_intel_worker_cancel": {
+      "action": "Cancel",
+      "qualified": false,
+      "action_sent": false,
+      "exit_code": 0,
+      "elapsed_us": 1733605,
+      "progress_frames": 2,
+      "node_frames": 32897,
+      "ends": 1,
+      "classification": "running qualification failure; does not demonstrate cancellation behavior"
+    },
+    "linux_paired_performance": {
+      "artifact": "linux-scan-namespace-cost-37253306085",
+      "status": "failed",
+      "baseline_commit": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+      "candidate_commit": "c73fa6e84af9d5bc6fc8f65f99be8944c349dbd7",
+      "failed_label": "200000-wide-round1-baseline",
+      "exit_code": 101,
+      "actual_error": "Business(Conflict)",
+      "phase": "run_job at hardening_benchmark.rs:133",
+      "completed_measurements": 4,
+      "completed_pairs": 0,
+      "limitation": "200k baseline failure prevents complete paired comparison; cause not established; partial 20k observations are not an accepted complete performance result."
+    },
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-ci-terminal.json.gz",
+        "sha256": "c66c614a5bc16caf63b3dd10f6b3e345ea4188050222d4f8ce356174654059b1",
+        "raw_sha256": "5db95b1ff48cdf0e1c3d9817b186dd353951c248412a0a1625f338e743378272",
+        "raw_bytes": 2756
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-native-failed-steps.log.gz",
+        "sha256": "b18d836b23c14d8d7ceedbc7b0dc3e31494e25d1ead78eb16698dc6199637fc5",
+        "raw_sha256": "076e89d8531ea55d0afbca655ccf941fd36b78c62fdc59fa5077c8e6ff2fdad1",
+        "raw_bytes": 2572576
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-filesystem.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-filesystem.stdout.gz",
+        "sha256": "3858b85e106ce8b1fe1ab35781b3b85702965533dc751a7ab96f36acc6aed5fd",
+        "raw_sha256": "d3446397e66ae6d6fed422c2e54e8d5e33161978a5b11afebc6a316056ee0a44",
+        "raw_bytes": 33
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round1-baseline.json.gz",
+        "sha256": "f22b8d80c2a84832b685b5bde0ce83fd782f99f67a6fd80fa3a0af4a0ac62597",
+        "raw_sha256": "01912345d796dcec8272d01ca60ae5cd3df7283ece5dc269ab1465ec773cfe25",
+        "raw_bytes": 5035
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round1-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round1-baseline.stdout.gz",
+        "sha256": "8b903045cd911615c4926cfb79b7a3a4b8a08794475accc6039d756413994a4e",
+        "raw_sha256": "685c130641038458c08e4b4c06bc04317bac0ab746c1cb6a8ecd7e6f13801921",
+        "raw_bytes": 2779
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round1-candidate.json.gz",
+        "sha256": "577bd8c74081fcf69f11f5d3b289101cab080c399f0c00e2fb719063dc624e5b",
+        "raw_sha256": "e428c3a1d5cdb6a3cf099beee18648bca3e1b6bd5bbc1ab77a0a241eaf37c033",
+        "raw_bytes": 5066
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round1-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round1-candidate.stdout.gz",
+        "sha256": "b4e35d028339e0d62d60fae806711b6ce1994da109ce0593fca4a3aed9bafb41",
+        "raw_sha256": "570689897f8da1ea8e79053abde23e9d6e31a1864b5c14acac2cfbc1a12a6325",
+        "raw_bytes": 2810
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round2-baseline.json.gz",
+        "sha256": "29cf33655e09a7855548f04c85f5886b001b436df45e1effe3f80c118d0c93ea",
+        "raw_sha256": "42edda71cd39ed592a190fb23aded3c875b7e75f2c0facce6e63af463aff878a",
+        "raw_bytes": 5047
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round2-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round2-baseline.stdout.gz",
+        "sha256": "ef500c5f2cb539709cc645b389f5ab90372e35ce5e692619418d5031c74ee652",
+        "raw_sha256": "ef0682bb527484bfa0e3ed32ff22f835bc299b24af1fc9884f5dfc2e0fce420f",
+        "raw_bytes": 2791
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round2-candidate.json.gz",
+        "sha256": "d59a9664e97fe4916911d2010e3e996fa6b7370b85d4c72e56d400489495ced4",
+        "raw_sha256": "72565259504f3136a45cf6cf7144f2797ae98feb95d3f854daadf651c9b81fee",
+        "raw_bytes": 5059
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round2-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-20000-wide-round2-candidate.stdout.gz",
+        "sha256": "48d335ac7e282ffff836346d9f0767ebd0229aa0637a391cbe2c26c577af7b04",
+        "raw_sha256": "cca3b5ec3107499c30b9f4fef7b245b960eb379bef8a69dc5ced4f1124b2f717",
+        "raw_bytes": 2803
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-200000-wide-filesystem.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-200000-wide-filesystem.stdout.gz",
+        "sha256": "5b7956779bf2ecdc1b2215fb642ec5f725df83dce278146b4a28c74a552c530a",
+        "raw_sha256": "2ddef7cc5917c70f4fdf843c0a5166782832ca9b6f7aa6c8cdaa802fafe41ae4",
+        "raw_bytes": 33
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-200000-wide-round1-baseline.stderr.gz",
+        "sha256": "28a9d194c7f65ebd4da57d5994fdc8d0106ca1c95fa2ac01dc42aa9a26686174",
+        "raw_sha256": "1388c08e150dfe4868a6865c268d8c6e4a1497cf544969ec6ab4b3b1461bddec",
+        "raw_bytes": 267
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-200000-wide-round1-baseline.stdout.gz",
+        "sha256": "89c7dc4108c8f3c43e3e7b29a21754ee2ff116d874cdd4a66c94486de08efd45",
+        "raw_sha256": "135542778d98025730ef07f2db194802790737b3aa925b409ca3b47ae6d84c84",
+        "raw_bytes": 226
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-archive.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-archive.stdout.gz",
+        "sha256": "44cf46a5f3ebe8ef37dbcffcc7186b8d1e3090dd7bf078235e577d0386f15fb7",
+        "raw_sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+        "raw_bytes": 18616320
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-build.stderr.gz",
+        "sha256": "7889cbcff2b637116faf93208a629d048a0cbcf7e2ca5d2fb65e962b9e7fca84",
+        "raw_sha256": "cba9480b15f2bc6a2d189072f3f18bfa3ca99bcc6f44ed41f0c0acd0e2ab3e0f",
+        "raw_bytes": 3369
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-build.stdout.gz",
+        "sha256": "4cc4df6e2621ea6b7ebe9a88527fe3c8a4d8ff86abdcf05336ca95423301cdc7",
+        "raw_sha256": "f3d8350973732f33eda1f1f33c7c625b46856cf5e19b21d77b42a6af32f5f21f",
+        "raw_bytes": 79264
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-fetch.stderr.gz",
+        "sha256": "92ad455247809062f88b88ad3bb288b35f98f8044c3a8908a25e010c846f7e21",
+        "raw_sha256": "6316ac0ad25804802b3367a893fd693ccfffecd9d812c72468120864a4e6c326",
+        "raw_bytes": 119
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-fetch.stdout.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-measured-source.json.gz",
+        "sha256": "613061e9a0047bec82b7e9e873bd2e8cec68a5f2f1ee97a89b84107aece0b686",
+        "raw_sha256": "11d96d547d00037143a52d907a900ec543f4094aed05deeafcfc6734e3852e82",
+        "raw_bytes": 288256
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-object.stderr.gz",
+        "sha256": "3274e4d23455f63162e04bb44f8d5963443fca649e0c1e53e713dcdfd7d3e42f",
+        "raw_sha256": "63878008d180a39a68c3d4db6cac5fdedb26c094a6bc3aab3ba58f68bb4127d1",
+        "raw_bytes": 81
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-object.stdout.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-baseline-original-source.json.gz",
+        "sha256": "83cc343b2d0a32089f6290de2b20e027a363868d1af28c8ae16af15b07135e48",
+        "raw_sha256": "f28ac5033fb34079010b3ab93fb74a4458873bb71f5a383eb2aa64dff4c03388",
+        "raw_bytes": 287989
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-archive.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-archive.stdout.gz",
+        "sha256": "6ccddce013b4930c92618adaed2064aa0a335cb06da58b42ee318cab55ecb59f",
+        "raw_sha256": "a446d398fbe68b62aff2c8d64188fac2fa8e9751f09b5db600861cfb15108fbf",
+        "raw_bytes": 24453120
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-build.stderr.gz",
+        "sha256": "9517fa1345ec84d4021a3608c8baa929181f96b73a0fd0cef6911fe631b95c49",
+        "raw_sha256": "43e85358c9c069a5c70c514614a2731bed31e7c4e0c540131d8716296905f9fd",
+        "raw_bytes": 3375
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-build.stdout.gz",
+        "sha256": "63c94d80e002ed939be5f291294e7bd7419001d688863d83173cf4df7deb2306",
+        "raw_sha256": "782b025bbfecbdff7ce5e519fcce4db81ee042e1e09d3df91bf7a9894a116581",
+        "raw_bytes": 79454
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-measured-source.json.gz",
+        "sha256": "73d0597ae1bf5a9cfe979576da87a17e53f490b59cab755d64968e9a88b49b7f",
+        "raw_sha256": "7f29080c77264c32e2bc71d1231d488ffbac4903f3113c2df053cbaaec3d0c07",
+        "raw_bytes": 381440
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-object.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-object.stdout.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-candidate-original-source.json.gz",
+        "sha256": "73d0597ae1bf5a9cfe979576da87a17e53f490b59cab755d64968e9a88b49b7f",
+        "raw_sha256": "7f29080c77264c32e2bc71d1231d488ffbac4903f3113c2df053cbaaec3d0c07",
+        "raw_bytes": 381440
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-cargo-version.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-cargo-version.stdout.gz",
+        "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610",
+        "raw_sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+        "raw_bytes": 36
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-host-cpuinfo.txt.gz",
+        "sha256": "11bd7d0fef7076f74f414d344c4ab52971f607755b032d4ea2f1da10206ce3cd",
+        "raw_sha256": "8a04969411b621d164d39f670636fa20c26e1dc0d8204ce4986dfe7e8546e365",
+        "raw_bytes": 5228
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-host-meminfo.txt.gz",
+        "sha256": "60a1408a2a471969f62e59f44afef83aa50213bd55fe924de0b8f86bd4a58808",
+        "raw_sha256": "5b11d7128e1a0f45ebc5f7badc09cc599302a1f9c7b00e61c54ea3ae1061304c",
+        "raw_bytes": 1615
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-host-mountinfo.txt.gz",
+        "sha256": "a519062d43a65681fba8df46deeb65030cfaa2b686eb8528c5d8ccb044d2778a",
+        "raw_sha256": "de38077c414dbcc50908140b8e3e808b73030e4c766a1e78865d8425365a7e83",
+        "raw_bytes": 2502
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-receipt.json.gz",
+        "sha256": "aa335fb1ead6599b303b0f4374e1beba4085ac902fd0f9423aa14dc5127c8187",
+        "raw_sha256": "b4dc00344c376ac58e75413cf34d52339f0443838e3b91854ceffb308d5aece1",
+        "raw_bytes": 62202
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-rustc.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-c73fa6e-linux-scan-cost-rustc.stdout.gz",
+        "sha256": "0584ba1c872d808c34a6ee7438b4c9af16089a6206c8115bb92720aa86e89053",
+        "raw_sha256": "b569b0c98ea3133c7252b4b8ea6b39b7b353813df0dd5f5c412c355691424112",
+        "raw_bytes": 196
+      }
+    ],
+    "open_parent_tasks": 27,
+    "production_fix_verified": false
+  },
+  "native_incremental_outcome_f9311dd": {
+    "commit": "f9311dddb934917ca5ce3f7eda5ec36a77712882",
+    "run_id": 37254775910,
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37254775910",
+    "status": "completed",
+    "successful_jobs": 20,
+    "failed_jobs": [
+      {
+        "conclusion": "failure",
+        "databaseId": 111589398570,
+        "name": "Test (windows-latest / Rust 1.97.0)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "databaseId": 111589398580,
+        "name": "Test (windows-latest / Rust stable)",
+        "status": "completed"
+      }
+    ],
+    "windows_terminal_revocation_us": {
+      "stable_grant": 125810,
+      "stable_scope": 124264,
+      "rust_1_97_grant": 195921,
+      "rust_1_97_scope": 143649
+    },
+    "actual_error": "Err(Business(BudgetExceeded))",
+    "required_error": "PermissionDenied",
+    "linux_paired_performance": {
+      "status": "passed",
+      "baseline_commit": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+      "candidate_commit": "f9311dddb934917ca5ce3f7eda5ec36a77712882",
+      "pairs": [
+        {
+          "candidate_minus_baseline_scan_high_water_rss_bytes": 770048,
+          "candidate_over_baseline_scan_seconds": 0.8739833329417642,
+          "fixture": "20000-wide",
+          "round": 1
+        },
+        {
+          "candidate_minus_baseline_scan_high_water_rss_bytes": -536576,
+          "candidate_over_baseline_scan_seconds": 0.9457174340765039,
+          "fixture": "20000-wide",
+          "round": 2
+        },
+        {
+          "candidate_minus_baseline_scan_high_water_rss_bytes": -229376,
+          "candidate_over_baseline_scan_seconds": 0.8853352181537697,
+          "fixture": "200000-wide",
+          "round": 1
+        },
+        {
+          "candidate_minus_baseline_scan_high_water_rss_bytes": -159744,
+          "candidate_over_baseline_scan_seconds": 0.8882744242392363,
+          "fixture": "200000-wide",
+          "round": 2
+        },
+        {
+          "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+          "candidate_over_baseline_scan_seconds": 1.4915371484243007,
+          "fixture": "300-deep",
+          "round": 1
+        },
+        {
+          "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+          "candidate_over_baseline_scan_seconds": 1.1038135840127696,
+          "fixture": "300-deep",
+          "round": 2
+        }
+      ],
+      "limitations": [
+        "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+        "RSS is per-child process high-water, not Rust allocation or exclusive scan live memory.",
+        "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+        "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+        "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+        "Two alternating rounds describe this host only; no performance improvement threshold."
+      ],
+      "source_archive_hashes": {
+        "baseline": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+        "candidate": "dc6d1de54b95856e2f2bb4cab8638c5033dd8c09faaedbaa3a50db504d9a488d"
+      },
+      "qualification": "two alternating cached rounds on this runner; not all-platform production/SLO/strict RSS"
+    },
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-ci-terminal.json.gz",
+        "sha256": "a2568ebae0df5feea58dcebd7cf71f7fa890f3380d201ae3330dde03b5ef5424",
+        "raw_sha256": "f4a775ee9edd3ec76d67a99e6c6d904de195c8125e1d2a93f953baefc5d5a10f",
+        "raw_bytes": 2756
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-native-failed-steps.log.gz",
+        "sha256": "ef7d0b9041dd872e92de6bed2df02af1657bdfd64f776696d1c5e3856b6cc62e",
+        "raw_sha256": "c8294a1d9860df18359bceb313307381b6c9d04e0ad6fd0819227c44ad31f77e",
+        "raw_bytes": 843810
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-filesystem.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-filesystem.stdout.gz",
+        "sha256": "5eb9aeece071f3b52d24a78c263dd27dfad208d96343a819c8e466faa2698fb2",
+        "raw_sha256": "fea33c251cf6b4a585af16583d1f3ee150d22a3de55c2e791f7ec379f068e2ad",
+        "raw_bytes": 33
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round1-baseline.json.gz",
+        "sha256": "707c632b619f1d32e80e5263afaad0dcabc2ccd2583377cb7a0f9c6ac0312e93",
+        "raw_sha256": "7d83b195e120fbbf8a4ec36e616dae2f31c0f8ea8528d68bb6eb90aa77507056",
+        "raw_bytes": 5103
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round1-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round1-baseline.stdout.gz",
+        "sha256": "3c1a8e1d3e8fcfebec9985b59a537ef575921f75fb070d41c1b1a9191a5bcb1f",
+        "raw_sha256": "e0f831712fb219c49c5c0e48a73fe667cddcd062ae376fd39b5f2b94faac28db",
+        "raw_bytes": 2847
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round1-candidate.json.gz",
+        "sha256": "eab7467ecf162b87ecddc59360f36c7f2e310804d0c5cd164a03c0b72aeac79c",
+        "raw_sha256": "e0b107fa7749a8cebc30b2136ebf604daaddbd996024f2eb17aebe0a4f3f0f19",
+        "raw_bytes": 5063
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round1-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round1-candidate.stdout.gz",
+        "sha256": "9701f5f925f483b051afa5526375c81ee53e4c80e122f11e27af3d3467b6c071",
+        "raw_sha256": "42e627c1890bfb3f8fe9837abf451b745e677fcaadded82698d60a61bce43a9e",
+        "raw_bytes": 2807
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round2-baseline.json.gz",
+        "sha256": "1a17cf8717fcb199df6daa23d43f01fe78a7215d3c455c106753a2b79363950e",
+        "raw_sha256": "e338de5c1c6292065d5a1e180f0f28a826638a7ebfdbc9c7256b1f100d98d13b",
+        "raw_bytes": 5052
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round2-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round2-baseline.stdout.gz",
+        "sha256": "4aaeec4aa1debc5f1043c58d98ae081b649eb296bb3033b7e1b11dd73484a0af",
+        "raw_sha256": "e4078bba1092b55e1262d52dd86ece74581f8b754fe0ff9cde9aa3fe9e45dbb3",
+        "raw_bytes": 2796
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round2-candidate.json.gz",
+        "sha256": "2f18ab4ec91d0bac65cd9394c082f5dc08889d04d42470f4d9192dc61d0abda3",
+        "raw_sha256": "3d015186c863474f96e7849a2968b46d81a76371568b6557bb71340c33cd48ff",
+        "raw_bytes": 5104
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round2-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-20000-wide-round2-candidate.stdout.gz",
+        "sha256": "3b002d0d700795638a95a2fdd5dc0b63d6c86423dd22af5fd51b6b27f7377fe1",
+        "raw_sha256": "9e80900e82726e96f6ac96acfebf6f97c2b2b2b3c50bde49a63125c01c8ada12",
+        "raw_bytes": 2848
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-filesystem.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-filesystem.stdout.gz",
+        "sha256": "2c7c9fc22d6f299230cc7be34ca007ec51a86d2e79ebd93d584a52a3ba3f26ee",
+        "raw_sha256": "631792864dc86001981afe1f4466dc9ae8f723c5f7ab6a4fbef6f6dcdadcc337",
+        "raw_bytes": 33
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round1-baseline.json.gz",
+        "sha256": "6e48d854d4d3f32bc947fcf8127a547a48e27d28226675a6d8d88488271b75f0",
+        "raw_sha256": "2ab68c4051d44ed7f223499dc787cfa33a018e69ed8b441bd6483ee484c18ba7",
+        "raw_bytes": 5128
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round1-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round1-baseline.stdout.gz",
+        "sha256": "5c63280b7e8a17dab5251f45e0f48d2ad891e053c65c35d6f9e9508567faf136",
+        "raw_sha256": "fb6f5911ef12cc7cece6964f44c7196e9e304a80aa1f89d1c341d5d718b01486",
+        "raw_bytes": 2873
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round1-candidate.json.gz",
+        "sha256": "37308cc0ff11d0bd777e3a9acb17141a5b9743129841da743f9a561d9ffd0031",
+        "raw_sha256": "91084f55b02b08aa58c79c8cfba1866d6e3d134642d84edc30b43622d7f0609d",
+        "raw_bytes": 5110
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round1-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round1-candidate.stdout.gz",
+        "sha256": "ac16727993d89212dac667bf1bca6d545ef5be724f02619b6d100879cd4b0c5c",
+        "raw_sha256": "1a09872eea5d782c9467d94685b291508c80198f7747c957c0c7c0b70f29c5c1",
+        "raw_bytes": 2855
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round2-baseline.json.gz",
+        "sha256": "8b5560532ab1637ee3440476853eefd3652740be32c0f3c335d94082185d158d",
+        "raw_sha256": "ea05dd226070d39dd7fce4ecd1b39d32aae8008de14817c401a5d5e1a1200cc0",
+        "raw_bytes": 5071
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round2-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round2-baseline.stdout.gz",
+        "sha256": "65b022efb15bbd583b983568fc236b8d56081e4fce303ef0dd46a950f98fe8f6",
+        "raw_sha256": "30ded0c30306358407ee3d2b30d608784fb9a9f7eb92050126dfe68c5a460b14",
+        "raw_bytes": 2816
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round2-candidate.json.gz",
+        "sha256": "433492c976380d811fb6f56527b0f675e0ea3be92d4e91429ade23f7084a7685",
+        "raw_sha256": "56fbe575cd94cd87500278414237ccddf1a8bbc922f5991a0fa5a3922f13aa41",
+        "raw_bytes": 5078
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round2-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-200000-wide-round2-candidate.stdout.gz",
+        "sha256": "7b0b5615f832f36052a5f1780bb449914042427747a179ce2373263c3b548d22",
+        "raw_sha256": "72416ca9eefcfaa4777c9f055a3ed692ee72427b5c0a475903ff28f473022d2f",
+        "raw_bytes": 2823
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-filesystem.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-filesystem.stdout.gz",
+        "sha256": "c7627bc3488bee3eeb3599d94e3c7efa75e176ff913dd1aefab83829bd0ea7e3",
+        "raw_sha256": "bb6b2ed3ff8f556dfa9aa8ce86dcb0fdb6204f09bf683d61f1b95c993d6369e3",
+        "raw_bytes": 33
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round1-baseline.json.gz",
+        "sha256": "05803fca6ec58611eb37d637fffe8bb3c208dfaf2e8fcb8a80177b8a356f3f37",
+        "raw_sha256": "e6a898346ec9fcc2320c52ec1e0b58b443502fa17417773283366e019053040a",
+        "raw_bytes": 5678
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round1-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round1-baseline.stdout.gz",
+        "sha256": "49ae12d563423363d0a8e7fe2bee45b4fe611a44e0fdff910e398ed7fb99c1de",
+        "raw_sha256": "5c2771a93283330e1ed40eec16229ddbb53a5c9309f6b35454e050dae8a0e8c1",
+        "raw_bytes": 3422
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round1-candidate.json.gz",
+        "sha256": "da48fe5c4271ac6826feaf5f843d373f354f8bd5a41fa5c48af65171148982d9",
+        "raw_sha256": "1cc4c2ed2bfcf0f098026b5518de8b12be3092139083b861a7d5584978494fb0",
+        "raw_bytes": 5671
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round1-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round1-candidate.stdout.gz",
+        "sha256": "b6690e62d0e24c294ab66b1c0cc9db64d1b4a23dc9e84f8553ddfa55b2ebbd99",
+        "raw_sha256": "f97d04bbdaee20147d40de7391b79c5cf7a79e8f47aaad1d322217cd4c8396a1",
+        "raw_bytes": 3415
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round2-baseline.json.gz",
+        "sha256": "60937b50d74f09c3cd23050b41a1bd084e120de3782f29db87de65e7de3ca6e9",
+        "raw_sha256": "727c98d03253fbf8640ee3271525b0ab711fbe6222abd96fe1bcfa77086cec90",
+        "raw_bytes": 5659
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round2-baseline.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round2-baseline.stdout.gz",
+        "sha256": "e54bee411a1f07b75705ba26ae8f8b662c572b03154245df1051ee46fe6a4c39",
+        "raw_sha256": "cf68eb0fb7a59d6a6ab574cbf9d4080674144658acbb1dd157538b283908709d",
+        "raw_bytes": 3403
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round2-candidate.json.gz",
+        "sha256": "21071b7430cb7085c552897ab1ceccc18804687c413cb70d50199dc8500ce95b",
+        "raw_sha256": "b514b8d3feac3949cf9760d6788a1bb7e752a5c07874c905c978e8c2d2ab8ab4",
+        "raw_bytes": 5649
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round2-candidate.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-300-deep-round2-candidate.stdout.gz",
+        "sha256": "13d2d1c72838db1aa9ec51c3e034a49e80a88d9fb724a98cc2c46e793bdce7bc",
+        "raw_sha256": "aaa41cda3889c54aa1b1c3b16a45c83a4b81fad889b4bbd7de34fed0b6690ace",
+        "raw_bytes": 3393
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-archive.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-archive.stdout.gz",
+        "sha256": "44cf46a5f3ebe8ef37dbcffcc7186b8d1e3090dd7bf078235e577d0386f15fb7",
+        "raw_sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+        "raw_bytes": 18616320
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-build.stderr.gz",
+        "sha256": "776ff4c31d742702762ff9331ae484ec966fec4fc96b2fbec42559e816760500",
+        "raw_sha256": "12ad7a4f09bac52e09d351ab8c14b1b687c7d9f15f74c6b9126b514dee28db86",
+        "raw_bytes": 3369
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-build.stdout.gz",
+        "sha256": "0e72adc3b2c4f4138a4dfc00492471b218bffb276c82a88212bd6db6cc1def6e",
+        "raw_sha256": "246bacb4c6f31b1a8fecb3241de321a4e2b58e90ed3c3c971dcfde3d3cab932c",
+        "raw_bytes": 79264
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-fetch.stderr.gz",
+        "sha256": "92ad455247809062f88b88ad3bb288b35f98f8044c3a8908a25e010c846f7e21",
+        "raw_sha256": "6316ac0ad25804802b3367a893fd693ccfffecd9d812c72468120864a4e6c326",
+        "raw_bytes": 119
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-fetch.stdout.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-measured-source.json.gz",
+        "sha256": "613061e9a0047bec82b7e9e873bd2e8cec68a5f2f1ee97a89b84107aece0b686",
+        "raw_sha256": "11d96d547d00037143a52d907a900ec543f4094aed05deeafcfc6734e3852e82",
+        "raw_bytes": 288256
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-object.stderr.gz",
+        "sha256": "3274e4d23455f63162e04bb44f8d5963443fca649e0c1e53e713dcdfd7d3e42f",
+        "raw_sha256": "63878008d180a39a68c3d4db6cac5fdedb26c094a6bc3aab3ba58f68bb4127d1",
+        "raw_bytes": 81
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-object.stdout.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-baseline-original-source.json.gz",
+        "sha256": "83cc343b2d0a32089f6290de2b20e027a363868d1af28c8ae16af15b07135e48",
+        "raw_sha256": "f28ac5033fb34079010b3ab93fb74a4458873bb71f5a383eb2aa64dff4c03388",
+        "raw_bytes": 287989
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-archive.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-archive.stdout.gz",
+        "sha256": "195be5d73d762ace8f55e2405ebc18f2f3872c0ef6cfa83ea2f98cca2284d4d6",
+        "raw_sha256": "dc6d1de54b95856e2f2bb4cab8638c5033dd8c09faaedbaa3a50db504d9a488d",
+        "raw_bytes": 24606720
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-build.stderr.gz",
+        "sha256": "324ee75da285faa07804acede2d0ebc24eb2632f13a89c178663dfcc1f4cfa55",
+        "raw_sha256": "36d7377b1214ef3c7d77709b93ee3628b278c016a2cf4361f3579754836b99ed",
+        "raw_bytes": 3375
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-build.stdout.gz",
+        "sha256": "1c499b56fd32846a60f6eecabdabcd184e7193fada22dd0ba04213b6a775c457",
+        "raw_sha256": "cf66505d709650f6cf5a713afed300d2489ed69f19b66f3386e93578db480673",
+        "raw_bytes": 79454
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-measured-source.json.gz",
+        "sha256": "831599999e54fa804736702c221ca29d9862e426932b83cbae6ba8607a19d09c",
+        "raw_sha256": "0cc8245a9e681cd6ecd7cd502356456b3b1f30ac41e216d4b5617e016f4dca54",
+        "raw_bytes": 385605
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-object.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-object.stdout.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-candidate-original-source.json.gz",
+        "sha256": "831599999e54fa804736702c221ca29d9862e426932b83cbae6ba8607a19d09c",
+        "raw_sha256": "0cc8245a9e681cd6ecd7cd502356456b3b1f30ac41e216d4b5617e016f4dca54",
+        "raw_bytes": 385605
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-cargo-version.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-cargo-version.stdout.gz",
+        "sha256": "f958e35b4a61f9b4d297ec7e6c0fd8f82ea47b98434b377e6494684c1b87f610",
+        "raw_sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566",
+        "raw_bytes": 36
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-host-cpuinfo.txt.gz",
+        "sha256": "d4f75efeb517e00556d6d2a368a1ed1ac721a400d39002411fd982881bb5685d",
+        "raw_sha256": "ae4d0da2b79feccf4bafbe014d28f7eaf595bcb2bd9b15a95138bbcfb6f2161b",
+        "raw_bytes": 5952
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-host-meminfo.txt.gz",
+        "sha256": "730ad2d1e01c9d838f4ec090850e79e3bad11a6423d6541f982a5615c1102c45",
+        "raw_sha256": "544fcbfc52f5c9020cb2726e8b3086d75190bc0d0f3c66ab88e2cab745876e04",
+        "raw_bytes": 1615
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-host-mountinfo.txt.gz",
+        "sha256": "9a454f720b4c2cd179cf5e2c031c64eb877bfed3750d0a4cba7e00557a4a9acb",
+        "raw_sha256": "82b06683ce4354507c1bb941c295c40950dd5d2bfe5c5e2b909a22b219b0aca0",
+        "raw_bytes": 2515
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-receipt.json.gz",
+        "sha256": "defd80d85e20670514abd6ed2cdfb1adbd972612fd58a29c81ccd3724e163feb",
+        "raw_sha256": "28391627e86ba1a0b6302ba54985f73c51751a471596f8cd04af36ff0ffe0c6e",
+        "raw_bytes": 132952
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-rustc.stderr.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-f9311dd-linux-scan-cost-rustc.stdout.gz",
+        "sha256": "0584ba1c872d808c34a6ee7438b4c9af16089a6206c8115bb92720aa86e89053",
+        "raw_sha256": "b569b0c98ea3133c7252b4b8ea6b39b7b353813df0dd5f5c412c355691424112",
+        "raw_bytes": 196
+      }
+    ],
+    "open_parent_tasks": 27,
+    "old_native_failures": "Previous Mac preparation, Mac worker qualification and Linux baseline failures did not recur in this run; no causal repair is established."
+  },
+  "control_input_continuation": {
+    "status": "in_progress_uncommitted",
+    "unix_candidate_manifest_sha256": "e13fb757c5f1770f6fc8f5846a1761b1d95581d6c49580edc5cdec96b94bb910",
+    "unix_frozen_sources": [
+      {
+        "path": "crates/diskgraph-engine/src/native_child/unix_child.rs",
+        "sha256": "a74259c97076dd7b18a71f6f38191ac80a27297e14e80047dd1bda70f8c9b463",
+        "bytes": 13864,
+        "lines": 351
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/unix_control_channel.rs",
+        "sha256": "6b2089e5238f0d93d4b8a30f0da2869d97c325d620f15a10633c730b57306169",
+        "bytes": 7137,
+        "lines": 175
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/unix_control_input_tests.rs",
+        "sha256": "74ed289cf5e36ba4b1cf36ecb41a22266143669274fdfa10e8a9bb74d33b20bb",
+        "bytes": 10828,
+        "lines": 305
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/unix_control_fixture.rs",
+        "sha256": "2862befe98ca63494325571fec1ba8bd4adbf3f2c4ee511e3de1221f89f431cd",
+        "bytes": 3996,
+        "lines": 109
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/unix_control_test_support.rs",
+        "sha256": "5df1d60a2aa306165e8efa8a832869d2ce215be52d0dc2225ad30149a494628a",
+        "bytes": 4914,
+        "lines": 125
+      }
+    ],
+    "tests": {
+      "interface_absence": {
+        "exit_code": 101,
+        "kind": "26 missing API E0599 errors; not behavioral runtime RED"
+      },
+      "unix_raw_control": {
+        "passed": 9,
+        "failed": 0,
+        "filtered": 415
+      },
+      "old_checkpoint": {
+        "passed": 2,
+        "failed": 0,
+        "filtered": 422
+      },
+      "old_probe": {
+        "passed": 19,
+        "failed": 0,
+        "filtered": 405
+      },
+      "source_layout": {
+        "passed": 4,
+        "failed": 0
+      },
+      "owned_unix_rustfmt": "passed"
+    },
+    "independent_source_review": {
+      "reviewer": "d28_revision_queries",
+      "decision": "limited APPROVE; five owned and three shared hashes matched; no new safety/correctness blocker"
+    },
+    "quality_limits": [
+      "Six actual non-test dead_code warnings remain until real driver integration; no strict Clippy acceptance or fake callers.",
+      "Windows six frozen tests and production candidate are not native-compiled or executed on this macOS host.",
+      "Raw control channel does not provide normal group-empty proof, Engine protocol driver, trusted helper install, or full-platform production readiness."
+    ],
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-control-input-tests-candidate.json.gz",
+        "sha256": "d2dfe23be0762826c7deeb1c153616607cde4b1df3f021b456ee71cc5212e5cb",
+        "raw_sha256": "9f781f7798c0d231585561608e7442d5140d324c94adcebd541d5fadc650530e",
+        "raw_bytes": 2645
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-control-production-candidate.json.gz",
+        "sha256": "8981866973de0a3eeb101d50439e6b4d1281e530dd2db743418b878eda155b10",
+        "raw_sha256": "e13fb757c5f1770f6fc8f5846a1761b1d95581d6c49580edc5cdec96b94bb910",
+        "raw_bytes": 3813
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-control-production.diff.gz",
+        "sha256": "27c54f62a47ce890b84e1bc5acf87d51a9a28288ce240601453fce14fc77eb05",
+        "raw_sha256": "9560eed48d2e1deca0d257f4f8f1bdfb70372e7a301e387919b9adb0f95b7ab6",
+        "raw_bytes": 4727
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-control-input-interface-absence.log.gz",
+        "sha256": "00aba6b5405ad58d6596a4b7465f4e3ba1c12704e06c90281f7e172e761a1f2c",
+        "raw_sha256": "7794467e7a8af45562db4edfa74491240fa578bb39abaa88fb9860ea14cccec6",
+        "raw_bytes": 15687
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-control-input-runtime.log.gz",
+        "sha256": "cd38184d160a243c55414722c196437705e7c37b7194622efabfb7f5d6d2d916",
+        "raw_sha256": "dd9e507ec9c506d812d9b1127f81e399e05a82fded862f67c8556ec1bb71af63",
+        "raw_bytes": 1467
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-control-checkpoint-runtime.log.gz",
+        "sha256": "41a93e51708c86a529341b427f5497923a2d6f4d83335f2f0d914b2ce6549834",
+        "raw_sha256": "189e8350193882418ac393a2f978709d50bda1a14d2338a397b7d89072fbc774",
+        "raw_bytes": 515
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-control-old-probe-runtime.log.gz",
+        "sha256": "f0ec3dc4348a9614211329ff31a313b0f8a67e77f2e80bf4eec7b6b71bcb0c7b",
+        "raw_sha256": "ba1023727cf105ddf11df53875943a561668f8e8fd40e592d26c4f6e19da41d5",
+        "raw_bytes": 1966
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-control-source-layout.log.gz",
+        "sha256": "1104ea83b236f273f0d413d4d8e8b585c22a9a563a16063127879828bc526b80",
+        "raw_sha256": "c3ef00839260f4f73f42ab5bfeaf2e1d5632a70d7fd62b7debbe9dd896892082",
+        "raw_bytes": 3577
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-control-fmt.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-tests-candidate.json.gz",
+        "sha256": "498931d2b6a13abf65abc3ceb0f76a682ed2fcd721e589e9a88992b9a096a1f2",
+        "raw_sha256": "a4145e89361a775c9d04414d741b7d90ee64cb06c8997a10959c4917c0473e10",
+        "raw_bytes": 9277
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-tests.diff.gz",
+        "sha256": "43cc6da5f548fb8f8c00d154b1248610679df71b60cdede27eeaf84fe2dd9136",
+        "raw_sha256": "8929da945aac40b027fca69a8c13cd23026344f76e528f9f4eb2db5f9439d53d",
+        "raw_bytes": 27470
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-production-final-candidate.json.gz",
+        "sha256": "6effdbe95ad266da97f4040fe2a3cd9bb87c9d22f958d346ab2f10cdb1cbbabb",
+        "raw_sha256": "734784bb64086a72a52fd82c258553ce1e90bfda349a0f9db8fcf74218e1bdc5",
+        "raw_bytes": 9661
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-production-final.diff.gz",
+        "sha256": "a418a5343f4660c2f0d46209b2f3da8c9b55ef03efc4cb142d1ccf72b1115965",
+        "raw_sha256": "c3f378372b1b0aedc5be1bce12eafbce1562ac2b9a178ad95de65762b73304f4",
+        "raw_bytes": 50707
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-preservation.json.gz",
+        "sha256": "a3ded40d5ebdb51153b575a3f57026dafa799c9fbe57b95675f112bf6ec300fb",
+        "raw_sha256": "cda665ad5e813443f418c787eb2cdbd096646432b1b3c529c4599bc9db5a6d2b",
+        "raw_bytes": 1315
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-writezero.diff.gz",
+        "sha256": "b4894d8a0c8c95985fb39053785b586df8472008ebc8aafdc87a7f3f8683dda2",
+        "raw_sha256": "cb0012fff140a351f0cc785c8d0973d479d840cde08417e1d51446e015dcc67d",
+        "raw_bytes": 799
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-control-final-source-layout.log.gz",
+        "sha256": "e743d9a69b10b6e447e77bc9bc658f12d0890b29dca4538dbf6a98a5b6feaea3",
+        "raw_sha256": "9788f9bcbe3baab803aed5d32d7fab8a1a7d2a068441b96023e5c359f6d61a8f",
+        "raw_bytes": 3461
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-control-final-fmt.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-withdrawal-tests-candidate.json.gz",
+        "sha256": "c9fc7246153cebabcdf0c11e12918d9c5262f417506032c94a9a4e5c1e6d6e61",
+        "raw_sha256": "8f9e5d701f377a4b95bb87e416626c8b35fc9e075e1f9f487eb58e62bc0cd73e",
+        "raw_bytes": 5996
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-withdrawal-interface-absence.log.gz",
+        "sha256": "4057ef91470e989e4d386ce73795d0a8bd7c6268458a6fccdad11f7b482b36e5",
+        "raw_sha256": "227b75401672b5217c334e559a8e94ee2088cc700ebcf29daaa72a436d87f19d",
+        "raw_bytes": 1497
+      }
+    ],
+    "open_parent_tasks": 27,
+    "windows_frozen_candidate": {
+      "manifest_sha256": "734784bb64086a72a52fd82c258553ce1e90bfda349a0f9db8fcf74218e1bdc5",
+      "sources": [
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/windows_child.rs",
+          "sha256": "a9ff7ca346283b86d7525586f5948d5a3de06b51f693e471b49477954ccdc9ab",
+          "bytes": 18812,
+          "lines": 466,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/windows_child.rs"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs",
+          "sha256": "740eb5e09099c4db7934a9dc5e1578315a7882f5f261309878f2e32f70ef55bc",
+          "bytes": 14972,
+          "lines": 374,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/overlapped_control_pipe.rs"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/mod.rs",
+          "sha256": "13bdd902c6a21443f7c9a542d3c17f0113c61728460b43d5f73d6fcafa15fe32",
+          "bytes": 504,
+          "lines": 22,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/mod.rs"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_input_tests.rs",
+          "sha256": "85021502e8d4085cd5dbe029a145a877a8293fc1e6571d0b128ee9d9fab123f9",
+          "bytes": 16535,
+          "lines": 419,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/windows_control_input_tests.rs"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_fixture.rs",
+          "sha256": "9f7f5d88818d8e6b4851ff66350dff7a4a7bd2a8398c891de00bd9050a2f18b3",
+          "bytes": 3280,
+          "lines": 92,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/windows_control_fixture.rs"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_test_witness.rs",
+          "sha256": "9c83757c8611cda4435698afe37f1ba43ce56643965321706be1ab213daeddbc",
+          "bytes": 2276,
+          "lines": 61,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/windows_control_test_witness.rs"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_spawn_record.rs",
+          "sha256": "6866ccb7707b0045357c80cba4331c629aaf20570fcd93b428fef48e1f70215f",
+          "bytes": 3811,
+          "lines": 110,
+          "frozen_path": "/private/tmp/diskgraph-windows-control-production-final-frozen/windows_control_spawn_record.rs"
+        }
+      ],
+      "native_typechecked": false,
+      "native_executed": false,
+      "root_static_review": "seven sources/protected three/frozen four hash verified; full control pipe and child diff reviewed; normal zero-completion now explicitly WriteZero",
+      "owned_fmt": "passed",
+      "all_platform_source_contract": {
+        "passed": 4,
+        "failed": 0
+      },
+      "strict_clippy": "not accepted; new APIs still lack actual scan driver consumers"
+    }
+  },
+  "durable_withdrawal_continuation": {
+    "status": "tests_frozen_store_implementation_in_progress",
+    "formal_source": "same OpenSpec change SC-04/D45",
+    "tests_manifest_sha256": "8f9e5d701f377a4b95bb87e416626c8b35fc9e075e1f9f487eb58e62bc0cd73e",
+    "macos_interface_check": {
+      "exit_code": 101,
+      "missing_method_errors": 2,
+      "classification": "interface absence, not runtime RED"
+    },
+    "native_identity_and_watch_tests": "not run on this macOS host; Windows native evidence required",
+    "original_behavior_red": "both Windows Rust versions still fail unchanged terminal withdrawal assertions in f9311dd CI37254775910",
+    "original_constraints": [
+      "50ms terminal window preserved",
+      "control FULL preserved",
+      "no Allow cache or blanket Budget-to-Denied mapping",
+      "Unix reliable identity remains a separate incomplete capability"
+    ],
+    "engine_wired": false,
+    "parent_gates_closed": 0
+  },
+  "d45_root_engine_integration_local": {
+    "status": "uncommitted partial implementation; not platform acceptance",
+    "store_lib": {
+      "passed": 291,
+      "failed": 0,
+      "ignored": 1,
+      "filtered": 0
+    },
+    "engine_revision_filter": {
+      "passed": 25,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 399,
+      "phase_exclusion": "only unix_normal_exit fixture/support/tests module declarations excluded during run and byte-exact restored afterward; missing B APIs not covered"
+    },
+    "engine_changes": [
+      "actual revision ownership parsed before request-local negative watch registration under original control read deadline",
+      "original SQL authorization remains required",
+      "known withdrawn status checked before and after terminal callback; invalidated incarnation is Conflict",
+      "display retains original 50ms terminal SQL window"
+    ],
+    "limitations": [
+      "Unix physical namespace capability remains None",
+      "Windows native compilation/runtime not executed",
+      "normal-exit Unix APIs and complete Engine integration remain unfinished",
+      "no parent gate closed"
+    ],
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-withdrawal-implemented-compile.log.gz",
+        "raw_sha256": "1b0423dbeab5c73d5b2c5befa0ae5065057a46bf56a14c603e10426ba52d6a2f"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-store-runtime.log.gz",
+        "raw_sha256": "f064e4e581982295cf1796e519e0164cb523b24b2e8bcf4c6f33b88ced6d5a56"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-engine-revision-runtime.log.gz",
+        "raw_sha256": "4a6ee17bd5ac1e010693de00ac0c14826afeba7e050cf64d4cf75b9170ff6e12"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-engine-witness-implementation.diff.gz",
+        "raw_sha256": "acf4c57c081739f8936e8e1c15cfbb61c041d7dff1e01ad43eec83d8b4234bb1"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-store-clippy.log.gz",
+        "raw_sha256": "f34e59837cfd030541abece1d4dd760ec26f14b7a0a777f394f39123d2a70059"
+      }
+    ],
+    "store_all_target_strict_clippy": "exit0"
+  },
+  "normal_exit_mac_first_runtime": {
+    "result": {
+      "passed": 2,
+      "failed": 5,
+      "filtered": 425,
+      "exit": 101
+    },
+    "classification": "real runtime failures; not interface absence",
+    "finding": "normal group member identity query rejected; native syscall diagnosis and implementation correction pending",
+    "original_tests_unchanged": true,
+    "parent_gates_closed": 0,
+    "archive": {
+      "path": "docs/benchmarks/logs/diskgraph-unix-normal-runtime-first-failure.log.gz",
+      "raw_sha256": "3332402f94dd78aa79040b51f95f63e40a5aa8dae2c0253f23faf4c856180be7"
+    }
+  },
+  "d45_index_validation": {
+    "initial_tested_tree": "50bf2e10103f8225fd088db7822cd18486256fad",
+    "after_only_root_aggregation_rustfmt_tree": "4c9908f62674408df078b9991db4da2dd373f240",
+    "workspace": {
+      "passed": 1674,
+      "failed": 0,
+      "ignored": 18,
+      "filtered": 0,
+      "result_blocks": 101,
+      "exit": 0
+    },
+    "workspace_all_target_strict_clippy": "exit0 on aggregation-formatted candidate",
+    "owned_nine_package_fmt": "exit0",
+    "all_workspace_fmt": "exit1: existing immutable vendored formatting plus initial root aggregation order; only root aggregation corrected, vendor not modified",
+    "openspec_strict": "exit0",
+    "upstream_digest_check": {
+      "matching_files": 14,
+      "changed": 0
+    },
+    "independent_review": {
+      "reviewer": "/root/d24_final_code_review",
+      "status": "limited APPROVE; no blocking D45 findings",
+      "business_source_manifest_sha256": "dcc650b4383a8c42114c18645fd0b4796ca3782c8020da883fdb5cda4966ec61",
+      "limitations": "Windows native qualification not run; no approval for A/B scan or parent closure"
+    },
+    "current_sources": [
+      {
+        "path": "crates/diskgraph-engine/src/lib.rs",
+        "sha256": "a604d9304bd07e757c084acda7b577385153b98809fe8b8226b722959f11195b"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/request_withdrawal_witness.rs",
+        "sha256": "e1de1f16cdc5ca7aed89bb8e2dc3496f1f22e399c51a87b31a284cae6b841de9"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/revision_authorization.rs",
+        "sha256": "45aac9f796e1e1c08150317d04cf95a587c3e8b2af70b7e27810b1924a56a473"
+      },
+      {
+        "path": "crates/diskgraph-store/src/authorization_withdrawal_status.rs",
+        "sha256": "1a95081e5227ae2efd0196a50ce0a863673d6c82e7cce9eb9c3487557f60debc"
+      },
+      {
+        "path": "crates/diskgraph-store/src/authorization_withdrawal_watch.rs",
+        "sha256": "5ebb71eff5fb55ddf6f8494ea9aa80b833d902e86104fe91d6f244a102f7a32d"
+      },
+      {
+        "path": "crates/diskgraph-store/src/control_database_identity.rs",
+        "sha256": "8a7bfc92a050d353f03ce7beac1955ab6ef4ca02e88eb18b81967870f6aa346b"
+      },
+      {
+        "path": "crates/diskgraph-store/src/control_store.rs",
+        "sha256": "fc5f931302063cfd8e4025574ed40d599f02d6dcf980c2b14789152fbf26b19a"
+      },
+      {
+        "path": "crates/diskgraph-store/src/control_store_incarnation.rs",
+        "sha256": "571e45591a11f1ed46aa3b1cf14e9a72e2e78baa0c5a959fb5282c5e93e980dc"
+      },
+      {
+        "path": "crates/diskgraph-store/src/lib.rs",
+        "sha256": "659086f34996974ee2ba10d9597d09ceffa27e90bc310b715955c02a20b357db"
+      },
+      {
+        "path": "crates/diskgraph-store/src/policy_store.rs",
+        "sha256": "aaa1f2ff033b7819b54c3ba7dc6437acda8be050022af5f3a5b889d2a87d131f"
+      },
+      {
+        "path": "crates/diskgraph-store/src/scope_store.rs",
+        "sha256": "e7c0cb1661c6f0c3f0c5b86f4d8314f706002e52692ede068adf0d156f484ce2"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_capability_tests.rs",
+        "sha256": "48ebd4b0c8488da2ddc32e982f2804cdada8a52a80d61a6e5874a06886e45a02"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_entry.rs",
+        "sha256": "db7daf608571a6f351d6de343d68442fa8e5bb671a73e1fd83168871e9bd6a9e"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_native_identity_tests.rs",
+        "sha256": "98f5908c08a92602677d627bb286d8bdf043df1d2e5af9d2890dd4d0f80a4e58"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_publish_hook.rs",
+        "sha256": "15e5c624ee20279c7e9af3bab0714aa6a6e009550549266782fd80f3212e818b"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_publish_order_tests.rs",
+        "sha256": "e9616e9d9e3681cdc8724274c52042b95165bbc9883458946aa9537c316b4425"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_registry.rs",
+        "sha256": "3eafae47825378ccee0f3597602411cbcd62cc78007e8c7694d217482e24030c"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_registry_tests.rs",
+        "sha256": "d7ce920778b5a8c9b27dbaddd6708e35dfb10baf1e6d00ac2108242687c39e12"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_store.rs",
+        "sha256": "98e5d1cba466f8c7757caf6c1b033be39418b39d1857d430366b99f825b95bc3"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_test_fixture.rs",
+        "sha256": "112ba613fdc116b4e9cf67789f4cea25f633361dc7ad7d2c7c1814c9411a3d42"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_watch_namespace_tests.rs",
+        "sha256": "8255860f9afb27dd9dcffdfecddb4035bb18acf2ae93c7e91ea11141dd3edd93"
+      },
+      {
+        "path": "crates/diskgraph-store/src/withdrawal_watch_tests.rs",
+        "sha256": "2796dd904979dfbfcf063755130cf7e64e8e1b291f9f793c81ecd014a55d6618"
+      }
+    ],
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-index-workspace.log.gz",
+        "raw_sha256": "fbbe5207ac33eded2ceed9fcf8aadadd47e1974f1b6d2df3c8b12025a11a4d50"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-index-fmt.log.gz",
+        "raw_sha256": "daeaa3fe7fc1386e7ed3530dca04c7c147bc739bc96e4b05240cc59b7b0381ea"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-index-owned-fmt.log.gz",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-index-clippy.log.gz",
+        "raw_sha256": "4773701734ce3bb196c314bd9b2f4b4f6e3e8677176c1003b93d47522a58d239"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-openspec-validation.log.gz",
+        "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-normal-zombie-diagnostic-runtime.log.gz",
+        "raw_sha256": "ffea61ff6f44137d41d3105c237193841df327a8b84302948ab7358edb16d756"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-index-build.log.gz",
+        "raw_sha256": "1d47eb04632d21a6ff50c2cb3c900f653fa585de533ac814d286fe4e876619bc"
+      }
+    ],
+    "platform_status": "Windows identity and same-process terminal withdrawal tests await actual CI; Unix unknown capability retains SQL; no cross-process notification claim",
+    "open_parent_tasks": 27,
+    "workspace_all_target_build": "exit0 on final aggregation-formatted business candidate"
   }
 }

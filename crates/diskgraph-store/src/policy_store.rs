@@ -91,11 +91,64 @@ impl ControlStore {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<()> {
-        self.connection.execute(
-            "DELETE FROM grants
-             WHERE principal_id = ?1 AND permission = ?2 AND scope_id = ?3",
-            params![principal.as_str(), permission.wire_name(), scope.as_str(),],
-        )?;
+        // 当前策略与真实 DELETE 结果属于同一个写事务；不在事务外猜测删除哪一代授权。
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        let epoch: Option<i64> = tx
+            .query_row(
+                "SELECT p.version FROM policy p JOIN scopes s ON s.scope_id=?1
+             WHERE p.id=1 AND p.revoked=0 AND s.revoked=0",
+                [scope.as_str()],
+                |row| row.get(0),
+            )
+            .optional()?;
+        let mut removed_current = false;
+        {
+            let mut delete = tx.prepare(
+                "DELETE FROM grants WHERE principal_id=?1 AND permission=?2 AND scope_id=?3
+                 RETURNING policy_version",
+            )?;
+            let mut rows = delete.query(params![
+                principal.as_str(),
+                permission.wire_name(),
+                scope.as_str()
+            ])?;
+            while let Some(row) = rows.next()? {
+                let removed_epoch: i64 = row.get(0)?;
+                removed_current |= epoch == Some(removed_epoch);
+            }
+        }
+        // 即使宿主添加了重插 grant 的触发器，也不能把同一事务最终仍允许的状态报告为撤权。
+        let notice = if removed_current {
+            let still_allowed: bool = tx.query_row(
+                "SELECT EXISTS(SELECT 1 FROM policy p JOIN grants g ON g.policy_version=p.version
+                 JOIN scopes s ON s.scope_id=g.scope_id WHERE p.id=1 AND p.revoked=0 AND s.revoked=0
+                 AND g.principal_id=?1 AND g.permission=?2 AND g.scope_id=?3)",
+                params![principal.as_str(), permission.wire_name(), scope.as_str()],
+                |row| row.get(0),
+            )?;
+            if still_allowed {
+                None
+            } else {
+                epoch
+                    .map(|epoch| {
+                        crate::withdrawal_store::transaction_generation(&tx)
+                            .map(|generation| (epoch.max(0) as u64, generation))
+                    })
+                    .transpose()?
+            }
+        } else {
+            None
+        };
+        tx.commit()?;
+        #[cfg(test)]
+        crate::withdrawal_publish_hook::after_commit();
+        if let Some((epoch, generation)) = notice {
+            crate::withdrawal_registry::publish_grant(
+                self, principal, scope, permission, epoch, generation,
+            );
+        }
         Ok(())
     }
 

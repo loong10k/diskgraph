@@ -48,6 +48,16 @@
 - **WHEN** 移动目标不在主体授权范围
 - **THEN** 拒绝计划，不因源目录合法而接受目标。
 
+#### Scenario: Durable withdrawal during terminal authorization
+- **WHEN** 真实请求首次获准后，同进程可信控制库入口在末段授权回调中成功持久撤销该请求依赖的 grant 或 scope，且准确绑定实际已打开控制库的请求级负向见证确认此事实
+- **THEN** 当前请求返回 PermissionDenied，不交付完整或部分数据；原授权期限、控制库 FULL 和已有精确拒权断言保持，不因撤权调用超过期限把已知拒权改成 BudgetExceeded。
+- **AND** 见证只记录成功提交的精确负向事实，不缓存 Allow；注册覆盖初检、消费与末检，同一请求的已知撤权不因随后重授而清除，新请求仍按实时授权判断。
+
+#### Scenario: Unknown or unrelated withdrawal does not manufacture denial
+- **WHEN** 原期限耗尽但没有可靠的适用负向见证，或撤销只涉及另一数据库、主体、scope、permission，或事务回滚、提交结果未知、DELETE 未删除授权行
+- **THEN** 保留原实时 SQL 与期限错误语义，不把 BudgetExceeded、busy 或 interrupted 批量映射为 PermissionDenied，不延长期限或以路径、server ID、复制库中的 UUID 猜测同一实际数据库。
+- **AND** 连接替换或未知原生身份不能借旧订阅误绑定；订阅有界、只保留弱引用，registry 锁不跨 SQL、授权回调、消费者或 OS 调用。
+
 ### Requirement: SC-05 Remote authentication and privacy
 远程服务 SHALL 对网络请求实施身份认证、逐请求授权、加密传输和 Origin 校验策略，默认不公开监听；索引留在服务器，返回内容遵守导出策略且默认不上传凭据或完整文档。
 
