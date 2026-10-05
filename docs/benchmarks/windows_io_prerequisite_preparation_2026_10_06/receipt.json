@@ -1,0 +1,13 @@
+{
+  "production_acceptance": false,
+  "source_snapshot": "d957e66",
+  "frozen_sources": 459,
+  "local_guard_tests": {
+    "windows": 4,
+    "shared_mount": 8
+  },
+  "native_ci_run": 37384689462,
+  "cleanup_algorithm_modified": false,
+  "required_order": "four real pending IO prerequisites before three original-owner cleanup tests",
+  "platform_execution": "pending"
+}

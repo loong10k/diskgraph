@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "b7adda3c9370c512442f92b13c2cacb87772ea14ef624877294ac3de9900bea4",
+  "archive_sha256": "013881b2aaae1e6170926055a163eaeb3b94921cace8df3906b801d162445ca7",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -196,7 +196,7 @@
     "crates/diskgraph-engine/src/macos_installation_publisher_tests.rs": "4a137499fd796a1986cde5152e0fde4bc50d8ff50adaafae03ce4323e785d066",
     "crates/diskgraph-engine/src/macos_installation_root_fixture_tests.rs": "4cf74a5dbd994de61ccdfc8f190364a1d09ba9ec94775d06bb56d4afc22cac8c",
     "crates/diskgraph-engine/src/macos_installation_trust.rs": "0cdca67bbf2c8d218946c82403285646d26198952c630b5b903c9e4e43cae8af",
-    "crates/diskgraph-engine/src/macos_installed_worker_fixture_tests.rs": "3a46758d16990041e71e58501fe6d4061e08184da1adec8618427edc3cef6c1d",
+    "crates/diskgraph-engine/src/macos_installed_worker_fixture_tests.rs": "95af69bdf57c7478a29e597e2b8ddd3c7898a22705cece3571cc7a63250bdef7",
     "crates/diskgraph-engine/src/macos_load_policy.rs": "2f1b853069c65413374fa08d56ae4719e71003dc1954ebf06aa181d03778b8d1",
     "crates/diskgraph-engine/src/macos_load_policy_tests.rs": "52767d1c2e5e26561229f02652161fdbebcd25e8aa541681b41ca4233f23ff71",
     "crates/diskgraph-engine/src/macos_protected_document.rs": "e8af1e2359cdad20017ca9ce190c244b24fd93e23218a55962d398a40514ff15",
@@ -471,5 +471,9 @@
   "lock_scope": "CLI/MCP manifests remain committed baseline; only their absent scan-worker dependency edges were removed. Registry versions and scanner pin unchanged.",
   "fixture_features": [
     "macos_native_scan_candidate"
-  ]
+  ],
+  "protocol_cases": [
+    "macos_installed_worker_fixture_tests::macos_worker_request_roundtrip_preserves_non_utf8_native_path_without_filesystem"
+  ],
+  "filesystem_fixture": "Hosted temporary volume explicitly rejects invalid UTF8 with EILSEQ; actual installed helper scans valid Unicode names. Raw nonUTF8 protocol bytes verified independently."
 }

@@ -1,0 +1,49 @@
+{
+  "production_acceptance": false,
+  "native_run": 37384689462,
+  "checkout_sha": "d957e6648ffc2df0a6239cd4ca534dff45eacf95",
+  "fixture_sha256": "0b80e8c533010905bde2ede1b9156228d5ff4e137561121ce3467184e5893863",
+  "source_count": 459,
+  "native_build": "passed",
+  "io_prerequisites_passed": 4,
+  "cleanup_cases_failed": 3,
+  "cases": [
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
+      "passed": false,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_query_failure_retains_original_job_until_actual_retry",
+      "passed": false,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::recovery_slot_survives_query_failure_until_original_job_is_observed_empty",
+      "passed": false,
+      "phase": "cleanup"
+    }
+  ],
+  "confirmed_failure": "original cleanup takes and drops Job/process and marks cleaned on failed wait/query; registry releases owner after fake idempotent success",
+  "next_step": "retain original owners and retry actual native observations before marking cleanup complete"
+}

@@ -1,0 +1,12 @@
+{
+  "production_acceptance": false,
+  "native_run": 37381931634,
+  "source": "8878912fb579f741b7776a2b533efc3237541c23",
+  "failure_stage": "fixture directory creation before scanner birth",
+  "original_errno": 92,
+  "local_reproduction": {
+    "operation": "mkdir invalid UTF8 scope name in temporary directory",
+    "errno": 92
+  },
+  "next_step": "real Unicode filesystem scan plus explicit invalid-byte path protocol/rejection qualification; no claim invalid UTF8 files are supported by macOS filesystem"
+}
