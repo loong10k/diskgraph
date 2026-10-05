@@ -2,8 +2,9 @@
 use crate::process_job_enqueue_fixture::ProcessEnqueueFixture;
 use crate::{ControlStore, JobState, StoreError};
 use diskgraph_core::{JobRequestAuthority, Permission};
+use rusqlite::hooks::{AuthAction, AuthContext, Authorization, TransactionOperation};
 use rusqlite::{Connection, ErrorCode};
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering};
 use std::sync::{Arc, mpsc};
 use std::time::{Duration, Instant};
 
@@ -390,20 +391,119 @@ fn process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition(
             .unwrap(),
         1
     );
+    let held = Arc::new(AtomicBool::new(false));
+    let writer_held = Arc::clone(&held);
+    let (ready_tx, ready_rx) = mpsc::channel();
     let (release_tx, release_rx) = mpsc::channel();
+    let (committed_tx, committed_rx) = mpsc::channel();
     let locker = std::thread::spawn(move || {
-        let _ = release_rx.recv_timeout(Duration::from_millis(100));
-        connection.execute_batch("COMMIT").unwrap();
+        writer_held.store(true, Ordering::SeqCst);
+        let _ = ready_tx.send(());
+        // 不按墙钟猜测释放；正常由第二次真实 BEGIN prepare 交接，错误路径也会释放。
+        let _ = release_rx.recv();
+        let committed = connection.execute_batch("COMMIT");
+        writer_held.store(false, Ordering::SeqCst);
+        let _ = committed_tx.send(committed.is_ok());
+        committed
     });
+    if let Err(error) = ready_rx.recv_timeout(Duration::from_secs(5)) {
+        let _ = release_tx.send(());
+        let joined = locker.join();
+        panic!("external revoking writer never became ready: {error:?}; {joined:?}");
+    }
+    let begins = Arc::new(AtomicUsize::new(0));
+    let first_begin_held = Arc::new(AtomicBool::new(false));
+    let commit_ack = Arc::new(AtomicBool::new(false));
+    let grant_read_after_commit_live = Arc::new(AtomicBool::new(false));
+    let observed_begins = Arc::clone(&begins);
+    let observed_first = Arc::clone(&first_begin_held);
+    let observed_commit = Arc::clone(&commit_ack);
+    let observed_grant_read = Arc::clone(&grant_read_after_commit_live);
+    let release_at_begin = release_tx.clone();
+    // 原期限只生成一次；worker ready 不消耗本案的请求资格窗口。
     let deadline = Instant::now() + Duration::from_millis(600);
+    let installed = fixture
+        .store
+        .connection
+        .authorizer(Some(move |context: AuthContext<'_>| {
+            match context.action {
+                AuthAction::Transaction {
+                    operation: TransactionOperation::Begin,
+                } => {
+                    let attempt = observed_begins.fetch_add(1, Ordering::SeqCst) + 1;
+                    if attempt == 1 {
+                        // 第一次实际 BEGIN 保持外锁；只有生产边界遇到真实 BUSY 才会再次 prepare。
+                        observed_first.store(held.load(Ordering::SeqCst), Ordering::SeqCst);
+                    } else if attempt == 2 {
+                        let _ = release_at_begin.send(());
+                        if let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
+                            let acknowledged =
+                                matches!(committed_rx.recv_timeout(remaining), Ok(true));
+                            observed_commit.store(acknowledged, Ordering::SeqCst);
+                        }
+                    }
+                }
+                AuthAction::Read {
+                    table_name: "grants",
+                    ..
+                } => {
+                    observed_grant_read.store(
+                        observed_commit.load(Ordering::SeqCst) && Instant::now() < deadline,
+                        Ordering::SeqCst,
+                    );
+                }
+                _ => {}
+            }
+            // 回调只交接 channel/原子，不重入当前 SQLite 连接，也不在回调内断言或 panic。
+            Authorization::Allow
+        }));
+    if let Err(error) = installed {
+        let _ = release_tx.send(());
+        let joined = locker.join();
+        panic!("BEGIN observer could not be installed: {error:?}; {joined:?}");
+    }
     let result = fixture.store.create_process_evidence_job_until(
         &fixture.input,
         &fixture.authority,
         64,
         deadline,
     );
+    // 无论是否进入第二次 prepare，都先释放 writer，避免失败分支 join 永久等待。
     let _ = release_tx.send(());
-    locker.join().unwrap();
+    let joined = locker.join();
+    let removed = fixture
+        .store
+        .connection
+        .authorizer(None::<fn(AuthContext<'_>) -> Authorization>);
+    eprintln!(
+        "D44_ENQUEUE_REVOCATION {}",
+        serde_json::json!({
+            "original_window_ms": 600,
+            "begin_preparations": begins.load(Ordering::SeqCst),
+            "first_begin_held": first_begin_held.load(Ordering::SeqCst),
+            "commit_ack": commit_ack.load(Ordering::SeqCst),
+            "grant_read_after_commit_live": grant_read_after_commit_live.load(Ordering::SeqCst),
+            "result": format!("{result:?}")
+        })
+    );
+    joined.unwrap().unwrap();
+    removed.unwrap();
+    assert!(
+        first_begin_held.load(Ordering::SeqCst),
+        "first BEGIN lacked the real writer lock"
+    );
+    assert!(
+        begins.load(Ordering::SeqCst) >= 2,
+        "real BUSY did not reach a second BEGIN preparation"
+    );
+    assert!(
+        commit_ack.load(Ordering::SeqCst),
+        "external COMMIT was not acknowledged within the original deadline"
+    );
+    assert!(
+        grant_read_after_commit_live.load(Ordering::SeqCst),
+        "post-acquisition grant read was not reached within the original deadline"
+    );
     assert!(
         matches!(result, Err(StoreError::Conflict(_))),
         "actual={result:?}"

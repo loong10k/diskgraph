@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "scope": "real SQLite writer revocation test synchronization, no production policy change",
+  "production_acceptance": false,
+  "original_windows_source": "82f875bdd5da9bab2dd1d7d6faf44c6c070e50d2",
+  "original_run": 37362387536,
+  "original_job": 111939848249,
+  "original_failure": "BudgetExceeded while test expected Conflict; serial target passed before full concurrent Store run failed",
+  "old_source_sha256": "5a9961a136fd33f0128cce80ee4e657961c9a55b9818446e2f7f81a8f0bcd406",
+  "new_source_sha256": "c1af1c293985238e8af4c0a4d3ceabefc3180201e3bc1cb09344569b3d990605",
+  "fix": "real writer ready before unchanged600ms original deadline; first BEGIN held, second BEGIN signals COMMIT and receives deadline-bounded acknowledgement; actual grants read after commit within original deadline",
+  "unchanged": [
+    "600ms request window",
+    "731ms host busy",
+    "strict Conflict for withdrawn grant",
+    "all four durable tables unchanged",
+    "connection configuration restored",
+    "production deadline-first authorization semantics"
+  ],
+  "local_target": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "observed_begins": 2,
+    "first_begin_held": true,
+    "commit_ack": true,
+    "grant_read_after_commit_live": true
+  },
+  "local_regression": {
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  "logs": {
+    "original_windows_failure": {
+      "path": "process_enqueue_revocation_sync_original_windows_failure_2026_10_06.log.gz",
+      "raw_sha256": "1b2c86fa5815c09419ea1bd6e2ff6e1b9d501fa424ee2cd93bcc450ef663e590"
+    },
+    "target_green": {
+      "path": "process_enqueue_revocation_sync_target_green_2026_10_06.log.gz",
+      "raw_sha256": "472adcc093bd54f2e1aa13f6f40c73c58926da85ad5e75c815d1d2f4c82b884d"
+    },
+    "regression_green": {
+      "path": "process_enqueue_revocation_sync_regression_green_2026_10_06.log.gz",
+      "raw_sha256": "faf17db471a73c254116096b3eaea8582727663d7dcab1fc1bbf36b53d24ca63"
+    }
+  },
+  "remaining": [
+    "Windows native same-source target and full concurrent Store regression"
+  ],
+  "clippy": {
+    "command": "cargo clippy --locked -p diskgraph-store --all-targets -- -D warnings",
+    "exit_code": 0,
+    "raw_sha256": "0498d08046a5be5a958ffac05035ab44f3dafdcd453c4f7320959c9cae4cc0e0",
+    "path": "process_enqueue_revocation_sync_clippy_2026_10_06.log.gz"
+  }
+}
