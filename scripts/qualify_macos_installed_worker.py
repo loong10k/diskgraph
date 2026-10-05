@@ -21,7 +21,7 @@ def permitted(name):
     return (not path.is_absolute() and ".." not in path.parts and name == path.as_posix()
             and (name in {"Cargo.lock", "crates/diskgraph-engine/Cargo.toml", "crates/diskgraph-engine/build.rs", "crates/diskgraph-scan-worker/Cargo.toml"}
                  or (name.startswith("crates/diskgraph-engine/src/") and path.suffix in {".rs", ".c", ".h"})
-                 or (name.startswith("crates/diskgraph-engine/tests/fixtures/") and path.suffix == ".rs")
+                 or (name.startswith("crates/diskgraph-engine/tests/fixtures/") and path.suffix in {".rs", ".c", ".h"})
                  or (name.startswith("crates/diskgraph-scan-worker/src/") and path.suffix == ".rs")))
 
 

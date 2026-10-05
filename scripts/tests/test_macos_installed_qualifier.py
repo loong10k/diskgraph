@@ -37,6 +37,16 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         manifest = {"schema_version": 1, "archive_sha256": qualifier.digest(archive), "sources": sources}
         (self.directory / "manifest.json").write_text(json.dumps(manifest))
 
+    def test_real_committed_candidate_has_complete_permitted_inventory(self):
+        source = SCRIPT.parent.parent / qualifier.CANDIDATE
+        for name in ["candidate.tar.gz", "manifest.json"]:
+            (self.directory / name).write_bytes((source / name).read_bytes())
+        manifest = qualifier.mount(self.checkout)
+        self.assertEqual(len(manifest["sources"]), 453)
+        self.assertEqual(len(manifest["ordinary_cases"]), 3)
+        for name, expected in manifest["sources"].items():
+            self.assertEqual(qualifier.digest(self.checkout / name), expected)
+
     def test_regular_frozen_sources_mount_and_match(self):
         self.candidate([("crates/diskgraph-engine/src/frozen.rs", b"source", "file")])
         qualifier.mount(self.checkout)
