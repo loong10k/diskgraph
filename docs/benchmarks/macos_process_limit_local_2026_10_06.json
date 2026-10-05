@@ -1,0 +1,46 @@
+{
+  "commit": "uncommitted-base-137bf7b93c8a7cbe99d63a3bba96730411cee4d8",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "source_sha256": "763a99ae4421ab20db4581e51fe732abd94c08aa595b61ca632e858c55a33b81",
+  "binary_sha256": "1027d7369305742e15b42cf879ecec9328b4ada71b52f323a195f390c1210882",
+  "elapsed_ms": 6.635,
+  "exit_code": 0,
+  "timed_out": false,
+  "primary_error": null,
+  "cleanup_errors": [],
+  "artifact_errors": [],
+  "stdout_bytes": 310,
+  "stderr_bytes": 0,
+  "original_process_waited": true,
+  "parent_limits_unchanged": true,
+  "security_acceptance": false,
+  "scope": "Native nonroot process-limit component; not installer, no_new_privs or Engine acceptance",
+  "output_within_record_limit": true,
+  "observed": [
+    {
+      "phase": "before_exec",
+      "nonroot": true,
+      "positive_fork_wait": true,
+      "positive_vfork_wait": true,
+      "positive_spawn_wait": true,
+      "fork_errno": 35,
+      "vfork_errno": 35,
+      "spawn_errno": 35,
+      "raise_errno": 1,
+      "thread_error": 0,
+      "join_error": 0,
+      "thread_marker": true
+    },
+    {
+      "phase": "after_exec",
+      "nonroot": true,
+      "soft_zero": true,
+      "hard_zero": true
+    }
+  ],
+  "component_qualified": true,
+  "snapshot_base": "137bf7b93c8a7cbe99d63a3bba96730411cee4d8",
+  "source_uncommitted_at_local_run": true,
+  "supervisor_sha256": "0e3cdb0739db4b93ba02cec7d37706b9c03e2df233cd99efddb5bbceb7bc4203"
+}

@@ -1,0 +1,43 @@
+name: macOS process limit qualification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  process_limit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Verify supervisor failure cleanup
+        run: python3 -m unittest discover -s scripts/tests -p test_qualify_macos_process_limit.py -v
+      - name: Build exact native fixture with strict warnings
+        shell: bash
+        run: |
+          output="${{ runner.temp }}/diskgraph-macos-process-limit"
+          mkdir -p "$output"
+          clang --version > "$output/compiler.txt"
+          xcrun --show-sdk-version > "$output/sdk.txt"
+          sw_vers > "$output/os.txt"
+          clang -std=c11 -Wall -Wextra -Werror -pthread \
+            crates/diskgraph-engine/tests/fixtures/macos_process_limit_probe.c \
+            -o "$output/process-limit-probe" 2>&1 | tee "$output/build.log"
+      - name: Verify actual denial, threads and exec inheritance
+        run: |
+          python3 scripts/qualify_macos_process_limit.py \
+            --source crates/diskgraph-engine/tests/fixtures/macos_process_limit_probe.c \
+            --binary "${{ runner.temp }}/diskgraph-macos-process-limit/process-limit-probe" \
+            --output "${{ runner.temp }}/diskgraph-macos-process-limit" \
+            --commit "${{ github.sha }}"
+      - name: Preserve original outcome and exact fixture
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: macos-process-limit-${{ matrix.os }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-macos-process-limit
+          if-no-files-found: error
+          retention-days: 7
