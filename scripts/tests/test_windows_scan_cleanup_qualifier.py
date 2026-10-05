@@ -37,14 +37,22 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 462)
+            self.assertEqual(len(manifest["sources"]), 466)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
             qualifier.check_regression_cases(manifest["regression_cases"])
+            qualifier.check_probe_cases(manifest["probe_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
+
+    def test_managed_probe_cases_cannot_be_omitted_or_replaced(self):
+        valid = list(qualifier.PROBE_CASES)
+        qualifier.check_probe_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.BIRTH_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_probe_cases(invalid)
 
     def test_birth_owner_cases_cannot_be_omitted(self):
         valid = list(qualifier.BIRTH_CASES)
