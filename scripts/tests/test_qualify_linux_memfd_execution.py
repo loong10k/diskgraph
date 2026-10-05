@@ -32,6 +32,7 @@ class MemfdAssemblyTests(unittest.TestCase):
         paths += [binding["path"] for binding in [self.manifest["qualifier"], self.manifest["unit_tests"],
                   tool["qualifier"], tool["unit_tests"], tool["shared_support"],
                   outer["source"], outer["unit_tests"], outer["workflow"]]]
+        paths.append(self.manifest["profile_helper"]["path"])
         paths.append(QUALIFIER.ATOMIC_MANIFEST)
         for name in paths:
             target = self.checkout / name
@@ -90,6 +91,17 @@ class MemfdAssemblyTests(unittest.TestCase):
         (self.checkout / QUALIFIER.ATOMIC_MANIFEST).write_text("{}")
         with self.assertRaisesRegex(ValueError, "atomic manifest differs"):
             QUALIFIER.validate_profile(self.checkout, self.manifest, ROOT / "scripts/qualify-linux-memfd-execution.py")
+
+
+    def test_archived_profile_helper_drift_is_denied_before_assembly(self):
+        helper = self.checkout / self.manifest["profile_helper"]["path"]
+        helper.write_bytes(b"altered root QA lifecycle implementation")
+        native = self.checkout / (QUALIFIER.NATIVE + "mod.rs")
+        before = native.read_bytes()
+        with self.assertRaisesRegex(ValueError, "profile helper.*digest mismatch"):
+            QUALIFIER.validate_profile(self.checkout, self.manifest,
+                                       ROOT / "scripts/qualify-linux-memfd-execution.py")
+        self.assertEqual(native.read_bytes(), before)
 
 
 class MemfdResultTests(unittest.TestCase):

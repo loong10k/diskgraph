@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import runpy
 import selectors
 import signal
 import stat
@@ -21,7 +22,6 @@ import pwd
 
 # 受限编排 profile；不能由调用者或子 receipt 提供期望数量。
 PROFILES = {"qualify-linux-atomic-launcher.py": 17, "qualify-linux-memfd-execution.py": 6}
-
 
 class NativeNamespaceSupervisor:
     """唯一外层 init owner；日志和 receipt 失败不得覆盖原资格或退出错误。"""
@@ -41,6 +41,7 @@ class NativeNamespaceSupervisor:
         self.logs = {}
         self.setup = bytearray()
         self.witness = bytearray()
+        self.memfd_profile = None
 
     @staticmethod
     def command(args, output):
@@ -176,6 +177,8 @@ class NativeNamespaceSupervisor:
                     identity["gid"] != [self.args.runner_gid] * 3 or
                     identity["groups"] != sorted(self.args.runner_groups)):
                 raise RuntimeError("runner credentials did not match original declared identity")
+            if self.memfd_profile is not None:
+                identity["apparmor_label"] = self.memfd_profile.require_runner_label()
             os.write(setup_fd, json.dumps(identity).encode() + b"\n")
             os.dup2(stdout_fd, 1)
             os.dup2(stderr_fd, 2)
@@ -190,6 +193,8 @@ class NativeNamespaceSupervisor:
             environment.update(HOME=account.pw_dir, USER=account.pw_name, LOGNAME=account.pw_name,
                                DG_NATIVE_PID_NAMESPACE=identity["pid_namespace"],
                                DG_NATIVE_NAMESPACE_SUPERVISED="1", DG_NATIVE_NAMESPACE_OUTPUT=str(self.output))
+            if self.memfd_profile is not None:
+                environment.update(self.memfd_profile.environment())
             phase = "exec"
             # setup_fd保留CLOEXEC，exec失败仍可报告真实errno，成功时自动EOF。
             os.execve(command[0], command, environment)
@@ -410,6 +415,10 @@ class NativeNamespaceSupervisor:
         try:
             for name in ("stdout", "stderr"):
                 self.logs[name] = [(self.output / f"child.{name}").open("wb"), 0]
+            if not self.args.self_test and Path(command[1]).name == "qualify-linux-memfd-execution.py":
+                factory = runpy.run_path(str(Path(__file__).with_name("native_memfd_profile.py")))["NativeMemfdProfile"]
+                self.memfd_profile = factory(self, deadline)
+                self.memfd_profile.load()
             signal.signal(signal.SIGCHLD, signal.SIG_DFL)
             self.spawn(command)
             self.monitor(deadline)
@@ -437,6 +446,8 @@ class NativeNamespaceSupervisor:
                     os.close(self.pidfd)
                 except BaseException as error:
                     self.failure("init_pidfd_close", error)
+            if self.memfd_profile is not None:
+                self.memfd_profile.finish()
             self.receipt["elapsed_seconds"] = time.monotonic() - started
             expected = self.args.self_test and self.receipt["status"] == "containment_self_test_passed_not_atomic_qualification"
             if self.primary is not None and (not expected or self.receipt["secondary_errors"]):
@@ -447,7 +458,6 @@ class NativeNamespaceSupervisor:
         if self.primary is not None and not expected:
             raise self.primary
         return 0
-
 
 def descendant_fixture():
     """仅自测：真实后代 setsid 后持续工作，必须由 namespace init 退出收场。"""

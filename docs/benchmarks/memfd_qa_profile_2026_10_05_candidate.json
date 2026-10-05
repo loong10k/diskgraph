@@ -1,0 +1,278 @@
+{
+  "scope": "Fixed fixture QA profile lifecycle, actual policy witnesses, source provenance binding; no production Engine integration",
+  "author_candidate": {
+    "schema_version": 1,
+    "status": "READY_source_frozen_pending_root_execution",
+    "repository": "/Users/wandl/workspaces/workspace-loong10k/diskgraph",
+    "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il",
+    "scope": "QA-only exact memfd policy fixture AppArmor profile; no production permission or global policy change",
+    "sources": [
+      {
+        "path": "scripts/native_memfd_profile.py",
+        "sha256": "0671141ff6fe92aa88183702c7dcb03ef840c6e6e16bbcc07817fb8e3b183d12",
+        "bytes": 10603,
+        "lines": 200,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/scripts/native_memfd_profile.py",
+        "role": "owned_delta",
+        "before": {
+          "exists": false
+        }
+      },
+      {
+        "path": "scripts/run-native-pid-namespace.py",
+        "sha256": "73f004dc43a9ede9badf1e25bb893e3056b8b5431b3d1015a1d716f915f79c1e",
+        "bytes": 24972,
+        "lines": 498,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/scripts/run-native-pid-namespace.py",
+        "role": "owned_delta",
+        "before": {
+          "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab",
+          "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/before/scripts/run-native-pid-namespace.py"
+        },
+        "diff": {
+          "path": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/diffs/run-native-pid-namespace.py.diff.gz",
+          "sha256": "205750c041b355c9bb77cfce3a9b92836f80cee999baf4cc828e44f5e36c0235",
+          "raw_sha256": "54e202ac50d261ac8da56eb3a1778d708910e079b4a23e57914d0772b3c73ec1",
+          "raw_bytes": 3360,
+          "gzip_mtime": 0
+        }
+      },
+      {
+        "path": "scripts/tests/test_native_memfd_profile_helper.py",
+        "sha256": "6c9b5983024fa118a4fea02b68b06a546a7a4095e8ae64b965c82a2d27fc0f2f",
+        "bytes": 9064,
+        "lines": 169,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/scripts/tests/test_native_memfd_profile_helper.py",
+        "role": "owned_delta",
+        "before": {
+          "exists": false
+        }
+      },
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+        "sha256": "de5d0f43979f193a7ff87aca18560da6c71d68dc5949d6ca769e706f5e8e2970",
+        "bytes": 13391,
+        "lines": 262,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+        "role": "owned_delta",
+        "before": {
+          "sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
+          "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/before/crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c"
+        },
+        "diff": {
+          "path": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/diffs/linux_memfd_policy_namespace.c.diff.gz",
+          "sha256": "b9544d67dfa79d7ad9dbcb32ca0aab459be356c409bd8a23f5b78bfe06092529",
+          "raw_sha256": "eeacd3824812ab477907220df19a53e90b13eabdc29cc0fe3dc7cf657b32d3c3",
+          "raw_bytes": 5253,
+          "gzip_mtime": 0
+        }
+      },
+      {
+        "path": "scripts/tests/test_native_memfd_profile.py",
+        "sha256": "b04538dd9aac570993a7874442531b1bc0428189fdb39b930a673c1292ef4bb6",
+        "bytes": 9373,
+        "lines": 185,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/scripts/tests/test_native_memfd_profile.py",
+        "role": "protected_unchanged"
+      },
+      {
+        "path": "scripts/tests/test_native_pid_namespace.py",
+        "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+        "bytes": 16746,
+        "lines": 315,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/scripts/tests/test_native_pid_namespace.py",
+        "role": "protected_unchanged"
+      },
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_fixture.rs",
+        "sha256": "37bb4d3e2bc32a48d06028d9038d51d732f3729da55b4744af577f4f01149ce8",
+        "bytes": 8206,
+        "lines": 195,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_fixture.rs",
+        "role": "protected_unchanged"
+      },
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_tests.rs",
+        "sha256": "a401b285c38a9de40ff7e403c805c06a7c4cbb88e3a4c47eb09efc07d6aaee9f",
+        "bytes": 1603,
+        "lines": 45,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_tests.rs",
+        "role": "protected_unchanged"
+      },
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+        "sha256": "3a00e312176df33a1f7de8d7e4430ec20f46536616f0fb14c73f9834adacdc2f",
+        "bytes": 6064,
+        "lines": 168,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+        "role": "protected_unchanged"
+      },
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_tests.rs",
+        "sha256": "44fd8c4a2b1a3cb37a270f3e158ef24e747d25168bd1d82fce2e275adfc37d6a",
+        "bytes": 2057,
+        "lines": 57,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_tests.rs",
+        "role": "protected_unchanged"
+      },
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_denial_tests.rs",
+        "sha256": "32fff290f393c13a708194ed6ca3ef267315335d102f836c7663ac8b106fc9d0",
+        "bytes": 2785,
+        "lines": 65,
+        "snapshot": "/private/tmp/diskgraph-memfd-profile-ready-yo1xf2il/sources/crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_denial_tests.rs",
+        "role": "protected_unchanged"
+      }
+    ],
+    "tests_first": {
+      "manifest": "/private/tmp/diskgraph-native-memfd-profile-tests-red.json",
+      "sha256": "3ca8aee4708ac41f2033b8d12d232ea5e56b78ba0c28798b82ca9989aae14d09",
+      "actual_root_log": "/private/tmp/diskgraph-native-memfd-profile-red.log",
+      "actual_root_target_failures": 5,
+      "classification": "runtime assembly target RED, no ImportError/API absence"
+    },
+    "commands_for_root": [
+      "python3 -m unittest discover -s scripts/tests -p test_native_memfd_profile.py -v",
+      "python3 -m unittest discover -s scripts/tests -p test_native_memfd_profile_helper.py -v",
+      "python3 -m unittest discover -s scripts/tests -p test_native_pid_namespace.py -v",
+      "python3 -m unittest discover -s scripts/tests -p test_qualify_linux_atomic_launcher.py -v",
+      "python3 -m unittest discover -s scripts/tests -p test_qualify_linux_memfd_execution.py -v"
+    ],
+    "static_verification": {
+      "python_ast": "All 5 candidate Python files parsed; no test/native execution",
+      "all_owned_files_under_500_lines": true,
+      "original_5_profile_tests_unchanged": true,
+      "original_17_wrapper_tests_unchanged": true,
+      "original_5_Rust_targets_unchanged": true
+    },
+    "implementation": {
+      "fixed_profile": "diskgraph_memfd_policy_<128-bit-random> with exact canonical OUT/qualification/fixtures/memfd-policy-namespace attachment, only userns rule",
+      "parser": "root-owned fixed /usr/sbin/apparmor_parser; config-file /dev/null, jobs=0, skip-cache, restricted environment; add not replace",
+      "witnesses": "outer actual unconfined; exact loaded label; C actual /proc/self/exe and kernel label before/after unshare; preserved NNP1; ordinary CapEff0 then owned user namespace SYS_ADMIN",
+      "cleanup": "original init actual reaped and capture closed before remove; loaded exact profile disappearance required; primary and independent cleanup errors retained"
+    },
+    "pending": [
+      "Root actual pure regression tests",
+      "Root bind helper/wrapper/C source hashes into both tooling manifests",
+      "Native three-lane cc and kernel profile load/attachment/capability/unload evidence",
+      "Profile restriction is only QA namespace setup, never full production scan permission",
+      "Hard CI death cannot prove profile unload; fail closed if exact qualification or cleanup is absent"
+    ],
+    "official_sources": [
+      "https://manpages.ubuntu.com/manpages/noble/man8/apparmor_parser.8.html",
+      "https://manpages.ubuntu.com/manpages/noble/man5/apparmor.d.5.html",
+      "https://documentation.ubuntu.com/release-notes/24.04/",
+      "https://raw.githubusercontent.com/torvalds/linux/v6.12/security/apparmor/procattr.c"
+    ]
+  },
+  "root_binding_before": "/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-profile-binding-before-8hghe1l9",
+  "current_sources": [
+    {
+      "path": "scripts/native_memfd_profile.py",
+      "sha256": "0671141ff6fe92aa88183702c7dcb03ef840c6e6e16bbcc07817fb8e3b183d12",
+      "bytes": 10603,
+      "lines": 200
+    },
+    {
+      "path": "scripts/tests/test_native_memfd_profile.py",
+      "sha256": "b04538dd9aac570993a7874442531b1bc0428189fdb39b930a673c1292ef4bb6",
+      "bytes": 9373,
+      "lines": 185
+    },
+    {
+      "path": "scripts/tests/test_native_memfd_profile_helper.py",
+      "sha256": "6c9b5983024fa118a4fea02b68b06a546a7a4095e8ae64b965c82a2d27fc0f2f",
+      "bytes": 9064,
+      "lines": 169
+    },
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "73f004dc43a9ede9badf1e25bb893e3056b8b5431b3d1015a1d716f915f79c1e",
+      "bytes": 24972,
+      "lines": 498
+    },
+    {
+      "path": "scripts/qualify-linux-memfd-execution.py",
+      "sha256": "ea4ba64ea4d12e76d4e3b783249cec1d71bb4ee18d750c15973c65aee997625d",
+      "bytes": 14361,
+      "lines": 248
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
+      "sha256": "195b91b44d0b7aa2ce2fbb70c858ad0921f910ec5dbc7ae3adafd38fd28c0587",
+      "bytes": 10741,
+      "lines": 220
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+      "sha256": "de5d0f43979f193a7ff87aca18560da6c71d68dc5949d6ca769e706f5e8e2970",
+      "bytes": 13391,
+      "lines": 262
+    },
+    {
+      "path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
+      "sha256": "d39e49c8f7e956e17b12b1b65c184bc1a0fc1fd8025b853fa51caff9ca50df1b",
+      "bytes": 24026,
+      "lines": 463
+    },
+    {
+      "path": "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json",
+      "sha256": "5f6497a544884c3802a2b2e7e4f7b770bb7b41b5e4e8b085665bcbfb96ae6e56",
+      "bytes": 15924,
+      "lines": 312
+    }
+  ],
+  "actual_python_evidence": [
+    {
+      "path": "docs/benchmarks/memfd_qa_profile_red_2026_10_05.log.gz",
+      "raw_sha256": "d26afcce8131469b78baee89b5e806b04950dbfd25fe4c77c66cca99d28cb227",
+      "gzip_sha256": "231c801343f0aeb1e3fcfcc691580b2b7e629f26489e007365d81c6290cfe08a",
+      "result": {
+        "passed": 0,
+        "failed": 5
+      }
+    },
+    {
+      "path": "docs/benchmarks/memfd_qa_profile_green_2026_10_05.log.gz",
+      "raw_sha256": "69b5f1fca2f518554de551b5a68520f9334d2b12b305be9d93f74e3e27ae01c5",
+      "gzip_sha256": "c163962fa9a1760bb1d97e4623b8f1e39f457a92f63041b4590db1c2e580f7bd",
+      "result": {
+        "passed": 13,
+        "failed": 0
+      }
+    },
+    {
+      "path": "docs/benchmarks/memfd_qa_binding_red_2026_10_05.log.gz",
+      "raw_sha256": "e1ea8e5798086fe8a6a8e79bbfae24db1a1cf8cb7b7815b69095e91942574e5c",
+      "gzip_sha256": "6432b5cfb148e6c2e0e8a96f27a4c7372f7b38dfd3f31c0cecf250370153db16",
+      "result": {
+        "passed": 11,
+        "failed": 1
+      }
+    },
+    {
+      "path": "docs/benchmarks/memfd_qa_python_green_2026_10_05.log.gz",
+      "raw_sha256": "1503cfd394399bf5a5d9e6fb32b8c580df53370847a718dd987f03f6b8bd2a40",
+      "gzip_sha256": "e734bd5882e65715ec84b637885e11dafe04449b131b69355500be8b85a8edf4",
+      "result": {
+        "passed": 60,
+        "failed": 0
+      }
+    }
+  ],
+  "native_validation": "Pending actual three native lanes parser/attachment/user namespace privileges/owned cleanup",
+  "remaining": [
+    "Independent current source review",
+    "Actual native qualification after commit",
+    "Actual Rust worker/Engine product chain on same source"
+  ],
+  "independent_review": {
+    "status": "APPROVE scoped QA changes only",
+    "reviewer": "/root/code_review",
+    "limitations": [
+      "Inner archived helper hash check is not pre-root-execution sandboxing",
+      "Parser64KiB threshold detected after completion, not strict temporary disk cap",
+      "Actual C/parser/kernel/owned namespace cleanup pending native CI"
+    ]
+  }
+}

@@ -43,6 +43,15 @@ def validate_profile(checkout, manifest, active):
             raise ValueError("archived memfd tooling digest mismatch")
     if ATOMIC.digest(active) != manifest["qualifier"]["sha256"]:
         raise ValueError("running memfd qualifier differs from archive and manifest")
+    helper = manifest["profile_helper"]
+    expected = "scripts/native_memfd_profile.py"
+    if helper["path"] != expected or not re.fullmatch(r"[0-9a-f]{64}", helper["sha256"]):
+        raise ValueError("profile helper does not identify its exact source")
+    for source in (checkout / expected, Path(__file__).with_name("native_memfd_profile.py")):
+        if source.is_symlink() or not source.is_file() or source.stat().st_size > (1 << 20):
+            raise ValueError("profile helper is not a bounded regular source")
+        if ATOMIC.digest(source) != helper["sha256"]:
+            raise ValueError("profile helper active or archived digest mismatch")
     atomic_path = checkout / ATOMIC_MANIFEST
     original = bounded_manifest(atomic_path)
     if ATOMIC.digest(atomic_path) != manifest["atomic_manifest_sha256"]:

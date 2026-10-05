@@ -3,7 +3,7 @@
   "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
   "qualification_stage": "Explicit EXEC fix awaiting native GREEN; policy namespace missing qualification under diagnosis",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
-  "atomic_manifest_sha256": "91d5b0702aa5eaffabbdb49c0ed6de70f5ac0dc515736b9ea90215a739e4e178",
+  "atomic_manifest_sha256": "d39e49c8f7e956e17b12b1b65c184bc1a0fc1fd8025b853fa51caff9ca50df1b",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
@@ -127,24 +127,24 @@
     },
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
-      "sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
-      "bytes": 9210,
-      "lines": 189,
+      "sha256": "de5d0f43979f193a7ff87aca18560da6c71d68dc5949d6ca769e706f5e8e2970",
+      "bytes": 13391,
+      "lines": 262,
       "role": "frozen tests/support"
     }
   ],
   "policy_fixture": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
   "qualifier": {
     "path": "scripts/qualify-linux-memfd-execution.py",
-    "sha256": "813f31a3bfd4ea370ba85933cedcfb4963de5a6fd30f849aeafe41b53e82c0fe",
-    "bytes": 13702,
-    "lines": 239
+    "sha256": "ea4ba64ea4d12e76d4e3b783249cec1d71bb4ee18d750c15973c65aee997625d",
+    "bytes": 14361,
+    "lines": 248
   },
   "unit_tests": {
     "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
-    "sha256": "fae65f9da68c99af81177280d75744b4bbef6b1f24998836ecd588e789ed1691",
-    "bytes": 10059,
-    "lines": 208
+    "sha256": "195b91b44d0b7aa2ce2fbb70c858ad0921f910ec5dbc7ae3adafd38fd28c0587",
+    "bytes": 10741,
+    "lines": 220
   },
   "shared_atomic_functions": [
     "validate_tooling",
@@ -175,9 +175,9 @@
     },
     "outer_wrapper": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab",
-      "bytes": 24258,
-      "lines": 488
+      "sha256": "73f004dc43a9ede9badf1e25bb893e3056b8b5431b3d1015a1d716f915f79c1e",
+      "bytes": 24972,
+      "lines": 498
     },
     "outer_unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
@@ -282,9 +282,31 @@
   "policy_fixture_delta": {
     "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
     "before_sha256": "fc910623c5f7c53215ed8f567cd680dfd8a164717469a900c71373061e05d1dc",
-    "current_sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
-    "change": "Fixture-only self dumpability check/readback and bounded actual capability/LSM/proc-owner diagnostics; separate open/write phases. No host policy changes; original namespace identity, actual wait and all five Rust target sources preserved.",
+    "current_sha256": "de5d0f43979f193a7ff87aca18560da6c71d68dc5949d6ca769e706f5e8e2970",
+    "change": "Fixture-only exact attached profile, NNP and scoped capability witnesses; no host global policy change. All original Rust targets retained.",
     "previous_native_result": "3/3 policy tests fail qualification exit77 deny_setgroups EACCES before policy assertions.",
     "native_revalidation": "pending; no unique root-cause claim"
+  },
+  "profile_helper": {
+    "path": "scripts/native_memfd_profile.py",
+    "sha256": "0671141ff6fe92aa88183702c7dcb03ef840c6e6e16bbcc07817fb8e3b183d12",
+    "bytes": 10603,
+    "lines": 200
+  },
+  "profile_helper_tests": {
+    "path": "scripts/tests/test_native_memfd_profile_helper.py",
+    "sha256": "6c9b5983024fa118a4fea02b68b06a546a7a4095e8ae64b965c82a2d27fc0f2f",
+    "bytes": 9064,
+    "lines": 169
+  },
+  "profile_lifecycle_tests": {
+    "path": "scripts/tests/test_native_memfd_profile.py",
+    "sha256": "b04538dd9aac570993a7874442531b1bc0428189fdb39b930a673c1292ef4bb6",
+    "bytes": 9373,
+    "lines": 185
+  },
+  "profile_qualification": {
+    "scope": "Unique exact fixture path QA-only AppArmor lifecycle",
+    "native_validation": "Pending actual three-lane parser load/attachment/user namespace capability/original wait/profile removal; pure mocks not proof"
   }
 }

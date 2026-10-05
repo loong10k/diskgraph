@@ -380,9 +380,9 @@
   "required_outer_supervisor": {
     "source": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab",
-      "bytes": 24258,
-      "lines": 488
+      "sha256": "73f004dc43a9ede9badf1e25bb893e3056b8b5431b3d1015a1d716f915f79c1e",
+      "bytes": 24972,
+      "lines": 498
     },
     "unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
@@ -456,8 +456,8 @@
     "observed_error": "function-casts-as-integer; inventory compile failed on all 3 native targets; 17 cases not executed."
   },
   "profile_rebinding": {
-    "before_manifest_sha256": "68a8b6c8ecfbc4145ce8558693aa4471af955865d5fdead25aa54dfe4bfce0ea",
-    "scope": "Current wrapper adds fixed memfd6 profile; Atomic remains exact17. Current workflow enables both suites on same native targets. Old committed receipts unchanged.",
-    "native_validation": "pending actual rerun on the new exact commit; earlier Atomic run binds original wrapper v3"
+    "before_manifest_sha256": "91d5b0702aa5eaffabbdb49c0ed6de70f5ac0dc515736b9ea90215a739e4e178",
+    "scope": "Current wrapper adds fixed per-policy-fixture temporary QA profile; atomic remains17, original receipts unchanged",
+    "native_validation": "Pending exact-source native rerun; pure tests are not kernel policy proof"
   }
 }

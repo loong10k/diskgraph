@@ -59,6 +59,77 @@ static void write_file(const char *path, const char *bytes, const char *open_pha
     if (close(fd) != 0) { fail("close_mapping_or_policy", errno, 0); }
 }
 
+/* 标记只说明编排期望；真正资格来自当前 kernel label、已 exec 路径和 capability。
+ * profile 特许仅在这一固定 QA fixture 附着，不改变普通 runner 的 NNP/capability。
+ */
+static void require_qa_profile(int after_unshare) {
+    const char *profile = getenv("DG_MEMFD_QA_PROFILE");
+    const char *fixture = getenv("DG_MEMFD_QA_FIXTURE");
+    const char *prefix = "diskgraph_memfd_policy_";
+    size_t prefix_size = strlen(prefix);
+    if (profile == NULL || fixture == NULL || fixture[0] != '/' ||
+        strnlen(profile, 257) != prefix_size + 32 ||
+        strncmp(profile, prefix, prefix_size) != 0 || strnlen(fixture, PATH_MAX) >= PATH_MAX) {
+        fail("qa_profile_markers_missing_or_invalid", 0, 1);
+    }
+    for (size_t i = prefix_size; i < prefix_size + 32; ++i) {
+        if (!((profile[i] >= '0' && profile[i] <= '9') ||
+              (profile[i] >= 'a' && profile[i] <= 'f'))) { fail("qa_profile_name_not_fixed", 0, 1); }
+    }
+    for (size_t i = 0; fixture[i] != '\0'; ++i) {
+        unsigned char value = (unsigned char)fixture[i];
+        if (!((value >= 'A' && value <= 'Z') || (value >= 'a' && value <= 'z') ||
+              (value >= '0' && value <= '9') || value == '/' || value == '_' ||
+              value == '.' || value == '-')) { fail("qa_fixture_path_not_literal", 0, 1); }
+    }
+    char image[PATH_MAX];
+    ssize_t image_size = readlink("/proc/self/exe", image, sizeof(image) - 1);
+    if (image_size < 0) { fail("qa_fixture_actual_image_read", errno, 1); }
+    if ((size_t)image_size == sizeof(image) - 1) { fail("qa_fixture_actual_image_truncated", 0, 1); }
+    image[image_size] = '\0';
+    if (strcmp(image, fixture) != 0) { fail("qa_fixture_actual_image_mismatch", 0, 1); }
+
+    char label[257] = {0};
+    int fd = open("/proc/self/attr/current", O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+    if (fd < 0) { fail("qa_profile_actual_label_open", errno, 1); }
+    size_t label_size = 0;
+    while (label_size < sizeof(label) - 1) {
+        ssize_t count = read(fd, label + label_size, sizeof(label) - 1 - label_size);
+        if (count < 0 && errno == EINTR) { continue; }
+        if (count < 0) { int code = errno; close(fd); fail("qa_profile_actual_label_read", code, 1); }
+        if (count == 0) { break; }
+        label_size += (size_t)count;
+    }
+    if (close(fd) != 0) { fail("qa_profile_actual_label_close", errno, 1); }
+    if (label_size == sizeof(label) - 1) { fail("qa_profile_actual_label_truncated", 0, 1); }
+    if (label_size > 0 && label[label_size - 1] == '\n') { label[--label_size] = '\0'; }
+    char expected[128];
+    snprintf(expected, sizeof(expected), "%s (unconfined)", profile);
+    if (strcmp(label, expected) != 0) {
+        snprintf(expected, sizeof(expected), "%s (enforce)", profile);
+        if (strcmp(label, expected) != 0) { fail("qa_profile_actual_label_mismatch", 0, 1); }
+    }
+    int nnp = prctl(PR_GET_NO_NEW_PRIVS, 0L, 0L, 0L, 0L);
+    qualified_call(nnp, "qa_profile_actual_nnp_read");
+    if (nnp != 1) { fail("qa_profile_actual_nnp_not_preserved", 0, 1); }
+    struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
+    struct __user_cap_data_struct data[2] = {{0}, {0}};
+    qualified_call((int)syscall(SYS_capget, &header, data), "qa_profile_actual_capget");
+    if (!after_unshare && (data[0].effective != 0 || data[1].effective != 0)) {
+        fail("qa_profile_outer_effective_caps_not_zero", 0, 1);
+    }
+    if (after_unshare && !(data[CAP_SYS_ADMIN / 32].effective & (1U << (CAP_SYS_ADMIN % 32)))) {
+        fail("qa_profile_owned_userns_sysadmin_missing", 0, 1);
+    }
+    dprintf(STDERR_FILENO,
+            "{\"status\":\"qa_profile_witness\",\"after_userns\":%s,\"actual_image\":\"%s\","
+            "\"actual_label\":\"%s\",\"uid\":%lu,\"gid\":%lu,\"no_new_privs\":%d,"
+            "\"effective_caps\":\"%08x%08x\",\"scoped_sysadmin\":%s}\n",
+            after_unshare ? "true" : "false", image, label, (unsigned long)geteuid(),
+            (unsigned long)getegid(), nnp, (unsigned)data[1].effective, (unsigned)data[0].effective,
+            after_unshare ? "true" : "false");
+}
+
 /* 仅修夹具自身的 proc owner 条件；不获得宿主能力，也不绕开 LSM 拒绝。
  * 原日志未观测 dumpable/capability，所以下列真实诊断不能预先被称为根因证明。
  */
@@ -166,8 +237,10 @@ int main(int argc, char **argv) {
         stat("/proc/self/ns/user", &old_user) != 0) { fail("original_namespace_identity", errno, 0); }
     uid_t original_uid = geteuid();
     gid_t original_gid = getegid();
+    require_qa_profile(0);
     qualified_call(unshare(CLONE_NEWUSER), "unshare_user");
     prepare_mapping_proc_access();
+    require_qa_profile(1);
     write_file("/proc/self/setgroups", "deny\n", "open_setgroups", "deny_setgroups", 1);
     char mapping[80];
     snprintf(mapping, sizeof(mapping), "0 %lu 1\n", (unsigned long)original_uid);
