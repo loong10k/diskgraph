@@ -105,8 +105,9 @@ class NativeMemfdPolicyStages:
                 ARTIFACTS.close(child)
             except BaseException as error:
                 child.failure("record_directory_close", error)
-            original.receipt.setdefault("policy_stages", []).append({"scope": scope, "receipt":
-                str(child.output.relative_to(original.output) / "namespace-receipt.json"), **child.receipt})
+            original.receipt.setdefault("policy_stages", []).append({**child.receipt, "scope": scope,
+                "namespace_scope": child.receipt["scope"], "receipt":
+                str(child.output.relative_to(original.output) / "namespace-receipt.json")})
             if child.primary is not None:
                 original.failure("policy_material_cleanup" if scope is None else f"policy_{scope}", child.primary)
 

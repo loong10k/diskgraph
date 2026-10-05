@@ -122,6 +122,7 @@ class NativeMemfdPreparedContracts(unittest.TestCase):
             self.assertIs(outer.primary, original)
             record = outer.receipt["policy_stages"][0]
             self.assertEqual(record["status"], "failed")
+            self.assertEqual(record["scope"], 0, "typed policy scope must not be overwritten by namespace description")
             self.assertEqual(record["secondary_errors"][0]["errno"], 5)
             self.assertNotIn("init_reaped", record)
 

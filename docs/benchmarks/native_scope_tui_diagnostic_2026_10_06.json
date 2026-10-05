@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "base_commit": "3138a8aef1f14f01e28d4a244e3885faec9e25da",
+  "production_ready": false,
+  "changes": [
+    "Preserve numeric policy scope and namespace scope separately in qualification receipts",
+    "Add transparent test-only TUI authorization phase timing without changing original budget or assertions"
+  ],
+  "validation": {
+    "policy_scope_red": "6 passed / 1 failed on original record implementation",
+    "python_green": "108 passed",
+    "cli_target": "1 passed",
+    "cli_bin": "66 passed",
+    "cli_clippy": "exit 0",
+    "cli_package_fmt": "exit 0 after test module ordering correction",
+    "workspace_fmt": "failed; vendored source formatting differences remain; upstream source preserved",
+    "native": "3138a8a six lanes qualified; does not qualify these later source changes"
+  },
+  "source_sha256": {
+    "scripts/native_memfd_policy_stages.py": "b172a1b0d4ff433278325110f850b1a73cdf3d2f88f1c9f616104cd3aa48a594",
+    "scripts/tests/test_native_memfd_prepared_contracts.py": "44dc0207be20a0451ade763f1f7b225fa3bb4eeadd605bacb5c90cd78e3b7f47",
+    "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json": "eaa54751ea13ff10579202b4914b44befcff4b443ad986f520cbd37530ed3bba",
+    "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json": "3c268c34d95d42d4aa5c33a51b32799c1b2da591bfdec8ef13bdb43b4e4351ad",
+    "crates/diskgraph-cli/src/tui.rs": "79445f02c3b797391ff875b23646bb60ec2aac8fe40733c8ecfc9069a1a70342",
+    "crates/diskgraph-cli/src/tui_deadline_phase_authorizer.rs": "b646065588b6b6f3d20e973f70744ff0504a399a0dd550b42350a1c34265e8e5",
+    "crates/diskgraph-cli/src/tui_deadline_frame_tests.rs": "7e1e48bc0a8e1d9b1ccfd2d79457acba0df9a2f7b2e717544250202254bf1806"
+  },
+  "evidence": [
+    {
+      "path": "docs/benchmarks/diskgraph-policy-scope-record-red_2026_10_06.log.gz",
+      "raw_sha256": "671e77a63c2d7acb73910ff4f596ef337eb41c5efe27781d4cffa540c686a22b",
+      "archive_sha256": "9a66174fe74a2fb1ae16b61f966e0f994a798301660843652babbfded63c57ae"
+    },
+    {
+      "path": "docs/benchmarks/diskgraph-policy-scope-record-green_2026_10_06.log.gz",
+      "raw_sha256": "210ab3336ee4c5a867864c4841b14aad20847c42f33ea0904af9210f78afc2d0",
+      "archive_sha256": "94807df56d26e0b9271d72af4f8fd53705bf9a92a761bc51a1ad85fe1236ca23"
+    },
+    {
+      "path": "docs/benchmarks/diskgraph-tui-phase-target-green_2026_10_06.log.gz",
+      "raw_sha256": "17b8393e81cbbbf1b92917ff0d66a7f254acba89083f3655a5e2b39db5ddc7c4",
+      "archive_sha256": "ffba5024f204a6fea9a80acdb397e8910223060f291b8bc4b829e4f0a0b6b124"
+    },
+    {
+      "path": "docs/benchmarks/diskgraph-tui-phase-cli-regression_2026_10_06.log.gz",
+      "raw_sha256": "84f53c2c051d39795522b6e6f58a13aad2fc672c2353971e136389ff69a9feb1",
+      "archive_sha256": "ccda04558c174908e27cb1726f6270c9086d6621bf590feceb8c7d10f9839f04"
+    },
+    {
+      "path": "docs/benchmarks/diskgraph-tui-phase-clippy_2026_10_06.log.gz",
+      "raw_sha256": "c2448de225343888dea55db0588ee9098ac40ef79257d6a9f1f9a70979ce4b3e",
+      "archive_sha256": "be2b8ae3520b906ac79bfae591035134d22519f118fd01f467c7dc4bd4968fff"
+    },
+    {
+      "path": "docs/benchmarks/diskgraph-tui-phase-fmt_2026_10_06.log.gz",
+      "raw_sha256": "13e96139b6b1e506f06c1020af12536180348b390362c49cd5b5b210eba79519",
+      "archive_sha256": "1a51f8f372d672210a4fccd8e7f67b0db8fb7d30fdba6eef594e9e8891b0cc1f"
+    }
+  ]
+}

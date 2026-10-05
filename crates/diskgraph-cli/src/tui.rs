@@ -34,6 +34,9 @@ pub(crate) use layer::layer_from_nodes;
 #[path = "tui_deadline_frame_tests.rs"]
 mod deadline_frame_tests;
 #[cfg(test)]
+#[path = "tui_deadline_phase_authorizer.rs"]
+mod deadline_phase_authorizer;
+#[cfg(test)]
 #[path = "tui_input_budget_tests.rs"]
 mod input_budget_tests;
 #[cfg(test)]

@@ -33,6 +33,12 @@ fn expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend() {
     let mut painted = false;
     let call_started = Instant::now();
     let mut before_paint = None;
+    let phase_authorizer =
+        super::deadline_phase_authorizer::TuiDeadlinePhaseAuthorizer::new(request.authorizer);
+    let request = crate::tui_request::TuiRequest {
+        authorizer: &phase_authorizer,
+        ..request
+    };
     let result = draw_authorized_frame(&mut terminal, &request, &cached, |frame, reads| {
         painted = true;
         before_paint = Some(call_started.elapsed());
@@ -47,6 +53,10 @@ fn expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend() {
         "tui_frame_phase deadline_ms=50 before_paint_us={:?} total_us={} painted={painted} result={result:?}",
         before_paint.map(|elapsed| elapsed.as_micros()),
         call_started.elapsed().as_micros(),
+    );
+    eprintln!(
+        "tui_authorizer_phase calls_first_last_us={:?}",
+        phase_authorizer.phases()
     );
     assert!(
         painted,

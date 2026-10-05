@@ -3,7 +3,7 @@
   "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
   "qualification_stage": "Two-stage prepared execution and privileged policy setup awaiting exact-source native qualification",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
-  "atomic_manifest_sha256": "80b4cc423fbe0f32f94406f225f2bd2ba83865616c4950684852ec5ba2a59dc2",
+  "atomic_manifest_sha256": "eaa54751ea13ff10579202b4914b44befcff4b443ad986f520cbd37530ed3bba",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
@@ -346,9 +346,9 @@
     },
     {
       "path": "scripts/native_memfd_policy_stages.py",
-      "sha256": "275f934f89ba2fc0dce41768b9727c5223f3f9ff8ce3f32ada6b72d63dedb20a",
-      "bytes": 8579,
-      "lines": 140
+      "sha256": "b172a1b0d4ff433278325110f850b1a73cdf3d2f88f1c9f616104cd3aa48a594",
+      "bytes": 8638,
+      "lines": 141
     },
     {
       "path": "scripts/native_memfd_prepared.py",
@@ -372,9 +372,9 @@
     },
     {
       "path": "scripts/tests/test_native_memfd_prepared_contracts.py",
-      "sha256": "8ea699060aedbdfbfacfbe097efe6baab197302fd71c039ee9c57f8fb7e23613",
-      "bytes": 7232,
-      "lines": 130
+      "sha256": "44dc0207be20a0451ade763f1f7b225fa3bb4eeadd605bacb5c90cd78e3b7f47",
+      "bytes": 7352,
+      "lines": 131
     },
     {
       "path": "scripts/tests/test_qualify_linux_memfd_stages.py",
