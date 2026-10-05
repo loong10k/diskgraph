@@ -1,0 +1,91 @@
+{
+  "run_id": 37331737989,
+  "workflow_commit": "108c242419c2680ab9ffd09eb1931cf739506cb4",
+  "measured_fixed_commit": "aeab8a3f2246cb12af74d17d8124ff1076d0e376",
+  "source_binding_verified": true,
+  "native_contracts": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "single_200000_wide": {
+    "exit_code": 0,
+    "cause_observed": false,
+    "scan_seconds": 30.553029433,
+    "scan_peak_rss_bytes": 204812288,
+    "total_peak_rss_bytes": 278323200,
+    "graph_bytes": 637849600,
+    "query_wal_bytes": 12392,
+    "narrow_top20": {
+      "p50_ms": 0.639564,
+      "p95_ms": 1.082741,
+      "samples": 31
+    },
+    "narrow_candidates": {
+      "p50_ms": 1.319282,
+      "p95_ms": 1.399292,
+      "samples": 11
+    },
+    "captured_files": 200000,
+    "gaps": 0
+  },
+  "raw": [
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/receipt.json.gz",
+      "raw_sha256": "674f8af1d1d178dd3e128396372a1074deb90e59c8d2ad590c967f423546df77"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-private-contracts.stdout.gz",
+      "raw_sha256": "68e396ce0278255b1bccf11c06d3e148f9b836c6f7c362610df5d89b4cb9bd3d"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-private-contracts.stderr.gz",
+      "raw_sha256": "6e65f808f3331415377402e28708cec94cbec357e1007086aa38e8fdc1e53a49"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-only-build.stdout.gz",
+      "raw_sha256": "373c9f2cc637b54179635a9ee3c628e2404f86664b9557ae61619f48c47d8912"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-only-build.stderr.gz",
+      "raw_sha256": "8e510c88d9b9f8bc4a72ba973466e5680ab6bc2aeba017c440d81d8fc8a080e5"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-only-200000-wide.stdout.gz",
+      "raw_sha256": "034be6a4a7ad00d2399b47bc28c7a90cf60630fdc3bc31b4f3810fb1c1217191"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-only-200000-wide.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-only-metrics.json.gz",
+      "raw_sha256": "2a6e380d9db074e8cbd231e0ec6db2421983518369fa7943004c35edf1d28ed3"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-only.diff.gz",
+      "raw_sha256": "63f5214a82ff5f66c6b219c1219e1ae52d363619fba44bbe890a118bac9ee2b1"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/original-source.json.gz",
+      "raw_sha256": "062a00d85bd8f67318393f7858fb771641991fa6a8509795c0ac84f5ba961db8"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/diagnostic-source.json.gz",
+      "raw_sha256": "3f6f25a8cb1cca098b7fbd72b143eac8dc3716edf4564be4ee8141bf10365bda"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/rustc.stdout.gz",
+      "raw_sha256": "b569b0c98ea3133c7252b4b8ea6b39b7b353813df0dd5f5c412c355691424112"
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_native_37331737989/cargo.stdout.gz",
+      "raw_sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+    }
+  ],
+  "limitations": [
+    "The previous Conflict was not reproduced; its first cause remains unknown.",
+    "Single instrumented fixed-ae diagnostic is not final product acceptance or ABBA performance measurement.",
+    "No production algorithm, cache flag, retry or deadline changed."
+  ]
+}

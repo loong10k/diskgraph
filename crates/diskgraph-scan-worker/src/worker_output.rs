@@ -1,7 +1,7 @@
 use crate::{
-    ExecutionFrame, FlatNodes, Frame, FrameWriter, ProtocolBudgetError, ProtocolLimits,
-    ScanProgress, tree_state::TreeState, worker_control::WorkerControl,
-    worker_failure::WorkerFailure,
+    ExecutionFrame, FlatNodes, Frame, FrameWriter, ProtocolLimits, ScanProgress,
+    tree_state::TreeState, worker_control::WorkerControl, worker_failure::WorkerFailure,
+    worker_terminal_budget::WorkerTerminalBudget,
 };
 use diskgraph_disktree_core::{scan::ScanSnapshot, tree::Node};
 use std::io::{self, Write};
@@ -29,26 +29,9 @@ impl<W: Write> WorkerOutput<W> {
     /// 参数：self 为未发送结果的输出端。
     /// 返回：真实构建 target 与固定 pin 声明的写入结果；声明不证明安装完整性。
     pub(crate) fn hello(&mut self) -> io::Result<()> {
-        // 原实际额度错误消息集合是有限的；按真实完整编码预留最大值，绝不放大原额度。
-        for message in [
-            "frame byte limit",
-            "stream byte limit",
-            "node preparation limit",
-            "node count limit",
-            "sequence or depth limit",
-            "declared children exceed node limit",
-        ] {
-            let error = WorkerFailure::new("output", ProtocolBudgetError::into_io(message));
-            let prepared = self.frames.prepare_reserving(&error, 0)?;
-            self.terminal_reserve = self
-                .terminal_reserve
-                .max(prepared.as_slice().len() as u64 + 4);
-        }
-        self.data(&ExecutionFrame::<String, String>::Hello {
-            version: 2,
-            target: env!("DISKGRAPH_WORKER_TARGET").to_owned(),
-            pin: "158f9cc2f0b332194a3ffc5acec47760c99146d8".to_owned(),
-        })?;
+        let (hello, reserve) = WorkerTerminalBudget::prepare(&mut self.frames)?;
+        self.terminal_reserve = reserve;
+        self.frames.write_prepared(hello)?;
         self.frames.flush()
     }
 

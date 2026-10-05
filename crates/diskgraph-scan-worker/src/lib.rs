@@ -46,6 +46,7 @@ mod worker_request;
 mod worker_request_tests;
 mod worker_runtime;
 mod worker_scan_request;
+mod worker_terminal_budget;
 mod worker_tree;
 
 pub use decoded_tree::DecodedTree;

@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "base_commit": "108c242419c2680ab9ffd09eb1931cf739506cb4",
+  "sources": [
+    {
+      "path": "crates/diskgraph-scan-worker/src/lib.rs",
+      "sha256": "773868a5cb3199ff1f19935debd6a8a9f6464436be6c57e03fb218bb292eb67d",
+      "bytes": 2122,
+      "lines": 79
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/worker_request.rs",
+      "sha256": "47c00876188cd9096cffc8965f7fb80107c5e88766bdc6f902b57d94cd9c3021",
+      "bytes": 2653,
+      "lines": 68
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/worker_output.rs",
+      "sha256": "c37df0fa80686bd90087cf4dacb3174f7ff85824b3a65b85c6ec7e08333c1b7c",
+      "bytes": 4343,
+      "lines": 104
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs",
+      "sha256": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
+      "bytes": 2111,
+      "lines": 47
+    }
+  ],
+  "test": {
+    "path": "crates/diskgraph-scan-worker/tests/worker_terminal_admission.rs",
+    "sha256": "a19dea845585fac36f87fb16ac61527cf5fe0770a962dd746e796d84ba6a7deb"
+  },
+  "actual_red": {
+    "passed": 2,
+    "failed": 3,
+    "ignored": 0,
+    "test_before_format_sha256": "cd490ec47693b7ecc1915d9601ecd1f8a8ac29da3f10ad81dd6753bd7f7549dc"
+  },
+  "actual_green": {
+    "new_admission_tests": 5,
+    "worker_crate_passed": 117,
+    "worker_outer_suites": [
+      {
+        "label": "unittests src/lib.rs",
+        "passed": 10
+      },
+      {
+        "label": "unittests src/main.rs",
+        "passed": 0
+      },
+      {
+        "label": "tests/assembly_checkpoint.rs",
+        "passed": 4
+      },
+      {
+        "label": "tests/budget_failure.rs",
+        "passed": 5
+      },
+      {
+        "label": "tests/deep_disposal.rs",
+        "passed": 1
+      },
+      {
+        "label": "tests/execution_assembly.rs",
+        "passed": 2
+      },
+      {
+        "label": "tests/execution_decoder.rs",
+        "passed": 9
+      },
+      {
+        "label": "tests/execution_decoder_allocation.rs",
+        "passed": 2
+      },
+      {
+        "label": "tests/execution_dtos.rs",
+        "passed": 4
+      },
+      {
+        "label": "tests/execution_input_closed.rs",
+        "passed": 5
+      },
+      {
+        "label": "tests/execution_worker_byte_budget.rs",
+        "passed": 3
+      },
+      {
+        "label": "tests/execution_worker_stream.rs",
+        "passed": 4
+      },
+      {
+        "label": "tests/frame_cancel.rs",
+        "passed": 2
+      },
+      {
+        "label": "tests/framing.rs",
+        "passed": 4
+      },
+      {
+        "label": "tests/pinned_dedup_characterization.rs",
+        "passed": 1
+      },
+      {
+        "label": "tests/platform_components.rs",
+        "passed": 3
+      },
+      {
+        "label": "tests/reader_failure.rs",
+        "passed": 2
+      },
+      {
+        "label": "tests/roundtrip.rs",
+        "passed": 6
+      },
+      {
+        "label": "tests/structural_limits.rs",
+        "passed": 12
+      },
+      {
+        "label": "tests/worker_control_process.rs",
+        "passed": 3
+      },
+      {
+        "label": "tests/worker_process.rs",
+        "passed": 6
+      },
+      {
+        "label": "tests/worker_terminal_admission.rs",
+        "passed": 5
+      },
+      {
+        "label": "tests/writer_allocation_failure.rs",
+        "passed": 2
+      },
+      {
+        "label": "tests/writer_budget_classification.rs",
+        "passed": 11
+      },
+      {
+        "label": "tests/writer_io_failure.rs",
+        "passed": 1
+      },
+      {
+        "label": "tests/writer_limits.rs",
+        "passed": 6
+      },
+      {
+        "label": "tests/writer_preparation.rs",
+        "passed": 4
+      }
+    ],
+    "failed": 0,
+    "ignored": 0
+  },
+  "checks": {
+    "fmt": "passed",
+    "clippy_all_targets_D_warnings": "passed",
+    "non_author_review": "limited APPROVE, formatted five hashes matched"
+  },
+  "raw": [
+    {
+      "path": "docs/benchmarks/worker_terminal_admission_red_2026_10_05.log.gz",
+      "raw_sha256": "5887bf92b8ac569a8f2a2bbc0167e1b436f0b73c3cfa7da2055164b605d78740"
+    },
+    {
+      "path": "docs/benchmarks/worker_terminal_admission_green_2026_10_05.log.gz",
+      "raw_sha256": "130641309efc97ee97d86f4445d564437f29de182c2148cce1033ddd9b71b69b"
+    },
+    {
+      "path": "docs/benchmarks/worker_terminal_admission_green-final_2026_10_05.log.gz",
+      "raw_sha256": "8a9976ddde16333c9dde06f03ae39fdd9daf06f85473fe9bde39de89cd797eec"
+    },
+    {
+      "path": "docs/benchmarks/worker_terminal_admission_fmt-final_2026_10_05.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/benchmarks/worker_terminal_admission_clippy-final_2026_10_05.log.gz",
+      "raw_sha256": "1df25e7ba5c5628df7f579ea3bf548fc5913ed267abc1bcb1b31540228f41252"
+    }
+  ],
+  "limitations": [
+    "Only admission and helper protocol; no Engine/CLI/MCP integration or native launch acceptance.",
+    "Existing malformed raw request protocol-before-Hello response remains unchanged.",
+    "Full worker regression preceded formatting-only import/assert wraps; final five tests and Clippy were rerun after formatting."
+  ]
+}
