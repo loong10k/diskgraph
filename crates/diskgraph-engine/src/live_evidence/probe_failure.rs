@@ -58,7 +58,9 @@ impl From<crate::native_child::ChildError> for ProbeFailure {
             #[cfg(windows)]
             ChildError::InvalidLimits => Self::InvalidLimits,
             ChildError::Unsupported(reason) => Self::Unsupported(reason),
+            #[cfg(any(windows, test))]
             ChildError::Io(reason) => Self::Io(reason),
+            ChildError::NativeIo { context, source } => Self::Io(format!("{context}: {source}")),
             ChildError::Cleanup { primary, cleanup } => Self::Cleanup {
                 primary: Box::new(Self::from(*primary)),
                 cleanup: Box::new(Self::from(*cleanup)),
@@ -106,5 +108,20 @@ mod tests {
             .with_cleanup(Err(ChildError::Io("terminate".into())))
             .with_cleanup(Err(ChildError::Unsupported("lost owner")));
         assert_eq!(ProbeFailure::from(error).to_string(), old.to_string());
+    }
+    #[test]
+    fn native_io_projection_preserves_legacy_text_and_cancelled_primary() {
+        let directory = tempfile::tempdir().unwrap();
+        let original = std::fs::File::open(directory.path().join("missing")).unwrap_err();
+        let expected = format!(
+            "probe cancelled; cleanup also failed: probe I/O failed: open native fixture: {original}"
+        );
+        let error = ChildSpawnError::checkpoint(ProbeFailure::Cancelled)
+            .with_cleanup(Err(ChildError::io("open native fixture", original)));
+        let mapped = ProbeFailure::from(error);
+        assert_eq!(mapped.to_string(), expected);
+        assert!(matches!(mapped, ProbeFailure::Cleanup { primary, cleanup }
+            if matches!(*primary, ProbeFailure::Cancelled)
+            && matches!(*cleanup, ProbeFailure::Io(_))));
     }
 }

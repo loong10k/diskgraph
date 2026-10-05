@@ -19,3 +19,6 @@ pub(crate) use unix_child::UnixChild;
 pub(crate) use windows::OwnedHandle;
 #[cfg(windows)]
 pub(crate) use windows::WindowsChild;
+
+#[cfg(test)]
+mod native_io_error_tests;

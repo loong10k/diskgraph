@@ -3025,5 +3025,83 @@
         "raw_sha256": "994872a6890084bd0a8dc9bc50f54e630bffc59923bd23fc4be4aa5f20ba258f"
       }
     ]
+  },
+  "native_io_preservation": {
+    "base_commit": "e1252fbdd2fd3af4adac0ff35b7adb4b2519c2a8",
+    "status": "macOS independently isolated HEAD patch accepted; other platform runtime and actual parent Engine integration unaccepted",
+    "behavior_red": {
+      "passed": 0,
+      "failed": 2,
+      "reason": "original native source missing"
+    },
+    "strict_clippy_red": "Unix legacy Io variant never constructed; fixed with exact Windows/test availability, no lint suppression",
+    "green": {
+      "native_tests": 5,
+      "probe_tests": 23,
+      "engine_lib": {
+        "passed": 415,
+        "ignored": 3,
+        "failed": 0
+      },
+      "source_layout": 4,
+      "strict_clippy_all_targets_exit": 0
+    },
+    "sources": [
+      {
+        "path": "crates/diskgraph-engine/src/native_child/child_error.rs",
+        "sha256": "c80e6f8f60c1ce6c3c199e44695f9448eaf827870272b9c16adf8defc2c89b6d"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/live_evidence/probe_failure.rs",
+        "sha256": "ebf3b3c4e6a217db68ae2476e4b0a24a7df6188a34fad2b5105d44379485213f"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/native_io_error_tests.rs",
+        "sha256": "bc60cb691e125f429b707c5fbb345a1f93e07ac7dd771d6d2e445944a6d69288"
+      }
+    ],
+    "logs": [
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-io-red.log.txt.gz",
+        "raw_sha256": "bf08014a87276c7412e8f24f0a404ea1d44fb55475a263f74a57f8facf3322c4",
+        "sha256": "0a46b2a601a0a3dab143f3af66fc0b5ee625dacc019e45c219055211d1d3f464"
+      },
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-error-minimum-clippy.log.txt.gz",
+        "raw_sha256": "badbe1b6770b5bac32a690114cac7369a528624bc6e5f3ea54a20010507e0c4e",
+        "sha256": "b3efd7c649e482f1f3909dd9bc75c1c60b0bf5ff45d2cb204ac4257ce3b50c54"
+      },
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-error-minimum-clippy-final.log.txt.gz",
+        "raw_sha256": "09ab69ee56d3aab87c04c3604a1078a186dda6a1db15fe4abf115604b2d5940c",
+        "sha256": "0574b7436d7d4fb7479c57293ba0a4b252f5dd607f840f4f7e7391996e092e52"
+      },
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-error-minimum-native-final.log.txt.gz",
+        "raw_sha256": "0c50cfea500e8ad0f1a886b9be3a850035923ca440b8be93836c9e3669343340",
+        "sha256": "223f02f778dfdd1f65c77464ef09a3b4fe1eebfe1a56718ec0364cc6e29fa6a8"
+      },
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-error-minimum-probe-final.log.txt.gz",
+        "raw_sha256": "e522dce9e713729b560d5ec43372146031b266c6b746bd85951ab492ed72fe2a",
+        "sha256": "f5e613903be43dc45197cfd95e598ebb0c3c041aabb4bba958a845fc36d94803"
+      },
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-error-minimum-engine-final.log.txt.gz",
+        "raw_sha256": "c3d0b067ba1e30d7d5a238107d9387a2259e384aa54f9e46e4cbbba9b813791f",
+        "sha256": "0f41ee291988d97ace8ffd12ed9633ae6b942ee1b00c0c04482b02134957e944"
+      },
+      {
+        "path": "docs/benchmarks/native_error_diskgraph-native-error-source-gate-final.log.txt.gz",
+        "raw_sha256": "847b9fdef99b2ae7b73aafcdd9b14f060f72c5297280b1df7a835e70dfc4f8a4",
+        "sha256": "a0e2a7bfe79e75a4b39bc992b32f8404f9f827450e209e6598252f0323dbc5a0"
+      }
+    ],
+    "limits": [
+      "ProbeFailure intentionally projects legacy string diagnostics; not a typed end-to-end Engine classification claim",
+      "no native process atomic-birth or whole-group cleanup acceptance",
+      "Windows/Linux current patch native acceptance pending"
+    ],
+    "format_check": "cargo fmt --all includes immutable vendored upstream formatting differences; engine package check only, vendor unchanged"
   }
 }
