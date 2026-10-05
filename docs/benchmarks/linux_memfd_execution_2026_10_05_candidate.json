@@ -3,7 +3,7 @@
   "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
   "qualification_stage": "Two-stage prepared execution and privileged policy setup awaiting exact-source native qualification",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
-  "atomic_manifest_sha256": "f1cb7ec1f55649880b8d0c0997dd4c4d32c6494602cbb76f23937a6001bdd6e6",
+  "atomic_manifest_sha256": "80b4cc423fbe0f32f94406f225f2bd2ba83865616c4950684852ec5ba2a59dc2",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
@@ -185,9 +185,9 @@
     },
     "workflow": {
       "path": ".github/workflows/native_scan_qualification.yml",
-      "sha256": "0c8e62947ec7fd806b36d601d4d7ddafbb464f4043a77fcb9cfbf5de48942f27",
-      "bytes": 3388,
-      "lines": 82
+      "sha256": "7ca4dae76d13e23d22bc4b9995b9df1fe68e4dd5245881e68da0521804e9f665",
+      "bytes": 3427,
+      "lines": 84
     },
     "restore_helper": {
       "path": "scripts/native_pid_namespace_restore.py",

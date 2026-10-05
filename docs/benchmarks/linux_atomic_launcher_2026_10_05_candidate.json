@@ -404,9 +404,9 @@
     "candidate_manifest_sha256": "18a4b038ea46cc81beb98433b54b6014b41d4c8f196fd554e4eede64109a3ee1",
     "workflow": {
       "path": ".github/workflows/native_scan_qualification.yml",
-      "sha256": "0c8e62947ec7fd806b36d601d4d7ddafbb464f4043a77fcb9cfbf5de48942f27",
-      "bytes": 3388,
-      "lines": 82
+      "sha256": "7ca4dae76d13e23d22bc4b9995b9df1fe68e4dd5245881e68da0521804e9f665",
+      "bytes": 3427,
+      "lines": 84
     },
     "qualification_marker": "DG_NATIVE_NAMESPACE_SUPERVISED=1 + actual getpid()==1 + actual /proc/self=1 + actual PID namespace link matching DG_NATIVE_PID_NAMESPACE",
     "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/runner/qualification; created only by inner qualifier in the dedicated runner workspace",

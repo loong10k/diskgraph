@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "scope": "Native qualification history checkout only; no product enablement",
+  "red_run": 37340543329,
+  "red_commit": "f03fab009eee55ffa4612af7541fad9d843506ec",
+  "red": "All six lanes failed preparation before namespace/native target: 7 source-contract git show errors for fixed aeab8a3 history unavailable in depth1 checkout. Upload no-files secondary; no native case success claimed.",
+  "change": "fetch-depth0 on original pinned checkout action; workflow source digest and dependent atomic/memfd manifests rebound",
+  "verification": {
+    "python_cases": 108,
+    "failed": 0,
+    "exit_code": 0,
+    "actionlint_exit_code": 0,
+    "diff_check_exit_code": 0
+  },
+  "sources": [
+    {
+      "path": ".github/workflows/native_scan_qualification.yml",
+      "sha256": "7ca4dae76d13e23d22bc4b9995b9df1fe68e4dd5245881e68da0521804e9f665"
+    },
+    {
+      "path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
+      "sha256": "80b4cc423fbe0f32f94406f225f2bd2ba83865616c4950684852ec5ba2a59dc2"
+    },
+    {
+      "path": "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json",
+      "sha256": "11a26c7ac1007a372f991040e97b27e61a41d6130b0483aff81b63ec76ab92e9"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/benchmarks/native_history_checkout_python_2026_10_06.log.gz",
+      "sha256": "17f39495a21c9075a8b8e9c00c5a6e0c86aad89fe64c245b9f7064798dbb813c"
+    },
+    {
+      "path": "docs/benchmarks/native_history_checkout_red_memfd_37340543329.log.gz",
+      "sha256": "0ff62635c4be9971d87df884ea519c150f98181f0c23cfe00be2c44c0c9d8d29"
+    },
+    {
+      "path": "docs/benchmarks/native_history_checkout_red_atomic_37340543329.log.gz",
+      "sha256": "1294bcc02067a3ae9554bd3a57f0d2d49c9bf4c4e20e89ec94b240b452ef44bc"
+    }
+  ],
+  "native_validation": "pending new delivered SHA",
+  "production_ready": false
+}
