@@ -18,6 +18,19 @@ REQUIRED_CASES = tuple("native_child::windows::windows_cleanup_recovery_tests::"
 ))
 
 
+IO_PREREQUISITE_CASES = tuple("native_child::windows::windows_io_transfer_tests::" + name for name in (
+    "pending_read_owner_moves_threads_with_stable_storage_and_cancellation",
+    "pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
+    "pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
+    "pending_read_drop_on_receiving_thread_waits_for_real_completion",
+))
+
+
+def check_prerequisite_cases(cases):
+    if len(cases) != len(IO_PREREQUISITE_CASES) or set(cases) != set(IO_PREREQUISITE_CASES):
+        raise ValueError("fixed pending IO prerequisite inventory differs")
+
+
 def check_cases(cases):
     if len(cases) != len(REQUIRED_CASES) or set(cases) != set(REQUIRED_CASES):
         raise ValueError("fixed cleanup acceptance inventory differs")
@@ -44,6 +57,8 @@ def main():
         receipt["candidate"] = manifest = shared.mount(checkout, CANDIDATE)
         cases = manifest["cleanup_cases"]
         check_cases(cases)
+        prerequisites = manifest["io_prerequisite_cases"]
+        check_prerequisite_cases(prerequisites)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -59,7 +74,8 @@ def main():
         receipt["fixture_sha256"] = shared.digest(binary)
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
-        for case in cases:
+        receipt["cases"] = results
+        for case in list(prerequisites) + list(cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
@@ -67,7 +83,9 @@ def main():
                 passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text()
             except RuntimeError:
                 passed = False
-            results.append({"case": case, "passed": passed})
+            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "cleanup"})
+            if case == prerequisites[-1] and not all(result["passed"] for result in results):
+                raise RuntimeError("pending IO prerequisites failed; cleanup qualification not started")
         receipt["cases"] = results
         for name, expected in manifest["sources"].items():
             if shared.digest(checkout / name) != expected:

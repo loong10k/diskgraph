@@ -21,6 +21,13 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 qualifier.check_cases(invalid)
 
+    def test_transfer_prerequisites_cannot_be_missing_or_replaced(self):
+        valid = list(qualifier.IO_PREREQUISITE_CASES)
+        qualifier.check_prerequisite_cases(valid)
+        for cases in ([], valid[:-1], valid + [valid[0]], list(qualifier.REQUIRED_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_prerequisite_cases(cases)
+
     def test_real_frozen_windows_sources_mount_and_match(self):
         with tempfile.TemporaryDirectory() as directory:
             checkout = Path(directory)
@@ -30,8 +37,9 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 457)
+            self.assertEqual(len(manifest["sources"]), 459)
             qualifier.check_cases(manifest["cleanup_cases"])
+            qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             self.assertFalse(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
