@@ -1,0 +1,101 @@
+{
+  "run_id": 37328890858,
+  "commit": "6c048b27ecaf0091f375c6021fdf9eea09276c93",
+  "atomic_qualification": [
+    {
+      "artifact": "scan-atomic-launcher-ubuntu-latest-stable-37328890858",
+      "passed": 18,
+      "failed": 0,
+      "ignored": 0,
+      "actual_exit": 127,
+      "ready": true,
+      "nonconsuming_wait": true,
+      "reaped_during_observation": false,
+      "original_namespace_reaped": true,
+      "descendants_gone": true,
+      "parent_namespace_restored": true,
+      "logs": {
+        "native_tests": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-stable-37328890858-native_tests.log.gz",
+          "raw_sha256": "31472f6f1c25a00ae66bf1d1e3ad5756414ae178f113e77e309a46c6e30d0b83"
+        },
+        "inventory": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-stable-37328890858-inventory.log.gz",
+          "raw_sha256": "d97b6cc42142a9700f7f3ed048b699a180a9725f1e2188b81db033be2d89958c"
+        },
+        "namespace": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-stable-37328890858-namespace.log.gz",
+          "raw_sha256": "50a249790793b0c0df8491b1cbda9a6a537a1a24d1952684cc39780a4f189792"
+        },
+        "qualification": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-stable-37328890858-qualification.log.gz",
+          "raw_sha256": "03301aeef53c2cb2bdf47baf623e58ea7d0a375ee5f4c3b74a46c8f3e2b0c33b"
+        }
+      }
+    },
+    {
+      "artifact": "scan-atomic-launcher-ubuntu-latest-1.97.0-37328890858",
+      "passed": 18,
+      "failed": 0,
+      "ignored": 0,
+      "actual_exit": 127,
+      "ready": true,
+      "nonconsuming_wait": true,
+      "reaped_during_observation": false,
+      "original_namespace_reaped": true,
+      "descendants_gone": true,
+      "parent_namespace_restored": true,
+      "logs": {
+        "native_tests": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-1.97.0-37328890858-native_tests.log.gz",
+          "raw_sha256": "016eb54aaf5fe3d8125983fa2176576b01f58ecec1ec4aece8554357a9d31513"
+        },
+        "inventory": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-1.97.0-37328890858-inventory.log.gz",
+          "raw_sha256": "fda05e0319c07bb4cff3317de074cbe727aaf04ace978869315d1b9b7182e817"
+        },
+        "namespace": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-1.97.0-37328890858-namespace.log.gz",
+          "raw_sha256": "ce9f9ee74f6e1558ea6cd4f2dc05ee29838776671ba4cbcf536f6f99ded0222f"
+        },
+        "qualification": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-latest-1.97.0-37328890858-qualification.log.gz",
+          "raw_sha256": "a21a4fc4fb6bfd47252e0ac01be5b99d2090391b4b33dd153ebc00992ac76a35"
+        }
+      }
+    },
+    {
+      "artifact": "scan-atomic-launcher-ubuntu-24.04-arm-stable-37328890858",
+      "passed": 18,
+      "failed": 0,
+      "ignored": 0,
+      "actual_exit": 127,
+      "ready": true,
+      "nonconsuming_wait": true,
+      "reaped_during_observation": false,
+      "original_namespace_reaped": true,
+      "descendants_gone": true,
+      "parent_namespace_restored": true,
+      "logs": {
+        "native_tests": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-24.04-arm-stable-37328890858-native_tests.log.gz",
+          "raw_sha256": "17da72ea21abc0dc6c2bc03914e9ac3f206d078d5aafa1abf04056101b18076f"
+        },
+        "inventory": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-24.04-arm-stable-37328890858-inventory.log.gz",
+          "raw_sha256": "7107c1ba2a0f71ad7f15b320abf8053470467456e5a7afaf0668bd480bca8d9c"
+        },
+        "namespace": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-24.04-arm-stable-37328890858-namespace.log.gz",
+          "raw_sha256": "99b2d1ba478a6d6b8c4b13dd9b54a34f59a96b6bb25ca314165c4177fb76eb9e"
+        },
+        "qualification": {
+          "path": "docs/benchmarks/atomic_ready_gap_native_green_37328890858/scan-atomic-launcher-ubuntu-24.04-arm-stable-37328890858-qualification.log.gz",
+          "raw_sha256": "54b8ce8b689b3c7141ec7862c3b5d72d32aca5cb296ad5cc4a443a59ff3e33e1"
+        }
+      }
+    }
+  ],
+  "memfd_policy_jobs": "three failures; not accepted by this record",
+  "scope": "Isolated native atomic launcher qualification only; not Engine/CLI/MCP end-to-end or macOS/Windows launch readiness"
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "diagnostic tooling delivery",
+  "baseline": "aeab8a3f2246cb12af74d17d8124ff1076d0e376",
+  "sources": [
+    {
+      "path": "scripts/diagnose-linux-scan-validation.py",
+      "sha256": "6b5b3e190c7f2e8f621ef5f4f678969a16857513b9cea83f8f9095663e10fcd5",
+      "bytes": 19963,
+      "lines": 352
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/scan_validation_diagnostic.rs",
+      "sha256": "5227da77540f58f481ad26951e86c065775840721d566e89c6dfe22eec0dead0",
+      "bytes": 11072,
+      "lines": 268
+    },
+    {
+      "path": "scripts/tests/test_diagnose_linux_scan_validation.py",
+      "sha256": "a3ed9e6d5b3b79620e94b421fcea338302daa3e57693015585609de4c4c2c176",
+      "bytes": 15084,
+      "lines": 277
+    }
+  ],
+  "validation": {
+    "python_contracts": "11 passed / 0 failed",
+    "original_transport": "10 passed / 0 failed",
+    "real_archive_prepare": "exit 0, isolated fixed ae archive only",
+    "rustfmt_check": "exit 0",
+    "actionlint": "exit 0",
+    "independent_source_review": "limited APPROVE; no new P1/P2"
+  },
+  "raw_logs": [
+    {
+      "path": "docs/benchmarks/scan_validation_diagnostic_contracts_2026_10_05.log.gz",
+      "raw_sha256": "b448dea2f2034c6d3714cef79543f73ecd383dc304873228d9524887091eb311",
+      "tests_passed": 11
+    },
+    {
+      "path": "docs/benchmarks/scan_validation_diagnostic_transport_2026_10_05.log.gz",
+      "raw_sha256": "08783f19cdd5aa57fdf4a703ee84e6a0d2fe029442ac8444850960d4be4b37ac",
+      "tests_passed": 10
+    }
+  ],
+  "native_status": "pending: four Linux contracts and one 200000 wide scan",
+  "limitations": [
+    "Not product integration acceptance or ABBA performance evidence.",
+    "Successful prepare and Python tests do not establish native cause.",
+    "Original nonzero Rust result must remain failed; no retry."
+  ]
+}
