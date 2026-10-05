@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "sources": 454,
+  "archive_sha256": "b7adda3c9370c512442f92b13c2cacb87772ea14ef624877294ac3de9900bea4",
+  "fixture_features": [
+    "macos_native_scan_candidate"
+  ],
+  "ordinary_cases": [
+    "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",
+    "macos_installed_worker_fixture_tests::macos_installed_helper_original_cancel_after_birth_is_reaped",
+    "macos_installed_worker_fixture_tests::macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility",
+    "macos_engine_scan_fixture_tests::macos_engine_installed_scan_publishes_revision_and_relations",
+    "macos_engine_scan_fixture_tests::macos_engine_response_exhaustion_has_no_partial_revision",
+    "macos_engine_scan_fixture_tests::macos_engine_postbirth_panic_preserves_payload_and_recovery"
+  ],
+  "root_case_count": 1,
+  "archive_guards": {
+    "red_failed": 1,
+    "green_passed": 8
+  },
+  "actual_isolated_frozen_engine_build_exit_code": 0,
+  "actual_installed_engine_cases": "not yet executed; local inventory 0 passed / 3 ignored",
+  "non_author_review": "CLEAR limited to owner/control flow/lock order; epoch update E2E and strict response-ledger witness remain open"
+}

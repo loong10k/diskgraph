@@ -44,8 +44,9 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout)
-        self.assertEqual(len(manifest["sources"]), 453)
-        self.assertEqual(len(manifest["ordinary_cases"]), 3)
+        self.assertEqual(len(manifest["sources"]), 454)
+        self.assertEqual(len(manifest["ordinary_cases"]), 6)
+        self.assertEqual(manifest["fixture_features"], ["macos_native_scan_candidate"])
         for name, expected in manifest["sources"].items():
             self.assertEqual(qualifier.digest(self.checkout / name), expected)
 

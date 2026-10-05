@@ -95,7 +95,13 @@ def main():
             "macos_installed_helper_returns_complete_tree_after_real_normal_wait",
             "macos_installed_helper_original_cancel_after_birth_is_reaped",
             "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility")}
-        if set(manifest["ordinary_cases"]) != required_cases or len(manifest["ordinary_cases"]) != 3:
+        required_cases.update("macos_engine_scan_fixture_tests::" + name for name in (
+            "macos_engine_installed_scan_publishes_revision_and_relations",
+            "macos_engine_response_exhaustion_has_no_partial_revision",
+            "macos_engine_postbirth_panic_preserves_payload_and_recovery"))
+        if manifest.get("fixture_features") != ["macos_native_scan_candidate"]:
+            raise ValueError("candidate fixture feature inventory differs")
+        if set(manifest["ordinary_cases"]) != required_cases or len(manifest["ordinary_cases"]) != 6:
             raise ValueError("candidate ordinary acceptance inventory differs")
         receipt["candidate"] = manifest
         env = os.environ.copy()
@@ -103,7 +109,7 @@ def main():
         helper = checkout / "target/debug/diskgraph-scan-worker"
         receipt["helper_sha256"] = digest(helper)
         receipt["helper_bytes"] = helper.stat().st_size
-        invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"], checkout, output, "build-fixtures", env)
+        invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--features", "macos_native_scan_candidate", "--lib", "--no-run", "--message-format=json"], checkout, output, "build-fixtures", env)
         binaries = []
         for line in (output / "build-fixtures.stdout").read_text().splitlines():
             if line.startswith("{"):
