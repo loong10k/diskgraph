@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "status": "READY source only; actual original qualification failure known, fix not compiled or executed",
+  "repository": "/Users/wandl/workspaces/workspace-loong10k/diskgraph",
+  "snapshot_root": "/private/tmp/diskgraph-memfd-policy-qualification-ready-1yebqld7",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+      "sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
+      "bytes": 9210,
+      "lines": 189,
+      "snapshot": "/private/tmp/diskgraph-memfd-policy-qualification-ready-1yebqld7/crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+      "before": {
+        "snapshot": "/private/tmp/diskgraph-memfd-policy-qualification-before-hqm1ik8x/linux_memfd_policy_namespace.c",
+        "sha256": "fc910623c5f7c53215ed8f567cd680dfd8a164717469a900c71373061e05d1dc",
+        "bytes": 6289,
+        "lines": 135
+      },
+      "diff": {
+        "path": "/private/tmp/diskgraph-memfd-policy-qualification-ready-1yebqld7/linux_memfd_policy_namespace.diff",
+        "sha256": "9e25ffa15d457e4baf5e4bcdb729468d8ed1fb018f5c37a4ebad13ae8a3297d7",
+        "bytes": 6000
+      }
+    }
+  ],
+  "source_count": 1,
+  "protected_sources": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_fixture.rs",
+      "sha256": "37bb4d3e2bc32a48d06028d9038d51d732f3729da55b4744af577f4f01149ce8",
+      "bytes": 8206,
+      "lines": 195
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_tests.rs",
+      "sha256": "a401b285c38a9de40ff7e403c805c06a7c4cbb88e3a4c47eb09efc07d6aaee9f",
+      "bytes": 1603,
+      "lines": 45
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+      "sha256": "3a00e312176df33a1f7de8d7e4430ec20f46536616f0fb14c73f9834adacdc2f",
+      "bytes": 6064,
+      "lines": 168
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_tests.rs",
+      "sha256": "44fd8c4a2b1a3cb37a270f3e158ef24e747d25168bd1d82fce2e275adfc37d6a",
+      "bytes": 2057,
+      "lines": 57
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_denial_tests.rs",
+      "sha256": "32fff290f393c13a708194ed6ca3ef267315335d102f836c7663ac8b106fc9d0",
+      "bytes": 2785,
+      "lines": 65
+    }
+  ],
+  "observed_native_failure": {
+    "ci_run": 37308433075,
+    "logs": [
+      {
+        "path": "/private/tmp/diskgraph-native-qualification-37308433075/scan-memfd-execution-ubuntu-24.04-arm-stable-37308433075/diskgraph-memfd-execution/qualification/native-linux_memfd_policy_tests.log",
+        "sha256": "4f137be0a45e9fa69a1c9e5e25b04fc5c67b14d60da40defddad296b241b208d",
+        "bytes": 2673,
+        "observed": "actual0/3; deny_setgroups EACCES13/exit77 before namespace qualification; original cleanupOk; not product policy RED"
+      },
+      {
+        "path": "/private/tmp/diskgraph-native-qualification-37308433075/scan-memfd-execution-ubuntu-latest-1.97.0-37308433075/diskgraph-memfd-execution/qualification/native-linux_memfd_policy_tests.log",
+        "sha256": "83157d13f75f8f363e500973ae2b1108c2a8996884857a82a03d6a3b25655764",
+        "bytes": 2673,
+        "observed": "actual0/3; deny_setgroups EACCES13/exit77 before namespace qualification; original cleanupOk; not product policy RED"
+      },
+      {
+        "path": "/private/tmp/diskgraph-native-qualification-37308433075/scan-memfd-execution-ubuntu-latest-stable-37308433075/diskgraph-memfd-execution/qualification/native-linux_memfd_policy_tests.log",
+        "sha256": "417b71d61a622c1c8f3d2c439b211d6d031fb1e1b07c8b78e66993e42863879c",
+        "bytes": 2673,
+        "observed": "actual0/3; deny_setgroups EACCES13/exit77 before namespace qualification; original cleanupOk; not product policy RED"
+      }
+    ]
+  },
+  "changes": [
+    "After actual unshareUSER, check original self dumpable, set only self dumpable1, then require exact readback1 before proc mapping. No hostsysctl/credential/LSM/profile/sudo change.",
+    "Bounded one-shot actual capget, stat self/setgroups and read <=256B attr/current diagnostics; sanitized printable label, explicit secondary errno and truncation. These diagnostics do not grant capabilities or claim root cause.",
+    "Split original write_file open and write error phases; original write errno, namespace ownership/proc mount, policy0/1/2 readback and actual wait logic unchanged."
+  ],
+  "official_sources": [
+    {
+      "url": "https://man7.org/linux/man-pages/man5/proc_pid.5.html",
+      "finding": "Non-dumpable tasks change proc file ownership; setting self dumpable1 returns effective UID/GID ownership."
+    },
+    {
+      "url": "https://man7.org/linux/man-pages/man7/user_namespaces.7.html",
+      "finding": "Mapping permission may be affected by dumpability; new userns has scoped capabilities but none in parent."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.12/fs/proc/base.c",
+      "finding": "task_dump_owner1760+ selects effective vs root ownership; proc_setgroups_open3000+ requires ns CAP_SYS_ADMIN and returns EACCES if unavailable."
+    },
+    {
+      "url": "https://documentation.ubuntu.com/release-notes/24.04/",
+      "finding": "Default userns profile permits creation but may deny capabilities inside new namespace; independent possible EACCES source."
+    }
+  ],
+  "validation": {
+    "cargo": "not run",
+    "cc": "not run",
+    "git": "not run",
+    "native_runtime": "not run",
+    "rust_native_cases": "five Rust files match v2 byte-exact; no changes to targets/errors/deadlines/range"
+  },
+  "root_next": "Rebind exact new C digest and separately root-owned MFD_EXEC production delta into current metadata; real namespace native6 rerun must distinguish qualified policy behavior from missing qualification. No old receipts rewritten.",
+  "limits": [
+    "Original logs lack dumpable/CapEff/LSM/open-vs-write evidence, so unique originalcause remains unproven.",
+    "If capability/LSM EACCES remains after actual dumpable1, preserve exact failure and report missingqualification; do not ignore/skip or label productpolicyRED.",
+    "Only fixture preparatory qualification changed; Rust6/policyrange0/1/2 and productionflags are outside this ownership."
+  ],
+  "independent_review": {
+    "result": "APPROVE source correctness and bounded diagnostic only",
+    "source_sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
+    "checks": [
+      "Only fixture self dumpable set/readback; no capset, host profile/sysctl or sudo changes.",
+      "Actual capget, proc owner and bounded256B sanitized LSM diagnostics; errors retained separately.",
+      "Original owned namespace identities, policy readback, mapping order and original wait preserved.",
+      "Five Rust target files unchanged."
+    ],
+    "limits": [
+      "Unique root cause and new native qualification remain unverified."
+    ]
+  }
+}

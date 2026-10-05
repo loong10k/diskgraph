@@ -1,0 +1,119 @@
+{
+  "scope": "Explicit EXEC candidate and namespace fixture tooling contracts; native GREEN pending",
+  "passed": 46,
+  "failed": 0,
+  "manifest_sha256": "46e31ebd25366fa9d7cbdc6854fe469844d029319128b37e9bf9c886fa781f0f",
+  "bindings": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
+      "sha256": "125ab0f8709d9f9f98505623484de99f0d75bcb7d696c0c9436e16f77d82a1a8",
+      "bytes": 5519,
+      "lines": 128,
+      "role": "unchanged sealed production",
+      "module": "linux_scan_image"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_tests.rs",
+      "sha256": "5117f33e87f6a10c88cd88a9d3928d3ff0d6a43b20b37d83034e22d9cb1502cc",
+      "bytes": 10336,
+      "lines": 281,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_fixture.rs",
+      "sha256": "9a74420b30c7c5556b04ad8e5c3d96c54b84cee08aff4bc1a7e78a91871a8654",
+      "bytes": 3508,
+      "lines": 89,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_fixture"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_error.rs",
+      "sha256": "2ea089fb0645cc0ca94d524a104bcc73c6223c53fe54478928920903982120c2",
+      "bytes": 686,
+      "lines": 21,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_error"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_fixture.rs",
+      "sha256": "37bb4d3e2bc32a48d06028d9038d51d732f3729da55b4744af577f4f01149ce8",
+      "bytes": 8206,
+      "lines": 195,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_execution_fixture"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_tests.rs",
+      "sha256": "a401b285c38a9de40ff7e403c805c06a7c4cbb88e3a4c47eb09efc07d6aaee9f",
+      "bytes": 1603,
+      "lines": 45,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_execution_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+      "sha256": "3a00e312176df33a1f7de8d7e4430ec20f46536616f0fb14c73f9834adacdc2f",
+      "bytes": 6064,
+      "lines": 168,
+      "role": "frozen tests/support",
+      "module": "linux_memfd_policy_support"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_tests.rs",
+      "sha256": "44fd8c4a2b1a3cb37a270f3e158ef24e747d25168bd1d82fce2e275adfc37d6a",
+      "bytes": 2057,
+      "lines": 57,
+      "role": "frozen tests/support",
+      "module": "linux_memfd_policy_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_denial_tests.rs",
+      "sha256": "32fff290f393c13a708194ed6ca3ef267315335d102f836c7663ac8b106fc9d0",
+      "bytes": 2785,
+      "lines": 65,
+      "role": "frozen tests/support",
+      "module": "linux_memfd_denial_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+      "sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
+      "bytes": 9210,
+      "lines": 189,
+      "role": "frozen tests/support"
+    },
+    {
+      "path": "scripts/qualify-linux-memfd-execution.py",
+      "sha256": "813f31a3bfd4ea370ba85933cedcfb4963de5a6fd30f849aeafe41b53e82c0fe",
+      "bytes": 13702,
+      "lines": 239
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
+      "sha256": "fae65f9da68c99af81177280d75744b4bbef6b1f24998836ecd588e789ed1691",
+      "bytes": 10059,
+      "lines": 208
+    },
+    {
+      "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
+      "sha256": "56017ea86911f0da93904316fc3096acc66892fcd1e5f3fec7687a921fea1589",
+      "bytes": 6906,
+      "lines": 148,
+      "scope": "Current explicit EXEC source binding; historical sealed-only receipts retain their original source commit and do not prove current source."
+    }
+  ],
+  "log": {
+    "path": "docs/benchmarks/memfd_exec_fix_python_2026_10_05.log.gz",
+    "raw_sha256": "bf48ab088e60030fda4912b63a96c71c7e899efbe533025212e66059c68b0feb",
+    "gzip_sha256": "7642bcfcb5b8c968866d8a46c47dbb5c8007dbfe46f00667cd8fce84e7697752"
+  },
+  "independent_review": {
+    "result": "APPROVE explicit EXEC and fixture source delta/binding only",
+    "limits": [
+      "Actual new native6 and current sealed11 results pending.",
+      "Old3924 native11 receipts remain historical; previous denial RED and qualification failures preserved.",
+      "Loader, Engine and PF06 remain unverified."
+    ]
+  }
+}

@@ -4,7 +4,7 @@
   "sources": [
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
-      "sha256": "4d50c8961d4b4a34d14bd866e9bf7f1abb02ab9131aee05723ad3ee23c9a0dfd",
+      "sha256": "125ab0f8709d9f9f98505623484de99f0d75bcb7d696c0c9436e16f77d82a1a8",
       "lines": 128,
       "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_scan_image.rs"
     },
@@ -29,8 +29,8 @@
   ],
   "test_count": 11,
   "platform_validation": {
-    "linux_x86_64": "11/0/0 actual native stable and MSRV component runs",
-    "linux_aarch64": "11/0/0 actual native stable component run"
+    "linux_x86_64": "Current explicit EXEC source pending native11 revalidation; historical3924dc4 component11/0/0 retained below.",
+    "linux_aarch64": "Current explicit EXEC source pending native11 revalidation; historical3924dc4 component11/0/0 retained below."
   },
   "tests_frozen_before_implementation": {
     "manifest_sha256": "37a933542ea050ddf15993437b3260c195d4ed6afbaf583471fab80f40e81655",
@@ -38,9 +38,9 @@
   },
   "production_candidate_manifest_sha256": "e335c69ef21733497d1b6684a947e319fa983875bc64278cc1b8a71e68f870ae",
   "limits": [
-    "No execution, loader, child ownership, Engine or PF06 completion proof.",
-    "Candidate temporarily mounted only in isolated native qualification checkout; production src gate unchanged.",
-    "Default memfd flags do not qualify execution under vm.memfd_noexec policy; executable policy and actual ELF execution remain pending."
+    "No loader, complete child ownership, Engine or PF06 completion proof.",
+    "Current explicit EXEC source temporarily mounted only for isolated component revalidation; production integration remains dirty and unqualified.",
+    "Historical seals11 proof does not establish current source or all vm.memfd_noexec policies; native6 qualification separately required."
   ],
   "independent_review": {
     "result": "APPROVE limited component and isolated CI harness",
@@ -136,5 +136,13 @@
         }
       ]
     }
-  ]
+  ],
+  "execution_flag_delta": {
+    "source": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
+    "before_sha256": "4d50c8961d4b4a34d14bd866e9bf7f1abb02ab9131aee05723ad3ee23c9a0dfd",
+    "current_sha256": "125ab0f8709d9f9f98505623484de99f0d75bcb7d696c0c9436e16f77d82a1a8",
+    "change": "Only add MFD_EXEC after real three-lane denial RED37308433075; no removal fallback.",
+    "historical_native_component_evidence_scope": "Unchanged3924dc4 source and raw receipts; not current source acceptance.",
+    "new_native_acceptance": "pending"
+  }
 }

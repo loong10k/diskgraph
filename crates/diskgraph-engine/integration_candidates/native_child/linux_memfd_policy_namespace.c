@@ -5,6 +5,7 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
+#include <linux/capability.h>
 #include <limits.h>
 #include <sched.h>
 #include <signal.h>
@@ -12,7 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -35,12 +38,13 @@ static void qualified_call(int result, const char *phase) {
     }
 }
 
-static void write_file(const char *path, const char *bytes, const char *phase,
+static void write_file(const char *path, const char *bytes, const char *open_phase,
+                       const char *write_phase,
                        int missing_file_is_unavailable) {
     int fd = open(path, O_WRONLY | O_CLOEXEC);
     if (fd < 0) {
         int code = errno;
-        fail(phase, code, capability_errno(code) ||
+        fail(open_phase, code, capability_errno(code) ||
              (missing_file_is_unavailable && code == ENOENT));
     }
     size_t count = strlen(bytes);
@@ -49,10 +53,59 @@ static void write_file(const char *path, const char *bytes, const char *phase,
     int code = errno;
     if (written < 0) {
         close(fd);
-        fail(phase, code, capability_errno(code));
+        fail(write_phase, code, capability_errno(code));
     }
-    if ((size_t)written != count) { close(fd); fail(phase, EIO, 0); }
+    if ((size_t)written != count) { close(fd); fail(write_phase, EIO, 0); }
     if (close(fd) != 0) { fail("close_mapping_or_policy", errno, 0); }
+}
+
+/* 仅修夹具自身的 proc owner 条件；不获得宿主能力，也不绕开 LSM 拒绝。
+ * 原日志未观测 dumpable/capability，所以下列真实诊断不能预先被称为根因证明。
+ */
+static void prepare_mapping_proc_access(void) {
+    int before = prctl(PR_GET_DUMPABLE, 0L, 0L, 0L, 0L);
+    qualified_call(before, "read_self_dumpable_before_mapping");
+    qualified_call(prctl(PR_SET_DUMPABLE, 1L, 0L, 0L, 0L),
+                   "set_self_dumpable_for_mapping");
+    int after = prctl(PR_GET_DUMPABLE, 0L, 0L, 0L, 0L);
+    qualified_call(after, "read_self_dumpable_after_mapping_setup");
+    if (after != 1) { fail("self_dumpable_readback_mismatch", 0, 0); }
+
+    struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
+    struct __user_cap_data_struct data[2] = {{0}, {0}};
+    long cap_result = syscall(SYS_capget, &header, data);
+    int cap_error = cap_result < 0 ? errno : 0;
+    struct stat mapping;
+    int stat_result = stat("/proc/self/setgroups", &mapping);
+    int stat_error = stat_result < 0 ? errno : 0;
+    char label[257] = {0};
+    ssize_t label_count = -1;
+    int label_error = 0, label_close_error = 0;
+    int fd = open("/proc/self/attr/current", O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+    if (fd < 0) {
+        label_error = errno;
+    } else {
+        do { label_count = read(fd, label, sizeof(label) - 1); }
+        while (label_count < 0 && errno == EINTR);
+        if (label_count < 0) { label_error = errno; }
+        if (close(fd) != 0) { label_close_error = errno; }
+    }
+    size_t label_size = label_count > 0 ? (size_t)label_count : 0;
+    for (size_t i = 0; i < label_size; ++i) {
+        unsigned char value = (unsigned char)label[i];
+        if (value < 32 || value > 126 || value == '"' || value == '\\') { label[i] = '?'; }
+    }
+    label[label_size] = '\0';
+    dprintf(STDERR_FILENO,
+            "{\"status\":\"mapping_proc_diagnostic\",\"dumpable_before\":%d,\"dumpable_after\":%d,"
+            "\"capget_errno\":%d,\"effective_caps\":\"%08x%08x\",\"setgroups_stat_errno\":%d,"
+            "\"setgroups_uid\":%lu,\"setgroups_gid\":%lu,\"setgroups_mode\":%u,"
+            "\"lsm_label\":\"%s\",\"lsm_truncated\":%s,\"lsm_read_errno\":%d,\"lsm_close_errno\":%d}\n",
+            before, after, cap_error, (unsigned)data[1].effective, (unsigned)data[0].effective,
+            stat_error, stat_result == 0 ? (unsigned long)mapping.st_uid : 0UL,
+            stat_result == 0 ? (unsigned long)mapping.st_gid : 0UL,
+            stat_result == 0 ? (unsigned)mapping.st_mode : 0U, label,
+            label_size == sizeof(label) - 1 ? "true" : "false", label_error, label_close_error);
 }
 
 static void path_join(char *out, size_t size, const char *base, const char *tail) {
@@ -82,7 +135,7 @@ static _Noreturn void enter_child(int scope, const char *mountpoint, const char 
     path_join(path, sizeof(path), mountpoint, "sys/vm/memfd_noexec");
     char value[4];
     snprintf(value, sizeof(value), "%d\n", scope);
-    write_file(path, value, "write_owned_memfd_policy_or_parent_floor", 1);
+    write_file(path, value, "open_owned_memfd_policy", "write_owned_memfd_policy_or_parent_floor", 1);
     int fd = open(path, O_RDONLY | O_CLOEXEC);
     if (fd < 0) { fail("read_owned_memfd_policy", errno, 0); }
     char observed[16] = {0};
@@ -114,12 +167,13 @@ int main(int argc, char **argv) {
     uid_t original_uid = geteuid();
     gid_t original_gid = getegid();
     qualified_call(unshare(CLONE_NEWUSER), "unshare_user");
-    write_file("/proc/self/setgroups", "deny\n", "deny_setgroups", 1);
+    prepare_mapping_proc_access();
+    write_file("/proc/self/setgroups", "deny\n", "open_setgroups", "deny_setgroups", 1);
     char mapping[80];
     snprintf(mapping, sizeof(mapping), "0 %lu 1\n", (unsigned long)original_uid);
-    write_file("/proc/self/uid_map", mapping, "write_uid_map", 0);
+    write_file("/proc/self/uid_map", mapping, "open_uid_map", "write_uid_map", 0);
     snprintf(mapping, sizeof(mapping), "0 %lu 1\n", (unsigned long)original_gid);
-    write_file("/proc/self/gid_map", mapping, "write_gid_map", 0);
+    write_file("/proc/self/gid_map", mapping, "open_gid_map", "write_gid_map", 0);
     qualified_call(unshare(CLONE_NEWNS), "unshare_mount");
     qualified_call(mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL), "make_mounts_private");
     qualified_call(unshare(CLONE_NEWPID), "unshare_pid_for_children");

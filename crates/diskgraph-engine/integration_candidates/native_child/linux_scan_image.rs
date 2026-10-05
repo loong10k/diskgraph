@@ -39,7 +39,7 @@ impl LinuxScanImage {
         let descriptor = unsafe {
             libc::memfd_create(
                 c"diskgraph-scan-image".as_ptr(),
-                libc::MFD_CLOEXEC | libc::MFD_ALLOW_SEALING,
+                libc::MFD_CLOEXEC | libc::MFD_ALLOW_SEALING | libc::MFD_EXEC,
             )
         };
         if descriptor < 0 {

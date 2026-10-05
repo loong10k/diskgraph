@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
-  "scope": "Native Linux sealed memfd execution component, existing six cases before flags fix; no Engine, installed helper or full PF06 acceptance",
-  "qualification_stage": "tests-first native runtime candidate; no production flags change",
+  "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
+  "qualification_stage": "Explicit EXEC fix awaiting native GREEN; policy namespace missing qualification under diagnosis",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
   "atomic_manifest_sha256": "91d5b0702aa5eaffabbdb49c0ed6de70f5ac0dc515736b9ea90215a739e4e178",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
-    "sha256": "b139da27fb1d9b8ae08fa25110fd52031be0e9f3e87074c8a127497d3536e4f4",
-    "bytes": 6170,
-    "lines": 140
+    "sha256": "56017ea86911f0da93904316fc3096acc66892fcd1e5f3fec7687a921fea1589",
+    "bytes": 6906,
+    "lines": 148,
+    "scope": "Current explicit EXEC source binding; historical sealed-only receipts retain their original source commit and do not prove current source."
   },
   "memfd_tests_source_candidate": {
     "historical_path": "/private/tmp/diskgraph-linux-memfd-execution-tests-v2-candidate.json",
@@ -54,8 +55,8 @@
   "sources": [
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
-      "sha256": "4d50c8961d4b4a34d14bd866e9bf7f1abb02ab9131aee05723ad3ee23c9a0dfd",
-      "bytes": 5502,
+      "sha256": "125ab0f8709d9f9f98505623484de99f0d75bcb7d696c0c9436e16f77d82a1a8",
+      "bytes": 5519,
       "lines": 128,
       "role": "unchanged sealed production",
       "module": "linux_scan_image"
@@ -126,9 +127,9 @@
     },
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
-      "sha256": "fc910623c5f7c53215ed8f567cd680dfd8a164717469a900c71373061e05d1dc",
-      "bytes": 6289,
-      "lines": 135,
+      "sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
+      "bytes": 9210,
+      "lines": 189,
       "role": "frozen tests/support"
     }
   ],
@@ -195,7 +196,7 @@
     "All sealed4 + memfd6 digests and closed2/1/3 inventory validated before mounting additional sources; exact Atomic31 and its baseline projection also validated by the shared helper.",
     "Atomic mechanical Null UnixChild/channel/filter projections are unchanged; no SCM, numeric pidfd_open, fake caller or lint allowance. This lib-test-only assembly is not full product source-layout/integration qualification.",
     "Nine real Rust modules mounted only cfg(all(test,target_os=linux)); original C policy fixture compiled as C, never mounted as Rust.",
-    "Original six cases preserve all behavior assertions and sealed production implicit flags remain byte-exact. No missing namespace qualification or ignored case counts as a pass.",
+    "Original six target cases preserve behavior assertions; explicit EXEC source delta follows actual native denial RED. No missing namespace qualification or ignored case counts as a pass.",
     "Serial original filters preserve execution2, denial1 and policy3. Each actual target failure remains first primary, other original filters still execute without retry; infrastructure failure stops safely with original primary preserved.",
     "C8 object evidence is rebuilt and recorded but independent native code inspection and outer original init wait/reap remain separate obligations."
   ],
@@ -239,11 +240,11 @@
   },
   "validation": {
     "pure_python_cases": 11,
-    "pure_python_result": "Author actual11/0 after one pure minimal Cargo.lock fixture spacing correction (first11:10pass/1assemblyerror); not native qualification.",
+    "pure_python_result": "Root actual46/0 combined Python contracts after explicit EXEC and namespace diagnostic source rebinding; no native acceptance.",
     "cargo": "not run by author",
     "cc": "not run by author",
     "native_runtime": "not run by author",
-    "production_flags": "unchanged original MFD_CLOEXEC|MFD_ALLOW_SEALING",
+    "production_flags": "MFD_CLOEXEC|MFD_ALLOW_SEALING|MFD_EXEC; new native result pending",
     "initial_pure_python_log": {
       "historical_path": "/private/tmp/diskgraph-memfd-qualification-python-author.log",
       "sha256": "ef87af871bf686cd6f4ebf98843d37b2e5398c45540ba2e1066381789e95886f",
@@ -265,8 +266,25 @@
   },
   "limitations": [
     "ELF fixtures only; dynamic loader/system dependency trust, host installation, Engine publication, desktop/mobile providers and full PF06 remain open.",
-    "Expected current implicit flags may fail qualified policy1/2 and EXEC-only denial assertions. Actual runtime and qualification witness decide; no source-only RED declaration.",
+    "Actual previous implicit flags failed EXEC-only denial. New explicit flags and policy0/1/2 require native verification; namespace permission failures are not product-policy RED.",
     "Outer supervised actual init reap is mandatory. Local command session kill cannot prove setsid scanner descendants gone; CI hard termination is infrastructure failure, not cleanup success.",
     "Current Atomic native17 evidence belongs to its own source/receipt and does not substitute for memfd six runtime cases."
-  ]
+  ],
+  "sealed_source_delta": {
+    "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
+    "before_sha256": "4d50c8961d4b4a34d14bd866e9bf7f1abb02ab9131aee05723ad3ee23c9a0dfd",
+    "current_sha256": "125ab0f8709d9f9f98505623484de99f0d75bcb7d696c0c9436e16f77d82a1a8",
+    "change": "Only add libc::MFD_EXEC; preserve first native creation errno without retry.",
+    "actual_red_run": 37308433075,
+    "actual_red_commit": "08c566b781589b3a133a526f087328f5d283ca5c",
+    "actual_red": "All3 native lanes reached mandatory EXEC assertion after native EXEC EINVAL and no-EXEC success controls; 0/1 denial target."
+  },
+  "policy_fixture_delta": {
+    "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+    "before_sha256": "fc910623c5f7c53215ed8f567cd680dfd8a164717469a900c71373061e05d1dc",
+    "current_sha256": "8a25232fdda9057b3220d3a382aab00b10238689f9ccf1655743f6f9997c5a21",
+    "change": "Fixture-only self dumpability check/readback and bounded actual capability/LSM/proc-owner diagnostics; separate open/write phases. No host policy changes; original namespace identity, actual wait and all five Rust target sources preserved.",
+    "previous_native_result": "3/3 policy tests fail qualification exit77 deny_setgroups EACCES before policy assertions.",
+    "native_revalidation": "pending; no unique root-cause claim"
+  }
 }
