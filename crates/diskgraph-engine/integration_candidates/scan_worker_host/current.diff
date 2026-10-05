@@ -13060,21 +13060,20 @@ index 0000000..f3e487d
 +}
 diff --git a/crates/diskgraph-engine/tests/scan_worker_engine_flow.rs b/crates/diskgraph-engine/tests/scan_worker_engine_flow.rs
 new file mode 100644
-index 0000000..ce19275
+index 0000000..f313fd5
 --- /dev/null
 +++ b/crates/diskgraph-engine/tests/scan_worker_engine_flow.rs
-@@ -0,0 +1,111 @@
+@@ -0,0 +1,110 @@
 +//! 真实Cargo helper→sealed→Atomic→driver→Engine持久发布；来源：PF-06。
 +//! 必须在Linux实际执行；macOS构建不构成这些场景的验收，不查PATH或跳过缺artifact。
 +#![cfg(target_os = "linux")]
 +
-+mod scan_worker_engine_flow {
-+    pub(super) mod fixture;
-+}
++#[path = "scan_worker_engine_flow/fixture.rs"]
++mod fixture;
 +use diskgraph_core::BusinessError;
 +use diskgraph_engine::EngineError;
 +use diskgraph_store::JobState;
-+use scan_worker_engine_flow::fixture::{Fixture, limits};
++use fixture::{Fixture, limits};
 +use std::path::Path;
 +
 +#[test]

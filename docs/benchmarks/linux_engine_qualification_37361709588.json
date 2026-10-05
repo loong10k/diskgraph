@@ -1,0 +1,299 @@
+{
+  "source_commit": "493257fda48242b2fb326be948e20c3636d228f2",
+  "run_id": 37361709588,
+  "native_cases_executed": 0,
+  "production_acceptance": false,
+  "results": [
+    {
+      "artifact": "linux-engine-ubuntu-24.04-1.97.0-37361709588",
+      "failure": "E0603 nested fixture visibility; native scan cases not executed",
+      "outer": {
+        "schema_version": 1,
+        "status": "failed",
+        "scope": "outer namespace containment, not C8 child wait proof",
+        "kernel": "6.17.0-1022-azure",
+        "secondary_errors": [],
+        "secondary_errors_suppressed": 0,
+        "engine_namespace_entry_sha256": "a24436cac8a2622723021ef11072389b47cd45daa1393fbe2b5215cafaaf3b31",
+        "command": [
+          "/opt/hostedtoolcache/Python/3.13.15/x64/bin/python",
+          "/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py",
+          "--output-dir",
+          "/home/runner/work/_temp/engine-qualification/runner/qualification"
+        ],
+        "timeout_seconds": 1800.0,
+        "script_sha256": "9d8b250e7f4c78a3bae30f62cebf276460ea60f1b7de7005087c9a43f7b94259",
+        "outer_pid_namespace": "pid:[4026531836]",
+        "pid_for_children": {
+          "original_device": 4,
+          "original_inode": 4026531836,
+          "restored_verified": true,
+          "restored_device": 4,
+          "restored_inode": 4026531836
+        },
+        "init_host_pid": 2243,
+        "init_pidfd_acquired": true,
+        "init_wait_code": 1,
+        "init_wait_status": 1,
+        "init_reaped": true,
+        "namespace_descendants_gone": true,
+        "runner_identity": {
+          "phase": "ready",
+          "pid": 1,
+          "pid_namespace": "pid:[4026532313]",
+          "uid": [
+            1001,
+            1001,
+            1001
+          ],
+          "gid": [
+            1001,
+            1001,
+            1001
+          ],
+          "groups": [
+            4,
+            100,
+            118,
+            999,
+            1001
+          ],
+          "capabilities": {
+            "CapInh": "0000000000000000",
+            "CapPrm": "0000000000000000",
+            "CapEff": "0000000000000000",
+            "CapBnd": "0000000000000000",
+            "CapAmb": "0000000000000000"
+          },
+          "no_new_privs": "1",
+          "seccomp": "0"
+        },
+        "primary_error": {
+          "phase": "run",
+          "type": "RuntimeError",
+          "repr": "RuntimeError('qualification init failed: 1')"
+        },
+        "stdout_bytes": 40,
+        "stdout_sha256": "fd6a60fb348fe61c05c0d57f9f4d8bb36bc4f363756ff971057aacdbb8d22ca1",
+        "stderr_bytes": 1271,
+        "stderr_sha256": "3d5e9067069a2a4713e5133117dcc6776e4fe69701fb6da23799e332a4704671",
+        "elapsed_seconds": 22.645126631000004
+      },
+      "child": {
+        "schema_version": 1,
+        "status": "failed",
+        "executed_parent_cases": 0,
+        "security_acceptance": false,
+        "actual_pid": 1,
+        "pid_namespace": "pid:[4026532313]",
+        "commit": "493257fda48242b2fb326be948e20c3636d228f2",
+        "source_manifest_sha256": "47a49e5d070450bec0101038a5dd31715e35b1c84d64c20ac28f17e55a13f6cc",
+        "qualifier_sha256": "063693948c7e779283991cad4f32df178e0ead6c47e80d40210f3ada925989c5",
+        "worker_sha256": "eefa4fa4ba2d043162a968977c04283eab7d9052f9fc5755aad5f6deb5b0234a",
+        "worker_bytes": 20373128,
+        "primary_error": {
+          "kind": "CalledProcessError",
+          "repr": "CalledProcessError(101, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', '--test', 'scan_worker_engine_flow', '--', '--nocapture', '--test-threads=1'])"
+        },
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py\", line 80, in main\n    raw = run_step(output, root, environment, receipt, name, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', *target,\n                     '--', '--nocapture', '--test-threads=1'])\n  File \"/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py\", line 20, in run_step\n    result = subprocess.run(command, cwd=root, env=environment, stdin=subprocess.DEVNULL,\n                            stdout=subprocess.PIPE if capture else log, stderr=log, check=True)\n  File \"/opt/hostedtoolcache/Python/3.13.15/x64/lib/python3.13/subprocess.py\", line 577, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', '--test', 'scan_worker_engine_flow', '--', '--nocapture', '--test-threads=1']' returned non-zero exit status 101.\n"
+      },
+      "engine_flow_log_sha256": "51f9043d8513eb2969c2591fbaea96837a34322a3028d06e110d61ac3c324398",
+      "source_bindings_verified": 121,
+      "actual_cargo_worker_artifact_hash_verified": true
+    },
+    {
+      "artifact": "linux-engine-ubuntu-24.04-arm-stable-37361709588",
+      "failure": "E0603 nested fixture visibility; native scan cases not executed",
+      "outer": {
+        "schema_version": 1,
+        "status": "failed",
+        "scope": "outer namespace containment, not C8 child wait proof",
+        "kernel": "6.17.0-1022-azure",
+        "secondary_errors": [],
+        "secondary_errors_suppressed": 0,
+        "engine_namespace_entry_sha256": "a24436cac8a2622723021ef11072389b47cd45daa1393fbe2b5215cafaaf3b31",
+        "command": [
+          "/opt/hostedtoolcache/Python/3.13.15/arm64/bin/python",
+          "/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py",
+          "--output-dir",
+          "/home/runner/work/_temp/engine-qualification/runner/qualification"
+        ],
+        "timeout_seconds": 1800.0,
+        "script_sha256": "9d8b250e7f4c78a3bae30f62cebf276460ea60f1b7de7005087c9a43f7b94259",
+        "outer_pid_namespace": "pid:[4026531836]",
+        "pid_for_children": {
+          "original_device": 4,
+          "original_inode": 4026531836,
+          "restored_verified": true,
+          "restored_device": 4,
+          "restored_inode": 4026531836
+        },
+        "init_host_pid": 2409,
+        "init_pidfd_acquired": true,
+        "init_wait_code": 1,
+        "init_wait_status": 1,
+        "init_reaped": true,
+        "namespace_descendants_gone": true,
+        "runner_identity": {
+          "phase": "ready",
+          "pid": 1,
+          "pid_namespace": "pid:[4026532262]",
+          "uid": [
+            1001,
+            1001,
+            1001
+          ],
+          "gid": [
+            1001,
+            1001,
+            1001
+          ],
+          "groups": [
+            4,
+            100,
+            118,
+            999,
+            1001
+          ],
+          "capabilities": {
+            "CapInh": "0000000000000000",
+            "CapPrm": "0000000000000000",
+            "CapEff": "0000000000000000",
+            "CapBnd": "0000000000000000",
+            "CapAmb": "0000000000000000"
+          },
+          "no_new_privs": "1",
+          "seccomp": "0"
+        },
+        "primary_error": {
+          "phase": "run",
+          "type": "RuntimeError",
+          "repr": "RuntimeError('qualification init failed: 1')"
+        },
+        "stdout_bytes": 40,
+        "stdout_sha256": "fd6a60fb348fe61c05c0d57f9f4d8bb36bc4f363756ff971057aacdbb8d22ca1",
+        "stderr_bytes": 1273,
+        "stderr_sha256": "90d0b453253d9452eda0aa43498c297d1952d7a4462ce662256cfc6c055d85f5",
+        "elapsed_seconds": 23.808390469000003
+      },
+      "child": {
+        "schema_version": 1,
+        "status": "failed",
+        "executed_parent_cases": 0,
+        "security_acceptance": false,
+        "actual_pid": 1,
+        "pid_namespace": "pid:[4026532262]",
+        "commit": "493257fda48242b2fb326be948e20c3636d228f2",
+        "source_manifest_sha256": "47a49e5d070450bec0101038a5dd31715e35b1c84d64c20ac28f17e55a13f6cc",
+        "qualifier_sha256": "063693948c7e779283991cad4f32df178e0ead6c47e80d40210f3ada925989c5",
+        "worker_sha256": "2277ba923faa5d82e44b0f66188c6414d72e0f1b7a5c7b4369c954f72a0e00ee",
+        "worker_bytes": 20026464,
+        "primary_error": {
+          "kind": "CalledProcessError",
+          "repr": "CalledProcessError(101, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', '--test', 'scan_worker_engine_flow', '--', '--nocapture', '--test-threads=1'])"
+        },
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py\", line 80, in main\n    raw = run_step(output, root, environment, receipt, name, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', *target,\n                     '--', '--nocapture', '--test-threads=1'])\n  File \"/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py\", line 20, in run_step\n    result = subprocess.run(command, cwd=root, env=environment, stdin=subprocess.DEVNULL,\n                            stdout=subprocess.PIPE if capture else log, stderr=log, check=True)\n  File \"/opt/hostedtoolcache/Python/3.13.15/arm64/lib/python3.13/subprocess.py\", line 577, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', '--test', 'scan_worker_engine_flow', '--', '--nocapture', '--test-threads=1']' returned non-zero exit status 101.\n"
+      },
+      "engine_flow_log_sha256": "ce26c97151bbb05bd1b5c3d4aadc007b2eebda62bc9847162a2652d501ae4a93",
+      "source_bindings_verified": 121,
+      "actual_cargo_worker_artifact_hash_verified": true
+    },
+    {
+      "artifact": "linux-engine-ubuntu-24.04-stable-37361709588",
+      "failure": "E0603 nested fixture visibility; native scan cases not executed",
+      "outer": {
+        "schema_version": 1,
+        "status": "failed",
+        "scope": "outer namespace containment, not C8 child wait proof",
+        "kernel": "6.17.0-1022-azure",
+        "secondary_errors": [],
+        "secondary_errors_suppressed": 0,
+        "engine_namespace_entry_sha256": "a24436cac8a2622723021ef11072389b47cd45daa1393fbe2b5215cafaaf3b31",
+        "command": [
+          "/opt/hostedtoolcache/Python/3.13.15/x64/bin/python",
+          "/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py",
+          "--output-dir",
+          "/home/runner/work/_temp/engine-qualification/runner/qualification"
+        ],
+        "timeout_seconds": 1800.0,
+        "script_sha256": "9d8b250e7f4c78a3bae30f62cebf276460ea60f1b7de7005087c9a43f7b94259",
+        "outer_pid_namespace": "pid:[4026531836]",
+        "pid_for_children": {
+          "original_device": 4,
+          "original_inode": 4026531836,
+          "restored_verified": true,
+          "restored_device": 4,
+          "restored_inode": 4026531836
+        },
+        "init_host_pid": 2476,
+        "init_pidfd_acquired": true,
+        "init_wait_code": 1,
+        "init_wait_status": 1,
+        "init_reaped": true,
+        "namespace_descendants_gone": true,
+        "runner_identity": {
+          "phase": "ready",
+          "pid": 1,
+          "pid_namespace": "pid:[4026532265]",
+          "uid": [
+            1001,
+            1001,
+            1001
+          ],
+          "gid": [
+            1001,
+            1001,
+            1001
+          ],
+          "groups": [
+            4,
+            100,
+            118,
+            999,
+            1001
+          ],
+          "capabilities": {
+            "CapInh": "0000000000000000",
+            "CapPrm": "0000000000000000",
+            "CapEff": "0000000000000000",
+            "CapBnd": "0000000000000000",
+            "CapAmb": "0000000000000000"
+          },
+          "no_new_privs": "1",
+          "seccomp": "0"
+        },
+        "primary_error": {
+          "phase": "run",
+          "type": "RuntimeError",
+          "repr": "RuntimeError('qualification init failed: 1')"
+        },
+        "stdout_bytes": 40,
+        "stdout_sha256": "fd6a60fb348fe61c05c0d57f9f4d8bb36bc4f363756ff971057aacdbb8d22ca1",
+        "stderr_bytes": 1271,
+        "stderr_sha256": "3d5e9067069a2a4713e5133117dcc6776e4fe69701fb6da23799e332a4704671",
+        "elapsed_seconds": 26.134662651000006
+      },
+      "child": {
+        "schema_version": 1,
+        "status": "failed",
+        "executed_parent_cases": 0,
+        "security_acceptance": false,
+        "actual_pid": 1,
+        "pid_namespace": "pid:[4026532265]",
+        "commit": "493257fda48242b2fb326be948e20c3636d228f2",
+        "source_manifest_sha256": "47a49e5d070450bec0101038a5dd31715e35b1c84d64c20ac28f17e55a13f6cc",
+        "qualifier_sha256": "063693948c7e779283991cad4f32df178e0ead6c47e80d40210f3ada925989c5",
+        "worker_sha256": "5f115c275a2e029410d705a956a4b21d247472a7ee4ff1bf5147468afcd8a549",
+        "worker_bytes": 20397608,
+        "primary_error": {
+          "kind": "CalledProcessError",
+          "repr": "CalledProcessError(101, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', '--test', 'scan_worker_engine_flow', '--', '--nocapture', '--test-threads=1'])"
+        },
+        "traceback": "Traceback (most recent call last):\n  File \"/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py\", line 80, in main\n    raw = run_step(output, root, environment, receipt, name, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', *target,\n                     '--', '--nocapture', '--test-threads=1'])\n  File \"/home/runner/work/diskgraph/diskgraph/scripts/qualify-linux-scan-worker-engine.py\", line 20, in run_step\n    result = subprocess.run(command, cwd=root, env=environment, stdin=subprocess.DEVNULL,\n                            stdout=subprocess.PIPE if capture else log, stderr=log, check=True)\n  File \"/opt/hostedtoolcache/Python/3.13.15/x64/lib/python3.13/subprocess.py\", line 577, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', '--test', 'scan_worker_engine_flow', '--', '--nocapture', '--test-threads=1']' returned non-zero exit status 101.\n"
+      },
+      "engine_flow_log_sha256": "75834ff850cdd13410060b3d80a9f9fe7aa9ce51bb73fb064281886e06d3b5c3",
+      "source_bindings_verified": 121,
+      "actual_cargo_worker_artifact_hash_verified": true
+    }
+  ]
+}

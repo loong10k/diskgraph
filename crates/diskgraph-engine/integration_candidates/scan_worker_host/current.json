@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "snapshot_base": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
-  "patch_sha256": "1e3fb6c05c2aaf10a8f8656afe89068717a792fccd03eeedd01beddb445437f6",
+  "patch_sha256": "53a46440e0ee0c261269b1dbf96004fd9ff3362aa80db02aa079db5fec7b45c1",
   "files": [
     {
       "path": "Cargo.lock",
@@ -526,7 +526,7 @@
     {
       "path": "crates/diskgraph-engine/tests/scan_worker_engine_flow.rs",
       "before_sha256": null,
-      "after_sha256": "3c1bfee4519c886dd503a1704b5f143aa883dd89f1572051966946e1760225f2"
+      "after_sha256": "3330fb9e61e47b77e1c2a97443cda7c1374406a6b7e8f7056114e7557e0e7387"
     },
     {
       "path": "crates/diskgraph-engine/tests/scan_worker_engine_flow/fixture.rs",
