@@ -74,7 +74,8 @@ fn authorized_reader_refuses_revoked_grant_before_calling_consumer() {
     let job = engine.index_scope(&scope, &agent, &policy).unwrap();
     engine.run_job(&job.job_id, "frame-test").unwrap();
     let revision = engine.latest_revision(&scope).unwrap().unwrap();
-    // 原生 Rust 查询诊断：只记录原请求各阶段，全部输出移到 50ms 调用返回之后。
+    // 原生 Rust 权限行为回归使用公开预算上界；此测试不证明 50ms 性能。
+    // 正式 display 和真实到期拒绝测试仍保留各自的 50ms 门禁；诊断仅在调用返回后输出。
     let consumer_enter = std::cell::Cell::new(None);
     let consumer_exit = std::cell::Cell::new(None);
     let request_deadline = std::cell::Cell::new(None);
@@ -84,7 +85,7 @@ fn authorized_reader_refuses_revoked_grant_before_calling_consumer() {
         &revision,
         &agent,
         &policy,
-        50,
+        1000,
         |reader, snapshot, deadline| {
             consumer_enter.set(Some(std::time::Instant::now()));
             request_deadline.set(Some(deadline));
@@ -128,7 +129,7 @@ fn authorized_reader_refuses_revoked_grant_before_calling_consumer() {
         .unwrap();
     let called = std::cell::Cell::new(false);
     let denied =
-        engine.with_authorized_revision_reader(&revision, &agent, &policy, 50, |_, _, _| {
+        engine.with_authorized_revision_reader(&revision, &agent, &policy, 1000, |_, _, _| {
             called.set(true);
             Ok(())
         });

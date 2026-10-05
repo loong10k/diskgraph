@@ -1,0 +1,52 @@
+{
+  "scope": "Authorization functional regression test budget separation; not a production performance improvement",
+  "base_commit": "b52b97899aa65b5332c55d7042330bebeabff17a",
+  "source_sha256": "f0e98ca5d1085f2e1caefb4440591b092bdb1cf577731219a5d2d7600293fc00",
+  "platform": {
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "results": {
+    "target": {
+      "passed": 1,
+      "failed": 0
+    },
+    "engine_flow": {
+      "passed": 20,
+      "failed": 0
+    },
+    "deadline_frame": {
+      "passed": 10,
+      "failed": 0
+    },
+    "negative_control": "omitting actual revoke_grant in isolated fixture fails exact PermissionDenied assertion; original source restored"
+  },
+  "preserved": "Production 1–1000ms API, shared absolute deadline and formal 50ms display/expiry tests unchanged",
+  "limitations": [
+    "Original Intel 171ms Store(BudgetExceeded) remains recorded; no initial-stage performance fix claimed",
+    "Current dirty host integration not included",
+    "New same-commit native CI still required"
+  ],
+  "evidence": [
+    {
+      "path": "docs/benchmarks/authorized_reader_auth_functional_2026_10_06.log.gz",
+      "raw_sha256": "c525616ba09dd34e2df96fb7102a90e3f4bedb71b0e2ad4c47a6a322b726c80e"
+    },
+    {
+      "path": "docs/benchmarks/authorized_reader_engine_flow_2026_10_06.log.gz",
+      "raw_sha256": "e279a23aeb1439c9d43ad97fb87e330c17e67e7afbe6d5f10d050a298b91b659"
+    },
+    {
+      "path": "docs/benchmarks/authorized_reader_reader_deadline_2026_10_06.log.gz",
+      "raw_sha256": "da09f9c4bf921f8de8c322e6987f590b096c01b45a4df4e5a3d44f6d6eb8539b"
+    },
+    {
+      "path": "docs/benchmarks/authorized_reader_tui_deadline_2026_10_06.log.gz",
+      "raw_sha256": "e57bb7c1598c4d62878e0905ed228ba59c3a3f749090303ff025673ab47b6248"
+    },
+    {
+      "path": "docs/benchmarks/authorized_reader_auth_negative_control_2026_10_06.log.gz",
+      "raw_sha256": "9e02538e4fafbdfbfbd12fc383caeb0270c78e2a7a4756c5f7ab7b8f1d714aa9"
+    }
+  ]
+}

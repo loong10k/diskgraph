@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "run_id": 37344190857,
+  "job_id": 111878532952,
+  "commit": "b52b97899aa65b5332c55d7042330bebeabff17a",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37344190857/job/111878532952",
+  "production_ready": false,
+  "actual_failure": "authorized_reader_refuses_revoked_grant_before_calling_consumer",
+  "result": "Store(BudgetExceeded)",
+  "original_budget_ms": 50,
+  "observed_total_ms": 171.048071,
+  "consumer_entered": false,
+  "tui_cli_bin": "66 passed / 0 failed",
+  "cause": "Preparation deadline exceeded; first delayed operation not identified. This is not proof of unauthorized data delivery or TUI failure.",
+  "evidence": {
+    "path": "docs/benchmarks/ci_b52_intel_authorized_reader_failure_2026_10_06.log.gz",
+    "raw_sha256": "9e3e3aee5828eddfb37d78977c4a07866404985c44741b7edb0e4d6f902af531",
+    "archive_sha256": "c27d8896584e408fd182b66cf6f8811a75cdc300d210a81a08c9ecfe89e5c585"
+  }
+}
