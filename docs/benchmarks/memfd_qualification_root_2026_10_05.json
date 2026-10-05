@@ -1,0 +1,49 @@
+{
+  "scope": "Root actual11 pure Python tests only; no native/ELF runtime claim",
+  "passed": 11,
+  "failed": 0,
+  "manifest_sha256": "0abc30c73d7ff5ab7977bc5bd1ba06cd5fada686332eb80de9fd2167a24e72d7",
+  "log": {
+    "path": "docs/benchmarks/memfd_qualification_root_2026_10_05.log.gz",
+    "raw_sha256": "0a7f8a30766ccdafc457f14d9d259bbf14c1e21bba1d8056a81119d644bb7683",
+    "gzip_sha256": "858c53b9359d47226d64583fbd6a78f8d93450f358d0bf81337383a57d37b9c5"
+  },
+  "tooling": [
+    {
+      "path": "scripts/qualify-linux-memfd-execution.py",
+      "sha256": "813f31a3bfd4ea370ba85933cedcfb4963de5a6fd30f849aeafe41b53e82c0fe",
+      "bytes": 13702,
+      "lines": 239
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
+      "sha256": "fae65f9da68c99af81177280d75744b4bbef6b1f24998836ecd588e789ed1691",
+      "bytes": 10059,
+      "lines": 208
+    }
+  ],
+  "independent_review": {
+    "result": "APPROVE qualification tooling and frozen source binding only",
+    "qualifier_sha256": "813f31a3bfd4ea370ba85933cedcfb4963de5a6fd30f849aeafe41b53e82c0fe",
+    "tests_sha256": "fae65f9da68c99af81177280d75744b4bbef6b1f24998836ecd588e789ed1691",
+    "manifest_sha256": "0abc30c73d7ff5ab7977bc5bd1ba06cd5fada686332eb80de9fd2167a24e72d7",
+    "checks": [
+      "All49 dependencies match final freeze.",
+      "Exact archive/current Atomic binding; sealed4+memfd6 admitted before mounting.",
+      "Actual inventory names equal; original filters2/1/3 serial; no retry or ignored acceptance.",
+      "Original target error retained through later failures, timeout, log read and finalization.",
+      "Outer original init wait/reap remains separate mandatory proof."
+    ],
+    "limits": [
+      "Native six execution, EXEC policy, loader trust, Engine and PF06 remain unverified."
+    ]
+  },
+  "combined_pure_python": {
+    "passed": 46,
+    "failed": 0,
+    "path": "docs/benchmarks/native_qualification_all_python_2026_10_05.log.gz",
+    "raw_sha256": "4828ae5d5fedbdc2f2911215280afecc77c1ca45aed99b92d58a9330fb430adf",
+    "gzip_sha256": "be3116b2810b80d955faad3598ef9fe042598987ac2990259a3c84d7702e25ac",
+    "scope": "Actual macOS Python contracts; no native component acceptance"
+  }
+}

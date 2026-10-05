@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "macOS pure qualification contracts and workflow assembly only; no memfd native result",
+  "results": [
+    {
+      "path": "docs/benchmarks/native_fixed_profile_root_2026_10_05.log.gz",
+      "passed": 17,
+      "failed": 0,
+      "raw_sha256": "49911299e5fe6e7d6099f51e926dbb14156dabd381e836a7d830c76b279ec0f4",
+      "gzip_sha256": "e9e4c2b2400f9923219f657e7ad318a729aaa7b7be339cb78e821fd89b7c4cea"
+    },
+    {
+      "path": "docs/benchmarks/atomic_fixed_profile_root_2026_10_05.log.gz",
+      "passed": 18,
+      "failed": 0,
+      "raw_sha256": "2602bde3d91b8fe439d4389bd3caab4b8637e68befcdd71bb5897bc6a17ac156",
+      "gzip_sha256": "b1fbb6a7017001327dfa361898e7fd1f4149746e8f01c9cdafb751b28e237ec4"
+    }
+  ],
+  "sources": [
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab"
+    },
+    {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393"
+    },
+    {
+      "path": "scripts/qualify-linux-atomic-launcher.py",
+      "sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8"
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
+      "sha256": "0708883e23cf99f98d6724ab93f418be8224f0ab883e24279708b7406ec22fc9"
+    },
+    {
+      "path": ".github/workflows/native_scan_qualification.yml",
+      "sha256": "0c8e62947ec7fd806b36d601d4d7ddafbb464f4043a77fcb9cfbf5de48942f27"
+    },
+    {
+      "path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
+      "sha256": "91d5b0702aa5eaffabbdb49c0ed6de70f5ac0dc515736b9ea90215a739e4e178"
+    }
+  ]
+}

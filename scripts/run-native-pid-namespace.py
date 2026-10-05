@@ -19,6 +19,10 @@ import time
 import pwd
 
 
+# 受限编排 profile；不能由调用者或子 receipt 提供期望数量。
+PROFILES = {"qualify-linux-atomic-launcher.py": 17, "qualify-linux-memfd-execution.py": 6}
+
+
 class NativeNamespaceSupervisor:
     """唯一外层 init owner；日志和 receipt 失败不得覆盖原资格或退出错误。"""
 
@@ -53,6 +57,11 @@ class NativeNamespaceSupervisor:
             raise ValueError("NUL in argv")
         if command.count("{qualification_output}") != 1:
             raise ValueError("exactly one separate {qualification_output} argument is required")
+        if args.self_test:
+            if Path(command[1]).resolve() != Path(__file__).resolve():
+                raise ValueError("self-test must use this fixed supervisor fixture")
+        elif Path(command[1]).name not in PROFILES:
+            raise ValueError("unknown fixed native qualification profile")
         return [str(output / "qualification") if value == "{qualification_output}" else value
                 for value in command]
 
@@ -355,10 +364,13 @@ class NativeNamespaceSupervisor:
             raise ValueError("qualification receipt exceeds 1 MiB")
         raw = path.read_bytes()
         child = json.loads(raw)
+        profile = Path(self.command(self.args, self.output)[1]).name
+        expected = PROFILES[profile]
         if (child.get("status") != "component_tests_passed_awaiting_outer_cleanup" or
-                child.get("executed_parent_cases") != 17):
-            raise ValueError("the unchanged 17 native cases did not pass")
+                type(child.get("executed_parent_cases")) is not int or child["executed_parent_cases"] != expected):
+            raise ValueError(f"the unchanged {expected} native cases for {profile} did not pass")
         self.receipt.update(status="native_qualification_and_namespace_reap_passed",
+                            qualification_profile=profile, executed_parent_cases=expected,
                             qualification_receipt_sha256=hashlib.sha256(raw).hexdigest())
 
     def cleanup_owner(self):

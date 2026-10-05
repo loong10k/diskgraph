@@ -1,0 +1,18 @@
+{
+  "run_id": 37305165582,
+  "commit": "10b1cb6b72e5f2a8626c374ae7aa47e13e4be268",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37305165582",
+  "passed_jobs": 22,
+  "failed_jobs": 0,
+  "scope": "Committed 10b1cb6 source CI only; local uncommitted production scan integration not covered",
+  "metadata": {
+    "path": "docs/benchmarks/ci_37305165582.json.gz",
+    "raw_sha256": "b0476167ca37ba371d467db3a70879fe5afc69ad27b39ed87bdaf4da6e061d02",
+    "gzip_sha256": "ec2070d65bb7402433fe99c2971181e8721f1ecf4796e8ba9f25b2fe0374741f"
+  },
+  "limits": [
+    "CI job success is not full-platform production readiness.",
+    "Detailed native C8 component acceptance separately retained.",
+    "New memfd execution6 runtime and local CLI/MCP scan regressions remain open."
+  ]
+}

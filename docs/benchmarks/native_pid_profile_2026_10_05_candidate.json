@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "scope": "Fixed qualification profile gate only; no Linux native execution",
+  "sources": [
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab",
+      "lines": 488,
+      "bytes": 24258
+    },
+    {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+      "lines": 315,
+      "bytes": 16746
+    }
+  ],
+  "snapshot": "/private/tmp/diskgraph-native-pid-profile-freeze",
+  "before": {
+    "manifest": "/private/tmp/diskgraph-native-pid-namespace-candidate-v3.json",
+    "sha256": "18a4b038ea46cc81beb98433b54b6014b41d4c8f196fd554e4eede64109a3ee1",
+    "snapshot": "/private/tmp/diskgraph-native-pid-namespace-freeze-v3"
+  },
+  "diff": {
+    "path": "/private/tmp/diskgraph-native-pid-profile.diff",
+    "sha256": "d4c41694c1ec465c8b2bfc29f84f5edd68ac8ba0b87c3edaed82a74f65cc912a"
+  },
+  "actual_red": {
+    "log": "docs/benchmarks/native_pid_profile_actual_red_2026_10_05.log.gz",
+    "sha256": "9e3fea55c5806a6d837aad32c3cc871d9c05de97bde45ec3256f1199f3f0b47a",
+    "result": "4 methods run; 2 failed methods/5 failing subcases, 2 passed methods",
+    "snapshot": "/private/tmp/diskgraph-native-pid-profile-red-freeze",
+    "manifest_sha256": "4110274739eb4c0105c567bb0878e130b7be646e9451bc47b32f7683bd5d6300",
+    "gzip_sha256": "fa377a535c1902eda870598eca2a334438ab4bbfc4f2f508932414bad65413a2"
+  },
+  "actual_green": {
+    "command": "python3 -m unittest discover -s scripts/tests -p test_native_pid_namespace.py -v",
+    "log": "docs/benchmarks/native_pid_profile_actual_green_2026_10_05.log.gz",
+    "sha256": "183753b27eceed6ebe6ab2f6b3c35a4164551f02111bc3684ab8895023d64bc0",
+    "result": "17 methods passed on macOS; pure contracts and ordinary-child wait orchestration only",
+    "gzip_sha256": "b1723f3b9fb768cac8f303594766f368835ca2125e6876d7aa0eb5ed565cfd4d"
+  },
+  "fixed_profiles": {
+    "qualify-linux-atomic-launcher.py": 17,
+    "qualify-linux-memfd-execution.py": 6
+  },
+  "preservation": [
+    "All original 13 regression methods remain; fixture default path and expected argv now name real atomic qualifier rather than the supervisor itself.",
+    "No free expected-count argument; unknown script basename rejected before directory/child creation.",
+    "Four argv layout and fixed self-test remain; owner, timeout, credential, namespace, capture, cleanup algorithms unchanged.",
+    "Historical v3 sources/manifest/native running receipt are untouched.",
+    "No modification to atomic/memfd qualifier, workflow, Cargo, Engine or Git."
+  ],
+  "limits": [
+    "Basename profile is orchestration restriction, not executable trust; each qualifier must bind its actual source/manifest to exact archive.",
+    "New memfd profile has no actual native namespace or six-case result yet.",
+    "Negative receipt fixtures are only parsing controls, not real PID namespace witnesses."
+  ],
+  "independent_review": {
+    "result": "APPROVE fixed-profile wrapper and six-lane workflow only",
+    "checks": [
+      "Unknown script basename rejected before output creation and process birth.",
+      "Exact fixed atomic17/memfd6 counts; no freely supplied expected count.",
+      "Original owner, timeout, monitor, capture, credentials and cleanup code preserved.",
+      "Original 13 regressions retained; actual RED five negative subcases and GREEN17 source-bound.",
+      "Six literal workflow lanes; no skips, retries or continue-on-error."
+    ],
+    "workflow_sha256": "0c8e62947ec7fd806b36d601d4d7ddafbb464f4043a77fcb9cfbf5de48942f27",
+    "limits": [
+      "Profile basename restriction does not establish source or image trust.",
+      "New memfd qualifier, native6 execution and Engine/PF06 completion not proven by this review."
+    ]
+  }
+}

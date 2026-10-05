@@ -12,17 +12,29 @@ env:
 
 jobs:
   linux_atomic_launcher:
-    name: Atomic launcher (${{ matrix.os }} / Rust ${{ matrix.rust }})
+    name: Scan qualification (${{ matrix.suite }} / ${{ matrix.os }} / Rust ${{ matrix.rust }})
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             rust: stable
+            suite: atomic-launcher
           - os: ubuntu-latest
             rust: "1.97.0"
+            suite: atomic-launcher
           - os: ubuntu-24.04-arm
             rust: stable
+            suite: atomic-launcher
+          - os: ubuntu-latest
+            rust: stable
+            suite: memfd-execution
+          - os: ubuntu-latest
+            rust: "1.97.0"
+            suite: memfd-execution
+          - os: ubuntu-24.04-arm
+            rust: stable
+            suite: memfd-execution
     runs-on: ${{ matrix.os }}
     # 外层仍保留未回收 owner；作业硬终止属于基础设施失败，不是清理完成证据。
     timeout-minutes: 60
@@ -55,16 +67,16 @@ jobs:
           sudo -n --preserve-env=PATH,RUSTFLAGS,CARGO_HOME,RUSTUP_HOME "$python_binary" \
             "$GITHUB_WORKSPACE/scripts/run-native-pid-namespace.py" \
             --runner-uid "$(id -u)" --runner-gid "$(id -g)" --runner-groups "$runner_groups" \
-            --timeout-seconds 1800 --output-dir "${{ runner.temp }}/diskgraph-atomic-launcher" \
-            -- "$python_binary" "$GITHUB_WORKSPACE/scripts/qualify-linux-atomic-launcher.py" \
+            --timeout-seconds 1800 --output-dir "${{ runner.temp }}/diskgraph-${{ matrix.suite }}" \
+            -- "$python_binary" "$GITHUB_WORKSPACE/scripts/qualify-linux-${{ matrix.suite }}.py" \
             --output-dir '{qualification_output}'
       - name: Preserve actual native results and source provenance
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: atomic-launcher-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          name: scan-${{ matrix.suite }}-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
           path: |
-            ${{ runner.temp }}/diskgraph-atomic-launcher
+            ${{ runner.temp }}/diskgraph-${{ matrix.suite }}
             ${{ runner.temp }}/diskgraph-namespace-self-test
           retention-days: 7
           if-no-files-found: error

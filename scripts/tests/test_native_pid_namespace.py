@@ -14,6 +14,8 @@ from unittest.mock import patch
 
 
 SOURCE = Path(__file__).resolve().parents[1] / "run-native-pid-namespace.py"
+ATOMIC = SOURCE.with_name("qualify-linux-atomic-launcher.py")
+MEMFD = SOURCE.with_name("qualify-linux-memfd-execution.py")
 SPEC = importlib.util.spec_from_file_location("native_pid_namespace", SOURCE)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
@@ -25,12 +27,12 @@ class NativePidNamespaceContracts(unittest.TestCase):
     def arguments(self, output):
         return argparse.Namespace(output_dir=Path(output), runner_uid=1000, runner_gid=1000,
                                   runner_groups=[1000, 1001], timeout_seconds=1800, self_test=False,
-                                  command=[sys.executable, str(SOURCE), "--output-dir", "{qualification_output}"])
+                                  command=[sys.executable, str(ATOMIC), "--output-dir", "{qualification_output}"])
 
     def test_fixed_argv_replaces_only_separate_output_token(self):
         args = self.arguments("/tmp/native contract ; literal")
         command = MODULE.NativeNamespaceSupervisor.command(args, args.output_dir)
-        self.assertEqual(command, [sys.executable, str(SOURCE), "--output-dir",
+        self.assertEqual(command, [sys.executable, str(ATOMIC), "--output-dir",
                                    "/tmp/native contract ; literal/qualification"])
         self.assertEqual(args.command[-1], "{qualification_output}")
 
@@ -47,6 +49,53 @@ class NativePidNamespaceContracts(unittest.TestCase):
                 args.command = command
                 with self.assertRaises(ValueError):
                     MODULE.NativeNamespaceSupervisor.command(args, args.output_dir)
+
+    def test_unknown_script_cannot_supply_a_matching_receipt(self):
+        for name in ("arbitrary.py", SOURCE.name, "qualify-linux-atomic-launcher-copy.py",
+                     "QUALIFY-linux-memfd-execution.py"):
+            args = self.arguments("/tmp/not-created")
+            args.command[1] = str(SOURCE.with_name(name))
+            with self.subTest(script=name), self.assertRaises(ValueError):
+                MODULE.NativeNamespaceSupervisor.command(args, args.output_dir)
+
+    def test_two_fixed_profile_commands_and_fixed_self_test_entry(self):
+        for script in (ATOMIC, MEMFD):
+            args = self.arguments("/tmp/unused")
+            args.command[1] = str(script)
+            self.assertEqual(MODULE.NativeNamespaceSupervisor.command(args, args.output_dir)[1], str(script))
+        args.self_test = True
+        args.command = [sys.executable, str(SOURCE), "--descendant-fixture", "{qualification_output}"]
+        self.assertEqual(MODULE.NativeNamespaceSupervisor.command(args, args.output_dir)[1], str(SOURCE))
+
+    def assert_invalid_receipt(self, script, status, count):
+        """只喂非法序列化材料以抵达拒绝分支；这些标量不构造真实 namespace 验收。"""
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            (output / "qualification").mkdir()
+            (output / "qualification/receipt.json").write_text(json.dumps(
+                {"status": status, "executed_parent_cases": count}))
+            args = self.arguments(output)
+            args.command[1] = str(script)
+            supervisor = MODULE.NativeNamespaceSupervisor(args)
+            supervisor.setup.extend(b'{"phase":"ready","pid_namespace":"negative-input-only"}\n')
+            supervisor.receipt.update(outer_pid_namespace="different-negative-input", init_wait_code=1,
+                                      init_wait_status=0)
+            with patch.object(MODULE.os, "CLD_EXITED", 1, create=True), self.assertRaises(ValueError):
+                supervisor.qualify()
+            self.assertFalse(supervisor.reaped)
+            self.assertNotIn("namespace_descendants_gone", supervisor.receipt)
+
+    def test_profile_rejects_wrong_count_not_a_free_expected_count(self):
+        for script, counts in ((ATOMIC, (0, 6, 16, 18)), (MEMFD, (0, 5, 7, 17))):
+            for count in counts:
+                with self.subTest(script=script.name, count=count):
+                    self.assert_invalid_receipt(script, "component_tests_passed_awaiting_outer_cleanup", count)
+
+    def test_profile_rejects_wrong_status_even_with_its_case_count(self):
+        for script, count in ((ATOMIC, 17), (MEMFD, 6)):
+            for status in ("native_component_passed", "failed", "native_qualification_and_namespace_reap_passed"):
+                with self.subTest(script=script.name, status=status):
+                    self.assert_invalid_receipt(script, status, count)
 
     def test_nonlinux_refuses_before_directory_or_child_creation(self):
         with tempfile.TemporaryDirectory() as temporary:

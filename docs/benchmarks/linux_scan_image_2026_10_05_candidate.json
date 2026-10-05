@@ -29,8 +29,8 @@
   ],
   "test_count": 11,
   "platform_validation": {
-    "linux_x86_64": "pending actual CI",
-    "linux_aarch64": "pending actual CI"
+    "linux_x86_64": "11/0/0 actual native stable and MSRV component runs",
+    "linux_aarch64": "11/0/0 actual native stable component run"
   },
   "tests_frozen_before_implementation": {
     "manifest_sha256": "37a933542ea050ddf15993437b3260c195d4ed6afbaf583471fab80f40e81655",
@@ -63,5 +63,78 @@
       "limits": "harness helpers only; not Linux memfd or Engine acceptance"
     },
     "openspec_strict": "exit 0"
-  }
+  },
+  "native_ci_run": {
+    "id": 37288014290,
+    "commit": "3924dc4be707ad20db819e27d41f593ecaa576a3",
+    "full_run_status": "completed success; all 22 jobs passed at exact source commit",
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37288014290",
+    "full_run_metadata": {
+      "path": "docs/benchmarks/linux_scan_image_2026_10_05_ci_run.json.gz",
+      "raw_sha256": "360a44df6f6204f1b313411950a3cf9f29a9c140d64a35a64ee327d4805912ce",
+      "gzip_sha256": "931b102f159b1bb1be43be747955c3566510adeb0c315f450133162580a1b4f7"
+    }
+  },
+  "native_component_evidence": [
+    {
+      "platform": "x64-stable",
+      "architecture": "x86_64",
+      "artifact_id": 11334968208,
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "files": [
+        {
+          "path": "docs/benchmarks/linux_scan_image_2026_10_05_x64-stable_receipt.json.gz",
+          "raw_sha256": "6ba0063469749c10a3e6de74919825b1a077238377b10d2e2732a5764c6b603a",
+          "gzip_sha256": "dfce837e4dc855e9e30352086007faa6f8005a9076f8d930caa67fd64f9a35a4"
+        },
+        {
+          "path": "docs/benchmarks/linux_scan_image_2026_10_05_x64-stable_native-tests.log.gz",
+          "raw_sha256": "ec05dba15d0b0865332eb58090ed41f390934fcd41b7853eb33c4044d030d17b",
+          "gzip_sha256": "986b713acd588395d02aeab153265f56aef0acc29a5d494eead326ae8ca0af22"
+        }
+      ]
+    },
+    {
+      "platform": "x64-msrv",
+      "architecture": "x86_64",
+      "artifact_id": 11335625676,
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "files": [
+        {
+          "path": "docs/benchmarks/linux_scan_image_2026_10_05_x64-msrv_receipt.json.gz",
+          "raw_sha256": "a2f8e254bb0c2e4bdbd9b504c6dacbaab293cc12102d4a9bc0a8ee9576bdfa52",
+          "gzip_sha256": "07befe9909e3f0d2bb1f093457806bf10af455ddf1050f14bfe31f06de42c2b8"
+        },
+        {
+          "path": "docs/benchmarks/linux_scan_image_2026_10_05_x64-msrv_native-tests.log.gz",
+          "raw_sha256": "63f7e4527ff07777e9f6f2d1031548094aad7ed804b0cebf1bbe041b63771d5e",
+          "gzip_sha256": "4e09bf5da04552bb13112447a2be2d9020600625618e3b1329ba3dbb6a35c396"
+        }
+      ]
+    },
+    {
+      "platform": "arm-stable",
+      "architecture": "aarch64",
+      "artifact_id": 11335456540,
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "files": [
+        {
+          "path": "docs/benchmarks/linux_scan_image_2026_10_05_arm-stable_receipt.json.gz",
+          "raw_sha256": "0212bd998f85396c95828b7beadf9b8d65be46024a41b348d476ef8bf9dd6c3f",
+          "gzip_sha256": "0f42ad6162d5ab63bb1c720b20ecf7e548d88be3c343a5d6aa06763f42d1fec1"
+        },
+        {
+          "path": "docs/benchmarks/linux_scan_image_2026_10_05_arm-stable_native-tests.log.gz",
+          "raw_sha256": "6b9c9ba15c2e42bd1fa28a350a97db43e61ee75fcd6f97cddd2634374f2f42d6",
+          "gzip_sha256": "73997c53c2fc2bd88a1d8762255c22365438ce71f2b1f1c98075ed4e9306d1cb"
+        }
+      ]
+    }
+  ]
 }

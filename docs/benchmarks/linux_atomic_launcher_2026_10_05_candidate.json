@@ -380,22 +380,22 @@
   "required_outer_supervisor": {
     "source": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "197f38ca8025d71bf1e54fc1aca210d5ee6f4a54f9782a521439f78589656eca",
-      "bytes": 23498,
-      "lines": 476
+      "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab",
+      "bytes": 24258,
+      "lines": 488
     },
     "unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
-      "sha256": "f1d1966da3aa52b5663a9b0352c823b8b7758ac6ef8f7d547bda87900c9f9a40",
-      "bytes": 13692,
-      "lines": 266
+      "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+      "bytes": 16746,
+      "lines": 315
     },
     "candidate_manifest_sha256": "18a4b038ea46cc81beb98433b54b6014b41d4c8f196fd554e4eede64109a3ee1",
     "workflow": {
       "path": ".github/workflows/native_scan_qualification.yml",
-      "sha256": "30606d5722eb924e2e96e813e51f71c82e512257564a92e9049eb3332c6f226d",
-      "bytes": 2962,
-      "lines": 70
+      "sha256": "0c8e62947ec7fd806b36d601d4d7ddafbb464f4043a77fcb9cfbf5de48942f27",
+      "bytes": 3388,
+      "lines": 82
     },
     "qualification_marker": "DG_NATIVE_NAMESPACE_SUPERVISED=1 + actual getpid()==1 + actual /proc/self=1 + actual PID namespace link matching DG_NATIVE_PID_NAMESPACE",
     "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/qualification; created only by inner qualifier",
@@ -454,5 +454,10 @@
     "scope": "Explicit function pointer cast before usize; same signal handler and test assertions. Rust -D warnings unchanged.",
     "observed_run": 37304662296,
     "observed_error": "function-casts-as-integer; inventory compile failed on all 3 native targets; 17 cases not executed."
+  },
+  "profile_rebinding": {
+    "before_manifest_sha256": "68a8b6c8ecfbc4145ce8558693aa4471af955865d5fdead25aa54dfe4bfce0ea",
+    "scope": "Current wrapper adds fixed memfd6 profile; Atomic remains exact17. Current workflow enables both suites on same native targets. Old committed receipts unchanged.",
+    "native_validation": "pending actual rerun on the new exact commit; earlier Atomic run binds original wrapper v3"
   }
 }

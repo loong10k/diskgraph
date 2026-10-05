@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "scope": "Native Linux sealed memfd execution component, existing six cases before flags fix; no Engine, installed helper or full PF06 acceptance",
+  "qualification_stage": "tests-first native runtime candidate; no production flags change",
+  "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
+  "atomic_manifest_sha256": "91d5b0702aa5eaffabbdb49c0ed6de70f5ac0dc515736b9ea90215a739e4e178",
+  "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
+  "sealed_manifest": {
+    "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
+    "sha256": "b139da27fb1d9b8ae08fa25110fd52031be0e9f3e87074c8a127497d3536e4f4",
+    "bytes": 6170,
+    "lines": 140
+  },
+  "memfd_tests_source_candidate": {
+    "historical_path": "/private/tmp/diskgraph-linux-memfd-execution-tests-v2-candidate.json",
+    "sha256": "5c528633236292569480e756618858f67afc86e88fc6eb3b6c17cecf284bc091",
+    "source_count": 6
+  },
+  "memfd_tests_before_candidate": {
+    "historical_path": "/private/tmp/diskgraph-linux-memfd-execution-tests-candidate.json",
+    "sha256": "24072ca5ce5e02bdcca5813a47fdd8b46328124fc4c14d66042e2f5d615ba309",
+    "source_count": 6
+  },
+  "memfd_tests_v2_delta": {
+    "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_fixture.rs",
+    "before_sha256": "eda32206ffd97902c33ba9d5915eedbab8bda98789e0941b6be779693d559acd",
+    "current_sha256": "37bb4d3e2bc32a48d06028d9038d51d732f3729da55b4744af577f4f01149ce8",
+    "change": "Only physically_exited().unwrap() for the actual Result API; all original assertions retained; other five source bytes unchanged. Root confirmed mechanical compile calibration, not runtime RED."
+  },
+  "expected_parent_cases": 6,
+  "test_groups": [
+    {
+      "filter": "linux_scan_image_execution_tests",
+      "names": [
+        "native_child::linux_scan_image_execution_tests::sealed_actual_elf_keeps_a_after_path_replacement_with_verified_b",
+        "native_child::linux_scan_image_execution_tests::four_sealed_nx_elf_is_rejected_by_real_execveat"
+      ]
+    },
+    {
+      "filter": "linux_memfd_denial_tests",
+      "names": [
+        "native_child::linux_memfd_denial_tests::native_einval_for_exec_is_preserved_without_flag_removal_retry"
+      ]
+    },
+    {
+      "filter": "linux_memfd_policy_tests",
+      "names": [
+        "native_child::linux_memfd_policy_tests::policy_zero_executes_sealed_a_after_path_replacement",
+        "native_child::linux_memfd_policy_tests::policy_one_executes_sealed_a_after_path_replacement",
+        "native_child::linux_memfd_policy_tests::policy_two_preserves_native_execution_creation_denial"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
+      "sha256": "4d50c8961d4b4a34d14bd866e9bf7f1abb02ab9131aee05723ad3ee23c9a0dfd",
+      "bytes": 5502,
+      "lines": 128,
+      "role": "unchanged sealed production",
+      "module": "linux_scan_image"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_tests.rs",
+      "sha256": "5117f33e87f6a10c88cd88a9d3928d3ff0d6a43b20b37d83034e22d9cb1502cc",
+      "bytes": 10336,
+      "lines": 281,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_fixture.rs",
+      "sha256": "9a74420b30c7c5556b04ad8e5c3d96c54b84cee08aff4bc1a7e78a91871a8654",
+      "bytes": 3508,
+      "lines": 89,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_fixture"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_error.rs",
+      "sha256": "2ea089fb0645cc0ca94d524a104bcc73c6223c53fe54478928920903982120c2",
+      "bytes": 686,
+      "lines": 21,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_error"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_fixture.rs",
+      "sha256": "37bb4d3e2bc32a48d06028d9038d51d732f3729da55b4744af577f4f01149ce8",
+      "bytes": 8206,
+      "lines": 195,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_execution_fixture"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_execution_tests.rs",
+      "sha256": "a401b285c38a9de40ff7e403c805c06a7c4cbb88e3a4c47eb09efc07d6aaee9f",
+      "bytes": 1603,
+      "lines": 45,
+      "role": "frozen tests/support",
+      "module": "linux_scan_image_execution_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+      "sha256": "3a00e312176df33a1f7de8d7e4430ec20f46536616f0fb14c73f9834adacdc2f",
+      "bytes": 6064,
+      "lines": 168,
+      "role": "frozen tests/support",
+      "module": "linux_memfd_policy_support"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_tests.rs",
+      "sha256": "44fd8c4a2b1a3cb37a270f3e158ef24e747d25168bd1d82fce2e275adfc37d6a",
+      "bytes": 2057,
+      "lines": 57,
+      "role": "frozen tests/support",
+      "module": "linux_memfd_policy_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_denial_tests.rs",
+      "sha256": "32fff290f393c13a708194ed6ca3ef267315335d102f836c7663ac8b106fc9d0",
+      "bytes": 2785,
+      "lines": 65,
+      "role": "frozen tests/support",
+      "module": "linux_memfd_denial_tests"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+      "sha256": "fc910623c5f7c53215ed8f567cd680dfd8a164717469a900c71373061e05d1dc",
+      "bytes": 6289,
+      "lines": 135,
+      "role": "frozen tests/support"
+    }
+  ],
+  "policy_fixture": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
+  "qualifier": {
+    "path": "scripts/qualify-linux-memfd-execution.py",
+    "sha256": "813f31a3bfd4ea370ba85933cedcfb4963de5a6fd30f849aeafe41b53e82c0fe",
+    "bytes": 13702,
+    "lines": 239
+  },
+  "unit_tests": {
+    "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
+    "sha256": "fae65f9da68c99af81177280d75744b4bbef6b1f24998836ecd588e789ed1691",
+    "bytes": 10059,
+    "lines": 208
+  },
+  "shared_atomic_functions": [
+    "validate_tooling",
+    "qualify_namespace",
+    "mount_candidate",
+    "extract_archive",
+    "run_step",
+    "object_evidence"
+  ],
+  "qualification_tooling_dependencies": {
+    "atomic_qualifier": {
+      "path": "scripts/qualify-linux-atomic-launcher.py",
+      "sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8",
+      "bytes": 21444,
+      "lines": 396
+    },
+    "atomic_unit_tests": {
+      "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
+      "sha256": "0708883e23cf99f98d6724ab93f418be8224f0ab883e24279708b7406ec22fc9",
+      "bytes": 16534,
+      "lines": 318
+    },
+    "archive_support": {
+      "path": "scripts/qualify-linux-scan-image.py",
+      "sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
+      "bytes": 6701,
+      "lines": 162
+    },
+    "outer_wrapper": {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "9807427eb2a47cd487fc5b801fdacd711cac6e710994c76b5cb0877f60df78ab",
+      "bytes": 24258,
+      "lines": 488
+    },
+    "outer_unit_tests": {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+      "bytes": 16746,
+      "lines": 315
+    },
+    "workflow": {
+      "path": ".github/workflows/native_scan_qualification.yml",
+      "sha256": "0c8e62947ec7fd806b36d601d4d7ddafbb464f4043a77fcb9cfbf5de48942f27",
+      "bytes": 3388,
+      "lines": 82
+    }
+  },
+  "assembly_boundaries": [
+    "All sealed4 + memfd6 digests and closed2/1/3 inventory validated before mounting additional sources; exact Atomic31 and its baseline projection also validated by the shared helper.",
+    "Atomic mechanical Null UnixChild/channel/filter projections are unchanged; no SCM, numeric pidfd_open, fake caller or lint allowance. This lib-test-only assembly is not full product source-layout/integration qualification.",
+    "Nine real Rust modules mounted only cfg(all(test,target_os=linux)); original C policy fixture compiled as C, never mounted as Rust.",
+    "Original six cases preserve all behavior assertions and sealed production implicit flags remain byte-exact. No missing namespace qualification or ignored case counts as a pass.",
+    "Serial original filters preserve execution2, denial1 and policy3. Each actual target failure remains first primary, other original filters still execute without retry; infrastructure failure stops safely with original primary preserved.",
+    "C8 object evidence is rebuilt and recorded but independent native code inspection and outer original init wait/reap remain separate obligations."
+  ],
+  "root_commands": {
+    "pure_python": "python3 -m unittest discover -s scripts/tests -p test_qualify_linux_memfd_execution.py -v",
+    "native_qualification_argv": [
+      "sudo",
+      "-n",
+      "--preserve-env=PATH,RUSTFLAGS,CARGO_HOME,RUSTUP_HOME",
+      "<absolute-python>",
+      "<repo>/scripts/run-native-pid-namespace.py",
+      "--runner-uid",
+      "<original-runner-uid>",
+      "--runner-gid",
+      "<original-runner-gid>",
+      "--runner-groups",
+      "<original-runner-supplementary-groups>",
+      "--timeout-seconds",
+      "1800",
+      "--output-dir",
+      "<fresh-absolute-output>",
+      "--",
+      "<same-absolute-python>",
+      "<repo>/scripts/qualify-linux-memfd-execution.py",
+      "--output-dir",
+      "{qualification_output}"
+    ],
+    "serial_native_filters": [
+      "cargo test --offline --locked -p diskgraph-engine --lib linux_scan_image_execution_tests -- --nocapture --test-threads=1",
+      "cargo test --offline --locked -p diskgraph-engine --lib linux_memfd_denial_tests -- --nocapture --test-threads=1",
+      "cargo test --offline --locked -p diskgraph-engine --lib linux_memfd_policy_tests -- --nocapture --test-threads=1"
+    ],
+    "required_artifacts": "Actual IMAGE_ID1/2 ELF + actual namespace policy executable, exact source/image SHA, inventory6, three parent summaries and original exit codes, original C8 object/ar SHA + raw nm/objdump, inner receipt and outer namespace original init wait/reap receipt"
+  },
+  "qualification_classification": {
+    "target_failure": "Only an actually qualified native test reaching its target assertion is behavior RED; namespace exit77/permission/policy-floor failures are missing qualification, not skip or a product RED.",
+    "component_success": "Only exactly6/0/0 with status component_tests_passed_awaiting_outer_cleanup; outer wrapper still must consume original init wait and validate exact6.",
+    "namespace": "Native Linux x86_64/aarch64 only; actual PID1/private proc/ns marker required. No direct host run, cross target or emulation.",
+    "exec_einval": "Actual EXEC-bit-only seccomp denial is not old-kernel qualification.",
+    "seals": "Four seals alone do not prove executable policy; actual held ELF marker and P_PIDFD wait remain required."
+  },
+  "validation": {
+    "pure_python_cases": 11,
+    "pure_python_result": "Author actual11/0 after one pure minimal Cargo.lock fixture spacing correction (first11:10pass/1assemblyerror); not native qualification.",
+    "cargo": "not run by author",
+    "cc": "not run by author",
+    "native_runtime": "not run by author",
+    "production_flags": "unchanged original MFD_CLOEXEC|MFD_ALLOW_SEALING",
+    "initial_pure_python_log": {
+      "historical_path": "/private/tmp/diskgraph-memfd-qualification-python-author.log",
+      "sha256": "ef87af871bf686cd6f4ebf98843d37b2e5398c45540ba2e1066381789e95886f",
+      "bytes": 3323,
+      "classification": "pure Python only; no native/Cargo/cc"
+    },
+    "pure_python_log": {
+      "historical_path": "/private/tmp/diskgraph-memfd-qualification-python-author-v2.log",
+      "sha256": "b0b3698dfb9ccde6bd132cf1e633dac58cb1e161c0ad03614634a485d6a3f869",
+      "bytes": 1950,
+      "classification": "pure Python only; no native/Cargo/cc"
+    },
+    "final_pure_python_log": {
+      "historical_path": "/private/tmp/diskgraph-memfd-qualification-python-author-final.log",
+      "sha256": "0302f71b532b46a030ff92849851e53624593a49f6678c8fe3b4df3ea368210c",
+      "bytes": 1950,
+      "classification": "actual11/0 pure Python after final bounded read/source receipt changes; no Cargo/cc/native"
+    }
+  },
+  "limitations": [
+    "ELF fixtures only; dynamic loader/system dependency trust, host installation, Engine publication, desktop/mobile providers and full PF06 remain open.",
+    "Expected current implicit flags may fail qualified policy1/2 and EXEC-only denial assertions. Actual runtime and qualification witness decide; no source-only RED declaration.",
+    "Outer supervised actual init reap is mandatory. Local command session kill cannot prove setsid scanner descendants gone; CI hard termination is infrastructure failure, not cleanup success.",
+    "Current Atomic native17 evidence belongs to its own source/receipt and does not substitute for memfd six runtime cases."
+  ]
+}
