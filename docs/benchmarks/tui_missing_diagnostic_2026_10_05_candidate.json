@@ -1,0 +1,37 @@
+{
+  "base_commit": "feef88eb2171c0e82a6ff0bcad639de9a18c0d5e",
+  "source": "crates/diskgraph-cli/src/tui/tests.rs",
+  "sha256": "b245e194de2c700810027df82f71bf44b9c33290e7a5cdcbf10bf0a92addcec4",
+  "change": "test diagnostic only; original NotFound and blank backend assertions unchanged",
+  "local_validation": {
+    "target": "1/0/0",
+    "cli_binary_regression": "66/0/0",
+    "fmt": "passed",
+    "strict_clippy": "passed",
+    "non_author_review": "APPROVE"
+  },
+  "raw": [
+    {
+      "path": "docs/benchmarks/tui_missing_diagnostic_green_2026_10_05.log.gz",
+      "raw_sha256": "120e5ad95267b84d5a22bb0999eab644880c4458b2a1afedb11da045348f1e26"
+    },
+    {
+      "path": "docs/benchmarks/tui_missing_diagnostic_regression_2026_10_05.log.gz",
+      "raw_sha256": "de0861bfc1e258090b31378926fdb6d8b26478d863d017b1621fca00dc7951a4"
+    },
+    {
+      "path": "docs/benchmarks/tui_missing_diagnostic_fmt_2026_10_05.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/benchmarks/tui_missing_diagnostic_clippy_2026_10_05.log.gz",
+      "raw_sha256": "c4e1ba9ef7c19e8dfe8848b180b37069dfd9ba6a75ca4d5151d6d1c4a2eace14"
+    }
+  ],
+  "limitations": [
+    "Old macOS Intel failure did not include actual result; its cause remains unknown.",
+    "This local passing run does not reproduce that failure or establish its fix.",
+    "Prints occur after returned errors; callback panic before return is not covered.",
+    "The production 50ms deadline and query budget are unchanged."
+  ]
+}

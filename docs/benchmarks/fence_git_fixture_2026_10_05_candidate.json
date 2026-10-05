@@ -1,0 +1,60 @@
+{
+  "base_commit": "feef88eb2171c0e82a6ff0bcad639de9a18c0d5e",
+  "scope": "historical fence regression fixture and existing Git assertion diagnostic only",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/src/process_fence_priority_tests.rs",
+      "sha256": "c1e85d4f0f8e07c387af13617757ecd4926ae1e692a464bff0ecf9c19ddec9c9"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/process_fence_priority_tests/historical_running_seed.rs",
+      "sha256": "13ddc5804825db3b81a3bf71b84fea7a12396e14eece698563af3d038c815f7c"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/git_evidence_execution_tests.rs",
+      "sha256": "f40eb7aa7c28c7834dac26698a739b3faa8230f1ac6cb8de65ba6e88d07fa0c8"
+    }
+  ],
+  "validation": {
+    "first_compilation": "E0277 u64 ToSql; not a behavioral RED",
+    "repaired_target": "3 passed / 0 failed / 0 ignored",
+    "mutation": "removed only early request-authority-denied return in isolated source; target failed with actual Business Timeout, exit101; production bytes restored",
+    "engine_library": "421 passed / 0 failed / 3 ignored",
+    "fmt": "passed",
+    "strict_clippy": "passed",
+    "non_author_review": "limited APPROVE; final checked-i64 repair and four-line Git diagnostic separately reviewed"
+  },
+  "raw": [
+    {
+      "path": "docs/benchmarks/fence_git_fixture_compile_failure_2026_10_05.log.gz",
+      "raw_sha256": "3a785da81f36582d7713cfd192224c322b33972f1d85cff997c5df16f02c152f"
+    },
+    {
+      "path": "docs/benchmarks/fence_git_fixture_target_green_2026_10_05.log.gz",
+      "raw_sha256": "46a72d398a5ddc3cedcf830bd85d3048a74bb396e30f88ab79fba7675b266a85"
+    },
+    {
+      "path": "docs/benchmarks/fence_git_fixture_mutation_2026_10_05.log.gz",
+      "raw_sha256": "ba3aa5867621c4cc970542bb2e8e70fcee4c0880f9d12cc10c1297b36eaa2a3b"
+    },
+    {
+      "path": "docs/benchmarks/fence_git_fixture_regression_2026_10_05.log.gz",
+      "raw_sha256": "038e13314fc0d7e930a820222ff40c0001e978a6eb832387ebcf2a354067ba91"
+    },
+    {
+      "path": "docs/benchmarks/fence_git_fixture_fmt_2026_10_05.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/benchmarks/fence_git_fixture_clippy_2026_10_05.log.gz",
+      "raw_sha256": "c56213747968cece7ca33fab701d227ddcbf05381024b9c0cb0cd7196338d789"
+    }
+  ],
+  "limitations": [
+    "Historical target deliberately seeds a separate already-expired immutable Running record; not a natural enqueue-claim-expiry end-to-end proof.",
+    "New independent live public enqueue/strict-claim/work positive test preserves real admission coverage.",
+    "Original process budget remains1000ms and seed lease30s; this fixture is not entirely independent of timing.",
+    "Git50ms/100ms and no-publication assertions unchanged; old Windows failure cause remains unknown.",
+    "Ignored native capabilities are not counted as passed."
+  ]
+}

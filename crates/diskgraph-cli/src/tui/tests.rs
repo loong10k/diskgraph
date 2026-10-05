@@ -148,10 +148,32 @@ fn nested_frame_limits_queries_and_keeps_navigation_visible() {
     let cached = load_layer(&request, 1).unwrap();
     let browser = Browser::new(&revision, cached.clone());
     let mut broken_terminal = Terminal::new(ratatui::backend::TestBackend::new(160, 30)).unwrap();
+    // 仅记录真实失败阶段；不延长期限、不消费读取错误，也不追加授权或 SQL 调用。
+    let missing_started = std::time::Instant::now();
+    let paint_entered = std::cell::Cell::new(None);
+    let missing_truncation = std::cell::Cell::new(None);
+    let paint_returned = std::cell::Cell::new(None);
     let missing = draw_authorized_frame(&mut broken_terminal, &request, &cached, |frame, reads| {
+        paint_entered.set(Some(missing_started.elapsed()));
         assert!(reads.load_layer(999999, PAGE_SIZE).is_none());
+        missing_truncation.set(Some(reads.truncation_reason));
         draw(frame, &browser, reads);
+        paint_returned.set(Some(missing_started.elapsed()));
     });
+    if !matches!(
+        &missing,
+        Err(EngineError::Business(
+            diskgraph_core::BusinessError::NotFound
+        ))
+    ) {
+        eprintln!(
+            "TUI_MISSING_FRAME result={missing:?} elapsed={:?} paint_entered={:?} missing_truncation={:?} paint_returned={:?}",
+            missing_started.elapsed(),
+            paint_entered.get(),
+            missing_truncation.get(),
+            paint_returned.get()
+        );
+    }
     assert!(matches!(
         missing,
         Err(EngineError::Business(

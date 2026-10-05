@@ -53,11 +53,11 @@ pub(super) fn assert_publication_reached(actual: &impl std::fmt::Debug) {
         )
     });
 }
-fn assert_capture_reached() {
+fn assert_capture_reached(actual: &EngineError) {
     CAPTURE.with(|slot| {
         assert!(
             slot.borrow().is_none(),
-            "did not reach the required active capture boundary"
+            "did not reach the required active capture boundary; phase=active_capture_not_reached; actual={actual:?}"
         )
     });
 }
@@ -399,7 +399,7 @@ fn git_claim_preparation_keeps_the_original_absolute_execution_deadline() {
         .engine
         .run_job(&job.job_id, "absolute-deadline")
         .unwrap_err();
-    assert_capture_reached();
+    assert_capture_reached(&error);
     assert!(
         matches!(error, EngineError::Business(BusinessError::Timeout)),
         "{error:?}"
@@ -439,7 +439,7 @@ fn git_keeper_observes_content_revocation_during_the_active_execution_window() {
         .engine
         .run_job_strict(&job.job_id, "live-revocation")
         .unwrap_err();
-    assert_capture_reached();
+    assert_capture_reached(&error);
     assert!(
         matches!(
             error,

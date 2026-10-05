@@ -1,9 +1,12 @@
-//! 原认证与原执行期限同时过期的阶段回归；来源：真实 Control 授权/认领和实际 Engine fence。
+//! 真实认领正控与历史过期状态的优先级回归；来源：Control 授权和实际 Engine fence。
+//! 历史目标由独占库显式插入，Session 准入时刻只在测试构造期间建模，不声称原自然到期链路不变。
 //! 合法协议 epoch 仅供控制事务使用，测试绝不打开资源、模拟 holder 或声称本机原生资格。
+mod historical_running_seed;
+
 use crate::native_process::ProcessNativeSession;
 use crate::{Engine, EngineConfig, EngineError};
 use diskgraph_core::{
-    IndexedFileEpoch, JobRequestAuthority, Permission, PrincipalId,
+    BusinessError, IndexedFileEpoch, JobRequestAuthority, Permission, PrincipalId,
     ProcessEvidenceFailureCode as Code, ProcessEvidenceJobInput, ProcessEvidenceLimits,
     ProcessObservationMethod,
 };
@@ -11,6 +14,8 @@ use diskgraph_store::{JobRecord, JobState, StoreError};
 use std::cell::Cell;
 use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+
+use historical_running_seed::HistoricalRunningSeed;
 
 /// 各例独占真实控制库及 scope 的纯控制阶段夹具；来源：Rust D42，不使用原生伪成功后端。
 struct FenceFixture {
@@ -110,8 +115,8 @@ fn now() -> u64 {
 }
 
 #[test]
-fn original_expiry_remains_authority_denied_when_execution_deadline_already_elapsed() {
-    let f = FenceFixture::new(5);
+fn live_public_claim_and_original_authority_reach_fence_work() {
+    let f = FenceFixture::new(60);
     let started = Instant::now();
     let deadline = started + Duration::from_millis(f.limits.max_duration_ms());
     let cancel = AtomicBool::new(false);
@@ -122,24 +127,14 @@ fn original_expiry_remains_authority_denied_when_execution_deadline_already_elap
     };
     let session = ProcessNativeSession::new(&f.limits, started, &cancel, &authority_check).unwrap();
     let reached = Cell::new(0);
-    // 实际合法原权限/原owner正控先穿过相同 helper，不能拒绝所有请求冒充正确。
+    // 独立正控真实入队和 strict claim 后穿过同一 helper，不能拒绝所有请求冒充正确。
     f.fence(deadline, &session, "original-owner", |lease| {
         assert!(lease > now() * 1000 + 1000);
         reached.set(reached.get() + 1);
         Ok(())
     })
     .unwrap();
-    let expiry = f.authority.expires_at_unix_seconds().unwrap();
-    while now() < expiry {
-        std::thread::sleep(Duration::from_millis(10));
-    }
-    assert!(Instant::now() >= deadline);
-    assert!(f.authority.validate_at(now()).is_err());
-    let result = f.fence(deadline, &session, "original-owner", |_| {
-        reached.set(reached.get() + 1);
-        Ok(())
-    });
-    assert_eq!(reached.get(), 1, "expired work must never execute");
+    assert_eq!(reached.get(), 1);
     assert_eq!(
         f.engine
             .control_store()
@@ -148,9 +143,80 @@ fn original_expiry_remains_authority_denied_when_execution_deadline_already_elap
             .unwrap(),
         Some(f.authority.clone())
     );
+}
+
+#[test]
+fn original_expiry_remains_authority_denied_when_execution_deadline_already_elapsed() {
+    // 原真实认领覆盖由独立正控保留。此目标是已认领后认证到期的历史状态，不让五秒认证与提交抢跑。
+    let f = FenceFixture::new(60);
+    let historical = HistoricalRunningSeed::new(
+        &f.engine,
+        &f._data.path().join("diskgraph-control.sqlite"),
+        &f.job,
+        &f.authority,
+    );
+    let expiry = historical.authority.expires_at_unix_seconds().unwrap();
+    assert_eq!(
+        historical.authority.validate_at(now()),
+        Err(BusinessError::PermissionDenied)
+    );
+    let started = Instant::now();
+    let deadline = started + Duration::from_millis(f.limits.max_duration_ms());
+    let cancel = AtomicBool::new(false);
+    // 只在 Session::new 建模历史准入时刻；成功后永久恢复真实时钟，目标拒绝来自真实已过的原 exp。
+    let admission_time = Cell::new(Some(expiry.checked_sub(1).unwrap()));
+    let authority_check = || {
+        historical
+            .authority
+            .validate_at(admission_time.get().unwrap_or_else(now))
+            .map_err(|_| Code::PermissionDenied)
+    };
+    let session = ProcessNativeSession::new(&f.limits, started, &cancel, &authority_check).unwrap();
+    admission_time.set(None);
+    while Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    assert!(admission_time.get().is_none());
+    assert!(Instant::now() >= deadline);
+    assert_eq!(
+        historical.authority.validate_at(now()),
+        Err(BusinessError::PermissionDenied)
+    );
+    assert!(
+        historical.job.lease_expires_unix_ms > now() * 1000 + 1000,
+        "historical seed lease expired before the required fence boundary"
+    );
+    // 先证明原会话的 Timeout 已锁存，再要求实际 Engine fence 保留已知原认证拒绝的更高优先级。
+    assert_eq!(session.check(), Err(Code::Timeout));
+    let reached = Cell::new(false);
+    let result = crate::process_execution_fence::checked(
+        &f.engine,
+        &historical.job.job_id,
+        &historical.job.owner,
+        historical.job.fencing_token,
+        deadline,
+        &session,
+        |_| {
+            reached.set(true);
+            Ok(())
+        },
+    );
+    assert!(!reached.get(), "expired work must never execute");
     assert!(
         matches!(&result, Err(EngineError::Store(StoreError::Conflict(message))) if message == "job request authority denied"),
         "actual stage result: {result:?}"
+    );
+    let control = f.engine.control_store().unwrap();
+    assert_eq!(
+        control
+            .job_request_authority(&historical.job.job_id)
+            .unwrap(),
+        Some(historical.authority.clone())
+    );
+    assert_eq!(control.job(&historical.job.job_id).unwrap(), historical.job);
+    assert_eq!(
+        control.job_request_authority(&f.job.job_id).unwrap(),
+        Some(f.authority.clone())
     );
 }
 
