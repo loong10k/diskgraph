@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "phase": "native RED prepared; not executed locally",
+  "archive_sha256": "e70ca048ac69b96c99bf15d3bf854ddddcaa368f2e5659401437e402a5a8dce5",
+  "source_count": 457,
+  "cases": [
+    "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
+    "native_child::windows::windows_cleanup_recovery_tests::cleanup_query_failure_retains_original_job_until_actual_retry",
+    "native_child::windows::windows_cleanup_recovery_tests::recovery_slot_survives_query_failure_until_original_job_is_observed_empty"
+  ],
+  "local_windows_harness_checks": {
+    "passed": 3,
+    "failed": 0
+  },
+  "shared_mount_checks": {
+    "passed": 8,
+    "failed": 0
+  },
+  "local_target": "aarch64-apple-darwin only; no Windows execution claimed",
+  "test_design": "real spawned test binary plus one-shot test boundary error; catch-external independent rescue retains owner responsibility; actual original retry calls required",
+  "production_algorithm": "unchanged; premature cleaned flag and handle discard intentionally retained for native RED"
+}

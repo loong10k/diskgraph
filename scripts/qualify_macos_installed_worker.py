@@ -25,10 +25,10 @@ def permitted(name):
                  or (name.startswith("crates/diskgraph-scan-worker/src/") and path.suffix == ".rs")))
 
 
-def mount(checkout):
+def mount(checkout, candidate=CANDIDATE):
     checkout = checkout.resolve(strict=True)
-    archive = checkout / CANDIDATE / "candidate.tar.gz"
-    manifest_path = checkout / CANDIDATE / "manifest.json"
+    archive = checkout / candidate / "candidate.tar.gz"
+    manifest_path = checkout / candidate / "manifest.json"
     if manifest_path.stat().st_size > 1024 * 1024 or archive.stat().st_size > 16 * 1024 * 1024:
         raise ValueError("candidate exceeds archive metadata budget")
     manifest = json.loads(manifest_path.read_text())

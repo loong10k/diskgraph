@@ -1,0 +1,29 @@
+name: Windows scan cleanup qualification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cleanup:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.13"
+      - name: Verify archive mounting safeguards
+        run: python -m unittest discover -s scripts/tests -p test_macos_installed_qualifier.py -v
+      - name: Verify exact native inventory and platform gate
+        run: python -m unittest discover -s scripts/tests -p test_windows_scan_cleanup_qualifier.py -v
+      - name: Actual Windows owner cleanup qualification
+        run: python scripts/qualify_windows_scan_cleanup.py --output-dir "${{ runner.temp }}/windows-cleanup"
+      - name: Preserve exact source and native failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-cleanup-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/windows-cleanup
+            crates/diskgraph-engine/integration_candidates/windows_cleanup
