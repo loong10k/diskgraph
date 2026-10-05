@@ -49,7 +49,15 @@ def executable_name(target):
 
 def file_identity(entry):
     """安装材料的变更见证，不作为平台原生执行身份能力。"""
-    return (entry.st_dev, entry.st_ino, entry.st_size, entry.st_mtime_ns, entry.st_ctime_ns)
+    # CPython 3.13 Windows 路径 stat 兼容用 birthtime 作 ctime，fstat 是真实 ChangeTime。
+    # 两者的共同准入字段使用显式 birthtime；句柄内仍单独严格核验真实 ChangeTime。
+    timestamp = entry.st_birthtime_ns if os.name == "nt" else entry.st_ctime_ns
+    return (entry.st_dev, entry.st_ino, entry.st_size, entry.st_mtime_ns, timestamp)
+
+
+def opened_file_identity(entry):
+    """同一打开文件前后保留真实 change 时间，不用 creation 时间替代修改见证。"""
+    return (*file_identity(entry), entry.st_ctime_ns)
 
 
 @contextmanager
@@ -69,7 +77,7 @@ def admitted_file(path, byte_limit):
         if not 0 < before.st_size <= byte_limit:
             raise ValueError("artifact byte budget exceeded or empty")
         yield stream, before
-        if stream.read(1) or file_identity(os.fstat(stream.fileno())) != file_identity(before):
+        if stream.read(1) or opened_file_identity(os.fstat(stream.fileno())) != opened_file_identity(before):
             raise ValueError("artifact changed during bounded read")
         after_path = path.lstat()
         if not stat.S_ISREG(after_path.st_mode) or file_identity(after_path) != file_identity(before):

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "base_commit": "2db742a8e9218a035b852af2197ff0a6b2ecebcc",
+  "failed_ci": {
+    "run": 37274530708,
+    "job": 111648650414
+  },
+  "status": "local_semantics_regression_passed_windows_native_pending",
+  "sources": {
+    "scripts/worker_manifest.py": "9f2f9859991d5605cbd5d4147b1c769886362d12a07edd60b02c5cc8a94f7274",
+    "scripts/test_worker_manifest_admission.py": "c72fa29a56fa9da320b89dec1bb579f29f12ac25618abd53cb5892791e17a150"
+  },
+  "evidence": {
+    "native_failure": {
+      "path": "docs/benchmarks/windows_package_stat_2026_10_05_native_failure.log.gz",
+      "sha256": "ff1d8d94969d56d1e862838aab0aa19f4cbcc81676ec876ceb527ccd422ffb39",
+      "bytes": 66120
+    },
+    "field_semantics_red": {
+      "path": "docs/benchmarks/windows_package_stat_2026_10_05_field_semantics_red.log.gz",
+      "sha256": "c689fbded27c44893276fa3692fcba5ef7b82fdd3095acc82af4d3eaf12c6277",
+      "bytes": 1987
+    },
+    "admission_green": {
+      "path": "docs/benchmarks/windows_package_stat_2026_10_05_admission_green.log.gz",
+      "sha256": "41a1335db6f77f86aab497aec2eb8f00b3b6420fe9559067aac8fd0682e0a67d",
+      "bytes": 924
+    },
+    "composition_green": {
+      "path": "docs/benchmarks/windows_package_stat_2026_10_05_composition_green.log.gz",
+      "sha256": "1d2cf1184c2f6d25056e48e40ce17ad05723234b10133d7e164b77463e6c57d8",
+      "bytes": 1590
+    }
+  },
+  "checks": {
+    "field_semantics_actual_red_failures": 1,
+    "local_admission_tests": 5,
+    "local_package_tests": 9
+  },
+  "rationale": "CPython 3.13 path stat maps ctime to BirthTime for compatibility; fstat retains ChangeTime. Compare shared BirthTime for path admission and keep real held-FD ChangeTime for before/after mutation rejection. Full inode, device, size and high-precision mtime remain compared.",
+  "primary_sources": [
+    "https://raw.githubusercontent.com/python/cpython/v3.13.15/Modules/posixmodule.c",
+    "https://raw.githubusercontent.com/python/cpython/v3.13.15/Python/fileutils.c"
+  ],
+  "limitations": [
+    "Field fixture on macOS is not actual Windows execution.",
+    "Windows actual read-only package must pass the new same-SHA CI.",
+    "No trusted executable image launch permission is implied."
+  ]
+}

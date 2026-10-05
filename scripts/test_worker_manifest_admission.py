@@ -7,6 +7,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest import mock
+from types import SimpleNamespace
 
 import worker_manifest as manifest
 from test_scan_worker_package import NAMES, PackageFixture
@@ -79,6 +80,19 @@ class ManifestAdmissionTests(unittest.TestCase):
             manifest.read_manifest(self.path)
         self.path.write_text(json.dumps({"schema_version": 1}))
         self.assertEqual(manifest.read_manifest(self.path), {"schema_version": 1})
+
+    def test_windows_path_birthtime_and_open_change_time_are_separate(self):
+        # CPython 3.13 lstat 兼容返回 birthtime 作为 ctime，而 fstat 返回 ChangeTime。
+        # 这是固定字段语义反例；真实 Windows 运行另由原生 CI 验证。
+        common = dict(st_dev=7, st_ino=2**96 + 17, st_size=13,
+                      st_mtime_ns=30, st_birthtime_ns=10)
+        path = SimpleNamespace(**common, st_ctime_ns=10)
+        opened = SimpleNamespace(**common, st_ctime_ns=40)
+        modified = SimpleNamespace(**common, st_ctime_ns=41)
+        with mock.patch.object(manifest.os, "name", "nt"):
+            self.assertEqual(manifest.file_identity(path), manifest.file_identity(opened))
+            self.assertNotEqual(manifest.opened_file_identity(opened),
+                                manifest.opened_file_identity(modified))
 
 
 if __name__ == "__main__":
