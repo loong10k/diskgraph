@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "head_sha": "f0d4957ebedf615eb85acab0b82dd600330613de",
+  "run": 37278797756,
+  "status": "completed",
+  "conclusion": "success",
+  "jobs_passed": 22,
+  "artifact": {
+    "path": "docs/benchmarks/desktop_ci_2026_10_05_f0d4957.json.gz",
+    "raw_sha256": "d52e958196e4c592b2adc38be7394a07b09c637a235da37241a5dbdf1c1eadac",
+    "gzip_sha256": "677f94558d330eb63a96e5f8f159d1167ef31f24f061a7f0be24b787f75f0033"
+  },
+  "scope": [
+    "Three desktop systems and five desktop package architectures, as named by this workflow.",
+    "Existing Swift/Kotlin host and current Engine/FFI contracts, not every planned host capability.",
+    "New trusted installation material tests included on native supported runners."
+  ],
+  "baseline_diagnostic": "Skipped because original paired benchmark succeeded on this run; this does not establish the root cause of previous intermittent baseline failures.",
+  "limits": [
+    "Engine still uses in-process ScanHandle; new parent driver/atomic launcher candidates not mounted in this SHA.",
+    "No Android/iOS provider or physical-device gate is included.",
+    "No dangerous operation, signed release, or all-platform production completion is inferred."
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "scope": "actual native macOS parent-driver Result error and child owner transfer; components not yet mounted in the production Engine",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_child.rs",
+      "sha256": "5f793547501e3692a51e2620ca3b3c34bc04746bebc15b2a3e319c5e9b13ea07"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owned_failure.rs",
+      "sha256": "bc6fbed328bcf4954fba9111bb8e517c85a8c4b21f914342c9a2303aa4a55bdb"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver.rs",
+      "sha256": "aa5038a1fb477c28e08fb724fb73e2fb780316605ba67dcda9e525372f7ad1af"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owned_failure_tests.rs",
+      "sha256": "6f978009f13e64e2021da0a1d64ae7ade7ce0ae8885661d56b5f27247f7a44ba"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owned_failure_test_support.rs",
+      "sha256": "15b8052e2b623b86184132d68c8a06173214835e79fd7c40550c67ad5b6d1b85"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_failure.rs",
+      "sha256": "1335c287bbce3a3c1dd58fbea3735dea38804f5fe3ff6e402a9f308db95293ec"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_input.rs",
+      "sha256": "332ccfc98c7d33dc1731509f8937f4afa96cb0c36397ceda06e813ef16ccb3dc"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_input_buffer.rs",
+      "sha256": "a9c481de8f5aeec9551da5b7aad9e37aaaa7b1a29afef8b62b0a391a055873fe"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_output.rs",
+      "sha256": "7a82d6ce11d0bf2a10622ec56d622674ce8f25990c51e85dddbdb38e80205442"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_tests.rs",
+      "sha256": "dddbdbb5326d2eeccf9bad014063b45314afb19b43837e782da4cbad9dc71702"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs",
+      "sha256": "f4234fe46800869f1529ea9369706f86365d891b77da4f4e0ddc61eaa33d5ed3"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_test_support.rs",
+      "sha256": "d4dcc1442c4b1f5b49b086e5fd06e1c502cdff2d531509aedd776cd0f41c039a"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_fixture.rs",
+      "sha256": "3c6180f900c9be83430aa98ac914c9f3af7422d7d8374b4d0e32511eb7e3ad8b"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_input_budget_tests.rs",
+      "sha256": "994872a6890084bd0a8dc9bc50f54e630bffc59923bd23fc4be4aa5f20ba258f"
+    }
+  ],
+  "tests": {
+    "new_owned_failure": {
+      "passed": 4,
+      "failed": 0
+    },
+    "original_parent_driver": {
+      "passed": 10,
+      "failed": 0
+    },
+    "input_budget": {
+      "passed": 2,
+      "failed": 0
+    },
+    "source_layout": {
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "interface_absence": "only missing module/method after actual worker dependency was admitted; no runtime behavior RED claim",
+  "observations": [
+    "Actual control EOF, retained WNOWAIT, actual external waitpid and real ECHILD are used; an unrelated real child remains alive.",
+    "Original boxed native I/O payload and first cleanup object remain the same through repeated failed disposition.",
+    "No mock cleanup_fault or synthetic alive flag used in these four cases."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/benchmarks/scan_worker_owned_failure_2026_10_05_0.gz",
+      "raw_sha256": "26731f1ffd4400761ec1510deb37cdc889105da51fd55e12cd24da1e9f0b46f9",
+      "raw_bytes": 1911,
+      "gzip_sha256": "9d67b281cfe83270c3cd068ef61c0dd17ce51ffaac585bd55890e5019240df8f"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_owned_failure_2026_10_05_1.gz",
+      "raw_sha256": "cdee1fbc2048fac52edcf85ab1f2a9cfcbd51f26fddb31122525e5677a9c932a",
+      "raw_bytes": 2045,
+      "gzip_sha256": "f5c5d923c3ccb9c733a5cfc7885125d5c4b08f62aa4457ddf3ac007b68739db7"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_owned_failure_2026_10_05_2.gz",
+      "raw_sha256": "78141a8eae46804afea3a4d90f66aac1576837d7eaab93a04b836873b69e70c9",
+      "raw_bytes": 2978,
+      "gzip_sha256": "36bfc63a4f7b8ff6a15e3dff474e5e1a030fac74b891e83cb53c46b0240e80ae"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_owned_failure_2026_10_05_3.gz",
+      "raw_sha256": "07948ae837313a1090347a67d5ee642c34d2342ddcf2edf138bb717271ef9b93",
+      "raw_bytes": 1752,
+      "gzip_sha256": "51acd99f5c2fef01b453a848b3f5cb23ea027c2a2c48abaaa63c51763c1460d5"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_owned_failure_2026_10_05_4.gz",
+      "raw_sha256": "696d787cc9919b551c4d0f12366c113eba04b06ecde52e9a125004d66220104d",
+      "raw_bytes": 12297,
+      "gzip_sha256": "3f094079c8bfa2c5caa9c5f911c67732b82e272cf86ef41da6fdbce6282225a3"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_owned_failure_2026_10_05_5.gz",
+      "raw_sha256": "e3815aeaf1fba132c533eb60cf329505b5e519b4367f96ce3d76a61c8207df05",
+      "raw_bytes": 1139,
+      "gzip_sha256": "2ee069c1548f79311de34f15cd620440618019a9bc1b3b9e84c908f69ceefe22"
+    }
+  ],
+  "warnings": "Isolated partial-component build has unused/dead-code warnings pending Engine consumer integration; strict Clippy acceptance is not claimed.",
+  "limits": [
+    "External-reap case establishes lost wait ownership, not live-child signal rejection.",
+    "Linux atomic alias has no Unix/SCM fallback, but actual Linux launch/owner tests pending.",
+    "Panic outer host disposal slot, finite process capacity accounting and Engine publication wiring pending.",
+    "Root lib remains unmounted for these parent-driver sources; no production execution permission or PF-06 completion implied.",
+    "Early mount qualification missing dev-dependency/test cfg corrected before source-layout 4/0; bookkeeping receipt source argument corrected after successful rustc, not test behavior RED."
+  ]
+}
