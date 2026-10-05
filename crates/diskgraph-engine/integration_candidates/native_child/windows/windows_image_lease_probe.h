@@ -37,6 +37,7 @@ typedef struct ImageLeaseProbe {
     DWORD lease_error;
     DWORD image_error;
     DWORD ancestor_rename_error;
+    DWORD ancestor_original_held_error;
     unsigned int launches;
     unsigned int actual_waits;
     unsigned int empty_jobs;
@@ -45,7 +46,11 @@ typedef struct ImageLeaseProbe {
     BOOL mapping_handle_closed;
     BOOL view_changed;
     BOOL route_changed;
-    BOOL ancestor_prelease_qualified;
+    BOOL ancestor_no_child_handles_qualified;
+    BOOL route_unchanged_held_only;
+    BOOL loaded_a_held_only;
+    BOOL ancestor_lease_closed;
+    BOOL ancestor_held_closed;
     BOOL route_unchanged_under_lease;
     BOOL loaded_a_under_lease;
     BOOL released_rename_succeeded;

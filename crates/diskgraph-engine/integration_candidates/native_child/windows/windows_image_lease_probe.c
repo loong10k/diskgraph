@@ -42,7 +42,10 @@ int wmain(int argc, wchar_t **argv) {
            "\"lease_error\":%lu,\"image_error\":%lu,\"same_file\":%s,"
            "\"writer_closed\":%s,\"mapping_handle_closed\":%s,\"view_changed\":%s,"
            "\"route_changed\":%s,\"ancestor_rename_error\":%lu,"
-           "\"ancestor_prelease_qualified\":%s,\"route_unchanged_under_lease\":%s,"
+           "\"ancestor_original_held_error\":%lu,"
+           "\"route_unchanged_held_only\":%s,\"loaded_a_held_only\":%s,"
+           "\"ancestor_lease_closed\":%s,\"ancestor_held_closed\":%s,"
+           "\"ancestor_no_child_handles_qualified\":%s,\"route_unchanged_under_lease\":%s,"
            "\"loaded_a_under_lease\":%s,\"released_rename_succeeded\":%s,"
            "\"loaded_b_after_release\":%s,\"kernel_route_qualified\":%s,"
            "\"loaded_b_via_original_route\":%s,\"kernel_route_unchanged_after_rebind\":%s,"
@@ -53,7 +56,10 @@ int wmain(int argc, wchar_t **argv) {
            p.lease_error, p.image_error, p.same_file ? "true" : "false",
            p.writer_closed ? "true" : "false", p.mapping_handle_closed ? "true" : "false",
            p.view_changed ? "true" : "false", p.route_changed ? "true" : "false",
-           p.ancestor_rename_error, p.ancestor_prelease_qualified ? "true" : "false",
+           p.ancestor_rename_error, p.ancestor_original_held_error,
+           p.route_unchanged_held_only ? "true" : "false", p.loaded_a_held_only ? "true" : "false",
+           p.ancestor_lease_closed ? "true" : "false", p.ancestor_held_closed ? "true" : "false",
+           p.ancestor_no_child_handles_qualified ? "true" : "false",
            p.route_unchanged_under_lease ? "true" : "false", p.loaded_a_under_lease ? "true" : "false",
            p.released_rename_succeeded ? "true" : "false", p.loaded_b_after_release ? "true" : "false",
            p.kernel_route_qualified ? "true" : "false", p.loaded_b_via_original_route ? "true" : "false",

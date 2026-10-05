@@ -126,6 +126,84 @@ static int capture_kernel_route(ImageLeaseProbe *p, wchar_t *route) {
     return probe_check(p);
 }
 
+/* 普通目录 rename 的保护来自仍打开的子文件，不归因于新 read lease。 */
+static int probe_ordinary_ancestor(ImageLeaseProbe *p, const wchar_t *container,
+                                    const wchar_t *parked, const wchar_t *route) {
+    FILE_ID_INFO original = {0}, replacement = {0};
+    HANDLE reopened;
+    DWORD error;
+    /* 无子文件句柄时，先证明相同非空目录操作及恢复成功。 */
+    if (!MoveFileExW(container, parked, 0) || !MoveFileExW(parked, container, 0)) {
+        error = GetLastError(); return probe_fail(p, "ancestor_no_handle_positive", error);
+    }
+    if (!probe_execute(p, route, 'A')) return 0;
+    p->ancestor_no_child_handles_qualified = TRUE;
+    if (!probe_open_held(p)) return 0;
+    if (!probe_acquire_lease(p))
+        return probe_fail(p, "ancestor_handles_qualification", p->lease_error);
+    if (!GetFileInformationByHandleEx(p->held, FileIdInfo, &original, sizeof(original))) {
+        error = GetLastError(); return probe_fail(p, "ancestor_original_identity", error);
+    }
+    if (MoveFileExW(container, parked, 0))
+        return probe_fail(p, "ancestor_with_handles_unexpected_success", ERROR_INVALID_DATA);
+    p->ancestor_rename_error = GetLastError();
+    if (p->ancestor_rename_error != ERROR_ACCESS_DENIED &&
+        p->ancestor_rename_error != ERROR_SHARING_VIOLATION)
+        return probe_fail(p, "ancestor_held_unexpected_error", p->ancestor_rename_error);
+    if (!verify_route_objects(p, route, FALSE, TRUE) || !probe_execute(p, route, 'A')) return 0;
+    p->route_unchanged_under_lease = TRUE;
+    p->loaded_a_under_lease = TRUE;
+    if (!CloseHandle(p->lease)) {
+        error = GetLastError(); return probe_fail(p, "ancestor_lease_release", error);
+    }
+    p->lease = INVALID_HANDLE_VALUE;
+    p->ancestor_lease_closed = TRUE;
+    /* 关闭新 lease 后原始 held 仍在，必须单独验证同一 rename 仍被拒。 */
+    if (MoveFileExW(container, parked, 0))
+        return probe_fail(p, "ancestor_original_held_unexpected_success", ERROR_INVALID_DATA);
+    p->ancestor_original_held_error = GetLastError();
+    if (p->ancestor_original_held_error != ERROR_ACCESS_DENIED &&
+        p->ancestor_original_held_error != ERROR_SHARING_VIOLATION)
+        return probe_fail(p, "ancestor_original_held_unexpected_error", p->ancestor_original_held_error);
+    if (!verify_route_objects(p, route, FALSE, FALSE) || !probe_execute(p, route, 'A')) return 0;
+    p->route_unchanged_held_only = TRUE;
+    p->loaded_a_held_only = TRUE;
+    if (!CloseHandle(p->held)) {
+        error = GetLastError(); return probe_fail(p, "ancestor_original_release", error);
+    }
+    p->held = INVALID_HANDLE_VALUE;
+    p->ancestor_held_closed = TRUE;
+    if (!MoveFileExW(container, parked, 0)) {
+        error = GetLastError(); return probe_fail(p, "ancestor_all_handles_released_positive", error);
+    }
+    p->released_rename_succeeded = TRUE;
+    if (!CreateDirectoryW(container, NULL) || !CopyFileW(p->image_b, route, TRUE)) {
+        error = GetLastError(); return probe_fail(p, "ancestor_replacement_b", error);
+    }
+    reopened = CreateFileW(route, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                           NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (reopened == INVALID_HANDLE_VALUE) {
+        error = GetLastError(); return probe_fail(p, "ancestor_replacement_open", error);
+    }
+    if (!GetFileInformationByHandleEx(reopened, FileIdInfo, &replacement, sizeof(replacement))) {
+        error = GetLastError();
+        if (!CloseHandle(reopened) && !p->cleanup_error) p->cleanup_error = GetLastError();
+        return probe_fail(p, "ancestor_replacement_identity", error);
+    }
+    if (!CloseHandle(reopened)) {
+        error = GetLastError(); return probe_fail(p, "ancestor_replacement_close", error);
+    }
+    /* 使用关闭前已获取的完整身份，不查询已关闭的 held。 */
+    p->route_changed = original.VolumeSerialNumber != replacement.VolumeSerialNumber ||
+                       memcmp(original.FileId.Identifier, replacement.FileId.Identifier, 16) != 0;
+    if (!p->route_changed || !probe_execute(p, route, 'B'))
+        return probe_fail(p, "ancestor_replacement_not_verified", ERROR_INVALID_DATA);
+    p->loaded_b_after_release = TRUE;
+    p->classification = "ancestor_rename_blocked_by_open_child";
+    p->stage = "open_child_denied_all_handles_released_loaded_b";
+    return probe_check(p);
+}
+
 int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
     wchar_t container[PROBE_PATH_CAP], parked[PROBE_PATH_CAP], other[PROBE_PATH_CAP];
     wchar_t route[PROBE_PATH_CAP], other_image[PROBE_PATH_CAP], original_image[PROBE_PATH_CAP];
@@ -150,18 +228,8 @@ int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
     }
     if (wcscpy_s(p->image_a, PROBE_PATH_CAP, route) != 0)
         return probe_fail(p, "route_copy_bound", ERROR_BUFFER_OVERFLOW);
+    if (case_id == 6) return probe_ordinary_ancestor(p, container, parked, route);
     if (!probe_open_held(p)) return 0;
-    if (case_id == 6) {
-        /* 同一非空目录、原 shareR/W/D held：先证明精确 rename 及还原可执行。 */
-        if (!MoveFileExW(container, parked, 0)) {
-            error = GetLastError(); return probe_fail(p, "ancestor_prelease_rename", error);
-        }
-        if (!MoveFileExW(parked, container, 0)) {
-            error = GetLastError(); return probe_fail(p, "ancestor_prelease_restore", error);
-        }
-        if (!verify_route_objects(p, route, FALSE, FALSE) || !probe_execute(p, route, 'A')) return 0;
-        p->ancestor_prelease_qualified = TRUE;
-    }
     if (!probe_acquire_lease(p)) return probe_fail(p, "route_leaf_lease_qualification", p->lease_error);
     if (case_id == 8) {
         if (!capture_kernel_route(p, kernel_route) ||
@@ -169,33 +237,8 @@ int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
             !probe_execute(p, kernel_route, 'A')) return 0;
         p->kernel_route_qualified = TRUE;
     }
-    if (case_id >= 7) {
-        /* 此案独立改变同一个 junction 的数据，不依赖祖先 rename 是否被拒。 */
-        if (!remove_junction_data(p, container)) return 0;
-        if (!create_junction(p, container, other)) return 0;
-    } else {
-        if (!MoveFileExW(container, parked, 0)) {
-            /* 普通 rename 被拒也须真实前后正控，不能将能力不足洗成保护成功。 */
-            p->ancestor_rename_error = GetLastError();
-            if (p->ancestor_rename_error != ERROR_ACCESS_DENIED &&
-                p->ancestor_rename_error != ERROR_SHARING_VIOLATION)
-                return probe_fail(p, "ancestor_rename_unexpected_error", p->ancestor_rename_error);
-            if (!verify_route_objects(p, route, FALSE, TRUE) || !probe_execute(p, route, 'A')) return 0;
-            p->route_unchanged_under_lease = TRUE;
-            p->loaded_a_under_lease = TRUE;
-            if (!CloseHandle(p->lease)) {
-                error = GetLastError(); return probe_fail(p, "ancestor_lease_release", error);
-            }
-            p->lease = INVALID_HANDLE_VALUE;
-            if (!MoveFileExW(container, parked, 0)) {
-                error = GetLastError(); return probe_fail(p, "ancestor_released_rename", error);
-            }
-            p->released_rename_succeeded = TRUE;
-        }
-        if (!CreateDirectoryW(container, NULL) || !CopyFileW(p->image_b, route, TRUE)) {
-            error = GetLastError(); return probe_fail(p, "replacement_b_qualification", error);
-        }
-    }
+    /* 独立改变同一个 junction，不依赖普通祖先 rename 的行为。 */
+    if (!remove_junction_data(p, container) || !create_junction(p, container, other)) return 0;
     if (!verify_route_objects(p, route, TRUE, p->lease != INVALID_HANDLE_VALUE) ||
         !probe_execute(p, route, 'B')) return 0;
     if (case_id == 8) {
@@ -208,14 +251,8 @@ int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
         p->stage = "original_route_b_resolved_route_a";
         return probe_check(p);
     }
-    if (case_id == 6 && p->ancestor_rename_error != ERROR_SUCCESS) {
-        p->loaded_b_after_release = TRUE;
-        p->classification = "ancestor_rename_blocked_by_leaf_lease";
-        p->stage = "ordinary_rename_denied_then_released_loaded_b";
-        return probe_check(p);
-    }
     /* 这证明 leaf-only 缺口；它绝不是安全能力或整条执行 lease 的通过。 */
     p->classification = "characterized_gap";
-    p->stage = case_id == 7 ? "leaf_lease_junction_loaded_b" : "leaf_lease_ancestor_loaded_b";
+    p->stage = "leaf_lease_junction_loaded_b";
     return probe_check(p);
 }
