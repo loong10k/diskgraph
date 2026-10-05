@@ -2954,5 +2954,30 @@
         "raw_sha256": "d8c906fc76446f29e87106c67ee60e0220bb1a328eb6afe14ef7e3edde09f79e"
       }
     ]
+  },
+  "parent_driver_first_native_execution": {
+    "platform": "macOS arm64",
+    "execution": "isolated HEAD79 plus frozen native candidates and parent driver; separate actual fixture binary",
+    "result": "10 passed / 0 failed; original seven unchanged tests plus three author-added tests",
+    "build_result": "exit0 with three unused-consumer warnings; strict production lint acceptance remains open until Engine wiring",
+    "interfaces": "worker regular path dependency and five modules mounted only in isolated checkout",
+    "not_proven": [
+      "actual Engine integration",
+      "Windows execution",
+      "Linux execution",
+      "trusted helper image qualification",
+      "complete PF-06"
+    ],
+    "no_parent_tasks_closed": true,
+    "raw": [
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-driver-first-macos-runtime.log.gz",
+        "raw_sha256": "aa6d74e97d6756a8d89917824def740290f0ab7f1b24cf267a24b17d84a670be"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-driver-frozen-candidate.json.gz",
+        "raw_sha256": "a031b90e3abc57b0c022be0357864402905ae1561ef645943b6f20ac470ccf2a"
+      }
+    ]
   }
 }
