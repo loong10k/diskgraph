@@ -11,6 +11,7 @@ use diskgraph_store::{ControlStore, SqliteSnapshotStore};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::cell::{Cell, RefCell};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::time::Instant;
 
 const REVISION: &str = "scope-projection-import";
 const FIELD_BYTES: usize = 2 << 20;
@@ -327,37 +328,75 @@ fn revoke_during_terminal_authorization(revoke_scope: bool) {
         ControlStore::open(&directory.path().join("data/diskgraph-control.sqlite")).unwrap(),
     );
     let withdrawn = Cell::new(false);
+    // 只记录真实调用边界，不创建或延长任何授权期限；输出在 display 返回后。
+    let callback_started = Cell::new(None::<Instant>);
+    let revoke_returned = Cell::new(None::<Instant>);
+    let consumer_started = Cell::new(None::<Instant>);
+    let consumer_returned = Cell::new(None::<Instant>);
+    let original_deadline = Cell::new(None::<Instant>);
     let authorizer = CallbackAuthorizer {
         policy: &policy,
         calls: Cell::new(0),
         allowed: Cell::new(0),
         callback: |call| {
             if call == 2 {
-                if revoke_scope {
-                    external.borrow_mut().revoke_scope(&scope).unwrap();
+                callback_started.set(Some(Instant::now()));
+                let revoked = if revoke_scope {
+                    external.borrow_mut().revoke_scope(&scope)
                 } else {
-                    external
-                        .borrow_mut()
-                        .revoke_grant(&principal, &Permission::MetadataRead, &scope)
-                        .unwrap();
-                }
+                    external.borrow_mut().revoke_grant(
+                        &principal,
+                        &Permission::MetadataRead,
+                        &scope,
+                    )
+                };
+                revoke_returned.set(Some(Instant::now()));
+                revoked.unwrap();
                 withdrawn.set(true);
             }
         },
     };
     let consumed = Cell::new(false);
+    let display_started = Instant::now();
     let result = engine.with_authorized_revision_display_reader_bounded(
         REVISION,
         &principal,
         &authorizer,
         budget(),
         |reader, snapshot, mut reads| {
+            consumer_started.set(Some(Instant::now()));
+            original_deadline.set(Some(reads.deadline()));
             let parent = reader
                 .navigation_node_with_budget(snapshot, 1, &mut reads)?
                 .ok_or(EngineError::Business(BusinessError::NotFound))?;
             consumed.set(parent.id == 1 && parent.name == "root");
+            consumer_returned.set(Some(Instant::now()));
             Ok(RevisionDisplayCompletion::Complete)
         },
+    );
+    let display_returned = Instant::now();
+    let offset_us = |instant: Option<Instant>| {
+        instant.map(|instant| instant.duration_since(display_started).as_micros())
+    };
+    let revoke_us = callback_started
+        .get()
+        .zip(revoke_returned.get())
+        .map(|(start, end)| end.duration_since(start).as_micros());
+    // 独立撤销不进入 allocation 计量窗；这里不做 SQL、不推断内部 fsync/锁/VM 阶段耗时。
+    eprintln!(
+        "SCOPE_TERMINAL_DIAGNOSTIC revoke_scope={revoke_scope} deadline_ms=50 display_us={} consumer_enter_us={:?} consumer_exit_us={:?} callback2_start_us={:?} revoke_return_us={:?} revoke_us={revoke_us:?} original_deadline_elapsed={:?} consumed={} withdrawn={} auth_calls={} allowed={} result={result:?}",
+        display_returned.duration_since(display_started).as_micros(),
+        offset_us(consumer_started.get()),
+        offset_us(consumer_returned.get()),
+        offset_us(callback_started.get()),
+        offset_us(revoke_returned.get()),
+        original_deadline
+            .get()
+            .map(|deadline| display_returned >= deadline),
+        consumed.get(),
+        withdrawn.get(),
+        authorizer.calls.get(),
+        authorizer.allowed.get(),
     );
     assert!(
         consumed.get(),

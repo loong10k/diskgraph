@@ -3,6 +3,8 @@ use super::git_metadata_budget::GitMetadataBudget;
 use super::git_metadata_version::GitMetadataVersion;
 use super::git_private_directory::GitPrivateDirectory;
 use super::git_source_directory::GitSourceDirectory;
+#[cfg(all(test, windows))]
+use super::git_source_windows_phase::GitSourceWindowsPhase;
 use super::probe_budget::ProbeBudget;
 use sha2::{Digest, Sha256};
 use std::ffi::OsStr;
@@ -27,6 +29,8 @@ impl GitSourceFile {
         probe: &mut ProbeBudget,
     ) -> Result<Self, String> {
         budget.charge_entry(probe)?;
+        #[cfg(all(test, windows))]
+        let _phase = GitSourceWindowsPhase::new("captured_leaf_initial");
         let mut file = parent.open_file(name)?;
         let metadata = file.metadata().map_err(|e| e.to_string())?;
         // 模式、长度和 Unix 版本必须来自同一次 fstat，不能拼接两次观察。
@@ -80,6 +84,8 @@ impl GitSourceFile {
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
         budget.charge_entry(probe)?;
+        #[cfg(all(test, windows))]
+        let _phase = GitSourceWindowsPhase::new("captured_leaf_verify");
         let mut file = parent.open_file(name)?;
         if !self.version.same_initial(&version(&file)?) {
             return Err("scoped Git source version changed".into());

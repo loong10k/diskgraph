@@ -91,6 +91,10 @@ mod git_source_file;
 mod git_source_unix;
 #[cfg(windows)]
 mod git_source_windows;
+#[cfg(all(test, windows))]
+mod git_source_windows_diagnostic;
+#[cfg(all(test, windows))]
+mod git_source_windows_phase;
 mod git_stash;
 #[cfg(test)]
 mod git_stash_tests;

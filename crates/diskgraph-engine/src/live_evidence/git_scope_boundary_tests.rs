@@ -4,6 +4,8 @@
 use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_scoped_fixture::{prepare, rejection};
+#[cfg(windows)]
+use super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic;
 use super::probe_budget::ProbeBudget;
 
 #[test]
@@ -78,10 +80,14 @@ fn registered_parent_allows_linked_worktree_and_absolute_common_dependency() {
     let project =
         diskgraph_core::QualifiedLocator::from_native_path(&linked.canonicalize().unwrap())
             .unwrap();
+    #[cfg(windows)]
+    let diagnostic = GitSourceWindowsDiagnostic::new();
     let sample = super::EvidenceProbeSession::new(&ProbeLimits::default())
         .unwrap()
-        .sample_git_scoped(std::path::Path::new("git"), root, &project)
-        .unwrap();
+        .sample_git_scoped(std::path::Path::new("git"), root, &project);
+    #[cfg(windows)]
+    diagnostic.report();
+    let sample = sample.unwrap();
     assert_eq!(sample.dirty_count, 1);
     assert_eq!(sample.stash_count, 1);
     assert!(sample.head.is_some());

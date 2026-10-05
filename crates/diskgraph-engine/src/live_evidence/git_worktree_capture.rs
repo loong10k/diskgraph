@@ -5,6 +5,8 @@ use super::git_native_path;
 use super::git_private_directory::GitPrivateDirectory;
 use super::git_scope_boundary::GitScopeBoundary;
 use super::git_source_file::GitSourceFile;
+#[cfg(all(test, windows))]
+use super::git_source_windows_phase::GitSourceWindowsPhase;
 use super::probe_budget::ProbeBudget;
 use std::collections::BTreeMap;
 use std::ffi::OsString;
@@ -75,6 +77,8 @@ impl GitWorktreeCapture {
         budget: &mut GitMetadataBudget,
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
+        #[cfg(all(test, windows))]
+        let _phase = GitSourceWindowsPhase::new("captured_subtree_initial");
         let mut pending = vec![relative.to_path_buf()];
         while let Some(relative) = pending.pop() {
             budget.check(probe)?;
@@ -145,6 +149,8 @@ impl GitWorktreeCapture {
         budget: &mut GitMetadataBudget,
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
+        #[cfg(all(test, windows))]
+        let _phase = GitSourceWindowsPhase::new("captured_subtree_verify");
         self.boundary.verify(probe)?;
         for (path, (version, names)) in &self.directories {
             let source = self.boundary.directory(path, probe)?;

@@ -27,6 +27,21 @@ pub(crate) struct WindowsFileState {
 }
 
 impl WindowsFileState {
+    /// 参数：other 为同次原有捕获状态；不读取句柄或复制字段值。
+    /// 返回：完整 Eq 字段的差异位：卷、ID、EOF、创建、写入、变化、属性、类型、删除依次为 bit0..8。
+    #[cfg(test)]
+    pub(crate) fn changed_mask(&self, other: &Self) -> u16 {
+        u16::from(self.volume != other.volume)
+            | (u16::from(self.id != other.id) << 1)
+            | (u16::from(self.len != other.len) << 2)
+            | (u16::from(self.creation != other.creation) << 3)
+            | (u16::from(self.modified != other.modified) << 4)
+            | (u16::from(self.changed != other.changed) << 5)
+            | (u16::from(self.attributes != other.attributes) << 6)
+            | (u16::from(self.directory != other.directory) << 7)
+            | (u16::from(self.delete_pending != other.delete_pending) << 8)
+    }
+
     /// 为扫描在每项原生查询前后检查任务条件；旧内容 capture 保持原行为。
     /// 参数：file 为保留的属性句柄，check 为原期限/取消/授权/fence 检查。
     /// 返回：外层传播 check 错误，内层返回完整属性或原生 unsupported，防止撤权转 Gap。

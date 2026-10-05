@@ -968,5 +968,186 @@
       "pin": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
       "workspace_digest_and_options_parity": "passed"
     }
+  },
+  "native_runtime_follow_up": {
+    "commit": "1314087e1141008d87879d91948644e74206b263",
+    "run_id": 37250991412,
+    "status": "completed",
+    "successful_jobs": 19,
+    "failed_jobs": 3,
+    "failures": [
+      {
+        "platform": "macOS Intel stable",
+        "case": "invalid_control_after_real_active_progress_stops_worker_without_end",
+        "observed": "qualification absent; action not sent; successful worker exit with one End",
+        "qualification": false,
+        "cause": "not established"
+      },
+      {
+        "platform": "Windows stable and Rust 1.97.0",
+        "cases": [
+          "scope_withdrawn_by_the_real_terminal_callback_refuses_the_display",
+          "grant_withdrawn_by_the_real_terminal_callback_refuses_the_display"
+        ],
+        "observed": "Err(Business(BudgetExceeded)) instead of required PermissionDenied",
+        "cause": "timing phase not established"
+      }
+    ],
+    "diagnostic_candidate": {
+      "windows_git_sources": [
+        {
+          "path": "crates/diskgraph-engine/src/windows_file_state.rs",
+          "sha256": "23b0616a15fe1f46b7792d1b32cec2ecd31c35e4c17861c6fee414cfee637329",
+          "bytes": 10648,
+          "lines": 250
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_source_windows.rs",
+          "sha256": "4d58b9494a07e637c787f86e25c555d99d64a4d39627c2d91bb5251fcbb8ae88",
+          "bytes": 10102,
+          "lines": 258
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs",
+          "sha256": "7048f1f2bbff96160f9513b958567c64de0c8e5186a7ef21a0c93e775a85fe72",
+          "bytes": 14002,
+          "lines": 333
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs",
+          "sha256": "ac8851e572955f370dc671c5e2d165882d55547b854c1bf9e681e6d2e755d5ec",
+          "bytes": 6848,
+          "lines": 161
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_source_file.rs",
+          "sha256": "e58f9385c7d431ca43ac5994f495a8ea99a5ac92873df6a63478ce25034e05ad",
+          "bytes": 7318,
+          "lines": 183
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs",
+          "sha256": "772b22785226f5859222d53dae660ebfad9ff90c5658f32f139b5e4e9defdfe6",
+          "bytes": 7931,
+          "lines": 178
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/mod.rs",
+          "sha256": "fa9bcaa4277c2b11d8e4c131fc3f556bd279f30d4e03a056d12f7297fe92e4b8",
+          "bytes": 3748,
+          "lines": 162
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_source_windows_diagnostic.rs",
+          "sha256": "170595d70aa6987ef4516b27c716cdd50d01c95c1fa545fd52a264e9bad70efd",
+          "bytes": 4125,
+          "lines": 99
+        },
+        {
+          "path": "crates/diskgraph-engine/src/live_evidence/git_source_windows_phase.rs",
+          "sha256": "8d1f730b87708041a96afd995ae0f3342fa0d7e586ac99590238353d7ec00b5a",
+          "bytes": 1039,
+          "lines": 29
+        }
+      ],
+      "projection_source": {
+        "path": "crates/diskgraph-engine/tests/scope_authorization_projection_tests.rs",
+        "sha256": "26166f80813e94682c3a00402e71c5f48d2e880afce906e650a4ee8f6865824b"
+      },
+      "local_results": {
+        "engine_layout": {
+          "passed": 1,
+          "failed": 0,
+          "filtered": 3
+        },
+        "projection": {
+          "passed": 4,
+          "failed": 0
+        },
+        "git_scope_boundary": {
+          "passed": 13,
+          "failed": 0,
+          "filtered": 401
+        },
+        "engine_all_target_clippy": "passed",
+        "ten_engine_source_rustfmt": "passed",
+        "openspec_strict": "passed"
+      },
+      "limitations": [
+        "Windows-only diagnostic code not typechecked or exercised on this macOS host.",
+        "No production cause repair or full-platform acceptance.",
+        "Full source-layout attempt was 3 passed/1 failed while worker module assembly was still in progress; final whole contract remains pending.",
+        "Projection diagnostic reports original consumer deadline, not internal terminal phase elapsed time."
+      ]
+    },
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-1314087-ci-current.json.gz",
+        "sha256": "d7bb3223809265bbd079dcd419a1147fee4c48b3f555766e6f1257f07f5d4c1c",
+        "raw_sha256": "7237321cf419f3fcea6778c8fa0e9b8cfeb79c8addb95abb43374c941bf5dcca",
+        "raw_bytes": 2456
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-1314087-macos-intel-job.log.gz",
+        "sha256": "f4cb0bfd713ff9f83638104e83dfd52c1d1c6e7f81c2192fab93c34092748a69",
+        "raw_sha256": "339188aed6de4028affa941dfebed133b32bbc897006569c6c7208b67bb70529",
+        "raw_bytes": 292727
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-1314087-windows-stable-job.log.gz",
+        "sha256": "0ee74ddc86a5a87f3ba40285154fb759ea7492adf51587791c8ce50281c9f39e",
+        "raw_sha256": "8b3e0ffd861e393d96de387e1d77f572256d7e1b0b082a56edd1f638cb67985f",
+        "raw_bytes": 412067
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-1314087-windows-msrv-job.log.gz",
+        "sha256": "fc1c70f4f903b106c5d24f5cb1035e4f630ddab4151f34b36b93d474e072a9ec",
+        "raw_sha256": "792c199aba13d8fd473c4987fd430f4d2478045cea25529d45a799dfb1a13757",
+        "raw_bytes": 421085
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-diagnostic-engine-layout.log.gz",
+        "sha256": "e740e8241e2852b71405210b4f8c565316e3e0f6d479ed81d2ae58eca052e5f3",
+        "raw_sha256": "50f765bff0c650102b6dddd9fea80445e1f55b2b31091125c525abbd7706d5c5",
+        "raw_bytes": 337
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-diagnostic-scope-projection.log.gz",
+        "sha256": "f9aff5a379e3b11f934b977a6010bb61e3034f7f74913fa07a3c82f6f01964cc",
+        "raw_sha256": "664cd3225d20bbe7e7ed1579eea5f61f02e2040f7df753c9c03bb3c81e812843",
+        "raw_bytes": 1838
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-diagnostic-git-scope-macos-regression.log.gz",
+        "sha256": "8296247a0151ddd6d68fbebff28a66e0d1844b58397443aecffc2f244856faa9",
+        "raw_sha256": "b6873cf97cef9ca5d6a97eb411008fef389cd48d2bb3cb72afd501093fa87990",
+        "raw_bytes": 1933
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-v2-windows-diagnostic-source-layout.log.gz",
+        "sha256": "dbaed8998d88c55b6e2e7aa710309ff02c1657e3ba6456d0ac3042dd2ecc6837",
+        "raw_sha256": "8bd6b91d380677401122ec65c4005631b9b7a05dd35a6cd971d06c4bce374741",
+        "raw_bytes": 10398
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-diagnostic-engine-clippy.log.gz",
+        "sha256": "141e34854e2093ae2f21eea58a047f540d95c104b5562d5c5cddfa875414396d",
+        "raw_sha256": "0954c20e402542a0ddb32f9b8bb012232bb10ab730664cb17d86d0d49d21446d",
+        "raw_bytes": 188
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-diagnostic-fmt.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-windows-diagnostic-openspec.log.gz",
+        "sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+        "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "raw_bytes": 47
+      }
+    ],
+    "open_parent_tasks": 27
   }
 }

@@ -1,6 +1,8 @@
 //! Windows 源目录相对句柄访问；来源：NtCreateFile / FileFullDirectoryInfo。
 use super::git_directory_version::GitDirectoryVersion;
 use super::git_metadata_budget::GitMetadataBudget;
+#[cfg(test)]
+use super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic;
 use super::probe_budget::ProbeBudget;
 use crate::windows_file_state::WindowsFileState;
 use crate::windows_path_plan::WindowsPathPlan;
@@ -84,7 +86,17 @@ pub(super) fn child(parent: &File, name: &OsStr, directory: bool) -> Result<File
                 FILE_READ_DATA
             },
     )?;
-    if state(&file, directory)? != initial || state(&attributes, directory)? != initial {
+    // 保留原 || 的短路顺序：首个状态不同便拒绝，绝不为诊断追加第二次属性查询。
+    let reopened = state(&file, directory)?;
+    if reopened != initial {
+        #[cfg(test)]
+        GitSourceWindowsDiagnostic::record(&initial, &reopened, directory, "reopened");
+        return Err("scoped Git source changed before data access".into());
+    }
+    let rechecked = state(&attributes, directory)?;
+    if rechecked != initial {
+        #[cfg(test)]
+        GitSourceWindowsDiagnostic::record(&initial, &rechecked, directory, "attributes_recheck");
         return Err("scoped Git source changed before data access".into());
     }
     Ok(file)

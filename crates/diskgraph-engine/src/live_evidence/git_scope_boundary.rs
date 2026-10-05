@@ -1,6 +1,8 @@
 //! 固定注册根与无损项目定位的词法边界；来源：D35 / EC-04，不执行身份授权。
 use super::git_directory_version::GitDirectoryVersion;
 use super::git_source_directory::GitSourceDirectory;
+#[cfg(all(test, windows))]
+use super::git_source_windows_phase::GitSourceWindowsPhase;
 use super::probe_budget::ProbeBudget;
 use diskgraph_core::QualifiedLocator;
 use std::path::{Component, Path, PathBuf};
@@ -43,7 +45,11 @@ impl GitScopeBoundary {
         // 初次注册根/项目打开也处于线程级不物化策略内，不能等到复制阶段才进入。
         let _hydration =
             crate::scoped_content::ScopedContent::hydration_guard().map_err(|e| e.to_string())?;
-        let (root_file, root_route) = GitSourceDirectory::root(root, probe)?;
+        let (root_file, root_route) = {
+            #[cfg(all(test, windows))]
+            let _phase = GitSourceWindowsPhase::new("scope_root_initial");
+            GitSourceDirectory::root(root, probe)?
+        };
         let root_version = root_file.version()?;
         let boundary = Self {
             root: root_file,
@@ -53,13 +59,21 @@ impl GitScopeBoundary {
             project: relative,
             indexed,
         };
-        boundary.directory(&boundary.project, probe)?;
+        {
+            #[cfg(all(test, windows))]
+            let _phase = GitSourceWindowsPhase::new("scope_project_initial");
+            boundary.directory(&boundary.project, probe)?;
+        }
         Ok(boundary)
     }
     /// 参数：probe 为原共享期限；返回：原路由各组件身份及持有注册根版本未变时成功。
     pub(super) fn verify(&self, probe: &mut ProbeBudget) -> Result<(), String> {
         // 仅重走原根路由核验身份，不从新路径读取项目正文；祖先旁支活动不构成版本冲突。
-        let (_, route) = GitSourceDirectory::root(&self.root_path, probe)?;
+        let (_, route) = {
+            #[cfg(all(test, windows))]
+            let _phase = GitSourceWindowsPhase::new("scope_root_verify");
+            GitSourceDirectory::root(&self.root_path, probe)?
+        };
         if route.len() != self.root_route.len()
             || self
                 .root_route
