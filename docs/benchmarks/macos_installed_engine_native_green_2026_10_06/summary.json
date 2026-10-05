@@ -1,0 +1,23 @@
+{
+  "production_acceptance": false,
+  "native_run": 37386707636,
+  "job_id": 112021625493,
+  "runner_labels": [
+    "macos-15-intel"
+  ],
+  "runtime_architecture": "x86_64",
+  "checkout_sha": "c0ea6ca26c56ac25a90455df194748b5acaf6de1",
+  "fixture_sha256": "22b76d997b927067445801c194c5e5b808affe3cde81f211df3ac27c9d50933b",
+  "helper_sha256": "c44d1db4c221d05772ff6995bb1ed1b997e9cc3985d09c1deece076966e856aa",
+  "source_count": 454,
+  "actual_cases_passed": 9,
+  "protocol_cases_passed": 2,
+  "root_cases_passed": 1,
+  "ordinary_cases_passed": 6,
+  "remaining_limits": [
+    "ARM qualification pending",
+    "positive CLI/MCP product flow pending",
+    "installation epoch/publication concurrency race not exercised",
+    "current integrated-source full workspace and performance qualification pending"
+  ]
+}
