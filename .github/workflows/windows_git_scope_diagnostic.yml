@@ -1,0 +1,43 @@
+name: Windows Git scope diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  CARGO_TERM_COLOR: never
+  RUSTFLAGS: -D warnings
+jobs:
+  git_scope:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.97.0'
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - name: Assemble isolated dependency diagnostics
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'diskgraph-windows-git-diagnostic'
+          python scripts/qualify_windows_git_diagnostic.py $env:GITHUB_WORKSPACE $output
+          if ($LASTEXITCODE -ne 0) { throw 'Source shape mismatch; no qualification' }
+      - name: Execute all original scope contracts once
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'diskgraph-windows-git-diagnostic'
+          cargo test --locked -p diskgraph-mcp --test git_status_scope_contract -- --nocapture 2>&1 | Tee-Object (Join-Path $output 'native-tests.log')
+          if ($LASTEXITCODE -ne 0) { throw 'Original contract failed; retain diagnostics' }
+          $log = Get-Content (Join-Path $output 'native-tests.log') -Raw
+          if ($log -notmatch 'test result: ok\. 4 passed; 0 failed; 0 ignored;') { throw 'Exact original four contracts required' }
+          if ([regex]::Matches($log, 'SCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC').Count -ne 3) { throw 'All three executed Git jobs require dependency diagnostic guards' }
+      - name: Preserve source diff and original outcomes
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-git-diagnostic-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-git-diagnostic
+          if-no-files-found: error
+          retention-days: 7

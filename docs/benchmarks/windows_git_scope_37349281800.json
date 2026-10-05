@@ -1,0 +1,19 @@
+{
+  "run_id": 37349281800,
+  "job_id": 111895734688,
+  "commit": "b1fbcc488ef0af09bb61007b9310023a8c670f27",
+  "platform": "Windows Rust1.97.0",
+  "passed": 3,
+  "failed": 1,
+  "ignored": 0,
+  "failed_test": "completed_git_status_outer_revision_does_not_follow_a_new_scan_latest",
+  "stage": "StatusFixture::complete run_job_strict before newer scan and status envelope assertions",
+  "public_error": "Business(Unsupported)",
+  "root_cause": "Unproven; existing bounded business mapping discards internal string cause",
+  "next_action": "Single same-contract default-parallel diagnostic CI with unchanged Eq, deadlines, errors and no retries",
+  "security_acceptance": false,
+  "evidence": {
+    "path": "docs/benchmarks/windows_git_scope_37349281800.log.gz",
+    "raw_sha256": "383a7ed793813f01464c9641132ad793300c4568cd2d4da5c3765e2adfe7d1a0"
+  }
+}
