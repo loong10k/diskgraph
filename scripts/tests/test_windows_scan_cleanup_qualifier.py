@@ -37,12 +37,20 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 459)
+            self.assertEqual(len(manifest["sources"]), 461)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
+            qualifier.check_birth_cases(manifest["birth_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
+
+    def test_birth_owner_cases_cannot_be_omitted(self):
+        valid = list(qualifier.BIRTH_CASES)
+        qualifier.check_birth_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.REQUIRED_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_birth_cases(invalid)
 
     def test_platform_gate_refuses_local_mac_and_non_ci_windows(self):
         for platform, ci, runner in (("Darwin", "true", "github-hosted"),

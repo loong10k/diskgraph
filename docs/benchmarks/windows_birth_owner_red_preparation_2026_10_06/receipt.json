@@ -1,0 +1,11 @@
+{
+  "production_acceptance": false,
+  "frozen_sources": 461,
+  "phase": "test-only legacy bridge before production birth changes",
+  "prior_native_run": 37385193355,
+  "prior_native_cases_passed": 7,
+  "new_birth_cases": 3,
+  "local_inventory_guards_passed": 5,
+  "shared_mount_guards_passed": 8,
+  "native_birth_behavior_red": "not yet executed"
+}

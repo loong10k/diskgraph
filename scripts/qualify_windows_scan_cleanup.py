@@ -31,6 +31,18 @@ def check_prerequisite_cases(cases):
         raise ValueError("fixed pending IO prerequisite inventory differs")
 
 
+BIRTH_CASES = tuple("native_child::windows::windows_birth_recovery_tests::" + name for name in (
+    "postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
+    "postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
+    "postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query",
+))
+
+
+def check_birth_cases(cases):
+    if len(cases) != len(BIRTH_CASES) or set(cases) != set(BIRTH_CASES):
+        raise ValueError("fixed birth ownership acceptance inventory differs")
+
+
 def check_cases(cases):
     if len(cases) != len(REQUIRED_CASES) or set(cases) != set(REQUIRED_CASES):
         raise ValueError("fixed cleanup acceptance inventory differs")
@@ -59,6 +71,8 @@ def main():
         check_cases(cases)
         prerequisites = manifest["io_prerequisite_cases"]
         check_prerequisite_cases(prerequisites)
+        birth_cases = manifest["birth_cases"]
+        check_birth_cases(birth_cases)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -75,7 +89,7 @@ def main():
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
         receipt["cases"] = results
-        for case in list(prerequisites) + list(cases):
+        for case in list(prerequisites) + list(cases) + list(birth_cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
@@ -83,7 +97,7 @@ def main():
                 passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text()
             except RuntimeError:
                 passed = False
-            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "cleanup"})
+            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "cleanup"})
             if case == prerequisites[-1] and not all(result["passed"] for result in results):
                 raise RuntimeError("pending IO prerequisites failed; cleanup qualification not started")
         receipt["cases"] = results

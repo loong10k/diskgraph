@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "cleanup-fix-awaiting-native-green",
+  "phase": "birth-ownership-red",
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "bcc9b6f4819387cf389376701302bcb2cdd1a89109b3297ad7787efea0a2956c",
+  "archive_sha256": "fbadc9b1a7edf48b451362341b057e21142fea441432558b745ecec0f14418ee",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -261,12 +261,14 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
-    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "df7fe61e51e3bfbea6e11de8596389db681c5c79887ac85c3afe54e7656dc20b",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "a9798745390d9d740fc10bdb37093bf9b61784774fed9968070c104d41f7d44c",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "e75c0f56578d32bdd7e7c0bda018b0ca4505e6b6bfe2610c8733e588c40e75e5",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "874d48b450781270741043f80c8cf9fbb377952cebf3bc435b7b5a70bb5fd501",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "0dafd2d88bf6531c189133cc3af078e8b7d97b01292767ae1f9f87e3790f7203",
     "crates/diskgraph-engine/src/native_child/windows/pipe_security.rs": "d21c5272a147438e86575ca7a157a90056b2cd05a21fcb85e0a62802ccfc32d7",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "a6211846684a1cd5603132612a0cec136d4d43dd16f28fbc0fb4c9b3725c2299",
+    "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs": "63bb6b4dc76600b94fd07263c1d0b74353c2ab651c860bc4b06e873e3c090085",
+    "crates/diskgraph-engine/src/native_child/windows/windows_birth_test_hook.rs": "4381ea30c9b7afa13982803f8ad1b3a7412b5e5ce71421ac9298862b17ab4776",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "3c4cb09ecaabd54389b9e5f7658271cd9e25f7e62d567d86d3d9c69a73a9d26d",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_hooks.rs": "068bf889e6172590237b7ec1aa8a5e7571a872df96ecfbf9fa5da42ed83973b8",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs": "cd2d0dd8881643bce9c57d12d7eb779af097dd2b2cdc058c307746e892bb90c7",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_rescue.rs": "21693b8ba4cb84fa115343a6558047c51aa3405e7c6b5c2ab01f7f3d2533113f",
@@ -483,5 +485,11 @@
     "leader INFINITE wait after successful termination",
     "pending IO completion can exceed cooperative deadline",
     "Drop failure and postbirth spawn panic still require external retained owner"
-  ]
+  ],
+  "birth_cases": [
+    "native_child::windows::windows_birth_recovery_tests::postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
+    "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
+    "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query"
+  ],
+  "production_birth_algorithm_modified": false
 }
