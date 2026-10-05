@@ -113,6 +113,7 @@ mod revision_windows_observation;
 mod revision_windows_observation_tests;
 mod runner;
 mod scan_execution;
+mod scan_image_identity;
 mod scan_jobs;
 #[cfg(test)]
 mod scan_locator_tests;
@@ -123,6 +124,8 @@ mod scan_observation_tests;
 mod scan_progress_guard;
 #[cfg(test)]
 mod scan_publication_tests;
+mod scan_worker_host_config;
+mod scan_worker_installation;
 mod scope_service;
 mod scoped_content;
 #[cfg(not(windows))]
@@ -168,6 +171,8 @@ pub use queries::{
 pub use revision_display_completion::RevisionDisplayCompletion;
 pub use revision_growth::RevisionGrowth;
 pub use runner::JobRunner;
+pub use scan_worker_host_config::ScanWorkerHostConfig;
+pub use scan_worker_installation::ScanWorkerInstallation;
 pub use verify_limits::VerifyLimits;
 
 #[cfg(test)]

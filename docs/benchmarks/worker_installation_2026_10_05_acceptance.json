@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "scope": "trusted held-file installation material only; no execution or publication permission",
+  "base_commit": "f804d53126334b279c04f339737e9227c7446beb",
+  "platform": "native macOS arm64; Windows/Linux runtime validation pending",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_host_config.rs",
+      "sha256": "aee152568984a43c1df34378f3c86b01fd4832b78a58dbe5bbde873c10ef632f",
+      "lines": 32
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_installation.rs",
+      "sha256": "92a5c35b09c718fa6ef06359f153c421c1bd77331f407213f9f3aa3f0bbde616",
+      "lines": 101
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_image_identity.rs",
+      "sha256": "2907d67a20ab0653d71902dbe2498818a26991b77915a5322b1912f7af1800ac",
+      "lines": 98
+    },
+    {
+      "path": "crates/diskgraph-engine/src/lib.rs",
+      "sha256": "e98d205d7a663362f3c51d528c62fa0e1bef86384636c79c0d65a1812dc14a06",
+      "lines": 179
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/scan_worker_installation.rs",
+      "sha256": "7834f1c5d39863426b9364eac08b43adefd3d84e41f736d3c939c0af0624a173",
+      "lines": 437
+    }
+  ],
+  "target_tests": {
+    "passed": 14,
+    "failed": 0
+  },
+  "engine_tests": {
+    "passed": 611,
+    "failed": 0,
+    "ignored": 8,
+    "suite_summaries": 34,
+    "exit_code": 0
+  },
+  "strict_all_targets_clippy_exit_code": 0,
+  "workspace_fmt_excluding_immutable_vendor_exit_code": 0,
+  "initial_interface_absence": "unresolved imports, not runtime behavior RED",
+  "fixture_correction": "initial 13 pass / 1 payload type qualification failure; explicit trait-object coercion qualified original payload address before verify; all 14 subsequently passed; rustfmt edition2024 only afterward",
+  "artifacts": [
+    {
+      "path": "docs/benchmarks/worker_installation_2026_10_05_0.log.gz",
+      "raw_source": "/private/tmp/diskgraph-scan-installation-api-absence.log",
+      "raw_bytes": 809,
+      "raw_sha256": "997a274ddaad40ad59b5bbb765a23fc5005de259849672edbef11ddd93a6473e",
+      "gzip_sha256": "7d3b528f5fc5f95ec6173807c70b93ed57a978178a7edac62dc80d9de76b6f19"
+    },
+    {
+      "path": "docs/benchmarks/worker_installation_2026_10_05_1.log.gz",
+      "raw_source": "/private/tmp/diskgraph-scan-installation-green.log",
+      "raw_bytes": 1930,
+      "raw_sha256": "d48b7576d28b5fb90cb0d4aff2eb9a101dc3b122e2366eea293a3ef7ec1ec58c",
+      "gzip_sha256": "58e3ef52d0ead01d32975b3a524d804aa01e53c6ab302268e6b0bfdef473cbd8"
+    },
+    {
+      "path": "docs/benchmarks/worker_installation_2026_10_05_2.log.gz",
+      "raw_source": "/private/tmp/diskgraph-scan-installation-formatted-green.log",
+      "raw_bytes": 1435,
+      "raw_sha256": "2eaad7a81d044e629f4c7619c27f157957fcd2701ec44a30fae71dc98fd2eed8",
+      "gzip_sha256": "e1776a74a56b3453ce8931c91bfea27391a9595ee625c86eafdd147d6fd106e0"
+    },
+    {
+      "path": "docs/benchmarks/worker_installation_2026_10_05_3.log.gz",
+      "raw_source": "/private/tmp/diskgraph-scan-installation-engine-green.log",
+      "raw_bytes": 66910,
+      "raw_sha256": "320374fdde110cf5424823f721141c11c4277a22b19e27478e9f1eec97f0ce09",
+      "gzip_sha256": "54b478c5311e5b2993df2267da9c0f2cc76567e804218698cfa41c8f2bf2987a"
+    },
+    {
+      "path": "docs/benchmarks/worker_installation_2026_10_05_4.log.gz",
+      "raw_source": "/private/tmp/diskgraph-scan-installation-formatted-clippy.log",
+      "raw_bytes": 188,
+      "raw_sha256": "86400b06a7f69d6d3229f9d697186a6f5ffe1edd3aee0abf8e22b5b6aa85277c",
+      "gzip_sha256": "9dd6ce60ffb502bfd416f7178d715dc169be522a3e1016af0f476066b3496610"
+    },
+    {
+      "path": "docs/benchmarks/worker_installation_2026_10_05_5.log.gz",
+      "raw_source": "/private/tmp/diskgraph-scan-installation-fmt-scoped.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  ],
+  "limits": [
+    "Same-handle material does not close verification-to-execution mutation window.",
+    "Neighbor manifest and helper are not independent trust roots.",
+    "Only reviewed installation sources mounted in isolated fixture; other native launcher/driver candidates not enabled.",
+    "No parent acceptance task closed."
+  ]
+}
