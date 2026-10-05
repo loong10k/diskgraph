@@ -1,0 +1,30 @@
+{
+  "production_acceptance": false,
+  "native_run": 37385115407,
+  "architecture": "Intel",
+  "checkout_sha": "66c445a56cf8a8dc3eb866edc0ffccfe32098da5",
+  "actual_pass_markers": [
+    "macos_installed_helper_returns_complete_tree_after_real_normal_wait",
+    "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility",
+    "macos_engine_installed_scan_publishes_revision_and_relations",
+    "root-issuer",
+    "macos_installed_helper_original_cancel_after_birth_is_reaped",
+    "raw-path-protocol"
+  ],
+  "failed_case": "macos_engine_response_exhaustion_has_no_partial_revision",
+  "failure": "born witness false; setup rejection is not response-budget proof",
+  "source_cause": "fixture max_stream_bytes32 cannot admit WorkerRequest::scan Hello and reserved budget terminal",
+  "not_executed_after_failure": [
+    "macos_engine_postbirth_panic_preserves_payload_and_recovery"
+  ],
+  "next_step": "admissible bounded fixture proving full emitted response exceeds limit, preserve birth and no-partial-publication assertions",
+  "local_actual_feature_test": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "tree_encoded_bytes": 992,
+    "admitted_stream_bytes": 512,
+    "observed_hello_plus_budget_terminal_bytes": 230
+  },
+  "native_requalification": "pending"
+}

@@ -10,6 +10,7 @@ from pathlib import Path
 
 CANDIDATE = Path("crates/diskgraph-engine/integration_candidates/macos_installed")
 PROTOCOL_CASE = "macos_installed_worker_fixture_tests::macos_worker_request_roundtrip_preserves_non_utf8_native_path_without_filesystem"
+BUDGET_FIXTURE_CASE = "macos_engine_scan_fixture_tests::macos_response_fixture_admits_terminal_but_rejects_actual_tree_encoding"
 ROOT_CASE = "macos_installation_root_fixture_tests::root_fresh_install_update_interruption_and_floor_bound_recovery"
 
 
@@ -104,7 +105,7 @@ def main():
             raise ValueError("candidate fixture feature inventory differs")
         if set(manifest["ordinary_cases"]) != required_cases or len(manifest["ordinary_cases"]) != 6:
             raise ValueError("candidate ordinary acceptance inventory differs")
-        if manifest.get("protocol_cases") != [PROTOCOL_CASE]:
+        if manifest.get("protocol_cases") != [PROTOCOL_CASE, BUDGET_FIXTURE_CASE]:
             raise ValueError("candidate raw path protocol acceptance inventory differs")
         receipt["candidate"] = manifest
         env = os.environ.copy()
@@ -123,10 +124,12 @@ def main():
             raise RuntimeError("expected one actual Engine test executable")
         binary = binaries[0]
         receipt["fixture_sha256"] = digest(binary)
-        invoke([str(binary), PROTOCOL_CASE, "--exact", "--nocapture", "--test-threads=1"], checkout, output, "raw-path-protocol", env)
-        if "test result: ok. 1 passed; 0 failed;" not in (output / "raw-path-protocol.stdout").read_text():
-            raise RuntimeError("raw path protocol fixture did not execute exact required case")
-        receipt["protocol_cases_passed"] = 1
+        for protocol_case in manifest["protocol_cases"]:
+            name = "raw-path-protocol" if protocol_case == PROTOCOL_CASE else "response-budget-fixture"
+            invoke([str(binary), protocol_case, "--exact", "--nocapture", "--test-threads=1"], checkout, output, name, env)
+            if "test result: ok. 1 passed; 0 failed;" not in (output / (name + ".stdout")).read_text():
+                raise RuntimeError("protocol fixture did not execute exact required case: " + protocol_case)
+        receipt["protocol_cases_passed"] = len(manifest["protocol_cases"])
         env.update(DISKGRAPH_MACOS_EPHEMERAL_ROOT_FIXTURE=os.environ["GITHUB_RUN_ID"],
                    DISKGRAPH_MACOS_FIXTURE_HELPER=str(helper),
                    DISKGRAPH_MACOS_FIXTURE_SHA256=receipt["helper_sha256"],

@@ -107,7 +107,7 @@ def main():
         if shared.digest(binary) != receipt["fixture_sha256"]:
             raise RuntimeError("qualification binary identity changed")
         if not all(case["passed"] for case in results):
-            raise RuntimeError("actual cleanup cases failed; inspect preserved original logs")
+            raise RuntimeError("actual ownership cases failed; inspect preserved original logs")
         receipt["status"] = "passed"
     except BaseException as error:
         receipt["status"] = "failed"

@@ -46,7 +46,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         manifest = qualifier.mount(self.checkout)
         self.assertEqual(len(manifest["sources"]), 454)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
-        self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE])
+        self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
         self.assertEqual(manifest["fixture_features"], ["macos_native_scan_candidate"])
         for name, expected in manifest["sources"].items():
             self.assertEqual(qualifier.digest(self.checkout / name), expected)

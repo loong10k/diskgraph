@@ -1,0 +1,64 @@
+{
+  "production_acceptance": false,
+  "native_run": 37385724802,
+  "checkout_sha": "7f2b5e824cf5c76b4db68adaba1b1b0d8d276bd7",
+  "fixture_sha256": "385ce8e0965f3c2fc7403d221b1f7327bb3d909da3b173702a4aadc50acc3b79",
+  "source_count": 461,
+  "native_build": "passed",
+  "unchanged_io_and_cleanup_passed": 7,
+  "new_birth_cases_failed": 3,
+  "cases": [
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_query_failure_retains_original_job_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::recovery_slot_survives_query_failure_until_original_job_is_observed_empty",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
+      "passed": false,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
+      "passed": false,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query",
+      "passed": false,
+      "phase": "birth"
+    }
+  ],
+  "confirmed_failure": "real birth witnessed, original panic/error preserved, catch-external owner is empty",
+  "next_step": "prepare original owner outside catch before native birth, never consume it during postbirth failure"
+}

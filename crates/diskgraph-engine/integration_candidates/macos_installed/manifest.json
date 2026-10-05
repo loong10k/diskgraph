@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "013881b2aaae1e6170926055a163eaeb3b94921cace8df3906b801d162445ca7",
+  "archive_sha256": "0a7f9fec86d6a74117862dc86098adf8bcf07825fbf34f154f2b812ab98d6cc6",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -173,7 +173,7 @@
     "crates/diskgraph-engine/src/live_evidence/watch_poll.rs": "1c78ec07e3448ba487d19f76c4cf0e66e66cdba6b0db8abc35c2c1722f778b1a",
     "crates/diskgraph-engine/src/live_evidence/watch_report.rs": "27c79200f16ed5645b9fea17dbdc75cc4c3a99fb527d23466a55c0f1652ea1fb",
     "crates/diskgraph-engine/src/live_evidence/watch_snapshot.rs": "33e7f4431f3f2cd910aabb6651ba040a3860c2da813e28e14a66edc2f734b506",
-    "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "6768ee90672e1ea850131cf508d55af26b45ec168ee5e9c89d37d9c13700e5e8",
+    "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "a9be8a92e8cd632f3b6c3bb69018b370deea29b5c7cbdff44f27951b4bf9ccbe",
     "crates/diskgraph-engine/src/macos_epoch_floor.rs": "6d54110b90ee65ae2b270d03c6f604608b2d1f32169352cbd285f7cc854b4676",
     "crates/diskgraph-engine/src/macos_epoch_floor_tests.rs": "38a9ad28d2be0e2b421b93ac00dd7c673260f4bcfaf9326e5e1ef06cb7ccc588",
     "crates/diskgraph-engine/src/macos_filesystem_state.rs": "05bf22c3dfb8091730bfb540aee17594e80bacb2770919493e212816a33af1cb",
@@ -473,7 +473,9 @@
     "macos_native_scan_candidate"
   ],
   "protocol_cases": [
-    "macos_installed_worker_fixture_tests::macos_worker_request_roundtrip_preserves_non_utf8_native_path_without_filesystem"
+    "macos_installed_worker_fixture_tests::macos_worker_request_roundtrip_preserves_non_utf8_native_path_without_filesystem",
+    "macos_engine_scan_fixture_tests::macos_response_fixture_admits_terminal_but_rejects_actual_tree_encoding"
   ],
-  "filesystem_fixture": "Hosted temporary volume explicitly rejects invalid UTF8 with EILSEQ; actual installed helper scans valid Unicode names. Raw nonUTF8 protocol bytes verified independently."
+  "filesystem_fixture": "Hosted temporary volume explicitly rejects invalid UTF8 with EILSEQ; actual installed helper scans valid Unicode names. Raw nonUTF8 protocol bytes verified independently.",
+  "response_budget_fixture": "512 bytes admits actual Hello/reserved budget terminal but actual four-node tree encoding exceeds 512; original 32-byte setup is rejected before birth"
 }
