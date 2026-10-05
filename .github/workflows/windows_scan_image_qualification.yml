@@ -1,0 +1,87 @@
+name: Windows scan image qualification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: never
+  RUSTFLAGS: -D warnings
+
+jobs:
+  image_lease:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - name: Locate existing MSVC environment
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ($LASTEXITCODE -ne 0 -or !$installation) { throw 'Existing MSVC required' }
+          $vcvars = Join-Path $installation 'VC\Auxiliary\Build\vcvars64.bat'
+          $variables = & cmd.exe /d /s /c "`"call `"$vcvars`" >nul && set`""
+          if ($LASTEXITCODE -ne 0) { throw 'MSVC environment failed' }
+          foreach ($line in $variables) {
+            if ($line -match '^([^=]+)=(.*)$') {
+              [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
+            }
+          }
+          foreach ($name in @('PATH', 'INCLUDE', 'LIB', 'LIBPATH')) {
+            "$name=$([Environment]::GetEnvironmentVariable($name, 'Process'))" >> $env:GITHUB_ENV
+          }
+      - name: Build exact native fixtures and bind sources
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'crates\diskgraph-engine\integration_candidates\native_child\windows'
+          $output = Join-Path $env:RUNNER_TEMP 'diskgraph-windows-image-qualification'
+          New-Item -ItemType Directory -Path $output | Out-Null
+          $bindings = @(Get-ChildItem $source -File | Sort-Object Name | ForEach-Object {
+            @{ name = $_.Name; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+          })
+          $system = Get-CimInstance Win32_OperatingSystem
+          $volume = Get-Volume -DriveLetter $output.Substring(0, 1)
+          @{ commit = (git rev-parse HEAD); source_files = $bindings;
+             windows_version = $system.Version; windows_build = $system.BuildNumber;
+             architecture = $system.OSArchitecture; filesystem = $volume.FileSystem;
+             security_acceptance = $false; scope = 'Seven native component cases; not production launcher acceptance'
+          } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $output 'provenance.json')
+          Push-Location $output
+          try {
+            & cl.exe /nologo /W4 /WX /O2 /D_WIN32_WINNT=0x0A00 /Fe:image_a.exe (Join-Path $source 'windows_image_marker_fixture.c') 2>&1 | Tee-Object build-a.log
+            if ($LASTEXITCODE -ne 0) { throw 'A fixture build failed' }
+            & cl.exe /nologo /W4 /WX /O2 /D_WIN32_WINNT=0x0A00 /DIMAGE_B /Fe:image_b.exe (Join-Path $source 'windows_image_marker_fixture.c') 2>&1 | Tee-Object build-b.log
+            if ($LASTEXITCODE -ne 0) { throw 'B fixture build failed' }
+            $native = @('windows_image_lease_probe.c', 'windows_image_lease_common.c', 'windows_image_lease_cases.c', 'windows_image_lease_routes.c') | ForEach-Object { Join-Path $source $_ }
+            & cl.exe /nologo /W4 /WX /O2 /D_WIN32_WINNT=0x0A00 /Fe:image_probe.exe @native 2>&1 | Tee-Object build-probe.log
+            if ($LASTEXITCODE -ne 0) { throw 'Native probe build failed' }
+          } finally { Pop-Location }
+          Copy-Item (Join-Path $source 'windows_image_lease_tests.rs') 'crates/diskgraph-engine/tests/windows_image_lease_tests.rs'
+          Copy-Item (Join-Path $source 'windows_image_lease_probe.rs') 'crates/diskgraph-engine/tests/windows_image_lease_probe.rs'
+          "DISKGRAPH_WINDOWS_IMAGE_A=$(Join-Path $output 'image_a.exe')" >> $env:GITHUB_ENV
+          "DISKGRAPH_WINDOWS_IMAGE_B=$(Join-Path $output 'image_b.exe')" >> $env:GITHUB_ENV
+          "DISKGRAPH_WINDOWS_IMAGE_LEASE_PROBE=$(Join-Path $output 'image_probe.exe')" >> $env:GITHUB_ENV
+      - name: Execute all seven cases without retry or skip
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'diskgraph-windows-image-qualification'
+          cargo test --locked -p diskgraph-engine --test windows_image_lease_tests -- --nocapture --test-threads=1 2>&1 | Tee-Object (Join-Path $output 'native-tests.log')
+          if ($LASTEXITCODE -ne 0) { throw 'Native qualification not proven; preserve original result' }
+          $log = Get-Content (Join-Path $output 'native-tests.log') -Raw
+          if ($log -notmatch 'test result: ok\. 7 passed; 0 failed; 0 ignored;') { throw 'Exact seven-case count required' }
+      - name: Preserve actual errors and provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-image-qualification-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-image-qualification
+          retention-days: 7
+          if-no-files-found: error
