@@ -29,9 +29,9 @@
     },
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_exit.rs",
-      "sha256": "de61574f83f65067320c446527f17669b7a40f92ab1bc104ee78f0cc31ac4d08",
-      "bytes": 6116,
-      "lines": 179,
+      "sha256": "2b6a5e279d34e71f342cdff0e7b83aece6e22a93ee3e79eb6d009e39cf10e9fd",
+      "bytes": 6236,
+      "lines": 181,
       "role": "production",
       "target": "crates/diskgraph-engine/src/native_child/linux_atomic_exit.rs",
       "module": "linux_atomic_exit",
@@ -300,6 +300,16 @@
       "raw_bytes": 1171,
       "raw_lines": 30,
       "encoding": "gzip; empty filename; mtime=0; original unified-diff bytes unchanged"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_ready_tests.rs",
+      "sha256": "9041030abad13c7da4ab62153e33f4624bac6b6e25c3400101ed515d9295eb22",
+      "bytes": 6082,
+      "lines": 164,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_ready_tests.rs",
+      "module": "linux_atomic_launcher_ready_tests",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_ready_tests.rs"
     }
   ],
   "baseline_unix_child": {
@@ -323,9 +333,10 @@
     "actual_getsid_denial_preserves_original_errno_and_reaps",
     "startup_error_before_init_send_preserves_queued_errno_and_original_wait",
     "waitid_denied_after_physical_exit_returns_original_owner_for_actual_reap",
-    "waitid_denied_unwind_keeps_original_box_and_transfers_unreaped_owner"
+    "waitid_denied_unwind_keeps_original_box_and_transfers_unreaped_owner",
+    "exit_between_initial_waitid_and_poll_preserves_natural_exit_record"
   ],
-  "expected_parent_cases": 17,
+  "expected_parent_cases": 18,
   "projection_boundaries": [
     "Committed Null UnixChild only: original two post-spawn fcntl operations mechanically delegated to UnixChildSetup.initialize(two_original_fds,false,original_child_id); shared auto-reap method replaces byte-equivalent free implementation. All checkpoint/poll/cleanup/retained-leader semantics unchanged.",
     "Frozen UnixControlChannel projection only deletes unconsumed pair methods and Stdio/OwnedFd imports. The C8-consumed from_stream/start_write/poll_write/close/send implementations remain byte-exact; no ChildInputMode fake caller or suppression.",
@@ -333,8 +344,8 @@
     "Frozen LinuxScannerFilter projection deletes only unused legacy pre_exec install and its std::io import. new/program and the actual C8 BPF construction remain byte-exact; the real C child prctl installation is exercised by C8 tests."
   ],
   "native_validation": {
-    "linux_x86_64": "pending; no local Linux compile/runtime of this candidate",
-    "linux_aarch64": "pending; no local Linux compile/runtime of this candidate"
+    "linux_x86_64": "pending actual deterministic RED for new18 inventory",
+    "linux_aarch64": "pending actual deterministic RED for new18 inventory"
   },
   "build_dependency": "Only cc=1 in isolated Cargo.toml and existing cc package reference in isolated Cargo.lock; no version/package upgrade, no main-tree edits.",
   "limits": [
@@ -348,19 +359,19 @@
     "Workflow60min hard termination is infrastructure failure and does not prove finite cleanup. Native outer receipt must show actual original init wait/reap."
   ],
   "shared_support_sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
-  "qualifier_sha256": "566a9e8e93f5c3b24062d0a2a4e4a074b15ecc2a0f5a10cc7af05a603cc5a2f2",
+  "qualifier_sha256": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
   "qualification_tooling": {
     "qualifier": {
       "path": "scripts/qualify-linux-atomic-launcher.py",
-      "sha256": "566a9e8e93f5c3b24062d0a2a4e4a074b15ecc2a0f5a10cc7af05a603cc5a2f2",
-      "bytes": 22155,
-      "lines": 405
+      "sha256": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
+      "bytes": 22420,
+      "lines": 413
     },
     "unit_tests": {
       "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
-      "sha256": "20960808bc0268db4b95e9026c064b9e1c37a720edb5747d9964b4af6e703908",
-      "bytes": 17844,
-      "lines": 338
+      "sha256": "6b766c328d8363e20299b2be2e2c30b0395e6b35e759711165c3c0bab09990e7",
+      "bytes": 20685,
+      "lines": 377
     },
     "shared_support": {
       "path": "scripts/qualify-linux-scan-image.py",
@@ -368,8 +379,8 @@
       "bytes": 6701,
       "lines": 162
     },
-    "pure_python_cases": 18,
-    "actual_pure_python_result": "Author final qualifier18/0 and root independently all31 Python cases/0 (qualifier18+wrapper13); assembly/error/namespace-denial rules only, not Linux native qualification. Audit materials are gzip(mtime=0) with raw bytes unchanged.",
+    "pure_python_cases": 21,
+    "actual_pure_python_result": "Root isolated HEAD aeab8a3 plus exact qualification overlay: all70 pure Python cases passed, including21 atomic cases. This proves assembly/error contracts only; new18 Linux native cases remain unexecuted.",
     "root_python_log": {
       "historical_path": "/private/tmp/diskgraph-native-qualification-final-python.log",
       "sha256": "7374ba3a475418228370881f0840275bc9adce1b252c98caf4458966c2339c49",
@@ -380,13 +391,13 @@
   "required_outer_supervisor": {
     "source": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "2331835e3441cad41e8543d3b27417d12cb16b3c6623337c3b2769b9f5d8ebf2",
+      "sha256": "d1d269eca9db14994567f19cc7276a7d7ee58881fef933a998f9d14dfaa66122",
       "bytes": 24568,
       "lines": 489
     },
     "unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
-      "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+      "sha256": "6f9800b6670d4105fe70a72386b7b34adeb2d92c5d8dbd2521257f8b30a9b8a0",
       "bytes": 16746,
       "lines": 315
     },
@@ -477,5 +488,28 @@
     "before_manifest_sha256": "91d5b0702aa5eaffabbdb49c0ed6de70f5ac0dc515736b9ea90215a739e4e178",
     "scope": "Current wrapper adds fixed per-policy-fixture temporary QA profile; atomic remains17, original receipts unchanged",
     "native_validation": "Pending exact-source native rerun; pure tests are not kernel policy proof"
+  },
+  "ready_gap_regression": {
+    "original_cases_preserved": [
+      "held_elf_replacement_preserves_image_and_closes_unrelated_descriptors",
+      "production_stdin_fragments_and_real_eof_precede_original_pidfd_wait",
+      "scanner_filter_rejects_process_clone_but_actual_pthread_still_runs",
+      "main_pthread_exit_is_not_whole_thread_group_exit",
+      "multithreaded_host_handlers_and_atfork_do_not_run_in_child_branch",
+      "fatal_before_first_init_is_reaped_through_original_kernel_pidfd",
+      "startup_channel_eof_causes_actual_natural_exit_and_original_reap",
+      "after_birth_checkpoint_keeps_nonclone_primary_and_performs_actual_wait",
+      "parent_observer_panic_reaps_before_original_payload_resumes",
+      "original_pidfd_external_reap_does_not_target_other_live_child",
+      "real_clone_denial_preserves_errno_and_has_no_fallback_or_birth_observer",
+      "actual_close_range_error_is_typed_and_child_is_reaped_without_exec",
+      "actual_getpgid_denial_preserves_original_errno_and_reaps",
+      "actual_getsid_denial_preserves_original_errno_and_reaps",
+      "startup_error_before_init_send_preserves_queued_errno_and_original_wait",
+      "waitid_denied_after_physical_exit_returns_original_owner_for_actual_reap",
+      "waitid_denied_unwind_keeps_original_box_and_transfers_unreaped_owner"
+    ],
+    "added_case": "exit_between_initial_waitid_and_poll_preserves_natural_exit_record",
+    "production_ready_algorithm": "unchanged; expected actual native RED"
   }
 }

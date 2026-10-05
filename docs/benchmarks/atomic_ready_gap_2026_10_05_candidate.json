@@ -1,0 +1,26 @@
+{
+  "baseline": "aeab8a3f2246cb12af74d17d8124ff1076d0e376",
+  "overlay_sha256": {
+    "scripts/tests/test_qualify_linux_atomic_launcher.py": "6b766c328d8363e20299b2be2e2c30b0395e6b35e759711165c3c0bab09990e7",
+    "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_exit.rs": "2b6a5e279d34e71f342cdff0e7b83aece6e22a93ee3e79eb6d009e39cf10e9fd",
+    "scripts/qualify-linux-atomic-launcher.py": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
+    "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json": "97a12f6328853c18d18cee6d9e97745617a3cc48fb69ccecae6613afca4079bf",
+    "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_ready_tests.rs": "9041030abad13c7da4ab62153e33f4624bac6b6e25c3400101ed515d9295eb22",
+    "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json": "972b40f82900c863c22be336299f38e7c165ac7b72a01587ac627e8f4bc7aa44",
+    "scripts/run-native-pid-namespace.py": "d1d269eca9db14994567f19cc7276a7d7ee58881fef933a998f9d14dfaa66122",
+    "scripts/tests/test_native_pid_namespace.py": "6f9800b6670d4105fe70a72386b7b34adeb2d92c5d8dbd2521257f8b30a9b8a0"
+  },
+  "native_ready_algorithm": "unchanged; additional cfg(test) real EOF scheduling hook only",
+  "pure_python": {
+    "passed": 70,
+    "failed": 0,
+    "atomic_cases": 21,
+    "log": "docs/benchmarks/atomic_ready_gap_assembly_2026_10_05.log.gz",
+    "raw_sha256": "5548c63e051c5932fb611c375f7f38e49958216608818edd93b502bf13dd2307"
+  },
+  "native_regression": "not yet executed; expected failure true readiness with absent exit record",
+  "preserved_native_cases": 17,
+  "added_native_cases": 1,
+  "remaining": "Actual native compilation and behavior RED required before fixing ready(). No platform/product readiness claimed.",
+  "outer_profile": "HEAD supervisor fixed atomic case count17→18, same original owner/reap/restore; unfinished two-stage changes excluded"
+}

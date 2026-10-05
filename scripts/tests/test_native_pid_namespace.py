@@ -86,13 +86,13 @@ class NativePidNamespaceContracts(unittest.TestCase):
             self.assertNotIn("namespace_descendants_gone", supervisor.receipt)
 
     def test_profile_rejects_wrong_count_not_a_free_expected_count(self):
-        for script, counts in ((ATOMIC, (0, 6, 16, 18)), (MEMFD, (0, 5, 7, 17))):
+        for script, counts in ((ATOMIC, (0, 6, 17, 19)), (MEMFD, (0, 5, 7, 17))):
             for count in counts:
                 with self.subTest(script=script.name, count=count):
                     self.assert_invalid_receipt(script, "component_tests_passed_awaiting_outer_cleanup", count)
 
     def test_profile_rejects_wrong_status_even_with_its_case_count(self):
-        for script, count in ((ATOMIC, 17), (MEMFD, 6)):
+        for script, count in ((ATOMIC, 18), (MEMFD, 6)):
             for status in ("native_component_passed", "failed", "native_qualification_and_namespace_reap_passed"):
                 with self.subTest(script=script.name, status=status):
                     self.assert_invalid_receipt(script, status, count)
@@ -183,7 +183,7 @@ class NativePidNamespaceContracts(unittest.TestCase):
             output = Path(temporary)
             (output / "qualification").mkdir()
             (output / "qualification/receipt.json").write_text(json.dumps(
-                {"status": "component_tests_passed_awaiting_outer_cleanup", "executed_parent_cases": 17}))
+                {"status": "component_tests_passed_awaiting_outer_cleanup", "executed_parent_cases": 18}))
             supervisor = MODULE.NativeNamespaceSupervisor(self.arguments(output))
             with self.assertRaisesRegex(RuntimeError, "namespace setup failed"):
                 supervisor.qualify()

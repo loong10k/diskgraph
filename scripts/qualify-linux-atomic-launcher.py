@@ -91,9 +91,9 @@ def validate_tooling(checkout, manifest, active_qualifier):
 
 def validate_sources(checkout, manifest):
     """完整验证以后才能改隔离副本；路径和 digest 错误不制造部分准入。"""
-    if manifest["schema_version"] != 1 or manifest["expected_parent_cases"] != 17:
+    if manifest["schema_version"] != 1 or manifest["expected_parent_cases"] != 18:
         raise ValueError("invalid atomic qualification manifest version or case count")
-    if len(set(manifest["test_names"])) != 17:
+    if len(set(manifest["test_names"])) != 18:
         raise ValueError("required native cases are not unique")
     sources = manifest["sources"]
     paths, targets, modules = set(), set(), set()
@@ -127,6 +127,16 @@ def validate_sources(checkout, manifest):
     if digest(checkout / baseline["target"]) != baseline["sha256"]:
         raise ValueError("committed UnixChild changed; requalify the mechanical projection")
     return sources
+
+
+
+def validate_inventory(text, required):
+    """核真实编译列表与冻结的十八案完全相等；遗漏、重复或替换均不能充数。"""
+    names = [line.split(": test")[0].rsplit("::", 1)[-1]
+             for line in text.splitlines() if line.endswith(": test")]
+    if len(required) != 18 or len(set(required)) != 18 or sorted(names) != sorted(required):
+        raise ValueError("actual compiled inventory does not match the 18 required parent cases")
+    return names
 
 
 def add_cc_dependency(cargo, lock):
@@ -377,15 +387,13 @@ def main():
             environment["DG_LINUX_ATOMIC_LAUNCH_REPLACEMENT"] = str(fixtures / "image-2")
             command = ["cargo", "test", "--offline", "--locked", "-p", "diskgraph-engine", "--lib", "native_child::linux_atomic_launcher_", "--"]
             inventory = run_step(receipt, output, "native-test-inventory", command + ["--list"], checkout, environment, support)
-            names = [line.split(": test")[0].rsplit("::", 1)[-1] for line in inventory.read_text().splitlines() if line.endswith(": test")]
-            if sorted(names) != sorted(manifest["test_names"]):
-                raise ValueError("actual compiled inventory does not match the 17 required parent cases")
+            names = validate_inventory(inventory.read_text(), manifest["test_names"])
             receipt["compiled_inventory"] = names
             object_evidence(target, output, receipt, environment, support)
             log = run_step(receipt, output, "native-tests", command + ["--nocapture", "--test-threads=1"], checkout, environment, support)
-            if not re.search(rb"test result: ok\. 17 passed; 0 failed; 0 ignored;", log.read_bytes()):
-                raise ValueError("actual serial execution did not pass all 17 required parent cases")
-            receipt.update(status="component_tests_passed_awaiting_outer_cleanup", executed_parent_cases=17)
+            if not re.search(rb"test result: ok\. 18 passed; 0 failed; 0 ignored;", log.read_bytes()):
+                raise ValueError("actual serial execution did not pass all 18 required parent cases")
+            receipt.update(status="component_tests_passed_awaiting_outer_cleanup", executed_parent_cases=18)
     except BaseException as error:
         receipt["status"] = "failed"
         receipt["primary_error"] = {"type": type(error).__name__, "repr": repr(error)}

@@ -115,7 +115,7 @@ class QualificationAssemblyTests(unittest.TestCase):
         for source in self.manifest["sources"]:
             if source.get("target"):
                 self.assertEqual(QUALIFIER.digest(self.checkout / source["target"]), source["sha256"])
-        self.assertEqual(len(result["declarations"]), 20)  # 19 模块和一个真实重导出。
+        self.assertEqual(len(result["declarations"]), 21)  # 20 模块和一个真实重导出。
         child = (self.checkout / self.manifest["baseline_unix_child"]["target"]).read_text()
         self.assertNotIn("spawn_scanner", child)
         self.assertNotIn("linux_scanner_launch", child)
@@ -129,6 +129,45 @@ class QualificationAssemblyTests(unittest.TestCase):
         self.assertIn("fn from_stream", channel)
         cargo = tomllib.loads((self.checkout / "crates/diskgraph-engine/Cargo.toml").read_text())
         self.assertEqual(cargo["build-dependencies"], {"cc": "1"})
+
+    def test_eighteenth_exact_case_keeps_all_original_cases_and_inventory_gate(self):
+        original = {
+            'held_elf_replacement_preserves_image_and_closes_unrelated_descriptors',
+            'production_stdin_fragments_and_real_eof_precede_original_pidfd_wait',
+            'scanner_filter_rejects_process_clone_but_actual_pthread_still_runs',
+            'main_pthread_exit_is_not_whole_thread_group_exit',
+            'multithreaded_host_handlers_and_atfork_do_not_run_in_child_branch',
+            'fatal_before_first_init_is_reaped_through_original_kernel_pidfd',
+            'startup_channel_eof_causes_actual_natural_exit_and_original_reap',
+            'after_birth_checkpoint_keeps_nonclone_primary_and_performs_actual_wait',
+            'parent_observer_panic_reaps_before_original_payload_resumes',
+            'original_pidfd_external_reap_does_not_target_other_live_child',
+            'real_clone_denial_preserves_errno_and_has_no_fallback_or_birth_observer',
+            'actual_close_range_error_is_typed_and_child_is_reaped_without_exec',
+            'actual_getpgid_denial_preserves_original_errno_and_reaps',
+            'actual_getsid_denial_preserves_original_errno_and_reaps',
+            'startup_error_before_init_send_preserves_queued_errno_and_original_wait',
+            'waitid_denied_after_physical_exit_returns_original_owner_for_actual_reap',
+            'waitid_denied_unwind_keeps_original_box_and_transfers_unreaped_owner',
+        }
+        added = "exit_between_initial_waitid_and_poll_preserves_natural_exit_record"
+        required = self.manifest["test_names"]
+        self.assertEqual(self.manifest["expected_parent_cases"], 18)
+        self.assertEqual(len(required), 18)
+        self.assertEqual(set(required), original | {added})
+        mounted = QUALIFIER.mount_candidate(self.checkout, self.manifest)
+        declaration = '#[cfg(all(test, target_os = "linux"))]\nmod linux_atomic_launcher_ready_tests;\n'
+        self.assertIn(declaration, mounted["declarations"])
+        source = next(item for item in self.manifest["sources"]
+                      if item.get("module") == "linux_atomic_launcher_ready_tests")
+        self.assertEqual(QUALIFIER.digest(self.checkout / source["target"]), source["sha256"])
+        inventory = "\n".join("native_child::qualified::" + name + ": test" for name in required)
+        self.assertEqual(QUALIFIER.validate_inventory(inventory, required), required)
+        for bad in (inventory.replace("native_child::qualified::" + added + ": test", ""),
+                    inventory + "\n" + "native_child::qualified::" + added + ": test",
+                    inventory.replace(added, "different_eighteenth_case")):
+            with self.assertRaisesRegex(ValueError, "compiled inventory"):
+                QUALIFIER.validate_inventory(bad, required)
 
     def test_corrupt_late_material_rejects_before_any_target_write(self):
         source = self.manifest["sources"][-1]

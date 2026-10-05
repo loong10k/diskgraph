@@ -41,6 +41,8 @@ impl LinuxAtomicExit {
             return Ok(true);
         }
         self.observe(false)?;
+        #[cfg(test)]
+        super::linux_atomic_launcher_ready_tests::after_observe(self.exit_code, self.exit_signal);
         let mut view = libc::pollfd {
             fd: self.fd(),
             events: libc::POLLIN,

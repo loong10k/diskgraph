@@ -3,7 +3,7 @@
   "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
   "qualification_stage": "Explicit EXEC fix awaiting native GREEN; policy namespace missing qualification under diagnosis",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
-  "atomic_manifest_sha256": "1a892f44d0c904df7c386c3bbe89298ba1f812139bf73cb607591c508a43fec7",
+  "atomic_manifest_sha256": "97a12f6328853c18d18cee6d9e97745617a3cc48fb69ccecae6613afca4079bf",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
@@ -155,15 +155,15 @@
   "qualification_tooling_dependencies": {
     "atomic_qualifier": {
       "path": "scripts/qualify-linux-atomic-launcher.py",
-      "sha256": "566a9e8e93f5c3b24062d0a2a4e4a074b15ecc2a0f5a10cc7af05a603cc5a2f2",
-      "bytes": 22155,
-      "lines": 405
+      "sha256": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
+      "bytes": 22420,
+      "lines": 413
     },
     "atomic_unit_tests": {
       "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
-      "sha256": "20960808bc0268db4b95e9026c064b9e1c37a720edb5747d9964b4af6e703908",
-      "bytes": 17844,
-      "lines": 338
+      "sha256": "6b766c328d8363e20299b2be2e2c30b0395e6b35e759711165c3c0bab09990e7",
+      "bytes": 20685,
+      "lines": 377
     },
     "archive_support": {
       "path": "scripts/qualify-linux-scan-image.py",
@@ -173,13 +173,13 @@
     },
     "outer_wrapper": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "2331835e3441cad41e8543d3b27417d12cb16b3c6623337c3b2769b9f5d8ebf2",
+      "sha256": "d1d269eca9db14994567f19cc7276a7d7ee58881fef933a998f9d14dfaa66122",
       "bytes": 24568,
       "lines": 489
     },
     "outer_unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
-      "sha256": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+      "sha256": "6f9800b6670d4105fe70a72386b7b34adeb2d92c5d8dbd2521257f8b30a9b8a0",
       "bytes": 16746,
       "lines": 315
     },

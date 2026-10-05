@@ -21,7 +21,7 @@ import pwd
 
 
 # 受限编排 profile；不能由调用者或子 receipt 提供期望数量。
-PROFILES = {"qualify-linux-atomic-launcher.py": 17, "qualify-linux-memfd-execution.py": 6}
+PROFILES = {"qualify-linux-atomic-launcher.py": 18, "qualify-linux-memfd-execution.py": 6}
 
 class NativeNamespaceSupervisor:
     """唯一外层 init owner；日志和 receipt 失败不得覆盖原资格或退出错误。"""
