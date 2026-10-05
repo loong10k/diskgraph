@@ -1,6 +1,7 @@
 use crate::{
-    FrameReader, ProtocolLimits, worker_control::WorkerControl, worker_failure::WorkerFailure,
-    worker_output::WorkerOutput, worker_request::WorkerRequest, worker_tree::WorkerTree,
+    FrameReader, ProtocolLimits, WorkerInputLimits, worker_control::WorkerControl,
+    worker_failure::WorkerFailure, worker_output::WorkerOutput, worker_request::WorkerRequest,
+    worker_tree::WorkerTree,
 };
 use diskgraph_disktree_core::scan::{ScanHandle, ScanOptions};
 use std::io::{self, Write};
@@ -9,12 +10,7 @@ use std::process;
 use std::sync::Arc;
 use std::time::Duration;
 
-const INPUT_LIMITS: ProtocolLimits = ProtocolLimits {
-    max_frame_bytes: 1024 * 1024,
-    max_stream_bytes: 2 * 1024 * 1024,
-    max_nodes: 1,
-    max_depth: 0,
-};
+const INPUT_LIMITS: ProtocolLimits = WorkerInputLimits::protocol_limits();
 
 /// 真实 helper 标准管道入口；来源：PF-06 与 pinned ScanHandle，专用于独立进程 main。
 /// 参数：无显式参数；只读取继承 stdin，不读取 PATH、数据库、授权或远程 executable 参数。

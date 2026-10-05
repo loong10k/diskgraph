@@ -29,6 +29,7 @@ mod tree_writer;
 
 mod worker_control;
 mod worker_failure;
+mod worker_input_limits;
 mod worker_io_kind;
 mod worker_limits;
 mod worker_message;
@@ -61,6 +62,7 @@ pub use scan_request::ScanRequest;
 pub use tree_codec::{read_tree, write_tree, write_tree_with_limits};
 pub use tree_writer::TreeWriter;
 pub use worker_failure::WorkerFailure;
+pub use worker_input_limits::WorkerInputLimits;
 pub use worker_io_kind::WorkerIoKind;
 pub use worker_limits::WorkerLimits;
 pub use worker_path::WorkerPath;

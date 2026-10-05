@@ -2979,5 +2979,51 @@
         "raw_sha256": "a031b90e3abc57b0c022be0357864402905ae1561ef645943b6f20ac470ccf2a"
       }
     ]
+  },
+  "input_response_budget_separation": {
+    "problem": "parent serialized Request under response limits instead of fixed helper input limits",
+    "observed_red": "0 passed / 2 actual assertion failures; private-field test setup corrected before valid RED",
+    "green": "2 passed / 0 failed; assertions unchanged, internal constructor call arity updated",
+    "driver_regression": "10 passed / 0 failed; original seven cases unchanged",
+    "worker_regression": "all executed suites passed; nested fixture test output not double-counted as unique cases",
+    "source_layout": "4 passed / 0 failed",
+    "strict_worker_clippy": "all targets passed with -D warnings",
+    "production_helper_change": "shared WorkerInputLimits retains existing 1 MiB frame and 2 MiB cumulative receiver caps",
+    "parent_integration": "only isolated candidate mounted and tested; actual Engine wiring and platform acceptance remain open",
+    "no_parent_tasks_closed": true,
+    "raw": [
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-red.log.gz",
+        "raw_sha256": "4b74f22b7a8ba823840bab841326c71745d94ece8e5b87ca265fa5f52f6c7761"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-green.log.gz",
+        "raw_sha256": "c1f673ae70c2677a6151bc2ea55dabaa2831128ec898e0379055ab6ad28719a4"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-driver-regression.log.gz",
+        "raw_sha256": "037fa89bd7a90dbf1333af16f4bfa5e6c69c8259f7b55c1c84487a9f869f8fa4"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-worker-regression.log.gz",
+        "raw_sha256": "656fd4d409c6b28e907f68cb040a11eb29b9dcfd8cbc62d9c155549ae81c90c3"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-source-layout.log.gz",
+        "raw_sha256": "2b34c8ffd32ee87723f46aae0dfe824dc8fe60156ed1976793ab4654b3c25e60"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-worker-clippy.log.gz",
+        "raw_sha256": "0c2e25c432512d061eec04b4e1ad53e4c5a6c4829db3321329a11bea97884495"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-frozen-delta.json.gz",
+        "raw_sha256": "5b4e2e98826f82b9f90fe68f03a3f6b5205aadf911bf477b59ee8e43075e9839"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/parent-input-budget-tests.rs.gz",
+        "raw_sha256": "994872a6890084bd0a8dc9bc50f54e630bffc59923bd23fc4be4aa5f20ba258f"
+      }
+    ]
   }
 }
