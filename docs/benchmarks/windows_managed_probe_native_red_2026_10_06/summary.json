@@ -1,0 +1,27 @@
+{
+  "run_id": 37389541495,
+  "job_id": 112031070977,
+  "source_sha": "e5402cbb54a1a4e8324b917581610966941e334d",
+  "fixture_sha256": "d8e68d17f1b3af0e2f472d7841a7e9ebc5ae2faa0561e8f5c808403339e62e74",
+  "production_acceptance": false,
+  "actual_cases": 20,
+  "actual_passed": 14,
+  "probe_cases": [
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
+      "passed": false,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
+      "passed": false,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_panic_wait_failure_retains_original_owner_and_capacity",
+      "passed": false,
+      "phase": "probe"
+    }
+  ],
+  "finding": "All three actual-born managed probe cases preserve original error/panic and consume the native cleanup fault, then fail at original recovery occupancy: actual 0 versus required 1. This is behavioral RED, not a compile or unsupported failure."
+}
