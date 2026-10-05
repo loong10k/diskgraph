@@ -1149,5 +1149,323 @@
       }
     ],
     "open_parent_tasks": 27
+  },
+  "incremental_execution_protocol": {
+    "status": "Local protocol acceptance passed; native CI pending. Not Engine integration or whole-group exit acceptance.",
+    "base_commit": "c73fa6e84af9d5bc6fc8f65f99be8944c349dbd7",
+    "candidate_manifest_sha256": "15c4b491d53bddd1cf314168013878cd7e93c8d680643f395aadc2da80d13d44",
+    "sources": [
+      {
+        "path": "crates/diskgraph-scan-worker/src/lib.rs",
+        "sha256": "e2ed9d11cc2376d127b552946c1303ed4b15d1622c606d93fe0a080a1dcb6dfb",
+        "bytes": 1688,
+        "lines": 64
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/tree_codec.rs",
+        "sha256": "54557619dfeb4533c2986886a81277bf109b30e564c86e40fa686ba515803259",
+        "bytes": 2778,
+        "lines": 64
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_failure.rs",
+        "sha256": "058aa525ff16fb1487939dc5e022c8138af23d146a8e1c3761ceea437744d2f5",
+        "bytes": 1198,
+        "lines": 36
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_io_kind.rs",
+        "sha256": "f0f2e4e7fc2ea6c4fe1f37081d688f40b3dfb310b06476a7edf71e099feadc64",
+        "bytes": 2587,
+        "lines": 64
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_limits.rs",
+        "sha256": "f86771e01baf9d85ac2bd9d820218ca2620374a25a51dc720c9d3b68b63f4cf1",
+        "bytes": 1785,
+        "lines": 50
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_output.rs",
+        "sha256": "b8499e6ac97396cb81d9dd7910e401229fb0bfe55d7d3cce865a48760ab91329",
+        "bytes": 3906,
+        "lines": 93
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_path.rs",
+        "sha256": "4a844339902f4219daf1efde3a5a7577d9fc9ba0c29c1aaf941c361921121c83",
+        "bytes": 1733,
+        "lines": 50
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_request.rs",
+        "sha256": "50f8ac01537fe3624e67686c5d12b856fb180cbe670b1b6c2bb8bc7a92a865e6",
+        "bytes": 2371,
+        "lines": 65
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_runtime.rs",
+        "sha256": "5e49825ae51ec789870cf2e99506091a92283e68f0146e0012ac23f6b6bbfbac",
+        "bytes": 4077,
+        "lines": 112
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_scan_request.rs",
+        "sha256": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
+        "bytes": 376,
+        "lines": 10
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_decoder.rs",
+        "sha256": "58cf67657f65f472ef12d0f21693dd12bd6aee2e130d92c98b2b2dc6af76f499",
+        "bytes": 7776,
+        "lines": 205
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_event.rs",
+        "sha256": "7c1b799b75e87a43ecf5e625eb717cef70d9cda8030b8e522d6405c19642784e",
+        "bytes": 298,
+        "lines": 11
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_failure.rs",
+        "sha256": "c19e9759f176260d676a09b519d1e6eefbe0dfe2b31954b1850b7b7d2f4a0a29",
+        "bytes": 1981,
+        "lines": 62
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_frame.rs",
+        "sha256": "465dcc0c6bd80df57204422b8ad50be6737044b92f71deb558c16e8762e1567d",
+        "bytes": 1749,
+        "lines": 55
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_outcome.rs",
+        "sha256": "1d330d2e6447abf704643563928aedbf35380fec680d55c5d790f45e16289d6c",
+        "bytes": 272,
+        "lines": 8
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/incremental_frame_decoder.rs",
+        "sha256": "de52137d140a3e13c87253bca558735cab11e176672406de998645d5853717db",
+        "bytes": 3430,
+        "lines": 90
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/tree_assembler.rs",
+        "sha256": "01de938d83a794eff64aa9be93777b2952c6f14992a0b68e2ac8480d2a2ae960",
+        "bytes": 3558,
+        "lines": 89
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_decoder.rs",
+        "sha256": "2fd74d67ee76684c57f88f11597602ebec4257fbcde0edf1d3a00214919ca917",
+        "bytes": 10355,
+        "lines": 285
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_decoder/support.rs",
+        "sha256": "50858accee921c3189f9f8e1e61a8b21354387467ed676fc5d8e9f0a8ee91c0f",
+        "bytes": 1963,
+        "lines": 64
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_dtos.rs",
+        "sha256": "cd4aa9c3b001414b99306cbe54c153a3c79732b28b686a383f4f9461c1e35501",
+        "bytes": 5767,
+        "lines": 148
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_decoder_allocation.rs",
+        "sha256": "0c8f124c8da37ced248b733ae2da59c429f69320d0115327488baf7a1b489af2",
+        "bytes": 4023,
+        "lines": 108
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_assembly.rs",
+        "sha256": "a063d8fe3e7969c33c4fbb661a473dce50be64b1d64b3513e16525a1713ab8ca",
+        "bytes": 5412,
+        "lines": 147
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_input_closed.rs",
+        "sha256": "be4f71446acd82db8401e744e1bb9b6fb895cf4c1707aad9a1186a292c1ca8c2",
+        "bytes": 4322,
+        "lines": 121
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_worker_stream.rs",
+        "sha256": "c308f100ed33d384219f4b668fd72ea996cb73995632853cbb70a90664ff1b9d",
+        "bytes": 6906,
+        "lines": 171
+      }
+    ],
+    "independent_source_review": "Non-author APPROVE bound to final v2 24 source hashes; explicitly limited protocol/producer compatibility, not parent integration/installation/OS group empty.",
+    "test_history": {
+      "existing_closed_input_before_new_decoder": {
+        "passed": 5,
+        "failed": 0
+      },
+      "missing_new_interface": {
+        "exit_code": 101,
+        "classification": "E0432 interface absence, not behavioral runtime RED"
+      },
+      "initial_new_protocol_targets": {
+        "passed": 24,
+        "failed": 0,
+        "qualification": "17 new API cases + 5 existing closed-input cases + 2 actual worker stdout/EOF/leader-wait cases"
+      },
+      "initial_worker_all_targets": {
+        "passed": 79,
+        "failed": 0,
+        "ignored": 0,
+        "suites": 21
+      },
+      "initial_strict_clippy": {
+        "exit_code": 101,
+        "cause": "option_env_unwrap in one frozen new test"
+      },
+      "correction": "Only explicit Some/None match with unchanged missing-artifact panic; no skip/fallback or behavioral assertion weakened."
+    },
+    "final_workspace": {
+      "exit_code": 0,
+      "passed": 1672,
+      "failed": 0,
+      "ignored": 18,
+      "test_suites": 92,
+      "doc_blocks": 9,
+      "raw_sha256": "7a5869afdfe6598edcdaf07966412d296acbd05c17ea344229946f75af22f663"
+    },
+    "final_checks": {
+      "strict_workspace_all_target_clippy": "passed",
+      "worker_strict_all_target_clippy": "passed",
+      "worker_fmt": "passed",
+      "engine_and_worker_source_contract": {
+        "passed": 4,
+        "failed": 0
+      },
+      "worker_all_target_build": "passed",
+      "openspec_strict": "passed"
+    },
+    "limits": [
+      "No Engine/native_child integration, OS-group-empty permit or executable trust/packaging change",
+      "finish_eof assembly O(nodes), no cooperative checkpoint or 20ms/hard RSS guarantee",
+      "Expected target/pin maximum 256 bytes admitted before copying; comparison is DTO consistency only",
+      "Original FrameReader blocking source byte-identical; all pre-existing tests and Cargo byte-identical",
+      "Five of the original six tests-first source files remain byte-identical; the sixth only replaces option_env.expect with an explicit artifact match and unchanged panic/assertions. The original 58d candidate and lint delta remain archived."
+    ],
+    "additional_limits": [
+      "ExecutionDecoder Hello declaration is not trusted executable installation proof.",
+      "End/Error triggers control closure; EOF qualifies protocol result only. Actual leader wait in two tests does not certify entire group/Job empty.",
+      "Finish assembly remains O(nodes) without checkpoints; no 20ms assembly or strict RSS claim.",
+      "No modification to pinned scanner source or pin.",
+      "Original macOS Intel active-progress qualification failure and Windows withdrawal result failures remain unresolved.",
+      "No full-platform parent task closed."
+    ],
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-decoder-candidate-v2.json.gz",
+        "sha256": "a6352a23500f3688a61ff34e4e0e91fae0f46c64885520ab286d8da3eb9270d8",
+        "raw_sha256": "15c4b491d53bddd1cf314168013878cd7e93c8d680643f395aadc2da80d13d44",
+        "raw_bytes": 13788
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-decoder-candidate.json.gz",
+        "sha256": "81bf9ce4e0555d90641f4ba1db68c06c0799a96930ac701d8452f6bdfe61fadd",
+        "raw_sha256": "58d9943727c11c7c493cd7257f4506e472d9871bede743dd2437eecf16332bf2",
+        "raw_bytes": 12802
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-decoder-actual-stream-tests.json.gz",
+        "sha256": "da2bd77d7d6ceae9c9cac5b73975ffb271096e68f87815adbdbab9d09a2d40ac",
+        "raw_sha256": "befd6305315781058cfbc36f92cd2acc3013f167cb5e16d8a2681e47a5379921",
+        "raw_bytes": 410
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-input-closed-clippy.diff.gz",
+        "sha256": "2ba3abb77c7839ff128aa9f484e9747567eac5fd00e35d741aa9a908c9d42832",
+        "raw_sha256": "f4e18a9bc423bfa17c2517b86ac782bfb34a6a74213032becd12377493fab6be",
+        "raw_bytes": 717
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-decoder-first-runtime.log.gz",
+        "sha256": "03bcfdf9533352674731be80c56833af44d8cd9ef2b011ba37c2df0f646c49f3",
+        "raw_sha256": "df7ba72d5bcdffaf488e4050247eb6cc295568d202e5049246bd3d414b1f6966",
+        "raw_bytes": 3384
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-all-targets.log.gz",
+        "sha256": "e4ef31fd01cf21256ef9e593ec587c05aef60f917867611541e8e91ecfa7c308",
+        "raw_sha256": "132cb451acd0b6471f96ca9bb31ea424c205f7fbbae348b8ddc4555bbb5f2ef0",
+        "raw_bytes": 10281
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-clippy-first.log.gz",
+        "sha256": "ae680302e850d3e3ac58b712584fba0bea80b6b6214ea51ede869be4ef311a48",
+        "raw_sha256": "7c04032b1e314a976a21a68f1653e39882557169ad44ed7335d15c62d672e12d",
+        "raw_bytes": 986
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-clippy-corrected.log.gz",
+        "sha256": "3b9360bd574e5039cd2ccc38d43742d720dd2ce6db488142f7c3d05a4978daf0",
+        "raw_sha256": "a58ab924ee6530e18319f1b641b19a574340b40d7725e765ab75cdd71420a74a",
+        "raw_bytes": 198
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-source-layout.log.gz",
+        "sha256": "1fe4b256bc99a4fcd1e013c3944f718398593f93425755ebe7a11372f271f3e7",
+        "raw_sha256": "aa7a46d80293294e85cda48fe3ce042152f47f8c4e8ad2cc4d264c0183eb2c3d",
+        "raw_bytes": 538
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-fmt-corrected.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-workspace.log.gz",
+        "sha256": "9f45996a116a37579d9773a049bb8fe391934f26660173cf7fce1525117b44a7",
+        "raw_sha256": "7a5869afdfe6598edcdaf07966412d296acbd05c17ea344229946f75af22f663",
+        "raw_bytes": 174692
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-workspace-summary.json.gz",
+        "sha256": "98a7cc99adbef5c9ab634ae5f43a02eeefdbfc72ecf561f0e5a7108a0372c8fe",
+        "raw_sha256": "148bcec5e6f2b8e69d148ae5a380d73ffcb5026422567cdca5ec864f4429d115",
+        "raw_bytes": 23848
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-workspace-clippy.log.gz",
+        "sha256": "ca86873cdb5ebe987eaf44f03a555e673def83576ac5d59977b77c6ed16221ac",
+        "raw_sha256": "f18cd8b1daeaeaad0cf86e0f5fe9a7bb3cf9159b3cc77b1bef65cce7690bdcc5",
+        "raw_bytes": 754
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-build.log.gz",
+        "sha256": "efe9dbd3fb39da17fe2688159e3e596d17930c1b0887d7eddd8a173c929e4119",
+        "raw_sha256": "5154d383980163f12bdc5976246553b1d6f0ec596ef1c453cb21d9d7ec3b997b",
+        "raw_bytes": 198
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-openspec.log.gz",
+        "sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+        "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "raw_bytes": 47
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-decoder-interface-absence.log.gz",
+        "sha256": "3bcb3b4858a5200ea1f51dec54eedae4484ea96b1d456a2b9d8e83f5cb2cc4a5",
+        "raw_sha256": "bfeb59a49532320f25d5a8f5157f23aca401f2f427a8d5e611ab0ea3a2fdd023",
+        "raw_bytes": 3526
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-worker-v2-closed-wire-test.log.gz",
+        "sha256": "1a18e3c6b4a821fec36078442a1a937d8aa60c9a9334fbdb71af9583745c47c9",
+        "raw_sha256": "dd094576c30ab42f2e0e81768e261c6156ceea3e78228425f5a3da7ea24b7889",
+        "raw_bytes": 756
+      }
+    ],
+    "open_parent_tasks": 27
   }
 }

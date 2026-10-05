@@ -71,16 +71,7 @@ fn prepare(
     reader: &mut FrameReader<io::Stdin>,
 ) -> io::Result<(PathBuf, ScanOptions, ProtocolLimits)> {
     match reader.read_payload::<WorkerRequest>()? {
-        Some(WorkerRequest::Request {
-            version: 2,
-            request,
-            limits,
-        }) => {
-            let limits = limits.checked()?;
-            let options = request.options.to_native()?;
-            let root = request.root.into_path()?;
-            Ok((root, options, limits))
-        }
+        Some(request) => request.into_scan(),
         _ => Err(io::Error::new(
             io::ErrorKind::InvalidData,
             "expected one execution Request version 2",

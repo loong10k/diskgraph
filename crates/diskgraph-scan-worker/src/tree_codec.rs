@@ -1,5 +1,6 @@
 use crate::{
-    DecodedTree, FlatNodes, Frame, FrameReader, ProtocolLimits, TreeWriter, tree_state::TreeState,
+    DecodedTree, FlatNodes, Frame, FrameReader, ProtocolLimits, TreeWriter,
+    tree_assembler::TreeAssembler,
 };
 use diskgraph_disktree_core::tree::Node;
 use std::io::{self, Read, Write};
@@ -48,62 +49,16 @@ pub fn write_tree_with_limits(
 /// 返回：通过 End 和 EOF 检查的迭代销毁 owner 或错误；非 OS 退出许可。
 pub fn read_tree(input: impl Read, limits: ProtocolLimits) -> io::Result<DecodedTree> {
     let mut frames = FrameReader::new(input, limits);
-    let mut state = TreeState::new(limits);
-    let mut nodes = Vec::new();
+    let mut tree = TreeAssembler::new(limits);
     loop {
         let frame = frames
             .read_frame()?
             .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "missing End"))?;
-        state.accept(&frame)?;
-        match frame {
-            Frame::Node { node } => {
-                let parent = node.parent;
-                let mut native = node.into_native()?;
-                // 此处不按不可信 child_count 分配；在全结构验完后按实际边数预留。
-                native.children.clear();
-                nodes
-                    .try_reserve(1)
-                    .map_err(|_| io::Error::other("node allocation failed"))?;
-                nodes.push((parent, native));
-            }
-            Frame::End { .. } => {
-                frames.expect_eof()?;
-                break;
-            }
-            _ => {}
+        tree.accept(frame)?;
+        if tree.ended() {
+            frames.expect_eof()?;
+            break;
         }
     }
-    let mut result = DecodedTree::prepare(nodes.len())?;
-    // 在形成递归所有权之前完成全部可能失败的 child 容量分配。
-    let mut counts = Vec::new();
-    counts
-        .try_reserve_exact(nodes.len())
-        .map_err(|_| io::Error::other("child count allocation failed"))?;
-    counts.resize(nodes.len(), 0_usize);
-    for (parent, _) in &nodes {
-        if let Some(parent) = parent {
-            let parent = usize::try_from(*parent)
-                .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "parent overflow"))?;
-            counts[parent] = counts[parent].checked_add(1).ok_or_else(|| {
-                io::Error::new(io::ErrorKind::InvalidData, "child count overflow")
-            })?;
-        }
-    }
-    for ((_, node), count) in nodes.iter_mut().zip(counts) {
-        node.children
-            .try_reserve_exact(count)
-            .map_err(|_| io::Error::other("children allocation failed"))?;
-    }
-    while nodes.len() > 1 {
-        let (parent, mut child) = nodes.pop().expect("validated nonempty");
-        child.children.reverse();
-        nodes[parent.expect("validated parent") as usize]
-            .1
-            .children
-            .push(child);
-    }
-    let (_, mut root) = nodes.pop().expect("validated root");
-    root.children.reverse();
-    result.install(root);
-    Ok(result)
+    tree.finish()
 }

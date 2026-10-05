@@ -1,6 +1,6 @@
 use crate::{
-    FlatNodes, Frame, FrameWriter, ProtocolLimits, ScanProgress, tree_state::TreeState,
-    worker_control::WorkerControl, worker_failure::WorkerFailure,
+    ExecutionFrame, FlatNodes, Frame, FrameWriter, ProtocolLimits, ScanProgress,
+    tree_state::TreeState, worker_control::WorkerControl, worker_failure::WorkerFailure,
 };
 use diskgraph_disktree_core::{scan::ScanSnapshot, tree::Node};
 use std::io::{self, Write};
@@ -26,11 +26,12 @@ impl<W: Write> WorkerOutput<W> {
     /// 参数：self 为未发送结果的输出端。
     /// 返回：真实构建 target 与固定 pin 声明的写入结果；声明不证明安装完整性。
     pub(crate) fn hello(&mut self) -> io::Result<()> {
-        self.frames.write_frame(&Frame::Hello {
-            version: 2,
-            target: env!("DISKGRAPH_WORKER_TARGET").to_owned(),
-            pin: "158f9cc2f0b332194a3ffc5acec47760c99146d8".to_owned(),
-        })?;
+        self.frames
+            .write_payload(&ExecutionFrame::<String, String>::Hello {
+                version: 2,
+                target: env!("DISKGRAPH_WORKER_TARGET").to_owned(),
+                pin: "158f9cc2f0b332194a3ffc5acec47760c99146d8".to_owned(),
+            })?;
         self.frames.flush()
     }
 
@@ -41,7 +42,8 @@ impl<W: Write> WorkerOutput<W> {
             progress: ScanProgress::from_native(snapshot),
         };
         self.state.accept(&frame)?;
-        self.frames.write_frame(&frame)?;
+        self.frames
+            .write_payload(&ExecutionFrame::from_result_frame(frame)?)?;
         self.frames.flush()
     }
 
@@ -63,7 +65,8 @@ impl<W: Write> WorkerOutput<W> {
                 node: node.map_err(output_error)?,
             };
             self.state.accept(&frame).map_err(output_error)?;
-            self.frames.write_frame(&frame).map_err(output_error)?;
+            let frame = ExecutionFrame::from_result_frame(frame).map_err(output_error)?;
+            self.frames.write_payload(&frame).map_err(output_error)?;
         }
         control.check()?;
         let end = Frame::End {
@@ -72,7 +75,8 @@ impl<W: Write> WorkerOutput<W> {
         self.state.accept(&end).map_err(output_error)?;
         // 先标记合法终帧，父收到 End 后的关闭不会与控制 reader 产生假 UnexpectedEof。
         control.mark_terminal();
-        self.frames.write_frame(&end).map_err(output_error)?;
+        let end = ExecutionFrame::from_result_frame(end).map_err(output_error)?;
+        self.frames.write_payload(&end).map_err(output_error)?;
         self.frames.flush().map_err(output_error)
     }
 

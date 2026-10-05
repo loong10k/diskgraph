@@ -1,5 +1,7 @@
 # 全平台验收续篇 — 2026-10-04
 
+增量执行 v2 协议候选已通过最终本机 workspace **1672/0/18（92 个测试套件+9个 doc-test 块，exit0）**及严格 workspace all-target Clippy。worker 共79项，新增目标24项包含两项真实 helper stdout→解码器→关闭控制输入→EOF/leader wait。早期接口缺失和仅测试代码的 Clippy 失败均保留，只作等价的显式 artifact 分支修正。独立源码审查绑定最终24项摘要。该结果证明本机协议行为，不证明 Engine 启动、可信安装、正常整组/Job退出、20ms组装、严格RSS，也不修复下方原生失败。**27个父门禁仍开放。**
+
 最新已提交 helper runtime `1314087` 的 [CI37250991412](https://github.com/loong10k/diskgraph/actions/runs/37250991412) 已终态：**19/22 任务成功**。Windows stable 与 Rust 1.97.0 的末段 scope/grant 撤权两项断言均返回 `Business(BudgetExceeded)`；macOS Intel stable 的非法控制测试未捕获合格运行进度、未发出动作，worker 输出一个 End 并正常退出。失败尚未修复。诊断候选保留原期限、错误和断言，本机 Engine 规范1/0、授权投影4/0、Git 边界13/0通过；Windows 专属诊断仍待原生执行。一次完整规范检查因进行中的 worker 模块尚未挂载而失败，原日志保留。没有关闭父门禁，**27项仍开放**。
 
 最新诊断提交 `b9e73fa` 的 [CI37246447522](https://github.com/loong10k/diskgraph/actions/runs/37246447522) 已终态，**19/22任务成功**。macOS ARM stable的迁移准备耗尽原400ms窗口，未进入BEGIN；Windows stable/MSRV末段scope/grant撤销实际返回 `Business(BudgetExceeded)`，未满足原拒权断言，具体耗时阶段未知。Windows MSRV合法linked-worktree夹具还返回 `scoped Git source changed before data access`，变化字段未记录。原期限和错误断言保持，终态原始日志保存在扫描基础回执中。**27个父门禁仍开放。** 本机未提交helper运行时55项通过、严格all-target Clippy通过；Engine错误传播现有7项目标通过：末发布案例先真实复现keeper的SQLite BUSY被返回为PermissionDenied，再由同代取消分支窄修复通过。独立源码审查批准9份当前Engine源码，严格workspace Clippy及fmt通过；此前完整库410/0/3在第七案之前，修正后的完整workspace通过 **1648/0/18（86 test suites，另9 doc-test blocks，exit0）**。vendored扫描器自身124/0/2通过，原pin、摘要和选项一致性检查保持。首次源码规范失败已归档，仅补齐六处注释返回标记而不改行为，四项规范检查通过；最终源码Clippy/fmt及OpenSpec验证通过。这些本机结果不证明Engine/helper整合或原生生产就绪。
