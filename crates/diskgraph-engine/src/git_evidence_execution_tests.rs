@@ -45,11 +45,11 @@ pub(super) fn assert_crash_after_commit_reached(job: &str) {
         );
     });
 }
-pub(super) fn assert_publication_reached() {
+pub(super) fn assert_publication_reached(actual: &impl std::fmt::Debug) {
     PUBLICATION.with(|slot| {
         assert!(
             slot.borrow().is_none(),
-            "did not reach the required post-capture publication boundary"
+            "did not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual={actual:?}"
         )
     });
 }
@@ -90,7 +90,7 @@ fn git_content_revocation_after_capture_prevents_any_publication() {
         ))
     });
     let error = f.engine.run_job_strict(&job.job_id, "revoked").unwrap_err();
-    assert_publication_reached();
+    assert_publication_reached(&error);
     assert!(
         matches!(
             error,
@@ -126,7 +126,7 @@ fn git_actual_cancellation_after_capture_is_cancelled_without_publication() {
         .engine
         .run_job_strict(&job.job_id, "cancelled")
         .unwrap_err();
-    assert_publication_reached();
+    assert_publication_reached(&error);
     assert!(
         matches!(
             error,
@@ -212,7 +212,7 @@ fn git_original_request_expiry_after_capture_fails_without_publication() {
     let error = f.engine.run_job_strict(&job.job_id, "expired").unwrap_err();
     PUBLICATION.with(|slot| assert!(slot.borrow().is_none(),
         "did not reach the required post-capture publication boundary: original_expiry={expiry}, now={}, elapsed={:?}, error={error:?}", now(), started.elapsed()));
-    assert_publication_reached();
+    assert_publication_reached(&error);
     assert!(
         matches!(
             &error,
@@ -306,7 +306,7 @@ fn git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner() {
         .engine
         .run_job_strict(&job.job_id, "old-owner")
         .unwrap_err();
-    assert_publication_reached();
+    assert_publication_reached(&error);
     assert!(
         matches!(
             error,

@@ -215,7 +215,7 @@ fn keeper_join_propagates_its_real_panic_without_rewriting_committed_facts() {
         f.engine.run_job_strict(&job.job_id, "keeper-panic")
     }));
     hooks::clear();
-    crate::git_evidence_execution_tests::assert_publication_reached();
+    crate::git_evidence_execution_tests::assert_publication_reached(&result);
     assert!(phase_seen.load(Ordering::SeqCst));
     let receipt = f
         .engine

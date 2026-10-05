@@ -175,7 +175,7 @@ fn running_keeper_distinguishes_request_cancel_from_verified_deny_stop() {
         let result =
             f.engine
                 .run_job_with_stop_signals(&job.job_id, "signal-keeper", request, denied);
-        git_evidence_execution_tests::assert_publication_reached();
+        git_evidence_execution_tests::assert_publication_reached(&result);
         if deny {
             assert!(
                 matches!(
@@ -269,7 +269,7 @@ fn keeper_authorization_failure_is_not_inferred_from_the_stop_atomic() {
         captured && publication,
         "required real capture/publication phases not reached: capture_before={captured}, publication_before={publication}, call_elapsed={call_elapsed:?}, result={result:?}, terminal={terminal_diagnostic:?}, persisted_failure={failure_diagnostic:?}"
     );
-    git_evidence_execution_tests::assert_publication_reached();
+    git_evidence_execution_tests::assert_publication_reached(&result);
     assert!(
         matches!(&result, Err(EngineError::Store(StoreError::Conflict(message))) if message == "live job authorization withdrawn"),
         "original typed grant failure was replaced: {result:?}"

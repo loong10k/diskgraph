@@ -118,7 +118,7 @@ fn live_git_owner_rejection_and_cancel_preserve_the_active_handle() {
         ),
         "publication heartbeat must report the actual durable cancellation: {result:?}"
     );
-    crate::git_evidence_execution_tests::assert_publication_reached();
+    crate::git_evidence_execution_tests::assert_publication_reached(&result);
     assert_eq!(
         f.engine.job_status(&job.job_id).unwrap().state,
         JobState::Cancelled

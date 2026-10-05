@@ -4,59 +4,73 @@
   "sources": [
     {
       "path": "crates/diskgraph-engine/src/scan_worker_child.rs",
-      "sha256": "5f793547501e3692a51e2620ca3b3c34bc04746bebc15b2a3e319c5e9b13ea07"
+      "sha256": "5f793547501e3692a51e2620ca3b3c34bc04746bebc15b2a3e319c5e9b13ea07",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_child.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_owned_failure.rs",
-      "sha256": "bc6fbed328bcf4954fba9111bb8e517c85a8c4b21f914342c9a2303aa4a55bdb"
+      "sha256": "bc6fbed328bcf4954fba9111bb8e517c85a8c4b21f914342c9a2303aa4a55bdb",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_owned_failure.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver.rs",
-      "sha256": "aa5038a1fb477c28e08fb724fb73e2fb780316605ba67dcda9e525372f7ad1af"
+      "sha256": "aa5038a1fb477c28e08fb724fb73e2fb780316605ba67dcda9e525372f7ad1af",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_driver.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_owned_failure_tests.rs",
-      "sha256": "6f978009f13e64e2021da0a1d64ae7ade7ce0ae8885661d56b5f27247f7a44ba"
+      "sha256": "6f978009f13e64e2021da0a1d64ae7ade7ce0ae8885661d56b5f27247f7a44ba",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_owned_failure_tests.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_owned_failure_test_support.rs",
-      "sha256": "15b8052e2b623b86184132d68c8a06173214835e79fd7c40550c67ad5b6d1b85"
+      "sha256": "15b8052e2b623b86184132d68c8a06173214835e79fd7c40550c67ad5b6d1b85",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_owned_failure_test_support.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_failure.rs",
-      "sha256": "1335c287bbce3a3c1dd58fbea3735dea38804f5fe3ff6e402a9f308db95293ec"
+      "sha256": "1335c287bbce3a3c1dd58fbea3735dea38804f5fe3ff6e402a9f308db95293ec",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_failure.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_input.rs",
-      "sha256": "332ccfc98c7d33dc1731509f8937f4afa96cb0c36397ceda06e813ef16ccb3dc"
+      "sha256": "332ccfc98c7d33dc1731509f8937f4afa96cb0c36397ceda06e813ef16ccb3dc",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_input.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_input_buffer.rs",
-      "sha256": "a9c481de8f5aeec9551da5b7aad9e37aaaa7b1a29afef8b62b0a391a055873fe"
+      "sha256": "a9c481de8f5aeec9551da5b7aad9e37aaaa7b1a29afef8b62b0a391a055873fe",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_input_buffer.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_output.rs",
-      "sha256": "7a82d6ce11d0bf2a10622ec56d622674ce8f25990c51e85dddbdb38e80205442"
+      "sha256": "7a82d6ce11d0bf2a10622ec56d622674ce8f25990c51e85dddbdb38e80205442",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_output.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver_tests.rs",
-      "sha256": "dddbdbb5326d2eeccf9bad014063b45314afb19b43837e782da4cbad9dc71702"
+      "sha256": "dddbdbb5326d2eeccf9bad014063b45314afb19b43837e782da4cbad9dc71702",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_driver_tests.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs",
-      "sha256": "f4234fe46800869f1529ea9369706f86365d891b77da4f4e0ddc61eaa33d5ed3"
+      "sha256": "f4234fe46800869f1529ea9369706f86365d891b77da4f4e0ddc61eaa33d5ed3",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_driver_additional_tests.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver_test_support.rs",
-      "sha256": "d4dcc1442c4b1f5b49b086e5fd06e1c502cdff2d531509aedd776cd0f41c039a"
+      "sha256": "d4dcc1442c4b1f5b49b086e5fd06e1c502cdff2d531509aedd776cd0f41c039a",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_driver_test_support.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver_fixture.rs",
-      "sha256": "3c6180f900c9be83430aa98ac914c9f3af7422d7d8374b4d0e32511eb7e3ad8b"
+      "sha256": "3c6180f900c9be83430aa98ac914c9f3af7422d7d8374b4d0e32511eb7e3ad8b",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_driver_fixture.rs"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_input_budget_tests.rs",
-      "sha256": "994872a6890084bd0a8dc9bc50f54e630bffc59923bd23fc4be4aa5f20ba258f"
+      "sha256": "994872a6890084bd0a8dc9bc50f54e630bffc59923bd23fc4be4aa5f20ba258f",
+      "current_candidate_path": "crates/diskgraph-engine/integration_candidates/scan_worker/scan_worker_input_budget_tests.rs"
     }
   ],
   "tests": {
@@ -74,7 +88,8 @@
     },
     "source_layout": {
       "passed": 4,
-      "failed": 0
+      "failed": 0,
+      "qualification": "isolated mounted macOS component checkout only; contradicted for d4 committed checkout by native CI"
     }
   },
   "interface_absence": "only missing module/method after actual worker dependency was admitted; no runtime behavior RED claim",
@@ -128,5 +143,59 @@
     "Panic outer host disposal slot, finite process capacity accounting and Engine publication wiring pending.",
     "Root lib remains unmounted for these parent-driver sources; no production execution permission or PF-06 completion implied.",
     "Early mount qualification missing dev-dependency/test cfg corrected before source-layout 4/0; bookkeeping receipt source argument corrected after successful rustc, not test behavior RED."
-  ]
+  ],
+  "integration_status_correction": {
+    "reason": "actual d4 CI source-layout rejects 14 unmounted sources",
+    "production_integration": "pending; all candidate bytes retained outside src until complete dependency mounting",
+    "gate_changes": "none",
+    "ci_run": "37283634024",
+    "local_current_checkout_before": "exit 101, unmounted source assertion",
+    "local_current_checkout_after": "exit 0, 4 passed",
+    "diagnostic_regressions": {
+      "actual_cancellation": 1,
+      "stop_signals": 6,
+      "stop_cause": 3,
+      "failed": 0,
+      "active_owner": 1
+    },
+    "original_windows_failure_root_cause": "unknown; preserved original Debug in existing qualification assertion",
+    "artifacts": [
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-source-layout-before.log.gz",
+        "raw_sha256": "475ae00054d38c1366c14a820a7facd4ef594af9726ae0131cbd828cc04fb2ba",
+        "gzip_sha256": "2be6838f2479264c9906ffb065f0dc7aa946540fa987295031acfdc5fd65be9c"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-source-layout-after.log.gz",
+        "raw_sha256": "7ab4760361652ec9ed265e6708c58b2a85a909d3fc5e710bc6df21b3c3fca80e",
+        "gzip_sha256": "d6869b043f99b2291a0cc85bcd51638f6665747c8324b053d1ad5e0f8d2da0e6"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-publication-cancel.log.gz",
+        "raw_sha256": "18ff3aa7d42bef85864ad96eb412c37bc611e66efdfa5f015b04a5547342ed19",
+        "gzip_sha256": "74a1e3a16039253a713ddc19bc5ca2fcb2b9861037a6d8f443c49b5b4accb626"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-stop-signals.log.gz",
+        "raw_sha256": "7b506eed2cd6c4d2e882dc80df1b6a174528009f1d450e2e02e54e777c349188",
+        "gzip_sha256": "60a6d111462fc30a73c75dc975d6876563ee2c8e6c43bdf1538ec72a9e2fdd7e"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-stop-cause.log.gz",
+        "raw_sha256": "b39d0e48ae76819a084ccd8687a4c073e31f2c658afcef452bb5c01578b095e2",
+        "gzip_sha256": "95a801addab8b4ca13baeeb44d94cc7fb04d708c0041cb858477f61f458a34be"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-active-owner.log.gz",
+        "raw_sha256": "fd3593cad282b53e0820e8ee40cc88c94592ac991f7df14d67878d521a5c09e0",
+        "gzip_sha256": "87b462bd436d1fbf217241800160bb88835f969b9779f86d9cc7bfa68a7379fa"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_integration_correction_2026_10_05_diskgraph-current-diagnostic-clippy.log.gz",
+        "raw_sha256": "241aace82ec26e21f9f833bf5e3d38270ab4ff0beff594c2afff81a08d5e7240",
+        "gzip_sha256": "cefac764ab171d7155ab84a60fe94147688b1cd9dc4db88e9c80eb3b515cf5d4"
+      }
+    ],
+    "clippy": "actual HEAD archive plus exact staged correction, engine all-targets, -D warnings, exit 0"
+  }
 }
