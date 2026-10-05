@@ -1,0 +1,31 @@
+{
+  "run_id": 37388084630,
+  "job_id": 112026351473,
+  "production_acceptance": false,
+  "results": {
+    "windows-cleanup": {
+      "passed": 14,
+      "failed_cases": [
+        "native_child::windows::windows_normal_exit_tests::normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+        "native_child::windows::windows_normal_exit_tests::normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+        "native_child::windows::windows_normal_exit_tests::normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job"
+      ],
+      "fixture_sha256": "5008dfa5a8c58022d08b9c90025395fb9e39485d8f855baa832aef95eeccb918",
+      "source_count": 462
+    },
+    "windows-cleanup-baseline": {
+      "passed": 11,
+      "failed_cases": [
+        "native_child::windows::windows_birth_recovery_tests::postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
+        "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
+        "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query",
+        "native_child::windows::windows_normal_exit_tests::normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+        "native_child::windows::windows_normal_exit_tests::normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+        "native_child::windows::windows_normal_exit_tests::normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job"
+      ],
+      "fixture_sha256": "288de8041595d92383a94ba234284d1fec066729327e28882bc8e18e1ec8d23a",
+      "source_count": 461
+    }
+  },
+  "finding": "The same three exact normal-exit count assertions fail on both frozen sources on the same runner. The current birth fix passes the three birth cases that fail on the original source. Actual Job member identity is not yet observed; no production algorithm or assertions changed on this evidence alone."
+}

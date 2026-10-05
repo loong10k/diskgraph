@@ -2,6 +2,12 @@
 
 > 2026-10-06 当前状态：全平台生产验收未完成。以下历史通过记录仅适用于各自源码与范围，不能替代当前集成版本验收。
 
+最新原生证据：[macOS CI37386707636](https://github.com/loong10k/diskgraph/actions/runs/37386707636) 的 ARM64、Intel 均已成功；各自实际执行9项固定案例：协议2项、root安装1项、普通UID的helper/Engine 6项。[ARM64回执](benchmarks/macos_installed_engine_native_green_2026_10_06/arm64/summary.json)与此前Intel回执保留源码及二进制身份。实际CLI/MCP正向流程、升级与发布竞态、默认启用和完整集成仍未完成。
+
+[Windows同runner对照37388084630](https://github.com/loong10k/diskgraph/actions/runs/37388084630)确认当前源码14/17、原源码11/17；两者均有相同3项正常退出Job计数断言失败，原源码另有3项出生后owner失败。[原始日志与对照回执](benchmarks/windows_same_runner_baseline_comparison_2026_10_06/summary.json)已保留。实际Job成员身份尚未观测，不削弱原断言。受管理probe的3项owner回归已冻结于`e5402cb`，[原生37389541495](https://github.com/loong10k/diskgraph/actions/runs/37389541495)待完成。失败child与Git私有目录共同保留仍是生产缺口。
+
+下方保留此前阶段结果，不覆盖上述最新状态。
+
 Windows 冻结候选 `d957e66` 的 [原生验收 37384689462](https://github.com/loong10k/diskgraph/actions/runs/37384689462) 编译成功，四项 pending I/O 跨线程回归实际通过；三项原 owner 清理恢复测试实际失败，确认过早标记完成、丢失句柄与恢复槽位释放问题。[原始证据](benchmarks/windows_cleanup_native_red_2026_10_06/summary.json) 已保留。候选 `436ebea` 修复失败后保留原句柄并重试真实 OS 观察；[修复验收](https://github.com/loong10k/diskgraph/actions/runs/37385193355) 已实际通过 7/7（原四项 I/O 与三项清理回归），[GREEN 原始证据](benchmarks/windows_cleanup_native_green_2026_10_06/summary.json) 已保存。出生后 panic 的外部所有权以及清理协作期限仍未解决，不据此启用 Windows 扫描。
 
 macOS [ARM/Intel 原始失败 37381931634](https://github.com/loong10k/diskgraph/actions/runs/37381931634) 发生于创建非法 UTF-8 测试目录，返回 EILSEQ，尚未进入扫描。[原始失败证据](benchmarks/macos_installed_invalid_filename_failure_2026_10_06/summary.json) 已保留。修正候选 `66c445a` 在同一 CI 临时卷明确检查 EILSEQ，再以合法 Unicode 文件名运行完整扫描；独立真实序列化测试保留非 UTF-8 原始路径字节且本机精确 1/0/0 通过。[ARM/Intel 新验收](https://github.com/loong10k/diskgraph/actions/runs/37385115407) 尚未完成。

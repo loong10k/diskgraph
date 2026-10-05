@@ -1,0 +1,27 @@
+{
+  "run_id": 37386707636,
+  "job_id": 112021625944,
+  "source_sha": "c0ea6ca26c56ac25a90455df194748b5acaf6de1",
+  "architecture": "arm64",
+  "actual_cases_passed": 9,
+  "production_acceptance": false,
+  "helper_sha256": "ec51bfa91bf652ac053a5adcf94195fb11aca051ed64510bff700f3207f53a93",
+  "fixture_sha256": "6dc7923bf4d1a82e6895cc9fc27da0a1b8db0111021f0072130aad87af7382b1",
+  "strict_stdout_case_names": [
+    "raw-path-protocol",
+    "response-budget-fixture",
+    "root-issuer",
+    "macos_installed_helper_returns_complete_tree_after_real_normal_wait",
+    "macos_installed_helper_original_cancel_after_birth_is_reaped",
+    "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility",
+    "macos_engine_installed_scan_publishes_revision_and_relations",
+    "macos_engine_response_exhaustion_has_no_partial_revision",
+    "macos_engine_postbirth_panic_preserves_payload_and_recovery"
+  ],
+  "remaining": [
+    "positive CLI/MCP flows",
+    "update/publication concurrency race",
+    "default feature and coherent full integration",
+    "current workload performance"
+  ]
+}
