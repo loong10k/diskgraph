@@ -9641,10 +9641,10 @@ index 0000000..077d131
 +}
 diff --git a/crates/diskgraph-engine/src/scan_worker_driver_test_support.rs b/crates/diskgraph-engine/src/scan_worker_driver_test_support.rs
 new file mode 100644
-index 0000000..6d71715
+index 0000000..b056556
 --- /dev/null
 +++ b/crates/diskgraph-engine/src/scan_worker_driver_test_support.rs
-@@ -0,0 +1,183 @@
+@@ -0,0 +1,235 @@
 +//! 父驱动的真实子进程夹具；来源：原生 Child owner，不注入退出布尔值或模拟管道。
 +use crate::scan_worker_driver::ScanWorkerDriver;
 +use diskgraph_disktree_core::scan::ScanOptions;
@@ -9686,6 +9686,58 @@ index 0000000..6d71715
 +        std::fs::create_dir(&root).unwrap();
 +        std::fs::write(root.join("item"), [7; 17]).unwrap();
 +        let deadline = Instant::now() + Duration::from_secs(20);
++        #[cfg(target_os = "linux")]
++        let child = {
++            use crate::native_child::LinuxAtomicLauncher;
++            use std::ffi::CString;
++            use std::io::Write;
++            use std::os::unix::ffi::OsStrExt;
++            use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
++
++            // Linux 使用生产原子启动器；失败或 unwind 的原 owner 不得被夹具丢弃。
++            let launcher = LinuxAtomicLauncher::prepare(
++                std::fs::File::open(&program).unwrap(),
++                vec![
++                    CString::new(program.as_os_str().as_bytes()).unwrap(),
++                    CString::new(mode).unwrap(),
++                    CString::new(directory.path().as_os_str().as_bytes()).unwrap(),
++                ],
++                Vec::new(),
++            )
++            .unwrap();
++            let mut unwind_owner = None;
++            let launched = catch_unwind(AssertUnwindSafe(|| {
++                launcher.spawn(deadline, &mut || check(deadline), &mut unwind_owner)
++            }));
++            match launched {
++                Ok(Ok(child)) => child,
++                Ok(Err(failure)) => {
++                    let (error, mut owner) = failure.into_parts();
++                    if let Some(child) = owner.as_mut()
++                        && let Err(secondary) = child.cleanup()
++                    {
++                        let _ = writeln!(
++                            std::io::stderr(),
++                            "Atomic driver fixture cleanup secondary: {secondary:?}"
++                        );
++                    }
++                    panic!("actual Atomic driver fixture launch failed: {error:?}");
++                }
++                Err(payload) => {
++                    // 原处置槽保留在 catch 外；清理次错不改变宿主收到的原 panic payload。
++                    if let Some(child) = unwind_owner.as_mut()
++                        && let Err(secondary) = child.cleanup()
++                    {
++                        let _ = writeln!(
++                            std::io::stderr(),
++                            "Atomic driver fixture unwind cleanup secondary: {secondary:?}"
++                        );
++                    }
++                    std::mem::drop(unwind_owner);
++                    resume_unwind(payload);
++                }
++            }
++        };
 +        #[cfg(target_os = "macos")]
 +        let child = crate::native_child::UnixChild::spawn_worker(
 +            &program,
@@ -9758,7 +9810,7 @@ index 0000000..6d71715
 +    /// 参数：无；返回：原 leader 已真实回收；Windows 同时核对仍持有的 Job 活动数为零。
 +    pub(super) fn assert_reaped(&self) {
 +        assert!(self.pid > 0, "actual fixture PID required");
-+        #[cfg(target_os = "macos")]
++        #[cfg(any(target_os = "linux", target_os = "macos"))]
 +        {
 +            let mut status = 0;
 +            assert_eq!(

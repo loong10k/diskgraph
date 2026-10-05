@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "source_commit": "82f875bdd5da9bab2dd1d7d6faf44c6c070e50d2",
+  "run_id": 37362741953,
+  "production_acceptance": false,
+  "lanes": [
+    {
+      "lane": "x86-stable",
+      "engine_flow": {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "raw_log_sha256": "906f72a9b62136b5558407018d67a281ed23f1cffd18f1a4261d2c700cac2d78"
+      },
+      "recovery": "not_executed_compile_E0425_missing_linux_fixture_child",
+      "init_reaped": true,
+      "namespace_descendants_gone": true,
+      "logs": {
+        "recovery": {
+          "path": "linux_engine_37362741953_x86-stable_recovery.log.gz",
+          "raw_sha256": "1d0c2ff3d66e7a126dc0af5aa3c138d437ca525833bf0e7267a728c780855cc1"
+        },
+        "engine-flow": {
+          "path": "linux_engine_37362741953_x86-stable_engine-flow.log.gz",
+          "raw_sha256": "906f72a9b62136b5558407018d67a281ed23f1cffd18f1a4261d2c700cac2d78"
+        },
+        "namespace": {
+          "path": "linux_engine_37362741953_x86-stable_namespace.log.gz",
+          "raw_sha256": "2a4e0d11eb92011322c0cc554eb3fc463a3f2fe6b33b73b834e3b8d6adbf748e"
+        },
+        "receipt": {
+          "path": "linux_engine_37362741953_x86-stable_receipt.log.gz",
+          "raw_sha256": "999441ad257c5e1adfa779d2063b1c0edc31b3c806348bb54464c425c93a519d"
+        }
+      }
+    },
+    {
+      "lane": "arm-stable",
+      "engine_flow": {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "raw_log_sha256": "c10b53840d5d206350d2934023e863921f4367ea3624609e30e2a742365cab49"
+      },
+      "recovery": "not_executed_compile_E0425_missing_linux_fixture_child",
+      "init_reaped": true,
+      "namespace_descendants_gone": true,
+      "logs": {
+        "recovery": {
+          "path": "linux_engine_37362741953_arm-stable_recovery.log.gz",
+          "raw_sha256": "1d0c2ff3d66e7a126dc0af5aa3c138d437ca525833bf0e7267a728c780855cc1"
+        },
+        "engine-flow": {
+          "path": "linux_engine_37362741953_arm-stable_engine-flow.log.gz",
+          "raw_sha256": "c10b53840d5d206350d2934023e863921f4367ea3624609e30e2a742365cab49"
+        },
+        "namespace": {
+          "path": "linux_engine_37362741953_arm-stable_namespace.log.gz",
+          "raw_sha256": "995f4ed7c65fcce6f1b5ce5dbc6777049ab8455dcb6a0d27e1336e7790f46b69"
+        },
+        "receipt": {
+          "path": "linux_engine_37362741953_arm-stable_receipt.log.gz",
+          "raw_sha256": "f750ffc5d716253458b873974a27b5717aefc62d9c9b371eec0b599b207b1c95"
+        }
+      }
+    }
+  ],
+  "rust_1_97": "pending_not_counted",
+  "fix": "provide LinuxAtomicLauncher fixture branch; preserve all assertions and platform test coverage"
+}

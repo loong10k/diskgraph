@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "snapshot_base": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
-  "patch_sha256": "53a46440e0ee0c261269b1dbf96004fd9ff3362aa80db02aa079db5fec7b45c1",
+  "patch_sha256": "b2dd7980bf51abee4f7a5deba8163027b1b98463ff54166648ec24ceea96ed3d",
   "files": [
     {
       "path": "Cargo.lock",
@@ -391,7 +391,7 @@
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver_test_support.rs",
       "before_sha256": null,
-      "after_sha256": "4e7d085af9057d206bae078bb06f7423e6e345a6b0e72c72607e6112629e27e8"
+      "after_sha256": "f2bd47dc108f0513a60f348bb383c723af6422a242c5a58198aaf6d1685b16b7"
     },
     {
       "path": "crates/diskgraph-engine/src/scan_worker_driver_tests.rs",
