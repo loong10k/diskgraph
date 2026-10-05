@@ -1,0 +1,58 @@
+{
+  "base": "/private/tmp/diskgraph-worker-delivery-_k9ak7kr",
+  "head": "d6fce64df14d147679d5312f306e6f8396deeaef",
+  "overlay": {
+    "crates/diskgraph-scan-worker/src/execution_failure.rs": "9b01018b64425dc77c6002cd589e797302e1bdc909283f8e8d9e319776136f99",
+    "crates/diskgraph-scan-worker/src/flat_nodes.rs": "5c6aea62e46812b25ac93e9fa5b141a6ea5562b9c0b15a61e48aff3bbf39746f",
+    "crates/diskgraph-scan-worker/src/frame_writer.rs": "a7a7f136b7f38754cd6aa7db8105b3dc112488dfdddff841fa7d6920e87e7153",
+    "crates/diskgraph-scan-worker/src/lib.rs": "52e781b46bb1c22e62f3f7a5cac8d0c0cb73c3d483f7a3cc5fb3c59124423954",
+    "crates/diskgraph-scan-worker/src/payload_buffer.rs": "87eda507a61023cf309e82f24aa5adb1558b75ef15d571db9d5628e8511a9d26",
+    "crates/diskgraph-scan-worker/src/tree_state.rs": "eed8a0c1ccfd608cc4bb2f36e03aa2fae8937ee07d860668275a8f4e37830e37",
+    "crates/diskgraph-scan-worker/src/worker_failure.rs": "f2bf60e093cd4ae46dc81ee4346d89f703b5b4fdf01615073757e6a3eb341a81",
+    "crates/diskgraph-scan-worker/tests/execution_worker_stream.rs": "82dd3cfd5e34b4f2b7a81afcdd4c18beb3e1cb097c4aad1cb74100be1d83b94c",
+    "crates/diskgraph-scan-worker/src/protocol_budget_error.rs": "6d4bd2244f62e576caa86e71994d5f14a145a5f624e319ab659519834c124952",
+    "crates/diskgraph-scan-worker/tests/budget_failure.rs": "65517f5a6d6794fad42eafa0607ec57262197e0cdc8b220fd3357239bbb99519",
+    "crates/diskgraph-scan-worker/tests/writer_allocation_failure.rs": "8f260e0e721b7529e89ce93d92c4aa8808183fe2feddfd8253f324d2291353d4",
+    "crates/diskgraph-scan-worker/tests/writer_budget_classification.rs": "bb4e43757b34860c3091eeb7c0a52467b1be3298d726cf5f44262433d1113a8a"
+  },
+  "scope": "scan-worker component only; no Engine/CLI/MCP/native integration",
+  "isolated_test": {
+    "suites": 25,
+    "counts": [
+      100,
+      0,
+      0
+    ],
+    "command": "cargo test --offline --locked -p diskgraph-scan-worker",
+    "exit": 0
+  },
+  "isolated_clippy": {
+    "command": "cargo clippy --offline --locked -p diskgraph-scan-worker --all-targets -- -D warnings",
+    "exit": 0
+  },
+  "review": "Independent complete 12-file source review: limited APPROVE",
+  "logs": {
+    "isolated_green": {
+      "path": "docs/benchmarks/worker_budget_delivery_isolated_green_2026_10_05.log.gz",
+      "raw_sha256": "d6937918d14f487c838ebfc0d59e04be23278f11ab790ebb51c29fb1a2e79d9d"
+    },
+    "isolated_clippy": {
+      "path": "docs/benchmarks/worker_budget_delivery_isolated_clippy_2026_10_05.log.gz",
+      "raw_sha256": "8a7c70c936cfc80fdbe061abdd1d46eff414af048f830662f6e24fb47d55e39b"
+    },
+    "allocation_red": {
+      "path": "docs/benchmarks/worker_budget_delivery_allocation_red_2026_10_05.log.gz",
+      "raw_sha256": "8b709bb98fd6e46c18366bf6b9cd2ce3e99143302e07fcbc6abb7eb8a0a85f97"
+    }
+  },
+  "compatibility": [
+    "old five codes accepted; old decoder rejects new output_budget fail-closed",
+    "allocation sink failure now Other rather than serde-wrapped InvalidData"
+  ],
+  "not_completed": [
+    "byte quota exhaustion terminal delivery",
+    "parent runtime error projection integration",
+    "trusted all-platform launch",
+    "all-platform CLI/MCP acceptance"
+  ]
+}

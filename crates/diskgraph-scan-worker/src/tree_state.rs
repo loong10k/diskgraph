@@ -1,4 +1,4 @@
-use crate::{FlatNode, Frame, ProtocolLimits, node_tags};
+use crate::{FlatNode, Frame, ProtocolBudgetError, ProtocolLimits, node_tags};
 use std::io;
 use std::path::{Component, Path};
 
@@ -60,9 +60,12 @@ impl TreeState {
             .count
             .checked_add(1)
             .filter(|next| *next <= self.limits.max_nodes)
-            .ok_or_else(|| invalid("node count limit"))?;
-        if node.sequence != self.count || node.depth > self.limits.max_depth {
+            .ok_or_else(|| ProtocolBudgetError::into_io("node count limit"))?;
+        if node.sequence != self.count {
             return Err(invalid("sequence or depth limit"));
+        }
+        if node.depth > self.limits.max_depth {
+            return Err(ProtocolBudgetError::into_io("sequence or depth limit"));
         }
         let kind = node_tags::kind(node.kind)?;
         node_tags::category(node.category)?;
@@ -102,7 +105,7 @@ impl TreeState {
         .ok_or_else(|| invalid("declared children overflow"))?;
         next.checked_add(outstanding)
             .filter(|total| *total <= self.limits.max_nodes)
-            .ok_or_else(|| invalid("declared children exceed node limit"))?;
+            .ok_or_else(|| ProtocolBudgetError::into_io("declared children exceed node limit"))?;
         self.outstanding = outstanding;
         if node.child_count != 0 {
             self.ancestors

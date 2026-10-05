@@ -1,4 +1,4 @@
-use crate::{Frame, ProtocolLimits, payload_buffer::PayloadBuffer};
+use crate::{Frame, ProtocolBudgetError, ProtocolLimits, payload_buffer::PayloadBuffer};
 use std::io::{self, Write};
 
 /// 单次传输的有限写入账本；来源：PF-06，序列化期间准入，不先建立无界 JSON Vec。
@@ -52,7 +52,7 @@ impl<W: Write> FrameWriter<W> {
             .max_stream_bytes
             .checked_sub(self.bytes)
             .and_then(|left| left.checked_sub(4))
-            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "stream byte limit"))?
+            .ok_or_else(|| ProtocolBudgetError::into_io("stream byte limit"))?
             .min(self.limits.max_frame_bytes)
             .min(u64::from(u32::MAX));
         Ok(maximum)
@@ -61,8 +61,12 @@ impl<W: Write> FrameWriter<W> {
     fn write_checked<T: serde::Serialize + ?Sized>(&mut self, frame: &T) -> io::Result<u64> {
         let maximum = self.remaining_body_bytes()?;
         let mut body = PayloadBuffer::new(maximum);
-        serde_json::to_writer(&mut body, frame)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        let serialized = serde_json::to_writer(&mut body, frame);
+        // 自定义 Serialize 可以吞掉 element 错误；发布前无条件检查同次 sink 的真实拒绝。
+        if let Some(error) = body.take_failure() {
+            return Err(error);
+        }
+        serialized.map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
         let size = u32::try_from(body.as_slice().len())
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "frame size overflow"))?;
         let written = u64::from(size) + 4;

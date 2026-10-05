@@ -169,3 +169,69 @@ fn actual_prepare_failure_stdout_has_exact_io_protocol_failure_then_eof_and_fail
         ExecutionOutcome::Tree(_) => panic!("actual rejected helper delivered a tree"),
     }
 }
+
+// 仅缩小真实 Request 的节点或深度上限；原 run 的管道、decoder、EOF、wait 和救援断言不变。
+fn actual_tree_budget_failure(bound: ProtocolLimits, expected_message: &str, emitted_nodes: usize) {
+    let directory = tempfile::tempdir().unwrap();
+    std::fs::write(directory.path().join("file"), b"actual quota scan input").unwrap();
+    let request = WorkerRequest::scan(directory.path(), &ScanOptions::default(), bound).unwrap();
+    let mut packet = Vec::new();
+    FrameWriter::new(&mut packet, limits())
+        .write_payload(&request)
+        .unwrap();
+    let (status, outcome, events, bytes) = run(directory.path(), &packet);
+    assert_eq!(
+        status.code(),
+        Some(1),
+        "actual helper must exit unsuccessfully"
+    );
+    assert!(bytes > 0 && bytes <= bound.max_stream_bytes);
+    assert!(matches!(events.first(), Some(ExecutionEvent::Hello)));
+    assert!(matches!(events.last(), Some(ExecutionEvent::Failed)));
+    assert_eq!(
+        events
+            .iter()
+            .filter(|event| matches!(event, ExecutionEvent::Failed))
+            .count(),
+        1
+    );
+    assert!(
+        !events
+            .iter()
+            .any(|event| matches!(event, ExecutionEvent::End { .. }))
+    );
+    assert!(events.iter().any(|event| matches!(event,
+        ExecutionEvent::Progress(progress)
+        if progress.finished && !progress.cancelled && progress.files == 1 && progress.errors == 0
+    )), "real scanner must finish the one-file fixture before producer quota refusal");
+    assert_eq!(
+        events
+            .iter()
+            .filter(|event| matches!(event, ExecutionEvent::Node { .. }))
+            .count(),
+        emitted_nodes
+    );
+    match outcome {
+        ExecutionOutcome::Failure(failure) => {
+            assert_eq!(failure.code(), "output_budget");
+            assert_eq!(failure.io_kind(), io::ErrorKind::InvalidData);
+            assert_eq!(failure.raw_os_error(), None);
+            assert_eq!(failure.message(), expected_message);
+        }
+        ExecutionOutcome::Tree(_) => panic!("actual producer quota failure delivered a tree"),
+    }
+}
+
+#[test]
+fn actual_node_budget_stdout_reports_typed_failure_after_scan_then_eof_and_failed_wait() {
+    let mut bound = limits();
+    bound.max_nodes = 1;
+    actual_tree_budget_failure(bound, "declared children exceed node limit", 0);
+}
+
+#[test]
+fn actual_depth_budget_stdout_reports_typed_failure_after_root_then_eof_and_failed_wait() {
+    let mut bound = limits();
+    bound.max_depth = 0;
+    actual_tree_budget_failure(bound, "node preparation limit", 1);
+}

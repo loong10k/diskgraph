@@ -12,7 +12,8 @@ pub struct ExecutionFailure {
 
 impl ExecutionFailure {
     /// 参数：各字段来自已准入且闭合解码的 Error 帧。
-    /// 返回：固定阶段集合内的失败；未知阶段拒绝，消息不用于推断错误类型。
+    /// 返回：固定阶段集合内的失败；未知阶段及预算代码的非法类别/OS 码组合拒绝。
+    /// 消息不用于推断错误类型，Hello 顺序继续由 ExecutionDecoder 验证。
     pub(crate) fn checked(
         code: String,
         io_kind: WorkerIoKind,
@@ -21,11 +22,19 @@ impl ExecutionFailure {
     ) -> io::Result<Self> {
         if !matches!(
             code.as_str(),
-            "protocol" | "control" | "scan_io" | "output" | "cancelled"
+            "protocol" | "control" | "scan_io" | "output" | "cancelled" | "output_budget"
         ) {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 "unknown execution failure phase",
+            ));
+        }
+        if code == "output_budget"
+            && (!matches!(io_kind, WorkerIoKind::InvalidData) || raw_os_error.is_some())
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "invalid execution budget failure facts",
             ));
         }
         Ok(Self {

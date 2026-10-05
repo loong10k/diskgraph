@@ -1,4 +1,4 @@
-use crate::FlatNode;
+use crate::{FlatNode, ProtocolBudgetError};
 use diskgraph_disktree_core::tree::Node;
 use std::{io, slice};
 
@@ -66,10 +66,7 @@ impl<'a> FlatNodes<'a> {
             || depth > limits.max_depth
             || node.name.len() as u64 > max_name_bytes
         {
-            return Some(Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "node preparation limit",
-            )));
+            return Some(Err(ProtocolBudgetError::into_io("node preparation limit")));
         }
         self.next_sequence = next;
         if !node.children.is_empty() {
