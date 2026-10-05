@@ -1,0 +1,12 @@
+{
+  "commit": "4e13503e41e7d6496788a55c71ce06fa3db1b399",
+  "run_id": 37350138824,
+  "job_id": 111898631237,
+  "stage": "Locate existing MSVC environment",
+  "classification": "qualification_setup_failure",
+  "native_cases_executed": 0,
+  "security_acceptance": false,
+  "reason": "PowerShell/cmd nested quoting produced invalid path syntax; artifact directory not initialized before setup failure",
+  "raw_log": "docs/benchmarks/windows_image_setup_failure_2026_10_06.log.gz",
+  "raw_sha256": "daeb4088261005e678d64879892f0a7f243a53a43190452c5b327d373d51f5ea"
+}

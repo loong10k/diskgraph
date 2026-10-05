@@ -137,8 +137,13 @@ done:
     if (born && !ok) {
         BOOL terminated = assigned ? TerminateJobObject(job, 92) : TerminateProcess(process.hProcess, 92);
         if (!terminated) { error = GetLastError(); if (!p->cleanup_error) p->cleanup_error = error; }
-        if (!waited_actual && WaitForSingleObject(process.hProcess, 1000) != WAIT_OBJECT_0 && !p->cleanup_error)
-            p->cleanup_error = ERROR_TIMEOUT;
+        if (!waited_actual) {
+            waited = WaitForSingleObject(process.hProcess, 1000);
+            if (waited != WAIT_OBJECT_0) {
+                error = waited == WAIT_FAILED ? GetLastError() : ERROR_TIMEOUT;
+                if (!p->cleanup_error) p->cleanup_error = error;
+            }
+        }
     }
     if (attribute_initialized) DeleteProcThreadAttributeList(startup.lpAttributeList);
     close_local(p, process.hThread);

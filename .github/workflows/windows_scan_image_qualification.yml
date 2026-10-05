@@ -22,11 +22,17 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP 'diskgraph-windows-image-qualification'
+          New-Item -ItemType Directory -Force -Path $output | Out-Null
+          @{ commit = (git rev-parse HEAD); stage = 'MSVC environment preparation'; security_acceptance = $false } | ConvertTo-Json | Set-Content (Join-Path $output 'setup.json')
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if ($LASTEXITCODE -ne 0 -or !$installation) { throw 'Existing MSVC required' }
           $vcvars = Join-Path $installation 'VC\Auxiliary\Build\vcvars64.bat'
-          $variables = & cmd.exe /d /s /c "`"call `"$vcvars`" >nul && set`""
+          # 将批处理正文写入临时文件，避免 PowerShell/cmd 双重引号改变带空格路径。
+          $batch = Join-Path $env:RUNNER_TEMP 'diskgraph-vcvars.cmd'
+          @("@echo off", "call `"$vcvars`" >nul", 'if errorlevel 1 exit /b %errorlevel%', 'set') | Set-Content -Encoding ascii $batch
+          $variables = & cmd.exe /d /c $batch
           if ($LASTEXITCODE -ne 0) { throw 'MSVC environment failed' }
           foreach ($line in $variables) {
             if ($line -match '^([^=]+)=(.*)$') {
@@ -42,7 +48,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $source = Join-Path $env:GITHUB_WORKSPACE 'crates\diskgraph-engine\integration_candidates\native_child\windows'
           $output = Join-Path $env:RUNNER_TEMP 'diskgraph-windows-image-qualification'
-          New-Item -ItemType Directory -Path $output | Out-Null
+          New-Item -ItemType Directory -Force -Path $output | Out-Null
           $bindings = @(Get-ChildItem $source -File | Sort-Object Name | ForEach-Object {
             @{ name = $_.Name; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
           })
