@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "original-private-directory-and-probe-execution-awaiting-native-red",
+  "phase": "probe-owner-green-and-bound-normal-process-awaiting-native",
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "75ed63a9b0d2fd387f175c767aaed54dceb8ed2e9fa73fa6a8790e6a485e6fc8",
+  "archive_sha256": "bf443e3bb55e8352657a933864ee25044b31ce5f1823f307fd2d2a63802a6a6d",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -154,7 +154,7 @@
     "crates/diskgraph-engine/src/live_evidence/mod.rs": "f98f760f5dbbf093445b783e8b6f3900b42f74fa0f4124d576e11800f871cb9a",
     "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "f042c0b38f93d5b128b19159b21ab27f37bb207e42f706bb95c00c0cfd23c2a2",
     "crates/diskgraph-engine/src/live_evidence/probe_directory_witness.rs": "cc7a242954bdfe5742cebf091bd5416d883580e681863e07f35153714c1f3f5e",
-    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "299538865c93e21698d90f02544dd47edb8997e4709facc8a06dadf9d3f88f7f",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "c528ec955d19564d2edab0952f6d3f9ea997a841937851e3f092c7e83b3ffa49",
     "crates/diskgraph-engine/src/live_evidence/probe_failure.rs": "ebf3b3c4e6a217db68ae2476e4b0a24a7df6188a34fad2b5105d44379485213f",
     "crates/diskgraph-engine/src/live_evidence/probe_isolation_tests.rs": "39fb0c5fce5937b39efba21070b766dfdde0e814cd8eb78e9112f6ab4d82d130",
     "crates/diskgraph-engine/src/live_evidence/probe_limits.rs": "c93241de29c1f8ed8be46162c8174aeb8cee5e3c16961c957ffc43887a1cb6f5",
@@ -163,7 +163,7 @@
     "crates/diskgraph-engine/src/live_evidence/probe_tests.rs": "cc97b5bd850d81eb7ba79475f4d7fda40b9f759077622f4e95e13783e013040e",
     "crates/diskgraph-engine/src/live_evidence/probe_windows/mod.rs": "ed6329ae2a0584be78a35d3dff416a7b487d84dad1bd9c9357835b45276f24a5",
     "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "2f31458709c6db43aa5f0e55c19c9217e5320d0d957f704fde2c22e3e404923e",
-    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "ff91352c5a942cfb75d122f87a397aed3afe6dc86769c009dae74bfb715a63f8",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "7a0e7a778da6ce2924a5901a2ae6270f867583991f18edb2b2f838862c958c58",
     "crates/diskgraph-engine/src/live_evidence/process_allocation_tests.rs": "4cd6aeae0b3b1009afce3cfa9746532ae3df32228a696d9b9bd82620f47aa654",
     "crates/diskgraph-engine/src/live_evidence/process_holder.rs": "adb323fcd300afbc6d16e9195469b826d9318b0bb8c3e573c76c7417cb0219b0",
     "crates/diskgraph-engine/src/live_evidence/process_output.rs": "d5c8d65a471f0e35947cc28d759a9aeaaa4e4c2500dc1184d6b1fbc17181088d",
@@ -177,6 +177,7 @@
     "crates/diskgraph-engine/src/live_evidence/watch_poll.rs": "1c78ec07e3448ba487d19f76c4cf0e66e66cdba6b0db8abc35c2c1722f778b1a",
     "crates/diskgraph-engine/src/live_evidence/watch_report.rs": "27c79200f16ed5645b9fea17dbdc75cc4c3a99fb527d23466a55c0f1652ea1fb",
     "crates/diskgraph-engine/src/live_evidence/watch_snapshot.rs": "33e7f4431f3f2cd910aabb6651ba040a3860c2da813e28e14a66edc2f734b506",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "ae7de805437a0647a876fd51d20c6b5275112e93771465492ad1088a305d51cf",
     "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "6768ee90672e1ea850131cf508d55af26b45ec168ee5e9c89d37d9c13700e5e8",
     "crates/diskgraph-engine/src/macos_epoch_floor.rs": "6d54110b90ee65ae2b270d03c6f604608b2d1f32169352cbd285f7cc854b4676",
     "crates/diskgraph-engine/src/macos_epoch_floor_tests.rs": "38a9ad28d2be0e2b421b93ac00dd7c673260f4bcfaf9326e5e1ef06cb7ccc588",
@@ -263,7 +264,7 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
-    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "2781d57dd714f3721588a8539e1004bd0d58282814abf98d9055c84a50fc0a78",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "ece7abc01bcf936402df1cdf91db4a60f2897c7f6ce0db7cca8dac17b946c066",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "e75c0f56578d32bdd7e7c0bda018b0ca4505e6b6bfe2610c8733e588c40e75e5",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "874d48b450781270741043f80c8cf9fbb377952cebf3bc435b7b5a70bb5fd501",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "0dafd2d88bf6531c189133cc3af078e8b7d97b01292767ae1f9f87e3790f7203",
@@ -283,9 +284,10 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_io_transfer_tests.rs": "73d3f31db86aeb0734f5b1637966f87d2ebcacc3a6d35a3cfd7be936737bac5c",
     "crates/diskgraph-engine/src/native_child/windows/windows_job_test_diagnostics.rs": "0ba4c61b19c1d2c25e981168d11f1fb2b216be92c996f07312e0208a3d796f75",
     "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit.rs": "45946fad8c4c8b313ecb7889f107e71b23adb938b38be727b8ef5d24a0a83d36",
-    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_fixture.rs": "b7c8176b4fedfcfe8190c5fbf0453db5b25f6860c37b0fe232d6fa4676e4e1cd",
-    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_test_support.rs": "307fb6005e6dd624e669c07456959fa5199b4b39f576a297c483f0a620af0929",
-    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_tests.rs": "06e3fe9ac330065dbff7d4b3d22dde1e55be0621e91e230c78bb2087e0784582",
+    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_fixture.rs": "78e35d2b1e5341485dcd122aa5acb2b1d8cbbbffbe6093b97dd046806a2f438e",
+    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_test_support.rs": "56eb59031a2eafb558e6b60bc1d2162b3ea2a13bb3e1a5a7ce904b25c83ab967",
+    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_tests.rs": "9556daf3545852712ec6b4a6fc89ae10bf86e6a15184026678517cb3221a7eb2",
+    "crates/diskgraph-engine/src/native_child/windows/windows_normal_process_witness.rs": "5f5e94b0d4fc1126afd8879c55e0d07da3ef2fae65d1f107079739cdc134dc36",
     "crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs": "d7e6dd175a4f39c8c04f487d8393265dd528b159c64d1f7743bb47e692e8367b",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_directory_recovery_tests.rs": "c64ff83acd8387099dc1f72c33e5b3a5ada66838d6cbcf947bf3ac91a19fe3be",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "e8face37004f06b331310719e40e82d28b073149019be8da3c1e217886e97e10",
@@ -510,7 +512,7 @@
     "native_child::windows::windows_control_input_tests::third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job",
     "native_child::windows::windows_control_input_tests::original_post_create_failure_cleans_actual_job_with_external_witness_handles_held"
   ],
-  "production_probe_algorithm_modified": false,
+  "production_probe_algorithm_modified": true,
   "probe_cases": [
     "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
     "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
@@ -527,5 +529,12 @@
     "native_child::windows::windows_probe_directory_recovery_tests::real_git_private_directory_creation_and_completion_qualifies_resource_fixture",
     "native_child::windows::windows_probe_directory_recovery_tests::private_git_complete_retains_original_directory_after_cancel_cleanup_failure",
     "native_child::windows::windows_probe_directory_recovery_tests::private_git_drop_retains_original_directory_after_panic_cleanup_failure"
-  ]
+  ],
+  "production_private_directory_algorithm_modified": false,
+  "normal_process_acceptance": {
+    "expected_process_identity_bound": true,
+    "unknown_job_members_filtered": false,
+    "whole_original_job_zero_required": true,
+    "original_test_case_names_unchanged": true
+  }
 }

@@ -1,0 +1,14 @@
+{
+  "run_id": 37389867055,
+  "job_id": 112032135904,
+  "source_sha": "edcf116bee76e2ad5ae69f8ba26b940646d53833",
+  "fixture_sha256": "0ac22505864c75e2f46e26e148c4afc20c6817db5d47481423828e7f2a35e67e",
+  "production_acceptance": false,
+  "observations_are_not_atomic": true,
+  "diagnostic_case_names": [
+    "normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job",
+    "normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+    "normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited"
+  ],
+  "finding": "Each exact-count normal-exit failure observes a real conhost.exe process associated with the original Job, in addition to the expected live leader or ordinary fixture descendant. CREATE_NO_WINDOW already exists in the unchanged production source. Exact count one is not established by that flag; unknown members must still prevent normal completion until the whole original Job is empty. No production algorithm or test assertion has been changed on this evidence."
+}
