@@ -3103,5 +3103,74 @@
       "Windows/Linux current patch native acceptance pending"
     ],
     "format_check": "cargo fmt --all includes immutable vendored upstream formatting differences; engine package check only, vendor unchanged"
+  },
+  "linux_atomic_birth_mechanism_qualification": {
+    "status": "eight independent native cases wired into x86_64/aarch64 CI; native compile/runtime unverified",
+    "base_commit": "1fafed279926c52370767ff6493e8ab21ee87b4a",
+    "scope": "independent C kernel mechanism tests, not Rust scanner production implementation",
+    "tests": 8,
+    "compatibility_case": "original ninth SCM positive moved verbatim to uncommitted SCM candidate; not accepted or shipped in this checkpoint",
+    "macos_checks": {
+      "engine_fmt_exit": 0,
+      "engine_strict_clippy_all_targets_exit": 0,
+      "source_layout_passed": 4,
+      "linux_native_executions": 0
+    },
+    "format_delta": "root rustfmt after v3 freeze; assertion semantics unchanged, current source hashes below replace pre-format source hashes",
+    "sources": [
+      {
+        "path": "crates/diskgraph-engine/src/native_child/linux_atomic_birth_fixture.rs",
+        "sha256": "c8648c6c0193626445675065b981d4893fef8c93a6af329d08974d65a9140996"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/linux_atomic_birth_test_support.rs",
+        "sha256": "d3e93cff56c05584fc4e2e610473b51332c15dc48412916a96d87558857ba5e4"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/native_child/linux_atomic_birth_tests.rs",
+        "sha256": "039d65f5a13136dafabbeb9cef8967bd70f86087be20e22f40d634479186eee9"
+      },
+      {
+        "path": "crates/diskgraph-engine/tests/fixtures/linux_atomic_birth_probe.c",
+        "sha256": "0e385dcb775a624552a8b36e07945eeb494e23aa54a9a8a0a7920439e3693676"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "90b1cd855f1ed189f257f2bc82ff288eca21c0e975f2614dc0fad3c34b852edb"
+      }
+    ],
+    "logs": [
+      {
+        "path": "docs/benchmarks/atomic_birth_diskgraph-linux-atomic-birth-tests-v3-candidate.json.gz",
+        "raw_sha256": "4da41403df8f884e0107a309506baa853a14c5896f3b347718fba8ea7c67fe80",
+        "sha256": "b34cd70abe801c0e470d0970220cc98ab02b10bf4d2ee9ba5b8400fc63d52ab9"
+      },
+      {
+        "path": "docs/benchmarks/atomic_birth_diskgraph-linux-atomic-birth-tests-v3.diff.gz",
+        "raw_sha256": "995f7b143d9bc9a853a289c966a9135f2fe6ce4a5b0c1bf7bbfceebca61f3c23",
+        "sha256": "223cfd276cc40c1d0448d2b0d081d4f50769f735ad3dea138f101cf3b8b325e0"
+      },
+      {
+        "path": "docs/benchmarks/atomic_birth_diskgraph-atomic-mechanism-macos-fmt.log.gz",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      {
+        "path": "docs/benchmarks/atomic_birth_diskgraph-atomic-mechanism-macos-clippy.log.gz",
+        "raw_sha256": "d0089b93c426ae7e0f8ebe42b1ab8cd5cb6097257e9a4261c790a3b713d06139",
+        "sha256": "3675731865c72ec587851636f61b1d77b26cc36cebc14e014efc49082d75191c"
+      },
+      {
+        "path": "docs/benchmarks/atomic_birth_diskgraph-atomic-mechanism-macos-layout.log.gz",
+        "raw_sha256": "a3e16256ac2f2274f05451ed2fb9d7283f8f67bd6ee9682e4890f10700e26dc6",
+        "sha256": "c75a9d7bede4ee9dacd0dc5b6801250f151f74478ce5bee624b1e392570ddcaa"
+      }
+    ],
+    "limitations": [
+      "No Linux runtime pass claimed before actual native CI artifact inspection",
+      "Actual PID reuse remains explicitly unverified",
+      "SCM before-receipt identity gap unresolved; Engine parent driver not integrated",
+      "No parent task marked complete"
+    ]
   }
 }

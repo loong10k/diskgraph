@@ -45,6 +45,17 @@ jobs:
           sha256sum crates/diskgraph-engine/tests/fixtures/linux_group_view_probe.c "$probe" \
             > "${{ runner.temp }}/diskgraph-linux-group-view-digests.txt"
           echo "DG_LINUX_GROUP_PROBE_BINARY=$probe" >> "$GITHUB_ENV"
+      - name: Build exact native Linux atomic-birth fixtures
+        if: runner.os == 'Linux'
+        run: |
+          probe="${{ runner.temp }}/diskgraph-linux-atomic-birth-probe"
+          replacement="${{ runner.temp }}/diskgraph-linux-atomic-birth-replacement"
+          source="crates/diskgraph-engine/tests/fixtures/linux_atomic_birth_probe.c"
+          cc -std=c11 -O2 -pthread -Wall -Wextra -Werror "$source" -o "$probe"
+          cc -std=c11 -O2 -pthread -Wall -Wextra -Werror -DDG_ATOMIC_IMAGE_ID=2 "$source" -o "$replacement"
+          sha256sum "$source" "$probe" "$replacement" > "${{ runner.temp }}/diskgraph-linux-atomic-birth-digests.txt"
+          echo "DG_LINUX_ATOMIC_BIRTH_PROBE=$probe" >> "$GITHUB_ENV"
+          echo "DG_LINUX_ATOMIC_BIRTH_REPLACEMENT=$replacement" >> "$GITHUB_ENV"
       - name: Build
         run: cargo build --workspace --all-targets --locked
       - name: Native Linux thread-group and procfs qualification
@@ -53,6 +64,22 @@ jobs:
           cargo test -p diskgraph-engine --test linux_group_view_probe --locked -- \
             --nocapture --test-threads=1 \
             > "${{ runner.temp }}/diskgraph-linux-group-view.log" 2>&1
+      - name: Native Linux atomic-birth qualification
+        if: runner.os == 'Linux'
+        timeout-minutes: 5
+        run: |
+          cargo test -p diskgraph-engine --lib --locked native_child::linux_atomic_birth_tests -- \
+            --nocapture --test-threads=1 > "${{ runner.temp }}/diskgraph-linux-atomic-birth.log" 2>&1
+      - name: Preserve native Linux atomic-birth qualification
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: linux-atomic-birth-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/diskgraph-linux-atomic-birth-digests.txt
+            ${{ runner.temp }}/diskgraph-linux-atomic-birth.log
+          retention-days: 7
+          if-no-files-found: error
       - name: Preserve native Linux group-view qualification
         if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3

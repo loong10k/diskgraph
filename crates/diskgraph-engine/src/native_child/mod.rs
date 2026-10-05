@@ -22,3 +22,10 @@ pub(crate) use windows::WindowsChild;
 
 #[cfg(test)]
 mod native_io_error_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+mod linux_atomic_birth_fixture;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_atomic_birth_test_support;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_atomic_birth_tests;
