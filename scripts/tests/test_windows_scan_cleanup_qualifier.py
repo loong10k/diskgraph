@@ -37,10 +37,11 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 461)
+            self.assertEqual(len(manifest["sources"]), 462)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
+            qualifier.check_regression_cases(manifest["regression_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)

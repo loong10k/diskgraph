@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "birth-ownership-red",
+  "phase": "birth-owner-fix-awaiting-native-green",
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "fbadc9b1a7edf48b451362341b057e21142fea441432558b745ecec0f14418ee",
+  "archive_sha256": "051e12ac2aa26237b0b56c94f2178f2ee99caaab815b61c89ad707db89062dab",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -268,7 +268,8 @@
     "crates/diskgraph-engine/src/native_child/windows/pipe_security.rs": "d21c5272a147438e86575ca7a157a90056b2cd05a21fcb85e0a62802ccfc32d7",
     "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs": "63bb6b4dc76600b94fd07263c1d0b74353c2ab651c860bc4b06e873e3c090085",
     "crates/diskgraph-engine/src/native_child/windows/windows_birth_test_hook.rs": "4381ea30c9b7afa13982803f8ad1b3a7412b5e5ce71421ac9298862b17ab4776",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "3c4cb09ecaabd54389b9e5f7658271cd9e25f7e62d567d86d3d9c69a73a9d26d",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "1ff8a57463f7ef91b1543b3319e64d1699ee9f195977fd2bf04c1423aa0bdc45",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "ff65622c0c1a56647beedcc8c2e18b24443e1a3001292972a5adf198f6a94709",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_hooks.rs": "068bf889e6172590237b7ec1aa8a5e7571a872df96ecfbf9fa5da42ed83973b8",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs": "cd2d0dd8881643bce9c57d12d7eb779af097dd2b2cdc058c307746e892bb90c7",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_rescue.rs": "21693b8ba4cb84fa115343a6558047c51aa3405e7c6b5c2ab01f7f3d2533113f",
@@ -482,14 +483,24 @@
     "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion"
   ],
   "remaining_limitations": [
+    "legacy WindowsProbe still requires managed external recovery migration",
     "leader INFINITE wait after successful termination",
     "pending IO completion can exceed cooperative deadline",
-    "Drop failure and postbirth spawn panic still require external retained owner"
+    "trusted Windows image launcher and product scan runtime not yet qualified"
   ],
   "birth_cases": [
     "native_child::windows::windows_birth_recovery_tests::postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
     "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
     "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query"
   ],
-  "production_birth_algorithm_modified": false
+  "production_birth_algorithm_modified": true,
+  "regression_cases": [
+    "native_child::windows::windows_normal_exit_tests::normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+    "native_child::windows::windows_normal_exit_tests::normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+    "native_child::windows::windows_normal_exit_tests::normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code",
+    "native_child::windows::windows_normal_exit_tests::normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job",
+    "native_child::windows::windows_control_input_tests::original_null_spawn_has_four_checkpoints_and_no_control_input",
+    "native_child::windows::windows_control_input_tests::third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job",
+    "native_child::windows::windows_control_input_tests::original_post_create_failure_cleans_actual_job_with_external_witness_handles_held"
+  ]
 }

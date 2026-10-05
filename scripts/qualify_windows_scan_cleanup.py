@@ -43,6 +43,23 @@ def check_birth_cases(cases):
         raise ValueError("fixed birth ownership acceptance inventory differs")
 
 
+REGRESSION_CASES = tuple("native_child::windows::windows_normal_exit_tests::" + name for name in (
+    "normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+    "normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+    "normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code",
+    "normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job",
+)) + tuple("native_child::windows::windows_control_input_tests::" + name for name in (
+    "original_null_spawn_has_four_checkpoints_and_no_control_input",
+    "third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job",
+    "original_post_create_failure_cleans_actual_job_with_external_witness_handles_held",
+))
+
+
+def check_regression_cases(cases):
+    if len(cases) != len(REGRESSION_CASES) or set(cases) != set(REGRESSION_CASES):
+        raise ValueError("fixed normal birth regression inventory differs")
+
+
 def check_cases(cases):
     if len(cases) != len(REQUIRED_CASES) or set(cases) != set(REQUIRED_CASES):
         raise ValueError("fixed cleanup acceptance inventory differs")
@@ -73,6 +90,8 @@ def main():
         check_prerequisite_cases(prerequisites)
         birth_cases = manifest["birth_cases"]
         check_birth_cases(birth_cases)
+        regression_cases = manifest["regression_cases"]
+        check_regression_cases(regression_cases)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -89,7 +108,7 @@ def main():
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
         receipt["cases"] = results
-        for case in list(prerequisites) + list(cases) + list(birth_cases):
+        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
@@ -97,7 +116,7 @@ def main():
                 passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text()
             except RuntimeError:
                 passed = False
-            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "cleanup"})
+            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "cleanup"})
             if case == prerequisites[-1] and not all(result["passed"] for result in results):
                 raise RuntimeError("pending IO prerequisites failed; cleanup qualification not started")
         receipt["cases"] = results
