@@ -18,7 +18,8 @@ BASE = "5c9985b84645dcac8c82ae06903ee7249b06dbdd"
 NEW = "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d"
 HARNESS = ["crates/diskgraph-engine/tests/hardening_benchmark.rs",
            "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
-           "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs"]
+           "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs",
+           "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs"]
 ENV_KEYS = ["PATH", "RUSTFLAGS", "RUSTUP_TOOLCHAIN", "CARGO_BUILD_JOBS",
             "CARGO_TARGET_DIR", "TMPDIR", "LANG", "LC_ALL", "DG_MEASURE_CASE",
             "DG_MEASURE_SHAPE", "DG_MEASURE_ROOT", "DG_MEASURE_DATA", "DISKGRAPH_BENCHMARK_OUTPUT"]

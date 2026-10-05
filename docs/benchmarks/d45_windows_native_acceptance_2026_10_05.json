@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "run": 37260743748,
+  "commit": "82196b741ce165bb0def4c8ba7a6b8e068b80655",
+  "overall": "completed failure, 21/22 jobs succeeded; remaining Linux old baseline cost failed",
+  "windows": [
+    {
+      "rust": "stable",
+      "job": 111607241812,
+      "conclusion": "success",
+      "unique_store_withdrawal_cases": [
+        "withdrawal_capability_tests::private_in_memory_database_has_no_cross_connection_withdrawal_capability",
+        "withdrawal_native_identity_tests::official_main_handle_identifies_two_live_connections_without_reopening_path",
+        "withdrawal_native_identity_tests::replacement_at_identical_path_has_a_new_actual_main_identity",
+        "withdrawal_native_identity_tests::same_server_sqlite_backup_is_a_different_actual_open_file",
+        "withdrawal_publish_order_tests::delayed_committed_grant_notice_does_not_withdraw_a_regranted_new_request",
+        "withdrawal_publish_order_tests::delayed_committed_scope_notice_does_not_withdraw_a_new_reenabled_request",
+        "withdrawal_registry_tests::isolated_registry_enforces_4096_live_watches_across_real_databases_and_reclaims_weak_slots",
+        "withdrawal_watch_namespace_tests::backup_with_the_same_server_cannot_withdraw_the_original_database_request",
+        "withdrawal_watch_namespace_tests::moved_store_keeps_incarnation_but_reopening_the_same_file_invalidates_old_watch",
+        "withdrawal_watch_namespace_tests::per_database_capacity_is_bounded_and_dead_weak_entries_are_reclaimed",
+        "withdrawal_watch_namespace_tests::replacing_a_live_store_never_consumes_the_previous_withdrawn_flag",
+        "withdrawal_watch_tests::committed_current_grant_withdrawal_is_monotone_for_only_the_existing_request",
+        "withdrawal_watch_tests::deleting_only_non_current_epoch_rows_does_not_manufacture_denial",
+        "withdrawal_watch_tests::in_progress_real_commit_never_publishes_before_successful_return",
+        "withdrawal_watch_tests::legacy_scope_only_watch_ignores_unused_grant_but_observes_committed_scope_revoke",
+        "withdrawal_watch_tests::pure_status_preserves_known_withdrawal_without_sql_after_the_original_deadline",
+        "withdrawal_watch_tests::real_commit_abort_does_not_publish_grant_or_scope_withdrawal",
+        "withdrawal_watch_tests::successful_scope_commit_is_observed_even_when_the_following_reap_fails",
+        "withdrawal_watch_tests::unrelated_principal_scope_permission_and_delete_zero_never_mark_withdrawn"
+      ],
+      "actual_executions": 38,
+      "raw_file": "docs/benchmarks/raw/scan_process_2026_10_05/diskgraph-82196b7-windows-stable.log.gz"
+    },
+    {
+      "rust": "msrv",
+      "job": 111607241816,
+      "conclusion": "success",
+      "unique_store_withdrawal_cases": [
+        "withdrawal_capability_tests::private_in_memory_database_has_no_cross_connection_withdrawal_capability",
+        "withdrawal_native_identity_tests::official_main_handle_identifies_two_live_connections_without_reopening_path",
+        "withdrawal_native_identity_tests::replacement_at_identical_path_has_a_new_actual_main_identity",
+        "withdrawal_native_identity_tests::same_server_sqlite_backup_is_a_different_actual_open_file",
+        "withdrawal_publish_order_tests::delayed_committed_grant_notice_does_not_withdraw_a_regranted_new_request",
+        "withdrawal_publish_order_tests::delayed_committed_scope_notice_does_not_withdraw_a_new_reenabled_request",
+        "withdrawal_registry_tests::isolated_registry_enforces_4096_live_watches_across_real_databases_and_reclaims_weak_slots",
+        "withdrawal_watch_namespace_tests::backup_with_the_same_server_cannot_withdraw_the_original_database_request",
+        "withdrawal_watch_namespace_tests::moved_store_keeps_incarnation_but_reopening_the_same_file_invalidates_old_watch",
+        "withdrawal_watch_namespace_tests::per_database_capacity_is_bounded_and_dead_weak_entries_are_reclaimed",
+        "withdrawal_watch_namespace_tests::replacing_a_live_store_never_consumes_the_previous_withdrawn_flag",
+        "withdrawal_watch_tests::committed_current_grant_withdrawal_is_monotone_for_only_the_existing_request",
+        "withdrawal_watch_tests::deleting_only_non_current_epoch_rows_does_not_manufacture_denial",
+        "withdrawal_watch_tests::in_progress_real_commit_never_publishes_before_successful_return",
+        "withdrawal_watch_tests::legacy_scope_only_watch_ignores_unused_grant_but_observes_committed_scope_revoke",
+        "withdrawal_watch_tests::pure_status_preserves_known_withdrawal_without_sql_after_the_original_deadline",
+        "withdrawal_watch_tests::real_commit_abort_does_not_publish_grant_or_scope_withdrawal",
+        "withdrawal_watch_tests::successful_scope_commit_is_observed_even_when_the_following_reap_fails",
+        "withdrawal_watch_tests::unrelated_principal_scope_permission_and_delete_zero_never_mark_withdrawn"
+      ],
+      "actual_executions": 38,
+      "raw_file": "docs/benchmarks/raw/scan_process_2026_10_05/diskgraph-82196b7-windows-msrv.log.gz"
+    }
+  ],
+  "limits": "D45 native withdrawal witnesses verified; unfinished A/B scanner source not in this commit; not full platform acceptance"
+}

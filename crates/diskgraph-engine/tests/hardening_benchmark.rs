@@ -130,7 +130,21 @@ fn measure_isolated_release_fixtures() {
             .unwrap();
         let storage_before = benchmark_support::storage(&data);
         let start = Instant::now();
-        engine.run_job(&job.job_id, "benchmark").unwrap();
+        let outcome = engine.run_job(&job.job_id, "benchmark");
+        if let Err(error) = &outcome {
+            benchmark_support::ScanFailureDiagnostic::capture(
+                &data,
+                &job.job_id,
+                scope.as_str(),
+                principal.as_str(),
+                "benchmark",
+                error,
+                start.elapsed(),
+            )
+            .emit();
+        }
+        // 后验诊断不接纳失败、不刷新原预算；保留同一个真实执行结果的原失败门禁。
+        outcome.unwrap();
         let scan_seconds = start.elapsed().as_secs_f64();
         let scan_peak_rss = rss();
         let storage_after_scan = benchmark_support::storage(&data);

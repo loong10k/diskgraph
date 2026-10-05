@@ -1,5 +1,8 @@
+#[cfg(test)]
+mod assembly_operation_tests;
 mod cancel_body;
 mod decoded_tree;
+mod execution_decode_error;
 mod execution_decoder;
 mod execution_event;
 mod execution_failure;
@@ -19,6 +22,7 @@ mod scan_options;
 mod scan_progress;
 mod scan_request;
 mod tree_assembler;
+mod tree_assembly;
 mod tree_codec;
 mod tree_state;
 mod tree_writer;
@@ -38,6 +42,7 @@ mod worker_scan_request;
 mod worker_tree;
 
 pub use decoded_tree::DecodedTree;
+pub use execution_decode_error::ExecutionDecodeError;
 pub use execution_decoder::ExecutionDecoder;
 pub use execution_event::ExecutionEvent;
 pub use execution_failure::ExecutionFailure;

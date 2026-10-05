@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "scope": "PF-06 cancellable tree assembly only; no OS exit/Engine wiring qualification",
+  "tests": {
+    "interface_baseline": "E0432/E0599 missing API; not runtime RED",
+    "observed_runtime_red": "actual operation gap257 in reversal-and-merge case",
+    "worker_regression": "84 passed, 0 failed",
+    "final_precise_small_stack_tests": "4 passed, 0 failed; checkpoint48 exact panic payload verified",
+    "clippy": "all-targets -D warnings passed",
+    "isolated_workspace_all_target_build": "passed; HEAD821 + identical group probe + eight worker files, excludes unfinished native A/B"
+  },
+  "batch": "one counter across all node/edge assembly phases, limit256",
+  "review": "independent reviewer approved shared operation counter and iterative ownership; exact panic check tightened per feedback",
+  "sources": [
+    {
+      "path": "crates/diskgraph-scan-worker/src/assembly_operation_tests.rs",
+      "sha256": "4d75c656d3c4179fcb998f75ec5714b5c0d6cef0a75560e1b03c13c257726a04"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/decoded_tree.rs",
+      "sha256": "b27ba1c4b8cbf8c043a68a415550e8e1edf7a6482004d7d6ece20fba4eb0b694"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/execution_decode_error.rs",
+      "sha256": "e70039b376f76a2fa5130870f27d43a3b2301584037aa42ab1583a93775aec91"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/execution_decoder.rs",
+      "sha256": "7f5c539c88454b64cda3c2ea489ce66f68a0ee3416f4511bc0270cffff661b09"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/lib.rs",
+      "sha256": "d0584a128a78f506c497002600ad0c54bd71d1fd75809253d4e5fbbc6c9ec930"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/tree_assembler.rs",
+      "sha256": "9321e4270b97789aea7b3d21f9137e105745e2246163fd3e2e740a0e6dec2407"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/src/tree_assembly.rs",
+      "sha256": "2785c192dcb07ba83b56e7d700673c18690da8e38771509dc67d3f60c6416951"
+    },
+    {
+      "path": "crates/diskgraph-scan-worker/tests/assembly_checkpoint.rs",
+      "sha256": "04446d8696e03f38dd224b4ce166601b86420a3ad177d906c89556523e089f3d"
+    }
+  ],
+  "limitations": [
+    "single allocations, scheduling and exceptional disposal are not hard20ms",
+    "original no-checkpoint codec remains a trusted compatibility entry",
+    "new checked API not yet wired into parent Engine"
+  ],
+  "no_parent_tasks_closed": true
+}

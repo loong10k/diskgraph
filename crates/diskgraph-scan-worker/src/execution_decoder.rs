@@ -1,6 +1,6 @@
 use crate::{
-    ExecutionEvent, ExecutionFailure, ExecutionFrame, ExecutionOutcome, Frame, ProtocolLimits,
-    WorkerLimits, incremental_frame_decoder::IncrementalFrameDecoder,
+    ExecutionDecodeError, ExecutionEvent, ExecutionFailure, ExecutionFrame, ExecutionOutcome,
+    Frame, ProtocolLimits, WorkerLimits, incremental_frame_decoder::IncrementalFrameDecoder,
     tree_assembler::TreeAssembler,
 };
 use std::{fmt, io};
@@ -145,28 +145,49 @@ impl ExecutionDecoder {
     }
 
     /// 参数：self 为底层管道已实际报告 EOF 的原解码器。
-    /// 返回：完整终态后的协议结果且仅一次；部分帧、缺终态、尾字节或失败锁存均拒绝。
-    /// 父端在获得此结果后仍必须等待真实 OS 退出和自有组/Job 无活动。
-    /// 最后组装为 O(nodes) CPU/分配工作，当前不提供 checkpoint 或 20ms 响应保证。
+    /// 返回：完整协议结果且仅一次；部分帧、缺终态、尾字节或失败锁存均拒绝。
+    /// 兼容入口不检查请求；需要响应取消的父端使用 finish_eof_with_checkpoint。
     pub fn finish_eof(&mut self) -> io::Result<ExecutionOutcome> {
+        self.finish_eof_with_checkpoint(|| Ok::<(), io::Error>(()))
+            .map_err(|error| match error {
+                ExecutionDecodeError::Protocol(error) | ExecutionDecodeError::Checkpoint(error) => {
+                    error
+                }
+            })
+    }
+
+    /// 借用原请求逐批检查树组装；来源：PF-06 父端组装检查点合同。
+    /// 参数：checkpoint 检查原期限、撤权和取消，不要求停止原因可克隆。
+    /// 返回：完整协议结果或原停止原因；至多每256节点/边操作检查，失败永久锁存。
+    /// 单次分配、调度及异常迭代清理不保证硬实时；结果仍不是 OS 退出许可。
+    pub fn finish_eof_with_checkpoint<E>(
+        &mut self,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+    ) -> Result<ExecutionOutcome, ExecutionDecodeError<E>> {
         self.check_failed()?;
-        let result = self.finish_checked();
+        let result = self.finish_checked(&mut checkpoint);
         if let Err(error) = &result {
-            self.failed = Some(error.kind());
+            self.failed = Some(match error {
+                ExecutionDecodeError::Protocol(error) => error.kind(),
+                ExecutionDecodeError::Checkpoint(_) => io::ErrorKind::Interrupted,
+            });
         }
         result
     }
 
-    fn finish_checked(&mut self) -> io::Result<ExecutionOutcome> {
+    fn finish_checked<E>(
+        &mut self,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<ExecutionOutcome, ExecutionDecodeError<E>> {
+        checkpoint().map_err(ExecutionDecodeError::Checkpoint)?;
         if self.delivered {
-            return Err(invalid("execution result already delivered"));
+            return Err(invalid("execution result already delivered").into());
         }
         self.frames.finish_eof()?;
         if !self.terminal {
-            return Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
-                "missing execution terminal",
-            ));
+            return Err(
+                io::Error::new(io::ErrorKind::UnexpectedEof, "missing execution terminal").into(),
+            );
         }
         self.delivered = true;
         if let Some(failure) = self.failure.take() {
@@ -176,7 +197,7 @@ impl ExecutionDecoder {
             .tree
             .take()
             .expect("successful terminal owns validated tree")
-            .finish()?;
+            .finish_with_checkpoint(checkpoint)?;
         Ok(ExecutionOutcome::Tree(tree))
     }
 

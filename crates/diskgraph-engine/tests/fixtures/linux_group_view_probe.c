@@ -50,6 +50,25 @@ static void write_path(const char *path, const char *value) {
     if (!file || fputs(value, file) == EOF || fclose(file) != 0) { fatal("write fixture"); }
 }
 
+/* 仅真实 namespace 控制文件的权限/能力拒绝可报告未获资格；普通fixture写失败仍失败。 */
+static void write_namespace_mapping(const char *path, const char *value, const char *stage) {
+    int file = open(path, O_WRONLY | O_CLOEXEC);
+    if (file < 0) {
+        if (errno == EPERM || errno == EACCES) { unavailable(stage); }
+        fatal(stage);
+    }
+    size_t length = strlen(value);
+    ssize_t count;
+    do { count = write(file, value, length); } while (count < 0 && errno == EINTR);
+    if (count < 0) {
+        if (errno == EPERM || errno == EACCES) { unavailable(stage); }
+        fatal(stage);
+    }
+    /* proc映射必须单次完整提交；短写不能通过第二次write掩盖格式/偏移错误。 */
+    if ((size_t)count != length) { errno = EIO; fatal(stage); }
+    if (close(file) != 0) { fatal(stage); }
+}
+
 static void mark(const char *directory, const char *name, long value) {
     char path[PATH_MAX], content[64];
     path_at(path, sizeof(path), directory, name);
@@ -193,11 +212,13 @@ static void private_views(const char *directory, const char *mode) {
     gid_t gid = getgid();
     if (unshare(CLONE_NEWUSER | CLONE_NEWNS) != 0) { unavailable("user_mount_namespace"); }
     char mapping[128];
-    if (access("/proc/self/setgroups", F_OK) == 0) { write_path("/proc/self/setgroups", "deny"); }
+    if (access("/proc/self/setgroups", F_OK) == 0) {
+        write_namespace_mapping("/proc/self/setgroups", "deny", "setgroups_write");
+    }
     snprintf(mapping, sizeof(mapping), "0 %u 1\n", uid);
-    write_path("/proc/self/uid_map", mapping);
+    write_namespace_mapping("/proc/self/uid_map", mapping, "uid_map_write");
     snprintf(mapping, sizeof(mapping), "0 %u 1\n", gid);
-    write_path("/proc/self/gid_map", mapping);
+    write_namespace_mapping("/proc/self/gid_map", mapping, "gid_map_write");
     if (mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL) != 0) { unavailable("private_mounts"); }
     if (unshare(CLONE_NEWPID) != 0) { unavailable("pid_namespace"); }
     pid_t child = fork();

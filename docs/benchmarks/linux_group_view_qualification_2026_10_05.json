@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "awaiting_native_execution",
+  "status": "mandatory_x86_native_observed_optional_mapping_failed",
   "sources": [
     {
       "path": "crates/diskgraph-engine/tests/linux_group_view_probe.rs",
@@ -42,10 +42,31 @@
   "latest_previous_ci": {
     "run": 37260743748,
     "commit": "82196b741ce165bb0def4c8ba7a6b8e068b80655",
-    "status": "in_progress",
+    "status": "completed",
     "failed_job": 111607241607,
     "failure": "actual baseline 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d 200000-wide-round2 run_job Business(Conflict), not current build/test/clippy failure",
-    "performance_pair": "incomplete; no complete improvement conclusion"
+    "performance_pair": "incomplete; no complete improvement conclusion",
+    "passed": 21,
+    "failed": 1
   },
-  "no_parent_tasks_closed": true
+  "no_parent_tasks_closed": true,
+  "native_first_run": {
+    "run": 37262191723,
+    "commit": "fe303cc73ec4903f01a91b0fc61d68c1117f1e3c",
+    "x86_stable_job": 111611551500,
+    "mandatory": "2/2 actual runtime passed",
+    "optional": "3/3 failed errno13 at original generic write fixture; actual mapping stage not recorded",
+    "full_suite": "2 passed / 3 failed, exit101",
+    "not_proven": [
+      "private namespace",
+      "hidepid",
+      "overmount"
+    ],
+    "current_mapping_diagnostic_fix": "only EPERM/EACCES from fixed mapping open/write produce stage-specific unavailable/77; EINVAL, ENOSYS, short write and ordinary fixture writes still fail",
+    "fix_native_execution": "pending"
+  },
+  "next_fixture_source": {
+    "path": "crates/diskgraph-engine/tests/fixtures/linux_group_view_probe.c",
+    "sha256": "e918c526dbf51d42eec61b0e194ea24015a084ec0e9a71064e643ebbd25d1003"
+  }
 }

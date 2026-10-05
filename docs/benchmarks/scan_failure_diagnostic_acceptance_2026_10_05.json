@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "scope": "bounded benchmark failure posterior, not cause recovery or failed scan acceptance",
+  "original_failure": {
+    "run": 37260743748,
+    "job": 111607241607,
+    "actual_baseline": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+    "candidate": "82196b741ce165bb0def4c8ba7a6b8e068b80655",
+    "case": "200000-wide-round2-baseline",
+    "result": "Business(Conflict)",
+    "causal_diagnosis": "first cause not available in old baseline; 5s association insufficient"
+  },
+  "validation": {
+    "isolated_fixture_tests": "3 passed / 0 failed",
+    "strict_target_clippy": "passed",
+    "same_overlay_old_baseline_debug_build": "passed --offline --locked --test hardening_benchmark --no-run",
+    "native_release_pair": "not yet run"
+  },
+  "preservation": {
+    "original_result": "unchanged final unwrap, errors remain errors",
+    "ab_ba_order_timeouts_cleanup": "unchanged",
+    "retries": "none",
+    "both_commit_harness": "same four sources overlaid"
+  },
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/tests/hardening_benchmark.rs",
+      "sha256": "857137950a9782d5c1d15efce538988e6cf1bd3a8b09acf1a771b5614af65f13",
+      "bytes": 9966,
+      "lines": 252
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
+      "sha256": "05cebe6811fbd2f5b070582986046b3e89dfbe1d8d50312f47862ba1f8d06762",
+      "bytes": 172,
+      "lines": 5
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs",
+      "sha256": "f7bc14dccc290342ddda1be9215bb7a7c709607209eac84ccbe9dc94f7eb3a68",
+      "bytes": 16819,
+      "lines": 360
+    },
+    {
+      "path": "scripts/accept-linux-scan-namespace-cost.py",
+      "sha256": "668a5eef080b1e5e2d7d930b1fbbf07441c4fcd4b423d29bd2da7d789f91e211",
+      "bytes": 14155,
+      "lines": 274
+    }
+  ],
+  "no_parent_tasks_closed": true
+}

@@ -26,6 +26,15 @@ impl DecodedTree {
     pub(crate) fn install(&mut self, root: Node) {
         self.root = Some(root);
     }
+
+    /// 参数：node 为同次组装森林的一棵子树，不超过 prepare 的原节点数。
+    /// 返回：无返回值；使用已有工作区迭代销毁，不分配或递归下降。
+    pub(crate) fn discard(&mut self, node: Node) {
+        self.pending.push(node);
+        while let Some(mut node) = self.pending.pop() {
+            self.pending.append(&mut node.children);
+        }
+    }
 }
 
 impl Deref for DecodedTree {
@@ -49,11 +58,8 @@ impl fmt::Debug for DecodedTree {
 impl Drop for DecodedTree {
     fn drop(&mut self) {
         if let Some(root) = self.root.take() {
-            self.pending.push(root);
-        }
-        while let Some(mut node) = self.pending.pop() {
-            // count 已预留，销毁不再分配；每条边只移动一次，Node 自身 Drop 时 children 为空。
-            self.pending.append(&mut node.children);
+            // count 已预留，每条边移动一次，Node 自身销毁时 children 为空。
+            self.discard(root);
         }
     }
 }

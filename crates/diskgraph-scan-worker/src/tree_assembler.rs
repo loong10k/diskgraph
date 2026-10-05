@@ -1,4 +1,7 @@
-use crate::{DecodedTree, Frame, ProtocolLimits, tree_state::TreeState};
+use crate::{
+    DecodedTree, ExecutionDecodeError, Frame, ProtocolLimits, tree_assembly::TreeAssembly,
+    tree_state::TreeState,
+};
 use diskgraph_disktree_core::tree::Node;
 use std::io;
 
@@ -49,41 +52,24 @@ impl TreeAssembler {
     /// 参数：self 为完整 End 和外部 EOF 均已验证的组装器。
     /// 返回：预留迭代销毁空间的真实树；分配完成前不形成递归子树所有权。
     pub(crate) fn finish(self) -> io::Result<DecodedTree> {
+        self.finish_with_checkpoint(|| Ok::<(), io::Error>(()))
+            .map_err(|error| match error {
+                ExecutionDecodeError::Protocol(error) | ExecutionDecodeError::Checkpoint(error) => {
+                    error
+                }
+            })
+    }
+
+    /// 参数：checkpoint 是原请求的实时检查，不创建新额度。
+    /// 返回：完整树或保留原对象的停止错误；部分深树由森林 owner 迭代销毁。
+    pub(crate) fn finish_with_checkpoint<E>(
+        self,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+    ) -> Result<DecodedTree, ExecutionDecodeError<E>> {
+        checkpoint().map_err(ExecutionDecodeError::Checkpoint)?;
         if !self.state.ended() {
-            return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "missing End"));
+            return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "missing End").into());
         }
-        let mut nodes = self.nodes;
-        let mut result = DecodedTree::prepare(nodes.len())?;
-        let mut counts = Vec::new();
-        counts
-            .try_reserve_exact(nodes.len())
-            .map_err(|_| io::Error::other("child count allocation failed"))?;
-        counts.resize(nodes.len(), 0_usize);
-        for (parent, _) in &nodes {
-            if let Some(parent) = parent {
-                let parent = usize::try_from(*parent)
-                    .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "parent overflow"))?;
-                counts[parent] = counts[parent].checked_add(1).ok_or_else(|| {
-                    io::Error::new(io::ErrorKind::InvalidData, "child count overflow")
-                })?;
-            }
-        }
-        for ((_, node), count) in nodes.iter_mut().zip(counts) {
-            node.children
-                .try_reserve_exact(count)
-                .map_err(|_| io::Error::other("children allocation failed"))?;
-        }
-        while nodes.len() > 1 {
-            let (parent, mut child) = nodes.pop().expect("validated nonempty");
-            child.children.reverse();
-            nodes[parent.expect("validated parent") as usize]
-                .1
-                .children
-                .push(child);
-        }
-        let (_, mut root) = nodes.pop().expect("validated root");
-        root.children.reverse();
-        result.install(root);
-        Ok(result)
+        TreeAssembly::new(self.nodes)?.finish(checkpoint)
     }
 }
