@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "scope": "native Linux sealed image component qualification; Engine integration pending",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image.rs",
+      "sha256": "4d50c8961d4b4a34d14bd866e9bf7f1abb02ab9131aee05723ad3ee23c9a0dfd",
+      "lines": 128,
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_scan_image.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_tests.rs",
+      "sha256": "5117f33e87f6a10c88cd88a9d3928d3ff0d6a43b20b37d83034e22d9cb1502cc",
+      "lines": 281,
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_scan_image_tests.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_fixture.rs",
+      "sha256": "9a74420b30c7c5556b04ad8e5c3d96c54b84cee08aff4bc1a7e78a91871a8654",
+      "lines": 89,
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_scan_image_fixture.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scan_image_error.rs",
+      "sha256": "2ea089fb0645cc0ca94d524a104bcc73c6223c53fe54478928920903982120c2",
+      "lines": 21,
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_scan_image_error.rs"
+    }
+  ],
+  "test_count": 11,
+  "platform_validation": {
+    "linux_x86_64": "pending actual CI",
+    "linux_aarch64": "pending actual CI"
+  },
+  "tests_frozen_before_implementation": {
+    "manifest_sha256": "37a933542ea050ddf15993437b3260c195d4ed6afbaf583471fab80f40e81655",
+    "runtime_red": "not observed; missing API only interface absence"
+  },
+  "production_candidate_manifest_sha256": "e335c69ef21733497d1b6684a947e319fa983875bc64278cc1b8a71e68f870ae",
+  "limits": [
+    "No execution, loader, child ownership, Engine or PF06 completion proof.",
+    "Candidate temporarily mounted only in isolated native qualification checkout; production src gate unchanged.",
+    "Default memfd flags do not qualify execution under vm.memfd_noexec policy; executable policy and actual ELF execution remain pending."
+  ],
+  "independent_review": {
+    "result": "APPROVE limited component and isolated CI harness",
+    "script_sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
+    "workflow_sha256": "f6070f72fd30892943e23a5264c08e4b3eb0eedbe7e834f08b0e7a51691b46bd"
+  },
+  "local_validation": {
+    "host": "macOS",
+    "python_syntax": "passed",
+    "help": "exit 0",
+    "native_platform_requirement": "actual non-Linux invocation exit 2; no output directory created",
+    "helper_checks": {
+      "host": "macOS",
+      "checks": [
+        "actual filesystem cleanup rejection preserves original FileNotFoundError identity",
+        "actual subprocess failure preserves original CalledProcessError and consumes archive wait",
+        "normal isolated checkout removed"
+      ],
+      "passed": 3,
+      "limits": "harness helpers only; not Linux memfd or Engine acceptance"
+    },
+    "openspec_strict": "exit 0"
+  }
+}

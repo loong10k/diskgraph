@@ -93,6 +93,18 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
+      - name: Native Linux sealed-image component qualification
+        if: runner.os == 'Linux'
+        timeout-minutes: 25
+        run: python scripts/qualify-linux-scan-image.py --output-dir "${{ runner.temp }}/diskgraph-sealed-image"
+      - name: Preserve Linux sealed-image component evidence
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: linux-sealed-image-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-sealed-image
+          retention-days: 7
+          if-no-files-found: error
       - name: Build scoped owner acceptance library
         timeout-minutes: 10
         run: cargo build -p diskgraph-ffi --lib --locked --message-format=json > "${{ runner.temp }}/diskgraph-owner-build.json"
