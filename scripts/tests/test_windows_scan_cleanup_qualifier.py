@@ -40,7 +40,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             self.assertEqual(len(manifest["sources"]), 459)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
-            self.assertFalse(manifest["production_cleanup_algorithm_modified"])
+            self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
 

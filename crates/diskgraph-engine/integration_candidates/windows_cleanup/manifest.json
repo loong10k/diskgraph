@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "red-with-io-prerequisites",
+  "phase": "cleanup-fix-awaiting-native-green",
   "production_ready": false,
-  "production_cleanup_algorithm_modified": false,
+  "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "0f8e9cc8e98cba6f6370786c6bc7a92e21b8b532ceab1e4e9426b7bac07e0a86",
+  "archive_sha256": "bcc9b6f4819387cf389376701302bcb2cdd1a89109b3297ad7787efea0a2956c",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -266,7 +266,7 @@
     "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "874d48b450781270741043f80c8cf9fbb377952cebf3bc435b7b5a70bb5fd501",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "0dafd2d88bf6531c189133cc3af078e8b7d97b01292767ae1f9f87e3790f7203",
     "crates/diskgraph-engine/src/native_child/windows/pipe_security.rs": "d21c5272a147438e86575ca7a157a90056b2cd05a21fcb85e0a62802ccfc32d7",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "5d83a9a7f8ac78aa3beb8e5de632b3817cfc82810b689c49e4595eaf746baaa2",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "a6211846684a1cd5603132612a0cec136d4d43dd16f28fbc0fb4c9b3725c2299",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_hooks.rs": "068bf889e6172590237b7ec1aa8a5e7571a872df96ecfbf9fa5da42ed83973b8",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs": "cd2d0dd8881643bce9c57d12d7eb779af097dd2b2cdc058c307746e892bb90c7",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_rescue.rs": "21693b8ba4cb84fa115343a6558047c51aa3405e7c6b5c2ab01f7f3d2533113f",
@@ -478,5 +478,10 @@
     "native_child::windows::windows_io_transfer_tests::pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
     "native_child::windows::windows_io_transfer_tests::pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
     "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion"
+  ],
+  "remaining_limitations": [
+    "leader INFINITE wait after successful termination",
+    "pending IO completion can exceed cooperative deadline",
+    "Drop failure and postbirth spawn panic still require external retained owner"
   ]
 }
