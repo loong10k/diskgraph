@@ -125,6 +125,8 @@ cargo install diskgraph-cli
 
 CLI 与 MCP 服务端（`diskgraph-mcp`）一起安装。预编译二进制不需要 Rust；从源码构建需要 1.97+。
 
+当前源码打包脚本同时包含 `diskgraph-scan-worker`（Windows 带 `.exe`）和 `bin/scan-worker-manifest.json`，清单记录 helper 的实际摘要、目标、包/协议版本和扫描器上游 pin。原生 Linux 包将这两份材料安装到 `/usr/libexec/diskgraph`。这些是安装材料；可信镜像启动和 Engine 接线仍待完成，打包通过不等于扫描进程隔离已验收。单独执行 `cargo install` 不会组装完整包。
+
 ## 上手
 
 ```bash

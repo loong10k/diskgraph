@@ -341,3 +341,5 @@ D43原生最终：66f2e4c的CI37196289598终态22/22；12份审查源码摘要�
   - D43 完整查询验收复核：66f2e4c 同源码四份原生 workspace 日志逐项确认关系／候选准备、impact截断、宽目录统计、双侧历史和TUI预算；24份相关源码与提交及当前文件一致。既有55组引用存在重叠，不能累加为独立用例数。独立审查与root原始日志核对完成，13.6关闭，清单140完成／27开放／167总项；15.2的内容成本与provider不下载仍未完成。映射及root核验归档至D43回执，不使用D42未提交能力作为此项证据。
 
   - D42 基础本机验收：typed输入／原授权／fencing／Unix旁表与原子发布恢复、CLI/MCP真实分发已实现；末回调、失败锁存、句柄释放及暂存20k/200k点查真实先红后绿，最终workspace1474/0/18、相关Git11/11、修正排版后的fmt／Clippy／build通过。原生Linux执行器仍Unsupported，Linux-only目标本机零执行不算验收，8.6／15.13保持开放；完整证据与剩余边界见process_job_foundation_acceptance_2026_10_04.json。
+
+2026-10-05 helper 包增量：三二进制与闭合清单、同句柄有界复制/摘要、链接与 FIFO 准入反例已实现。组成2RED、准入3RED、源链接1RED与最终13GREEN分开记录。本机真实 release 归档 stdio18/18、HTTP13/13、升级回滚7/7、负载4/4通过；worker取消夹具保持原预算/失败断言，实际3案、全package tests、Clippy/fmt通过。旧 ada6335 CI21/22，Intel两案缺活进度未发动作；修复同SHA原生CI待运行。Linux x64/arm64原子出生机制各8实际通过，仅机制证据，未接Rust Engine。父项不关闭，见 docs/benchmarks/worker_package_2026_10_05_acceptance.json。

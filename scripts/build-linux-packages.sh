@@ -26,6 +26,23 @@ fi
 
 test -x "$STAGE/bin/diskgraph" || { echo "no staged binary at $STAGE/bin/diskgraph" >&2; exit 1; }
 test -f "$LICENSE" || { echo "LICENSE not found" >&2; exit 1; }
+# 旧发布标签仍可重建旧包；出现任一新材料时必须完整核验，不能退化成旧包。
+WORKER_INSTALL=""
+WORKER_FILES=""
+if [ -d crates/diskgraph-scan-worker ] || [ -e "$STAGE/bin/diskgraph-scan-worker" ] \
+  || [ -L "$STAGE/bin/diskgraph-scan-worker" ] || [ -e "$STAGE/bin/scan-worker-manifest.json" ] \
+  || [ -L "$STAGE/bin/scan-worker-manifest.json" ]; then
+  test -x "$STAGE/bin/diskgraph-scan-worker"
+  python3 scripts/worker_manifest.py --verify --bin-dir "$STAGE/bin" \
+    --target x86_64-unknown-linux-gnu --version "$VERSION"
+  WORKER_INSTALL="mkdir -p %{buildroot}/usr/libexec/$NAME
+cp __STAGE__/bin/diskgraph-scan-worker __STAGE__/bin/scan-worker-manifest.json %{buildroot}/usr/libexec/$NAME/
+chmod 0755 %{buildroot}/usr/libexec/$NAME/diskgraph-scan-worker
+chmod 0644 %{buildroot}/usr/libexec/$NAME/scan-worker-manifest.json"
+  WORKER_FILES="/usr/libexec/$NAME"
+else
+  echo "legacy two-binary package; no isolated scan worker capability" >&2
+fi
 mkdir -p "$OUT"
 
 # The source tree: /usr/bin binaries, the license under the doc dir.
@@ -35,6 +52,12 @@ build_tree() {
   mkdir -p "$root/DEBIAN" "$root/usr/bin" "$root/usr/share/doc/$NAME"
   cp "$STAGE/bin/diskgraph" "$STAGE/bin/diskgraph-mcp" "$root/usr/bin/"
   chmod 0755 "$root/usr/bin/diskgraph" "$root/usr/bin/diskgraph-mcp"
+  if [ -n "$WORKER_INSTALL" ]; then
+    mkdir -p "$root/usr/libexec/$NAME"
+    cp "$STAGE/bin/diskgraph-scan-worker" "$STAGE/bin/scan-worker-manifest.json" "$root/usr/libexec/$NAME/"
+    chmod 0755 "$root/usr/libexec/$NAME/diskgraph-scan-worker"
+    chmod 0644 "$root/usr/libexec/$NAME/scan-worker-manifest.json"
+  fi
   cp "$LICENSE" "$root/usr/share/doc/$NAME/LICENSE"
   cp "$STAGE/README.md" "$root/usr/share/doc/$NAME/README.md" 2>/dev/null || true
 }
@@ -97,12 +120,14 @@ walking the filesystem again.
 mkdir -p %{buildroot}/usr/bin %{buildroot}/usr/share/doc/$NAME
 cp __STAGE__/bin/diskgraph __STAGE__/bin/diskgraph-mcp %{buildroot}/usr/bin/
 chmod 0755 %{buildroot}/usr/bin/diskgraph %{buildroot}/usr/bin/diskgraph-mcp
+$WORKER_INSTALL
 cp __LICENSE__ %{buildroot}/usr/share/doc/$NAME/LICENSE
 cp __README__ %{buildroot}/usr/share/doc/$NAME/README.md 2>/dev/null || true
 
 %files
 /usr/bin/diskgraph
 /usr/bin/diskgraph-mcp
+$WORKER_FILES
 /usr/share/doc/$NAME
 
 %changelog

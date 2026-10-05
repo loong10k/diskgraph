@@ -91,3 +91,11 @@ Request 与 Cancel 采用 helper 实际接收端相同的固定输入约束：�
 ### 主错误与清理错误的产品分类
 
 Engine 增量错误包装同时持有原主错误与实际清理 I/O 失败，不能用 secondary 覆盖主错误，也不能将组合误判为成功。CLI/MCP/FFI 的既有稳定错误码依据最内层原主错误分类；嵌套包装的 primary 解析采用借用迭代，不克隆或格式化业务错误。原 Business/Store/Io 对象、source 链及清理诊断保留；未发生清理失败时返回原 variant。用权限拒绝、预算超限、原 I/O 和存储失败分别验证三入口稳定结果，新增包装不扩大任何操作授权。
+
+## 同版本 helper 包与安装清单
+
+桌面只读 CLI/MCP 的构建、归档、私有包和 Linux 安装包必须携带同一版本的第三个可执行文件 diskgraph-scan-worker（Windows 使用 .exe），不能以库代码存在代替已安装 helper。bin 目录的 scan-worker-manifest.json 使用有限的 schema_version=1，记录 package_version、target、protocol_version=2、pinned_scanner_revision、scanner_source_manifest_sha256，以及固定 basename 的 executable.name/bytes/sha256。清单引用未修改的 vendored UPSTREAM_DIGESTS.txt；缺失 helper、清单不一致或复制后的摘要改变时包装与验收必须失败。清单不携带扫描 root、主体、token、argv 或宿主环境。
+
+生成与验证程序只能在隔离构建/安装 artifact 上操作，拒绝目录、链接和未知字段，读取及哈希按固定块处理。读取期间文件身份、尺寸和高精度修改信息变化时拒绝生成完整摘要。清单是安装完整性材料；相邻可写 helper 与清单不能互相证明信任，未来 Engine 仍须由受信宿主的预期摘要或签名根锚定，校验实际执行镜像并固定平台装载环境后，才发送含 root 的 Request。Hello 与清单成功均不授予执行、扫描或发布许可。
+
+验收分别覆盖真实归档包含三个 artifact、摘要/尺寸/版本/target/protocol/pin 一致，缺失及改写 helper 拒绝，以及原 stdio/HTTP/升级/回退验收保留。包装组成单元夹具不证明原生可执行能力；必须在原生 runner 用实际 release binary 复核。FFI 桌面 bundle 的 helper 定位和 Android/iOS provider 不由这组 CLI/MCP 包验收替代，父任务保持未完成。

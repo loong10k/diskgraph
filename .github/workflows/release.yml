@@ -90,7 +90,7 @@ jobs:
         # the Windows default shell is PowerShell.
         shell: bash
         run: |
-          cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp --target ${{ matrix.target }}
+          cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker --target ${{ matrix.target }}
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
@@ -116,7 +116,9 @@ jobs:
           rm -rf "$staging"
           mkdir -p "$staging/bin"
           cp "target/${{ matrix.target }}/release/diskgraph" \
-             "target/${{ matrix.target }}/release/diskgraph-mcp" "$staging/bin/"
+             "target/${{ matrix.target }}/release/diskgraph-mcp" \
+             "target/${{ matrix.target }}/release/diskgraph-scan-worker" "$staging/bin/"
+          python scripts/worker_manifest.py --bin-dir "$staging/bin" --target "${{ matrix.target }}"
           cp README.md LICENSE "$staging/"
           # The released source is the tag, but the packaging script is
           # release infrastructure and follows the branch: rebuilding an
@@ -140,6 +142,8 @@ jobs:
           mkdir -p "$staging/bin"
           cp "target/${{ matrix.target }}/release/diskgraph$exe" "$staging/bin/diskgraph$exe"
           cp "target/${{ matrix.target }}/release/diskgraph-mcp$exe" "$staging/bin/diskgraph-mcp$exe"
+          cp "target/${{ matrix.target }}/release/diskgraph-scan-worker$exe" "$staging/bin/diskgraph-scan-worker$exe"
+          python scripts/worker_manifest.py --bin-dir "$staging/bin" --target "${{ matrix.target }}"
           cp LICENSE README.md "$staging/"
           archive="dist/diskgraph-${{ matrix.target }}.${{ matrix.archive }}"
           if [ "${{ runner.os }}" = "Windows" ]; then
@@ -348,6 +352,8 @@ jobs:
           tar -tzf diskgraph-aarch64-apple-darwin.tar.gz > "$listing"
           grep -q 'bin/diskgraph$' "$listing"
           grep -q 'bin/diskgraph-mcp$' "$listing"
+          grep -q 'bin/diskgraph-scan-worker$' "$listing"
+          grep -q 'bin/scan-worker-manifest.json$' "$listing"
           rm -f "$listing"
       - name: Create or update the release
         env:

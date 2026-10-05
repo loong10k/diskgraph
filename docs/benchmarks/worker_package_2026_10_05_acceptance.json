@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "base_commit": "ada63350799be92162c4025568517c3d89de80be",
+  "status": "local_package_and_worker_tests_passed_native_ci_pending",
+  "sources": {
+    "scripts/worker_manifest.py": "e2589949de46f06751cdd50bbf2885af531fbac5f6757246cae393726b56a372",
+    "scripts/test_scan_worker_package.py": "08e349d1c57b484bc02487b885636ee83ac1ee8d9b6c79861930500f548f4034",
+    "scripts/test_worker_manifest_admission.py": "265a493e8e91b47eb68c3d5a5ba0105969656a87e0316e61989aa8dc17cefc1e",
+    "scripts/accept-readonly-package.py": "3a98a5bebdc13a08561c374f113e79c6fc9b3c0903e25b3a2b87b6c274b9f048",
+    "scripts/package-private.sh": "08335dfa53d603ff6c52ef3a9dd24267220f4c2122133aa916c0f261f6a15cea",
+    "scripts/package-linux.sh": "2ebd5487dcaeb6c9b8c8bc3a6af32be427df93fe9ae7a7f5c4f2a36c0196bb02",
+    "scripts/build-linux-packages.sh": "c25b40defee313c2b1f1cd56ac02a9e50b3608b0a26ee0eed3386d726dc94325",
+    ".github/workflows/ci.yml": "aa3299ff5e352ff5b05d9c54ee18d79c70e12855da463a6bf081b0f8e6a244d9",
+    ".github/workflows/release.yml": "c00fb8c243b2c07ca016ca4d68c0260cae5f0273e042bbd4bd7d7f6f7c43b1ab",
+    "crates/diskgraph-scan-worker/tests/worker_control_process.rs": "3ac93534dd4f7799b44c7ea874245749d8a43064f36ffbf89f1ee32d8ef2b018",
+    "crates/diskgraph-scan-worker/tests/worker_control_process/active_run.rs": "4bdbcbeca9701973084a6e8733ebc8660b59f2a694728807c2c4468b271f5cf1"
+  },
+  "evidence": {
+    "composition_red": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_composition_red.log.gz",
+      "uncompressed_sha256": "d7448cdba0577457aab8fda7c300ff53f8cf1f1137d43738a0d64c30c5b05814",
+      "bytes": 2051
+    },
+    "file_admission_red": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_file_admission_red.log.gz",
+      "uncompressed_sha256": "262bd11927f0c23fd834d715cf432c78aaccd48027c8f2eb028b4eb3526cd16a",
+      "bytes": 3692
+    },
+    "source_link_red": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_source_link_red.log.gz",
+      "uncompressed_sha256": "02bd01b6888f939698a318544ca15726c149bda7836cb6c0468c79fe34b1c6bf",
+      "bytes": 1495
+    },
+    "composition_green": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_composition_green.log.gz",
+      "uncompressed_sha256": "e436ab290630a4c15606fbd7acb46b68afeec13893e48517bee82e0362cdcb8a",
+      "bytes": 1590
+    },
+    "file_admission_green": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_file_admission_green.log.gz",
+      "uncompressed_sha256": "bc63ee5dbc923457c58b521ff67b4f2fdcb3237863357f0cfd960be89a4ff9bf",
+      "bytes": 759
+    },
+    "release_build": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_release_build.log.gz",
+      "uncompressed_sha256": "5e4534cf7548eaa332f95fa93c221c9f5b1f3881fbcae7af310f7b365acc0774",
+      "bytes": 4974
+    },
+    "native_private_package": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_native_private_package.log.gz",
+      "uncompressed_sha256": "38a581a7c8d0bd752f2d2d09ad96e82eb11161a5329042f2bd5080704a44e2e7",
+      "bytes": 1437
+    },
+    "native_archive": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_native_archive.log.gz",
+      "uncompressed_sha256": "c1aed67b9cb1cc4c07fcc8dc33ac18b73870bc4cb58d24dd684a78423aa10908",
+      "bytes": 795
+    },
+    "worker_full_test": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_worker_full_test.log.gz",
+      "uncompressed_sha256": "6ca066b5b8a859ffaff74970ca2df7d1255a39e7269bdfb54f5d56f9b31035ef",
+      "bytes": 50498
+    },
+    "worker_clippy": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_worker_clippy.log.gz",
+      "uncompressed_sha256": "135779dcd7d4a67329d6ebe2a9d108b0c19ecc6a48a5bf1214d4e6bc304bf1e8",
+      "bytes": 497
+    },
+    "deployment_contract": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_deployment_contract.log.gz",
+      "uncompressed_sha256": "e9a99d9e2928504d68778b7e1d8655dc0d3e4cc077963c0c3e9f6ca193c6e564",
+      "bytes": 783
+    },
+    "previous_intel_failure": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_previous_intel_failure.log.gz",
+      "uncompressed_sha256": "06fbf638fad088bc44ee2303ea2275dcb64c815cc4a191a83fa034eba18945e0",
+      "bytes": 304025
+    },
+    "linux_arm_atomic": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_linux_arm_atomic.log.gz",
+      "uncompressed_sha256": "397ef3b0a134cf0f0df9e81eb94b10900b072b9d28f4015832d7206c3ad2c8b1",
+      "bytes": 4319
+    },
+    "linux_arm_digests": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_linux_arm_digests.log.gz",
+      "uncompressed_sha256": "978ef2016e5c988a47550524c152ec0b5c22ad3ec109e7a368f66bcd70e8db38",
+      "bytes": 388
+    },
+    "linux_x64_atomic": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_linux_x64_atomic.log.gz",
+      "uncompressed_sha256": "b4521bec0f2783a443baf42037e2ca07405ca5c33917c6eed867155c806d3aef",
+      "bytes": 4311
+    },
+    "linux_x64_digests": {
+      "path": "docs/benchmarks/worker_package_2026_10_05_linux_x64_digests.log.gz",
+      "uncompressed_sha256": "e1da80de4757a0cb37bfcab1320953776158848de09be9fd394eddf2a26eec9e",
+      "bytes": 388
+    }
+  },
+  "local": {
+    "target": "aarch64-apple-darwin",
+    "package_unit_tests": 13,
+    "worker_control_cases": 3,
+    "worker_full_command_exit": 0,
+    "worker_strict_clippy_exit": 0,
+    "worker_fmt_exit": 0,
+    "deployment_contract_cases": 6,
+    "archive_acceptance": {
+      "target": "aarch64-apple-darwin",
+      "archive": "/private/tmp/diskgraph-helper-archive-accept/diskgraph-aarch64-apple-darwin.tar.gz",
+      "sha256": "f90b0aca72c5008a5a7c2e9f01c8e293bb12dbaf2051ec47a9f2512f31b32572",
+      "stdio": 18,
+      "http": 13,
+      "upgrade_rollback": 7,
+      "controlled_load": 4,
+      "scan_worker": {
+        "executable": {
+          "bytes": 1093712,
+          "name": "diskgraph-scan-worker",
+          "sha256": "d6eb1518f614a1fe92e356dcc2301ffb3d968c1df2be517fda420aad606a8a6c"
+        },
+        "package_version": "0.3.0",
+        "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+        "protocol_version": 2,
+        "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+        "schema_version": 1,
+        "target": "aarch64-apple-darwin"
+      }
+    },
+    "old_cli_commit": "e4d6074df496dd0816abca531362cdc68e082510",
+    "vendor_digests_verified": 14
+  },
+  "previous_ci": {
+    "run": 37271645958,
+    "commit": "ada63350799be92162c4025568517c3d89de80be",
+    "success_jobs": 21,
+    "failed_jobs": 1,
+    "failure": "Intel active-progress fixture unqualified; action never sent, not cancellation behavior failure"
+  },
+  "linux_atomic_mechanisms": {
+    "run": 37271645958,
+    "x64_msrv_cases": 8,
+    "arm64_stable_cases": 8,
+    "production_rust_atomic_launch_implemented": false,
+    "pid_reuse_qualified": false
+  },
+  "limitations": [
+    "Package manifest does not establish trusted installation or executable image binding.",
+    "Engine still uses the existing scanner; parent driver and native candidates are unmounted.",
+    "Mac Intel, Linux and Windows changed fixture/package require the new same-SHA native CI.",
+    "FIFO admission case is Unix-only and explicitly skipped on Windows; other Windows package tests still run.",
+    "Linux deb/rpm changes are statically reviewed; no native package install execution in this local run.",
+    "Fixed real directory fixture is not an OS scheduling barrier; absent active progress still fails without retry.",
+    "Historical two-binary compatibility is limited to old source checkout and explicit packaging branch.",
+    "No platform parent task closed."
+  ]
+}

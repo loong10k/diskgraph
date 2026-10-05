@@ -24,20 +24,23 @@ fi
 mkdir -p "$OUT_DIR/bin" "$OUT_DIR/deploy"
 
 echo "==> building release binaries on $(uname -s) $ARCH"
-cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp
+cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker
 
-for binary in diskgraph diskgraph-mcp; do
+for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
     install -m 0755 "target/release/$binary" "$OUT_DIR/bin/$binary"
 done
 
 echo "==> installing the systemd unit example"
 install -m 0644 deploy/diskgraph-mcp.service "$OUT_DIR/deploy/diskgraph-mcp.service"
 
+BUILD_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
+python3 scripts/worker_manifest.py --bin-dir "$OUT_DIR/bin" --target "$BUILD_TARGET" --version "$VERSION"
+
 echo "==> recording checksums and provenance"
 (
     cd "$OUT_DIR"
-    shasum -a 256 bin/diskgraph bin/diskgraph-mcp > SHA256SUMS 2>/dev/null \
-        || sha256sum bin/diskgraph bin/diskgraph-mcp > SHA256SUMS
+    shasum -a 256 bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/scan-worker-manifest.json > SHA256SUMS 2>/dev/null \
+        || sha256sum bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/scan-worker-manifest.json > SHA256SUMS
     {
         echo "# DiskGraph private Linux bundle"
         echo "version:   $VERSION"
@@ -48,7 +51,7 @@ echo "==> recording checksums and provenance"
         echo
         echo "# Requires only glibc >= 2.17 (bundled SQLite; no system sqlite)."
         echo "# No Rust toolchain, PruneX, or disktree-app at runtime."
-        for binary in diskgraph diskgraph-mcp; do
+        for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
             echo "bin/$binary  $(stat -c%s "bin/$binary" 2>/dev/null || stat -f%z "bin/$binary") bytes"
         done
         echo

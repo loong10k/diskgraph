@@ -476,3 +476,8 @@ This document adapts the complete architecture template with runtime, extension,
 **Status**: pending review; design completeness is not implementation completion.
 
 Implementation details and Mermaid flows: [security and query boundaries](DiskGraph-Architecture-Hardening.md).
+
+
+### Scan helper installation materials
+
+The current package scripts stage CLI, MCP and the same-version scan helper with a closed manifest. Archives use `bin/`; Linux deb/rpm use `/usr/libexec/diskgraph` for the helper and manifest. Verification uses bounded reads of admitted regular files and checks version, target, protocol, scanner pin, length and full SHA-256. A neighboring manifest cannot establish trust in an executable. Trusted image launch, fixed child environment, parent driver integration and native acceptance remain required before Engine can use process-isolated scanning. Historical two-binary releases retain their explicit legacy packaging path and do not gain this capability.

@@ -467,3 +467,8 @@ stateDiagram-v2
 **文档状态**：待评审；设计完整性不代表实现完成。
 
 已实现的细节及Mermaid调用图见[安全与查询边界](DiskGraph-Architecture-Hardening.zh_CN.md)。
+
+
+### 扫描 helper 安装材料
+
+当前打包脚本组装 CLI、MCP、同版本扫描 helper 和闭合字段清单。归档使用 `bin/`；Linux deb/rpm 将 helper 与清单安装到 `/usr/libexec/diskgraph`。核验对已准入的普通文件进行有界读取，检查版本、目标、协议、扫描器 pin、长度及完整 SHA-256。相邻清单不能建立可执行镜像信任；Engine 使用独立扫描进程前，仍需完成可信镜像启动、固定子进程环境、父进程驱动接线及原生验收。历史两二进制版本保留显式旧包重建路径，不因此获得该能力。

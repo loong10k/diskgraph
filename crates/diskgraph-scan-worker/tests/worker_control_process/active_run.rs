@@ -29,6 +29,8 @@ impl ActiveRun {
         let deadline = started + Duration::from_secs(30);
         let mut child = Command::new(binary)
             .current_dir(directory)
+            // 只限制本测试 child 的实际 pinned walk pool；不改宿主或 helper 生产策略。
+            .env("RAYON_NUM_THREADS", "1")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())

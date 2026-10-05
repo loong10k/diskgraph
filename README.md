@@ -126,6 +126,8 @@ cargo install diskgraph-cli
 
 The CLI and the MCP server (`diskgraph-mcp`) install together. Prebuilt binaries need no Rust; building from source needs 1.97+.
 
+Current source package scripts also include `diskgraph-scan-worker` (with `.exe` on Windows) and `bin/scan-worker-manifest.json`. The manifest records the exact helper digest, target, package/protocol versions and pinned scanner source. Native Linux packages place these two files in `/usr/libexec/diskgraph`. These are installation materials: trusted image launch and integration into Engine are still pending; packaging alone does not qualify process-isolated scanning. Individual `cargo install` commands do not assemble this bundle.
+
 ## Get started
 
 ```bash

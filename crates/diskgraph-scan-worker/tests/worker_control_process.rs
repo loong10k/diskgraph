@@ -22,13 +22,14 @@ fn exercise(action: ControlAction) {
         .tempdir()
         .unwrap();
     let root = directory.path().join("tree");
-    // 固定 128×256 个真实普通文件；准备在运行窗口外，不放大/重试夹具以追求期望调度。
-    for branch in 0..128 {
-        let path = root.join(format!("d{branch:03}"));
+    // 固定 16,384 个真实目录，各一个普通文件，共 32,769 个节点，少于旧夹具 32,897 个。
+    // pinned 在 root 每累计 1,024 个目录就刷新真实进度，之后仍须逐目录读取文件。
+    // 仅 child 的单线程 walk 安排提供早进度窗口，不是 OS barrier；未命中仍资格失败，绝不重试。
+    // 准备仍在原运行时钟外，节点、深度、流与 30s 额度及所有行为断言保持原样。
+    for branch in 0..16_384 {
+        let path = root.join(format!("d{branch:05}"));
         std::fs::create_dir_all(&path).unwrap();
-        for entry in 0..256 {
-            std::fs::write(path.join(format!("f{entry:03}")), b"x").unwrap();
-        }
+        std::fs::write(path.join("file"), b"x").unwrap();
     }
     let request = json!({"type":"request","version":2,
         "request":{"root":NativePath::from_path(&root),"options":WireOptions::from_native(&ScanOptions::default())},

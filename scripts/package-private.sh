@@ -17,16 +17,19 @@ fi
 mkdir -p "$OUT_DIR/bin"
 
 echo "==> building release binaries"
-cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp
+cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker
 
-for binary in diskgraph diskgraph-mcp; do
+for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
     install -m 0755 "target/release/$binary" "$OUT_DIR/bin/$binary"
 done
+
+BUILD_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
+python3 scripts/worker_manifest.py --bin-dir "$OUT_DIR/bin" --target "$BUILD_TARGET" --version "$VERSION"
 
 echo "==> recording checksums and sizes"
 (
     cd "$OUT_DIR"
-    shasum -a 256 bin/diskgraph bin/diskgraph-mcp > SHA256SUMS
+    shasum -a 256 bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/scan-worker-manifest.json > SHA256SUMS
     {
         echo "# DiskGraph private bundle"
         echo "version:   $VERSION"
@@ -37,7 +40,7 @@ echo "==> recording checksums and sizes"
         echo
         echo "# No Rust toolchain, PruneX, or disktree-app is required at runtime."
         echo "# Requires only a POSIX system (file/dir metadata via platform APIs)."
-        for binary in diskgraph diskgraph-mcp; do
+        for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
             echo "bin/$binary  $(stat -f%z "bin/$binary") bytes"
         done
     } > MANIFEST.txt

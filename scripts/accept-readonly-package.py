@@ -2,7 +2,6 @@
 """Package native binaries, verify the archive, and drill read-only upgrade/rollback."""
 
 import argparse
-import hashlib
 import json
 import os
 import pathlib
@@ -12,15 +11,17 @@ import sys
 import tarfile
 import tempfile
 import zipfile
+from worker_manifest import (MANIFEST_NAME, MAX_IMAGE_BYTES, bounded_digest,
+                             copy_artifact, executable_name, read_manifest,
+                             verify_manifest, workspace_version, write_manifest)
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SUFFIX = ".exe" if sys.platform == "win32" else ""
 
 
-def digest(path):
-    with path.open("rb") as stream:
-        return hashlib.file_digest(stream, "sha256").hexdigest()
+def digest(path, byte_limit=MAX_IMAGE_BYTES):
+    return bounded_digest(path, byte_limit)
 
 
 def accepted(script, bin_dir, *arguments):
@@ -45,7 +46,8 @@ def main():
     parser.add_argument("--old-cli", required=True, type=pathlib.Path)
     parser.add_argument("--output-dir", default=ROOT / "dist", type=pathlib.Path)
     args = parser.parse_args()
-    binaries = [f"diskgraph{SUFFIX}", f"diskgraph-mcp{SUFFIX}"]
+    executable_name(args.target)
+    binaries = [f"diskgraph{SUFFIX}", f"diskgraph-mcp{SUFFIX}", f"diskgraph-scan-worker{SUFFIX}"]
     source = args.bin_dir.resolve()
     old_cli = args.old_cli.resolve()
     output = args.output_dir.resolve()
@@ -59,7 +61,9 @@ def main():
         staging_bin = staging / "bin"
         staging_bin.mkdir(parents=True)
         for name in binaries:
-            shutil.copy2(source / name, staging_bin / name)
+            copy_artifact(source / name, staging_bin / name)
+        version = workspace_version()
+        write_manifest(staging_bin, args.target, version)
         for name in ("README.md", "LICENSE"):
             shutil.copy2(ROOT / name, staging / name)
 
@@ -71,10 +75,10 @@ def main():
         else:
             with tarfile.open(archive, "w:gz") as package:
                 package.add(staging, arcname=archive_name)
-        archive_hash = digest(archive)
+        archive_hash = digest(archive, 1024 * 1024 * 1024)
         checksum = pathlib.Path(str(archive) + ".sha256")
         checksum.write_text(f"{archive_hash}  {archive.name}\n")
-        if checksum.read_text().split()[0] != digest(archive):
+        if checksum.read_text().split()[0] != digest(archive, 1024 * 1024 * 1024):
             raise RuntimeError("archive checksum changed before extraction")
 
         extracted = work / "extracted"
@@ -89,6 +93,8 @@ def main():
         for name in binaries:
             if digest(source / name) != digest(packaged_bin / name):
                 raise RuntimeError(f"packaged {name} differs from the built binary")
+        manifest = read_manifest(packaged_bin / MANIFEST_NAME)
+        verify_manifest(packaged_bin, manifest, args.target, version)
 
         stdio = accepted("accept-readonly-stdio.py", packaged_bin)
         http = accepted("accept-readonly-http.py", packaged_bin)
@@ -104,7 +110,7 @@ def main():
     print(json.dumps({"target": args.target, "archive": str(archive),
                       "sha256": archive_hash, "stdio": stdio,
                       "http": http, "upgrade_rollback": upgrade,
-                      "controlled_load": load}, indent=2))
+                      "controlled_load": load, "scan_worker": manifest}, indent=2))
 
 
 if __name__ == "__main__":
