@@ -77,9 +77,23 @@ fn adding_sec_image_cannot_hide_mutability_of_a_retained_writable_view() {
 }
 
 #[test]
-fn leaf_only_lease_ancestor_rebinding_is_characterized_as_a_gap() {
+fn ordinary_ancestor_rename_is_characterized_with_same_operation_controls() {
     let record = run(6);
-    assert_eq!(record["classification"], "characterized_gap");
+    assert_eq!(record["ancestor_prelease_qualified"], true);
+    if record["classification"] == "ancestor_rename_blocked_by_leaf_lease" {
+        assert!(matches!(
+            record["ancestor_rename_error"].as_u64(),
+            Some(5 | 32)
+        ));
+        assert_eq!(record["route_unchanged_under_lease"], true);
+        assert_eq!(record["loaded_a_under_lease"], true);
+        assert_eq!(record["released_rename_succeeded"], true);
+        assert_eq!(record["loaded_b_after_release"], true);
+    } else {
+        assert_eq!(record["classification"], "characterized_gap");
+        assert_eq!(record["ancestor_rename_error"], 0);
+        assert_eq!(record["released_rename_succeeded"], false);
+    }
     assert_eq!(record["same_file"], true);
     assert_eq!(record["route_changed"], true);
     assert_eq!(record["loaded_marker"], "B");

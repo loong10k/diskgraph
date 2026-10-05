@@ -1,0 +1,293 @@
+{
+  "run_id": 37350467282,
+  "job_id": 111899748123,
+  "scope": "Native Windows component characterization; production not qualified",
+  "provenance": {
+    "source_files": [
+      {
+        "sha256": "66e0dccd8a1103f62d0022a87bba33d6c9da69db7a54eb1771cb089085884f67",
+        "name": "windows_image_lease_cases.c"
+      },
+      {
+        "sha256": "3583dabf27fea5ff7c2b1e2b150cc148d039aa5d51493b04ae93af6b28bae761",
+        "name": "windows_image_lease_common.c"
+      },
+      {
+        "sha256": "62e5c0d630b706435e58c094dbcb2f51613f42db57c466e46f85dacebdba18b3",
+        "name": "windows_image_lease_probe.c"
+      },
+      {
+        "sha256": "bf2bb4646ebe114d03e9797fc4cd80f996170b87734253991bfa69f1dc45cf7d",
+        "name": "windows_image_lease_probe.h"
+      },
+      {
+        "sha256": "1497d3fba67d12875576cd32349c577abeab9af80805c00f24dc5d78e6159bac",
+        "name": "windows_image_lease_probe.rs"
+      },
+      {
+        "sha256": "540986a43a9e06302ac991c16356ee015b2d8ba0e026dd03e3996db96eec3c33",
+        "name": "windows_image_lease_routes.c"
+      },
+      {
+        "sha256": "93a3bb10f9e1262fcff835051a7dda9d1b96b3e904583ad931b63c2154a7d021",
+        "name": "windows_image_lease_tests.rs"
+      },
+      {
+        "sha256": "06c8e56b73096fd26e8d5b872523ff90c40b332f92f1687d5708b9ae569c9541",
+        "name": "windows_image_marker_fixture.c"
+      }
+    ],
+    "security_acceptance": false,
+    "architecture": "64-bit",
+    "commit": "02d398f082c36709d80f67b43eb585c160c96124",
+    "windows_version": "10.0.26100",
+    "windows_build": "26100",
+    "scope": "Seven native component cases; not production launcher acceptance",
+    "filesystem": "NTFS"
+  },
+  "source_bindings": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_cases.c",
+      "git_blob_sha256": "19d5ea3105fb7d61ce7de188cf3c09a77fc13fadd4932413410864562f45ebd9",
+      "windows_checkout_sha256": "66e0dccd8a1103f62d0022a87bba33d6c9da69db7a54eb1771cb089085884f67",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_common.c",
+      "git_blob_sha256": "9019e4437c0251b25181faf62613fc97f719400d340b3d6b150504fae9dbfef9",
+      "windows_checkout_sha256": "3583dabf27fea5ff7c2b1e2b150cc148d039aa5d51493b04ae93af6b28bae761",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_probe.c",
+      "git_blob_sha256": "5398bcfe19a860670bf158c522d1f0d7745e7ad0cced6f918c2dd7a4e37e9797",
+      "windows_checkout_sha256": "62e5c0d630b706435e58c094dbcb2f51613f42db57c466e46f85dacebdba18b3",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_probe.h",
+      "git_blob_sha256": "37526580cef8bc817819b9e51b61d47eef04911d3ee4b67a934ca3dffcbdf83d",
+      "windows_checkout_sha256": "bf2bb4646ebe114d03e9797fc4cd80f996170b87734253991bfa69f1dc45cf7d",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_probe.rs",
+      "git_blob_sha256": "2538fd64e3369e361d20b8d7f5343e4f793a842cf6295103c9af221608564cf2",
+      "windows_checkout_sha256": "1497d3fba67d12875576cd32349c577abeab9af80805c00f24dc5d78e6159bac",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_routes.c",
+      "git_blob_sha256": "7f0e2c4c923302e74c25a3ebe8955a557323bc82369f45542fe309c5b1a7a529",
+      "windows_checkout_sha256": "540986a43a9e06302ac991c16356ee015b2d8ba0e026dd03e3996db96eec3c33",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_lease_tests.rs",
+      "git_blob_sha256": "f9ccbf2fdb1371c406761a3d50bed194a03c93999f68872ca5c7604802f8f2ca",
+      "windows_checkout_sha256": "93a3bb10f9e1262fcff835051a7dda9d1b96b3e904583ad931b63c2154a7d021",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/windows/windows_image_marker_fixture.c",
+      "git_blob_sha256": "c4172a28dfbdded27de87042b27c18ca65f80204e569b93d410c7f964ad20537",
+      "windows_checkout_sha256": "06c8e56b73096fd26e8d5b872523ff90c40b332f92f1687d5708b9ae569c9541",
+      "checkout_transform": "LF to CRLF"
+    }
+  ],
+  "checkout_transform_verified": true,
+  "passed": 6,
+  "failed": 1,
+  "ignored": 0,
+  "cases": [
+    {
+      "case": 1,
+      "classification": "fixture_qualified",
+      "stage": "real_a_b_and_sec_image_qualified",
+      "win32_error": 0,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 0,
+      "delete_open_error": 0,
+      "replace_error": 0,
+      "lease_error": 0,
+      "image_error": 0,
+      "same_file": false,
+      "writer_closed": false,
+      "mapping_handle_closed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "loaded_marker": "B",
+      "launches": 3,
+      "actual_waits": 3,
+      "empty_jobs": 3,
+      "elapsed_ms": 62
+    },
+    {
+      "case": 2,
+      "classification": "leaf_write_delete_blocked",
+      "stage": "lease_held_through_actual_a_load",
+      "win32_error": 0,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 32,
+      "delete_open_error": 32,
+      "replace_error": 5,
+      "lease_error": 0,
+      "image_error": 0,
+      "same_file": true,
+      "writer_closed": false,
+      "mapping_handle_closed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "loaded_marker": "A",
+      "launches": 3,
+      "actual_waits": 3,
+      "empty_jobs": 3,
+      "elapsed_ms": 47
+    },
+    {
+      "case": 3,
+      "classification": "live_writer_rejected",
+      "stage": "live_writer_rejected_and_released_positive",
+      "win32_error": 0,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 0,
+      "delete_open_error": 0,
+      "replace_error": 0,
+      "lease_error": 32,
+      "image_error": 0,
+      "same_file": true,
+      "writer_closed": true,
+      "mapping_handle_closed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "loaded_marker": "A",
+      "launches": 3,
+      "actual_waits": 3,
+      "empty_jobs": 3,
+      "elapsed_ms": 46
+    },
+    {
+      "case": 4,
+      "classification": "mapped_writer_admission_rejected",
+      "stage": "reopen_rejected_existing_writable_view",
+      "win32_error": 0,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 0,
+      "delete_open_error": 0,
+      "replace_error": 0,
+      "lease_error": 32,
+      "image_error": 0,
+      "same_file": false,
+      "writer_closed": true,
+      "mapping_handle_closed": true,
+      "view_changed": false,
+      "route_changed": false,
+      "loaded_marker": "-",
+      "launches": 2,
+      "actual_waits": 2,
+      "empty_jobs": 2,
+      "elapsed_ms": 62
+    },
+    {
+      "case": 5,
+      "classification": "mapped_writer_admission_rejected",
+      "stage": "reopen_rejected_existing_writable_view",
+      "win32_error": 0,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 0,
+      "delete_open_error": 0,
+      "replace_error": 0,
+      "lease_error": 32,
+      "image_error": 0,
+      "same_file": false,
+      "writer_closed": true,
+      "mapping_handle_closed": true,
+      "view_changed": false,
+      "route_changed": false,
+      "loaded_marker": "-",
+      "launches": 2,
+      "actual_waits": 2,
+      "empty_jobs": 2,
+      "elapsed_ms": 31
+    },
+    {
+      "case": 6,
+      "classification": "qualification_failure",
+      "stage": "ancestor_rename_qualification",
+      "win32_error": 5,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 0,
+      "delete_open_error": 0,
+      "replace_error": 0,
+      "lease_error": 0,
+      "image_error": 0,
+      "same_file": true,
+      "writer_closed": false,
+      "mapping_handle_closed": false,
+      "view_changed": false,
+      "route_changed": false,
+      "loaded_marker": "-",
+      "launches": 2,
+      "actual_waits": 2,
+      "empty_jobs": 2,
+      "elapsed_ms": 31
+    },
+    {
+      "case": 7,
+      "classification": "characterized_gap",
+      "stage": "leaf_lease_junction_loaded_b",
+      "win32_error": 0,
+      "cleanup_error": 0,
+      "exception_code": 0,
+      "write_open_error": 0,
+      "delete_open_error": 0,
+      "replace_error": 0,
+      "lease_error": 0,
+      "image_error": 0,
+      "same_file": true,
+      "writer_closed": false,
+      "mapping_handle_closed": false,
+      "view_changed": false,
+      "route_changed": true,
+      "loaded_marker": "B",
+      "launches": 4,
+      "actual_waits": 4,
+      "empty_jobs": 4,
+      "elapsed_ms": 94
+    }
+  ],
+  "findings": [
+    "Case7 leaf-only lease does not protect junction route: original file identity retained, actual B loaded",
+    "Case6 ordinary ancestor rename rejected with ERROR_ACCESS_DENIED; expected-gap fixture assumption not qualified",
+    "Cases4/5 retained writable view causes lease admission rejection with sharing violation"
+  ],
+  "security_acceptance": false,
+  "limitations": [
+    "POSIX replacement, protected ancestor chain, drive alias and production Engine launch not tested",
+    "Case6 needs exact same-operation prelease and postrelease controls; original failure preserved"
+  ],
+  "evidence": [
+    {
+      "path": "docs/benchmarks/windows_image_37350467282_native_tests.log.gz",
+      "raw_sha256": "80ec5bb74aae4f69ac348ca197ab2f4855f29f24f45a9e7441ba2e361a3898e2"
+    },
+    {
+      "path": "docs/benchmarks/windows_image_37350467282_build_a.log.gz",
+      "raw_sha256": "941bec67df4396338f67f9f03f85e9b4db023f74e3e12ac0b713a6a4278398dd"
+    },
+    {
+      "path": "docs/benchmarks/windows_image_37350467282_build_b.log.gz",
+      "raw_sha256": "941bec67df4396338f67f9f03f85e9b4db023f74e3e12ac0b713a6a4278398dd"
+    },
+    {
+      "path": "docs/benchmarks/windows_image_37350467282_build_probe.log.gz",
+      "raw_sha256": "f61a90aefd06f656daa6b57877f929ace490d96135fd52b8f2916ab622e47b17"
+    }
+  ]
+}

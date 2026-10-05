@@ -74,7 +74,7 @@ static int remove_junction_data(ImageLeaseProbe *p, const wchar_t *link) {
     return probe_check(p);
 }
 
-static int verify_rebound_objects(ImageLeaseProbe *p, const wchar_t *route) {
+static int verify_route_objects(ImageLeaseProbe *p, const wchar_t *route, BOOL changed, BOOL check_lease) {
     FILE_ID_INFO original, current, leased;
     HANDLE reopened;
     DWORD error;
@@ -84,7 +84,7 @@ static int verify_rebound_objects(ImageLeaseProbe *p, const wchar_t *route) {
         error = GetLastError(); return probe_fail(p, "rebound_route_open", error);
     }
     if (!GetFileInformationByHandleEx(p->held, FileIdInfo, &original, sizeof(original)) ||
-        !GetFileInformationByHandleEx(p->lease, FileIdInfo, &leased, sizeof(leased)) ||
+        (check_lease && !GetFileInformationByHandleEx(p->lease, FileIdInfo, &leased, sizeof(leased))) ||
         !GetFileInformationByHandleEx(reopened, FileIdInfo, &current, sizeof(current))) {
         error = GetLastError();
         if (!CloseHandle(reopened)) { DWORD cleanup = GetLastError(); if (!p->cleanup_error) p->cleanup_error = cleanup; }
@@ -93,11 +93,14 @@ static int verify_rebound_objects(ImageLeaseProbe *p, const wchar_t *route) {
     if (!CloseHandle(reopened)) {
         error = GetLastError(); return probe_fail(p, "rebound_route_close", error);
     }
-    p->same_file = original.VolumeSerialNumber == leased.VolumeSerialNumber &&
-                   memcmp(original.FileId.Identifier, leased.FileId.Identifier, 16) == 0;
+    if (check_lease) {
+        p->same_file = original.VolumeSerialNumber == leased.VolumeSerialNumber &&
+                       memcmp(original.FileId.Identifier, leased.FileId.Identifier, 16) == 0;
+    }
     p->route_changed = original.VolumeSerialNumber != current.VolumeSerialNumber ||
                         memcmp(original.FileId.Identifier, current.FileId.Identifier, 16) != 0;
-    return (p->same_file && p->route_changed) || probe_fail(p, "route_not_actually_rebound", ERROR_INVALID_DATA);
+    return ((!check_lease || p->same_file) && p->route_changed == changed) ||
+           probe_fail(p, "route_identity_not_expected", ERROR_INVALID_DATA);
 }
 
 int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
@@ -124,6 +127,17 @@ int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
     if (wcscpy_s(p->image_a, PROBE_PATH_CAP, route) != 0)
         return probe_fail(p, "route_copy_bound", ERROR_BUFFER_OVERFLOW);
     if (!probe_open_held(p)) return 0;
+    if (case_id == 6) {
+        /* 同一非空目录、原 shareR/W/D held：先证明精确 rename 及还原可执行。 */
+        if (!MoveFileExW(container, parked, 0)) {
+            error = GetLastError(); return probe_fail(p, "ancestor_prelease_rename", error);
+        }
+        if (!MoveFileExW(parked, container, 0)) {
+            error = GetLastError(); return probe_fail(p, "ancestor_prelease_restore", error);
+        }
+        if (!verify_route_objects(p, route, FALSE, FALSE) || !probe_execute(p, route, 'A')) return 0;
+        p->ancestor_prelease_qualified = TRUE;
+    }
     if (!probe_acquire_lease(p)) return probe_fail(p, "route_leaf_lease_qualification", p->lease_error);
     if (case_id == 7) {
         /* 此案独立改变同一个 junction 的数据，不依赖祖先 rename 是否被拒。 */
@@ -131,13 +145,35 @@ int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id) {
         if (!create_junction(p, container, other)) return 0;
     } else {
         if (!MoveFileExW(container, parked, 0)) {
-            error = GetLastError(); return probe_fail(p, "ancestor_rename_qualification", error);
+            /* 普通 rename 被拒也须真实前后正控，不能将能力不足洗成保护成功。 */
+            p->ancestor_rename_error = GetLastError();
+            if (p->ancestor_rename_error != ERROR_ACCESS_DENIED &&
+                p->ancestor_rename_error != ERROR_SHARING_VIOLATION)
+                return probe_fail(p, "ancestor_rename_unexpected_error", p->ancestor_rename_error);
+            if (!verify_route_objects(p, route, FALSE, TRUE) || !probe_execute(p, route, 'A')) return 0;
+            p->route_unchanged_under_lease = TRUE;
+            p->loaded_a_under_lease = TRUE;
+            if (!CloseHandle(p->lease)) {
+                error = GetLastError(); return probe_fail(p, "ancestor_lease_release", error);
+            }
+            p->lease = INVALID_HANDLE_VALUE;
+            if (!MoveFileExW(container, parked, 0)) {
+                error = GetLastError(); return probe_fail(p, "ancestor_released_rename", error);
+            }
+            p->released_rename_succeeded = TRUE;
         }
         if (!CreateDirectoryW(container, NULL) || !CopyFileW(p->image_b, route, TRUE)) {
             error = GetLastError(); return probe_fail(p, "replacement_b_qualification", error);
         }
     }
-    if (!verify_rebound_objects(p, route) || !probe_execute(p, route, 'B')) return 0;
+    if (!verify_route_objects(p, route, TRUE, p->lease != INVALID_HANDLE_VALUE) ||
+        !probe_execute(p, route, 'B')) return 0;
+    if (case_id == 6 && p->ancestor_rename_error != ERROR_SUCCESS) {
+        p->loaded_b_after_release = TRUE;
+        p->classification = "ancestor_rename_blocked_by_leaf_lease";
+        p->stage = "ordinary_rename_denied_then_released_loaded_b";
+        return probe_check(p);
+    }
     /* 这证明 leaf-only 缺口；它绝不是安全能力或整条执行 lease 的通过。 */
     p->classification = "characterized_gap";
     p->stage = case_id == 7 ? "leaf_lease_junction_loaded_b" : "leaf_lease_ancestor_loaded_b";

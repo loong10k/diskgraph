@@ -41,13 +41,19 @@ int wmain(int argc, wchar_t **argv) {
            "\"write_open_error\":%lu,\"delete_open_error\":%lu,\"replace_error\":%lu,"
            "\"lease_error\":%lu,\"image_error\":%lu,\"same_file\":%s,"
            "\"writer_closed\":%s,\"mapping_handle_closed\":%s,\"view_changed\":%s,"
-           "\"route_changed\":%s,\"loaded_marker\":\"%c\",\"launches\":%u,"
+           "\"route_changed\":%s,\"ancestor_rename_error\":%lu,"
+           "\"ancestor_prelease_qualified\":%s,\"route_unchanged_under_lease\":%s,"
+           "\"loaded_a_under_lease\":%s,\"released_rename_succeeded\":%s,"
+           "\"loaded_b_after_release\":%s,\"loaded_marker\":\"%c\",\"launches\":%u,"
            "\"actual_waits\":%u,\"empty_jobs\":%u,\"elapsed_ms\":%llu}\n",
            case_id, p.classification, p.stage, p.win32_error, p.cleanup_error,
            p.exception_code, p.write_open_error, p.delete_open_error, p.replace_error,
            p.lease_error, p.image_error, p.same_file ? "true" : "false",
            p.writer_closed ? "true" : "false", p.mapping_handle_closed ? "true" : "false",
            p.view_changed ? "true" : "false", p.route_changed ? "true" : "false",
+           p.ancestor_rename_error, p.ancestor_prelease_qualified ? "true" : "false",
+           p.route_unchanged_under_lease ? "true" : "false", p.loaded_a_under_lease ? "true" : "false",
+           p.released_rename_succeeded ? "true" : "false", p.loaded_b_after_release ? "true" : "false",
            p.loaded_marker ? p.loaded_marker : '-', p.launches, p.actual_waits,
            p.empty_jobs, GetTickCount64() - p.started);
     fflush(stdout);
