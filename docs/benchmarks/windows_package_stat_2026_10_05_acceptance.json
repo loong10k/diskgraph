@@ -5,7 +5,7 @@
     "run": 37274530708,
     "job": 111648650414
   },
-  "status": "local_semantics_regression_passed_windows_native_pending",
+  "status": "actual_windows_native_package_passed",
   "sources": {
     "scripts/worker_manifest.py": "9f2f9859991d5605cbd5d4147b1c769886362d12a07edd60b02c5cc8a94f7274",
     "scripts/test_worker_manifest_admission.py": "c72fa29a56fa9da320b89dec1bb579f29f12ac25618abd53cb5892791e17a150"
@@ -30,12 +30,24 @@
       "path": "docs/benchmarks/windows_package_stat_2026_10_05_composition_green.log.gz",
       "sha256": "1d2cf1184c2f6d25056e48e40ce17ad05723234b10133d7e164b77463e6c57d8",
       "bytes": 1590
+    },
+    "native_green": {
+      "path": "docs/benchmarks/windows_package_stat_2026_10_05_native_green.log.gz",
+      "sha256": "ae29da190f2c8bab76a1147bf8a0f7ead9d121fa60004818bdaa6ff27f71ae52",
+      "bytes": 67520,
+      "gzip_sha256": "7aed349785d1cf7d6ad2ca960560d5bc304009da34e79016f5cdd02fd54df6ea"
     }
   },
   "checks": {
     "field_semantics_actual_red_failures": 1,
     "local_admission_tests": 5,
-    "local_package_tests": 9
+    "local_package_tests": 9,
+    "actual_windows_package": {
+      "stdio": 18,
+      "http": 13,
+      "upgrade_rollback": 7,
+      "load": 4
+    }
   },
   "rationale": "CPython 3.13 path stat maps ctime to BirthTime for compatibility; fstat retains ChangeTime. Compare shared BirthTime for path admission and keep real held-FD ChangeTime for before/after mutation rejection. Full inode, device, size and high-precision mtime remain compared.",
   "primary_sources": [
@@ -43,8 +55,15 @@
     "https://raw.githubusercontent.com/python/cpython/v3.13.15/Python/fileutils.c"
   ],
   "limitations": [
-    "Field fixture on macOS is not actual Windows execution.",
-    "Windows actual read-only package must pass the new same-SHA CI.",
-    "No trusted executable image launch permission is implied."
-  ]
+    "This is the native Windows CLI/MCP package gate on the recorded SHA, not all-platform production acceptance.",
+    "Installer material does not prove trusted executable image launch or Engine child isolation."
+  ],
+  "accepted_ci": {
+    "run": 37277397728,
+    "job": 111657522032,
+    "head_sha": "f804d53126334b279c04f339737e9227c7446beb",
+    "conclusion": "success",
+    "artifact": 11331101753,
+    "target": "x86_64-pc-windows-msvc"
+  }
 }
