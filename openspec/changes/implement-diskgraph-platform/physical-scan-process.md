@@ -51,3 +51,15 @@ flowchart TD
 再验真实扫描取消、撤权、预算、坏帧／早 EOF、执行失败与父 unwind：停止／回收、句柄与管道释放、零新 revision、既有错误语义。根／祖先替换及旧 leaf 移回仍精确拒绝发布，合法 sibling 活动成功。
 
 与原扫描配对全部字段／顺序、硬链接、hidden、depth、links、one_filesystem、挂载排除及 Windows drive-root/MFT。平台未运行的行为、真实 provider、Swift/Kotlin owner 接入、Android/iOS 包／设备与签名保持未验收；桌面 helper 不替代移动 provider。
+
+## Linux 固定 helper 的派生约束与真实线程退出资格（实施前合同）
+
+普通进程组的动态 `/proc` 枚举继续单独验收，不能以两份相同快照宣称强沙箱。固定扫描 helper 可以采用新增的受限启动入口：在内部 fresh session 建立后、exec 前安装不可放宽的内核过滤器，拒绝普通进程派生和 session/group 迁移，保留 pinned scanner 所需的真实线程创建。旧探针和旧启动入口不偷偷继承新限制。
+
+- 安装失败、未知 syscall ABI、线程条件不能可靠核验或缺少 pidfd 时明确拒绝，不回退到未受限 helper。x86_64 的 x32 syscall 编号不能绕过过滤；aarch64 使用对应真实 ABI，不假设不同平台的 syscall 编号相同。
+- `fork`、`vfork` 与非线程 `clone` 必须实际失败；`clone3` 的兼容拒绝须允许 libc 的既有线程回退，并以真实线程扫描证明。拒绝 `unshare`、`setsid` 和 `setpgid`，不把当前源码没有调用这些函数当作内核约束证据。额外内核异步派生机制是否需要禁止，须有明确边界和测试。
+- 受限启动与 pidfd 只能属于同一唯一 Child owner，成功建立过滤器的事实不允许客户端、协议字段或任意布尔参数伪造。正常完成仍须完整协议、双 EOF、控制端确实关闭、实际整个线程组退出与原 leader wait；主线程 `Z` 和 End 都不够。
+- 真实反控必须使用进程 main 退出而其它原线程仍持续 heartbeat，观察 pidfd 尚未退出；自然释放之后才观察真实 pidfd 退出和 wait。不能使用救援 kill、模拟状态或刷新期限获得正常许可。
+- namespace、hidepid、记录 overmount 等资格探针保留实际 errno 和阶段。能力不足输出 `QUALIFICATION_NOT_PROVEN`，不把测试框架的 return/pass 计为该原生能力通过。
+
+该入口只约束固定 helper 的进程派生与会话归属，不证明文件读取隔离、云占位不下载、可信安装、动态装载环境或恶意特权宿主防护。只有原生 x86_64/aarch64 测试、完整扫描选项配对和父 Engine 接线验证通过后，才能声明本子能力完成；PF-06 及平台父任务仍依各自完整验收关闭。

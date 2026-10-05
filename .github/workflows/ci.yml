@@ -36,8 +36,33 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Build exact native Linux group-view fixture
+        if: runner.os == 'Linux'
+        run: |
+          probe="${{ runner.temp }}/diskgraph-linux-group-view-probe"
+          cc -std=c11 -O2 -pthread -Wall -Wextra -Werror \
+            crates/diskgraph-engine/tests/fixtures/linux_group_view_probe.c -o "$probe"
+          sha256sum crates/diskgraph-engine/tests/fixtures/linux_group_view_probe.c "$probe" \
+            > "${{ runner.temp }}/diskgraph-linux-group-view-digests.txt"
+          echo "DG_LINUX_GROUP_PROBE_BINARY=$probe" >> "$GITHUB_ENV"
       - name: Build
         run: cargo build --workspace --all-targets --locked
+      - name: Native Linux thread-group and procfs qualification
+        if: runner.os == 'Linux'
+        run: |
+          cargo test -p diskgraph-engine --test linux_group_view_probe --locked -- \
+            --nocapture --test-threads=1 \
+            > "${{ runner.temp }}/diskgraph-linux-group-view.log" 2>&1
+      - name: Preserve native Linux group-view qualification
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: linux-group-view-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/diskgraph-linux-group-view-digests.txt
+            ${{ runner.temp }}/diskgraph-linux-group-view.log
+          retention-days: 7
+          if-no-files-found: error
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'

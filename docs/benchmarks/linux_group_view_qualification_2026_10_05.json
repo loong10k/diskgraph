@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "awaiting_native_execution",
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/tests/linux_group_view_probe.rs",
+      "sha256": "2724ba02084851faf65ac59700085345edbd68e0d8b58f52bd8cb1c4a49dd077",
+      "lines": 172
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/linux_group_view_probe/child.rs",
+      "sha256": "ecf72e0a404bbe1b66a96346e1521be7235f108c2ea3a20728118ff11a572a7a",
+      "lines": 170
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/fixtures/linux_group_view_probe.c",
+      "sha256": "48e39f645880b65831896e2c53ff46aaa85b0e79893f7c67672c2395b894c867",
+      "lines": 244
+    }
+  ],
+  "review": "independent reviewer approved frozen test sources; native compile/runtime unverified",
+  "mandatory": [
+    "main pthread_exit preserves live heartbeats and nonready pidfd",
+    "actual held current procfs facts"
+  ],
+  "optional_namespace_results": "exit77 must emit QUALIFICATION_NOT_PROVEN and cannot count as native capability acceptance",
+  "ci_matrix": [
+    "ubuntu-latest stable",
+    "ubuntu-latest 1.97.0",
+    "ubuntu-24.04-arm stable"
+  ],
+  "local_verification": {
+    "frozen_digests": "3/3 MATCH",
+    "rustfmt": "passed",
+    "native_linux": "not_run_on_macOS",
+    "isolated_HEAD_plus_probe_all_target_build": "passed --offline --locked --workspace --all-targets",
+    "macos_integration": "compiled, 0 tests due to Linux cfg; not native Linux acceptance",
+    "ci_yaml": "Ruby YAML parse passed",
+    "ci_shell": "two fixed native run blocks bash -n passed",
+    "openspec": "strict validation passed"
+  },
+  "latest_previous_ci": {
+    "run": 37260743748,
+    "commit": "82196b741ce165bb0def4c8ba7a6b8e068b80655",
+    "status": "in_progress",
+    "failed_job": 111607241607,
+    "failure": "actual baseline 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d 200000-wide-round2 run_job Business(Conflict), not current build/test/clippy failure",
+    "performance_pair": "incomplete; no complete improvement conclusion"
+  },
+  "no_parent_tasks_closed": true
+}
