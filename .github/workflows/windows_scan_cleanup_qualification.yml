@@ -1,6 +1,12 @@
 name: Windows scan cleanup qualification
 on:
   workflow_dispatch:
+    inputs:
+      compare_baseline:
+        description: Run the fixed pre-birth source comparison on the same runner
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 jobs:
@@ -19,6 +25,9 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p test_windows_scan_cleanup_qualifier.py -v
       - name: Actual Windows owner cleanup qualification
         run: python scripts/qualify_windows_scan_cleanup.py --output-dir "${{ runner.temp }}/windows-cleanup"
+      - name: Original source normal-exit comparison
+        if: ${{ always() && inputs.compare_baseline }}
+        run: python scripts/qualify_windows_scan_cleanup.py --baseline --output-dir "${{ runner.temp }}/windows-cleanup-baseline"
       - name: Preserve exact source and native failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -26,4 +35,6 @@ jobs:
           name: windows-cleanup-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/windows-cleanup
+            ${{ runner.temp }}/windows-cleanup-baseline
             crates/diskgraph-engine/integration_candidates/windows_cleanup
+            crates/diskgraph-engine/integration_candidates/windows_cleanup_baseline

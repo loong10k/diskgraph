@@ -1,0 +1,99 @@
+{
+  "production_acceptance": false,
+  "native_run": 37387088546,
+  "checkout_sha": "e615fac4adb9e7164b93343a2fd7a166664e06c3",
+  "fixture_sha256": "05ad0a02e26f84e953792a644d9287dd4b3a6bf802a8839a304aca9fba46be8d",
+  "source_count": 462,
+  "passed": 14,
+  "failed": 3,
+  "original_birth_io_cleanup_cases_passed": 10,
+  "cases": [
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_query_failure_retains_original_job_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::recovery_slot_survives_query_failure_until_original_job_is_observed_empty",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
+      "passed": true,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
+      "passed": true,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query",
+      "passed": true,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+      "passed": false,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+      "passed": false,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job",
+      "passed": false,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::original_null_spawn_has_four_checkpoints_and_no_control_input",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::original_post_create_failure_cleans_actual_job_with_external_witness_handles_held",
+      "passed": true,
+      "phase": "regression"
+    }
+  ],
+  "normal_exit_failure": "three original exact process-count assertions observed two rather than one; actual second member identity not recorded",
+  "next_step": "same-runner original461 source baseline with unchanged seventeen exact cases; do not weaken assertions"
+}

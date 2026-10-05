@@ -8,6 +8,7 @@ from pathlib import Path
 
 import qualify_macos_installed_worker as shared
 
+BASELINE_CANDIDATE = Path("crates/diskgraph-engine/integration_candidates/windows_cleanup_baseline")
 CANDIDATE = Path("crates/diskgraph-engine/integration_candidates/windows_cleanup")
 
 
@@ -73,6 +74,7 @@ def check_platform(system, github_actions, runner):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--baseline", action="store_true", help="run the fixed pre-birth source comparison")
     args = parser.parse_args()
     checkout = Path(__file__).resolve().parent.parent
     output = args.output_dir.resolve()
@@ -83,7 +85,7 @@ def main():
         receipt["checkout_sha"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=checkout, text=True).strip()
         receipt["rustc"] = subprocess.check_output(["rustc", "--version"], text=True).strip()
         receipt["platform"] = platform.platform()
-        receipt["candidate"] = manifest = shared.mount(checkout, CANDIDATE)
+        receipt["candidate"] = manifest = shared.mount(checkout, BASELINE_CANDIDATE if args.baseline else CANDIDATE)
         cases = manifest["cleanup_cases"]
         check_cases(cases)
         prerequisites = manifest["io_prerequisite_cases"]

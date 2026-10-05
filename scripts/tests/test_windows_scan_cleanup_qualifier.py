@@ -53,6 +53,24 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 qualifier.check_birth_cases(invalid)
 
+    def test_original_baseline_preserves_frozen_sources_and_case_inventory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            source = SCRIPTS.parent / qualifier.BASELINE_CANDIDATE
+            destination = checkout / qualifier.BASELINE_CANDIDATE
+            destination.mkdir(parents=True)
+            for name in ("candidate.tar.gz", "manifest.json"):
+                (destination / name).write_bytes((source / name).read_bytes())
+            manifest = qualifier.shared.mount(checkout, qualifier.BASELINE_CANDIDATE)
+            self.assertEqual(len(manifest["sources"]), 461)
+            self.assertFalse(manifest["production_birth_algorithm_modified"])
+            qualifier.check_cases(manifest["cleanup_cases"])
+            qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
+            qualifier.check_birth_cases(manifest["birth_cases"])
+            qualifier.check_regression_cases(manifest["regression_cases"])
+            for name, expected in manifest["sources"].items():
+                self.assertEqual(qualifier.shared.digest(checkout / name), expected)
+
     def test_platform_gate_refuses_local_mac_and_non_ci_windows(self):
         for platform, ci, runner in (("Darwin", "true", "github-hosted"),
                                      ("Windows", "false", "github-hosted"),
