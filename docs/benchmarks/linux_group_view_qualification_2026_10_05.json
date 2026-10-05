@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "mandatory_x86_native_observed_optional_mapping_failed",
+  "status": "mandatory_x86_and_arm_native_observed_optional_mapping_unavailable",
   "sources": [
     {
       "path": "crates/diskgraph-engine/tests/linux_group_view_probe.rs",
@@ -63,10 +63,54 @@
       "overmount"
     ],
     "current_mapping_diagnostic_fix": "only EPERM/EACCES from fixed mapping open/write produce stage-specific unavailable/77; EINVAL, ENOSYS, short write and ordinary fixture writes still fail",
-    "fix_native_execution": "pending"
+    "fix_native_execution": "79c7d62 actual x86_64 Rust 1.97.0 and Linux arm64 stable; see native_mapping_fix_runs"
   },
   "next_fixture_source": {
     "path": "crates/diskgraph-engine/tests/fixtures/linux_group_view_probe.c",
     "sha256": "e918c526dbf51d42eec61b0e194ea24015a084ec0e9a71064e643ebbd25d1003"
-  }
+  },
+  "native_mapping_fix_runs": [
+    {
+      "run": 37263658506,
+      "commit": "79c7d621be8b288af30b2ebdb6ccf815429be7f8",
+      "job": 111615859325,
+      "architecture": "x86_64",
+      "mandatory_capabilities": "2/2 actually observed",
+      "optional_capabilities": "3/3 not proven; actual setgroups_write EACCES/13 exit77",
+      "rust_test_result": "5 passed; 0 failed; includes three explicitly unavailable observations, not five qualified capabilities",
+      "raw": [
+        {
+          "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-x86_64-group-view.log.gz",
+          "raw_sha256": "5844aac7a5d2a87723da7d84a5c57896fc8601e1f54405c96fd754a746bcdd75",
+          "raw_bytes": 2576
+        },
+        {
+          "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-x86_64-group-view-digests.txt.gz",
+          "raw_sha256": "ef51325ee9e11c56d595a1de2ef7d22f8c95f66062e1d788bf991c97bd3061ce",
+          "raw_bytes": 253
+        }
+      ]
+    },
+    {
+      "run": 37263658506,
+      "commit": "79c7d621be8b288af30b2ebdb6ccf815429be7f8",
+      "job": 111615859263,
+      "architecture": "aarch64",
+      "mandatory_capabilities": "2/2 actually observed",
+      "optional_capabilities": "3/3 not proven; actual setgroups_write EACCES/13 exit77",
+      "rust_test_result": "5 passed; 0 failed; includes three explicitly unavailable observations, not five qualified capabilities",
+      "raw": [
+        {
+          "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-aarch64-group-view.log.gz",
+          "raw_sha256": "0b914d01553cc8e0696878624a53eafa48f6a018221dfc2fe60b79916930b2da",
+          "raw_bytes": 2576
+        },
+        {
+          "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-aarch64-group-view-digests.txt.gz",
+          "raw_sha256": "677b2147f39342c72ad82a9b5f99345b5817108443c69a0db40b988b1cb33909",
+          "raw_bytes": 253
+        }
+      ]
+    }
+  ]
 }

@@ -14,7 +14,7 @@
     "isolated_fixture_tests": "3 passed / 0 failed",
     "strict_target_clippy": "passed",
     "same_overlay_old_baseline_debug_build": "passed --offline --locked --test hardening_benchmark --no-run",
-    "native_release_pair": "not yet run"
+    "native_release_pair": "executed on Linux x86_64; incomplete because original baseline round2 failed; no completed performance comparison"
   },
   "preservation": {
     "original_result": "unchanged final unwrap, errors remain errors",
@@ -48,5 +48,155 @@
       "lines": 274
     }
   ],
-  "no_parent_tasks_closed": true
+  "no_parent_tasks_closed": true,
+  "native_observation": {
+    "run": 37263658506,
+    "commit": "79c7d621be8b288af30b2ebdb6ccf815429be7f8",
+    "job": 111615859344,
+    "case": "200000-wide-round2-baseline",
+    "artifact_integrity": "52/52 raw files bytes and sha256 matched",
+    "posterior": {
+      "control": {
+        "clear_progress": {
+          "status": "ok"
+        },
+        "close": {
+          "status": "ok"
+        },
+        "configuration": {
+          "status": "ok"
+        },
+        "index_grant": {
+          "elapsed_us": 27,
+          "status": "ok",
+          "value": {
+            "present_for_live_policy": true
+          }
+        },
+        "job": {
+          "elapsed_us": 251,
+          "status": "ok",
+          "value": {
+            "cancel_requested": false,
+            "fencing_token": 1,
+            "heartbeat_age_ms_at_diagnostic_start": 1,
+            "heartbeat_unix_ms": 1791175141734,
+            "lease_expires_unix_ms": 1791175167075,
+            "lease_remaining_ms_at_diagnostic_start": 25340,
+            "owner_matches_request": true,
+            "principal_matches_request": true,
+            "scope_matches_request": true,
+            "state": "failed"
+          }
+        },
+        "open": {
+          "read_only": true,
+          "status": "ok"
+        },
+        "policy": {
+          "elapsed_us": 12,
+          "status": "ok",
+          "value": {
+            "revoked": false,
+            "version": 1
+          }
+        },
+        "read_attempted": true,
+        "scope": {
+          "elapsed_us": 13,
+          "status": "ok",
+          "value": {
+            "revoked": false
+          }
+        }
+      },
+      "diagnostic_elapsed_seconds": 0.002734548,
+      "graph": {
+        "clear_progress": {
+          "status": "ok"
+        },
+        "close": {
+          "status": "ok"
+        },
+        "configuration": {
+          "status": "ok"
+        },
+        "nodes": {
+          "elapsed_us": 21,
+          "status": "ok",
+          "value": {
+            "is_lower_bound": false,
+            "rows": 0
+          }
+        },
+        "open": {
+          "read_only": true,
+          "status": "ok"
+        },
+        "read_attempted": true,
+        "scope_latest_pointer": {
+          "elapsed_us": 261,
+          "status": "ok",
+          "value": {
+            "exists": false
+          }
+        },
+        "search": {
+          "elapsed_us": 8,
+          "status": "ok",
+          "value": {
+            "is_lower_bound": false,
+            "rows": 0
+          }
+        },
+        "unix_observations": {
+          "elapsed_us": 6,
+          "status": "ok",
+          "value": {
+            "is_lower_bound": false,
+            "rows": 0
+          }
+        }
+      },
+      "limitations": [
+        "Observed only after run_job returned; these reads are not an atomic snapshot or a witness of the first keeper/poll/native failure.",
+        "No Engine reopen, migration, recovery, rescan, write SQL, or retry; native database opening and I/O have no hard real-time guarantee.",
+        "Identity/path/body strings are not read or emitted; errors retain only fixed categories and numeric native codes."
+      ],
+      "limits": {
+        "busy_timeout_ms": 0,
+        "cooperative_ms_per_database": 100,
+        "staging_count_cap": 4097,
+        "vm_steps_per_database": 50000
+      },
+      "observation": "posterior_non_atomic",
+      "observed_at_unix_ms": 1791175141735,
+      "original_error": {
+        "category": "business",
+        "code": "conflict"
+      },
+      "original_run_elapsed_seconds": 4.660705989,
+      "schema_version": 1,
+      "wall_clock_available": true
+    },
+    "first_cause": "not established by non-atomic posterior",
+    "performance_acceptance": "incomplete; never retry or discard failed baseline",
+    "raw": [
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-linux-cost-receipt.json.gz",
+        "raw_sha256": "fbadd1c2b3899f0d0c62cb8a9b11e9670cd77e6302036ed075fead1307a036cf",
+        "raw_bytes": 88241
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-linux-cost-baseline-failure.stderr.gz",
+        "raw_sha256": "81de42d02a55de2a3a5968e04d8207c6961033154fe76dad574a32aafbf84471",
+        "raw_bytes": 2344
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/79c7d62-linux-cost-baseline-failure.stdout.gz",
+        "raw_sha256": "84f9ff22d3c25011abe2ef7648866282e4a36aa338e56b0d24fed6c33d3431f4",
+        "raw_bytes": 226
+      }
+    ]
+  }
 }

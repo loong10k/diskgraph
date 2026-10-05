@@ -2925,5 +2925,34 @@
       "exit": 0
     },
     "limitations": "non-test library has 11 unused warnings until real driver consumes APIs; Linux full normal-group view unsupported; Windows normal exit runtime not verified; no scan commit or parent closure"
+  },
+  "scm_setup_macos_regression": {
+    "base_commit": "79c7d621be8b288af30b2ebdb6ccf815429be7f8",
+    "execution": "isolated HEAD plus frozen native candidates; real worktree driver not mounted",
+    "native_child": "20 passed / 0 failed",
+    "source_layout_initial": "3 passed / 1 failed; three Linux-only test modules lacked declarations",
+    "source_layout_final": "4 passed / 0 failed after mounting all three; tests unchanged",
+    "unqualified_attempt": "--lib source_layout ran zero tests; not counted as acceptance",
+    "linux_execution": "not compiled or executed on this macOS host",
+    "linux_launch_blocker": "SCM receipt birth window still incomplete; atomic CLONE_PIDFD design required before production acceptance",
+    "production_status": "not accepted; no parent tasks closed",
+    "raw": [
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/scm-setup-macos-native-regression.gz",
+        "raw_sha256": "f15eceb11ffa87d88026453fec2fc14c89aacc93d44e1f14a832f8a37cb32633"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/scm-setup-source-layout-missing-mount.gz",
+        "raw_sha256": "8914da608b4ea43a56a74671ef34d87ad4dec952592c609d53e983bfa29a9e89"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/scm-setup-source-layout-mounted.gz",
+        "raw_sha256": "bc0a7e4aa65c5a704ec60582e383dfe83ab45bf5df53ae508324fc8b2eda5f63"
+      },
+      {
+        "path": "docs/benchmarks/raw/scan_process_2026_10_05/linux-scanner-scm-frozen-candidate.json.gz",
+        "raw_sha256": "d8c906fc76446f29e87106c67ee60e0220bb1a328eb6afe14ef7e3edde09f79e"
+      }
+    ]
   }
 }
