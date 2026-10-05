@@ -1,0 +1,124 @@
+{
+  "run_id": 37355147992,
+  "job_id": 111915574758,
+  "provenance": {
+    "commit": "e3897fca0db0b220eb01719ccd2c6ce342510e4b",
+    "scope": "Isolation-only TLS observation, no security qualification",
+    "security_acceptance": false,
+    "original_source_sha256": {
+      "crates\\diskgraph-engine\\src\\live_evidence\\mod.rs": "f3d772267495ec341ae07857b428b76a139df46a522b142057422f29daebed46",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_scope_boundary.rs": "71bffc06e7c3a3425580289d7cc9a1ce09ebe4edea693dbb0354b686ce36011e",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_worktree_capture.rs": "53867700d2950f95501ddb40113ce7fdcaff60b663faf067decf61201a5b57ca",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_file.rs": "b57f51d4349dc9eded736d3738b8538764fb5c0f132cd297ae88b8d2396864ac",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows.rs": "d909c00af6006f9a46234be00639cc43bc90d4cb158ed55477255b0a4cea6e89",
+      "crates\\diskgraph-engine\\src\\windows_file_state.rs": "98fbcf096ee3a66e504c091efdfa8a0829cf1454fa9873d1b313a59798733572",
+      "crates\\diskgraph-engine\\src\\live_evidence\\evidence_probe_session.rs": "4be34f52b83684fb2b9453eb1d213f7ec277fc61ff1af3db5d2bf63cef6f5f2c",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows_diagnostic.rs": "ad19bb60210ce806c42c0a9c28eea0ee7b9241a461cb47834cd8e9140d8c8358",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows_phase.rs": "fc3214fd5896d84ff2ef0cadba0be493fbc8d32e3acf91dd70cea6d873af8990"
+    },
+    "instrumented_source_sha256": {
+      "crates\\diskgraph-engine\\src\\live_evidence\\mod.rs": "7010d81610880d65894f42a31a1ac06c8470702dde5193e7240b77fc446df7e5",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_scope_boundary.rs": "073e42c47581bef88b97e4776d18fec5a1e9bcbafdc86e26b3c06b32afd47720",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_worktree_capture.rs": "15a293b0cd08f3e9b7e75384d6bddba21591942d2f1dc862b1053e1cf63f83e7",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_file.rs": "15e08cd3eb25ced1a33a6967fad2619576c7c229aa800fee46fd9a5ce9872b9b",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows.rs": "51365673ebd500739bad36eae3f688c94a96116ab5961eb5786ba08a6e39d610",
+      "crates\\diskgraph-engine\\src\\windows_file_state.rs": "c289be024bb39407c29b2823b1c72a9ce6c810c5b19bd9c9c7661fafef2bd717",
+      "crates\\diskgraph-engine\\src\\live_evidence\\evidence_probe_session.rs": "cf994812d09339e7d795521d703124cbfd1ab1c974aea7074ea98246e6b260ea",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows_diagnostic.rs": "ad19bb60210ce806c42c0a9c28eea0ee7b9241a461cb47834cd8e9140d8c8358",
+      "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows_phase.rs": "fc3214fd5896d84ff2ef0cadba0be493fbc8d32e3acf91dd70cea6d873af8990"
+    }
+  },
+  "source_bindings": [
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/mod.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\mod.rs",
+      "git_blob_sha256": "fa9bcaa4277c2b11d8e4c131fc3f556bd279f30d4e03a056d12f7297fe92e4b8",
+      "windows_original_sha256": "f3d772267495ec341ae07857b428b76a139df46a522b142057422f29daebed46",
+      "windows_instrumented_sha256": "7010d81610880d65894f42a31a1ac06c8470702dde5193e7240b77fc446df7e5",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_scope_boundary.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\git_scope_boundary.rs",
+      "git_blob_sha256": "ac8851e572955f370dc671c5e2d165882d55547b854c1bf9e681e6d2e755d5ec",
+      "windows_original_sha256": "71bffc06e7c3a3425580289d7cc9a1ce09ebe4edea693dbb0354b686ce36011e",
+      "windows_instrumented_sha256": "073e42c47581bef88b97e4776d18fec5a1e9bcbafdc86e26b3c06b32afd47720",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\git_worktree_capture.rs",
+      "git_blob_sha256": "772b22785226f5859222d53dae660ebfad9ff90c5658f32f139b5e4e9defdfe6",
+      "windows_original_sha256": "53867700d2950f95501ddb40113ce7fdcaff60b663faf067decf61201a5b57ca",
+      "windows_instrumented_sha256": "15a293b0cd08f3e9b7e75384d6bddba21591942d2f1dc862b1053e1cf63f83e7",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_source_file.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\git_source_file.rs",
+      "git_blob_sha256": "e58f9385c7d431ca43ac5994f495a8ea99a5ac92873df6a63478ce25034e05ad",
+      "windows_original_sha256": "b57f51d4349dc9eded736d3738b8538764fb5c0f132cd297ae88b8d2396864ac",
+      "windows_instrumented_sha256": "15e08cd3eb25ced1a33a6967fad2619576c7c229aa800fee46fd9a5ce9872b9b",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_source_windows.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows.rs",
+      "git_blob_sha256": "4d58b9494a07e637c787f86e25c555d99d64a4d39627c2d91bb5251fcbb8ae88",
+      "windows_original_sha256": "d909c00af6006f9a46234be00639cc43bc90d4cb158ed55477255b0a4cea6e89",
+      "windows_instrumented_sha256": "51365673ebd500739bad36eae3f688c94a96116ab5961eb5786ba08a6e39d610",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/windows_file_state.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\windows_file_state.rs",
+      "git_blob_sha256": "23b0616a15fe1f46b7792d1b32cec2ecd31c35e4c17861c6fee414cfee637329",
+      "windows_original_sha256": "98fbcf096ee3a66e504c091efdfa8a0829cf1454fa9873d1b313a59798733572",
+      "windows_instrumented_sha256": "c289be024bb39407c29b2823b1c72a9ce6c810c5b19bd9c9c7661fafef2bd717",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\evidence_probe_session.rs",
+      "git_blob_sha256": "f7444009be9b4b066c67ce41951b66d709bae2f75e81a46a8c1458610b684eeb",
+      "windows_original_sha256": "4be34f52b83684fb2b9453eb1d213f7ec277fc61ff1af3db5d2bf63cef6f5f2c",
+      "windows_instrumented_sha256": "cf994812d09339e7d795521d703124cbfd1ab1c974aea7074ea98246e6b260ea",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_source_windows_diagnostic.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows_diagnostic.rs",
+      "git_blob_sha256": "170595d70aa6987ef4516b27c716cdd50d01c95c1fa545fd52a264e9bad70efd",
+      "windows_original_sha256": "ad19bb60210ce806c42c0a9c28eea0ee7b9241a461cb47834cd8e9140d8c8358",
+      "windows_instrumented_sha256": "ad19bb60210ce806c42c0a9c28eea0ee7b9241a461cb47834cd8e9140d8c8358",
+      "checkout_transform": "LF to CRLF"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_source_windows_phase.rs",
+      "artifact_path": "crates\\diskgraph-engine\\src\\live_evidence\\git_source_windows_phase.rs",
+      "git_blob_sha256": "8d1f730b87708041a96afd995ae0f3342fa0d7e586ac99590238353d7ec00b5a",
+      "windows_original_sha256": "fc3214fd5896d84ff2ef0cadba0be493fbc8d32e3acf91dd70cea6d873af8990",
+      "windows_instrumented_sha256": "fc3214fd5896d84ff2ef0cadba0be493fbc8d32e3acf91dd70cea6d873af8990",
+      "checkout_transform": "LF to CRLF"
+    }
+  ],
+  "original_and_instrumented_sources_verified": true,
+  "passed": 4,
+  "failed": 0,
+  "ignored": 0,
+  "guard_reports": 3,
+  "mismatch_observed": false,
+  "security_acceptance": false,
+  "root_cause": "Original failure did not reproduce; no known fix established",
+  "scope": "Default parallel original four MCP scope contracts with isolated unchanged-comparison diagnostic",
+  "evidence": [
+    {
+      "path": "docs/benchmarks/windows_git_diagnostic_37355147992_native-tests.log.gz",
+      "raw_sha256": "dde9dcd9fd0c313ccde4da3319def6050ddc59f821073b5eadc53b97dfb7e490"
+    },
+    {
+      "path": "docs/benchmarks/windows_git_diagnostic_37355147992_diagnostic.patch.gz",
+      "raw_sha256": "a154a033aad31535b59a461feebc2f721aa147629516775789347a1d6520726d"
+    }
+  ]
+}

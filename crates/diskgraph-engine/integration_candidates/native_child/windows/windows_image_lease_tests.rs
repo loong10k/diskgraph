@@ -132,3 +132,29 @@ fn resolved_kernel_route_loads_original_a_after_original_junction_loads_b() {
     assert_eq!(record["loaded_marker"], "A");
     assert_eq!(record["security_acceptance"], false);
 }
+
+#[test]
+fn posix_replacement_is_qualified_with_same_api_and_original_held_identity() {
+    let record = run(9);
+    assert_eq!(record["posix_api_qualified"], true);
+    assert_eq!(record["same_file"], true);
+    assert_eq!(record["route_changed"], true);
+    assert_eq!(record["loaded_marker"], "B");
+    assert_eq!(record["security_acceptance"], false);
+    if record["classification"] == "posix_leaf_lease_gap" {
+        assert_eq!(record["replace_error"], 0);
+        assert_eq!(record["ancestor_lease_closed"], false);
+        assert_eq!(record["released_rename_succeeded"], false);
+    } else {
+        assert_eq!(
+            record["classification"],
+            "posix_leaf_lease_rejected_replacement"
+        );
+        assert!(matches!(record["replace_error"].as_u64(), Some(5 | 32)));
+        assert_eq!(record["route_unchanged_under_lease"], true);
+        assert_eq!(record["loaded_a_under_lease"], true);
+        assert_eq!(record["ancestor_lease_closed"], true);
+        assert_eq!(record["released_rename_succeeded"], true);
+        assert_eq!(record["loaded_b_after_release"], true);
+    }
+}

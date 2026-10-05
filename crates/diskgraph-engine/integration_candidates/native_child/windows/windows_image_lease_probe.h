@@ -55,6 +55,7 @@ typedef struct ImageLeaseProbe {
     BOOL loaded_a_under_lease;
     BOOL released_rename_succeeded;
     BOOL loaded_b_after_release;
+    BOOL posix_api_qualified;
     BOOL kernel_route_qualified;
     BOOL loaded_b_via_original_route;
     BOOL kernel_route_unchanged_after_rebind;
@@ -76,4 +77,5 @@ void probe_cleanup(ImageLeaseProbe *p);
 int probe_basic_cases(ImageLeaseProbe *p, unsigned int case_id);
 int probe_mapping_cases(ImageLeaseProbe *p, unsigned int case_id);
 int probe_route_cases(ImageLeaseProbe *p, unsigned int case_id);
+int probe_posix_case(ImageLeaseProbe *p);
 #endif

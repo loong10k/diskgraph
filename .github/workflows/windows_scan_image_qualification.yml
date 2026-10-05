@@ -57,7 +57,7 @@ jobs:
           @{ commit = (git rev-parse HEAD); source_files = $bindings;
              windows_version = $system.Version; windows_build = $system.BuildNumber;
              architecture = $system.OSArchitecture; filesystem = $volume.FileSystem;
-             security_acceptance = $false; scope = 'Eight native component cases; not production launcher acceptance'
+             security_acceptance = $false; scope = 'Nine native component cases; not production launcher acceptance'
           } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $output 'provenance.json')
           Push-Location $output
           try {
@@ -65,7 +65,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'A fixture build failed' }
             & cl.exe /nologo /W4 /WX /O2 /D_WIN32_WINNT=0x0A00 /DIMAGE_B /Fe:image_b.exe (Join-Path $source 'windows_image_marker_fixture.c') 2>&1 | Tee-Object build-b.log
             if ($LASTEXITCODE -ne 0) { throw 'B fixture build failed' }
-            $native = @('windows_image_lease_probe.c', 'windows_image_lease_common.c', 'windows_image_lease_cases.c', 'windows_image_lease_routes.c') | ForEach-Object { Join-Path $source $_ }
+            $native = @('windows_image_lease_probe.c', 'windows_image_lease_common.c', 'windows_image_lease_cases.c', 'windows_image_lease_routes.c', 'windows_image_posix_cases.c') | ForEach-Object { Join-Path $source $_ }
             & cl.exe /nologo /W4 /WX /O2 /D_WIN32_WINNT=0x0A00 /Fe:image_probe.exe @native 2>&1 | Tee-Object build-probe.log
             if ($LASTEXITCODE -ne 0) { throw 'Native probe build failed' }
           } finally { Pop-Location }
@@ -74,7 +74,7 @@ jobs:
           "DISKGRAPH_WINDOWS_IMAGE_A=$(Join-Path $output 'image_a.exe')" >> $env:GITHUB_ENV
           "DISKGRAPH_WINDOWS_IMAGE_B=$(Join-Path $output 'image_b.exe')" >> $env:GITHUB_ENV
           "DISKGRAPH_WINDOWS_IMAGE_LEASE_PROBE=$(Join-Path $output 'image_probe.exe')" >> $env:GITHUB_ENV
-      - name: Execute all eight cases without retry or skip
+      - name: Execute all nine cases without retry or skip
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -82,7 +82,7 @@ jobs:
           cargo test --locked -p diskgraph-engine --test windows_image_lease_tests -- --nocapture --test-threads=1 2>&1 | Tee-Object (Join-Path $output 'native-tests.log')
           if ($LASTEXITCODE -ne 0) { throw 'Native qualification not proven; preserve original result' }
           $log = Get-Content (Join-Path $output 'native-tests.log') -Raw
-          if ($log -notmatch 'test result: ok\. 8 passed; 0 failed; 0 ignored;') { throw 'Exact eight-case count required' }
+          if ($log -notmatch 'test result: ok\. 9 passed; 0 failed; 0 ignored;') { throw 'Exact nine-case count required' }
       - name: Preserve actual errors and provenance
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
