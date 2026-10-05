@@ -5,7 +5,7 @@ use diskgraph_engine::EngineError;
 /// 保持引擎错误到稳定业务错误码的原始映射。
 /// 参数：error 为原始引擎错误。返回：对应业务错误码。
 pub(crate) fn business_of(error: &EngineError) -> BusinessError {
-    match error {
+    match error.primary() {
         EngineError::Business(business) => *business,
         EngineError::Store(store) => match store {
             diskgraph_store::StoreError::SnapshotNotFound(_)
@@ -19,6 +19,9 @@ pub(crate) fn business_of(error: &EngineError) -> BusinessError {
             error if error.is_interrupted() => BusinessError::BudgetExceeded,
             _ => BusinessError::InternalError,
         },
-        EngineError::Io(_) | EngineError::Poisoned => BusinessError::InternalError,
+        // primary() 已剥离清理包装；显式覆盖完整枚举，不用 panic 表示不可能分支。
+        EngineError::Io(_) | EngineError::Poisoned | EngineError::WithCleanup { .. } => {
+            BusinessError::InternalError
+        }
     }
 }

@@ -80,3 +80,6 @@ fn main() -> ExitCode {
 fn main() -> ExitCode {
     cli_main()
 }
+
+#[cfg(test)]
+mod engine_error_cleanup_tests;

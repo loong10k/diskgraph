@@ -5,7 +5,7 @@ use diskgraph_engine::{Engine, EngineError};
 /// 保留 engine_business 的原生业务职责与错误语义。来源：DiskGraph CLI main::engine_business。
 /// 参数：与原入口的 engine_business 请求及执行依赖相同。返回：原业务结果或真实执行错误。
 pub(crate) fn engine_business(error: &EngineError) -> BusinessError {
-    match error {
+    match error.primary() {
         EngineError::Business(business) => *business,
         EngineError::Store(store) => match store {
             diskgraph_store::StoreError::SnapshotNotFound(_)
@@ -20,7 +20,10 @@ pub(crate) fn engine_business(error: &EngineError) -> BusinessError {
             error if error.is_interrupted() => BusinessError::BudgetExceeded,
             _ => BusinessError::InternalError,
         },
-        EngineError::Io(_) | EngineError::Poisoned => BusinessError::InternalError,
+        // primary() 已剥离清理包装；显式覆盖完整枚举，不用 panic 表示不可能分支。
+        EngineError::Io(_) | EngineError::Poisoned | EngineError::WithCleanup { .. } => {
+            BusinessError::InternalError
+        }
     }
 }
 

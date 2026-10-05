@@ -3172,5 +3172,190 @@
       "SCM before-receipt identity gap unresolved; Engine parent driver not integrated",
       "No parent task marked complete"
     ]
+  },
+  "engine_cleanup_classification": {
+    "status": "implemented and independently reviewed; macOS isolated workspace passed, native CI pending",
+    "api_absence": {
+      "exit": 101,
+      "meaning": "missing API compile is not runtime RED"
+    },
+    "runtime_red": {
+      "configuration": "new error wrapper with legacy classifiers; CLI/MCP new variant explicitly internal fallback to make baseline executable",
+      "engine": [
+        5,
+        0,
+        0
+      ],
+      "cli": [
+        1,
+        2,
+        0
+      ],
+      "mcp": [
+        1,
+        2,
+        0
+      ],
+      "ffi": [
+        3,
+        1,
+        0
+      ]
+    },
+    "runtime_green": {
+      "engine": 5,
+      "cli": 3,
+      "mcp": 3,
+      "ffi": 4
+    },
+    "workspace": {
+      "passed": 1701,
+      "failed": 0,
+      "ignored": 18,
+      "suites": 94,
+      "summary_count_matches_executable_headers": true,
+      "exit": 0
+    },
+    "gates": {
+      "clippy_workspace_all_targets_exit": 0,
+      "build_workspace_all_targets_exit": 0,
+      "fmt_workspace_excluding_immutable_vendor_exit": 0,
+      "vendor_digests_matching": 14,
+      "openspec_strict": "valid"
+    },
+    "review": "independent architecture reviewer APPROVE all six production and four test hashes",
+    "sources": [
+      {
+        "path": "crates/diskgraph-engine/src/engine_error.rs",
+        "sha256": "80d8602194759452bc63abf0388ec47c152edf56fbd26a6c9dc1f1b5790b3414"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/git_evidence_failure.rs",
+        "sha256": "07218bb94d29a3909d52eff215f2d165f263e56e527c09aaea14c4b926ac3cf2"
+      },
+      {
+        "path": "crates/diskgraph-cli/src/output.rs",
+        "sha256": "a36d2c934d3f26cc27e7b73a5faf1df8f10acbc9a69fd4afbeeaeafa6f337dec"
+      },
+      {
+        "path": "crates/diskgraph-mcp/src/error_mapping.rs",
+        "sha256": "ad816dd303f1de85e58f9e0fc6649d5d21d6054e55e58f48ea0ce773d08764e9"
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/scan_coordinator.rs",
+        "sha256": "2c4e1c5dd3aa4e2bdd98707688d15299f18f2c566342f43a662f9e999e9e43bd"
+      },
+      {
+        "path": "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs",
+        "sha256": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/lib.rs",
+        "sha256": "5e62fcc82e26837b3f1e6443063b35433d3dbb725120b1e8a0f3a8460cc7e264"
+      },
+      {
+        "path": "crates/diskgraph-cli/src/main.rs",
+        "sha256": "36d093e7685827a95499ee5933dccf5803a4e7f40227ef807f17f7eacd6b93a4"
+      },
+      {
+        "path": "crates/diskgraph-mcp/src/lib.rs",
+        "sha256": "7df4dccf4fd428ca6f097b6384601de3a96d823a16e39ee2ac558e6cb6649a68"
+      },
+      {
+        "path": "crates/diskgraph-engine/src/engine_error_cleanup_tests.rs",
+        "sha256": "0556556e4e1238c310e56d0b7575b3f94ba8aff925be29d6759e058264b0a9b0"
+      },
+      {
+        "path": "crates/diskgraph-cli/src/engine_error_cleanup_tests.rs",
+        "sha256": "d17f975a9f933fc80449d5b7221b4f9d85c0f70db35c7cfac3cb8ec0cf4605e6"
+      },
+      {
+        "path": "crates/diskgraph-mcp/src/engine_error_cleanup_tests.rs",
+        "sha256": "e8dea923527818422dabeb56544cca199d00133422a47efd8498c8e0e72076cd"
+      },
+      {
+        "path": "crates/diskgraph-ffi/src/engine_error_cleanup_tests.rs",
+        "sha256": "b75a195ced5f08e578090fab78db43d0d7f14756b9c8bd258d0341ba6f500601"
+      }
+    ],
+    "logs": [
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-engine-cleanup-api-absence.log.gz",
+        "raw_sha256": "3225a11c0be78aa7c03ee3b245aa61ccaa6581329ff2760e37e07057915022c0",
+        "sha256": "ee5c30e2be14d934f6b00fb28a4efc401921229ac160117b839cddef68a7295b"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-engine-cleanup-production-candidate.json.gz",
+        "raw_sha256": "8eab844c99de9a89eaf75a58f7f9a8c0996a979f44b42ae34827a167bc1de5b1",
+        "sha256": "357f2a1297a8e051dabb4d9331ca9cf1968f08f5961e84b2cd104626597f72ed"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-engine-baseline.log.gz",
+        "raw_sha256": "23e1bdada49c74740e64a9acb08d0c695ff2f57ea2136d25f5f74e3075a5988a",
+        "sha256": "c6393ffe9ae705c0b9ddf27948e6dc035ec96e347734e3bb8914564050134250"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-engine-green.log.gz",
+        "raw_sha256": "943a3f2604617729c2e7ecc41e0a9ebe95a1909babc592464403b0b43b485191",
+        "sha256": "1eedafb6d5dd16f3d2c58278ff70b11101fd77f974ce3ae8aebde7f73e737b2e"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-cli-baseline.log.gz",
+        "raw_sha256": "aa88eabb209a8c9d2d288c76582f4a7d651dff4aa80385b897eb27e7e6f7bd42",
+        "sha256": "911cdf69dbe47aac45632be59413b3b0698f79e91e3d4a208d051aca5ecc3d12"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-cli-green.log.gz",
+        "raw_sha256": "03292bcd8d215998c66828e2dae2a0c5778e8f8895664a618b49262f4cd73d4f",
+        "sha256": "b130dbe10cdc7bd4c2b94e374490b42e443d2e53c9c2cbc0d4fee54876f49dc6"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-mcp-baseline.log.gz",
+        "raw_sha256": "cf32b56fede3dc15e1f294b27d9049a75622934a1779a0cb5b855ce363559cca",
+        "sha256": "a503faf03583ec76845a12e9922229c90f83d3f15549fda7f20176176ad5197b"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-mcp-green.log.gz",
+        "raw_sha256": "68814b737a981836c52c3ad9acafba2e340a165de0eb40eb0ebc214e03f35a97",
+        "sha256": "dcf7cebb27632b69054fe48493bcdc1b9998ba90d2e38c304bd1fec99ffd9876"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-ffi-baseline.log.gz",
+        "raw_sha256": "ff02a2ee1b254c3030ea672f9f088fdca31175bca9d9f557121f84f410a04782",
+        "sha256": "dd43971d593ff9066cd9ca3ce251aa7f97128e2cee28e680876142605b01b945"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-ffi-green.log.gz",
+        "raw_sha256": "95968fc8ad37bf982ca391e7476bb873a87a08dec43046032f8dd36182337bfc",
+        "sha256": "4afc72b02093db90a3f59d49b9b9376b1c8cd9008b4ef3faf0f72cf4ed795e70"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-clippy-green.log.gz",
+        "raw_sha256": "948ddeebc3430f799de8375ecb72b5c0927f7c832014fc3b66fc54682efe6b33",
+        "sha256": "9ce08ae026649e2afcc662d73d71730da45a7cab961954e741bd239807c74248"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-build-green.log.gz",
+        "raw_sha256": "6b36de00c78ee200e286d5b2dd0aae2bb6c11fcaf17177ff4108ef2d1c47175b",
+        "sha256": "4b03e7836f1537a0f630dd95cd57c36eba528aaa1b7cfee945f7e7e622bf8ffc"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-workspace-green.log.gz",
+        "raw_sha256": "277ef7a1c41ff5b8db81056ad5854b967d48ddb1ae1cd6b11d7b01904f1db0b7",
+        "sha256": "242aa4e8177e2a3b7a3d8238ecc01a0c4387d3071c6564b9e1d9eefcddeda585"
+      },
+      {
+        "path": "docs/benchmarks/engine_cleanup_diskgraph-cleanup-classification-fmt-green.log.gz",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    ],
+    "limits": [
+      "No actual scanner producer integration or physical child cleanup claimed",
+      "FFI runner StaleOwner direct-match requires coverage when wrappers reach it",
+      "Older paired baseline diagnostic compatible by static review; old baseline compile awaits native cost CI",
+      "Linux/Windows native acceptance pending",
+      "No parent production task closed"
+    ]
   }
 }

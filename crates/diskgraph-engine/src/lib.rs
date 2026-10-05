@@ -169,3 +169,6 @@ pub use revision_display_completion::RevisionDisplayCompletion;
 pub use revision_growth::RevisionGrowth;
 pub use runner::JobRunner;
 pub use verify_limits::VerifyLimits;
+
+#[cfg(test)]
+mod engine_error_cleanup_tests;

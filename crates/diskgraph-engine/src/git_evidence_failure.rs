@@ -13,7 +13,7 @@ pub(super) fn execution(error: &EngineError, state: JobState) -> GitEvidenceFail
     let code = if state == JobState::Cancelled {
         GitEvidenceFailureCode::Cancelled
     } else {
-        match error {
+        match error.primary() {
             EngineError::Business(
                 BusinessError::BudgetExceeded | BusinessError::ResourceExhausted,
             )

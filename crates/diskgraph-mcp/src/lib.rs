@@ -55,3 +55,6 @@ pub(crate) use error_mapping::business_of;
 pub use mcp_config::{McpConfig, STDIO_PRINCIPAL};
 pub use mcp_service::McpService;
 pub use stdio_service::serve_stdio;
+
+#[cfg(test)]
+mod engine_error_cleanup_tests;

@@ -115,21 +115,36 @@ impl ScanFailureDiagnostic {
                 }
             },
         );
-        let original_error = match error {
-            EngineError::Business(error) => json!({"category":"business","code":error.code()}),
-            EngineError::Store(StoreError::Sqlite(error)) => Self::sql_error(error),
-            EngineError::Store(StoreError::StaleOwner) => {
-                json!({"category":"store","code":"stale_owner"})
-            }
-            EngineError::Store(StoreError::Conflict(_)) => {
-                json!({"category":"store","code":"conflict"})
-            }
-            EngineError::Store(StoreError::BudgetExceeded) => {
-                json!({"category":"store","code":"budget_exceeded"})
-            }
-            EngineError::Store(_) => json!({"category":"store","code":"other_store_error"}),
-            EngineError::Io(error) => Self::io_error(error),
-            EngineError::Poisoned => json!({"category":"poisoned"}),
+        // 同源 harness 也覆盖没有 primary() API 的旧基线；只沿未知包装的 typed source 借用迭代。
+        let mut primary_error = error;
+        let original_error = loop {
+            break match primary_error {
+                EngineError::Business(error) => json!({"category":"business","code":error.code()}),
+                EngineError::Store(StoreError::Sqlite(error)) => Self::sql_error(error),
+                EngineError::Store(StoreError::StaleOwner) => {
+                    json!({"category":"store","code":"stale_owner"})
+                }
+                EngineError::Store(StoreError::Conflict(_)) => {
+                    json!({"category":"store","code":"conflict"})
+                }
+                EngineError::Store(StoreError::BudgetExceeded) => {
+                    json!({"category":"store","code":"budget_exceeded"})
+                }
+                EngineError::Store(_) => json!({"category":"store","code":"other_store_error"}),
+                EngineError::Io(error) => Self::io_error(error),
+                other => {
+                    if matches!(other, EngineError::Poisoned) {
+                        json!({"category":"poisoned"})
+                    } else if let Some(primary) = std::error::Error::source(other)
+                        .and_then(|source| source.downcast_ref::<EngineError>())
+                    {
+                        primary_error = primary;
+                        continue;
+                    } else {
+                        json!({"category":"unclassified_engine_error"})
+                    }
+                }
+            };
         };
         Self {
             report: json!({"schema_version":1,"observation":"posterior_non_atomic","original_run_elapsed_seconds":elapsed.as_secs_f64(),"original_error":original_error,"observed_at_unix_ms":now,"wall_clock_available":now.is_some(),"diagnostic_elapsed_seconds":started.elapsed().as_secs_f64(),"limits":{"busy_timeout_ms":0,"vm_steps_per_database":50000,"cooperative_ms_per_database":100,"staging_count_cap":4097},"control":control_report,"graph":graph_report,"limitations":["Observed only after run_job returned; these reads are not an atomic snapshot or a witness of the first keeper/poll/native failure.","No Engine reopen, migration, recovery, rescan, write SQL, or retry; native database opening and I/O have no hard real-time guarantee.","Identity/path/body strings are not read or emitted; errors retain only fixed categories and numeric native codes."]}),

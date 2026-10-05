@@ -19,9 +19,13 @@ fn authorized_job_progress(engine: &Engine, job_id: &str) -> ApiResult {
 
 // 原 FFI 明确拒权使用稳定 wire；不检查任意错误文本，不改变其他错误消息。
 fn progress_error(error: EngineError) -> String {
-    match error {
-        EngineError::Business(BusinessError::PermissionDenied) => "permission_denied".into(),
-        other => other.to_string(),
+    if matches!(
+        error.primary(),
+        EngineError::Business(BusinessError::PermissionDenied)
+    ) {
+        "permission_denied".into()
+    } else {
+        error.to_string()
     }
 }
 
@@ -319,3 +323,7 @@ fn accept_runner_outcome(
         Some(Ok(_)) | None => Ok(()),
     }
 }
+
+#[cfg(test)]
+#[path = "engine_error_cleanup_tests.rs"]
+mod engine_error_cleanup_tests;
