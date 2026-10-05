@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "failed_ci": 37380731096,
+  "failure": "candidate Cargo.lock contained unmounted CLI/MCP scan-worker dependency edges; --locked refused build",
+  "repair": "removed only two absent local dependency edges in frozen archive; registry pins unchanged",
+  "guard_tests": {
+    "red": {
+      "passed": 7,
+      "failed": 1
+    },
+    "green": {
+      "passed": 8,
+      "failed": 0
+    }
+  },
+  "actual_isolated_frozen_helper_build": {
+    "command": "cargo build --locked --offline -p diskgraph-scan-worker",
+    "exit_code": 0
+  },
+  "new_engine_fixture": "compiled with candidate feature; actual installed cases not yet executed",
+  "archive_sha256": "ad10f3c08f484312aefe6bb8447e5140cf11837366de4ee6066eff1aca6a22df"
+}

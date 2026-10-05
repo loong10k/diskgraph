@@ -4,6 +4,8 @@ import io
 import json
 import tarfile
 import tempfile
+import tomllib
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -46,6 +48,21 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         self.assertEqual(len(manifest["ordinary_cases"]), 3)
         for name, expected in manifest["sources"].items():
             self.assertEqual(qualifier.digest(self.checkout / name), expected)
+
+    def test_frozen_lock_matches_unmounted_workspace_package_dependencies(self):
+        source = SCRIPT.parent.parent / qualifier.CANDIDATE
+        for name in ["candidate.tar.gz", "manifest.json"]:
+            (self.directory / name).write_bytes((source / name).read_bytes())
+        qualifier.mount(self.checkout)
+        packages = {p["name"]: p for p in tomllib.loads((self.checkout / "Cargo.lock").read_text())["package"]}
+        for package in ("diskgraph-cli", "diskgraph-mcp"):
+            # 未挂载包必须使用 checkout 的真实清单，锁文件不能夹带其他候选的依赖。
+            raw = subprocess.check_output(["git", "show", "HEAD:crates/" + package + "/Cargo.toml"], cwd=SCRIPT.parent.parent)
+            manifest = tomllib.loads(raw.decode())
+            expected = {name for group in ("dependencies", "dev-dependencies", "build-dependencies")
+                        for name in manifest.get(group, {}) if name.startswith("diskgraph-")}
+            actual = {name for name in packages[package]["dependencies"] if name.startswith("diskgraph-")}
+            self.assertEqual(actual, expected, package)
 
     def test_regular_frozen_sources_mount_and_match(self):
         self.candidate([("crates/diskgraph-engine/src/frozen.rs", b"source", "file")])

@@ -3,9 +3,9 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "d52a827fa5d971dc03f203385d63342f8385ed0979d3660e6eb04fcb767a15ef",
+  "archive_sha256": "ad10f3c08f484312aefe6bb8447e5140cf11837366de4ee6066eff1aca6a22df",
   "sources": {
-    "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
+    "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "7bea9bd42215ef15033c86747c7c443e254961bdb680a5d4cf321345ed5ee854",
     "crates/diskgraph-engine/build.rs": "6e62894d461bbe7cee5c763e1d132cd9d08902f7c8b0ad65c9ae7e140e5021c1",
     "crates/diskgraph-engine/src/collectors/ecosystem.rs": "a7de64e58f0ad00592a2b93b12faa0e2ec1b3ff6b665389b6a2c640f84354b96",
@@ -463,5 +463,6 @@
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",
     "macos_installed_worker_fixture_tests::macos_installed_helper_original_cancel_after_birth_is_reaped",
     "macos_installed_worker_fixture_tests::macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility"
-  ]
+  ],
+  "lock_scope": "CLI/MCP manifests remain committed baseline; only their absent scan-worker dependency edges were removed. Registry versions and scanner pin unchanged."
 }
