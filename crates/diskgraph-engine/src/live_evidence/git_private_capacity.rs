@@ -61,7 +61,10 @@ impl GitPrivateCapacity {
             "private Git space requirement overflow"
         })?;
         if space.total == 0 || space.available > space.free || space.free > space.total {
-            return Err("unsupported private Git native space accounting".into());
+            return Err(format!(
+                "unsupported private Git native space accounting: total={} free={} available={}",
+                space.total, space.free, space.available
+            ));
         }
         if space.available < needed {
             probe.mark_resource_limit();

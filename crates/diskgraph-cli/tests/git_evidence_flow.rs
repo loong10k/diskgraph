@@ -1,6 +1,9 @@
 //! D37 C03 公共进程入口回归；来源：真实 CLI、原生 Git 和隔离数据目录。
 //! 入队契约与旧 sync 正控独立于后续 collector 执行/原子发布验收。
 
+#[cfg(test)]
+mod git_wait_diagnostic;
+
 use diskgraph_core::{PrincipalId, ScopeId};
 use diskgraph_engine::{Engine, EngineConfig};
 use serde_json::Value;
@@ -210,7 +213,14 @@ fn explicit_git_sync_without_content_read_is_business_denied_before_enqueue() {
 #[test]
 fn explicit_git_sync_wait_uses_the_persisted_publication_revision() {
     let fixture = GitFixture::new(true);
-    let response = success(fixture.collect_wait());
+    let output = fixture.collect_wait();
+    if !output.status.success() {
+        eprintln!(
+            "GIT_WAIT_POSTERIOR_DIAGNOSTIC {}",
+            git_wait_diagnostic::read(&fixture)
+        );
+    }
+    let response = success(output);
     assert_eq!(response["data"]["state"], "completed");
     let revision = response["data"]["revision_id"].as_str().unwrap();
     assert_ne!(revision, fixture.revision);

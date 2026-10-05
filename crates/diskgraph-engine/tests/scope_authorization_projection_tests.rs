@@ -369,10 +369,13 @@ fn revoke_during_terminal_authorization(revoke_scope: bool) {
     );
     assert_eq!(authorizer.calls.get(), 2);
     assert_eq!(authorizer.allowed.get(), 2);
-    assert!(matches!(
-        result,
-        Err(EngineError::Business(BusinessError::PermissionDenied))
-    ));
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "terminal withdrawal returned an unexpected result: {result:?}"
+    );
     assert_eq!(
         external
             .borrow()
