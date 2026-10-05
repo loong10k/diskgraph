@@ -1,0 +1,47 @@
+{
+  "baseline": "3030edcbbc56490c935819a793381586cd789f23",
+  "overlay_sha256": {
+    "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_exit.rs": "3f464a15f3552f7a63ddca3161e125a0d35e715e8b757cc1833e694a59f994ec",
+    "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json": "4f0a123b10f922ea322cc5daddd802733540d5cb692152cfd28e8dae24d03f5b",
+    "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json": "b11413a019b1e563374dfe4c7a9a153434bb2978ea1149c32c99a9cbf0e37865"
+  },
+  "actual_native_red": {
+    "run_id": 37327075943,
+    "platform": "Linux aarch64 stable",
+    "passed": 16,
+    "failed": 2,
+    "ignored": 0,
+    "observed": "Some((true,None,None,false))",
+    "namespace_init_reaped": true,
+    "descendants_gone": true,
+    "parent_namespace_restored": true,
+    "logs": {
+      "native_tests": {
+        "path": "docs/benchmarks/atomic_ready_gap_arm_red_native_tests_37327075943.log.gz",
+        "raw_sha256": "91adfbf7f976655effa03cbdbd1f870a55da811e8c798e7c66d5e40deadaf895"
+      },
+      "inventory": {
+        "path": "docs/benchmarks/atomic_ready_gap_arm_red_inventory_37327075943.log.gz",
+        "raw_sha256": "12bcef417375a114ed52aea457dd5917d946914761ded8ed5d743bd16d376dac"
+      },
+      "namespace": {
+        "path": "docs/benchmarks/atomic_ready_gap_arm_red_namespace_37327075943.log.gz",
+        "raw_sha256": "0980bca22ea74c24bc65cffa209404133f565113d790bb0924fb71b80f172404"
+      },
+      "qualification": {
+        "path": "docs/benchmarks/atomic_ready_gap_arm_red_qualification_37327075943.log.gz",
+        "raw_sha256": "b227c6ce102fc555465bb9abc87c1c533b5d8cece5ca53f127819cdc4d56f461"
+      }
+    }
+  },
+  "repair": "Observe original pidfd again with WNOWAIT after POLLIN, require known exit code or signal before true; original wait ownership preserved",
+  "actual_native_green": "pending; this is isolated qualification candidate, product Engine integration not accepted",
+  "isolated_pure_python": {
+    "passed": 70,
+    "failed": 0,
+    "ignored": 0,
+    "log": "docs/benchmarks/atomic_ready_gap_fix_assembly_2026_10_05.log.gz",
+    "raw_sha256": "df7f7fd391a156cadc7fccfd21c8fa7830d32751011b438241e0a324f88bf203"
+  },
+  "rustfmt_check_exit": 0
+}

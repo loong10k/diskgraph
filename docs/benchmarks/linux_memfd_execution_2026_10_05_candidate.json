@@ -3,7 +3,7 @@
   "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
   "qualification_stage": "Explicit EXEC fix awaiting native GREEN; policy namespace missing qualification under diagnosis",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
-  "atomic_manifest_sha256": "97a12f6328853c18d18cee6d9e97745617a3cc48fb69ccecae6613afca4079bf",
+  "atomic_manifest_sha256": "4f0a123b10f922ea322cc5daddd802733540d5cb692152cfd28e8dae24d03f5b",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",

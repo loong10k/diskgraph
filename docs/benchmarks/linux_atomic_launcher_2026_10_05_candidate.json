@@ -29,9 +29,9 @@
     },
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_exit.rs",
-      "sha256": "2b6a5e279d34e71f342cdff0e7b83aece6e22a93ee3e79eb6d009e39cf10e9fd",
-      "bytes": 6236,
-      "lines": 181,
+      "sha256": "3f464a15f3552f7a63ddca3161e125a0d35e715e8b757cc1833e694a59f994ec",
+      "bytes": 6739,
+      "lines": 192,
       "role": "production",
       "target": "crates/diskgraph-engine/src/native_child/linux_atomic_exit.rs",
       "module": "linux_atomic_exit",
@@ -510,6 +510,6 @@
       "waitid_denied_unwind_keeps_original_box_and_transfers_unreaped_owner"
     ],
     "added_case": "exit_between_initial_waitid_and_poll_preserves_natural_exit_record",
-    "production_ready_algorithm": "unchanged; expected actual native RED"
+    "production_ready_algorithm": "POLLIN followed by same original pidfd nonconsuming WNOWAIT observation; actual GREEN pending"
   }
 }

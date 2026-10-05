@@ -59,7 +59,18 @@ impl LinuxAtomicExit {
                 "original atomic pidfd readiness unknown",
             ));
         }
-        Ok(view.revents & libc::POLLIN != 0)
+        if view.revents & libc::POLLIN == 0 {
+            return Ok(false);
+        }
+        // child 可在首次 WNOHANG 与 poll 之间退出；readiness 后重新观察原 pidfd，
+        // 仍用 WNOWAIT，不消费原 owner 的 wait，也不把可读性当作已知退出记录。
+        self.observe(false)?;
+        if self.exit_code.is_none() && self.exit_signal.is_none() {
+            return Err(ChildError::Unsupported(
+                "readable atomic pidfd has no observed exit record",
+            ));
+        }
+        Ok(true)
     }
 
     /// 参数：无；返回：真实原线程组退出并实际消费原 child 的结果，不调用 kill。
