@@ -137,8 +137,8 @@
     },
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_tests.rs",
-      "sha256": "5d3c18eea4c8db7dfa9e2daf18e69fa0e9d04c44fcad11d2b129f23d1aec2a3c",
-      "bytes": 9147,
+      "sha256": "94238960b8532c650c50fbfe8af7608241abae7ec0f9ea81bb5a2c32218ea506",
+      "bytes": 9160,
       "lines": 229,
       "role": "test",
       "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_tests.rs",
@@ -446,5 +446,13 @@
     ],
     "native_inventory_and_execution": "Inside exact commit isolated checkout: cargo test --offline --locked -p diskgraph-engine --lib native_child::linux_atomic_launcher_ -- --list; then same prefix --nocapture --test-threads=1; exact compiled inventory17 and actual17/0/0 required.",
     "object_evidence": "Actual nm -u, objdump -dr, ar t of newly built C object/archive; raw logs plus original source/object hashes retained, not a replacement for independent disassembly review."
+  },
+  "native_build_correction": {
+    "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_tests.rs",
+    "before_sha256": "5d3c18eea4c8db7dfa9e2daf18e69fa0e9d04c44fcad11d2b129f23d1aec2a3c",
+    "after_sha256": "94238960b8532c650c50fbfe8af7608241abae7ec0f9ea81bb5a2c32218ea506",
+    "scope": "Explicit function pointer cast before usize; same signal handler and test assertions. Rust -D warnings unchanged.",
+    "observed_run": 37304662296,
+    "observed_error": "function-casts-as-integer; inventory compile failed on all 3 native targets; 17 cases not executed."
   }
 }

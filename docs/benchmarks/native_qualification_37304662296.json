@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "run_id": 37304662296,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37304662296",
+  "commit": "e756dea88f52d14022a7b7c1e69282701a05f5c1",
+  "status": "completed failure",
+  "targets": [
+    {
+      "target": "atomic-launcher-ubuntu-24.04-arm-stable-37304662296",
+      "files": [
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-24.04-arm-stable-37304662296-diskgraph-namespace-self-test-namespace-receipt.json.gz",
+          "raw_sha256": "c3af096a99279c676b74a73442af70680d2d0eb94c671ba7a6a37eed0e78de0f",
+          "gzip_sha256": "e092217d6e76a639dd36f3b87527329c01c7db1b08553b3f54f4649801153b9c"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-24.04-arm-stable-37304662296-diskgraph-atomic-launcher-namespace-receipt.json.gz",
+          "raw_sha256": "427d3f031e2c8ad8645eb1eb418fcceb92c1a40ebbf40910acf402e2c3db3904",
+          "gzip_sha256": "6af0aa42cfc240fb40ebedecf826ef55c810bf8e00b6231e6668d59355251b6d"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-24.04-arm-stable-37304662296-receipt.json.gz",
+          "raw_sha256": "9f4060d1ae86593bf53d54539aafff79695f842aad7f7abbac066fb106b3a19c",
+          "gzip_sha256": "640f8dc5990be1cbc879b5031b9a2f991eac498cff8a510e309e6e30ffb3fe51"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-24.04-arm-stable-37304662296-native-test-inventory.log.gz",
+          "raw_sha256": "421bd10a5b4418e8bb64c6df01cb20339e9d7a6f7571794f1e61b432d94ffeee",
+          "gzip_sha256": "36c0f357d0f19e4262e654119cd646759f9f1ce8fd978968886fcc30321995b3"
+        }
+      ],
+      "containment_self_test": "passed",
+      "qualification": "failed during inventory compilation",
+      "qualification_cleanup": "original init reaped",
+      "native_cases_executed": 0
+    },
+    {
+      "target": "atomic-launcher-ubuntu-latest-1.97.0-37304662296",
+      "files": [
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-1.97.0-37304662296-diskgraph-namespace-self-test-namespace-receipt.json.gz",
+          "raw_sha256": "ba7996941aa980bbfac60819b8b9d480121719fbae68c05c78c108e0313b5f3b",
+          "gzip_sha256": "54b38d621f63f8c4b34e58a2cfe3b9cc9e9775310e3bbadc3e242430198b36c2"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-1.97.0-37304662296-diskgraph-atomic-launcher-namespace-receipt.json.gz",
+          "raw_sha256": "050266a6bbb5a26cb5cce2b021097505ffdf5d688e2d588a62e73fd6e704080b",
+          "gzip_sha256": "04bebb7960b89bebfad4122a84dc260b073942cb7b6f6320ad03b23ae3b6facc"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-1.97.0-37304662296-receipt.json.gz",
+          "raw_sha256": "ccb5e6caff6389e4d837fa4da6961083fbb205d8d53cbb07b7f301cafce0149b",
+          "gzip_sha256": "27ed1ebb364859c9bd752e363ff1e89d7166ebde3169770d40f8d97e351cbcbf"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-1.97.0-37304662296-native-test-inventory.log.gz",
+          "raw_sha256": "ecaa33a94b7e9d2bedda885f550453b6cd49036ac4fb4dca1b8fc6c78b00bb71",
+          "gzip_sha256": "ef13b22eab55a20d04c130bcc4267427682677450e9430c3f68d2e55bddc1ba0"
+        }
+      ],
+      "containment_self_test": "passed",
+      "qualification": "failed during inventory compilation",
+      "qualification_cleanup": "original init reaped",
+      "native_cases_executed": 0
+    },
+    {
+      "target": "atomic-launcher-ubuntu-latest-stable-37304662296",
+      "files": [
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-stable-37304662296-diskgraph-namespace-self-test-namespace-receipt.json.gz",
+          "raw_sha256": "22922afd0786baa42cba6ff728982712d7b579a7a811d7e0f13fb3a139f3336d",
+          "gzip_sha256": "e27e1d0d57c4aace93c8ed45d41e4259d4f2fdd941e35594763ad6be892b92fb"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-stable-37304662296-diskgraph-atomic-launcher-namespace-receipt.json.gz",
+          "raw_sha256": "cf63a967d1cf8cb56c98643231fa26c50c3d5b9b692f64fba784e368ead5ba27",
+          "gzip_sha256": "bc185703b5587165ca08a49af2c709d44021d02ccd3e577824dfe4ff1b434279"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-stable-37304662296-receipt.json.gz",
+          "raw_sha256": "c05a411b6daf3ace02c5cfca73b53eaffe5c4583e66ae3c4e5aec629b455ce9a",
+          "gzip_sha256": "87969ff39d50b1c28f3f9b4c1a3918ba190d682ff83b22a1421f67955b9ca343"
+        },
+        {
+          "path": "docs/benchmarks/native_qualification_37304662296/atomic-launcher-ubuntu-latest-stable-37304662296-native-test-inventory.log.gz",
+          "raw_sha256": "5555c219bb15d70843928d5a527171e80025b6d103a9bed9a0fe9f0ff3ce8aea",
+          "gzip_sha256": "84c5f5ba5b6108f2bcf28e416fef926046463b364a08e6131ee43b011e6ed616"
+        }
+      ],
+      "containment_self_test": "passed",
+      "qualification": "failed during inventory compilation",
+      "qualification_cleanup": "original init reaped",
+      "native_cases_executed": 0
+    }
+  ],
+  "failure": "Rust function-casts-as-integer denied by unchanged -D warnings; no 17-case behavior result",
+  "limits": [
+    "Containment success does not establish launcher/Engine/platform acceptance.",
+    "Original failed run preserved; corrected source must run on a new exact commit."
+  ]
+}

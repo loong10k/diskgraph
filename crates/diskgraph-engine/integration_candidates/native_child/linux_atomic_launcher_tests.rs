@@ -168,7 +168,7 @@ fn multithreaded_host_handlers_and_atfork_do_not_run_in_child_branch() {
                 0
             );
             let mut action: libc::sigaction = unsafe { std::mem::zeroed() };
-            action.sa_sigaction = host_handler as usize;
+            action.sa_sigaction = host_handler as *const () as usize;
             unsafe {
                 libc::sigemptyset(&mut action.sa_mask);
             }
