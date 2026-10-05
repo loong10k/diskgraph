@@ -73,6 +73,10 @@ class QualificationAssemblyTests(unittest.TestCase):
         supervisor = self.manifest["required_outer_supervisor"]
         bindings = [tooling["qualifier"], tooling["unit_tests"], tooling["shared_support"],
                     supervisor["source"], supervisor["unit_tests"], supervisor["workflow"]]
+        bindings += [{"path": path} for path in (
+            "scripts/native_pid_namespace_restore.py",
+            "scripts/tests/test_native_pid_namespace_restore.py",
+            "scripts/tests/test_native_pid_namespace_restore_errors.py")]
         for binding in bindings:
             target = self.checkout / binding["path"]
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -89,6 +93,22 @@ class QualificationAssemblyTests(unittest.TestCase):
                      'dependencies = [\n "libc",\n]\n')
         (self.checkout / "crates/diskgraph-engine/Cargo.toml").write_text(self.cargo)
         (self.checkout / "Cargo.lock").write_text(self.lock)
+
+    def test_active_restore_helper_must_match_exact_archive(self):
+        active = self.checkout / "active/qualify-linux-atomic-launcher.py"
+        active.parent.mkdir()
+        shutil.copyfile(ROOT / "scripts/qualify-linux-atomic-launcher.py", active)
+        (active.parent / "native_pid_namespace_restore.py").write_bytes(b"different active restore helper")
+        with patch.object(QUALIFIER, "__file__", str(active)):
+            with self.assertRaisesRegex(ValueError, "active.*restore.*digest mismatch"):
+                QUALIFIER.validate_tooling(self.checkout, self.manifest, active)
+
+    def test_changed_restore_helper_is_rejected_before_mount(self):
+        helper = self.checkout / "scripts/native_pid_namespace_restore.py"
+        helper.write_bytes(b"changed namespace restoration source")
+        with self.assertRaisesRegex(ValueError, "digest mismatch.*native_pid_namespace_restore"):
+            QUALIFIER.validate_tooling(self.checkout, self.manifest,
+                                      ROOT / "scripts/qualify-linux-atomic-launcher.py")
 
     def test_frozen_material_mounts_exact_targets_without_scm_route(self):
         result = QUALIFIER.mount_candidate(self.checkout, self.manifest)

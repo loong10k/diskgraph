@@ -67,6 +67,9 @@ def validate_tooling(checkout, manifest, active_qualifier):
         (supervisor["source"], "scripts/run-native-pid-namespace.py"),
         (supervisor["unit_tests"], "scripts/tests/test_native_pid_namespace.py"),
         (supervisor["workflow"], ".github/workflows/native_scan_qualification.yml"),
+        (supervisor["restore_helper"], "scripts/native_pid_namespace_restore.py"),
+        (supervisor["restore_tests"], "scripts/tests/test_native_pid_namespace_restore.py"),
+        (supervisor["restore_error_tests"], "scripts/tests/test_native_pid_namespace_restore_errors.py"),
     ]
     for binding, expected_path in bindings:
         if binding["path"] != expected_path or not re.fullmatch(r"[0-9a-f]{64}", binding["sha256"]):
@@ -76,6 +79,12 @@ def validate_tooling(checkout, manifest, active_qualifier):
             raise ValueError("archived tooling is not a bounded regular source")
         if digest(source) != binding["sha256"]:
             raise ValueError(f"archived tooling digest mismatch: {expected_path}")
+    active_restore = Path(__file__).with_name("native_pid_namespace_restore.py")
+    if (active_restore.is_symlink() or not active_restore.is_file()
+            or active_restore.stat().st_size > (1 << 20)):
+        raise ValueError("active restore helper is not a bounded regular source")
+    if digest(active_restore) != supervisor["restore_helper"]["sha256"]:
+        raise ValueError("active restore helper digest mismatch")
     if digest(active_qualifier) != tooling["qualifier"]["sha256"]:
         raise ValueError("running qualifier differs from the exact archive and manifest")
 

@@ -348,19 +348,19 @@
     "Workflow60min hard termination is infrastructure failure and does not prove finite cleanup. Native outer receipt must show actual original init wait/reap."
   ],
   "shared_support_sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
-  "qualifier_sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8",
+  "qualifier_sha256": "566a9e8e93f5c3b24062d0a2a4e4a074b15ecc2a0f5a10cc7af05a603cc5a2f2",
   "qualification_tooling": {
     "qualifier": {
       "path": "scripts/qualify-linux-atomic-launcher.py",
-      "sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8",
-      "bytes": 21444,
-      "lines": 396
+      "sha256": "566a9e8e93f5c3b24062d0a2a4e4a074b15ecc2a0f5a10cc7af05a603cc5a2f2",
+      "bytes": 22155,
+      "lines": 405
     },
     "unit_tests": {
       "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
-      "sha256": "0708883e23cf99f98d6724ab93f418be8224f0ab883e24279708b7406ec22fc9",
-      "bytes": 16534,
-      "lines": 318
+      "sha256": "20960808bc0268db4b95e9026c064b9e1c37a720edb5747d9964b4af6e703908",
+      "bytes": 17844,
+      "lines": 338
     },
     "shared_support": {
       "path": "scripts/qualify-linux-scan-image.py",
@@ -380,9 +380,9 @@
   "required_outer_supervisor": {
     "source": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "73f004dc43a9ede9badf1e25bb893e3056b8b5431b3d1015a1d716f915f79c1e",
-      "bytes": 24972,
-      "lines": 498
+      "sha256": "2331835e3441cad41e8543d3b27417d12cb16b3c6623337c3b2769b9f5d8ebf2",
+      "bytes": 24568,
+      "lines": 489
     },
     "unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
@@ -400,7 +400,25 @@
     "qualification_marker": "DG_NATIVE_NAMESPACE_SUPERVISED=1 + actual getpid()==1 + actual /proc/self=1 + actual PID namespace link matching DG_NATIVE_PID_NAMESPACE",
     "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/qualification; created only by inner qualifier",
     "cleanup_contract": "Local command-session SIGKILL/wait does not certify setsid descendants. Actual outer namespace init pidfd wait/reap and final supervisor receipt are mandatory. Inner status only component_tests_passed_awaiting_outer_cleanup.",
-    "native_validation": "pending actual Linux x86_64/aarch64 namespace containment self-test and all17 launcher cases; no Cargo/cc/native execution by author"
+    "native_validation": "pending actual Linux x86_64/aarch64 namespace containment self-test and all17 launcher cases; no Cargo/cc/native execution by author",
+    "restore_helper": {
+      "path": "scripts/native_pid_namespace_restore.py",
+      "sha256": "1e9692bb64d61e01a6807b8b79c656fc1e738f828e563e35ddcf2fadb25d586f",
+      "bytes": 4398,
+      "lines": 96
+    },
+    "restore_tests": {
+      "path": "scripts/tests/test_native_pid_namespace_restore.py",
+      "sha256": "5cd023cc0ce413102b4d126a717c9784871489c6728523b46efa330923710842",
+      "bytes": 10747,
+      "lines": 204
+    },
+    "restore_error_tests": {
+      "path": "scripts/tests/test_native_pid_namespace_restore_errors.py",
+      "sha256": "04553b28fe682d2b2986bb40a9279e433eff6ccc2b1ab410d6c9d2c9aa854727",
+      "bytes": 2882,
+      "lines": 56
+    }
   },
   "root_commands": {
     "pure_python": "python3 -m unittest discover -s scripts/tests -v",

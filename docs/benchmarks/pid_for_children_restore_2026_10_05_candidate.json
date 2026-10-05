@@ -1,0 +1,60 @@
+{
+  "scope": "QA supervisor only; not product scanner launch or policy DAC qualification",
+  "base_head": "28d03833140b9a22bb7f8ba3318f4ce0cd3309b1",
+  "sources": {
+    "scripts/native_pid_namespace_restore.py": "1e9692bb64d61e01a6807b8b79c656fc1e738f828e563e35ddcf2fadb25d586f",
+    "scripts/run-native-pid-namespace.py": "2331835e3441cad41e8543d3b27417d12cb16b3c6623337c3b2769b9f5d8ebf2",
+    "scripts/tests/test_native_pid_namespace_restore.py": "5cd023cc0ce413102b4d126a717c9784871489c6728523b46efa330923710842",
+    "scripts/tests/test_native_pid_namespace_restore_errors.py": "04553b28fe682d2b2986bb40a9279e433eff6ccc2b1ab410d6c9d2c9aa854727",
+    "scripts/qualify-linux-atomic-launcher.py": "566a9e8e93f5c3b24062d0a2a4e4a074b15ecc2a0f5a10cc7af05a603cc5a2f2",
+    "scripts/tests/test_qualify_linux_atomic_launcher.py": "20960808bc0268db4b95e9026c064b9e1c37a720edb5747d9964b4af6e703908",
+    "scripts/tests/test_qualify_linux_memfd_execution.py": "15fca048c90a52e60e221a7ca874a77cfcaf23ad618176bc4502fcc781e48f2b",
+    "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json": "1a892f44d0c904df7c386c3bbe89298ba1f812139bf73cb607591c508a43fec7",
+    "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json": "89280808cfdea484f68ee0396e8ae8229a2723f49343d00ecc99a47fe7595951"
+  },
+  "author_candidate_sha256": "85a773de81e68471d5f88d2eaf26194f271ee624512d24a9d946d3a0bf995138",
+  "protected_unchanged": {
+    "scripts/tests/test_native_pid_namespace_restore.py": "5cd023cc0ce413102b4d126a717c9784871489c6728523b46efa330923710842",
+    "scripts/native_memfd_profile.py": "0671141ff6fe92aa88183702c7dcb03ef840c6e6e16bbcc07817fb8e3b183d12",
+    "scripts/tests/test_native_pid_namespace.py": "727e5f7e7939b440903f2cd973409c13bbc4c2f0c1f9af5ddbd214bc882d0393",
+    "scripts/tests/test_native_memfd_profile.py": "b04538dd9aac570993a7874442531b1bc0428189fdb39b930a673c1292ef4bb6",
+    "scripts/tests/test_native_memfd_profile_helper.py": "6c9b5983024fa118a4fea02b68b06a546a7a4095e8ae64b965c82a2d27fc0f2f",
+    "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c": "de5d0f43979f193a7ff87aca18560da6c71d68dc5949d6ca769e706f5e8e2970"
+  },
+  "red": {
+    "spawn_cases": 5,
+    "spawn_failures": 5,
+    "archive_binding_pass": 18,
+    "archive_binding_fail": 1,
+    "active_binding_pass": 19,
+    "active_binding_fail": 1
+  },
+  "green": {
+    "tests": 69,
+    "failures": 0
+  },
+  "review": "Independent source review limited APPROVE; stale current memfd dependency metadata corrected and verified",
+  "logs": {
+    "red": {
+      "path": "docs/benchmarks/pid_for_children_red_2026_10_05.log.gz",
+      "raw_sha256": "29073d4219f31ca9fa5496586445cbab92f23a928c4360f00bdd35ff1384d2ed"
+    },
+    "archive_binding_red": {
+      "path": "docs/benchmarks/pid_for_children_archive_binding_red_2026_10_05.log.gz",
+      "raw_sha256": "36b5d86d6b8ea658935ed64739a9e3e57c3d0c6bc2d4bb6b013312f18f62ddab"
+    },
+    "active_binding_red": {
+      "path": "docs/benchmarks/pid_for_children_active_binding_red_2026_10_05.log.gz",
+      "raw_sha256": "be0b02f9b4c7dbb8d0a5b7fcb30f8d9e0305401e309a40bc6dcce815eb4b2ed9"
+    },
+    "green": {
+      "path": "docs/benchmarks/pid_for_children_green_2026_10_05.log.gz",
+      "raw_sha256": "441bfe40fefe5372210e71e64bd7e19ecb2fbce5a18bf97afeb62c521c9fe6f8"
+    }
+  },
+  "remaining": [
+    "Linux actual setns/readback and parser subprocess birth after init actual wait",
+    "policy DAC setup remains failing",
+    "product trusted all-platform scanner launch"
+  ]
+}

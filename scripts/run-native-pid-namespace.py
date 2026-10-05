@@ -215,17 +215,8 @@ class NativeNamespaceSupervisor:
             for name in ("setup", "stdout", "stderr"):
                 pairs[name] = os.pipe2(os.O_CLOEXEC)
             parent_fd = os.pidfd_open(os.getpid(), 0)
-            os.unshare(os.CLONE_NEWPID)
-            self.pid = os.fork()
-            if self.pid == 0:
-                for read_fd, _ in pairs.values():
-                    os.close(read_fd)
-                self.child(command, parent_fd, pairs["setup"][1], pairs["stdout"][1], pairs["stderr"][1])
-                os._exit(125)
-            self.receipt["init_host_pid"] = self.pid
-            # 单线程且 SIGCHLD 未自动回收；未 wait 的直系 child 不存在 PID 复用窗口。
-            self.pidfd = os.pidfd_open(self.pid, 0)
-            self.receipt["init_pidfd_acquired"] = True
+            factory = runpy.run_path(str(Path(__file__).with_name("native_pid_namespace_restore.py")))["NativePidNamespaceRestore"]
+            factory(self).spawn(command, parent_fd, pairs)
         finally:
             original = sys.exception()
             if parent_fd is not None:
