@@ -2825,5 +2825,105 @@
     "platform_status": "Windows identity and same-process terminal withdrawal tests await actual CI; Unix unknown capability retains SQL; no cross-process notification claim",
     "open_parent_tasks": 27,
     "workspace_all_target_build": "exit0 on final aggregation-formatted business candidate"
+  },
+  "normal_exit_mac_v2_runtime": {
+    "target": {
+      "passed": 7,
+      "failed": 0,
+      "filtered": 425
+    },
+    "broader_native_child": {
+      "passed": 19,
+      "failed": 1,
+      "filtered": 412,
+      "exit": 101
+    },
+    "remaining_failure": "normal active member session changed; actual status/SID transition diagnosis pending",
+    "unchanged_original_tests": true,
+    "acceptance": "not accepted on broader regression; seven-case passing alone insufficient",
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-normal-runtime-v2.log.gz",
+        "raw_sha256": "5ecb46f844bc3a0f817afaecee02545fff128c866d80a2f62f7d113dbe63fa7b"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-normal-native-child-regression.log.gz",
+        "raw_sha256": "7f6aad68174777c51da59b68ec9952ca150b5c9e8f3d18ed3e3972a2726b3d3f"
+      }
+    ]
+  },
+  "d45_delivery": {
+    "commit": "8d5feb49f992af90316e25f66ad39d37a4a9afbb",
+    "remote_main_verified_same": true,
+    "ci_run": 37260188323,
+    "ci_url": "https://github.com/loong10k/diskgraph/actions/runs/37260188323",
+    "last_observed_status": "queued",
+    "scope": "D45 code/spec and accumulated evidence only; scan implementations not committed",
+    "parent_gates_closed": 0
+  },
+  "normal_exit_mac_active_transition_diagnostic": {
+    "passed": 18,
+    "failed": 2,
+    "filtered": 412,
+    "exit": 101,
+    "actual_observation": "pbi_status 2 before/after complete136-byte BSDInfo, matching PID/PGID, getsid=-1 ESRCH; cannot label this observed member SZOMB",
+    "fix_status": "actual group/SID qualification under fresh retained session being reviewed; no ESRCH-as-exit fallback",
+    "archive": {
+      "path": "docs/benchmarks/logs/diskgraph-unix-normal-active-transition-diagnostic-runtime.log.gz",
+      "raw_sha256": "bbc92ab4bdb2ff9936b9243f9d29f67780792a11207d612b327e14a02eca8f2b"
+    }
+  },
+  "d45_windows_first_compile_failure": {
+    "commit": "8d5feb49f992af90316e25f66ad39d37a4a9afbb",
+    "ci_run": 37260188323,
+    "failed_jobs": [
+      111605584568,
+      111605584588
+    ],
+    "classification": "native Windows all-target build error under -D warnings: unused_mut in legacy_scope_only_watch test at line170; terminal authorization behavior not reached",
+    "change": "remove only mut from immutable fixture binding; all assertions/FULL/deadlines unchanged",
+    "source_before_sha256": "2796dd904979dfbfcf063755130cf7e64e8e1b291f9f793c81ecd014a55d6618",
+    "source_after_sha256": "fffa941edd6ec61039e8c6a679b3f2d865e8c74e50805379554ba3e681e7ba8a",
+    "local_validation": "2 passed / 0 failed withdrawal capability cases on macOS; Windows-gated cases not run",
+    "archives": [
+      {
+        "path": "docs/benchmarks/logs/diskgraph-8d5feb4-windows-job.log.gz",
+        "raw_sha256": "ce87748fdd11aa209c960a17c5861e779d2d6479ecad02fea701011fe79d6c4c"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-8d5feb4-windows-job-clean.log.gz",
+        "raw_sha256": "3f17f7db6f55bfcd7b784bac4e35a7ff28fcf2e3cafee2b6084238f522f99f9e"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-unused-mut.diff.gz",
+        "raw_sha256": "86d6c558aa2cd0d1732f353d9d2a3b9fdd4fe2a0157eef10e9913677d5957b5f"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-d45-unused-mut-local.log.gz",
+        "raw_sha256": "718783356e761ecb8caf36e6fbdf43aaefb04cce46ba84df8770c7835ec94f91"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-normal-native-child-regression-v3.log.gz",
+        "raw_sha256": "f6a9685a60353ac6c16b0743b3ee60ae509e2048c15a63a912289dafed9bd416"
+      },
+      {
+        "path": "docs/benchmarks/logs/diskgraph-unix-normal-source-layout.log.gz",
+        "raw_sha256": "18c7840a54b4ade8f8609eee8c3796421def0c4a42a96c666faf62a67727a3b3"
+      }
+    ]
+  },
+  "normal_exit_mac_v3_runtime": {
+    "native_child": {
+      "passed": 20,
+      "failed": 0,
+      "filtered": 412,
+      "exit": 0
+    },
+    "source_layout": {
+      "passed": 4,
+      "failed": 0,
+      "exit": 0
+    },
+    "limitations": "non-test library has 11 unused warnings until real driver consumes APIs; Linux full normal-group view unsupported; Windows normal exit runtime not verified; no scan commit or parent closure"
   }
 }

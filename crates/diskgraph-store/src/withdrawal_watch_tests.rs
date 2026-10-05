@@ -167,7 +167,7 @@ fn deleting_only_non_current_epoch_rows_does_not_manufacture_denial() {
 
 #[test]
 fn legacy_scope_only_watch_ignores_unused_grant_but_observes_committed_scope_revoke() {
-    let mut f = WithdrawalFixture::new();
+    let f = WithdrawalFixture::new();
     f.store
         .connection
         .execute("DELETE FROM policy", [])
