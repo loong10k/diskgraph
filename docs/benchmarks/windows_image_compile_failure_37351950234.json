@@ -1,0 +1,11 @@
+{
+  "commit": "95d9798f0b441c2b87341a6be5385c686b09ede9",
+  "run_id": 37351950234,
+  "job_id": 111904713060,
+  "stage": "Build exact native fixtures and bind sources",
+  "native_cases_executed": 0,
+  "security_acceptance": false,
+  "diagnostic": "MSVC C4701 potentially uninitialized leased; /WX preserved; explicit initialization added in next candidate",
+  "raw_log": "docs/benchmarks/windows_image_compile_failure_37351950234.log.gz",
+  "raw_sha256": "f4154ee3ec89a4ab5f8970ec77089076045a47e5ae1d0b88eb176545cfdfc3cc"
+}

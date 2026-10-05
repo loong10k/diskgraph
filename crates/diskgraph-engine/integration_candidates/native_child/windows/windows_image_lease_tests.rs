@@ -109,3 +109,20 @@ fn leaf_only_lease_junction_rebinding_is_characterized_as_a_gap() {
     assert_eq!(record["loaded_marker"], "B");
     assert_eq!(record["security_acceptance"], false);
 }
+
+#[test]
+fn resolved_kernel_route_loads_original_a_after_original_junction_loads_b() {
+    let record = run(8);
+    assert_eq!(
+        record["classification"],
+        "resolved_kernel_route_survived_junction"
+    );
+    assert_eq!(record["kernel_route_qualified"], true);
+    assert_eq!(record["loaded_b_via_original_route"], true);
+    assert_eq!(record["kernel_route_unchanged_after_rebind"], true);
+    assert_eq!(record["loaded_a_via_kernel_route"], true);
+    assert_eq!(record["same_file"], true);
+    assert_eq!(record["route_changed"], false);
+    assert_eq!(record["loaded_marker"], "A");
+    assert_eq!(record["security_acceptance"], false);
+}

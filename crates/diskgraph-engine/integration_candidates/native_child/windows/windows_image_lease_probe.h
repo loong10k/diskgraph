@@ -50,6 +50,10 @@ typedef struct ImageLeaseProbe {
     BOOL loaded_a_under_lease;
     BOOL released_rename_succeeded;
     BOOL loaded_b_after_release;
+    BOOL kernel_route_qualified;
+    BOOL loaded_b_via_original_route;
+    BOOL kernel_route_unchanged_after_rebind;
+    BOOL loaded_a_via_kernel_route;
     char loaded_marker;
 } ImageLeaseProbe;
 

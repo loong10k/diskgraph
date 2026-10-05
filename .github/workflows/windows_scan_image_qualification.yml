@@ -57,7 +57,7 @@ jobs:
           @{ commit = (git rev-parse HEAD); source_files = $bindings;
              windows_version = $system.Version; windows_build = $system.BuildNumber;
              architecture = $system.OSArchitecture; filesystem = $volume.FileSystem;
-             security_acceptance = $false; scope = 'Seven native component cases; not production launcher acceptance'
+             security_acceptance = $false; scope = 'Eight native component cases; not production launcher acceptance'
           } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $output 'provenance.json')
           Push-Location $output
           try {
@@ -74,7 +74,7 @@ jobs:
           "DISKGRAPH_WINDOWS_IMAGE_A=$(Join-Path $output 'image_a.exe')" >> $env:GITHUB_ENV
           "DISKGRAPH_WINDOWS_IMAGE_B=$(Join-Path $output 'image_b.exe')" >> $env:GITHUB_ENV
           "DISKGRAPH_WINDOWS_IMAGE_LEASE_PROBE=$(Join-Path $output 'image_probe.exe')" >> $env:GITHUB_ENV
-      - name: Execute all seven cases without retry or skip
+      - name: Execute all eight cases without retry or skip
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -82,7 +82,7 @@ jobs:
           cargo test --locked -p diskgraph-engine --test windows_image_lease_tests -- --nocapture --test-threads=1 2>&1 | Tee-Object (Join-Path $output 'native-tests.log')
           if ($LASTEXITCODE -ne 0) { throw 'Native qualification not proven; preserve original result' }
           $log = Get-Content (Join-Path $output 'native-tests.log') -Raw
-          if ($log -notmatch 'test result: ok\. 7 passed; 0 failed; 0 ignored;') { throw 'Exact seven-case count required' }
+          if ($log -notmatch 'test result: ok\. 8 passed; 0 failed; 0 ignored;') { throw 'Exact eight-case count required' }
       - name: Preserve actual errors and provenance
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

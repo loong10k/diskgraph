@@ -26,7 +26,7 @@ pub(super) struct WindowsImageLeaseProbe {
 }
 
 impl WindowsImageLeaseProbe {
-    /// 单次运行真实 API 探针并保留完整固定标量见证。参数：case_id 为一至七；返回：实际退出状态和有界 JSON，不重试。
+    /// 单次运行真实 API 探针并保留完整固定标量见证。参数：case_id 为一至八；返回：实际退出状态和有界 JSON，不重试。
     pub(super) fn run(case_id: u32) -> (ExitStatus, Value) {
         let started = Instant::now();
         let deadline = started + Duration::from_secs(20);
