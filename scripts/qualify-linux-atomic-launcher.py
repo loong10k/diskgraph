@@ -17,6 +17,12 @@ import traceback
 
 MANIFEST = "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json"
 NATIVE = "crates/diskgraph-engine/src/native_child/"
+STAGE_TOOLING = tuple("scripts/" + name for name in (
+    "native_pid_namespace_run.py", "native_memfd_policy_plan.py", "native_memfd_policy_setup.py",
+    "native_memfd_policy_stages.py", "native_memfd_prepared.py", "native_namespace_artifacts.py"))
+STAGE_TESTS = tuple("scripts/tests/" + name for name in (
+    "test_native_memfd_policy_stages.py", "test_native_memfd_prepared_contracts.py",
+    "test_qualify_linux_memfd_stages.py", "test_native_namespace_artifacts.py"))
 
 
 def digest(path):
@@ -46,10 +52,33 @@ def qualify_namespace(environment, output):
     if actual != environment.get("DG_NATIVE_PID_NAMESPACE"):
         raise ValueError("actual PID namespace does not match supervisor material")
     outer = environment.get("DG_NATIVE_NAMESPACE_OUTPUT")
-    if not outer or output != Path(outer).resolve() / "qualification":
+    if not outer or output != Path(outer).resolve() / "runner/qualification":
         raise ValueError("output does not identify the supervised qualification directory")
     return {"actual_pid": 1, "actual_proc_self": "1", "actual_pid_namespace": actual,
             "outer_output": outer, "cleanup": "pending outer init wait receipt"}
+
+
+
+def validate_stage_tooling(checkout, manifest, active_directory):
+    """闭合核六个实际依赖及四个合同测试；两 profile 不因阶段环境省略准入。"""
+    for key, expected, active in (("policy_stage_tooling", STAGE_TOOLING, True),
+                                  ("policy_stage_tests", STAGE_TESTS, False)):
+        bindings = manifest.get(key)
+        if (not isinstance(bindings, list) or len(bindings) != len(expected)
+                or any(not isinstance(item, dict) or not isinstance(item.get("path"), str) for item in bindings)
+                or sorted(item.get("path", "") for item in bindings) != sorted(expected)):
+            raise ValueError("exact fixed two-stage tooling bindings required")
+        for item in bindings:
+            if not isinstance(item.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"]):
+                raise ValueError("invalid fixed two-stage tooling digest")
+            sources = [checkout / item["path"]]
+            if active:
+                sources.append(active_directory / Path(item["path"]).name)
+            for source in sources:
+                if source.is_symlink() or not source.is_file() or source.stat().st_size > (1 << 20):
+                    raise ValueError("fixed tooling must be bounded regular active/archive source")
+                if digest(source) != item["sha256"]:
+                    raise ValueError(f"fixed tooling active/archive digest mismatch: {item['path']}")
 
 
 def validate_tooling(checkout, manifest, active_qualifier):
@@ -87,6 +116,7 @@ def validate_tooling(checkout, manifest, active_qualifier):
         raise ValueError("active restore helper digest mismatch")
     if digest(active_qualifier) != tooling["qualifier"]["sha256"]:
         raise ValueError("running qualifier differs from the exact archive and manifest")
+    validate_stage_tooling(checkout, manifest, Path(__file__).parent)
 
 
 def validate_sources(checkout, manifest):

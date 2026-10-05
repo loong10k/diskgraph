@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "scope": "Linux QA-only two-phase memfd policy execution and privileged artifact boundary; product activation unchanged",
+  "base_commit": "f4ef601efda7e9453d4c5ba0a395902f62f95e83",
+  "sources": [
+    {
+      "path": "scripts/qualify-linux-atomic-launcher.py",
+      "sha256": "04a9834e07a1025769d020b0769a5ac01aaa66fc46adbc83d391c46b313a58c5",
+      "bytes": 24457,
+      "lines": 443
+    },
+    {
+      "path": "scripts/qualify-linux-memfd-execution.py",
+      "sha256": "d95f0d110ce912e7e6b4937999e77c5122ad1bd3f62a0eb620e8a0151929e00b",
+      "bytes": 15513,
+      "lines": 271
+    },
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "9d8b250e7f4c78a3bae30f62cebf276460ea60f1b7de7005087c9a43f7b94259",
+      "bytes": 24264,
+      "lines": 473
+    },
+    {
+      "path": "scripts/native_pid_namespace_run.py",
+      "sha256": "96fe8d2e6f399d0db7cb210a14eabb005ce33b3feeb53945e731667f7bc94e71",
+      "bytes": 5465,
+      "lines": 109
+    },
+    {
+      "path": "scripts/native_memfd_policy_plan.py",
+      "sha256": "19ce7b0d2429bc40d864129a1ac2fc770ebb0963f3e862d1408310b188167591",
+      "bytes": 6459,
+      "lines": 124
+    },
+    {
+      "path": "scripts/native_memfd_policy_setup.py",
+      "sha256": "92c619e4dfd563bf2be9ac328765c2da1221f2d8bf29035440c520272ebd1884",
+      "bytes": 2516,
+      "lines": 53
+    },
+    {
+      "path": "scripts/native_memfd_policy_stages.py",
+      "sha256": "275f934f89ba2fc0dce41768b9727c5223f3f9ff8ce3f32ada6b72d63dedb20a",
+      "bytes": 8579,
+      "lines": 140
+    },
+    {
+      "path": "scripts/native_memfd_prepared.py",
+      "sha256": "3659d574c724d7587fe7d2760bd019846a372c7013dc8fca5902552c7095eba9",
+      "bytes": 6077,
+      "lines": 103
+    },
+    {
+      "path": "scripts/native_namespace_artifacts.py",
+      "sha256": "50b77a8d55dfdc45e667a7d32e14314b17a0756c93a0eb1182a4a23d0452d541",
+      "bytes": 7947,
+      "lines": 170
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
+      "sha256": "a3d7a9b725ea270a54fb6b72a99577c60b4c96801f3151ed00cf23fd11e92aa1",
+      "bytes": 27871,
+      "lines": 492
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
+      "sha256": "2aee5ee65f00f7243acffb1cc76c935507582d2517e083418499f7c333b9b0a8",
+      "bytes": 10969,
+      "lines": 222
+    },
+    {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "212ff870338ca72071aa9fc972af4ef525d4de271d3cab7fee1cbab8b5b6d889",
+      "bytes": 16805,
+      "lines": 315
+    },
+    {
+      "path": "scripts/tests/test_native_memfd_policy_stages.py",
+      "sha256": "ab230f742d7be56718d7469e2f9ab4b470b63559755d91eefc57cbd37f5e3883",
+      "bytes": 11807,
+      "lines": 209
+    },
+    {
+      "path": "scripts/tests/test_native_memfd_prepared_contracts.py",
+      "sha256": "8ea699060aedbdfbfacfbe097efe6baab197302fd71c039ee9c57f8fb7e23613",
+      "bytes": 7232,
+      "lines": 130
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_stages.py",
+      "sha256": "0dbcb8a5d7e9c31336b7d7c58f4d02179ca412569ec5659a6df879070eb4ea51",
+      "bytes": 7220,
+      "lines": 124
+    },
+    {
+      "path": "scripts/tests/test_native_namespace_artifacts.py",
+      "sha256": "b22aa1863767939e32e46f5f919756c2a7ef93ccc5d332e275668308222dd714",
+      "bytes": 8491,
+      "lines": 176
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+      "sha256": "bcbb7f6ffbfd7b170cc155c014faa90a91924458aea32a9096cc496295294d2c",
+      "bytes": 9525,
+      "lines": 273
+    },
+    {
+      "path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
+      "sha256": "f1cb7ec1f55649880b8d0c0997dd4c4d32c6494602cbb76f23937a6001bdd6e6",
+      "bytes": 30313,
+      "lines": 599
+    },
+    {
+      "path": "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json",
+      "sha256": "61d3bd3845680f190130590c4ec68601910d59b5e21b36828f1f99e5ce21583f",
+      "bytes": 20329,
+      "lines": 418
+    }
+  ],
+  "logs": [
+    {
+      "role": "artifact_initial_red",
+      "path": "docs/benchmarks/memfd_two_stage_artifact_initial_red_2026_10_06.log.gz",
+      "raw_sha256": "e135fd694ceb9020cff39509984dfc88f43e24e8fbd4417211a04b2f59dc465c",
+      "raw_bytes": 3246,
+      "archive_sha256": "5228c5686f2a7b3e7ed7fcf32b05d4619b6d2cacdd4291f9a176d93d5438c547"
+    },
+    {
+      "role": "artifact_parent_red",
+      "path": "docs/benchmarks/memfd_two_stage_artifact_parent_red_2026_10_06.log.gz",
+      "raw_sha256": "f5ea8e0917b4e5900439c16522a2434bfadfe3423c19434e380dc104a3a51214",
+      "raw_bytes": 2163,
+      "archive_sha256": "09161310f19e6ce5f17b18c1c1e663f77f5824c1cb8ceada2a00a125b3ecd45a"
+    },
+    {
+      "role": "artifact_stream_red",
+      "path": "docs/benchmarks/memfd_two_stage_artifact_stream_red_2026_10_06.log.gz",
+      "raw_sha256": "0d45fe3e8e848dd3bd2e6472b04e1b254c3af5ee7def8dca2c4c60e5ecbc36bb",
+      "raw_bytes": 2709,
+      "archive_sha256": "170be19db6f70610d4c417158e68c80fd1bd7ab49b6faca98bdc69b215df38cd"
+    },
+    {
+      "role": "artifact_final_green",
+      "path": "docs/benchmarks/memfd_two_stage_artifact_final_green_2026_10_06.log.gz",
+      "raw_sha256": "dfa269b50843390101d95fc7bdb3518526ef2375b7b15682b4601992454512c5",
+      "raw_bytes": 1953,
+      "archive_sha256": "0e1802991d0f0fc1e184bd1943d297d9cbf389fb56ee1c332c407d6a2015f73b"
+    },
+    {
+      "role": "namespace_regression",
+      "path": "docs/benchmarks/memfd_two_stage_namespace_regression_2026_10_06.log.gz",
+      "raw_sha256": "6a75f55fad2f106e3863f3fbf975479a2d9a3b4277c7494d3dd2582358e72df7",
+      "raw_bytes": 4604,
+      "archive_sha256": "2b1a61280e126bde228a48d3de2dacb85c28a61ae5365fdffef4cb0023a71d56"
+    },
+    {
+      "role": "memfd_regression",
+      "path": "docs/benchmarks/memfd_two_stage_memfd_regression_2026_10_06.log.gz",
+      "raw_sha256": "8f7ad26ac614b7fdd8e2188e6df5fb7e7e238667a6fec070bd7598bdf0b873a8",
+      "raw_bytes": 5654,
+      "archive_sha256": "8e5dac077ad65448b8d430760bbc04cf05fbbe0714bea2ed7da9095ea02e340e"
+    },
+    {
+      "role": "tooling_binding_red",
+      "path": "docs/benchmarks/memfd_two_stage_tooling_binding_red_2026_10_06.log.gz",
+      "raw_sha256": "c9940a04aaec23173e16c9dc1d19265ef6e37ab70151142836eceef63f75e9d3",
+      "raw_bytes": 91171,
+      "archive_sha256": "9ec1daf4ff94bd4d0b43182c6142a58e574b1935d73c19f6a027c3ffc96bbf78"
+    },
+    {
+      "role": "linux_ci_failure",
+      "path": "docs/benchmarks/memfd_two_stage_linux_ci_failure_2026_10_06.log.gz",
+      "raw_sha256": "a144d367a7d01e8189634d2cb312aa5302c1f795f880c63e18f6dcc8fbe5ce47",
+      "raw_bytes": 622709,
+      "archive_sha256": "e24aba9fe59cf9658c25312e0190a2f38ce422615218da43784188950e988c45"
+    },
+    {
+      "role": "intel_ci_failure",
+      "path": "docs/benchmarks/memfd_two_stage_intel_ci_failure_2026_10_06.log.gz",
+      "raw_sha256": "d1b0ce478a982c315bdab7bae3620a3174be974ce70df6f40962e8daf6ed3665",
+      "raw_bytes": 313556,
+      "archive_sha256": "923fbad202df8c4124c1cbeebe12a4f039425b6bc5b53144f1c524b1824be1b9"
+    },
+    {
+      "role": "entire_python_final",
+      "path": "docs/benchmarks/memfd_two_stage_entire_python_2026_10_06.log.gz",
+      "raw_sha256": "2c7493c8b8a11b1da929ed4e546c80df07b682fa7304ec47c01a7da701e5b1db",
+      "raw_bytes": 21102,
+      "archive_sha256": "46d174d168c8928a24fedbca6418164ecfe54078e57d5c40cb608b842edf2c78"
+    }
+  ],
+  "verification": {
+    "entire_python": {
+      "passed": 108,
+      "failed": 0,
+      "ignored": 0,
+      "exit_code": 0
+    },
+    "artifact_boundary": {
+      "passed": 10,
+      "failed": 0
+    },
+    "original_target_red": "two actual artifact failures; initial third error occurred before target setup and is not counted as target RED",
+    "directory_replacement_red": "1 failure, 6 passed, original-directory receipt missing after rename/link replacement",
+    "stream_primary_red": "1 failure, 9 passed; secondary close covered original write",
+    "binding_red": "84 target subcase failures against original tooling; valid assembly control passed first",
+    "rustfmt": "exact candidate support --check exit0",
+    "diff_check": "exit0",
+    "independent_review": "scoped artifact dirfd/preload/prepared branch/stream-primary/0644 approval; native runtime not proven"
+  },
+  "native_validation": "pending exact delivered SHA Linux x86 stable, x86 Rust1.97, arm64 stable",
+  "production_ready": false,
+  "open_ci": {
+    "run": 37336472587,
+    "linux": "200000-wide-round1-baseline exit101; one diagnostic-only remeasurement exit0, no cause observed; cause still unknown",
+    "macos_intel": "expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend failed before paint, 50ms deadline and elapsed131281us; do not widen budget/accept wrong phase"
+  }
+}

@@ -236,7 +236,7 @@
       "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_child_atomic_qualification.diff.gz",
       "sha256": "2b8e4a5f4374c8053fb4d897424893c21097d48a1847186ddb4acb213234d80e",
       "bytes": 1128,
-      "lines": null,
+      "lines": 11,
       "role": "projection_diff",
       "raw_sha256": "0e45d8bf2ba1e2cefa5eaeb2e346a0b932cb4959492f6cf8e872570324504c13",
       "raw_bytes": 2650,
@@ -256,7 +256,7 @@
       "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_control_channel_atomic_qualification.diff.gz",
       "sha256": "abbbcaee16a110bc98bdbcd64161c2b820a21db2e6a9df2d3e13a230de9bfc99",
       "bytes": 1141,
-      "lines": null,
+      "lines": 10,
       "role": "projection_diff",
       "raw_sha256": "63096fce79c14098a26a56aec3671166b2a6ce4fa6023463777f0b07f1e84e87",
       "raw_bytes": 2293,
@@ -294,7 +294,7 @@
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scanner_filter_atomic_qualification.diff.gz",
       "sha256": "522f37dbad86f62b77909113291e82811e08620a4e9f8d59046f19bc817c1c13",
       "bytes": 774,
-      "lines": null,
+      "lines": 10,
       "role": "projection_diff",
       "raw_sha256": "97ef1f1f3ec97980a6ad6aed2083927aa99589801946706da087fcc0b32c9477",
       "raw_bytes": 1171,
@@ -359,19 +359,19 @@
     "Workflow60min hard termination is infrastructure failure and does not prove finite cleanup. Native outer receipt must show actual original init wait/reap."
   ],
   "shared_support_sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
-  "qualifier_sha256": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
+  "qualifier_sha256": "04a9834e07a1025769d020b0769a5ac01aaa66fc46adbc83d391c46b313a58c5",
   "qualification_tooling": {
     "qualifier": {
       "path": "scripts/qualify-linux-atomic-launcher.py",
-      "sha256": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
-      "bytes": 22420,
-      "lines": 413
+      "sha256": "04a9834e07a1025769d020b0769a5ac01aaa66fc46adbc83d391c46b313a58c5",
+      "bytes": 24457,
+      "lines": 443
     },
     "unit_tests": {
       "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
-      "sha256": "6b766c328d8363e20299b2be2e2c30b0395e6b35e759711165c3c0bab09990e7",
-      "bytes": 20685,
-      "lines": 377
+      "sha256": "a3d7a9b725ea270a54fb6b72a99577c60b4c96801f3151ed00cf23fd11e92aa1",
+      "bytes": 27871,
+      "lines": 492
     },
     "shared_support": {
       "path": "scripts/qualify-linux-scan-image.py",
@@ -379,7 +379,7 @@
       "bytes": 6701,
       "lines": 162
     },
-    "pure_python_cases": 21,
+    "pure_python_cases": 24,
     "actual_pure_python_result": "Root isolated HEAD aeab8a3 plus exact qualification overlay: all70 pure Python cases passed, including21 atomic cases. This proves assembly/error contracts only; new18 Linux native cases remain unexecuted.",
     "root_python_log": {
       "historical_path": "/private/tmp/diskgraph-native-qualification-final-python.log",
@@ -391,14 +391,14 @@
   "required_outer_supervisor": {
     "source": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "d1d269eca9db14994567f19cc7276a7d7ee58881fef933a998f9d14dfaa66122",
-      "bytes": 24568,
-      "lines": 489
+      "sha256": "9d8b250e7f4c78a3bae30f62cebf276460ea60f1b7de7005087c9a43f7b94259",
+      "bytes": 24264,
+      "lines": 473
     },
     "unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
-      "sha256": "6f9800b6670d4105fe70a72386b7b34adeb2d92c5d8dbd2521257f8b30a9b8a0",
-      "bytes": 16746,
+      "sha256": "212ff870338ca72071aa9fc972af4ef525d4de271d3cab7fee1cbab8b5b6d889",
+      "bytes": 16805,
       "lines": 315
     },
     "candidate_manifest_sha256": "18a4b038ea46cc81beb98433b54b6014b41d4c8f196fd554e4eede64109a3ee1",
@@ -409,7 +409,7 @@
       "lines": 82
     },
     "qualification_marker": "DG_NATIVE_NAMESPACE_SUPERVISED=1 + actual getpid()==1 + actual /proc/self=1 + actual PID namespace link matching DG_NATIVE_PID_NAMESPACE",
-    "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/qualification; created only by inner qualifier",
+    "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/runner/qualification; created only by inner qualifier in the dedicated runner workspace",
     "cleanup_contract": "Local command-session SIGKILL/wait does not certify setsid descendants. Actual outer namespace init pidfd wait/reap and final supervisor receipt are mandatory. Inner status only component_tests_passed_awaiting_outer_cleanup.",
     "native_validation": "pending actual Linux x86_64/aarch64 namespace containment self-test and all17 launcher cases; no Cargo/cc/native execution by author",
     "restore_helper": {
@@ -473,7 +473,7 @@
       "--output-dir",
       "{qualification_output}"
     ],
-    "native_inventory_and_execution": "Inside exact commit isolated checkout: cargo test --offline --locked -p diskgraph-engine --lib native_child::linux_atomic_launcher_ -- --list; then same prefix --nocapture --test-threads=1; exact compiled inventory17 and actual17/0/0 required.",
+    "native_inventory_and_execution": "Inside exact commit isolated checkout: cargo test --offline --locked -p diskgraph-engine --lib native_child::linux_atomic_launcher_ -- --list; then same prefix --nocapture --test-threads=1; exact compiled inventory18 and actual18/0/0 required.",
     "object_evidence": "Actual nm -u, objdump -dr, ar t of newly built C object/archive; raw logs plus original source/object hashes retained, not a replacement for independent disassembly review."
   },
   "native_build_correction": {
@@ -511,5 +511,89 @@
     ],
     "added_case": "exit_between_initial_waitid_and_poll_preserves_natural_exit_record",
     "production_ready_algorithm": "POLLIN followed by same original pidfd nonconsuming WNOWAIT observation; actual GREEN pending"
+  },
+  "policy_stage_tooling": [
+    {
+      "path": "scripts/native_pid_namespace_run.py",
+      "sha256": "96fe8d2e6f399d0db7cb210a14eabb005ce33b3feeb53945e731667f7bc94e71",
+      "bytes": 5465,
+      "lines": 109
+    },
+    {
+      "path": "scripts/native_memfd_policy_plan.py",
+      "sha256": "19ce7b0d2429bc40d864129a1ac2fc770ebb0963f3e862d1408310b188167591",
+      "bytes": 6459,
+      "lines": 124
+    },
+    {
+      "path": "scripts/native_memfd_policy_setup.py",
+      "sha256": "92c619e4dfd563bf2be9ac328765c2da1221f2d8bf29035440c520272ebd1884",
+      "bytes": 2516,
+      "lines": 53
+    },
+    {
+      "path": "scripts/native_memfd_policy_stages.py",
+      "sha256": "275f934f89ba2fc0dce41768b9727c5223f3f9ff8ce3f32ada6b72d63dedb20a",
+      "bytes": 8579,
+      "lines": 140
+    },
+    {
+      "path": "scripts/native_memfd_prepared.py",
+      "sha256": "3659d574c724d7587fe7d2760bd019846a372c7013dc8fca5902552c7095eba9",
+      "bytes": 6077,
+      "lines": 103
+    },
+    {
+      "path": "scripts/native_namespace_artifacts.py",
+      "sha256": "50b77a8d55dfdc45e667a7d32e14314b17a0756c93a0eb1182a4a23d0452d541",
+      "bytes": 7947,
+      "lines": 170
+    }
+  ],
+  "policy_stage_tests": [
+    {
+      "path": "scripts/tests/test_native_memfd_policy_stages.py",
+      "sha256": "ab230f742d7be56718d7469e2f9ab4b470b63559755d91eefc57cbd37f5e3883",
+      "bytes": 11807,
+      "lines": 209
+    },
+    {
+      "path": "scripts/tests/test_native_memfd_prepared_contracts.py",
+      "sha256": "8ea699060aedbdfbfacfbe097efe6baab197302fd71c039ee9c57f8fb7e23613",
+      "bytes": 7232,
+      "lines": 130
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_stages.py",
+      "sha256": "0dbcb8a5d7e9c31336b7d7c58f4d02179ca412569ec5659a6df879070eb4ea51",
+      "bytes": 7220,
+      "lines": 124
+    },
+    {
+      "path": "scripts/tests/test_native_namespace_artifacts.py",
+      "sha256": "b22aa1863767939e32e46f5f919756c2a7ef93ccc5d332e275668308222dd714",
+      "bytes": 8491,
+      "lines": 176
+    }
+  ],
+  "two_stage_binding_revision": {
+    "scope": "Closed six-helper active/archive identity and four focused-test archive bindings on both atomic and memfd paths; no phase bypass",
+    "previous_manifest_sha256": "4f0a123b10f922ea322cc5daddd802733540d5cb692152cfd28e8dae24d03f5b",
+    "source_deltas": [],
+    "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/runner/qualification; root-owned output and runner workspace are separate",
+    "historical_validation": "Existing validation, prior native results, initial fixture deltas and old pure-result text are historical evidence for their recorded source, not this rebinding.",
+    "current_native_validation": "Pending exact-source native two-stage execution, original init reap and profile removal; pure Python tests do not establish native success.",
+    "current_pure_python": {
+      "cases": 108,
+      "failures": 0,
+      "exit_code": 0,
+      "command": "python3 -m unittest discover -s scripts/tests -v",
+      "classification": "Actual entire scripts/tests Python suite after final mode0644 root-owned artifacts, original write/close error preservation, retained record dirfd and preloaded root helpers; not native/Cargo/cc/Git evidence",
+      "log": {
+        "historical_path": "/private/tmp/diskgraph-two-stage-entire-python-readable-final.log",
+        "sha256": "607a259e6fc336f508b66750c48de1bb8375decc71d268ffb411d0bc5e6bc6c2",
+        "bytes": 21102
+      }
+    }
   }
 }

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """隔离提交中真实执行 memfd 六案；保留原 flags，外层回收证据仍独立。"""
 import argparse
+from contextlib import nullcontext
 import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import runpy
 import shutil
 import subprocess
 import sys
@@ -57,6 +59,7 @@ def validate_profile(checkout, manifest, active):
     if ATOMIC.digest(atomic_path) != manifest["atomic_manifest_sha256"]:
         raise ValueError("archived atomic manifest differs from the fixed baseline")
     ATOMIC.validate_tooling(checkout, original, ATOMIC_PATH)
+    ATOMIC.validate_stage_tooling(checkout, manifest, Path(__file__).parent)
     return original
 
 
@@ -117,7 +120,7 @@ def mount_profile(checkout, manifest, atomic_manifest):
     return result
 
 
-def run_cases(checkout, output, receipt, environment, support, groups):
+def run_cases(checkout, output, receipt, environment, support, groups, *, expected=6):
     """不重试；Rust 目标失败后仍执行其余原 filters，并最终传播首个实际失败。"""
     failures = []
     results = []
@@ -165,19 +168,30 @@ def run_cases(checkout, output, receipt, environment, support, groups):
     receipt["native_results"] = results
     if failures:
         raise failures[0]
-    if sum(item["passed"] for item in results) != 6:
-        raise ValueError("actual execution did not pass exactly six cases")
+    if sum(item["passed"] for item in results) != expected:
+        raise ValueError(f"actual execution did not pass exactly {expected} fixed cases")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--policy-case", type=int, choices=(0, 1, 2))
+    modes.add_argument("--cleanup-prepared", action="store_true")
     args = parser.parse_args()
     if sys.platform != "linux" or os.uname().machine not in ("x86_64", "aarch64"):
         parser.error("requires actual native Linux x86_64/aarch64; no skip or emulation")
     if os.environ.get("CARGO_ENCODED_RUSTFLAGS") or os.environ.get("CARGO_BUILD_TARGET"):
         parser.error("encoded flags/cross target invalidate native qualification")
     output = args.output_dir.resolve()
+    factory = runpy.run_path(str(Path(__file__).with_name("native_memfd_prepared.py")))["NativeMemfdPrepared"]
+    if args.policy_case is not None:
+        return factory.case(output, args.policy_case)
+    if args.cleanup_prepared:
+        return factory.cleanup(output)
+    phase = os.environ.get("DG_MEMFD_QA_PHASE")
+    if phase not in (None, "prepare"):
+        parser.error("unknown fixed memfd preparation phase")
     namespace = ATOMIC.qualify_namespace(os.environ, output)
     output.mkdir(parents=True, exist_ok=False)
     support, support_path = ATOMIC.shared_support()
@@ -193,7 +207,13 @@ def main():
         receipt["commit"] = commit_log.read_text().strip()
         if not re.fullmatch(r"[0-9a-f]{40}", receipt["commit"]):
             raise ValueError("exact captured commit required")
-        with support.isolated_checkout(output, receipt) as checkout:
+        if phase == "prepare":
+            checkout = output / "prepared-checkout"
+            checkout.mkdir(exist_ok=False)
+            context = nullcontext(checkout)
+        else:
+            context = support.isolated_checkout(output, receipt)
+        with context as checkout:
             ATOMIC.extract_archive(repo, checkout, output, receipt, environment, support)
             manifest = bounded_manifest(checkout / MANIFEST)
             atomic_manifest = validate_profile(checkout, manifest, Path(__file__))
@@ -227,8 +247,11 @@ def main():
                     raise ValueError("actual inventory mismatch: " + group["filter"])
             receipt["compiled_inventory"] = [name for group in manifest["test_groups"] for name in group["names"]]
             ATOMIC.object_evidence(target, output, receipt, environment, support)
-            run_cases(checkout, output, receipt, environment, support, manifest["test_groups"])
-            receipt.update(status="component_tests_passed_awaiting_outer_cleanup", executed_parent_cases=6)
+            if phase == "prepare":
+                factory(ATOMIC, support, run_cases).complete(checkout, output, receipt, environment, manifest)
+            else:
+                run_cases(checkout, output, receipt, environment, support, manifest["test_groups"])
+                receipt.update(status="component_tests_passed_awaiting_outer_cleanup", executed_parent_cases=6)
     except BaseException as error:
         receipt["status"] = "failed"
         receipt["primary_error"] = {"type": type(error).__name__, "repr": repr(error)}

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "scope": "Native Linux sealed memfd execution component, explicit MFD_EXEC fix after actual denial RED; no Engine or full PF06 acceptance",
-  "qualification_stage": "Explicit EXEC fix awaiting native GREEN; policy namespace missing qualification under diagnosis",
+  "qualification_stage": "Two-stage prepared execution and privileged policy setup awaiting exact-source native qualification",
   "atomic_manifest_path": "docs/benchmarks/linux_atomic_launcher_2026_10_05_candidate.json",
-  "atomic_manifest_sha256": "4f0a123b10f922ea322cc5daddd802733540d5cb692152cfd28e8dae24d03f5b",
+  "atomic_manifest_sha256": "f1cb7ec1f55649880b8d0c0997dd4c4d32c6494602cbb76f23937a6001bdd6e6",
   "atomic_current_binding": "Direct exact archived current Atomic manifest and validate_tooling; no in-memory metadata rebinding or historical receipt rewrite",
   "sealed_manifest": {
     "path": "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json",
@@ -103,9 +103,9 @@
     },
     {
       "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
-      "sha256": "3a00e312176df33a1f7de8d7e4430ec20f46536616f0fb14c73f9834adacdc2f",
-      "bytes": 6064,
-      "lines": 168,
+      "sha256": "bcbb7f6ffbfd7b170cc155c014faa90a91924458aea32a9096cc496295294d2c",
+      "bytes": 9525,
+      "lines": 273,
       "role": "frozen tests/support",
       "module": "linux_memfd_policy_support"
     },
@@ -136,13 +136,13 @@
   "policy_fixture": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_namespace.c",
   "qualifier": {
     "path": "scripts/qualify-linux-memfd-execution.py",
-    "sha256": "ea4ba64ea4d12e76d4e3b783249cec1d71bb4ee18d750c15973c65aee997625d",
-    "bytes": 14361,
-    "lines": 248
+    "sha256": "d95f0d110ce912e7e6b4937999e77c5122ad1bd3f62a0eb620e8a0151929e00b",
+    "bytes": 15513,
+    "lines": 271
   },
   "unit_tests": {
     "path": "scripts/tests/test_qualify_linux_memfd_execution.py",
-    "sha256": "15fca048c90a52e60e221a7ca874a77cfcaf23ad618176bc4502fcc781e48f2b"
+    "sha256": "2aee5ee65f00f7243acffb1cc76c935507582d2517e083418499f7c333b9b0a8"
   },
   "shared_atomic_functions": [
     "validate_tooling",
@@ -155,15 +155,15 @@
   "qualification_tooling_dependencies": {
     "atomic_qualifier": {
       "path": "scripts/qualify-linux-atomic-launcher.py",
-      "sha256": "dc97d4c0d9343d6aee8639c741c6c622ef9579c78226499f5d74c9f229bb039e",
-      "bytes": 22420,
-      "lines": 413
+      "sha256": "04a9834e07a1025769d020b0769a5ac01aaa66fc46adbc83d391c46b313a58c5",
+      "bytes": 24457,
+      "lines": 443
     },
     "atomic_unit_tests": {
       "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
-      "sha256": "6b766c328d8363e20299b2be2e2c30b0395e6b35e759711165c3c0bab09990e7",
-      "bytes": 20685,
-      "lines": 377
+      "sha256": "a3d7a9b725ea270a54fb6b72a99577c60b4c96801f3151ed00cf23fd11e92aa1",
+      "bytes": 27871,
+      "lines": 492
     },
     "archive_support": {
       "path": "scripts/qualify-linux-scan-image.py",
@@ -173,14 +173,14 @@
     },
     "outer_wrapper": {
       "path": "scripts/run-native-pid-namespace.py",
-      "sha256": "d1d269eca9db14994567f19cc7276a7d7ee58881fef933a998f9d14dfaa66122",
-      "bytes": 24568,
-      "lines": 489
+      "sha256": "9d8b250e7f4c78a3bae30f62cebf276460ea60f1b7de7005087c9a43f7b94259",
+      "bytes": 24264,
+      "lines": 473
     },
     "outer_unit_tests": {
       "path": "scripts/tests/test_native_pid_namespace.py",
-      "sha256": "6f9800b6670d4105fe70a72386b7b34adeb2d92c5d8dbd2521257f8b30a9b8a0",
-      "bytes": 16746,
+      "sha256": "212ff870338ca72071aa9fc972af4ef525d4de271d3cab7fee1cbab8b5b6d889",
+      "bytes": 16805,
       "lines": 315
     },
     "workflow": {
@@ -324,5 +324,95 @@
   "profile_qualification": {
     "scope": "Unique exact fixture path QA-only AppArmor lifecycle",
     "native_validation": "Pending actual three-lane parser load/attachment/user namespace capability/original wait/profile removal; pure mocks not proof"
+  },
+  "policy_stage_tooling": [
+    {
+      "path": "scripts/native_pid_namespace_run.py",
+      "sha256": "96fe8d2e6f399d0db7cb210a14eabb005ce33b3feeb53945e731667f7bc94e71",
+      "bytes": 5465,
+      "lines": 109
+    },
+    {
+      "path": "scripts/native_memfd_policy_plan.py",
+      "sha256": "19ce7b0d2429bc40d864129a1ac2fc770ebb0963f3e862d1408310b188167591",
+      "bytes": 6459,
+      "lines": 124
+    },
+    {
+      "path": "scripts/native_memfd_policy_setup.py",
+      "sha256": "92c619e4dfd563bf2be9ac328765c2da1221f2d8bf29035440c520272ebd1884",
+      "bytes": 2516,
+      "lines": 53
+    },
+    {
+      "path": "scripts/native_memfd_policy_stages.py",
+      "sha256": "275f934f89ba2fc0dce41768b9727c5223f3f9ff8ce3f32ada6b72d63dedb20a",
+      "bytes": 8579,
+      "lines": 140
+    },
+    {
+      "path": "scripts/native_memfd_prepared.py",
+      "sha256": "3659d574c724d7587fe7d2760bd019846a372c7013dc8fca5902552c7095eba9",
+      "bytes": 6077,
+      "lines": 103
+    },
+    {
+      "path": "scripts/native_namespace_artifacts.py",
+      "sha256": "50b77a8d55dfdc45e667a7d32e14314b17a0756c93a0eb1182a4a23d0452d541",
+      "bytes": 7947,
+      "lines": 170
+    }
+  ],
+  "policy_stage_tests": [
+    {
+      "path": "scripts/tests/test_native_memfd_policy_stages.py",
+      "sha256": "ab230f742d7be56718d7469e2f9ab4b470b63559755d91eefc57cbd37f5e3883",
+      "bytes": 11807,
+      "lines": 209
+    },
+    {
+      "path": "scripts/tests/test_native_memfd_prepared_contracts.py",
+      "sha256": "8ea699060aedbdfbfacfbe097efe6baab197302fd71c039ee9c57f8fb7e23613",
+      "bytes": 7232,
+      "lines": 130
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_memfd_stages.py",
+      "sha256": "0dbcb8a5d7e9c31336b7d7c58f4d02179ca412569ec5659a6df879070eb4ea51",
+      "bytes": 7220,
+      "lines": 124
+    },
+    {
+      "path": "scripts/tests/test_native_namespace_artifacts.py",
+      "sha256": "b22aa1863767939e32e46f5f919756c2a7ef93ccc5d332e275668308222dd714",
+      "bytes": 8491,
+      "lines": 176
+    }
+  ],
+  "two_stage_binding_revision": {
+    "scope": "Closed six-helper active/archive identity and four focused-test archive bindings on both atomic and memfd paths; no phase bypass",
+    "previous_manifest_sha256": "b11413a019b1e563374dfe4c7a9a153434bb2978ea1149c32c99a9cbf0e37865",
+    "source_deltas": [
+      {
+        "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_memfd_policy_support.rs",
+        "before_sha256": "3a00e312176df33a1f7de8d7e4430ec20f46536616f0fb14c73f9834adacdc2f",
+        "after_sha256": "d4b3446d9d13c459e3d9e0615c1817d1867792e48d50803e30d8dc4ae0b7989c"
+      }
+    ],
+    "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/runner/qualification; root-owned output and runner workspace are separate",
+    "historical_validation": "Existing validation, prior native results, initial fixture deltas and old pure-result text are historical evidence for their recorded source, not this rebinding.",
+    "current_native_validation": "Pending exact-source native two-stage execution, original init reap and profile removal; pure Python tests do not establish native success.",
+    "current_pure_python": {
+      "cases": 108,
+      "failures": 0,
+      "exit_code": 0,
+      "command": "python3 -m unittest discover -s scripts/tests -v",
+      "classification": "Actual entire scripts/tests Python suite after final mode0644 root-owned artifacts, original write/close error preservation, retained record dirfd and preloaded root helpers; not native/Cargo/cc/Git evidence",
+      "log": {
+        "historical_path": "/private/tmp/diskgraph-two-stage-entire-python-readable-final.log",
+        "sha256": "607a259e6fc336f508b66750c48de1bb8375decc71d268ffb411d0bc5e6bc6c2",
+        "bytes": 21102
+      }
+    }
   }
 }

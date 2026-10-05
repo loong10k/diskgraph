@@ -2,7 +2,7 @@
 """原用户执行原生资格；外层持有 PID namespace init，真实 wait 后才声明回收。
 
 依据 Linux v6.12 kernel/pid_namespace.c:zap_pid_ns_processes：init 被 reap 时
-该 namespace 后代已经退出。此证据不替代 17 个 C8 case 的原 pidfd 验收。
+该 namespace 后代已经退出。此证据不替代 18 个 C8 case 的原 pidfd 验收。
 sudo 仅用于创建 namespace/mount 和恢复凭据；Cargo 不以 root 运行。
 """
 import argparse
@@ -22,13 +22,20 @@ import pwd
 
 # 受限编排 profile；不能由调用者或子 receipt 提供期望数量。
 PROFILES = {"qualify-linux-atomic-launcher.py": 18, "qualify-linux-memfd-execution.py": 6}
+# 固定 QA 工具在外层 fork 前加载；PID1 特权分支不再读取 runner 准备的程序。
+POLICY_SETUP = runpy.run_path(str(Path(__file__).with_name("native_memfd_policy_setup.py")))["NativeMemfdPolicySetup"]
+
+ARTIFACTS = runpy.run_path(str(Path(__file__).with_name("native_namespace_artifacts.py")))["NativeNamespaceArtifacts"]
+
+RESTORE = runpy.run_path(str(Path(__file__).with_name("native_pid_namespace_restore.py")))["NativePidNamespaceRestore"]
+RUN = runpy.run_path(str(Path(__file__).with_name("native_pid_namespace_run.py")))["NativeNamespaceRun"]
 
 class NativeNamespaceSupervisor:
     """唯一外层 init owner；日志和 receipt 失败不得覆盖原资格或退出错误。"""
 
     def __init__(self, args):
         self.args = args
-        self.output = args.output_dir.absolute()
+        self.output = args.output_dir.resolve()
         self.receipt = {"schema_version": 1, "status": "incomplete",
                         "scope": "outer namespace containment, not C8 child wait proof",
                         "kernel": os.uname().release, "secondary_errors": [],
@@ -41,7 +48,12 @@ class NativeNamespaceSupervisor:
         self.logs = {}
         self.setup = bytearray()
         self.witness = bytearray()
+        self.artifact_dir_fd = None
         self.memfd_profile = None
+        self.policy_scope = None
+        self.policy_deadline_ns = None
+        self.prepared_output = None
+        self.prepared_cleanup_deadline_ns = None
 
     @staticmethod
     def command(args, output):
@@ -63,7 +75,7 @@ class NativeNamespaceSupervisor:
                 raise ValueError("self-test must use this fixed supervisor fixture")
         elif Path(command[1]).name not in PROFILES:
             raise ValueError("unknown fixed native qualification profile")
-        return [str(output / "qualification") if value == "{qualification_output}" else value
+        return [str(output / "runner/qualification") if value == "{qualification_output}" else value
                 for value in command]
 
     def failure(self, phase, error):
@@ -90,8 +102,7 @@ class NativeNamespaceSupervisor:
 
     def save(self):
         try:
-            (self.output / "namespace-receipt.json").write_text(
-                json.dumps(self.receipt, indent=2) + "\n")
+            ARTIFACTS.save(self)
         except BaseException as error:
             self.failure("receipt_write", error)
 
@@ -132,6 +143,10 @@ class NativeNamespaceSupervisor:
             os.unshare(os.CLONE_NEWNS)
             self.syscall(libc, "mount", None, b"/", None, (1 << 14) | (1 << 18), None)
             self.syscall(libc, "mount", b"proc", b"/proc", b"proc", 2 | 4 | 8, None)
+            policy = None
+            if self.policy_scope is not None:
+                phase = "memfd_policy_setup"
+                policy = POLICY_SETUP(self).apply()
             phase = "drop_credentials"
             # 清 bounding 与 ambient；setresuid 后有效/许可/inheritable 再显式清零。
             index = 0
@@ -179,6 +194,8 @@ class NativeNamespaceSupervisor:
                 raise RuntimeError("runner credentials did not match original declared identity")
             if self.memfd_profile is not None:
                 identity["apparmor_label"] = self.memfd_profile.require_runner_label()
+            if policy is not None:
+                identity["memfd_policy_setup"] = policy
             os.write(setup_fd, json.dumps(identity).encode() + b"\n")
             os.dup2(stdout_fd, 1)
             os.dup2(stderr_fd, 2)
@@ -187,7 +204,7 @@ class NativeNamespaceSupervisor:
                     os.close(fd)
             environment = os.environ.copy()
             for key in list(environment):
-                if key.startswith(("SUDO_", "LD_", "DYLD_", "PYTHON")):
+                if key.startswith(("SUDO_", "LD_", "DYLD_", "PYTHON", "DG_MEMFD_")):
                     environment.pop(key, None)
             account = pwd.getpwuid(self.args.runner_uid)
             environment.update(HOME=account.pw_dir, USER=account.pw_name, LOGNAME=account.pw_name,
@@ -195,6 +212,19 @@ class NativeNamespaceSupervisor:
                                DG_NATIVE_NAMESPACE_SUPERVISED="1", DG_NATIVE_NAMESPACE_OUTPUT=str(self.output))
             if self.memfd_profile is not None:
                 environment.update(self.memfd_profile.environment())
+            if self.policy_scope is not None:
+                environment.update(DG_MEMFD_POLICY_INNER=str(self.policy_scope), DG_MEMFD_PROC="/proc")
+                if self.policy_deadline_ns is not None:
+                    environment["DG_MEMFD_DEADLINE_NS"] = str(self.policy_deadline_ns)
+            if self.prepared_output is not None:
+                environment.update(DG_MEMFD_PREPARED_OUTPUT=str(self.prepared_output),
+                                   DG_MEMFD_RUNNER_UID=str(self.args.runner_uid),
+                                   DG_MEMFD_RUNNER_GID=str(self.args.runner_gid),
+                                   DG_MEMFD_RUNNER_GROUPS=",".join(str(value) for value in self.args.runner_groups))
+                if self.prepared_cleanup_deadline_ns is not None:
+                    environment["DG_MEMFD_CLEANUP_DEADLINE_NS"] = str(self.prepared_cleanup_deadline_ns)
+            elif Path(command[1]).name == "qualify-linux-memfd-execution.py":
+                environment["DG_MEMFD_QA_PHASE"] = "prepare"
             phase = "exec"
             # setup_fd保留CLOEXEC，exec失败仍可报告真实errno，成功时自动EOF。
             os.execve(command[0], command, environment)
@@ -215,8 +245,7 @@ class NativeNamespaceSupervisor:
             for name in ("setup", "stdout", "stderr"):
                 pairs[name] = os.pipe2(os.O_CLOEXEC)
             parent_fd = os.pidfd_open(os.getpid(), 0)
-            factory = runpy.run_path(str(Path(__file__).with_name("native_pid_namespace_restore.py")))["NativePidNamespaceRestore"]
-            factory(self).spawn(command, parent_fd, pairs)
+            RESTORE(self).spawn(command, parent_fd, pairs)
         finally:
             original = sys.exception()
             if parent_fd is not None:
@@ -355,13 +384,19 @@ class NativeNamespaceSupervisor:
             return
         if self.receipt["init_wait_code"] != os.CLD_EXITED or self.receipt["init_wait_status"] != 0:
             raise RuntimeError(f"qualification init failed: {self.receipt['init_wait_status']}")
-        path = self.output / "qualification/receipt.json"
-        if path.stat().st_size > (1 << 20):
-            raise ValueError("qualification receipt exceeds 1 MiB")
-        raw = path.read_bytes()
+        path = self.output / "runner/qualification/receipt.json"
+        raw = ARTIFACTS.bounded_read(path, 1 << 20)
         child = json.loads(raw)
         profile = Path(self.command(self.args, self.output)[1]).name
         expected = PROFILES[profile]
+        if profile == "qualify-linux-memfd-execution.py" and child.get("status") == "prepared_policy_cases_pending":
+            if (not self.reaped or child.get("executed_parent_cases") != 3
+                    or child.get("prepared_record") != "prepared-policy.json"):
+                raise ValueError("ordinary memfd prepare did not preserve exact three pending-policy cases")
+            self.receipt.update(status="prepared_policy_cases_pending", executed_parent_cases=3,
+                                qualification_receipt_sha256=hashlib.sha256(raw).hexdigest(),
+                                prepared_record_sha256=child["prepared_record_sha256"])
+            return
         if (child.get("status") != "component_tests_passed_awaiting_outer_cleanup" or
                 type(child.get("executed_parent_cases")) is not int or child["executed_parent_cases"] != expected):
             raise ValueError(f"the unchanged {expected} native cases for {profile} did not pass")
@@ -395,60 +430,9 @@ class NativeNamespaceSupervisor:
             self.streams.pop(fd)
 
     def run(self):
-        command = self.validate()
-        self.output.mkdir(parents=True, exist_ok=False)
-        os.chown(self.output, self.args.runner_uid, self.args.runner_gid)
-        os.chmod(self.output, 0o700)
-        self.receipt.update(command=command, timeout_seconds=self.args.timeout_seconds,
-                            script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
-        started = time.monotonic()
-        deadline = started + self.args.timeout_seconds
-        try:
-            for name in ("stdout", "stderr"):
-                self.logs[name] = [(self.output / f"child.{name}").open("wb"), 0]
-            if not self.args.self_test and Path(command[1]).name == "qualify-linux-memfd-execution.py":
-                factory = runpy.run_path(str(Path(__file__).with_name("native_memfd_profile.py")))["NativeMemfdProfile"]
-                self.memfd_profile = factory(self, deadline)
-                self.memfd_profile.load()
-            signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-            self.spawn(command)
-            self.monitor(deadline)
-            self.qualify()
-        except BaseException as error:
-            self.failure("run", error)
-        finally:
-            while True:
-                try:
-                    self.cleanup_owner()
-                    break
-                except BaseException as error:
-                    self.failure("owner_finalization", error)
-                    if self.pid is None or self.reaped:
-                        break
-            for name, (stream, size) in self.logs.items():
-                try:
-                    stream.close()
-                    self.receipt[f"{name}_bytes"] = size
-                    self.receipt[f"{name}_sha256"] = hashlib.sha256((self.output / f"child.{name}").read_bytes()).hexdigest()
-                except BaseException as error:
-                    self.failure(f"{name}_finalization", error)
-            if self.pidfd is not None and self.reaped:
-                try:
-                    os.close(self.pidfd)
-                except BaseException as error:
-                    self.failure("init_pidfd_close", error)
-            if self.memfd_profile is not None:
-                self.memfd_profile.finish()
-            self.receipt["elapsed_seconds"] = time.monotonic() - started
-            expected = self.args.self_test and self.receipt["status"] == "containment_self_test_passed_not_atomic_qualification"
-            if self.primary is not None and (not expected or self.receipt["secondary_errors"]):
-                self.receipt["status"] = "failed"
-            self.save()
-        expected = (self.args.self_test and self.receipt["status"] == "containment_self_test_passed_not_atomic_qualification"
-                    and not self.receipt["secondary_errors"])
-        if self.primary is not None and not expected:
-            raise self.primary
-        return 0
+        """执行固定入口；原 owner 回收与两阶段准备由聚焦宿主对象实际驱动。"""
+        return RUN(self, Path(__file__)).run()
+
 
 def descendant_fixture():
     """仅自测：真实后代 setsid 后持续工作，必须由 namespace init 退出收场。"""

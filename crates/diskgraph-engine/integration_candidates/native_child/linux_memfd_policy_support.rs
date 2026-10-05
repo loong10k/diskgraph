@@ -1,8 +1,9 @@
 //! 隔离策略夹具的有界真实进程宿主；不替代扫描器 Atomic 入口。
 
-use super::UnixChild;
 use super::linux_atomic_launcher_test_support::check;
-use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
+use super::UnixChild;
+use std::io::Read;
+use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
 use std::process::Command;
 use std::time::{Duration, Instant};
@@ -48,6 +49,9 @@ pub(super) fn in_namespace(scope: u32, name: &str, body: impl FnOnce()) {
             1,
             "actual new PID namespace leader"
         );
+        if std::env::var_os("DG_MEMFD_PREPARED_OUTPUT").is_some() {
+            require_prepared_runner();
+        }
         assert_eq!(policy(), scope, "actual namespace sysctl readback");
         body();
         eprintln!("MEMFD_POLICY_CASE_COMPLETE scope={scope}");
@@ -74,6 +78,107 @@ pub(super) fn in_namespace(scope: u32, name: &str, body: impl FnOnce()) {
     assert!(
         output.contains(&format!("MEMFD_POLICY_CASE_COMPLETE scope={scope}")),
         "exact inner case did not complete: {output}"
+    );
+}
+
+fn require_prepared_runner() {
+    // 环境只传选择与原期限；实际 PID/proc/凭据/capabilities 必须逐项查询。
+    assert_eq!(
+        unsafe { libc::getpid() },
+        1,
+        "actual new PID namespace leader"
+    );
+    assert_eq!(
+        std::fs::read_link("/proc/self").unwrap(),
+        PathBuf::from("1")
+    );
+    assert_eq!(std::env::var("DG_MEMFD_PROC").unwrap(), "/proc");
+    assert_eq!(
+        std::env::var("DG_NATIVE_NAMESPACE_SUPERVISED").unwrap(),
+        "1"
+    );
+    assert_eq!(
+        std::fs::read_link("/proc/self/ns/pid").unwrap(),
+        PathBuf::from(std::env::var("DG_NATIVE_PID_NAMESPACE").unwrap())
+    );
+    let uid: libc::uid_t = std::env::var("DG_MEMFD_RUNNER_UID")
+        .unwrap()
+        .parse()
+        .unwrap();
+    let gid: libc::gid_t = std::env::var("DG_MEMFD_RUNNER_GID")
+        .unwrap()
+        .parse()
+        .unwrap();
+    assert_ne!(uid, 0, "runner libtest must never execute with GLOBAL UID0");
+    let (mut real_uid, mut effective_uid, mut saved_uid) = (0, 0, 0);
+    let (mut real_gid, mut effective_gid, mut saved_gid) = (0, 0, 0);
+    assert_eq!(
+        unsafe { libc::getresuid(&mut real_uid, &mut effective_uid, &mut saved_uid) },
+        0
+    );
+    assert_eq!(
+        unsafe { libc::getresgid(&mut real_gid, &mut effective_gid, &mut saved_gid) },
+        0
+    );
+    assert_eq!((real_uid, effective_uid, saved_uid), (uid, uid, uid));
+    assert_eq!((real_gid, effective_gid, saved_gid), (gid, gid, gid));
+    let count = unsafe { libc::getgroups(0, std::ptr::null_mut()) };
+    assert!(
+        (0..=1024).contains(&count),
+        "bounded actual supplementary groups"
+    );
+    let mut actual_groups = vec![0; usize::try_from(count).unwrap()];
+    assert_eq!(
+        unsafe { libc::getgroups(count, actual_groups.as_mut_ptr()) },
+        count
+    );
+    let mut expected_groups: Vec<libc::gid_t> = std::env::var("DG_MEMFD_RUNNER_GROUPS")
+        .unwrap()
+        .split(',')
+        .map(|value| value.parse().unwrap())
+        .collect();
+    actual_groups.sort_unstable();
+    expected_groups.sort_unstable();
+    assert_eq!(actual_groups, expected_groups);
+    let mut status = String::new();
+    std::fs::File::open("/proc/self/status")
+        .unwrap()
+        .take((16 << 10) + 1)
+        .read_to_string(&mut status)
+        .unwrap();
+    assert!(
+        status.len() <= (16 << 10),
+        "bounded actual credential status"
+    );
+    for key in [
+        "CapInh",
+        "CapPrm",
+        "CapEff",
+        "CapBnd",
+        "CapAmb",
+        "NoNewPrivs",
+    ] {
+        let fields: Vec<&str> = status
+            .lines()
+            .filter_map(|line| line.split_once(':'))
+            .filter(|(name, _)| *name == key)
+            .map(|(_, value)| value.trim())
+            .collect();
+        assert_eq!(fields.len(), 1, "unique actual credential field {key}");
+        if key == "NoNewPrivs" {
+            assert_eq!(fields[0], "1");
+        } else {
+            assert_eq!(
+                u64::from_str_radix(fields[0], 16).unwrap(),
+                0,
+                "actual {key}"
+            );
+        }
+    }
+    let end: u64 = std::env::var(DEADLINE_ENV).unwrap().parse().unwrap();
+    assert!(
+        monotonic_ns() < end,
+        "original pre-birth policy deadline remains live"
     );
 }
 

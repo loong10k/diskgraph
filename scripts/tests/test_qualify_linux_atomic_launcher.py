@@ -10,6 +10,7 @@ import tempfile
 import tomllib
 import unittest
 from unittest.mock import patch
+from contextlib import ExitStack
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -77,6 +78,7 @@ class QualificationAssemblyTests(unittest.TestCase):
             "scripts/native_pid_namespace_restore.py",
             "scripts/tests/test_native_pid_namespace_restore.py",
             "scripts/tests/test_native_pid_namespace_restore_errors.py")]
+        bindings += self.manifest["policy_stage_tooling"] + self.manifest["policy_stage_tests"]
         for binding in bindings:
             target = self.checkout / binding["path"]
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -227,6 +229,119 @@ class QualificationAssemblyTests(unittest.TestCase):
             QUALIFIER.validate_tooling(self.checkout, manifest, ROOT / "scripts/qualify-linux-atomic-launcher.py")
 
 
+class StageBindingTests(unittest.TestCase):
+    """固定六依赖的实际 active/archive 准入；只验证源码绑定，不执行命名空间。"""
+
+    HELPERS = tuple("scripts/" + name for name in (
+        "native_pid_namespace_run.py", "native_memfd_policy_plan.py",
+        "native_memfd_policy_setup.py", "native_memfd_policy_stages.py", "native_memfd_prepared.py",
+        "native_namespace_artifacts.py"))
+
+    TESTS = tuple("scripts/tests/" + name for name in (
+        "test_native_memfd_policy_stages.py", "test_native_memfd_prepared_contracts.py",
+        "test_qualify_linux_memfd_stages.py", "test_native_namespace_artifacts.py"))
+
+    def fixture(self, directory, profile):
+        checkout, active = directory / "archive", directory / "active/scripts"
+        active.mkdir(parents=True, exist_ok=True)
+        atomic = json.loads((ROOT / QUALIFIER.MANIFEST).read_text())
+        memfd_path = "docs/benchmarks/linux_memfd_execution_2026_10_05_candidate.json"
+        memfd = json.loads((ROOT / memfd_path).read_text())
+        for manifest in (atomic, memfd):
+            manifest["policy_stage_tooling"] = [
+                {"path": name, "sha256": QUALIFIER.digest(ROOT / name)} for name in self.HELPERS]
+            manifest["policy_stage_tests"] = [
+                {"path": name, "sha256": QUALIFIER.digest(ROOT / name)} for name in self.TESTS]
+
+        def copy_bindings(value):
+            if isinstance(value, dict):
+                if "path" in value and "sha256" in value and (ROOT / value["path"]).is_file():
+                    name = value["path"]
+                    target = checkout / name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(ROOT / name, target)
+                    value["sha256"] = QUALIFIER.digest(target)
+                    if name.startswith("scripts/") and "/tests/" not in name:
+                        shutil.copyfile(ROOT / name, active / Path(name).name)
+                for child in value.values():
+                    copy_bindings(child)
+            elif isinstance(value, list):
+                for child in value:
+                    copy_bindings(child)
+
+        copy_bindings(atomic)
+        copy_bindings(memfd)
+        atomic["qualifier_sha256"] = atomic["qualification_tooling"]["qualifier"]["sha256"]
+        atomic["shared_support_sha256"] = atomic["qualification_tooling"]["shared_support"]["sha256"]
+        path = checkout / QUALIFIER.MANIFEST
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(atomic))
+        memfd["atomic_manifest_sha256"] = QUALIFIER.digest(path)
+        spec = importlib.util.spec_from_file_location("fixed_memfd_binding", ROOT / "scripts/qualify-linux-memfd-execution.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return checkout, active, atomic if profile == "atomic" else memfd, module
+
+    def validate(self, checkout, active, manifest, module, profile):
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(QUALIFIER, "__file__", str(active / "qualify-linux-atomic-launcher.py")))
+            stack.enter_context(patch.object(module, "ATOMIC", QUALIFIER))
+            stack.enter_context(patch.object(module, "ATOMIC_PATH", active / "qualify-linux-atomic-launcher.py"))
+            stack.enter_context(patch.object(module, "__file__", str(active / "qualify-linux-memfd-execution.py")))
+            stack.enter_context(patch.dict(module.os.environ, {}, clear=True))
+            if profile == "atomic":
+                QUALIFIER.validate_tooling(checkout, manifest, active / "qualify-linux-atomic-launcher.py")
+            else:
+                module.validate_profile(checkout, manifest, active / "qualify-linux-memfd-execution.py")
+
+    def test_each_fixed_helper_active_and_archive_drift_is_rejected_for_both_profiles(self):
+        for profile in ("atomic", "memfd"):
+            for name in self.HELPERS:
+                for location in ("active", "archive"):
+                    with self.subTest(profile=profile, helper=name, location=location), tempfile.TemporaryDirectory() as tmp:
+                        checkout, active, manifest, module = self.fixture(Path(tmp), profile)
+                        self.validate(checkout, active, manifest, module, profile)
+                        target = active / Path(name).name if location == "active" else checkout / name
+                        target.write_bytes(b"changed actual helper source")
+                        with self.assertRaisesRegex(ValueError, "tooling.*digest mismatch"):
+                            self.validate(checkout, active, manifest, module, profile)
+
+    def test_missing_duplicate_and_substituted_fixed_bindings_are_rejected_for_both_profiles(self):
+        for profile in ("atomic", "memfd"):
+            for index in range(len(self.HELPERS)):
+                for mutation in ("missing", "duplicate", "substituted"):
+                    with self.subTest(profile=profile, index=index, mutation=mutation), tempfile.TemporaryDirectory() as tmp:
+                        checkout, active, manifest, module = self.fixture(Path(tmp), profile)
+                        self.validate(checkout, active, manifest, module, profile)
+                        bindings = manifest["policy_stage_tooling"]
+                        if mutation == "missing":
+                            del bindings[index]
+                        elif mutation == "duplicate":
+                            bindings[index] = copy.deepcopy(bindings[(index + 1) % len(bindings)])
+                        else:
+                            bindings[index]["path"] = "scripts/not_the_fixed_helper.py"
+                        with self.assertRaisesRegex(ValueError, "fixed.*tooling bindings"):
+                            self.validate(checkout, active, manifest, module, profile)
+
+
+    def test_focused_tests_have_closed_fixed_archive_bindings_for_both_profiles(self):
+        for profile in ("atomic", "memfd"):
+            for index in range(len(self.TESTS)):
+                for mutation in ("archive", "missing", "duplicate"):
+                    with self.subTest(profile=profile, index=index, mutation=mutation), tempfile.TemporaryDirectory() as tmp:
+                        checkout, active, manifest, module = self.fixture(Path(tmp), profile)
+                        self.validate(checkout, active, manifest, module, profile)
+                        bindings = manifest["policy_stage_tests"]
+                        if mutation == "archive":
+                            (checkout / bindings[index]["path"]).write_bytes(b"changed focused test")
+                        elif mutation == "missing":
+                            del bindings[index]
+                        else:
+                            bindings[index] = copy.deepcopy(bindings[(index + 1) % len(bindings)])
+                        with self.assertRaises(ValueError):
+                            self.validate(checkout, active, manifest, module, profile)
+
+
 class QualificationErrorTests(unittest.TestCase):
     """操作同一脚本实际 Python 分支，明确与 Linux 原生能力证明分开。"""
 
@@ -338,7 +453,7 @@ class NamespaceAdmissionTests(unittest.TestCase):
         self.environment = {"DG_NATIVE_NAMESPACE_SUPERVISED": "1",
                             "DG_NATIVE_PID_NAMESPACE": "pid:[111]",
                             "DG_NATIVE_NAMESPACE_OUTPUT": "/tmp/native-qualification"}
-        self.output = Path("/tmp/native-qualification/qualification").resolve()
+        self.output = Path("/tmp/native-qualification/runner/qualification").resolve()
 
     def namespace_links(self, namespace):
         original = QUALIFIER.os.readlink

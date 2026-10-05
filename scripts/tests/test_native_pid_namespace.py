@@ -33,7 +33,7 @@ class NativePidNamespaceContracts(unittest.TestCase):
         args = self.arguments("/tmp/native contract ; literal")
         command = MODULE.NativeNamespaceSupervisor.command(args, args.output_dir)
         self.assertEqual(command, [sys.executable, str(ATOMIC), "--output-dir",
-                                   "/tmp/native contract ; literal/qualification"])
+                                   "/tmp/native contract ; literal/runner/qualification"])
         self.assertEqual(args.command[-1], "{qualification_output}")
 
     def test_shell_relative_and_duplicate_token_are_rejected(self):
@@ -71,8 +71,8 @@ class NativePidNamespaceContracts(unittest.TestCase):
         """只喂非法序列化材料以抵达拒绝分支；这些标量不构造真实 namespace 验收。"""
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
-            (output / "qualification").mkdir()
-            (output / "qualification/receipt.json").write_text(json.dumps(
+            (output / "runner/qualification").mkdir(parents=True)
+            (output / "runner/qualification/receipt.json").write_text(json.dumps(
                 {"status": status, "executed_parent_cases": count}))
             args = self.arguments(output)
             args.command[1] = str(script)
@@ -181,8 +181,8 @@ class NativePidNamespaceContracts(unittest.TestCase):
     def test_missing_real_setup_never_accepts_a_child_success_receipt(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
-            (output / "qualification").mkdir()
-            (output / "qualification/receipt.json").write_text(json.dumps(
+            (output / "runner/qualification").mkdir(parents=True)
+            (output / "runner/qualification/receipt.json").write_text(json.dumps(
                 {"status": "component_tests_passed_awaiting_outer_cleanup", "executed_parent_cases": 18}))
             supervisor = MODULE.NativeNamespaceSupervisor(self.arguments(output))
             with self.assertRaisesRegex(RuntimeError, "namespace setup failed"):

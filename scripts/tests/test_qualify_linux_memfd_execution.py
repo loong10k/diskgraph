@@ -34,6 +34,7 @@ class MemfdAssemblyTests(unittest.TestCase):
                   outer["source"], outer["unit_tests"], outer["workflow"]]]
         paths += [outer[key]["path"] for key in ("restore_helper", "restore_tests", "restore_error_tests")]
         paths.append(self.manifest["profile_helper"]["path"])
+        paths += [item["path"] for item in self.manifest["policy_stage_tooling"] + self.manifest["policy_stage_tests"]]
         paths.append(QUALIFIER.ATOMIC_MANIFEST)
         for name in paths:
             target = self.checkout / name
