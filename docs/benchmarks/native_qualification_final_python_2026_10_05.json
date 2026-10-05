@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "scope": "macOS Python qualification assembly/contracts only, not native Linux success",
+  "passed": 31,
+  "failed": 0,
+  "exit_code": 0,
+  "sources": [
+    {
+      "path": "scripts/qualify-linux-atomic-launcher.py",
+      "sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8"
+    },
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "197f38ca8025d71bf1e54fc1aca210d5ee6f4a54f9782a521439f78589656eca"
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
+      "sha256": "0708883e23cf99f98d6724ab93f418be8224f0ab883e24279708b7406ec22fc9"
+    },
+    {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "f1d1966da3aa52b5663a9b0352c823b8b7758ac6ef8f7d547bda87900c9f9a40"
+    },
+    {
+      "path": ".github/workflows/native_scan_qualification.yml",
+      "sha256": "30606d5722eb924e2e96e813e51f71c82e512257564a92e9049eb3332c6f226d"
+    }
+  ],
+  "log": {
+    "path": "docs/benchmarks/native_qualification_final_python_2026_10_05.log.gz",
+    "raw_sha256": "7374ba3a475418228370881f0840275bc9adce1b252c98caf4458966c2339c49",
+    "gzip_sha256": "b00de153062eab406670a3b551ffe5c74320e511fe8fc265be2f64c5ec3a80b7"
+  },
+  "native_status": "pending Linux x64 stable/MSRV and ARM64 actual namespace self-test and 17 cases"
+}

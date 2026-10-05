@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "scope": "native Linux C8 AtomicLauncher component only; no Engine/image-policy/full PF06 acceptance",
+  "source_candidate": {
+    "sha256": "b83842eaa8d209266d917347946dcf18d21f549be9dca69a322f158e24d8e803",
+    "historical_path": "/private/tmp/diskgraph-linux-atomic-errno-production-candidate.json",
+    "source_count": 22
+  },
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_abi.rs",
+      "sha256": "d038ec50fb73e2704aec613a85068f751c36787622fc8c9ccd9fb238029b49a5",
+      "bytes": 1091,
+      "lines": 29,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_abi.rs",
+      "module": "linux_atomic_abi",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_abi.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_child.rs",
+      "sha256": "8d1886fdde80e0ed598130e69334cd993a72daad8a64d3fc17ab278658ea7d2a",
+      "bytes": 8644,
+      "lines": 252,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs",
+      "module": "linux_atomic_child",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_exit.rs",
+      "sha256": "de61574f83f65067320c446527f17669b7a40f92ab1bc104ee78f0cc31ac4d08",
+      "bytes": 6116,
+      "lines": 179,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_exit.rs",
+      "module": "linux_atomic_exit",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_exit.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_handshake.rs",
+      "sha256": "e257b73853349db14699098c771a1e6bf5bcf93238f42ab1c51b5a1caddfd0c9",
+      "bytes": 4168,
+      "lines": 106,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_handshake.rs",
+      "module": "linux_atomic_handshake",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_handshake.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launch_failure.rs",
+      "sha256": "0c3c6ff2cc43c6a57ce3b37f13922b2193fedf11e3046f613abcc9b583a7cec3",
+      "bytes": 1920,
+      "lines": 46,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launch_failure.rs",
+      "module": "linux_atomic_launch_failure",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launch_failure.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher.rs",
+      "sha256": "5140ecd88bda9f43f568c3d55e0a03338891d26e41fb10a162387667ed7690a1",
+      "bytes": 10426,
+      "lines": 261,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher.rs",
+      "module": "linux_atomic_launcher",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_message.rs",
+      "sha256": "d7eb014edbbb4deced8891d8f72585a0c9829d210ca036ec294155dcccb4c9a9",
+      "bytes": 4110,
+      "lines": 114,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_message.rs",
+      "module": "linux_atomic_message",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_message.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_pipes.rs",
+      "sha256": "fde259341de662ca8e4a5f8c3dc8728d759aa22844dc7e51578077c5dbb809fd",
+      "bytes": 4164,
+      "lines": 114,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_pipes.rs",
+      "module": "linux_atomic_pipes",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_pipes.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_signal_mask.rs",
+      "sha256": "30ddbd0ea7f96c13ea2e30eec4056dba914206286707e102ba57f7c9875dfaad",
+      "bytes": 1938,
+      "lines": 62,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_signal_mask.rs",
+      "module": "linux_atomic_signal_mask",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_signal_mask.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_spawn.c",
+      "sha256": "526f37cd6c767400eaed1a4eb7d7c74f511ce7bff7b140331070e3a8c57eab94",
+      "bytes": 5145,
+      "lines": 114,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_syscall.h",
+      "sha256": "399ac827410db338283182647b5fc013cb3f6a647a0520d5ce0b82d5a3fba30c",
+      "bytes": 1394,
+      "lines": 36,
+      "role": "production",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_syscall.h",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_syscall.h"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_fixture.rs",
+      "sha256": "b96f037ee171a9a0cc98170a98fcbac270212f06e479933a4ef4e7884ca1b4d0",
+      "bytes": 2480,
+      "lines": 71,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_fixture.rs",
+      "module": "linux_atomic_launcher_fixture",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_fixture.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_test_support.rs",
+      "sha256": "cb430ed6e894003625b38d47b834ca96c969cfee5fa1c55f2a5745d02780be23",
+      "bytes": 5449,
+      "lines": 167,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_test_support.rs",
+      "module": "linux_atomic_launcher_test_support",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_test_support.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_tests.rs",
+      "sha256": "5d3c18eea4c8db7dfa9e2daf18e69fa0e9d04c44fcad11d2b129f23d1aec2a3c",
+      "bytes": 9147,
+      "lines": 229,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_tests.rs",
+      "module": "linux_atomic_launcher_tests",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_tests.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_failure_tests.rs",
+      "sha256": "6e7a691a1525f138b5408e4a889bc2e1d18d88fd0a1279074a0336bce23a2a6e",
+      "bytes": 14876,
+      "lines": 427,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_failure_tests.rs",
+      "module": "linux_atomic_launcher_failure_tests",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_failure_tests.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_reap_tests.rs",
+      "sha256": "73c0827043cd224913ceaa7ee1994558f1d38650d4c0ea05267a4f7591f5cd96",
+      "bytes": 8388,
+      "lines": 206,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_reap_tests.rs",
+      "module": "linux_atomic_launcher_reap_tests",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_reap_tests.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_reaper_fixture.rs",
+      "sha256": "ff3ed6760b5197ebfb7efba6be221f8f9a7e6ace0ad5af25ab3e7b16e87accbb",
+      "bytes": 4934,
+      "lines": 140,
+      "role": "test",
+      "target": "crates/diskgraph-engine/src/native_child/linux_atomic_reaper_fixture.rs",
+      "module": "linux_atomic_reaper_fixture",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_atomic_reaper_fixture.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scanner_filter.rs",
+      "sha256": "c907f104e998da1b09e6020ca555b2aa230f0240ab9b334e553b54c814528a78",
+      "bytes": 5947,
+      "lines": 156,
+      "role": "accessor",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/linux_scanner_filter.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_control_channel.rs",
+      "sha256": "5ff40dce6e67f8b938f7e6910dccd1f70c57a476b93ed3d8afa1c42db14a439a",
+      "bytes": 7720,
+      "lines": 189,
+      "role": "accessor",
+      "original_candidate_path": "crates/diskgraph-engine/src/native_child/unix_control_channel.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/build.rs",
+      "sha256": "9c2f225c63a5140ded8de9deaf34445ebaa46167b2b25a1f9e2e02f3b66f02a3",
+      "bytes": 1351,
+      "lines": 27,
+      "role": "build",
+      "target": "crates/diskgraph-engine/build.rs",
+      "original_candidate_path": "crates/diskgraph-engine/build.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/Cargo.toml",
+      "sha256": "13f0998978496133c1b7304a072f96b177eed94742f8335ba1f3e310acb5eebe",
+      "bytes": 1259,
+      "lines": 37,
+      "role": "build",
+      "original_candidate_path": "crates/diskgraph-engine/Cargo.toml"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_atomic_launcher_fixture.c",
+      "sha256": "709b16d0938ac91dc3193f99689ea56ec3b12b05a97fa3990c454ef632fa1bb0",
+      "bytes": 3753,
+      "lines": 111,
+      "role": "test",
+      "target": "crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c",
+      "original_candidate_path": "crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_child_atomic_qualification.before",
+      "sha256": "6c530072bb8c9dbd13cda7873d5844b12c8c655417ce43ec3eb63755b6e549a9",
+      "bytes": 11146,
+      "lines": 294,
+      "role": "baseline_before"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_child_atomic_qualification.rs",
+      "sha256": "112063f12719f75f5ed8ce5ee428e39c478f623c33b95148ce8ecd50333ec5ef",
+      "bytes": 10113,
+      "lines": 273,
+      "role": "baseline_projection",
+      "target": "crates/diskgraph-engine/src/native_child/unix_child.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_child_atomic_qualification.diff.gz",
+      "sha256": "2b8e4a5f4374c8053fb4d897424893c21097d48a1847186ddb4acb213234d80e",
+      "bytes": 1128,
+      "lines": null,
+      "role": "projection_diff",
+      "raw_sha256": "0e45d8bf2ba1e2cefa5eaeb2e346a0b932cb4959492f6cf8e872570324504c13",
+      "raw_bytes": 2650,
+      "raw_lines": 68,
+      "encoding": "gzip; empty filename; mtime=0; original unified-diff bytes unchanged"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_control_channel_atomic_qualification.rs",
+      "sha256": "7e8c3c4baf99d94bdc1ee4c66afa9e38921ce6f58fe3387d8eff97c28b4dcbf4",
+      "bytes": 6082,
+      "lines": 151,
+      "role": "dependency_projection",
+      "target": "crates/diskgraph-engine/src/native_child/unix_control_channel.rs",
+      "module": "unix_control_channel"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_control_channel_atomic_qualification.diff.gz",
+      "sha256": "abbbcaee16a110bc98bdbcd64161c2b820a21db2e6a9df2d3e13a230de9bfc99",
+      "bytes": 1141,
+      "lines": null,
+      "role": "projection_diff",
+      "raw_sha256": "63096fce79c14098a26a56aec3671166b2a6ce4fa6023463777f0b07f1e84e87",
+      "raw_bytes": 2293,
+      "raw_lines": 55,
+      "encoding": "gzip; empty filename; mtime=0; original unified-diff bytes unchanged"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/unix_child_setup.rs",
+      "sha256": "685265091f48b30967310a796d059d6cc63eed48c2236a1b0667d85962691578",
+      "bytes": 2636,
+      "lines": 58,
+      "role": "dependency",
+      "target": "crates/diskgraph-engine/src/native_child/unix_child_setup.rs",
+      "module": "unix_child_setup"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/control_write_status.rs",
+      "sha256": "7327fe8477b673dbd32c2b9b1f53848b4283d26136ca05949c7153d33623449d",
+      "bytes": 749,
+      "lines": 16,
+      "role": "dependency",
+      "target": "crates/diskgraph-engine/src/native_child/control_write_status.rs",
+      "module": "control_write_status"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scanner_filter_atomic_qualification.rs",
+      "sha256": "7eb3b71aee92df36dc1e6b64f580acae99c1fe54d0c29a243b8052868511d80a",
+      "bytes": 5254,
+      "lines": 140,
+      "role": "dependency_projection",
+      "target": "crates/diskgraph-engine/src/native_child/linux_scanner_filter.rs",
+      "module": "linux_scanner_filter"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/native_child/linux_scanner_filter_atomic_qualification.diff.gz",
+      "sha256": "522f37dbad86f62b77909113291e82811e08620a4e9f8d59046f19bc817c1c13",
+      "bytes": 774,
+      "lines": null,
+      "role": "projection_diff",
+      "raw_sha256": "97ef1f1f3ec97980a6ad6aed2083927aa99589801946706da087fcc0b32c9477",
+      "raw_bytes": 1171,
+      "raw_lines": 30,
+      "encoding": "gzip; empty filename; mtime=0; original unified-diff bytes unchanged"
+    }
+  ],
+  "baseline_unix_child": {
+    "target": "crates/diskgraph-engine/src/native_child/unix_child.rs",
+    "sha256": "6c530072bb8c9dbd13cda7873d5844b12c8c655417ce43ec3eb63755b6e549a9"
+  },
+  "test_names": [
+    "held_elf_replacement_preserves_image_and_closes_unrelated_descriptors",
+    "production_stdin_fragments_and_real_eof_precede_original_pidfd_wait",
+    "scanner_filter_rejects_process_clone_but_actual_pthread_still_runs",
+    "main_pthread_exit_is_not_whole_thread_group_exit",
+    "multithreaded_host_handlers_and_atfork_do_not_run_in_child_branch",
+    "fatal_before_first_init_is_reaped_through_original_kernel_pidfd",
+    "startup_channel_eof_causes_actual_natural_exit_and_original_reap",
+    "after_birth_checkpoint_keeps_nonclone_primary_and_performs_actual_wait",
+    "parent_observer_panic_reaps_before_original_payload_resumes",
+    "original_pidfd_external_reap_does_not_target_other_live_child",
+    "real_clone_denial_preserves_errno_and_has_no_fallback_or_birth_observer",
+    "actual_close_range_error_is_typed_and_child_is_reaped_without_exec",
+    "actual_getpgid_denial_preserves_original_errno_and_reaps",
+    "actual_getsid_denial_preserves_original_errno_and_reaps",
+    "startup_error_before_init_send_preserves_queued_errno_and_original_wait",
+    "waitid_denied_after_physical_exit_returns_original_owner_for_actual_reap",
+    "waitid_denied_unwind_keeps_original_box_and_transfers_unreaped_owner"
+  ],
+  "expected_parent_cases": 17,
+  "projection_boundaries": [
+    "Committed Null UnixChild only: original two post-spawn fcntl operations mechanically delegated to UnixChildSetup.initialize(two_original_fds,false,original_child_id); shared auto-reap method replaces byte-equivalent free implementation. All checkpoint/poll/cleanup/retained-leader semantics unchanged.",
+    "Frozen UnixControlChannel projection only deletes unconsumed pair methods and Stdio/OwnedFd imports. The C8-consumed from_stream/start_write/poll_write/close/send implementations remain byte-exact; no ChildInputMode fake caller or suppression.",
+    "Unconsumed full A control-pair capability is not certified by this projection. Full actual Engine integration must qualify the real unprojected source later.",
+    "Frozen LinuxScannerFilter projection deletes only unused legacy pre_exec install and its std::io import. new/program and the actual C8 BPF construction remain byte-exact; the real C child prctl installation is exercised by C8 tests."
+  ],
+  "native_validation": {
+    "linux_x86_64": "pending; no local Linux compile/runtime of this candidate",
+    "linux_aarch64": "pending; no local Linux compile/runtime of this candidate"
+  },
+  "build_dependency": "Only cc=1 in isolated Cargo.toml and existing cc package reference in isolated Cargo.lock; no version/package upgrade, no main-tree edits.",
+  "limits": [
+    "Actual C fixture IMAGE_ID1/2 build and actual 17 parent tests must succeed on each architecture.",
+    "Object nm/disassembly evidence is distinct from Rust unit tests and must be preserved.",
+    "Ready or startup EOF never permits publication; no SCM or numeric pidfd_open fallback.",
+    "Pre-exec handler reset remains separately unqualified by current exec-after SIGUSR1 fixture.",
+    "No ELF installation trust, MFD_EXEC namespace policy, parent Engine driver, mobile provider or full PF06 acceptance.",
+    "The19 new declarations are isolated lib-test-only mounting. This projection is not a full non-test Engine/source-layout or unprojected A/B integration acceptance.",
+    "Outer namespace cleanup receipt is mandatory; direct execution is denied. Protocol status or Cargo session kill alone never proves all physical children exited.",
+    "Workflow60min hard termination is infrastructure failure and does not prove finite cleanup. Native outer receipt must show actual original init wait/reap."
+  ],
+  "shared_support_sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
+  "qualifier_sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8",
+  "qualification_tooling": {
+    "qualifier": {
+      "path": "scripts/qualify-linux-atomic-launcher.py",
+      "sha256": "e7aba45d254f3fa84217d98eba49c97c6aae583184cc67c4b287788320f495c8",
+      "bytes": 21444,
+      "lines": 396
+    },
+    "unit_tests": {
+      "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
+      "sha256": "0708883e23cf99f98d6724ab93f418be8224f0ab883e24279708b7406ec22fc9",
+      "bytes": 16534,
+      "lines": 318
+    },
+    "shared_support": {
+      "path": "scripts/qualify-linux-scan-image.py",
+      "sha256": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
+      "bytes": 6701,
+      "lines": 162
+    },
+    "pure_python_cases": 18,
+    "actual_pure_python_result": "Author final qualifier18/0 and root independently all31 Python cases/0 (qualifier18+wrapper13); assembly/error/namespace-denial rules only, not Linux native qualification. Audit materials are gzip(mtime=0) with raw bytes unchanged.",
+    "root_python_log": {
+      "historical_path": "/private/tmp/diskgraph-native-qualification-final-python.log",
+      "sha256": "7374ba3a475418228370881f0840275bc9adce1b252c98caf4458966c2339c49",
+      "bytes": 5624,
+      "classification": "actual pure Python orchestration/assembly tests; no native Linux execution"
+    }
+  },
+  "required_outer_supervisor": {
+    "source": {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "197f38ca8025d71bf1e54fc1aca210d5ee6f4a54f9782a521439f78589656eca",
+      "bytes": 23498,
+      "lines": 476
+    },
+    "unit_tests": {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "f1d1966da3aa52b5663a9b0352c823b8b7758ac6ef8f7d547bda87900c9f9a40",
+      "bytes": 13692,
+      "lines": 266
+    },
+    "candidate_manifest_sha256": "18a4b038ea46cc81beb98433b54b6014b41d4c8f196fd554e4eede64109a3ee1",
+    "workflow": {
+      "path": ".github/workflows/native_scan_qualification.yml",
+      "sha256": "30606d5722eb924e2e96e813e51f71c82e512257564a92e9049eb3332c6f226d",
+      "bytes": 2962,
+      "lines": 70
+    },
+    "qualification_marker": "DG_NATIVE_NAMESPACE_SUPERVISED=1 + actual getpid()==1 + actual /proc/self=1 + actual PID namespace link matching DG_NATIVE_PID_NAMESPACE",
+    "output_contract": "DG_NATIVE_NAMESPACE_OUTPUT/qualification; created only by inner qualifier",
+    "cleanup_contract": "Local command-session SIGKILL/wait does not certify setsid descendants. Actual outer namespace init pidfd wait/reap and final supervisor receipt are mandatory. Inner status only component_tests_passed_awaiting_outer_cleanup.",
+    "native_validation": "pending actual Linux x86_64/aarch64 namespace containment self-test and all17 launcher cases; no Cargo/cc/native execution by author"
+  },
+  "root_commands": {
+    "pure_python": "python3 -m unittest discover -s scripts/tests -v",
+    "native_self_test_argv": [
+      "sudo",
+      "-n",
+      "--preserve-env=PATH,RUSTFLAGS,CARGO_HOME,RUSTUP_HOME",
+      "<absolute-python>",
+      "<repo>/scripts/run-native-pid-namespace.py",
+      "--runner-uid",
+      "<original-runner-uid>",
+      "--runner-gid",
+      "<original-runner-gid>",
+      "--runner-groups",
+      "<original-runner-supplementary-groups>",
+      "--timeout-seconds",
+      "2",
+      "--self-test",
+      "--output-dir",
+      "<fresh-absolute-selftest-output>"
+    ],
+    "native_qualification_argv": [
+      "sudo",
+      "-n",
+      "--preserve-env=PATH,RUSTFLAGS,CARGO_HOME,RUSTUP_HOME",
+      "<absolute-python>",
+      "<repo>/scripts/run-native-pid-namespace.py",
+      "--runner-uid",
+      "<original-runner-uid>",
+      "--runner-gid",
+      "<original-runner-gid>",
+      "--runner-groups",
+      "<original-runner-supplementary-groups>",
+      "--timeout-seconds",
+      "1800",
+      "--output-dir",
+      "<fresh-absolute-output>",
+      "--",
+      "<same-absolute-python>",
+      "<repo>/scripts/qualify-linux-atomic-launcher.py",
+      "--output-dir",
+      "{qualification_output}"
+    ],
+    "native_inventory_and_execution": "Inside exact commit isolated checkout: cargo test --offline --locked -p diskgraph-engine --lib native_child::linux_atomic_launcher_ -- --list; then same prefix --nocapture --test-threads=1; exact compiled inventory17 and actual17/0/0 required.",
+    "object_evidence": "Actual nm -u, objdump -dr, ar t of newly built C object/archive; raw logs plus original source/object hashes retained, not a replacement for independent disassembly review."
+  }
+}

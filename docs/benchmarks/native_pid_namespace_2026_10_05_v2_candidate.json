@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "scope": "Linux PID namespace outer qualification owner only; not production C8 owner/Engine acceptance",
+  "sources": [
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "543ed453fd2aaa8e6cc6dd28d656bc9513f20e351ac1739a8b79141ec1ea03f1",
+      "lines": 470,
+      "bytes": 23198
+    },
+    {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "849cc951716321b0088072337febea86010c84fc14854d54cb85c983ffdee75f",
+      "lines": 167,
+      "bytes": 9162
+    }
+  ],
+  "tests": {
+    "command": "python3 -m unittest discover -s scripts/tests -p test_native_pid_namespace.py -v",
+    "passed": 11,
+    "failed": 0,
+    "exit_code": 0,
+    "scope": "Python contracts on macOS only; no Linux namespace execution.",
+    "log": {
+      "path": "docs/benchmarks/native_pid_namespace_python_2026_10_05.log.gz",
+      "raw_sha256": "43bb796a642ba5b19f77382048bec17f0c0a1354a6c203e39ef6d5bc9f80ed76",
+      "gzip_sha256": "5d242c4170f22849e31c73cd55aba39f4f5015ca92e8a237d191382bb11c2029"
+    }
+  },
+  "native_status": "not run; v2 orchestration is not qualified for native dispatch",
+  "contract": {
+    "output": "OUT wrapper creates; OUT/qualification created only by child script",
+    "child_argv": "absolute same Python, absolute qualification .py, --output-dir, {qualification_output}",
+    "expected_inner_status": "component_tests_passed_awaiting_outer_cleanup",
+    "expected_cases": 17,
+    "run_deadline_seconds": 1800,
+    "cleanup_pending_after_seconds": 240,
+    "cleanup_policy": "keep original init owner until actual wait; CI hard termination is infrastructure boundary, not successful cleanup",
+    "self_test": "--self-test --timeout-seconds 2; fixed real setsid child+at least two heartbeat records then timeout and actual init wait; not C8 qualification"
+  },
+  "sources_of_semantics": [
+    "https://raw.githubusercontent.com/torvalds/linux/v6.12/kernel/pid_namespace.c",
+    "https://man7.org/linux/man-pages/man7/pid_namespaces.7.html"
+  ],
+  "limitations": [
+    "Linux native self-test and full 17-case run remain unexecuted",
+    "outer PID namespace is not file/network sandbox",
+    "requires sudo namespace setup; qualification itself runs original non-root uid/gid/groups, zero caps, no_new_privs",
+    "no modifications to atomic script, workflow, Cargo, Git, vendor or product Engine"
+  ],
+  "previous_manifest": {
+    "sha256": "e1763c4773bf1abf72f011d7bbbab79553aa7e5890beb623e395e1e3365933ac",
+    "scope": "historical author snapshot; superseded by v2"
+  },
+  "delta": "Guard cleanup_owner finalization errors independently, retain unreaped original owner; add real EBADF finalization error primary-preservation case.",
+  "independent_review": "BLOCKED: monitor can retry persistent selector/drain failure indefinitely even after original init was reaped; finally cleanup_owner is unreachable. Pure-contract regression and v3 fix in progress."
+}

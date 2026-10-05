@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "scope": "Linux PID namespace outer qualification owner only; not production C8 owner/Engine acceptance",
+  "sources": [
+    {
+      "path": "scripts/run-native-pid-namespace.py",
+      "sha256": "197f38ca8025d71bf1e54fc1aca210d5ee6f4a54f9782a521439f78589656eca",
+      "lines": 476,
+      "bytes": 23498
+    },
+    {
+      "path": "scripts/tests/test_native_pid_namespace.py",
+      "sha256": "f1d1966da3aa52b5663a9b0352c823b8b7758ac6ef8f7d547bda87900c9f9a40",
+      "lines": 266,
+      "bytes": 13692
+    }
+  ],
+  "tests": {
+    "command": "python3 -m unittest discover -s scripts/tests -p test_native_pid_namespace.py -v",
+    "passed": 13,
+    "failed": 0,
+    "exit_code": 0,
+    "scope": "macOS Python contract execution, including actual ordinary child wait; no native Linux PID namespace acceptance.",
+    "log": {
+      "path": "docs/benchmarks/native_pid_namespace_v3_green_2026_10_05.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "2ad49279ff888fb2f174942f55a3a356cb62b1ac8a0c9a0f7456d7316b95e53b",
+      "gzip_sha256": "799293e68881c9c073af1cebbd8c08c72f271350f62413c158d0f54acaece251"
+    }
+  },
+  "native_status": "pending on Linux x86_64 and ARM64; no sudo/unshare executed by author",
+  "contract": {
+    "output": "OUT wrapper creates; OUT/qualification created only by child script",
+    "child_argv": "absolute same Python, absolute qualification .py, --output-dir, {qualification_output}",
+    "expected_inner_status": "component_tests_passed_awaiting_outer_cleanup",
+    "expected_cases": 17,
+    "run_deadline_seconds": 1800,
+    "cleanup_pending_after_seconds": 240,
+    "cleanup_policy": "keep original init owner until actual wait; CI hard termination is infrastructure boundary, not successful cleanup",
+    "self_test": "--self-test --timeout-seconds 2; fixed real setsid child+at least two heartbeat records then timeout and actual init wait; not C8 qualification"
+  },
+  "sources_of_semantics": [
+    "https://raw.githubusercontent.com/torvalds/linux/v6.12/kernel/pid_namespace.c",
+    "https://man7.org/linux/man-pages/man7/pid_namespaces.7.html"
+  ],
+  "limitations": [
+    "Linux native self-test and full 17-case run remain unexecuted",
+    "outer PID namespace is not file/network sandbox",
+    "requires sudo namespace setup; qualification itself runs original non-root uid/gid/groups, zero caps, no_new_privs",
+    "no modifications to atomic script, workflow, Cargo, Git, vendor or product Engine"
+  ],
+  "previous_manifest": {
+    "path": "docs/benchmarks/native_pid_namespace_2026_10_05_v2_candidate.json",
+    "scope": "Historical blocked v2 retained."
+  },
+  "delta": "Drain/selector exceptions escape monitor to independent cleanup_owner; preserve original IO error. Timeout remains in original kill/wait/drain loop. Two isolated ordinary-child actual-wait regressions use true EBADF/select and EOF-close seams; no namespace-native claim.",
+  "diff": {
+    "path": "docs/benchmarks/native_pid_namespace_v3_2026_10_05.diff.gz",
+    "sha256": "fef18715631acd19cbd3999c7ab91f8a7757fce9dade5d7cab1e23e899b5c060",
+    "raw_sha256": "6eac8ce3a23092d9e6f36ed132299902f2623d885997549394011a15903a1d99"
+  },
+  "actual_red": {
+    "failed": 2,
+    "scope": "Actual ordinary child wait completed; persistent select and EOF-close faults then kept monitor stuck. Bounded subprocess rescue. Not Linux namespace acceptance.",
+    "log": {
+      "path": "docs/benchmarks/native_pid_namespace_monitor_red_2026_10_05.log.gz",
+      "exit_code": 1,
+      "raw_sha256": "f496093db6641c91da9fd63b5bf26a9492ba528a211a489fcf55e3c5e84fda57",
+      "gzip_sha256": "627b653f90803d6b85ea1fa7e016ef76eed8579d9e2924cfa1febbdbc39cd92b"
+    }
+  },
+  "independent_review": "APPROVE v3 narrow delta by d24_final_code_review: original error preserved, persistent selector and EOF-close faults leave monitor and reach independent original-owner cleanup; native Linux self-test and 17 cases remain pending."
+}

@@ -1,0 +1,70 @@
+name: Native scan qualification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  linux_atomic_launcher:
+    name: Atomic launcher (${{ matrix.os }} / Rust ${{ matrix.rust }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rust: stable
+          - os: ubuntu-latest
+            rust: "1.97.0"
+          - os: ubuntu-24.04-arm
+            rust: stable
+    runs-on: ${{ matrix.os }}
+    # 外层仍保留未回收 owner；作业硬终止属于基础设施失败，不是清理完成证据。
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.13"
+      - name: Fetch exact locked dependencies before offline qualification
+        run: cargo fetch --locked
+      - name: Verify qualification assembly and error preservation
+        run: python -m unittest discover -s scripts/tests -v
+      - name: Prove real setsid descendant containment on timeout
+        run: |
+          python_binary="$(command -v python)"
+          runner_groups="$(id -G | tr ' ' ',')"
+          sudo -n --preserve-env=PATH,RUSTFLAGS,CARGO_HOME,RUSTUP_HOME "$python_binary" \
+            "$GITHUB_WORKSPACE/scripts/run-native-pid-namespace.py" \
+            --runner-uid "$(id -u)" --runner-gid "$(id -g)" --runner-groups "$runner_groups" \
+            --timeout-seconds 2 --self-test \
+            --output-dir "${{ runner.temp }}/diskgraph-namespace-self-test"
+      - name: Qualify exact candidate in isolated commit checkout
+        run: |
+          python_binary="$(command -v python)"
+          runner_groups="$(id -G | tr ' ' ',')"
+          sudo -n --preserve-env=PATH,RUSTFLAGS,CARGO_HOME,RUSTUP_HOME "$python_binary" \
+            "$GITHUB_WORKSPACE/scripts/run-native-pid-namespace.py" \
+            --runner-uid "$(id -u)" --runner-gid "$(id -g)" --runner-groups "$runner_groups" \
+            --timeout-seconds 1800 --output-dir "${{ runner.temp }}/diskgraph-atomic-launcher" \
+            -- "$python_binary" "$GITHUB_WORKSPACE/scripts/qualify-linux-atomic-launcher.py" \
+            --output-dir '{qualification_output}'
+      - name: Preserve actual native results and source provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: atomic-launcher-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/diskgraph-atomic-launcher
+            ${{ runner.temp }}/diskgraph-namespace-self-test
+          retention-days: 7
+          if-no-files-found: error

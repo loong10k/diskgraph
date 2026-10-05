@@ -1,0 +1,37 @@
+[package]
+readme = "README.md"
+name = "diskgraph-engine"
+description = "Job orchestration, staging, and authorized scope services for DiskGraph"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+
+[dependencies]
+sha2.workspace = true
+sha1.workspace = true
+hex.workspace = true
+serde_json.workspace = true
+libc = "0.2"
+diskgraph-core.workspace = true
+diskgraph-store.workspace = true
+diskgraph-disktree.workspace = true
+diskgraph-disktree-core.workspace = true
+diskgraph-scan-worker = { path = "../diskgraph-scan-worker" }
+serde.workspace = true
+thiserror = "2"
+uuid.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Wdk_Foundation", "Wdk_Storage_FileSystem", "Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_System_IO", "Win32_System_JobObjects", "Win32_System_Pipes", "Win32_System_Threading"] }
+
+[dev-dependencies]
+diskgraph-testkit.workspace = true
+tempfile = "3"
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+syn = { version = "2.0.119", features = ["full", "visit"] }
+
+[build-dependencies]
+cc = "1"
