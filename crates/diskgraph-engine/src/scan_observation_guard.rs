@@ -1,3 +1,4 @@
+use crate::job_execution_stop_reason::JobExecutionStopReason;
 use crate::{Engine, EngineError};
 use diskgraph_core::{BusinessError, JobRequestAuthority, Permission};
 use diskgraph_store::JobRecord;
@@ -14,6 +15,7 @@ pub(super) struct ScanObservationGuard<'a> {
     cancel: &'a AtomicBool,
     started: Instant,
     checked: Cell<Option<Instant>>,
+    stop_reason: Option<&'a JobExecutionStopReason>,
 }
 
 impl<'a> ScanObservationGuard<'a> {
@@ -33,7 +35,15 @@ impl<'a> ScanObservationGuard<'a> {
             cancel,
             started,
             checked: Cell::new(None),
+            stop_reason: None,
         }
+    }
+
+    /// 参数：reason 为同执行代次 keeper 的原错误槽；返回：沿原门禁时钟的借用检查器。
+    /// 不新增 owner 或授权能力，旧独立门禁构造保持不变。
+    pub(super) fn with_stop_reason(mut self, reason: &'a JobExecutionStopReason) -> Self {
+        self.stop_reason = Some(reason);
+        self
     }
 
     fn check_fast(&self) -> Result<(), EngineError> {
@@ -41,7 +51,10 @@ impl<'a> ScanObservationGuard<'a> {
             authority.validate_at(crate::job_authorization::unix_seconds()?)?;
         }
         if self.cancel.load(Ordering::SeqCst) {
-            return Err(BusinessError::Conflict.into());
+            return Err(self
+                .stop_reason
+                .and_then(JobExecutionStopReason::take)
+                .unwrap_or_else(|| BusinessError::Conflict.into()));
         }
         if self.started.elapsed() > Duration::from_millis(self.engine.scan_budget.max_duration_ms) {
             return Err(BusinessError::BudgetExceeded.into());

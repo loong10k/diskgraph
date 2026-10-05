@@ -1,3 +1,4 @@
+mod cancel_body;
 mod decoded_tree;
 mod flat_node;
 mod flat_nodes;
@@ -15,6 +16,20 @@ mod tree_codec;
 mod tree_state;
 mod tree_writer;
 
+mod worker_control;
+mod worker_failure;
+mod worker_io_kind;
+mod worker_limits;
+mod worker_message;
+mod worker_output;
+mod worker_path;
+mod worker_request;
+#[cfg(test)]
+mod worker_request_tests;
+mod worker_runtime;
+mod worker_scan_request;
+mod worker_tree;
+
 pub use decoded_tree::DecodedTree;
 pub use flat_node::FlatNode;
 pub use flat_nodes::FlatNodes;
@@ -28,3 +43,4 @@ pub use scan_progress::ScanProgress;
 pub use scan_request::ScanRequest;
 pub use tree_codec::{read_tree, write_tree, write_tree_with_limits};
 pub use tree_writer::TreeWriter;
+pub use worker_runtime::run_worker_stdio;

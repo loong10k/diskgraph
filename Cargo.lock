@@ -642,6 +642,7 @@ dependencies = [
  "diskgraph-disktree-core",
  "serde",
  "serde_json",
+ "tempfile",
 ]
 
 [[package]]

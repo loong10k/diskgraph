@@ -26,6 +26,13 @@ impl<R: Read> FrameReader<R> {
     /// 参数：self 为同一个尚未失败的帧读取器。
     /// 返回：完整帧、干净 EOF 或锁存的读取/准入/解码错误。
     pub fn read_frame(&mut self) -> io::Result<Option<Frame>> {
+        self.read_payload()
+    }
+
+    /// 在原账本上读取闭合协议载荷，不新建读取器或刷新已消费字节。
+    /// 参数：T 为 serde 闭合协议类型；self 保持原输入流及上界。
+    /// 返回：类型化载荷、干净 EOF 或锁存错误，长度先准入再分配。
+    pub fn read_payload<T: serde::de::DeserializeOwned>(&mut self) -> io::Result<Option<T>> {
         if self.failed {
             return Err(io::Error::other("frame reader already failed"));
         }
@@ -34,7 +41,7 @@ impl<R: Read> FrameReader<R> {
         result
     }
 
-    fn read_checked(&mut self) -> io::Result<Option<Frame>> {
+    fn read_checked<T: serde::de::DeserializeOwned>(&mut self) -> io::Result<Option<T>> {
         let mut header = [0_u8; 4];
         loop {
             match self.input.read(&mut header[..1]) {

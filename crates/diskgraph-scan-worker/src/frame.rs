@@ -26,5 +26,6 @@ pub enum Frame {
         code: String,
         message: String,
     },
+    #[serde(deserialize_with = "crate::cancel_body::CancelBody::deserialize_unit")]
     Cancel,
 }

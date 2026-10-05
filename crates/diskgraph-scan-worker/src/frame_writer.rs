@@ -26,10 +26,17 @@ impl<W: Write> FrameWriter<W> {
     /// 参数：frame 为借用的平铺帧，self 持有累计字节账本。
     /// 返回：本帧完整写入字节数或锁存错误；原下游 IO 错误类型保持。
     pub fn write_frame(&mut self, frame: &Frame) -> io::Result<u64> {
+        self.write_payload(frame)
+    }
+
+    /// 在同一有限序列化 sink 上写入专用协议载荷，保留原 Frame 兼容入口。
+    /// 参数：payload 为借用的可序列化载荷；self 保持原帧和流账本。
+    /// 返回：本帧完整字节数或锁存错误，不先构造无界 JSON Vec。
+    pub fn write_payload<T: serde::Serialize + ?Sized>(&mut self, payload: &T) -> io::Result<u64> {
         if self.failed {
             return Err(io::Error::other("frame writer already failed"));
         }
-        let result = self.write_checked(frame);
+        let result = self.write_checked(payload);
         self.failed = result.is_err();
         result
     }
@@ -51,7 +58,7 @@ impl<W: Write> FrameWriter<W> {
         Ok(maximum)
     }
 
-    fn write_checked(&mut self, frame: &Frame) -> io::Result<u64> {
+    fn write_checked<T: serde::Serialize + ?Sized>(&mut self, frame: &T) -> io::Result<u64> {
         let maximum = self.remaining_body_bytes()?;
         let mut body = PayloadBuffer::new(maximum);
         serde_json::to_writer(&mut body, frame)
@@ -67,6 +74,18 @@ impl<W: Write> FrameWriter<W> {
         self.output.write_all(body.as_slice())?;
         self.bytes = total;
         Ok(written)
+    }
+
+    /// 刷出已有帧，不重置额度；真实 IO 失败锁存，不能在部分流上继续。
+    /// 参数：self 为同次有界写入器。
+    /// 返回：下游 flush 的真实结果。
+    pub fn flush(&mut self) -> io::Result<()> {
+        if self.failed {
+            return Err(io::Error::other("frame writer already failed"));
+        }
+        let result = self.output.flush();
+        self.failed = result.is_err();
+        result
     }
 
     /// 返回已完整写出的帧字节数；部分 IO 失败不称完整成功，也不能再使用此流。

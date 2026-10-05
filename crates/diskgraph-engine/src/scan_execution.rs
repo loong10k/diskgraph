@@ -1,5 +1,6 @@
 //! 共享 Engine 的 scan_execution 职责；原调用与持锁顺序保持。
 
+use crate::job_execution_stop_reason::JobExecutionStopReason;
 use crate::scan_node_locator::qualify_scan_locator;
 use crate::scan_observation_guard::ScanObservationGuard;
 use crate::{Engine, EngineError, collect_projects};
@@ -16,7 +17,7 @@ use std::time::{Duration, Instant};
 
 impl Engine {
     /// 在当前 fence 下扫描、转换、暂存并原子发布 revision。
-    /// 参数：job_id/owner/fence 确定代次，cancel 为协作取消标志，scan_started 为成功认领后的原始起点。
+    /// 参数：job_id/owner/fence 确定代次，cancel 为协作取消，scan_started 为原起点，stop_reason 保存同代 keeper 原失败。
     /// 返回：成功或扫描/容量/授权/fence/存储失败；采集发布失败整批回滚，既有版本保持不变。
     pub(super) fn execute_scan(
         &self,
@@ -25,6 +26,7 @@ impl Engine {
         fence: u64,
         cancel: &AtomicBool,
         scan_started: Instant,
+        stop_reason: &JobExecutionStopReason,
     ) -> Result<(), EngineError> {
         // 进入执行前先扣除认领后的准备/锁等待；不能到扫描器启动时重新计时。
         if scan_started.elapsed() > Duration::from_millis(self.scan_budget.max_duration_ms) {
@@ -64,7 +66,8 @@ impl Engine {
         let staging_id = format!("{job_id}:{}", job.fencing_token);
         let options = self.scan_options.clone();
         let observation_guard =
-            ScanObservationGuard::new(self, &job, authority.as_ref(), cancel, scan_started);
+            ScanObservationGuard::new(self, &job, authority.as_ref(), cancel, scan_started)
+                .with_stop_reason(stop_reason);
         observation_guard.check_now()?;
         #[cfg(windows)]
         let _hydration_guard = diskgraph_disktree::HydrationGuard::enter()
@@ -79,22 +82,33 @@ impl Engine {
             crate::native_process::LinuxScanRoot::open(&root, &|| observation_guard.check())?;
         let handle =
             diskgraph_disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
+        #[cfg(test)]
+        crate::job_stop_cause_hooks::after_spawn(job_id);
         let mut exceeded = false;
+        let mut observation_error = None;
         let tree = loop {
-            if now_ms().saturating_sub(last_heartbeat) >= 5000 {
-                if self
+            if observation_error.is_none() && now_ms().saturating_sub(last_heartbeat) >= 5000 {
+                let heartbeat = self
                     .control()?
-                    .heartbeat_fenced(job_id, owner, job.fencing_token)
-                    .is_err()
-                {
+                    .heartbeat_fenced(job_id, owner, job.fencing_token);
+                #[cfg(test)]
+                crate::job_stop_cause_hooks::heartbeat_checked(job_id, &heartbeat);
+                if let Err(error) = heartbeat {
                     handle.cancel();
-                    return Err(EngineError::Store(StoreError::StaleOwner));
+                    return Err(error.into());
                 }
                 last_heartbeat = now_ms();
             }
-            if observation_guard.check_now().is_err() {
-                cancel.store(true, Ordering::SeqCst);
-                handle.cancel();
+            if observation_error.is_none() {
+                let checked = observation_guard.check_now();
+                #[cfg(test)]
+                crate::job_stop_cause_hooks::scan_checked(job_id, &checked);
+                if let Err(error) = checked {
+                    // 停止后只等待原 poll 结束；保留本次真实错误，不再次消费原因或进入转换/暂存。
+                    observation_error = Some(error);
+                    cancel.store(true, Ordering::SeqCst);
+                    handle.cancel();
+                }
             }
             let progress = handle.progress.snapshot();
             if let Ok(mut entries) = self.scan_progress.lock() {
@@ -120,6 +134,10 @@ impl Engine {
                         diskgraph_core::Decision::Allowed
                     ))
             {
+                if observation_error.is_none() && cancel.load(Ordering::SeqCst) {
+                    // 该分支已经见到本代停止位；若 keeper 原错误尚未由 guard 取得，在转换前保留。
+                    observation_error = stop_reason.take();
+                }
                 cancel.store(true, Ordering::SeqCst);
                 handle.cancel();
             }
@@ -128,16 +146,32 @@ impl Engine {
                 None => thread::sleep(Duration::from_millis(20)),
             }
         };
+        let tree = match tree {
+            // pinned MFT 的 cancelled() 只产生此固定 Interrupted；不把任意 I/O 失败与停止位关联。
+            Err(error)
+                if (cancel.load(Ordering::SeqCst) || exceeded)
+                    && error.kind() == io::ErrorKind::Interrupted
+                    && error.to_string() == "the scan was cancelled" =>
+            {
+                return Err(observation_error
+                    .or_else(|| {
+                        if exceeded {
+                            Some(BusinessError::BudgetExceeded.into())
+                        } else {
+                            stop_reason.take()
+                        }
+                    })
+                    .unwrap_or_else(|| BusinessError::Conflict.into()));
+            }
+            Err(error) => return Err(error.into()),
+            Ok(tree) => tree,
+        };
+        if let Some(error) = observation_error {
+            return Err(error);
+        }
         if exceeded {
             return Err(EngineError::Business(BusinessError::BudgetExceeded));
         }
-        let tree = tree.map_err(|error| {
-            if cancel.load(Ordering::SeqCst) {
-                EngineError::Business(BusinessError::Conflict)
-            } else {
-                EngineError::Io(error)
-            }
-        })?;
         let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))
             .map_err(|error| {
                 if error.kind() == io::ErrorKind::Unsupported {
@@ -328,6 +362,8 @@ impl Engine {
         if let Ok(root) = &unix_root {
             root.validate(&|| observation_guard.check())?;
         }
+        #[cfg(test)]
+        crate::job_stop_cause_hooks::after_final_scan_validation(job_id);
         let mut graph = self.graph()?;
         if !self.accepts_new_work() {
             graph.clear_staging(&staging_id)?;
@@ -335,9 +371,17 @@ impl Engine {
         }
         // 撤权和发布共用控制库锁，防止检查通过后撤权仍发布。
         let mut control = self.control()?;
-        if control.scope(&job.scope_id)?.revoked || cancel.load(Ordering::SeqCst) {
+        if control.scope(&job.scope_id)?.revoked {
             graph.clear_staging(&staging_id)?;
             return Err(EngineError::Business(BusinessError::PermissionDenied));
+        }
+        if cancel.load(Ordering::SeqCst) {
+            graph.clear_staging(&staging_id)?;
+            // 同代 keeper 已先保存原因再置停止位；此处不把真实 SQL 失败改成撤权。
+            // 没有 keeper 原因的旧取消路径保留原返回，实际 scope 撤销优先拒权。
+            return Err(stop_reason
+                .take()
+                .unwrap_or_else(|| BusinessError::PermissionDenied.into()));
         }
         if control.policy_state()?.is_some() {
             Self::require_with_control(

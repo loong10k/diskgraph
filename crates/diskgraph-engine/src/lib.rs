@@ -42,9 +42,18 @@ mod job_cancellation_guard;
 #[cfg(test)]
 mod job_cancellation_guard_tests;
 mod job_execution;
+mod job_execution_stop_reason;
 #[cfg(test)]
 mod job_keeper_unwind_tests;
 mod job_request_cancel_bridge;
+#[cfg(test)]
+mod job_stop_cause_fixture;
+#[cfg(test)]
+mod job_stop_cause_hooks;
+#[cfg(test)]
+mod job_stop_cause_outcome_tests;
+#[cfg(test)]
+mod job_stop_cause_tests;
 #[cfg(test)]
 mod job_stop_conflict_tests;
 #[cfg(test)]

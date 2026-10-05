@@ -1,0 +1,89 @@
+use crate::{
+    FlatNodes, Frame, FrameWriter, ProtocolLimits, ScanProgress, tree_state::TreeState,
+    worker_control::WorkerControl, worker_failure::WorkerFailure,
+};
+use diskgraph_disktree_core::{scan::ScanSnapshot, tree::Node};
+use std::io::{self, Write};
+
+/// 执行期唯一输出账本；来源：PF-06，握手、真实进度、平铺树和错误都不重置额度。
+pub(crate) struct WorkerOutput<W> {
+    frames: FrameWriter<W>,
+    state: TreeState,
+    limits: ProtocolLimits,
+}
+
+impl<W: Write> WorkerOutput<W> {
+    /// 参数：output 为 stdout 或测试管道，limits 为已校验的原执行请求额度。
+    /// 返回：整个执行期共用的单一输出 owner。
+    pub(crate) fn new(output: W, limits: ProtocolLimits) -> Self {
+        Self {
+            frames: FrameWriter::new(output, limits),
+            state: TreeState::new(limits),
+            limits,
+        }
+    }
+
+    /// 参数：self 为未发送结果的输出端。
+    /// 返回：真实构建 target 与固定 pin 声明的写入结果；声明不证明安装完整性。
+    pub(crate) fn hello(&mut self) -> io::Result<()> {
+        self.frames.write_frame(&Frame::Hello {
+            version: 2,
+            target: env!("DISKGRAPH_WORKER_TARGET").to_owned(),
+            pin: "158f9cc2f0b332194a3ffc5acec47760c99146d8".to_owned(),
+        })?;
+        self.frames.flush()
+    }
+
+    /// 参数：snapshot 为 pinned scanner 的真实进度快照，所有字段及 messages 保留。
+    /// 返回：共用原额度的 Progress 写入结果。
+    pub(crate) fn progress(&mut self, snapshot: ScanSnapshot) -> io::Result<()> {
+        let frame = Frame::Progress {
+            progress: ScanProgress::from_native(snapshot),
+        };
+        self.state.accept(&frame)?;
+        self.frames.write_frame(&frame)?;
+        self.frames.flush()
+    }
+
+    /// 参数：root 为唯一原生树的借用，control 为同次实际取消信号。
+    /// 返回：完整 End 成功或真实失败；每个名称拥有前检查原节点/深度/正文剩余额度。
+    pub(crate) fn tree(
+        &mut self,
+        root: &Node,
+        control: &WorkerControl,
+    ) -> Result<(), WorkerFailure> {
+        let mut nodes = FlatNodes::new(root);
+        loop {
+            control.check()?;
+            let remaining = self.frames.remaining_body_bytes().map_err(output_error)?;
+            let Some(node) = nodes.next_with_limits(self.limits, remaining) else {
+                break;
+            };
+            let frame = Frame::Node {
+                node: node.map_err(output_error)?,
+            };
+            self.state.accept(&frame).map_err(output_error)?;
+            self.frames.write_frame(&frame).map_err(output_error)?;
+        }
+        control.check()?;
+        let end = Frame::End {
+            nodes: self.state.count(),
+        };
+        self.state.accept(&end).map_err(output_error)?;
+        // 先标记合法终帧，父收到 End 后的关闭不会与控制 reader 产生假 UnexpectedEof。
+        control.mark_terminal();
+        self.frames.write_frame(&end).map_err(output_error)?;
+        self.frames.flush().map_err(output_error)
+    }
+
+    /// 参数：failure 为固定类别及真实 IO 消息，self 仍使用原流余额。
+    /// 返回：唯一 Error 帧写入结果；部分 IO 失败后不重建 writer 续写。
+    pub(crate) fn failure(&mut self, failure: &WorkerFailure) -> io::Result<()> {
+        self.frames.write_payload(failure)?;
+        self.frames.flush()
+    }
+}
+
+fn output_error(error: io::Error) -> WorkerFailure {
+    WorkerFailure::new("output", error)
+}

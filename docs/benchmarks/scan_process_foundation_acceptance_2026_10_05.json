@@ -1,7 +1,7 @@
 {
   "schema": "diskgraph.scan_process_foundation_acceptance.v1",
   "base_commit": "4db8de8",
-  "status": "reviewed foundation; native CI and final full QA not accepted",
+  "status": "reviewed foundation; terminal native CI20/22 failure; not accepted for production",
   "review_status": "independent source and receipt reviews APPROVE; final full QA and new native CI remain unaccepted",
   "scope": {
     "implemented": [
@@ -112,7 +112,37 @@
       "wire_bytes": 2097899
     }
   },
-  "native_ci": "pending for these source hashes; b3b3746 CI22/22 belongs to prior source",
+  "native_ci": {
+    "run": 37242905214,
+    "sha": "792fb4c85691cb87862cb2343f2346798dbcc09a",
+    "status": "completed",
+    "conclusion": "failure",
+    "successful_jobs": 20,
+    "failed_jobs": 2,
+    "sources_checked_against_commit": 58,
+    "failures": [
+      {
+        "job": 111554989441,
+        "platform": "macOS ARM MSRV",
+        "stage": "Migration gate ST-02",
+        "case": "control_write_deadline_probe_tests::control_write_external_writer_original_deadline_has_real_stage_diagnostics",
+        "preparation_us": 407385,
+        "original_window_ms": 400,
+        "remaining_at_entry_us": 0,
+        "begin_entered": false,
+        "guard_refusal_us": 5,
+        "qualification": "expired input refused correctly; target writer contention not reached"
+      },
+      {
+        "job": 111554989303,
+        "platform": "Windows MSRV",
+        "stage": "workspace CLI git_evidence_flow",
+        "case": "explicit_git_sync_wait_uses_the_persisted_publication_revision",
+        "error_code": "unsupported",
+        "cause": "unknown; CLI output does not distinguish admission/capture/verification origins"
+      }
+    ]
+  },
   "full_platform_tasks": {
     "total": 167,
     "completed": 140,
@@ -264,6 +294,16 @@
       "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-tui-frame-phase-target.log.gz",
       "raw_sha256": "6ce016c5a60c66cc24e171a0b4c94a651cec5ed28a4c23058f5daf5f5cb5edff",
       "gzip_sha256": "6b4748da5bca992c47d9bda19aa67ca5c756f7ee69e1b32e3aceee0fbae14aa0"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-792fb4c-ci-terminal.json.gz",
+      "raw_sha256": "eb190047faaab5130f3eced4f5b36ee215717b2035bce637fee7548e234e4241",
+      "gzip_sha256": "9ffb562bab8b68784d4748b4a618c2cb56c53767e8024464a929a48888a0ce72"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-792fb4c-windows-msrv-job.log.gz",
+      "raw_sha256": "e215d8ce2ed793580346c2548ae4e2969de36cf3eeee20bfb18bd6acae57a2f2",
+      "gzip_sha256": "81191a717a090e41695e5c85ffef9e708aeb610b22be44d6356c3fbc883e7f6d"
     }
   ],
   "independent_receipt_review": {
@@ -271,5 +311,662 @@
     "sources_verified": 58,
     "archives_verified": 16,
     "decision": "APPROVE material accuracy only"
+  },
+  "native_outcome_review_status": {
+    "status": "APPROVE",
+    "reviewed_receipt_sha256": "4087a59172b4367fb57153ed835064c615050054629a7208c66f8d0216a0c937",
+    "reviewed_archives": 18,
+    "scope": "792fb4c terminal evidence only; subsequent follow-up evidence requires separate review"
+  },
+  "follow_up_ci": {
+    "run": 37244358774,
+    "sha": "7f2df79c91bd2255fe40b64a49bd356efc90a292",
+    "status": "completed",
+    "conclusion": "failure",
+    "successful_jobs": 17,
+    "failed_jobs": 5,
+    "acceptance": "failed; causes unconfirmed; not accepted for production",
+    "failures": [
+      {
+        "job": 111559180907,
+        "platform": "Linux x64 stable",
+        "stage": "200k wide release benchmark fixture run_job",
+        "error": "Business(Conflict)",
+        "query_phase_entered": false
+      },
+      {
+        "job": 111559180915,
+        "platform": "Linux ARM stable",
+        "stage": "hardening history fixture run_job",
+        "error": "Business(Conflict)",
+        "query_phase_entered": false
+      },
+      {
+        "job": 111559180929,
+        "platform": "macOS Intel stable",
+        "stage": "zero-allocation private Git entry-limit fixture",
+        "error": "unsupported private Git native space accounting",
+        "native_values_recorded": false
+      },
+      {
+        "job": 111559180934,
+        "platform": "Windows stable",
+        "stage": "terminal grant withdrawal result assertion",
+        "actual_error_recorded": false
+      },
+      {
+        "job": 111559180935,
+        "platform": "Windows MSRV",
+        "stage": "terminal scope and grant withdrawal result assertions",
+        "actual_error_recorded": false
+      }
+    ],
+    "archives": [
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-ci-terminal.json.gz",
+        "raw_sha256": "79837f128bfcd188e4d65a9beda7a04c3ef293dfe01314bf84e32f8f79ff26fa",
+        "gzip_sha256": "636a34c298700a4d7cd1ff670b477c50fb65e89098af6bb06c5b81014927bd23"
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-linux-x64-job.log.gz",
+        "raw_sha256": "2e54135d58350a746044f732fda0baa81dafabafb30aee66f7d9c65eaa44f835",
+        "gzip_sha256": "61bc494905855133f8928c626c7a31dd8f4fce00c186e14b7a7617a418d6339b"
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-linux-arm-job.log.gz",
+        "raw_sha256": "514c27a9604a8cb57c3a347f9d46308697b338a8498d772c85addce43623ca5b",
+        "gzip_sha256": "bf7ebf473ba8f9ad783341771758b9053349b1262ba2e7d423b0314d14f5b191"
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-macos-intel-job.log.gz",
+        "raw_sha256": "51b50d5faf111328209d2a493ae2daa47fce29cb3276e5fc863720a2b969f4ef",
+        "gzip_sha256": "970cb3eafd6c82da6265b0c366e62301298989986da3eb4163a34150b253f719"
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-windows-stable-job.log.gz",
+        "raw_sha256": "90d64489cd55f6108f34a16e25aa63974d9c1d14eee2cf4c2c72f747c79c5551",
+        "gzip_sha256": "24802ffc1f51bbeda350a429b5251fccbe21cf0db4a02d2693fe0b38913c1d22"
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-windows-msrv-job.log.gz",
+        "raw_sha256": "10eb558c3d778e278436ae71f14d6418703ece10869d08dbf124f001e43de8b1",
+        "gzip_sha256": "471e0d69393909ef3e693b4a2156fdd11119b96b57bbd3702d44fca17b524859"
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-7f2df79-200k-candidate.stderr.gz",
+        "raw_sha256": "0bc12e3f79843879f4e8d4f6041ed37a866bba8bb7d61052a054f6be659c80f7",
+        "gzip_sha256": "ddf82fbe5b7807393788a73b4cf1a5c2875e855ebff9289bddc403ee493f2fff"
+      }
+    ],
+    "review_status": "pending independent material review"
+  },
+  "diagnostic_follow_up_ci": {
+    "run": 37246447522,
+    "sha": "b9e73fa0aa38df42c22fda68da7f180fe24c9e71",
+    "status": "completed",
+    "conclusion": "failure",
+    "successful_jobs": 19,
+    "failed_jobs": 3,
+    "acceptance": "failed; full-platform production acceptance remains open",
+    "failures": [
+      {
+        "job": 111565189972,
+        "platform": "macOS ARM stable",
+        "stage": "serial full migration Store suite",
+        "test": "control_write_external_writer_original_deadline_has_real_stage_diagnostics",
+        "error": "BudgetExceeded during preparation; BEGIN not entered",
+        "original_window_ms": 400,
+        "preconsume_us": 400040,
+        "remaining_at_call_us": 0
+      },
+      {
+        "job": 111565189922,
+        "platform": "Windows stable",
+        "stage": "terminal scope/grant withdrawal result assertions",
+        "error": "Business(BudgetExceeded)",
+        "cause": "callback versus terminal SQL timing unconfirmed; original PermissionDenied assertions remain"
+      },
+      {
+        "job": 111565189913,
+        "platform": "Windows MSRV",
+        "stage": "linked-worktree scoped Git positive plus terminal scope/grant withdrawal assertions",
+        "errors": [
+          "scoped Git source changed before data access",
+          "Business(BudgetExceeded)"
+        ],
+        "cause": "source field and timing phases unconfirmed"
+      }
+    ],
+    "archives": [
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b9e73fa-ci-terminal.json.gz",
+        "raw_sha256": "a2ddfefaaeb488017fc82d8a98605eedc083d45586543d79cb7b89b0a0342d25",
+        "gzip_sha256": "839782057350f3a2677165815ddeec08bfafe4fdfad86d908f083f55343c3da4",
+        "raw_bytes": 73958
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b9e73fa-macos-stable-job.log.gz",
+        "raw_sha256": "f72be88bd76b08d0d13c345365ef3275279b6cb7ad7d7ab551ef250600d7edfd",
+        "gzip_sha256": "9fe6fb8340600a4f78ed558a8ce119022d571bda007dcbe410590426b5383e28",
+        "raw_bytes": 287914
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b9e73fa-windows-stable-job.log.gz",
+        "raw_sha256": "1b0e921f5adcf2023b5354f04f5dbf50d3b22b977477491498f9a8a8353c8148",
+        "gzip_sha256": "857fea6b244a9378c21251e5d68918d7e608414a6ae8636c179f1e07640815f3",
+        "raw_bytes": 274822
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b9e73fa-windows-msrv-job.log.gz",
+        "raw_sha256": "9d1766594504ae400056f1af7826933018367415564469c94d0178cea9a65c07",
+        "gzip_sha256": "c4b92962a41b6dc5bb15c8cfcb268c35114dd1fd1fa9d7484b1958e9bdca5a7b",
+        "raw_bytes": 277491
+      }
+    ],
+    "review_status": "pending independent material review",
+    "linux_release_performance": {
+      "artifact_id": 11319637263,
+      "artifact_name": "linux-scan-namespace-cost-37246447522",
+      "receipt_archive": {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-b9e73fa-linux-performance-receipt.json.gz",
+        "raw_sha256": "d9ed49f6c27ca59813cc847b1bebfab3f43b12c219431855041b49420c3511a0",
+        "gzip_sha256": "4743f10d5e3b750a1c5b6be4059b034c5bd49a7f560d0005d54b937c1a00b5b5",
+        "raw_bytes": 132904
+      },
+      "verification": {
+        "artifacts_sha256_verified": 67,
+        "baseline_original_commit_sources": 1994,
+        "candidate_original_commit_sources": 2478,
+        "exact_measurements_verified": 12,
+        "source_archives_sha256_verified": 2,
+        "qualified": "twelve LinuxHandle captures, exact file counts, zero gaps; shared fixture root verified unchanged",
+        "independent_review": "APPROVE for this version pair and Linux runner only"
+      },
+      "scan_mean_seconds": {
+        "20000_wide": {
+          "baseline": 1.95248,
+          "candidate": 1.783869,
+          "change_percent": -8.64
+        },
+        "200000_wide": {
+          "baseline": 21.731803,
+          "candidate": 19.703007,
+          "change_percent": -9.34
+        }
+      },
+      "limits": [
+        "One ABBA sequence per fixture: A/B then B/A; two samples per version, no statistical confidence claim.",
+        "Version comparison 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d versus b9e73fa0aa38df42c22fda68da7f180fe24c9e71, not a single-variable helper optimization.",
+        "No clear scan RSS improvement; warmed shared filesystem cache, no cache dropping.",
+        "No macOS/Windows or full-platform acceptance; all27 parent gates remain open.",
+        "Full artifact remains downloadable from the recorded GitHub Actions artifact; only receipt is archived here."
+      ]
+    }
+  },
+  "local_runtime_continuation": {
+    "status": "Local corrected complete workspace passed; native CI of this candidate pending; no full-platform acceptance.",
+    "helper": {
+      "all_targets_passed": 55,
+      "failed": 0,
+      "strict_all_target_clippy": "passed",
+      "behavior": "real pinned scanner helper runtime; bounded closed schema protocol; actual running Cancel/EOF/malformed control tests",
+      "limits": [
+        "Not yet Engine helper launch or trusted installation packaging.",
+        "No normal whole-group drain/native Windows Job or pinned scanner TLS destructor acceptance.",
+        "No strict RSS or hard20ms syscall interruption guarantee."
+      ],
+      "sources": [
+        {
+          "path": "Cargo.lock",
+          "sha256": "d3018c454171817ee7dc128346326a01ff539b7e779a4322c8a6e7f224e7a332"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/Cargo.toml",
+          "sha256": "f34493f9aaba00de4bc3cad6c2b7133ae11bdfc85a3346c8b4b0722d0da5b0b5"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/build.rs",
+          "sha256": "9005d49da27f64d333b31ef2f3f199b7bd6ed0fd783893fee494563bcc1241ab"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/cancel_body.rs",
+          "sha256": "c46886cbaee64a79ff04c144d4ae293aed91166d728f1339f7a5445508e6aa74"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/decoded_tree.rs",
+          "sha256": "cf9ad11e3f0a32d8614110e2ee94d4e4683b31c93ce505771e9dd2b5e06383ac"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/flat_node.rs",
+          "sha256": "e53c8c87a978a99d79147bfde93b529dbd60044d2384e28f8647ff8a14b447f1"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/flat_nodes.rs",
+          "sha256": "92a70c285866886015a13280c59432bda69fc177e442ec2f5ad7f2b06189f535"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/frame.rs",
+          "sha256": "d482f431b44211be3f4511155a430334f4eded0dd72edf3a154a1ae82fb12027"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/frame_reader.rs",
+          "sha256": "24dca5eefd564f80d0ab550194a20a56813bf6f35499a91d954b69ccc5b2811e"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/frame_writer.rs",
+          "sha256": "8b3f6402fd04bb7375556fba9e38edf4bd9b4a696ccb3ce869e65bf165b48e9f"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/lib.rs",
+          "sha256": "7f4361a85c5901706887fc581735da1e85cfc827596852f2b93f267739ee024d"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/main.rs",
+          "sha256": "33dc1d85c3caf870c46ce3703c61f3f1438711459ff3fe4ff2e9f5f7b3c333ef"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/native_path.rs",
+          "sha256": "ce0ba152e73f31a84a46facbb603d1a5f4d9cb4a9d1371f7eb7331e7bdd0e26f"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/node_tags.rs",
+          "sha256": "5c0f6f8d514016b231092630b59fcf3433b9ab400734e7a2c7d4ad5226c83f5a"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/payload_buffer.rs",
+          "sha256": "a57ab1f7b5b769bb76079b1d345875a5f674b90d93d6de1a28c14c6fe1dc115f"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/protocol_limits.rs",
+          "sha256": "4ac79d1b54032ce60def56f14502eafed1a2e7fb7e40f9f96d4a509c31ad546a"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/scan_options.rs",
+          "sha256": "54d0c32bd2bd1172588456f764b2c6ff3baa760112c602d9bd0b2b003a4b5bd3"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/scan_progress.rs",
+          "sha256": "9c1e4aaaccd2dfa209780caae1ff2c7c04f5cd6f11735a5f1f83168ba384a4a7"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/scan_request.rs",
+          "sha256": "f7240f65b286f93670a21384564ed9ae9a5c1cd77748bcb44305eae9f689fdaa"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/tree_codec.rs",
+          "sha256": "f6604397a83faad09177fa3c82a0d1e93f66a97dd01e12753800fc8028875067"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/tree_state.rs",
+          "sha256": "ea97f7a41e563443431cafff143c041089987b316965fe31ba66796c8839bd6a"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/tree_writer.rs",
+          "sha256": "a1959ec05173847ebdb27c7e620622af4ba17c128e5ec1366c0554ce41e83ade"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_control/gated_reader.rs",
+          "sha256": "9c00fd61fc54efc5a3e1b0d477d7d564786026e829a8420f35db719286a27f1c"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_control/hooks.rs",
+          "sha256": "a7da9c578bd1f14146d6912ee6eaf5a20080d81f87a185b75d67b096cd4aacc0"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_control/tests.rs",
+          "sha256": "2b2173b874e8d3d16d05bb0ed655a7ddaf3700922f6cee3c6f418640a184c302"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_control.rs",
+          "sha256": "44ee008f8eddd25ae9a9b53ecb0bcd6ca4bf71a20c5ace21dc46caa33bfd0799"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_failure.rs",
+          "sha256": "93ba69c77f13ef7d26d2e9178651edf403a1bba5fca3ce44f02108ed3a815e86"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_io_kind.rs",
+          "sha256": "fe0a27e1ed5903a28184d509987e19d1eeb42871b10f97ec9989af1714911f02"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_limits.rs",
+          "sha256": "68f4aaa47b3e642091ca78116968f5110545328d0fb348b81559253f9fd4d422"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_message.rs",
+          "sha256": "88dd99b74d787c26314dda11307aa64f2d377774e7be88a1a5b534900a32591c"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_output.rs",
+          "sha256": "3ff5562342a5b477eb2adb535602706a11595b78661a969b1101d743537f7370"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_path.rs",
+          "sha256": "7a3fc7cb061e858f9d84305e4f868be830cf87827b6d505b04000ca88dbaf0ab"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_request.rs",
+          "sha256": "5b8dee6446eaf4169c56dc43d6de0e3612e010943b730fc65f031323350032e8"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_request_tests.rs",
+          "sha256": "dd9b12b6f42669db2a9136922b53059b971e59aa5d23ef5d2ea3ac210777877a"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_runtime.rs",
+          "sha256": "60746b1f300de496b5eb0add8a2e685ea64a5c05321b6baf9c9e88bdf7e87623"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_scan_request.rs",
+          "sha256": "2db0d46a6d4dbc429489b772f7ecc07cdee33e00ea205d32758d2f8817d2990f"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/src/worker_tree.rs",
+          "sha256": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/deep_disposal.rs",
+          "sha256": "978c9e355339ec419d28274a14c8107a33b44dcf5f72017c907f167efd325691"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/frame_cancel.rs",
+          "sha256": "379a5a9aa25a38094eba725f3736bb52172aeadf8f74a9fcce3cce08911ea5bc"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/framing.rs",
+          "sha256": "8d3c52813bf8333f55c30a0d7ac1cf7c42407919413414f2faaee7a876262f49"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/pinned_dedup_characterization.rs",
+          "sha256": "28e0af3d247368a96335168e838ff455edad6bfc383583939c15b6252113790d"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/platform_components.rs",
+          "sha256": "14af6cf68b99a3567786c3580775729b933c7bce12648949f3129febd3f9f22b"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/reader_failure.rs",
+          "sha256": "794ee8f129fe6dc77daa51361dd9ff38ffc8b182d6ee4b859927085983648e00"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/roundtrip.rs",
+          "sha256": "e8c7c54b61ff1807a10787ce5f9c6be2c8747b7c10d6fd49252796286dce55cf"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/structural_limits.rs",
+          "sha256": "bb7ad94a48e58a354b6691851d26e4f9ef6e7370c56377c15aae52e715dc66e1"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/worker_control_process/active_run.rs",
+          "sha256": "fda0d4ada77abd9cb73118773f835e24616bbe164061f77f225d67060eaa773e"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/worker_control_process/control_action.rs",
+          "sha256": "87bf5d12eabd7e7bcc16d907dde302239421b0989d92ce19cd089dfad329beea"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/worker_control_process.rs",
+          "sha256": "88ea4c6ed3d38e40600719ee8577503f22a78c82f88b0ab1468b44d03a46a90e"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/worker_process/alias_assertions.rs",
+          "sha256": "d89c47e10f0912d4c975dfa19e054fcf37d1459ca17ee0443cfbbc3c9b7056fd"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/worker_process/worker_output.rs",
+          "sha256": "e27e0b0d289297de38423473e35de46d9943663cf50718bad0ad024e7752feb1"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/worker_process.rs",
+          "sha256": "423879cd1698d3aea519f22b3909c81337ec3b98299cef61ff5d18909e9f1edd"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/writer_io_failure.rs",
+          "sha256": "cd737f9ef57650b07b6dcf2e24aef83ec055be4367f8d0b2b9c5dfe370fddd09"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/writer_limits.rs",
+          "sha256": "729e608310498f75ebdcffe1fca5e33d652c07ce09d2e9097d83cede95766938"
+        },
+        {
+          "path": "crates/diskgraph-scan-worker/tests/writer_preparation.rs",
+          "sha256": "d7ebcf084ba79a095e44102fcf0c1960fc77977b54d22c26f6de4f8c23d82663"
+        }
+      ]
+    },
+    "engine": {
+      "original_six_tests_red": {
+        "passed": 2,
+        "failed": 4
+      },
+      "original_six_tests_green": {
+        "passed": 6,
+        "failed": 0
+      },
+      "final_publication_case_red": {
+        "passed": 0,
+        "failed": 1,
+        "actual_error": "Business(PermissionDenied) after qualified actual keeper SQLite BUSY"
+      },
+      "all_seven_green": {
+        "passed": 7,
+        "failed": 0
+      },
+      "previous_library_regression": {
+        "passed": 410,
+        "failed": 0,
+        "ignored": 3,
+        "scope": "before seventh final-publication case"
+      },
+      "sources": [
+        {
+          "path": "crates/diskgraph-engine/src/job_execution_stop_reason.rs",
+          "sha256": "c3211b46c294fd4156c525fa914f0fd179b474c7d4b37cde50917a3236460b5a",
+          "lines": 71
+        },
+        {
+          "path": "crates/diskgraph-engine/src/job_execution.rs",
+          "sha256": "e19a7d17e0e31842625d91d1b1579a55bfb6427ce671730f95f163fde511da9d",
+          "lines": 261
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_execution.rs",
+          "sha256": "92ef03e07dc19c8920258e6e9cd599ae007c112df02cc44c999ab559775ce2b2",
+          "lines": 465
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_observation_guard.rs",
+          "sha256": "fbcaf2076f7f9fcc7c6c61b0b56c10b37907be1dd2b895e4d3c2775c1b78e6e2",
+          "lines": 111
+        },
+        {
+          "path": "crates/diskgraph-engine/src/job_stop_cause_hooks.rs",
+          "sha256": "79136f3bc4bb24569b8536b81d7ba23ad874b38c39b893e491813a042371a55c",
+          "lines": 164
+        },
+        {
+          "path": "crates/diskgraph-engine/src/job_stop_cause_fixture.rs",
+          "sha256": "ee2c161ced392a6560a4c3e0249388208655eeee4bfc52e0fcfebf0d0a85a60b",
+          "lines": 97
+        },
+        {
+          "path": "crates/diskgraph-engine/src/job_stop_cause_tests.rs",
+          "sha256": "ba655f1e2dfdca8e1a71a01bd161bd9a1a025930aac1d855364dd716103484c9",
+          "lines": 337
+        },
+        {
+          "path": "crates/diskgraph-engine/src/job_stop_cause_outcome_tests.rs",
+          "sha256": "e465f0fdd3fdcebe4b527e4820344de0e11f579f47d87e3a3770e5876ab0eefa",
+          "lines": 257
+        },
+        {
+          "path": "crates/diskgraph-engine/src/lib.rs",
+          "sha256": "3b532e895e96f68b0406ca0154db6f367485219b9abe3a3957b70b58cb00b0ef",
+          "lines": 170
+        }
+      ],
+      "change": "First actual cause preserved on identified same-generation stop paths; real scope withdrawal takes priority at final gate; independent conflicts and committed facts protected. Keeper panic propagates original payload; early panic does not establish no-publication guarantee.",
+      "independent_source_review": {
+        "status": "APPROVE",
+        "manifest_sha256": "3a70a0150660872870e6b121fd2d2af536c8864ea0b4af544b285e39dadf102e",
+        "current_sources_verified": 9,
+        "limits": "Cause preservation only; not helper physical exit, early keeper panic no-publication guarantee or native CI.",
+        "doc_only_final_review": "APPROVE: six return-marker colons only; remaining source bytes preserved."
+      },
+      "source_contract": "Actual full-workspace gate failed on six missing Chinese doc return markers; comment-only repair passed all4 source-layout tests; first failure retained."
+    },
+    "strict_workspace_clippy": "passed after callback type alias correction; first strict failure retained",
+    "workspace_fmt": "passed after mod ordering correction",
+    "archives": [
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-red.log.gz",
+        "raw_sha256": "45f0e23c12fa2cb535083a61ddf51cbf44482d45914463fa97265c4abfbc813a",
+        "gzip_sha256": "75e2cf599176df056995cd47b0e5c45c0314d32a30d89f0a066716bfd5ca3910",
+        "raw_bytes": 3124
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-green.log.gz",
+        "raw_sha256": "eec8c5a99e10582bc3472e8c6f48484a1528df541e70c9a9a803cf545380cc93",
+        "gzip_sha256": "ffb06587787079dc692cccfdd2e7393d341b86b30b4c806f0e72933089aca547",
+        "raw_bytes": 1263
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-publication-red.log.gz",
+        "raw_sha256": "49b00e789c82583fde2bfd5685230b1b08a9180a5c990969a3c86ddf37149da2",
+        "gzip_sha256": "c8e062b363921eec1164b36b965f3ec71c88de90bb2425f52cce96226dd23124",
+        "raw_bytes": 1046
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-publication-green.log.gz",
+        "raw_sha256": "3479cf121934d8a83ddd4d239a973242bd2769e7e86ce6b8e727e633abb320e4",
+        "gzip_sha256": "c30264ef8f695ef215d16fafb5cb6fab98e746bda2462e33d357bdfbf196d2ca",
+        "raw_bytes": 1371
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-engine-regression.log.gz",
+        "raw_sha256": "0565bf3a4962df21e199ae449f3a07a6fe1c32b1484a6d0efb6147668287aabc",
+        "gzip_sha256": "154bee2c775bec27f296d08e9f6ce37a6ad22916923b54bfcd68d5b8cb40ed3c",
+        "raw_bytes": 47195
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-clippy.log.gz",
+        "raw_sha256": "518d81a6fea9667c4f473750bd00ffcb7bd1a84ef30aa1f6785e9904e9ecb472",
+        "gzip_sha256": "5f632988b7011841a4bb2214df54054584f7235db33ef6d262958dcaa4d77e14",
+        "raw_bytes": 1671
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-clippy-final.log.gz",
+        "raw_sha256": "58b8d2168686fefdc2fe6fbca264a3340d97a36385ab578687d3217088293cb2",
+        "gzip_sha256": "d0c5df3df65c253c7bf9677af3e1b81fa69daf16e7e47a0e62075d7e595b7060",
+        "raw_bytes": 754
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-fmt-final.log.gz",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-runtime-frame-closed-test.log.gz",
+        "raw_sha256": "7716b9662ee71fb2f253d99a6c232ba9c0ce8e7d9f783a41685a26dd727a93a0",
+        "gzip_sha256": "9c1d9c7602b1dd300bb4d708f4f038cb7bef01d5d9bdde344e7bfd800ceba375",
+        "raw_bytes": 46353
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-frame-closed-clippy.log.gz",
+        "raw_sha256": "f1b3245af477272025a32d3a355315c0d198317d2358d6e317a0c748674365fd",
+        "gzip_sha256": "d337db48ef948d142653fc5d2e05aa963547fbdaf979dfac7f0500fa3a442699",
+        "raw_bytes": 198
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-control-race-red.log.gz",
+        "raw_sha256": "adda62e61bcd9d091cc64f67f5d15aedd30473e68fe0d0a9a51e3dc05d35858f",
+        "gzip_sha256": "b3a2d3a60dcadac0f9b0f10b5b83703fb67a8b5821b1112d8e672c62f1511ee5",
+        "raw_bytes": 2130
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-cancel-unknown-field-red-v2.log.gz",
+        "raw_sha256": "b949e0c7e2e4cb54fcb120edba00dbc96f951c8eac2db2774f5d11bb70410d94",
+        "gzip_sha256": "d8451024d22c5809f42dc81cce3a859b00cc725b52c454ed657256f97de50803",
+        "raw_bytes": 1090
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-frame-cancel-red.log.gz",
+        "raw_sha256": "d73a4b2545135cf988b6c3292bf26f9af46c95a743b74c65a1ab8c0a27eded2f",
+        "gzip_sha256": "d23db16a1e1f592e444f97d62c45a78d2e81dc32160afa05436031575f396bc2",
+        "raw_bytes": 1023
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-worker-streaming-control-test.log.gz",
+        "raw_sha256": "24fd2dd68c4c821dd67bfcc8cf8e67e588ced7d7098da1d8cbaec99334048ddc",
+        "gzip_sha256": "e7ad9440747119e124828fe7178b02c346e03ce15bff15a566eb32736874fa06",
+        "raw_bytes": 2825
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-contract-failure.log.gz",
+        "raw_sha256": "7469a7bbf3c061c1f5a97a392a335cb07828cc03bc5f26d3ae6ad293564cdd2a",
+        "gzip_sha256": "c5cf496ef6b57e3c9fe3cc3c737fa1b1f4cc7b4fb9266521ac6dc6f41c734c2e",
+        "raw_bytes": 91517
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-source-contract-final.log.gz",
+        "raw_sha256": "646f273f098463d4f2c5326dfd6bd0d9b8165ae5eb6db4d9d2a5a13637e0c948",
+        "gzip_sha256": "9b928c2d29fab932bdcbf80ea35b75f10094358ec71a5fdeec0c5f1680e37ade",
+        "raw_bytes": 654
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-openspec-final.log.gz",
+        "raw_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+        "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+        "raw_bytes": 47
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-contract-corrected.log.gz",
+        "raw_sha256": "aa520a8a015c56a5c5105c605f34a6e3f8ead952a833bdfce3b8265ba87c53a4",
+        "gzip_sha256": "120a6fe06f4038d4717beba346882ecaa345d529f6d7a5047e5499850e0df355",
+        "raw_bytes": 171382
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-summary.json.gz",
+        "raw_sha256": "79248c096ff1befe85df78c287893be19340ccc41adf758709de2c9b76bfb708",
+        "gzip_sha256": "3d383d53276847a1a7a0ca0f99cf48c54f7f13a2dc599c35f259e853ce5fd28f",
+        "raw_bytes": 23753
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-vendor-tests-final.log.gz",
+        "raw_sha256": "a27358546f06629c7f47ae98b620a43193d24ef7350c64a2dd8860185a9adef7",
+        "gzip_sha256": "09e2d3f66b64936b61bd23470348cee4b9ffe9afe4df6a4fc78986f7ddc540aa",
+        "raw_bytes": 364
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-contract-corrected-fmt.log.gz",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+        "raw_bytes": 0
+      },
+      {
+        "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-stop-cause-workspace-contract-corrected-clippy.log.gz",
+        "raw_sha256": "23ab31bebb921fa9787ae0221780710538af1dc43bb3575ab1abce830c8f64b2",
+        "gzip_sha256": "4066c30a957f83db66f411dc0131c2b9fb5f055be643b758d16c0ce9e93e9a4e",
+        "raw_bytes": 628
+      }
+    ],
+    "full_platform_tasks": "140 done /27 open; no parent gate closed",
+    "corrected_full_workspace": {
+      "exit_code": 0,
+      "passed": 1648,
+      "failed": 0,
+      "ignored": 18,
+      "test_suites": 86,
+      "doc_blocks": 9,
+      "nested_results_excluded": 0
+    },
+    "vendor_tests": {
+      "passed": 124,
+      "failed": 0,
+      "ignored": 2,
+      "pin": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+      "workspace_digest_and_options_parity": "passed"
+    }
   }
 }

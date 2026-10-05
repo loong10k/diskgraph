@@ -1,6 +1,7 @@
 //! 持久任务唯一执行链；来源：原生 Rust Engine scan_jobs 职责提取。
 
 use crate::job_cancellation_guard::JobCancellationGuard;
+use crate::job_execution_stop_reason::JobExecutionStopReason;
 use crate::job_request_cancel_bridge::JobRequestCancelBridge;
 use crate::scan_progress_guard;
 use crate::{Engine, EngineError};
@@ -71,6 +72,7 @@ impl Engine {
         };
         // 每个认领代次独立取消标志；不复用 caller flag，也不触碰后来 owner 的 Arc。
         let cancel = Arc::new(AtomicBool::new(false));
+        let stop_reason = JobExecutionStopReason::new();
         let bridge = JobRequestCancelBridge::new(
             self,
             &claimed,
@@ -112,7 +114,10 @@ impl Engine {
                 let (stop, receiver) = std::sync::mpsc::channel();
                 let cancel_ref = &cancel;
                 let bridge_ref = &bridge;
+                let stop_reason_ref = &stop_reason;
                 let fence = claimed.fencing_token;
+                #[cfg(test)]
+                let mut observations = crate::job_stop_cause_hooks::take_keeper(&claimed);
                 let keeper = threads.spawn(move || {
                     let mut heartbeat = std::time::Instant::now();
                     // 转换与项目采集也属于执行窗口；同一 keeper 每 20ms 复验权限，租约仍每 5s 续租。
@@ -121,6 +126,8 @@ impl Engine {
                         receiver.recv_timeout(std::time::Duration::from_millis(20)),
                         Err(std::sync::mpsc::RecvTimeoutError::Timeout)
                     ) {
+                        #[cfg(test)]
+                        observations.before_check();
                         let checked = self.control().and_then(|mut store| {
                             store.with_job_fence(job_id, owner, fence, || Ok(()))?;
                             bridge_ref.check_with_control(&mut store)?;
@@ -130,8 +137,12 @@ impl Engine {
                             }
                             Ok(())
                         });
-                        if checked.is_err() {
+                        if let Err(error) = checked {
+                            // 原因先取得所有权，再发布停止位；消费者不必根据 Atomic 猜测拒权/SQL 错误。
+                            stop_reason_ref.record(error);
                             cancel_ref.store(true, Ordering::SeqCst);
+                            #[cfg(test)]
+                            stop_reason_ref.observe(|error| observations.after_error(error));
                             break;
                         }
                     }
@@ -157,10 +168,16 @@ impl Engine {
                         claimed.fencing_token,
                         &cancel,
                         scan_started,
+                        &stop_reason,
                     ),
                 };
+                #[cfg(test)]
+                crate::job_stop_cause_hooks::after_execution(job_id, &result);
                 let _ = stop.send(());
-                let _ = keeper.join();
+                if let Err(panic) = keeper.join() {
+                    // 已经实际 join；保留原 panic payload，不猜测为 Poisoned 或协作取消。
+                    std::panic::resume_unwind(panic);
+                }
                 result
             })
         });
@@ -190,6 +207,7 @@ impl Engine {
             }
         }
         // receipt 已提交时前面保留原事实；这里只处理尚未提交的本代协作停止。
+        let outcome = stop_reason.restore_commit_stop(outcome);
         let outcome = bridge.preserve_outcome(outcome);
         let final_state = if outcome.is_ok() {
             JobState::Completed
