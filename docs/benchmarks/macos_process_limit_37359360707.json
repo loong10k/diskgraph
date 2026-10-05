@@ -1,0 +1,122 @@
+{
+  "run_id": 37359360707,
+  "source_commit": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37359360707",
+  "conclusion": "success",
+  "architectures": [
+    {
+      "commit": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
+      "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+      "architecture": "arm64",
+      "source_sha256": "763a99ae4421ab20db4581e51fe732abd94c08aa595b61ca632e858c55a33b81",
+      "binary_sha256": "cedcf081820959fe5e8d41f7b56f60be2d212dc2dc9ed85e858095a9fa1f99fb",
+      "elapsed_ms": 10.698,
+      "exit_code": 0,
+      "timed_out": false,
+      "primary_error": null,
+      "cleanup_errors": [],
+      "artifact_errors": [],
+      "stdout_bytes": 310,
+      "stderr_bytes": 0,
+      "original_process_waited": true,
+      "parent_limits_unchanged": true,
+      "security_acceptance": false,
+      "scope": "Native nonroot process-limit component; not installer, no_new_privs or Engine acceptance",
+      "output_within_record_limit": true,
+      "observed": [
+        {
+          "phase": "before_exec",
+          "nonroot": true,
+          "positive_fork_wait": true,
+          "positive_vfork_wait": true,
+          "positive_spawn_wait": true,
+          "fork_errno": 35,
+          "vfork_errno": 35,
+          "spawn_errno": 35,
+          "raise_errno": 1,
+          "thread_error": 0,
+          "join_error": 0,
+          "thread_marker": true
+        },
+        {
+          "phase": "after_exec",
+          "nonroot": true,
+          "soft_zero": true,
+          "hard_zero": true
+        }
+      ],
+      "component_qualified": true,
+      "artifact": "macos-process-limit-macos-15-37359360707",
+      "raw_artifacts": {
+        "result.json": "59b264a270667c7d971b24f67e76eadadd873ebbb10a076c109318824ec4769d",
+        "stdout.bin": "aff94da4106cdbf49b81ae8555cd53976ee8b1288a32ae87fa24f852d4aae6d3",
+        "stderr.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "os.txt": "31fd674ddb951680692d7b68cafdeab5baa6b3e82aae843269dad73b53f25fc5",
+        "sdk.txt": "521fbd942d19d4f08ee3ac22fe5e1fee54d05fb48db0d8d179461b8195d210eb",
+        "compiler.txt": "df12815703ce3452ab4bd51ecbea4cf8155246b94b5b15113a580ff6aec2befd"
+      },
+      "os.txt": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+      "sdk.txt": "15.5\n",
+      "compiler.txt": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+    },
+    {
+      "commit": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
+      "platform": "macOS-15.7.9-x86_64-i386-64bit-Mach-O",
+      "architecture": "x86_64",
+      "source_sha256": "763a99ae4421ab20db4581e51fe732abd94c08aa595b61ca632e858c55a33b81",
+      "binary_sha256": "c1167f660a228aa3af59d0cefe8a322c6ffe9d189c43c24680ef3ea8d4459606",
+      "elapsed_ms": 23.75,
+      "exit_code": 0,
+      "timed_out": false,
+      "primary_error": null,
+      "cleanup_errors": [],
+      "artifact_errors": [],
+      "stdout_bytes": 310,
+      "stderr_bytes": 0,
+      "original_process_waited": true,
+      "parent_limits_unchanged": true,
+      "security_acceptance": false,
+      "scope": "Native nonroot process-limit component; not installer, no_new_privs or Engine acceptance",
+      "output_within_record_limit": true,
+      "observed": [
+        {
+          "phase": "before_exec",
+          "nonroot": true,
+          "positive_fork_wait": true,
+          "positive_vfork_wait": true,
+          "positive_spawn_wait": true,
+          "fork_errno": 35,
+          "vfork_errno": 35,
+          "spawn_errno": 35,
+          "raise_errno": 1,
+          "thread_error": 0,
+          "join_error": 0,
+          "thread_marker": true
+        },
+        {
+          "phase": "after_exec",
+          "nonroot": true,
+          "soft_zero": true,
+          "hard_zero": true
+        }
+      ],
+      "component_qualified": true,
+      "artifact": "macos-process-limit-macos-15-intel-37359360707",
+      "raw_artifacts": {
+        "result.json": "a4cde6cb3e57572c5bbdb36d1419b63191b0dc7e9571d16f0c2de0a6fc2d4e4a",
+        "stdout.bin": "aff94da4106cdbf49b81ae8555cd53976ee8b1288a32ae87fa24f852d4aae6d3",
+        "stderr.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "os.txt": "31fd674ddb951680692d7b68cafdeab5baa6b3e82aae843269dad73b53f25fc5",
+        "sdk.txt": "521fbd942d19d4f08ee3ac22fe5e1fee54d05fb48db0d8d179461b8195d210eb",
+        "compiler.txt": "2837c5948b45916f519912ef23256ae973af42c72decd6185aec65f45b804d3f"
+      },
+      "os.txt": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\n",
+      "sdk.txt": "15.5\n",
+      "compiler.txt": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: x86_64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+    }
+  ],
+  "security_acceptance": false,
+  "remaining": "Trusted fresh installation, image/loader protection and real Engine lifecycle remain unqualified"
+}

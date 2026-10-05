@@ -1,0 +1,22 @@
+{
+  "snapshot_base": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
+  "source_uncommitted_at_local_run": true,
+  "tooling_tests": {
+    "passed": 115,
+    "failed": 0,
+    "platform": "macOS arm64",
+    "scope": "QA contract regression, not native Linux Engine qualification"
+  },
+  "source_sha256": {
+    "scripts/assemble_scan_worker_host.py": "d3933c1c608600581b656791e8e71a9effee77d19108c69834561bc5695c7d87",
+    "scripts/qualify-linux-scan-worker-engine.py": "063693948c7e779283991cad4f32df178e0ead6c47e80d40210f3ada925989c5",
+    "scripts/run-scan-worker-engine-namespace.py": "a24436cac8a2622723021ef11072389b47cd45daa1393fbe2b5215cafaaf3b31",
+    "scripts/tests/test_scan_worker_engine_namespace.py": "568352d296d69dd4c7d001d092d76b7cc0c19defe55af24cc74946ba52b6f977",
+    "scripts/tests/test_scan_worker_engine_qualifier.py": "e4b92da5be15369cde5fe03e460cf446c7775c6bb5d4ea667d68558d0fed5477",
+    ".github/workflows/linux_scan_worker_engine_qualification.yml": "3bd241aebbf1993e75dea012d328119140cb3316ee918c0e59501b827f081c8a",
+    "crates/diskgraph-engine/integration_candidates/scan_worker_host/current.json": "47a49e5d070450bec0101038a5dd31715e35b1c84d64c20ac28f17e55a13f6cc",
+    "crates/diskgraph-engine/integration_candidates/scan_worker_host/current.diff": "1e3fb6c05c2aaf10a8f8656afe89068717a792fccd03eeedd01beddb445437f6"
+  },
+  "linux_engine_native_acceptance": false,
+  "raw_log_sha256": "14a717a1ce8f5fe0234706e367fa1b127ba26c38b7057e249c386136915e2732"
+}

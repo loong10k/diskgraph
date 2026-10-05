@@ -1,0 +1,613 @@
+{
+  "schema_version": 1,
+  "snapshot_base": "5835f2ae2a84db0caf811830591e54fb7dd30e3b",
+  "patch_sha256": "1e3fb6c05c2aaf10a8f8656afe89068717a792fccd03eeedd01beddb445437f6",
+  "files": [
+    {
+      "path": "Cargo.lock",
+      "before_sha256": "d3018c454171817ee7dc128346326a01ff539b7e779a4322c8a6e7f224e7a332",
+      "after_sha256": "05866034a2a577d5d5db5317408abf8d0af9302f6f5ec8a6b78fa06e0e083dae"
+    },
+    {
+      "path": "crates/diskgraph-cli/Cargo.toml",
+      "before_sha256": "1584ac442c83794d4991341c46001f6c7cb03e1a517656906beedcbfe5c05915",
+      "after_sha256": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/cli_engine_host.rs",
+      "before_sha256": null,
+      "after_sha256": "46741e7e7d64be21c35d12c61aab28b882f4dd63afe17a74a2f4c13705f0f6a6"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/cli_engine_host/tests.rs",
+      "before_sha256": null,
+      "after_sha256": "1c5567893206671da252bb31405f1b3d14a15760ef97722e7d44ea3b9ddaa808"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/cli_exit.rs",
+      "before_sha256": null,
+      "after_sha256": "430f19fa25febe14a8866517e59424baa11474e7486bbccfac27beb0d320864d"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/dispatch.rs",
+      "before_sha256": "1f3264430bac49965824a68679539354f15d703875f55232293d08250f44e05e",
+      "after_sha256": "edaa43be58da58f49e90fbe96ca52f0f94e1997def67adcc034226eae2c9c09c"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/entry.rs",
+      "before_sha256": "fd00d1910f337af3ae5201f41dd6345e2a3712426dc667c04057b224a885ef06",
+      "after_sha256": "ab70daa8863b7919e1c0a40e2c2798e417d7c9464962f2c8893d9de7027e2729"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/init_commands.rs",
+      "before_sha256": "b47c2a5265d758b8bf64fef058ec276c725b505866bbca8f2c6edcd6bbfea1c5",
+      "after_sha256": "7cb0455b259a97a1c568234655012d0026b789cb5cea2e1ead141b41c3a6da95"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/main.rs",
+      "before_sha256": "36d093e7685827a95499ee5933dccf5803a4e7f40227ef807f17f7eacd6b93a4",
+      "after_sha256": "d8579f25238fa570d3e7017f74a9aca88830731067def2d54e4aa1a4f3b43ddb"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/scan_terminal_tests.rs",
+      "before_sha256": "65c747d83e8600efd6611e5da23d0bc457c123afdf51b8243230c3422a8d2a37",
+      "after_sha256": "2a025155f1a9111281d24b0202a0f65f457fbf78d6d6c6877257eba16b6617d5"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/serve_command.rs",
+      "before_sha256": null,
+      "after_sha256": "e8abc2f8bd25b8ee4011e7a58bea13d451dc2b6127c17fd9d22c0d2e2a7c9905"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/service_commands.rs",
+      "before_sha256": "35abab0d24f8e078ae460ece42b46298b3f9254d624b5a85a91aafb87b9d8c68",
+      "after_sha256": "feb7038cbd83aa3c0797094fa69cb097a22ddfd70fee5832d054c7c4347d1587"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/fixtures/windows_exit_status_fixture.c",
+      "before_sha256": null,
+      "after_sha256": "cab1b4db5cd54777a58d94418a551e18e84370ed322a6e295c39271aa842b058"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/scan_worker_binary_config.rs",
+      "before_sha256": null,
+      "after_sha256": "d99115a8505ab825d7bf3fb72e827be948387b0634018afd8c7721aa430ab2ed"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/scan_worker_host_lifecycle.rs",
+      "before_sha256": null,
+      "after_sha256": "63d1b1646db878e7ef55fefd13e53a5cd094b1f61476ce88e781d2eec76de38e"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/serve_remote_startup.rs",
+      "before_sha256": null,
+      "after_sha256": "c124dbf25153048824f104aca3ac0998d3e795a23c319bbdba7c8455f9aa2d4d"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/serve_windows_exit_status.rs",
+      "before_sha256": null,
+      "after_sha256": "d033eb069113d2a369c9535104b5348de2dbbfe7d2eb6dfcbad648446a64b7e8"
+    },
+    {
+      "path": "crates/diskgraph-engine/Cargo.toml",
+      "before_sha256": "cea808d9c761d7e23da52da54c8602a4f65c0fb2ea58f5514165532067df12c9",
+      "after_sha256": "13f0998978496133c1b7304a072f96b177eed94742f8335ba1f3e310acb5eebe"
+    },
+    {
+      "path": "crates/diskgraph-engine/build.rs",
+      "before_sha256": null,
+      "after_sha256": "9c2f225c63a5140ded8de9deaf34445ebaa46167b2b25a1f9e2e02f3b66f02a3"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/engine.rs",
+      "before_sha256": "e4ffb9741992cd15a7a47f505eec58a83b6a77fd88fc55186d7f8c1d3ca825aa",
+      "after_sha256": "e604887dd2fe08059bd98bc8da840d6212e37ca0ee55bdbc155c2948dae0c439"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/engine_startup.rs",
+      "before_sha256": "9f5a5268cef2705edad5e350fe17d831db43ead064380f579468510a3944fc6f",
+      "after_sha256": "b63a12a32097c3ac7dec9cc8c6b07e9166752227f47df3d795577b08733c5f55"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/lib.rs",
+      "before_sha256": "e98d205d7a663362f3c51d528c62fa0e1bef86384636c79c0d65a1812dc14a06",
+      "after_sha256": "549104f17ea9f88dd99cd25a61c0d6fef1c684fd76f4f522f977662d2ca839e6"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/child_input_mode.rs",
+      "before_sha256": null,
+      "after_sha256": "d9aa1185af7fa7d3a81bbf23ea20b356a661a8cc2de4574def5c7d988ca04bce"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/child_read_buffer.rs",
+      "before_sha256": null,
+      "after_sha256": "1d73e73ab1bb8e641374c47bf666ed88e8920c304921950f78bda0e24a941e7f"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/control_write_status.rs",
+      "before_sha256": null,
+      "after_sha256": "7327fe8477b673dbd32c2b9b1f53848b4283d26136ca05949c7153d33623449d"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_abi.rs",
+      "before_sha256": null,
+      "after_sha256": "d038ec50fb73e2704aec613a85068f751c36787622fc8c9ccd9fb238029b49a5"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs",
+      "before_sha256": null,
+      "after_sha256": "18ef3763ac3336d820238469fa4a95b8553034beed3bb7586abcfaec55f3580e"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_exit.rs",
+      "before_sha256": null,
+      "after_sha256": "3f464a15f3552f7a63ddca3161e125a0d35e715e8b757cc1833e694a59f994ec"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_handshake.rs",
+      "before_sha256": null,
+      "after_sha256": "e257b73853349db14699098c771a1e6bf5bcf93238f42ab1c51b5a1caddfd0c9"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launch_failure.rs",
+      "before_sha256": null,
+      "after_sha256": "0c3c6ff2cc43c6a57ce3b37f13922b2193fedf11e3046f613abcc9b583a7cec3"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher.rs",
+      "before_sha256": null,
+      "after_sha256": "5140ecd88bda9f43f568c3d55e0a03338891d26e41fb10a162387667ed7690a1"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_failure_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "6e7a691a1525f138b5408e4a889bc2e1d18d88fd0a1279074a0336bce23a2a6e"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "b96f037ee171a9a0cc98170a98fcbac270212f06e479933a4ef4e7884ca1b4d0"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_ready_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "9041030abad13c7da4ab62153e33f4624bac6b6e25c3400101ed515d9295eb22"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_reap_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "73c0827043cd224913ceaa7ee1994558f1d38650d4c0ea05267a4f7591f5cd96"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_test_support.rs",
+      "before_sha256": null,
+      "after_sha256": "cb430ed6e894003625b38d47b834ca96c969cfee5fa1c55f2a5745d02780be23"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_launcher_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "94238960b8532c650c50fbfe8af7608241abae7ec0f9ea81bb5a2c32218ea506"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_message.rs",
+      "before_sha256": null,
+      "after_sha256": "d7eb014edbbb4deced8891d8f72585a0c9829d210ca036ec294155dcccb4c9a9"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_pipes.rs",
+      "before_sha256": null,
+      "after_sha256": "bcb0be84127152b548a47022e3c6612ee5d41543d7faae83a0ee2f7ca9b240be"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_reaper_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "ff3ed6760b5197ebfb7efba6be221f8f9a7e6ace0ad5af25ab3e7b16e87accbb"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_signal_mask.rs",
+      "before_sha256": null,
+      "after_sha256": "30ddbd0ea7f96c13ea2e30eec4056dba914206286707e102ba57f7c9875dfaad"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c",
+      "before_sha256": null,
+      "after_sha256": "526f37cd6c767400eaed1a4eb7d7c74f511ce7bff7b140331070e3a8c57eab94"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_atomic_syscall.h",
+      "before_sha256": null,
+      "after_sha256": "399ac827410db338283182647b5fc013cb3f6a647a0520d5ce0b82d5a3fba30c"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scan_image.rs",
+      "before_sha256": null,
+      "after_sha256": "125ab0f8709d9f9f98505623484de99f0d75bcb7d696c0c9436e16f77d82a1a8"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scan_image_error.rs",
+      "before_sha256": null,
+      "after_sha256": "2ea089fb0645cc0ca94d524a104bcc73c6223c53fe54478928920903982120c2"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scan_image_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "9a74420b30c7c5556b04ad8e5c3d96c54b84cee08aff4bc1a7e78a91871a8654"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scan_image_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "5117f33e87f6a10c88cd88a9d3928d3ff0d6a43b20b37d83034e22d9cb1502cc"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_filter.rs",
+      "before_sha256": null,
+      "after_sha256": "c907f104e998da1b09e6020ca555b2aa230f0240ab9b334e553b54c814528a78"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_child_group.rs",
+      "before_sha256": "e31b638235ff4749ba57444b52ead6b025164ba08b61e9be8ccb976f96b0cba3",
+      "after_sha256": "cef6ea38e520b0d212c2d42f19cf0ccb05ba405e1d4303425c34b1ed3ee04288"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_group_view.rs",
+      "before_sha256": null,
+      "after_sha256": "cded81c5d07a8915dc2ece724b274caafa529ec6645120936ff8d7f56baf9c3f"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/mod.rs",
+      "before_sha256": "c621bb3b627e7d72dfc4223f7241aa91b8aa33edcd519620b76c094e429df404",
+      "after_sha256": "9367bd6cc23dffa9726ce6be74569370eab050c18db1a9634320307c57001e2f"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child.rs",
+      "before_sha256": "6c530072bb8c9dbd13cda7873d5844b12c8c655417ce43ec3eb63755b6e549a9",
+      "after_sha256": "eeed3a5ef2a24e2c43085ed099e62cef14f250121e8d13da46a16468b71dbd4e"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child_setup.rs",
+      "before_sha256": null,
+      "after_sha256": "685265091f48b30967310a796d059d6cc63eed48c2236a1b0667d85962691578"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_control_channel.rs",
+      "before_sha256": null,
+      "after_sha256": "5ff40dce6e67f8b938f7e6910dccd1f70c57a476b93ed3d8afa1c42db14a439a"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_control_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "712fdda99d61d365a3b089f0a419f0f3c748574ce0e412fc7c9372c2b7a166de"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_control_input_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "ea2c48672e1c1b235a3a1dca0c443fd8536044011c6761cfddbece1df67abe21"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_control_test_support.rs",
+      "before_sha256": null,
+      "after_sha256": "5df1d60a2aa306165e8efa8a832869d2ce215be52d0dc2225ad30149a494628a"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_normal_exit.rs",
+      "before_sha256": null,
+      "after_sha256": "44ba25517076a0b0d621659611210654e5921f9153d8ce31cc67955a39887ba6"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_normal_exit_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "6734b0be1fbf457934c373c3181e9d6ef280b6b0e6cf234c383269c4b785b828"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs",
+      "before_sha256": null,
+      "after_sha256": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/mod.rs",
+      "before_sha256": "bfb4c02db40d5403ed3e9a347f360ebf190e99a908c1542f36d512524d98c4f7",
+      "after_sha256": "c7bdf669724aa7795a8b05bf53519eb18eecd42d1db7ece9d19083c493dba3b2"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs",
+      "before_sha256": null,
+      "after_sha256": "740eb5e09099c4db7934a9dc5e1578315a7882f5f261309878f2e32f70ef55bc"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_child.rs",
+      "before_sha256": "efef296dc8063a28de472c78ce8ddee8bccc4cd50e522d91ff2233b74b1d2df0",
+      "after_sha256": "193b9c23933585344abb182015c7c49507cae4b3eeee1445fde21763ee817b67"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "9f7f5d88818d8e6b4851ff66350dff7a4a7bd2a8398c891de00bd9050a2f18b3"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_input_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "85021502e8d4085cd5dbe029a145a877a8293fc1e6571d0b128ee9d9fab123f9"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_spawn_record.rs",
+      "before_sha256": null,
+      "after_sha256": "6866ccb7707b0045357c80cba4331c629aaf20570fcd93b428fef48e1f70215f"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_control_test_witness.rs",
+      "before_sha256": null,
+      "after_sha256": "9c83757c8611cda4435698afe37f1ba43ce56643965321706be1ab213daeddbc"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit.rs",
+      "before_sha256": null,
+      "after_sha256": "45946fad8c4c8b313ecb7889f107e71b23adb938b38be727b8ef5d24a0a83d36"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "b7c8176b4fedfcfe8190c5fbf0453db5b25f6860c37b0fe232d6fa4676e4e1cd"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_test_support.rs",
+      "before_sha256": null,
+      "after_sha256": "b4d47e07d186e26079be6bfd3c1067211342703f603f9f469706ed74c7d8f464"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "06e3fe9ac330065dbff7d4b3d22dde1e55be0621e91e230c78bb2087e0784582"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_execution.rs",
+      "before_sha256": "92ef03e07dc19c8920258e6e9cd599ae007c112df02cc44c999ab559775ce2b2",
+      "after_sha256": "c9bff655cca2bdd5cc692f68142563eb82aa982db0625003fda9b3c7dc2a994b"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_budget_classification_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "36daae95e5c3f6f847f1af3bfe1000decb5fdc2196e0e2ef5ce835bfd7fa535e"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_child.rs",
+      "before_sha256": null,
+      "after_sha256": "5f793547501e3692a51e2620ca3b3c34bc04746bebc15b2a3e319c5e9b13ea07"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver.rs",
+      "before_sha256": null,
+      "after_sha256": "fba175bccb87f84f2d150e6e2689039db6c5f9b24b7cfe9b0e2361ce0ac91862"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "d6fd915dbe4d6af0ff91eecb5f1f357ac874ce1c2bf1a99fa5490cd3ae577db2"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_test_support.rs",
+      "before_sha256": null,
+      "after_sha256": "4e7d085af9057d206bae078bb06f7423e6e345a6b0e72c72607e6112629e27e8"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_driver_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "067ec841f098fcb05719d7b6191e78bfe357084320849e8cd53a3019e6ae49f4"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_error_projection.rs",
+      "before_sha256": null,
+      "after_sha256": "17fcce00d335dbadb290d2c78b452386bcebb704a156b322aed24696f9b27ccc"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_failure.rs",
+      "before_sha256": null,
+      "after_sha256": "1335c287bbce3a3c1dd58fbea3735dea38804f5fe3ff6e402a9f308db95293ec"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_host.rs",
+      "before_sha256": null,
+      "after_sha256": "0e0111ea48a908a55b10b2c0695d179bab521e6f7026fc383b3935338e00c368"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_input.rs",
+      "before_sha256": null,
+      "after_sha256": "332ccfc98c7d33dc1731509f8937f4afa96cb0c36397ceda06e813ef16ccb3dc"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_input_budget_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "edd89dccebecbcb493d58a09de75805c2b871fbf6756b10513b14e701a6fc0c1"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_input_buffer.rs",
+      "before_sha256": null,
+      "after_sha256": "a9c481de8f5aeec9551da5b7aad9e37aaaa7b1a29afef8b62b0a391a055873fe"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_output.rs",
+      "before_sha256": null,
+      "after_sha256": "7a82d6ce11d0bf2a10622ec56d622674ce8f25990c51e85dddbdb38e80205442"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owned_failure.rs",
+      "before_sha256": null,
+      "after_sha256": "bc6fbed328bcf4954fba9111bb8e517c85a8c4b21f914342c9a2303aa4a55bdb"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owned_failure_test_support.rs",
+      "before_sha256": null,
+      "after_sha256": "093ac41d474d96ec0d5e4b899937cd7e6ee0ed92f2766217a7a3c547f53492f6"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owned_failure_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "5fe84287fec76cb3ca88b232da8a8b1a650949f5ff0c0b135cff430b492652f7"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_owner_slot.rs",
+      "before_sha256": null,
+      "after_sha256": "85bdb0364a23eae05a011a4a35445fc52ecd3f1026332143517f263e74b9e619"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_recovery.rs",
+      "before_sha256": null,
+      "after_sha256": "a02709cdce3ee31b2d42cc70f5f680144ad34e945ea921b6b257bf6104f2b501"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_recovery_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "bc16bfd60758f7b25d688b7864290b6ad2cb3be28e9fdd29e1aabde6048d294e"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_recovery_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "9209fc2cb28720d095f80f05d37dbac820cbc5c148e51316d34f90e94a67ab48"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_registry.rs",
+      "before_sha256": null,
+      "after_sha256": "a94d1e058b1299844eec7316a16c571149bd0d9663d6e3ce8726adc3194dbfc8"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_registry_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "9e0a16e5b0a93ccbd93886075acb72499ae1b202d944884fef20b52c9bc2a0d0"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_remote_error.rs",
+      "before_sha256": null,
+      "after_sha256": "1a94ae6ee093e32eddba87b556077052fe0dba542c7a90ca3330fe9cbd99991d"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_reservation.rs",
+      "before_sha256": null,
+      "after_sha256": "a68abc63b4c3ae535c46242cd99855092f3652a18c88410272c4f6bb772002d5"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_runtime.rs",
+      "before_sha256": null,
+      "after_sha256": "1901b9031376515d3956c3ac0f2bb1a92a89afb54670c939fa73e82346c9af09"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_runtime_budget.rs",
+      "before_sha256": null,
+      "after_sha256": "369cc6ad34b620f2ae005f09924b029b380304001c941823f68b212387318f64"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_runtime_hooks.rs",
+      "before_sha256": null,
+      "after_sha256": "07a3863e656ed14a49ca69ff35f13ac5d24cfb5c70b8b659bd550dda12dfde61"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_slot_generation_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "5b578881ce98c35029703530935dd001b12eadd42ebf6d4ea332fc4c450e638a"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c",
+      "before_sha256": null,
+      "after_sha256": "709b16d0938ac91dc3193f99689ea56ec3b12b05a97fa3990c454ef632fa1bb0"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/fixtures/linux_scanner_sandbox_probe.c",
+      "before_sha256": null,
+      "after_sha256": "51036991fe5855533b6e9dab5df25b42a01aa5737eb2e2ab6afd9aecd2753aee"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "3c6180f900c9be83430aa98ac914c9f3af7422d7d8374b4d0e32511eb7e3ad8b"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/scan_worker_engine_flow.rs",
+      "before_sha256": null,
+      "after_sha256": "3c1bfee4519c886dd503a1704b5f143aa883dd89f1572051966946e1760225f2"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/scan_worker_engine_flow/fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "637a11edc8c2b746159708e3e1a15e2157bc1d048eb1771305d8c4d1d4c43b4e"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/scan_worker_host_contract.rs",
+      "before_sha256": null,
+      "after_sha256": "9eaa0f73d8d6b679a442a33eb4d0148312f7fc9ea694d5bac2a5c35875814b15"
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/scan_worker_no_host.rs",
+      "before_sha256": null,
+      "after_sha256": "40a57601f7dba2f7f915c39217e43ec85255092ca6c99c17f3b8c98f3e6dc2a6"
+    },
+    {
+      "path": "crates/diskgraph-mcp/Cargo.toml",
+      "before_sha256": "5c873a13cd857a2aee8552dee2f8249b7266c6e223ba03833a984d35f667af49",
+      "after_sha256": "ddbe480d73df8382efc57dffc2d7c5ab70ba309c78f856146724176fbea81019"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/lib.rs",
+      "before_sha256": "7df4dccf4fd428ca6f097b6384601de3a96d823a16e39ee2ac558e6cb6649a68",
+      "after_sha256": "cfabcac29c15435a7dc76559f29cb4432d5b2afcbd9bf9bebaa0a9960fdd916d"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/main.rs",
+      "before_sha256": "8dbab52e0f826e653d93fb0252dc95a57d978bb169259f882fd25a055c0d74d3",
+      "after_sha256": "44f3dbe9d6918b19bad898b9fd8032b63ad65c900699d40b06c84428b80269cc"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/mcp_service.rs",
+      "before_sha256": "e8448392dda9b15813ba0632a0e554475b15524292737de0476e3e0bbed4929b",
+      "after_sha256": "ce10e2c908510df3d563ebe2b99a4ec2a86848d01f8adbbe79835b299fad8ed5"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/scan_worker_settings.rs",
+      "before_sha256": null,
+      "after_sha256": "9f521e76fce76468c571729114f1c4f652e0182bcc67e987052da377e2b6f5e0"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/scan_worker_settings_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "92ea88180ee5bd097c410b8c5741cad6bfc34b0e85de1e107a9b043ea2c3ec17"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/scan_worker_shutdown.rs",
+      "before_sha256": null,
+      "after_sha256": "bd5c5bb3866dab0f674007ae9d405c9f1bdf2203fc8ec228b7d53ceb0154a725"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/management_tests.rs",
+      "before_sha256": "a077891acd7e4e03b724ef30f9036c67e1b6585c606114de3d9b27f8584f1e85",
+      "after_sha256": "26331ae150ad577f8337dbb56f993d2adf297f47be8466aac92bb3ae0902ae83"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/mod.rs",
+      "before_sha256": "83c609089ac3230ce562e125dd67d88cda28c935dfd96209b1ff3b93183ac255",
+      "after_sha256": "e42698bc6cde999d6e1bbbef4e32b8bec3bcc0c13b81e54570926feb65bdb260"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs",
+      "before_sha256": null,
+      "after_sha256": "5284cfb13dee82f4af11b1a2eb4dbb8c087f44a2a6bc5431442699177abbc123"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/query_tests.rs",
+      "before_sha256": "cc7f282c38f43f7ba15582662d515b082445bd56279c1106d9d29125b80b46f6",
+      "after_sha256": "c7371878e1d31169cc654226de6d7d004bebf2e363a04c6c3092d9bc49d6d88e"
+    },
+    {
+      "path": "crates/diskgraph-mcp/tests/scan_worker_binary_config.rs",
+      "before_sha256": null,
+      "after_sha256": "229a4a006567aff4ed3ae6573cae134c11921034a0dd5fa145cb57759cf837ab"
+    },
+    {
+      "path": "crates/diskgraph-mcp/tests/scan_worker_service_startup.rs",
+      "before_sha256": null,
+      "after_sha256": "cc43e9aaf227156aaddb7a73894ba2eac168012464fa1a6b5777372b3a4e48bb"
+    }
+  ],
+  "production_acceptance": false
+}

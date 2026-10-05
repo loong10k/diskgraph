@@ -1,0 +1,65 @@
+name: Linux current scan worker Engine qualification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  engine:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            rust: stable
+          - os: ubuntu-24.04
+            rust: 1.97.0
+          - os: ubuntu-24.04-arm
+            rust: stable
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.13"
+      - name: Verify fixed namespace ownership contracts
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_scan_worker_engine*.py' -v
+          python -m unittest discover -s scripts/tests -p test_native_pid_namespace.py -v
+          python -m unittest discover -s scripts/tests -p 'test_native_pid_namespace_restore*.py' -v
+          python -m unittest discover -s scripts/tests -p test_native_namespace_artifacts.py -v
+      - name: Fetch locked dependencies as ordinary runner
+        run: cargo fetch --locked
+      - name: Prove actual setsid descendant containment on timeout
+        run: |
+          python_binary="$(command -v python)"
+          runner_groups="$(id -G | tr ' ' ',')"
+          sudo -n --preserve-env=PATH,CARGO_HOME,RUSTUP_HOME "$python_binary" \
+            "$GITHUB_WORKSPACE/scripts/run-scan-worker-engine-namespace.py" \
+            --runner-uid "$(id -u)" --runner-gid "$(id -g)" --runner-groups "$runner_groups" \
+            --timeout-seconds 2 --self-test \
+            --output-dir "${{ runner.temp }}/engine-namespace-self-test"
+      - name: Verify actual scan publication and Recovery inside owned namespace
+        run: |
+          python_binary="$(command -v python)"
+          runner_groups="$(id -G | tr ' ' ',')"
+          sudo -n --preserve-env=PATH,CARGO_HOME,RUSTUP_HOME "$python_binary" \
+            "$GITHUB_WORKSPACE/scripts/run-scan-worker-engine-namespace.py" \
+            --runner-uid "$(id -u)" --runner-gid "$(id -g)" --runner-groups "$runner_groups" \
+            --timeout-seconds 1800 --output-dir "${{ runner.temp }}/engine-qualification" \
+            -- "$python_binary" "$GITHUB_WORKSPACE/scripts/qualify-linux-scan-worker-engine.py" \
+            --output-dir '{qualification_output}'
+      - name: Preserve source, actual worker identity and original init wait
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: linux-engine-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/engine-qualification
+            ${{ runner.temp }}/engine-namespace-self-test
+            !${{ runner.temp }}/engine-qualification/runner/qualification/target/**
+          if-no-files-found: error
+          retention-days: 7
