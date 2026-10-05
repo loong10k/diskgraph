@@ -169,6 +169,7 @@ jobs:
             --no-format --out-dir "${{ runner.temp }}/diskgraph-bindings"
 
       - name: Paired native Linux scan namespace cost
+        id: linux_scan_cost
         if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
         timeout-minutes: 75
         run: python scripts/accept-linux-scan-namespace-cost.py --baseline-sha 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d --candidate-sha "${{ github.sha }}" --output-dir "${{ runner.temp }}/diskgraph-linux-scan-cost"
@@ -178,6 +179,21 @@ jobs:
         with:
           name: linux-scan-namespace-cost-${{ github.run_id }}
           path: ${{ runner.temp }}/diskgraph-linux-scan-cost
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Diagnose original Linux baseline failure once
+        if: failure() && steps.linux_scan_cost.conclusion == 'failure'
+        timeout-minutes: 75
+        run: |
+          python -m unittest discover -s scripts -p test_diagnose_linux_baseline.py -v
+          python scripts/diagnose-linux-baseline.py --output-dir "${{ runner.temp }}/diskgraph-linux-baseline-diagnostic"
+      - name: Preserve separate Linux baseline diagnostic evidence
+        if: always() && steps.linux_scan_cost.conclusion == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: linux-baseline-diagnostic-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-linux-baseline-diagnostic
           retention-days: 7
           if-no-files-found: warn
 

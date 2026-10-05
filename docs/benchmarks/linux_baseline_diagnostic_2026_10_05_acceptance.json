@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "scope": "diagnostic-only tooling, never baseline repair or paired performance acceptance",
+  "baseline_sha": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+  "observed_failure": {
+    "ci_run": 37274530708,
+    "candidate_sha": "2db742a8e9218a035b852af2197ff0a6b2ecebcc",
+    "attempt": "200000-wide-round2-baseline",
+    "exit_code": 101,
+    "primary": "Business(Conflict)",
+    "original_run_elapsed_seconds": 13.06473596,
+    "posterior_observations": "non-atomic; not first-error evidence"
+  },
+  "red": {
+    "old_script_sha256": "f8fdfd6576f24742eb57d84fe734c475599f5b293086413bc9d9589039b0c619",
+    "cases": 9,
+    "failures": 1,
+    "errors": 2,
+    "classification": "actual primary overridden by finalization I/O errors"
+  },
+  "green": {
+    "cases": 10,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "prepare_only": {
+    "exit_code": 0,
+    "measurements": 0,
+    "source_patches": "exact four SHA-gated first-error observation sites; reversible; original return/cancel/budgets unchanged"
+  },
+  "sources": [
+    {
+      "path": "scripts/diagnose-linux-baseline.py",
+      "sha256": "bb1c5c48b3deb99e20b56f71fd569fd6035433f51ab8b73c28385577495d568c"
+    },
+    {
+      "path": "scripts/test_diagnose_linux_baseline.py",
+      "sha256": "c7dc4f719de1c3a824bf48cdccf947ba74739befb125eb52a62972d3d211a857"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "289a9d3d352eddc2e4477896fa40a1d9848424bf21b29f5058c7ca6bfa0070a1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/benchmarks/linux_baseline_diagnostic_2026_10_05_0.gz",
+      "raw_sha256": "a6a971014759a186bc87f758c75b962bfcef939311bb7f83fd40adcac98f3a39",
+      "raw_bytes": 9181,
+      "gzip_sha256": "ec081441ce88e8b8e6e9b3b67865ba07b8d5f962c00cb4c61ae0bb7c11a96973"
+    },
+    {
+      "path": "docs/benchmarks/linux_baseline_diagnostic_2026_10_05_1.gz",
+      "raw_sha256": "a8a758ea7d49e38f033b0e61633cef42873a4971d8c5c614124c45576f12449d",
+      "raw_bytes": 1925,
+      "gzip_sha256": "12d1b1d45a0ed502a176aa1b256edc96747f31df34e41380cfe73f48e848a78a"
+    },
+    {
+      "path": "docs/benchmarks/linux_baseline_diagnostic_2026_10_05_2.gz",
+      "raw_sha256": "09b27e23724515d9d344df6049a4924502cd1f410b08e9fa7caac6d3b93b56fb",
+      "raw_bytes": 8962,
+      "gzip_sha256": "93941e6dc3fad7b2467fd94e7540106bc6ed8b78e03102c3f301ab8a7f0ce980"
+    },
+    {
+      "path": "docs/benchmarks/linux_baseline_diagnostic_2026_10_05_3.gz",
+      "raw_sha256": "1dfae724f4bab447a018753cad820a6c7052878bd17a0c8151e6427595001636",
+      "raw_bytes": 2345,
+      "gzip_sha256": "b790baf12aceb1cb64f0c66136ff1ab7ce06db67d1142cb0eef5183cf6b0db9b"
+    }
+  ],
+  "limits": [
+    "Actual native Linux diagnosis pending.",
+    "One fresh independent attempt only after paired gate failure; original CI failure remains.",
+    "No retries, ABBA substitutions, or candidate fixes imported into baseline.",
+    "Diagnostic observation can perturb scheduling; success or no event cannot establish the cause."
+  ]
+}
