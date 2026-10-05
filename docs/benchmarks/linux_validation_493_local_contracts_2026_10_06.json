@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "fixed_source": "493257fda48242b2fb326be948e20c3636d228f2",
+  "prepare_status": "prepared_only",
+  "source": {
+    "actual_changed_files": [
+      "crates/diskgraph-engine/src/native_process/linux_directory_identity.rs",
+      "crates/diskgraph-engine/src/native_process/linux_open.rs",
+      "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs",
+      "crates/diskgraph-engine/src/native_process/linux_scan_root.rs",
+      "crates/diskgraph-engine/src/native_process/mod.rs",
+      "crates/diskgraph-engine/src/native_process/scan_validation_493_diagnostic.rs",
+      "crates/diskgraph-engine/src/scan_execution.rs"
+    ],
+    "archive_sha256": "b2630554cebc87adb47024bd63137b82bf809354bfd3dcf7e8d00041321ca10c",
+    "commit": "493257fda48242b2fb326be948e20c3636d228f2",
+    "diagnostic_after": {
+      "crates/diskgraph-engine/src/native_process/linux_directory_identity.rs": "c8dae42277ac11b736a6a9392cccc6090547363ac8556ab5cf16de04315f0551",
+      "crates/diskgraph-engine/src/native_process/linux_open.rs": "6e58cd8e3e7b21998c44e853f2c1b54c9ec7f4728dcbf4565719dee47470f3e5",
+      "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs": "75083cac15212b1c5e517de2e84d8cec194c39ac99f5c5a89a1bbde5b386f7ac",
+      "crates/diskgraph-engine/src/native_process/linux_scan_root.rs": "3bfec1e74d1eadc767fbdfa79657784bdc7b0e13df1c05bf2ca1b1db71fb67a9",
+      "crates/diskgraph-engine/src/native_process/mod.rs": "eb90ba1b01d0698531636f0800620cd81f0cd693e1c438334bb2f36dd5b319b3",
+      "crates/diskgraph-engine/src/scan_execution.rs": "84b0039541da98ef2d600ba2f85b5124f7d5152e4c879b97a581e501bacc8625"
+    },
+    "diagnostic_before": {
+      "crates/diskgraph-engine/src/native_process/linux_directory_identity.rs": "ebdcd42f2e9b6d90ffa3edb8c6306a931bd7e96460d752cdeb0f9923294f7c2a",
+      "crates/diskgraph-engine/src/native_process/linux_open.rs": "b569eda8885214eb66f9fc026daa9751e504f88ac6cb7f347a5f2e0441d635d8",
+      "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs": "86105befe2f907279f87b4f617a977fb1e70e47cdb03cc7739828e84d8f3b6ab",
+      "crates/diskgraph-engine/src/native_process/linux_scan_root.rs": "a0424783cb863ee8097dc4074516c7004da6170e6fc87be3fce8b9ca6bcdfee9",
+      "crates/diskgraph-engine/src/native_process/mod.rs": "92b2bded52bd9e54998e3808122daf7883cdc619e3404656c07a29f11576b289",
+      "crates/diskgraph-engine/src/scan_execution.rs": "92ef03e07dc19c8920258e6e9cd599ae007c112df02cc44c999ab559775ce2b2"
+    },
+    "harness": {
+      "crates/diskgraph-engine/tests/benchmark_support/mod.rs": "05cebe6811fbd2f5b070582986046b3e89dfbe1d8d50312f47862ba1f8d06762",
+      "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "09628c65414696d555e29b08902e2506ddea193a3676b4c00484706d70c9737c",
+      "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500",
+      "crates/diskgraph-engine/tests/hardening_benchmark.rs": "857137950a9782d5c1d15efce538988e6cf1bd3a8b09acf1a771b5614af65f13"
+    },
+    "lock_sha256": "d3018c454171817ee7dc128346326a01ff539b7e779a4322c8a6e7f224e7a332",
+    "template_sha256": "b98c659bfb6bfecd9c8dfefe4e84fd4187cb71ab4dbdb2abf21c668b714711c9"
+  },
+  "source_sha256": {
+    "scripts/diagnose-linux-scan-validation-493.py": "446c70209dcc884f184462692290df11ad07617c4a3118903f21e568652cf9b8",
+    "scripts/tests/test_scan_validation_493_diagnostic.py": "87a94fba9baf7292d0f9fd1829175030169b43884cf3dd01bce99d53900875d5",
+    "crates/diskgraph-engine/integration_candidates/scan_validation_493_diagnostic.rs": "b98c659bfb6bfecd9c8dfefe4e84fd4187cb71ab4dbdb2abf21c668b714711c9",
+    ".github/workflows/linux_scan_validation_493_diagnostic.yml": "647d87a2fae91972d4235faa67e92e0675fd5253a71418cebaa0ec7a1730d7d7"
+  },
+  "logs": {
+    "api_red": {
+      "path": "docs/benchmarks/linux_validation_493_api_red_2026_10_06.log.gz",
+      "raw_sha256": "e4f266d5316ae7d5890dc45eb0232e23078d85a9e70ee801fadad9cf8af85f68"
+    },
+    "contract_green": {
+      "path": "docs/benchmarks/linux_validation_493_contract_green_2026_10_06.log.gz",
+      "raw_sha256": "eda0d114c8335aff39205fe0422e692243b3fdc742dcf0a50a96322d8919cf19"
+    },
+    "transport_green": {
+      "path": "docs/benchmarks/linux_validation_493_transport_green_2026_10_06.log.gz",
+      "raw_sha256": "b5c4d912a5f52d1fcb55fe1c34c59556c252bcd151243f4c1f6b6b5f772d7a6c"
+    },
+    "prepare": {
+      "path": "docs/benchmarks/linux_validation_493_prepare_2026_10_06.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "executed_python_contracts": 16,
+  "executed_transport_contracts": 10,
+  "native_contracts_executed": 0,
+  "measurements_executed": 0,
+  "api_red": "16 interface-absence failures before implementation; not native failure evidence",
+  "limitations": [
+    "isolated fixed493 diagnostic only; no production behavior fix",
+    "nine native diagnostic contracts and one 200k scan still require actual Linux execution",
+    "successful diagnostic scan would not by itself explain historical failure"
+  ]
+}

@@ -1,0 +1,44 @@
+name: Linux fixed 493 namespace first failure diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  scan_validation:
+    name: Fixed 493 scan validation diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          # 诊断只归档固定旧提交；完整历史保证其真实源码可读取。
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.13"
+      - name: Verify diagnostic contracts and original transport
+        run: |
+          python -m unittest discover -s scripts/tests -p test_scan_validation_493_diagnostic.py -v
+          python -m unittest discover -s scripts -p test_diagnose_linux_baseline.py -v
+      - name: Execute private native contracts and one fixed 200k scan
+        run: python scripts/diagnose-linux-scan-validation-493.py --output-dir "${{ runner.temp }}/diskgraph-493-validation-diagnostic"
+      - name: Preserve raw first failure and source provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: linux-scan-validation-493-diagnostic-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-493-validation-diagnostic
+          retention-days: 7
+          if-no-files-found: warn
