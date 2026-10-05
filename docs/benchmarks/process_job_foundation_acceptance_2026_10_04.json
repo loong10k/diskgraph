@@ -469,5 +469,83 @@
   "linux_callback_final_organization": {"manifest_sha256": "ead853feec1457394fc47a9aa59e4170f7411fd7d8f35263e70447a464d9bce6", "layout_red": [2, 1, 0], "layout_green": [3, 0, 0], "fmt": 0, "macos_engine_clippy": 0, "static_review": "APPROVE,6/6 sources/probes matched", "scanner_algorithm": "unchanged; native RED not yet reached", "native_mac_msr_2e33519": {"job": 111472086095, "serial_queue": [10, 0, 0], "serial_guard": [4, 0, 0], "workspace": [1522, 1, 18], "suites": 70, "failure": "host40 diagnostic preconsume took409082us; original400ms window expired before guard, correct BudgetExceeded; required live host40 stage not reached"}, "evidence": ["diskgraph-linux-scan-callback-three-file-candidate.json.gz", "diskgraph-linux-scan-callback-layout-red.log.gz", "diskgraph-linux-scan-callback-three-layout.log.gz", "diskgraph-linux-scan-callback-three-fmt.log.gz", "diskgraph-linux-scan-callback-three-clippy.log.gz", "diskgraph-linux-scan-callback-three-results.json.gz", "diskgraph-linux-scan-callback-three-review.json.gz", "diskgraph-2e33519-native-job-111472086095.log.gz"]},
   "host40_qualification_acceptance": {"manifest_sha256": "f5a54853b4761f65f7b9b28d28a94b0593d95756853718d1ae21f7937c3e0f29", "status": "tests-only fixture qualification verified locally; corrected native run pending", "actual_local_probe": [2, 0, 0], "actual_parallel_store_lib": [283, 0, 1], "fmt": 0, "store_clippy": 0, "review": "APPROVE", "request_limited_original_window_ms": 400, "host40_qualification_window_ms": 2000, "both_original_total_bound_ms": 550, "production_code": "unchanged", "native_mac_stable_2e33519": {"job": 111472086096, "whole_job": "success", "workspace": [1523, 0, 18], "suites": 70}, "evidence": ["diskgraph-d44-host40-phase-candidate.json.gz", "diskgraph-d44-host40-phase.diff.gz", "diskgraph-d44-host40-results.json.gz", "diskgraph-d44-host40-probe.log.gz", "diskgraph-d44-host40-store.log.gz", "diskgraph-d44-host40-fmt.log.gz", "diskgraph-d44-host40-clippy.log.gz", "diskgraph-d44-host40-review.json.gz", "diskgraph-2e33519-native-job-111472086096.log.gz"]},
   "linux_scan_ancestor_native_red": {"commit": "5c9985b84645dcac8c82ae06903ee7249b06dbdd", "run": 37215361685, "observations": [{"job": 111474645408, "workspace": [1536, 1, 18], "suites": 70, "scan_negative": "actual unexpected Completed; target guard failure at linux_namespace_tests.rs253", "sibling_positive": "passed", "qualified_native_red": true}, {"job": 111474645577, "workspace": [1536, 1, 18], "suites": 70, "scan_negative": "actual unexpected Completed; target guard failure at linux_namespace_tests.rs253", "sibling_positive": "passed", "qualified_native_red": true}, {"job": 111474645611, "workspace": [1536, 1, 18], "suites": 70, "scan_negative": "actual unexpected Completed; target guard failure at linux_namespace_tests.rs253", "sibling_positive": "passed", "qualified_native_red": true}], "source_test_sha256": "0d2594a2c2030dfc518673565695cf80701941bc51b6d6c8949cacd1749e7f1b", "status": "production ancestor chain fix authorized, not implemented or verified yet", "evidence": ["diskgraph-5c9985b-native-job-111474645408.log.gz", "diskgraph-5c9985b-native-job-111474645577.log.gz", "diskgraph-5c9985b-native-job-111474645611.log.gz", "diskgraph-linux-scan-ancestor-native-red.json.gz"]},
-  "linux_scan_ancestor_candidate_acceptance": {"manifest_sha256": "dc72a1fa3de51ed8d9b610d7a6c4a0740f4341997a47b3cce9c16e74260560ac", "local_workspace": [1523, 0, 18], "suites": 70, "layout": [3, 0, 0], "fmt": 0, "clippy": 0, "linux_tests_on_macos": {"exit_code": 0, "executed": 0, "meaning": "compile only, not runtime GREEN"}, "static_review": "APPROVE,5/5 source and unchanged test hashes matched", "native_green": "pending next commit CI", "performance_limit": "O(root depth) metadata syscalls per node; release20k/200k benchmark pending", "native_2e33519_terminal": {"run": 37214476158, "status": "completed", "conclusion": "failure", "successful_jobs": 13, "failed_jobs": 9, "windows_stable_and_msrv_each": [1384, 0, 16], "mac_intel_workspace": [1523, 0, 18], "mac_intel_failure": "subsequent migration gate host40 fixture began with only9220us remaining, original correctBudget; fixture later fixed atdc90b1f"}, "evidence": ["diskgraph-linux-scan-ancestor-engine-candidate.json.gz", "diskgraph-linux-ancestor-green-freeze.json.gz", "diskgraph-linux-ancestor-green-results.json.gz", "diskgraph-linux-ancestor-green-review.json.gz", "diskgraph-linux-ancestor-green-layout.log.gz", "diskgraph-linux-ancestor-green-fmt.log.gz", "diskgraph-linux-ancestor-green-clippy.log.gz", "diskgraph-linux-ancestor-green-compile.log.gz", "diskgraph-linux-ancestor-green-workspace.log.gz", "diskgraph-2e33519-native-run.json.gz", "diskgraph-2e33519-native-windows-intel-observations.json.gz", "diskgraph-2e33519-native-job-111472085951.log.gz", "diskgraph-2e33519-native-job-111472086093.log.gz", "diskgraph-2e33519-native-job-111472085996.log.gz"]}
+  "linux_scan_ancestor_candidate_acceptance": {"manifest_sha256": "dc72a1fa3de51ed8d9b610d7a6c4a0740f4341997a47b3cce9c16e74260560ac", "local_workspace": [1523, 0, 18], "suites": 70, "layout": [3, 0, 0], "fmt": 0, "clippy": 0, "linux_tests_on_macos": {"exit_code": 0, "executed": 0, "meaning": "compile only, not runtime GREEN"}, "static_review": "APPROVE,5/5 source and unchanged test hashes matched", "native_green": "pending next commit CI", "performance_limit": "O(root depth) metadata syscalls per node; release20k/200k benchmark pending", "native_2e33519_terminal": {"run": 37214476158, "status": "completed", "conclusion": "failure", "successful_jobs": 13, "failed_jobs": 9, "windows_stable_and_msrv_each": [1384, 0, 16], "mac_intel_workspace": [1523, 0, 18], "mac_intel_failure": "subsequent migration gate host40 fixture began with only9220us remaining, original correctBudget; fixture later fixed atdc90b1f"}, "evidence": ["diskgraph-linux-scan-ancestor-engine-candidate.json.gz", "diskgraph-linux-ancestor-green-freeze.json.gz", "diskgraph-linux-ancestor-green-results.json.gz", "diskgraph-linux-ancestor-green-review.json.gz", "diskgraph-linux-ancestor-green-layout.log.gz", "diskgraph-linux-ancestor-green-fmt.log.gz", "diskgraph-linux-ancestor-green-clippy.log.gz", "diskgraph-linux-ancestor-green-compile.log.gz", "diskgraph-linux-ancestor-green-workspace.log.gz", "diskgraph-2e33519-native-run.json.gz", "diskgraph-2e33519-native-windows-intel-observations.json.gz", "diskgraph-2e33519-native-job-111472085951.log.gz", "diskgraph-2e33519-native-job-111472086093.log.gz", "diskgraph-2e33519-native-job-111472085996.log.gz"]},
+  "writer_phase_injected_age_2026_10_05": {
+  "status": "tests-only request preparation qualification fix verified locally; native CI pending",
+  "failed_ci": {
+    "run": 37267635879,
+    "job": 111627692656,
+    "preconsume_us": 402460,
+    "original_window_ms": 400,
+    "product": "BudgetExceeded before BEGIN, unchanged tables and autocommit",
+    "meaning": "fixture preparation already expired; no product deadline refresh proof"
+  },
+  "fix": "only request731 uses once injected250ms age; original400 deadline and host40 real sleep unchanged",
+  "mutation_red": {
+    "failed": 1,
+    "budget_age_us": 650525,
+    "call_wall_us": 400525,
+    "cause": "original deadline refreshed"
+  },
+  "green": {
+    "phase": 2,
+    "enqueue": 10,
+    "deadline": 4,
+    "store_lib": {
+      "passed": 291,
+      "ignored": 1,
+      "failed": 0
+    },
+    "clippy_all_targets_exit": 0
+  },
+  "source_sha256": "d13f92362528660a081d41c39d2d3681f43ac46d6f6084b2e6101ca6c2c51cf0",
+  "logs": [
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-e125-macos-stable.log.gz",
+      "raw_sha256": "573e6407b114f543c32323728f7dc9959242567561b7468a13d47d0ccf63ac58",
+      "sha256": "c7f02c7f5adb4755df51661fc2af622b6d601dda572c3480681426955c679717"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-injected-age-mutation-red.log.gz",
+      "raw_sha256": "4255f34c049bfd3a3290c964538d30e2706a0f5c39a4477fd84ebe26ae68e60a",
+      "sha256": "f15d057b6ecb67a338e31831387315a82e97b1a9a3ccab0376f7863b4a9782f8"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-injected-age-control_write_deadline_probe_tests-green.log.gz",
+      "raw_sha256": "a91322fe2b6f4e5a2bbe19c6bd159750a391cf2dd2481d1aa4935f6ab37b6b60",
+      "sha256": "2d2498e75c21fc7b1e192139a11945adc41df716092f4063713af2e12f1951a7"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-injected-age-process_job_enqueue_deadline_tests-green.log.gz",
+      "raw_sha256": "d91d8ba41acb4d9bd1f4dc5b8032ee8fef7f618d3be3e4de4052fbd8fed06fd6",
+      "sha256": "f7336a470df9d002e8ee2fb5546484b8c8c520c828a51feff447dc3ded1c931b"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-injected-age-control_write_deadline_tests-green.log.gz",
+      "raw_sha256": "fb5e47968def8731bc6053bee669a44b4f2b8bcd1ee4bd2a0a45e7441b47e39a",
+      "sha256": "5f8025310a5baab53c125d4a7621f7154466ed1e0b716425d5ea009a9ccb1dc4"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-injected-age-clippy-final.log.gz",
+      "raw_sha256": "fffd8578611a1a36d64eebf36947d200e27f6774d545851c9d3e834c28a82897",
+      "sha256": "6c2181bb79db2780872f832a70d0166599726691d1fbe48e03e7885d0551beb4"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-injected-age-full-final.log.gz",
+      "raw_sha256": "5bd3890be23c6d162105c917b7f0ed342f9871f8b2ce5aee3400cbc53eb7f302",
+      "sha256": "a17b3ee6ad371251cbf4d7e31d5680b225f8f20f044e53952f3fcce1f5b07256"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-writer-phase-age-candidate.json.gz",
+      "raw_sha256": "8d6699e7c906673ce981838ac40f27469325ff1d0646c40bbb7b3990606335b3",
+      "sha256": "04d55e8438bea36a4169fd5d0dd67b734710b879c0fe725e4537219b77d08029"
+    },
+    {
+      "path": "docs/benchmarks/process_job_foundation_acceptance_logs/diskgraph-d44-writer-phase-age.diff.gz",
+      "raw_sha256": "72d2f6f311979012b69ff9f0790396478d083f94e81f5a46ab88bd07adcebb7d",
+      "sha256": "6ad5b49d162f977a066376065da64ae9a80441137a88eba2a9a5ab3771dac121"
+    }
+  ],
+  "production_changes": false
+}
 }

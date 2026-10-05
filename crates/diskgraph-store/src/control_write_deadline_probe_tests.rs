@@ -34,10 +34,25 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
         panic!("external writer failed to hold its transaction: {error:?}; {joined:?}");
     }
 
-    let started = Instant::now();
+    let call_wall_started = Instant::now();
+    // 仅400ms请求案注入250ms已消耗年龄，非真实准备墙钟；不靠sleep过调度取得过期结果。
+    // host40保留原2000ms资格窗口与实际250ms准备等待，两案不作同设置因果比较。
+    let started = if request_limited {
+        let Some(original_started) = call_wall_started.checked_sub(Duration::from_millis(250))
+        else {
+            let _ = release_tx.send(());
+            locker.join().unwrap();
+            panic!("fixture cannot represent the injected original request age");
+        };
+        original_started
+    } else {
+        call_wall_started
+    };
     let original_window_ms = if request_limited { 400 } else { 2000 };
     let deadline = started + Duration::from_millis(original_window_ms);
-    std::thread::sleep(Duration::from_millis(250));
+    if !request_limited {
+        std::thread::sleep(Duration::from_millis(250));
+    }
     let preconsume_elapsed = started.elapsed();
     let remaining_at_call = deadline.saturating_duration_since(Instant::now());
     let held_at_call = observed.load(Ordering::SeqCst);
@@ -75,7 +90,8 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
                 fixture.store.connection.is_autocommit(),
             ),
         };
-    let total_elapsed = started.elapsed();
+    let total_elapsed = call_wall_started.elapsed();
+    let budget_age_elapsed = started.elapsed();
     let remaining_at_return = deadline.saturating_duration_since(Instant::now());
     let returned_while_held = observed.load(Ordering::SeqCst);
     let autocommit_at_return = fixture.store.connection.is_autocommit();
@@ -93,6 +109,9 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
         serde_json::json!({
             "host_busy_ms": host_busy_ms,
             "original_window_ms": original_window_ms,
+            "preconsume_injected": request_limited,
+            "injected_preconsume_ms": if request_limited { 250 } else { 0 },
+            "preconsume_is_measured_wall": !request_limited,
             "preconsume_us": preconsume_elapsed.as_micros(),
             "remaining_at_call_us": remaining_at_call.as_micros(),
             "new_us": new_elapsed.as_micros(),
@@ -101,6 +120,8 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
             "begin_us": begin_elapsed.map(|value| value.as_micros()),
             "finish_us": finish_elapsed.map(|value| value.as_micros()),
             "total_us": total_elapsed.as_micros(),
+            "call_wall_us": total_elapsed.as_micros(),
+            "budget_age_us": budget_age_elapsed.as_micros(),
             "remaining_at_return_us": remaining_at_return.as_micros(),
             "held_at_call": held_at_call,
             "returned_while_held": returned_while_held,
@@ -130,6 +151,10 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
             "actual={result:?}"
         );
         assert_eq!(remaining_at_return, Duration::ZERO);
+        assert!(
+            budget_age_elapsed < Duration::from_millis(550),
+            "original deadline refreshed: budget_age={budget_age_elapsed:?}, call_wall={total_elapsed:?}"
+        );
     } else {
         assert!(
             remaining_before_begin.is_some_and(|value| value > Duration::from_millis(40)),
