@@ -1,6 +1,7 @@
 use crate::{
-    ExecutionFrame, FlatNodes, Frame, FrameWriter, ProtocolLimits, ScanProgress,
-    tree_state::TreeState, worker_control::WorkerControl, worker_failure::WorkerFailure,
+    ExecutionFrame, FlatNodes, Frame, FrameWriter, ProtocolBudgetError, ProtocolLimits,
+    ScanProgress, tree_state::TreeState, worker_control::WorkerControl,
+    worker_failure::WorkerFailure,
 };
 use diskgraph_disktree_core::{scan::ScanSnapshot, tree::Node};
 use std::io::{self, Write};
@@ -10,6 +11,7 @@ pub(crate) struct WorkerOutput<W> {
     frames: FrameWriter<W>,
     state: TreeState,
     limits: ProtocolLimits,
+    terminal_reserve: u64,
 }
 
 impl<W: Write> WorkerOutput<W> {
@@ -20,18 +22,33 @@ impl<W: Write> WorkerOutput<W> {
             frames: FrameWriter::new(output, limits),
             state: TreeState::new(limits),
             limits,
+            terminal_reserve: 0,
         }
     }
 
     /// 参数：self 为未发送结果的输出端。
     /// 返回：真实构建 target 与固定 pin 声明的写入结果；声明不证明安装完整性。
     pub(crate) fn hello(&mut self) -> io::Result<()> {
-        self.frames
-            .write_payload(&ExecutionFrame::<String, String>::Hello {
-                version: 2,
-                target: env!("DISKGRAPH_WORKER_TARGET").to_owned(),
-                pin: "158f9cc2f0b332194a3ffc5acec47760c99146d8".to_owned(),
-            })?;
+        // 原实际额度错误消息集合是有限的；按真实完整编码预留最大值，绝不放大原额度。
+        for message in [
+            "frame byte limit",
+            "stream byte limit",
+            "node preparation limit",
+            "node count limit",
+            "sequence or depth limit",
+            "declared children exceed node limit",
+        ] {
+            let error = WorkerFailure::new("output", ProtocolBudgetError::into_io(message));
+            let prepared = self.frames.prepare_reserving(&error, 0)?;
+            self.terminal_reserve = self
+                .terminal_reserve
+                .max(prepared.as_slice().len() as u64 + 4);
+        }
+        self.data(&ExecutionFrame::<String, String>::Hello {
+            version: 2,
+            target: env!("DISKGRAPH_WORKER_TARGET").to_owned(),
+            pin: "158f9cc2f0b332194a3ffc5acec47760c99146d8".to_owned(),
+        })?;
         self.frames.flush()
     }
 
@@ -42,8 +59,7 @@ impl<W: Write> WorkerOutput<W> {
             progress: ScanProgress::from_native(snapshot),
         };
         self.state.accept(&frame)?;
-        self.frames
-            .write_payload(&ExecutionFrame::from_result_frame(frame)?)?;
+        self.data(&ExecutionFrame::from_result_frame(frame)?)?;
         self.frames.flush()
     }
 
@@ -57,16 +73,20 @@ impl<W: Write> WorkerOutput<W> {
         let mut nodes = FlatNodes::new(root);
         loop {
             control.check()?;
-            let remaining = self.frames.remaining_body_bytes().map_err(output_error)?;
-            let Some(node) = nodes.next_with_limits(self.limits, remaining) else {
+            let remaining = self.frames.remaining_data_bytes(self.terminal_reserve);
+            // 没有下一节点时 End 可消费原终态余额，无需为不存在的数据帧再扣头部。
+            let Some(node) =
+                nodes.next_with_limits(self.limits, remaining.as_ref().copied().unwrap_or(0))
+            else {
                 break;
             };
+            remaining.map_err(output_error)?;
             let frame = Frame::Node {
                 node: node.map_err(output_error)?,
             };
             self.state.accept(&frame).map_err(output_error)?;
             let frame = ExecutionFrame::from_result_frame(frame).map_err(output_error)?;
-            self.frames.write_payload(&frame).map_err(output_error)?;
+            self.data(&frame).map_err(output_error)?;
         }
         control.check()?;
         let end = Frame::End {
@@ -85,6 +105,14 @@ impl<W: Write> WorkerOutput<W> {
     pub(crate) fn failure(&mut self, failure: &WorkerFailure) -> io::Result<()> {
         self.frames.write_payload(failure)?;
         self.frames.flush()
+    }
+
+    fn data<T: serde::Serialize + ?Sized>(&mut self, payload: &T) -> io::Result<()> {
+        let prepared = self
+            .frames
+            .prepare_reserving(payload, self.terminal_reserve)?;
+        self.frames.write_prepared(prepared)?;
+        Ok(())
     }
 }
 

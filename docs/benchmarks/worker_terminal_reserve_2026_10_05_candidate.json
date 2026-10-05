@@ -1,0 +1,50 @@
+{
+  "component": "diskgraph-scan-worker terminal quota reserve",
+  "baseline_commit": "c2fb9b123631d94e8885b4eb9baf3c5634d1a6f6",
+  "source_sha256": {
+    "crates/diskgraph-scan-worker/src/frame_writer.rs": "cfe8f856ab53cae959b0021ab9458dbecde92886d152f8540cf3d5ce6c23b518",
+    "crates/diskgraph-scan-worker/src/lib.rs": "2a333cd4c829c014e3f28ee38d499afe7df948a46d0a73d91674fa62051a128a",
+    "crates/diskgraph-scan-worker/src/worker_output.rs": "341f44e33a1dd4f90ba272310709cb1dff5cff41667c1541109eb6aec1bc4fc4",
+    "crates/diskgraph-scan-worker/src/prepared_payload.rs": "dde57c366fb7ebaf5994124da9223abb2b2c665e487a29aba782486a95357af3",
+    "crates/diskgraph-scan-worker/src/prepared_payload_tests.rs": "7ed6dbe17e4cfc5cf0cc15acbf356558529f50de2bcf3d5600bb5ff371671dea",
+    "crates/diskgraph-scan-worker/src/worker_output_terminal_tests.rs": "741e6ab17334cb49922e2409768a22f23f8587151cca61350436f398b3ef7b3f",
+    "crates/diskgraph-scan-worker/tests/execution_worker_byte_budget.rs": "cb57086c4bfe2d77f4377e23c9d6aa8af94cb454f01e8e699302a9a24f09a6e1"
+  },
+  "verification": {
+    "isolated_passed": 112,
+    "isolated_failed": 0,
+    "isolated_ignored": 0,
+    "result_blocks": 27,
+    "real_process_red": "one passed, two watchdog-rescued failures",
+    "real_process_green": "three passed without watchdog rescue",
+    "strict_clippy_exit": 0,
+    "rustfmt_check_exit": 0
+  },
+  "logs": {
+    "red": {
+      "path": "docs/benchmarks/worker_terminal_reserve_red_2026_10_05.log.gz",
+      "uncompressed_sha256": "c0288bc6b2c140be587fc860b6283a9f7fb656d6eebc0283617514f81663b74c"
+    },
+    "green": {
+      "path": "docs/benchmarks/worker_terminal_reserve_green_2026_10_05.log.gz",
+      "uncompressed_sha256": "74fbaa45b767cc2a30e0c35357dbf963c94ebbafe8ccf90d52f884667195b65b"
+    },
+    "isolated_green": {
+      "path": "docs/benchmarks/worker_terminal_reserve_isolated_green_2026_10_05.log.gz",
+      "uncompressed_sha256": "44802e4c878037d0527615f5b7c0aba24f1094b5a5dcaa756ed948dbede3d306"
+    },
+    "isolated_clippy": {
+      "path": "docs/benchmarks/worker_terminal_reserve_isolated_clippy_2026_10_05.log.gz",
+      "uncompressed_sha256": "451bc23c71f029f173e82976b65f8af876669c45fc631c4215183f4b2273bc76"
+    },
+    "fmt": {
+      "path": "docs/benchmarks/worker_terminal_reserve_fmt_2026_10_05.log.gz",
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "remaining_limits": [
+    "Extremely small Hello plus Error budgets need explicit admission before worker birth.",
+    "Only fixed typed quota errors receive the bounded reserve; arbitrary nonquota errors may fail closed.",
+    "This component verification does not prove Engine/CLI/MCP integration or native platform launch qualification."
+  ]
+}

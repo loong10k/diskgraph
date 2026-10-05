@@ -17,6 +17,9 @@ mod incremental_frame_decoder;
 mod native_path;
 mod node_tags;
 mod payload_buffer;
+mod prepared_payload;
+#[cfg(test)]
+mod prepared_payload_tests;
 mod protocol_budget_error;
 mod protocol_limits;
 mod scan_options;
@@ -35,6 +38,8 @@ mod worker_io_kind;
 mod worker_limits;
 mod worker_message;
 mod worker_output;
+#[cfg(test)]
+mod worker_output_terminal_tests;
 mod worker_path;
 mod worker_request;
 #[cfg(test)]
