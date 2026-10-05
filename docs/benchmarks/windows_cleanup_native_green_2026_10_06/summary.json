@@ -1,0 +1,51 @@
+{
+  "production_acceptance": false,
+  "native_run": 37385193355,
+  "checkout_sha": "436ebea270da7720927238d2ddc8a2520315ed75",
+  "fixture_sha256": "6b3e4f66e8e08333de37c91b2afd7a4bcc0c069cd338cd691ef551e89d12fa8a",
+  "source_count": 459,
+  "native_cases_passed": 7,
+  "cases": [
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_query_failure_retains_original_job_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::recovery_slot_survives_query_failure_until_original_job_is_observed_empty",
+      "passed": true,
+      "phase": "cleanup"
+    }
+  ],
+  "red_run": 37384689462,
+  "remaining_limitations": [
+    "leader INFINITE wait after successful termination",
+    "pending IO completion can exceed cooperative deadline",
+    "Drop failure and postbirth spawn panic still require external retained owner"
+  ]
+}

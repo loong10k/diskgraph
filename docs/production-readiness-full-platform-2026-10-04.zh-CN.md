@@ -1,5 +1,14 @@
 # 全平台验收续篇 — 2026-10-04
 
+> 2026-10-06 当前状态：全平台生产验收未完成。以下历史通过记录仅适用于各自源码与范围，不能替代当前集成版本验收。
+
+Windows 冻结候选 `d957e66` 的 [原生验收 37384689462](https://github.com/loong10k/diskgraph/actions/runs/37384689462) 编译成功，四项 pending I/O 跨线程回归实际通过；三项原 owner 清理恢复测试实际失败，确认过早标记完成、丢失句柄与恢复槽位释放问题。[原始证据](benchmarks/windows_cleanup_native_red_2026_10_06/summary.json) 已保留。候选 `436ebea` 修复失败后保留原句柄并重试真实 OS 观察；[修复验收](https://github.com/loong10k/diskgraph/actions/runs/37385193355) 已实际通过 7/7（原四项 I/O 与三项清理回归），[GREEN 原始证据](benchmarks/windows_cleanup_native_green_2026_10_06/summary.json) 已保存。出生后 panic 的外部所有权以及清理协作期限仍未解决，不据此启用 Windows 扫描。
+
+macOS [ARM/Intel 原始失败 37381931634](https://github.com/loong10k/diskgraph/actions/runs/37381931634) 发生于创建非法 UTF-8 测试目录，返回 EILSEQ，尚未进入扫描。[原始失败证据](benchmarks/macos_installed_invalid_filename_failure_2026_10_06/summary.json) 已保留。修正候选 `66c445a` 在同一 CI 临时卷明确检查 EILSEQ，再以合法 Unicode 文件名运行完整扫描；独立真实序列化测试保留非 UTF-8 原始路径字节且本机精确 1/0/0 通过。[ARM/Intel 新验收](https://github.com/loong10k/diskgraph/actions/runs/37385115407) 尚未完成。
+
+最新完整 CLI/MCP 回归仍有失败，参见[原始回执](benchmarks/product_full_regression_2026_10_06/receipt.json)。尚缺统一提交的全 workspace、三平台产品正向链路与规模性能验收；资格快照通过不能作为发布版本通过。
+
+
 仅 D45 暂存区隔离候选的完整 workspace 已通过 **1674/0/18（101 个结果块，exit0）**，随后仅规范排序 root 聚合声明；业务源码不变，最终严格 workspace all-target Clippy、自有九包 fmt 和 OpenSpec 校验通过。workspace 全量 fmt 的上游既有差异保留，14 份 vendor 摘要一致。非作者独审限定批准 D45，Windows 真实身份/撤权与通知竞态仍待 CI，不关闭 27 父门禁。扫描候选不在该提交范围；其首次 Mac 正常退出真实 2/5 失败及 getsid(SZOMB)=ESRCH 诊断均已保留。
 
 D45 请求级负向见证已接入 Engine 普通 revision 与显示读取，保留真实 SQL 授权及原期限；已知撤权为拒权，连接代次失效为冲突。当前本机 Store lib **291/0/1**、Store all-target 严格 Clippy exit0；Engine revision 过滤回归 **25/0，399 filtered**。该阶段临时排除三项尚缺 API 的 Unix B 测试模块声明，随后字节恢复，不是完整 Engine 通过。Unix namespace 能力仍为 None；Windows 真实身份、通知顺序及原失败断言仍待原生 CI。候选未提交，27 父门禁保持开放。
