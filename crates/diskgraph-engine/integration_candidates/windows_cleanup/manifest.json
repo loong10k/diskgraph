@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "managed-probe-original-execution-awaiting-native-red",
+  "phase": "managed-probe-red-with-readonly-job-member-diagnostics",
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "d35a44e6f5eef656365ac049b0bc233eccbe1ca335cf82121f18c3afcbea13a0",
+  "archive_sha256": "316c1e7377a5767d7c9af791dda372b06ff0f1f1ec661b2fa327f6b05a2d7c79",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -262,7 +262,7 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
-    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "98512a4dae03a9b986b3c4c483e51817186fc94389b766657327600e388840b5",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "e3b614917b9aebbfcc5ece6e4ddb1efb5304870e121fd88f788020c9c0656939",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "e75c0f56578d32bdd7e7c0bda018b0ca4505e6b6bfe2610c8733e588c40e75e5",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "874d48b450781270741043f80c8cf9fbb377952cebf3bc435b7b5a70bb5fd501",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "0dafd2d88bf6531c189133cc3af078e8b7d97b01292767ae1f9f87e3790f7203",
@@ -280,9 +280,10 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_control_spawn_record.rs": "6866ccb7707b0045357c80cba4331c629aaf20570fcd93b428fef48e1f70215f",
     "crates/diskgraph-engine/src/native_child/windows/windows_control_test_witness.rs": "9c83757c8611cda4435698afe37f1ba43ce56643965321706be1ab213daeddbc",
     "crates/diskgraph-engine/src/native_child/windows/windows_io_transfer_tests.rs": "73d3f31db86aeb0734f5b1637966f87d2ebcacc3a6d35a3cfd7be936737bac5c",
+    "crates/diskgraph-engine/src/native_child/windows/windows_job_test_diagnostics.rs": "0ba4c61b19c1d2c25e981168d11f1fb2b216be92c996f07312e0208a3d796f75",
     "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit.rs": "45946fad8c4c8b313ecb7889f107e71b23adb938b38be727b8ef5d24a0a83d36",
     "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_fixture.rs": "b7c8176b4fedfcfe8190c5fbf0453db5b25f6860c37b0fe232d6fa4676e4e1cd",
-    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_test_support.rs": "b4d47e07d186e26079be6bfd3c1067211342703f603f9f469706ed74c7d8f464",
+    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_test_support.rs": "307fb6005e6dd624e669c07456959fa5199b4b39f576a297c483f0a620af0929",
     "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_tests.rs": "06e3fe9ac330065dbff7d4b3d22dde1e55be0621e91e230c78bb2087e0784582",
     "crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs": "d7e6dd175a4f39c8c04f487d8393265dd528b159c64d1f7743bb47e692e8367b",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "e8face37004f06b331310719e40e82d28b073149019be8da3c1e217886e97e10",
@@ -512,5 +513,12 @@
     "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
     "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
     "native_child::windows::windows_probe_recovery_tests::managed_probe_panic_wait_failure_retains_original_owner_and_capacity"
-  ]
+  ],
+  "diagnostic_limits": {
+    "observations_per_fixture": 4,
+    "pids_per_observation": 64,
+    "job_and_process_queries_atomic": false,
+    "original_assertions_changed": false,
+    "production_algorithm_changed_for_diagnostics": false
+  }
 }
