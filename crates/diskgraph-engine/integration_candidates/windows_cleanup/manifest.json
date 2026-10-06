@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "180395cdabe7ef511efdff64f32938b7f260e5f6b6210a4ac1eff412d0a645b9",
+  "archive_sha256": "f8c9f46f6db57acde59f013857c408f72a51b95dbd2c116915c9fc43b147372b",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -503,7 +503,7 @@
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
     "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "8f121b6acb462d1d323fb3c95294f8c6918bf32e3d4c56f33b638369b94ab812",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "ea1139b0c0fe917f39a58cc7f35419cd6af38affad64bfdb793aba14f0318942",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "9c8eaafc0d5521ec9546e75e9a0775b48690af36da4a41b630c7b24a9305def1",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7"
   },
   "cleanup_cases": [

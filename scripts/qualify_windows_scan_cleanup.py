@@ -22,6 +22,16 @@ DIRECTORY_ENUMERATION_CASES = tuple("live_evidence::windows_git_directory_cursor
 ))
 
 
+def native_case_passed(case, stdout):
+    """精确一案实际执行；真实删除案还须输出最终句柄关闭后的原生断言标记。"""
+    if (case not in stdout
+            or "test result: ok. 1 passed; 0 failed; 0 ignored;" not in stdout):
+        return False
+    if case == DIRECTORY_ENUMERATION_CASES[3]:
+        return "DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1" in stdout.splitlines()
+    return True
+
+
 def check_directory_enumeration_cases(cases):
     if len(cases) != len(DIRECTORY_ENUMERATION_CASES) or set(cases) != set(DIRECTORY_ENUMERATION_CASES):
         raise ValueError("fixed held directory enumeration and codec inventory differs")
@@ -314,7 +324,7 @@ def main():
                 try:
                     shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
                                   source, output, name, environment, timeout=120)
-                    passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text(encoding="utf-8")
+                    passed = native_case_passed(case, (output / (name + ".stdout")).read_text(encoding="utf-8"))
                 except RuntimeError:
                     passed = False
                 results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "probe" if case in probe_cases else "directory_prerequisite" if case == DIRECTORY_CASES[0] else "directory" if case in directory_cases else "resource" if case in resource_cases else "runner" if case in runner_cases else "poll_cleanup" if case in poll_cases else "registry_deadline" if case in registry_cases else "missing_name" if case in missing_name_cases else "atomic_root" if case in atomic_root_cases else "cleanup"})

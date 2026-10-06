@@ -166,7 +166,7 @@ fn verified_cleanup_child_uses_original_parent_after_move_and_foreign_root_repla
     // 删除只作用于已核完整ID的本案句柄；关闭后检查实际名称消失及陌生根哨兵。
     mark_fixture_delete(&file);
     drop(file);
-    assert!(!parent.join("moved/owned").exists());
+    assert_fixture_absent(&parent.join("moved/owned"));
     assert_eq!(
         std::fs::read(parent.join("original/owned")).unwrap(),
         b"foreign"
@@ -177,12 +177,22 @@ fn verified_cleanup_child_uses_original_parent_after_move_and_foreign_root_repla
     drop(delete_root);
     drop(cursor);
     drop(_root);
-    assert!(!parent.join("moved").exists());
+    assert_fixture_absent(&parent.join("moved"));
     assert_eq!(
         std::fs::read(parent.join("original/owned")).unwrap(),
         b"foreign"
     );
     println!("DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1");
+}
+
+// 参数：本案原对象路径；返回：无，只接受真实不存在，不将权限拒绝/pending错误当消失。
+fn assert_fixture_absent(path: &std::path::Path) {
+    let error = std::fs::symlink_metadata(path).expect_err("original object still exists");
+    assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+    assert!(
+        matches!(error.raw_os_error(), Some(2 | 3)),
+        "unexpected absence error: {error}"
+    );
 }
 
 // 参数：本案独占、已核身份的DELETE句柄；返回：无，原生失败必须使测试失败。

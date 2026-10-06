@@ -68,3 +68,5 @@ CI 37415041940 在归档保护步骤实际失败：新增模块检查使用Windo
 ### 原句柄实际删除与last-close候选验收
 
 在已有同名陌生根替换原生测试中，进一步对已核完整ID的原子项句柄执行FileDispositionInfo，关闭后确认原子项消失；随后对原根anchor相对重开句柄标记删除，并释放全部原根句柄后确认移动后的原根消失，陌生根哨兵必须保持。新增精确stdout标记DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1。不使用POSIX、路径删除或delete-on-close回退；仅隔离测试，不接通产品删除、Pool或恢复，不启用危险工具。Windows实际结果待CI，不据此勾选15.13。
+
+删除验收进一步拒绝exists()把访问拒绝当缺失的弱证据：最终symlink_metadata必须明确NotFound且原生错误2/3，pending/权限/其他错误不得计作回收完成。驱动必须同时验证精确案名、1passed/0failed/0ignored及最终断言标记；驱动新增回归真实缺方法RED后25/25GREEN，冻结挂载14/14。实际Windows结果仍待验收。
