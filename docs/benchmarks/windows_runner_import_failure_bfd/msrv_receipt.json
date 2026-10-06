@@ -1,0 +1,7 @@
+{
+  "run_id": 37535756816,
+  "job_id": 112516109892,
+  "source_sha": "bfd36735a6285e5e692dc09f3b12f910b8b1ee41",
+  "classification": "Same actual missing Engine import compiler failure on MSRV; not behavior RED",
+  "raw_log_sha256": "92d5e268641a5e8069148486f980fa273e05795add70fa8400092222db22e2c6"
+}

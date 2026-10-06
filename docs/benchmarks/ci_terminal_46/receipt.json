@@ -1,0 +1,404 @@
+{
+  "run_id": 37532022281,
+  "source_sha": "46fededd709ee614eab5083c746399dde05664cf",
+  "status": "completed",
+  "conclusion": "failure",
+  "counts": {
+    "success": 20,
+    "failure": 2
+  },
+  "macos_intel_job": {
+    "job_id": 112503503038,
+    "conclusion": "success",
+    "raw_log_sha256": "8d056e4aca7e2ba0b8c6511a278daf0e9f141d1b565fdf3355aad84910b58e22",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run dtolnay/rust-toolchain@stable",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build exact native Windows CLI exit fixtures",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve Windows CLI exit fixture receipt",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build exact native Linux group-view fixture",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build exact native Linux atomic-birth fixtures",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build exact native Linux atomic-launcher fixtures",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows image material unit boundary",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows current Rust surviving writable image view",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve current Rust Windows image-view admission result",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows borrowed process image-name binding",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve Windows process image-name binding result",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows actual root parent red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve original root parent qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows modified private evidence disposal red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve original private evidence disposal qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows original registration rejection red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve original registration rejection qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows original child membership red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve original child membership qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows original pool unwind red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve original pool unwind qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows original directory retry red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve native Windows directory retry evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows foreign entry absence red and green",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve native Windows foreign entry absence evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows private directory cleanup unit boundary",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows pre-resume admission boundary",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows pending IO ownership transfer",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows bounded pending cleanup",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows suspended image load policy",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows suspended scan signature policy",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve actual Windows scan signature policy result",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows resumed DLL loading positive and negative controls",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve actual Windows resumed DLL loader result",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare actual fixed macOS installation for workspace",
+        "conclusion": "success"
+      },
+      {
+        "name": "Preserve macOS deployment preparation evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build actual Windows scan worker for protocol qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows actual worker protocol and original cancellation",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve actual Windows worker protocol evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows bound product Runtime and retained image recovery",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve Windows bound product Runtime evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux thread-group and procfs qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux atomic-birth qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve native Linux atomic-birth qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve native Linux group-view qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build explicit protocol-driver test fixture",
+        "conclusion": "success"
+      },
+      {
+        "name": "Preserve actual protocol-driver identity",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify current sealed-image source contracts",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux sealed-image component qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve Linux sealed-image component evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build scoped owner acceptance library",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native scoped owner type constraints",
+        "conclusion": "success"
+      },
+      {
+        "name": "Preserve scoped owner compile diagnostics",
+        "conclusion": "success"
+      },
+      {
+        "name": "Configure actual Linux worker for product acceptance",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve actual Linux product worker identity",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native expiry after actual scan observation in isolation",
+        "conclusion": "success"
+      },
+      {
+        "name": "Preserve native observation expiry result",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native queue deadline isolation",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native control write deadline isolation",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native control writer stage diagnostics",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native Linux queued startup error after socket reset",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux authorization changes after actual capture",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux normal wait authorization contract",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve native Linux normal wait evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux public FFI synchronous scan",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux scoped FFI service scan",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux public FFI asynchronous scan",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Linux legacy FFI service scan and revocation",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Test",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native HTTP shutdown and original request deadline",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native Linux identity and process scan fixtures",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Git source-metadata sentinel repetition",
+        "conclusion": "success"
+      },
+      {
+        "name": "Clippy",
+        "conclusion": "success"
+      },
+      {
+        "name": "Migration gate (ST-02)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Real-host drills stay out of the regular run (RE-02)",
+        "conclusion": "success"
+      },
+      {
+        "name": "FFI bindings generate (macOS)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Paired native Linux scan namespace cost",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve paired Linux scan cost evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Classify actual paired scan failure side",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Diagnose original Linux baseline failure once",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve separate Linux baseline diagnostic evidence",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Native Windows actual Cloud Files no-recall content",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Preserve actual Windows Cloud Files qualification",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "run_json_sha256": "74dae15c25b80bebd203c08039f84cff6ca5883644753622f5826655f74cfe60",
+  "source_fingerprints": {
+    "crates/diskgraph-cli/src/entry.rs": "5570b7ecdc215aa8777845bd36aeb7ff50ef6ba1e856301acb4a13819feb776d",
+    "crates/diskgraph-cli/src/entry_deadline_tests.rs": "d02251deb01648af2ca7df725958e1d5f384f470708c6874c9517a6ad63273bd",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "0176392f6a11b298d48947f624446461f1e70f7cec801cbf22e999a7571aa140"
+  },
+  "classification": "Full older-source matrix, not final current-source acceptance; Windows prerequisites still fail"
+}
