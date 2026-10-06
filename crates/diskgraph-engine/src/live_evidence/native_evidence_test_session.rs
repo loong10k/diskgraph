@@ -19,6 +19,29 @@ pub(super) fn sample_git_bounded(
     session.sample_git(git, project)
 }
 
+/// 参数：原目标、输出期限、输入额度、分配及卷余量；返回：同一采样核心的实际资源结果。
+/// Windows 夹具只补宿主绑定，既有资源额度不重建、不放宽。
+pub(super) fn sample_git_with_resources(
+    git: &Path,
+    project: &Path,
+    limits: &ProbeLimits,
+    metadata_budget: super::git_metadata_budget::GitMetadataBudget,
+    allocation_quota: u64,
+    min_free: u64,
+) -> Result<GitSample, String> {
+    let mut budget = super::native_probe_test_budget::NativeProbeTestBudget::new(limits)
+        .map_err(|error| error.to_string())?;
+    super::git_usage::sample_git_using_budget(
+        git,
+        project,
+        &mut budget,
+        metadata_budget,
+        allocation_quota,
+        min_free,
+    )
+    .map(|(sample, _remaining)| sample)
+}
+
 /// Windows 真实采样测试会话及独立恢复责任；来源：Rust PF-06，无 Java 对等对象。
 /// 不修改生产会话或兼容 API；使用公开宿主绑定入口取得原会话。
 pub(super) struct NativeEvidenceTestSession {

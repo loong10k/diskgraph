@@ -85,7 +85,7 @@ fn linked_worktree_keeps_its_own_head_index_and_the_common_stash() {
     let linked = linked.canonicalize().unwrap();
     std::fs::write(linked.join("tracked"), b"linked\n").unwrap();
     let before = fixture.metadata();
-    let sample = super::sample_git_bounded(
+    let sample = sample_git_bounded(
         std::path::Path::new("git"),
         &linked,
         &super::ProbeLimits::default(),
@@ -264,3 +264,8 @@ fn index_native_case_alias_is_rejected_without_changing_sensitive_volume_semanti
     }
     fixture.assert_metadata_unchanged(&before);
 }
+
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(not(windows))]
+use super::sample_git_bounded;

@@ -2,12 +2,16 @@
 //! 初始真实 RED 由可信 scoped 入口复现当前路径稳定仍可采到替换目录。
 //! 本回归现使用实际 revision 派生身份的产品采集边界，旧可信入口语义保持。
 
+#[cfg(not(windows))]
+use super::EvidenceProbeSession;
+use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
-use super::{EvidenceProbeSession, ProbeLimits};
-#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+#[cfg(windows)]
+use super::native_evidence_test_session::NativeEvidenceTestSession as EvidenceProbeSession;
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
 use crate::Engine;
 use crate::EngineConfig;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{NodeKind, PrincipalId, QueryBudget};
 use std::path::Path;

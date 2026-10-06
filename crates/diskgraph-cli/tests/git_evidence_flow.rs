@@ -1,6 +1,10 @@
 //! D37 C03 公共进程入口回归；来源：真实 CLI、原生 Git 和隔离数据目录。
 //! 入队契约与旧 sync 正控独立于后续 collector 执行/原子发布验收。
 
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+#[path = "../../diskgraph-engine/tests/support/native_scan_engine.rs"]
+mod native_scan_engine;
+
 #[cfg(test)]
 mod git_wait_diagnostic;
 

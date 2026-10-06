@@ -7,6 +7,9 @@ use super::git_metadata_budget::GitMetadataBudget;
 #[cfg(unix)]
 use super::git_metadata_file::GitMetadataFile;
 use super::git_system_configuration;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};

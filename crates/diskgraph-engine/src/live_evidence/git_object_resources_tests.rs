@@ -4,8 +4,14 @@ use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_metadata_budget::GitMetadataBudget;
 use super::git_tool_path::from_native;
+#[cfg(not(windows))]
 use super::git_usage::sample_git_with_resources;
 use super::git_view::GitView;
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_with_resources;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use std::path::Path;
 use std::process::Command;

@@ -1,9 +1,13 @@
 //! 使用真实公开入队/执行/认领验证同一诊断实现；来源：原生 Rust CLI 集成测试。
 
 use super::read;
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+use crate::native_scan_engine::NativeScanEngine as Engine;
 use crate::{GitFixture, success};
 use diskgraph_core::BusinessError;
-use diskgraph_engine::{Engine, EngineConfig, EngineError};
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
+use diskgraph_engine::Engine;
+use diskgraph_engine::{EngineConfig, EngineError};
 use serde_json::json;
 
 #[test]

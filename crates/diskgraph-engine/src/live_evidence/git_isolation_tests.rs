@@ -1,7 +1,11 @@
 //! D20 真实攻击正向控制及只读源 metadata 回归；全部限定在临时仓库。
 
+use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
-use super::{ProbeLimits, sample_git_bounded};
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(not(windows))]
+use super::sample_git_bounded;
 use sha2::Digest;
 use std::path::Path;
 use std::sync::atomic::Ordering;

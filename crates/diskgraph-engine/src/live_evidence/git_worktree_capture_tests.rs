@@ -4,6 +4,9 @@
 use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_scoped_fixture::{STATUS, prepare, run_and_complete};
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 
 #[test]
@@ -133,7 +136,7 @@ fn scoped_session_cumulates_input_budget_and_latches_failure() {
     let fixture = GitIsolationFixture::new("sha1");
     std::fs::write(fixture.path().join("large-untracked"), vec![7u8; 16 * 1024]).unwrap();
     let locator = diskgraph_core::QualifiedLocator::from_native_path(fixture.path()).unwrap();
-    let mut session = super::EvidenceProbeSession::new(&ProbeLimits::default()).unwrap();
+    let mut session = EvidenceProbeSession::new(&ProbeLimits::default()).unwrap();
     session.metadata_limits_for_test(1024, 32_768);
     let first = session
         .sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator)
@@ -152,3 +155,8 @@ fn scoped_session_cumulates_input_budget_and_latches_failure() {
         "failed session must not replenish input or start another tool"
     );
 }
+
+#[cfg(not(windows))]
+use super::EvidenceProbeSession;
+#[cfg(windows)]
+use super::native_evidence_test_session::NativeEvidenceTestSession as EvidenceProbeSession;

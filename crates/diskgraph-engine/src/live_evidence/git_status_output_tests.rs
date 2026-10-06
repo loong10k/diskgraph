@@ -1,8 +1,12 @@
 //! 真实宽工作树验证默认累计管道额度；准备、状态解释与清理均走公开采样入口。
 
+use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_tool_path::from_native;
-use super::{ProbeLimits, sample_git_bounded};
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(not(windows))]
+use super::sample_git_bounded;
 use std::path::Path;
 use std::process::Command;
 

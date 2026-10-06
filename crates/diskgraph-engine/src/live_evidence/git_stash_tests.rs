@@ -1,6 +1,10 @@
 //! 真实仓库夹具：Git 的 stash list 成功退出仍可能静默跳过损坏 reflog 条目。
 
-use super::{GitSample, ProbeLimits, sample_git_bounded};
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(not(windows))]
+use super::sample_git_bounded;
+use super::{GitSample, ProbeLimits};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, Instant};

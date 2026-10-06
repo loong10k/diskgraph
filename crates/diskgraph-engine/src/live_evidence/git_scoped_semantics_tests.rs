@@ -4,6 +4,9 @@
 use super::ProbeLimits;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_scoped_fixture::{STATUS, prepare};
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use std::time::{Duration, SystemTime};
 
@@ -145,7 +148,7 @@ fn scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git() {
         );
         let locator = diskgraph_core::QualifiedLocator::from_native_path(fixture.path()).unwrap();
         let before = fixture.metadata();
-        let mut session = super::EvidenceProbeSession::new(&ProbeLimits::default()).unwrap();
+        let mut session = EvidenceProbeSession::new(&ProbeLimits::default()).unwrap();
         let sample = session
             .sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator)
             .unwrap();
@@ -259,3 +262,8 @@ fn scoped_private_executable_mode_and_fixed_status_match_source_observation() {
         assert_eq!(status.stdout, native_status);
     }
 }
+
+#[cfg(not(windows))]
+use super::EvidenceProbeSession;
+#[cfg(windows)]
+use super::native_evidence_test_session::NativeEvidenceTestSession as EvidenceProbeSession;

@@ -6,6 +6,9 @@ use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_scoped_fixture::{prepare, rejection};
 #[cfg(windows)]
 use super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 
 #[test]
@@ -82,7 +85,7 @@ fn registered_parent_allows_linked_worktree_and_absolute_common_dependency() {
             .unwrap();
     #[cfg(windows)]
     let diagnostic = GitSourceWindowsDiagnostic::new();
-    let sample = super::EvidenceProbeSession::new(&ProbeLimits::default())
+    let sample = EvidenceProbeSession::new(&ProbeLimits::default())
         .unwrap()
         .sample_git_scoped(std::path::Path::new("git"), root, &project);
     #[cfg(windows)]
@@ -110,7 +113,7 @@ fn registered_parent_maps_absolute_attributes_and_excludes_dependencies() {
     std::fs::write(fixture.path().join("ignored-local"), b"ignored\n").unwrap();
     let locator = diskgraph_core::QualifiedLocator::from_native_path(fixture.path()).unwrap();
     let before = fixture.metadata();
-    let sample = super::EvidenceProbeSession::new(&ProbeLimits::default())
+    let sample = EvidenceProbeSession::new(&ProbeLimits::default())
         .unwrap()
         .sample_git_scoped(std::path::Path::new("git"), root, &locator)
         .unwrap();
@@ -234,7 +237,7 @@ fn in_scope_gitdir_does_not_authorize_an_external_common_directory() {
     )
     .unwrap();
     // 旧可信入口的合法外部依赖作为正控制；不把配置损坏产生的错误当 scoped 门禁。
-    let control = super::sample_git_bounded(
+    let control = sample_git_bounded(
         std::path::Path::new("git"),
         &linked,
         &ProbeLimits::default(),
@@ -331,3 +334,13 @@ fn unrelated_ancestor_sibling_activity_keeps_registered_route_valid() {
     assert!(output.stdout.is_empty());
     verified.expect("ancestor identity is stable despite sibling directory activity");
 }
+
+#[cfg(not(windows))]
+use super::EvidenceProbeSession;
+#[cfg(windows)]
+use super::native_evidence_test_session::NativeEvidenceTestSession as EvidenceProbeSession;
+
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(not(windows))]
+use super::sample_git_bounded;

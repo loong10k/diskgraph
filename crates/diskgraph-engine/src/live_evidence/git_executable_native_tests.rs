@@ -1,10 +1,17 @@
 //! 由独立原生宿主检验同名工具正控制和工作目录切换，不修改并行测试环境。
 
+use super::ProbeLimits;
 use super::git_executable::GitExecutable;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_tool_path::from_native;
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
-use super::{ProbeLimits, sample_git_bounded};
+#[cfg(not(windows))]
+use super::sample_git_bounded;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

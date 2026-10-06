@@ -5,6 +5,9 @@ use super::git_callback_tests::{command, helper};
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_metadata_budget::GitMetadataBudget;
 use super::git_view::GitView;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
