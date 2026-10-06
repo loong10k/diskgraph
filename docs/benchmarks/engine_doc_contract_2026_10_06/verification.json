@@ -1,0 +1,348 @@
+{
+  "production_acceptance": false,
+  "methods_documented": 105,
+  "files": [
+    {
+      "path": "crates/diskgraph-engine/src/engine_startup.rs",
+      "before_sha256": "7420492b82b26df913f763d42fd7b7a9cf582e00ae32fd7d9ec1e5ab7396184c",
+      "after_sha256": "988398f7c8e38a396fd8d158057feece0c90d7d4e5aa4a6c02e2541e3a5a730e",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs",
+      "before_sha256": "72d675944ca63abe2ddfc810e59e219e7e3db371a987c8d6be30c8f71a7c8810",
+      "after_sha256": "a696ce910ceab967dc83b5778d29ea84a2001e923fd8121a395bed5bab6a39e7",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs",
+      "before_sha256": "83068ce4cbd9415c176cd055089bf87bb2f468ba0201a82d4d715721af30b4ce",
+      "after_sha256": "86657dfed22e7c56bdd9dd2607d11ecd217bfe8da2c7a396a6756fca661bba0a",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
+      "before_sha256": "df57e0fb7d657cf2fa99f9e5104042d4e2b62cbbf9820ab4c12e0b40a75c4af8",
+      "after_sha256": "8541a45ba103da5e229f5e0122bfb6d1ae4f7682445fb923116444c1d6a873ed",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/probe_budget.rs",
+      "before_sha256": "d52bb4d1bdd64582255672a50bc44b9650d52d54ccbdf3f998ca1efab23bf06b",
+      "after_sha256": "ab2e9a49f509c5e8e9e55ddd426771582161643f65a3097d05d1981bf9314aed",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs",
+      "before_sha256": "7a0e7a778da6ce2924a5901a2ae6270f867583991f18edb2b2f838862c958c58",
+      "after_sha256": "34d902a8ad9da28a1b4244044ebc75d38c5ad1889e35377a6db2c124f09e111f",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs",
+      "before_sha256": "7e1a619484b2a4c306b429f15c1b9c405f9e598e1ba0f1fdc374c3e70d164141",
+      "after_sha256": "1afe4af4de664693bf8d582ccc2aa7f9b76faadc1de8943e4e88d338b76d9225",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_epoch_floor.rs",
+      "before_sha256": "6d54110b90ee65ae2b270d03c6f604608b2d1f32169352cbd285f7cc854b4676",
+      "after_sha256": "9e436a2f979898385aa88c970ea1adeb73210240001f01b170fb99046eb1df70",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_filesystem_state.rs",
+      "before_sha256": "05bf22c3dfb8091730bfb540aee17594e80bacb2770919493e212816a33af1cb",
+      "after_sha256": "52d3b605054af4887fae8586eb06aa1012ec430eb8c42ade24661ba109aed597",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_host_settings.rs",
+      "before_sha256": "bc23e1305a3d385314b5e194035ae392eb253834c598c934caca5f09b2fb11b0",
+      "after_sha256": "c86e0a14a24f513cf2a10eab6ef1a3918fd8be11f78b973c570fba37cf95dffd",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_installation_bootstrap.rs",
+      "before_sha256": "644d970be54cbf23144498cb2cea75da89d8c6aa4994c7bcc62e238c02f7ede2",
+      "after_sha256": "fefe6bd9a47be65715d55eb287c960b564682d0f945de477c0707957beb42991",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_installation_files.rs",
+      "before_sha256": "8f5c715e8040b3126618410441dec537299b839f6e2e07d775b847ec8372ddf1",
+      "after_sha256": "2841253366793c7111394f75259a0928b6450aa17289bdd96c49490d3e418d7e",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_installation_lease.rs",
+      "before_sha256": "d84b95ec5bae53177e9beafdb0b0ec02b053d15c87014c00db430bb93b24a465",
+      "after_sha256": "a4ca0fa189731f82d953621f0e02a0b71067b9043caecc6a9d4527c936d2d7e8",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_installation_lock.rs",
+      "before_sha256": "aa20f5ddeba55305a0bcf004cdee839868d231c4df8b0fab1895ce2d5c43a46e",
+      "after_sha256": "275a92adfe9edd43ff241a187968b59f6e4daa1fcd2502bdf92e928b8d4794bd",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_installation_publisher.rs",
+      "before_sha256": "36866470b19b4efaa18bbfd98f1ea85e8c177f70ff9a64c5c524749e576e0359",
+      "after_sha256": "5414b6f96880c52c83d63f409b11418fbf59af334dc379118d5bd97c9d3de76a",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_load_policy.rs",
+      "before_sha256": "b1da7ae9a1ef4de3b8a8d1f5de0d3bb817b2b25cdc1d4c3a0d6aaff476ce46b6",
+      "after_sha256": "efea8788d5af74978066c7a724d7bf58c0fe0c001ac1319b093f330a07486087",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/macos_spawn_permit.rs",
+      "before_sha256": "9b097704a37d31fb976ab3c743b16e07aa364aee6dffc58681c232647164ac55",
+      "after_sha256": "ef1888de890870ae49406fee9b7c7f26fdd6aba128d2eabae50918b89b5b62ff",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_native_launcher.rs",
+      "before_sha256": "169b8f8e5ff43af9bc84f35782a579e7d2aaf54987b9f7bf1c41840798dcd45e",
+      "after_sha256": "f860dbceb7bd034d1e50d5671d8ddd4062baec5e11f4610b4f5d31dc6e985152",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_native_pipes.rs",
+      "before_sha256": "7d2cb9bb2357c2c3327b4900d82cd7617a87f0012c0789e3c1f83111832c37fe",
+      "after_sha256": "f269f1b779d1ddeaab5b0d8b100aa5f550afb2d471748a279399b26f2e97d9a2",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_native_spawn.rs",
+      "before_sha256": "2c7122c1e7dcf89268012ac920bd19adfc409ed6077cd5e6fe3dd221a0c05942",
+      "after_sha256": "dd7479be17e1588b232231e40aeb812e50ba7f34af41ef68a79c49ee454b5719",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/native_birth_gate.rs",
+      "before_sha256": "b05fe7bf0b9b2a10358897b1daa9a45e9fc188975c5fbcb5a308bf7ef9de2247",
+      "after_sha256": "50dae8dfc0de962ba1e88ab65bc62c5db569056a3835f40b9a82b853f7765d8b",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child.rs",
+      "before_sha256": "5279d81b76aae5dec10c3495499d4e31e21d2a96b3994d2b7cda59b325ef4b62",
+      "after_sha256": "71cf631efc14a3c02a4179b8c5edbfe37d467c92df097b07dc51fdf276e83e13",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child_group.rs",
+      "before_sha256": "64bcb9529e1f3310736cee9cdc1a34fd2d4b0a3300f6aef0cafc821981ce0e8b",
+      "after_sha256": "0a027e7f5452c7122b48c807a7ee53e30f6f899723205e42aad2bb09b4b2db88",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child_spawn.rs",
+      "before_sha256": "fc3d44b5655ef447487f571a771e9807d3ae450f27dec63c0222e46bb5dfbb08",
+      "after_sha256": "a4949147ccf404a79de673a276510d8063e995d94cae820a3af792a1976dad93",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs",
+      "before_sha256": "2087987a386ae9f7db3f431d65b6b0101f7fd89ef4b5565dacc9d52eda0c63ed",
+      "after_sha256": "60c04def8496efb04cee5c69943f3db1c49d153b762fb57277597a29063a8d23",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs",
+      "before_sha256": "9abc668f90634f76b4245404edc4632067f236fdea34dde1c95c52fb2c93cac4",
+      "after_sha256": "db5c81d01b95aba8bc990460aa106ea7b477e7c25af4b654380d6bbc176e8c0b",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs",
+      "before_sha256": "486d4d3e95f69c6e5b1314f8a5fe63ed02e1abb233cfb86c2b5ffb49020645a8",
+      "after_sha256": "e6138fe82da094503e62c718ce9aa2defbf0527ccec87adc97a165a37e8dffef",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs",
+      "before_sha256": "83f96bb275e14439e32f2b6cbac49ceea8bdcda86f4c733d9b017fd63bbfa4d3",
+      "after_sha256": "c88600a0c41f9b9599d42b8c896addda2c43bd771a9389d571ddc6268e1656ae",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs",
+      "before_sha256": "91419fc8857ba2c53827c850401b93683054f35523d1dfffad117898843385f6",
+      "after_sha256": "588fa52cd1f680daed71806c510ea1a37eb85173117f706331d05be9dba7b647",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_child.rs",
+      "before_sha256": "32f2d8abca5e964ce74f935c5d10f7ef8d6b3119b1b42b1c63a08613bc907322",
+      "after_sha256": "0e6ca847d72b02ea41a6d2ff786294518e0a01a5718e7ba7a7560ecc7ae33c97",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs",
+      "before_sha256": "fd248698b2bf71c3b5cf45064f92d7216a5ad022fe0e92a8b3ecc3c2194bc2c8",
+      "after_sha256": "619080abac89b394ed6d458bcdc32927d7a5b97efb38cd8d8926ba17d359bfc4",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs",
+      "before_sha256": "9edf0d944fc83eea0d355446374d6ee8cd3267f8f1c762637e846825f13ba2d3",
+      "after_sha256": "58ee38cd7babf615e3a251995cabcc60884cd469d151850ef4d019410328e705",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs",
+      "before_sha256": "9fab8b48258a70ce3b739fac0859c1001bb307b0a4b16af5fc382ed7205dd2cc",
+      "after_sha256": "73b0b7441159d71174e5d939a0a5cdd339953eaf36d0d0e6e3ae58553277d7e5",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs",
+      "before_sha256": "d7e6dd175a4f39c8c04f487d8393265dd528b159c64d1f7743bb47e692e8367b",
+      "after_sha256": "f21add0177ec8eca1fe839e64e67c7f553119aa914d99022f72a0a487e238ae8",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/probe_directory_binding.rs",
+      "before_sha256": "8cef4258b069909d8799a8e2d479861ba2f6c2305987c786435087e5d85130a7",
+      "after_sha256": "ac018199bbead03ec0b644fa50255dfd4143384d3ac11675b7a5fe3ce9a717f4",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/probe_host.rs",
+      "before_sha256": "262012c3157f5f6396a16922788b5c21e845d35284cef240b464e24111166a52",
+      "after_sha256": "ee22798545a9cb6fa5a68f366d6e15f87ea76875185ea4200145768eed7500ed",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/probe_recovery.rs",
+      "before_sha256": "7974d501d3546c072f89f82631da51e9c91a8d06f41f7e9db90dad18415a281a",
+      "after_sha256": "ca3d807e5eb8f804378c54af0b374c336e91476b23380ebcc0b25444aefb8d2e",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/probe_resource_pool.rs",
+      "before_sha256": "18da39277ee19eb9a2cd359e99cde50b3361259cad5d1fb5e8a7148cda40bd77",
+      "after_sha256": "638faa96bf8bd3768d292735f1b9b8bb50d1452f0ef16022334a62cf60a3a62f",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/probe_session_lease.rs",
+      "before_sha256": "e39d5f1c6b073ad4d421ef921e33e9d313e6c94bf7c2dbe468b0d605df305b76",
+      "after_sha256": "f9eb9f2c32823f009590758a013515e6601d5848eb8c945d51086ae5e8e6f317",
+      "non_doc_bytes_unchanged": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/scan_worker_host.rs",
+      "before_sha256": "604ddba2a4d315e3cfe33c88e860d7278bc5e5ac7cc31061f75d330ce905b4d6",
+      "after_sha256": "81a588223a797d1336c831f6802b9c91164c63ce338301a8c8dc800a8267c7e4",
+      "non_doc_bytes_unchanged": true
+    }
+  ],
+  "source_layout_passed": 6,
+  "native_behavior_not_retested_for_docs": true,
+  "frozen_overlays": [
+    {
+      "candidate": "macos_installed",
+      "source_count": 597,
+      "archive_sha256": "25bbea7579e67e13f5ad89b1a27a070fc0d21a1d1251de5ac808f0f3beb26d50",
+      "applied": [
+        "crates/diskgraph-engine/src/native_child/macos_native_spawn.rs",
+        "crates/diskgraph-engine/src/macos_filesystem_state.rs",
+        "crates/diskgraph-engine/src/native_child/unix_child_group.rs",
+        "crates/diskgraph-engine/src/macos_spawn_permit.rs",
+        "crates/diskgraph-engine/src/native_child/unix_child_spawn.rs",
+        "crates/diskgraph-engine/src/macos_installation_bootstrap.rs",
+        "crates/diskgraph-engine/src/macos_installation_publisher.rs",
+        "crates/diskgraph-engine/src/native_child/native_birth_gate.rs",
+        "crates/diskgraph-engine/src/native_child/macos_native_launcher.rs",
+        "crates/diskgraph-engine/src/macos_host_settings.rs",
+        "crates/diskgraph-engine/src/macos_installation_lock.rs",
+        "crates/diskgraph-engine/src/scan_worker_host.rs",
+        "crates/diskgraph-engine/src/macos_installation_files.rs",
+        "crates/diskgraph-engine/src/macos_epoch_floor.rs",
+        "crates/diskgraph-engine/src/native_child/macos_native_pipes.rs",
+        "crates/diskgraph-engine/src/native_child/unix_child.rs"
+      ],
+      "deferred_different_body_or_absent": [
+        "crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs",
+        "crates/diskgraph-engine/src/probe_host.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs",
+        "crates/diskgraph-engine/src/probe_recovery.rs",
+        "crates/diskgraph-engine/src/probe_resource_pool.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs",
+        "crates/diskgraph-engine/src/live_evidence/probe_budget.rs",
+        "crates/diskgraph-engine/src/macos_load_policy.rs",
+        "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs",
+        "crates/diskgraph-engine/src/engine_startup.rs",
+        "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
+        "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs",
+        "crates/diskgraph-engine/src/probe_directory_binding.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs",
+        "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs",
+        "crates/diskgraph-engine/src/probe_session_lease.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child.rs",
+        "crates/diskgraph-engine/src/macos_installation_lease.rs",
+        "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs"
+      ]
+    },
+    {
+      "candidate": "windows_cleanup",
+      "source_count": 495,
+      "archive_sha256": "013b0085c6a52d9a6b036b979ced5512d08b68662a0e3396cf766e77d903dbc2",
+      "applied": [
+        "crates/diskgraph-engine/src/native_child/macos_native_spawn.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs",
+        "crates/diskgraph-engine/src/macos_filesystem_state.rs",
+        "crates/diskgraph-engine/src/probe_host.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs",
+        "crates/diskgraph-engine/src/probe_recovery.rs",
+        "crates/diskgraph-engine/src/probe_resource_pool.rs",
+        "crates/diskgraph-engine/src/native_child/unix_child_group.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs",
+        "crates/diskgraph-engine/src/macos_spawn_permit.rs",
+        "crates/diskgraph-engine/src/live_evidence/probe_budget.rs",
+        "crates/diskgraph-engine/src/macos_installation_bootstrap.rs",
+        "crates/diskgraph-engine/src/macos_installation_publisher.rs",
+        "crates/diskgraph-engine/src/native_child/native_birth_gate.rs",
+        "crates/diskgraph-engine/src/native_child/macos_native_launcher.rs",
+        "crates/diskgraph-engine/src/macos_host_settings.rs",
+        "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs",
+        "crates/diskgraph-engine/src/macos_installation_lock.rs",
+        "crates/diskgraph-engine/src/engine_startup.rs",
+        "crates/diskgraph-engine/src/scan_worker_host.rs",
+        "crates/diskgraph-engine/src/macos_installation_files.rs",
+        "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
+        "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs",
+        "crates/diskgraph-engine/src/probe_directory_binding.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs",
+        "crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs",
+        "crates/diskgraph-engine/src/macos_epoch_floor.rs",
+        "crates/diskgraph-engine/src/probe_session_lease.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child.rs",
+        "crates/diskgraph-engine/src/native_child/macos_native_pipes.rs",
+        "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs",
+        "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs",
+        "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs"
+      ],
+      "deferred_different_body_or_absent": [
+        "crates/diskgraph-engine/src/native_child/unix_child_spawn.rs",
+        "crates/diskgraph-engine/src/macos_load_policy.rs",
+        "crates/diskgraph-engine/src/macos_installation_lease.rs",
+        "crates/diskgraph-engine/src/native_child/unix_child.rs"
+      ]
+    }
+  ]
+}

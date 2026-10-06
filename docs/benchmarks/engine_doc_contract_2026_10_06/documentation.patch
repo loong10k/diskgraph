@@ -1,0 +1,982 @@
+--- a/crates/diskgraph-engine/src/engine_startup.rs
++++ b/crates/diskgraph-engine/src/engine_startup.rs
+@@ -108,7 +108,7 @@
+ #[cfg(windows)]
+ impl Engine {
+     /// 参数：config为原两库配置，scan为可选受信扫描镜像，probe为固定容量探针宿主。
+-    /// 返回引擎与扫描恢复责任；调用方在本函数前已持有独立ProbeRecovery，不能放入请求catch。
++    /// 返回：引擎与扫描恢复责任；调用方在本函数前已持有独立ProbeRecovery，不能放入请求catch。
+     /// 宿主材料不授予请求权限；没有扫描镜像仍可使用受管理证据探针。
+     pub fn open_with_process_hosts(
+         config: EngineConfig,
+--- a/crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs
++++ b/crates/diskgraph-engine/src/live_evidence/evidence_probe_session.rs
+@@ -33,7 +33,7 @@
+         })
+     }
+ 
+-    /// 参数：limits保留原预算，host为受信有限宿主；返回绑定同一恢复责任的会话或原失败。
++    /// 参数：limits保留原预算，host为受信有限宿主；返回：绑定同一恢复责任的会话或原失败。
+     /// 调用方必须在本会话及catch之外保留ProbeRecovery；不产生进程或授予访问权限。
+     #[cfg(windows)]
+     pub fn new_with_probe_host(
+@@ -48,7 +48,7 @@
+         Ok(session)
+     }
+ 
+-    /// 参数：limits/started/cancel为原任务预算，host为Engine的同一宿主；返回独占会话。
++    /// 参数：limits/started/cancel为原任务预算，host为Engine的同一宿主；返回：独占会话。
+     /// 从原认领时间建立一次期限；绑定宿主不得延长时间或补充输出、输入额度。
+     #[cfg(windows)]
+     pub(crate) fn for_git_job_with_probe_host(
+--- a/crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs
++++ b/crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs
+@@ -48,7 +48,7 @@
+         Self::from_file(&file)
+     }
+ 
+-    /// 参数：无；返回原记录的完整 128 位 Windows File ID 描述符，不重新解析路径。
++    /// 参数：无；返回：原记录的完整 128 位 Windows File ID 描述符，不重新解析路径。
+     /// 仅用于原 anchor 保活期间的同卷重开；调用者仍须核验新旧句柄身份和类型。
+     #[cfg(windows)]
+     pub(super) fn windows_file_id_descriptor(
+--- a/crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs
++++ b/crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs
+@@ -10,7 +10,7 @@
+     pub(super) root_identity: Option<GitPrivateAllocation>,
+ }
+ impl GitPrivateDirectoryOwner {
+-    /// 参数：无；返回原根身份确认后的删除结果；失败保留原payload，绝不清理陌生替换根。
++    /// 参数：无；返回：原根身份确认后的删除结果；失败保留原payload，绝不清理陌生替换根。
+     pub(crate) fn cleanup(&mut self) -> Result<(), String> {
+         if self.cleaned {
+             return Ok(());
+--- a/crates/diskgraph-engine/src/live_evidence/probe_budget.rs
++++ b/crates/diskgraph-engine/src/live_evidence/probe_budget.rs
+@@ -44,6 +44,7 @@
+             probe_registry: None,
+         })
+     }
++    /// 参数：pool 为同一可信宿主资源池；返回：成功绑定唯一会话，或原预算、重复绑定及容量错误。
+ 
+     /// 绑定同一受信宿主，不创建容量或重置原期限、输出及取消；来源：PF-06。
+     #[cfg(windows)]
+@@ -66,7 +67,7 @@
+         self.check()
+     }
+ 
+-    /// 参数：无；返回同session唯一目录binding，未配置Host的本地目录不取得出生资格。
++    /// 参数：无；返回：同session唯一目录binding，未配置Host的本地目录不取得出生资格。
+     #[cfg(windows)]
+     pub(super) fn directory_binding(
+         &self,
+--- a/crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs
++++ b/crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs
+@@ -11,12 +11,12 @@
+ }
+ 
+ impl WindowsProbeChild {
+-    /// 参数：child为catch外保留的原生唯一owner；返回薄适配，不创建或清理进程。
++    /// 参数：child为catch外保留的原生唯一owner；返回：薄适配，不创建或清理进程。
+     pub(in crate::live_evidence) fn from_child(child: WindowsChild) -> Self {
+         Self { child }
+     }
+ 
+-    /// 参数：消费薄适配；返回同一原生owner，错误投影前交还显式恢复边界。
++    /// 参数：消费薄适配；返回：同一原生owner，错误投影前交还显式恢复边界。
+     pub(in crate::live_evidence) fn into_child(self) -> WindowsChild {
+         self.child
+     }
+--- a/crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs
++++ b/crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs
+@@ -8,7 +8,7 @@
+ use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
+ use std::process::Command;
+ 
+-/// 参数：command为受信命令，budget持有原期限、输出、取消与宿主；返回完整输出或原失败。
++/// 参数：command为受信命令，budget持有原期限、输出、取消与宿主；返回：完整输出或原失败。
+ /// 出生前预留容量；一次处置失败移交原owner后才投影错误，panic原payload原样继续。
+ pub(super) fn execute(
+     command: &mut Command,
+--- a/crates/diskgraph-engine/src/macos_epoch_floor.rs
++++ b/crates/diskgraph-engine/src/macos_epoch_floor.rs
+@@ -18,10 +18,12 @@
+     active_sha256: [u8; 32],
+ }
+ impl MacosEpochFloor {
+-    /// 返回已严格解码的独立epoch；仅供可信恢复者定位该代固定pending材料。
++    /// 参数：无；返回：已验证下限记录中的 epoch。
++    /// 返回：已严格解码的独立epoch；仅供可信恢复者定位该代固定pending材料。
+     pub(super) fn epoch(&self) -> u64 {
+         self.epoch
+     }
++    /// 参数：deadline/checkpoint 为原期限；返回：确认下限尚不存在，或残留下限、预算及读取错误。
+ 
+     /// 参数：原期限/检查点；仅在active缺失时确认下限也不存在，残留下限必须拒绝。
+     pub(super) fn ensure_unconfigured(
+@@ -41,7 +43,7 @@
+         }
+     }
+ 
+-    /// 参数：原共享锁、期限与取消检查点；返回保护文件内的独立下限。
++    /// 参数：原共享锁、期限与取消检查点；返回：保护文件内的独立下限。
+     pub(super) fn read(
+         _guard: &MacosInstallationLock,
+         deadline: Instant,
+@@ -55,7 +57,7 @@
+         }
+         Ok(floor)
+     }
+-    /// 参数：有界原始JSON；返回严格记录，未知、重复字段及非法版本均拒绝。
++    /// 参数：有界原始JSON；返回：严格记录，未知、重复字段及非法版本均拒绝。
+     pub(super) fn decode(bytes: &[u8]) -> Result<Self, EngineError> {
+         if bytes.is_empty() || bytes.len() > 4096 {
+             return Err(BusinessError::InvalidArgument.into());
+@@ -67,7 +69,7 @@
+         }
+         Ok(floor)
+     }
+-    /// 参数：同锁内读取的活跃配置；返回一致性验证，损坏或回滚返回冲突。
++    /// 参数：同锁内读取的活跃配置；返回：一致性验证，损坏或回滚返回：冲突。
+     pub(super) fn verify(&self, settings: &MacosHostSettings) -> Result<(), EngineError> {
+         if settings.active_epoch != self.epoch || settings.binding_digest()? != self.active_sha256 {
+             return Err(BusinessError::Conflict.into());
+--- a/crates/diskgraph-engine/src/macos_filesystem_state.rs
++++ b/crates/diskgraph-engine/src/macos_filesystem_state.rs
+@@ -31,7 +31,7 @@
+ }
+ 
+ impl MacosFilesystemState {
+-    /// 比较目录长期名称绑定；参数为再次捕获的安全状态，返回绑定是否保持一致。
++    /// 比较目录长期名称绑定；参数：为再次捕获的安全状态，返回：绑定是否保持一致。
+     /// 每次捕获仍核验实时 ACL 与捕获前后完整元数据。
+     pub(super) fn same_directory_binding(&self, current: &Self) -> bool {
+         // 子项增删会改变目录记账字段，但不能改变原卷、对象或安全边界。
+--- a/crates/diskgraph-engine/src/macos_host_settings.rs
++++ b/crates/diskgraph-engine/src/macos_host_settings.rs
+@@ -29,7 +29,7 @@
+ }
+ 
+ impl MacosHostSettings {
+-    /// 参数：无；返回所有活跃信任字段的规范化域隔离摘要，保留原生路径字节。
++    /// 参数：无；返回：所有活跃信任字段的规范化域隔离摘要，保留原生路径字节。
+     pub(super) fn binding_digest(&self) -> Result<[u8; 32], EngineError> {
+         let bytes = serde_json::to_vec(self).map_err(|_| BusinessError::InvalidArgument)?;
+         let mut hash = Sha256::new();
+@@ -38,7 +38,7 @@
+         Ok(hash.finalize().into())
+     }
+ 
+-    /// 参数：原安装共享锁与原期限；返回同时通过独立版本下限验证的配置。
++    /// 参数：原安装共享锁与原期限；返回：同时通过独立版本下限验证的配置。
+     pub(super) fn read_authorized(
+         guard: &crate::macos_installation_lock::MacosInstallationLock,
+         deadline: Instant,
+@@ -54,7 +54,7 @@
+         Ok(settings)
+     }
+ 
+-    /// 参数：deadline/checkpoint沿原请求；返回固定保护文件的材料或缺失状态。
++    /// 参数：deadline/checkpoint沿原请求；返回：固定保护文件的材料或缺失状态。
+     /// 不读取环境定位；存在但无效的配置传播错误，不能退回普通镜像配置。
+     pub(super) fn read_active(
+         deadline: Instant,
+@@ -84,7 +84,7 @@
+         Ok(Some(settings))
+     }
+ 
+-    /// 参数：bytes为保护文件的有界原字节；返回完整合法材料，保留非UTF-8定位。
++    /// 参数：bytes为保护文件的有界原字节；返回：完整合法材料，保留非UTF-8定位。
+     /// 仅用于内容解析，不代表普通调用方能为来源不可信的JSON建立信任。
+     pub(super) fn decode(bytes: &[u8]) -> Result<Self, EngineError> {
+         if bytes.is_empty() || bytes.len() > 64 * 1024 {
+@@ -106,7 +106,7 @@
+         Ok(settings)
+     }
+ 
+-    /// 参数：无；返回由保护材料构造的独立信任，不从receipt或相邻文件自动注册密钥。
++    /// 参数：无；返回：由保护材料构造的独立信任，不从receipt或相邻文件自动注册密钥。
+     pub(super) fn trust(&self) -> Result<MacosInstallationTrust, EngineError> {
+         MacosInstallationTrust::from_host(
+             self.public_key,
+@@ -115,7 +115,7 @@
+         )
+     }
+ 
+-    /// 参数：无；返回独立镜像摘要和准确尺寸，不扩大128MiB镜像准入上限。
++    /// 参数：无；返回：独立镜像摘要和准确尺寸，不扩大128MiB镜像准入上限。
+     pub(super) fn expected(&self) -> Result<ScanWorkerHostConfig, EngineError> {
+         ScanWorkerHostConfig::from_expected_image(self.expected_sha256, self.expected_bytes)
+     }
+--- a/crates/diskgraph-engine/src/macos_installation_bootstrap.rs
++++ b/crates/diskgraph-engine/src/macos_installation_bootstrap.rs
+@@ -12,7 +12,7 @@
+ /// 来源：原生Rust PF-06永久安装锁合同，无Java对等对象。
+ pub(super) struct MacosInstallationBootstrap;
+ impl MacosInstallationBootstrap {
+-    /// 参数：原期限及取消检查点；返回已持久建立或验证的永久保护布局。
++    /// 参数：原期限及取消检查点；返回：已持久建立或验证的永久保护布局。
+     /// 只有真实和有效root身份均成立才允许创建，已有链接/不安全ACL拒绝。
+     pub(super) fn prepare(
+         deadline: Instant,
+--- a/crates/diskgraph-engine/src/macos_installation_files.rs
++++ b/crates/diskgraph-engine/src/macos_installation_files.rs
+@@ -12,7 +12,7 @@
+ pub(super) struct MacosInstallationFiles;
+ 
+ impl MacosInstallationFiles {
+-    /// 参数：原父目录与单个固定名称；返回独占新目录，不复用已有目标。
++    /// 参数：原父目录与单个固定名称；返回：独占新目录，不复用已有目标。
+     pub(super) fn create_directory(parent: &File, name: &CStr) -> Result<File, EngineError> {
+         component(name)?;
+         if unsafe { libc::mkdirat(parent.as_raw_fd(), name.as_ptr(), 0o755) } != 0 {
+@@ -23,22 +23,22 @@
+         Ok(directory)
+     }
+ 
+-    /// 参数：原父目录与单个名称；返回NOFOLLOW目录句柄，不跟随路径别名。
++    /// 参数：原父目录与单个名称；返回：NOFOLLOW目录句柄，不跟随路径别名。
+     pub(super) fn open_directory(parent: &File, name: &CStr) -> Result<File, EngineError> {
+         open_at(parent, name, libc::O_RDONLY | libc::O_DIRECTORY)
+     }
+ 
+-    /// 参数：原目录和单个名称；返回独占新建0600写句柄；绝不chown或复用旧inode。
++    /// 参数：原目录和单个名称；返回：独占新建0600写句柄；绝不chown或复用旧inode。
+     pub(super) fn fresh_writer(parent: &File, name: &CStr) -> Result<File, EngineError> {
+         open_at(parent, name, libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL)
+     }
+ 
+-    /// 参数：原目录和单个名称；返回原生只读非阻塞句柄，不导出执行权限。
++    /// 参数：原目录和单个名称；返回：原生只读非阻塞句柄，不导出执行权限。
+     pub(super) fn read_only(parent: &File, name: &CStr) -> Result<File, EngineError> {
+         open_at(parent, name, libc::O_RDONLY | libc::O_NONBLOCK)
+     }
+ 
+-    /// 参数：最多64KiB材料、最终只读模式及原期限；返回关闭唯一writer后的只读句柄。
++    /// 参数：最多64KiB材料、最终只读模式及原期限；返回：关闭唯一writer后的只读句柄。
+     pub(super) fn write_fresh(
+         parent: &File,
+         name: &CStr,
+@@ -57,7 +57,7 @@
+         Self::read_only(parent, name)
+     }
+ 
+-    /// 参数：本次独占writer及最终模式；返回文件同步且唯一写FD已关闭的事实。
++    /// 参数：本次独占writer及最终模式；返回：文件同步且唯一写FD已关闭的事实。
+     /// 不重试close的EINTR，避免错误地关闭已被重用的数字FD；错误不允许后续签发。
+     pub(super) fn finish_writer(
+         writer: File,
+@@ -78,7 +78,7 @@
+         Self::check(deadline, checkpoint)
+     }
+ 
+-    /// 参数：regular锚点、同设备待同步目录、原期限；返回真实持久化或原系统错误。
++    /// 参数：regular锚点、同设备待同步目录、原期限；返回：真实持久化或原系统错误。
+     /// SDK fcntl(2)说明FULLFSYNC使此前同设备已fsync数据持久化；不能降级为普通fsync。
+     /// 设备自身违反flush合同仍不在软件证明内，真实断电与卷资格必须独立验收。
+     pub(super) fn durable(
+@@ -111,6 +111,7 @@
+         }
+         Self::check(deadline, checkpoint)
+     }
++    /// 参数：base/stage/anchor 为原目录与同卷锚点，deadline/checkpoint 为原期限；返回：下限及活跃配置发布结果，错误不回滚已提交下限。
+ 
+     /// 参数：保护根、新版本目录、同卷锚点及原期限；先持久下限，再发布活跃配置。
+     /// 任意错误保留已提交下限及残留新材料，不unlink、不回滚、不删除旧版本。
+@@ -131,6 +132,7 @@
+         Self::durable(anchor, &[stage, base], deadline, checkpoint)?;
+         Self::complete_active(base, stage, anchor, deadline, checkpoint)
+     }
++    /// 参数：base/stage/anchor 为已认证恢复材料与锚点，deadline/checkpoint 为原期限；返回：活跃配置发布与耐久同步结果，不修改下限。
+ 
+     /// 参数：已由独立floor认证的pending目录和同卷锚点；只完成active发布及同步。
+     /// 本原语不验证信任；调用方须保留独占安装锁并核验绑定，绝不修改floor。
+@@ -146,7 +148,7 @@
+         Self::durable(anchor, &[stage, base], deadline, checkpoint)
+     }
+ 
+-    /// 参数：原绝对期限和检查点；返回未经替换的原取消或期限错误。
++    /// 参数：原绝对期限和检查点；返回：未经替换的原取消或期限错误。
+     pub(super) fn check(
+         deadline: Instant,
+         checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+--- a/crates/diskgraph-engine/src/macos_installation_lease.rs
++++ b/crates/diskgraph-engine/src/macos_installation_lease.rs
+@@ -72,7 +72,7 @@
+     }
+ 
+     /// 从原安装镜像句柄检查固定加载命令，前后重新核验身份和原namespace。
+-    /// 参数：deadline/checkpoint沿原请求；返回策略准入或原失败，不导出File或执行权限。
++    /// 参数：deadline/checkpoint沿原请求；返回：策略准入或原失败，不导出File或执行权限。
+     pub(super) fn validate_loader(
+         &self,
+         deadline: Instant,
+@@ -198,6 +198,7 @@
+     }
+     Ok(())
+ }
++/// 参数：path 为可信绝对原生路径，deadline/checkpoint 为原请求期限；返回：持有路径对象与祖先的命名空间，或路径、预算及原生访问错误。
+ 
+ pub(super) fn open_namespace(
+     path: &[u8],
+--- a/crates/diskgraph-engine/src/macos_installation_lock.rs
++++ b/crates/diskgraph-engine/src/macos_installation_lock.rs
+@@ -18,7 +18,7 @@
+ }
+ 
+ impl MacosInstallationLock {
+-    /// 参数：期限/检查点沿原请求；返回原永久inode的共享锁守卫或原错误。
++    /// 参数：期限/检查点沿原请求；返回：原永久inode的共享锁守卫或原错误。
+     /// 缺失/替换锁文件失败关闭，等待不持数据库、registry或本进程出生门。
+     pub(super) fn acquire_shared(
+         deadline: Instant,
+@@ -27,7 +27,7 @@
+         Self::acquire(libc::LOCK_SH, deadline, checkpoint)
+     }
+ 
+-    /// 参数：原期限/检查点；返回仅root可信更新者取得的同永久inode独占守卫。
++    /// 参数：原期限/检查点；返回：仅root可信更新者取得的同永久inode独占守卫。
+     /// 不创建/替换锁文件；调用方不能用此入口改写任意用户选择的配置路径。
+     pub(super) fn acquire_exclusive(
+         deadline: Instant,
+@@ -73,6 +73,7 @@
+             _ancestors: ancestors,
+         })
+     }
++    /// 参数：file 为隔离夹具文件，deadline/checkpoint 为原期限；返回：实际共享锁守卫或原错误，不赋予生产安装资格。
+ 
+     /// 测试专用普通文件入口，仅验证实际内核竞争与守卫释放，不冒充root安全准入。
+     #[cfg(test)]
+--- a/crates/diskgraph-engine/src/macos_installation_publisher.rs
++++ b/crates/diskgraph-engine/src/macos_installation_publisher.rs
+@@ -30,7 +30,7 @@
+ 
+ impl MacosInstallationPublisher {
+     /// 仅root完成独立floor已经承诺的一代；不接受新私钥、摘要、epoch或任意恢复路径。
+-    /// 参数：原期限/取消检查点；返回该代active已持久化或原失败，永不改写floor。
++    /// 参数：原期限/取消检查点；返回：该代active已持久化或原失败，永不改写floor。
+     /// pending已消费时只接受当前active完全匹配floor；损坏/缺失下限拒绝自动重建。
+     pub(super) fn recover(
+         deadline: Instant,
+@@ -96,7 +96,7 @@
+         Files::check(deadline, checkpoint)
+     }
+ 
+-    /// 参数：独立下限与该代候选配置；返回只可用于固定布局恢复的已认证配置。
++    /// 参数：独立下限与该代候选配置；返回：只可用于固定布局恢复的已认证配置。
+     /// 摘要覆盖全部信任字段，不允许恢复者改写预期或用任意旧版本receipt补齐。
+     pub(super) fn validate_recovery(
+         floor: &[u8],
+@@ -116,7 +116,7 @@
+     }
+ 
+     /// 参数：held源、独立预期、可信发行私钥、递增epoch、非零安装ID及原期限。
+-    /// 返回完整发布或原失败；失败可能已持久发布新floor，调用方不得回滚或复用旧epoch。
++    /// 返回：完整发布或原失败；失败可能已持久发布新floor，调用方不得回滚或复用旧epoch。
+     /// 私钥/预期不能取自请求或相邻文件；本接口只供固定可信安装程序，不供普通CLI/MCP。
+     pub(super) fn publish(
+         source: &File,
+@@ -273,7 +273,7 @@
+         Files::check(deadline, checkpoint)
+     }
+ 
+-    /// 参数：同锁内旧floor/active原材料和新epoch；返回首装/严格递增许可。
++    /// 参数：同锁内旧floor/active原材料和新epoch；返回：首装/严格递增许可。
+     /// 单项缺失、损坏、中断不一致均失败关闭，不从receipt或目录列表重建下限。
+     pub(super) fn validate_previous(
+         floor: Option<&[u8]>,
+@@ -297,6 +297,7 @@
+             _ => Err(BusinessError::Conflict.into()),
+         }
+     }
++    /// 参数：source 为原源句柄，expected 为摘要与长度，version 为目标目录，deadline/checkpoint 为原期限；返回：真实复制并验证的文件句柄或原错误，不提供生产签发旁路。
+ 
+     /// 普通隔离夹具只验证真实复制原语；不提供生产root准入或签发旁路。
+     #[cfg(test)]
+--- a/crates/diskgraph-engine/src/macos_load_policy.rs
++++ b/crates/diskgraph-engine/src/macos_load_policy.rs
+@@ -19,7 +19,7 @@
+ pub(super) struct MacosLoadPolicy;
+ 
+ impl MacosLoadPolicy {
+-    /// 参数：image/bytes来自原认证租约，deadline/checkpoint沿原请求；返回准入或原错误。
++    /// 参数：image/bytes来自原认证租约，deadline/checkpoint沿原请求；返回：准入或原错误。
+     /// 最多分配1MiB命令区；不读取整镜像，不改变共享文件偏移，不授予执行权限。
+     pub(super) fn validate(
+         image: &File,
+--- a/crates/diskgraph-engine/src/macos_spawn_permit.rs
++++ b/crates/diskgraph-engine/src/macos_spawn_permit.rs
+@@ -9,7 +9,7 @@
+     update_lock: MacosInstallationLock,
+ }
+ impl MacosSpawnPermit {
+-    /// 参数：installation已在update_lock内重新核验；返回单次可移动材料，不复制锁FD。
++    /// 参数：installation已在update_lock内重新核验；返回：单次可移动材料，不复制锁FD。
+     pub(super) fn new(
+         installation: Arc<MacosInstallationLease>,
+         update_lock: MacosInstallationLock,
+@@ -19,7 +19,7 @@
+             update_lock,
+         }
+     }
+-    /// 参数：消费自身；返回原image lease与原锁守卫，启动器必须保留至C出生返回。
++    /// 参数：消费自身；返回：原image lease与原锁守卫，启动器必须保留至C出生返回：。
+     pub(super) fn into_parts(self) -> (Arc<MacosInstallationLease>, MacosInstallationLock) {
+         (self.installation, self.update_lock)
+     }
+--- a/crates/diskgraph-engine/src/native_child/macos_native_launcher.rs
++++ b/crates/diskgraph-engine/src/native_child/macos_native_launcher.rs
+@@ -24,7 +24,7 @@
+ }
+ 
+ impl MacosNativeLauncher {
+-    /// 出生前准备全部资源。参数：lease是独立信任准入材料，期限/检查点沿原请求；返回预备启动器或原准备错误。
++    /// 出生前准备全部资源。参数：lease是独立信任准入材料，期限/检查点沿原请求；返回：预备启动器或原准备错误。
+     #[cfg(test)]
+     pub(super) fn prepare(
+         lease: Arc<MacosInstallationLease>,
+@@ -58,7 +58,7 @@
+     }
+ 
+     /// 消费Host锁内核验的单次出生材料，保留更新锁跨通道准备与原C出生。
+-    /// 参数：permit是唯一守卫，期限/检查点沿原请求；返回启动器或原错误。
++    /// 参数：permit是唯一守卫，期限/检查点沿原请求；返回：启动器或原错误。
+     pub(crate) fn prepare_qualified(
+         permit: crate::macos_spawn_permit::MacosSpawnPermit,
+         deadline: Instant,
+@@ -68,7 +68,7 @@
+         Self::prepare_inner(installation, Some(update_lock), deadline, checkpoint)
+     }
+ 
+-    /// 将原child直接出生到caller外槽。参数：owner/deadline/checkpoint沿原claim；返回原错误。
++    /// 将原child直接出生到caller外槽。参数：owner/deadline/checkpoint沿原claim；返回：原错误。
+     /// 出生后的任何错误或panic都保留外槽；caller必须dispose/retain，不能丢弃owner。
+     pub(crate) fn spawn_into(
+         self,
+@@ -78,8 +78,9 @@
+     ) -> Result<(), EngineError> {
+         self.spawn_inner(owner, deadline, checkpoint, |_| {})
+     }
++    /// 参数：owner 为外部原槽，deadline/checkpoint 为原期限，hook 仅观察实际 PID；返回：出生结果或原错误，失败责任仍留原槽。
+ 
+-    /// 测试专用出生观察点；参数hook只收到原PID，不能在生产入口注入任意回调。
++    /// 测试专用出生观察点；参数：hook只收到原PID，不能在生产入口注入任意回调。
+     #[cfg(test)]
+     pub(super) fn spawn_observed(
+         self,
+--- a/crates/diskgraph-engine/src/native_child/macos_native_pipes.rs
++++ b/crates/diskgraph-engine/src/native_child/macos_native_pipes.rs
+@@ -85,6 +85,7 @@
+ thread_local! {
+     static RAW_PIPE_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce([i32; 2])>>> = const { std::cell::RefCell::new(None) };
+ }
++/// 参数：hook 为当前测试线程的一次性原始 FD 观察器；返回：无，仅安装观察器，不取得 FD 所有权。
+ #[cfg(test)]
+ pub(super) fn set_raw_pipe_hook(hook: Box<dyn FnOnce([i32; 2])>) {
+     RAW_PIPE_HOOK.with(|slot| *slot.borrow_mut() = Some(hook));
+--- a/crates/diskgraph-engine/src/native_child/macos_native_spawn.rs
++++ b/crates/diskgraph-engine/src/native_child/macos_native_spawn.rs
+@@ -16,7 +16,7 @@
+ pub(super) struct MacosNativeSpawn;
+ 
+ impl MacosNativeSpawn {
+-    /// 出生并直接登记所有权。参数为固定路径、三个持有子端及原owner字段；返回原errno。
++    /// 出生并直接登记所有权。参数：为固定路径、三个持有子端及原owner字段；返回：原errno。
+     /// 调用方必须在任何后续可失败操作之前已持有完整管道与安装租约，非零保证没有child。
+     pub(super) fn birth(
+         path: &CStr,
+--- a/crates/diskgraph-engine/src/native_child/native_birth_gate.rs
++++ b/crates/diskgraph-engine/src/native_child/native_birth_gate.rs
+@@ -9,7 +9,7 @@
+ pub(super) struct NativeBirthGate;
+ 
+ impl NativeBirthGate {
+-    /// 参数：checkpoint借用原取消与绝对期限；返回短临界区守卫或未经替换的原错误。
++    /// 参数：checkpoint借用原取消与绝对期限；返回：短临界区守卫或未经替换的原错误。
+     pub(super) fn acquire<E>(
+         checkpoint: &mut impl FnMut() -> Result<(), E>,
+     ) -> Result<MutexGuard<'static, ()>, E> {
+@@ -42,6 +42,7 @@
+ thread_local! {
+     static WAIT_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = const { std::cell::RefCell::new(None) };
+ }
++/// 参数：hook 为当前测试线程的一次性等待观察器；返回：无，不取得或释放出生许可。
+ 
+ #[cfg(test)]
+ pub(super) fn set_wait_hook(hook: Box<dyn FnOnce()>) {
+--- a/crates/diskgraph-engine/src/native_child/unix_child.rs
++++ b/crates/diskgraph-engine/src/native_child/unix_child.rs
+@@ -36,7 +36,7 @@
+ }
+ 
+ impl UnixChild {
+-    /// 出生前构造全部原资源 owner。参数为预备缓冲、管道和已认证租约；返回未生进程。
++    /// 出生前构造全部原资源 owner。参数：为预备缓冲、管道和已认证租约；返回：未生进程。
+     #[cfg(target_os = "macos")]
+     pub(super) fn prepare_native(
+         buffer: ChildReadBuffer,
+@@ -64,7 +64,7 @@
+         }
+     }
+ 
+-    /// 原生 C 直接写入出生前存在的原 owner；参数是固定路径和三个原子端，返回原 errno。
++    /// 原生 C 直接写入出生前存在的原 owner；参数：是固定路径和三个原子端，返回：原 errno。
+     #[cfg(target_os = "macos")]
+     pub(super) fn birth_native(&mut self, path: &std::ffi::CStr, channels: [i32; 3]) -> i32 {
+         let UnixLeader::Native { pid, .. } = &mut self.child else {
+@@ -78,7 +78,7 @@
+         )
+     }
+ 
+-    /// 原 owner 存在后核验实际 SID/PGID 与管道；参数无，返回真实初始化错误。
++    /// 原 owner 存在后核验实际 SID/PGID 与管道；参数：无，返回：真实初始化错误。
+     #[cfg(target_os = "macos")]
+     pub(super) fn initialize_native(&mut self) -> Result<u32, ChildError> {
+         UnixChildSetup::initialize(
+--- a/crates/diskgraph-engine/src/native_child/unix_child_group.rs
++++ b/crates/diskgraph-engine/src/native_child/unix_child_group.rs
+@@ -6,7 +6,7 @@
+ pub(super) struct UnixChildGroup;
+ 
+ impl UnixChildGroup {
+-    /// 终止原保留组。参数：pid为尚未wait的原leader；返回原OS错误与原有有界重试。
++    /// 终止原保留组。参数：pid为尚未wait的原leader；返回：原OS错误与原有有界重试。
+     pub(super) fn terminate(pid: i32) -> Result<(), ChildError> {
+         if unsafe { libc::kill(-pid, libc::SIGKILL) } == 0 {
+             return Ok(());
+--- a/crates/diskgraph-engine/src/native_child/unix_child_spawn.rs
++++ b/crates/diskgraph-engine/src/native_child/unix_child_spawn.rs
+@@ -34,7 +34,7 @@
+         Self::spawn_command(command, input_mode, false, || Ok(()), checkpoint)
+     }
+ 
+-    /// 原授权探针入口；参数：受信命令、原预算检查。返回原 owner 或未经替换的错误。
++    /// 原授权探针入口；参数：受信命令、原预算检查。返回：原 owner 或未经替换的错误。
+     /// 等待和生命周期都借同一原检查，不创建新预算；检查不得按调用次数推断出生阶段。
+     pub(crate) fn spawn_checked<E>(
+         command: &mut Command,
+@@ -50,7 +50,7 @@
+     }
+ 
+     /// 参数：admission 用于门等待授权/期限，checkpoint 为出生前后生命周期检查。
+-    /// 返回唯一 owner 或原类型错误；等待检查不推进生命周期回调。
++    /// 返回：唯一 owner 或原类型错误；等待检查不推进生命周期回调。
+     pub(crate) fn spawn_with_input_and_admission<E>(
+         command: &mut Command,
+         input_mode: ChildInputMode,
+--- a/crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs
+@@ -123,7 +123,7 @@
+         Ok(ControlWriteStatus::Pending)
+     }
+ 
+-    /// 参数：deadline为原处置绝对期限；返回一次非阻塞观察，Pending/Err保留原稳定内存与未完成写责任。
++    /// 参数：deadline为原处置绝对期限；返回：一次非阻塞观察，Pending/Err保留原稳定内存与未完成写责任。
+     /// 不使用bWait=TRUE；Cancel成功或NOT_FOUND均不代表完成，最后期限检查前不关闭写句柄。
+     pub(super) fn poll_cleanup(
+         &mut self,
+@@ -202,6 +202,7 @@
+     pub(super) fn handles(&self) -> Result<(HANDLE, HANDLE), ChildError> {
+         Ok((self.handle()?, self.event.as_raw()))
+     }
++    /// 参数：无；返回：最后实际完成查询的原生错误码，尚未记录时为 None。
+ 
+     /// 仅记录实际GetOverlappedResult终态，供接管线程证明取消完成而非线程退出。
+     #[cfg(test)]
+--- a/crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs
+@@ -21,7 +21,7 @@
+ use windows_sys::Win32::System::Threading::CreateEventW;
+ 
+ impl OverlappedControlPipe {
+-    /// 可信内部兼容入口；参数为输入模式/原名称/安全属性/检查；返回旧所有权签名。
++    /// 可信内部兼容入口；参数：为输入模式/原名称/安全属性/检查；返回：旧所有权签名。
+     /// 局部 owner 的安全清理仍可能阻塞；新出生路径使用 prepare_input_into 的 catch 外槽。
+     pub(in crate::native_child::windows) fn prepare_input<E>(
+         mode: ChildInputMode,
+--- a/crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs
+@@ -113,7 +113,7 @@
+         self.eof
+     }
+ 
+-    /// 参数：deadline为同一处置绝对期限；返回一次非阻塞完成观察或原生错误，不释放活跃缓冲。
++    /// 参数：deadline为同一处置绝对期限；返回：一次非阻塞完成观察或原生错误，不释放活跃缓冲。
+     /// Pending/Err保留原句柄与稳定地址；过期不请求取消、不将未完成读当作EOF。
+     pub(super) fn poll_cleanup(
+         &mut self,
+@@ -197,6 +197,7 @@
+         }
+         failure.map_or(Ok(()), Err)
+     }
++    /// 参数：无；返回：原 pending 操作的 HANDLE、OVERLAPPED 和缓冲区地址；没有 pending 时拒绝。
+ 
+     /// 只供真实pending读跨线程测试观察，不修改原内存或句柄。
+     #[cfg(test)]
+@@ -219,12 +220,14 @@
+             self.bytes.as_ptr(),
+         ))
+     }
++    /// 参数：无；返回：当前操作是否仍处于连接阶段，不表示读取完成。
+ 
+     /// 测试区分真实 Connect 与 Read；不修改内核操作。
+     #[cfg(test)]
+     pub(super) fn connecting_for_test(&self) -> bool {
+         self.phase == WindowsPipeIoPhase::Connecting
+     }
++    /// 参数：无；返回：无；在当前测试线程设置一次查询故障，不取消原 pending 操作。
+ 
+     /// 一次性注入查询失败，不声称内核拒权；实际pending仍由原OS操作建立。
+     #[cfg(test)]
+--- a/crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs
+@@ -23,7 +23,7 @@
+ use windows_sys::Win32::System::Threading::CreateEventW;
+ 
+ impl OverlappedPipe {
+-    /// 将尚未提交 I/O 的管道安装到外部 owner。参数：唯一名称、DACL、空槽位；返回原生错误。
++    /// 将尚未提交 I/O 的管道安装到外部 owner。参数：唯一名称、DACL、空槽位；返回：原生错误。
+     pub(in crate::native_child::windows) fn prepare_into(
+         name: &[u16],
+         security: &PipeSecurity,
+@@ -69,7 +69,7 @@
+         Ok(())
+     }
+ 
+-    /// 打开仅用于子进程继承的写端。参数：已存在的唯一名称与 DACL；返回写端所有权。
++    /// 打开仅用于子进程继承的写端。参数：已存在的唯一名称与 DACL；返回：写端所有权。
+     pub(in crate::native_child::windows) fn open_writer(
+         name: &[u16],
+         security: &PipeSecurity,
+@@ -92,7 +92,7 @@
+         )
+     }
+ 
+-    /// 在原外部 owner 上提交连接，不等待完成。参数：无；返回提交错误，pending 仍归原 owner。
++    /// 在原外部 owner 上提交连接，不等待完成。参数：无；返回：提交错误，pending 仍归原 owner。
+     pub(in crate::native_child::windows) fn start_connect(&mut self) -> Result<(), ChildError> {
+         if self.pending || self.phase != WindowsPipeIoPhase::Prepared || self.cleanup_started {
+             return Err(ChildError::Unsupported(
+@@ -122,13 +122,14 @@
+         }
+     }
+ 
+-    /// 参数：无；返回原连接已真实完成时为 true；pending 地址仍留在原外槽。
++    /// 参数：无；返回：原连接已真实完成时为 true；pending 地址仍留在原外槽。
+     pub(in crate::native_child::windows) fn connect_ready(&mut self) -> Result<bool, ChildError> {
+         if self.phase == WindowsPipeIoPhase::Connecting && self.pending {
+             self.finish_connect(false, false)?;
+         }
+         Ok(self.phase == WindowsPipeIoPhase::Ready && !self.pending)
+     }
++    /// 参数：wait 指定是否同步等待，owner_cancelled 表示原 owner 已请求取消；返回：连接完成或原查询错误，未完成时保留 pending 责任，不标记读取 EOF。
+ 
+     pub(super) fn finish_connect(
+         &mut self,
+--- a/crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs
+@@ -11,7 +11,7 @@
+     CreateFailed,
+ }
+ impl WindowsBirthPhase {
+-    /// 参数：无；返回本阶段是否已明确确认没有本 owner 的进程出生。
++    /// 参数：无；返回：本阶段是否已明确确认没有本 owner 的进程出生。
+     pub(super) fn confirmed_unborn(self) -> bool {
+         matches!(self, Self::Prepared | Self::CreateFailed)
+     }
+--- a/crates/diskgraph-engine/src/native_child/windows/windows_child.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/windows_child.rs
+@@ -299,6 +299,7 @@
+         self.cleaned = true;
+         Ok(())
+     }
++    /// 参数：无；返回：依次为原 Job 是否持有、原 leader 是否持有、是否已确认清理完成。
+ 
+     /// 测试只读快照：原Job、leader责任句柄是否仍持有，以及是否已宣称清理完成。
+     #[cfg(test)]
+--- a/crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs
+@@ -12,7 +12,7 @@
+ use windows_sys::Win32::System::Threading::WaitForSingleObject;
+ 
+ impl WindowsChild {
+-    /// 参数：deadline为调用者原处置绝对期限；返回一次非阻塞观察，Pending/Err保留原owner。
++    /// 参数：deadline为调用者原处置绝对期限；返回：一次非阻塞观察，Pending/Err保留原owner。
+     /// Wait0/QueryJob/管道FALSE查询都不等待；只有leader、全Job及全部I/O实际完成才释放。
+     /// 该入口不保证单次内核调用的硬墙钟上限；旧cleanup/Drop和出生前准备仍可能阻塞。
+     pub(crate) fn poll_cleanup(
+--- a/crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs
+@@ -10,7 +10,7 @@
+ };
+ 
+ impl WindowsChild {
+-    /// 参数：空的 catch 外槽；返回原 Job 创建/设置结果，首次 I/O 前已持有确认未出生状态。
++    /// 参数：空的 catch 外槽；返回：原 Job 创建/设置结果，首次 I/O 前已持有确认未出生状态。
+     pub(super) fn prepare_job_into(owner: &mut Option<Self>) -> Result<(), ChildError> {
+         if owner.is_some() {
+             return Err(ChildError::Unsupported("birth owner slot already occupied"));
+--- a/crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs
+@@ -18,7 +18,7 @@
+ };
+ 
+ impl WindowsChild {
+-    /// 已弃用的受信内部兼容入口；参数为原命令与检查点，返回旧child/错误签名。
++    /// 已弃用的受信内部兼容入口；参数：为原命令与检查点，返回：旧child/错误签名。
+     /// 该签名不能移交失败owner；永久清理失败及panic没有外部Recovery保证，应迁移spawn_into。
+     pub(crate) fn spawn<E>(
+         command: &mut Command,
+@@ -28,8 +28,8 @@
+     }
+ 
+     /// 已弃用的受信内部兼容入口，不得用于新扫描或作为远程授权路径。
+-    /// 既有WindowsProbe尚待迁移；此薄包装不修复其局部owner在失败返回时的生命周期限制。
+-    /// 参数：原命令、stdin模式和检查点；返回旧签名，不宣称清理失败owner可跨返回保留。
++    /// 既有WindowsProbe尚待迁移；此薄包装不修复其局部owner在失败返回：时的生命周期限制。
++    /// 参数：原命令、stdin模式和检查点；返回：旧签名，不宣称清理失败owner可跨返回：保留。
+     pub(crate) fn spawn_with_input<E>(
+         command: &mut Command,
+         mode: ChildInputMode,
+@@ -46,7 +46,7 @@
+     }
+ 
+     /// 在调用者catch外预留槽内出生，不在失败时消费、清理或丢弃原owner。
+-    /// 参数：owner必须为空且活得比catch更久，checkpoint借原期限/取消；返回原错误，出生后的owner由调用者处置。
++    /// 参数：owner必须为空且活得比catch更久，checkpoint借原期限/取消；返回：原错误，出生后的owner由调用者处置。
+     pub(crate) fn spawn_into<E>(
+         command: &mut Command,
+         mode: ChildInputMode,
+@@ -57,7 +57,7 @@
+     }
+ 
+     /// 参数：admission 借原请求期限/取消，checkpoint 保留四阶段生命周期，owner 是 catch 外槽。
+-    /// 返回原错误；所有连接仅 FALSE 轮询并复查 admission，不建立新预算或隐藏等待线程。
++    /// 返回：原错误；所有连接仅 FALSE 轮询并复查 admission，不建立新预算或隐藏等待线程。
+     /// 不承诺单次原生调用硬期限；旧 spawn_into 的本地兼容 admission 不设期限。
+     pub(crate) fn spawn_into_with_admission<E>(
+         command: &mut Command,
+@@ -224,7 +224,7 @@
+     Ok(writer)
+ }
+ 
+-/// 参数：原连接 owner 与借用原预算的 admission；返回连接完成或原取消/期限错误。
++/// 参数：原连接 owner 与借用原预算的 admission；返回：连接完成或原取消/期限错误。
+ /// 仅 FALSE 查询；原错/panic 后不消费 owner，不重建窗口或分配新缓冲。
+ pub(super) fn complete_prepared_connection<E>(
+     pipe: &mut OverlappedPipe,
+--- a/crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs
++++ b/crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs
+@@ -16,7 +16,7 @@
+ unsafe impl Send for WindowsOverlappedOperation {}
+ 
+ impl WindowsOverlappedOperation {
+-    /// 参数：由外层保活的event；返回不会因owner跨线程转移而换址的操作内存。
++    /// 参数：由外层保活的event；返回：不会因owner跨线程转移而换址的操作内存。
+     pub(super) fn new(event: HANDLE) -> Self {
+         let mut operation = OVERLAPPED::default();
+         operation.hEvent = event;
+@@ -24,17 +24,20 @@
+             storage: Box::new(UnsafeCell::new(operation)),
+         }
+     }
+-    /// 仅外层确认没有pending操作时调用；参数event沿原owner，不改变内存地址。
++    /// 参数：event 为原 owner 持有的事件句柄，调用前必须确认无 pending；返回：无，原存储地址保持稳定。
++    /// 仅外层确认没有pending操作时调用；参数：event沿原owner，不改变内存地址。
+     pub(super) fn reset(&mut self, event: HANDLE) {
+         let mut operation = OVERLAPPED::default();
+         operation.hEvent = event;
+         unsafe { self.as_ptr().write(operation) };
+     }
+-    /// 返回稳定原生地址，不创建指向内核可变字段的Rust引用。
++    /// 参数：无；返回：原 OVERLAPPED 存储地址，借用者不得越过 owner 寿命使用。
++    /// 返回：稳定原生地址，不创建指向内核可变字段的Rust引用。
+     pub(super) fn as_ptr(&self) -> *mut OVERLAPPED {
+         self.storage.get()
+     }
+-    /// 采用Win32 HasOverlappedIoCompleted同一状态谓词，不以取消返回代替完成。
++    /// 参数：无；返回：原 Internal 字段是否仍为 STATUS_PENDING，不以取消请求成功替代实际完成。
++    /// 采用Win32 HasOverlappedIoCompleted同一状态谓词，不以取消返回：代替完成。
+     pub(super) fn pending(&self) -> bool {
+         unsafe {
+             std::ptr::read_volatile(std::ptr::addr_of!((*self.as_ptr()).Internal))
+--- a/crates/diskgraph-engine/src/probe_directory_binding.rs
++++ b/crates/diskgraph-engine/src/probe_directory_binding.rs
+@@ -12,7 +12,7 @@
+     returned: bool,
+ }
+ impl ProbeDirectoryBinding {
+-    /// 参数：已标记借用的原槽；返回唯一binding，不持OS或数据库锁。
++    /// 参数：已标记借用的原槽；返回：唯一binding，不持OS或数据库锁。
+     pub(crate) fn new(
+         pool: Arc<ProbeResourcePool>,
+         index: usize,
+@@ -27,7 +27,7 @@
+             returned: false,
+         }
+     }
+-    /// 参数：原目录payload；返回显式清理结果，child未完成或删除失败则无分配交还同owner。
++    /// 参数：原目录payload；返回：显式清理结果，child未完成或删除失败则无分配交还同owner。
+     pub(crate) fn complete(
+         &mut self,
+         owner: &mut Option<GitPrivateDirectoryOwner>,
+--- a/crates/diskgraph-engine/src/probe_host.rs
++++ b/crates/diskgraph-engine/src/probe_host.rs
+@@ -9,7 +9,7 @@
+ }
+ 
+ impl ProbeHost {
+-    /// 参数：capacity为非零有限session容量，每槽预建一个child容量；返回宿主与独立恢复责任，尚未创建进程。
++    /// 参数：capacity为非零有限session容量，每槽预建一个child容量；返回：宿主与独立恢复责任，尚未创建进程。
+     /// Recovery必须放在Engine/session及其catch之外，恢复失败不能丢弃或用重建Host补充容量。
+     pub fn new(capacity: u32) -> Result<(Self, ProbeRecovery), EngineError> {
+         let registry = ProbeResourcePool::new(capacity)?;
+--- a/crates/diskgraph-engine/src/probe_recovery.rs
++++ b/crates/diskgraph-engine/src/probe_recovery.rs
+@@ -9,21 +9,22 @@
+ }
+ 
+ impl ProbeRecovery {
++    /// 参数：registry 为原宿主共享资源池；返回：绑定同一资源池的恢复入口，不新增容量。
+     pub(crate) fn new(registry: Arc<ProbeResourcePool>) -> Self {
+         Self { registry }
+     }
+ 
+-    /// 参数：host 为 Engine 已绑定的宿主；返回是否属于原同一资源池，拒绝错配恢复责任。
++    /// 参数：host 为 Engine 已绑定的宿主；返回：是否属于原同一资源池，拒绝错配恢复责任。
+     pub(crate) fn belongs_to(&self, host: &crate::ProbeHost) -> bool {
+         Arc::ptr_eq(&self.registry, &host.registry)
+     }
+ 
+-    /// 参数：无；返回原registry实际占用数，包括预留、执行及未恢复owner。
++    /// 参数：无；返回：原registry实际占用数，包括预留、执行及未恢复owner。
+     pub fn occupied_slots(&self) -> Result<usize, EngineError> {
+         self.registry.occupied()
+     }
+ 
+-    /// 参数：无；返回全部原owner真实回收时true、仍活动时false、失败时原错误。
++    /// 参数：无；返回：全部原owner真实回收时true、仍活动时false、失败时原错误。
+     /// 一轮尝试失败保留同owner；不启动后台reaper，不自动无限重试，内核I/O仍可能阻塞。
+     pub fn drain(&self) -> Result<bool, EngineError> {
+         self.registry.drain()
+--- a/crates/diskgraph-engine/src/probe_resource_pool.rs
++++ b/crates/diskgraph-engine/src/probe_resource_pool.rs
+@@ -11,7 +11,7 @@
+     slots: Mutex<Vec<ProbeResourceSlot>>,
+ }
+ impl ProbeResourcePool {
+-    /// 参数：非零session容量；返回一次预分配的资源池，不创建进程或目录。
++    /// 参数：非零session容量；返回：一次预分配的资源池，不创建进程或目录。
+     pub(crate) fn new(capacity: u32) -> Result<Arc<Self>, EngineError> {
+         if capacity == 0 {
+             return Err(BusinessError::InvalidArgument.into());
+@@ -36,7 +36,7 @@
+             slots: Mutex::new(slots),
+         }))
+     }
+-    /// 参数：原池；返回唯一session lease，目录创建与child出生前调用。
++    /// 参数：原池；返回：唯一session lease，目录创建与child出生前调用。
+     pub(crate) fn reserve(self: &Arc<Self>) -> Result<ProbeSessionLease, EngineError> {
+         let mut slots = self.slots.lock().map_err(|_| EngineError::Poisoned)?;
+         let (index, slot) = slots
+@@ -54,7 +54,7 @@
+             Arc::clone(&slot.inner),
+         ))
+     }
+-    /// 参数：无；返回实际session占槽，包括借出目录和恢复中的owner。
++    /// 参数：无；返回：实际session占槽，包括借出目录和恢复中的owner。
+     pub(crate) fn occupied(&self) -> Result<usize, EngineError> {
+         Ok(self
+             .slots
+@@ -64,7 +64,7 @@
+             .filter(|s| s.reserved)
+             .count())
+     }
+-    /// 参数：原代次；返回目录借用资格，同session不允许同时存在第二目录。
++    /// 参数：原代次；返回：目录借用资格，同session不允许同时存在第二目录。
+     pub(crate) fn borrow_directory(
+         &self,
+         index: usize,
+@@ -83,7 +83,7 @@
+         slot.directory_borrowed = true;
+         Ok(())
+     }
+-    /// 参数：原代次和同一目录owner；返回无，交接不分配，不执行OS清理。
++    /// 参数：原代次和同一目录owner；返回：无，交接不分配，不执行OS清理。
+     pub(crate) fn return_directory(
+         &self,
+         index: usize,
+@@ -100,7 +100,7 @@
+         slot.directory = owner;
+         slot.directory_borrowed = false;
+     }
+-    /// 参数：原代次、inner是否真实无owner；返回无，session活着时禁止Recovery释放资源。
++    /// 参数：原代次、inner是否真实无owner；返回：无，session活着时禁止Recovery释放资源。
+     pub(crate) fn finish_session(&self, index: usize, generation: u64, empty: bool) {
+         let mut slots = self
+             .slots
+@@ -113,7 +113,7 @@
+             slot.reserved = false;
+         }
+     }
+-    /// 参数：无；返回一轮实际恢复结果，锁外先child wait/Job0再目录删除，失败保留同槽。
++    /// 参数：无；返回：一轮实际恢复结果，锁外先child wait/Job0再目录删除，失败保留同槽。
+     pub(crate) fn drain(&self) -> Result<bool, EngineError> {
+         let count = self.slots.lock().map_err(|_| EngineError::Poisoned)?.len();
+         let mut first = None;
+--- a/crates/diskgraph-engine/src/probe_session_lease.rs
++++ b/crates/diskgraph-engine/src/probe_session_lease.rs
+@@ -12,7 +12,7 @@
+     inner: Arc<ScanWorkerRegistry>,
+ }
+ impl ProbeSessionLease {
+-    /// 参数：已预留槽及原inner；返回唯一lease，不再次预留容量。
++    /// 参数：已预留槽及原inner；返回：唯一lease，不再次预留容量。
+     pub(crate) fn new(
+         pool: Arc<ProbeResourcePool>,
+         index: usize,
+@@ -26,11 +26,11 @@
+             inner,
+         }
+     }
+-    /// 参数：无；返回同槽child registry，不重建预算或清理责任。
++    /// 参数：无；返回：同槽child registry，不重建预算或清理责任。
+     pub(crate) fn inner(&self) -> Arc<ScanWorkerRegistry> {
+         Arc::clone(&self.inner)
+     }
+-    /// 参数：无；返回唯一目录binding，创建目录之前取得。
++    /// 参数：无；返回：唯一目录binding，创建目录之前取得。
+     pub(crate) fn directory(&self) -> Result<ProbeDirectoryBinding, EngineError> {
+         self.pool.borrow_directory(self.index, self.generation)?;
+         Ok(ProbeDirectoryBinding::new(
+--- a/crates/diskgraph-engine/src/scan_worker_host.rs
++++ b/crates/diskgraph-engine/src/scan_worker_host.rs
+@@ -62,7 +62,7 @@
+     }
+ 
+     /// 从产品固定root保护配置构造macOS宿主，普通环境和旧File入口不能提供此资格。
+-    /// 参数：runtime为显式额度，deadline/checkpoint为原构造期限；返回宿主或未配置状态。
++    /// 参数：runtime为显式额度，deadline/checkpoint为原构造期限；返回：宿主或未配置状态。
+     /// 存在但非法的配置必须失败；本入口不自行安装、签发、更新epoch或授予请求权限。
+     #[cfg(target_os = "macos")]
+     pub fn from_installed_macos(
+@@ -112,8 +112,8 @@
+         }))
+     }
+ 
+-    /// 在原请求检查点确认运行代仍为活跃安装，返回跨发布事务保留的原共享锁。
+-    /// 参数：原期限/检查点；返回守卫或原撤销/冲突错误，不在数据库锁内等待安装锁。
++    /// 在原请求检查点确认运行代仍为活跃安装，返回：跨发布事务保留的原共享锁。
++    /// 参数：原期限/检查点；返回：守卫或原撤销/冲突错误，不在数据库锁内等待安装锁。
+     #[cfg(target_os = "macos")]
+     pub(super) fn authorize_macos_epoch(
+         &self,
+@@ -141,7 +141,7 @@
+     }
+ 
+     /// 出生前重新读取固定活跃配置并核对原epoch/密钥/摘要和完整安装租约。
+-    /// 参数：期限/检查点沿原claim；返回携带原lease及更新锁的单次材料，更新后旧Host明确拒绝。
++    /// 参数：期限/检查点沿原claim；返回：携带原lease及更新锁的单次材料，更新后旧Host明确拒绝。
+     #[cfg(target_os = "macos")]
+     pub(super) fn prepare_macos_installation(
+         &self,
