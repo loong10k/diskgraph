@@ -13,9 +13,9 @@ env:
 permissions:
   contents: read
 
-# 同一分支只执行最新常规门禁；独立原生资格/性能工作流使用自己的生命周期。
+# 每个提交保留完整验收；仅重复执行同一提交时取消旧运行，避免新修复中断原生证据。
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -589,6 +589,7 @@ jobs:
         if: matrix.rust == 'stable'
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Migration gate (ST-02)
+        timeout-minutes: 10
         run: cargo test -p diskgraph-store --lib --locked -- --test-threads=1
       - name: Real-host drills stay out of the regular run (RE-02)
         run: |
