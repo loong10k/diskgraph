@@ -1,0 +1,23 @@
+{
+  "run": 37538697463,
+  "candidate": "28be30afb5dda9aec1068e7cf1dbb618694c9140",
+  "scope": "directory retry component only; finite exit and full native regression open",
+  "checks": [
+    {
+      "artifact": 11447962449,
+      "sha256": "2b44b228351956e699925dca9f3fd1058d52619392161813ce7af9cef9c352b5",
+      "candidate_and_shared_sources": "Git LF/Windows CRLF verified",
+      "adapted_baseline": "reproduced exactly",
+      "red": "0/1/0",
+      "green": "2/0/0"
+    },
+    {
+      "artifact": 11447053304,
+      "sha256": "ef0c7aeecf2172094c02113121bc81a0740b3004f7a37518056fead22a8695a9",
+      "candidate_and_shared_sources": "Git LF/Windows CRLF verified",
+      "adapted_baseline": "reproduced exactly",
+      "red": "0/1/0",
+      "green": "2/0/0"
+    }
+  ]
+}

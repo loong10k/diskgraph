@@ -336,3 +336,11 @@ Run 37538697463 Windows 1.97 artifact 11447212928 failed compilation before beha
 ## Atomic fencing generation exhaustion
 
 The original conditional claim committed SQLite integer overflow as REAL before JobRecord decoding failed. Isolated queued/expired-running fixtures expose this and invalid negative/REAL values. The update now checks integer storage class and 0 <= fencing_token < i64::MAX in the same transaction before increment; rejection leaves state, owner, heartbeat, lease and generation unchanged. The last valid integer generation still works and cannot be recycled. Original two-test RED reproduced overflow; all 13 claim tests and 318 store tests pass locally (5 ignored), and store Clippy passes with warnings denied. No schema or wire change. Native platform regression remains required.
+
+## Native original-directory retry verified at 28be30a
+
+Run 37538697463 stable artifact 11447962449 and Rust 1.97 artifact 11447053304 each contain actual baseline RED 0/1/0 at retained original owner retry and current GREEN 2/0/0, including released-session refusal. Both frozen baseline cleanup controls actually completed. All original, adapted and shared source hashes were independently reproduced from Git blobs, identifying Windows CRLF checkout variants; all five candidate sources restored exactly. Original ZIP bytes and verification receipt are archived in windows_directory_native_green_28be. This closes only the directory retry component at that source; full Windows regression, current final-source acceptance and finite CLI/MCP exit remain open.
+
+## Public Engine fencing regression
+
+The new isolated fencing_exhaustion integration fixture drives actual scope registration, database grants, enqueue and public run_job without a scan host. At max generation the current implementation returns StoreError::Conflict before image admission, with state/owner/heartbeat/lease unchanged, no revision and original source bytes retained. Temporarily replaying the exact original 28be30a claim file reproduces actual InvalidColumnType REAL overflow (0/1/0), then the exact candidate file is restored and the test passes (1/0/0). Target Engine Clippy and formatting pass. Raw logs and test hash are archived in engine_fencing_boundary_d25; this local proof does not replace native CI.

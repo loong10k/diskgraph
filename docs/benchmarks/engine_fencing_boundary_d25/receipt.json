@@ -1,0 +1,9 @@
+{
+  "baseline": "28be30afb5dda9aec1068e7cf1dbb618694c9140",
+  "implementation": "d25dcf6908ead4fb881cb2dffb7db5d0ed037942",
+  "test_sha256": "d5f3ce421bfa6bc648728b7f156b064139b1fa1e187480ed83f97fb257622b58",
+  "red": "0 passed / 1 failed / 0 ignored; actual InvalidColumnType REAL overflow",
+  "green": "1 passed / 0 failed / 0 ignored",
+  "scope": "public Engine run_job rejects before scan admission; local macOS only",
+  "limitations": "native final-source regression and finite shutdown remain open"
+}
