@@ -21,24 +21,6 @@ use windows_sys::Win32::System::Pipes::{
 use windows_sys::Win32::System::Threading::CreateEventW;
 
 impl OverlappedControlPipe {
-    /// 可信内部兼容入口；参数：为输入模式/原名称/安全属性/检查；返回：旧所有权签名。
-    /// 局部 owner 的安全清理仍可能阻塞；新出生路径使用 prepare_input_into 的 catch 外槽。
-    pub(in crate::native_child::windows) fn prepare_input<E>(
-        mode: ChildInputMode,
-        nonce: &uuid::Uuid,
-        security: &PipeSecurity,
-        checkpoint: &mut impl FnMut() -> Result<(), E>,
-    ) -> Result<(Option<Self>, OwnedHandle), ChildSpawnError<E>> {
-        let mut owner = None;
-        match Self::prepare_input_into(mode, nonce, security, &mut owner, checkpoint) {
-            Ok(reader) => Ok((owner, reader)),
-            Err(error) => {
-                let cleanup = owner.as_mut().map_or(Ok(()), Self::cleanup);
-                Err(error.with_cleanup(cleanup))
-            }
-        }
-    }
-
     /// 准备原 NUL 或显式控制 stdin。参数：mode 为输入模式，nonce 为本次随机名称，security 为原 DACL，owner 是原外槽，checkpoint 借用原期限。返回：唯一可继承子读端或原错误，控制 owner 保留在外槽。
     pub(in crate::native_child::windows) fn prepare_input_into<E>(
         mode: ChildInputMode,

@@ -104,14 +104,23 @@ fn expired_read_cleanup_keeps_pending_storage_until_other_thread_completes() {
 #[test]
 fn expired_write_cleanup_keeps_pending_storage_until_other_thread_completes() {
     let deadline = Instant::now() + Duration::from_secs(10);
-    let (pipe, peer) = OverlappedControlPipe::prepare_input(
+    // 原 owner 在连接提交前进入外槽，准备期间也消费本例原期限。
+    let mut pipe_owner = None;
+    let peer = OverlappedControlPipe::prepare_input_into(
         ChildInputMode::WorkerControl,
         &uuid::Uuid::new_v4(),
         &PipeSecurity::for_current_user().unwrap(),
-        &mut || Ok::<(), std::convert::Infallible>(()),
+        &mut pipe_owner,
+        &mut || {
+            if Instant::now() >= deadline {
+                Err(std::io::Error::from(std::io::ErrorKind::TimedOut))
+            } else {
+                Ok(())
+            }
+        },
     )
     .unwrap();
-    let mut pipe = pipe.unwrap();
+    let mut pipe = pipe_owner.take().unwrap();
     let prepared = catch_unwind(AssertUnwindSafe(|| {
         for _ in 0..128 {
             assert!(Instant::now() < deadline);

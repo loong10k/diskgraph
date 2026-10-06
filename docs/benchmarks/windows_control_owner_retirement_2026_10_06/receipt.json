@@ -1,0 +1,26 @@
+{
+  "source_before": "3e3636ae5ec3b798acffeda297ad85b0f036de8c",
+  "run": 37477982042,
+  "windows_job": 112318351526,
+  "windows_pending_transfer": {
+    "passed": 4,
+    "failed": 0
+  },
+  "windows_poll_cleanup": {
+    "passed": 5,
+    "failed": 0
+  },
+  "prior_product_build": "failure: four dead-code groups; not production acceptance",
+  "change": "retire private local-owner prepare_input; two original tests directly retain owner before preparation and share original deadline",
+  "local_source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "current_windows_native_tests": "pending CI",
+  "remaining": [
+    "Windows secure image execution and DLL trust",
+    "Windows production birth integration",
+    "finite frontend exit"
+  ],
+  "production_ready": false
+}

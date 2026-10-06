@@ -119,14 +119,23 @@ fn pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup() {
 fn pending_write_owner_moves_threads_with_stable_storage_and_cancellation() {
     let deadline = Instant::now() + Duration::from_secs(10);
     let security = PipeSecurity::for_current_user().unwrap();
-    let (pipe, peer) = OverlappedControlPipe::prepare_input(
+    // 原 owner 在连接提交前进入外槽，准备期间也消费本例原期限。
+    let mut pipe_owner = None;
+    let peer = OverlappedControlPipe::prepare_input_into(
         ChildInputMode::WorkerControl,
         &uuid::Uuid::new_v4(),
         &security,
-        &mut || Ok::<(), std::convert::Infallible>(()),
+        &mut pipe_owner,
+        &mut || {
+            if Instant::now() >= deadline {
+                Err(std::io::Error::from(std::io::ErrorKind::TimedOut))
+            } else {
+                Ok(())
+            }
+        },
     )
     .unwrap();
-    let mut pipe = pipe.unwrap();
+    let mut pipe = pipe_owner.take().unwrap();
     let prepared = catch_unwind(AssertUnwindSafe(|| {
         let block = [0x6a; ControlWriteStatus::MAX_CHUNK_BYTES];
         for _ in 0..128 {

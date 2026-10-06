@@ -160,3 +160,7 @@ CI37431437380在ab46ddd6433410e5284eb782d1ab8c86359481d6终态failure，81实际
 CI37432097800在98331073e65c80ac4e0ac2e70dd125dfc2589b1f再次80/81，目标RED保留。实际原DELETE句柄后置字段：正常单链接links=0/pending=true；竞态links=1/pending=true。原始输出/receipt保留于windows_post_mark_metadata_2026_10_06。不能按删除前的一条链接假定后置为1，也不能只接受DeletePending。
 
 修复候选新增WindowsGitDeletionSeal直接查询原句柄完整卷/128位ID、目录类型及FILE_STANDARD_INFO，要求删除等待和零剩余链接。原系统调用成功立即锁存delete_requested；后置seal成功另行锁存post_mark_verified，两者不混用。后置未知/失败保留原项和副作用责任，confirm不得仅凭成员REMOVE消费未核验原对象。保持既有pending/陌生根及游标断言，新增空目录post-mark/最终原REMOVE正控以防只支持文件；82案原生结果待验证。此候选尚未验证后置以后经既有原句柄添加新链接/修改标记的边界，不宣称完整owner/Pool、有限退出或全平台生产就绪。冻结Windows505份/macOS614份，仅增加原后置seal对象与相应源；vendor和lock不变。
+
+### 控制 stdin 旧局部 owner 包装退役（验收待完成）
+
+移除仅测试调用的内部 `OverlappedControlPipe::prepare_input`：局部包装在准备失败时自行清理并返回，不能将未完成 I/O 的原 owner 移交给调用方。两个真实 pending write 用例直接使用现有 `prepare_input_into`，先预留外部 owner，再提交连接，检查点消费原十秒期限。保持真实 pending 见证、跨线程固定地址、取消及完成断言。Windows stable/MSRV 原生执行后才能记录验收；不启用 Windows 扫描，不以本项关闭出生/退出/镜像父项。
