@@ -17,6 +17,11 @@ pub(crate) struct WindowsScanImageLease {
 }
 
 impl WindowsScanImageLease {
+    /// 返回保留原父链绑定的映像名称。参数：无；返回：借用名称，不从外部路径重新取得信任。
+    pub(crate) fn native_path(&self) -> &std::path::Path {
+        self.binding.native_path()
+    }
+
     /// 参数：path为受信本地部署来源；返回：先属性核验再相对原句柄取得的读取File。
     /// 路径只打开属性，拒绝占位/特殊对象后才获取数据访问；仍不授予加载或执行许可。
     pub(crate) fn open_source(path: &std::path::Path) -> Result<File, EngineError> {

@@ -42,6 +42,7 @@ impl WindowsChild {
             normal_exit: WindowsNormalExit::new(),
             exit: None,
             cleaned: false,
+            _image_guard: None,
         });
         Ok(())
     }

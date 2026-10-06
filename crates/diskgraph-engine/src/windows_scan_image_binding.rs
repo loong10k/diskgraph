@@ -20,6 +20,11 @@ pub(crate) struct WindowsScanImageBinding {
 }
 
 impl WindowsScanImageBinding {
+    /// 返回保留原父链绑定的映像名称。参数：无；返回：借用名称，不从外部路径重新取得信任。
+    pub(crate) fn native_path(&self) -> &std::path::Path {
+        &self.path
+    }
+
     /// 参数：file/identity 是已保留镜像及完整版本，deadline/checkpoint 是原请求预算。
     /// 返回：同对象末叶及全部父名称的保留绑定；未知路径空间或变更直接拒绝。
     pub(crate) fn prepare(

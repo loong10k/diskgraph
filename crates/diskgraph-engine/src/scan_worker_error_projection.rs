@@ -1,6 +1,6 @@
 use crate::EngineError;
 use crate::native_child::ChildError;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", windows))]
 use crate::native_child::ChildSpawnError;
 use crate::scan_worker_failure::ScanWorkerFailure;
 use crate::scan_worker_remote_error::ScanWorkerRemoteError;
@@ -56,7 +56,7 @@ impl ScanWorkerErrorProjection {
     }
 
     /// 参数：error为原启动结果；返回：原检查点优先、原I/O与cleanup独立的引擎错误。
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", windows))]
     pub(super) fn launch(error: ChildSpawnError<EngineError>) -> EngineError {
         match error {
             ChildSpawnError::Operation(error) => Self::child(error),

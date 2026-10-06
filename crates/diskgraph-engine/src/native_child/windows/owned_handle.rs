@@ -1,7 +1,9 @@
 //! Win32 HANDLE 的唯一所有权，避免异常路径泄漏本任务资源。
 
 use std::io;
-use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle as StdOwnedHandle};
+use std::os::windows::io::{
+    AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle as StdOwnedHandle,
+};
 use windows_sys::Win32::Foundation::{HANDLE, INVALID_HANDLE_VALUE};
 
 use super::super::ChildError;
@@ -17,6 +19,11 @@ impl OwnedHandle {
         }
         // 唯一有效Win32句柄转交标准库；其Send/Sync与CloseHandle合同无需重写。
         Ok(Self(unsafe { StdOwnedHandle::from_raw_handle(raw) }))
+    }
+
+    /// 安全借用原句柄。参数：无；返回：生命周期由本唯一所有者约束的句柄。
+    pub(crate) fn as_handle(&self) -> BorrowedHandle<'_> {
+        self.0.as_handle()
     }
 
     /// 借用原始句柄。参数：无。返回：仍由本对象持有的 HANDLE。

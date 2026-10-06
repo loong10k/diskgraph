@@ -25,8 +25,30 @@ impl WindowsChild {
         command: &mut Command,
         mode: ChildInputMode,
         owner: &mut Option<Self>,
+        admission: impl FnMut() -> Result<(), E>,
+        checkpoint: impl FnMut() -> Result<(), E>,
+    ) -> Result<(), ChildSpawnError<E>> {
+        Self::spawn_into_with_binding(
+            command,
+            mode,
+            owner,
+            admission,
+            checkpoint,
+            None,
+            |_| Ok(()),
+        )
+    }
+
+    /// 保留映像守卫并在恢复前核验原挂起进程。参数：外槽、原准入/生命周期检查与绑定；返回：原错误。
+    /// 映像守卫在首次 pending I/O 前进入原 child；失败不释放外槽或恢复线程。
+    pub(crate) fn spawn_into_with_binding<E>(
+        command: &mut Command,
+        mode: ChildInputMode,
+        owner: &mut Option<Self>,
         mut admission: impl FnMut() -> Result<(), E>,
         mut checkpoint: impl FnMut() -> Result<(), E>,
+        image: Option<std::sync::Arc<crate::windows_scan_image_lease::WindowsScanImageLease>>,
+        mut binding: impl FnMut(std::os::windows::io::BorrowedHandle<'_>) -> Result<(), E>,
     ) -> Result<(), ChildSpawnError<E>> {
         if owner.is_some() {
             return Err(ChildError::Unsupported("birth owner slot already occupied").into());
@@ -41,6 +63,7 @@ impl WindowsChild {
         admission().map_err(ChildSpawnError::checkpoint)?;
         Self::prepare_job_into(owner)?;
         let prepared = owner.as_mut().expect("original prepared Job owner");
+        prepared._image_guard = image;
         let stdout_writer = prepare_read_pipe(
             &stdout_name,
             &security,
@@ -150,6 +173,16 @@ impl WindowsChild {
         // 原请求可在挂起出生后撤销；生命周期检查不替代恢复执行前的实时准入。
         // 失败只释放线程句柄，原process/Job仍留catch外owner等待实际清理。
         if let Err(error) = admission() {
+            drop(thread);
+            return Err(ChildSpawnError::checkpoint(error));
+        }
+        if let Err(error) = binding(
+            child
+                .process
+                .as_ref()
+                .expect("original suspended process")
+                .as_handle(),
+        ) {
             drop(thread);
             return Err(ChildSpawnError::checkpoint(error));
         }

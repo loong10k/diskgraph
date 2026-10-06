@@ -283,9 +283,22 @@ impl<'a> ScanWorkerRuntime<'a> {
                 .take()
                 .ok_or_else(|| BusinessError::Conflict.into())
         }
+        #[cfg(windows)]
+        {
+            let _ = reservation;
+            let image = self.host.prepare_windows_image(self.deadline, checkpoint)?;
+            crate::windows_scan_launcher::WindowsScanLauncher::new(image).spawn_into(
+                unwind_owner,
+                self.deadline,
+                checkpoint,
+            )?;
+            unwind_owner
+                .take()
+                .ok_or_else(|| BusinessError::Conflict.into())
+        }
         #[cfg(any(
             all(target_os = "macos", not(feature = "macos_native_scan_candidate")),
-            not(any(target_os = "linux", target_os = "macos"))
+            not(any(target_os = "linux", target_os = "macos", windows))
         ))]
         {
             let _ = (reservation, unwind_owner);

@@ -2,7 +2,9 @@ use crate::scan_worker_registry::ScanWorkerRegistry;
 use crate::{EngineError, ScanWorkerHostConfig, ScanWorkerRuntimeBudget};
 use diskgraph_core::BusinessError;
 use std::fs::File;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+#[cfg(not(windows))]
+use std::sync::Mutex;
 #[cfg(target_os = "linux")]
 use std::time::Duration;
 use std::time::Instant;
@@ -13,7 +15,7 @@ pub struct ScanWorkerHost {
     #[cfg(target_os = "linux")]
     image: Mutex<File>,
     #[cfg(windows)]
-    windows_image: Mutex<crate::windows_scan_image_lease::WindowsScanImageLease>,
+    windows_image: Arc<crate::windows_scan_image_lease::WindowsScanImageLease>,
     #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
     _image: Mutex<File>,
     #[cfg(target_os = "macos")]
@@ -78,7 +80,7 @@ impl ScanWorkerHost {
             #[cfg(target_os = "linux")]
             image: Mutex::new(held_image),
             #[cfg(windows)]
-            windows_image: Mutex::new(held_image),
+            windows_image: Arc::new(held_image),
             #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
             _image: Mutex::new(held_image),
             #[cfg(target_os = "macos")]
@@ -104,24 +106,19 @@ impl ScanWorkerHost {
         deadline: Instant,
         checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
     ) -> Result<(), EngineError> {
-        let image = loop {
-            checkpoint()?;
-            if Instant::now() >= deadline {
-                return Err(BusinessError::BudgetExceeded.into());
-            }
-            match self.windows_image.try_lock() {
-                Ok(image) => break image,
-                Err(std::sync::TryLockError::Poisoned(_)) => return Err(EngineError::Poisoned),
-                Err(std::sync::TryLockError::WouldBlock) => {
-                    std::thread::sleep(
-                        deadline
-                            .saturating_duration_since(Instant::now())
-                            .min(std::time::Duration::from_millis(20)),
-                    );
-                }
-            }
-        };
-        image.verify_process_name(process, deadline, checkpoint)
+        self.windows_image
+            .verify_process_name(process, deadline, checkpoint)
+    }
+
+    /// 借用不可变准入映像并复查原期限与身份。参数：原请求预算；返回：跨子进程恢复保留的租约。
+    #[cfg(windows)]
+    pub(super) fn prepare_windows_image(
+        &self,
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+    ) -> Result<Arc<crate::windows_scan_image_lease::WindowsScanImageLease>, EngineError> {
+        self.windows_image.validate(deadline, checkpoint)?;
+        Ok(Arc::clone(&self.windows_image))
     }
 
     /// 从产品固定root保护配置构造macOS宿主，普通环境和旧File入口不能提供此资格。

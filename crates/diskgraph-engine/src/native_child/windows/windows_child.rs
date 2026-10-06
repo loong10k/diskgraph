@@ -34,6 +34,8 @@ pub(crate) struct WindowsChild {
     normal_exit: WindowsNormalExit,
     exit: Option<i32>,
     cleaned: bool,
+    // 最后释放映像与父链；失败和恢复保留原 child 时同时保留这些租约。
+    _image_guard: Option<std::sync::Arc<crate::windows_scan_image_lease::WindowsScanImageLease>>,
 }
 
 #[path = "windows_child_poll_cleanup.rs"]

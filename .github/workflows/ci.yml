@@ -191,15 +191,7 @@ jobs:
         run: |
           cargo build -p diskgraph-scan-worker --locked --message-format=json > "$env:RUNNER_TEMP/windows-worker-build.jsonl"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $rows = Get-Content "$env:RUNNER_TEMP/windows-worker-build.jsonl" | ForEach-Object { $_ | ConvertFrom-Json }
-          $artifacts = @($rows | Where-Object { $_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'diskgraph-scan-worker' -and $_.executable })
-          if ($artifacts.Count -ne 1) { throw 'One actual Cargo worker artifact is required' }
-          $image = $artifacts[0].executable
-          if (-not [IO.Path]::IsPathFullyQualified($image) -or -not (Test-Path -LiteralPath $image -PathType Leaf)) { throw 'Invalid current worker path' }
-          $file = Get-Item -LiteralPath $image
-          if ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Worker artifact must not be a reparse point' }
-          @{ checkout_sha = (git rev-parse HEAD); worker_sha256 = (Get-FileHash -LiteralPath $image -Algorithm SHA256).Hash; worker_bytes = $file.Length; production_acceptance = $false } | ConvertTo-Json | Set-Content -Encoding utf8 "$env:RUNNER_TEMP/windows-worker-receipt.json"
-          "DISKGRAPH_WINDOWS_WORKER_QUALIFICATION=$image" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          ./scripts/configure_windows_acceptance_worker.ps1 -Artifacts "$env:RUNNER_TEMP/windows-worker-build.jsonl" -OutputDir "$env:RUNNER_TEMP"
       - name: Native Windows actual worker protocol and original cancellation
         if: runner.os == 'Windows'
         timeout-minutes: 5
@@ -219,8 +211,30 @@ jobs:
           name: windows-worker-protocol-${{ matrix.rust }}-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/windows-worker-build.jsonl
-            ${{ runner.temp }}/windows-worker-receipt.json
+            ${{ runner.temp }}/product-worker-receipt.json
             ${{ runner.temp }}/windows-worker-protocol.log
+          if-no-files-found: error
+      - name: Native Windows bound product Runtime and retained image recovery
+        if: runner.os == 'Windows'
+        timeout-minutes: 5
+        run: |
+          cargo test -p diskgraph-engine --lib --locked windows_scan_runtime_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-bound-runtime.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-bound-runtime.log" -Raw
+          if ($log -notmatch 'test result: ok\. 3 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'DG_WINDOWS_BOUND_RUNTIME_COMPLETE_SCAN=1' -or
+              $log -notmatch 'DG_WINDOWS_FAILED_OWNER_RETAINS_IMAGE_AFTER_HOST_DROP=1' -or
+              $log -notmatch 'DG_WINDOWS_BOUND_RUNTIME_ORIGINAL_REVOCATION=1') {
+            throw 'All three actual bound Runtime and ownership cases must execute'
+          }
+      - name: Preserve Windows bound product Runtime evidence
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-bound-runtime-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/windows-bound-runtime.log
+            ${{ runner.temp }}/product-worker-receipt.json
           if-no-files-found: error
       - name: Native Linux thread-group and procfs qualification
         if: runner.os == 'Linux'
@@ -582,6 +596,22 @@ jobs:
             ${{ runner.temp }}/product-worker-receipt.json
           if-no-files-found: error
           retention-days: 7
+      - name: Bind Windows Kotlin host to actual release scan worker
+        if: runner.os == 'Windows'
+        run: |
+          cargo build --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --message-format=json > "$env:RUNNER_TEMP/windows-worker-build.jsonl"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/configure_windows_acceptance_worker.ps1 -Artifacts "$env:RUNNER_TEMP/windows-worker-build.jsonl" -OutputDir "$env:RUNNER_TEMP"
+      - name: Preserve Windows Kotlin worker identity
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kotlin-product-worker-${{ matrix.os }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/windows-worker-build.jsonl
+            ${{ runner.temp }}/product-worker-receipt.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Generate, compile and execute Kotlin with the native library
         run: python scripts/accept-ffi-kotlin.py
 
@@ -665,8 +695,14 @@ jobs:
           python -m unittest discover -s scripts/tests -p test_package_worker_deployment.py -v
           cargo build --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --target ${{ matrix.target }} --message-format=json > "$RUNNER_TEMP/package-worker-artifacts.jsonl"
           python scripts/configure_linux_acceptance_worker.py --artifacts "$RUNNER_TEMP/package-worker-artifacts.jsonl" --output-dir "$RUNNER_TEMP"
+      - name: Bind Windows package acceptance to actual release scan worker
+        if: runner.os == 'Windows'
+        run: |
+          cargo build --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --target ${{ matrix.target }} --message-format=json > "$env:RUNNER_TEMP/windows-worker-build.jsonl"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/configure_windows_acceptance_worker.ps1 -Artifacts "$env:RUNNER_TEMP/windows-worker-build.jsonl" -OutputDir "$env:RUNNER_TEMP"
       - name: Preserve package worker build identity
-        if: always() && runner.os == 'Linux'
+        if: always() && (runner.os == 'Linux' || runner.os == 'Windows')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         with:
           name: package-worker-identity-${{ matrix.target }}

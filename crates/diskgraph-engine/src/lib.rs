@@ -343,3 +343,8 @@ mod macos_engine_scan_fixture_tests;
 
 #[cfg(all(test, windows))]
 mod windows_scan_image_mapping_tests;
+
+#[cfg(windows)]
+mod windows_scan_launcher;
+#[cfg(all(test, windows))]
+mod windows_scan_runtime_tests;
