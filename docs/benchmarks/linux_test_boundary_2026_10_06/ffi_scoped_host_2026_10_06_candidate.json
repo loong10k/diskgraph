@@ -14,6 +14,60 @@
     "failed": 9
   },
   "fix": "stack scan host outside manager guard; coordinators join before physical recovery; original concurrent job quota",
-  "green": "pending native CI",
-  "production_ready": false
+  "green": {
+    "commit": "b1e03f49a005fec162a8bf96aa72a0d3b1b65cdf",
+    "run": 37466523450,
+    "native_steps": [
+      {
+        "job": 112278828550,
+        "platform": "Test (ubuntu-latest / Rust stable)",
+        "step": {
+          "completedAt": "2026-10-06T12:55:46Z",
+          "conclusion": "success",
+          "name": "Native Linux scoped FFI service scan",
+          "number": 34,
+          "startedAt": "2026-10-06T12:55:45Z",
+          "status": "completed"
+        },
+        "whole_job_status": "in_progress",
+        "whole_job_conclusion": ""
+      },
+      {
+        "job": 112278828589,
+        "platform": "Test (ubuntu-latest / Rust 1.97.0)",
+        "step": {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Native Linux scoped FFI service scan",
+          "number": 34,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        },
+        "whole_job_status": "in_progress",
+        "whole_job_conclusion": ""
+      },
+      {
+        "job": 112278828843,
+        "platform": "Test (ubuntu-24.04-arm / Rust stable)",
+        "step": {
+          "completedAt": "2026-10-06T12:56:03Z",
+          "conclusion": "success",
+          "name": "Native Linux scoped FFI service scan",
+          "number": 34,
+          "startedAt": "2026-10-06T12:56:01Z",
+          "status": "completed"
+        },
+        "whole_job_status": "in_progress",
+        "whole_job_conclusion": ""
+      }
+    ],
+    "limitation": "Step conclusions observed; full jobs and terminal logs still pending"
+  },
+  "production_ready": false,
+  "local": {
+    "closed_scope": "1 passed / 0 failed",
+    "forgotten_owner_return_and_unwind": "2 passed / 0 failed",
+    "source_layout": "8 passed / 0 failed",
+    "fmt": "passed"
+  }
 }

@@ -6,6 +6,8 @@ with_owner必须为共享Engine接入统一材料准入的实际扫描宿主，�
 
 54de872/37465773429 三组Linux原生step均失败，stable/job112276290167明确在“actual scoped scan failed: unsupported (exit 6)”断言RED（0/1）。现接入外层NativeScanHost，物理槽数使用原服务作业额度，manager守卫及真实runner join在其execute闭包内；闭包unwind后先经过manager守卫Drop，再实际drain并延续原panic，不把Recovery放入共享对象。GREEN待原生CI。前一e0fae7f的Linux stable全量FFI已实际80 passed/9 failed，仍有旧构造和runner生命周期回归；不关闭FFI或三平台门禁。记录：[受管FFI原生RED](../../../docs/benchmarks/linux_test_boundary_2026_10_06/ffi_scoped_host_2026_10_06_candidate.json)。
 
+b1e03f4/37466523450修复后的公开受管扫描正控已在Linux x86_64 stable/job112278828550、ARM64 stable/job112278828843两个原生step成功；Rust1.97与完整job结果记录时尚未完成。该正控覆盖实际快照发布、服务查询与退出后服务关闭，不替代物理异常恢复/有限退出及旧UniFFI构造验收。本机作用域关闭1/0、忘记能力正常返回及unwind2/0、源码组织8/0、fmt通过。原生step状态附原记录；尚无终态日志，不声明全量GREEN。
+
 ## 旧同步 FFI 扫描的实际宿主接线（未完成）
 
 同步 scan_native_json/run_scan_with_cancel 必须沿用 CLI/MCP 的平台材料准入，独立配置原 helper 协议额度与一个实际进程槽，不使用测试夹具或普通路径信任降级。查询 Engine 仍按原 realm 归属规则打开；同步扫描另由普通栈宿主持有唯一 ScanWorkerRecovery。协调 runner 正常/错误/unwind 都先真实 join，随后处理同一原物理恢复槽，再返回原业务值或继续 panic；恢复责任不得进入共享 Engine 或请求 callback。
