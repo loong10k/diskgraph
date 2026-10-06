@@ -264,3 +264,9 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 #### Scenario: Candidate evidence fits atomically within the remaining budget
 - **WHEN** 一项候选的节点与必需证据超过剩余累计边数或原始/编码字节额度
 - **THEN** 不提交缺证据候选，也不先增加 selected bytes 或减少 target 缺口；保留先前完整候选前缀并报告 EdgeLimit/ByteLimit 和精确缺口。保护/占用祖先与后代检查不能因缩短返回页而被省略，不能把实际两条证据当一项候选计作一条边。
+
+
+#### Scenario: TUI initial authorization expiry rejects cached data
+- **WHEN** 普通合法 revision 的首次真实授权回调延迟超过整帧原50ms期限，或者超大必需头在同一账本内被拒绝
+- **THEN** 首次准备返回明确预算错误，不进入 paint、不向实际终端提交旧缓存；授权回调后的阶段不得重新获得时间窗口。超大头仍在拥有前受原始字节准入约束，Rust累计分配门禁保持不变。
+- **AND** 功能回归使用真实策略的延迟委托固定初次到期阶段，不把任意宿主的调度墙钟作为硬实时保证；记录实际调用耗时，生产50ms额度不增加，普通成功对照和已有绘制阶段到期/末段撤权测试保持独立。

@@ -1,0 +1,23 @@
+{
+  "run_id": 37537282668,
+  "source_sha": "f4cc0722437b327d6c6e0fedb6a47df92a467047",
+  "classification": "Baseline compiler failure due to unreferenced shared test fault checkpoint; not behavior RED",
+  "artifacts": {
+    "stable": {
+      "artifact_id": 11446709460,
+      "zip_sha256": "c6e3c276270825aea13cdcbc5df85ba91b66bc70bd29db3f5571e07b7f4dc524",
+      "files": {
+        "receipt.json": "d84998f318d125381df7bca58befa7396e3a5c1c39a5cfd5630f0ebd70464fb7",
+        "red.log": "7d2aa9dd7dc9f9a6b7b0e9d8a365d1514f826b224791f15dcbd4e9456d6aad9d"
+      }
+    },
+    "msrv": {
+      "artifact_id": 11446464971,
+      "zip_sha256": "82d2dd17265d4c54289f167cbf2ee2f4d92616e870a0188b42423e4d5edbec4b",
+      "files": {
+        "receipt.json": "d84998f318d125381df7bca58befa7396e3a5c1c39a5cfd5630f0ebd70464fb7",
+        "red.log": "7d2aa9dd7dc9f9a6b7b0e9d8a365d1514f826b224791f15dcbd4e9456d6aad9d"
+      }
+    }
+  }
+}

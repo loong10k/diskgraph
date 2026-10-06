@@ -1,0 +1,29 @@
+{
+  "run_id": 37537282668,
+  "source_sha": "f4cc0722437b327d6c6e0fedb6a47df92a467047",
+  "classification": "deadline component proof on both Windows versions only; finite frontend shutdown and complete native regression remain open",
+  "artifacts": {
+    "stable": {
+      "artifact_id": 11447510591,
+      "zip_sha256": "4d3ecf860d0ea453494ce836a713bad264a97920d77805d62460e2c7be23d7c2",
+      "files": {
+        "green.log": "a3fdc4a9c8f72266b7ec6bfb47d2e90711bee16f499614f502d7e32d0031bfdf",
+        "receipt.json": "f7e704c551af46920616239cdd696876037b568a22159c0d01fa051a402c2837",
+        "red.log": "ebe3ab9984088ece4a33b26a93622cbc019c43e398617e0c6deb859a45646418"
+      },
+      "pool_checkout_variant": "Windows CRLF",
+      "verification": "Candidate, original/adapted baseline, shared and omitted-support source hashes verified; actual native RED 0/1/0 and GREEN 1/0/0; byte-exact restoration"
+    },
+    "msrv": {
+      "artifact_id": 11447310513,
+      "zip_sha256": "b319aeff78a6a5035c914305d9f1367fe3c7f8611b86bfd52c9c11e0df3cf8cc",
+      "files": {
+        "red.log": "5f3e83cab9ea6a2d389d4c39b8cf8759a7d71755e475e4942a60897ce7d38e69",
+        "green.log": "e58410d5124e85b34dba1b28f53ca02007963e8ee1096655d5dcd4421c9f26a3",
+        "receipt.json": "f7e704c551af46920616239cdd696876037b568a22159c0d01fa051a402c2837"
+      },
+      "pool_checkout_variant": "Windows CRLF",
+      "verification": "Candidate, original/adapted baseline, shared and omitted-support source hashes verified; actual native RED 0/1/0 and GREEN 1/0/0; byte-exact restoration"
+    }
+  }
+}

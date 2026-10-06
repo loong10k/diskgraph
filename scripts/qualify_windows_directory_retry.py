@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from qualify_windows_legacy_api import MARKER, bridge_baseline, prepare_pool_deadline_support
+from qualify_windows_legacy_api import MARKER, prepare_pool_deadline_support
+from qualify_windows_pool_unwind import instrument_baseline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,10 +51,11 @@ def main():
     support_original, support_adapted = prepare_pool_deadline_support(ROOT)
     original.update(support_original)
     pool_source = "crates/diskgraph-engine/src/probe_resource_pool.rs"
-    old[pool_source] = bridge_baseline(original[pool_source], old[pool_source], "pool")
+    old[pool_source] = instrument_baseline(old[pool_source], original[pool_source])
     old.update(support_adapted)
     receipt = {
         "candidate": candidate, "baseline": BASELINE,
+        "baseline_test_binding": "same test-only unarmed pool checkpoint; directory retry targets do not arm it; original owner retry unchanged",
         "candidate_sources": {name: digest(data) for name, data in original.items()},
         "baseline_original_sources": {name: digest(data) for name, data in baseline_original.items()},
         "baseline_sources": {name: digest(data) for name, data in old.items()},
@@ -67,6 +69,7 @@ def main():
             name: digest((ROOT / name).read_bytes()) for name in [
                 "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
                 "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs",
+                "crates/diskgraph-engine/src/probe_pool_cleanup_fault.rs",
             ]
         },
         "status": "pending",

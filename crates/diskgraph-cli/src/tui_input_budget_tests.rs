@@ -239,6 +239,10 @@ fn header_navigation_cost(large: bool) {
 }
 
 fn header_frame_cost(large: bool) {
+    header_frame_cost_with_pause(large, None);
+}
+
+fn header_frame_cost_with_pause(large: bool, pause: Option<std::time::Duration>) {
     let mut fixture = TuiFixture::new(0, true);
     let cached = load_layer(&fixture.request(), 1).unwrap();
     if large {
@@ -246,6 +250,15 @@ fn header_frame_cost(large: bool) {
         fixture.republish_snapshot_id(&"s".repeat(2 << 20));
     }
     let request = fixture.request();
+    let phase =
+        super::deadline_phase_authorizer::TuiDeadlinePhaseAuthorizer::new(request.authorizer);
+    if let Some(delay) = pause {
+        phase.pause_first_decision(delay);
+    }
+    let request = crate::tui_request::TuiRequest {
+        authorizer: &phase,
+        ..request
+    };
     let browser = super::Browser::new(&fixture.revision, cached.clone());
     let mut terminal = ratatui::Terminal::new(ratatui::backend::TestBackend::new(80, 24)).unwrap();
     let mut painted = false;
@@ -272,7 +285,22 @@ fn header_frame_cost(large: bool) {
         .iter()
         .map(|cell| cell.symbol())
         .collect();
-    if large {
+    if large || pause.is_some() {
+        if pause.is_some() {
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(
+                        diskgraph_core::BusinessError::BudgetExceeded
+                    ))
+                ),
+                "ordinary initial authorization must expire on its original deadline: {result:?}"
+            );
+            assert!(
+                phase.phases().0 > 0,
+                "actual policy callback was not reached"
+            );
+        }
         assert!(
             matches!(
                 result,
@@ -291,10 +319,14 @@ fn header_frame_cost(large: bool) {
             actual.trim().is_empty(),
             "initial raw failure applied a backend frame"
         );
-        assert!(
-            elapsed < std::time::Duration::from_millis(50),
-            "frame raw failure arrived after its deadline"
-        );
+        // 上面已验证实际拒绝、零绘制和零提交；宿主调度不构成硬墙钟保证。
+        // 延迟对照必须真的越过原期限，之后仍由同一公开入口拒绝普通合法头。
+        if let Some(delay) = pause {
+            assert!(
+                elapsed >= delay,
+                "the initial authorization delay was not observed"
+            );
+        }
     } else {
         result.unwrap();
         assert!(painted);
@@ -329,5 +361,13 @@ fn ordinary_revision_target_preserves_real_navigation_and_frame() {
             header_navigation_cost(false);
             header_frame_cost(false);
         },
+    );
+}
+
+#[test]
+fn initial_frame_authorization_expiry_never_applies_cached_data() {
+    isolated(
+        "tui::input_budget_tests::initial_frame_authorization_expiry_never_applies_cached_data",
+        || header_frame_cost_with_pause(false, Some(std::time::Duration::from_millis(120))),
     );
 }

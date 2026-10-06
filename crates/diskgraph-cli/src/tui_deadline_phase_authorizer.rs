@@ -1,4 +1,4 @@
-//! 仅用于失败阶段观测；来源：OpenSpec Q-08，保持真实策略决定与版本不变。
+//! 仅用于失败阶段观测及初次回调延迟夹具；来源：OpenSpec Q-08，保持真实策略决定与版本不变。
 
 use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId, ScopeId};
 use std::cell::Cell;
@@ -10,6 +10,7 @@ pub(super) struct TuiDeadlinePhaseAuthorizer<'a> {
     delegate: &'a dyn Authorizer,
     started: Instant,
     calls: Cell<usize>,
+    pause_first: Cell<Option<Duration>>,
     first: Cell<Option<Duration>>,
     last: Cell<Option<Duration>>,
 }
@@ -21,9 +22,16 @@ impl<'a> TuiDeadlinePhaseAuthorizer<'a> {
             delegate,
             started: Instant::now(),
             calls: Cell::new(0),
+            pause_first: Cell::new(None),
             first: Cell::new(None),
             last: Cell::new(None),
         }
+    }
+
+    /// 参数：delay 为首次真实决定前的受控延迟；返回：无，不更改委托的权限或版本。
+    /// 用于固定原请求初次到期阶段，不能给后续读取重建期限。
+    pub(super) fn pause_first_decision(&self, delay: Duration) {
+        self.pause_first.set(Some(delay));
     }
 
     /// 参数：无；返回：真实回调次数与首末进入时点，不能推断未观测的 SQL 阶段。
@@ -43,6 +51,9 @@ impl Authorizer for TuiDeadlinePhaseAuthorizer<'_> {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Decision {
+        if let Some(delay) = self.pause_first.take() {
+            std::thread::sleep(delay);
+        }
         let elapsed = self.started.elapsed();
         if self.first.get().is_none() {
             self.first.set(Some(elapsed));

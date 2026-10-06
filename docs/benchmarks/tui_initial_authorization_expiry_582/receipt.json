@@ -1,0 +1,40 @@
+{
+  "classification": "Functional test phase correction, not a product latency improvement or hard real-time guarantee",
+  "native_failure": {
+    "run_id": 37536100656,
+    "job_id": 112517274847,
+    "source_sha": "582035af37c250367db3bfc10d7cb9a750ff2de4",
+    "result": "actual BudgetExceeded, painted=false, wall elapsed_us=109591; old wallclock assertion failed"
+  },
+  "local_old_assertion": "controlled actual initial-policy callback delayed 120ms; correct budget rejection/no-paint still fails old wall upper bound",
+  "green": {
+    "input_tests": 8,
+    "deadline_regression_tests": 10,
+    "production_frame_budget_ms": 50,
+    "initial_expiry": "ordinary valid revision, actual delegated authorization, Business BudgetExceeded, no paint/no backend commit",
+    "allocation_limit_bytes": 1048576
+  },
+  "green_worktree_source_fingerprints": {
+    "crates/diskgraph-cli/src/tui_input_budget_tests.rs": "e4752f5df5b5715ff6e9f50b32e2abac654ee9da4ca7d17612a8ac2537851ae6",
+    "crates/diskgraph-cli/src/tui_deadline_phase_authorizer.rs": "4cebd59c36af2736d7be63df4f4d0e13dfc790a5e786666209dc9a9078f1ed7e",
+    "crates/diskgraph-cli/src/tui/authorized_frame.rs": "a5d55d9cd05ae772013c8d1a9c11cf613b922f8dcc3edc97eea32b56eb6c754e"
+  },
+  "logs": {
+    "native_linux_failure": {
+      "raw_sha256": "697e24368d5183b4e80e6a5650898c741c819fe8ad2bbf6e614ad454365bdf66",
+      "gzip_sha256": "42dd2c07d3195c922e1fd53fa3e2aa38e81e2d5128ca1774b061e2528b870f03"
+    },
+    "local_controlled_old_assertion": {
+      "raw_sha256": "256a3f8d206bfeb2d6fe0a65b3877775531769c5fed235922fecb0424758e09d",
+      "gzip_sha256": "93d83eeff34dccad91ba4f9a67ff6eeec968147cf0dfdc1b66ebefa5a0aeebea"
+    },
+    "local_input_green": {
+      "raw_sha256": "4324a338e58df0b9e048197cb6e255c6933027b8dde988ade0140a3743aa1ffc",
+      "gzip_sha256": "97e70243ed1ce36455f05daeb3803ebfb20b30860be19203b1a13b87e4686233"
+    },
+    "local_deadline_regression": {
+      "raw_sha256": "927e73eed81b757baf518e4962d6f15256e8ad6b2e11128f6ea35b381938d8e9",
+      "gzip_sha256": "65008c5887ba425a9656d7e420669432bccbc359f766ad68fb81b63197fc4b48"
+    }
+  }
+}

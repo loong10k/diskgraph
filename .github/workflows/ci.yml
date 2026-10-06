@@ -211,7 +211,10 @@ jobs:
       - name: Native Windows original directory retry red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10
-        run: python scripts/qualify_windows_directory_retry.py
+        run: |
+          python -m unittest discover -s scripts/tests -p test_windows_directory_retry_qualification.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/qualify_windows_directory_retry.py
       - name: Preserve native Windows directory retry evidence
         if: always() && runner.os == 'Windows'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
