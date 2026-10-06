@@ -1,0 +1,12 @@
+{
+  "production_ready": false,
+  "failed_ci": 37411176883,
+  "cause": "git archive applies core.autocrlf=true causing CRLF instead of exact Git blob bytes",
+  "reproduced": "all three archives fail exact manifest comparison locally under real Git autocrlf=true",
+  "fix": "git -c core.autocrlf=false -c core.eol=lf archive",
+  "archive_changed": false,
+  "assertion_relaxed": false,
+  "windows_driver_tests": 22,
+  "mount_tests": 13,
+  "native_windows_execution": "pending"
+}

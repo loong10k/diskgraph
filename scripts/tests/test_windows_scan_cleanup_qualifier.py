@@ -208,13 +208,19 @@ class PreparedBirthBaselineGuardTests(unittest.TestCase):
 class PreparedBirthBaselineArchiveTests(unittest.TestCase):
     def test_baseline_build_uses_complete_historical_workspace_without_mutating_product(self):
         import hashlib
+        import os
         import subprocess
+        from unittest.mock import patch
         import qualify_windows_prepared_birth_baseline as baseline
         checkout = SCRIPTS.parent
         product_manifest = checkout / "crates/diskgraph-cli/Cargo.toml"
         before = product_manifest.read_bytes()
         for candidate in (baseline.CANDIDATE, qualifier.CANDIDATE, qualifier.BASELINE_CANDIDATE):
-            with self.subTest(candidate=candidate), baseline.isolated_source(checkout, candidate) as (source, manifest):
+            git_environment = {
+                "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.autocrlf",
+                "GIT_CONFIG_VALUE_0": "true",
+            }
+            with self.subTest(candidate=candidate), patch.dict(os.environ, git_environment), baseline.isolated_source(checkout, candidate) as (source, manifest):
                 self.assertNotEqual(source, checkout)
                 original = subprocess.check_output([
                     "git", "show", manifest["base_ref"] + ":crates/diskgraph-cli/Cargo.toml"

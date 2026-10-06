@@ -37,7 +37,10 @@ def isolated_source(checkout, candidate=CANDIDATE):
         source = directory / "source"
         source.mkdir()
         archive = directory / "original.tar"
-        subprocess.run(["git", "archive", "--format=tar", "--output=" + str(archive), base],
+        # git archive 也会应用平台换行转换；固定导出为 Git blob 的 LF，
+        # 让完整 workspace 身份不受 Windows runner 的 autocrlf 配置影响。
+        subprocess.run(["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+                        "archive", "--format=tar", "--output=" + str(archive), base],
                        cwd=checkout, check=True)
         with tarfile.open(archive) as original:
             original.extractall(source, filter="data")

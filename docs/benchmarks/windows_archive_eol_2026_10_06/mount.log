@@ -1,0 +1,18 @@
+test_full_engine_requires_exact_inventory_zero_failures_and_no_filter (test_macos_installed_qualifier.FullEngineRegressionGuardTests.test_full_engine_requires_exact_inventory_zero_failures_and_no_filter) ... ok
+test_destination_parent_symlink_is_rejected (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_destination_parent_symlink_is_rejected) ... ok
+test_digest_failure_never_partially_replaces_existing_source (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_digest_failure_never_partially_replaces_existing_source) ... ok
+test_duplicate_members_and_changed_archive_are_rejected (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_duplicate_members_and_changed_archive_are_rejected) ... ok
+test_frozen_lock_matches_explicit_mounted_product_dependencies (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_frozen_lock_matches_explicit_mounted_product_dependencies) ... ok
+test_full_cli_regression_requires_original_cases_and_counts (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_full_cli_regression_requires_original_cases_and_counts) ... ok
+test_full_mcp_regression_requires_original_cases_and_counts (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_full_mcp_regression_requires_original_cases_and_counts) ... ok
+test_product_sources_require_explicit_mount_scope (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_product_sources_require_explicit_mount_scope) ... ok
+test_real_committed_candidate_has_complete_permitted_inventory (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_real_committed_candidate_has_complete_permitted_inventory) ... ok
+test_regular_frozen_sources_mount_and_match (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_regular_frozen_sources_mount_and_match) ... ok
+test_source_escape_and_non_source_inputs_are_rejected (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_source_escape_and_non_source_inputs_are_rejected) ... ok
+test_symbolic_archive_member_is_rejected (test_macos_installed_qualifier.MacosInstalledQualifierTests.test_symbolic_archive_member_is_rejected) ... ok
+test_requires_actual_named_cases_and_complete_parallel_subset (test_macos_installed_qualifier.NativeBirthParallelGuardTests.test_requires_actual_named_cases_and_complete_parallel_subset) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.211s
+
+OK
