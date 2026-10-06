@@ -19,6 +19,8 @@ jobs:
           python-version: "3.13"
       - name: Verify source mounting safeguards
         run: python -m unittest discover -s scripts/tests -p test_macos_installed_qualifier.py -v
+      - name: Verify product response rejection safeguards
+        run: python -m unittest discover -s scripts/tests -p test_macos_product_flows.py -v
       - name: Actual root issuer and ordinary UID helper qualification
         run: python scripts/qualify_macos_installed_worker.py --output-dir "${{ runner.temp }}/macos-installed-worker"
       - name: Preserve original source and native results

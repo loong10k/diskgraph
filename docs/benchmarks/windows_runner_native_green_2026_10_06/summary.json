@@ -1,0 +1,43 @@
+{
+  "run_id": 37393613831,
+  "job_id": 112044235418,
+  "source_sha": "5649c9ad0cbaa4418f6e28cf714805f1bb8dc972",
+  "fixture_sha256": "20d1cd09bf2dc2c858c06a497ce8d695f590a1d14d5d76acd5f444b07dbffcce",
+  "actual_cases": 30,
+  "passed": 30,
+  "failed": 0,
+  "ignored": 0,
+  "production_acceptance": false,
+  "runner_cases": [
+    {
+      "case": "runner::tests::stop_preserves_original_background_panic_payload",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::managed_runner_rejects_recovery_from_another_pool_before_start",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::busy_managed_runner_does_not_claim_or_fail_queued_job",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::active_probe_session_does_not_turn_queued_job_into_capacity_failure",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::recovered_runner_admission_does_not_remain_poisoned_after_panic",
+      "passed": true,
+      "phase": "runner"
+    }
+  ],
+  "limitations": [
+    "No finite cleanup/shutdown acceptance",
+    "No Windows CLI/MCP/scanner product acceptance",
+    "No retained owner after actual probe+StaleOwner followed by next candidate end-to-end case"
+  ]
+}

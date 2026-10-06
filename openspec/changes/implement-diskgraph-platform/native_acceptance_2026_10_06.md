@@ -85,3 +85,13 @@ The 471-source candidate integrates the independently reviewed catch-external Wi
 ### 非阻塞清理新 API 的开发 RED 冻结
 
 新增三个实际 Windows 夹具：原 pending read/write 在已过期限保留原地址，移交到另一线程在同一原期限内实际取消和观察 ERROR_OPERATION_ABORTED；原 child 过期后保留原 Job/process，后续同 owner 真实 wait/Job0 才 Complete。当前仅测试引用新 CleanupProgress/poll_cleanup，生产入口尚缺；下一冻结的预期失败是 Windows 编译缺 API，只算开发 RED，不算已出生进程或行为 RED，也不算原30案回归失败。30案 runner 候选37393613831保持原源码运行，不取消、不据排队重新启动。新API编译/原生完成之前不修改旧产品清理/Drop路径；prepared owner、有限Registry/Pool、上层shutdown仍开放。
+
+
+### macOS 实际 CLI/MCP 正向产品验收准备
+
+沿用现有九案普通UID/root安装资格及同一受保护epoch2安装，在隔离数据目录新增真实CLI init --index-only、CLI node、MCP stdio initialize/node/index/status/node，以及正常EOF退出。所有扫描来自实际产品进程；不直接写store、不伪种树、不调用本机sudo或安装。验收绑定helper/Engine fixture/CLI/MCP各自实际二进制摘要及完整源码，必须观察完成job与包含其job ID的原revision，CLI/MCP对同一已发布节点的计数、server/scope/revision一致；未知或错误envelope、未完成job、非零退出均失败。两架构分别实际运行后才能称产品正向通过。
+
+产品源码扩展仅通过显式allow_products挂载开关启用，普通Windows/旧挂载默认仍拒绝CLI/MCP范围；不得用宽泛任意路径白名单替代冻结源摘要/预算/拒绝链接校验。候选feature只供已明确选择的native资格，不提前声称默认发布构建已启用。完整回归45个旧失败及升级并发仍须单独收口。
+
+- Windows runner 37393613831 / job112044235418 / source5649c9ad0cbaa4418f6e28cf714805f1bb8dc972 已实际30/30、0失败/忽略，原25案及新增5个runner责任/准入/panic案逐一核对原始1 passed记录。全部证据见 docs/benchmarks/windows_runner_native_green_2026_10_06/；不以此关闭有限cleanup、实际probe后StaleOwner组合或Windows产品门禁。
+- macOS产品589源候选已准备：原九案仍保留，挂载产品包须显式allow_products；本机实际CLI/MCP候选feature构建通过但23条未使用候选模块warning仍在，不称Clippy通过。挂载/响应拒绝脚本23项通过（纯脚本检查不代替产品进程），下一步同源码ARM64/Intel原生运行，不在本机安装helper。

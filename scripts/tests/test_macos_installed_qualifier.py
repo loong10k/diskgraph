@@ -43,24 +43,24 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         source = SCRIPT.parent.parent / qualifier.CANDIDATE
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
-        manifest = qualifier.mount(self.checkout)
-        self.assertEqual(len(manifest["sources"]), 454)
+        manifest = qualifier.mount(self.checkout, allow_products=True)
+        self.assertEqual(len(manifest["sources"]), 589)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
         self.assertEqual(manifest["fixture_features"], ["macos_native_scan_candidate"])
+        self.assertEqual(manifest["product_flows"], ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"])
         for name, expected in manifest["sources"].items():
             self.assertEqual(qualifier.digest(self.checkout / name), expected)
 
-    def test_frozen_lock_matches_unmounted_workspace_package_dependencies(self):
+    def test_frozen_lock_matches_explicit_mounted_product_dependencies(self):
         source = SCRIPT.parent.parent / qualifier.CANDIDATE
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
-        qualifier.mount(self.checkout)
+        qualifier.mount(self.checkout, allow_products=True)
         packages = {p["name"]: p for p in tomllib.loads((self.checkout / "Cargo.lock").read_text())["package"]}
         for package in ("diskgraph-cli", "diskgraph-mcp"):
-            # 未挂载包必须使用 checkout 的真实清单，锁文件不能夹带其他候选的依赖。
-            raw = subprocess.check_output(["git", "show", "HEAD:crates/" + package + "/Cargo.toml"], cwd=SCRIPT.parent.parent)
-            manifest = tomllib.loads(raw.decode())
+            # 产品包现在显式冻结并挂载；锁依赖必须与同一冻结清单一致，不能混用HEAD旧清单。
+            manifest = tomllib.loads((self.checkout / "crates" / package / "Cargo.toml").read_text())
             expected = {name for group in ("dependencies", "dev-dependencies", "build-dependencies")
                         for name in manifest.get(group, {}) if name.startswith("diskgraph-")}
             actual = {name for name in packages[package]["dependencies"] if name.startswith("diskgraph-")}
@@ -104,6 +104,15 @@ class MacosInstalledQualifierTests(unittest.TestCase):
             out.write(b"tampered")
         with self.assertRaises(ValueError):
             qualifier.mount(self.checkout)
+
+    def test_product_sources_require_explicit_mount_scope(self):
+        name = "crates/diskgraph-cli/src/main.rs"
+        self.candidate([(name, b"fn main() {}", "file")])
+        with self.assertRaises(ValueError):
+            qualifier.mount(self.checkout)
+        result = qualifier.mount(self.checkout, allow_products=True)
+        self.assertEqual((self.checkout / name).read_bytes(), b"fn main() {}")
+        self.assertIn(name, result["sources"])
 
     def test_destination_parent_symlink_is_rejected(self):
         outside = self.checkout / "outside"

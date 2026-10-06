@@ -18,16 +18,20 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def permitted(name):
+def permitted(name, allow_products=False):
     path = Path(name)
+    product = allow_products and (
+        name in {"crates/diskgraph-cli/Cargo.toml", "crates/diskgraph-mcp/Cargo.toml", "crates/diskgraph-cli/QUICKSTART.md"}
+        or ((name.startswith("crates/diskgraph-cli/src/") or name.startswith("crates/diskgraph-mcp/src/")) and path.suffix == ".rs")
+    )
     return (not path.is_absolute() and ".." not in path.parts and name == path.as_posix()
-            and (name in {"Cargo.lock", "crates/diskgraph-engine/Cargo.toml", "crates/diskgraph-engine/build.rs", "crates/diskgraph-scan-worker/Cargo.toml"}
+            and (product or name in {"Cargo.lock", "crates/diskgraph-engine/Cargo.toml", "crates/diskgraph-engine/build.rs", "crates/diskgraph-scan-worker/Cargo.toml"}
                  or (name.startswith("crates/diskgraph-engine/src/") and path.suffix in {".rs", ".c", ".h"})
                  or (name.startswith("crates/diskgraph-engine/tests/fixtures/") and path.suffix in {".rs", ".c", ".h"})
                  or (name.startswith("crates/diskgraph-scan-worker/src/") and path.suffix == ".rs")))
 
 
-def mount(checkout, candidate=CANDIDATE):
+def mount(checkout, candidate=CANDIDATE, *, allow_products=False):
     checkout = checkout.resolve(strict=True)
     archive = checkout / candidate / "candidate.tar.gz"
     manifest_path = checkout / candidate / "manifest.json"
@@ -37,7 +41,7 @@ def mount(checkout, candidate=CANDIDATE):
     if manifest["schema_version"] != 1 or digest(archive) != manifest["archive_sha256"]:
         raise ValueError("candidate archive identity mismatch")
     names = manifest["sources"]
-    if not names or any(not permitted(name) for name in names):
+    if not names or any(not permitted(name, allow_products) for name in names):
         raise ValueError("candidate path escapes fixed source scope")
     with tarfile.open(archive, "r:gz") as source:
         members = source.getmembers()
@@ -92,7 +96,7 @@ def main():
         receipt["checkout_sha"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=checkout, text=True).strip()
         receipt["rustc"] = subprocess.check_output(["rustc", "--version"], text=True).strip()
         receipt["os_version"] = platform.mac_ver()[0]
-        manifest = mount(checkout)
+        manifest = mount(checkout, allow_products=True)
         required_cases = {"macos_installed_worker_fixture_tests::" + name for name in (
             "macos_installed_helper_returns_complete_tree_after_real_normal_wait",
             "macos_installed_helper_original_cancel_after_birth_is_reaped",
@@ -144,6 +148,14 @@ def main():
             if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text():
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
+        if manifest.get("product_flows") != ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"]:
+            raise ValueError("actual product flow inventory differs")
+        invoke(["cargo", "build", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "--features", "diskgraph-engine/macos_native_scan_candidate"],
+               checkout, output, "build-products", env)
+        import qualify_macos_product_flows
+        receipt["product_flows"] = qualify_macos_product_flows.run(
+            checkout, output / "products", env,
+            checkout / "target/debug/diskgraph", checkout / "target/debug/diskgraph-mcp")
         for name, expected in manifest["sources"].items():
             if digest(checkout / name) != expected:
                 raise RuntimeError("qualification modified original candidate source")
