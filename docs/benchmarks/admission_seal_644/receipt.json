@@ -1,0 +1,81 @@
+{
+  "base_commit": "644562aae72af595e5fffa15d2faeb20f38a2254",
+  "platform": "local macOS arm64; Windows admission test not locally executed",
+  "ci_failure": {
+    "run": 37546134410,
+    "job": 112550485571,
+    "cause": "missing Chinese parameter/return docs on slot_reservation check/read_record; same failure reproduced locally"
+  },
+  "logs": {
+    "scan-red.log": {
+      "sha256": "0199780ef37c6c29fdc69be5e1cc3da6aec5238829b4021ea4edadd9f53593a7",
+      "archive_sha256": "7a9b58cc5e273c8707821b490b42b6364fdfb66b88df7f6f8a8813d5cd7fef5e",
+      "bytes": 1560
+    },
+    "scan-green.log": {
+      "sha256": "3826204ec40ccd3fa6ee9c415c0e7a1888fc69a24db48ada18e348aa8199e64e",
+      "archive_sha256": "0d20f0229c082a163dfe9715b9cbd77faf9b302b63a957fa1a504794b46e3c83",
+      "bytes": 579
+    },
+    "scan-regression.log": {
+      "sha256": "f221858b50513d891f51fe6771ffb83e3a16c4e72fb09454b3d2fc226aee3db1",
+      "archive_sha256": "f7f3de653e1f89e5572173261f07243c0a904dbca402f92cfe34943639a1f854",
+      "bytes": 1028
+    },
+    "legacy-red.log": {
+      "sha256": "1be983ee0d6dc9d7f87fdecc586dc4b7b10d303e75af5511cbea5e83ce456d3c",
+      "archive_sha256": "8f7d0e571379f06823053c9d7bb540fdc6e59fe791905683b36c7afdb9572085",
+      "bytes": 1415
+    },
+    "python-green.log": {
+      "sha256": "14c2a5ef7479b04528728d918753bb997a610ae59654504a514470b5e6808838",
+      "archive_sha256": "00f06ebfab9622f1bed6530de6b17708abf4f59ea86c3abb75362a19733e2579",
+      "bytes": 961
+    },
+    "layout-red.log": {
+      "sha256": "7406c0eba2e98b25731ce5d6bd1327d9016d678ec3b11be89ed3e28cf9e7d197",
+      "archive_sha256": "5137009230a30ee15c27b2a125019a1ab2ba591e3ee1e07b13458c04c60b187b",
+      "bytes": 1324
+    },
+    "layout-green.log": {
+      "sha256": "256d579e6e1ca9e342fa38a723c76e2ef5c0ba4fefba3551d3d22d3f0c858909",
+      "archive_sha256": "f3161b1403cc34471c9de041c9b953050769ab96411e0be7d5ffa1e7032bb76b",
+      "bytes": 793
+    },
+    "slot-regression.log": {
+      "sha256": "dde4294de411055502c5452487c206b09410bb6c0b568d3e39d20f3beeb3ff3a",
+      "archive_sha256": "43cee31199aa7dde2d896d929e1604b53b5575666a58c274884cf59ed57be72c",
+      "bytes": 1114
+    },
+    "clippy.log": {
+      "sha256": "158473c5cb643cfa883d0dd93cc58ad9eb35c1d02379948db04ce771f364f376",
+      "archive_sha256": "6b87fcc40d5073e7f96100f73dfcad1e649f9dfcadc388f38e36068573d7074b",
+      "bytes": 188
+    },
+    "linux-644-terminal.log": {
+      "sha256": "dcbfd1b0e36f3bef030e712f1466d202fdb20f19e04d9ac17de38c80922eb0f1",
+      "archive_sha256": "1df19359fdebb5835e6cdcdc87f0f20271544b30aaf7f5747fae1cde9872c605",
+      "bytes": 544403
+    }
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/lib.rs": "e15b9d725028f1bae76f5f7f11b77f906fefcf45c0c682e40f0ce406c5105d8b",
+    "crates/diskgraph-engine/src/probe_recovery.rs": "2485d274e55dbb99649bdbcbe83bc20be15f877660f38bf4f15610acd1f8f689",
+    "crates/diskgraph-engine/src/probe_resource_pool.rs": "ea124e8f294c262cc6979c168d4a215ebdaa7d636a1d1b94ac5cd6d13d8c37cb",
+    "crates/diskgraph-engine/src/scan_worker_recovery.rs": "b89d35162bc7d627791a05c8b34352c67c510a5acc0eb6a113a0f59f3d404091",
+    "crates/diskgraph-engine/src/scan_worker_registry.rs": "d76e71a0b73e4e5ba1669b40046b32531e564c8868e5e1015f911b713bc2ee39",
+    "crates/diskgraph-engine/src/admission_seal_tests.rs": "be4a7fc90723e8c5e5a40bf24272c6e4f8447d9ee337b4a508b78c7e34fddf09",
+    "crates/diskgraph-engine/src/recovery_slot/slot_reservation.rs": "d34d90ed2674f7d30de5ba2afa1e3183923a0be2086e4a9dcfbc5444b16f171c",
+    "scripts/qualify_windows_legacy_api.py": "2e0bf339bbc5f5cee9222d21c40517b0fdc84c10d8933e9f160109b038a58182",
+    "scripts/qualify_windows_probe_deadline.py": "f661e1b7e0c46394fbc8a32fb3f7347b059429da9128aa5c9395b108bf1f0a56",
+    "scripts/qualify_windows_pool_unwind.py": "9ac17b25f2a73bd1f4881314e4ef7122cc690a2e5ad05e431b3ffa3ad14aa598",
+    "scripts/qualify_windows_directory_retry.py": "e70b0caeec2881980c0808299febd95226ce8e69a2eb2094287d287d643beb88",
+    "scripts/tests/test_windows_legacy_support.py": "e5992d90c0c4774fffe5faac1ee4e3bc9d0c9d8cb2a238aa754adb16bc5f6540"
+  },
+  "limitations": [
+    "not integrated into CLI/MCP supervisor",
+    "sealed admission is not confirmed native cleanup",
+    "Windows probe test requires native CI",
+    "local Python suite contains ResourceWarning from existing mocked file handles"
+  ]
+}

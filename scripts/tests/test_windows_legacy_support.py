@@ -6,6 +6,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import qualify_windows_legacy_api as support
 
 class LegacySupportTests(unittest.TestCase):
+    def test_missing_seal_is_explicitly_unsupported(self):
+        old = b"impl ProbeResourcePool { fn drain_until() { actual(); } }"
+        current = old + b" fn seal_admission() {}"
+        adapted = support.bridge_baseline(current, old, "pool")
+        self.assertTrue(adapted.startswith(old))
+        self.assertIn(b"BusinessError::Unsupported", adapted)
+        self.assertIn(b"DG_LEGACY_SUPERVISOR_SEAL_UNSUPPORTED=1", adapted)
+        self.assertNotIn(b"Ok(())", adapted)
+
+    def test_existing_seal_is_preserved_exactly(self):
+        old = b"fn seal_admission() { original(); } fn drain_until() { actual(); }"
+        self.assertEqual(support.bridge_baseline(old, old, "pool"), old)
+
+    def test_ambiguous_seal_is_rejected(self):
+        with self.assertRaises(RuntimeError):
+            support.bridge_baseline(b"fn seal_admission() {}" * 2, b"old", "pool")
+
     def test_removes_only_the_unreachable_new_method(self):
         prefix = b"impl Owner {\r\n"
         method = (b"    /// bounded original owner\r\n    #[cfg(windows)]\r\n"

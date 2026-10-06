@@ -4,13 +4,22 @@ use crate::probe_resource_slot::ProbeResourceSlot;
 use crate::probe_session_lease::ProbeSessionLease;
 use crate::scan_worker_registry::ScanWorkerRegistry;
 use diskgraph_core::BusinessError;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 /// 固定N个session资源槽，每槽预建一个child registry；来源：PF-06目录与child共同恢复。
 pub(crate) struct ProbeResourcePool {
     slots: Mutex<Vec<ProbeResourceSlot>>,
+    sealed: AtomicBool,
 }
 impl ProbeResourcePool {
+    /// 参数：无；返回：在原预留状态锁内永久关闭新准入，不释放已有 owner。
+    pub(crate) fn seal_admission(&self) -> Result<(), EngineError> {
+        let _slots = self.slots.lock().map_err(|_| EngineError::Poisoned)?;
+        self.sealed.store(true, Ordering::Relaxed);
+        Ok(())
+    }
+
     /// 参数：非零session容量；返回：一次预分配的资源池，不创建进程或目录。
     pub(crate) fn new(capacity: u32) -> Result<Arc<Self>, EngineError> {
         if capacity == 0 {
@@ -34,11 +43,16 @@ impl ProbeResourcePool {
         }
         Ok(Arc::new(Self {
             slots: Mutex::new(slots),
+            sealed: AtomicBool::new(false),
         }))
     }
     /// 参数：原池；返回：唯一session lease，目录创建与child出生前调用。
     pub(crate) fn reserve(self: &Arc<Self>) -> Result<ProbeSessionLease, EngineError> {
         let mut slots = self.slots.lock().map_err(|_| EngineError::Poisoned)?;
+        // 关闭与预留使用同一把锁，禁止检查空池后并发创建新 owner。
+        if self.sealed.load(Ordering::Relaxed) {
+            return Err(BusinessError::Conflict.into());
+        }
         let (index, slot) = slots
             .iter_mut()
             .enumerate()

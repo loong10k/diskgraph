@@ -59,6 +59,7 @@ impl SlotReservation {
         Ok(ActiveSlot { file: self.file })
     }
 }
+/// 参数：deadline 为原绝对期限；返回：尚未耗尽时成功，否则拒绝且不刷新预算。
 pub(super) fn check(deadline: Instant) -> Result<(), SlotError> {
     if Instant::now() >= deadline {
         Err(SlotError::Deadline)
@@ -66,6 +67,7 @@ pub(super) fn check(deadline: Instant) -> Result<(), SlotError> {
         Ok(())
     }
 }
+/// 参数：file 为原独占锁持有的文件；返回：精确八字节状态，长度或读取异常原样拒绝。
 pub(super) fn read_record(file: &mut File) -> Result<[u8; 8], SlotError> {
     if file.metadata()?.len() != 8 {
         return Err(SlotError::InvalidRecord);

@@ -7,15 +7,24 @@ use crate::scan_worker_owner_slot::ScanWorkerOwnerSlot;
 #[cfg(any(target_os = "linux", target_os = "macos", windows, test))]
 use crate::scan_worker_reservation::ScanWorkerReservation;
 use diskgraph_core::BusinessError;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 /// Recovery与服务引用同一个固定容量表，槽内owner从不Clone或交给隐藏后台reaper。
 /// 来源：原生 Rust PF-06；互斥锁只覆盖状态移动，OS cleanup/wait永远在锁外。
 pub(super) struct ScanWorkerRegistry {
     slots: Mutex<Vec<ScanWorkerOwnerSlot>>,
+    sealed: AtomicBool,
 }
 
 impl ScanWorkerRegistry {
+    /// 参数：无；返回：在原预留状态锁内永久关闭新准入，不释放已有 owner。
+    pub(super) fn seal_admission(&self) -> Result<(), EngineError> {
+        let _slots = self.slots.lock().map_err(|_| EngineError::Poisoned)?;
+        self.sealed.store(true, Ordering::Relaxed);
+        Ok(())
+    }
+
     /// 参数：capacity为宿主明确的非零容量；返回：已一次预留全部槽的共享状态。
     pub(super) fn new(capacity: u32) -> Result<Arc<Self>, EngineError> {
         if capacity == 0 {
@@ -29,6 +38,7 @@ impl ScanWorkerRegistry {
         slots.resize_with(length, || ScanWorkerOwnerSlot::Vacant);
         Ok(Arc::new(Self {
             slots: Mutex::new(slots),
+            sealed: AtomicBool::new(false),
         }))
     }
 
@@ -36,6 +46,10 @@ impl ScanWorkerRegistry {
     #[cfg(any(target_os = "linux", target_os = "macos", windows, test))]
     pub(super) fn reserve(self: &Arc<Self>) -> Result<ScanWorkerReservation, EngineError> {
         let mut slots = self.slots.lock().map_err(|_| EngineError::Poisoned)?;
+        // 关闭与预留使用同一把锁，禁止检查空池后并发创建新 owner。
+        if self.sealed.load(Ordering::Relaxed) {
+            return Err(BusinessError::Conflict.into());
+        }
         let index = slots
             .iter()
             .position(|slot| matches!(slot, ScanWorkerOwnerSlot::Vacant))

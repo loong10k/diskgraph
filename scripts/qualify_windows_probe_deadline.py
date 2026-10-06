@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_enumerated_absence import cargo
-from qualify_windows_legacy_api import MARKER, bridge_baseline, prepare_pool_deadline_support
+from qualify_windows_legacy_api import MARKER, SEAL_MARKER, bridge_baseline, prepare_pool_deadline_support
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "46fededd709ee614eab5083c746399dde05664cf"
@@ -52,7 +52,7 @@ def main():
             (ROOT / name).write_bytes(data)
         code, log = cargo(TEST, output / "red.log")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
-                or "DG_EXPIRED_PROBE_RECOVERY_RED_READY=1" not in log or MARKER not in log
+                or "DG_EXPIRED_PROBE_RECOVERY_RED_READY=1" not in log or MARKER not in log or SEAL_MARKER in log
                 or "DG_LEGACY_EXPIRED_ORIGINAL_ACTUALLY_REMOVED=1" not in log
                 or "expired recovery must retain the original directory without deletion: Ok(true)" not in log):
             raise RuntimeError("legacy deadline RED must actually remove the same original despite expiry")
@@ -67,7 +67,7 @@ def main():
     if not receipt["restored"]:
         raise RuntimeError("source restoration failed")
     code, log = cargo(TEST, output / "green.log")
-    if (code != 0 or "1 passed; 0 failed; 0 ignored;" not in log or MARKER in log
+    if (code != 0 or "1 passed; 0 failed; 0 ignored;" not in log or MARKER in log or SEAL_MARKER in log
             or "DG_EXPIRED_PROBE_RECOVERY_RETAINS_ORIGINAL_THEN_ACTUALLY_REMOVES=1" not in log):
         raise RuntimeError("same original must survive expired calls and actually complete on explicit live recovery")
     receipt["status"] = "native expired attempt preservation and actual same-owner live retry verified; finite frontend shutdown remains open"

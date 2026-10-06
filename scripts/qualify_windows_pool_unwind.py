@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_enumerated_absence import cargo
-from qualify_windows_legacy_api import MARKER, bridge_baseline, prepare_pool_deadline_support
+from qualify_windows_legacy_api import MARKER, SEAL_MARKER, bridge_baseline, prepare_pool_deadline_support
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f"
@@ -60,7 +60,7 @@ def main():
         for name, data in support_adapted.items():
             (ROOT / name).write_bytes(data)
         code, log = cargo(TEST, output / "red.log")
-        if MARKER in log:
+        if MARKER in log or SEAL_MARKER in log:
             raise RuntimeError("pool unwind primitive must not execute the new API binding")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_PROBE_POOL_UNWIND_RED_READY=1" not in log
@@ -77,7 +77,7 @@ def main():
     if not receipt["restored"]:
         raise RuntimeError("source restoration failed")
     code, log = cargo(TEST, output / "green.log")
-    if (code != 0 or "1 passed; 0 failed; 0 ignored;" not in log
+    if (code != 0 or MARKER in log or SEAL_MARKER in log or "1 passed; 0 failed; 0 ignored;" not in log
             or "DG_PROBE_POOL_UNWIND_ORIGINAL_DIRECTORY_RESTORED=1" not in log):
         raise RuntimeError("same pool must retain and actually clean original directory after unchanged panic")
     receipt["status"] = "native original pool unwind red and green verified; general finite frontend shutdown remains separate"

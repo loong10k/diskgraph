@@ -9,6 +9,13 @@ pub struct ProbeRecovery {
 }
 
 impl ProbeRecovery {
+    /// 永久关闭原资源池的新准入；来源：PF-06监督退休合同。
+    /// 参数：无；返回：同状态锁内关闭成功或原错误；不释放原 owner，不表示完成。
+    /// 既有预留和会话仍须由本原恢复责任实际排空，关闭无法撤销。
+    pub fn seal_admission(&self) -> Result<(), EngineError> {
+        self.registry.seal_admission()
+    }
+
     /// 参数：registry 为原宿主共享资源池；返回：绑定同一资源池的恢复入口，不新增容量。
     pub(crate) fn new(registry: Arc<ProbeResourcePool>) -> Self {
         Self { registry }

@@ -6,6 +6,7 @@
 import re
 
 MARKER = "DG_LEGACY_RECOVERY_API_DELEGATE_USED=1"
+SEAL_MARKER = "DG_LEGACY_SUPERVISOR_SEAL_UNSUPPORTED=1"
 ADAPTERS = {
     "pool": ("drain_until", '''\nimpl ProbeResourcePool {
     /// 仅冻结旧行为的测试 调用接口：原 drain 实际执行，不能作为有界清理证明。
@@ -31,18 +32,29 @@ ADAPTERS = {
 
 
 def bridge_baseline(candidate, baseline, kind):
-    """当前调用方需要新方法且旧版本没有时，补真实旧行为委托；已存在方法拒绝重复绑定。"""
-    method, adapter = ADAPTERS[kind]
-    pattern = rb"\bfn\s+" + method.encode() + rb"\s*\("
-    current_count = len(re.findall(pattern, candidate))
-    old_count = len(re.findall(pattern, baseline))
-    if current_count > 1 or old_count > 1:
-        raise RuntimeError("legacy recovery binding method is ambiguous")
-    if MARKER.encode() in baseline:
+    """补真实旧清理委托；旧版本的关闭准入明确拒绝，禁止作为新行为证据。"""
+    if MARKER.encode() in baseline or SEAL_MARKER.encode() in baseline:
         raise RuntimeError("legacy recovery binding is already instrumented")
-    if current_count == 0 or old_count == 1:
-        return baseline
-    return baseline + adapter
+    bindings = [ADAPTERS[kind]]
+    if kind == "pool":
+        bindings.append(("seal_admission", '''\nimpl ProbeResourcePool {
+    /// 冻结旧版本不支持关闭准入；拒绝而不伪造新能力。
+    pub(crate) fn seal_admission(&self) -> Result<(), EngineError> {
+        eprintln!("DG_LEGACY_SUPERVISOR_SEAL_UNSUPPORTED=1");
+        Err(diskgraph_core::BusinessError::Unsupported.into())
+    }
+}
+'''.encode()))
+    adapted = baseline
+    for method, adapter in bindings:
+        pattern = rb"\bfn\s+" + method.encode() + rb"\s*\("
+        current_count = len(re.findall(pattern, candidate))
+        old_count = len(re.findall(pattern, baseline))
+        if current_count > 1 or old_count > 1:
+            raise RuntimeError("legacy recovery binding method is ambiguous")
+        if current_count == 1 and old_count == 0:
+            adapted += adapter
+    return adapted
 
 
 POOL_DEADLINE_SUPPORT = (

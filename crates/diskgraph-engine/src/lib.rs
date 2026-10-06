@@ -355,3 +355,6 @@ mod probe_pool_cleanup_fault;
 pub mod recovery_control;
 
 pub mod recovery_slot;
+
+#[cfg(test)]
+mod admission_seal_tests;

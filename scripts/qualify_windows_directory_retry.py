@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from qualify_windows_legacy_api import MARKER, prepare_pool_deadline_support
+from qualify_windows_legacy_api import MARKER, SEAL_MARKER, prepare_pool_deadline_support
 from qualify_windows_pool_unwind import instrument_baseline
 
 
@@ -80,7 +80,7 @@ def main():
             (ROOT / name).write_bytes(data)
         code, log = cargo("explicit_directory_retry_reborrows_only_original_live_session_owner",
                           output / "red.log")
-        if MARKER in log:
+        if MARKER in log or SEAL_MARKER in log:
             raise RuntimeError("original directory retry must not execute the new API binding")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_READY=1" not in log
@@ -97,7 +97,7 @@ def main():
     if not receipt["restored"]:
         raise RuntimeError("candidate source restoration failed")
     code, log = cargo("directory_retry", output / "green.log")
-    if (code != 0 or "2 passed; 0 failed; 0 ignored;" not in log
+    if (code != 0 or MARKER in log or SEAL_MARKER in log or "2 passed; 0 failed; 0 ignored;" not in log
             or "DG_WINDOWS_ORIGINAL_DIRECTORY_EXPLICIT_RETRY=1" not in log
             or "DG_WINDOWS_RELEASED_SESSION_CANNOT_REBORROW_DIRECTORY=1" not in log):
         raise RuntimeError("both actual current owner retry cases must execute successfully")
