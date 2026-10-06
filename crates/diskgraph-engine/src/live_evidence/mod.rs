@@ -211,3 +211,6 @@ mod windows_git_removal_observation;
 
 #[cfg(all(test, windows))]
 mod windows_git_junction_fixture;
+
+#[cfg(all(test, windows))]
+mod native_probe_test_budget;

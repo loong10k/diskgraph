@@ -1,6 +1,9 @@
 //! 每次探针独立取消域的真实子进程回归；子进程 fixture 保留在 probe_tests 原路径。
 
 use super::ProbeLimits;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use super::probe_execution::run_probe;
 use super::probe_failure::ProbeFailure;

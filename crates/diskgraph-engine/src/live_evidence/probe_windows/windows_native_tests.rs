@@ -1,6 +1,6 @@
 use super::windows_probe_child::WindowsProbeChild;
 use crate::live_evidence::ProbeLimits;
-use crate::live_evidence::probe_budget::ProbeBudget;
+use crate::live_evidence::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
 use crate::live_evidence::probe_execution::run_probe;
 use crate::live_evidence::probe_failure::ProbeFailure;
 use std::io::Write;

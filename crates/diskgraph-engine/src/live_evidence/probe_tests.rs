@@ -1,4 +1,7 @@
 use super::ProbeLimits;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use super::probe_execution::run_probe;
 use super::probe_failure::ProbeFailure;

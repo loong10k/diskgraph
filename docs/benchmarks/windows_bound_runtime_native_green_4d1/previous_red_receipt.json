@@ -1,0 +1,7 @@
+{
+  "run_id": 37497224164,
+  "job_id": 112384804594,
+  "source": "731e906dcac00e4629cac6f5fee2d32ce6d6ba63",
+  "raw_log_sha256": "ef2c1e8dff975387c3507cef140e0ee11fa4571eae9ad9e678eee564da2d15e3",
+  "status": "failed full workspace; missing exit artifact bindings and unbound probe/session fixtures remain independent failures"
+}

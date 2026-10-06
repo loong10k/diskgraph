@@ -1,0 +1,25 @@
+{
+  "run_id": 37500657007,
+  "source": "4d1f3c30e862f961991b4b9c8d54104dcf665f2d",
+  "cases_per_artifact": 5,
+  "failed": 0,
+  "ignored": 0,
+  "original_artifact_ids": [
+    11429294399,
+    11428634990
+  ],
+  "verified_five_runtime_markers": true,
+  "artifacts": [
+    {
+      "file": "windows-bound-runtime-1.97.0-37500657007.zip",
+      "sha256": "b98559115c4acf255d9ff6a1216076ba34788fada8506659b70fc74409e3df7c",
+      "bytes": 1232
+    },
+    {
+      "file": "windows-bound-runtime-stable-37500657007.zip",
+      "sha256": "fbde0b2c011f23dc5d7683c3f9761039c19ea5ed0fa88faa79a0f9e98907c0e9",
+      "bytes": 1233
+    }
+  ],
+  "product_acceptance": "pending full workspace and remaining production gates"
+}

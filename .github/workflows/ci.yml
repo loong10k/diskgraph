@@ -41,6 +41,16 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Build exact native Windows CLI exit fixtures
+        if: runner.os == 'Windows'
+        run: ./scripts/configure_windows_exit_fixtures.ps1
+      - name: Preserve Windows CLI exit fixture receipt
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-cli-exit-fixtures-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-exit-fixtures/
+          if-no-files-found: error
       - name: Build exact native Linux group-view fixture
         if: runner.os == 'Linux'
         run: |
