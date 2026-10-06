@@ -59,3 +59,5 @@ f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已
 ## Linux CLI/MCP 实际 worker 部署验收
 
 6fef42b 的三组Linux严格Build与当前密封组件11项通过，实际CLI index返回unsupported；原因是验收未配置受信扫描宿主。CI须从同提交Cargo实际bin artifact构建生产worker，记录SHA/长度/提交，不选择协议驱动夹具或邻接清单，使用既有本地部署配置入口。不改变Engine::open可信库构造语义、远程授权或macOS固定安装要求；保留CLI/MCP真实索引及结果断言，未运行全量测试不能宣称通过。CI生成预期仅证明受控源码构建部署，不代表发布安装信任或全平台生产完成。
+
+17694e7 / CI37442529819 的 Linux stable 与 Rust1.97 实际CLI/stdio/认证HTTP验收步骤均completed success，严格Build通过，完整workspace Test正在运行；步骤状态原件见product-176-step-status.json.gz。只确认此实际部署下的产品流程，不代表全量或Windows/macOS生产通过。Windows严格编译的HANDLE仅用于cfg(test)原句柄见证，将导入限定测试，不屏蔽尚未集成的原生清理能力；本机结构6/0、fmt通过，Windows原生编译仍待验证。

@@ -4,8 +4,8 @@ use std::io;
 use std::ptr::null_mut;
 use std::time::{Duration, Instant};
 #[cfg(test)]
-use windows_sys::Win32::Foundation::{DUPLICATE_SAME_ACCESS, DuplicateHandle};
-use windows_sys::Win32::Foundation::{HANDLE, WAIT_OBJECT_0, WAIT_TIMEOUT};
+use windows_sys::Win32::Foundation::{DUPLICATE_SAME_ACCESS, DuplicateHandle, HANDLE};
+use windows_sys::Win32::Foundation::{WAIT_OBJECT_0, WAIT_TIMEOUT};
 #[cfg(test)]
 use windows_sys::Win32::System::IO::OVERLAPPED;
 use windows_sys::Win32::System::JobObjects::{
