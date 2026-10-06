@@ -1,0 +1,29 @@
+{
+  "source": "54c57604047c8f9d13283eee687801ec6323b866",
+  "run": 37514175430,
+  "conclusion": "cancelled",
+  "logs": [
+    {
+      "job": 112442711274,
+      "kind": "stable",
+      "bytes": 7430003,
+      "sha256": "9a45e54b9965ee995b38a80c32f278a654035766fff8b50067c82de20187d1f8",
+      "archive": "stable.log.gz",
+      "observations": [
+        "2026-10-06T18:50:50.2962251Z DG_NATIVE_ID_OPEN_STATUS=0xc000000d; win32=87; id_bytes=8",
+        "2026-10-06T18:50:50.2973614Z DG_NATIVE_ID_OPEN_STATUS=0xc000000d; win32=87; id_bytes=8"
+      ]
+    },
+    {
+      "job": 112442711270,
+      "kind": "msrv",
+      "bytes": 7603073,
+      "sha256": "0c345bce5b7d48fb4157f717dfe99293f67e7516405e7bfe29879870a2aae0ca",
+      "archive": "msrv.log.gz",
+      "observations": [
+        "2026-10-06T18:50:40.8062980Z DG_NATIVE_ID_OPEN_STATUS=0xc000000d; win32=87; id_bytes=8",
+        "2026-10-06T18:50:40.8072771Z DG_NATIVE_ID_OPEN_STATUS=0xc000000d; win32=87; id_bytes=8"
+      ]
+    }
+  ]
+}
