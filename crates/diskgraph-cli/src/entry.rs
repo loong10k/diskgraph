@@ -47,7 +47,6 @@ pub(crate) fn run(cli: Cli) -> Result<(), EngineError> {
         // 此命令仅由 cli_main 的进程转交入口处理，内部误路由也不得引导管理员。
         return Err(BusinessError::InvalidArgument.into());
     }
-    let deadline = diskgraph_core::query_deadline(QueryBudget::default())?;
     // One knob drives both budget layers: the per-node charged ScanBudget
     // must not be tighter than the hard refusal ceiling, or a caller raising
     // the ceiling would still stop at the old charged limit (RT-02/RT-04).
@@ -70,6 +69,10 @@ pub(crate) fn run(cli: Cli) -> Result<(), EngineError> {
         eprintln!("diskgraph: engine startup failed");
     })?;
     host.execute(|engine| {
+        #[cfg(test)]
+        entry_deadline_tests::after_startup();
+        // 启动准入已使用独立期限；查询从身份准备起计时，后续各阶段共享而不刷新。
+        let deadline = diskgraph_core::query_deadline(QueryBudget::default())?;
         // 单次 CLI 查询不消费扫描队列；--wait 由当前请求执行，远程队列由长期服务执行。
         let principal = PrincipalId::new(cli.principal.clone())
             .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
@@ -93,3 +96,7 @@ pub(crate) fn run(cli: Cli) -> Result<(), EngineError> {
         outcome
     })
 }
+
+#[cfg(test)]
+#[path = "entry_deadline_tests.rs"]
+mod entry_deadline_tests;

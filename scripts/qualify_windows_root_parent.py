@@ -11,7 +11,6 @@ from qualify_windows_enumerated_absence import cargo
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "37c663cba7269b251678a5797fe99e2b3317c71a"
 SOURCES = [
-    "crates/diskgraph-engine/src/live_evidence/mod.rs",
     "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
     "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
 ]
@@ -30,6 +29,7 @@ def main():
                "baseline_sources": {n: hashlib.sha256(b).hexdigest() for n,b in old.items()},
                "shared_test_sha256": hashlib.sha256((ROOT / "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup_tests.rs").read_bytes()).hexdigest(),
                "shared_support_sources": {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in [
+                   "crates/diskgraph-engine/src/live_evidence/mod.rs",
                    "crates/diskgraph-engine/src/live_evidence/windows_git_root_parent.rs",
                    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs"]},
                "status": "pending"}

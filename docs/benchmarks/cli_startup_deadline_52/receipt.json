@@ -1,0 +1,13 @@
+{
+  "instrumented_red_entry_sha256": "c0defd619cdf6b99d384ef0ac972ba259b8331f1cbf3095619dea8d8c6f0c8ab",
+  "shared_fixture_sha256": "d02251deb01648af2ca7df725958e1d5f384f470708c6874c9517a6ad63273bd",
+  "base_sha": "52da01d0ac4d2d000bb533d49e4c638178e3561e",
+  "platform": "local macOS arm64",
+  "acceptance": "local isolated query RED/GREEN only; native Intel acceptance pending",
+  "red_instrumentation": "test-only startup seam; baseline query clock placement unchanged",
+  "green_entry_sha256": "5570b7ecdc215aa8777845bd36aeb7ff50ef6ba1e856301acb4a13819feb776d",
+  "original_entry_sha256": "ab70daa8863b7919e1c0a40e2c2798e417d7c9464962f2c8893d9de7027e2729",
+  "red_raw_sha256": "a591941889faab4b62872ca554ee64a520dd3e3342208981ce966535a235c281",
+  "green_raw_sha256": "a539707b5c522f46572954036539e5bd3d3166a96c3184727ae4f41d0c46686d",
+  "native_intel_failure_raw_sha256": "9dfe4b83c7f98ec0dc5a09b453c05e004a66a119d44df757504020713ed75385"
+}

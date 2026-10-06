@@ -1,0 +1,37 @@
+{
+  "run_id": 37529143504,
+  "source_sha": "52da01d0ac4d2d000bb533d49e4c638178e3561e",
+  "acceptance": "FAILED: RED prerequisite compile failure and CFAPI fixture permission denial; neither proves target contract",
+  "artifacts": {
+    "root_parent_stable": {
+      "artifact_id": 11442909310,
+      "zip_sha256": "bab5a0b4b2de79b18def9040285f3c6e0a6520b9d12ec4dfbd8b1b788af3e0f4",
+      "files": {
+        "receipt.json": "2b5107f77c02f482be518264dad8a88262e02d8b031c0588c08b7a6a022d975d",
+        "red.log": "a655a46e67628e603920e9365ac1bc5fd8004f1b173ab2fd973a7cd79a76deb7"
+      }
+    },
+    "root_parent_msrv": {
+      "artifact_id": 11443233404,
+      "zip_sha256": "808cf3c1026a6859949338d02bbf9048f4aa218484627d03011149fd787237f5",
+      "files": {
+        "receipt.json": "2b5107f77c02f482be518264dad8a88262e02d8b031c0588c08b7a6a022d975d",
+        "red.log": "48566462fc309c85672d4a0ab1657e2c2c937a5b5b49eaf931574bda78554a2e"
+      }
+    },
+    "cloud_stable": {
+      "artifact_id": 11443657662,
+      "zip_sha256": "32b8e1c105e2ba49e8d525aa433a29c434442d645cf3ae28f5b83f9dd0165cb4",
+      "files": {
+        "windows-real-cloud-content.log": "73afa83b23b132c9021cfe61bb50cd58a502c394fdfa266f6ddfc5adab0c0a37"
+      }
+    },
+    "cloud_msrv": {
+      "artifact_id": 11443777273,
+      "zip_sha256": "aa11d90d4c58b55b746548a753c72c719646b491aff5f4d017fd023665b99059",
+      "files": {
+        "windows-real-cloud-content.log": "da448f6488d4171e016c27eb538cad9a706c3e321aa0c388b853f317c4bd704d"
+      }
+    }
+  }
+}

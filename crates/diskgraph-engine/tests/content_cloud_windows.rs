@@ -3,7 +3,7 @@
 #[path = "cloud_fixture/windows_cloud_provider.rs"]
 mod windows_cloud_provider;
 
-use diskgraph_core::{BusinessError, Grant, Permission, PrincipalId};
+use diskgraph_core::{Authorizer, BusinessError, Decision, Grant, Permission, PrincipalId};
 use diskgraph_engine::content::{ConservativeProbe, InspectionRequest, InspectionStop};
 use diskgraph_engine::{Engine, EngineConfig, EngineError};
 use std::io::Read;
@@ -14,6 +14,8 @@ fn actual_cloud_placeholder_content_never_fetches_and_unguarded_control_does() {
     let workspace = tempfile::tempdir().unwrap();
     let root = workspace.path().join("isolated-sync-root");
     std::fs::create_dir(&root).unwrap();
+    // 与注册 scope 和普通 Windows 内容夹具使用同一规范定位；不绕过授权或重解析校验。
+    let root = root.canonicalize().unwrap();
     let mut provider = WindowsCloudProvider::connect(&root)
         .expect("actual CFAPI provider must connect; unavailable is not acceptance");
     let path = provider.create_placeholder().unwrap();
@@ -39,6 +41,23 @@ fn actual_cloud_placeholder_content_never_fetches_and_unguarded_control_does() {
         })
         .unwrap();
     let policy = engine.policy_authorizer().unwrap();
+    assert!(matches!(
+        policy.decide(&principal, &Permission::ContentRead, &scope),
+        Decision::Allowed
+    ));
+    let registered_root = engine
+        .control_store()
+        .unwrap()
+        .scope(&scope)
+        .unwrap()
+        .root
+        .to_native_path()
+        .unwrap();
+    assert_eq!(
+        root, registered_root,
+        "cloud fixture must use the registered native namespace"
+    );
+    assert!(path.starts_with(&registered_root));
     let request = InspectionRequest {
         scope_id: &scope,
         principal: &principal,
