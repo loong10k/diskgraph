@@ -173,3 +173,5 @@ f9b1890 / CI37449291133 Linux stable112221636590原全量仍失败Engine lib与F
 生产目录从NtCreateFile返回有效句柄起交给原唯一owner；父句柄、根prepared状态和分配账本随恢复交接保留。清理按已核父句柄逐层枚举，只删除账本登记的原子项；有界深度与单轮期限超限保留原遍历进度。删除请求成功后先记录副作用，后置seal失败保留原DELETE句柄供后续核验，不再次按名标记。目录子项须在后代确认删除后标记；根须在全部枚举和删除确认后标记，关闭所有根句柄后经原父的完整ID通知/原ID缺失证明确认，才置cleaned释放责任。路径改名/替换、硬链接残留、权限拒绝、未知ID协议和异步取消不等于删除；没有原创建句柄的兼容内部owner仍不得冒充本能力。需实际Windows原生产品测试与严格构建通过，本节不勾选父任务。
 
 接线候选：WindowsGitCleanup持原父/root及最多128层固定页遍历；目录创建改为原NtCreateFile槽，账本确认原句柄身份后才进入业务。原目录payload持该状态并随binding移交；后置seal失败保留DELETE副本可再核验。完成子项/原根观察后才能置cleaned；未登记对象拒绝。移除已被原子创建替代的旧CreateDirectoryW方法，无lint屏蔽；旧直接构造内部owner的兼容回归保留。增加两项Windows真实产品回归，尚未原生执行，不声称其RED/GREEN。macOS本机仅证明结构6/0、兼容owner2/0、目录13/0、清理5/0及fmt成功；日志windows-cleanup-integration-{layout-final,owner-local,directory-local,recovery-local,fmt}.log.gz。全部Windows专属编译/行为、有限前端回收和父项仍未完成；Git默认可信库路径的无binding恢复限制仍需另行收口。
+
+91f5311原生Windows Rust1.97.0 CI37454019759/job112237096669构建真实E0277：ProbeBudget::new返回ProbeFailure，旧String接口不能自动转换。补显式Display转换，与原cleanup诊断接口一致，不更改原生删除或状态规则；原始日志windows-cleanup-integration-native-compile-red.log.gz保留。该修复须新提交原生编译和行为验收，不称为已通过。
