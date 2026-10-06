@@ -14,8 +14,8 @@ fn product_cleanup_owner_does_not_pin_unrelated_sibling_names() {
     let moved = original.with_extension("moved");
     std::fs::write(original.join("sentinel"), b"unrelated").unwrap();
     // 产品owner存活时无关同父对象仍可正常改名，原创建租约不能留在恢复状态中。
-    std::fs::rename(&original, &moved).unwrap();
-    std::fs::rename(&moved, &original).unwrap();
+    rename_after_concurrent_creation(&original, &moved);
+    rename_after_concurrent_creation(&moved, &original);
     assert_eq!(
         std::fs::read(original.join("sentinel")).unwrap(),
         b"unrelated"
@@ -76,7 +76,7 @@ fn product_cleanup_removes_moved_original_and_keeps_foreign_replacement() {
         .write(&nested.join("owned"), b"original", &mut probe)
         .unwrap();
     let moved = original.with_extension("moved");
-    std::fs::rename(&original, &moved).unwrap();
+    rename_after_concurrent_creation(&original, &moved);
     std::fs::create_dir(&original).unwrap();
     std::fs::write(original.join("foreign"), b"foreign payload").unwrap();
     let deadline = Instant::now() + Duration::from_secs(20);
@@ -123,4 +123,26 @@ fn product_cleanup_keeps_unregistered_foreign_children_and_original_owner() {
     assert!(directory.complete::<()>(Ok(())).is_err());
     drop(directory);
     std::fs::remove_dir(root).unwrap();
+}
+
+/// 并行夹具共享系统临时父目录；只等待短期创建租约，持续冲突仍失败。
+fn rename_after_concurrent_creation(from: &std::path::Path, to: &std::path::Path) {
+    let deadline = Instant::now() + Duration::from_secs(20);
+    loop {
+        match std::fs::rename(from, to) {
+            Ok(()) => return,
+            Err(error) => {
+                assert_eq!(
+                    error.raw_os_error(),
+                    Some(windows_sys::Win32::Foundation::ERROR_SHARING_VIOLATION as i32),
+                    "rename failed for a reason other than a concurrent creation lease: {error}"
+                );
+                assert!(
+                    Instant::now() < deadline,
+                    "creation lease did not release before actual rename: {error}"
+                );
+                std::thread::sleep(Duration::from_millis(20));
+            }
+        }
+    }
 }
