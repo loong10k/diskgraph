@@ -1,0 +1,11 @@
+{
+  "production_acceptance": false,
+  "red": "actual missing-name test 1 failure/1 pass",
+  "intermediate_fixture_failure": "17 passed/1 failed: capacity lease rejects macOS /var symlink; fixed only fixture parent canonical path",
+  "final": {
+    "passed": 18,
+    "failed": 0,
+    "ignored": 0
+  },
+  "remaining": "path identity and recursive delete are not atomic; original moved-object handle recovery remains open"
+}

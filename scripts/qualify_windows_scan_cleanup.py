@@ -136,6 +136,17 @@ def check_registry_deadline_cases(cases):
         raise ValueError("fixed registry deadline native inventory differs")
 
 
+MISSING_NAME_CASES = tuple("live_evidence::git_private_directory_owner_tests::" + name for name in (
+    "moved_original_directory_is_not_complete_when_original_path_is_missing",
+    "foreign_replacement_is_retained_until_original_directory_returns",
+))
+
+
+def check_missing_name_cases(cases):
+    if len(cases) != len(MISSING_NAME_CASES) or set(cases) != set(MISSING_NAME_CASES):
+        raise ValueError("fixed missing-name recovery inventory differs")
+
+
 def check_cases(cases):
     if len(cases) != len(REQUIRED_CASES) or set(cases) != set(REQUIRED_CASES):
         raise ValueError("fixed cleanup acceptance inventory differs")
@@ -187,6 +198,9 @@ def main():
         registry_cases = [] if args.baseline else manifest["registry_deadline_cases"]
         if not args.baseline:
             check_registry_deadline_cases(registry_cases)
+        missing_name_cases = [] if args.baseline else manifest["missing_name_cases"]
+        if not args.baseline:
+            check_missing_name_cases(missing_name_cases)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -203,7 +217,7 @@ def main():
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
         receipt["cases"] = results
-        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases):
+        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
@@ -211,7 +225,7 @@ def main():
                 passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text()
             except RuntimeError:
                 passed = False
-            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "probe" if case in probe_cases else "directory_prerequisite" if case == DIRECTORY_CASES[0] else "directory" if case in directory_cases else "resource" if case in resource_cases else "runner" if case in runner_cases else "poll_cleanup" if case in poll_cases else "registry_deadline" if case in registry_cases else "cleanup"})
+            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "probe" if case in probe_cases else "directory_prerequisite" if case == DIRECTORY_CASES[0] else "directory" if case in directory_cases else "resource" if case in resource_cases else "runner" if case in runner_cases else "poll_cleanup" if case in poll_cases else "registry_deadline" if case in registry_cases else "missing_name" if case in missing_name_cases else "cleanup"})
             if case == DIRECTORY_CASES[0] and not passed:
                 raise RuntimeError("actual private directory prerequisite failed; directory recovery RED not qualified")
             if case == prerequisites[-1] and not all(result["passed"] for result in results):

@@ -37,7 +37,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 484)
+            self.assertEqual(len(manifest["sources"]), 485)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
@@ -48,6 +48,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             qualifier.check_runner_cases(manifest["runner_cases"])
             qualifier.check_poll_cleanup_cases(manifest["poll_cleanup_cases"])
             qualifier.check_registry_deadline_cases(manifest["registry_deadline_cases"])
+            qualifier.check_missing_name_cases(manifest["missing_name_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
@@ -106,6 +107,16 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
         for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.POLL_CLEANUP_CASES)):
             with self.assertRaises(ValueError):
                 qualifier.check_registry_deadline_cases(invalid)
+
+    def test_missing_name_cases_cannot_be_omitted_or_replaced(self):
+        valid = ["live_evidence::git_private_directory_owner_tests::" + name for name in (
+            "moved_original_directory_is_not_complete_when_original_path_is_missing",
+            "foreign_replacement_is_retained_until_original_directory_returns",
+        )]
+        qualifier.check_missing_name_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.RESOURCE_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_missing_name_cases(invalid)
 
     def test_birth_owner_cases_cannot_be_omitted(self):
         valid = list(qualifier.BIRTH_CASES)
