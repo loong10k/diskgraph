@@ -77,6 +77,8 @@ pub use specialist::{
 };
 pub use volume_capacity::{quarantine_retained_bytes, volume_free_bytes};
 pub use volume_report::VolumeReport;
+#[cfg(all(test, target_os = "linux"))]
+mod native_scan_project;
 #[cfg(all(test, any(target_os = "macos", target_os = "linux")))]
 mod tests;
 #[cfg(all(test, windows))]

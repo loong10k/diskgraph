@@ -106,3 +106,10 @@ cb39286 / CI37445008522 的Linux Rust1.97完整Test终态failure，失败目标1
 Linux单元测试仍有旧Engine::open扫描构造；11个测试模块及GitEvidence/ProcessExecution共享夹具改为显式原宿主与唯一Recovery，Linux容量重新打开的执行用例沿用同一真实构造。既有集成夹具与单元夹具复用同一个实现，生产Engine::open/授权/发布/协议不变；Linux-only测试模块声明不构成默认产品部署。原夹具owner字段先于独占目录释放，持续保留原清理责任。
 
 首次结构检查因跨声明目录path失败，随后额外extern crate声明也被入口门禁拒绝；改为普通test-only模块及父模块类型导入，不修改门禁。最终结构6/0、本机Engine lib no-run和排除固定vendor的格式检查通过，14个修改测试文件的原assert片段逐项不变。此处本机不编译Linux分支，不称Linux运行已通过；MCP d2e8130原生CI仍运行，FFI/Ops扫描夹具、Windows生产清理与macOS安装仍开放。记录见engine-unit-host-*.log.gz。
+
+
+## Ops真实Arc及原扫描预算可变借用
+
+55b061a原生Linux三lane严格Build真实RED：job_authorization与scan_observation两个既有用例需要独占可变Engine修改原scan_budget，夹具仅Deref导致E0594和unused-mut。补测试夹具DerefMut返回原Engine，不改变两个用例、期限或生产API；原Linux编译仍须下一提交验证。本机结构6/0及原格式门禁通过。
+
+Ops Project保留真实Arc<Engine>交给原PlanBuilder/Executor，在Linux另持唯一恢复外槽至Project结束，仍使用原100k节点额度和独立部署材料；没有包装Arc替代公开接口、没有启用CLI/MCP危险写工具。增加本workspace scan-worker的dev依赖，Cargo.lock仅增加该已有本地crate依赖边，不升级外部包。原249个assert片段保持不变，本机offline check、lib no-run、结构7/0、fmt通过。Ops实际Linux业务及原写适配语义须原生CI，不据此宣称平台写能力通过；macOS20条既有Engine警告未掩盖。原日志见engine-unit-55-native-compile-red.log.gz及ops-scan-host-*.log.gz。FFI、Windows原生清理、macOS安装及有限前端恢复继续开放。

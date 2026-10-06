@@ -4,7 +4,7 @@ use super::{
 };
 use diskgraph_scan_worker::ProtocolLimits;
 use std::fs::File;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 /// 显式提供真实镜像与恢复责任的 Linux 扫描夹具；来源：原生 Rust PF-06 公开宿主 API。
 /// 预期值由受控构建部署提供，不从镜像正文或邻接清单自行建立信任。
@@ -60,6 +60,14 @@ impl Deref for NativeScanEngine {
 
     fn deref(&self) -> &Self::Target {
         &self.engine
+    }
+}
+
+impl DerefMut for NativeScanEngine {
+    /// 参数：夹具独占可变借用；返回：原Engine的可变借用，不移动或复制Recovery。
+    /// 保留既有单元测试设置原扫描时限的语义，不开放任何生产权限入口。
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.engine
     }
 }
 

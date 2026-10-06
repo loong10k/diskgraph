@@ -23,6 +23,8 @@ mod plan_query_tests;
 /// A project on disk plus a published engine, the precondition every plan test
 /// needs. Everything lives in a temp directory: no test touches a real path.
 struct Project {
+    #[cfg(target_os = "linux")]
+    _scan_owner: crate::native_scan_project::NativeScanProject,
     _workspace: TempDir,
     engine: std::sync::Arc<Engine>,
     root: PathBuf,
@@ -41,15 +43,19 @@ fn project(label: &str) -> Project {
         vec![0; 1024],
     )
     .unwrap();
-    let engine = std::sync::Arc::new(
-        Engine::open(EngineConfig {
-            data_dir: workspace.path().join("data"),
-            max_nodes_per_scan: 100_000,
-            ..EngineConfig::default()
-        })
-        .unwrap(),
-    );
+    let config = EngineConfig {
+        data_dir: workspace.path().join("data"),
+        max_nodes_per_scan: 100_000,
+        ..EngineConfig::default()
+    };
+    #[cfg(target_os = "linux")]
+    let (engine, _scan_owner) =
+        crate::native_scan_project::NativeScanProject::open(config).unwrap();
+    #[cfg(not(target_os = "linux"))]
+    let engine = std::sync::Arc::new(Engine::open(config).unwrap());
     Project {
+        #[cfg(target_os = "linux")]
+        _scan_owner,
         _workspace: workspace,
         engine,
         root,

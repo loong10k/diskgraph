@@ -22,6 +22,7 @@ thiserror = "2"
 uuid.workspace = true
 
 [dev-dependencies]
+diskgraph-scan-worker = { path = "../diskgraph-scan-worker" }
 rusqlite = { version = "0.40.2", default-features = false }
 tempfile = "3"
 syn = { version = "2.0.119", features = ["full", "visit"] }
