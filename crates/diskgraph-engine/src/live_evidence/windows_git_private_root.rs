@@ -161,7 +161,8 @@ impl WindowsGitPrivateRoot {
             .identity
             .as_ref()
             .ok_or_else(|| io::Error::other("private root identity is unconfirmed"))?;
-        if !expected.same_identity(&allocation(&self.file)?) {
+        let held = allocation(&self.file)?;
+        if !held.is_directory() || !expected.same_identity(&held) {
             return Err(io::Error::other("held private root identity changed"));
         }
         // 空名称相对原句柄重开同一对象，不使用按ID打开的删除语义，
@@ -184,10 +185,9 @@ impl WindowsGitPrivateRoot {
                 &attributes,
                 &mut status_block,
                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                FILE_DIRECTORY_FILE
-                    | FILE_SYNCHRONOUS_IO_NONALERT
-                    | FILE_OPEN_REPARSE_POINT
-                    | FILE_OPEN_NO_RECALL,
+                // DIRECTORY_FILE 不兼容 no-follow/no-recall 选项组合；
+                // 保留防护，由原对象和新句柄的身份及目录类型检查约束重开。
+                FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL,
             )
         };
         // 在任何状态投影前接管有效返回句柄；失败返回句柄也由 File 自动关闭。
@@ -199,8 +199,12 @@ impl WindowsGitPrivateRoot {
             }));
         }
         let file = file.ok_or_else(|| io::Error::other("NtOpenFile returned no valid handle"))?;
-        if !expected.same_identity(&allocation(&file)?)
-            || !expected.same_identity(&allocation(&self.file)?)
+        let reopened = allocation(&file)?;
+        let held_after = allocation(&self.file)?;
+        if !reopened.is_directory()
+            || !held_after.is_directory()
+            || !expected.same_identity(&reopened)
+            || !expected.same_identity(&held_after)
         {
             return Err(io::Error::other("reopened private root identity mismatch"));
         }

@@ -1,0 +1,21 @@
+{
+  "production_acceptance": false,
+  "red_run": 37412964453,
+  "red_passed": 60,
+  "red_failed": 5,
+  "archive_sha256": "220bfdacee9eedf86e176563a43bbe9f2da7f296aff4af672f1c8fb60325fa16",
+  "changed_source": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
+  "native_green": "pending",
+  "local_checks": {
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "windows_driver": {
+      "passed": 22,
+      "failed": 0
+    },
+    "cargo_fmt": "passed",
+    "openspec_strict": "passed"
+  }
+}

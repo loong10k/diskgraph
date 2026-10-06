@@ -33,3 +33,9 @@ CI 37412012814 原生仍64/65，唯一原共享租约断言失败。实际同句
 原共享租约错误32、移动根/恶意替换/目录联接正控保持。租约释放后新增同一原句柄可撤销删除标记正控。旧按ID诊断保留为独立对照，不计作可用删除能力。原型未接入实际目录清理、增量walker或Pool，不启用任何文件操作工具。
 
 本候选已实现，生产原型和冻结候选的两个根文件完全一致，其余495源字节保持。结构6/6、驱动22/22与格式通过，仅证明静态及验收驱动能力；本机Mac未执行Windows方法。原按ID诊断迁移为单独夹具对照，原租约错误32断言不变，解除后必须实际mark并clear。证据见 docs/benchmarks/windows_anchor_relative_reopen_2026_10_06；等待真实原生CI，父项继续开放。
+
+## 目录重开选项兼容性修复
+
+CI 37412964453 已终态失败：65个原生用例中60通过，5个根重开场景返回错误87。该结果为本次RED，不算生产验收。微软NtCreateFile的CreateOptions规则限制FILE_DIRECTORY_FILE的兼容标志；原候选将其与FILE_OPEN_REPARSE_POINT及FILE_OPEN_NO_RECALL合用。修复重开选项组合，保留OBJ_DONT_REPARSE、OPEN_REPARSE_POINT、OPEN_NO_RECALL和同步访问；目录类型由原anchor及返回句柄的完整身份与显式目录检查确认。新建目录仍使用FILE_CREATE和FILE_DIRECTORY_FILE。
+
+验收保持全部65项、共享租约期间错误32、解除租约后的真实mark/clear、移动与恶意替换正控。不得以按名回退、关闭防护、删除断言或启用产品清理来替代。依据：https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwcreatefile 。原生结果未返回前仅记候选修复，父项保持开放。
