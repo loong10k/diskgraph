@@ -168,6 +168,12 @@ jobs:
           cargo build -p diskgraph-scan-worker --bin diskgraph-scan-worker --locked --message-format=json > "${{ runner.temp }}/product-worker-build.jsonl"
           python -m unittest discover -s scripts/tests -p test_linux_acceptance_worker.py -v
           python scripts/configure_linux_acceptance_worker.py --artifacts "${{ runner.temp }}/product-worker-build.jsonl" --output-dir "${{ runner.temp }}"
+          python - <<'PYTHON'
+          import os
+          from pathlib import Path
+          with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as output:
+              output.write("DISKGRAPH_ENGINE_SCAN_WORKER=" + str(Path(os.environ["RUNNER_TEMP"]) / "product-scan-worker") + "\n")
+          PYTHON
       - name: Preserve actual Linux product worker identity
         if: always() && steps.linux_product_worker.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -192,6 +198,9 @@ jobs:
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_probe_tests -- --nocapture --test-threads=1
       - name: Test
         run: cargo test --workspace --all-targets --locked --no-fail-fast
+      - name: Native Linux identity and process scan fixtures
+        if: always() && runner.os == 'Linux' && steps.linux_product_worker.outcome == 'success'
+        run: cargo test -p diskgraph-engine --locked --test linux_process_epoch --test linux_process_execution --test linux_process_observation -- --nocapture --test-threads=1
       - name: Native Git source-metadata sentinel repetition
         if: runner.os == 'macOS'
         timeout-minutes: 5

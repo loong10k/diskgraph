@@ -65,3 +65,7 @@ f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已
 ## 验收镜像与 Cargo 输出生命周期
 
 17694e7全量回归仍失败37目标，直接Engine::open的旧扫描夹具无宿主，CLI子进程启动还返回conflict。Cargo全量测试可重建同一路径bin，部署不能继续指向可被重写的target输出。验收镜像须从实际Cargo bin artifact原句柄独占复制到runner临时路径，完整摘要/长度绑定副本，复制前后身份与高精度时间一致，超限/源变化/目的已存在明确拒绝；协议example不得供应产品镜像。3项副本回归先RED后GREEN（后续Cargo替换、拒绝协议example、禁止覆盖），保持生产授权、密封与原生执行机制。全部旧Engine夹具迁移和全平台父项尚未完成。
+
+## 原生身份/进程夹具显式宿主
+
+17694e7原始全量日志确认Linux epoch两案在run_job因Engine::open没有扫描宿主而失败；执行/观察夹具同样未提供宿主。保持生产构造函数语义，以NativeScanEngine显式绑定CI独立镜像预期、原Config预算和公开open_with_scan_worker，夹具保留外部Recovery直到结束，错误/panic仍实际回收。迁移epoch、execution、observation三目标，不改opaque handle、hardlink、重开、PID身份及占用断言；缺部署材料必须失败。既有actual worker专项夹具的显式环境也绑定同一固定副本。Linux原生验收待CI，本机仅能验证源码/编译边界，不能据此勾选平台父项。

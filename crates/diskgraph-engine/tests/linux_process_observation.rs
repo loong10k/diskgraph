@@ -2,11 +2,15 @@
 //! 必须在支持 tmpfs opaque handle / STATX_MNT_ID_UNIQUE 的 Linux lane 运行；失败不 skip。
 #![cfg(target_os = "linux")]
 
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
+use native_scan_engine::NativeScanEngine;
+
 use diskgraph_core::{
     IndexedFileEpoch, PrincipalId, ProcessEvidenceFailureCode, ProcessEvidenceLimits,
     ProcessObservationCoverage, QueryBudget, QueryReadBudget,
 };
-use diskgraph_engine::{Engine, EngineConfig, native_process::ProcessNativeSession};
+use diskgraph_engine::{EngineConfig, native_process::ProcessNativeSession};
 use diskgraph_store::SqliteSnapshotStore;
 use std::fs::File;
 use std::io::Read;
@@ -36,7 +40,7 @@ impl ObservationFixture {
         )
         .unwrap();
         std::fs::write(root.join("other"), b"unrelated").unwrap();
-        let engine = Engine::open(EngineConfig {
+        let engine = NativeScanEngine::open(EngineConfig {
             data_dir: data.path().to_owned(),
             ..EngineConfig::default()
         })

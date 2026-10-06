@@ -3,8 +3,12 @@
 //! 预检失败是环境未验收，直接失败；不能 skip 后报告支持，也不修改旧快照身份。
 #![cfg(target_os = "linux")]
 
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
+use native_scan_engine::NativeScanEngine;
+
 use diskgraph_core::{IndexedFileEpoch, PrincipalId, QueryBudget, QueryReadBudget, ScopeId};
-use diskgraph_engine::{Engine, EngineConfig};
+use diskgraph_engine::EngineConfig;
 use diskgraph_store::SqliteSnapshotStore;
 use std::fs::{File, OpenOptions};
 use std::os::fd::AsRawFd;
@@ -14,11 +18,11 @@ use std::time::{Duration, Instant};
 
 /// 隔离 tmpfs 源和数据库；来源：Linux 原生公开扫描，不伪造 SQL 身份或挂载。
 struct EpochFixture {
+    engine: NativeScanEngine,
     _workspace: tempfile::TempDir,
     _database: tempfile::TempDir,
     root: PathBuf,
     database: PathBuf,
-    engine: Engine,
     actor: PrincipalId,
     scope: ScopeId,
 }
@@ -33,7 +37,7 @@ impl EpochFixture {
         std::fs::write(root.join("file"), b"fixture").unwrap();
         std::fs::hard_link(root.join("file"), root.join("alias")).unwrap();
         preflight(&root.join("file"));
-        let engine = Engine::open(EngineConfig {
+        let engine = NativeScanEngine::open(EngineConfig {
             data_dir: database.path().to_owned(),
             ..EngineConfig::default()
         })
@@ -169,7 +173,7 @@ fn native_index_persists_same_epoch_for_hardlinks_and_after_engine_reopen() {
     let revision = fixture.scan();
     let file = fixture.epoch(&revision, "file");
     assert_eq!(file, fixture.epoch(&revision, "alias"));
-    let reopened = Engine::open(EngineConfig {
+    let reopened = NativeScanEngine::open(EngineConfig {
         data_dir: fixture.database.parent().unwrap().to_owned(),
         ..EngineConfig::default()
     })

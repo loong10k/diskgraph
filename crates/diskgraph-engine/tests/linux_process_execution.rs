@@ -1,23 +1,27 @@
 //! D42 真正 Linux 任务执行验收；来源：公开 scan、实际持久 epoch、typed Control 队列与 Engine runner。
 //! 当前临时 Unsupported foundation 必须在 positive case 失败；预检缺能力不能算通过。
 #![cfg(target_os = "linux")]
+
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
 use diskgraph_core::{
     BusinessError, JobRequestAuthority, Permission, PrincipalId, ProcessEvidenceFailureCode,
     ProcessEvidenceJobInput, ProcessEvidenceLimits, ProcessEvidenceSummary,
     ProcessObservationCoverage, ProcessObservationMethod, QueryBudget, QueryReadBudget, Relation,
     ScopeId,
 };
-use diskgraph_engine::{Engine, EngineConfig, EngineError};
+use diskgraph_engine::{EngineConfig, EngineError};
 use diskgraph_store::{ControlStore, JobRecord, JobState, SqliteSnapshotStore};
+use native_scan_engine::NativeScanEngine;
 use std::fs::File;
 use std::path::Path;
 use std::time::{Duration, Instant};
 
 /// 真 tmpfs 源与独立持久图/控制库；来源：Linux 原生 Engine 扫描，身份绝不由测试合成。
 struct ExecutionFixture {
+    engine: NativeScanEngine,
     source: tempfile::TempDir,
     data: tempfile::TempDir,
-    engine: Engine,
     actor: PrincipalId,
     scope: ScopeId,
     base: String,
@@ -32,7 +36,7 @@ impl ExecutionFixture {
             b"content is never collector input",
         )
         .unwrap();
-        let engine = Engine::open(EngineConfig {
+        let engine = NativeScanEngine::open(EngineConfig {
             data_dir: data.path().to_owned(),
             ..EngineConfig::default()
         })
@@ -191,7 +195,7 @@ fn real_linux_holder_job_publishes_same_snapshot_revision_and_reconnect_receipt_
             .unwrap()
             .contains("content is never")
     );
-    let reopened = Engine::open(EngineConfig {
+    let reopened = NativeScanEngine::open(EngineConfig {
         data_dir: f.data.path().to_owned(),
         ..EngineConfig::default()
     })
