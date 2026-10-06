@@ -11,8 +11,13 @@
   "structure_passed": 6,
   "driver_passed": 24,
   "mount_guards_passed": 13,
-  "native_red": "pending",
-  "native_green": "pending",
+  "native_red": "verified_target_red",
+  "native_green": "passed",
   "cleanup_walker_integrated": false,
-  "vendor_pin_changed": false
+  "vendor_pin_changed": false,
+  "native_run": 37415666200,
+  "native_sha": "0ae9b18f4d75951eb9c3f6eee4ffdbd496c64e6b",
+  "exact_case_stdout_verified": 68,
+  "passed": 68,
+  "failed": 0
 }

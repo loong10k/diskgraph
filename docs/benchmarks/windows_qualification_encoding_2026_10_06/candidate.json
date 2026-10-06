@@ -8,5 +8,8 @@
   "archive_guard_green": 14,
   "windows_driver_green": 24,
   "source_archives_modified": false,
-  "native_red_green": "pending"
+  "native_red_green": "passed",
+  "verification_run": 37415666200,
+  "verification_sha": "0ae9b18f4d75951eb9c3f6eee4ffdbd496c64e6b",
+  "native_exact_cases_passed": 68
 }

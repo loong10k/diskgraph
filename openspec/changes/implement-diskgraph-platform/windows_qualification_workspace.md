@@ -53,3 +53,5 @@ CI 37412964453 已终态失败：65个原生用例中60通过，5个根重开场
 ## 原生验收驱动的编码修复
 
 CI 37415041940 在归档保护步骤实际失败：新增模块检查使用Windows默认cp1252解码含中文的UTF-8 Rust源，触发UnicodeDecodeError；原生用例均未运行，不计68项失败或通过。用同一真实归档、仅注入默认cp1252读取方式，本机复现相同位置的RED。源码、UTF-8 Cargo输出和receipt显式按UTF-8读取，不依赖PYTHONUTF8或变更系统locale，不用errors=ignore/replace丢字节，也不放宽归档摘要或模块检查。修复后重新运行实际Windows目标RED和68项候选，未返回前保持待验收。
+
+原生终态：CI 37415666200 在0ae9b18f4d75951eb9c3f6eee4ffdbd496c64e6b通过全部68项。已逐个stdout确认精确名称与1 passed/0 failed；原65项保留并通过。旧枚举精确目标实际RED（原lease A却返回B的sentinel），修复后只返回A的owned；1201个原始名称跨页及每项完整128位ID实际匹配，其中包含未配对UTF-16单元。解码边界用例是软件记录验证，不当成额外内核文件系统能力。编码驱动障碍在Windows实际关闭，归档保护通过。见docs/benchmarks/windows_directory_cursor_2026_10_06及windows_qualification_encoding_2026_10_06。仅关闭原句柄枚举子层；尚未接入整个cleanup walker/Pool、默认Windows扫描、可信安装或全平台同SHA发布门禁，15.13父项保持开放。
