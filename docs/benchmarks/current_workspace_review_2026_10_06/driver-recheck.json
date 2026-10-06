@@ -1,0 +1,10 @@
+{
+  "source_commit": "5b8ee589274d3e6e4cef1def3c5236a15ef38c6e",
+  "actual_fixture_sha256": "0bd760d6aa777569dd802ccd29b9dec1bb1e9b2ad518f32d3af51ec24e7b9c35",
+  "passed": 6,
+  "failed": 0,
+  "ignored": 0,
+  "product_scan_acceptance": false,
+  "full_workspace_acceptance": false,
+  "production_acceptance": false
+}

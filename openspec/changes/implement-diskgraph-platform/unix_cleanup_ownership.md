@@ -43,3 +43,5 @@ Linux 期限恢复已通过当前完整源码原生门禁：37438978565 / c98dc1
 ## 完整工作区门禁复核
 
 4255fc8 的本机完整工作区回归实际运行111个顶层目标：1516通过、431失败、23忽略，33目标失败；按每个Cargo目标最后的结果计数，未将隔离子夹具的内层结果重复累计。GitHub同提交Linux/Windows严格Build失败，原始日志记录dead-code错误，macOS相关任务仍排队。专项门禁不能抵消该全量失败。测试专用LinuxScanImageError只应在test配置编入；历史Rust pre_exec安装方法无调用者，当前生产seccomp保持由原子出生C路径使用同一BPF program安装。移除闲置入口不完成严格质量或生产父项。
+
+原全量运行中未提供独立协议驱动夹具，造成5项原owner错误处置用例失败。通过当前Cargo example明确生成夹具并按实际artifact注入DISKGRAPH_SCAN_DRIVER_FIXTURE后，该组6/0/0通过。CI新增相同构建/摘要/来源绑定步骤；只供测试，不设置产品镜像环境值，不改变安装信任、请求权限或默认扫描Unsupported状态。严格Build仍有未完成项，不能以该局部复查抵消原431项失败。

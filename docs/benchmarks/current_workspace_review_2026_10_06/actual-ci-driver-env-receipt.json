@@ -1,0 +1,8 @@
+{
+  "checkout_sha": "5b8ee589274d3e6e4cef1def3c5236a15ef38c6e",
+  "fixture_sha256": "0bd760d6aa777569dd802ccd29b9dec1bb1e9b2ad518f32d3af51ec24e7b9c35",
+  "fixture_bytes": 3950040,
+  "fixture_source_sha256": "d9ae7d2c2ab8499abf3dd9dbb4ce1a31e9313e0f2c8509705c0ed919ab571862",
+  "product_scan_image": false,
+  "production_acceptance": false
+}

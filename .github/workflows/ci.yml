@@ -93,6 +93,43 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
+      - name: Build explicit protocol-driver test fixture
+        id: driver_fixture
+        run: |
+          cargo build -p diskgraph-engine --example scan_worker_driver_fixture --locked --message-format=json > "${{ runner.temp }}/protocol-driver-build.jsonl"
+          python - <<'PYTHON'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          output = Path(os.environ["RUNNER_TEMP"])
+          rows = [json.loads(line) for line in (output / "protocol-driver-build.jsonl").read_text().splitlines()]
+          artifacts = [row for row in rows if row.get("reason") == "compiler-artifact"
+                       and row.get("target", {}).get("name") == "scan_worker_driver_fixture"
+                       and row.get("target", {}).get("kind") == ["example"] and row.get("executable")]
+          if len(artifacts) != 1:
+              raise SystemExit("one actual Cargo protocol-driver artifact is required")
+          image = Path(artifacts[0]["executable"])
+          if not image.is_absolute() or image.is_symlink() or not image.is_file() or any(c in str(image) for c in "\r\n\0"):
+              raise SystemExit("invalid protocol-driver artifact path")
+          with image.open("rb") as stream:
+              digest = hashlib.file_digest(stream, "sha256").hexdigest()
+          receipt = {"checkout_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                     "fixture_sha256": digest, "fixture_bytes": image.stat().st_size,
+                     "fixture_source_sha256": hashlib.sha256(Path("crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs").read_bytes()).hexdigest(),
+                     "product_scan_image": False, "production_acceptance": False}
+          (output / "protocol-driver-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+          with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as stream:
+              stream.write("DISKGRAPH_SCAN_DRIVER_FIXTURE=" + str(image) + "\n")
+          PYTHON
+      - name: Preserve actual protocol-driver identity
+        if: always() && steps.driver_fixture.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: protocol-driver-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/protocol-driver-build.jsonl
+            ${{ runner.temp }}/protocol-driver-receipt.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Native Linux sealed-image component qualification
         if: runner.os == 'Linux'
         timeout-minutes: 25
