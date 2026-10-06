@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_enumerated_absence import cargo
+from qualify_windows_legacy_api import MARKER, bridge_baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f"
@@ -17,12 +18,12 @@ CHECKPOINT = (b"                #[cfg(all(test, windows))]\n"
               b"                crate::probe_pool_cleanup_fault::ProbePoolCleanupFault::checkpoint();\n")
 
 
-def instrument_baseline(source):
+def instrument_baseline(source, candidate=b""):
     """只加入与候选共用的测试故障点，不修复旧生产路径；未知/重复锚点拒绝运行。"""
     normalized = source.replace(b"\r\n", b"\n")
     if normalized.count(ANCHOR) != 1 or b"ProbePoolCleanupFault" in normalized:
         raise RuntimeError("baseline cleanup checkpoint anchor is not unique or already instrumented")
-    return normalized.replace(ANCHOR, ANCHOR + CHECKPOINT, 1)
+    return bridge_baseline(candidate, normalized.replace(ANCHOR, ANCHOR + CHECKPOINT, 1), "pool")
 
 
 def digest(data):
@@ -38,7 +39,7 @@ def main():
     original = path.read_bytes()
     subprocess.run(["git", "fetch", "--depth=1", "origin", BASELINE], cwd=ROOT, check=True)
     old = subprocess.check_output(["git", "show", f"{BASELINE}:{SOURCE}"], cwd=ROOT)
-    instrumented = instrument_baseline(old)
+    instrumented = instrument_baseline(old, original)
     receipt = {"candidate": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT).decode().strip(),
                "baseline": BASELINE, "candidate_sha256": digest(original),
                "baseline_original_sha256": digest(old), "baseline_with_shared_fault_sha256": digest(instrumented),
@@ -51,6 +52,8 @@ def main():
     try:
         path.write_bytes(instrumented)
         code, log = cargo(TEST, output / "red.log")
+        if MARKER in log:
+            raise RuntimeError("pool unwind primitive must not execute the new API binding")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_PROBE_POOL_UNWIND_RED_READY=1" not in log
                 or "original probe pool lost directory or stayed draining after unwind" not in log):

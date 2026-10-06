@@ -141,14 +141,58 @@ impl ProbeResourcePool {
     }
     /// 参数：无；返回：一轮实际恢复结果，锁外先child wait/Job0再目录删除，失败保留同槽。
     pub(crate) fn drain(&self) -> Result<bool, EngineError> {
-        let count = self.slots.lock().map_err(|_| EngineError::Poisoned)?.len();
+        self.drain_with_deadline(None)
+    }
+
+    /// 参数：原绝对期限；返回：同一资源池一次有界尝试，未完成时原代次及 owner 均保留。
+    pub(crate) fn drain_until(&self, deadline: std::time::Instant) -> Result<bool, EngineError> {
+        self.drain_with_deadline(Some(deadline))
+    }
+
+    fn drain_with_deadline(
+        &self,
+        deadline: Option<std::time::Instant>,
+    ) -> Result<bool, EngineError> {
+        let count = {
+            let slots = if deadline.is_some() {
+                match self.slots.try_lock() {
+                    Ok(slots) => slots,
+                    Err(std::sync::TryLockError::WouldBlock) => return Ok(false),
+                    Err(std::sync::TryLockError::Poisoned(_)) => return Err(EngineError::Poisoned),
+                }
+            } else {
+                self.slots.lock().map_err(|_| EngineError::Poisoned)?
+            };
+            if deadline.is_some_and(|until| std::time::Instant::now() >= until) {
+                return Ok(!slots.iter().any(|slot| slot.reserved));
+            }
+            slots.len()
+        };
         let mut first = None;
         for index in 0..count {
+            if deadline.is_some_and(|until| std::time::Instant::now() >= until) {
+                if let Some(error) = first {
+                    return Err(error);
+                }
+                return Ok(false);
+            }
             let work = {
-                let mut slots = self
-                    .slots
-                    .lock()
-                    .unwrap_or_else(std::sync::PoisonError::into_inner);
+                let mut slots = if deadline.is_some() {
+                    match self.slots.try_lock() {
+                        Ok(slots) => slots,
+                        Err(std::sync::TryLockError::WouldBlock) => {
+                            // 已观察到的原清理错误不能被后续槽的状态竞争覆盖。
+                            return first.map_or(Ok(false), Err);
+                        }
+                        Err(std::sync::TryLockError::Poisoned(_)) => {
+                            return Err(EngineError::Poisoned);
+                        }
+                    }
+                } else {
+                    self.slots
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner)
+                };
                 let slot = &mut slots[index];
                 if !slot.reserved || slot.session_alive || slot.directory_borrowed || slot.draining
                 {
@@ -162,11 +206,20 @@ impl ProbeResourcePool {
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                     #[cfg(all(test, windows))]
                     crate::probe_pool_cleanup_fault::ProbePoolCleanupFault::checkpoint();
-                    inner.drain().and_then(|empty| {
+                    let reaped = match deadline {
+                        Some(until) => inner.drain_until(until),
+                        None => inner.drain(),
+                    };
+                    reaped.and_then(|empty| {
                         if !empty {
                             return Ok(false);
                         }
                         if let Some(owner) = directory.as_mut() {
+                            if let Some(until) = deadline {
+                                return owner.cleanup_until(until).map_err(|error| {
+                                    EngineError::Io(std::io::Error::other(error))
+                                });
+                            }
                             owner
                                 .cleanup()
                                 .map_err(|error| EngineError::Io(std::io::Error::other(error)))?;
@@ -205,6 +258,14 @@ impl ProbeResourcePool {
         if let Some(error) = first {
             return Err(error);
         }
-        Ok(self.occupied()? == 0)
+        if deadline.is_some() {
+            match self.slots.try_lock() {
+                Ok(slots) => Ok(!slots.iter().any(|slot| slot.reserved)),
+                Err(std::sync::TryLockError::WouldBlock) => Ok(false),
+                Err(std::sync::TryLockError::Poisoned(_)) => Err(EngineError::Poisoned),
+            }
+        } else {
+            Ok(self.occupied()? == 0)
+        }
     }
 }

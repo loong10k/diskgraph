@@ -278,3 +278,59 @@ fn pool_cleanup_unwind_retains_original_directory_until_actual_retry() {
     assert_eq!(recovery.occupied_slots().unwrap(), 0);
     println!("DG_PROBE_POOL_UNWIND_ORIGINAL_DIRECTORY_RESTORED=1");
 }
+
+#[test]
+fn expired_probe_recovery_keeps_actual_directory_and_capacity_until_live_retry() {
+    let (host, recovery) = ProbeHost::new(1).unwrap();
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    budget.bind_probe_host(Arc::clone(&host.registry)).unwrap();
+    let mut private = GitPrivateDirectory::new(&mut budget).unwrap();
+    let root = private.path().to_owned();
+    let payload = root.join("original-expired-recovery-payload");
+    private.write(&payload, b"original", &mut budget).unwrap();
+    let held = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&payload)
+        .unwrap();
+    assert!(private.complete(Ok(())).unwrap_err().contains("cleanup"));
+    drop(budget);
+    drop(held);
+    eprintln!("DG_EXPIRED_PROBE_RECOVERY_RED_READY=1");
+    let observed = catch_unwind(AssertUnwindSafe(|| {
+        let expired = std::time::Instant::now();
+        let actual = recovery.drain_until(expired);
+        if matches!(actual, Ok(true)) {
+            assert!(!root.exists());
+            assert_eq!(recovery.occupied_slots().unwrap(), 0);
+            eprintln!("DG_LEGACY_EXPIRED_ORIGINAL_ACTUALLY_REMOVED=1");
+        }
+        assert!(
+            matches!(actual, Ok(false)),
+            "expired recovery must retain the original directory without deletion: {actual:?}"
+        );
+        assert_eq!(std::fs::read(&payload).unwrap(), b"original");
+        assert_eq!(recovery.occupied_slots().unwrap(), 1);
+        assert!(host.registry.reserve().is_err());
+        // 同一已到期 instant 再次调用也不能刷新预算或触碰原对象。
+        assert!(!recovery.drain_until(expired).unwrap());
+        assert!(payload.exists());
+    }));
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
+    loop {
+        if recovery.drain_until(deadline).unwrap() {
+            break;
+        }
+        assert!(
+            std::time::Instant::now() < deadline,
+            "original recovery never completed"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert!(!root.exists());
+    assert_eq!(recovery.occupied_slots().unwrap(), 0);
+    if let Err(payload) = observed {
+        resume_unwind(payload);
+    }
+    eprintln!("DG_EXPIRED_PROBE_RECOVERY_RETAINS_ORIGINAL_THEN_ACTUALLY_REMOVES=1");
+}

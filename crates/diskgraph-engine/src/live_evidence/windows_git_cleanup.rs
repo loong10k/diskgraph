@@ -108,6 +108,30 @@ impl WindowsGitCleanup {
     pub(super) fn cleanup(&mut self, capacity: Option<&GitPrivateCapacity>) -> Result<(), String> {
         let mut probe =
             ProbeBudget::new(&super::ProbeLimits::default()).map_err(|error| error.to_string())?;
+        self.cleanup_with_budget(capacity, &mut probe)
+    }
+
+    /// 参数：原账本及宿主绝对期限；返回：实际完成或到期保留状态，不建立新的时间窗口。
+    pub(super) fn cleanup_until(
+        &mut self,
+        capacity: Option<&GitPrivateCapacity>,
+        deadline: std::time::Instant,
+    ) -> Result<bool, String> {
+        if std::time::Instant::now() >= deadline {
+            return Ok(false);
+        }
+        let mut probe = ProbeBudget::until(&super::ProbeLimits::default(), deadline)
+            .map_err(|error| error.to_string())?;
+        self.cleanup_with_budget(capacity, &mut probe)
+            .map(|()| true)
+    }
+
+    fn cleanup_with_budget(
+        &mut self,
+        capacity: Option<&GitPrivateCapacity>,
+        probe: &mut ProbeBudget,
+    ) -> Result<(), String> {
+        probe.check().map_err(|error| error.to_string())?;
         if !self.initialized {
             let root = self
                 .root
@@ -156,7 +180,7 @@ impl WindowsGitCleanup {
                     file,
                     &parent.label,
                     capacity.ok_or("original allocation ledger missing")?,
-                    &mut probe,
+                    probe,
                 );
                 // 标记成功后的错误也必须关闭遍历副本；原seal句柄/观察已由父cursor持有。
                 if cursor.cleanup_child_delete_requested() {
@@ -169,7 +193,7 @@ impl WindowsGitCleanup {
             let cursor = frame.cursor.as_mut().expect("active original cursor");
             if cursor.cleanup_child_delete_requested() {
                 if !cursor
-                    .confirm_cleanup_child_absent(&mut probe)
+                    .confirm_cleanup_child_absent(probe)
                     .map_err(|error| error.to_string())?
                 {
                     return Err("original child deletion pending; recovery retained".into());
@@ -178,14 +202,14 @@ impl WindowsGitCleanup {
             }
             let Some(capacity) = capacity else {
                 // 创建后账本建立失败时仅允许确认空目录；不收养未登记内容。
-                if cursor.next_entry(&mut probe)?.is_some() {
+                if cursor.next_entry(probe)?.is_some() {
                     return Err("unregistered private directory contents retained".into());
                 }
                 frame.cursor = None;
                 continue;
             };
             let entry = cursor
-                .open_next_cleanup_child(&frame.label, capacity, &mut probe)
+                .open_next_cleanup_child(&frame.label, capacity, probe)
                 .map_err(|error| error.to_string())?;
             let Some((file, name, attributes)) = entry else {
                 frame.cursor = None;
@@ -213,11 +237,11 @@ impl WindowsGitCleanup {
                     .cursor
                     .as_mut()
                     .expect("original cursor")
-                    .mark_cleanup_child(&file, &frame.label, capacity, &mut probe)
+                    .mark_cleanup_child(&file, &frame.label, capacity, probe)
                     .map_err(|error| error.to_string())?;
             }
         }
-        self.finish_root(&mut probe)
+        self.finish_root(probe)
     }
 
     fn finish_root(&mut self, probe: &mut ProbeBudget) -> Result<(), String> {

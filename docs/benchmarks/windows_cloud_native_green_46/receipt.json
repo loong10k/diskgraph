@@ -1,0 +1,25 @@
+{
+  "run_id": 37532022281,
+  "source_sha": "46fededd709ee614eab5083c746399dde05664cf",
+  "acceptance": "actual isolated CFAPI product no-FETCH plus ordinary-read FETCH positive control; Placeholder OR explicit Unsupported only; full Windows regression remains unaccepted",
+  "artifacts": {
+    "stable": {
+      "artifact_id": 11444148498,
+      "zip_sha256": "33164265856dddc4c48da1bbdf68c41e28eb288ce9ff30ae5d73709b8217433e",
+      "files": {
+        "windows-real-cloud-content.log": "0b921a1d53ed18d7f73dede18705abc244124f820a11bdca230a56c079b07af7"
+      }
+    },
+    "msrv": {
+      "artifact_id": 11444692968,
+      "zip_sha256": "11feec105107f682f04932904944cbbfbe9a99d1da879dfcd6df48780417a6c8",
+      "files": {
+        "windows-real-cloud-content.log": "a2add0bcebfc9d50ae60409d50bcad9b312b12c35dfb4279a8a1135d867adc0f"
+      }
+    }
+  },
+  "source_fingerprints": {
+    "crates/diskgraph-engine/tests/content_cloud_windows.rs": "f84f5c074572d739bfcbcce012595e821146a5616fda53b97ed7ba9d3b29e8aa",
+    "crates/diskgraph-engine/tests/cloud_fixture/windows_cloud_provider.rs": "396887726fa4bdab0ead0a6ddc5afd264a40d11a82359a4b340af3a1e706bf07"
+  }
+}

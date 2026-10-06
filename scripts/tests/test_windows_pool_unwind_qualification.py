@@ -65,6 +65,15 @@ class QualificationRollbackTests(unittest.TestCase):
     def test_runner_exception_restores_source(self):
         self.exercise_failure(RuntimeError("runner failed"))
 
+    def test_current_deadline_callers_keep_the_real_old_pool_delegate(self):
+        baseline = b"before\n" + qualifier.ANCHOR + b"original cleanup\n"
+        candidate = b"pub(crate) fn drain_until(&self) {}"
+        actual = qualifier.instrument_baseline(baseline, candidate)
+        self.assertTrue(actual.startswith(qualifier.instrument_baseline(baseline)))
+        self.assertIn(b"self.drain()", actual)
+        self.assertIn(b"DG_LEGACY_RECOVERY_API_DELEGATE_USED=1", actual)
+        self.assertEqual(actual.count(b"fn drain_until("), 1)
+
     def test_checkpoint_instrumentation_rejects_ambiguous_source(self):
         baseline = b"before\r\n" + qualifier.ANCHOR.replace(b"\n", b"\r\n") + b"old\r\n"
         expected = baseline.replace(b"\r\n", b"\n").replace(qualifier.ANCHOR, qualifier.ANCHOR + qualifier.CHECKPOINT)

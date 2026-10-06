@@ -12,6 +12,28 @@ pub(crate) struct GitPrivateDirectoryOwner {
     pub(super) root_identity: Option<GitPrivateAllocation>,
 }
 impl GitPrivateDirectoryOwner {
+    /// 参数：原绝对期限；返回：原对象全部清理后 true，到期前保留责任，原生失败返回原诊断。
+    #[cfg(windows)]
+    pub(crate) fn cleanup_until(&mut self, deadline: std::time::Instant) -> Result<bool, String> {
+        if self.cleaned {
+            return Ok(true);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Ok(false);
+        }
+        let cleanup = self
+            .windows_cleanup
+            .as_mut()
+            .ok_or("private Git bounded cleanup requires original native recovery payload")?;
+        let done = cleanup
+            .cleanup_until(self.capacity.as_ref(), deadline)
+            .map_err(|error| format!("private Git cleanup failed: {error}"))?;
+        if done {
+            self.cleaned = true;
+        }
+        Ok(done)
+    }
+
     /// 参数：无；返回：原根身份确认后的删除结果；失败保留原payload，绝不清理陌生替换根。
     pub(crate) fn cleanup(&mut self) -> Result<(), String> {
         if self.cleaned {

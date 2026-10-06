@@ -1,0 +1,23 @@
+{
+  "run_id": 37532022281,
+  "source_sha": "46fededd709ee614eab5083c746399dde05664cf",
+  "acceptance": "FAILED prerequisite: current root binder unused in frozen baseline; NOT target RED",
+  "artifacts": {
+    "stable": {
+      "artifact_id": 11445021838,
+      "zip_sha256": "ae21cd516eb9597a6f741b91ebbf2ba63ff6e8d32036fc96fefaf3fe18fd4dba",
+      "files": {
+        "receipt.json": "79e90371442c820e1c11213017bf34b4a48d2561a073b172da311321e8aae9ad",
+        "red.log": "3b4509ddb410fd4857fadeaead731e3a78273550e4f20fcd37bb33fb49f74c8c"
+      }
+    },
+    "msrv": {
+      "artifact_id": 11444328075,
+      "zip_sha256": "8d34cc4f684ea2f952cbbac4b78196ee201e6540f02763c15df3e84243777074",
+      "files": {
+        "receipt.json": "79e90371442c820e1c11213017bf34b4a48d2561a073b172da311321e8aae9ad",
+        "red.log": "3b4509ddb410fd4857fadeaead731e3a78273550e4f20fcd37bb33fb49f74c8c"
+      }
+    }
+  }
+}

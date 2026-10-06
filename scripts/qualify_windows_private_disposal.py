@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_enumerated_absence import cargo
+from qualify_windows_legacy_api import MARKER, bridge_baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "ee39a5ef38f495349bda3f68cfeec9c8efc89381"
@@ -26,8 +27,12 @@ def main():
     original = {n: (ROOT / n).read_bytes() for n in SOURCES}
     subprocess.run(["git", "fetch", "--depth=1", "origin", BASELINE], cwd=ROOT, check=True)
     old = {n: subprocess.check_output(["git", "show", f"{BASELINE}:{n}"], cwd=ROOT) for n in SOURCES}
+    baseline_original = dict(old)
+    cleanup_source = "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs"
+    old[cleanup_source] = bridge_baseline(original[cleanup_source], old[cleanup_source], "directory")
     receipt = {"candidate": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT).decode().strip(), "baseline": BASELINE,
                "candidate_sources": {n: hashlib.sha256(b).hexdigest() for n,b in original.items()},
+               "baseline_original_sources": {n: hashlib.sha256(b).hexdigest() for n,b in baseline_original.items()},
                "baseline_sources": {n: hashlib.sha256(b).hexdigest() for n,b in old.items()},
                "shared_test_sources": {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in [
                    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs",
@@ -36,6 +41,8 @@ def main():
         for n,b in old.items():
             (ROOT / n).write_bytes(b)
         code, log = cargo(TEST, output / "red.log")
+        if MARKER in log:
+            raise RuntimeError("original primitive must not execute the new API binding")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_MODIFIED_PRIVATE_IDENTITY_REJECTION_RED_READY=1" not in log
                 or "modified original private artifact must remain disposable:" not in log):

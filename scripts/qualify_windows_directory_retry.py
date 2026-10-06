@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from qualify_windows_legacy_api import MARKER, bridge_baseline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,9 +46,13 @@ def main():
         subprocess.run(["git", "fetch", "--depth=1", "origin", BASELINE], cwd=ROOT, check=True)
     old = {name: subprocess.check_output(["git", "show", f"{BASELINE}:{name}"], cwd=ROOT)
            for name in SOURCES}
+    baseline_original = dict(old)
+    pool_source = "crates/diskgraph-engine/src/probe_resource_pool.rs"
+    old[pool_source] = bridge_baseline(original[pool_source], old[pool_source], "pool")
     receipt = {
         "candidate": candidate, "baseline": BASELINE,
         "candidate_sources": {name: digest(data) for name, data in original.items()},
+        "baseline_original_sources": {name: digest(data) for name, data in baseline_original.items()},
         "baseline_sources": {name: digest(data) for name, data in old.items()},
         # 两阶段共用当前诊断投影与同一真实测试；只有上面的 owner 重试实现被替换。
         "shared_support_sources": {
@@ -64,6 +69,8 @@ def main():
             (ROOT / name).write_bytes(data)
         code, log = cargo("explicit_directory_retry_reborrows_only_original_live_session_owner",
                           output / "red.log")
+        if MARKER in log:
+            raise RuntimeError("original directory retry must not execute the new API binding")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_READY=1" not in log
                 or "DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_CLEANUP=1" not in log

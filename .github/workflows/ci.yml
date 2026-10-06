@@ -128,7 +128,10 @@ jobs:
       - name: Native Windows actual root parent red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10
-        run: python scripts/qualify_windows_root_parent.py
+        run: |
+          python -m unittest discover -s scripts/tests -p test_windows_root_parent_qualification.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/qualify_windows_root_parent.py
       - name: Preserve original root parent qualification
         if: always() && runner.os == 'Windows'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -171,6 +174,21 @@ jobs:
         with:
           name: windows-child-membership-${{ matrix.rust }}-${{ github.run_id }}
           path: ${{ runner.temp }}/diskgraph-windows-child-membership/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Native Windows expired recovery red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: |
+          python -m unittest discover -s scripts/tests -p test_windows_probe_deadline_qualification.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/qualify_windows_probe_deadline.py
+      - name: Preserve native Windows expired recovery evidence
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-probe-deadline-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-probe-deadline/
           if-no-files-found: error
           retention-days: 7
       - name: Native Windows original pool unwind red and green
