@@ -5,6 +5,36 @@ use super::probe_budget::ProbeBudget;
 use std::time::{Duration, Instant};
 
 #[test]
+fn product_cleanup_owner_does_not_pin_unrelated_sibling_names() {
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();
+    let root = directory.path().to_owned();
+    let sibling = tempfile::tempdir_in(root.parent().unwrap()).unwrap();
+    let original = sibling.path().to_owned();
+    let moved = original.with_extension("moved");
+    std::fs::write(original.join("sentinel"), b"unrelated").unwrap();
+    // 产品owner存活时无关同父对象仍可正常改名，原创建租约不能留在恢复状态中。
+    std::fs::rename(&original, &moved).unwrap();
+    std::fs::rename(&moved, &original).unwrap();
+    assert_eq!(
+        std::fs::read(original.join("sentinel")).unwrap(),
+        b"unrelated"
+    );
+    let deadline = Instant::now() + Duration::from_secs(20);
+    while let Err(error) = directory.complete::<()>(Ok(())) {
+        assert!(
+            Instant::now() < deadline,
+            "cleanup remains incomplete: {error}"
+        );
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    assert_eq!(
+        std::fs::read(original.join("sentinel")).unwrap(),
+        b"unrelated"
+    );
+}
+
+#[test]
 fn product_cleanup_removes_registered_tree_at_original_name() {
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();

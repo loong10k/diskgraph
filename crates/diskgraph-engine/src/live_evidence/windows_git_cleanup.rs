@@ -25,10 +25,73 @@ pub(super) struct WindowsGitCleanup {
 }
 
 impl WindowsGitCleanup {
-    /// 参数：parent为原创建父句柄、label仅作账本键；返回：尚未创建的唯一恢复payload。
-    pub(super) fn new(parent: File, label: PathBuf) -> Self {
-        Self {
-            parent,
+    /// 参数：parent为原创建租约、label仅作账本键、probe为原准入预算。
+    /// 返回：持有独立只读原父观察句柄的恢复payload，不延长创建租约的分享限制。
+    pub(super) fn new(
+        parent: &File,
+        label: PathBuf,
+        probe: &mut ProbeBudget,
+    ) -> Result<Self, String> {
+        use std::os::windows::io::{AsRawHandle, FromRawHandle};
+        use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
+        use windows_sys::Wdk::Storage::FileSystem::{
+            FILE_OPEN_NO_RECALL, FILE_OPEN_REPARSE_POINT, FILE_SYNCHRONOUS_IO_NONALERT, NtOpenFile,
+        };
+        use windows_sys::Win32::Foundation::{
+            INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
+        };
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ,
+            FILE_SHARE_WRITE, SYNCHRONIZE,
+        };
+        probe.check().map_err(|error| error.to_string())?;
+        let expected = GitPrivateAllocation::from_file(parent)?;
+        if !expected.is_directory() {
+            return Err("original cleanup parent is not a directory".into());
+        }
+        // 仅相对原对象重开；复制创建句柄会同时保留其分享限制，阻止原根移动。
+        let empty_name = UNICODE_STRING::default();
+        let attributes = OBJECT_ATTRIBUTES {
+            Length: std::mem::size_of::<OBJECT_ATTRIBUTES>() as u32,
+            RootDirectory: parent.as_raw_handle(),
+            ObjectName: &empty_name,
+            Attributes: OBJ_DONT_REPARSE,
+            ..OBJECT_ATTRIBUTES::default()
+        };
+        let mut handle = std::ptr::null_mut();
+        let mut status_block = windows_sys::Win32::System::IO::IO_STATUS_BLOCK::default();
+        let status = unsafe {
+            NtOpenFile(
+                &mut handle,
+                FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES | SYNCHRONIZE,
+                &attributes,
+                &mut status_block,
+                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL,
+            )
+        };
+        // 状态投影和取消回调之前接管任何有效返回句柄，失败也不会泄漏。
+        let opened = (!handle.is_null() && handle != INVALID_HANDLE_VALUE)
+            .then(|| unsafe { File::from_raw_handle(handle) });
+        if status != 0 {
+            return Err(std::io::Error::from_raw_os_error(unsafe {
+                RtlNtStatusToDosError(status) as i32
+            })
+            .to_string());
+        }
+        let opened = opened.ok_or("original cleanup parent reopen returned no handle")?;
+        let actual = GitPrivateAllocation::from_file(&opened)?;
+        let held_after = GitPrivateAllocation::from_file(parent)?;
+        if !actual.is_directory()
+            || !held_after.is_directory()
+            || !expected.same_identity(&actual)
+            || !expected.same_identity(&held_after)
+        {
+            return Err("original cleanup parent identity changed".into());
+        }
+        probe.check().map_err(|error| error.to_string())?;
+        Ok(Self {
+            parent: opened,
             root: None,
             label,
             identity: None,
@@ -38,7 +101,7 @@ impl WindowsGitCleanup {
             delete_requested: false,
             post_mark_verified: false,
             observation: None,
-        }
+        })
     }
 
     /// 参数：capacity为原owner登记账本；返回：原根确认删除后成功，否则保留全部恢复状态。

@@ -130,13 +130,7 @@ impl GitPrivateDirectory {
             let name = format!("diskgraph-git-{}", uuid::Uuid::new_v4());
             let path = parent.join(&name);
             // 在原子创建调用之前安装外owner；有效返回句柄在查询/错误投影前进入原槽。
-            let cleanup = WindowsGitCleanup::new(
-                lease
-                    .leaf_file()
-                    .try_clone()
-                    .map_err(|error| error.to_string())?,
-                path.clone(),
-            );
+            let cleanup = WindowsGitCleanup::new(lease.leaf_file(), path.clone(), probe)?;
             let mut directory = Self {
                 path: path.clone(),
                 binding: binding.take(),
