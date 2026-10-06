@@ -37,7 +37,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 478)
+            self.assertEqual(len(manifest["sources"]), 480)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
@@ -88,7 +88,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 qualifier.check_runner_cases(invalid)
 
-    def test_poll_cleanup_inventory_requires_all_three_real_owner_cases(self):
+    def test_poll_cleanup_inventory_requires_all_five_real_owner_cases(self):
         valid = list(qualifier.POLL_CLEANUP_CASES)
         qualifier.check_poll_cleanup_cases(valid)
         for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.RESOURCE_CASES)):

@@ -29,6 +29,15 @@ def node_facts(value, files, expected_bytes):
     return node
 
 
+def rpc_result(value, request_id):
+    """核对真实请求关联及协议成功；Python bool 不能冒充整数请求 ID。"""
+    if (not isinstance(value, dict) or value.get("jsonrpc") != "2.0"
+            or type(value.get("id")) is not int or value["id"] != request_id
+            or "error" in value or "result" not in value):
+        raise RuntimeError("MCP returned a mismatched or failed protocol response")
+    return value["result"]
+
+
 def run(checkout, output, environment, cli, mcp):
     """同一绝对期限完成真实扫描、跨进程查询与后台任务，不直接访问 store。"""
     if os.getuid() == 0:
@@ -103,9 +112,7 @@ def run(checkout, output, environment, cli, mcp):
                 line, _, tail = buffer.partition(b"\n")
                 buffer[:] = tail
                 value = json.loads(line)
-                if value.get("jsonrpc") != "2.0" or value.get("id") != request_id or "error" in value or "result" not in value:
-                    raise RuntimeError("MCP returned a mismatched or failed protocol response")
-                return value["result"]
+                return rpc_result(value, request_id)
 
             def tool(name, arguments):
                 result = rpc("tools/call", {"name": name, "arguments": arguments})

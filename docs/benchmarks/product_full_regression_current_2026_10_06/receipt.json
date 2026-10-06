@@ -1,0 +1,23 @@
+{
+  "source_commit": "337c70738c3cd4a1e7bb7bcd18a8622bedfd85f9",
+  "worktree": "uncommitted integration; not release candidate",
+  "platform": "local macOS without installed native worker",
+  "production_ready": false,
+  "results": {
+    "cli": {
+      "passed": 56,
+      "failed": 11,
+      "ignored": 0,
+      "raw_sha256": "e7c74aca7dd32746c21847b051f7e2aea71fe34ff808978990f4f43da42c532a",
+      "unsupported_occurrences": 11
+    },
+    "mcp": {
+      "passed": 119,
+      "failed": 34,
+      "ignored": 0,
+      "raw_sha256": "e94671fb9eef3af818bdb58f150041733491d2762acf9eeca1874b7710564c4d",
+      "unsupported_occurrences": 31
+    }
+  },
+  "note": "Original tests retained. Failure before native scan does not validate query assertions."
+}

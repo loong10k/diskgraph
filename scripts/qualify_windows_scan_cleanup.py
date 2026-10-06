@@ -114,6 +114,8 @@ POLL_CLEANUP_CASES = tuple("native_child::windows::windows_poll_cleanup_tests::"
     "expired_read_cleanup_keeps_pending_storage_until_other_thread_completes",
     "expired_write_cleanup_keeps_pending_storage_until_other_thread_completes",
     "expired_child_cleanup_keeps_original_handles_until_native_complete",
+    "poll_cleanup_wait_failure_retains_original_owner_until_actual_retry",
+    "poll_cleanup_query_failure_retains_original_owner_until_actual_retry",
 ))
 
 

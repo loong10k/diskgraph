@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "finite-cleanup-api-missing-development-compile-red-not-behavior-proof",
+  "phase": "finite-cleanup-library-implemented-awaiting-native-acceptance",
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "e7dd85d127589d444735c87bd9cda11ded188a60667bbf7a3fd3171b90505de5",
+  "archive_sha256": "17199595a50ba8760413437a6c08c1a65f81041d0c7e70953864f1077b5c22e7",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -266,14 +266,16 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
-    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "eebdb3f1666d191eba36ad1b764448c9c6ca2bd9f5c2e7030579f3361986eb70",
-    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "e75c0f56578d32bdd7e7c0bda018b0ca4505e6b6bfe2610c8733e588c40e75e5",
-    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "874d48b450781270741043f80c8cf9fbb377952cebf3bc435b7b5a70bb5fd501",
+    "crates/diskgraph-engine/src/native_child/windows/cleanup_progress.rs": "2a313acc7acbd8c342038f4a0aaeb9c6a34e523f06a5e4a93d9476b27b185309",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "b83a4a3173acd19a29954408db09a3bc54241b1dda0009321e95a1d4d8ba4078",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "753dd8a72cdd870ec0ca7009c684772c89035ae01e63ed5aca58342080bbccce",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "6e6119c10ae528b234315f1f2e0695494a5624410c01e2b76115df0fb815c501",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "0dafd2d88bf6531c189133cc3af078e8b7d97b01292767ae1f9f87e3790f7203",
     "crates/diskgraph-engine/src/native_child/windows/pipe_security.rs": "d21c5272a147438e86575ca7a157a90056b2cd05a21fcb85e0a62802ccfc32d7",
     "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs": "63bb6b4dc76600b94fd07263c1d0b74353c2ab651c860bc4b06e873e3c090085",
     "crates/diskgraph-engine/src/native_child/windows/windows_birth_test_hook.rs": "4381ea30c9b7afa13982803f8ad1b3a7412b5e5ce71421ac9298862b17ab4776",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "1ff8a57463f7ef91b1543b3319e64d1699ee9f195977fd2bf04c1423aa0bdc45",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "9ece45ccc830166e4c778af97bf4291bf7d6309f9eadbf457e12cc7b188ff3c1",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs": "561348643b45b6cfd998922c01806e273f819512f01c1027bd718bde2502248d",
     "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "ff65622c0c1a56647beedcc8c2e18b24443e1a3001292972a5adf198f6a94709",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_hooks.rs": "068bf889e6172590237b7ec1aa8a5e7571a872df96ecfbf9fa5da42ed83973b8",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs": "cd2d0dd8881643bce9c57d12d7eb779af097dd2b2cdc058c307746e892bb90c7",
@@ -291,7 +293,7 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_tests.rs": "9556daf3545852712ec6b4a6fc89ae10bf86e6a15184026678517cb3221a7eb2",
     "crates/diskgraph-engine/src/native_child/windows/windows_normal_process_witness.rs": "5f5e94b0d4fc1126afd8879c55e0d07da3ef2fae65d1f107079739cdc134dc36",
     "crates/diskgraph-engine/src/native_child/windows/windows_overlapped_operation.rs": "d7e6dd175a4f39c8c04f487d8393265dd528b159c64d1f7743bb47e692e8367b",
-    "crates/diskgraph-engine/src/native_child/windows/windows_poll_cleanup_tests.rs": "2e3be9cb830bad160190763cccf33220c9d33461a04d0b20f3fb5c6f67ec2a62",
+    "crates/diskgraph-engine/src/native_child/windows/windows_poll_cleanup_tests.rs": "219ff569f13393d02704c9130553c47f5a4a06e53305e7e8734aca145e73334e",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_directory_recovery_tests.rs": "c64ff83acd8387099dc1f72c33e5b3a5ada66838d6cbcf947bf3ac91a19fe3be",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "e8face37004f06b331310719e40e82d28b073149019be8da3c1e217886e97e10",
     "crates/diskgraph-engine/src/native_locator.rs": "73a7664581a6adc4bc4f1a2b4c7df356148dd25e23dba3753b71b7a06ae01c9d",
@@ -559,7 +561,16 @@
   "poll_cleanup_cases": [
     "native_child::windows::windows_poll_cleanup_tests::expired_read_cleanup_keeps_pending_storage_until_other_thread_completes",
     "native_child::windows::windows_poll_cleanup_tests::expired_write_cleanup_keeps_pending_storage_until_other_thread_completes",
-    "native_child::windows::windows_poll_cleanup_tests::expired_child_cleanup_keeps_original_handles_until_native_complete"
+    "native_child::windows::windows_poll_cleanup_tests::expired_child_cleanup_keeps_original_handles_until_native_complete",
+    "native_child::windows::windows_poll_cleanup_tests::poll_cleanup_wait_failure_retains_original_owner_until_actual_retry",
+    "native_child::windows::windows_poll_cleanup_tests::poll_cleanup_query_failure_retains_original_owner_until_actual_retry"
   ],
-  "expected_development_failure": "Missing CleanupProgress/poll_cleanup API; compiler failure only, never native behavioral RED"
+  "finite_cleanup_product_enabled": false,
+  "remaining_limits": [
+    "old cleanup/Drop may block",
+    "prepared birth-before-CreateProcessW pending IO not covered",
+    "registry/pool deadline API not integrated",
+    "private directory deletion can block",
+    "trusted Windows image launcher and CLI/MCP native scanning not qualified"
+  ]
 }

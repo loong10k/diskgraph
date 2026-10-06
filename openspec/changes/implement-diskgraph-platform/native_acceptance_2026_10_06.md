@@ -100,3 +100,8 @@ The 471-source candidate integrates the independently reviewed catch-external Wi
 Windows 有限清理 API 开发 RED：CI 37393953210 / job 112045345026 / b4f5537 实际构建退出 101，7 个 E0432/E0599 均为 cleanup_progress/poll_cleanup 尚未实现。原始构建 stdout/stderr、失败 receipt 及摘要保存于 docs/benchmarks/windows_finite_cleanup_compile_red_2026_10_06；未执行原生行为测试，不计作行为验证。
 
 macOS 产品验收新增精确分配字节断言：与默认上游 st_blocks*512 叶子聚合语义一致，错误已知尺寸和空 error 对象负测先失败后通过；Python 守卫 27 项通过。原 71c4eab 的排队 CI 保留，其较弱尺寸断言不作为本次新断言通过证据。
+
+
+Windows 有限清理库层候选：冻结 480 份源码，archive SHA256 17199595a50ba8760413437a6c08c1a65f81041d0c7e70953864f1077b5c22e7；保留原30案并新增5案，等待实际 Windows 构建与行为结果。Pending/Err保留原owner，查询采用 Wait0/GetOverlappedResult(FALSE) 和同一绝对期限。旧cleanup/Drop、出生前pending、Registry有限恢复、目录删除和产品退出仍未完成，不启用产品路径、不勾平台父项。
+
+当前本机产品全回归重复确认 CLI56/11/0、MCP119/34/0，原始日志保存于 docs/benchmarks/product_full_regression_current_2026_10_06，可信扫描宿主缺失导致的Unsupported未被跳过或改成查询成功；需要实际宿主接线后继续验收。JSON-RPC协议关联新增负测先失败后通过，Python守卫28项通过。

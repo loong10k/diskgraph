@@ -42,3 +42,15 @@ class MacosProductResponseTests(unittest.TestCase):
     def test_empty_error_object_is_not_success(self):
         with self.assertRaises(RuntimeError):
             flows.envelope({"api_version": 2, "ok": True, "data": {}, "error": {}})
+
+    def test_rpc_requires_version_exact_integer_id_and_success_result(self):
+        valid = {"jsonrpc": "2.0", "id": 1, "result": {}}
+        self.assertEqual(flows.rpc_result(valid, 1), {})
+        for value in ({"id": 1, "result": {}},
+                      {"jsonrpc": "1.0", "id": 1, "result": {}},
+                      {"jsonrpc": "2.0", "id": True, "result": {}},
+                      {"jsonrpc": "2.0", "id": 2, "result": {}},
+                      {**valid, "error": {}},
+                      {"jsonrpc": "2.0", "id": 1}):
+            with self.assertRaises(RuntimeError):
+                flows.rpc_result(value, 1)
