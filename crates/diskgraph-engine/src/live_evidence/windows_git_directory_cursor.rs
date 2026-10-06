@@ -25,6 +25,7 @@ pub(super) struct WindowsGitDirectoryCursor {
     cleanup_entry: Option<(OsString, [u8; 16], u32)>,
     cleanup_identity: Option<GitPrivateAllocation>,
     cleanup_delete_requested: bool,
+    cleanup_post_mark_verified: bool,
     cleanup_observation:
         Option<super::windows_git_removal_observation::WindowsGitRemovalObservation>,
 }
@@ -81,6 +82,11 @@ impl WindowsGitDirectoryCursor {
         &mut self,
         probe: &mut ProbeBudget,
     ) -> std::io::Result<bool> {
+        if self.cleanup_delete_requested && !self.cleanup_post_mark_verified {
+            return Err(std::io::Error::other(
+                "original deletion post-mark seal unconfirmed; owner retained",
+            ));
+        }
         let expected = self
             .cleanup_identity
             .as_ref()
@@ -101,6 +107,7 @@ impl WindowsGitDirectoryCursor {
         self.cleanup_identity = None;
         self.cleanup_entry = None;
         self.cleanup_delete_requested = false;
+        self.cleanup_post_mark_verified = false;
         self.cleanup_observation = None;
         Ok(true)
     }
@@ -182,6 +189,8 @@ impl WindowsGitDirectoryCursor {
         self.cleanup_delete_requested = true;
         #[cfg(test)]
         super::windows_cleanup_mark_hook::WindowsCleanupMarkHook::inspect_marked(file);
+        super::windows_git_deletion_seal::WindowsGitDeletionSeal::verify(file, expected)?;
+        self.cleanup_post_mark_verified = true;
         probe.check().map_err(std::io::Error::other)
     }
 
@@ -304,6 +313,7 @@ impl WindowsGitDirectoryCursor {
             cleanup_entry: None,
             cleanup_identity: None,
             cleanup_delete_requested: false,
+            cleanup_post_mark_verified: false,
             cleanup_observation: None,
         })
     }

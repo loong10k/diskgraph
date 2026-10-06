@@ -18,6 +18,13 @@ pub(super) struct GitPrivateAllocation {
 }
 
 impl GitPrivateAllocation {
+    /// 参数：volume为原句柄卷序号、id为完整128位身份；返回：卷和非零完整ID均匹配时true。
+    /// 供删除等待期间的直接原句柄核验，不借路径捕获、不截断或放宽占位/硬链接检查。
+    #[cfg(windows)]
+    pub(super) fn windows_matches_file_identity(&self, volume: u64, id: &[u8; 16]) -> bool {
+        self.volume == volume && self.windows_matches_file_id(id)
+    }
+
     /// 参数：id为原枚举的完整Windows身份；返回：非零128位ID逐字节相同时true。
     /// 不截断成64位、不解析路径；卷和类型由调用方的原父/子句柄另行核验。
     #[cfg(windows)]

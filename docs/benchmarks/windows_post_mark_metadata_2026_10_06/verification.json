@@ -1,0 +1,17 @@
+{
+  "run_id": 37432097800,
+  "source_commit": "98331073e65c80ac4e0ac2e70dd125dfc2589b1f",
+  "fixture_sha256": "bccf582a3ab93c3d5df2f976459621d89dc9609ae789ddf426b5ca686e9ec7e9",
+  "cases": 81,
+  "passed": 80,
+  "production_acceptance": false,
+  "normal": {
+    "links": 0,
+    "pending": true
+  },
+  "raced": {
+    "links": 1,
+    "pending": true
+  },
+  "decision": "Require zero remaining links plus pending state, full identity and type; retain effect latch when post-mark validation fails."
+}

@@ -776,3 +776,48 @@ fn postvalidation_hardlink_race_retains_current_child_and_original_capacity() {
     );
     println!("DG_HARDLINK_RACE_RETAINS_ORIGINAL_RESPONSIBILITY=1");
 }
+
+#[test]
+fn empty_directory_post_mark_seal_and_original_removal_are_verified() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    };
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let label = parent.join("original");
+    let path = label.join("owned_dir");
+    std::fs::create_dir(&path).unwrap();
+    let mut capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&label, 128 << 20, 0, &mut probe)
+            .unwrap();
+    let registered = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+        .custom_flags(
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_NO_RECALL | FILE_FLAG_OPEN_REPARSE_POINT,
+        )
+        .open(&path)
+        .unwrap();
+    capacity.observe(&path, &registered, &mut probe).unwrap();
+    drop(registered);
+    let (file, name, _) = cursor
+        .open_next_cleanup_child(&label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
+    assert_eq!(name, "owned_dir");
+    cursor
+        .mark_cleanup_child(&file, &label, &capacity, &mut probe)
+        .unwrap();
+    assert!(cursor.cleanup_child_delete_requested());
+    drop(file);
+    assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    assert_fixture_absent(&path);
+    assert!(
+        cursor
+            .open_next_cleanup_child(&label, &capacity, &mut probe)
+            .unwrap()
+            .is_none()
+    );
+    println!("DG_EMPTY_DIRECTORY_POST_MARK_SEAL_AND_REMOVE=1");
+}
