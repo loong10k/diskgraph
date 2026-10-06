@@ -185,6 +185,12 @@ impl WindowsChild {
             drop(thread);
             return Err(ChildSpawnError::checkpoint(error));
         }
+        // 原请求可在挂起出生后撤销；生命周期检查不替代恢复执行前的实时准入。
+        // 失败只释放线程句柄，原process/Job仍留catch外owner等待实际清理。
+        if let Err(error) = admission() {
+            drop(thread);
+            return Err(ChildSpawnError::checkpoint(error));
+        }
         let previous = unsafe { ResumeThread(thread.as_raw()) };
         let resume_failure = if previous == u32::MAX {
             Some(last("ResumeThread"))

@@ -1,0 +1,14 @@
+{
+  "red_commit": "932ba2ca71ab715a47fcab55163d00bc9690a871",
+  "run": 37463511689,
+  "job": 112268698185,
+  "platform": "Windows / Rust 1.97.0",
+  "target": "revoked_admission_after_birth_prevents_resume_and_retains_original_owner",
+  "red": "0 passed / 1 failed: original admission must be checked before ResumeThread",
+  "actual_native_birth": true,
+  "prior_material_tests": 8,
+  "prior_product_cleanup_tests": 4,
+  "fix": "call original admission after post-birth lifecycle checkpoint immediately before ResumeThread; retain original owner on error",
+  "green": "pending native CI",
+  "production_ready": false
+}
