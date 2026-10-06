@@ -184,6 +184,8 @@ mod git_private_directory_owner_tests;
 #[cfg(all(test, windows))]
 mod windows_git_private_root_tests;
 
+#[cfg(all(test, windows))]
+mod windows_cleanup_mark_hook;
 #[cfg(windows)]
 mod windows_git_child_open;
 #[cfg(windows)]

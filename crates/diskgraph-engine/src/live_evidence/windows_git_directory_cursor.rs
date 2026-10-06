@@ -165,6 +165,8 @@ impl WindowsGitDirectoryCursor {
             .check_before_delete(expected, probe)?;
         probe.check().map_err(std::io::Error::other)?;
         let disposition = FILE_DISPOSITION_INFO { DeleteFile: true };
+        #[cfg(test)]
+        super::windows_cleanup_mark_hook::WindowsCleanupMarkHook::run();
         let result = unsafe {
             SetFileInformationByHandle(
                 file.as_raw_handle(),

@@ -14,7 +14,7 @@ spec.loader.exec_module(qualifier)
 
 class WindowsCleanupQualifierTests(unittest.TestCase):
     def test_notification_experiments_require_original_case_and_exact_marker(self):
-        for case, marker in zip(qualifier.DIRECTORY_ENUMERATION_CASES[13:], (
+        for case, marker in zip(qualifier.DIRECTORY_ENUMERATION_CASES[13:15], (
             "DG_NOTIFY_ORIGINAL_ID_LAST_CLOSE=1",
             "DG_NOTIFY_RENAME_AND_FOREIGN_ID_REFUSED=1",
         )):
@@ -76,7 +76,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 503)
+            self.assertEqual(len(manifest["sources"]), 504)
             qualifier.check_directory_enumeration_cases(manifest["directory_enumeration_cases"])
             qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
             qualifier.check_prepared_job_cases(manifest["prepared_job_cases"])

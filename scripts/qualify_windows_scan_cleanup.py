@@ -28,7 +28,7 @@ DIRECTORY_ENUMERATION_CASES = tuple("live_evidence::windows_git_directory_cursor
 )) + tuple("native_child::windows::windows_directory_notification_tests::" + name for name in (
     "original_id_removal_notification_waits_for_last_external_close",
     "rename_and_foreign_same_name_removal_do_not_match_original_id",
-))
+)) + ("live_evidence::windows_git_directory_cursor_tests::postvalidation_hardlink_race_retains_current_child_and_original_capacity",)
 
 
 def native_case_passed(case, stdout):
@@ -46,6 +46,7 @@ def native_case_passed(case, stdout):
         DIRECTORY_ENUMERATION_CASES[12]: "DG_NOTIFY_MALFORMED_PAGE_AND_ID_LOSS_REFUSED=1",
         DIRECTORY_ENUMERATION_CASES[13]: "DG_NOTIFY_ORIGINAL_ID_LAST_CLOSE=1",
         DIRECTORY_ENUMERATION_CASES[14]: "DG_NOTIFY_RENAME_AND_FOREIGN_ID_REFUSED=1",
+        DIRECTORY_ENUMERATION_CASES[15]: "DG_HARDLINK_RACE_RETAINS_ORIGINAL_RESPONSIBILITY=1",
     }.get(case)
     if marker is not None:
         return any(line in (marker, f"test {case} ... {marker}") for line in stdout.splitlines())

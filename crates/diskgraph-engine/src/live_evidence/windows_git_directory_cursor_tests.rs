@@ -726,3 +726,53 @@ fn removal_notification_decoder_refuses_loss_and_partial_bad_pages() {
     assert!(matches_removal(&[], [1; 16], parent).is_err());
     println!("DG_NOTIFY_MALFORMED_PAGE_AND_ID_LOSS_REFUSED=1");
 }
+
+#[test]
+fn postvalidation_hardlink_race_retains_current_child_and_original_capacity() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let label = parent.join("original");
+    let path = label.join("owned");
+    let alias = parent.join("outside_alias");
+    std::fs::write(&path, b"original private data").unwrap();
+    let mut capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&label, 128 << 20, 0, &mut probe)
+            .unwrap();
+    let registered = std::fs::File::open(&path).unwrap();
+    capacity.observe(&path, &registered, &mut probe).unwrap();
+    drop(registered);
+    let (file, name, _) = cursor
+        .open_next_cleanup_child(&label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
+    assert_eq!(name, "owned");
+    let source = path.clone();
+    let target = alias.clone();
+    super::windows_cleanup_mark_hook::WindowsCleanupMarkHook::install(move || {
+        // 实际在最后核验之后建立另一链接，保留原File ID，不更换待删名称。
+        std::fs::hard_link(&source, &target).unwrap();
+        assert_eq!(std::fs::read(&target).unwrap(), b"original private data");
+        println!("DG_HARDLINK_CREATED_AFTER_FINAL_VALIDATION=1");
+    });
+    let result = cursor.mark_cleanup_child(&file, &label, &capacity, &mut probe);
+    assert!(
+        result.is_err(),
+        "a hardlink created after final validation must not qualify original deletion as complete"
+    );
+    assert!(
+        cursor.cleanup_child_delete_requested(),
+        "successful OS mutation must remain latched even when its seal fails"
+    );
+    assert!(cursor.next_entry(&mut probe).is_err());
+    drop(file);
+    assert_eq!(std::fs::read(&alias).unwrap(), b"original private data");
+    assert!(
+        cursor.confirm_cleanup_child_absent(&mut probe).is_err(),
+        "member REMOVE must not release an unverified original object"
+    );
+    assert!(
+        cursor
+            .open_next_cleanup_child(&label, &capacity, &mut probe)
+            .is_err()
+    );
+    println!("DG_HARDLINK_RACE_RETAINS_ORIGINAL_RESPONSIBILITY=1");
+}
