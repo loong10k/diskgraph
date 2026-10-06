@@ -4,12 +4,12 @@ use crate::scan_worker_child::ScanWorkerChild;
 use crate::scan_worker_owner_slot::ScanWorkerOwnerSlot;
 
 /// 锁外处置期间的唯一 owner；来源：原生 Rust PF-06，无 Java 对等对象。
-pub(super) struct WindowsRegistryOwner<'a> {
+pub(super) struct ScanWorkerDrainOwner<'a> {
     registry: &'a ScanWorkerRegistry,
     index: usize,
     owner: Option<ScanWorkerChild>,
 }
-impl<'a> WindowsRegistryOwner<'a> {
+impl<'a> ScanWorkerDrainOwner<'a> {
     /// 参数：registry/index 为已置 Draining 的原槽；返回：同一 child 的归还守卫。
     pub(super) fn new(
         registry: &'a ScanWorkerRegistry,
@@ -41,7 +41,7 @@ impl<'a> WindowsRegistryOwner<'a> {
         drop(owner);
     }
 }
-impl Drop for WindowsRegistryOwner<'_> {
+impl Drop for ScanWorkerDrainOwner<'_> {
     fn drop(&mut self) {
         if let Some(owner) = self.owner.take() {
             // 归还不能因 try_lock 失败丢 owner；短状态锁内无 OS 等待或用户回调。

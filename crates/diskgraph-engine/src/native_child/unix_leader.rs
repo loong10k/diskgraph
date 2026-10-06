@@ -46,6 +46,42 @@ impl UnixLeader {
         }
     }
 
+    /// 单次消费已退出的原 leader；不进入阻塞等待或 EINTR 重试循环。
+    /// 参数：无；返回：真实退出状态、活动/中断 None 或保留原 errno 的错误。
+    #[cfg(target_os = "macos")]
+    pub(super) fn poll_wait(&mut self) -> io::Result<Option<ExitStatus>> {
+        match self {
+            Self::Standard(child) => child.try_wait(),
+            Self::Native { pid, status } => {
+                if *pid <= 0 {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "native leader has no owned positive pid",
+                    ));
+                }
+                if let Some(completed) = status {
+                    return Ok(Some(*completed));
+                }
+                let mut native_status = 0;
+                // 原正 PID 仅由本 owner 消费；WNOHANG 不等待调度或子进程退场。
+                let waited = unsafe { libc::waitpid(*pid, &mut native_status, libc::WNOHANG) };
+                if waited == *pid {
+                    let completed = ExitStatus::from_raw(native_status);
+                    *status = Some(completed);
+                    return Ok(Some(completed));
+                }
+                if waited == 0 {
+                    return Ok(None);
+                }
+                let error = io::Error::last_os_error();
+                if error.kind() == io::ErrorKind::Interrupted {
+                    return Ok(None);
+                }
+                Err(error)
+            }
+        }
+    }
+
     /// 消费原 leader 的实际 wait，重复调用仅返回已缓存的退出状态。
     /// 参数：无；返回：实际退出状态或保留原 errno 的 I/O 错误；只等待本 owner，不 wait(-1)。
     pub(super) fn wait(&mut self) -> io::Result<ExitStatus> {

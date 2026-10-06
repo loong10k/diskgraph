@@ -1,0 +1,56 @@
+{
+  "source_base": "fec8a1ef68e08f7a16385a5c4b9002836f39af0e",
+  "sources": {
+    "crates/diskgraph-engine/src/macos_registry_drain.rs": "71b6b8798ec97ba99f8660ddff4577e7836fc9b568dd65773b0cb3efdc515f18",
+    "crates/diskgraph-engine/src/native_child/macos_registry_deadline_tests.rs": "8bc90e897964e5f406cd48553a5df979b6f105d6bcd678f1845f39853bc70902",
+    "crates/diskgraph-engine/src/native_child/mod.rs": "7a87e071c0e2017f92defc6cc00b1c1c31b9cbdc1c92da7162149340671cafdb",
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "3b3052ff500cb13fff171867e567e15552bbc80b821b52214a9ca2b29eea3e8c",
+    "crates/diskgraph-engine/src/native_child/unix_child_cleanup_poll.rs": "503f97d4d4641bd2c801a6c4b91d789f3139d4d3bb91eaeb1d5ac0178c542f91",
+    "crates/diskgraph-engine/src/native_child/unix_child_group.rs": "1f550587d355a71d73a8b501d7f906328dcf546c0f413ad15ced582297111535",
+    "crates/diskgraph-engine/src/native_child/unix_leader.rs": "110b852109361c190c7894ffdb952d0362aef6e889995b05fc25cca8a157bcd1",
+    "crates/diskgraph-engine/src/native_child/unix_leader_tests.rs": "28eed481bb3f27ed923159169e53c0dcf0af20a564450e4d95d4a92abc606d0d",
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "891e938ec141e4a7a357eda6957e5d566e2e2789c8bc76fac0446b953d9a013e",
+    "crates/diskgraph-engine/src/registry_unwind_tests.rs": "1117cdacdc4ea208c3c64e8fb241f249c223725da3e2161018a0038c3415b946",
+    "crates/diskgraph-engine/src/scan_worker_drain_owner.rs": "8f0d917d830bf83deabc8e1db002dc3f75acd2a0532d32e9729522ea65317951",
+    "crates/diskgraph-engine/src/scan_worker_recovery.rs": "05f86dd4e235e143fff7fe1b5d8e566b2436d6451af56ee9b3c1f2649bef9133",
+    "crates/diskgraph-engine/src/scan_worker_registry.rs": "c0938e9fd54e4a770ced56801781be5140e8b4cf6e8a26c20ba57a6144c87e0a",
+    "crates/diskgraph-engine/src/windows_registry_drain.rs": "0dce45ad820470be3abccb5bbc90672ffa9631c043a0f7baa44ba425414d7809"
+  },
+  "native_platform": "local macOS ordinary UID",
+  "red": "new deadline entry temporarily routed to existing legacy drain; actual expired-deadline regression 0 passed / 1 failed; not a historical public API claim",
+  "latest_parallel_native_child": {
+    "passed": 44,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_fixture_executed_by_real_parent": true
+  },
+  "registry_unwind_and_contention": {
+    "passed": 3,
+    "failed": 0
+  },
+  "driver_runtime": {
+    "passed": 7,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "driver_checks": {
+    "windows": 28,
+    "macos": 14
+  },
+  "earlier_parallel_normal_exit_failure_retained": true,
+  "strict_workspace_passed": false,
+  "clippy_all_only_passed": true,
+  "rust_dead_code_warnings_remain": 21,
+  "production_acceptance": false,
+  "remaining": [
+    "Default macOS installed scan qualification",
+    "Linux deadline-aware retained pidfd recovery",
+    "CLI/MCP finite shutdown and original-owner handoff",
+    "Windows shared drain guard native requalification",
+    "Parallel normal-view transient query failure investigation",
+    "Remaining production gates"
+  ]
+}

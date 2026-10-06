@@ -10,6 +10,9 @@ use std::io::{self, Read};
 use std::os::fd::{AsRawFd, OwnedFd};
 use std::process::Child;
 
+#[cfg(target_os = "macos")]
+#[path = "unix_child_cleanup_poll.rs"]
+mod unix_child_cleanup_poll;
 #[path = "unix_child_spawn.rs"]
 mod unix_child_spawn;
 

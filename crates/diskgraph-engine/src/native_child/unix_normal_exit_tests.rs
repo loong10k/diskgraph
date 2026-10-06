@@ -302,3 +302,53 @@ fn old_configured_command_has_no_qualified_normal_exit_permission() {
     child.cleanup().unwrap();
     fixture::reaped(pid);
 }
+
+#[cfg(target_os = "macos")]
+#[test]
+fn deadline_drain_group_failure_and_late_reap_keep_original_slot_on_every_retry() {
+    use std::time::{Duration, Instant};
+    for late_reap in [false, true] {
+        let directory = tempfile::tempdir().unwrap();
+        let mut child = fixture::spawn("exit", directory.path());
+        let pid = fixture::qualified_identity(directory.path());
+        child.request_control_close().unwrap();
+        fixture::drain(&mut child, true);
+        fixture::retained(pid);
+        if late_reap {
+            REAP_BEFORE_CLEANUP_WAIT.set(true);
+            let error = child
+                .poll_cleanup(Instant::now() + Duration::from_secs(10))
+                .unwrap_err();
+            assert!(
+                error
+                    .native_io_error()
+                    .is_some_and(|error| error.raw_os_error() == Some(libc::ECHILD))
+            );
+        } else {
+            GROUP_TERMINATION_FAILURE.set(true);
+        }
+        let registry = crate::scan_worker_registry::ScanWorkerRegistry::new(1).unwrap();
+        let reservation = registry.reserve().unwrap();
+        reservation.retain(child);
+        drop(reservation);
+        for _ in 0..3 {
+            let result = registry.drain_until(Instant::now() + Duration::from_secs(10));
+            assert!(result.is_err());
+            assert_eq!(registry.occupied().unwrap(), 1);
+            assert!(registry.reserve().is_err());
+            if !late_reap {
+                fixture::retained(pid);
+            }
+        }
+        GROUP_TERMINATION_FAILURE.set(false);
+        if !late_reap {
+            assert!(
+                registry
+                    .drain_until(Instant::now() + Duration::from_secs(10))
+                    .unwrap()
+            );
+            assert_eq!(registry.occupied().unwrap(), 0);
+        }
+        fixture::reaped(pid);
+    }
+}

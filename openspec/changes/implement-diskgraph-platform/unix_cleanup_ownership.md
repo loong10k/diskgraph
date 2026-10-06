@@ -21,3 +21,9 @@
 组终止报错时不得继续 wait 并消费原 leader。即使 leader 已退出，它的未消费等待权仍须保留到组终止确认；registry 保留原 owner 和容量。测试使用真实已退出 child，线程局部持续注入 EPERM，原代码在 waitid WNOWAIT 身份断言实际 RED。修复后连续三次 drain 保留同一 leader 与槽位，解除故障后实际回收并允许再次 reservation。该故障注入验证错误状态机，不代替真实内核权限拒绝验收。macOS 原生41/0/1、结构6/0通过。
 
 macOS 冻结候选599源只覆盖 unix_child.rs、unix_child_group.rs 和 unix_normal_exit_tests.rs，其余字节不变。门禁必须实际执行41项并包含外部等待竞态、组失败保留及原非正PID隔离证明；旧40项不能通过。挂载13/0，本项等待原生CI，不完成15.13父项。日志见 docs/benchmarks/unix_group_failure_retention_2026_10_06。
+
+## macOS 单次期限内恢复合同
+
+ScanWorkerRecovery::drain_until 接收宿主绝对期限；到期或锁竞争返回 false，不取 owner、不发送信号、不消费 wait。锁外单次处置 fresh 私有 session：实际原组终止后，只有完整原组退出观察和原 leader 非阻塞 wait 均完成才能返还容量。活动、到期、原生权限/等待错误和 panic 都将原 owner 放回原槽；外部 ECHILD 不允许重试旧数值组。不得 sleep/retry-loop 或调用阻塞 waitpid 作为这条路径的实现。OS 单调用和归还责任所需短状态锁没有硬墙钟保证。原 drain 兼容接口仍在，有限前端退出不据此宣称完成。
+
+期限入口暂接既有legacy drain时真实过期请求RED为0/1；修复后目标通过。原组失败/末段外部wait/连续槽容量保留、原生与标准WNOHANG缓存、panic和锁竞争回槽均通过。最新并行native_child44/0/1、真实父驱动7/0、结构6/0；原并行正常组查询不完整失败也保留，不因精确和串行复查通过而删除。原日志及源码摘要见 docs/benchmarks/macos_deadline_recovery_2026_10_06。Linux期限恢复、前端有限退出、默认安装扫描和全平台严格检查仍未完成。

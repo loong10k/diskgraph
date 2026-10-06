@@ -57,14 +57,14 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 614)
+        self.assertEqual(len(manifest["sources"]), 620)
         for module, object_name in (("http_limits", "HttpLimits"),
                                     ("http_response", "HttpResponse"),
                                     ("http_server_config", "ServerConfig")):
             name = f"crates/diskgraph-mcp/src/{module}.rs"
             self.assertIn(name, manifest["sources"])
             self.assertIn(f"pub struct {object_name}", (self.checkout / name).read_text(encoding="utf-8"))
-        self.assertEqual(manifest["native_child_parallel_tests_required"], 41)
+        self.assertEqual(manifest["native_child_parallel_tests_required"], 44)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
         self.assertEqual(manifest["fixture_features"], ["macos_native_scan_candidate"])
@@ -171,15 +171,15 @@ if __name__ == "__main__":
 class NativeBirthParallelGuardTests(unittest.TestCase):
     def test_requires_actual_named_cases_and_complete_parallel_subset(self):
         output = "\n".join("test " + case + " ... ok" for case in qualifier.NATIVE_BIRTH_REGRESSION_CASES)
-        output += "\ntest native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression\nDG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED pid=0,-1,-42\ntest result: ok. 41 passed; 0 failed; 1 ignored; 0 measured; 522 filtered out;"
+        output += "\ntest native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression\nDG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED pid=0,-1,-42\ntest result: ok. 44 passed; 0 failed; 1 ignored; 0 measured; 522 filtered out;"
         qualifier.check_native_birth_regression(output)
-        for invalid in ("", output.replace("41 passed", "0 passed"),
+        for invalid in ("", output.replace("44 passed", "0 passed"),
                         output.replace("1 ignored", "2 ignored"),
                         output.replace("0 failed", "1 failed"),
                         output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[0], "fake_case"),
                         output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[-1], "fake_wait_case"),
                         output.replace("DG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED", "missing_fixture"),
-                        output.replace("41 passed", "40 passed")):
+                        output.replace("44 passed", "43 passed")):
             with self.assertRaises(RuntimeError):
                 qualifier.check_native_birth_regression(invalid)
 

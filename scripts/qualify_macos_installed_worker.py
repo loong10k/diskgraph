@@ -51,14 +51,17 @@ NATIVE_BIRTH_REGRESSION_CASES = (
     "native_child::unix_leader_tests::nonpositive_native_pid_cannot_reap_an_unrelated_child",
     "native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup",
     "native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry",
+    "native_child::macos_registry_deadline_tests::expired_recovery_deadline_retains_live_original_and_capacity_without_signaling",
+    "native_child::unix_normal_exit_tests::deadline_drain_group_failure_and_late_reap_keep_original_slot_on_every_retry",
+    "native_child::unix_leader_tests::native_and_standard_poll_wait_keep_live_owner_and_cache_only_actual_reaping",
 )
 
 
 def check_native_birth_regression(stdout):
-    """实际并行执行41项；唯一ignored是由真实回归显式调用的隔离夹具。"""
+    """实际并行执行44项；唯一ignored是由真实回归显式调用的隔离夹具。"""
     summaries = re.findall(r"^test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out;", stdout, re.M)
-    if len(summaries) != 1 or tuple(map(int, summaries[0][:4])) != (41, 0, 1, 0):
-        raise RuntimeError("parallel native child regression did not execute all 41 cases")
+    if len(summaries) != 1 or tuple(map(int, summaries[0][:4])) != (44, 0, 1, 0):
+        raise RuntimeError("parallel native child regression did not execute all 44 cases")
     fixture = "test native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression"
     if fixture not in stdout or "DG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED pid=0,-1,-42" not in stdout:
         raise RuntimeError("isolated nonpositive wait fixture was not actually verified")
@@ -139,7 +142,7 @@ def permitted(name, allow_products=False):
         or ((name.startswith("crates/diskgraph-cli/src/") or name.startswith("crates/diskgraph-mcp/src/")) and path.suffix == ".rs")
     )
     return (not path.is_absolute() and ".." not in path.parts and name == path.as_posix()
-            and (product or name in {"Cargo.lock", "crates/diskgraph-engine/Cargo.toml", "crates/diskgraph-engine/build.rs", "crates/diskgraph-scan-worker/Cargo.toml"}
+            and (product or name in {"Cargo.lock", "crates/diskgraph-engine/Cargo.toml", "crates/diskgraph-engine/build.rs", "crates/diskgraph-scan-worker/Cargo.toml", "crates/diskgraph-engine/tests/macos_installer_api.rs"}
                  or (name.startswith("crates/diskgraph-engine/src/") and path.suffix in {".rs", ".c", ".h"})
                  or (name.startswith("crates/diskgraph-engine/tests/fixtures/") and path.suffix in {".rs", ".c", ".h"})
                  or (name.startswith("crates/diskgraph-scan-worker/src/") and path.suffix == ".rs")))
@@ -262,12 +265,12 @@ def main():
             if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text(encoding="utf-8"):
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
-        if manifest.get("native_child_parallel_tests_required") != 41:
+        if manifest.get("native_child_parallel_tests_required") != 44:
             raise ValueError("candidate parallel birth regression inventory differs")
         invoke([str(binary), "native_child::", "--nocapture"],
                checkout, output, "native-child-parallel-regression", env)
         check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text(encoding="utf-8"))
-        receipt["native_child_parallel_regression_tests_passed"] = 41
+        receipt["native_child_parallel_regression_tests_passed"] = 44
         if manifest.get("product_flows") != ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"]:
             raise ValueError("actual product flow inventory differs")
         invoke(["cargo", "build", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "--features", "diskgraph-engine/macos_native_scan_candidate"],

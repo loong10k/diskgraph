@@ -1,8 +1,7 @@
-//! Windows 同一绝对期限的单次恢复扫描，原 cleanup/wait 始终在状态锁外。
+//! macOS 同一绝对期限的单次恢复扫描，原 cleanup/wait 始终在状态锁外。
 use super::ScanWorkerRegistry;
 use super::scan_worker_drain_owner::ScanWorkerDrainOwner;
 use crate::EngineError;
-use crate::native_child::CleanupProgress;
 use crate::scan_worker_error_projection::ScanWorkerErrorProjection;
 use crate::scan_worker_owner_slot::ScanWorkerOwnerSlot;
 use std::sync::TryLockError;
@@ -52,9 +51,11 @@ impl ScanWorkerRegistry {
             };
             if let Some(owner) = owner {
                 let mut pending = ScanWorkerDrainOwner::new(self, index, owner);
+                #[cfg(test)]
+                super::registry_unwind_tests::cleanup_checkpoint();
                 match pending.owner().poll_cleanup(deadline) {
-                    Ok(CleanupProgress::Complete) => pending.complete(),
-                    Ok(CleanupProgress::Pending) => drop(pending),
+                    Ok(true) => pending.complete(),
+                    Ok(false) => drop(pending),
                     Err(error) => {
                         // 先归还唯一 owner，再投影错误；投影失败也不影响原责任。
                         drop(pending);

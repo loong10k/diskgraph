@@ -135,3 +135,60 @@ fn nonpositive_native_pid_isolated_fixture() {
         );
     }
 }
+
+#[cfg(target_os = "macos")]
+#[test]
+fn native_and_standard_poll_wait_keep_live_owner_and_cache_only_actual_reaping() {
+    use std::time::{Duration, Instant};
+    for native in [false, true] {
+        let mut leader = if native {
+            let mut pid = 0;
+            let arguments = [c"sleep".as_ptr(), c"2".as_ptr(), std::ptr::null()];
+            let environment = [std::ptr::null::<libc::c_char>()];
+            assert_eq!(
+                unsafe {
+                    libc::posix_spawn(
+                        &mut pid,
+                        c"/bin/sleep".as_ptr(),
+                        std::ptr::null(),
+                        std::ptr::null(),
+                        arguments.as_ptr().cast(),
+                        environment.as_ptr().cast(),
+                    )
+                },
+                0
+            );
+            unsafe { UnixLeader::from_native(pid) }
+        } else {
+            UnixLeader::from_standard(Command::new("/bin/sleep").arg("2").spawn().unwrap())
+        };
+        let pid = leader.id();
+        let started = Instant::now();
+        let live = leader.poll_wait().unwrap();
+        let elapsed = started.elapsed();
+        // 在断言前收场；若回归错误地已消费 wait，则不再向旧数字 PID 发信号。
+        if live.is_none() {
+            assert_eq!(unsafe { libc::kill(pid as i32, libc::SIGKILL) }, 0);
+        }
+        let deadline = Instant::now() + Duration::from_secs(10);
+        let actual = loop {
+            if let Some(status) = leader.poll_wait().unwrap() {
+                break status;
+            }
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        };
+        assert!(live.is_none());
+        assert!(elapsed < Duration::from_millis(500));
+        assert_eq!(leader.poll_wait().unwrap(), Some(actual));
+        let mut status = 0;
+        assert_eq!(
+            unsafe { libc::waitpid(pid as i32, &mut status, libc::WNOHANG) },
+            -1
+        );
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::ECHILD)
+        );
+    }
+}

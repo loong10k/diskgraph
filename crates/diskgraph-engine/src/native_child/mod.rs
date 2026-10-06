@@ -144,3 +144,6 @@ pub(crate) use windows::CleanupProgress;
 
 #[cfg(windows)]
 pub(crate) use windows::WindowsDirectoryNotificationIo;
+
+#[cfg(all(test, target_os = "macos"))]
+mod macos_registry_deadline_tests;

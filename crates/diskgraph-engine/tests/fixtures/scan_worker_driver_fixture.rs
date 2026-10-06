@@ -85,7 +85,6 @@ fn run() -> io::Result<()> {
         writer.write_payload(&failure)?;
         writer.flush()?;
         drop(writer);
-        drop(reader);
         expect_eof(&mut stdin)?;
         std::fs::write(directory.join("control-eof"), b"true")?;
         std::process::exit(2);
@@ -128,7 +127,6 @@ fn run() -> io::Result<()> {
     writer.write_payload(&ExecutionFrame::<String, String>::End { nodes: count })?;
     writer.flush()?;
     drop(writer);
-    drop(reader);
     expect_eof(&mut stdin)?;
     std::fs::write(directory.join("control-eof"), b"true")?;
     close_output()?;

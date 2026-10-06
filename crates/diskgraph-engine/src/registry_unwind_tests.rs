@@ -18,6 +18,12 @@ pub(super) fn cleanup_checkpoint() {
 
 #[test]
 fn cleanup_unwind_returns_live_original_owner_to_same_slot() {
+    for bounded in [false, true] {
+        verify_cleanup_unwind_returns_original(bounded);
+    }
+}
+
+fn verify_cleanup_unwind_returns_original(bounded: bool) {
     let registry = ScanWorkerRegistry::new(1).unwrap();
     let reservation = registry.reserve().unwrap();
     let mut command = Command::new("/bin/sleep");
@@ -26,7 +32,14 @@ fn cleanup_unwind_returns_live_original_owner_to_same_slot() {
     reservation.retain(child);
     drop(reservation);
     PANIC_BEFORE_CLEANUP.set(true);
-    let payload = catch_unwind(AssertUnwindSafe(|| registry.drain())).unwrap_err();
+    let payload = catch_unwind(AssertUnwindSafe(|| {
+        if bounded {
+            registry.drain_until(std::time::Instant::now() + std::time::Duration::from_secs(10))
+        } else {
+            registry.drain()
+        }
+    }))
+    .unwrap_err();
     let retained_and_live = {
         let mut slots = registry.slots.lock().unwrap();
         match &mut slots[0] {
@@ -82,4 +95,35 @@ fn cleanup_error_keeps_original_capacity_until_actual_retry() {
     assert!(denied && live);
     assert!(recovered);
     assert_eq!(registry.occupied().unwrap(), 0);
+}
+
+#[test]
+fn deadline_drain_refuses_contended_state_lock_without_consuming_original_owner() {
+    use std::time::{Duration, Instant};
+    let registry = ScanWorkerRegistry::new(1).unwrap();
+    let reservation = registry.reserve().unwrap();
+    let mut command = Command::new("/bin/sleep");
+    command.arg("60");
+    reservation.retain(UnixChild::spawn_checked(&mut command, || Ok::<(), ()>(())).unwrap());
+    drop(reservation);
+    let locked = std::sync::Arc::clone(&registry);
+    let (ready, received) = std::sync::mpsc::channel();
+    let holder = std::thread::spawn(move || {
+        let _guard = locked.slots.lock().unwrap();
+        ready.send(()).unwrap();
+        // 固定释放保证故障实现即使阻塞也有界收场，不依赖主调用来释放自身等待的锁。
+        std::thread::sleep(Duration::from_millis(600));
+    });
+    received.recv().unwrap();
+    let started = Instant::now();
+    let result = registry.drain_until(started + Duration::from_secs(10));
+    let elapsed = started.elapsed();
+    holder.join().unwrap();
+    let retained = registry.occupied().unwrap();
+    let refused = registry.reserve().is_err();
+    let completed = registry.drain().unwrap();
+    assert!(!result.unwrap());
+    assert!(elapsed < Duration::from_millis(400));
+    assert_eq!(retained, 1);
+    assert!(refused && completed);
 }

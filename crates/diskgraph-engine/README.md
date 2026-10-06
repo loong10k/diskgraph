@@ -235,3 +235,21 @@ privileges or accept request-selected installation paths.
 这些入口供可信安装程序调用，CLI/MCP 不暴露安装工具。普通用户、原检查点
 错误和过期期限的外部调用回归已经通过；本机未执行 root 安装。实际发行、
 签名启动、升级恢复及默认 Engine 扫描仍需原生 CI，不能据此声明生产就绪。
+
+## Deadline-aware recovery / 期限内恢复
+
+`ScanWorkerRecovery::drain_until(deadline)` is available on Windows and macOS.
+It performs one recovery pass and retains the original owner and capacity when
+the deadline expires, the state lock is contended, or the kernel responsibility
+is pending. macOS requires the original private-session qualification, observes
+the complete retained group, and uses nonblocking `WNOHANG` for actual reaping.
+Errors and panics return the same owner to its original slot.
+
+`false` or an error requires the host to keep its original recovery handle.
+This API does not make dropping that handle safe, provide a hard deadline for
+one native call, or complete finite CLI/MCP shutdown. Linux's retained-pidfd
+deadline path and frontend ownership handoff remain pending. The legacy
+`drain()` entry remains compatible and can block.
+
+本机真实 macOS 回归覆盖过期、锁竞争、组失败、外部回收及展开时的原责任
+保留；跨平台门禁仍需同源码 CI，不据此声明全平台生产就绪。
