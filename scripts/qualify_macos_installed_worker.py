@@ -42,6 +42,59 @@ def check_cli_regression(stdout):
             raise RuntimeError("required original CLI scan regression missing: " + case)
 
 
+MCP_SCAN_REGRESSION_CASES = (
+    'history_budget_tests::encoded_socket_history_rechecks_both_scope_sides',
+    'history_budget_tests::encoded_socket_history_rechecks_both_grant_sides',
+    'history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides',
+    'children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility',
+    'children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy',
+    'history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership',
+    'children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation',
+    'history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides',
+    'history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket',
+    'history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline',
+    'history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline',
+    'http::tests::a_client_side_path_is_never_resolved_against_the_server',
+    'http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call',
+    'http::tests::a_disconnected_client_job_completes_and_stays_queryable',
+    'http::tests::mcp_search_cursors_expire_with_policy_updates',
+    'http::tests::scope_ids_from_another_server_are_not_found',
+    'relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope',
+    'relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline',
+    'tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied',
+    'relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation',
+    'tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision',
+    'tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision',
+    'tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap',
+    'tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments',
+    'tests::query_tests::explicit_revision_and_node_id_select_historical_data',
+    'tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges',
+    'tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly',
+    'tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions',
+    'tests::relation_tests::explain_checks_entity_bytes_before_decoding',
+    'tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project',
+    'tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations',
+    'tests::relation_tests::relation_queries_bound_decoding_and_report_continuation',
+    'http::tests::dropping_every_connection_is_not_a_cancellation',
+    'http::tests::legacy_disconnect_leaves_the_job_queryable',
+    'http_lifecycle_tests::stop_joins_idle_accept_and_releases_original_listener',
+    'http_lifecycle_tests::stop_closes_accepted_incomplete_request_before_long_read_timeout',
+    'http_lifecycle_tests::stop_joins_modern_sse_with_client_still_connected',
+    'http_lifecycle_tests::stop_joins_legacy_sse_with_client_still_connected',
+    'http_lifecycle_tests::foreground_panic_raii_joins_original_server_before_directory_cleanup',
+    'tests::job_runner_fixture::tests::idle_runner_is_actually_joined_before_source_owner_returns',
+)
+
+
+def check_mcp_regression(stdout):
+    """要求完整MCP回归与原34失败案、真实socket生命周期案实际运行。"""
+    if "test result: ok. 159 passed; 0 failed; 0 ignored;" not in stdout:
+        raise RuntimeError("full MCP regression did not execute all 159 required tests")
+    for case in MCP_SCAN_REGRESSION_CASES:
+        if "test " + case + " ... ok" not in stdout:
+            raise RuntimeError("required MCP regression missing: " + case)
+
+
 def permitted(name, allow_products=False):
     path = Path(name)
     product = allow_products and (
@@ -200,6 +253,26 @@ def main():
         if digest(cli_fixture) != receipt["cli_regression_binary_sha256"]:
             raise RuntimeError("CLI regression binary identity changed")
         receipt["cli_regression_tests_passed"] = 67
+        invoke(["cargo", "test", "--locked", "-p", "diskgraph-mcp", "--lib",
+                "--features", "diskgraph-engine/macos_native_scan_candidate", "--no-run", "--message-format=json"],
+               checkout, output, "build-mcp-regression", env)
+        mcp_fixtures = []
+        for line in (output / "build-mcp-regression.stdout").read_text().splitlines():
+            if line.startswith("{"):
+                record = json.loads(line)
+                if (record.get("reason") == "compiler-artifact"
+                        and record.get("target", {}).get("name") == "diskgraph_mcp"
+                        and record.get("profile", {}).get("test") and record.get("executable")):
+                    mcp_fixtures.append(Path(record["executable"]))
+        if len(mcp_fixtures) != 1:
+            raise RuntimeError("expected one actual MCP regression executable")
+        mcp_fixture = mcp_fixtures[0]
+        receipt["mcp_regression_binary_sha256"] = digest(mcp_fixture)
+        invoke([str(mcp_fixture), "--test-threads=1"], checkout, output, "mcp-regression", env)
+        check_mcp_regression((output / "mcp-regression.stdout").read_text())
+        if digest(mcp_fixture) != receipt["mcp_regression_binary_sha256"]:
+            raise RuntimeError("MCP regression binary identity changed")
+        receipt["mcp_regression_tests_passed"] = 159
         for name, expected in manifest["sources"].items():
             if digest(checkout / name) != expected:
                 raise RuntimeError("qualification modified original candidate source")

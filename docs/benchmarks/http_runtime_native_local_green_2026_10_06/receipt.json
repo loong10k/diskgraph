@@ -1,0 +1,30 @@
+{
+  "production_acceptance": false,
+  "platform": "local macOS",
+  "actual_socket_lifecycle_passed": 5,
+  "actual_connection_cap_passed": 1,
+  "source_sha256": {
+    "lib.rs": "1758201df238a2a2cc7c63a659fcf731c2d77b7ebd990633a40a8d70f85f3b49",
+    "http.rs": "741cd25b6f4362841293d5ce7aab23694ea8878dccc27c6717717dca74a1d889",
+    "http_shutdown_state.rs": "1887cf221bef3e4a10ec9e2aec544e330c00dd12d7c6027c154f342a722843e5",
+    "http_connections.rs": "7a2027f4d4bafec9281a486540c8b05a954e26a6a610e95d7c53cf22c29d19be",
+    "http_server_runtime.rs": "f317f093b2605bae1a5055193f9e40f745aecd65754767bf5a8b18f87d4ee5e0",
+    "http_lifecycle_tests.rs": "03a9fc1945a5623cfa2fbe6bb4c6930151c319cd752c234af86053517f09d01c",
+    "tests/mod.rs": "b3ea4d56e473e53ff53b8dc5c35ec85679acdb7dcf8cdb70d32d9f108bd5fe29",
+    "tests/support.rs": "fa2187fce5cbe97366b4c93761b9741ef90364edc6aabb827dbfa4aa0d8086b2",
+    "tests/service_fixture.rs": "d5bdd2128a39fd7a970fb80c0fac028570dede068fc1921968095ca40c3ff890",
+    "tests/job_runner_fixture.rs": "3fc24a05728b3bbe7e6bb6c96e67861bfcf5a7a4d0f7444cce3cb3e9cc1cd90e",
+    "children_cursor_tests.rs": "0a9a3cd65675db9c0fdd61bf547aa5c89ceeaeb14cc75cd92520003f6cc09c5f",
+    "history_budget_tests.rs": "3e33a96792822847da338ba7c30276727c30bf2f8e5eceb4e2b8d4f267870717"
+  },
+  "raw_logs_sha256": {
+    "lifecycle": "75df5c39a0b64021e80ad29c68f68ba45972a53e216f4f7e4e6109a05d4692a5",
+    "connection_cap": "ae318cd46a23692f64d57f8bd5b39d3cf9be1b41aa488186c618bbe776bf13b1"
+  },
+  "limitations": [
+    "not Windows/Linux native proof",
+    "full MCP159 installed-host regression pending",
+    "compatibility waits do not prove finite product exit",
+    "fatal accept error preservation statically reviewed, OS descriptor exhaustion not tested"
+  ]
+}

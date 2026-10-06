@@ -108,3 +108,12 @@ Windows 有限清理库层候选：冻结 480 份源码，archive SHA256 1719959
 
 
 CLI完整原回归真实宿主接线：590份Mac候选源码 / archive SHA256 350dfb950d3be4c51e8d56ff378703005d712ad1bf19eda787f26b870a2cd74b。测试构造调用产品CliEngineHost，Recovery在临时目录前实际排空，缺host仍Unsupported；保持全部原授权/期限/预算断言，不导入种树、不跳过扫描。完整67案及原11失败案各实际ok为门禁，测试二进制前后hash绑定。独立静态复审CLEAR、本机no-run编译成功；29项Python守卫通过。受保护安装后的原生67案尚未执行，不能计CLI回归或产品完成，兼容Drop不宣称有限退出。
+
+
+MCP真实宿主回归接线进行中：新增tests/service_fixture.rs，在真实部署材料存在时调用原open_with_scan_worker并在目录销毁前保留/排空同一Recovery；无部署材料时沿用旧服务，真实扫描仍Unsupported，不伪造revision。MCP lib no-run本机编译成功；tests/job_runner_fixture的实际闲置线程join/源目录生命周期用例1通过，不能代表活跃scanner或HTTP完成。独立复审发现原HTTP测试的detached accept/连接与drop(runner)不join问题，正在按physical-scan-process既有SSOT新增受控生命周期回归，不冻结/勾选完整MCP验收。
+
+
+受控HTTP生命周期API开发RED已实际确认：cargo test --locked -p diskgraph-mcp --lib http_lifecycle_tests -- --nocapture退出101，仅E0432缺http_server_runtime；5个真实TCP测试尚未执行，不能计行为RED或通过。原日志、测试源码摘要及回执见docs/benchmarks/http_runtime_api_red_2026_10_06。实现需真实关闭heldsocket并join原accept/连接线程，不以连接计数为0替代结束。
+
+
+HTTP受控生命周期本机最终验证：5个真实socket案与原连接上限1案均实际通过，原输出/最终源码摘要见docs/benchmarks/http_runtime_native_local_green_2026_10_06；不是Linux/Windows原生资格。10个原detached测试server改为owner，3个扫描源保活至runner实际join；停止不取消job，旧签名和原断言保留，fatal accept错误在全join后原样返回。Mac候选596份源码，完整CLI67+MCP159门禁冻结待原生安装环境执行。Python守卫30项通过，MCP全回归未计完成。

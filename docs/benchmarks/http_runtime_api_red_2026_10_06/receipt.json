@@ -1,0 +1,11 @@
+{
+  "status": "missing_api_development_compile_red",
+  "production_acceptance": false,
+  "native_socket_cases_executed": false,
+  "command": "cargo test --locked -p diskgraph-mcp --lib http_lifecycle_tests -- --nocapture",
+  "exit_code": 101,
+  "error": "E0432 unresolved crate::http_server_runtime",
+  "raw_log_sha256": "8b4b6f650c98076d37177d2c987bd5715696c931a1d2be7a99b84ed861348310",
+  "test_source_sha256": "03a9fc1945a5623cfa2fbe6bb4c6930151c319cd752c234af86053517f09d01c",
+  "original_test_cases": 5
+}
