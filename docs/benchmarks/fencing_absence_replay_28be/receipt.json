@@ -1,0 +1,21 @@
+{
+  "base": "28be30afb5dda9aec1068e7cf1dbb618694c9140",
+  "native_run": 37538697463,
+  "native_artifact": 11447212928,
+  "status": "local store validated; native replay rerun pending; production readiness remains open",
+  "sources": {
+    "crates/diskgraph-store/src/job_authority_claim.rs": "ad358c970c752601ca82aef1e7862684047810f0e318a363bf92aa9b3ac08e82",
+    "crates/diskgraph-store/tests/job_claim.rs": "79e18882816bbb5c06b08b5601cf0bcc007116a9373a2e862c9c15b13eac90ed",
+    "scripts/qualify_windows_enumerated_absence.py": "414a9cdc332da172aefe87e7f5c6c9c3b08773935d7cd3b8383bb5c95330d8c1",
+    "scripts/tests/test_windows_enumerated_absence_qualification.py": "dc1692396cff79ed2cd514f186ce07b4b26c6959fd1d6137595fa26442954380",
+    ".github/workflows/ci.yml": "f456d6712a09e99029cbb3742cf8cc9f211a70334272cf78a04b0e883836c33b"
+  },
+  "artifacts": {
+    "windows-msrv-absence.zip": "075fbbfa4ba2fafc7ee766dd9a3e240207dbedb29142681790192e22be79892b",
+    "fencing-red.log.gz": "9dc7893da7ee3e272a4ebcf28693891538f9ec357de449c7b5d943badd3ad948",
+    "store-regression.log.gz": "125761d90b338a74da0be46de872dde25f3064c1fd2ccd8bc6b7c37f0cebd832",
+    "python-regression.log.gz": "8dc6a87accab17e5a0ef9cb3115c4030b110a715a2ed5994cd22fba1570d6bbb",
+    "absence-controls-red.log.gz": "0d932c137aa84a2a4f4b9c7e41fe93798a76f0a8112e7d6acf3e90be4114b404",
+    "fencing-green.log.gz": "2dc6ea7b2a5a03f79638bd2545ce49f9dcdc8b64ef1e7c4d88c51bd8f90491f5"
+  }
+}

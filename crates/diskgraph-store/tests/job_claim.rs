@@ -357,3 +357,83 @@ fn strict_claim_refuses_a_second_claim_by_the_same_owner() {
     store.claim_job_once(&job.job_id, "same-owner").unwrap();
     assert!(store.claim_job_once(&job.job_id, "same-owner").is_err());
 }
+
+#[test]
+fn invalid_or_exhausted_fencing_never_commits_a_claim() {
+    use diskgraph_store::StoreError;
+    use rusqlite::types::Value;
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("control.sqlite");
+    let mut store = ControlStore::open(&path).unwrap();
+    let scope = store
+        .register_scope(&Locator::from_native_path(dir.path()), None)
+        .unwrap();
+    let job = store
+        .create_job(
+            &scope,
+            JobKind::Index,
+            &PrincipalId::new("requester").unwrap(),
+        )
+        .unwrap();
+    let connection = rusqlite::Connection::open(&path).unwrap();
+    for state in ["queued", "running"] {
+        for fence in [
+            Value::Integer(i64::MAX),
+            Value::Integer(-1),
+            Value::Real(1.5),
+        ] {
+            connection.execute("UPDATE jobs SET state=?2,owner='original-owner',heartbeat_unix_ms=7,lease_expires_unix_ms=0,fencing_token=?3 WHERE job_id=?1", rusqlite::params![job.job_id,state,fence]).unwrap();
+            let before: (String,String,i64,i64,Value) = connection.query_row("SELECT state,owner,heartbeat_unix_ms,lease_expires_unix_ms,fencing_token FROM jobs WHERE job_id=?1", [&job.job_id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).unwrap();
+            let result = store.claim_job_once(&job.job_id, "replacement-owner");
+            assert!(
+                matches!(result, Err(StoreError::Conflict(_))),
+                "invalid generation was not refused atomically: state={state}, fence={fence:?}, actual={result:?}"
+            );
+            let after: (String,String,i64,i64,Value) = connection.query_row("SELECT state,owner,heartbeat_unix_ms,lease_expires_unix_ms,fencing_token FROM jobs WHERE job_id=?1", [&job.job_id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).unwrap();
+            assert_eq!(
+                after, before,
+                "rejected claim changed original generation or responsibility"
+            );
+        }
+    }
+}
+
+#[test]
+fn final_integer_fencing_generation_is_valid_but_cannot_be_recycled() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("control.sqlite");
+    let mut store = ControlStore::open(&path).unwrap();
+    let scope = store
+        .register_scope(&Locator::from_native_path(dir.path()), None)
+        .unwrap();
+    let job = store
+        .create_job(
+            &scope,
+            JobKind::Index,
+            &PrincipalId::new("requester").unwrap(),
+        )
+        .unwrap();
+    let connection = rusqlite::Connection::open(&path).unwrap();
+    connection
+        .execute(
+            "UPDATE jobs SET fencing_token=?2 WHERE job_id=?1",
+            rusqlite::params![job.job_id, i64::MAX - 1],
+        )
+        .unwrap();
+    let last = store.claim_job_once(&job.job_id, "last-owner").unwrap();
+    assert_eq!(last.fencing_token, i64::MAX as u64);
+    store
+        .heartbeat_fenced(&job.job_id, "last-owner", last.fencing_token)
+        .unwrap();
+    connection
+        .execute(
+            "UPDATE jobs SET lease_expires_unix_ms=0 WHERE job_id=?1",
+            [&job.job_id],
+        )
+        .unwrap();
+    assert!(store.claim_job_once(&job.job_id, "new-owner").is_err());
+    let retained = store.job(&job.job_id).unwrap();
+    assert_eq!(retained.owner, "last-owner");
+    assert_eq!(retained.fencing_token, last.fencing_token);
+    assert_eq!(retained.lease_expires_unix_ms, 0);
+}

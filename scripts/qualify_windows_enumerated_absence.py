@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from qualify_windows_legacy_api import MARKER, bridge_baseline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +37,17 @@ def cargo(filter_name, destination):
     return completed.returncode, destination.read_text(encoding="utf-8", errors="replace")
 
 
+def baseline_modules(source):
+    """保留当前调用图；旧实现未引用的两个新模块仅在冻结回放中移除。"""
+    source = source.replace(b"\r\n", b"\n")
+    for module in ("windows_git_root_parent", "windows_git_foreign_removal_witness"):
+        declaration = f"#[cfg(windows)]\nmod {module};\n".encode()
+        if source.count(declaration) != 1:
+            raise RuntimeError("frozen absence module declaration is not unique")
+        source = source.replace(declaration, b"", 1)
+    return source
+
+
 def main():
     if sys.platform != "win32":
         raise RuntimeError("actual Windows execution required")
@@ -48,9 +60,18 @@ def main():
         subprocess.run(["git", "fetch", "--depth=1", "origin", BASELINE], cwd=ROOT, check=True)
     old = {name: subprocess.check_output(["git", "show", f"{BASELINE}:{name}"], cwd=ROOT)
            for name in SOURCES}
+    baseline_original = dict(old)
+    module_source = "crates/diskgraph-engine/src/live_evidence/mod.rs"
+    cleanup_source = "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs"
+    if any(name.encode() in old[cleanup_source] for name in
+           ("windows_git_root_parent", "windows_git_foreign_removal_witness")):
+        raise RuntimeError("frozen cleanup unexpectedly uses new absence/root support")
+    old[module_source] = baseline_modules(original[module_source])
+    old[cleanup_source] = bridge_baseline(original[cleanup_source], old[cleanup_source], "directory")
     receipt = {
         "candidate": candidate, "baseline": BASELINE,
         "candidate_sources": {name: digest(data) for name, data in original.items()},
+        "baseline_original_sources": {name: digest(data) for name, data in baseline_original.items()},
         "baseline_sources": {name: digest(data) for name, data in old.items()},
         # 两阶段共用同一真实游标测试；产品恢复正控只在当前实现上执行。
         "shared_support_sources": {
@@ -64,11 +85,13 @@ def main():
         "status": "pending",
     }
     try:
-        # 临时替换两个实现；同一测试的原父/枚举 ID 和原预算不变。
+        # 临时替换冻结源码；同一测试的原父/枚举 ID 和原预算不变。
         for name, data in old.items():
             (ROOT / name).write_bytes(data)
         code, log = cargo("vanished_unregistered_entry_advances_only_after_original_full_id_absence",
                           output / "red.log")
+        if MARKER in log:
+            raise RuntimeError("original absence primitive must not execute the new API binding")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_WINDOWS_ENUMERATED_ABSENCE_RED_READY=1" not in log
                 or "full-ID absence must retire only vanished foreign entry:" not in log):

@@ -109,7 +109,8 @@ impl ControlStore {
             }
             return Err(error);
         }
-        let changed = tx.execute("UPDATE jobs SET state='running',owner=?2,heartbeat_unix_ms=?3,lease_expires_unix_ms=?4,fencing_token=fencing_token+1 WHERE job_id=?1 AND cancel_requested=0 AND (state='queued' OR (state='running' AND lease_expires_unix_ms<=?3)) AND EXISTS(SELECT 1 FROM scopes WHERE scope_id=jobs.scope_id AND revoked=0)", params![job_id,owner,now as i64,now.saturating_add(30000) as i64])?;
+        // 同一条件更新在加一之前拒绝无效或耗尽代次；SQLite 不能先提升为 REAL 再提交租约。
+        let changed = tx.execute("UPDATE jobs SET state='running',owner=?2,heartbeat_unix_ms=?3,lease_expires_unix_ms=?4,fencing_token=fencing_token+1 WHERE job_id=?1 AND cancel_requested=0 AND typeof(fencing_token)='integer' AND fencing_token>=0 AND fencing_token<?5 AND (state='queued' OR (state='running' AND lease_expires_unix_ms<=?3)) AND EXISTS(SELECT 1 FROM scopes WHERE scope_id=jobs.scope_id AND revoked=0)", params![job_id,owner,now as i64,now.saturating_add(30000) as i64,i64::MAX])?;
         if changed != 1 {
             return Err(StoreError::Conflict("job is not claimable".into()));
         }

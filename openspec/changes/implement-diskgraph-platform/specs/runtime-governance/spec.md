@@ -174,3 +174,9 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 - **WHEN** a native leader has an unborn zero PID or a nonpositive invalid PID and its wait operation is called
 - **THEN** it returns an invalid-input error before entering the OS wait operation, including on repeated calls
 - **AND** a separate real child can still be waited by its own original owner; valid positive original PID waits and cached exit results remain unchanged
+
+
+#### Scenario: Fencing generation cannot overflow or change storage type
+- **WHEN** queued 或租约已过期任务的 fencing_token 已达 SQLite 有符号整数上限、为负数或不是整数
+- **THEN** 条件认领拒绝，不修改 state、owner、heartbeat、lease 或 token，不先提交无效代次后再因解码失败报错。
+- **AND** 合法末个代次从上限减一递增到上限仍可认领；该代次失效后不能回绕、提升为浮点数或重用零代次。正常跨进程竞争、实时授权和旧 owner 禁写合同保持不变。
