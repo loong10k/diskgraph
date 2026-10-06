@@ -1,0 +1,29 @@
+{
+  "run_id": 37508684271,
+  "job_id": 112423847854,
+  "source_commit": "6c3b7295e26e31933d9258f8ee8328cc6b241f64",
+  "status": "failed",
+  "original_log_bytes": 378184,
+  "original_log_sha256": "f4fe1db09410bb549deb9dcc5301192c3773980c21932890fb9588810a5f37ef",
+  "archive_sha256": "4ca88fb5f4f65cb76157a3c82c2c43802d56f7ef2f471898bd8f21f575986ac6",
+  "failed_tests": [
+    "search_explore_and_impact_report_bounded_results",
+    "top_growth_changes_report_bounded_and_honest_results",
+    "grant_withdrawn_by_the_real_terminal_callback_refuses_the_display"
+  ],
+  "observations": {
+    "cli_exit_codes": [
+      7,
+      7
+    ],
+    "terminal_test_deadline_ms": 50,
+    "terminal_display_elapsed_us": 76863,
+    "terminal_authorizer_calls": 0,
+    "terminal_parent_consumed": false
+  },
+  "limitations": [
+    "CLI failures do not contain captured JSON stdout; add diagnostic without changing assertion or budget.",
+    "Terminal case expired before authorization; original diagnostic does not prove I/O or scheduler cause.",
+    "No pass, retry, larger deadline, or complete production claim."
+  ]
+}

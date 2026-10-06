@@ -20,6 +20,15 @@ fn run_cli(data_dir: &std::path::Path, args: &[&str]) -> Run {
         .env_remove("RUST_BACKTRACE")
         .output()
         .expect("cli binary must run");
+    if !output.status.success() {
+        // 隔离夹具的失败正文在 JSON stdout；保留原退出码与断言，不能用空 stderr 推断首因。
+        eprintln!(
+            "CLI_FIXTURE_FAILURE args={args:?} status={}\nstdout: {}\nstderr: {}",
+            output.status,
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr),
+        );
+    }
     Run {
         stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
         stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
