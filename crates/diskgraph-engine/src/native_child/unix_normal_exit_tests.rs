@@ -7,6 +7,7 @@ use std::process::Command;
 
 thread_local! {
     static REAP_BEFORE_CLEANUP_WAIT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    static REAP_BEFORE_NORMAL_WAIT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
     static GROUP_TERMINATION_FAILURE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
@@ -23,6 +24,41 @@ pub(super) fn reap_before_cleanup_wait(pid: i32) {
         let mut status = 0;
         assert_eq!(unsafe { libc::waitpid(pid, &mut status, 0) }, pid);
     }
+}
+
+/// 在已核验正常退出的原wait前制造真实外部回收。参数：pid为本测试leader；返回：无。
+/// 只在测试原调用线程消费一次，不推断已退出管道或数字PID仍具有清理资格。
+pub(super) fn reap_before_normal_wait(pid: u32) {
+    if REAP_BEFORE_NORMAL_WAIT.replace(false) {
+        let mut status = 0;
+        assert_eq!(
+            unsafe { libc::waitpid(pid as i32, &mut status, 0) },
+            pid as i32
+        );
+    }
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn normal_wait_external_reap_immediately_revokes_numeric_group_cleanup() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut child = fixture::spawn("exit", directory.path());
+    let pid = fixture::qualified_identity(directory.path());
+    child.request_control_close().unwrap();
+    fixture::drain(&mut child, true);
+    fixture::retained(pid);
+    REAP_BEFORE_NORMAL_WAIT.set(true);
+    let error = child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap_err();
+    assert!(matches!(&error, ChildSpawnError::Operation(native)
+        if native.native_io_error().is_some_and(|original|
+            original.raw_os_error() == Some(libc::ECHILD))));
+    for _ in 0..3 {
+        assert!(
+            matches!(child.cleanup(), Err(ChildError::Unsupported(_))),
+            "normal wait ownership loss must refuse the first cleanup retry"
+        );
+    }
+    fixture::reaped(pid);
 }
 
 #[test]

@@ -1,6 +1,10 @@
 //! 实际扫描节点的首末授权、旧定位拒绝和读取预算验收。
 
-use crate::{Engine, EngineConfig, EngineError};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
+use crate::{EngineConfig, EngineError};
 use diskgraph_core::{BusinessError, Permission, PrincipalId, QueryBudget, ScopeId};
 use diskgraph_store::{ControlStore, StoreError};
 use std::cell::RefCell;

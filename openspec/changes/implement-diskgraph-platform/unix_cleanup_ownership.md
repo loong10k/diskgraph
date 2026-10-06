@@ -149,3 +149,12 @@ Git用例在Linux复用现有真实NativeScanEngine，唯一Recovery保持至Eng
 Engine新导出API在原源码实际编译RED（E0432），迁移后原对象/方法正文除导入、格式和中文doc冒号外一致；原31个测试assert片段保持。原部署15/0、Engine结构6/0、MCP真实类型兼容/二进制配置/启动/结构四目标合计19/0，本机CLI all-targets check通过，既有macOS Engine20条未接入组件警告未隐藏。结构初次5/1因两个doc契约格式失败，按原要求补齐后6/0；fmt的模块顺序RED也保留后纠正。
 
 CLI entry与binary配置6/0，旧host lifecycle用例在macOS明确违反固定安装契约而实际失败；保留Linux/Windows原成功断言，macOS实际CLI要求unsupported、ok=false且未创建数据库，新平台准入1/0。这是拒绝普通路径的负向证明，不能充当macOS固定安装成功验收。最终fmt通过，记录见shared-deployment-*.log.gz；不修改生产限额、危险能力或任何父任务checkbox。f9b1890三Linux lane前置已越过原期限夹具，当前真实全量Test仍运行，没有由观察超时重启。
+
+
+## 正常wait失权与剩余真实扫描夹具
+
+验收场景：正常退出已确认整组后，最后原wait被真实外部waitpid竞争消费，必须保留原ECHILD错误并立即撤销旧数值组清理资格；第一次及后续cleanup均拒绝，不签发cleaned完成或释放未知owner责任。macOS原生测试在原wait前消费真实leader，原实现第一次cleanup未返回Unsupported，已实际RED；Linux真实PIDFD正常退出/外部回收能力仍由原子launcher用例验收，不授予旧Unix路径平台资格。
+
+f9b1890 / CI37449291133 Linux stable112221636590原全量仍失败Engine lib与FFI lib。Engine的windows observation、runner strict tick和linux scan namespace仍调用旧扫描入口；夹具改用真实独立宿主。调度器保留原Arc<Engine>接口，测试夹具内部持有原Arc和唯一Recovery；借出Arc先结束再回收夹具。77个原assert片段保持，ScanFixture先释放Engine/Recovery再释放临时目录。本机编译及结构6/0通过，不代表Linux分支实际运行。
+
+原生macOS最后wait竞态1/0实际RED（首次cleanup拒绝断言失败）→1/0 GREEN，修复仅在原错误为NativeIo ECHILD时即时失权，原错误和未cleaned状态保留。首修复用了test-only错误访问器，非test构建真实E0599；改为直接匹配原NativeIo对象，生产结构编译及6/0门禁通过，fmt通过，不扩展测试访问器到生产。扩大Unix正常退出回归实际9通过/1失败；checkpoint-primary案结束阶段真实组成员query incomplete，原错误保留在normal-wait-expanded-failure.log.gz，不能当作整组通过或通过重跑抹除。该非完整视图可靠性仍开放。原最后wait竞态、外部wait、组失败保留与其余回归结果各按实际范围记录；Linux剩余旧Unix平台资格、FFI公开扫描、Windows清理、macOS安装、有限恢复和性能继续开放。

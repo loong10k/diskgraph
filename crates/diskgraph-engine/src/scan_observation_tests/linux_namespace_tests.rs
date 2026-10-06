@@ -1,7 +1,8 @@
 //! Linux 扫描补充的原祖先绑定验收；来源：FS-02，真实 tmpfs 和公开 Engine 索引。
 //! 缺少原生 epoch 能力必须失败并报告未验收，不以其他平台 cfg 零测试当作通过。
 use super::BEFORE_STAGE_LOCK;
-use crate::{Engine, EngineConfig, EngineError};
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
+use crate::{EngineConfig, EngineError};
 use diskgraph_core::{
     BusinessError, IndexedFileEpoch, PrincipalId, QueryBudget, QueryReadBudget, ScopeId,
 };
@@ -13,9 +14,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// 先完成实际扫描证明原生资格，再在同根第二扫描编码后改变 namespace；来源：Rust FS-02。
 struct ScanFixture {
+    engine: Arc<Engine>,
     source: tempfile::TempDir,
     data: tempfile::TempDir,
-    engine: Arc<Engine>,
     actor: PrincipalId,
     scope: ScopeId,
     base: String,

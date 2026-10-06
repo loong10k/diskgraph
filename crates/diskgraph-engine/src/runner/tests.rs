@@ -2,7 +2,9 @@
 //! 验证一次 tick 最多处理 64 个候选，而不是全队列授权清理后只执行一个任务。
 
 use super::run_one_queued;
-use crate::{Engine, EngineConfig};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+use crate::EngineConfig;
 use diskgraph_core::PrincipalId;
 use diskgraph_store::{JobKind, JobState};
 use std::sync::Arc;
@@ -15,13 +17,16 @@ fn strict_tick_bounds_candidate_work_and_advances_past_legacy_jobs() {
     let root = temp.path().join("root");
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file.txt"), b"real scan input").unwrap();
-    let engine = Arc::new(
-        Engine::open(EngineConfig {
-            data_dir: temp.path().join("data"),
-            ..EngineConfig::default()
-        })
-        .unwrap(),
-    );
+    let config = EngineConfig {
+        data_dir: temp.path().join("data"),
+        ..EngineConfig::default()
+    };
+    #[cfg(target_os = "linux")]
+    let host = crate::native_scan_engine_fixture::NativeScanEngine::open(config).unwrap();
+    #[cfg(target_os = "linux")]
+    let engine = Arc::clone(&host.engine);
+    #[cfg(not(target_os = "linux"))]
+    let engine = Arc::new(Engine::open(config).unwrap());
     let actor = PrincipalId::new("bounded-runner-admin").unwrap();
     engine.bootstrap_local_admin(&actor).unwrap();
     let scope = engine
@@ -104,13 +109,16 @@ fn strict_tick_bounds_candidate_work_and_advances_past_legacy_jobs() {
 #[test]
 fn stop_preserves_original_background_panic_payload() {
     let temp = tempfile::tempdir().unwrap();
-    let engine = Arc::new(
-        Engine::open(EngineConfig {
-            data_dir: temp.path().join("data"),
-            ..EngineConfig::default()
-        })
-        .unwrap(),
-    );
+    let config = EngineConfig {
+        data_dir: temp.path().join("data"),
+        ..EngineConfig::default()
+    };
+    #[cfg(target_os = "linux")]
+    let host = crate::native_scan_engine_fixture::NativeScanEngine::open(config).unwrap();
+    #[cfg(target_os = "linux")]
+    let engine = Arc::clone(&host.engine);
+    #[cfg(not(target_os = "linux"))]
+    let engine = Arc::new(Engine::open(config).unwrap());
     let runner = super::JobRunner {
         engine,
         stop: Arc::new(AtomicBool::new(false)),

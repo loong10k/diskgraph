@@ -5,11 +5,13 @@ use super::{
 use diskgraph_scan_worker::ProtocolLimits;
 use std::fs::File;
 use std::ops::{Deref, DerefMut};
+use std::sync::Arc;
 
 /// 显式提供真实镜像与恢复责任的 Linux 扫描夹具；来源：原生 Rust PF-06 公开宿主 API。
 /// 预期值由受控构建部署提供，不从镜像正文或邻接清单自行建立信任。
 pub(crate) struct NativeScanEngine {
-    engine: Engine,
+    /// 原Engine的共享引用；借出引用/线程必须先于夹具结束，恢复责任仍唯一持有。
+    pub(crate) engine: Arc<Engine>,
     recovery: ScanWorkerRecovery,
 }
 
@@ -51,7 +53,10 @@ impl NativeScanEngine {
             runtime,
         )?;
         let (engine, recovery) = Engine::open_with_scan_worker(config, host)?;
-        Ok(Self { engine, recovery })
+        Ok(Self {
+            engine: Arc::new(engine),
+            recovery,
+        })
     }
 }
 
@@ -67,7 +72,7 @@ impl DerefMut for NativeScanEngine {
     /// 参数：夹具独占可变借用；返回：原Engine的可变借用，不移动或复制Recovery。
     /// 保留既有单元测试设置原扫描时限的语义，不开放任何生产权限入口。
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.engine
+        Arc::get_mut(&mut self.engine).expect("exclusive test Engine required for mutation")
     }
 }
 

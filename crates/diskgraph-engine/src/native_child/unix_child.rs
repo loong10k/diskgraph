@@ -196,7 +196,19 @@ impl UnixChild {
         if !ready {
             return Ok(false);
         }
-        self.normal_exit.reap(&mut self.child)?;
+        #[cfg(test)]
+        super::unix_normal_exit_tests::reap_before_normal_wait(self.child.id());
+        if let Err(error) = self.normal_exit.reap(&mut self.child) {
+            if matches!(&error, ChildError::NativeIo { source, .. }
+                if source.raw_os_error() == Some(libc::ECHILD))
+            {
+                // 最后wait已明确失去原leader：返回原错误前撤销旧数值组资格。
+                // 不等待下一次poll再次访问可能复用的PID，也不把未知owner签发为完成。
+                self.owns_group = false;
+                self.normal_exit = UnixNormalExit::Unavailable;
+            }
+            return Err(error.into());
+        }
         self.owns_group = false;
         self.cleaned = true;
         self.normal_exit = UnixNormalExit::Completed;
