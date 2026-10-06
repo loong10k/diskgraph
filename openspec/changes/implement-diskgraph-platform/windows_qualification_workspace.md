@@ -39,3 +39,5 @@ CI 37412012814 原生仍64/65，唯一原共享租约断言失败。实际同句
 CI 37412964453 已终态失败：65个原生用例中60通过，5个根重开场景返回错误87。该结果为本次RED，不算生产验收。微软NtCreateFile的CreateOptions规则限制FILE_DIRECTORY_FILE的兼容标志；原候选将其与FILE_OPEN_REPARSE_POINT及FILE_OPEN_NO_RECALL合用。修复重开选项组合，保留OBJ_DONT_REPARSE、OPEN_REPARSE_POINT、OPEN_NO_RECALL和同步访问；目录类型由原anchor及返回句柄的完整身份与显式目录检查确认。新建目录仍使用FILE_CREATE和FILE_DIRECTORY_FILE。
 
 验收保持全部65项、共享租约期间错误32、解除租约后的真实mark/clear、移动与恶意替换正控。不得以按名回退、关闭防护、删除断言或启用产品清理来替代。依据：https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwcreatefile 。原生结果未返回前仅记候选修复，父项保持开放。
+
+原生结果：CI 37413671391 在 e4bc1f0b4e60c6f255b00ca07c26ffc590e64902 实际通过全部65项；逐个stdout核对精确用例与1 passed/0 failed，没有零用例通过。旧版目标RED对照通过。此前五项根重开失败均关闭；共享租约期间仍拒绝32，解除后的原对象句柄实际mark/clear成功，按ID对照仍返回87。证据见 docs/benchmarks/windows_directory_open_options_2026_10_06。本结论仅证明原子根句柄子层，不完成增量删除walker、Pool、可信安装、默认Windows扫描或全平台生产门禁。

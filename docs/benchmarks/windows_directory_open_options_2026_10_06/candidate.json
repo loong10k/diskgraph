@@ -5,7 +5,7 @@
   "red_failed": 5,
   "archive_sha256": "220bfdacee9eedf86e176563a43bbe9f2da7f296aff4af672f1c8fb60325fa16",
   "changed_source": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
-  "native_green": "pending",
+  "native_green": "passed",
   "local_checks": {
     "source_layout": {
       "passed": 6,
@@ -17,5 +17,11 @@
     },
     "cargo_fmt": "passed",
     "openspec_strict": "passed"
-  }
+  },
+  "green_run": 37413671391,
+  "green_sha": "e4bc1f0b4e60c6f255b00ca07c26ffc590e64902",
+  "green_passed": 65,
+  "green_failed": 0,
+  "all_65_stdout_exact_tests_verified": true,
+  "product_cleanup_integration": false
 }
