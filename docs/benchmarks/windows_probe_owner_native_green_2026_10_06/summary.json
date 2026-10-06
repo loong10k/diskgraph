@@ -1,0 +1,76 @@
+{
+  "run_id": 37391313757,
+  "job_id": 112036795511,
+  "source_sha": "963bcaa0f48dd2012b9a1f318c93fc0d97ace6c5",
+  "production_acceptance": false,
+  "actual_cases": 23,
+  "passed": 21,
+  "failed": 2,
+  "component_probe_cases": [
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
+      "passed": true,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
+      "passed": true,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_panic_wait_failure_retains_original_owner_and_capacity",
+      "passed": true,
+      "phase": "probe"
+    }
+  ],
+  "normal_regressions": [
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::original_null_spawn_has_four_checkpoints_and_no_control_input",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::original_post_create_failure_cleans_actual_job_with_external_witness_handles_held",
+      "passed": true,
+      "phase": "regression"
+    }
+  ],
+  "remaining_failed_cases": [
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::private_git_complete_retains_original_directory_after_cancel_cleanup_failure",
+      "passed": false,
+      "phase": "directory"
+    },
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::private_git_drop_retains_original_directory_after_panic_cleanup_failure",
+      "passed": false,
+      "phase": "directory"
+    }
+  ],
+  "limitation": "Original directory complete/Drop algorithm remains in this frozen candidate; overall CI failed. New common resource pool not included."
+}

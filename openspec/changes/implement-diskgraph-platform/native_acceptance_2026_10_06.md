@@ -52,3 +52,12 @@ The next test correction must identify and wait the expected ordinary process by
 ## Probe owner GREEN and bound ordinary process candidate
 
 The 471-source candidate integrates the independently reviewed catch-external Windows probe owner fix. It also corrects the normal-exit fixture to bind the expected ordinary descendant using the original std::Child handle PID/creation record and a held query/synchronize handle: exact identity, original Job membership and WAIT_TIMEOUT before/after Pending are required; actual signal/exit0 and unfiltered original Job zero are required after natural release. Live-leader cases verify their existing held original handle and creation identity. No OS member-name filtering, production normal-exit change or new creation flag is introduced. Local existing probe 19/19, Git cleanup 5/5 and enabled response fixture 1/1 passed; native GREEN remains pending. Private directory production code is deliberately still original, with its mandatory native prerequisite and two recovery cases retained. Only owner/normal-process component acceptance may pass; full production acceptance remains false.
+
+
+### Windows 原目录 owner 真实 RED 与共同资源恢复候选
+
+- 原生 run 37390619940 / job 112034553691 / source 4621b3ef70aca3e0ab384671cebfd38df493d0df：实际编译通过并执行 23 案。真实 Git 私有目录创建、写入及正常完成的前置案通过；取消 cleanup 失败和 panic cleanup 失败两案均在原目录已被提前删除处失败。不是 Unsupported、编译失败或未出生进程；原始回执与所有日志见 `docs/benchmarks/windows_private_directory_native_red_2026_10_06/`。
+- 修复候选以固定 session 槽共同保留原 child 和目录 owner，恢复锁外先确认原 child wait/Job0，再按原目录身份删除。活跃 session、借出目录或删除失败不退还容量。新增真实 deny-delete 及旧代次保护两案；原 23 案断言不变。
+- 当前冻结候选加入 Engine 注入入口，CLI/MCP 工作树接线保留外部 Recovery；该冻结仅覆盖 Engine，不能作为 CLI/MCP 原生验收。无限 wait/I/O、目录身份检查至删除的同权限竞态及全部生产父门禁仍未完成，不勾选 15.13。
+
+- 前一 owner-GREEN 候选 run 37391313757 / job 112036795511 / source 963bcaa0f48dd2012b9a1f318c93fc0d97ace6c5 已终态：23 案实际执行，21 通过、2 失败。三个 managed probe 原 owner 恢复案及七个 normal/control 回归全部通过，每案真实 1 passed/0 failed/0 ignored。失败仍为原目录 complete/Drop 的两案；本候选尚未包含共同资源池，因此整体 CI failure 保留。全部原始证据见 `docs/benchmarks/windows_probe_owner_native_green_2026_10_06/`，不能宣称 Windows 产品就绪。

@@ -1,0 +1,28 @@
+{
+  "run_id": 37390619940,
+  "job_id": 112034553691,
+  "source_sha": "4621b3ef70aca3e0ab384671cebfd38df493d0df",
+  "production_acceptance": false,
+  "build_passed": true,
+  "actual_cases": 23,
+  "directory_prerequisite_passed": true,
+  "directory_recovery_cases": [
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::real_git_private_directory_creation_and_completion_qualifies_resource_fixture",
+      "passed": true,
+      "phase": "directory_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::private_git_complete_retains_original_directory_after_cancel_cleanup_failure",
+      "passed": false,
+      "phase": "directory"
+    },
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::private_git_drop_retains_original_directory_after_panic_cleanup_failure",
+      "passed": false,
+      "phase": "directory"
+    }
+  ],
+  "observed_failure": "complete/Drop removed original private directory before explicit owner recovery",
+  "evidence": "Original receipt and every raw stdout/stderr preserved gzip; guardian finally rescue does not count as product recovery."
+}
