@@ -466,7 +466,8 @@ jobs:
           cargo test -p diskgraph-ffi --lib --locked legacy_service_scan_does_not_restore_revoked_admin_grant -- --nocapture
       - name: Test
         timeout-minutes: 30
-        run: cargo test --workspace --all-targets --locked --no-fail-fast
+        # 恢复失败可能阻止二进制返回；即时保留原断言/诊断，不等待 libtest 最终汇总。
+        run: cargo test --workspace --all-targets --locked --no-fail-fast -- --nocapture
       - name: Native HTTP shutdown and original request deadline
         if: always()
         timeout-minutes: 5
