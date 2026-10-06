@@ -284,8 +284,20 @@ fn independent_expected_digest_and_original_open_file_survive_name_replacement()
     )
     .unwrap();
     let (file, expected) = config.open_held().unwrap();
-    std::fs::rename(&path, directory.path().join("original-worker")).unwrap();
-    std::fs::write(&path, b"different contents").unwrap();
+    #[cfg(not(windows))]
+    {
+        std::fs::rename(&path, directory.path().join("original-worker")).unwrap();
+        std::fs::write(&path, b"different contents").unwrap();
+    }
+    #[cfg(windows)]
+    {
+        // Windows 原镜像租约禁止删除分享；实际拒绝改名，不能要求绕过该安全合同。
+        let replacement = directory.path().join("original-worker");
+        let error = std::fs::rename(&path, &replacement).unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(32));
+        assert!(!replacement.exists());
+        assert_eq!(std::fs::read(&path).unwrap(), trusted);
+    }
     let verified = ScanWorkerInstallation::verify(
         file,
         &expected,
