@@ -69,3 +69,7 @@ f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已
 ## 原生身份/进程夹具显式宿主
 
 17694e7原始全量日志确认Linux epoch两案在run_job因Engine::open没有扫描宿主而失败；执行/观察夹具同样未提供宿主。保持生产构造函数语义，以NativeScanEngine显式绑定CI独立镜像预期、原Config预算和公开open_with_scan_worker，夹具保留外部Recovery直到结束，错误/panic仍实际回收。迁移epoch、execution、observation三目标，不改opaque handle、hardlink、重开、PID身份及占用断言；缺部署材料必须失败。既有actual worker专项夹具的显式环境也绑定同一固定副本。Linux原生验收待CI，本机仅能验证源码/编译边界，不能据此勾选平台父项。
+
+继续迁移7个需要实际扫描的Linux集成目标（engine_flow、content_flow、compare_two_trees、growth_narrow_read、scan_options_parity、verify_comparison_content、relation_request_budget）。这些目标通过同一真实宿主夹具持有Engine和Recovery，原测试函数、参数、权限/预算/结果断言不变；其他平台保持既有构造路径，不伪造平台支持。Linux实际结果须原生CI确认，更多旧单元/集成夹具仍未迁移，不能由这7个目标替代workspace门禁。
+
+f2c3b1b的Linux stable完整workspace原始日志确认失败目标37→29，CLI各目标不在失败清单，镜像固定副本后的真实产品回归保留通过；仍不能把剩余旧库夹具Unsupported称为已通过。此次7目标本机macOS仅no-run编译通过，结构6/0与fmt通过；不称Linux运行验收。原始全量日志及目标末段汇总见workspace-f2c-linux.log.gz与workspace-f2c-summaries.json.gz。

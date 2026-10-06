@@ -1,10 +1,19 @@
 //! D23 真实请求预算回归，数据库与扫描根均为独占临时夹具。
 
+// Linux 的扫描回归显式持有真实宿主；其他平台保留各自既有构造路径。
+#[cfg(target_os = "linux")]
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
+
 use diskgraph_core::{
     Authorizer, Decision, Permission, PolicyAuthorizer, PrincipalId, QueryBudget, ScopeId,
     TruncationReason,
 };
-use diskgraph_engine::{Engine, EngineConfig};
+use diskgraph_engine::EngineConfig;
 use rusqlite::{Connection, params};
 use std::time::{Duration, Instant};
 

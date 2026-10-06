@@ -4,10 +4,19 @@
 //! costs the two rows it reports on. It used to cost both whole revisions in
 //! memory, which is why the question was unanswerable on a large index.
 
+// Linux 的扫描回归显式持有真实宿主；其他平台保留各自既有构造路径。
+#[cfg(target_os = "linux")]
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
+
 use std::sync::Arc;
 
 use diskgraph_core::PrincipalId;
-use diskgraph_engine::{Engine, EngineConfig};
+use diskgraph_engine::EngineConfig;
 
 fn engine() -> (tempfile::TempDir, Arc<Engine>) {
     let workspace = tempfile::TempDir::with_prefix("dg-growth-").unwrap();

@@ -6,13 +6,22 @@
 //! happens when the read cannot happen, because "I could not check" must never
 //! arrive as "they match".
 
+// Linux 的扫描回归显式持有真实宿主；其他平台保留各自既有构造路径。
+#[cfg(target_os = "linux")]
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
+
 use std::sync::Arc;
 
 #[cfg(any(unix, windows))]
 use diskgraph_core::Evidence;
 use diskgraph_core::{PrincipalId, ScopeId, Verdict};
+use diskgraph_engine::EngineConfig;
 use diskgraph_engine::verify::{VerifyBudget, verify_same_rows};
-use diskgraph_engine::{Engine, EngineConfig};
 
 struct Fixture {
     _workspace: tempfile::TempDir,
