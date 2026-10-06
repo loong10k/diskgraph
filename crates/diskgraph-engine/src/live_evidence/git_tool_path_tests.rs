@@ -137,6 +137,9 @@ fn unix_native_bytes_are_not_changed_or_normalized() {
 fn context_reports_the_executable_resolution_stage() {
     use super::ProbeLimits;
     use super::git_command_context::GitCommandContext;
+    #[cfg(windows)]
+    use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+    #[cfg(not(windows))]
     use super::probe_budget::ProbeBudget;
     let temp = tempfile::tempdir().unwrap();
     let root = temp.path().canonicalize().unwrap();
@@ -159,6 +162,9 @@ fn installed_windows_git_pairs_verbatim_and_ordinary_config_paths() {
     use super::git_command_context::GitCommandContext;
     use super::git_executable::GitExecutable;
     use super::git_system_configuration;
+    #[cfg(windows)]
+    use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+    #[cfg(not(windows))]
     use super::probe_budget::ProbeBudget;
     use crate::windows_file_state::WindowsFileState;
     use std::ffi::OsStr;
@@ -281,6 +287,9 @@ fn windows_host_path_diagnostics() {
 fn unsupported_shell_path_entries_do_not_block_fixed_git_printer() {
     use super::ProbeLimits;
     use super::git_executable::GitExecutable;
+    #[cfg(windows)]
+    use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+    #[cfg(not(windows))]
     use super::probe_budget::ProbeBudget;
     use std::process::Command;
     let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
@@ -328,6 +337,9 @@ fn filtered_shell_path_child() {
     use super::ProbeLimits;
     use super::git_command_context::GitCommandContext;
     use super::git_system_configuration;
+    #[cfg(windows)]
+    use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+    #[cfg(not(windows))]
     use super::probe_budget::ProbeBudget;
     let Some(tool) = std::env::var_os("DG_FILTERED_SHELL_TOOL") else {
         return;

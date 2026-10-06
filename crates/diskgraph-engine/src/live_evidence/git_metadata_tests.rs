@@ -1,6 +1,9 @@
 use super::git_index_layout::GitIndexLayout;
 use super::git_metadata_budget::GitMetadataBudget;
 use super::git_metadata_file::GitMetadataFile;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use super::probe_limits::ProbeLimits;
 use sha1::{Digest, Sha1};

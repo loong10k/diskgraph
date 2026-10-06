@@ -1,6 +1,10 @@
 //! Git 隔离回归的原生临时仓库；不接触用户仓库或远端网络。
 
-use super::{GitSample, ProbeLimits, sample_git_bounded};
+#[cfg(windows)]
+use super::native_evidence_test_session::NativeEvidenceTestSession;
+#[cfg(not(windows))]
+use super::sample_git_bounded;
+use super::{GitSample, ProbeLimits};
 use std::collections::BTreeSet;
 use std::fs::{FileTimes, OpenOptions};
 use std::path::{Path, PathBuf};
@@ -90,6 +94,12 @@ impl GitIsolationFixture {
     /// 通过当前公开有界入口采样，不使用测试替身绕过生产逻辑。
     /// 参数：无；返回：实际样本或生产诊断。
     pub(super) fn sample(&self) -> Result<GitSample, String> {
+        #[cfg(windows)]
+        {
+            let mut session = NativeEvidenceTestSession::new(&ProbeLimits::default())?;
+            session.sample_git(Path::new("git"), self.path())
+        }
+        #[cfg(not(windows))]
         sample_git_bounded(Path::new("git"), self.path(), &ProbeLimits::default())
     }
 

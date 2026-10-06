@@ -3,6 +3,9 @@
 use super::git_executable::GitExecutable;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_tool_path::from_native;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use super::{ProbeLimits, sample_git_bounded};
 use std::path::{Path, PathBuf};

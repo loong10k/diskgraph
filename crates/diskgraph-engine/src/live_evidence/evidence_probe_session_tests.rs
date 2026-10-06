@@ -1,7 +1,11 @@
 //! D29 真实进程共享预算回归；仅使用独占临时目录与受信测试程序。
 
+#[cfg(not(windows))]
+use super::EvidenceProbeSession;
 use super::git_isolation_fixture::GitIsolationFixture;
-use super::{EvidenceProbeSession, ProbeLimits, UsageCoverage};
+#[cfg(windows)]
+use super::native_evidence_test_session::NativeEvidenceTestSession as EvidenceProbeSession;
+use super::{ProbeLimits, UsageCoverage};
 use std::path::Path;
 #[cfg(unix)]
 use std::path::PathBuf;
