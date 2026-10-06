@@ -159,17 +159,21 @@ impl ProbeResourcePool {
                 }
             };
             if let Some((inner, mut directory)) = work {
-                let result = inner.drain().and_then(|empty| {
-                    if !empty {
-                        return Ok(false);
-                    }
-                    if let Some(owner) = directory.as_mut() {
-                        owner
-                            .cleanup()
-                            .map_err(|error| EngineError::Io(std::io::Error::other(error)))?;
-                    }
-                    Ok(true)
-                });
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    #[cfg(all(test, windows))]
+                    crate::probe_pool_cleanup_fault::ProbePoolCleanupFault::checkpoint();
+                    inner.drain().and_then(|empty| {
+                        if !empty {
+                            return Ok(false);
+                        }
+                        if let Some(owner) = directory.as_mut() {
+                            owner
+                                .cleanup()
+                                .map_err(|error| EngineError::Io(std::io::Error::other(error)))?;
+                        }
+                        Ok(true)
+                    })
+                }));
                 let mut slots = self
                     .slots
                     .lock()
@@ -177,17 +181,23 @@ impl ProbeResourcePool {
                 let slot = &mut slots[index];
                 slot.draining = false;
                 match result {
-                    Ok(true) => {
+                    Ok(Ok(true)) => {
                         slot.reserved = false;
                     }
-                    Ok(false) => {
+                    Ok(Ok(false)) => {
                         slot.directory = directory;
                     }
-                    Err(error) => {
+                    Ok(Err(error)) => {
                         slot.directory = directory;
                         if first.is_none() {
                             first = Some(error);
                         }
+                    }
+                    Err(payload) => {
+                        // 内层恢复自己的 child 后，外层仍须归还原目录与代次，再继续原 panic。
+                        slot.directory = directory;
+                        drop(slots);
+                        std::panic::resume_unwind(payload);
                     }
                 }
             }

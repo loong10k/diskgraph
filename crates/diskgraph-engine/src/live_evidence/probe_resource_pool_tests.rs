@@ -226,3 +226,55 @@ fn directory_retry_after_session_release_cannot_take_recovery_owner() {
     assert_eq!(recovery.occupied_slots().unwrap(), 0);
     eprintln!("DG_WINDOWS_RELEASED_SESSION_CANNOT_REBORROW_DIRECTORY=1");
 }
+
+#[test]
+fn pool_cleanup_unwind_retains_original_directory_until_actual_retry() {
+    let (host, recovery) = ProbeHost::new(1).unwrap();
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    budget.bind_probe_host(Arc::clone(&host.registry)).unwrap();
+    let mut private = GitPrivateDirectory::new(&mut budget).unwrap();
+    let root = private.path().to_owned();
+    let path = root.join("original-denied-file");
+    private
+        .write(&path, b"original payload", &mut budget)
+        .unwrap();
+    let held = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&path)
+        .unwrap();
+    assert!(private.complete(Ok(())).unwrap_err().contains("cleanup"));
+    drop(budget);
+    drop(held);
+    let original_identity =
+        super::git_private_allocation::GitPrivateAllocation::capture(&root).unwrap();
+    crate::probe_pool_cleanup_fault::ProbePoolCleanupFault::arm();
+    let payload = catch_unwind(AssertUnwindSafe(|| recovery.drain())).unwrap_err();
+    let retained = recovery.occupied_slots().unwrap();
+    let refused = host.registry.reserve().is_err();
+    let original_present = std::fs::read(&path).unwrap() == b"original payload";
+    let actually_recovered = matches!(recovery.drain(), Ok(true));
+    assert_eq!(
+        payload.downcast_ref::<&str>(),
+        Some(&"original-probe-pool-cleanup-panic")
+    );
+    assert_eq!(retained, 1);
+    assert!(refused && original_present);
+    println!("DG_PROBE_POOL_UNWIND_RED_READY=1");
+    if !actually_recovered {
+        // RED 夹具清场不能充当 Recovery 成功；先验证原根身份，仍保留下面的生产恢复失败断言。
+        let current = super::git_private_allocation::GitPrivateAllocation::capture(&root).unwrap();
+        assert!(original_identity.same_identity(&current));
+        std::fs::remove_dir_all(&root).unwrap();
+    }
+    assert!(
+        actually_recovered,
+        "original probe pool lost directory or stayed draining after unwind"
+    );
+    assert!(!root.exists());
+    assert_eq!(recovery.occupied_slots().unwrap(), 0);
+    drop(private);
+    drop(host.registry.reserve().unwrap());
+    assert_eq!(recovery.occupied_slots().unwrap(), 0);
+    println!("DG_PROBE_POOL_UNWIND_ORIGINAL_DIRECTORY_RESTORED=1");
+}

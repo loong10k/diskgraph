@@ -1,0 +1,143 @@
+{
+  "candidate": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+  "run": 37524721505,
+  "scope": "native modified private file rejection and original disposal only; not full shutdown acceptance",
+  "artifacts": [
+    {
+      "variant": "stable",
+      "artifact_id": 11442141997,
+      "verified_sources": [
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs",
+          "revision": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+          "verified_as": "git LF"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs",
+          "revision": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+          "verified_as": "git LF"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "revision": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+          "verified_as": "git LF"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/git_callback_tests.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        }
+      ],
+      "files": [
+        {
+          "path": "stable_green-disposal.log.gz",
+          "original_sha256": "a9f1f9dfde6c5c1931bec7df69223064d087a9f1ba8d69bb4d32406f23ecf482",
+          "bytes": 910
+        },
+        {
+          "path": "stable_green-public-rejection.log.gz",
+          "original_sha256": "f18a3777bc1d89425d22f0e83c7d75a6b40a3244d47e5dcdf0c19f427c0920b0",
+          "bytes": 6961
+        },
+        {
+          "path": "stable_receipt.json.gz",
+          "original_sha256": "c7cef6a30a6bd5624db3eb3d10ca09fe5c6a7b012d755708311621b83305509f",
+          "bytes": 1654
+        },
+        {
+          "path": "stable_red.log.gz",
+          "original_sha256": "dcc29cb69283b88c14db0b268d53164674569f4d79b779b077b4abb2f761c88d",
+          "bytes": 1310
+        }
+      ]
+    },
+    {
+      "variant": "msrv",
+      "artifact_id": 11442331594,
+      "verified_sources": [
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs",
+          "revision": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+          "verified_as": "git LF"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs",
+          "revision": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+          "verified_as": "git LF"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "revision": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+          "verified_as": "git LF"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        },
+        {
+          "source": "crates/diskgraph-engine/src/live_evidence/git_callback_tests.rs",
+          "revision": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+          "verified_as": "Windows CRLF checkout"
+        }
+      ],
+      "files": [
+        {
+          "path": "msrv_green-disposal.log.gz",
+          "original_sha256": "ec4b1d944696d4b343a75b5428e9a426dfe037732e8da1f558cb628e0be7af3b",
+          "bytes": 910
+        },
+        {
+          "path": "msrv_green-public-rejection.log.gz",
+          "original_sha256": "6d58095a8c4104200cc9a79cae0d0b3c5952bd6698ca08eac2b9dfd14daa4572",
+          "bytes": 6961
+        },
+        {
+          "path": "msrv_receipt.json.gz",
+          "original_sha256": "c7cef6a30a6bd5624db3eb3d10ca09fe5c6a7b012d755708311621b83305509f",
+          "bytes": 1654
+        },
+        {
+          "path": "msrv_red.log.gz",
+          "original_sha256": "e3ca189c16f35922075a7db020d2e4915cebd76db64c3f42cc7f03a86aea9944",
+          "bytes": 1310
+        }
+      ]
+    }
+  ]
+}
