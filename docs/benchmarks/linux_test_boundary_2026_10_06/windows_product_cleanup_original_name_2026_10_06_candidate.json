@@ -1,0 +1,19 @@
+{
+  "commit": "3833cac2bf135bbac09b40f65a4f84056a872519",
+  "run": 37462037490,
+  "job": 112263727330,
+  "platform": "windows-latest / Rust stable",
+  "image_material": {
+    "passed": 8,
+    "failed": 0
+  },
+  "product_cleanup": {
+    "passed": 2,
+    "failed": 1,
+    "normal_registered_tree": "passed",
+    "foreign_child_retention": "passed",
+    "moved_root": "fixture rename failed before cleanup"
+  },
+  "production_ready": false,
+  "limitation": "Normal cleanup passing does not qualify moved-root cleanup or Windows scan execution."
+}

@@ -67,3 +67,5 @@ Linux 同一 b20c88d/37459156304 的 x86_64 stable、x86_64 Rust 1.97 与 ARM st
 必须在产品 `GitPrivateDirectory::with_limits` 创建、登记嵌套目录和文件后，调用原 `complete` 实际删除整个登记树，并验证原根缺失及重复完成幂等。保留移动原根与同名外来替换的原回归；改名在夹具阶段被租约拒绝不能代替清理成功。现有原生 `held_parent_lease_blocks_move_until_creation_phase_is_released` 明确证明创建父租约存活时改名被拒绝，释放后原根 anchor 仍可核验移动后的身份；产品仍复制保留创建租约，须取得正常清理原生证据后再调整生命周期。
 
 1debd3e/37460438073 Windows stable 与 Rust 1.97 镜像材料八案均通过；产品目录清理仍在移动原根的夹具构造处失败，不授予执行资格。本次新增原路径正控尚未在 Windows 执行，不声称 RED/GREEN。该提交 Linux Rust 1.97 全量 Engine 556 passed/0 failed/3 ignored、Store 291 passed/0 failed/1 ignored，FFI 40 passed/49 failed；全工作区门禁仍未通过。
+
+3833cac/37462037490 Windows stable 与 Rust 1.97 实际执行新增正常路径正控成功，产品三案均 2 passed/1 failed；原失败仍在移动原根时的分享冲突，尚未进入清理。长期持有创建父租约没有阻止产品正常清理，不能据此修改生产分享保护。必须进一步验证底层移动原对象清理及产品租约阻止替换的完整契约；当前不关闭清理父项。stable 原始日志及结果记录：[实际原生证据](../../../docs/benchmarks/linux_test_boundary_2026_10_06/windows_product_cleanup_original_name_2026_10_06_candidate.json)。
