@@ -37,3 +37,5 @@ Linux Engine 原生门禁必须测试 CI checkout 对应的完整当前提交，
 Linux 的公开 Recovery::drain_until 必须沿用出生时原 pidfd，不使用数值 PID 重新打开或发信号。真实活动 child 在期限已过时，连续调用不得关闭控制输入、发送信号或消费 wait；原槽不可重用。真实线程 seccomp 拒绝 waitid 时，连续恢复必须传播原 EACCES 并保留同一 owner/容量，未过滤宿主随后可用原 pidfd 实际消费等待。正常清理只有实际 P_PIDFD wait 消费成功且原整个线程组退出后才返还槽位，测试以保留的原 pidfd 重复 wait 得到 ECHILD 和 POLLIN 为证。每轮仅使用 WNOHANG/零超时 poll，不进行内部 EINTR 循环、sleep 或阻塞 wait。前端有限退出仍须独立完成，不能由该接口推出。
 
 三个 Linux runner 的 RED（37438383770、e839fdb）均仅因缺失 drain_until 接口出现 E0599；这是原生编译的接口缺失证据，不称为运行时行为 RED。现接入原 pidfd、零超时轮询和单次 WNOHANG，新增3项用例必须与原5项一起实际通过且保留原wait消费标记。macOS共享registry回归3/0、结构6/0、fmt通过；Linux运行结果仍待CI，有限前端退出和生产父项不勾选。
+
+Linux 期限恢复已通过当前完整源码原生门禁：37438978565 / c98dc1b，x86 stable、x86 Rust1.97、arm64 stable 各8/0/0（原5项+新增3项），逐项包含期限容量保持、真实seccomp wait拒绝、原pidfd实际消费标记和原namespace init wait闭环。原始source清单/worker摘要/日志见 docs/benchmarks/linux_deadline_recovery_2026_10_06/verified-native.json。Clippy -D clippy::all通过但21条既有Rust警告未消除；严格warnings、前端有限退出和全平台生产父项仍未完成。

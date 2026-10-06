@@ -1,0 +1,28 @@
+{
+  "run_id": 37438978565,
+  "source_commit": "c98dc1bc5361b7cdbc1aaf181ed6dbcf827544fe",
+  "matrix": [
+    {
+      "artifact": "linux-engine-ubuntu-24.04-arm-stable-37438978565",
+      "cases": 8,
+      "worker_sha256": "3415a873fafe6b1b1623af93967f16bf3205ed8e6d22b5d18f2121573cadb710",
+      "original_init_reaped": true
+    },
+    {
+      "artifact": "linux-engine-ubuntu-24.04-stable-37438978565",
+      "cases": 8,
+      "worker_sha256": "211a8130355188f1f8656dfda72ce1a543f929b7e988b2cd4b08d3c87a57de20",
+      "original_init_reaped": true
+    },
+    {
+      "artifact": "linux-engine-ubuntu-24.04-1.97.0-37438978565",
+      "cases": 8,
+      "worker_sha256": "e5851edcbcf9166cab00556ba20d15a8a4d9cc4200e85e0fae28993e4b14bd90",
+      "original_init_reaped": true
+    }
+  ],
+  "linux_deadline_recovery_acceptance": true,
+  "finite_frontend_exit_acceptance": false,
+  "full_workspace_acceptance": false,
+  "production_acceptance": false
+}
