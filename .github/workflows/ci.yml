@@ -127,6 +127,7 @@ jobs:
           if-no-files-found: error
       - name: Native Windows private directory cleanup unit boundary
         if: runner.os == 'Windows'
+        timeout-minutes: 10
         run: cargo test -p diskgraph-engine --lib --locked live_evidence::windows_git_cleanup_tests -- --nocapture
       - name: Native Windows pre-resume admission boundary
         if: runner.os == 'Windows'
