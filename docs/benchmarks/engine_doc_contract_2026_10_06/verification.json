@@ -344,5 +344,7 @@
         "crates/diskgraph-engine/src/native_child/unix_child.rs"
       ]
     }
-  ]
+  ],
+  "documentation_patch_original_sha256": "64748c2af754a2b30dbf02da7605881f1357583e31adfb6b7b5586cc85d8acfa",
+  "documentation_patch_encoding": "gzip preserves original diff context bytes"
 }
