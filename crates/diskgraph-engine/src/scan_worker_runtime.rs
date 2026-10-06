@@ -24,8 +24,6 @@ use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
 use std::path::Path;
 #[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use std::thread;
-#[cfg(any(target_os = "linux", target_os = "macos", windows))]
-use std::time::Duration;
 use std::time::Instant;
 
 #[cfg(any(target_os = "linux", target_os = "macos", windows))]
@@ -136,7 +134,10 @@ impl<'a> ScanWorkerRuntime<'a> {
                     };
                 }
                 let remaining = self.deadline.saturating_duration_since(Instant::now());
-                thread::sleep(remaining.min(Duration::from_millis(20)));
+                let delay = remaining.min(active.next_poll_delay());
+                if !delay.is_zero() {
+                    thread::sleep(delay);
+                }
             }
         }));
         match observed {

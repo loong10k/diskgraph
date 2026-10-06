@@ -8,7 +8,7 @@ use diskgraph_scan_worker::{ExecutionOutcome, ScanProgress, WorkerRequest};
 use std::convert::Infallible;
 use std::io;
 use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 /// 独占真实 Child 的非阻塞父端驱动，不把 End／EOF／进度完成当 OS 退出。
 /// 来源：PF-06；原请求期限／授权检查贯穿控制、双输出、协议组装和正常 wait。
@@ -18,12 +18,22 @@ pub(crate) struct ScanWorkerDriver {
     output: ScanWorkerOutput,
     deadline: Instant,
     stderr_first: bool,
+    output_advanced: bool,
     stopped: bool,
     completed: bool,
     unwind_cleanup: Option<ChildError>,
 }
 
 impl ScanWorkerDriver {
+    /// 参数：无；返回：本轮实际消费输出时零等待，否则待机20ms；不扩大读取块或预算。
+    pub(crate) fn next_poll_delay(&self) -> Duration {
+        if self.output_advanced {
+            Duration::ZERO
+        } else {
+            Duration::from_millis(20)
+        }
+    }
+
     /// 参数：child 为调用者在恢复边界外持有的唯一 owner 槽，request 为唯一 v2 DTO，expected 为声明匹配值，
     /// deadline 为原 Instant，stderr_limit 是原响应总额内部子限额。
     /// 返回：有限配置的驱动或原配置错误；失败及配置 panic 时 owner 留在调用者槽。
@@ -69,6 +79,7 @@ impl ScanWorkerDriver {
             output,
             deadline,
             stderr_first: false,
+            output_advanced: false,
             stopped: false,
             completed: false,
             unwind_cleanup: None,
@@ -124,6 +135,8 @@ impl ScanWorkerDriver {
         request_cancel: bool,
         checkpoint: &mut impl FnMut() -> Result<(), E>,
     ) -> Result<Option<ExecutionOutcome>, ScanWorkerFailure<E>> {
+        // 每次仅消费原固定块；忙碌时由调用者立即再轮询，双管道仍逐轮公平检查。
+        self.output_advanced = false;
         ScanWorkerFailure::check(self.deadline, checkpoint)?;
         self.input.request_cancel(request_cancel);
         self.pump_input(checkpoint)?;
@@ -262,6 +275,7 @@ impl ScanWorkerDriver {
             self.output.stdout(bytes, &mut || {
                 ScanWorkerFailure::check(self.deadline, checkpoint)
             })?;
+            self.output_advanced |= !bytes.is_empty();
         }
         ScanWorkerFailure::check(self.deadline, checkpoint)
     }
@@ -283,6 +297,7 @@ impl ScanWorkerDriver {
                 .read_stderr()?
         {
             self.output.stderr(bytes.len())?;
+            self.output_advanced |= !bytes.is_empty();
         }
         ScanWorkerFailure::check(self.deadline, checkpoint)
     }

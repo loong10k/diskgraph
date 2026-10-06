@@ -1,0 +1,31 @@
+{
+  "production_acceptance": false,
+  "behavioral_red_seconds": 1.691108208,
+  "local_green_seconds": 0.060273167,
+  "real_driver_regressions": {
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0
+  },
+  "checks": [
+    "engine all-target strict Clippy",
+    "fmt",
+    "source_layout 6/0",
+    "OpenSpec strict"
+  ],
+  "preserved": [
+    "fixed pipe buffers",
+    "alternating stdout/stderr",
+    "original deadline and per-block authorization",
+    "original response total",
+    "natural whole-group exit and recovery ownership"
+  ],
+  "native_full_scan_performance": "pending new-source paired release measurement",
+  "macos_expiry": "original 3-second validity unchanged; old native denial before observation remains recorded",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "50738da7b5581066baf247432f4af6edac9675ee88e5807394d84a196b23ed5d",
+    "crates/diskgraph-engine/src/scan_worker_runtime.rs": "ab6997ff5feff67a6ad5dafe7344468b703d80629cb682d43acfa1a03deaf68c",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "ead223a576c0ceaf7801d19fb3d390864affa6f883a3c9a140ee26153ff883e7",
+    "crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs": "d9ae7d2c2ab8499abf3dd9dbb4ce1a31e9313e0f2c8509705c0ed919ab571862"
+  }
+}

@@ -110,3 +110,67 @@ fn checkpoint_panic_keeps_payload_and_cleans_even_when_caller_retains_driver() {
         Err(ScanWorkerFailure::Stopped { cleanup: None })
     ));
 }
+#[test]
+fn busy_output_does_not_pay_an_idle_interval_per_fixed_block() {
+    let mut f = crate::scan_worker_driver_test_support::DriverFixture::new("stderr-first", 262144);
+    let deadline = f.deadline;
+    let start = std::time::Instant::now();
+    let outcome = loop {
+        if let Some(outcome) = f
+            .driver
+            .poll(false, || {
+                crate::scan_worker_driver_test_support::check(deadline)
+            })
+            .unwrap()
+        {
+            break outcome;
+        }
+        std::thread::sleep(f.driver.next_poll_delay());
+    };
+    let elapsed = start.elapsed();
+    assert!(matches!(
+        outcome,
+        diskgraph_scan_worker::ExecutionOutcome::Tree(_)
+    ));
+    assert!(f.reached("stderr-written") && f.reached("natural-exit"));
+    f.assert_reaped();
+    eprintln!("busy-output complete natural-exit elapsed={elapsed:?}");
+    assert!(
+        elapsed < std::time::Duration::from_secs(1),
+        "fixed-block idle throttling: {elapsed:?}"
+    );
+}
+
+#[test]
+fn live_child_without_output_keeps_idle_backoff_and_requires_actual_exit() {
+    let mut f = DriverFixture::new("held-end", 4096);
+    let deadline = f.deadline;
+    while !f.reached("pipes-closed") {
+        assert!(f.driver.poll(false, || check(deadline)).unwrap().is_none());
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    // 真实管道可能尚留尾帧；待其消费完成，不把End/EOF当作leader退出。
+    loop {
+        assert!(f.driver.poll(false, || check(deadline)).unwrap().is_none());
+        if !f.driver.next_poll_delay().is_zero() {
+            break;
+        }
+    }
+    for _ in 0..3 {
+        assert!(f.driver.poll(false, || check(deadline)).unwrap().is_none());
+        assert_eq!(f.driver.next_poll_delay(), Duration::from_millis(20));
+    }
+    f.release();
+    loop {
+        if let Some(outcome) = f.driver.poll(false, || check(deadline)).unwrap() {
+            assert!(matches!(
+                outcome,
+                diskgraph_scan_worker::ExecutionOutcome::Tree(_)
+            ));
+            break;
+        }
+        std::thread::sleep(f.driver.next_poll_delay());
+    }
+    assert!(f.reached("natural-exit"));
+    f.assert_reaped();
+}
