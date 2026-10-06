@@ -191,7 +191,7 @@ pub fn candidates_json(database_path: String, snapshot_id: String, target_bytes:
 #[uniffi::export]
 pub fn spawn_scan_json(database_path: String, root_path: String) -> std::sync::Arc<JobHandle> {
     spawn_job(move |cancel, progress| {
-        let engine = std::sync::Arc::new(open_engine(&database_path)?);
-        run_scan_on_engine(engine, &root_path, cancel, progress)
+        let host = crate::native_scan_host::NativeScanHost::open(&database_path, cancel, 1)?;
+        host.execute(|engine| run_scan_on_engine(engine, &root_path, cancel, progress))
     })
 }

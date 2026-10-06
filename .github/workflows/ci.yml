@@ -240,6 +240,9 @@ jobs:
       - name: Native Linux scoped FFI service scan
         if: runner.os == 'Linux'
         run: cargo test -p diskgraph-ffi --lib --locked scoped_service_scans_with_physical_host_and_closes_after_scope -- --nocapture
+      - name: Native Linux public FFI asynchronous scan
+        if: runner.os == 'Linux'
+        run: cargo test -p diskgraph-ffi --lib --locked a_spawned_scan_returns_a_handle_at_once_and_join_later -- --nocapture
       - name: Test
         run: cargo test --workspace --all-targets --locked --no-fail-fast
       - name: Native Linux identity and process scan fixtures
