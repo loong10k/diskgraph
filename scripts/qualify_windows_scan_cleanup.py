@@ -11,6 +11,17 @@ import qualify_macos_installed_worker as shared
 BASELINE_CANDIDATE = Path("crates/diskgraph-engine/integration_candidates/windows_cleanup_baseline")
 CANDIDATE = Path("crates/diskgraph-engine/integration_candidates/windows_cleanup")
 
+DIRECTORY_ENUMERATION_CASES = tuple("live_evidence::windows_git_directory_cursor_tests::" + name for name in (
+    "held_directory_names_ignore_foreign_path_argument",
+    "held_directory_pages_preserve_raw_utf16_and_full_file_ids",
+    "directory_record_decoder_rejects_invalid_lengths_offsets_and_components",
+))
+
+
+def check_directory_enumeration_cases(cases):
+    if len(cases) != len(DIRECTORY_ENUMERATION_CASES) or set(cases) != set(DIRECTORY_ENUMERATION_CASES):
+        raise ValueError("fixed held directory enumeration and codec inventory differs")
+
 
 REQUIRED_CASES = tuple("native_child::windows::windows_cleanup_recovery_tests::" + name for name in (
     "cleanup_wait_failure_retains_original_owner_until_actual_retry",
@@ -233,6 +244,9 @@ def main():
         with isolated_source(checkout, BASELINE_CANDIDATE if args.baseline else CANDIDATE) as (source, manifest):
             receipt["candidate"] = manifest
             receipt["workspace_commit"] = manifest["base_ref"]
+            enumeration_cases = [] if args.baseline else manifest["directory_enumeration_cases"]
+            if not args.baseline:
+                check_directory_enumeration_cases(enumeration_cases)
             cases = manifest["cleanup_cases"]
             check_cases(cases)
             prerequisites = manifest["io_prerequisite_cases"]
@@ -291,7 +305,7 @@ def main():
             results = []
             # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
             receipt["cases"] = results
-            for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases) + list(atomic_root_cases) + list(connect_cases) + list(prepared_job_cases) + list(fence_cases):
+            for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases) + list(atomic_root_cases) + list(connect_cases) + list(prepared_job_cases) + list(fence_cases) + list(enumeration_cases):
                 name = case.rsplit("::", 1)[-1]
                 try:
                     shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],

@@ -37,7 +37,8 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 495)
+            self.assertEqual(len(manifest["sources"]), 497)
+            qualifier.check_directory_enumeration_cases(manifest["directory_enumeration_cases"])
             qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
             qualifier.check_prepared_job_cases(manifest["prepared_job_cases"])
             qualifier.check_cases(manifest["cleanup_cases"])
@@ -292,3 +293,24 @@ class FencePriorityInventoryTests(unittest.TestCase):
         for invalid in ([], cases[:-1], cases + [cases[0]], list(qualifier.PROBE_CASES)):
             with self.assertRaises(ValueError):
                 qualifier.check_fence_priority_cases(invalid)
+
+
+class DirectoryEnumerationInventoryTests(unittest.TestCase):
+    def test_original_enumeration_and_decoder_cases_cannot_be_missing_or_duplicated(self):
+        cases = list(qualifier.DIRECTORY_ENUMERATION_CASES)
+        qualifier.check_directory_enumeration_cases(cases)
+        for invalid in ([], cases[:-1], cases + [cases[0]], list(qualifier.RESOURCE_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_directory_enumeration_cases(invalid)
+
+    def test_directory_baseline_requires_exact_runtime_assertion_not_build_or_zero_tests(self):
+        import qualify_windows_directory_enumeration as baseline
+        stdout = ("test " + baseline.CASE + " ... DG_HELD_DIRECTORY_ARGUMENT_CONTROL=1\n"
+                  "test result: FAILED. 0 passed; 1 failed; 0 ignored;\n")
+        stderr = "held directory must never enumerate the foreign argument path"
+        baseline.check_target_red(stdout, stderr)
+        for out, err in (("", "compile error"), (stdout.replace(baseline.CASE, "wrong_case"), stderr),
+                         (stdout.replace("DG_HELD_DIRECTORY_ARGUMENT_CONTROL=1", ""), stderr),
+                         (stdout.replace("1 failed", "0 failed"), stderr), (stdout, "unrelated failure")):
+            with self.assertRaises(RuntimeError):
+                baseline.check_target_red(out, err)

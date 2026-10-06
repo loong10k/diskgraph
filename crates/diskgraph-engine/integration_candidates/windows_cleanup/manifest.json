@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "220bfdacee9eedf86e176563a43bbe9f2da7f296aff4af672f1c8fb60325fa16",
+  "archive_sha256": "b5d8b7348bac10c86d4938043c4726788674caf111024993c97a358e4349d336",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -87,7 +87,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_config_policy.rs": "807ca5e126524fcade588249842925dbf2542fa71d3dde5d4cc81f01e3041dea",
     "crates/diskgraph-engine/src/live_evidence/git_config_policy_tests.rs": "f4854b4cece8811ca8ba03b814cb040ddfa6c5a39e55ec615920111cd89a555b",
     "crates/diskgraph-engine/src/live_evidence/git_configuration.rs": "aeced220fc1d39bf63d16009d07a4db7ccdd6569cd8faa16b7eac5624e87c174",
-    "crates/diskgraph-engine/src/live_evidence/git_directory_lease.rs": "e8ff779a8ddadf1195b40db01a1ef368e8fb06fdd1a0cb060a1c7391b2add059",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_lease.rs": "4888044706570533cd1c141424538ce1a8f34d995e1c2cd7f1597dc136e0bb29",
     "crates/diskgraph-engine/src/live_evidence/git_directory_security.rs": "221887928de719056ae0d7fad7a36d5f02cfd9ba3bec042d8f8d63d323aa6b2e",
     "crates/diskgraph-engine/src/live_evidence/git_directory_tests.rs": "a2181697438c1a1b11f0fb46f32684c7cc340b8f848664d982f52e32d20bbf56",
     "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "bd19e9032770964b9c6d9bbfc7ceabc3ab94e94e4f5d9cc523565e3ebb4c6d80",
@@ -153,7 +153,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs": "772b22785226f5859222d53dae660ebfad9ff90c5658f32f139b5e4e9defdfe6",
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture_tests.rs": "53ae59b0975915dc934e6e60b2ecbc7e1a063d50122c3ec8c0f8cf49e6bba484",
     "crates/diskgraph-engine/src/live_evidence/macos_probe_tests.rs": "8896b66f810257490c0b200b7284f0decf6c7d4bd02cc9b97d4ff1b46aba5c0a",
-    "crates/diskgraph-engine/src/live_evidence/mod.rs": "5d71251c8a8ef78788c1338d1d09a0de195c2161e139dbb6f6fb4cebe99ab2be",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "ab5e4505193d026020de558de3761d9ba9472c3db78add96f03cd143963ed53f",
     "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "c0a46a1b2f2ce2aab7c1ba2c428e386093643cb63438d9c06a68bc4204b1e57e",
     "crates/diskgraph-engine/src/live_evidence/probe_directory_witness.rs": "cc7a242954bdfe5742cebf091bd5416d883580e681863e07f35153714c1f3f5e",
     "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "c528ec955d19564d2edab0952f6d3f9ea997a841937851e3f092c7e83b3ffa49",
@@ -501,7 +501,9 @@
     "crates/diskgraph-scan-worker/src/worker_runtime.rs": "3ce6f0a12fcf1043dd14cbdbd4cdf71900cb56733148e132c24972a7ffa7dabc",
     "crates/diskgraph-scan-worker/src/worker_scan_request.rs": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
-    "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f"
+    "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "23d99b65b903a2c16aa131fd6a238e478735b161ff87c925b4db782a65388043",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "ad1720e8fc44ee81ff469b1524224d1a273fd303c1aa1af0e5858b5bb8f3e32a"
   },
   "cleanup_cases": [
     "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
@@ -632,5 +634,10 @@
     "process_fence_priority_tests::original_expiry_remains_authority_denied_when_execution_deadline_already_elapsed",
     "process_fence_priority_tests::current_owner_and_live_metadata_grant_still_gate_unexpired_work",
     "process_fence_priority_tests::wrong_owner_is_rejected_before_unexpired_fence_work"
+  ],
+  "directory_enumeration_cases": [
+    "live_evidence::windows_git_directory_cursor_tests::held_directory_names_ignore_foreign_path_argument",
+    "live_evidence::windows_git_directory_cursor_tests::held_directory_pages_preserve_raw_utf16_and_full_file_ids",
+    "live_evidence::windows_git_directory_cursor_tests::directory_record_decoder_rejects_invalid_lengths_offsets_and_components"
   ]
 }

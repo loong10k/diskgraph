@@ -41,3 +41,11 @@ CI 37412964453 已终态失败：65个原生用例中60通过，5个根重开场
 验收保持全部65项、共享租约期间错误32、解除租约后的真实mark/clear、移动与恶意替换正控。不得以按名回退、关闭防护、删除断言或启用产品清理来替代。依据：https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwcreatefile 。原生结果未返回前仅记候选修复，父项保持开放。
 
 原生结果：CI 37413671391 在 e4bc1f0b4e60c6f255b00ca07c26ffc590e64902 实际通过全部65项；逐个stdout核对精确用例与1 passed/0 failed，没有零用例通过。旧版目标RED对照通过。此前五项根重开失败均关闭；共享租约期间仍拒绝32，解除后的原对象句柄实际mark/clear成功，按ID对照仍返回87。证据见 docs/benchmarks/windows_directory_open_options_2026_10_06。本结论仅证明原子根句柄子层，不完成增量删除walker、Pool、可信安装、默认Windows扫描或全平台生产门禁。
+
+## 原句柄分页目录枚举
+
+下一步接入 Windows GitDirectoryLease::read_names：只从原 lease 句柄枚举，调用方路径不作为重新打开依据，与现有 Unix 语义一致。使用 FileIdExtdDirectoryInfo/RestartInfo 的64KiB固定对齐页，逐项保留完整128位ID和原UTF-16名称；检查记录长度、偏移进展、名称单组件及非零ID，未知能力明确失败，不退回read_dir/按名枚举。每页原生调用前后和每项均检查原 ProbeBudget，不续期。元数据条目/字节账本保持，整个 names 返回仍受原32768项预算，不声称它已成为扫描流式或严格RSS能力。
+
+回归：原lease绑定A而参数路径指向B时必须只读A；宽目录跨多页及非UTF-8名称保持；非法原生记录拒绝。原路径枚举以同一新测试、唯一替换的已提交旧GitDirectoryLease源码取得实际Windows目标RED，编译失败不算；修复与原65项一起运行，不减断言。此层是后续原句柄cleanup walker的枚举基础，不完成整个目录删除或产品启用。依据：https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_extd_dir_info 。
+
+本机结构6/6、验收驱动24/24、归档保护13/13、格式和OpenSpec严格校验通过。Windows清单497源，保持原65项并增加两个真实文件系统用例及一个记录解码用例，共68项；Mac606源同步枚举模块，MCP162及原生child41的门禁不减少。旧枚举源码逐字节等于888fbc2中的已提交文件。Windows目标RED与68项实际运行尚待CI，不以本机cfg排除当Windows通过，也不勾选15.13父项。证据见 docs/benchmarks/windows_directory_cursor_2026_10_06。

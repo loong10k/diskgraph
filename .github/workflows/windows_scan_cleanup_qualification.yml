@@ -24,12 +24,16 @@ jobs:
         env:
           BASELINE_COMMIT: 8878912fb579f741b7776a2b533efc3237541c23
         run: git fetch --no-tags --depth=1 origin $env:BASELINE_COMMIT
+      - name: Obtain exact original directory enumeration implementation
+        run: git fetch --no-tags --depth=1 origin 888fbc20031baed5cca113eacf18e7ae81590ecd
       - name: Verify archive mounting safeguards
         run: python -m unittest discover -s scripts/tests -p test_macos_installed_qualifier.py -v
       - name: Verify exact native inventory and platform gate
         run: python -m unittest discover -s scripts/tests -p test_windows_scan_cleanup_qualifier.py -v
       - name: Actual old-source prepared birth lost-owner RED
         run: python scripts/qualify_windows_prepared_birth_baseline.py --output-dir "${{ runner.temp }}/windows-prepared-birth-baseline"
+      - name: Actual old directory enumeration target RED
+        run: python scripts/qualify_windows_directory_enumeration.py --output-dir "${{ runner.temp }}/windows-directory-baseline"
       - name: Actual Windows owner cleanup qualification
         run: python scripts/qualify_windows_scan_cleanup.py --output-dir "${{ runner.temp }}/windows-cleanup"
       - name: Original source normal-exit comparison
@@ -43,6 +47,7 @@ jobs:
           path: |
             ${{ runner.temp }}/windows-cleanup
             ${{ runner.temp }}/windows-prepared-birth-baseline
+            ${{ runner.temp }}/windows-directory-baseline
             crates/diskgraph-engine/integration_candidates/windows_prepared_birth_baseline
             ${{ runner.temp }}/windows-cleanup-baseline
             crates/diskgraph-engine/integration_candidates/windows_cleanup

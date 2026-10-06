@@ -99,8 +99,7 @@ impl GitDirectoryLease {
         Ok(names)
     }
 
-    /// 在 shareREAD 原目录句柄与祖先租约存活期间分页枚举。
-    /// 参数：path 仅保留兼容签名，不重新解析；budget/probe 为共享额度。返回：有界原UTF-16名称或错误。
+    /// 在 shareREAD 目录及祖先租约存活期间枚举。参数：path 为精确路径，budget/probe 为共享额度。返回：有界名称或错误。
     #[cfg(windows)]
     pub(super) fn read_names(
         &mut self,
@@ -108,15 +107,14 @@ impl GitDirectoryLease {
         budget: &mut GitMetadataBudget,
         probe: &mut ProbeBudget,
     ) -> Result<Vec<OsString>, String> {
-        use super::windows_git_directory_cursor::WindowsGitDirectoryCursor;
         use std::os::windows::ffi::OsStrExt;
         let mut names = Vec::new();
-        let _ = path;
-        // 与Unix相同，只从原lease句柄枚举；路径参数不能将A租约改为B目录。
-        let file = self.file.try_clone().map_err(|error| error.to_string())?;
-        let mut cursor = WindowsGitDirectoryCursor::new(file)?;
-        while let Some((name, _, _)) = cursor.next_entry(probe)? {
+        // shareREAD 租约保留所有父目录；前后完整状态复核，不能称为原子枚举。
+        for entry in std::fs::read_dir(path)
+            .map_err(|error| format!("git metadata directory enumeration: {error}"))?
+        {
             budget.check(probe)?;
+            let name = entry.map_err(|error| error.to_string())?.file_name();
             budget.charge_entry(probe)?;
             budget.charge_bytes(name.encode_wide().count() * 2, probe)?;
             names.push(name);

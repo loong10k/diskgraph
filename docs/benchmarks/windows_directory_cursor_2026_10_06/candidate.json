@@ -1,0 +1,18 @@
+{
+  "production_acceptance": false,
+  "source_base_sha": "888fbc20031baed5cca113eacf18e7ae81590ecd",
+  "original_lease_sha256": "e8ff779a8ddadf1195b40db01a1ef368e8fb06fdd1a0cb060a1c7391b2add059",
+  "archive_sha256": "b5d8b7348bac10c86d4938043c4726788674caf111024993c97a358e4349d336",
+  "sources": 497,
+  "required_exact_cases": 68,
+  "previous_native_cases": 65,
+  "new_filesystem_cases": 2,
+  "new_decoder_case": 1,
+  "structure_passed": 6,
+  "driver_passed": 24,
+  "mount_guards_passed": 13,
+  "native_red": "pending",
+  "native_green": "pending",
+  "cleanup_walker_integrated": false,
+  "vendor_pin_changed": false
+}
