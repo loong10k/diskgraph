@@ -48,6 +48,9 @@ mod windows_child_spawn;
 #[cfg(test)]
 #[path = "windows_image_policy_tests.rs"]
 mod windows_image_policy_tests;
+#[cfg(test)]
+#[path = "windows_process_image_name_tests.rs"]
+mod windows_process_image_name_tests;
 
 impl WindowsChild {
     /// 发起单个固定大小控制块。参数：bytes 非空且最多 4096 字节。返回：Written、Pending 或原错；Null 模式明确不支持。

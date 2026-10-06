@@ -13,7 +13,7 @@ pub struct ScanWorkerHost {
     #[cfg(target_os = "linux")]
     image: Mutex<File>,
     #[cfg(windows)]
-    _image: Mutex<crate::windows_scan_image_lease::WindowsScanImageLease>,
+    windows_image: Mutex<crate::windows_scan_image_lease::WindowsScanImageLease>,
     #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
     _image: Mutex<File>,
     #[cfg(target_os = "macos")]
@@ -77,7 +77,9 @@ impl ScanWorkerHost {
         Ok(Self {
             #[cfg(target_os = "linux")]
             image: Mutex::new(held_image),
-            #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+            #[cfg(windows)]
+            windows_image: Mutex::new(held_image),
+            #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
             _image: Mutex::new(held_image),
             #[cfg(target_os = "macos")]
             _image: Some(Mutex::new(held_image)),
@@ -90,6 +92,36 @@ impl ScanWorkerHost {
             budget: runtime,
             registry,
         })
+    }
+
+    /// 核验借用进程报告的镜像名称与本宿主原材料绑定，不授予执行或恢复线程权限。
+    /// 参数：process为调用方保留的真实进程句柄，deadline/checkpoint为原请求期限与检查。
+    /// 返回：名称及原句柄版本一致，或原错误；不证明映射字节及既有可写映射已安全。
+    #[cfg(windows)]
+    pub fn verify_windows_process_image_name(
+        &self,
+        process: std::os::windows::io::BorrowedHandle<'_>,
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+    ) -> Result<(), EngineError> {
+        let image = loop {
+            checkpoint()?;
+            if Instant::now() >= deadline {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            match self.windows_image.try_lock() {
+                Ok(image) => break image,
+                Err(std::sync::TryLockError::Poisoned(_)) => return Err(EngineError::Poisoned),
+                Err(std::sync::TryLockError::WouldBlock) => {
+                    std::thread::sleep(
+                        deadline
+                            .saturating_duration_since(Instant::now())
+                            .min(std::time::Duration::from_millis(20)),
+                    );
+                }
+            }
+        };
+        image.verify_process_name(process, deadline, checkpoint)
     }
 
     /// 从产品固定root保护配置构造macOS宿主，普通环境和旧File入口不能提供此资格。

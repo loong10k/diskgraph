@@ -114,6 +114,18 @@ impl WindowsScanImageLease {
         Ok(lease)
     }
 
+    /// 参数：process为仍由调用方持有的进程、deadline/checkpoint为原检查预算。
+    /// 返回：内核报告的镜像名称绑定本租约；不授予执行或声明映射内容已核验。
+    pub(crate) fn verify_process_name(
+        &self,
+        process: std::os::windows::io::BorrowedHandle<'_>,
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+    ) -> Result<(), EngineError> {
+        self.binding
+            .verify_process_name(&self.file, &self.identity, process, deadline, checkpoint)
+    }
+
     /// 参数：原准入期限及检查点；返回：原句柄仍为已核身份版本，不提供按路径加载资格。
     pub(crate) fn validate(
         &self,

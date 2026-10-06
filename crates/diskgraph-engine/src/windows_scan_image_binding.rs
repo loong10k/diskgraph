@@ -87,6 +87,52 @@ impl WindowsScanImageBinding {
         self.validate_checked(file, identity, &check)
     }
 
+    /// 核验原进程报告的Win32镜像名称，不按该名称重开任何文件。
+    /// 参数：file/identity为原材料，process为借用句柄，deadline/checkpoint沿原请求。
+    /// 返回：原父链、原句柄版本和报告名称一致；不证明映射字节或授予执行。
+    pub(crate) fn verify_process_name(
+        &self,
+        file: &File,
+        identity: &ScanImageIdentity,
+        process: std::os::windows::io::BorrowedHandle<'_>,
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+    ) -> Result<(), EngineError> {
+        use windows_sys::Win32::System::Threading::QueryFullProcessImageNameW;
+        self.validate(file, identity, deadline, checkpoint)?;
+        let mut wide = [0_u16; 32768];
+        let mut length = wide.len() as u32;
+        checkpoint()?;
+        if Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        let queried = unsafe {
+            QueryFullProcessImageNameW(process.as_raw_handle(), 0, wide.as_mut_ptr(), &mut length)
+        };
+        // 必须先保存本次Win32原错，再执行可能改变线程last-error的业务检查。
+        let error = (queried == 0).then(std::io::Error::last_os_error);
+        checkpoint()?;
+        if Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        if let Some(error) = error {
+            return Err(error.into());
+        }
+        let length = length as usize;
+        if length == 0 || length >= wide.len() || wide[length] != 0 || wide[..length].contains(&0) {
+            return Err(BusinessError::InvalidArgument.into());
+        }
+        let actual = PathBuf::from(OsString::from_wide(&wide[..length]));
+        let reported = WindowsPathPlan::for_root(&actual)?;
+        let original = WindowsPathPlan::for_root(&self.path)?;
+        if reported.drive_root != original.drive_root || reported.components != original.components
+        {
+            return Err(BusinessError::Conflict.into());
+        }
+        // 只从持续持有的原父句柄复核原叶，不从进程报告的可变路径取得新身份。
+        self.validate(file, identity, deadline, checkpoint)
+    }
+
     fn validate_checked(
         &self,
         file: &File,

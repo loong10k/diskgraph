@@ -1,0 +1,47 @@
+{
+  "run_id": 37491505046,
+  "source_commit": "57d6dd3b87708ded8b7ae044b9608bc9fe3c62cd",
+  "cases": [
+    {
+      "rust": "stable",
+      "job_id": 112365930087,
+      "artifact_id": 11425338933,
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0,
+      "worker": {
+        "production_acceptance": false,
+        "checkout_sha": "57d6dd3b87708ded8b7ae044b9608bc9fe3c62cd",
+        "worker_bytes": 2086400,
+        "worker_sha256": "457E4C13CD13C893C06A3B735A93B8DF36BE64DB7B9CA906B075F79CDC5A0A7B"
+      },
+      "raw_hashes": {
+        "windows-worker-build.jsonl": "58e8cd835180787d004acb5302af6900d495a96a3d3b03465255e35d9454d0bd",
+        "windows-worker-receipt.json": "bc4902fc6f12ca525693abefc882e277e92a47f0bf03f3997e37419d51c37a99",
+        "windows-worker-protocol.log": "706b45b5f05882811d9937dfd202c5e155d6ade6e2402801a960ebb65d881767"
+      }
+    },
+    {
+      "rust": "1.97.0",
+      "job_id": 112365930818,
+      "artifact_id": 11425967327,
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0,
+      "worker": {
+        "checkout_sha": "57d6dd3b87708ded8b7ae044b9608bc9fe3c62cd",
+        "worker_sha256": "3420D15EB2A0D6ED00D56307C0513E71B83E58F1A4D5D06ED9CEB98444D1DC03",
+        "worker_bytes": 2199040,
+        "production_acceptance": false
+      },
+      "raw_hashes": {
+        "windows-worker-build.jsonl": "0967d8e08f86ed9283effc9d4b47f773827f38671e066df29399e013d72f6768",
+        "windows-worker-receipt.json": "658532d345587735f66a0736ca65b5159e06358044206b07d98ba42362a95934",
+        "windows-worker-protocol.log": "0da225d77485709e6c4e7f886706910ae23b32e126cddc724898df215fef8c4c"
+      }
+    }
+  ],
+  "stable_parent_failure": "CLI and authenticated HTTP index returned Unsupported exit 6",
+  "production_acceptance": false,
+  "image_execution_binding": "not qualified"
+}

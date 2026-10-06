@@ -77,6 +77,25 @@ jobs:
       - name: Native Windows image material unit boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked windows_scan_image_lease_tests -- --nocapture
+      - name: Native Windows borrowed process image-name binding
+        if: runner.os == 'Windows'
+        timeout-minutes: 5
+        run: |
+          cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_child::windows_process_image_name_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-process-image-name.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-process-image-name.log" -Raw
+          if ($log -notmatch 'test result: ok\. 2 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'DG_WINDOWS_PROCESS_ORIGINAL_NAME_BOUND=1' -or
+              $log -notmatch 'DG_WINDOWS_PROCESS_FOREIGN_NAME_REJECTED=1') {
+            throw 'Both actual suspended process-name cases must execute'
+          }
+      - name: Preserve Windows process image-name binding result
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-process-image-name-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-process-image-name.log
+          if-no-files-found: error
       - name: Native Windows private directory cleanup unit boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked live_evidence::windows_git_cleanup_tests -- --nocapture
@@ -164,6 +183,7 @@ jobs:
           "DISKGRAPH_WINDOWS_WORKER_QUALIFICATION=$image" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Native Windows actual worker protocol and original cancellation
         if: runner.os == 'Windows'
+        timeout-minutes: 5
         run: |
           cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_worker_protocol_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-worker-protocol.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
