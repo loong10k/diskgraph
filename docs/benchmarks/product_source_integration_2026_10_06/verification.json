@@ -235,7 +235,12 @@
     "crates/diskgraph-scan-worker/src/lib.rs": "465a187657f66b38e1122ecc90dfa8ec13401ac129bcb8d78ee0d85e26c04005",
     "crates/diskgraph-scan-worker/src/macos_process_limit.rs": "eb045907403d61f1784c7afca04234b2dc39c224f79dfb61b7a27c1e60964238",
     "crates/diskgraph-scan-worker/src/macos_process_limit_tests.rs": "32165ac307fd0775ee268612611367f370ddb750ce2c3755f6695181408d81b3",
-    "crates/diskgraph-scan-worker/src/worker_runtime.rs": "3ce6f0a12fcf1043dd14cbdbd4cdf71900cb56733148e132c24972a7ffa7dabc"
+    "crates/diskgraph-scan-worker/src/worker_runtime.rs": "3ce6f0a12fcf1043dd14cbdbd4cdf71900cb56733148e132c24972a7ffa7dabc",
+    "crates/diskgraph-cli/src/cli_engine_host/test_engine.rs": "112e370a423e730532a0600f9215dd38a9184f465981dadfa674c50ab692a555",
+    "crates/diskgraph-cli/src/cli_engine_host/tests.rs": "7564ffd887aae51a9c4d6cf1fc1ff6bea1c49dc1dd6eb17bb666dc2c1dcedc09",
+    "crates/diskgraph-cli/tests/fixtures/windows_exit_status_fixture.c": "cab1b4db5cd54777a58d94418a551e18e84370ed322a6e295c39271aa842b058",
+    "crates/diskgraph-engine/tests/scan_worker_engine_flow/fixture.rs": "637a11edc8c2b746159708e3e1a15e2157bc1d048eb1771305d8c4d1d4c43b4e",
+    "crates/diskgraph-mcp/src/tests/job_runner_fixture/tests.rs": "1f7e98e51b1cf69ceddfac195f49a0a0ca83459c01bbeac1e3ba51d90a66b367"
   },
   "local_validation": {
     "all_targets_check": "passed",
@@ -252,5 +257,9 @@
     "Linux/Windows full current-source gates not complete",
     "complete default workspace regression and release performance gates not passed",
     "older frozen source native passes do not validate this integrated source"
-  ]
+  ],
+  "nested_inventory_correction": {
+    "reason": "initial porcelain inventory collapsed untracked directories; expanded with git ls-files --others",
+    "files": 5
+  }
 }
