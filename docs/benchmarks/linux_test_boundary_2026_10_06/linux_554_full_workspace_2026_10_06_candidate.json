@@ -1,0 +1,32 @@
+{
+  "commit": "5546bbcfc7b3412828dc16dd65133a06511f9309",
+  "run_id": 37467334725,
+  "job_id": 112281615230,
+  "platform": "Linux x86_64 stable",
+  "conclusion": "failure",
+  "engine": {
+    "passed": 555,
+    "failed": 1,
+    "ignored": 3,
+    "failure": "actual_close_range_error_is_typed_and_child_is_reaped_without_exec",
+    "actual_errno": 104,
+    "expected_errno": 13
+  },
+  "ffi": {
+    "passed": 84,
+    "failed": 6,
+    "failures": [
+      "legacy_drain_is_explicitly_unsupported_and_poll_only_scans_do_not_exhaust_records",
+      "completed_result_waits_for_actual_inner_runner_tls_exit",
+      "coordinator_unwind_does_not_abandon_its_actual_inner_runner",
+      "late_permission_denial_waits_for_runner_without_rewriting_committed_fact",
+      "completed_native_job_handle_does_not_keep_revoked_permissions",
+      "two_native_handles_for_a_coalesced_job_return_the_same_revision"
+    ]
+  },
+  "newer_commit": "1f518369126d5729e1b3d381311035c47b524606",
+  "newer_run_id": 37468862104,
+  "newer_status": "in_progress at observation; not final proof",
+  "newer_native_ffi_steps": "all four synchronous/scoped/asynchronous/legacy-revocation steps succeeded in Linux stable, Rust1.97 and ARM; full workspace pending",
+  "raw_log": "linux_554_full_workspace_2026_10_06.log.gz"
+}

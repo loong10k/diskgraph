@@ -1,0 +1,13 @@
+{
+  "red_commit": "1960bfe1f9c184e2d904b6b0fa8faad784e906b2",
+  "red_run": 37469826013,
+  "stable_job": 112290099614,
+  "msrv_job": 112290099349,
+  "arm_job": 112290099473,
+  "red_assertion": "pending socket reset must not hide the queued close_range failure",
+  "actual_errno": 104,
+  "expected_errno": 13,
+  "all_three_native_test_steps": "failure",
+  "fix": "one bounded reread of queued error after original checkpoint; never promote Ready/EOF/invalid packet to success",
+  "green_status": "pending native CI; macOS source layout 6/0 does not qualify Linux behavior"
+}

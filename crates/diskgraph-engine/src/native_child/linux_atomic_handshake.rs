@@ -67,7 +67,25 @@ impl LinuxAtomicHandshake {
         checkpoint: &mut impl FnMut() -> Result<(), E>,
     ) -> Result<Option<Option<LinuxAtomicMessage>>, ChildSpawnError<E>> {
         Self::check(deadline, checkpoint)?;
-        LinuxAtomicMessage::receive(fd).map_err(Into::into)
+        match LinuxAtomicMessage::receive(fd) {
+            Err(primary)
+                if matches!(&primary, ChildError::NativeIo { source, .. }
+                    if source.raw_os_error() == Some(libc::ECONNRESET)) =>
+            {
+                // Linux先消费sk_err，再读取排队消息。只复读一次，仍使用原请求检查；
+                // reset不授予Ready/EOF成功，只有合法原始子失败能覆盖传输错误。
+                Self::check(deadline, checkpoint)?;
+                if let Ok(Some(Some(message))) = LinuxAtomicMessage::receive(fd)
+                    && message.kind == 2
+                    && (1..=11).contains(&message.phase)
+                    && (1..=4095).contains(&message.error)
+                {
+                    return Ok(Some(Some(message)));
+                }
+                Err(primary.into())
+            }
+            result => result.map_err(Into::into),
+        }
     }
 
     fn send<E>(
@@ -86,11 +104,14 @@ impl LinuxAtomicHandshake {
                 Err(primary) => {
                     // 子初始化可在Init之前实际失败并退出。仅领取同通道已排队的
                     // 固定Error；EOF/Pending/Ready绝不改写为发送或执行成功。
-                    if let Ok(Some(Some(message))) = LinuxAtomicMessage::receive(fd)
-                        && message.kind == 2
-                        && let Err(error) = message.verify()
-                    {
-                        return Err(error.into());
+                    match Self::receive(fd, deadline, checkpoint) {
+                        Ok(Some(Some(message))) if message.kind == 2 => {
+                            if let Err(error) = message.verify() {
+                                return Err(error.into());
+                            }
+                        }
+                        Err(error @ ChildSpawnError::Checkpoint { .. }) => return Err(error),
+                        _ => {}
                     }
                     return Err(primary.into());
                 }

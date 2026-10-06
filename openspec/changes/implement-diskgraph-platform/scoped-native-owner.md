@@ -116,3 +116,5 @@ b51f2ec 原生四案 2/2：两项改名正控在并行夹具创建期间仍遇�
 子初始化错误已发送，但子端存在未消费 Init 并退出时，真实 SOCK_SEQPACKET 可以先报告待处理 ECONNRESET，再返回已排队的固定 Error。不得将该传输错误覆盖已确认的原始子错误；只有完整且字段合法的 Error 可替换 reset，EOF、Pending、Ready 和未知字段不得视作启动成功。复读仍沿用原绝对期限和授权检查点，原 pidfd 清理责任不转移。
 
 5546bbc/37467334725 Linux stable 全量实际出现 close_range 原 EACCES 被 ECONNRESET 替换，Engine 555/1/3 ignored、FFI 84/6。新增真实 socket 回归先验证未消费 Init、固定 Error 与子端关闭的组合；必须取得原生目标断言 RED 后修复，不以 macOS cfg 编译代替 Linux 行为。最新 1f51836 三组 Linux 的同步/异步/作用域服务/旧服务及撤权前置均成功，全量仍运行，此处不关闭生产门禁。
+
+1960bfe/37469826013 三组 Linux 均在新增真实 socket 断言失败，stable 原日志明确实际104、期望13，目标RED已确认。现复读仅一次且前置原checkpoint；合法Error可保留原失败，Ready/畸形/EOF不恢复成功。新增原非Clone授权错误回归；修复后原生GREEN仍待CI，不关闭父项。
