@@ -1,0 +1,37 @@
+{
+  "source_commit": "2cc573c870dbad371113fc164530bab70efdb749",
+  "production_acceptance": false,
+  "origin": {
+    "linux": {
+      "run_id": 37426844169,
+      "cases": 7,
+      "passed": 7,
+      "exact_source_hashes": 1261,
+      "windows_crlf_source_matches": 0,
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+      "fixture_sha256": "34a7ef21e8af336ae5f0f39527cf29289bcea071a5e6dd75c4c2a5fde68fb748"
+    },
+    "windows": {
+      "run_id": 37426844169,
+      "cases": 7,
+      "passed": 7,
+      "exact_source_hashes": 15,
+      "windows_crlf_source_matches": 1246,
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "fixture_sha256": "33b729bd975ab50aa8a4bb3c64608ce0524d2af8c3cecef67db9f0695f1a5c6c"
+    }
+  },
+  "windows_cleanup": {
+    "run_id": 37426849148,
+    "cases": 77,
+    "passed": 75,
+    "failed": [
+      "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
+      "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion"
+    ],
+    "controlled_delete_mark_passed": true,
+    "status": "failed",
+    "fixture_sha256": "5b2acee64e84d293ee263055bb45ef2dccf695d91356cb28a810f15ae74b782d",
+    "scope": "isolated native candidate; full product walker and owner integration not accepted"
+  }
+}
