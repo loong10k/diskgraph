@@ -1,0 +1,1025 @@
+{
+  "production_acceptance": false,
+  "old_expiry_boundary_red_verified": true,
+  "original_candidate_cases_passed": 56,
+  "original_candidate_cases_failed": 3,
+  "original_candidate_cases_total": 59,
+  "records": [
+    {
+      "path": "37404115058/windows-cleanup/active_probe_session_does_not_turn_queued_job_into_capacity_failure.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/active_probe_session_does_not_turn_queued_job_into_capacity_failure.stdout.gz",
+      "original_sha256": "5d26885622df2466027b01cc4c4c3db5d103697ebfd18f3ca81e82a97f153836"
+    },
+    {
+      "path": "37404115058/windows-cleanup/actual_connect_completion_allows_read_then_distinct_read_cancellation.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/actual_connect_completion_allows_read_then_distinct_read_cancellation.stdout.gz",
+      "original_sha256": "a6fb6627d9bf342a5bb08d8041460392fc6ea7c212797e9ec4b0a2b7113ed122"
+    },
+    {
+      "path": "37404115058/windows-cleanup/actual_create_process_failure_retains_external_job_until_observed_cleanup.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/actual_create_process_failure_retains_external_job_until_observed_cleanup.stdout.gz",
+      "original_sha256": "641c9a1c84c8e2103ce38f346d0dd80fae430bab5e88448b24320246040b37ec"
+    },
+    {
+      "path": "37404115058/windows-cleanup/actual_pending_connect_wait_expires_on_original_admission_deadline.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/actual_pending_connect_wait_expires_on_original_admission_deadline.stdout.gz",
+      "original_sha256": "ad10ec9002ddeb18853308f644741c54b561bc1ae26c90e9fdb48260ab2a95d3"
+    },
+    {
+      "path": "37404115058/windows-cleanup/atomic_root_create_refuses_existing_directory_without_adopting_it.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/atomic_root_create_refuses_existing_directory_without_adopting_it.stdout.gz",
+      "original_sha256": "24bbbf46e58758661f974d26c67d552fff3b7a23e3519066ca8951640dd8443f"
+    },
+    {
+      "path": "37404115058/windows-cleanup/borrowed_directory_prevents_session_reuse_after_budget_drop.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/borrowed_directory_prevents_session_reuse_after_budget_drop.stdout.gz",
+      "original_sha256": "f4d5b23929732b1715e71e6c177157d1740c4db817221dcc8f26a699b432a01c"
+    },
+    {
+      "path": "37404115058/windows-cleanup/build-cleanup-fixtures.stderr.gz",
+      "original_sha256": "b122a58a43ca765a29833d1fc601508278d3f25c44b32957b04341ad974064aa"
+    },
+    {
+      "path": "37404115058/windows-cleanup/build-cleanup-fixtures.stdout.gz",
+      "original_sha256": "1ffcb680d0478061d997ec8b4448e7d191389b774510f29ac1923debd8a02df3"
+    },
+    {
+      "path": "37404115058/windows-cleanup/busy_managed_runner_does_not_claim_or_fail_queued_job.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/busy_managed_runner_does_not_claim_or_fail_queued_job.stdout.gz",
+      "original_sha256": "8552247fdfcbea659a8468244f7a70acb43f887c54a0bcbb27d73b71ef5ed71d"
+    },
+    {
+      "path": "37404115058/windows-cleanup/checked_admission_rejects_before_job_without_advancing_lifecycle.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/checked_admission_rejects_before_job_without_advancing_lifecycle.stdout.gz",
+      "original_sha256": "0546ef44b30b2459bef4f54e9ae9107c5f37feef2129551f32f76800722bfd96"
+    },
+    {
+      "path": "37404115058/windows-cleanup/checked_admission_rejects_prepared_pipe_without_advancing_lifecycle.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/checked_admission_rejects_prepared_pipe_without_advancing_lifecycle.stdout.gz",
+      "original_sha256": "b9d4593c6d3fd4e9e15e993776733aba09bf8379e26894776c6d3c198341fd36"
+    },
+    {
+      "path": "37404115058/windows-cleanup/cleanup_query_failure_retains_original_job_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/cleanup_query_failure_retains_original_job_until_actual_retry.stdout.gz",
+      "original_sha256": "052b4c39e93bca5014410c4d375dd2e83e30b2bb1c43b9ca6de3e5f9a807d716"
+    },
+    {
+      "path": "37404115058/windows-cleanup/cleanup_wait_failure_retains_original_owner_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/cleanup_wait_failure_retains_original_owner_until_actual_retry.stdout.gz",
+      "original_sha256": "c5f21f612b24f3b2cf3bd37e885a0be9156351e09d83b6702fa1784c6b6ebab1"
+    },
+    {
+      "path": "37404115058/windows-cleanup/contended_registry_drain_returns_pending_without_taking_reserved_slot.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/contended_registry_drain_returns_pending_without_taking_reserved_slot.stdout.gz",
+      "original_sha256": "fd0a90934d30bedda7117140332701cdfe841d6d768a3060e382947f282aba90"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_child_cleanup_keeps_original_handles_until_native_complete.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_child_cleanup_keeps_original_handles_until_native_complete.stdout.gz",
+      "original_sha256": "8ed8748dc01414c887c069d3819376474d8f6ba5896e37489d2b1e0f8530b29e"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_connect_cleanup_retains_original_addresses_without_eof.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_connect_cleanup_retains_original_addresses_without_eof.stdout.gz",
+      "original_sha256": "1c6330108d62917c87031290e05828abe3f52e87244335c22a9a5e7e8d407099"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_read_cleanup_keeps_pending_storage_until_other_thread_completes.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_read_cleanup_keeps_pending_storage_until_other_thread_completes.stdout.gz",
+      "original_sha256": "7d17bd5fe0e5acace1f63cfe3b4b89e67ae25556d5a8c0bb465398ef9b459769"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_registry_drain_retains_original_owner_and_capacity_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_registry_drain_retains_original_owner_and_capacity_until_actual_retry.stdout.gz",
+      "original_sha256": "d95d49ea05591a50ab84b8029ab177c9c083f4ce03de89a869d12e450d218b99"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_write_cleanup_keeps_pending_storage_until_other_thread_completes.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/expired_write_cleanup_keeps_pending_storage_until_other_thread_completes.stdout.gz",
+      "original_sha256": "90c9aff4e89e7c34544b151cbd45c1d7b6858bc94e9261b92e70b6f5c07477df"
+    },
+    {
+      "path": "37404115058/windows-cleanup/external_owner_survives_panic_after_actual_connect_submission.stderr.gz",
+      "original_sha256": "3fae4c16702d8b844074ae3a79228b9067b31f29857c1fe1b1b3f071363c99b9"
+    },
+    {
+      "path": "37404115058/windows-cleanup/external_owner_survives_panic_after_actual_connect_submission.stdout.gz",
+      "original_sha256": "aee36fdb27fa13d89a9dabb6b0e4897ff3d0da854bb3fecdcc1a4dcad9bd66d0"
+    },
+    {
+      "path": "37404115058/windows-cleanup/foreign_replacement_is_retained_until_original_directory_returns.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/foreign_replacement_is_retained_until_original_directory_returns.stdout.gz",
+      "original_sha256": "f2e2c6697ff4f22a25c405e409872f9b4b819d17fc9fb96081d3626978b0661a"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_probe_cancel_query_failure_retains_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_probe_cancel_query_failure_retains_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "2c83bf537576fb196097c552d89d7a875cc4152a6be397a037bcf844bc4d542a"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_probe_cancel_wait_failure_retains_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_probe_cancel_wait_failure_retains_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "6984d77ff3ba9963faf5a7d52f3c4efe61c57f1f2714ad51eaaf750138ea266f"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_probe_panic_wait_failure_retains_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "7683517dff7e3913282d93c4685afd3f5ca40497f801b3791dcd13a8c76d2ce4"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_probe_panic_wait_failure_retains_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "588f42d8a7d953ec19cb45ac9ceb0118ccfdfecc4cea8b3bc7dd4abca956b974"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_runner_rejects_recovery_from_another_pool_before_start.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/managed_runner_rejects_recovery_from_another_pool_before_start.stdout.gz",
+      "original_sha256": "f9cb0407daa4df655f6fd4053522a9ea9879808ae56ab4079e8f1f6768d3b8b0"
+    },
+    {
+      "path": "37404115058/windows-cleanup/moved_original_directory_is_not_complete_when_original_path_is_missing.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/moved_original_directory_is_not_complete_when_original_path_is_missing.stdout.gz",
+      "original_sha256": "e0b20ddf6b26f17ff49741becdfae521e1a9306b11a432f1e99d45bbe41370cd"
+    },
+    {
+      "path": "37404115058/windows-cleanup/moved_root_delete_reopen_targets_original_object_not_foreign_replacement.stderr.gz",
+      "original_sha256": "0d27a4e85af27b482b07057774555aecf68d19a169b7a2cad382fc333e51a83d"
+    },
+    {
+      "path": "37404115058/windows-cleanup/moved_root_delete_reopen_targets_original_object_not_foreign_replacement.stdout.gz",
+      "original_sha256": "9bfe266b82b9cb87ea99996cdb6a7a90901ff798515826058275f060425fe070"
+    },
+    {
+      "path": "37404115058/windows-cleanup/moved_root_reopen_ignores_junction_replacement_and_preserves_external_target.stderr.gz",
+      "original_sha256": "62502c5983d2f702f14371ca526b894321f927204a88d2ffaa207dc845d3cb1a"
+    },
+    {
+      "path": "37404115058/windows-cleanup/moved_root_reopen_ignores_junction_replacement_and_preserves_external_target.stdout.gz",
+      "original_sha256": "aa6f7a85353412430e300fc2219f2ae42ce1dd68b5117ffdec3bb40f52940c30"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job.stderr.gz",
+      "original_sha256": "7b4932b8535b6ef0dd1601a798b5b2888c54e8d37ce4b94ff351b6ee8cf2c34b"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job.stdout.gz",
+      "original_sha256": "5bd716b8f54a13875820f8ebb7214989b06a2b1e622a8d6d8d91a6804d0791a4"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive.stderr.gz",
+      "original_sha256": "499f1d9e9ea743402325fb56f794048ca292aba50dcddd4b71ccb1098c45adf9"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive.stdout.gz",
+      "original_sha256": "69ca9f27b2342915ccff37d55fc0c4b9162cd72a7475e210f6d1b840f4489e02"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code.stdout.gz",
+      "original_sha256": "1ca0913582ed1d9d852553db93a078cd427f843375e42f1accd7aa8142b01298"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited.stderr.gz",
+      "original_sha256": "cfd2e6ae104e3ebcbf28f89c0197b35fbbc28ff5e3ce63e60228113ced4e7a2c"
+    },
+    {
+      "path": "37404115058/windows-cleanup/normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited.stdout.gz",
+      "original_sha256": "85985e754a5269873003f75e5538b6c93d580c6278495dcbefd49b63364c453a"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease.stdout.gz",
+      "original_sha256": "0dc094ea104ac305c78329282d742ad88050b6f3ef895f8493d5689c81d684e6"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_null_spawn_has_four_checkpoints_and_no_control_input.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_null_spawn_has_four_checkpoints_and_no_control_input.stdout.gz",
+      "original_sha256": "bd5383bb1dc81f4596dbe2a93dee909d00bcd1f7c971866157873a18010601da"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_post_create_failure_cleans_actual_job_with_external_witness_handles_held.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_post_create_failure_cleans_actual_job_with_external_witness_handles_held.stdout.gz",
+      "original_sha256": "2ff3346aaaae03c1ddf73e0de74f50bfae157fa20eed0d4cbcdc1a88aa2c7312"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_share_read_lease_blocks_delete_reopen_until_released.stderr.gz",
+      "original_sha256": "82071d82c86c79d8de853fe0f58ccf75d72574ad17c29c17ffa018f7d21a9bbf"
+    },
+    {
+      "path": "37404115058/windows-cleanup/original_share_read_lease_blocks_delete_reopen_until_released.stdout.gz",
+      "original_sha256": "52747527b10388a5322bec75cab4b648ee4fc14b77a2e271a1266d8a0083980d"
+    },
+    {
+      "path": "37404115058/windows-cleanup/panic_after_prepared_connect_keeps_original_external_job_and_storage.stderr.gz",
+      "original_sha256": "a681c4c7e483bf51b49bc7c911e5c6ef13b7775721a7006a6c4f6466ab4d0610"
+    },
+    {
+      "path": "37404115058/windows-cleanup/panic_after_prepared_connect_keeps_original_external_job_and_storage.stdout.gz",
+      "original_sha256": "5f427c0a0300e9e1069d2e6b48f5b5532b5c800cb27696cc2614c79e377a33f8"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_connect_moves_threads_without_replacing_original_storage.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_connect_moves_threads_without_replacing_original_storage.stdout.gz",
+      "original_sha256": "8966e09232e89166aeb0887232b1254e9d1dbd8de5442e3ad9725b9e698ab326"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_read_drop_on_receiving_thread_waits_for_real_completion.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_read_drop_on_receiving_thread_waits_for_real_completion.stdout.gz",
+      "original_sha256": "de79ccd1db3c27bf79d55418cc589c7264d08dc7ad189bbe4c72ae59a6997066"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_read_owner_moves_threads_with_stable_storage_and_cancellation.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_read_owner_moves_threads_with_stable_storage_and_cancellation.stdout.gz",
+      "original_sha256": "de2a18a395ccfcf576c291b5a0ce59b2d669b4305b0133e6ea84cf2c3a2310de"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup.stdout.gz",
+      "original_sha256": "0e0a52cb8bb689c8e69926e9432d4aef5ca754dd9382a47347920a11177f369e"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_write_owner_moves_threads_with_stable_storage_and_cancellation.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/pending_write_owner_moves_threads_with_stable_storage_and_cancellation.stdout.gz",
+      "original_sha256": "b7a22da8fc96592ed6e46f765621cff285faab902c6b4780bf964206f0040bde"
+    },
+    {
+      "path": "37404115058/windows-cleanup/poll_cleanup_query_failure_retains_original_owner_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/poll_cleanup_query_failure_retains_original_owner_until_actual_retry.stdout.gz",
+      "original_sha256": "683136256e5c87cd7c0ca97e84c55e0385ff155a79fe67cedd823fd18e37c0d3"
+    },
+    {
+      "path": "37404115058/windows-cleanup/poll_cleanup_wait_failure_retains_original_owner_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/poll_cleanup_wait_failure_retains_original_owner_until_actual_retry.stdout.gz",
+      "original_sha256": "9e62c3d3c0687aa3b345f0b274215d48f93f1bcef438e5deb405ad0fcada3dca"
+    },
+    {
+      "path": "37404115058/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query.stdout.gz",
+      "original_sha256": "4d4325394742ac552ad6764bc267d6113858386f4b6974d6e45f1a4ef0a12368"
+    },
+    {
+      "path": "37404115058/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_wait.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_wait.stdout.gz",
+      "original_sha256": "48c11039f648a9714fa37f94fe068c5dd99cb279813594834c2a9ddc80c4e541"
+    },
+    {
+      "path": "37404115058/windows-cleanup/postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery.stderr.gz",
+      "original_sha256": "20fe1393aa9482ace346cbebb970d83d5d19b4f800dc812e124ed29e254dc90e"
+    },
+    {
+      "path": "37404115058/windows-cleanup/postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery.stdout.gz",
+      "original_sha256": "0d5be34958f0a5b2c28905dbd08ec85f817a543bcb48fa03ba18fc4bfe4989ac"
+    },
+    {
+      "path": "37404115058/windows-cleanup/prepared_job_query_error_keeps_original_connect_owner_for_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/prepared_job_query_error_keeps_original_connect_owner_for_retry.stdout.gz",
+      "original_sha256": "67d68446a5101343fcd034a2cdd93b02ec50aec0ed3966571db9fcd48e0b70fe"
+    },
+    {
+      "path": "37404115058/windows-cleanup/prepared_pending_connect_retains_capacity_until_real_job_and_io_complete.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/prepared_pending_connect_retains_capacity_until_real_job_and_io_complete.stdout.gz",
+      "original_sha256": "98c19fb9b3893bcdba5846856f4ffb33a44c1fbf10726c4b57e963f8dfdc2889"
+    },
+    {
+      "path": "37404115058/windows-cleanup/private_git_complete_retains_original_directory_after_cancel_cleanup_failure.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/private_git_complete_retains_original_directory_after_cancel_cleanup_failure.stdout.gz",
+      "original_sha256": "f7d6a72f5a4fd93b54819e88b6d34df289707fc3197c625c309efaf72b4fa0e4"
+    },
+    {
+      "path": "37404115058/windows-cleanup/private_git_drop_retains_original_directory_after_panic_cleanup_failure.stderr.gz",
+      "original_sha256": "efecec5d678380a01fee46a16e6d6c82abc0b1234c4af5268531b2d2c35665d1"
+    },
+    {
+      "path": "37404115058/windows-cleanup/private_git_drop_retains_original_directory_after_panic_cleanup_failure.stdout.gz",
+      "original_sha256": "8b12babf3f0b3a4692bc40d8be35ccd8d7df60ed3545c90475982d7333d81415"
+    },
+    {
+      "path": "37404115058/windows-cleanup/query_failure_retains_original_connect_for_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/query_failure_retains_original_connect_for_actual_retry.stdout.gz",
+      "original_sha256": "0b0eed1fa08ee49b33379adf99c5111c043c5e3c5ddd5633e4d704724268a5c1"
+    },
+    {
+      "path": "37404115058/windows-cleanup/real_directory_delete_failure_keeps_session_slot_until_native_release.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/real_directory_delete_failure_keeps_session_slot_until_native_release.stdout.gz",
+      "original_sha256": "93b1b7a9bbe302ab36803d5f0bc740b0193e8c14f3e637c6882919952204d919"
+    },
+    {
+      "path": "37404115058/windows-cleanup/real_git_private_directory_creation_and_completion_qualifies_resource_fixture.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/real_git_private_directory_creation_and_completion_qualifies_resource_fixture.stdout.gz",
+      "original_sha256": "e14e56dd88fe54f1a8fd006528cd1104cb6004a6e4f5708ee5ae41847b5a67f7"
+    },
+    {
+      "path": "37404115058/windows-cleanup/receipt.json.gz",
+      "original_sha256": "ad0bf1607cc9a63b6a110f4913eccdecaac18e6ec075c0a3da4415a134e3c328"
+    },
+    {
+      "path": "37404115058/windows-cleanup/recovered_runner_admission_does_not_remain_poisoned_after_panic.stderr.gz",
+      "original_sha256": "ce92769a83f2e53d466be161b6cf3c65e8a85ac548e6d57781241468bd90cb4a"
+    },
+    {
+      "path": "37404115058/windows-cleanup/recovered_runner_admission_does_not_remain_poisoned_after_panic.stdout.gz",
+      "original_sha256": "9de1177e75b940119e8698e44e019ddc1d81fc500bf6b10325aec805bce62eca"
+    },
+    {
+      "path": "37404115058/windows-cleanup/recovery_slot_survives_query_failure_until_original_job_is_observed_empty.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/recovery_slot_survives_query_failure_until_original_job_is_observed_empty.stdout.gz",
+      "original_sha256": "19ef7ca1a65bc795a2f1e90b0c2ecf32fa26cdf861082be432d35776cfe770e0"
+    },
+    {
+      "path": "37404115058/windows-cleanup/registry_deadline_query_error_preserves_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/registry_deadline_query_error_preserves_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "2407bc1f8641523f0555965e1e26dfa052b618725e30640bd2b0e8a0c6ff2f24"
+    },
+    {
+      "path": "37404115058/windows-cleanup/registry_deadline_wait_error_preserves_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/registry_deadline_wait_error_preserves_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "b5d686eb316b1c64d8aab2c324ba0777a196758a00fffb9821be508916d8cfdf"
+    },
+    {
+      "path": "37404115058/windows-cleanup/stop_preserves_original_background_panic_payload.stderr.gz",
+      "original_sha256": "4ea4ab9e4c57aecf76c708d87c2ad3d6d7dc9591899f2d13dbeb210de5346bea"
+    },
+    {
+      "path": "37404115058/windows-cleanup/stop_preserves_original_background_panic_payload.stdout.gz",
+      "original_sha256": "56512261991e1607b736d5f0f2cb7ea7931c785f1f413e221bb326115851ed41"
+    },
+    {
+      "path": "37404115058/windows-cleanup/third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job.stdout.gz",
+      "original_sha256": "41e3428e9d8e4a538a191dfcd255e1b7c5ac7019a66eb78744face194d59dfc6"
+    },
+    {
+      "path": "37404115058/windows-cleanup/unknown_creation_phase_with_missing_leader_never_releases_original_job.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404115058/windows-cleanup/unknown_creation_phase_with_missing_leader_never_releases_original_job.stdout.gz",
+      "original_sha256": "e1678ce6cbe2aa15e5ab05062b0f5b8c711255d899b12e16244a0f60496df535"
+    },
+    {
+      "path": "37404115058/windows-prepared-birth-baseline/actual-lost-owner.stderr.gz",
+      "original_sha256": "e019a01bc954d5c8e9590a9e36fafad013e9ec8a80e401bcf5f41dc34064a8d4"
+    },
+    {
+      "path": "37404115058/windows-prepared-birth-baseline/actual-lost-owner.stdout.gz",
+      "original_sha256": "1bf167f219d649858acbd6e3dc66a58c87025eb0caded0af040eef2834490a4f"
+    },
+    {
+      "path": "37404115058/windows-prepared-birth-baseline/build-baseline.stderr.gz",
+      "original_sha256": "90c57c450f7b583deae1f95e72940bf1d686cef738847defcdf3545371d3ee27"
+    },
+    {
+      "path": "37404115058/windows-prepared-birth-baseline/build-baseline.stdout.gz",
+      "original_sha256": "c63b3d8d55c31f0f9a04213e6eb3991aadbe583e4fe1a61c8348cff43e2946af"
+    },
+    {
+      "path": "37404115058/windows-prepared-birth-baseline/receipt.json.gz",
+      "original_sha256": "a7c6b600155fe25bdb6255884d444203173d99d51e47b6a46827c80e9f645523"
+    },
+    {
+      "path": "37404310871/windows-cleanup/active_probe_session_does_not_turn_queued_job_into_capacity_failure.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/active_probe_session_does_not_turn_queued_job_into_capacity_failure.stdout.gz",
+      "original_sha256": "9e134c339aa49c2f1856c2ea877a32c3c20f9e234ce6f00629790bb94893961b"
+    },
+    {
+      "path": "37404310871/windows-cleanup/actual_connect_completion_allows_read_then_distinct_read_cancellation.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/actual_connect_completion_allows_read_then_distinct_read_cancellation.stdout.gz",
+      "original_sha256": "a6fb6627d9bf342a5bb08d8041460392fc6ea7c212797e9ec4b0a2b7113ed122"
+    },
+    {
+      "path": "37404310871/windows-cleanup/actual_create_process_failure_retains_external_job_until_observed_cleanup.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/actual_create_process_failure_retains_external_job_until_observed_cleanup.stdout.gz",
+      "original_sha256": "641c9a1c84c8e2103ce38f346d0dd80fae430bab5e88448b24320246040b37ec"
+    },
+    {
+      "path": "37404310871/windows-cleanup/actual_pending_connect_wait_expires_on_original_admission_deadline.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/actual_pending_connect_wait_expires_on_original_admission_deadline.stdout.gz",
+      "original_sha256": "ad10ec9002ddeb18853308f644741c54b561bc1ae26c90e9fdb48260ab2a95d3"
+    },
+    {
+      "path": "37404310871/windows-cleanup/atomic_root_create_refuses_existing_directory_without_adopting_it.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/atomic_root_create_refuses_existing_directory_without_adopting_it.stdout.gz",
+      "original_sha256": "24bbbf46e58758661f974d26c67d552fff3b7a23e3519066ca8951640dd8443f"
+    },
+    {
+      "path": "37404310871/windows-cleanup/borrowed_directory_prevents_session_reuse_after_budget_drop.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/borrowed_directory_prevents_session_reuse_after_budget_drop.stdout.gz",
+      "original_sha256": "f4d5b23929732b1715e71e6c177157d1740c4db817221dcc8f26a699b432a01c"
+    },
+    {
+      "path": "37404310871/windows-cleanup/build-cleanup-fixtures.stderr.gz",
+      "original_sha256": "b122a58a43ca765a29833d1fc601508278d3f25c44b32957b04341ad974064aa"
+    },
+    {
+      "path": "37404310871/windows-cleanup/build-cleanup-fixtures.stdout.gz",
+      "original_sha256": "c82f446164e4f9eb4a8e750147c098a6cd339a506d0513027ffbc82678d1fcc0"
+    },
+    {
+      "path": "37404310871/windows-cleanup/busy_managed_runner_does_not_claim_or_fail_queued_job.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/busy_managed_runner_does_not_claim_or_fail_queued_job.stdout.gz",
+      "original_sha256": "632c2d578233317e89ef48b0ddeb9a80646d8b09664f0f252fd5ad3e79a65aad"
+    },
+    {
+      "path": "37404310871/windows-cleanup/checked_admission_rejects_before_job_without_advancing_lifecycle.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/checked_admission_rejects_before_job_without_advancing_lifecycle.stdout.gz",
+      "original_sha256": "0546ef44b30b2459bef4f54e9ae9107c5f37feef2129551f32f76800722bfd96"
+    },
+    {
+      "path": "37404310871/windows-cleanup/checked_admission_rejects_prepared_pipe_without_advancing_lifecycle.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/checked_admission_rejects_prepared_pipe_without_advancing_lifecycle.stdout.gz",
+      "original_sha256": "b9d4593c6d3fd4e9e15e993776733aba09bf8379e26894776c6d3c198341fd36"
+    },
+    {
+      "path": "37404310871/windows-cleanup/cleanup_query_failure_retains_original_job_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/cleanup_query_failure_retains_original_job_until_actual_retry.stdout.gz",
+      "original_sha256": "052b4c39e93bca5014410c4d375dd2e83e30b2bb1c43b9ca6de3e5f9a807d716"
+    },
+    {
+      "path": "37404310871/windows-cleanup/cleanup_wait_failure_retains_original_owner_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/cleanup_wait_failure_retains_original_owner_until_actual_retry.stdout.gz",
+      "original_sha256": "c5f21f612b24f3b2cf3bd37e885a0be9156351e09d83b6702fa1784c6b6ebab1"
+    },
+    {
+      "path": "37404310871/windows-cleanup/contended_registry_drain_returns_pending_without_taking_reserved_slot.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/contended_registry_drain_returns_pending_without_taking_reserved_slot.stdout.gz",
+      "original_sha256": "fd0a90934d30bedda7117140332701cdfe841d6d768a3060e382947f282aba90"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_child_cleanup_keeps_original_handles_until_native_complete.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_child_cleanup_keeps_original_handles_until_native_complete.stdout.gz",
+      "original_sha256": "8ed8748dc01414c887c069d3819376474d8f6ba5896e37489d2b1e0f8530b29e"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_connect_cleanup_retains_original_addresses_without_eof.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_connect_cleanup_retains_original_addresses_without_eof.stdout.gz",
+      "original_sha256": "1c6330108d62917c87031290e05828abe3f52e87244335c22a9a5e7e8d407099"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_read_cleanup_keeps_pending_storage_until_other_thread_completes.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_read_cleanup_keeps_pending_storage_until_other_thread_completes.stdout.gz",
+      "original_sha256": "7d17bd5fe0e5acace1f63cfe3b4b89e67ae25556d5a8c0bb465398ef9b459769"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_registry_drain_retains_original_owner_and_capacity_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_registry_drain_retains_original_owner_and_capacity_until_actual_retry.stdout.gz",
+      "original_sha256": "d95d49ea05591a50ab84b8029ab177c9c083f4ce03de89a869d12e450d218b99"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_write_cleanup_keeps_pending_storage_until_other_thread_completes.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/expired_write_cleanup_keeps_pending_storage_until_other_thread_completes.stdout.gz",
+      "original_sha256": "90c9aff4e89e7c34544b151cbd45c1d7b6858bc94e9261b92e70b6f5c07477df"
+    },
+    {
+      "path": "37404310871/windows-cleanup/external_owner_survives_panic_after_actual_connect_submission.stderr.gz",
+      "original_sha256": "2723ae160d9acf15c38caed33d19525cba76ca46a2b1d39bc37520daf3b69fb4"
+    },
+    {
+      "path": "37404310871/windows-cleanup/external_owner_survives_panic_after_actual_connect_submission.stdout.gz",
+      "original_sha256": "aee36fdb27fa13d89a9dabb6b0e4897ff3d0da854bb3fecdcc1a4dcad9bd66d0"
+    },
+    {
+      "path": "37404310871/windows-cleanup/foreign_replacement_is_retained_until_original_directory_returns.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/foreign_replacement_is_retained_until_original_directory_returns.stdout.gz",
+      "original_sha256": "f2e2c6697ff4f22a25c405e409872f9b4b819d17fc9fb96081d3626978b0661a"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_probe_cancel_query_failure_retains_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_probe_cancel_query_failure_retains_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "2c83bf537576fb196097c552d89d7a875cc4152a6be397a037bcf844bc4d542a"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_probe_cancel_wait_failure_retains_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_probe_cancel_wait_failure_retains_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "6984d77ff3ba9963faf5a7d52f3c4efe61c57f1f2714ad51eaaf750138ea266f"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_probe_panic_wait_failure_retains_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "ab22f73347d51b4a3679e6debcaf4dc3c082ba129b5ac3dfe41289e318b1cfbf"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_probe_panic_wait_failure_retains_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "588f42d8a7d953ec19cb45ac9ceb0118ccfdfecc4cea8b3bc7dd4abca956b974"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_runner_rejects_recovery_from_another_pool_before_start.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/managed_runner_rejects_recovery_from_another_pool_before_start.stdout.gz",
+      "original_sha256": "440983d9575cd3ee01ef8e069f5b3a5febdd53e53bd672221cfd12a3c097d1aa"
+    },
+    {
+      "path": "37404310871/windows-cleanup/moved_original_directory_is_not_complete_when_original_path_is_missing.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/moved_original_directory_is_not_complete_when_original_path_is_missing.stdout.gz",
+      "original_sha256": "e0b20ddf6b26f17ff49741becdfae521e1a9306b11a432f1e99d45bbe41370cd"
+    },
+    {
+      "path": "37404310871/windows-cleanup/moved_root_delete_reopen_targets_original_object_not_foreign_replacement.stderr.gz",
+      "original_sha256": "325ded0e5d0d3017ba7c48a82b09c47097b8d15457aac256b14d3eb25db5d168"
+    },
+    {
+      "path": "37404310871/windows-cleanup/moved_root_delete_reopen_targets_original_object_not_foreign_replacement.stdout.gz",
+      "original_sha256": "9bfe266b82b9cb87ea99996cdb6a7a90901ff798515826058275f060425fe070"
+    },
+    {
+      "path": "37404310871/windows-cleanup/moved_root_reopen_ignores_junction_replacement_and_preserves_external_target.stderr.gz",
+      "original_sha256": "1de00dde655652fec315606c17c2bb727493933c40e950cb324345e290f4ef57"
+    },
+    {
+      "path": "37404310871/windows-cleanup/moved_root_reopen_ignores_junction_replacement_and_preserves_external_target.stdout.gz",
+      "original_sha256": "aa6f7a85353412430e300fc2219f2ae42ce1dd68b5117ffdec3bb40f52940c30"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job.stderr.gz",
+      "original_sha256": "5326b03b304708c6c81e86406031c4fd1219c273a582286c53d2c597aafb70ac"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job.stdout.gz",
+      "original_sha256": "5bd716b8f54a13875820f8ebb7214989b06a2b1e622a8d6d8d91a6804d0791a4"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive.stderr.gz",
+      "original_sha256": "3c88421b7e6258df8938a2c0c80ecb6838c01510d65c962fa6a68766f8d48df5"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive.stdout.gz",
+      "original_sha256": "69ca9f27b2342915ccff37d55fc0c4b9162cd72a7475e210f6d1b840f4489e02"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code.stdout.gz",
+      "original_sha256": "1ca0913582ed1d9d852553db93a078cd427f843375e42f1accd7aa8142b01298"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited.stderr.gz",
+      "original_sha256": "bb9ac0bf6da940a870ec1bf80309fa220b8577d81b5161aa2b4508d1beb77bfa"
+    },
+    {
+      "path": "37404310871/windows-cleanup/normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited.stdout.gz",
+      "original_sha256": "85985e754a5269873003f75e5538b6c93d580c6278495dcbefd49b63364c453a"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease.stdout.gz",
+      "original_sha256": "0dc094ea104ac305c78329282d742ad88050b6f3ef895f8493d5689c81d684e6"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_null_spawn_has_four_checkpoints_and_no_control_input.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_null_spawn_has_four_checkpoints_and_no_control_input.stdout.gz",
+      "original_sha256": "bd5383bb1dc81f4596dbe2a93dee909d00bcd1f7c971866157873a18010601da"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_post_create_failure_cleans_actual_job_with_external_witness_handles_held.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_post_create_failure_cleans_actual_job_with_external_witness_handles_held.stdout.gz",
+      "original_sha256": "2ff3346aaaae03c1ddf73e0de74f50bfae157fa20eed0d4cbcdc1a88aa2c7312"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_share_read_lease_blocks_delete_reopen_until_released.stderr.gz",
+      "original_sha256": "f46bf988d87fafb0a8e462210f79e3d67b0a7d9318ec8a6dd0d566a273fa72d4"
+    },
+    {
+      "path": "37404310871/windows-cleanup/original_share_read_lease_blocks_delete_reopen_until_released.stdout.gz",
+      "original_sha256": "52747527b10388a5322bec75cab4b648ee4fc14b77a2e271a1266d8a0083980d"
+    },
+    {
+      "path": "37404310871/windows-cleanup/panic_after_prepared_connect_keeps_original_external_job_and_storage.stderr.gz",
+      "original_sha256": "d6830071eca2d530bcf5a77c864a057d5ce01c28f32dc881e14c25bf9e21b43b"
+    },
+    {
+      "path": "37404310871/windows-cleanup/panic_after_prepared_connect_keeps_original_external_job_and_storage.stdout.gz",
+      "original_sha256": "5f427c0a0300e9e1069d2e6b48f5b5532b5c800cb27696cc2614c79e377a33f8"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_connect_moves_threads_without_replacing_original_storage.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_connect_moves_threads_without_replacing_original_storage.stdout.gz",
+      "original_sha256": "8966e09232e89166aeb0887232b1254e9d1dbd8de5442e3ad9725b9e698ab326"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_read_drop_on_receiving_thread_waits_for_real_completion.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_read_drop_on_receiving_thread_waits_for_real_completion.stdout.gz",
+      "original_sha256": "de79ccd1db3c27bf79d55418cc589c7264d08dc7ad189bbe4c72ae59a6997066"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_read_owner_moves_threads_with_stable_storage_and_cancellation.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_read_owner_moves_threads_with_stable_storage_and_cancellation.stdout.gz",
+      "original_sha256": "de2a18a395ccfcf576c291b5a0ce59b2d669b4305b0133e6ea84cf2c3a2310de"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup.stdout.gz",
+      "original_sha256": "0e0a52cb8bb689c8e69926e9432d4aef5ca754dd9382a47347920a11177f369e"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_write_owner_moves_threads_with_stable_storage_and_cancellation.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/pending_write_owner_moves_threads_with_stable_storage_and_cancellation.stdout.gz",
+      "original_sha256": "b7a22da8fc96592ed6e46f765621cff285faab902c6b4780bf964206f0040bde"
+    },
+    {
+      "path": "37404310871/windows-cleanup/poll_cleanup_query_failure_retains_original_owner_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/poll_cleanup_query_failure_retains_original_owner_until_actual_retry.stdout.gz",
+      "original_sha256": "683136256e5c87cd7c0ca97e84c55e0385ff155a79fe67cedd823fd18e37c0d3"
+    },
+    {
+      "path": "37404310871/windows-cleanup/poll_cleanup_wait_failure_retains_original_owner_until_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/poll_cleanup_wait_failure_retains_original_owner_until_actual_retry.stdout.gz",
+      "original_sha256": "9e62c3d3c0687aa3b345f0b274215d48f93f1bcef438e5deb405ad0fcada3dca"
+    },
+    {
+      "path": "37404310871/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query.stdout.gz",
+      "original_sha256": "4d4325394742ac552ad6764bc267d6113858386f4b6974d6e45f1a4ef0a12368"
+    },
+    {
+      "path": "37404310871/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_wait.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/postbirth_checkpoint_error_keeps_external_owner_through_failed_wait.stdout.gz",
+      "original_sha256": "48c11039f648a9714fa37f94fe068c5dd99cb279813594834c2a9ddc80c4e541"
+    },
+    {
+      "path": "37404310871/windows-cleanup/postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery.stderr.gz",
+      "original_sha256": "4333f40b8fd603d6b8786b768663750532c2636dd53220f79220f4f04bb6054c"
+    },
+    {
+      "path": "37404310871/windows-cleanup/postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery.stdout.gz",
+      "original_sha256": "0d5be34958f0a5b2c28905dbd08ec85f817a543bcb48fa03ba18fc4bfe4989ac"
+    },
+    {
+      "path": "37404310871/windows-cleanup/prepared_job_query_error_keeps_original_connect_owner_for_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/prepared_job_query_error_keeps_original_connect_owner_for_retry.stdout.gz",
+      "original_sha256": "67d68446a5101343fcd034a2cdd93b02ec50aec0ed3966571db9fcd48e0b70fe"
+    },
+    {
+      "path": "37404310871/windows-cleanup/prepared_pending_connect_retains_capacity_until_real_job_and_io_complete.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/prepared_pending_connect_retains_capacity_until_real_job_and_io_complete.stdout.gz",
+      "original_sha256": "98c19fb9b3893bcdba5846856f4ffb33a44c1fbf10726c4b57e963f8dfdc2889"
+    },
+    {
+      "path": "37404310871/windows-cleanup/private_git_complete_retains_original_directory_after_cancel_cleanup_failure.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/private_git_complete_retains_original_directory_after_cancel_cleanup_failure.stdout.gz",
+      "original_sha256": "f7d6a72f5a4fd93b54819e88b6d34df289707fc3197c625c309efaf72b4fa0e4"
+    },
+    {
+      "path": "37404310871/windows-cleanup/private_git_drop_retains_original_directory_after_panic_cleanup_failure.stderr.gz",
+      "original_sha256": "dd78e4a2cf598bb58e6706b4db0c9fa6693f93a60239c8723665bdcebf38568f"
+    },
+    {
+      "path": "37404310871/windows-cleanup/private_git_drop_retains_original_directory_after_panic_cleanup_failure.stdout.gz",
+      "original_sha256": "8b12babf3f0b3a4692bc40d8be35ccd8d7df60ed3545c90475982d7333d81415"
+    },
+    {
+      "path": "37404310871/windows-cleanup/query_failure_retains_original_connect_for_actual_retry.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/query_failure_retains_original_connect_for_actual_retry.stdout.gz",
+      "original_sha256": "0b0eed1fa08ee49b33379adf99c5111c043c5e3c5ddd5633e4d704724268a5c1"
+    },
+    {
+      "path": "37404310871/windows-cleanup/real_directory_delete_failure_keeps_session_slot_until_native_release.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/real_directory_delete_failure_keeps_session_slot_until_native_release.stdout.gz",
+      "original_sha256": "93b1b7a9bbe302ab36803d5f0bc740b0193e8c14f3e637c6882919952204d919"
+    },
+    {
+      "path": "37404310871/windows-cleanup/real_git_private_directory_creation_and_completion_qualifies_resource_fixture.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/real_git_private_directory_creation_and_completion_qualifies_resource_fixture.stdout.gz",
+      "original_sha256": "7a937acd161e540b0be763dc6642c32ee90e1b0bdcf3da828e4e900d4b5aef9a"
+    },
+    {
+      "path": "37404310871/windows-cleanup/receipt.json.gz",
+      "original_sha256": "1f60603cd6d2fbfff05a7e1109988eb33517d2b4d430c64bb6bb87d1d63812fe"
+    },
+    {
+      "path": "37404310871/windows-cleanup/recovered_runner_admission_does_not_remain_poisoned_after_panic.stderr.gz",
+      "original_sha256": "0c21cf1825d50d7e9669c4fc3387eb0f2e15c7d9212c537ba88c6c9bdfd31998"
+    },
+    {
+      "path": "37404310871/windows-cleanup/recovered_runner_admission_does_not_remain_poisoned_after_panic.stdout.gz",
+      "original_sha256": "be4a407c485e5c8ac524c8235b75905a2db3297cba2e54f7ea31864b82c04e68"
+    },
+    {
+      "path": "37404310871/windows-cleanup/recovery_slot_survives_query_failure_until_original_job_is_observed_empty.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/recovery_slot_survives_query_failure_until_original_job_is_observed_empty.stdout.gz",
+      "original_sha256": "19ef7ca1a65bc795a2f1e90b0c2ecf32fa26cdf861082be432d35776cfe770e0"
+    },
+    {
+      "path": "37404310871/windows-cleanup/registry_deadline_query_error_preserves_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/registry_deadline_query_error_preserves_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "2407bc1f8641523f0555965e1e26dfa052b618725e30640bd2b0e8a0c6ff2f24"
+    },
+    {
+      "path": "37404310871/windows-cleanup/registry_deadline_wait_error_preserves_original_owner_and_capacity.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/registry_deadline_wait_error_preserves_original_owner_and_capacity.stdout.gz",
+      "original_sha256": "b5d686eb316b1c64d8aab2c324ba0777a196758a00fffb9821be508916d8cfdf"
+    },
+    {
+      "path": "37404310871/windows-cleanup/stop_preserves_original_background_panic_payload.stderr.gz",
+      "original_sha256": "01534694e07d28b7a74cacd4dd09840db2db471d27c441d3e8e70b95764308eb"
+    },
+    {
+      "path": "37404310871/windows-cleanup/stop_preserves_original_background_panic_payload.stdout.gz",
+      "original_sha256": "56512261991e1607b736d5f0f2cb7ea7931c785f1f413e221bb326115851ed41"
+    },
+    {
+      "path": "37404310871/windows-cleanup/third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job.stdout.gz",
+      "original_sha256": "41e3428e9d8e4a538a191dfcd255e1b7c5ac7019a66eb78744face194d59dfc6"
+    },
+    {
+      "path": "37404310871/windows-cleanup/unknown_creation_phase_with_missing_leader_never_releases_original_job.stderr.gz",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "37404310871/windows-cleanup/unknown_creation_phase_with_missing_leader_never_releases_original_job.stdout.gz",
+      "original_sha256": "e1678ce6cbe2aa15e5ab05062b0f5b8c711255d899b12e16244a0f60496df535"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/actual-expired-cleanup.stderr.gz",
+      "original_sha256": "11fdd647f92cc88e5c5c4f0e93352f54b160ea13df14338852ed435895847a6b"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/actual-expired-cleanup.stdout.gz",
+      "original_sha256": "e59bf4d4350c67d7b71116065323e30af173f5dc3fb8daa081deae6a2354861b"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/actual-lost-owner.stderr.gz",
+      "original_sha256": "8fe38017aceb52729367d32a3b216bb297c6cef044363059b1b2e504ac75d5c2"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/actual-lost-owner.stdout.gz",
+      "original_sha256": "13ea273e5cd6cc573ebcb53020ebf46b544956dc2a4b47fa2ee80052c68a77b5"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/build-baseline.stderr.gz",
+      "original_sha256": "9baa6b375248c7ee9ed5a8e9812116145b4e46cfc93c333f851efb8fc78dd9ac"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/build-baseline.stdout.gz",
+      "original_sha256": "286551adddfb1793abd9f951245a58daeb13537483cd8b75fd3cb90d33e11bd7"
+    },
+    {
+      "path": "37404310871/windows-prepared-birth-baseline/receipt.json.gz",
+      "original_sha256": "8ff733c52d19df586065446cf7682118b556a75f407b00980ceba72917192ada"
+    }
+  ]
+}

@@ -65,6 +65,7 @@ PROBE_CASES = tuple("native_child::windows::windows_probe_recovery_tests::" + na
     "managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
     "managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
     "managed_probe_panic_wait_failure_retains_original_owner_and_capacity",
+    "expired_managed_probe_transfers_original_owner_without_legacy_wait",
 ))
 
 

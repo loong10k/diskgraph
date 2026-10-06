@@ -1,0 +1,38 @@
+{
+  "production_acceptance": false,
+  "windows_probe_cleanup_native_green_pending": true,
+  "engine_layout_passed": 6,
+  "mcp_layout_passed": 9,
+  "http_lifecycle_passed": 5,
+  "runner_ownership_passed": 1,
+  "logs": [
+    {
+      "name": "diskgraph-mcp-layout-20261006.log",
+      "original_sha256": "309055e392bbf7b1bfee898a132e674d47dc19438516f0c2ea9026dd2be07ad6"
+    },
+    {
+      "name": "diskgraph-mcp-layout-green-20261006.log",
+      "original_sha256": "e4f937d1adc3a55c97ff4a3d37d7d67b427c303abf471ce3e0e5ee28ded19409"
+    },
+    {
+      "name": "diskgraph-mcp-layout-green-final-20261006.log",
+      "original_sha256": "3cc05def40fc4c7ecb00428d323892b8e6f3b047ba4c6d75af198a7fa1a056d0"
+    },
+    {
+      "name": "diskgraph-mcp-layout-complete-20261006.log",
+      "original_sha256": "2eea48512d59720e3f0a649c77f77c46d4b5be2b3b412682a582d90f8a94e9c1"
+    },
+    {
+      "name": "diskgraph-mcp-runtime-regression-20261006.log",
+      "original_sha256": "09f34d5eb8f88f388edfb449d77f26f1e45674a0d1c477f9979fc545fa30d2d1"
+    },
+    {
+      "name": "diskgraph-mcp-runner-move-20261006.log",
+      "original_sha256": "96f2726d3c905a4093c05364b4f3adb801ece70035f30cc63f1eea4f9e4631d2"
+    },
+    {
+      "name": "diskgraph-budget-cleanup-layout-20261006.log",
+      "original_sha256": "2c173b250d7e0b298f26d982267fc98b1bb774bb3329c966b6541ad08b11c325"
+    }
+  ]
+}

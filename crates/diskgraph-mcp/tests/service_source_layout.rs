@@ -295,7 +295,7 @@ fn inspect(
             .into_iter()
             .map(|error| format!("{}: {error}", path.display())),
     );
-    let base = if aggregate {
+    let base = if aggregate || path.file_stem().is_some_and(|stem| stem == "main") {
         path.parent().unwrap().to_owned()
     } else {
         path.with_extension("")
@@ -333,6 +333,13 @@ fn service_entry_and_mounted_modules_have_real_responsibilities() {
     let mut errors = Vec::new();
     inspect(
         &Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs"),
+        false,
+        &mut mounted,
+        &mut errors,
+    );
+    // 二进制退出模块也必须实际挂载检查，不能因只读lib入口就成为孤儿例外。
+    inspect(
+        &Path::new(env!("CARGO_MANIFEST_DIR")).join("src/main.rs"),
         false,
         &mut mounted,
         &mut errors,

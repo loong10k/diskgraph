@@ -24,6 +24,7 @@ fn invalid_acl(reason: &str) -> io::Error {
 }
 
 /// 检查已打开密钥文件的所有可生效允许项，并要求所有者为当前用户或系统管理员。
+/// 参数：file 为已经持有的原密钥文件；返回：ACL 限制成立或原权限、查询错误，不按路径重开。
 pub(crate) fn ensure_restricted(file: &File) -> io::Result<()> {
     let mut owner: PSID = ptr::null_mut();
     let mut dacl: *mut ACL = ptr::null_mut();

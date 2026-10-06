@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "013b0085c6a52d9a6b036b979ced5512d08b68662a0e3396cf766e77d903dbc2",
+  "archive_sha256": "c02549e9d3c810c60aa24b57df3c4343c9089a3e0ffba9c07968428f6032e9b0",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "91aa33ed860e739bdd6ea62fe4fe87de6bfbd15029c475742cb507a4ceb1d3c1",
@@ -154,7 +154,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture_tests.rs": "53ae59b0975915dc934e6e60b2ecbc7e1a063d50122c3ec8c0f8cf49e6bba484",
     "crates/diskgraph-engine/src/live_evidence/macos_probe_tests.rs": "8896b66f810257490c0b200b7284f0decf6c7d4bd02cc9b97d4ff1b46aba5c0a",
     "crates/diskgraph-engine/src/live_evidence/mod.rs": "5d71251c8a8ef78788c1338d1d09a0de195c2161e139dbb6f6fb4cebe99ab2be",
-    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "ab2e9a49f509c5e8e9e55ddd426771582161643f65a3097d05d1981bf9314aed",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "c0a46a1b2f2ce2aab7c1ba2c428e386093643cb63438d9c06a68bc4204b1e57e",
     "crates/diskgraph-engine/src/live_evidence/probe_directory_witness.rs": "cc7a242954bdfe5742cebf091bd5416d883580e681863e07f35153714c1f3f5e",
     "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "c528ec955d19564d2edab0952f6d3f9ea997a841937851e3f092c7e83b3ffa49",
     "crates/diskgraph-engine/src/live_evidence/probe_failure.rs": "ebf3b3c4e6a217db68ae2476e4b0a24a7df6188a34fad2b5105d44379485213f",
@@ -183,7 +183,7 @@
     "crates/diskgraph-engine/src/live_evidence/windows_git_junction_fixture.rs": "d6508895f73477a4a9eb270a193c8f8b16e20becef4518a2a68366b78878d58b",
     "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "7d1dc79fa1966d04ec239818eaf804dd0b8cf04a12136cb12809d7fd0154a033",
     "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "b6e8e507e7d6f85873ba49c4167c35d5651b94342b68dab61834ee47af71b476",
-    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "1afe4af4de664693bf8d582ccc2aa7f9b76faadc1de8943e4e88d338b76d9225",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "145b65e92737c11af911b72dff46e0ccbbae5063d28184953ea2e91b2f0df7fc",
     "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "6768ee90672e1ea850131cf508d55af26b45ec168ee5e9c89d37d9c13700e5e8",
     "crates/diskgraph-engine/src/macos_epoch_floor.rs": "9e436a2f979898385aa88c970ea1adeb73210240001f01b170fb99046eb1df70",
     "crates/diskgraph-engine/src/macos_epoch_floor_tests.rs": "38a9ad28d2be0e2b421b93ac00dd7c673260f4bcfaf9326e5e1ef06cb7ccc588",
@@ -306,7 +306,7 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_poll_cleanup_tests.rs": "219ff569f13393d02704c9130553c47f5a4a06e53305e7e8734aca145e73334e",
     "crates/diskgraph-engine/src/native_child/windows/windows_prepared_connect_tests.rs": "c768c5f4be7c76c1d674a411a11ee3651764ec7c39efc15bf3eb66175a58e57a",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_directory_recovery_tests.rs": "c64ff83acd8387099dc1f72c33e5b3a5ada66838d6cbcf947bf3ac91a19fe3be",
-    "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "e8face37004f06b331310719e40e82d28b073149019be8da3c1e217886e97e10",
+    "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "6e3bc358ec2ee6c2a301c2b56f737f6e4be8fba982feee7f93abf2ed3833a555",
     "crates/diskgraph-engine/src/native_child/windows/windows_registry_deadline_tests.rs": "cfc7e38cb5e4367b1fc5c94782ef8f1eb5310819b601705295119355192b2c19",
     "crates/diskgraph-engine/src/native_locator.rs": "73a7664581a6adc4bc4f1a2b4c7df356148dd25e23dba3753b71b7a06ae01c9d",
     "crates/diskgraph-engine/src/native_process/handle_reservation.rs": "28975abd93cb8ae0ae8ec33fce632d90a2e6fca7b21f6fa19d1a42fde311aa52",
@@ -540,7 +540,8 @@
   "probe_cases": [
     "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
     "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
-    "native_child::windows::windows_probe_recovery_tests::managed_probe_panic_wait_failure_retains_original_owner_and_capacity"
+    "native_child::windows::windows_probe_recovery_tests::managed_probe_panic_wait_failure_retains_original_owner_and_capacity",
+    "native_child::windows::windows_probe_recovery_tests::expired_managed_probe_transfers_original_owner_without_legacy_wait"
   ],
   "diagnostic_limits": {
     "observations_per_fixture": 4,
@@ -622,5 +623,6 @@
     "native_child::windows::windows_child::windows_child_prepared_tests::checked_admission_rejects_prepared_pipe_without_advancing_lifecycle",
     "native_child::windows::windows_child::windows_child_prepared_tests::actual_pending_connect_wait_expires_on_original_admission_deadline",
     "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup"
-  ]
+  ],
+  "probe_cleanup_original_deadline_candidate": true
 }
