@@ -35,7 +35,7 @@ impl WindowsGitDirectoryCursor {
     /// 参数：parent_label为原账本父键、capacity为owner账本、probe为本轮预算。
     /// 返回：原父/子登记身份及文件版本均核验后的当前子项句柄/名称/属性，或真正EOF。
     /// 打开或账本核验失败仍保留同一枚举子项，不收养陌生对象。
-    /// 仅最终确认原ID消失后前进；普通枚举不得越过未完成清理项。
+    /// 仅最终确认原ID消失后前进；未登记项需原卷完整 ID 正控明确缺失，普通枚举不得越过未完成清理项。
     pub(super) fn open_next_cleanup_child(
         &mut self,
         parent_label: &std::path::Path,
@@ -51,30 +51,41 @@ impl WindowsGitDirectoryCursor {
         capacity
             .check_identity(parent_label, &self.file, true)
             .map_err(std::io::Error::other)?;
-        if self.cleanup_entry.is_none() {
-            self.cleanup_entry = self.next_entry(probe).map_err(std::io::Error::other)?;
+        loop {
+            probe.check().map_err(std::io::Error::other)?;
+            if self.cleanup_entry.is_none() {
+                self.cleanup_entry = self.next_entry(probe).map_err(std::io::Error::other)?;
+            }
+            let Some((name, id, attributes)) = self.cleanup_entry.as_ref() else {
+                return Ok(None);
+            };
+            let directory =
+                attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
+            if !capacity.registered(&parent_label.join(name))
+                && super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_enumerated_absent(&self.file, id, probe)?
+            {
+                // 原外来身份已由原卷完整 ID 正控证明消失；不收养同名新对象或伪造删除。
+                self.cleanup_entry = None;
+                self.cleanup_identity = None;
+                continue;
+            }
+            let file = self.open_verified_child(name, *id, directory, probe)?;
+            // 词法路径只作原账本键，不用于重新打开对象；句柄必须属于本owner登记身份。
+            capacity
+                .check_identity(&parent_label.join(name), &file, directory)
+                .map_err(std::io::Error::other)?;
+            let identity = GitPrivateAllocation::from_file(&file).map_err(std::io::Error::other)?;
+            if let Some(expected) = self.cleanup_identity.as_ref()
+                && !expected.same_identity(&identity)
+            {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::AlreadyExists,
+                    "pending cleanup identity changed",
+                ));
+            }
+            self.cleanup_identity = Some(identity);
+            return Ok(Some((file, name.clone(), *attributes)));
         }
-        let Some((name, id, attributes)) = self.cleanup_entry.as_ref() else {
-            return Ok(None);
-        };
-        let directory =
-            attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
-        let file = self.open_verified_child(name, *id, directory, probe)?;
-        // 词法路径只作原账本键，不用于重新打开对象；句柄必须属于本owner登记身份。
-        capacity
-            .check_identity(&parent_label.join(name), &file, directory)
-            .map_err(std::io::Error::other)?;
-        let identity = GitPrivateAllocation::from_file(&file).map_err(std::io::Error::other)?;
-        if let Some(expected) = self.cleanup_identity.as_ref()
-            && !expected.same_identity(&identity)
-        {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::AlreadyExists,
-                "pending cleanup identity changed",
-            ));
-        }
-        self.cleanup_identity = Some(identity);
-        Ok(Some((file, name.clone(), *attributes)))
     }
 
     /// 参数：probe为本轮清理预算；返回：原ID明确消失时清除当前项并返回true，否则false/原错误。

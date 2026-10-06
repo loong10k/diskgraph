@@ -1,0 +1,25 @@
+{
+  "source": "6c3b7295e26e31933d9258f8ee8328cc6b241f64",
+  "run": 37508684271,
+  "records": [
+    {
+      "rust": "stable",
+      "artifact_id": 11435595217,
+      "file": "stable_original.zip",
+      "zip_sha256": "6f2727b03138d348d699856c4db18257a8002ea2ea7c9210722f7123f694a57d",
+      "candidate_source_binding": "Git blob transformed to Windows CRLF exactly matches original receipt; byte-exact candidate restore verified by native gate",
+      "red": "0 passed;1 failed;0 ignored; exact retry failure and real original recovery cleanup marker",
+      "green": "2 passed;0 failed;0 ignored; original held-session retry and released-session refusal markers"
+    },
+    {
+      "rust": "msrv",
+      "artifact_id": 11435565572,
+      "file": "msrv_original.zip",
+      "zip_sha256": "5bf3949772c16b7a7199eb177c9eeea621ff20c52075f10cace0c6fb796cfa01",
+      "candidate_source_binding": "Git blob transformed to Windows CRLF exactly matches original receipt; byte-exact candidate restore verified by native gate",
+      "red": "0 passed;1 failed;0 ignored; exact retry failure and real original recovery cleanup marker",
+      "green": "2 passed;0 failed;0 ignored; original held-session retry and released-session refusal markers"
+    }
+  ],
+  "scope": "directory owner retry component; full workspace and finite product shutdown remain open"
+}

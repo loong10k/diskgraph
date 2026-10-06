@@ -414,6 +414,17 @@ jobs:
           name: windows-directory-retry-${{ matrix.rust }}-${{ github.run_id }}
           path: ${{ runner.temp }}/diskgraph-windows-directory-retry/
           if-no-files-found: error
+      - name: Native Windows foreign entry absence red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: python scripts/qualify_windows_enumerated_absence.py
+      - name: Preserve native Windows foreign entry absence evidence
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-enumerated-absence-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-enumerated-absence/
+          if-no-files-found: error
       - name: Native control write deadline isolation
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_tests -- --test-threads=1
       - name: Native control writer stage diagnostics

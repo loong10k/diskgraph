@@ -821,3 +821,46 @@ fn empty_directory_post_mark_seal_and_original_removal_are_verified() {
     );
     println!("DG_EMPTY_DIRECTORY_POST_MARK_SEAL_AND_REMOVE=1");
 }
+
+#[test]
+fn vanished_unregistered_entry_advances_only_after_original_full_id_absence() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let root = parent.join("original");
+    let capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&root, 128 << 20, 0, &mut probe)
+            .unwrap();
+    let foreign = root.join("foreign");
+    let moved = root.join("moved-foreign");
+    std::fs::write(&foreign, b"original foreign").unwrap();
+    assert!(
+        cursor
+            .open_next_cleanup_child(&root, &capacity, &mut probe)
+            .is_err()
+    );
+    assert_eq!(std::fs::read(&foreign).unwrap(), b"original foreign");
+    std::fs::rename(&foreign, &moved).unwrap();
+    std::fs::write(&foreign, b"replacement foreign").unwrap();
+    assert!(
+        cursor
+            .open_next_cleanup_child(&root, &capacity, &mut probe)
+            .is_err()
+    );
+    assert_eq!(std::fs::read(&moved).unwrap(), b"original foreign");
+    assert_eq!(std::fs::read(&foreign).unwrap(), b"replacement foreign");
+    std::fs::remove_file(&foreign).unwrap();
+    // 即使原名称已经不存在，同卷仍存在的原 ID 也不能被当作消失。
+    assert!(
+        cursor
+            .open_next_cleanup_child(&root, &capacity, &mut probe)
+            .is_err()
+    );
+    assert_eq!(std::fs::read(&moved).unwrap(), b"original foreign");
+    std::fs::remove_file(&moved).unwrap();
+    println!("DG_WINDOWS_ENUMERATED_ABSENCE_RED_READY=1");
+    let result = cursor.open_next_cleanup_child(&root, &capacity, &mut probe);
+    assert!(
+        matches!(result, Ok(None)),
+        "full-ID absence must retire only vanished foreign entry: {result:?}"
+    );
+    println!("DG_WINDOWS_ENUMERATED_ABSENCE_GREEN=1");
+}

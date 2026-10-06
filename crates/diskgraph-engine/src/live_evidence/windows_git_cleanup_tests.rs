@@ -2,7 +2,6 @@
 use super::ProbeLimits;
 use super::git_private_directory::GitPrivateDirectory;
 use super::native_probe_test_budget::NativeProbeTestBudget;
-use super::probe_budget::ProbeBudget;
 use std::time::{Duration, Instant};
 
 #[test]
@@ -112,18 +111,31 @@ fn product_cleanup_removes_moved_original_and_keeps_foreign_replacement() {
 
 #[test]
 fn product_cleanup_keeps_unregistered_foreign_children_and_original_owner() {
-    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut probe = NativeProbeTestBudget::new(&ProbeLimits::default()).unwrap();
     let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();
     let root = directory.path().to_owned();
     let foreign = root.join("foreign");
+    let moved = root.join("moved-foreign");
     std::fs::write(&foreign, b"not registered").unwrap();
     assert!(directory.complete::<()>(Ok(())).is_err());
     assert_eq!(std::fs::read(&foreign).unwrap(), b"not registered");
-    // 原owner不收养外来对象；本测试移除其自行注入的文件后仍保留原枚举项，不能冒充完成。
+    std::fs::rename(&foreign, &moved).unwrap();
+    std::fs::write(&foreign, b"foreign replacement").unwrap();
+    assert!(directory.complete::<()>(Ok(())).is_err());
+    assert_eq!(std::fs::read(&foreign).unwrap(), b"foreign replacement");
+    assert_eq!(std::fs::read(&moved).unwrap(), b"not registered");
+    // 测试 actor 收回自己的两份外来数据；产品必须证明原完整 ID 消失后清理原登记根。
     std::fs::remove_file(foreign).unwrap();
     assert!(directory.complete::<()>(Ok(())).is_err());
-    drop(directory);
-    std::fs::remove_dir(root).unwrap();
+    assert_eq!(std::fs::read(&moved).unwrap(), b"not registered");
+    std::fs::remove_file(moved).unwrap();
+    directory.complete::<()>(Ok(())).unwrap();
+    assert!(
+        !root.exists(),
+        "actual original owner must delete its original root"
+    );
+    directory.complete::<()>(Ok(())).unwrap();
+    println!("DG_WINDOWS_FOREIGN_ENTRY_PRODUCT_RECOVERY=1");
 }
 
 /// 并行夹具共享系统临时父目录；只等待短期创建租约，持续冲突仍失败。
