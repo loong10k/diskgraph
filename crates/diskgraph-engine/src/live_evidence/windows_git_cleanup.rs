@@ -43,8 +43,8 @@ impl WindowsGitCleanup {
 
     /// 参数：capacity为原owner登记账本；返回：原根确认删除后成功，否则保留全部恢复状态。
     pub(super) fn cleanup(&mut self, capacity: Option<&GitPrivateCapacity>) -> Result<(), String> {
-        let mut probe = ProbeBudget::new(&super::ProbeLimits::default())
-            .map_err(|error| error.to_string())?;
+        let mut probe =
+            ProbeBudget::new(&super::ProbeLimits::default()).map_err(|error| error.to_string())?;
         if !self.initialized {
             let root = self
                 .root
