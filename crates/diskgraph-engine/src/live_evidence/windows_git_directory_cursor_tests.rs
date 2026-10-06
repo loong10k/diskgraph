@@ -163,6 +163,49 @@ fn verified_cleanup_child_uses_original_parent_after_move_and_foreign_root_repla
         std::fs::read(parent.join("original/owned")).unwrap(),
         b"foreign"
     );
+    // 删除只作用于已核完整ID的本案句柄；关闭后检查实际名称消失及陌生根哨兵。
+    mark_fixture_delete(&file);
+    drop(file);
+    assert!(!parent.join("moved/owned").exists());
+    assert_eq!(
+        std::fs::read(parent.join("original/owned")).unwrap(),
+        b"foreign"
+    );
+    let delete_root = _root.reopen_for_delete().unwrap();
+    mark_fixture_delete(&delete_root);
+    // pending并非回收完成，释放所有原目录句柄后才检查最终效果。
+    drop(delete_root);
+    drop(cursor);
+    drop(_root);
+    assert!(!parent.join("moved").exists());
+    assert_eq!(
+        std::fs::read(parent.join("original/owned")).unwrap(),
+        b"foreign"
+    );
+    println!("DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1");
+}
+
+// 参数：本案独占、已核身份的DELETE句柄；返回：无，原生失败必须使测试失败。
+fn mark_fixture_delete(file: &std::fs::File) {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_DISPOSITION_INFO, FileDispositionInfo, SetFileInformationByHandle,
+    };
+    let info = FILE_DISPOSITION_INFO { DeleteFile: true };
+    let result = unsafe {
+        SetFileInformationByHandle(
+            file.as_raw_handle(),
+            FileDispositionInfo,
+            (&raw const info).cast(),
+            std::mem::size_of_val(&info) as u32,
+        )
+    };
+    assert_ne!(
+        result,
+        0,
+        "actual fixture deletion failed: {}",
+        std::io::Error::last_os_error()
+    );
 }
 
 #[test]

@@ -63,3 +63,8 @@ CI 37415041940 在归档保护步骤实际失败：新增模块检查使用Windo
 新增原生正控/反控：父目录移动并被陌生同名根替换仍只开原子项；枚举后同名子项被替换则拒绝；实际junction替换不跟随且外部sentinel不变；活跃shareREAD文件租约阻止DELETE打开，解除后原ID通过。这是新增内部API，现有游标没有旧对应入口，不伪造旧版本行为RED；新增验收调用并实现，依靠真实正控和反控证明能力，原目录枚举目标RED仍保留。此子层不执行删除、不启用危险工具、不宣称整个walker/Pool或默认产品启动完成。
 
 实现候选：open_verified_child在同一父游标下取得未执行删除的句柄，预算/原父/新子项的失败不改变游标位置，不覆盖或删除任何对象。新增ID比较不截断。GitPrivateAllocation超过500行触发真实结构RED，已将真实NtCreateFile工厂拆至WindowsGitChildOpen（不是空壳），方法体去空白逐字节一致，结构6/6通过。Windows498源、72项清单保留原68；Mac607源保持MCP162/原生child41门禁。驱动24/24、归档保护14/14、格式及OpenSpec严格验证通过；Mac本机未运行四项Windows原生用例，旧枚举行为RED仍需同一CI复验，删除、walker/Pool和产品启用继续未完成。证据见 docs/benchmarks/windows_verified_cleanup_child_2026_10_06。
+
+
+### 原句柄实际删除与last-close候选验收
+
+在已有同名陌生根替换原生测试中，进一步对已核完整ID的原子项句柄执行FileDispositionInfo，关闭后确认原子项消失；随后对原根anchor相对重开句柄标记删除，并释放全部原根句柄后确认移动后的原根消失，陌生根哨兵必须保持。新增精确stdout标记DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1。不使用POSIX、路径删除或delete-on-close回退；仅隔离测试，不接通产品删除、Pool或恢复，不启用危险工具。Windows实际结果待CI，不据此勾选15.13。
