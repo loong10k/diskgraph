@@ -56,6 +56,17 @@ jobs:
           sha256sum "$source" "$probe" "$replacement" > "${{ runner.temp }}/diskgraph-linux-atomic-birth-digests.txt"
           echo "DG_LINUX_ATOMIC_BIRTH_PROBE=$probe" >> "$GITHUB_ENV"
           echo "DG_LINUX_ATOMIC_BIRTH_REPLACEMENT=$replacement" >> "$GITHUB_ENV"
+      - name: Build exact native Linux atomic-launcher fixtures
+        if: runner.os == 'Linux'
+        run: |
+          probe="${{ runner.temp }}/diskgraph-linux-atomic-launch-fixture"
+          replacement="${{ runner.temp }}/diskgraph-linux-atomic-launch-replacement"
+          source="crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c"
+          cc -std=c11 -O2 -pthread -Wall -Wextra -Werror -DIMAGE_ID=1 "$source" -o "$probe"
+          cc -std=c11 -O2 -pthread -Wall -Wextra -Werror -DIMAGE_ID=2 "$source" -o "$replacement"
+          sha256sum "$source" "$probe" "$replacement" > "${{ runner.temp }}/diskgraph-linux-atomic-launch-digests.txt"
+          echo "DG_LINUX_ATOMIC_LAUNCH_FIXTURE=$probe" >> "$GITHUB_ENV"
+          echo "DG_LINUX_ATOMIC_LAUNCH_REPLACEMENT=$replacement" >> "$GITHUB_ENV"
       - name: Build
         run: cargo build --workspace --all-targets --locked
       - name: Native Linux thread-group and procfs qualification
@@ -77,6 +88,7 @@ jobs:
           name: linux-atomic-birth-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/diskgraph-linux-atomic-birth-digests.txt
+            ${{ runner.temp }}/diskgraph-linux-atomic-launch-digests.txt
             ${{ runner.temp }}/diskgraph-linux-atomic-birth.log
           retention-days: 7
           if-no-files-found: error

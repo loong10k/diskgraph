@@ -4,7 +4,11 @@
 
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::{EvidenceProbeSession, ProbeLimits};
-use crate::{Engine, EngineConfig};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+use crate::EngineConfig;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{NodeKind, PrincipalId, QueryBudget};
 use std::path::Path;
 

@@ -120,3 +120,12 @@ Ops Project保留真实Arc<Engine>交给原PlanBuilder/Executor，在Linux另持
 d2e8130 / CI37446156365 的Linux stable全量原始日志只剩3个失败目标（Engine/FFI/Ops lib），六个MCP实际目标已脱离失败清单，原日志见workspace-d2-linux.log.gz。4c6f208三Linux lane严格Build均success，确认原预算可变借用编译修复已在原生环境生效；整次Test仍运行，不能将Build当行为验收，状态见engine-4c-native-build-status.json。
 
 FFI authorization两项通过Engine真实扫描准备旧库的用例改为Linux显式受信宿主+独立外槽，保留旧库归属证明、非UTF-8和歧义拒绝全部13个原assert片段。公开scan_native_json、NativeService、异步导出、wire、授权服务及ABI未改；其中公开扫描仍不能由这些夹具通过来宣称可用。新增本地scan-worker dev依赖及单条lock依赖边，没有升级包。实际旧库准备的Linux结果须下个提交CI；本机offline check、FFI lib no-run、结构8/0及fmt通过，既有macOS Engine20条警告仍未隐藏。记录见ffi-legacy-*.log.gz，其他FFI公开扫描失败、Windows清理、macOS安装和生产有限恢复保持开放。
+
+
+## Linux全量最后两类夹具接入缺口
+
+316e66fd1929bf30dc1dee0e2f5478af67d2edaf / CI37447459176 Linux stable job112215616764终态failure，实际全量仍只有Engine lib与FFI lib两个失败目标，Ops已脱离失败清单。Engine索引Git身份用例仍用旧Engine::open；原子launcher失败注入用例要求root显式编译DG_LINUX_ATOMIC_LAUNCH_FIXTURE，但root只提供不同协议的atomic-birth镜像。最新日志有多项连带失败，不沿用4c日志三项失败数量。原日志见workspace-316-linux.log.gz。
+
+Git用例在Linux复用现有真实NativeScanEngine，唯一Recovery保持至Engine夹具结束，全部9个原assert片段保持。CI独立编译linux_atomic_launcher_fixture.c的IMAGE_ID=1/2两份ELF，保留source/两镜像摘要，提供原测试指定环境变量；不把atomic-birth镜像别名充数，不修改故障注入、禁止回退或回收断言。两平台之外构造与生产API不变。
+
+本机Engine lib no-run、结构6/0与workflow YAML解析通过；fmt首次因条件导入排序失败，按rustfmt只调整该文件导入后，排除固定vendor的fmt通过；本机是macOS，不能据此声明Linux分支行为通过。原始记录为engine-final-fixtures-*.log.gz。原生执行等待本次提交CI，FFI公开扫描、Windows默认产品扫描/句柄清理、macOS可信安装、有限前端恢复及完整性能门禁仍开放，不勾选父任务。
