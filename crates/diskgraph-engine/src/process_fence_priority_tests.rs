@@ -1,9 +1,9 @@
 //! 真实认领正控与历史过期状态的优先级回归；来源：Control 授权和实际 Engine fence。
 //! 历史目标由独占库显式插入，Session 准入时刻只在测试构造期间建模，不声称原自然到期链路不变。
 //! 合法协议 epoch 仅供控制事务使用，测试绝不打开资源、模拟 holder 或声称本机原生资格。
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 mod historical_running_seed;
 

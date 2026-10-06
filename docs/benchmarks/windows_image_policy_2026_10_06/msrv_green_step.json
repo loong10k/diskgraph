@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "source_sha": "aa95e45c0d8a858d41ecc0a2522ce46ba38a687e",
+  "run": 37474702696,
+  "job": 112306966629,
+  "native_policy_step": "success",
+  "whole_job": "failure",
+  "failed_step": "Build",
+  "rust": "1.97.0",
+  "production_acceptance": false
+}

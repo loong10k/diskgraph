@@ -158,6 +158,19 @@ class MacosInstalledQualifierTests(unittest.TestCase):
             qualifier.mount(self.checkout)
         self.assertFalse((outside / "a.rs").exists())
 
+    def test_driver_requires_one_actual_current_cargo_example(self):
+        image = self.checkout / "driver"
+        image.write_bytes(b"current compiled fixture")
+        row = {"reason": "compiler-artifact", "target": {"name": "scan_worker_driver_fixture", "kind": ["example"]}, "executable": str(image)}
+        stdout = json.dumps(row)
+        self.assertEqual(qualifier.driver_artifact(stdout), image)
+        for invalid in ("", stdout + "\n" + stdout, stdout.replace('["example"]', '["bin"]')):
+            with self.assertRaises(RuntimeError):
+                qualifier.driver_artifact(invalid)
+        image.unlink()
+        with self.assertRaises(RuntimeError):
+            qualifier.driver_artifact(stdout)
+
     def test_full_cli_regression_requires_original_cases_and_counts(self):
         valid = "\n".join("test " + case + " ... ok" for case in qualifier.CLI_SCAN_REGRESSION_CASES)
         valid += "\ntest result: ok. 67 passed; 0 failed; 0 ignored;"

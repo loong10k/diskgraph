@@ -1,8 +1,8 @@
 //! 进程采集生命周期的真实 Linux 夹具；来源：tmpfs 普通文件、公开索引与持久扫描 epoch。
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
 use crate::EngineConfig;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{
     JobRequestAuthority, Permission, PrincipalId, ProcessEvidenceJobInput, ProcessEvidenceLimits,

@@ -1,9 +1,9 @@
 //! 本次扫描的原生补充观测必须经暂存实际发布，不能仅创建新列。
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
 use crate::EngineConfig;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::PrincipalId;
 #[cfg(not(windows))]

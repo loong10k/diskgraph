@@ -1,8 +1,8 @@
 //! 持久 Git 作业测试的独占原生仓库；来源：实际 Git / Engine 扫描，不伪造索引身份。
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
 use crate::EngineConfig;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{JobRequestAuthority, Permission, PrincipalId, ScopeId};
 use diskgraph_store::JobRecord;

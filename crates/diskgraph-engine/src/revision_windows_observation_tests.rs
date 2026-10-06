@@ -1,8 +1,8 @@
 //! 实际扫描节点的首末授权、旧定位拒绝和读取预算验收。
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use crate::{EngineConfig, EngineError};
 use diskgraph_core::{BusinessError, Permission, PrincipalId, QueryBudget, ScopeId};

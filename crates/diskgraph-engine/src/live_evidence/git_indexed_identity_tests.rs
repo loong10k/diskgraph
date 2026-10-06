@@ -4,10 +4,10 @@
 
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::{EvidenceProbeSession, ProbeLimits};
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
 use crate::EngineConfig;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{NodeKind, PrincipalId, QueryBudget};
 use std::path::Path;

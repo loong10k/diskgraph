@@ -155,3 +155,9 @@ a304063实际macOS ARM完整MCP为152/0/0ignored/0filtered，43项原必跑案�
 a6bbf2f/37474050173 Windows Rust1.97实际查询成功，挂起process策略Flags低三位为0，预期7，原Job清理后断言RED。实现将属性容量从2增到3，初始化时固定安装MITIGATION_POLICY，u64值以Box保留稳定地址至DeleteProcThreadAttributeList后；三ALWAYS_ON位分别52/56/60。原设置/创建错误直接传播，不去除策略重试。不修改实际回归断言；等待新提交原生GREEN。
 
 3daf3be Linux stable完整Test后Clippy在FFI native_legacy_fixture同一二字节规则失败。保持64字符检查，转as_chunks::<2>()；扫描非vendored源码另有Windows目录UTF16解码同类固定块，保留完整pair迭代与余数处理语义转as_chunks，未改上游pin源码。5839076 macOS ARM现到完整Engine：480pass/103fail/11ignored；大量夹具仍经拒绝的旧环境部署路径，不能以先前产品与MCP成功声明Engine完整验收。后续需逐案真实宿主路由，不跳过失败案。
+
+## macOS完整Engine原生宿主夹具
+
+5839076完整回归实际RED中git_evidence_fixture等在Engine::open后的run_job返回Unsupported，尚未到目标撤权/发布行为。扩展既有NativeScanEngine夹具至macOS，使用from_installed_macos固定root保护配置，缺部署仍拒绝；Linux独立环境预期值路径保持。仅替换夹具Engine import与runner持有原host分支，不改变平台syscall/观测语义或跳过用例。原恢复责任仍在业务catch外由夹具唯一持有，待同提交安装资格重跑。独立driver夹具缺失的失败另外处理，不由本项覆盖。
+
+macOS本机strict候选测试二进制编译成功；独立真实Cargo driver提供后原driver7/0与owned_failure6/0；结构6/0，工具18/0。原生安装完整Engine未在本机执行，待新提交资格。aa95e45 Windows Rust1.97原生加载策略步骤GREEN，但随后完整Build仍失败，不能称Windows产品通过；原完整日志与步骤证据已保存。

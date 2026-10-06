@@ -257,6 +257,21 @@ def current_sources(checkout):
     return manifest
 
 
+def driver_artifact(stdout):
+    """只接收本次Cargo输出的唯一样例产物，不按PATH或旧邻接清单猜测。"""
+    rows = [json.loads(line) for line in stdout.splitlines() if line.startswith("{")]
+    images = [Path(row["executable"]) for row in rows
+              if row.get("reason") == "compiler-artifact"
+              and row.get("target", {}).get("name") == "scan_worker_driver_fixture"
+              and row.get("target", {}).get("kind") == ["example"] and row.get("executable")]
+    if len(images) != 1:
+        raise RuntimeError("one actual current protocol-driver artifact is required")
+    image = images[0]
+    if not image.is_absolute() or image.is_symlink() or not image.is_file() or any(c in str(image) for c in "\r\n\0"):
+        raise RuntimeError("invalid current protocol-driver artifact path")
+    return image
+
+
 def invoke(command, checkout, output, name, environment, timeout=900):
     with (output / (name + ".stdout")).open("wb") as stdout, (output / (name + ".stderr")).open("wb") as stderr:
         result = subprocess.run(command, cwd=checkout, env=environment, stdout=stdout, stderr=stderr, timeout=timeout)
@@ -319,6 +334,15 @@ def main():
             raise RuntimeError("expected one actual Engine test executable")
         binary = binaries[0]
         receipt["fixture_sha256"] = digest(binary)
+        if args.current_checkout:
+            invoke(["cargo", "build", "--locked", "-p", "diskgraph-engine", "--example", "scan_worker_driver_fixture",
+                    "--features", "macos_native_scan_candidate", "--message-format=json"], checkout, output, "build-driver-fixture", env)
+            driver = driver_artifact((output / "build-driver-fixture.stdout").read_text(encoding="utf-8"))
+            env["DISKGRAPH_SCAN_DRIVER_FIXTURE"] = str(driver)
+            receipt["driver_fixture"] = {"path": str(driver), "sha256": digest(driver), "bytes": driver.stat().st_size,
+                                          "source_sha256": digest(checkout / "crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs"),
+                                          "product_scan_image": False}
+
         for protocol_case in manifest["protocol_cases"]:
             name = "raw-path-protocol" if protocol_case == PROTOCOL_CASE else "response-budget-fixture"
             invoke([str(binary), protocol_case, "--exact", "--nocapture", "--test-threads=1"], checkout, output, name, env)
@@ -430,6 +454,8 @@ def main():
                 raise RuntimeError("qualification modified original candidate source")
         if digest(helper) != receipt["helper_sha256"] or digest(binary) != receipt["fixture_sha256"]:
             raise RuntimeError("qualification binary identity changed")
+        if args.current_checkout and digest(driver) != receipt["driver_fixture"]["sha256"]:
+            raise RuntimeError("protocol-driver fixture identity changed")
         receipt["status"] = "passed"
     except BaseException as error:
         receipt["status"] = "failed"

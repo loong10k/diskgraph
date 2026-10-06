@@ -1,6 +1,6 @@
 //! DiskGraph Engine 入口：仅声明模块并保留稳定公开路径。
 
-#[cfg(all(test, target_os = "linux"))]
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod native_scan_engine_fixture;
 
 mod collectors;

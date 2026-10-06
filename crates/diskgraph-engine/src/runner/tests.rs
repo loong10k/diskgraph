@@ -2,7 +2,7 @@
 //! 验证一次 tick 最多处理 64 个候选，而不是全队列授权清理后只执行一个任务。
 
 use super::run_one_queued;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
 use crate::EngineConfig;
 use diskgraph_core::PrincipalId;
@@ -21,11 +21,11 @@ fn strict_tick_bounds_candidate_work_and_advances_past_legacy_jobs() {
         data_dir: temp.path().join("data"),
         ..EngineConfig::default()
     };
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let host = crate::native_scan_engine_fixture::NativeScanEngine::open(config).unwrap();
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let engine = Arc::clone(&host.engine);
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     let engine = Arc::new(Engine::open(config).unwrap());
     let actor = PrincipalId::new("bounded-runner-admin").unwrap();
     engine.bootstrap_local_admin(&actor).unwrap();
@@ -113,11 +113,11 @@ fn stop_preserves_original_background_panic_payload() {
         data_dir: temp.path().join("data"),
         ..EngineConfig::default()
     };
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let host = crate::native_scan_engine_fixture::NativeScanEngine::open(config).unwrap();
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let engine = Arc::clone(&host.engine);
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     let engine = Arc::new(Engine::open(config).unwrap());
     let runner = super::JobRunner {
         engine,

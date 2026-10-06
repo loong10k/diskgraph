@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "original_red_sha": "583907628f5d485efab9cdac47eb2132f5a6d804",
+  "original_red_run": 37473507406,
+  "original_red_job": 112302830755,
+  "original_full_engine": {
+    "passed": 480,
+    "failed": 103,
+    "ignored": 11
+  },
+  "local_platform": "aarch64-apple-darwin",
+  "strict_candidate_test_build": true,
+  "driver_tests": {
+    "passed": 7,
+    "failed": 0
+  },
+  "owned_failure_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "qualification_tool_tests": 18,
+  "installed_full_engine_not_locally_run": true,
+  "production_acceptance": false
+}
