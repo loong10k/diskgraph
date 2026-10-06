@@ -128,3 +128,9 @@ CI37426849148，源码2cc573c870dbad371113fc164530bab70efdb749：75/77实际通�
 下一候选先验证身份通知的实际时机，不直接替换最终证明：在删除副作用前通过原父句柄建立目录通知；绑定原卷、原父与原子项身份，重命名事件不能证明删除，同名陌生对象不能释放原容量。ReadDirectoryChangesExW官方目前仅支持NTFS，扩展记录仅含64位FileId/ParentFileId；只能在原完整128位身份高位已确认零的NTFS协议下作无损比较，ReFS/未知协议不得截断。零字节完成或ERROR_NOTIFY_ENUM_DIR表示记录丢失，必须保留原责任；不能当作空目录或原对象已删除。原pending5负控、外部最后关闭正控、原根移动/陌生替换与取消后实际I/O完成须逐项原生验收。REMOVE仅说明目录成员移除，尚不能单独证明物理容量回收；必须验证与当前所有权合同一致后才可采用。
 
 官方依据：https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesexw 、https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-file_notify_extended_information 。稳定OVERLAPPED与缓冲在实际完成前不得释放；已有WindowsOverlappedOperation可复用稳定存储，但现有OverlappedPipe的阻塞Drop不能直接作为有限退出的实现。尚未新增通知生产能力或改判87。
+
+### 原生通知时机实验候选（未执行，不接通产品）
+
+新增两个cfg(test)原生实验，使用真实ReadDirectoryChangesExW扩展记录、原异步父目录及稳定UnsafeCell/OVERLAPPED存储：删除标记成功并关闭自身DELETE句柄后，外部句柄仍存在的200ms不得出现原FileId/ParentFileId REMOVE；最后外部关闭后必须在5s内观察到同身份REMOVE。另案要求重命名OLD/NEW和原名称陌生对象移除不得匹配原身份，实际移除移动后的原对象才匹配。取消后必须实际GetOverlappedResult完成才释放缓冲；错误保持原owner。实验Drop仍为内存安全阻塞兜底，不宣称产品有限退出或容量回收证明。
+
+仅添加两个真实测试源码文件，冻结Windows归档500→502份、macOS归档609→611份；原vendor、旧workspace/lock及其余归档内容不变。Windows验收清单77→79，保留两项原ID最终证明失败断言，逐案门禁新增两个精确通知标记。不把零测试、marker缺失或原生构建通过当作行为验收。原生结果待CI；本项不是完成的生产能力。

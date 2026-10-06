@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "a04e8c26404ad4241dd35e311108cbc72c6bc5e526b9f82727681c6589957b24",
+  "archive_sha256": "42a97a46f030a732a78fcc8f1de230880a975ef5b0b2e7095db1f615ee297b25",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -331,7 +331,7 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "117ca8a7ff78a58f0c415331b83144b764d6caac5e6290d57cc2e1a8abb08ef0",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
-    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "c7bdf669724aa7795a8b05bf53519eb18eecd42d1db7ece9d19083c493dba3b2",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "0f08b40855d28d33824c14d4efb268c046b30a611d91536c551e410d9f1ad06b",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "740eb5e09099c4db7934a9dc5e1578315a7882f5f261309878f2e32f70ef55bc",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "3ce7911dd18f50d48f78dd3f7c2791e2df6f0021464f2cf5225dd8359f017ec3",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "97d2b74729de84923205f6c5ed386ca0516614c187718f4fe8945650bacf110f",
@@ -613,7 +613,9 @@
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "2da94be8fa0144ab8200508718c7939f7e202f55f9f907dd58319aac9f29eaf8",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "0d951fc59bf402cb1162d81611c6e7a82c03e18460d26f625382169b8623fc67",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "64ebb49f5b0651c6a40b0378ebdc6fa3811f2e7b9a79ef851308513d3c7efc7e"
+    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "64ebb49f5b0651c6a40b0378ebdc6fa3811f2e7b9a79ef851308513d3c7efc7e",
+    "crates/diskgraph-engine/src/native_child/windows/windows_directory_notification_probe.rs": "1ce1ccc03e227a9f429712120a2d3647aa0ed1b89100dbfa4d106815c58c4193",
+    "crates/diskgraph-engine/src/native_child/windows/windows_directory_notification_tests.rs": "6fa07689c49ccc1ae2d4fc8c50bdc0304ba50c58690dd754d26d57777325acb3"
   },
   "ordinary_cases": [
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",

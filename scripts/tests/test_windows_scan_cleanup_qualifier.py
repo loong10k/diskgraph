@@ -13,6 +13,17 @@ spec.loader.exec_module(qualifier)
 
 
 class WindowsCleanupQualifierTests(unittest.TestCase):
+    def test_notification_experiments_require_original_case_and_exact_marker(self):
+        for case, marker in zip(qualifier.DIRECTORY_ENUMERATION_CASES[12:], (
+            "DG_NOTIFY_ORIGINAL_ID_LAST_CLOSE=1",
+            "DG_NOTIFY_RENAME_AND_FOREIGN_ID_REFUSED=1",
+        )):
+            success = f"test {case} ... {marker}\nok\ntest result: ok. 1 passed; 0 failed; 0 ignored;\n"
+            self.assertTrue(qualifier.native_case_passed(case, success))
+            for invalid in (success.replace(marker, ""), success.replace(marker, marker + "0"),
+                            success.replace(case, "other::case"), success.replace("1 passed", "0 passed")):
+                self.assertFalse(qualifier.native_case_passed(case, invalid))
+
     def test_external_handle_final_absence_requires_exact_native_marker(self):
         case = qualifier.DIRECTORY_ENUMERATION_CASES[7]
         stdout = f"test {case} ... ok\ntest result: ok. 1 passed; 0 failed; 0 ignored;\n"
@@ -65,7 +76,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 500)
+            self.assertEqual(len(manifest["sources"]), 502)
             qualifier.check_directory_enumeration_cases(manifest["directory_enumeration_cases"])
             qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
             qualifier.check_prepared_job_cases(manifest["prepared_job_cases"])
