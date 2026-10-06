@@ -26,13 +26,25 @@ const ACTIVE: &[u8] = b"/Library/Application Support/DiskGraph/scan-worker/activ
 /// 来源：原生Rust PF-06独立持久下限及Apple目录同步合同；无Java对等对象。
 /// 前置条件：可信bootstrap已逐组件建立固定保护目录和永久空installation.lock。
 /// 不创建信任根、不chown旧文件；中断状态失败关闭，恢复不得降低已发布floor。
-pub(super) struct MacosInstallationPublisher;
+pub struct MacosInstallationPublisher;
 
 impl MacosInstallationPublisher {
+    /// 建立或核验可信安装程序的固定保护布局，不发布镜像或授予请求权限。
+    /// 参数：deadline/checkpoint 为原安装期限及取消；返回：持久布局核验成功或原失败。
+    /// 真实和有效 UID 均须为 root；不提供自动提权，不改写已有对象的权限或内容。
+    pub fn prepare(
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+    ) -> Result<(), EngineError> {
+        crate::macos_installation_bootstrap::MacosInstallationBootstrap::prepare(
+            deadline, checkpoint,
+        )
+    }
+
     /// 仅root完成独立floor已经承诺的一代；不接受新私钥、摘要、epoch或任意恢复路径。
     /// 参数：原期限/取消检查点；返回：该代active已持久化或原失败，永不改写floor。
     /// pending已消费时只接受当前active完全匹配floor；损坏/缺失下限拒绝自动重建。
-    pub(super) fn recover(
+    pub fn recover(
         deadline: Instant,
         checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
     ) -> Result<(), EngineError> {
@@ -118,7 +130,7 @@ impl MacosInstallationPublisher {
     /// 参数：held源、独立预期、可信发行私钥、递增epoch、非零安装ID及原期限。
     /// 返回：完整发布或原失败；失败可能已持久发布新floor，调用方不得回滚或复用旧epoch。
     /// 私钥/预期不能取自请求或相邻文件；本接口只供固定可信安装程序，不供普通CLI/MCP。
-    pub(super) fn publish(
+    pub fn publish(
         source: &File,
         expected: &ScanWorkerHostConfig,
         signing_key: &SigningKey,

@@ -303,6 +303,8 @@ mod macos_epoch_floor_tests;
 
 #[cfg(target_os = "macos")]
 mod macos_installation_publisher;
+#[cfg(target_os = "macos")]
+pub use macos_installation_publisher::MacosInstallationPublisher;
 
 #[cfg(target_os = "macos")]
 mod macos_installation_files;

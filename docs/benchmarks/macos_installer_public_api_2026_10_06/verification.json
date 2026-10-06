@@ -1,0 +1,29 @@
+{
+  "source_base": "9975288a29f3f90169525e449891332bcc35d7b3",
+  "sources": {
+    "crates/diskgraph-engine/src/lib.rs": "2d3744ec780af229636b52cc0d51cb493a081e07cb66ddc5713085b7dca774b3",
+    "crates/diskgraph-engine/src/macos_installation_publisher.rs": "a3488042cd3e68d6396a36d9d02a0b51c11f92b0e4c1470de9ecb9246a42d513",
+    "crates/diskgraph-engine/tests/macos_installer_api.rs": "ccdce9c2784c304a2e3c13243652699d034e5f8967bcd14d5bfb76a3140c4de4"
+  },
+  "platform": "local macOS ordinary UID",
+  "public_api_regression": {
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0
+  },
+  "publisher_regression": {
+    "passed": 11,
+    "failed": 0
+  },
+  "bootstrap_regression": {
+    "passed": 3,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "red_kind": "API absent: external crate unresolved import; not native behavior RED",
+  "strict_clippy_all_features_passed": false,
+  "production_acceptance": false
+}

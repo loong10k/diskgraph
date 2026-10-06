@@ -220,3 +220,18 @@ Unobservable 锁存首次错误，后续空请求也不能绕过。正常 Partia
 ## License
 
 MIT
+
+## Trusted macOS installer API / macOS 可信安装入口
+
+External Rust installers can call `MacosInstallationPublisher::prepare`,
+`publish`, and `recover` on macOS. Both real and effective UID must be root.
+`prepare` validates or creates the fixed protected layout; `publish` accepts a
+held source image, independent `ScanWorkerHostConfig`, trusted Ed25519 signing
+key, increasing epoch and nonzero installation ID. `recover` completes only
+the generation already committed by the persistent epoch floor. All calls
+preserve the caller's deadline and cancellation checkpoint. They never elevate
+privileges or accept request-selected installation paths.
+
+这些入口供可信安装程序调用，CLI/MCP 不暴露安装工具。普通用户、原检查点
+错误和过期期限的外部调用回归已经通过；本机未执行 root 安装。实际发行、
+签名启动、升级恢复及默认 Engine 扫描仍需原生 CI，不能据此声明生产就绪。

@@ -1,0 +1,18 @@
+{
+  "run_id": 37433296989,
+  "source_commit": "9975288a29f3f90169525e449891332bcc35d7b3",
+  "platform": "Windows-2025Server-10.0.26100-SP0",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "fixture_sha256": "369089de0e769c554f84a9b420e546615e7be1ae7e440ef5f4d6a3449a912716",
+  "candidate_archive_sha256": "8450f8eadfdbd77b3374167c014dda93f81f3ac0bb1b911db8fa8c0012a29896",
+  "cases": 82,
+  "passed": 82,
+  "original_output_sha256": "f2748221a73052abd7df5e3e3f7e7a59d9f07e78c082cf1e6585608e4fbe32b0",
+  "production_acceptance": false,
+  "remaining": [
+    "Recursive owner/Pool and actual task integration",
+    "Hardlink or delete flag mutation after successful seal",
+    "Record-loss recovery and finite shutdown",
+    "Full current-source platform gates"
+  ]
+}
