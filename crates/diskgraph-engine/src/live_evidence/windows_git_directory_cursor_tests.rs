@@ -322,7 +322,20 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
         FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
     };
     let (_temp, parent, root, cursor, mut probe) = cleanup_fixture();
-    let hint = GitDirectoryLease::open(&parent, &mut probe).unwrap();
+    let parent_lease = GitDirectoryLease::open(&parent, &mut probe).unwrap();
+    let parent_identity = GitPrivateAllocation::from_file(parent_lease.leaf_file()).unwrap();
+    // 仅夹具的固定temp父目录：先核原身份，再保留shareALL卷提示，释放创建/捕获shareREAD租约。
+    // 此路径打开不属于产品清理或恢复接口，也不放宽原共享租约冲突测试。
+    let hint = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+        .custom_flags(
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
+        )
+        .open(&parent)
+        .unwrap();
+    assert!(parent_identity.same_identity(&GitPrivateAllocation::from_file(&hint).unwrap()));
+    drop(parent_lease);
     let identity = GitPrivateAllocation::from_file(root.as_file()).unwrap();
     let original = parent.join("original");
     let moved = parent.join("moved");
@@ -340,9 +353,7 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     assert!(identity.same_identity(&GitPrivateAllocation::from_file(&external).unwrap()));
     assert!(
         !super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-            hint.leaf_file(),
-            &identity,
-            &mut probe,
+            &hint, &identity, &mut probe,
         )
         .unwrap()
     );
@@ -353,9 +364,7 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     drop(root);
     // 生产确认接口只观察原ID，未知/权限/等待删除错误均保持原恢复责任。
     let pending = super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-        hint.leaf_file(),
-        &identity,
-        &mut probe,
+        &hint, &identity, &mut probe,
     )
     .expect_err("delete-pending original must not be confirmed absent");
     assert_eq!(
@@ -370,9 +379,7 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     drop(external);
     assert!(
         super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-            hint.leaf_file(),
-            &identity,
-            &mut probe,
+            &hint, &identity, &mut probe,
         )
         .unwrap()
     );

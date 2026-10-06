@@ -1,0 +1,14 @@
+{
+  "run_id": 37419047031,
+  "source_commit": "7b2b4ef5139e34f2f8ff82491f5a4600d44cb791",
+  "workflow_conclusion": "failure",
+  "native_passed": 72,
+  "native_failed": 1,
+  "failure_phase": "fixture root rename before delete or witness execution",
+  "raw_error": 32,
+  "cause": "shareREAD parent capture lease remains alive across fixture root move",
+  "original_failure_preserved": true,
+  "production_witness_native_acceptance": false,
+  "production_ready": false,
+  "candidate_fix": "same-identity shareALL volume hint in isolated fixture; original shareREAD lease released before root move; no production path fallback"
+}
