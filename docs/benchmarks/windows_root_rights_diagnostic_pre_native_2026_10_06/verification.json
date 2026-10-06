@@ -1,0 +1,9 @@
+{
+  "production_acceptance": false,
+  "windows_native_executed": false,
+  "local_source_layout_passed": 6,
+  "diagnostic_only": true,
+  "original_assertions_retained": true,
+  "new_same_object_precondition": true,
+  "original_log_sha256": "8a4c7cfb0facfa676979a0d2117e80e1b5d3819f01994a1b88403092ac468495"
+}

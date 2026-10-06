@@ -5,10 +5,10 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "c02549e9d3c810c60aa24b57df3c4343c9089a3e0ffba9c07968428f6032e9b0",
+  "archive_sha256": "bfca6956a161f20ba8f280b8a6a6922382a890321f5c61ff6a0fa7bc8aad2a50",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
-    "crates/diskgraph-engine/Cargo.toml": "91aa33ed860e739bdd6ea62fe4fe87de6bfbd15029c475742cb507a4ceb1d3c1",
+    "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
     "crates/diskgraph-engine/build.rs": "6e62894d461bbe7cee5c763e1d132cd9d08902f7c8b0ad65c9ae7e140e5021c1",
     "crates/diskgraph-engine/src/collectors/ecosystem.rs": "a7de64e58f0ad00592a2b93b12faa0e2ec1b3ff6b665389b6a2c640f84354b96",
     "crates/diskgraph-engine/src/collectors/mod.rs": "fc88138354e65ff5c7625c7b454c7617bed1709cc5d974fa757f669cfef6e517",
@@ -182,7 +182,7 @@
     "crates/diskgraph-engine/src/live_evidence/watch_snapshot.rs": "33e7f4431f3f2cd910aabb6651ba040a3860c2da813e28e14a66edc2f734b506",
     "crates/diskgraph-engine/src/live_evidence/windows_git_junction_fixture.rs": "d6508895f73477a4a9eb270a193c8f8b16e20becef4518a2a68366b78878d58b",
     "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "7d1dc79fa1966d04ec239818eaf804dd0b8cf04a12136cb12809d7fd0154a033",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "b6e8e507e7d6f85873ba49c4167c35d5651b94342b68dab61834ee47af71b476",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "8f3aecaccc43478142317bbf276acd90ef3e083986a85d46295174aaeb1e076e",
     "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "145b65e92737c11af911b72dff46e0ccbbae5063d28184953ea2e91b2f0df7fc",
     "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "6768ee90672e1ea850131cf508d55af26b45ec168ee5e9c89d37d9c13700e5e8",
     "crates/diskgraph-engine/src/macos_epoch_floor.rs": "9e436a2f979898385aa88c970ea1adeb73210240001f01b170fb99046eb1df70",
@@ -624,5 +624,6 @@
     "native_child::windows::windows_child::windows_child_prepared_tests::actual_pending_connect_wait_expires_on_original_admission_deadline",
     "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup"
   ],
-  "probe_cleanup_original_deadline_candidate": true
+  "probe_cleanup_original_deadline_candidate": true,
+  "root_handle_granted_access_diagnostic": true
 }
