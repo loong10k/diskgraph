@@ -93,6 +93,19 @@ int main(int argc, char **argv) {
     if (argc < 2) return 70;
     if (strcmp(argv[1], "image") == 0) return report_image(argc, argv);
     if (strcmp(argv[1], "echo") == 0) return echo_input();
+    if (strcmp(argv[1], "nonzero") == 0) return 7;
+    if (strcmp(argv[1], "closed_live") == 0) {
+        /* 两输出 EOF 不是进程退出；保留原 stdin，直到宿主实际关闭控制端。 */
+        puts("CLOSED_LIVE_READY");
+        if (close(STDOUT_FILENO) != 0 || close(STDERR_FILENO) != 0) return 82;
+        unsigned char byte;
+        for (;;) {
+            ssize_t count = read(STDIN_FILENO, &byte, 1);
+            if (count == 0) return 0;
+            if (count < 0 && errno == EINTR) continue;
+            if (count < 0) return 83;
+        }
+    }
     if (strcmp(argv[1], "signal") == 0) {
         puts("BEFORE_DEFAULT_SIGNAL");
         raise(SIGUSR1);

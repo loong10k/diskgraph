@@ -37,3 +37,12 @@
 该绑定不冻结目录内新增 DLL，不证明既有可写映射、PE 依赖与加载器策略；Windows 扫描执行继续拒绝，待实际加载与整 Job 生命周期验收。单次原生调用仅有前后合作式期限检查，不承诺硬墙钟时间。
 
 本阶段材料准入已保留父链并在摘要完成后验证原末叶与原句柄。实际本机 aarch64-apple-darwin：公开准入期限 2/2、配置 15/15、源码结构 6/6、相关 crate fmt 成功。Windows 新增三项行为未原生运行，TDD RED/GREEN 未证明；本机 cfg 未执行 Windows 实现，不能替代原生编译。现有 58dea21 CI 的 Windows Build 与 package 均仍被五组扫描接线 dead-code 阻塞，未关闭父项。证据：[候选记录](../../../docs/benchmarks/linux_test_boundary_2026_10_06/windows_image_binding_2026_10_06_candidate.json) 及同目录原始压缩日志。
+
+
+## Linux 正常等待前的原授权检查
+
+Linux 使用原子 pidfd/限制派生的线程组执行器，不为旧 Unix 数值组入口授予 macOS 正常回收资格。正常回收必须在确认整个原线程组、stdout/stderr EOF 与控制关闭之后、消费原 pidfd wait 之前再次执行同次原 checkpoint；此处撤权/期限错误须保留非 Clone 原错误、原未回收身份及 owner。消费后还须检查原请求，不能据此取消发布前的实时授权。
+
+实际 Linux 新回归覆盖：两 EOF 但原进程仍活动、首检查失败保留原错误与存活线程组、第二检查失败不消费原 wait、独立两进程完成/非零退出码互不影响。固定 C fixture 仅模拟进程行为，不实现出生、filter、pidfd 或 wait 算法；root CI 编译并绑定实际 ELF。旧 Unix/macOS 五项正控保持，在 Linux 真实 pidfd 正控验收后再校正旧入口的平台负控，不以简单跳过关闭门禁。
+
+此阶段仅提交四项原生回归及进程行为 fixture，尚未修复 wait-before-check 顺序。Windows cc4951d 原生 Build 无新增绑定编译错误，仍因原五组接线 dead-code 失败；绑定行为未执行。本机 macOS 旧正常退出 10/10、结构 6/6、fmt 通过，不算 Linux 原生通过。58dea21 Linux 完整日志确认 Engine 546 passed/6 failed/3 ignored、FFI 40 passed/49 failed，保留原始日志。新增前置 wait 授权回归须先在真实 Linux 观察目标断言 RED，再实施顺序修复；该阶段不关闭任何父项。记录：[RED 候选](../../../docs/benchmarks/linux_test_boundary_2026_10_06/linux_normal_contract_2026_10_06_red_candidate.json)。

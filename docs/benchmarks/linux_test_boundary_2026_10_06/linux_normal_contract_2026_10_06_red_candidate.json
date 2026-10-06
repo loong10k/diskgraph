@@ -1,0 +1,33 @@
+{
+  "base_sha": "cc4951d88258c3c8e6087811f11f4f01226a07c7",
+  "stage": "new native regression; wait-before-check fix not implemented",
+  "production_acceptance": false,
+  "new_native_cases": 4,
+  "native_executed": false,
+  "native_red_proven": false,
+  "local_platform": "aarch64-apple-darwin",
+  "local_results": {
+    "macos_existing_normal": {
+      "passed": 10,
+      "failed": 0
+    },
+    "layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "fmt_exit": 0
+  },
+  "prior_native_log": {
+    "run": 37455855323,
+    "job": 112243165091,
+    "engine_passed": 546,
+    "engine_failed": 6,
+    "engine_ignored": 3,
+    "ffi_failed": 49
+  },
+  "sources_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_atomic_normal_contract_tests.rs": "fbffcd3f828585c13af7c10c6513e39c2dd30ee7cf3b87f2e1bcfe9a3131e516",
+    "crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c": "f155b4cbc87dbb349a9d5191b0e237ea8ef8305e3b5c2eb7c0abb992ad0cfda7",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs": "990ebbdd17b053f8f130cdf92938d4c4fb209d50963d74d08ef1616aaf7bce5b"
+  }
+}

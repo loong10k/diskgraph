@@ -88,6 +88,8 @@ mod linux_atomic_launcher_test_support;
 mod linux_atomic_launcher_tests;
 #[cfg(target_os = "linux")]
 mod linux_atomic_message;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_atomic_normal_contract_tests;
 #[cfg(target_os = "linux")]
 mod linux_atomic_pipes;
 #[cfg(all(test, target_os = "linux"))]
