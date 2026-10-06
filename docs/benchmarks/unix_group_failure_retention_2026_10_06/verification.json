@@ -1,0 +1,33 @@
+{
+  "production_ready": false,
+  "platform_executed": "macOS",
+  "case": "group_termination_failure_retains_original_leader_and_capacity_until_retry",
+  "fault_model": "test-only current-thread persistent injected EPERM; actual retained child and registry; not real kernel permission refusal qualification",
+  "red": "waitid WNOWAIT confirms original leader was wrongly consumed after group failure",
+  "green": "group failure retains original leader and full slot for three retries; clearing fault allows actual reap and reservation reuse",
+  "native": {
+    "passed": 41,
+    "failed": 0,
+    "ignored_helper_invoked": 1
+  },
+  "layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "macos_archive": {
+    "sha256": "c981212c1261b563e6a96f6c11806a63c0f485cdd0dde3cca43fd30fc617ab27",
+    "sources": 599,
+    "exact_overlay_files": [
+      "crates/diskgraph-engine/src/native_child/unix_child.rs",
+      "crates/diskgraph-engine/src/native_child/unix_child_group.rs",
+      "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs"
+    ],
+    "other_source_bytes_unchanged": true
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "f024b2e6b534c4dcb2acf377c8656624b3e22e235f27e20417a1c8ea8d7de0b5",
+    "crates/diskgraph-engine/src/native_child/unix_child_group.rs": "ac3c11b8f4bbb14240adb9023dae781da93db3df3ee77e00b56e48f41d8e28db",
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "117ca8a7ff78a58f0c415331b83144b764d6caac5e6290d57cc2e1a8abb08ef0"
+  },
+  "native_ci": "pending"
+}

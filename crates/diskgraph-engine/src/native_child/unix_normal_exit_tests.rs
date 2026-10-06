@@ -7,6 +7,13 @@ use std::process::Command;
 
 thread_local! {
     static REAP_BEFORE_CLEANUP_WAIT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    static GROUP_TERMINATION_FAILURE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// 注入持续的组终止错误，保留真实 leader 以验证回收责任，不作为原生权限验收。
+/// 参数：无；返回：本线程是否注入错误。
+pub(super) fn group_termination_failure() -> bool {
+    GROUP_TERMINATION_FAILURE.get()
 }
 
 /// 在真实清理末段消费原 leader；仅测试当前线程的单次外部等待竞态。
@@ -16,6 +23,54 @@ pub(super) fn reap_before_cleanup_wait(pid: i32) {
         let mut status = 0;
         assert_eq!(unsafe { libc::waitpid(pid, &mut status, 0) }, pid);
     }
+}
+
+#[test]
+fn group_termination_failure_retains_original_leader_and_capacity_until_retry() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut child = fixture::spawn("exit", directory.path());
+    let pid = fixture::qualified_identity(directory.path());
+    child.request_control_close().unwrap();
+    fixture::drain(&mut child, true);
+    fixture::retained(pid);
+    GROUP_TERMINATION_FAILURE.set(true);
+    let error = child.cleanup().unwrap_err();
+    GROUP_TERMINATION_FAILURE.set(false);
+    assert!(
+        error
+            .native_io_error()
+            .is_some_and(|original| original.raw_os_error() == Some(libc::EPERM))
+    );
+    // 原始代码在 group 失败后仍 wait；该断言直接检测原 leader 已被错误回收。
+    fixture::retained(pid);
+    GROUP_TERMINATION_FAILURE.set(true);
+    #[cfg(target_os = "macos")]
+    {
+        let registry = crate::scan_worker_registry::ScanWorkerRegistry::new(1).unwrap();
+        let reservation = registry.reserve().unwrap();
+        reservation.retain(child);
+        drop(reservation);
+        for _ in 0..3 {
+            assert!(registry.drain().is_err());
+            assert_eq!(registry.occupied().unwrap(), 1);
+            assert!(registry.reserve().is_err());
+            fixture::retained(pid);
+        }
+        GROUP_TERMINATION_FAILURE.set(false);
+        registry.drain().unwrap();
+        assert_eq!(registry.occupied().unwrap(), 0);
+        drop(registry.reserve().unwrap());
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        for _ in 0..3 {
+            assert!(child.cleanup().is_err());
+            fixture::retained(pid);
+        }
+        GROUP_TERMINATION_FAILURE.set(false);
+        child.cleanup().unwrap();
+    }
+    fixture::reaped(pid);
 }
 
 #[test]

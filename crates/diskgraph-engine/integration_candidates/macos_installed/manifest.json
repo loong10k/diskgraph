@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "480c645ebb7f73e761d5a462947e20170fe44a877635bebcf42a030c89d83ef2",
+  "archive_sha256": "c981212c1261b563e6a96f6c11806a63c0f485cdd0dde3cca43fd30fc617ab27",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -316,8 +316,8 @@
     "crates/diskgraph-engine/src/native_child/native_birth_gate.rs": "50dae8dfc0de962ba1e88ab65bc62c5db569056a3835f40b9a82b853f7765d8b",
     "crates/diskgraph-engine/src/native_child/native_birth_gate_tests.rs": "668d38e8ce87660b000f8fe1ab7e3880a37dee576fbb89d33f2b1907fae1d7c6",
     "crates/diskgraph-engine/src/native_child/native_io_error_tests.rs": "bc60cb691e125f429b707c5fbb345a1f93e07ac7dd771d6d2e445944a6d69288",
-    "crates/diskgraph-engine/src/native_child/unix_child.rs": "71cf631efc14a3c02a4179b8c5edbfe37d467c92df097b07dc51fdf276e83e13",
-    "crates/diskgraph-engine/src/native_child/unix_child_group.rs": "0a027e7f5452c7122b48c807a7ee53e30f6f899723205e42aad2bb09b4b2db88",
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "f024b2e6b534c4dcb2acf377c8656624b3e22e235f27e20417a1c8ea8d7de0b5",
+    "crates/diskgraph-engine/src/native_child/unix_child_group.rs": "ac3c11b8f4bbb14240adb9023dae781da93db3df3ee77e00b56e48f41d8e28db",
     "crates/diskgraph-engine/src/native_child/unix_child_setup.rs": "685265091f48b30967310a796d059d6cc63eed48c2236a1b0667d85962691578",
     "crates/diskgraph-engine/src/native_child/unix_child_spawn.rs": "a4949147ccf404a79de673a276510d8063e995d94cae820a3af792a1976dad93",
     "crates/diskgraph-engine/src/native_child/unix_control_channel.rs": "cd26b00ed3c656104c42841ac49c4ad99a0c358ea63deb6997d455796f8deecf",
@@ -329,7 +329,7 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit.rs": "b2c665e2f646438099ebec3d921248c3b98b8c8eb8ba67acb05f7e8fc00dcd4f",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_fixture.rs": "6734b0be1fbf457934c373c3181e9d6ef280b6b0e6cf234c383269c4b785b828",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
-    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9",
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "117ca8a7ff78a58f0c415331b83144b764d6caac5e6290d57cc2e1a8abb08ef0",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
     "crates/diskgraph-engine/src/native_child/windows/mod.rs": "c7bdf669724aa7795a8b05bf53519eb18eecd42d1db7ece9d19083c493dba3b2",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "740eb5e09099c4db7934a9dc5e1578315a7882f5f261309878f2e32f70ef55bc",
@@ -631,5 +631,5 @@
   ],
   "cli_regression_tests_required": 67,
   "mcp_regression_tests_required": 159,
-  "native_child_parallel_tests_required": 40
+  "native_child_parallel_tests_required": 41
 }

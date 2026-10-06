@@ -339,33 +339,29 @@ impl UnixChild {
                 return Err(ChildError::io("terminate owned child", error).with_cleanup(group));
             }
         }
+        // 组终止失败时不能消费 leader：它是后续重试使用原 PGID 的身份锚点。
+        // leader 已终止也继续保留 zombie 等待权，直到整组清理得到确认。
+        group?;
         // leader 尚未回收，普通后代仍属于本组；主动 setsid 逃离者不受此约束。
         #[cfg(test)]
         super::unix_normal_exit_tests::reap_before_cleanup_wait(pid);
-        let waited = match self.child.wait() {
-            Ok(status) => Ok(status),
+        match self.child.wait() {
+            Ok(_) => {}
             Err(error) => {
                 // 初始观察之后仍可能被外部 wait 消费；失败不能签发完成事实。
                 // ECHILD 已明确失去旧 PID/PGID 权限，其余错误保留原 owner 待重试。
                 if error.raw_os_error() == Some(libc::ECHILD) {
                     self.owns_group = false;
                 }
-                let error = ChildError::io("reap owned child", error);
-                return Err(match group {
-                    Err(primary) => primary.with_cleanup(Err(error)),
-                    Ok(()) => error,
-                });
+                return Err(ChildError::io("reap owned child", error));
             }
-        };
+        }
         self.cleaned = true;
         self.owns_group = false;
         self.stdout.take();
         self.stderr.take();
         self.control.take();
-        match (group, waited) {
-            (Err(error), result) => Err(error.with_cleanup(result.map(|_| ()))),
-            (Ok(()), result) => result.map(|_| ()),
-        }
+        Ok(())
     }
 }
 

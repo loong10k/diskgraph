@@ -1,0 +1,24 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.19s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-8106de2619a993e3)
+
+running 1 test
+test native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry ... FAILED
+
+failures:
+
+---- native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry stdout ----
+
+thread 'native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry' (121785311) panicked at crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs:95:5:
+assertion `left == right` failed
+  left: -1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 564 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

@@ -1,0 +1,49 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-8106de2619a993e3)
+
+running 42 tests
+test native_child::checkpoint_tests::checkpoint_before_any_os_creation_preserves_a_non_clone_original_error ... ok
+test native_child::native_birth_gate_tests::contended_admission_rejection_does_not_advance_lifecycle_callback ... ok
+test native_child::native_birth_gate_tests::raw_pipe_panic_closes_original_descriptors_and_poison_does_not_break_next_birth ... ok
+test native_child::native_birth_gate_tests::occupied_gate_expires_at_original_absolute_deadline ... ok
+test native_child::native_birth_gate_tests::waiting_gate_preserves_non_clone_original_checkpoint_and_creates_no_process ... ok
+test native_child::native_io_error_tests::actual_failed_file_open_keeps_original_os_error_in_source_chain ... ok
+test native_child::native_io_error_tests::cloned_native_failure_shares_the_original_custom_payload_and_kind ... ok
+test native_child::native_io_error_tests::native_primary_and_actual_cleanup_errors_remain_separate ... ok
+test native_child::unix_control_fixture::stdin_fixture ... ok
+test native_child::checkpoint_tests::generic_non_clone_checkpoint_failure_runs_after_real_child_creation_and_cleanup ... ok
+test native_child::macos_native_launcher_tests::expired_prebirth_request_does_not_fill_external_owner ... ok
+test native_child::native_birth_gate_tests::cancellation_at_gate_handoff_cannot_be_skipped_by_successful_acquisition ... ok
+test native_child::unix_control_input_tests::binary_fragments_reach_child_stdin_then_close_delivers_real_eof ... ok
+test native_child::unix_control_input_tests::close_discards_only_unsent_pending_chunk_and_child_receives_eof ... ok
+test native_child::native_birth_gate_tests::real_raw_pipe_window_blocks_controlled_birth_until_cloexec_preparation_finishes ... ok
+test native_child::unix_control_input_tests::explicit_null_preserves_two_checkpoints_and_all_control_methods_are_unsupported ... ok
+test native_child::unix_control_input_tests::dropping_pending_control_owner_reaps_the_actual_live_child ... ok
+test native_child::unix_control_input_tests::worker_control_first_checkpoint_rejects_before_real_child_creation ... ok
+test native_child::macos_native_launcher_tests::occupied_birth_gate_cancels_native_launch_before_external_owner_is_filled ... ok
+test native_child::unix_leader_tests::native_child_wait_consumes_only_original_pid_and_keeps_cached_exit_status ... ok
+test native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression
+test native_child::unix_control_input_tests::real_backpressure_keeps_one_owned_chunk_and_pending_only_polls ... ok
+test native_child::unix_normal_exit_fixture::normal_fixture ... ok
+test native_child::unix_leader_tests::standard_child_wait_is_cached_after_actual_reaping ... ok
+test native_child::macos_native_launcher_tests::native_birth_keeps_live_owner_outside_postcheck_and_reaps_original_process ... ok
+test native_child::native_birth_gate_tests::gate_wait_observes_original_budget_error_without_restarting_request_window ... ok
+test native_child::macos_native_launcher_tests::panic_after_birth_keeps_original_payload_and_owner_for_outer_cleanup ... ok
+test native_child::unix_control_input_tests::closed_peer_returns_real_broken_pipe_without_changing_host_sigpipe ... ok
+test native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup ... ok
+test native_child::macos_native_launcher_tests::qualified_native_birth_holds_update_lock_until_real_birth_and_releases_on_panic ... ok
+test native_child::unix_normal_exit_tests::end_and_pipe_eof_do_not_permit_reaping_a_live_leader ... ok
+test native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry ... ok
+test native_child::unix_control_input_tests::isolated_default_sigpipe_host_survives_actual_peer_closed_write ... ok
+test native_child::unix_normal_exit_tests::checkpoint_primary_is_non_clone_and_does_not_terminate_a_live_group ... ok
+test native_child::unix_control_input_tests::worker_control_checkpoint_failure_keeps_original_non_clone_error_and_real_reap ... ok
+test native_child::unix_normal_exit_tests::exited_retained_leader_and_eof_do_not_hide_a_live_ordinary_descendant ... ok
+test native_child::unix_normal_exit_tests::later_checkpoint_error_does_not_consume_the_retained_leader ... ok
+test native_child::unix_normal_exit_tests::old_configured_command_has_no_qualified_normal_exit_permission ... ok
+test native_child::native_birth_gate_tests::contended_legacy_birth_keeps_postbirth_checkpoint_after_actual_creation ... ok
+test native_child::macos_native_launcher_tests::fixed_native_cat_stream_normal_wait_and_lease_survive_until_owner_release ... ok
+test native_child::unix_normal_exit_tests::two_sessions_have_independent_normal_exit_permissions ... ok
+test native_child::unix_leader_tests::nonpositive_native_pid_cannot_reap_an_unrelated_child ... ok
+
+test result: ok. 41 passed; 0 failed; 1 ignored; 0 measured; 523 filtered out; finished in 0.48s
+

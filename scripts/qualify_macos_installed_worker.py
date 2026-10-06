@@ -49,14 +49,16 @@ NATIVE_BIRTH_REGRESSION_CASES = (
     "native_child::unix_control_input_tests::explicit_null_preserves_two_checkpoints_and_all_control_methods_are_unsupported",
     "native_child::unix_control_input_tests::worker_control_checkpoint_failure_keeps_original_non_clone_error_and_real_reap",
     "native_child::unix_leader_tests::nonpositive_native_pid_cannot_reap_an_unrelated_child",
+    "native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup",
+    "native_child::unix_normal_exit_tests::group_termination_failure_retains_original_leader_and_capacity_until_retry",
 )
 
 
 def check_native_birth_regression(stdout):
-    """实际并行执行40项；唯一ignored是由真实回归显式调用的隔离夹具。"""
+    """实际并行执行41项；唯一ignored是由真实回归显式调用的隔离夹具。"""
     summaries = re.findall(r"^test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out;", stdout, re.M)
-    if len(summaries) != 1 or tuple(map(int, summaries[0][:4])) != (40, 0, 1, 0):
-        raise RuntimeError("parallel native child regression did not execute all 40 cases")
+    if len(summaries) != 1 or tuple(map(int, summaries[0][:4])) != (41, 0, 1, 0):
+        raise RuntimeError("parallel native child regression did not execute all 41 cases")
     fixture = "test native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression"
     if fixture not in stdout or "DG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED pid=0,-1,-42" not in stdout:
         raise RuntimeError("isolated nonpositive wait fixture was not actually verified")
@@ -257,12 +259,12 @@ def main():
             if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text():
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
-        if manifest.get("native_child_parallel_tests_required") != 40:
+        if manifest.get("native_child_parallel_tests_required") != 41:
             raise ValueError("candidate parallel birth regression inventory differs")
         invoke([str(binary), "native_child::", "--nocapture"],
                checkout, output, "native-child-parallel-regression", env)
         check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text())
-        receipt["native_child_parallel_regression_tests_passed"] = 40
+        receipt["native_child_parallel_regression_tests_passed"] = 41
         if manifest.get("product_flows") != ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"]:
             raise ValueError("actual product flow inventory differs")
         invoke(["cargo", "build", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "--features", "diskgraph-engine/macos_native_scan_candidate"],

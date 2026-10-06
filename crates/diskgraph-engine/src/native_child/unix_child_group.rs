@@ -8,6 +8,13 @@ pub(super) struct UnixChildGroup;
 impl UnixChildGroup {
     /// 终止原保留组。参数：pid为尚未wait的原leader；返回：原OS错误与原有有界重试。
     pub(super) fn terminate(pid: i32) -> Result<(), ChildError> {
+        #[cfg(test)]
+        if super::unix_normal_exit_tests::group_termination_failure() {
+            return Err(ChildError::io(
+                "injected owned process group termination failure",
+                io::Error::from_raw_os_error(libc::EPERM),
+            ));
+        }
         if unsafe { libc::kill(-pid, libc::SIGKILL) } == 0 {
             return Ok(());
         }
