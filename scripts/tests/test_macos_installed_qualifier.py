@@ -151,12 +151,15 @@ if __name__ == "__main__":
 class NativeBirthParallelGuardTests(unittest.TestCase):
     def test_requires_actual_named_cases_and_complete_parallel_subset(self):
         output = "\n".join("test " + case + " ... ok" for case in qualifier.NATIVE_BIRTH_REGRESSION_CASES)
-        output += "\ntest result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 520 filtered out;"
+        output += "\ntest native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression\nDG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED pid=0,-1,-42\ntest result: ok. 40 passed; 0 failed; 1 ignored; 0 measured; 522 filtered out;"
         qualifier.check_native_birth_regression(output)
-        for invalid in ("", output.replace("39 passed", "0 passed"),
-                        output.replace("0 ignored", "1 ignored"),
+        for invalid in ("", output.replace("40 passed", "0 passed"),
+                        output.replace("1 ignored", "2 ignored"),
                         output.replace("0 failed", "1 failed"),
-                        output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[0], "fake_case")):
+                        output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[0], "fake_case"),
+                        output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[-1], "fake_wait_case"),
+                        output.replace("DG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED", "missing_fixture"),
+                        output.replace("40 passed", "39 passed")):
             with self.assertRaises(RuntimeError):
                 qualifier.check_native_birth_regression(invalid)
 

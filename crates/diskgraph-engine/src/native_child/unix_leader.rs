@@ -53,6 +53,13 @@ impl UnixLeader {
             Self::Standard(child) => child.wait(),
             #[cfg(target_os = "macos")]
             Self::Native { pid, status } => {
+                // 0/-1/负组号会扩大 waitpid 的目标，未出生或损坏槽不能消费其他 child。
+                if *pid <= 0 {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "native leader has no owned positive pid",
+                    ));
+                }
                 if let Some(completed) = status {
                     return Ok(*completed);
                 }

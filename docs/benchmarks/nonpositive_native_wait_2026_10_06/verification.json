@@ -1,0 +1,19 @@
+{
+  "production_ready": false,
+  "target_red": "actual PID0 wait consumed original child; its owner wait errno ECHILD10",
+  "target_green": "1/1; isolated real child preserved for PID0/-1/-42 and repeated waits",
+  "native_child": {
+    "passed": 40,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_case": "isolated fixture actually invoked and verified by normal regression"
+  },
+  "engine_source_layout": "6/6 passed",
+  "qualifier_guards": "35 passed",
+  "macos_archive_sha256": "1bb41b13a3597cf4cea38404a43c6a0683cde5b1bc98ee747b7c9a0f795c1e65",
+  "limits": [
+    "macOS local native proof; Intel and CI pending",
+    "whole platform, default installation, strict Clippy and shutdown gates remain open"
+  ],
+  "strict_clippy": "current workspace command failed:42 default Engine diagnostics; no lint suppression"
+}

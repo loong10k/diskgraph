@@ -168,3 +168,9 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 - **THEN** the original child returns to the same retained slot before the panic reaches the host, with the original panic payload unchanged
 - **AND** the live unreaped child continues to consume the original capacity; a subsequent host drain actually recovers it before releasing the slot
 - **AND** cleanup and child destruction occur outside the registry state lock; this scenario does not establish a finite shutdown deadline
+
+
+#### Scenario: Unborn or invalid native leader never waits for another child
+- **WHEN** a native leader has an unborn zero PID or a nonpositive invalid PID and its wait operation is called
+- **THEN** it returns an invalid-input error before entering the OS wait operation, including on repeated calls
+- **AND** a separate real child can still be waited by its own original owner; valid positive original PID waits and cached exit results remain unchanged

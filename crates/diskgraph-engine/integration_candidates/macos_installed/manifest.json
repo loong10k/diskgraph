@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "29d8dd3165e6663ee1266c7f0bbdb36621c2d9c954679529b000c295569a4855",
+  "archive_sha256": "1bb41b13a3597cf4cea38404a43c6a0683cde5b1bc98ee747b7c9a0f795c1e65",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -324,8 +324,8 @@
     "crates/diskgraph-engine/src/native_child/unix_control_fixture.rs": "712fdda99d61d365a3b089f0a419f0f3c748574ce0e412fc7c9372c2b7a166de",
     "crates/diskgraph-engine/src/native_child/unix_control_input_tests.rs": "ea2c48672e1c1b235a3a1dca0c443fd8536044011c6761cfddbece1df67abe21",
     "crates/diskgraph-engine/src/native_child/unix_control_test_support.rs": "5df1d60a2aa306165e8efa8a832869d2ce215be52d0dc2225ad30149a494628a",
-    "crates/diskgraph-engine/src/native_child/unix_leader.rs": "a92311a1197bb4812260aef5e8863e6d00ea65e63e47e19886892559a727b1a6",
-    "crates/diskgraph-engine/src/native_child/unix_leader_tests.rs": "810376ad6b86e3ea661895b71a3cb8f317a30ffad3dc66c61288a5f11149e000",
+    "crates/diskgraph-engine/src/native_child/unix_leader.rs": "698da3c9aa4ccf64caf32a731624386e06f4c211e414a9ec6fee4b1aa147101f",
+    "crates/diskgraph-engine/src/native_child/unix_leader_tests.rs": "6835040359d8c259136f1262b173115a1d4fa529740aa577f0d00dde62cdb4d4",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit.rs": "b2c665e2f646438099ebec3d921248c3b98b8c8eb8ba67acb05f7e8fc00dcd4f",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_fixture.rs": "6734b0be1fbf457934c373c3181e9d6ef280b6b0e6cf234c383269c4b785b828",
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "57deb2b420bcc10684f34f0ed4a87aa93558fbd06ea1d321731325f962e9f7f9",
@@ -631,5 +631,5 @@
   ],
   "cli_regression_tests_required": 67,
   "mcp_regression_tests_required": 159,
-  "native_child_parallel_tests_required": 39
+  "native_child_parallel_tests_required": 40
 }
