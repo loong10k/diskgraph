@@ -1,0 +1,14 @@
+{
+  "production_ready": false,
+  "failed_ci_run": 37410205333,
+  "ci_cause": "frozen Cargo.lock mounted into current workspace with incompatible CLI manifest",
+  "historical_workspace_commit": "8878912fb579f741b7776a2b533efc3237541c23",
+  "archives_modified": false,
+  "tests": {
+    "windows_guards": 22,
+    "mount_guards": 13,
+    "native_windows_cases_pending": 65
+  },
+  "verified": "three complete exported workspaces resolve using cargo metadata --locked; injecting current CLI manifest reproduces lock mismatch in each; current checkout remains unchanged",
+  "remaining": "native Windows execution pending"
+}

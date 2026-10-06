@@ -206,6 +206,35 @@ class PreparedBirthBaselineGuardTests(unittest.TestCase):
 
 
 class PreparedBirthBaselineArchiveTests(unittest.TestCase):
+    def test_baseline_build_uses_complete_historical_workspace_without_mutating_product(self):
+        import hashlib
+        import subprocess
+        import qualify_windows_prepared_birth_baseline as baseline
+        checkout = SCRIPTS.parent
+        product_manifest = checkout / "crates/diskgraph-cli/Cargo.toml"
+        before = product_manifest.read_bytes()
+        for candidate in (baseline.CANDIDATE, qualifier.CANDIDATE, qualifier.BASELINE_CANDIDATE):
+            with self.subTest(candidate=candidate), baseline.isolated_source(checkout, candidate) as (source, manifest):
+                self.assertNotEqual(source, checkout)
+                original = subprocess.check_output([
+                    "git", "show", manifest["base_ref"] + ":crates/diskgraph-cli/Cargo.toml"
+                ], cwd=checkout)
+                self.assertEqual((source / "crates/diskgraph-cli/Cargo.toml").read_bytes(), original)
+                self.assertNotEqual(original, before)
+                for name, expected in manifest["sources"].items():
+                    self.assertEqual(hashlib.sha256((source / name).read_bytes()).hexdigest(), expected)
+                subprocess.run(["cargo", "metadata", "--locked", "--format-version=1"],
+                               cwd=source, check=True, stdout=subprocess.DEVNULL)
+                # 真实反例重建 CI 的混合 workspace；必须拒绝锁文件不一致。
+                (source / "crates/diskgraph-cli/Cargo.toml").write_bytes(before)
+                mixed = subprocess.run(["cargo", "metadata", "--locked", "--format-version=1"],
+                                       cwd=source, stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.PIPE, text=True)
+                self.assertNotEqual(mixed.returncode, 0)
+                self.assertIn("cannot update the lock file", mixed.stderr)
+            self.assertFalse(source.exists())
+        self.assertEqual(product_manifest.read_bytes(), before)
+
     def test_baseline_mounts_exact_original_sources_with_native_regression(self):
         import qualify_windows_prepared_birth_baseline as baseline
         with tempfile.TemporaryDirectory() as directory:
