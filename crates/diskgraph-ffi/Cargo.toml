@@ -25,6 +25,7 @@ hex.workspace = true
 uniffi = { version = "0.32.2", features = ["cli"] }
 
 [dev-dependencies]
+diskgraph-scan-worker = { path = "../diskgraph-scan-worker" }
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
 tempfile = "3"
 syn = { version = "2.0.119", features = ["full", "visit"] }

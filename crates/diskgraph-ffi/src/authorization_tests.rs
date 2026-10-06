@@ -14,12 +14,16 @@ fn a_proven_legacy_control_database_remains_readable() {
     let root = tempfile::tempdir().unwrap();
     std::fs::write(root.path().join("old"), b"legacy").unwrap();
     let database = data.path().join("snapshots.sqlite");
-    let engine = diskgraph_engine::Engine::open(diskgraph_engine::EngineConfig {
+    let config = diskgraph_engine::EngineConfig {
         data_dir: data.path().to_path_buf(),
         graph_database_path: Some(database.clone()),
         ..Default::default()
-    })
-    .unwrap();
+    };
+    #[cfg(target_os = "linux")]
+    let (engine, _scan_owner) =
+        crate::native_legacy_fixture::NativeLegacyFixture::open(config).unwrap();
+    #[cfg(not(target_os = "linux"))]
+    let engine = diskgraph_engine::Engine::open(config).unwrap();
     let principal = super::local_principal().unwrap();
     engine.bootstrap_local_admin(&principal).unwrap();
     let scope = engine
@@ -59,12 +63,16 @@ fn ambiguous_legacy_control_is_not_assigned_to_either_graph() {
     let first_db = data.path().join("first.sqlite");
     let second_db = data.path().join("second.sqlite");
     for (database, root) in [(&first_db, &first_root), (&second_db, &second_root)] {
-        let engine = diskgraph_engine::Engine::open(diskgraph_engine::EngineConfig {
+        let config = diskgraph_engine::EngineConfig {
             data_dir: data.path().to_path_buf(),
             graph_database_path: Some(database.clone()),
             ..Default::default()
-        })
-        .unwrap();
+        };
+        #[cfg(target_os = "linux")]
+        let (engine, _scan_owner) =
+            crate::native_legacy_fixture::NativeLegacyFixture::open(config).unwrap();
+        #[cfg(not(target_os = "linux"))]
+        let engine = diskgraph_engine::Engine::open(config).unwrap();
         engine.bootstrap_local_admin(&principal).unwrap();
         let scope = engine
             .register_scope(

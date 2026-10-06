@@ -113,3 +113,10 @@ Linux单元测试仍有旧Engine::open扫描构造；11个测试模块及GitEvid
 55b061a原生Linux三lane严格Build真实RED：job_authorization与scan_observation两个既有用例需要独占可变Engine修改原scan_budget，夹具仅Deref导致E0594和unused-mut。补测试夹具DerefMut返回原Engine，不改变两个用例、期限或生产API；原Linux编译仍须下一提交验证。本机结构6/0及原格式门禁通过。
 
 Ops Project保留真实Arc<Engine>交给原PlanBuilder/Executor，在Linux另持唯一恢复外槽至Project结束，仍使用原100k节点额度和独立部署材料；没有包装Arc替代公开接口、没有启用CLI/MCP危险写工具。增加本workspace scan-worker的dev依赖，Cargo.lock仅增加该已有本地crate依赖边，不升级外部包。原249个assert片段保持不变，本机offline check、lib no-run、结构7/0、fmt通过。Ops实际Linux业务及原写适配语义须原生CI，不据此宣称平台写能力通过；macOS20条既有Engine警告未掩盖。原日志见engine-unit-55-native-compile-red.log.gz及ops-scan-host-*.log.gz。FFI、Windows原生清理、macOS安装及有限前端恢复继续开放。
+
+
+## FFI旧库授权夹具与Linux严格构建
+
+d2e8130 / CI37446156365 的Linux stable全量原始日志只剩3个失败目标（Engine/FFI/Ops lib），六个MCP实际目标已脱离失败清单，原日志见workspace-d2-linux.log.gz。4c6f208三Linux lane严格Build均success，确认原预算可变借用编译修复已在原生环境生效；整次Test仍运行，不能将Build当行为验收，状态见engine-4c-native-build-status.json。
+
+FFI authorization两项通过Engine真实扫描准备旧库的用例改为Linux显式受信宿主+独立外槽，保留旧库归属证明、非UTF-8和歧义拒绝全部13个原assert片段。公开scan_native_json、NativeService、异步导出、wire、授权服务及ABI未改；其中公开扫描仍不能由这些夹具通过来宣称可用。新增本地scan-worker dev依赖及单条lock依赖边，没有升级包。实际旧库准备的Linux结果须下个提交CI；本机offline check、FFI lib no-run、结构7/0及fmt通过，既有macOS Engine20条警告仍未隐藏。记录见ffi-legacy-*.log.gz，其他FFI公开扫描失败、Windows清理、macOS安装和生产有限恢复保持开放。

@@ -637,6 +637,7 @@ dependencies = [
  "diskgraph-disktree",
  "diskgraph-disktree-core",
  "diskgraph-engine",
+ "diskgraph-scan-worker",
  "diskgraph-store",
  "hex",
  "rusqlite",
