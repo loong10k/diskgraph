@@ -1,5 +1,6 @@
 //! CLI init_commands 的实际命令分发。来源：原生 main::dispatch。
 use crate::cli::Cli;
+use crate::cli_engine_host::CliEngineHost;
 use crate::cli_options::scan_options_from;
 use crate::command::Command;
 use crate::init_support::absolute_data_dir;
@@ -9,7 +10,7 @@ use crate::init_support::unsafe_root_reason;
 use crate::installer;
 use crate::output::envelope_line;
 use diskgraph_core::{Authorizer, BusinessError, PrincipalId};
-use diskgraph_engine::{Engine, EngineConfig, EngineError};
+use diskgraph_engine::{EngineConfig, EngineError};
 
 /// 执行本组真实业务命令，保持原授权、预算、响应与副作用顺序。
 /// 参数：本请求的解析参数及对应 Engine 依赖。返回：执行成功或原业务错误。
@@ -65,7 +66,7 @@ pub(crate) fn run(
                     data_dir.display()
                 );
             }
-            let engine = std::sync::Arc::new(Engine::open(EngineConfig {
+            let host = CliEngineHost::open(EngineConfig {
                 data_dir: data_dir.clone(),
                 max_nodes_per_scan: cli.max_nodes_per_scan,
                 scan_budget: diskgraph_core::ScanBudget {
@@ -75,8 +76,9 @@ pub(crate) fn run(
                 },
                 scan_options: scan_options_from(cli),
                 ..EngineConfig::default()
-            })?);
-            let summary = init_index(&engine, &root, principal, authorizer)?;
+            })?;
+            host.execute(|engine| {
+            let summary = init_index(engine, &root, principal, authorizer)?;
             let chosen = resolve_targets(targets)?;
             let global = location == "global";
             let body = installer::instruction_body(&installer::locale_from_env());
@@ -85,7 +87,7 @@ pub(crate) fn run(
                 // the way to read it before letting us write into a file you
                 // have been keeping for a year.
                 out.push(envelope_line(
-                    &engine,
+                    engine,
                     Ok(serde_json::json!({
                         "index": summary,
                         "instructions": body,
@@ -105,7 +107,7 @@ pub(crate) fn run(
                     }));
                 }
                 out.push(envelope_line(
-                    &engine,
+                    engine,
                     Ok(serde_json::json!({ "index": summary, "instructions": removed })),
                 ));
                 return Ok(());
@@ -117,7 +119,7 @@ pub(crate) fn run(
                     );
                 }
                 out.push(envelope_line(
-                    &engine,
+                    engine,
                     Ok(serde_json::json!({ "index": summary })),
                 ));
                 return Ok(());
@@ -148,10 +150,11 @@ pub(crate) fn run(
                 eprintln!("diskgraph:   diskgraph serve --profile read-full");
             }
             out.push(envelope_line(
-                &engine,
+                engine,
                 Ok(serde_json::json!({ "index": summary, "instructions": written })),
             ));
             Ok(())
+            })
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),
     }

@@ -793,9 +793,21 @@ pub fn serve_config(
     config: ServerConfig,
     log: impl Write + Send + 'static,
 ) -> std::io::Result<usize> {
+    serve_config_with_runtime(service, listener, config, log, std::sync::Arc::default())
+}
+
+/// 参数沿用原监听配置，state 是同一宿主停止状态；返回实际 join 后的处理计数或原监听 IO 错误。
+pub(crate) fn serve_config_with_runtime(
+    service: McpService,
+    listener: TcpListener,
+    config: ServerConfig,
+    log: impl Write + Send + 'static,
+    state: std::sync::Arc<crate::http_shutdown_state::HttpShutdownState>,
+) -> std::io::Result<usize> {
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::{Arc, Mutex};
-
+    listener.set_nonblocking(true)?;
+    let mut connections = crate::http_connections::HttpConnections::new(Arc::clone(&state));
     let limits = config.limits;
     let security = config.security;
     let legacy_transport = crate::legacy_transport::LegacyTransport::new(limits);
@@ -803,13 +815,21 @@ pub fn serve_config(
     let sse_counts = Arc::new(Mutex::new(std::collections::HashMap::new()));
     let shared_log = Arc::new(Mutex::new(log));
     let limiter = Arc::new(RateLimiter::new(&limits));
-    let active = Arc::new(AtomicUsize::new(0));
     let handled = Arc::new(AtomicUsize::new(0));
     let security = security.clone();
+    let mut accept_failure = None;
 
-    for incoming in listener.incoming() {
-        let mut stream = match incoming {
-            Ok(stream) => stream,
+    while !state.stopped() {
+        connections.reap();
+        if state.stopped() {
+            break;
+        }
+        let mut stream = match listener.accept() {
+            Ok((stream, _)) => stream,
+            Err(error) if error.kind() == ErrorKind::WouldBlock => {
+                std::thread::sleep(Duration::from_millis(5));
+                continue;
+            }
             Err(error) => {
                 // A closed listener surfaces here; accepting anything else is
                 // fatal for this single-threaded accept loop either way.
@@ -820,34 +840,40 @@ pub fn serve_config(
                         log_line("accept_failed", &[("reason", &error.to_string())])
                     );
                 }
+                // 保留原监听错误；先关闭并 join 原连接，不能将停止失败投影为成功。
+                accept_failure = Some(error);
                 break;
             }
         };
+        // 各平台 accept 对 nonblocking 继承不同；原请求读取仍用阻塞+绝对期限。
+        stream.set_nonblocking(false)?;
         let peer = stream
             .peer_addr()
             .map(|address| address.to_string())
             .unwrap_or_else(|_| "unknown".to_owned());
         // Connection cap: refuse instead of queueing without bound, so a
         // flood can never starve the engine's workers.
-        if active.fetch_add(1, Ordering::SeqCst) >= limits.max_concurrent_connections {
-            active.fetch_sub(1, Ordering::SeqCst);
+        if connections.len() >= limits.max_concurrent_connections {
             let _ = crate::connection_rejection::reject_connection(
                 &mut stream,
                 limits.max_concurrent_connections,
             );
             continue;
         }
+        let Some(connection_id) = state.register(&stream)? else {
+            break;
+        };
+        let connection_state = Arc::clone(&state);
         let shared_service = Arc::clone(&shared_service);
         let sse_counts = Arc::clone(&sse_counts);
         let shared_log = Arc::clone(&shared_log);
         let limiter = Arc::clone(&limiter);
-        let active = Arc::clone(&active);
         let handled = Arc::clone(&handled);
         let security = security.clone();
         let legacy_transport = legacy_transport.clone();
         let legacy_sse = config.legacy_sse;
-        std::thread::spawn(move || {
-            let _release_slot = ReleaseSlot(active);
+        let worker = std::thread::Builder::new().spawn(move || {
+            let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let _ = stream.set_read_timeout(Some(limits.read_timeout));
             let _ = stream.set_write_timeout(Some(limits.read_timeout));
             let mut reader = BufReader::new(match stream.try_clone() {
@@ -1092,9 +1118,23 @@ pub fn serve_config(
                     );
                 });
             }
+            }));
+            connection_state.release(connection_id);
+            if let Err(payload) = outcome { std::panic::resume_unwind(payload); }
         });
+        match worker {
+            Ok(worker) => connections.push(worker),
+            Err(error) => {
+                state.release(connection_id);
+                return Err(error);
+            }
+        }
     }
-    Ok(handled.load(Ordering::SeqCst))
+    connections.finish();
+    match accept_failure {
+        Some(error) => Err(error),
+        None => Ok(handled.load(Ordering::SeqCst)),
+    }
 }
 
 /// Everything one HTTP listener needs: limits, security context, and the
@@ -1132,16 +1172,6 @@ pub(crate) fn stream_identity_valid(
         .map(|time| time.as_secs())
         .unwrap_or(u64::MAX);
     now < identity.expires_at_unix_seconds && service.identity_is_live(identity)
-}
-
-/// Drops the connection cap slot when the connection thread ends.
-struct ReleaseSlot(std::sync::Arc<std::sync::atomic::AtomicUsize>);
-
-impl Drop for ReleaseSlot {
-    fn drop(&mut self) {
-        use std::sync::atomic::Ordering;
-        self.0.fetch_sub(1, Ordering::SeqCst);
-    }
 }
 
 #[cfg(test)]
@@ -1260,20 +1290,25 @@ mod tests {
         }
     }
 
-    fn service(label: &str) -> (McpService, tempfile::TempDir) {
+    fn service(label: &str) -> (McpService, crate::tests::McpTestDirectory) {
         service_with_profile(label, ToolProfile::ReadFull)
     }
 
-    fn service_with_profile(label: &str, profile: ToolProfile) -> (McpService, tempfile::TempDir) {
+    fn service_with_profile(
+        label: &str,
+        profile: ToolProfile,
+    ) -> (McpService, crate::tests::McpTestDirectory) {
         let directory = tempfile::TempDir::with_prefix(format!("diskgraph-http-{label}-")).unwrap();
-        let service = McpService::open(crate::McpConfig {
-            data_dir: directory.path().join("data"),
-            profile,
-            principal: diskgraph_core::PrincipalId::new(crate::STDIO_PRINCIPAL).unwrap(),
-            legacy_sse: false,
-        })
-        .unwrap();
-        (service, directory)
+        crate::tests::McpTestDirectory::open(
+            crate::McpConfig {
+                data_dir: directory.path().join("data"),
+                profile,
+                principal: diskgraph_core::PrincipalId::new(crate::STDIO_PRINCIPAL).unwrap(),
+                legacy_sse: false,
+            },
+            directory,
+        )
+        .unwrap()
     }
 
     fn post(body: &str) -> HttpRequest {
@@ -1483,10 +1518,13 @@ mod tests {
         service.engine().run_job(&job.job_id, "http-test").unwrap();
 
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
-        let worker = std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve(service, listener, &HttpLimits::default(), sink);
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(HttpLimits::default(), Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
 
         let body = http_client::post_json(
             address.port,
@@ -1507,7 +1545,6 @@ mod tests {
         assert_eq!(payload["ok"], true);
         assert_eq!(payload["scope_id"], scope.as_str());
         assert!(!payload["data"]["items"].as_array().unwrap().is_empty());
-        drop(worker);
     }
 
     /// A client that names a path the server does not know must be told so;
@@ -2005,10 +2042,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_secured(service, listener, &limits, &Security::local(None), sink);
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
 
         // Client A connects and stalls mid-request.
         let mut stalled = TcpStream::connect(("127.0.0.1", port)).unwrap();
@@ -2050,10 +2090,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_secured(service, listener, &limits, &Security::local(None), sink);
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
         // Hold the single slot with an idle (but connected) client.
         let _holder = TcpStream::connect(("127.0.0.1", port)).unwrap();
         std::thread::sleep(Duration::from_millis(100));
@@ -2105,10 +2148,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_secured(service, listener, &limits, &Security::local(None), sink);
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
         let body = r#"{"jsonrpc":"2.0","id":1,"method":"tools/list"}"#;
         let first = http_client::post_json(port, MCP_ENDPOINT, body);
         let second = http_client::post_json(port, MCP_ENDPOINT, body);
@@ -2136,15 +2182,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_config(
-                service,
-                listener,
-                ServerConfig::modern(limits, Security::local(None)).with_legacy(),
-                sink,
-            );
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)).with_legacy(),
+            Vec::new(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(100));
 
         let mut sse = legacy_client::SseStream::connect(port).expect("legacy handshake");
@@ -2178,15 +2222,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_config(
-                service,
-                listener,
-                ServerConfig::modern(limits, Security::local(None)),
-                sink,
-            );
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(100));
 
         let status = http_client::get(port, "/sse");
@@ -2229,15 +2271,13 @@ mod tests {
         let security = Security::local(Some(&authenticator));
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_config(
-                service,
-                listener,
-                ServerConfig::modern(limits, security).with_legacy(),
-                sink,
-            );
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, security).with_legacy(),
+            Vec::new(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(100));
 
         // Unknown session: 404.
@@ -2285,7 +2325,6 @@ mod tests {
     #[test]
     fn a_disconnected_client_job_completes_and_stays_queryable() {
         let (service, _keep) = service_with_profile("reconnect", ToolProfile::Manage);
-        let runner = service.start_job_runner();
         let fixture = tempfile::TempDir::with_prefix("diskgraph-reconnect-fix-").unwrap();
         std::fs::create_dir_all(fixture.path().join("project")).unwrap();
         std::fs::write(fixture.path().join("project").join("f.bin"), vec![0; 4096]).unwrap();
@@ -2295,6 +2334,7 @@ mod tests {
             .engine()
             .register_scope(fixture.path(), &principal, &authorizer)
             .unwrap();
+        let runner = crate::tests::McpTestRunner::new(service.start_job_runner(), fixture);
         // register_scope already issued the registrar's scope-local grants.
         let limits = HttpLimits {
             read_timeout: Duration::from_secs(5),
@@ -2303,15 +2343,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_config(
-                service,
-                listener,
-                ServerConfig::modern(limits, Security::local(None)),
-                sink,
-            );
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(100));
 
         let call_index = |job_counter: u64| {
@@ -2428,7 +2466,8 @@ mod tests {
             polling_started.elapsed(),
             request_started.elapsed()
         );
-        drop(runner);
+        // RAII: 先停止传输，再 join runner，最后释放原扫描源。
+        let _ = &runner;
     }
 
     /// A cancelled-by-disconnect client never existed: dropping every socket
@@ -2436,7 +2475,6 @@ mod tests {
     #[test]
     fn dropping_every_connection_is_not_a_cancellation() {
         let (service, _keep) = service("no-cancel");
-        let runner = service.start_job_runner();
         let fixture = tempfile::TempDir::with_prefix("diskgraph-nocancel-fix-").unwrap();
         std::fs::create_dir_all(fixture.path().join("d")).unwrap();
         std::fs::write(fixture.path().join("d").join("a"), vec![0; 2048]).unwrap();
@@ -2446,6 +2484,7 @@ mod tests {
             .engine()
             .register_scope(fixture.path(), &principal, &authorizer)
             .unwrap();
+        let runner = crate::tests::McpTestRunner::new(service.start_job_runner(), fixture);
         let _ = scope;
 
         // Create the job through a throwaway handle, drop everything.
@@ -2469,7 +2508,8 @@ mod tests {
             );
             std::thread::sleep(Duration::from_millis(50));
         }
-        drop(runner);
+        // RAII: 先停止传输，再 join runner，最后释放原扫描源。
+        let _ = &runner;
     }
 
     /// The disconnect guarantee holds on the legacy transport too: a legacy
@@ -2480,7 +2520,6 @@ mod tests {
         use diskgraph_testkit::legacy_client;
 
         let (service, _keep) = service_with_profile("legacy-reconnect", ToolProfile::Manage);
-        let runner = service.start_job_runner();
         let fixture = tempfile::TempDir::with_prefix("diskgraph-legacy-reconnect-").unwrap();
         std::fs::create_dir_all(fixture.path().join("p")).unwrap();
         std::fs::write(fixture.path().join("p").join("f"), vec![0; 1024]).unwrap();
@@ -2490,6 +2529,7 @@ mod tests {
             .engine()
             .register_scope(fixture.path(), &principal, &authorizer)
             .unwrap();
+        let runner = crate::tests::McpTestRunner::new(service.start_job_runner(), fixture);
 
         let limits = HttpLimits {
             read_timeout: Duration::from_secs(5),
@@ -2498,15 +2538,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_config(
-                service,
-                listener,
-                ServerConfig::modern(limits, Security::local(None)).with_legacy(),
-                sink,
-            );
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)).with_legacy(),
+            Vec::new(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(100));
 
         // Connection A: legacy client requests the index, then disappears.
@@ -2556,7 +2594,8 @@ mod tests {
             std::thread::sleep(Duration::from_millis(50));
         }
         assert_eq!(terminal, "completed");
-        drop(runner);
+        // RAII: 先停止传输，再 join runner，最后释放原扫描源。
+        let _ = &runner;
     }
 
     /// MCP search cursors bind the policy epoch: after a publish, pages
@@ -2650,15 +2689,13 @@ mod tests {
         };
         let (listener, address) = bind("127.0.0.1", 0).unwrap();
         let port = address.port;
-        std::thread::spawn(move || {
-            let sink = Vec::new();
-            let _ = serve_config(
-                service,
-                listener,
-                ServerConfig::modern(limits, Security::local(None)),
-                sink,
-            );
-        });
+        let _server = crate::http_server_runtime::HttpServerRuntime::start(
+            service,
+            listener,
+            ServerConfig::modern(limits, Security::local(None)),
+            Vec::new(),
+        )
+        .unwrap();
         std::thread::sleep(Duration::from_millis(100));
 
         let mut stream = std::net::TcpStream::connect(("127.0.0.1", port)).unwrap();

@@ -94,6 +94,12 @@ impl GitDirectorySecurity {
         Ok(Self { descriptor })
     }
 
+    /// 参数：无；返回：借用本对象持有的原安全描述符，仅用于同步原生创建调用。
+    /// 调用者不得修改、释放或保存到本对象寿命之外；所有权仍由本对象 Drop 释放。
+    pub(super) fn descriptor(&self) -> PSECURITY_DESCRIPTOR {
+        self.descriptor
+    }
+
     /// 独占创建带安全描述符的目录。参数：path 为受信 temp 根下的绝对路径。返回：创建结果，不覆盖既有目录。
     pub(super) fn create(&self, path: &Path) -> io::Result<()> {
         let wide: Vec<u16> = path.as_os_str().encode_wide().take(32768).collect();

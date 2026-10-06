@@ -7,10 +7,14 @@ use std::time::Instant;
 /// 每次采样独占的绝对期限、累计输出与中止水位。
 /// 来源：原生 Rust diskgraph-engine::live_evidence::ProbeBudget。
 pub(super) struct ProbeBudget {
+    #[cfg(windows)]
+    session: Option<crate::probe_session_lease::ProbeSessionLease>,
     deadline: Instant,
     remaining: usize,
     cancel: Arc<AtomicBool>,
     failure: Option<ProbeFailure>,
+    #[cfg(windows)]
+    pub(super) probe_registry: Option<Arc<crate::scan_worker_registry::ScanWorkerRegistry>>,
 }
 
 impl ProbeBudget {
@@ -30,11 +34,49 @@ impl ProbeBudget {
             return Err(ProbeFailure::InvalidLimits);
         }
         Ok(Self {
+            #[cfg(windows)]
+            session: None,
             deadline,
             remaining: limits.max_output_bytes,
             cancel: Arc::clone(&limits.cancel),
             failure: None,
+            #[cfg(windows)]
+            probe_registry: None,
         })
+    }
+    /// 参数：pool 为同一可信宿主资源池；返回：成功绑定唯一会话，或原预算、重复绑定及容量错误。
+
+    /// 绑定同一受信宿主，不创建容量或重置原期限、输出及取消；来源：PF-06。
+    #[cfg(windows)]
+    pub(super) fn bind_probe_host(
+        &mut self,
+        pool: Arc<crate::probe_resource_pool::ProbeResourcePool>,
+    ) -> Result<(), ProbeFailure> {
+        self.check()?;
+        if self.session.is_some() {
+            return Err(ProbeFailure::InvalidLimits);
+        }
+        let lease = pool.reserve().map_err(|error| match error {
+            crate::EngineError::Business(diskgraph_core::BusinessError::ResourceExhausted) => {
+                ProbeFailure::ResourceLimit
+            }
+            other => ProbeFailure::Io(other.to_string()),
+        })?;
+        self.probe_registry = Some(lease.inner());
+        self.session = Some(lease);
+        self.check()
+    }
+
+    /// 参数：无；返回：同session唯一目录binding，未配置Host的本地目录不取得出生资格。
+    #[cfg(windows)]
+    pub(super) fn directory_binding(
+        &self,
+    ) -> Result<Option<crate::probe_directory_binding::ProbeDirectoryBinding>, crate::EngineError>
+    {
+        self.session
+            .as_ref()
+            .map(|session| session.directory())
+            .transpose()
     }
 
     /// 标记真实资源门禁，旧可信字符串诊断仍由原调用点返回。参数：无；返回：无。
@@ -64,6 +106,12 @@ impl ProbeBudget {
             return Err(self.fail(ProbeFailure::Deadline));
         }
         Ok(())
+    }
+
+    /// 参数：无；返回：原探针绝对期限的副本，不延长预算、不复位取消或首次失败。
+    #[cfg(windows)]
+    pub(super) fn deadline(&self) -> Instant {
+        self.deadline
     }
 
     /// 两条管道、所有子命令及 Git stash 日志在保留读取数据前扣除同一额度。

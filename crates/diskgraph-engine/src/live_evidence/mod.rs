@@ -66,6 +66,7 @@ mod git_private_capacity;
 #[cfg(test)]
 mod git_private_capacity_tests;
 mod git_private_directory;
+pub(crate) mod git_private_directory_owner;
 #[cfg(test)]
 mod git_private_integrity_tests;
 mod git_product_error;
@@ -117,6 +118,14 @@ mod git_worktree_capture_tests;
 #[cfg(all(test, target_os = "macos"))]
 mod macos_probe_tests;
 mod probe_budget;
+#[cfg(all(test, windows))]
+mod probe_managed_test_bridge;
+#[cfg(all(test, windows))]
+pub(crate) use probe_managed_test_bridge::run_managed_probe_for_test;
+#[cfg(all(test, windows))]
+pub(crate) use probe_managed_test_bridge::{
+    qualify_private_probe_directory_for_test, run_managed_private_probe_for_test,
+};
 mod probe_execution;
 mod probe_failure;
 #[cfg(test)]
@@ -160,3 +169,23 @@ pub use watch_report::WatchReport;
 pub use watch_snapshot::WatchSnapshot;
 
 pub(crate) use git_indexed_directory::GitIndexedDirectory;
+
+#[cfg(all(test, windows))]
+mod probe_directory_witness;
+#[cfg(all(test, windows))]
+pub(crate) use probe_directory_witness::ProbeDirectoryWitness;
+
+#[cfg(all(test, windows))]
+mod probe_resource_pool_tests;
+
+#[cfg(all(test, any(unix, windows)))]
+mod git_private_directory_owner_tests;
+
+#[cfg(all(test, windows))]
+mod windows_git_private_root_tests;
+
+#[cfg(windows)]
+mod windows_git_private_root;
+
+#[cfg(all(test, windows))]
+mod windows_git_junction_fixture;

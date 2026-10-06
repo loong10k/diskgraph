@@ -14,7 +14,8 @@ impl UnixProbeChild {
         command: &mut Command,
         budget: &mut ProbeBudget,
     ) -> Result<Self, ProbeFailure> {
-        let child = UnixChild::spawn(command, || budget.check()).map_err(ProbeFailure::from)?;
+        let child =
+            UnixChild::spawn_checked(command, || budget.check()).map_err(ProbeFailure::from)?;
         Ok(Self { child })
     }
 

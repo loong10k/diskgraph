@@ -1,39 +1,44 @@
 //! 独立的重叠读管道：缓冲与 OVERLAPPED 地址跨 pending I/O 恒定。
 
+use super::cleanup_progress::CleanupProgress;
 use std::io;
-use std::ptr::{null, null_mut};
+use std::ptr::null_mut;
+use std::time::Instant;
 use windows_sys::Win32::Foundation::{
     ERROR_BROKEN_PIPE, ERROR_HANDLE_EOF, ERROR_IO_INCOMPLETE, ERROR_IO_PENDING, ERROR_NO_DATA,
-    ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED, ERROR_PIPE_CONNECTED, ERROR_PIPE_NOT_CONNECTED,
-    GENERIC_WRITE, GetLastError,
+    ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED, ERROR_PIPE_NOT_CONNECTED, GetLastError,
 };
-use windows_sys::Win32::Storage::FileSystem::{
-    CreateFileW, FILE_ATTRIBUTE_NORMAL, FILE_FLAG_FIRST_PIPE_INSTANCE, FILE_FLAG_OVERLAPPED,
-    FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING, PIPE_ACCESS_INBOUND, ReadFile,
-};
-use windows_sys::Win32::System::IO::{CancelIoEx, GetOverlappedResult, OVERLAPPED};
-use windows_sys::Win32::System::Pipes::{
-    ConnectNamedPipe, CreateNamedPipeW, PIPE_READMODE_BYTE, PIPE_REJECT_REMOTE_CLIENTS,
-    PIPE_TYPE_BYTE, PIPE_WAIT,
-};
-use windows_sys::Win32::System::Threading::{
-    CreateEventW, INFINITE, ResetEvent, WaitForSingleObject,
-};
+use windows_sys::Win32::Storage::FileSystem::ReadFile;
+use windows_sys::Win32::System::IO::{CancelIoEx, GetOverlappedResult};
+use windows_sys::Win32::System::Threading::{INFINITE, ResetEvent, WaitForSingleObject};
 
 use super::super::ChildError;
 use super::owned_handle::OwnedHandle;
 use super::pipe_security::PipeSecurity;
+use super::windows_overlapped_operation::WindowsOverlappedOperation;
+use super::windows_pipe_io_phase::WindowsPipeIoPhase;
+
+#[path = "overlapped_pipe_prepare.rs"]
+mod overlapped_pipe_prepare;
 
 const READ_BYTES: usize = 4096;
+#[cfg(test)]
+thread_local! {
+    static FAIL_QUERY_ONCE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
 
 /// 本任务一条管道及唯一 pending 读取。来源：Win32 overlapped named pipe、CancelIoEx 生命周期。
 pub(super) struct OverlappedPipe {
     read: OwnedHandle,
     event: OwnedHandle,
-    operation: Box<OVERLAPPED>,
+    operation: WindowsOverlappedOperation,
     bytes: Box<[u8; READ_BYTES]>,
     pending: bool,
+    phase: WindowsPipeIoPhase,
     eof: bool,
+    cleanup_started: bool,
+    cleanup_cancel_requested: bool,
+    cleanup_complete: bool,
 }
 
 impl OverlappedPipe {
@@ -42,80 +47,16 @@ impl OverlappedPipe {
         name: &[u16],
         security: &PipeSecurity,
     ) -> Result<(Self, OwnedHandle), ChildError> {
-        let read = OwnedHandle::from_raw(
-            unsafe {
-                CreateNamedPipeW(
-                    name.as_ptr(),
-                    PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
-                    PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
-                    1,
-                    READ_BYTES as u32,
-                    READ_BYTES as u32,
-                    0,
-                    &security.attributes(false),
-                )
-            },
-            "CreateNamedPipeW",
-        )?;
-        // CreateFileW 在服务器实例已存在后连接；只将写端列入 HANDLE_LIST。
-        let mut writer_attributes = security.attributes(true);
-        writer_attributes.lpSecurityDescriptor = null_mut();
-        let writer = OwnedHandle::from_raw(
-            unsafe {
-                CreateFileW(
-                    name.as_ptr(),
-                    GENERIC_WRITE,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                    &writer_attributes,
-                    OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL,
-                    null_mut(),
-                )
-            },
-            "CreateFileW(named pipe writer)",
-        )?;
-        let event = OwnedHandle::from_raw(
-            unsafe { CreateEventW(null(), 1, 0, null()) },
-            "CreateEventW(pipe operation)",
-        )?;
-        let mut operation = Box::new(OVERLAPPED::default());
-        operation.hEvent = event.as_raw();
-        // 客户端先连上时通常返回 ERROR_PIPE_CONNECTED；意外 pending 时，
-        // 稳定的 Box 与 event 均保留到 GetOverlappedResult 确认内核完成。
-        let result = unsafe { ConnectNamedPipe(read.as_raw(), operation.as_mut()) };
-        if result == 0 {
-            match unsafe { GetLastError() } {
-                ERROR_PIPE_CONNECTED => {}
-                ERROR_IO_PENDING => {
-                    let mut ignored = 0u32;
-                    let completed = loop {
-                        let completed = unsafe {
-                            GetOverlappedResult(read.as_raw(), operation.as_ref(), &mut ignored, 1)
-                        };
-                        if completed == 0 && unsafe { GetLastError() } == ERROR_IO_INCOMPLETE {
-                            unsafe { WaitForSingleObject(event.as_raw(), INFINITE) };
-                            continue;
-                        }
-                        break completed;
-                    };
-                    if completed == 0 {
-                        return Err(last("GetOverlappedResult(pipe connect)"));
-                    }
-                }
-                _ => return Err(last("ConnectNamedPipe")),
-            }
+        let mut owner = None;
+        Self::prepare_into(name, security, &mut owner)?;
+        let writer = Self::open_writer(name, security)?;
+        let pipe = owner.as_mut().expect("prepared original pipe owner");
+        pipe.start_connect()?;
+        // 旧本地兼容接口保留同步连接语义；有期限调用者使用外部 owner 接口。
+        while pipe.pending {
+            pipe.finish_connect(true, false)?;
         }
-        Ok((
-            Self {
-                read,
-                event,
-                operation,
-                bytes: Box::new([0; READ_BYTES]),
-                pending: false,
-                eof: false,
-            },
-            writer,
-        ))
+        Ok((owner.take().expect("original connected pipe owner"), writer))
     }
 
     /// 非阻塞收取一次最多 4096 字节。参数：无。返回：数据切片、暂无数据/EOF 或 Win32 错误。
@@ -123,21 +64,33 @@ impl OverlappedPipe {
         if self.eof {
             return Ok(None);
         }
+        if self.cleanup_started {
+            return Err(ChildError::Unsupported("pipe read cleanup already started"));
+        }
+        if self.phase == WindowsPipeIoPhase::Prepared {
+            return Err(ChildError::Unsupported("pipe connection not submitted"));
+        }
+        if self.phase == WindowsPipeIoPhase::Connecting {
+            self.finish_connect(false, false)?;
+            if self.pending {
+                return Ok(None);
+            }
+        }
         if self.pending {
             return self.finish_read(false, false);
         }
         if unsafe { ResetEvent(self.event.as_raw()) } == 0 {
             return Err(last("ResetEvent(pipe read)"));
         }
-        *self.operation = OVERLAPPED::default();
-        self.operation.hEvent = self.event.as_raw();
+        self.operation.reset(self.event.as_raw());
+        self.phase = WindowsPipeIoPhase::Reading;
         let started = unsafe {
             ReadFile(
                 self.read.as_raw(),
                 self.bytes.as_mut_ptr(),
                 READ_BYTES as u32,
                 null_mut(),
-                self.operation.as_mut(),
+                self.operation.as_ptr(),
             )
         };
         if started != 0 {
@@ -160,19 +113,146 @@ impl OverlappedPipe {
         self.eof
     }
 
+    /// 参数：deadline为同一处置绝对期限；返回：一次非阻塞完成观察或原生错误，不释放活跃缓冲。
+    /// Pending/Err保留原句柄与稳定地址；过期不请求取消、不将未完成读当作EOF。
+    pub(super) fn poll_cleanup(
+        &mut self,
+        deadline: Instant,
+    ) -> Result<CleanupProgress, ChildError> {
+        if self.cleanup_complete {
+            return Ok(CleanupProgress::Complete);
+        }
+        if Instant::now() >= deadline {
+            return Ok(CleanupProgress::Pending);
+        }
+        let was_connecting = matches!(
+            self.phase,
+            WindowsPipeIoPhase::Prepared | WindowsPipeIoPhase::Connecting
+        );
+        self.cleanup_started = true;
+        if self.pending && !self.cleanup_cancel_requested {
+            let cancelled = unsafe { CancelIoEx(self.read.as_raw(), self.operation.as_ptr()) };
+            let error = if cancelled == 0 {
+                unsafe { GetLastError() }
+            } else {
+                0
+            };
+            if cancelled == 0 && error != ERROR_NOT_FOUND {
+                return Err(ChildError::io(
+                    "CancelIoEx(pipe poll cleanup)",
+                    io::Error::from_raw_os_error(error as i32),
+                ));
+            }
+            self.cleanup_cancel_requested = true;
+        }
+        if Instant::now() >= deadline {
+            return Ok(CleanupProgress::Pending);
+        }
+        if self.pending {
+            if self.phase == WindowsPipeIoPhase::Connecting {
+                self.finish_connect(false, true)?;
+            } else {
+                self.finish_read(false, true)?;
+            }
+        }
+        if self.pending || Instant::now() >= deadline {
+            return Ok(CleanupProgress::Pending);
+        }
+        self.cleanup_complete = true;
+        if !was_connecting {
+            self.eof = true;
+        }
+        Ok(CleanupProgress::Complete)
+    }
+
     /// 取消并确认唯一 pending 读完成。参数：无。返回：安全清理成功或 Win32 错误。
     pub(super) fn cancel_pending(&mut self) -> Result<(), ChildError> {
         if !self.pending {
             return Ok(());
         }
-        let cancelled = unsafe { CancelIoEx(self.read.as_raw(), self.operation.as_ref()) };
+        let cancelled = unsafe { CancelIoEx(self.read.as_raw(), self.operation.as_ptr()) };
         if cancelled == 0 && unsafe { GetLastError() } != ERROR_NOT_FOUND {
             // 即使取消请求失败，仍必须等待完成才能释放缓冲和 OVERLAPPED。
             let failure = last("CancelIoEx(pipe read)");
-            let _ = self.finish_read(true, true);
-            return Err(failure);
+            return self.finish_pending(Some(failure));
         }
-        self.finish_read(true, true).map(|_| ())
+        self.finish_pending(None)
+    }
+
+    fn finish_pending(&mut self, mut failure: Option<ChildError>) -> Result<(), ChildError> {
+        while self.pending {
+            let result = if self.phase == WindowsPipeIoPhase::Connecting {
+                self.finish_connect(true, true)
+            } else {
+                self.finish_read(true, true).map(|_| ())
+            };
+            if let Err(error) = result
+                && failure.is_none()
+            {
+                failure = Some(error);
+            }
+            if self.pending {
+                std::thread::sleep(std::time::Duration::from_millis(1));
+            }
+        }
+        failure.map_or(Ok(()), Err)
+    }
+    /// 参数：无；返回：原 pending 操作的 HANDLE、OVERLAPPED 和缓冲区地址；没有 pending 时拒绝。
+
+    /// 只供真实pending读跨线程测试观察，不修改原内存或句柄。
+    #[cfg(test)]
+    pub(super) fn io_witness(
+        &self,
+    ) -> Result<
+        (
+            windows_sys::Win32::Foundation::HANDLE,
+            *const windows_sys::Win32::System::IO::OVERLAPPED,
+            *const u8,
+        ),
+        ChildError,
+    > {
+        if !self.pending {
+            return Err(ChildError::Unsupported("no pending read witness"));
+        }
+        Ok((
+            self.read.as_raw(),
+            self.operation.as_ptr(),
+            self.bytes.as_ptr(),
+        ))
+    }
+    /// 参数：无；返回：当前操作是否仍处于连接阶段，不表示读取完成。
+
+    /// 测试区分真实 Connect 与 Read；不修改内核操作。
+    #[cfg(test)]
+    pub(super) fn connecting_for_test(&self) -> bool {
+        self.phase == WindowsPipeIoPhase::Connecting
+    }
+    /// 参数：无；返回：无；在当前测试线程设置一次查询故障，不取消原 pending 操作。
+
+    /// 一次性注入查询失败，不声称内核拒权；实际pending仍由原OS操作建立。
+    #[cfg(test)]
+    pub(super) fn fail_next_query_for_test() {
+        FAIL_QUERY_ONCE.with(|state| state.set(true));
+    }
+
+    fn query_result(&self, transferred: &mut u32, wait: bool) -> i32 {
+        #[cfg(test)]
+        if FAIL_QUERY_ONCE.with(|state| state.replace(false)) {
+            unsafe {
+                windows_sys::Win32::Foundation::SetLastError(
+                    windows_sys::Win32::Foundation::ERROR_ACCESS_DENIED,
+                )
+            };
+            return 0;
+        }
+        unsafe {
+            GetOverlappedResult(
+                self.read.as_raw(),
+                self.operation.as_ptr(),
+                transferred,
+                i32::from(wait),
+            )
+        }
     }
 
     fn finish_read(
@@ -182,14 +262,7 @@ impl OverlappedPipe {
     ) -> Result<Option<&[u8]>, ChildError> {
         let mut transferred = 0u32;
         let result = loop {
-            let result = unsafe {
-                GetOverlappedResult(
-                    self.read.as_raw(),
-                    self.operation.as_ref(),
-                    &mut transferred,
-                    i32::from(wait),
-                )
-            };
+            let result = self.query_result(&mut transferred, wait);
             if result == 0 && wait && unsafe { GetLastError() } == ERROR_IO_INCOMPLETE {
                 // 理论上 bWait=TRUE 不会返回未完成；保守等待，绝不释放活跃缓冲。
                 unsafe { WaitForSingleObject(self.event.as_raw(), INFINITE) };
@@ -202,6 +275,13 @@ impl OverlappedPipe {
             if error == ERROR_IO_INCOMPLETE && !wait {
                 self.pending = true;
                 return Ok(None);
+            }
+            if self.operation.pending() {
+                self.pending = true;
+                return Err(ChildError::io(
+                    "GetOverlappedResult(pipe still active)",
+                    io::Error::from_raw_os_error(error as i32),
+                ));
             }
             self.pending = false;
             if is_terminal_read(error, owner_cancelled) {
@@ -225,10 +305,6 @@ impl Drop for OverlappedPipe {
         // 安全清理可超出协作期限。绝不在内核仍引用缓冲时释放 Box。
         if self.pending {
             let _ = self.cancel_pending();
-            if self.pending {
-                unsafe { WaitForSingleObject(self.event.as_raw(), INFINITE) };
-                let _ = self.finish_read(true, true);
-            }
         }
     }
 }

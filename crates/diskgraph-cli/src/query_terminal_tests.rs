@@ -1,7 +1,8 @@
 //! CLI 查询必须继承 dispatch 请求的绝对期限，而不是在数据阶段重新计时。
+use crate::cli_engine_host::CliTestEngine;
 use clap::Parser;
 use diskgraph_core::{BusinessError, PrincipalId, QueryBudget};
-use diskgraph_engine::{Engine, EngineConfig, EngineError};
+use diskgraph_engine::{EngineConfig, EngineError};
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -44,7 +45,7 @@ fn terminal_delayed_comparison(plan: bool) -> (Result<(), EngineError>, Vec<Stri
     let root = directory.path().join("root");
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), b"data").unwrap();
-    let engine = Engine::open(EngineConfig {
+    let engine = CliTestEngine::open(EngineConfig {
         data_dir: directory.path().join("data"),
         ..EngineConfig::default()
     })
@@ -157,7 +158,7 @@ fn tree_and_history_do_not_complete_after_the_dispatch_deadline() {
     let root = directory.path().join("root");
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), b"data").unwrap();
-    let engine = Engine::open(EngineConfig {
+    let engine = CliTestEngine::open(EngineConfig {
         data_dir: directory.path().join("data"),
         ..EngineConfig::default()
     })
@@ -239,7 +240,7 @@ fn html_export_does_not_write_after_terminal_scope_revocation() {
     std::fs::write(root.join("file"), b"data").unwrap();
     let data = directory.path().join("data");
     let destination = directory.path().join("report.html");
-    let engine = Engine::open(EngineConfig {
+    let engine = CliTestEngine::open(EngineConfig {
         data_dir: data.clone(),
         ..EngineConfig::default()
     })
@@ -297,7 +298,7 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool) {
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), b"data").unwrap();
     let data = directory.path().join("data");
-    let engine = Engine::open(EngineConfig {
+    let engine = CliTestEngine::open(EngineConfig {
         data_dir: data.clone(),
         ..EngineConfig::default()
     })

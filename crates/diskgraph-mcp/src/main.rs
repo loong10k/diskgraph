@@ -7,7 +7,9 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use diskgraph_mcp::protocol::ToolProfile;
-use diskgraph_mcp::{McpConfig, McpService, http, serve_stdio};
+use diskgraph_mcp::{McpConfig, McpService, ScanWorkerSettings, http, serve_stdio};
+
+mod scan_worker_shutdown;
 
 #[cfg(windows)]
 mod auth_key_acl;
@@ -140,18 +142,55 @@ fn main() -> ExitCode {
         trusted_proxies,
     };
 
-    let open_service = if transport == "stdio" {
-        McpService::open
-    } else {
-        McpService::open_remote
+    // 部署材料来自本地环境，须在创建数据库前完整拒绝部分/非法配置。
+    let worker_deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+    let worker_host = match diskgraph_engine::ScanWorkerRuntimeBudget::new(
+        diskgraph_scan_worker::ProtocolLimits {
+            max_frame_bytes: 1 << 20,
+            max_stream_bytes: 2 << 30,
+            max_nodes: 2_000_000,
+            max_depth: 4096,
+        },
+        64 << 10,
+        1,
+    )
+    .and_then(|runtime| {
+        ScanWorkerSettings::host_from_environment(runtime, worker_deadline, &mut || Ok(()))
+    }) {
+        Ok(host) => host,
+        Err(error) => {
+            eprintln!("invalid scan worker deployment: {error}");
+            return ExitCode::from(10);
+        }
     };
-    let mut service = match open_service(McpConfig {
+    let config = McpConfig {
         data_dir,
         profile,
         legacy_sse,
         ..McpConfig::default()
-    }) {
-        Ok(service) => service,
+    };
+    #[cfg(windows)]
+    let (probe_host, probe_recovery) = match diskgraph_engine::ProbeHost::new(1) {
+        Ok(host) => host,
+        Err(error) => {
+            eprintln!("invalid probe deployment: {error}");
+            return ExitCode::from(10);
+        }
+    };
+    #[cfg(windows)]
+    let opened =
+        McpService::open_with_process_hosts(config, worker_host, probe_host, transport == "stdio");
+    #[cfg(not(windows))]
+    let opened = match (transport == "stdio", worker_host) {
+        (true, Some(host)) => McpService::open_with_scan_worker(config, host)
+            .map(|(service, recovery)| (service, Some(recovery))),
+        (false, Some(host)) => McpService::open_remote_with_scan_worker(config, host)
+            .map(|(service, recovery)| (service, Some(recovery))),
+        (true, None) => McpService::open(config).map(|service| (service, None)),
+        (false, None) => McpService::open_remote(config).map(|service| (service, None)),
+    };
+    let (mut service, recovery) = match opened {
+        Ok(opened) => opened,
         Err(error) => {
             eprintln!("failed to open the DiskGraph service: {error}");
             return ExitCode::from(10);
@@ -160,55 +199,86 @@ fn main() -> ExitCode {
 
     // Jobs requested over any transport progress without their connection;
     // the runner outlives every socket (MCP-05).
-    let _job_runner = service.start_job_runner();
+    #[cfg(windows)]
+    let probe_recovery = std::sync::Arc::new(probe_recovery);
+    #[cfg(windows)]
+    let job_runner = match service
+        .start_job_runner_with_probe_recovery(std::sync::Arc::clone(&probe_recovery))
+    {
+        Ok(runner) => runner,
+        Err(error) => {
+            // 尚未启动runner或协议分发，没有child出生；拒绝错配的恢复责任。
+            eprintln!("invalid probe recovery binding: {error}");
+            return ExitCode::from(10);
+        }
+    };
+    #[cfg(not(windows))]
+    let job_runner = service.start_job_runner();
+    // 唯一恢复句柄在协议执行及其 unwind 边界之外存活。
+    let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        if transport != "stdio" {
+            let (listener, address) = match http::bind(&host, port) {
+                Ok(bound) => bound,
+                Err(error) => {
+                    eprintln!("failed to bind {host}:{port}: {error}");
+                    return ExitCode::from(10);
+                }
+            };
+            eprintln!("diskgraph-mcp listening on {address}{}", http::MCP_ENDPOINT);
+            let limits = http::HttpLimits::default();
+            let security = http::Security::remote(
+                authenticator
+                    .as_ref()
+                    .map(|auth| std::sync::Arc::new(auth.clone())),
+            );
+            let security = http::Security {
+                policy: network_policy,
+                ..security
+            };
+            let config = if legacy_sse {
+                http::ServerConfig::modern(limits, security).with_legacy()
+            } else {
+                http::ServerConfig::modern(limits, security)
+            };
+            return match http::serve_config(service, listener, config, io::stderr()) {
+                Ok(_) => ExitCode::from(0),
+                Err(error) => {
+                    eprintln!("http loop failed: {error}");
+                    ExitCode::from(10)
+                }
+            };
+        }
 
-    if transport != "stdio" {
-        let (listener, address) = match http::bind(&host, port) {
-            Ok(bound) => bound,
+        let stdin = io::stdin();
+        let mut stdout = io::stdout();
+        let stderr = io::stderr();
+        match serve_stdio(
+            &mut service,
+            BufReader::new(stdin.lock()),
+            &mut stdout,
+            stderr.lock(),
+        ) {
+            Ok(()) => ExitCode::from(0),
             Err(error) => {
-                eprintln!("failed to bind {host}:{port}: {error}");
-                return ExitCode::from(10);
-            }
-        };
-        eprintln!("diskgraph-mcp listening on {address}{}", http::MCP_ENDPOINT);
-        let limits = http::HttpLimits::default();
-        let security = http::Security::remote(
-            authenticator
-                .as_ref()
-                .map(|auth| std::sync::Arc::new(auth.clone())),
-        );
-        let security = http::Security {
-            policy: network_policy,
-            ..security
-        };
-        let config = if legacy_sse {
-            http::ServerConfig::modern(limits, security).with_legacy()
-        } else {
-            http::ServerConfig::modern(limits, security)
-        };
-        return match http::serve_config(service, listener, config, io::stderr()) {
-            Ok(_) => ExitCode::from(0),
-            Err(error) => {
-                eprintln!("http loop failed: {error}");
+                eprintln!("stdio loop failed: {error}");
                 ExitCode::from(10)
             }
-        };
-    }
-
-    let stdin = io::stdin();
-    let mut stdout = io::stdout();
-    let stderr = io::stderr();
-    match serve_stdio(
-        &mut service,
-        BufReader::new(stdin.lock()),
-        &mut stdout,
-        stderr.lock(),
-    ) {
-        Ok(()) => ExitCode::from(0),
-        Err(error) => {
-            eprintln!("stdio loop failed: {error}");
-            ExitCode::from(10)
         }
+    }));
+    // 先停止调度并 join runner，才能处置仍保留的原 OS owner。
+    let runner_outcome = job_runner.stop_and_join();
+    if let Some(recovery) = recovery {
+        scan_worker_shutdown::finish(&recovery);
+    }
+    #[cfg(windows)]
+    scan_worker_shutdown::finish_probe(&probe_recovery);
+    match outcome {
+        Ok(code) => match runner_outcome {
+            Ok(()) => code,
+            Err(payload) => std::panic::resume_unwind(payload),
+        },
+        // 协议异常先发生，仍保留它为主异常；后台 join 已完成且资源恢复已执行。
+        Err(payload) => std::panic::resume_unwind(payload),
     }
 }
 

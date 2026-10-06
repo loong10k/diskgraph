@@ -17,6 +17,14 @@ const INPUT_LIMITS: ProtocolLimits = WorkerInputLimits::protocol_limits();
 /// 返回：不返回；控制线程真实 join 后以 OS 退出结束本 helper，失败非零。
 /// 原 pinned channel/线程可能仍持有 Node，进程退出回收它们，避免失败路径递归 Drop。
 pub fn run_worker_stdio() -> ! {
+    #[cfg(target_os = "macos")]
+    if crate::macos_process_limit::MacosProcessLimit::install().is_err() {
+        // 限制先于任何协议输入、Hello或上游线程；诊断不泄露路径或系统消息。
+        let _ = io::stderr()
+            .lock()
+            .write_all(b"diskgraph scan worker: process restriction failed\n");
+        process::exit(1);
+    }
     let mut reader = FrameReader::new(io::stdin(), INPUT_LIMITS);
     let prepared = prepare(&mut reader);
     let (root, options, limits) = match prepared {

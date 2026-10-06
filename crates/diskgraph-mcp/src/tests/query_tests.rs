@@ -1,11 +1,25 @@
 //! 保留原服务行为回归的全部断言；来源：原生 Rust MCP 内联测试迁移。
+use super::query_revision_fixture::QueryRevisionFixture;
 use super::support::{call, cargo_project, payload, seed, service, structured};
+use crate::McpService;
 use crate::protocol::ToolProfile;
 use diskgraph_core::ScopeId;
 use serde_json::json;
+use std::path::Path;
 
 #[test]
 fn explicit_revision_and_node_id_select_historical_data() {
+    explicit_revision_and_node_id_select_historical_data_behavior(seed);
+}
+
+#[test]
+fn imported_explicit_revision_and_node_id_select_historical_data() {
+    explicit_revision_and_node_id_select_historical_data_behavior(QueryRevisionFixture::publish);
+}
+
+fn explicit_revision_and_node_id_select_historical_data_behavior(
+    seed: fn(&mut McpService, &Path) -> String,
+) {
     let (mut service, _keep) = service(ToolProfile::ReadFull, "historical-node");
     let (_project, root) = cargo_project("historical-node");
     let scope = seed(&mut service, &root);
@@ -63,6 +77,19 @@ fn explicit_revision_and_node_id_select_historical_data() {
 
 #[test]
 fn queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly() {
+    queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly_behavior(seed);
+}
+
+#[test]
+fn imported_queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly() {
+    queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly_behavior(
+        QueryRevisionFixture::publish,
+    );
+}
+
+fn queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly_behavior(
+    seed: fn(&mut McpService, &Path) -> String,
+) {
     let (mut service, _keep) = service(ToolProfile::ReadFull, "queries");
     let (project, root) = cargo_project("queries");
     let scope = seed(&mut service, &root);
@@ -105,6 +132,17 @@ fn queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly() {
 
 #[test]
 fn two_scopes_stay_isolated_and_reuse_their_own_revisions() {
+    two_scopes_stay_isolated_and_reuse_their_own_revisions_behavior(seed);
+}
+
+#[test]
+fn imported_two_scopes_stay_isolated_and_reuse_their_own_revisions() {
+    two_scopes_stay_isolated_and_reuse_their_own_revisions_behavior(QueryRevisionFixture::publish);
+}
+
+fn two_scopes_stay_isolated_and_reuse_their_own_revisions_behavior(
+    seed: fn(&mut McpService, &Path) -> String,
+) {
     let (mut service, _keep) = service(ToolProfile::ReadFull, "isolation");
     let (first, first_root) = cargo_project("isolation-a");
     let (second, second_root) = cargo_project("isolation-b");
@@ -146,6 +184,8 @@ fn two_scopes_stay_isolated_and_reuse_their_own_revisions() {
     // Repeating the query reuses the same revision: no new publication.
     let again = call(&mut service, "diskgraph_top", json!({"scope": scope_a}));
     assert_eq!(payload(&again)["data"], payload(&top_a)["data"]);
+    assert_eq!(payload(&again)["items"], payload(&top_a)["items"]);
+    assert_eq!(structured(&again)["revision_id"], revision_a.as_str());
     drop(first);
     drop(second);
 }

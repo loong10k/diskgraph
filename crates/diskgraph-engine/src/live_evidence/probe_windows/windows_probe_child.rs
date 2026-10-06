@@ -1,6 +1,8 @@
+#[cfg(test)]
 use crate::live_evidence::probe_budget::ProbeBudget;
 use crate::live_evidence::probe_failure::ProbeFailure;
 use crate::native_child::WindowsChild;
+#[cfg(test)]
 use std::process::Command;
 
 /// 原探针的薄入口，只借原账本并保留原业务错误。来源：原生 Rust diskgraph-engine::WindowsProbeChild。
@@ -9,7 +11,18 @@ pub(in crate::live_evidence) struct WindowsProbeChild {
 }
 
 impl WindowsProbeChild {
+    /// 参数：child为catch外保留的原生唯一owner；返回：薄适配，不创建或清理进程。
+    pub(in crate::live_evidence) fn from_child(child: WindowsChild) -> Self {
+        Self { child }
+    }
+
+    /// 参数：消费薄适配；返回：同一原生owner，错误投影前交还显式恢复边界。
+    pub(in crate::live_evidence) fn into_child(self) -> WindowsChild {
+        self.child
+    }
+
     /// 借用整次探针预算启动真实子进程。参数：command 为原命令，budget 为原账本；返回：唯一 OS owner 的薄入口或原探针错误。
+    #[cfg(test)]
     pub(in crate::live_evidence) fn spawn(
         command: &mut Command,
         budget: &mut ProbeBudget,
@@ -34,6 +47,7 @@ impl WindowsProbeChild {
     }
 
     /// 终止自有组或 Job 并实际回收。参数：无；返回：原操作结果或原探针错误。
+    #[cfg(test)]
     pub(in crate::live_evidence) fn cleanup(&mut self) -> Result<(), ProbeFailure> {
         self.child.cleanup().map_err(ProbeFailure::from)
     }

@@ -4,17 +4,20 @@ use serde_json::{Value, json};
 
 use crate::{McpConfig, McpService, STDIO_PRINCIPAL, protocol};
 
-fn fixture() -> (McpService, tempfile::TempDir, String) {
+fn fixture() -> (McpService, crate::tests::McpTestDirectory, String) {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().join("文件 é 空格");
     std::fs::create_dir(&root).unwrap();
     for name in ["a", "z", "é-ß", "文件"] {
         std::fs::write(root.join(name), "same-size").unwrap();
     }
-    let service = McpService::open(McpConfig {
-        data_dir: directory.path().join("data"),
-        ..McpConfig::default()
-    })
+    let (service, directory) = crate::tests::McpTestDirectory::open(
+        McpConfig {
+            data_dir: directory.path().join("data"),
+            ..McpConfig::default()
+        },
+        directory,
+    )
     .unwrap();
     let principal = PrincipalId::new(STDIO_PRINCIPAL).unwrap();
     let engine = service.engine();

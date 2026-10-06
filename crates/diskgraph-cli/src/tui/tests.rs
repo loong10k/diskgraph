@@ -1,4 +1,5 @@
 //! 原 tui::tests 的行为回归；仅按真实子模块调整显式导入。
+use crate::cli_engine_host::CliTestEngine;
 
 use super::palette::{color_from, fit, mix_toward};
 use super::{
@@ -8,7 +9,7 @@ use super::{
 use crate::tui_frame_reader::TuiFrameReader;
 use crate::tui_request::TuiRequest;
 use diskgraph_core::PrincipalId;
-use diskgraph_engine::{Engine, EngineError};
+use diskgraph_engine::EngineError;
 use ratatui::Terminal;
 use ratatui::style::Color;
 
@@ -54,7 +55,7 @@ fn nested_frame_limits_queries_and_keeps_navigation_visible() {
             std::fs::write(child.join(format!("file-{file}")), b"x").unwrap();
         }
     }
-    let engine = Engine::open(diskgraph_engine::EngineConfig {
+    let engine = CliTestEngine::open(diskgraph_engine::EngineConfig {
         data_dir: directory.path().join("data"),
         ..Default::default()
     })

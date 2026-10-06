@@ -203,7 +203,7 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
     use std::path::{Component, Prefix};
     use windows_sys::Win32::Storage::FileSystem::{
         FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
-        FILE_READ_ATTRIBUTES, FILE_SHARE_READ, GetDriveTypeW,
+        FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, GetDriveTypeW,
     };
     let drive = match path.components().next() {
         Some(Component::Prefix(prefix)) => match prefix.kind() {
@@ -224,7 +224,7 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
         return Err("unsupported git metadata directory volume".into());
     }
     let mut file = std::fs::OpenOptions::new()
-        .access_mode(FILE_READ_ATTRIBUTES)
+        .access_mode(FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES)
         .share_mode(FILE_SHARE_READ)
         .custom_flags(
             FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
@@ -266,7 +266,7 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
         CloseHandle, INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
     };
     use windows_sys::Win32::Storage::FileSystem::{
-        FILE_READ_ATTRIBUTES, FILE_SHARE_READ, SYNCHRONIZE,
+        FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, SYNCHRONIZE,
     };
     use windows_sys::Win32::System::IO::IO_STATUS_BLOCK;
     let mut wide: Vec<u16> = name.encode_wide().collect();
@@ -288,7 +288,8 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
     let status = unsafe {
         NtCreateFile(
             &mut handle,
-            FILE_READ_ATTRIBUTES | SYNCHRONIZE,
+            // 属性访问不参与共享访问检查；目录读取权限让原 share-read 租约约束删除/改名。
+            FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES | SYNCHRONIZE,
             &attributes,
             &mut status_block,
             std::ptr::null(),

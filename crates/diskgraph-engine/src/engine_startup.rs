@@ -57,6 +57,11 @@ impl Engine {
             capacity_watermark: config.capacity_watermark,
             max_active_jobs_per_principal: config.max_active_jobs_per_principal,
             scan_options: config.scan_options.clone(),
+            scan_worker: None,
+            #[cfg(windows)]
+            probe_host: None,
+            #[cfg(windows)]
+            runner_admission: Mutex::new(()),
             graph: Mutex::new(graph),
             control: Mutex::new(control),
             cancellations: Mutex::new(HashMap::new()),
@@ -82,5 +87,42 @@ impl Engine {
     /// Mints once and then serves the persistent server identity (ST-05).
     pub fn server_id(&self) -> Result<ServerId, EngineError> {
         Ok(self.control()?.ensure_server()?)
+    }
+}
+
+impl Engine {
+    /// 参数：config保留旧两库/扫描配置，host为普通Rust独立受信镜像/响应额度/有限容量。
+    /// 返回：原Engine与必须在catch_unwind外保存的唯一Recovery；不启动runner或授予请求权限。
+    /// 旧open签名不变；服务Drop不把未回收槽清空，宿主必须join runner并实际drain至完成。
+    pub fn open_with_scan_worker(
+        config: EngineConfig,
+        host: crate::ScanWorkerHost,
+    ) -> Result<(Self, crate::ScanWorkerRecovery), EngineError> {
+        let mut engine = Self::open(config)?;
+        let recovery = crate::ScanWorkerRecovery::new(std::sync::Arc::clone(&host.registry));
+        engine.scan_worker = Some(std::sync::Arc::new(host));
+        Ok((engine, recovery))
+    }
+}
+
+#[cfg(windows)]
+impl Engine {
+    /// 参数：config为原两库配置，scan为可选受信扫描镜像，probe为固定容量探针宿主。
+    /// 返回：引擎与扫描恢复责任；调用方在本函数前已持有独立ProbeRecovery，不能放入请求catch。
+    /// 宿主材料不授予请求权限；没有扫描镜像仍可使用受管理证据探针。
+    pub fn open_with_process_hosts(
+        config: EngineConfig,
+        scan: Option<crate::ScanWorkerHost>,
+        probe: crate::ProbeHost,
+    ) -> Result<(Self, Option<crate::ScanWorkerRecovery>), EngineError> {
+        let (mut engine, recovery) = match scan {
+            Some(host) => {
+                let (engine, recovery) = Self::open_with_scan_worker(config, host)?;
+                (engine, Some(recovery))
+            }
+            None => (Self::open(config)?, None),
+        };
+        engine.probe_host = Some(probe);
+        Ok((engine, recovery))
     }
 }

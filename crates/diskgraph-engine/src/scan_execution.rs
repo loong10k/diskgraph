@@ -12,7 +12,6 @@ use diskgraph_store::StoreError;
 use std::io;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
-use std::thread;
 use std::time::{Duration, Instant};
 
 impl Engine {
@@ -80,98 +79,79 @@ impl Engine {
         #[cfg(target_os = "linux")]
         let unix_root =
             crate::native_process::LinuxScanRoot::open(&root, &|| observation_guard.check())?;
-        let handle =
-            diskgraph_disktree_core::scan::ScanHandle::spawn(root.clone(), options.clone());
-        #[cfg(test)]
-        crate::job_stop_cause_hooks::after_spawn(job_id);
-        let mut exceeded = false;
-        let mut observation_error = None;
-        let tree = loop {
-            if observation_error.is_none() && now_ms().saturating_sub(last_heartbeat) >= 5000 {
-                let heartbeat = self
-                    .control()?
-                    .heartbeat_fenced(job_id, owner, job.fencing_token);
-                #[cfg(test)]
-                crate::job_stop_cause_hooks::heartbeat_checked(job_id, &heartbeat);
-                if let Err(error) = heartbeat {
-                    handle.cancel();
-                    return Err(error.into());
+        let host = self
+            .scan_worker
+            .as_ref()
+            .ok_or(BusinessError::Unsupported)?;
+        let deadline = scan_started
+            .checked_add(Duration::from_millis(self.scan_budget.max_duration_ms))
+            .ok_or(BusinessError::BudgetExceeded)?;
+        let runtime = crate::scan_worker_runtime::ScanWorkerRuntime::new(host, deadline);
+        let mut scanner_observed = false;
+        let tree = runtime.run(
+            &root,
+            &options,
+            &mut || observation_guard.check(),
+            &mut || {
+                if now_ms().saturating_sub(last_heartbeat) >= 5000 {
+                    let heartbeat =
+                        self.control()?
+                            .heartbeat_fenced(job_id, owner, job.fencing_token);
+                    #[cfg(test)]
+                    crate::job_stop_cause_hooks::heartbeat_checked(job_id, &heartbeat);
+                    heartbeat?;
+                    last_heartbeat = now_ms();
                 }
-                last_heartbeat = now_ms();
-            }
-            if observation_error.is_none() {
                 let checked = observation_guard.check_now();
                 #[cfg(test)]
                 crate::job_stop_cause_hooks::scan_checked(job_id, &checked);
-                if let Err(error) = checked {
-                    // 停止后只等待原 poll 结束；保留本次真实错误，不再次消费原因或进入转换/暂存。
-                    observation_error = Some(error);
+                if checked.is_err() {
                     cancel.store(true, Ordering::SeqCst);
-                    handle.cancel();
                 }
-            }
-            let progress = handle.progress.snapshot();
-            if let Ok(mut entries) = self.scan_progress.lock() {
-                entries.insert((job_id.to_owned(), job.fencing_token), progress.clone());
-            }
-            if progress.files.saturating_add(progress.dirs)
-                > self.max_nodes_per_scan.min(self.scan_budget.max_nodes)
-                || scan_started.elapsed() > Duration::from_millis(self.scan_budget.max_duration_ms)
-            {
-                exceeded = true;
-                handle.cancel();
-            }
-            if cancel.load(Ordering::SeqCst)
-                || self.control()?.cancellation_requested(job_id, fence)?
-                || self.scope(&job.scope_id)?.revoked
-                || (self.control()?.policy_state()?.is_some()
-                    && !matches!(
-                        self.policy_authorizer()?.decide(
-                            &job.principal,
-                            &Permission::IndexWrite,
-                            &job.scope_id
-                        ),
-                        diskgraph_core::Decision::Allowed
-                    ))
-            {
-                if observation_error.is_none() && cancel.load(Ordering::SeqCst) {
-                    // 该分支已经见到本代停止位；若 keeper 原错误尚未由 guard 取得，在转换前保留。
-                    observation_error = stop_reason.take();
+                checked?;
+                if cancel.load(Ordering::SeqCst)
+                    || self.control()?.cancellation_requested(job_id, fence)?
+                    || self.scope(&job.scope_id)?.revoked
+                    || (self.control()?.policy_state()?.is_some()
+                        && !matches!(
+                            self.policy_authorizer()?.decide(
+                                &job.principal,
+                                &Permission::IndexWrite,
+                                &job.scope_id
+                            ),
+                            diskgraph_core::Decision::Allowed
+                        ))
+                {
+                    cancel.store(true, Ordering::SeqCst);
+                    return Err(stop_reason
+                        .take()
+                        .unwrap_or_else(|| BusinessError::Conflict.into()));
                 }
-                cancel.store(true, Ordering::SeqCst);
-                handle.cancel();
-            }
-            match handle.poll() {
-                Some(result) => break result,
-                None => thread::sleep(Duration::from_millis(20)),
-            }
-        };
-        let tree = match tree {
-            // pinned MFT 的 cancelled() 只产生此固定 Interrupted；不把任意 I/O 失败与停止位关联。
-            Err(error)
-                if (cancel.load(Ordering::SeqCst) || exceeded)
-                    && error.kind() == io::ErrorKind::Interrupted
-                    && error.to_string() == "the scan was cancelled" =>
-            {
-                return Err(observation_error
-                    .or_else(|| {
-                        if exceeded {
-                            Some(BusinessError::BudgetExceeded.into())
-                        } else {
-                            stop_reason.take()
-                        }
-                    })
-                    .unwrap_or_else(|| BusinessError::Conflict.into()));
-            }
-            Err(error) => return Err(error.into()),
-            Ok(tree) => tree,
-        };
-        if let Some(error) = observation_error {
-            return Err(error);
-        }
-        if exceeded {
-            return Err(EngineError::Business(BusinessError::BudgetExceeded));
-        }
+                Ok(())
+            },
+            &mut |progress| {
+                if !scanner_observed {
+                    scanner_observed = true;
+                    // 第一份真实Progress来自helper内ScanHandle::spawn之后；不把fork/Hello当walk已启动。
+                    #[cfg(test)]
+                    crate::job_stop_cause_hooks::after_spawn(job_id);
+                }
+                if let Ok(mut entries) = self.scan_progress.lock() {
+                    entries.insert(
+                        (job_id.to_owned(), job.fencing_token),
+                        progress.clone().into_native(),
+                    );
+                }
+                if progress.files.saturating_add(progress.dirs)
+                    > self.max_nodes_per_scan.min(self.scan_budget.max_nodes)
+                    || scan_started.elapsed()
+                        > Duration::from_millis(self.scan_budget.max_duration_ms)
+                {
+                    return Err(BusinessError::BudgetExceeded.into());
+                }
+                Ok(())
+            },
+        )?;
         let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))
             .map_err(|error| {
                 if error.kind() == io::ErrorKind::Unsupported {
@@ -364,6 +344,10 @@ impl Engine {
         }
         #[cfg(test)]
         crate::job_stop_cause_hooks::after_final_scan_validation(job_id);
+        // 先在数据库锁外等待原安装锁；守卫跨越完整发布事务，更新不能穿过检查/提交窗口。
+        #[cfg(target_os = "macos")]
+        let _installation_publication_guard =
+            host.authorize_macos_epoch(deadline, &mut || observation_guard.check_now())?;
         let mut graph = self.graph()?;
         if !self.accepts_new_work() {
             graph.clear_staging(&staging_id)?;

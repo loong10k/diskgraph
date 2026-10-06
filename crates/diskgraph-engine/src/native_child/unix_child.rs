@@ -1,75 +1,150 @@
-use super::{ChildError, ChildSpawnError};
+use super::child_read_buffer::ChildReadBuffer;
+use super::unix_child_group::UnixChildGroup;
+use super::unix_child_setup::UnixChildSetup;
+use super::unix_control_channel::UnixControlChannel;
+use super::unix_leader::UnixLeader;
+use super::unix_normal_exit::UnixNormalExit;
+use super::{ChildError, ChildSpawnError, ControlWriteStatus};
+use std::fs::File;
 use std::io::{self, Read};
-use std::os::fd::AsRawFd;
-use std::os::unix::process::CommandExt;
-use std::process::{Child, ChildStderr, ChildStdout, Command, Stdio};
+use std::os::fd::{AsRawFd, OwnedFd};
+use std::process::Child;
+
+#[path = "unix_child_spawn.rs"]
+mod unix_child_spawn;
 
 /// 独占子进程、未回收 leader 与非阻塞双管道，避免旧 PGID 复用误杀。
 /// 来源：原生 Rust diskgraph-engine 的 Unix waitid/WNOWAIT 执行边界。
 pub(crate) struct UnixChild {
-    child: Child,
-    stdout: Option<ChildStdout>,
-    stderr: Option<ChildStderr>,
-    buffer: [u8; 4096],
+    child: UnixLeader,
+    stdout: Option<File>,
+    stderr: Option<File>,
+    control: Option<UnixControlChannel>,
+    control_closed: bool,
+    buffer: ChildReadBuffer,
     stdout_eof: bool,
     stderr_eof: bool,
     exit_code: Option<i32>,
     owns_group: bool,
     cleaned: bool,
+    normal_exit: UnixNormalExit,
+    #[cfg(target_os = "macos")]
+    _installation_lease:
+        Option<std::sync::Arc<crate::macos_installation_lease::MacosInstallationLease>>,
     #[cfg(test)]
     cleanup_fault: bool,
 }
 
 impl UnixChild {
-    /// 在执行前建立独立进程组，立即接管资源并将两管道设为非阻塞。
-    /// 参数：command 为结构化受信命令，checkpoint 借用调用方原检查，不创建预算。
-    /// 返回：本次进程组 owner，或能力/启动/管道错误。
-    pub(crate) fn spawn<E>(
-        command: &mut Command,
+    /// 出生前构造全部原资源 owner。参数：为预备缓冲、管道和已认证租约；返回：未生进程。
+    #[cfg(target_os = "macos")]
+    pub(super) fn prepare_native(
+        buffer: ChildReadBuffer,
+        control: UnixControlChannel,
+        stdout: File,
+        stderr: File,
+        lease: std::sync::Arc<crate::macos_installation_lease::MacosInstallationLease>,
+    ) -> Self {
+        Self {
+            child: UnixLeader::prepare_native(),
+            stdout: Some(stdout),
+            stderr: Some(stderr),
+            control: Some(control),
+            control_closed: false,
+            buffer,
+            stdout_eof: false,
+            stderr_eof: false,
+            exit_code: None,
+            owns_group: false,
+            cleaned: false,
+            normal_exit: UnixNormalExit::Unavailable,
+            _installation_lease: Some(lease),
+            #[cfg(test)]
+            cleanup_fault: false,
+        }
+    }
+
+    /// 原生 C 直接写入出生前存在的原 owner；参数：是固定路径和三个原子端，返回：原 errno。
+    #[cfg(target_os = "macos")]
+    pub(super) fn birth_native(&mut self, path: &std::ffi::CStr, channels: [i32; 3]) -> i32 {
+        let UnixLeader::Native { pid, .. } = &mut self.child else {
+            return libc::EINVAL;
+        };
+        super::macos_native_spawn::MacosNativeSpawn::birth(
+            path,
+            channels,
+            pid,
+            &mut self.owns_group,
+        )
+    }
+
+    /// 原 owner 存在后核验实际 SID/PGID 与管道；参数：无，返回：真实初始化错误。
+    #[cfg(target_os = "macos")]
+    pub(super) fn initialize_native(&mut self) -> Result<u32, ChildError> {
+        UnixChildSetup::initialize(
+            [
+                self.stdout.as_ref().map(AsRawFd::as_raw_fd),
+                self.stderr.as_ref().map(AsRawFd::as_raw_fd),
+            ],
+            true,
+            self.child.id(),
+        )?;
+        self.normal_exit = UnixNormalExit::Qualified;
+        Ok(self.child.id())
+    }
+
+    /// 接管实际 Child 的管道并执行原 post-spawn 检查；不再创建其它 child owner。
+    /// 参数：child/control 为独占资源，buffer 为出生前已准备的固定读缓冲，private_session 为旧入口核验，normal_exit 为内核资格，
+    /// cleanup_fault 仅保留旧测试注入，checkpoint 借原检查；返回：初始化完成的唯一 owner。
+    pub(super) fn from_spawn<E>(
+        mut child: Child,
+        buffer: ChildReadBuffer,
+        control: Option<UnixControlChannel>,
+        private_session: bool,
+        normal_exit: UnixNormalExit,
+        cleanup_fault: bool,
         mut checkpoint: impl FnMut() -> Result<(), E>,
     ) -> Result<Self, ChildSpawnError<E>> {
-        checkpoint().map_err(ChildSpawnError::checkpoint)?;
-        reject_auto_reap()?;
-        command
-            .process_group(0)
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
-        let child = command
-            .spawn()
-            .map_err(|error| ChildError::io("spawn", error))?;
+        #[cfg(not(test))]
+        let _ = cleanup_fault;
+        // 管道只转移原描述符，不重新打开、不分配；任何 post-spawn 检查前完整 owner 已就位。
+        let stdout = child
+            .stdout
+            .take()
+            .map(|pipe| File::from(OwnedFd::from(pipe)));
+        let stderr = child
+            .stderr
+            .take()
+            .map(|pipe| File::from(OwnedFd::from(pipe)));
         let mut owner = Self {
-            child,
-            stdout: None,
-            stderr: None,
-            buffer: [0; 4096],
+            child: UnixLeader::from_standard(child),
+            stdout,
+            stderr,
+            control,
+            control_closed: false,
+            buffer,
             stdout_eof: false,
             stderr_eof: false,
             exit_code: None,
             owns_group: true,
             cleaned: false,
+            normal_exit,
+            #[cfg(target_os = "macos")]
+            _installation_lease: None,
             #[cfg(test)]
-            cleanup_fault: command
-                .get_envs()
-                .any(|(key, value)| key == "DG_PROBE_CLEANUP_FAULT" && value.is_some()),
+            cleanup_fault,
         };
-        owner.stdout = owner.child.stdout.take();
-        owner.stderr = owner.child.stderr.take();
         let initialized: Result<(), ChildSpawnError<E>> = (|| {
-            for fd in [
-                owner.stdout.as_ref().map(AsRawFd::as_raw_fd),
-                owner.stderr.as_ref().map(AsRawFd::as_raw_fd),
-            ] {
-                let fd = fd.ok_or(ChildError::Unsupported("missing child pipe"))?;
-                // 安全性：fd 是 owner 持有的管道，只更改本次描述符的非阻塞标志。
-                let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
-                if flags < 0
-                    || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0
-                {
-                    return Err(
-                        ChildError::io("nonblocking pipe", io::Error::last_os_error()).into(),
-                    );
-                }
+            UnixChildSetup::initialize(
+                [
+                    owner.stdout.as_ref().map(AsRawFd::as_raw_fd),
+                    owner.stderr.as_ref().map(AsRawFd::as_raw_fd),
+                ],
+                private_session,
+                owner.child.id(),
+            )?;
+            if private_session {
+                owner.normal_exit = UnixNormalExit::Qualified;
             }
             checkpoint().map_err(ChildSpawnError::checkpoint)?;
             Ok(())
@@ -80,10 +155,84 @@ impl UnixChild {
         Ok(owner)
     }
 
+    /// 在完整退出证据成立后正常 wait，不向组或 leader 发送任何终止信号。
+    /// 参数：checkpoint 借调用方原期限/权限检查；返回：true 为正常回收事实，
+    /// false 仅表示仍活动或尚未读完管道，未知视图/失去身份明确返回错误。
+    pub(crate) fn poll_normal_exit<E>(
+        &mut self,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+    ) -> Result<bool, ChildSpawnError<E>> {
+        checkpoint().map_err(ChildSpawnError::checkpoint)?;
+        if self.normal_exit.is_completed() {
+            checkpoint().map_err(ChildSpawnError::checkpoint)?;
+            return Ok(true);
+        }
+        if !self.normal_exit.is_qualified() || self.cleaned || !self.owns_group {
+            return Err(
+                ChildError::Unsupported("child has no qualified normal exit permission").into(),
+            );
+        }
+        self.normal_exit.validate_platform()?;
+        let exited = self.poll()?;
+        let ready = exited
+            && self.control_closed
+            && self.stdout_eof
+            && self.stderr_eof
+            && self.normal_exit.group_exited(self.child.id())?;
+        checkpoint().map_err(ChildSpawnError::checkpoint)?;
+        if !ready {
+            return Ok(false);
+        }
+        self.normal_exit.reap(&mut self.child)?;
+        self.owns_group = false;
+        self.cleaned = true;
+        self.normal_exit = UnixNormalExit::Completed;
+        self.stdout.take();
+        self.stderr.take();
+        self.control.take();
+        Ok(true)
+    }
+
+    /// 开始一个有界控制块；Null 不提供写能力，也不创建其它执行 owner。
+    /// 参数：bytes 为非空且最多 4096 字节的原始块；返回：实际 Written/Pending 或原生错误。
+    pub(crate) fn start_control_write(
+        &mut self,
+        bytes: &[u8],
+    ) -> Result<ControlWriteStatus, ChildError> {
+        self.control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("child has no control input"))?
+            .start_write(bytes)
+    }
+
+    /// 对同一个控制块做一次非阻塞轮询，不重新复制或重发新块。
+    /// 参数：无；返回：Written/Pending/Closed，或 Null、空闲状态、实际 I/O 错误。
+    pub(crate) fn poll_control_write(&mut self) -> Result<ControlWriteStatus, ChildError> {
+        self.control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("child has no control input"))?
+            .poll_write()
+    }
+
+    /// 停止控制输入并关闭本 owner 的写端，不承诺完整 raw 帧已经发送。
+    /// 参数：无；返回：Closed 或 Null 的 Unsupported；后续 EOF 仍由子进程实际读取得证。
+    pub(crate) fn request_control_close(&mut self) -> Result<ControlWriteStatus, ChildError> {
+        let status = self
+            .control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("child has no control input"))?
+            .close();
+        self.control_closed = matches!(status, ControlWriteStatus::Closed);
+        Ok(status)
+    }
+
     /// 观察退出但不回收 leader；其身份保留到进程组清理完成。
     /// 参数：无。
     /// 返回：leader 是否退出，或观察失败；ECHILD 时不再盲杀旧 PGID。
     pub(crate) fn poll(&mut self) -> Result<bool, ChildError> {
+        if self.normal_exit.is_completed() {
+            return Ok(true);
+        }
         // 安全性：siginfo 输出可零初始化；只观察本次 child，不使用 wait(-1)。
         let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
         let result = unsafe {
@@ -120,8 +269,8 @@ impl UnixChild {
             .stdout
             .as_mut()
             .ok_or(ChildError::Unsupported("missing stdout"))?;
-        read_pipe(pipe, &mut self.stdout_eof, &mut self.buffer)
-            .map(|count| count.map(|count| &self.buffer[..count]))
+        read_pipe(pipe, &mut self.stdout_eof, self.buffer.bytes_mut())
+            .map(|count| count.map(|count| &self.buffer.bytes()[..count]))
     }
 
     /// 读取 stderr 的一个固定小块，与 stdout 公平轮转。
@@ -132,8 +281,8 @@ impl UnixChild {
             .stderr
             .as_mut()
             .ok_or(ChildError::Unsupported("missing stderr"))?;
-        read_pipe(pipe, &mut self.stderr_eof, &mut self.buffer)
-            .map(|count| count.map(|count| &self.buffer[..count]))
+        read_pipe(pipe, &mut self.stderr_eof, self.buffer.bytes_mut())
+            .map(|count| count.map(|count| &self.buffer.bytes()[..count]))
     }
 
     /// 查询 stdout 是否实际读到 EOF，不用空额度模拟结束。
@@ -180,7 +329,7 @@ impl UnixChild {
         let finished = self.poll()?;
         let pid = i32::try_from(self.child.id())
             .map_err(|_| ChildError::Unsupported("unrepresentable child pid"))?;
-        let group = terminate_group(pid);
+        let group = UnixChildGroup::terminate(pid);
         if !finished && unsafe { libc::kill(pid, libc::SIGKILL) } < 0 {
             let error = io::Error::last_os_error();
             if error.raw_os_error() != Some(libc::ESRCH) {
@@ -198,6 +347,7 @@ impl UnixChild {
         self.owns_group = false;
         self.stdout.take();
         self.stderr.take();
+        self.control.take();
         match (group, waited) {
             (Err(error), result) => Err(error.with_cleanup(result.map(|_| ()))),
             (Ok(()), result) => result.map(|_| ()),
@@ -205,66 +355,10 @@ impl UnixChild {
     }
 }
 
-fn terminate_group(pid: i32) -> Result<(), ChildError> {
-    if unsafe { libc::kill(-pid, libc::SIGKILL) } == 0 {
-        return Ok(());
-    }
-    let error = io::Error::last_os_error();
-    if error.raw_os_error() == Some(libc::ESRCH) {
-        return Ok(());
-    }
-    #[cfg(target_os = "macos")]
-    if error.raw_os_error() == Some(libc::EPERM) {
-        return retry_darwin_group(pid);
-    }
-    Err(ChildError::io("terminate owned process group", error))
-}
-
-#[cfg(target_os = "macos")]
-fn retry_darwin_group(pid: i32) -> Result<(), ChildError> {
-    let retry_until = std::time::Instant::now() + std::time::Duration::from_millis(50);
-    loop {
-        if unsafe { libc::kill(-pid, libc::SIGKILL) } == 0 {
-            return Ok(());
-        }
-        let error = io::Error::last_os_error();
-        if error.raw_os_error() == Some(libc::ESRCH) {
-            return Ok(());
-        }
-        if error.raw_os_error() == Some(libc::EPERM) {
-            // Darwin 退出过渡可能仍为 SRUN/INEXIT。仅最终稳定 SZOMB 证明
-            // 可以消除该错误；未知或真实权限错误在有界重试后仍明确失败。
-            if super::macos_child_group::zombies_only(pid as u32) {
-                return Ok(());
-            }
-            if std::time::Instant::now() < retry_until {
-                std::thread::sleep(std::time::Duration::from_millis(2));
-                continue;
-            }
-        }
-        return Err(ChildError::io("terminate owned process group", error));
-    }
-}
-
 impl Drop for UnixChild {
     fn drop(&mut self) {
         let _ = self.cleanup();
     }
-}
-
-fn reject_auto_reap() -> Result<(), ChildError> {
-    // 只读取宿主配置，不改变全进程 SIGCHLD。忽略信号会失去保留身份的能力。
-    let mut action: libc::sigaction = unsafe { std::mem::zeroed() };
-    if unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut action) } < 0 {
-        return Err(ChildError::io(
-            "inspect SIGCHLD",
-            io::Error::last_os_error(),
-        ));
-    }
-    if action.sa_sigaction == libc::SIG_IGN || action.sa_flags & libc::SA_NOCLDWAIT != 0 {
-        return Err(ChildError::Unsupported("host auto-reaps child processes"));
-    }
-    Ok(())
 }
 
 fn read_pipe<T: Read>(

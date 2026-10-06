@@ -37,7 +37,7 @@ pub(super) fn configure_probe_env(command: &mut Command) {
     }
 }
 
-#[cfg(any(unix, windows))]
+#[cfg(unix)]
 fn execute(command: &mut Command, budget: &mut ProbeBudget) -> Result<ProbeOutput, ProbeFailure> {
     budget.check()?;
     let mut child = PlatformChild::spawn(command, budget)?;
@@ -51,6 +51,15 @@ fn execute(command: &mut Command, budget: &mut ProbeBudget) -> Result<ProbeOutpu
         (Err(primary), Err(cleanup)) => Err(primary.with_cleanup(Err(cleanup))),
         (Err(error), Ok(())) | (Ok(_), Err(error)) => Err(error),
     }
+}
+
+#[cfg(windows)]
+#[path = "windows_probe_execution.rs"]
+mod windows_probe_execution;
+
+#[cfg(windows)]
+fn execute(command: &mut Command, budget: &mut ProbeBudget) -> Result<ProbeOutput, ProbeFailure> {
+    windows_probe_execution::execute(command, budget)
 }
 
 #[cfg(any(unix, windows))]

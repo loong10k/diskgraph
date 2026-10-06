@@ -20,6 +20,12 @@ pub struct Engine {
     pub(super) capacity_watermark: Watermark,
     pub(super) max_active_jobs_per_principal: u32,
     pub(super) scan_options: diskgraph_disktree_core::scan::ScanOptions,
+    pub(super) scan_worker: Option<Arc<crate::ScanWorkerHost>>,
+    #[cfg(windows)]
+    pub(super) probe_host: Option<crate::ProbeHost>,
+    // 仅Windows受管理任务调度准入；不阻塞请求查询，也不替代数据库跨进程fencing。
+    #[cfg(windows)]
+    pub(super) runner_admission: Mutex<()>,
     pub(super) graph: Mutex<SqliteSnapshotStore>,
     pub(super) control: Mutex<ControlStore>,
     pub(super) cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,

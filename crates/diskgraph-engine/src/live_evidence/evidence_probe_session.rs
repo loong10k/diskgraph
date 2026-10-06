@@ -33,6 +33,40 @@ impl EvidenceProbeSession {
         })
     }
 
+    /// 参数：limits保留原预算，host为受信有限宿主；返回：绑定同一恢复责任的会话或原失败。
+    /// 调用方必须在本会话及catch之外保留ProbeRecovery；不产生进程或授予访问权限。
+    #[cfg(windows)]
+    pub fn new_with_probe_host(
+        limits: &ProbeLimits,
+        host: &crate::ProbeHost,
+    ) -> Result<Self, String> {
+        let mut session = Self::new(limits)?;
+        session
+            .budget
+            .bind_probe_host(std::sync::Arc::clone(&host.registry))
+            .map_err(|error| error.to_string())?;
+        Ok(session)
+    }
+
+    /// 参数：limits/started/cancel为原任务预算，host为Engine的同一宿主；返回：独占会话。
+    /// 从原认领时间建立一次期限；绑定宿主不得延长时间或补充输出、输入额度。
+    #[cfg(windows)]
+    pub(crate) fn for_git_job_with_probe_host(
+        limits: &diskgraph_core::GitEvidenceLimits,
+        started: std::time::Instant,
+        cancel: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        host: &crate::ProbeHost,
+    ) -> Result<Self, super::git_product_error::GitProductError> {
+        let mut session = Self::for_git_job(limits, started, cancel)?;
+        session
+            .budget
+            .bind_probe_host(std::sync::Arc::clone(&host.registry))
+            .map_err(|error| {
+                super::git_product_error::GitProductError::from_failure(Some(&error))
+            })?;
+        Ok(session)
+    }
+
     /// 从成功认领的原起点建立产品会话。参数：limits 为服务端持久配置，started 为原 Instant，cancel 为原任务标志。
     /// 返回：共享绝对期限、原始输入和实际分配限额的独占会话；不读取客户端配置。
     pub(crate) fn for_git_job(

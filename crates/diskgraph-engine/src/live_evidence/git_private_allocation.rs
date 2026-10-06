@@ -48,6 +48,26 @@ impl GitPrivateAllocation {
         Self::from_file(&file)
     }
 
+    /// 参数：无；返回：原记录的完整 128 位 Windows File ID 描述符，不重新解析路径。
+    /// 仅用于原 anchor 保活期间的同卷重开；调用者仍须核验新旧句柄身份和类型。
+    #[cfg(windows)]
+    pub(super) fn windows_file_id_descriptor(
+        &self,
+    ) -> windows_sys::Win32::Storage::FileSystem::FILE_ID_DESCRIPTOR {
+        use windows_sys::Win32::Storage::FileSystem::{
+            ExtendedFileIdType, FILE_ID_128, FILE_ID_DESCRIPTOR, FILE_ID_DESCRIPTOR_0,
+        };
+        FILE_ID_DESCRIPTOR {
+            dwSize: std::mem::size_of::<FILE_ID_DESCRIPTOR>() as u32,
+            Type: ExtendedFileIdType,
+            Anonymous: FILE_ID_DESCRIPTOR_0 {
+                ExtendedFileId: FILE_ID_128 {
+                    Identifier: self.id,
+                },
+            },
+        }
+    }
+
     /// 读取已持有句柄的分配与身份。参数：file 为普通文件/目录句柄。返回：可确认记录；未知能力拒绝。
     pub(super) fn from_file(file: &File) -> Result<Self, String> {
         #[cfg(unix)]

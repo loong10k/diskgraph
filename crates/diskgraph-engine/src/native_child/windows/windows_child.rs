@@ -1,186 +1,103 @@
 //! Win10+ 原生 CreateProcessW：进程在运行前即绑定本任务 Job。
 
 use std::io;
-use std::process::Command;
-use std::ptr::{null, null_mut};
+use std::ptr::null_mut;
 use std::time::{Duration, Instant};
 #[cfg(test)]
 use windows_sys::Win32::Foundation::{DUPLICATE_SAME_ACCESS, DuplicateHandle};
-use windows_sys::Win32::Foundation::{GENERIC_READ, HANDLE, WAIT_OBJECT_0, WAIT_TIMEOUT};
-use windows_sys::Win32::Storage::FileSystem::{
-    CreateFileW, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
-};
+use windows_sys::Win32::Foundation::{HANDLE, WAIT_OBJECT_0, WAIT_TIMEOUT};
+#[cfg(test)]
+use windows_sys::Win32::System::IO::OVERLAPPED;
 use windows_sys::Win32::System::JobObjects::{
-    CreateJobObjectW, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE, JOBOBJECT_BASIC_ACCOUNTING_INFORMATION,
-    JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JobObjectBasicAccountingInformation,
-    JobObjectExtendedLimitInformation, QueryInformationJobObject, SetInformationJobObject,
-    TerminateJobObject,
+    JOBOBJECT_BASIC_ACCOUNTING_INFORMATION, JobObjectBasicAccountingInformation,
+    QueryInformationJobObject, TerminateJobObject,
 };
 #[cfg(test)]
 use windows_sys::Win32::System::Threading::GetCurrentProcess;
-use windows_sys::Win32::System::Threading::{
-    CREATE_NO_WINDOW, CREATE_SUSPENDED, CREATE_UNICODE_ENVIRONMENT, CreateProcessW,
-    EXTENDED_STARTUPINFO_PRESENT, GetExitCodeProcess, INFINITE, PROCESS_INFORMATION, ResumeThread,
-    STARTF_USESTDHANDLES, STARTUPINFOEXW, WaitForSingleObject,
-};
+use windows_sys::Win32::System::Threading::{GetExitCodeProcess, INFINITE, WaitForSingleObject};
 
-use super::super::{ChildError, ChildSpawnError};
-use super::attribute_list::AttributeList;
+use super::super::{ChildError, ChildSpawnError, ControlWriteStatus};
+use super::overlapped_control_pipe::OverlappedControlPipe;
 use super::overlapped_pipe::OverlappedPipe;
 use super::owned_handle::OwnedHandle;
-use super::pipe_security::PipeSecurity;
-use super::windows_command_line::WindowsCommandLine;
+use super::windows_birth_phase::WindowsBirthPhase;
+use super::windows_normal_exit::WindowsNormalExit;
 
-/// 本次 Windows 子进程的唯一 Job、leader 及两条自有管道。来源：Win32 CreateProcessW、Job Objects 与 Overlapped I/O。
+/// 本次 Windows 子进程的唯一 Job、leader、两条读管道与可选控制输入。来源：Win32 CreateProcessW、Job Objects 与 Overlapped I/O。
 pub(crate) struct WindowsChild {
     job: Option<OwnedHandle>,
     process: Option<OwnedHandle>,
-    stdout: OverlappedPipe,
-    stderr: OverlappedPipe,
+    stdout: Option<OverlappedPipe>,
+    stderr: Option<OverlappedPipe>,
+    birth_phase: WindowsBirthPhase,
+    control: Option<OverlappedControlPipe>,
+    normal_exit: WindowsNormalExit,
     exit: Option<i32>,
     cleaned: bool,
 }
 
+#[path = "windows_child_poll_cleanup.rs"]
+mod windows_child_poll_cleanup;
+#[path = "windows_child_prepare.rs"]
+mod windows_child_prepare;
+#[cfg(test)]
+#[path = "windows_child_prepared_tests.rs"]
+mod windows_child_prepared_tests;
+#[path = "windows_child_spawn.rs"]
+mod windows_child_spawn;
+
 impl WindowsChild {
-    /// 创建被独立 Job 原子约束的 suspended 子进程。
-    /// 参数：command 是显式环境命令，checkpoint 借用原调用方检查。返回：受 Job 约束的子进程所有权或失败。
-    pub(crate) fn spawn<E>(
-        command: &mut Command,
-        mut checkpoint: impl FnMut() -> Result<(), E>,
-    ) -> Result<Self, ChildSpawnError<E>> {
-        checkpoint().map_err(ChildSpawnError::checkpoint)?;
-        let mut input = WindowsCommandLine::from_command(command)?;
-        let security = PipeSecurity::for_current_user()?;
-        let nonce = uuid::Uuid::new_v4();
-        let stdout_name = pipe_name(&format!("diskgraph-probe-{nonce}-out"));
-        let stderr_name = pipe_name(&format!("diskgraph-probe-{nonce}-err"));
-        let (stdout, stdout_writer) = OverlappedPipe::create(&stdout_name, &security)?;
-        let (stderr, stderr_writer) = OverlappedPipe::create(&stderr_name, &security)?;
-        let mut inheritable = security.attributes(true);
-        inheritable.lpSecurityDescriptor = null_mut();
-        let nul: Vec<u16> = r"\\.\NUL"
-            .encode_utf16()
-            .chain(std::iter::once(0))
-            .collect();
-        let stdin = OwnedHandle::from_raw(
-            unsafe {
-                CreateFileW(
-                    nul.as_ptr(),
-                    GENERIC_READ,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE,
-                    &inheritable,
-                    OPEN_EXISTING,
-                    FILE_ATTRIBUTE_NORMAL,
-                    null_mut(),
-                )
-            },
-            "CreateFileW(NUL stdin)",
-        )?;
-        let job = OwnedHandle::from_raw(
-            unsafe { CreateJobObjectW(null(), null()) },
-            "CreateJobObjectW",
-        )?;
-        let mut limits = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
-        limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-        if unsafe {
-            SetInformationJobObject(
-                job.as_raw(),
-                JobObjectExtendedLimitInformation,
-                (&raw const limits).cast(),
-                std::mem::size_of_val(&limits) as u32,
-            )
-        } == 0
-        {
-            return Err(last("SetInformationJobObject(KILL_ON_JOB_CLOSE)").into());
-        }
-        let mut attributes = AttributeList::new()?;
-        let handles: [HANDLE; 3] = [
-            stdin.as_raw(),
-            stdout_writer.as_raw(),
-            stderr_writer.as_raw(),
-        ];
-        attributes.set_jobs([job.as_raw()])?;
-        attributes.set_handles(handles)?;
-        let mut startup = STARTUPINFOEXW::default();
-        startup.StartupInfo.cb = std::mem::size_of::<STARTUPINFOEXW>() as u32;
-        startup.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
-        startup.StartupInfo.hStdInput = handles[0];
-        startup.StartupInfo.hStdOutput = handles[1];
-        startup.StartupInfo.hStdError = handles[2];
-        startup.lpAttributeList = attributes.as_raw();
-        let mut info = PROCESS_INFORMATION::default();
-        checkpoint().map_err(ChildSpawnError::checkpoint)?;
-        let application = input.application();
-        let arguments = input.arguments();
-        let environment = input.environment();
-        let directory = input.directory();
-        if unsafe {
-            CreateProcessW(
-                application,
-                arguments,
-                null(),
-                null(),
-                1,
-                CREATE_SUSPENDED
-                    | CREATE_NO_WINDOW
-                    | CREATE_UNICODE_ENVIRONMENT
-                    | EXTENDED_STARTUPINFO_PRESENT,
-                environment,
-                directory,
-                &startup.StartupInfo,
-                &mut info,
-            )
-        } == 0
-        {
-            return Err(last("CreateProcessW(JOB_LIST,HANDLE_LIST)").into());
-        }
-        let process = OwnedHandle::from_raw(info.hProcess, "CreateProcessW(process handle)")?;
-        let thread = OwnedHandle::from_raw(info.hThread, "CreateProcessW(thread handle)")?;
-        let mut child = Self {
-            job: Some(job),
-            process: Some(process),
-            stdout,
-            stderr,
-            exit: None,
-            cleaned: false,
-        };
-        // Child 已有且 suspended；父本地写端必须立即关闭，避免 EOF 被自身阻止。
-        drop(stdin);
-        drop(stdout_writer);
-        drop(stderr_writer);
-        #[cfg(test)]
-        if command.get_envs().any(|(key, value)| {
-            key.to_string_lossy()
-                .eq_ignore_ascii_case("DG_WINDOWS_NATIVE_FAULT")
-                && value.is_some_and(|value| value.to_string_lossy() == "post_create")
-        }) {
-            // 清理前释放本 owner 已完成的线程句柄，保持句柄生命周期明确。
-            drop(thread);
-            let error = ChildError::Unsupported("injected post-create failure");
-            return Err(error.with_cleanup(child.cleanup()).into());
-        }
-        if let Err(error) = checkpoint() {
-            drop(thread);
-            return Err(ChildSpawnError::checkpoint(error).with_cleanup(child.cleanup()));
-        }
-        let previous = unsafe { ResumeThread(thread.as_raw()) };
-        let resume_failure = if previous == u32::MAX {
-            Some(last("ResumeThread"))
-        } else if previous != 1 {
-            Some(ChildError::Unsupported(
-                "probe thread did not have exactly one suspend count",
-            ))
-        } else {
-            None
-        };
-        drop(thread);
-        if let Some(error) = resume_failure {
-            return Err(error.with_cleanup(child.cleanup()).into());
-        }
-        if let Err(error) = checkpoint() {
-            return Err(ChildSpawnError::checkpoint(error).with_cleanup(child.cleanup()));
-        }
-        Ok(child)
+    /// 发起单个固定大小控制块。参数：bytes 非空且最多 4096 字节。返回：Written、Pending 或原错；Null 模式明确不支持。
+    pub(crate) fn start_control_write(
+        &mut self,
+        bytes: &[u8],
+    ) -> Result<ControlWriteStatus, ChildError> {
+        self.control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("control input mode is Null"))?
+            .start_write(bytes)
+    }
+
+    /// 只轮询当前自有控制块。参数：无。返回：真实完成字节数、Pending 或 Closed；不续期、不等待。
+    pub(crate) fn poll_control_write(&mut self) -> Result<ControlWriteStatus, ChildError> {
+        let result = self
+            .control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("control input mode is Null"))?
+            .poll_write();
+        self.normal_exit.record_control(&result);
+        result
+    }
+
+    /// 封闭后续控制写入。参数：无。返回：Closed 或保留内核借用内存的 Pending，不保证帧已 flush。
+    pub(crate) fn request_control_close(&mut self) -> Result<ControlWriteStatus, ChildError> {
+        let result = self
+            .control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("control input mode is Null"))?
+            .request_close();
+        self.normal_exit.record_control(&result);
+        result
+    }
+
+    /// 借用真正 pending 操作供原生测试核验。参数：无。返回：原写句柄、OVERLAPPED 和 buffer 地址，不注入状态。
+    #[cfg(test)]
+    pub(crate) fn control_io_witness_for_test(
+        &self,
+    ) -> Result<(HANDLE, *const OVERLAPPED, *const u8), ChildError> {
+        self.control
+            .as_ref()
+            .ok_or(ChildError::Unsupported("control input mode is Null"))?
+            .io_witness()
+    }
+
+    /// 借用父控制句柄供继承测试。参数：无。返回：原父写端与 event；不转移、不复制所有权。
+    #[cfg(test)]
+    pub(crate) fn control_handles_for_test(&self) -> Result<(HANDLE, HANDLE), ChildError> {
+        self.control
+            .as_ref()
+            .ok_or(ChildError::Unsupported("control input mode is Null"))?
+            .handles()
     }
 
     /// 观察 leader 是否已退出。参数：无。返回：true 表示已记录退出码，错误表示 Win32 查询失败。
@@ -211,24 +128,49 @@ impl WindowsChild {
         self.exit
     }
 
+    /// 以原检查点观察正常整 Job 完成，不终止或清理。参数：checkpoint 为原期限／授权检查。返回：leader、双 EOF、控制 Closed 和 Job 活动零全部成立时 true；原检查点错误保留且不隐含 cleanup，原退出码不改写。
+    pub(crate) fn poll_normal_exit<E>(
+        &mut self,
+        mut checkpoint: impl FnMut() -> Result<(), E>,
+    ) -> Result<bool, ChildSpawnError<E>> {
+        checkpoint().map_err(ChildSpawnError::checkpoint)?;
+        if self.control.is_none() {
+            return Err(ChildError::Unsupported("normal exit requires WorkerControl input").into());
+        }
+        let leader_exited = self.poll()?;
+        let complete = self.normal_exit.poll(
+            self.job.as_ref(),
+            leader_exited,
+            self.stdout_eof() && self.stderr_eof(),
+        )?;
+        checkpoint().map_err(ChildSpawnError::checkpoint)?;
+        Ok(complete)
+    }
+
     /// 非阻塞读取 stdout 的固定片段。参数：无。返回：有数据时为最多 4096 字节，否则为 None 或错误。
     pub(crate) fn read_stdout(&mut self) -> Result<Option<&[u8]>, ChildError> {
-        self.stdout.read_next()
+        self.stdout
+            .as_mut()
+            .ok_or(ChildError::Unsupported("stdout absent during preparation"))?
+            .read_next()
     }
 
     /// 非阻塞读取 stderr 的固定片段。参数：无。返回：有数据时为最多 4096 字节，否则为 None 或错误。
     pub(crate) fn read_stderr(&mut self) -> Result<Option<&[u8]>, ChildError> {
-        self.stderr.read_next()
+        self.stderr
+            .as_mut()
+            .ok_or(ChildError::Unsupported("stderr absent during preparation"))?
+            .read_next()
     }
 
     /// 查询 stdout 是否已确认 EOF。参数：无。返回：确认 EOF 时为 true。
     pub(crate) fn stdout_eof(&self) -> bool {
-        self.stdout.eof()
+        self.stdout.as_ref().is_some_and(OverlappedPipe::eof)
     }
 
     /// 查询 stderr 是否已确认 EOF。参数：无。返回：确认 EOF 时为 true。
     pub(crate) fn stderr_eof(&self) -> bool {
-        self.stderr.eof()
+        self.stderr.as_ref().is_some_and(OverlappedPipe::eof)
     }
 
     /// 为 Windows 原生验收复制本 Job 句柄，便于清理前后直接核验活动进程数。
@@ -260,34 +202,45 @@ impl WindowsChild {
         if self.cleaned {
             return Ok(());
         }
-        self.cleaned = true;
         let mut failure = None;
-        let mut job = self.job.take();
-        let terminated = if let Some(active_job) = job.as_ref() {
+        // 整次清理成功前只借用原责任句柄；失败后的 Recovery 必须能再次真实观察。
+        let terminated = if let Some(active_job) = self.job.as_ref() {
             if unsafe { TerminateJobObject(active_job.as_raw(), 1) } == 0 {
                 record_failure(&mut failure, last("TerminateJobObject"));
-                // 终止请求失败时先关闭 Job，触发 KILL_ON_JOB_CLOSE 后备。
-                drop(job.take());
                 false
             } else {
                 true
             }
         } else {
+            record_failure(&mut failure, ChildError::Unsupported("cleanup Job missing"));
             false
         };
-        // 先等待并关闭本 owner 的 leader 句柄；Job 终态以随后实际查询为准。
-        if let Some(process) = self.process.take() {
-            if unsafe { WaitForSingleObject(process.as_raw(), INFINITE) } != WAIT_OBJECT_0 {
+        // 终止请求失败不能无界等待仍运行的 leader，也不能关闭 Job 丢失终态观察能力。
+        // 即使本轮 leader 等待成功，也将原句柄保留到全部阶段成功。
+        if terminated && let Some(process) = self.process.as_ref() {
+            #[cfg(test)]
+            let waited = super::windows_cleanup_hooks::WindowsCleanupHooks::wait(|| unsafe {
+                WaitForSingleObject(process.as_raw(), INFINITE)
+            });
+            #[cfg(not(test))]
+            let waited = unsafe { WaitForSingleObject(process.as_raw(), INFINITE) };
+            if waited != WAIT_OBJECT_0 {
                 record_failure(&mut failure, last("WaitForSingleObject(cleanup)"));
             }
-            drop(process);
         }
-        if terminated && let Some(active_job) = job.as_ref() {
+        if self.process.is_none() && !self.birth_phase.confirmed_unborn() {
+            record_failure(
+                &mut failure,
+                ChildError::Unsupported("cleanup leader missing"),
+            );
+        }
+        if terminated && let Some(active_job) = self.job.as_ref() {
             // TerminateJobObject 的返回不证明所有普通后代已退出。固定结构逐次查询；
             // 只在有限观察期内等待，避免无法确认 Job 终态时无限循环。
             let observed = observe_job_empty(Duration::from_secs(1), || {
                 let mut accounting = JOBOBJECT_BASIC_ACCOUNTING_INFORMATION::default();
-                if unsafe {
+                #[cfg(test)]
+                let queried = super::windows_cleanup_hooks::WindowsCleanupHooks::query(|| unsafe {
                     QueryInformationJobObject(
                         active_job.as_raw(),
                         JobObjectBasicAccountingInformation,
@@ -295,8 +248,18 @@ impl WindowsChild {
                         std::mem::size_of_val(&accounting) as u32,
                         null_mut(),
                     )
-                } == 0
-                {
+                });
+                #[cfg(not(test))]
+                let queried = unsafe {
+                    QueryInformationJobObject(
+                        active_job.as_raw(),
+                        JobObjectBasicAccountingInformation,
+                        (&raw mut accounting).cast(),
+                        std::mem::size_of_val(&accounting) as u32,
+                        null_mut(),
+                    )
+                };
+                if queried == 0 {
                     return Err(last("QueryInformationJobObject(cleanup)"));
                 }
                 Ok(accounting.ActiveProcesses)
@@ -305,15 +268,43 @@ impl WindowsChild {
                 record_failure(&mut failure, error);
             }
         }
-        // 查询失败时仍关闭 Job 触发后备终止，但明确返回不完整清理错误。
-        drop(job);
-        if let Err(error) = self.stdout.cancel_pending() {
+        if let Some(stdout) = self.stdout.as_mut()
+            && let Err(error) = stdout.cancel_pending()
+        {
             record_failure(&mut failure, error);
         }
-        if let Err(error) = self.stderr.cancel_pending() {
+        if let Some(stderr) = self.stderr.as_mut()
+            && let Err(error) = stderr.cancel_pending()
+        {
             record_failure(&mut failure, error);
         }
-        failure.map_or(Ok(()), Err)
+        if let Some(control) = self.control.as_mut()
+            && let Err(error) = control.cleanup()
+        {
+            record_failure(&mut failure, error);
+        }
+        if !self.birth_phase.confirmed_unborn() && (self.stdout.is_none() || self.stderr.is_none())
+        {
+            record_failure(
+                &mut failure,
+                ChildError::Unsupported("born pipe owner missing"),
+            );
+        }
+        if let Some(error) = failure {
+            return Err(error);
+        }
+        // 只有真实 leader wait、Job 零活动及所有管道完成后才能释放责任并记为完成。
+        self.process.take();
+        self.job.take();
+        self.cleaned = true;
+        Ok(())
+    }
+    /// 参数：无；返回：依次为原 Job 是否持有、原 leader 是否持有、是否已确认清理完成。
+
+    /// 测试只读快照：原Job、leader责任句柄是否仍持有，以及是否已宣称清理完成。
+    #[cfg(test)]
+    pub(super) fn cleanup_state_for_test(&self) -> (bool, bool, bool) {
+        (self.job.is_some(), self.process.is_some(), self.cleaned)
     }
 }
 

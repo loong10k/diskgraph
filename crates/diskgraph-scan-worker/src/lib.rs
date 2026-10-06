@@ -77,3 +77,9 @@ pub use worker_path::WorkerPath;
 pub use worker_request::WorkerRequest;
 pub use worker_runtime::run_worker_stdio;
 pub use worker_scan_request::WorkerScanRequest;
+
+#[cfg(all(test, target_os = "macos"))]
+mod macos_process_limit_tests;
+
+#[cfg(target_os = "macos")]
+mod macos_process_limit;

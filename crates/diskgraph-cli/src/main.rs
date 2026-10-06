@@ -12,6 +12,8 @@ use std::process::ExitCode;
 mod authorization;
 mod candidate_commands;
 mod cli;
+mod cli_engine_host;
+mod cli_exit;
 mod cli_options;
 mod command;
 mod compare_support;
@@ -48,6 +50,7 @@ mod scan_terminal_tests;
 mod scope_action;
 mod scope_commands;
 mod search_commands;
+mod serve_command;
 mod service_commands;
 mod snapshot_action;
 mod snapshot_commands;
@@ -63,22 +66,35 @@ mod unsupported_command;
 fn main() -> ExitCode {
     // Windows 的默认主线程栈无法容纳 Debug 构建的大型命令分发栈帧。
     // 显式预留栈空间，让调试二进制与 Release 二进制使用同一业务路径。
-    match std::thread::Builder::new()
+    let result = match std::thread::Builder::new()
         .name("diskgraph-cli".into())
         .stack_size(8 * 1024 * 1024)
         .spawn(cli_main)
     {
-        Ok(worker) => worker.join().unwrap_or(ExitCode::from(10)),
+        Ok(worker) => worker
+            .join()
+            .unwrap_or(cli_exit::CliExit::Code(ExitCode::from(10))),
         Err(error) => {
             eprintln!("diskgraph: cannot start CLI worker: {error}");
-            ExitCode::from(10)
+            cli_exit::CliExit::Code(ExitCode::from(10))
+        }
+    };
+    match result {
+        cli_exit::CliExit::Code(code) => code,
+        cli_exit::CliExit::Companion(status) => {
+            // 工作线程已 join；serve 没有 CLI owner，伴随程序也已实际 wait。
+            // 稳定 Rust ExitCode 仅接收 u8，最外层保留 Windows 原 32 位退出状态。
+            std::process::exit(status.code().unwrap_or(10))
         }
     }
 }
 
 #[cfg(not(windows))]
 fn main() -> ExitCode {
-    cli_main()
+    match cli_main() {
+        cli_exit::CliExit::Code(code) => code,
+        cli_exit::CliExit::Companion(status) => ExitCode::from(status.code().unwrap_or(10) as u8),
+    }
 }
 
 #[cfg(test)]

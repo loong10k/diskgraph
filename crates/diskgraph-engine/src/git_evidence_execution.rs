@@ -41,9 +41,21 @@ impl Engine {
             .to_native_path()
             .map_err(|_| BusinessError::Unsupported)?;
         let target = GitEvidenceTarget::load(self, &input, deadline, Some(Arc::clone(cancel)))?;
+        #[cfg(not(windows))]
         let mut session =
             EvidenceProbeSession::for_git_job(input.limits(), started, Arc::clone(cancel))
                 .map_err(|error| EngineError::Business(error.business()))?;
+        #[cfg(windows)]
+        let mut session = match self.probe_host.as_ref() {
+            Some(host) => EvidenceProbeSession::for_git_job_with_probe_host(
+                input.limits(),
+                started,
+                Arc::clone(cancel),
+                host,
+            ),
+            None => EvidenceProbeSession::for_git_job(input.limits(), started, Arc::clone(cancel)),
+        }
+        .map_err(|error| EngineError::Business(error.business()))?;
         #[cfg(test)]
         crate::git_evidence_execution_tests::before_capture(job_id);
         let observed =

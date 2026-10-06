@@ -5,16 +5,18 @@ use diskgraph_core::PrincipalId;
 use serde_json::{Value, json};
 
 /// 建立独占数据目录中的真实 MCP 服务。参数：profile 为工具集合，label 为夹具名称。返回：服务及保活临时目录。
-pub(crate) fn service(profile: ToolProfile, label: &str) -> (McpService, tempfile::TempDir) {
+pub(crate) fn service(profile: ToolProfile, label: &str) -> (McpService, super::McpTestDirectory) {
     let directory = tempfile::TempDir::with_prefix(format!("diskgraph-mcp-{label}-")).unwrap();
-    let service = McpService::open(McpConfig {
-        data_dir: directory.path().join("data"),
-        profile,
-        principal: PrincipalId::new(STDIO_PRINCIPAL).unwrap(),
-        legacy_sse: false,
-    })
-    .unwrap();
-    (service, directory)
+    super::McpTestDirectory::open(
+        McpConfig {
+            data_dir: directory.path().join("data"),
+            profile,
+            principal: PrincipalId::new(STDIO_PRINCIPAL).unwrap(),
+            legacy_sse: false,
+        },
+        directory,
+    )
+    .unwrap()
 }
 
 /// 通过真实 handle 发送工具请求。参数：service、tool、arguments 为调用服务与业务输入。返回：原协议响应。

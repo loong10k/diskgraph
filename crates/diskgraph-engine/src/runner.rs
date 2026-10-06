@@ -29,6 +29,8 @@ pub struct JobRunner {
     owner: String,
     require_authority: bool,
     worker: Option<JoinHandle<()>>,
+    #[cfg(windows)]
+    probe_recovery: Option<Arc<crate::ProbeRecovery>>,
 }
 
 impl JobRunner {
@@ -38,26 +40,73 @@ impl JobRunner {
     /// 参数：engine 为已有共享引擎。
     /// 返回：后台调度句柄；原实现保留启动线程失败时无 worker 的行为。
     pub fn start(engine: Arc<Engine>) -> Self {
-        Self::start_mode(engine, false)
+        Self::start_mode(
+            engine,
+            false,
+            #[cfg(windows)]
+            None,
+        )
     }
 
     /// 启动只执行来源明确任务的远程宿主 runner。
     /// 参数：engine 为共享引擎；返回：同一调度 owner 的生命周期句柄。
     /// 无请求授权记录的历史任务将失败，不隐式借用宿主本机身份。
     pub fn start_strict(engine: Arc<Engine>) -> Self {
-        Self::start_mode(engine, true)
+        Self::start_mode(
+            engine,
+            true,
+            #[cfg(windows)]
+            None,
+        )
     }
 
-    fn start_mode(engine: Arc<Engine>, require_authority: bool) -> Self {
+    /// 使用外部宿主保留的同一探针恢复责任启动调度器，不重建容量或授予权限。
+    /// 来源：原生 Rust PF-06；参数：engine 为共享引擎，require_authority 为远程严格模式，
+    /// recovery 为宿主在协议 catch 外持有的同一对象；返回：每次认领前单次恢复的 runner。
+    #[cfg(windows)]
+    pub fn start_with_probe_recovery(
+        engine: Arc<Engine>,
+        require_authority: bool,
+        recovery: Arc<crate::ProbeRecovery>,
+    ) -> Result<Self, EngineError> {
+        if !engine
+            .probe_host
+            .as_ref()
+            .is_some_and(|host| recovery.belongs_to(host))
+        {
+            return Err(diskgraph_core::BusinessError::InvalidArgument.into());
+        }
+        Ok(Self::start_mode(engine, require_authority, Some(recovery)))
+    }
+
+    fn start_mode(
+        engine: Arc<Engine>,
+        require_authority: bool,
+        #[cfg(windows)] probe_recovery: Option<Arc<crate::ProbeRecovery>>,
+    ) -> Self {
         let owner = format!("runner-{}", uuid::Uuid::new_v4());
         let stop = Arc::new(AtomicBool::new(false));
         let worker_engine = Arc::clone(&engine);
         let worker_stop = Arc::clone(&stop);
         let worker_owner = owner.clone();
+        #[cfg(windows)]
+        let worker_recovery = probe_recovery.as_ref().map(Arc::clone);
         let worker = std::thread::Builder::new()
             .name("diskgraph-job-runner".into())
             .spawn(move || {
                 while !worker_stop.load(Ordering::SeqCst) {
+                    // 运行期沿用显式宿主的同一Recovery，一轮一次，不补充Host或吞清理失败。
+                    #[cfg(windows)]
+                    if let Some(recovery) = &worker_recovery {
+                        match recovery.drain() {
+                            Ok(true) => {}
+                            Ok(false) | Err(_) => {
+                                // 尚有原owner时暂停新认领，避免把容量不足误判成任务失败。
+                                std::thread::sleep(POLL_INTERVAL);
+                                continue;
+                            }
+                        }
+                    }
                     if let Err(error) = run_one_queued(
                         &worker_engine,
                         &worker_owner,
@@ -78,16 +127,28 @@ impl JobRunner {
             owner,
             require_authority,
             worker,
+            #[cfg(windows)]
+            probe_recovery,
         }
     }
 
     /// Stops the runner at the next poll boundary and waits for the thread.
     /// 参数：消费当前 runner。
     /// 返回：等待后台线程退出后返回；已开始的扫描按既有预算/租约结束。
-    pub fn stop(mut self) {
+    /// 后台线程 panic 时继续原 payload；需先恢复资源的宿主使用 stop_and_join。
+    pub fn stop(self) {
+        if let Err(payload) = self.stop_and_join() {
+            std::panic::resume_unwind(payload);
+        }
+    }
+
+    /// 停止并返回原后台 panic，让宿主先恢复资源再继续异常。
+    /// 来源：原生 Rust PF-06；参数：消费 runner；返回：真实 join 结果及未经替换的 panic payload。
+    pub fn stop_and_join(mut self) -> std::thread::Result<()> {
         self.stop.store(true, Ordering::SeqCst);
-        if let Some(worker) = self.worker.take() {
-            let _ = worker.join();
+        match self.worker.take() {
+            Some(worker) => worker.join(),
+            None => Ok(()),
         }
     }
 
@@ -103,6 +164,12 @@ impl JobRunner {
     /// 参数：无。
     /// 返回：至多一个任务的执行记录、无可执行任务的 None 或执行错误。
     pub fn tick(&self) -> Result<Option<JobRecord>, EngineError> {
+        #[cfg(windows)]
+        if let Some(recovery) = &self.probe_recovery {
+            if !recovery.drain()? {
+                return Ok(None);
+            }
+        }
         run_one_queued(
             &self.engine,
             &self.owner,
@@ -129,12 +196,39 @@ fn run_one_queued(
     if stop.load(Ordering::SeqCst) {
         return Ok(None);
     }
+    // 同Engine受管理runner/tick不得在检查容量后并发认领，忙时保持任务Queued。
+    // 仅调度路径try_lock，查询不进入此锁；graph/control/OS恢复仍沿用原各自锁顺序。
+    #[cfg(windows)]
+    let _admission = if engine.probe_host.is_some() {
+        match engine.runner_admission.try_lock() {
+            Ok(guard) => Some(guard),
+            Err(std::sync::TryLockError::WouldBlock) => return Ok(None),
+            // 此锁只保护互斥资格，没有可被panic破坏的业务数据；取回资格后仍复核原池。
+            Err(std::sync::TryLockError::Poisoned(error)) => Some(error.into_inner()),
+        }
+    } else {
+        None
+    };
+    #[cfg(windows)]
+    if let Some(host) = &engine.probe_host {
+        // 前一任务可能在外层drain和本轮准入之间移交失败owner；持准入后复核原池。
+        if host.registry.occupied()? != 0 {
+            return Ok(None);
+        }
+    }
     // 每轮只准入一页；失效请求由逐项认领落终态，不先解码或清理全队列权限。
     let queued = engine.queued_jobs_limited(64)?;
     for job in queued {
         // 队列读取可能等待控制锁；返回后及每次竞争失败后的认领都重新检查停止。
         if stop.load(Ordering::SeqCst) {
             return Ok(None);
+        }
+        #[cfg(windows)]
+        if let Some(host) = &engine.probe_host {
+            // 前一候选可能执行后因fencing失败continue且移交owner；每次新认领都复核。
+            if host.registry.occupied()? != 0 {
+                return Ok(None);
+            }
         }
         let outcome = if require_authority {
             engine.run_job_strict(&job.job_id, owner)

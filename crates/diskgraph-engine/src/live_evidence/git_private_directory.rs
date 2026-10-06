@@ -1,6 +1,7 @@
 use super::git_directory_lease::GitDirectoryLease;
 use super::git_private_allocation::GitPrivateAllocation;
 use super::git_private_capacity::GitPrivateCapacity;
+use super::git_private_directory_owner::GitPrivateDirectoryOwner;
 use super::probe_budget::ProbeBudget;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -8,9 +9,9 @@ use std::path::{Path, PathBuf};
 /// 一次 Git 采样独占的临时目录。来源：原生 Rust Git 私有执行视图。
 pub(super) struct GitPrivateDirectory {
     path: PathBuf,
-    cleaned: bool,
-    capacity: Option<GitPrivateCapacity>,
-    root_identity: Option<GitPrivateAllocation>,
+    owner: Option<GitPrivateDirectoryOwner>,
+    #[cfg(windows)]
+    binding: Option<crate::probe_directory_binding::ProbeDirectoryBinding>,
 }
 
 impl GitPrivateDirectory {
@@ -27,6 +28,10 @@ impl GitPrivateDirectory {
         probe: &mut ProbeBudget,
     ) -> Result<Self, String> {
         probe.check().map_err(|error| error.to_string())?;
+        #[cfg(windows)]
+        let binding = probe
+            .directory_binding()
+            .map_err(|error| error.to_string())?;
         // 只规范化受信 temp 根，不规范化待捕获的仓库元数据路径。
         let root = std::env::temp_dir()
             .canonicalize()
@@ -56,14 +61,23 @@ impl GitPrivateDirectory {
                 Ok(()) => {
                     // 创建后立即交给 owner；最终取消检查失败必须显式报告清理结果。
                     let mut directory = Self {
+                        owner: Some(GitPrivateDirectoryOwner {
+                            path: path.clone(),
+                            cleaned: false,
+                            capacity: None,
+                            root_identity: None,
+                        }),
                         path,
-                        cleaned: false,
-                        capacity: None,
-                        root_identity: None,
+                        #[cfg(windows)]
+                        binding,
                     };
                     match GitPrivateAllocation::capture(&directory.path) {
                         Ok(identity) if identity.is_directory() => {
-                            directory.root_identity = Some(identity)
+                            directory
+                                .owner
+                                .as_mut()
+                                .expect("new directory owner")
+                                .root_identity = Some(identity)
                         }
                         Ok(_) => {
                             return directory
@@ -72,7 +86,13 @@ impl GitPrivateDirectory {
                         Err(error) => return directory.complete(Err(error)),
                     }
                     match GitPrivateCapacity::new(&directory.path, quota, min_free, probe) {
-                        Ok(capacity) => directory.capacity = Some(capacity),
+                        Ok(capacity) => {
+                            directory
+                                .owner
+                                .as_mut()
+                                .expect("new directory owner")
+                                .capacity = Some(capacity)
+                        }
                         Err(error) => return directory.complete(Err(error)),
                     }
                     if let Err(error) = probe.check() {
@@ -252,18 +272,23 @@ impl GitPrivateDirectory {
     }
 
     fn active_capacity(&mut self) -> Result<&mut GitPrivateCapacity, String> {
-        if self.cleaned {
+        let owner = self
+            .owner
+            .as_mut()
+            .ok_or("private Git owner retained for recovery")?;
+        if owner.cleaned {
             return Err("private Git owner already completed".into());
         }
-        self.capacity
+        owner
+            .capacity
             .as_mut()
             .ok_or_else(|| "private Git capacity is not initialized".into())
     }
 
-    /// 显式结束本次私有视图，先确认根身份，再删除或确认原路径不存在。
+    /// 显式结束本次私有视图，先确认根身份，再实际删除原目录。
     /// 参数：result 为采样成功值或原始失败；可在创建后、准备失败及公开终态调用。
-    /// 返回：删除成功或确认路径不存在时保留原结果；失败时拒绝原成功，并保留主/清理诊断。
-    /// 路径不存在不证明已移动 owner 数据被删除；身份复核和删除非原子，不提供同权限竞态隔离。
+    /// 返回：实际删除成功时保留原结果；失败或原名称缺失时拒绝原成功，并保留主/清理诊断。
+    /// 原名称缺失不证明已移动 owner 被删除；身份复核和删除非原子，不提供同权限竞态隔离。
     pub(super) fn complete<T>(&mut self, result: Result<T, String>) -> Result<T, String> {
         let cleanup = self.cleanup();
         match (result, cleanup) {
@@ -277,55 +302,14 @@ impl GitPrivateDirectory {
     }
 
     fn cleanup(&mut self) -> Result<(), String> {
-        if self.cleaned {
-            return Ok(());
+        #[cfg(windows)]
+        if let Some(binding) = self.binding.as_mut() {
+            return binding.complete(&mut self.owner);
         }
-        // 根路径不存在只确认 path absence；无法证明被移动的原对象已删除。
-        match std::fs::symlink_metadata(&self.path) {
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                self.cleaned = true;
-                return Ok(());
-            }
-            Err(error) => return Err(format!("private Git cleanup root identity check: {error}")),
-            Ok(_) => {}
-        }
-        let expected = self
-            .root_identity
-            .as_ref()
-            .ok_or("private Git cleanup root identity unavailable")?;
-        let current = GitPrivateAllocation::capture(&self.path)
-            .map_err(|error| format!("private Git cleanup root identity: {error}"))?;
-        if !expected.same_identity(&current) {
-            return Err("private Git cleanup root identity changed; foreign root retained".into());
-        }
-        // 身份复核与 remove_dir_all 之间仍非原子；不声称隔离全部同权限竞态。
-        match std::fs::remove_dir_all(&self.path) {
-            Ok(()) => {
-                self.cleaned = true;
-                Ok(())
-            }
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                // remove_dir_all 的 NotFound 也可能来自子项竞态；只确认 owner 根消失才成功。
-                match std::fs::symlink_metadata(&self.path) {
-                    Err(root_error) if root_error.kind() == std::io::ErrorKind::NotFound => {
-                        self.cleaned = true;
-                        Ok(())
-                    }
-                    Ok(_) => Err(format!(
-                        "private Git cleanup failed at {:?}: {error}; owner root still exists",
-                        self.path
-                    )),
-                    Err(root_error) => Err(format!(
-                        "private Git cleanup failed at {:?}: {error}; owner root check failed: {root_error}",
-                        self.path
-                    )),
-                }
-            }
-            Err(error) => Err(format!(
-                "private Git cleanup failed at {:?}: {error}",
-                self.path
-            )),
-        }
+        self.owner
+            .as_mut()
+            .ok_or("private Git owner retained for recovery")?
+            .cleanup()
     }
 }
 

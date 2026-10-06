@@ -45,7 +45,8 @@ pub(crate) fn dispatch(
         Command::Search { .. } => {
             crate::search_commands::run(engine, cli, principal, authorizer, out)
         }
-        Command::Serve { .. } | Command::Doctor => crate::service_commands::run(engine, cli, out),
+        Command::Doctor => crate::service_commands::run(engine, cli, out),
+        Command::Serve { .. } => Err(diskgraph_core::BusinessError::InvalidArgument.into()),
         Command::Policy(_) => crate::policy_commands::run(engine, cli, principal, authorizer, out),
         Command::Du { .. } => crate::du_commands::run(engine, cli, principal, authorizer, out),
         Command::Tui { .. } => crate::tui_commands::run(engine, cli, principal, authorizer),

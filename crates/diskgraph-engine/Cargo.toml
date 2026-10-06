@@ -9,6 +9,11 @@ license.workspace = true
 repository.workspace = true
 
 
+[features]
+default = []
+# 仅用于真实平台资格验收，未验收前不进入默认产品构建。
+macos_native_scan_candidate = []
+
 [dependencies]
 sha2.workspace = true
 sha1.workspace = true
@@ -19,15 +24,27 @@ diskgraph-core.workspace = true
 diskgraph-store.workspace = true
 diskgraph-disktree.workspace = true
 diskgraph-disktree-core.workspace = true
+diskgraph-scan-worker = { path = "../diskgraph-scan-worker" }
 serde.workspace = true
 thiserror = "2"
 uuid.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61.2", features = ["Wdk_Foundation", "Wdk_Storage_FileSystem", "Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_System_IO", "Win32_System_JobObjects", "Win32_System_Pipes", "Win32_System_Threading"] }
+windows-sys = { version = "0.61.2", features = ["Wdk_Foundation", "Wdk_Storage_FileSystem", "Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_System_IO", "Win32_System_Ioctl", "Win32_System_SystemServices", "Win32_System_JobObjects", "Win32_System_Pipes", "Win32_System_Threading", "Win32_System_WindowsProgramming"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+ed25519-dalek = "=2.2.0"
 
 [dev-dependencies]
 diskgraph-testkit.workspace = true
 tempfile = "3"
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
 syn = { version = "2.0.119", features = ["full", "visit"] }
+
+[build-dependencies]
+cc = "1"
+
+# 真实协议/进程处置夹具；不作为可信安装或产品扫描 helper。
+[[example]]
+name = "scan_worker_driver_fixture"
+path = "tests/fixtures/scan_worker_driver_fixture.rs"

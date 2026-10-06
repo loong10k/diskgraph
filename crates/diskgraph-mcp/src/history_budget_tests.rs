@@ -39,7 +39,7 @@ pub(super) fn before_reply(service: &McpService) {
 
 /// 原生隔离数据库夹具；本地管理员仅负责准备，所有断言通过认证远程服务。
 struct Fixture {
-    _directory: tempfile::TempDir,
+    _directory: crate::tests::McpTestDirectory,
     service: McpService,
     security: Security,
     token: String,

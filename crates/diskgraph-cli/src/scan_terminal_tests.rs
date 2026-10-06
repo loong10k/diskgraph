@@ -1,6 +1,7 @@
 //! 已由其他 owner 完成的失败任务不能被 CLI --wait 报告为成功。
+use crate::cli_engine_host::CliTestEngine;
 use diskgraph_core::{BusinessError, PrincipalId, ScanBudget};
-use diskgraph_engine::{Engine, EngineConfig, EngineError};
+use diskgraph_engine::{EngineConfig, EngineError};
 
 #[test]
 fn waiting_for_another_owners_failed_job_is_not_success() {
@@ -8,7 +9,7 @@ fn waiting_for_another_owners_failed_job_is_not_success() {
     let root = directory.path().join("project");
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), "data").unwrap();
-    let engine = Engine::open(EngineConfig {
+    let engine = CliTestEngine::open(EngineConfig {
         data_dir: directory.path().join("data"),
         max_nodes_per_scan: 1,
         scan_budget: ScanBudget {
@@ -26,10 +27,14 @@ fn waiting_for_another_owners_failed_job_is_not_success() {
     let job = engine
         .index_scope(&scope, &principal, &engine.policy_authorizer().unwrap())
         .unwrap();
-    assert!(matches!(
-        engine.run_job(&job.job_id, "other-owner"),
-        Err(EngineError::Business(BusinessError::BudgetExceeded))
-    ));
+    let outcome = engine.run_job(&job.job_id, "other-owner");
+    assert!(
+        matches!(
+            &outcome,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ),
+        "expected original budget failure, got {outcome:?}"
+    );
     assert!(matches!(
         super::wait_for_terminal(&engine, &job.job_id, "waiter"),
         Err(EngineError::Business(BusinessError::Partial))
@@ -44,7 +49,7 @@ fn synchronous_wait_reclaims_only_its_expired_job() {
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), "data").unwrap();
     let data = directory.path().join("data");
-    let engine = Engine::open(EngineConfig {
+    let engine = CliTestEngine::open(EngineConfig {
         data_dir: data.clone(),
         ..EngineConfig::default()
     })
@@ -107,7 +112,7 @@ fn synchronous_wait_settles_only_its_expired_cancelled_or_revoked_job() {
         let root = directory.path().join("project");
         std::fs::create_dir(&root).unwrap();
         let data = directory.path().join("data");
-        let engine = Engine::open(EngineConfig {
+        let engine = CliTestEngine::open(EngineConfig {
             data_dir: data.clone(),
             ..EngineConfig::default()
         })

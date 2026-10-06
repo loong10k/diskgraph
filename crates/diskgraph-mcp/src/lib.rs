@@ -11,6 +11,11 @@ mod evidence_job_status;
 #[cfg(test)]
 mod history_budget_tests;
 pub mod http;
+mod http_connections;
+#[cfg(test)]
+mod http_lifecycle_tests;
+mod http_server_runtime;
+mod http_shutdown_state;
 pub mod install;
 mod job_entry;
 pub mod legacy;
@@ -43,6 +48,9 @@ mod management_tools;
 mod mcp_config;
 mod mcp_service;
 mod relation_tools;
+mod scan_worker_settings;
+#[cfg(test)]
+mod scan_worker_settings_tests;
 mod scope_access;
 mod service_dispatch;
 mod service_identity;
@@ -52,8 +60,10 @@ mod stdio_service;
 mod tests;
 
 pub(crate) use error_mapping::business_of;
+pub use http_server_runtime::HttpServerRuntime;
 pub use mcp_config::{McpConfig, STDIO_PRINCIPAL};
 pub use mcp_service::McpService;
+pub use scan_worker_settings::ScanWorkerSettings;
 pub use stdio_service::serve_stdio;
 
 #[cfg(test)]
