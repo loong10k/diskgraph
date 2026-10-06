@@ -1,5 +1,8 @@
 //! 真实本地 Git 夹具，检验采样命令的可选索引写入与 promisor 懒获取边界。
 
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git;
+#[cfg(not(windows))]
 use super::sample_git;
 use std::fs::{FileTimes, OpenOptions};
 use std::path::{Path, PathBuf};

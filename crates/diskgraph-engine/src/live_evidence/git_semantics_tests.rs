@@ -1,3 +1,6 @@
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git;
+#[cfg(not(windows))]
 use super::sample_git;
 use std::path::{Path, PathBuf};
 use std::process::Command;

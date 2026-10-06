@@ -5,7 +5,11 @@ use crate::EngineError;
 use crate::git_evidence_fixture::{GitEvidenceFixture, now};
 use crate::git_evidence_target::GitEvidenceTarget;
 use crate::job_request_cancel_bridge::JobRequestCancelBridge;
-use crate::live_evidence::{EvidenceProbeSession, ProbeLimits};
+#[cfg(not(windows))]
+use crate::live_evidence::EvidenceProbeSession;
+#[cfg(windows)]
+use crate::live_evidence::NativeEvidenceTestSession as EvidenceProbeSession;
+use crate::live_evidence::ProbeLimits;
 use diskgraph_core::BusinessError;
 use diskgraph_store::StoreError;
 use std::path::Path;

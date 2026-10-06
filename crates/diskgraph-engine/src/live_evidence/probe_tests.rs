@@ -3,12 +3,26 @@ use super::ProbeLimits;
 use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
 #[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
-use super::probe_execution::run_probe;
+use super::probe_execution::run_probe as execute_probe;
 use super::probe_failure::ProbeFailure;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};
+
+/// 原样执行探针并保留失败诊断；参数为原命令和同一预算，返回原结果。
+/// Windows 原生失败不投影或吞掉清理错误，供完整回归定位原失败阶段。
+fn run_probe(
+    command: &mut Command,
+    budget: &mut super::probe_budget::ProbeBudget,
+) -> Result<super::probe_output::ProbeOutput, ProbeFailure> {
+    let result = execute_probe(command, budget);
+    #[cfg(windows)]
+    if let Err(error) = &result {
+        eprintln!("DG_NATIVE_PROBE_ORIGINAL_ERROR={error:?}");
+    }
+    result
+}
 
 pub(super) fn fixture(mode: &str) -> Command {
     let mut command = Command::new(std::env::current_exe().unwrap());

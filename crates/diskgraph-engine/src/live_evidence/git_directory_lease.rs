@@ -311,7 +311,9 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
         }
         let error =
             std::io::Error::from_raw_os_error(unsafe { RtlNtStatusToDosError(status) as i32 });
-        return Err(format!("git metadata directory NtCreateFile: {error}"));
+        return Err(format!(
+            "git metadata directory NtCreateFile component {name:?}: {error}"
+        ));
     }
     Ok(unsafe { File::from_raw_handle(handle) })
 }

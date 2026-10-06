@@ -7,7 +7,11 @@ use crate::job_stop_cause_fixture::{
     assert_failed_without_caller_cancel, lease_live, qualify_claim, withdraw,
 };
 use crate::job_stop_cause_hooks as hooks;
-use crate::live_evidence::{EvidenceProbeSession, ProbeLimits};
+#[cfg(not(windows))]
+use crate::live_evidence::EvidenceProbeSession;
+#[cfg(windows)]
+use crate::live_evidence::NativeEvidenceTestSession as EvidenceProbeSession;
+use crate::live_evidence::ProbeLimits;
 use diskgraph_core::{BusinessError, Permission};
 use diskgraph_store::{JobState, StoreError};
 use std::path::Path;

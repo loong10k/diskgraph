@@ -82,7 +82,10 @@ fn cancelling_one_sample_does_not_terminate_another() {
         }
         std::fs::write(&release, b"go").unwrap();
         let other_result = other.join().unwrap();
-        assert!(matches!(cancelled_result, Ok(Err(ProbeFailure::Cancelled))));
+        assert!(
+            matches!(cancelled_result, Ok(Err(ProbeFailure::Cancelled))),
+            "original cancelled sample result: {cancelled_result:?}"
+        );
         assert!(
             first.is_some(),
             "independent fixture had no complete heartbeat"

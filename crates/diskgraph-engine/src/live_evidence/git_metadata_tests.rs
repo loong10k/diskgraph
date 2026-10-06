@@ -2,10 +2,14 @@ use super::git_index_layout::GitIndexLayout;
 use super::git_metadata_budget::GitMetadataBudget;
 use super::git_metadata_file::GitMetadataFile;
 #[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(windows)]
 use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
 #[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use super::probe_limits::ProbeLimits;
+#[cfg(not(windows))]
+use super::sample_git_bounded;
 use sha1::{Digest, Sha1};
 use sha2::Sha256;
 use std::path::Path;
@@ -265,8 +269,7 @@ fn private_git_view_rejects_checksum_corruption_before_status() {
         index[last] ^= 1;
         std::fs::write(path, index).unwrap();
         let error =
-            super::sample_git_bounded(Path::new("git"), temp.path(), &ProbeLimits::default())
-                .unwrap_err();
+            sample_git_bounded(Path::new("git"), temp.path(), &ProbeLimits::default()).unwrap_err();
         assert!(error.contains("checksum"), "{format}: {error}");
     }
 }
@@ -315,7 +318,7 @@ fn assume_valid_bit_preserves_git_status_semantics_in_private_view() {
         GitIndexLayout::parse(&index, 20, &mut GitMetadataBudget::default(), &mut probe()).unwrap();
     assert_eq!(layout.entry_count, 1);
     let sample =
-        super::sample_git_bounded(Path::new("git"), temp.path(), &ProbeLimits::default()).unwrap();
+        sample_git_bounded(Path::new("git"), temp.path(), &ProbeLimits::default()).unwrap();
     assert_eq!(sample.dirty_count, 0);
     assert_eq!(
         std::fs::read(temp.path().join(".git/index")).unwrap(),

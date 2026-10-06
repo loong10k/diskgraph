@@ -1,0 +1,32 @@
+{
+  "run_id": 37524721505,
+  "job_id": 112479568520,
+  "source_sha": "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f",
+  "job_conclusion": "failure",
+  "raw_sha256": "603a2303d0f88a45bf0eca414b8da253c0b575aee357fd838f6f161a99ef18af",
+  "failed_tests": [
+    "job_stop_cause_outcome_tests::real_identity_conflict_is_not_replaced_by_a_later_keeper_authorization_error",
+    "job_stop_conflict_tests::observed_denial_does_not_replace_a_real_indexed_directory_identity_conflict",
+    "live_evidence::git_execution_policy_tests::clean_stat_refresh_does_not_rewrite_the_git_index",
+    "live_evidence::git_metadata_tests::assume_valid_bit_preserves_git_status_semantics_in_private_view",
+    "live_evidence::git_metadata_tests::private_git_view_rejects_checksum_corruption_before_status",
+    "live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit",
+    "live_evidence::git_scope_boundary_tests::renamed_registered_root_invalidates_terminal_capture_with_nested_project",
+    "live_evidence::git_semantics_tests::committed_repository_counts_untracked_files_not_directory_display_rows",
+    "live_evidence::git_semantics_tests::detached_head_keeps_dirty_observations_and_unknown_upstream",
+    "live_evidence::git_semantics_tests::missing_tracking_ref_is_reported_as_unavailable_not_unconfigured",
+    "live_evidence::git_semantics_tests::sha256_repository_keeps_full_oids_and_correct_commit_counts",
+    "live_evidence::git_semantics_tests::unborn_repository_counts_each_untracked_and_staged_file",
+    "live_evidence::probe_isolation_tests::cancelling_one_sample_does_not_terminate_another",
+    "live_evidence::probe_tests::an_exited_leader_does_not_make_inherited_pipes_complete",
+    "live_evidence::probe_tests::cancellation_before_spawn_and_during_wait_is_not_success",
+    "live_evidence::probe_tests::continuous_output_does_not_starve_deadline_checks",
+    "live_evidence::probe_tests::deadline_applies_to_a_silent_child",
+    "runner::tests::strict_tick_bounds_candidate_work_and_advances_past_legacy_jobs",
+    "scan_worker_settings_tests::independent_expected_digest_and_original_open_file_survive_name_replacement"
+  ],
+  "suite_summaries": [
+    "test result: FAILED. 526 passed; 19 failed; 3 ignored; 0 measured; 0 filtered out; finished in 312.09s"
+  ],
+  "acceptance": "failed; no production readiness claim"
+}

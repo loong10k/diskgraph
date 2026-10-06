@@ -44,14 +44,14 @@ pub(super) fn sample_git_with_resources(
 
 /// Windows 真实采样测试会话及独立恢复责任；来源：Rust PF-06，无 Java 对等对象。
 /// 不修改生产会话或兼容 API；使用公开宿主绑定入口取得原会话。
-pub(super) struct NativeEvidenceTestSession {
+pub(crate) struct NativeEvidenceTestSession {
     session: Option<EvidenceProbeSession>,
     recovery: ProbeRecovery,
 }
 
 impl NativeEvidenceTestSession {
     /// 参数：limits 为原测试预算；返回：实际产品会话与外部恢复责任或原诊断。
-    pub(super) fn new(limits: &ProbeLimits) -> Result<Self, String> {
+    pub(crate) fn new(limits: &ProbeLimits) -> Result<Self, String> {
         let (host, recovery) = ProbeHost::new(1).map_err(|error| error.to_string())?;
         let session = EvidenceProbeSession::new_with_probe_host(limits, &host)?;
         Ok(Self {

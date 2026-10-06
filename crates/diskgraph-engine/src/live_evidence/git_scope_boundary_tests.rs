@@ -174,9 +174,19 @@ fn renamed_registered_root_invalidates_terminal_capture_with_nested_project() {
     // moved 始终由另一独立 TempDir 持有，异常展开不会遗留原源文件。
     let holder = tempfile::tempdir().unwrap();
     let moved = holder.path().join("moved-scope");
-    std::fs::rename(root, &moved).unwrap();
+    let renamed = std::fs::rename(root, &moved);
+    #[cfg(windows)]
+    {
+        // 原 Windows no-delete 租约冻结根目录关联；不能要求攻击成功后才算边界安全。
+        assert_eq!(renamed.unwrap_err().raw_os_error(), Some(32));
+        assert!(root.is_dir());
+        assert!(!moved.exists());
+    }
+    #[cfg(not(windows))]
+    renamed.unwrap();
     let output = view.run(&super::git_scoped_fixture::STATUS[1..], &mut probe);
     let terminal = view.verify(&mut probe);
+    #[cfg(not(windows))]
     std::fs::rename(&moved, root).unwrap();
     let terminal = view.complete(terminal);
     let output = output.unwrap();
@@ -185,9 +195,15 @@ fn renamed_registered_root_invalidates_terminal_capture_with_nested_project() {
         output.stdout.is_empty(),
         "private command must survive source root rename"
     );
+    #[cfg(not(windows))]
     assert!(
         terminal.is_err(),
         "registered root namespace changed but capture was called stable"
+    );
+    #[cfg(windows)]
+    assert!(
+        terminal.is_ok(),
+        "blocked root replacement must retain the original verified capture: {terminal:?}"
     );
 }
 
