@@ -376,6 +376,23 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.13'
+      - name: Bind Linux Kotlin host to actual release scan worker
+        if: runner.os == 'Linux'
+        id: kotlin_product_worker
+        run: |
+          cargo build --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --message-format=json > "$RUNNER_TEMP/product-worker-build.jsonl"
+          python -m unittest discover -s scripts/tests -p test_linux_acceptance_worker.py -v
+          python scripts/configure_linux_acceptance_worker.py --artifacts "$RUNNER_TEMP/product-worker-build.jsonl" --output-dir "$RUNNER_TEMP"
+      - name: Preserve Linux Kotlin host worker identity
+        if: always() && steps.kotlin_product_worker.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kotlin-product-worker-${{ matrix.os }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/product-worker-build.jsonl
+            ${{ runner.temp }}/product-worker-receipt.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Generate, compile and execute Kotlin with the native library
         run: python scripts/accept-ffi-kotlin.py
 
