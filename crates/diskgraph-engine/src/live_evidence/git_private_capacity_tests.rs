@@ -4,6 +4,9 @@ use super::ProbeLimits;
 use super::git_private_allocation::GitPrivateAllocation;
 use super::git_private_capacity::GitPrivateCapacity;
 use super::git_private_directory::GitPrivateDirectory;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use std::path::Path;
 
@@ -151,19 +154,29 @@ fn unknown_files_and_outside_paths_are_never_overwritten() {
             .create_dir_all(&directory.path().join("../escape"), &mut budget)
             .is_err()
     );
+    std::fs::remove_file(unknown).unwrap();
+    directory.complete(Ok(())).unwrap();
 }
 
 #[test]
 fn final_verification_rejects_unregistered_data_and_changed_allocation() {
+    let mut second_budget = probe();
     let mut budget = probe();
     let mut directory = GitPrivateDirectory::with_limits(48 * 1024, 0, &mut budget).unwrap();
     let path = directory.path().join("owned");
     directory.write(&path, b"small", &mut budget).unwrap();
     std::fs::write(&path, vec![19; 64 * 1024]).unwrap();
     assert!(directory.verify_capacity(&mut budget).is_err());
-    let mut second = GitPrivateDirectory::with_limits(1 << 20, 0, &mut budget).unwrap();
-    std::fs::write(second.path().join("unregistered"), b"foreign").unwrap();
-    assert!(second.verify_capacity(&mut budget).is_err());
+    let mut second = GitPrivateDirectory::with_limits(1 << 20, 0, &mut second_budget).unwrap();
+    let foreign = second.path().join("unregistered");
+    std::fs::write(&foreign, b"foreign").unwrap();
+    assert!(second.verify_capacity(&mut second_budget).is_err());
+    // 先验证拒绝外来数据，再只删除本测试创建的外来文件，让原 owner 清理登记对象。
+    std::fs::remove_file(foreign).unwrap();
+    second.complete(Ok(())).unwrap();
+    // 原生版本变化不能伪造恢复；负断言完成后由制造变化的测试移除该文件，原 owner 清理根。
+    std::fs::remove_file(&path).unwrap();
+    directory.complete(Ok(())).unwrap();
 }
 
 #[test]
@@ -173,7 +186,8 @@ fn failed_write_keeps_its_diagnostic_and_private_owner_is_cleaned() {
     let root = directory.path().to_owned();
     let nested = root.join("nested");
     directory.create_dir_all(&nested, &mut budget).unwrap();
-    std::fs::remove_dir(&nested).unwrap();
+    let retained = directory.path().join("original-nested");
+    std::fs::rename(&nested, &retained).unwrap();
     let error = directory
         .write(&nested.join("data"), b"data", &mut budget)
         .unwrap_err();
@@ -181,6 +195,8 @@ fn failed_write_keeps_its_diagnostic_and_private_owner_is_cleaned() {
         error.contains("private") || error.contains("Git"),
         "{error}"
     );
+    // 原身份恢复后仍以原错误显式完成；不把账本之外删除登记目录当成恢复成功。
+    std::fs::rename(&retained, &nested).unwrap();
     let preserved = directory.complete::<()>(Err(error.clone())).unwrap_err();
     assert!(preserved.contains(&error));
     assert!(!root.exists());
@@ -217,6 +233,8 @@ fn modified_time_is_set_through_the_registered_handle_and_unknown_files_stay_unc
         std::fs::metadata(&unknown).unwrap().modified().unwrap(),
         original
     );
+    std::fs::remove_file(unknown).unwrap();
+    directory.complete(Ok(())).unwrap();
 }
 
 #[test]
@@ -229,6 +247,10 @@ fn changed_registered_file_identity_cannot_be_truncated() {
     std::fs::write(&path, b"foreign replacement").unwrap();
     assert!(directory.write(&path, b"replacement", &mut budget).is_err());
     assert_eq!(std::fs::read(&path).unwrap(), b"foreign replacement");
+    std::fs::remove_file(&path).unwrap();
+    // 文件 rename 已改变原生版本，测试移除自己改动的两份文件，不伪造版本恢复。
+    std::fs::remove_file(directory.path().join("previous")).unwrap();
+    directory.complete(Ok(())).unwrap();
 }
 
 #[cfg(unix)]
@@ -293,4 +315,7 @@ fn existing_directory_creation_does_not_adopt_a_replacement_identity() {
             .is_err()
     );
     assert!(!nested.join("data").exists());
+    std::fs::remove_dir(&nested).unwrap();
+    std::fs::rename(directory.path().join("original"), &nested).unwrap();
+    directory.complete(Ok(())).unwrap();
 }

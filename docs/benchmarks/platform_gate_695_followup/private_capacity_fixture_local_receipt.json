@@ -1,0 +1,11 @@
+{
+  "base": "34419cf",
+  "platform": "macOS arm64",
+  "test": "live_evidence::git_private_capacity_tests",
+  "result": "13 passed; 0 failed; 0 ignored",
+  "file": "private_capacity_fixture_local_green.log.gz",
+  "raw_sha256": "c6d4ab54eeb31e3bfb616220e9742b4d37df5d9c38e3dc4b9e6acdf38de43531",
+  "stored_sha256": "52642678b64c17aced1c99d83f62250307bac5a99247687c28bf43d5780247a5",
+  "source_sha256": "9a00b8855b496239e84944ea7b0219a85bc68a608a165e938b27ad07845beaa8",
+  "windows_native": "pending"
+}
