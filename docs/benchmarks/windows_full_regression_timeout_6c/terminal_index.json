@@ -1,0 +1,175 @@
+{
+  "run_id": 37508684271,
+  "source_commit": "6c3b7295e26e31933d9258f8ee8328cc6b241f64",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_counts": {
+    "success": 18,
+    "failure": 4
+  },
+  "original_metadata_sha256": "73ad31c2101bcc5150692ac0a8ac975c19497c50479e71b7704be8f5ff6f7cce",
+  "jobs": [
+    {
+      "name": "Swift native host (macos-15-intel)",
+      "id": 112423847361,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Swift native host (macos-15)",
+      "id": 112423847621,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "rustfmt",
+      "id": 112423847668,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Kotlin native host (macos-15-intel)",
+      "id": 112423847698,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "id": 112423847725,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "id": 112423847740,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Vendored scanner",
+      "id": 112423847769,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "id": 112423847776,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "id": 112423847821,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "id": 112423847825,
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Test"
+      ]
+    },
+    {
+      "name": "Test (macos-15-intel / Rust stable)",
+      "id": 112423847854,
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Test"
+      ]
+    },
+    {
+      "name": "Test (windows-latest / Rust stable)",
+      "id": 112423847875,
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Test"
+      ]
+    },
+    {
+      "name": "Test (macos-latest / Rust stable)",
+      "id": 112423847888,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "id": 112423847889,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Kotlin native host (windows-2022)",
+      "id": 112423847897,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "id": 112423847910,
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Paired native Linux scan namespace cost"
+      ]
+    },
+    {
+      "name": "Kotlin native host (macos-15)",
+      "id": 112423847940,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "id": 112424044598,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "id": 112424044668,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "id": 112424044669,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "id": 112424044718,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "id": 112424044800,
+      "status": "completed",
+      "conclusion": "success",
+      "failed_steps": []
+    }
+  ]
+}
