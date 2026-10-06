@@ -161,6 +161,18 @@ jobs:
           path: ${{ runner.temp }}/diskgraph-windows-registration-rejection/
           if-no-files-found: error
           retention-days: 7
+      - name: Native Windows original child membership red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: python scripts/qualify_windows_child_membership.py
+      - name: Preserve original child membership qualification
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-child-membership-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-child-membership/
+          if-no-files-found: error
+          retention-days: 7
       - name: Native Windows original pool unwind red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10

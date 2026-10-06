@@ -1019,3 +1019,62 @@ fn modified_original_private_artifact_is_rejected_as_evidence_but_actually_dispo
     );
     println!("DG_MODIFIED_PRIVATE_DISPOSAL_WITHOUT_EVIDENCE_TRUST=1");
 }
+
+#[test]
+fn cleanup_child_delete_lease_freezes_original_parent_until_actual_removal() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let label = parent.join("original");
+    let path = label.join("owned");
+    let other_parent = parent.join("other-parent");
+    std::fs::create_dir(&other_parent).unwrap();
+    let moved = other_parent.join("moved");
+    let mut capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&label, 128 << 20, 0, &mut probe)
+            .unwrap();
+    std::fs::write(&path, b"original payload").unwrap();
+    let original = std::fs::File::open(&path).unwrap();
+    let identity = GitPrivateAllocation::from_file(&original).unwrap();
+    capacity.observe(&path, &original, &mut probe).unwrap();
+    drop(original);
+    let (file, name, _) = cursor
+        .open_next_cleanup_child(&label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
+    assert_eq!(name, OsString::from("owned"));
+    let moved_result = std::fs::rename(&path, &moved);
+    assert!(identity.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
+    println!("DG_ORIGINAL_CHILD_ASSOCIATION_RED_READY=1");
+    assert_eq!(
+        moved_result
+            .as_ref()
+            .err()
+            .and_then(std::io::Error::raw_os_error),
+        Some(32),
+        "original child DELETE lease must freeze parent association: {moved_result:?}"
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), b"original payload");
+    assert!(!moved.exists());
+    cursor
+        .mark_cleanup_child(&file, &label, &capacity, &mut probe)
+        .unwrap();
+    drop(file);
+    loop {
+        let result = cursor.confirm_cleanup_child_absent(&mut probe);
+        if matches!(result, Ok(true)) {
+            break;
+        }
+        probe.check().unwrap_or_else(|deadline| {
+            panic!("original child removal budget exhausted: {deadline}; {result:?}")
+        });
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert_fixture_absent(&path);
+    assert!(!moved.exists());
+    assert!(
+        cursor
+            .open_next_cleanup_child(&label, &capacity, &mut probe)
+            .unwrap()
+            .is_none()
+    );
+    println!("DG_ORIGINAL_CHILD_DELETE_LEASE_AND_ACTUAL_REMOVAL=1");
+}

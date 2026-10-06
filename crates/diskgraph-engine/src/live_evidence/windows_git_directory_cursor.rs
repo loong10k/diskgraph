@@ -256,8 +256,8 @@ impl WindowsGitDirectoryCursor {
             INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
         };
         use windows_sys::Win32::Storage::FileSystem::{
-            DELETE, FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ,
-            FILE_SHARE_WRITE, SYNCHRONIZE,
+            DELETE, FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, FILE_SHARE_WRITE,
+            SYNCHRONIZE,
         };
         let check =
             |file: &File| GitPrivateAllocation::from_file(file).map_err(std::io::Error::other);
@@ -307,7 +307,8 @@ impl WindowsGitDirectoryCursor {
                     | if directory { FILE_LIST_DIRECTORY } else { 0 },
                 &attributes,
                 &mut status_block,
-                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                // 删除期间冻结原子项名称与父归属；外来只读观察仍使用 share-all。
+                FILE_SHARE_READ | FILE_SHARE_WRITE,
                 FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL,
             )
         };
