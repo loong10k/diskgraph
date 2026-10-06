@@ -1,5 +1,7 @@
 //! 真实签名、TCP 分发与持久 Git 任务的验收；来源：原生 Rust SC-06 / EC-02。
 
+#[path = "support/native_scan_service.rs"]
+mod native_scan_service;
 use diskgraph_core::{Grant, Permission, PrincipalId, ScopeId};
 use diskgraph_mcp::auth::{AuthConfig, Authenticator, TokenClaims, TokenMinter};
 use diskgraph_mcp::http::{self, HttpLimits};
@@ -21,6 +23,7 @@ const CAPABILITIES: &str = "index:write metadata:read content:read operations:vi
 /// 隔离真实仓库、索引、双主体授权及实际认证 TCP 入口。
 /// 来源：DiskGraph 原生 Rust 集成夹具，无 Java 对应对象。
 struct GitSocketFixture {
+    _scan_recovery: native_scan_service::NativeScanRecovery,
     directory: tempfile::TempDir,
     service: McpService,
     authenticator: Authenticator,
@@ -54,11 +57,14 @@ impl GitSocketFixture {
             ],
         );
         std::fs::write(root.join("tracked.txt"), b"private dirty source body\n").unwrap();
-        let service = McpService::open_remote(McpConfig {
-            data_dir: directory.path().join("data"),
-            profile: ToolProfile::Manage,
-            ..McpConfig::default()
-        })
+        let (service, _scan_recovery) = native_scan_service::open(
+            McpConfig {
+                data_dir: directory.path().join("data"),
+                profile: ToolProfile::Manage,
+                ..McpConfig::default()
+            },
+            true,
+        )
         .unwrap();
         let admin = PrincipalId::new("git-socket-fixture-admin").unwrap();
         service.engine().bootstrap_local_admin(&admin).unwrap();
@@ -120,6 +126,7 @@ impl GitSocketFixture {
         }
         assert_ne!(principals[0], principals[1]);
         Self {
+            _scan_recovery,
             directory,
             service,
             authenticator,

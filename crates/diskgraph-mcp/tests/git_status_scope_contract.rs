@@ -1,4 +1,6 @@
 //! Git C04 的真实任务 scope、权限和回执 envelope；来源：签名认证请求及真实 Git/扫描。
+#[path = "support/native_scan_service.rs"]
+mod native_scan_service;
 use diskgraph_core::{Grant, Permission, PrincipalId, ScopeId};
 use diskgraph_mcp::auth::{AuthConfig, Authenticator, TokenClaims, TokenMinter};
 use diskgraph_mcp::http::{self, HttpLimits, HttpRequest};
@@ -16,6 +18,7 @@ const ALL: &str = "metadata:read index:write content:read operations:view";
 /// 两个真实注册范围，B 为当前默认范围，A 为显式 Git 任务目标；无伪造 ownership。
 /// 来源：原生 Rust MCP 签名请求与 Engine 实际 Git/扫描集成夹具。
 struct StatusFixture {
+    _scan_recovery: native_scan_service::NativeScanRecovery,
     _temp: tempfile::TempDir,
     service: McpService,
     actor: PrincipalId,
@@ -48,11 +51,14 @@ impl StatusFixture {
                 "base",
             ],
         );
-        let service = McpService::open(McpConfig {
-            data_dir: temp.path().join("data"),
-            profile: ToolProfile::Manage,
-            ..McpConfig::default()
-        })
+        let (service, _scan_recovery) = native_scan_service::open(
+            McpConfig {
+                data_dir: temp.path().join("data"),
+                profile: ToolProfile::Manage,
+                ..McpConfig::default()
+            },
+            false,
+        )
         .unwrap();
         let actor = PrincipalId::new(STDIO_PRINCIPAL).unwrap();
         let engine = service.engine();
@@ -97,6 +103,7 @@ impl StatusFixture {
             b
         );
         Self {
+            _scan_recovery,
             _temp: temp,
             service,
             actor,

@@ -1,3 +1,5 @@
+#[path = "support/native_scan_service.rs"]
+mod native_scan_service;
 use diskgraph_core::{Grant, Permission, PrincipalId, ScopeId};
 use diskgraph_mcp::auth::{AuthConfig, Authenticator, TokenClaims, TokenMinter};
 use diskgraph_mcp::http::{self, HttpLimits};
@@ -17,6 +19,7 @@ const WRITER_CAPABILITIES: &str = "index:write metadata:read operations:view";
 /// 隔离真实根、控制库和图库，使用两个经实际签名验证的远程主体。
 /// 来源：DiskGraph 原生 Rust SC-06 持久请求授权回归，无 Java 对应对象。
 struct DurableFixture {
+    _scan_recovery: native_scan_service::NativeScanRecovery,
     _directory: tempfile::TempDir,
     service: McpService,
     authenticator: Authenticator,
@@ -31,11 +34,14 @@ impl DurableFixture {
         let root = directory.path().join("scope");
         std::fs::create_dir(&root).unwrap();
         std::fs::write(root.join("visible.txt"), b"isolated scan fixture").unwrap();
-        let service = McpService::open_remote(McpConfig {
-            data_dir: directory.path().join("data"),
-            profile: ToolProfile::Manage,
-            ..McpConfig::default()
-        })
+        let (service, _scan_recovery) = native_scan_service::open(
+            McpConfig {
+                data_dir: directory.path().join("data"),
+                profile: ToolProfile::Manage,
+                ..McpConfig::default()
+            },
+            true,
+        )
         .unwrap();
         let administrator = PrincipalId::new("durable-fixture-admin").unwrap();
         service
@@ -86,6 +92,7 @@ impl DurableFixture {
         }
         assert_ne!(principals[0], principals[1]);
         Self {
+            _scan_recovery,
             _directory: directory,
             service,
             authenticator,

@@ -1,6 +1,8 @@
 //! D42 EC-02/EV-06 公共请求回归；来源：真实 MCP 认证、公开扫描与隔离 SQLite。
 //! 只验证元数据采集任务的入口和持久身份，不将入队成功冒充原生占用验收。
 
+#[path = "support/native_scan_service.rs"]
+mod native_scan_service;
 use diskgraph_core::{Grant, Permission, PrincipalId, ScopeId};
 use diskgraph_mcp::auth::{AuthConfig, Authenticator, TokenClaims, TokenMinter};
 use diskgraph_mcp::http::{self, HttpLimits, HttpRequest};
@@ -14,6 +16,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// 两个真实注册范围与普通文件的认证入口夹具。
 /// 来源：DiskGraph 原生 Rust 集成测试；任务、归属和节点均通过公开 API 产生。
 struct ProcessFixture {
+    _scan_recovery: native_scan_service::NativeScanRecovery,
     temp: tempfile::TempDir,
     service: McpService,
     scope: ScopeId,
@@ -53,11 +56,14 @@ impl ProcessFixture {
             .unwrap();
         assert!(initialized.status.success(), "{initialized:?}");
         std::fs::write(root.join("held.txt"), b"ordinary fixture bytes\n").unwrap();
-        let service = McpService::open(McpConfig {
-            data_dir: temp.path().join("data"),
-            profile: ToolProfile::Manage,
-            ..McpConfig::default()
-        })
+        let (service, _scan_recovery) = native_scan_service::open(
+            McpConfig {
+                data_dir: temp.path().join("data"),
+                profile: ToolProfile::Manage,
+                ..McpConfig::default()
+            },
+            false,
+        )
         .unwrap();
         let principal = PrincipalId::new(STDIO_PRINCIPAL).unwrap();
         let engine = service.engine();
@@ -92,6 +98,7 @@ impl ProcessFixture {
             .id;
         drop(reader);
         Self {
+            _scan_recovery,
             temp,
             service,
             scope,
@@ -205,11 +212,14 @@ fn verified_metadata_only_process_sync_persists_original_authority_and_reopens()
     assert_eq!(data["state"], "queued");
     let job_id = data["job_id"].as_str().unwrap().to_owned();
     assert_eq!(fixture.job_count(), count + 1);
-    fixture.service = McpService::open_remote(McpConfig {
-        data_dir: fixture.temp.path().join("data"),
-        profile: ToolProfile::Manage,
-        ..McpConfig::default()
-    })
+    (fixture.service, fixture._scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: fixture.temp.path().join("data"),
+            profile: ToolProfile::Manage,
+            ..McpConfig::default()
+        },
+        true,
+    )
     .unwrap();
     let job = fixture.service.engine().job_status(&job_id).unwrap();
     assert_eq!(job.principal, principal);

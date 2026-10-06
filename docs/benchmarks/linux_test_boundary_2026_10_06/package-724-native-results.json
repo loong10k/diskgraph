@@ -1,0 +1,74 @@
+{
+  "source_sha": "724d3c137cc37530864cb3917e1d330e749fe05f",
+  "run_id": 37445312905,
+  "native_counts": {
+    "linux": {
+      "stdio": 18,
+      "http": 13,
+      "upgrade_rollback": 7,
+      "controlled_load": 4
+    },
+    "arm": {
+      "stdio": 18,
+      "http": 13,
+      "upgrade_rollback": 7,
+      "controlled_load": 4
+    }
+  },
+  "job_status": [
+    {
+      "conclusion": "",
+      "id": 112208764783,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "status": "queued",
+      "steps": []
+    },
+    {
+      "conclusion": "",
+      "id": 112208764786,
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "status": "queued",
+      "steps": []
+    },
+    {
+      "conclusion": "success",
+      "id": 112208764848,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "id": 112208764904,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "conclusion": "failure",
+      "id": 112208764934,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "skipped",
+          "name": "Verify archive and packaged binaries",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "scope": "controlled CI package acceptance; not full platform production or complete performance qualification"
+}

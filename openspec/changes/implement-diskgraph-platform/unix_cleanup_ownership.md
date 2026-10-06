@@ -87,3 +87,15 @@ f2c3b1b的Linux stable完整workspace原始日志确认失败目标37→29，CLI
 355f383原生Linux package日志确认release构建成功，解包CLI实际index因未配置宿主返回Unsupported。包验收在Linux必须先取得同提交实际Cargo release bin artifact的独立预期（沿用独占快照部署），解包worker经既有非链接/同句柄/字节预算读取核验与该预期相符后，四条外部验收流程统一执行包内worker。不得从包内清单生成信任、缺配置不得回退；Rust生产宿主仍执行原严格镜像验证。此处只表示受控CI构建信任，不替代发布签名、安装信任或macOS/Windows原生部署门禁。
 
 新增6项回归真实RED（缺少部署接口）后GREEN，追加子进程环境传播共7/0；组成9/0、原文件准入5/0、独占副本3/0通过。本机强制Linux分支的组成9/0仅验证脚本分支与全部四次调用参数，不称Linux原生执行；旧组成mock因新增deployment参数真实失败后更新，保留所有归档/字节/清单断言并增加包内路径和独立摘要断言。原生解包stdio/HTTP/升级/20k负载须下一提交CI实际运行后才能验收，所有父项保持开放。记录见linux_test_boundary_2026_10_06/package-*.log.gz。
+
+
+724d3c1 / CI37445312905 的Linux x86_64（112208764848）与ARM64（112208764904）package原生job均终态success，原始日志逐项确认解包stdio18、HTTP13、upgrade/rollback7、controlled load4。独立构建预期+包内实际worker验收已经运行通过，不等于完整20k/200k性能、发布安装信任或全平台生产。Windows package构建失败、macOS package仍queued；状态和原始日志见package-724-native-results.json、package-724-linux.log.gz、package-724-arm.log.gz。
+
+cb39286 / CI37445008522 的Linux Rust1.97完整Test终态failure，失败目标18→9，新增9个Engine共享目标未出现在失败目标清单；仍失败Engine lib、FFI lib、Ops lib，以及MCP durable_request_authority/git_evidence_contract/git_evidence_socket/git_status_scope_contract/hardening/process_evidence_contract。原始日志见workspace-cb-linux-1_97.log.gz。Linux stable/ARM全量仍运行，不能以1.97的目标改善替代全量成功，也不能将9目标计作9个独立漏洞。
+
+
+## MCP 集成扫描宿主与恢复外槽
+
+剩余六个MCP目标的真实扫描不能由旧McpService::open/open_remote隐式提供宿主。夹具经显式open_with_scan_worker/open_remote_with_scan_worker接入Linux CI同提交实际worker及独立预期，保留本地/远程认证分支、原2M节点配置、真实socket/runner和原数据库；唯一Recovery持有至整个Fixture结束，重开服务时同时替换服务与外槽。其他平台仍使用既有构造，不用Linux材料伪造支持。测试外槽当前阻塞drain不代表生产有限退出已完成。
+
+本机六目标no-run编译及既有排除vendor的格式检查通过，201个原assert宏片段与HEAD逐项对照不变；实际macOS六目标11通过/26失败，明确保留未配置可信扫描宿主的Unsupported，不以编译或授权拒绝通过代替实际扫描。本机全部运行及首次失败记录见mcp-native-fixtures*.log.gz，Linux实际运行须下个提交原生CI验证。Windows生产句柄清理、macOS安装扫描及全平台父项继续开放。

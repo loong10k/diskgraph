@@ -1,6 +1,8 @@
 //! D37 C03/EC-02/04 公共 MCP 入口回归；来源：真实 Rust 服务、原生 Git 与隔离 SQLite。
 //! 本文件覆盖参数、授权交集、持久入队、真实执行/发布及重连状态；不替代三平台原生验收。
 
+#[path = "support/native_scan_service.rs"]
+mod native_scan_service;
 use diskgraph_core::{Grant, Permission, PrincipalId, ScopeId};
 use diskgraph_mcp::auth::{AuthConfig, Authenticator, TokenClaims, TokenMinter};
 use diskgraph_mcp::http::{self, HttpLimits, HttpRequest};
@@ -15,6 +17,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// 原生 Git + 实际扫描产生的 revision/node；不伪造 scope ownership 或定位。
 /// 来源：DiskGraph 原生 Rust 集成测试，无 Java 对应实现。
 struct GitFixture {
+    _scan_recovery: native_scan_service::NativeScanRecovery,
     temp: tempfile::TempDir,
     service: McpService,
     scope: ScopeId,
@@ -45,11 +48,14 @@ impl GitFixture {
             ],
         );
         std::fs::write(root.join("tracked.txt"), "dirty\n").unwrap();
-        let service = McpService::open(McpConfig {
-            data_dir: temp.path().join("data"),
-            profile: ToolProfile::Manage,
-            ..McpConfig::default()
-        })
+        let (service, _scan_recovery) = native_scan_service::open(
+            McpConfig {
+                data_dir: temp.path().join("data"),
+                profile: ToolProfile::Manage,
+                ..McpConfig::default()
+            },
+            false,
+        )
         .unwrap();
         let principal = PrincipalId::new(STDIO_PRINCIPAL).unwrap();
         let engine = service.engine();
@@ -72,6 +78,7 @@ impl GitFixture {
         let node_id = reader.load(&snapshot).unwrap().root().id;
         drop(reader);
         Self {
+            _scan_recovery,
             temp,
             service,
             scope,
@@ -229,11 +236,14 @@ fn authenticated_git_sync_returns_a_durable_job_for_the_verified_principal() {
     assert_eq!(data["state"], "queued");
     let job_id = data["job_id"].as_str().unwrap();
     assert_eq!(fixture.job_count(), count + 1);
-    let reopened = McpService::open_remote(McpConfig {
-        data_dir: fixture.temp.path().join("data"),
-        profile: ToolProfile::Manage,
-        ..McpConfig::default()
-    })
+    let (reopened, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: fixture.temp.path().join("data"),
+            profile: ToolProfile::Manage,
+            ..McpConfig::default()
+        },
+        true,
+    )
     .unwrap();
     let job = reopened.engine().job_status(job_id).unwrap();
     assert_eq!(job.scope_id, fixture.scope);
@@ -365,11 +375,14 @@ fn authenticated_git_job_execution_is_reconnectable_with_the_actual_receipt() {
         .run_job_strict(&job_id, "mcp-git-worker")
         .unwrap();
     // 重新打开可信 stdio 查询上下文，实际 remote job 主体和原请求来源仍来自持久记录。
-    let mut reopened = McpService::open(McpConfig {
-        data_dir: fixture.temp.path().join("data"),
-        profile: ToolProfile::Manage,
-        ..McpConfig::default()
-    })
+    let (mut reopened, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: fixture.temp.path().join("data"),
+            profile: ToolProfile::Manage,
+            ..McpConfig::default()
+        },
+        false,
+    )
     .unwrap();
     assert_eq!(
         reopened.engine().job_status(&job_id).unwrap().principal,
@@ -424,11 +437,14 @@ fn failed_git_job_exposes_only_fixed_durable_diagnostic_after_reconnect() {
             .run_job_strict(&job_id, "denied-worker")
             .is_err()
     );
-    let mut reopened = McpService::open(McpConfig {
-        data_dir: fixture.temp.path().join("data"),
-        profile: ToolProfile::Manage,
-        ..McpConfig::default()
-    })
+    let (mut reopened, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: fixture.temp.path().join("data"),
+            profile: ToolProfile::Manage,
+            ..McpConfig::default()
+        },
+        false,
+    )
     .unwrap();
     let response = reopened.handle(&Request {
         id: json!(3),

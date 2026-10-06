@@ -1,6 +1,8 @@
+#[path = "support/native_scan_service.rs"]
+mod native_scan_service;
+use diskgraph_mcp::McpConfig;
 use diskgraph_mcp::auth::{AuthConfig, Authenticator, TokenClaims, TokenMinter};
 use diskgraph_mcp::http::{self, HttpLimits, HttpRequest};
-use diskgraph_mcp::{McpConfig, McpService};
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -9,11 +11,14 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 #[test]
 fn a_valid_unscoped_token_does_not_inherit_the_local_admin() {
     let dir = tempfile::tempdir().unwrap();
-    let mut service = McpService::open(McpConfig {
-        data_dir: dir.path().join("data"),
-        profile: diskgraph_mcp::protocol::ToolProfile::Manage,
-        ..McpConfig::default()
-    })
+    let (mut service, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: dir.path().join("data"),
+            profile: diskgraph_mcp::protocol::ToolProfile::Manage,
+            ..McpConfig::default()
+        },
+        false,
+    )
     .unwrap();
     let auth = Authenticator::new(AuthConfig::single("issuer", "aud", b"test-key"));
     let token = TokenMinter::new(b"test-key").mint(&TokenClaims {
@@ -40,11 +45,14 @@ fn a_valid_unscoped_token_does_not_inherit_the_local_admin() {
 #[test]
 fn a_real_sse_connection_cannot_bypass_origin_or_authentication() {
     let dir = tempfile::tempdir().unwrap();
-    let service = McpService::open(McpConfig {
-        data_dir: dir.path().join("data"),
-        profile: diskgraph_mcp::protocol::ToolProfile::Manage,
-        ..McpConfig::default()
-    })
+    let (service, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: dir.path().join("data"),
+            profile: diskgraph_mcp::protocol::ToolProfile::Manage,
+            ..McpConfig::default()
+        },
+        false,
+    )
     .unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let address = listener.local_addr().unwrap();
@@ -90,10 +98,13 @@ fn node_and_top_do_not_decode_unrelated_revision_rows() {
     std::fs::write(root.join("middle"), &large[..8192]).unwrap();
     std::fs::write(root.join("largest"), large).unwrap();
     std::fs::write(root.join("unrelated"), [0]).unwrap();
-    let mut service = McpService::open(McpConfig {
-        data_dir: dir.path().join("data"),
-        ..McpConfig::default()
-    })
+    let (mut service, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: dir.path().join("data"),
+            ..McpConfig::default()
+        },
+        false,
+    )
     .unwrap();
     let principal = diskgraph_core::PrincipalId::new(diskgraph_mcp::STDIO_PRINCIPAL).unwrap();
     let scope = service
@@ -181,10 +192,13 @@ fn issuers_cannot_alias_the_same_subject() {
 #[test]
 fn socket_sse_quota_is_per_subject_and_revocation_closes_connections() {
     let dir = tempfile::tempdir().unwrap();
-    let service = McpService::open_remote(McpConfig {
-        data_dir: dir.path().join("data"),
-        ..McpConfig::default()
-    })
+    let (service, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: dir.path().join("data"),
+            ..McpConfig::default()
+        },
+        true,
+    )
     .unwrap();
     let control_path = dir.path().join("data/diskgraph-control.sqlite");
     let auth = Authenticator::new(AuthConfig::single("issuer", "aud", b"test-key"));
@@ -271,10 +285,13 @@ fn socket_sse_quota_is_per_subject_and_revocation_closes_connections() {
 #[test]
 fn socket_sse_expires_with_its_authenticated_token() {
     let dir = tempfile::tempdir().unwrap();
-    let service = McpService::open_remote(McpConfig {
-        data_dir: dir.path().join("data"),
-        ..McpConfig::default()
-    })
+    let (service, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: dir.path().join("data"),
+            ..McpConfig::default()
+        },
+        true,
+    )
     .unwrap();
     let auth = Authenticator::new(AuthConfig::single("issuer", "aud", b"test-key"));
     let token = TokenMinter::new(b"test-key").mint(&TokenClaims {
@@ -336,10 +353,13 @@ fn socket_requests_intersect_subject_grants_and_token_capabilities() {
     let root = dir.path().join("root");
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), [0]).unwrap();
-    let service = McpService::open_remote(McpConfig {
-        data_dir: dir.path().join("data"),
-        ..Default::default()
-    })
+    let (service, _scan_recovery) = native_scan_service::open(
+        McpConfig {
+            data_dir: dir.path().join("data"),
+            ..Default::default()
+        },
+        true,
+    )
     .unwrap();
     let local = PrincipalId::new("fixture-admin").unwrap();
     service.engine().bootstrap_local_admin(&local).unwrap();
@@ -450,8 +470,8 @@ fn opening_remote_on_a_local_database_does_not_reuse_local_privileges() {
         data_dir: dir.path().join("data"),
         ..Default::default()
     };
-    drop(McpService::open(config.clone()).unwrap());
-    let mut remote = McpService::open_remote(config).unwrap();
+    drop(native_scan_service::open(config.clone(), false).unwrap());
+    let (mut remote, _scan_recovery) = native_scan_service::open(config, true).unwrap();
     let request=HttpRequest { method:"POST".into(),path:"/mcp".into(),query:String::new(),headers:HashMap::new(),body:r#"{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"diskgraph_scope","arguments":{"action":"list"}}}"#.into() };
     assert_eq!(
         http::handle_authenticated(&mut remote, &request, &HttpLimits::default(), None).status,
