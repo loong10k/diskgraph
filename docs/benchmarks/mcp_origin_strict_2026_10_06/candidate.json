@@ -1,0 +1,25 @@
+{
+  "production_acceptance": false,
+  "behavior_red": 5,
+  "local_exact_behavior_pass": 7,
+  "actual_socket_routes": 4,
+  "socket_positive_and_negative_observations": 28,
+  "expanded_origin_filter": {
+    "passed": 12,
+    "failed": 1,
+    "failure": "history fixture Engine Business(Unsupported) before Origin handling"
+  },
+  "initial_fix_failure": "[localhost] incorrectly treated as trusted local bind; fixed and six exact cases passed",
+  "platform_status": "macOS local only; Linux/Windows and same-commit gates pending",
+  "sources": {
+    "crates/diskgraph-mcp/src/http.rs": "3c22b7e34d4d02ca02b75899ac94f866594cd806ad087c1c4f1203f357cac40f",
+    "crates/diskgraph-mcp/src/http_lifecycle_tests.rs": "b084b2fe4a05bf1165adefff8d02eae7dca46ce3ef9fe094d51272f3254b4eed",
+    "scripts/qualify_mcp_origin.py": "ced950376e5d191c4d04208bfbee0d592e3762e8cc9ddac8cda01d38416868f1"
+  },
+  "reference": "https://datatracker.ietf.org/doc/html/rfc6454#section-6.2",
+  "source_layout_pass": 11,
+  "MCP_clippy_no_deps": "passed; Engine dependency retains42warnings",
+  "header_red_prototype_compile_failure": "Cursor was not the TcpStream reader API; corrected to actual socket and rerun produced target behavior RED; original failure retained",
+  "strict_clippy_initial_failure": "unnecessary closure parentheses; preserved and removed without allow",
+  "remote_allowlist_compatibility": "valid URI registered host names remain exact matches; no extra DNS label restrictions"
+}

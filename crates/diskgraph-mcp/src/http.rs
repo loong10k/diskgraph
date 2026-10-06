@@ -64,7 +64,7 @@ impl NetworkPolicy {
     /// allowed: non-browser MCP clients do not send one, and absence is not a
     /// claim about where the caller came from.
     pub fn origin_decision(&self, origin: Option<&str>) -> OriginDecision {
-        let Some(origin) = origin.map(str::trim) else {
+        let Some(origin) = origin.map(|value| value.trim_matches([' ', '\t'])) else {
             return OriginDecision::Absent;
         };
         if origin == "null" {
@@ -120,36 +120,82 @@ impl Security {
     }
 }
 
-/// Whether a host is one of the loopback spellings.
+/// 参数：host为完整主机字段；返回：规范IP回环或精确localhost，不猜测缩写或重复括号。
 fn is_loopback_host(host: &str) -> bool {
-    let host = host.trim_matches(|c| c == '[' || c == ']');
+    if let Some(address) = host
+        .strip_prefix('[')
+        .and_then(|value| value.strip_suffix(']'))
+    {
+        return address
+            .parse::<std::net::Ipv6Addr>()
+            .is_ok_and(|address| address.is_loopback());
+    }
     host == "localhost"
-        || host == "::1"
         || host
-            .strip_prefix("127.")
-            .is_some_and(|rest| rest.split('.').all(|part| part.parse::<u8>().is_ok()))
+            .parse::<std::net::IpAddr>()
+            .is_ok_and(|address| address.is_loopback())
 }
 
-/// Splits `scheme://host:port` into its parts. Returns None when the origin
-/// is not in that shape: a malformed origin is refused, never guessed.
+/// 参数：origin为单个HTTP来源；返回：完整scheme/host/port或拒绝，不截断路径等附加字段。
 fn parse_origin(origin: &str) -> Option<(&str, &str, Option<u16>)> {
-    let (scheme, rest) = origin.split_once("://")?;
-    if scheme != "http" && scheme != "https" {
+    let (scheme, authority) = origin.split_once("://")?;
+    if !matches!(scheme, "http" | "https")
+        || authority.is_empty()
+        || authority.bytes().any(|byte| {
+            !byte.is_ascii()
+                || byte.is_ascii_whitespace()
+                || byte.is_ascii_control()
+                || matches!(byte, b'/' | b'\\' | b'?' | b'#' | b'@')
+        })
+    {
         return None;
     }
-    let authority = rest.split('/').next().unwrap_or(rest);
-    let (host, port) = match authority.rsplit_once(':') {
-        Some((host, port)) if !host.contains(']') => (host, Some(port.parse::<u16>().ok()?)),
-        // IPv6 literals arrive bracketed: [::1]:8080.
-        Some((before, port)) if before.starts_with('[') && before.ends_with(']') => (
-            &before[1..before.len() - 1],
-            Some(port.parse::<u16>().ok()?),
-        ),
-        _ => (authority, None),
+    let (host, port_text) = if let Some(rest) = authority.strip_prefix('[') {
+        let (host, suffix) = rest.split_once(']')?;
+        host.parse::<std::net::Ipv6Addr>().ok()?;
+        let port = if suffix.is_empty() {
+            None
+        } else {
+            Some(suffix.strip_prefix(':')?)
+        };
+        (host, port)
+    } else {
+        let (host, port) = authority
+            .split_once(':')
+            .map_or((authority, None), |(host, port)| (host, Some(port)));
+        if host.is_empty() || host.len() > 253 {
+            return None;
+        }
+        // 数字地址必须由标准IP解析器确认；不把127.1等旧式缩写当作可信回环。
+        if host
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || byte == b'.')
+        {
+            host.parse::<std::net::Ipv4Addr>().ok()?;
+        } else {
+            // URI reg-name允许下划线等合法字符；不额外用DNS标签规则改变显式允许列表。
+            let mut bytes = host.bytes();
+            while let Some(byte) = bytes.next() {
+                if byte == b'%' {
+                    if !bytes.next().is_some_and(|byte| byte.is_ascii_hexdigit())
+                        || !bytes.next().is_some_and(|byte| byte.is_ascii_hexdigit())
+                    {
+                        return None;
+                    }
+                } else if !byte.is_ascii_alphanumeric() && !b"-._~!$&'()*+,;=".contains(&byte) {
+                    return None;
+                }
+            }
+        }
+        (host, port)
     };
-    if host.is_empty() {
-        return None;
-    }
+    let port = match port_text {
+        None => None,
+        Some(text) if !text.is_empty() && text.bytes().all(|byte| byte.is_ascii_digit()) => {
+            Some(text.parse::<u16>().ok()?)
+        }
+        Some(_) => return None,
+    };
     Some((scheme, host, port))
 }
 
@@ -468,15 +514,24 @@ pub fn read_request(
                 "too many HTTP headers",
             ));
         }
-        let line = line.trim_end();
+        let line = line
+            .strip_suffix("\r\n")
+            .or_else(|| line.strip_suffix('\n'))
+            .unwrap_or(&line);
         if line.is_empty() {
             break;
         }
         let (name, value) = line
             .split_once(':')
             .ok_or_else(|| std::io::Error::new(ErrorKind::InvalidData, "malformed HTTP header"))?;
-        let name = name.trim().to_ascii_lowercase();
+        let name = name.to_ascii_lowercase();
         if name.is_empty()
+            || !name
+                .bytes()
+                .all(|byte| byte.is_ascii_alphanumeric() || b"!#$%&'*+-.^_`|~".contains(&byte))
+            || value
+                .bytes()
+                .any(|byte| byte.is_ascii_control() && byte != b'\t')
             || (matches!(
                 name.as_str(),
                 "content-length"
@@ -501,10 +556,10 @@ pub fn read_request(
                 // 所有原始字段仍计入总头预算；合并只增加有界逗号分隔符。
                 if forwarded {
                     existing.push_str(", ");
-                    existing.push_str(value.trim());
+                    existing.push_str(value.trim_matches([' ', '\t']));
                 }
             })
-            .or_insert_with(|| value.trim().to_owned());
+            .or_insert_with(|| value.trim_matches([' ', '\t']).to_owned());
         // 其他非安全重复头保留第一值；framing、身份、host 与 Origin 必须单一。
     }
 
@@ -1675,6 +1730,18 @@ mod tests {
             OriginDecision::Refused
         );
 
+        for origin in ["https://_agent.corp.example", "https://agent.corp.example."] {
+            let configured = NetworkPolicy::loopback_default().with_origins([origin.to_owned()]);
+            assert_eq!(
+                configured.origin_decision(Some(origin)),
+                OriginDecision::Allowed
+            );
+            assert_eq!(
+                policy.origin_decision(Some(origin)),
+                OriginDecision::Refused
+            );
+        }
+
         // A null origin is acceptable only when a deployment asks for it.
         let permissive = NetworkPolicy {
             allow_null_origin: true,
@@ -1696,6 +1763,93 @@ mod tests {
             custom.origin_decision(Some("https://agent.corp.example.evil.test")),
             OriginDecision::Refused
         );
+    }
+
+    #[test]
+    fn malformed_http_header_tokens_are_rejected_before_dispatch() {
+        for header in [
+            " Origin: http://localhost",
+            "Origin : http://localhost",
+            "Ori(gin: x",
+            "Origin: \0http://localhost",
+            "Origin: http://localhost\rX",
+        ] {
+            let raw = format!("GET /mcp HTTP/1.1\r\nHost: localhost\r\n{header}\r\n\r\n");
+            let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+            let mut client = std::net::TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+            client.write_all(raw.as_bytes()).unwrap();
+            let (server, _) = listener.accept().unwrap();
+            let mut reader = BufReader::new(server);
+            assert!(
+                read_request(&mut reader, &HttpLimits::default()).is_err(),
+                "{header:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn malformed_origins_are_not_truncated_or_allowed_by_configuration() {
+        for origin in [
+            "http://localhost/path",
+            "http://localhost/",
+            "http://127.0.0.1:80/path",
+            "http://localhost?query",
+            "http://localhost#fragment",
+            "http://user@localhost",
+            "http://127.1",
+            "http://127.0.0.999",
+            "http://[[::1]]",
+            "http://::1",
+            "http://[localhost]",
+            "http://localhost:",
+            "http://localhost:+80",
+            "http://localhost\\evil",
+            "https://bad<example",
+            "https://bad^example",
+            "http://localhost\n",
+            "\u{00a0}http://localhost",
+        ] {
+            let policy = NetworkPolicy::loopback_default().with_origins([origin.to_owned()]);
+            assert_eq!(
+                policy.origin_decision(Some(origin)),
+                OriginDecision::Refused,
+                "{origin}"
+            );
+        }
+    }
+
+    #[test]
+    fn ipv6_loopback_origin_without_port_is_valid() {
+        let policy = NetworkPolicy::loopback_default();
+        for origin in [
+            "http://[::1]",
+            "https://[0:0:0:0:0:0:0:1]",
+            "http://[::1]:8080",
+        ] {
+            assert_eq!(
+                policy.origin_decision(Some(origin)),
+                OriginDecision::Allowed,
+                "{origin}"
+            );
+        }
+    }
+
+    #[test]
+    fn malformed_bind_hosts_never_receive_local_trust() {
+        for host in ["127.1", "127.0.1", "[[::1]]", "[localhost]", "127.0.0.999"] {
+            assert_eq!(
+                bind_decision(host, false, false),
+                BindPolicy::RefuseNoAuth,
+                "{host}"
+            );
+        }
+        for host in ["127.0.0.1", "127.42.1.2", "::1", "[::1]", "localhost"] {
+            assert_eq!(
+                bind_decision(host, false, false),
+                BindPolicy::LoopbackPlaintext,
+                "{host}"
+            );
+        }
     }
 
     /// A malicious Origin gets 403 and never reaches the engine, even when a

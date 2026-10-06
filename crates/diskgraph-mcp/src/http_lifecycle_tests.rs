@@ -126,3 +126,46 @@ fn foreground_panic_raii_joins_original_server_before_directory_cleanup() {
     assert_closed(stream);
     assert!(TcpStream::connect(address).is_err());
 }
+
+#[test]
+fn malformed_origins_are_refused_before_auth_on_all_real_transport_routes() {
+    use crate::auth::{AuthConfig, Authenticator};
+    let (service, _directory) = crate::tests::service(ToolProfile::ReadFull, "origin-routes");
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    let auth = Authenticator::new(AuthConfig::single("issuer", "aud", b"origin-fixture-key"));
+    let security = Security::remote(Some(std::sync::Arc::new(auth)));
+    let runtime = HttpServerRuntime::start(
+        service,
+        listener,
+        ServerConfig::modern(HttpLimits::default(), security).with_legacy(),
+        Vec::new(),
+    )
+    .unwrap();
+    for (method, path) in [
+        ("POST", "/mcp"),
+        ("GET", "/mcp"),
+        ("GET", "/sse"),
+        ("POST", "/messages"),
+    ] {
+        for (origin, status) in [
+            ("http://localhost/path", 403),
+            ("http://127.1", 403),
+            ("http://[[::1]]", 403),
+            ("\u{00a0}http://localhost", 403),
+            ("http://localhost\u{00a0}", 403),
+            ("http://[::1]", 401),
+            ("http://localhost", 401),
+        ] {
+            let mut stream = connect(address);
+            write!(stream, "{method} {path} HTTP/1.1\r\nHost: localhost\r\nOrigin: {origin}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").unwrap();
+            let mut line = String::new();
+            BufReader::new(stream).read_line(&mut line).unwrap();
+            assert!(
+                line.starts_with(&format!("HTTP/1.1 {status}")),
+                "{method} {path} {origin}: {line}"
+            );
+        }
+    }
+    runtime.stop_and_join().unwrap().unwrap();
+}

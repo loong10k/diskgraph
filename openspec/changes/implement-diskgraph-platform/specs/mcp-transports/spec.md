@@ -84,3 +84,10 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 #### Scenario: Protected verifier key and Windows delegation
 - **WHEN** 部署使用受限密钥文件，或 Windows CLI 启动本机 MCP 子进程
 - **THEN** 验收进程真实完成授权调用，密钥不出现在子进程参数中；不安全权限、空密钥或缺失文件使服务启动失败。
+
+#### Scenario: Strict serialized Origin and canonical loopback addresses
+- **WHEN** a request supplies an Origin with a path, query, fragment, userinfo, malformed IP/brackets, or invalid authority
+- **THEN** every HTTP/SSE entry refuses it before authentication or tool execution, even when the same malformed string appears in the configured allowlist
+- **AND** ordinary canonical IPv4 and bracketed IPv6 loopback origins with or without a port remain accepted; remote origin allowlist comparisons remain exact
+- **AND** malformed or abbreviated numeric bind hosts do not receive the trusted loopback exemption
+- **AND** the raw HTTP reader preserves non-ASCII field values for rejection, trims only ASCII OWS, and rejects malformed field-name tokens and forbidden field-value controls before dispatch

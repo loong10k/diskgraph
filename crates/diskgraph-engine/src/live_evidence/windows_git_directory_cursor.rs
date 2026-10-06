@@ -141,7 +141,7 @@ impl WindowsGitDirectoryCursor {
             .check_identity(&parent_label.join(name), file, directory)
             .map_err(std::io::Error::other)?;
         probe.check().map_err(std::io::Error::other)?;
-        let disposition = FILE_DISPOSITION_INFO { DeleteFile: 1 };
+        let disposition = FILE_DISPOSITION_INFO { DeleteFile: true };
         let result = unsafe {
             SetFileInformationByHandle(
                 file.as_raw_handle(),

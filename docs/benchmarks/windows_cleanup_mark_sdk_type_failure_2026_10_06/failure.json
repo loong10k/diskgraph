@@ -1,0 +1,8 @@
+{
+  "run": 37424515868,
+  "sha": "3684c58a2861a7221f5a4bad40325baec0df1610",
+  "production_acceptance": false,
+  "native_candidate_cases_executed": false,
+  "failure": "E0308 FILE_DISPOSITION_INFO.DeleteFile is bool in windows-sys0.61.2",
+  "fix": "use true; original SDK struct layout and native call unchanged"
+}

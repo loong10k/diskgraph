@@ -1,0 +1,27 @@
+name: MCP Origin qualification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  origin:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.13"
+      - name: Run exact current-source policy and real socket cases
+        run: python scripts/qualify_mcp_origin.py --output-dir "${{ runner.temp }}/origin"
+      - name: Preserve source and executable bound results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mcp-origin-${{ matrix.os }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/origin
