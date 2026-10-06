@@ -29,14 +29,6 @@ impl UnixLeader {
         Self::Standard(child)
     }
 
-    /// 接管成功原生出生的正 PID。参数：pid 为调用方唯一拥有的原子出生结果。
-    /// 返回：未回收 leader，不修改信号策略；须立即放入完整管道与恢复 owner。
-    /// 安全性：调用方必须保留此 PID 的独占 wait 责任，禁止 auto-reap 或其他线程抢先 wait。
-    #[cfg(target_os = "macos")]
-    pub(super) unsafe fn from_native(pid: libc::pid_t) -> Self {
-        Self::Native { pid, status: None }
-    }
-
     /// 借用原未回收身份。参数：无；返回：本次 leader 的 PID，完成后仅供缓存诊断。
     pub(super) fn id(&self) -> u32 {
         match self {

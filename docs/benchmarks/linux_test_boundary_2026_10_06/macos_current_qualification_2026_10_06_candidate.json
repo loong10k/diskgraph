@@ -1,0 +1,25 @@
+{
+  "status": "native installed qualification pending",
+  "scope": "current checkout, no frozen source mounting",
+  "local_platform": "aarch64-apple-darwin",
+  "source_tool_red": "14 passed/1 failed: original current file overwritten by archived source",
+  "source_tool_green": "15 passed/0 failed",
+  "strict_engine_candidate_build": "success with -D warnings and macos_native_scan_candidate",
+  "native_regression": "48 passed/0 failed/1 isolated helper ignored",
+  "source_layout": "6 passed/0 failed",
+  "product_response_tests": "6 passed/0 failed",
+  "limitations": [
+    "default product feature remains disabled",
+    "no local root installation",
+    "does not prove fixed installed helper or full product acceptance",
+    "macOS Intel qualification pending"
+  ],
+  "raw_logs": [
+    "source_red",
+    "source_green",
+    "strict_candidate_build",
+    "native_regression",
+    "source_layout",
+    "product_response"
+  ]
+}

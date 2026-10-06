@@ -125,3 +125,12 @@ b51f2ec 原生四案 2/2：两项改名正控在并行夹具创建期间仍遇�
 1f51836/37468862104 Linux ARM 的全量测试通过，但 strict Clippy 因启动失败对象184–216字节、观察回调类型复杂和测试写法失败。减小失败返回不得在kernel birth到唯一owner建立之间分配、调用回调或执行可失败转换；处置槽必须在出生前分配，出生后原pidfd与管道直接adopt写入槽。正常返回、失败清理不完整及panic原owner交回均保留原语义，禁止lint抑制或测试专用隐藏生产路径。
 
 f32b0c7/37470345841 三组 Linux 的实际 reset 回归三案均成功，仍待全量终态。1f51836 Linux Rust1.97完整job成功（含Clippy）；stable Engine一次外部ControlStore打开Busy、FFI91/0；ARM全量通过但strict Clippy失败，证据保留。现在启动失败采用出生前MaybeUninit唯一槽、失败保存原Box、调用方取回原值；新增错误对象内联大小门禁，原出生/panic/清理回归保持不变，修订后native及Clippy尚待CI。
+
+
+## 当前提交的 macOS 安装与产品资格（未完成）
+
+默认产品20组未接线警告不能用lint抑制、测试专用隐藏或提前启用候选feature解决。现有资格工具的冻结源码挂载只证明归档候选，不能作为当前SHA产品验收。新增current-checkout模式：不写入归档源码，记录当前Git跟踪的workspace/Cargo/脚本/workflow全部相关源摘要，要求干净跟踪文件，验收前后摘要及真实helper/test二进制身份不变。原root安装、普通UID实际出生/取消/panic、Engine发布/预算失败/恢复、CLI/MCP及完整回归清单保持。workflow在临时GitHub-hosted macOS ARM/Intel使用该模式与-D warnings；本机不得安装root夹具，候选feature不因此默认启用。
+
+工具回归首先复现旧mount将当前文件替换为冻结旧文件，14项通过/1项目标失败，之后修复只读取当前源码。工具GREEN不代替原生安装及产品运行证据，原生结果待指定当前提交workflow。
+
+当前模式工具15/0、产品响应6/0。本机macOS候选严格Engine构建成功；原pipe/出生/等待回归48/0/1隔离helper ignored，结构6/0。删除未使用的出生后leader构造入口，原leader回归仍核真实PID/wait；MacosNativePipes现明确消费WorkerControl模式，Null拒绝，原gate回归增加Null负控。当前native回归清单从实际二进制取得，保留至少原44及必跑原用例，不跳过新增用例。原生root安装/普通UID完整产品资格仍待ARM/Intel CI；默认能力未启用。

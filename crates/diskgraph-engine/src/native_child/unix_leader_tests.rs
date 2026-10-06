@@ -55,7 +55,7 @@ fn native_child_wait_consumes_only_original_pid_and_keeps_cached_exit_status() {
             )
         };
         assert_eq!(result, 0);
-        let mut leader = unsafe { UnixLeader::from_native(pid) };
+        let mut leader = UnixLeader::Native { pid, status: None };
         assert_eq!(leader.id(), pid as u32);
         assert_eq!(leader.wait().unwrap().code(), Some(expected));
         assert_eq!(leader.wait().unwrap().code(), Some(expected));
@@ -158,7 +158,7 @@ fn native_and_standard_poll_wait_keep_live_owner_and_cache_only_actual_reaping()
                 },
                 0
             );
-            unsafe { UnixLeader::from_native(pid) }
+            UnixLeader::Native { pid, status: None }
         } else {
             UnixLeader::from_standard(Command::new("/bin/sleep").arg("2").spawn().unwrap())
         };

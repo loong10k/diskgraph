@@ -9,6 +9,12 @@ use std::time::Duration;
 
 #[test]
 fn real_raw_pipe_window_blocks_controlled_birth_until_cloexec_preparation_finishes() {
+    assert!(matches!(
+        MacosNativePipes::prepare(super::ChildInputMode::Null, &mut || Ok(())),
+        Err(EngineError::Business(
+            diskgraph_core::BusinessError::Unsupported
+        ))
+    ));
     let (wait_tx, wait_rx) = mpsc::channel();
     let (born_tx, born_rx) = mpsc::channel();
     let born_rx = Arc::new(Mutex::new(born_rx));
@@ -41,7 +47,8 @@ fn real_raw_pipe_window_blocks_controlled_birth_until_cloexec_preparation_finish
             Err(mpsc::TryRecvError::Empty)
         ));
     }));
-    let pipes = MacosNativePipes::prepare(&mut || Ok(())).unwrap();
+    let pipes =
+        MacosNativePipes::prepare(super::ChildInputMode::WorkerControl, &mut || Ok(())).unwrap();
     drop(pipes);
     born_rx
         .lock()
@@ -167,7 +174,7 @@ fn raw_pipe_panic_closes_original_descriptors_and_poison_does_not_break_next_bir
         std::panic::panic_any(String::from("original pipe preparation panic"));
     }));
     let panic = std::panic::catch_unwind(|| {
-        let _ = MacosNativePipes::prepare(&mut || Ok(()));
+        let _ = MacosNativePipes::prepare(super::ChildInputMode::WorkerControl, &mut || Ok(()));
     })
     .unwrap_err();
     assert_eq!(

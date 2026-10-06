@@ -1,4 +1,6 @@
 name: macOS installed scan worker qualification
+env:
+  RUSTFLAGS: -D warnings
 on:
   workflow_dispatch:
 permissions:
@@ -22,7 +24,7 @@ jobs:
       - name: Verify product response rejection safeguards
         run: python -m unittest discover -s scripts/tests -p test_macos_product_flows.py -v
       - name: Actual root issuer and ordinary UID helper qualification
-        run: python scripts/qualify_macos_installed_worker.py --output-dir "${{ runner.temp }}/macos-installed-worker"
+        run: python scripts/qualify_macos_installed_worker.py --current-checkout --output-dir "${{ runner.temp }}/macos-installed-worker"
       - name: Preserve original source and native results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

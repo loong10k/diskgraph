@@ -86,6 +86,19 @@ class MacosInstalledQualifierTests(unittest.TestCase):
             actual = {name for name in packages[package]["dependencies"] if name.startswith("diskgraph-")}
             self.assertEqual(actual, expected, package)
 
+    def test_current_sources_preserve_actual_checkout_instead_of_mounting_old_archive(self):
+        name = "crates/diskgraph-engine/src/current.rs"
+        self.candidate([(name, b"old frozen source", "file")])
+        actual = self.checkout / name
+        actual.parent.mkdir(parents=True, exist_ok=True)
+        actual.write_bytes(b"current production source")
+        with patch.object(qualifier.subprocess, "check_output", return_value=(name + "\0").encode()):
+            manifest = qualifier.current_sources(self.checkout)
+        self.assertEqual(actual.read_bytes(), b"current production source")
+        self.assertEqual(manifest["sources"][name], hashlib.sha256(actual.read_bytes()).hexdigest())
+        self.assertEqual(manifest["source_mode"], "current_checkout")
+        self.assertNotIn("archive_sha256", manifest)
+
     def test_regular_frozen_sources_mount_and_match(self):
         self.candidate([("crates/diskgraph-engine/src/frozen.rs", b"source", "file")])
         qualifier.mount(self.checkout)

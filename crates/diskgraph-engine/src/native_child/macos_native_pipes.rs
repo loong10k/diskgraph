@@ -1,4 +1,5 @@
 use super::ChildError;
+use super::ChildInputMode;
 use super::unix_child_setup::UnixChildSetup;
 use super::unix_control_channel::UnixControlChannel;
 use std::fs::File;
@@ -18,16 +19,23 @@ pub(super) struct MacosNativePipes {
 }
 
 impl MacosNativePipes {
-    /// 建立全部通道。参数：检查点沿原请求取消和期限；返回：出生前可失败的独占资源，不修改宿主信号策略。
+    /// 建立全部通道。参数：input必须为WorkerControl，检查点沿原请求取消和期限；返回：出生前可失败的独占资源，不修改宿主信号策略。
     pub(super) fn prepare(
+        input: ChildInputMode,
         checkpoint: &mut impl FnMut() -> Result<(), crate::EngineError>,
     ) -> Result<Self, crate::EngineError> {
         let _gate = super::native_birth_gate::NativeBirthGate::acquire(checkpoint)?;
-        Self::prepare_channels()
+        Self::prepare_channels(input)
             .map_err(crate::scan_worker_error_projection::ScanWorkerErrorProjection::child)
     }
 
-    fn prepare_channels() -> Result<Self, ChildError> {
+    fn prepare_channels(input: ChildInputMode) -> Result<Self, ChildError> {
+        // worker协议必须有真实控制输入；Null仅用于旧探针，不可启动扫描协议。
+        if input == ChildInputMode::Null {
+            return Err(ChildError::Unsupported(
+                "native scanner requires worker control input",
+            ));
+        }
         let (parent, child) = UnixStream::pair()
             .map_err(|error| ChildError::io("prepare native control socket", error))?;
         child

@@ -47,7 +47,9 @@ impl MacosNativeLauncher {
             ))
         })?;
         let buffer = ChildReadBuffer::new().map_err(ScanWorkerErrorProjection::child)?;
-        let pipes = MacosNativePipes::prepare(&mut || check(deadline, checkpoint))?;
+        let pipes = MacosNativePipes::prepare(super::ChildInputMode::WorkerControl, &mut || {
+            check(deadline, checkpoint)
+        })?;
         Ok(Self {
             lease,
             program,

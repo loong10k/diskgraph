@@ -57,11 +57,11 @@ NATIVE_BIRTH_REGRESSION_CASES = (
 )
 
 
-def check_native_birth_regression(stdout):
+def check_native_birth_regression(stdout, expected=44):
     """实际并行执行44项；唯一ignored是由真实回归显式调用的隔离夹具。"""
     summaries = re.findall(r"^test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out;", stdout, re.M)
-    if len(summaries) != 1 or tuple(map(int, summaries[0][:4])) != (44, 0, 1, 0):
-        raise RuntimeError("parallel native child regression did not execute all 44 cases")
+    if len(summaries) != 1 or tuple(map(int, summaries[0][:4])) != (expected, 0, 1, 0):
+        raise RuntimeError("parallel native child regression differs from the complete required inventory")
     fixture = "test native_child::unix_leader_tests::nonpositive_native_pid_isolated_fixture ... ignored, invoked by the real isolated ownership regression"
     if fixture not in stdout or "DG_NONPOSITIVE_WAIT_FIXTURE_VERIFIED pid=0,-1,-42" not in stdout:
         raise RuntimeError("isolated nonpositive wait fixture was not actually verified")
@@ -190,6 +190,36 @@ def mount(checkout, candidate=CANDIDATE, *, allow_products=False):
     return manifest
 
 
+def current_sources(checkout):
+    """只记录当前Git源码与摘要；旧归档仅提供验收清单，绝不挂载其源码。"""
+    checkout = checkout.resolve(strict=True)
+    manifest = json.loads((checkout / CANDIDATE / "manifest.json").read_text(encoding="utf-8"))
+    paths = subprocess.check_output(["git", "ls-files", "-z"], cwd=checkout).decode("utf-8").split("\0")
+    sources = {}
+    for name in paths:
+        path = Path(name)
+        if (not name or "integration_candidates" in path.parts
+                or not (name in {"Cargo.toml", "Cargo.lock"}
+                        or (name.startswith("crates/") and path.suffix in {".rs", ".c", ".h", ".toml"})
+                        or (name.startswith("scripts/") and path.suffix == ".py")
+                        or (name.startswith(".github/workflows/") and path.suffix in {".yml", ".yaml"}))):
+            continue
+        if path.is_absolute() or ".." in path.parts or name != path.as_posix():
+            raise ValueError("current source path escapes checkout")
+        actual = checkout / path
+        if actual.is_symlink() or any(parent.is_symlink() for parent in actual.parents if parent != checkout):
+            raise ValueError("current source contains symlink")
+        if not actual.is_file():
+            raise ValueError("current tracked source is missing")
+        sources[name] = digest(actual)
+    if not sources:
+        raise ValueError("current checkout has no tracked source inventory")
+    manifest.pop("archive_sha256", None)
+    manifest["sources"] = sources
+    manifest["source_mode"] = "current_checkout"
+    return manifest
+
+
 def invoke(command, checkout, output, name, environment, timeout=900):
     with (output / (name + ".stdout")).open("wb") as stdout, (output / (name + ".stderr")).open("wb") as stderr:
         result = subprocess.run(command, cwd=checkout, env=environment, stdout=stdout, stderr=stderr, timeout=timeout)
@@ -200,6 +230,7 @@ def invoke(command, checkout, output, name, environment, timeout=900):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument("--current-checkout", action="store_true", help="qualify current tracked source without mounting a frozen archive")
     args = parser.parse_args()
     checkout = Path(__file__).resolve().parent.parent
     output = args.output_dir.resolve()
@@ -213,7 +244,13 @@ def main():
         receipt["checkout_sha"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=checkout, text=True).strip()
         receipt["rustc"] = subprocess.check_output(["rustc", "--version"], text=True).strip()
         receipt["os_version"] = platform.mac_ver()[0]
-        manifest = mount(checkout, allow_products=True)
+        if args.current_checkout:
+            dirty = subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=checkout)
+            if dirty:
+                raise RuntimeError("current checkout qualification requires unchanged tracked source")
+            manifest = current_sources(checkout)
+        else:
+            manifest = mount(checkout, allow_products=True)
         required_cases = {"macos_installed_worker_fixture_tests::" + name for name in (
             "macos_installed_helper_returns_complete_tree_after_real_normal_wait",
             "macos_installed_helper_original_cancel_after_birth_is_reaped",
@@ -265,12 +302,25 @@ def main():
             if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text(encoding="utf-8"):
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
-        if manifest.get("native_child_parallel_tests_required") != 44:
+        expected_native = 44
+        if args.current_checkout:
+            invoke([str(binary), "native_child::", "--list"], checkout, output, "native-current-inventory", env)
+            invoke([str(binary), "native_child::", "--ignored", "--list"], checkout, output, "native-current-ignored", env)
+            native = [line[:-6] for line in (output / "native-current-inventory.stdout").read_text(encoding="utf-8").splitlines() if line.endswith(": test")]
+            ignored_native = [line[:-6] for line in (output / "native-current-ignored.stdout").read_text(encoding="utf-8").splitlines() if line.endswith(": test")]
+            if len(set(native)) != len(native) or len(ignored_native) != 1 or not set(ignored_native).issubset(native):
+                raise RuntimeError("current native binary inventory is inconsistent")
+            expected_native = len(native) - len(ignored_native)
+            if expected_native < 44:
+                raise RuntimeError("current native inventory lost required regressions")
+            manifest["native_child_parallel_tests_required"] = expected_native
+            receipt["native_current_inventory"] = native
+        if manifest.get("native_child_parallel_tests_required") != expected_native:
             raise ValueError("candidate parallel birth regression inventory differs")
         invoke([str(binary), "native_child::", "--nocapture"],
                checkout, output, "native-child-parallel-regression", env)
-        check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text(encoding="utf-8"))
-        receipt["native_child_parallel_regression_tests_passed"] = 44
+        check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text(encoding="utf-8"), expected_native)
+        receipt["native_child_parallel_regression_tests_passed"] = expected_native
         if manifest.get("product_flows") != ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"]:
             raise ValueError("actual product flow inventory differs")
         invoke(["cargo", "build", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "--features", "diskgraph-engine/macos_native_scan_candidate"],
