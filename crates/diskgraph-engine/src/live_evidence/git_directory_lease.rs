@@ -225,14 +225,18 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
     if !matches!(unsafe { GetDriveTypeW(wide.as_ptr()) }, 2 | 3 | 6) {
         return Err("unsupported git metadata directory volume".into());
     }
-    let mut file = std::fs::OpenOptions::new()
-        .access_mode(FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES)
-        .share_mode(FILE_SHARE_READ)
-        .custom_flags(
-            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
-        )
-        .open(&plan.drive_root)
-        .map_err(|error| format!("git metadata drive open: {error}"))?;
+    let mut file = open_windows_with_budget(probe, || {
+        std::fs::OpenOptions::new()
+            .access_mode(FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES)
+            .share_mode(FILE_SHARE_READ)
+            .custom_flags(
+                FILE_FLAG_BACKUP_SEMANTICS
+                    | FILE_FLAG_OPEN_REPARSE_POINT
+                    | FILE_FLAG_OPEN_NO_RECALL,
+            )
+            .open(&plan.drive_root)
+    })
+    .map_err(|error| format!("git metadata drive open: {error}"))?;
     let drive_state = WindowsFileState::capture(&file)
         .map_err(|error| format!("git metadata drive state: {error}"))?;
     drive_state
@@ -241,7 +245,9 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
     let mut parents = Vec::new();
     for name in plan.components {
         probe.check().map_err(|error| error.to_string())?;
-        let next = open_windows_child(&file, &name)?;
+        let next = open_windows_with_budget(probe, || open_windows_child(&file, &name)).map_err(
+            |error| format!("git metadata directory NtCreateFile component {name:?}: {error}"),
+        )?;
         let state = WindowsFileState::capture(&next)
             .map_err(|error| format!("git metadata child state: {error}"))?;
         state.validate(true).map_err(|error| error.to_string())?;
@@ -256,7 +262,7 @@ fn open_directory(path: &Path, probe: &mut ProbeBudget) -> Result<(File, Vec<Fil
 }
 
 #[cfg(windows)]
-fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, String> {
+fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> std::io::Result<File> {
     use std::os::windows::ffi::OsStrExt;
     use std::os::windows::io::{AsRawHandle, FromRawHandle};
     use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
@@ -272,7 +278,7 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
     };
     use windows_sys::Win32::System::IO::IO_STATUS_BLOCK;
     let mut wide: Vec<u16> = name.encode_wide().collect();
-    let length = u16::try_from(wide.len() * 2).map_err(|error| error.to_string())?;
+    let length = u16::try_from(wide.len() * 2).map_err(std::io::Error::other)?;
     let unicode = UNICODE_STRING {
         Length: length,
         MaximumLength: length,
@@ -311,9 +317,36 @@ fn open_windows_child(parent: &File, name: &std::ffi::OsStr) -> Result<File, Str
         }
         let error =
             std::io::Error::from_raw_os_error(unsafe { RtlNtStatusToDosError(status) as i32 });
-        return Err(format!(
-            "git metadata directory NtCreateFile component {name:?}: {error}"
-        ));
+        return Err(error);
     }
     Ok(unsafe { File::from_raw_handle(handle) })
+}
+
+/// 参数：原预算及同一组件的原生打开；返回：身份检查前取得的句柄或原错误。
+/// 只重试共享冲突，不更改 access/share/no-reparse；期限和取消始终来自原账本。
+#[cfg(windows)]
+fn open_windows_with_budget<T>(
+    probe: &mut ProbeBudget,
+    mut open: impl FnMut() -> std::io::Result<T>,
+) -> std::io::Result<T> {
+    loop {
+        probe.check().map_err(std::io::Error::other)?;
+        match open() {
+            Ok(file) => {
+                probe.check().map_err(std::io::Error::other)?;
+                return Ok(file);
+            }
+            Err(error)
+                if error.raw_os_error()
+                    == Some(windows_sys::Win32::Foundation::ERROR_SHARING_VIOLATION as i32) =>
+            {
+                probe.check().map_err(std::io::Error::other)?;
+                let remaining = probe
+                    .deadline()
+                    .saturating_duration_since(std::time::Instant::now());
+                std::thread::sleep(remaining.min(std::time::Duration::from_millis(20)));
+            }
+            Err(error) => return Err(error),
+        }
+    }
 }

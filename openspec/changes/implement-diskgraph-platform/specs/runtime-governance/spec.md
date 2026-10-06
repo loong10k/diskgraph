@@ -180,3 +180,9 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 - **WHEN** queued 或租约已过期任务的 fencing_token 已达 SQLite 有符号整数上限、为负数或不是整数
 - **THEN** 条件认领拒绝，不修改 state、owner、heartbeat、lease 或 token，不先提交无效代次后再因解码失败报错。
 - **AND** 合法末个代次从上限减一递增到上限仍可认领；该代次失效后不能回绕、提升为浮点数或重用零代次。正常跨进程竞争、实时授权和旧 owner 禁写合同保持不变。
+
+### Scenario: Windows directory lease retries transient sharing contention within the original budget
+- **WHEN** a directory component cannot open because a concurrent native handle causes ERROR_SHARING_VIOLATION
+- **THEN** only that typed sharing conflict is retried under the same absolute ProbeBudget deadline and cancellation, without changing the requested access/share modes or reopening through links
+- **AND** success still validates the returned original component identity/type/volume; expiry or cancellation terminates retries, and any other native error returns immediately
+- **AND** an isolated actual write-access directory handle must establish the sharing conflict; after its release the same lease operation succeeds, while the original implementation fails at the actual sharing-conflict assertion

@@ -1,0 +1,14 @@
+{
+  "run": 37540085159,
+  "job": 112530686933,
+  "source": "d25dcf6908ead4fb881cb2dffb7db5d0ed037942",
+  "failure": "native concurrent cleanup 4/1/0; Temp component sharing violation",
+  "candidate_sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_directory_lease.rs": "f6271a22dcdb7d74ba88d5bebb42aede946ea2c8c60cd13375d7cda4d7d99cf6",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_share_retry_tests.rs": "184a74f5846042ae2e301aae65172ddc6946a20337639bfe4338323bd4a1d6dd",
+    "scripts/qualify_windows_directory_share_retry.py": "1bb864cd881a452ff461710423906cdf478f43f32ea10b24ce41be44786b8944",
+    "scripts/tests/test_windows_directory_sharing_qualification.py": "e85fd78619a0eacebf855305edb71b72b36955595d90083ad351f98f24060192"
+  },
+  "local": "13 Unix lease regressions; 242 Python tests; Engine lib Clippy and fmt",
+  "status": "native sharing qualification and full Windows regression pending"
+}

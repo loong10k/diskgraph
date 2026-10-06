@@ -1,0 +1,29 @@
+{
+  "run": 37540085159,
+  "candidate": "d25dcf6908ead4fb881cb2dffb7db5d0ed037942",
+  "checks": [
+    {
+      "artifact": 11448705003,
+      "sha256": "eb82968c6e025e3ad290913d6a1528383a299bfe390b333f1327d8bb06d96ee5",
+      "source_binding": "candidate/shared Git LF or CRLF verified; baseline adaptation reproduced exactly",
+      "red": "0/1/0",
+      "green": [
+        1,
+        1,
+        5
+      ]
+    },
+    {
+      "artifact": 11449085027,
+      "sha256": "6bbb4cb9139f6f75be431c0e8a47cc69bf132ee29f0923ea2242c574859b78fc",
+      "source_binding": "candidate/shared Git LF or CRLF verified; baseline adaptation reproduced exactly",
+      "red": "0/1/0",
+      "green": [
+        1,
+        1,
+        5
+      ]
+    }
+  ],
+  "scope": "foreign absence component; full Windows and finite shutdown remain open"
+}
