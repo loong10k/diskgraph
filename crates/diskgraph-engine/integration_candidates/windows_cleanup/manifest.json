@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "c111a84795f40d332a57214973fda68a0ba84f7c3f386b95217e127be79f0910",
+  "archive_sha256": "4452ab49b74487bc315071068a7f4ef26a47edd885c046fd05006879f4718e76",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -502,7 +502,7 @@
     "crates/diskgraph-scan-worker/src/worker_scan_request.rs": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
     "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "39c57beecd523329b9ba84b25f5681a978b47da188c5238e57ca9d58f0d5af23",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "0e505b041622374df12f224058b5abfbaf31df48664fed1131937898152ab293",
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "d16eebea517e01e2f4c9f44b38022a8619485d8fba641110a10c7c89e158beaf",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "0d951fc59bf402cb1162d81611c6e7a82c03e18460d26f625382169b8623fc67",
@@ -510,7 +510,7 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_directory_notification_tests.rs": "1040c7b273d8df31cadeb8e476e7a46325a4729ad432f1771ea93936ea5c3737",
     "crates/diskgraph-engine/src/native_child/windows/windows_directory_notification_io.rs": "8a3e35eba0de39d4dc86cd84d632e41322f7a1c617fd1a5c802536115318eaf8",
     "crates/diskgraph-engine/src/live_evidence/windows_git_removal_observation.rs": "a321cf1d170a8bbd8618ca6a7339b8201930d830026d13773c636dab1092904c",
-    "crates/diskgraph-engine/src/live_evidence/windows_cleanup_mark_hook.rs": "4cf5c322b31e2f455e83bf71a77d2d25e2d372e387bb86a1337a0108269ea628"
+    "crates/diskgraph-engine/src/live_evidence/windows_cleanup_mark_hook.rs": "7d2402e356f4d422c5e215fb49cad117a25111d254a618fac66cc4b22815fdc6"
   },
   "cleanup_cases": [
     "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",

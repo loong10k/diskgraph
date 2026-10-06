@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "3dc8a3a5e47a9e980c7afa5ee92f51bc13a5a80fc3aef6078a904a7496d83c87",
+  "archive_sha256": "943463be3a7832d386c8f949c6cc2e8d68d0ff86036d283423a930011988209c",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -609,7 +609,7 @@
     "crates/diskgraph-mcp/src/http_limits.rs": "117e83d2e25435adfec5c9a863259d790aebc5a71fa1b5065cfbc6c2362be73e",
     "crates/diskgraph-mcp/src/http_response.rs": "80b1b4a57911abe766205cba47bd199f3c99722f40fd1cc8cc2b523196bb6dd2",
     "crates/diskgraph-mcp/src/http_server_config.rs": "c5c57d9acaa6df5368ad582a836c6da00e1e30843229efc9f2989f85b8338e75",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "39c57beecd523329b9ba84b25f5681a978b47da188c5238e57ca9d58f0d5af23",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "0e505b041622374df12f224058b5abfbaf31df48664fed1131937898152ab293",
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "d16eebea517e01e2f4c9f44b38022a8619485d8fba641110a10c7c89e158beaf",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "0d951fc59bf402cb1162d81611c6e7a82c03e18460d26f625382169b8623fc67",
@@ -617,7 +617,7 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_directory_notification_tests.rs": "1040c7b273d8df31cadeb8e476e7a46325a4729ad432f1771ea93936ea5c3737",
     "crates/diskgraph-engine/src/native_child/windows/windows_directory_notification_io.rs": "8a3e35eba0de39d4dc86cd84d632e41322f7a1c617fd1a5c802536115318eaf8",
     "crates/diskgraph-engine/src/live_evidence/windows_git_removal_observation.rs": "a321cf1d170a8bbd8618ca6a7339b8201930d830026d13773c636dab1092904c",
-    "crates/diskgraph-engine/src/live_evidence/windows_cleanup_mark_hook.rs": "4cf5c322b31e2f455e83bf71a77d2d25e2d372e387bb86a1337a0108269ea628"
+    "crates/diskgraph-engine/src/live_evidence/windows_cleanup_mark_hook.rs": "7d2402e356f4d422c5e215fb49cad117a25111d254a618fac66cc4b22815fdc6"
   },
   "ordinary_cases": [
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",

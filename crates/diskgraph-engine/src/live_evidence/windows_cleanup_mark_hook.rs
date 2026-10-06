@@ -25,4 +25,32 @@ impl WindowsCleanupMarkHook {
             action();
         }
     }
+
+    /// 参数：file为已成功标记的原DELETE句柄；返回：无，记录真实后置元数据，不改动生产结果。
+    pub(super) fn inspect_marked(file: &std::fs::File) {
+        use std::os::windows::io::AsRawHandle;
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_STANDARD_INFO, FileStandardInfo, GetFileInformationByHandleEx,
+        };
+        let mut info = FILE_STANDARD_INFO::default();
+        let result = unsafe {
+            GetFileInformationByHandleEx(
+                file.as_raw_handle(),
+                FileStandardInfo,
+                std::ptr::addr_of_mut!(info).cast(),
+                std::mem::size_of::<FILE_STANDARD_INFO>() as u32,
+            )
+        };
+        if result != 0 {
+            eprintln!(
+                "DG_POST_MARK_STANDARD links={}; pending={}; directory={}",
+                info.NumberOfLinks, info.DeletePending, info.Directory
+            );
+        } else {
+            eprintln!(
+                "DG_POST_MARK_STANDARD error={:?}",
+                std::io::Error::last_os_error().raw_os_error()
+            );
+        }
+    }
 }

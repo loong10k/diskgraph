@@ -1,0 +1,11 @@
+{
+  "run_id": 37431437380,
+  "source_commit": "ab46ddd6433410e5284eb782d1ab8c86359481d6",
+  "fixture_sha256": "26c5632d452e5d2f9ea1a9618cf27dd36aea3bc47788786af50578ecd11b5fd4",
+  "production_acceptance": false,
+  "cases": 81,
+  "passed": 80,
+  "target_red_verified": true,
+  "failed_case": "live_evidence::windows_git_directory_cursor_tests::postvalidation_hardlink_race_retains_current_child_and_original_capacity",
+  "failure": "actual hardlink after final validation; original mark still returns Ok"
+}

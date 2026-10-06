@@ -180,6 +180,8 @@ impl WindowsGitDirectoryCursor {
         }
         // 成功删除请求不能被末段超时抹除；恢复只确认原ID，不按名称再次删除。
         self.cleanup_delete_requested = true;
+        #[cfg(test)]
+        super::windows_cleanup_mark_hook::WindowsCleanupMarkHook::inspect_marked(file);
         probe.check().map_err(std::io::Error::other)
     }
 
