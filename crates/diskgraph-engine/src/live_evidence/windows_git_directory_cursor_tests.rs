@@ -949,11 +949,27 @@ fn modified_original_private_artifact_is_rejected_as_evidence_but_actually_dispo
     std::fs::write(&path, b"original").unwrap();
     let file = std::fs::File::open(&path).unwrap();
     let identity = GitPrivateAllocation::from_file(&file).unwrap();
+    let original_modified = file.metadata().unwrap().modified().unwrap();
     capacity.observe(&path, &file, &mut probe).unwrap();
     drop(file);
     std::fs::write(&path, b"modified").unwrap();
+    // 同长度连续写入可能落在同一原生时钟刻度；显式改变原句柄时间，确保版本拒绝前提真实成立。
+    let writer = std::fs::OpenOptions::new().write(true).open(&path).unwrap();
+    writer
+        .set_times(
+            std::fs::FileTimes::new().set_modified(
+                original_modified
+                    .checked_add(std::time::Duration::from_secs(60))
+                    .unwrap(),
+            ),
+        )
+        .unwrap();
+    drop(writer);
     let modified = std::fs::File::open(&path).unwrap();
-    assert!(identity.same_identity(&GitPrivateAllocation::from_file(&modified).unwrap()));
+    let modified_identity = GitPrivateAllocation::from_file(&modified).unwrap();
+    assert!(identity.same_identity(&modified_identity));
+    assert!(!identity.same_version(&modified_identity));
+    assert_eq!(std::fs::read(&path).unwrap(), b"modified");
     assert!(
         capacity
             .check_identity(&path, &modified, false)

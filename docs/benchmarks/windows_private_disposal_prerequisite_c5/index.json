@@ -1,0 +1,44 @@
+{
+  "candidate": "c5f74ed6d240c2dc212c690b63602baef5400281",
+  "run": 37523576938,
+  "status": "not accepted; version-mutation prerequisite nondeterministic before cleanup",
+  "artifacts": [
+    {
+      "variant": "stable",
+      "artifact_id": 11441477044,
+      "files": [
+        {
+          "path": "stable_green-disposal.log.gz",
+          "original_sha256": "ab8680c9cf6a5a0da0c17a248a391145a3d4cefe7c7240a932bd617780543dbc",
+          "bytes": 1170
+        },
+        {
+          "path": "stable_receipt.json.gz",
+          "original_sha256": "5ddc9f7cd01342c290961690b86009e4d6ed0b63c0f9cc4de87b2030ac1a3f56",
+          "bytes": 1546
+        },
+        {
+          "path": "stable_red.log.gz",
+          "original_sha256": "03b494e6f3a7875c82878e09528e9d1c8fc7b548fcdb697869345308727511eb",
+          "bytes": 1310
+        }
+      ]
+    },
+    {
+      "variant": "msrv",
+      "artifact_id": 11441237113,
+      "files": [
+        {
+          "path": "msrv_receipt.json.gz",
+          "original_sha256": "a03d3f46c2c23eabf02efd4ec9359223778314cabfd0f8a838582d87ac51fb30",
+          "bytes": 1425
+        },
+        {
+          "path": "msrv_red.log.gz",
+          "original_sha256": "bb33acfe9a0e502f01744fe1f09a35a55def861a0a13271a91b0f22128cb5074",
+          "bytes": 1170
+        }
+      ]
+    }
+  ]
+}
