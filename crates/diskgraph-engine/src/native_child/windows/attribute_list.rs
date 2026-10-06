@@ -6,24 +6,26 @@ use std::ptr::{null, null_mut};
 use windows_sys::Win32::Foundation::HANDLE;
 use windows_sys::Win32::System::Threading::{
     DeleteProcThreadAttributeList, InitializeProcThreadAttributeList, LPPROC_THREAD_ATTRIBUTE_LIST,
-    PROC_THREAD_ATTRIBUTE_HANDLE_LIST, PROC_THREAD_ATTRIBUTE_JOB_LIST, UpdateProcThreadAttribute,
+    PROC_THREAD_ATTRIBUTE_HANDLE_LIST, PROC_THREAD_ATTRIBUTE_JOB_LIST,
+    PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY, UpdateProcThreadAttribute,
 };
 
 use super::super::ChildError;
 
-/// 两个扩展属性及其值的对齐所有者。来源：Win32 UpdateProcThreadAttribute 的 lpValue 存活契约。
+/// Job、继承句柄与出生前加载策略的对齐所有者。来源：Win32 UpdateProcThreadAttribute 的 lpValue 存活契约。
 pub(super) struct AttributeList {
     words: Vec<usize>,
     initialized: bool,
     jobs: Option<Box<[HANDLE; 1]>>,
     handles: Option<Box<[HANDLE; 3]>>,
+    mitigation: Box<u64>,
 }
 
 impl AttributeList {
-    /// 创建 JOB_LIST 和 HANDLE_LIST 容器。参数：无。返回：已初始化的属性列表或 Win32 错误。
+    /// 创建 JOB_LIST、HANDLE_LIST 与固定加载策略容器。参数：无。返回：已初始化的属性列表或 Win32 错误。
     pub(super) fn new() -> Result<Self, ChildError> {
         let mut bytes = 0usize;
-        unsafe { InitializeProcThreadAttributeList(null_mut(), 2, 0, &mut bytes) };
+        unsafe { InitializeProcThreadAttributeList(null_mut(), 3, 0, &mut bytes) };
         if bytes == 0 || bytes > 1 << 20 {
             return Err(ChildError::io(
                 "InitializeProcThreadAttributeList(size)",
@@ -36,8 +38,11 @@ impl AttributeList {
             initialized: false,
             jobs: None,
             handles: None,
+            // SDK ALWAYS_ON位域：拒绝远程、拒绝低完整性、优先System32；
+            // Box在移动AttributeList时保持lpValue地址稳定，存活至Delete之后。
+            mitigation: Box::new((1_u64 << 52) | (1_u64 << 56) | (1_u64 << 60)),
         };
-        if unsafe { InitializeProcThreadAttributeList(list.as_raw(), 2, 0, &mut bytes) } == 0 {
+        if unsafe { InitializeProcThreadAttributeList(list.as_raw(), 3, 0, &mut bytes) } == 0 {
             // 初始化失败时不能调用 DeleteProcThreadAttributeList。
             let error = ChildError::io(
                 "InitializeProcThreadAttributeList",
@@ -46,6 +51,13 @@ impl AttributeList {
             return Err(error);
         }
         list.initialized = true;
+        let policy = (&*list.mitigation as *const u64).cast();
+        list.update(
+            PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY,
+            policy,
+            std::mem::size_of::<u64>(),
+        )?;
+        // 系统若不支持此准入，原错误直接返回；不得丢弃策略重试出生。
         Ok(list)
     }
 

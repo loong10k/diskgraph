@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "source_sha": "a6bbf2f69d7d7805837cc4f59c7d397bb812cb67",
+  "run": 37474050173,
+  "job": 112304707808,
+  "platform": "windows-latest",
+  "rust": "1.97.0",
+  "result": "actual_policy_assertion_red",
+  "actual_flags": 0,
+  "expected_flags": 7,
+  "actual_suspended_process_query": true,
+  "original_cleanup_completed_before_assertion": true,
+  "production_acceptance": false
+}
