@@ -5,6 +5,7 @@ from contextlib import contextmanager
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import signal
@@ -66,6 +67,24 @@ def finish_archive(process, receipt):
         raise failures[0]
 
 
+def current_sources(checkout):
+    """只记录当前提交已集成的源码；缺失或重复声明拒绝执行，不挂载候选。"""
+    relative = Path("crates/diskgraph-engine/src/native_child")
+    native = checkout / relative
+    modules = native / "mod.rs"
+    declarations = modules.read_text()
+    names = ("linux_scan_image", "linux_scan_image_tests",
+             "linux_scan_image_fixture", "linux_scan_image_error")
+    sources = [modules]
+    for name in names:
+        if len(re.findall(rf"^mod {name};$", declarations, re.MULTILINE)) != 1:
+            raise RuntimeError(f"current module must be declared exactly once: {name}")
+        sources.append(native / f"{name}.rs")
+    return [{"path": str(path.relative_to(checkout)),
+             "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+            for path in sources]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -100,20 +119,8 @@ def main():
                     finish_archive(archive, receipt)
                 if archive.returncode != 0:
                     raise RuntimeError(f"git archive failed: {archive.returncode}")
-            manifest = json.loads((checkout / "docs/benchmarks/linux_scan_image_2026_10_05_candidate.json").read_text())
-            native = checkout / "crates/diskgraph-engine/src/native_child"
-            declarations = []
-            for source in manifest["sources"]:
-                path = checkout / source["path"]
-                raw = path.read_bytes()
-                if hashlib.sha256(raw).hexdigest() != source["sha256"]:
-                    raise RuntimeError(f"candidate source digest mismatch: {source['path']}")
-                shutil.copyfile(path, native / path.name)
-                declarations.append(f'#[cfg(all(test, target_os = "linux"))]\nmod {path.stem};\n')
-            modules = native / "mod.rs"
-            modules.write_text(modules.read_text() + "\n" + "".join(declarations))
-            receipt["sources"] = manifest["sources"]
-            receipt["isolated_mount"] = declarations
+            receipt["sources"] = current_sources(checkout)
+            receipt["source_mode"] = "current committed source, no candidate overlay"
             environment = os.environ.copy()
             environment["CARGO_TARGET_DIR"] = str(repo / "target")
             command = [

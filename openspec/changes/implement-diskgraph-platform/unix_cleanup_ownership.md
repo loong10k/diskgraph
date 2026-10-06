@@ -51,3 +51,7 @@ Linux 期限恢复已通过当前完整源码原生门禁：37438978565 / c98dc1
 3ce2aaa 的 Linux 严格 Build 原始失败仍有8组未使用接口错误。验收要求：只供测试的 UnixChild 旧启动接口及 LinuxAtomic 的测试观察接口不进入生产；Linux 产品保留 spawn_checked 探针、LinuxAtomicChild 控制协议、实际 pidfd 等待和期限恢复，macOS 已编译原生路径不关闭。不得增加 allow/dead_code 或降低 -D warnings。UnixNormalExit 在 Linux 仅由测试构造，生产不存储其无效状态；私有 from_spawn 的恒定参数移为内部初始化，不改变公开 API。
 
 本机受影响 native_child 回归44/0/1、结构门禁6/0/0、cargo check 与 fmt 通过；原始日志见 docs/benchmarks/linux_test_boundary_2026_10_06/。Linux 严格生产构建和当前完整源码原生8项门禁待CI，尚不勾选生产父项。
+
+## 当前 Linux 密封组件验收来源
+
+f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已通过；sealed-image步骤却因历史候选覆盖后重复声明4模块而失败，后续全量Test未运行。修复要求：隔离git archive保留当前提交源码，不拷贝历史候选、不新增模块声明；记录实际5文件摘要，缺失或重复声明应在Cargo前拒绝。保持原11项原生测试和严格warnings，不能跳过该门禁。新增3项来源回归因缺少current_sources真实RED，修复后须GREEN并保留实际原生11项结果；不据此完成全平台父项。
