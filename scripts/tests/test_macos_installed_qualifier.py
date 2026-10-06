@@ -44,7 +44,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 600)
+        self.assertEqual(len(manifest["sources"]), 601)
         self.assertEqual(manifest["native_child_parallel_tests_required"], 41)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])

@@ -1,0 +1,15 @@
+{
+  "production_ready": false,
+  "public_path": "diskgraph_mcp::http::HttpRequest",
+  "definition_fields_and_method_bodies": "normalized source equality verified",
+  "new_module": "crates/diskgraph-mcp/src/http_request.rs",
+  "structure_tests": 10,
+  "socket_syntax_tests": 3,
+  "archive_guards": 13,
+  "macos_archive_sources": 601,
+  "native_ci": "not yet qualified for current full source",
+  "limitations": [
+    "remaining HTTP objects and transport implementation still in large module",
+    "default scanning and full-platform acceptance remain incomplete"
+  ]
+}

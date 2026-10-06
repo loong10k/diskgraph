@@ -19,6 +19,7 @@ use crate::auth::{AuthFailure, Authenticator, token_from_headers, unauthorized_b
 use crate::protocol::{PROTOCOL_VERSION, log_line, protocol_error};
 
 pub use crate::client_address::observed_client_ip;
+pub use crate::http_request::HttpRequest;
 pub use crate::rate_limiter::RateLimiter;
 
 /// The single endpoint a Streamable HTTP client posts to.
@@ -233,40 +234,6 @@ pub fn bind(address: &str, port: u16) -> std::io::Result<(TcpListener, BoundAddr
             port: local.port(),
         },
     ))
-}
-
-/// One parsed request: enough to route and to enforce the contract.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct HttpRequest {
-    pub method: String,
-    pub path: String,
-    /// The raw query string after `?`, unparsed. Legacy MCP sessions address
-    /// their message endpoint by query parameter.
-    pub query: String,
-    /// Lower-cased header names mapped to their first value.
-    pub headers: HashMap<String, String>,
-    pub body: String,
-}
-
-impl HttpRequest {
-    pub fn header(&self, name: &str) -> Option<&str> {
-        self.headers
-            .get(&name.to_ascii_lowercase())
-            .map(String::as_str)
-    }
-
-    /// One query parameter, taken as an opaque string. Client-controlled
-    /// query values are session identifiers, never paths.
-    pub fn query_param(&self, name: &str) -> Option<String> {
-        for pair in self.query.split('&') {
-            if let Some((key, value)) = pair.split_once('=')
-                && key == name
-            {
-                return Some(value.to_owned());
-            }
-        }
-        None
-    }
 }
 
 /// A response the connection loop writes verbatim.

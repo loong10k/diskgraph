@@ -11,3 +11,9 @@
 ## 本机证据
 
 真实socket新增3项：旧代码1通过/2失败，新代码3通过/0失败。现有HTTP36项改前Git完整隔离源码与改后均29通过/7失败，精确失败集合一致，失败源为默认macOS扫描Unsupported。该组不是完整通过。源码结构9/9、格式通过；macOS候选只覆盖MCP http.rs、lib.rs及新测试，源数599→600，完整MCP门禁159→162并要求新3项实际运行。日志见 docs/benchmarks/http_request_ambiguity_2026_10_06。原生验收尚未完成。
+
+## 请求对象的真实模块拆分
+
+将HttpRequest及其header/query_param真实方法迁至独立http_request.rs，http模块显式pub use保留原公开路径和字段。中文文档说明原生Rust来源，保留查询值不解码、不解释成路径和重复查询取第一匹配的旧语义。新增结构及公开路径回归先红后绿；函数体和字段定义必须与原实现一致，不引入compat/stub或新依赖。不据此完成大型HTTP模块整体拆分或生产验收。
+
+该对象已真实拆分：字段、derive、impl及两方法去除注释/空白后的源码逐字一致，公开路径与原始查询值/重复查询首值回归保持。结构先RED后GREEN 10/10，socket3/3、候选保护13/13及格式通过。候选同步601源，完整MCP162门禁不变。本项未完成其余HTTP对象拆分及原生全量验收。证据见 docs/benchmarks/http_request_module_2026_10_06。

@@ -503,3 +503,31 @@ fn filesystem_gate_accepts_safe_cfg_attr_and_visits_standard_child() {
     assert!(errors.is_empty(), "{errors:?}");
     assert!(child_mounted, "安全条件属性必须继续检查真实标准子模块");
 }
+
+#[test]
+fn http_request_has_real_logic_in_own_module_and_preserves_public_path() {
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let source = std::fs::read_to_string(directory.join("http_request.rs"))
+        .expect("HttpRequest must have a dedicated real implementation module");
+    assert!(source.contains("pub struct HttpRequest"));
+    assert!(source.contains("pub fn header("));
+    assert!(source.contains("pub fn query_param("));
+    let transport = std::fs::read_to_string(directory.join("http.rs")).unwrap();
+    assert!(!transport.contains("pub struct HttpRequest"));
+    assert!(transport.contains("pub use crate::http_request::HttpRequest;"));
+    let request = diskgraph_mcp::http::HttpRequest {
+        method: "GET".into(),
+        path: "/mcp".into(),
+        query: "session=%2Fraw&session=second&empty=".into(),
+        headers: std::collections::HashMap::from([(
+            "authorization".into(),
+            "Bearer opaque".into(),
+        )]),
+        body: String::new(),
+    };
+    assert_eq!(request.header("AUTHORIZATION"), Some("Bearer opaque"));
+    assert_eq!(request.query_param("session"), Some("%2Fraw".into()));
+    assert_eq!(request.query_param("empty"), Some(String::new()));
+    assert_eq!(request.query_param("missing"), None);
+    assert_eq!(request, request.clone());
+}

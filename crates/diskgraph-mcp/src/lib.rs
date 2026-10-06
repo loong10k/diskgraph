@@ -14,6 +14,7 @@ pub mod http;
 mod http_connections;
 #[cfg(test)]
 mod http_lifecycle_tests;
+mod http_request;
 #[cfg(test)]
 mod http_request_syntax_tests;
 mod http_server_runtime;
