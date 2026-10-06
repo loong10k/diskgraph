@@ -222,6 +222,9 @@ jobs:
       - name: Native Linux queued startup error after socket reset
         if: runner.os == 'Linux'
         run: cargo test -p diskgraph-engine --lib --locked native_child::linux_atomic_startup_reset_tests -- --nocapture
+      - name: Native Linux authorization changes after actual capture
+        if: runner.os == 'Linux'
+        run: cargo test -p diskgraph-engine --lib --locked observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture -- --nocapture
       - name: Native Linux normal wait authorization contract
         if: runner.os == 'Linux'
         run: |

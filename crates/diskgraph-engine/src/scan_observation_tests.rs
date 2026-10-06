@@ -153,33 +153,30 @@ fn observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture(
     for mode in 0..3 {
         let (dir, engine, actor, scope, job) = fixture();
         let control_path = dir.path().join("data/diskgraph-control.sqlite");
+        // 外部管理员连接先准备完成。目标竞态只发生在实际采样后的授权/fence修改，
+        // 不把连接初始化与keeper检查的锁竞争当成已经执行撤权。
+        let mut control = diskgraph_store::ControlStore::open(&control_path).unwrap();
+        let fence_connection = rusqlite::Connection::open(&control_path).unwrap();
         let job_id = job.job_id.clone();
         AFTER_OBSERVE.with(|slot| {
             *slot.borrow_mut() = Some((
                 job.job_id.clone(),
-                Box::new(move || {
-                    let mut control = diskgraph_store::ControlStore::open(&control_path).unwrap();
-                    match mode {
-                        0 => {
-                            control.revoke_scope(&scope).unwrap();
-                        }
-                        1 => {
-                            control
-                                .revoke_grant(
-                                    &actor,
-                                    &diskgraph_core::Permission::IndexWrite,
-                                    &scope,
-                                )
-                                .unwrap();
-                        }
-                        _ => {
-                            let db = rusqlite::Connection::open(&control_path).unwrap();
-                            db.execute(
+                Box::new(move || match mode {
+                    0 => {
+                        control.revoke_scope(&scope).unwrap();
+                    }
+                    1 => {
+                        control
+                            .revoke_grant(&actor, &diskgraph_core::Permission::IndexWrite, &scope)
+                            .unwrap();
+                    }
+                    _ => {
+                        fence_connection
+                            .execute(
                                 "UPDATE jobs SET fencing_token=fencing_token+1 WHERE job_id=?1",
                                 [&job_id],
                             )
                             .unwrap();
-                        }
                     }
                 }),
             ))

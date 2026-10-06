@@ -134,3 +134,10 @@ f32b0c7/37470345841 三组 Linux 的实际 reset 回归三案均成功，仍待�
 工具回归首先复现旧mount将当前文件替换为冻结旧文件，14项通过/1项目标失败，之后修复只读取当前源码。工具GREEN不代替原生安装及产品运行证据，原生结果待指定当前提交workflow。
 
 当前模式工具15/0、产品响应6/0。本机macOS候选严格Engine构建成功；原pipe/出生/等待回归48/0/1隔离helper ignored，结构6/0。删除未使用的出生后leader构造入口，原leader回归仍核真实PID/wait；MacosNativePipes现明确消费WorkerControl模式，Null拒绝，原gate回归增加Null负控。当前native回归清单从实际二进制取得，保留至少原44及必跑原用例，不跳过新增用例。原生root安装/普通UID完整产品资格仍待ARM/Intel CI；默认能力未启用。
+
+
+## 采样后外部撤权回归的连接准备
+
+1f51836 Linux stable在采样后的测试hook打开第二个ControlStore时失败Busy，尚未执行原scope/grant/fence修改；该日志不能算撤权拒绝的验收。外部控制与fence连接在run_job前准备，无事务跨采样保留；hook仍在真实采样后分别执行原持久撤scope、撤IndexWrite和递增fence，不重试或吞掉修改错误。原run_job必须失败、hook必须消费、staging/snapshots/revisions/collector_runs全零断言保持。CI增加原生精确前置；此修订只修正夹具把启动配置与目标竞态混在一起，不声明生产连接Busy问题已解决。
+
+31947a0 Linux x86 stable与ARM完整测试后失败于Ops夹具固定二字节chunks_exact的新Clippy规则；改用MSRV 1.97支持的as_chunks::<2>()，保持64位十六进制长度检查与逐字节解析。该修订等待同提交Linux完整门禁，不能标记全平台通过。
