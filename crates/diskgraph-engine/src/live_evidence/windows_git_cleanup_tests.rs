@@ -5,6 +5,37 @@ use super::probe_budget::ProbeBudget;
 use std::time::{Duration, Instant};
 
 #[test]
+fn product_cleanup_removes_registered_tree_at_original_name() {
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();
+    let root = directory.path().to_owned();
+    let nested = root.join("nested");
+    directory.create_dir_all(&nested, &mut probe).unwrap();
+    directory
+        .write(&nested.join("owned"), b"registered payload", &mut probe)
+        .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(20);
+    // 正常路径必须实际删除登记树；拒绝改名不能代替正常完成的正控。
+    loop {
+        match directory.complete::<()>(Ok(())) {
+            Ok(()) => break,
+            Err(error) => {
+                assert!(
+                    Instant::now() < deadline,
+                    "registered tree cleanup remains incomplete: {error}"
+                );
+                std::thread::sleep(Duration::from_millis(20));
+            }
+        }
+    }
+    assert_eq!(
+        std::fs::symlink_metadata(&root).unwrap_err().kind(),
+        std::io::ErrorKind::NotFound
+    );
+    directory.complete::<()>(Ok(())).unwrap();
+}
+
+#[test]
 fn product_cleanup_removes_moved_original_and_keeps_foreign_replacement() {
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();

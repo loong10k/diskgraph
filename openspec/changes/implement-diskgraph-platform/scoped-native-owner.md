@@ -61,3 +61,9 @@ Linux b20c88d 的 actual x86_64 stable 原生四案全部通过；原 RED 3/1 �
 Windows b20c88d stable 原镜像材料实际 7 passed/1 failed：父目录 rename 被拒绝为 ERROR_ACCESS_DENIED(5)，仅测试假设的 ERROR_SHARING_VIOLATION(32) 不符，非租约失效。修订同案加入租约前同一 rename 往返正控、原名称与目标缺名检查，租约期间仅接受 5/32 两种拒绝，释放后同操作须成功；叶写/替换的原 32 断言保持。修订后 native GREEN 待 CI，目录清理因前置失败尚未执行；不据此启用 Windows 扫描。
 
 Linux 同一 b20c88d/37459156304 的 x86_64 stable、x86_64 Rust 1.97 与 ARM stable 三组原生四案均 4/0，已逐一核对固定 fixture 源码摘要，原始日志/实际 ELF 摘要保存在 [平台契约记录](../../../docs/benchmarks/linux_test_boundary_2026_10_06/platform_normal_contract_2026_10_06_candidate.json) 同目录。本次旧契约和 Windows 错误码校正，本机 Mac 原正常退出 10/10、结构 6/6、fmt 通过；Linux 全量/Windows 修订后的 native 结果仍未取得。
+
+## Windows 产品清理正常路径正控（未完成）
+
+必须在产品 `GitPrivateDirectory::with_limits` 创建、登记嵌套目录和文件后，调用原 `complete` 实际删除整个登记树，并验证原根缺失及重复完成幂等。保留移动原根与同名外来替换的原回归；改名在夹具阶段被租约拒绝不能代替清理成功。现有原生 `held_parent_lease_blocks_move_until_creation_phase_is_released` 明确证明创建父租约存活时改名被拒绝，释放后原根 anchor 仍可核验移动后的身份；产品仍复制保留创建租约，须取得正常清理原生证据后再调整生命周期。
+
+1debd3e/37460438073 Windows stable 与 Rust 1.97 镜像材料八案均通过；产品目录清理仍在移动原根的夹具构造处失败，不授予执行资格。本次新增原路径正控尚未在 Windows 执行，不声称 RED/GREEN。该提交 Linux Rust 1.97 全量 Engine 556 passed/0 failed/3 ignored、Store 291 passed/0 failed/1 ignored，FFI 40 passed/49 failed；全工作区门禁仍未通过。
