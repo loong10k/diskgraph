@@ -131,8 +131,14 @@ impl WindowsGitDeletionWitness {
         let file = (!handle.is_null() && handle != INVALID_HANDLE_VALUE)
             .then(|| unsafe { File::from_raw_handle(handle) });
         if status != 0 {
-            let error =
-                io::Error::from_raw_os_error(unsafe { RtlNtStatusToDosError(status) as i32 });
+            let code = unsafe { RtlNtStatusToDosError(status) as i32 };
+            // 原生验收保留转换前状态，区分不同NT错误映射到同一Win32错误；不改变结果语义。
+            #[cfg(test)]
+            eprintln!(
+                "DG_NATIVE_ID_OPEN_STATUS={:#010x}; win32={code}; id_bytes={length}",
+                status as u32
+            );
+            let error = io::Error::from_raw_os_error(code);
             return Err(error);
         }
         file.ok_or_else(|| io::Error::other("deletion witness returned no valid native handle"))

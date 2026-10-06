@@ -1,0 +1,21 @@
+{
+  "run": 37422988114,
+  "sha": "69b4df88eee07492d50536af1dff0bd90e98b141",
+  "production_acceptance": false,
+  "passed": 74,
+  "total": 76,
+  "failed": [
+    {
+      "case": "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
+      "passed": false,
+      "phase": "cleanup"
+    },
+    {
+      "case": "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
+      "passed": false,
+      "phase": "cleanup"
+    }
+  ],
+  "ledger_native_case": "actual 1 passed / 0 failed / 0 ignored with DG_CLEANUP_REQUIRES_ORIGINAL_OWNER_LEDGER=1",
+  "next_step": "Preserve original NTSTATUS before Win32 projection; raw87 remains failure, no absence fallback"
+}
