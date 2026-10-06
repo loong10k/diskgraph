@@ -78,6 +78,9 @@ jobs:
       - name: Native Windows pre-resume admission boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked revoked_admission_after_birth_prevents_resume_and_retains_original_owner -- --nocapture
+      - name: Native Windows suspended image load policy
+        if: runner.os == 'Windows'
+        run: cargo test -p diskgraph-engine --lib --locked suspended_birth_enforces_image_load_policy_before_resume -- --nocapture
       - name: Build
         run: cargo build --workspace --all-targets --locked
       - name: Native Linux thread-group and procfs qualification

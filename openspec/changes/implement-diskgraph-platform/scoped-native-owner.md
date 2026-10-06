@@ -145,3 +145,7 @@ f32b0c7/37470345841 三组 Linux 的实际 reset 回归三案均成功，仍待�
 ## 当前MCP二进制清单与迁移回归
 
 a304063实际macOS ARM完整MCP为152/0/0ignored/0filtered，43项原必跑案全部执行；资格工具误用冻结候选162计数而失败，未到完整Engine门禁。部署配置测试由aca20ea从MCP迁入共享Engine，源码函数仍保留。当前源码模式读取原测试二进制--list，拒绝重复/必跑缺失，逐项要求ok并核精确无过滤汇总；冻结模式仍要求162。另对迁入Engine的16项macOS部署配置测试显式要求实际ok，不能通过删除测试获得验收。工具目标RED后17项GREEN；原生完整资格仍需新提交ARM/Intel运行，不声明原生通过。证据见docs/benchmarks/macos_current_inventory_2026_10_06。
+
+## Windows出生前映像加载策略验收
+
+目标：原CreateProcess扩展属性在挂起出生前启用拒绝远程映像、拒绝低完整性映像、优先System32。实际原生回归在第三生命周期检查拒绝Resume后，借原process句柄调用GetProcessMitigationPolicy核三标志，再由原Job实际清理；不以常量或属性字段检查代替内核策略。先提交缺策略RED探针，取得Windows实际失败后实现。该策略只是DLL边界的一部分，不替代受信PE依赖闭包、已有可写映射验证或完整扫描接入；Windows产品能力仍关闭。
