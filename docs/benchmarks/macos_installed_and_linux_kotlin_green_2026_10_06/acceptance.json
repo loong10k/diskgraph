@@ -1,0 +1,220 @@
+{
+  "production_ready": false,
+  "macos": {
+    "run": 37477983548,
+    "status": "success",
+    "sides": {
+      "arm": {
+        "job": 112318369370,
+        "status": "success",
+        "architecture": "arm64",
+        "source": "3e3636ae5ec3b798acffeda297ad85b0f036de8c",
+        "actual_uid": 501,
+        "helper_sha256": "74abf72b58ee877c9ea5ef894eb4f6fd72a1484258c623d6c3f71ab7ee76fc89",
+        "helper_bytes": 3764632,
+        "engine": {
+          "passed": 583,
+          "failed": 0,
+          "ignored": 11
+        },
+        "mcp": {
+          "passed": 152,
+          "failed": 0
+        },
+        "cli": {
+          "passed": 67,
+          "failed": 0
+        },
+        "product_flows": {
+          "production_acceptance": false,
+          "status": "passed",
+          "binary_sha256": {
+            "cli": "c955d22fead4774651da9139bad6d76909fd8c1e9a066537a80fcb96c29758c4",
+            "mcp": "0298e965be4eb018e14ea6b78ddbf4b21cc607dc1ab9247a8133b8e68adbc884"
+          },
+          "scope_id": "scope-e6580135-c70a-4209-ac88-2d7735d1557e",
+          "initial_revision": "rev-job-31c3f4c7-251e-4380-8d0d-44f79d53639d-1",
+          "job_id": "job-0975b83f-53fe-4cdb-87f0-db7d90458102",
+          "final_revision": "rev-job-0975b83f-53fe-4cdb-87f0-db7d90458102-1",
+          "uid": 501,
+          "cli_normal_exits": 3,
+          "mcp_normal_exit": true,
+          "actual_files_before": 3,
+          "actual_files_after": 4,
+          "actual_allocated_bytes_before": 12288,
+          "actual_allocated_bytes_after": 16384
+        },
+        "raw_artifact_sha256": {
+          "build-cli-regression.stderr": "c17eb7a05b3e922ce37750b865b0e7e19b413d66757265a3c7a41d252f334d2f",
+          "build-cli-regression.stdout": "789c377cb1b9d2698b266cc01938cb6a320288bef5f7fb21848e0b133ef0a3b2",
+          "build-driver-fixture.stderr": "957b98fbc53ec30df361090e178e9974dc0b6212d221ce35a650edc646c8d099",
+          "build-driver-fixture.stdout": "02536eeff2b1fa473259357a12ecbadbd88d316842732cdae7441936f01a2905",
+          "build-fixtures.stderr": "bca68aff4863d730ab035c6ba670e84331c51e6c0291efe35d1535f2f35fa394",
+          "build-fixtures.stdout": "0a446d2538eba74a5712453db0b80dfaaddcc4428f6939cab19120333dc486d5",
+          "build-helper.stderr": "57a8a84f8a4337b0b2b0df17a06232f305e9594e809c9d34169e51c121a26fcd",
+          "build-helper.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "build-mcp-regression.stderr": "bfc8fea99468110725fb09bd02084bd562a5f0ad9e9c5bc17a1ed92e08c7767b",
+          "build-mcp-regression.stdout": "35c7394e0236c8f953a241b8ba46f8f94e90b281b85279a6d7e9cc336165de68",
+          "build-products.stderr": "50254054e05fc999c1c553bc7ae0ed1c072f59395ce25de7dcd36074972f4010",
+          "build-products.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "cli-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "cli-regression.stdout": "c4183787b861e63a7c4ba6ae27126ba28e04f633e1f56cde3c4a617233603dbb",
+          "engine-full-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "engine-full-inventory.stdout": "835b7eaab3c8c6df1d673ae1be43222d9df36a7d7516f7a6a93484b2fc6450df",
+          "engine-full-parallel-regression.stderr": "d6d7f166c4100008d6f802fc3bdba3428c1a523b27ec571f569ad1422d5c9aac",
+          "engine-full-parallel-regression.stdout": "33708294b1da01d76e7b09b1a68fc94bc81042651695167240002698de1289ba",
+          "engine-ignored-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "engine-ignored-inventory.stdout": "0852fbceed0e54a5021ccbca3488053afb1f48e91dfe2b72b805cfbb158ce76a",
+          "macos_engine_installed_scan_publishes_revision_and_relations.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_engine_installed_scan_publishes_revision_and_relations.stdout": "4fa3080c0be91ecf657c82170617adfeb37801ad7e6aa723800fa133fde5e37e",
+          "macos_engine_postbirth_panic_preserves_payload_and_recovery.stderr": "a823c20de5e0e23c2ac7b605a994fe65b1a2bc31f6cafced4a5035fbccef6480",
+          "macos_engine_postbirth_panic_preserves_payload_and_recovery.stdout": "0c7efb2dba6772fcaba54a276c9f1968aee3b21c8a69d8492f2a8d1e616a181f",
+          "macos_engine_response_exhaustion_has_no_partial_revision.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_engine_response_exhaustion_has_no_partial_revision.stdout": "5c4759b67b686bd2b1dd6d10f964d753c26aed9d33eee041c8668d8911c18f07",
+          "macos_installed_helper_original_cancel_after_birth_is_reaped.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_installed_helper_original_cancel_after_birth_is_reaped.stdout": "ee4c1a6995fc79ed9ce12d33c75b2b25f246ccc0aee46fbf3c15448f9b064377",
+          "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stderr": "a4e2a982467a14b332eefdda177365d6e2e8307f77a1d7b6aea1be75dd7e639f",
+          "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stdout": "de3c87eb7231dd2d5c4ea2424f3a672716dbebb258bae38e9992abb1c3dd5593",
+          "macos_installed_helper_returns_complete_tree_after_real_normal_wait.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_installed_helper_returns_complete_tree_after_real_normal_wait.stdout": "c62607159af357989a7dfc4f37f567fe38f2c8102331141e689137d031b4cd40",
+          "mcp-current-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mcp-current-inventory.stdout": "b5c5fcd8ff6cc0c4bef4faf0df3cff4e7e333340d8237d9396ae7be0ff6daa25",
+          "mcp-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mcp-regression.stdout": "deb1c1541a425766822fc02e9a2fbbfe42efd852716ee2fed7bea15fb4b7e147",
+          "native-child-parallel-regression.stderr": "74ea6dae40c959380aba963e441de8f0d8315e50182e62345aff066c5fe51db5",
+          "native-child-parallel-regression.stdout": "5462bb9bc3982dc243808901787093d409beee4c86fb7b519331cc14323219af",
+          "native-current-ignored.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "native-current-ignored.stdout": "6b936305ec8a01f05928d7df0381584c719c0efeb61ab1ffe4090814eab63cad",
+          "native-current-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "native-current-inventory.stdout": "a6592296528baa32c1fcbdadb6f27f1cb15f783a79ef3de7abe86896bc90afda",
+          "raw-path-protocol.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "raw-path-protocol.stdout": "59d06e2ab33cb5e255683712351d96b1432ea47768d0a4152828bc8094cd908b",
+          "receipt.json": "bac97b2681c3863bdb71e7c8abfe80e8fcbbf5e70d44058382e9f1820e1b2a13",
+          "response-budget-fixture.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "response-budget-fixture.stdout": "44acba0479a692a83afecf26d39d2a0fb9ce022ca180e37f636fb014314d423a",
+          "root-issuer.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "root-issuer.stdout": "20ca28a95864429f6647d2c6e8cd7c352ef8269fa9cbbcd76b377b22d015784c"
+        }
+      },
+      "intel": {
+        "job": 112318369696,
+        "status": "success",
+        "architecture": "x86_64",
+        "source": "3e3636ae5ec3b798acffeda297ad85b0f036de8c",
+        "actual_uid": 501,
+        "helper_sha256": "1bb17fc9f39586257c8410f6d2332e22546db06f46326c6f7106fc620f62c0ed",
+        "helper_bytes": 3580824,
+        "engine": {
+          "passed": 583,
+          "failed": 0,
+          "ignored": 11
+        },
+        "mcp": {
+          "passed": 152,
+          "failed": 0
+        },
+        "cli": {
+          "passed": 67,
+          "failed": 0
+        },
+        "product_flows": {
+          "production_acceptance": false,
+          "status": "passed",
+          "binary_sha256": {
+            "cli": "19bb43f95f65ed86e8198a04429bc67904f08e6a40fbeee943b76e01414195a0",
+            "mcp": "c3e06082498e6764e0c6589de0eaa6175fc8481a5ec8cbf8e8aba6f49a22836e"
+          },
+          "scope_id": "scope-2c06666d-eb58-4220-95a6-be3c118638d4",
+          "initial_revision": "rev-job-76922310-603f-492f-aa44-2cff4e7718a2-1",
+          "job_id": "job-4b7cbe38-9186-48bd-a608-8288e36d39b3",
+          "final_revision": "rev-job-4b7cbe38-9186-48bd-a608-8288e36d39b3-1",
+          "uid": 501,
+          "cli_normal_exits": 3,
+          "mcp_normal_exit": true,
+          "actual_files_before": 3,
+          "actual_files_after": 4,
+          "actual_allocated_bytes_before": 12288,
+          "actual_allocated_bytes_after": 16384
+        },
+        "raw_artifact_sha256": {
+          "build-cli-regression.stderr": "af5a369106cdcc7d89a4b9fe42a374afee8ef0fc5d9fc3c0f48d551dd28cfa62",
+          "build-cli-regression.stdout": "a9f4ef875a5517f8e17f8bf93be41b3375b8e237572a2dc12cb71689a6e21fdf",
+          "build-driver-fixture.stderr": "9acbd6c0b24052cb06e06cb5704fecb81be690a250faeb5931bc9c3f20fd4d33",
+          "build-driver-fixture.stdout": "441c0777765ceae925584d5c09732e5c074fa113458fb3f6b09d37668415a2e2",
+          "build-fixtures.stderr": "9f0eddc76c08ade91a881998cdb7050b9cc0ce71c465b67d524a4fb8b3dba52d",
+          "build-fixtures.stdout": "eae0711720794e5bec2809892f084c3e8a02b10dcfa068f31117810fab51df62",
+          "build-helper.stderr": "d94f68b96cc6730dad1ec4f8ae0516621bba36869af39ac7afbc64ba7a8f79db",
+          "build-helper.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "build-mcp-regression.stderr": "1706f144f4e78a8d18b16a96622be1e2fd6817d311716cd68a8729e5225c4017",
+          "build-mcp-regression.stdout": "b38f39aa78c5b88ecd62ca724b4f8b49cd5e35a0f400bfceabe9030899b92624",
+          "build-products.stderr": "5c98e7eaf354590fb7559071ea2c0c715dd7f9a7127e5a23d7dd57621bec222a",
+          "build-products.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "cli-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "cli-regression.stdout": "ba388b57e4867051de3482fe30f7a95990e2512cf05bf7473ca03b691a92dd40",
+          "engine-full-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "engine-full-inventory.stdout": "835b7eaab3c8c6df1d673ae1be43222d9df36a7d7516f7a6a93484b2fc6450df",
+          "engine-full-parallel-regression.stderr": "5f500121f536c06c3376ce8e5ef143f4e2edc8004a1526f9a900e1cdc5177df3",
+          "engine-full-parallel-regression.stdout": "f68e3b0659e2700d951d17f55bf6071599b3f51ff5bb4526ca9602cc5ed1ca60",
+          "engine-ignored-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "engine-ignored-inventory.stdout": "0852fbceed0e54a5021ccbca3488053afb1f48e91dfe2b72b805cfbb158ce76a",
+          "macos_engine_installed_scan_publishes_revision_and_relations.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_engine_installed_scan_publishes_revision_and_relations.stdout": "cba20e8bb42c06572ba645d1ac35399a9b96f3110944cef00b5a7ad9f99539ed",
+          "macos_engine_postbirth_panic_preserves_payload_and_recovery.stderr": "5f5584e782ea0f83e8016cf4f6070c39486135fe00187f576eba9ba356e37d58",
+          "macos_engine_postbirth_panic_preserves_payload_and_recovery.stdout": "e9e37445423ac501f8bda99b62f09e181324dcb1f364a0e10f1752315fcb26e7",
+          "macos_engine_response_exhaustion_has_no_partial_revision.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_engine_response_exhaustion_has_no_partial_revision.stdout": "00aa216a544322c52407f1b2d2562fc73b250dfcdb790ad6f062d20a6546aa9b",
+          "macos_installed_helper_original_cancel_after_birth_is_reaped.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_installed_helper_original_cancel_after_birth_is_reaped.stdout": "d3b2f64c022990ba0345ec04d77e5bb9554f3499a7789a405a7f3fd911635a86",
+          "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stderr": "52d5849d0a65dcbe06159629dc3df448b918e275a71ba8f360e1195ebc8858aa",
+          "macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stdout": "2a489a3ebcb46eb3041eb98b003584810e13da0e001abe276710faa98bbaffce",
+          "macos_installed_helper_returns_complete_tree_after_real_normal_wait.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "macos_installed_helper_returns_complete_tree_after_real_normal_wait.stdout": "7fc755bf9c53d5df705b33763f2d437dfaf6023db4cceb43bc8fab1324ea50cb",
+          "mcp-current-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mcp-current-inventory.stdout": "b5c5fcd8ff6cc0c4bef4faf0df3cff4e7e333340d8237d9396ae7be0ff6daa25",
+          "mcp-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mcp-regression.stdout": "db5844fa36e6e1b2dc49ee97760a57885a66eb8bd8b8e5620a86642606d6b491",
+          "native-child-parallel-regression.stderr": "85490645f3aaf20dd2085114b7fd36fd7a7440bccc81b4f21de8f73f8b85a0c9",
+          "native-child-parallel-regression.stdout": "859eab5f91b4dd026c728bc42d3b3faaf4e9e5ee5e7b8e9a5d89e0049258e708",
+          "native-current-ignored.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "native-current-ignored.stdout": "6b936305ec8a01f05928d7df0381584c719c0efeb61ab1ffe4090814eab63cad",
+          "native-current-inventory.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "native-current-inventory.stdout": "a6592296528baa32c1fcbdadb6f27f1cb15f783a79ef3de7abe86896bc90afda",
+          "raw-path-protocol.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "raw-path-protocol.stdout": "59d06e2ab33cb5e255683712351d96b1432ea47768d0a4152828bc8094cd908b",
+          "receipt.json": "3046c95625b77a07eaff032f8f2381feb37c93f32bff10b0012d792ae44157f7",
+          "response-budget-fixture.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "response-budget-fixture.stdout": "2ec547ec78266dc638f0505478652748452429628f0fd73c6555becd994c9055",
+          "root-issuer.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "root-issuer.stdout": "ca287c5c1f4f8eb90552c7ead892c82cb5d07cf8d2e2cb39509e1911012884f8"
+        }
+      }
+    },
+    "qualification_feature": "macos_native_scan_candidate",
+    "default_enabled": false
+  },
+  "linux_kotlin": {
+    "run": 37479428795,
+    "sides": {
+      "x86": {
+        "job": 112323366052,
+        "status": "success",
+        "source": "152374ecb4084889af5ac85a36870e5ceb03fe09",
+        "raw_log_sha256": "dc6180191e4ac004341d9ba68b29e4ae5db02badc6782c2edfff25a55335d5e5",
+        "actual_public_native_host": true
+      },
+      "arm": {
+        "job": 112323366216,
+        "status": "success",
+        "source": "152374ecb4084889af5ac85a36870e5ceb03fe09",
+        "raw_log_sha256": "848cf5b3a27790dd68d4a535bcc3db174289f3c6c2ef40a94d52834601500e2f",
+        "actual_public_native_host": true
+      }
+    },
+    "whole_ci_status": "not accepted"
+  },
+  "limits": [
+    "macOS feature/default integration and final same-source full workspace remain open",
+    "Windows secure scan image and dependency trust remain open",
+    "finite frontend recovery exit and complete performance acceptance remain open"
+  ]
+}

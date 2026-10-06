@@ -10,8 +10,9 @@ repository.workspace = true
 
 
 [features]
-default = []
-# 仅用于真实平台资格验收，未验收前不进入默认产品构建。
+default = ["macos_native_scan_candidate"]
+# 已完成 macOS ARM/Intel 固定安装原生验收；保留旧 feature 名称兼容显式构建。
+# 平台分支仍由 target_os 控制，其他系统不获得 macOS 执行能力。
 macos_native_scan_candidate = []
 
 [dependencies]

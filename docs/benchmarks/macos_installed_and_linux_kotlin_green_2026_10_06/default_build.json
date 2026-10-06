@@ -1,0 +1,13 @@
+{
+  "production_ready": false,
+  "command": "RUSTFLAGS='-D warnings' cargo build --workspace --all-targets --locked",
+  "exit_code": 0,
+  "host": "local macOS",
+  "elapsed_seconds": 47.79,
+  "engine_manifest_sha256": "daeb9b3b079ba7f45bd162cb6082542c209a1ba3baee3d01db9ae1a5bea08f6b",
+  "default_feature": [
+    "macos_native_scan_candidate"
+  ],
+  "runtime_acceptance": "pending fresh integrated default gates",
+  "format_note": "Engine targeted check; workspace-wide formatter also visits unchanged pinned vendor and reports upstream formatting differences; vendor was not edited"
+}
