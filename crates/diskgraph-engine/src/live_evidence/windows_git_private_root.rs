@@ -8,21 +8,21 @@ use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::{AsRawHandle, FromRawHandle};
 use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
 use windows_sys::Wdk::Storage::FileSystem::{
-    FILE_CREATE, FILE_DIRECTORY_FILE, FILE_SYNCHRONOUS_IO_NONALERT, NtCreateFile,
+    FILE_CREATE, FILE_DIRECTORY_FILE, FILE_OPEN_NO_RECALL, FILE_OPEN_REPARSE_POINT,
+    FILE_SYNCHRONOUS_IO_NONALERT, NtCreateFile, NtOpenFile,
 };
 use windows_sys::Win32::Foundation::{
     INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
 };
 use windows_sys::Win32::Storage::FileSystem::{
-    DELETE, FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
-    FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ,
-    FILE_SHARE_WRITE, OpenFileById, SYNCHRONIZE,
+    DELETE, FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ,
+    FILE_SHARE_WRITE, SYNCHRONIZE,
 };
 use windows_sys::Win32::System::IO::IO_STATUS_BLOCK;
 
-/// 从原子创建起持有的唯一根对象；来源：Windows NtCreateFile/OpenFileById 与 PF-06。
+/// 从原子创建起持有的唯一根对象；来源：Windows NtCreateFile/NtOpenFile 与 PF-06。
 /// identity=None 是创建后验证失败的 prepared 状态，保留句柄但不具备删除资格。
-/// 重开使用原 anchor 的卷提示和完整 File ID；没有按路径回退。
+/// 空名称相对原 anchor 重开，前后核验完整 File ID；没有按路径回退。
 pub(super) struct WindowsGitPrivateRoot {
     file: File,
     parent_identity: GitPrivateAllocation,
@@ -164,29 +164,41 @@ impl WindowsGitPrivateRoot {
         if !expected.same_identity(&allocation(&self.file)?) {
             return Err(io::Error::other("held private root identity changed"));
         }
-        // 原 anchor 阻止身份复用；完整 File ID 来自创建确认时的原对象。
-        // OpenFileById 的卷提示可以是卷上任意文件句柄，不要求 CreateFile 出生。
-        let descriptor = expected.windows_file_id_descriptor();
-        let handle = unsafe {
-            OpenFileById(
-                self.file.as_raw_handle(),
-                &descriptor,
+        // 空名称相对原句柄重开同一对象，不使用按ID打开的删除语义，
+        // 也不解析原路径、当前名称或任何可被替换的父目录入口。
+        let empty_name = UNICODE_STRING::default();
+        let attributes = OBJECT_ATTRIBUTES {
+            Length: std::mem::size_of::<OBJECT_ATTRIBUTES>() as u32,
+            RootDirectory: self.file.as_raw_handle(),
+            ObjectName: &empty_name,
+            Attributes: OBJ_DONT_REPARSE,
+            SecurityDescriptor: std::ptr::null_mut(),
+            SecurityQualityOfService: std::ptr::null_mut(),
+        };
+        let mut handle = std::ptr::null_mut();
+        let mut status_block = IO_STATUS_BLOCK::default();
+        let status = unsafe {
+            NtOpenFile(
+                &mut handle,
                 DELETE | FILE_READ_ATTRIBUTES | FILE_LIST_DIRECTORY | SYNCHRONIZE,
+                &attributes,
+                &mut status_block,
                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                std::ptr::null(),
-                FILE_FLAG_BACKUP_SEMANTICS
-                    | FILE_FLAG_OPEN_REPARSE_POINT
-                    | FILE_FLAG_OPEN_NO_RECALL,
+                FILE_DIRECTORY_FILE
+                    | FILE_SYNCHRONOUS_IO_NONALERT
+                    | FILE_OPEN_REPARSE_POINT
+                    | FILE_OPEN_NO_RECALL,
             )
         };
-        if handle == INVALID_HANDLE_VALUE {
-            return Err(io::Error::last_os_error());
+        // 在任何状态投影前接管有效返回句柄；失败返回句柄也由 File 自动关闭。
+        let file = (!handle.is_null() && handle != INVALID_HANDLE_VALUE)
+            .then(|| unsafe { File::from_raw_handle(handle) });
+        if status != 0 {
+            return Err(io::Error::from_raw_os_error(unsafe {
+                RtlNtStatusToDosError(status) as i32
+            }));
         }
-        if handle.is_null() {
-            return Err(io::Error::other("OpenFileById returned null handle"));
-        }
-        // 成功立即交给 File；后续核验错误自动关闭新句柄，原 anchor 不受影响。
-        let file = unsafe { File::from_raw_handle(handle) };
+        let file = file.ok_or_else(|| io::Error::other("NtOpenFile returned no valid handle"))?;
         if !expected.same_identity(&allocation(&file)?)
             || !expected.same_identity(&allocation(&self.file)?)
         {

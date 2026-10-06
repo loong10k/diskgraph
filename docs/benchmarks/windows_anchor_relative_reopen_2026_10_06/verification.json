@@ -1,0 +1,36 @@
+{
+  "production_ready": false,
+  "target_red_runs": [
+    37411402086,
+    37412012814
+  ],
+  "target_red": "retained share-read lease fails to reject by-ID DELETE reopen; native actual 64/65",
+  "candidate": "NtOpenFile with empty UNICODE_STRING relative to original anchor, no pathname or file-ID lookup",
+  "native_execution": "pending",
+  "local_layout": 6,
+  "local_driver_tests": 22,
+  "archive": {
+    "sha256": "8514efd147288827793c8868698c0080fa902e456cee87bedaa0b5af0f9b740f",
+    "sources": 495,
+    "overlay_files": [
+      "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs"
+    ],
+    "other_source_bytes_unchanged": true
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "16d1d6ab6f885a960eb6cf025f83f8068d07d0bc33bd7f504b767f4fce6b286a",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "4b09e4f67f6b107e5f0b66beadd601d681c5c6bb7e6cd3e32e999c9c75b8e585"
+  },
+  "positive_requirement": "after held lease releases, original handle must mark and clear disposition successfully",
+  "product_directory_cleanup_integration": false,
+  "reference": {
+    "url": "https://github.com/golang/go/blob/master/src/internal/syscall/windows/at_windows.go",
+    "fetched_source_sha256": "42604919190b16c0e64553799f47d265a611222ce5f57272ea1ef211e6f961f6"
+  },
+  "limitations": [
+    "Windows native compilation and behavior pending",
+    "not yet an incremental cleanup walker",
+    "no file-operation tool enabled"
+  ]
+}
