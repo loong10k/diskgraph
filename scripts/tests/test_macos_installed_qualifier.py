@@ -57,7 +57,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 606)
+        self.assertEqual(len(manifest["sources"]), 607)
         for module, object_name in (("http_limits", "HttpLimits"),
                                     ("http_response", "HttpResponse"),
                                     ("http_server_config", "ServerConfig")):

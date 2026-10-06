@@ -1,4 +1,6 @@
 use super::git_metadata_version::GitMetadataVersion;
+#[cfg(windows)]
+use super::windows_git_child_open::WindowsGitChildOpen;
 use std::fs::File;
 use std::path::Path;
 
@@ -16,6 +18,13 @@ pub(super) struct GitPrivateAllocation {
 }
 
 impl GitPrivateAllocation {
+    /// 参数：id为原枚举的完整Windows身份；返回：非零128位ID逐字节相同时true。
+    /// 不截断成64位、不解析路径；卷和类型由调用方的原父/子句柄另行核验。
+    #[cfg(windows)]
+    pub(super) fn windows_matches_file_id(&self, id: &[u8; 16]) -> bool {
+        *id != [0; 16] && self.id == *id
+    }
+
     /// 不跟随叶链接地捕获文件或目录分配。参数：path 为受控路径。返回：身份分配或原生错误。
     pub(super) fn capture(path: &Path) -> Result<Self, String> {
         let mut options = std::fs::OpenOptions::new();
@@ -251,11 +260,11 @@ impl GitPrivateAllocation {
         {
             use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_READ, FILE_SHARE_WRITE};
             if create {
-                return open_windows_child(parent, name, true, false, true, FILE_SHARE_READ);
+                return WindowsGitChildOpen::open(parent, name, true, false, true, FILE_SHARE_READ);
             }
             // 先只申请属性，拒绝占位/离线；保留 no-delete 属性句柄至 data 身份再次确认。
             // 属性 shareWRITE 允许自己的 data-write 重开；data shareREAD 会拒绝正在持有写权限的外部句柄。
-            let attributes = open_windows_child(
+            let attributes = WindowsGitChildOpen::open(
                 parent,
                 name,
                 false,
@@ -267,7 +276,8 @@ impl GitPrivateAllocation {
             if initial.is_directory() {
                 return Err("private Git write target is a directory".into());
             }
-            let file = open_windows_child(parent, name, false, false, true, FILE_SHARE_READ)?;
+            let file =
+                WindowsGitChildOpen::open(parent, name, false, false, true, FILE_SHARE_READ)?;
             if !initial.same_version(&Self::from_file(&file)?)
                 || !initial.same_version(&Self::from_file(&attributes)?)
             {
@@ -308,7 +318,7 @@ impl GitPrivateAllocation {
         }
         #[cfg(windows)]
         {
-            open_windows_child(
+            WindowsGitChildOpen::open(
                 parent,
                 name,
                 false,
@@ -335,7 +345,7 @@ impl GitPrivateAllocation {
         #[cfg(windows)]
         let attributes = {
             use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_READ, FILE_SHARE_WRITE};
-            let retained = open_windows_child(
+            let retained = WindowsGitChildOpen::open(
                 parent,
                 name,
                 false,
@@ -397,7 +407,7 @@ impl GitPrivateAllocation {
         }
         #[cfg(windows)]
         {
-            open_windows_child(
+            WindowsGitChildOpen::open(
                 parent,
                 name,
                 true,
@@ -412,86 +422,4 @@ impl GitPrivateAllocation {
             Err("unsupported private Git directory platform".into())
         }
     }
-}
-
-#[cfg(windows)]
-fn open_windows_child(
-    parent: &File,
-    name: &std::ffi::OsStr,
-    create: bool,
-    directory: bool,
-    write: bool,
-    share_mode: u32,
-) -> Result<File, String> {
-    use std::os::windows::ffi::OsStrExt;
-    use std::os::windows::io::{AsRawHandle, FromRawHandle};
-    use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
-    use windows_sys::Wdk::Storage::FileSystem::{
-        FILE_CREATE, FILE_DIRECTORY_FILE, FILE_NON_DIRECTORY_FILE, FILE_OPEN, FILE_OPEN_NO_RECALL,
-        FILE_OPEN_REPARSE_POINT, FILE_SYNCHRONOUS_IO_NONALERT, NtCreateFile,
-    };
-    use windows_sys::Win32::Foundation::{
-        CloseHandle, INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
-    };
-    use windows_sys::Win32::Storage::FileSystem::{
-        FILE_READ_ATTRIBUTES, FILE_READ_DATA, FILE_WRITE_ATTRIBUTES, FILE_WRITE_DATA, SYNCHRONIZE,
-    };
-    use windows_sys::Win32::System::IO::IO_STATUS_BLOCK;
-    let mut wide: Vec<u16> = name.encode_wide().take(32768).collect();
-    let length =
-        u16::try_from(wide.len() * 2).map_err(|_| "unsupported private Git component length")?;
-    if wide.is_empty() || wide.iter().any(|unit| matches!(*unit, 0 | 47 | 58 | 92)) {
-        return Err("invalid private Git component".into());
-    }
-    let unicode = UNICODE_STRING {
-        Length: length,
-        MaximumLength: length,
-        Buffer: wide.as_mut_ptr(),
-    };
-    let attributes = OBJECT_ATTRIBUTES {
-        Length: std::mem::size_of::<OBJECT_ATTRIBUTES>() as u32,
-        RootDirectory: parent.as_raw_handle(),
-        ObjectName: &unicode,
-        Attributes: OBJ_DONT_REPARSE,
-        ..OBJECT_ATTRIBUTES::default()
-    };
-    let mut handle = std::ptr::null_mut();
-    let mut status_block = IO_STATUS_BLOCK::default();
-    let status = unsafe {
-        NtCreateFile(
-            &mut handle,
-            FILE_READ_ATTRIBUTES
-                | SYNCHRONIZE
-                | if write {
-                    FILE_READ_DATA | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES
-                } else {
-                    0
-                },
-            &attributes,
-            &mut status_block,
-            std::ptr::null(),
-            0,
-            share_mode,
-            if create { FILE_CREATE } else { FILE_OPEN },
-            FILE_SYNCHRONOUS_IO_NONALERT
-                | if directory {
-                    // 新目录只能 FILE_CREATE；不会跟随既有目标，DIRFILE 不与 reparse/no-recall 混用。
-                    FILE_DIRECTORY_FILE
-                } else {
-                    FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL | FILE_NON_DIRECTORY_FILE
-                },
-            std::ptr::null(),
-            0,
-        )
-    };
-    if status != 0 || handle.is_null() || handle == INVALID_HANDLE_VALUE {
-        if !handle.is_null() && handle != INVALID_HANDLE_VALUE {
-            unsafe { CloseHandle(handle) };
-        }
-        return Err(format!(
-            "private Git native create/open: {}",
-            std::io::Error::from_raw_os_error(unsafe { RtlNtStatusToDosError(status) as i32 })
-        ));
-    }
-    Ok(unsafe { File::from_raw_handle(handle) })
 }

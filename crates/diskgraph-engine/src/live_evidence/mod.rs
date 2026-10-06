@@ -185,6 +185,8 @@ mod git_private_directory_owner_tests;
 mod windows_git_private_root_tests;
 
 #[cfg(windows)]
+mod windows_git_child_open;
+#[cfg(windows)]
 mod windows_git_directory_cursor;
 #[cfg(all(test, windows))]
 mod windows_git_directory_cursor_tests;

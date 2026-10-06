@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "f9a7fceff9868312a83a18957c49b85df7b820ce61c5a325b87a3412f9d423ba",
+  "archive_sha256": "8b0c7f730a11c0892863d9a77138d2690542604729a862246ffa1f1428602b65",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -183,7 +183,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_object_database_tests.rs": "6f93c3ce0f563f97ab4bff5000c1ad687e7ed27a760e6682aa729ab923d57d90",
     "crates/diskgraph-engine/src/live_evidence/git_object_resources_tests.rs": "967c56cb239d3cbe19a59f4e51c452a7b7a44bf8d181cec3ab5bd6c7ed5f5e0b",
     "crates/diskgraph-engine/src/live_evidence/git_output.rs": "a2d5084d417a8dfc9209c070b3e09d323ee3c7e433e4837a61d63c9aab540ec8",
-    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "49d9167b6cbfab0a11af48efca4558f00ace35aababa21eac86558c5d32d5985",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "318c102dbe6dfed0781152da312286ba58bea3c45899da00ee17ec57a6d4416d",
     "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
     "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "593c1428117a371e442a8a3b3e48f867f8cfb5b782ce455a9e7c7df28699b132",
     "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "77451887d45a6be4c350f4d7e30ed32f64663759e97bd5caf3042a26d8a33d6c",
@@ -220,7 +220,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs": "772b22785226f5859222d53dae660ebfad9ff90c5658f32f139b5e4e9defdfe6",
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture_tests.rs": "53ae59b0975915dc934e6e60b2ecbc7e1a063d50122c3ec8c0f8cf49e6bba484",
     "crates/diskgraph-engine/src/live_evidence/macos_probe_tests.rs": "8896b66f810257490c0b200b7284f0decf6c7d4bd02cc9b97d4ff1b46aba5c0a",
-    "crates/diskgraph-engine/src/live_evidence/mod.rs": "251d27997147d6ae9e0b458dce00cda446858203ba5301816e4c7d6ad752becf",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "29589fba26830219a90be8909d860ab2eadba2d389c8105d7f6a9ed1d4992f2b",
     "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "370b2ed634cbd4c0f0edee6fe5b1fac91c482546411678ef31fa141065ca39a6",
     "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "299538865c93e21698d90f02544dd47edb8997e4709facc8a06dadf9d3f88f7f",
     "crates/diskgraph-engine/src/live_evidence/probe_failure.rs": "ebf3b3c4e6a217db68ae2476e4b0a24a7df6188a34fad2b5105d44379485213f",
@@ -609,8 +609,9 @@
     "crates/diskgraph-mcp/src/http_limits.rs": "117e83d2e25435adfec5c9a863259d790aebc5a71fa1b5065cfbc6c2362be73e",
     "crates/diskgraph-mcp/src/http_response.rs": "80b1b4a57911abe766205cba47bd199f3c99722f40fd1cc8cc2b523196bb6dd2",
     "crates/diskgraph-mcp/src/http_server_config.rs": "c5c57d9acaa6df5368ad582a836c6da00e1e30843229efc9f2989f85b8338e75",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "23d99b65b903a2c16aa131fd6a238e478735b161ff87c925b4db782a65388043",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "ad1720e8fc44ee81ff469b1524224d1a273fd303c1aa1af0e5858b5bb8f3e32a"
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "8f121b6acb462d1d323fb3c95294f8c6918bf32e3d4c56f33b638369b94ab812",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "5225f190fc20dd16df16af1d0b514554609b4286180176784befbeeab180804d",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7"
   },
   "ordinary_cases": [
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",

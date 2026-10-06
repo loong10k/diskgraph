@@ -1,0 +1,16 @@
+{
+  "production_acceptance": false,
+  "base_sha": "5598d158d4cc61f3afd0587cbc5f79c6ea19ec65",
+  "archive_sha256": "a7b94565d30defde204282dc1a6eacaf177b0c1ec1c14c21a778553df929f7e6",
+  "windows_sources": 498,
+  "required_exact_cases": 72,
+  "previous_cases_kept": 68,
+  "new_native_cases": 4,
+  "structure_red_failed": 1,
+  "structure_green_passed": 6,
+  "driver_green_passed": 24,
+  "mount_green_passed": 14,
+  "native_status": "pending",
+  "deletion_executed": false,
+  "walker_pool_integrated": false
+}

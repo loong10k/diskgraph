@@ -15,6 +15,10 @@ DIRECTORY_ENUMERATION_CASES = tuple("live_evidence::windows_git_directory_cursor
     "held_directory_names_ignore_foreign_path_argument",
     "held_directory_pages_preserve_raw_utf16_and_full_file_ids",
     "directory_record_decoder_rejects_invalid_lengths_offsets_and_components",
+    "verified_cleanup_child_uses_original_parent_after_move_and_foreign_root_replacement",
+    "verified_cleanup_child_rejects_same_name_foreign_replacement_and_type_mismatch",
+    "verified_cleanup_child_refuses_real_junction_without_touching_external_target",
+    "verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id",
 ))
 
 

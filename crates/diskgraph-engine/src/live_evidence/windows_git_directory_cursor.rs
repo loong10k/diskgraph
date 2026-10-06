@@ -25,6 +25,105 @@ pub(super) struct WindowsGitDirectoryCursor {
 }
 
 impl WindowsGitDirectoryCursor {
+    /// 参数：name/id/directory为原枚举子项，probe为原任务预算；返回：核验后的DELETE句柄。
+    /// 只相对原父句柄打开；不读正文、不删除；失败保持原游标和父责任，不按路径回退。
+    pub(super) fn open_verified_child(
+        &self,
+        name: &std::ffi::OsStr,
+        id: [u8; 16],
+        directory: bool,
+        probe: &mut ProbeBudget,
+    ) -> std::io::Result<File> {
+        use std::os::windows::ffi::OsStrExt;
+        use std::os::windows::io::FromRawHandle;
+        use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
+        use windows_sys::Wdk::Storage::FileSystem::{
+            FILE_OPEN_NO_RECALL, FILE_OPEN_REPARSE_POINT, FILE_SYNCHRONOUS_IO_NONALERT, NtOpenFile,
+        };
+        use windows_sys::Win32::Foundation::{
+            INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
+        };
+        use windows_sys::Win32::Storage::FileSystem::{
+            DELETE, FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ,
+            FILE_SHARE_WRITE, SYNCHRONIZE,
+        };
+        let check =
+            |file: &File| GitPrivateAllocation::from_file(file).map_err(std::io::Error::other);
+        probe.check().map_err(std::io::Error::other)?;
+        if !self.identity.same_identity(&check(&self.file)?) {
+            return Err(std::io::Error::other("cleanup parent identity changed"));
+        }
+        let mut wide: Vec<u16> = name.encode_wide().take(32768).collect();
+        if id == [0; 16]
+            || wide.is_empty()
+            || wide.len() > 32767
+            || wide == [46]
+            || wide == [46, 46]
+            || wide.iter().any(|unit| matches!(*unit, 0 | 47 | 58 | 92))
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "cleanup child requires a known full ID and one native component",
+            ));
+        }
+        let length = u16::try_from(wide.len() * 2).map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "cleanup child name too long",
+            )
+        })?;
+        let unicode = UNICODE_STRING {
+            Length: length,
+            MaximumLength: length,
+            Buffer: wide.as_mut_ptr(),
+        };
+        let attributes = OBJECT_ATTRIBUTES {
+            Length: std::mem::size_of::<OBJECT_ATTRIBUTES>() as u32,
+            RootDirectory: self.file.as_raw_handle(),
+            ObjectName: &unicode,
+            Attributes: OBJ_DONT_REPARSE,
+            ..OBJECT_ATTRIBUTES::default()
+        };
+        let mut handle = std::ptr::null_mut();
+        let mut status_block = windows_sys::Win32::System::IO::IO_STATUS_BLOCK::default();
+        let status = unsafe {
+            NtOpenFile(
+                &mut handle,
+                DELETE
+                    | FILE_READ_ATTRIBUTES
+                    | SYNCHRONIZE
+                    | if directory { FILE_LIST_DIRECTORY } else { 0 },
+                &attributes,
+                &mut status_block,
+                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL,
+            )
+        };
+        // 有效句柄在任何错误投影/身份查询前进入RAII；失败句柄也不会泄漏。
+        let file = (!handle.is_null() && handle != INVALID_HANDLE_VALUE)
+            .then(|| unsafe { File::from_raw_handle(handle) });
+        if status != 0 {
+            return Err(std::io::Error::from_raw_os_error(unsafe {
+                RtlNtStatusToDosError(status) as i32
+            }));
+        }
+        let file =
+            file.ok_or_else(|| std::io::Error::other("cleanup child returned no valid handle"))?;
+        let child = check(&file)?;
+        if child.is_directory() != directory
+            || !self.identity.same_volume(&child)
+            || !child.windows_matches_file_id(&id)
+            || !self.identity.same_identity(&check(&self.file)?)
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::AlreadyExists,
+                "cleanup child or parent identity changed; foreign object retained",
+            ));
+        }
+        probe.check().map_err(std::io::Error::other)?;
+        Ok(file)
+    }
+
     /// 参数：file 为原持有目录句柄；返回：已核目录身份的固定64KiB游标或错误。
     pub(super) fn new(file: File) -> Result<Self, String> {
         let identity = GitPrivateAllocation::from_file(&file)?;

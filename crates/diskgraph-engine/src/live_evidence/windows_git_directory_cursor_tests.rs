@@ -109,3 +109,154 @@ fn directory_record_decoder_rejects_invalid_lengths_offsets_and_components() {
     assert!(parse_entry(&[], 0).is_err());
     assert!(parse_entry(&[0; 256], usize::MAX).is_err());
 }
+
+// 单次独占空根及真实父句柄；所有移动/联接均只作用于本案临时目录。
+fn cleanup_fixture() -> (
+    tempfile::TempDir,
+    std::path::PathBuf,
+    super::windows_git_private_root::WindowsGitPrivateRoot,
+    WindowsGitDirectoryCursor,
+    ProbeBudget,
+) {
+    use super::git_directory_security::GitDirectorySecurity;
+    use super::windows_git_private_root::WindowsGitPrivateRoot;
+    let temp = tempfile::tempdir().unwrap();
+    let parent = temp.path().canonicalize().unwrap();
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let lease = GitDirectoryLease::open(&parent, &mut probe).unwrap();
+    let mut root = None;
+    WindowsGitPrivateRoot::create_into(
+        lease.leaf_file(),
+        std::ffi::OsStr::new("original"),
+        &GitDirectorySecurity::new().unwrap(),
+        &mut root,
+    )
+    .unwrap();
+    // 创建阶段已结束；原root继续保活，shareREAD父lease不能阻止本案移动正控。
+    drop(lease);
+    let root = root.unwrap();
+    let cursor = WindowsGitDirectoryCursor::new(root.as_file().try_clone().unwrap()).unwrap();
+    (temp, parent, root, cursor, probe)
+}
+
+#[test]
+fn verified_cleanup_child_uses_original_parent_after_move_and_foreign_root_replacement() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    std::fs::write(parent.join("original/owned"), b"original").unwrap();
+    let (name, id, _) = cursor.next_entry(&mut probe).unwrap().unwrap();
+    std::fs::rename(parent.join("original"), parent.join("moved")).unwrap();
+    std::fs::create_dir(parent.join("original")).unwrap();
+    std::fs::write(parent.join("original/owned"), b"foreign").unwrap();
+    let file = cursor
+        .open_verified_child(&name, id, false, &mut probe)
+        .unwrap();
+    assert!(
+        GitPrivateAllocation::from_file(&file)
+            .unwrap()
+            .windows_matches_file_id(&id)
+    );
+    assert_eq!(
+        std::fs::read(parent.join("moved/owned")).unwrap(),
+        b"original"
+    );
+    assert_eq!(
+        std::fs::read(parent.join("original/owned")).unwrap(),
+        b"foreign"
+    );
+}
+
+#[test]
+fn verified_cleanup_child_rejects_same_name_foreign_replacement_and_type_mismatch() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let path = parent.join("original/owned");
+    std::fs::write(&path, b"original").unwrap();
+    let (name, id, _) = cursor.next_entry(&mut probe).unwrap().unwrap();
+    assert!(
+        cursor
+            .open_verified_child(&name, id, true, &mut probe)
+            .is_err()
+    );
+    std::fs::rename(&path, parent.join("original/moved")).unwrap();
+    std::fs::write(&path, b"foreign").unwrap();
+    let error = cursor
+        .open_verified_child(&name, id, false, &mut probe)
+        .unwrap_err();
+    assert_eq!(error.kind(), std::io::ErrorKind::AlreadyExists);
+    assert_eq!(std::fs::read(&path).unwrap(), b"foreign");
+    assert_eq!(
+        std::fs::read(parent.join("original/moved")).unwrap(),
+        b"original"
+    );
+    for invalid in ["", ".", "..", "a/b", "a\\b", "a:b", "a\0b"] {
+        assert_eq!(
+            cursor
+                .open_verified_child(std::ffi::OsStr::new(invalid), id, false, &mut probe)
+                .unwrap_err()
+                .kind(),
+            std::io::ErrorKind::InvalidInput
+        );
+    }
+    assert_eq!(
+        cursor
+            .open_verified_child(&name, [0; 16], false, &mut probe)
+            .unwrap_err()
+            .kind(),
+        std::io::ErrorKind::InvalidInput
+    );
+}
+
+#[test]
+fn verified_cleanup_child_refuses_real_junction_without_touching_external_target() {
+    use super::windows_git_junction_fixture::WindowsGitJunctionFixture;
+    let external = tempfile::tempdir().unwrap();
+    std::fs::write(external.path().join("sentinel"), b"external").unwrap();
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let path = parent.join("original/child");
+    std::fs::create_dir(&path).unwrap();
+    let (name, id, _) = cursor.next_entry(&mut probe).unwrap().unwrap();
+    std::fs::rename(&path, parent.join("original/moved")).unwrap();
+    let mut junction = WindowsGitJunctionFixture::create(&path, external.path()).unwrap();
+    assert_eq!(std::fs::read(path.join("sentinel")).unwrap(), b"external");
+    assert!(
+        cursor
+            .open_verified_child(&name, id, true, &mut probe)
+            .is_err()
+    );
+    assert_eq!(
+        std::fs::read(external.path().join("sentinel")).unwrap(),
+        b"external"
+    );
+    junction.remove().unwrap();
+}
+
+#[test]
+fn verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::FILE_SHARE_READ;
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let path = parent.join("original/owned");
+    std::fs::write(&path, b"original").unwrap();
+    let (name, id, _) = cursor.next_entry(&mut probe).unwrap().unwrap();
+    let lease = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&path)
+        .unwrap();
+    assert_eq!(
+        cursor
+            .open_verified_child(&name, id, false, &mut probe)
+            .unwrap_err()
+            .raw_os_error(),
+        Some(windows_sys::Win32::Foundation::ERROR_SHARING_VIOLATION as i32)
+    );
+    drop(lease);
+    let file = cursor
+        .open_verified_child(&name, id, false, &mut probe)
+        .unwrap();
+    assert!(
+        GitPrivateAllocation::from_file(&file)
+            .unwrap()
+            .windows_matches_file_id(&id)
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), b"original");
+}
