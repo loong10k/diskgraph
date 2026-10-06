@@ -167,6 +167,27 @@ class MacosInstalledQualifierTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 qualifier.check_cli_regression(invalid)
 
+    def test_current_mcp_requires_exact_binary_inventory_and_every_case(self):
+        inventory = list(qualifier.MCP_SCAN_REGRESSION_CASES) + ["new::regression"]
+        valid = "\n".join("test " + case + " ... ok" for case in inventory)
+        valid += f"\ntest result: ok. {len(inventory)} passed; 0 failed; 0 ignored; 0 measured; 0 filtered out;"
+        qualifier.check_mcp_regression(valid, inventory=inventory)
+        for invalid in (valid.replace("new::regression ... ok", "new::regression ... ignored"),
+                        valid.replace("0 filtered out", "1 filtered out"),
+                        valid.replace(f"{len(inventory)} passed", "162 passed")):
+            with self.assertRaises(RuntimeError):
+                qualifier.check_mcp_regression(invalid, inventory=inventory)
+        for invalid_inventory in (inventory + [inventory[0]], inventory[1:]):
+            with self.assertRaises(RuntimeError):
+                qualifier.check_mcp_regression(valid, inventory=invalid_inventory)
+
+    def test_moved_deployment_settings_remain_mandatory_in_engine(self):
+        valid = "\n".join("test " + case + " ... ok" for case in qualifier.MOVED_SETTINGS_REGRESSION_CASES)
+        qualifier.check_moved_settings_regression(valid)
+        for invalid in ("", valid.replace(" ... ok", " ... ignored", 1)):
+            with self.assertRaises(RuntimeError):
+                qualifier.check_moved_settings_regression(invalid)
+
     def test_full_mcp_regression_requires_original_cases_and_counts(self):
         valid = "\n".join("test " + case + " ... ok" for case in qualifier.MCP_SCAN_REGRESSION_CASES)
         valid += "\ntest result: ok. 162 passed; 0 failed; 0 ignored;"

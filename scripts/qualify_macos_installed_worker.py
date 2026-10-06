@@ -117,13 +117,50 @@ MCP_SCAN_REGRESSION_CASES = (
 )
 
 
-def check_mcp_regression(stdout):
-    """要求完整MCP回归与原34失败案、真实socket生命周期案实际运行。"""
-    if "test result: ok. 162 passed; 0 failed; 0 ignored;" not in stdout:
-        raise RuntimeError("full MCP regression did not execute all 162 required tests")
-    for case in MCP_SCAN_REGRESSION_CASES:
+def check_mcp_regression(stdout, inventory=None):
+    """冻结模式保留原162项；当前模式逐项核实二进制清单、必跑安全案和无过滤执行。"""
+    if inventory is None:
+        if "test result: ok. 162 passed; 0 failed; 0 ignored;" not in stdout:
+            raise RuntimeError("full MCP regression did not execute all 162 required tests")
+        cases = MCP_SCAN_REGRESSION_CASES
+    else:
+        if (not inventory or len(set(inventory)) != len(inventory)
+                or not set(MCP_SCAN_REGRESSION_CASES).issubset(inventory)):
+            raise RuntimeError("current MCP inventory lost or duplicated required cases")
+        summaries = re.findall(r"^test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out;", stdout, re.M)
+        if len(summaries) != 1 or tuple(map(int, summaries[0])) != (len(inventory), 0, 0, 0, 0):
+            raise RuntimeError("current MCP regression differs from exact unfiltered binary inventory")
+        cases = inventory
+    for case in cases:
         if "test " + case + " ... ok" not in stdout:
             raise RuntimeError("required MCP regression missing: " + case)
+
+
+MOVED_SETTINGS_REGRESSION_CASES = (
+    "scan_worker_settings_tests::unified_host_preserves_original_cancel_before_environment_or_paths",
+    "scan_worker_settings_tests::unified_host_rejects_original_expired_deadline_before_configuration",
+    "scan_worker_settings_tests::unified_host_partial_configuration_stays_invalid_and_never_opens_image",
+    "scan_worker_settings_tests::unified_host_absent_configuration_still_rechecks_original_cancel",
+    "scan_worker_settings_tests::unified_macos_host_refuses_complete_legacy_environment_without_opening_file",
+    "scan_worker_settings_tests::unified_host_invalid_digest_preserves_argument_error",
+    "scan_worker_settings_tests::unified_host_never_resets_deadline_after_lookup",
+    "scan_worker_settings_tests::unified_macos_absent_environment_uses_fixed_installation_semantics",
+    "scan_worker_settings_tests::absent_configuration_is_distinct_from_every_partial_configuration",
+    "scan_worker_settings_tests::invalid_material_is_rejected_before_opening_any_image",
+    "scan_worker_settings_tests::independent_expected_digest_and_original_open_file_survive_name_replacement",
+    "scan_worker_settings_tests::opening_missing_material_preserves_the_actual_io_error",
+    "scan_worker_settings_tests::neighboring_correct_values_cannot_override_wrong_but_well_formed_expectations",
+    "scan_worker_settings_tests::uppercase_complete_digest_is_preserved_as_the_same_expected_material",
+    "scan_worker_settings_tests::native_non_utf8_image_path_is_retained_but_non_utf8_digest_is_rejected",
+    "scan_worker_settings_tests::native_non_utf8_open_failure_and_non_unicode_material_preserve_their_boundaries",
+)
+
+
+def check_moved_settings_regression(stdout):
+    """部署配置迁入Engine后仍须实际通过，不能用MCP计数减少掩盖回归删除。"""
+    for case in MOVED_SETTINGS_REGRESSION_CASES:
+        if "test " + case + " ... ok" not in stdout:
+            raise RuntimeError("moved deployment settings regression missing: " + case)
 
 
 def check_full_engine_regression(stdout, total, ignored):
@@ -364,11 +401,16 @@ def main():
             raise RuntimeError("expected one actual MCP regression executable")
         mcp_fixture = mcp_fixtures[0]
         receipt["mcp_regression_binary_sha256"] = digest(mcp_fixture)
+        mcp_inventory = None
+        if args.current_checkout:
+            invoke([str(mcp_fixture), "--list"], checkout, output, "mcp-current-inventory", env)
+            mcp_inventory = [line[:-6] for line in (output / "mcp-current-inventory.stdout").read_text(encoding="utf-8").splitlines() if line.endswith(": test")]
+            receipt["mcp_current_inventory"] = mcp_inventory
         invoke([str(mcp_fixture), "--test-threads=1"], checkout, output, "mcp-regression", env)
-        check_mcp_regression((output / "mcp-regression.stdout").read_text(encoding="utf-8"))
+        check_mcp_regression((output / "mcp-regression.stdout").read_text(encoding="utf-8"), inventory=mcp_inventory)
         if digest(mcp_fixture) != receipt["mcp_regression_binary_sha256"]:
             raise RuntimeError("MCP regression binary identity changed")
-        receipt["mcp_regression_tests_passed"] = 162
+        receipt["mcp_regression_tests_passed"] = len(mcp_inventory) if mcp_inventory is not None else 162
         # 在同一root发行/普通UID环境执行完整Engine，不能用39项native子集代替。
         invoke([str(binary), "--list"], checkout, output, "engine-full-inventory", env)
         invoke([str(binary), "--ignored", "--list"], checkout, output, "engine-ignored-inventory", env)
@@ -380,6 +422,8 @@ def main():
         receipt["engine_ignored_inventory"] = ignored
         invoke([str(binary), "--nocapture"], checkout, output, "engine-full-parallel-regression", env, timeout=1200)
         check_full_engine_regression((output / "engine-full-parallel-regression.stdout").read_text(encoding="utf-8"), len(inventory), len(ignored))
+        if args.current_checkout:
+            check_moved_settings_regression((output / "engine-full-parallel-regression.stdout").read_text(encoding="utf-8"))
         receipt["engine_full_regression_tests_passed"] = len(inventory) - len(ignored)
         for name, expected in manifest["sources"].items():
             if digest(checkout / name) != expected:

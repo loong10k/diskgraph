@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "source_sha": "a3040630d836a35062b5eb47c0af8a0c53ab4c1c",
+  "run": 37471993572,
+  "arm_job": 112297573352,
+  "status": "qualification_failed_at_obsolete_mcp_count",
+  "mcp_actual_passed": 152,
+  "mandatory_mcp_cases_passed": 43,
+  "moved_test_source": "crates/diskgraph-engine/src/scan_worker_settings_tests.rs",
+  "frozen_settings_functions_preserved": [
+    "unified_host_preserves_original_cancel_before_environment_or_paths",
+    "unified_host_rejects_original_expired_deadline_before_configuration",
+    "unified_host_partial_configuration_stays_invalid_and_never_opens_image",
+    "unified_host_absent_configuration_still_rechecks_original_cancel",
+    "unified_macos_host_refuses_complete_legacy_environment_without_opening_file",
+    "unified_nonmacos_host_preserves_unconfigured_none",
+    "unified_host_invalid_digest_preserves_argument_error",
+    "unified_host_never_resets_deadline_after_lookup",
+    "unified_macos_absent_environment_uses_fixed_installation_semantics",
+    "unified_nonmacos_complete_configuration_opens_original_local_image",
+    "absent_configuration_is_distinct_from_every_partial_configuration",
+    "invalid_material_is_rejected_before_opening_any_image",
+    "independent_expected_digest_and_original_open_file_survive_name_replacement",
+    "opening_missing_material_preserves_the_actual_io_error",
+    "neighboring_correct_values_cannot_override_wrong_but_well_formed_expectations",
+    "uppercase_complete_digest_is_preserved_as_the_same_expected_material",
+    "windows_drive_relative_root_relative_and_non_unicode_configuration_are_rejected",
+    "native_non_utf8_image_path_is_retained_but_non_utf8_digest_is_rejected",
+    "native_non_utf8_open_failure_and_non_unicode_material_preserve_their_boundaries"
+  ],
+  "settings_move_commit": "aca20ea",
+  "full_engine_not_reached": true
+}

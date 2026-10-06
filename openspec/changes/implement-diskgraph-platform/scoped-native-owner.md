@@ -141,3 +141,7 @@ f32b0c7/37470345841 三组 Linux 的实际 reset 回归三案均成功，仍待�
 1f51836 Linux stable在采样后的测试hook打开第二个ControlStore时失败Busy，尚未执行原scope/grant/fence修改；该日志不能算撤权拒绝的验收。外部控制与fence连接在run_job前准备，无事务跨采样保留；hook仍在真实采样后分别执行原持久撤scope、撤IndexWrite和递增fence，不重试或吞掉修改错误。原run_job必须失败、hook必须消费、staging/snapshots/revisions/collector_runs全零断言保持。CI增加原生精确前置；此修订只修正夹具把启动配置与目标竞态混在一起，不声明生产连接Busy问题已解决。
 
 31947a0 Linux x86 stable与ARM完整测试后失败于Ops夹具固定二字节chunks_exact的新Clippy规则；改用MSRV 1.97支持的as_chunks::<2>()，保持64位十六进制长度检查与逐字节解析。该修订等待同提交Linux完整门禁，不能标记全平台通过。
+
+## 当前MCP二进制清单与迁移回归
+
+a304063实际macOS ARM完整MCP为152/0/0ignored/0filtered，43项原必跑案全部执行；资格工具误用冻结候选162计数而失败，未到完整Engine门禁。部署配置测试由aca20ea从MCP迁入共享Engine，源码函数仍保留。当前源码模式读取原测试二进制--list，拒绝重复/必跑缺失，逐项要求ok并核精确无过滤汇总；冻结模式仍要求162。另对迁入Engine的16项macOS部署配置测试显式要求实际ok，不能通过删除测试获得验收。工具目标RED后17项GREEN；原生完整资格仍需新提交ARM/Intel运行，不声明原生通过。证据见docs/benchmarks/macos_current_inventory_2026_10_06。
