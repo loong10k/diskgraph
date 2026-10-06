@@ -27,7 +27,7 @@ fn explicit_completion_removes_private_data_before_success() {
 }
 
 #[test]
-fn missing_private_directory_refuses_success_until_original_object_returns() {
+fn moved_private_directory_uses_actual_platform_recovery() {
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
     let path = private.path().to_path_buf();
@@ -41,21 +41,42 @@ fn missing_private_directory_refuses_success_until_original_object_returns() {
         .unwrap();
     std::fs::rename(&path, &moved).unwrap();
     let observed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        let error = private.complete(Ok(9)).unwrap_err();
-        assert!(error.contains("original object deletion unconfirmed"));
-        let primary = private
-            .complete::<()>(Err("original failure".into()))
-            .unwrap_err();
-        assert!(primary.starts_with("original failure; cleanup also failed:"));
-        assert_eq!(
-            std::fs::read(moved.join("retained")).unwrap(),
-            b"original private payload"
-        );
+        #[cfg(not(windows))]
+        {
+            let error = private.complete(Ok(9)).unwrap_err();
+            assert!(error.contains("original object deletion unconfirmed"));
+            let primary = private
+                .complete::<()>(Err("original failure".into()))
+                .unwrap_err();
+            assert!(primary.starts_with("original failure; cleanup also failed:"));
+            assert_eq!(
+                std::fs::read(moved.join("retained")).unwrap(),
+                b"original private payload"
+            );
+        }
+        #[cfg(windows)]
+        {
+            // 原生句柄可以实际处置同父目录中改名后的原对象；缺少旧名不是完成证明。
+            assert_eq!(private.complete(Ok(9)).unwrap(), 9);
+            assert!(!path.exists(), "original name unexpectedly exists");
+            assert!(!moved.exists(), "actual original object was not deleted");
+            assert_eq!(
+                private
+                    .complete::<()>(Err("original failure".into()))
+                    .unwrap_err(),
+                "original failure"
+            );
+            assert_eq!(private.complete(Ok(10)).unwrap(), 10);
+            eprintln!("DG_WINDOWS_MOVED_PRIVATE_COMPLETION=1");
+        }
     }));
-    // 恢复同一原对象后真实重试；即使断言失败也不遗留私有测试数据。
-    std::fs::rename(&moved, &path).unwrap();
+    // 原对象尚未被清理时才恢复原名称，再让同一 owner 显式重试；不按路径直接删除原对象。
+    if moved.exists() {
+        std::fs::rename(&moved, &path).unwrap();
+    }
     assert_eq!(private.complete(Ok(9)).unwrap(), 9);
     assert!(!path.exists());
+    assert!(!moved.exists());
     if let Err(payload) = observed {
         std::panic::resume_unwind(payload);
     }
