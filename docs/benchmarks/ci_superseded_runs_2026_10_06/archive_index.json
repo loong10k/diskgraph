@@ -1,0 +1,14 @@
+{
+  "lossless_original_json": {
+    "before.json": {
+      "gzip": "before.json.gz",
+      "raw_sha256": "fc30ead0be5ac0e60f43832c0d1d865ebb94af0442007b8ec83a93ed5b6523f9",
+      "raw_bytes": 349878
+    },
+    "after_cancel_request.json": {
+      "gzip": "after_cancel_request.json.gz",
+      "raw_sha256": "1e82edffe3d3fc0ded2c592c9d63baba3034829e046a4f85f488c140f7071ad1",
+      "raw_bytes": 351134
+    }
+  }
+}

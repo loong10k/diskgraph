@@ -1,0 +1,9 @@
+{
+  "conclusion": "",
+  "databaseId": 37481532513,
+  "headSha": "62139404590d952119eacc275ab997ce9fa3297c",
+  "name": "CI",
+  "status": "queued",
+  "superseded_by": "414d0928085ae6600bdb2ddecfcaf7165da8db83",
+  "request_only": true
+}

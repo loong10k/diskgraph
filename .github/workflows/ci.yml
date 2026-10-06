@@ -92,6 +92,24 @@ jobs:
       - name: Native Windows suspended image load policy
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked suspended_birth_enforces_image_load_policy_before_resume -- --nocapture
+      - name: Native Windows suspended scan signature policy
+        if: runner.os == 'Windows'
+        run: |
+          cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_child::windows_image_policy_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-signature-policy.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-signature-policy.log" -Raw
+          if ($log -notmatch 'test result: ok\. 3 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'suspended_scan_control_requires_microsoft_signature_before_resume' -or
+              $log -notmatch 'suspended_null_probe_retains_existing_signature_policy') {
+            throw 'Exact original three native policy cases must execute'
+          }
+      - name: Preserve actual Windows scan signature policy result
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-signature-policy-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-signature-policy.log
+          if-no-files-found: error
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         if: runner.os == 'macOS'
         with:
@@ -245,6 +263,25 @@ jobs:
           python scripts/accept-readonly-http.py
       # Preserve exact deadline assertions in both isolated and concurrent runs.
       # This separates scheduler/IO observations without treating either as a substitute.
+      - name: Native expiry after actual scan observation in isolation
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        shell: bash
+        run: |
+          cargo test -p diskgraph-engine --lib --locked job_authorization_tests::remote_expiry_after_native_observation_prevents_staging_and_publication -- --exact --nocapture --test-threads=1 > "$RUNNER_TEMP/native-scan-expiry.log" 2>&1
+          python - <<'PYTHON'
+          import os
+          from pathlib import Path
+          log = (Path(os.environ['RUNNER_TEMP']) / 'native-scan-expiry.log').read_text()
+          if 'test result: ok. 1 passed; 0 failed; 0 ignored;' not in log:
+              raise RuntimeError('original exact native observation expiry case must execute')
+          PYTHON
+      - name: Preserve native observation expiry result
+        if: always() && (runner.os == 'Linux' || runner.os == 'macOS')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-scan-expiry-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/native-scan-expiry.log
+          if-no-files-found: error
       - name: Native queue deadline isolation
         run: cargo test -p diskgraph-store --lib --locked process_job_enqueue_deadline_tests -- --test-threads=1
       - name: Native control write deadline isolation

@@ -194,7 +194,8 @@ fn remote_expiry_after_native_observation_prevents_staging_and_publication() {
     let result = engine.run_job_strict(&job.job_id, "observed-expiry");
     assert!(
         AFTER_OBSERVE.with(|slot| slot.borrow().is_none()),
-        "native observation hook not reached"
+        "native observation hook not reached: result={result:?}, expiry={expiry}, now={}",
+        now()
     );
     assert!(result.is_err(), "expired observation published: {result:?}");
     assert_eq!(

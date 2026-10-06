@@ -164,3 +164,9 @@ CI37432097800在98331073e65c80ac4e0ac2e70dd125dfc2589b1f再次80/81，目标RED�
 ### 控制 stdin 旧局部 owner 包装退役（验收待完成）
 
 移除仅测试调用的内部 `OverlappedControlPipe::prepare_input`：局部包装在准备失败时自行清理并返回，不能将未完成 I/O 的原 owner 移交给调用方。两个真实 pending write 用例直接使用现有 `prepare_input_into`，先预留外部 owner，再提交连接，检查点消费原十秒期限。保持真实 pending 见证、跨线程固定地址、取消及完成断言。Windows stable/MSRV 原生执行后才能记录验收；不启用 Windows 扫描，不以本项关闭出生/退出/镜像父项。
+
+### Scan-control binary signature loading admission (native RED pending)
+
+The existing Windows CreateProcess birth image-load flags alone do not prohibit app-directory unsigned DLLs. Require MicrosoftSignedOnly signature policy in WorkerControl mode before ResumeThread; Null read-only probe mode retains its previous policy so real Git third-party dependencies are not silently disabled. First query ProcessSignaturePolicy on actual suspended native children in both modes, preserving original third-checkpoint error and outside owner, then actually clean original Job/leader/I/O before assertions. The required scan-mode flag must initially fail on current code; compile errors and zero tests are not native RED. A birth-time flag is not the full dependency-loading proof: actual unsigned DLL rejection plus System32 dependency positive control, unchanged native worker normal exit, lease/image binding and final Windows Runtime integration remain open.
+
+Primary API: https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-process_mitigation_binary_signature_policy and https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute . No Windows execution capability is enabled by adding this regression.

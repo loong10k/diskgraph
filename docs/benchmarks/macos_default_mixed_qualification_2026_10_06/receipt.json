@@ -1,0 +1,45 @@
+{
+  "production_ready": false,
+  "run": 37480341855,
+  "source": "4e95381ae68cec4c1a9925db3cd14bb3cdedb27a",
+  "sides": {
+    "arm": {
+      "job": 112326507168,
+      "status": "passed",
+      "engine_passed": 583,
+      "failure": null,
+      "cli_passed": 67,
+      "mcp_passed": 152,
+      "raw_sha256": {
+        "receipt.json": "5ede1c175f6a8d9a8de3e7104d9b3a11a90afdbfdd347234dab9707a0776931b",
+        "engine-full-parallel-regression.stdout": "4d60b390495fa14733a73ccdb93986ec2f495e75504180bd3b91fdad38011083",
+        "engine-full-parallel-regression.stderr": "e6d9a1d1fa77b7cb91fddf23ab76a22c623be201f5c8788d5dad12d5a6d45855",
+        "cli-regression.stdout": "841cdbfe98a21f8532ea97dee194a90ae6aae771e1a9e77d93e03ee170bdce09",
+        "mcp-regression.stdout": "55ba506a6e42254df00cfc0dee43cdd66e04bb5f87f8ec71767dad8aa26dc090"
+      }
+    },
+    "intel": {
+      "job": 112326506822,
+      "status": "failed",
+      "engine_passed": null,
+      "failure": "engine-full-parallel-regression exited 101; inspect preserved original logs",
+      "cli_passed": 67,
+      "mcp_passed": 152,
+      "raw_sha256": {
+        "receipt.json": "9330b28c78402085bdc931d1bb21d6ac4457d5f1cdfa47acbd5bce7c45928260",
+        "engine-full-parallel-regression.stdout": "3d1c311d5aef0f83646a9a3e080867118a0d505a63b776a03071f26a11b6f97f",
+        "engine-full-parallel-regression.stderr": "2decee8f1fed0553ebf9cb6b3f65a104debd9eb2bcdea7c485298217486c0408",
+        "cli-regression.stdout": "d31d81c63790b0fc9b4d6fb238b694af5c6c7055676d43e0fc6f6fb11e7b26c4",
+        "mcp-regression.stdout": "7810ec7b5a36b1ee99a8e3be60bf9503f6c67a8317b5797ff9f5f26474d1d661"
+      }
+    }
+  },
+  "intel_actual_engine": {
+    "passed": 582,
+    "failed": 1,
+    "ignored": 11
+  },
+  "missing_hook_cause": "not proven; original run_job error absent in prior log",
+  "change": "retain original three-second expiry and all assertions; add actual error/time diagnostic and exact isolation CI",
+  "windows_signature_regression": "new real native cases added; execution RED not yet confirmed"
+}
