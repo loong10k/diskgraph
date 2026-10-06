@@ -75,6 +75,9 @@ jobs:
       - name: Native Windows private directory cleanup unit boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked live_evidence::windows_git_cleanup_tests -- --nocapture
+      - name: Native Windows pre-resume admission boundary
+        if: runner.os == 'Windows'
+        run: cargo test -p diskgraph-engine --lib --locked revoked_admission_after_birth_prevents_resume_and_retains_original_owner -- --nocapture
       - name: Build
         run: cargo build --workspace --all-targets --locked
       - name: Native Linux thread-group and procfs qualification

@@ -1,5 +1,9 @@
 # PF-06 受管宿主作用域生命周期
 
+## Windows 恢复执行前的请求准入检查（未完成）
+
+原生 CreateProcessW 成功后进程仍挂起，原 process/Job 已进入 catch 外唯一 owner。恢复线程前必须再次执行同次 admission（期限、取消、撤权），不能仅执行生命周期 checkpoint。撤销后的原非 Clone 错误应原样返回，原挂起进程不执行用户代码，原 owner 留给实际 Job 终止/leader wait/Job0 清理；失败或 panic 不丢责任。新增真实出生观察回归先取得原生 RED，再修改 ResumeThread 前的检查顺序。正常产品完整构建与扫描加载资格仍是独立必需门禁。
+
 当前 `NativeServiceOwner` 拥有静态生命周期且 Drop 同步 join。不可 Send/Sync 不能防止安全 Rust 将其放入 thread_local；Windows TLS 析构持有 loader lock，等待另一线程退出存在结构性死锁风险。此判断不是当前 Windows 测试失败的运行时证明。
 
 ## 接口与所有权

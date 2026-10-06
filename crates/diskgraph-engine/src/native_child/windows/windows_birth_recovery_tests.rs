@@ -16,6 +16,74 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+#[test]
+fn revoked_admission_after_birth_prevents_resume_and_retains_original_owner() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut owner = None;
+    let rescue = Rc::new(RefCell::new(None::<WindowsCleanupRescue>));
+    let observed_rescue = Rc::clone(&rescue);
+    let hook = WindowsBirthTestHook::install(move |child| {
+        *observed_rescue.borrow_mut() = Some(WindowsCleanupRescue::capture(child).unwrap());
+    });
+    let expires = Instant::now() + Duration::from_secs(10);
+    let observed = catch_unwind(AssertUnwindSafe(|| {
+        let result = WindowsChild::spawn_into_with_admission(
+            &mut command("stamp", directory.path()),
+            ChildInputMode::WorkerControl,
+            &mut owner,
+            || {
+                if rescue.borrow().is_some() {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::PermissionDenied,
+                        "original admission revoked after native birth",
+                    ));
+                }
+                if Instant::now() >= expires {
+                    return Err(std::io::Error::from(std::io::ErrorKind::TimedOut));
+                }
+                Ok(())
+            },
+            || Ok(()),
+        );
+        assert!(
+            rescue.borrow().is_some(),
+            "must witness actual suspended birth"
+        );
+        assert!(
+            matches!(result, Err(ChildSpawnError::Checkpoint { primary, cleanup: None })
+                if primary.kind() == std::io::ErrorKind::PermissionDenied
+                && primary.to_string() == "original admission revoked after native birth"),
+            "original admission must be checked before ResumeThread"
+        );
+        assert!(owner.is_some(), "revocation lost original native owner");
+        assert!(!directory.path().join("started").exists());
+        assert!(!rescue.borrow().as_ref().unwrap().waited().unwrap());
+        owner.as_mut().unwrap().cleanup().unwrap();
+        assert!(rescue.borrow().as_ref().unwrap().waited().unwrap());
+        assert_eq!(rescue.borrow().as_ref().unwrap().active().unwrap(), 0);
+        assert!(!directory.path().join("started").exists());
+    }));
+    drop(hook);
+    // RED断言也先真实回收原Job；独立救援只避免测试泄漏，不改变原断言结果。
+    let rescued = rescue
+        .borrow()
+        .as_ref()
+        .map_or(Ok(()), WindowsCleanupRescue::finish);
+    let cleaned = owner.as_mut().map_or(Ok(()), WindowsChild::cleanup);
+    if rescued.is_err() || cleaned.is_err() {
+        std::mem::forget(owner);
+        std::mem::forget(rescue);
+        let _ = directory.keep();
+        if let Err(payload) = observed {
+            resume_unwind(payload);
+        }
+        panic!("native revocation recovery incomplete; original responsibility retained");
+    }
+    if let Err(payload) = observed {
+        resume_unwind(payload);
+    }
+}
+
 fn birth_case(panic_after_birth: bool, cleanup_stage: u8) {
     let directory = tempfile::tempdir().unwrap();
     let registry = ScanWorkerRegistry::new(1).unwrap();
