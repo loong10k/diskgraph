@@ -88,6 +88,8 @@ fn suspended_binding_rejection_retains_image_after_host_release() {
         .prepare_windows_image(deadline, &mut || Ok(()))
         .unwrap();
     let weak = std::sync::Arc::downgrade(&lease);
+    let registry = std::sync::Arc::clone(&host.registry);
+    let reservation = registry.reserve().unwrap();
     let mut command = std::process::Command::new(&image);
     command.env_clear().current_dir(image.parent().unwrap());
     let mut owner = None;
@@ -118,12 +120,25 @@ fn suspended_binding_rejection_retains_image_after_host_release() {
         phases, 3,
         "original child must remain suspended before fourth phase"
     );
+    reservation.retain(
+        owner
+            .take()
+            .expect("original suspended child retains image"),
+    );
+    drop(reservation);
     drop(lease);
     drop(host);
-    let retained = owner
-        .as_mut()
-        .expect("original suspended child retains image");
     assert!(weak.upgrade().is_some());
+    assert_eq!(registry.occupied().unwrap(), 1);
+    assert!(
+        !registry
+            .drain_until(Instant::now() - Duration::from_secs(1))
+            .unwrap()
+    );
+    assert!(
+        registry.reserve().is_err(),
+        "expired recovery must not free retained slot"
+    );
     assert_eq!(
         OpenOptions::new()
             .write(true)
@@ -132,8 +147,14 @@ fn suspended_binding_rejection_retains_image_after_host_release() {
             .raw_os_error(),
         Some(32)
     );
-    retained.cleanup().unwrap();
-    drop(owner);
+    while !registry.drain_until(deadline).unwrap() {
+        assert!(
+            Instant::now() < deadline,
+            "original suspended Job was not actually disposed"
+        );
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_eq!(registry.occupied().unwrap(), 0);
     assert!(weak.upgrade().is_none());
     OpenOptions::new().write(true).open(&image).unwrap();
     eprintln!("DG_WINDOWS_FAILED_OWNER_RETAINS_IMAGE_AFTER_HOST_DROP=1");
@@ -171,4 +192,62 @@ fn actual_bound_runtime_preserves_postbirth_revocation() {
         "original cancelled worker must be actually disposed"
     );
     eprintln!("DG_WINDOWS_BOUND_RUNTIME_ORIGINAL_REVOCATION=1");
+}
+
+#[test]
+fn successful_birth_retains_image_after_host_release() {
+    let (_directory, image, host, deadline) = host();
+    let lease = host
+        .prepare_windows_image(deadline, &mut || Ok(()))
+        .unwrap();
+    let weak = std::sync::Arc::downgrade(&lease);
+    let mut owner = None;
+    crate::windows_scan_launcher::WindowsScanLauncher::new(lease)
+        .spawn_into(&mut owner, deadline, &mut || Ok(()))
+        .unwrap();
+    drop(host);
+    assert!(weak.upgrade().is_some());
+    assert_eq!(
+        OpenOptions::new()
+            .write(true)
+            .open(&image)
+            .unwrap_err()
+            .raw_os_error(),
+        Some(32)
+    );
+    owner
+        .as_mut()
+        .expect("original resumed worker remains owned")
+        .cleanup()
+        .unwrap();
+    drop(owner);
+    assert!(weak.upgrade().is_none());
+    OpenOptions::new().write(true).open(&image).unwrap();
+    eprintln!("DG_WINDOWS_RESUMED_OWNER_RETAINS_IMAGE_AFTER_HOST_DROP=1");
+}
+
+#[test]
+fn actual_bound_runtime_preserves_original_postbirth_panic() {
+    let (_directory, _image, host, deadline) = host();
+    let root = tempfile::tempdir().unwrap();
+    std::fs::write(root.path().join("first"), [1; 17]).unwrap();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        ScanWorkerRuntime::new(&host, deadline).run(
+            root.path(),
+            &ScanOptions::default(),
+            &mut || Ok(()),
+            &mut || std::panic::panic_any("original-windows-runtime-postbirth-payload"),
+            &mut |_| Ok(()),
+        )
+    }));
+    let payload = result.unwrap_err();
+    assert_eq!(
+        payload.downcast_ref::<&str>(),
+        Some(&"original-windows-runtime-postbirth-payload")
+    );
+    assert!(
+        host.registry.drain().unwrap(),
+        "original panic child must be disposed before releasing capacity"
+    );
+    eprintln!("DG_WINDOWS_BOUND_RUNTIME_ORIGINAL_PANIC_REAPED=1");
 }

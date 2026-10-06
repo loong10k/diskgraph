@@ -1,20 +1,19 @@
-#[cfg(target_os = "linux")]
-use super::ScanWorkerHostConfig;
 use super::{
-    Engine, EngineConfig, EngineError, ScanWorkerHost, ScanWorkerRecovery, ScanWorkerRuntimeBudget,
+    Engine, EngineConfig, EngineError, ScanWorkerRecovery, ScanWorkerRuntimeBudget,
+    ScanWorkerSettings,
 };
 use diskgraph_scan_worker::ProtocolLimits;
-#[cfg(target_os = "linux")]
-use std::fs::File;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
-/// 显式提供真实镜像与恢复责任的 Linux/macOS 扫描夹具；来源：原生 Rust PF-06 公开宿主 API。
+/// 显式提供真实镜像与恢复责任的 三桌面扫描夹具；来源：原生 Rust PF-06 公开宿主 API。
 /// 预期值由受控构建部署提供，不从镜像正文或邻接清单自行建立信任。
 pub(crate) struct NativeScanEngine {
     /// 原Engine的共享引用；借出引用/线程必须先于夹具结束，恢复责任仍唯一持有。
     pub(crate) engine: Arc<Engine>,
     recovery: ScanWorkerRecovery,
+    #[cfg(windows)]
+    probe_recovery: super::ProbeRecovery,
 }
 
 impl NativeScanEngine {
@@ -31,46 +30,25 @@ impl NativeScanEngine {
             64 << 10,
             4,
         )?;
-        #[cfg(target_os = "linux")]
-        let host = {
-            let image = std::env::var_os("DISKGRAPH_SCAN_WORKER_PATH")
-                .expect("native scan fixture requires the deployed actual Cargo worker");
-            let expected = std::env::var("DISKGRAPH_SCAN_WORKER_SHA256")
-                .expect("native scan fixture requires the independent deployment digest");
-            assert_eq!(
-                expected.len(),
-                64,
-                "deployment digest must contain 32 bytes"
-            );
-            let mut digest = [0; 32];
-            for (byte, pair) in digest
-                .iter_mut()
-                .zip(expected.as_bytes().as_chunks::<2>().0)
-            {
-                *byte = u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16)
-                    .expect("deployment digest must be hexadecimal");
-            }
-            let bytes = std::env::var("DISKGRAPH_SCAN_WORKER_BYTES")
-                .expect("native scan fixture requires the independent deployment length")
-                .parse()
-                .expect("deployment length must be an unsigned integer");
-            ScanWorkerHost::new(
-                File::open(image)?,
-                ScanWorkerHostConfig::from_expected_image(digest, bytes)?,
-                runtime,
-            )?
-        };
-        #[cfg(target_os = "macos")]
-        let host = ScanWorkerHost::from_installed_macos(
+        let host = ScanWorkerSettings::host_from_environment(
             runtime,
             std::time::Instant::now() + std::time::Duration::from_secs(30),
             &mut || Ok(()),
         )?
         .ok_or(diskgraph_core::BusinessError::Unsupported)?;
+        #[cfg(windows)]
+        let (probe, probe_recovery) = super::ProbeHost::new(4)?;
+        #[cfg(windows)]
+        let (engine, recovery) = Engine::open_with_process_hosts(config, Some(host), probe)?;
+        #[cfg(windows)]
+        let recovery = recovery.expect("explicit admitted worker has original recovery");
+        #[cfg(not(windows))]
         let (engine, recovery) = Engine::open_with_scan_worker(config, host)?;
         Ok(Self {
             engine: Arc::new(engine),
             recovery,
+            #[cfg(windows)]
+            probe_recovery,
         })
     }
 }
@@ -95,6 +73,13 @@ impl Drop for NativeScanEngine {
     fn drop(&mut self) {
         // 夹具在业务 panic 之外拥有原恢复句柄；不将缺名或 pending 当作完成。
         // 这里沿用实际阻塞回收，不宣称产品前端的有限退出已经实现。
+        #[cfg(windows)]
+        loop {
+            match self.probe_recovery.drain() {
+                Ok(true) => break,
+                Ok(false) | Err(_) => std::thread::sleep(std::time::Duration::from_millis(20)),
+            }
+        }
         let mut reported = false;
         loop {
             match self.recovery.drain() {

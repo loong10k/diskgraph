@@ -1,9 +1,8 @@
 use diskgraph_engine::{
-    Engine, EngineConfig, EngineError, ScanWorkerHost, ScanWorkerHostConfig, ScanWorkerRecovery,
-    ScanWorkerRuntimeBudget,
+    Engine, EngineConfig, EngineError, ScanWorkerRecovery, ScanWorkerRuntimeBudget,
+    ScanWorkerSettings,
 };
 use diskgraph_scan_worker::ProtocolLimits;
-use std::fs::File;
 use std::sync::Arc;
 
 /// Ops 隔离夹具持有的唯一扫描恢复外槽；来源：PF-06 原生 Rust 显式宿主合同。
@@ -16,23 +15,6 @@ impl NativeScanProject {
     /// 参数：config 为原夹具的数据库、容量和扫描节点预算。
     /// 返回：提供给真实 PlanBuilder 的原 Arc<Engine> 与独立恢复责任；缺部署直接失败。
     pub(super) fn open(config: EngineConfig) -> Result<(Arc<Engine>, Self), EngineError> {
-        let path = std::env::var_os("DISKGRAPH_SCAN_WORKER_PATH")
-            .expect("Ops native scan fixture requires actual worker deployment");
-        let digest = std::env::var("DISKGRAPH_SCAN_WORKER_SHA256")
-            .expect("Ops native scan fixture requires independent image digest");
-        assert_eq!(digest.len(), 64, "deployment requires 32-byte digest");
-        let mut expected = [0; 32];
-        for (byte, pair) in expected
-            .iter_mut()
-            .zip(digest.as_bytes().as_chunks::<2>().0)
-        {
-            *byte = u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16)
-                .expect("deployment digest must be hexadecimal");
-        }
-        let bytes = std::env::var("DISKGRAPH_SCAN_WORKER_BYTES")
-            .expect("Ops native scan fixture requires independent image length")
-            .parse()
-            .expect("deployment length must be unsigned");
         let runtime = ScanWorkerRuntimeBudget::new(
             ProtocolLimits {
                 max_frame_bytes: 1 << 20,
@@ -43,11 +25,12 @@ impl NativeScanProject {
             64 << 10,
             4,
         )?;
-        let host = ScanWorkerHost::new(
-            File::open(path)?,
-            ScanWorkerHostConfig::from_expected_image(expected, bytes)?,
+        let host = ScanWorkerSettings::host_from_environment(
             runtime,
-        )?;
+            std::time::Instant::now() + std::time::Duration::from_secs(30),
+            &mut || Ok(()),
+        )?
+        .ok_or(diskgraph_core::BusinessError::Unsupported)?;
         let (engine, recovery) = Engine::open_with_scan_worker(config, host)?;
         Ok((Arc::new(engine), Self { recovery }))
     }

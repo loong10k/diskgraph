@@ -408,29 +408,31 @@ fn process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition(
     let writer_held = Arc::clone(&held);
     let (ready_tx, ready_rx) = mpsc::channel();
     let (release_tx, release_rx) = mpsc::channel();
-    let (committed_tx, committed_rx) = mpsc::channel();
+    let commit_ack = Arc::new(AtomicBool::new(false));
+    let writer_commit = Arc::clone(&commit_ack);
     let locker = std::thread::spawn(move || {
         writer_held.store(true, Ordering::SeqCst);
         let _ = ready_tx.send(());
         // 不按墙钟猜测释放；正常由第二次真实 BEGIN prepare 交接，错误路径也会释放。
-        let _ = release_rx.recv();
+        let request_deadline: Option<Instant> = release_rx.recv().unwrap_or(None);
         let committed = connection.execute_batch("COMMIT");
+        writer_commit.store(
+            committed.is_ok() && request_deadline.is_some_and(|limit| Instant::now() < limit),
+            Ordering::SeqCst,
+        );
         writer_held.store(false, Ordering::SeqCst);
-        let _ = committed_tx.send(committed.is_ok());
         committed
     });
     if let Err(error) = ready_rx.recv_timeout(Duration::from_secs(5)) {
-        let _ = release_tx.send(());
+        let _ = release_tx.send(None);
         let joined = locker.join();
         panic!("external revoking writer never became ready: {error:?}; {joined:?}");
     }
     let begins = Arc::new(AtomicUsize::new(0));
     let first_begin_held = Arc::new(AtomicBool::new(false));
-    let commit_ack = Arc::new(AtomicBool::new(false));
     let grant_read_after_commit_live = Arc::new(AtomicBool::new(false));
     let observed_begins = Arc::clone(&begins);
     let observed_first = Arc::clone(&first_begin_held);
-    let observed_commit = Arc::clone(&commit_ack);
     let observed_grant_read = Arc::clone(&grant_read_after_commit_live);
     let release_at_begin = release_tx.clone();
     // 原期限只生成一次；worker ready 不消耗本案的请求资格窗口。
@@ -448,22 +450,16 @@ fn process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition(
                         // 第一次实际 BEGIN 保持外锁；只有生产边界遇到真实 BUSY 才会再次 prepare。
                         observed_first.store(held.load(Ordering::SeqCst), Ordering::SeqCst);
                     } else if attempt == 2 {
-                        let _ = release_at_begin.send(());
-                        if let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
-                            let acknowledged =
-                                matches!(committed_rx.recv_timeout(remaining), Ok(true));
-                            observed_commit.store(acknowledged, Ordering::SeqCst);
-                        }
+                        // 授权回调处于 SQLite prepare 内，不能等另一连接的 COMMIT。
+                        // 只发送原期限；生产 BEGIN 在回调返回后继续真实 BUSY 重试。
+                        let _ = release_at_begin.send(Some(deadline));
                     }
                 }
                 AuthAction::Read {
                     table_name: "grants",
                     ..
                 } => {
-                    observed_grant_read.store(
-                        observed_commit.load(Ordering::SeqCst) && Instant::now() < deadline,
-                        Ordering::SeqCst,
-                    );
+                    observed_grant_read.store(Instant::now() < deadline, Ordering::SeqCst);
                 }
                 _ => {}
             }
@@ -471,7 +467,7 @@ fn process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition(
             Authorization::Allow
         }));
     if let Err(error) = installed {
-        let _ = release_tx.send(());
+        let _ = release_tx.send(None);
         let joined = locker.join();
         panic!("BEGIN observer could not be installed: {error:?}; {joined:?}");
     }
@@ -482,7 +478,7 @@ fn process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition(
         deadline,
     );
     // 无论是否进入第二次 prepare，都先释放 writer，避免失败分支 join 永久等待。
-    let _ = release_tx.send(());
+    let _ = release_tx.send(None);
     let joined = locker.join();
     let removed = fixture
         .store
@@ -520,6 +516,10 @@ fn process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition(
     assert!(
         matches!(result, Err(StoreError::Conflict(_))),
         "actual={result:?}"
+    );
+    assert!(
+        matches!(&result, Err(StoreError::Conflict(reason)) if reason == "live job authorization withdrawn"),
+        "must observe the committed grant withdrawal rather than another conflict: {result:?}"
     );
     assert!(fixture.store.list_queued_jobs().unwrap().is_empty());
     for table in [

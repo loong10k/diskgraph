@@ -1,0 +1,13 @@
+{
+  "source": "731e906dcac00e4629cac6f5fee2d32ce6d6ba63",
+  "run": 37497224164,
+  "job": 112384804497,
+  "failure_step": "Native queue deadline isolation",
+  "cases_passed": 9,
+  "failed": 1,
+  "ignored": 0,
+  "original_window_ms": 600,
+  "raw_sha256": "eae57d796351f8ab4f66fddcc34f660d202068607c80f9326ab5971375f06d8c",
+  "runtime_component_passed": 3,
+  "parent_production_accepted": false
+}

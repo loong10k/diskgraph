@@ -19,10 +19,10 @@ fn a_proven_legacy_control_database_remains_readable() {
         graph_database_path: Some(database.clone()),
         ..Default::default()
     };
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos", windows))]
     let (engine, _scan_owner) =
         crate::native_legacy_fixture::NativeLegacyFixture::open(config).unwrap();
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
     let engine = diskgraph_engine::Engine::open(config).unwrap();
     let principal = super::local_principal().unwrap();
     engine.bootstrap_local_admin(&principal).unwrap();
@@ -68,10 +68,10 @@ fn ambiguous_legacy_control_is_not_assigned_to_either_graph() {
             graph_database_path: Some(database.clone()),
             ..Default::default()
         };
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "macos", windows))]
         let (engine, _scan_owner) =
             crate::native_legacy_fixture::NativeLegacyFixture::open(config).unwrap();
-        #[cfg(not(target_os = "linux"))]
+        #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
         let engine = diskgraph_engine::Engine::open(config).unwrap();
         engine.bootstrap_local_admin(&principal).unwrap();
         let scope = engine

@@ -1,9 +1,9 @@
 //! 两个真实 Engine 共用持久队列时的本机取消句柄生命周期；不使用生产 hook。
-#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
 use crate::Engine;
 use crate::EngineConfig;
 use crate::git_evidence_fixture::{GitEvidenceFixture, now};
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_store::{JobKind, JobState};
 use std::time::{Duration, Instant};

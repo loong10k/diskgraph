@@ -1,0 +1,42 @@
+[
+  {
+    "artifact_id": 11427589236,
+    "job": 112384804594,
+    "run": 37497224164,
+    "source": "731e906dcac00e4629cac6f5fee2d32ce6d6ba63",
+    "artifact_sha256": "3925db1fe41a113fe24211e58f584c14efe5de23af11eb392d9c26e4e20bb730",
+    "worker": {
+      "product_acceptance": "pending",
+      "worker_bytes": 2086400,
+      "checkout_sha": "731e906dcac00e4629cac6f5fee2d32ce6d6ba63",
+      "trust_source": "current CI checkout Cargo binary artifact snapshot",
+      "worker_sha256": "4A9341A04C53755F8290BD6CD33C822304FA49CC8CF9DADD907C774DC184E889",
+      "cargo_artifact_path": "D:\\a\\diskgraph\\diskgraph\\target\\debug\\diskgraph-scan-worker.exe",
+      "worker_path": "D:\\a\\_temp\\product-scan-worker.exe"
+    },
+    "cases": 3,
+    "failed": 0,
+    "ignored": 0,
+    "product_parent_acceptance": false
+  },
+  {
+    "artifact_id": 11429205119,
+    "job": 112384804497,
+    "run": 37497224164,
+    "source": "731e906dcac00e4629cac6f5fee2d32ce6d6ba63",
+    "artifact_sha256": "94e9bfa74f6d7318a79c5c63618f86b16a88f86691a3b392ef7190c705197302",
+    "worker": {
+      "trust_source": "current CI checkout Cargo binary artifact snapshot",
+      "worker_path": "D:\\a\\_temp\\product-scan-worker.exe",
+      "worker_bytes": 2199040,
+      "product_acceptance": "pending",
+      "checkout_sha": "731e906dcac00e4629cac6f5fee2d32ce6d6ba63",
+      "worker_sha256": "3A434771B308EE3084B751F955802AE5BAFB5D1D77E85D6B084668AF1478CEE2",
+      "cargo_artifact_path": "D:\\a\\diskgraph\\diskgraph\\target\\debug\\diskgraph-scan-worker.exe"
+    },
+    "cases": 3,
+    "failed": 0,
+    "ignored": 0,
+    "product_parent_acceptance": false
+  }
+]

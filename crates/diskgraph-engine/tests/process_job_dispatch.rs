@@ -5,15 +5,15 @@ use diskgraph_core::{
     ProcessEvidenceFailurePhase, ProcessEvidenceJobInput, ProcessEvidenceLimits,
     ProcessObservationMethod,
 };
-// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
-#[cfg(target_os = "linux")]
+// 三桌面扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 #[path = "support/native_scan_engine.rs"]
 mod native_scan_engine;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
 use diskgraph_engine::Engine;
 use diskgraph_engine::{EngineConfig, EngineError};
 use diskgraph_store::{ControlStore, JobKind, JobState, SqliteSnapshotStore};
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use native_scan_engine::NativeScanEngine as Engine;
 use std::path::Path;
 

@@ -221,11 +221,13 @@ jobs:
           cargo test -p diskgraph-engine --lib --locked windows_scan_runtime_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-bound-runtime.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $log = Get-Content "$env:RUNNER_TEMP/windows-bound-runtime.log" -Raw
-          if ($log -notmatch 'test result: ok\. 3 passed; 0 failed; 0 ignored;' -or
+          if ($log -notmatch 'test result: ok\. 5 passed; 0 failed; 0 ignored;' -or
               $log -notmatch 'DG_WINDOWS_BOUND_RUNTIME_COMPLETE_SCAN=1' -or
               $log -notmatch 'DG_WINDOWS_FAILED_OWNER_RETAINS_IMAGE_AFTER_HOST_DROP=1' -or
-              $log -notmatch 'DG_WINDOWS_BOUND_RUNTIME_ORIGINAL_REVOCATION=1') {
-            throw 'All three actual bound Runtime and ownership cases must execute'
+              $log -notmatch 'DG_WINDOWS_BOUND_RUNTIME_ORIGINAL_REVOCATION=1' -or
+              $log -notmatch 'DG_WINDOWS_RESUMED_OWNER_RETAINS_IMAGE_AFTER_HOST_DROP=1' -or
+              $log -notmatch 'DG_WINDOWS_BOUND_RUNTIME_ORIGINAL_PANIC_REAPED=1') {
+            throw 'All five actual bound Runtime and ownership cases must execute'
           }
       - name: Preserve Windows bound product Runtime evidence
         if: always() && runner.os == 'Windows'

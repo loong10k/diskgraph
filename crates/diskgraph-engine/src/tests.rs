@@ -1,7 +1,7 @@
 use super::EngineConfig;
-#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
 use crate::Engine;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::PrincipalId;
 use std::sync::{Arc, atomic::AtomicBool};

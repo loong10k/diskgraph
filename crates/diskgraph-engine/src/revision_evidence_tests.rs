@@ -1,7 +1,7 @@
 //! 经真实授权入口验证共享文件快照的采集批次隔离；来源：D28 / EV-05。
-#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
 use crate::Engine;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use crate::{EngineConfig, EngineError};
 use diskgraph_core::{

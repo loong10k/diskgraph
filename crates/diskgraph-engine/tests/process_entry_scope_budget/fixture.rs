@@ -1,14 +1,14 @@
 //! 合法大范围字段与真实索引夹具；来源：D42 EC-04 公开 Control/Engine API。
 use diskgraph_core::{JobRequestAuthority, Locator, Permission, PrincipalId, ScopeId};
-// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
-#[cfg(target_os = "linux")]
+// 三桌面扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 #[path = "../support/native_scan_engine.rs"]
 mod native_scan_engine;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
 use diskgraph_engine::Engine;
 use diskgraph_engine::{EngineConfig, EngineError};
 use diskgraph_store::{JobRecord, JobState};
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use native_scan_engine::NativeScanEngine as Engine;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
