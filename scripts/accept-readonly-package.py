@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -12,7 +13,7 @@ import tarfile
 import tempfile
 import zipfile
 from worker_manifest import (MANIFEST_NAME, MAX_IMAGE_BYTES, bounded_digest,
-                             copy_artifact, executable_name, read_manifest,
+                             copy_artifact, executable_name, image_metadata, read_manifest,
                              verify_manifest, workspace_version, write_manifest)
 
 
@@ -24,8 +25,32 @@ def digest(path, byte_limit=MAX_IMAGE_BYTES):
     return bounded_digest(path, byte_limit)
 
 
-def accepted(script, bin_dir, *arguments):
-    environment = os.environ.copy()
+def packaged_worker_environment(bin_dir, inherited):
+    """用受控构建的独立预期核验包内镜像；清单不得自行提供执行信任。"""
+    keys = ('PATH', 'SHA256', 'BYTES')
+    values = [inherited.get('DISKGRAPH_SCAN_WORKER_' + key) for key in keys]
+    if not all(isinstance(value, str) and value for value in values):
+        raise ValueError('package acceptance requires independent build deployment values')
+    source, expected_digest, expected_bytes = values
+    if not pathlib.Path(source).is_absolute() or any(char in source for char in '\r\n\0'):
+        raise ValueError('invalid controlled build deployment path')
+    if not re.fullmatch('[0-9a-f]{64}', expected_digest) or not re.fullmatch('[0-9]+', expected_bytes):
+        raise ValueError('invalid controlled build deployment digest or length')
+    length = int(expected_bytes)
+    if not 0 < length <= MAX_IMAGE_BYTES:
+        raise ValueError('controlled build deployment exceeds image budget')
+    worker = pathlib.Path(bin_dir).absolute() / 'diskgraph-scan-worker'
+    metadata = image_metadata(worker)
+    if metadata['sha256'] != expected_digest or metadata['bytes'] != length:
+        raise ValueError('packaged worker differs from independent build deployment')
+    environment = dict(inherited)
+    # 执行解包后的同字节镜像；Rust 宿主继续核验并持有实际执行镜像。
+    environment['DISKGRAPH_SCAN_WORKER_PATH'] = str(worker)
+    return environment
+
+
+def accepted(script, bin_dir, *arguments, deployment=None):
+    environment = dict(os.environ if deployment is None else deployment)
     environment["DISKGRAPH_ACCEPT_BIN_DIR"] = str(bin_dir)
     result = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / script), *map(str, arguments)],
@@ -96,16 +121,20 @@ def main():
         manifest = read_manifest(packaged_bin / MANIFEST_NAME)
         verify_manifest(packaged_bin, manifest, args.target, version)
 
-        stdio = accepted("accept-readonly-stdio.py", packaged_bin)
-        http = accepted("accept-readonly-http.py", packaged_bin)
+        deployment = (packaged_worker_environment(packaged_bin, os.environ)
+                      if sys.platform == "linux" else None)
+        stdio = accepted("accept-readonly-stdio.py", packaged_bin, deployment=deployment)
+        http = accepted("accept-readonly-http.py", packaged_bin, deployment=deployment)
         upgrade = accepted(
             "accept-readonly-upgrade.py", packaged_bin,
             "--old-cli", old_cli, "--new-cli", packaged_bin / binaries[0],
+            deployment=deployment,
         )
         load = accepted(
             "accept-readonly-load.py", packaged_bin,
             "--bin-dir", packaged_bin,
             "--output", output / f"{archive_name}.load.json",
+            deployment=deployment,
         )
     print(json.dumps({"target": args.target, "archive": str(archive),
                       "sha256": archive_hash, "stdio": stdio,

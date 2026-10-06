@@ -80,3 +80,10 @@ f2c3b1b的Linux stable完整workspace原始日志确认失败目标37→29，CLI
 355f383 / CI37444199873 的 Linux stable 原始全量日志确认失败目标降至18，此前迁移的扫描目标未出现在失败目标清单；不能由该改善宣称全量通过。当前仍失败的9个Engine目标（query_request_budget、query_finalizer_budget、query_until_budget、history_size_eligibility、history_compatibility_matrix、process_preparation_budget、process_entry_scope_budget、hardening、process_job_dispatch）使用旧构造入口。共享夹具改为Linux显式受信宿主，保留全部业务函数和断言；嵌套模块所需测试类型可见性改为crate，Engine/Recovery先于临时目录释放，非Linux构造保持既有路径。
 
 本机9目标no-run编译、结构门禁6/0、排除固定vendor的既有workspace格式命令通过；全workspace格式包含vendor会报告上游原始格式差异，未修改vendor。Linux运行待下一提交CI，Windows原生清理未接入生产导致严格Build失败、Linux安装包实际索引Unsupported均继续开放，不降低门禁。原始355全量日志与本机记录见linux_test_boundary_2026_10_06/workspace-355-linux.log.gz和native-nested-*.log.gz。
+
+
+## Linux 解包产品扫描部署
+
+355f383原生Linux package日志确认release构建成功，解包CLI实际index因未配置宿主返回Unsupported。包验收在Linux必须先取得同提交实际Cargo release bin artifact的独立预期（沿用独占快照部署），解包worker经既有非链接/同句柄/字节预算读取核验与该预期相符后，四条外部验收流程统一执行包内worker。不得从包内清单生成信任、缺配置不得回退；Rust生产宿主仍执行原严格镜像验证。此处只表示受控CI构建信任，不替代发布签名、安装信任或macOS/Windows原生部署门禁。
+
+新增6项回归真实RED（缺少部署接口）后GREEN，追加子进程环境传播共7/0；组成9/0、原文件准入5/0、独占副本3/0通过。本机强制Linux分支的组成9/0仅验证脚本分支与全部四次调用参数，不称Linux原生执行；旧组成mock因新增deployment参数真实失败后更新，保留所有归档/字节/清单断言并增加包内路径和独立摘要断言。原生解包stdio/HTTP/升级/20k负载须下一提交CI实际运行后才能验收，所有父项保持开放。记录见linux_test_boundary_2026_10_06/package-*.log.gz。

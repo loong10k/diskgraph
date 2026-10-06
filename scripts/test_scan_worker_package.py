@@ -114,8 +114,14 @@ class PackageFixture(unittest.TestCase):
                      "--bin-dir", str(self.bin_dir), "--old-cli", str(self.old_cli),
                      "--output-dir", str(self.output)]
         stdout = io.StringIO()
+        # 组成测试的独立预期来自本夹具输入字节，不读取包装生成的清单。
+        deployment = {
+            "DISKGRAPH_SCAN_WORKER_PATH": str(self.bin_dir / NAMES[2]),
+            "DISKGRAPH_SCAN_WORKER_SHA256": hashlib.sha256(self.payloads[NAMES[2]]).hexdigest(),
+            "DISKGRAPH_SCAN_WORKER_BYTES": str(len(self.payloads[NAMES[2]])),
+        }
         with mock.patch.object(sys, "argv", arguments), mock.patch.object(package, "accepted", accepted):
-            with contextlib.redirect_stdout(stdout):
+            with mock.patch.dict(os.environ, deployment), contextlib.redirect_stdout(stdout):
                 package.main()
         return json.loads(stdout.getvalue())
 
@@ -127,7 +133,12 @@ class PackageCompositionTests(PackageFixture):
         package = self.actual_package()
         calls = []
 
-        def accepted(script, bin_dir, *arguments):
+        def accepted(script, bin_dir, *arguments, deployment=None):
+            if sys.platform == "linux":
+                self.assertEqual(deployment["DISKGRAPH_SCAN_WORKER_PATH"],
+                                 str(pathlib.Path(bin_dir) / NAMES[2]))
+                self.assertEqual(deployment["DISKGRAPH_SCAN_WORKER_SHA256"],
+                                 hashlib.sha256(self.payloads[NAMES[2]]).hexdigest())
             # 观察真实 main 自己解出的内容；不替换 copy、归档、摘要或解压函数。
             files = {path.name: path.read_bytes() for path in pathlib.Path(bin_dir).iterdir() if path.is_file()}
             calls.append((script, files, tuple(map(str, arguments))))

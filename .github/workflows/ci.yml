@@ -368,6 +368,19 @@ jobs:
       - name: Build previous CLI for isolated upgrade and rollback
         working-directory: previous
         run: cargo build --release --locked -p diskgraph-cli --target ${{ matrix.target }}
+      - name: Bind Linux package acceptance to actual release worker
+        if: runner.os == 'Linux'
+        run: |
+          python -m unittest discover -s scripts/tests -p test_package_worker_deployment.py -v
+          cargo build --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --target ${{ matrix.target }} --message-format=json > "$RUNNER_TEMP/package-worker-artifacts.jsonl"
+          python scripts/configure_linux_acceptance_worker.py --artifacts "$RUNNER_TEMP/package-worker-artifacts.jsonl" --output-dir "$RUNNER_TEMP"
+      - name: Preserve package worker build identity
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: package-worker-identity-${{ matrix.target }}
+          path: ${{ runner.temp }}/product-worker-receipt.json
+          retention-days: 7
       - name: Verify archive and packaged binaries
         run: python scripts/accept-readonly-package.py --target ${{ matrix.target }} --bin-dir target/${{ matrix.target }}/release --old-cli previous/target/${{ matrix.target }}/release/diskgraph${{ runner.os == 'Windows' && '.exe' || '' }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
