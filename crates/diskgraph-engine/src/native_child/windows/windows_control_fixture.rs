@@ -37,6 +37,10 @@ fn control_child_fixture() {
         std::thread::sleep(Duration::from_secs(30));
         std::process::exit(88);
     });
+    if mode == "dll-policy" {
+        super::windows_dll_policy_tests::run_child(&directory);
+        std::process::exit(0);
+    }
     if mode == "stamp" {
         std::fs::write(directory.join("started"), b"started").unwrap();
     }

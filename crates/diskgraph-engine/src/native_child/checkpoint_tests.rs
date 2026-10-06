@@ -2,7 +2,7 @@ use super::ChildSpawnError;
 #[cfg(unix)]
 use super::UnixChild as PlatformChild;
 #[cfg(windows)]
-use super::WindowsChild as PlatformChild;
+use super::WindowsTestBirth as PlatformChild;
 
 #[test]
 fn checkpoint_before_any_os_creation_preserves_a_non_clone_original_error() {

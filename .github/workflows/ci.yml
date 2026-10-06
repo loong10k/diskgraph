@@ -110,6 +110,24 @@ jobs:
           name: windows-signature-policy-${{ matrix.rust }}-${{ github.run_id }}
           path: ${{ runner.temp }}/windows-signature-policy.log
           if-no-files-found: error
+      - name: Native Windows resumed DLL loading positive and negative controls
+        if: runner.os == 'Windows'
+        run: |
+          cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_dll_policy_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-dll-loader.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-dll-loader.log" -Raw
+          if ($log -notmatch 'test result: ok\. 2 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'DG_SCAN_UNSIGNED_REJECTED_SYSTEM32_LOADED=' -or
+              $log -notmatch 'DG_NULL_UNSIGNED_DLL_POSITIVE=') {
+            throw 'Both actual resumed DLL loader controls must execute'
+          }
+      - name: Preserve actual Windows resumed DLL loader result
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-dll-loader-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-dll-loader.log
+          if-no-files-found: error
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         if: runner.os == 'macOS'
         with:

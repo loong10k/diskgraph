@@ -12,6 +12,8 @@ mod windows_birth_test_hook;
 mod windows_child;
 mod windows_command_line;
 #[cfg(test)]
+mod windows_dll_policy_tests;
+#[cfg(test)]
 mod windows_io_transfer_tests;
 mod windows_normal_exit;
 mod windows_overlapped_operation;

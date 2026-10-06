@@ -89,10 +89,16 @@ mod tests {
     #[test]
     fn original_probe_checkpoint_and_cleanup_errors_keep_their_types_and_text() {
         let source = ProbeFailure::Cancelled.with_cleanup(Err(ProbeFailure::Io("reap".into())));
-        let moved = ProbeFailure::from(
-            ChildSpawnError::checkpoint(ProbeFailure::Cancelled)
-                .with_cleanup(Err(ChildError::Io("reap".into()))),
-        );
+        #[cfg(unix)]
+        let error = ChildSpawnError::checkpoint(ProbeFailure::Cancelled)
+            .with_cleanup(Err(ChildError::Io("reap".into())));
+        // Windows由调用方持有原owner，并显式组合检查点与清理失败。
+        #[cfg(not(unix))]
+        let error = ChildSpawnError::Checkpoint {
+            primary: ProbeFailure::Cancelled,
+            cleanup: Some(ChildError::Io("reap".into())),
+        };
+        let moved = ProbeFailure::from(error);
         assert_eq!(moved.to_string(), source.to_string());
         assert!(matches!(moved, ProbeFailure::Cleanup { primary, cleanup }
             if matches!(*primary, ProbeFailure::Cancelled)
@@ -116,8 +122,14 @@ mod tests {
         let expected = format!(
             "probe cancelled; cleanup also failed: probe I/O failed: open native fixture: {original}"
         );
+        #[cfg(unix)]
         let error = ChildSpawnError::checkpoint(ProbeFailure::Cancelled)
             .with_cleanup(Err(ChildError::io("open native fixture", original)));
+        #[cfg(not(unix))]
+        let error = ChildSpawnError::Checkpoint {
+            primary: ProbeFailure::Cancelled,
+            cleanup: Some(ChildError::io("open native fixture", original)),
+        };
         let mapped = ProbeFailure::from(error);
         assert_eq!(mapped.to_string(), expected);
         assert!(matches!(mapped, ProbeFailure::Cleanup { primary, cleanup }
