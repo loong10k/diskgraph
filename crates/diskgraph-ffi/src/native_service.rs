@@ -168,30 +168,33 @@ impl NativeService {
     /// 参数：database_path 为图库路径，host 取得共享服务和仅在该作用域有效的 owner 能力。
     /// 返回：与 owner 生命周期无关的 R，或构造/最终回收错误；callback panic 在回收后继续传播。
     /// 显式 finalize 和提前 Drop 均执行真实 join；forget 能力也不遗弃库内栈守卫。
-    /// 本入口不导出 UniFFI，不支持从 TLS 析构、DllMain 或 UI 调用，不认证 pinned walker 退出。
+    /// 本入口不导出 UniFFI，不支持从 TLS 析构、DllMain 或 UI 调用；物理恢复会实际等待，不承诺有限退出。
     pub fn with_owner<R>(
         database_path: String,
         host: impl for<'host> FnOnce(Arc<Self>, crate::NativeServiceOwner<'host>) -> R,
     ) -> Result<R, NativeServiceError> {
-        let engine = open_engine(&database_path)
-            .map_err(|reason| NativeServiceError::Unavailable { reason })?;
         let closed = Arc::new(AtomicBool::new(false));
         let limit =
             diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
-        let lifecycle = Arc::new(NativeLifecycle::managed(closed.clone(), limit)?);
-        let guard =
-            crate::native_service_host_guard::NativeServiceHostGuard::start(lifecycle.clone())?;
-        // manager 句柄始终留在此普通栈帧；callback 仅取得借用能力，不能带走所有者。
-        let service = Arc::new(Self {
-            engine: Arc::new(engine),
-            lifecycle,
-            closed,
-            #[cfg(test)]
-            scan_progress_hook: Mutex::new(None),
-        });
-        let result = host(service, crate::NativeServiceOwner::borrow(&guard));
-        guard.finalize_owner()?;
-        Ok(result)
+        let scan_host =
+            crate::native_scan_host::NativeScanHost::open(&database_path, &closed, limit as u32)
+                .map_err(|reason| NativeServiceError::Unavailable { reason })?;
+        // 唯一物理Recovery位于manager守卫之外，callback无法取得或忘记它。
+        scan_host.execute(|engine| {
+            let lifecycle = Arc::new(NativeLifecycle::managed(closed.clone(), limit)?);
+            let guard =
+                crate::native_service_host_guard::NativeServiceHostGuard::start(lifecycle.clone())?;
+            let service = Arc::new(Self {
+                engine,
+                lifecycle,
+                closed,
+                #[cfg(test)]
+                scan_progress_hook: Mutex::new(None),
+            });
+            let result = host(service, crate::NativeServiceOwner::borrow(&guard));
+            guard.finalize_owner()?;
+            Ok(result)
+        })
     }
 
     /// 关闭准入并等待 managed 会话的协调线程退出；旧模式明确不支持，UniFFI ABI 不变。

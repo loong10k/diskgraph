@@ -143,7 +143,7 @@ pub(crate) fn run_scan_with_cancel(
     // The engine's own scan bridge carries cancellation between batches;
     // the FFI layer drives it through the same engine path the server uses
     // so a cancelled job never half-publishes.
-    let host = crate::native_scan_host::NativeScanHost::open(database_path, cancel)?;
+    let host = crate::native_scan_host::NativeScanHost::open(database_path, cancel, 1)?;
     // 旧同步入口只有借用标志；保留原轮询镜像，不冒称这是 JobHandle 的原 Arc。
     let request = Arc::new(AtomicBool::new(cancel.load(Ordering::SeqCst)));
     host.execute(|engine| {

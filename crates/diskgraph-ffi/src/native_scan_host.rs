@@ -1,4 +1,3 @@
-use crate::api_result::ApiResult;
 use crate::native_realm::{engine_config, local_principal};
 use diskgraph_engine::{
     Engine, EngineError, ScanWorkerRecovery, ScanWorkerRuntimeBudget, ScanWorkerSettings,
@@ -10,7 +9,7 @@ use std::sync::{
 };
 use std::time::{Duration, Instant};
 
-/// 旧同步扫描调用的栈上宿主与唯一物理恢复责任；来源：原生Rust PF-06，无Java对应。
+/// 原生扫描调用的栈上宿主与唯一物理恢复责任；来源：原生Rust PF-06，无Java对应。
 /// 阻塞兼容入口仅供后台线程；不宣称有限时间退出，不把Recovery放入共享Engine。
 pub(crate) struct NativeScanHost {
     engine: Arc<Engine>,
@@ -18,9 +17,9 @@ pub(crate) struct NativeScanHost {
 }
 
 impl NativeScanHost {
-    /// 参数：database为真实图库路径、cancel为原调用取消标志。
+    /// 参数：database为真实图库路径、cancel为原调用取消标志、capacity为实际进程槽数。
     /// 返回：统一平台材料准入后的引擎和外部恢复责任，或明确失败。
-    pub(crate) fn open(database: &str, cancel: &AtomicBool) -> Result<Self, String> {
+    pub(crate) fn open(database: &str, cancel: &AtomicBool, capacity: u32) -> Result<Self, String> {
         let deadline = Instant::now() + Duration::from_secs(30);
         let config = engine_config(database)?;
         let runtime = ScanWorkerRuntimeBudget::new(
@@ -31,7 +30,7 @@ impl NativeScanHost {
                 max_depth: 4096,
             },
             64 << 10,
-            1,
+            capacity,
         )
         .map_err(|error| error.to_string())?;
         let host = ScanWorkerSettings::host_from_environment(runtime, deadline, &mut || {
@@ -68,7 +67,10 @@ impl NativeScanHost {
     /// 参数：operation为会结束并真实join协调runner的同步业务闭包。
     /// 返回：原业务值/错误；panic在实际清理后继续传播，不返回部分成功。
     /// 兼容入口会等待原恢复槽，不设伪期限；有限退场需后续宿主交接合同验收。
-    pub(crate) fn execute(self, operation: impl FnOnce(Arc<Engine>) -> ApiResult) -> ApiResult {
+    pub(crate) fn execute<T, E>(
+        self,
+        operation: impl FnOnce(Arc<Engine>) -> Result<T, E>,
+    ) -> Result<T, E> {
         let outcome = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             operation(Arc::clone(&self.engine))
         }));

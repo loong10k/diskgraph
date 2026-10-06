@@ -1,0 +1,19 @@
+{
+  "red_commit": "54de8724f35e126eb3a4008891ecb21999896daa",
+  "run": 37465773429,
+  "stable_job": 112276290167,
+  "red": "actual scoped scan failed: unsupported (exit 6); 0 passed / 1 failed",
+  "other_red_jobs": [
+    112276290313,
+    112276290575
+  ],
+  "previous_full_ffi": {
+    "commit": "e0fae7f5e39d36ce42b2773cd3a2e485c6f33fa4",
+    "job": 112273364727,
+    "passed": 80,
+    "failed": 9
+  },
+  "fix": "stack scan host outside manager guard; coordinators join before physical recovery; original concurrent job quota",
+  "green": "pending native CI",
+  "production_ready": false
+}
