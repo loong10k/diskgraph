@@ -7,6 +7,35 @@ use std::thread;
 use std::time::Duration;
 
 #[test]
+fn scoped_service_scans_with_physical_host_and_closes_after_scope() {
+    let root = tempfile::tempdir().unwrap();
+    let data = tempfile::tempdir().unwrap();
+    std::fs::write(root.path().join("owned.txt"), b"actual worker input").unwrap();
+    let database = data
+        .path()
+        .join("graph.sqlite")
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let (service, snapshot) = NativeService::with_owner(database, |service, _owner| {
+        let job = service
+            .spawn_scan(root.path().to_str().unwrap().to_owned())
+            .unwrap();
+        let result: serde_json::Value = serde_json::from_str(&job.result_json()).unwrap();
+        assert_eq!(result["ok"], true, "actual scoped scan failed: {result}");
+        let snapshot = result["data"]["snapshot_id"].as_str().unwrap().to_owned();
+        let node: serde_json::Value =
+            serde_json::from_str(&service.node_json(snapshot.clone(), 1)).unwrap();
+        assert_eq!(node["ok"], true, "scoped query failed: {node}");
+        (service, snapshot)
+    })
+    .unwrap();
+    let closed: serde_json::Value = serde_json::from_str(&service.node_json(snapshot, 1)).unwrap();
+    assert_eq!(closed["ok"], false);
+    assert!(closed["error"].as_str().unwrap().contains("closed"));
+}
+
+#[test]
 fn forgotten_capability_keeps_manager_owned_until_scope_returns() {
     forgotten_capability_exit(false);
 }

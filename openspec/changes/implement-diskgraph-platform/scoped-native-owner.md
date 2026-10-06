@@ -1,5 +1,9 @@
 # PF-06 受管宿主作用域生命周期
 
+## 受管 FFI 服务的实际扫描宿主（未完成）
+
+with_owner必须为共享Engine接入统一材料准入的实际扫描宿主，唯一Recovery位于普通函数栈、manager guard之外；不能进入Arc<Service>/Arc<Engine>或可被忘记的借用能力。正常/错误/unwind均先关闭和真实join协调线程，再drain同一物理恢复槽。公开扫描正控须真实发布快照、经服务查询、作用域退出后拒绝旧服务请求。先在Linux实际worker部署上取得该正控RED，再实施接线；旧UniFFI构造、有限时间退出及其他平台生产门禁仍开放。
+
 ## 旧同步 FFI 扫描的实际宿主接线（未完成）
 
 同步 scan_native_json/run_scan_with_cancel 必须沿用 CLI/MCP 的平台材料准入，独立配置原 helper 协议额度与一个实际进程槽，不使用测试夹具或普通路径信任降级。查询 Engine 仍按原 realm 归属规则打开；同步扫描另由普通栈宿主持有唯一 ScanWorkerRecovery。协调 runner 正常/错误/unwind 都先真实 join，随后处理同一原物理恢复槽，再返回原业务值或继续 panic；恢复责任不得进入共享 Engine 或请求 callback。
