@@ -132,6 +132,13 @@ impl WindowsGitRemovalObservation {
                     return Err(error);
                 }
             };
+            #[cfg(test)]
+            eprintln!(
+                "DG_ORIGINAL_REMOVAL_PAGE bytes={}; matched={matched}; child={:02x?}; parent={:02x?}",
+                record.len(),
+                self.child_id,
+                self.parent_id
+            );
             if matched {
                 // 当前页完整验证后才锁存；poll已经确认原I/O完成，无新pending订阅。
                 self.observed = true;

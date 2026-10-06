@@ -1,0 +1,55 @@
+{
+  "run": 37519624211,
+  "source": "1d16e6c954b894aca4ca0470c10b190681f9b75f",
+  "result": "baseline RED; one-shot candidate completion failed; asynchronous completion not yet qualified",
+  "artifacts": [
+    {
+      "kind": "stable",
+      "artifact": 11439241745,
+      "members": [
+        {
+          "name": "green-cursor.log",
+          "bytes": 1332,
+          "sha256": "2757add137578517aaf15b45a106e368861aa77656cbf5f585f5bf7950b5e238",
+          "archive": "stable-green-cursor.log.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 1284,
+          "sha256": "4fb34f10dc4554893bf07e4ac26abcbb9f2b834cf55731108dfa28544ae3d87f",
+          "archive": "stable-red.log.gz"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1680,
+          "sha256": "a330dde74b8f32242c08f586439ceebb313e519a79cdf6eb313750a5778c7d1f",
+          "archive": "stable-receipt.json.gz"
+        }
+      ]
+    },
+    {
+      "kind": "msrv",
+      "artifact": 11440550482,
+      "members": [
+        {
+          "name": "receipt.json",
+          "bytes": 1680,
+          "sha256": "a330dde74b8f32242c08f586439ceebb313e519a79cdf6eb313750a5778c7d1f",
+          "archive": "msrv-receipt.json.gz"
+        },
+        {
+          "name": "green-cursor.log",
+          "bytes": 1332,
+          "sha256": "d6601f895f8355373046891ccb50ee4a50bca2eb61585f44c895057848f5f3f6",
+          "archive": "msrv-green-cursor.log.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 1284,
+          "sha256": "64bb2c39e2434d3461a62b1940e5c7223cce91d943ae21da81f7f7be9f683e0c",
+          "archive": "msrv-red.log.gz"
+        }
+      ]
+    }
+  ]
+}

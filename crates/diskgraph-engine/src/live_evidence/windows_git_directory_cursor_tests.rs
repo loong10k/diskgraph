@@ -857,7 +857,7 @@ fn vanished_unregistered_entry_advances_only_after_original_full_id_absence() {
     assert_eq!(std::fs::read(&moved).unwrap(), b"original foreign");
     std::fs::remove_file(&moved).unwrap();
     println!("DG_WINDOWS_ENUMERATED_ABSENCE_RED_READY=1");
-    let result = cursor.open_next_cleanup_child(&root, &capacity, &mut probe);
+    let result = wait_for_foreign_completion(&mut cursor, &root, &capacity, &mut probe);
     assert!(
         matches!(result, Ok(None)),
         "full-ID absence must retire only vanished foreign entry: {result:?}"
@@ -906,10 +906,26 @@ fn foreign_removal_preserves_hard_links_and_outstanding_external_handle() {
         "external last-close responsibility must retain the original cursor"
     );
     drop(external);
-    let result = cursor.open_next_cleanup_child(&root, &capacity, &mut probe);
+    let result = wait_for_foreign_completion(&mut cursor, &root, &capacity, &mut probe);
     assert!(
         matches!(result, Ok(None)),
         "foreign last-close must complete original observation: {result:?}"
     );
     println!("DG_WINDOWS_FOREIGN_LINKS_AND_LAST_CLOSE=1");
+}
+
+// 同一原预算内消费异步通知；不重建 owner、放大期限或把失败投影为成功。
+fn wait_for_foreign_completion(
+    cursor: &mut WindowsGitDirectoryCursor,
+    root: &std::path::Path,
+    capacity: &super::git_private_capacity::GitPrivateCapacity,
+    probe: &mut ProbeBudget,
+) -> std::io::Result<Option<(std::fs::File, OsString, u32)>> {
+    loop {
+        let result = cursor.open_next_cleanup_child(root, capacity, probe);
+        if result.is_ok() || probe.check().is_err() {
+            return result;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
 }

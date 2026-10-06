@@ -129,7 +129,12 @@ fn product_cleanup_keeps_unregistered_foreign_children_and_original_owner() {
     assert!(directory.complete::<()>(Ok(())).is_err());
     assert_eq!(std::fs::read(&moved).unwrap(), b"not registered");
     std::fs::remove_file(moved).unwrap();
-    directory.complete::<()>(Ok(())).unwrap();
+    while let Err(error) = directory.complete::<()>(Ok(())) {
+        probe.check().unwrap_or_else(|deadline| {
+            panic!("original foreign recovery budget exhausted: {deadline}; last error: {error}")
+        });
+        std::thread::sleep(Duration::from_millis(20));
+    }
     assert!(
         !root.exists(),
         "actual original owner must delete its original root"
