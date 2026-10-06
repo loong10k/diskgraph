@@ -255,7 +255,11 @@ fn positive_candidate_cli_does_not_decode_an_unrelated_corrupt_node() {
             "18446744073709551615",
         ],
     );
-    assert_eq!(selected.code, 0, "{}", selected.stderr);
+    assert_eq!(
+        selected.code, 0,
+        "stdout: {}\nstderr: {}",
+        selected.stdout, selected.stderr
+    );
     let output: serde_json::Value = serde_json::from_str(selected.stdout.trim()).unwrap();
     assert_eq!(output["data"]["review_only"], true);
     assert_eq!(output["data"]["complete"], true);

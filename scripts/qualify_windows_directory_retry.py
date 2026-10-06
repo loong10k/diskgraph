@@ -49,6 +49,13 @@ def main():
         "candidate": candidate, "baseline": BASELINE,
         "candidate_sources": {name: digest(data) for name, data in original.items()},
         "baseline_sources": {name: digest(data) for name, data in old.items()},
+        # 两阶段共用当前诊断投影与同一真实测试；只有上面的 owner 重试实现被替换。
+        "shared_support_sources": {
+            name: digest((ROOT / name).read_bytes()) for name in [
+                "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
+                "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs",
+            ]
+        },
         "status": "pending",
     }
     try:

@@ -19,7 +19,9 @@ impl GitPrivateDirectoryOwner {
         }
         #[cfg(windows)]
         if let Some(cleanup) = self.windows_cleanup.as_mut() {
-            cleanup.cleanup(self.capacity.as_ref())?;
+            cleanup
+                .cleanup(self.capacity.as_ref())
+                .map_err(|error| format!("private Git cleanup failed: {error}"))?;
             self.cleaned = true;
             return Ok(());
         }

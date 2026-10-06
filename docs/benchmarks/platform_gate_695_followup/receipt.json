@@ -1,0 +1,43 @@
+{
+  "ci_source": "695bba8f52f39d742972a015c4a573c5535b8e3d",
+  "run": 37505269963,
+  "files": [
+    {
+      "file": "diskgraph_695_windows_stable.log.gz",
+      "raw_sha256": "dea121cd328fa37afc51175bc04517912b9571154c2596987f9c49ab35202a7a",
+      "stored_sha256": "49746de0c850fd62ccdca538f175befbb15d791002aa155bdb0904da3fcf1496"
+    },
+    {
+      "file": "diskgraph_695_linux_stable.log.gz",
+      "raw_sha256": "8a9b7f6c196481eff54c108ce3111c99ce7f214d40ccd37e9f521e6416fa3c1d",
+      "stored_sha256": "9f575aece2e5b9f715af758ca420b8c24d8a0e5c47b93435cda048933acf1aa3"
+    },
+    {
+      "file": "diskgraph_695_macos_stable.log.gz",
+      "raw_sha256": "8a580b746f99ff29c9e734c68be52c2b141477eb1eb45611b0a48be6e5ad0a71",
+      "stored_sha256": "229a90f3413078a226150211d3fd078216febb2e03a36a3e10f1d4220a225acc"
+    },
+    {
+      "file": "diskgraph_scope_writer_red.log.gz",
+      "raw_sha256": "97939c811d93d3ccce41265a10b28b2b6205d36aa206bfdbf4e00a27d34fe2c2",
+      "stored_sha256": "ffe8f8a310e073ad5499b91c85f163eddd34126eefee7698503ee9fe4c3177bf"
+    },
+    {
+      "file": "diskgraph_scope_writer_green.log.gz",
+      "raw_sha256": "7ce47c375d05ab4b66f00f0d00756b2072a78f1c729194d00942b8df1c902aa1",
+      "stored_sha256": "fe6f4c91d48ed845e53cc799308d5643ddd2ed3c0e75ba16eee9f7dc0165c818"
+    },
+    {
+      "file": "windows_directory_retry_original.zip",
+      "stored_sha256": "831508b386b7c48042214e22c3fddcdc9fe8d882d1e059f47a2d975170d319c2",
+      "artifact_id": 11431652808
+    }
+  ],
+  "observations": {
+    "windows_http": "8 passed; 0 failed; 0 ignored (dedicated original native gate)",
+    "windows_directory_retry": "RED rejected before intended retry because native OS error lacked cleanup context; no GREEN claimed",
+    "linux_stable": "observation scope revocation database lock failure",
+    "macos_stable": "CLI candidate test exit 7; diagnosis pending",
+    "scope_writer_local": "deterministic original writer regression RED; immediate transaction GREEN; store 292 passed, 0 failed, 1 ignored"
+  }
+}

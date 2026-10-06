@@ -135,7 +135,11 @@ fn explicit_directory_retry_reborrows_only_original_live_session_owner() {
         .share_mode(FILE_SHARE_READ)
         .open(&path)
         .unwrap();
-    assert!(private.complete(Ok(7)).unwrap_err().contains("cleanup"));
+    let denied = private.complete(Ok(7)).unwrap_err();
+    assert!(
+        denied.contains("cleanup"),
+        "original denied deletion: {denied}"
+    );
     assert_eq!(recovery.occupied_slots().unwrap(), 1);
     assert!(
         !recovery.drain().unwrap(),
@@ -192,7 +196,11 @@ fn directory_retry_after_session_release_cannot_take_recovery_owner() {
         .share_mode(FILE_SHARE_READ)
         .open(&path)
         .unwrap();
-    assert!(private.complete(Ok(7)).unwrap_err().contains("cleanup"));
+    let denied = private.complete(Ok(7)).unwrap_err();
+    assert!(
+        denied.contains("cleanup"),
+        "original denied deletion: {denied}"
+    );
     drop(budget.take());
     assert!(
         private

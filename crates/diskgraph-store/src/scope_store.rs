@@ -141,7 +141,10 @@ impl ControlStore {
     /// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
     pub fn revoke_scope(&mut self, scope_id: &ScopeId) -> Result<()> {
         self.scope(scope_id)?;
-        let tx = self.connection.transaction()?;
+        // 撤权事务先取得写入权，再读取旧状态，避免与 keeper 写者发生读锁升级死锁。
+        let tx = self
+            .connection
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
         let was_revoked: bool = tx.query_row(
             "SELECT revoked FROM scopes WHERE scope_id=?1",
             [scope_id.as_str()],

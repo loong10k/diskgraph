@@ -237,3 +237,53 @@ fn ordinary_authorized_cancel_keeps_its_queued_compatibility() {
     );
     assert_eq!(store.job(&cancelled.job_id).unwrap(), cancelled);
 }
+
+#[test]
+fn scope_revocation_waits_for_original_writer_without_read_upgrade_deadlock() {
+    let (dir, mut store, scope, _actor, queued) = fixture();
+    let running = store.claim_job_once(&queued.job_id, "held-worker").unwrap();
+    // 第二主体产生独立排队任务，避免同主体任务合并成原 running 记录。
+    let queued_actor = PrincipalId::new("queued-revocation").unwrap();
+    store
+        .upsert_grant(&Grant {
+            principal: queued_actor.clone(),
+            permission: Permission::IndexWrite,
+            scope: scope.clone(),
+            policy_version: 1,
+        })
+        .unwrap();
+    let second = store
+        .create_job(&scope, JobKind::Index, &queued_actor)
+        .unwrap();
+    assert_ne!(second.job_id, running.job_id);
+    assert_eq!(second.state, JobState::Queued);
+    let writer = rusqlite::Connection::open(dir.path().join("control.sqlite")).unwrap();
+    // 保留真实并发写者；其提交必须能够完成，撤权不能持读锁再升级造成互相等待。
+    writer.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let release = std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        writer.execute_batch("COMMIT").unwrap();
+    });
+    let outcome = store.revoke_scope(&scope);
+    release.join().unwrap();
+    outcome.expect("scope revocation must wait for the original writer");
+    assert!(store.scope(&scope).unwrap().revoked);
+    assert_eq!(
+        store.job(&second.job_id).unwrap().state,
+        JobState::Cancelled
+    );
+    assert!(
+        store
+            .cancellation_requested(&running.job_id, running.fencing_token)
+            .unwrap()
+    );
+    assert!(matches!(
+        store.with_job_fence(
+            &running.job_id,
+            &running.owner,
+            running.fencing_token,
+            || Ok(())
+        ),
+        Err(StoreError::StaleOwner)
+    ));
+}
