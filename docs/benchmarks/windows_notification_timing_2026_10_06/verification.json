@@ -1,0 +1,25 @@
+{
+  "run_id": 37428870214,
+  "source_commit": "7995aa57703fa9f1fb372993444a6889df60db4a",
+  "fixture_sha256": "e5c18ff10cfd7c0ac4fea93961123f674f800d0d8ff1e8ea7974c7e8ad2b4da0",
+  "production_acceptance": false,
+  "cases": 79,
+  "passed": 77,
+  "failed": [
+    "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion"
+  ],
+  "notification_cases": [
+    {
+      "case": "native_child::windows::windows_directory_notification_tests::original_id_removal_notification_waits_for_last_external_close",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_directory_notification_tests::rename_and_foreign_same_name_removal_do_not_match_original_id",
+      "passed": true,
+      "phase": "cleanup"
+    }
+  ],
+  "next_requirement": "Integrate armed-before-mutation identity notifications with original owner; validate record loss, cancellation, bounded recovery and original deletion tests. No capacity release inferred from these two experiments."
+}
