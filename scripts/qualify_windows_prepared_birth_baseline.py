@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import subprocess
 from pathlib import Path
 import qualify_macos_installed_worker as shared
@@ -13,10 +14,10 @@ CASE = "native_child::windows::windows_birth_recovery_tests::actual_create_proce
 
 
 def check_target_red(stdout, stderr):
-    if ("test " + CASE + " ... FAILED" not in stdout
+    if ("test " + CASE + " ... " not in stdout
             or "test result: FAILED. 0 passed; 1 failed; 0 ignored;" not in stdout
             or "actual failed CreateProcess must retain original Job" not in stderr
-            or "DG_ACTUAL_CREATE_PROCESS_FAILURE=" not in stdout):
+            or not re.search(r"\bDG_ACTUAL_CREATE_PROCESS_FAILURE=\d+\b", stdout)):
         raise RuntimeError("old source did not fail at the exact lost-owner assertion")
 
 

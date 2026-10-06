@@ -180,6 +180,9 @@ PREPARED_JOB_CASES = tuple("native_child::windows::windows_child::windows_child_
     "prepared_job_query_error_keeps_original_connect_owner_for_retry",
     "unknown_creation_phase_with_missing_leader_never_releases_original_job",
     "panic_after_prepared_connect_keeps_original_external_job_and_storage",
+    "checked_admission_rejects_before_job_without_advancing_lifecycle",
+    "checked_admission_rejects_prepared_pipe_without_advancing_lifecycle",
+    "actual_pending_connect_wait_expires_on_original_admission_deadline",
 )) + ("native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup",)
 
 

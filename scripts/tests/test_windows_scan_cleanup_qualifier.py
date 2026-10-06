@@ -217,3 +217,14 @@ class PreparedBirthBaselineArchiveTests(unittest.TestCase):
             manifest = qualifier.shared.mount(checkout, baseline.CANDIDATE)
             self.assertEqual(len(manifest["sources"]), 491)
             self.assertEqual(manifest["baseline_expected_failure_case"], baseline.CASE)
+
+
+class PreparedBirthInterleavedOutputTests(unittest.TestCase):
+    def test_native_marker_may_interleave_with_named_test_line(self):
+        import qualify_windows_prepared_birth_baseline as baseline
+        stderr = "actual failed CreateProcess must retain original Job"
+        stdout = "test " + baseline.CASE + " ... DG_ACTUAL_CREATE_PROCESS_FAILURE=267\nFAILED\ntest result: FAILED. 0 passed; 1 failed; 0 ignored;"
+        baseline.check_target_red(stdout, stderr)
+        for invalid in (stdout.replace("=267", "=unknown"), stdout.replace(baseline.CASE, "unrelated_case")):
+            with self.assertRaises(RuntimeError):
+                baseline.check_target_red(invalid, stderr)
