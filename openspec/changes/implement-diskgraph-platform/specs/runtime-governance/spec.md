@@ -161,3 +161,10 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 - **THEN** it resolves their actual standard module files and rejects hidden inline/path/include implementations, wildcard imports, multiple objects, missing Chinese contracts and empty/todo/unimplemented bodies
 - **AND** original service tests retain their assertions in mounted test modules; publicly imported paths and real transport/authorization regressions pass
 - **AND** any legacy transport/protocol modules outside that increment are named explicitly, remain registered and do not count as satisfying the whole-crate production-file requirement until they too have been refactored and verified
+
+
+#### Scenario: Cleanup unwind preserves the original recovery owner
+- **WHEN** explicit registry cleanup unwinds after taking a retained child out of its slot and before successful cleanup
+- **THEN** the original child returns to the same retained slot before the panic reaches the host, with the original panic payload unchanged
+- **AND** the live unreaped child continues to consume the original capacity; a subsequent host drain actually recovers it before releasing the slot
+- **AND** cleanup and child destruction occur outside the registry state lock; this scenario does not establish a finite shutdown deadline

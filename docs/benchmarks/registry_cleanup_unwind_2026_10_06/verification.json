@@ -1,0 +1,18 @@
+{
+  "production_ready": false,
+  "macos_archive_sha256": "29d8dd3165e6663ee1266c7f0bbdb36621c2d9c954679529b000c295569a4855",
+  "sources": 599,
+  "target_red": {
+    "passed": 0,
+    "failed": 1,
+    "reason": "unwind lost the live original owner"
+  },
+  "registry_green": 6,
+  "native_child_regression": 39,
+  "source_layout": 6,
+  "limits": [
+    "macOS local native test only; Linux/Windows unwind not executed",
+    "compatibility drain remains potentially blocking",
+    "default workspace integration and complete platform gates remain open"
+  ]
+}
