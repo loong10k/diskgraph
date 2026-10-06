@@ -228,3 +228,17 @@ class PreparedBirthInterleavedOutputTests(unittest.TestCase):
         for invalid in (stdout.replace("=267", "=unknown"), stdout.replace(baseline.CASE, "unrelated_case")):
             with self.assertRaises(RuntimeError):
                 baseline.check_target_red(invalid, stderr)
+
+
+class ExpiredProbeBaselineGuardTests(unittest.TestCase):
+    def test_only_actual_expired_cleanup_boundary_is_red(self):
+        import qualify_windows_prepared_birth_baseline as baseline
+        stdout = "test " + baseline.DEADLINE_CASE + " ... DG_EXPIRED_PROBE_BOUNDARY=1\nFAILED\ntest result: FAILED. 0 passed; 1 failed; 0 ignored;"
+        stderr = "expired product probe must not enter legacy wait"
+        baseline.check_deadline_red(stdout, stderr)
+        for out, err in ((stdout.replace("=1", "=0"), stderr),
+                         (stdout.replace(baseline.DEADLINE_CASE, "other"), stderr),
+                         (stdout.replace("1 failed", "0 failed"), stderr),
+                         (stdout, "birth missing")):
+            with self.assertRaises(RuntimeError):
+                baseline.check_deadline_red(out, err)

@@ -12,6 +12,16 @@ import qualify_windows_scan_cleanup as windows
 CANDIDATE = Path("crates/diskgraph-engine/integration_candidates/windows_prepared_birth_baseline")
 CASE = "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup"
 
+DEADLINE_CASE = "native_child::windows::windows_probe_recovery_tests::expired_managed_probe_transfers_original_owner_without_legacy_wait"
+
+
+def check_deadline_red(stdout, stderr):
+    if ("test " + DEADLINE_CASE + " ... " not in stdout
+            or "test result: FAILED. 0 passed; 1 failed; 0 ignored;" not in stdout
+            or "expired product probe must not enter legacy wait" not in stderr
+            or not re.search(r"\bDG_EXPIRED_PROBE_BOUNDARY=1\b", stdout)):
+        raise RuntimeError("old source did not fail at the exact expired cleanup boundary")
+
 
 def check_target_red(stdout, stderr):
     if ("test " + CASE + " ... " not in stdout
@@ -53,6 +63,15 @@ def main():
             check_target_red((output / "actual-lost-owner.stdout").read_text(), (output / "actual-lost-owner.stderr").read_text())
         else:
             raise RuntimeError("old source unexpectedly passed lost-owner regression")
+        if manifest.get("baseline_deadline_failure_case") != DEADLINE_CASE:
+            raise ValueError("baseline deadline target differs")
+        try:
+            shared.invoke([str(binaries[0]), DEADLINE_CASE, "--exact", "--nocapture"], checkout, output, "actual-expired-cleanup", env, timeout=120)
+        except RuntimeError:
+            check_deadline_red((output / "actual-expired-cleanup.stdout").read_text(), (output / "actual-expired-cleanup.stderr").read_text())
+        else:
+            raise RuntimeError("old source unexpectedly passed expired cleanup regression")
+        receipt["deadline_case"] = DEADLINE_CASE
         receipt["status"] = "verified_target_red"
     except BaseException as error:
         receipt["status"] = "failed"

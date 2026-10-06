@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "3ebf7d03e6841450d2817f918d8b5a5e3a50e99fa04fec274989ebe2cf24fd29",
+  "archive_sha256": "86f060ea1d556f23c0aa3fc32d14f46f3d5c05265eb9c83121c9afb468d5b6d3",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "91aa33ed860e739bdd6ea62fe4fe87de6bfbd15029c475742cb507a4ceb1d3c1",
@@ -302,7 +302,7 @@
     "crates/diskgraph-engine/src/native_child/windows/windows_poll_cleanup_tests.rs": "219ff569f13393d02704c9130553c47f5a4a06e53305e7e8734aca145e73334e",
     "crates/diskgraph-engine/src/native_child/windows/windows_prepared_connect_tests.rs": "c768c5f4be7c76c1d674a411a11ee3651764ec7c39efc15bf3eb66175a58e57a",
     "crates/diskgraph-engine/src/native_child/windows/windows_probe_directory_recovery_tests.rs": "c64ff83acd8387099dc1f72c33e5b3a5ada66838d6cbcf947bf3ac91a19fe3be",
-    "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "e8face37004f06b331310719e40e82d28b073149019be8da3c1e217886e97e10",
+    "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "65c8ef5998a066c23bfcdad3e1db90f972b290afbc07152d4481850f092cc06c",
     "crates/diskgraph-engine/src/native_child/windows/windows_registry_deadline_tests.rs": "cfc7e38cb5e4367b1fc5c94782ef8f1eb5310819b601705295119355192b2c19",
     "crates/diskgraph-engine/src/native_locator.rs": "73a7664581a6adc4bc4f1a2b4c7df356148dd25e23dba3753b71b7a06ae01c9d",
     "crates/diskgraph-engine/src/native_process/handle_reservation.rs": "28975abd93cb8ae0ae8ec33fce632d90a2e6fca7b21f6fa19d1a42fde311aa52",
@@ -609,5 +609,6 @@
     "native_child::windows::windows_prepared_connect_tests::external_owner_survives_panic_after_actual_connect_submission",
     "native_child::windows::windows_prepared_connect_tests::pending_connect_moves_threads_without_replacing_original_storage"
   ],
-  "baseline_expected_failure_case": "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup"
+  "baseline_expected_failure_case": "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup",
+  "baseline_deadline_failure_case": "native_child::windows::windows_probe_recovery_tests::expired_managed_probe_transfers_original_owner_without_legacy_wait"
 }
