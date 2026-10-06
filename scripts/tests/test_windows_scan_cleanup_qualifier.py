@@ -45,6 +45,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             qualifier.check_probe_cases(manifest["probe_cases"])
             qualifier.check_directory_cases(manifest["directory_cases"])
             qualifier.check_resource_cases(manifest["resource_cases"])
+            qualifier.check_runner_cases(manifest["runner_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
@@ -72,6 +73,19 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
         for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.PROBE_CASES)):
             with self.assertRaises(ValueError):
                 qualifier.check_resource_cases(invalid)
+
+    def test_runner_lifecycle_inventory_cannot_be_omitted(self):
+        valid = ["runner::tests::" + name for name in (
+            "stop_preserves_original_background_panic_payload",
+            "managed_runner_rejects_recovery_from_another_pool_before_start",
+            "busy_managed_runner_does_not_claim_or_fail_queued_job",
+            "active_probe_session_does_not_turn_queued_job_into_capacity_failure",
+            "recovered_runner_admission_does_not_remain_poisoned_after_panic",
+        )]
+        qualifier.check_runner_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.RESOURCE_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_runner_cases(invalid)
 
     def test_birth_owner_cases_cannot_be_omitted(self):
         valid = list(qualifier.BIRTH_CASES)

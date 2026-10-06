@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "base_ref": "8878912fb579f741b7776a2b533efc3237541c23",
-  "phase": "managed-probe-and-private-directory-resource-green-awaiting-native",
+  "phase": "managed-runner-lifecycle-awaiting-native",
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "d95c453d0ff99efb9b93945fa6e1920bb250c490417f42729a09afaa9f101e2c",
+  "archive_sha256": "cb749f4c8fb44c3e55ca8ec97d3c3e95dc8358872a3280e3fc3eb7aff4d57768",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "4377ce51da81757ebdf4bf0d4b70b51b4f055502af7ef5fcdd5d78b4255aa6db",
@@ -35,12 +35,12 @@
     "crates/diskgraph-engine/src/content/unix_identity.rs": "1de00ff5c608f2e90b1f9ffee5689269bc00cc5073fb447297f416b933ce6425",
     "crates/diskgraph-engine/src/contextual_engine_error.rs": "3122f8083ae925556081f69ec0d00d11e9e5aae67e69ff1e9eb5996d8b08b042",
     "crates/diskgraph-engine/src/control_access.rs": "5fada4478751175ec3916504828183131a47019d3dff303270399bfc62d23081",
-    "crates/diskgraph-engine/src/engine.rs": "4f5e0a21bf15f3a3ba0a65395dd9f4960c86ecb7d28e86702b05c27ec70d4cb8",
+    "crates/diskgraph-engine/src/engine.rs": "1bca06a3bfc7f382b2397f54152712bdb9d072bc274fa551f49c033f726be695",
     "crates/diskgraph-engine/src/engine_capacity.rs": "9b082c1396300a7fd4ebbc71276b8993cdcd4e23c11bfec7acf9f1e43964c3f0",
     "crates/diskgraph-engine/src/engine_config.rs": "711994bb91ea6b96e189a1ce74e94796c0f166c2802251f2c5315f08c245045e",
     "crates/diskgraph-engine/src/engine_error.rs": "80d8602194759452bc63abf0388ec47c152edf56fbd26a6c9dc1f1b5790b3414",
     "crates/diskgraph-engine/src/engine_error_cleanup_tests.rs": "0556556e4e1238c310e56d0b7575b3f94ba8aff925be29d6759e058264b0a9b0",
-    "crates/diskgraph-engine/src/engine_startup.rs": "963daac0cbabd3621a86890e8f55cc2de018005bd41952ca909551d9f59ff685",
+    "crates/diskgraph-engine/src/engine_startup.rs": "7420492b82b26df913f763d42fd7b7a9cf582e00ae32fd7d9ec1e5ab7396184c",
     "crates/diskgraph-engine/src/explanation.rs": "d191799e4f353f78f70c7b45671108272405b7369433767814d9abf60aeea4d6",
     "crates/diskgraph-engine/src/git_evidence_admission_tests.rs": "cab18ae76cbf421b982e7bc1da30377e6fc495c1881ced100fd77e8e3e61c332",
     "crates/diskgraph-engine/src/git_evidence_batch.rs": "abd7f4d9072dc0ee9c8ee044a22ae2100ef42bf65338c2ae17cb41157996fbbe",
@@ -315,7 +315,7 @@
     "crates/diskgraph-engine/src/policy_service.rs": "da5014edea15dd837ad8abfa1aaa34b82ab89eb6fd9075279f65a00be365595c",
     "crates/diskgraph-engine/src/probe_directory_binding.rs": "8cef4258b069909d8799a8e2d479861ba2f6c2305987c786435087e5d85130a7",
     "crates/diskgraph-engine/src/probe_host.rs": "262012c3157f5f6396a16922788b5c21e845d35284cef240b464e24111166a52",
-    "crates/diskgraph-engine/src/probe_recovery.rs": "104a56882081863b6ef6a7a85e42335824f4b8d049bc4bf9835eecc6c2724057",
+    "crates/diskgraph-engine/src/probe_recovery.rs": "7974d501d3546c072f89f82631da51e9c91a8d06f41f7e9db90dad18415a281a",
     "crates/diskgraph-engine/src/probe_resource_pool.rs": "18da39277ee19eb9a2cd359e99cde50b3361259cad5d1fb5e8a7148cda40bd77",
     "crates/diskgraph-engine/src/probe_resource_slot.rs": "a4d3448e749b2f5db9b5189ed936ca8c1ef704cdb1765f51af14facc75943452",
     "crates/diskgraph-engine/src/probe_session_lease.rs": "e39d5f1c6b073ad4d421ef921e33e9d313e6c94bf7c2dbe468b0d605df305b76",
@@ -361,8 +361,8 @@
     "crates/diskgraph-engine/src/revision_reader.rs": "34d7beb284af31de9e3b5ef4b971ff544ba17e594742e81e205f167871abf3a7",
     "crates/diskgraph-engine/src/revision_windows_observation.rs": "6ca03fbee5d2f153ceceeef509f473030febe9b793af862e7562d27934bfd794",
     "crates/diskgraph-engine/src/revision_windows_observation_tests.rs": "f5d0da20e6f21d557763a42754e591f9481c9bcf6b86e0fbf6ce877258bf79b3",
-    "crates/diskgraph-engine/src/runner.rs": "d0381c689fecdd9ea2580e3f9b604d25d674a8ee778ad791564bf689e27f306b",
-    "crates/diskgraph-engine/src/runner/tests.rs": "0679db00626d7acda3d173053d01be54de8822d8e0b678da32d3b95e185d3aca",
+    "crates/diskgraph-engine/src/runner.rs": "cd8b0febc640aaa56be5384ebedb45173b16ea00968f25f14fe175b6092fa9f3",
+    "crates/diskgraph-engine/src/runner/tests.rs": "02fa7a8253f3df3789f54f7eafcc9c18acfec9d538c93d9912c64f775b53d84f",
     "crates/diskgraph-engine/src/scan_execution.rs": "111f86d089498c511332dc44616bf735eb24e903e9938172652098f1d2b46ab8",
     "crates/diskgraph-engine/src/scan_image_identity.rs": "2907d67a20ab0653d71902dbe2498818a26991b77915a5322b1912f7af1800ac",
     "crates/diskgraph-engine/src/scan_jobs.rs": "444f62d99434f3ce78a7fca7f150cbda344dd512ede925a44dfcc1c6ecd12a64",
@@ -547,5 +547,12 @@
     "live_evidence::probe_resource_pool_tests::real_directory_delete_failure_keeps_session_slot_until_native_release",
     "live_evidence::probe_resource_pool_tests::borrowed_directory_prevents_session_reuse_after_budget_drop"
   ],
-  "product_cli_mcp_native_acceptance": false
+  "product_cli_mcp_native_acceptance": false,
+  "runner_cases": [
+    "runner::tests::stop_preserves_original_background_panic_payload",
+    "runner::tests::managed_runner_rejects_recovery_from_another_pool_before_start",
+    "runner::tests::busy_managed_runner_does_not_claim_or_fail_queued_job",
+    "runner::tests::active_probe_session_does_not_turn_queued_job_into_capacity_failure",
+    "runner::tests::recovered_runner_admission_does_not_remain_poisoned_after_panic"
+  ]
 }

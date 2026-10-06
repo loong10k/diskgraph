@@ -61,3 +61,22 @@ The 471-source candidate integrates the independently reviewed catch-external Wi
 - 当前冻结候选加入 Engine 注入入口，CLI/MCP 工作树接线保留外部 Recovery；该冻结仅覆盖 Engine，不能作为 CLI/MCP 原生验收。无限 wait/I/O、目录身份检查至删除的同权限竞态及全部生产父门禁仍未完成，不勾选 15.13。
 
 - 前一 owner-GREEN 候选 run 37391313757 / job 112036795511 / source 963bcaa0f48dd2012b9a1f318c93fc0d97ace6c5 已终态：23 案实际执行，21 通过、2 失败。三个 managed probe 原 owner 恢复案及七个 normal/control 回归全部通过，每案真实 1 passed/0 failed/0 ignored。失败仍为原目录 complete/Drop 的两案；本候选尚未包含共同资源池，因此整体 CI failure 保留。全部原始证据见 `docs/benchmarks/windows_probe_owner_native_green_2026_10_06/`，不能宣称 Windows 产品就绪。
+
+
+### 产品 runner 生命周期复审与原 panic 回归
+
+- 只读复审发现：探针资源恢复仅在退出触发会造成一次可恢复故障后持续占满容量；JobRunner::stop 原先忽略 worker.join 的 Err，吞原 String panic。新本机回归 `runner::tests::stop_preserves_original_background_panic_payload` 在旧实现真实失败（原后台线程确实 panic，stop 返回正常），修复后实际 1 passed/0 failed/0 ignored。
+- 工作树增加 stop_and_join 保留原线程结果，旧 stop 保持签名且恢复原 panic；MCP join 后先处理原资源，再继续协议或后台原异常。Windows runner 使用宿主同一 Arc<ProbeRecovery> 在每轮新认领前单次 drain，未恢复时暂停认领，不重建 Host/容量、不把容量占用错误结算成业务失败；不创建独立隐藏 reaper。
+- 本机 Git cleanup 5/5、CLI 原 panic 边界 1/1 通过，MCP 默认及 macOS candidate-feature 二进制检查通过，但存在原有未使用候选模块警告，不称严格 Clippy 通过。最新共同恢复 CI 37392833173 绑定 6420d11715eebdc0fc5d30f4cfeb741a40943bc3，实际结果尚待确认；此冻结不包含随后 runner 工作树修改。
+- 无界最终 shutdown、底层无限等待/I/O 及实际 CLI/MCP Windows 产品原生行为仍开放。保持 Recovery 责任只是正确性前置，不能作为有限退出期限已实现的证明。
+
+- 复审确认当前单 runner MCP 路径的运行期恢复/原 panic 接线；进一步增加 Engine 与 ProbeRecovery 的原池指针一致性校验，错配在启动 runner 前 InvalidArgument 拒绝。多 runner/并发 tick 的检查至认领容量竞争仍未验收，不扩展单 runner 结论。
+
+
+### Windows 共同资源恢复 25 案原生通过及 runner 准入候选
+
+- run 37392833173 / job 112041720352 / source 6420d11715eebdc0fc5d30f4cfeb741a40943bc3 终态 SUCCESS。原始回执及全部日志已核对：25 案均实际 1 passed/0 failed/0 ignored，原 23 案未删改，真实目录 deny-delete 和借出目录/旧代次保护两案也实际通过。证据：`docs/benchmarks/windows_shared_resource_native_green_2026_10_06/`。仅证明冻结 Engine child/目录责任恢复，不证明产品或有限 shutdown。
+- 新 runner 候选保留上述25案，新增原后台panic、错配Recovery拒绝、真实线程忙时不认领、活跃session不误判任务失败四案。Windows managed 同Engine调度使用独立 try_lock 准入，持资格后复核原池容量；忙时保持Queued，查询不走此锁，跨进程继续原DB fencing。此锁不覆盖可信直接run_job路径，不宣称所有库并发入口均串行。
+- 最终退出必须区分“有限业务返回并移交原Recovery”与“OS进程在固定墙钟内真正退出”。现模型中pending OVERLAPPED内存属于原进程，不能只复制句柄、Drop/forget或无限循环伪装有限退出。非阻塞cleanup、出生前pending prepared owner、原deadline及上层显式恢复责任仍待实施/验收；不勾选生产父项。
+
+- 非作者复审发现前一候选执行后 StaleOwner/Conflict 的 continue 可能带入刚移交的owner；现每个候选认领前持同一资格复核原池，后续Queued保持不变。准入Mutex仅保护互斥资格，无业务数据，panic后可取回原guard并重新做容量检查；新增实际线程panic/原payload/资格恢复案。候选共30案；此新增测试只证明准入资格恢复，不代替完整任务重新执行或产品原生验收。首候选实际probe后fencing失效+保留owner+下一候选这一组合仍缺原生端到端证据。

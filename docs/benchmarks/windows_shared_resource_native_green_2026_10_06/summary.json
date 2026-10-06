@@ -1,0 +1,12 @@
+{
+  "run_id": 37392833173,
+  "job_id": 112041720352,
+  "source_sha": "6420d11715eebdc0fc5d30f4cfeb741a40943bc3",
+  "fixture_sha256": "fbad280a87af3ba92525bee875ce682d97557d12e02236bf3b9e06949fda63fe",
+  "actual_cases": 25,
+  "passed": 25,
+  "failed": 0,
+  "ignored": 0,
+  "production_acceptance": false,
+  "scope": "Engine native original child/private directory ownership, true denied deletion, borrowed-directory and generation safety; does not prove CLI/MCP or finite shutdown."
+}
