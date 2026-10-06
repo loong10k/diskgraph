@@ -89,6 +89,10 @@ fn many_short_files_refuse_reported_allocation_before_logical_bytes_exhaust_the_
         "refusal must arise before the next logical bytes exhaust quota"
     );
     directory.complete::<()>(Err(error)).unwrap_err();
+    // 原资源拒绝保持不变；Windows 的目录清理可能显式移交原恢复池。
+    // 先结束原目录及会话，再由同一个外部 owner 实际排空，不能将 complete 错误当作已删除。
+    drop(directory);
+    drop(budget);
     assert!(!root.exists());
 }
 
@@ -297,6 +301,10 @@ fn zero_allocation_files_still_reach_the_real_owner_entry_limit() {
         .unwrap_err();
     assert!(error.contains("entry limit"), "{error}");
     directory.complete::<()>(Err(error)).unwrap_err();
+    // 原资源拒绝保持不变；Windows 的目录清理可能显式移交原恢复池。
+    // 先结束原目录及会话，再由同一个外部 owner 实际排空，不能将 complete 错误当作已删除。
+    drop(directory);
+    drop(budget);
     assert!(!root.exists());
 }
 

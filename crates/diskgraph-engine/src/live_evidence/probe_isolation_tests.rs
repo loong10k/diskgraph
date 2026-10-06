@@ -7,6 +7,7 @@ use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
 use super::probe_budget::ProbeBudget;
 use super::probe_execution::run_probe;
 use super::probe_failure::ProbeFailure;
+use super::probe_failure_assertion::assert_probe_failure;
 use super::probe_tests::{assert_heartbeat_stopped, fixture};
 use std::sync::atomic::Ordering;
 use std::time::{Duration, Instant};
@@ -82,10 +83,9 @@ fn cancelling_one_sample_does_not_terminate_another() {
         }
         std::fs::write(&release, b"go").unwrap();
         let other_result = other.join().unwrap();
-        assert!(
-            matches!(cancelled_result, Ok(Err(ProbeFailure::Cancelled))),
-            "original cancelled sample result: {cancelled_result:?}"
-        );
+        assert_probe_failure(cancelled_result.unwrap(), |error| {
+            matches!(error, ProbeFailure::Cancelled)
+        });
         assert!(
             first.is_some(),
             "independent fixture had no complete heartbeat"

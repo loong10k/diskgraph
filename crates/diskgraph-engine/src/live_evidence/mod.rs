@@ -227,3 +227,6 @@ pub(crate) use native_evidence_test_session::NativeEvidenceTestSession;
 
 #[cfg(all(test, windows))]
 mod windows_git_share_retry_tests;
+
+#[cfg(test)]
+mod probe_failure_assertion;

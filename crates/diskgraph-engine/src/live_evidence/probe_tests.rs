@@ -5,6 +5,7 @@ use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
 use super::probe_budget::ProbeBudget;
 use super::probe_execution::run_probe as execute_probe;
 use super::probe_failure::ProbeFailure;
+use super::probe_failure_assertion::assert_probe_failure;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
@@ -210,19 +211,17 @@ fn both_streams_are_drained_while_the_child_runs() {
 #[test]
 fn stdout_and_stderr_share_one_byte_limit() {
     let mut budget = ProbeBudget::new(&limits(6000, Duration::from_secs(2))).unwrap();
-    assert!(matches!(
-        run_probe(&mut fixture("both"), &mut budget),
-        Err(ProbeFailure::OutputLimit)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("both"), &mut budget), |error| {
+        matches!(error, ProbeFailure::OutputLimit)
+    });
 }
 
 #[test]
 fn output_is_not_retained_beyond_the_limit() {
     let mut budget = ProbeBudget::new(&limits(2000, Duration::from_secs(2))).unwrap();
-    assert!(matches!(
-        run_probe(&mut fixture("both"), &mut budget),
-        Err(ProbeFailure::OutputLimit)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("both"), &mut budget), |error| {
+        matches!(error, ProbeFailure::OutputLimit)
+    });
 }
 
 #[test]
@@ -235,15 +234,13 @@ fn exact_and_zero_output_limits_do_not_fake_eof() {
     let mut exact = ProbeBudget::new(&limits(bytes, Duration::from_secs(2))).unwrap();
     assert!(run_probe(&mut fixture("tiny"), &mut exact).is_ok());
     let mut short = ProbeBudget::new(&limits(bytes - 1, Duration::from_secs(2))).unwrap();
-    assert!(matches!(
-        run_probe(&mut fixture("tiny"), &mut short),
-        Err(ProbeFailure::OutputLimit)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("tiny"), &mut short), |error| {
+        matches!(error, ProbeFailure::OutputLimit)
+    });
     let mut zero = ProbeBudget::new(&limits(0, Duration::from_secs(2))).unwrap();
-    assert!(matches!(
-        run_probe(&mut fixture("tiny"), &mut zero),
-        Err(ProbeFailure::OutputLimit)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("tiny"), &mut zero), |error| {
+        matches!(error, ProbeFailure::OutputLimit)
+    });
 }
 
 #[test]
@@ -255,24 +252,21 @@ fn command_outputs_accumulate_in_the_sample_budget() {
         .len();
     let mut budget = ProbeBudget::new(&limits(bytes * 2 - 1, Duration::from_secs(2))).unwrap();
     run_probe(&mut fixture("tiny"), &mut budget).unwrap();
-    assert!(matches!(
-        run_probe(&mut fixture("tiny"), &mut budget),
-        Err(ProbeFailure::OutputLimit)
-    ));
-    assert!(matches!(
-        run_probe(&mut fixture("tiny"), &mut budget),
-        Err(ProbeFailure::OutputLimit)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("tiny"), &mut budget), |error| {
+        matches!(error, ProbeFailure::OutputLimit)
+    });
+    assert_probe_failure(run_probe(&mut fixture("tiny"), &mut budget), |error| {
+        matches!(error, ProbeFailure::OutputLimit)
+    });
 }
 
 #[test]
 fn deadline_applies_to_a_silent_child() {
     let mut budget = ProbeBudget::new(&limits(1 << 20, Duration::from_millis(100))).unwrap();
     let start = Instant::now();
-    assert!(matches!(
-        run_probe(&mut fixture("silent"), &mut budget),
-        Err(ProbeFailure::Deadline)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("silent"), &mut budget), |error| {
+        matches!(error, ProbeFailure::Deadline)
+    });
     assert!(start.elapsed() < Duration::from_secs(1));
 }
 
@@ -289,10 +283,9 @@ fn multiple_commands_do_not_reset_the_deadline() {
     std::thread::sleep(timeout.saturating_sub(started.elapsed()) + Duration::from_millis(20));
     let mut late = fixture("stamp");
     late.env("DG_PROBE_MARKER", &marker);
-    assert!(matches!(
-        run_probe(&mut late, &mut budget),
-        Err(ProbeFailure::Deadline)
-    ));
+    assert_probe_failure(run_probe(&mut late, &mut budget), |error| {
+        matches!(error, ProbeFailure::Deadline)
+    });
     assert!(!marker.exists(), "expired sample started a later command");
 }
 
@@ -305,10 +298,9 @@ fn cancellation_before_spawn_and_during_wait_is_not_success() {
     let mut budget = ProbeBudget::new(&config).unwrap();
     let mut stamp = fixture("stamp");
     stamp.env("DG_PROBE_MARKER", &marker);
-    assert!(matches!(
-        run_probe(&mut stamp, &mut budget),
-        Err(ProbeFailure::Cancelled)
-    ));
+    assert_probe_failure(run_probe(&mut stamp, &mut budget), |error| {
+        matches!(error, ProbeFailure::Cancelled)
+    });
     assert!(!marker.exists(), "pre-cancelled probe executed");
     config.cancel.store(false, Ordering::Release);
     let mut budget = ProbeBudget::new(&config).unwrap();
@@ -317,10 +309,9 @@ fn cancellation_before_spawn_and_during_wait_is_not_success() {
             std::thread::sleep(Duration::from_millis(100));
             config.cancel.store(true, Ordering::Release);
         });
-        assert!(matches!(
-            run_probe(&mut fixture("silent"), &mut budget),
-            Err(ProbeFailure::Cancelled)
-        ));
+        assert_probe_failure(run_probe(&mut fixture("silent"), &mut budget), |error| {
+            matches!(error, ProbeFailure::Cancelled)
+        });
     });
 }
 
@@ -343,10 +334,9 @@ fn an_exited_leader_does_not_make_inherited_pipes_complete() {
     let mut command = fixture("descendant");
     command.env("DG_PROBE_MARKER", &marker);
     let mut budget = ProbeBudget::new(&limits(1 << 20, Duration::from_millis(400))).unwrap();
-    assert!(matches!(
-        run_probe(&mut command, &mut budget),
-        Err(ProbeFailure::Deadline)
-    ));
+    assert_probe_failure(run_probe(&mut command, &mut budget), |error| {
+        matches!(error, ProbeFailure::Deadline)
+    });
     assert_heartbeat_stopped(&marker);
 }
 
@@ -373,10 +363,9 @@ fn spawn_failure_is_sticky_and_stops_later_commands() {
 #[test]
 fn continuous_output_does_not_starve_deadline_checks() {
     let mut budget = ProbeBudget::new(&limits(64 << 20, Duration::from_millis(250))).unwrap();
-    assert!(matches!(
-        run_probe(&mut fixture("stream"), &mut budget),
-        Err(ProbeFailure::Deadline)
-    ));
+    assert_probe_failure(run_probe(&mut fixture("stream"), &mut budget), |error| {
+        matches!(error, ProbeFailure::Deadline)
+    });
 }
 
 #[cfg(unix)]

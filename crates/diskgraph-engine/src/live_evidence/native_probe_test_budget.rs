@@ -51,7 +51,15 @@ impl Drop for NativeProbeTestBudget {
         let mut reported = false;
         loop {
             match self.recovery.drain() {
-                Ok(true) => break,
+                Ok(true) => {
+                    assert_eq!(
+                        self.recovery
+                            .occupied_slots()
+                            .expect("original recovery capacity"),
+                        0
+                    );
+                    break;
+                }
                 Ok(false) => {}
                 Err(error) if !reported => {
                     eprintln!("native probe test recovery retains original owner: {error}");

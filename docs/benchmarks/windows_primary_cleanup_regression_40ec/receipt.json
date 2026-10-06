@@ -1,0 +1,38 @@
+{
+  "base_source": "40ec3dec229569cb2f07f0ccc431beefdfc07ae0",
+  "native_failure_evidence": {
+    "d25_msrv_job": 112530686854,
+    "d25_engine_tests": {
+      "passed": 538,
+      "failed": 10,
+      "ignored": 3
+    },
+    "12f_msrv_job": 112535007332,
+    "12f_stable_job": 112535007373,
+    "12f_logs": "live snapshots, not final job results"
+  },
+  "candidate": "test-only; actual production failure and retained recovery owner unchanged",
+  "local_macos_arm64": {
+    "primary_red": {
+      "passed": 1,
+      "failed": 1
+    },
+    "primary_green": {
+      "passed": 2,
+      "failed": 0
+    },
+    "probe": 19,
+    "isolation": 1,
+    "capacity": 13,
+    "clippy": "passed"
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/live_evidence/probe_failure_assertion.rs": "197ea0d7c8cb8547db836496efc06fd57ac8ad46fc5e3553696e488064b824e6",
+    "crates/diskgraph-engine/src/live_evidence/probe_tests.rs": "a9959a3d4e8776ec84193940a14f7fa363b00c9b7be253c2fc6558cf352b38f9",
+    "crates/diskgraph-engine/src/live_evidence/probe_isolation_tests.rs": "c53163895058c0a5481322f5f195f95f0bfef113d125139d93831abd709d990c",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "ef2b9d408ab33e829846b5a64f253363fa13002d8c978cab24cb551fded9d63c",
+    "crates/diskgraph-engine/src/live_evidence/native_probe_test_budget.rs": "533645a1ef9faa98e9dc30949aa61a7dd2829bd43ef47e8be827866ca5674ff6",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "30d91c412f0b285a45d0b8a5616f9878b4f60af8fcfcd819b847980910b10a86"
+  },
+  "remaining": "actual Windows candidate execution, full matrix, frontend recovery supervisor and macOS cloud-provider proof remain open"
+}
