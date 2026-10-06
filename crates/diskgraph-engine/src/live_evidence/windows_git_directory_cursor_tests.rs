@@ -351,6 +351,7 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
         .open(&moved)
         .unwrap();
     assert!(identity.same_identity(&GitPrivateAllocation::from_file(&external).unwrap()));
+    compare_native_sdk_file_id(&hint, &identity, "present");
     assert!(
         !super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
             &hint, &identity, &mut probe,
@@ -362,6 +363,7 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     drop(delete);
     drop(cursor);
     drop(root);
+    compare_native_sdk_file_id(&hint, &identity, "pending");
     // 生产确认接口只观察原ID，未知/权限/等待删除错误均保持原恢复责任。
     let pending = super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
         &hint, &identity, &mut probe,
@@ -377,6 +379,7 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
         b"retain foreign root"
     );
     drop(external);
+    compare_native_sdk_file_id(&hint, &identity, "closed");
     assert!(
         super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
             &hint, &identity, &mut probe,
@@ -389,6 +392,62 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
         b"retain foreign root"
     );
     println!("DG_ORIGINAL_ID_PENDING_THEN_ABSENT=1");
+}
+
+// 原生验收对照：三阶段使用同一个已核验原身份，不能作为生产失败后的格式回退。
+fn compare_native_sdk_file_id(hint: &std::fs::File, identity: &GitPrivateAllocation, phase: &str) {
+    use std::os::windows::io::{AsRawHandle, FromRawHandle};
+    use windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_ID_DESCRIPTOR, FILE_ID_DESCRIPTOR_0, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE,
+        FILE_SHARE_READ, FILE_SHARE_WRITE, FileIdType, OpenFileById,
+    };
+    let extended = identity.windows_file_id_descriptor();
+    let id = unsafe { extended.Anonymous.ExtendedFileId.Identifier };
+    let protocol =
+        super::windows_git_native_id_protocol::WindowsGitNativeIdProtocol::from_hint(hint).unwrap();
+    assert_eq!(
+        protocol.byte_length(&id).unwrap(),
+        8,
+        "NTFS-only diagnostic"
+    );
+    let descriptor = FILE_ID_DESCRIPTOR {
+        dwSize: std::mem::size_of::<FILE_ID_DESCRIPTOR>() as u32,
+        Type: FileIdType,
+        Anonymous: FILE_ID_DESCRIPTOR_0 {
+            FileId: i64::from_ne_bytes(id[..8].try_into().unwrap()),
+        },
+    };
+    let handle = unsafe {
+        OpenFileById(
+            hint.as_raw_handle(),
+            &descriptor,
+            FILE_READ_ATTRIBUTES,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            std::ptr::null(),
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
+        )
+    };
+    if handle == INVALID_HANDLE_VALUE || handle.is_null() {
+        let error = std::io::Error::last_os_error();
+        eprintln!(
+            "DG_SDK_FILE_ID_PHASE={phase}; win32={:?}",
+            error.raw_os_error()
+        );
+        assert_ne!(
+            phase, "present",
+            "original SDK identity positive control: {error}"
+        );
+    } else {
+        let file = unsafe { std::fs::File::from_raw_handle(handle) };
+        assert!(identity.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
+        eprintln!("DG_SDK_FILE_ID_PHASE={phase}; same_full_identity=1");
+        assert_eq!(
+            phase, "present",
+            "original object must not reopen after deletion mark"
+        );
+    }
 }
 
 #[test]

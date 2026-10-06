@@ -1,0 +1,10 @@
+{
+  "run": 37423433266,
+  "sha": "362fcf22216d821702d9ccfc952f6fb42177e3f5",
+  "production_acceptance": false,
+  "passed": 74,
+  "total": 76,
+  "native_pending_status": "0xc0000056 / Win32 5 / 8 bytes",
+  "native_after_close_status": "0xc000000d / Win32 87 / 8 bytes",
+  "next_step": "Same original identity SDK FileIdType present/pending/closed controls, test-only; original production strict final assertion preserved"
+}

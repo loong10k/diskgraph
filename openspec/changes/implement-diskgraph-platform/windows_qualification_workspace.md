@@ -108,3 +108,7 @@ CI37421378278在5d26405终态failure，旧目录枚举RED构建阶段E0432：FIL
 ### 76项原生结果与原NTSTATUS诊断
 
 CI37422988114在69b4df88终态failure，74/76实际原生通过。旧目录枚举目标RED和SDK编译均成功，强制owner登记、未登记/同名陌生替换拒绝新案实际通过；两个原对象最终关闭后的ID确认仍返回87，原保存/正控/pending5检查通过，不计作删除完成。完整receipt及两失败stdout/stderr、新登记案stdout保留于windows_native_id_status_2026_10_06。下一候选仅在cfg(test)打印NtOpenFile原NTSTATUS、Win32投影和实际ID字节长度，避免仅凭87猜测；生产原错误与只接受明确2的语义不变，不新增路径或错误后格式回退。owner/Pool尚未接通，父项继续开放。
+
+### 原NTSTATUS确认与SDK原生格式对照
+
+CI37423433266在362fcf22仍74/76终态failure：实际8字节操作，pending为0xc0000056/5，最后关闭后为0xc000000d/87。不把STATUS_INVALID_PARAMETER映射为缺失。原始日志和receipt保留于windows_native_sdk_comparison_2026_10_06。下一候选只改测试：对同一个已核验原ID、同一个原hint，在present/pending/closed三个阶段执行SDK OpenFileById FileIdType的NTFS无损8字节操作，保留nofollow/norecall/完整返回身份核验；不是生产错误后回退、不是开启未知卷，不改最终必须明确缺失的断言。来源：https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-openfilebyid 与 https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_descriptor 。结果待原生，owner/Pool仍未接通。
