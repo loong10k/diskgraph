@@ -10,20 +10,22 @@ from pathlib import Path
 
 def envelope(value):
     """只接受真实 v2 成功对象；协议/业务错误不能变成产品通过。"""
-    if value.get("api_version") != 2 or value.get("ok") is not True or value.get("error"):
+    if value.get("api_version") != 2 or value.get("ok") is not True or value.get("error") is not None:
         raise RuntimeError("product returned a failed or incompatible envelope")
     if not isinstance(value.get("data"), dict):
         raise RuntimeError("product success has no object data")
     return value
 
 
-def node_facts(value, files):
+def node_facts(value, files, expected_bytes):
     """核对实际扫描计数，拒绝未知值；大整数十进制字符串沿用 wire 兼容。"""
     node = envelope(value)["data"]["node"]
     if int(node["files"]) != files or int(node["directories"]) != 2:
         raise RuntimeError("product root does not match the actual isolated filesystem")
     if node.get("subtree_bytes") is None:
         raise RuntimeError("actual product root size is unobserved")
+    if int(node["subtree_bytes"]) != expected_bytes:
+        raise RuntimeError("product root bytes differ from the actual allocated filesystem bytes")
     return node
 
 
@@ -37,6 +39,10 @@ def run(checkout, output, environment, cli, mcp):
     (root / "alpha").write_bytes(b"abc")
     (root / "sub/beta").write_bytes(b"abcde")
     (root / "leaf-文件").write_bytes(b"abcdefg")
+    # 上游默认按 st_blocks * 512 计费，目录只聚合子节点，不计目录自身。
+    # 使用实际文件分配量，不能将默认 allocated 模式误当成逻辑长度 15/20。
+    fixture_files = [root / "alpha", root / "sub/beta", root / "leaf-文件"]
+    before_bytes = sum(path.stat().st_blocks * 512 for path in fixture_files)
     data = output / "data"
     deadline = time.monotonic() + 90
     identities = {"cli": hashlib.sha256(cli.read_bytes()).hexdigest(),
@@ -65,7 +71,7 @@ def run(checkout, output, environment, cli, mcp):
         raise RuntimeError("CLI init did not complete the actual three-file scan")
     scope, revision = index["scope_id"], index["revision_id"]
     before = command("cli-node-before", ["--data-dir", str(data), "node", "--scope", scope])
-    expected = node_facts(before, 3)
+    expected = node_facts(before, 3, before_bytes)
     if before["data"]["revision_id"] != revision:
         raise RuntimeError("CLI init/query revision identity differs")
     buffer = bytearray()
@@ -97,7 +103,7 @@ def run(checkout, output, environment, cli, mcp):
                 line, _, tail = buffer.partition(b"\n")
                 buffer[:] = tail
                 value = json.loads(line)
-                if value.get("id") != request_id or "error" in value or "result" not in value:
+                if value.get("jsonrpc") != "2.0" or value.get("id") != request_id or "error" in value or "result" not in value:
                     raise RuntimeError("MCP returned a mismatched or failed protocol response")
                 return value["result"]
 
@@ -112,9 +118,10 @@ def run(checkout, output, environment, cli, mcp):
             observed = tool("diskgraph_node", {"scope": scope})
             if observed.get("revision_id") != revision or observed.get("server_id") != before.get("server_id"):
                 raise RuntimeError("CLI/MCP published revision or server identity differs")
-            if node_facts(observed, 3) != expected:
+            if node_facts(observed, 3, before_bytes) != expected:
                 raise RuntimeError("CLI/MCP disagree on the same published root")
             (root / "new-file").write_bytes(b"added")
+            after_bytes = sum(path.stat().st_blocks * 512 for path in [*fixture_files, root / "new-file"])
             job = tool("diskgraph_index", {"scope": scope})["data"]["job_id"]
             while True:
                 status = tool("diskgraph_status", {"job_id": job})["data"]
@@ -124,7 +131,7 @@ def run(checkout, output, environment, cli, mcp):
                     raise RuntimeError("actual MCP background scan failed")
                 time.sleep(min(0.02, remaining()))
             after = tool("diskgraph_node", {"scope": scope})
-            node_facts(after, 4)
+            node_facts(after, 4, after_bytes)
             if not after.get("revision_id", "").startswith("rev-" + job + "-"):
                 raise RuntimeError("new MCP revision is not bound to the completed actual job")
             process.stdin.close()
@@ -136,7 +143,7 @@ def run(checkout, output, environment, cli, mcp):
                 process.kill()
                 process.wait(timeout=10)
     final = command("cli-node-after", ["--data-dir", str(data), "node", "--scope", scope])
-    if final["data"]["revision_id"] != after["revision_id"] or node_facts(final, 4) != after["data"]["node"]:
+    if final["data"]["revision_id"] != after["revision_id"] or node_facts(final, 4, after_bytes) != after["data"]["node"]:
         raise RuntimeError("CLI did not observe the actual MCP-published revision")
     for name, binary in (("cli", cli), ("mcp", mcp)):
         if hashlib.sha256(binary.read_bytes()).hexdigest() != identities[name]:
@@ -144,6 +151,7 @@ def run(checkout, output, environment, cli, mcp):
     result = {"production_acceptance": False, "status": "passed", "binary_sha256": identities,
               "scope_id": scope, "initial_revision": revision, "job_id": job,
               "final_revision": after["revision_id"], "uid": os.getuid(),
-              "cli_normal_exits": 3, "mcp_normal_exit": True, "actual_files_before": 3, "actual_files_after": 4}
+              "cli_normal_exits": 3, "mcp_normal_exit": True, "actual_files_before": 3, "actual_files_after": 4,
+              "actual_allocated_bytes_before": before_bytes, "actual_allocated_bytes_after": after_bytes}
     (output / "receipt.json").write_text(json.dumps(result, indent=2) + "\n")
     return result

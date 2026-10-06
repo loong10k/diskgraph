@@ -95,3 +95,8 @@ The 471-source candidate integrates the independently reviewed catch-external Wi
 
 - Windows runner 37393613831 / job112044235418 / source5649c9ad0cbaa4418f6e28cf714805f1bb8dc972 已实际30/30、0失败/忽略，原25案及新增5个runner责任/准入/panic案逐一核对原始1 passed记录。全部证据见 docs/benchmarks/windows_runner_native_green_2026_10_06/；不以此关闭有限cleanup、实际probe后StaleOwner组合或Windows产品门禁。
 - macOS产品589源候选已准备：原九案仍保留，挂载产品包须显式allow_products；本机实际CLI/MCP候选feature构建通过但23条未使用候选模块warning仍在，不称Clippy通过。挂载/响应拒绝脚本23项通过（纯脚本检查不代替产品进程），下一步同源码ARM64/Intel原生运行，不在本机安装helper。
+
+
+Windows 有限清理 API 开发 RED：CI 37393953210 / job 112045345026 / b4f5537 实际构建退出 101，7 个 E0432/E0599 均为 cleanup_progress/poll_cleanup 尚未实现。原始构建 stdout/stderr、失败 receipt 及摘要保存于 docs/benchmarks/windows_finite_cleanup_compile_red_2026_10_06；未执行原生行为测试，不计作行为验证。
+
+macOS 产品验收新增精确分配字节断言：与默认上游 st_blocks*512 叶子聚合语义一致，错误已知尺寸和空 error 对象负测先失败后通过；Python 守卫 27 项通过。原 71c4eab 的排队 CI 保留，其较弱尺寸断言不作为本次新断言通过证据。

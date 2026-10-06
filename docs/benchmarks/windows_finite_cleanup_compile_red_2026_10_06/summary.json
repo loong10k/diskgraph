@@ -1,0 +1,43 @@
+{
+  "run_id": 37393953210,
+  "job_id": 112045345026,
+  "source_commit": "b4f5537090eea6d0de9361b59e1a8e5d8307c001",
+  "status": "development_compile_red",
+  "native_behavior_tests_executed": false,
+  "production_ready": false,
+  "errors": [
+    {
+      "code": "E0432",
+      "message": "unresolved import `super::cleanup_progress`"
+    },
+    {
+      "code": "E0599",
+      "message": "no method named `poll_cleanup` found for struct `OverlappedPipe` in the current scope"
+    },
+    {
+      "code": "E0599",
+      "message": "no method named `poll_cleanup` found for struct `OverlappedPipe` in the current scope"
+    },
+    {
+      "code": "E0599",
+      "message": "no method named `poll_cleanup` found for struct `OverlappedControlPipe` in the current scope"
+    },
+    {
+      "code": "E0599",
+      "message": "no method named `poll_cleanup` found for struct `OverlappedControlPipe` in the current scope"
+    },
+    {
+      "code": "E0599",
+      "message": "no method named `poll_cleanup` found for struct `WindowsChild` in the current scope"
+    },
+    {
+      "code": "E0599",
+      "message": "no method named `poll_cleanup` found for struct `WindowsChild` in the current scope"
+    }
+  ],
+  "raw_sha256": {
+    "receipt.json": "5ec4295a70803728aa4dda9b87c7407ed5f2a0e8363941bf2b21e04e2a6cdcad",
+    "build-cleanup-fixtures.stdout": "40a822040e88ae052bd1bf09187c01986ca4bcf54f96231826062aa7864490e6",
+    "build-cleanup-fixtures.stderr": "5d111f006845d4eb1dd26eb4cdc6b4091ca3226f5f103d4f41e7b1a7c91eaf99"
+  }
+}

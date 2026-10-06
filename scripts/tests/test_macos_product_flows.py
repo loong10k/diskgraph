@@ -21,13 +21,24 @@ class MacosProductResponseTests(unittest.TestCase):
     def test_wire_decimal_counts_are_checked_against_real_fixture(self):
         node = {"files": "3", "directories": "2", "subtree_bytes": "15"}
         value = {"api_version": 2, "ok": True, "data": {"node": node}}
-        self.assertEqual(flows.node_facts(value, 3), node)
+        self.assertEqual(flows.node_facts(value, 3, 15), node)
         with self.assertRaises(RuntimeError):
-            flows.node_facts(value, 4)
+            flows.node_facts(value, 4, 15)
 
     def test_unknown_size_and_missing_counts_are_rejected(self):
         for node in ({"files": "3", "directories": "2", "subtree_bytes": None},
                      {"files": None, "directories": "2", "subtree_bytes": "15"},
                      {"files": "3", "subtree_bytes": "15"}):
             with self.assertRaises((RuntimeError, TypeError, KeyError)):
-                flows.node_facts({"api_version": 2, "ok": True, "data": {"node": node}}, 3)
+                flows.node_facts({"api_version": 2, "ok": True, "data": {"node": node}}, 3, 15)
+
+    def test_incorrect_known_bytes_are_rejected(self):
+        for actual in ("0", "999", "14", "16"):
+            value = {"api_version": 2, "ok": True, "data": {"node":
+                     {"files": "3", "directories": "2", "subtree_bytes": actual}}}
+            with self.assertRaises(RuntimeError):
+                flows.node_facts(value, 3, 15)
+
+    def test_empty_error_object_is_not_success(self):
+        with self.assertRaises(RuntimeError):
+            flows.envelope({"api_version": 2, "ok": True, "data": {}, "error": {}})
