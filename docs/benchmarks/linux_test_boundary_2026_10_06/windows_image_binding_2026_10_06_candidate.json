@@ -1,0 +1,51 @@
+{
+  "base_sha": "58dea21a7782e1edd10df0e31f133b603abf61d2",
+  "local_platform": "aarch64-apple-darwin",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/lib.rs": "a9ad86a2972f29b2ada4989d18674aedd560b7a11b207e73e41acb696f12f502",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "46d3c4e0130e626bac14f5f7cab93ca4ed15bee3e54028292fec2f2ec3ae0436",
+    "crates/diskgraph-engine/src/windows_scan_image_binding.rs": "456444270bf34c61c94e59692920c491101919ef3ba6fb5a46c8d5f29bab2426",
+    "crates/diskgraph-engine/src/windows_scan_image_lease.rs": "9f5a31ed52439798cdc2ccd1624289d91ab72f19808ab9174575ad7eb9a21a16",
+    "crates/diskgraph-engine/src/windows_scan_image_lease_tests.rs": "4c441f3d83d1f97bb1208eabf6f2c14cf49e46ac3d158aa9b2cd815a22e59ed5"
+  },
+  "local_results": {
+    "admission": {
+      "passed": 2,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "settings": {
+      "passed": 15,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "layout": {
+      "passed": 6,
+      "failed": 0,
+      "exit_code": 0
+    },
+    "fmt": {
+      "passed": 0,
+      "failed": 0,
+      "exit_code": 0
+    }
+  },
+  "windows_binding_regressions": {
+    "new_cases": 3,
+    "native_executed": false,
+    "red_green_proven": false
+  },
+  "prior_native_ci": {
+    "run": 37455855323,
+    "build_job": 112243164821,
+    "package_job": 112243324614,
+    "blocking_errors": "five existing scanner integration dead-code groups"
+  },
+  "execution_enabled": false,
+  "remaining": [
+    "Windows actual loader and DLL qualification",
+    "existing writable mappings",
+    "native regression execution",
+    "same-SHA full-platform gates"
+  ]
+}

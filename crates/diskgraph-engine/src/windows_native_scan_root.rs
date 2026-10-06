@@ -1,4 +1,4 @@
-use std::ffi::OsString;
+use std::ffi::{OsStr, OsString};
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -179,6 +179,30 @@ impl WindowsNativeScanRoot {
     ) -> Result<(), EngineError> {
         let _guard = checked(check, ScopedContent::hydration_guard)??;
         self.validate_held_root(check)
+    }
+
+    /// 从保留的根目录打开单个末叶属性并核根链；来源：PF-06 原镜像名称绑定。
+    /// 参数：name 是单个原生名称，check 是同次请求检查；返回：非链接、非占位同卷文件。
+    /// 此接口不申请正文权限，也不通过完整名称追随替换后的父目录。
+    pub(crate) fn open_leaf_attributes(
+        &self,
+        name: &OsStr,
+        check: &dyn Fn() -> Result<(), EngineError>,
+    ) -> Result<File, EngineError> {
+        let _guard = checked(check, ScopedContent::hydration_guard)??;
+        self.validate_held_root(check)?;
+        let parent = self.chain.last().expect("registered root lease exists");
+        let file = checked(check, || open_child(parent, name, false))??;
+        let state = WindowsFileState::capture_checked(&file, check)??;
+        checked(check, || state.validate(false))??;
+        if state.placeholder()
+            || state.volume != self.identities.last().expect("root identity exists").volume
+        {
+            return Err(BusinessError::Unsupported.into());
+        }
+        self.validate_held_root(check)?;
+        check()?;
+        Ok(file)
     }
 
     fn validate_held_root(

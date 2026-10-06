@@ -9,10 +9,11 @@ use std::os::windows::io::{AsRawHandle, FromRawHandle};
 use std::time::Instant;
 
 /// Windows原镜像的禁止写/删除共享读取租约及独立摘要核验；来源：PF-06/NtOpenFile，无Java对应。
-/// 本材料不授予执行许可，不证明既有可写映射、加载路径或DLL搜索已安全。
+/// 本材料不授予执行许可，不证明既有可写映射、实际加载器或DLL搜索已安全。
 pub(crate) struct WindowsScanImageLease {
     file: File,
     identity: ScanImageIdentity,
+    binding: crate::windows_scan_image_binding::WindowsScanImageBinding,
 }
 
 impl WindowsScanImageLease {
@@ -76,6 +77,9 @@ impl WindowsScanImageLease {
         if length != expected.expected_bytes {
             return Err(BusinessError::Conflict.into());
         }
+        let binding = crate::windows_scan_image_binding::WindowsScanImageBinding::prepare(
+            &file, &identity, deadline, checkpoint,
+        )?;
         file.seek(SeekFrom::Start(0))?;
         let mut block = [0_u8; 64 * 1024];
         let mut remaining = length;
@@ -101,7 +105,11 @@ impl WindowsScanImageLease {
         if ScanImageIdentity::capture(&source)? != identity {
             return Err(BusinessError::Conflict.into());
         }
-        let lease = Self { file, identity };
+        let lease = Self {
+            file,
+            identity,
+            binding,
+        };
         lease.validate(deadline, checkpoint)?;
         Ok(lease)
     }
@@ -116,7 +124,8 @@ impl WindowsScanImageLease {
         if ScanImageIdentity::capture(&self.file)? != self.identity {
             return Err(BusinessError::Conflict.into());
         }
-        check(deadline, checkpoint)
+        self.binding
+            .validate(&self.file, &self.identity, deadline, checkpoint)
     }
 }
 

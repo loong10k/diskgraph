@@ -134,3 +134,98 @@ fn deployment_attribute_open_returns_the_same_readable_original_file() {
     drop(file);
     OpenOptions::new().write(true).open(path).unwrap();
 }
+
+#[test]
+fn verified_image_keeps_its_parent_name_bound_until_material_release() {
+    let directory = tempfile::tempdir().unwrap();
+    let parent = directory.path().join("installed");
+    std::fs::create_dir(&parent).unwrap();
+    let path = parent.join("image.bin");
+    std::fs::write(&path, BYTES).unwrap();
+    let expected =
+        ScanWorkerHostConfig::from_expected_image(Sha256::digest(BYTES).into(), BYTES.len() as u64)
+            .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let lease = WindowsScanImageLease::prepare(
+        File::open(&path).unwrap(),
+        &expected,
+        deadline,
+        &mut || Ok(()),
+    )
+    .unwrap();
+    let moved = directory.path().join("moved");
+    assert_eq!(
+        std::fs::rename(&parent, &moved).unwrap_err().raw_os_error(),
+        Some(32)
+    );
+    lease.validate(deadline, &mut || Ok(())).unwrap();
+    assert_eq!(std::fs::read(&path).unwrap(), BYTES);
+    drop(lease);
+    std::fs::rename(&parent, &moved).unwrap();
+    std::fs::create_dir(&parent).unwrap();
+    std::fs::write(&path, b"foreign replacement").unwrap();
+    assert_eq!(std::fs::read(moved.join("image.bin")).unwrap(), BYTES);
+    assert_eq!(std::fs::read(path).unwrap(), b"foreign replacement");
+}
+
+#[test]
+fn native_non_scalar_image_name_survives_binding_without_lossy_conversion() {
+    use std::ffi::OsString;
+    use std::os::windows::ffi::OsStringExt;
+    let directory = tempfile::tempdir().unwrap();
+    let name = OsString::from_wide(&[105, 109, 103, 0xd800, 46, 98, 105, 110]);
+    let path = directory.path().join(name);
+    std::fs::write(&path, BYTES).unwrap();
+    let expected =
+        ScanWorkerHostConfig::from_expected_image(Sha256::digest(BYTES).into(), BYTES.len() as u64)
+            .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let lease = WindowsScanImageLease::prepare(
+        File::open(&path).unwrap(),
+        &expected,
+        deadline,
+        &mut || Ok(()),
+    )
+    .unwrap();
+    lease.validate(deadline, &mut || Ok(())).unwrap();
+    assert_eq!(std::fs::read(path).unwrap(), BYTES);
+}
+
+#[test]
+fn cancellation_during_parent_binding_releases_all_new_directory_leases() {
+    use crate::scan_image_identity::ScanImageIdentity;
+    use crate::windows_scan_image_binding::WindowsScanImageBinding;
+    let directory = tempfile::tempdir().unwrap();
+    let parent = directory.path().join("installed");
+    std::fs::create_dir(&parent).unwrap();
+    let path = parent.join("image.bin");
+    std::fs::write(&path, BYTES).unwrap();
+    let file = File::open(&path).unwrap();
+    let identity = ScanImageIdentity::capture(&file).unwrap();
+    let mut calls = 0;
+    let result = WindowsScanImageBinding::prepare(
+        &file,
+        &identity,
+        Instant::now() + Duration::from_secs(5),
+        &mut || {
+            calls += 1;
+            if calls == 10 {
+                Err(BusinessError::PermissionDenied.into())
+            } else {
+                Ok(())
+            }
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(BusinessError::PermissionDenied))
+    ));
+    assert_eq!(
+        calls, 10,
+        "original cancellation must propagate without replacement"
+    );
+    drop(file);
+    let moved = directory.path().join("moved");
+    std::fs::rename(&parent, &moved).unwrap();
+    assert_eq!(std::fs::read(moved.join("image.bin")).unwrap(), BYTES);
+}
