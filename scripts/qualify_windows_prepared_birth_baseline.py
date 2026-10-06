@@ -25,7 +25,7 @@ def isolated_source(checkout, candidate=CANDIDATE):
     checkout = checkout.resolve(strict=True)
     if candidate not in (CANDIDATE, windows.CANDIDATE, windows.BASELINE_CANDIDATE):
         raise ValueError("unsupported qualification source scope")
-    manifest = json.loads((checkout / candidate / "manifest.json").read_text())
+    manifest = json.loads((checkout / candidate / "manifest.json").read_text(encoding="utf-8"))
     base = manifest["base_ref"]
     if not isinstance(base, str) or not re.fullmatch(r"[0-9a-f]{40}", base):
         raise ValueError("baseline requires an exact historical commit")
@@ -89,7 +89,7 @@ def main():
             shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                           source, output, "build-baseline", env)
             binaries = []
-            for line in (output / "build-baseline.stdout").read_text().splitlines():
+            for line in (output / "build-baseline.stdout").read_text(encoding="utf-8").splitlines():
                 if line.startswith("{"):
                     item = json.loads(line)
                     if item.get("reason") == "compiler-artifact" and item.get("target", {}).get("name") == "diskgraph_engine" and item.get("executable"):
@@ -100,7 +100,7 @@ def main():
             try:
                 shared.invoke([str(binaries[0]), CASE, "--exact", "--nocapture"], source, output, "actual-lost-owner", env, timeout=120)
             except RuntimeError:
-                check_target_red((output / "actual-lost-owner.stdout").read_text(), (output / "actual-lost-owner.stderr").read_text())
+                check_target_red((output / "actual-lost-owner.stdout").read_text(encoding="utf-8"), (output / "actual-lost-owner.stderr").read_text(encoding="utf-8"))
             else:
                 raise RuntimeError("old source unexpectedly passed lost-owner regression")
             if manifest.get("baseline_deadline_failure_case") != DEADLINE_CASE:
@@ -108,7 +108,7 @@ def main():
             try:
                 shared.invoke([str(binaries[0]), DEADLINE_CASE, "--exact", "--nocapture"], source, output, "actual-expired-cleanup", env, timeout=120)
             except RuntimeError:
-                check_deadline_red((output / "actual-expired-cleanup.stdout").read_text(), (output / "actual-expired-cleanup.stderr").read_text())
+                check_deadline_red((output / "actual-expired-cleanup.stdout").read_text(encoding="utf-8"), (output / "actual-expired-cleanup.stderr").read_text(encoding="utf-8"))
             else:
                 raise RuntimeError("old source unexpectedly passed expired cleanup regression")
             receipt["deadline_case"] = DEADLINE_CASE

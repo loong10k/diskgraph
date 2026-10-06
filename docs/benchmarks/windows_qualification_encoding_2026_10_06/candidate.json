@@ -1,0 +1,12 @@
+{
+  "production_acceptance": false,
+  "failed_native_run": 37415041940,
+  "failed_phase": "archive safeguards before native tests",
+  "base_sha": "8b1fa4bee685084d719396cd594930b4d1173002",
+  "actual_native_cases_executed": 0,
+  "same_archive_cp1252_red_reproduced": true,
+  "archive_guard_green": 14,
+  "windows_driver_green": 24,
+  "source_archives_modified": false,
+  "native_red_green": "pending"
+}

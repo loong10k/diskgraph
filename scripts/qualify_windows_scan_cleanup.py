@@ -293,7 +293,7 @@ def main():
             shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                           source, output, "build-cleanup-fixtures", environment)
             binaries = []
-            for line in (output / "build-cleanup-fixtures.stdout").read_text().splitlines():
+            for line in (output / "build-cleanup-fixtures.stdout").read_text(encoding="utf-8").splitlines():
                 if line.startswith("{"):
                     record = json.loads(line)
                     if record.get("reason") == "compiler-artifact" and record.get("target", {}).get("name") == "diskgraph_engine" and record.get("executable"):
@@ -310,7 +310,7 @@ def main():
                 try:
                     shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
                                   source, output, name, environment, timeout=120)
-                    passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text()
+                    passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text(encoding="utf-8")
                 except RuntimeError:
                     passed = False
                 results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "probe" if case in probe_cases else "directory_prerequisite" if case == DIRECTORY_CASES[0] else "directory" if case in directory_cases else "resource" if case in resource_cases else "runner" if case in runner_cases else "poll_cleanup" if case in poll_cases else "registry_deadline" if case in registry_cases else "missing_name" if case in missing_name_cases else "atomic_root" if case in atomic_root_cases else "cleanup"})

@@ -151,7 +151,7 @@ def mount(checkout, candidate=CANDIDATE, *, allow_products=False):
     manifest_path = checkout / candidate / "manifest.json"
     if manifest_path.stat().st_size > 1024 * 1024 or archive.stat().st_size > 16 * 1024 * 1024:
         raise ValueError("candidate exceeds archive metadata budget")
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest["schema_version"] != 1 or digest(archive) != manifest["archive_sha256"]:
         raise ValueError("candidate archive identity mismatch")
     names = manifest["sources"]
@@ -233,7 +233,7 @@ def main():
         receipt["helper_bytes"] = helper.stat().st_size
         invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--features", "macos_native_scan_candidate", "--lib", "--no-run", "--message-format=json"], checkout, output, "build-fixtures", env)
         binaries = []
-        for line in (output / "build-fixtures.stdout").read_text().splitlines():
+        for line in (output / "build-fixtures.stdout").read_text(encoding="utf-8").splitlines():
             if line.startswith("{"):
                 record = json.loads(line)
                 if record.get("reason") == "compiler-artifact" and record.get("target", {}).get("name") == "diskgraph_engine" and record.get("executable"):
@@ -245,7 +245,7 @@ def main():
         for protocol_case in manifest["protocol_cases"]:
             name = "raw-path-protocol" if protocol_case == PROTOCOL_CASE else "response-budget-fixture"
             invoke([str(binary), protocol_case, "--exact", "--nocapture", "--test-threads=1"], checkout, output, name, env)
-            if "test result: ok. 1 passed; 0 failed;" not in (output / (name + ".stdout")).read_text():
+            if "test result: ok. 1 passed; 0 failed;" not in (output / (name + ".stdout")).read_text(encoding="utf-8"):
                 raise RuntimeError("protocol fixture did not execute exact required case: " + protocol_case)
         receipt["protocol_cases_passed"] = len(manifest["protocol_cases"])
         env.update(DISKGRAPH_MACOS_EPHEMERAL_ROOT_FIXTURE=os.environ["GITHUB_RUN_ID"],
@@ -254,19 +254,19 @@ def main():
                    DISKGRAPH_MACOS_FIXTURE_BYTES=str(receipt["helper_bytes"]))
         preserved = "GITHUB_ACTIONS,GITHUB_RUN_ID,RUNNER_OS,RUNNER_ENVIRONMENT,DISKGRAPH_MACOS_EPHEMERAL_ROOT_FIXTURE,DISKGRAPH_MACOS_FIXTURE_HELPER,DISKGRAPH_MACOS_FIXTURE_SHA256,DISKGRAPH_MACOS_FIXTURE_BYTES"
         invoke(["sudo", "-n", "--preserve-env=" + preserved, str(binary), ROOT_CASE, "--exact", "--ignored", "--nocapture", "--test-threads=1"], checkout, output, "root-issuer", env)
-        if "test result: ok. 1 passed; 0 failed;" not in (output / "root-issuer.stdout").read_text():
+        if "test result: ok. 1 passed; 0 failed;" not in (output / "root-issuer.stdout").read_text(encoding="utf-8"):
             raise RuntimeError("root fixture did not execute its exact required case")
         receipt["root_cases_passed"] = 1
         for case in manifest["ordinary_cases"]:
             invoke([str(binary), case, "--exact", "--ignored", "--nocapture", "--test-threads=1"], checkout, output, case.rsplit("::", 1)[-1], env)
-            if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text():
+            if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text(encoding="utf-8"):
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
         if manifest.get("native_child_parallel_tests_required") != 41:
             raise ValueError("candidate parallel birth regression inventory differs")
         invoke([str(binary), "native_child::", "--nocapture"],
                checkout, output, "native-child-parallel-regression", env)
-        check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text())
+        check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text(encoding="utf-8"))
         receipt["native_child_parallel_regression_tests_passed"] = 41
         if manifest.get("product_flows") != ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"]:
             raise ValueError("actual product flow inventory differs")
@@ -280,7 +280,7 @@ def main():
                 "--features", "diskgraph-engine/macos_native_scan_candidate", "--no-run", "--message-format=json"],
                checkout, output, "build-cli-regression", env)
         cli_fixtures = []
-        for line in (output / "build-cli-regression.stdout").read_text().splitlines():
+        for line in (output / "build-cli-regression.stdout").read_text(encoding="utf-8").splitlines():
             if line.startswith("{"):
                 record = json.loads(line)
                 if (record.get("reason") == "compiler-artifact"
@@ -292,7 +292,7 @@ def main():
         cli_fixture = cli_fixtures[0]
         receipt["cli_regression_binary_sha256"] = digest(cli_fixture)
         invoke([str(cli_fixture), "--test-threads=1"], checkout, output, "cli-regression", env)
-        check_cli_regression((output / "cli-regression.stdout").read_text())
+        check_cli_regression((output / "cli-regression.stdout").read_text(encoding="utf-8"))
         if digest(cli_fixture) != receipt["cli_regression_binary_sha256"]:
             raise RuntimeError("CLI regression binary identity changed")
         receipt["cli_regression_tests_passed"] = 67
@@ -300,7 +300,7 @@ def main():
                 "--features", "diskgraph-engine/macos_native_scan_candidate", "--no-run", "--message-format=json"],
                checkout, output, "build-mcp-regression", env)
         mcp_fixtures = []
-        for line in (output / "build-mcp-regression.stdout").read_text().splitlines():
+        for line in (output / "build-mcp-regression.stdout").read_text(encoding="utf-8").splitlines():
             if line.startswith("{"):
                 record = json.loads(line)
                 if (record.get("reason") == "compiler-artifact"
@@ -312,21 +312,21 @@ def main():
         mcp_fixture = mcp_fixtures[0]
         receipt["mcp_regression_binary_sha256"] = digest(mcp_fixture)
         invoke([str(mcp_fixture), "--test-threads=1"], checkout, output, "mcp-regression", env)
-        check_mcp_regression((output / "mcp-regression.stdout").read_text())
+        check_mcp_regression((output / "mcp-regression.stdout").read_text(encoding="utf-8"))
         if digest(mcp_fixture) != receipt["mcp_regression_binary_sha256"]:
             raise RuntimeError("MCP regression binary identity changed")
         receipt["mcp_regression_tests_passed"] = 162
         # 在同一root发行/普通UID环境执行完整Engine，不能用39项native子集代替。
         invoke([str(binary), "--list"], checkout, output, "engine-full-inventory", env)
         invoke([str(binary), "--ignored", "--list"], checkout, output, "engine-ignored-inventory", env)
-        inventory = [line[:-6] for line in (output / "engine-full-inventory.stdout").read_text().splitlines() if line.endswith(": test")]
-        ignored = [line[:-6] for line in (output / "engine-ignored-inventory.stdout").read_text().splitlines() if line.endswith(": test")]
+        inventory = [line[:-6] for line in (output / "engine-full-inventory.stdout").read_text(encoding="utf-8").splitlines() if line.endswith(": test")]
+        ignored = [line[:-6] for line in (output / "engine-ignored-inventory.stdout").read_text(encoding="utf-8").splitlines() if line.endswith(": test")]
         if len(set(inventory)) != len(inventory) or len(set(ignored)) != len(ignored) or not set(ignored).issubset(inventory):
             raise RuntimeError("Engine binary inventory is duplicated or inconsistent")
         receipt["engine_full_inventory"] = inventory
         receipt["engine_ignored_inventory"] = ignored
         invoke([str(binary), "--nocapture"], checkout, output, "engine-full-parallel-regression", env, timeout=1200)
-        check_full_engine_regression((output / "engine-full-parallel-regression.stdout").read_text(), len(inventory), len(ignored))
+        check_full_engine_regression((output / "engine-full-parallel-regression.stdout").read_text(encoding="utf-8"), len(inventory), len(ignored))
         receipt["engine_full_regression_tests_passed"] = len(inventory) - len(ignored)
         for name, expected in manifest["sources"].items():
             if digest(checkout / name) != expected:

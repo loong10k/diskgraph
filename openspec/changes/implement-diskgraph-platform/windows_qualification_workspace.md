@@ -49,3 +49,7 @@ CI 37412964453 已终态失败：65个原生用例中60通过，5个根重开场
 回归：原lease绑定A而参数路径指向B时必须只读A；宽目录跨多页及非UTF-8名称保持；非法原生记录拒绝。原路径枚举以同一新测试、唯一替换的已提交旧GitDirectoryLease源码取得实际Windows目标RED，编译失败不算；修复与原65项一起运行，不减断言。此层是后续原句柄cleanup walker的枚举基础，不完成整个目录删除或产品启用。依据：https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_extd_dir_info 。
 
 本机结构6/6、验收驱动24/24、归档保护13/13、格式和OpenSpec严格校验通过。Windows清单497源，保持原65项并增加两个真实文件系统用例及一个记录解码用例，共68项；Mac606源同步枚举模块，MCP162及原生child41的门禁不减少。旧枚举源码逐字节等于888fbc2中的已提交文件。Windows目标RED与68项实际运行尚待CI，不以本机cfg排除当Windows通过，也不勾选15.13父项。证据见 docs/benchmarks/windows_directory_cursor_2026_10_06。
+
+## 原生验收驱动的编码修复
+
+CI 37415041940 在归档保护步骤实际失败：新增模块检查使用Windows默认cp1252解码含中文的UTF-8 Rust源，触发UnicodeDecodeError；原生用例均未运行，不计68项失败或通过。用同一真实归档、仅注入默认cp1252读取方式，本机复现相同位置的RED。源码、UTF-8 Cargo输出和receipt显式按UTF-8读取，不依赖PYTHONUTF8或变更系统locale，不用errors=ignore/replace丢字节，也不放宽归档摘要或模块检查。修复后重新运行实际Windows目标RED和68项候选，未返回前保持待验收。

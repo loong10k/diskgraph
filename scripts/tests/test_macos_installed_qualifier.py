@@ -7,6 +7,7 @@ import tempfile
 import tomllib
 import subprocess
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "qualify_macos_installed_worker.py"
@@ -16,6 +17,18 @@ spec.loader.exec_module(qualifier)
 
 
 class MacosInstalledQualifierTests(unittest.TestCase):
+    def test_real_inventory_is_independent_of_windows_legacy_text_encoding(self):
+        original = Path.read_text
+
+        def legacy_default(path, *args, **kwargs):
+            if not args and kwargs.get("encoding") is None:
+                kwargs["encoding"] = "cp1252"
+            return original(path, *args, **kwargs)
+
+        # 用真实冻结源码和真实cp1252解码模拟Windows默认locale，不改变归档字节。
+        with patch.object(Path, "read_text", legacy_default):
+            self.test_real_committed_candidate_has_complete_permitted_inventory()
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -50,7 +63,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
                                     ("http_server_config", "ServerConfig")):
             name = f"crates/diskgraph-mcp/src/{module}.rs"
             self.assertIn(name, manifest["sources"])
-            self.assertIn(f"pub struct {object_name}", (self.checkout / name).read_text())
+            self.assertIn(f"pub struct {object_name}", (self.checkout / name).read_text(encoding="utf-8"))
         self.assertEqual(manifest["native_child_parallel_tests_required"], 41)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
@@ -64,10 +77,10 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         qualifier.mount(self.checkout, allow_products=True)
-        packages = {p["name"]: p for p in tomllib.loads((self.checkout / "Cargo.lock").read_text())["package"]}
+        packages = {p["name"]: p for p in tomllib.loads((self.checkout / "Cargo.lock").read_text(encoding="utf-8"))["package"]}
         for package in ("diskgraph-cli", "diskgraph-mcp"):
             # 产品包现在显式冻结并挂载；锁依赖必须与同一冻结清单一致，不能混用HEAD旧清单。
-            manifest = tomllib.loads((self.checkout / "crates" / package / "Cargo.toml").read_text())
+            manifest = tomllib.loads((self.checkout / "crates" / package / "Cargo.toml").read_text(encoding="utf-8"))
             expected = {name for group in ("dependencies", "dev-dependencies", "build-dependencies")
                         for name in manifest.get(group, {}) if name.startswith("diskgraph-")}
             actual = {name for name in packages[package]["dependencies"] if name.startswith("diskgraph-")}

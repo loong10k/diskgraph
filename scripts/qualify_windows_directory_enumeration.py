@@ -46,7 +46,7 @@ def main():
             shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib",
                            "--no-run", "--message-format=json"], source, output, "build-held-directory-red", environment)
             binaries = []
-            for line in (output / "build-held-directory-red.stdout").read_text().splitlines():
+            for line in (output / "build-held-directory-red.stdout").read_text(encoding="utf-8").splitlines():
                 if line.startswith("{"):
                     record = json.loads(line)
                     if record.get("reason") == "compiler-artifact" and record.get("target", {}).get("name") == "diskgraph_engine" and record.get("executable"):
@@ -59,8 +59,8 @@ def main():
                 shared.invoke([str(binary), "--exact", CASE, "--nocapture", "--test-threads=1"],
                               source, output, "held-directory-red", environment, timeout=120)
             except RuntimeError:
-                check_target_red((output / "held-directory-red.stdout").read_text(),
-                                 (output / "held-directory-red.stderr").read_text())
+                check_target_red((output / "held-directory-red.stdout").read_text(encoding="utf-8"),
+                                 (output / "held-directory-red.stderr").read_text(encoding="utf-8"))
             else:
                 raise RuntimeError("old directory enumeration unexpectedly passed")
             for name, expected in manifest["sources"].items():
