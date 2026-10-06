@@ -1,5 +1,4 @@
 use super::ChildError;
-use std::io;
 
 /// 固定 helper 的用户线程派生约束，不限制文件访问或授予任务权限。
 /// 来源：Linux seccomp_data/audit ABI 与 legacy clone 的线程组条件。
@@ -105,21 +104,6 @@ impl LinuxScannerFilter {
             filter.ret(0x7fff_0000);
             Ok(filter)
         }
-    }
-
-    /// exec 前只安装已准备 BPF，不分配 Rust 对象。参数：无；返回：原始 prctl OS 错误。
-    /// 安全性：调用处必须是 fresh child 的 pre_exec，filter 数组在整个 syscall 中存活。
-    pub(super) unsafe fn install(&self) -> io::Result<()> {
-        let program = libc::sock_fprog {
-            len: self.count as u16,
-            filter: self.instructions.as_ptr().cast_mut(),
-        };
-        if unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) } < 0
-            || unsafe { libc::prctl(libc::PR_SET_SECCOMP, 2, &program) } < 0
-        {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
     }
 
     fn load(&mut self, offset: u32) {

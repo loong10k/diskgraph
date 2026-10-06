@@ -102,7 +102,7 @@ pub(crate) use linux_atomic_child::LinuxAtomicChild;
 pub(crate) use linux_atomic_launcher::LinuxAtomicLauncher;
 #[cfg(target_os = "linux")]
 mod linux_scan_image;
-#[cfg(target_os = "linux")]
+#[cfg(all(test, target_os = "linux"))]
 mod linux_scan_image_error;
 #[cfg(all(test, target_os = "linux"))]
 mod linux_scan_image_fixture;

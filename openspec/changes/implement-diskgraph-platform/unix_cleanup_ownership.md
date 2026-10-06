@@ -39,3 +39,7 @@ Linux 的公开 Recovery::drain_until 必须沿用出生时原 pidfd，不使用
 三个 Linux runner 的 RED（37438383770、e839fdb）均仅因缺失 drain_until 接口出现 E0599；这是原生编译的接口缺失证据，不称为运行时行为 RED。现接入原 pidfd、零超时轮询和单次 WNOHANG，新增3项用例必须与原5项一起实际通过且保留原wait消费标记。macOS共享registry回归3/0、结构6/0、fmt通过；Linux运行结果仍待CI，有限前端退出和生产父项不勾选。
 
 Linux 期限恢复已通过当前完整源码原生门禁：37438978565 / c98dc1b，x86 stable、x86 Rust1.97、arm64 stable 各8/0/0（原5项+新增3项），逐项包含期限容量保持、真实seccomp wait拒绝、原pidfd实际消费标记和原namespace init wait闭环。原始source清单/worker摘要/日志见 docs/benchmarks/linux_deadline_recovery_2026_10_06/verified-native.json。Clippy -D clippy::all通过但21条既有Rust警告未消除；严格warnings、前端有限退出和全平台生产父项仍未完成。
+
+## 完整工作区门禁复核
+
+4255fc8 的本机完整工作区回归实际运行111个顶层目标：1516通过、431失败、23忽略，33目标失败；按每个Cargo目标最后的结果计数，未将隔离子夹具的内层结果重复累计。GitHub同提交Linux/Windows严格Build失败，原始日志记录dead-code错误，macOS相关任务仍排队。专项门禁不能抵消该全量失败。测试专用LinuxScanImageError只应在test配置编入；历史Rust pre_exec安装方法无调用者，当前生产seccomp保持由原子出生C路径使用同一BPF program安装。移除闲置入口不完成严格质量或生产父项。
