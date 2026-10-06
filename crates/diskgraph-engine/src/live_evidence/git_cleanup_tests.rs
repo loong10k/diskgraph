@@ -22,12 +22,32 @@ fn explicit_completion_removes_private_data_before_success() {
 }
 
 #[test]
-fn missing_private_directory_counts_as_already_removed() {
+fn missing_private_directory_refuses_success_until_original_object_returns() {
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
     let path = private.path().to_path_buf();
-    std::fs::remove_dir_all(&path).unwrap();
+    let moved = path.with_file_name(format!("diskgraph-git-moved-{}", uuid::Uuid::new_v4()));
+    std::fs::write(path.join("retained"), b"original private payload").unwrap();
+    std::fs::rename(&path, &moved).unwrap();
+    let observed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let error = private.complete(Ok(9)).unwrap_err();
+        assert!(error.contains("original object deletion unconfirmed"));
+        let primary = private
+            .complete::<()>(Err("original failure".into()))
+            .unwrap_err();
+        assert!(primary.starts_with("original failure; cleanup also failed:"));
+        assert_eq!(
+            std::fs::read(moved.join("retained")).unwrap(),
+            b"original private payload"
+        );
+    }));
+    // 恢复同一原对象后真实重试；即使断言失败也不遗留私有测试数据。
+    std::fs::rename(&moved, &path).unwrap();
     assert_eq!(private.complete(Ok(9)).unwrap(), 9);
+    assert!(!path.exists());
+    if let Err(payload) = observed {
+        std::panic::resume_unwind(payload);
+    }
 }
 
 #[test]

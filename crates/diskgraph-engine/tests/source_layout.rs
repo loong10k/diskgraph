@@ -166,6 +166,7 @@ fn module_base(path: &Path) -> PathBuf {
 fn module_sources(
     items: &[syn::Item],
     base: &Path,
+    declaration_directory: &Path,
     production: bool,
     mounted: &mut BTreeSet<PathBuf>,
     sources: &mut Vec<(PathBuf, String, syn::File)>,
@@ -177,10 +178,37 @@ fn module_sources(
         let production = production && !test_only(&module.attrs);
         let name = module.ident.to_string();
         if let Some((_, items)) = &module.content {
-            module_sources(items, &base.join(name), production, mounted, sources);
+            module_sources(
+                items,
+                &base.join(&name),
+                &base.join(name),
+                production,
+                mounted,
+                sources,
+            );
         } else {
             let direct = base.join(format!("{name}.rs"));
-            let path = if direct.exists() {
+            let explicit = module.attrs.iter().find_map(|attribute| {
+                if attribute.path().is_ident("path")
+                    && let syn::Meta::NameValue(value) = &attribute.meta
+                    && let syn::Expr::Lit(value) = &value.value
+                    && let syn::Lit::Str(value) = &value.lit
+                {
+                    Some(PathBuf::from(value.value()))
+                } else {
+                    None
+                }
+            });
+            let path = if let Some(explicit) = explicit {
+                assert!(
+                    !explicit.is_absolute()
+                        && explicit
+                            .components()
+                            .all(|component| matches!(component, std::path::Component::Normal(_))),
+                    "模块path必须保持在声明目录内"
+                );
+                declaration_directory.join(explicit)
+            } else if direct.exists() {
                 direct
             } else {
                 base.join(name).join("mod.rs")
@@ -201,9 +229,17 @@ fn source(
         "重复挂载 {}",
         path.display()
     );
-    let text = std::fs::read_to_string(path).unwrap();
+    let text = std::fs::read_to_string(path)
+        .unwrap_or_else(|error| panic!("无法读取挂载源码 {}: {error}", path.display()));
     let ast = syn::parse_file(&text).unwrap();
-    module_sources(&ast.items, &module_base(path), production, mounted, sources);
+    module_sources(
+        &ast.items,
+        &module_base(path),
+        path.parent().unwrap(),
+        production,
+        mounted,
+        sources,
+    );
     if production {
         sources.push((path.to_path_buf(), text, ast));
     }
@@ -339,4 +375,60 @@ fn gate_excludes_only_explicit_test_modules() {
             .iter()
             .any(|error| error.starts_with("C:"))
     );
+}
+
+#[test]
+fn gate_mounts_path_attributes_relative_to_the_declaring_file() {
+    let temp = tempfile::tempdir().unwrap();
+    let root = temp.path();
+    std::fs::write(root.join("lib.rs"), "mod owner;").unwrap();
+    std::fs::write(
+        root.join("owner.rs"),
+        "#[path = \"sibling.rs\"] mod hidden; mod regular;",
+    )
+    .unwrap();
+    std::fs::write(root.join("sibling.rs"), "fn actual_logic() -> u8 { 1 }").unwrap();
+    std::fs::create_dir(root.join("owner")).unwrap();
+    std::fs::write(
+        root.join("owner/regular.rs"),
+        "fn other_logic() -> u8 { 2 }",
+    )
+    .unwrap();
+    let mut mounted = BTreeSet::new();
+    let mut sources = Vec::new();
+    source(&root.join("lib.rs"), true, &mut mounted, &mut sources);
+    assert_eq!(mounted.len(), 4);
+    assert!(mounted.contains(&root.join("sibling.rs")));
+    assert!(mounted.contains(&root.join("owner/regular.rs")));
+    assert_eq!(sources.len(), 4);
+}
+
+#[test]
+fn gate_rejects_explicit_module_path_escape_before_reading() {
+    let temp = tempfile::tempdir().unwrap();
+    for path in ["../outside.rs", "/outside.rs"] {
+        std::fs::write(
+            temp.path().join("lib.rs"),
+            format!("#[path = {path:?}] mod outside;"),
+        )
+        .unwrap();
+        let failure = std::panic::catch_unwind(|| {
+            source(
+                &temp.path().join("lib.rs"),
+                true,
+                &mut BTreeSet::new(),
+                &mut Vec::new(),
+            );
+        })
+        .expect_err("escaping source must be rejected");
+        let message = failure
+            .downcast_ref::<String>()
+            .map(String::as_str)
+            .or_else(|| failure.downcast_ref::<&str>().copied())
+            .unwrap();
+        assert!(
+            message.contains("模块path必须保持在声明目录内"),
+            "wrong refusal: {message}"
+        );
+    }
 }

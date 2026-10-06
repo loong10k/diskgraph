@@ -1,0 +1,37 @@
+{
+  "production_acceptance": false,
+  "workspace_exit": 101,
+  "suite_receipts": 128,
+  "aggregate_passed": 1489,
+  "aggregate_failed": 444,
+  "aggregate_ignored": 22,
+  "counts_are_receipt_sums_not_unique_vulnerabilities": true,
+  "full_suite_compiled_before_latest_test_corrections": true,
+  "gate_mounting_red_confirmed": true,
+  "path_routing_test_green": true,
+  "full_gate_still_failed_documentation_violations": 105,
+  "public_private_completion_green": 1,
+  "logs": [
+    {
+      "name": "diskgraph-current-workspace-all-20261006.log",
+      "original_sha256": "79764763da847d66b585902a6f70ddaad9bce68751d2224b17e7109275c8dd58"
+    },
+    {
+      "name": "diskgraph-layout-path-red.log",
+      "original_sha256": "3bc947bf6ea57b13aeffacd881f5ec6dfbef507c6f88dba7c9806cc33439c3cc"
+    },
+    {
+      "name": "diskgraph-layout-path-green.log",
+      "original_sha256": "ff97ea5c2f4a795f921b81f31a3ebdc23b7369965140bbe94a993c9ba7da3fdf"
+    },
+    {
+      "name": "diskgraph-private-complete-green.log",
+      "original_sha256": "dddd162fc756dd093fb03a57cae26cc1118406c823583cbc376429f3cf538b6b"
+    },
+    {
+      "name": "diskgraph-layout-routing-final.log",
+      "original_sha256": "b83a110f2ef857da5185bd3ca05724566cfded2ab0b551d2827e823013111548"
+    }
+  ],
+  "routing_and_existing_guard_tests_passed": 4
+}
