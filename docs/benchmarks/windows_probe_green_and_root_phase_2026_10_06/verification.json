@@ -1,0 +1,39 @@
+{
+  "production_ready": false,
+  "run": 37406780904,
+  "source": "3802e78653f6603f68c76ea4d039a1132c075839",
+  "candidate_cases": 60,
+  "passed": 57,
+  "failed": 3,
+  "expired_probe_green": "actual1/1; DG_EXPIRED_PROBE_BOUNDARY=0; original owner/slot/Job recovery asserted",
+  "original_masks": {
+    "anchor": "0x100081",
+    "child_lease": "0x100081",
+    "delete_reopen": "0x110081"
+  },
+  "pending_candidate": {
+    "source_count": 495,
+    "case_count": 65,
+    "archive_sha256": "b270c8b96a8ff1c265c12a9bfe72eca4733258457b89416e9509c273c5d05d2e"
+  },
+  "local_guards": 36,
+  "local_source_layout": 6,
+  "raw_sha256": {
+    "windows-cleanup-receipt.json.gz": "21c13a79b43e41c6934cde6854b7a08e276b2594b3bcb64e1a15a4679285fe8f",
+    "windows-prepared-birth-baseline-receipt.json.gz": "9e4fa151437728bb9e10590fd64b14d24732af768abb54bb39b0ae898a0886ff",
+    "windows-cleanup-expired_managed_probe_transfers_original_owner_without_legacy_wait.stdout.gz": "a08c1fca63787067e93d40ea77412ee8ecf5852f9e256ecdc45506510963805f",
+    "windows-cleanup-expired_managed_probe_transfers_original_owner_without_legacy_wait.stderr.gz": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "windows-cleanup-original_share_read_lease_blocks_delete_reopen_until_released.stdout.gz": "05b83d5f24997e9062b110c68a2620947f6305362fda765e47fff9b89ba599e1",
+    "windows-cleanup-original_share_read_lease_blocks_delete_reopen_until_released.stderr.gz": "852b06429625a1cd0201414521ad7f6d19f86f1cce60862b18cbe8c64729a4af",
+    "windows-cleanup-moved_root_delete_reopen_targets_original_object_not_foreign_replacement.stdout.gz": "f8a3847eff4cb70a999c417aea1ea1e6ff9decb59b7340570c43698d43760fe4",
+    "windows-cleanup-moved_root_delete_reopen_targets_original_object_not_foreign_replacement.stderr.gz": "b1cf56a0f41dc8f9b212582011a7c090a48c49ca30ff67ebdc309ab4a67cb812",
+    "windows-cleanup-moved_root_reopen_ignores_junction_replacement_and_preserves_external_target.stdout.gz": "72a2526db0d31fa8d4986f7ef403bcb8cb4ee9c8a748f56f8809fad90c44b55d",
+    "windows-cleanup-moved_root_reopen_ignores_junction_replacement_and_preserves_external_target.stderr.gz": "1b3f42e4e87b16738eb7eb40ad867036bbff06ee177eb708d24e773d7616a49f"
+  },
+  "limits": [
+    "by-ID sharing error remains unresolved; assertion unchanged",
+    "release of creation parent lease for rename fixtures requires native proof",
+    "by-name test diagnostic only; production has no path fallback",
+    "native full product/installer/strict Clippy/performance and finite host shutdown remain open"
+  ]
+}

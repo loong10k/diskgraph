@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "274ed871679040950b63bcc6d67a352b7b43114e8878c56fe8c2fcaf4c2cbc2f",
+  "archive_sha256": "b270c8b96a8ff1c265c12a9bfe72eca4733258457b89416e9509c273c5d05d2e",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -182,7 +182,7 @@
     "crates/diskgraph-engine/src/live_evidence/watch_snapshot.rs": "33e7f4431f3f2cd910aabb6651ba040a3860c2da813e28e14a66edc2f734b506",
     "crates/diskgraph-engine/src/live_evidence/windows_git_junction_fixture.rs": "d6508895f73477a4a9eb270a193c8f8b16e20becef4518a2a68366b78878d58b",
     "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "7d1dc79fa1966d04ec239818eaf804dd0b8cf04a12136cb12809d7fd0154a033",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "8f3aecaccc43478142317bbf276acd90ef3e083986a85d46295174aaeb1e076e",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "4857b58b1234ff76ec9ffc42f842701bd41960ed21b4e616feec8fbf6a666318",
     "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "145b65e92737c11af911b72dff46e0ccbbae5063d28184953ea2e91b2f0df7fc",
     "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "6768ee90672e1ea850131cf508d55af26b45ec168ee5e9c89d37d9c13700e5e8",
     "crates/diskgraph-engine/src/macos_epoch_floor.rs": "9e436a2f979898385aa88c970ea1adeb73210240001f01b170fb99046eb1df70",
@@ -605,7 +605,8 @@
     "live_evidence::windows_git_private_root_tests::moved_root_delete_reopen_targets_original_object_not_foreign_replacement",
     "live_evidence::windows_git_private_root_tests::original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease",
     "live_evidence::windows_git_private_root_tests::moved_root_reopen_ignores_junction_replacement_and_preserves_external_target",
-    "live_evidence::windows_git_private_root_tests::original_share_read_lease_blocks_delete_reopen_until_released"
+    "live_evidence::windows_git_private_root_tests::original_share_read_lease_blocks_delete_reopen_until_released",
+    "live_evidence::windows_git_private_root_tests::held_parent_lease_blocks_move_until_creation_phase_is_released"
   ],
   "prepared_connect_cases": [
     "native_child::windows::windows_prepared_connect_tests::expired_connect_cleanup_retains_original_addresses_without_eof",

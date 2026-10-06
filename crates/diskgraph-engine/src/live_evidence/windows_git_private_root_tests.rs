@@ -91,6 +91,8 @@ fn moved_root_delete_reopen_targets_original_object_not_foreign_replacement() {
     let root = owner.as_mut().unwrap();
     root.confirm_created().unwrap();
     let original = GitPrivateAllocation::from_file(root.as_file()).unwrap();
+    // 创建阶段的父目录租约已结束；原 root anchor 继续独占保活，不按旧名恢复。
+    drop(lease);
     std::fs::rename(parent.join("original"), parent.join("moved")).unwrap();
     root.confirm_created().unwrap();
     std::fs::create_dir(parent.join("original")).unwrap();
@@ -189,6 +191,8 @@ fn moved_root_reopen_ignores_junction_replacement_and_preserves_external_target(
     let root = owner.as_mut().unwrap();
     root.confirm_created().unwrap();
     let original = GitPrivateAllocation::from_file(root.as_file()).unwrap();
+    // 创建阶段的父目录租约已结束；原 root anchor 继续独占保活，不按旧名恢复。
+    drop(lease);
     std::fs::rename(parent.join("original"), parent.join("moved")).unwrap();
     root.confirm_created().unwrap();
     let mut junction =
@@ -233,7 +237,7 @@ fn original_share_read_lease_blocks_delete_reopen_until_released() {
     .unwrap();
     let root = owner.as_mut().unwrap();
     let child_lease = GitDirectoryLease::open(&parent.join("held"), &mut budget).unwrap();
-    // 失败诊断只查询原持有句柄，不增加删除、权限提升或路径重开。
+    // 原句柄查询及独立夹具按名对照；不删除、不提升权限、不改变生产方法或冲突断言。
     emit_granted_access("anchor", root.as_file());
     emit_granted_access("child_lease", child_lease.leaf_file());
     assert!(
@@ -241,6 +245,8 @@ fn original_share_read_lease_blocks_delete_reopen_until_released() {
             .unwrap()
             .same_identity(&GitPrivateAllocation::from_file(child_lease.leaf_file()).unwrap())
     );
+    let original = GitPrivateAllocation::from_file(root.as_file()).unwrap();
+    emit_name_delete_open(&parent.join("held"), &original);
     let reopened = root.reopen_for_delete();
     if let Ok(file) = &reopened {
         emit_granted_access("delete_reopen", file);
@@ -290,4 +296,63 @@ fn emit_granted_access(label: &str, file: &std::fs::File) {
     } else {
         println!("DG_HANDLE_ACCESS label={label} status={status:#x} returned={returned}");
     }
+}
+
+/// 只在私有夹具中按名对照请求同样权限；不作为生产 reopen 或任何路径回退。
+fn emit_name_delete_open(path: &std::path::Path, original: &GitPrivateAllocation) {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        DELETE, FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ,
+        FILE_SHARE_WRITE, SYNCHRONIZE,
+    };
+    let observed = std::fs::OpenOptions::new()
+        .access_mode(DELETE | FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES | SYNCHRONIZE)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+        .custom_flags(
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
+        )
+        .open(path);
+    match observed {
+        Ok(file) => {
+            assert!(original.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
+            eprintln!("DG_NAME_DELETE_OPEN success=true");
+            emit_granted_access("name_delete_open", &file);
+        }
+        Err(error) => eprintln!(
+            "DG_NAME_DELETE_OPEN success=false error={:?}",
+            error.raw_os_error()
+        ),
+    }
+}
+
+#[test]
+fn held_parent_lease_blocks_move_until_creation_phase_is_released() {
+    let temp = tempfile::tempdir().unwrap();
+    let parent = temp.path().canonicalize().unwrap();
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let lease = GitDirectoryLease::open(&parent, &mut budget).unwrap();
+    let mut owner = None;
+    WindowsGitPrivateRoot::create_into(
+        lease.leaf_file(),
+        OsStr::new("original"),
+        &GitDirectorySecurity::new().unwrap(),
+        &mut owner,
+    )
+    .unwrap();
+    let root = owner.as_mut().unwrap();
+    root.confirm_created().unwrap();
+    let original = GitPrivateAllocation::from_file(root.as_file()).unwrap();
+    let failure = std::fs::rename(parent.join("original"), parent.join("moved")).unwrap_err();
+    assert_eq!(
+        failure.raw_os_error(),
+        Some(windows_sys::Win32::Foundation::ERROR_SHARING_VIOLATION as i32)
+    );
+    // 只释放创建阶段的父租约；原文件对象 owner 仍持有全部128位身份与anchor。
+    drop(lease);
+    std::fs::rename(parent.join("original"), parent.join("moved")).unwrap();
+    root.confirm_created().unwrap();
+    assert!(original.same_identity(&GitPrivateAllocation::capture(&parent.join("moved")).unwrap()));
+    let reopened = root.reopen_for_delete().unwrap();
+    assert!(original.same_identity(&GitPrivateAllocation::from_file(&reopened).unwrap()));
 }

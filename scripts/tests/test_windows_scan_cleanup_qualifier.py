@@ -128,6 +128,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             "original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease",
             "moved_root_reopen_ignores_junction_replacement_and_preserves_external_target",
             "original_share_read_lease_blocks_delete_reopen_until_released",
+            "held_parent_lease_blocks_move_until_creation_phase_is_released",
         )]
         qualifier.check_atomic_root_cases(valid)
         for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.MISSING_NAME_CASES)):
