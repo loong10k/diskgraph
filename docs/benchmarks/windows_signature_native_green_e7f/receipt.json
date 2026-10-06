@@ -1,0 +1,33 @@
+{
+  "source": "e7f16fff9bd158179cceb48632af90ba618c2651",
+  "run": 37485522359,
+  "jobs": [
+    112345124266,
+    112345124765
+  ],
+  "component_acceptance": "suspended birth signature flags and original owner cleanup",
+  "production_acceptance": false,
+  "cases": [
+    {
+      "artifact": "windows-signature-policy-1.97.0-37485522359",
+      "raw_bytes": 702,
+      "raw_sha256": "5188c12933a6f4638538529673c58993d9c5c75fb4c81cd6efc56cefe2683aa8",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "artifact": "windows-signature-policy-stable-37485522359",
+      "raw_bytes": 702,
+      "raw_sha256": "0c3346d9a385ceb2a6f566e1be30846139cb1fc41f9212ce8b6f1934a72cf09d",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "remaining": [
+    "actual resumed unsigned DLL rejection and System32 dependency positive control",
+    "normal native scan worker and Windows Runtime integration",
+    "complete source-current full workspace and packaging"
+  ]
+}

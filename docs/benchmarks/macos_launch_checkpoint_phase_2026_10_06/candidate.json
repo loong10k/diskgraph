@@ -1,0 +1,31 @@
+{
+  "production_acceptance": false,
+  "red": {
+    "source": "e7f16fff9bd158179cceb48632af90ba618c2651",
+    "run": 37485522359,
+    "job": 112345124353,
+    "expiry_seconds": 3,
+    "observed": "PermissionDenied before native observation, 3.12s"
+  },
+  "change": "use original business checkpoint through locked installation launch; wrap epoch checks after actual launch",
+  "preserved": [
+    "full held-image digest and namespace/identity checks",
+    "installation update lock through native birth",
+    "active settings before and after digest",
+    "business authority/fence/cancel at every check",
+    "per-poll epoch check after birth",
+    "3-second native regression unchanged"
+  ],
+  "local": {
+    "driver": 12,
+    "installation_lease": 6,
+    "source_layout": 6,
+    "strict_clippy": true
+  },
+  "native": "pending",
+  "diagnostics": {
+    "Windows_package": "two unused private API groups; not resolved",
+    "Linux_Kotlin": "Maven HTTP 500 for Kotlin compiler; host never executed; not counted as passing"
+  },
+  "source_sha256": "d20f760c687ac9bbbcd52666e75ba85769568a6bc75e83535c7c1c27c0dee443"
+}

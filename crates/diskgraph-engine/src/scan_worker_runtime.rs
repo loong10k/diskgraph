@@ -59,15 +59,6 @@ impl<'a> ScanWorkerRuntime<'a> {
         let mut unwind_owner = None;
         let mut launched: Option<ScanWorkerChild> = None;
         let mut driver: Option<ScanWorkerDriver> = None;
-        // 原授权检查先执行；macOS每次协议检查重新确认安装代，变化进入同一dispose/Recovery路径。
-        #[cfg(target_os = "macos")]
-        let mut epoch_checkpoint = || {
-            self.host
-                .authorize_macos_epoch(self.deadline, &mut *checkpoint)
-                .map(|_| ())
-        };
-        #[cfg(target_os = "macos")]
-        let checkpoint = &mut epoch_checkpoint;
         let observed = catch_unwind(AssertUnwindSafe(|| {
             checkpoint()?;
             self.check_clock()?;
@@ -79,6 +70,16 @@ impl<'a> ScanWorkerRuntime<'a> {
                     .as_mut()
                     .expect("original launched child is owned outside catch"),
             );
+            // 出生前启动器持更新锁并在摘要前后核对安装代；保留原业务检查，
+            // 不在每个摘要块中嵌套重复读取安装配置。出生后协议阶段逐轮检查安装代。
+            #[cfg(target_os = "macos")]
+            let mut epoch_checkpoint = || {
+                self.host
+                    .authorize_macos_epoch(self.deadline, &mut *checkpoint)
+                    .map(|_| ())
+            };
+            #[cfg(target_os = "macos")]
+            let checkpoint = &mut epoch_checkpoint;
             match ScanWorkerDriver::new(
                 &mut launched,
                 request,

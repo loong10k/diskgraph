@@ -1,0 +1,150 @@
+{
+  "source": "e7f16fff9bd158179cceb48632af90ba618c2651",
+  "run": 37485549136,
+  "measurement_conclusion": "success",
+  "production_acceptance": false,
+  "receipt_artifact_hashes_verified": true,
+  "result": "20k/200k throughput regression removed; deep fixed-process startup overhead remains; no strict RSS claim",
+  "rows": [
+    {
+      "case": "20000-wide",
+      "round": 1,
+      "baseline_scan_seconds": 3.243469346,
+      "candidate_scan_seconds": 3.312301904,
+      "scan_ratio": 1.0212218925654062,
+      "candidate_scan_parent_rss_bytes": 43462656,
+      "candidate_scan_child_rss_bytes": 8167424,
+      "top20_p95_ms": 0.66067,
+      "four_readers_p95_ms": [
+        3.431745,
+        3.7418769999999997,
+        3.5607870000000004,
+        3.77044
+      ],
+      "database_bytes": 63381504,
+      "wal_bytes": 12392,
+      "native_qualified": true,
+      "captured_files": 20000,
+      "qualification_gaps": 0
+    },
+    {
+      "case": "20000-wide",
+      "round": 2,
+      "baseline_scan_seconds": 3.202279481,
+      "candidate_scan_seconds": 3.289917092,
+      "scan_ratio": 1.0273672587043003,
+      "candidate_scan_parent_rss_bytes": 43462656,
+      "candidate_scan_child_rss_bytes": 8142848,
+      "top20_p95_ms": 0.6758460000000001,
+      "four_readers_p95_ms": [
+        3.7096080000000002,
+        3.685113,
+        3.634037,
+        3.835494
+      ],
+      "database_bytes": 63381504,
+      "wal_bytes": 12392,
+      "native_qualified": true,
+      "captured_files": 20000,
+      "qualification_gaps": 0
+    },
+    {
+      "case": "200000-wide",
+      "round": 1,
+      "baseline_scan_seconds": 34.947494126,
+      "candidate_scan_seconds": 33.833149623,
+      "scan_ratio": 0.9681137509035029,
+      "candidate_scan_parent_rss_bytes": 217161728,
+      "candidate_scan_child_rss_bytes": 58322944,
+      "top20_p95_ms": 0.66238,
+      "four_readers_p95_ms": [
+        3.6166929999999997,
+        3.630299,
+        3.742308,
+        3.668059
+      ],
+      "database_bytes": 636403712,
+      "wal_bytes": 12392,
+      "native_qualified": true,
+      "captured_files": 200000,
+      "qualification_gaps": 0
+    },
+    {
+      "case": "200000-wide",
+      "round": 2,
+      "baseline_scan_seconds": 34.222236783,
+      "candidate_scan_seconds": 33.879365268,
+      "scan_ratio": 0.9899810314219344,
+      "candidate_scan_parent_rss_bytes": 217272320,
+      "candidate_scan_child_rss_bytes": 57167872,
+      "top20_p95_ms": 0.687428,
+      "four_readers_p95_ms": [
+        3.63137,
+        3.538158,
+        3.672357,
+        3.626691
+      ],
+      "database_bytes": 636403712,
+      "wal_bytes": 12392,
+      "native_qualified": true,
+      "captured_files": 200000,
+      "qualification_gaps": 0
+    },
+    {
+      "case": "300-deep",
+      "round": 1,
+      "baseline_scan_seconds": 0.108580924,
+      "candidate_scan_seconds": 0.140454323,
+      "scan_ratio": 1.293545107426052,
+      "candidate_scan_parent_rss_bytes": 43462656,
+      "candidate_scan_child_rss_bytes": 3223552,
+      "top20_p95_ms": 0.62995,
+      "four_readers_p95_ms": [
+        3.634095,
+        3.5873340000000002,
+        3.702061,
+        3.934887
+      ],
+      "database_bytes": 3387392,
+      "wal_bytes": 12392,
+      "native_qualified": true,
+      "captured_files": 300,
+      "qualification_gaps": 0
+    },
+    {
+      "case": "300-deep",
+      "round": 2,
+      "baseline_scan_seconds": 0.10856234,
+      "candidate_scan_seconds": 0.139712074,
+      "scan_ratio": 1.2869294637532684,
+      "candidate_scan_parent_rss_bytes": 43462656,
+      "candidate_scan_child_rss_bytes": 3121152,
+      "top20_p95_ms": 0.635109,
+      "four_readers_p95_ms": [
+        3.872331,
+        3.6321399999999997,
+        3.809023,
+        3.689004
+      ],
+      "database_bytes": 3387392,
+      "wal_bytes": 12392,
+      "native_qualified": true,
+      "captured_files": 300,
+      "qualification_gaps": 0
+    }
+  ],
+  "large_artifacts_retained_externally": [
+    {
+      "artifact": "baseline-archive.stdout",
+      "bytes": 18616320,
+      "sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+      "retained_in": "GitHub 37485549136 artifact and /private/tmp/dg-paired-e7f"
+    },
+    {
+      "artifact": "candidate-archive.stdout",
+      "bytes": 106311680,
+      "sha256": "a07cffc8ec0adcf7f74649c101beb8d906748a109888172349dbf8ac2e0c6f6b",
+      "retained_in": "GitHub 37485549136 artifact and /private/tmp/dg-paired-e7f"
+    }
+  ]
+}
