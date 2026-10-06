@@ -118,10 +118,10 @@ fn end_and_pipe_eof_do_not_permit_reaping_a_live_leader() {
     fixture::drain(&mut child, false);
     assert!(child.stdout_eof() && child.stderr_eof());
     assert!(!child.poll().unwrap());
-    assert!(!child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
+    assert_active_platform_permission(&mut child);
     fixture::advancing(directory.path());
     fixture::release(directory.path());
-    fixture::finish(&mut child);
+    finish_on_platform(&mut child);
     assert_eq!(child.exit_code(), Some(0));
     fixture::reaped(pid);
 }
@@ -142,15 +142,24 @@ fn exited_retained_leader_and_eof_do_not_hide_a_live_ordinary_descendant() {
     );
     fixture::drain(&mut child, true);
     fixture::retained(pid);
-    assert!(!child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
+    assert_active_platform_permission(&mut child);
     fixture::retained(pid);
     fixture::advancing(&leaf);
     fixture::release(&leaf);
-    assert!(fixture::finish(&mut child) >= 2);
+    #[cfg(target_os = "macos")]
+    assert!(finish_on_platform(&mut child) >= 2);
+    #[cfg(not(target_os = "macos"))]
+    finish_on_platform(&mut child);
     assert_eq!(child.exit_code(), Some(0));
     fixture::reaped(pid);
     // 成功后的缓存许可不再对已可复用的数值 PGID 操作；重复调用保持同一事实。
+    #[cfg(target_os = "macos")]
     assert!(child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
+    #[cfg(not(target_os = "macos"))]
+    assert!(matches!(
+        child.poll_normal_exit(|| Ok::<(), ()>(())),
+        Err(ChildSpawnError::Operation(ChildError::Unsupported(_)))
+    ));
     child.cleanup().unwrap();
     fixture::reaped(pid);
 }
@@ -183,7 +192,7 @@ fn checkpoint_primary_is_non_clone_and_does_not_terminate_a_live_group() {
     let leaf = directory.path().join("leaf");
     fixture::advancing(&leaf);
     fixture::release(&leaf);
-    fixture::finish(&mut child);
+    finish_on_platform(&mut child);
     fixture::reaped(pid);
 }
 
@@ -208,12 +217,29 @@ fn later_checkpoint_error_does_not_consume_the_retained_leader() {
             }
         })
         .unwrap_err();
-    assert_eq!(calls, 2);
-    assert!(
-        matches!(error, ChildSpawnError::Checkpoint { primary, cleanup: None } if primary.kind() == io::ErrorKind::Interrupted && primary.to_string() == "original-deadline")
-    );
+    #[cfg(target_os = "macos")]
+    {
+        assert_eq!(calls, 2);
+        assert!(
+            matches!(error, ChildSpawnError::Checkpoint { primary, cleanup: None }
+            if primary.kind() == io::ErrorKind::Interrupted && primary.to_string() == "original-deadline")
+        );
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        assert_eq!(
+            calls, 1,
+            "unsupported platform must reject before final wait authorization"
+        );
+        assert!(matches!(
+            error,
+            ChildSpawnError::Operation(ChildError::Unsupported(
+                "complete normal process-group view is unavailable on this Unix platform"
+            ))
+        ));
+    }
     fixture::retained(pid);
-    fixture::finish(&mut child);
+    finish_on_platform(&mut child);
     fixture::reaped(pid);
 }
 
@@ -231,8 +257,8 @@ fn two_sessions_have_independent_normal_exit_permissions() {
     assert_ne!(live_pid, done_pid);
     done.request_control_close().unwrap();
     fixture::drain(&mut done, true);
-    assert!(!live.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
-    fixture::finish(&mut done);
+    assert_active_platform_permission(&mut live);
+    finish_on_platform(&mut done);
     assert_eq!(done.exit_code(), Some(7));
     fixture::reaped(done_pid);
     drop(done);
@@ -240,7 +266,7 @@ fn two_sessions_have_independent_normal_exit_permissions() {
     fixture::retained(live_pid);
     fixture::advancing(&leaf);
     fixture::release(&leaf);
-    fixture::finish(&mut live);
+    finish_on_platform(&mut live);
     fixture::reaped(live_pid);
 }
 
@@ -282,6 +308,17 @@ fn external_reap_refuses_cleanup_completion(late_reap: bool) {
                 if native.native_io_error().is_some_and(|original|
                     original.raw_os_error() == Some(libc::ECHILD)))
         );
+        #[cfg(not(target_os = "macos"))]
+        {
+            // 此平台的 normal 资格拒绝早于 leader 观察；首次清理须保留真正 ECHILD。
+            // 观察失权后，下面原有三次重试仍必须拒绝，不能静默回收或操作旧数值组。
+            let first_cleanup = child.cleanup().unwrap_err();
+            assert!(
+                first_cleanup
+                    .native_io_error()
+                    .is_some_and(|original| original.raw_os_error() == Some(libc::ECHILD))
+            );
+        }
     }
     for _ in 0..3 {
         assert!(
@@ -386,5 +423,52 @@ fn deadline_drain_group_failure_and_late_reap_keep_original_slot_on_every_retry(
             assert_eq!(registry.occupied().unwrap(), 0);
         }
         fixture::reaped(pid);
+    }
+}
+
+// 原用例在各平台仍实际创建/观察独立会话，绝不 cfg 跳过旧 Linux 失败。
+// Mac 保留整组 normal 正控，其他 Unix 明确验证资格门禁早于最终等待检查。
+fn assert_active_platform_permission(child: &mut UnixChild) {
+    #[cfg(target_os = "macos")]
+    assert!(!child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
+    #[cfg(not(target_os = "macos"))]
+    {
+        let mut calls = 0;
+        let error = child
+            .poll_normal_exit(|| {
+                calls += 1;
+                Ok::<(), ()>(())
+            })
+            .unwrap_err();
+        assert_eq!(calls, 1);
+        assert!(matches!(
+            error,
+            ChildSpawnError::Operation(ChildError::Unsupported(
+                "complete normal process-group view is unavailable on this Unix platform"
+            ))
+        ));
+    }
+}
+
+fn finish_on_platform(child: &mut UnixChild) -> usize {
+    #[cfg(target_os = "macos")]
+    {
+        fixture::finish(child)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        // finished 标记早于实际进程退出；先 WNOWAIT 观察，避免异常清理抢杀自然收尾。
+        let end = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        while !child.poll().unwrap() {
+            assert!(
+                std::time::Instant::now() < end,
+                "original leader did not finish naturally"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+        // 仅用旧受信清理真实 wait，不冒称获得正常许可。
+        assert_active_platform_permission(child);
+        child.cleanup().unwrap();
+        0
     }
 }

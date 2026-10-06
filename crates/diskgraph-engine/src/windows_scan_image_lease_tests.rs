@@ -145,6 +145,10 @@ fn verified_image_keeps_its_parent_name_bound_until_material_release() {
     let expected =
         ScanWorkerHostConfig::from_expected_image(Sha256::digest(BYTES).into(), BYTES.len() as u64)
             .unwrap();
+    // 同一 rename 在没有文件/目录租约时必须先成功，排除目录自身的权限拒绝。
+    let moved = directory.path().join("moved");
+    std::fs::rename(&parent, &moved).unwrap();
+    std::fs::rename(&moved, &parent).unwrap();
     let deadline = Instant::now() + Duration::from_secs(5);
     let lease = WindowsScanImageLease::prepare(
         File::open(&path).unwrap(),
@@ -153,11 +157,14 @@ fn verified_image_keeps_its_parent_name_bound_until_material_release() {
         &mut || Ok(()),
     )
     .unwrap();
-    let moved = directory.path().join("moved");
-    assert_eq!(
-        std::fs::rename(&parent, &moved).unwrap_err().raw_os_error(),
-        Some(32)
+    let error = std::fs::rename(&parent, &moved).unwrap_err();
+    // Windows 对打开子项的目录 rename 可返回 ACCESS_DENIED；只接受两种明确拒绝。
+    assert!(
+        matches!(error.raw_os_error(), Some(5 | 32)),
+        "unexpected rename error: {error}"
     );
+    assert!(parent.is_dir());
+    assert!(!moved.exists());
     lease.validate(deadline, &mut || Ok(())).unwrap();
     assert_eq!(std::fs::read(&path).unwrap(), BYTES);
     drop(lease);

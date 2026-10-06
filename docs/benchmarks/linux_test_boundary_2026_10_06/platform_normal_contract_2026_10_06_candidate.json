@@ -1,0 +1,67 @@
+{
+  "verified_sha": "b20c88d88aba7ab7d64b5a628532058d81f9c8a3",
+  "ci_run": 37459156304,
+  "linux_normal_wait_native_green": {
+    "stable": {
+      "passed": 4,
+      "failed": 0,
+      "artifact_digests": [
+        "f155b4cbc87dbb349a9d5191b0e237ea8ef8305e3b5c2eb7c0abb992ad0cfda7  crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c",
+        "85227b3d774e046794247d8cb7acbea7e8a2b1a91b0081166a5dabedf0a39a22  /home/runner/work/_temp/diskgraph-linux-atomic-launch-fixture",
+        "5cbb026c44ac53d74345db97b71c1f58d93d72336acd839f749abad2de4b1d18  /home/runner/work/_temp/diskgraph-linux-atomic-launch-replacement"
+      ]
+    },
+    "msrv": {
+      "passed": 4,
+      "failed": 0,
+      "artifact_digests": [
+        "f155b4cbc87dbb349a9d5191b0e237ea8ef8305e3b5c2eb7c0abb992ad0cfda7  crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c",
+        "85227b3d774e046794247d8cb7acbea7e8a2b1a91b0081166a5dabedf0a39a22  /home/runner/work/_temp/diskgraph-linux-atomic-launch-fixture",
+        "5cbb026c44ac53d74345db97b71c1f58d93d72336acd839f749abad2de4b1d18  /home/runner/work/_temp/diskgraph-linux-atomic-launch-replacement"
+      ]
+    },
+    "arm": {
+      "passed": 4,
+      "failed": 0,
+      "artifact_digests": [
+        "f155b4cbc87dbb349a9d5191b0e237ea8ef8305e3b5c2eb7c0abb992ad0cfda7  crates/diskgraph-engine/tests/fixtures/linux_atomic_launcher_fixture.c",
+        "d7f82c10733999460ccbdff76632d89debbb9a406f956c21624bc1508ece0739  /home/runner/work/_temp/diskgraph-linux-atomic-launch-fixture",
+        "1bb6b803d808141ea32b83cf141d33479dbdf12786a9f48260290a9984097b55  /home/runner/work/_temp/diskgraph-linux-atomic-launch-replacement"
+      ]
+    }
+  },
+  "windows_material": {
+    "job": 112254067989,
+    "passed": 7,
+    "failed": 1,
+    "failure": "parent rename denial is native ERROR_ACCESS_DENIED(5), not test-assumed sharing violation(32)",
+    "production_defect_proven": false,
+    "test_refinement": "unleased same-operation positive before lease, 5/32 restricted denial with bound namespace, same-operation positive after release",
+    "refined_native_green": false
+  },
+  "legacy_unix_contract_changes": {
+    "cases_skipped": 0,
+    "new_ignored": 0,
+    "native_green_proven": false,
+    "macos_original_assertions_retained": true,
+    "linux_existing_cases_exercise_real_platform_denial": true
+  },
+  "local_platform": "aarch64-apple-darwin",
+  "local_results": {
+    "macos_normal": {
+      "passed": 10,
+      "failed": 0
+    },
+    "layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "fmt_exit": 0
+  },
+  "production_acceptance": false,
+  "delivery_source_sha256": {
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "73ac37c224ce71d5439770696a34ead0149342c0848db498dd34a1d71ea5b6d7",
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_test_support.rs": "5fbb0cd9e9a19ce1272e3ca338a08759f5d0a50bf3b9add66fa305ef6e38bc60",
+    "crates/diskgraph-engine/src/windows_scan_image_lease_tests.rs": "e0f839cf57ca3b5a39473ae7000f8480236502da68b697dd118683a587fcae37"
+  }
+}

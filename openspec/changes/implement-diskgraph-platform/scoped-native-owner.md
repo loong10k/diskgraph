@@ -51,3 +51,13 @@ Linux 使用原子 pidfd/限制派生的线程组执行器，不为旧 Unix 数�
 Windows CI 在完整产品 Build 前增加正常 --lib 原生单元边界：执行现有八项镜像材料与两项实际目录清理回归，stable/MSRV 均沿用全局 -D warnings。未复制或屏蔽产品源码，不关闭 lint；完整 workspace Build、全量测试及 Clippy 仍是生产必需门禁。此前置运行仅为取得实际行为证据，不能把产品构建中的未接线能力声明为完成。
 
 Linux e29153a 的实际 stable x86 CI run 37457793565/job 112249560997 中，新四案为 3 passed/1 failed。目标 final_pre_wait_checkpoint_failure_retains_original_wait_and_nonclone_primary 在明确断言“final authorization must precede original pidfd wait”失败，已证明原 wait 被提前消费，非编译/夹具/平台不可用失败。现于 reap_normal 之前补同次 checkpoint，同时保留方法入口及消费后原检查；修复后的 Linux GREEN 待同 SHA 原生 CI，不能以本机 macOS cfg 结果替代。旧六项 Unix 契约差异和 FFI 全量失败仍保持开放。
+
+
+旧 Unix 非 macOS 正常接口在平台资格门禁处返回 Unsupported，尚未观察原 leader，因此不能把它解释成已经记录 ECHILD。真实外部 wait 消费后，首次兼容清理必须实际观察并保留原 ECHILD，立即撤销旧数值组清理资格；其后重复清理必须拒绝 Unsupported。原 macOS 已在正常观察发现失权时的断言不改。该测试校正不授予 Linux 旧正常回收能力，也不替代 Linux pidfd 正控验收。
+
+
+Linux b20c88d 的 actual x86_64 stable 原生四案全部通过；原 RED 3/1 与 GREEN 4/0 已绑定同一固定 C fixture 源码与实际 ELF 摘要。按已验证的 pidfd 正控，旧 Unix 五项测试仍在 Linux 实际创建/观察原会话，但明确验证旧数值组 normal 的 Unsupported 资格门禁；Mac 保留原 active/后代/nonclone/等待前检查/独立会话正控及实际 normal wait，未增加 ignored 或按 cfg 跳过用例。Linux 旧测试释放后只使用受信异常清理真实等待，不声明为 normal 许可。新五项 Linux 平台负控与完整 Engine GREEN 仍待本次原生 CI。
+
+Windows b20c88d stable 原镜像材料实际 7 passed/1 failed：父目录 rename 被拒绝为 ERROR_ACCESS_DENIED(5)，仅测试假设的 ERROR_SHARING_VIOLATION(32) 不符，非租约失效。修订同案加入租约前同一 rename 往返正控、原名称与目标缺名检查，租约期间仅接受 5/32 两种拒绝，释放后同操作须成功；叶写/替换的原 32 断言保持。修订后 native GREEN 待 CI，目录清理因前置失败尚未执行；不据此启用 Windows 扫描。
+
+Linux 同一 b20c88d/37459156304 的 x86_64 stable、x86_64 Rust 1.97 与 ARM stable 三组原生四案均 4/0，已逐一核对固定 fixture 源码摘要，原始日志/实际 ELF 摘要保存在 [平台契约记录](../../../docs/benchmarks/linux_test_boundary_2026_10_06/platform_normal_contract_2026_10_06_candidate.json) 同目录。本次旧契约和 Windows 错误码校正，本机 Mac 原正常退出 10/10、结构 6/6、fmt 通过；Linux 全量/Windows 修订后的 native 结果仍未取得。

@@ -128,6 +128,7 @@ pub(super) fn release(directory: &Path) {
 }
 
 /// 借同一调用方检查轮询正常许可，绝不 SIGKILL；参数：child 为原 owner；返回：实际 normal/reap 后检查次数。
+#[cfg(target_os = "macos")]
 pub(super) fn finish(child: &mut UnixChild) -> usize {
     let started = Instant::now();
     let mut calls = 0;
