@@ -1,0 +1,21 @@
+{
+  "commit": "b26b25151fecc9eb505868a40f686b1448f6991b",
+  "run": 37462998090,
+  "job": 112266958885,
+  "platform": "windows-latest / Rust stable",
+  "image_material": {
+    "passed": 8,
+    "failed": 0
+  },
+  "product_cleanup": {
+    "passed": 4,
+    "failed": 0,
+    "moved_original_deleted_foreign_replacement_preserved": true,
+    "registered_tree_deleted": true,
+    "unregistered_foreign_children_retained": true,
+    "unrelated_sibling_names_not_pinned": true
+  },
+  "production_build": "failed: five existing unintegrated scan startup groups",
+  "production_ready": false,
+  "scope": "Actual product Git directory cleanup; does not qualify scan execution, hard OS deadlines or whole-platform production."
+}
