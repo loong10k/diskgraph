@@ -1,7 +1,7 @@
 //! 部署配置的信任边界回归；来源：PF-06 本地宿主配置，非执行资格测试。
 use crate::scan_worker_settings::ScanWorkerSettings;
+use crate::{EngineError, ScanWorkerInstallation};
 use diskgraph_core::BusinessError;
-use diskgraph_engine::{EngineError, ScanWorkerInstallation};
 use sha2::{Digest, Sha256};
 use std::ffi::OsString;
 use std::time::{Duration, Instant};
@@ -15,8 +15,8 @@ fn settings(values: [Option<OsString>; 3]) -> Result<Option<ScanWorkerSettings>,
     })
 }
 
-fn runtime() -> diskgraph_engine::ScanWorkerRuntimeBudget {
-    diskgraph_engine::ScanWorkerRuntimeBudget::new(
+fn runtime() -> crate::ScanWorkerRuntimeBudget {
+    crate::ScanWorkerRuntimeBudget::new(
         diskgraph_scan_worker::ProtocolLimits {
             max_frame_bytes: 64 << 10,
             max_stream_bytes: 8 << 20,
@@ -172,8 +172,7 @@ fn unified_host_never_resets_deadline_after_lookup() {
 fn unified_macos_absent_environment_uses_fixed_installation_semantics() {
     // 只读真实固定位置；无配置必须为None，存在/损坏必须与真实Engine准入一致，不能假定机器未安装。
     let deadline = Instant::now() + Duration::from_secs(10);
-    let direct =
-        diskgraph_engine::ScanWorkerHost::from_installed_macos(runtime(), deadline, &mut || Ok(()));
+    let direct = crate::ScanWorkerHost::from_installed_macos(runtime(), deadline, &mut || Ok(()));
     let unified =
         ScanWorkerSettings::host_from_lookup(runtime(), deadline, &mut || Ok(()), |_| None);
     match (direct, unified) {

@@ -1,8 +1,8 @@
-//! 真实 CLI 的合法宿主材料及空恢复路径；来源：PF-06，不证明 helper 执行资格。
+//! 真实CLI部署材料的平台准入与空恢复；来源：PF-06，不证明helper执行资格。
 use std::process::{Command, Stdio};
 
 #[test]
-fn valid_material_permits_actual_doctor_and_empty_recovery() {
+fn ordinary_image_material_follows_the_platform_admission_contract() {
     let directory = tempfile::tempdir().unwrap();
     let image = directory.path().join("ordinary_image");
     std::fs::write(&image, b"abc").unwrap();
@@ -20,6 +20,15 @@ fn valid_material_permits_actual_doctor_and_empty_recovery() {
         .stdin(Stdio::null())
         .output()
         .unwrap();
+    if cfg!(target_os = "macos") {
+        // macOS固定安装契约禁止完整旧环境授予普通路径资格，失败须先于数据库创建。
+        assert!(!result.status.success());
+        let reply: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+        assert_eq!(reply["ok"], false);
+        assert_eq!(reply["error"]["code"], "unsupported");
+        assert!(!data.exists());
+        return;
+    }
     assert!(result.status.success());
     let reply: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
     assert_eq!(reply["ok"], true);

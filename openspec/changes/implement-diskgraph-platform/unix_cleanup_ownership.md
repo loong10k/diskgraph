@@ -140,3 +140,12 @@ Git用例在Linux复用现有真实NativeScanEngine，唯一Recovery保持至Eng
 本机定向10/0、Store结构1/0、排除vendor的fmt与Store all-targets严格Clippy通过；全Store lib回归结果另列，不以本机结果替代Linux原生。此前性能配对脚本固定旧baseline尚无现有ScanWorker API，当前harness仍用旧Engine::open，不能从该入口声称新架构20k/200k验收；完整性能和所有全平台父项继续开放。
 
 本机Store完整lib实际终态291通过、0失败、1 ignored（135.94s），原日志enqueue-independent-request-store-lib.log.gz保留；ignored不计通过，跨平台原生仍待提交验收。
+
+
+## 共享可信部署入口的层级
+
+生产只读CLI/MCP与既有库兼容入口应复用同一不可变部署解析及平台准入。当前ScanWorkerSettings定义在MCP，底层Engine无法复用；将真实实现与其全部测试移至Engine，MCP保持旧公开类型重导出，CLI改为底层导入。只移动实现所有权，不放宽macOS固定安装或Linux/Windows独立预期验证，不增加隐式镜像探测或远程请求选镜像能力。FFI公开扫描接入与有限恢复尚未由该层级修复完成，父任务保持开放。
+
+Engine新导出API在原源码实际编译RED（E0432），迁移后原对象/方法正文除导入、格式和中文doc冒号外一致；原31个测试assert片段保持。原部署15/0、Engine结构6/0、MCP真实类型兼容/二进制配置/启动/结构四目标合计19/0，本机CLI all-targets check通过，既有macOS Engine20条未接入组件警告未隐藏。结构初次5/1因两个doc契约格式失败，按原要求补齐后6/0；fmt的模块顺序RED也保留后纠正。
+
+CLI entry与binary配置6/0，旧host lifecycle用例在macOS明确违反固定安装契约而实际失败；保留Linux/Windows原成功断言，macOS实际CLI要求unsupported、ok=false且未创建数据库，新平台准入1/0。这是拒绝普通路径的负向证明，不能充当macOS固定安装成功验收。最终fmt通过，记录见shared-deployment-*.log.gz；不修改生产限额、危险能力或任何父任务checkbox。f9b1890三Linux lane前置已越过原期限夹具，当前真实全量Test仍运行，没有由观察超时重启。

@@ -55,8 +55,6 @@ mod mcp_config;
 mod mcp_service;
 mod relation_tools;
 mod scan_worker_settings;
-#[cfg(test)]
-mod scan_worker_settings_tests;
 mod scope_access;
 mod service_dispatch;
 mod service_identity;

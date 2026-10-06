@@ -161,6 +161,9 @@ mod scan_worker_runtime;
 mod scan_worker_runtime_budget;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod scan_worker_runtime_hooks;
+mod scan_worker_settings;
+#[cfg(test)]
+mod scan_worker_settings_tests;
 mod scope_service;
 mod scoped_content;
 #[cfg(not(windows))]
@@ -215,6 +218,7 @@ pub use scan_worker_host_config::ScanWorkerHostConfig;
 pub use scan_worker_installation::ScanWorkerInstallation;
 pub use scan_worker_recovery::ScanWorkerRecovery;
 pub use scan_worker_runtime_budget::ScanWorkerRuntimeBudget;
+pub use scan_worker_settings::ScanWorkerSettings;
 pub use verify_limits::VerifyLimits;
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use diskgraph_engine::{
     Engine, EngineConfig, EngineError, ScanWorkerRecovery, ScanWorkerRuntimeBudget,
+    ScanWorkerSettings,
 };
-use diskgraph_mcp::ScanWorkerSettings;
 use diskgraph_scan_worker::ProtocolLimits;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
