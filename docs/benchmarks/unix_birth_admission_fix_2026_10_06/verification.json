@@ -1,0 +1,27 @@
+{
+  "production_ready": false,
+  "red_observed_before_fix": true,
+  "native_child_default_parallel": {
+    "passed": 39,
+    "failed": 0,
+    "ignored": 0
+  },
+  "probe_regression": {
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0
+  },
+  "qualifier_guards_passed": 29,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "5279d81b76aae5dec10c3495499d4e31e21d2a96b3994d2b7cda59b325ef4b62",
+    "crates/diskgraph-engine/src/native_child/unix_child_spawn.rs": "fc3d44b5655ef447487f571a771e9807d3ae450f27dec63c0222e46bb5dfbb08",
+    "crates/diskgraph-engine/src/native_child/native_birth_gate_tests.rs": "668d38e8ce87660b000f8fe1ab7e3880a37dee576fbb89d33f2b1907fae1d7c6",
+    "crates/diskgraph-engine/src/live_evidence/unix_probe_child.rs": "8a83f6d831cf9bc04bb92f02a360c946b29c10f782ce886f4a8b22d2fa609048"
+  },
+  "remaining": [
+    "macOS ARM/Intel current candidate native CI",
+    "Windows trusted scanning and cleanup integration",
+    "full workspace and strict gates",
+    "current full performance measurements"
+  ]
+}

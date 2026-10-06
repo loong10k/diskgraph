@@ -44,7 +44,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 596)
+        self.assertEqual(len(manifest["sources"]), 597)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
         self.assertEqual(manifest["fixture_features"], ["macos_native_scan_candidate"])
@@ -146,3 +146,16 @@ class MacosInstalledQualifierTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NativeBirthParallelGuardTests(unittest.TestCase):
+    def test_requires_actual_named_cases_and_complete_parallel_subset(self):
+        output = "\n".join("test " + case + " ... ok" for case in qualifier.NATIVE_BIRTH_REGRESSION_CASES)
+        output += "\ntest result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 520 filtered out;"
+        qualifier.check_native_birth_regression(output)
+        for invalid in ("", output.replace("39 passed", "0 passed"),
+                        output.replace("0 ignored", "1 ignored"),
+                        output.replace("0 failed", "1 failed"),
+                        output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[0], "fake_case")):
+            with self.assertRaises(RuntimeError):
+                qualifier.check_native_birth_regression(invalid)

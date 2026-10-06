@@ -42,6 +42,23 @@ def check_cli_regression(stdout):
             raise RuntimeError("required original CLI scan regression missing: " + case)
 
 
+NATIVE_BIRTH_REGRESSION_CASES = (
+    "native_child::native_birth_gate_tests::contended_legacy_birth_keeps_postbirth_checkpoint_after_actual_creation",
+    "native_child::native_birth_gate_tests::contended_admission_rejection_does_not_advance_lifecycle_callback",
+    "native_child::unix_control_input_tests::explicit_null_preserves_two_checkpoints_and_all_control_methods_are_unsupported",
+    "native_child::unix_control_input_tests::worker_control_checkpoint_failure_keeps_original_non_clone_error_and_real_reap",
+)
+
+
+def check_native_birth_regression(stdout):
+    """实际默认并行运行完整 native_child 子集；保留零忽略与原失败/新竞争用例。"""
+    if "test result: ok. 39 passed; 0 failed; 0 ignored;" not in stdout:
+        raise RuntimeError("parallel native child regression did not execute all 39 cases")
+    for case in NATIVE_BIRTH_REGRESSION_CASES:
+        if "test " + case + " ... ok" not in stdout:
+            raise RuntimeError("required native birth regression missing: " + case)
+
+
 MCP_SCAN_REGRESSION_CASES = (
     'history_budget_tests::encoded_socket_history_rechecks_both_scope_sides',
     'history_budget_tests::encoded_socket_history_rechecks_both_grant_sides',
@@ -225,6 +242,12 @@ def main():
             if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text():
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
+        if manifest.get("native_child_parallel_tests_required") != 39:
+            raise ValueError("candidate parallel birth regression inventory differs")
+        invoke([str(binary), "native_child::", "--nocapture"],
+               checkout, output, "native-child-parallel-regression", env)
+        check_native_birth_regression((output / "native-child-parallel-regression.stdout").read_text())
+        receipt["native_child_parallel_regression_tests_passed"] = 39
         if manifest.get("product_flows") != ["cli_init_node", "mcp_stdio_index_status_node", "cli_observes_mcp_revision"]:
             raise ValueError("actual product flow inventory differs")
         invoke(["cargo", "build", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp", "--features", "diskgraph-engine/macos_native_scan_candidate"],
