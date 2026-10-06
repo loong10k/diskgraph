@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "7d6965b34a02e5f24fd4aef36d197fd321776a0bb74b8041aa1e9859bbc6fc79",
+  "archive_sha256": "350dfb950d3be4c51e8d56ff378703005d712ad1bf19eda787f26b870a2cd74b",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -11,7 +11,8 @@
     "crates/diskgraph-cli/src/authorization.rs": "174d5226f8b853090b4adeff1e06b582450b3ba09aa1398c0470900536f19118",
     "crates/diskgraph-cli/src/candidate_commands.rs": "2d154c1ab0c1c5fe261040f955814c2a00fbdb34e4d0eac4daccb3453d0f56a2",
     "crates/diskgraph-cli/src/cli.rs": "0036644dedefee3b8b89ff4b0b8f8b0eed9da538e33cae3461383f8a673caa24",
-    "crates/diskgraph-cli/src/cli_engine_host.rs": "0972f680bf96e03cb4f27881f6c9c416d86b168f0cfdfccbdded1e09555c2868",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "de6526eccd146e7945b4fc7b1d3d01fb0542695c643f28ad42a61c0543308114",
+    "crates/diskgraph-cli/src/cli_engine_host/test_engine.rs": "112e370a423e730532a0600f9215dd38a9184f465981dadfa674c50ab692a555",
     "crates/diskgraph-cli/src/cli_engine_host/tests.rs": "7564ffd887aae51a9c4d6cf1fc1ff6bea1c49dc1dd6eb17bb666dc2c1dcedc09",
     "crates/diskgraph-cli/src/cli_exit.rs": "430f19fa25febe14a8866517e59424baa11474e7486bbccfac27beb0d320864d",
     "crates/diskgraph-cli/src/cli_options.rs": "0f55165e35922153810ada59f9e4927513a903be5bb2e08e3d8f06b5e81edb5f",
@@ -41,12 +42,12 @@
     "crates/diskgraph-cli/src/plan_action.rs": "333c0aa54d89b2653cf80be054ab8fadbb4994dae40eedb032c1f30a9bbcec7f",
     "crates/diskgraph-cli/src/policy_command.rs": "f6fbef0e622299fe220860c1c3a3531bdd2da09cccc11442b50f6e6a4f218e71",
     "crates/diskgraph-cli/src/policy_commands.rs": "0149e1df26a45891b09d4c5335dd9f1df3b221a067d29fbd53a539d75dd50844",
-    "crates/diskgraph-cli/src/query_terminal_tests.rs": "76ee8ce804c830a23b817308feab28cb2ab42f73f5a8a5f060ae747579e1d128",
+    "crates/diskgraph-cli/src/query_terminal_tests.rs": "83ab1f50ff12e2c9aeff7c20400c7a0d63fdbb2ec4dfabb15b81cee61b6c96eb",
     "crates/diskgraph-cli/src/relation_commands.rs": "f52de0b6edeba21d1bd42c164e3dcccb639dd800de02e857b47f30d70faca594",
     "crates/diskgraph-cli/src/relation_reply.rs": "840f54bf3d3dbf486a15fe52d49a58cbc1a350feb5e30763d7a672389d26a4ed",
     "crates/diskgraph-cli/src/scan_commands.rs": "a56a2c84294d10a122269b2b3a54180e319fb74104b5dac393a987a88a397fef",
     "crates/diskgraph-cli/src/scan_jobs.rs": "e1f398aad8c89ca42854aa730aa172869e6c71ccb39536d3e64bb340501f908e",
-    "crates/diskgraph-cli/src/scan_terminal_tests.rs": "2a025155f1a9111281d24b0202a0f65f457fbf78d6d6c6877257eba16b6617d5",
+    "crates/diskgraph-cli/src/scan_terminal_tests.rs": "d70d512a66442b1bd4586f77a4fba7da6240e7440518ac43237aa080a9f317c1",
     "crates/diskgraph-cli/src/scope_action.rs": "e6ce7a72d2f9d0b713e7c74b10d2fc2a9fefea0e184b2ca51a2424c39c38565f",
     "crates/diskgraph-cli/src/scope_commands.rs": "b8e43c59a336bfb3804db127297eeae4e032198554727db507adb9171c257906",
     "crates/diskgraph-cli/src/search_commands.rs": "02eb71205150dc3b23279cb71efd109bcedcb0c5df4028d9790be15511323945",
@@ -66,7 +67,7 @@
     "crates/diskgraph-cli/src/tui/pseudonyms.rs": "44f86bf997a18bcf1a824c89680971c3edaedfced0f1e953c694342bb88456f0",
     "crates/diskgraph-cli/src/tui/renderer.rs": "97dd7a25d887e8bf779f4a47a866ab990eb7ce6fdcacd567512fc97dd6312e69",
     "crates/diskgraph-cli/src/tui/session.rs": "e47875079514e54ae3b8811bb78c62a83e5e0771ee1691b0e627c47dde302402",
-    "crates/diskgraph-cli/src/tui/tests.rs": "b245e194de2c700810027df82f71bf44b9c33290e7a5cdcbf10bf0a92addcec4",
+    "crates/diskgraph-cli/src/tui/tests.rs": "dac8106551cf90ac6973c6b6a26f51498366fa3ad51c3e4c2c43df0560a54e86",
     "crates/diskgraph-cli/src/tui/treemap.rs": "25dffac81972fe516ca97e99e5c3dc73d0d9ead287351b5c30130911d7a8c636",
     "crates/diskgraph-cli/src/tui_commands.rs": "72b2d86ccabdbf7338126fc65f132404af5d9f5ec7256384893d1ba435b01024",
     "crates/diskgraph-cli/src/tui_deadline_frame_tests.rs": "7e1e48bc0a8e1d9b1ccfd2d79457acba0df9a2f7b2e717544250202254bf1806",
@@ -613,10 +614,11 @@
   ],
   "filesystem_fixture": "Hosted temporary volume explicitly rejects invalid UTF8 with EILSEQ; actual installed helper scans valid Unicode names. Raw nonUTF8 protocol bytes verified independently.",
   "response_budget_fixture": "512 bytes admits actual Hello/reserved budget terminal but actual four-node tree encoding exceeds 512; original 32-byte setup is rejected before birth",
-  "phase": "actual-cli-mcp-product-flows-awaiting-native",
+  "phase": "actual-products-and-full-cli-regression-awaiting-native",
   "product_flows": [
     "cli_init_node",
     "mcp_stdio_index_status_node",
     "cli_observes_mcp_revision"
-  ]
+  ],
+  "cli_regression_tests_required": 67
 }

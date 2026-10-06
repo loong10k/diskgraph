@@ -105,3 +105,6 @@ macOS 产品验收新增精确分配字节断言：与默认上游 st_blocks*512
 Windows 有限清理库层候选：冻结 480 份源码，archive SHA256 17199595a50ba8760413437a6c08c1a65f81041d0c7e70953864f1077b5c22e7；保留原30案并新增5案，等待实际 Windows 构建与行为结果。Pending/Err保留原owner，查询采用 Wait0/GetOverlappedResult(FALSE) 和同一绝对期限。旧cleanup/Drop、出生前pending、Registry有限恢复、目录删除和产品退出仍未完成，不启用产品路径、不勾平台父项。
 
 当前本机产品全回归重复确认 CLI56/11/0、MCP119/34/0，原始日志保存于 docs/benchmarks/product_full_regression_current_2026_10_06，可信扫描宿主缺失导致的Unsupported未被跳过或改成查询成功；需要实际宿主接线后继续验收。JSON-RPC协议关联新增负测先失败后通过，Python守卫28项通过。
+
+
+CLI完整原回归真实宿主接线：590份Mac候选源码 / archive SHA256 350dfb950d3be4c51e8d56ff378703005d712ad1bf19eda787f26b870a2cd74b。测试构造调用产品CliEngineHost，Recovery在临时目录前实际排空，缺host仍Unsupported；保持全部原授权/期限/预算断言，不导入种树、不跳过扫描。完整67案及原11失败案各实际ok为门禁，测试二进制前后hash绑定。独立静态复审CLEAR、本机no-run编译成功；29项Python守卫通过。受保护安装后的原生67案尚未执行，不能计CLI回归或产品完成，兼容Drop不宣称有限退出。

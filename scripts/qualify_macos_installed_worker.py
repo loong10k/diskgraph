@@ -18,6 +18,30 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+CLI_SCAN_REGRESSION_CASES = (
+    "query_terminal_tests::encoded_tree_refuses_terminal_scope_revocation",
+    "query_terminal_tests::plan_cannot_escape_as_usable_steps_when_encoding_terminal_authorization_expires",
+    "query_terminal_tests::tree_and_history_do_not_complete_after_the_dispatch_deadline",
+    "query_terminal_tests::encoded_comparison_refuses_terminal_grant_revocation",
+    "query_terminal_tests::encoded_changes_refuses_terminal_scope_revocation",
+    "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+    "scan_terminal_tests::synchronous_wait_reclaims_only_its_expired_job",
+    "query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation",
+    "scan_terminal_tests::waiting_for_another_owners_failed_job_is_not_success",
+    "query_terminal_tests::encoded_growth_refuses_terminal_grant_revocation",
+    "tui::tests::nested_frame_limits_queries_and_keeps_navigation_visible",
+)
+
+
+def check_cli_regression(stdout):
+    """要求完整原CLI测试及11项原失败用例实际运行，不接受过滤/忽略或零用例。"""
+    if "test result: ok. 67 passed; 0 failed; 0 ignored;" not in stdout:
+        raise RuntimeError("full CLI regression did not execute all 67 original tests")
+    for case in CLI_SCAN_REGRESSION_CASES:
+        if "test " + case + " ... ok" not in stdout:
+            raise RuntimeError("required original CLI scan regression missing: " + case)
+
+
 def permitted(name, allow_products=False):
     path = Path(name)
     product = allow_products and (
@@ -156,6 +180,26 @@ def main():
         receipt["product_flows"] = qualify_macos_product_flows.run(
             checkout, output / "products", env,
             checkout / "target/debug/diskgraph", checkout / "target/debug/diskgraph-mcp")
+        invoke(["cargo", "test", "--locked", "-p", "diskgraph-cli", "--bin", "diskgraph",
+                "--features", "diskgraph-engine/macos_native_scan_candidate", "--no-run", "--message-format=json"],
+               checkout, output, "build-cli-regression", env)
+        cli_fixtures = []
+        for line in (output / "build-cli-regression.stdout").read_text().splitlines():
+            if line.startswith("{"):
+                record = json.loads(line)
+                if (record.get("reason") == "compiler-artifact"
+                        and record.get("target", {}).get("name") == "diskgraph"
+                        and record.get("profile", {}).get("test") and record.get("executable")):
+                    cli_fixtures.append(Path(record["executable"]))
+        if len(cli_fixtures) != 1:
+            raise RuntimeError("expected one actual CLI regression executable")
+        cli_fixture = cli_fixtures[0]
+        receipt["cli_regression_binary_sha256"] = digest(cli_fixture)
+        invoke([str(cli_fixture), "--test-threads=1"], checkout, output, "cli-regression", env)
+        check_cli_regression((output / "cli-regression.stdout").read_text())
+        if digest(cli_fixture) != receipt["cli_regression_binary_sha256"]:
+            raise RuntimeError("CLI regression binary identity changed")
+        receipt["cli_regression_tests_passed"] = 67
         for name, expected in manifest["sources"].items():
             if digest(checkout / name) != expected:
                 raise RuntimeError("qualification modified original candidate source")

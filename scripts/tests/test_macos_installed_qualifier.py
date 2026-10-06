@@ -44,7 +44,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 589)
+        self.assertEqual(len(manifest["sources"]), 590)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
         self.assertEqual(manifest["fixture_features"], ["macos_native_scan_candidate"])
@@ -124,6 +124,15 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             qualifier.mount(self.checkout)
         self.assertFalse((outside / "a.rs").exists())
+
+    def test_full_cli_regression_requires_original_cases_and_counts(self):
+        valid = "\n".join("test " + case + " ... ok" for case in qualifier.CLI_SCAN_REGRESSION_CASES)
+        valid += "\ntest result: ok. 67 passed; 0 failed; 0 ignored;"
+        qualifier.check_cli_regression(valid)
+        for invalid in (valid.replace("67 passed", "0 passed"), valid.replace("0 ignored", "1 ignored"),
+                        valid.replace(" ... ok", " ... ignored", 1)):
+            with self.assertRaises(RuntimeError):
+                qualifier.check_cli_regression(invalid)
 
 
 if __name__ == "__main__":
