@@ -1,0 +1,8 @@
+{
+  "run_id": 37535756816,
+  "job_id": 112516109966,
+  "source_sha": "bfd36735a6285e5e692dc09f3b12f910b8b1ee41",
+  "classification": "Actual native Windows compiler failure, not behavior RED or acceptance",
+  "errors": "Engine import excluded from four existing cfg(windows) tests after native fixture update",
+  "raw_log_sha256": "8588a4e4b8aa69f368a587dfa66f80b0242f681ac079117f8322e5585022cd00"
+}

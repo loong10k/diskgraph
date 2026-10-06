@@ -2,7 +2,7 @@
 //! 验证一次 tick 最多处理 64 个候选，而不是全队列授权清理后只执行一个任务。
 
 use super::run_one_queued;
-#[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 use crate::Engine;
 use crate::EngineConfig;
 use diskgraph_core::PrincipalId;

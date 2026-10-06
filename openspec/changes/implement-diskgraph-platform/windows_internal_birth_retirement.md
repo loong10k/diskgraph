@@ -293,3 +293,8 @@ Historical-source fixture correction: full Python suite GREEN 223/0/0, including
 ## Source-specific CI lifecycle
 
 While 46feded macOS Intel proceeds through full workspace tests, HTTP shutdown, metadata sentinel, Clippy and migration gate, preserve its original run without forcing all new Windows fixes to wait for that run to end. Key regular CI concurrency by workflow/ref/source SHA: a new source cannot cancel the earlier source, while duplicate runs of the same source remain supersedable. Add a ten-minute orchestration timeout to the migration gate, matching the need for bounded CI diagnostics; this neither enlarges product deadlines nor treats timeout as native success. Current run 37532022281 remains authoritative and live; the next source will get a separate matrix. No branch or release change.
+
+
+## bfd3673 Windows compiler failure caused by fixture import change
+
+Actual stable job 112516109966 in run 37535756816 fails E0433 at runner/tests.rs lines 146, 180, 228, 277. The new cfg selecting NativeScanEngine for Windows was also applied to the Engine import, but four existing Windows-specific child/host tests still directly reference Engine::open_with_process_hosts. Restore the original import cfg (exclude only Linux/macOS), while retaining the new three-desktop NativeScanEngine selection for the two physical scan tests. This is a newly introduced compilation defect, not original behavior RED, and is not closed by macOS Clippy; actual Windows compiler/test success remains required. Original raw job log archived under docs/benchmarks/windows_runner_import_failure_bfd/.
