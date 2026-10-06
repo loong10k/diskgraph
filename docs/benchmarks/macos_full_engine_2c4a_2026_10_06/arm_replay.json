@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source_sha": "2c4a4bf30905878443908cfd5ccf68406e3768f7",
+  "run": 37475437100,
+  "job": 112309522545,
+  "full_engine": {
+    "passed": 583,
+    "failed": 0,
+    "ignored": 11
+  },
+  "full_mcp_passed": 152,
+  "actual_log_replay_with_platform_correct_settings": true,
+  "macos_settings_required": 15,
+  "original_qualification_status": "failed",
+  "failure": "moved deployment settings regression missing: scan_worker_settings_tests::native_non_utf8_image_path_is_retained_but_non_utf8_digest_is_rejected",
+  "new_same_sha_qualification_required": true,
+  "production_acceptance": false
+}

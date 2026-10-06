@@ -151,7 +151,6 @@ MOVED_SETTINGS_REGRESSION_CASES = (
     "scan_worker_settings_tests::opening_missing_material_preserves_the_actual_io_error",
     "scan_worker_settings_tests::neighboring_correct_values_cannot_override_wrong_but_well_formed_expectations",
     "scan_worker_settings_tests::uppercase_complete_digest_is_preserved_as_the_same_expected_material",
-    "scan_worker_settings_tests::native_non_utf8_image_path_is_retained_but_non_utf8_digest_is_rejected",
     "scan_worker_settings_tests::native_non_utf8_open_failure_and_non_unicode_material_preserve_their_boundaries",
 )
 
