@@ -189,6 +189,7 @@ impl LinuxAtomicExit {
     }
 
     /// 参数：无；返回：真实终止信号，仅在实际退出记录存在时返回。
+    #[cfg(test)]
     pub(super) fn exit_signal(&self) -> Option<i32> {
         self.exit_signal
     }

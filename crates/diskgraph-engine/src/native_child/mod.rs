@@ -44,7 +44,7 @@ pub(crate) use windows::OwnedHandle;
 #[cfg(windows)]
 pub(crate) use windows::WindowsChild;
 
-#[cfg(unix)]
+#[cfg(all(unix, any(test, target_os = "macos")))]
 mod unix_normal_exit;
 
 #[cfg(target_os = "macos")]

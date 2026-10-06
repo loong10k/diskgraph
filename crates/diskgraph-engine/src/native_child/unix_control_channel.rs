@@ -1,9 +1,10 @@
 use super::{ChildError, ControlWriteStatus};
 use std::io;
 use std::os::fd::AsRawFd;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(any(all(test, target_os = "linux"), target_os = "macos"))]
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
+#[cfg(any(test, not(target_os = "linux")))]
 use std::process::Stdio;
 
 /// 独占 AF_UNIX 控制写端与一个有界未发送数据块，不修改宿主信号策略。
@@ -32,7 +33,7 @@ impl UnixControlChannel {
 
     /// 建立父非阻塞、子阻塞的 stdin 通道，两个端点都禁止额外 exec 继承。
     /// 参数：无；返回：父端唯一 owner 与交给 Command 的子 stdin，或原生能力/I/O 错误。
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(any(all(test, target_os = "linux"), target_os = "macos"))]
     pub(super) fn pair() -> Result<(Self, Stdio), ChildError> {
         let (parent, child) = UnixStream::pair()
             .map_err(|error| ChildError::io("create control socketpair", error))?;

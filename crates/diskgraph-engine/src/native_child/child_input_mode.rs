@@ -5,5 +5,6 @@ pub(crate) enum ChildInputMode {
     /// 原有探针的空输入模式；保持原启动检查与句柄白名单。
     Null,
     /// 扫描 worker 的独占非阻塞控制输入，不使用宿主全局信号策略。
+    #[cfg(any(test, not(target_os = "linux")))]
     WorkerControl,
 }

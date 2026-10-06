@@ -45,3 +45,9 @@ Linux 期限恢复已通过当前完整源码原生门禁：37438978565 / c98dc1
 4255fc8 的本机完整工作区回归实际运行111个顶层目标：1516通过、431失败、23忽略，33目标失败；按每个Cargo目标最后的结果计数，未将隔离子夹具的内层结果重复累计。GitHub同提交Linux/Windows严格Build失败，原始日志记录dead-code错误，macOS相关任务仍排队。专项门禁不能抵消该全量失败。测试专用LinuxScanImageError只应在test配置编入；历史Rust pre_exec安装方法无调用者，当前生产seccomp保持由原子出生C路径使用同一BPF program安装。移除闲置入口不完成严格质量或生产父项。
 
 原全量运行中未提供独立协议驱动夹具，造成5项原owner错误处置用例失败。通过当前Cargo example明确生成夹具并按实际artifact注入DISKGRAPH_SCAN_DRIVER_FIXTURE后，该组6/0/0通过。CI新增相同构建/摘要/来源绑定步骤；只供测试，不设置产品镜像环境值，不改变安装信任、请求权限或默认扫描Unsupported状态。严格Build仍有未完成项，不能以该局部复查抵消原431项失败。
+
+## Linux 生产与测试接口编译边界
+
+3ce2aaa 的 Linux 严格 Build 原始失败仍有8组未使用接口错误。验收要求：只供测试的 UnixChild 旧启动接口及 LinuxAtomic 的测试观察接口不进入生产；Linux 产品保留 spawn_checked 探针、LinuxAtomicChild 控制协议、实际 pidfd 等待和期限恢复，macOS 已编译原生路径不关闭。不得增加 allow/dead_code 或降低 -D warnings。UnixNormalExit 在 Linux 仅由测试构造，生产不存储其无效状态；私有 from_spawn 的恒定参数移为内部初始化，不改变公开 API。
+
+本机受影响 native_child 回归44/0/1、结构门禁6/0/0、cargo check 与 fmt 通过；原始日志见 docs/benchmarks/linux_test_boundary_2026_10_06/。Linux 严格生产构建和当前完整源码原生8项门禁待CI，尚不勾选生产父项。

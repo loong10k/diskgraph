@@ -1,13 +1,16 @@
 //! Unix child 的结构化出生入口；等待授权与生命周期检查分别路由。
 use super::super::child_read_buffer::ChildReadBuffer;
 use super::super::unix_child_setup::UnixChildSetup;
+#[cfg(any(test, not(target_os = "linux")))]
 use super::super::unix_control_channel::UnixControlChannel;
-use super::super::unix_normal_exit::UnixNormalExit;
 use super::super::{ChildError, ChildInputMode, ChildSpawnError};
 use super::UnixChild;
+#[cfg(test)]
 use std::ffi::OsStr;
+#[cfg(test)]
 use std::io;
 use std::os::unix::process::CommandExt;
+#[cfg(test)]
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -15,6 +18,7 @@ impl UnixChild {
     /// 在执行前建立独立进程组，立即接管资源并将两管道设为非阻塞。
     /// 参数：command 为结构化受信命令，checkpoint 借用调用方原检查，不创建预算。
     /// 返回：本次进程组 owner，或能力/启动/管道错误。
+    #[cfg(test)]
     pub(crate) fn spawn<E>(
         command: &mut Command,
         checkpoint: impl FnMut() -> Result<(), E>,
@@ -26,6 +30,7 @@ impl UnixChild {
     /// 参数：command 为受信命令，input_mode 为 Null/WorkerControl，checkpoint 借原调用方检查。
     /// 返回：唯一 child owner，或原检查错误与原生启动/清理错误。
     /// 此可信兼容入口等待短创建门，不提供等待期限；产品请求使用独立 admission 入口。
+    #[cfg(test)]
     pub(crate) fn spawn_with_input<E>(
         command: &mut Command,
         input_mode: ChildInputMode,
@@ -63,6 +68,7 @@ impl UnixChild {
     /// 内部新建 Command 并建立私有 session；不给调用方注入 pre_exec 的入口。
     /// 参数：program、args、environment 为受信本地结构化配置；checkpoint 借原检查。
     /// 返回：具有正常退出资格的 WorkerControl owner，或原始检查/原生错误。
+    #[cfg(test)]
     pub(crate) fn spawn_worker<E>(
         program: &Path,
         args: &[&OsStr],
@@ -114,6 +120,7 @@ impl UnixChild {
         let _ = admission;
         let (control, stdin) = match input_mode {
             ChildInputMode::Null => (None, Stdio::null()),
+            #[cfg(any(test, not(target_os = "linux")))]
             ChildInputMode::WorkerControl => {
                 let (control, stdin) = UnixControlChannel::pair()?;
                 (Some(control), stdin)
@@ -146,7 +153,6 @@ impl UnixChild {
             buffer,
             control,
             private_session,
-            UnixNormalExit::Unavailable,
             cleanup_fault,
             checkpoint,
         )

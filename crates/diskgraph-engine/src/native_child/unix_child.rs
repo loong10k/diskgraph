@@ -1,10 +1,13 @@
+#[cfg(any(test, target_os = "macos"))]
+use super::ControlWriteStatus;
 use super::child_read_buffer::ChildReadBuffer;
 use super::unix_child_group::UnixChildGroup;
 use super::unix_child_setup::UnixChildSetup;
 use super::unix_control_channel::UnixControlChannel;
 use super::unix_leader::UnixLeader;
+#[cfg(any(test, target_os = "macos"))]
 use super::unix_normal_exit::UnixNormalExit;
-use super::{ChildError, ChildSpawnError, ControlWriteStatus};
+use super::{ChildError, ChildSpawnError};
 use std::fs::File;
 use std::io::{self, Read};
 use std::os::fd::{AsRawFd, OwnedFd};
@@ -23,6 +26,7 @@ pub(crate) struct UnixChild {
     stdout: Option<File>,
     stderr: Option<File>,
     control: Option<UnixControlChannel>,
+    #[cfg(any(test, target_os = "macos"))]
     control_closed: bool,
     buffer: ChildReadBuffer,
     stdout_eof: bool,
@@ -30,6 +34,7 @@ pub(crate) struct UnixChild {
     exit_code: Option<i32>,
     owns_group: bool,
     cleaned: bool,
+    #[cfg(any(test, target_os = "macos"))]
     normal_exit: UnixNormalExit,
     #[cfg(target_os = "macos")]
     _installation_lease:
@@ -53,6 +58,7 @@ impl UnixChild {
             stdout: Some(stdout),
             stderr: Some(stderr),
             control: Some(control),
+            #[cfg(any(test, target_os = "macos"))]
             control_closed: false,
             buffer,
             stdout_eof: false,
@@ -97,14 +103,13 @@ impl UnixChild {
     }
 
     /// 接管实际 Child 的管道并执行原 post-spawn 检查；不再创建其它 child owner。
-    /// 参数：child/control 为独占资源，buffer 为出生前已准备的固定读缓冲，private_session 为旧入口核验，normal_exit 为内核资格，
+    /// 参数：child/control 为独占资源，buffer 为出生前已准备的固定读缓冲，private_session 为旧入口核验，
     /// cleanup_fault 仅保留旧测试注入，checkpoint 借原检查；返回：初始化完成的唯一 owner。
     pub(super) fn from_spawn<E>(
         mut child: Child,
         buffer: ChildReadBuffer,
         control: Option<UnixControlChannel>,
         private_session: bool,
-        normal_exit: UnixNormalExit,
         cleanup_fault: bool,
         mut checkpoint: impl FnMut() -> Result<(), E>,
     ) -> Result<Self, ChildSpawnError<E>> {
@@ -124,6 +129,7 @@ impl UnixChild {
             stdout,
             stderr,
             control,
+            #[cfg(any(test, target_os = "macos"))]
             control_closed: false,
             buffer,
             stdout_eof: false,
@@ -131,7 +137,8 @@ impl UnixChild {
             exit_code: None,
             owns_group: true,
             cleaned: false,
-            normal_exit,
+            #[cfg(any(test, target_os = "macos"))]
+            normal_exit: UnixNormalExit::Unavailable,
             #[cfg(target_os = "macos")]
             _installation_lease: None,
             #[cfg(test)]
@@ -146,6 +153,7 @@ impl UnixChild {
                 private_session,
                 owner.child.id(),
             )?;
+            #[cfg(any(test, target_os = "macos"))]
             if private_session {
                 owner.normal_exit = UnixNormalExit::Qualified;
             }
@@ -161,11 +169,13 @@ impl UnixChild {
     /// 在完整退出证据成立后正常 wait，不向组或 leader 发送任何终止信号。
     /// 参数：checkpoint 借调用方原期限/权限检查；返回：true 为正常回收事实，
     /// false 仅表示仍活动或尚未读完管道，未知视图/失去身份明确返回错误。
+    #[cfg(any(test, target_os = "macos"))]
     pub(crate) fn poll_normal_exit<E>(
         &mut self,
         mut checkpoint: impl FnMut() -> Result<(), E>,
     ) -> Result<bool, ChildSpawnError<E>> {
         checkpoint().map_err(ChildSpawnError::checkpoint)?;
+        #[cfg(any(test, target_os = "macos"))]
         if self.normal_exit.is_completed() {
             checkpoint().map_err(ChildSpawnError::checkpoint)?;
             return Ok(true);
@@ -198,6 +208,7 @@ impl UnixChild {
 
     /// 开始一个有界控制块；Null 不提供写能力，也不创建其它执行 owner。
     /// 参数：bytes 为非空且最多 4096 字节的原始块；返回：实际 Written/Pending 或原生错误。
+    #[cfg(any(test, target_os = "macos"))]
     pub(crate) fn start_control_write(
         &mut self,
         bytes: &[u8],
@@ -210,6 +221,7 @@ impl UnixChild {
 
     /// 对同一个控制块做一次非阻塞轮询，不重新复制或重发新块。
     /// 参数：无；返回：Written/Pending/Closed，或 Null、空闲状态、实际 I/O 错误。
+    #[cfg(any(test, target_os = "macos"))]
     pub(crate) fn poll_control_write(&mut self) -> Result<ControlWriteStatus, ChildError> {
         self.control
             .as_mut()
@@ -219,6 +231,7 @@ impl UnixChild {
 
     /// 停止控制输入并关闭本 owner 的写端，不承诺完整 raw 帧已经发送。
     /// 参数：无；返回：Closed 或 Null 的 Unsupported；后续 EOF 仍由子进程实际读取得证。
+    #[cfg(any(test, target_os = "macos"))]
     pub(crate) fn request_control_close(&mut self) -> Result<ControlWriteStatus, ChildError> {
         let status = self
             .control
@@ -233,6 +246,7 @@ impl UnixChild {
     /// 参数：无。
     /// 返回：leader 是否退出，或观察失败；ECHILD 时不再盲杀旧 PGID。
     pub(crate) fn poll(&mut self) -> Result<bool, ChildError> {
+        #[cfg(any(test, target_os = "macos"))]
         if self.normal_exit.is_completed() {
             return Ok(true);
         }

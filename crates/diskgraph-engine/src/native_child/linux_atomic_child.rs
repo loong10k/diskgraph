@@ -149,6 +149,7 @@ impl LinuxAtomicChild {
     }
 
     /// 参数：无；返回：实际终止信号。
+    #[cfg(test)]
     pub(crate) fn exit_signal(&self) -> Option<i32> {
         self.exit.exit_signal()
     }
@@ -187,6 +188,7 @@ impl LinuxAtomicChild {
     }
 
     /// 参数：无；返回：原 pidfd 的物理退场事实，不等同原 wait 已消费或正常许可。
+    #[cfg(test)]
     pub(crate) fn physically_exited(&self) -> Result<bool, ChildError> {
         self.exit.stopped()
     }
