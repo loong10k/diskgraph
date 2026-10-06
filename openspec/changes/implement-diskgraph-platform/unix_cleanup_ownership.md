@@ -177,3 +177,9 @@ f9b1890 / CI37449291133 Linux stable112221636590原全量仍失败Engine lib与F
 91f5311原生Windows Rust1.97.0 CI37454019759/job112237096669构建真实E0277：ProbeBudget::new返回ProbeFailure，旧String接口不能自动转换。补显式Display转换，与原cleanup诊断接口一致，不更改原生删除或状态规则；原始日志windows-cleanup-integration-native-compile-red.log.gz保留。该修复须新提交原生编译和行为验收，不称为已通过。
 
 063d89f原生Windows stable CI37454234430/job112237793294已不再出现E0277或WindowsGitCleanup/游标/原根未使用错误；完整构建仍失败，真实剩余5组dead-code为WorkerControl、ChildSpawnError::with_cleanup、OverlappedControlPipe::prepare_input、OverlappedPipe::create、WindowsChild旧spawn/spawn_with_input/spawn_into包装。源码Windows ScanWorkerRuntime::launch仍明确Unsupported，不能以cfg(test)或lint屏蔽伪造平台扫描已接入。原日志windows-cleanup-integration-native-next-gate.log.gz保留；目录产品新两案尚未执行。eb9dafd补格式并再次触发原生CI；目录接线、可信Windows扫描启动、FFI宿主恢复及全平台父项仍未验收。
+
+## Windows扫描镜像材料准入（未完成启动）
+
+ScanWorkerHost新增保留原期限/检查点的new_until；旧new保留可信本地构造签名，设置默认30秒准入预算，环境宿主使用原启动绝对期限。Windows从原File相对空名称NtOpenFile获取shareREAD的新读取租约，拒绝特殊/占位对象，按64KiB固定缓冲和剩余完整长度核独立SHA256及前后完整FileID/原生版本；失败关闭新句柄，不按路径重开或启用执行。材料只拒绝新写/删除共享及可见版本变化，不证明既有可写映射、PE加载、DLL搜索、路径替换和suspended出生绑定已安全；Windows执行仍Unsupported，不能用材料通过完成PF-06。新增四项真实Windows租约回归需原生执行，不声称已取得RED/GREEN。依据Microsoft CreateFile共享模式与进程创建说明：https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea 、 https://www.microsoft.com/en-us/security/blog/2022/06/30/using-process-creation-properties-to-catch-evasion-techniques/ 。原生加载必须另行证明，不能把普通held File自授执行许可。
+
+材料候选本机验收：公开原期限/检查点两案2/0；临时覆盖原deadline为新30秒窗口的变异实际0/1失败，恢复原期限后2/0；部署配置15/0、结构6/0、fmt成功。Windows专属五案尚未执行，不能称为RED/GREEN或加载资格；open_held路径先以READ_ATTRIBUTES/no-recall/no-reparse打开并核属性，再相对原句柄重开数据访问，不先File::open读取云对象。真实云provider不下载仍未验收；既有可写映射和加载路径/DLL的资格仍未证明，Windows执行Unsupported保持。日志windows-image-material-{settings-final,layout-final,fmt,deadline-negative,admission-restored}.log.gz。没有将5项未接入启动代码改为test-only，也未降低严格CI门禁。

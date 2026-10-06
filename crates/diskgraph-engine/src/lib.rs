@@ -142,6 +142,8 @@ mod scan_publication_tests;
 #[cfg(any(target_os = "linux", target_os = "macos", windows))]
 mod scan_worker_error_projection;
 mod scan_worker_host;
+#[cfg(test)]
+mod scan_worker_host_admission_tests;
 mod scan_worker_host_config;
 mod scan_worker_installation;
 mod scan_worker_owner_slot;
@@ -187,6 +189,10 @@ mod windows_native_scan_root;
 mod windows_native_scan_tests;
 #[cfg(windows)]
 mod windows_path_plan;
+#[cfg(windows)]
+mod windows_scan_image_lease;
+#[cfg(all(test, windows))]
+mod windows_scan_image_lease_tests;
 #[cfg(windows)]
 mod windows_scoped_file;
 

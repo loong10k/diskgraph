@@ -5,7 +5,6 @@ use std::fs::File;
 use std::sync::{Arc, Mutex};
 #[cfg(target_os = "linux")]
 use std::time::Duration;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::time::Instant;
 
 /// 普通Rust可信宿主提供的held镜像、独立预期和原执行额度，不接受远程文件选择。
@@ -13,7 +12,9 @@ use std::time::Instant;
 pub struct ScanWorkerHost {
     #[cfg(target_os = "linux")]
     image: Mutex<File>,
-    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    #[cfg(windows)]
+    _image: Mutex<crate::windows_scan_image_lease::WindowsScanImageLease>,
+    #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
     _image: Mutex<File>,
     #[cfg(target_os = "macos")]
     _image: Option<Mutex<File>>,
@@ -35,12 +36,42 @@ impl ScanWorkerHost {
         expected: ScanWorkerHostConfig,
         runtime: ScanWorkerRuntimeBudget,
     ) -> Result<Self, EngineError> {
+        Self::new_until(
+            held_image,
+            expected,
+            runtime,
+            Instant::now() + std::time::Duration::from_secs(30),
+            &mut || Ok(()),
+        )
+    }
+
+    /// 参数：原宿主镜像/独立预期/额度及同一次deadline/checkpoint；返回：核验材料或原错误。
+    /// 保留new可信本地签名；有启动预算的调用方必须传原绝对期限，Windows租约不授予执行许可。
+    pub fn new_until(
+        held_image: File,
+        expected: ScanWorkerHostConfig,
+        runtime: ScanWorkerRuntimeBudget,
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
+    ) -> Result<Self, EngineError> {
+        checkpoint()?;
+        if Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
         let metadata = held_image.metadata()?;
         if !metadata.is_file() {
             return Err(BusinessError::Unsupported.into());
         }
         if metadata.len() != expected.expected_bytes {
             return Err(BusinessError::Conflict.into());
+        }
+        #[cfg(windows)]
+        let held_image = crate::windows_scan_image_lease::WindowsScanImageLease::prepare(
+            held_image, &expected, deadline, checkpoint,
+        )?;
+        checkpoint()?;
+        if Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
         }
         let registry = ScanWorkerRegistry::new(runtime.max_active_children())?;
         Ok(Self {

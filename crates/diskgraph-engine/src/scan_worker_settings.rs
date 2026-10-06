@@ -50,7 +50,7 @@ impl ScanWorkerSettings {
         #[cfg(not(target_os = "macos"))]
         let result = match configured {
             Some(settings) => settings.open_held().and_then(|(image, expected)| {
-                ScanWorkerHost::new(image, expected, runtime).map(Some)
+                ScanWorkerHost::new_until(image, expected, runtime, deadline, checkpoint).map(Some)
             }),
             None => Ok(None),
         };
@@ -108,7 +108,11 @@ impl ScanWorkerSettings {
     /// 参数：self 为完整受信配置；返回：唯一已打开 File 与独立预期值，保留实际 I/O 错误。
     /// 本方法不核验摘要、不启动进程、不授予扫描或发布资格。
     pub fn open_held(self) -> Result<(File, ScanWorkerHostConfig), EngineError> {
-        Ok((File::open(self.path)?, self.expected))
+        #[cfg(windows)]
+        let file = crate::windows_scan_image_lease::WindowsScanImageLease::open_source(&self.path)?;
+        #[cfg(not(windows))]
+        let file = File::open(self.path)?;
+        Ok((file, self.expected))
     }
 }
 
