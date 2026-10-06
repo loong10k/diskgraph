@@ -24,6 +24,8 @@ pub(super) struct WindowsGitDirectoryCursor {
     done: bool,
     cleanup_entry: Option<(OsString, [u8; 16], u32)>,
     cleanup_identity: Option<GitPrivateAllocation>,
+    foreign_observation:
+        Option<super::windows_git_foreign_removal_witness::WindowsGitForeignRemovalWitness>,
     cleanup_delete_requested: bool,
     cleanup_post_mark_verified: bool,
     cleanup_marked_file: Option<File>,
@@ -35,7 +37,7 @@ impl WindowsGitDirectoryCursor {
     /// 参数：parent_label为原账本父键、capacity为owner账本、probe为本轮预算。
     /// 返回：原父/子登记身份及文件版本均核验后的当前子项句柄/名称/属性，或真正EOF。
     /// 打开或账本核验失败仍保留同一枚举子项，不收养陌生对象。
-    /// 仅最终确认原ID消失后前进；未登记项需原卷完整 ID 正控明确缺失，普通枚举不得越过未完成清理项。
+    /// 仅最终确认原ID消失后前进；未登记项需删除前只读完整 ID 观察及最终移除通知，普通枚举不得越过未完成清理项。
     pub(super) fn open_next_cleanup_child(
         &mut self,
         parent_label: &std::path::Path,
@@ -61,10 +63,23 @@ impl WindowsGitDirectoryCursor {
             };
             let directory =
                 attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
-            if !capacity.registered(&parent_label.join(name))
-                && super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_enumerated_absent(&self.file, id, probe)?
-            {
-                // 原外来身份已由原卷完整 ID 正控证明消失；不收养同名新对象或伪造删除。
+            if !capacity.registered(&parent_label.join(name)) {
+                if self.foreign_observation.is_none() {
+                    super::windows_git_foreign_removal_witness::WindowsGitForeignRemovalWitness::prepare_into(
+                        &self.file, id, probe, &mut self.foreign_observation,
+                    )?;
+                }
+                if !self
+                    .foreign_observation
+                    .as_mut()
+                    .expect("retained foreign observation")
+                    .confirm(id, probe)?
+                {
+                    return Err(std::io::Error::other(
+                        "original foreign entry removal remains unconfirmed",
+                    ));
+                }
+                self.foreign_observation = None;
                 self.cleanup_entry = None;
                 self.cleanup_identity = None;
                 continue;
@@ -336,6 +351,7 @@ impl WindowsGitDirectoryCursor {
             done: false,
             cleanup_entry: None,
             cleanup_identity: None,
+            foreign_observation: None,
             cleanup_delete_requested: false,
             cleanup_post_mark_verified: false,
             cleanup_marked_file: None,

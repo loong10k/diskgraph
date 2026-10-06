@@ -12,6 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "6c3b7295e26e31933d9258f8ee8328cc6b241f64"
 SOURCES = [
+    "crates/diskgraph-engine/src/live_evidence/mod.rs",
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs",
 ]
@@ -51,6 +52,7 @@ def main():
         # 两阶段共用同一真实游标测试；产品恢复正控只在当前实现上执行。
         "shared_support_sources": {
             name: digest((ROOT / name).read_bytes()) for name in [
+                "crates/diskgraph-engine/src/live_evidence/windows_git_foreign_removal_witness.rs",
                 "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs",
                 "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup_tests.rs",
             ]
@@ -80,6 +82,10 @@ def main():
     if (code != 0 or "1 passed; 0 failed; 0 ignored;" not in log
             or "DG_WINDOWS_ENUMERATED_ABSENCE_GREEN=1" not in log):
         raise RuntimeError("actual current cursor absence recovery must pass")
+    code, log = cargo("foreign_removal_preserves_hard_links_and_outstanding_external_handle", output / "green-last-close.log")
+    if (code != 0 or "1 passed; 0 failed; 0 ignored;" not in log
+            or "DG_WINDOWS_FOREIGN_LINKS_AND_LAST_CLOSE=1" not in log):
+        raise RuntimeError("foreign hard links and external last-close must retain original recovery")
     code, log = cargo("windows_git_cleanup_tests", output / "green-product.log")
     if (code != 0 or "4 passed; 0 failed; 0 ignored;" not in log
             or "DG_WINDOWS_FOREIGN_ENTRY_PRODUCT_RECOVERY=1" not in log):

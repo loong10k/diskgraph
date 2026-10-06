@@ -87,68 +87,6 @@ impl WindowsGitDeletionWitness {
         Ok(false)
     }
 
-    /// 参数：hint 为原目录卷句柄，id 为原枚举的完整身份，probe 为原恢复预算。
-    /// 返回：仅经过同卷原生 ID 正控后明确不存在为 true；存在/移动为 false，未知为原错误。
-    /// 不登记或删除该外来对象；同名替换不能被当作原对象，也不能凭路径缺失推进游标。
-    pub(super) fn confirm_enumerated_absent(
-        hint: &File,
-        id: &[u8; 16],
-        probe: &mut ProbeBudget,
-    ) -> io::Result<bool> {
-        probe.check().map_err(io::Error::other)?;
-        if *id == [0; 16] {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "enumerated identity is unknown",
-            ));
-        }
-        let volume = GitPrivateAllocation::from_file(hint).map_err(io::Error::other)?;
-        if !volume.is_directory() {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "enumerated absence requires original directory hint",
-            ));
-        }
-        let protocol = WindowsGitNativeIdProtocol::from_hint(hint)?;
-        probe.check().map_err(io::Error::other)?;
-        let control = Self::open_id(hint, &volume, &protocol).map_err(|error| {
-            io::Error::new(
-                io::ErrorKind::Unsupported,
-                format!("full-ID native witness capability unconfirmed: {error}"),
-            )
-        })?;
-        if !volume
-            .same_identity(&GitPrivateAllocation::from_file(&control).map_err(io::Error::other)?)
-        {
-            return Err(io::Error::new(
-                io::ErrorKind::AlreadyExists,
-                "enumerated absence control identity mismatch",
-            ));
-        }
-        drop(control);
-        probe.check().map_err(io::Error::other)?;
-        let file = match Self::open_raw_id(hint, id, &protocol) {
-            Ok(file) => file,
-            Err(error) => {
-                probe.check().map_err(io::Error::other)?;
-                return if error.raw_os_error() == Some(2) {
-                    Ok(true)
-                } else {
-                    Err(error)
-                };
-            }
-        };
-        let current = GitPrivateAllocation::from_file(&file).map_err(io::Error::other)?;
-        if !volume.same_volume(&current) || !current.windows_matches_file_id(id) {
-            return Err(io::Error::new(
-                io::ErrorKind::AlreadyExists,
-                "enumerated absence identity mismatch",
-            ));
-        }
-        probe.check().map_err(io::Error::other)?;
-        Ok(false)
-    }
-
     // 参数：原hint和完整ID；返回：只读属性句柄或原NT错误，不映射任何未知错误为absent。
     fn open_id(
         hint: &File,
@@ -162,8 +100,9 @@ impl WindowsGitDeletionWitness {
         Self::open_raw_id(hint, &id, protocol)
     }
 
-    // 参数：原卷 hint 与完整枚举 ID；返回：同卷只读属性句柄，失败保留原 NT 错误。
-    fn open_raw_id(
+    /// 参数：原卷 hint、完整 ID 和已核原生格式；返回：只读属性句柄或原 NT 错误。
+    /// 供只读外来观察使用；调用者核验同卷完整身份，不将任意失败当作缺失。
+    pub(super) fn open_raw_id(
         hint: &File,
         id: &[u8; 16],
         protocol: &WindowsGitNativeIdProtocol,

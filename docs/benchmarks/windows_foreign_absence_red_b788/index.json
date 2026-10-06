@@ -1,0 +1,55 @@
+{
+  "run": 37518702303,
+  "source": "b788dea90cf487b5bd75f9eb69c791c57e8b6f71",
+  "qualification": "baseline RED verified; candidate GREEN failed at native 87",
+  "artifacts": [
+    {
+      "kind": "stable",
+      "artifact": 11438098405,
+      "members": [
+        {
+          "name": "green-cursor.log",
+          "bytes": 1332,
+          "sha256": "1ccedbc2b84d58036f45e291ca50b0036fcb14bbdb228bc75bfa4dfee7275d47",
+          "archive": "stable-green-cursor.log.gz"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1273,
+          "sha256": "2db3a8991d2030206786473ab92b4250a53a8b6e93b5bb325a32a8075bea1408",
+          "archive": "stable-receipt.json.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 1284,
+          "sha256": "00136e99cb6a3858d6a946bdc20e152c0af51391d45f7bd502eb64f90272ff14",
+          "archive": "stable-red.log.gz"
+        }
+      ]
+    },
+    {
+      "kind": "msrv",
+      "artifact": 11439125175,
+      "members": [
+        {
+          "name": "green-cursor.log",
+          "bytes": 1332,
+          "sha256": "d8c45fdf07b345319b077115fdbc58cc1e276ab1af355584e180f02a2cb6606c",
+          "archive": "msrv-green-cursor.log.gz"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1273,
+          "sha256": "2db3a8991d2030206786473ab92b4250a53a8b6e93b5bb325a32a8075bea1408",
+          "archive": "msrv-receipt.json.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 1284,
+          "sha256": "44e354cec95eff2472c63d823f6de3197db7fef1bc30199280a0fcf8402753e9",
+          "archive": "msrv-red.log.gz"
+        }
+      ]
+    }
+  ]
+}

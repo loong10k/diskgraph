@@ -864,3 +864,52 @@ fn vanished_unregistered_entry_advances_only_after_original_full_id_absence() {
     );
     println!("DG_WINDOWS_ENUMERATED_ABSENCE_GREEN=1");
 }
+
+#[test]
+fn foreign_removal_preserves_hard_links_and_outstanding_external_handle() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    };
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let root = parent.join("original");
+    let capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&root, 128 << 20, 0, &mut probe)
+            .unwrap();
+    let foreign = root.join("foreign");
+    let linked = root.join("linked-foreign");
+    std::fs::write(&foreign, b"foreign payload").unwrap();
+    assert!(
+        cursor
+            .open_next_cleanup_child(&root, &capacity, &mut probe)
+            .is_err()
+    );
+    // 初次只读观察后创建另一硬链接；仅删除原名称不能证明原对象已最终移除。
+    std::fs::hard_link(&foreign, &linked).unwrap();
+    let external = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+        .open(&foreign)
+        .unwrap();
+    std::fs::remove_file(&foreign).unwrap();
+    assert!(
+        cursor
+            .open_next_cleanup_child(&root, &capacity, &mut probe)
+            .is_err()
+    );
+    assert_eq!(std::fs::read(&linked).unwrap(), b"foreign payload");
+    std::fs::remove_file(&linked).unwrap();
+    assert!(
+        cursor
+            .open_next_cleanup_child(&root, &capacity, &mut probe)
+            .is_err(),
+        "external last-close responsibility must retain the original cursor"
+    );
+    drop(external);
+    let result = cursor.open_next_cleanup_child(&root, &capacity, &mut probe);
+    assert!(
+        matches!(result, Ok(None)),
+        "foreign last-close must complete original observation: {result:?}"
+    );
+    println!("DG_WINDOWS_FOREIGN_LINKS_AND_LAST_CLOSE=1");
+}
