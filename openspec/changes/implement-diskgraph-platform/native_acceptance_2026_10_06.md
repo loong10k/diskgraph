@@ -120,3 +120,10 @@ HTTP受控生命周期本机最终验证：5个真实socket案与原连接上限
 
 
 Windows有限清理库层原生GREEN：CI37395768727 / job112051232160 / 73fe226终态success；35项逐一核对原stdout均1passed/0failed/0ignored，含5项新增poll清理案。fixture SHA256 c7d33732e2d3507a1c73b4ca0840a089c14b95c8800135a8e7bce6a37a8c1cc7，完整原stderr/stdout/receipt及摘要保存于docs/benchmarks/windows_finite_cleanup_native_green_2026_10_06；首次归档因3项nocapture诊断位于测试名与ok之间而中止，保留诊断补齐归档，不修改原测试或输出。仅库层poll行为通过，未启用产品；旧Drop、出生前pending、有限Registry/Pool、目录删除和可信Windows扫描镜像/CLI/MCP资格仍开放，不关闭平台父项。
+
+
+### Windows Registry deadline integration — native acceptance pending
+
+Original Windows Recovery now exposes drain_until with the same absolute deadline through the original child poll. Pending, original errors and unwind return the unique owner to its original slot; capacity is released only after actual Complete. Taking work uses try_lock; returning the borrowed owner requires the original short state lock and does not claim a hard wall-clock bound. Pool/directory cleanup and product finite exit remain open. Four new tests are frozen with the existing 35 native cases (484 sources); Windows tests have not run on this macOS host. Qualifier guards: 25 passed; guard missing API RED is preserved, not presented as native behavioral RED.
+
+Current-source engineering checks separately found strict product Clippy 44 errors; three concrete lint errors were fixed without suppressions, leaving 41 unused candidate-path errors. macOS load policy 8/8 and installation lease 6/6 regressions passed; pinned vendor 4/4 passed; package fmt check passed. Current macOS installed product run 37397304162 remains queued on ARM and Intel. Full production acceptance remains unproven. Raw proof: docs/benchmarks/registry_deadline_pre_native_2026_10_06/.

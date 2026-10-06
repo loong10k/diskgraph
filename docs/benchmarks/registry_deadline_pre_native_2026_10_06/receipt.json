@@ -1,0 +1,30 @@
+{
+  "production_acceptance": false,
+  "windows_registry_native_cases": "not run on macOS; pending actual Windows CI",
+  "qualification_guards": {
+    "passed": 25
+  },
+  "macos_loader_regression": {
+    "passed": 8
+  },
+  "macos_lease_regression": {
+    "passed": 6
+  },
+  "vendor_pin": {
+    "passed": 4
+  },
+  "strict_clippy": {
+    "passed": false,
+    "before_errors": 44,
+    "remaining_errors": 41
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/windows_registry_drain.rs": "9520bfb2972a6f484e7e35187a8d222f9cb27465dc31686a017b8a850fc0649c",
+    "crates/diskgraph-engine/src/windows_registry_owner.rs": "19484b3d58da01125d7b6f2f6460fe0169d8bf4adef08240e497b1dd712cd7f1",
+    "crates/diskgraph-engine/src/native_child/windows/windows_registry_deadline_tests.rs": "cfc7e38cb5e4367b1fc5c94782ef8f1eb5310819b601705295119355192b2c19",
+    "crates/diskgraph-engine/src/windows_registry_lock_tests.rs": "d6ed45006c07156dd634c5cb6cbe75053add3cb8430c0a699407ec5af31170ca",
+    "crates/diskgraph-engine/src/macos_load_policy.rs": "b1da7ae9a1ef4de3b8a8d1f5de0d3bb817b2b25cdc1d4c3a0d6aaff476ce46b6",
+    "crates/diskgraph-engine/src/macos_installation_lease.rs": "d84b95ec5bae53177e9beafdb0b0ec02b053d15c87014c00db430bb93b24a465",
+    "crates/diskgraph-engine/src/macos_open_namespace.rs": "b2c4fa3c1dd25fa3f3067cd0ad93eba0e43cfd736a8ab64a078d553433e00bbb"
+  }
+}

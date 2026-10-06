@@ -37,7 +37,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 480)
+            self.assertEqual(len(manifest["sources"]), 484)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
@@ -47,6 +47,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             qualifier.check_resource_cases(manifest["resource_cases"])
             qualifier.check_runner_cases(manifest["runner_cases"])
             qualifier.check_poll_cleanup_cases(manifest["poll_cleanup_cases"])
+            qualifier.check_registry_deadline_cases(manifest["registry_deadline_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
@@ -94,6 +95,17 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
         for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.RESOURCE_CASES)):
             with self.assertRaises(ValueError):
                 qualifier.check_poll_cleanup_cases(invalid)
+
+    def test_registry_deadline_inventory_requires_original_owner_and_lock_cases(self):
+        valid = ["native_child::windows::windows_registry_deadline_tests::" + name for name in (
+            "expired_registry_drain_retains_original_owner_and_capacity_until_actual_retry",
+            "registry_deadline_wait_error_preserves_original_owner_and_capacity",
+            "registry_deadline_query_error_preserves_original_owner_and_capacity",
+        )] + ["scan_worker_registry::windows_registry_lock_tests::contended_registry_drain_returns_pending_without_taking_reserved_slot"]
+        qualifier.check_registry_deadline_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.POLL_CLEANUP_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_registry_deadline_cases(invalid)
 
     def test_birth_owner_cases_cannot_be_omitted(self):
         valid = list(qualifier.BIRTH_CASES)
