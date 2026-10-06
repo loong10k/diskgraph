@@ -1,0 +1,12 @@
+{
+  "production_ready": false,
+  "isolated_tests_passed": 2,
+  "concurrent_regression_failures_remain": 2,
+  "hypothesis": "contended macOS birth gate invokes the legacy lifecycle checkpoint before child birth",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/native_birth_gate.rs": "b05fe7bf0b9b2a10358897b1daa9a45e9fc188975c5fbcb5a308bf7ef9de2247",
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "609659d757ac3762fcf42a6211669f32585b997ce280f83d50ca0024c8fdc531",
+    "crates/diskgraph-engine/src/native_child/unix_control_input_tests.rs": "ea2c48672e1c1b235a3a1dca0c443fd8536044011c6761cfddbece1df67abe21"
+  },
+  "fix_verified": false
+}
