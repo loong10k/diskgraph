@@ -1,0 +1,33 @@
+{
+  "classification": "Local Python orchestration only, not native Linux execution",
+  "red_source_sha": "aa2bc3413a7f70a2cf74d5fae149c491270626da",
+  "red": {
+    "tests": 222,
+    "failures": 5,
+    "errors": 2
+  },
+  "green_worktree_base_sha": "aa2bc3413a7f70a2cf74d5fae149c491270626da",
+  "green": {
+    "tests": 223,
+    "failures": 0,
+    "errors": 0
+  },
+  "command": "python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v",
+  "green_source_fingerprints": {
+    "scripts/tests/frozen_qualification_source.py": "8c241598998f8c85ff37a4a34f075f0fbe91d162ea89bcb383ea9270fe8c5eca",
+    "scripts/tests/test_qualify_linux_atomic_launcher.py": "e338937ca66bc4ac8a1a167fb1e0810317e160267879a2392a7217ccf95685d7",
+    "scripts/tests/test_qualify_linux_memfd_execution.py": "93126193304cf36d7acc62fd252a8ce9645921d4b11183407d26a79b7a5ac909",
+    "scripts/tests/fixtures/linux_qualification_sources.zip": "52dd202ad74722776b13692116d920f3469150d447e84f49818058d66bc5ca9b",
+    "scripts/tests/fixtures/linux_qualification_sources.json": "6db13a1212dd3d1b18ee8beb79f45b52bbfbda6b70212c0f4e60fc7f603f83ed"
+  },
+  "logs": {
+    "red": {
+      "raw_sha256": "e4c324c2cf9972a8fac7285798e08686f4b538dc30e8f6ad1636bf8ad24bdd16",
+      "gzip_sha256": "c292d4d0311c419c60a2b1f280d6191289e79d7fb10be13951c68424d74b3ece"
+    },
+    "green": {
+      "raw_sha256": "cacbc9a3da355183b6eced1845b9a3fcdf9a9826aa725e1c169cccd21cc507da",
+      "gzip_sha256": "a1c3aaedb6eeefbf7974c5bfb606d7bc24f9992be6b9f6b4245c80c64a3c90f7"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "classification": "Immutable historical tooling fixture, never current native acceptance",
+  "shared_support_git_source": "3924dc4:scripts/qualify-linux-scan-image.py",
+  "test_sources_git_source": "aa2bc3413a7f70a2cf74d5fae149c491270626da",
+  "archive_sha256": "52dd202ad74722776b13692116d920f3469150d447e84f49818058d66bc5ca9b",
+  "source_sha256": {
+    "scripts/qualify-linux-scan-image.py": "691aca97e1f90889c40237835eeff3b46deb173f2ca22862eb29cb6553490e53",
+    "scripts/tests/test_qualify_linux_atomic_launcher.py": "a3d7a9b725ea270a54fb6b72a99577c60b4c96801f3151ed00cf23fd11e92aa1",
+    "scripts/tests/test_qualify_linux_memfd_execution.py": "2aee5ee65f00f7243acffb1cc76c935507582d2517e083418499f7c333b9b0a8"
+  }
+}

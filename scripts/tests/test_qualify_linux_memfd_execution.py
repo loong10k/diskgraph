@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
+from frozen_qualification_source import copy_source
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,10 +37,12 @@ class MemfdAssemblyTests(unittest.TestCase):
         paths.append(self.manifest["profile_helper"]["path"])
         paths += [item["path"] for item in self.manifest["policy_stage_tooling"] + self.manifest["policy_stage_tests"]]
         paths.append(QUALIFIER.ATOMIC_MANIFEST)
+        frozen_bindings = {binding["path"]: binding for binding in [
+            tool["shared_support"], tool["unit_tests"], self.manifest["unit_tests"]]}
         for name in paths:
             target = self.checkout / name
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / name, target)
+            copy_source(ROOT, target, frozen_bindings.get(name, {"path": name}))
         native = self.checkout / QUALIFIER.NATIVE
         native.mkdir(parents=True)
         before = next(source for source in self.atomic["sources"] if source["role"] == "baseline_before")

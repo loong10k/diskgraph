@@ -11,6 +11,7 @@ import tomllib
 import unittest
 from unittest.mock import patch
 from contextlib import ExitStack
+from frozen_qualification_source import copy_source
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -82,7 +83,7 @@ class QualificationAssemblyTests(unittest.TestCase):
         for binding in bindings:
             target = self.checkout / binding["path"]
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(ROOT / binding["path"], target)
+            copy_source(ROOT, target, binding)
         native = self.checkout / QUALIFIER.NATIVE
         native.mkdir(parents=True)
         before = next(source for source in self.manifest["sources"]
@@ -202,8 +203,16 @@ class QualificationAssemblyTests(unittest.TestCase):
             QUALIFIER.add_cc_dependency(self.cargo, self.lock.replace('name = "cc"', 'name = "other"'))
 
     def test_shared_support_binding_is_actual_source_digest(self):
-        _, path = QUALIFIER.shared_support()
+        with patch.object(QUALIFIER, "__file__", str(self.checkout / "scripts/qualify-linux-atomic-launcher.py")):
+            _, path = QUALIFIER.shared_support()
         self.assertEqual(QUALIFIER.digest(path), self.manifest["shared_support_sha256"])
+
+    def test_current_support_cannot_replace_the_historical_archive(self):
+        # 当前工具已演进；历史验证仍必须拒绝它，不能重写旧清单摘要。
+        target = self.checkout / "scripts/qualify-linux-scan-image.py"
+        shutil.copyfile(ROOT / "scripts/qualify-linux-scan-image.py", target)
+        with self.assertRaisesRegex(ValueError, "archived tooling digest mismatch: scripts/qualify-linux-scan-image.py"):
+            QUALIFIER.validate_tooling(self.checkout, self.manifest, ROOT / "scripts/qualify-linux-atomic-launcher.py")
 
     def test_archived_tooling_drift_is_denied(self):
         QUALIFIER.validate_tooling(self.checkout, self.manifest, ROOT / "scripts/qualify-linux-atomic-launcher.py")
