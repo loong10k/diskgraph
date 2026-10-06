@@ -1,0 +1,14 @@
+{
+  "production_ready": false,
+  "run": 37412012814,
+  "checkout_sha": "35e75b7c82b4760b65b07291e573c8724a3b0c25",
+  "actual_cases": 65,
+  "passed": 64,
+  "failed": 1,
+  "actual_name_delete_open_error": 32,
+  "actual_id_delete_open": "success",
+  "actual_id_disposition_error": 87,
+  "disposition_success": false,
+  "meaning": "by-ID DELETE rights do not establish a usable delete capability; held lease rejection assertion still fails",
+  "production_root_cleanup_enabled": false
+}

@@ -44,7 +44,7 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 599)
+        self.assertEqual(len(manifest["sources"]), 600)
         self.assertEqual(manifest["native_child_parallel_tests_required"], 41)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])
@@ -137,9 +137,9 @@ class MacosInstalledQualifierTests(unittest.TestCase):
 
     def test_full_mcp_regression_requires_original_cases_and_counts(self):
         valid = "\n".join("test " + case + " ... ok" for case in qualifier.MCP_SCAN_REGRESSION_CASES)
-        valid += "\ntest result: ok. 159 passed; 0 failed; 0 ignored;"
+        valid += "\ntest result: ok. 162 passed; 0 failed; 0 ignored;"
         qualifier.check_mcp_regression(valid)
-        for invalid in (valid.replace("159 passed", "0 passed"), valid.replace("0 ignored", "1 ignored"),
+        for invalid in (valid.replace("162 passed", "0 passed"), valid.replace("0 ignored", "1 ignored"),
                         valid.replace(" ... ok", " ... ignored", 1)):
             with self.assertRaises(RuntimeError):
                 qualifier.check_mcp_regression(invalid)

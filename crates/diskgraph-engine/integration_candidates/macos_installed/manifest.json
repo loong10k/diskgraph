@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "c981212c1261b563e6a96f6c11806a63c0f485cdd0dde3cca43fd30fc617ab27",
+  "archive_sha256": "c884fa7edc4f8c874c83f632e105c8a3d9ca5c63b8dc69fe22d664b4a593730f",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -493,7 +493,7 @@
     "crates/diskgraph-mcp/src/evidence_job_status.rs": "eaabc8120bda16d521dce4e296de97a469147d4f360e8335dec02f2cb6c93ae1",
     "crates/diskgraph-mcp/src/filesystem_tools.rs": "a5b03de360497444077439d25efdc97b61b7502be19147f83392b758522cc5bf",
     "crates/diskgraph-mcp/src/history_budget_tests.rs": "3e33a96792822847da338ba7c30276727c30bf2f8e5eceb4e2b8d4f267870717",
-    "crates/diskgraph-mcp/src/http.rs": "741cd25b6f4362841293d5ce7aab23694ea8878dccc27c6717717dca74a1d889",
+    "crates/diskgraph-mcp/src/http.rs": "0d60b33ff7b54c66b6ecb3ebf22609967bd4f420ab28cd773c4fea45d06031e3",
     "crates/diskgraph-mcp/src/http_connections.rs": "7a2027f4d4bafec9281a486540c8b05a954e26a6a610e95d7c53cf22c29d19be",
     "crates/diskgraph-mcp/src/http_lifecycle_tests.rs": "03a9fc1945a5623cfa2fbe6bb4c6930151c319cd752c234af86053517f09d01c",
     "crates/diskgraph-mcp/src/http_server_runtime.rs": "d90ff8694f9cd2c80e7037a220e3ca41304aef430b73806eeb556680c6e9a39d",
@@ -511,7 +511,7 @@
     "crates/diskgraph-mcp/src/legacy_session_receiver.rs": "4190cbde48c107eaf422158675a659ee331d524240c7705dd0fc357197aa81eb",
     "crates/diskgraph-mcp/src/legacy_transport.rs": "ef68252d3ff4fdc4620a14a3b6799b28a47cd0805207e8486e8d89e3cf2af9d8",
     "crates/diskgraph-mcp/src/legacy_transport_tests.rs": "2695b9214639d3ca75afddf3619bef49110e970558e64cb713f131d3d7c9c8c4",
-    "crates/diskgraph-mcp/src/lib.rs": "8dc124c9adf2542d1759f7a0b921291459b01f3ce70034157e899666231a3e72",
+    "crates/diskgraph-mcp/src/lib.rs": "767f0c31166f0c6f3bece7ac753aaea68ba6b6cec1014c79a09d32703c3446b1",
     "crates/diskgraph-mcp/src/main.rs": "c959d8fc647a5e38b8179ec84c0c4334e5806ce6131a11525f72a678e1d131de",
     "crates/diskgraph-mcp/src/management_tools.rs": "b1521714393c9747cba60938634b0ce509647607fcba39aa6a23339b58c60c94",
     "crates/diskgraph-mcp/src/mcp_config.rs": "72b3b7aafa82ebef0f5f4cb5ac5aa4144d4879a38401bba356c7154f7e697332",
@@ -603,7 +603,8 @@
     "crates/diskgraph-scan-worker/src/worker_runtime.rs": "3ce6f0a12fcf1043dd14cbdbd4cdf71900cb56733148e132c24972a7ffa7dabc",
     "crates/diskgraph-scan-worker/src/worker_scan_request.rs": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
-    "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f"
+    "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
+    "crates/diskgraph-mcp/src/http_request_syntax_tests.rs": "b785159265955db1716fa41cad88ce7b1a5fc2949683f795411cd9014a358111"
   },
   "ordinary_cases": [
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",
@@ -630,6 +631,6 @@
     "cli_observes_mcp_revision"
   ],
   "cli_regression_tests_required": 67,
-  "mcp_regression_tests_required": 159,
+  "mcp_regression_tests_required": 162,
   "native_child_parallel_tests_required": 41
 }

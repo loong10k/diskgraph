@@ -21,3 +21,7 @@ CI 37411176883 在驱动单元测试发现完整导出受 core.autocrlf=true 影
 CI 37411402086 的真实旧版目标 RED 对照通过，新版65个精确用例实际运行：64通过，1失败。两个移动根正控、父目录创建期lease阻止移动及解除后成功均通过，原先三个根失败关闭两项。剩余 original_share_read_lease_blocks_delete_reopen_until_released 仍失败：完整原对象身份相同，按名 DELETE open 拒绝32，按ID重开获得0x110081含DELETE。不能由此推断实际删除会成功。原始两份receipt及相关日志见 docs/benchmarks/windows_native_64_of_65_2026_10_06。
 
 诊断只在本案独占空临时目录的已核身份原句柄上尝试 FileDispositionInfo，再在同句柄关闭前立即撤销标志。所有原测试断言和生产方法保持；不使用POSIX删除、DELETE_ON_CLOSE或用户路径，不启用写工具。SDK依据：https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileinformationbyhandle 。原生结果待后续CI，不能计通过。当前默认Engine严格Clippy重跑仍42诊断，不完成产品默认接入门禁。
+
+## 按ID实际删除标记诊断
+
+CI 37412012814 原生仍64/65，唯一原共享租约断言失败。实际同句柄 FileDispositionInfo 返回87，未成功标记删除；按名 DELETE open 仍32，按ID open虽获DELETE但不能据此声明可用删除能力。原型尚未接入产品目录清理，不放宽原断言，不启用写工具。receipt及实际日志见 docs/benchmarks/windows_id_disposition_87_2026_10_06。下一步必须找到并原生验证无路径逃逸、身份及共享语义一致的句柄执行方式。

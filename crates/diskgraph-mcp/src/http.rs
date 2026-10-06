@@ -520,11 +520,41 @@ pub fn read_request(
     let Some(request_line) = read_bounded_line(reader, MAX_REQUEST_LINE_BYTES, deadline)? else {
         return Ok(None);
     };
-    let mut parts = request_line.split_whitespace();
+    let mut parts = request_line.trim_end_matches(['\r', '\n']).split(' ');
     let method = parts.next().unwrap_or_default().to_owned();
     let target = parts.next().unwrap_or_default().to_owned();
-    if method.is_empty() {
-        return Ok(None);
+    let version = parts.next().unwrap_or_default();
+    // 传输身份只能建立在完整单一请求行上，不能忽略未知版本或第四段。
+    if method.is_empty()
+        || target.is_empty()
+        || !matches!(version, "HTTP/1.0" | "HTTP/1.1")
+        || parts.next().is_some()
+        || target.chars().any(char::is_control)
+        || !method.bytes().all(|byte| {
+            byte.is_ascii_alphanumeric()
+                || matches!(
+                    byte,
+                    b'!' | b'#'
+                        | b'$'
+                        | b'%'
+                        | b'&'
+                        | b'\''
+                        | b'*'
+                        | b'+'
+                        | b'-'
+                        | b'.'
+                        | b'^'
+                        | b'_'
+                        | b'`'
+                        | b'|'
+                        | b'~'
+                )
+        })
+    {
+        return Err(std::io::Error::new(
+            ErrorKind::InvalidData,
+            "malformed HTTP request line",
+        ));
     }
     let path = target.split('?').next().unwrap_or("/").to_owned();
     let query = target
@@ -563,7 +593,13 @@ pub fn read_request(
         if name.is_empty()
             || (matches!(
                 name.as_str(),
-                "content-length" | "transfer-encoding" | "authorization" | "origin" | "host"
+                "content-length"
+                    | "transfer-encoding"
+                    | "authorization"
+                    | "origin"
+                    | "host"
+                    | "mcp-session-id"
+                    | "mcp-protocol-version"
             ) && headers.contains_key(&name))
         {
             return Err(std::io::Error::new(

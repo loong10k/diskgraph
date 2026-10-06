@@ -68,6 +68,9 @@ def check_native_birth_regression(stdout):
 
 
 MCP_SCAN_REGRESSION_CASES = (
+    "http_request_syntax_tests::malformed_request_line_never_becomes_a_dispatchable_request",
+    "http_request_syntax_tests::duplicate_mcp_session_and_protocol_headers_are_rejected_before_dispatch",
+    "http_request_syntax_tests::supported_http_versions_preserve_request_and_single_value_headers",
     'history_budget_tests::encoded_socket_history_rechecks_both_scope_sides',
     'history_budget_tests::encoded_socket_history_rechecks_both_grant_sides',
     'history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides',
@@ -113,8 +116,8 @@ MCP_SCAN_REGRESSION_CASES = (
 
 def check_mcp_regression(stdout):
     """要求完整MCP回归与原34失败案、真实socket生命周期案实际运行。"""
-    if "test result: ok. 159 passed; 0 failed; 0 ignored;" not in stdout:
-        raise RuntimeError("full MCP regression did not execute all 159 required tests")
+    if "test result: ok. 162 passed; 0 failed; 0 ignored;" not in stdout:
+        raise RuntimeError("full MCP regression did not execute all 162 required tests")
     for case in MCP_SCAN_REGRESSION_CASES:
         if "test " + case + " ... ok" not in stdout:
             raise RuntimeError("required MCP regression missing: " + case)
@@ -312,7 +315,7 @@ def main():
         check_mcp_regression((output / "mcp-regression.stdout").read_text())
         if digest(mcp_fixture) != receipt["mcp_regression_binary_sha256"]:
             raise RuntimeError("MCP regression binary identity changed")
-        receipt["mcp_regression_tests_passed"] = 159
+        receipt["mcp_regression_tests_passed"] = 162
         # 在同一root发行/普通UID环境执行完整Engine，不能用39项native子集代替。
         invoke([str(binary), "--list"], checkout, output, "engine-full-inventory", env)
         invoke([str(binary), "--ignored", "--list"], checkout, output, "engine-ignored-inventory", env)
