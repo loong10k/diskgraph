@@ -7,6 +7,16 @@ use std::os::fd::{AsRawFd, FromRawFd};
 // Linux UAPI 的 open_how 是三个 u64；数组保持原生 ABI，不依赖 libc 新版包装。
 /// 参数：锚定目录、原生路径、打开标志及解析约束；返回：受约束句柄或固定错误。
 pub(super) fn open_at(parent: i32, name: &CStr, flags: i32, resolve: u64) -> Result<File, Failure> {
+    open_at_io(parent, name, flags, resolve).map_err(|error| error_code(error.raw_os_error()))
+}
+
+/// 参数：原锚、名称和原约束；返回：真实句柄或调用现场取得的原生错误。
+pub(super) fn open_at_io(
+    parent: i32,
+    name: &CStr,
+    flags: i32,
+    resolve: u64,
+) -> std::io::Result<File> {
     let how = [flags as u64, 0_u64, resolve];
     let fd = unsafe {
         libc::syscall(
@@ -18,7 +28,7 @@ pub(super) fn open_at(parent: i32, name: &CStr, flags: i32, resolve: u64) -> Res
         )
     };
     if fd < 0 {
-        return Err(last_error());
+        return Err(std::io::Error::last_os_error());
     }
     Ok(unsafe { File::from_raw_fd(fd as i32) })
 }
@@ -56,7 +66,12 @@ pub(super) fn unique_mount(file: &File) -> Result<u64, Failure> {
 
 /// 参数：无；返回：最近原生失败的固定分类，不持久化路径或 errno 文本。
 pub(super) fn last_error() -> Failure {
-    match std::io::Error::last_os_error().raw_os_error() {
+    error_code(std::io::Error::last_os_error().raw_os_error())
+}
+
+/// 参数：现场捕获的 errno；返回：固定原生失败分类。
+pub(super) fn error_code(errno: Option<i32>) -> Failure {
+    match errno {
         Some(libc::EACCES | libc::EPERM) => Failure::PermissionDenied,
         Some(libc::ENOENT | libc::ESRCH | libc::ESTALE) => Failure::Conflict,
         Some(

@@ -1,0 +1,37 @@
+{
+  "failed_source": "12f4551a531500e4669f81b5903e5b34264684f2",
+  "failed_run": 37541399150,
+  "artifact": 11449342615,
+  "zip_sha256": "b51dff15cdde1b372f62cc2991b4050d7d74d61ddd567f8894d0b45c026e81b6",
+  "original_failure": "actual openat2 errno=11; 200000-wide-round2-candidate failed with Conflict before publication",
+  "candidate_policy": {
+    "red": {
+      "passed": 2,
+      "failed": 3
+    },
+    "green": {
+      "passed": 5,
+      "failed": 0
+    },
+    "native_linux": "not run locally; injected policy controls are not native EAGAIN reproduction",
+    "macos": "arm64 portable policy tests and Engine Clippy only"
+  },
+  "candidate_sources": {
+    "crates/diskgraph-engine/src/native_process/bounded_open_retry.rs": "3d406ba60e69c63048e6db9e984d07117cfefc46eca93e0f7f8bb2e3e818ead3",
+    "crates/diskgraph-engine/src/native_process/bounded_open_retry_tests.rs": "5cac8d5def0d20b5206a10ddb2b08021630f616d9c84c3f980d5b03602cbbcf9",
+    "crates/diskgraph-engine/src/native_process/linux_open.rs": "7da678e3c3ded258734d0732081a44b61fcdf627cc98f5a62cbd0973c60f02a5",
+    "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs": "fd90a5261bf675234d5fc3ccc707bceab08db5318a67e6da9cc0a8c577a2ede8",
+    "crates/diskgraph-engine/src/native_process/linux_scan_namespace_tests.rs": "a30b7d67c580551879c07ed5770b201188cd2040c471e452f37ec7457f32fc10",
+    "crates/diskgraph-engine/src/native_process/mod.rs": "1cee81a32aa6ac51f9e356f9908406a01d93ad778d5c6b4931c4c448dcea9e44"
+  },
+  "artifact_download": "https://github.com/loong10k/diskgraph/actions/runs/37541399150/artifacts/11449342615",
+  "retained_logs": {
+    "archive": "11449342615_logs.zip",
+    "sha256": "32a7a7d0c9f6cb69860fc821c02e30dda9e7f803649a107384b35a7555bf202e",
+    "excluded": [
+      "baseline-archive.stdout",
+      "candidate-archive.stdout"
+    ],
+    "reason": "raw source tar streams exceed GitHub file size limit; original full ZIP preserved locally and identified by hash"
+  }
+}

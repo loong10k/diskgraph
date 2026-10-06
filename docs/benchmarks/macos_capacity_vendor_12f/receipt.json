@@ -1,0 +1,14 @@
+{
+  "source": "12f4551a531500e4669f81b5903e5b34264684f2",
+  "platform": "local macOS arm64",
+  "capacity": "13 passed / 0 failed / 0 ignored including actual 32767 zero-allocation files",
+  "vendor_pin": "4 passed / 0 failed / 0 ignored",
+  "sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "5ec7ea8fac9735029215b0990f9afb4e3dde695c2598becfc15b59bd72dbcdaf",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "9a00b8855b496239e84944ea7b0219a85bc68a608a165e938b27ad07845beaa8",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "4f807c9b397f91f243c9b3eb7753452aeb2b511de1021cf17d878d4727cbed9a",
+    "crates/diskgraph-disktree/tests/pinned_upstream.rs": "36715931125c8e5fd810d3b77cb4c347fd7f9e23490b1d866ac1f3c91f9c22e2",
+    "crates/diskgraph-disktree-core/UPSTREAM_DIGESTS.txt": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64"
+  },
+  "scope": "local component regressions; no full-platform readiness claim"
+}

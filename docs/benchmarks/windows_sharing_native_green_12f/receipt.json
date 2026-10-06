@@ -1,0 +1,21 @@
+{
+  "run": 37541399150,
+  "source": "12f4551a531500e4669f81b5903e5b34264684f2",
+  "checks": [
+    {
+      "artifact": 11448710956,
+      "sha256": "f8e47f39a4be13442c7b4bfbad08f7bcd0c783d609beeffa8240949a9eaeb83f",
+      "native_red": "0/1/0 at original sharing conflict",
+      "native_green": "2/0/0 includes original expiry and waiting cancellation",
+      "source_binding": "candidate/shared Git CRLF and original baseline Git LF verified"
+    },
+    {
+      "artifact": 11448680969,
+      "sha256": "76237eda09ceb43f7a980123a5bc48ba70c3492b3d18846347d6914d61de2b79",
+      "native_red": "0/1/0 at original sharing conflict",
+      "native_green": "2/0/0 includes original expiry and waiting cancellation",
+      "source_binding": "candidate/shared Git CRLF and original baseline Git LF verified"
+    }
+  ],
+  "scope": "sharing retry component only; concurrent cleanup/full regression and finite shutdown remain open"
+}

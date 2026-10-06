@@ -1,4 +1,8 @@
 //! 原生进程元数据观察；来源：Rust D42，不读取目标正文或进程 argv/env。
+#[cfg(any(target_os = "linux", test))]
+mod bounded_open_retry;
+#[cfg(test)]
+mod bounded_open_retry_tests;
 mod handle_reservation;
 #[cfg(target_os = "linux")]
 mod linux_directory;

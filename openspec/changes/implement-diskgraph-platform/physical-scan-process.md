@@ -137,3 +137,9 @@ Linux 启动入口将原 held File 的实际读取字节复制到新建的 `memf
 父端构造失败、协议/授权/期限失败和 panic 分别验收。检查点 panic 的原 payload 继续展开前，未完成处置的 owner 必须进入 catch_unwind 外仍存活的显式宿主处置槽；不得使用 mem::forget、无界隐藏全局 reaper 或替换 panic payload 充数。处置槽计入宿主有限活动进程容量，未完成回收不能释放槽位并无限启动新工作。清理拒绝需要实际 OS 反控；本机无法制造的条件标为未验证，不能用假布尔状态代替原生证据。
 
 正常完成的许可保持完整协议、控制写端关闭、双 EOF、原进程/线程组退出与实际 wait。异常处置成功不转为正常完成；异常处置失败仍阻止 revision 发布。Linux 使用原子出生 pidfd 的原 owner，不能回退到旧 Unix/SCM 启动路径。
+
+### Linux 扫描名称复核的临时解析竞态（12f4551 复现）
+
+原始 run 37541399150 / artifact 11449342615 的 200000-wide-round2-candidate 在 openat2 名称复核返回 errno=11；扫描失败且未发布节点。EAGAIN 不足以证明缺少平台能力。仅扫描 namespace 的打开/复核可对原生 EAGAIN 最多尝试 8 次，保持完全相同的 parent、name、flags 和 resolve；每次前后执行原授权、取消、期限检查，不创建新预算。持续 EAGAIN 返回 Conflict，不能发布；其他 errno 不重试，符号链接和祖先替换的拒绝行为保留。typed io::Error 必须在失败现场取得，不依赖后续 last_os_error。
+
+验收：瞬时错误后真实受约束打开可成功；持续竞态有限失败；等待期间撤权/取消/超时停止；其他错误立即返回；成功后检查失败必须丢弃句柄。策略单测与 Linux 真正 openat2/名称替换测试、20k/200k 配对扫描门禁分别记录，不相互替代。原始失败 ZIP 应保持可追溯。

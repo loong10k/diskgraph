@@ -1,5 +1,6 @@
+use super::bounded_open_retry::bounded_open_retry;
 use super::linux_directory_identity::LinuxDirectoryIdentity;
-use super::linux_open::open_at;
+use super::linux_open::{error_code, open_at_io};
 use diskgraph_core::ProcessEvidenceFailureCode as Failure;
 use std::ffi::CString;
 use std::fs::File;
@@ -38,11 +39,12 @@ impl LinuxScanNamespace {
             .try_reserve_exact(count)
             .map_err(|_| Failure::BudgetExceeded)?;
         check()?;
-        let anchor = open_at(
+        let anchor = reopen_for_verification(
             libc::AT_FDCWD,
             c"/",
             libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
             0x04 | 0x02 | 0x20,
+            check,
         )?;
         check()?;
         // 先区分内核缺少 unique-mount 能力；取得原绑定之后的复核失败不能退成 capability gap。
@@ -58,11 +60,12 @@ impl LinuxScanNamespace {
                 .last()
                 .map_or(anchor.file(), |(_, identity)| identity.file());
             // 合法注册根的祖先可以跨挂载；每个捕获对象的唯一挂载 ID 在复核时单独比较。
-            let file = open_at(
+            let file = reopen_for_verification(
                 parent.as_raw_fd(),
                 &name,
                 libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
                 0x08 | 0x04 | 0x02 | 0x20,
+                check,
             )?;
             check()?;
             // 原 FD 的身份只捕获一次；构造末尾仍从当前 / 完整复核，避免捕获期间重绑定。
@@ -95,6 +98,7 @@ impl LinuxScanNamespace {
             c"/",
             libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
             0x04 | 0x02 | 0x20,
+            check,
         )?;
         self.anchor.verify_current(&current_anchor, check)?;
         let mut parent = current_anchor;
@@ -105,6 +109,7 @@ impl LinuxScanNamespace {
                 name,
                 libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
                 0x08 | 0x04 | 0x02 | 0x20,
+                check,
             )?;
             original.verify_current(&current, check)?;
             parent = current;
@@ -113,15 +118,24 @@ impl LinuxScanNamespace {
     }
 }
 
-// 记录失败的真实 openat2 分类及数字 errno，不输出路径、身份、正文或 SQL，不重试或改变解析约束。
+// 仅重试 openat2 的临时竞态；原解析标志、原检查和逐组件身份复核保持不变。
 fn reopen_for_verification(
     parent: i32,
     name: &std::ffi::CStr,
     flags: i32,
     resolve: u64,
+    check: &dyn Fn() -> Result<(), Failure>,
 ) -> Result<File, Failure> {
-    open_at(parent, name, flags, resolve).inspect_err(|failure| {
-        let errno = std::io::Error::last_os_error().raw_os_error();
-        eprintln!("diskgraph: native scan namespace reopen failed: class={failure:?}; errno={errno:?}; flags={flags}; resolve={resolve}");
-    })
+    bounded_open_retry(check, &mut || open_at_io(parent, name, flags, resolve), libc::EAGAIN)?
+        .map_err(|error| {
+            let errno = error.raw_os_error();
+            // 持续临时竞态不是能力缺失；没有成功复核的名称绑定绝不能发布。
+            let failure = if errno == Some(libc::EAGAIN) {
+                Failure::Conflict
+            } else {
+                error_code(errno)
+            };
+            eprintln!("diskgraph: native scan namespace reopen failed: class={failure:?}; errno={errno:?}; flags={flags}; resolve={resolve}");
+            failure
+        })
 }

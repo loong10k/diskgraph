@@ -97,3 +97,41 @@ fn current_verification_preserves_a_denial_after_the_initial_check() {
     assert_eq!(calls.get(), 2);
     held.verify(&|| Ok(())).unwrap();
 }
+
+#[test]
+fn injected_transient_race_then_actual_constrained_open_retains_original_identity() {
+    use super::bounded_open_retry::bounded_open_retry;
+    use super::linux_open::open_at_io;
+    use std::os::fd::AsRawFd;
+    let (_directory, root) = fixture();
+    let held = LinuxScanNamespace::open(&root, &|| Ok(())).unwrap();
+    let calls = Cell::new(0);
+    let file = bounded_open_retry(
+        &|| Ok(()),
+        &mut || {
+            calls.set(calls.get() + 1);
+            if calls.get() == 1 {
+                // 首次竞态为注入控制；第二次必须真的调用带原解析约束的 openat2。
+                Err(std::io::Error::from_raw_os_error(libc::EAGAIN))
+            } else {
+                open_at_io(
+                    held.root().as_raw_fd(),
+                    c".",
+                    libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
+                    0x08 | 0x04 | 0x02 | 0x20,
+                )
+            }
+        },
+        libc::EAGAIN,
+    )
+    .unwrap()
+    .unwrap();
+    assert_eq!(calls.get(), 2);
+    let original = held.root().metadata().unwrap();
+    let current = file.metadata().unwrap();
+    assert_eq!(
+        (original.dev(), original.ino()),
+        (current.dev(), current.ino())
+    );
+    held.verify(&|| Ok(())).unwrap();
+}
