@@ -25,6 +25,8 @@ pub(super) struct WindowsGitDirectoryCursor {
     cleanup_entry: Option<(OsString, [u8; 16], u32)>,
     cleanup_identity: Option<GitPrivateAllocation>,
     cleanup_delete_requested: bool,
+    cleanup_observation:
+        Option<super::windows_git_removal_observation::WindowsGitRemovalObservation>,
 }
 
 impl WindowsGitDirectoryCursor {
@@ -83,14 +85,23 @@ impl WindowsGitDirectoryCursor {
             .cleanup_identity
             .as_ref()
             .ok_or_else(|| std::io::Error::other("cleanup child identity has not been verified"))?;
-        if !super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-            &self.file, expected, probe,
-        )? {
+        let confirmed = if let Some(observation) = self.cleanup_observation.as_mut() {
+            if !self.cleanup_delete_requested {
+                return Err(std::io::Error::other("original deletion not requested"));
+            }
+            observation.confirm(expected, probe)?
+        } else {
+            super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
+                &self.file, expected, probe,
+            )?
+        };
+        if !confirmed {
             return Ok(false);
         }
         self.cleanup_identity = None;
         self.cleanup_entry = None;
         self.cleanup_delete_requested = false;
+        self.cleanup_observation = None;
         Ok(true)
     }
 
@@ -140,6 +151,18 @@ impl WindowsGitDirectoryCursor {
         capacity
             .check_identity(&parent_label.join(name), file, directory)
             .map_err(std::io::Error::other)?;
+        if self.cleanup_observation.is_none() {
+            super::windows_git_removal_observation::WindowsGitRemovalObservation::prepare_into(
+                &self.file,
+                expected,
+                probe,
+                &mut self.cleanup_observation,
+            )?;
+        }
+        self.cleanup_observation
+            .as_ref()
+            .expect("original deletion observation")
+            .check_before_delete(expected, probe)?;
         probe.check().map_err(std::io::Error::other)?;
         let disposition = FILE_DISPOSITION_INFO { DeleteFile: true };
         let result = unsafe {
@@ -277,6 +300,7 @@ impl WindowsGitDirectoryCursor {
             cleanup_entry: None,
             cleanup_identity: None,
             cleanup_delete_requested: false,
+            cleanup_observation: None,
         })
     }
 

@@ -358,6 +358,14 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
         )
         .unwrap()
     );
+    let mut observation = None;
+    super::windows_git_removal_observation::WindowsGitRemovalObservation::prepare_into(
+        &hint,
+        &identity,
+        &mut probe,
+        &mut observation,
+    )
+    .unwrap();
     let delete = root.reopen_for_delete().unwrap();
     mark_fixture_delete(&delete);
     drop(delete);
@@ -365,10 +373,11 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     drop(root);
     compare_native_sdk_file_id(&hint, &identity, "pending");
     // 生产确认接口只观察原ID，未知/权限/等待删除错误均保持原恢复责任。
-    let pending = super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-        &hint, &identity, &mut probe,
-    )
-    .expect_err("delete-pending original must not be confirmed absent");
+    let pending = observation
+        .as_mut()
+        .unwrap()
+        .confirm(&identity, &mut probe)
+        .expect_err("delete-pending original must not be confirmed absent");
     assert_eq!(
         pending.raw_os_error(),
         Some(5),
@@ -381,10 +390,11 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     drop(external);
     compare_native_sdk_file_id(&hint, &identity, "closed");
     assert!(
-        super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-            &hint, &identity, &mut probe,
-        )
-        .unwrap()
+        observation
+            .as_mut()
+            .unwrap()
+            .confirm(&identity, &mut probe)
+            .unwrap()
     );
     assert_fixture_absent(&moved);
     assert_eq!(
@@ -673,4 +683,46 @@ fn cleanup_mark_requires_current_identity_and_live_budget_before_mutation() {
     );
     drop(file);
     println!("DG_CLEANUP_MARK_IDENTITY_AND_BUDGET_GUARDS=1");
+}
+
+#[test]
+fn removal_notification_decoder_refuses_loss_and_partial_bad_pages() {
+    use super::windows_git_removal_observation::matches_removal;
+    let mut child = [0u8; 16];
+    child[0] = 1;
+    let mut parent = [0u8; 16];
+    parent[0] = 2;
+    let mut record = vec![0u8; 88];
+    record[4..8].copy_from_slice(&2u32.to_le_bytes());
+    record[64..72].copy_from_slice(&child[..8]);
+    record[72..80].copy_from_slice(&parent[..8]);
+    record[80..84].copy_from_slice(&2u32.to_le_bytes());
+    record[84..86].copy_from_slice(&120u16.to_le_bytes());
+    assert!(matches_removal(&record, child, parent).unwrap());
+    for action in [1u32, 3, 4, 5] {
+        let mut other = record.clone();
+        other[4..8].copy_from_slice(&action.to_le_bytes());
+        assert!(!matches_removal(&other, child, parent).unwrap());
+    }
+    for length in [0u32, 1, u32::MAX] {
+        let mut bad = record.clone();
+        bad[80..84].copy_from_slice(&length.to_le_bytes());
+        assert!(matches_removal(&bad, child, parent).is_err());
+    }
+    for next in [1u32, 8, 84, 88, u32::MAX] {
+        let mut bad = record.clone();
+        bad[..4].copy_from_slice(&next.to_le_bytes());
+        assert!(matches_removal(&bad, child, parent).is_err());
+    }
+    let mut page = record.clone();
+    page[..4].copy_from_slice(&88u32.to_le_bytes());
+    page.extend_from_slice(&[0; 84]);
+    assert!(
+        matches_removal(&page, child, parent).is_err(),
+        "matched earlier record cannot hide invalid later record"
+    );
+    child[15] = 1;
+    assert!(matches_removal(&record, child, parent).is_err());
+    assert!(matches_removal(&[], [1; 16], parent).is_err());
+    println!("DG_NOTIFY_MALFORMED_PAGE_AND_ID_LOSS_REFUSED=1");
 }

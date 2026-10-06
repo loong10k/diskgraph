@@ -141,3 +141,6 @@ pub(crate) use macos_native_launcher::MacosNativeLauncher;
 
 #[cfg(windows)]
 pub(crate) use windows::CleanupProgress;
+
+#[cfg(windows)]
+pub(crate) use windows::WindowsDirectoryNotificationIo;

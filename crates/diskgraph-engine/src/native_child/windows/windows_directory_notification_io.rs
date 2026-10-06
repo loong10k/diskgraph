@@ -1,4 +1,4 @@
-//! 原生通知时机实验：不替代删除证明，不接通产品清理或释放容量。
+//! 固定缓冲的原生目录通知I/O；成员身份/预算与删除证明由调用者核验。
 use super::owned_handle::OwnedHandle;
 use super::windows_overlapped_operation::WindowsOverlappedOperation;
 use std::cell::UnsafeCell;
@@ -16,8 +16,8 @@ use windows_sys::Win32::Storage::FileSystem::{
 use windows_sys::Win32::System::IO::{CancelIoEx, GetOverlappedResult};
 use windows_sys::Win32::System::Threading::{CreateEventW, ResetEvent};
 
-/// 唯一测试通知owner，稳定存储保留至实际I/O完成。来源：Win32目录通知合同，无Java对应。
-pub(super) struct WindowsDirectoryNotificationProbe {
+/// 唯一目录通知I/O owner，稳定存储保留至实际I/O完成。来源：Win32目录通知合同，无Java对应。
+pub(crate) struct WindowsDirectoryNotificationIo {
     directory: File,
     event: OwnedHandle,
     operation: WindowsOverlappedOperation,
@@ -25,27 +25,41 @@ pub(super) struct WindowsDirectoryNotificationProbe {
     pending: bool,
 }
 
-impl WindowsDirectoryNotificationProbe {
+impl WindowsDirectoryNotificationIo {
     /// 参数：directory为已打开的异步原父目录；返回：已提交的原通知owner或原生错误。
-    pub(super) fn new(directory: File) -> io::Result<Self> {
+    #[cfg(test)]
+    pub(crate) fn new(directory: File) -> io::Result<Self> {
+        let mut owner = None;
+        Self::prepare_into(directory, &mut owner)?;
+        Ok(owner.expect("original notification owner"))
+    }
+
+    /// 参数：directory为原异步目录、owner为catch外唯一槽；返回：提交结果，失败也保留已建立owner。
+    pub(crate) fn prepare_into(directory: File, owner: &mut Option<Self>) -> io::Result<()> {
+        if owner.is_some() {
+            return Err(io::Error::other("notification owner slot occupied"));
+        }
         let event = OwnedHandle::from_raw(
             unsafe { CreateEventW(null_mut(), 1, 0, null_mut()) },
             "CreateEventW(directory notification probe)",
         )
         .map_err(|error| io::Error::other(error.to_string()))?;
         let operation = WindowsOverlappedOperation::new(event.as_raw());
-        let mut owner = Self {
+        *owner = Some(Self {
             directory,
             event,
             operation,
             bytes: Box::new(UnsafeCell::new([0; 8192])),
             pending: false,
-        };
-        owner.arm()?;
-        Ok(owner)
+        });
+        owner
+            .as_mut()
+            .expect("stored original notification owner")
+            .arm()
     }
 
-    fn arm(&mut self) -> io::Result<()> {
+    /// 参数：无；返回：新一轮提交结果；调用前须处理原完整记录且确认原I/O已完成。
+    pub(crate) fn arm(&mut self) -> io::Result<()> {
         assert!(!self.pending, "must complete original notification first");
         if unsafe { ResetEvent(self.event.as_raw()) } == 0 {
             return Err(io::Error::last_os_error());
@@ -73,7 +87,7 @@ impl WindowsDirectoryNotificationProbe {
     }
 
     /// 参数：无；返回：本次已完成的原始通知或尚未完成。记录丢失/错误不能表示对象已移除。
-    pub(super) fn poll(&mut self) -> io::Result<Option<Vec<u8>>> {
+    pub(crate) fn poll(&mut self) -> io::Result<Option<Vec<u8>>> {
         let mut transferred = 0;
         let result = unsafe {
             GetOverlappedResult(
@@ -93,19 +107,26 @@ impl WindowsDirectoryNotificationProbe {
         }
         self.pending = false;
         if transferred == 0 || transferred > 65536 {
-            return Err(io::Error::other("directory notification records lost"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "directory notification records lost",
+            ));
         }
-        // 实际完成后才读取，复制本次有限记录再提交下一次原I/O。
+        // 实际完成后才读取；调用者处理完整记录后才决定是否再次订阅。
         let bytes = unsafe {
             std::slice::from_raw_parts(self.bytes.get().cast::<u8>(), transferred as usize)
         }
         .to_vec();
-        self.arm()?;
         Ok(Some(bytes))
     }
 
+    /// 参数：无；返回：原父目录句柄的借用，不能超出同一owner生命周期。
+    pub(crate) fn directory(&self) -> &File {
+        &self.directory
+    }
+
     /// 参数：无；返回：取消后的实际完成状态；未完成或错误保留原内存与所有句柄。
-    pub(super) fn poll_cancel(&mut self) -> io::Result<bool> {
+    pub(crate) fn poll_cancel(&mut self) -> io::Result<bool> {
         if !self.pending {
             return Ok(true);
         }
@@ -138,9 +159,9 @@ impl WindowsDirectoryNotificationProbe {
     }
 }
 
-impl Drop for WindowsDirectoryNotificationProbe {
+impl Drop for WindowsDirectoryNotificationIo {
     fn drop(&mut self) {
-        // 实验失败也不能释放仍被内核引用的存储；此测试兜底不宣称有限退出。
+        // 任何失败也不能释放仍被内核引用的存储；此安全兜底不宣称有限退出。
         while self.pending {
             let _ = self.poll_cancel();
             if self.pending {

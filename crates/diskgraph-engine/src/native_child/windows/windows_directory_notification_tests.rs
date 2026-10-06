@@ -1,5 +1,5 @@
 //! 实际NTFS通知原身份/最后关闭时机实验；不以成员移除宣称物理容量释放。
-use super::windows_directory_notification_probe::WindowsDirectoryNotificationProbe;
+use super::windows_directory_notification_io::WindowsDirectoryNotificationIo;
 use std::fs::{File, OpenOptions};
 use std::os::windows::fs::OpenOptionsExt;
 use std::os::windows::io::AsRawHandle;
@@ -71,24 +71,25 @@ fn removed(bytes: &[u8], child: u64, parent: u64) -> bool {
 }
 
 fn observe(
-    probe: &mut WindowsDirectoryNotificationProbe,
+    probe: &mut WindowsDirectoryNotificationIo,
     child: u64,
     parent: u64,
     duration: Duration,
 ) -> bool {
     let deadline = Instant::now() + duration;
     while Instant::now() < deadline {
-        if let Some(bytes) = probe.poll().unwrap()
-            && removed(&bytes, child, parent)
-        {
-            return true;
+        if let Some(bytes) = probe.poll().unwrap() {
+            if removed(&bytes, child, parent) {
+                return true;
+            }
+            probe.arm().unwrap();
         }
         std::thread::sleep(Duration::from_millis(1));
     }
     false
 }
 
-fn cancel(probe: &mut WindowsDirectoryNotificationProbe) {
+fn cancel(probe: &mut WindowsDirectoryNotificationIo) {
     let deadline = Instant::now() + Duration::from_secs(5);
     while !probe.poll_cancel().unwrap() {
         assert!(
@@ -112,7 +113,7 @@ fn original_id_removal_notification_waits_for_last_external_close() {
     let child = identity(&external);
     let directory = open_parent(temp.path());
     let parent = identity(&directory);
-    let mut probe = WindowsDirectoryNotificationProbe::new(directory).unwrap();
+    let mut probe = WindowsDirectoryNotificationIo::new(directory).unwrap();
     let deleting = OpenOptions::new()
         .access_mode(0x00010000)
         .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
@@ -158,7 +159,7 @@ fn rename_and_foreign_same_name_removal_do_not_match_original_id() {
     let child = identity(&file);
     let directory = open_parent(temp.path());
     let parent = identity(&directory);
-    let mut probe = WindowsDirectoryNotificationProbe::new(directory).unwrap();
+    let mut probe = WindowsDirectoryNotificationIo::new(directory).unwrap();
     std::fs::rename(&original, &moved).unwrap();
     std::fs::write(&original, b"foreign").unwrap();
     std::fs::remove_file(&original).unwrap();

@@ -65,7 +65,7 @@ mod windows_pipe_io_phase;
 mod windows_prepared_connect_tests;
 
 mod windows_birth_phase;
-#[cfg(test)]
-mod windows_directory_notification_probe;
+mod windows_directory_notification_io;
+pub(crate) use windows_directory_notification_io::WindowsDirectoryNotificationIo;
 #[cfg(test)]
 mod windows_directory_notification_tests;
