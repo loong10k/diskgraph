@@ -1,0 +1,11 @@
+{
+  "run": 37423969074,
+  "sha": "32bedfbe7a2f7cf10649c33775509b3c1afa9298",
+  "production_acceptance": false,
+  "passed": 74,
+  "total": 76,
+  "SDK_original_identity_control": "present same full identity; pending Win32 5; closed Win32 87",
+  "native_after_close": "STATUS_INVALID_PARAMETER 0xc000000d",
+  "conclusion": "changing lossless NTFS ID API does not provide explicit final absence; no generic87 success mapping",
+  "next": "native controlled delete marking guards, then design reliable final witness and integrate owner/recovery"
+}

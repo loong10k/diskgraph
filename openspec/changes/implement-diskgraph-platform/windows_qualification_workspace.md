@@ -116,3 +116,5 @@ CI37423433266在362fcf22仍74/76终态failure：实际8字节操作，pending为
 ### 下一实施验收：游标内受控删除标记
 
 仅对owner登记的当前原子项句柄执行SetFileDispositionInfo：原父与子完整身份/类型、登记文件版本及本轮预算在副作用前核验。成功系统调用立即锁存delete_requested，再执行预算末检；副作用已发生但预算失败仍不得重新打开或跳项。陌生句柄和已到期预算必须在副作用前拒绝，保留原对象、当前游标和容量责任。此接口只用于私有元数据清理，不开启CLI/MCP危险动作；最终删除确认及整个walker/owner/Pool仍是独立未完成门禁。
+
+CI37423969074在32bedfb终态failure，74/76通过。SDK FileIdType同原ID三阶段实际结果：present成功且完整身份一致，pending=5，closed=87；原NtOpenFile同时pending=0xc0000056，closed=0xc000000d。转换为SDK原生8字节API不能提供明确最终缺失，不增加87成功映射。原始receipt/日志见windows_native_sdk_actual_2026_10_06。受控删除标记候选149ee36已通过本机驱动27、挂载14、结构6、fmt与OpenSpec；77项原生行为尚未执行，不完成walker/owner/Pool或平台父项。
