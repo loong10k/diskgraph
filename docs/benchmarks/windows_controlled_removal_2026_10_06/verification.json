@@ -1,0 +1,19 @@
+{
+  "run_id": 37430274941,
+  "source_commit": "f75fe0eadc8c8d373a164f0a76c0612f501848c0",
+  "platform": "Windows-2025Server-10.0.26100-SP0",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "fixture_sha256": "c8604483c40e8dcba0ca5fd0999a38bc75e87dc582ea514828db679a216ca0d4",
+  "candidate_archive_sha256": "1c226bd4769d3815a7a77ef46674b8d1ad7ae481cb9e07d3bb098cdcc644f5e1",
+  "cases": 80,
+  "passed": 80,
+  "original_output_sha256": "43511048f3102207ee92a116b7ac36a1ca6a230dcb0bb45f988ce6da4951a6c6",
+  "production_acceptance": false,
+  "remaining": [
+    "Recursive GitPrivateDirectoryOwner and Pool integration",
+    "Post-validation hard-link and deletion-flag races",
+    "Record-loss and original-owner recovery",
+    "Finite cancellation and shutdown",
+    "Other production platform gates"
+  ]
+}
