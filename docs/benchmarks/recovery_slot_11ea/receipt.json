@@ -1,0 +1,32 @@
+{
+  "base_source": "11ea3c520bde2a4b80cf3d78640182bba1753282",
+  "local_platform": "macOS arm64",
+  "initial_red": {
+    "passed": 1,
+    "failed": 4,
+    "ignored_child_fixture": 1
+  },
+  "append_red": {
+    "passed": 0,
+    "failed": 1
+  },
+  "green": {
+    "passed": 7,
+    "failed": 0,
+    "ignored_child_fixture": 1
+  },
+  "child_fixture": "explicitly invoked real children qualify competing OS file locks, prebirth abort reuse, and abrupt exit(42) without Rust destructors; it is not counted as standalone ignored coverage",
+  "protocol_regression": {
+    "passed": 10,
+    "failed": 0
+  },
+  "clippy": "passed",
+  "sources": {
+    "crates/diskgraph-engine/src/recovery_slot/active_slot.rs": "36b6a1499c8cae38c7429717e849da3445b82c88fb2c50109c96d270b76f6f3e",
+    "crates/diskgraph-engine/src/recovery_slot/mod.rs": "2faffb1388e94139eaa56601f1eca990e7574ff9a8037393ceee7ce42293f99d",
+    "crates/diskgraph-engine/src/recovery_slot/slot_error.rs": "8a4480a74485eca8af4ef403c7eaa876c052b68d436da25056b0d323888430d9",
+    "crates/diskgraph-engine/src/recovery_slot/slot_reservation.rs": "9be07e8fa1b5bbb3e47fadd98e72c66ae42e3f56f34dfd12a7e1476d0ad7a481",
+    "crates/diskgraph-engine/tests/recovery_slot.rs": "dba6309c0d48ee6529292729dc80565aee7ac8dfe1ed309fb9000016e5bff84d"
+  },
+  "remaining": "not connected to trusted supervisor namespace, native resource owners or CLI/MCP; active retirement intentionally not exposed; Linux/Windows native execution pending"
+}

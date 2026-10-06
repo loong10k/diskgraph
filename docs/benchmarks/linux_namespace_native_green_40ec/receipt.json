@@ -1,0 +1,72 @@
+{
+  "source": "40ec3dec229569cb2f07f0ccc431beefdfc07ae0",
+  "run": 37543812103,
+  "job": 112542896258,
+  "artifact": 11450127429,
+  "status": "passed",
+  "original_zip_sha256": "3eaebff3a9139ee7d37810dcfb392e07fe779245de9002570ed00315dfd1e3d2",
+  "retained_log_zip_sha256": "a942cdc3fa3add3211102862e72cc526b6a41fad6f17b387f9425269b3ad8626",
+  "excluded": [
+    "baseline-archive.stdout",
+    "candidate-archive.stdout"
+  ],
+  "artifact_download": "https://github.com/loong10k/diskgraph/actions/runs/37543812103/artifacts/11450127429",
+  "independently_verified_git_blobs": {
+    "crates/diskgraph-engine/src/native_process/linux_open.rs": "7da678e3c3ded258734d0732081a44b61fcdf627cc98f5a62cbd0973c60f02a5",
+    "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs": "fd90a5261bf675234d5fc3ccc707bceab08db5318a67e6da9cc0a8c577a2ede8",
+    "crates/diskgraph-engine/src/native_process/bounded_open_retry.rs": "3d406ba60e69c63048e6db9e984d07117cfefc46eca93e0f7f8bb2e3e818ead3",
+    "crates/diskgraph-engine/src/native_process/linux_scan_namespace_tests.rs": "a30b7d67c580551879c07ed5770b201188cd2040c471e452f37ec7457f32fc10",
+    "crates/diskgraph-engine/tests/benchmark_support/mod.rs": "e0506dc43ac1faa481c3c4dadd0f0de7b3f72b4d3b80028ddf3a893b1cb1ed6a",
+    "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "09628c65414696d555e29b08902e2506ddea193a3676b4c00484706d70c9737c",
+    "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500",
+    "crates/diskgraph-engine/tests/hardening_benchmark.rs": "4078803c2573466bd208203e0d3991f1b5740018b31b7c65ceffbc5fe204a90f"
+  },
+  "original_and_measured_manifests": "all four hashes verified",
+  "pairs": [
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.0339083342215059,
+      "fixture": "20000-wide",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.0546185249479756,
+      "fixture": "20000-wide",
+      "round": 2
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 11997184,
+      "candidate_over_baseline_scan_seconds": 1.0174613751624102,
+      "fixture": "200000-wide",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 12070912,
+      "candidate_over_baseline_scan_seconds": 1.029875339280288,
+      "fixture": "200000-wide",
+      "round": 2
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.285448550748155,
+      "fixture": "300-deep",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.2953379187841334,
+      "fixture": "300-deep",
+      "round": 2
+    }
+  ],
+  "limitations": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ]
+}

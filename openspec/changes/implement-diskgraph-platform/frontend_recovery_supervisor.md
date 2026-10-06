@@ -70,3 +70,11 @@ flowchart TD
 合法阶段为 Ready → ForegroundEnded → CleanupPending（可重复）→ CleanupComplete，允许在前台结束后直接确认完成。ForegroundEnded 保留完整 i32 退出码及 panic 标志，但不序列化原 panic payload。断开、部分 EOF、仅前台结束和 Pending 都是 Unconfirmed，不允许根据这些状态释放监督槽。通知仍不是原生 wait/Job/I/O/目录完成证据；真实监督实现须在原资源确认后才能发送 CleanupComplete。随机会话号不代替私有 IPC 对端认证，不能接受前端发送回收确认。
 
 `diskgraph-engine::recovery_control` 已提供编码和增量接收器，尚未接入 CLI/MCP 或监督进程，亦未实现容量锁、受信出生或原 owner 证明。只作为控制解析子组件，第一阶段总体及其余实施门禁仍不勾选。UnixStream::pair 的真实分片/EOF 测试只证明本地私有 socket 的控制语义，不能代替前端实际退出或 Windows 原生管道验收。
+
+## 监督槽预留子组件
+
+可信本地启动层先提供唯一、未克隆、读写可用的 held 普通文件及稳定受保护的槽命名空间；本组件不接收路径、不建立 owner/ACL/目录身份资格，不得从远程参数获取此能力。使用非阻塞原生文件独占锁；新槽或精确 CLEAN 记录才能预留。锁内写入固定 8 字节 RESERVED 并 sync_all，原期限贯穿各 OS 操作。任何未知、截断或既有 RESERVED/ACTIVE 记录保持未确认，拒绝工作出生且不改写。
+
+预留类型在工作出生前可显式取消，写入 CLEAN 并同步后释放原锁；进入 ACTIVE 必须先同步 ACTIVE，消费预留类型。ACTIVE 类型不提供清除记录/释放容量的完成接口。Drop、异常死亡和 OS 自动释放锁都保留未确认记录，不根据 PID、时间或空锁猜测 Complete。未来的原资源闭环将提供受封闭原 owner 约束的退休接口，当前不能将本组件当作已完成的监督生命周期。
+
+真实子进程资格需覆盖原锁阻止另一进程、出生前取消后的重新认领、ACTIVE 子进程直接退出后锁已释放但记录拒绝复用、异常记录非破坏拒绝及原期限耗尽。只在隔离临时文件验证锁/记录，不能代替受保护命名空间、实际 Engine/Job/I/O 清理、三平台受信安装或 CLI/MCP 退出验收。

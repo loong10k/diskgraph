@@ -353,3 +353,5 @@ mod windows_scan_runtime_tests;
 mod probe_pool_cleanup_fault;
 
 pub mod recovery_control;
+
+pub mod recovery_slot;
