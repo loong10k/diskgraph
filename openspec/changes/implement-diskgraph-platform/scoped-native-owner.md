@@ -149,3 +149,5 @@ a304063实际macOS ARM完整MCP为152/0/0ignored/0filtered，43项原必跑案�
 ## Windows出生前映像加载策略验收
 
 目标：原CreateProcess扩展属性在挂起出生前启用拒绝远程映像、拒绝低完整性映像、优先System32。实际原生回归在第三生命周期检查拒绝Resume后，借原process句柄调用GetProcessMitigationPolicy核三标志，再由原Job实际清理；不以常量或属性字段检查代替内核策略。先提交缺策略RED探针，取得Windows实际失败后实现。该策略只是DLL边界的一部分，不替代受信PE依赖闭包、已有可写映射验证或完整扫描接入；Windows产品能力仍关闭。
+
+23e9f30 Windows stable原生测试编译失败E0164，新增fixture误将Checkpoint结构枚举写为tuple。该结果不是加载策略RED；修正具名字段匹配后必须重跑同一实际挂起进程断言。

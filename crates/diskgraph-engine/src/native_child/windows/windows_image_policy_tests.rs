@@ -37,9 +37,10 @@ fn suspended_birth_enforces_image_load_policy_before_resume() {
     child.cleanup().unwrap();
     assert!(matches!(
         birth,
-        Err(ChildSpawnError::Checkpoint(
-            "retain actual suspended process"
-        ))
+        Err(ChildSpawnError::Checkpoint {
+            primary: "retain actual suspended process",
+            cleanup: None,
+        })
     ));
     assert_eq!(checkpoints, 3);
     assert_ne!(queried, 0, "native mitigation query failed: {query_error}");
