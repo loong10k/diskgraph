@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "69aec48ae8b4a1b853e95f6afdb379f5c1f02941fcbb5d6c5083b1846adec37f",
+  "archive_sha256": "1c9ecf990d950544314e14d7fae36a78d09ff0a90eb9a90446b2c2b2202b7649",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -502,8 +502,8 @@
     "crates/diskgraph-scan-worker/src/worker_scan_request.rs": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
     "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "1dcd0bd2f4b3c4d7f95f643b4a279d3b6e2a2923ec9b45cc475018fa9aced37d",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "18d3bae22f05f05b66ab21e6a7780ddb47a7ec20df8989113c4fbdd58fb261bb",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "aa61ba030ea1f15552808192c249787d01494ece3ec4a71e42cd3e145e08571c",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "2da94be8fa0144ab8200508718c7939f7e202f55f9f907dd58319aac9f29eaf8",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "0d951fc59bf402cb1162d81611c6e7a82c03e18460d26f625382169b8623fc67",
     "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "64ebb49f5b0651c6a40b0378ebdc6fa3811f2e7b9a79ef851308513d3c7efc7e"
@@ -649,6 +649,7 @@
     "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
     "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
     "live_evidence::windows_git_directory_cursor_tests::native_id_protocol_refuses_loss_and_preserves_refs_full_identity",
-    "live_evidence::windows_git_directory_cursor_tests::cleanup_child_requires_original_owner_registration_and_rejects_foreign_replacement"
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_child_requires_original_owner_registration_and_rejects_foreign_replacement",
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_mark_requires_current_identity_and_live_budget_before_mutation"
   ]
 }

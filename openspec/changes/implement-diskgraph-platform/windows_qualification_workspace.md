@@ -112,3 +112,7 @@ CI37422988114在69b4df88终态failure，74/76实际原生通过。旧目录枚�
 ### 原NTSTATUS确认与SDK原生格式对照
 
 CI37423433266在362fcf22仍74/76终态failure：实际8字节操作，pending为0xc0000056/5，最后关闭后为0xc000000d/87。不把STATUS_INVALID_PARAMETER映射为缺失。原始日志和receipt保留于windows_native_sdk_comparison_2026_10_06。下一候选只改测试：对同一个已核验原ID、同一个原hint，在present/pending/closed三个阶段执行SDK OpenFileById FileIdType的NTFS无损8字节操作，保留nofollow/norecall/完整返回身份核验；不是生产错误后回退、不是开启未知卷，不改最终必须明确缺失的断言。来源：https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-openfilebyid 与 https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_descriptor 。结果待原生，owner/Pool仍未接通。
+
+### 下一实施验收：游标内受控删除标记
+
+仅对owner登记的当前原子项句柄执行SetFileDispositionInfo：原父与子完整身份/类型、登记文件版本及本轮预算在副作用前核验。成功系统调用立即锁存delete_requested，再执行预算末检；副作用已发生但预算失败仍不得重新打开或跳项。陌生句柄和已到期预算必须在副作用前拒绝，保留原对象、当前游标和容量责任。此接口只用于私有元数据清理，不开启CLI/MCP危险动作；最终删除确认及整个walker/owner/Pool仍是独立未完成门禁。

@@ -509,7 +509,9 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
         .unwrap();
     assert_eq!(retried_name, name);
     assert!(identity.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
-    mark_fixture_delete(&file);
+    cursor
+        .mark_cleanup_child(&file, &parent_label, &capacity, &mut probe)
+        .unwrap();
     drop(file);
     assert_eq!(
         cursor
@@ -533,7 +535,9 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
         second_name, name,
         "only final confirmation permits next child"
     );
-    mark_fixture_delete(&second);
+    cursor
+        .mark_cleanup_child(&second, &parent_label, &capacity, &mut probe)
+        .unwrap();
     drop(second);
     assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
     assert!(
@@ -611,4 +615,62 @@ fn cleanup_child_requires_original_owner_registration_and_rejects_foreign_replac
         }
     }
     println!("DG_CLEANUP_REQUIRES_ORIGINAL_OWNER_LEDGER=1");
+}
+
+#[test]
+fn cleanup_mark_requires_current_identity_and_live_budget_before_mutation() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let label = parent.join("original");
+    let path = label.join("owned");
+    std::fs::write(&path, b"original").unwrap();
+    std::fs::write(parent.join("foreign"), b"retain foreign").unwrap();
+    let mut capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&label, 128 << 20, 0, &mut probe)
+            .unwrap();
+    let registered = std::fs::File::open(&path).unwrap();
+    capacity.observe(&path, &registered, &mut probe).unwrap();
+    drop(registered);
+    let (file, _, _) = cursor
+        .open_next_cleanup_child(&label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
+    let foreign = std::fs::File::open(parent.join("foreign")).unwrap();
+    assert!(
+        cursor
+            .mark_cleanup_child(&foreign, &label, &capacity, &mut probe)
+            .is_err()
+    );
+    assert!(!cursor.cleanup_child_delete_requested());
+    let mut expired = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    expired.expire_for_test();
+    assert!(
+        cursor
+            .mark_cleanup_child(&file, &label, &capacity, &mut expired)
+            .is_err()
+    );
+    assert!(!cursor.cleanup_child_delete_requested());
+    assert_eq!(std::fs::read(&path).unwrap(), b"original");
+    assert_eq!(
+        std::fs::read(parent.join("foreign")).unwrap(),
+        b"retain foreign"
+    );
+    cursor
+        .mark_cleanup_child(&file, &label, &capacity, &mut probe)
+        .unwrap();
+    assert!(cursor.cleanup_child_delete_requested());
+    assert!(
+        cursor
+            .open_next_cleanup_child(&label, &capacity, &mut probe)
+            .is_err()
+    );
+    assert!(cursor.next_entry(&mut probe).is_err());
+    assert_eq!(
+        cursor
+            .confirm_cleanup_child_absent(&mut probe)
+            .unwrap_err()
+            .raw_os_error(),
+        Some(5)
+    );
+    drop(file);
+    println!("DG_CLEANUP_MARK_IDENTITY_AND_BUDGET_GUARDS=1");
 }

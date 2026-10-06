@@ -1,0 +1,25 @@
+{
+  "production_acceptance": false,
+  "native_cases": 77,
+  "implementation": "current-owner identity and file-version checked DELETE marking; successful native request retained before terminal budget check",
+  "native_status": "not run for this candidate",
+  "local_checks": {
+    "qualifier": 27,
+    "mount": 14,
+    "source_layout": 6,
+    "fmt": "passed",
+    "openspec": "passed"
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "aa61ba030ea1f15552808192c249787d01494ece3ec4a71e42cd3e145e08571c",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "2da94be8fa0144ab8200508718c7939f7e202f55f9f907dd58319aac9f29eaf8",
+    "scripts/qualify_windows_scan_cleanup.py": "7e5512e2e3197d953f515ce912563c6e8fafff84ba35e31bb96f90b2d74da281"
+  },
+  "remaining": [
+    "final deletion proof",
+    "recursive walker",
+    "actual owner and pool routing",
+    "finite recovery",
+    "full-platform gates"
+  ]
+}

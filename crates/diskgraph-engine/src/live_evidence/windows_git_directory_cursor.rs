@@ -24,6 +24,7 @@ pub(super) struct WindowsGitDirectoryCursor {
     done: bool,
     cleanup_entry: Option<(OsString, [u8; 16], u32)>,
     cleanup_identity: Option<GitPrivateAllocation>,
+    cleanup_delete_requested: bool,
 }
 
 impl WindowsGitDirectoryCursor {
@@ -38,6 +39,11 @@ impl WindowsGitDirectoryCursor {
         probe: &mut ProbeBudget,
     ) -> std::io::Result<Option<(File, OsString, u32)>> {
         probe.check().map_err(std::io::Error::other)?;
+        if self.cleanup_delete_requested {
+            return Err(std::io::Error::other(
+                "original cleanup deletion awaits confirmation",
+            ));
+        }
         capacity
             .check_identity(parent_label, &self.file, true)
             .map_err(std::io::Error::other)?;
@@ -84,7 +90,72 @@ impl WindowsGitDirectoryCursor {
         }
         self.cleanup_identity = None;
         self.cleanup_entry = None;
+        self.cleanup_delete_requested = false;
         Ok(true)
+    }
+
+    /// 参数：无；返回：当前原子项是否已成功提交删除请求，预算末检失败也不复位。
+    pub(super) fn cleanup_child_delete_requested(&self) -> bool {
+        self.cleanup_delete_requested
+    }
+
+    /// 参数：file为当前原子项DELETE句柄、parent_label/capacity为原账本、probe为本轮预算。
+    /// 返回：核验并标记成功；失败保留当前项，系统调用成功后立即记录副作用再末检预算。
+    pub(super) fn mark_cleanup_child(
+        &mut self,
+        file: &File,
+        parent_label: &std::path::Path,
+        capacity: &super::git_private_capacity::GitPrivateCapacity,
+        probe: &mut ProbeBudget,
+    ) -> std::io::Result<()> {
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_DISPOSITION_INFO, FileDispositionInfo, SetFileInformationByHandle,
+        };
+        probe.check().map_err(std::io::Error::other)?;
+        if self.cleanup_delete_requested {
+            return Err(std::io::Error::other(
+                "original cleanup deletion already requested",
+            ));
+        }
+        let (name, _, attributes) = self
+            .cleanup_entry
+            .as_ref()
+            .ok_or_else(|| std::io::Error::other("cleanup entry absent"))?;
+        let expected = self
+            .cleanup_identity
+            .as_ref()
+            .ok_or_else(|| std::io::Error::other("cleanup identity unverified"))?;
+        let current = GitPrivateAllocation::from_file(file).map_err(std::io::Error::other)?;
+        if !expected.same_identity(&current) {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::AlreadyExists,
+                "cleanup handle identity changed",
+            ));
+        }
+        capacity
+            .check_identity(parent_label, &self.file, true)
+            .map_err(std::io::Error::other)?;
+        let directory =
+            attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
+        capacity
+            .check_identity(&parent_label.join(name), file, directory)
+            .map_err(std::io::Error::other)?;
+        probe.check().map_err(std::io::Error::other)?;
+        let disposition = FILE_DISPOSITION_INFO { DeleteFile: 1 };
+        let result = unsafe {
+            SetFileInformationByHandle(
+                file.as_raw_handle(),
+                FileDispositionInfo,
+                (&disposition as *const FILE_DISPOSITION_INFO).cast(),
+                std::mem::size_of::<FILE_DISPOSITION_INFO>() as u32,
+            )
+        };
+        if result == 0 {
+            return Err(std::io::Error::last_os_error());
+        }
+        // 成功删除请求不能被末段超时抹除；恢复只确认原ID，不按名称再次删除。
+        self.cleanup_delete_requested = true;
+        probe.check().map_err(std::io::Error::other)
     }
 
     /// 参数：name/id/directory为原枚举子项，probe为原任务预算；返回：核验后的DELETE句柄。
@@ -205,6 +276,7 @@ impl WindowsGitDirectoryCursor {
             done: false,
             cleanup_entry: None,
             cleanup_identity: None,
+            cleanup_delete_requested: false,
         })
     }
 
