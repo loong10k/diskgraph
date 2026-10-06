@@ -1,0 +1,49 @@
+{
+  "base_source": "9b9e68895a8447add26ab77e0e08cf92bf4636cf",
+  "protocol": {
+    "initial_red": {
+      "passed": 0,
+      "failed": 6
+    },
+    "strict_unknown_field_red": {
+      "passed": 9,
+      "failed": 1
+    },
+    "green": {
+      "passed": 10,
+      "failed": 0
+    },
+    "transport": "actual UnixStream pair fragmented reads and real EOF on local macOS arm64; not Windows native pipes or public frontend exit",
+    "limits": {
+      "frame_bytes": 4096,
+      "stream_bytes": 65536,
+      "frames": 64
+    },
+    "integration": "not wired into CLI/MCP; no supervisor birth, physical cleanup proof or capacity release capability"
+  },
+  "scope_rename": {
+    "native_failure_source": "12f4551",
+    "windows_stable_job": 112535007373,
+    "original_engine_result": {
+      "passed": 543,
+      "failed": 7,
+      "ignored": 3
+    },
+    "candidate_macos_actual_rename_and_terminal_rejection": {
+      "passed": 1,
+      "failed": 0
+    },
+    "candidate_windows": "pending"
+  },
+  "clippy": "passed",
+  "sources": {
+    "crates/diskgraph-engine/src/recovery_control/control_error.rs": "8ab17634320109b3ba9325860bc364fd276004f455f2663cda101f8bfed98436",
+    "crates/diskgraph-engine/src/recovery_control/control_frame.rs": "24b060e885207d4562ea32fe3dd3efcab00070f01d929bf92b410bb36291ab9b",
+    "crates/diskgraph-engine/src/recovery_control/control_notification.rs": "a4eabe76562f8c13ac1c1c3b491d37ea85b7bb71f811fd81b6f4b3eaa7fae841",
+    "crates/diskgraph-engine/src/recovery_control/control_phase.rs": "c77234bd6a63411090fcac05c44286a38130f2c0d300e7381b6bc30e141e1503",
+    "crates/diskgraph-engine/src/recovery_control/control_receiver.rs": "9af58cd3df48e6c92c0326a977220b5d728b15f8e3d30b18050f69c222d56f71",
+    "crates/diskgraph-engine/src/recovery_control/mod.rs": "e0c6a57b8221043a228b22cb961b9f67845a1d3836719bd6301732880e443202",
+    "crates/diskgraph-engine/tests/recovery_control.rs": "280a8c7615f1f6ad7fda8777ccdff60d792794262ddd1d8ac36b516b6e09721c",
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "6109b2e2c2c2615e4b14c5589aeca3dc22a5c724b7ebe54234b3b268eeea63db"
+  }
+}

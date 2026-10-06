@@ -351,3 +351,5 @@ mod windows_scan_runtime_tests;
 
 #[cfg(all(test, windows))]
 mod probe_pool_cleanup_fault;
+
+pub mod recovery_control;
