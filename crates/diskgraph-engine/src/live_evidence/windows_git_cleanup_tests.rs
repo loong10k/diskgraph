@@ -164,3 +164,51 @@ fn rename_after_concurrent_creation(from: &std::path::Path, to: &std::path::Path
         }
     }
 }
+
+#[test]
+fn original_root_cross_parent_cleanup_preserves_foreign_replacement() {
+    use super::git_directory_lease::GitDirectoryLease;
+    use super::git_directory_security::GitDirectorySecurity;
+    use super::probe_budget::ProbeBudget;
+    use super::windows_git_cleanup::WindowsGitCleanup;
+    use super::windows_git_private_root::WindowsGitPrivateRoot;
+    let temp = tempfile::tempdir().unwrap();
+    let parent = temp.path().canonicalize().unwrap();
+    let original = parent.join("original");
+    let destination = parent.join("destination");
+    std::fs::create_dir(&destination).unwrap();
+    let moved = destination.join("moved");
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let lease = GitDirectoryLease::open(&parent, &mut probe).unwrap();
+    let mut owner =
+        WindowsGitCleanup::new(lease.leaf_file(), original.clone(), &mut probe).unwrap();
+    WindowsGitPrivateRoot::create_into(
+        lease.leaf_file(),
+        std::ffi::OsStr::new("original"),
+        &GitDirectorySecurity::new().unwrap(),
+        &mut owner.root,
+    )
+    .unwrap();
+    drop(lease);
+    std::fs::rename(&original, &moved).unwrap();
+    std::fs::create_dir(&original).unwrap();
+    std::fs::write(original.join("foreign"), b"foreign sentinel").unwrap();
+    println!("DG_CROSS_PARENT_ORIGINAL_ROOT_RED_READY=1");
+    let result = loop {
+        let result = owner.cleanup(None);
+        if result.is_ok() || probe.check().is_err() {
+            break result;
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    };
+    assert!(
+        result.is_ok(),
+        "actual cross-parent original root removal must complete: {result:?}"
+    );
+    assert!(!moved.exists());
+    assert_eq!(
+        std::fs::read(original.join("foreign")).unwrap(),
+        b"foreign sentinel"
+    );
+    println!("DG_CROSS_PARENT_ORIGINAL_ROOT_GREEN=1");
+}

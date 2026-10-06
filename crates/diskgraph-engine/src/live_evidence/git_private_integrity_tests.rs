@@ -96,14 +96,31 @@ fn cleanup_refuses_a_foreign_directory_that_replaced_the_registered_root() {
     if original.exists() {
         std::fs::remove_dir_all(&original).unwrap();
     }
-    // 恢复原名称后，让同一真实 owner 显式清理；不在登记之外直接删除它。
-    std::fs::rename(&moved, &original).unwrap();
-    directory.complete(Ok(())).unwrap();
+    #[cfg(not(windows))]
+    {
+        // Unix 路径清理必须恢复原名称后交还同一 owner，不在登记之外删除原对象。
+        std::fs::rename(&moved, &original).unwrap();
+        directory.complete(Ok(())).unwrap();
+        assert!(
+            error.contains("cleanup") && error.contains("identity"),
+            "{error}"
+        );
+    }
+    #[cfg(windows)]
+    {
+        // 原根可跨父目录移动；实际句柄/父通知完成后，不得把它当作替身拒绝或再次改名。
+        while let Err(cleanup) = directory.complete::<()>(Ok(())) {
+            probe.check().unwrap_or_else(|deadline| {
+                panic!("original cross-parent recovery budget exhausted: {deadline}; {cleanup}")
+            });
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        assert!(
+            !moved.exists(),
+            "native original root must be actually removed"
+        );
+    }
     assert!(!original.exists());
     assert!(preserved, "cleanup deleted a foreign replacement: {error}");
     assert!(error.contains("fixture primary failure"));
-    assert!(
-        error.contains("cleanup") && error.contains("identity"),
-        "{error}"
-    );
 }

@@ -236,8 +236,19 @@ impl WindowsGitCleanup {
                 );
             }
             if self.observation.is_none() {
+                if !GitPrivateAllocation::from_file(&self.parent)?.same_volume(expected) {
+                    return Err("original creation parent volume mismatch".into());
+                }
+                let actual_parent = super::windows_git_root_parent::WindowsGitRootParent::bind(
+                    self.delete_file
+                        .as_ref()
+                        .expect("original root deletion lease"),
+                    expected,
+                    probe,
+                )
+                .map_err(|error| error.to_string())?;
                 WindowsGitRemovalObservation::prepare_into(
-                    &self.parent,
+                    &actual_parent,
                     expected,
                     probe,
                     &mut self.observation,

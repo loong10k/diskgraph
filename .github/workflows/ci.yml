@@ -125,6 +125,18 @@ jobs:
           name: windows-process-image-name-${{ matrix.rust }}-${{ github.run_id }}
           path: ${{ runner.temp }}/windows-process-image-name.log
           if-no-files-found: error
+      - name: Native Windows actual root parent red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: python scripts/qualify_windows_root_parent.py
+      - name: Preserve original root parent qualification
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-root-parent-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-root-parent/
+          if-no-files-found: error
+          retention-days: 7
       - name: Native Windows original directory retry red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10

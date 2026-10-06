@@ -1,0 +1,80 @@
+{
+  "run": 37520738825,
+  "source": "37c663cba7269b251678a5797fe99e2b3317c71a",
+  "qualification": "native baseline RED; cursor, hard-link/external-last-close and all four productive cleanup GREEN",
+  "artifacts": [
+    {
+      "kind": "stable",
+      "artifact": 11440836585,
+      "members": [
+        {
+          "name": "green-cursor.log",
+          "bytes": 1070,
+          "sha256": "1848f937459cc9e08d3faf5727137fb6619bdcd56cef2dcd62b071a48e46d292",
+          "archive": "stable-green-cursor.log.gz"
+        },
+        {
+          "name": "green-last-close.log",
+          "bytes": 868,
+          "sha256": "cfb5b2024429c12d09d7ad5a3321c7527ce6ac9373a717f002bd19b675401a9d",
+          "archive": "stable-green-last-close.log.gz"
+        },
+        {
+          "name": "green-product.log",
+          "bytes": 3059,
+          "sha256": "f3d1c6e46336bfe8ed428939ff4f2a6412da13daf7190f098cadfb570dcccd9a",
+          "archive": "stable-green-product.log.gz"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1738,
+          "sha256": "e5165f766c31dc6d95e4fde709fa35c70483648849b5aff69204960e3c57df0e",
+          "archive": "stable-receipt.json.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 1239,
+          "sha256": "a7752f6884a29a536a31939707c0fc99188848b588f3cb69ac987fc10c879096",
+          "archive": "stable-red.log.gz"
+        }
+      ]
+    },
+    {
+      "kind": "msrv",
+      "artifact": 11439123545,
+      "members": [
+        {
+          "name": "green-cursor.log",
+          "bytes": 1070,
+          "sha256": "20b63a9b4f90057c05b85f7faf662e05d7696bbbfd0534af5711cf8f50926fb4",
+          "archive": "msrv-green-cursor.log.gz"
+        },
+        {
+          "name": "green-last-close.log",
+          "bytes": 868,
+          "sha256": "28c4261aae1266e68c8359cb3b753cebe030140138f7772792ee0d29e754fc5a",
+          "archive": "msrv-green-last-close.log.gz"
+        },
+        {
+          "name": "green-product.log",
+          "bytes": 3059,
+          "sha256": "c6b925ec01f6c22a8e18f0367ef43c70ab160b488650e1bf90ded710d27f5aa1",
+          "archive": "msrv-green-product.log.gz"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1738,
+          "sha256": "e5165f766c31dc6d95e4fde709fa35c70483648849b5aff69204960e3c57df0e",
+          "archive": "msrv-receipt.json.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 1239,
+          "sha256": "0e1fe72665e86c8b9405afe953ba6fcd6ce1ad755eff0d52709625cdc0b0c25d",
+          "archive": "msrv-red.log.gz"
+        }
+      ]
+    }
+  ],
+  "limits": "not full regression or finite frontend shutdown qualification"
+}

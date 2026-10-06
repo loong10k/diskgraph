@@ -446,3 +446,35 @@ fn held_parent_lease_blocks_move_until_creation_phase_is_released() {
     let reopened = root.reopen_for_delete().unwrap();
     assert!(original.same_identity(&GitPrivateAllocation::from_file(&reopened).unwrap()));
 }
+
+#[test]
+fn delete_lease_freezes_original_parent_association() {
+    let temp = tempfile::tempdir().unwrap();
+    let parent = temp.path().canonicalize().unwrap();
+    let original = parent.join("original");
+    let destination = parent.join("destination");
+    std::fs::create_dir(&destination).unwrap();
+    let moved = destination.join("moved");
+    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let lease = GitDirectoryLease::open(&parent, &mut probe).unwrap();
+    let mut owner = None;
+    WindowsGitPrivateRoot::create_into(
+        lease.leaf_file(),
+        OsStr::new("original"),
+        &GitDirectorySecurity::new().unwrap(),
+        &mut owner,
+    )
+    .unwrap();
+    drop(lease);
+    let root = owner.as_mut().unwrap();
+    let delete = root.reopen_for_delete().unwrap();
+    let error = std::fs::rename(&original, &moved)
+        .expect_err("original DELETE lease must freeze membership before parent binding");
+    assert_eq!(error.raw_os_error(), Some(32));
+    assert!(original.exists());
+    assert!(!moved.exists());
+    drop(delete);
+    std::fs::rename(&original, &moved).unwrap();
+    assert!(root.confirm_created().is_ok());
+    println!("DG_ORIGINAL_ROOT_DELETE_LEASE_FREEZES_MEMBERSHIP=1");
+}

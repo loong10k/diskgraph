@@ -210,6 +210,8 @@ mod windows_git_native_id_protocol;
 mod windows_git_private_root;
 #[cfg(windows)]
 mod windows_git_removal_observation;
+#[cfg(windows)]
+mod windows_git_root_parent;
 
 #[cfg(all(test, windows))]
 mod windows_git_junction_fixture;

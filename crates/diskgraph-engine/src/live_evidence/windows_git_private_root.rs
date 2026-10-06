@@ -155,7 +155,8 @@ impl WindowsGitPrivateRoot {
     }
 
     /// 参数：无；返回：经原 FileID/卷核验、具有 DELETE 权限的同对象句柄。
-    /// 原 anchor 始终保留；失败不按路径重试，不执行删除，不修改 cleaned 状态。
+    /// 原 anchor 始终保留；DELETE 分享被拒，冻结原对象与当前父目录的关联直到标记完成。
+    /// 失败不按路径重试，不执行删除，不修改 cleaned 状态。
     pub(super) fn reopen_for_delete(&self) -> io::Result<File> {
         let expected = self
             .identity
@@ -184,7 +185,7 @@ impl WindowsGitPrivateRoot {
                 DELETE | FILE_READ_ATTRIBUTES | FILE_LIST_DIRECTORY | SYNCHRONIZE,
                 &attributes,
                 &mut status_block,
-                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                FILE_SHARE_READ | FILE_SHARE_WRITE,
                 // DIRECTORY_FILE 不兼容 no-follow/no-recall 选项组合；
                 // 保留防护，由原对象和新句柄的身份及目录类型检查约束重开。
                 FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_REPARSE_POINT | FILE_OPEN_NO_RECALL,
