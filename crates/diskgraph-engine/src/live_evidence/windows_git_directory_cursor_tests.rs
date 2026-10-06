@@ -603,11 +603,19 @@ fn cleanup_child_requires_original_owner_registration_and_rejects_foreign_replac
         let error = cursor
             .open_next_cleanup_child(&label, &capacity, &mut probe)
             .unwrap_err();
-        assert!(error.to_string().contains(if registered {
-            "registered identity changed"
-        } else {
-            "not registered"
-        }));
+        if !registered {
+            assert_eq!(std::fs::read(&path).unwrap(), b"original");
+            assert!(cursor.next_entry(&mut probe).is_err());
+            println!("DG_ORIGINAL_FOREIGN_REGISTRATION_RED_READY=1");
+        }
+        assert!(
+            error.to_string().contains(if registered {
+                "registered identity changed"
+            } else {
+                "not registered"
+            }),
+            "private Git first foreign error must preserve registration rejection: {error}"
+        );
         assert!(
             cursor.next_entry(&mut probe).is_err(),
             "unverified child cannot be skipped"
@@ -928,4 +936,70 @@ fn wait_for_foreign_completion(
         }
         std::thread::sleep(std::time::Duration::from_millis(20));
     }
+}
+
+#[test]
+fn modified_original_private_artifact_is_rejected_as_evidence_but_actually_disposed() {
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    let label = parent.join("original");
+    let path = label.join("owned");
+    let mut capacity =
+        super::git_private_capacity::GitPrivateCapacity::new(&label, 128 << 20, 0, &mut probe)
+            .unwrap();
+    std::fs::write(&path, b"original").unwrap();
+    let file = std::fs::File::open(&path).unwrap();
+    let identity = GitPrivateAllocation::from_file(&file).unwrap();
+    capacity.observe(&path, &file, &mut probe).unwrap();
+    drop(file);
+    std::fs::write(&path, b"modified").unwrap();
+    let modified = std::fs::File::open(&path).unwrap();
+    assert!(identity.same_identity(&GitPrivateAllocation::from_file(&modified).unwrap()));
+    assert!(
+        capacity
+            .check_identity(&path, &modified, false)
+            .unwrap_err()
+            .contains("version changed")
+    );
+    drop(modified);
+    println!("DG_MODIFIED_PRIVATE_IDENTITY_REJECTION_RED_READY=1");
+    let result = cursor.open_next_cleanup_child(&label, &capacity, &mut probe);
+    assert!(
+        result.is_ok(),
+        "modified original private artifact must remain disposable: {result:?}"
+    );
+    let (file, name, _) = result.unwrap().unwrap();
+    assert_eq!(name, OsString::from("owned"));
+    assert!(identity.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
+    assert!(
+        capacity
+            .check_identity(&path, &file, false)
+            .unwrap_err()
+            .contains("version changed")
+    );
+    cursor
+        .mark_cleanup_child(&file, &label, &capacity, &mut probe)
+        .unwrap();
+    drop(file);
+    loop {
+        let result = cursor.confirm_cleanup_child_absent(&mut probe);
+        if matches!(result, Ok(true)) {
+            break;
+        }
+        probe.check().unwrap_or_else(|deadline| {
+            panic!("original mutation cleanup budget exhausted: {deadline}; {result:?}")
+        });
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert_fixture_absent(&path);
+    assert!(
+        capacity.registered(&path),
+        "cleanup must not replace trusted ledger evidence"
+    );
+    assert!(
+        cursor
+            .open_next_cleanup_child(&label, &capacity, &mut probe)
+            .unwrap()
+            .is_none()
+    );
+    println!("DG_MODIFIED_PRIVATE_DISPOSAL_WITHOUT_EVIDENCE_TRUST=1");
 }

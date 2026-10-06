@@ -116,7 +116,7 @@ impl WindowsGitCleanup {
             root.confirm_created().map_err(|error| error.to_string())?;
             let identity = GitPrivateAllocation::from_file(root.as_file())?;
             if let Some(capacity) = capacity {
-                capacity.check_identity(&self.label, root.as_file(), true)?;
+                capacity.check_cleanup_identity(&self.label, root.as_file(), true)?;
             }
             self.frames
                 .try_reserve(1)

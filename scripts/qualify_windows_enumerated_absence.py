@@ -12,6 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "6c3b7295e26e31933d9258f8ee8328cc6b241f64"
 SOURCES = [
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs",
     "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
     "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
     "crates/diskgraph-engine/src/live_evidence/mod.rs",

@@ -51,7 +51,7 @@ impl WindowsGitDirectoryCursor {
             ));
         }
         capacity
-            .check_identity(parent_label, &self.file, true)
+            .check_cleanup_identity(parent_label, &self.file, true)
             .map_err(std::io::Error::other)?;
         loop {
             probe.check().map_err(std::io::Error::other)?;
@@ -68,6 +68,10 @@ impl WindowsGitDirectoryCursor {
                     super::windows_git_foreign_removal_witness::WindowsGitForeignRemovalWitness::prepare_into(
                         &self.file, id, probe, &mut self.foreign_observation,
                     )?;
+                    // 首次确认外来对象只建立只读观察，保留原未登记拒绝语义；不把观察当删除许可。
+                    return Err(std::io::Error::other(
+                        "private Git object is not registered; original foreign observation retained",
+                    ));
                 }
                 if !self
                     .foreign_observation
@@ -87,7 +91,7 @@ impl WindowsGitDirectoryCursor {
             let file = self.open_verified_child(name, *id, directory, probe)?;
             // 词法路径只作原账本键，不用于重新打开对象；句柄必须属于本owner登记身份。
             capacity
-                .check_identity(&parent_label.join(name), &file, directory)
+                .check_cleanup_identity(&parent_label.join(name), &file, directory)
                 .map_err(std::io::Error::other)?;
             let identity = GitPrivateAllocation::from_file(&file).map_err(std::io::Error::other)?;
             if let Some(expected) = self.cleanup_identity.as_ref()
@@ -185,12 +189,12 @@ impl WindowsGitDirectoryCursor {
             ));
         }
         capacity
-            .check_identity(parent_label, &self.file, true)
+            .check_cleanup_identity(parent_label, &self.file, true)
             .map_err(std::io::Error::other)?;
         let directory =
             attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
         capacity
-            .check_identity(&parent_label.join(name), file, directory)
+            .check_cleanup_identity(&parent_label.join(name), file, directory)
             .map_err(std::io::Error::other)?;
         if self.cleanup_observation.is_none() {
             super::windows_git_removal_observation::WindowsGitRemovalObservation::prepare_into(

@@ -138,6 +138,29 @@ impl GitPrivateCapacity {
         file: &File,
         directory: bool,
     ) -> Result<(), String> {
+        self.check_registered_object(path, file, directory, true)
+    }
+
+    /// 核验清理资格，不把已修改临时文件当可信证据。参数：path 为原账本键，file 为原持有句柄。
+    /// 返回：登记的完整身份与类型一致时成功；不更新版本、不收养替换，不授权读写或发布。
+    #[cfg(windows)]
+    pub(super) fn check_cleanup_identity(
+        &self,
+        path: &Path,
+        file: &File,
+        directory: bool,
+    ) -> Result<(), String> {
+        self.check_registered_object(path, file, directory, false)
+    }
+
+    // 清理销毁的是本 owner 的原私有对象；证据和生产写入额外要求原版本未改变。
+    fn check_registered_object(
+        &self,
+        path: &Path,
+        file: &File,
+        directory: bool,
+        require_version: bool,
+    ) -> Result<(), String> {
         self.validate_path(path)?;
         let expected = self
             .allocations
@@ -147,7 +170,7 @@ impl GitPrivateCapacity {
         if expected.is_directory() != directory || !expected.same_identity(&current) {
             return Err("private Git registered identity changed".into());
         }
-        if !directory && !expected.same_version(&current) {
+        if require_version && !directory && !expected.same_version(&current) {
             return Err("private Git registered file version changed".into());
         }
         Ok(())

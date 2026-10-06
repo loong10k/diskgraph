@@ -1,0 +1,216 @@
+{
+  "run": 37521928610,
+  "source": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+  "qualification": "native cross-parent RED/GREEN and original delete lease membership freeze/release verified",
+  "limits": "not full regression or finite shutdown",
+  "artifacts": [
+    {
+      "kind": "stable",
+      "artifact": 11440607969,
+      "members": [
+        {
+          "name": "receipt.json",
+          "bytes": 1658,
+          "sha256": "23bb86c1983993edf530c0d890a6f1d0c37ed4360864a26219ee0ff9d8d8aa95",
+          "archive": "stable-receipt.json.gz"
+        },
+        {
+          "name": "green-membership-lease.log",
+          "bytes": 464,
+          "sha256": "5c2c759c383ae7f92e1abf0ead9e05cffeb6c932a0ded77bda42cad8634b5299",
+          "archive": "stable-green-membership-lease.log.gz"
+        },
+        {
+          "name": "green.log",
+          "bytes": 799,
+          "sha256": "e4f665077a783a35f42dfd731cc0597b116a2274d4fa3abb3bac7c01135ecbfc",
+          "archive": "stable-green.log.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 43523,
+          "sha256": "1e71d8ff05a57c95dbe88b215fec1bd166e2704a0e47389d248e6ee76c5f9990",
+          "archive": "stable-red.log.gz"
+        }
+      ],
+      "source_checks": [
+        {
+          "stage": "candidate_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/mod.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "9ff59b17ad4c85b404b517a0c794ac72b00f105bfb71da0bd92b1e2ce2c8268c"
+        },
+        {
+          "stage": "candidate_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "f4e372ed90d4238b9f3cb86bdf6f02bdc72a7f7fa96db8cf66888ad9b417b8e2"
+        },
+        {
+          "stage": "candidate_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "4c683901fee55bced202ed83129ca617b8321073ce7eb6b47fde04cc832dd3dd"
+        },
+        {
+          "stage": "baseline_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/mod.rs",
+          "matching_representation": [
+            "git_blob"
+          ],
+          "sha256": "d1a05a714b0addc2edd0ae383d0d8c6f72a6cd338e6f57e66092db051095a92e"
+        },
+        {
+          "stage": "baseline_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "matching_representation": [
+            "git_blob"
+          ],
+          "sha256": "f285e6c01e1e552dc0162e68b94386acc49392afc76e86b6b5b872604db5a44f"
+        },
+        {
+          "stage": "baseline_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
+          "matching_representation": [
+            "git_blob"
+          ],
+          "sha256": "efb6f9ac875f45b29428b3e2157ca71a396e5d5af1b2d93981bcfdb109edca48"
+        },
+        {
+          "stage": "shared_support_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_root_parent.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "61bbeb7be3908d4a1cff255b6c566d56d7ad547d00ee69c1cdd2192805bf3f24"
+        },
+        {
+          "stage": "shared_support_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "74fed1b373f5bcbc409e98987b692382c53a267e2289325884aba2abfd510e35"
+        },
+        {
+          "stage": "shared_test_sha256",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup_tests.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "aafa12f62d9338585b9769a2c1892516bc13093cb8aa83cbd812a561e2215eaf"
+        }
+      ]
+    },
+    {
+      "kind": "msrv",
+      "artifact": 11439274827,
+      "members": [
+        {
+          "name": "green-membership-lease.log",
+          "bytes": 464,
+          "sha256": "8ef437a7ea2a900038fb283d4f4d8189ec4c3dec42a71a5c73b3f3a4b088a090",
+          "archive": "msrv-green-membership-lease.log.gz"
+        },
+        {
+          "name": "green.log",
+          "bytes": 799,
+          "sha256": "c7027371ed3c5a0d12930bc63685f34c0642feb0175d3dce94ac1bf9bfea98b9",
+          "archive": "msrv-green.log.gz"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 1658,
+          "sha256": "23bb86c1983993edf530c0d890a6f1d0c37ed4360864a26219ee0ff9d8d8aa95",
+          "archive": "msrv-receipt.json.gz"
+        },
+        {
+          "name": "red.log",
+          "bytes": 43407,
+          "sha256": "11d810a321b6a1f8c13a00ce5642d643aa6d43556546c30868504fff467081c2",
+          "archive": "msrv-red.log.gz"
+        }
+      ],
+      "source_checks": [
+        {
+          "stage": "candidate_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/mod.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "9ff59b17ad4c85b404b517a0c794ac72b00f105bfb71da0bd92b1e2ce2c8268c"
+        },
+        {
+          "stage": "candidate_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "f4e372ed90d4238b9f3cb86bdf6f02bdc72a7f7fa96db8cf66888ad9b417b8e2"
+        },
+        {
+          "stage": "candidate_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "4c683901fee55bced202ed83129ca617b8321073ce7eb6b47fde04cc832dd3dd"
+        },
+        {
+          "stage": "baseline_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/mod.rs",
+          "matching_representation": [
+            "git_blob"
+          ],
+          "sha256": "d1a05a714b0addc2edd0ae383d0d8c6f72a6cd338e6f57e66092db051095a92e"
+        },
+        {
+          "stage": "baseline_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+          "matching_representation": [
+            "git_blob"
+          ],
+          "sha256": "f285e6c01e1e552dc0162e68b94386acc49392afc76e86b6b5b872604db5a44f"
+        },
+        {
+          "stage": "baseline_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs",
+          "matching_representation": [
+            "git_blob"
+          ],
+          "sha256": "efb6f9ac875f45b29428b3e2157ca71a396e5d5af1b2d93981bcfdb109edca48"
+        },
+        {
+          "stage": "shared_support_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_root_parent.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "61bbeb7be3908d4a1cff255b6c566d56d7ad547d00ee69c1cdd2192805bf3f24"
+        },
+        {
+          "stage": "shared_support_sources",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "74fed1b373f5bcbc409e98987b692382c53a267e2289325884aba2abfd510e35"
+        },
+        {
+          "stage": "shared_test_sha256",
+          "path": "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup_tests.rs",
+          "matching_representation": [
+            "windows_crlf_checkout"
+          ],
+          "sha256": "aafa12f62d9338585b9769a2c1892516bc13093cb8aa83cbd812a561e2215eaf"
+        }
+      ]
+    }
+  ]
+}

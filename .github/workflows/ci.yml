@@ -137,6 +137,30 @@ jobs:
           path: ${{ runner.temp }}/diskgraph-windows-root-parent/
           if-no-files-found: error
           retention-days: 7
+      - name: Native Windows modified private evidence disposal red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: python scripts/qualify_windows_private_disposal.py
+      - name: Preserve original private evidence disposal qualification
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-private-disposal-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-private-disposal/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Native Windows original registration rejection red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: python scripts/qualify_windows_registration_rejection.py
+      - name: Preserve original registration rejection qualification
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-registration-rejection-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-registration-rejection/
+          if-no-files-found: error
+          retention-days: 7
       - name: Native Windows original directory retry red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10
