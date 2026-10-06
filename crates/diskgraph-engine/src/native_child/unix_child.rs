@@ -340,10 +340,23 @@ impl UnixChild {
             }
         }
         // leader 尚未回收，普通后代仍属于本组；主动 setsid 逃离者不受此约束。
-        let waited = self
-            .child
-            .wait()
-            .map_err(|error| ChildError::io("reap owned child", error));
+        #[cfg(test)]
+        super::unix_normal_exit_tests::reap_before_cleanup_wait(pid);
+        let waited = match self.child.wait() {
+            Ok(status) => Ok(status),
+            Err(error) => {
+                // 初始观察之后仍可能被外部 wait 消费；失败不能签发完成事实。
+                // ECHILD 已明确失去旧 PID/PGID 权限，其余错误保留原 owner 待重试。
+                if error.raw_os_error() == Some(libc::ECHILD) {
+                    self.owns_group = false;
+                }
+                let error = ChildError::io("reap owned child", error);
+                return Err(match group {
+                    Err(primary) => primary.with_cleanup(Err(error)),
+                    Ok(()) => error,
+                });
+            }
+        };
         self.cleaned = true;
         self.owns_group = false;
         self.stdout.take();

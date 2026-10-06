@@ -5,6 +5,19 @@ use super::{ChildError, ChildSpawnError, ControlWriteStatus, UnixChild};
 use std::io;
 use std::process::Command;
 
+thread_local! {
+    static REAP_BEFORE_CLEANUP_WAIT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// 在真实清理末段消费原 leader；仅测试当前线程的单次外部等待竞态。
+/// 参数：pid 为真实原 leader；返回：无，断言外部 waitpid 实际消费该 child。
+pub(super) fn reap_before_cleanup_wait(pid: i32) {
+    if REAP_BEFORE_CLEANUP_WAIT.replace(false) {
+        let mut status = 0;
+        assert_eq!(unsafe { libc::waitpid(pid, &mut status, 0) }, pid);
+    }
+}
+
 #[test]
 fn end_and_pipe_eof_do_not_permit_reaping_a_live_leader() {
     let directory = tempfile::tempdir().unwrap();
@@ -142,6 +155,12 @@ fn two_sessions_have_independent_normal_exit_permissions() {
 
 #[test]
 fn external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup() {
+    for late_reap in [false, true] {
+        external_reap_refuses_cleanup_completion(late_reap);
+    }
+}
+
+fn external_reap_refuses_cleanup_completion(late_reap: bool) {
     let directory = tempfile::tempdir().unwrap();
     let mut child = fixture::spawn("exit", directory.path());
     let pid = fixture::qualified_identity(directory.path());
@@ -150,17 +169,29 @@ fn external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup()
     fixture::retained(pid);
     let mut status = 0;
     // 安全性：故意消费本测试 leader，验证 owner 丢失时禁止后续 PGID 授权。
-    assert_eq!(unsafe { libc::waitpid(pid, &mut status, 0) }, pid);
-    assert!(libc::WIFEXITED(status));
-    let error = child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap_err();
-    assert!(
-        matches!(
-            &error,
-            ChildSpawnError::Operation(ChildError::Unsupported(_))
-        ) || matches!(&error, ChildSpawnError::Operation(native)
+    if late_reap {
+        assert!(child.poll().unwrap());
+        fixture::retained(pid);
+        REAP_BEFORE_CLEANUP_WAIT.set(true);
+        let error = child.cleanup().unwrap_err();
+        assert!(
+            error
+                .native_io_error()
+                .is_some_and(|original| original.raw_os_error() == Some(libc::ECHILD))
+        );
+    } else {
+        assert_eq!(unsafe { libc::waitpid(pid, &mut status, 0) }, pid);
+        assert!(libc::WIFEXITED(status));
+        let error = child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap_err();
+        assert!(
+            matches!(
+                &error,
+                ChildSpawnError::Operation(ChildError::Unsupported(_))
+            ) || matches!(&error, ChildSpawnError::Operation(native)
                 if native.native_io_error().is_some_and(|original|
                     original.raw_os_error() == Some(libc::ECHILD)))
-    );
+        );
+    }
     for _ in 0..3 {
         assert!(
             matches!(child.cleanup(), Err(ChildError::Unsupported(_))),

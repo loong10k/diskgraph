@@ -1,0 +1,26 @@
+{
+  "production_ready": false,
+  "platform_executed": "macOS",
+  "case": "external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup",
+  "actual_race": "one-shot current-thread test checkpoint calls real waitpid on original leader after group termination and before owner wait",
+  "red": "native ECHILD followed by successful cleanup retry",
+  "green": "native ECHILD retained, three cleanup retries and three registry drains fail without releasing capacity",
+  "native": {
+    "passed": 40,
+    "failed": 0,
+    "ignored_helper": 1
+  },
+  "layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "86b99cbc49ad29c905a30e5d489f4e29965d1bef2992aa395e9d38fad83165b4",
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "766237d96a425d7888f6053d2a98cf4c3c9ff27805e7656d96da66d2e9e35186"
+  },
+  "limitations": [
+    "Linux execution pending",
+    "group termination failure path requires further coverage",
+    "full platform acceptance incomplete"
+  ]
+}

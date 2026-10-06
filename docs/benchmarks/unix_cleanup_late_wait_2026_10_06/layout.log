@@ -1,0 +1,392 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+warning: unused import: `macos_native_launcher::MacosNativeLauncher`
+   --> crates/diskgraph-engine/src/native_child/mod.rs:140:16
+    |
+140 | pub(crate) use macos_native_launcher::MacosNativeLauncher;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variant `WorkerControl` is never constructed
+ --> crates/diskgraph-engine/src/native_child/child_input_mode.rs:8:5
+  |
+4 | pub(crate) enum ChildInputMode {
+  |                 -------------- variant in this enum
+...
+8 |     WorkerControl,
+  |     ^^^^^^^^^^^^^
+  |
+  = note: `ChildInputMode` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated items `prepare_native`, `birth_native`, and `initialize_native` are never used
+  --> crates/diskgraph-engine/src/native_child/unix_child.rs:41:19
+   |
+38 | impl UnixChild {
+   | -------------- associated items in this implementation
+...
+41 |     pub(super) fn prepare_native(
+   |                   ^^^^^^^^^^^^^^
+...
+69 |     pub(super) fn birth_native(&mut self, path: &std::ffi::CStr, channels: [i32; 3]) -> i32 {
+   |                   ^^^^^^^^^^^^
+...
+83 |     pub(super) fn initialize_native(&mut self) -> Result<u32, ChildError> {
+   |                   ^^^^^^^^^^^^^^^^^
+
+warning: associated functions `spawn`, `spawn_with_input`, and `spawn_worker` are never used
+  --> crates/diskgraph-engine/src/native_child/unix_child_spawn.rs:18:19
+   |
+14 | impl UnixChild {
+   | -------------- associated functions in this implementation
+...
+18 |     pub(crate) fn spawn<E>(
+   |                   ^^^^^
+...
+29 |     pub(crate) fn spawn_with_input<E>(
+   |                   ^^^^^^^^^^^^^^^^
+...
+66 |     pub(crate) fn spawn_worker<E>(
+   |                   ^^^^^^^^^^^^
+
+warning: associated function `from_stream` is never used
+  --> crates/diskgraph-engine/src/native_child/unix_control_channel.rs:20:19
+   |
+16 | impl UnixControlChannel {
+   | ----------------------- associated function in this implementation
+...
+20 |     pub(super) fn from_stream(stream: UnixStream) -> Result<Self, ChildError> {
+   |                   ^^^^^^^^^^^
+
+warning: variant `Native` is never constructed
+  --> crates/diskgraph-engine/src/native_child/unix_leader.rs:11:5
+   |
+ 8 | pub(super) enum UnixLeader {
+   |                 ---------- variant in this enum
+...
+11 |     Native {
+   |     ^^^^^^
+
+warning: associated functions `prepare_native` and `from_native` are never used
+  --> crates/diskgraph-engine/src/native_child/unix_leader.rs:20:19
+   |
+17 | impl UnixLeader {
+   | --------------- associated functions in this implementation
+...
+20 |     pub(super) fn prepare_native() -> Self {
+   |                   ^^^^^^^^^^^^^^
+...
+36 |     pub(super) unsafe fn from_native(pid: libc::pid_t) -> Self {
+   |                          ^^^^^^^^^^^
+
+warning: struct `MacosNativeLauncher` is never constructed
+  --> crates/diskgraph-engine/src/native_child/macos_native_launcher.rs:18:19
+   |
+18 | pub(crate) struct MacosNativeLauncher {
+   |                   ^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `prepare_inner`, `prepare_qualified`, `spawn_into`, and `spawn_inner` are never used
+  --> crates/diskgraph-engine/src/native_child/macos_native_launcher.rs:37:8
+   |
+26 | impl MacosNativeLauncher {
+   | ------------------------ associated items in this implementation
+...
+37 |     fn prepare_inner(
+   |        ^^^^^^^^^^^^^
+...
+62 |     pub(crate) fn prepare_qualified(
+   |                   ^^^^^^^^^^^^^^^^^
+...
+73 |     pub(crate) fn spawn_into(
+   |                   ^^^^^^^^^^
+...
+95 |     fn spawn_inner(
+   |        ^^^^^^^^^^^
+
+warning: function `check` is never used
+   --> crates/diskgraph-engine/src/native_child/macos_native_launcher.rs:156:4
+    |
+156 | fn check(
+    |    ^^^^^
+
+warning: struct `MacosNativePipes` is never constructed
+  --> crates/diskgraph-engine/src/native_child/macos_native_pipes.rs:11:19
+   |
+11 | pub(super) struct MacosNativePipes {
+   |                   ^^^^^^^^^^^^^^^^
+
+warning: associated functions `prepare` and `prepare_channels` are never used
+  --> crates/diskgraph-engine/src/native_child/macos_native_pipes.rs:22:19
+   |
+20 | impl MacosNativePipes {
+   | --------------------- associated functions in this implementation
+21 |     /// 建立全部通道。参数：检查点沿原请求取消和期限；返回：出生前可失败的独占资源，不修改宿主信号策略。
+22 |     pub(super) fn prepare(
+   |                   ^^^^^^^
+...
+30 |     fn prepare_channels() -> Result<Self, ChildError> {
+   |        ^^^^^^^^^^^^^^^^
+
+warning: function `pipe` is never used
+  --> crates/diskgraph-engine/src/native_child/macos_native_pipes.rs:56:4
+   |
+56 | fn pipe() -> Result<(File, File), ChildError> {
+   |    ^^^^
+
+warning: function `above_stdio` is never used
+  --> crates/diskgraph-engine/src/native_child/macos_native_pipes.rs:72:4
+   |
+72 | fn above_stdio(original: File) -> Result<File, ChildError> {
+   |    ^^^^^^^^^^^
+
+warning: struct `MacosNativeSpawn` is never constructed
+  --> crates/diskgraph-engine/src/native_child/macos_native_spawn.rs:16:19
+   |
+16 | pub(super) struct MacosNativeSpawn;
+   |                   ^^^^^^^^^^^^^^^^
+
+warning: associated function `birth` is never used
+  --> crates/diskgraph-engine/src/native_child/macos_native_spawn.rs:21:19
+   |
+18 | impl MacosNativeSpawn {
+   | --------------------- associated function in this implementation
+...
+21 |     pub(super) fn birth(
+   |                   ^^^^^
+
+warning: function `diskgraph_macos_native_spawn` is never used
+ --> crates/diskgraph-engine/src/native_child/macos_native_spawn.rs:4:8
+  |
+4 |     fn diskgraph_macos_native_spawn(
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: field `installation` is never read
+  --> crates/diskgraph-engine/src/scan_worker_host.rs:21:5
+   |
+13 | pub struct ScanWorkerHost {
+   |            -------------- field in this struct
+...
+21 |     installation: Option<Arc<crate::macos_installation_lease::MacosInstallationLease>>,
+   |     ^^^^^^^^^^^^
+
+warning: method `prepare_macos_installation` is never used
+   --> crates/diskgraph-engine/src/scan_worker_host.rs:146:19
+    |
+ 30 | impl ScanWorkerHost {
+    | ------------------- method in this implementation
+...
+146 |     pub(super) fn prepare_macos_installation(
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `native_path` is never used
+  --> crates/diskgraph-engine/src/macos_installation_lease.rs:95:19
+   |
+27 | impl MacosInstallationLease {
+   | --------------------------- method in this implementation
+...
+95 |     pub(super) fn native_path(&self) -> &OsStr {
+   |                   ^^^^^^^^^^^
+
+warning: associated function `acquire_exclusive` is never used
+  --> crates/diskgraph-engine/src/macos_installation_lock.rs:32:19
+   |
+20 | impl MacosInstallationLock {
+   | -------------------------- associated function in this implementation
+...
+32 |     pub(super) fn acquire_exclusive(
+   |                   ^^^^^^^^^^^^^^^^^
+
+warning: struct `MacosSpawnPermit` is never constructed
+ --> crates/diskgraph-engine/src/macos_spawn_permit.rs:7:19
+  |
+7 | pub(super) struct MacosSpawnPermit {
+  |                   ^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `into_parts` are never used
+  --> crates/diskgraph-engine/src/macos_spawn_permit.rs:13:19
+   |
+11 | impl MacosSpawnPermit {
+   | --------------------- associated items in this implementation
+12 |     /// 参数：installation已在update_lock内重新核验；返回：单次可移动材料，不复制锁FD。
+13 |     pub(super) fn new(
+   |                   ^^^
+...
+23 |     pub(super) fn into_parts(self) -> (Arc<MacosInstallationLease>, MacosInstallationLock) {
+   |                   ^^^^^^^^^^
+
+warning: method `epoch` is never used
+  --> crates/diskgraph-engine/src/macos_epoch_floor.rs:23:19
+   |
+20 | impl MacosEpochFloor {
+   | -------------------- method in this implementation
+...
+23 |     pub(super) fn epoch(&self) -> u64 {
+   |                   ^^^^^
+
+warning: constant `BASE` is never used
+  --> crates/diskgraph-engine/src/macos_installation_publisher.rs:20:7
+   |
+20 | const BASE: &str = "/Library/Application Support/DiskGraph/scan-worker";
+   |       ^^^^
+
+warning: constant `LOCK` is never used
+  --> crates/diskgraph-engine/src/macos_installation_publisher.rs:21:7
+   |
+21 | const LOCK: &[u8] = b"/Library/Application Support/DiskGraph/scan-worker/installation.lock";
+   |       ^^^^
+
+warning: constant `FLOOR` is never used
+  --> crates/diskgraph-engine/src/macos_installation_publisher.rs:22:7
+   |
+22 | const FLOOR: &[u8] = b"/Library/Application Support/DiskGraph/scan-worker/epoch-floor.json";
+   |       ^^^^^
+
+warning: constant `ACTIVE` is never used
+  --> crates/diskgraph-engine/src/macos_installation_publisher.rs:23:7
+   |
+23 | const ACTIVE: &[u8] = b"/Library/Application Support/DiskGraph/scan-worker/active.json";
+   |       ^^^^^^
+
+warning: struct `MacosInstallationPublisher` is never constructed
+  --> crates/diskgraph-engine/src/macos_installation_publisher.rs:29:19
+   |
+29 | pub(super) struct MacosInstallationPublisher;
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated functions `recover`, `validate_recovery`, `publish`, and `validate_previous` are never used
+   --> crates/diskgraph-engine/src/macos_installation_publisher.rs:35:19
+    |
+ 31 | impl MacosInstallationPublisher {
+    | ------------------------------- associated functions in this implementation
+...
+ 35 |     pub(super) fn recover(
+    |                   ^^^^^^^
+...
+101 |     pub(super) fn validate_recovery(
+    |                   ^^^^^^^^^^^^^^^^^
+...
+121 |     pub(super) fn publish(
+    |                   ^^^^^^^
+...
+278 |     pub(super) fn validate_previous(
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: function `read_optional` is never used
+   --> crates/diskgraph-engine/src/macos_installation_publisher.rs:315:4
+    |
+315 | fn read_optional(
+    |    ^^^^^^^^^^^^^
+
+warning: function `copy_fresh_image` is never used
+   --> crates/diskgraph-engine/src/macos_installation_publisher.rs:331:4
+    |
+331 | fn copy_fresh_image(
+    |    ^^^^^^^^^^^^^^^^
+
+warning: struct `MacosInstallationFiles` is never constructed
+  --> crates/diskgraph-engine/src/macos_installation_files.rs:12:19
+   |
+12 | pub(super) struct MacosInstallationFiles;
+   |                   ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: multiple associated functions are never used
+   --> crates/diskgraph-engine/src/macos_installation_files.rs:16:19
+    |
+ 14 | impl MacosInstallationFiles {
+    | --------------------------- associated functions in this implementation
+ 15 |     /// 参数：原父目录与单个固定名称；返回：独占新目录，不复用已有目标。
+ 16 |     pub(super) fn create_directory(parent: &File, name: &CStr) -> Result<File, EngineError> {
+    |                   ^^^^^^^^^^^^^^^^
+...
+ 27 |     pub(super) fn open_directory(parent: &File, name: &CStr) -> Result<File, EngineError> {
+    |                   ^^^^^^^^^^^^^^
+...
+ 32 |     pub(super) fn fresh_writer(parent: &File, name: &CStr) -> Result<File, EngineError> {
+    |                   ^^^^^^^^^^^^
+...
+ 37 |     pub(super) fn read_only(parent: &File, name: &CStr) -> Result<File, EngineError> {
+    |                   ^^^^^^^^^
+...
+ 42 |     pub(super) fn write_fresh(
+    |                   ^^^^^^^^^^^
+...
+ 62 |     pub(super) fn finish_writer(
+    |                   ^^^^^^^^^^^^^
+...
+ 84 |     pub(super) fn durable(
+    |                   ^^^^^^^
+...
+118 |     pub(super) fn publish_pair(
+    |                   ^^^^^^^^^^^^
+...
+139 |     pub(super) fn complete_active(
+    |                   ^^^^^^^^^^^^^^^
+...
+152 |     pub(super) fn check(
+    |                   ^^^^^
+
+warning: function `open_at` is never used
+   --> crates/diskgraph-engine/src/macos_installation_files.rs:164:4
+    |
+164 | fn open_at(parent: &File, name: &CStr, flags: libc::c_int) -> Result<File, EngineError> {
+    |    ^^^^^^^
+
+warning: function `component` is never used
+   --> crates/diskgraph-engine/src/macos_installation_files.rs:179:4
+    |
+179 | fn component(name: &CStr) -> Result<(), EngineError> {
+    |    ^^^^^^^^^
+
+warning: function `set_mode` is never used
+   --> crates/diskgraph-engine/src/macos_installation_files.rs:186:4
+    |
+186 | fn set_mode(file: &File, mode: libc::mode_t) -> Result<(), EngineError> {
+    |    ^^^^^^^^
+
+warning: function `rename` is never used
+   --> crates/diskgraph-engine/src/macos_installation_files.rs:192:4
+    |
+192 | fn rename(from: &File, old: &CStr, to: &File, new: &CStr) -> Result<(), EngineError> {
+    |    ^^^^^^
+
+warning: struct `MacosInstallationBootstrap` is never constructed
+  --> crates/diskgraph-engine/src/macos_installation_bootstrap.rs:13:19
+   |
+13 | pub(super) struct MacosInstallationBootstrap;
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `prepare` is never used
+  --> crates/diskgraph-engine/src/macos_installation_bootstrap.rs:17:19
+   |
+14 | impl MacosInstallationBootstrap {
+   | ------------------------------- associated function in this implementation
+...
+17 |     pub(super) fn prepare(
+   |                   ^^^^^^^
+
+warning: function `open_at` is never used
+   --> crates/diskgraph-engine/src/macos_installation_bootstrap.rs:126:4
+    |
+126 | fn open_at(parent: libc::c_int, name: &CStr, extra: libc::c_int) -> Result<File, EngineError> {
+    |    ^^^^^^^
+
+warning: function `check` is never used
+   --> crates/diskgraph-engine/src/macos_installation_bootstrap.rs:140:4
+    |
+140 | fn check(
+    |    ^^^^^
+
+warning: `diskgraph-engine` (lib) generated 42 warnings (run `cargo fix --lib -p diskgraph-engine` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.15s
+     Running tests/source_layout.rs (target/debug/deps/source_layout-584ac518fda73b09)
+
+running 6 tests
+test gate_rejects_hidden_objects_private_stubs_and_undocumented_trait_methods ... ok
+test gate_excludes_only_explicit_test_modules ... ok
+test gate_rejects_explicit_module_path_escape_before_reading ... ok
+test gate_mounts_path_attributes_relative_to_the_declaring_file ... ok
+test scan_worker_sources_follow_the_same_rust_contract ... ok
+test all_platform_engine_sources_follow_the_rust_contract ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+
