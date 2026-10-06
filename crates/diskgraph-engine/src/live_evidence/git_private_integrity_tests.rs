@@ -2,6 +2,9 @@
 
 use super::ProbeLimits;
 use super::git_private_directory::GitPrivateDirectory;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 
 #[cfg(unix)]
@@ -93,7 +96,10 @@ fn cleanup_refuses_a_foreign_directory_that_replaced_the_registered_root() {
     if original.exists() {
         std::fs::remove_dir_all(&original).unwrap();
     }
-    std::fs::remove_dir_all(moved).unwrap();
+    // 恢复原名称后，让同一真实 owner 显式清理；不在登记之外直接删除它。
+    std::fs::rename(&moved, &original).unwrap();
+    directory.complete(Ok(())).unwrap();
+    assert!(!original.exists());
     assert!(preserved, "cleanup deleted a foreign replacement: {error}");
     assert!(error.contains("fixture primary failure"));
     assert!(

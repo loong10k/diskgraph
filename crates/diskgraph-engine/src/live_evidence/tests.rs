@@ -1,3 +1,5 @@
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git;
 use super::*;
 use std::collections::BTreeMap;
 #[cfg(target_os = "macos")]

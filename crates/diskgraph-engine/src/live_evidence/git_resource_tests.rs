@@ -1,6 +1,13 @@
 use super::ProbeLimits;
+#[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use super::probe_execution::run_probe;
+#[cfg(not(windows))]
+use super::sample_git_bounded;
 use std::process::Command;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
@@ -105,7 +112,7 @@ fn git_head_and_upstream_resource_errors_cannot_be_missing_references() {
         Some(1)
     );
     let one = limits(1, Duration::from_secs(2));
-    let error = super::sample_git_bounded(git, temp.path(), &one).unwrap_err();
+    let error = sample_git_bounded(git, temp.path(), &one).unwrap_err();
     assert!(error.contains("output byte limit"), "{error}");
     run(&[
         "-c",
@@ -128,12 +135,12 @@ fn git_head_and_upstream_resource_errors_cannot_be_missing_references() {
         .stdout
         .len();
     let exact_head = limits(head, Duration::from_secs(2));
-    let error = super::sample_git_bounded(git, temp.path(), &exact_head).unwrap_err();
+    let error = sample_git_bounded(git, temp.path(), &exact_head).unwrap_err();
     assert!(error.contains("output byte limit"), "{error}");
     let cancelled = ProbeLimits::default();
     cancelled.cancel.store(true, Ordering::Release);
     assert!(
-        super::sample_git_bounded(git, temp.path(), &cancelled)
+        sample_git_bounded(git, temp.path(), &cancelled)
             .unwrap_err()
             .contains("cancelled")
     );

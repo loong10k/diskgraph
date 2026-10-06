@@ -1,6 +1,23 @@
-use super::{EvidenceProbeSession, ProbeLimits};
+use super::{EvidenceProbeSession, GitSample, ProbeLimits};
 use crate::{ProbeHost, ProbeRecovery};
 use std::ops::{Deref, DerefMut};
+use std::path::Path;
+
+/// 参数：git/project 为原夹具输入；返回：公开宿主绑定入口的实际默认预算采样结果。
+pub(super) fn sample_git(git: &Path, project: &Path) -> Result<GitSample, String> {
+    sample_git_bounded(git, project, &ProbeLimits::default())
+}
+
+/// 参数：git/project/limits 为原夹具输入与额度；返回：原会话实际采样及清理结果。
+/// 宿主绑定不授予访问权限；恢复责任覆盖实际产品调用及其异常栈。
+pub(super) fn sample_git_bounded(
+    git: &Path,
+    project: &Path,
+    limits: &ProbeLimits,
+) -> Result<GitSample, String> {
+    let mut session = NativeEvidenceTestSession::new(limits)?;
+    session.sample_git(git, project)
+}
 
 /// Windows 真实采样测试会话及独立恢复责任；来源：Rust PF-06，无 Java 对等对象。
 /// 不修改生产会话或兼容 API；使用公开宿主绑定入口取得原会话。

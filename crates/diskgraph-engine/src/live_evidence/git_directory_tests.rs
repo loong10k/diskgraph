@@ -2,6 +2,9 @@ use super::ProbeLimits;
 use super::git_metadata_budget::GitMetadataBudget;
 use super::git_metadata_directory::GitMetadataDirectory;
 use super::git_private_directory::GitPrivateDirectory;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 use std::ffi::OsString;
 use std::sync::atomic::Ordering;
@@ -19,11 +22,15 @@ fn probe() -> ProbeBudget {
 #[test]
 fn private_directory_is_unique_absolute_and_removed_on_drop() {
     let mut probe = probe();
-    let first = GitPrivateDirectory::new(&mut probe).unwrap();
-    let second = GitPrivateDirectory::new(&mut probe).unwrap();
+    let mut first = GitPrivateDirectory::new(&mut probe).unwrap();
+    // 两个同时活跃的目录分别属于独立会话，原测试的唯一性与存活断言保持不变。
+    let mut second_probe = self::probe();
+    let second = GitPrivateDirectory::new(&mut second_probe).unwrap();
     assert!(first.path().is_absolute());
     assert_ne!(first.path(), second.path());
-    std::fs::write(first.path().join("owned"), b"private").unwrap();
+    first
+        .write(&first.path().join("owned"), b"private", &mut probe)
+        .unwrap();
     let path = first.path().to_owned();
     drop(first);
     assert!(!path.exists());
@@ -312,11 +319,12 @@ fn directory_records_do_not_accumulate_open_descriptors() {
 #[cfg(windows)]
 #[test]
 fn private_directory_dacl_is_protected_and_inherited_by_files_and_directories() {
-    let directory = GitPrivateDirectory::new(&mut probe()).unwrap();
+    let mut probe = probe();
+    let mut directory = GitPrivateDirectory::new(&mut probe).unwrap();
     let file = directory.path().join("private-file");
     let child = directory.path().join("private-child");
-    std::fs::write(&file, b"private").unwrap();
-    std::fs::create_dir(&child).unwrap();
+    directory.write(&file, b"private", &mut probe).unwrap();
+    directory.create_dir_all(&child, &mut probe).unwrap();
     let (root, protected) = directory_dacl(directory.path());
     assert!(
         protected,

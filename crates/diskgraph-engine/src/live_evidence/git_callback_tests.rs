@@ -1,13 +1,17 @@
 //! 原生 Git 回调的正向控制和私有终态水位；同源夹具在三桌面原生执行。
 
+use super::ProbeLimits;
 use super::git_executable::GitExecutable;
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_tool_path::from_native;
 #[cfg(windows)]
+use super::native_evidence_test_session::sample_git_bounded;
+#[cfg(windows)]
 use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
 #[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
-use super::{ProbeLimits, sample_git_bounded};
+#[cfg(not(windows))]
+use super::sample_git_bounded;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, SystemTime};
