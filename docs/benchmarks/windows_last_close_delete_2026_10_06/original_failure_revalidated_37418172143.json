@@ -1,0 +1,13 @@
+{
+  "run_id": 37418172143,
+  "source_commit": "a8ed3dd35e0aa6c83ec7578a3c9dd791b62e700f",
+  "workflow_conclusion": "failure",
+  "original_driver_cases_passed": 71,
+  "actual_native_cases_passed": 72,
+  "corrected_driver_revalidated_stdout": 72,
+  "explicit_native_not_found_check_covered": true,
+  "failure_cause": "first println shares exact libtest case prefix; original line-only marker rejected real successful stdout",
+  "original_failed_receipt_preserved": true,
+  "production_ready": false,
+  "external_handle_pending_case_covered": false
+}

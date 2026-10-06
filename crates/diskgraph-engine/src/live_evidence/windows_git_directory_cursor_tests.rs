@@ -313,3 +313,73 @@ fn verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id
     );
     assert_eq!(std::fs::read(&path).unwrap(), b"original");
 }
+
+#[test]
+fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    };
+    let (_temp, parent, root, cursor, mut probe) = cleanup_fixture();
+    let hint = GitDirectoryLease::open(&parent, &mut probe).unwrap();
+    let identity = GitPrivateAllocation::from_file(root.as_file()).unwrap();
+    let original = parent.join("original");
+    let moved = parent.join("moved");
+    std::fs::rename(&original, &moved).unwrap();
+    std::fs::create_dir(&original).unwrap();
+    std::fs::write(original.join("foreign"), b"retain foreign root").unwrap();
+    let external = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+        .custom_flags(
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_OPEN_NO_RECALL,
+        )
+        .open(&moved)
+        .unwrap();
+    assert!(identity.same_identity(&GitPrivateAllocation::from_file(&external).unwrap()));
+    assert!(
+        !super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
+            hint.leaf_file(),
+            &identity,
+            &mut probe,
+        )
+        .unwrap()
+    );
+    let delete = root.reopen_for_delete().unwrap();
+    mark_fixture_delete(&delete);
+    drop(delete);
+    drop(cursor);
+    drop(root);
+    // 生产确认接口只观察原ID，未知/权限/等待删除错误均保持原恢复责任。
+    let pending = super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
+        hint.leaf_file(),
+        &identity,
+        &mut probe,
+    )
+    .expect_err("delete-pending original must not be confirmed absent");
+    assert_eq!(
+        pending.raw_os_error(),
+        Some(5),
+        "pending is not proof of deletion"
+    );
+    assert_eq!(
+        std::fs::read(original.join("foreign")).unwrap(),
+        b"retain foreign root"
+    );
+    drop(external);
+    assert!(
+        super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
+            hint.leaf_file(),
+            &identity,
+            &mut probe,
+        )
+        .unwrap()
+    );
+    assert_fixture_absent(&moved);
+    assert_eq!(
+        std::fs::read(original.join("foreign")).unwrap(),
+        b"retain foreign root"
+    );
+    println!("DG_ORIGINAL_ID_PENDING_THEN_ABSENT=1");
+}

@@ -13,6 +13,12 @@ spec.loader.exec_module(qualifier)
 
 
 class WindowsCleanupQualifierTests(unittest.TestCase):
+    def test_external_handle_final_absence_requires_exact_native_marker(self):
+        case = qualifier.DIRECTORY_ENUMERATION_CASES[7]
+        stdout = f"test {case} ... ok\ntest result: ok. 1 passed; 0 failed; 0 ignored;\n"
+        self.assertFalse(qualifier.native_case_passed(case, stdout))
+        self.assertTrue(qualifier.native_case_passed(case, stdout + "DG_ORIGINAL_ID_PENDING_THEN_ABSENT=1\n"))
+
     def test_last_close_marker_accepts_actual_libtest_nocapture_prefix(self):
         case = qualifier.DIRECTORY_ENUMERATION_CASES[3]
         stdout = (f"running 1 test\ntest {case} ... DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1\n"
@@ -59,7 +65,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 498)
+            self.assertEqual(len(manifest["sources"]), 499)
             qualifier.check_directory_enumeration_cases(manifest["directory_enumeration_cases"])
             qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
             qualifier.check_prepared_job_cases(manifest["prepared_job_cases"])

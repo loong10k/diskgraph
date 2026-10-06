@@ -1,0 +1,11 @@
+{
+  "run_id": 37418549680,
+  "source_commit": "27f6bf74765bed17b551dd0fc38c351ceb3f2d45",
+  "workflow_conclusion": "success",
+  "actual_native_cases_passed": 72,
+  "explicit_native_not_found_check_covered": true,
+  "exact_final_close_marker_verified": true,
+  "external_handle_pending_case_covered": false,
+  "new_deletion_witness_covered": false,
+  "production_ready": false
+}
