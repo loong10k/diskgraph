@@ -1,5 +1,6 @@
 use super::git_private_allocation::GitPrivateAllocation;
 use super::probe_budget::ProbeBudget;
+use super::windows_git_native_id_protocol::WindowsGitNativeIdProtocol;
 use std::fs::File;
 use std::io;
 use std::os::windows::io::{AsRawHandle, FromRawHandle};
@@ -44,7 +45,10 @@ impl WindowsGitDeletionWitness {
             ));
         }
         // 原hint对象仍保活，先用同一完整ID协议打开正控并核验，未知ID解释不能被当作缺失。
-        let control = Self::open_id(hint, &volume).map_err(|error| {
+        let protocol = WindowsGitNativeIdProtocol::from_hint(hint);
+        probe.check().map_err(io::Error::other)?;
+        let protocol = protocol?;
+        let control = Self::open_id(hint, &volume, &protocol).map_err(|error| {
             io::Error::new(
                 io::ErrorKind::Unsupported,
                 format!("full-ID native witness capability unconfirmed: {error}"),
@@ -60,7 +64,7 @@ impl WindowsGitDeletionWitness {
         }
         drop(control);
         probe.check().map_err(io::Error::other)?;
-        let file = match Self::open_id(hint, expected) {
+        let file = match Self::open_id(hint, expected, &protocol) {
             Ok(file) => file,
             Err(error) => {
                 probe.check().map_err(io::Error::other)?;
@@ -84,16 +88,21 @@ impl WindowsGitDeletionWitness {
     }
 
     // 参数：原hint和完整ID；返回：只读属性句柄或原NT错误，不映射任何未知错误为absent。
-    fn open_id(hint: &File, expected: &GitPrivateAllocation) -> io::Result<File> {
+    fn open_id(
+        hint: &File,
+        expected: &GitPrivateAllocation,
+        protocol: &WindowsGitNativeIdProtocol,
+    ) -> io::Result<File> {
         let descriptor = expected.windows_file_id_descriptor();
-        // 构造完整16字节二进制ID，不转成路径、GUID或截断到64位。
+        // 保留完整16字节身份存储，只使用已验证无损的原卷原生操作格式；无错误后回退。
         // descriptor由原固定ExtendedFileIdType方法构造，读取对应union成员；u16存储保证ABI对齐。
         let id = unsafe { descriptor.Anonymous.ExtendedFileId.Identifier };
         let mut binary: [u16; 8] =
             std::array::from_fn(|index| u16::from_ne_bytes([id[index * 2], id[index * 2 + 1]]));
+        let length = protocol.byte_length(&id)?;
         let name = UNICODE_STRING {
-            Length: 16,
-            MaximumLength: 16,
+            Length: length,
+            MaximumLength: length,
             Buffer: binary.as_mut_ptr(),
         };
         let attributes = OBJECT_ATTRIBUTES {

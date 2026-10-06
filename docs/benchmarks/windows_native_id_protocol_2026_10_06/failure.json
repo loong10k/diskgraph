@@ -1,0 +1,16 @@
+{
+  "run_id": 37420281955,
+  "source_commit": "b11d0d0572563b7af54c012e5866f5080561952f",
+  "workflow_conclusion": "failure",
+  "native_passed": 72,
+  "native_failed": 2,
+  "known_held_identity_control_passed": true,
+  "existing_object_countercontrol_passed": true,
+  "delete_pending_raw5_observed": true,
+  "final_absence_not_proven": true,
+  "final_raw_error": 87,
+  "identity_record_remains_full128": true,
+  "candidate": "native protocol selected from held volume capability before open: NTFS canonical zero-high-half native reference; ReFS full16byte; reject lossy or unknown protocol; no failure-driven fallback",
+  "production_ready": false,
+  "native_fix_verified": false
+}

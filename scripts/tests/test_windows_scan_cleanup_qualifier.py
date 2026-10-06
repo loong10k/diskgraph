@@ -65,7 +65,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 499)
+            self.assertEqual(len(manifest["sources"]), 500)
             qualifier.check_directory_enumeration_cases(manifest["directory_enumeration_cases"])
             qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
             qualifier.check_prepared_job_cases(manifest["prepared_job_cases"])

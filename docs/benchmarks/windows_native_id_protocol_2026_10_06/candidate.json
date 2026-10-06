@@ -1,0 +1,17 @@
+{
+  "production_ready": false,
+  "native_fix_verified": false,
+  "windows_source_count": 500,
+  "native_cases_required": 75,
+  "software_boundary_case_not_refs_acceptance": true,
+  "archive_sha256": "870ef59f1cbad012d68ec9695a4d536fd809121b3c8b5936c8583cffa84d372b",
+  "local_structure_passed": 6,
+  "local_driver_passed": 27,
+  "local_mount_guard_passed": 14,
+  "identity_record_bits": 128,
+  "ntfs_native_operand_requires_zero_high_half": true,
+  "refs_native_operand_bits": 128,
+  "path_or_failure_driven_fallback": false,
+  "unknown_87_as_deleted": false,
+  "owner_pool_integrated": false
+}

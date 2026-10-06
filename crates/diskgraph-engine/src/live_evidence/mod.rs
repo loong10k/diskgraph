@@ -193,6 +193,8 @@ mod windows_git_directory_cursor;
 #[cfg(all(test, windows))]
 mod windows_git_directory_cursor_tests;
 #[cfg(windows)]
+mod windows_git_native_id_protocol;
+#[cfg(windows)]
 mod windows_git_private_root;
 
 #[cfg(all(test, windows))]

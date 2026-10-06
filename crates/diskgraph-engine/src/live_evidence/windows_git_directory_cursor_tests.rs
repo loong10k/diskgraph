@@ -463,3 +463,27 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
     );
     println!("DG_CLEANUP_CURSOR_RETRY_SAME_CHILD_THEN_ADVANCE=1");
 }
+
+#[test]
+fn native_id_protocol_refuses_loss_and_preserves_refs_full_identity() {
+    use super::windows_git_native_id_protocol::WindowsGitNativeIdProtocol;
+    let ntfs = WindowsGitNativeIdProtocol::NtfsFileReference;
+    let refs = WindowsGitNativeIdProtocol::RefsExtendedFileId;
+    let mut id = [0u8; 16];
+    assert!(ntfs.byte_length(&id).is_err());
+    assert!(refs.byte_length(&id).is_err());
+    id[0] = 1;
+    assert_eq!(ntfs.byte_length(&id).unwrap(), 8);
+    assert_eq!(refs.byte_length(&id).unwrap(), 16);
+    for index in 8..16 {
+        id[index] = 1;
+        assert!(
+            ntfs.byte_length(&id).is_err(),
+            "nonzero identity bits must never be dropped"
+        );
+        assert_eq!(refs.byte_length(&id).unwrap(), 16);
+        id[index] = 0;
+    }
+    // 此案只验证格式边界，不代替ReFS卷上的原生文件系统验收。
+    println!("DG_NATIVE_ID_FORMAT_LOSS_REFUSED=1");
+}

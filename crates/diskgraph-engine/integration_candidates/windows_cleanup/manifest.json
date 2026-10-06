@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "a96955548788a1bbfd1653a8c8804f385a0626075f0f7906d6940fdc99ab519b",
+  "archive_sha256": "870ef59f1cbad012d68ec9695a4d536fd809121b3c8b5936c8583cffa84d372b",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -153,7 +153,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture.rs": "772b22785226f5859222d53dae660ebfad9ff90c5658f32f139b5e4e9defdfe6",
     "crates/diskgraph-engine/src/live_evidence/git_worktree_capture_tests.rs": "53ae59b0975915dc934e6e60b2ecbc7e1a063d50122c3ec8c0f8cf49e6bba484",
     "crates/diskgraph-engine/src/live_evidence/macos_probe_tests.rs": "8896b66f810257490c0b200b7284f0decf6c7d4bd02cc9b97d4ff1b46aba5c0a",
-    "crates/diskgraph-engine/src/live_evidence/mod.rs": "1ec813bdefe04180c83fa77f778c45d27780e605164b2bc41ffd3d8b991f2f52",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "d70116125c1ae0ea9da3a4e60ba698c279540528ca3c8fbff4a60dbb609584c7",
     "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "c0a46a1b2f2ce2aab7c1ba2c428e386093643cb63438d9c06a68bc4204b1e57e",
     "crates/diskgraph-engine/src/live_evidence/probe_directory_witness.rs": "cc7a242954bdfe5742cebf091bd5416d883580e681863e07f35153714c1f3f5e",
     "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "c528ec955d19564d2edab0952f6d3f9ea997a841937851e3f092c7e83b3ffa49",
@@ -503,9 +503,10 @@
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
     "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "5f86808395d1eabe5a53d53b5050b694060af62a37ebe7cc289f54e02f9508ac",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "057b84ce364b5b191c13fe8d9beccae099abab75188e5177ecd7e9f975e11185",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "74a6619771f544ed0a0098ad6d942224cd01b9b93534f3a244da85a48fb7e3f9",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "4fe94d81e43893a876dbe1318ac3e7cfbde7a3403c4047f6b94aef952e55107d"
+    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "4824147d7b457cc5a73f1f08d72afe14cc9de42795c1f0012d7f2d1e5b89730f",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "477808200a191db7f89965da2709f506515606ed87fd6f2fe89c429d5cc3ce8f"
   },
   "cleanup_cases": [
     "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
@@ -646,6 +647,7 @@
     "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_refuses_real_junction_without_touching_external_target",
     "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id",
     "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
-    "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion"
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
+    "live_evidence::windows_git_directory_cursor_tests::native_id_protocol_refuses_loss_and_preserves_refs_full_identity"
   ]
 }

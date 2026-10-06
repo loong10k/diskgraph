@@ -92,3 +92,7 @@ CI37418549680在27f6bf7终态success，72/72实际精确stdout与冻结源SHA核
 CI37419047031在7b2b4ef终态failure，72/73原生通过；新外部句柄案在std::fs::rename原根处错误32，尚未进入最终确认接口。原shareREAD父租约被夹具保留到移动阶段，修正为仅隔离temp固定父目录同身份shareALL卷提示，释放原创建/捕获lease后再移动。保留全部移动/陌生根/外部句柄pending5/最终2断言，其他原共享冲突测试不变。生产确认接口仍不解析路径，夹具路径打开不是产品授权或清理能力。原始失败见windows_deletion_witness_parent_lease_2026_10_06；新结果待原生，不能计作接口通过或walker/Pool完成。
 
 CI37419410021在8cf92c6终态failure，72/74通过：父shareREAD夹具移动错误32之外，新游标案在外部句柄关闭后的原ID确认处实际OpenFileById错误87。等待删除时原错误5已实际观察，但87不是对象消失，不放宽断言或改判成功。原失败完整保留于windows_native_full_id_witness_2026_10_06。候选改为SDK NtOpenFile FILE_OPEN_BY_FILE_ID完整16字节对齐二进制名称，保留nofollow/norecall/sync与全身份/卷、预算核验，无路径或64位回退。以仍保活hint自身完整ID作同协议正控并复核完整身份，协议不支持/解释不明必须Unsupported，防止把未知ID语义的NotFound当成实际删除。NtOpen原错误87/5/其他仍失败；明确2才可absent。依据https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntcreatefile ，实际支持及最终缺失语义待新原生验收。
+
+### 按原卷原生ID协议选择，身份记录不降级
+
+CI37420281955在b11d0d0仍72/74失败；同协议保活hint正控、仍存在反控和pending5检查已通过，两个最终关闭后的确认均仍87。不能把87解释为删除完成。官方FILE_ID_DESCRIPTOR明确区分FileId和ReFS ExtendedFileId；候选在任何打开前按held hint的GetVolumeInformationByHandleW文件系统名+OPEN_BY_FILE_ID能力选定原生格式：NTFS仅允许原完整128位ID高64位已验证全零时使用无损原生8字节文件引用操作；ReFS传递全部16字节。所有身份记录、卷及返回句柄比较仍保留完整128位；高位非零、未知FS/能力明确拒绝，不在16字节失败后回退，不按路径重开，不改判87。每次仍保活hint完整身份正控，预算首末检查；新软件边界案只验证高位丢失拒绝和ReFS全位保留，不宣称真实ReFS通过。现有原生两个最终缺失断言不变，结果待75项原生验收。依据https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_descriptor 和 https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumeinformationbyhandlew 。
