@@ -22,9 +22,60 @@ pub(super) struct WindowsGitDirectoryCursor {
     offset: Option<usize>,
     started: bool,
     done: bool,
+    cleanup_entry: Option<(OsString, [u8; 16], u32)>,
+    cleanup_identity: Option<GitPrivateAllocation>,
 }
 
 impl WindowsGitDirectoryCursor {
+    /// 参数：probe为本轮清理预算；返回：当前待删子项句柄/原名称/属性，或真正EOF。
+    /// 打开或身份查询失败仍保留同一枚举子项，调用者须先核对owner账本再删除。
+    /// 仅最终确认原ID消失后前进；普通枚举不得越过未完成清理项。
+    pub(super) fn open_next_cleanup_child(
+        &mut self,
+        probe: &mut ProbeBudget,
+    ) -> std::io::Result<Option<(File, OsString, u32)>> {
+        if self.cleanup_entry.is_none() {
+            self.cleanup_entry = self.next_entry(probe).map_err(std::io::Error::other)?;
+        }
+        let Some((name, id, attributes)) = self.cleanup_entry.as_ref() else {
+            return Ok(None);
+        };
+        let directory =
+            attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
+        let file = self.open_verified_child(name, *id, directory, probe)?;
+        let identity = GitPrivateAllocation::from_file(&file).map_err(std::io::Error::other)?;
+        if let Some(expected) = self.cleanup_identity.as_ref()
+            && !expected.same_identity(&identity)
+        {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::AlreadyExists,
+                "pending cleanup identity changed",
+            ));
+        }
+        self.cleanup_identity = Some(identity);
+        Ok(Some((file, name.clone(), *attributes)))
+    }
+
+    /// 参数：probe为本轮清理预算；返回：原ID明确消失时清除当前项并返回true，否则false/原错误。
+    /// 访问拒绝、delete-pending、未成功核验及超时都保留原名称/ID，不能消费下一项。
+    pub(super) fn confirm_cleanup_child_absent(
+        &mut self,
+        probe: &mut ProbeBudget,
+    ) -> std::io::Result<bool> {
+        let expected = self
+            .cleanup_identity
+            .as_ref()
+            .ok_or_else(|| std::io::Error::other("cleanup child identity has not been verified"))?;
+        if !super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
+            &self.file, expected, probe,
+        )? {
+            return Ok(false);
+        }
+        self.cleanup_identity = None;
+        self.cleanup_entry = None;
+        Ok(true)
+    }
+
     /// 参数：name/id/directory为原枚举子项，probe为原任务预算；返回：核验后的DELETE句柄。
     /// 只相对原父句柄打开；不读正文、不删除；失败保持原游标和父责任，不按路径回退。
     pub(super) fn open_verified_child(
@@ -141,6 +192,8 @@ impl WindowsGitDirectoryCursor {
             offset: None,
             started: false,
             done: false,
+            cleanup_entry: None,
+            cleanup_identity: None,
         })
     }
 
@@ -150,6 +203,9 @@ impl WindowsGitDirectoryCursor {
         &mut self,
         probe: &mut ProbeBudget,
     ) -> Result<Option<(OsString, [u8; 16], u32)>, String> {
+        if self.cleanup_entry.is_some() {
+            return Err("directory enumeration cannot skip pending cleanup child".into());
+        }
         loop {
             probe.check().map_err(|error| error.to_string())?;
             if self.done {

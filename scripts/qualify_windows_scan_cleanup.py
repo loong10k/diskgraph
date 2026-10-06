@@ -20,6 +20,7 @@ DIRECTORY_ENUMERATION_CASES = tuple("live_evidence::windows_git_directory_cursor
     "verified_cleanup_child_refuses_real_junction_without_touching_external_target",
     "verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id",
     "pending_original_deletion_is_not_complete_until_external_handle_closes",
+    "cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
 ))
 
 
@@ -31,6 +32,7 @@ def native_case_passed(case, stdout):
     marker = {
         DIRECTORY_ENUMERATION_CASES[3]: "DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1",
         DIRECTORY_ENUMERATION_CASES[7]: "DG_ORIGINAL_ID_PENDING_THEN_ABSENT=1",
+        DIRECTORY_ENUMERATION_CASES[8]: "DG_CLEANUP_CURSOR_RETRY_SAME_CHILD_THEN_ADVANCE=1",
     }.get(case)
     if marker is not None:
         return any(line in (marker, f"test {case} ... {marker}") for line in stdout.splitlines())

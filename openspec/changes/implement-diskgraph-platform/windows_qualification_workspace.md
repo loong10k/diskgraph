@@ -84,3 +84,7 @@ CI37418172143在a8ed3dd终态failure，保留原71/72驱动失败回执。逐份
 原生最终确认逻辑提取为实际WindowsGitDeletionWitness对象：同卷hint核验、原完整ID只读OpenFileById、未知/访问拒绝原错误、成功句柄完整身份与共享预算首末检；仅明确错误2返回absent=true。新原生外部句柄案直接调用本接口，根仍存在时false、pending时错误5、最终关闭后true及陌生根保真。冻结Windows499/Mac608源码，73精确Windows候选案；source_layout6/6、驱动27/27、挂载14/14、fmt/OpenSpec通过。尚未原生执行新对象，未接入owner/Pool，不关闭父项。
 
 CI37418549680在27f6bf7终态success，72/72实际精确stdout与冻结源SHA核对通过，最终NotFound2/3及完整删除标记门禁均通过。只关闭上一轮驱动格式缺陷，不涵盖本轮新增外部句柄/WindowsGitDeletionWitness接口或owner/Pool。证据见native_acceptance_37418549680.json。
+
+### 清理游标保留当前子项
+
+新增open_next_cleanup_child/confirm_cleanup_child_absent：把原枚举名称、完整ID和核验身份保存在同游标中，原打开失败/删除等待/预算失败均不消费当前项；普通next_entry不得跳过未完成项。仅原ID最终明确消失才清除当前项。后续walker必须在删除前核对owner登记账本，本API不收养未登记对象。新增真实共享错误32、外部句柄delete-pending错误5、同ID重试、最终确认后才推进下一项及真正EOF回归；原生结果待CI，不完成整个walker/owner/Pool。

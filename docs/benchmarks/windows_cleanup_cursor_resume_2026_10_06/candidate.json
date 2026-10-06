@@ -1,0 +1,23 @@
+{
+  "production_ready": false,
+  "windows_native_pending": true,
+  "windows_source_count": 499,
+  "directory_cases": [
+    "live_evidence::windows_git_directory_cursor_tests::held_directory_names_ignore_foreign_path_argument",
+    "live_evidence::windows_git_directory_cursor_tests::held_directory_pages_preserve_raw_utf16_and_full_file_ids",
+    "live_evidence::windows_git_directory_cursor_tests::directory_record_decoder_rejects_invalid_lengths_offsets_and_components",
+    "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_uses_original_parent_after_move_and_foreign_root_replacement",
+    "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_rejects_same_name_foreign_replacement_and_type_mismatch",
+    "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_refuses_real_junction_without_touching_external_target",
+    "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id",
+    "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion"
+  ],
+  "archive_sha256": "3c565de2a03049557207c89e515a49af739ec9c7e6dcee3e6a11a22a865b09e1",
+  "structure_tests_passed": 6,
+  "windows_driver_tests_passed": 27,
+  "mount_guard_tests_passed": 14,
+  "owner_pool_integrated": false,
+  "full_recursive_walker_implemented": false,
+  "behavior": "retain the current enumeration entry through failed open, delete-pending and failed final confirmation; advance only after full original identity is confirmed absent"
+}

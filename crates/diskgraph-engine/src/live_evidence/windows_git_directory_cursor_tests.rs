@@ -383,3 +383,76 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     );
     println!("DG_ORIGINAL_ID_PENDING_THEN_ABSENT=1");
 }
+
+#[test]
+fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    };
+    let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+    std::fs::write(parent.join("original/first"), b"first").unwrap();
+    std::fs::write(parent.join("original/second"), b"second").unwrap();
+    let (initial, name, _) = cursor.open_next_cleanup_child(&mut probe).unwrap().unwrap();
+    let identity = GitPrivateAllocation::from_file(&initial).unwrap();
+    drop(initial);
+    assert!(
+        cursor.next_entry(&mut probe).is_err(),
+        "unconfirmed child cannot be skipped"
+    );
+    assert!(!cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    let path = parent.join("original").join(&name);
+    let blocker = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&path)
+        .unwrap();
+    assert_eq!(
+        cursor
+            .open_next_cleanup_child(&mut probe)
+            .unwrap_err()
+            .raw_os_error(),
+        Some(32)
+    );
+    assert!(cursor.next_entry(&mut probe).is_err());
+    drop(blocker);
+    let external = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+        .open(&path)
+        .unwrap();
+    let (file, retried_name, _) = cursor.open_next_cleanup_child(&mut probe).unwrap().unwrap();
+    assert_eq!(retried_name, name);
+    assert!(identity.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
+    mark_fixture_delete(&file);
+    drop(file);
+    assert_eq!(
+        cursor
+            .confirm_cleanup_child_absent(&mut probe)
+            .unwrap_err()
+            .raw_os_error(),
+        Some(5)
+    );
+    assert!(
+        cursor.next_entry(&mut probe).is_err(),
+        "pending deletion cannot advance the cursor"
+    );
+    drop(external);
+    assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    assert_fixture_absent(&path);
+    let (second, second_name, _) = cursor.open_next_cleanup_child(&mut probe).unwrap().unwrap();
+    assert_ne!(
+        second_name, name,
+        "only final confirmation permits next child"
+    );
+    mark_fixture_delete(&second);
+    drop(second);
+    assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    assert!(
+        cursor
+            .open_next_cleanup_child(&mut probe)
+            .unwrap()
+            .is_none()
+    );
+    println!("DG_CLEANUP_CURSOR_RETRY_SAME_CHILD_THEN_ADVANCE=1");
+}

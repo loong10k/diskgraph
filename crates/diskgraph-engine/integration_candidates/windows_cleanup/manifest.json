@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "0253e474ef1559b58a727720240c9f8162bc9a05f9b8a8c11ec8943f88d8aefa",
+  "archive_sha256": "3c565de2a03049557207c89e515a49af739ec9c7e6dcee3e6a11a22a865b09e1",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -502,8 +502,8 @@
     "crates/diskgraph-scan-worker/src/worker_scan_request.rs": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
     "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "8f121b6acb462d1d323fb3c95294f8c6918bf32e3d4c56f33b638369b94ab812",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "03340974a1936bc018bca4a7064e3411e67c584e58ba984c50a299a3fe8e9acc",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "5f86808395d1eabe5a53d53b5050b694060af62a37ebe7cc289f54e02f9508ac",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "0b53b74135c099c662fba61f0b6f1628d056a167353e98edfda5e58dd055f5cf",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "777cfc1e7aefcd3e79eea6699678995951ea5b514a24248f64a10c7af874003d"
   },
@@ -645,6 +645,7 @@
     "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_rejects_same_name_foreign_replacement_and_type_mismatch",
     "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_refuses_real_junction_without_touching_external_target",
     "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id",
-    "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes"
+    "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion"
   ]
 }
