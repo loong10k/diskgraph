@@ -1,4 +1,4 @@
-//! macOS 同一绝对期限的单次恢复扫描，原 cleanup/wait 始终在状态锁外。
+//! Linux/macOS 同一绝对期限的单次恢复扫描，原 cleanup/wait 始终在状态锁外。
 use super::ScanWorkerRegistry;
 use super::scan_worker_drain_owner::ScanWorkerDrainOwner;
 use crate::EngineError;
@@ -51,7 +51,7 @@ impl ScanWorkerRegistry {
             };
             if let Some(owner) = owner {
                 let mut pending = ScanWorkerDrainOwner::new(self, index, owner);
-                #[cfg(test)]
+                #[cfg(all(test, target_os = "macos"))]
                 super::registry_unwind_tests::cleanup_checkpoint();
                 match pending.owner().poll_cleanup(deadline) {
                     Ok(true) => pending.complete(),

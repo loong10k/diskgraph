@@ -8,6 +8,7 @@ pub(super) struct LinuxAtomicExit {
     fd: OwnedFd,
     pid: i32,
     reaped: bool,
+    record_error: Option<&'static str>,
     exit_code: Option<i32>,
     exit_signal: Option<i32>,
 }
@@ -19,6 +20,7 @@ impl LinuxAtomicExit {
             fd,
             pid,
             reaped: false,
+            record_error: None,
             exit_code: None,
             exit_signal: None,
         }
@@ -37,6 +39,9 @@ impl LinuxAtomicExit {
 
     /// 参数：无；返回：实际 whole-thread-group readiness；未知、外部 reap 或原 OS 错误失败。
     pub(super) fn ready(&mut self) -> Result<bool, ChildError> {
+        if let Some(reason) = self.record_error {
+            return Err(ChildError::Unsupported(reason));
+        }
         if self.reaped {
             return Ok(true);
         }
@@ -75,6 +80,9 @@ impl LinuxAtomicExit {
 
     /// 参数：无；返回：真实原线程组退出并实际消费原 child 的结果，不调用 kill。
     pub(super) fn reap_normal(&mut self) -> Result<(), ChildError> {
+        if let Some(reason) = self.record_error {
+            return Err(ChildError::Unsupported(reason));
+        }
         if self.reaped {
             return Ok(());
         }
@@ -87,6 +95,9 @@ impl LinuxAtomicExit {
 
     /// 参数：无；返回：异常终止和真实 wait 的结果；ECHILD 不回退数字 PID。
     pub(super) fn cleanup(&mut self) -> Result<(), ChildError> {
+        if let Some(reason) = self.record_error {
+            return Err(ChildError::Unsupported(reason));
+        }
         if self.reaped {
             return Ok(());
         }
@@ -109,6 +120,69 @@ impl LinuxAtomicExit {
         Ok(())
     }
 
+    /// 参数：deadline 为宿主绝对期限；返回：原整个线程组停止且原等待实际消费。
+    /// 每笔 waitid 使用 WNOHANG；EINTR 返回 Pending，不重试，不回退数值 PID。
+    pub(super) fn poll_cleanup(
+        &mut self,
+        deadline: std::time::Instant,
+    ) -> Result<bool, ChildError> {
+        if let Some(reason) = self.record_error {
+            return Err(ChildError::Unsupported(reason));
+        }
+        if self.reaped {
+            return Ok(true);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Ok(false);
+        }
+        let result = unsafe {
+            libc::syscall(
+                libc::SYS_pidfd_send_signal,
+                self.fd(),
+                libc::SIGKILL,
+                std::ptr::null::<libc::siginfo_t>(),
+                0,
+            )
+        };
+        if result < 0 {
+            let error = io::Error::last_os_error();
+            if error.raw_os_error() != Some(libc::ESRCH) {
+                return Err(ChildError::io("terminate original atomic pidfd", error));
+            }
+        }
+        if std::time::Instant::now() >= deadline {
+            return Ok(false);
+        }
+        // 先保留原 wait 身份；真实 ECHILD/权限拒绝不能由物理退出观察掩盖。
+        if self.observe_once(false)?.is_none() {
+            return Ok(false);
+        }
+        if std::time::Instant::now() >= deadline || !self.stopped()? {
+            return Ok(false);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Ok(false);
+        }
+        Ok(self.observe_once(true)?.unwrap_or(false))
+    }
+
+    fn observe_once(&mut self, consume: bool) -> Result<Option<bool>, ChildError> {
+        let mut info: libc::siginfo_t = unsafe { std::mem::zeroed() };
+        let options = libc::WEXITED | libc::WNOHANG | if consume { 0 } else { libc::WNOWAIT };
+        if unsafe { libc::waitid(libc::P_PIDFD, self.fd() as u32, &mut info, options) } < 0 {
+            let error = io::Error::last_os_error();
+            if error.raw_os_error() == Some(libc::EINTR) {
+                return Ok(None);
+            }
+            return Err(ChildError::io("poll wait original atomic pidfd", error));
+        }
+        if unsafe { info.si_pid() } == 0 {
+            return Ok(Some(false));
+        }
+        self.record(&info, consume)?;
+        Ok(Some(true))
+    }
+
     /// 参数：无；返回：真实普通退出码，信号退出没有伪造普通码。
     pub(super) fn exit_code(&self) -> Option<i32> {
         self.exit_code
@@ -126,6 +200,9 @@ impl LinuxAtomicExit {
 
     /// 参数：无；返回：纯原 pidfd 的物理退场事实，不替代原wait消费或正常许可。
     pub(super) fn stopped(&self) -> Result<bool, ChildError> {
+        if let Some(reason) = self.record_error {
+            return Err(ChildError::Unsupported(reason));
+        }
         if self.reaped {
             return Ok(true);
         }
@@ -172,20 +249,35 @@ impl LinuxAtomicExit {
             }
             return Ok(());
         }
-        // 成功消费是真实资源事实，即使下游原生记录异常也不能伪称仍未消费。
+        self.record(&info, consume)
+    }
+
+    fn record(&mut self, info: &libc::siginfo_t, consume: bool) -> Result<(), ChildError> {
+        // 实际消费不可撤回；异常记录须同时保存事实与拒绝状态，后续不能假报 Complete。
         if consume {
             self.reaped = true;
         }
-        if pid != self.pid {
-            return Err(ChildError::Unsupported(
-                "atomic pidfd child identity mismatch",
-            ));
-        }
-        let status = unsafe { info.si_status() };
-        match info.si_code {
-            libc::CLD_EXITED => self.exit_code = Some(status),
-            libc::CLD_KILLED | libc::CLD_DUMPED => self.exit_signal = Some(status),
-            _ => return Err(ChildError::Unsupported("atomic wait exit status unknown")),
+        let reason = if unsafe { info.si_pid() } != self.pid {
+            Some("atomic pidfd child identity mismatch")
+        } else {
+            let status = unsafe { info.si_status() };
+            match info.si_code {
+                libc::CLD_EXITED => {
+                    self.exit_code = Some(status);
+                    None
+                }
+                libc::CLD_KILLED | libc::CLD_DUMPED => {
+                    self.exit_signal = Some(status);
+                    None
+                }
+                _ => Some("atomic wait exit status unknown"),
+            }
+        };
+        if let Some(reason) = reason {
+            if consume {
+                self.record_error = Some(reason);
+            }
+            return Err(ChildError::Unsupported(reason));
         }
         Ok(())
     }

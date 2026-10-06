@@ -19,10 +19,10 @@ impl ScanWorkerRecovery {
         self.registry.occupied()
     }
     /// 参数：deadline 为宿主提供的同一绝对期限；返回：true 仅所有原槽实际回收。
-    /// Windows/macOS 单次轮询；到期/竞争/Pending 返回 false，原错误返回 Err，均不丢 owner。
+    /// Linux/Windows/macOS 单次轮询；到期/竞争/Pending 返回 false，原错误返回 Err，均不丢 owner。
     /// 清理在锁外；归还 owner 的短状态锁和 OS 单调用不承诺硬墙钟上限。
     /// 未完成时调用者必须继续保留本 Recovery；这不是进程可以安全退出的声明。
-    #[cfg(any(windows, target_os = "macos"))]
+    #[cfg(any(windows, target_os = "linux", target_os = "macos"))]
     pub fn drain_until(&self, deadline: std::time::Instant) -> Result<bool, EngineError> {
         self.registry.drain_until(deadline)
     }

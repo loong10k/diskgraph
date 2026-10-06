@@ -148,12 +148,12 @@ impl ScanWorkerRegistry {
 #[path = "windows_registry_lock_tests.rs"]
 mod windows_registry_lock_tests;
 
-#[cfg(target_os = "macos")]
-#[path = "macos_registry_drain.rs"]
-mod macos_registry_drain;
-#[cfg(any(windows, target_os = "macos"))]
+#[cfg(any(windows, target_os = "linux", target_os = "macos"))]
 #[path = "scan_worker_drain_owner.rs"]
 mod scan_worker_drain_owner;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[path = "unix_registry_drain.rs"]
+mod unix_registry_drain;
 #[cfg(windows)]
 #[path = "windows_registry_drain.rs"]
 mod windows_registry_drain;

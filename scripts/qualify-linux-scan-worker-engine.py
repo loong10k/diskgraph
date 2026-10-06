@@ -135,18 +135,29 @@ def main(output):
         shutil.copyfile(worker, output / 'actual-scan-worker')
         environment['DISKGRAPH_ENGINE_SCAN_WORKER'] = str(worker)
         cases = [('engine-flow', ['--test', 'scan_worker_engine_flow'], 3),
-                 ('recovery', ['--lib', 'scan_worker_recovery_tests'], 2)]
+                 ('recovery', ['--lib', 'scan_worker_recovery_tests'], 2),
+                 ('deadline-recovery', ['--lib', 'linux_registry_deadline_tests'], 3)]
         for name, target, count in cases:
             raw = run_step(output, root, environment, receipt, name, ['cargo', 'test', '--offline', '--locked', '-p', 'diskgraph-engine', *target,
                              '--', '--nocapture', '--test-threads=1'])
             expected = f'test result: ok. {count} passed; 0 failed; 0 ignored;'.encode()
             if expected not in raw:
                 raise ValueError(name + ': actual exact native count did not pass')
+            if name == 'deadline-recovery':
+                prefix = b'test scan_worker_registry::linux_registry_deadline_tests::'
+                required = ('expired_deadline_keeps_live_original_child_and_capacity_on_every_retry',
+                            'actual_wait_denial_keeps_original_owner_until_unfiltered_deadline_recovery',
+                            'deadline_cleanup_releases_capacity_only_after_original_pidfd_wait_consumption')
+                for case in required:
+                    if prefix + case.encode() + b' ...' not in raw:
+                        raise ValueError('missing required actual deadline case: ' + case)
+                if b'DG_LINUX_DEADLINE_ORIGINAL_WAIT_CONSUMED=1' not in raw:
+                    raise ValueError('actual original pidfd wait witness is missing')
             receipt[name] = {'passed': count, 'failed': 0, 'ignored': 0,
                              'raw_log_sha256': hashlib.sha256(raw).hexdigest()}
         if verify_current_sources(root) != sources:
             raise ValueError('build inputs changed during actual qualification')
-        receipt.update(status='component_tests_passed_awaiting_outer_cleanup', executed_parent_cases=5)
+        receipt.update(status='component_tests_passed_awaiting_outer_cleanup', executed_parent_cases=8)
     except BaseException as error:
         receipt.update(status='failed', primary_error={'kind': type(error).__name__, 'repr': repr(error)},
                        traceback=traceback.format_exc())

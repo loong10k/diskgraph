@@ -171,6 +171,21 @@ impl LinuxAtomicChild {
         self.exit.cleanup()
     }
 
+    /// 参数：deadline 为原绝对期限；返回：实际非阻塞 wait 完成，Pending 不丢原 pidfd。
+    /// 已到期时不关闭控制/启动通道、不发送信号；没有内部 sleep 或等待循环。
+    pub(crate) fn poll_cleanup(
+        &mut self,
+        deadline: std::time::Instant,
+    ) -> Result<bool, ChildError> {
+        if std::time::Instant::now() >= deadline {
+            return Ok(false);
+        }
+        self.request_control_close()?;
+        self.finish_startup();
+        self.pipes.close_child_copies();
+        self.exit.poll_cleanup(deadline)
+    }
+
     /// 参数：无；返回：原 pidfd 的物理退场事实，不等同原 wait 已消费或正常许可。
     pub(crate) fn physically_exited(&self) -> Result<bool, ChildError> {
         self.exit.stopped()

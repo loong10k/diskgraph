@@ -1,0 +1,17 @@
+{
+  "base_commit": "e839fdb",
+  "red_run": 37438383770,
+  "red_kind": "actual native compile API absence; not behavior RED",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_atomic_exit.rs": "13b9d9274a393aed7d352c2dc0c2798e21c878fdfae30e45276269473ffd60ce",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs": "1f6cea3ffc71e999ad951a3e36508543089d98a72b727a445c85a9b297e111b4",
+    "crates/diskgraph-engine/src/unix_registry_drain.rs": "1eabfef9da6f57ce7d1201e7b3f5f08f83cca44aeb99c66ebae06a58d06faffe",
+    "crates/diskgraph-engine/src/linux_registry_deadline_tests.rs": "d5bbf460e9cafa2f4e8a96593f953aa26539fdd1e1da7603e061f215eb096fae",
+    "crates/diskgraph-engine/src/scan_worker_registry.rs": "68b939df99a661075bf49d5f2e3d63868ae4ab282dc2431bbcbf7aa1aeedece4",
+    "crates/diskgraph-engine/src/scan_worker_recovery.rs": "563a25a779a9537b1ecee51a4fb9222270ead5c63ec406d3908cc9061d5d5c53",
+    "scripts/qualify-linux-scan-worker-engine.py": "606fde20d9a75c76312fcf0b77b732a00a166710609df4b948605b409cdf4718"
+  },
+  "linux_native_acceptance": false,
+  "finite_frontend_exit_acceptance": false,
+  "production_acceptance": false
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""复用已验收原namespace owner，只开放当前Engine五案例的固定入口。"""
+"""复用已验收原namespace owner，只开放当前Engine八案例的固定入口。"""
 import hashlib
 import importlib.util
 from pathlib import Path
@@ -10,7 +10,7 @@ SPEC = importlib.util.spec_from_file_location('engine_namespace_shared', SOURCE)
 SHARED = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(SHARED)
 # 独立加载实例的固定表，不改变已绑定历史探针的源码或接收其它资格脚本。
-SHARED.PROFILES = {'qualify-linux-scan-worker-engine.py': 5}
+SHARED.PROFILES = {'qualify-linux-scan-worker-engine.py': 8}
 
 
 class EngineNamespaceSupervisor(SHARED.NativeNamespaceSupervisor):

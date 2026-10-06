@@ -16,11 +16,11 @@ class EngineNamespaceContracts(unittest.TestCase):
         return argparse.Namespace(output_dir=Path('/tmp/engine-profile-unused'), self_test=False,
                                   command=[sys.executable, str(script.resolve()), '--output-dir', '{qualification_output}'])
 
-    def test_fixed_engine_profile_has_five_cases(self):
+    def test_fixed_engine_profile_has_eight_cases(self):
         args = self.args(SOURCE.with_name('qualify-linux-scan-worker-engine.py'))
         command = MODULE.EngineNamespaceSupervisor.command(args, args.output_dir)
         self.assertEqual(command[1], args.command[1])
-        self.assertEqual(MODULE.SHARED.PROFILES, {'qualify-linux-scan-worker-engine.py': 5})
+        self.assertEqual(MODULE.SHARED.PROFILES, {'qualify-linux-scan-worker-engine.py': 8})
         self.assertIs(MODULE.EngineNamespaceSupervisor.cleanup_owner, MODULE.ORIGINAL.cleanup_owner)
         self.assertIs(MODULE.EngineNamespaceSupervisor.wait_once, MODULE.ORIGINAL.wait_once)
 

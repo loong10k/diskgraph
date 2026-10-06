@@ -253,3 +253,7 @@ deadline path and frontend ownership handoff remain pending. The legacy
 
 本机真实 macOS 回归覆盖过期、锁竞争、组失败、外部回收及展开时的原责任
 保留；跨平台门禁仍需同源码 CI，不据此声明全平台生产就绪。
+
+Linux deadline recovery uses the original birth-time pidfd with single nonblocking `waitid` calls and zero-timeout polling. Expired calls leave the original owner and capacity retained; errors preserve the original wait responsibility. The shared Unix registry guard also returns that owner on panic. Legacy `drain`, child Drop, and frontend shutdown still need separate finite-exit acceptance.
+
+Linux 期限恢复沿用出生时的原 pidfd，每轮使用非阻塞 `waitid` 和零超时轮询。过期调用保留原 owner 与容量；等待错误保留原回收责任。Unix 共享 registry 守卫也在 panic 时归还原 owner。兼容 `drain`、child Drop 和前端退出仍须独立完成有限退出验收。
