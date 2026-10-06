@@ -323,8 +323,8 @@
       "sha256": "499368e5ad8a307bf992eafdc0ad504314beecc05bf118e8f35f2463b159c113"
     },
     {
-      "path": "windows-cleanup-37400045249/_temp/windows-cleanup/receipt.json",
-      "sha256": "6a5ac1047ca66d495bf42adf82f7badf32e23de74204b749c084fe0185f7cb18"
+      "path": "windows-cleanup-37400045249/_temp/windows-cleanup/receipt.json.gz",
+      "sha256": "3c313c84cc830e2689cd186315bd9d62e972bfdb70a9929e5cdd1b8964ea2bfb"
     },
     {
       "path": "windows-cleanup-37400045249/_temp/windows-cleanup/recovered_runner_admission_does_not_remain_poisoned_after_panic.stderr.gz",

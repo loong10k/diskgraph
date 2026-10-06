@@ -139,8 +139,8 @@
       "sha256": "c4c88b5a4909b7fa8c5b1d562a33b81f379959bfd05ac7a437dcca40946586b9"
     },
     {
-      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/receipt.json",
-      "sha256": "d8ff411a1a1177daf8ba84bb9282939d88db495350be9857bb5b19fd940d6ece"
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/receipt.json.gz",
+      "sha256": "c4f02883d4f0a34552c11cadec701ef350888d162146fd23b1eb1c61baeba878"
     },
     {
       "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/raw-path-protocol.stderr.gz",
@@ -151,8 +151,8 @@
       "sha256": "c142d22269e7251b6f9b3f01bd3ec9ab9061cdf66783dca09a9a2d2f835c89cd"
     },
     {
-      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/receipt.json",
-      "sha256": "7f61823481ef622f91f7cb476ef6246a9df56de88cf84b319bd46b9b69a2e101"
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/receipt.json.gz",
+      "sha256": "dae68fcbbe518bf6a8e691d76d7bf8c5965598c5e72e644a2196f4a77e03db93"
     },
     {
       "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/response-budget-fixture.stderr.gz",
@@ -307,8 +307,8 @@
       "sha256": "1f712670f2752aa4d0c1213f7a32bed6ae83aab44c6901a1848e8cacdb0472a8"
     },
     {
-      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/receipt.json",
-      "sha256": "8bed97246e763f8087964ed8c718e6e34cc102819791fd0fc652217a3328020a"
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/receipt.json.gz",
+      "sha256": "340941b90356723d888de4a122e67ecbc1831a4fa20ce4e59b4481639cee9361"
     },
     {
       "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/raw-path-protocol.stderr.gz",
@@ -319,8 +319,8 @@
       "sha256": "c142d22269e7251b6f9b3f01bd3ec9ab9061cdf66783dca09a9a2d2f835c89cd"
     },
     {
-      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/receipt.json",
-      "sha256": "9aaaed6f33a4eea8329f2427d4283e23601fd342dd2a7a37923dd566c9839036"
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/receipt.json.gz",
+      "sha256": "4437b4ee622e514ef240d60f8d28a7a7bf5cf965075e05907cbf974072ff09ee"
     },
     {
       "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/response-budget-fixture.stderr.gz",
