@@ -14,6 +14,8 @@ pub(super) fn normal_view(leader: u32) -> MacosGroupView {
 }
 
 fn normal_view_once(leader: u32) -> (MacosGroupView, bool) {
+    #[cfg(test)]
+    super::macos_group_query_tests::before_group_sample();
     let mut pids = [0i32; 1024];
     let Some(count) = list_group(leader, &mut pids) else {
         return unknown("normal group view is unavailable or truncated");

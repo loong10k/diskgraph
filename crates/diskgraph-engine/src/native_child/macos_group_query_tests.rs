@@ -6,6 +6,7 @@ use std::cell::{Cell, RefCell};
 use std::time::{Duration, Instant};
 
 thread_local! {
+    static SAMPLES: Cell<usize> = const { Cell::new(0) };
     static TARGET: Cell<i32> = const { Cell::new(0) };
     static QUERIES: Cell<usize> = const { Cell::new(0) };
     static BEFORE_QUERY: RefCell<Option<Box<dyn FnOnce()>>> = const { RefCell::new(None) };
@@ -19,6 +20,11 @@ pub(super) fn before_member_query(pid: i32) {
             callback();
         }
     }
+}
+
+/// 参数：无；返回：无，仅记录真实组采集的调用次数，不替换系统返回。
+pub(super) fn before_group_sample() {
+    SAMPLES.set(SAMPLES.get() + 1);
 }
 
 fn before(pid: i32, callback: impl FnOnce() + 'static) {
@@ -95,5 +101,49 @@ fn lost_retained_leader_is_unknown_without_a_second_query() {
     ));
     assert_eq!(QUERIES.get(), 1, "leader loss must not be retried");
     assert!(child.poll().is_err());
+    fixture::reaped(pid);
+}
+
+/// 两次真实采样各失去一个普通成员，第三份完整视图不得绕过本次有限重采额度。
+#[test]
+fn second_disappeared_member_remains_unknown_without_a_third_sample() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut child = fixture::spawn("two_descendants", directory.path());
+    let pid = fixture::qualified_identity(directory.path());
+    fixture::wait_file(&directory.path().join("descendant_ready"));
+    let first = directory.path().join("leaf");
+    let second = directory.path().join("leaf2");
+    let first_pid = fixture::scalar(&first, "pid");
+    let second_pid = fixture::scalar(&second, "pid");
+    // 按真实PID排序安排消失顺序，不假设系统PID分配连续或leader数值最小。
+    let (first, first_pid, second, second_pid) = if first_pid < second_pid {
+        (first, first_pid, second, second_pid)
+    } else {
+        (second, second_pid, first, first_pid)
+    };
+    child.request_control_close().unwrap();
+    fixture::drain(&mut child, true);
+    fixture::retained(pid);
+    SAMPLES.set(0);
+    before(first_pid, move || {
+        fixture::release(&first);
+        wait_absent(first_pid);
+        before(second_pid, move || {
+            fixture::release(&second);
+            wait_absent(second_pid);
+        });
+    });
+    assert!(matches!(
+        normal_view(pid as u32),
+        MacosGroupView::Unknown(_)
+    ));
+    assert_eq!(
+        SAMPLES.get(),
+        2,
+        "third sample must not consume another native query"
+    );
+    fixture::retained(pid);
+    // 第二次未知仍保留原owner；后续独立调用重新核验真实组，才允许消费leader。
+    assert!(child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
     fixture::reaped(pid);
 }

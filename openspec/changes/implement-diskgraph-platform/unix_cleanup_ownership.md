@@ -165,3 +165,5 @@ f9b1890 / CI37449291133 Linux stable112221636590原全量仍失败Engine lib与F
 验收：真实列举后非leader成员退出并消失，PROC_PIDTBSDINFO实际0/ESRCH只允许再采集一次完整组视图；不能把缺失成员当退出，也不对leader失踪、权限失败、短读或第二次不完整视图重试/签发成功。第二份样本仍须核验保留leader的父身份、整组完整成员状态和最终完整成员集一致；调用方原checkpoint/deadline不刷新，单次OS调用无硬期限承诺。原native9/1失败保留，新用例必须通过真实成员自然退出制造该竞态，不用返回值替身。
 
 本机实际验收：新增真实成员消失/leader失权两案，RED 1通过/1失败，GREEN及独立确认各2通过/0失败；既有Unix正常退出回归10通过/0失败；结构6通过/0失败，fmt成功。原9/1日志保留。日志为macos-group-resample-{red,green,regression,confirm,layout,fmt}.log.gz。该修复尚须同提交原生CI，不代表macOS安装链、Linux旧Unix资格、FFI公开扫描或全平台完成。
+
+补充真实双后代连续退出负控制：第一次和第二次采样分别实际0/ESRCH，第二次仍须Unknown并保留leader；第三次不得在同一请求发生。临时递归重采变异实际0通过/1失败，恢复一次重采后3通过/0失败；原Unix回归10通过/0失败，结构6通过/0失败及fmt成功。测试按真实PID排序，不假设PID连续分配；只计量真实采集次数，不替代系统返回。四份日志为macos-group-resample-{bound-negative,bounded-restored,bounded-layout,bounded-regression}.log.gz。该负控制不替代三平台产品验收。

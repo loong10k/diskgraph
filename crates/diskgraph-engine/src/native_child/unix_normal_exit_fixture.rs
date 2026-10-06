@@ -23,7 +23,8 @@ fn normal_fixture() {
             close_output();
             heartbeat_until_release(&directory);
         }
-        "descendant" => descendant(&directory),
+        "descendant" => descendant(&directory, 1),
+        "two_descendants" => descendant(&directory, 2),
         "leaf" => {
             // 安全性：仅 fixture 关闭自己的标准描述符；父宿主与其它测试不受影响。
             for fd in [0, 1, 2] {
@@ -71,22 +72,24 @@ fn close_output() {
     }
 }
 
-fn descendant(directory: &Path) {
-    let leaf = directory.join("leaf");
-    std::fs::create_dir(&leaf).unwrap();
-    // 不设置 process_group/pre_exec：普通后代真实继承 leader 的独立 session 和 group。
-    let mut child = Command::new(std::env::current_exe().unwrap())
-        .args([
-            "--exact",
-            "native_child::unix_normal_exit_fixture::normal_fixture",
-            "--nocapture",
-        ])
-        .env("DG_NORMAL_FIXTURE", "leaf")
-        .env("DG_NORMAL_DIRECTORY", &leaf)
-        .spawn()
-        .unwrap();
-    wait_file(&leaf.join("stdio_closed"));
-    assert!(child.try_wait().unwrap().is_none());
+fn descendant(directory: &Path, count: usize) {
+    for index in 0..count {
+        let leaf = directory.join(if index == 0 { "leaf" } else { "leaf2" });
+        std::fs::create_dir(&leaf).unwrap();
+        // 不设置 process_group/pre_exec：普通后代真实继承 leader 的独立 session 和 group。
+        let mut child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "native_child::unix_normal_exit_fixture::normal_fixture",
+                "--nocapture",
+            ])
+            .env("DG_NORMAL_FIXTURE", "leaf")
+            .env("DG_NORMAL_DIRECTORY", &leaf)
+            .spawn()
+            .unwrap();
+        wait_file(&leaf.join("stdio_closed"));
+        assert!(child.try_wait().unwrap().is_none());
+    }
     std::fs::write(directory.join("descendant_ready"), b"ready").unwrap();
     terminal();
     // 故意不 wait 普通后代，验证父 owner 在 leader 已结束后仍检查自有组。
