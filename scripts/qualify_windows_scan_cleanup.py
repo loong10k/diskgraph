@@ -152,6 +152,7 @@ ATOMIC_ROOT_CASES = tuple("live_evidence::windows_git_private_root_tests::" + na
     "moved_root_delete_reopen_targets_original_object_not_foreign_replacement",
     "original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease",
     "moved_root_reopen_ignores_junction_replacement_and_preserves_external_target",
+    "original_share_read_lease_blocks_delete_reopen_until_released",
 ))
 
 

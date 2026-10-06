@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "fdec4823fb110fe32ed2ce55742a7abd4712a70a2e9277cca0d795079f57d3bb",
+  "archive_sha256": "05cb8557e71d46f206c4a68ebd0b649d4520030862bdaf7ee155e35088bfeb52",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "91aa33ed860e739bdd6ea62fe4fe87de6bfbd15029c475742cb507a4ceb1d3c1",
@@ -114,7 +114,7 @@
     "crates/diskgraph-engine/src/live_evidence/git_object_database_tests.rs": "6f93c3ce0f563f97ab4bff5000c1ad687e7ed27a760e6682aa729ab923d57d90",
     "crates/diskgraph-engine/src/live_evidence/git_object_resources_tests.rs": "967c56cb239d3cbe19a59f4e51c452a7b7a44bf8d181cec3ab5bd6c7ed5f5e0b",
     "crates/diskgraph-engine/src/live_evidence/git_output.rs": "a2d5084d417a8dfc9209c070b3e09d323ee3c7e433e4837a61d63c9aab540ec8",
-    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "49d9167b6cbfab0a11af48efca4558f00ace35aababa21eac86558c5d32d5985",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "83068ce4cbd9415c176cd055089bf87bb2f468ba0201a82d4d715721af30b4ce",
     "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
     "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "593c1428117a371e442a8a3b3e48f867f8cfb5b782ce455a9e7c7df28699b132",
     "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "3d97a595872508e8b789705f7b076f21575a2c2642d8cf2b5a65e3e1ebf9d092",
@@ -181,8 +181,8 @@
     "crates/diskgraph-engine/src/live_evidence/watch_report.rs": "27c79200f16ed5645b9fea17dbdc75cc4c3a99fb527d23466a55c0f1652ea1fb",
     "crates/diskgraph-engine/src/live_evidence/watch_snapshot.rs": "33e7f4431f3f2cd910aabb6651ba040a3860c2da813e28e14a66edc2f734b506",
     "crates/diskgraph-engine/src/live_evidence/windows_git_junction_fixture.rs": "d6508895f73477a4a9eb270a193c8f8b16e20becef4518a2a68366b78878d58b",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "0b07a3d8af5c6ffcbaadfa225768d2ea478475eb39794d0b77025d11ac34d695",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "7168b8cf83befef4cc5244969596c5ea8712122a2eb8df985c0a80f4a677720b",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "7d1dc79fa1966d04ec239818eaf804dd0b8cf04a12136cb12809d7fd0154a033",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root_tests.rs": "b6e8e507e7d6f85873ba49c4167c35d5651b94342b68dab61834ee47af71b476",
     "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "ae7de805437a0647a876fd51d20c6b5275112e93771465492ad1088a305d51cf",
     "crates/diskgraph-engine/src/macos_engine_scan_fixture_tests.rs": "6768ee90672e1ea850131cf508d55af26b45ec168ee5e9c89d37d9c13700e5e8",
     "crates/diskgraph-engine/src/macos_epoch_floor.rs": "6d54110b90ee65ae2b270d03c6f604608b2d1f32169352cbd285f7cc854b4676",
@@ -599,7 +599,8 @@
     "live_evidence::windows_git_private_root_tests::atomic_root_create_refuses_existing_directory_without_adopting_it",
     "live_evidence::windows_git_private_root_tests::moved_root_delete_reopen_targets_original_object_not_foreign_replacement",
     "live_evidence::windows_git_private_root_tests::original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease",
-    "live_evidence::windows_git_private_root_tests::moved_root_reopen_ignores_junction_replacement_and_preserves_external_target"
+    "live_evidence::windows_git_private_root_tests::moved_root_reopen_ignores_junction_replacement_and_preserves_external_target",
+    "live_evidence::windows_git_private_root_tests::original_share_read_lease_blocks_delete_reopen_until_released"
   ],
   "prepared_connect_cases": [
     "native_child::windows::windows_prepared_connect_tests::expired_connect_cleanup_retains_original_addresses_without_eof",
