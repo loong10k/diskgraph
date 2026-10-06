@@ -4,6 +4,8 @@
 
 spawn_scan_json须在原后台协调线程内建立NativeScanHost，沿用原JobHandle取消Arc和进度回调；实际材料准入、runner join与物理恢复均在同一线程栈，不在UI入口执行或将Recovery放入共享句柄。原签名、轮询、结果幂等与授权语义不变。已有a_spawned_scan_returns_a_handle_at_once_and_join_later在e0fae7f/Linux stable原生返回unsupported，需修复后保留该公开正控全部断言并取得原生GREEN。最后句柄取消、有限退出及持久旧构造器验收仍独立开放。
 
+5546bbc/37467334725公开异步正控在Linux x86_64 stable、Rust1.97、ARM64三组原生step均成功；原句柄即时返回、真实扫描/后续查询与结果幂等断言保持。本机取消1/0、源码组织8/0、fmt通过。记录时全量job仍运行，不能声明FFI全量GREEN。前一b1e03f4全量Linux stable已终态：FFI83 passed/7 failed（仍包含此修复前异步失败、旧构造及runner用例），另CLI帧准入用例失败；受管服务正控三组均成功。旧构造、有限退出与全平台门禁仍开放。记录：[异步原生step](../../../docs/benchmarks/linux_test_boundary_2026_10_06/ffi_asynchronous_host_2026_10_06_candidate.json)，同目录保存b1完整原始日志ffi_scoped_host_full_2026_10_06.log.gz。
+
 ## 受管 FFI 服务的实际扫描宿主（未完成）
 
 with_owner必须为共享Engine接入统一材料准入的实际扫描宿主，唯一Recovery位于普通函数栈、manager guard之外；不能进入Arc<Service>/Arc<Engine>或可被忘记的借用能力。正常/错误/unwind均先关闭和真实join协调线程，再drain同一物理恢复槽。公开扫描正控须真实发布快照、经服务查询、作用域退出后拒绝旧服务请求。先在Linux实际worker部署上取得该正控RED，再实施接线；旧UniFFI构造、有限时间退出及其他平台生产门禁仍开放。

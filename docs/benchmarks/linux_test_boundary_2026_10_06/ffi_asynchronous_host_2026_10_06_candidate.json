@@ -1,0 +1,54 @@
+{
+  "commit": "5546bbcfc7b3412828dc16dd65133a06511f9309",
+  "run": 37467334725,
+  "native_steps": [
+    {
+      "job": 112281614975,
+      "platform": "Test (ubuntu-latest / Rust 1.97.0)",
+      "step": {
+        "completedAt": "2026-10-06T13:03:10Z",
+        "conclusion": "success",
+        "name": "Native Linux public FFI asynchronous scan",
+        "number": 35,
+        "startedAt": "2026-10-06T13:03:09Z",
+        "status": "completed"
+      },
+      "whole_job_status": "in_progress",
+      "whole_job_conclusion": ""
+    },
+    {
+      "job": 112281615230,
+      "platform": "Test (ubuntu-latest / Rust stable)",
+      "step": {
+        "completedAt": "2026-10-06T13:03:47Z",
+        "conclusion": "success",
+        "name": "Native Linux public FFI asynchronous scan",
+        "number": 35,
+        "startedAt": "2026-10-06T13:03:46Z",
+        "status": "completed"
+      },
+      "whole_job_status": "in_progress",
+      "whole_job_conclusion": ""
+    },
+    {
+      "job": 112281615497,
+      "platform": "Test (ubuntu-24.04-arm / Rust stable)",
+      "step": {
+        "completedAt": "2026-10-06T13:03:05Z",
+        "conclusion": "success",
+        "name": "Native Linux public FFI asynchronous scan",
+        "number": 35,
+        "startedAt": "2026-10-06T13:03:04Z",
+        "status": "completed"
+      },
+      "whole_job_status": "in_progress",
+      "whole_job_conclusion": ""
+    }
+  ],
+  "red": "e0fae7f public async scan returned unsupported; retained full log in ffi_synchronous_host_full_2026_10_06.log.gz",
+  "local_cancel": "1/0",
+  "local_source_layout": "8/0",
+  "fmt": "passed",
+  "production_ready": false,
+  "evidence_limitation": "Native step conclusions; complete jobs still running"
+}
