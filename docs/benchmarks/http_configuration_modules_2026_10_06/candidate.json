@@ -1,0 +1,14 @@
+{
+  "production_acceptance": false,
+  "base_sha": "e4bc1f0b4e60c6f255b00ca07c26ffc590e64902",
+  "structure_red_failed": 1,
+  "structure_green_passed": 11,
+  "mcp_library_cases_required": 162,
+  "macos_archive_sha256": "b4a8f71f7489be109e12342457f0d224243111114fee4bd0c6c7dce17fc5d473",
+  "macos_sources": 604,
+  "socket_tests_passed": 3,
+  "socket_tests_failed": 0,
+  "mount_guard_tests_passed": 13,
+  "fmt": "passed",
+  "all_three_object_implementations_preserved": true
+}

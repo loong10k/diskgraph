@@ -1,0 +1,17 @@
+{
+  "HttpLimits": {
+    "before_non_doc_tokens_sha256": "fa9cec4e24286d6e5d869275f30b26ee1d1b940ef721ac18ca075d7e1d926397",
+    "non_doc_implementation_equal": true,
+    "after_non_doc_tokens_sha256": "fa9cec4e24286d6e5d869275f30b26ee1d1b940ef721ac18ca075d7e1d926397"
+  },
+  "HttpResponse": {
+    "before_non_doc_tokens_sha256": "53e30810ba85fbf409b6aab7bdf33e5168fdb93ce0b2b5ca46ee6bf27d56a8c6",
+    "non_doc_implementation_equal": true,
+    "after_non_doc_tokens_sha256": "53e30810ba85fbf409b6aab7bdf33e5168fdb93ce0b2b5ca46ee6bf27d56a8c6"
+  },
+  "ServerConfig": {
+    "before_non_doc_tokens_sha256": "c867ec66c05a94e8519a131b6c30f48cc19a8fb2ab7541919ccc9b38306612e9",
+    "non_doc_implementation_equal": true,
+    "after_non_doc_tokens_sha256": "c867ec66c05a94e8519a131b6c30f48cc19a8fb2ab7541919ccc9b38306612e9"
+  }
+}

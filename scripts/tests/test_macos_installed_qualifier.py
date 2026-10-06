@@ -44,7 +44,13 @@ class MacosInstalledQualifierTests(unittest.TestCase):
         for name in ["candidate.tar.gz", "manifest.json"]:
             (self.directory / name).write_bytes((source / name).read_bytes())
         manifest = qualifier.mount(self.checkout, allow_products=True)
-        self.assertEqual(len(manifest["sources"]), 601)
+        self.assertEqual(len(manifest["sources"]), 604)
+        for module, object_name in (("http_limits", "HttpLimits"),
+                                    ("http_response", "HttpResponse"),
+                                    ("http_server_config", "ServerConfig")):
+            name = f"crates/diskgraph-mcp/src/{module}.rs"
+            self.assertIn(name, manifest["sources"])
+            self.assertIn(f"pub struct {object_name}", (self.checkout / name).read_text())
         self.assertEqual(manifest["native_child_parallel_tests_required"], 41)
         self.assertEqual(len(manifest["ordinary_cases"]), 6)
         self.assertEqual(manifest["protocol_cases"], [qualifier.PROTOCOL_CASE, qualifier.BUDGET_FIXTURE_CASE])

@@ -19,7 +19,10 @@ use crate::auth::{AuthFailure, Authenticator, token_from_headers, unauthorized_b
 use crate::protocol::{PROTOCOL_VERSION, log_line, protocol_error};
 
 pub use crate::client_address::observed_client_ip;
+pub use crate::http_limits::HttpLimits;
 pub use crate::http_request::HttpRequest;
+pub use crate::http_response::HttpResponse;
+pub use crate::http_server_config::ServerConfig;
 pub use crate::rate_limiter::RateLimiter;
 
 /// The single endpoint a Streamable HTTP client posts to.
@@ -29,38 +32,6 @@ pub const HEALTH_ENDPOINT: &str = "/healthz";
 const MAX_REQUEST_LINE_BYTES: usize = 8 * 1024;
 const MAX_HEADER_BYTES: usize = 32 * 1024;
 const MAX_HEADER_COUNT: usize = 100;
-
-/// Server limits, applied before any work (spec MCP-06 / RT-02).
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct HttpLimits {
-    /// Largest accepted request body.
-    pub max_body_bytes: usize,
-    /// Largest response the server will produce for one request.
-    pub max_response_bytes: usize,
-    /// Requests allowed per connection before it is closed.
-    pub max_requests_per_connection: usize,
-    /// Concurrent connections the server admits. Beyond this, new connections
-    /// are refused with 503 rather than queued without bound.
-    pub max_concurrent_connections: usize,
-    /// Token-bucket rate for one client across its connections.
-    pub max_requests_per_second_per_client: u32,
-    /// Absolute deadline for reading one complete request, including its
-    /// line, headers, and body. Receiving another byte does not renew it.
-    pub read_timeout: Duration,
-}
-
-impl Default for HttpLimits {
-    fn default() -> Self {
-        Self {
-            max_body_bytes: 1 << 20,
-            max_response_bytes: 4 << 20,
-            max_requests_per_connection: 256,
-            max_concurrent_connections: 32,
-            max_requests_per_second_per_client: 50,
-            read_timeout: Duration::from_secs(10),
-        }
-    }
-}
 
 /// Origin and proxy policy for the HTTP transport (P4 task 5.4, spec MCP-06).
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -234,58 +205,6 @@ pub fn bind(address: &str, port: u16) -> std::io::Result<(TcpListener, BoundAddr
             port: local.port(),
         },
     ))
-}
-
-/// A response the connection loop writes verbatim.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct HttpResponse {
-    pub status: u16,
-    pub content_type: &'static str,
-    pub body: String,
-    /// Session identifier echoed for MCP Streamable HTTP clients.
-    pub session: Option<String>,
-}
-
-impl HttpResponse {
-    pub fn json(status: u16, value: Value) -> Self {
-        Self {
-            status,
-            content_type: "application/json",
-            body: value.to_string(),
-            session: None,
-        }
-    }
-
-    /// An empty 202 for JSON-RPC notifications: per the Streamable HTTP
-    /// contract the response carries no body and no Content-Type at all.
-    pub fn accepted() -> Self {
-        Self {
-            status: 202,
-            content_type: "application/json",
-            body: String::new(),
-            session: None,
-        }
-    }
-
-    /// An empty event-stream answer, for hosts whose client reads every POST
-    /// response as a stream.
-    pub fn accepted_stream() -> Self {
-        Self {
-            status: 202,
-            content_type: "text/event-stream",
-            body: String::new(),
-            session: None,
-        }
-    }
-
-    pub fn text(status: u16, body: impl Into<String>) -> Self {
-        Self {
-            status,
-            content_type: "text/plain; charset=utf-8",
-            body: body.into(),
-            session: None,
-        }
-    }
 }
 
 /// Routes one request against the shared service with no remote
@@ -1137,31 +1056,6 @@ pub(crate) fn serve_config_with_runtime(
     match accept_failure {
         Some(error) => Err(error),
         None => Ok(handled.load(Ordering::SeqCst)),
-    }
-}
-
-/// Everything one HTTP listener needs: limits, security context, and the
-/// legacy adapter gate (default off, P4 tasks 5.6/5.7).
-pub struct ServerConfig {
-    pub limits: HttpLimits,
-    pub security: Security,
-    pub legacy_sse: bool,
-}
-
-impl ServerConfig {
-    /// The modern-transport server with defaults.
-    pub fn modern(limits: HttpLimits, security: Security) -> Self {
-        Self {
-            limits,
-            security,
-            legacy_sse: false,
-        }
-    }
-
-    /// The same server with the legacy adapter enabled.
-    pub fn with_legacy(mut self) -> Self {
-        self.legacy_sse = true;
-        self
     }
 }
 

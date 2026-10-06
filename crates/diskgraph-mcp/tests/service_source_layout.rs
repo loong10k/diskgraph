@@ -531,3 +531,77 @@ fn http_request_has_real_logic_in_own_module_and_preserves_public_path() {
     assert_eq!(request.query_param("missing"), None);
     assert_eq!(request, request.clone());
 }
+
+#[test]
+fn http_configuration_and_response_objects_have_real_modules_and_stable_public_contracts() {
+    use diskgraph_mcp::http::{HttpLimits, HttpResponse, Security, ServerConfig};
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let transport = std::fs::read_to_string(root.join("http.rs")).unwrap();
+    for (module, object) in [
+        ("http_limits", "HttpLimits"),
+        ("http_response", "HttpResponse"),
+        ("http_server_config", "ServerConfig"),
+    ] {
+        let source = std::fs::read_to_string(root.join(format!("{module}.rs")))
+            .expect("HTTP object must own a real implementation module");
+        let parsed = syn::parse_file(&source).unwrap();
+        let objects: Vec<_> = parsed
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                syn::Item::Struct(value) => Some(value.ident.to_string()),
+                syn::Item::Enum(value) => Some(value.ident.to_string()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(objects, [object]);
+        assert!(!transport.contains(&format!("pub struct {object}")));
+        assert!(transport.contains(&format!("pub use crate::{module}::{object};")));
+        assert!(
+            parsed
+                .items
+                .iter()
+                .any(|item| matches!(item, syn::Item::Impl(_)))
+        );
+    }
+    let limits = HttpLimits::default();
+    assert_eq!(
+        (limits.max_body_bytes, limits.max_response_bytes),
+        (1 << 20, 4 << 20)
+    );
+    assert_eq!(
+        (
+            limits.max_requests_per_connection,
+            limits.max_concurrent_connections,
+            limits.max_requests_per_second_per_client
+        ),
+        (256, 32, 50)
+    );
+    assert_eq!(limits.read_timeout, std::time::Duration::from_secs(10));
+    let response = HttpResponse::json(200, serde_json::json!({"unicode": "目录"}));
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&response.body).unwrap(),
+        serde_json::json!({"unicode": "目录"})
+    );
+    assert_eq!(response.status, 200);
+    assert_eq!(response.content_type, "application/json");
+    assert_eq!(response.session, None);
+    for response in [HttpResponse::accepted(), HttpResponse::accepted_stream()] {
+        assert_eq!(response.status, 202);
+        assert!(response.body.is_empty());
+        assert_eq!(response.session, None);
+    }
+    assert_eq!(
+        HttpResponse::accepted_stream().content_type,
+        "text/event-stream"
+    );
+    let text = HttpResponse::text(409, "conflict");
+    assert_eq!(
+        (text.status, text.body.as_str(), text.content_type),
+        (409, "conflict", "text/plain; charset=utf-8")
+    );
+    let config = ServerConfig::modern(limits, Security::local(None));
+    assert_eq!(config.limits, limits);
+    assert!(!config.legacy_sse);
+    assert!(config.with_legacy().legacy_sse);
+}
