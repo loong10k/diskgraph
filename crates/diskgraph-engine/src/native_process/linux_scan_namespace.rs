@@ -90,7 +90,7 @@ impl LinuxScanNamespace {
     /// 只比较 dev/inode/唯一挂载，不比较目录时间；允许无关 sibling 活动，非原子 namespace 快照。
     pub(super) fn verify(&self, check: &dyn Fn() -> Result<(), Failure>) -> Result<(), Failure> {
         check()?;
-        let current_anchor = open_at(
+        let current_anchor = reopen_for_verification(
             libc::AT_FDCWD,
             c"/",
             libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
@@ -100,7 +100,7 @@ impl LinuxScanNamespace {
         let mut parent = current_anchor;
         for (name, original) in &self.route {
             check()?;
-            let current = open_at(
+            let current = reopen_for_verification(
                 parent.as_raw_fd(),
                 name,
                 libc::O_PATH | libc::O_DIRECTORY | libc::O_CLOEXEC,
@@ -111,4 +111,17 @@ impl LinuxScanNamespace {
         }
         check()
     }
+}
+
+// 记录失败的真实 openat2 分类及数字 errno，不输出路径、身份、正文或 SQL，不重试或改变解析约束。
+fn reopen_for_verification(
+    parent: i32,
+    name: &std::ffi::CStr,
+    flags: i32,
+    resolve: u64,
+) -> Result<File, Failure> {
+    open_at(parent, name, flags, resolve).inspect_err(|failure| {
+        let errno = std::io::Error::last_os_error().raw_os_error();
+        eprintln!("diskgraph: native scan namespace reopen failed: class={failure:?}; errno={errno:?}; flags={flags}; resolve={resolve}");
+    })
 }

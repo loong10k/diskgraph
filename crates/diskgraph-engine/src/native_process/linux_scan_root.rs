@@ -108,7 +108,13 @@ impl LinuxScanRoot {
         match result {
             Ok(()) => Ok(()),
             Err(Failure::BudgetExceeded) => Err(BusinessError::BudgetExceeded.into()),
-            Err(_) => Err(BusinessError::Conflict.into()),
+            Err(failure) => {
+                // 旁表根复核失败仍拒绝发布；保留固定原生分类，不能靠事后授权推断首因。
+                eprintln!(
+                    "diskgraph: native scan namespace verification failed: class={failure:?}"
+                );
+                Err(BusinessError::Conflict.into())
+            }
         }
     }
 }

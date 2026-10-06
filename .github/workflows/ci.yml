@@ -533,14 +533,20 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
-      - name: Diagnose original Linux baseline failure once
+      - name: Classify actual paired scan failure side
+        id: linux_scan_failure
         if: failure() && steps.linux_scan_cost.conclusion == 'failure'
+        run: |
+          python -m unittest discover -s scripts -p test_classify_linux_scan_failure.py -v
+          python scripts/classify_linux_scan_failure.py --receipt "${{ runner.temp }}/diskgraph-linux-scan-cost/receipt.json" --github-output "$GITHUB_OUTPUT"
+      - name: Diagnose original Linux baseline failure once
+        if: failure() && steps.linux_scan_cost.conclusion == 'failure' && steps.linux_scan_failure.outputs.side == 'baseline'
         timeout-minutes: 75
         run: |
           python -m unittest discover -s scripts -p test_diagnose_linux_baseline.py -v
           python scripts/diagnose-linux-baseline.py --output-dir "${{ runner.temp }}/diskgraph-linux-baseline-diagnostic"
       - name: Preserve separate Linux baseline diagnostic evidence
-        if: always() && steps.linux_scan_cost.conclusion == 'failure'
+        if: always() && steps.linux_scan_cost.conclusion == 'failure' && steps.linux_scan_failure.outputs.side == 'baseline'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         with:
           name: linux-baseline-diagnostic-${{ github.run_id }}

@@ -1,0 +1,19 @@
+{
+  "red_scope": "new classifier initially modeled old workflow broad failed=>baseline condition; 4 actual unit failures; not a native product RED",
+  "green": "6 unit cases passed, including original candidate receipt, expected fetch failure, baseline run/metric/build failure and unknown/pass/aborted boundaries",
+  "files": [
+    {
+      "phase": "red",
+      "file": "failure_side_red.log.gz",
+      "raw_sha256": "d28c59aca7dce18b6da39127874459f30f6092a3bd2d46dcb52ae5e386af3261",
+      "stored_sha256": "4fc9393c3959c0cde61244227481f76641c7a2df01b0cd46e54a2f1f3b1f77bf"
+    },
+    {
+      "phase": "green",
+      "file": "failure_side_green.log.gz",
+      "raw_sha256": "dcad0598e685f28df4940f046d1b4461393b960d65f503eb3fc9c7d7c1459981",
+      "stored_sha256": "180ffe190f705657c1ba736903587343641122c09f1cea2e39ee02a1ea83a3aa"
+    }
+  ],
+  "original_paired_gate": "remains failed; no retry or pass override"
+}
