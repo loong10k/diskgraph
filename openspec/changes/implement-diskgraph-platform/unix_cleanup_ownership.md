@@ -55,3 +55,7 @@ Linux 期限恢复已通过当前完整源码原生门禁：37438978565 / c98dc1
 ## 当前 Linux 密封组件验收来源
 
 f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已通过；sealed-image步骤却因历史候选覆盖后重复声明4模块而失败，后续全量Test未运行。修复要求：隔离git archive保留当前提交源码，不拷贝历史候选、不新增模块声明；记录实际5文件摘要，缺失或重复声明应在Cargo前拒绝。保持原11项原生测试和严格warnings，不能跳过该门禁。新增3项来源回归因缺少current_sources真实RED，修复后须GREEN并保留实际原生11项结果；不据此完成全平台父项。
+
+## Linux CLI/MCP 实际 worker 部署验收
+
+6fef42b 的三组Linux严格Build与当前密封组件11项通过，实际CLI index返回unsupported；原因是验收未配置受信扫描宿主。CI须从同提交Cargo实际bin artifact构建生产worker，记录SHA/长度/提交，不选择协议驱动夹具或邻接清单，使用既有本地部署配置入口。不改变Engine::open可信库构造语义、远程授权或macOS固定安装要求；保留CLI/MCP真实索引及结果断言，未运行全量测试不能宣称通过。CI生成预期仅证明受控源码构建部署，不代表发布安装信任或全平台生产完成。

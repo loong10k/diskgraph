@@ -161,6 +161,48 @@ jobs:
             ${{ runner.temp }}/diskgraph-owner-probes
           retention-days: 7
           if-no-files-found: error
+      - name: Configure actual Linux worker for product acceptance
+        if: runner.os == 'Linux'
+        id: linux_product_worker
+        run: |
+          cargo build -p diskgraph-scan-worker --bin diskgraph-scan-worker --locked --message-format=json > "${{ runner.temp }}/product-worker-build.jsonl"
+          python - <<'PYTHON'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          output = Path(os.environ["RUNNER_TEMP"])
+          rows = [json.loads(line) for line in (output / "product-worker-build.jsonl").read_text().splitlines()]
+          artifacts = [row for row in rows if row.get("reason") == "compiler-artifact"
+                       and row.get("target", {}).get("name") == "diskgraph-scan-worker"
+                       and row.get("target", {}).get("kind") == ["bin"] and row.get("executable")]
+          if len(artifacts) != 1:
+              raise SystemExit("one actual Cargo scan worker artifact is required")
+          image = Path(artifacts[0]["executable"])
+          if not image.is_absolute() or image.is_symlink() or not image.is_file() or any(c in str(image) for c in "\r\n\0"):
+              raise SystemExit("invalid product worker artifact path")
+          with image.open("rb") as stream:
+              digest = hashlib.file_digest(stream, "sha256").hexdigest()
+          length = image.stat().st_size
+          if not 0 < length <= 128 * 1024 * 1024:
+              raise SystemExit("product worker exceeds installation image budget")
+          receipt = {"checkout_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                     "worker_path": str(image), "worker_sha256": digest, "worker_bytes": length,
+                     "trust_source": "current CI checkout Cargo binary artifact", "product_acceptance": "pending"}
+          (output / "product-worker-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+          with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as stream:
+              stream.write("DISKGRAPH_SCAN_WORKER_PATH=" + str(image) + "\n")
+              stream.write("DISKGRAPH_SCAN_WORKER_SHA256=" + digest + "\n")
+              stream.write("DISKGRAPH_SCAN_WORKER_BYTES=" + str(length) + "\n")
+          PYTHON
+      - name: Preserve actual Linux product worker identity
+        if: always() && steps.linux_product_worker.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: product-worker-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/product-worker-build.jsonl
+            ${{ runner.temp }}/product-worker-receipt.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Read-only CLI, stdio and authenticated HTTP acceptance
         run: |
           python scripts/accept-readonly-stdio.py
