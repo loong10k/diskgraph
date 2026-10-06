@@ -1,0 +1,23 @@
+{
+  "commit": "1f518369126d5729e1b3d381311035c47b524606",
+  "run": 37468862104,
+  "job": 112286772135,
+  "platform": "Linux x86_64 stable",
+  "conclusion": "failure",
+  "ffi": {
+    "passed": 91,
+    "failed": 0
+  },
+  "engine": {
+    "passed": 555,
+    "failed": 1,
+    "ignored": 3,
+    "failure": "observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture"
+  },
+  "store": {
+    "passed": 291,
+    "failed": 0,
+    "ignored": 1
+  },
+  "scope": "This job only; no same-SHA all-platform success."
+}

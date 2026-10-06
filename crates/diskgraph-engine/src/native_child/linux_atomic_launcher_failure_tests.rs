@@ -165,7 +165,7 @@ fn parent_observer_panic_reaps_before_original_payload_resumes() {
             },
         );
     }));
-    let payload = result.err().expect("specified parent panic");
+    let payload = result.expect_err("specified parent panic");
     assert_eq!(
         payload.downcast_ref::<&str>(),
         Some(&"atomic-launch-observer-sentinel")

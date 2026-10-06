@@ -65,6 +65,8 @@ mod linux_atomic_birth_tests;
 #[cfg(target_os = "linux")]
 mod linux_atomic_abi;
 #[cfg(target_os = "linux")]
+mod linux_atomic_birth_observer;
+#[cfg(target_os = "linux")]
 mod linux_atomic_child;
 #[cfg(target_os = "linux")]
 mod linux_atomic_exit;

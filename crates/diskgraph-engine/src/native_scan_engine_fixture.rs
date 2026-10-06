@@ -29,7 +29,10 @@ impl NativeScanEngine {
             "deployment digest must contain 32 bytes"
         );
         let mut digest = [0; 32];
-        for (byte, pair) in digest.iter_mut().zip(expected.as_bytes().chunks_exact(2)) {
+        for (byte, pair) in digest
+            .iter_mut()
+            .zip(expected.as_bytes().as_chunks::<2>().0)
+        {
             *byte = u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16)
                 .expect("deployment digest must be hexadecimal");
         }

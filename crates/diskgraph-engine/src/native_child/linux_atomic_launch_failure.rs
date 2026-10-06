@@ -5,7 +5,7 @@ use super::linux_atomic_child::LinuxAtomicChild;
 /// 来源：原生 Rust 原子 pidfd 失败所有权与 ChildSpawnError 类型传播合同。
 pub(crate) struct LinuxAtomicLaunchFailure<E> {
     error: ChildSpawnError<E>,
-    owner: Option<LinuxAtomicChild>,
+    owner: Option<Box<LinuxAtomicChild>>,
 }
 
 impl<E> LinuxAtomicLaunchFailure<E> {
@@ -15,7 +15,7 @@ impl<E> LinuxAtomicLaunchFailure<E> {
     }
 
     /// 参数：error 为原主错，child 为真实唯一owner；返回：清理结果与必要的处置owner。
-    pub(super) fn after_birth(error: ChildSpawnError<E>, mut child: LinuxAtomicChild) -> Self {
+    pub(super) fn after_birth(error: ChildSpawnError<E>, mut child: Box<LinuxAtomicChild>) -> Self {
         match child.cleanup() {
             Ok(()) => Self { error, owner: None },
             Err(cleanup) => {
@@ -31,7 +31,7 @@ impl<E> LinuxAtomicLaunchFailure<E> {
 
     /// 参数：self 为失败材料；返回：原错误及仍需宿主显式回收的唯一owner，不授予继续扫描许可。
     pub(crate) fn into_parts(self) -> (ChildSpawnError<E>, Option<LinuxAtomicChild>) {
-        (self.error, self.owner)
+        (self.error, self.owner.map(|child| *child))
     }
 }
 

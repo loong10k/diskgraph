@@ -111,3 +111,11 @@ fn send(fd: i32, packet: [u32; 3]) {
         12
     );
 }
+
+#[test]
+fn retained_failure_has_bounded_inline_size() {
+    use super::ChildError;
+    use super::linux_atomic_launch_failure::LinuxAtomicLaunchFailure;
+    assert!(std::mem::size_of::<LinuxAtomicLaunchFailure<ChildError>>() <= 128);
+    assert!(std::mem::size_of::<LinuxAtomicLaunchFailure<std::io::Error>>() <= 128);
+}

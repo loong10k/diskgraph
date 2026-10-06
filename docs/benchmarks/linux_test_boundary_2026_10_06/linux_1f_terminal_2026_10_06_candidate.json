@@ -1,0 +1,33 @@
+{
+  "commit": "1f518369126d5729e1b3d381311035c47b524606",
+  "run": 37468862104,
+  "linux_msrv": {
+    "job": 112286772275,
+    "conclusion": "success",
+    "engine": "556/0/3 ignored",
+    "ffi": "91/0",
+    "store": "291/0/1 ignored",
+    "whole_job": "success, includes strict Clippy"
+  },
+  "linux_arm": {
+    "job": 112286772345,
+    "conclusion": "failure",
+    "gate": "Clippy; full tests passed",
+    "primary": "LinuxAtomicLaunchFailure too large; callback type complexity",
+    "secondary": "fixture chunks_exact and err_expect"
+  },
+  "linux_stable": {
+    "job": 112286772135,
+    "conclusion": "failure",
+    "gate": "Test",
+    "primary": "one observation regression got database locked opening peer store",
+    "ffi": "91/0"
+  },
+  "newer_reset_fix": {
+    "commit": "f32b0c73cad93de4fd56cfa79ce7e2f784447d9b",
+    "run": 37470345841,
+    "native_reset_step": "success in stable112291890580, MSRV112291890485, ARM112291890565",
+    "full_jobs": "still in_progress; no terminal proof"
+  },
+  "scope": "No claim of all-platform production readiness."
+}

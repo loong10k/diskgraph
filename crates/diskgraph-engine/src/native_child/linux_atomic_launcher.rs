@@ -1,4 +1,5 @@
 use super::linux_atomic_abi::LinuxAtomicAbi;
+use super::linux_atomic_birth_observer::LinuxAtomicBirthObserver;
 use super::linux_atomic_child::LinuxAtomicChild;
 use super::linux_atomic_exit::LinuxAtomicExit;
 use super::linux_atomic_handshake::LinuxAtomicHandshake;
@@ -77,7 +78,7 @@ impl LinuxAtomicLauncher {
         deadline: Instant,
         checkpoint: &mut impl FnMut() -> Result<(), E>,
         unwind_owner: &mut Option<LinuxAtomicChild>,
-        observer: Option<&mut dyn FnMut(&mut LinuxAtomicChild) -> Result<(), ChildError>>,
+        observer: Option<&mut LinuxAtomicBirthObserver<'_>>,
     ) -> Result<LinuxAtomicChild, LinuxAtomicLaunchFailure<E>> {
         if unwind_owner.is_some() {
             return Err(LinuxAtomicLaunchFailure::before_birth(
@@ -134,6 +135,8 @@ impl LinuxAtomicLauncher {
                 filter_count: filter.len,
                 filter: filter.filter,
             };
+            // 处置槽先于kernel birth分配；失败对象只移动此槽，不在出生后分配owner。
+            let mut child_slot = Box::<LinuxAtomicChild>::new_uninit();
             let mut mask = LinuxAtomicSignalMask::new();
             let mut pidfd = -1;
             let pid = unsafe {
@@ -156,7 +159,9 @@ impl LinuxAtomicLauncher {
             // 内核成功原子返还原fd；到adopt之间不分配、不回调、不格式化、无可失败转换。
             let fd = unsafe { std::os::fd::OwnedFd::from_raw_fd(pidfd) };
             let exit = LinuxAtomicExit::adopt(fd, pid as i32);
-            let mut child = LinuxAtomicChild::adopt(exit, self.pipes);
+            child_slot.write(LinuxAtomicChild::adopt(exit, self.pipes));
+            // 唯一槽已完整写入；assume_init只改变类型，不分配或执行用户逻辑。
+            let mut child = unsafe { child_slot.assume_init() };
             let observed = catch_unwind(AssertUnwindSafe(|| -> Result<(), ChildSpawnError<E>> {
                 mask.restore()?;
                 child.configure()?;
@@ -172,7 +177,7 @@ impl LinuxAtomicLauncher {
                     let cleanup = child.cleanup();
                     if let Err(error) = cleanup {
                         if !child.reaped() {
-                            *unwind_owner = Some(child);
+                            *unwind_owner = Some(*child);
                         }
                         // 先交还原 owner，诊断失败不能替换原 panic payload。
                         let _ = writeln!(
@@ -185,7 +190,7 @@ impl LinuxAtomicLauncher {
                 }
             }
             drop(self.image);
-            Ok(child)
+            Ok(*child)
         }
     }
 }

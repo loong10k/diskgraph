@@ -118,3 +118,10 @@ b51f2ec 原生四案 2/2：两项改名正控在并行夹具创建期间仍遇�
 5546bbc/37467334725 Linux stable 全量实际出现 close_range 原 EACCES 被 ECONNRESET 替换，Engine 555/1/3 ignored、FFI 84/6。新增真实 socket 回归先验证未消费 Init、固定 Error 与子端关闭的组合；必须取得原生目标断言 RED 后修复，不以 macOS cfg 编译代替 Linux 行为。最新 1f51836 三组 Linux 的同步/异步/作用域服务/旧服务及撤权前置均成功，全量仍运行，此处不关闭生产门禁。
 
 1960bfe/37469826013 三组 Linux 均在新增真实 socket 断言失败，stable 原日志明确实际104、期望13，目标RED已确认。现复读仅一次且前置原checkpoint；合法Error可保留原失败，Ready/畸形/EOF不恢复成功。新增原非Clone授权错误回归；修复后原生GREEN仍待CI，不关闭父项。
+
+
+## Linux 启动失败对象与严格 Clippy（未完成）
+
+1f51836/37468862104 Linux ARM 的全量测试通过，但 strict Clippy 因启动失败对象184–216字节、观察回调类型复杂和测试写法失败。减小失败返回不得在kernel birth到唯一owner建立之间分配、调用回调或执行可失败转换；处置槽必须在出生前分配，出生后原pidfd与管道直接adopt写入槽。正常返回、失败清理不完整及panic原owner交回均保留原语义，禁止lint抑制或测试专用隐藏生产路径。
+
+f32b0c7/37470345841 三组 Linux 的实际 reset 回归三案均成功，仍待全量终态。1f51836 Linux Rust1.97完整job成功（含Clippy）；stable Engine一次外部ControlStore打开Busy、FFI91/0；ARM全量通过但strict Clippy失败，证据保留。现在启动失败采用出生前MaybeUninit唯一槽、失败保存原Box、调用方取回原值；新增错误对象内联大小门禁，原出生/panic/清理回归保持不变，修订后native及Clippy尚待CI。

@@ -111,9 +111,7 @@ fn engine_unwind_returns_original_payload_and_child_to_external_recovery() {
     let latest = fixture.engine.latest_revision(&fixture.scope);
     // 原Recovery在catch/join之外真实保留，并由未过滤线程恢复；不换panic payload。
     let drained = fixture.recovery.drain();
-    let payload = joined
-        .err()
-        .expect("specified panic must reach host unchanged");
+    let payload = joined.expect_err("specified panic must reach host unchanged");
     let same = payload
         .downcast::<Box<[u8; 8]>>()
         .expect("original boxed payload type");
