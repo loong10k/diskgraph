@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "809399bee5123bc6669ad20f347d19097fed1bf5e94a2fe69c14fa918553bff9",
+  "archive_sha256": "841828dbef03f7a27eff7ead398c94698d32b749e1ed6bf1f7aea33b5354248e",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -612,7 +612,7 @@
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "5f86808395d1eabe5a53d53b5050b694060af62a37ebe7cc289f54e02f9508ac",
     "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "057b84ce364b5b191c13fe8d9beccae099abab75188e5177ecd7e9f975e11185",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "777cfc1e7aefcd3e79eea6699678995951ea5b514a24248f64a10c7af874003d"
+    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "4fe94d81e43893a876dbe1318ac3e7cfbde7a3403c4047f6b94aef952e55107d"
   },
   "ordinary_cases": [
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",

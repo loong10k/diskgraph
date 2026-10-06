@@ -1,0 +1,14 @@
+{
+  "production_ready": false,
+  "native_fix_verified": false,
+  "source_count": 499,
+  "archive_sha256": "a96955548788a1bbfd1653a8c8804f385a0626075f0f7906d6940fdc99ab519b",
+  "native_cases_required": 74,
+  "local_structure_passed": 6,
+  "local_driver_passed": 27,
+  "local_mount_guard_passed": 14,
+  "identity_protocol": "full16byte NtOpenFile FILE_OPEN_BY_FILE_ID with held-known-object same-ID control",
+  "path_or_64bit_fallback": false,
+  "unknown_87_as_deleted": false,
+  "owner_pool_integrated": false
+}

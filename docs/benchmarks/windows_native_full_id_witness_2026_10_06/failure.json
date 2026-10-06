@@ -1,0 +1,24 @@
+{
+  "run_id": 37419410021,
+  "source_commit": "8cf92c64ba0bbfd0aa237fc1d652ca3a84f65776",
+  "workflow_conclusion": "failure",
+  "native_passed": 72,
+  "native_failed": 2,
+  "original_failure_preserved": true,
+  "failures": [
+    {
+      "case": "pending_original_deletion_is_not_complete_until_external_handle_closes",
+      "phase": "fixture rename",
+      "raw_error": 32
+    },
+    {
+      "case": "cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
+      "phase": "OpenFileById after final external handle close",
+      "raw_error": 87
+    }
+  ],
+  "candidate": "NtOpenFile binary full16byte FILE_OPEN_BY_FILE_ID with held-hint same-full-ID positive control; no path or 64bit fallback; 87 remains error",
+  "production_ready": false,
+  "native_fix_verified": false,
+  "owner_pool_integrated": false
+}
