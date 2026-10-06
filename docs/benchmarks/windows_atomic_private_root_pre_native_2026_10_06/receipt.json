@@ -1,0 +1,20 @@
+{
+  "production_acceptance": false,
+  "native_windows_cases": "not executed on macOS; pending actual Windows CI",
+  "qualification_guards": 27,
+  "fmt": "engine/MCP package check passed",
+  "locked_dependency_metadata": "cargo metadata --locked succeeded; not native compilation",
+  "candidate_sources": 488,
+  "candidate_archive_sha256": "1340695280e669d65650cef7394e3259556c1d8193293b81705699d5cdb26770",
+  "new_native_cases": [
+    "live_evidence::windows_git_private_root_tests::atomic_root_create_refuses_existing_directory_without_adopting_it",
+    "live_evidence::windows_git_private_root_tests::moved_root_delete_reopen_targets_original_object_not_foreign_replacement",
+    "live_evidence::windows_git_private_root_tests::original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease",
+    "live_evidence::windows_git_private_root_tests::moved_root_reopen_ignores_junction_replacement_and_preserves_external_target"
+  ],
+  "limits": [
+    "not wired to directory owner or resource pool",
+    "no directory deletion implemented",
+    "Prepared child IO and finite frontend exit remain open"
+  ]
+}

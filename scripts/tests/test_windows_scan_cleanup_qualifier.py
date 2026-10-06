@@ -37,7 +37,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 485)
+            self.assertEqual(len(manifest["sources"]), 488)
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
@@ -49,6 +49,7 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             qualifier.check_poll_cleanup_cases(manifest["poll_cleanup_cases"])
             qualifier.check_registry_deadline_cases(manifest["registry_deadline_cases"])
             qualifier.check_missing_name_cases(manifest["missing_name_cases"])
+            qualifier.check_atomic_root_cases(manifest["atomic_root_cases"])
             self.assertTrue(manifest["production_cleanup_algorithm_modified"])
             for name, expected in manifest["sources"].items():
                 self.assertEqual(qualifier.shared.digest(checkout / name), expected)
@@ -117,6 +118,18 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
         for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.RESOURCE_CASES)):
             with self.assertRaises(ValueError):
                 qualifier.check_missing_name_cases(invalid)
+
+    def test_atomic_root_cases_require_real_git_and_junction_controls(self):
+        valid = ["live_evidence::windows_git_private_root_tests::" + name for name in (
+            "atomic_root_create_refuses_existing_directory_without_adopting_it",
+            "moved_root_delete_reopen_targets_original_object_not_foreign_replacement",
+            "original_anchor_allows_real_managed_git_cwd_and_unmodified_directory_lease",
+            "moved_root_reopen_ignores_junction_replacement_and_preserves_external_target",
+        )]
+        qualifier.check_atomic_root_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.MISSING_NAME_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_atomic_root_cases(invalid)
 
     def test_birth_owner_cases_cannot_be_omitted(self):
         valid = list(qualifier.BIRTH_CASES)
