@@ -10,7 +10,7 @@ use windows_sys::Win32::System::Threading::{
     PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY, UpdateProcThreadAttribute,
 };
 
-use super::super::ChildError;
+use super::super::{ChildError, ChildInputMode};
 
 /// Job、继承句柄与出生前加载策略的对齐所有者。来源：Win32 UpdateProcThreadAttribute 的 lpValue 存活契约。
 pub(super) struct AttributeList {
@@ -22,8 +22,8 @@ pub(super) struct AttributeList {
 }
 
 impl AttributeList {
-    /// 创建 JOB_LIST、HANDLE_LIST 与固定加载策略容器。参数：无。返回：已初始化的属性列表或 Win32 错误。
-    pub(super) fn new() -> Result<Self, ChildError> {
+    /// 创建出生前属性容器。参数：mode 为原输入用途；返回：属性列表或 Win32 错误。
+    pub(super) fn new(mode: ChildInputMode) -> Result<Self, ChildError> {
         let mut bytes = 0usize;
         unsafe { InitializeProcThreadAttributeList(null_mut(), 3, 0, &mut bytes) };
         if bytes == 0 || bytes > 1 << 20 {
@@ -38,9 +38,19 @@ impl AttributeList {
             initialized: false,
             jobs: None,
             handles: None,
+            // 扫描用途额外要求 Microsoft 签名加载；普通探针保留原策略。
             // SDK ALWAYS_ON位域：拒绝远程、拒绝低完整性、优先System32；
             // Box在移动AttributeList时保持lpValue地址稳定，存活至Delete之后。
-            mitigation: Box::new((1_u64 << 52) | (1_u64 << 56) | (1_u64 << 60)),
+            mitigation: Box::new(
+                (1_u64 << 52)
+                    | (1_u64 << 56)
+                    | (1_u64 << 60)
+                    | if mode == ChildInputMode::WorkerControl {
+                        1_u64 << 44
+                    } else {
+                        0
+                    },
+            ),
         };
         if unsafe { InitializeProcThreadAttributeList(list.as_raw(), 3, 0, &mut bytes) } == 0 {
             // 初始化失败时不能调用 DeleteProcThreadAttributeList。

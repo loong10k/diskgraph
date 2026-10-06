@@ -99,7 +99,7 @@ impl WindowsChild {
             &mut prepared.control,
             &mut admission,
         )?;
-        let mut attributes = AttributeList::new()?;
+        let mut attributes = AttributeList::new(mode)?;
         let handles: [HANDLE; 3] = [
             stdin.as_raw(),
             stdout_writer.as_raw(),

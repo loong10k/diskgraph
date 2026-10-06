@@ -1,0 +1,32 @@
+{
+  "production_acceptance": false,
+  "red_source": "3ad40febf46af59e4eac10b7b6dbb92e21ff0258",
+  "run": 37483466246,
+  "job": 112338060942,
+  "native_red": {
+    "passed": 2,
+    "failed": 1,
+    "ignored": 0,
+    "required_flag": 1,
+    "observed_flag": 0
+  },
+  "change": "WorkerControl birth policy adds BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON; Null retains original flags",
+  "local_checks": [
+    "engine fmt",
+    "engine all-target Clippy -D warnings",
+    "source_layout 6/0",
+    "OpenSpec strict"
+  ],
+  "native_green": "pending",
+  "remaining": [
+    "post-resume unsigned DLL rejection and System32 positive control",
+    "actual native worker normal exit",
+    "Windows Runtime integration",
+    "stable private-directory sharing conflict"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "dab530f553260d9a21acf865d7a03d6f40f9309a9a61fded426a7ee854a37eb8",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "0c870b4effeb27126e836d837d6dd7a9fde1f79eff77b9cf8fbbf86d62932f7c",
+    "crates/diskgraph-engine/src/native_child/windows/windows_image_policy_tests.rs": "799625da5e724c53b38374f9cdadc2884408f709aa5d971cad774d974b510a0f"
+  }
+}

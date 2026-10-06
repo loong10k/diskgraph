@@ -1,0 +1,14 @@
+[
+  {
+    "artifact": "candidate-archive.stdout",
+    "bytes": 105185280,
+    "sha256": "7dc25d57be943833ec7c0b7f1334dda735a4396fbfcbdeeaefdbcb7feedc74c4",
+    "retained_in": "GitHub run 37481555261 artifact and /private/tmp/dg-paired-37481555261"
+  },
+  {
+    "artifact": "baseline-archive.stdout",
+    "bytes": 18616320,
+    "sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+    "retained_in": "GitHub run 37481555261 artifact and /private/tmp/dg-paired-37481555261"
+  }
+]

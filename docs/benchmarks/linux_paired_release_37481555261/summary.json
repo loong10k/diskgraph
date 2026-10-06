@@ -1,0 +1,75 @@
+{
+  "production_acceptance": false,
+  "run": 37481555261,
+  "measurement_conclusion": "success",
+  "performance_acceptance": "not achieved; scan regression requires investigation",
+  "receipt_artifact_hashes_verified": true,
+  "rows": [
+    {
+      "case": "20000-wide",
+      "round": 1,
+      "baseline_scan_seconds": 3.601411747,
+      "candidate_scan_seconds": 28.910372582,
+      "scan_ratio": 8.027511046489625,
+      "baseline_parent_scan_rss": 43520000,
+      "candidate_parent_scan_rss": 43520000,
+      "candidate_child_scan_rss": 8249344,
+      "candidate_top20_p95_ms": 0.65539
+    },
+    {
+      "case": "20000-wide",
+      "round": 2,
+      "baseline_scan_seconds": 3.580603772,
+      "candidate_scan_seconds": 28.872883287,
+      "scan_ratio": 8.063691244695477,
+      "baseline_parent_scan_rss": 43520000,
+      "candidate_parent_scan_rss": 43520000,
+      "candidate_child_scan_rss": 8122368,
+      "candidate_top20_p95_ms": 0.643543
+    },
+    {
+      "case": "200000-wide",
+      "round": 1,
+      "baseline_scan_seconds": 37.740876911,
+      "candidate_scan_seconds": 291.58785514,
+      "scan_ratio": 7.726048756832501,
+      "baseline_parent_scan_rss": 205004800,
+      "candidate_parent_scan_rss": 217251840,
+      "candidate_child_scan_rss": 58163200,
+      "candidate_top20_p95_ms": 0.690002
+    },
+    {
+      "case": "200000-wide",
+      "round": 2,
+      "baseline_scan_seconds": 37.880887516,
+      "candidate_scan_seconds": 291.477146687,
+      "scan_ratio": 7.694570159262685,
+      "baseline_parent_scan_rss": 204935168,
+      "candidate_parent_scan_rss": 216952832,
+      "candidate_child_scan_rss": 58314752,
+      "candidate_top20_p95_ms": 0.6685009999999999
+    },
+    {
+      "case": "300-deep",
+      "round": 1,
+      "baseline_scan_seconds": 0.1220505,
+      "candidate_scan_seconds": 0.894001048,
+      "scan_ratio": 7.324845436929795,
+      "baseline_parent_scan_rss": 43520000,
+      "candidate_parent_scan_rss": 43520000,
+      "candidate_child_scan_rss": 3194880,
+      "candidate_top20_p95_ms": 0.654629
+    },
+    {
+      "case": "300-deep",
+      "round": 2,
+      "baseline_scan_seconds": 0.116157845,
+      "candidate_scan_seconds": 0.89644222,
+      "scan_ratio": 7.717448787036295,
+      "baseline_parent_scan_rss": 43520000,
+      "candidate_parent_scan_rss": 43520000,
+      "candidate_child_scan_rss": 3182592,
+      "candidate_top20_p95_ms": 0.646236
+    }
+  ]
+}
