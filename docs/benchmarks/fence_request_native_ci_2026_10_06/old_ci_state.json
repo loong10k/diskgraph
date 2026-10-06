@@ -1,0 +1,3866 @@
+{
+  "conclusion": "failure",
+  "createdAt": "2026-10-06T00:25:44Z",
+  "jobs": [
+    {
+      "completedAt": "2026-10-06T00:34:23Z",
+      "conclusion": "success",
+      "databaseId": 112045336238,
+      "name": "rustfmt",
+      "startedAt": "2026-10-06T00:34:06Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:34:07Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:34:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:09Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:34:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:20Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:34:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:22Z",
+          "conclusion": "success",
+          "name": "Check formatting (workspace crates; the vendored copy is excluded by design)",
+          "number": 4,
+          "startedAt": "2026-10-06T00:34:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:22Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 8,
+          "startedAt": "2026-10-06T00:34:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:22Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-06T00:34:22Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336238"
+    },
+    {
+      "completedAt": "2026-10-06T00:45:46Z",
+      "conclusion": "success",
+      "databaseId": 112045336530,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "startedAt": "2026-10-06T00:36:18Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:36:19Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:36:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:21Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:36:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:27Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:36:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:38Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:36:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:38Z",
+          "conclusion": "success",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T00:36:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:39Z",
+          "conclusion": "success",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T00:36:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:16Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T00:36:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:23Z",
+          "conclusion": "success",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T00:37:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:29Z",
+          "conclusion": "success",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T00:37:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:30Z",
+          "conclusion": "success",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T00:37:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:31Z",
+          "conclusion": "success",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T00:37:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:31Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T00:37:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:39Z",
+          "conclusion": "success",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T00:37:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:40Z",
+          "conclusion": "success",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T00:37:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:48Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T00:37:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:49Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T00:37:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:49Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T00:37:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:50Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T00:37:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:01Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T00:37:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:06Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T00:38:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:08Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T00:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:59Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T00:38:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:59Z",
+          "conclusion": "skipped",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T00:41:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:42:06Z",
+          "conclusion": "success",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T00:41:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:42Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T00:42:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T00:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "skipped",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:45:45Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T00:45:45Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336530"
+    },
+    {
+      "completedAt": "2026-10-06T00:30:57Z",
+      "conclusion": "success",
+      "databaseId": 112045336540,
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "startedAt": "2026-10-06T00:29:35Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:29:38Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:29:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:43Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:29:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:52Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:29:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:56Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:29:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:56Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 5,
+          "startedAt": "2026-10-06T00:29:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:56Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 6,
+          "startedAt": "2026-10-06T00:29:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:54Z",
+          "conclusion": "success",
+          "name": "Generate, compile and execute Kotlin with the native library",
+          "number": 7,
+          "startedAt": "2026-10-06T00:29:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:54Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 11,
+          "startedAt": "2026-10-06T00:30:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:54Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 12,
+          "startedAt": "2026-10-06T00:30:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:54Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 13,
+          "startedAt": "2026-10-06T00:30:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:54Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 14,
+          "startedAt": "2026-10-06T00:30:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:54Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T00:30:54Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336540"
+    },
+    {
+      "completedAt": "2026-10-06T02:41:05Z",
+      "conclusion": "success",
+      "databaseId": 112045336554,
+      "name": "Kotlin native host (macos-15)",
+      "startedAt": "2026-10-06T02:40:05Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:40:09Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:40:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:40:13Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:40:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:40:20Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:40:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:40:23Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:40:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:40:24Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 5,
+          "startedAt": "2026-10-06T02:40:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:40:24Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 6,
+          "startedAt": "2026-10-06T02:40:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:03Z",
+          "conclusion": "success",
+          "name": "Generate, compile and execute Kotlin with the native library",
+          "number": 7,
+          "startedAt": "2026-10-06T02:40:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:03Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 11,
+          "startedAt": "2026-10-06T02:41:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:03Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 12,
+          "startedAt": "2026-10-06T02:41:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:03Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 13,
+          "startedAt": "2026-10-06T02:41:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:04Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 14,
+          "startedAt": "2026-10-06T02:41:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:04Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T02:41:04Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336554"
+    },
+    {
+      "completedAt": "2026-10-06T00:34:02Z",
+      "conclusion": "success",
+      "databaseId": 112045336617,
+      "name": "Kotlin native host (windows-2022)",
+      "startedAt": "2026-10-06T00:31:41Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:31:43Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:31:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:31:50Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:31:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:32:10Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:31:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:32:18Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:32:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:32:19Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 5,
+          "startedAt": "2026-10-06T00:32:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:32:19Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 6,
+          "startedAt": "2026-10-06T00:32:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:33:59Z",
+          "conclusion": "success",
+          "name": "Generate, compile and execute Kotlin with the native library",
+          "number": 7,
+          "startedAt": "2026-10-06T00:32:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:33:59Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 11,
+          "startedAt": "2026-10-06T00:33:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:00Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 12,
+          "startedAt": "2026-10-06T00:33:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:00Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 13,
+          "startedAt": "2026-10-06T00:34:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:01Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 14,
+          "startedAt": "2026-10-06T00:34:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:02Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T00:34:01Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336617"
+    },
+    {
+      "completedAt": "2026-10-06T02:47:10Z",
+      "conclusion": "success",
+      "databaseId": 112045336620,
+      "name": "Swift native host (macos-15-intel)",
+      "startedAt": "2026-10-06T02:41:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:41:20Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:41:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:13Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:41:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:30Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:42:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:45Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:42:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:53Z",
+          "conclusion": "success",
+          "name": "Generate, compile and run real Swift host and system SQLite CRUD",
+          "number": 5,
+          "startedAt": "2026-10-06T02:42:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:06Z",
+          "conclusion": "success",
+          "name": "GRDB concurrent CRUD alongside Rust FFI, close and reopen",
+          "number": 6,
+          "startedAt": "2026-10-06T02:43:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:07Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 11,
+          "startedAt": "2026-10-06T02:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:08Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 12,
+          "startedAt": "2026-10-06T02:47:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:08Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "startedAt": "2026-10-06T02:47:08Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336620"
+    },
+    {
+      "completedAt": "2026-10-06T02:43:21Z",
+      "conclusion": "success",
+      "databaseId": 112045336625,
+      "name": "Kotlin native host (macos-15-intel)",
+      "startedAt": "2026-10-06T02:41:29Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:41:34Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:41:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:39Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:41:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:41:53Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:41:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:01Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:41:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:01Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 5,
+          "startedAt": "2026-10-06T02:42:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:01Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 6,
+          "startedAt": "2026-10-06T02:42:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:18Z",
+          "conclusion": "success",
+          "name": "Generate, compile and execute Kotlin with the native library",
+          "number": 7,
+          "startedAt": "2026-10-06T02:42:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:18Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 11,
+          "startedAt": "2026-10-06T02:43:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:19Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 12,
+          "startedAt": "2026-10-06T02:43:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:19Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 13,
+          "startedAt": "2026-10-06T02:43:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:19Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 14,
+          "startedAt": "2026-10-06T02:43:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:20Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T02:43:19Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336625"
+    },
+    {
+      "completedAt": "2026-10-06T03:01:37Z",
+      "conclusion": "success",
+      "databaseId": 112045336666,
+      "name": "Test (macos-15-intel / Rust stable)",
+      "startedAt": "2026-10-06T02:41:54Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:41:59Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:41:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:09Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:41:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:28Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:42:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:56Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:42:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:56Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T02:42:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:56Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T02:42:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T02:42:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "skipped",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "skipped",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "skipped",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:47Z",
+          "conclusion": "skipped",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:08Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T02:44:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:10Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T02:45:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:11Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T02:45:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:14Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T02:45:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:39Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T02:45:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:44Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T02:45:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:46Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T02:45:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:25Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T02:45:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:39Z",
+          "conclusion": "success",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T02:54:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:56:06Z",
+          "conclusion": "success",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T02:55:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:10Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T02:56:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:24Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T03:01:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:33Z",
+          "conclusion": "success",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T03:01:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:33Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T03:01:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:33Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T03:01:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:33Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T03:01:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:33Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T03:01:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T03:01:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:34Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T03:01:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:35Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T03:01:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T03:01:35Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T03:01:35Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336666"
+    },
+    {
+      "completedAt": "2026-10-06T00:34:49Z",
+      "conclusion": "success",
+      "databaseId": 112045336667,
+      "name": "Vendored scanner",
+      "startedAt": "2026-10-06T00:34:25Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:34:28Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:34:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:31Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:34:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:39Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:34:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:41Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:34:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:46Z",
+          "conclusion": "success",
+          "name": "Build and test the vendored crate",
+          "number": 5,
+          "startedAt": "2026-10-06T00:34:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:46Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 9,
+          "startedAt": "2026-10-06T00:34:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:46Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 10,
+          "startedAt": "2026-10-06T00:34:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:46Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-10-06T00:34:46Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336667"
+    },
+    {
+      "completedAt": "2026-10-06T00:56:55Z",
+      "conclusion": "failure",
+      "databaseId": 112045336746,
+      "name": "Test (windows-latest / Rust stable)",
+      "startedAt": "2026-10-06T00:33:28Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:33:31Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:33:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:33:37Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:33:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:33:56Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:33:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:14Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:33:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:14Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T00:34:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:14Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T00:34:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T00:34:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "skipped",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "skipped",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "skipped",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:45Z",
+          "conclusion": "skipped",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:07Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T00:35:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:10Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T00:36:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:11Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T00:36:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:19Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T00:36:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:42Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T00:36:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:49Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T00:36:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:52Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T00:36:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "failure",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T00:36:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:51Z",
+          "conclusion": "skipped",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:53Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T00:56:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:56:53Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T00:56:53Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336746"
+    },
+    {
+      "completedAt": "2026-10-06T02:45:23Z",
+      "conclusion": "success",
+      "databaseId": 112045336770,
+      "name": "Swift native host (macos-15)",
+      "startedAt": "2026-10-06T02:43:26Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:43:28Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:43:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:31Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:43:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:38Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:43:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:45Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:43:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:44:03Z",
+          "conclusion": "success",
+          "name": "Generate, compile and run real Swift host and system SQLite CRUD",
+          "number": 5,
+          "startedAt": "2026-10-06T02:43:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:19Z",
+          "conclusion": "success",
+          "name": "GRDB concurrent CRUD alongside Rust FFI, close and reopen",
+          "number": 6,
+          "startedAt": "2026-10-06T02:44:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:19Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 11,
+          "startedAt": "2026-10-06T02:45:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:19Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 12,
+          "startedAt": "2026-10-06T02:45:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:20Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 13,
+          "startedAt": "2026-10-06T02:45:19Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336770"
+    },
+    {
+      "completedAt": "2026-10-06T00:30:40Z",
+      "conclusion": "success",
+      "databaseId": 112045336906,
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "startedAt": "2026-10-06T00:29:40Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:29:42Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:29:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:44Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:29:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:50Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:29:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:53Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:29:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:58Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 5,
+          "startedAt": "2026-10-06T00:29:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:29:58Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 6,
+          "startedAt": "2026-10-06T00:29:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:38Z",
+          "conclusion": "success",
+          "name": "Generate, compile and execute Kotlin with the native library",
+          "number": 7,
+          "startedAt": "2026-10-06T00:29:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:39Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 11,
+          "startedAt": "2026-10-06T00:30:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:39Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961",
+          "number": 12,
+          "startedAt": "2026-10-06T00:30:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:39Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 13,
+          "startedAt": "2026-10-06T00:30:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:39Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 14,
+          "startedAt": "2026-10-06T00:30:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:30:39Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T00:30:39Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336906"
+    },
+    {
+      "completedAt": "2026-10-06T01:04:41Z",
+      "conclusion": "success",
+      "databaseId": 112045336998,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "startedAt": "2026-10-06T00:34:50Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:34:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:34:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:04Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:34:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:25Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:35:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:03Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:35:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:03Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T00:36:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:03Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T00:36:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:06Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T00:36:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:06Z",
+          "conclusion": "skipped",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T00:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:06Z",
+          "conclusion": "skipped",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T00:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:06Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T00:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:06Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T00:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:07Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T00:38:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:07Z",
+          "conclusion": "skipped",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T00:38:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:07Z",
+          "conclusion": "skipped",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T00:38:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:21Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T00:38:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:23Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T00:38:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:24Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T00:38:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:29Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T00:38:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:53Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T00:38:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:59Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T00:38:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:03Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T00:38:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:00:20Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T00:39:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:00:20Z",
+          "conclusion": "skipped",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T01:00:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:00:20Z",
+          "conclusion": "skipped",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T01:00:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:23Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T01:00:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T01:04:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "skipped",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:37Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:39Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T01:04:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T01:04:39Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T01:04:39Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045336998"
+    },
+    {
+      "completedAt": "2026-10-06T02:47:22Z",
+      "conclusion": "success",
+      "databaseId": 112045337002,
+      "name": "Test (macos-latest / Rust stable)",
+      "startedAt": "2026-10-06T02:32:47Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:32:50Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:32:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:32:57Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:32:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:33:08Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:32:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:33:26Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:33:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:33:26Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T02:33:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:33:26Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T02:33:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:42Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T02:33:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:42Z",
+          "conclusion": "skipped",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T02:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:42Z",
+          "conclusion": "skipped",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T02:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:42Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T02:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:42Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T02:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:43Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T02:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:43Z",
+          "conclusion": "skipped",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T02:34:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:43Z",
+          "conclusion": "skipped",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T02:34:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:34:55Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T02:34:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:35:00Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T02:34:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:35:02Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T02:35:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:35:04Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T02:35:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:35:24Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T02:35:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:35:29Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T02:35:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:35:32Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T02:35:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:42:13Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T02:35:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:10Z",
+          "conclusion": "success",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T02:42:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:43:30Z",
+          "conclusion": "success",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T02:43:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:46:51Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T02:43:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:06Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T02:46:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:15Z",
+          "conclusion": "success",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T02:47:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:15Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T02:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:15Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T02:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:15Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T02:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:15Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T02:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:16Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T02:47:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:16Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T02:47:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:17Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T02:47:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:20Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T02:47:17Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045337002"
+    },
+    {
+      "completedAt": "2026-10-06T00:50:04Z",
+      "conclusion": "success",
+      "databaseId": 112045337049,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "startedAt": "2026-10-06T00:35:19Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:35:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:35:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:35:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:34Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:35:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:49Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:35:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:50Z",
+          "conclusion": "success",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T00:35:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:51Z",
+          "conclusion": "success",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T00:35:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:22Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T00:35:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:27Z",
+          "conclusion": "success",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T00:36:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:32Z",
+          "conclusion": "success",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T00:36:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:33Z",
+          "conclusion": "success",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T00:36:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:34Z",
+          "conclusion": "success",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T00:36:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:34Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T00:36:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:41Z",
+          "conclusion": "success",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T00:36:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:42Z",
+          "conclusion": "success",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T00:36:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:48Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T00:36:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:48Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T00:36:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:49Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T00:36:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:50Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T00:36:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:01Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T00:36:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:05Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T00:37:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:07Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T00:37:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:15Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T00:37:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:15Z",
+          "conclusion": "skipped",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T00:41:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:23Z",
+          "conclusion": "success",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T00:41:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:05Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T00:41:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:07Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T00:44:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:07Z",
+          "conclusion": "skipped",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T00:44:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:49:57Z",
+          "conclusion": "success",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T00:44:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:01Z",
+          "conclusion": "success",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T00:49:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:01Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T00:50:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:01Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T00:50:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:01Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T00:50:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:02Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T00:50:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:02Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T00:50:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:50:02Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T00:50:02Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045337049"
+    },
+    {
+      "completedAt": "2026-10-06T00:44:38Z",
+      "conclusion": "success",
+      "databaseId": 112045337073,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "startedAt": "2026-10-06T00:34:51Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:34:53Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:34:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:34:55Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:34:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:04Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:34:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:15Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:35:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:17Z",
+          "conclusion": "success",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T00:35:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:18Z",
+          "conclusion": "success",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T00:35:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:35:59Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T00:35:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:06Z",
+          "conclusion": "success",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T00:35:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:13Z",
+          "conclusion": "success",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T00:36:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:14Z",
+          "conclusion": "success",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T00:36:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:15Z",
+          "conclusion": "success",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T00:36:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:15Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T00:36:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:23Z",
+          "conclusion": "success",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T00:36:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:24Z",
+          "conclusion": "success",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T00:36:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:33Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T00:36:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:33Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T00:36:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:34Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T00:36:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:35Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T00:36:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:46Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T00:36:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:51Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T00:36:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:53Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T00:36:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:58Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T00:36:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:58Z",
+          "conclusion": "skipped",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T00:40:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:58Z",
+          "conclusion": "skipped",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T00:40:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:32Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T00:40:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:34Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T00:44:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:34Z",
+          "conclusion": "skipped",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T00:44:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:34Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T00:44:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:34Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T00:44:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:34Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T00:44:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:34Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T00:44:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:35Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T00:44:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:35Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T00:44:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:35Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T00:44:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:44:35Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T00:44:35Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045337073"
+    },
+    {
+      "completedAt": "2026-10-06T02:58:20Z",
+      "conclusion": "success",
+      "databaseId": 112045337144,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "startedAt": "2026-10-06T02:45:32Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:45:35Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:45:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:40Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:45:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:45:51Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:45:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:46:07Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:45:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:46:07Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux group-view fixture",
+          "number": 5,
+          "startedAt": "2026-10-06T02:46:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:46:07Z",
+          "conclusion": "skipped",
+          "name": "Build exact native Linux atomic-birth fixtures",
+          "number": 6,
+          "startedAt": "2026-10-06T02:46:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:17Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 7,
+          "startedAt": "2026-10-06T02:46:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:17Z",
+          "conclusion": "skipped",
+          "name": "Native Linux thread-group and procfs qualification",
+          "number": 8,
+          "startedAt": "2026-10-06T02:47:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:17Z",
+          "conclusion": "skipped",
+          "name": "Native Linux atomic-birth qualification",
+          "number": 9,
+          "startedAt": "2026-10-06T02:47:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:17Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux atomic-birth qualification",
+          "number": 10,
+          "startedAt": "2026-10-06T02:47:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:17Z",
+          "conclusion": "skipped",
+          "name": "Preserve native Linux group-view qualification",
+          "number": 11,
+          "startedAt": "2026-10-06T02:47:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:18Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 12,
+          "startedAt": "2026-10-06T02:47:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:18Z",
+          "conclusion": "skipped",
+          "name": "Native Linux sealed-image component qualification",
+          "number": 13,
+          "startedAt": "2026-10-06T02:47:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:18Z",
+          "conclusion": "skipped",
+          "name": "Preserve Linux sealed-image component evidence",
+          "number": 14,
+          "startedAt": "2026-10-06T02:47:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:31Z",
+          "conclusion": "success",
+          "name": "Build scoped owner acceptance library",
+          "number": 15,
+          "startedAt": "2026-10-06T02:47:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:32Z",
+          "conclusion": "success",
+          "name": "Native scoped owner type constraints",
+          "number": 16,
+          "startedAt": "2026-10-06T02:47:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:33Z",
+          "conclusion": "success",
+          "name": "Preserve scoped owner compile diagnostics",
+          "number": 17,
+          "startedAt": "2026-10-06T02:47:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:35Z",
+          "conclusion": "success",
+          "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+          "number": 18,
+          "startedAt": "2026-10-06T02:47:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:53Z",
+          "conclusion": "success",
+          "name": "Native queue deadline isolation",
+          "number": 19,
+          "startedAt": "2026-10-06T02:47:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:47:58Z",
+          "conclusion": "success",
+          "name": "Native control write deadline isolation",
+          "number": 20,
+          "startedAt": "2026-10-06T02:47:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:48:01Z",
+          "conclusion": "success",
+          "name": "Native control writer stage diagnostics",
+          "number": 21,
+          "startedAt": "2026-10-06T02:47:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:14Z",
+          "conclusion": "success",
+          "name": "Test",
+          "number": 22,
+          "startedAt": "2026-10-06T02:48:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:09Z",
+          "conclusion": "success",
+          "name": "Native Git source-metadata sentinel repetition",
+          "number": 23,
+          "startedAt": "2026-10-06T02:54:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:09Z",
+          "conclusion": "skipped",
+          "name": "Clippy",
+          "number": 24,
+          "startedAt": "2026-10-06T02:55:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:02Z",
+          "conclusion": "success",
+          "name": "Migration gate (ST-02)",
+          "number": 25,
+          "startedAt": "2026-10-06T02:55:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:10Z",
+          "conclusion": "success",
+          "name": "Real-host drills stay out of the regular run (RE-02)",
+          "number": 26,
+          "startedAt": "2026-10-06T02:58:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:15Z",
+          "conclusion": "success",
+          "name": "FFI bindings generate (macOS)",
+          "number": 27,
+          "startedAt": "2026-10-06T02:58:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:15Z",
+          "conclusion": "skipped",
+          "name": "Paired native Linux scan namespace cost",
+          "number": 28,
+          "startedAt": "2026-10-06T02:58:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:15Z",
+          "conclusion": "skipped",
+          "name": "Preserve paired Linux scan cost evidence",
+          "number": 29,
+          "startedAt": "2026-10-06T02:58:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:15Z",
+          "conclusion": "skipped",
+          "name": "Diagnose original Linux baseline failure once",
+          "number": 30,
+          "startedAt": "2026-10-06T02:58:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:15Z",
+          "conclusion": "skipped",
+          "name": "Preserve separate Linux baseline diagnostic evidence",
+          "number": 31,
+          "startedAt": "2026-10-06T02:58:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:16Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 60,
+          "startedAt": "2026-10-06T02:58:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:16Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 61,
+          "startedAt": "2026-10-06T02:58:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:17Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 62,
+          "startedAt": "2026-10-06T02:58:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:58:19Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-06T02:58:17Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112045337144"
+    },
+    {
+      "completedAt": "2026-10-06T00:43:07Z",
+      "conclusion": "success",
+      "databaseId": 112047933392,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "startedAt": "2026-10-06T00:38:59Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:39:02Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:39:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:08Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:39:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:28Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:39:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:35Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:39:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:36Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 5,
+          "startedAt": "2026-10-06T00:39:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:42Z",
+          "conclusion": "success",
+          "name": "Worker package composition and file admission",
+          "number": 6,
+          "startedAt": "2026-10-06T00:39:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:45Z",
+          "conclusion": "success",
+          "name": "Build current release binaries",
+          "number": 7,
+          "startedAt": "2026-10-06T00:39:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:47Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 8,
+          "startedAt": "2026-10-06T00:40:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:42:23Z",
+          "conclusion": "success",
+          "name": "Build previous CLI for isolated upgrade and rollback",
+          "number": 9,
+          "startedAt": "2026-10-06T00:40:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:01Z",
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "number": 10,
+          "startedAt": "2026-10-06T00:42:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:02Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "number": 11,
+          "startedAt": "2026-10-06T00:43:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:04Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 19,
+          "startedAt": "2026-10-06T00:43:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:04Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 20,
+          "startedAt": "2026-10-06T00:43:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:04Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 21,
+          "startedAt": "2026-10-06T00:43:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 22,
+          "startedAt": "2026-10-06T00:43:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:43:06Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-06T00:43:06Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112047933392"
+    },
+    {
+      "completedAt": "2026-10-06T02:57:26Z",
+      "conclusion": "success",
+      "databaseId": 112047933456,
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "startedAt": "2026-10-06T02:54:44Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:54:48Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:54:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:52Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:54:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:02Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:54:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:08Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:55:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:09Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 5,
+          "startedAt": "2026-10-06T02:55:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:10Z",
+          "conclusion": "success",
+          "name": "Worker package composition and file admission",
+          "number": 6,
+          "startedAt": "2026-10-06T02:55:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:52Z",
+          "conclusion": "success",
+          "name": "Build current release binaries",
+          "number": 7,
+          "startedAt": "2026-10-06T02:55:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:55:53Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 8,
+          "startedAt": "2026-10-06T02:55:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:09Z",
+          "conclusion": "success",
+          "name": "Build previous CLI for isolated upgrade and rollback",
+          "number": 9,
+          "startedAt": "2026-10-06T02:55:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:19Z",
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "number": 10,
+          "startedAt": "2026-10-06T02:57:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:21Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "number": 11,
+          "startedAt": "2026-10-06T02:57:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:22Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 19,
+          "startedAt": "2026-10-06T02:57:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:22Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 20,
+          "startedAt": "2026-10-06T02:57:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:22Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 21,
+          "startedAt": "2026-10-06T02:57:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:23Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 22,
+          "startedAt": "2026-10-06T02:57:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:57:24Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-06T02:57:23Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112047933456"
+    },
+    {
+      "completedAt": "2026-10-06T00:38:56Z",
+      "conclusion": "success",
+      "databaseId": 112047933492,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "startedAt": "2026-10-06T00:36:37Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:36:41Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:36:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:44Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:36:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:53Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:36:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:58Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:36:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:58Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 5,
+          "startedAt": "2026-10-06T00:36:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:36:59Z",
+          "conclusion": "success",
+          "name": "Worker package composition and file admission",
+          "number": 6,
+          "startedAt": "2026-10-06T00:36:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:28Z",
+          "conclusion": "success",
+          "name": "Build current release binaries",
+          "number": 7,
+          "startedAt": "2026-10-06T00:36:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:37:28Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 8,
+          "startedAt": "2026-10-06T00:37:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:42Z",
+          "conclusion": "success",
+          "name": "Build previous CLI for isolated upgrade and rollback",
+          "number": 9,
+          "startedAt": "2026-10-06T00:37:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:49Z",
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "number": 10,
+          "startedAt": "2026-10-06T00:38:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:51Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "number": 11,
+          "startedAt": "2026-10-06T00:38:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:51Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 19,
+          "startedAt": "2026-10-06T00:38:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 20,
+          "startedAt": "2026-10-06T00:38:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:52Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 21,
+          "startedAt": "2026-10-06T00:38:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 22,
+          "startedAt": "2026-10-06T00:38:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:38:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-06T00:38:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112047933492"
+    },
+    {
+      "completedAt": "2026-10-06T02:54:35Z",
+      "conclusion": "success",
+      "databaseId": 112047933553,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "startedAt": "2026-10-06T02:51:15Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T02:51:18Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T02:51:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:51:33Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T02:51:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:51:50Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T02:51:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:51:57Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T02:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:51:58Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 5,
+          "startedAt": "2026-10-06T02:51:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:51:59Z",
+          "conclusion": "success",
+          "name": "Worker package composition and file admission",
+          "number": 6,
+          "startedAt": "2026-10-06T02:51:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:52:53Z",
+          "conclusion": "success",
+          "name": "Build current release binaries",
+          "number": 7,
+          "startedAt": "2026-10-06T02:51:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:52:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 8,
+          "startedAt": "2026-10-06T02:52:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:15Z",
+          "conclusion": "success",
+          "name": "Build previous CLI for isolated upgrade and rollback",
+          "number": 9,
+          "startedAt": "2026-10-06T02:52:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:31Z",
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "number": 10,
+          "startedAt": "2026-10-06T02:54:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:32Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "number": 11,
+          "startedAt": "2026-10-06T02:54:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 19,
+          "startedAt": "2026-10-06T02:54:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 20,
+          "startedAt": "2026-10-06T02:54:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:33Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 21,
+          "startedAt": "2026-10-06T02:54:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 22,
+          "startedAt": "2026-10-06T02:54:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T02:54:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-06T02:54:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112047933553"
+    },
+    {
+      "completedAt": "2026-10-06T00:41:08Z",
+      "conclusion": "success",
+      "databaseId": 112047934645,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "startedAt": "2026-10-06T00:39:23Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T00:39:25Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T00:39:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:28Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 2,
+          "startedAt": "2026-10-06T00:39:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:35Z",
+          "conclusion": "success",
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "number": 3,
+          "startedAt": "2026-10-06T00:39:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:38Z",
+          "conclusion": "success",
+          "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 4,
+          "startedAt": "2026-10-06T00:39:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:38Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 5,
+          "startedAt": "2026-10-06T00:39:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:39:39Z",
+          "conclusion": "success",
+          "name": "Worker package composition and file admission",
+          "number": 6,
+          "startedAt": "2026-10-06T00:39:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:00Z",
+          "conclusion": "success",
+          "name": "Build current release binaries",
+          "number": 7,
+          "startedAt": "2026-10-06T00:39:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:00Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 8,
+          "startedAt": "2026-10-06T00:40:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:40:59Z",
+          "conclusion": "success",
+          "name": "Build previous CLI for isolated upgrade and rollback",
+          "number": 9,
+          "startedAt": "2026-10-06T00:40:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:04Z",
+          "conclusion": "success",
+          "name": "Verify archive and packaged binaries",
+          "number": 10,
+          "startedAt": "2026-10-06T00:40:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:06Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "number": 11,
+          "startedAt": "2026-10-06T00:41:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 19,
+          "startedAt": "2026-10-06T00:41:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "number": 20,
+          "startedAt": "2026-10-06T00:41:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:06Z",
+          "conclusion": "success",
+          "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+          "number": 21,
+          "startedAt": "2026-10-06T00:41:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "number": 22,
+          "startedAt": "2026-10-06T00:41:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T00:41:06Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-06T00:41:06Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37393952681/job/112047934645"
+    }
+  ],
+  "status": "completed",
+  "headSha": "b4f5537090eea6d0de9361b59e1a8e5d8307c001"
+}

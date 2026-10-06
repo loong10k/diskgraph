@@ -1,0 +1,42 @@
+{
+  "production_ready": false,
+  "old_ci_run": 37393952681,
+  "old_ci_source": "b4f5537090eea6d0de9361b59e1a8e5d8307c001",
+  "old_checks": {
+    "success": 21,
+    "failure": 1,
+    "total": 22
+  },
+  "windows_job": 112045336746,
+  "old_engine_suite": {
+    "passed": 383,
+    "failed": 1,
+    "ignored": 3
+  },
+  "original_failed_fixture_sha256": "c1e85d4f0f8e07c387af13617757ecd4926ae1e692a464bff0ecf9c19ddec9c9",
+  "failure": "current_owner_and_live_metadata_grant_still_gate_unexpired_work: Business Timeout",
+  "change": "separate independent wrong-owner request and revoked-grant request; original1000ms per-request budget and assertions retained; no runtime changes",
+  "local_fence": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "layout_passed": 6,
+  "inventory_guards_passed": 36,
+  "native_candidates": {
+    "windows_cleanup": {
+      "archive_sha256": "274ed871679040950b63bcc6d67a352b7b43114e8878c56fe8c2fcaf4c2cbc2f",
+      "sources": 495
+    },
+    "macos_installed": {
+      "archive_sha256": "480c645ebb7f73e761d5a462947e20170fe44a877635bebcf42a030c89d83ef2",
+      "sources": 599
+    }
+  },
+  "limitations": [
+    "original CI21/22 binds old source only",
+    "timing preparation cause inferred from fixture; Windows fix not yet executed",
+    "Windows original three root control failures unchanged",
+    "default strict Clippy and other production gates remain open"
+  ]
+}

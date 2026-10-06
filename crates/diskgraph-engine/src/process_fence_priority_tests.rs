@@ -221,7 +221,7 @@ fn original_expiry_remains_authority_denied_when_execution_deadline_already_elap
 }
 
 #[test]
-fn current_owner_and_live_metadata_grant_still_gate_unexpired_work() {
+fn wrong_owner_is_rejected_before_unexpired_fence_work() {
     let f = FenceFixture::new(60);
     let started = Instant::now();
     let deadline = started + Duration::from_millis(f.limits.max_duration_ms());
@@ -241,6 +241,16 @@ fn current_owner_and_live_metadata_grant_still_gate_unexpired_work() {
         matches!(wrong_owner, Err(EngineError::Store(StoreError::StaleOwner))),
         "{wrong_owner:?}"
     );
+    assert!(!reached.get());
+    let current = f.engine.job_status(&f.job.job_id).unwrap();
+    assert_eq!(current.state, JobState::Running);
+    assert_eq!(current.owner, f.job.owner);
+    assert_eq!(current.fencing_token, f.job.fencing_token);
+}
+
+#[test]
+fn current_owner_and_live_metadata_grant_still_gate_unexpired_work() {
+    let f = FenceFixture::new(60);
     f.engine
         .control_store()
         .unwrap()
@@ -250,6 +260,17 @@ fn current_owner_and_live_metadata_grant_still_gate_unexpired_work() {
             &f.job.scope_id,
         )
         .unwrap();
+    // 持久撤权是本次独立请求的前置状态；原一秒会话从该请求准入开始，不包含另一请求。
+    let started = Instant::now();
+    let deadline = started + Duration::from_millis(f.limits.max_duration_ms());
+    let cancel = AtomicBool::new(false);
+    let authority_check = || {
+        f.authority
+            .validate_at(now())
+            .map_err(|_| Code::PermissionDenied)
+    };
+    let session = ProcessNativeSession::new(&f.limits, started, &cancel, &authority_check).unwrap();
+    let reached = Cell::new(false);
     let revoked = f.fence(deadline, &session, "original-owner", |_| {
         reached.set(true);
         Ok(())

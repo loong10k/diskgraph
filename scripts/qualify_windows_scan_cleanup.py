@@ -197,6 +197,18 @@ def check_cases(cases):
         raise ValueError("fixed cleanup acceptance inventory differs")
 
 
+FENCE_PRIORITY_CASES = tuple("process_fence_priority_tests::" + name for name in (
+    "live_public_claim_and_original_authority_reach_fence_work",
+    "original_expiry_remains_authority_denied_when_execution_deadline_already_elapsed",
+    "current_owner_and_live_metadata_grant_still_gate_unexpired_work",
+    "wrong_owner_is_rejected_before_unexpired_fence_work",
+))
+
+def check_fence_priority_cases(cases):
+    if len(cases) != len(FENCE_PRIORITY_CASES) or set(cases) != set(FENCE_PRIORITY_CASES):
+        raise ValueError("fixed request fence priority inventory differs")
+
+
 def check_platform(system, github_actions, runner):
     if system != "Windows" or github_actions != "true" or runner != "github-hosted":
         raise RuntimeError("actual Windows hosted CI required")
@@ -255,6 +267,9 @@ def main():
         prepared_job_cases = [] if args.baseline else manifest["prepared_job_cases"]
         if not args.baseline:
             check_prepared_job_cases(prepared_job_cases)
+        fence_cases = [] if args.baseline else manifest["fence_priority_cases"]
+        if not args.baseline:
+            check_fence_priority_cases(fence_cases)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -271,7 +286,7 @@ def main():
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
         receipt["cases"] = results
-        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases) + list(atomic_root_cases) + list(connect_cases) + list(prepared_job_cases):
+        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases) + list(atomic_root_cases) + list(connect_cases) + list(prepared_job_cases) + list(fence_cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],

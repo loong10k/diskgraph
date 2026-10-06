@@ -242,3 +242,17 @@ class ExpiredProbeBaselineGuardTests(unittest.TestCase):
                          (stdout, "birth missing")):
             with self.assertRaises(RuntimeError):
                 baseline.check_deadline_red(out, err)
+
+
+class FencePriorityInventoryTests(unittest.TestCase):
+    def test_requires_all_original_priority_and_independent_request_cases(self):
+        cases = ["process_fence_priority_tests::" + name for name in (
+            "live_public_claim_and_original_authority_reach_fence_work",
+            "original_expiry_remains_authority_denied_when_execution_deadline_already_elapsed",
+            "current_owner_and_live_metadata_grant_still_gate_unexpired_work",
+            "wrong_owner_is_rejected_before_unexpired_fence_work",
+        )]
+        qualifier.check_fence_priority_cases(cases)
+        for invalid in ([], cases[:-1], cases + [cases[0]], list(qualifier.PROBE_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_fence_priority_cases(invalid)
