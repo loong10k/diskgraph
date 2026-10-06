@@ -1,0 +1,17 @@
+{
+  "production_ready": false,
+  "run": 37411402086,
+  "checkout_sha": "bd7b8b7fffc1e359ee1814460bc866abf1fa8925",
+  "actual_cases": 65,
+  "passed": 64,
+  "failed": [
+    "original_share_read_lease_blocks_delete_reopen_until_released"
+  ],
+  "baseline_actual_target_red": "passed",
+  "by_name_delete_open": "error 32",
+  "by_id_delete_open": "success, granted DELETE 0x110081",
+  "resolved": "both moved-root cases and creation-phase parent lease control actually passed",
+  "new_diagnostic": "same empty temporary root original handle FileDispositionInfo mark and immediate unmark; native execution pending; original reopen failure assertion remains",
+  "production_methods_changed": false,
+  "default_engine_clippy_errors": 42
+}

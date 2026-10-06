@@ -237,7 +237,8 @@ fn original_share_read_lease_blocks_delete_reopen_until_released() {
     .unwrap();
     let root = owner.as_mut().unwrap();
     let child_lease = GitDirectoryLease::open(&parent.join("held"), &mut budget).unwrap();
-    // 原句柄查询及独立夹具按名对照；不删除、不提升权限、不改变生产方法或冲突断言。
+    // 仅本案的独占空目录做句柄查询、按名对照和可撤销 disposition 探针。
+    // 不提升权限，不改变生产方法或原冲突断言。
     emit_granted_access("anchor", root.as_file());
     emit_granted_access("child_lease", child_lease.leaf_file());
     assert!(
@@ -250,6 +251,7 @@ fn original_share_read_lease_blocks_delete_reopen_until_released() {
     let reopened = root.reopen_for_delete();
     if let Ok(file) = &reopened {
         emit_granted_access("delete_reopen", file);
+        emit_delete_disposition(file, &original);
     }
     let failure = reopened.unwrap_err();
     assert_eq!(
@@ -269,6 +271,53 @@ fn original_share_read_lease_blocks_delete_reopen_until_released() {
             .unwrap()
             .same_identity(&GitPrivateAllocation::from_file(&reopened).unwrap())
     );
+}
+
+fn emit_delete_disposition(file: &std::fs::File, original: &GitPrivateAllocation) {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_DISPOSITION_INFO, FileDispositionInfo, SetFileInformationByHandle,
+    };
+    // 仅已核验完整对象身份的本案空临时目录；不借用用户目录或使用 POSIX/delete-on-close。
+    assert!(original.same_identity(&GitPrivateAllocation::from_file(file).unwrap()));
+    let mut info = FILE_DISPOSITION_INFO { DeleteFile: true };
+    let marked = unsafe {
+        SetFileInformationByHandle(
+            file.as_raw_handle(),
+            FileDispositionInfo,
+            (&raw const info).cast(),
+            std::mem::size_of_val(&info) as u32,
+        )
+    };
+    if marked == 0 {
+        let error = std::io::Error::last_os_error();
+        eprintln!(
+            "DG_ID_DELETE_DISPOSITION success=false error={:?}",
+            error.raw_os_error()
+        );
+        return;
+    }
+    // 保持原句柄存活，立即撤销 pending 标志，避免把诊断变成实际删除。
+    info.DeleteFile = false;
+    let cleared = unsafe {
+        SetFileInformationByHandle(
+            file.as_raw_handle(),
+            FileDispositionInfo,
+            (&raw const info).cast(),
+            std::mem::size_of_val(&info) as u32,
+        )
+    };
+    let error = (cleared == 0).then(std::io::Error::last_os_error);
+    eprintln!(
+        "DG_ID_DELETE_DISPOSITION success=true cleared={} error={:?}",
+        cleared != 0,
+        error.as_ref().and_then(std::io::Error::raw_os_error)
+    );
+    assert_ne!(
+        cleared, 0,
+        "temporary disposition probe must be undone before handle close"
+    );
+    assert!(original.same_identity(&GitPrivateAllocation::from_file(file).unwrap()));
 }
 
 /// 参数：label 为固定诊断标签、file 为原持有对象；返回：无，只记录成功查询的实际权限。
