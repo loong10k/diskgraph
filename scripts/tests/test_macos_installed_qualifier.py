@@ -159,3 +159,15 @@ class NativeBirthParallelGuardTests(unittest.TestCase):
                         output.replace(qualifier.NATIVE_BIRTH_REGRESSION_CASES[0], "fake_case")):
             with self.assertRaises(RuntimeError):
                 qualifier.check_native_birth_regression(invalid)
+
+
+class FullEngineRegressionGuardTests(unittest.TestCase):
+    def test_full_engine_requires_exact_inventory_zero_failures_and_no_filter(self):
+        stdout = "test result: ok. 552 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out;"
+        qualifier.check_full_engine_regression(stdout, 559, 7)
+        for out, total, ignored in ((stdout, 558, 7), (stdout, 559, 8),
+                                   (stdout.replace("0 failed", "1 failed"), 559, 7),
+                                   (stdout.replace("0 filtered", "1 filtered"), 559, 7),
+                                   ("test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out;", 1, 0)):
+            with self.assertRaises(RuntimeError):
+                qualifier.check_full_engine_regression(out, total, ignored)

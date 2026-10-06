@@ -1,0 +1,16 @@
+{
+  "production_acceptance": false,
+  "native_executed": false,
+  "guard_red_exit": 1,
+  "guard_green_passed": 35,
+  "logs": [
+    {
+      "name": "diskgraph-engine-full-guard-red.log",
+      "sha256": "b855e14a942b49f393d1fa135e38f13d8d59b79c0e1993845022f6614b230212"
+    },
+    {
+      "name": "diskgraph-engine-full-guard-green.log",
+      "sha256": "55cf225f2917fcd37cb1feffcc7026fe46a30fc46c1744429a851577b9b31a10"
+    }
+  ]
+}

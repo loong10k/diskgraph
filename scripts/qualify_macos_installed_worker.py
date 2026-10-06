@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import subprocess
 import tarfile
 from pathlib import Path
@@ -110,6 +111,15 @@ def check_mcp_regression(stdout):
     for case in MCP_SCAN_REGRESSION_CASES:
         if "test " + case + " ... ok" not in stdout:
             raise RuntimeError("required MCP regression missing: " + case)
+
+
+def check_full_engine_regression(stdout, total, ignored):
+    """完整冻结Engine二进制必须执行全部非ignored清单；ignored单列，禁止过滤或少量冒充。"""
+    matches = re.findall(r"^test result: ok\. (\d+) passed; (\d+) failed; (\d+) ignored; (\d+) measured; (\d+) filtered out;", stdout, re.MULTILINE)
+    if (total < 559 or ignored < 0 or ignored >= total
+            or len(matches) != 1
+            or tuple(map(int, matches[0])) != (total - ignored, 0, ignored, 0, 0)):
+        raise RuntimeError("full Engine regression differs from exact unfiltered binary inventory")
 
 
 def permitted(name, allow_products=False):
@@ -296,6 +306,18 @@ def main():
         if digest(mcp_fixture) != receipt["mcp_regression_binary_sha256"]:
             raise RuntimeError("MCP regression binary identity changed")
         receipt["mcp_regression_tests_passed"] = 159
+        # 在同一root发行/普通UID环境执行完整Engine，不能用39项native子集代替。
+        invoke([str(binary), "--list"], checkout, output, "engine-full-inventory", env)
+        invoke([str(binary), "--ignored", "--list"], checkout, output, "engine-ignored-inventory", env)
+        inventory = [line[:-6] for line in (output / "engine-full-inventory.stdout").read_text().splitlines() if line.endswith(": test")]
+        ignored = [line[:-6] for line in (output / "engine-ignored-inventory.stdout").read_text().splitlines() if line.endswith(": test")]
+        if len(set(inventory)) != len(inventory) or len(set(ignored)) != len(ignored) or not set(ignored).issubset(inventory):
+            raise RuntimeError("Engine binary inventory is duplicated or inconsistent")
+        receipt["engine_full_inventory"] = inventory
+        receipt["engine_ignored_inventory"] = ignored
+        invoke([str(binary), "--nocapture"], checkout, output, "engine-full-parallel-regression", env, timeout=1200)
+        check_full_engine_regression((output / "engine-full-parallel-regression.stdout").read_text(), len(inventory), len(ignored))
+        receipt["engine_full_regression_tests_passed"] = len(inventory) - len(ignored)
         for name, expected in manifest["sources"].items():
             if digest(checkout / name) != expected:
                 raise RuntimeError("qualification modified original candidate source")
