@@ -37,7 +37,8 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 488)
+            self.assertEqual(len(manifest["sources"]), 491)
+            qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
@@ -167,3 +168,13 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PreparedConnectInventoryTests(unittest.TestCase):
+    def test_actual_connect_inventory_rejects_missing_duplicate_and_substitute(self):
+        valid = list(qualifier.PREPARED_CONNECT_CASES)
+        qualifier.check_prepared_connect_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], [valid[0]] * len(valid),
+                        list(qualifier.IO_PREREQUISITE_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_prepared_connect_cases(invalid)

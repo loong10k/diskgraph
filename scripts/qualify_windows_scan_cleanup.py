@@ -160,6 +160,20 @@ def check_atomic_root_cases(cases):
         raise ValueError("fixed atomic root native inventory differs")
 
 
+PREPARED_CONNECT_CASES = tuple("native_child::windows::windows_prepared_connect_tests::" + name for name in (
+    "expired_connect_cleanup_retains_original_addresses_without_eof",
+    "query_failure_retains_original_connect_for_actual_retry",
+    "actual_connect_completion_allows_read_then_distinct_read_cancellation",
+    "external_owner_survives_panic_after_actual_connect_submission",
+    "pending_connect_moves_threads_without_replacing_original_storage",
+))
+
+
+def check_prepared_connect_cases(cases):
+    if len(cases) != len(PREPARED_CONNECT_CASES) or set(cases) != set(PREPARED_CONNECT_CASES):
+        raise ValueError("fixed actual pending Connect inventory differs")
+
+
 def check_cases(cases):
     if len(cases) != len(REQUIRED_CASES) or set(cases) != set(REQUIRED_CASES):
         raise ValueError("fixed cleanup acceptance inventory differs")
@@ -217,6 +231,9 @@ def main():
         atomic_root_cases = [] if args.baseline else manifest["atomic_root_cases"]
         if not args.baseline:
             check_atomic_root_cases(atomic_root_cases)
+        connect_cases = [] if args.baseline else manifest["prepared_connect_cases"]
+        if not args.baseline:
+            check_prepared_connect_cases(connect_cases)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -233,7 +250,7 @@ def main():
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
         receipt["cases"] = results
-        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases) + list(atomic_root_cases):
+        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases) + list(registry_cases) + list(missing_name_cases) + list(atomic_root_cases) + list(connect_cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
