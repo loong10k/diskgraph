@@ -75,7 +75,7 @@ flowchart TD
 
 可信本地启动层先提供唯一、未克隆、读写可用的 held 普通文件及稳定受保护的槽命名空间；本组件不接收路径、不建立 owner/ACL/目录身份资格，不得从远程参数获取此能力。使用非阻塞原生文件独占锁；新槽或精确 CLEAN 记录才能预留。锁内写入固定 8 字节 RESERVED 并 sync_all，原期限贯穿各 OS 操作。任何未知、截断或既有 RESERVED/ACTIVE 记录保持未确认，拒绝工作出生且不改写。
 
-预留类型在工作出生前可显式取消，写入 CLEAN 并同步后释放原锁；进入 ACTIVE 必须先同步 ACTIVE，消费预留类型。ACTIVE 类型不提供清除记录/释放容量的完成接口。Drop、异常死亡和 OS 自动释放锁都保留未确认记录，不根据 PID、时间或空锁猜测 Complete。未来的原资源闭环将提供受封闭原 owner 约束的退休接口，当前不能将本组件当作已完成的监督生命周期。
+预留类型在工作出生前可显式取消，写入 CLEAN 并同步后释放原锁；进入 ACTIVE 必须先同步 ACTIVE，消费预留类型。公开 ACTIVE 类型不提供清除记录/释放容量的完成接口。Drop、异常死亡和 OS 自动释放锁都保留未确认记录，不根据 PID、时间或空锁猜测 Complete。库内 SupervisorOwner 已提供原绑定及退休子接口（见下节），仍不能将此组件当作已完成的监督生命周期。
 
 真实子进程资格需覆盖原锁阻止另一进程、出生前取消后的重新认领、ACTIVE 子进程直接退出后锁已释放但记录拒绝复用、异常记录非破坏拒绝及原期限耗尽。只在隔离临时文件验证锁/记录，不能代替受保护命名空间、实际 Engine/Job/I/O 清理、三平台受信安装或 CLI/MCP 退出验收。
 
@@ -86,3 +86,13 @@ flowchart TD
 关闭仅提供退休的必要前提；必须继续证明原资源归零、所绑定 Recovery 属于原 Engine、原 supervisor 槽及其受保护文件身份不变后，才可清除 ACTIVE。该组合退休与 CLI/MCP 入口尚未接入。旧原生资格源码需要新关闭接口才能编译时，只允许添加明确 Unsupported 的旧接口适配并记录使用标记；旧基线绝不能借用新成功关闭行为，任何目标资格执行该适配都必须拒绝作为行为 RED。
 
 本轮准入关闭子组件在 macOS arm64 的真实容量回归已获得 RED 0/2、GREEN 2/0；原扫描资源回归 7/0，源码规范 6/0、Clippy 通过。Windows 原会话测试仍待原生 CI，不勾选整体阶段。日志和源码指纹见 `docs/benchmarks/admission_seal_644/`。
+
+## 原 Engine 恢复绑定与退休
+
+可信监督层将原 Engine、原扫描/探针 Recovery 与原 ACTIVE 槽整体移动到同一责任对象。绑定以原 Arc 身份逐项核对 Engine 已配置的资源池；缺失、额外或外国恢复责任均拒绝，错误返回所有原材料，不能 Drop 后再用新池替代。未配置任何受管理资源池的 Engine 不作为监督能力准入。
+
+退休先检查原期限并关闭两个原池的新准入；使用 Arc::try_unwrap 取得原 Engine 的唯一所有权，外部强引用尚存时保持 Pending，失败还回同一 Arc，不用引用计数观察代替原子所有权取得。成功后销毁 Engine（旧 Weak 不能再升级），Recovery 继续持有原资源表。按同一期限实际 drain_until；Pending/错误均保留原 owner 和 ACTIVE 锁，不能从布尔外部消息推定完成。两个原池实际 Complete 后才允许在原锁内写 CLEAN、sync_all、精确回读，并关闭原锁。
+
+CLEAN 同步失败仍持有原锁；仅此对象已开始的退休可重试精确 ACTIVE/CLEAN，未知或部分记录拒绝，不覆盖修复。此次能力仅约束原资源和容量的库内退休，不代表实际 runner join、原生监督进程退出、受信镜像/IPC/公共 EOF 已完成；这些原门禁保持打开。
+
+库内 `SupervisorParts` / `SupervisorOwner` / `SupervisorRecoveryError` 已实现上述原绑定及退休子能力；本机真实绑定 RED 5/2 → GREEN 9/0，真实 Unix 原 fd 写入异常 1/0。Windows 两项原会话/外国池验收仍待 CI；原生子进程/I/O 监督执行、受保护命名空间及 CLI/MCP 退出阶段均保持未完成。证据见 `docs/benchmarks/supervisor_binding_b3a/`。

@@ -358,3 +358,18 @@ pub mod recovery_slot;
 
 #[cfg(test)]
 mod admission_seal_tests;
+
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+mod supervisor_owner;
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+mod supervisor_parts;
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+mod supervisor_recovery_error;
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+pub use supervisor_owner::SupervisorOwner;
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+pub use supervisor_parts::SupervisorParts;
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+pub use supervisor_recovery_error::SupervisorRecoveryError;
+#[cfg(all(test, any(target_os = "linux", target_os = "macos", windows)))]
+mod supervisor_binding_tests;

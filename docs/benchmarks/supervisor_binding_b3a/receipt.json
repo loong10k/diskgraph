@@ -1,0 +1,60 @@
+{
+  "base_commit": "b3a08d91ede5873cd742e6cc80d1386272881721",
+  "platform": "macOS arm64",
+  "logs": {
+    "binding-red.log": {
+      "sha256": "9f790bdc016e1d9af0fd4e62b7f66bc2dbab061ee894d8fb26deed6d3128d825",
+      "archive_sha256": "3561313fcccccc7b4ef53c47049db07b9c58a518fce8bfc89182b1c71aecb6f9",
+      "bytes": 2581
+    },
+    "binding-green.log": {
+      "sha256": "cd8e21220c330555193ab28153a2fd835335bc703f7b35c805200e949be3a731",
+      "archive_sha256": "c2f28057823f1594857081feaac6694f82a1bfcbb3fe3133f9ddc28735d3c349",
+      "bytes": 1297
+    },
+    "original-fd-write.log": {
+      "sha256": "f3d47b6b7f73773e88a580a4265fd3e7f9c43974d25e6549e68ff690b9981fc0",
+      "archive_sha256": "f7ffcb41629a7a9e75108f0385636a077edc9fb1b060898d109f6e16d5a68644",
+      "bytes": 507
+    },
+    "layout.log": {
+      "sha256": "abc203456298471fe64e23405c1ced3580434e7a20bb13d238559dca96821327",
+      "archive_sha256": "ad15374d40544ad3b4b70bdca235f1d6c210f59c76f159ffa242305e6640d15c",
+      "bytes": 793
+    },
+    "protocol-slot.log": {
+      "sha256": "f1509dfcb13c39c392afda9fa117fbb0ab8a3c438fc651818e14f9bd17698da9",
+      "archive_sha256": "04dc1ec6494af72dadc3f91c55a7e1fcc3dcd8a9b8d1bbfb9701f60f897329bf",
+      "bytes": 2053
+    },
+    "registry.log": {
+      "sha256": "d619ab4090b9a8a6cea1186f59f93e82ebf77bd0c3094937b7cc4fdc146af5c7",
+      "archive_sha256": "19d766be2f7b89d18dd12e68afa004df877a68eb9a33afd77d204acf2b13d1a9",
+      "bytes": 1028
+    },
+    "clippy.log": {
+      "sha256": "094123de0b5d75105ab70865a028ea80887628a3715fb09763db4123e9baec9e",
+      "archive_sha256": "ce30dd2062b1e811bed4386b6f15e87e9eeec90132044b5c3c337f321b1e3706",
+      "bytes": 188
+    }
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/lib.rs": "29214da194b4dc90fb4fe7424d22d872d78ea71d48de638fa3fb5dcc0930a16a",
+    "crates/diskgraph-engine/src/supervisor_owner.rs": "187894c4bbad9b3b08afebf7260be8a641fec3765f85e7ecfe31009998966448",
+    "crates/diskgraph-engine/src/supervisor_parts.rs": "1616b3da47cf047940a246101626c23d357d1d548abbe5961d412b8535f3c985",
+    "crates/diskgraph-engine/src/supervisor_recovery_error.rs": "9758efa7a195b3bfdc6dd6e2820af224501675db51b3f65cc31a35f920a21cdc",
+    "crates/diskgraph-engine/src/supervisor_binding_tests.rs": "155512d9cde4f2fe7410cae6dac1514cff0bb4e22e5c6d26731ad3729aea3344",
+    "crates/diskgraph-engine/src/scan_worker_recovery.rs": "14054ea69cefd066de7f8447791b017914b11e26158c684a860ba8f41927094c",
+    "crates/diskgraph-engine/src/recovery_slot/mod.rs": "c771968b2c3109ee316a130bcf711bd2b7f98d47edfaaa391c6970285b569cf5",
+    "crates/diskgraph-engine/src/recovery_slot/active_slot.rs": "396cc180c67509b7c9342a83c6dc2881b0ee8bbd3e64f2cd4226eee41c67fa02",
+    "crates/diskgraph-engine/src/recovery_slot/active_slot_tests.rs": "2b45a3783f725cde0e28acd065ff4749044729b19410c71c9be8c07c4164a5eb",
+    "crates/diskgraph-engine/src/recovery_slot/slot_reservation.rs": "69d8a12a7f8f7d9d1c99839ad0dd71d3325f7afa0a850ae6842b15b0c017a1d1"
+  },
+  "limitations": [
+    "no child born by binding fixtures; actual reservations/Engine/OS file locks only",
+    "Windows original probe session and foreign pool controls await native CI",
+    "trusted unique File premise; protected quota namespace not yet admitted",
+    "native child/Job/pending IO under actual supervisor, IPC, runner join, public EOF and finite frontend exit remain unimplemented",
+    "actual filesystem sync error/retry has not been natively induced; write anomaly uses original Unix fd append mode"
+  ]
+}

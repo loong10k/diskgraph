@@ -17,6 +17,12 @@ impl ScanWorkerRecovery {
         self.registry.seal_admission()
     }
 
+    /// 参数：host 为原 Engine 的扫描宿主；返回：是否共享原同一资源表，禁止错配恢复责任。
+    #[cfg(any(target_os = "linux", target_os = "macos", windows))]
+    pub(crate) fn belongs_to(&self, host: &crate::ScanWorkerHost) -> bool {
+        Arc::ptr_eq(&self.registry, &host.registry)
+    }
+
     /// 参数：registry为Engine服务引用的原固定容量表；返回：外部唯一责任句柄。
     pub(super) fn new(registry: Arc<ScanWorkerRegistry>) -> Self {
         Self { registry }

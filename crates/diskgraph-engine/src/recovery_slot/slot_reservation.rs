@@ -56,7 +56,11 @@ impl SlotReservation {
             return Err(SlotError::InvalidRecord);
         }
         write_record(&mut self.file, b"DGSL01A\n", deadline)?;
-        Ok(ActiveSlot { file: self.file })
+        Ok(ActiveSlot {
+            file: self.file,
+            #[cfg(any(target_os = "linux", target_os = "macos", windows))]
+            retiring: false,
+        })
     }
 }
 /// 参数：deadline 为原绝对期限；返回：尚未耗尽时成功，否则拒绝且不刷新预算。
@@ -77,7 +81,12 @@ pub(super) fn read_record(file: &mut File) -> Result<[u8; 8], SlotError> {
     file.read_exact(&mut bytes)?;
     Ok(bytes)
 }
-fn write_record(file: &mut File, bytes: &[u8; 8], deadline: Instant) -> Result<(), SlotError> {
+/// 参数：原 held 文件、精确状态和原期限；返回：同步回读确认，失败保留原锁与原异常。
+pub(super) fn write_record(
+    file: &mut File,
+    bytes: &[u8; 8],
+    deadline: Instant,
+) -> Result<(), SlotError> {
     check(deadline)?;
     file.seek(SeekFrom::Start(0))?;
     check(deadline)?;

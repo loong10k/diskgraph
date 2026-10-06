@@ -5,3 +5,6 @@ mod slot_reservation;
 pub use active_slot::ActiveSlot;
 pub use slot_error::SlotError;
 pub use slot_reservation::SlotReservation;
+
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod active_slot_tests;
