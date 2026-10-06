@@ -61,3 +61,7 @@ f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已
 6fef42b 的三组Linux严格Build与当前密封组件11项通过，实际CLI index返回unsupported；原因是验收未配置受信扫描宿主。CI须从同提交Cargo实际bin artifact构建生产worker，记录SHA/长度/提交，不选择协议驱动夹具或邻接清单，使用既有本地部署配置入口。不改变Engine::open可信库构造语义、远程授权或macOS固定安装要求；保留CLI/MCP真实索引及结果断言，未运行全量测试不能宣称通过。CI生成预期仅证明受控源码构建部署，不代表发布安装信任或全平台生产完成。
 
 17694e7 / CI37442529819 的 Linux stable 与 Rust1.97 实际CLI/stdio/认证HTTP验收步骤均completed success，严格Build通过，完整workspace Test正在运行；步骤状态原件见product-176-step-status.json.gz。只确认此实际部署下的产品流程，不代表全量或Windows/macOS生产通过。Windows严格编译的HANDLE仅用于cfg(test)原句柄见证，将导入限定测试，不屏蔽尚未集成的原生清理能力；本机结构6/0、fmt通过，Windows原生编译仍待验证。
+
+## 验收镜像与 Cargo 输出生命周期
+
+17694e7全量回归仍失败37目标，直接Engine::open的旧扫描夹具无宿主，CLI子进程启动还返回conflict。Cargo全量测试可重建同一路径bin，部署不能继续指向可被重写的target输出。验收镜像须从实际Cargo bin artifact原句柄独占复制到runner临时路径，完整摘要/长度绑定副本，复制前后身份与高精度时间一致，超限/源变化/目的已存在明确拒绝；协议example不得供应产品镜像。3项副本回归先RED后GREEN（后续Cargo替换、拒绝协议example、禁止覆盖），保持生产授权、密封与原生执行机制。全部旧Engine夹具迁移和全平台父项尚未完成。
