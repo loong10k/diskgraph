@@ -167,3 +167,9 @@ f9b1890 / CI37449291133 Linux stable112221636590原全量仍失败Engine lib与F
 本机实际验收：新增真实成员消失/leader失权两案，RED 1通过/1失败，GREEN及独立确认各2通过/0失败；既有Unix正常退出回归10通过/0失败；结构6通过/0失败，fmt成功。原9/1日志保留。日志为macos-group-resample-{red,green,regression,confirm,layout,fmt}.log.gz。该修复尚须同提交原生CI，不代表macOS安装链、Linux旧Unix资格、FFI公开扫描或全平台完成。
 
 补充真实双后代连续退出负控制：第一次和第二次采样分别实际0/ESRCH，第二次仍须Unknown并保留leader；第三次不得在同一请求发生。临时递归重采变异实际0通过/1失败，恢复一次重采后3通过/0失败；原Unix回归10通过/0失败，结构6通过/0失败及fmt成功。测试按真实PID排序，不假设PID连续分配；只计量真实采集次数，不替代系统返回。四份日志为macos-group-resample-{bound-negative,bounded-restored,bounded-layout,bounded-regression}.log.gz。该负控制不替代三平台产品验收。
+
+## Windows产品目录清理接线验收（未完成）
+
+生产目录从NtCreateFile返回有效句柄起交给原唯一owner；父句柄、根prepared状态和分配账本随恢复交接保留。清理按已核父句柄逐层枚举，只删除账本登记的原子项；有界深度与单轮期限超限保留原遍历进度。删除请求成功后先记录副作用，后置seal失败保留原DELETE句柄供后续核验，不再次按名标记。目录子项须在后代确认删除后标记；根须在全部枚举和删除确认后标记，关闭所有根句柄后经原父的完整ID通知/原ID缺失证明确认，才置cleaned释放责任。路径改名/替换、硬链接残留、权限拒绝、未知ID协议和异步取消不等于删除；没有原创建句柄的兼容内部owner仍不得冒充本能力。需实际Windows原生产品测试与严格构建通过，本节不勾选父任务。
+
+接线候选：WindowsGitCleanup持原父/root及最多128层固定页遍历；目录创建改为原NtCreateFile槽，账本确认原句柄身份后才进入业务。原目录payload持该状态并随binding移交；后置seal失败保留DELETE副本可再核验。完成子项/原根观察后才能置cleaned；未登记对象拒绝。移除已被原子创建替代的旧CreateDirectoryW方法，无lint屏蔽；旧直接构造内部owner的兼容回归保留。增加两项Windows真实产品回归，尚未原生执行，不声称其RED/GREEN。macOS本机仅证明结构6/0、兼容owner2/0、目录13/0、清理5/0及fmt成功；日志windows-cleanup-integration-{layout-final,owner-local,directory-local,recovery-local,fmt}.log.gz。全部Windows专属编译/行为、有限前端回收和父项仍未完成；Git默认可信库路径的无binding恢复限制仍需另行收口。

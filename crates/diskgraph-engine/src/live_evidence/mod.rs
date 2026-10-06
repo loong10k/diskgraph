@@ -189,6 +189,12 @@ mod windows_cleanup_mark_hook;
 #[cfg(windows)]
 mod windows_git_child_open;
 #[cfg(windows)]
+mod windows_git_cleanup;
+#[cfg(windows)]
+mod windows_git_cleanup_frame;
+#[cfg(all(test, windows))]
+mod windows_git_cleanup_tests;
+#[cfg(windows)]
 mod windows_git_deletion_seal;
 #[cfg(windows)]
 mod windows_git_deletion_witness;

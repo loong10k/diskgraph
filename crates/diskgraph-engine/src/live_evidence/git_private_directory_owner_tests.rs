@@ -22,6 +22,8 @@ fn moved_original_directory_is_not_complete_when_original_path_is_missing() {
         cleaned: false,
         capacity: Some(capacity),
         root_identity: Some(identity),
+        #[cfg(windows)]
+        windows_cleanup: None,
     };
     std::fs::rename(&root, &moved).unwrap();
     let result = owner.cleanup();
@@ -61,6 +63,8 @@ fn foreign_replacement_is_retained_until_original_directory_returns() {
         cleaned: false,
         capacity: None,
         root_identity: Some(identity),
+        #[cfg(windows)]
+        windows_cleanup: None,
     };
     std::fs::rename(&root, &moved).unwrap();
     std::fs::create_dir(&root).unwrap();

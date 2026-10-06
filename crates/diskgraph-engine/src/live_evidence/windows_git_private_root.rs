@@ -1,4 +1,4 @@
-//! 原子父句柄相对目录创建及原对象重开；尚未接入产品目录清理。
+//! 原子父句柄相对目录创建及原对象重开；产品接线的Windows原生验收仍须通过。
 use super::git_directory_security::GitDirectorySecurity;
 use super::git_private_allocation::GitPrivateAllocation;
 use std::ffi::OsStr;

@@ -26,6 +26,7 @@ pub(super) struct WindowsGitDirectoryCursor {
     cleanup_identity: Option<GitPrivateAllocation>,
     cleanup_delete_requested: bool,
     cleanup_post_mark_verified: bool,
+    cleanup_marked_file: Option<File>,
     cleanup_observation:
         Option<super::windows_git_removal_observation::WindowsGitRemovalObservation>,
 }
@@ -83,9 +84,16 @@ impl WindowsGitDirectoryCursor {
         probe: &mut ProbeBudget,
     ) -> std::io::Result<bool> {
         if self.cleanup_delete_requested && !self.cleanup_post_mark_verified {
-            return Err(std::io::Error::other(
-                "original deletion post-mark seal unconfirmed; owner retained",
-            ));
+            let file = self.cleanup_marked_file.as_ref().ok_or_else(|| {
+                std::io::Error::other("original post-mark handle unavailable; owner retained")
+            })?;
+            let expected = self
+                .cleanup_identity
+                .as_ref()
+                .ok_or_else(|| std::io::Error::other("original post-mark identity unavailable"))?;
+            super::windows_git_deletion_seal::WindowsGitDeletionSeal::verify(file, expected)?;
+            self.cleanup_post_mark_verified = true;
+            self.cleanup_marked_file = None;
         }
         let expected = self
             .cleanup_identity
@@ -171,6 +179,8 @@ impl WindowsGitDirectoryCursor {
             .expect("original deletion observation")
             .check_before_delete(expected, probe)?;
         probe.check().map_err(std::io::Error::other)?;
+        // 删除副作用发生前保留原对象句柄；后置查询失败仍可对同句柄恢复核验。
+        self.cleanup_marked_file = Some(file.try_clone()?);
         let disposition = FILE_DISPOSITION_INFO { DeleteFile: true };
         #[cfg(test)]
         super::windows_cleanup_mark_hook::WindowsCleanupMarkHook::run();
@@ -183,7 +193,9 @@ impl WindowsGitDirectoryCursor {
             )
         };
         if result == 0 {
-            return Err(std::io::Error::last_os_error());
+            let error = std::io::Error::last_os_error();
+            self.cleanup_marked_file = None;
+            return Err(error);
         }
         // 成功删除请求不能被末段超时抹除；恢复只确认原ID，不按名称再次删除。
         self.cleanup_delete_requested = true;
@@ -191,6 +203,7 @@ impl WindowsGitDirectoryCursor {
         super::windows_cleanup_mark_hook::WindowsCleanupMarkHook::inspect_marked(file);
         super::windows_git_deletion_seal::WindowsGitDeletionSeal::verify(file, expected)?;
         self.cleanup_post_mark_verified = true;
+        self.cleanup_marked_file = None;
         probe.check().map_err(std::io::Error::other)
     }
 
@@ -314,6 +327,7 @@ impl WindowsGitDirectoryCursor {
             cleanup_identity: None,
             cleanup_delete_requested: false,
             cleanup_post_mark_verified: false,
+            cleanup_marked_file: None,
             cleanup_observation: None,
         })
     }

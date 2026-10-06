@@ -27,84 +27,172 @@ impl GitPrivateDirectory {
         min_free: u64,
         probe: &mut ProbeBudget,
     ) -> Result<Self, String> {
-        probe.check().map_err(|error| error.to_string())?;
         #[cfg(windows)]
-        let binding = probe
+        {
+            Self::with_windows_limits(quota, min_free, probe)
+        }
+        #[cfg(not(windows))]
+        {
+            probe.check().map_err(|error| error.to_string())?;
+            // 只规范化受信 temp 根，不规范化待捕获的仓库元数据路径。
+            let root = std::env::temp_dir()
+                .canonicalize()
+                .map_err(|error| error.to_string())?;
+            if !root.is_absolute() || !root.is_dir() {
+                return Err("unsupported private directory root".into());
+            }
+            GitPrivateCapacity::check_volume(&root, 0, min_free, probe)?;
+            for _ in 0..8 {
+                probe.check().map_err(|error| error.to_string())?;
+                let path = root.join(format!("diskgraph-git-{}", uuid::Uuid::new_v4()));
+                #[cfg(unix)]
+                let created = {
+                    use std::os::unix::fs::DirBuilderExt;
+                    std::fs::DirBuilder::new().mode(0o700).create(&path)
+                };
+                #[cfg(not(any(unix, windows)))]
+                let created = Err(std::io::Error::new(
+                    std::io::ErrorKind::Unsupported,
+                    "unsupported private directory platform",
+                ));
+                match created {
+                    Ok(()) => {
+                        // 创建后立即交给 owner；最终取消检查失败必须显式报告清理结果。
+                        let mut directory = Self {
+                            owner: Some(GitPrivateDirectoryOwner {
+                                path: path.clone(),
+                                cleaned: false,
+                                capacity: None,
+                                root_identity: None,
+                            }),
+                            path,
+                        };
+                        match GitPrivateAllocation::capture(&directory.path) {
+                            Ok(identity) if identity.is_directory() => {
+                                directory
+                                    .owner
+                                    .as_mut()
+                                    .expect("new directory owner")
+                                    .root_identity = Some(identity)
+                            }
+                            Ok(_) => {
+                                return directory
+                                    .complete(Err("private Git root is not a directory".into()));
+                            }
+                            Err(error) => return directory.complete(Err(error)),
+                        }
+                        match GitPrivateCapacity::new(&directory.path, quota, min_free, probe) {
+                            Ok(capacity) => {
+                                directory
+                                    .owner
+                                    .as_mut()
+                                    .expect("new directory owner")
+                                    .capacity = Some(capacity)
+                            }
+                            Err(error) => return directory.complete(Err(error)),
+                        }
+                        if let Err(error) = probe.check() {
+                            return Err(directory
+                                .complete::<()>(Err(error.to_string()))
+                                .unwrap_err());
+                        }
+                        return Ok(directory);
+                    }
+                    Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                    Err(error) => return Err(error.to_string()),
+                }
+            }
+            Err("private directory collision limit exceeded".into())
+        }
+    }
+
+    #[cfg(windows)]
+    fn with_windows_limits(
+        quota: u64,
+        min_free: u64,
+        probe: &mut ProbeBudget,
+    ) -> Result<Self, String> {
+        use super::git_directory_security::GitDirectorySecurity;
+        use super::windows_git_cleanup::WindowsGitCleanup;
+        use super::windows_git_private_root::WindowsGitPrivateRoot;
+        probe.check().map_err(|error| error.to_string())?;
+        let mut binding = probe
             .directory_binding()
             .map_err(|error| error.to_string())?;
-        // 只规范化受信 temp 根，不规范化待捕获的仓库元数据路径。
-        let root = std::env::temp_dir()
+        let parent = std::env::temp_dir()
             .canonicalize()
             .map_err(|error| error.to_string())?;
-        if !root.is_absolute() || !root.is_dir() {
-            return Err("unsupported private directory root".into());
-        }
-        GitPrivateCapacity::check_volume(&root, 0, min_free, probe)?;
-        #[cfg(windows)]
-        let security = super::git_directory_security::GitDirectorySecurity::new()?;
+        GitPrivateCapacity::check_volume(&parent, 0, min_free, probe)?;
+        let lease = GitDirectoryLease::open(&parent, probe)?;
+        let security = GitDirectorySecurity::new()?;
         for _ in 0..8 {
             probe.check().map_err(|error| error.to_string())?;
-            let path = root.join(format!("diskgraph-git-{}", uuid::Uuid::new_v4()));
-            #[cfg(unix)]
-            let created = {
-                use std::os::unix::fs::DirBuilderExt;
-                std::fs::DirBuilder::new().mode(0o700).create(&path)
+            let name = format!("diskgraph-git-{}", uuid::Uuid::new_v4());
+            let path = parent.join(&name);
+            // 在原子创建调用之前安装外owner；有效返回句柄在查询/错误投影前进入原槽。
+            let cleanup = WindowsGitCleanup::new(
+                lease
+                    .leaf_file()
+                    .try_clone()
+                    .map_err(|error| error.to_string())?,
+                path.clone(),
+            );
+            let mut directory = Self {
+                path: path.clone(),
+                binding: binding.take(),
+                owner: Some(GitPrivateDirectoryOwner {
+                    path: path.clone(),
+                    cleaned: false,
+                    capacity: None,
+                    root_identity: None,
+                    windows_cleanup: Some(cleanup),
+                }),
             };
-            #[cfg(windows)]
-            let created = security.create(&path);
-            #[cfg(not(any(unix, windows)))]
-            let created = Err(std::io::Error::new(
-                std::io::ErrorKind::Unsupported,
-                "unsupported private directory platform",
-            ));
-            match created {
-                Ok(()) => {
-                    // 创建后立即交给 owner；最终取消检查失败必须显式报告清理结果。
-                    let mut directory = Self {
-                        owner: Some(GitPrivateDirectoryOwner {
-                            path: path.clone(),
-                            cleaned: false,
-                            capacity: None,
-                            root_identity: None,
-                        }),
-                        path,
-                        #[cfg(windows)]
-                        binding,
-                    };
-                    match GitPrivateAllocation::capture(&directory.path) {
-                        Ok(identity) if identity.is_directory() => {
-                            directory
-                                .owner
-                                .as_mut()
-                                .expect("new directory owner")
-                                .root_identity = Some(identity)
-                        }
-                        Ok(_) => {
-                            return directory
-                                .complete(Err("private Git root is not a directory".into()));
-                        }
-                        Err(error) => return directory.complete(Err(error)),
+            let owner = directory.owner.as_mut().expect("prepared directory owner");
+            let cleanup = owner
+                .windows_cleanup
+                .as_mut()
+                .expect("prepared native cleanup");
+            let created = WindowsGitPrivateRoot::create_into(
+                lease.leaf_file(),
+                std::ffi::OsStr::new(&name),
+                &security,
+                &mut cleanup.root,
+            );
+            if let Err(error) = created {
+                if cleanup.root.is_none() {
+                    // 没有取得对象则不接管名字或未知对象；碰撞只重试独占创建。
+                    directory.owner = None;
+                    binding = directory.binding.take();
+                    if error.kind() == std::io::ErrorKind::AlreadyExists {
+                        continue;
                     }
-                    match GitPrivateCapacity::new(&directory.path, quota, min_free, probe) {
-                        Ok(capacity) => {
-                            directory
-                                .owner
-                                .as_mut()
-                                .expect("new directory owner")
-                                .capacity = Some(capacity)
-                        }
-                        Err(error) => return directory.complete(Err(error)),
-                    }
-                    if let Err(error) = probe.check() {
-                        return Err(directory
-                            .complete::<()>(Err(error.to_string()))
-                            .unwrap_err());
-                    }
-                    return Ok(directory);
+                    return Err(error.to_string());
                 }
-                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
-                Err(error) => return Err(error.to_string()),
+                return directory.complete(Err(error.to_string()));
             }
+            let file = cleanup
+                .root
+                .as_ref()
+                .expect("created original root")
+                .as_file();
+            let identity = match GitPrivateAllocation::from_file(file) {
+                Ok(identity) => identity,
+                Err(error) => return directory.complete(Err(error)),
+            };
+            owner.root_identity = Some(identity);
+            let capacity = match GitPrivateCapacity::new(&path, quota, min_free, probe) {
+                Ok(capacity) => capacity,
+                Err(error) => return directory.complete(Err(error)),
+            };
+            if let Err(error) = capacity.check_identity(&path, file, true) {
+                return directory.complete(Err(error));
+            }
+            owner.capacity = Some(capacity);
+            if let Err(error) = probe.check() {
+                return directory.complete(Err(error.to_string()));
+            }
+            return Ok(directory);
         }
         Err("private directory collision limit exceeded".into())
     }

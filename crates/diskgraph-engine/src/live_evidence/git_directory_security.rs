@@ -1,20 +1,15 @@
 //! Windows 私有目录在创建时应用当前用户与 SYSTEM 的可继承受保护 DACL。
 
-use std::ffi::c_void;
 use std::io;
-use std::os::windows::ffi::OsStrExt;
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
-use std::path::Path;
 use std::ptr::null_mut;
 use windows_sys::Win32::Foundation::{ERROR_INSUFFICIENT_BUFFER, GetLastError, LocalFree};
 use windows_sys::Win32::Security::Authorization::{
     ConvertSidToStringSidW, ConvertStringSecurityDescriptorToSecurityDescriptorW, SDDL_REVISION_1,
 };
 use windows_sys::Win32::Security::{
-    GetTokenInformation, PSECURITY_DESCRIPTOR, SECURITY_ATTRIBUTES, TOKEN_QUERY, TOKEN_USER,
-    TokenUser,
+    GetTokenInformation, PSECURITY_DESCRIPTOR, TOKEN_QUERY, TOKEN_USER, TokenUser,
 };
-use windows_sys::Win32::Storage::FileSystem::CreateDirectoryW;
 use windows_sys::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken};
 
 /// 持有目录创建安全描述符。来源：Win32 SDDL、当前进程 token 与 LocalFree。
@@ -98,27 +93,6 @@ impl GitDirectorySecurity {
     /// 调用者不得修改、释放或保存到本对象寿命之外；所有权仍由本对象 Drop 释放。
     pub(super) fn descriptor(&self) -> PSECURITY_DESCRIPTOR {
         self.descriptor
-    }
-
-    /// 独占创建带安全描述符的目录。参数：path 为受信 temp 根下的绝对路径。返回：创建结果，不覆盖既有目录。
-    pub(super) fn create(&self, path: &Path) -> io::Result<()> {
-        let wide: Vec<u16> = path.as_os_str().encode_wide().take(32768).collect();
-        if !path.is_absolute() || wide.len() >= 32768 || wide.contains(&0) {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "invalid private directory path",
-            ));
-        }
-        let wide: Vec<u16> = wide.into_iter().chain(Some(0)).collect();
-        let attributes = SECURITY_ATTRIBUTES {
-            nLength: std::mem::size_of::<SECURITY_ATTRIBUTES>() as u32,
-            lpSecurityDescriptor: self.descriptor.cast::<c_void>(),
-            bInheritHandle: 0,
-        };
-        if unsafe { CreateDirectoryW(wide.as_ptr(), &attributes) } == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
     }
 }
 

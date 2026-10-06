@@ -7,12 +7,20 @@ pub(crate) struct GitPrivateDirectoryOwner {
     pub(super) path: PathBuf,
     pub(super) cleaned: bool,
     pub(super) capacity: Option<GitPrivateCapacity>,
+    #[cfg(windows)]
+    pub(super) windows_cleanup: Option<super::windows_git_cleanup::WindowsGitCleanup>,
     pub(super) root_identity: Option<GitPrivateAllocation>,
 }
 impl GitPrivateDirectoryOwner {
     /// 参数：无；返回：原根身份确认后的删除结果；失败保留原payload，绝不清理陌生替换根。
     pub(crate) fn cleanup(&mut self) -> Result<(), String> {
         if self.cleaned {
+            return Ok(());
+        }
+        #[cfg(windows)]
+        if let Some(cleanup) = self.windows_cleanup.as_mut() {
+            cleanup.cleanup(self.capacity.as_ref())?;
+            self.cleaned = true;
             return Ok(());
         }
         // 根路径不存在只确认名称消失；原对象可能已改名，不能释放其恢复责任。
