@@ -153,3 +153,5 @@ a304063实际macOS ARM完整MCP为152/0/0ignored/0filtered，43项原必跑案�
 23e9f30 Windows stable原生测试编译失败E0164，新增fixture误将Checkpoint结构枚举写为tuple。该结果不是加载策略RED；修正具名字段匹配后必须重跑同一实际挂起进程断言。
 
 a6bbf2f/37474050173 Windows Rust1.97实际查询成功，挂起process策略Flags低三位为0，预期7，原Job清理后断言RED。实现将属性容量从2增到3，初始化时固定安装MITIGATION_POLICY，u64值以Box保留稳定地址至DeleteProcThreadAttributeList后；三ALWAYS_ON位分别52/56/60。原设置/创建错误直接传播，不去除策略重试。不修改实际回归断言；等待新提交原生GREEN。
+
+3daf3be Linux stable完整Test后Clippy在FFI native_legacy_fixture同一二字节规则失败。保持64字符检查，转as_chunks::<2>()；扫描非vendored源码另有Windows目录UTF16解码同类固定块，保留完整pair迭代与余数处理语义转as_chunks，未改上游pin源码。5839076 macOS ARM现到完整Engine：480pass/103fail/11ignored；大量夹具仍经拒绝的旧环境部署路径，不能以先前产品与MCP成功声明Engine完整验收。后续需逐案真实宿主路由，不跳过失败案。

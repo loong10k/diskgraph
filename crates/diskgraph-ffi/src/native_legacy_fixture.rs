@@ -21,7 +21,10 @@ impl NativeLegacyFixture {
             .expect("FFI legacy fixture requires independent image digest");
         assert_eq!(digest.len(), 64, "deployment requires 32-byte digest");
         let mut expected = [0; 32];
-        for (byte, pair) in expected.iter_mut().zip(digest.as_bytes().chunks_exact(2)) {
+        for (byte, pair) in expected
+            .iter_mut()
+            .zip(digest.as_bytes().as_chunks::<2>().0)
+        {
             *byte = u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16)
                 .expect("deployment digest must be hexadecimal");
         }
