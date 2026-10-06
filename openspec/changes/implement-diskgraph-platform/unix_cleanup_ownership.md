@@ -129,3 +129,14 @@ FFI authorization两项通过Engine真实扫描准备旧库的用例改为Linux�
 Git用例在Linux复用现有真实NativeScanEngine，唯一Recovery保持至Engine夹具结束，全部9个原assert片段保持。CI独立编译linux_atomic_launcher_fixture.c的IMAGE_ID=1/2两份ELF，保留source/两镜像摘要，提供原测试指定环境变量；不把atomic-birth镜像别名充数，不修改故障注入、禁止回退或回收断言。两平台之外构造与生产API不变。
 
 本机Engine lib no-run、结构6/0与workflow YAML解析通过；fmt首次因条件导入排序失败，按rustfmt只调整该文件导入后，排除固定vendor的fmt通过；本机是macOS，不能据此声明Linux分支行为通过。原始记录为engine-final-fixtures-*.log.gz。原生执行等待本次提交CI，FFI公开扫描、Windows默认产品扫描/句柄清理、macOS可信安装、有限前端恢复及完整性能门禁仍开放，不勾选父任务。
+
+
+## 独立入队请求与测试验证时间
+
+041ea863c0728bb64d549f12f3930ae1879267f9 / CI37448505312 Linux Rust1.97 job112219033046终态failure发生在前置Store入队测试，尚未进入全workspace；不得称Engine新夹具已通过。原timely create/merge测试在首请求后执行完整库快照，第二次独立请求仍沿用首请求600ms绝对期限，实际第二次调用于254行返回BudgetExceeded。原日志见workspace-041-linux-1_97.log.gz。
+
+正控保留每请求600ms，先等首期限过期并再次调用，明确要求BudgetExceeded且完整持久状态不变、连接配置恢复，再为第二次独立请求建立其唯一600ms期限，要求仍合并到同一个原job。没有在单次请求内部刷新deadline、没有修改生产限额或去除失败断言；39个原assert片段按顺序保留，增加2项拒绝/持久状态断言。原负向写锁、COMMIT、撤权、quota和过期认证场景不改。
+
+本机定向10/0、Store结构1/0、排除vendor的fmt与Store all-targets严格Clippy通过；全Store lib回归结果另列，不以本机结果替代Linux原生。此前性能配对脚本固定旧baseline尚无现有ScanWorker API，当前harness仍用旧Engine::open，不能从该入口声称新架构20k/200k验收；完整性能和所有全平台父项继续开放。
+
+本机Store完整lib实际终态291通过、0失败、1 ignored（135.94s），原日志enqueue-independent-request-store-lib.log.gz保留；ignored不计通过，跨平台原生仍待提交验收。

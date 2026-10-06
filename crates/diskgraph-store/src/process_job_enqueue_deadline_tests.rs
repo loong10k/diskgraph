@@ -248,6 +248,19 @@ fn process_enqueue_timely_create_and_merge_preserve_the_original_job() {
         .unwrap();
     assert_eq!(first.state, JobState::Queued);
     let before = fixture.persisted_state();
+    // 全库快照是测试验证工作，不属于下一次独立合并请求的600ms窗口。
+    // 先证明原期限过期仍被拒绝且无写入，再给新请求建立其唯一原期限。
+    wait_past(deadline);
+    let expired = fixture.store.create_process_evidence_job_until(
+        &fixture.input,
+        &fixture.authority,
+        64,
+        deadline,
+    );
+    assert!(matches!(expired, Err(StoreError::BudgetExceeded)));
+    assert_eq!(fixture.persisted_state(), before);
+    fixture.assert_connection_restored(731);
+    let deadline = Instant::now() + Duration::from_millis(600);
     let merged = fixture
         .store
         .create_process_evidence_job_until(&fixture.input, &fixture.authority, 64, deadline)
