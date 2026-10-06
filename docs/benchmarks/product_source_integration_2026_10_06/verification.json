@@ -261,5 +261,12 @@
   "nested_inventory_correction": {
     "reason": "initial porcelain inventory collapsed untracked directories; expanded with git ls-files --others",
     "files": 5
+  },
+  "git_export_validation": {
+    "source_commit": "848e7bbf22b7b66ca264e9dc3129ddd3a75cab46",
+    "command": "cargo check --workspace --all-targets --locked",
+    "exit_code": 0,
+    "isolated_git_export": true,
+    "changed_source_and_build_files": 239
   }
 }
