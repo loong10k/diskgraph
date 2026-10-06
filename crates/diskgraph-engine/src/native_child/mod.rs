@@ -12,6 +12,8 @@ mod child_spawn_error;
 mod control_write_status;
 #[cfg(target_os = "macos")]
 mod macos_child_group;
+#[cfg(all(test, target_os = "macos"))]
+mod macos_group_query_tests;
 #[cfg(unix)]
 mod unix_child;
 #[cfg(unix)]

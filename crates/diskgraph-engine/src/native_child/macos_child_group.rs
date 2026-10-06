@@ -4,6 +4,16 @@ use std::mem::{size_of, size_of_val};
 /// 读取 fresh 私有 session 的完整组资格，保留 Active/AllExited/Unknown 的区别。
 /// 参数：leader 为 WNOWAIT 尚保留的本次 child；返回：真实组状态，截断/身份丢失明确 Unknown。
 pub(super) fn normal_view(leader: u32) -> MacosGroupView {
+    let (view, disappeared_member) = normal_view_once(leader);
+    if disappeared_member {
+        // 只在原系统调用明确给出非leader ESRCH时放弃旧样本，再完整采集一次。
+        // 新样本仍独立执行所有身份/退出/完整集合核验，不把缺项或第二次未知当成功。
+        return normal_view_once(leader).0;
+    }
+    view
+}
+
+fn normal_view_once(leader: u32) -> (MacosGroupView, bool) {
     let mut pids = [0i32; 1024];
     let Some(count) = list_group(leader, &mut pids) else {
         return unknown("normal group view is unavailable or truncated");
@@ -18,6 +28,8 @@ pub(super) fn normal_view(leader: u32) -> MacosGroupView {
         if pid <= 0 {
             return unknown("normal group view contains an invalid pid");
         }
+        #[cfg(test)]
+        super::macos_group_query_tests::before_member_query(pid);
         let mut info: libc::proc_bsdinfo = unsafe { std::mem::zeroed() };
         // 安全性：固定 ABI 输出；arg=1 允许查询本 owner 保留的 zombie leader。
         let queried = unsafe {
@@ -30,7 +42,11 @@ pub(super) fn normal_view(leader: u32) -> MacosGroupView {
             )
         };
         if queried as usize != size_of::<libc::proc_bsdinfo>() {
-            return unknown("normal group member query is unavailable or incomplete");
+            let disappeared_member = queried == 0
+                && pid as u32 != leader
+                && std::io::Error::last_os_error().raw_os_error() == Some(libc::ESRCH);
+            let (view, _) = unknown("normal group member query is unavailable or incomplete");
+            return (view, disappeared_member);
         }
         // fresh session 的现存组禁止外部 session 加入；保留 leader 防止组号复用。
         // XNU pgrp_add_member 从同一 pgrp 赋 PGID/sessionID，因此完整 PID/PGID
@@ -50,7 +66,7 @@ pub(super) fn normal_view(leader: u32) -> MacosGroupView {
         return unknown("normal group view omitted the retained leader");
     }
     if active {
-        return MacosGroupView::Active;
+        return (MacosGroupView::Active, false);
     }
     // 已确认终止的成员不能再派生进程；保留 leader 防止组号复用。
     // 第二次完整组枚举若变化或容量不足即 Unknown，绝不洗为空组成功。
@@ -62,11 +78,14 @@ pub(super) fn normal_view(leader: u32) -> MacosGroupView {
     if pids[..count] != after[..after_count] {
         return unknown("normal group view changed during qualification");
     }
-    MacosGroupView::AllExited
+    (MacosGroupView::AllExited, false)
 }
 
-fn unknown(reason: &'static str) -> MacosGroupView {
-    MacosGroupView::Unknown(ChildError::Unsupported(reason))
+fn unknown(reason: &'static str) -> (MacosGroupView, bool) {
+    (
+        MacosGroupView::Unknown(ChildError::Unsupported(reason)),
+        false,
+    )
 }
 
 /// 核验 Darwin 的 EPERM 是否仅因自有组全部为 zombie，不忽略权限失败。

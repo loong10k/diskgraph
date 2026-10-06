@@ -158,3 +158,10 @@ CLI entry与binary配置6/0，旧host lifecycle用例在macOS明确违反固定�
 f9b1890 / CI37449291133 Linux stable112221636590原全量仍失败Engine lib与FFI lib。Engine的windows observation、runner strict tick和linux scan namespace仍调用旧扫描入口；夹具改用真实独立宿主。调度器保留原Arc<Engine>接口，测试夹具内部持有原Arc和唯一Recovery；借出Arc先结束再回收夹具。77个原assert片段保持，ScanFixture先释放Engine/Recovery再释放临时目录。本机编译及结构6/0通过，不代表Linux分支实际运行。
 
 原生macOS最后wait竞态实际0通过/1失败RED（首次cleanup拒绝断言失败）→1通过/0失败GREEN，修复仅在原错误为NativeIo ECHILD时即时失权，原错误和未cleaned状态保留。首修复用了test-only错误访问器，非test构建真实E0599；改为直接匹配原NativeIo对象，生产结构编译及6/0门禁通过，fmt通过，不扩展测试访问器到生产。扩大Unix正常退出回归实际9通过/1失败；checkpoint-primary案结束阶段真实组成员query incomplete，原错误保留在normal-wait-expanded-failure.log.gz，不能当作整组通过或通过重跑抹除。该非完整视图可靠性仍开放。原最后wait竞态、外部wait、组失败保留与其余回归结果各按实际范围记录；Linux剩余旧Unix平台资格、FFI公开扫描、Windows清理、macOS安装、有限恢复和性能继续开放。
+
+
+## Darwin成员退出过渡的有限重新采集
+
+验收：真实列举后非leader成员退出并消失，PROC_PIDTBSDINFO实际0/ESRCH只允许再采集一次完整组视图；不能把缺失成员当退出，也不对leader失踪、权限失败、短读或第二次不完整视图重试/签发成功。第二份样本仍须核验保留leader的父身份、整组完整成员状态和最终完整成员集一致；调用方原checkpoint/deadline不刷新，单次OS调用无硬期限承诺。原native9/1失败保留，新用例必须通过真实成员自然退出制造该竞态，不用返回值替身。
+
+本机实际验收：新增真实成员消失/leader失权两案，RED 1通过/1失败，GREEN及独立确认各2通过/0失败；既有Unix正常退出回归10通过/0失败；结构6通过/0失败，fmt成功。原9/1日志保留。日志为macos-group-resample-{red,green,regression,confirm,layout,fmt}.log.gz。该修复尚须同提交原生CI，不代表macOS安装链、Linux旧Unix资格、FFI公开扫描或全平台完成。
