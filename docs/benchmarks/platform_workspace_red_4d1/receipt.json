@@ -1,0 +1,27 @@
+{
+  "run_id": 37500657007,
+  "source": "4d1f3c30e862f961991b4b9c8d54104dcf665f2d",
+  "status": "failed complete matrix; 18 successful jobs and 4 failed jobs",
+  "artifacts": [
+    {
+      "job_id": 112396503508,
+      "file": "windows_stable.log.gz",
+      "raw_sha256": "5fc06bcec317067fb5996412c92c16edd7ca3f6850c77a53da0a047f6551c7c5",
+      "raw_bytes": 1531219
+    },
+    {
+      "job_id": 112396502679,
+      "file": "macos_stable.log.gz",
+      "raw_sha256": "484a03d6f864e6e75f0ea01a3118fa689ec5320bbd5d4c5314a7c5b5b1e8b28c",
+      "raw_bytes": 369083
+    },
+    {
+      "job_id": 112396502758,
+      "file": "macos_intel.log.gz",
+      "raw_sha256": "90335406fa5c6e307963e0a14a7d9a312dba35125b0be0dd933c05cc5359b25e",
+      "raw_bytes": 374274
+    }
+  ],
+  "windows_failure": "full workspace contains unbound probe fixtures and original HTTP shutdown waited for sixty-second read timeout",
+  "macos_failure": "stable and Intel original birth update-lock release assertion failed; surviving kernel reference explanation remains an inference for CI"
+}

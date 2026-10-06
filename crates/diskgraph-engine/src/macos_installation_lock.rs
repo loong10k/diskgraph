@@ -11,13 +11,28 @@ const INSTALLATION_LOCK: &[u8] =
 
 /// 永久root保护安装锁的独占FD守卫，协调可信更新者与扫描出生。
 /// 来源：Darwin flock 与原生 Rust PF-06；无 Java 对等对象。
-/// 不复制FD、不隐式创建锁文件；最终File关闭释放共享锁，不提供认证锁服务。
+/// 不复制FD、不隐式创建锁文件；守卫结束时显式解锁，再关闭File，不提供认证锁服务。
 pub(super) struct MacosInstallationLock {
     _file: File,
     _ancestors: Vec<(File, MacosFilesystemState)>,
 }
 
+impl Drop for MacosInstallationLock {
+    fn drop(&mut self) {
+        // 出生临界区已经结束；显式释放同一打开文件描述的锁，避免内核存续引用延长锁期。
+        // 锁只由本守卫取得，不扩大更新者权限；单次非阻塞操作失败仍由最终 close 兜底。
+        if unsafe { libc::flock(self._file.as_raw_fd(), libc::LOCK_UN | libc::LOCK_NB) } != 0 {
+            eprintln!("macOS installation lock explicit release failed");
+        }
+    }
+}
+
 impl MacosInstallationLock {
+    /// 参数：无；返回：仅测试模拟出生时内核仍持有的同一打开文件描述，不用于产品准入。
+    #[cfg(test)]
+    pub(super) fn duplicate_for_test(&self) -> std::io::Result<File> {
+        self._file.try_clone()
+    }
     /// 参数：期限/检查点沿原请求；返回：原永久inode的共享锁守卫或原错误。
     /// 缺失/替换锁文件失败关闭，等待不持数据库、registry或本进程出生门。
     pub(super) fn acquire_shared(

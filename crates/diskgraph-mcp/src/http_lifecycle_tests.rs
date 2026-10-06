@@ -169,3 +169,72 @@ fn malformed_origins_are_refused_before_auth_on_all_real_transport_routes() {
     }
     runtime.stop_and_join().unwrap().unwrap();
 }
+
+#[test]
+fn runtime_read_polling_preserves_partial_headers_and_body_without_resetting_request() {
+    let (_directory, runtime, address) = start(false);
+    let mut stream = connect(address);
+    let body = br#"{"jsonrpc":"2.0","id":17,"method":"ping"}"#;
+    stream.write_all(b"POST /mcp HTTP/1.1\r\nHost:").unwrap();
+    // 跨越多轮短读等待，客户端仍在同一原请求期限内。
+    std::thread::sleep(Duration::from_millis(150));
+    write!(
+        stream,
+        " localhost\r\nContent-Length: {}\r\n\r\n",
+        body.len()
+    )
+    .unwrap();
+    stream.write_all(&body[..2]).unwrap();
+    std::thread::sleep(Duration::from_millis(150));
+    stream.write_all(&body[2..]).unwrap();
+    let mut reader = BufReader::new(stream);
+    let mut line = String::new();
+    reader.read_line(&mut line).unwrap();
+    assert!(
+        line.starts_with("HTTP/1.1 200"),
+        "partial request lost: {line}"
+    );
+    let mut content_length = None;
+    loop {
+        line.clear();
+        assert_ne!(reader.read_line(&mut line).unwrap(), 0);
+        if line == "\r\n" {
+            break;
+        }
+        if let Some(value) = line.to_ascii_lowercase().strip_prefix("content-length:") {
+            content_length = Some(value.trim().parse::<usize>().unwrap());
+        }
+    }
+    let mut bytes = vec![0; content_length.unwrap()];
+    reader.read_exact(&mut bytes).unwrap();
+    let response: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(response["id"], 17);
+    assert!(response.get("result").is_some(), "{response}");
+    let started = Instant::now();
+    runtime.stop_and_join().unwrap().unwrap();
+    assert!(started.elapsed() < Duration::from_secs(5));
+    assert_closed(reader);
+}
+
+#[test]
+fn runtime_read_polling_keeps_the_original_request_deadline() {
+    let (service, _directory) = crate::tests::service(ToolProfile::ReadFull, "read-deadline");
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    let config = ServerConfig::modern(
+        HttpLimits {
+            read_timeout: Duration::from_millis(200),
+            ..HttpLimits::default()
+        },
+        Security::local(None),
+    );
+    let runtime = HttpServerRuntime::start(service, listener, config, Vec::new()).unwrap();
+    let mut stream = connect(address);
+    stream.write_all(b"POST /mcp HTTP/1.1\r\nHost:").unwrap();
+    // 多次内部短等待不能续期；真实客户端必须收到关闭，不能停留到其五秒读超时。
+    let started = Instant::now();
+    assert_closed(stream);
+    assert!(started.elapsed() < Duration::from_secs(5));
+    runtime.stop_and_join().unwrap().unwrap();
+    assert!(TcpStream::connect(address).is_err());
+}

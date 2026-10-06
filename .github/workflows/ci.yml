@@ -456,6 +456,10 @@ jobs:
       - name: Test
         timeout-minutes: 30
         run: cargo test --workspace --all-targets --locked --no-fail-fast
+      - name: Native HTTP shutdown and original request deadline
+        if: always()
+        timeout-minutes: 5
+        run: cargo test -p diskgraph-mcp --lib --locked http_lifecycle_tests -- --nocapture
       - name: Native Linux identity and process scan fixtures
         if: always() && runner.os == 'Linux' && steps.linux_product_worker.outcome == 'success'
         run: cargo test -p diskgraph-engine --locked --test linux_process_epoch --test linux_process_execution --test linux_process_observation -- --nocapture --test-threads=1

@@ -143,6 +143,34 @@ fn dropping_shared_guard_releases_same_kernel_lock_without_clone() {
 }
 
 #[test]
+fn dropping_guard_unlocks_before_a_surviving_kernel_reference_closes() {
+    let file = tempfile::NamedTempFile::new().unwrap();
+    let guard = MacosInstallationLock::test_shared(
+        File::open(file.path()).unwrap(),
+        Instant::now() + Duration::from_secs(10),
+        &mut || Ok(()),
+    )
+    .unwrap();
+    let surviving_reference = guard.duplicate_for_test().unwrap();
+    let contender = File::open(file.path()).unwrap();
+    assert_eq!(
+        unsafe { libc::flock(contender.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+        -1
+    );
+    assert_eq!(
+        std::io::Error::last_os_error().raw_os_error(),
+        Some(libc::EWOULDBLOCK)
+    );
+    drop(guard);
+    // 存续的真实内核引用不延长已结束的出生临界区；不以睡眠等待掩盖锁未释放。
+    assert_eq!(
+        unsafe { libc::flock(contender.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+        0
+    );
+    drop(surviving_reference);
+}
+
+#[test]
 fn updater_lock_preserves_original_cancel_and_rejects_unprivileged_identity() {
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
     assert!(matches!(

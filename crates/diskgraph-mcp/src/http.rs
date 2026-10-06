@@ -448,8 +448,17 @@ pub fn read_request(
     reader: &mut BufReader<TcpStream>,
     limits: &HttpLimits,
 ) -> std::io::Result<Option<HttpRequest>> {
+    read_request_with_shutdown(reader, limits, None)
+}
+
+fn read_request_with_shutdown(
+    reader: &mut BufReader<TcpStream>,
+    limits: &HttpLimits,
+    shutdown: Option<&crate::http_shutdown_state::HttpShutdownState>,
+) -> std::io::Result<Option<HttpRequest>> {
     let deadline = Instant::now() + limits.read_timeout;
-    let Some(request_line) = read_bounded_line(reader, MAX_REQUEST_LINE_BYTES, deadline)? else {
+    let Some(request_line) = read_bounded_line(reader, MAX_REQUEST_LINE_BYTES, deadline, shutdown)?
+    else {
         return Ok(None);
     };
     let mut parts = request_line.trim_end_matches(['\r', '\n']).split(' ');
@@ -500,7 +509,7 @@ pub fn read_request(
     let mut header_count = 0usize;
     loop {
         let remaining = MAX_HEADER_BYTES.saturating_sub(header_bytes);
-        let Some(line) = read_bounded_line(reader, remaining, deadline)? else {
+        let Some(line) = read_bounded_line(reader, remaining, deadline, shutdown)? else {
             return Err(std::io::Error::new(
                 ErrorKind::UnexpectedEof,
                 "incomplete HTTP headers",
@@ -587,10 +596,12 @@ pub fn read_request(
     let mut body = vec![0u8; length];
     let mut filled = 0usize;
     while filled < length {
-        apply_read_deadline(reader, deadline)?;
-        let count = reader
-            .read(&mut body[filled..])
-            .map_err(normalize_request_timeout)?;
+        apply_read_deadline(reader, deadline, shutdown)?;
+        let count = match reader.read(&mut body[filled..]) {
+            Ok(count) => count,
+            Err(error) if retry_runtime_read(&error, deadline, shutdown) => continue,
+            Err(error) => return Err(normalize_request_timeout(error)),
+        };
         if count == 0 {
             return Err(std::io::Error::new(
                 ErrorKind::UnexpectedEof,
@@ -614,11 +625,16 @@ fn read_bounded_line(
     reader: &mut BufReader<TcpStream>,
     limit: usize,
     deadline: Instant,
+    shutdown: Option<&crate::http_shutdown_state::HttpShutdownState>,
 ) -> std::io::Result<Option<String>> {
     let mut line = Vec::new();
     loop {
-        apply_read_deadline(reader, deadline)?;
-        let available = reader.fill_buf().map_err(normalize_request_timeout)?;
+        apply_read_deadline(reader, deadline, shutdown)?;
+        let available = match reader.fill_buf() {
+            Ok(available) => available,
+            Err(error) if retry_runtime_read(&error, deadline, shutdown) => continue,
+            Err(error) => return Err(normalize_request_timeout(error)),
+        };
         if available.is_empty() {
             return if line.is_empty() {
                 Ok(None)
@@ -652,7 +668,14 @@ fn read_bounded_line(
 fn apply_read_deadline(
     reader: &mut BufReader<TcpStream>,
     deadline: Instant,
+    shutdown: Option<&crate::http_shutdown_state::HttpShutdownState>,
 ) -> std::io::Result<()> {
+    if shutdown.is_some_and(crate::http_shutdown_state::HttpShutdownState::stopped) {
+        return Err(std::io::Error::new(
+            ErrorKind::ConnectionAborted,
+            "HTTP server stopped",
+        ));
+    }
     let remaining = deadline.saturating_duration_since(Instant::now());
     if remaining.is_zero() {
         return Err(std::io::Error::new(
@@ -660,7 +683,27 @@ fn apply_read_deadline(
             "HTTP request deadline exceeded",
         ));
     }
-    reader.get_ref().set_read_timeout(Some(remaining))
+    // Windows socket shutdown 不单独作为读线程终止证明；短等待复查同一停止状态。
+    // 原请求期限只生成一次，分段等待不清空已有行/正文，也不补充剩余时间。
+    let wait = if shutdown.is_some() {
+        remaining.min(Duration::from_millis(50))
+    } else {
+        remaining
+    };
+    reader.get_ref().set_read_timeout(Some(wait))
+}
+
+fn retry_runtime_read(
+    error: &std::io::Error,
+    deadline: Instant,
+    shutdown: Option<&crate::http_shutdown_state::HttpShutdownState>,
+) -> bool {
+    shutdown.is_some()
+        && Instant::now() < deadline
+        && matches!(
+            error.kind(),
+            ErrorKind::WouldBlock | ErrorKind::TimedOut | ErrorKind::Interrupted
+        )
 }
 
 fn normalize_request_timeout(error: std::io::Error) -> std::io::Error {
@@ -858,7 +901,7 @@ pub(crate) fn serve_config_with_runtime(
                 Err(_) => return,
             });
             for _ in 0..limits.max_requests_per_connection {
-                let request = match read_request(&mut reader, &limits) {
+                let request = match read_request_with_shutdown(&mut reader, &limits, Some(&connection_state)) {
                     Ok(Some(request)) => request,
                     Ok(None) => break,
                     Err(error) => {
