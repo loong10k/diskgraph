@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import qualify_windows_pool_unwind as qualifier
+from qualify_windows_legacy_api import POOL_DEADLINE_SUPPORT, strip_unused_pool_deadline_method
 
 
 class QualificationRollbackTests(unittest.TestCase):
@@ -21,13 +22,17 @@ class QualificationRollbackTests(unittest.TestCase):
             source.write_bytes(candidate)
             for name in ["crates/diskgraph-engine/src/lib.rs",
                          "crates/diskgraph-engine/src/probe_pool_cleanup_fault.rs",
-                         "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs"]:
+                         "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs",
+                         "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
+                         "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs"]:
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(b"shared test support\n")
+                path.write_bytes(b"    /// new deadline API\r\n    pub(crate) fn cleanup_until() {\r\n        original_owner();\r\n    }\r\ncompatibility body\r\n" if name in POOL_DEADLINE_SUPPORT else b"shared test support\n")
             baseline = b"before\n" + qualifier.ANCHOR + b"old cleanup\n"
             runner_temp = root / "runner"
             runner_temp.mkdir()
+
+            support_originals = {name: (root / name).read_bytes() for name in POOL_DEADLINE_SUPPORT}
 
             def git_output(arguments, **kwargs):
                 if arguments[1] == "show":
@@ -36,6 +41,8 @@ class QualificationRollbackTests(unittest.TestCase):
 
             def fail_cargo(*args):
                 self.assertEqual(source.read_bytes(), qualifier.instrument_baseline(baseline))
+                for name, data in support_originals.items():
+                    self.assertEqual((root / name).read_bytes(), strip_unused_pool_deadline_method(data))
                 if isinstance(cargo_failure, Exception):
                     raise cargo_failure
                 return cargo_failure
@@ -49,6 +56,8 @@ class QualificationRollbackTests(unittest.TestCase):
                 with self.assertRaises((RuntimeError, subprocess.TimeoutExpired)):
                     qualifier.main()
             self.assertEqual(source.read_bytes(), candidate, "candidate bytes must be restored exactly")
+            for name, data in support_originals.items():
+                self.assertEqual((root / name).read_bytes(), data, "all adapted support must be restored exactly")
             receipt = json.loads((runner_temp / "diskgraph-windows-pool-unwind/receipt.json").read_text())
             self.assertTrue(receipt["restored"])
             self.assertEqual(receipt["status"], "pending", "failed qualification cannot claim native acceptance")

@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from qualify_windows_legacy_api import MARKER, bridge_baseline
+from qualify_windows_legacy_api import MARKER, bridge_baseline, prepare_pool_deadline_support
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,13 +47,21 @@ def main():
     old = {name: subprocess.check_output(["git", "show", f"{BASELINE}:{name}"], cwd=ROOT)
            for name in SOURCES}
     baseline_original = dict(old)
+    support_original, support_adapted = prepare_pool_deadline_support(ROOT)
+    original.update(support_original)
     pool_source = "crates/diskgraph-engine/src/probe_resource_pool.rs"
     old[pool_source] = bridge_baseline(original[pool_source], old[pool_source], "pool")
+    old.update(support_adapted)
     receipt = {
         "candidate": candidate, "baseline": BASELINE,
         "candidate_sources": {name: digest(data) for name, data in original.items()},
         "baseline_original_sources": {name: digest(data) for name, data in baseline_original.items()},
         "baseline_sources": {name: digest(data) for name, data in old.items()},
+        "unreachable_deadline_support": {
+            "original_sources": {name: digest(data) for name, data in support_original.items()},
+            "baseline_sources": {name: digest(data) for name, data in support_adapted.items()},
+            "policy": "only unreachable new methods omitted; original compatibility cleanup body unchanged",
+        },
         # 两阶段共用当前诊断投影与同一真实测试；只有上面的 owner 重试实现被替换。
         "shared_support_sources": {
             name: digest((ROOT / name).read_bytes()) for name in [

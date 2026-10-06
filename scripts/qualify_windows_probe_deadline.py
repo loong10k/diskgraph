@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_enumerated_absence import cargo
-from qualify_windows_legacy_api import MARKER, bridge_baseline
+from qualify_windows_legacy_api import MARKER, bridge_baseline, prepare_pool_deadline_support
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "46fededd709ee614eab5083c746399dde05664cf"
@@ -26,6 +26,7 @@ def main():
     output.mkdir(exist_ok=False)
     path = ROOT / SOURCE
     original = path.read_bytes()
+    support_original, support_adapted = prepare_pool_deadline_support(ROOT)
     subprocess.run(["git", "fetch", "--depth=1", "origin", BASELINE], cwd=ROOT, check=True)
     old = subprocess.check_output(["git", "show", f"{BASELINE}:{SOURCE}"], cwd=ROOT)
     instrumented = bridge_baseline(original, old, "pool")
@@ -40,8 +41,15 @@ def main():
                    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
                    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
                    "scripts/qualify_windows_legacy_api.py"]}, "status": "pending"}
+    receipt["unreachable_deadline_support"] = {
+        "original_sources": {name: digest(data) for name, data in support_original.items()},
+        "baseline_sources": {name: digest(data) for name, data in support_adapted.items()},
+        "policy": "only unreachable new methods omitted; compatibility cleanup body unchanged, strict warnings retained",
+    }
     try:
         path.write_bytes(instrumented)
+        for name, data in support_adapted.items():
+            (ROOT / name).write_bytes(data)
         code, log = cargo(TEST, output / "red.log")
         if (code == 0 or "0 passed; 1 failed; 0 ignored;" not in log
                 or "DG_EXPIRED_PROBE_RECOVERY_RED_READY=1" not in log or MARKER not in log
@@ -51,7 +59,10 @@ def main():
         receipt["red"] = "real original disposal completed through old compatibility drain despite expired input; original behavior delegate observed"
     finally:
         path.write_bytes(original)
-        receipt["restored"] = path.read_bytes() == original
+        for name, data in support_original.items():
+            (ROOT / name).write_bytes(data)
+        receipt["restored"] = (path.read_bytes() == original
+                               and all((ROOT / name).read_bytes() == data for name, data in support_original.items()))
         (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if not receipt["restored"]:
         raise RuntimeError("source restoration failed")

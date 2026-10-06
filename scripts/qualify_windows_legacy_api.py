@@ -43,3 +43,33 @@ def bridge_baseline(candidate, baseline, kind):
     if current_count == 0 or old_count == 1:
         return baseline
     return baseline + adapter
+
+
+POOL_DEADLINE_SUPPORT = (
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+)
+
+def strip_unused_pool_deadline_method(source):
+    """旧池没有该调用边；仅移除不可达的新方法，兼容清理正文逐字保留。"""
+    count = len(re.findall(rb"\bfn\s+cleanup_until\s*\(", source))
+    if count == 0:
+        return source
+    pattern = (rb"(?m)^    ///[^\r\n]*\r?\n(?:    ///[^\r\n]*\r?\n)*"
+               rb"(?:    #\[cfg\(windows\)\]\r?\n)?"
+               rb"    pub\((?:crate|super)\) fn cleanup_until\([\s\S]*?^    }\r?\n")
+    matches = list(re.finditer(pattern, source))
+    if count != 1 or len(matches) != 1:
+        raise RuntimeError("unreachable deadline method boundary is not unique")
+    match = matches[0]
+    method = match.group()
+    if (len(re.findall(rb"\bfn\s+", method)) != 1
+            or method.count(b"{") != method.count(b"}")):
+        raise RuntimeError("unreachable deadline method boundary is malformed")
+    return source[:match.start()] + source[match.end():]
+
+def prepare_pool_deadline_support(root):
+    """返回当前支持源码及旧池不可达方法剔除后的副本；调用方须在 finally 逐字恢复。"""
+    original = {name: (root / name).read_bytes() for name in POOL_DEADLINE_SUPPORT}
+    adapted = {name: strip_unused_pool_deadline_method(data) for name, data in original.items()}
+    return original, adapted

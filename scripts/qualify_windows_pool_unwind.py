@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_enumerated_absence import cargo
-from qualify_windows_legacy_api import MARKER, bridge_baseline
+from qualify_windows_legacy_api import MARKER, bridge_baseline, prepare_pool_deadline_support
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "9b02d6c4114ac9be1a9576ec4d8fc6cdc7ec1c5f"
@@ -37,6 +37,7 @@ def main():
     output.mkdir(exist_ok=False)
     path = ROOT / SOURCE
     original = path.read_bytes()
+    support_original, support_adapted = prepare_pool_deadline_support(ROOT)
     subprocess.run(["git", "fetch", "--depth=1", "origin", BASELINE], cwd=ROOT, check=True)
     old = subprocess.check_output(["git", "show", f"{BASELINE}:{SOURCE}"], cwd=ROOT)
     instrumented = instrument_baseline(old, original)
@@ -49,8 +50,15 @@ def main():
                    "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs"]},
                "baseline_instrumentation": "only the same test-only panic checkpoint at the lock-free cleanup boundary",
                "status": "pending"}
+    receipt["unreachable_deadline_support"] = {
+        "original_sources": {name: digest(data) for name, data in support_original.items()},
+        "baseline_sources": {name: digest(data) for name, data in support_adapted.items()},
+        "policy": "only unreachable new methods omitted; compatibility cleanup body unchanged, strict warnings retained",
+    }
     try:
         path.write_bytes(instrumented)
+        for name, data in support_adapted.items():
+            (ROOT / name).write_bytes(data)
         code, log = cargo(TEST, output / "red.log")
         if MARKER in log:
             raise RuntimeError("pool unwind primitive must not execute the new API binding")
@@ -61,7 +69,10 @@ def main():
         receipt["red"] = "same original panic and private payload preserved, but original pool cannot retry its responsibility"
     finally:
         path.write_bytes(original)
-        receipt["restored"] = path.read_bytes() == original
+        for name, data in support_original.items():
+            (ROOT / name).write_bytes(data)
+        receipt["restored"] = (path.read_bytes() == original
+                               and all((ROOT / name).read_bytes() == data for name, data in support_original.items()))
         (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if not receipt["restored"]:
         raise RuntimeError("source restoration failed")

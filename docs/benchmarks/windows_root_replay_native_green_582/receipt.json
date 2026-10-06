@@ -1,0 +1,39 @@
+{
+  "run_id": 37536100656,
+  "source_sha": "582035af37c250367db3bfc10d7cb9a750ff2de4",
+  "classification": "Both Windows toolchains root replay behavior proof only; complete matrix and finite frontend shutdown remain open",
+  "artifacts": {
+    "stable": {
+      "artifact_id": 11445803526,
+      "zip_sha256": "c4e2b67b641edacf3abbf62ca879e44ff992a9d93639d2d0ff86be81b15efdb0",
+      "files": {
+        "green-membership-lease.log": "a9e38e734c985a0826c3d913157846e8fadccfdca8074bc7cdfa7eaf1c086897",
+        "green.log": "1d826cc01ba9a975630e323606c799019de305cf7589a6d9ee04fa1499d9a09a",
+        "receipt.json": "23601880e76b1ad7b4c36dc66639326627da442756813bdda797ce9d776c6847",
+        "red.log": "8b935bcd9268412e8dfa9311114aa543910101d2704e90426e440cf760d82139"
+      },
+      "candidate_checkout_variants": {
+        "crates/diskgraph-engine/src/live_evidence/mod.rs": "Windows checkout CRLF",
+        "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "Windows checkout CRLF",
+        "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "Windows checkout CRLF"
+      },
+      "verification": "Original and adapted baseline hashes, shared Git blobs, actual RED 0/1/0 and two native GREEN 1/0/0; unrelated legacy deadline binding not executed"
+    },
+    "msrv": {
+      "artifact_id": 11446642379,
+      "zip_sha256": "de62129392adebc9a45919c48f7669183f1f8ecfd3e3fd4c8d6a4092bff5c66d",
+      "files": {
+        "green-membership-lease.log": "370e229a22bfba3a3e73e0dfa553efe5343182f1f9b03f7a1833496a39b5fb48",
+        "receipt.json": "23601880e76b1ad7b4c36dc66639326627da442756813bdda797ce9d776c6847",
+        "red.log": "74e02da8eb289605fbfb9f134f3d8fdc25071da92c8aa79c096d7efee549fc26",
+        "green.log": "2e5259433180ec20c8c18eb194b90012b4664a27c99ae7b3ac3866c1163f4ba9"
+      },
+      "candidate_checkout_variants": {
+        "crates/diskgraph-engine/src/live_evidence/mod.rs": "Windows checkout CRLF",
+        "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "Windows checkout CRLF",
+        "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "Windows checkout CRLF"
+      },
+      "verification": "Original and adapted baseline hashes, shared Git blobs, actual RED 0/1/0 and two native GREEN 1/0/0; unrelated legacy deadline binding not executed"
+    }
+  }
+}

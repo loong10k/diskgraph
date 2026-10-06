@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import qualify_windows_probe_deadline as qualifier
+from qualify_windows_legacy_api import POOL_DEADLINE_SUPPORT, strip_unused_pool_deadline_method
 
 class DeadlineRollbackTests(unittest.TestCase):
     def exercise(self, failure):
@@ -25,14 +26,18 @@ class DeadlineRollbackTests(unittest.TestCase):
             for name in shared:
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(b"shared source\n")
+                path.write_bytes(b"    /// new deadline API\r\n    pub(crate) fn cleanup_until() {\r\n        original_owner();\r\n    }\r\ncompatibility body\r\n" if name in POOL_DEADLINE_SUPPORT else b"shared source\n")
             runner = root / "runner"
             runner.mkdir()
             baseline = b"actual legacy pool source\n"
+            support_originals = {name: (root / name).read_bytes() for name in POOL_DEADLINE_SUPPORT}
+
             def git_output(args, **kwargs):
                 return baseline if args[1] == "show" else b"candidate-revision\n"
             def fail(*args):
                 self.assertEqual(source.read_bytes(), qualifier.bridge_baseline(candidate, baseline, "pool"))
+                for name, data in support_originals.items():
+                    self.assertEqual((root / name).read_bytes(), strip_unused_pool_deadline_method(data))
                 if isinstance(failure, Exception):
                     raise failure
                 return failure
@@ -40,6 +45,8 @@ class DeadlineRollbackTests(unittest.TestCase):
                 with self.assertRaises((RuntimeError, subprocess.TimeoutExpired)):
                     qualifier.main()
             self.assertEqual(source.read_bytes(), candidate)
+            for name, data in support_originals.items():
+                self.assertEqual((root / name).read_bytes(), data, "all adapted support must be restored exactly")
             receipt = json.loads((runner / "diskgraph-windows-probe-deadline/receipt.json").read_text())
             self.assertTrue(receipt["restored"])
             self.assertEqual(receipt["status"], "pending")

@@ -1,0 +1,23 @@
+{
+  "run_id": 37536100656,
+  "source_sha": "582035af37c250367db3bfc10d7cb9a750ff2de4",
+  "classification": "Baseline-only unused new method compiler failure on both native Windows versions; no behavior RED/GREEN",
+  "artifacts": {
+    "stable": {
+      "artifact_id": 11447016287,
+      "zip_sha256": "d4a186e8bbba0f94e28afd672ac6c81465281d0c926d66302d0606b3f38831b9",
+      "files": {
+        "receipt.json": "a227cf4fb0ac2f51f53c59158e6c9a88bd2c63f174716d400438058c25165b19",
+        "red.log": "efe0fd3b03272f437bbc5b5c66523a954e6f49c0c9d540fd0b96eff0be60ad53"
+      }
+    },
+    "msrv": {
+      "artifact_id": 11445968950,
+      "zip_sha256": "e50e15bb3fb1c8d0ad4a77c94afcdd7995050f1de3b91a26d4faed8af3d5beb3",
+      "files": {
+        "receipt.json": "a227cf4fb0ac2f51f53c59158e6c9a88bd2c63f174716d400438058c25165b19",
+        "red.log": "efe0fd3b03272f437bbc5b5c66523a954e6f49c0c9d540fd0b96eff0be60ad53"
+      }
+    }
+  }
+}
