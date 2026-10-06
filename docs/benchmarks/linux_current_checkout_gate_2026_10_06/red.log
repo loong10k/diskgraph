@@ -1,0 +1,58 @@
+test_actual_parent_symlink_is_not_a_current_source (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_actual_parent_symlink_is_not_a_current_source) ... ERROR
+test_clean_current_sources_bind_head_and_real_bytes (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_clean_current_sources_bind_head_and_real_bytes) ... ERROR
+test_modified_or_staged_source_cannot_substitute_head (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_modified_or_staged_source_cannot_substitute_head) ... 
+  test_modified_or_staged_source_cannot_substitute_head (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_modified_or_staged_source_cannot_substitute_head) (staged=False) ... ERROR
+  test_modified_or_staged_source_cannot_substitute_head (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_modified_or_staged_source_cannot_substitute_head) (staged=True) ... ERROR
+test_untracked_cargo_configuration_is_rejected_even_if_ignored (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_untracked_cargo_configuration_is_rejected_even_if_ignored) ... ERROR
+test_close_failure_after_success_still_refuses_qualification (test_scan_worker_engine_qualifier.EngineQualifierErrorContracts.test_close_failure_after_success_still_refuses_qualification) ... ok
+test_failed_original_command_survives_close_error (test_scan_worker_engine_qualifier.EngineQualifierErrorContracts.test_failed_original_command_survives_close_error) ... ok
+
+======================================================================
+ERROR: test_actual_parent_symlink_is_not_a_current_source (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_actual_parent_symlink_is_not_a_current_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_worker_engine_qualifier.py", line 97, in test_actual_parent_symlink_is_not_a_current_source
+    MODULE.verify_current_sources(self.root)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'engine_qualifier' has no attribute 'verify_current_sources'
+
+======================================================================
+ERROR: test_clean_current_sources_bind_head_and_real_bytes (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_clean_current_sources_bind_head_and_real_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_worker_engine_qualifier.py", line 70, in test_clean_current_sources_bind_head_and_real_bytes
+    result = MODULE.verify_current_sources(self.root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'engine_qualifier' has no attribute 'verify_current_sources'
+
+======================================================================
+ERROR: test_modified_or_staged_source_cannot_substitute_head (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_modified_or_staged_source_cannot_substitute_head) (staged=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_worker_engine_qualifier.py", line 82, in test_modified_or_staged_source_cannot_substitute_head
+    MODULE.verify_current_sources(self.root)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'engine_qualifier' has no attribute 'verify_current_sources'
+
+======================================================================
+ERROR: test_modified_or_staged_source_cannot_substitute_head (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_modified_or_staged_source_cannot_substitute_head) (staged=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_worker_engine_qualifier.py", line 82, in test_modified_or_staged_source_cannot_substitute_head
+    MODULE.verify_current_sources(self.root)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'engine_qualifier' has no attribute 'verify_current_sources'
+
+======================================================================
+ERROR: test_untracked_cargo_configuration_is_rejected_even_if_ignored (test_scan_worker_engine_qualifier.CurrentCheckoutSourceContracts.test_untracked_cargo_configuration_is_rejected_even_if_ignored)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_worker_engine_qualifier.py", line 89, in test_untracked_cargo_configuration_is_rejected_even_if_ignored
+    MODULE.verify_current_sources(self.root)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'engine_qualifier' has no attribute 'verify_current_sources'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.197s
+
+FAILED (errors=5)

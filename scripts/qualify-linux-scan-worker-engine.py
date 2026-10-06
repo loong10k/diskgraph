@@ -10,7 +10,64 @@ import shutil
 import sys
 import traceback
 
-from assemble_scan_worker_host import assemble
+
+
+SOURCE_PATHS = ('Cargo.toml', 'Cargo.lock', 'rust-toolchain', 'rust-toolchain.toml',
+                '.cargo', '.github', '.gitattributes', '.gitignore', 'crates', 'scripts', 'fixtures')
+
+
+def verify_current_sources(root):
+    """核验实际checkout的构建输入与HEAD逐blob一致，不装配历史补丁。"""
+    root = root.resolve()
+    def git(*args):
+        return subprocess.check_output(['git', *args], cwd=root, timeout=60)
+    if Path(os.fsdecode(git('rev-parse', '--show-toplevel')).strip()).resolve() != root:
+        raise ValueError('qualification requires the actual repository root')
+    commit = git('rev-parse', 'HEAD').decode().strip()
+    staged = subprocess.run(['git', 'diff', '--cached', '--quiet', 'HEAD', '--', *SOURCE_PATHS],
+                            cwd=root, timeout=60)
+    if staged.returncode != 0:
+        raise ValueError('staged build input differs from current commit')
+    for ignored in (False, True):
+        options = ['ls-files', '--others', '--exclude-standard', '-z']
+        if ignored:
+            options.append('--ignored')
+        for raw in git(*options, '--', *SOURCE_PATHS).split(b'\0'):
+            if not raw:
+                continue
+            path = os.fsdecode(raw)
+            # Python解释器缓存不是构建来源；其它ignored输入（含.cargo）仍拒绝。
+            if path.startswith(('scripts/__pycache__/', 'scripts/tests/__pycache__/')):
+                continue
+            raise ValueError('untracked build input: ' + path)
+    object_format = git('rev-parse', '--show-object-format').decode().strip()
+    files = []
+    for row in git('ls-tree', '-rz', 'HEAD', '--', *SOURCE_PATHS).split(b'\0'):
+        if not row:
+            continue
+        metadata, raw_path = row.split(b'\t', 1)
+        mode, kind, expected = metadata.decode().split()
+        path = os.fsdecode(raw_path)
+        target = root / path
+        if kind != 'blob' or mode not in ('100644', '100755'):
+            raise ValueError('unsupported current source type: ' + path)
+        if any(parent.is_symlink() for parent in (target, *target.parents)) or not target.is_file():
+            raise ValueError('source is missing or traverses a symlink: ' + path)
+        length = target.stat().st_size
+        original = hashlib.new(object_format)
+        original.update(b'blob ' + str(length).encode() + b'\0')
+        digest = hashlib.sha256()
+        with target.open('rb') as stream:
+            for chunk in iter(lambda: stream.read(65536), b''):
+                original.update(chunk)
+                digest.update(chunk)
+        if original.hexdigest() != expected:
+            raise ValueError('working source differs from current commit: ' + path)
+        files.append({'path': path, 'git_blob': expected, 'sha256': digest.hexdigest()})
+    if not files or git('rev-parse', 'HEAD').decode().strip() != commit:
+        raise ValueError('current source set is empty or commit changed during verification')
+    return {'schema_version': 1, 'commit': commit, 'files': files,
+            'historical_patch_applied': False, 'production_acceptance': False}
 
 
 def run_step(output, root, environment, receipt, name, command, capture=False):
@@ -53,10 +110,13 @@ def main(output):
     environment['CARGO_TARGET_DIR'] = str(output / 'target')
 
     try:
-        # 只在已降权的隔离checkout装配；根路径、上游、每份原/新源码均有指纹约束。
-        assemble(root, output)
-        manifest = root / 'crates/diskgraph-engine/integration_candidates/scan_worker_host/current.json'
-        receipt['source_manifest_sha256'] = hashlib.sha256(manifest.read_bytes()).hexdigest()
+        # 已降权的当前checkout直接构建；旧冻结补丁只能用于单独的历史候选。
+        sources = verify_current_sources(root)
+        source_bytes = (json.dumps(sources, sort_keys=True, indent=2) + '\n').encode()
+        (output / 'current-source.json').write_bytes(source_bytes)
+        receipt['source_manifest_sha256'] = hashlib.sha256(source_bytes).hexdigest()
+        receipt['source_files'] = len(sources['files'])
+        receipt['historical_patch_applied'] = False
         receipt['qualifier_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         rows = run_step(output, root, environment, receipt, 'build', ['cargo', 'build', '--offline', '--locked', '-p', 'diskgraph-scan-worker',
                              '--bin', 'diskgraph-scan-worker', '--message-format=json'], True)
@@ -84,6 +144,8 @@ def main(output):
                 raise ValueError(name + ': actual exact native count did not pass')
             receipt[name] = {'passed': count, 'failed': 0, 'ignored': 0,
                              'raw_log_sha256': hashlib.sha256(raw).hexdigest()}
+        if verify_current_sources(root) != sources:
+            raise ValueError('build inputs changed during actual qualification')
         receipt.update(status='component_tests_passed_awaiting_outer_cleanup', executed_parent_cases=5)
     except BaseException as error:
         receipt.update(status='failed', primary_error={'kind': type(error).__name__, 'repr': repr(error)},

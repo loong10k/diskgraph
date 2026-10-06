@@ -1,0 +1,16 @@
+{
+  "base_commit": "275757c6dce0d6b97ec09d9834546eac2cefaf2a",
+  "change": "current checkout source gate; no historical patch applied",
+  "red": "missing source verification API; not a Linux native behavior RED",
+  "local_tests": {
+    "engine_gate": 8,
+    "namespace": 24,
+    "namespace_artifacts": 10
+  },
+  "linux_native_acceptance": false,
+  "production_acceptance": false,
+  "source_sha256": {
+    "scripts/qualify-linux-scan-worker-engine.py": "3e93c01bb5173c4e616c39c0b907ccd8c0df8748939bdf42193b67de31698da0",
+    "scripts/tests/test_scan_worker_engine_qualifier.py": "6a2d4d774f963fb74f84353e213d8cfb17fe5f934b86bcfed22248fae033caca"
+  }
+}

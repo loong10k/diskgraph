@@ -4,17 +4,13 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+import tempfile
 from unittest.mock import patch
 
 SCRIPTS = Path(__file__).parents[1]
 SPEC = importlib.util.spec_from_file_location('engine_qualifier', SCRIPTS / 'qualify-linux-scan-worker-engine.py')
 MODULE = importlib.util.module_from_spec(SPEC)
-with patch.dict(sys.modules):
-    assembly_spec = importlib.util.spec_from_file_location('assemble_scan_worker_host', SCRIPTS / 'assemble_scan_worker_host.py')
-    assembly = importlib.util.module_from_spec(assembly_spec)
-    assembly_spec.loader.exec_module(assembly)
-    sys.modules['assemble_scan_worker_host'] = assembly
-    SPEC.loader.exec_module(MODULE)
+SPEC.loader.exec_module(MODULE)
 
 
 class EngineQualifierErrorContracts(unittest.TestCase):
@@ -47,6 +43,53 @@ class EngineQualifierErrorContracts(unittest.TestCase):
                 patch.object(MODULE.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)), \
                 self.assertRaises(OSError):
             MODULE.run_step(Path('/unused'), Path('/unused'), {}, {}, 'build', [])
+
+
+class CurrentCheckoutSourceContracts(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
+        (self.root / 'crates/example/src').mkdir(parents=True)
+        (self.root / 'Cargo.toml').write_text('[workspace]\n')
+        (self.root / 'crates/example/src/lib.rs').write_text('pub fn actual() -> u32 { 1 }\n')
+        self.git('init', '-q')
+        self.git('add', '.')
+        self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                 '-c', 'commit.gpgsign=false', 'commit', '-qm', 'actual fixture sources')
+
+    def git(self, *args):
+        return subprocess.check_output(['git', *args], cwd=self.root)
+
+    def test_clean_current_sources_bind_head_and_real_bytes(self):
+        result = MODULE.verify_current_sources(self.root)
+        self.assertEqual(result['commit'], self.git('rev-parse', 'HEAD').decode().strip())
+        self.assertEqual(len(result['files']), 2)
+        self.assertEqual(result, MODULE.verify_current_sources(self.root))
+
+    def test_modified_or_staged_source_cannot_substitute_head(self):
+        source = self.root / 'crates/example/src/lib.rs'
+        source.write_text('pub fn actual() -> u32 { 2 }\n')
+        for staged in (False, True):
+            if staged:
+                self.git('add', str(source))
+            with self.subTest(staged=staged), self.assertRaises(ValueError):
+                MODULE.verify_current_sources(self.root)
+
+    def test_untracked_cargo_configuration_is_rejected_even_if_ignored(self):
+        (self.root / '.cargo').mkdir()
+        (self.root / '.cargo/config.toml').write_text('[build]\nrustflags = ["--cfg", "unreviewed"]\n')
+        (self.root / '.git/info/exclude').write_text('.cargo/\n')
+        with self.assertRaises(ValueError):
+            MODULE.verify_current_sources(self.root)
+
+    def test_actual_parent_symlink_is_not_a_current_source(self):
+        original = self.root / 'crates/example/src'
+        moved = self.root / 'original_source'
+        original.rename(moved)
+        original.symlink_to(moved, target_is_directory=True)
+        with self.assertRaises(ValueError):
+            MODULE.verify_current_sources(self.root)
 
 
 if __name__ == '__main__':

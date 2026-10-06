@@ -27,3 +27,7 @@ macOS 冻结候选599源只覆盖 unix_child.rs、unix_child_group.rs 和 unix_n
 ScanWorkerRecovery::drain_until 接收宿主绝对期限；到期或锁竞争返回 false，不取 owner、不发送信号、不消费 wait。锁外单次处置 fresh 私有 session：实际原组终止后，只有完整原组退出观察和原 leader 非阻塞 wait 均完成才能返还容量。活动、到期、原生权限/等待错误和 panic 都将原 owner 放回原槽；外部 ECHILD 不允许重试旧数值组。不得 sleep/retry-loop 或调用阻塞 waitpid 作为这条路径的实现。OS 单调用和归还责任所需短状态锁没有硬墙钟保证。原 drain 兼容接口仍在，有限前端退出不据此宣称完成。
 
 期限入口暂接既有legacy drain时真实过期请求RED为0/1；修复后目标通过。原组失败/末段外部wait/连续槽容量保留、原生与标准WNOHANG缓存、panic和锁竞争回槽均通过。最新并行native_child44/0/1、真实父驱动7/0、结构6/0；原并行正常组查询不完整失败也保留，不因精确和串行复查通过而删除。原日志及源码摘要见 docs/benchmarks/macos_deadline_recovery_2026_10_06。Linux期限恢复、前端有限退出、默认安装扫描和全平台严格检查仍未完成。
+
+## Linux 当前提交验收来源
+
+Linux Engine 原生门禁必须测试 CI checkout 对应的完整当前提交，不得先把旧冻结宿主补丁装配进当前源码。构建前核验所有受版本控制的构建输入与 HEAD blob 一致，拒绝已修改、暂存、未跟踪输入和符号链接；保存提交、逐文件 SHA-256 和清单摘要。构建后再次核验输入未变化。历史装配工具只用于显式历史候选，不能替代当前提交生产验收。原 namespace 隔离、普通 UID、实际 worker 摘要与原 init wait 门禁保持。

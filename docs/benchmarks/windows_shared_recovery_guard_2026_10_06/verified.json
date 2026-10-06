@@ -1,0 +1,9 @@
+{
+  "run_id": 37436710966,
+  "checkout_sha": "275757c6dce0d6b97ec09d9834546eac2cefaf2a",
+  "candidate_base": "8878912fb579f741b7776a2b533efc3237541c23",
+  "candidate_archive_sha256": "8c09086fbfff8c6d1726a1a4ae9995897a02cf999f1db2a00c8ee28f405276f9",
+  "actual_exact_cases_verified": 82,
+  "full_workspace_acceptance": false,
+  "production_acceptance": false
+}
