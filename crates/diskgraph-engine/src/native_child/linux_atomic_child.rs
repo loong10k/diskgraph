@@ -183,7 +183,7 @@ impl LinuxAtomicChild {
 
     /// 参数：无；返回：原子 pidfd 的测试借用，不重新打开进程身份。
     #[cfg(test)]
-    pub(super) fn pidfd_for_test(&self) -> i32 {
+    pub(crate) fn pidfd_for_test(&self) -> i32 {
         self.exit.fd()
     }
 

@@ -161,3 +161,7 @@ mod windows_registry_drain;
 #[cfg(all(test, target_os = "macos"))]
 #[path = "registry_unwind_tests.rs"]
 mod registry_unwind_tests;
+
+#[cfg(all(test, target_os = "linux"))]
+#[path = "linux_registry_deadline_tests.rs"]
+mod linux_registry_deadline_tests;

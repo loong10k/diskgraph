@@ -7,7 +7,7 @@ use diskgraph_core::BusinessError;
 use diskgraph_store::JobState;
 use std::sync::Arc;
 
-fn deny_waitid_for_this_thread() {
+pub(crate) fn deny_waitid_for_this_thread() {
     let code = [
         libc::sock_filter {
             code: (libc::BPF_LD | libc::BPF_W | libc::BPF_ABS) as u16,

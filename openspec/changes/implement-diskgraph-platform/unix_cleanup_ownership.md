@@ -31,3 +31,7 @@ ScanWorkerRecovery::drain_until 接收宿主绝对期限；到期或锁竞争返
 ## Linux 当前提交验收来源
 
 Linux Engine 原生门禁必须测试 CI checkout 对应的完整当前提交，不得先把旧冻结宿主补丁装配进当前源码。构建前核验所有受版本控制的构建输入与 HEAD blob 一致，拒绝已修改、暂存、未跟踪输入和符号链接；保存提交、逐文件 SHA-256 和清单摘要。构建后再次核验输入未变化。历史装配工具只用于显式历史候选，不能替代当前提交生产验收。原 namespace 隔离、普通 UID、实际 worker 摘要与原 init wait 门禁保持。
+
+## Linux 单次期限恢复验收
+
+Linux 的公开 Recovery::drain_until 必须沿用出生时原 pidfd，不使用数值 PID 重新打开或发信号。真实活动 child 在期限已过时，连续调用不得关闭控制输入、发送信号或消费 wait；原槽不可重用。真实线程 seccomp 拒绝 waitid 时，连续恢复必须传播原 EACCES 并保留同一 owner/容量，未过滤宿主随后可用原 pidfd 实际消费等待。正常清理只有实际 P_PIDFD wait 消费成功且原整个线程组退出后才返还槽位，测试以保留的原 pidfd 重复 wait 得到 ECHILD 和 POLLIN 为证。每轮仅使用 WNOHANG/零超时 poll，不进行内部 EINTR 循环、sleep 或阻塞 wait。前端有限退出仍须独立完成，不能由该接口推出。
