@@ -96,6 +96,8 @@ mod linux_atomic_pipes;
 mod linux_atomic_reaper_fixture;
 #[cfg(target_os = "linux")]
 mod linux_atomic_signal_mask;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_atomic_startup_reset_tests;
 #[cfg(target_os = "linux")]
 mod linux_scanner_filter;
 #[cfg(unix)]

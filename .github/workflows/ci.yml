@@ -219,6 +219,9 @@ jobs:
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_tests -- --test-threads=1
       - name: Native control writer stage diagnostics
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_probe_tests -- --nocapture --test-threads=1
+      - name: Native Linux queued startup error after socket reset
+        if: runner.os == 'Linux'
+        run: cargo test -p diskgraph-engine --lib --locked queued_child_failure_survives_reset_from_unread_init -- --nocapture
       - name: Native Linux normal wait authorization contract
         if: runner.os == 'Linux'
         run: |

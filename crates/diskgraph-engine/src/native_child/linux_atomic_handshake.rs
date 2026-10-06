@@ -18,7 +18,7 @@ impl LinuxAtomicHandshake {
         Self::send(child, 3, deadline, checkpoint)?;
         loop {
             Self::check(deadline, checkpoint)?;
-            match LinuxAtomicMessage::receive(child.startup_fd()?)? {
+            match Self::receive(child.startup_fd()?, deadline, checkpoint)? {
                 None => std::thread::sleep(Duration::from_millis(1)),
                 Some(None) => {
                     return Err(ChildError::io(
@@ -39,7 +39,7 @@ impl LinuxAtomicHandshake {
         Self::send(child, 4, deadline, checkpoint)?;
         loop {
             Self::check(deadline, checkpoint)?;
-            match LinuxAtomicMessage::receive(child.startup_fd()?)? {
+            match Self::receive(child.startup_fd()?, deadline, checkpoint)? {
                 None => std::thread::sleep(Duration::from_millis(1)),
                 Some(None) => {
                     // 原关系丢失仍失败；正常快速退出保真实 exit，但 EOF 自身从不设置 exec-success。
@@ -58,6 +58,16 @@ impl LinuxAtomicHandshake {
                 }
             }
         }
+    }
+
+    /// 参数：fd 为原启动 socket，deadline/checkpoint 沿用原请求；返回：有界消息或原错误。
+    pub(super) fn receive<E>(
+        fd: i32,
+        deadline: Instant,
+        checkpoint: &mut impl FnMut() -> Result<(), E>,
+    ) -> Result<Option<Option<LinuxAtomicMessage>>, ChildSpawnError<E>> {
+        Self::check(deadline, checkpoint)?;
+        LinuxAtomicMessage::receive(fd).map_err(Into::into)
     }
 
     fn send<E>(
