@@ -27,6 +27,7 @@ SOURCE_HASHES = {
 HARNESS_FILES = (
     "crates/diskgraph-engine/tests/hardening_benchmark.rs",
     "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
+    "crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs",
     "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs",
     "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs",
 )
@@ -181,7 +182,7 @@ def prepare(repo, work, output, report, harness):
     harness.save(output / "original-source.json", original)
     overlay = {}
     for name in HARNESS_FILES:
-        body = (repo / name).read_bytes()
+        body = harness.LEGACY_ADAPTER.encode() if name == harness.ADAPTER else (repo / name).read_bytes()
         for destination in (source / name, output / "harness" / name):
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(body)

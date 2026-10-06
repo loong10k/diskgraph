@@ -165,3 +165,9 @@ macOS本机strict候选测试二进制编译成功；独立真实Cargo driver提
 ## 移除私有阻塞管道兼容构造
 
 Windows完整Build继续指出OverlappedPipe::create无生产调用。该私有组合入口局部持有pending责任且使用TRUE同步连接；原生产WindowsChild已使用prepare_into/open_writer/start_connect/connect_ready原外槽。删除旧组合，三个实际IO/跨线程清理fixture在各自外槽直接使用同一原生非阻塞接口与原10秒期限，实际pending、地址稳定、线程移交和清理断言不改，不新增替代wrapper或把生产能力挪入cfg(test)。其余Windows未接入能力继续为阻塞项，非全平台完成。
+
+## 当前release成本的显式宿主
+
+当前hardening_benchmark仍用无worker的Engine::open，不能通过真实扫描成本验收。候选必须使用共享ScanWorkerSettings和原Recovery；同提交release helper由Cargo实际产物提供独立摘要/长度，运行前后核对且隔离每侧环境。缺现代API的历史baseline只保留原Engine::open，单列adapter源码摘要，不把不同适配称同源码；候选缺API必须失败。宿主与已回收子进程RSS分别记录，不将单进程RSS下降称总峰值下降。规模20k/200k/300deep、两轮交错与原Linux强身份资格不变；完成须实际Linux运行，不由Python工具或本机编译代替。
+
+成本工具绑定目标RED后2/0，历史诊断兼容11/0及493诊断16/0。当前候选基准与真实2a2f历史归档适配均通过本机严格测试二进制编译；编译不等于Linux扫描成本通过，尚无新20k/200k指标。历史诊断overlay清单显式增加第五个adapter，保留原历史扫描行为和独立摘要；原诊断生产patch模板/上游不改。证据见docs/benchmarks/current_native_cost_harness_2026_10_06。cf428b9 Windows测试因删除私有构造后遗留PipeSecurity import而编译失败，已移除；该轮未运行真实管道行为，仍须重跑。

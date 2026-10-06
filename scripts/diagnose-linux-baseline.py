@@ -28,6 +28,7 @@ RUN_CAP = 4 * 1024 * 1024
 HARNESS_FILES = (
     "crates/diskgraph-engine/tests/hardening_benchmark.rs",
     "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
+    "crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs",
     "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs",
     "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs",
 )
@@ -39,7 +40,7 @@ def load_harness(repo):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     if tuple(module.HARNESS) != HARNESS_FILES:
-        raise ValueError("expected exactly the four approved benchmark harness files")
+        raise ValueError("expected exactly the five approved benchmark harness files")
     return module
 
 
@@ -239,7 +240,7 @@ def prepare(repo, work, output, report, harness):
     harness.save(output / "original-source.json", original)
     overlay = {}
     for name in harness.HARNESS:
-        body = (repo / name).read_bytes()
+        body = harness.LEGACY_ADAPTER.encode() if name == harness.ADAPTER else (repo / name).read_bytes()
         for destination in (source / name, output / "harness" / name):
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(body)

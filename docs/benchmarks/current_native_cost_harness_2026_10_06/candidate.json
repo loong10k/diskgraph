@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "scope": "cost harness preparation; no Linux performance acceptance",
+  "local_platform": "aarch64-apple-darwin",
+  "native_candidate_strict_test_binary_build": true,
+  "historical_baseline_sha": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+  "historical_adapter_strict_test_binary_build": true,
+  "python_tests": {
+    "worker_binding": 2,
+    "diagnostic_compat": 11,
+    "diagnostic_493_compat": 16
+  },
+  "measurements_completed": 0,
+  "production_acceptance": false,
+  "rss_semantics": "separate parent/reaped-child high waters; sum is conservative, not simultaneous peak"
+}

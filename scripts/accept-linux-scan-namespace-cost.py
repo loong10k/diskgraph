@@ -15,14 +15,43 @@ import tempfile
 import time
 
 BASE = "5c9985b84645dcac8c82ae06903ee7249b06dbdd"
-NEW = "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d"
 HARNESS = ["crates/diskgraph-engine/tests/hardening_benchmark.rs",
            "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
+           "crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs",
            "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs",
            "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs"]
 ENV_KEYS = ["PATH", "RUSTFLAGS", "RUSTUP_TOOLCHAIN", "CARGO_BUILD_JOBS",
             "CARGO_TARGET_DIR", "TMPDIR", "LANG", "LC_ALL", "DG_MEASURE_CASE",
-            "DG_MEASURE_SHAPE", "DG_MEASURE_ROOT", "DG_MEASURE_DATA", "DISKGRAPH_BENCHMARK_OUTPUT"]
+            "DG_MEASURE_SHAPE", "DG_MEASURE_ROOT", "DG_MEASURE_DATA", "DISKGRAPH_BENCHMARK_OUTPUT",
+            "DISKGRAPH_SCAN_WORKER_PATH", "DISKGRAPH_SCAN_WORKER_SHA256", "DISKGRAPH_SCAN_WORKER_BYTES"]
+
+
+ADAPTER = "crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs"
+LEGACY_ADAPTER = """use diskgraph_engine::{Engine, EngineConfig, EngineError};
+use std::sync::Arc;
+/// 仅历史基线的原Engine入口；来源：该冻结提交的原公开API，不用于候选资格。
+pub(crate) struct BenchmarkEngine { pub(crate) engine: Arc<Engine> }
+impl BenchmarkEngine {
+    /// 参数：原基线配置；返回：原行为引擎，不增加worker或替换历史扫描路径。
+    pub(crate) fn open(config: EngineConfig) -> Result<Self, EngineError> {
+        Ok(Self { engine: Arc::new(Engine::open(config)?) })
+    }
+}
+"""
+
+
+def worker_environment(source):
+    """每侧只消费自己的实际Cargo产物，替换/尺寸变更均拒绝测量。"""
+    worker = source.get("worker")
+    if worker is None:
+        return {}
+    image = Path(worker["binary"])
+    if (not image.is_absolute() or image.is_symlink() or not image.is_file()
+            or image.stat().st_size != worker["bytes"] or sha(image) != worker["binary_sha256"]):
+        raise RuntimeError("measured worker differs from original build artifact")
+    return {"DISKGRAPH_SCAN_WORKER_PATH": str(image),
+            "DISKGRAPH_SCAN_WORKER_SHA256": worker["binary_sha256"],
+            "DISKGRAPH_SCAN_WORKER_BYTES": str(worker["bytes"])}
 
 
 def sha(path):
@@ -127,7 +156,9 @@ def verify_fixture(root, expected):
     assert identities.hexdigest() == expected["file_identity_sha256"]
 
 
-def build_pair(repo, work, output, report, baseline=BASE, candidate=NEW):
+def build_pair(repo, work, output, report, baseline=BASE, candidate=None):
+    if candidate is None:
+        candidate = commit_sha(subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip())
     binaries = {}
     for label, revision in [("baseline", baseline), ("candidate", candidate)]:
         exists = command(["git", "cat-file", "-e", f"{revision}^{{commit}}"], repo,
@@ -147,10 +178,33 @@ def build_pair(repo, work, output, report, baseline=BASE, candidate=NEW):
             destination = source / name
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(repo / name, destination)
+        native_host = "pub use scan_worker_settings::ScanWorkerSettings;" in (source / "crates/diskgraph-engine/src/lib.rs").read_text()
+        if not native_host:
+            if label != "baseline":
+                raise RuntimeError("candidate must implement explicit native scan host")
+            (source / ADAPTER).write_text(LEGACY_ADAPTER)
         overlaid = inventory(source)
         save(output / f"{label}-measured-source.json", overlaid)
         env = os.environ.copy()
         env["CARGO_TARGET_DIR"] = str(work / f"target-{label}")
+        worker = None
+        if native_host:
+            worker_build = command(["cargo", "build", "--release", "--locked", "-p", "diskgraph-scan-worker", "--message-format=json"],
+                                   source, output, f"{label}-worker-build", report, env=env, timeout=1800)
+            images = []
+            for line in (output / worker_build["stdout"]).read_text().splitlines():
+                if not line.startswith("{"):
+                    continue
+                record = json.loads(line)
+                if (record.get("reason") == "compiler-artifact" and record.get("target", {}).get("name") == "diskgraph-scan-worker"
+                        and record.get("target", {}).get("kind") == ["bin"] and record.get("executable")):
+                    images.append(Path(record["executable"]))
+            if len(images) != 1:
+                raise RuntimeError("one actual release scan worker artifact required")
+            image = images[0]
+            worker = {"binary": str(image), "binary_sha256": sha(image), "bytes": image.stat().st_size,
+                      "commit": revision, "source_manifest_sha256": sha(output / f"{label}-original-source.json")}
+            worker_environment({"worker": worker})
         build = command(["cargo", "test", "--release", "--locked", "-p", "diskgraph-engine",
                          "--test", "hardening_benchmark", "--no-run", "--message-format=json"],
                         source, output, f"{label}-build", report, env=env, timeout=1800)
@@ -171,7 +225,9 @@ def build_pair(repo, work, output, report, baseline=BASE, candidate=NEW):
             "original_manifest_sha256": sha(output / f"{label}-original-source.json"),
             "measured_manifest_sha256": sha(output / f"{label}-measured-source.json"),
             "lock_sha256": sha(source / "Cargo.lock"), "binary": str(binary),
-            "binary_sha256": sha(binary), "harness": {name: overlaid[name] for name in HARNESS}}
+            "binary_sha256": sha(binary), "harness": {name: overlaid[name] for name in HARNESS if name != ADAPTER},
+            "adapter_sha256": overlaid[ADAPTER], "adapter_mode": "explicit_native_host" if native_host else "historical_engine_open",
+            "worker": worker}
         save(output / "receipt.json", report)
     assert report["sources"]["baseline"]["harness"] == report["sources"]["candidate"]["harness"]
     return binaries
@@ -194,12 +250,16 @@ def measure(binaries, work, output, report, smoke):
                 result_path = output / f"{run}.json"
                 assert sha(binaries[label]) == report["sources"][label]["binary_sha256"]
                 env = os.environ.copy()
+                for key in ("DISKGRAPH_SCAN_WORKER_PATH", "DISKGRAPH_SCAN_WORKER_SHA256", "DISKGRAPH_SCAN_WORKER_BYTES"):
+                    env.pop(key, None)
+                env.update(worker_environment(report["sources"][label]))
                 env.update(DG_MEASURE_CASE=str(count), DG_MEASURE_SHAPE=shape,
                            DG_MEASURE_ROOT=str(root), DG_MEASURE_DATA=str(data),
                            DISKGRAPH_BENCHMARK_OUTPUT=str(result_path))
                 result = command([str(binaries[label]), "--exact", "measure_isolated_release_fixtures",
                                   "--ignored", "--nocapture", "--test-threads=1"],
                                  work, output, run, report, env=env, timeout=1200)
+                worker_environment(report["sources"][label])
                 metrics = json.loads(result_path.read_text())
                 assert len(metrics) == 1 and metrics[0]["files"] == count and metrics[0]["shape"] == shape
                 assert metrics[0]["native_qualification"]["qualified"] is True
@@ -231,8 +291,10 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--smoke", action="store_true", help="32-wide/3-deep only; not release scale acceptance")
     parser.add_argument("--baseline-sha", type=commit_sha, default=BASE)
-    parser.add_argument("--candidate-sha", type=commit_sha, default=NEW)
+    parser.add_argument("--candidate-sha", type=commit_sha, help="defaults to HEAD resolved once to an immutable full SHA")
     args = parser.parse_args()
+    if args.candidate_sha is None:
+        args.candidate_sha = commit_sha(subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[1], text=True).strip())
     if args.baseline_sha == args.candidate_sha:
         parser.error("baseline and candidate must be distinct immutable commits")
     output = args.output_dir.resolve()
@@ -242,7 +304,8 @@ def main():
         "script_sha256": sha(Path(__file__)), "commands": [], "sources": {}, "fixtures": [],
         "measurements": [], "pairs": [], "hardware": {"uname": list(platform.uname()), "cpu_count": os.cpu_count()},
         "limitations": ["Same runner and pre-created roots; caches are not dropped or claimed cold.",
-            "RSS is per-child process high-water, not Rust allocation or exclusive scan live memory.",
+            "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+            "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
             "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
             "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
             "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",

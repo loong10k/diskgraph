@@ -14,7 +14,6 @@ use windows_sys::Win32::System::Threading::{INFINITE, ResetEvent, WaitForSingleO
 
 use super::super::ChildError;
 use super::owned_handle::OwnedHandle;
-use super::pipe_security::PipeSecurity;
 use super::windows_overlapped_operation::WindowsOverlappedOperation;
 use super::windows_pipe_io_phase::WindowsPipeIoPhase;
 

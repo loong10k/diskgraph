@@ -2,7 +2,7 @@
 mod benchmark_support;
 
 use diskgraph_core::{PrincipalId, QueryBudget};
-use diskgraph_engine::{Engine, EngineConfig};
+use diskgraph_engine::EngineConfig;
 use std::{sync::Arc, time::Instant};
 
 fn percentile(mut values: Vec<f64>, fraction: f64) -> f64 {
@@ -24,6 +24,21 @@ fn rss() -> u64 {
     {
         let mut usage = std::mem::MaybeUninit::<libc::rusage>::uninit();
         if unsafe { libc::getrusage(libc::RUSAGE_SELF, usage.as_mut_ptr()) } == 0 {
+            let raw = unsafe { usage.assume_init() }.ru_maxrss as u64;
+            return if cfg!(target_os = "macos") {
+                raw
+            } else {
+                raw * 1024
+            };
+        }
+    }
+    0
+}
+fn child_rss() -> u64 {
+    #[cfg(unix)]
+    {
+        let mut usage = std::mem::MaybeUninit::<libc::rusage>::uninit();
+        if unsafe { libc::getrusage(libc::RUSAGE_CHILDREN, usage.as_mut_ptr()) } == 0 {
             let raw = unsafe { usage.assume_init() }.ru_maxrss as u64;
             return if cfg!(target_os = "macos") {
                 raw
@@ -112,14 +127,13 @@ fn measure_isolated_release_fixtures() {
         let data = std::env::var_os("DG_MEASURE_DATA")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|| dir.path().join("data"));
-        let engine = Arc::new(
-            Engine::open(EngineConfig {
-                data_dir: data.clone(),
-                max_nodes_per_scan: 1_000_000,
-                ..EngineConfig::default()
-            })
-            .unwrap(),
-        );
+        let host = benchmark_support::BenchmarkEngine::open(EngineConfig {
+            data_dir: data.clone(),
+            max_nodes_per_scan: 1_000_000,
+            ..EngineConfig::default()
+        })
+        .unwrap();
+        let engine = Arc::clone(&host.engine);
         let principal = PrincipalId::new("benchmark").unwrap();
         engine.bootstrap_local_admin(&principal).unwrap();
         let scope = engine
@@ -147,6 +161,7 @@ fn measure_isolated_release_fixtures() {
         outcome.unwrap();
         let scan_seconds = start.elapsed().as_secs_f64();
         let scan_peak_rss = rss();
+        let reaped_child_peak_rss = child_rss();
         let storage_after_scan = benchmark_support::storage(&data);
         let revision = engine.latest_revision(&scope).unwrap().unwrap();
         let qualification =
@@ -242,7 +257,7 @@ fn measure_isolated_release_fixtures() {
         let storage_after_queries = benchmark_support::storage(&data);
         let storage =
             benchmark_support::phases(storage_before, storage_after_scan, storage_after_queries);
-        let result = serde_json::json!({"native_qualification":qualification,"storage_phases":storage,"files":count,"shape":shape,"scan_seconds":scan_seconds,"process_scan_high_water_rss_bytes":scan_peak_rss,"process_total_high_water_rss_bytes":rss(),"database_bytes":size(&data.join("diskgraph.sqlite")),"wal_bytes":size(&data.join("diskgraph.sqlite-wal")),"before_full_revision_top20":full,"after_narrow_top20":narrow,"before_full_revision_candidates":candidate_full,"after_narrow_candidates":candidate_narrow,"budgeted_tree":budget_tree,"concurrent_4_readers":concurrent});
+        let result = serde_json::json!({"native_qualification":qualification,"storage_phases":storage,"files":count,"shape":shape,"scan_seconds":scan_seconds,"process_scan_high_water_rss_bytes":scan_peak_rss,"process_total_high_water_rss_bytes":rss(),"reaped_child_scan_high_water_rss_bytes":reaped_child_peak_rss,"scan_parent_and_child_high_water_sum_bytes":scan_peak_rss.saturating_add(reaped_child_peak_rss),"database_bytes":size(&data.join("diskgraph.sqlite")),"wal_bytes":size(&data.join("diskgraph.sqlite-wal")),"before_full_revision_top20":full,"after_narrow_top20":narrow,"before_full_revision_candidates":candidate_full,"after_narrow_candidates":candidate_narrow,"budgeted_tree":budget_tree,"concurrent_4_readers":concurrent});
         println!("{}", result);
         results.push(result);
     }
