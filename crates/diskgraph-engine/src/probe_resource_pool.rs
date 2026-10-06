@@ -100,6 +100,32 @@ impl ProbeResourcePool {
         slot.directory = owner;
         slot.directory_borrowed = false;
     }
+    /// 参数：原槽索引与代次；返回：仍活跃原会话的同一待恢复目录，拒绝回收中或已结束会话。
+    /// 仅显式重试调用；锁内移动 owner 并恢复借用标记，OS 清理继续在锁外执行。
+    pub(crate) fn reborrow_retained_directory(
+        &self,
+        index: usize,
+        generation: u64,
+    ) -> Result<GitPrivateDirectoryOwner, EngineError> {
+        let mut slots = self.slots.lock().map_err(|_| EngineError::Poisoned)?;
+        let slot = slots
+            .get_mut(index)
+            .ok_or(BusinessError::ResourceExhausted)?;
+        if slot.generation != generation
+            || !slot.reserved
+            || !slot.session_alive
+            || slot.directory_borrowed
+            || slot.draining
+        {
+            return Err(BusinessError::ResourceExhausted.into());
+        }
+        let owner = slot
+            .directory
+            .take()
+            .ok_or(BusinessError::ResourceExhausted)?;
+        slot.directory_borrowed = true;
+        Ok(owner)
+    }
     /// 参数：原代次、inner是否真实无owner；返回：无，session活着时禁止Recovery释放资源。
     pub(crate) fn finish_session(&self, index: usize, generation: u64, empty: bool) {
         let mut slots = self

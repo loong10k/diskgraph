@@ -114,3 +114,107 @@ fn borrowed_directory_prevents_session_reuse_after_budget_drop() {
         resume_unwind(payload);
     }
 }
+
+#[test]
+fn explicit_directory_retry_reborrows_only_original_live_session_owner() {
+    let (host, recovery) = ProbeHost::new(1).unwrap();
+    let mut budget = Some(ProbeBudget::new(&ProbeLimits::default()).unwrap());
+    budget
+        .as_mut()
+        .unwrap()
+        .bind_probe_host(Arc::clone(&host.registry))
+        .unwrap();
+    let mut private = GitPrivateDirectory::new(budget.as_mut().unwrap()).unwrap();
+    let root = private.path().to_owned();
+    let path = root.join("deny-delete");
+    private
+        .write(&path, b"original payload", budget.as_mut().unwrap())
+        .unwrap();
+    let held = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&path)
+        .unwrap();
+    assert!(private.complete(Ok(7)).unwrap_err().contains("cleanup"));
+    assert_eq!(recovery.occupied_slots().unwrap(), 1);
+    assert!(
+        !recovery.drain().unwrap(),
+        "live original session cannot be reclaimed"
+    );
+    assert!(
+        host.registry.reserve().is_err(),
+        "failed deletion retains the original capacity"
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), b"original payload");
+    drop(held);
+    // 原代次原 owner 重新借出并实际删除；不得按名称建立新 owner。
+    eprintln!("DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_READY=1");
+    let observed = catch_unwind(AssertUnwindSafe(|| {
+        assert_eq!(private.complete(Ok(8)).unwrap(), 8);
+    }));
+    if let Err(payload) = observed {
+        // 旧实现的确切 RED 也实际恢复原 owner；继续原 payload，不遗留测试私有数据。
+        drop(budget.take());
+        assert!(recovery.drain().unwrap());
+        assert!(!root.exists());
+        eprintln!("DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_CLEANUP=1");
+        resume_unwind(payload);
+    }
+    assert!(!root.exists());
+    assert_eq!(
+        recovery.occupied_slots().unwrap(),
+        1,
+        "live session still holds its original slot"
+    );
+    drop(budget.take());
+    assert!(recovery.drain().unwrap());
+    assert_eq!(recovery.occupied_slots().unwrap(), 0);
+    eprintln!("DG_WINDOWS_ORIGINAL_DIRECTORY_EXPLICIT_RETRY=1");
+}
+
+#[test]
+fn directory_retry_after_session_release_cannot_take_recovery_owner() {
+    let (host, recovery) = ProbeHost::new(1).unwrap();
+    let mut budget = Some(ProbeBudget::new(&ProbeLimits::default()).unwrap());
+    budget
+        .as_mut()
+        .unwrap()
+        .bind_probe_host(Arc::clone(&host.registry))
+        .unwrap();
+    let mut private = GitPrivateDirectory::new(budget.as_mut().unwrap()).unwrap();
+    let root = private.path().to_owned();
+    let path = root.join("deny-delete");
+    private
+        .write(&path, b"original payload", budget.as_mut().unwrap())
+        .unwrap();
+    let held = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(FILE_SHARE_READ)
+        .open(&path)
+        .unwrap();
+    assert!(private.complete(Ok(7)).unwrap_err().contains("cleanup"));
+    drop(budget.take());
+    assert!(
+        private
+            .complete(Ok(8))
+            .unwrap_err()
+            .contains("retained for recovery")
+    );
+    assert_eq!(recovery.occupied_slots().unwrap(), 1);
+    drop(private);
+    assert_eq!(
+        recovery.occupied_slots().unwrap(),
+        1,
+        "Drop must not reborrow the owner"
+    );
+    assert!(
+        recovery.drain().is_err(),
+        "original denied deletion still fails"
+    );
+    assert!(root.exists());
+    drop(held);
+    assert!(recovery.drain().unwrap());
+    assert!(!root.exists());
+    assert_eq!(recovery.occupied_slots().unwrap(), 0);
+    eprintln!("DG_WINDOWS_RELEASED_SESSION_CANNOT_REBORROW_DIRECTORY=1");
+}

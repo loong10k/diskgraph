@@ -4,6 +4,9 @@ use super::ProbeLimits;
 #[cfg(unix)]
 use super::git_isolation_fixture::GitIsolationFixture;
 use super::git_private_directory::GitPrivateDirectory;
+#[cfg(windows)]
+use super::native_probe_test_budget::NativeProbeTestBudget as ProbeBudget;
+#[cfg(not(windows))]
 use super::probe_budget::ProbeBudget;
 #[cfg(unix)]
 use super::{GitSample, sample_git_bounded};
@@ -15,7 +18,9 @@ fn explicit_completion_removes_private_data_before_success() {
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
     let path = private.path().to_path_buf();
-    std::fs::write(path.join("secret"), b"private").unwrap();
+    private
+        .write(&path.join("secret"), b"private", &mut probe)
+        .unwrap();
     assert_eq!(private.complete(Ok(7)).unwrap(), 7);
     assert!(!path.exists());
     assert_eq!(private.complete(Ok(8)).unwrap(), 8);
@@ -27,7 +32,13 @@ fn missing_private_directory_refuses_success_until_original_object_returns() {
     let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
     let path = private.path().to_path_buf();
     let moved = path.with_file_name(format!("diskgraph-git-moved-{}", uuid::Uuid::new_v4()));
-    std::fs::write(path.join("retained"), b"original private payload").unwrap();
+    private
+        .write(
+            &path.join("retained"),
+            b"original private payload",
+            &mut probe,
+        )
+        .unwrap();
     std::fs::rename(&path, &moved).unwrap();
     let observed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         let error = private.complete(Ok(9)).unwrap_err();
@@ -155,7 +166,7 @@ fn open_native_handle_prevents_successful_completion() {
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let mut private = GitPrivateDirectory::new(&mut probe).unwrap();
     let path = private.path().join("held");
-    std::fs::write(&path, b"private").unwrap();
+    private.write(&path, b"private", &mut probe).unwrap();
     let held = std::fs::OpenOptions::new()
         .read(true)
         .share_mode(FILE_SHARE_READ)

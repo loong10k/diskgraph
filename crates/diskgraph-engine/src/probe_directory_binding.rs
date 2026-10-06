@@ -27,17 +27,27 @@ impl ProbeDirectoryBinding {
             returned: false,
         }
     }
-    /// 参数：原目录payload；返回：显式清理结果，child未完成或删除失败则无分配交还同owner。
+    /// 参数：原目录payload、retry_retained 表示显式重试；返回：真实清理结果，失败交还同owner。
+    /// Drop 必须传 false；只有同代次原会话仍活跃时才能重新借出已移交目录。
     pub(crate) fn complete(
         &mut self,
         owner: &mut Option<GitPrivateDirectoryOwner>,
+        retry_retained: bool,
     ) -> Result<(), String> {
         if self.returned {
-            return if owner.is_some() {
-                Ok(())
-            } else {
-                Err("private Git owner retained for recovery".into())
-            };
+            if owner.is_some() {
+                return Ok(());
+            }
+            if !retry_retained {
+                return Err("private Git owner retained for recovery".into());
+            }
+            // 显式重试只重新借出原代次原 owner；失败仍由原恢复池持有。
+            *owner = Some(
+                self.pool
+                    .reborrow_retained_directory(self.index, self.generation)
+                    .map_err(|error| format!("private Git owner retained for recovery: {error}"))?,
+            );
+            self.returned = false;
         }
         let result = match self.inner.occupied() {
             Ok(0) => owner.as_mut().ok_or("private Git owner absent")?.cleanup(),

@@ -403,6 +403,17 @@ jobs:
           if-no-files-found: error
       - name: Native queue deadline isolation
         run: cargo test -p diskgraph-store --lib --locked process_job_enqueue_deadline_tests -- --test-threads=1
+      - name: Native Windows original directory retry red and green
+        if: runner.os == 'Windows'
+        timeout-minutes: 10
+        run: python scripts/qualify_windows_directory_retry.py
+      - name: Preserve native Windows directory retry evidence
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-directory-retry-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-windows-directory-retry/
+          if-no-files-found: error
       - name: Native control write deadline isolation
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_tests -- --test-threads=1
       - name: Native control writer stage diagnostics
@@ -443,6 +454,7 @@ jobs:
           cargo test -p diskgraph-ffi --lib --locked two_native_handles_for_a_coalesced_job_return_the_same_revision -- --nocapture
           cargo test -p diskgraph-ffi --lib --locked legacy_service_scan_does_not_restore_revoked_admin_grant -- --nocapture
       - name: Test
+        timeout-minutes: 30
         run: cargo test --workspace --all-targets --locked --no-fail-fast
       - name: Native Linux identity and process scan fixtures
         if: always() && runner.os == 'Linux' && steps.linux_product_worker.outcome == 'success'

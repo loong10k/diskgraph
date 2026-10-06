@@ -372,7 +372,7 @@ impl GitPrivateDirectory {
     /// 返回：实际删除成功时保留原结果；失败或原名称缺失时拒绝原成功，并保留主/清理诊断。
     /// 原名称缺失不证明已移动 owner 被删除；身份复核和删除非原子，不提供同权限竞态隔离。
     pub(super) fn complete<T>(&mut self, result: Result<T, String>) -> Result<T, String> {
-        let cleanup = self.cleanup();
+        let cleanup = self.cleanup(true);
         match (result, cleanup) {
             (Ok(value), Ok(())) => Ok(value),
             (Err(primary), Ok(())) => Err(primary),
@@ -383,10 +383,12 @@ impl GitPrivateDirectory {
         }
     }
 
-    fn cleanup(&mut self) -> Result<(), String> {
+    fn cleanup(&mut self, retry_retained: bool) -> Result<(), String> {
+        #[cfg(not(windows))]
+        let _ = retry_retained;
         #[cfg(windows)]
         if let Some(binding) = self.binding.as_mut() {
-            return binding.complete(&mut self.owner);
+            return binding.complete(&mut self.owner, retry_retained);
         }
         self.owner
             .as_mut()
@@ -398,6 +400,7 @@ impl GitPrivateDirectory {
 impl Drop for GitPrivateDirectory {
     fn drop(&mut self) {
         // Drop 仅兜底；公开成功/失败必须先经 complete 显式确认。
-        let _ = self.cleanup();
+        // Drop 不重新借出已移交的 owner，避免隐式恢复消耗业务原期限之外的 OS 清理。
+        let _ = self.cleanup(false);
     }
 }
