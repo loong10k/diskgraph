@@ -400,7 +400,23 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
     let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
     std::fs::write(parent.join("original/first"), b"first").unwrap();
     std::fs::write(parent.join("original/second"), b"second").unwrap();
-    let (initial, name, _) = cursor.open_next_cleanup_child(&mut probe).unwrap().unwrap();
+    let parent_label = parent.join("original");
+    let mut capacity = super::git_private_capacity::GitPrivateCapacity::new(
+        &parent_label,
+        128 << 20,
+        0,
+        &mut probe,
+    )
+    .unwrap();
+    for name in ["first", "second"] {
+        let path = parent_label.join(name);
+        let file = std::fs::File::open(&path).unwrap();
+        capacity.observe(&path, &file, &mut probe).unwrap();
+    }
+    let (initial, name, _) = cursor
+        .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
     let identity = GitPrivateAllocation::from_file(&initial).unwrap();
     drop(initial);
     assert!(
@@ -416,7 +432,7 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
         .unwrap();
     assert_eq!(
         cursor
-            .open_next_cleanup_child(&mut probe)
+            .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
             .unwrap_err()
             .raw_os_error(),
         Some(32)
@@ -428,7 +444,10 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
         .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
         .open(&path)
         .unwrap();
-    let (file, retried_name, _) = cursor.open_next_cleanup_child(&mut probe).unwrap().unwrap();
+    let (file, retried_name, _) = cursor
+        .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
     assert_eq!(retried_name, name);
     assert!(identity.same_identity(&GitPrivateAllocation::from_file(&file).unwrap()));
     mark_fixture_delete(&file);
@@ -447,7 +466,10 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
     drop(external);
     assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
     assert_fixture_absent(&path);
-    let (second, second_name, _) = cursor.open_next_cleanup_child(&mut probe).unwrap().unwrap();
+    let (second, second_name, _) = cursor
+        .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
+        .unwrap()
+        .unwrap();
     assert_ne!(
         second_name, name,
         "only final confirmation permits next child"
@@ -457,7 +479,7 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
     assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
     assert!(
         cursor
-            .open_next_cleanup_child(&mut probe)
+            .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
             .unwrap()
             .is_none()
     );
@@ -486,4 +508,48 @@ fn native_id_protocol_refuses_loss_and_preserves_refs_full_identity() {
     }
     // 此案只验证格式边界，不代替ReFS卷上的原生文件系统验收。
     println!("DG_NATIVE_ID_FORMAT_LOSS_REFUSED=1");
+}
+
+#[test]
+fn cleanup_child_requires_original_owner_registration_and_rejects_foreign_replacement() {
+    for registered in [false, true] {
+        let (_temp, parent, _root, mut cursor, mut probe) = cleanup_fixture();
+        let label = parent.join("original");
+        let path = label.join("owned");
+        let mut capacity =
+            super::git_private_capacity::GitPrivateCapacity::new(&label, 128 << 20, 0, &mut probe)
+                .unwrap();
+        std::fs::write(&path, b"original").unwrap();
+        if registered {
+            let file = std::fs::File::open(&path).unwrap();
+            capacity.observe(&path, &file, &mut probe).unwrap();
+            drop(file);
+            std::fs::rename(&path, parent.join("retained")).unwrap();
+            std::fs::write(&path, b"foreign").unwrap();
+        }
+        let error = cursor
+            .open_next_cleanup_child(&label, &capacity, &mut probe)
+            .unwrap_err();
+        assert!(error.to_string().contains(if registered {
+            "registered identity changed"
+        } else {
+            "not registered"
+        }));
+        assert!(
+            cursor.next_entry(&mut probe).is_err(),
+            "unverified child cannot be skipped"
+        );
+        assert_eq!(
+            std::fs::read(&path).unwrap(),
+            if registered {
+                b"foreign".as_slice()
+            } else {
+                b"original".as_slice()
+            }
+        );
+        if registered {
+            assert_eq!(std::fs::read(parent.join("retained")).unwrap(), b"original");
+        }
+    }
+    println!("DG_CLEANUP_REQUIRES_ORIGINAL_OWNER_LEDGER=1");
 }

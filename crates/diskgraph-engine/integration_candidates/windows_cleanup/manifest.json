@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "870ef59f1cbad012d68ec9695a4d536fd809121b3c8b5936c8583cffa84d372b",
+  "archive_sha256": "08a2f6641aa2648a72c15431f5f3b55b2044707dcf733d744dc99fc155ce0072",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "bcdc70bdb9066794479c407005162471a6bf82dbbb1a73e01e587bb0671d9ba5",
@@ -502,11 +502,11 @@
     "crates/diskgraph-scan-worker/src/worker_scan_request.rs": "2aac87967aefa0f45eadac8f7b5e7fe03031acf277b58c86c4eef888e475f25f",
     "crates/diskgraph-scan-worker/src/worker_terminal_budget.rs": "cfb4c5e72187418ea9310475418fa3e55e5925901fa09c574b78eb6d38963dc0",
     "crates/diskgraph-scan-worker/src/worker_tree.rs": "c764035be4885e77529997b189e24a53ff78c8d90cd9c573bfbc6aeca536791f",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "5f86808395d1eabe5a53d53b5050b694060af62a37ebe7cc289f54e02f9508ac",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "74a6619771f544ed0a0098ad6d942224cd01b9b93534f3a244da85a48fb7e3f9",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "1dcd0bd2f4b3c4d7f95f643b4a279d3b6e2a2923ec9b45cc475018fa9aced37d",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "3854b6fc5a9fef5897052a7a5f5dedac0b8546f9ea0fc21a8302d3fd6dccbc55",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "4824147d7b457cc5a73f1f08d72afe14cc9de42795c1f0012d7f2d1e5b89730f",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "477808200a191db7f89965da2709f506515606ed87fd6f2fe89c429d5cc3ce8f"
+    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "64ebb49f5b0651c6a40b0378ebdc6fa3811f2e7b9a79ef851308513d3c7efc7e"
   },
   "cleanup_cases": [
     "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
@@ -648,6 +648,7 @@
     "live_evidence::windows_git_directory_cursor_tests::verified_cleanup_child_preserves_real_share_read_conflict_and_retries_same_id",
     "live_evidence::windows_git_directory_cursor_tests::pending_original_deletion_is_not_complete_until_external_handle_closes",
     "live_evidence::windows_git_directory_cursor_tests::cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
-    "live_evidence::windows_git_directory_cursor_tests::native_id_protocol_refuses_loss_and_preserves_refs_full_identity"
+    "live_evidence::windows_git_directory_cursor_tests::native_id_protocol_refuses_loss_and_preserves_refs_full_identity",
+    "live_evidence::windows_git_directory_cursor_tests::cleanup_child_requires_original_owner_registration_and_rejects_foreign_replacement"
   ]
 }

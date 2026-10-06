@@ -3,7 +3,7 @@
   "base_ref": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
   "production_ready": false,
-  "archive_sha256": "6309912519be4330778c38f371bfc80b0c59b3e5a14440b5be99262b622a7ca1",
+  "archive_sha256": "cbcab83fa1c4177ea206172bed41aad9371917c7c92d0eeb9ad4a7faffa7fdcf",
   "sources": {
     "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1",
     "crates/diskgraph-cli/Cargo.toml": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71",
@@ -609,11 +609,11 @@
     "crates/diskgraph-mcp/src/http_limits.rs": "117e83d2e25435adfec5c9a863259d790aebc5a71fa1b5065cfbc6c2362be73e",
     "crates/diskgraph-mcp/src/http_response.rs": "80b1b4a57911abe766205cba47bd199f3c99722f40fd1cc8cc2b523196bb6dd2",
     "crates/diskgraph-mcp/src/http_server_config.rs": "c5c57d9acaa6df5368ad582a836c6da00e1e30843229efc9f2989f85b8338e75",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "5f86808395d1eabe5a53d53b5050b694060af62a37ebe7cc289f54e02f9508ac",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "74a6619771f544ed0a0098ad6d942224cd01b9b93534f3a244da85a48fb7e3f9",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "1dcd0bd2f4b3c4d7f95f643b4a279d3b6e2a2923ec9b45cc475018fa9aced37d",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "3854b6fc5a9fef5897052a7a5f5dedac0b8546f9ea0fc21a8302d3fd6dccbc55",
     "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "2f78b5c13cf144fc5393a9ecd89070930b677e91e34530e66c6a28db34b8a3f7",
     "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "4824147d7b457cc5a73f1f08d72afe14cc9de42795c1f0012d7f2d1e5b89730f",
-    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "477808200a191db7f89965da2709f506515606ed87fd6f2fe89c429d5cc3ce8f"
+    "crates/diskgraph-engine/src/live_evidence/windows_git_native_id_protocol.rs": "64ebb49f5b0651c6a40b0378ebdc6fa3811f2e7b9a79ef851308513d3c7efc7e"
   },
   "ordinary_cases": [
     "macos_installed_worker_fixture_tests::macos_installed_helper_returns_complete_tree_after_real_normal_wait",

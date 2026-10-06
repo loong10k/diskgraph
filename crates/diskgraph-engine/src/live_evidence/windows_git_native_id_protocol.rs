@@ -1,9 +1,8 @@
 use std::fs::File;
 use std::io;
 use std::os::windows::io::AsRawHandle;
-use windows_sys::Win32::Storage::FileSystem::{
-    FILE_SUPPORTS_OPEN_BY_FILE_ID, GetVolumeInformationByHandleW,
-};
+use windows_sys::Win32::Storage::FileSystem::GetVolumeInformationByHandleW;
+use windows_sys::Win32::System::SystemServices::FILE_SUPPORTS_OPEN_BY_FILE_ID;
 
 /// 原卷的原生ID操作格式；来源：SDK FILE_ID_DESCRIPTOR和卷能力查询，无Java对等对象。
 /// 身份记录始终为完整128位；NTFS只允许高64位全零的无损原生文件引用格式。

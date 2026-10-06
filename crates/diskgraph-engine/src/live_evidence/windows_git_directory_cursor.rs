@@ -27,13 +27,20 @@ pub(super) struct WindowsGitDirectoryCursor {
 }
 
 impl WindowsGitDirectoryCursor {
-    /// 参数：probe为本轮清理预算；返回：当前待删子项句柄/原名称/属性，或真正EOF。
-    /// 打开或身份查询失败仍保留同一枚举子项，调用者须先核对owner账本再删除。
+    /// 参数：parent_label为原账本父键、capacity为owner账本、probe为本轮预算。
+    /// 返回：原父/子登记身份及文件版本均核验后的当前子项句柄/名称/属性，或真正EOF。
+    /// 打开或账本核验失败仍保留同一枚举子项，不收养陌生对象。
     /// 仅最终确认原ID消失后前进；普通枚举不得越过未完成清理项。
     pub(super) fn open_next_cleanup_child(
         &mut self,
+        parent_label: &std::path::Path,
+        capacity: &super::git_private_capacity::GitPrivateCapacity,
         probe: &mut ProbeBudget,
     ) -> std::io::Result<Option<(File, OsString, u32)>> {
+        probe.check().map_err(std::io::Error::other)?;
+        capacity
+            .check_identity(parent_label, &self.file, true)
+            .map_err(std::io::Error::other)?;
         if self.cleanup_entry.is_none() {
             self.cleanup_entry = self.next_entry(probe).map_err(std::io::Error::other)?;
         }
@@ -43,6 +50,10 @@ impl WindowsGitDirectoryCursor {
         let directory =
             attributes & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_DIRECTORY != 0;
         let file = self.open_verified_child(name, *id, directory, probe)?;
+        // 词法路径只作原账本键，不用于重新打开对象；句柄必须属于本owner登记身份。
+        capacity
+            .check_identity(&parent_label.join(name), &file, directory)
+            .map_err(std::io::Error::other)?;
         let identity = GitPrivateAllocation::from_file(&file).map_err(std::io::Error::other)?;
         if let Some(expected) = self.cleanup_identity.as_ref()
             && !expected.same_identity(&identity)

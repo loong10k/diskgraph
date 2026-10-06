@@ -96,3 +96,11 @@ CI37419410021在8cf92c6终态failure，72/74通过：父shareREAD夹具移动错
 ### 按原卷原生ID协议选择，身份记录不降级
 
 CI37420281955在b11d0d0仍72/74失败；同协议保活hint正控、仍存在反控和pending5检查已通过，两个最终关闭后的确认均仍87。不能把87解释为删除完成。官方FILE_ID_DESCRIPTOR明确区分FileId和ReFS ExtendedFileId；候选在任何打开前按held hint的GetVolumeInformationByHandleW文件系统名+OPEN_BY_FILE_ID能力选定原生格式：NTFS仅允许原完整128位ID高64位已验证全零时使用无损原生8字节文件引用操作；ReFS传递全部16字节。所有身份记录、卷及返回句柄比较仍保留完整128位；高位非零、未知FS/能力明确拒绝，不在16字节失败后回退，不按路径重开，不改判87。每次仍保活hint完整身份正控，预算首末检查；新软件边界案只验证高位丢失拒绝和ReFS全位保留，不宣称真实ReFS通过。现有原生两个最终缺失断言不变，结果待75项原生验收。依据https://learn.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-file_id_descriptor 和 https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumeinformationbyhandlew 。
+
+### 清理游标强制owner登记核验
+
+open_next_cleanup_child的内部接口强制接收原父账本键及owner容量账本，原父句柄身份、子句柄完整身份/类型和已登记文件版本必须匹配后才返回。父键仅用于词法账本查找，始终通过原父句柄打开，不以标签重开路径。未登记子项及枚举前发生的已登记同名陌生替换均拒绝，保留当前项并阻止跳过。真实临时目录正反控加入精确原生清单，原恢复游标用登记后的两个文件运行；本项尚未原生执行，不宣称完整递归walker/owner/Pool接通。
+
+### 原生SDK导入编译失败保留
+
+CI37421378278在5d26405终态failure，旧目录枚举RED构建阶段E0432：FILE_SUPPORTS_OPEN_BY_FILE_ID实际位于已启用的Win32_System_SystemServices，错误导入FileSystem。候选原生行为阶段被跳过，不能计作75项通过或删除确认修复。原始receipt和JSON编译stdout/stderr压缩保留于windows_native_sdk_import_failure_2026_10_06。修正为SDK真实模块导入，不改能力标志值或放宽身份/删除断言；与强制owner账本新案一起等待76项原生验收。

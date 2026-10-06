@@ -1,0 +1,9 @@
+{
+  "run": 37421378278,
+  "sha": "5d2640564ca6b41c31277f6a56d598531904f25d",
+  "production_acceptance": false,
+  "failure": "E0432 FILE_SUPPORTS_OPEN_BY_FILE_ID imported from FileSystem instead of SystemServices",
+  "native_candidate_cases_executed": false,
+  "fix": "Use existing enabled Win32_System_SystemServices SDK module; no capability weakening",
+  "pending": "76 exact native cases including mandatory owner ledger and final deletion witness"
+}
