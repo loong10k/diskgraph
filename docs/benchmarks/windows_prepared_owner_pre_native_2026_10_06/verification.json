@@ -1,0 +1,33 @@
+{
+  "production_ready": false,
+  "windows_native_executed": false,
+  "candidate_source_files": 495,
+  "candidate_native_cases": 56,
+  "old_source_case_comparison_pending": true,
+  "macos_native_child_regression": {
+    "passed": 39,
+    "failed": 0,
+    "ignored": 0
+  },
+  "qualifier_guards_passed": 32,
+  "fmt_passed": true,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "32f2d8abca5e964ce74f935c5d10f7ef8d6b3119b1b42b1c63a08613bc907322",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs": "fd248698b2bf71c3b5cf45064f92d7216a5ad022fe0e92a8b3ecc3c2194bc2c8",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "c04f364ea8c1418a69612d488e3b36c75e427c6543ed0c90420424c0e7045094",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs": "9edf0d944fc83eea0d355446374d6ee8cd3267f8f1c762637e846825f13ba2d3",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_prepared_tests.rs": "acc3bf6b2ea8b5515b2db67c157bbaeafeeea37b5d4a5f0e7462a6f830f33387",
+    "crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs": "91419fc8857ba2c53827c850401b93683054f35523d1dfffad117898843385f6",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "2087987a386ae9f7db3f431d65b6b0101f7fd89ef4b5565dacc9d52eda0c63ed",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs": "c2a7dda8d402a343178f1b4e42592a8807d2e8d0dd7ebaaf12a43372c93d272d",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs": "83f96bb275e14439e32f2b6cbac49ceea8bdcda86f4c733d9b017fd63bbfa4d3",
+    "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs": "e76c83c9c40d7d7d8414cccc6bf651faf0c9ced35b82943c5377e4d082f7b11b"
+  },
+  "remaining": [
+    "finite product birth scheduling",
+    "Windows trusted installation and loader",
+    "native prepared birth RED/GREEN",
+    "private directory walker and pool integration",
+    "full same-source platform gates and performance"
+  ]
+}

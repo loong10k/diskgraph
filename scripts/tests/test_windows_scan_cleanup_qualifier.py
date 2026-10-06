@@ -37,8 +37,9 @@ class WindowsCleanupQualifierTests(unittest.TestCase):
             for name in ("candidate.tar.gz", "manifest.json"):
                 (destination / name).write_bytes((source / name).read_bytes())
             manifest = qualifier.shared.mount(checkout, qualifier.CANDIDATE)
-            self.assertEqual(len(manifest["sources"]), 491)
+            self.assertEqual(len(manifest["sources"]), 495)
             qualifier.check_prepared_connect_cases(manifest["prepared_connect_cases"])
+            qualifier.check_prepared_job_cases(manifest["prepared_job_cases"])
             qualifier.check_cases(manifest["cleanup_cases"])
             qualifier.check_prerequisite_cases(manifest["io_prerequisite_cases"])
             qualifier.check_birth_cases(manifest["birth_cases"])
@@ -179,3 +180,40 @@ class PreparedConnectInventoryTests(unittest.TestCase):
                         list(qualifier.IO_PREREQUISITE_CASES)):
             with self.assertRaises(ValueError):
                 qualifier.check_prepared_connect_cases(invalid)
+
+
+class PreparedJobInventoryTests(unittest.TestCase):
+    def test_prepared_job_requires_original_io_capacity_and_actual_create_failure(self):
+        valid = list(qualifier.PREPARED_JOB_CASES)
+        qualifier.check_prepared_job_cases(valid)
+        for invalid in ([], valid[:-1], valid + [valid[0]], list(qualifier.PREPARED_CONNECT_CASES)):
+            with self.assertRaises(ValueError):
+                qualifier.check_prepared_job_cases(invalid)
+
+
+class PreparedBirthBaselineGuardTests(unittest.TestCase):
+    def test_only_original_lost_owner_failure_is_target_red(self):
+        import qualify_windows_prepared_birth_baseline as baseline
+        stdout = "DG_ACTUAL_CREATE_PROCESS_FAILURE=267\ntest " + baseline.CASE + " ... FAILED\ntest result: FAILED. 0 passed; 1 failed; 0 ignored;"
+        stderr = "actual failed CreateProcess must retain original Job"
+        baseline.check_target_red(stdout, stderr)
+        for out, err in (("", stderr), (stdout, "unrelated failure"),
+                         (stdout.replace("1 failed", "0 failed"), stderr),
+                         (stdout.replace("0 ignored", "1 ignored"), stderr)):
+            with self.assertRaises(RuntimeError):
+                baseline.check_target_red(out, err)
+
+
+class PreparedBirthBaselineArchiveTests(unittest.TestCase):
+    def test_baseline_mounts_exact_original_sources_with_native_regression(self):
+        import qualify_windows_prepared_birth_baseline as baseline
+        with tempfile.TemporaryDirectory() as directory:
+            checkout = Path(directory)
+            source = SCRIPTS.parent / baseline.CANDIDATE
+            destination = checkout / baseline.CANDIDATE
+            destination.mkdir(parents=True)
+            for name in ("candidate.tar.gz", "manifest.json"):
+                (destination / name).write_bytes((source / name).read_bytes())
+            manifest = qualifier.shared.mount(checkout, baseline.CANDIDATE)
+            self.assertEqual(len(manifest["sources"]), 491)
+            self.assertEqual(manifest["baseline_expected_failure_case"], baseline.CASE)

@@ -23,6 +23,8 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p test_macos_installed_qualifier.py -v
       - name: Verify exact native inventory and platform gate
         run: python -m unittest discover -s scripts/tests -p test_windows_scan_cleanup_qualifier.py -v
+      - name: Actual old-source prepared birth lost-owner RED
+        run: python scripts/qualify_windows_prepared_birth_baseline.py --output-dir "${{ runner.temp }}/windows-prepared-birth-baseline"
       - name: Actual Windows owner cleanup qualification
         run: python scripts/qualify_windows_scan_cleanup.py --output-dir "${{ runner.temp }}/windows-cleanup"
       - name: Original source normal-exit comparison
@@ -35,6 +37,8 @@ jobs:
           name: windows-cleanup-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/windows-cleanup
+            ${{ runner.temp }}/windows-prepared-birth-baseline
+            crates/diskgraph-engine/integration_candidates/windows_prepared_birth_baseline
             ${{ runner.temp }}/windows-cleanup-baseline
             crates/diskgraph-engine/integration_candidates/windows_cleanup
             crates/diskgraph-engine/integration_candidates/windows_cleanup_baseline

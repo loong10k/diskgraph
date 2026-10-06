@@ -5,7 +5,7 @@
   "production_ready": false,
   "production_cleanup_algorithm_modified": true,
   "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
-  "archive_sha256": "b5e101a2eb81075787f26c6b918b868492959e720708096ad3dcd62d471a0027",
+  "archive_sha256": "3ebf7d03e6841450d2817f918d8b5a5e3a50e99fa04fec274989ebe2cf24fd29",
   "sources": {
     "Cargo.lock": "8fffb40856a285e233270bd77a1a838571685495ae8e42148d355c29276b3d17",
     "crates/diskgraph-engine/Cargo.toml": "91aa33ed860e739bdd6ea62fe4fe87de6bfbd15029c475742cb507a4ceb1d3c1",
@@ -271,21 +271,17 @@
     "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "8836288ae5cc5191845bc198514cd096b0d480a29604676e5ac06c2e959c14d9",
     "crates/diskgraph-engine/src/native_child/windows/attribute_list.rs": "f60b4b08868a17ecd3442b60651249992f967234a996faa8e088306a07483039",
     "crates/diskgraph-engine/src/native_child/windows/cleanup_progress.rs": "2a313acc7acbd8c342038f4a0aaeb9c6a34e523f06a5e4a93d9476b27b185309",
-    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "ea8351487c3019d8a9669425663765fc7eaefa8536bc9b112ece0008219b9feb",
-    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "2087987a386ae9f7db3f431d65b6b0101f7fd89ef4b5565dacc9d52eda0c63ed",
-    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe_prepare.rs": "c2a7dda8d402a343178f1b4e42592a8807d2e8d0dd7ebaaf12a43372c93d272d",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "691c76c50f50ef4b1662c7414a75a18207476726e5df1438d6541ed2e2b5dbcf",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "753dd8a72cdd870ec0ca7009c684772c89035ae01e63ed5aca58342080bbccce",
     "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "486d4d3e95f69c6e5b1314f8a5fe63ed02e1abb233cfb86c2b5ffb49020645a8",
-    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs": "83f96bb275e14439e32f2b6cbac49ceea8bdcda86f4c733d9b017fd63bbfa4d3",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe_prepare.rs": "1fce0a98929c9d54077255d9e3f9f61e61cd327655fea8578d52f9d9e70ab749",
     "crates/diskgraph-engine/src/native_child/windows/owned_handle.rs": "0dafd2d88bf6531c189133cc3af078e8b7d97b01292767ae1f9f87e3790f7203",
     "crates/diskgraph-engine/src/native_child/windows/pipe_security.rs": "d21c5272a147438e86575ca7a157a90056b2cd05a21fcb85e0a62802ccfc32d7",
-    "crates/diskgraph-engine/src/native_child/windows/windows_birth_phase.rs": "91419fc8857ba2c53827c850401b93683054f35523d1dfffad117898843385f6",
     "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs": "e76c83c9c40d7d7d8414cccc6bf651faf0c9ced35b82943c5377e4d082f7b11b",
     "crates/diskgraph-engine/src/native_child/windows/windows_birth_test_hook.rs": "4381ea30c9b7afa13982803f8ad1b3a7412b5e5ce71421ac9298862b17ab4776",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "32f2d8abca5e964ce74f935c5d10f7ef8d6b3119b1b42b1c63a08613bc907322",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs": "fd248698b2bf71c3b5cf45064f92d7216a5ad022fe0e92a8b3ecc3c2194bc2c8",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child_prepare.rs": "9edf0d944fc83eea0d355446374d6ee8cd3267f8f1c762637e846825f13ba2d3",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child_prepared_tests.rs": "acc3bf6b2ea8b5515b2db67c157bbaeafeeea37b5d4a5f0e7462a6f830f33387",
-    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "c04f364ea8c1418a69612d488e3b36c75e427c6543ed0c90420424c0e7045094",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child.rs": "9ece45ccc830166e4c778af97bf4291bf7d6309f9eadbf457e12cc7b188ff3c1",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs": "561348643b45b6cfd998922c01806e273f819512f01c1027bd718bde2502248d",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "ff65622c0c1a56647beedcc8c2e18b24443e1a3001292972a5adf198f6a94709",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_hooks.rs": "068bf889e6172590237b7ec1aa8a5e7571a872df96ecfbf9fa5da42ed83973b8",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs": "cd2d0dd8881643bce9c57d12d7eb779af097dd2b2cdc058c307746e892bb90c7",
     "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_rescue.rs": "21693b8ba4cb84fa115343a6558047c51aa3405e7c6b5c2ab01f7f3d2533113f",
@@ -583,7 +579,7 @@
   "finite_cleanup_product_enabled": false,
   "remaining_limits": [
     "old cleanup/Drop may block",
-    "prepared birth pending IO native qualification pending; synchronous compatibility preparation may wait",
+    "prepared birth-before-CreateProcessW pending IO not covered",
     "registry/pool deadline API not integrated",
     "private directory deletion can block",
     "trusted Windows image launcher and CLI/MCP native scanning not qualified",
@@ -613,11 +609,5 @@
     "native_child::windows::windows_prepared_connect_tests::external_owner_survives_panic_after_actual_connect_submission",
     "native_child::windows::windows_prepared_connect_tests::pending_connect_moves_threads_without_replacing_original_storage"
   ],
-  "prepared_job_cases": [
-    "native_child::windows::windows_child::windows_child_prepared_tests::prepared_pending_connect_retains_capacity_until_real_job_and_io_complete",
-    "native_child::windows::windows_child::windows_child_prepared_tests::prepared_job_query_error_keeps_original_connect_owner_for_retry",
-    "native_child::windows::windows_child::windows_child_prepared_tests::unknown_creation_phase_with_missing_leader_never_releases_original_job",
-    "native_child::windows::windows_child::windows_child_prepared_tests::panic_after_prepared_connect_keeps_original_external_job_and_storage",
-    "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup"
-  ]
+  "baseline_expected_failure_case": "native_child::windows::windows_birth_recovery_tests::actual_create_process_failure_retains_external_job_until_observed_cleanup"
 }
