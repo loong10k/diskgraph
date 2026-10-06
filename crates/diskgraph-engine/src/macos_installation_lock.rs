@@ -65,8 +65,13 @@ impl MacosInstallationLock {
         if state.len != 0 {
             return Err(BusinessError::Conflict.into());
         }
-        wait_lock(&file, operation, deadline, checkpoint)?;
-        let held = MacosFilesystemState::capture(&file, false)?;
+        // 在取得内核锁之前建立唯一守卫；后续检查失败或 panic 也必须显式解锁。
+        let guard = Self {
+            _file: file,
+            _ancestors: ancestors,
+        };
+        wait_lock(&guard._file, operation, deadline, checkpoint)?;
+        let held = MacosFilesystemState::capture(&guard._file, false)?;
         check(deadline, checkpoint)?;
         if held != state {
             return Err(BusinessError::Conflict.into());
@@ -74,19 +79,16 @@ impl MacosInstallationLock {
         let (current, _comparison, current_state) =
             open_namespace(INSTALLATION_LOCK, deadline, checkpoint)?;
         if current_state != state
-            || current.len() != ancestors.len()
+            || current.len() != guard._ancestors.len()
             || current
                 .iter()
-                .zip(&ancestors)
+                .zip(&guard._ancestors)
                 .any(|((_, now), (_, original))| !original.same_directory_binding(now))
         {
             return Err(BusinessError::Conflict.into());
         }
         check(deadline, checkpoint)?;
-        Ok(Self {
-            _file: file,
-            _ancestors: ancestors,
-        })
+        Ok(guard)
     }
     /// 参数：file 为隔离夹具文件，deadline/checkpoint 为原期限；返回：实际共享锁守卫或原错误，不赋予生产安装资格。
     ///
@@ -97,11 +99,12 @@ impl MacosInstallationLock {
         deadline: Instant,
         checkpoint: &mut impl FnMut() -> Result<(), EngineError>,
     ) -> Result<Self, EngineError> {
-        wait_shared(&file, deadline, checkpoint)?;
-        Ok(Self {
+        let guard = Self {
             _file: file,
             _ancestors: Vec::new(),
-        })
+        };
+        wait_shared(&guard._file, deadline, checkpoint)?;
+        Ok(guard)
     }
 }
 #[cfg(test)]

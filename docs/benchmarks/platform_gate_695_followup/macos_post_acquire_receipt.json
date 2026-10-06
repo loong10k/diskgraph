@@ -1,0 +1,24 @@
+{
+  "base": "38576b7",
+  "platform": "macOS arm64",
+  "red": "original denied-checkpoint regression actually failed: exclusive flock -1 instead of 0",
+  "green": "8 passed; 0 failed; 0 ignored; includes actual post-acquisition panic with unchanged payload 71",
+  "files": [
+    {
+      "phase": "red",
+      "file": "macos_post_acquire_red.log.gz",
+      "raw_sha256": "a6bc7dd113577381260addf0f07ed8731e7554007f5ecd3231a4691d30829427",
+      "stored_sha256": "7b0653a6d8e49181064e2efa43c588348897edb173a2f147195a1b9fc48011c9"
+    },
+    {
+      "phase": "green",
+      "file": "macos_post_acquire_green.log.gz",
+      "raw_sha256": "18c800c3015432474b2fc3b1b1ca4ac15b75210860668dd8166ec4223b331a1f",
+      "stored_sha256": "dd341b511f74b832ed10b2ec74e2918248eb6abf1f866fc4adad61d5ad77b136"
+    }
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/macos_installation_lock.rs": "18ca7935733d330d5f7fbe2d025706e4851028d9eb72ea0eee2a8045450b1e57",
+    "crates/diskgraph-engine/src/macos_installation_lock_tests.rs": "a15649896eedcf62c30d305286ad83a13cee393e93026936ad523844c88fb6f7"
+  }
+}

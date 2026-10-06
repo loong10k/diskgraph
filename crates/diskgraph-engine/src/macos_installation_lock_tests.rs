@@ -192,3 +192,74 @@ fn updater_lock_preserves_original_cancel_and_rejects_unprivileged_identity() {
         ));
     }
 }
+
+#[test]
+fn denied_post_acquisition_checkpoint_unlocks_with_surviving_reference() {
+    let fixture = tempfile::NamedTempFile::new().unwrap();
+    let original = File::open(fixture.path()).unwrap();
+    let surviving = original.try_clone().unwrap();
+    let contender = File::open(fixture.path()).unwrap();
+    let mut checks = 0;
+    let result = MacosInstallationLock::test_shared(
+        original,
+        Instant::now() + Duration::from_secs(10),
+        &mut || {
+            checks += 1;
+            if checks == 2 {
+                // 实际取得共享锁后才拒绝；原失败必须保留，存续引用不能延长锁期。
+                assert_eq!(
+                    unsafe { libc::flock(contender.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+                    -1
+                );
+                Err(EngineError::Poisoned)
+            } else {
+                Ok(())
+            }
+        },
+    );
+    assert!(matches!(result, Err(EngineError::Poisoned)));
+    assert_eq!(checks, 2);
+    assert_eq!(
+        unsafe { libc::flock(contender.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+        0
+    );
+    drop(surviving);
+}
+
+#[test]
+fn post_acquisition_panic_unlocks_original_guard_before_outer_catch() {
+    let fixture = tempfile::NamedTempFile::new().unwrap();
+    let original = File::open(fixture.path()).unwrap();
+    let surviving = original.try_clone().unwrap();
+    let contender = File::open(fixture.path()).unwrap();
+    let mut checks = 0;
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        MacosInstallationLock::test_shared(
+            original,
+            Instant::now() + Duration::from_secs(10),
+            &mut || {
+                checks += 1;
+                if checks == 2 {
+                    assert_eq!(
+                        unsafe {
+                            libc::flock(contender.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB)
+                        },
+                        -1
+                    );
+                    std::panic::panic_any(71usize);
+                }
+                Ok(())
+            },
+        )
+    }));
+    let payload = result
+        .err()
+        .expect("original post-acquisition panic must propagate");
+    assert_eq!(*payload.downcast::<usize>().unwrap(), 71);
+    assert_eq!(checks, 2);
+    assert_eq!(
+        unsafe { libc::flock(contender.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) },
+        0
+    );
+    drop(surviving);
+}
