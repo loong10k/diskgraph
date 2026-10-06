@@ -1,0 +1,28 @@
+{
+  "production_acceptance": false,
+  "workspace_exit_code": 101,
+  "cli": {
+    "passed": 55,
+    "failed": 12,
+    "ignored": 0
+  },
+  "workspace_stopped_at_first_failed_suite": true,
+  "owned_fmt_exit_code": 0,
+  "owned_packages": 10,
+  "all_fmt_differences_only_immutable_vendored_source": true,
+  "engine_warnings": 42,
+  "logs": [
+    {
+      "name": "diskgraph-current-workspace-20261006.log",
+      "sha256": "cf49dd36be2fe1a85ff9fad83ccc18621421be32531aa23a29ff4fa7de40fd51"
+    },
+    {
+      "name": "diskgraph-current-fmt-20261006.log",
+      "sha256": "5188455349012fe1df4bf163eb40d3a31b776009b9db7aa0f5455ff554053b8b"
+    },
+    {
+      "name": "diskgraph-owned-fmt-20261006.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
