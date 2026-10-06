@@ -214,25 +214,6 @@ jobs:
         if: runner.os == 'Windows'
         timeout-minutes: 10
         run: cargo test -p diskgraph-engine --lib --locked live_evidence::windows_git_cleanup_tests -- --nocapture
-      - name: Native Windows actual Cloud Files no-recall content
-        if: runner.os == 'Windows'
-        timeout-minutes: 5
-        run: |
-          cargo test -p diskgraph-engine --test content_cloud_windows --locked -- --nocapture --test-threads=1 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-real-cloud-content.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $log = Get-Content "$env:RUNNER_TEMP/windows-real-cloud-content.log" -Raw
-          if ($log -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;' -or
-              $log -notmatch 'DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1') {
-            throw 'Actual registered provider, no-fetch product and ordinary-fetch positive control must execute'
-          }
-      - name: Preserve actual Windows Cloud Files qualification
-        if: always() && runner.os == 'Windows'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: windows-real-cloud-content-${{ matrix.rust }}-${{ github.run_id }}
-          path: ${{ runner.temp }}/windows-real-cloud-content.log
-          if-no-files-found: error
-          retention-days: 7
       - name: Native Windows pre-resume admission boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked revoked_admission_after_birth_prevents_resume_and_retains_original_owner -- --nocapture
@@ -638,6 +619,26 @@ jobs:
           path: ${{ runner.temp }}/diskgraph-linux-baseline-diagnostic
           retention-days: 7
           if-no-files-found: warn
+
+      - name: Native Windows actual Cloud Files no-recall content
+        if: always() && !cancelled() && runner.os == 'Windows'
+        timeout-minutes: 5
+        run: |
+          cargo test -p diskgraph-engine --test content_cloud_windows --locked -- --nocapture --test-threads=1 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-real-cloud-content.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-real-cloud-content.log" -Raw
+          if ($log -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1') {
+            throw 'Actual registered provider, no-fetch product and ordinary-fetch positive control must execute'
+          }
+      - name: Preserve actual Windows Cloud Files qualification
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-real-cloud-content-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-real-cloud-content.log
+          if-no-files-found: error
+          retention-days: 7
 
   ffi-swift-host:
     name: Swift native host (${{ matrix.os }})
