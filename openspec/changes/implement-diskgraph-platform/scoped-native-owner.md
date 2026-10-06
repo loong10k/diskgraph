@@ -6,6 +6,8 @@
 
 这是既有同步阻塞 API 的兼容接线，不宣称有限退出、UI线程可调用或持久 NativeService 已接线。Linux现有CI同一提交的公开 read_only_bindings_scan_and_query_native_directory 在扫描ok断言失败，FFI总体40/49；已有实际部署worker继续用于原生回归，不创建伪快照或替换Engine算法。修复后必须取得公开同步扫描/查询GREEN，并报告仍失败的持久服务及全平台门禁。有限恢复交接与三平台生产验收仍未完成。
 
+e0fae7f/37464897817 原生公开同步扫描查询专项在 Linux x86_64 stable、Rust1.97 与 ARM64 stable 三组 step 均 success；实际同一公开用例包含两次真实扫描、持久snapshot及后续节点/历史查询。本机取消1/0、源码组织8/0、fmt通过。记录时三组全量job仍运行，尚无终态日志，不能把专项通过当作FFI或全工作区通过。持久服务扫描接线、有限退出、Windows/macOS产品启动及性能验收仍开放。记录：[同步FFI原生step证据](../../../docs/benchmarks/linux_test_boundary_2026_10_06/ffi_synchronous_host_2026_10_06_candidate.json)。
+
 ## Windows 恢复执行前的请求准入检查（未完成）
 
 原生 CreateProcessW 成功后进程仍挂起，原 process/Job 已进入 catch 外唯一 owner。恢复线程前必须再次执行同次 admission（期限、取消、撤权），不能仅执行生命周期 checkpoint。撤销后的原非 Clone 错误应原样返回，原挂起进程不执行用户代码，原 owner 留给实际 Job 终止/leader wait/Job0 清理；失败或 panic 不丢责任。新增真实出生观察回归先取得原生 RED，再修改 ResumeThread 前的检查顺序。正常产品完整构建与扫描加载资格仍是独立必需门禁。
