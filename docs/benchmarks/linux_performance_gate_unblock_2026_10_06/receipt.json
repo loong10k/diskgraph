@@ -1,0 +1,26 @@
+{
+  "production_ready": false,
+  "prior_source": "152374ecb4084889af5ac85a36870e5ceb03fe09",
+  "prior_run": 37479428795,
+  "prior_linux_job": 112323366482,
+  "prior_full_test_step": "success",
+  "prior_clippy_step": "failure: native fixture let-and-return",
+  "prior_cost_step": "skipped",
+  "local_engine_all_targets_clippy": "passed with -D warnings",
+  "local_structure": {
+    "passed": 6,
+    "failed": 0
+  },
+  "worker_binding_tests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "local_additional_fix": "constant assertion made an equivalent const assertion in already feature-gated macOS fixture",
+  "release_measurements": 0,
+  "performance_acceptance": "pending actual native workflow",
+  "raw_log_sha256": {
+    "prior_linux_clippy": "4cdf8dd23b7d0490c25600941e962a23d10cb4b09b163a5195452c577f41ab1f",
+    "local_engine_clippy_green": "668876cba690fd2fd50b1b7ba58aa651f2512f780450da5a403cd84524877ca6",
+    "local_structure_green": "934581d1e49340a6330667f8611387e220685115b1916349f5d14dbc4ef51cdf"
+  }
+}

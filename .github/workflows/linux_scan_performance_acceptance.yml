@@ -1,0 +1,29 @@
+name: Linux paired scan performance acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  RUSTFLAGS: -D warnings
+jobs:
+  paired:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+      - name: Verify independent worker deployment binding
+        run: python -m unittest discover -s scripts/tests -p test_scan_cost_worker_binding.py -v
+      - name: Actual paired release scan and query measurement
+        run: python scripts/accept-linux-scan-namespace-cost.py --baseline-sha 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d --candidate-sha "${{ github.sha }}" --output-dir "$RUNNER_TEMP/diskgraph-linux-scan-cost"
+      - name: Preserve complete or partial original performance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: paired-linux-performance-${{ github.run_id }}
+          path: ${{ runner.temp }}/diskgraph-linux-scan-cost
+          if-no-files-found: error
+          retention-days: 7

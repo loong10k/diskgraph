@@ -46,8 +46,8 @@ impl MacosEngineScanFixture {
         let run = required("GITHUB_RUN_ID");
         assert!(!run.is_empty() && run.bytes().all(|byte| byte.is_ascii_digit()));
         assert_eq!(required("DISKGRAPH_MACOS_EPHEMERAL_ROOT_FIXTURE"), run);
-        // 即使错误接线运行ignored测试也须失败，不能将default Unsupported误记为预算拒绝。
-        assert!(cfg!(feature = "macos_native_scan_candidate"));
+        // 本模块只在真实出生分支启用时编译；静态核对接线，不能把 Unsupported 当预算拒绝。
+        const { assert!(cfg!(feature = "macos_native_scan_candidate")) };
         let deadline = Instant::now() + Duration::from_secs(60);
         let host = ScanWorkerHost::from_installed_macos(
             ScanWorkerRuntimeBudget::new(

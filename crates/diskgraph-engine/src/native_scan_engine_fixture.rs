@@ -54,12 +54,11 @@ impl NativeScanEngine {
                 .expect("native scan fixture requires the independent deployment length")
                 .parse()
                 .expect("deployment length must be an unsigned integer");
-            let host = ScanWorkerHost::new(
+            ScanWorkerHost::new(
                 File::open(image)?,
                 ScanWorkerHostConfig::from_expected_image(digest, bytes)?,
                 runtime,
-            )?;
-            host
+            )?
         };
         #[cfg(target_os = "macos")]
         let host = ScanWorkerHost::from_installed_macos(
