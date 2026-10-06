@@ -1,16 +1,24 @@
 //! 合法大范围字段与真实索引夹具；来源：D42 EC-04 公开 Control/Engine API。
 use diskgraph_core::{JobRequestAuthority, Locator, Permission, PrincipalId, ScopeId};
-use diskgraph_engine::{Engine, EngineConfig, EngineError};
+// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(target_os = "linux")]
+#[path = "../support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+use diskgraph_engine::{EngineConfig, EngineError};
 use diskgraph_store::{JobRecord, JobState};
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// 真实可寻址文件、不可变范围与原生索引；来源：Rust Process 入队整窗口验收。
 /// 显示字段在首次公开注册时写入，不修改既存 scope，不伪造 epoch 或扫描记录。
 pub(crate) struct Fixture {
+    pub(crate) engine: Engine,
     _source: tempfile::TempDir,
     _data: tempfile::TempDir,
-    pub(crate) engine: Engine,
     pub(crate) actor: PrincipalId,
     pub(crate) scope: ScopeId,
     pub(crate) base: String,

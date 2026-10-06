@@ -3,7 +3,15 @@ use diskgraph_core::{
     TruncationReason, Watermark,
 };
 use diskgraph_engine::content::{ConservativeProbe, InspectionRequest};
-use diskgraph_engine::{Engine, EngineConfig};
+// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(target_os = "linux")]
+#[path = "support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+use diskgraph_engine::EngineConfig;
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
 
 fn setup() -> (
     tempfile::TempDir,

@@ -3,16 +3,24 @@ use diskgraph_core::{
     JobRequestAuthority, Permission, PrincipalId, ProcessEvidenceJobInput, ProcessEvidenceLimits,
     ProcessObservationMethod, QueryBudget, QueryReadBudget,
 };
-use diskgraph_engine::{Engine, EngineConfig};
+// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(target_os = "linux")]
+#[path = "../support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+use diskgraph_engine::EngineConfig;
 use diskgraph_store::{ControlStore, JobRecord, SqliteSnapshotStore};
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// 实际 tmpfs 源和独占控制/图库；来源：Linux 元数据准备 whole-call 计量夹具。
 pub(crate) struct Fixture {
+    pub(crate) engine: Engine,
     _source: tempfile::TempDir,
     data: tempfile::TempDir,
-    pub(crate) engine: Engine,
     pub(crate) root: PathBuf,
     actor: PrincipalId,
     input: ProcessEvidenceJobInput,

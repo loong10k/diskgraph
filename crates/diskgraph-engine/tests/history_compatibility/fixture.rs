@@ -4,16 +4,24 @@ use diskgraph_core::{
     DiskGraph, DiskNode, DiskSnapshot, FileIdentity, NodeKind, PrincipalId, QueryBudget,
     ResourceLocator, ScanCoverage, ScanSettings, ScopeId,
 };
-use diskgraph_engine::{ComparisonReport, Engine, EngineConfig, RevisionGrowth};
+// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(target_os = "linux")]
+#[path = "../support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+use diskgraph_engine::{ComparisonReport, EngineConfig, RevisionGrowth};
 use diskgraph_store::{Result as StoreResult, SqliteSnapshotStore};
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 /// 实际 Engine/scope 与明确标识为合成的导入历史；来源：DiskGraph 原生 Rust D35 / Q-04 测试。
 pub(crate) struct HistoryFixture {
+    pub(crate) engine: Engine,
     pub(crate) directory: tempfile::TempDir,
     pub(crate) root: PathBuf,
-    pub(crate) engine: Engine,
     pub(crate) principal: PrincipalId,
     pub(crate) scope: ScopeId,
 }

@@ -73,3 +73,10 @@ f148e49 的三组 Linux 当前源码专项8项均通过，常规CI严格Build已
 继续迁移7个需要实际扫描的Linux集成目标（engine_flow、content_flow、compare_two_trees、growth_narrow_read、scan_options_parity、verify_comparison_content、relation_request_budget）。这些目标通过同一真实宿主夹具持有Engine和Recovery，原测试函数、参数、权限/预算/结果断言不变；其他平台保持既有构造路径，不伪造平台支持。Linux实际结果须原生CI确认，更多旧单元/集成夹具仍未迁移，不能由这7个目标替代workspace门禁。
 
 f2c3b1b的Linux stable完整workspace原始日志确认失败目标37→29，CLI各目标不在失败清单，镜像固定副本后的真实产品回归保留通过；仍不能把剩余旧库夹具Unsupported称为已通过。此次7目标本机macOS仅no-run编译通过，结构6/0与fmt通过；不称Linux运行验收。原始全量日志及目标末段汇总见workspace-f2c-linux.log.gz与workspace-f2c-summaries.json.gz。
+
+
+## 共享查询与进程预算夹具的真实宿主
+
+355f383 / CI37444199873 的 Linux stable 原始全量日志确认失败目标降至18，此前迁移的扫描目标未出现在失败目标清单；不能由该改善宣称全量通过。当前仍失败的9个Engine目标（query_request_budget、query_finalizer_budget、query_until_budget、history_size_eligibility、history_compatibility_matrix、process_preparation_budget、process_entry_scope_budget、hardening、process_job_dispatch）使用旧构造入口。共享夹具改为Linux显式受信宿主，保留全部业务函数和断言；嵌套模块所需测试类型可见性改为crate，Engine/Recovery先于临时目录释放，非Linux构造保持既有路径。
+
+本机9目标no-run编译、结构门禁6/0、排除固定vendor的既有workspace格式命令通过；全workspace格式包含vendor会报告上游原始格式差异，未修改vendor。Linux运行待下一提交CI，Windows原生清理未接入生产导致严格Build失败、Linux安装包实际索引Unsupported均继续开放，不降低门禁。原始355全量日志与本机记录见linux_test_boundary_2026_10_06/workspace-355-linux.log.gz和native-nested-*.log.gz。

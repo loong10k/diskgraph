@@ -8,7 +8,7 @@ use std::ops::Deref;
 
 /// 显式提供真实镜像与恢复责任的 Linux 扫描夹具；来源：原生 Rust PF-06 公开宿主 API。
 /// 预期值由受控构建部署提供，不从镜像正文或邻接清单自行建立信任。
-pub(super) struct NativeScanEngine {
+pub(crate) struct NativeScanEngine {
     engine: Engine,
     recovery: ScanWorkerRecovery,
 }

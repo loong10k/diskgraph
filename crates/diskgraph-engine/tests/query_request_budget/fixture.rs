@@ -1,11 +1,19 @@
 use diskgraph_core::{Locator, Permission, PolicyAuthorizer, PrincipalId, ScopeId};
-use diskgraph_engine::{Engine, EngineConfig};
+// Linux 扫描夹具显式持有受信宿主和原恢复责任，保留原业务断言。
+#[cfg(target_os = "linux")]
+#[path = "../support/native_scan_engine.rs"]
+mod native_scan_engine;
+#[cfg(not(target_os = "linux"))]
+use diskgraph_engine::Engine;
+use diskgraph_engine::EngineConfig;
+#[cfg(target_os = "linux")]
+use native_scan_engine::NativeScanEngine as Engine;
 use rusqlite::Connection;
 
 /// D24 的独占数据库与真实扫描夹具；来源：Q-02/08 请求预算验收。
 pub(crate) struct Fixture {
-    pub(crate) directory: tempfile::TempDir,
     pub(crate) engine: Engine,
+    pub(crate) directory: tempfile::TempDir,
     pub(crate) principal: PrincipalId,
     pub(crate) scope: ScopeId,
     pub(crate) revision: String,
