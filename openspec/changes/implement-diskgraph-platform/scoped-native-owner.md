@@ -161,3 +161,7 @@ a6bbf2f/37474050173 Windows Rust1.97实际查询成功，挂起process策略Flag
 5839076完整回归实际RED中git_evidence_fixture等在Engine::open后的run_job返回Unsupported，尚未到目标撤权/发布行为。扩展既有NativeScanEngine夹具至macOS，使用from_installed_macos固定root保护配置，缺部署仍拒绝；Linux独立环境预期值路径保持。仅替换夹具Engine import与runner持有原host分支，不改变平台syscall/观测语义或跳过用例。原恢复责任仍在业务catch外由夹具唯一持有，待同提交安装资格重跑。独立driver夹具缺失的失败另外处理，不由本项覆盖。
 
 macOS本机strict候选测试二进制编译成功；独立真实Cargo driver提供后原driver7/0与owned_failure6/0；结构6/0，工具18/0。原生安装完整Engine未在本机执行，待新提交资格。aa95e45 Windows Rust1.97原生加载策略步骤GREEN，但随后完整Build仍失败，不能称Windows产品通过；原完整日志与步骤证据已保存。
+
+## 移除私有阻塞管道兼容构造
+
+Windows完整Build继续指出OverlappedPipe::create无生产调用。该私有组合入口局部持有pending责任且使用TRUE同步连接；原生产WindowsChild已使用prepare_into/open_writer/start_connect/connect_ready原外槽。删除旧组合，三个实际IO/跨线程清理fixture在各自外槽直接使用同一原生非阻塞接口与原10秒期限，实际pending、地址稳定、线程移交和清理断言不改，不新增替代wrapper或把生产能力挪入cfg(test)。其余Windows未接入能力继续为阻塞项，非全平台完成。

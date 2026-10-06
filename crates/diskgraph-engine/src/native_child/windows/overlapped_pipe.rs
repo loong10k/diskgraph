@@ -42,23 +42,6 @@ pub(super) struct OverlappedPipe {
 }
 
 impl OverlappedPipe {
-    /// 建立仅本机可连的随机命名管道。参数：name 是随机管道名，security 是显式 DACL。返回：父读端与子写端或错误。
-    pub(super) fn create(
-        name: &[u16],
-        security: &PipeSecurity,
-    ) -> Result<(Self, OwnedHandle), ChildError> {
-        let mut owner = None;
-        Self::prepare_into(name, security, &mut owner)?;
-        let writer = Self::open_writer(name, security)?;
-        let pipe = owner.as_mut().expect("prepared original pipe owner");
-        pipe.start_connect()?;
-        // 旧本地兼容接口保留同步连接语义；有期限调用者使用外部 owner 接口。
-        while pipe.pending {
-            pipe.finish_connect(true, false)?;
-        }
-        Ok((owner.take().expect("original connected pipe owner"), writer))
-    }
-
     /// 非阻塞收取一次最多 4096 字节。参数：无。返回：数据切片、暂无数据/EOF 或 Win32 错误。
     pub(super) fn read_next(&mut self) -> Result<Option<&[u8]>, ChildError> {
         if self.eof {

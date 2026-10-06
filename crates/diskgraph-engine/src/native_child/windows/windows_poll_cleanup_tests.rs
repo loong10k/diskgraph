@@ -33,8 +33,21 @@ fn expired_read_cleanup_keeps_pending_storage_until_other_thread_completes() {
         .encode_utf16()
         .chain([0])
         .collect();
-    let (mut pipe, peer) =
-        OverlappedPipe::create(&name, &PipeSecurity::for_current_user().unwrap()).unwrap();
+    let security = PipeSecurity::for_current_user().unwrap();
+    // 准备责任先留在本例外槽；连接只FALSE轮询并消费原测试期限。
+    let mut pipe_owner = None;
+    OverlappedPipe::prepare_into(&name, &security, &mut pipe_owner).unwrap();
+    let peer = OverlappedPipe::open_writer(&name, &security).unwrap();
+    let connecting = pipe_owner.as_mut().unwrap();
+    connecting.start_connect().unwrap();
+    while !connecting.connect_ready().unwrap() {
+        assert!(
+            Instant::now() < deadline,
+            "original pipe connection deadline"
+        );
+        std::thread::yield_now();
+    }
+    let mut pipe = pipe_owner.take().unwrap();
     let prepared = catch_unwind(AssertUnwindSafe(|| {
         assert!(pipe.read_next().unwrap().is_none());
         let addresses = pending(pipe.io_witness().unwrap());

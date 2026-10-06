@@ -37,7 +37,20 @@ fn read_case(inject: bool) {
         .encode_utf16()
         .chain(std::iter::once(0))
         .collect();
-    let (mut pipe, peer) = OverlappedPipe::create(&name, &security).unwrap();
+    // 准备责任先留在本例外槽；连接只FALSE轮询并消费原测试期限。
+    let mut pipe_owner = None;
+    OverlappedPipe::prepare_into(&name, &security, &mut pipe_owner).unwrap();
+    let peer = OverlappedPipe::open_writer(&name, &security).unwrap();
+    let connecting = pipe_owner.as_mut().unwrap();
+    connecting.start_connect().unwrap();
+    while !connecting.connect_ready().unwrap() {
+        assert!(
+            Instant::now() < deadline,
+            "original pipe connection deadline"
+        );
+        std::thread::yield_now();
+    }
+    let mut pipe = pipe_owner.take().unwrap();
     // 唯一owner始终在catch外；无数据且peer仍打开，真实read必须pending。
     let prepared = catch_unwind(AssertUnwindSafe(|| {
         assert!(pipe.read_next().unwrap().is_none());
@@ -167,7 +180,20 @@ fn pending_read_drop_on_receiving_thread_waits_for_real_completion() {
         .encode_utf16()
         .chain(std::iter::once(0))
         .collect();
-    let (mut pipe, peer) = OverlappedPipe::create(&name, &security).unwrap();
+    // 准备责任先留在本例外槽；连接只FALSE轮询并消费原测试期限。
+    let mut pipe_owner = None;
+    OverlappedPipe::prepare_into(&name, &security, &mut pipe_owner).unwrap();
+    let peer = OverlappedPipe::open_writer(&name, &security).unwrap();
+    let connecting = pipe_owner.as_mut().unwrap();
+    connecting.start_connect().unwrap();
+    while !connecting.connect_ready().unwrap() {
+        assert!(
+            Instant::now() < deadline,
+            "original pipe connection deadline"
+        );
+        std::thread::yield_now();
+    }
+    let mut pipe = pipe_owner.take().unwrap();
     let prepared = catch_unwind(AssertUnwindSafe(|| {
         assert!(pipe.read_next().unwrap().is_none());
         let witness = pipe.io_witness().unwrap();

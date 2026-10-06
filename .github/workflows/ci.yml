@@ -78,6 +78,12 @@ jobs:
       - name: Native Windows pre-resume admission boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked revoked_admission_after_birth_prevents_resume_and_retains_original_owner -- --nocapture
+      - name: Native Windows pending IO ownership transfer
+        if: runner.os == 'Windows'
+        run: cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_io_transfer_tests -- --nocapture
+      - name: Native Windows bounded pending cleanup
+        if: runner.os == 'Windows'
+        run: cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_poll_cleanup_tests -- --nocapture
       - name: Native Windows suspended image load policy
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked suspended_birth_enforces_image_load_policy_before_resume -- --nocapture
