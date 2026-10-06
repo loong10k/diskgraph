@@ -148,3 +148,10 @@ Windows pipe preparation installs original server/event/OVERLAPPED/buffer into a
 Five cases require actual pending Connect: expiry, query failure, actual connection followed by pending Read, panic after submission, and cross-thread original-address preservation. Frozen candidate retains all previous 45 cases (50 total, 491 source files). Native Windows RED/GREEN has not executed for these five cases; macOS checks do not establish Windows compilation or acceptance.
 
 Local native_child regression: 35 passed / 2 failed / 0 ignored. Failures: explicit_null_preserves_two_checkpoints_and_all_control_methods_are_unsupported; worker_control_checkpoint_failure_keeps_original_non_clone_error_and_real_reap (missing ready fixture). Both remain unresolved; no assertion weakened. The archive safeguard correctly rejected the obsolete 488-file count when three modules were added; expected inventory updated to 491, not relaxed to an inequality.
+
+
+### Native results received after Prepared Connect dispatch
+
+Run 37397304162, source 83dde527d0cee7a30e6f86a5e3c9bd450615d3bb: macOS ARM and Intel both passed. Downloaded original receipts and stdout prove on each platform CLI 67/67 and MCP 159/159, zero failed/ignored/filtered; ordinary UID 501 actual CLI→MCP→CLI observed a new published revision and 3→4 actual files. This is the 596-source feature-enabled candidate, not default deployment or full same-source platform acceptance. Raw evidence is preserved under docs/benchmarks/macos_products_native_green_2026_10_06.
+
+Run 37400045249: 42/45 Windows cases passed. Three new root positives failed with original ERROR_INVALID_PARAMETER (87) at ReOpenFile, including moved-root, managed Git/lease and junction controls. No negative-only acceptance: root anchor delete reopening remains unqualified. Original raw failures are preserved under docs/benchmarks/windows_atomic_root_native_red_2026_10_06. New 50-case run 37401044695 is queued on b1787eade4bdd2bb17be79bbedfb219a3664cf28; its snapshot still contains this unresolved root defect.

@@ -1,0 +1,342 @@
+{
+  "run_id": 37397304162,
+  "production_ready": false,
+  "raw_files": [
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-cli-regression.stderr.gz",
+      "sha256": "f6f99e99f24d5348ba3a14126fac9781db25c9b2b309068b1eec387b9e10dfe6"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-cli-regression.stdout.gz",
+      "sha256": "39e5411af254b5518dca8902731392ce4d493411267e5037e8aef51b4ebc1bff"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-fixtures.stderr.gz",
+      "sha256": "5cfd8d49337356130a8523d552c5b5985dde59ac72f9e7e69b4e58b9f370ef95"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-fixtures.stdout.gz",
+      "sha256": "4aeead8dcdc928fa9f560f1d79ef42756ff949897caffa52b5f6462be9625a17"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-helper.stderr.gz",
+      "sha256": "da51354f4a865a5962492aa2908316e8500afa303b953d4a57ac0fb7b13d9e7a"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-helper.stdout.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-mcp-regression.stderr.gz",
+      "sha256": "f455f90201631018e5084608a644df532ce878fbcec1eea8f81cdd5f606a0804"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-mcp-regression.stdout.gz",
+      "sha256": "849b1a39f36b4dde49a44b35af1e1271a8999e79d8b71bac41adffa0f71cb6da"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-products.stderr.gz",
+      "sha256": "d18c13d8ea00680e234e82be98ec76b802f89bc85848a5bfa760b8605cf15302"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/build-products.stdout.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/cli-regression.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/cli-regression.stdout.gz",
+      "sha256": "c0f5a292a95345b2caf9af7a31e6c9872874bd1b5ee6411f4a5b08ffb7283e79"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_engine_installed_scan_publishes_revision_and_relations.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_engine_installed_scan_publishes_revision_and_relations.stdout.gz",
+      "sha256": "5c2410cb62913594808b43bd9c7161ab3f10ff78eb3503db54bb0a6b5ed6c1ee"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_engine_postbirth_panic_preserves_payload_and_recovery.stderr.gz",
+      "sha256": "675f7cdc0d4f44455bde1b1d36c5a0f62013ec38250bc150fabc4d9cf6f6994d"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_engine_postbirth_panic_preserves_payload_and_recovery.stdout.gz",
+      "sha256": "0acc9e14e9467b59f1a4ef447fb465609dbdb7fd130d5f0a978dfdd22ed8429a"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_engine_response_exhaustion_has_no_partial_revision.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_engine_response_exhaustion_has_no_partial_revision.stdout.gz",
+      "sha256": "369b56a8775912735d25b0314ffd807b84dd790acd6e3ffc772c4b66a28286b8"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_cancel_after_birth_is_reaped.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_cancel_after_birth_is_reaped.stdout.gz",
+      "sha256": "7d7452197a8c73a9e66fb6b3e597df76d0321d34bacfccf77e7ac59d24a62ff9"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stderr.gz",
+      "sha256": "dc9d1b9b873ffb7c739e25a4c3c74303c621449504db49c11c84f9ac581598aa"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stdout.gz",
+      "sha256": "837ff0d9074562563a3f6773cf0c627fb75da57c8224a31ad7fdf0918e60840a"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_installed_helper_returns_complete_tree_after_real_normal_wait.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/macos_installed_helper_returns_complete_tree_after_real_normal_wait.stdout.gz",
+      "sha256": "db6bd827a2204c36fe46cf50127aeba2fb310101ecacedb784c6c44e4e957d58"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/mcp-regression.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/mcp-regression.stdout.gz",
+      "sha256": "96463c07f0c86e4d8d300363c1bec87775ddc7b986298f7a316ca10ab82b84b0"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/cli-init.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/cli-init.stdout.gz",
+      "sha256": "c6258ccaef00397844183c506902f1c8f942601d537310c6759bbd59c1fd6265"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/cli-node-after.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/cli-node-after.stdout.gz",
+      "sha256": "32fac20accd857fedbac3abffc8e27e8b31c12c43b0b42d5bb7f1c8edadc674e"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/cli-node-before.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/cli-node-before.stdout.gz",
+      "sha256": "295ca109acfcf3000dd6b31deda77b2d8febf07abe625414cf94229bcd45fc02"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/mcp.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/mcp.stdout.gz",
+      "sha256": "c4c88b5a4909b7fa8c5b1d562a33b81f379959bfd05ac7a437dcca40946586b9"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/products/receipt.json",
+      "sha256": "d8ff411a1a1177daf8ba84bb9282939d88db495350be9857bb5b19fd940d6ece"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/raw-path-protocol.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/raw-path-protocol.stdout.gz",
+      "sha256": "c142d22269e7251b6f9b3f01bd3ec9ab9061cdf66783dca09a9a2d2f835c89cd"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/receipt.json",
+      "sha256": "7f61823481ef622f91f7cb476ef6246a9df56de88cf84b319bd46b9b69a2e101"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/response-budget-fixture.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/response-budget-fixture.stdout.gz",
+      "sha256": "f8ef3bdbfe03e9b60d707230b2796d0c05394fbefe37136e796e2bddc07290a1"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/root-issuer.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-37397304162/_temp/macos-installed-worker/root-issuer.stdout.gz",
+      "sha256": "e98638847b865327fd50532bdc1ff80c1a3af56c9e039c3b92d76b3a3cd3eb87"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-cli-regression.stderr.gz",
+      "sha256": "d9e7124c3d6d81b907d4c346d105ca379494728302b68a415ec8c5a6145386d5"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-cli-regression.stdout.gz",
+      "sha256": "788de913fa78b2fe1a83b1a04836fc0c2c246f51b5d23b4730953444b9ae95b8"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-fixtures.stderr.gz",
+      "sha256": "903d210a8cf9ca4d04f895661115e98fac802e7f2b8d9633b90ba88597268a92"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-fixtures.stdout.gz",
+      "sha256": "3cd375b7505916a57d8aa16294d8693dcdef3184dc6471316b45847e63a196ed"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-helper.stderr.gz",
+      "sha256": "28d1465072de80bfce6e509eabbd88685dfd62572aeffe6e5005eeb595581f56"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-helper.stdout.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-mcp-regression.stderr.gz",
+      "sha256": "35d028de987557ecfc520f26ab3f77efe0b182e6e4178ff4f51254586cf39b1d"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-mcp-regression.stdout.gz",
+      "sha256": "2b52c13f96640867b8e505f4c9b958f28a4695773c256f92796273cda16bc5a6"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-products.stderr.gz",
+      "sha256": "11aae6f21f4ba03558c09eac99c96572e7796677ca2722acbec701659ce3c4ea"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/build-products.stdout.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/cli-regression.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/cli-regression.stdout.gz",
+      "sha256": "a629d8dd218131488e23bbd3c6d73af148a57ca70b3d0ef3b11429b06344021f"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_engine_installed_scan_publishes_revision_and_relations.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_engine_installed_scan_publishes_revision_and_relations.stdout.gz",
+      "sha256": "415d3d0b44f7e144493d3071a4484edd79898a7a9ea4df3592d27f91c12c2350"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_engine_postbirth_panic_preserves_payload_and_recovery.stderr.gz",
+      "sha256": "cc2fcc896da8cff1461e2ce73a026a0bd8cc2796cdfc811a8a93893e9af689c4"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_engine_postbirth_panic_preserves_payload_and_recovery.stdout.gz",
+      "sha256": "251c6aeea3015f7350de68158e31a3cbe9acce858d7f1971cd9b41b785d35796"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_engine_response_exhaustion_has_no_partial_revision.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_engine_response_exhaustion_has_no_partial_revision.stdout.gz",
+      "sha256": "f0ec012a2fb04361f84301b1bd9892084340fb4383ac801006187b3f8e70faf1"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_cancel_after_birth_is_reaped.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_cancel_after_birth_is_reaped.stdout.gz",
+      "sha256": "2c9e724b9f1cdff0cd50b5ea51120d0b0237e282191fd6da8f2a0a02db708c4b"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stderr.gz",
+      "sha256": "55b9a5a69039a1d8b17494d02d125fbecb0279c334b7f9853076b24074700640"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_installed_helper_original_panic_after_birth_keeps_recovery_responsibility.stdout.gz",
+      "sha256": "0ffc20c6a834b0d7c0346972e27df8bda685f4381ffb156f566db0b314b21369"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_installed_helper_returns_complete_tree_after_real_normal_wait.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/macos_installed_helper_returns_complete_tree_after_real_normal_wait.stdout.gz",
+      "sha256": "63c0e1adc88f6909eefd0d6d5247beffe27af64bdc953df626a6ede099f2d545"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/mcp-regression.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/mcp-regression.stdout.gz",
+      "sha256": "42db93508c957d59975edbb154ce95141f30a059a85f007610da66235797a58e"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/cli-init.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/cli-init.stdout.gz",
+      "sha256": "4e0151b8595eb88fa4e94556283731009b87b2b29b29ee1354987f61c6821cab"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/cli-node-after.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/cli-node-after.stdout.gz",
+      "sha256": "b8d5262852a8993a7746c9fe185188d0599673352bb116975fe6c443b88df08e"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/cli-node-before.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/cli-node-before.stdout.gz",
+      "sha256": "0866d83ae04ac239b95c85ee4e3f2d50204dc0816dff57c7e820fc011b13e4bb"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/mcp.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/mcp.stdout.gz",
+      "sha256": "1f712670f2752aa4d0c1213f7a32bed6ae83aab44c6901a1848e8cacdb0472a8"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/products/receipt.json",
+      "sha256": "8bed97246e763f8087964ed8c718e6e34cc102819791fd0fc652217a3328020a"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/raw-path-protocol.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/raw-path-protocol.stdout.gz",
+      "sha256": "c142d22269e7251b6f9b3f01bd3ec9ab9061cdf66783dca09a9a2d2f835c89cd"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/receipt.json",
+      "sha256": "9aaaed6f33a4eea8329f2427d4283e23601fd342dd2a7a37923dd566c9839036"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/response-budget-fixture.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/response-budget-fixture.stdout.gz",
+      "sha256": "825d1ca408c54cb22d2066356972ab369508376fae210754fd15fc8e714a599c"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/root-issuer.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "macos-installed-macos-15-intel-37397304162/_temp/macos-installed-worker/root-issuer.stdout.gz",
+      "sha256": "17d50fb8c921c363172701ea808bedbab7d97dbac53c702ce81ff634b304dd32"
+    }
+  ]
+}

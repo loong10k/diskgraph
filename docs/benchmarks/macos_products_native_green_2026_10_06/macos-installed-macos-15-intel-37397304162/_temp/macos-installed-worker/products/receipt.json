@@ -1,0 +1,19 @@
+{
+  "production_acceptance": false,
+  "status": "passed",
+  "binary_sha256": {
+    "cli": "3415ce6cf01558ef7a5bc48950624663dec55365bc7768690e43b69dcb8d830c",
+    "mcp": "53e59969aa52becbe6dcfc419e79a13b4fa4fecbe8790f2bebecb2ed71c7ebbb"
+  },
+  "scope_id": "scope-a82bd732-bfd9-4fa4-9adb-e6f5c51a0744",
+  "initial_revision": "rev-job-b37c5d1e-a1ff-4ff0-942d-b73db540c898-1",
+  "job_id": "job-198ebe23-e3fb-47a7-a37c-1712660af946",
+  "final_revision": "rev-job-198ebe23-e3fb-47a7-a37c-1712660af946-1",
+  "uid": 501,
+  "cli_normal_exits": 3,
+  "mcp_normal_exit": true,
+  "actual_files_before": 3,
+  "actual_files_after": 4,
+  "actual_allocated_bytes_before": 12288,
+  "actual_allocated_bytes_after": 16384
+}
