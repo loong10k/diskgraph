@@ -1,5 +1,11 @@
 # PF-06 受管宿主作用域生命周期
 
+## 旧持久服务的作业局部宿主（未完成）
+
+保留NativeService::new UniFFI签名和旧协调生命周期。构造时保存已解析的EngineConfig（绝对图库路径与原realm），查询Engine仍共享；每个实际后台扫描在作业栈按该配置建立独立宿主和唯一Recovery，取消/进度使用原JobHandle，coalescing与数据库条件认领不变。作业重新打开Engine不得bootstrap本地管理员或恢复撤销权限，不依赖后续工作目录或重新选择realm。with_owner沿用外层受管宿主，不再建立作业局部宿主。已有同根双句柄实际返回unsupported为原生RED；必须验证真实扫描/同revision、撤权与轮询重复扫描。有限退出、旧raw runner夹具及其他平台门禁仍开放。
+
+本阶段实现作业局部宿主并保留服务确定配置，open_config不bootstrap。本机撤销ScopeAdmin后扫描拒绝且scope/队列为空1/0；临时注入作业bootstrap的负控明确在“worker restored scope registration rights”断言失败，恢复源码后1/0。准入4/0、源码组织8/0、fmt通过。原生真实扫描GREEN待CI，不能替代有限退出或整个旧服务生命周期验收。记录：[旧服务宿主候选及负控](../../../docs/benchmarks/linux_test_boundary_2026_10_06/ffi_legacy_service_host_2026_10_06_candidate.json)。
+
 ## 旧公开异步扫描的实际宿主（未完成）
 
 spawn_scan_json须在原后台协调线程内建立NativeScanHost，沿用原JobHandle取消Arc和进度回调；实际材料准入、runner join与物理恢复均在同一线程栈，不在UI入口执行或将Recovery放入共享句柄。原签名、轮询、结果幂等与授权语义不变。已有a_spawned_scan_returns_a_handle_at_once_and_join_later在e0fae7f/Linux stable原生返回unsupported，需修复后保留该公开正控全部断言并取得原生GREEN。最后句柄取消、有限退出及持久旧构造器验收仍独立开放。

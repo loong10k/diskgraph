@@ -1,7 +1,7 @@
 use crate::native_lifecycle::NativeLifecycle;
 #[cfg(test)]
 use crate::native_scan_gate::NativeScanProgressHook;
-use crate::{JobHandle, NativeServiceError, native_reply, open_engine};
+use crate::{JobHandle, NativeServiceError, native_reply};
 use diskgraph_engine::Engine;
 use diskgraph_store::SqliteSnapshotStore;
 use serde_json::{Value, json};
@@ -17,6 +17,8 @@ mod native_reply_budget_tests;
 #[derive(uniffi::Object)]
 pub struct NativeService {
     pub(crate) engine: Arc<Engine>,
+    /// 旧构造器保存确定的数据库配置；受管入口已拥有外层宿主，使用None。
+    scan_config: Option<diskgraph_engine::EngineConfig>,
     lifecycle: Arc<NativeLifecycle>,
     closed: Arc<AtomicBool>,
     #[cfg(test)]
@@ -32,13 +34,26 @@ impl NativeService {
     )]
     #[uniffi::constructor]
     pub fn new(database_path: String) -> Result<Arc<Self>, NativeServiceError> {
-        let engine = open_engine(&database_path)
+        let config = crate::native_realm::engine_config(&database_path)
             .map_err(|message| NativeServiceError::Unavailable { reason: message })?;
+        let engine =
+            Engine::open(config.clone()).map_err(|error| NativeServiceError::Unavailable {
+                reason: error.to_string(),
+            })?;
+        engine
+            .bootstrap_local_admin(
+                &crate::local_principal()
+                    .map_err(|reason| NativeServiceError::Unavailable { reason })?,
+            )
+            .map_err(|error| NativeServiceError::Unavailable {
+                reason: error.to_string(),
+            })?;
         let closed = Arc::new(AtomicBool::new(false));
         let limit =
             diskgraph_engine::EngineConfig::default().max_active_jobs_per_principal as usize;
         Ok(Arc::new(Self {
             engine: Arc::new(engine),
+            scan_config: Some(config),
             lifecycle: Arc::new(NativeLifecycle::new(closed.clone(), limit)),
             closed,
             #[cfg(test)]
@@ -72,6 +87,7 @@ impl NativeService {
                 reason: error.to_string(),
             })?;
         let engine = self.engine.clone();
+        let scan_config = self.scan_config.clone();
         let root_path = root
             .to_str()
             .ok_or_else(|| NativeServiceError::Unavailable {
@@ -82,18 +98,28 @@ impl NativeService {
         let scan_progress_hook = self.scan_progress_hook.lock().unwrap().take();
         self.lifecycle.register(root, || {
             crate::scan_coordinator::try_spawn_job(move |cancel, progress| {
-                #[cfg(test)]
-                {
-                    crate::run_scan_on_engine(engine, &root_path, cancel, &|value, engine| {
-                        progress(value.clone(), engine);
-                        if let Some(hook) = &scan_progress_hook {
-                            hook(&value);
-                        }
-                    })
-                }
-                #[cfg(not(test))]
-                {
-                    crate::run_scan_on_engine(engine, &root_path, cancel, progress)
+                let run = |engine| {
+                    #[cfg(test)]
+                    {
+                        crate::run_scan_on_engine(engine, &root_path, cancel, &|value, engine| {
+                            progress(value.clone(), engine);
+                            if let Some(hook) = &scan_progress_hook {
+                                hook(&value);
+                            }
+                        })
+                    }
+                    #[cfg(not(test))]
+                    {
+                        crate::run_scan_on_engine(engine, &root_path, cancel, progress)
+                    }
+                };
+                match scan_config {
+                    Some(config) => {
+                        // 仅作业栈拥有物理Recovery；共享服务不取得其所有权，也不重复引导权限。
+                        crate::native_scan_host::NativeScanHost::open_config(config, cancel, 1)?
+                            .execute(run)
+                    }
+                    None => run(engine),
                 }
             })
         })
@@ -186,6 +212,7 @@ impl NativeService {
                 crate::native_service_host_guard::NativeServiceHostGuard::start(lifecycle.clone())?;
             let service = Arc::new(Self {
                 engine,
+                scan_config: None,
                 lifecycle,
                 closed,
                 #[cfg(test)]

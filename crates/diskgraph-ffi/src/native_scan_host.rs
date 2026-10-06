@@ -1,6 +1,7 @@
 use crate::native_realm::{engine_config, local_principal};
 use diskgraph_engine::{
-    Engine, EngineError, ScanWorkerRecovery, ScanWorkerRuntimeBudget, ScanWorkerSettings,
+    Engine, EngineConfig, EngineError, ScanWorkerRecovery, ScanWorkerRuntimeBudget,
+    ScanWorkerSettings,
 };
 use diskgraph_scan_worker::ProtocolLimits;
 use std::sync::{
@@ -22,6 +23,34 @@ impl NativeScanHost {
     pub(crate) fn open(database: &str, cancel: &AtomicBool, capacity: u32) -> Result<Self, String> {
         let deadline = Instant::now() + Duration::from_secs(30);
         let config = engine_config(database)?;
+        let host = Self::prepare(config, cancel, capacity, deadline)?;
+        host.engine
+            .bootstrap_local_admin(&local_principal()?)
+            .map_err(|error| error.to_string())?;
+        Ok(host)
+    }
+
+    /// 参数：config为服务初始化时的确定配置，其余为原作业取消与实际槽数。
+    /// 返回：作业栈宿主；不重新选择realm、不bootstrap或恢复已撤销授权。
+    pub(crate) fn open_config(
+        config: EngineConfig,
+        cancel: &AtomicBool,
+        capacity: u32,
+    ) -> Result<Self, String> {
+        Self::prepare(
+            config,
+            cancel,
+            capacity,
+            Instant::now() + Duration::from_secs(30),
+        )
+    }
+
+    fn prepare(
+        config: EngineConfig,
+        cancel: &AtomicBool,
+        capacity: u32,
+        deadline: Instant,
+    ) -> Result<Self, String> {
         let runtime = ScanWorkerRuntimeBudget::new(
             ProtocolLimits {
                 max_frame_bytes: 1 << 20,
@@ -55,9 +84,6 @@ impl NativeScanHost {
                 None,
             ),
         };
-        engine
-            .bootstrap_local_admin(&local_principal()?)
-            .map_err(|error| error.to_string())?;
         Ok(Self {
             engine: Arc::new(engine),
             recovery,

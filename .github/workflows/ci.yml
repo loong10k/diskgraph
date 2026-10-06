@@ -243,6 +243,11 @@ jobs:
       - name: Native Linux public FFI asynchronous scan
         if: runner.os == 'Linux'
         run: cargo test -p diskgraph-ffi --lib --locked a_spawned_scan_returns_a_handle_at_once_and_join_later -- --nocapture
+      - name: Native Linux legacy FFI service scan and revocation
+        if: runner.os == 'Linux'
+        run: |
+          cargo test -p diskgraph-ffi --lib --locked two_native_handles_for_a_coalesced_job_return_the_same_revision -- --nocapture
+          cargo test -p diskgraph-ffi --lib --locked legacy_service_scan_does_not_restore_revoked_admin_grant -- --nocapture
       - name: Test
         run: cargo test --workspace --all-targets --locked --no-fail-fast
       - name: Native Linux identity and process scan fixtures

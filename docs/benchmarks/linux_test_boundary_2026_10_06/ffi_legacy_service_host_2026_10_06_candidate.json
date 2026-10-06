@@ -1,0 +1,15 @@
+{
+  "scope": "legacy persistent service job-local scan host",
+  "native_positive_red": "b1e03f4 coalesced legacy service scan returns unsupported; original full log retained",
+  "local_revocation_positive": "1 passed / 0 failed",
+  "negative_control": "temporary bootstrap inside job host failed at worker restored scope registration rights; source restored",
+  "local_admission": "4 passed / 0 failed",
+  "local_source_layout": "8 passed / 0 failed",
+  "native_green": "pending CI",
+  "production_ready": false,
+  "limitations": [
+    "raw runner fixtures",
+    "finite recovery handoff",
+    "remaining platform and performance gates"
+  ]
+}

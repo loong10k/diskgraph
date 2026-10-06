@@ -1,5 +1,55 @@
 use super::*;
 use serde_json::Value;
+
+#[test]
+fn legacy_service_scan_does_not_restore_revoked_admin_grant() {
+    let root = tempfile::tempdir().unwrap();
+    let data = tempfile::tempdir().unwrap();
+    std::fs::write(root.path().join("file"), b"protected").unwrap();
+    let service = NativeService::new(
+        data.path()
+            .join("graph.sqlite")
+            .to_str()
+            .unwrap()
+            .to_owned(),
+    )
+    .unwrap();
+    let principal = local_principal().unwrap();
+    service
+        .engine
+        .control_store()
+        .unwrap()
+        .revoke_grant(
+            &principal,
+            &diskgraph_core::Permission::ScopeAdmin,
+            &diskgraph_engine::admin_scope(),
+        )
+        .unwrap();
+    let handle = service
+        .spawn_scan(root.path().to_str().unwrap().to_owned())
+        .unwrap();
+    let answer: Value = serde_json::from_str(&handle.result_json()).unwrap();
+    let control = service.engine.control_store().unwrap();
+    assert!(
+        control.list_scopes().unwrap().is_empty(),
+        "worker restored scope registration rights"
+    );
+    assert!(control.list_queued_jobs().unwrap().is_empty());
+    drop(control);
+    assert_eq!(
+        answer["ok"], false,
+        "revoked administrator scanned: {answer}"
+    );
+    assert!(
+        answer["error"]
+            .as_str()
+            .unwrap()
+            .contains("permission_denied"),
+        "{answer}"
+    );
+    service.shutdown();
+}
+
 #[test]
 fn persistent_service_queries_deny_revoked_scope_and_closed_session() {
     let root = tempfile::tempdir().unwrap();
