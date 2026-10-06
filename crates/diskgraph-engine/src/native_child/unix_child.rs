@@ -320,7 +320,8 @@ impl UnixChild {
             return Err(ChildError::Io("injected cleanup failure".into()));
         }
         if !self.owns_group {
-            self.cleaned = true;
+            // 失去等待权不等于完成回收；每次重试都保留失败，防止 registry
+            // 将未知所有权误判为 Complete 并释放仍需人工处置的容量。
             return Err(ChildError::Unsupported(
                 "child ownership lost; refusing numeric process-group cleanup",
             ));

@@ -1,0 +1,22 @@
+{
+  "production_ready": false,
+  "case": "native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup",
+  "red": "real external waitpid consumes original leader; second cleanup incorrectly succeeds",
+  "green": "three direct cleanup failures and three registry drain failures retain the occupied slot",
+  "native_result": {
+    "passed": 40,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_helper_invoked_by_real_case": true
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "4fb6691769c55479227303161190c9142b4b8979ad1a06dc8486c811d65ef5eb",
+    "crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs": "efad6349aae12f81f2d0231fab7699ccbe2c7a798f409c38cd7845f660ed336b"
+  },
+  "platform_executed": "macOS",
+  "limitations": [
+    "Linux native execution pending",
+    "wait failure after initial ownership check not covered by this case",
+    "full production acceptance incomplete"
+  ]
+}

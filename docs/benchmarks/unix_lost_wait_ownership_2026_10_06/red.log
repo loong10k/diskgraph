@@ -1,0 +1,22 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.06s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-8106de2619a993e3)
+
+running 1 test
+test native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup ... FAILED
+
+failures:
+
+---- native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup stdout ----
+
+thread 'native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup' (121551822) panicked at crates/diskgraph-engine/src/native_child/unix_normal_exit_tests.rs:165:9:
+lost ownership must never turn into successful cleanup on retry
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    native_child::unix_normal_exit_tests::external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 563 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

@@ -161,7 +161,28 @@ fn external_reap_loses_normal_permission_and_refuses_old_numeric_group_cleanup()
                 if native.native_io_error().is_some_and(|original|
                     original.raw_os_error() == Some(libc::ECHILD)))
     );
-    assert!(matches!(child.cleanup(), Err(ChildError::Unsupported(_))));
+    for _ in 0..3 {
+        assert!(
+            matches!(child.cleanup(), Err(ChildError::Unsupported(_))),
+            "lost ownership must never turn into successful cleanup on retry"
+        );
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let registry = crate::scan_worker_registry::ScanWorkerRegistry::new(1).unwrap();
+        let reservation = registry.reserve().unwrap();
+        reservation.retain(child);
+        drop(reservation);
+        for _ in 0..3 {
+            assert!(
+                registry.drain().is_err(),
+                "unknown ownership released recovery slot"
+            );
+            assert_eq!(registry.occupied().unwrap(), 1);
+            assert!(registry.reserve().is_err());
+        }
+        // 此夹具已由真实waitpid消费原leader；生产registry没有此额外事实，仍须保留失败。
+    }
     fixture::reaped(pid);
 }
 
