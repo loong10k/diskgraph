@@ -6,6 +6,8 @@
 
 932ba2c/37463511689 Windows Rust 1.97/job 112268698185 原生回归 0/1，在实际出生后明确断言“original admission must be checked before ResumeThread”失败，不是编译或夹具准入失败。镜像 8/0、产品清理 4/0。修复在出生后生命周期检查成功之后、ResumeThread 之前补同次 admission；原错误不转型，原process/Job外槽不消费，线程句柄明确关闭。GREEN 待修复提交原生 CI，不宣称产品扫描或完整构建通过。记录：[原生 RED 与修复候选](../../../docs/benchmarks/linux_test_boundary_2026_10_06/windows_preresume_admission_2026_10_06_candidate.json)。
 
+868b572/37464120543 Windows stable/job 112270727460 真实回归 1/0，验证出生后撤销准入不恢复线程、原错误和外部owner保留、实际清理完成；镜像8/0、产品清理4/0。Rust1.97/job112270727275同回归step成功，记录时完整job仍运行，不当作全量通过。stable完整Build仍被五组既有扫描接线dead-code阻塞；此修复仅关闭出生后恢复前的准入缺口，不启用Windows扫描执行，不关闭生产门禁。原始GREEN日志已附同目录记录。
+
 当前 `NativeServiceOwner` 拥有静态生命周期且 Drop 同步 join。不可 Send/Sync 不能防止安全 Rust 将其放入 thread_local；Windows TLS 析构持有 loader lock，等待另一线程退出存在结构性死锁风险。此判断不是当前 Windows 测试失败的运行时证明。
 
 ## 接口与所有权

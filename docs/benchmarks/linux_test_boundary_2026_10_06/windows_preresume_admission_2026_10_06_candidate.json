@@ -9,6 +9,16 @@
   "prior_material_tests": 8,
   "prior_product_cleanup_tests": 4,
   "fix": "call original admission after post-birth lifecycle checkpoint immediately before ResumeThread; retain original owner on error",
-  "green": "pending native CI",
+  "green": {
+    "commit": "868b5722b4cfe84cf4c6dda0eed381e451054bd4",
+    "run": 37464120543,
+    "stable_job": 112270727460,
+    "msrv_job": 112270727275,
+    "stable": "1 passed / 0 failed",
+    "msrv_step": "success; whole job still running at observation",
+    "material": "8 passed / 0 failed",
+    "cleanup": "4 passed / 0 failed",
+    "production_build": "still failed on five existing unintegrated scan startup groups"
+  },
   "production_ready": false
 }
