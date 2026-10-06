@@ -1,10 +1,13 @@
 # 全平台验收续篇 — 2026-10-04
 
+Windows 最新进展：[run 37392833173](https://github.com/loong10k/diskgraph/actions/runs/37392833173)，源码 `6420d11715eebdc0fc5d30f4cfeb741a40943bc3`，实际 **25/25 原生测试通过，0 失败、0 忽略**。覆盖原 child/Job owner、受管理探针恢复、私有目录共同保留、真实 deny-delete 失败恢复及代次保护；[原始回执和日志](benchmarks/windows_shared_resource_native_green_2026_10_06/summary.json) 已保存。之前 Job 总数断言已通过实际进程身份定位；正常退出测试绑定原 leader/后代身份，仍要求整个 Job 实际清空。有限 shutdown、可信扫描部署、CLI/MCP 产品闭环及完整三平台验收仍未完成。下一轮 [30 案 runner 验收](https://github.com/loong10k/diskgraph/actions/runs/37393613831) 绑定 `5649c9ad0cbaa4418f6e28cf714805f1bb8dc972`，结果尚待确认。
+
+
 > 2026-10-06 当前状态：全平台生产验收未完成。以下历史通过记录仅适用于各自源码与范围，不能替代当前集成版本验收。
 
 最新原生证据：[macOS CI37386707636](https://github.com/loong10k/diskgraph/actions/runs/37386707636) 的 ARM64、Intel 均已成功；各自实际执行9项固定案例：协议2项、root安装1项、普通UID的helper/Engine 6项。[ARM64回执](benchmarks/macos_installed_engine_native_green_2026_10_06/arm64/summary.json)与此前Intel回执保留源码及二进制身份。实际CLI/MCP正向流程、升级与发布竞态、默认启用和完整集成仍未完成。
 
-[Windows同runner对照37388084630](https://github.com/loong10k/diskgraph/actions/runs/37388084630)确认当前源码14/17、原源码11/17；两者均有相同3项正常退出Job计数断言失败，原源码另有3项出生后owner失败。[原始日志与对照回执](benchmarks/windows_same_runner_baseline_comparison_2026_10_06/summary.json)已保留。实际Job成员身份尚未观测，不削弱原断言。受管理probe的3项owner回归已冻结于`e5402cb`，[原生37389541495](https://github.com/loong10k/diskgraph/actions/runs/37389541495)待完成。失败child与Git私有目录共同保留仍是生产缺口。
+[Windows同runner对照37388084630](https://github.com/loong10k/diskgraph/actions/runs/37388084630)确认当前源码14/17、原源码11/17；两者均有相同3项正常退出Job计数断言失败，原源码另有3项出生后owner失败。[原始日志与对照回执](benchmarks/windows_same_runner_baseline_comparison_2026_10_06/summary.json)已保留。该历史阶段尚未观测实际Job成员身份，受管理probe及目录恢复也未完成。后续实际诊断、RED/GREEN回执及上方最新25案通过结果已更新该阶段状态；原始失败日志继续保留。
 
 下方保留此前阶段结果，不覆盖上述最新状态。
 

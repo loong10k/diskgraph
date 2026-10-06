@@ -110,6 +110,18 @@ def check_runner_cases(cases):
         raise ValueError("fixed runner lifecycle native inventory differs")
 
 
+POLL_CLEANUP_CASES = tuple("native_child::windows::windows_poll_cleanup_tests::" + name for name in (
+    "expired_read_cleanup_keeps_pending_storage_until_other_thread_completes",
+    "expired_write_cleanup_keeps_pending_storage_until_other_thread_completes",
+    "expired_child_cleanup_keeps_original_handles_until_native_complete",
+))
+
+
+def check_poll_cleanup_cases(cases):
+    if len(cases) != len(POLL_CLEANUP_CASES) or set(cases) != set(POLL_CLEANUP_CASES):
+        raise ValueError("fixed finite cleanup native inventory differs")
+
+
 def check_cases(cases):
     if len(cases) != len(REQUIRED_CASES) or set(cases) != set(REQUIRED_CASES):
         raise ValueError("fixed cleanup acceptance inventory differs")
@@ -155,6 +167,9 @@ def main():
         runner_cases = [] if args.baseline else manifest["runner_cases"]
         if not args.baseline:
             check_runner_cases(runner_cases)
+        poll_cases = [] if args.baseline else manifest["poll_cleanup_cases"]
+        if not args.baseline:
+            check_poll_cleanup_cases(poll_cases)
         environment = os.environ.copy()
         shared.invoke(["cargo", "test", "--locked", "-p", "diskgraph-engine", "--lib", "--no-run", "--message-format=json"],
                       checkout, output, "build-cleanup-fixtures", environment)
@@ -171,7 +186,7 @@ def main():
         results = []
         # 每案独立进程，真实RED不阻止其余案取证；失败仍原样保留并使总门禁失败。
         receipt["cases"] = results
-        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases):
+        for case in list(prerequisites) + list(cases) + list(birth_cases) + list(regression_cases) + list(probe_cases) + list(directory_cases) + list(resource_cases) + list(runner_cases) + list(poll_cases):
             name = case.rsplit("::", 1)[-1]
             try:
                 shared.invoke([str(binary), case, "--exact", "--nocapture", "--test-threads=1"],
@@ -179,7 +194,7 @@ def main():
                 passed = "test result: ok. 1 passed; 0 failed;" in (output / (name + ".stdout")).read_text()
             except RuntimeError:
                 passed = False
-            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "probe" if case in probe_cases else "directory_prerequisite" if case == DIRECTORY_CASES[0] else "directory" if case in directory_cases else "resource" if case in resource_cases else "runner" if case in runner_cases else "cleanup"})
+            results.append({"case": case, "passed": passed, "phase": "io_prerequisite" if case in prerequisites else "birth" if case in birth_cases else "regression" if case in regression_cases else "probe" if case in probe_cases else "directory_prerequisite" if case == DIRECTORY_CASES[0] else "directory" if case in directory_cases else "resource" if case in resource_cases else "runner" if case in runner_cases else "poll_cleanup" if case in poll_cases else "cleanup"})
             if case == DIRECTORY_CASES[0] and not passed:
                 raise RuntimeError("actual private directory prerequisite failed; directory recovery RED not qualified")
             if case == prerequisites[-1] and not all(result["passed"] for result in results):

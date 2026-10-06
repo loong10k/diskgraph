@@ -80,3 +80,8 @@ The 471-source candidate integrates the independently reviewed catch-external Wi
 - 最终退出必须区分“有限业务返回并移交原Recovery”与“OS进程在固定墙钟内真正退出”。现模型中pending OVERLAPPED内存属于原进程，不能只复制句柄、Drop/forget或无限循环伪装有限退出。非阻塞cleanup、出生前pending prepared owner、原deadline及上层显式恢复责任仍待实施/验收；不勾选生产父项。
 
 - 非作者复审发现前一候选执行后 StaleOwner/Conflict 的 continue 可能带入刚移交的owner；现每个候选认领前持同一资格复核原池，后续Queued保持不变。准入Mutex仅保护互斥资格，无业务数据，panic后可取回原guard并重新做容量检查；新增实际线程panic/原payload/资格恢复案。候选共30案；此新增测试只证明准入资格恢复，不代替完整任务重新执行或产品原生验收。首候选实际probe后fencing失效+保留owner+下一候选这一组合仍缺原生端到端证据。
+
+
+### 非阻塞清理新 API 的开发 RED 冻结
+
+新增三个实际 Windows 夹具：原 pending read/write 在已过期限保留原地址，移交到另一线程在同一原期限内实际取消和观察 ERROR_OPERATION_ABORTED；原 child 过期后保留原 Job/process，后续同 owner 真实 wait/Job0 才 Complete。当前仅测试引用新 CleanupProgress/poll_cleanup，生产入口尚缺；下一冻结的预期失败是 Windows 编译缺 API，只算开发 RED，不算已出生进程或行为 RED，也不算原30案回归失败。30案 runner 候选37393613831保持原源码运行，不取消、不据排队重新启动。新API编译/原生完成之前不修改旧产品清理/Drop路径；prepared owner、有限Registry/Pool、上层shutdown仍开放。
