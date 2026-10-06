@@ -234,6 +234,9 @@ jobs:
             ${{ runner.temp }}/diskgraph-linux-atomic-launch-digests.txt
           retention-days: 7
           if-no-files-found: error
+      - name: Native Linux public FFI synchronous scan
+        if: runner.os == 'Linux'
+        run: cargo test -p diskgraph-ffi --lib --locked read_only_bindings_scan_and_query_native_directory -- --nocapture
       - name: Test
         run: cargo test --workspace --all-targets --locked --no-fail-fast
       - name: Native Linux identity and process scan fixtures

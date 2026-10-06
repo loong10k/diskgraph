@@ -1,5 +1,11 @@
 # PF-06 受管宿主作用域生命周期
 
+## 旧同步 FFI 扫描的实际宿主接线（未完成）
+
+同步 scan_native_json/run_scan_with_cancel 必须沿用 CLI/MCP 的平台材料准入，独立配置原 helper 协议额度与一个实际进程槽，不使用测试夹具或普通路径信任降级。查询 Engine 仍按原 realm 归属规则打开；同步扫描另由普通栈宿主持有唯一 ScanWorkerRecovery。协调 runner 正常/错误/unwind 都先真实 join，随后处理同一原物理恢复槽，再返回原业务值或继续 panic；恢复责任不得进入共享 Engine 或请求 callback。
+
+这是既有同步阻塞 API 的兼容接线，不宣称有限退出、UI线程可调用或持久 NativeService 已接线。Linux现有CI同一提交的公开 read_only_bindings_scan_and_query_native_directory 在扫描ok断言失败，FFI总体40/49；已有实际部署worker继续用于原生回归，不创建伪快照或替换Engine算法。修复后必须取得公开同步扫描/查询GREEN，并报告仍失败的持久服务及全平台门禁。有限恢复交接与三平台生产验收仍未完成。
+
 ## Windows 恢复执行前的请求准入检查（未完成）
 
 原生 CreateProcessW 成功后进程仍挂起，原 process/Job 已进入 catch 外唯一 owner。恢复线程前必须再次执行同次 admission（期限、取消、撤权），不能仅执行生命周期 checkpoint。撤销后的原非 Clone 错误应原样返回，原挂起进程不执行用户代码，原 owner 留给实际 Job 终止/leader wait/Job0 清理；失败或 panic 不丢责任。新增真实出生观察回归先取得原生 RED，再修改 ResumeThread 前的检查顺序。正常产品完整构建与扫描加载资格仍是独立必需门禁。

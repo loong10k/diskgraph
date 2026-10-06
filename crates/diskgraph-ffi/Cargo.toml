@@ -17,6 +17,7 @@ diskgraph-core.workspace = true
 diskgraph-store.workspace = true
 diskgraph-disktree.workspace = true
 diskgraph-engine.workspace = true
+diskgraph-scan-worker = { path = "../diskgraph-scan-worker" }
 diskgraph-disktree-core.workspace = true
 serde_json.workspace = true
 thiserror = "2"
@@ -25,7 +26,6 @@ hex.workspace = true
 uniffi = { version = "0.32.2", features = ["cli"] }
 
 [dev-dependencies]
-diskgraph-scan-worker = { path = "../diskgraph-scan-worker" }
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
 tempfile = "3"
 syn = { version = "2.0.119", features = ["full", "visit"] }

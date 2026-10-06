@@ -34,6 +34,7 @@ mod native_runner_guard;
 mod native_runner_signal_tests;
 #[cfg(test)]
 mod native_scan_gate;
+mod native_scan_host;
 #[cfg(test)]
 mod native_scoped_owner_tests;
 mod native_service;

@@ -2,7 +2,7 @@
 use crate::JobHandle;
 use crate::api_result::ApiResult;
 use crate::job_state::JobState;
-use crate::native_realm::{local_principal, open_engine};
+use crate::native_realm::local_principal;
 use crate::native_runner_guard::NativeRunnerGuard;
 use diskgraph_core::{BusinessError, PrincipalId};
 use diskgraph_engine::{Engine, EngineError};
@@ -143,10 +143,12 @@ pub(crate) fn run_scan_with_cancel(
     // The engine's own scan bridge carries cancellation between batches;
     // the FFI layer drives it through the same engine path the server uses
     // so a cancelled job never half-publishes.
-    let engine = std::sync::Arc::new(open_engine(database_path)?);
+    let host = crate::native_scan_host::NativeScanHost::open(database_path, cancel)?;
     // 旧同步入口只有借用标志；保留原轮询镜像，不冒称这是 JobHandle 的原 Arc。
     let request = Arc::new(AtomicBool::new(cancel.load(Ordering::SeqCst)));
-    run_scan_coordinator(engine, root_path, &request, Some(cancel), &|_, _| {})
+    host.execute(|engine| {
+        run_scan_coordinator(engine, root_path, &request, Some(cancel), &|_, _| {})
+    })
 }
 
 /// 复用 Engine 驱动持久扫描作业及进度授权。

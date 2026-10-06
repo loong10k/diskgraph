@@ -153,16 +153,22 @@ fn realm_for_database(database: &Path) -> Result<PathBuf, String> {
 /// 参数：path 为图库路径。
 /// 返回：已引导本地管理员的 Engine，或打开与授权错误。
 pub(crate) fn open_engine(path: &str) -> Result<diskgraph_engine::Engine, String> {
-    let database = canonical_database_path(Path::new(path))?;
-    let realm = realm_for_database(&database)?;
-    let engine = diskgraph_engine::Engine::open(diskgraph_engine::EngineConfig {
-        data_dir: realm,
-        graph_database_path: Some(database),
-        ..Default::default()
-    })
-    .map_err(|error| error.to_string())?;
+    let engine =
+        diskgraph_engine::Engine::open(engine_config(path)?).map_err(|error| error.to_string())?;
     engine
         .bootstrap_local_admin(&local_principal()?)
         .map_err(|error| error.to_string())?;
     Ok(engine)
+}
+
+/// 解析同一持久realm，供查询与受管扫描宿主共享数据库归属规则。
+/// 参数：path为图库路径；返回：未打开Engine的配置或原路径/归属错误。
+pub(crate) fn engine_config(path: &str) -> Result<diskgraph_engine::EngineConfig, String> {
+    let database = canonical_database_path(Path::new(path))?;
+    let realm = realm_for_database(&database)?;
+    Ok(diskgraph_engine::EngineConfig {
+        data_dir: realm,
+        graph_database_path: Some(database),
+        ..Default::default()
+    })
 }
