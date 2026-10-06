@@ -148,6 +148,41 @@ jobs:
           retention-days: 7
       - name: Build
         run: cargo build --workspace --all-targets --locked
+      - name: Build actual Windows scan worker for protocol qualification
+        if: runner.os == 'Windows'
+        run: |
+          cargo build -p diskgraph-scan-worker --locked --message-format=json > "$env:RUNNER_TEMP/windows-worker-build.jsonl"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $rows = Get-Content "$env:RUNNER_TEMP/windows-worker-build.jsonl" | ForEach-Object { $_ | ConvertFrom-Json }
+          $artifacts = @($rows | Where-Object { $_.reason -eq 'compiler-artifact' -and $_.target.name -eq 'diskgraph-scan-worker' -and $_.executable })
+          if ($artifacts.Count -ne 1) { throw 'One actual Cargo worker artifact is required' }
+          $image = $artifacts[0].executable
+          if (-not [IO.Path]::IsPathFullyQualified($image) -or -not (Test-Path -LiteralPath $image -PathType Leaf)) { throw 'Invalid current worker path' }
+          $file = Get-Item -LiteralPath $image
+          if ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Worker artifact must not be a reparse point' }
+          @{ checkout_sha = (git rev-parse HEAD); worker_sha256 = (Get-FileHash -LiteralPath $image -Algorithm SHA256).Hash; worker_bytes = $file.Length; production_acceptance = $false } | ConvertTo-Json | Set-Content -Encoding utf8 "$env:RUNNER_TEMP/windows-worker-receipt.json"
+          "DISKGRAPH_WINDOWS_WORKER_QUALIFICATION=$image" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Native Windows actual worker protocol and original cancellation
+        if: runner.os == 'Windows'
+        run: |
+          cargo test -p diskgraph-engine --lib --locked native_child::windows::windows_worker_protocol_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-worker-protocol.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-worker-protocol.log" -Raw
+          if ($log -notmatch 'test result: ok\. 2 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'DG_CURRENT_WINDOWS_WORKER_RAW_SCAN_NORMAL_EXIT=1' -or
+              $log -notmatch 'DG_CURRENT_WINDOWS_WORKER_ORIGINAL_CANCEL_REAPED=1') {
+            throw 'Both current worker native protocol cases must execute'
+          }
+      - name: Preserve actual Windows worker protocol evidence
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-worker-protocol-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/windows-worker-build.jsonl
+            ${{ runner.temp }}/windows-worker-receipt.json
+            ${{ runner.temp }}/windows-worker-protocol.log
+          if-no-files-found: error
       - name: Native Linux thread-group and procfs qualification
         if: runner.os == 'Linux'
         run: |
@@ -186,13 +221,14 @@ jobs:
           python-version: '3.13'
       - name: Build explicit protocol-driver test fixture
         id: driver_fixture
+        shell: bash
         run: |
           cargo build -p diskgraph-engine --example scan_worker_driver_fixture --locked --message-format=json > "${{ runner.temp }}/protocol-driver-build.jsonl"
           python - <<'PYTHON'
           import hashlib, json, os, subprocess
           from pathlib import Path
           output = Path(os.environ["RUNNER_TEMP"])
-          rows = [json.loads(line) for line in (output / "protocol-driver-build.jsonl").read_text().splitlines()]
+          rows = [json.loads(line) for line in (output / "protocol-driver-build.jsonl").read_text(encoding="utf-8").splitlines()]
           artifacts = [row for row in rows if row.get("reason") == "compiler-artifact"
                        and row.get("target", {}).get("name") == "scan_worker_driver_fixture"
                        and row.get("target", {}).get("kind") == ["example"] and row.get("executable")]

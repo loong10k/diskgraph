@@ -1,0 +1,60 @@
+{
+  "run_id": 37487309315,
+  "job_id": 112350604658,
+  "source_commit": "f228b10bf4d27521f8a9c99316879aac9a20e7bc",
+  "status": "passed",
+  "measurements": [
+    {
+      "fixture": "20000-wide",
+      "round": 1,
+      "baseline_seconds": 3.242040308,
+      "candidate_seconds": 3.275267466,
+      "top20_p95_ms": 0.702071
+    },
+    {
+      "fixture": "20000-wide",
+      "round": 2,
+      "baseline_seconds": 3.254791887,
+      "candidate_seconds": 3.291328944,
+      "top20_p95_ms": 0.671203
+    },
+    {
+      "fixture": "200000-wide",
+      "round": 1,
+      "baseline_seconds": 35.156740651,
+      "candidate_seconds": 34.556136629,
+      "top20_p95_ms": 0.708282
+    },
+    {
+      "fixture": "200000-wide",
+      "round": 2,
+      "baseline_seconds": 34.96901192,
+      "candidate_seconds": 34.711410319,
+      "top20_p95_ms": 0.690409
+    },
+    {
+      "fixture": "300-deep",
+      "round": 1,
+      "baseline_seconds": 0.111830729,
+      "candidate_seconds": 0.142305554,
+      "top20_p95_ms": 0.646988
+    },
+    {
+      "fixture": "300-deep",
+      "round": 2,
+      "baseline_seconds": 0.110323058,
+      "candidate_seconds": 0.143104115,
+      "top20_p95_ms": 0.672526
+    }
+  ],
+  "limitations": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ],
+  "production_acceptance": false
+}

@@ -1,0 +1,19 @@
+{
+  "run_id": 37487309315,
+  "job_id": 112350604658,
+  "source_commit": "f228b10bf4d27521f8a9c99316879aac9a20e7bc",
+  "verified_artifact_count": 69,
+  "all_receipt_artifact_hashes_match": true,
+  "omitted_large_archive_outputs": {
+    "baseline-archive.stdout": {
+      "bytes": 18616320,
+      "sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33"
+    },
+    "candidate-archive.stdout": {
+      "bytes": 107182080,
+      "sha256": "bcdccdaf439ec6ded5c587365aa65709d3cf64b8131c059cc3827f818f05d527"
+    }
+  },
+  "large_archive_location": "GitHub artifact 11424855231 and /private/tmp/dg-paired-f228.zip",
+  "production_acceptance": false
+}

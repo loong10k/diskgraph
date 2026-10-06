@@ -1,0 +1,30 @@
+{
+  "run_id": 37490308655,
+  "source_commit": "84f284c509beb9d2c7156dcab75bea1c3b74d79b",
+  "cases": [
+    {
+      "rust": "stable",
+      "job_id": 112361531819,
+      "artifact_id": 11425796122,
+      "raw_sha256": "f6e6669ed307f33166c05a149da817b0bec14af9299e9d805437be0a5c4d5b7e",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0,
+      "parent_job_conclusion": "failure",
+      "parent_failure": "protocol-driver Bash heredoc parsed by PowerShell"
+    },
+    {
+      "rust": "1.97.0",
+      "job_id": 112361532077,
+      "artifact_id": 11425711434,
+      "raw_sha256": "4462c98f6f02bbc9a14c403e85918dc740c404d0f7b6e514cdbff0d40d505851",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0,
+      "parent_job_conclusion": "failure",
+      "parent_failure": "protocol-driver Bash heredoc parsed by PowerShell"
+    }
+  ],
+  "production_acceptance": false,
+  "windows_runtime": "Unsupported"
+}

@@ -76,3 +76,6 @@ mod windows_directory_notification_tests;
 mod windows_test_birth;
 #[cfg(test)]
 pub(crate) use windows_test_birth::WindowsTestBirth;
+
+#[cfg(test)]
+mod windows_worker_protocol_tests;
