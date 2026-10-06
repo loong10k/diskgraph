@@ -13,6 +13,14 @@ spec.loader.exec_module(qualifier)
 
 
 class WindowsCleanupQualifierTests(unittest.TestCase):
+    def test_last_close_marker_accepts_actual_libtest_nocapture_prefix(self):
+        case = qualifier.DIRECTORY_ENUMERATION_CASES[3]
+        stdout = (f"running 1 test\ntest {case} ... DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1\n"
+                  "ok\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured;\n")
+        self.assertTrue(qualifier.native_case_passed(case, stdout))
+        self.assertFalse(qualifier.native_case_passed(case, stdout.replace(
+            "DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1", "DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=10")))
+
     def test_actual_last_close_delete_requires_exact_case_and_native_marker(self):
         case = qualifier.DIRECTORY_ENUMERATION_CASES[3]
         success = ("running 1 test\n" + case + "\n"

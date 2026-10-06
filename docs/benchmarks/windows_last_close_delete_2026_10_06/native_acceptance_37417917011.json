@@ -1,0 +1,11 @@
+{
+  "run_id": 37417917011,
+  "source_commit": "afef3c581c0035a08809a8ab3e85d4ff30e3c1f8",
+  "status": "success",
+  "exact_cases_passed": 72,
+  "exact_stdout_verified": 72,
+  "actual_child_and_root_delete_marker": true,
+  "explicit_native_not_found_check_covered": false,
+  "production_ready": false,
+  "cleanup_walker_pool_integrated": false
+}

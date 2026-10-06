@@ -28,7 +28,8 @@ def native_case_passed(case, stdout):
             or "test result: ok. 1 passed; 0 failed; 0 ignored;" not in stdout):
         return False
     if case == DIRECTORY_ENUMERATION_CASES[3]:
-        return "DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1" in stdout.splitlines()
+        marker = "DG_VERIFIED_CHILD_AND_ROOT_LAST_CLOSE_DELETE=1"
+        return any(line in (marker, f"test {case} ... {marker}") for line in stdout.splitlines())
     return True
 
 
