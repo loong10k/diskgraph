@@ -117,3 +117,6 @@ MCP真实宿主回归接线进行中：新增tests/service_fixture.rs，在真�
 
 
 HTTP受控生命周期本机最终验证：5个真实socket案与原连接上限1案均实际通过，原输出/最终源码摘要见docs/benchmarks/http_runtime_native_local_green_2026_10_06；不是Linux/Windows原生资格。10个原detached测试server改为owner，3个扫描源保活至runner实际join；停止不取消job，旧签名和原断言保留，fatal accept错误在全join后原样返回。Mac候选596份源码，完整CLI67+MCP159门禁冻结待原生安装环境执行。Python守卫30项通过，MCP全回归未计完成。
+
+
+Windows有限清理库层原生GREEN：CI37395768727 / job112051232160 / 73fe226终态success；35项逐一核对原stdout均1passed/0failed/0ignored，含5项新增poll清理案。fixture SHA256 c7d33732e2d3507a1c73b4ca0840a089c14b95c8800135a8e7bce6a37a8c1cc7，完整原stderr/stdout/receipt及摘要保存于docs/benchmarks/windows_finite_cleanup_native_green_2026_10_06；首次归档因3项nocapture诊断位于测试名与ok之间而中止，保留诊断补齐归档，不修改原测试或输出。仅库层poll行为通过，未启用产品；旧Drop、出生前pending、有限Registry/Pool、目录删除和可信Windows扫描镜像/CLI/MCP资格仍开放，不关闭平台父项。

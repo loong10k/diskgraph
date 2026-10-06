@@ -1,0 +1,267 @@
+{
+  "production_acceptance": false,
+  "run_id": 37395768727,
+  "job_id": 112051232160,
+  "source_commit": "73fe2262349c87952d075ce0f44b995556dacbff",
+  "fixture_sha256": "c7d33732e2d3507a1c73b4ca0840a089c14b95c8800135a8e7bce6a37a8c1cc7",
+  "actual_cases_passed": 35,
+  "new_poll_cases_passed": 5,
+  "case_results": [
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_write_owner_moves_threads_with_stable_storage_and_cancellation",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_io_transfer_tests::pending_read_drop_on_receiving_thread_waits_for_real_completion",
+      "passed": true,
+      "phase": "io_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_wait_failure_retains_original_owner_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::cleanup_query_failure_retains_original_job_until_actual_retry",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_cleanup_recovery_tests::recovery_slot_survives_query_failure_until_original_job_is_observed_empty",
+      "passed": true,
+      "phase": "cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery",
+      "passed": true,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_wait",
+      "passed": true,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_birth_recovery_tests::postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query",
+      "passed": true,
+      "phase": "birth"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_normal_exit_tests::normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::original_null_spawn_has_four_checkpoints_and_no_control_input",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_control_input_tests::original_post_create_failure_cleans_actual_job_with_external_witness_handles_held",
+      "passed": true,
+      "phase": "regression"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_wait_failure_retains_original_owner_and_capacity",
+      "passed": true,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_cancel_query_failure_retains_original_owner_and_capacity",
+      "passed": true,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_recovery_tests::managed_probe_panic_wait_failure_retains_original_owner_and_capacity",
+      "passed": true,
+      "phase": "probe"
+    },
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::real_git_private_directory_creation_and_completion_qualifies_resource_fixture",
+      "passed": true,
+      "phase": "directory_prerequisite"
+    },
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::private_git_complete_retains_original_directory_after_cancel_cleanup_failure",
+      "passed": true,
+      "phase": "directory"
+    },
+    {
+      "case": "native_child::windows::windows_probe_directory_recovery_tests::private_git_drop_retains_original_directory_after_panic_cleanup_failure",
+      "passed": true,
+      "phase": "directory"
+    },
+    {
+      "case": "live_evidence::probe_resource_pool_tests::real_directory_delete_failure_keeps_session_slot_until_native_release",
+      "passed": true,
+      "phase": "resource"
+    },
+    {
+      "case": "live_evidence::probe_resource_pool_tests::borrowed_directory_prevents_session_reuse_after_budget_drop",
+      "passed": true,
+      "phase": "resource"
+    },
+    {
+      "case": "runner::tests::stop_preserves_original_background_panic_payload",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::managed_runner_rejects_recovery_from_another_pool_before_start",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::busy_managed_runner_does_not_claim_or_fail_queued_job",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::active_probe_session_does_not_turn_queued_job_into_capacity_failure",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "runner::tests::recovered_runner_admission_does_not_remain_poisoned_after_panic",
+      "passed": true,
+      "phase": "runner"
+    },
+    {
+      "case": "native_child::windows::windows_poll_cleanup_tests::expired_read_cleanup_keeps_pending_storage_until_other_thread_completes",
+      "passed": true,
+      "phase": "poll_cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_poll_cleanup_tests::expired_write_cleanup_keeps_pending_storage_until_other_thread_completes",
+      "passed": true,
+      "phase": "poll_cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_poll_cleanup_tests::expired_child_cleanup_keeps_original_handles_until_native_complete",
+      "passed": true,
+      "phase": "poll_cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_poll_cleanup_tests::poll_cleanup_wait_failure_retains_original_owner_until_actual_retry",
+      "passed": true,
+      "phase": "poll_cleanup"
+    },
+    {
+      "case": "native_child::windows::windows_poll_cleanup_tests::poll_cleanup_query_failure_retains_original_owner_until_actual_retry",
+      "passed": true,
+      "phase": "poll_cleanup"
+    }
+  ],
+  "raw_sha256": {
+    "pending_read_owner_moves_threads_with_stable_storage_and_cancellation.stdout": "e151b9bcaf970145de51a7a41549fbffc534a9da97d1f6aca5a7c6d35796b9f9",
+    "pending_read_owner_moves_threads_with_stable_storage_and_cancellation.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup.stdout": "f0457e244c48627068377423f79b4d6f31589dc8deb6fbe6ac9d69ab392606ad",
+    "pending_read_query_failure_keeps_kernel_memory_until_other_thread_cleanup.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending_write_owner_moves_threads_with_stable_storage_and_cancellation.stdout": "340961e8eb7ff5ae2e17cd45bd8593c2ad2944d4edbca6ff2174044d37273da0",
+    "pending_write_owner_moves_threads_with_stable_storage_and_cancellation.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending_read_drop_on_receiving_thread_waits_for_real_completion.stdout": "c5f092f0e16bdc127900553cacb6d5e1703b2a34b0033d81fb4acb0d06cb2e98",
+    "pending_read_drop_on_receiving_thread_waits_for_real_completion.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cleanup_wait_failure_retains_original_owner_until_actual_retry.stdout": "33f8156f764f9ea63756955cebbc883dc4391656c8bb449bfe647127e7e4f18c",
+    "cleanup_wait_failure_retains_original_owner_until_actual_retry.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cleanup_query_failure_retains_original_job_until_actual_retry.stdout": "f0d77d4bd18e7dbcf421bcfcf65b6dacc6c3cddb7893707d71b36858c241c5b0",
+    "cleanup_query_failure_retains_original_job_until_actual_retry.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recovery_slot_survives_query_failure_until_original_job_is_observed_empty.stdout": "ba278b32f878f367b0343ac8f0d061fca7962cec0f430b06143bf71c80fb395f",
+    "recovery_slot_survives_query_failure_until_original_job_is_observed_empty.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery.stdout": "fe3d9779a2ecccce11c3add9013ab63cf5ca048370141f79ff9e3af3f3080628",
+    "postbirth_panic_keeps_external_owner_through_failed_wait_and_recovery.stderr": "0aab894976d72b9a339238d9fc1f6b46153bc79a60b347ae49904d27034bcb25",
+    "postbirth_checkpoint_error_keeps_external_owner_through_failed_wait.stdout": "4e0bbf9caa6cea24275b1fe1612c4bdb2b46fa70cb2a0f08e0f8643aaf2cc84c",
+    "postbirth_checkpoint_error_keeps_external_owner_through_failed_wait.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query.stdout": "314d9660af5bc620abf17a8cac97942291e8b937f69745f60eb100e4a706c55c",
+    "postbirth_checkpoint_error_keeps_external_owner_through_failed_job_query.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited.stdout": "7eda3d8c61c2d6724e2434ab26d0a6b7c7b394256bd96744a2e2037e61521a44",
+    "normal_exit_waits_for_stdio_closed_descendant_after_leader_has_exited.stderr": "77211bdd9f82dae8c7355ab1cc9b9fcf6ca0f0c2a730cad04c7e75e2e45aac27",
+    "normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive.stdout": "920eff48e9bb1c1dadd10ccfd705fd7e598ef920306ee24de6239b6f855c5eb8",
+    "normal_exit_does_not_accept_end_and_two_eofs_while_leader_remains_alive.stderr": "db339a18a825a7309ac4d1b4a6025732a91a1b58c2ec5419781fd1d30ac14c61",
+    "normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code.stdout": "56eb84d3286b4d7fd59330393bc57316c6da6d558054989aac485f61238b5515",
+    "normal_exit_requires_control_closed_and_preserves_real_nonzero_leader_code.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job.stdout": "92a4270244db5706e655fd1b6d95befbcfec174fb762a20e403f74e9436fd07e",
+    "normal_exit_checkpoint_retains_nonclone_error_without_killing_qualified_job.stderr": "05f96fba83da2b654f19f995a2945562f4dd9e97f42c2e37c7e84a7b29247223",
+    "original_null_spawn_has_four_checkpoints_and_no_control_input.stdout": "5931772f047ee0d20d450c3e78cc189ecb8e9565cdecfc40ef88b064a61fd6c3",
+    "original_null_spawn_has_four_checkpoints_and_no_control_input.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job.stdout": "bda8def81aa73ee2e84ee40f8d64233ca6a799dad7dde1431fd98d5797b1a29d",
+    "third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspended_job.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "original_post_create_failure_cleans_actual_job_with_external_witness_handles_held.stdout": "34886f4e17130c3cdea3ff539da930ae187450a97dc05ce5978e841b6862c7fc",
+    "original_post_create_failure_cleans_actual_job_with_external_witness_handles_held.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "managed_probe_cancel_wait_failure_retains_original_owner_and_capacity.stdout": "93270210a8bc12b6a341c5b4c189593fa97452451a6dd17b9f679cd48833c8be",
+    "managed_probe_cancel_wait_failure_retains_original_owner_and_capacity.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "managed_probe_cancel_query_failure_retains_original_owner_and_capacity.stdout": "a9532207001016500cd7bcb043236c6301e0e3f1b0f6b0908f49aca580859afe",
+    "managed_probe_cancel_query_failure_retains_original_owner_and_capacity.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "managed_probe_panic_wait_failure_retains_original_owner_and_capacity.stdout": "d43a7e276b1059b157f9b63175df15f5b3bc953dba9c335a120157243f36a2f0",
+    "managed_probe_panic_wait_failure_retains_original_owner_and_capacity.stderr": "78ef629b1fe1d5d70741bbf91f8a40a573fcf33e2aae57a708442aef975b6974",
+    "real_git_private_directory_creation_and_completion_qualifies_resource_fixture.stdout": "e921f9dfb467ac347abc205f475d631d8ff6f99123c15ae67a96b829fc3fbd31",
+    "real_git_private_directory_creation_and_completion_qualifies_resource_fixture.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "private_git_complete_retains_original_directory_after_cancel_cleanup_failure.stdout": "3db3a551e675d06d4038dd824d0900060dc45ac30f827ee662b26288c084e1d7",
+    "private_git_complete_retains_original_directory_after_cancel_cleanup_failure.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "private_git_drop_retains_original_directory_after_panic_cleanup_failure.stdout": "0f7fe120deeb90acd1ad95803cebf3f5e13986a90e9955fd33b970dd683e7dbc",
+    "private_git_drop_retains_original_directory_after_panic_cleanup_failure.stderr": "1191bd1c62f708a3467d83768c820cfb259438973181a1347ed881e72a673944",
+    "real_directory_delete_failure_keeps_session_slot_until_native_release.stdout": "b2e1ab5c12a39658f27f5664a4b5f31fd561a8d2015eb9ce24b4178efe54a4a4",
+    "real_directory_delete_failure_keeps_session_slot_until_native_release.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "borrowed_directory_prevents_session_reuse_after_budget_drop.stdout": "116f5f4c6fee6975d9b5dbce7c77130b6032efd4da0b9a030b8e81ebf5fb9c73",
+    "borrowed_directory_prevents_session_reuse_after_budget_drop.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stop_preserves_original_background_panic_payload.stdout": "c1193840ae58adef20ab8a5b29f46e24f5272cb9aa9b0e912822887de8ebb2b5",
+    "stop_preserves_original_background_panic_payload.stderr": "95bf7f15d115d1a431095ff878eafbb34b12c6b1a27f771e56c12877c236d1db",
+    "managed_runner_rejects_recovery_from_another_pool_before_start.stdout": "cb538e746139d8c274cdcd417f33d38bf7d7dd0c82804667a6a0facaafe51ff1",
+    "managed_runner_rejects_recovery_from_another_pool_before_start.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "busy_managed_runner_does_not_claim_or_fail_queued_job.stdout": "f2ec4fe079181bc47737597f4806e13ffb6d89841b086df890b8b8dae77cfc20",
+    "busy_managed_runner_does_not_claim_or_fail_queued_job.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "active_probe_session_does_not_turn_queued_job_into_capacity_failure.stdout": "e56c0c6fb5b77d3ed2ebaf2322ebca14a7365beb01a1f4118f1daef1244fdfab",
+    "active_probe_session_does_not_turn_queued_job_into_capacity_failure.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recovered_runner_admission_does_not_remain_poisoned_after_panic.stdout": "6b5b160516a97415af24e4ad8b5cf44c391c9be8db176fcc3f1a735ec9b85d3c",
+    "recovered_runner_admission_does_not_remain_poisoned_after_panic.stderr": "27b600dcae940b546714dfb9ecf1786968c6084ca64588491557d3ec4db45cca",
+    "expired_read_cleanup_keeps_pending_storage_until_other_thread_completes.stdout": "641c2ba9989b8baae75865648d523b85b209958a1fee30ef98766657695307bc",
+    "expired_read_cleanup_keeps_pending_storage_until_other_thread_completes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "expired_write_cleanup_keeps_pending_storage_until_other_thread_completes.stdout": "52da766b16ab9b654ba0d4c767f2db69718b86cadee692351c5d2d53bc281266",
+    "expired_write_cleanup_keeps_pending_storage_until_other_thread_completes.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "expired_child_cleanup_keeps_original_handles_until_native_complete.stdout": "1b9d66f4c7805bd92755140c64260a486b6bbe97417ee3d30e213224c3f8669b",
+    "expired_child_cleanup_keeps_original_handles_until_native_complete.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "poll_cleanup_wait_failure_retains_original_owner_until_actual_retry.stdout": "9a62a7b45b63065ce5184b9f623f5f44d5aaa73ddd1a3b0ecaf490be1322d862",
+    "poll_cleanup_wait_failure_retains_original_owner_until_actual_retry.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "poll_cleanup_query_failure_retains_original_owner_until_actual_retry.stdout": "35944e65150d377252b796ab32cf783edd77fd4e9718e6cd3629c4eeca26e01a",
+    "poll_cleanup_query_failure_retains_original_owner_until_actual_retry.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "receipt.json": "e6c2113645e9a888f4a1bdd752b8c54f3b85d4662ff9f7c856f2e8e748921fb1"
+  },
+  "verification": "Fixed exact invocation per case, matching test name and actual 1 passed/0 failed/0 ignored; nocapture diagnostics retained between name and ok",
+  "limitations": [
+    "finite poll library API only; not enabled in products",
+    "old cleanup/Drop can wait",
+    "prebirth pending IO and registry/pool finite recovery remain open",
+    "no Windows CLI/MCP scan/image-loader qualification",
+    "wait/query fault cases use diagnostic injection followed by real native completion"
+  ]
+}
