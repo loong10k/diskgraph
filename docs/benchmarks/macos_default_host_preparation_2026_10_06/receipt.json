@@ -1,0 +1,33 @@
+{
+  "production_ready": false,
+  "source_before": "4e95381ae68cec4c1a9925db3cd14bb3cdedb27a",
+  "prior_run": 37480334126,
+  "prior_swift_intel_job": 112326471415,
+  "prior_actual_error": "public FFI scan unsupported(exit6) without fixed installation",
+  "preparation_guard_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "original_qualifier_regression": {
+    "passed": 18,
+    "failed": 0
+  },
+  "original_product_response_guards": {
+    "passed": 6,
+    "failed": 0
+  },
+  "red_scope": "development API absence only; no native behavioral RED claim",
+  "native_current_source": "pending CI",
+  "raw_log_sha256": {
+    "development_api_absence_red": "9448ce466dc39b3ba4d59d4ebb8add9f845d453f6e1a923d6f99ce10210913f6",
+    "preparation_green": "954df72f0132cc62e7ad100c29984c2cb9a46b385c68e32405370132755c77b4",
+    "qualifier_regression": "e5a2af24ba847396de4fabb9ce23c6fe05d10264dde30e26e94bbb1dd958562b",
+    "product_regression": "3694d724ab35f72b9b81e949f0a3ff96a30be33d1c1955e397d4463636baca79",
+    "prior_actual_swift_failure": "18f84b6d11f1238c63c65e5947afcfe49c322cc1344e61c15bb6b67a35142212"
+  },
+  "limits": [
+    "deployment_only status never full qualification",
+    "default workspace, both host types and package runtime still must pass",
+    "Windows and finite exceptional exit remain open"
+  ]
+}

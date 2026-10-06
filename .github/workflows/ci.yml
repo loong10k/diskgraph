@@ -87,6 +87,24 @@ jobs:
       - name: Native Windows suspended image load policy
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked suspended_birth_enforces_image_load_policy_before_resume -- --nocapture
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        if: runner.os == 'macOS'
+        with:
+          python-version: '3.13'
+      - name: Prepare actual fixed macOS installation for workspace
+        if: runner.os == 'macOS'
+        id: macos_host_preparation
+        run: |
+          python -m unittest discover -s scripts/tests -p test_macos_host_preparation.py -v
+          python scripts/qualify_macos_installed_worker.py --current-checkout --prepare-host-only --output-dir "$RUNNER_TEMP/macos-host-preparation"
+      - name: Preserve macOS deployment preparation evidence
+        if: always() && steps.macos_host_preparation.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: macos-preparation-workspace-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/macos-host-preparation
+          if-no-files-found: error
+          retention-days: 7
       - name: Build
         run: cargo build --workspace --all-targets --locked
       - name: Native Linux thread-group and procfs qualification
@@ -353,6 +371,24 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        if: runner.os == 'macOS'
+        with:
+          python-version: '3.13'
+      - name: Prepare actual fixed macOS installation for swift
+        if: runner.os == 'macOS'
+        id: macos_host_preparation
+        run: |
+          python -m unittest discover -s scripts/tests -p test_macos_host_preparation.py -v
+          python scripts/qualify_macos_installed_worker.py --current-checkout --prepare-host-only --output-dir "$RUNNER_TEMP/macos-host-preparation"
+      - name: Preserve macOS deployment preparation evidence
+        if: always() && steps.macos_host_preparation.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: macos-preparation-swift-${{ matrix.os }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/macos-host-preparation
+          if-no-files-found: error
+          retention-days: 7
       - name: Generate, compile and run real Swift host and system SQLite CRUD
         run: scripts/ffi-bindings-smoke.sh --swift-only
       - name: GRDB concurrent CRUD alongside Rust FFI, close and reopen
@@ -376,6 +412,24 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.13'
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        if: runner.os == 'macOS'
+        with:
+          python-version: '3.13'
+      - name: Prepare actual fixed macOS installation for kotlin
+        if: runner.os == 'macOS'
+        id: macos_host_preparation
+        run: |
+          python -m unittest discover -s scripts/tests -p test_macos_host_preparation.py -v
+          python scripts/qualify_macos_installed_worker.py --current-checkout --prepare-host-only --output-dir "$RUNNER_TEMP/macos-host-preparation"
+      - name: Preserve macOS deployment preparation evidence
+        if: always() && steps.macos_host_preparation.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: macos-preparation-kotlin-${{ matrix.os }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/macos-host-preparation
+          if-no-files-found: error
+          retention-days: 7
       - name: Bind Linux Kotlin host to actual release scan worker
         if: runner.os == 'Linux'
         id: kotlin_product_worker
@@ -443,6 +497,24 @@ jobs:
         run: |
           python scripts/test_scan_worker_package.py -v
           python scripts/test_worker_manifest_admission.py -v
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        if: runner.os == 'macOS'
+        with:
+          python-version: '3.13'
+      - name: Prepare actual fixed macOS installation for package
+        if: runner.os == 'macOS'
+        id: macos_host_preparation
+        run: |
+          python -m unittest discover -s scripts/tests -p test_macos_host_preparation.py -v
+          python scripts/qualify_macos_installed_worker.py --current-checkout --prepare-host-only --output-dir "$RUNNER_TEMP/macos-host-preparation"
+      - name: Preserve macOS deployment preparation evidence
+        if: always() && steps.macos_host_preparation.outcome == 'success'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: macos-preparation-package-${{ matrix.os }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/macos-host-preparation
+          if-no-files-found: error
+          retention-days: 7
       - name: Build current release binaries
         run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker --target ${{ matrix.target }}
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v7.0.1

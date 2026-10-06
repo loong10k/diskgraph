@@ -278,11 +278,30 @@ def invoke(command, checkout, output, name, environment, timeout=900):
         raise RuntimeError(f"{name} exited {result.returncode}; inspect preserved original logs")
 
 
+def finish_host_preparation(checkout, manifest, receipt, helper, binary, driver):
+    """仅确认原生部署准备，缺失用例或源码/产物变化不得生成准备成功状态。"""
+    required = {"protocol_cases_passed": 2, "root_cases_passed": 1, "ordinary_cases_passed": 6}
+    if receipt.get("uid", 0) == 0 or any(receipt.get(key) != value for key, value in required.items()):
+        raise RuntimeError("host preparation lacks original ordinary-UID native cases")
+    for name, expected in manifest["sources"].items():
+        if digest(checkout / name) != expected:
+            raise RuntimeError("host preparation modified original source")
+    if (digest(helper) != receipt["helper_sha256"]
+            or digest(binary) != receipt["fixture_sha256"]
+            or digest(driver) != receipt["driver_fixture"]["sha256"]):
+        raise RuntimeError("host preparation binary identity changed")
+    receipt.update(status="host_prepared", acceptance_phase="deployment_only", production_acceptance=False)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--current-checkout", action="store_true", help="qualify current tracked source without mounting a frozen archive")
+    parser.add_argument("--prepare-host-only", action="store_true",
+                        help="prepare ephemeral current-source installation; does not qualify full platform")
     args = parser.parse_args()
+    if args.prepare_host_only and not args.current_checkout:
+        parser.error("host preparation requires current checkout; frozen source is not permitted")
     checkout = Path(__file__).resolve().parent.parent
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -362,6 +381,13 @@ def main():
             if "test result: ok. 1 passed; 0 failed;" not in (output / (case.rsplit("::", 1)[-1] + ".stdout")).read_text(encoding="utf-8"):
                 raise RuntimeError("ordinary fixture did not execute exact required case")
         receipt["ordinary_cases_passed"] = len(manifest["ordinary_cases"])
+        if args.prepare_host_only:
+            finish_host_preparation(checkout, manifest, receipt, helper, binary, driver)
+            if any(char in str(driver) for char in "\r\n\0"):
+                raise RuntimeError("protocol driver path cannot be exported")
+            with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as stream:
+                stream.write("DISKGRAPH_SCAN_DRIVER_FIXTURE=" + str(driver) + "\n")
+            return
         expected_native = 44
         if args.current_checkout:
             invoke([str(binary), "native_child::", "--list"], checkout, output, "native-current-inventory", env)
