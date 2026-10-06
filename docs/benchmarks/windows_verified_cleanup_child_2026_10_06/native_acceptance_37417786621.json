@@ -1,0 +1,11 @@
+{
+  "run_id": 37417786621,
+  "source_commit": "3e50b4e3f2312eb2a25c5a5a68f5b9a295c2b898",
+  "status": "success",
+  "exact_native_cases_passed": 72,
+  "exact_stdout_verified": 72,
+  "fixture_sha256": "8c5c748e935019dffb1a9fe3730395449d608d648e13ab7ae4e2c2607dfd2e1f",
+  "production_ready": false,
+  "actual_last_close_delete_covered": false,
+  "current_stronger_candidate_verified": false
+}
