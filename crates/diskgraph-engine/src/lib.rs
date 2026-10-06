@@ -340,3 +340,6 @@ mod macos_installed_worker_fixture_tests;
 
 #[cfg(all(test, target_os = "macos", feature = "macos_native_scan_candidate"))]
 mod macos_engine_scan_fixture_tests;
+
+#[cfg(all(test, windows))]
+mod windows_scan_image_mapping_tests;

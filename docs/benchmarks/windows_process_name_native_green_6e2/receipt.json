@@ -1,0 +1,26 @@
+{
+  "source_commit": "6e248da2c1f10f4fe1886c67b14332e7604407ff",
+  "run_id": 37493991372,
+  "cases": [
+    {
+      "rust": "stable",
+      "job_id": 112374380875,
+      "artifact_id": 11427386026,
+      "sha256": "2672b439e7f4ed1f97d8a5e743914b7e44df7b5b025f83741ce66c87a9bc8c09",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "rust": "1.97.0",
+      "job_id": 112374380856,
+      "artifact_id": 11426647516,
+      "sha256": "c074b0bbcac8357c58ceeb5c0313f46ec2b9b3b1482efb9166a61ad22e542427",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "scope": "borrowed process image-name binding only",
+  "production_acceptance": false
+}

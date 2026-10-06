@@ -77,6 +77,25 @@ jobs:
       - name: Native Windows image material unit boundary
         if: runner.os == 'Windows'
         run: cargo test -p diskgraph-engine --lib --locked windows_scan_image_lease_tests -- --nocapture
+      - name: Native Windows current Rust surviving writable image view
+        if: runner.os == 'Windows'
+        timeout-minutes: 5
+        run: |
+          cargo test -p diskgraph-engine --lib --locked windows_scan_image_mapping_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-current-image-view.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-current-image-view.log" -Raw
+          if ($log -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;' -or
+              $log -notmatch 'DG_CURRENT_RUST_WRITABLE_VIEW_HANDLES_CLOSED=1' -or
+              $log -notmatch 'DG_CURRENT_RUST_VIEW_REJECTED_RELEASED_IMAGE_QUALIFIED=1') {
+            throw 'Actual current Rust retained-view rejection and released positive must execute'
+          }
+      - name: Preserve current Rust Windows image-view admission result
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-current-image-view-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-current-image-view.log
+          if-no-files-found: error
       - name: Native Windows borrowed process image-name binding
         if: runner.os == 'Windows'
         timeout-minutes: 5
