@@ -135,6 +135,9 @@ impl LinuxAtomicChild {
         {
             false
         } else {
+            // 全退出观察不能代替实时授权；消费原 wait 前仍借同次请求检查。
+            // 此处失败保留原未回收 owner；消费后的检查继续约束结果交付。
+            checkpoint().map_err(ChildSpawnError::checkpoint)?;
             self.exit.reap_normal()?;
             self.normal_complete = true;
             true

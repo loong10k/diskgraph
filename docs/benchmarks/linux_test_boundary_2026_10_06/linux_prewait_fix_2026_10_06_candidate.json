@@ -1,0 +1,23 @@
+{
+  "red_source_sha": "e29153ae2d3850d69b9f4f52b78313d3730e226b",
+  "red_ci_run": 37457793565,
+  "red_ci_job": 112249560997,
+  "red_native_platform": "x86_64-unknown-linux-gnu stable",
+  "red_cases": [
+    "final_pre_wait_checkpoint_failure_retains_original_wait_and_nonclone_primary ... FAILED",
+    "first_checkpoint_preserves_nonclone_primary_and_live_original_process ... ok",
+    "independent_pidfds_keep_live_permission_separate_from_nonzero_completion ... ok",
+    "two_real_output_eofs_do_not_permit_waiting_a_live_original_process ... ok"
+  ],
+  "target_assertion": "final authorization must precede original pidfd wait",
+  "target_failure_proven": true,
+  "fix_native_green_proven": false,
+  "production_acceptance": false,
+  "local_structural_result": {
+    "passed": 6,
+    "failed": 0,
+    "fmt_exit": 0
+  },
+  "fixed_source_sha256": "bf38f0da1936b88671ceea815ebf0da878c16a76bbedc7c12bff0be214480e90",
+  "windows_unit_boundary": "Normal cargo test --lib with original -D warnings; full workspace gates unchanged"
+}

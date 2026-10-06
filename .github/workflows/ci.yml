@@ -67,6 +67,14 @@ jobs:
           sha256sum "$source" "$probe" "$replacement" > "${{ runner.temp }}/diskgraph-linux-atomic-launch-digests.txt"
           echo "DG_LINUX_ATOMIC_LAUNCH_FIXTURE=$probe" >> "$GITHUB_ENV"
           echo "DG_LINUX_ATOMIC_LAUNCH_REPLACEMENT=$replacement" >> "$GITHUB_ENV"
+      # 实际原生单元边界先运行，保留全局 -D warnings；随后完整产品 Build 仍为必需门禁。
+      # --lib 使用正常 cfg(test) 构建，不复制源码、关闭 lint 或替代产品构建验收。
+      - name: Native Windows image material unit boundary
+        if: runner.os == 'Windows'
+        run: cargo test -p diskgraph-engine --lib --locked windows_scan_image_lease_tests -- --nocapture
+      - name: Native Windows private directory cleanup unit boundary
+        if: runner.os == 'Windows'
+        run: cargo test -p diskgraph-engine --lib --locked live_evidence::windows_git_cleanup_tests -- --nocapture
       - name: Build
         run: cargo build --workspace --all-targets --locked
       - name: Native Linux thread-group and procfs qualification
@@ -208,6 +216,21 @@ jobs:
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_tests -- --test-threads=1
       - name: Native control writer stage diagnostics
         run: cargo test -p diskgraph-store --lib --locked control_write_deadline_probe_tests -- --nocapture --test-threads=1
+      - name: Native Linux normal wait authorization contract
+        if: runner.os == 'Linux'
+        run: |
+          cargo test -p diskgraph-engine --lib --locked native_child::linux_atomic_normal_contract_tests -- \
+            --nocapture > "${{ runner.temp }}/diskgraph-linux-normal-wait.log" 2>&1
+      - name: Preserve native Linux normal wait evidence
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: linux-normal-wait-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/diskgraph-linux-normal-wait.log
+            ${{ runner.temp }}/diskgraph-linux-atomic-launch-digests.txt
+          retention-days: 7
+          if-no-files-found: error
       - name: Test
         run: cargo test --workspace --all-targets --locked --no-fail-fast
       - name: Native Linux identity and process scan fixtures

@@ -46,3 +46,8 @@ Linux 使用原子 pidfd/限制派生的线程组执行器，不为旧 Unix 数�
 实际 Linux 新回归覆盖：两 EOF 但原进程仍活动、首检查失败保留原错误与存活线程组、第二检查失败不消费原 wait、独立两进程完成/非零退出码互不影响。固定 C fixture 仅模拟进程行为，不实现出生、filter、pidfd 或 wait 算法；root CI 编译并绑定实际 ELF。旧 Unix/macOS 五项正控保持，在 Linux 真实 pidfd 正控验收后再校正旧入口的平台负控，不以简单跳过关闭门禁。
 
 此阶段仅提交四项原生回归及进程行为 fixture，尚未修复 wait-before-check 顺序。Windows cc4951d 原生 Build 无新增绑定编译错误，仍因原五组接线 dead-code 失败；绑定行为未执行。本机 macOS 旧正常退出 10/10、结构 6/6、fmt 通过，不算 Linux 原生通过。58dea21 Linux 完整日志确认 Engine 546 passed/6 failed/3 ignored、FFI 40 passed/49 failed，保留原始日志。新增前置 wait 授权回归须先在真实 Linux 观察目标断言 RED，再实施顺序修复；该阶段不关闭任何父项。记录：[RED 候选](../../../docs/benchmarks/linux_test_boundary_2026_10_06/linux_normal_contract_2026_10_06_red_candidate.json)。
+
+
+Windows CI 在完整产品 Build 前增加正常 --lib 原生单元边界：执行现有八项镜像材料与两项实际目录清理回归，stable/MSRV 均沿用全局 -D warnings。未复制或屏蔽产品源码，不关闭 lint；完整 workspace Build、全量测试及 Clippy 仍是生产必需门禁。此前置运行仅为取得实际行为证据，不能把产品构建中的未接线能力声明为完成。
+
+Linux e29153a 的实际 stable x86 CI run 37457793565/job 112249560997 中，新四案为 3 passed/1 failed。目标 final_pre_wait_checkpoint_failure_retains_original_wait_and_nonclone_primary 在明确断言“final authorization must precede original pidfd wait”失败，已证明原 wait 被提前消费，非编译/夹具/平台不可用失败。现于 reap_normal 之前补同次 checkpoint，同时保留方法入口及消费后原检查；修复后的 Linux GREEN 待同 SHA 原生 CI，不能以本机 macOS cfg 结果替代。旧六项 Unix 契约差异和 FFI 全量失败仍保持开放。
