@@ -27,7 +27,8 @@ impl WindowsProbeChild {
         command: &mut Command,
         budget: &mut ProbeBudget,
     ) -> Result<Self, ProbeFailure> {
-        let child = WindowsChild::spawn(command, || budget.check()).map_err(ProbeFailure::from)?;
+        let child = crate::native_child::WindowsTestBirth::spawn(command, || budget.check())
+            .map_err(ProbeFailure::from)?;
         Ok(Self { child })
     }
 

@@ -1,5 +1,4 @@
 //! 原生 Windows Registry 期限与原 owner 责任；缺 API 编译失败仅是开发 RED。
-use super::windows_child::WindowsChild;
 use super::windows_cleanup_hooks::WindowsCleanupHooks as Hooks;
 use super::windows_cleanup_rescue::WindowsCleanupRescue;
 use super::windows_control_fixture::command;
@@ -15,7 +14,7 @@ fn retained_case(stage: Option<u8>) {
     let directory = tempfile::tempdir().unwrap();
     let deadline = Instant::now() + Duration::from_secs(10);
     let mut owner = None;
-    let birth = WindowsChild::spawn_into(
+    let birth = crate::native_child::WindowsTestBirth::spawn_into(
         &mut command("hold", directory.path()),
         ChildInputMode::WorkerControl,
         &mut owner,

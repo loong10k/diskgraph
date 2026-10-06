@@ -37,7 +37,7 @@ impl WindowsNormalExitTestSupport {
     pub(super) fn spawn(mode: &str) -> Result<Self, ChildError> {
         let directory = tempfile::tempdir().map_err(|e| ChildError::io("normal fixture dir", e))?;
         let deadline = Instant::now() + Duration::from_secs(15);
-        let child = WindowsChild::spawn_with_input(
+        let child = crate::native_child::WindowsTestBirth::spawn_with_input(
             &mut command(mode, directory.path()),
             ChildInputMode::WorkerControl,
             || check(deadline),

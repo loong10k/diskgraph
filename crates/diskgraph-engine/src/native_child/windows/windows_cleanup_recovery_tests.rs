@@ -13,7 +13,7 @@ use std::time::{Duration, Instant};
 
 fn spawn(directory: &std::path::Path) -> WindowsChild {
     let deadline = Instant::now() + Duration::from_secs(10);
-    WindowsChild::spawn_with_input(
+    crate::native_child::WindowsTestBirth::spawn_with_input(
         &mut command("hold", directory),
         ChildInputMode::WorkerControl,
         || {

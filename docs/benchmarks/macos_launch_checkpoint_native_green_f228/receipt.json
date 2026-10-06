@@ -1,0 +1,13 @@
+{
+  "source": "f228b10bf4d27521f8a9c99316879aac9a20e7bc",
+  "run": 37487279975,
+  "job": 112351055163,
+  "exact_case": "job_authorization_tests::remote_expiry_after_native_observation_prevents_staging_and_publication",
+  "passed": 1,
+  "failed": 0,
+  "ignored": 0,
+  "token_validity_seconds": 3,
+  "production_acceptance": false,
+  "raw_sha256": "e5154dcae058b2788f3c155b4e4433762727ffdf63d57c5a813361049a05eaf6",
+  "remaining": "full native workspace and final-source acceptance"
+}

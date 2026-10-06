@@ -103,7 +103,7 @@ impl DriverFixture {
         let child = {
             let mut command = std::process::Command::new(&program);
             command.arg(mode).arg(directory.path());
-            crate::native_child::WindowsChild::spawn_with_input(
+            crate::native_child::WindowsTestBirth::spawn_with_input(
                 &mut command,
                 crate::native_child::ChildInputMode::WorkerControl,
                 || check(deadline),

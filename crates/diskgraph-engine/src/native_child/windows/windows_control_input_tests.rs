@@ -108,7 +108,7 @@ fn incomplete(child: &WindowsChild) -> Result<(usize, usize), ChildError> {
 fn control_pending_keeps_its_owned_bytes_and_addresses_after_source_mutation_and_owner_move() {
     let directory = tempfile::tempdir().unwrap();
     let deadline = Instant::now() + Duration::from_secs(10);
-    let mut child = WindowsChild::spawn_with_input(
+    let mut child = crate::native_child::WindowsTestBirth::spawn_with_input(
         &mut command("hold", directory.path()),
         ChildInputMode::WorkerControl,
         || check(deadline),
@@ -171,7 +171,7 @@ fn control_pending_keeps_its_owned_bytes_and_addresses_after_source_mutation_and
 fn close_seals_new_writes_and_retains_the_pending_operation_until_actual_completion() {
     let directory = tempfile::tempdir().unwrap();
     let deadline = Instant::now() + Duration::from_secs(10);
-    let mut child = WindowsChild::spawn_with_input(
+    let mut child = crate::native_child::WindowsTestBirth::spawn_with_input(
         &mut command("hold", directory.path()),
         ChildInputMode::WorkerControl,
         || check(deadline),
@@ -249,11 +249,12 @@ fn worker_control_uses_three_standard_pipe_handles_and_excludes_parent_events() 
         "DG_CONTROL_UNLISTED_EVENT",
         (unlisted.as_raw() as usize).to_string(),
     );
-    let mut child =
-        WindowsChild::spawn_with_input(&mut command, ChildInputMode::WorkerControl, || {
-            check(deadline)
-        })
-        .unwrap();
+    let mut child = crate::native_child::WindowsTestBirth::spawn_with_input(
+        &mut command,
+        ChildInputMode::WorkerControl,
+        || check(deadline),
+    )
+    .unwrap();
     // parent event 值只传测试 fixture；启动前未知该值，child 由文件门等待此安全元数据。
     let result = (|| -> Result<_, ChildError> {
         let rejects_idle = child.poll_control_write().is_err();
@@ -331,10 +332,13 @@ fn original_null_spawn_has_four_checkpoints_and_no_control_input() {
     let deadline = Instant::now() + Duration::from_secs(10);
     let witness = WindowsControlTestWitness::enable();
     let mut calls = 0;
-    let mut child = WindowsChild::spawn(&mut command("null", directory.path()), || {
-        calls += 1;
-        check(deadline)
-    })
+    let mut child = crate::native_child::WindowsTestBirth::spawn(
+        &mut command("null", directory.path()),
+        || {
+            calls += 1;
+            check(deadline)
+        },
+    )
     .unwrap();
     let unsupported = matches!(
         child.start_control_write(b"x"),
@@ -366,14 +370,17 @@ fn third_original_checkpoint_preserves_non_clone_primary_and_cleans_the_suspende
     let directory = tempfile::tempdir().unwrap();
     let witness = WindowsControlTestWitness::enable();
     let mut calls = 0;
-    let result = WindowsChild::spawn(&mut command("stamp", directory.path()), || {
-        calls += 1;
-        if calls == 3 {
-            Err(std::io::Error::other("original authority denied sentinel"))
-        } else {
-            Ok(())
-        }
-    });
+    let result = crate::native_child::WindowsTestBirth::spawn(
+        &mut command("stamp", directory.path()),
+        || {
+            calls += 1;
+            if calls == 3 {
+                Err(std::io::Error::other("original authority denied sentinel"))
+            } else {
+                Ok(())
+            }
+        },
+    );
     let error = match result {
         Ok(mut child) => {
             child.cleanup().unwrap();
@@ -397,7 +404,7 @@ fn original_post_create_failure_cleans_actual_job_with_external_witness_handles_
     let mut command = command("stamp", directory.path());
     command.env("DG_WINDOWS_NATIVE_FAULT", "post_create");
     let mut calls = 0;
-    let result = WindowsChild::spawn(&mut command, || {
+    let result = crate::native_child::WindowsTestBirth::spawn(&mut command, || {
         calls += 1;
         Ok::<(), ()>(())
     });

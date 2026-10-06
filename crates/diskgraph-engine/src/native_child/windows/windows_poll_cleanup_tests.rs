@@ -3,7 +3,6 @@ use super::cleanup_progress::CleanupProgress;
 use super::overlapped_control_pipe::OverlappedControlPipe;
 use super::overlapped_pipe::OverlappedPipe;
 use super::pipe_security::PipeSecurity;
-use super::windows_child::WindowsChild;
 use super::windows_cleanup_rescue::WindowsCleanupRescue;
 use super::windows_control_fixture::command;
 use crate::native_child::{ChildInputMode, ControlWriteStatus};
@@ -181,8 +180,11 @@ fn expired_write_cleanup_keeps_pending_storage_until_other_thread_completes() {
 fn expired_child_cleanup_keeps_original_handles_until_native_complete() {
     let directory = tempfile::tempdir().unwrap();
     let deadline = Instant::now() + Duration::from_secs(10);
-    let mut child =
-        WindowsChild::spawn(&mut command("hold", directory.path()), || Ok::<(), ()>(())).unwrap();
+    let mut child = crate::native_child::WindowsTestBirth::spawn(
+        &mut command("hold", directory.path()),
+        || Ok::<(), ()>(()),
+    )
+    .unwrap();
     let guardian = WindowsCleanupRescue::capture(&child).unwrap();
     let observed = catch_unwind(AssertUnwindSafe(|| {
         assert_eq!(
@@ -220,8 +222,11 @@ fn native_observation_failure(stage: u8) {
     use super::windows_cleanup_hooks::WindowsCleanupHooks as Hooks;
     let directory = tempfile::tempdir().unwrap();
     let deadline = Instant::now() + Duration::from_secs(10);
-    let mut child =
-        WindowsChild::spawn(&mut command("hold", directory.path()), || Ok::<(), ()>(())).unwrap();
+    let mut child = crate::native_child::WindowsTestBirth::spawn(
+        &mut command("hold", directory.path()),
+        || Ok::<(), ()>(()),
+    )
+    .unwrap();
     let guardian = WindowsCleanupRescue::capture(&child).unwrap();
     Hooks::arm(stage);
     let observed = catch_unwind(AssertUnwindSafe(|| {

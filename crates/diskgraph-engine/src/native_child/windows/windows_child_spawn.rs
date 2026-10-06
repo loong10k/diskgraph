@@ -1,4 +1,4 @@
-//! Windows唯一出生实现；新入口使用调用方catch外槽，兼容入口保留旧清理行为。
+//! Windows唯一出生实现；调用方在catch外持有原owner及有限准入预算。
 #[cfg(test)]
 use super::super::windows_control_test_witness::WindowsControlTestWitness;
 use super::super::{
@@ -18,47 +18,9 @@ use windows_sys::Win32::System::Threading::{
 };
 
 impl WindowsChild {
-    /// 已弃用的受信内部兼容入口；参数：为原命令与检查点，返回：旧child/错误签名。
-    /// 该签名不能移交失败owner；永久清理失败及panic没有外部Recovery保证，应迁移spawn_into。
-    pub(crate) fn spawn<E>(
-        command: &mut Command,
-        checkpoint: impl FnMut() -> Result<(), E>,
-    ) -> Result<Self, ChildSpawnError<E>> {
-        Self::spawn_with_input(command, ChildInputMode::Null, checkpoint)
-    }
-
-    /// 已弃用的受信内部兼容入口，不得用于新扫描或作为远程授权路径。
-    /// 既有WindowsProbe尚待迁移；此薄包装不修复其局部owner在失败返回：时的生命周期限制。
-    /// 参数：原命令、stdin模式和检查点；返回：旧签名，不宣称清理失败owner可跨返回：保留。
-    pub(crate) fn spawn_with_input<E>(
-        command: &mut Command,
-        mode: ChildInputMode,
-        checkpoint: impl FnMut() -> Result<(), E>,
-    ) -> Result<Self, ChildSpawnError<E>> {
-        let mut owner = None;
-        match Self::spawn_into(command, mode, &mut owner, checkpoint) {
-            Ok(()) => Ok(owner.take().expect("successful birth retains its owner")),
-            Err(error) => {
-                let cleanup = owner.as_mut().map_or(Ok(()), Self::cleanup);
-                Err(error.with_cleanup(cleanup))
-            }
-        }
-    }
-
-    /// 在调用者catch外预留槽内出生，不在失败时消费、清理或丢弃原owner。
-    /// 参数：owner必须为空且活得比catch更久，checkpoint借原期限/取消；返回：原错误，出生后的owner由调用者处置。
-    pub(crate) fn spawn_into<E>(
-        command: &mut Command,
-        mode: ChildInputMode,
-        owner: &mut Option<Self>,
-        checkpoint: impl FnMut() -> Result<(), E>,
-    ) -> Result<(), ChildSpawnError<E>> {
-        Self::spawn_into_with_admission(command, mode, owner, || Ok(()), checkpoint)
-    }
-
     /// 参数：admission 借原请求期限/取消，checkpoint 保留四阶段生命周期，owner 是 catch 外槽。
     /// 返回：原错误；所有连接仅 FALSE 轮询并复查 admission，不建立新预算或隐藏等待线程。
-    /// 不承诺单次原生调用硬期限；旧 spawn_into 的本地兼容 admission 不设期限。
+    /// 不承诺单次原生调用硬期限；调用方必须提供原期限和取消检查。
     pub(crate) fn spawn_into_with_admission<E>(
         command: &mut Command,
         mode: ChildInputMode,

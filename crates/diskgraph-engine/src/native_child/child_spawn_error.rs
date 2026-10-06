@@ -20,7 +20,9 @@ impl<E> ChildSpawnError<E> {
         }
     }
 
-    /// 合并已执行的清理。参数：result 为 OS 回收结果；返回：原失败与可选清理错误。
+    /// 合并Unix启动器已执行的清理；Windows由catch外owner显式保留。
+    /// 参数：result 为 OS 回收结果；返回：原失败与可选清理错误。
+    #[cfg(unix)]
     pub(crate) fn with_cleanup(self, result: Result<(), ChildError>) -> Self {
         match self {
             Self::Operation(error) => Self::Operation(error.with_cleanup(result)),

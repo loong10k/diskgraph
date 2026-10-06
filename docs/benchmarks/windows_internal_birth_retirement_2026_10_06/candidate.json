@@ -1,0 +1,88 @@
+{
+  "production_acceptance": false,
+  "native_red_source": "e7f16fff9bd158179cceb48632af90ba618c2651",
+  "native_red_job": 112345452135,
+  "errors": [
+    "unused ChildSpawnError::with_cleanup",
+    "unused WindowsChild spawn/spawn_with_input/spawn_into"
+  ],
+  "change": "retire three private product wrappers; fixtures use finite original-owner admission; Unix-only cleanup composition remains Unix production API",
+  "public_api_changed": false,
+  "native_windows_verification": "pending",
+  "local_driver": {
+    "passed": 12,
+    "failed": 0
+  },
+  "assertion_counts": [
+    {
+      "file": "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs",
+      "assertion_macro_counts_unchanged": {
+        "assert": 16,
+        "assert_eq": 9,
+        "assert_ne": 0,
+        "panic": 3
+      }
+    },
+    {
+      "file": "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs",
+      "assertion_macro_counts_unchanged": {
+        "assert": 11,
+        "assert_eq": 9,
+        "assert_ne": 0,
+        "panic": 3
+      }
+    },
+    {
+      "file": "crates/diskgraph-engine/src/native_child/windows/windows_control_input_tests.rs",
+      "assertion_macro_counts_unchanged": {
+        "assert": 19,
+        "assert_eq": 18,
+        "assert_ne": 0,
+        "panic": 2
+      }
+    },
+    {
+      "file": "crates/diskgraph-engine/src/native_child/windows/windows_image_policy_tests.rs",
+      "assertion_macro_counts_unchanged": {
+        "assert": 2,
+        "assert_eq": 5,
+        "assert_ne": 2,
+        "panic": 0
+      }
+    },
+    {
+      "file": "crates/diskgraph-engine/src/native_child/windows/windows_poll_cleanup_tests.rs",
+      "assertion_macro_counts_unchanged": {
+        "assert": 14,
+        "assert_eq": 18,
+        "assert_ne": 0,
+        "panic": 1
+      }
+    },
+    {
+      "file": "crates/diskgraph-engine/src/native_child/windows/windows_registry_deadline_tests.rs",
+      "assertion_macro_counts_unchanged": {
+        "assert": 12,
+        "assert_eq": 6,
+        "assert_ne": 0,
+        "panic": 2
+      }
+    }
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "c77acbf19c7f92cdb730941b976ec3766415887f384b40f0976f8256f2b8bb88",
+    "crates/diskgraph-engine/src/native_child/child_spawn_error.rs": "ce5b2625a20831074ac20f98f8bde12c285c183abfab9d4bb530d3f220855f2a",
+    "crates/diskgraph-engine/src/native_child/mod.rs": "2ed9a375647daa84c4be148aab1f0bee8f48580c57a37d579b0dfbf866237d38",
+    "crates/diskgraph-engine/src/native_child/windows/mod.rs": "56f0371bccc68409d7ba769c6bf8ffdec795f18c69d32891cd412bb921b42f00",
+    "crates/diskgraph-engine/src/native_child/windows/windows_birth_recovery_tests.rs": "5e3794d3cb6663d150fe5197303664a46f809cf9dc3978761147dd8514cb8a32",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "92ef4a5127084896470e11d094992eec8b704230695d9ce39581810779a9fb2c",
+    "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_recovery_tests.rs": "b2bddf6b9b13763969e0dddb021c7d66d640df3fefc9db03ce08d791520ac9ed",
+    "crates/diskgraph-engine/src/native_child/windows/windows_control_input_tests.rs": "2f1fa8304d5364f6fe5595d21acfa7d893d88ac6d3fba0875bca5ad9adcc0adb",
+    "crates/diskgraph-engine/src/native_child/windows/windows_image_policy_tests.rs": "37663763a15529d0907ca65d015b644dcdb60ff44e1b50255c108f2fd3458a7c",
+    "crates/diskgraph-engine/src/native_child/windows/windows_normal_exit_test_support.rs": "bb5dcfffee7496a7ef1f377a204fc8f937a12cb7861187b0257e3d1790e21310",
+    "crates/diskgraph-engine/src/native_child/windows/windows_poll_cleanup_tests.rs": "d4e2ec763a5061d02b5d33b148bd1e30ab69ea253fe965d5f1e78416355a5e0c",
+    "crates/diskgraph-engine/src/native_child/windows/windows_registry_deadline_tests.rs": "825e4e1a3b7dd1b105e2ecf6dfc7819de73f740e4964b95c7f5c796e421ae07a",
+    "crates/diskgraph-engine/src/scan_worker_driver_test_support.rs": "65f7a8bdb598da3e54e0ebb0cd6a7758b6cd5836ca9768c68bf1662cd275226b",
+    "crates/diskgraph-engine/src/native_child/windows/windows_test_birth.rs": "4cb80533fe8b39864f193202f6343d6e79d3d4ff1e0f8038e872a898e58318ba"
+  }
+}

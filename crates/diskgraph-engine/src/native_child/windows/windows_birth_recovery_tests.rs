@@ -99,7 +99,7 @@ fn birth_case(panic_after_birth: bool, cleanup_stage: u8) {
     // 唯一owner、槽位和独立救援都位于出生及所有断言的catch边界之外。
     let observed = catch_unwind(AssertUnwindSafe(|| {
         let birth = catch_unwind(AssertUnwindSafe(|| {
-            WindowsChild::spawn_into(
+            crate::native_child::WindowsTestBirth::spawn_into(
                 &mut command("hold", directory.path()),
                 ChildInputMode::WorkerControl,
                 &mut owner,
@@ -224,9 +224,12 @@ fn actual_create_process_failure_retains_external_job_until_observed_cleanup() {
     let mut command = std::process::Command::new(std::env::current_exe().unwrap());
     command.current_dir(temp.path().join("missing-working-directory"));
     let mut owner = None;
-    let result = WindowsChild::spawn_into(&mut command, ChildInputMode::Null, &mut owner, || {
-        Ok::<(), ()>(())
-    });
+    let result = crate::native_child::WindowsTestBirth::spawn_into(
+        &mut command,
+        ChildInputMode::Null,
+        &mut owner,
+        || Ok::<(), ()>(()),
+    );
     match result {
         Err(ChildSpawnError::Operation(crate::native_child::ChildError::NativeIo {
             context,

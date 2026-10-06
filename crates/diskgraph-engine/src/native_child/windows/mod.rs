@@ -69,3 +69,8 @@ mod windows_directory_notification_io;
 pub(crate) use windows_directory_notification_io::WindowsDirectoryNotificationIo;
 #[cfg(test)]
 mod windows_directory_notification_tests;
+
+#[cfg(test)]
+mod windows_test_birth;
+#[cfg(test)]
+pub(crate) use windows_test_birth::WindowsTestBirth;
