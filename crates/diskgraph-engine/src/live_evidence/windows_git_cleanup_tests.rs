@@ -1,12 +1,13 @@
 //! 实际生产Git目录创建、账本及句柄清理，不替代Windows原生执行证据。
 use super::ProbeLimits;
 use super::git_private_directory::GitPrivateDirectory;
+use super::native_probe_test_budget::NativeProbeTestBudget;
 use super::probe_budget::ProbeBudget;
 use std::time::{Duration, Instant};
 
 #[test]
 fn product_cleanup_owner_does_not_pin_unrelated_sibling_names() {
-    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut probe = NativeProbeTestBudget::new(&ProbeLimits::default()).unwrap();
     let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();
     let root = directory.path().to_owned();
     let sibling = tempfile::tempdir_in(root.parent().unwrap()).unwrap();
@@ -36,7 +37,7 @@ fn product_cleanup_owner_does_not_pin_unrelated_sibling_names() {
 
 #[test]
 fn product_cleanup_removes_registered_tree_at_original_name() {
-    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut probe = NativeProbeTestBudget::new(&ProbeLimits::default()).unwrap();
     let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();
     let root = directory.path().to_owned();
     let nested = root.join("nested");
@@ -67,7 +68,7 @@ fn product_cleanup_removes_registered_tree_at_original_name() {
 
 #[test]
 fn product_cleanup_removes_moved_original_and_keeps_foreign_replacement() {
-    let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let mut probe = NativeProbeTestBudget::new(&ProbeLimits::default()).unwrap();
     let mut directory = GitPrivateDirectory::with_limits(128 << 20, 0, &mut probe).unwrap();
     let original = directory.path().to_owned();
     let nested = original.join("nested");
