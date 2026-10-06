@@ -1,6 +1,10 @@
 //! 本次扫描的原生补充观测必须经暂存实际发布，不能仅创建新列。
 
-use crate::{Engine, EngineConfig};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+use crate::EngineConfig;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::PrincipalId;
 #[cfg(not(windows))]
 use diskgraph_core::{QueryBudget, QueryReadBudget, WindowsObservationGap};

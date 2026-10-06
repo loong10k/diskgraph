@@ -1,5 +1,9 @@
 //! 持久 Git 作业测试的独占原生仓库；来源：实际 Git / Engine 扫描，不伪造索引身份。
-use crate::{Engine, EngineConfig};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+use crate::EngineConfig;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{JobRequestAuthority, Permission, PrincipalId, ScopeId};
 use diskgraph_store::JobRecord;
 use std::process::Command;
@@ -8,8 +12,8 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// 每例独占源、控制库和图库；来源：原生 Rust EC-02 持久发布回归。
 pub(super) struct GitEvidenceFixture {
-    pub(super) temp: tempfile::TempDir,
     pub(super) engine: Arc<Engine>,
+    pub(super) temp: tempfile::TempDir,
     pub(super) actor: PrincipalId,
     pub(super) scope: ScopeId,
     pub(super) base: String,

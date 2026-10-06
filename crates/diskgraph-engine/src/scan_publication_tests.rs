@@ -1,5 +1,9 @@
 //! 用请求局部时钟注入验证真实扫描结束后的发布期限，不依赖机器速度。
-use crate::{Engine, EngineConfig, EngineError};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
+use crate::{EngineConfig, EngineError};
 use diskgraph_core::PrincipalId;
 use std::collections::HashSet;
 use std::sync::{Mutex, OnceLock};

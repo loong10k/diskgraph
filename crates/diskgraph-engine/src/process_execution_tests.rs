@@ -1,4 +1,5 @@
 //! Linux 原生执行阶段的真实取消/失权/owner/时限；来源：原任务局部同步点，不构造假 holder。
+use crate::native_scan_engine_fixture::NativeScanEngine;
 use crate::process_execution_fixture::{ProcessExecutionFixture, now};
 use crate::{EngineConfig, EngineError};
 use diskgraph_core::{
@@ -277,7 +278,7 @@ fn process_capacity_change_after_real_capture_refuses_publication() {
         .iter()
         .map(|r| r.used_bytes)
         .sum::<u64>();
-    let engine = crate::Engine::open(EngineConfig {
+    let engine = NativeScanEngine::open(EngineConfig {
         data_dir: f.data.path().to_owned(),
         capacity_watermark: Watermark {
             warn_above_bytes: used + 1_000_000,

@@ -1,5 +1,9 @@
 //! D42 原入口控制锁窗口验收；来源：同 Engine Mutex 与实际 revision owner 窄读，不用授权睡眠。
-use crate::{Engine, EngineConfig, EngineError};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
+use crate::{EngineConfig, EngineError};
 use diskgraph_core::{BusinessError, JobRequestAuthority, PrincipalId};
 use std::cell::RefCell;
 use std::path::Path;

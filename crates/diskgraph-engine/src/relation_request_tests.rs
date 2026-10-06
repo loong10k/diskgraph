@@ -1,4 +1,8 @@
-use crate::{Engine, EngineConfig, EngineError};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
+use crate::{EngineConfig, EngineError};
 use diskgraph_core::{
     BusinessError, Permission, PrincipalId, QueryBudget, TruncationReason, query_deadline,
 };

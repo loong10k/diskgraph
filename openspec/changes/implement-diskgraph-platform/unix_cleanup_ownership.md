@@ -99,3 +99,10 @@ cb39286 / CI37445008522 的Linux Rust1.97完整Test终态failure，失败目标1
 剩余六个MCP目标的真实扫描不能由旧McpService::open/open_remote隐式提供宿主。夹具经显式open_with_scan_worker/open_remote_with_scan_worker接入Linux CI同提交实际worker及独立预期，保留本地/远程认证分支、原2M节点配置、真实socket/runner和原数据库；唯一Recovery持有至整个Fixture结束，重开服务时同时替换服务与外槽。其他平台仍使用既有构造，不用Linux材料伪造支持。测试外槽当前阻塞drain不代表生产有限退出已完成。
 
 本机六目标no-run编译及既有排除vendor的格式检查通过，201个原assert宏片段与HEAD逐项对照不变；实际macOS六目标11通过/26失败，明确保留未配置可信扫描宿主的Unsupported，不以编译或授权拒绝通过代替实际扫描。本机全部运行及首次失败记录见mcp-native-fixtures*.log.gz，Linux实际运行须下个提交原生CI验证。Windows生产句柄清理、macOS安装扫描及全平台父项继续开放。
+
+
+## Engine 单元夹具显式扫描宿主
+
+Linux单元测试仍有旧Engine::open扫描构造；11个测试模块及GitEvidence/ProcessExecution共享夹具改为显式原宿主与唯一Recovery，Linux容量重新打开的执行用例沿用同一真实构造。既有集成夹具与单元夹具复用同一个实现，生产Engine::open/授权/发布/协议不变；Linux-only测试模块声明不构成默认产品部署。原夹具owner字段先于独占目录释放，持续保留原清理责任。
+
+首次结构检查因跨声明目录path失败，随后额外extern crate声明也被入口门禁拒绝；改为普通test-only模块及父模块类型导入，不修改门禁。最终结构6/0、本机Engine lib no-run和排除固定vendor的格式检查通过，14个修改测试文件的原assert片段逐项不变。此处本机不编译Linux分支，不称Linux运行已通过；MCP d2e8130原生CI仍运行，FFI/Ops扫描夹具、Windows生产清理与macOS安装仍开放。记录见engine-unit-host-*.log.gz。

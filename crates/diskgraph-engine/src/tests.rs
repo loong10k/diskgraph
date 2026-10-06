@@ -1,4 +1,8 @@
-use super::{Engine, EngineConfig};
+use super::EngineConfig;
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::PrincipalId;
 use std::sync::{Arc, atomic::AtomicBool};
 

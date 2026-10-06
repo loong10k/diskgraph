@@ -1,5 +1,9 @@
 //! 进程采集生命周期的真实 Linux 夹具；来源：tmpfs 普通文件、公开索引与持久扫描 epoch。
-use crate::{Engine, EngineConfig};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+use crate::EngineConfig;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{
     JobRequestAuthority, Permission, PrincipalId, ProcessEvidenceJobInput, ProcessEvidenceLimits,
     ProcessObservationMethod, QueryBudget, QueryReadBudget, ScopeId,
@@ -11,9 +15,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// 每例独占源与图库，原身份来自实际 scan；来源：Rust D42 Linux lifecycle 验收。
 pub(super) struct ProcessExecutionFixture {
+    pub(super) engine: Arc<Engine>,
     pub(super) source: tempfile::TempDir,
     pub(super) data: tempfile::TempDir,
-    pub(super) engine: Arc<Engine>,
     pub(super) actor: PrincipalId,
     pub(super) scope: ScopeId,
     pub(super) base: String,

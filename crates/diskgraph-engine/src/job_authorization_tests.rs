@@ -1,7 +1,11 @@
 //! SC-06 任务授权执行窗口；来源：真实扫描、持久控制库和请求局部同步点。
 //! 到期测试使用原始 Unix 秒；不回写认证上下文或替换生产时钟。
 
-use crate::{Engine, EngineConfig};
+#[cfg(not(target_os = "linux"))]
+use crate::Engine;
+use crate::EngineConfig;
+#[cfg(target_os = "linux")]
+use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use diskgraph_core::{JobRequestAuthority, Permission, PrincipalId, ScopeId};
 use diskgraph_store::{JobKind, JobState};
 use std::cell::RefCell;
