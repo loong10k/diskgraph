@@ -3,9 +3,7 @@ use crate::Engine;
 #[cfg(any(target_os = "linux", target_os = "macos", windows))]
 use crate::native_scan_engine_fixture::NativeScanEngine as Engine;
 use crate::{EngineConfig, EngineError};
-use diskgraph_core::{
-    BusinessError, Permission, PrincipalId, QueryBudget, TruncationReason, query_deadline,
-};
+use diskgraph_core::{BusinessError, Permission, PrincipalId, QueryBudget, query_deadline};
 use std::cell::RefCell;
 use std::sync::{Arc, mpsc};
 use std::time::Instant;
@@ -230,9 +228,7 @@ fn actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result() {
                 resume_rx.recv().unwrap();
             }))
         });
-        worker_engine
-            .review_candidates(&revision, 0, QueryBudget::default(), &principal, &policy)
-            .unwrap()
+        worker_engine.review_candidates(&revision, 0, QueryBudget::default(), &principal, &policy)
     });
     let deadline = ready_rx
         .recv_timeout(std::time::Duration::from_secs(10))
@@ -245,8 +241,10 @@ fn actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result() {
     );
     drop(guard);
     let answer = worker.join().unwrap();
-    assert!(!answer.complete);
-    assert_eq!(answer.truncated, Some(TruncationReason::Deadline));
+    assert!(matches!(
+        answer,
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
+    ));
 }
 
 #[test]
@@ -414,47 +412,7 @@ fn final_envelope_authorization_refuses_revocation_during_its_authorizer_call() 
 
 #[test]
 fn expired_envelope_still_observes_live_authorization_without_renewing_data_deadline() {
-    // 仅验证持久授权，不依赖扫描进程部署；通过真实 Store 发布合法的单节点快照。
-    let dir = tempfile::tempdir().unwrap();
-    let engine = crate::Engine::open(EngineConfig {
-        data_dir: dir.path().join("data"),
-        ..EngineConfig::default()
-    })
-    .unwrap();
-    let principal = PrincipalId::new("expired-envelope-reader").unwrap();
-    engine.bootstrap_local_admin(&principal).unwrap();
-    let scope = engine
-        .register_scope(dir.path(), &principal, &engine.policy_authorizer().unwrap())
-        .unwrap();
-    let graph: diskgraph_core::DiskGraph = serde_json::from_value(serde_json::json!({
-        "snapshot": {"id":"expired-envelope-snapshot", "root":{"type":"native_path","value":dir.path().to_string_lossy()},
-            "volume_id":null,"captured_at_unix_ms":1,
-            "settings":{"apparent_size":true,"follow_links":false,"include_hidden":true,
-                "one_filesystem":true,"max_depth":null,"dedup_hardlinks":true},
-            "coverage":{"complete":true,"unreadable_nodes":0,"depth_limited":false}},
-        "nodes":[{"id":1,"parent_id":null,"locator":{"type":"native_path","value":dir.path().to_string_lossy()},
-            "name":"root","kind":"directory","subtree_bytes":0,"direct_bytes":0,"size_known":true,
-            "files":0,"directories":1,"modified_unix_seconds":null,"file_identity":null,
-            "category_hint":null,"reclaim_hint":null,"read_error":false}],
-        "evidence":[]
-    })).unwrap();
-    let revision = "expired-envelope-revision";
-    let server = engine.server_id().unwrap();
-    {
-        let mut store = engine.graph().unwrap();
-        store
-            .append_staging_nodes("expired-envelope-job", &graph.nodes)
-            .unwrap();
-        store
-            .publish_revision_owned(
-                "expired-envelope-job",
-                &graph,
-                revision,
-                1,
-                Some((server.as_str(), scope.as_str())),
-            )
-            .unwrap();
-    }
+    let (dir, engine, principal, scope, revision) = published_authorization_fixture();
     let policy = engine.policy_authorizer().unwrap();
     let expired = Instant::now() - std::time::Duration::from_millis(1);
     assert!(
@@ -564,4 +522,203 @@ fn encoded_budget_failure_still_checks_the_real_terminal_revocation() {
         ),
         "encoded error hid the actual terminal denial: {result:?}"
     );
+}
+
+#[test]
+fn original_terminal_control_lock_is_refused_before_holder_release() {
+    let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+    let engine = Arc::new(engine);
+    let mut failures = Vec::new();
+    for kind in 0..2 {
+        let principal = principal.clone();
+        let policy = engine.policy_authorizer().unwrap();
+        // 无竞争时同一原授权路径仍正常返回；快拒绝不允许变成一律失败。
+        let budget = QueryBudget::default();
+        let deadline = query_deadline(budget).unwrap();
+        if kind == 0 {
+            engine
+                .with_relation_reader_until(
+                    revision,
+                    &principal,
+                    &policy,
+                    deadline,
+                    budget,
+                    None,
+                    |_, _, _| Ok(()),
+                    |_, _| Ok(()),
+                )
+                .unwrap();
+        } else {
+            engine
+                .with_history_readers_until(
+                    revision,
+                    revision,
+                    &principal,
+                    &policy,
+                    deadline,
+                    budget,
+                    |_, _, _, _, _, _| Ok(()),
+                    |_, _| Ok(()),
+                )
+                .unwrap();
+        }
+        let worker_engine = engine.clone();
+        let (ready_tx, ready_rx) = mpsc::channel();
+        let (resume_tx, resume_rx) = mpsc::channel();
+        let (result_tx, result_rx) = mpsc::channel();
+        let worker = std::thread::spawn(move || {
+            let budget = QueryBudget::default();
+            let deadline = query_deadline(budget).unwrap();
+            let consume = || {
+                ready_tx.send(()).unwrap();
+                resume_rx.recv().unwrap();
+                Ok(())
+            };
+            let result = if kind == 0 {
+                worker_engine.with_relation_reader_until(
+                    revision,
+                    &principal,
+                    &policy,
+                    deadline,
+                    budget,
+                    None,
+                    |_, _, _| consume(),
+                    |_, _| Ok(()),
+                )
+            } else {
+                worker_engine.with_history_readers_until(
+                    revision,
+                    revision,
+                    &principal,
+                    &policy,
+                    deadline,
+                    budget,
+                    |_, _, _, _, _, _| consume(),
+                    |_, _| Ok(()),
+                )
+            };
+            result_tx.send(result).unwrap();
+        });
+        ready_rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap();
+        let guard = engine.control_store().unwrap();
+        resume_tx.send(()).unwrap();
+        // 观察预算仅控制测试等待，不进入或延长原查询期限；失败后先释放原锁再 join。
+        let observed = result_rx.recv_timeout(std::time::Duration::from_millis(200));
+        drop(guard);
+        worker.join().unwrap();
+        if !matches!(
+            observed,
+            Ok(Err(EngineError::Business(BusinessError::BudgetExceeded)))
+        ) {
+            failures.push(format!("query kind {kind}: {observed:?}"));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "terminal control refusal failed: {failures:?}"
+    );
+}
+
+// 真实发布合法元数据夹具；不需要扫描部署，也不伪造任务或资源退休。
+fn published_authorization_fixture() -> (
+    tempfile::TempDir,
+    crate::Engine,
+    PrincipalId,
+    diskgraph_core::ScopeId,
+    &'static str,
+) {
+    // 仅验证持久授权，不依赖扫描进程部署；通过真实 Store 发布合法的单节点快照。
+    let dir = tempfile::tempdir().unwrap();
+    let engine = crate::Engine::open(EngineConfig {
+        data_dir: dir.path().join("data"),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let principal = PrincipalId::new("expired-envelope-reader").unwrap();
+    engine.bootstrap_local_admin(&principal).unwrap();
+    let scope = engine
+        .register_scope(dir.path(), &principal, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    let graph: diskgraph_core::DiskGraph = serde_json::from_value(serde_json::json!({
+        "snapshot": {"id":"expired-envelope-snapshot", "root":{"type":"native_path","value":dir.path().to_string_lossy()},
+            "volume_id":null,"captured_at_unix_ms":1,
+            "settings":{"apparent_size":true,"follow_links":false,"include_hidden":true,
+                "one_filesystem":true,"max_depth":null,"dedup_hardlinks":true},
+            "coverage":{"complete":true,"unreadable_nodes":0,"depth_limited":false}},
+        "nodes":[{"id":1,"parent_id":null,"locator":{"type":"native_path","value":dir.path().to_string_lossy()},
+            "name":"root","kind":"directory","subtree_bytes":0,"direct_bytes":0,"size_known":true,
+            "files":0,"directories":1,"modified_unix_seconds":null,"file_identity":null,
+            "category_hint":null,"reclaim_hint":null,"read_error":false}],
+        "evidence":[]
+    })).unwrap();
+    let revision = "expired-envelope-revision";
+    let server = engine.server_id().unwrap();
+    {
+        let mut store = engine.graph().unwrap();
+        store
+            .append_staging_nodes("expired-envelope-job", &graph.nodes)
+            .unwrap();
+        store
+            .publish_revision_owned(
+                "expired-envelope-job",
+                &graph,
+                revision,
+                1,
+                Some((server.as_str(), scope.as_str())),
+            )
+            .unwrap();
+    }
+    (dir, engine, principal, scope, revision)
+}
+
+#[test]
+fn terminal_relation_and_history_revocation_still_precedes_result_delivery() {
+    for kind in 0..2 {
+        let (dir, engine, principal, scope, revision) = published_authorization_fixture();
+        let policy = engine.policy_authorizer().unwrap();
+        let mut independent =
+            diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+                .unwrap();
+        let budget = QueryBudget::default();
+        let deadline = query_deadline(budget).unwrap();
+        let encoded = std::cell::Cell::new(false);
+        let mut consume = || {
+            independent.revoke_scope(&scope).unwrap();
+            Ok(())
+        };
+        let finish = |_: &mut (), _| {
+            encoded.set(true);
+            Ok(())
+        };
+        let result = if kind == 0 {
+            engine.with_relation_reader_until(
+                revision,
+                &principal,
+                &policy,
+                deadline,
+                budget,
+                None,
+                |_, _, _| consume(),
+                finish,
+            )
+        } else {
+            engine.with_history_readers_until(
+                revision,
+                revision,
+                &principal,
+                &policy,
+                deadline,
+                budget,
+                |_, _, _, _, _, _| consume(),
+                finish,
+            )
+        };
+        assert!(matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ));
+        assert!(!encoded.get(), "revoked data reached encoder");
+    }
 }

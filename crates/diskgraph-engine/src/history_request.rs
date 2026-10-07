@@ -60,7 +60,10 @@ impl Engine {
                 left_scope == right_scope,
             )
         })();
-        let control = self.control_store()?;
+        // 终检无法取得原控制库 guard 时拒绝全部结果，不在业务期限外等待另一个请求。
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
         let scopes = [&left_scope, &right_scope];
         // 两侧每轮共用固定授权窗口；只读过滤归属，不续期历史迭代与编码预算。
         let ownerships = || {
