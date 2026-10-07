@@ -6,7 +6,7 @@ use std::cell::RefCell;
 
 #[test]
 fn initial_authorization_control_contention_expires_while_original_lock_is_held() {
-    for mode in 0..3 {
+    for mode in 0..4 {
         let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
         let snapshot_id = engine
             .graph()
@@ -37,6 +37,13 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
             1 => engine
                 .authorize_revision_until(None, revision, &principal, &policy, deadline)
                 .map(|_| ()),
+            3 => engine.with_authorized_revision_reader(
+                revision,
+                &principal,
+                &policy,
+                50,
+                |_, _, _| panic!("consumer must not run after initial authorization lock expiry"),
+            ),
             _ => {
                 let mut reads =
                     diskgraph_core::QueryReadBudget::new(QueryBudget::default(), deadline).unwrap();
@@ -58,6 +65,44 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
             "request waited for the original owner past its deadline"
         );
     }
+}
+
+#[test]
+fn bounded_reader_terminal_control_contention_refuses_prepared_result() {
+    let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+    let engine = std::sync::Arc::new(engine);
+    let policy = engine.policy_authorizer().unwrap();
+    let released = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let owner = RefCell::new(None);
+    let result =
+        engine.with_authorized_revision_reader(revision, &principal, &policy, 100, |_, _, _| {
+            let holder = engine.clone();
+            let holder_released = released.clone();
+            let (tx, rx) = std::sync::mpsc::channel();
+            *owner.borrow_mut() = Some(std::thread::spawn(move || {
+                let guard = holder.control_store().unwrap();
+                tx.send(()).unwrap();
+                std::thread::sleep(std::time::Duration::from_millis(300));
+                holder_released.store(true, std::sync::atomic::Ordering::Release);
+                drop(guard);
+            }));
+            rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap();
+            Ok(42)
+        });
+    let returned_while_held = !released.load(std::sync::atomic::Ordering::Acquire);
+    owner
+        .into_inner()
+        .expect("consumer must prepare a result")
+        .join()
+        .unwrap();
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
+    ));
+    assert!(
+        returned_while_held,
+        "terminal authorization waited past original deadline"
+    );
 }
 
 #[test]

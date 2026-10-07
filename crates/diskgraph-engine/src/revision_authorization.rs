@@ -186,7 +186,7 @@ impl Engine {
             .revision_ownership(revision_id)?
             .ok_or(BusinessError::PermissionDenied)?;
         let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
-        let control = self.control_store()?;
+        let control = self.control_until(deadline)?;
         // 在首次授权前绑定实际依赖；所有 SQL 仍使用请求最初的截止时间。
         let withdrawal = control.with_read_deadline(deadline, |control| {
             let withdrawal = crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
@@ -205,7 +205,7 @@ impl Engine {
         let snapshot_id = reader.revision(revision_id)?.snapshot_id;
         let result = consumer(&reader, &snapshot_id, deadline)?;
         // 撤销与单项权限在同一控制库锁下复核，可信兼容模式同样不能越过撤销。
-        let control = self.control_store()?;
+        let control = self.control_until(deadline)?;
         withdrawal.check(&control)?;
         let authorization =
             Self::require_terminal_relation(&control, authorizer, principal, &scope);

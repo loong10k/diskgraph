@@ -27,3 +27,9 @@
 当前授权回归 4 passed（控制锁场景实际覆盖三个入口）；relation_request_tests 为 7 passed / 8 failed，八个失败均在原生扫描夹具初始化 line 110 返回 Business(Unsupported)，不能当成查询行为通过。七个使用已发布元数据的回归覆盖初始授权、末段归属、撤权及历史数据到期语义。原生失败仍需在对应平台 CI 闭环。
 
 初始控制授权 helper 已迁至 initial_revision_authorization.rs，满足生产文件小于 500 行的门禁，lib.rs 仅增加模块声明。拆分后最终授权 4 项、source_layout 6 项、Engine Clippy 与 fmt 均通过；独立两条审查 APPROVE / CLEAR。无期限兼容接口仍保持原路径。
+
+## 可信有期限读取包装的锁等待
+
+with_authorized_revision_reader 的初次与末段控制锁原使用阻塞获取。初次真实锁竞争新增第四入口时实际 RED：不返回精确业务预算错误。两处现使用 control_until(deadline)，没有刷新期限。末段测试在 consumer 准备真实结果 42 后让独立线程持锁 300 ms，原 100 ms 请求返回 BudgetExceeded 且返回时仍持锁，不能交付准备结果。
+
+当前授权回归 5 passed。该包装的 SQL handler、同步回调和撤权优先级尚未全面改造，本批仅关闭控制锁无期限等待；不要据此声称包装已有严格墙钟上限。新增末段测试未单独记录修改前 RED，初次用例已记录实际 RED。
