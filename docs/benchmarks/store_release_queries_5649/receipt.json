@@ -1,0 +1,22 @@
+{
+  "base_sha": "5649cdf",
+  "source_sha256": {
+    "crates/diskgraph-store/src/child_aggregate_benchmark.rs": "c4da9bb5b85d58b7dc76102b1262226e2ad4bd6b4dad4fcf3bcc881b5108c397",
+    "crates/diskgraph-store/src/directory_budget_query.rs": "58e9ac9a901ab42c75fb2b7fc523d705e674bae5da832d6581828213d2cff884",
+    "crates/diskgraph-store/src/tree_budget_query.rs": "755632d793053550235a6ebedd63f7ad3fd6045db5b3bf3034f3fc331ac38032"
+  },
+  "profile": "release",
+  "platform": "macOS aarch64",
+  "fixtures": "20k/200k immutable synthetic metadata using actual store APIs in isolated temp directories",
+  "passed": true,
+  "samples_per_query": 100,
+  "repeated_run_passed": true,
+  "whole_test_process_peak_rss_bytes": 83361792,
+  "initial_failure": "v8 downgrade fixture retained v15 denial table; production migration rejected it. Removed future view/table only in isolated fixture.",
+  "limitations": [
+    "Warm same-connection queries, not cold-cache or concurrency",
+    "Actual decoded-node counts, not SQLite physical pages or total VM rows",
+    "RSS covers fixture creation, migration and publication together, not scan or individual requests",
+    "No native CLI/MCP, filesystem scan, deep directory, Linux/Windows or full before-after release acceptance"
+  ]
+}

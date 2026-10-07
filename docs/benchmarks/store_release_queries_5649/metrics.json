@@ -1,0 +1,134 @@
+[
+  {
+    "after_counts": {
+      "p50_ms": 0.006291000000000001,
+      "p95_ms": 0.012958,
+      "samples": 100
+    },
+    "arch": "aarch64",
+    "backup_bytes": 7225344,
+    "before_counts": {
+      "p50_ms": 0.557166,
+      "p95_ms": 0.6102920000000001,
+      "samples": 100
+    },
+    "bounded_pages": [
+      {
+        "cache_state": "same connection, repeated warm queries",
+        "decoded_nodes_per_query": 10,
+        "directory_page": {
+          "p50_ms": 0.034208,
+          "p95_ms": 0.037125,
+          "samples": 100
+        },
+        "does_not_measure_sqlite_pages_or_process_rss": true,
+        "page_size": 10,
+        "tree_page": {
+          "p50_ms": 0.088042,
+          "p95_ms": 0.096625,
+          "samples": 100
+        }
+      },
+      {
+        "cache_state": "same connection, repeated warm queries",
+        "decoded_nodes_per_query": 100,
+        "directory_page": {
+          "p50_ms": 0.08808400000000001,
+          "p95_ms": 0.114958,
+          "samples": 100
+        },
+        "does_not_measure_sqlite_pages_or_process_rss": true,
+        "page_size": 100,
+        "tree_page": {
+          "p50_ms": 0.16612500000000002,
+          "p95_ms": 0.18495799999999998,
+          "samples": 100
+        }
+      }
+    ],
+    "children": 20000,
+    "db_after_migration_bytes": 8802304,
+    "db_after_publish_bytes": 20525056,
+    "db_before_migration_bytes": 7225344,
+    "distinct_sizes": 20000,
+    "fixture": "synthetic immutable metadata",
+    "migration_including_backup_ms": 52.290292,
+    "migration_sampled_peak_sqlite_temp_bytes": 684700,
+    "migration_sampled_peak_wal_bytes": 2340192,
+    "os": "macos",
+    "owned_staging_fenced_publish_ms": 184.686833,
+    "profile": "release",
+    "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+    "publish_sampled_peak_sqlite_temp_bytes": 1763000,
+    "publish_sampled_peak_wal_bytes": 17753112,
+    "space_sampling_interval_ms": 1,
+    "staging_db_before_publish_bytes": 10379264,
+    "temp_sampling_is_upper_bound": false
+  },
+  {
+    "after_counts": {
+      "p50_ms": 0.006125,
+      "p95_ms": 0.006625,
+      "samples": 100
+    },
+    "arch": "aarch64",
+    "backup_bytes": 72425472,
+    "before_counts": {
+      "p50_ms": 6.545208000000001,
+      "p95_ms": 6.979958,
+      "samples": 100
+    },
+    "bounded_pages": [
+      {
+        "cache_state": "same connection, repeated warm queries",
+        "decoded_nodes_per_query": 10,
+        "directory_page": {
+          "p50_ms": 0.034499999999999996,
+          "p95_ms": 0.036083,
+          "samples": 100
+        },
+        "does_not_measure_sqlite_pages_or_process_rss": true,
+        "page_size": 10,
+        "tree_page": {
+          "p50_ms": 0.087208,
+          "p95_ms": 0.106042,
+          "samples": 100
+        }
+      },
+      {
+        "cache_state": "same connection, repeated warm queries",
+        "decoded_nodes_per_query": 100,
+        "directory_page": {
+          "p50_ms": 0.093,
+          "p95_ms": 0.126292,
+          "samples": 100
+        },
+        "does_not_measure_sqlite_pages_or_process_rss": true,
+        "page_size": 100,
+        "tree_page": {
+          "p50_ms": 0.1735,
+          "p95_ms": 0.20708400000000002,
+          "samples": 100
+        }
+      }
+    ],
+    "children": 200000,
+    "db_after_migration_bytes": 88977408,
+    "db_after_publish_bytes": 209051648,
+    "db_before_migration_bytes": 72425472,
+    "distinct_sizes": 200000,
+    "fixture": "synthetic immutable metadata",
+    "migration_including_backup_ms": 608.3496670000001,
+    "migration_sampled_peak_sqlite_temp_bytes": 14341073,
+    "migration_sampled_peak_wal_bytes": 23661192,
+    "os": "macos",
+    "owned_staging_fenced_publish_ms": 1786.153667,
+    "profile": "release",
+    "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+    "publish_sampled_peak_sqlite_temp_bytes": 9208600,
+    "publish_sampled_peak_wal_bytes": 182907432,
+    "space_sampling_interval_ms": 1,
+    "staging_db_before_publish_bytes": 102375424,
+    "temp_sampling_is_upper_bound": false
+  }
+]

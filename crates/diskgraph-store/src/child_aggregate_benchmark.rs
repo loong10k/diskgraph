@@ -131,7 +131,8 @@ fn measure_directory_aggregate_costs() {
         legacy.save(&fixture).unwrap();
         // 移除 v10 成员表并恢复真正 v8 结构，压缩已删除表的空闲页避免抬高基线。
         legacy.connection.execute_batch(
-            "DROP TRIGGER revisions_require_native_observation_writer;
+            "DROP VIEW revision_authorized_ownership; DROP TABLE revision_access_denials;
+             DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;
@@ -181,6 +182,51 @@ fn measure_directory_aggregate_costs() {
                 (count, count / 2 + 1)
             )
         });
+        let mut bounded_pages = Vec::new();
+        for page_size in [10usize, 100] {
+            let budget = diskgraph_core::QueryBudget {
+                max_nodes: page_size,
+                max_response_bytes: 1 << 20,
+                ..diskgraph_core::QueryBudget::default()
+            };
+            let directory_page = timed(|| {
+                let mut reads = diskgraph_core::QueryReadBudget::new(
+                    budget,
+                    Instant::now() + std::time::Duration::from_secs(1),
+                )
+                .unwrap();
+                let (nodes, more, unknown) = upgraded
+                    .children_with_budget("legacy", 1, 0, page_size as u64, true, &mut reads)
+                    .unwrap();
+                assert_eq!(nodes.len(), page_size);
+                assert_eq!(reads.nodes_read(), page_size);
+                assert!(more);
+                assert_eq!(unknown, 0);
+                assert!(reads.stopped().is_none());
+            });
+            let tree_page = timed(|| {
+                let mut reads = diskgraph_core::QueryReadBudget::new(
+                    budget,
+                    Instant::now() + std::time::Duration::from_secs(1),
+                )
+                .unwrap();
+                let (nodes, more) = upgraded
+                    .tree_children_with_budget("legacy", 1, 0, page_size, &mut reads)
+                    .unwrap();
+                assert_eq!(nodes.len(), page_size);
+                assert_eq!(reads.nodes_read(), page_size);
+                assert!(more);
+                assert!(reads.stopped().is_none());
+            });
+            bounded_pages.push(serde_json::json!({
+                "page_size":page_size,
+                "decoded_nodes_per_query":page_size,
+                "directory_page":directory_page,
+                "tree_page":tree_page,
+                "cache_state":"same connection, repeated warm queries",
+                "does_not_measure_sqlite_pages_or_process_rss":true,
+            }));
+        }
         upgraded
             .connection
             .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);")
@@ -229,7 +275,7 @@ fn measure_directory_aggregate_costs() {
         });
         let fenced_publish_ms = started.elapsed().as_secs_f64() * 1000.0;
         assert_eq!(publisher.node_count("published").unwrap(), count + 1);
-        let result = serde_json::json!({"profile":"release","os":std::env::consts::OS,"arch":std::env::consts::ARCH,"fixture":"synthetic immutable metadata","publish_phase_includes_sampler_validation_commit_checkpoint":true,"children":count,"distinct_sizes":count,"before_counts":before_counts,"after_counts":after_counts,"migration_including_backup_ms":migration_ms,"db_before_migration_bytes":before_db,"db_after_migration_bytes":after_db,"backup_bytes":bytes(&backup.unwrap()),"migration_sampled_peak_wal_bytes":migration_wal,"migration_sampled_peak_sqlite_temp_bytes":migration_temp,"owned_staging_fenced_publish_ms":fenced_publish_ms,"staging_db_before_publish_bytes":staged_db,"db_after_publish_bytes":bytes(&publish_path),"publish_sampled_peak_wal_bytes":publish_wal,"publish_sampled_peak_sqlite_temp_bytes":publish_temp,"space_sampling_interval_ms":1,"temp_sampling_is_upper_bound":false});
+        let result = serde_json::json!({"profile":"release","os":std::env::consts::OS,"arch":std::env::consts::ARCH,"fixture":"synthetic immutable metadata","publish_phase_includes_sampler_validation_commit_checkpoint":true,"children":count,"distinct_sizes":count,"before_counts":before_counts,"after_counts":after_counts,"bounded_pages":bounded_pages,"migration_including_backup_ms":migration_ms,"db_before_migration_bytes":before_db,"db_after_migration_bytes":after_db,"backup_bytes":bytes(&backup.unwrap()),"migration_sampled_peak_wal_bytes":migration_wal,"migration_sampled_peak_sqlite_temp_bytes":migration_temp,"owned_staging_fenced_publish_ms":fenced_publish_ms,"staging_db_before_publish_bytes":staged_db,"db_after_publish_bytes":bytes(&publish_path),"publish_sampled_peak_wal_bytes":publish_wal,"publish_sampled_peak_sqlite_temp_bytes":publish_temp,"space_sampling_interval_ms":1,"temp_sampling_is_upper_bound":false});
         println!("{result}");
         results.push(result);
     }

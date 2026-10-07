@@ -204,3 +204,9 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 隔离性能探针必须实际写入全部报告行，包含不足一批的尾部；事务边界须随配置batch size变化，而非全部行共用一个事务。吞吐分母来自实际插入行，并查询数据库COUNT确认。该合成SQLite探针不是正式staging、文件扫描或全平台性能验收。
 
 测量修复RED确认原报告200000实际199680；GREEN每例200000真实持久行、512/2048/8192/32768批次分别391/98/25/7个实际事务。仅运行隔离合成SQLite release探针，未打开operator/home库；Clippy通过。日志见 `docs/benchmarks/batch_probe_59a8dd/`。单次样本不能据此更改生产默认批次，也不能勾选最终性能验收。
+
+## 正式store隔离release查询测量
+
+复用20k/200k合成元数据夹具，正式children_with_budget/tree_children_with_budget各100次10/100节点页，断言返回和账本解码数匹配页大小；记录p50/p95。只证明有界解码与暖连接时间，不声明SQLite物理页、RSS或CLI/MCP端到端。首轮旧v8迁移夹具保留v15拒绝表导致失败，降级必须移除未来表/视图，不改生产迁移核验。
+
+正式store release测量已两次通过：20k/200k、10/100节点页各100暖查询，账本解码数严格随页大小，目录量十倍未导致页时间同比增长。主次运行原始日志、p50/p95、迁移与staging正式发布DB/WAL/临时空间、整测试进程RSS保存在 `docs/benchmarks/store_release_queries_5649/`。样本不是文件扫描，不涵盖冷缓存、并发、深目录或三平台；原基线是同夹具旧结构计数查询，不是旧发布二进制。Clippy all-targets及fmt通过，最终性能任务仍未勾选。
