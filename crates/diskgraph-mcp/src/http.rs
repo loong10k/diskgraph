@@ -919,12 +919,7 @@ pub(crate) fn serve_config_with_runtime(
                     }
                 };
                 if std::env::var("DISKGRAPH_HTTP_DEBUG").is_ok() {
-                    eprintln!(
-                        "[http-debug] {} {} body={:?}",
-                        request.method,
-                        request.path,
-                        &request.body[..request.body.len().min(120)]
-                    );
+                    eprintln!("{}", crate::http_debug_request::format_request(&request));
                 }
                 let client = observed_client_ip(&peer, &request.headers, &security.policy);
                 if let Err(retry_after_ms) = limiter.check(&client) {

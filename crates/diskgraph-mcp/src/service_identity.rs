@@ -1,7 +1,6 @@
 //! 请求身份固定与实时授权；来源：原生 Rust MCP 服务，RT-10 机械职责拆分。
 use crate::{McpService, auth, request_authorizer, request_context};
-use diskgraph_core::Authorizer;
-use diskgraph_engine::{EngineError, admin_scope};
+use diskgraph_engine::EngineError;
 
 impl McpService {
     /// 从当前控制库重建实时授权器，使启动后新增范围和授权即时生效。
@@ -52,33 +51,19 @@ impl McpService {
         if identity.permissions.is_empty() {
             return false;
         }
-        let request = self.for_identity(identity);
-        let Ok(policy) = request.authorizer() else {
-            return false;
+        // 每轮控制观察共用固定窗口；失败关闭，不等待无限期mutex或缓存grant。
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+        let unexpired = || {
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .is_ok_and(|now| now.as_secs() < identity.expires_at_unix_seconds)
         };
-        if identity.permissions.iter().any(|permission| {
-            matches!(
-                policy.decide(&identity.principal, permission, &admin_scope()),
-                diskgraph_core::Decision::Allowed
-            )
-        }) {
-            return true;
-        }
-        self.engine
-            .control_store()
-            .ok()
-            .and_then(|store| store.list_scopes().ok())
-            .is_some_and(|scopes| {
-                scopes.iter().any(|scope| {
-                    !scope.revoked
-                        && identity.permissions.iter().any(|permission| {
-                            matches!(
-                                policy.decide(&identity.principal, permission, &scope.scope_id),
-                                diskgraph_core::Decision::Allowed
-                            )
-                        })
-                })
-            })
+        unexpired()
+            && self
+                .engine
+                .has_live_permission_until(&identity.principal, &identity.permissions, deadline)
+                .unwrap_or(false)
+            && unexpired()
     }
 
     /// 读取请求传输和经过校验的签发方，供日志使用。

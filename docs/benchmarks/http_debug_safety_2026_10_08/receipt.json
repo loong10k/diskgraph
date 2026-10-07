@@ -1,0 +1,39 @@
+{
+  "base_commit": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+  "source_state": "uncommitted candidate with SSE fix",
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/http_debug_request.rs": "fa6c35909cd5d85d113c8d104559cedb7803941c08127e26d49c8eba07b7b0d8",
+    "crates/diskgraph-mcp/src/http.rs": "e6464c1d542aeb5b70d00108c02f237bf7c044c3cd75e14d8c560f8a6437ebc4",
+    "crates/diskgraph-mcp/tests/http_signal_shutdown.rs": "08d5f6fc3015bcef5f4c824db5a9930212ed7d126ba828c4a152ecd3316335a6",
+    "crates/diskgraph-engine/src/lib.rs": "15bf2312b76738ef3ba551f7b5cb5eaa022347968ecee7060d15c1ab9eda9796",
+    "crates/diskgraph-mcp/src/lib.rs": "e231dbffca10a951958e10f7c3abfc6a539ca0feb88b8ca8f4c1c401132c0f50",
+    "crates/diskgraph-mcp/src/http_debug_request_tests.rs": "906772542daf62e450c3d371965654ca9d089db6874b8858b948fcb56c3825b3"
+  },
+  "red_failed": 3,
+  "green_passed": 3,
+  "platform": "macOS",
+  "actual_server_survival_tested": true,
+  "production_acceptance": false,
+  "mcp_all_targets_clippy": "passed",
+  "native_linux": {
+    "passed": 3,
+    "failed": 0,
+    "log": "native_linux_green.log.gz",
+    "log_sha256": "641f05639241461522da39e4d7ab2fb35914d4779c425c5aaf1e76ecc631e180",
+    "scope": "debug Unicode unauthenticated request returns 401; healthz remains 200; SIGTERM and SIGINT exit successfully",
+    "source_state": "b03de97 plus uncommitted candidate overlays; not CI commit acceptance"
+  },
+  "regression": {
+    "linux_library_passed": 160,
+    "linux_binary_passed": 7,
+    "linux_selected_integration_passed": 38,
+    "macos_layout_passed": 11,
+    "linux_debug_after_test_relocation_passed": 3,
+    "full_package_result": "not accepted: initial full package invocation stopped at missing deployment assets in fixture; after assets supplied selected integrations ran; source layout then required test module relocation; final layout passes",
+    "scope": "targeted regression; not full workspace or native Windows acceptance"
+  },
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR for tested SSE contention; HTTP debug approved; remaining transport issues outside this batch"
+  }
+}

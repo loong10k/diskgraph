@@ -400,3 +400,5 @@ mod trusted_local_recovery_domain_tests;
 mod scope_authorization_tests;
 
 mod authority_expiry;
+
+mod live_permission;

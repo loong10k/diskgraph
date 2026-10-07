@@ -72,3 +72,11 @@ pub use stdio_service::serve_stdio;
 
 #[cfg(test)]
 mod engine_error_cleanup_tests;
+
+#[cfg(test)]
+mod sse_identity_deadline_tests;
+
+mod http_debug_request;
+
+#[cfg(test)]
+mod http_debug_request_tests;
