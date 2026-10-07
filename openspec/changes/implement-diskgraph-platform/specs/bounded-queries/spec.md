@@ -221,6 +221,11 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 - **AND** count indexes are built atomically with the snapshot, backfilled transactionally on upgrade with a consistent pre-upgrade backup, and removed with the snapshot
 - **AND** arbitrary minimum-size tree counts retain the existing numeric subtree-size semantics; the indexes add storage and publication work rather than promising a strict scan RSS cap
 
+#### Scenario: Encoded prefixes retain bounded terminal authorization after data expiry
+- **WHEN** an adapter has prepared a bounded prefix and its original data deadline expires before response finalization
+- **THEN** finalization observes actual revision ownership and current scope/grants with fixed 50 ms authorization-only windows before and after the capability callback, using an independent reader and refusing control-lock contention without waiting
+- **AND** that reader is never exposed to a data consumer; the original data deadline is not renewed. Successful observation returns expired status, permitting only the existing explicit incomplete/deadline response. Revocation, ownership mismatch or failed authorization observation refuses all data. Capability callbacks have a fixed cooperative 50 ms acceptance window; fresh SQL after callbacks still checks revocation before rejecting a late permit. Adapters retain their existing cancellation checks before and after finalization; this method does not introduce a cancellation input.
+
 #### Scenario: Concurrent read-only CLI startup
 - **WHEN** multiple trusted local CLI processes open an already initialized policy and repeat an existing grant
 - **THEN** existing grants are not rewritten and unchanged graph schemas do not acquire a write transaction merely to drop an absent legacy index

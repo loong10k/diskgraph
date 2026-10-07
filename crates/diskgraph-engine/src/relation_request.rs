@@ -164,8 +164,13 @@ impl Engine {
         if revisions.is_empty() {
             return Err(BusinessError::InvalidArgument.into());
         }
-        // 末段授权必须可读实际归属；到期不能被用作跳过权限检查的理由。
-        let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+        // 实时授权的前后 SQL 与能力回调各有固定窗口，不续期数据查询，也不向消费者交出此连接。
+        // 数据已到期时仍须拒绝撤权后的前缀；观察超时则拒绝全部结果。
+        let observation_deadline = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let reader =
+            SqliteSnapshotStore::open_reader_until(&self.graph_path, observation_deadline, None)?;
         let ownerships = revisions
             .iter()
             .map(|revision| {
@@ -177,24 +182,60 @@ impl Engine {
                 Ok((server, scope))
             })
             .collect::<Result<Vec<_>, EngineError>>()?;
-        let mut control = self.control_store()?;
-        let server_id = control.ensure_server()?;
-        for (server, scope) in &ownerships {
-            if server != server_id.as_str() || control.scope(scope)?.revoked {
-                return Err(BusinessError::PermissionDenied.into());
+        let control = self
+            .try_control_store()?
+            .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+        control.with_read_deadline(observation_deadline, |control| {
+            let server_id = control.existing_server_id()?;
+            for (server, scope) in &ownerships {
+                if server != server_id.as_str() || control.scope_revoked(scope)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
             }
-        }
-        let scopes = ownerships
+            Ok::<(), EngineError>(())
+        })?;
+        drop(reader);
+        // 宿主回调不消耗后续新鲜 SQL 的窗口；迟到允许仍不能提交部分数据。
+        let capability_deadline = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let decisions = ownerships
             .iter()
-            .map(|(_, scope)| scope)
+            .map(|(_, scope)| authorizer.decide(principal, &Permission::MetadataRead, scope))
             .collect::<Vec<_>>();
-        Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
-        // 上面的最后能力回调可通过独立 Engine 注册并隔离先前解析的 revision。
-        // 此 reader 未交给消费者、也未持显式读事务；回调完成后各 SELECT 观察新提交。
+        let after_callback = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        control.with_read_deadline(after_callback, |control| {
+            for ((_, scope), decision) in ownerships.iter().zip(decisions) {
+                Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::MetadataRead,
+                    scope,
+                )?;
+            }
+            // 所有能力回调结束后纯读每侧授权，后侧回调不能撤销已检查的前侧后逃逸。
+            for (_, scope) in &ownerships {
+                if control.scope_revoked(scope)?
+                    || control.live_permission(principal, &Permission::MetadataRead, scope)?
+                        == Some(false)
+                {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+            }
+            Ok::<(), EngineError>(())
+        })?;
+        let reader =
+            SqliteSnapshotStore::open_reader_until(&self.graph_path, after_callback, None)?;
         for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
             if !reader.revision_ownership_matches(revision, server, scope.as_str())? {
                 return Err(BusinessError::PermissionDenied.into());
             }
+        }
+        if Instant::now() >= after_callback || Instant::now() >= capability_deadline {
+            return Err(BusinessError::BudgetExceeded.into());
         }
         Ok(Instant::now() < deadline)
     }

@@ -77,7 +77,7 @@ fn process_enqueue_commit_read_lock_keeps_the_original_deadline_and_rolls_back()
     assert!(live_at_call);
     assert!(
         inserted.load(Ordering::SeqCst),
-        "never reached the actual final input INSERT"
+        "never reached the actual final input INSERT: result={result:?}, elapsed={elapsed:?}, returned_while_held={returned_while_held}"
     );
     assert!(
         matches!(result, Err(StoreError::BudgetExceeded)),

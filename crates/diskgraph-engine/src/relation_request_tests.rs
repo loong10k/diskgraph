@@ -413,6 +413,130 @@ fn final_envelope_authorization_refuses_revocation_during_its_authorizer_call() 
 }
 
 #[test]
+fn expired_envelope_still_observes_live_authorization_without_renewing_data_deadline() {
+    // 仅验证持久授权，不依赖扫描进程部署；通过真实 Store 发布合法的单节点快照。
+    let dir = tempfile::tempdir().unwrap();
+    let engine = crate::Engine::open(EngineConfig {
+        data_dir: dir.path().join("data"),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let principal = PrincipalId::new("expired-envelope-reader").unwrap();
+    engine.bootstrap_local_admin(&principal).unwrap();
+    let scope = engine
+        .register_scope(dir.path(), &principal, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    let graph: diskgraph_core::DiskGraph = serde_json::from_value(serde_json::json!({
+        "snapshot": {"id":"expired-envelope-snapshot", "root":{"type":"native_path","value":dir.path().to_string_lossy()},
+            "volume_id":null,"captured_at_unix_ms":1,
+            "settings":{"apparent_size":true,"follow_links":false,"include_hidden":true,
+                "one_filesystem":true,"max_depth":null,"dedup_hardlinks":true},
+            "coverage":{"complete":true,"unreadable_nodes":0,"depth_limited":false}},
+        "nodes":[{"id":1,"parent_id":null,"locator":{"type":"native_path","value":dir.path().to_string_lossy()},
+            "name":"root","kind":"directory","subtree_bytes":0,"direct_bytes":0,"size_known":true,
+            "files":0,"directories":1,"modified_unix_seconds":null,"file_identity":null,
+            "category_hint":null,"reclaim_hint":null,"read_error":false}],
+        "evidence":[]
+    })).unwrap();
+    let revision = "expired-envelope-revision";
+    let server = engine.server_id().unwrap();
+    {
+        let mut store = engine.graph().unwrap();
+        store
+            .append_staging_nodes("expired-envelope-job", &graph.nodes)
+            .unwrap();
+        store
+            .publish_revision_owned(
+                "expired-envelope-job",
+                &graph,
+                revision,
+                1,
+                Some((server.as_str(), scope.as_str())),
+            )
+            .unwrap();
+    }
+    let policy = engine.policy_authorizer().unwrap();
+    let expired = Instant::now() - std::time::Duration::from_millis(1);
+    assert!(
+        !engine
+            .finalize_revision_read_until(revision, &principal, &policy, expired)
+            .unwrap(),
+        "authorization observation must not renew the expired data request"
+    );
+    {
+        let _held = engine.control_store().unwrap();
+        assert!(
+            matches!(
+                engine.finalize_revision_read_until(revision, &principal, &policy, expired),
+                Err(EngineError::Business(BusinessError::BudgetExceeded))
+            ),
+            "terminal observation must refuse a held control lock"
+        );
+    }
+    /// 模拟真实同步授权回调超过观察窗口，不给迟到允许结果续期。
+    struct SlowPermit(diskgraph_core::PolicyAuthorizer);
+    impl diskgraph_core::Authorizer for SlowPermit {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            std::thread::sleep(std::time::Duration::from_millis(80));
+            self.0.decide(principal, permission, scope)
+        }
+    }
+    assert!(
+        matches!(
+            engine.finalize_revision_read_until(
+                revision,
+                &principal,
+                &SlowPermit(engine.policy_authorizer().unwrap()),
+                expired
+            ),
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ),
+        "a late capability decision must refuse even a truncated reply"
+    );
+    /// 慢回调通过独立真实控制连接撤权，返回允许也必须保留拒权优先。
+    struct SlowRevoke {
+        policy: diskgraph_core::PolicyAuthorizer,
+        control: RefCell<diskgraph_store::ControlStore>,
+    }
+    impl diskgraph_core::Authorizer for SlowRevoke {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.control.borrow_mut().revoke_scope(scope).unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(80));
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let slow_revoke = SlowRevoke {
+        policy: engine.policy_authorizer().unwrap(),
+        control: RefCell::new(
+            diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+                .unwrap(),
+        ),
+    };
+    assert!(
+        matches!(
+            engine.finalize_revision_read_until(revision, &principal, &slow_revoke, expired),
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "slow callback revocation must not be hidden by a budget error"
+    );
+    assert!(engine.scope(&scope).unwrap().revoked);
+    assert!(matches!(
+        engine.finalize_revision_read_until(revision, &principal, &policy, expired),
+        Err(EngineError::Business(BusinessError::PermissionDenied))
+    ));
+}
+
+#[test]
 fn encoded_budget_failure_still_checks_the_real_terminal_revocation() {
     let (dir, engine, principal, scope, _other, revision) = fixture();
     let policy = engine.policy_authorizer().unwrap();
