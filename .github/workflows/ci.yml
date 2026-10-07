@@ -566,6 +566,29 @@ jobs:
         run: |
           cargo test -p diskgraph-ffi --lib --locked two_native_handles_for_a_coalesced_job_return_the_same_revision -- --nocapture
           cargo test -p diskgraph-ffi --lib --locked legacy_service_scan_does_not_restore_revoked_admin_grant -- --nocapture
+      - name: Native Linux private deadline time namespace rejection
+        if: runner.os == 'Linux'
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          cargo test -p diskgraph-engine --test native_deadline --locked actual_linux_time_namespace_mismatch_is_refused -- --ignored --exact --nocapture > "$RUNNER_TEMP/native-deadline-namespace.log" 2>&1
+          python - <<'PYTHON'
+          import os
+          from pathlib import Path
+          log = (Path(os.environ['RUNNER_TEMP']) / 'native-deadline-namespace.log').read_text()
+          if ('1 passed; 0 failed; 0 ignored;' not in log
+              or 'DG_CLOCK_ACTUAL_NAMESPACE_CHANGED=1' not in log
+              or 'DG_CLOCK_ACTUAL_NAMESPACE_REFUSED=1' not in log):
+              raise RuntimeError('actual kernel time namespace mismatch must execute and reject')
+          PYTHON
+      - name: Preserve native private deadline namespace evidence
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-deadline-namespace-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/native-deadline-namespace.log
+          if-no-files-found: error
+          retention-days: 7
       - name: Test
         timeout-minutes: 30
         # 恢复失败可能阻止二进制返回；即时保留原断言/诊断，不等待 libtest 最终汇总。

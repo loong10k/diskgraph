@@ -373,3 +373,6 @@ pub use supervisor_parts::SupervisorParts;
 pub use supervisor_recovery_error::SupervisorRecoveryError;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos", windows)))]
 mod supervisor_binding_tests;
+
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+pub mod native_deadline;

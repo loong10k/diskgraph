@@ -1,0 +1,50 @@
+{
+  "base_commit": "739f428f5ead8a4ad2d3664705a07f2587616efe",
+  "platform": "macOS arm64",
+  "logs": {
+    "red": {
+      "sha256": "b2550894d81337f5ffa56d10d547983d90fdfa0a3e0740fad94005dcf17b2c25",
+      "archive_sha256": "e7d0a0bbcd21ef86396c857fcb2a45326a0be5099006d33bfe2ad937b4a4f969",
+      "bytes": 2164
+    },
+    "green": {
+      "sha256": "f2569f7c6df7628014bfc1cdee28b154854e81c22bd9689fe40a85a261544bd7",
+      "archive_sha256": "2217bebcaba7adb1ea48a6aa212a55f9dd779eda510ae02e014693b103d6c37d",
+      "bytes": 950
+    },
+    "layout": {
+      "sha256": "1dbfaeda62c19db6529ddb633313c0c16a13e1ce2dd1c7fec17c8385fb755d75",
+      "archive_sha256": "c3ebacfcf33c3c3c63172816047847f6fe90b392dd2a0ced47499b0be434a643",
+      "bytes": 793
+    },
+    "clippy": {
+      "sha256": "331f6982a9dd570143d0f9f99f692bcd5a855714888b90232ca49c573fe574a8",
+      "archive_sha256": "16e0b59e8d5f8693aece00ca38c47ef96c70e5779521646e533f1a530e4fa366",
+      "bytes": 188
+    },
+    "python": {
+      "sha256": "8e22f61e3a42d8797daf7f05fe9133a372ab823cd565bb863e24c9d201c965bd",
+      "archive_sha256": "e40a46e0ba0dd8aebd8a2255b1ac0d9ec7887a740ccb5079e468d10c79609d75",
+      "bytes": 962
+    }
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/native_deadline/windows_clock.rs": "561f0575a49da0208a39e498c775283ddbe1f69fd7d485362f64662744cb0784",
+    "crates/diskgraph-engine/src/native_deadline/clock_sample.rs": "673632dc3bdd39b28fd8c2c1cff0483c2bf63ba433abfbcaed86f1d7e7dcb9ed",
+    "crates/diskgraph-engine/src/native_deadline/clock_stamp.rs": "aa18922f9e2d8a556a0413e35ca52ce6a1a88d9974d93516c1e5f23ab76fc0b5",
+    "crates/diskgraph-engine/src/native_deadline/linux_clock.rs": "c5b6f050c7af4c5554adca0d31b373db911440921396d86a93c576f4c866750a",
+    "crates/diskgraph-engine/src/native_deadline/macos_clock.rs": "b620c55825f88af0250d51334ea80381b46861059735029eb372444e4d2144d5",
+    "crates/diskgraph-engine/src/native_deadline/mod.rs": "296e3a5720dc9dc4db4afc5c1d8ea56ebee29edd455ffacf41bec646b5cc1d94",
+    "crates/diskgraph-engine/src/lib.rs": "57319435dd87a5cab7813da8ea216eb3a577be72aaf2db3398ff7ca04dbcc00e",
+    "crates/diskgraph-engine/Cargo.toml": "364222a932b35c4809057f582eb768ba45e47fa9d72cd7e95b348e8f332f9f75",
+    "crates/diskgraph-engine/tests/native_deadline.rs": "1fa7621bff16d167d83363bfccb59934a36a40b3ff6bbddab969e2fb90fa32ba",
+    ".github/workflows/ci.yml": "19d51f3daa132b33e390f705e7de2530dbc9474231543213a3167a60fc72dace"
+  },
+  "limitations": [
+    "deadline primitive only; actual trusted supervisor/IPC/CLI/MCP integration remains open",
+    "Linux actual time namespace rejection CI step not run on local macOS",
+    "Windows QPC and macOS Intel actual native runs pending",
+    "same authenticated birth and boot is an external precondition; stamp does not authenticate peer",
+    "existing Python suite ResourceWarning not suppressed"
+  ]
+}

@@ -96,3 +96,13 @@ flowchart TD
 CLEAN 同步失败仍持有原锁；仅此对象已开始的退休可重试精确 ACTIVE/CLEAN，未知或部分记录拒绝，不覆盖修复。此次能力仅约束原资源和容量的库内退休，不代表实际 runner join、原生监督进程退出、受信镜像/IPC/公共 EOF 已完成；这些原门禁保持打开。
 
 库内 `SupervisorParts` / `SupervisorOwner` / `SupervisorRecoveryError` 已实现上述原绑定及退休子能力；本机真实绑定 RED 5/2 → GREEN 9/0，真实 Unix 原 fd 写入异常 1/0。Windows 两项原会话/外国池验收仍待 CI；原生子进程/I/O 监督执行、受保护命名空间及 CLI/MCP 退出阶段均保持未完成。证据见 `docs/benchmarks/supervisor_binding_b3a/`。
+
+## 同出生私有通道的跨进程原期限
+
+禁止序列化 Rust Instant、UTC 或在接收端重新签发完整 Duration。发送端先读本机原生时钟，再从原 Instant 扣除已消耗时间，生成绝对计数截止值；接收端先采本地 Instant，再读原生计数，只有相同 clock domain 才可换算剩余预算，扣除原生精度余量（Unix 一纳秒；Windows 向上取整的一 QPC tick 加一纳秒），且不得超过显式接收策略上限。每次采用都重新扣除真实传输/排队时间；过期、未知版本、时钟域不符、溢出、原生读取失败均拒绝。
+
+Linux 使用与 Rust Instant 同源的 CLOCK_MONOTONIC，并绑定真实 nsfs 的时间命名空间 device/inode；在采样前后核对 namespace，跨 namespace 拒绝。macOS 使用 CLOCK_UPTIME_RAW，与 Rust 1.97 的时钟源一致。Windows 使用本机 QPC 并绑定实际频率，所有换算做 checked 整数运算。身份认证和同一次出生/boot 由原私有通道另行证明；此时间材料不是 token、对端认证或跨机器/重启有效的凭据，不接收远程客户端提供的期限材料。
+
+真实另一个进程测试须证明正额度能采用，等待后过期材料被拒绝，而非重获发送时剩余额度；这仍不能替代受信监督启动、IPC 对端身份和公开前端退出验收。
+
+`native_deadline::ClockStamp` 原期限桥接子组件已实现，原型 RED 2/3 → 本机 macOS arm64 GREEN 5/0；真实另一进程过期/正额度测试均执行。Linux 实际 time namespace 门禁已接入 CI，但本机未运行，Windows/QPC 与 macOS Intel 也仍待原生验收。不勾选监督启动或私有通信总体阶段；证据见 `docs/benchmarks/native_deadline_739/`。
