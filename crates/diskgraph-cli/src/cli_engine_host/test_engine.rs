@@ -8,16 +8,35 @@ use std::ops::Deref;
 /// 未配置可信扫描宿主时明确失败；不跳过原测试，不扩大请求权限。
 pub(crate) struct CliTestEngine {
     host: Option<CliEngineHost>,
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    _capacity_directory: tempfile::TempDir,
 }
 
 impl CliTestEngine {
     /// 参数：config 为原测试的隔离目录及预算；返回：真实产品宿主或原准入错误。
     pub(crate) fn open(config: EngineConfig) -> Result<Self, EngineError> {
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        let capacity_directory = {
+            use std::os::unix::fs::PermissionsExt;
+            let directory = tempfile::tempdir()?;
+            std::fs::set_permissions(directory.path(), std::fs::Permissions::from_mode(0o700))?;
+            directory
+        };
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        let host = CliEngineHost::open_in_test_domain(
+            config,
+            std::fs::File::open(capacity_directory.path())?,
+        )?;
+        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
         let host = CliEngineHost::open(config)?;
         if host.recovery.is_none() {
             return Err(BusinessError::Unsupported.into());
         }
-        Ok(Self { host: Some(host) })
+        Ok(Self {
+            host: Some(host),
+            #[cfg(any(target_os = "linux", target_os = "macos"))]
+            _capacity_directory: capacity_directory,
+        })
     }
 }
 

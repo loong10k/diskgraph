@@ -11,6 +11,8 @@ use std::time::{Duration, Instant};
 pub(crate) struct CliEngineHost {
     engine: Arc<Engine>,
     recovery: Option<ScanWorkerRecovery>,
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    slot: Option<diskgraph_engine::recovery_slot::ActiveSlot>,
     #[cfg(windows)]
     probe_recovery: diskgraph_engine::ProbeRecovery,
 }
@@ -30,6 +32,47 @@ impl CliEngineHost {
         if Instant::now() >= deadline {
             return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
         }
+        let host = Self::prepare_host_until(&config, deadline)?;
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        {
+            let managed = host.is_some();
+            Self::open_admitted_until(config, host, deadline, || {
+                if !managed {
+                    return Ok(None);
+                }
+                let domain =
+                    diskgraph_engine::TrustedLocalRecoveryDomain::for_current_user(deadline)
+                        .map_err(slot_error)?;
+                domain.reserve(deadline).map(Some).map_err(slot_error)
+            })
+        }
+        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+        {
+            #[cfg(windows)]
+            let (probe_host, probe_recovery) = diskgraph_engine::ProbeHost::new(1)?;
+            #[cfg(windows)]
+            let (engine, recovery) = Engine::open_with_process_hosts(config, host, probe_host)?;
+            #[cfg(not(windows))]
+            let (engine, recovery) = if let Some(host) = host {
+                let (engine, recovery) = Engine::open_with_scan_worker(config, host)?;
+                (engine, Some(recovery))
+            } else {
+                (Engine::open(config)?, None)
+            };
+            let opened = Self {
+                engine: Arc::new(engine),
+                recovery,
+                #[cfg(windows)]
+                probe_recovery,
+            };
+            opened.finish_open_until(deadline)
+        }
+    }
+
+    fn prepare_host_until(
+        config: &EngineConfig,
+        deadline: Instant,
+    ) -> Result<Option<diskgraph_engine::ScanWorkerHost>, EngineError> {
         let runtime = ScanWorkerRuntimeBudget::new(
             ProtocolLimits {
                 max_frame_bytes: 1 << 20,
@@ -40,25 +83,83 @@ impl CliEngineHost {
             64 << 10,
             1,
         )?;
-        let host = ScanWorkerSettings::host_from_environment(runtime, deadline, &mut || Ok(()))?;
-        #[cfg(windows)]
-        let (probe_host, probe_recovery) = diskgraph_engine::ProbeHost::new(1)?;
-        #[cfg(windows)]
-        let (engine, recovery) = Engine::open_with_process_hosts(config, host, probe_host)?;
-        #[cfg(not(windows))]
-        let (engine, recovery) = if let Some(host) = host {
-            let (engine, recovery) = Engine::open_with_scan_worker(config, host)?;
-            (engine, Some(recovery))
+        ScanWorkerSettings::host_from_environment(runtime, deadline, &mut || Ok(()))
+    }
+
+    #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+    fn open_in_test_domain(
+        config: EngineConfig,
+        directory: std::fs::File,
+    ) -> Result<Self, EngineError> {
+        let deadline = Instant::now() + Duration::from_secs(30);
+        let host = Self::prepare_host_until(&config, deadline)?;
+        let managed = host.is_some();
+        Self::open_admitted_until(config, host, deadline, || {
+            if !managed {
+                return Ok(None);
+            }
+            diskgraph_engine::TrustedLocalRecoveryDomain::from_host(directory, deadline)
+                .map_err(slot_error)?
+                .reserve(deadline)
+                .map(Some)
+                .map_err(slot_error)
+        })
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn open_admitted_until(
+        config: EngineConfig,
+        host: Option<diskgraph_engine::ScanWorkerHost>,
+        deadline: Instant,
+        reserve: impl FnOnce() -> Result<
+            Option<diskgraph_engine::recovery_slot::SlotReservation>,
+            EngineError,
+        >,
+    ) -> Result<Self, EngineError> {
+        if Instant::now() >= deadline {
+            return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+        }
+        // 持久预留必须先于数据库出生；原生工作只能在 ACTIVE 及原绑定建立后执行。
+        let reservation = reserve()?;
+        if host.is_some() != reservation.is_some() {
+            if let Some(reservation) = reservation {
+                reservation
+                    .abort_before_birth(deadline)
+                    .map_err(slot_error)?;
+            }
+            return Err(diskgraph_core::BusinessError::RecoveryUnconfirmed.into());
+        }
+        let opened = if let Some(host) = host {
+            Engine::open_with_scan_worker(config, host)
+                .map(|(engine, recovery)| (engine, Some(recovery)))
         } else {
-            (Engine::open(config)?, None)
+            Engine::open(config).map(|engine| (engine, None))
         };
-        let opened = Self {
+        let (engine, recovery) = match opened {
+            Ok(opened) => opened,
+            Err(primary) => {
+                // 构造只初始化数据库，未向消费者交出 Engine、未启动 runner/原生工作。
+                // 保留原错误；原期限内不能确认出生前取消时，记录保持未确认。
+                if let Some(reservation) = reservation
+                    && let Err(cleanup) = reservation.abort_before_birth(deadline)
+                {
+                    return Err(EngineError::WithCleanup {
+                        primary: Box::new(primary),
+                        cleanup: std::io::Error::other(cleanup),
+                    });
+                }
+                return Err(primary);
+            }
+        };
+        let slot = reservation
+            .map(|slot| slot.activate(deadline).map_err(slot_error))
+            .transpose()?;
+        Self {
             engine: Arc::new(engine),
             recovery,
-            #[cfg(windows)]
-            probe_recovery,
-        };
-        opened.finish_open_until(deadline)
+            slot,
+        }
+        .finish_open_until(deadline)
     }
 
     fn finish_open_until(self, deadline: Instant) -> Result<Self, EngineError> {
@@ -91,6 +192,10 @@ impl CliEngineHost {
     ) -> Result<T, EngineError> {
         let outcome =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| operation(&self.engine)));
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        if self.slot.is_some() {
+            return self.retire_original_supervisor(outcome);
+        }
         // CLI 没有后台扫描 runner；命令栈结束后才能清理该栈移交的原 child。
         let mut reported = false;
         loop {
@@ -124,6 +229,51 @@ impl CliEngineHost {
             Err(payload) => std::panic::resume_unwind(payload),
         }
     }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn retire_original_supervisor<T>(
+        self,
+        outcome: std::thread::Result<Result<T, EngineError>>,
+    ) -> Result<T, EngineError> {
+        let mut parts = diskgraph_engine::SupervisorParts {
+            engine: self.engine,
+            scan: self.recovery,
+            slot: self.slot.expect("original admitted slot"),
+        };
+        // 原绑定错误仍保留全部材料；不丢弃容量或用新 Recovery 代替。
+        let mut owner = loop {
+            match diskgraph_engine::SupervisorOwner::bind(
+                parts,
+                Instant::now() + Duration::from_millis(50),
+            ) {
+                Ok(owner) => break owner,
+                Err(original) => parts = original,
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        };
+        let mut reported = false;
+        loop {
+            match owner.poll_retirement(Instant::now() + Duration::from_millis(50)) {
+                Ok(true) => break,
+                Ok(false) => {}
+                Err(_) if !reported => {
+                    eprintln!("native recovery incomplete; original supervisor retains ownership");
+                    reported = true;
+                }
+                Err(_) => {}
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        match outcome {
+            Ok(result) => result,
+            Err(payload) => std::panic::resume_unwind(payload),
+        }
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn slot_error(error: diskgraph_engine::recovery_slot::SlotError) -> EngineError {
+    EngineError::from(error)
 }
 
 #[cfg(test)]

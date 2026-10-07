@@ -378,3 +378,12 @@ mod supervisor_binding_tests;
 
 #[cfg(any(target_os = "linux", target_os = "macos", windows))]
 pub mod native_deadline;
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod trusted_local_recovery_domain;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod trusted_local_recovery_home;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use trusted_local_recovery_domain::TrustedLocalRecoveryDomain;
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod trusted_local_recovery_domain_tests;

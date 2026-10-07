@@ -125,3 +125,9 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **WHEN** 扫描期间撤权、取消、超限、协议坏帧／早 EOF、执行失败或父端 unwind
 - **THEN** 唯一 OS owner 停止并实际回收受控扫描进程及管道，未回收不能宣称成功；原错误与清理失败均保留，不能发布新 revision。结果到达后／等待退场期间的根与祖先替换仍由原身份租约拒绝，合法 sibling 变化保持原语义。
 - **AND** 完整原路径与 ScanOptions 保持，与原扫描逐字段／顺序配对；有界传输成本与真实 staging 编码分别计费。可信 helper 定位／完整性、源读取隔离、真实 provider、签名和移动宿主独立验收，不据此关闭全平台父项。
+
+#### Scenario: Trusted local managed CLI capacity admission
+- **WHEN** Linux/macOS 的可信本地 CLI 已验证原扫描宿主，准备创建 Engine
+- **THEN** 原启动期限内先取得当前 OS 用户固定持久容量域的四槽之一；域不由 HOME、请求或数据目录选择。Busy 返回 resource_exhausted，异常 RESERVED/ACTIVE 返回 recovery_unconfirmed，损坏记录返回 needs_attention，拒绝时数据库不得出生，也不得修复记录或权限。
+- **AND** 构造只初始化数据库、未启动 runner 或向消费者提供 Engine；构造失败仅允许在原期限内确认原出生前预留取消。消费者开始前同步 ACTIVE；命令结束后原 SupervisorOwner 拥有同一 Engine、Recovery 和槽，实际资源完成及 Engine 退休后才同步 CLEAN，保留原业务错误和 panic。
+- **AND** 本阶段不代替实际监督进程出生、私有 IPC、有限前台退出、MCP 全入口共享容量或 Windows 原生容量域验收；不声明抵御任意恶意同 UID 进程。
