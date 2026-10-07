@@ -1,0 +1,46 @@
+{
+  "original_run": 37558099926,
+  "original_job": 112588908924,
+  "original_source_commit": "324311b530240f1b2b1d0fbe3db20306a3690548",
+  "original_engine_result": {
+    "passed": 569,
+    "failed": 1,
+    "ignored": 3
+  },
+  "original_failure": "fixture restoration rename at line 200: OS32",
+  "original_log_sha256": "ddd9c58305f4ff7c0c5c7ee462e0bccda2f71cdf7a35c85a9b6ba56579b2a893",
+  "candidate_source_sha256": "b789a7e3c108e6a017778d01e773d1a57be2d7ecf03dd43d768518707ac08db0",
+  "local_platform": "macOS",
+  "local_scope_tests_passed": 13,
+  "limitations": [
+    "Windows candidate runtime not executed locally",
+    "New actual no-delete handle retry test is Windows-only and pending CI",
+    "Production behavior and original request budgets unchanged",
+    "No finite frontend exit or supervisor startup proof"
+  ],
+  "msrv_original": {
+    "run": 37558099926,
+    "job": 112588909091,
+    "engine_passed": 568,
+    "engine_failed": 2,
+    "engine_ignored": 3,
+    "log_sha256": "b955b88fd0adc14299f248a133e16815992b8d44f4807220d9614eda3aeb2941",
+    "failures": [
+      "fixture restoration OS32",
+      "original three-second fixture authority expired before native observation"
+    ]
+  },
+  "candidate_files_sha256": {
+    "crates/diskgraph-engine/src/job_authorization_tests.rs": "8ab644ee00226a1272e7e760706f397b418e6ce6d7a8210d41868f4b3d8ebc46",
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "b789a7e3c108e6a017778d01e773d1a57be2d7ecf03dd43d768518707ac08db0",
+    ".github/workflows/ci.yml": "a15937d94e8b0560c1d818a3fcb3d15fb01db018457f3e2685ebf7d8b1cd3630",
+    "openspec/changes/implement-diskgraph-platform/frontend_recovery_supervisor.md": "3648c630a243c59a37c4283f1cb5fcfb6d5066c5b8ef02c0212454270ccab990"
+  },
+  "local_checks": {
+    "clippy_engine_all_targets": "passed",
+    "source_layout_tests": 6,
+    "openspec_strict": "passed",
+    "workflow_yaml": "parsed",
+    "observed_expiry_runtime": "pending native CI"
+  }
+}

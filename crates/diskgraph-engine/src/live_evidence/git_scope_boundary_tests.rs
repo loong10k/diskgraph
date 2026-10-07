@@ -160,6 +160,11 @@ fn renamed_registered_root_invalidates_terminal_capture_with_nested_project() {
     let root = fixture.path().parent().unwrap();
     let locator = diskgraph_core::QualifiedLocator::from_native_path(fixture.path()).unwrap();
     let mut probe = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let original_root = {
+        let (directory, _) =
+            super::git_source_directory::GitSourceDirectory::root(root, &mut probe).unwrap();
+        directory.version().unwrap()
+    };
     let boundary =
         super::git_scope_boundary::GitScopeBoundary::new(root, &locator, &mut probe).unwrap();
     let mut view = super::git_view::GitView::prepare_scoped(
@@ -173,7 +178,8 @@ fn renamed_registered_root_invalidates_terminal_capture_with_nested_project() {
     .unwrap();
     // moved 始终由另一独立 TempDir 持有，异常展开不会遗留原源文件。
     let holder = tempfile::tempdir().unwrap();
-    let moved = holder.path().join("moved-scope");
+    // 原生身份检查不接受 macOS /var 链接别名；先规范化已存在的独占夹具父目录。
+    let moved = holder.path().canonicalize().unwrap().join("moved-scope");
     // 源目录能力允许共享删除；不能把私有目录 no-delete 租约的性质套用于来源。
     // 验收真实 OS 结果：阻止名称变更则保持捕获，允许变更则必须拒绝终态稳定声明。
     let changed = match std::fs::rename(root, &moved) {
@@ -197,7 +203,9 @@ fn renamed_registered_root_invalidates_terminal_capture_with_nested_project() {
     drop(view);
     drop(probe);
     if changed {
-        std::fs::rename(&moved, root).unwrap();
+        // 夹具恢复的期限不进入原业务预算，也不重建探针池。
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        restore_fixture_root(&moved, root, &original_root, until, || {});
     }
     let output = output.unwrap();
     assert_eq!(output.exit_code, Some(0));
@@ -371,3 +379,100 @@ use super::native_evidence_test_session::NativeEvidenceTestSession as EvidencePr
 use super::native_evidence_test_session::sample_git_bounded;
 #[cfg(not(windows))]
 use super::sample_git_bounded;
+
+// 仅在已完成的隔离测试中恢复同一源对象；不作为产品文件操作或请求续期入口。
+fn restore_fixture_root(
+    moved: &std::path::Path,
+    root: &std::path::Path,
+    original_root: &super::git_directory_version::GitDirectoryVersion,
+    until: std::time::Instant,
+    mut on_sharing: impl FnMut(),
+) -> usize {
+    let mut restoration =
+        super::probe_budget::ProbeBudget::until(&ProbeLimits::default(), until).unwrap();
+    let mut retries = 0;
+    loop {
+        restoration.check().unwrap();
+        let current = {
+            let (directory, _) =
+                super::git_source_directory::GitSourceDirectory::root(moved, &mut restoration)
+                    .unwrap();
+            directory.version().unwrap()
+        };
+        assert!(
+            original_root.same_identity(&current),
+            "fixture restoration must retain the original directory"
+        );
+        assert_eq!(
+            std::fs::symlink_metadata(root).unwrap_err().kind(),
+            std::io::ErrorKind::NotFound
+        );
+        match std::fs::rename(moved, root) {
+            Ok(()) => break,
+            Err(error) if cfg!(windows) && error.raw_os_error() == Some(32) => {
+                if retries == 0 {
+                    eprintln!("DG_FIXTURE_ROOT_RESTORE_SHARING_RETAINED=32");
+                }
+                retries += 1;
+                on_sharing();
+                restoration.check().expect("original fixture sharing conflict did not clear under fixed restoration deadline");
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+            Err(error) => panic!("original fixture restoration failed: {error}"),
+        }
+    }
+    let restored = {
+        let (directory, _) =
+            super::git_source_directory::GitSourceDirectory::root(root, &mut restoration).unwrap();
+        directory.version().unwrap()
+    };
+    assert!(original_root.same_identity(&restored));
+    retries
+}
+
+#[cfg(windows)]
+#[test]
+fn original_fixture_restore_retries_actual_no_delete_directory_handle() {
+    use std::os::windows::fs::OpenOptionsExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    };
+    let holder = tempfile::tempdir().unwrap();
+    let parent = holder.path().canonicalize().unwrap();
+    let root = parent.join("original");
+    let moved = parent.join("moved");
+    std::fs::create_dir(&root).unwrap();
+    let until = std::time::Instant::now() + std::time::Duration::from_secs(10);
+    let mut observation =
+        super::probe_budget::ProbeBudget::until(&ProbeLimits::default(), until).unwrap();
+    let original = {
+        let (directory, _) =
+            super::git_source_directory::GitSourceDirectory::root(&root, &mut observation).unwrap();
+        directory.version().unwrap()
+    };
+    restore_fixture_root(&root, &moved, &original, until, || {});
+    let blocker = std::fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
+        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
+        .open(&moved)
+        .unwrap();
+    // 原生 no-delete 句柄只在已观察到实际 OS32 后释放，调度延迟不能跳过负向控制。
+    let (release, waiting) = std::sync::mpsc::channel();
+    std::thread::scope(|scope| {
+        scope.spawn(move || {
+            waiting
+                .recv_timeout(until.saturating_duration_since(std::time::Instant::now()))
+                .unwrap();
+            drop(blocker);
+        });
+        let mut released = false;
+        let retries = restore_fixture_root(&moved, &root, &original, until, || {
+            if !released {
+                release.send(()).unwrap();
+                released = true;
+            }
+        });
+        assert!(retries > 0);
+    });
+}

@@ -171,14 +171,20 @@ fn trusted_runner_still_obeys_a_persisted_remote_expiry() {
 #[test]
 fn remote_expiry_after_native_observation_prevents_staging_and_publication() {
     let (temp, engine, actor, scope) = fixture();
-    let expiry = now() + 3;
+    // 测试窗口在入队前固定；真实 Windows 镜像核验/启动可能超过原来的三秒。
+    // 只改变夹具的初始 exp，不修改生产策略，不在认领/观察后续期或替换时钟。
+    let expiry = now() + 30;
+    let context = authority(&actor, expiry);
     let job = engine
-        .index_scope_with_authority(
-            &scope,
-            &authority(&actor, expiry),
-            &engine.policy_authorizer().unwrap(),
-        )
+        .index_scope_with_authority(&scope, &context, &engine.policy_authorizer().unwrap())
         .unwrap();
+    let original = engine
+        .control_store()
+        .unwrap()
+        .job_request_authority(&job.job_id)
+        .unwrap();
+    assert_eq!(original, Some(context.clone()));
+    let admitted = context.clone();
     AFTER_OBSERVE.with(|slot| {
         *slot.borrow_mut() = Some((
             job.job_id.clone(),
@@ -187,7 +193,19 @@ fn remote_expiry_after_native_observation_prevents_staging_and_publication() {
                     now() < expiry,
                     "real native observation was not reached before expiry"
                 );
-                wait_until(expiry);
+                assert_eq!(admitted.expires_at_unix_seconds(), Some(expiry));
+                let observation_limit = Instant::now() + Duration::from_secs(35);
+                while now() < expiry {
+                    assert!(
+                        Instant::now() < observation_limit,
+                        "original admitted expiry was not reached"
+                    );
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+                assert_eq!(
+                    admitted.validate_at(now()),
+                    Err(diskgraph_core::BusinessError::PermissionDenied)
+                );
             }),
         ))
     });
@@ -197,7 +215,23 @@ fn remote_expiry_after_native_observation_prevents_staging_and_publication() {
         "native observation hook not reached: result={result:?}, expiry={expiry}, now={}",
         now()
     );
-    assert!(result.is_err(), "expired observation published: {result:?}");
+    assert!(
+        matches!(
+            result,
+            Err(crate::EngineError::Business(
+                diskgraph_core::BusinessError::PermissionDenied
+            ))
+        ),
+        "original expired authority must deny after native observation, not a substitute failure: {result:?}"
+    );
+    assert_eq!(
+        engine
+            .control_store()
+            .unwrap()
+            .job_request_authority(&job.job_id)
+            .unwrap(),
+        original
+    );
     assert_eq!(
         engine.job_status(&job.job_id).unwrap().state,
         JobState::Failed

@@ -132,3 +132,9 @@ Unix 原私有控制通道读取必须逐次非阻塞检查原期限与取消，
 ## 出生前 socketpair 的身份限制
 
 macOS 真子进程诊断确认：出生前 socketpair 的 LOCAL_PEERPID 在前端观察仍为 pair 创建者 PID，不是继承端点的子进程 PID。不能据此接受监督身份，也不能通过期待 child PID 错误拒绝合法定向继承。监督认证必须沿同一受信角色镜像、原生出生返回的原 PID/进程能力和出生时唯一 FD 定向继承证明；会话值和 PID 单独都不授予资格。原生启动实现须禁止非目标进程继承该私有能力，并保留实际 owner；本诊断不证明这一出生链已实现。探针仅用独立 Python 真进程，不作为产品启动器或有限退出验收；Linux 对应 SO_PEERCRED 尚待原生环境核验。
+
+## Windows 源名称恢复的固定观察窗口
+
+`324311b` 的 Windows stable 全 workspace 作业显示 engine 569 passed/1 failed/3 ignored，唯一失败仍为 scoped 根改名测试在释放 view/原预算后恢复源名称的 OS32。恢复只作用于隔离夹具：保留捕获前的完整原生目录身份，终态结果固定且原资源回收后，另设固定 10 秒夹具观察期限，每轮核验原目录身份与目标确实不存在，仅 OS32 重试，恢复后再核验原身份。该期限不进入原业务预算、不重新捕获、不放宽权限/发布或将占用推定 absent；永久共享冲突及未知错误仍失败。Windows 修复结果须由新提交实际 CI 证明，不能以 macOS 通过代替。
+
+`324311b` Windows MSRV engine 568 passed/2 failed/3 ignored，另一失败是原生观察前 3 秒 token 已到期并被正确 PermissionDenied。观察后过期夹具的初始 exp 明确改为入队前固定 30 秒；原 ctx/控制库 authority 前后完全相等，真实观察必须在原 exp 前发生，再等待真实原 exp 后验证确切 PermissionDenied 及 staging/revision 均无发布。没有运行中续租 token、回写 exp、替换时钟或修改生产 token 策略；新测试仍须真实平台执行，不能将观察前拒绝替代观察后验收。
