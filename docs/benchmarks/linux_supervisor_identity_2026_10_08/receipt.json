@@ -1,0 +1,110 @@
+{
+  "base": "1c5fa93145486e69e46b2f8642f7a98096a086bb",
+  "overlay_sha256": {
+    "crates/diskgraph-engine/src/recovery_slot/mod.rs": "ee181a367148c6f21cbac2f4119f1c8f1aaa9025164ba5fd1ac2e5bfeeee6ed8",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace.rs": "75bb98da0f607cace5c46bee4f1ec6ab8bf0a22183551a84bd98d4dff2b18199",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace_tests.rs": "47451f5f4466a8cc40fa7a921a505d0c4b516833ae033e778f1b58cb134255bb",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_trust.rs": "fb026c4979b23d6398d23565cf74f011337fb1964b89820d004355c798835df0",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_peer.rs": "52602d5b8b27227c451745657a539d264745580595463315396295bbd5524e21",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials.rs": "a4a39684bae2f0518f0fa61924a208b51f4aef48226b219dfd5ea99c16dbbe05",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials_tests.rs": "c1534b6a754e4cb34a4675959f984b589ac5f63807f8f68aa3fe43fa3fc8b7af"
+  },
+  "red_inputs": {
+    "base": "1c5fa93145486e69e46b2f8642f7a98096a086bb",
+    "overlay_sha256": {
+      "crates/diskgraph-engine/src/recovery_slot/mod.rs": "ee181a367148c6f21cbac2f4119f1c8f1aaa9025164ba5fd1ac2e5bfeeee6ed8",
+      "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace.rs": "256e99912fa0bc3370b450e97d9344b2a234c4309ba8194e7c8956ea4e9e6f21",
+      "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace_tests.rs": "85dd1bb3ed9707f0fbc4a5c6a82e1d670a79f3fb0d92287b51fd78d195378dec",
+      "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_trust.rs": "fb026c4979b23d6398d23565cf74f011337fb1964b89820d004355c798835df0",
+      "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_peer.rs": "52602d5b8b27227c451745657a539d264745580595463315396295bbd5524e21",
+      "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials.rs": "a4a39684bae2f0518f0fa61924a208b51f4aef48226b219dfd5ea99c16dbbe05",
+      "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials_tests.rs": "c1534b6a754e4cb34a4675959f984b589ac5f63807f8f68aa3fe43fa3fc8b7af"
+    }
+  },
+  "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "kernel": "Linux 9336325264d9 7.0.14-linuxkit #1 SMP PREEMPT Sun Sep 20 16:14:09 UTC 2026 aarch64 GNU/Linux",
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "behavior": "same UID rewrote CLEAN and reacquired capacity"
+  },
+  "green": {
+    "namespace": {
+      "passed": 4,
+      "failed": 0
+    },
+    "actual_euid_change": {
+      "passed": 1,
+      "failed": 0
+    },
+    "materials": {
+      "passed": 6,
+      "failed": 0,
+      "ignored": 1
+    },
+    "actual_frontend_1001_write": "EACCES; service1000 ACTIVE unchanged"
+  },
+  "checks": {
+    "macos_source_layout": "6/0",
+    "macos_clippy_all_targets": "passed",
+    "fmt": "passed",
+    "linux_clippy": "not run; component not installed in isolated image"
+  },
+  "review": {
+    "code": "APPROVE",
+    "architecture": "WATCH",
+    "synthesis": "COMMENT"
+  },
+  "limits": [
+    "trusted UID parameter not actual broker identity binding",
+    "service account must be dedicated and disjoint from all allowed frontend identities",
+    "no broker/CLI/MCP product wiring yet",
+    "ARM64 Docker Linux only; not native target-wide or exact MSRV qualification",
+    "no current full workspace acceptance"
+  ],
+  "logs": {
+    "same_uid_red.log": {
+      "file": "same_uid_red.log.gz",
+      "sha256": "e7bae431e466fce72b9c0a3b086b1724f9d136c038682c29c7f10da63055a3e6"
+    },
+    "namespace_green.log": {
+      "file": "namespace_green.log.gz",
+      "sha256": "555998561224f8256998061e0ca0bb3cac9b707165efef1b06a03ed4246afe05"
+    },
+    "role_change_green.log": {
+      "file": "role_change_green.log.gz",
+      "sha256": "4712506a65039c92dede4632ffc7829f9c4fa681855060556b941826af1619bc"
+    },
+    "materials_green.log": {
+      "file": "materials_green.log.gz",
+      "sha256": "8313157758d810935a86741c0b58da13c66633a551bf7c2494ebaf4bd266a757"
+    },
+    "frontend_write.stderr": {
+      "file": "frontend_write.stderr.gz",
+      "sha256": "0d566f00272b1cb31a22aeef74218c427a9cb79b7a8d5af926bb39ce5287e408"
+    },
+    "frontend_write.exit": {
+      "file": "frontend_write.exit.gz",
+      "sha256": "c28cc69d141393e44a931229323624ef7b8c5bde3ee047ca9b87332daef23c82"
+    },
+    "frontend_isolation.log": {
+      "file": "frontend_isolation.log.gz",
+      "sha256": "bc3dc788e9adfaa2e8a1216b56da5d244d2a4c4a8a74b9fc40da3bcad5512927"
+    },
+    "qualification.exit": {
+      "file": "qualification.exit.gz",
+      "sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "final_build.stderr": {
+      "file": "final_build.stderr.gz",
+      "sha256": "4fea089447cf5c59b61575b847703e2bbc3ab1ed7af9dc5756c68fe84586087b"
+    },
+    "components": {
+      "file": "components.gz",
+      "sha256": "399603982692e0ecb8c69c4a47d0de40436bcf8929cc8d887a857e5e6e919133"
+    }
+  },
+  "test_artifact_sha256": "120088bb23bb039138018a826998f85badc105b3469182257777a518ba89799f",
+  "harness_sha256": "d17f037beb1fe9576b1bacb3d4a7a37c9bbf3f297a80e3972bd27184155b88f0"
+}
