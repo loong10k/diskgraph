@@ -1,0 +1,22 @@
+{
+  "platform": "local macOS",
+  "base_commit": "bd5bd61f7d842ea31395d0ac3078daa4e662a32f",
+  "passed": {
+    "reader": 6,
+    "writer": 7,
+    "protocol": 10,
+    "layout": 6
+  },
+  "limitations": [
+    "No Windows reader implementation",
+    "No peer authentication provided",
+    "No supervisor launch or CLI/MCP IPC integration",
+    "No resource recovery proven by notification EOF"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/recovery_control/unix_control_reader.rs": "52981470af63780f34dbd579291572e3b7c2b8a804f5c0217f1067611e879734",
+    "crates/diskgraph-engine/src/recovery_control/mod.rs": "bb4f2b9f1e69f3073f3afeba85f5d2b7df32743295f5070e5a4a312fa42e6f9e",
+    "crates/diskgraph-engine/tests/unix_control_reader.rs": "22f01f80988b22fbe618ae0ee45a2f8070df2cf07dc5c8974a007324fe4a2c00"
+  },
+  "log_sha256": "97c61b2fadbe5c1cdd562c21b34f7c8ea752a0c07bfbec9fa88dc4e67b94aa5f"
+}

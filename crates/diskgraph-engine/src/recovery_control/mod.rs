@@ -13,3 +13,8 @@ pub use control_receiver::ControlReceiver;
 mod unix_control_writer;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub use unix_control_writer::UnixControlWriter;
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod unix_control_reader;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use unix_control_reader::UnixControlReader;
