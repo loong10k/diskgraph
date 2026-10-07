@@ -1,0 +1,16 @@
+{
+  "base_sha": "f6c814c853dea2121bae654a7440a863fedc3e43",
+  "test_source_sha256": "725ed339acb8dcc6ad1e848c3cb5f8296b401d52adb3a486ca34577280ba920f",
+  "test_fixture": "Actual isolated legacy database imported after Engine startup; real ordinary Unicode directory registration, existing metadata grant, preserved audit ownership. No invalid-byte directory creation or scan claim.",
+  "sensitivity": "Removing only registration reconciliation invocation fails target authorization assertion; original source restored byte-for-byte. This is mutation sensitivity, not a native Linux RED.",
+  "restored_result": {
+    "passed": 9,
+    "failed": 0
+  },
+  "clippy": "exit 0",
+  "limitations": [
+    "Linux invalid-byte actual-directory registration pending",
+    "Windows runtime integration not run",
+    "Production supervisor and full same-SHA gates remain incomplete"
+  ]
+}

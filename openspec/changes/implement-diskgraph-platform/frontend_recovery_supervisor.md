@@ -192,3 +192,5 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 服务运行中注册有损根展示别名后，整个冲突组中缺少原始根证明的已有 revision 必须在注册返回前隔离；原审计归属保留，无须重启。已有准确原始根证明保持可用。先使用实际临时目录、ScopeAdmin 注册、真实旧图与实时授权复现，不以控制库假注册代替产品入口。
 
 运行期注册候选复用 `revision_root_reconciliation` 与启动相同的隔离逻辑；沿原 graph→control 顺序，在新范围授权前处理注册表。真实无效UTF-8目录创建在本机返回Illegal byte sequence，未到授权断言，不能称目标RED；该原生测试限定Linux等待CI。macOS既有隔离8、历史11、历史准备10、关系11、源码6通过，Clippy通过，不据此勾选运行期Linux验收。记录见 `docs/benchmarks/live_scope_isolation_389/`。
+
+运行期旧库导入补充本机验收：Engine启动后在隔离数据库建立真实旧归属及当前MetadataRead授权，实际Unicode目录注册触发隔离；重复注册不能解除隔离，原审计归属保留。此夹具不创建无效字节目录、不声称原生扫描。仅移除注册隔离调用的敏感性试验在目标授权断言失败，随后原源码逐字恢复，套件9/0及Clippy通过。不是Linux原生RED/GREEN；见 `docs/benchmarks/live_scope_import_f6c814/`。

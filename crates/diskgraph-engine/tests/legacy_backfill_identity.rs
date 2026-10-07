@@ -416,3 +416,106 @@ fn live_scope_registration_isolates_existing_lossy_alias_without_restart() {
             .is_some()
     );
 }
+
+#[test]
+#[cfg(unix)]
+fn ordinary_registration_reconciles_live_legacy_alias_and_repeat_cannot_unquarantine() {
+    use std::os::unix::ffi::OsStringExt;
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("r�");
+    std::fs::create_dir(&root).unwrap();
+    let root = root.canonicalize().unwrap();
+    let alias = root
+        .parent()
+        .unwrap()
+        .join(std::ffi::OsString::from_vec(b"r\xff".to_vec()));
+    let data = directory.path().join("data");
+    let engine = Engine::open(EngineConfig {
+        data_dir: data.clone(),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let actor = diskgraph_core::PrincipalId::new("live-legacy-admin").unwrap();
+    engine.bootstrap_local_admin(&actor).unwrap();
+    // 模拟运行中可信旧库导入；不声称本机文件系统允许创建无效字节目录。
+    let (server, alias_scope) = {
+        let mut control = engine.control_store().unwrap();
+        let server = control.ensure_server().unwrap();
+        let scope = control
+            .register_scope(&Locator::from_native_path(&alias), None)
+            .unwrap();
+        let policy_version = control.policy_version().unwrap();
+        control
+            .upsert_grant(&diskgraph_core::Grant {
+                principal: actor.clone(),
+                permission: diskgraph_core::Permission::MetadataRead,
+                scope: scope.clone(),
+                policy_version,
+            })
+            .unwrap();
+        (server, scope)
+    };
+    let graph_path = data.join("diskgraph.sqlite");
+    SqliteSnapshotStore::open(&graph_path)
+        .unwrap()
+        .publish_revision(
+            "legacy-job",
+            &legacy_graph(ResourceLocator::NativePath(root.to_str().unwrap().into())),
+            "legacy-revision",
+            1,
+        )
+        .unwrap();
+    rusqlite::Connection::open(&graph_path)
+        .unwrap()
+        .execute(
+            "INSERT INTO revision_ownership(revision_id,server_id,scope_id) VALUES (?1,?2,?3)",
+            rusqlite::params!["legacy-revision", server.as_str(), alias_scope.as_str()],
+        )
+        .unwrap();
+    assert!(
+        engine
+            .authorize_revision(
+                Some(&alias_scope),
+                "legacy-revision",
+                &actor,
+                &engine.policy_authorizer().unwrap()
+            )
+            .is_ok()
+    );
+    let scope = engine
+        .register_scope(&root, &actor, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    assert!(
+        engine
+            .authorize_revision(
+                Some(&alias_scope),
+                "legacy-revision",
+                &actor,
+                &engine.policy_authorizer().unwrap()
+            )
+            .is_err()
+    );
+    assert_eq!(
+        scope,
+        engine
+            .register_scope(&root, &actor, &engine.policy_authorizer().unwrap())
+            .unwrap()
+    );
+    assert!(
+        engine
+            .authorize_revision(
+                Some(&alias_scope),
+                "legacy-revision",
+                &actor,
+                &engine.policy_authorizer().unwrap()
+            )
+            .is_err()
+    );
+    assert_eq!(
+        SqliteSnapshotStore::open(&graph_path)
+            .unwrap()
+            .revision_ownership_for_audit("legacy-revision")
+            .unwrap(),
+        Some((server.as_str().to_owned(), alias_scope.as_str().to_owned()))
+    );
+}
