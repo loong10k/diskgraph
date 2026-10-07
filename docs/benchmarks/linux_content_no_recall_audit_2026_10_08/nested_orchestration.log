@@ -1,3 +1,4 @@
+PRODUCT_TEST_EXIT 0
    Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.10s
      Running tests/linux_content_no_recall_probe.rs (/target/debug/deps/linux_content_no_recall_probe-b62348f63b3cbc4d)
@@ -14,3 +15,9 @@ ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
 
+
+PROVIDER_MOUNTED
+FUSE_DATA_OPEN
+FUSE_FETCH_DATA=1
+
+ORIGINAL_PROVIDER_UNMOUNTED_AND_REAPED=1

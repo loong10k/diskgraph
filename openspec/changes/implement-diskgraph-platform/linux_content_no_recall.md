@@ -21,3 +21,7 @@
 Linux 路径遍历改为 O_PATH，先在原句柄上拒绝已知 FUSE，再经 /proc/self/fd 获取绑定同一 dev/ino 的数据句柄。真实提供方产品读/哈希 2/2 通过，无 DATA_OPEN 或 READ；普通读取正控触发两种回调，正常卸载与原 daemon 回收通过。原路径替换与链接句柄测试 2/2、content_flow 7/7 通过。隔离工具链没有 cargo-clippy，本次 Linux Clippy 未运行，不以其他平台检查替代。
 
 此修复只封闭已复现 FUSE 路径，其他 Linux provider 的可靠能力判定仍未实现，CT-02 全平台验收继续保持未完成。原始 RED 的夹具只有 READ 计数，后续 GREEN 增加 STATFS 和 DATA_OPEN 诊断；不把两份不同诊断夹具宣称为完全相同输入。生产与夹具摘要、原始日志见 receipt.json。
+
+## 嵌套挂载回归
+
+scope 注册在普通父目录，FUSE 位于子目录时，产品读/哈希同样拒绝且无数据打开或 READ。直接挂载及嵌套挂载合计 4/4 通过；普通读取正控、实际卸载和原 daemon 退出0通过。此结果只扩展已知 FUSE 挂载位置覆盖，不改变通用 provider 能力未完成的结论。

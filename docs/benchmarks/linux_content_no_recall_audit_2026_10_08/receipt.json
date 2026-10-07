@@ -24,11 +24,11 @@
   },
   "current_fixture_sha256": {
     "fuse_provider.c": "0541fc83c61d1b8e5c054e678e070601bff6b47c21874f10fb46e285143325e6",
-    "engine_no_recall_probe.rs": "ca4539458548a76dbb13dd54eb13dd9d5b516592b77cc843257219ebf7051634",
+    "engine_no_recall_probe.rs": "60343627843c554309ae7a1656b02a01b6d188b2c23f4e98e5a0502282eaa763",
     "run_product_probe.py": "3d9f04147e3d9f3240cb93d7d5b03bea68b0871372a06ede1379d011556dc440"
   },
   "candidate_validation": {
-    "native_fuse": "2/2 passed; zero product data opens/reads; ordinary positive control fetches",
+    "native_fuse": "4/4 passed: direct and nested provider read/digest; zero product data opens/reads; ordinary positive control fetches; actual unmount and original daemon wait exit0",
     "bound_handle_unit": "2/2 passed",
     "content_flow": "7/7 passed",
     "linux_clippy": "not run: cargo-clippy absent from isolated 1.97.1 toolchain; no installation performed",
