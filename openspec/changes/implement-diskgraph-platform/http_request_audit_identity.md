@@ -1,0 +1,7 @@
+# HTTP 请求审计主体固定
+
+日志主体来自实际协议分发认证所建立的不可变请求上下文，不在响应完成后再次验证原token。token到期及撤权仍作用于业务授权和响应投递，审计主体保留实际入站身份；未认证请求记录anonymous，不从未验证claim恢复主体。公共handle_secured接口及wire字段兼容。
+
+使用真实socket与可注入认证时钟回归：首次认证有效，第二次认证时已经到期；成功请求日志仍必须绑定首次实际主体，并且审计不得额外消耗一次认证。
+
+实现：私有分发入口记录实际认证后的RequestContext，公共API不变；每次入口重置，免认证远程路径没有认证主体时记录anonymous，本机可信模式保留本地主体。真实socket RED旧日志误记anonymous 0/1；候选macOS/Linux各1/1，并验证原连接后续缺token请求401且日志anonymous。Linux库163/163、主程序7/7、选定集成38项通过；最后结构门禁发现测试对象来源doc缺失，补中文原生来源后Linux/macOS结构各11/11。Fmt/Clippy通过，双路APPROVE/CLEAR。Windows及同提交CI未验收；发送失败完整审计仍属于投递硬化工作。

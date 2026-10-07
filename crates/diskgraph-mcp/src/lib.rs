@@ -80,3 +80,6 @@ mod http_debug_request;
 
 #[cfg(test)]
 mod http_debug_request_tests;
+
+#[cfg(test)]
+mod http_request_audit_tests;

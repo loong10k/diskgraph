@@ -284,6 +284,19 @@ pub fn handle_secured(
     limits: &HttpLimits,
     security: &Security,
 ) -> HttpResponse {
+    handle_secured_with_context(service, request, limits, security, &mut None)
+}
+
+/// 将实际认证建立的原上下文交给传输；响应后审计不再重新认证或恢复未验证claim。
+fn handle_secured_with_context(
+    service: &mut McpService,
+    request: &HttpRequest,
+    limits: &HttpLimits,
+    security: &Security,
+    admitted: &mut Option<crate::request_context::RequestContext>,
+) -> HttpResponse {
+    *admitted = (security.authenticator.is_none() && service.context.trusted_local())
+        .then(|| service.context.clone());
     if request.path == HEALTH_ENDPOINT {
         if request.method != "GET" {
             return HttpResponse::json(
@@ -321,6 +334,8 @@ pub fn handle_secured(
     } else {
         return unauthorized(AuthFailure::Missing);
     };
+    // 身份来自本次实际认证的请求服务，既不重读token，也不写入共享Engine。
+    *admitted = Some(service.context.clone());
     match request.method.as_str() {
         "POST" => handle_post(service, request, limits),
         // GET /mcp is answered inline by the serve loop as a long-lived
@@ -1066,6 +1081,10 @@ pub(crate) fn serve_config_with_runtime(
                     if stream.set_nonblocking(true).is_err() {
                         break;
                     }
+                    // 请求读取器可能预读GET头后的输入；进入单向事件流前也拒绝这些字节。
+                    if !reader.buffer().is_empty() {
+                        break;
+                    }
                     let mut probe = [0u8; 1];
                     loop {
                         if stream_identity.as_ref().is_some_and(|identity| {
@@ -1076,9 +1095,9 @@ pub(crate) fn serve_config_with_runtime(
                         match stream.peek(&mut probe) {
                             Ok(0) => break,
                             Ok(_) => {
-                                // Unexpected client bytes on a GET stream are
-                                // protocol noise; drain and keep holding.
-                                let _ = stream.read(&mut probe);
+                                // GET 事件流只发送服务端事件；额外客户端字节关闭连接，
+                                // 防止按字节循环触发控制库授权查询。消息应走独立 POST。
+                                break;
                             }
                             Err(error)
                                 if matches!(
@@ -1102,22 +1121,18 @@ pub(crate) fn serve_config_with_runtime(
                     }
                     break;
                 }
+                let mut admitted_context = None;
                 let response = {
                     let mut service = shared_service.as_ref().clone();
-                    handle_secured(&mut service, &request, &limits, &security)
+                    handle_secured_with_context(&mut service, &request, &limits, &security, &mut admitted_context)
                 };
                 if write_response(&mut stream, &response).is_err() {
                     break;
                 }
                 handled.fetch_add(1, Ordering::SeqCst);
-                let principal = if let Some(authenticator) = &security.authenticator {
-                    authenticator
-                        .authenticate(token_from_headers(&request.headers).as_deref())
-                        .map(|identity| identity.principal.as_str().to_owned())
-                        .unwrap_or_else(|_| "anonymous".to_owned())
-                } else {
-                    shared_service.context.principal().as_str().to_owned()
-                };
+                let principal = admitted_context.as_ref()
+                    .map(|context| context.principal().as_str())
+                    .unwrap_or("anonymous");
                 let _ = shared_log.lock().map(|mut log| {
                     let _ = writeln!(
                         log,
@@ -1125,7 +1140,7 @@ pub(crate) fn serve_config_with_runtime(
                         log_line(
                             "request",
                             &[
-                                ("principal", &principal),
+                                ("principal", principal),
                                 ("client", &client),
                                 ("path", &request.path)
                             ]

@@ -1,0 +1,40 @@
+{
+  "base_commit": "a6767274a1619581dfe016f677915c4f3358936c",
+  "source_state": "uncommitted candidate",
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/http.rs": "b378f587dae84143f5605cede9c8c5ef57b17b3c89d14dce757969356ba6d16c",
+    "crates/diskgraph-mcp/src/lib.rs": "ff839753d08c73ed06822d6523e7f6b60dd5cb557753386b1c4753ef16534be4",
+    "crates/diskgraph-mcp/src/http_request_audit_tests.rs": "24556cec9bf6b86628c0f89db0ef4db20c7af4fcbdaea5081cdf835963d0858e",
+    "crates/diskgraph-mcp/src/sse_identity_deadline_tests.rs": "2530baa18fd105aad8cc50584f2d6f3bebc82fb9992811ebd846d1d3f0d7ae87"
+  },
+  "logs": {
+    "noise_red": "93c55c53cc787480604f2e1d214292b21ebf36e693aa84583b142dbc51cc13cc",
+    "buffered_noise_red": "990c9f90c3c73a3fa959551522b5f3393281129c08fa0048529800874124776b",
+    "macos_green": "73a53049a77ea1fde18b864a570ae1e156e9f8bfe43827a013c3a52fa027b222",
+    "linux_green": "98396c5821eb953b3457e552bbf69a41af835107cc1a5c768fc3440ef9ebfea9",
+    "macos_idle": "3a9c03fbfc6b64641632578eca09c9df6dab04df0b33e1c1294659e714c7cc93",
+    "clippy": "6b760a735ec915a6ae5413c9906c65fb6c605771bf0b1888dea019337b4233c1"
+  },
+  "macos": {
+    "sse": 5,
+    "idle": 1
+  },
+  "linux": {
+    "sse": 5,
+    "idle": 1,
+    "layout": 11
+  },
+  "initial_noise_red_failed": 1,
+  "prefetched_noise_red_failed": 1,
+  "reviews": {
+    "code": "APPROVE after successful-handshake assertion added",
+    "architecture": "CLEAR after reader prefetch rejection added"
+  },
+  "Windows": "not run",
+  "production_acceptance": false,
+  "pre_audit_source_sha256": {
+    "crates/diskgraph-mcp/src/http.rs": "bc1ff3fcbbce7d27c8d3d1b7c64915491777c1aeedd3bf87e9a634fc868ce3e8",
+    "crates/diskgraph-mcp/src/sse_identity_deadline_tests.rs": "2530baa18fd105aad8cc50584f2d6f3bebc82fb9992811ebd846d1d3f0d7ae87"
+  },
+  "combined_regression": "../http_request_audit_identity_2026_10_08/receipt.json"
+}

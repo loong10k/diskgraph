@@ -1,0 +1,38 @@
+{
+  "base_commit": "a6767274a1619581dfe016f677915c4f3358936c",
+  "source_state": "uncommitted noise and audit candidate; isolated Linux source overlay also contains pre-existing test-only store observer module",
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/http.rs": "b378f587dae84143f5605cede9c8c5ef57b17b3c89d14dce757969356ba6d16c",
+    "crates/diskgraph-mcp/src/lib.rs": "ff839753d08c73ed06822d6523e7f6b60dd5cb557753386b1c4753ef16534be4",
+    "crates/diskgraph-mcp/src/http_request_audit_tests.rs": "24556cec9bf6b86628c0f89db0ef4db20c7af4fcbdaea5081cdf835963d0858e",
+    "crates/diskgraph-mcp/src/sse_identity_deadline_tests.rs": "2530baa18fd105aad8cc50584f2d6f3bebc82fb9992811ebd846d1d3f0d7ae87"
+  },
+  "logs": {
+    "red": "59f72b57cd31c74b12a769de6bcd8cc226cb7b0740ef9c9dabb58df36e9446e7",
+    "macos_green": "88418661e54977cd4dc98df9af89ff374b2e2fd4f616780e98a6460e3726c7b9",
+    "linux_regression": "01b7af4b6c3ce8e7bf22be1a89959fd3a4d4f1c06504b28fa1198ac5eeb3bd31",
+    "linux_final_layout_audit": "c71c34483274469fc669256364c71b652a6058b4156c29d7d9449594683163a2",
+    "macos_final_layout": "4b2b6f0b8db0859bfe5bf92b5958b8bea2387be9c81334064fee215405f08d4f",
+    "clippy": "6692c3748ae737adaaa44fd2666439e5f94cf26a684c7cbca9367d3b4bb830a6"
+  },
+  "red_failed": 1,
+  "macos_audit_passed": 1,
+  "linux_library_passed": 163,
+  "linux_binary_passed": 7,
+  "linux_selected_integrations_passed": 38,
+  "linux_final_audit_passed": 1,
+  "macos_layout_passed": 11,
+  "final_format": "passed",
+  "clippy": "passed",
+  "notes": [
+    "Initial full regression stopped at source layout: test object missed native Rust provenance. Added doc-only annotation and reran audit plus layout successfully. Library163 and binary7 were not unnecessarily rerun.",
+    "Expanded observer initially assumed HTTP401 reason phrase Unauthorized; existing wire uses Unknown. Observer now verifies numeric status, preserving wire compatibility.",
+    "Failed delivery may still lack request audit entry; response delivery hardening remains separate."
+  ],
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "Windows": "not run",
+  "production_acceptance": false
+}
