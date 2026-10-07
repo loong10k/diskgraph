@@ -1,0 +1,24 @@
+{
+  "source_commit": "953c173c70d6f77c8cf32b4f7452bc6de505c3ba",
+  "worker_sha256": "c3ccf34a159b40b1f807e04bd40bc9a62151c26a23f0879e2813efe9e39ddb19",
+  "worker_bytes": 20084936,
+  "runtime": "Linux ARM64 Docker root; Rust 1.97.1",
+  "cases": [
+    {
+      "case": "real-recovery",
+      "exit": 0,
+      "passed": 2,
+      "failed": 0,
+      "log_sha256": "f27af52d11b8e2503bb9f66c2b87ec45e27a0ca18ff7c3ac94fe51cd6ae4d0d4"
+    },
+    {
+      "case": "real-deadline-recovery",
+      "exit": 0,
+      "passed": 3,
+      "failed": 0,
+      "log_sha256": "6ca69efb2a306afe76e4c14f9cb24062e9262e948d4f44d34e7fd624ce40e2cb"
+    }
+  ],
+  "actual_original_pidfd_wait_witness": true,
+  "qualification": "native component diagnostic only; not the ordinary-user namespace qualification script; no product supervisor or packaged CLI/MCP scan acceptance"
+}

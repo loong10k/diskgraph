@@ -8,5 +8,7 @@
   "failed": 0,
   "runtime": "Linux ARM64 Docker root; Rust 1.97.1",
   "qualification": "component diagnostic with explicit actual worker artifact; no ordinary-user supervised namespace qualifier; no product supervisor or CLI/MCP scan acceptance",
-  "log_sha256": "e95ff91ed0891fb610b1e238170db97434f572869761a46fddbde70807fcc74e"
+  "log_sha256": "e95ff91ed0891fb610b1e238170db97434f572869761a46fddbde70807fcc74e",
+  "worker_sha256": "c3ccf34a159b40b1f807e04bd40bc9a62151c26a23f0879e2813efe9e39ddb19",
+  "worker_bytes": 20084936
 }
