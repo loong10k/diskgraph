@@ -1,0 +1,11 @@
+{
+  "platform": "darwin",
+  "pair_creator_pid": 42303,
+  "parent_observed_peer_pid": 42303,
+  "child_observation": {
+    "actual_child_pid": 42304,
+    "inherited_peer_pid": 42303
+  },
+  "parent_credential_identifies_inheriting_child": false,
+  "qualification": "diagnostic only; no trusted supervisor birth or authentication proof"
+}

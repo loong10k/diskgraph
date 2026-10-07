@@ -1,0 +1,13 @@
+{
+  "base_commit": "fcf69bf933e1b230840cc8dc3e082ec494676cb0",
+  "source_sha256": "7d39195841da1372f7c3526868f3c6be898fbb58517b689cccf5e388f0b4ba5c",
+  "observation_sha256": "5c4b59acbf3eaf7657bbd48cfad6b3f67e0fc168528814987d90446f5b8c0542",
+  "command": "python3 scripts/probe_inherited_control_credentials.py",
+  "observed_exit_code": 0,
+  "limitations": [
+    "Diagnostic only, not production launcher",
+    "Linux observation missing",
+    "Windows credential path unsupported",
+    "No authentication or birth qualification claimed"
+  ]
+}

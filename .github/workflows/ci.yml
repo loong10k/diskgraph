@@ -41,6 +41,44 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Diagnostic inherited Unix socket credentials
+        if: runner.os != 'Windows'
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          python3 scripts/probe_inherited_control_credentials.py > "$RUNNER_TEMP/inherited-control-credentials.json" 2> "$RUNNER_TEMP/inherited-control-credentials.stderr.log"
+          python3 - <<'PYTHON'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          source = Path('scripts/probe_inherited_control_credentials.py')
+          observation = root / 'inherited-control-credentials.json'
+          report = json.loads(observation.read_bytes())
+          if report['qualification'] != 'diagnostic only; no trusted supervisor birth or authentication proof':
+              raise RuntimeError('credential observation must not claim authentication')
+          creator = report['pair_creator_pid']
+          child = report['child_observation']['actual_child_pid']
+          if creator <= 0 or child <= 0 or creator == child:
+              raise RuntimeError('diagnostic requires a distinct real child')
+          receipt = {
+              'source_commit': os.environ['GITHUB_SHA'],
+              'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+              'observation_sha256': hashlib.sha256(observation.read_bytes()).hexdigest(),
+              'qualification': 'diagnostic only',
+          }
+          (root / 'inherited-control-credentials-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          PYTHON
+      - name: Preserve inherited Unix socket credential diagnostic
+        if: always() && runner.os != 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: inherited-control-credentials-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/inherited-control-credentials.json
+            ${{ runner.temp }}/inherited-control-credentials.stderr.log
+            ${{ runner.temp }}/inherited-control-credentials-receipt.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Build exact native Windows CLI exit fixtures
         if: runner.os == 'Windows'
         run: ./scripts/configure_windows_exit_fixtures.ps1
