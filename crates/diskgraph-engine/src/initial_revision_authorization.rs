@@ -43,7 +43,8 @@ impl Engine {
             }
             other => other?,
         }
-        // 宿主回调不运行在 SQLite handler 内；明确拒权始终拒绝，迟到允许不续租 SQL。
+        drop(control);
+        // 宿主回调位于控制锁和 SQLite handler 之外；回调后重新观察归属及实时授权。
         check_authority_expiry(expiry)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
         check_authority_expiry(expiry)?;
@@ -53,7 +54,12 @@ impl Engine {
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        let control = self.control_until(deadline)?;
+        check_authority_expiry(expiry)?;
         let authorization = control.with_read_deadline(deadline, |control| {
+            if server != control.existing_server_id()?.as_str() {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
             Self::require_decision_with_control(
                 control,
                 decision,

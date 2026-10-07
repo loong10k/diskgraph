@@ -1,0 +1,21 @@
+{
+  "scope": "revision owner initial callback mutex separation",
+  "red": "bounded callback control reentry failed",
+  "green": {
+    "permission_tests": 12,
+    "source_layout": 6,
+    "full_engine": {
+      "passed": 557,
+      "failed": 98,
+      "ignored": 13,
+      "failure_class": "Unsupported"
+    },
+    "fmt": "pass",
+    "clippy": "pass"
+  },
+  "reviews": [
+    "APPROVE",
+    "CLEAR"
+  ],
+  "platform_acceptance": false
+}

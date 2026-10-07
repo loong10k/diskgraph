@@ -619,3 +619,68 @@ fn display_complete_reader_refuses_token_expired_during_consumer() {
         "expired terminal authorization: {result:?}"
     );
 }
+
+#[test]
+fn revision_owner_callback_can_reenter_control_and_observes_revocation() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        read_succeeded: std::cell::Cell<bool>,
+        revoke: bool,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if let Ok(mut control) = self
+                .engine
+                .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+            {
+                self.read_succeeded.set(true);
+                if self.revoke {
+                    control.revoke_grant(principal, permission, scope).unwrap();
+                }
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for revoke in [false, true] {
+        let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+        let server = engine
+            .control_store()
+            .unwrap()
+            .existing_server_id()
+            .unwrap();
+        let authorizer = Callback {
+            engine: &engine,
+            policy: engine.policy_authorizer().unwrap(),
+            read_succeeded: std::cell::Cell::new(false),
+            revoke,
+        };
+        let result = engine.authorize_revision_owner_until(
+            Some((server.as_str().to_owned(), scope.as_str().to_owned())),
+            Some(&scope),
+            &principal,
+            &authorizer,
+            std::time::Instant::now() + std::time::Duration::from_secs(1),
+        );
+        assert!(
+            authorizer.read_succeeded.get(),
+            "owner callback held control mutex"
+        );
+        if revoke {
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(BusinessError::PermissionDenied))
+                ),
+                "revoked capability: {result:?}"
+            );
+        } else {
+            assert_eq!(result.unwrap(), scope);
+        }
+    }
+}
