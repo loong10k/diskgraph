@@ -189,7 +189,7 @@ serve/install 不作为远程 MCP 工具；不能让服务器改本地智能体�
 | 5 | stale_plan / revision_expired / incompatible_history | 需要重建计划、版本或比较条件不成立 |
 | 6 | unsupported / unavailable | 平台/功能不支持或可选依赖不可用 |
 | 7 | budget_exceeded / timeout / resource_exhausted | 预算、时间、容量限制 |
-| 8 | partial / needs_attention | 工作未完整成功或需要核对 |
+| 8 | partial / needs_attention / recovery_unconfirmed | 工作未完整成功、需要核对或原监督恢复尚未确认 |
 | 9 | conflict / idempotency_conflict | 对象/并发/幂等冲突 |
 | 10 | internal_error | 不可恢复的服务故障，输出脱敏诊断 ID |
 

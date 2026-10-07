@@ -39,6 +39,8 @@ pub enum BusinessError {
     Partial,
     /// Exit 8: a crash or interruption left state that must be reconciled by a human.
     NeedsAttention,
+    /// 退出8：原监督槽恢复尚未确认，不能据锁释放或进程消失重用容量。来源：PF-06；无Java对等实现。
+    RecoveryUnconfirmed,
     /// Exit 9: a resource, plan, or lock conflict with concurrent work.
     Conflict,
     /// Exit 9: the idempotency key was reused with a different request.
@@ -67,6 +69,7 @@ impl BusinessError {
             Self::ResourceExhausted => "resource_exhausted",
             Self::Partial => "partial",
             Self::NeedsAttention => "needs_attention",
+            Self::RecoveryUnconfirmed => "recovery_unconfirmed",
             Self::Conflict => "conflict",
             Self::IdempotencyConflict => "idempotency_conflict",
             Self::InternalError => "internal_error",
@@ -82,7 +85,7 @@ impl BusinessError {
             Self::StalePlan | Self::RevisionExpired | Self::IncompatibleHistory => 5,
             Self::Unsupported | Self::Unavailable => 6,
             Self::BudgetExceeded | Self::Timeout | Self::ResourceExhausted => 7,
-            Self::Partial | Self::NeedsAttention => 8,
+            Self::Partial | Self::NeedsAttention | Self::RecoveryUnconfirmed => 8,
             Self::Conflict | Self::IdempotencyConflict => 9,
             Self::InternalError => 10,
         }
@@ -126,6 +129,11 @@ mod tests {
             (BusinessError::ResourceExhausted, "resource_exhausted", 7),
             (BusinessError::Partial, "partial", 8),
             (BusinessError::NeedsAttention, "needs_attention", 8),
+            (
+                BusinessError::RecoveryUnconfirmed,
+                "recovery_unconfirmed",
+                8,
+            ),
             (BusinessError::Conflict, "conflict", 9),
             (
                 BusinessError::IdempotencyConflict,
@@ -134,7 +142,7 @@ mod tests {
             ),
             (BusinessError::InternalError, "internal_error", 10),
         ];
-        assert_eq!(expected.len(), 19);
+        assert_eq!(expected.len(), 20);
         for (error, code, exit) in expected {
             assert_eq!(error.code(), *code);
             assert_eq!(error.exit_code(), *exit);

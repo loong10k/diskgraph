@@ -97,6 +97,21 @@ impl From<BusinessError> for EngineError {
     }
 }
 
+impl From<crate::recovery_slot::SlotError> for EngineError {
+    /// 参数：error为原监督准入失败；返回：稳定分类或保留原I/O，绝不按诊断文本猜测恢复状态。
+    fn from(error: crate::recovery_slot::SlotError) -> Self {
+        use crate::recovery_slot::SlotError;
+        match error {
+            SlotError::Busy => BusinessError::ResourceExhausted.into(),
+            SlotError::Unconfirmed => BusinessError::RecoveryUnconfirmed.into(),
+            SlotError::InvalidRecord => BusinessError::NeedsAttention.into(),
+            SlotError::Unsupported => BusinessError::Unsupported.into(),
+            SlotError::Deadline => BusinessError::BudgetExceeded.into(),
+            SlotError::Io(error) => Self::Io(error),
+        }
+    }
+}
+
 impl From<ContextualEngineError> for EngineError {
     /// 参数：contextual 为旧上下文包装；返回：其中拥有的原 EngineError。
     fn from(contextual: ContextualEngineError) -> Self {

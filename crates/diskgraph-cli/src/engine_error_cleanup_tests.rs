@@ -47,6 +47,11 @@ fn cli_cleanup_keeps_business_codes_and_exit_codes() {
         (BusinessError::PermissionDenied, "permission_denied", 3),
         (BusinessError::BudgetExceeded, "budget_exceeded", 7),
         (BusinessError::Conflict, "conflict", 9),
+        (
+            BusinessError::RecoveryUnconfirmed,
+            "recovery_unconfirmed",
+            8,
+        ),
     ] {
         assert_wire(EngineError::Business(business), code, exit);
     }
