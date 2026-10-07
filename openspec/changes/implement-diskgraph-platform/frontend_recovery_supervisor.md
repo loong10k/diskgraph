@@ -1,5 +1,13 @@
 # 只读 CLI/MCP 的前端退出与恢复监督设计
 
+## 单 revision 终检窗口回归补充（已实现，原生 CI 待验收）
+
+当前源码 `7fc3330` 的两项 Windows CI 实际发现：授权回调完成真实 scope 注册后，单 revision 展示/候选终检把原 50 ms 窗口耗尽报告为 BudgetExceeded，而未完成新鲜归属拒权。补充验收要求：能力回调耗时不消耗随后原数据库观察的固定窗口；原数据读取期限不得刷新，撤权或归属隔离仍先于完整/截断结果返回。各次编码后复检应各自从能力回调结束后的观察起点计时，与历史比较已采用的语义一致；不承诺任意宿主回调的硬抢占上限。
+
+回归在隔离数据库和实际第二 Engine 注册中加入固定 100 ms 回调延迟，覆盖原 28 种完整、截断、候选、关系及双侧历史入口。旧实现须实际失败，修正后必须精确返回 PermissionDenied；不接受任意错误作为安全通过。Linux 非 UTF-8 loose object 测试另须覆盖 Git 已创建相同 fanout 目录的情况，仍拒绝原非 UTF-8 文件名。完成证据及平台执行结果另记，不据本补充勾选生产门禁。
+
+复审发现并修复 SQL 保护丢失和嵌套 deadline guard：前检 SQL 使用独立 50 ms 窗口，纯能力回调单独执行，后检持久策略与归属共享同一新 50 ms 绝对期限；control guard 结束后才调用归属观察，原数据期限不刷新。隔离 Linux 延迟回调 RED 精确复现 4 个 BudgetExceeded 模式，修正后的 28 模式通过。昂贵同结果 SQL 视图使未经保护的首候选实际耗时 4.8435 秒失败，最终候选恢复 VM 期限中断。本机 6 项、Linux 28 项受影响回归、Engine 全目标 Clippy 与格式检查通过，两路独立复审 APPROVE/CLEAR。验收与原始日志见 `docs/benchmarks/linux_workspace_trixie_7fc3330/receipt.json`；新源码 Windows/macOS CI 及恢复监督父项继续开放。
+
 状态：实施设计，未实现、未验收。属于既有 `implement-diskgraph-platform`，不建立第二套规格事实源。依照 `physical-scan-process.md` 的“有限清理与未完成恢复责任”合同；不改变原身份、期限、权限、容量或 upstream pin。
 
 ## 已确认的缺口

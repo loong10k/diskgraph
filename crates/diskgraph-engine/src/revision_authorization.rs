@@ -303,28 +303,47 @@ impl Engine {
             }
             consumer(&reader, &snapshot_id, reads)
         })();
-        // 数据读取仍用原期限；固定末段窗口还须观察运行期新提交的 revision 隔离。
-        let authorization_deadline = std::time::Instant::now()
-            .checked_add(Duration::from_millis(50))
-            .ok_or(BusinessError::InvalidArgument)?;
         let control = self
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
-        withdrawal.check(&control)?;
-        let authorization = control.with_read_deadline(authorization_deadline, |control| {
-            let authorization =
-                Self::require_terminal_relation(control, authorizer, principal, &scope);
-            withdrawal.check(control)?;
-            authorization?;
-            // 能力回调之后纯读实际持久 grant；guard 不冻结独立数据库连接的撤权。
-            if control.scope_revoked(&scope)?
-                || control.live_permission(principal, &Permission::MetadataRead, &scope)?
-                    == Some(false)
-            {
-                return Err(EngineError::Business(BusinessError::PermissionDenied));
-            }
-            Ok(())
-        });
+        let authorization = (|| {
+            // Engine 自有 SQL 与能力回调分离；两段 SQL 均保留执行期限和 busy 上界。
+            let before_callback = std::time::Instant::now()
+                .checked_add(Duration::from_millis(50))
+                .ok_or(BusinessError::InvalidArgument)?;
+            control.with_read_deadline(before_callback, |control| {
+                withdrawal.check(control)?;
+                if control.scope_revoked(&scope)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                Ok(())
+            })?;
+            let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+            // 仅排除同步宿主回调耗时，原数据读取期限不刷新。
+            let after_callback = std::time::Instant::now()
+                .checked_add(Duration::from_millis(50))
+                .ok_or(BusinessError::InvalidArgument)?;
+            control.with_read_deadline(after_callback, |control| {
+                let authorization = Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::MetadataRead,
+                    &scope,
+                );
+                withdrawal.check(control)?;
+                authorization?;
+                if control.scope_revoked(&scope)?
+                    || control.live_permission(principal, &Permission::MetadataRead, &scope)?
+                        == Some(false)
+                {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                Ok(())
+            })?;
+            // 退出原 control SQL guard 后沿同一绝对期限查归属，禁止嵌套 progress guard。
+            self.require_terminal_revision_ownership(revision, &scope, &control, after_callback)
+        })();
         match authorization {
             Err(EngineError::Store(error))
                 if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
@@ -335,13 +354,6 @@ impl Engine {
             }
             other => other?,
         }
-        withdrawal.check(&control)?;
-        self.require_terminal_revision_ownership(
-            revision,
-            &scope,
-            &control,
-            authorization_deadline,
-        )?;
         // 已授权准备和消费的错误也先通过终检；撤权不能被预算错误遮盖。
         let completion = completion?;
         if completion == crate::RevisionDisplayCompletion::Complete
@@ -380,7 +392,26 @@ impl Engine {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<(), EngineError> {
-        match authorizer.decide(principal, permission, scope) {
+        Self::require_decision_with_control(
+            control,
+            authorizer.decide(principal, permission, scope),
+            principal,
+            permission,
+            scope,
+        )
+    }
+
+    /// 验证已取得的请求能力与持久策略交集，不再次调用宿主授权器。
+    /// 参数：decision 为同次能力决定，control/主体/权限/范围保持原身份。
+    /// 返回：允许、拒权或真实数据库错误；执行期限由调用者的 SQL guard 管理。
+    pub(super) fn require_decision_with_control(
+        control: &diskgraph_store::ControlStore,
+        decision: diskgraph_core::Decision,
+        principal: &PrincipalId,
+        permission: &Permission,
+        scope: &ScopeId,
+    ) -> Result<(), EngineError> {
+        match decision {
             diskgraph_core::Decision::Allowed => {
                 // 请求能力只是上限；持久策略存在时，始终与当前数据库授权取交集。
                 let denied = if scope == &admin_scope() {

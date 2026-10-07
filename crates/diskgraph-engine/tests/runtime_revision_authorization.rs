@@ -40,6 +40,7 @@ fn in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine() {
             let call = self.calls.get() + 1;
             self.calls.set(call);
             if call == self.trigger {
+                std::thread::sleep(std::time::Duration::from_millis(100));
                 self.engine
                     .register_scope(self.root, self.actor, self.policy)
                     .unwrap();

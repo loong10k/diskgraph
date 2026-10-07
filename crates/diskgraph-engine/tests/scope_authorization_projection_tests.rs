@@ -437,3 +437,62 @@ fn scope_withdrawn_by_the_real_terminal_callback_refuses_the_display() {
 fn grant_withdrawn_by_the_real_terminal_callback_refuses_the_display() {
     revoke_during_terminal_authorization(false);
 }
+
+#[test]
+fn terminal_policy_sql_keeps_its_budget_after_the_capability_callback() {
+    let (directory, engine, principal, _scope, policy) = fixture(0);
+    let injected = Cell::new(false);
+    let authorizer = CallbackAuthorizer {
+        policy: &policy,
+        calls: Cell::new(0),
+        allowed: Cell::new(0),
+        callback: |call| {
+            if call == 2 {
+                // 隔离库中真实替换 policy 为昂贵但结果相同的 SQL 视图。
+                // WAL 写锁不阻止正常 reader，故以 VM 工作量直接验证 progress 中断。
+                let connection = rusqlite::Connection::open(
+                    directory.path().join("data/diskgraph-control.sqlite"),
+                )
+                .unwrap();
+                connection
+                    .execute_batch(
+                        "ALTER TABLE policy RENAME TO terminal_policy_fixture;
+                     CREATE VIEW policy AS SELECT p.* FROM terminal_policy_fixture p
+                     CROSS JOIN (WITH RECURSIVE work(n) AS
+                       (VALUES(0) UNION ALL SELECT n+1 FROM work WHERE n<5000000)
+                       SELECT sum(n) AS total FROM work) cost WHERE cost.total>0;",
+                    )
+                    .unwrap();
+                injected.set(true);
+            }
+        },
+    };
+    let started = Instant::now();
+    let result = engine.with_authorized_revision_display_reader_bounded(
+        REVISION,
+        &principal,
+        &authorizer,
+        QueryBudget {
+            deadline_ms: 1000,
+            ..QueryBudget::default()
+        },
+        |_, _, _| Ok(RevisionDisplayCompletion::Complete),
+    );
+    let elapsed = started.elapsed();
+    assert!(
+        injected.get(),
+        "actual terminal capability callback must run"
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ),
+        "{result:?}"
+    );
+    // 宽观察界限只区分约 50 ms 中断和多次完整执行百万步 SQL，不声称硬实时。
+    assert!(
+        elapsed < std::time::Duration::from_secs(1),
+        "unbounded terminal SQL: {elapsed:?}"
+    );
+}

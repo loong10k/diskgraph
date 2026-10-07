@@ -1,0 +1,116 @@
+{
+  "base_commit": "7fc333018276143aea3b5b2e08b1198354bced84",
+  "production_acceptance": false,
+  "linux_sdk_digest": "sha256:874db0adb75ee22be0fa0ba19dec70270456cd3db0f9385c06eaea33f09d4248",
+  "rust": "1.97.0",
+  "git": "2.47.3",
+  "linux_execution": "nonroot uid 1000, offline, 4 CPUs, 4 GiB RAM, prepared 1 GiB tmpfs; dev/test debug=0, incremental disabled",
+  "prechange_workspace": {
+    "exit_code": 0,
+    "suite_report_count": 126,
+    "reported_passed": 2031,
+    "reported_failed": 0,
+    "reported_ignored": 21,
+    "note": "7fc3330 binaries compiled before terminal source changes; original 64 MiB tmpfs/missing fixture run exited 101; prepared run does not prove deployment or supervisor acceptance"
+  },
+  "red": {
+    "quarantine": "actual 7fc3330 plus 100ms callback delay fails modes 3/5/6/8 with BudgetExceeded",
+    "sql": "first unbounded-helper candidate plus actual recursive SQL view fails at 4.843506794 seconds; not original 7fc3330 SQL failure"
+  },
+  "green": {
+    "linux": {
+      "runtime_modes": 28,
+      "test_cases": 28,
+      "failed": 0
+    },
+    "macos": {
+      "test_cases": 6,
+      "failed": 0
+    },
+    "engine_clippy_all_targets": 0
+  },
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR with production lifecycle WATCH"
+  },
+  "source_hashes": {
+    "crates/diskgraph-engine/src/revision_authorization.rs": "625f063edc633b7278c5774e1218054337371a8bde33d79dddca25773d6ca3dd",
+    "crates/diskgraph-engine/src/relation_request.rs": "8c0d8ae8d67db9eaffcefe27fbbeb512dc46ba5fa294d2dd3e0ca8bce22190a6",
+    "crates/diskgraph-engine/tests/runtime_revision_authorization.rs": "c6d376338357a07eb1bfae25f521d72eb287531c9705f5df1a3adc9966a12c65",
+    "crates/diskgraph-engine/tests/scope_authorization_projection_tests.rs": "87955745c207a4e276ae84795b0fa880b14ad2cb84014805a9e57cfe4561b991"
+  },
+  "logs": [
+    {
+      "log": "full.log.gz",
+      "uncompressed_sha256": "9f0c092f5e57ae45f921259678d8d62b911e98fbe681f3d049cc88b352794f30",
+      "bytes": 292062
+    },
+    {
+      "log": "prepared.log.gz",
+      "uncompressed_sha256": "c0933f3a03de765eb15d1587620b675d81b4b1213bc3b9dd33338594e9d95c75",
+      "bytes": 217244
+    },
+    {
+      "log": "terminal_delay_red.log.gz",
+      "uncompressed_sha256": "aee59f4ec9bcad2acaf9a78c1016766dccc2730c0c684264c6b8776a0e0d238a",
+      "bytes": 3424
+    },
+    {
+      "log": "terminal_delay_candidate.log.gz",
+      "uncompressed_sha256": "75a86b6a61116ade572ff11e950e3129fa2fb6100f5d98ace82ef8959890ec55",
+      "bytes": 491
+    },
+    {
+      "log": "linux_sql_budget_red.log.gz",
+      "uncompressed_sha256": "03f247cb32b86e14bb45a7fc6f52d4e2c8eb2b6dd6fca646ba79222bd35dc35b",
+      "bytes": 983
+    },
+    {
+      "log": "macos_sql_budget_green.log.gz",
+      "uncompressed_sha256": "2467b7bcb976ae91ddf1362f9d1352890e7d77aaa42c39ea1740f5ffd5567fb1",
+      "bytes": 513
+    },
+    {
+      "log": "macos_bounded_terminal_final.log.gz",
+      "uncompressed_sha256": "bd46d9b5509103a3712385ccb2cdd168f0d412bc5bb6b257d4e0443a10be9614",
+      "bytes": 1160
+    },
+    {
+      "log": "linux_terminal_final_green.log.gz",
+      "uncompressed_sha256": "beb6327cf6c58e07e7f53692c4ab45d35822d6e20898b98a9dfe66b06e18788b",
+      "bytes": 3390
+    },
+    {
+      "log": "terminal_clippy.log.gz",
+      "uncompressed_sha256": "f7fb1d00135ac6f40724c59391110ad2181dd596c7da2ad50931789ae4766e8d",
+      "bytes": 2825
+    },
+    {
+      "log": "native_fixture_build.log.gz",
+      "uncompressed_sha256": "c6d1720e4685fcacf0cb25f5d7a0f8f07e723a16419fed8e1656c8262f778eed",
+      "bytes": 484
+    },
+    {
+      "log": "ci_job_112632060239.log.gz",
+      "uncompressed_sha256": "860c54b14bab5bb0ffcebb371fb850c370be93fdc902c516cf76e1d9102d8e9e",
+      "bytes": 13156514
+    },
+    {
+      "log": "ci_job_112632060260.log.gz",
+      "uncompressed_sha256": "8f1df70f59e4f6c70696df5fd6de94cdd3b8016696da5024d64fdd3b3f87fe82",
+      "bytes": 13151564
+    },
+    {
+      "log": "ci_job_112632060463.log.gz",
+      "uncompressed_sha256": "071d5927882d23bfa3f5b69f8f139fdb6e2120d59229845ee70f95c133531964",
+      "bytes": 566285
+    }
+  ],
+  "remaining": [
+    "new Windows/macOS/Linux native CI",
+    "supervisor process lifecycle",
+    "Windows moved directory sharing failure",
+    "Linux ARM existing fanout test setup failure",
+    "production installation/provider/performance acceptance"
+  ]
+}
