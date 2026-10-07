@@ -33,3 +33,9 @@
 with_authorized_revision_reader 的初次与末段控制锁原使用阻塞获取。初次真实锁竞争新增第四入口时实际 RED：不返回精确业务预算错误。两处现使用 control_until(deadline)，没有刷新期限。末段测试在 consumer 准备真实结果 42 后让独立线程持锁 300 ms，原 100 ms 请求返回 BudgetExceeded 且返回时仍持锁，不能交付准备结果。
 
 当前授权回归 5 passed。该包装的 SQL handler、同步回调和撤权优先级尚未全面改造，本批仅关闭控制锁无期限等待；不要据此声称包装已有严格墙钟上限。新增末段测试未单独记录修改前 RED，初次用例已记录实际 RED。
+
+## 可信读取初次授权超时的业务语义
+
+真实已发布元数据夹具中，100 ms 初次预算的能力回调在期限内进入并等待300 ms返回允许；旧包装实际 RED 为 Store(Sqlite(OperationInterrupted))。初次控制 SQL 的预算、busy与interrupted现统一返回 Business(BudgetExceeded)，其他原错误保持。成功授权后还检查原deadline，避免短SQL未触发handler时迟到进入消费者。
+
+当前授权回归6项通过。仅规范化初次控制预算错误并限制消费者准入；同步回调仍在SQL guard中，不能硬抢占。末段控制SQL与回调期限的完整改造仍开放；不能把这一修复称为全链有界执行。

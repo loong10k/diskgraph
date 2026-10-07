@@ -188,19 +188,35 @@ impl Engine {
         let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
         let control = self.control_until(deadline)?;
         // 在首次授权前绑定实际依赖；所有 SQL 仍使用请求最初的截止时间。
-        let withdrawal = control.with_read_deadline(deadline, |control| {
-            let withdrawal = crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
-                control, principal, &scope,
-            )?;
-            if server != control.existing_server_id()?.as_str() {
-                return Err(EngineError::Business(BusinessError::PermissionDenied));
-            }
-            let authorization =
-                Self::require_terminal_relation(control, authorizer, principal, &scope);
-            withdrawal.check(control)?;
-            authorization?;
-            Ok::<_, EngineError>(withdrawal)
-        })?;
+        let withdrawal = control
+            .with_read_deadline(deadline, |control| {
+                let withdrawal =
+                    crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
+                        control, principal, &scope,
+                    )?;
+                if server != control.existing_server_id()?.as_str() {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                let authorization =
+                    Self::require_terminal_relation(control, authorizer, principal, &scope);
+                withdrawal.check(control)?;
+                authorization?;
+                Ok::<_, EngineError>(withdrawal)
+            })
+            .map_err(|error| match error {
+                EngineError::Store(error)
+                    if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                        || error.is_interrupted()
+                        || error.is_busy() =>
+                {
+                    EngineError::Business(BusinessError::BudgetExceeded)
+                }
+                other => other,
+            })?;
+        // 即使短 SQL 未触发 VM handler，初始授权过期也不能进入消费者。
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
         drop(control);
         let snapshot_id = reader.revision(revision_id)?.snapshot_id;
         let result = consumer(&reader, &snapshot_id, deadline)?;

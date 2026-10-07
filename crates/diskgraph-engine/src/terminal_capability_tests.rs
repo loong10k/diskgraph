@@ -193,6 +193,52 @@ fn initial_revision_and_snapshot_authorization_do_not_return_late_allow() {
 }
 
 #[test]
+fn trusted_reader_late_capability_is_a_business_budget_error() {
+    struct SlowCapability {
+        policy: diskgraph_core::PolicyAuthorizer,
+        initial_deadline: std::time::Instant,
+        entered_live: std::cell::Cell<bool>,
+    }
+    impl diskgraph_core::Authorizer for SlowCapability {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.entered_live
+                .set(std::time::Instant::now() < self.initial_deadline);
+            std::thread::sleep(std::time::Duration::from_millis(300));
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+    let authorizer = SlowCapability {
+        policy: engine.policy_authorizer().unwrap(),
+        initial_deadline: std::time::Instant::now() + std::time::Duration::from_millis(100),
+        entered_live: std::cell::Cell::new(false),
+    };
+    let result: Result<(), EngineError> = engine.with_authorized_revision_reader(
+        revision,
+        &principal,
+        &authorizer,
+        100,
+        |_, _, _| panic!("late initial authorization must not enter consumer"),
+    );
+    assert!(
+        authorizer.entered_live.get(),
+        "fixture must enter before conservative original deadline"
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ),
+        "{result:?}"
+    );
+}
+
+#[test]
 fn late_history_side_does_not_hide_the_other_scope_revocation() {
     struct CrossScopeDecision {
         policy: diskgraph_core::PolicyAuthorizer,
