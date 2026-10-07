@@ -1,0 +1,30 @@
+{
+  "red_source_commit": "7a17e6dbddc6a27692d8ee80dc519cfd7d588e8f",
+  "run": 37664417193,
+  "job": 112939850186,
+  "failure": "second-handle read of exclusively locked slot: ERROR_LOCK_VIOLATION 33",
+  "engine_red": {
+    "passed": 625,
+    "failed": 1,
+    "ignored": 4
+  },
+  "fix": "test-only platform-native record/lock assertion; production unchanged",
+  "local_macos_binding_tests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "files": {
+    "msrv_red.log.gz": "99ba782c514d9c7cc7be87517b4e8489144519ca2e31959f7feda9a40526e3b2",
+    "macos_green.log.gz": "6336a23e5ccbdb2864cf35300934cfe3a23639be0a863e4deee5c0ebe7b02a1b"
+  },
+  "limits": [
+    "Windows fixed source execution remains pending",
+    "macOS local unit tests do not replace full platform CI",
+    "supervisor product integration remains incomplete"
+  ],
+  "production_acceptance": false
+}

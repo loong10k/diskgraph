@@ -21,6 +21,22 @@ fn open(path: &Path) -> File {
         .open(path)
         .unwrap()
 }
+/// 参数：原槽路径和预期记录；返回：平台对应的记录／强制锁断言，无释放锁动作。
+fn assert_locked_record(path: &Path, expected: &[u8; 8]) {
+    #[cfg(unix)]
+    assert_eq!(std::fs::read(path).unwrap(), expected);
+    #[cfg(windows)]
+    {
+        // Windows 独占字节锁禁止第二句柄读取；精确核验原生错误而非接受任意 I/O 失败。
+        let error = std::fs::read(path).expect_err("foreign read bypassed original slot lock");
+        assert_eq!(error.raw_os_error(), Some(33));
+        let _ = expected;
+    }
+    assert!(matches!(
+        SlotReservation::acquire(open(path), deadline()),
+        Err(SlotError::Busy)
+    ));
+}
 /// 参数：无；返回：隔离目录、原监督材料和同一扫描表，不出生实际子进程。
 pub(super) fn fixture() -> (tempfile::TempDir, SupervisorParts, Arc<ScanWorkerRegistry>) {
     let dir = tempfile::tempdir().unwrap();
@@ -134,17 +150,11 @@ fn actual_original_reservation_keeps_active_capacity_until_release() {
     assert!(owner.poll_retirement(deadline()).unwrap());
     let next = SlotReservation::acquire(open(&dir.path().join("slot")), deadline()).unwrap();
     assert!(owner.poll_retirement(deadline()).unwrap());
-    assert_eq!(
-        std::fs::read(dir.path().join("slot")).unwrap(),
-        b"DGSL01R\n"
-    );
+    assert_locked_record(&dir.path().join("slot"), b"DGSL01R\n");
     let mut next = next.activate(deadline()).unwrap();
     assert!(owner.poll_retirement(deadline()).unwrap());
     next.verify_active(deadline()).unwrap();
-    assert_eq!(
-        std::fs::read(dir.path().join("slot")).unwrap(),
-        b"DGSL01A\n"
-    );
+    assert_locked_record(&dir.path().join("slot"), b"DGSL01A\n");
 }
 #[test]
 fn external_engine_reference_prevents_retirement_and_new_native_birth() {
