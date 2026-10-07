@@ -73,3 +73,9 @@ Display本机验证：预先到期真实RED→GREEN；消费期间到期Truncate
 authorize_revision_owner_until 初始归属检查后释放控制锁，再执行宿主 decide；随后沿原请求期限重新获取锁，重验 server 身份、实时策略与 scope 撤销。固定 expiry 不变。有限 50ms callback 控制锁重入在旧实现失败为 RED；允许及 callback 内撤销 grant 的两种结果分别要求成功和 PermissionDenied。可信 reader/display 的其他回调仍不据此声明锁隔离完成。
 
 Owner回调锁隔离验收：旧有限重入真实RED→GREEN；权限组12/0，完整Engine557/98/13（98均Unsupported），source_layout6/0、fmt/Clippy及双路APPROVE/CLEAR。仍不视为平台通过。
+
+## CLI du 原错误保留
+
+全部路径失败时，du 保留首个注册/index/run 业务错误；只有没有实际业务错误时保持 NotFound。部分成功的输出兼容。隔离目录和明确拒权 Authorizer 回归旧 PermissionDenied 被改为 NotFound 实际 RED，要求保留 PermissionDenied；不依赖原生扫描资格。
+
+Du原错误本机回归：明确拒权旧NotFound实际RED→PermissionDenied GREEN；CLI完整单元70/12/0，12失败均Unsupported。fmt/Clippy与双路APPROVE/CLEAR通过。全workspace诊断另见workspace_diagnostic_7c430bd_2026_10_07.json，包含测试夹具及工作区修改，不用其证明后续CLI或原生平台通过。

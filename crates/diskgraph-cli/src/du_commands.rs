@@ -20,6 +20,7 @@ pub(crate) fn run(
         Command::Du { paths, total } => {
             let mut rows: Vec<(PathBuf, u64, String)> = Vec::new();
             let mut failures = 0_usize;
+            let mut first_business_failure = None;
             for path in paths {
                 let canonical = match path.canonicalize() {
                     Ok(canonical) => canonical,
@@ -36,6 +37,7 @@ pub(crate) fn run(
                     Ok(scope_id) => scope_id,
                     Err(error) => {
                         eprintln!("diskgraph: {}: {error}", path.display());
+                        first_business_failure.get_or_insert(error);
                         failures += 1;
                         continue;
                     }
@@ -48,6 +50,7 @@ pub(crate) fn run(
                     Ok(job) => job,
                     Err(error) => {
                         eprintln!("diskgraph: {}: {error}", path.display());
+                        first_business_failure.get_or_insert(error);
                         failures += 1;
                         continue;
                     }
@@ -74,6 +77,7 @@ pub(crate) fn run(
                     }
                     Err(error) => {
                         eprintln!("diskgraph: {}: {error}", path.display());
+                        first_business_failure.get_or_insert(error);
                         failures += 1;
                         continue;
                     }
@@ -86,7 +90,9 @@ pub(crate) fn run(
                 rows.push((canonical, root.subtree_bytes, scope_id.as_str().to_owned()));
             }
             if failures > 0 && rows.is_empty() {
-                return Err(EngineError::Business(BusinessError::NotFound));
+                // 全部失败时保留实际授权或平台错误，不能把现存路径误报为不存在。
+                return Err(first_business_failure
+                    .unwrap_or(EngineError::Business(BusinessError::NotFound)));
             }
             let grand_total: u64 = rows.iter().map(|row| row.1).sum();
             let mut data = serde_json::Map::new();
@@ -132,5 +138,42 @@ pub(crate) fn run(
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn all_denied_paths_preserve_permission_error() {
+        use clap::Parser;
+        struct Denied;
+        impl diskgraph_core::Authorizer for Denied {
+            fn decide(
+                &self,
+                _: &diskgraph_core::PrincipalId,
+                _: &diskgraph_core::Permission,
+                _: &diskgraph_core::ScopeId,
+            ) -> diskgraph_core::Decision {
+                diskgraph_core::Decision::Denied(diskgraph_core::DenyReason::NoMatchingGrant)
+            }
+        }
+        let dir = tempfile::tempdir().unwrap();
+        let engine = diskgraph_engine::Engine::open(diskgraph_engine::EngineConfig {
+            data_dir: dir.path().join("data"),
+            ..Default::default()
+        })
+        .unwrap();
+        let cli = crate::cli::Cli::parse_from(["diskgraph", "du", dir.path().to_str().unwrap()]);
+        let principal = diskgraph_core::PrincipalId::new("denied-du").unwrap();
+        let result = super::run(&engine, &cli, &principal, &Denied, &mut Vec::new());
+        assert!(
+            matches!(
+                result,
+                Err(diskgraph_engine::EngineError::Business(
+                    diskgraph_core::BusinessError::PermissionDenied
+                ))
+            ),
+            "permission failure became: {result:?}"
+        );
     }
 }
