@@ -93,3 +93,8 @@ Generic reader初始回调验证：初始重入与迟到拒权实际RED→GREEN�
 终检前控制SQL观察后释放control，宿主decide在锁外；随后非阻塞重新取得control，先检查撤权见证，再在原50ms SQL观察规则下求实时权限交集。明确Denied不被重新取锁预算覆盖；capability原50ms及时性、固定token expiry与原数据deadline不续租，新鲜归属检查保持。终检回调在同Engine控制锁内撤grant的回归旧有限重入失败为RED，要求正常允许成功与撤权拒绝已准备结果。display/history其他回调不据此关闭。
 
 Generic reader终检锁隔离验证：有限重入旧RED→GREEN，终检callback撤grant精确拒权；权限15/0、能力9/0、source_layout6/0、fmt/Clippy、双路APPROVE/CLEAR。串行完整Engine560/98/13，98均Unsupported。callback后control竞争失败关闭BudgetExceeded，不承诺同时撤权可观察、全局线性化或硬抢占；display/history及原生门禁仍开放。
+## Display reader 终态能力回调锁隔离
+
+完整及截断展示的终检能力回调必须在共享控制锁及 SQLite progress guard 之外执行。回调后非阻塞获取控制锁，重新检查原撤权见证、实时授权及实际 revision 归属；显式拒权保持 PermissionDenied。保留原读取期限和既有独立 50ms 终检观察窗口，不刷新读取预算。回归须在第二次 decide 中重入同一 Engine 并实际撤销 grant，使用旧缓存 Allowed，分别验证 Complete/Truncated 的正常允许和撤权拒绝。初始展示授权及历史回调不据此声明完成，生产监督门禁保持未完成。
+
+本机验收：旧实现真实 RED；权限组16/0、终检期限组9/0、源码规范6/0、fmt/Clippy通过，两路独立复核无本批阻断。正确 driver 夹具下完整 Engine 串行561/98/13，98失败输出均明确Unsupported，不视为整体通过。另一次错误环境变量的545/114/13记录保留且不计有效回归。证据见 `docs/benchmarks/display_terminal_callback_unlocked_2026_10_08.json`；本机结果不替代同SHA三平台CI。

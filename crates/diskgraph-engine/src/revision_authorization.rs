@@ -281,11 +281,21 @@ impl Engine {
                 }
                 Ok(())
             })?;
+            drop(control);
+            // 宿主能力回调不持共享控制锁，也不继承 SQLite progress guard。
             let capability_deadline = std::time::Instant::now()
                 .checked_add(Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
             let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
             crate::authority_expiry::check_authority_expiry(expiry)?;
+            if matches!(decision, diskgraph_core::Decision::Denied(_)) {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            // 回调可改变实时授权；非阻塞重新取得控制锁后复核原撤权见证。
+            let control = self
+                .try_control_store()?
+                .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+            withdrawal.check(&control)?;
             // SQL 自身的执行窗口不消耗宿主回调时间；允许结果仍受原能力终检期限约束。
             let after_callback = std::time::Instant::now()
                 .checked_add(Duration::from_millis(50))

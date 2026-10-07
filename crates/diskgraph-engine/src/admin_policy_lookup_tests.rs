@@ -4,6 +4,83 @@ use crate::{EngineError, admin_scope};
 use diskgraph_core::{BusinessError, Permission};
 
 #[test]
+fn display_terminal_callback_can_reenter_control_and_revoke() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        reentered: std::cell::Cell<bool>,
+        calls: std::cell::Cell<u32>,
+        revoke: bool,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.calls.get() == 1
+                && let Ok(mut control) = self
+                    .engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+            {
+                self.reentered.set(true);
+                if self.revoke {
+                    control.revoke_grant(principal, permission, scope).unwrap();
+                }
+            }
+            self.calls.set(self.calls.get() + 1);
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for completion in [
+        crate::RevisionDisplayCompletion::Complete,
+        crate::RevisionDisplayCompletion::Truncated,
+    ] {
+        for revoke in [false, true] {
+            let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+            let authorizer = Callback {
+                engine: &engine,
+                policy: engine.policy_authorizer().unwrap(),
+                reentered: std::cell::Cell::new(false),
+                calls: std::cell::Cell::new(0),
+                revoke,
+            };
+            let entered = std::cell::Cell::new(false);
+            let result = engine.with_authorized_revision_display_reader_bounded(
+                revision,
+                &principal,
+                &authorizer,
+                diskgraph_core::QueryBudget {
+                    deadline_ms: 1000,
+                    ..diskgraph_core::QueryBudget::default()
+                },
+                |_, _, _| {
+                    entered.set(true);
+                    Ok(completion)
+                },
+            );
+            assert!(entered.get());
+            assert!(
+                authorizer.reentered.get(),
+                "display terminal callback held control"
+            );
+            if revoke {
+                assert!(
+                    matches!(
+                        result,
+                        Err(EngineError::Business(BusinessError::PermissionDenied))
+                    ),
+                    "stale allowed capability: {result:?}"
+                );
+            } else {
+                result.unwrap();
+            }
+        }
+    }
+}
+
+#[test]
 fn admin_lookup_observes_independent_revocation_and_corrupt_text() {
     for corrupt in [false, true] {
         let (dir, engine, principal, _, _) = published_authorization_fixture();
