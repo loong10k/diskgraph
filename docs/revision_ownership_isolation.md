@@ -31,3 +31,7 @@ The runtime isolation fixture covers 28 read/registration paths. Six FFI native-
 旧 `explain_entity`、`related`、`related_page` 公共签名现使用独立窄读连接和首末实时授权。实体、关系、证据以及分页结果结构保持一致；新增默认一秒查询期限，慢调用会失败。Rust 弃用标记会产生编译警告，使用 `deny(deprecated)` 的下游需迁移或显式允许兼容调用。旧签名仍没有完整节点/字节额度，新外部请求须使用 `explain_bounded_until` / `related_bounded_until`，不能把旧接口终检修复视为完整资源预算验收。
 
 The legacy public `explain_entity`, `related`, and `related_page` signatures now use an independent narrow reader with initial and terminal live authorization. Entity, edge, evidence and pagination result structures are unchanged. A new default one-second query deadline can fail slower calls; deprecation warnings require migration or an explicit compatibility allowance in downstream crates using `deny(deprecated)`. These legacy signatures still lack total node/byte budgets. New external requests must use `explain_bounded_until` / `related_bounded_until`; terminal authorization is not full resource-budget acceptance.
+
+历史比较每轮末段归属观察在能力回调之后开始 50ms 窗口，同轮两侧共享，最多三轮。该观察不刷新原查询期限；迟到结果仍执行原 Timeout/partial 规则。三个窗口不代表整次仅 50ms，也不提供可抢占同步回调的硬返回期限。
+
+History comparisons begin each bounded 50ms ownership observation after the capability callback, sharing it across both revisions, for at most three rounds. The original query deadline stays unchanged; late results retain Timeout/partial semantics. This is not a hard return deadline including synchronous callbacks.

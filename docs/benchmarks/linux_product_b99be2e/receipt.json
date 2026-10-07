@@ -1,0 +1,23 @@
+{
+  "source_commit": "b99be2e35fc199eb59d4d43fa314a923594d0b2a",
+  "platform": "Linux ARM64 Docker LinuxKit; nonroot uid1000; read-only source; isolated databases; network none",
+  "image": "rust@sha256:d56b2ffba84557d885e9a566bd9601d4588b520c6e147460523a2b36dfeebfa6",
+  "targets": [
+    "mcp/durable_request_authority",
+    "mcp/hardening",
+    "mcp/legacy_delivery",
+    "mcp/scan_worker_service_startup",
+    "cli/cli_flow",
+    "cli/history_budget",
+    "cli/relation_budget",
+    "cli/serve_remote_startup"
+  ],
+  "passed": 41,
+  "failed": 0,
+  "log_raw_sha256": "7d09b73b04026e8d5d1da2f027d7b57874ae7e18a00eb50012ba8bb4c0af32bb",
+  "limitations": [
+    "Selected integration targets, not full workspace",
+    "No supervisor finite-exit proof",
+    "Container evidence does not close macOS/Windows/ordinary Linux deployment gates"
+  ]
+}

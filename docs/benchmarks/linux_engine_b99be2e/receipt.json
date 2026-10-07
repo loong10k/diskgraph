@@ -1,0 +1,9 @@
+{
+  "base_commit": "b99be2e35fc199eb59d4d43fa314a923594d0b2a",
+  "changed_source_sha256": "63b6c0b3b289c9e1a17fad7b616f496e6f8dec2ebae84fda1d8fb10abd715c70",
+  "platform": "Linux ARM64 Docker LinuxKit uid1000; isolated databases; readonly source mount; network disabled",
+  "red": "Broader engine regression: three deadline semantic failures in history scope/size eligibility. Capacity tests ignored; no full-workspace claim.",
+  "first_retry": "Scope target passes; all size fixtures Unsupported due omitted scan-worker environment. Retained as failed run.",
+  "green": "Correct actual-worker environment: scope13 + size9 + runtime1(28 modes) passed, zero failures.",
+  "remaining": "Independent review, final commit CI, supervisor production lifecycle, native Windows/macOS deployment gates."
+}

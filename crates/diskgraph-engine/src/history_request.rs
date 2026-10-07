@@ -61,12 +61,14 @@ impl Engine {
             )
         })();
         let control = self.control_store()?;
-        let authorization_deadline = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
-            .ok_or(BusinessError::InvalidArgument)?;
         let scopes = [&left_scope, &right_scope];
         // 两侧每轮共用固定授权窗口；只读过滤归属，不续期历史迭代与编码预算。
         let ownerships = || {
+            // 能力回调可能消耗原查询期限；每轮归属观察才开始独立的有限窗口。
+            // 同轮双侧共享此窗口，原 reads/deadline 不刷新，迟到结果仍由 finish 拒绝。
+            let authorization_deadline = Instant::now()
+                .checked_add(std::time::Duration::from_millis(50))
+                .ok_or(BusinessError::InvalidArgument)?;
             self.require_terminal_revision_ownership(
                 left,
                 &left_scope,
