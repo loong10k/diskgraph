@@ -1,0 +1,49 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+warning: fields `deadline` and `failure` are never read
+  --> crates/diskgraph-engine/src/recovery_control/unix_control_writer.rs:10:5
+   |
+ 7 | pub struct UnixControlWriter {
+   |            ----------------- fields in this struct
+...
+10 |     deadline: Instant,
+   |     ^^^^^^^^
+...
+13 |     failure: Option<ControlError>,
+   |     ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `diskgraph-engine` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.10s
+     Running tests/unix_control_writer.rs (target/debug/deps/unix_control_writer-de261efd983dbe92)
+
+running 3 tests
+test actual_socket_delivers_original_frames_and_rejects_invalid_order ... ok
+test cancel_and_transport_failure_are_sticky_without_releasing_external_owner ... FAILED
+test actual_full_socket_buffer_stops_under_original_deadline ... FAILED
+
+failures:
+
+---- cancel_and_transport_failure_are_sticky_without_releasing_external_owner stdout ----
+
+thread 'cancel_and_transport_failure_are_sticky_without_releasing_external_owner' (212281) panicked at crates/diskgraph-engine/tests/unix_control_writer.rs:85:5:
+assertion `left == right` failed
+  left: Ok(())
+ right: Err(Cancelled)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- actual_full_socket_buffer_stops_under_original_deadline stdout ----
+
+thread 'actual_full_socket_buffer_stops_under_original_deadline' (212279) panicked at crates/diskgraph-engine/tests/unix_control_writer.rs:40:9:
+assertion `left == right` failed: real full socket must not write after original deadline
+  left: Ok(())
+ right: Err(Deadline)
+
+
+failures:
+    actual_full_socket_buffer_stops_under_original_deadline
+    cancel_and_transport_failure_are_sticky_without_releasing_external_owner
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p diskgraph-engine --test unix_control_writer`

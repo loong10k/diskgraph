@@ -116,3 +116,7 @@ Windows stable/MSRV 的真实终态均暴露两个测试生命周期错误：来
 ## 原目录恢复的显式多次尝试验收
 
 Windows private Git panic/cancel 验收保留原真实出生、一次清理失败、同目录身份及占用断言；显式恢复改为在同一固定 10 秒期限内重复原 `Recovery::drain_until`。Pending 或原错误均保留诊断，每次核验原槽仍占用且新 session 被 ResourceExhausted 拒绝；禁止换池、移除原目录或将 OS87 推定 absent。只有原进程 wait、Job0、原通知和目录实际回收最终完成才算通过，超期/永久失败仍失败。此测试合同调整不修复或放宽生产 ID 查询，Windows 本轮原生结果仍待 CI。
+
+## Unix 私有通知的有界写入
+
+Linux/macOS 原已认证 UnixStream 能力的通知写入必须使用单次 send 的 DONTWAIT/NOSIGNAL，构造前必须提供唯一未克隆的私有 stream 能力，并明确设置原 socket 非阻塞模式，不继承公共 stdout/stderr。写入前后及每次重试检查原绝对期限/取消；原版本、会话、序列、状态、累计帧/字节通过同一控制解析门禁。部分写入或 I/O 错误后锁存 Unconfirmed，不重发帧、不刷新期限、不释放原 Recovery/槽。调用者仍持有原资源。背压期限、对端断开、取消及完整真实 socket 传输须验证。此 API 不认证对端、不启动监督进程、不能代替 Windows 原管道及 CLI/MCP 实际接入。

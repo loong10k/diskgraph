@@ -1,0 +1,21 @@
+{
+  "platform": "local macOS",
+  "base_commit": "324311b530240f1b2b1d0fbe3db20306a3690548",
+  "tests": {
+    "unix_control_writer": 6,
+    "recovery_control": 10,
+    "source_layout": 6
+  },
+  "limitations": [
+    "Linux runtime pending CI",
+    "Windows writer absent",
+    "peer authentication not implemented here",
+    "CLI/MCP supervisor integration incomplete"
+  ],
+  "sha256": {
+    "crates/diskgraph-engine/src/recovery_control/unix_control_writer.rs": "8b1e49b946849e95879b8d1c0f1f39ecbe2ba6ff448221c8ae2ddedbb375e673",
+    "crates/diskgraph-engine/tests/unix_control_writer.rs": "61e6117adf26bbf6f59aa163699c8023fcfd8298350b0a754f1a4ef88539b246",
+    "crates/diskgraph-engine/src/recovery_control/control_error.rs": "b12fa56b40a6f82786762ea91441c27d65f278f677684fb1e4f347dd25077334",
+    "crates/diskgraph-engine/src/recovery_control/mod.rs": "6c1c0ef43295b0b7d953e923cf3caa73aa3a782553267fc4f14ea738138e8816"
+  }
+}

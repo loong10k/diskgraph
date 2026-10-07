@@ -3,6 +3,8 @@
 pub enum ControlError {
     #[error("control protocol rejected")]
     Protocol,
+    #[error("control transmission cancelled")]
+    Cancelled,
     #[error("control budget exhausted")]
     Budget,
     #[error("control deadline expired")]

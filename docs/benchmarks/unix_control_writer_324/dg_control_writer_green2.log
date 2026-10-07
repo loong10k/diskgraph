@@ -1,0 +1,28 @@
+    Blocking waiting for file lock on build directory
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.23s
+     Running tests/unix_control_writer.rs (target/debug/deps/unix_control_writer-de261efd983dbe92)
+
+running 6 tests
+test cancellation_is_sticky ... ok
+test actual_peer_close_is_sticky_and_does_not_raise_sigpipe ... ok
+test invalid_order_does_not_write_and_remains_rejected ... ok
+test actual_socket_delivers_original_frames ... ok
+test actual_full_socket_buffer_stops_under_original_deadline ... ok
+test same_original_frame_budget_refuses_further_writes ... FAILED
+
+failures:
+
+---- same_original_frame_budget_refuses_further_writes stdout ----
+
+thread 'same_original_frame_budget_refuses_further_writes' (220512) panicked at crates/diskgraph-engine/tests/unix_control_writer.rs:147:14:
+called `Result::unwrap()` on an `Err` value: Deadline
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    same_original_frame_budget_refuses_further_writes
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.00s
+
+error: test failed, to rerun pass `-p diskgraph-engine --test unix_control_writer`

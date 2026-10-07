@@ -1,0 +1,42 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running tests/recovery_control.rs (target/debug/deps/recovery_control-185e5ac871914c23)
+
+running 10 tests
+test original_deadline_is_never_refreshed ... ok
+test oversized_header_is_rejected_before_body_allocation_and_failure_is_sticky ... ok
+test malformed_duplicate_or_unknown_fields_are_rejected_without_reopening_receiver ... ok
+test partial_eof_and_foreground_eof_do_not_confirm_cleanup ... ok
+test otherwise_valid_frames_reject_unknown_top_level_and_notification_fields ... ok
+test rejects_wrong_session_version_sequence_and_premature_cleanup ... ok
+test actual_private_socket_eof_after_foreground_is_unconfirmed ... ok
+test split_frames_preserve_foreground_and_cleanup_as_different_events ... ok
+test repeated_pending_notifications_cannot_exceed_original_frame_count ... ok
+test a_fragment_cannot_renew_the_original_deadline ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/source_layout.rs (target/debug/deps/source_layout-fbc2cabb440a7bf9)
+
+running 6 tests
+test gate_rejects_hidden_objects_private_stubs_and_undocumented_trait_methods ... ok
+test gate_excludes_only_explicit_test_modules ... ok
+test gate_rejects_explicit_module_path_escape_before_reading ... ok
+test gate_mounts_path_attributes_relative_to_the_declaring_file ... ok
+test scan_worker_sources_follow_the_same_rust_contract ... ok
+test all_platform_engine_sources_follow_the_rust_contract ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+
+     Running tests/unix_control_writer.rs (target/debug/deps/unix_control_writer-de261efd983dbe92)
+
+running 6 tests
+test cancellation_is_sticky ... ok
+test actual_peer_close_is_sticky_and_does_not_raise_sigpipe ... ok
+test invalid_order_does_not_write_and_remains_rejected ... ok
+test actual_socket_delivers_original_frames ... ok
+test same_original_frame_budget_refuses_further_writes ... ok
+test actual_full_socket_buffer_stops_under_original_deadline ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+

@@ -8,3 +8,8 @@ pub use control_error::ControlError;
 pub use control_frame::ControlFrame;
 pub use control_notification::ControlNotification;
 pub use control_receiver::ControlReceiver;
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod unix_control_writer;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use unix_control_writer::UnixControlWriter;
