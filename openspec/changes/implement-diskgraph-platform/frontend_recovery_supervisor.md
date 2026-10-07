@@ -222,3 +222,7 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 20k/200k正式store隔离release夹具增加四个真实独立readonly连接，barrier同步后各100次100节点页；记录每连接p50/p95，断言真实返回/解码/更多/未知/预算状态。连接创建不计入查询计时；不声称服务全局锁、身份配额或MCP socket并发验收。
 
 四独立read-only连接release测量两次通过：20k各连接p95 0.266–0.290ms、200k 0.282–0.313ms（首次样本），每连接100次100节点页且实际解码数匹配。记录 `docs/benchmarks/store_concurrent_release_7562/`；整测试RSS涵盖生成/迁移/发布，不是单查询或扫描RSS。新增CI test矩阵必需release测量及原始日志上传，10分钟步骤上限、pipefail保留测试失败；YAML已解析，真实三平台执行待CI。Clippy/fmt通过，不勾选MCP并发或完整性能验收。
+
+## 56923f2 Windows根恢复与观察后过期原生正向证据
+
+run37564413917 的stable112608759425及MSRV112608759515两作业：根恢复套件各12/0，日志明确DG_FIXTURE_ROOT_RESTORE_SHARING_RETAINED=32；实际原生扫描观察后token过期拒绝staging/发布各1/0。已下载四个原始artifact、逐个匹配GitHub SHA256并归档 `docs/benchmarks/windows_root_expiry_569_verified/`，绑定源56923f2及原源码摘要。观察时完整Test仍运行，不代表当前HEAD或同SHA全量通过；09047的源状态变化间歇失败仍未解释，新增诊断尚待原生执行，监督总体不勾选。

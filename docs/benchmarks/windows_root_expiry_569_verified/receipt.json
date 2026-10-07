@@ -1,0 +1,50 @@
+{
+  "run_id": 37564413917,
+  "source_sha": "56923f27e719c452ac9221f74250ccbbd7e1b762",
+  "jobs": {
+    "msrv": 112608759515,
+    "stable": 112608759425
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "944ed66d596e2ca24ff63211e37e2cb2c659676b9767a86b36ba62a110c1266d",
+    "crates/diskgraph-engine/src/job_authorization_tests.rs": "8ab644ee00226a1272e7e760706f397b418e6ce6d7a8210d41868f4b3d8ebc46",
+    ".github/workflows/ci.yml": "34781aced2d139578a518fcb61b336ab47d531eb3549f14030401b193c7384b2"
+  },
+  "artifacts": [
+    {
+      "id": 11459325209,
+      "label": "msrv-expiry",
+      "verified_github_archive_sha256": "ad0403e3e376e2aec53ed0abe73d2f36947dd77d467089728694aac48cf1ed9f",
+      "original_entry": "windows-observed-expiry.log"
+    },
+    {
+      "id": 11458724058,
+      "label": "msrv-root",
+      "verified_github_archive_sha256": "53585f1aadad80d79873fdc0db1e5e3a1bad1732c30b3a6eab4521c344122297",
+      "original_entry": "windows-root-restoration.log"
+    },
+    {
+      "id": 11458383629,
+      "label": "stable-expiry",
+      "verified_github_archive_sha256": "162a9bbfc9c6eda501a66ee1533140368bcb8f2bb71e14cdeef3a013d2e5d3c2",
+      "original_entry": "windows-observed-expiry.log"
+    },
+    {
+      "id": 11458303750,
+      "label": "stable-root",
+      "verified_github_archive_sha256": "ca82836c47e6850e03967c5bc46ea386ff9a842740b73149adcf849904aab1c6",
+      "original_entry": "windows-root-restoration.log"
+    }
+  ],
+  "native_platform": "GitHub Windows runner",
+  "per_toolchain": {
+    "root_suite_passed": 12,
+    "observed_expiry_passed": 1
+  },
+  "full_jobs_at_observation": "Both in_progress in Test",
+  "limitations": [
+    "Not current HEAD or full same-SHA acceptance",
+    "Prior 09047 root state mismatch remains unexplained/intermittent; diagnostic candidate needs native execution",
+    "Supervisor bootstrap and product integration remain incomplete"
+  ]
+}
