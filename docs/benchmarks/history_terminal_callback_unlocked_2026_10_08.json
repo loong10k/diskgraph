@@ -1,0 +1,62 @@
+{
+  "parent_commit": "b71684e074bf03cffb297a1d0776a313e51c58f5",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/history_request.rs": "eff83d6dfcfc732fd30633c4dd99e18e98cdd97de09a897e7dbbfc0642a64fb9",
+    "crates/diskgraph-engine/src/relation_request.rs": "237ff52b069291a566b159a527b0aec637c3507a4e7c06184f95075cb2bb4dfe",
+    "crates/diskgraph-engine/src/terminal_capability_tests.rs": "1039673aa1e6067b67a29f9eb393792e6ff23c7662b08493fe59a17ed995ad3b"
+  },
+  "red": "actual history terminal callback could not reenter control; BudgetExceeded",
+  "targeted": {
+    "terminal_capability_tests": {
+      "passed": 11,
+      "failed": 0
+    },
+    "relation_request_tests": {
+      "passed": 7,
+      "failed": 8,
+      "all_failures_explicit_unsupported": true
+    },
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "fmt": "passed",
+    "clippy_all_targets": "passed"
+  },
+  "review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "limits": [
+      "multiple bounded stages; not a single 50ms overall deadline",
+      "postcallback contention fails closed",
+      "independent connection observations are not globally linearized",
+      "synchronous callback nonpreemption",
+      "fixed expiry all history paths remains open"
+    ]
+  },
+  "logs": {
+    "red": {
+      "file": "history_terminal_callback_red_2026_10_08.log.gz",
+      "sha256": "f84e46564156edfe95c2355ccef5b1134b85f85b21b7133b951d6bf008592afb"
+    },
+    "target": {
+      "file": "history_terminal_callback_target_2026_10_08.log.gz",
+      "sha256": "b93257ae89db4d3f16352125e97e9aa90e2da6f0e19d5344d15d296ee932b6df"
+    },
+    "relations": {
+      "file": "history_terminal_callback_relations_2026_10_08.log.gz",
+      "sha256": "858571f77aa203d8c50226a8363e0bb25088d26b2d868badc9c5a30d201183cd"
+    }
+  },
+  "qualification": "macOS worktree with preexisting changes preserved; full serial still fails 98 explicit Unsupported gates; no fixed expiry all-path completion, no native three-platform or production acceptance",
+  "full_serial": {
+    "passed": 567,
+    "failed": 98,
+    "ignored": 13,
+    "exit": 101,
+    "seconds": 118.77,
+    "all_failures_explicit_unsupported": true,
+    "log": "history_terminal_callback_serial_2026_10_08.log.gz",
+    "log_sha256": "52fbf6961628fc7cfa9d9f29365b0ac77e417cbbf6cad107a4c276951ca35caf"
+  }
+}

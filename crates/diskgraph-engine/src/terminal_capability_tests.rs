@@ -5,6 +5,196 @@ use diskgraph_core::{BusinessError, Permission, PrincipalId, QueryBudget, query_
 use std::cell::RefCell;
 
 #[test]
+fn relation_and_envelope_callbacks_can_reenter_control_and_revoke() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        active: std::cell::Cell<bool>,
+        reentered: std::cell::Cell<bool>,
+        revoke: bool,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.active.get() {
+                let mut control = self
+                    .engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+                    .expect("relation or envelope callback held control");
+                self.reentered.set(true);
+                if self.revoke {
+                    control.revoke_grant(principal, permission, scope).unwrap();
+                }
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for envelope in [false, true] {
+        for revoke in [false, true] {
+            let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+            let authorizer = Callback {
+                engine: &engine,
+                policy: engine.policy_authorizer().unwrap(),
+                active: std::cell::Cell::new(envelope),
+                reentered: std::cell::Cell::new(false),
+                revoke,
+            };
+            let budget = QueryBudget::default();
+            let deadline = query_deadline(budget).unwrap();
+            let encoded = std::cell::Cell::new(false);
+            let result = if envelope {
+                engine
+                    .finalize_revisions_read_until(
+                        &[revision, revision],
+                        &principal,
+                        &authorizer,
+                        deadline,
+                    )
+                    .map(|_| ())
+            } else {
+                engine.with_relation_reader_until(
+                    revision,
+                    &principal,
+                    &authorizer,
+                    deadline,
+                    budget,
+                    None,
+                    |_, _, _| {
+                        authorizer.active.set(true);
+                        Ok(())
+                    },
+                    |_, _| {
+                        encoded.set(true);
+                        Ok(())
+                    },
+                )
+            };
+            assert!(authorizer.reentered.get());
+            if revoke {
+                assert!(
+                    matches!(
+                        result,
+                        Err(EngineError::Business(BusinessError::PermissionDenied))
+                    ),
+                    "revoked terminal capability: {result:?}"
+                );
+                assert!(!encoded.get());
+            } else {
+                result.unwrap();
+                assert!(envelope || encoded.get());
+            }
+        }
+    }
+}
+
+#[test]
+fn history_terminal_callbacks_can_reenter_and_revoke_the_other_scope() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        first: diskgraph_core::ScopeId,
+        second: diskgraph_core::ScopeId,
+        active: std::cell::Cell<bool>,
+        reentered: std::cell::Cell<bool>,
+        revoke: bool,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.active.get() {
+                let mut control = self
+                    .engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+                    .expect("history terminal callback held control");
+                self.reentered.set(true);
+                if self.revoke && scope == &self.second {
+                    control
+                        .revoke_grant(principal, permission, &self.first)
+                        .unwrap();
+                }
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for revoke in [false, true] {
+        let (dir, engine, principal, first, revision) = published_authorization_fixture();
+        let root = dir.path().join("second-history-scope");
+        std::fs::create_dir(&root).unwrap();
+        let second = engine
+            .register_scope(&root, &principal, &engine.policy_authorizer().unwrap())
+            .unwrap();
+        let second_revision = "unlocked-second-history-revision";
+        let server = engine.server_id().unwrap();
+        {
+            let mut store = engine.graph().unwrap();
+            let mut graph = store.load_revision(revision).unwrap();
+            graph.snapshot.id = "unlocked-second-history-snapshot".into();
+            store
+                .append_staging_nodes("unlocked-second-history-job", &graph.nodes)
+                .unwrap();
+            store
+                .publish_revision_owned(
+                    "unlocked-second-history-job",
+                    &graph,
+                    second_revision,
+                    2,
+                    Some((server.as_str(), second.as_str())),
+                )
+                .unwrap();
+        }
+        let authorizer = Callback {
+            engine: &engine,
+            policy: engine.policy_authorizer().unwrap(),
+            first,
+            second,
+            active: std::cell::Cell::new(false),
+            reentered: std::cell::Cell::new(false),
+            revoke,
+        };
+        let encoded = std::cell::Cell::new(false);
+        let budget = QueryBudget::default();
+        let result = engine.with_history_readers_until(
+            revision,
+            second_revision,
+            &principal,
+            &authorizer,
+            query_deadline(budget).unwrap(),
+            budget,
+            |_, _, _, _, _, _| {
+                authorizer.active.set(true);
+                Ok(())
+            },
+            |_, _| {
+                encoded.set(true);
+                Ok(())
+            },
+        );
+        assert!(authorizer.reentered.get());
+        if revoke {
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(BusinessError::PermissionDenied))
+                ),
+                "other-side withdrawal: {result:?}"
+            );
+            assert!(!encoded.get());
+        } else {
+            result.unwrap();
+            assert!(encoded.get());
+        }
+    }
+}
+
+#[test]
 fn initial_authorization_control_contention_expires_while_original_lock_is_held() {
     for mode in 0..5 {
         let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
@@ -295,13 +485,7 @@ fn late_history_side_does_not_hide_the_other_scope_revocation() {
             second: second.clone(),
             first_is_slow,
         };
-        let control = engine.control_store().unwrap();
-        let result = crate::Engine::require_terminal_relations(
-            &control,
-            &authorizer,
-            &principal,
-            &[&first, &second],
-        );
+        let result = engine.require_terminal_relations(&authorizer, &principal, &[&first, &second]);
         if !matches!(
             result,
             Err(EngineError::Business(BusinessError::PermissionDenied))

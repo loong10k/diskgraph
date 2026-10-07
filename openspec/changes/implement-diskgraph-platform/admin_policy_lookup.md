@@ -103,3 +103,8 @@ Generic reader终检锁隔离验证：有限重入旧RED→GREEN，终检callbac
 初始展示授权先在原读取期限内绑定撤权见证并检查实际 server/scope，随后释放控制锁与 SQL guard 再执行首次 decide。回调前后控制锁均保持非阻塞准入；回调后复查原见证、server、实时权限、scope 撤销和固定 expiry，拒绝迟到允许，明确 Denied 保留 PermissionDenied。首次回调正常允许、撤 grant、撤 scope 的可重入测试及迟到 Allowed/Denied 测试覆盖 Complete/Truncated；拒绝不得进入 consumer。不引入终检宽限，不声称历史或产品监督门禁完成。
 
 本机验收：真实 RED；初始专项4/0、权限组20/0、期限组9/0、规范6/0、fmt/Clippy及两路审查无本批阻断。首轮完整564/99/13包含一个旧到期夹具未进入consumer的额外失败，精确单独1/0；保持断言及原预算，仅补失败消息后第二轮565/98/13，98失败均Unsupported。首轮额外失败原因仍未确认，列为WATCH，不以复跑通过关闭。证据见 `docs/benchmarks/display_initial_callback_unlocked_2026_10_08.json`，不替代三平台验收。
+## 关系与历史终检能力回调锁隔离
+
+关系和双侧历史的能力观察不持 Engine 控制锁；各次 SQL 与回调继续采用既有有限窗口，控制锁各阶段非阻塞准入。全部历史回调结束后重新纯读所有侧的授权，再沿共同新鲜窗口检查 revision 归属；后侧回调撤销前侧权限必须拒绝，迟到允许不覆盖拒权。编码前后分别复核，不刷新数据 deadline，不在编码时持控制锁。已有 envelope finalize 同样释放控制锁后调用能力，并在回调后重新检查 server、授权及归属。固定 expiry 的全部历史路径覆盖另行验证，不能据锁隔离声称生产门禁完成。
+
+本机验收：历史回调持锁真实 RED；终检组11/0，关系组7/8/0且8失败均Unsupported，规范6/0、fmt/Clippy及双路独立审查无本批阻断。完整串行Engine567/98/13，98失败均Unsupported。证据见 `docs/benchmarks/history_terminal_callback_unlocked_2026_10_08.json`。多个观察阶段不能称整个终检只有50ms，独立连接不受mutex冻结，竞争失败关闭，不宣称整体或三平台通过。

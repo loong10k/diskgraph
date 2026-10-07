@@ -63,15 +63,25 @@ impl Engine {
         // 仅测试的读后同步点不持 control guard，不添加生产回调或共享请求状态。
         #[cfg(test)]
         crate::relation_request_tests::after_read(deadline);
-        // 终检无法取得原控制库 guard 时拒绝全部结果，不在业务期限外等待另一个请求。
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
         // 每轮能力回调后开始固定归属窗口；不续期结果读取或编码期限。
         let ownership = || {
+            let control = self
+                .try_control_store()?
+                .ok_or(BusinessError::BudgetExceeded)?;
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
+            control
+                .with_read_deadline(authorization_deadline, |control| {
+                    if control.scope_revoked(&scope)?
+                        || control.live_permission(principal, &Permission::MetadataRead, &scope)?
+                            == Some(false)
+                    {
+                        return Err(EngineError::Business(BusinessError::PermissionDenied));
+                    }
+                    Ok(())
+                })
+                .map_err(terminal_control_error)?;
             self.require_terminal_revision_ownership(
                 revision,
                 &scope,
@@ -80,7 +90,7 @@ impl Engine {
             )
         };
         let authorize = || {
-            let timely = Self::observe_terminal_relation(&control, authorizer, principal, &scope)?;
+            let timely = self.observe_terminal_relation(authorizer, principal, &scope)?;
             ownership()?;
             if !timely {
                 return Err(EngineError::Business(BusinessError::BudgetExceeded));
@@ -95,7 +105,7 @@ impl Engine {
         let encoded = finish(&mut result, expired);
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("encode");
-        // 本 Engine 的 guard 防止重入；独立连接仍可撤权，故编码后重新读实际 scope。
+        // 编码不持控制锁；编码后重新观察实时授权与实际归属。
         authorize()?;
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("terminal_after_encode");
@@ -109,14 +119,17 @@ impl Engine {
     }
 
     /// 分阶段观察关系/历史末段权限，不得在既有 SQL deadline guard 中调用。
-    /// 参数：control 为 Engine mutex guard，authorizer/principal/scope 为真实请求身份。
+    /// 参数：authorizer/principal/scope 为真实请求身份；各 SQL 阶段非阻塞获取控制锁。
     /// 返回：授权允许是否及时；调用方须先复核其他侧和归属，再将迟到允许拒为预算失败。
     pub(super) fn observe_terminal_relation(
-        control: &diskgraph_store::ControlStore,
+        &self,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scope: &ScopeId,
     ) -> Result<bool, EngineError> {
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
         let before_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -128,11 +141,18 @@ impl Engine {
                 Ok(())
             })
             .map_err(terminal_control_error)?;
-        // 不在控制库 progress guard 内调用宿主授权器，避免嵌套或其耗时续期允许结果。
+        drop(control);
+        // 宿主回调不持控制锁或 SQL handler；回调后重新观察实时权限。
         let capability_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+        if matches!(decision, diskgraph_core::Decision::Denied(_)) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -156,20 +176,23 @@ impl Engine {
     }
 
     /// 完成全部能力回调后，再纯读取每一侧的持久授权。
-    /// 参数：control 为现有 guard，authorizer/principal/scopes 为同请求真实身份与范围。
+    /// 参数：authorizer/principal/scopes 为同请求真实身份与范围；回调不持控制锁。
     /// 返回：各侧均允许时的及时性；真实拒权优先，迟到允许由调用方完成归属观察后拒绝。
     pub(super) fn require_terminal_relations(
-        control: &diskgraph_store::ControlStore,
+        &self,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scopes: &[&ScopeId],
     ) -> Result<bool, EngineError> {
         let mut timely = true;
         for scope in scopes {
-            timely &= Self::observe_terminal_relation(control, authorizer, principal, scope)?;
+            timely &= self.observe_terminal_relation(authorizer, principal, scope)?;
         }
         // 不再次调用能力授权器，避免最后一个回调继续使前侧复检失效。
-        // guard 不冻结独立 SQLite 连接；此处是协作式末段观察边界。
+        // 全部回调结束后取得新 guard；独立 SQLite 连接仍不受此 mutex 冻结。
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
         let observation_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -246,6 +269,7 @@ impl Engine {
             Ok::<(), EngineError>(())
         })?;
         drop(reader);
+        drop(control);
         // 宿主回调不消耗后续新鲜 SQL 的窗口；迟到允许仍不能提交部分数据。
         let capability_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
@@ -254,11 +278,24 @@ impl Engine {
             .iter()
             .map(|(_, scope)| authorizer.decide(principal, &Permission::MetadataRead, scope))
             .collect::<Vec<_>>();
+        if decisions
+            .iter()
+            .any(|decision| matches!(decision, diskgraph_core::Decision::Denied(_)))
+        {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         control.with_read_deadline(after_callback, |control| {
-            for ((_, scope), decision) in ownerships.iter().zip(decisions) {
+            let current_server = control.existing_server_id()?;
+            for ((server, scope), decision) in ownerships.iter().zip(decisions) {
+                if server != current_server.as_str() {
+                    return Err(BusinessError::PermissionDenied.into());
+                }
                 Self::require_decision_with_control(
                     control,
                     decision,
@@ -293,7 +330,9 @@ impl Engine {
 }
 
 /// 将控制 SQL 的期限、中断及锁等待映射为预算拒绝，其他原错误不改写。
-fn terminal_control_error(error: EngineError) -> EngineError {
+/// 映射终检数据库执行预算、锁等待与中断错误。
+/// 参数：error 为原引擎错误；返回：预算类转为 BudgetExceeded，其余错误保持不变。
+pub(super) fn terminal_control_error(error: EngineError) -> EngineError {
     match error {
         EngineError::Store(error)
             if matches!(error, diskgraph_store::StoreError::BudgetExceeded)

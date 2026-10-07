@@ -1,5 +1,7 @@
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, BusinessError, PrincipalId, QueryBudget, QueryReadBudget};
+use diskgraph_core::{
+    Authorizer, BusinessError, Permission, PrincipalId, QueryBudget, QueryReadBudget,
+};
 use diskgraph_store::SqliteSnapshotStore;
 use std::time::Instant;
 
@@ -63,18 +65,33 @@ impl Engine {
         // 仅测试的读后同步点不阻塞授权回调，也不改变生产期限或请求状态。
         #[cfg(test)]
         crate::relation_request_tests::after_read(deadline);
-        // 终检无法取得原控制库 guard 时拒绝全部结果，不在业务期限外等待另一个请求。
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
         let scopes = [&left_scope, &right_scope];
         // 两侧每轮共用固定授权窗口；只读过滤归属，不续期历史迭代与编码预算。
         let ownerships = || {
+            let control = self
+                .try_control_store()?
+                .ok_or(BusinessError::BudgetExceeded)?;
             // 能力回调可能消耗原查询期限；每轮归属观察才开始独立的有限窗口。
             // 同轮双侧共享此窗口，原 reads/deadline 不刷新，迟到结果仍由 finish 拒绝。
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
+            control
+                .with_read_deadline(authorization_deadline, |control| {
+                    for scope in &scopes {
+                        if control.scope_revoked(scope)?
+                            || control.live_permission(
+                                principal,
+                                &Permission::MetadataRead,
+                                scope,
+                            )? == Some(false)
+                        {
+                            return Err(EngineError::Business(BusinessError::PermissionDenied));
+                        }
+                    }
+                    Ok(())
+                })
+                .map_err(crate::relation_request::terminal_control_error)?;
             self.require_terminal_revision_ownerships(
                 &[(left, &left_scope), (right, &right_scope)],
                 &control,
@@ -82,8 +99,7 @@ impl Engine {
             )
         };
         let authorize = || {
-            let timely =
-                Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
+            let timely = self.require_terminal_relations(authorizer, principal, &scopes)?;
             ownerships()?;
             if !timely {
                 return Err(EngineError::Business(BusinessError::BudgetExceeded));
@@ -94,7 +110,7 @@ impl Engine {
         let mut result = result?;
         let expired = Instant::now() >= deadline;
         let encoded = finish(&mut result, expired);
-        // guard 只限制本 Engine 重入；独立连接依然能撤权，编码后重新读取。
+        // 编码不持控制锁；能力回调全部结束后再次读取每一侧实时授权与归属。
         authorize()?;
         encoded?;
         if !expired && Instant::now() >= deadline {
