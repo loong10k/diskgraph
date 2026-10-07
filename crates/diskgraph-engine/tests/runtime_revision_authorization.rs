@@ -9,6 +9,7 @@ mod legacy_graph;
 use legacy_graph::legacy_graph;
 
 #[test]
+#[allow(deprecated)] // 明确验证旧公共签名的授权兼容，不用于新外部请求。
 fn in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine() {
     use diskgraph_core::{
         Authorizer, BusinessError, Decision, Permission, PolicyAuthorizer, PrincipalId,
@@ -47,7 +48,7 @@ fn in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine() {
         }
     }
     let mut incorrectly_allowed = Vec::new();
-    for mode in 0..25 {
+    for mode in 0..28 {
         let directory = tempfile::tempdir().unwrap();
         let root = directory.path().join("r�");
         std::fs::create_dir(&root).unwrap();
@@ -138,7 +139,9 @@ fn in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine() {
             actor: &actor,
             policy: &policy,
             calls: Cell::new(0),
-            trigger: if mode >= 17 {
+            trigger: if mode >= 25 {
+                1
+            } else if mode >= 17 {
                 6
             } else if mode >= 9 {
                 4
@@ -164,7 +167,26 @@ fn in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine() {
                     .is_err()
             );
         };
-        let result = if mode == 0 {
+        let result = if mode >= 25 {
+            // 旧签名也必须走实时终检；先用真实授权成功作为准备对照。
+            let read = |auth: &dyn Authorizer| match mode {
+                25 => engine
+                    .explain_entity("legacy-revision", "missing", &actor, auth)
+                    .map(|_| ()),
+                26 => engine
+                    .related("legacy-revision", "missing", None, true, &actor, auth)
+                    .map(|_| ()),
+                27 => engine
+                    .related_page("legacy-revision", "missing", true, None, 10, &actor, auth)
+                    .map(|_| ()),
+                _ => unreachable!(),
+            };
+            assert!(
+                read(&policy).is_ok(),
+                "legacy relation positive control mode {mode}"
+            );
+            read(&callback)
+        } else if mode == 0 {
             engine.with_authorized_revision_reader(
                 "legacy-revision",
                 &actor,

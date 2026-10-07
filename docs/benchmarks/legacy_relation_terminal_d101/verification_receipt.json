@@ -1,0 +1,86 @@
+{
+  "base_commit": "d101c4164e618dcb3dc8621da8e25359124dd2a5",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/relation_access.rs": "e2ae32f8908b9c74f0d42b8d102c164e820b0973c570a0a4096b1531224580bc",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "7f8a0cbb705f1b080aa0bc2030766e92490e32ffb02318502bcbe85a0f0cf9ea",
+    "crates/diskgraph-engine/tests/engine_flow.rs": "46287704ee2a69aea90d515c1c62bd968f01653ea0cf19568486d1367c9b722a",
+    "crates/diskgraph-engine/tests/runtime_revision_authorization.rs": "f303bbd17193fa2fd450895be221bbe6c14a0baaa9c39df2eb6c608387071e80",
+    "crates/diskgraph-engine/tests/legacy_relation_terminal.rs": "c6c8ba77d887f6a789f39f8c49d4fde596fddbae090af1aea4e612c3482a2fc7",
+    "docs/revision_ownership_isolation.md": "69ce4aac4959afe6428a85c093b1d660326b9005de9cdd12b8e38ad78246f580",
+    "openspec/changes/implement-diskgraph-platform/specs/scope-authorization/spec.md": "f5c5b92b135e2a36caaf555268f9683bbb9c03e9aced99ef8140373b473fbf37"
+  },
+  "logs": {
+    "clippy.log.gz": {
+      "raw_sha256": "6ce5881e51a85f5b25a24059affc5be4fb095ca0fff544ebcb1e335f0325c26b",
+      "raw_bytes": 518,
+      "gzip_sha256": "ee2513ff4ea244b1392a7310a784fbcdd485e8e5747cd37d419b7d3fa43d2b70"
+    },
+    "fmt.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "green.log.gz": {
+      "raw_sha256": "6927cc9d8b6408ddbf736aa42fa6c02f3760b6ed95ad21949066fc8b0d5872c1",
+      "raw_bytes": 508,
+      "gzip_sha256": "471e0eed20e36a89c367e44f849338bcc77e72b7f57b0f17617f8130ae29d1cc"
+    },
+    "legacy_compat_green.log.gz": {
+      "raw_sha256": "431fe836f5f78c1e6030c39e46bff8e7ab3ac8239465825925fa784c9997fbc9",
+      "raw_bytes": 565,
+      "gzip_sha256": "9f064096dfc589faecb77fdd2da7316cbbedfd2187af8c94e6d5a74fe7083747"
+    },
+    "linux_container_build.log.gz": {
+      "raw_sha256": "c528bf1d53dd22179f9b41d1286bb70bd6eb3461a6d675c8cda1da1ffd01a588",
+      "raw_bytes": 4471,
+      "gzip_sha256": "93d4f13a42e5a506c7624968b3799d1dd80f5933d6c0f3b81c25c4eb1d4ff163"
+    },
+    "linux_native_engine.log.gz": {
+      "raw_sha256": "43fc5e63e92e0d41452cdb3304b74bb369d35ac588060a1432ec3c61652df43b",
+      "raw_bytes": 6226,
+      "gzip_sha256": "c968afd48c2ea058e02d56998506cc23156521c05a91de1149f7a80508243c3d"
+    },
+    "linux_nonroot_ffi.log.gz": {
+      "raw_sha256": "60f73df04cab2dd6649856beee0ce88f5400ee2c9856ef515343752373acf9a7",
+      "raw_bytes": 12123,
+      "gzip_sha256": "e07b906a8fe8301972f52729bd5059cecd08ec91857b0e3ab821ad4409318a52"
+    },
+    "native_host_regression_failure.log.gz": {
+      "raw_sha256": "7ee695b0cf98aabdcfa48b8c7d57eac04018b4cf0b8a6ea2bb036b04ac55d04f",
+      "raw_bytes": 6102,
+      "gzip_sha256": "cd081671ad4cbe0db40371ced3e5f8163b193d95ea8706c256d22cc7d9d98cd7"
+    },
+    "red.log.gz": {
+      "raw_sha256": "ff83017da612f15dd6a7500ce3429a821633c7902217537620558dcf82c63532",
+      "raw_bytes": 1138,
+      "gzip_sha256": "f31717146338acf11d3e8a8b62d168637cb5be47a69fd14a4d535ddf95d0154b"
+    },
+    "regression.log.gz": {
+      "raw_sha256": "8726d3c6a984425cfb5c0275c62fa72c397c6dea3ce51d8aa350c431d4b52c93",
+      "raw_bytes": 3093,
+      "gzip_sha256": "7668f1da1ea8e59b02e6597184341354a5248ee6065bd5f32de56511e320d6f8"
+    }
+  },
+  "validation": {
+    "macos_isolated_regression": "24 passed, 0 failed; includes runtime test covering 28 authorization paths",
+    "clippy": "engine, CLI, MCP, FFI all targets -D warnings passed",
+    "fmt": "engine package passed",
+    "linux_root": "32 passed; 3 scanner fixture failures due to missing DISKGRAPH_ENGINE_SCAN_WORKER configuration",
+    "linux_nonroot": "FFI 91 passed, 0 failed; scanner engine 3 passed, 0 failed",
+    "macos_native": "9 native scanner tests failed without trusted host installation; not accepted as production pass"
+  },
+  "linux_environment": {
+    "image": "rust@sha256:d56b2ffba84557d885e9a566bd9601d4588b520c6e147460523a2b36dfeebfa6",
+    "platform": "linux arm64 Docker LinuxKit kernel 7.0.14",
+    "uid": 1000,
+    "network": "none",
+    "source_mount": "read-only",
+    "worker": "actual Cargo-built debug worker with independent SHA256 and size supplied to fixture"
+  },
+  "limitations": [
+    "Container tests do not prove ordinary Linux host deployment or cloud provider behavior.",
+    "macOS trusted installation and Windows current source execution remain unverified.",
+    "Supervisor production lifecycle is not implemented.",
+    "Legacy relation APIs add a 1000ms read deadline and deprecation warning; aggregate result budgets require bounded APIs."
+  ]
+}

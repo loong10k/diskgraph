@@ -632,6 +632,7 @@ fn sync_republishes_and_snapshot_retention_is_authorized() {
 }
 
 #[test]
+#[allow(deprecated)] // 保留旧解释/关系列表签名的实体与证据兼容验收。
 fn cargo_fixture_produces_typed_evidence_bound_to_the_revision() {
     let engine = engine_in("collect", 1_000_000);
     let (admin_principal, admin_policy) = admin();

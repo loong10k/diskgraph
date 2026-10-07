@@ -8,6 +8,9 @@ use diskgraph_store::CandidateSelection;
 use diskgraph_store::StoreError;
 use std::time::Instant;
 
+/// 旧关系接口的固定兼容期限，不随新请求的默认 QueryBudget 变化。
+const LEGACY_RELATION_DEADLINE_MS: u64 = 1000;
+
 impl Engine {
     /// 可信内部读取 revision 的全部关系。
     /// 参数：revision_id 为标识；调用方须先授权。
@@ -31,6 +34,9 @@ impl Engine {
     /// 返回：可选实体、关系、证据三元组或授权/读取失败。
     /// Explain one entity of a published revision: the entity, its edges, and
     /// their evidence records (C14, EV-02). Unknown entities stay unknown.
+    /// 旧签名保留完整结果结构；默认一秒读取期限及实时终检，不提供新页字节/节点额度。
+    /// 新外部请求应使用 `explain_bounded_until`，以传递完整请求预算和原期限。
+    #[deprecated(note = "use explain_bounded_until for external budgeted requests")]
     pub fn explain_entity(
         &self,
         revision_id: &str,
@@ -38,18 +44,24 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Option<Explanation>, EngineError> {
-        self.require_read_for_revision(revision_id, principal, authorizer)?;
-        let graph = self.graph()?;
-        let evidence_reader = graph.revision_evidence(revision_id)?;
-        evidence_reader.require_confirmed_membership()?;
-        let Some(entity) = evidence_reader.entity(entity_id)? else {
-            return Ok(None);
-        };
-        let mut edges = evidence_reader.edges_from(entity_id, None)?;
-        edges.extend(evidence_reader.edges_to(entity_id, None)?);
-        let edge_ids: Vec<String> = edges.iter().map(|edge| edge.edge_id.clone()).collect();
-        let evidence = evidence_reader.evidence_for_edges(&edge_ids)?;
-        Ok(Some((entity, edges, evidence)))
+        self.with_authorized_revision_reader(
+            revision_id,
+            principal,
+            authorizer,
+            LEGACY_RELATION_DEADLINE_MS,
+            |graph, _, _| {
+                let evidence_reader = graph.revision_evidence(revision_id)?;
+                evidence_reader.require_confirmed_membership()?;
+                let Some(entity) = evidence_reader.entity(entity_id)? else {
+                    return Ok(None);
+                };
+                let mut edges = evidence_reader.edges_from(entity_id, None)?;
+                edges.extend(evidence_reader.edges_to(entity_id, None)?);
+                let edge_ids: Vec<String> = edges.iter().map(|edge| edge.edge_id.clone()).collect();
+                let evidence = evidence_reader.evidence_for_edges(&edge_ids)?;
+                Ok(Some((entity, edges, evidence)))
+            },
+        )
     }
 }
 
@@ -58,6 +70,9 @@ impl Engine {
     /// 参数：revision/entity、relation、outgoing 过滤关系；principal/authorizer 为身份。
     /// 返回：关系列表或授权/存储失败；旧列表接口不提供新分页预算。
     /// Typed relations of one entity with direction and optional filter (C13).
+    /// 旧签名保留完整结果结构；默认一秒读取期限及实时终检，不提供新页字节/节点额度。
+    /// 新外部请求应使用 `related_bounded_until`，以传递完整请求预算和原期限。
+    #[deprecated(note = "use related_bounded_until for external budgeted requests")]
     pub fn related(
         &self,
         revision_id: &str,
@@ -67,15 +82,21 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Vec<diskgraph_core::RelationEdge>, EngineError> {
-        self.require_read_for_revision(revision_id, principal, authorizer)?;
-        let graph = self.graph()?;
-        let evidence_reader = graph.revision_evidence(revision_id)?;
-        evidence_reader.require_confirmed_membership()?;
-        if outgoing {
-            Ok(evidence_reader.edges_from(entity_id, relation)?)
-        } else {
-            Ok(evidence_reader.edges_to(entity_id, relation)?)
-        }
+        self.with_authorized_revision_reader(
+            revision_id,
+            principal,
+            authorizer,
+            LEGACY_RELATION_DEADLINE_MS,
+            |graph, _, _| {
+                let evidence_reader = graph.revision_evidence(revision_id)?;
+                evidence_reader.require_confirmed_membership()?;
+                if outgoing {
+                    Ok(evidence_reader.edges_from(entity_id, relation)?)
+                } else {
+                    Ok(evidence_reader.edges_to(entity_id, relation)?)
+                }
+            },
+        )
     }
 }
 
@@ -85,6 +106,9 @@ impl Engine {
     /// 返回：关系页和更多标志或失败。
     /// Reads one bounded relation page after resolving the revision's real scope.
     #[allow(clippy::too_many_arguments)] // Mirrors the existing related() API plus a page cursor.
+    /// 旧签名保留完整结果结构；默认一秒读取期限及实时终检，不提供新页字节/节点额度。
+    /// 新外部请求应使用 `related_bounded_until`，以传递完整请求预算和原期限。
+    #[deprecated(note = "use related_bounded_until for external budgeted requests")]
     pub fn related_page(
         &self,
         revision_id: &str,
@@ -95,15 +119,21 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<(Vec<diskgraph_core::RelationEdge>, bool), EngineError> {
-        let graph = self.revision_reader()?;
-        self.authorize_revision_with_reader(&graph, None, revision_id, principal, authorizer)?;
-        let evidence_reader = graph.revision_evidence(revision_id)?;
-        evidence_reader.require_confirmed_membership()?;
-        if outgoing {
-            Ok(evidence_reader.edges_from_page(entity_id, after_edge_id, limit)?)
-        } else {
-            Ok(evidence_reader.edges_to_page(entity_id, after_edge_id, limit)?)
-        }
+        self.with_authorized_revision_reader(
+            revision_id,
+            principal,
+            authorizer,
+            LEGACY_RELATION_DEADLINE_MS,
+            |graph, _, _| {
+                let evidence_reader = graph.revision_evidence(revision_id)?;
+                evidence_reader.require_confirmed_membership()?;
+                if outgoing {
+                    Ok(evidence_reader.edges_from_page(entity_id, after_edge_id, limit)?)
+                } else {
+                    Ok(evidence_reader.edges_to_page(entity_id, after_edge_id, limit)?)
+                }
+            },
+        )
     }
 }
 

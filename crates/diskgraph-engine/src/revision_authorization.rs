@@ -8,21 +8,6 @@ use diskgraph_store::SqliteSnapshotStore;
 use std::time::Duration;
 
 impl Engine {
-    /// 将 revision 的实际归属检查用于元数据读取。
-    /// 参数：revision_id 与 principal/authorizer 为请求身份。
-    /// 返回：授权成功或拒绝/归属读取失败。
-    pub(super) fn require_read_for_revision(
-        &self,
-        revision_id: &str,
-        principal: &PrincipalId,
-        authorizer: &dyn Authorizer,
-    ) -> Result<(), EngineError> {
-        self.authorize_revision(None, revision_id, principal, authorizer)
-            .map(|_| ())
-    }
-}
-
-impl Engine {
     /// 解析持久 server/scope 归属后求授权交集。
     /// 参数：expected_scope 仅为一致性断言，revision_id 与 principal/authorizer 为身份。
     /// 返回：实际 scope 或拒绝/查询失败。
