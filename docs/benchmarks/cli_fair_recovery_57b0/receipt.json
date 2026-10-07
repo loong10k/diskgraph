@@ -1,0 +1,31 @@
+{
+  "base_commit": "57b0d4a",
+  "source_sha256": {
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "159eba1e6ae3c804f5afda6f64b44782d5d8973df1b397532f9d50cbf3c271e3",
+    "crates/diskgraph-cli/src/recovery_round.rs": "44ef71bdca80770055e22e5e15d86c1d5b2660f8e1aaa39107c885f17dba4faa",
+    "crates/diskgraph-cli/src/recovery_round/tests.rs": "2aec4b7972cf2be6d1dc1ee7cdc2e841c9e505dce1b19fb39002fe6e0d529c38",
+    "crates/diskgraph-cli/src/main.rs": "6461cc13d64c84b810e78e5c64e8d8bdb606ad4a6ff66a77c6828e8213b68f88"
+  },
+  "raw_log_sha256": {
+    "red": "740b61b5ef4a36db266e00fe77cd7fc1360c59f991057d7df0e8c4c905497b4e",
+    "green": "27cfa48511adb501034e588565c34b17d48c46b2dca8fd6252e5ee601942d112",
+    "owner": "f0fc51636efb37b7afb8613f43e2206d5958509498694bce5e4c1da9ba804c43",
+    "layout": "dc2e0bc9b91f2231a883a958f3c4687157e0a25f8e1c149df01321559c0ca32d",
+    "clippy": "0228170d0e669a2057e5066c70f8ef06d06f978b0c4b52f13c7a1a3cd7ebef06",
+    "linux": "bfaf73b2971a16f5703c8e11e35aca9709872e341d859489752aa91ee547f2ef"
+  },
+  "validation": {
+    "macos": "5 scheduling tests, 1 original panic payload/empty owner test, 2 source layout tests; clippy passed",
+    "linux": "5 scheduling + 1 original panic +16 actual CLI flow +1 deployment admission passed",
+    "red": "2 scheduling failures reproduced in extracted former sequential algorithm; not native Windows owner evidence"
+  },
+  "reviews": {
+    "security": "APPROVE local slice",
+    "architecture": "CLEAR with WATCH"
+  },
+  "limits": [
+    "Still infinite compatible waiting until actual supervisor integration.",
+    "Fairness requires drain to return; cannot preempt syscall blocking or panic.",
+    "No native Windows owner or public EOF proof."
+  ]
+}

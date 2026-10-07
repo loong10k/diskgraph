@@ -74,44 +74,32 @@ impl CliEngineHost {
         let outcome =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| operation(&self.engine)));
         // CLI 没有后台扫描 runner；命令栈结束后才能清理该栈移交的原 child。
-        if let Some(recovery) = &self.recovery {
-            let mut reported = false;
-            loop {
-                // 先关闭同一资源池准入；失败仍保留原责任，不以空槽观察允许新工作出生。
-                match self.seal_admission().and_then(|()| recovery.drain()) {
-                    Ok(true) => break,
-                    Ok(false) => {}
-                    Err(_) if !reported => {
-                        eprintln!(
-                            "scan worker recovery incomplete; shutdown retains ownership and waits"
-                        );
-                        reported = true;
+        let mut reported = false;
+        loop {
+            let round = crate::recovery_round::recovery_round(
+                || self.seal_admission(),
+                || self.recovery.as_ref().map_or(Ok(true), |r| r.drain()),
+                || {
+                    #[cfg(windows)]
+                    {
+                        self.probe_recovery.drain()
                     }
-                    Err(_) => {}
-                }
-                std::thread::sleep(Duration::from_millis(20));
-            }
-        }
-        #[cfg(windows)]
-        {
-            let mut reported = false;
-            loop {
-                match self
-                    .seal_admission()
-                    .and_then(|()| self.probe_recovery.drain())
-                {
-                    Ok(true) => break,
-                    Ok(false) => {}
-                    Err(_) if !reported => {
-                        eprintln!(
-                            "probe recovery incomplete; shutdown retains ownership and waits"
-                        );
-                        reported = true;
+                    #[cfg(not(windows))]
+                    {
+                        Ok(true)
                     }
-                    Err(_) => {}
+                },
+            );
+            match round {
+                Ok(true) => break,
+                Ok(false) => {}
+                Err(_) if !reported => {
+                    eprintln!("native recovery incomplete; shutdown retains ownership and waits");
+                    reported = true;
                 }
-                std::thread::sleep(Duration::from_millis(20));
+                Err(_) => {}
             }
+            std::thread::sleep(Duration::from_millis(20));
         }
         match outcome {
             Ok(result) => result,

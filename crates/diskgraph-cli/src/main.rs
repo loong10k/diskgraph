@@ -41,6 +41,7 @@ mod policy_command;
 mod policy_commands;
 #[cfg(test)]
 mod query_terminal_tests;
+mod recovery_round;
 mod relation_commands;
 mod relation_reply;
 mod scan_commands;

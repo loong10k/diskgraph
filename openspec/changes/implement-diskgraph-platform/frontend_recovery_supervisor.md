@@ -226,3 +226,7 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 ## 56923f2 Windows根恢复与观察后过期原生正向证据
 
 run37564413917 的stable112608759425及MSRV112608759515两作业：根恢复套件各12/0，日志明确DG_FIXTURE_ROOT_RESTORE_SHARING_RETAINED=32；实际原生扫描观察后token过期拒绝staging/发布各1/0。已下载四个原始artifact、逐个匹配GitHub SHA256并归档 `docs/benchmarks/windows_root_expiry_569_verified/`，绑定源56923f2及原源码摘要。观察时完整Test仍运行，不代表当前HEAD或同SHA全量通过；09047的源状态变化间歇失败仍未解释，新增诊断尚待原生执行，监督总体不勾选。
+
+## CLI 同轮恢复公平性验收
+
+在生产监督接入前，兼容等待也必须每轮轮询原扫描池和原探针池。扫描 Pending 或 drain 错误不能让探针池永远得不到轮询；先尝试关闭所有池的准入，全部关闭成功才进入 drain。同轮任一错误均保留原 owner，返回首个原错误；两池均实际 Complete 才结束等待。调度夹具验证调用次序与失败传播，不代替 Windows 原生 owner、有限退出或监督进程验收。
