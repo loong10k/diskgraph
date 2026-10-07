@@ -1,0 +1,24 @@
+{
+  "commit": "953c173c70d6f77c8cf32b4f7452bc6de505c3ba",
+  "archive_sha256": "285d0f44ef673d6411d7551bf688d52eb811be192cbad3ccfa706a9817a470ea",
+  "qualification": "isolated Linux container diagnostic, not full production acceptance",
+  "component": "diskgraph-store",
+  "rust": "1.97.1",
+  "target": "aarch64-unknown-linux-gnu",
+  "image": "sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97 arm64 [\"rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97\"]",
+  "runtime": "Linux 7.0.14-linuxkit aarch64; Docker on macOS",
+  "container_user": "root",
+  "exit_code": 0,
+  "tests": {
+    "passed": 335,
+    "failed": 0,
+    "ignored": 8
+  },
+  "raw_log_sha256": "61b8593012f79959fdfa70f58c9c84017927316b5bc4c52e68c51ad7cb658e57",
+  "limits": [
+    "no CLI/MCP/native supervisor qualification",
+    "not exact Rust 1.97.0 acceptance",
+    "not x86_64 or distribution package acceptance",
+    "no release performance claim"
+  ]
+}

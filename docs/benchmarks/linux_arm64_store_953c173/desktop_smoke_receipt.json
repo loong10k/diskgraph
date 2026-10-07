@@ -1,0 +1,25 @@
+{
+  "source_commit": "953c173c70d6f77c8cf32b4f7452bc6de505c3ba",
+  "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+  "target": "aarch64-unknown-linux-gnu",
+  "compiler": "1.97.1",
+  "build_packages": [
+    "diskgraph-cli",
+    "diskgraph-mcp",
+    "diskgraph-scan-worker"
+  ],
+  "build_exit": 0,
+  "cli_smoke_uid": 65532,
+  "cli_smoke_commands": [
+    "--version",
+    "--help",
+    "--data-dir /tmp/diskgraph-readonly-smoke --json doctor"
+  ],
+  "cli_smoke_exit": 0,
+  "qualification": "isolated Linux Docker diagnostic; no scan or MCP socket acceptance; no native desktop supervisor acceptance; debug build; not release performance evidence",
+  "log_sha256": {
+    "desktop-build.jsonl": "d87d8271cb3a9da24ea2191dd4f487069d2dc086acedee227e47386e9ccd1f85",
+    "desktop-build.stderr": "537556f658d5dc04338b236380bbf03737c330b29b4da67a2dcfc524b8097e64",
+    "cli-smoke.log": "6c636986c7b3688d3617e40cf86f336ab4b9adfc472d7074560f34eb680e71e9"
+  }
+}
