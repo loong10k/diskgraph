@@ -5,6 +5,140 @@ use diskgraph_core::{BusinessError, Permission, PrincipalId, QueryBudget, query_
 use std::cell::RefCell;
 
 #[test]
+fn initial_authorization_control_contention_expires_while_original_lock_is_held() {
+    for snapshot in [false, true] {
+        let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+        let snapshot_id = engine
+            .graph()
+            .unwrap()
+            .revision(revision)
+            .unwrap()
+            .snapshot_id;
+        let engine = std::sync::Arc::new(engine);
+        let policy = engine.policy_authorizer().unwrap();
+        let released = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let (ready_tx, ready_rx) = std::sync::mpsc::channel();
+        let holder = engine.clone();
+        let holder_released = released.clone();
+        let owner = std::thread::spawn(move || {
+            let guard = holder.control_store().unwrap();
+            ready_tx.send(()).unwrap();
+            std::thread::sleep(std::time::Duration::from_millis(300));
+            holder_released.store(true, std::sync::atomic::Ordering::Release);
+            drop(guard);
+        });
+        ready_rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap();
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+        let result = if snapshot {
+            engine.authorize_snapshot_until(&snapshot_id, &principal, &policy, deadline)
+        } else {
+            engine
+                .authorize_revision_until(None, revision, &principal, &policy, deadline)
+                .map(|_| ())
+        };
+        let returned_while_held = !released.load(std::sync::atomic::Ordering::Acquire);
+        owner.join().unwrap();
+        assert!(matches!(
+            result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ));
+        assert!(
+            returned_while_held,
+            "request waited for the original owner past its deadline"
+        );
+    }
+}
+
+#[test]
+fn initial_revision_and_snapshot_authorization_do_not_return_late_allow() {
+    struct ExpiringDecision {
+        policy: diskgraph_core::PolicyAuthorizer,
+        deadline: std::time::Instant,
+        entered_live: std::cell::Cell<bool>,
+        denied: bool,
+    }
+    impl diskgraph_core::Authorizer for ExpiringDecision {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.entered_live
+                .set(std::time::Instant::now() < self.deadline);
+            std::thread::sleep(
+                self.deadline
+                    .saturating_duration_since(std::time::Instant::now())
+                    + std::time::Duration::from_millis(1),
+            );
+            if self.denied {
+                diskgraph_core::Decision::Denied(diskgraph_core::DenyReason::Disabled)
+            } else {
+                self.policy.decide(principal, permission, scope)
+            }
+        }
+    }
+    for (snapshot, denied) in [(false, false), (true, false), (false, true), (true, true)] {
+        let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+        let snapshot_id = engine
+            .graph()
+            .unwrap()
+            .revision(revision)
+            .unwrap()
+            .snapshot_id;
+        let policy = engine.policy_authorizer().unwrap();
+        let positive_deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        if snapshot {
+            engine
+                .authorize_snapshot_until(&snapshot_id, &principal, &policy, positive_deadline)
+                .unwrap();
+        } else {
+            assert_eq!(
+                engine
+                    .authorize_revision_until(
+                        None,
+                        revision,
+                        &principal,
+                        &policy,
+                        positive_deadline
+                    )
+                    .unwrap(),
+                _scope
+            );
+        }
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(500);
+        let authorizer = ExpiringDecision {
+            policy,
+            deadline,
+            entered_live: std::cell::Cell::new(false),
+            denied,
+        };
+        let result = if snapshot {
+            engine.authorize_snapshot_until(&snapshot_id, &principal, &authorizer, deadline)
+        } else {
+            engine
+                .authorize_revision_until(None, revision, &principal, &authorizer, deadline)
+                .map(|_| ())
+        };
+        assert!(
+            authorizer.entered_live.get(),
+            "fixture must enter capability before expiry"
+        );
+        let expected = if denied {
+            BusinessError::PermissionDenied
+        } else {
+            BusinessError::BudgetExceeded
+        };
+        assert!(
+            matches!(&result, Err(EngineError::Business(actual)) if *actual == expected),
+            "snapshot={snapshot}, denied={denied}: {result:?}"
+        );
+    }
+}
+
+#[test]
 fn late_history_side_does_not_hide_the_other_scope_revocation() {
     struct CrossScopeDecision {
         policy: diskgraph_core::PolicyAuthorizer,

@@ -1,0 +1,21 @@
+# 初次授权返回的原期限检查
+
+既有有期限 revision/snapshot 入口以原 deadline 打开图连接，但之后同步能力授权不保证触发 SQLite VM handler。隔离合法发布夹具已复现 revision 入口的迟到允许：能力回调在期限内进入、等原 500 ms deadline 到期后返回 Allowed，旧入口返回 Ok。该结果是实际行为 RED，不是原生环境故障。
+
+两有期限入口在原授权成功之后、返回资源许可之前重新检查同一绝对 deadline，迟到允许精确返回 Business(BudgetExceeded)。已观察到的拒权与真实存储错误先返回；不新建期限、不扩大授权、不刷新预算，也不改变没有 deadline 的可信兼容签名。
+
+回归覆盖两个入口的正常允许及迟到允许。合法 Store 发布元数据不使用原生扫描，不能代替平台验收。相关能力测试 3 passed；新源码原生 CI 仍待验收。
+
+限制：同步能力回调和文件系统单调用仍不可硬抢占；初次控制锁在下述补充修复中受原期限约束。不能据本修复宣称整个请求链已有严格墙钟上限。
+
+## 控制锁与控制 SQL 的原期限
+
+补充真实双线程竞争夹具：独立线程持有 Engine 控制锁 300 ms，请求沿原 50 ms deadline 授权。返回时记录 owner 是否仍持锁，最后 join 清理，不仅检查错误值。返回检查版实际 RED：请求等待 owner 释放后才返回。修复后 revision 和 snapshot 两入口均在 owner 仍持锁时返回 Business(BudgetExceeded)。
+
+两入口的归属校验改为获取一次 control_until(deadline) guard，并在同一原期限的两段 with_read_deadline 下读取 server、撤销状态与持久权限交集；宿主能力回调位于两段 SQL guard 之间。SQLite busy、interrupted 与预算耗尽统一映射为业务预算错误。同步授权能力仍不能硬抢占；回调返回后超时不能产生允许结果。无期限可信接口保持兼容。
+
+当前 terminal_capability_tests：4 passed，包含两个入口正常授权、迟到允许、两种入口真实锁竞争及原终检撤权回归。尚未证明所有预算入口、TUI 兼容入口及整个请求链的墙钟上限；这些路径仍需继续审计。当前改动尚待独立审查及同提交平台 CI。
+
+错误优先级：已观察到的真实拒权和能力回调明确 Denied 返回 PermissionDenied。回调耗尽原期限后返回 Allowed 时直接返回 BudgetExceeded，不增加撤权观察宽限，也不承诺读取期限结束后才提交的撤权。不会提交任何迟到授权数据。初始准入与已有末段独立撤权观察窗口的职责不同。
+
+本机最终验证：4 项授权回归通过，其中两个初始入口分别覆盖迟到 Allowed 与迟到明确 Denied；6 项 source_layout 通过；Engine all-targets Clippy -D warnings 与 fmt check 通过。两条独立审查对生产代码返回 APPROVE / CLEAR。真实昂贵 SQL 中断和完整平台验收仍未由本批证明。

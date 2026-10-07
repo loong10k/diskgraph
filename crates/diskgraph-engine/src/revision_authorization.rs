@@ -43,13 +43,19 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<ScopeId, EngineError> {
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        self.authorize_revision_with_reader(
-            &reader,
+        let ownership = reader.revision_ownership(revision_id)?;
+        let scope = self.authorize_revision_owner_until(
+            ownership,
             expected_scope,
-            revision_id,
             principal,
             authorizer,
-        )
+            deadline,
+        )?;
+        // 短 SQL 的 VM hook 不保证触发；同步能力回调返回后也必须核对原绝对期限。
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        Ok(scope)
     }
 
     /// 复用当前 reader 解析真实归属后授权。
@@ -81,6 +87,76 @@ impl Engine {
     ) -> Result<ScopeId, EngineError> {
         let ownership = reader.revision_ownership_with_budget(revision_id, reads)?;
         self.authorize_revision_owner(ownership, expected_scope, principal, authorizer)
+    }
+
+    // 初始授权只使用原请求期限；控制锁和控制 SQL 不另建宽限窗口。
+    fn authorize_revision_owner_until(
+        &self,
+        ownership: Option<(String, String)>,
+        expected_scope: Option<&ScopeId>,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+    ) -> Result<ScopeId, EngineError> {
+        let (server, scope) = ownership.ok_or(BusinessError::PermissionDenied)?;
+        let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
+        let control = self.control_until(deadline)?;
+        let authorization = control.with_read_deadline(deadline, |control| {
+            if server != control.existing_server_id()?.as_str()
+                || expected_scope.is_some_and(|expected| expected != &scope)
+            {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            if control.scope_revoked(&scope)? {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            Ok(())
+        });
+        match authorization {
+            Err(EngineError::Store(error))
+                if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                    || error.is_interrupted()
+                    || error.is_busy() =>
+            {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            other => other?,
+        }
+        // 宿主回调不运行在 SQLite handler 内；明确拒权始终拒绝，迟到允许不续租 SQL。
+        let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+        if matches!(decision, diskgraph_core::Decision::Denied(_)) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        let authorization = control.with_read_deadline(deadline, |control| {
+            Self::require_decision_with_control(
+                control,
+                decision,
+                principal,
+                &Permission::MetadataRead,
+                &scope,
+            )?;
+            if control.scope_revoked(&scope)? {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            Ok(())
+        });
+        match authorization {
+            Err(EngineError::Store(error))
+                if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                    || error.is_interrupted()
+                    || error.is_busy() =>
+            {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            other => other?,
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        Ok(scope)
     }
 
     fn authorize_revision_owner(
@@ -140,8 +216,12 @@ impl Engine {
         let revision = reader
             .revision_for_snapshot(snapshot_id)?
             .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
-        self.authorize_revision_with_reader(&reader, None, &revision, principal, authorizer)
-            .map(|_| ())
+        let ownership = reader.revision_ownership(&revision)?;
+        self.authorize_revision_owner_until(ownership, None, principal, authorizer, deadline)?;
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        Ok(())
     }
 
     /// 共用 reader/期限执行授权读取并在返回前复检。
