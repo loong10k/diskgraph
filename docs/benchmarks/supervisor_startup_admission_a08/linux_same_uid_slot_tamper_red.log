@@ -1,0 +1,26 @@
+   Compiling diskgraph-core v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-core)
+   Compiling diskgraph-disktree-core v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-disktree-core)
+   Compiling diskgraph-scan-worker v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-scan-worker)
+   Compiling diskgraph-engine v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-engine)
+   Compiling diskgraph-testkit v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-testkit)
+   Compiling diskgraph-store v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-store)
+   Compiling diskgraph-disktree v0.3.0 (/build/supervisor-current-08aad89/crates/diskgraph-disktree)
+    Finished `test` profile [unoptimized] target(s) in 10.53s
+     Running unittests src/lib.rs (/build/terminal-red-target/debug/deps/diskgraph_engine-1e4da972db87bed5)
+
+running 1 test
+DG_SAME_UID_SLOT_TAMPER write_succeeded=true admission_succeeded=true
+
+thread 'recovery_slot::linux_supervisor_namespace_tests::same_uid_frontend_cannot_forge_clean_after_unconfirmed_supervisor' (186) panicked at crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace_tests.rs:144:5:
+frontend forged authoritative cleanup; this candidate must not grant product admission
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test recovery_slot::linux_supervisor_namespace_tests::same_uid_frontend_cannot_forge_clean_after_unconfirmed_supervisor ... FAILED
+
+failures:
+
+failures:
+    recovery_slot::linux_supervisor_namespace_tests::same_uid_frontend_cannot_forge_clean_after_unconfirmed_supervisor
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 595 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

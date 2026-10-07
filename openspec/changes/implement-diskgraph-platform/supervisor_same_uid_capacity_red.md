@@ -1,0 +1,11 @@
+# 同 UID 前端伪造 CLEAN 的实际失败证据
+
+沿用 PF-06 与 frontend_recovery_supervisor.md；不修改已批准部署目标、不授予安装权限。
+
+当前未提交 Linux namespace 候选要求槽文件为当前服务UID owner0600。root所有且0755的目录防止替换文件，却不能防止同UID直接写原文件。隔离Linux arm64 Docker实际采用root预置目录、UID1000执行：原API建立ACTIVE、释放原锁后再次reserve精确Unconfirmed；然后模拟同UID前端直接写八字节CLEAN，reserve竟成功。原拒绝安全测试失败，输出write_succeeded=true/admission_succeeded=true；不是模拟锁或只检查路径字符串。
+
+执行源码为08aad89 git archive加候选7文件；具体SHA256见linux_same_uid_slot_tamper_receipt.json，日志见linux_same_uid_slot_tamper_red.log。只操作容器内/fixture；无宿主服务安装。故意失败的测试默认ignore，理由明确，必须显式运行；不将其接入绿色完成门禁。
+
+架构结论：全局root bootstrap只串行化出生，不能使同UID可写记录变成真实退休证明。若监督与前端同UID，此候选不得进入产品准入。可信服务方案须让broker持有前端不可写的权威记录、保持原出生通道与真实资源退休确认、异常死亡保留未确认；服务UID、前端身份、文件访问权限与平台隔离必须在实际纵向链验证。独立CLI方案须重新确认信任边界，不能自动沿用抵御恶意同UID前端的承诺。部署选择尚待用户答复，当前不会安装或切换架构。
+
+此证据证明新增候选的阻断项，未证明已修复。监督父任务仍未完成。下一项实际产品验收应同时覆盖前端改写失败、真实doctor启动、异常监督死亡后拒绝再出生、原退休后容量复用；普通材料传递或空池回收不能替代。

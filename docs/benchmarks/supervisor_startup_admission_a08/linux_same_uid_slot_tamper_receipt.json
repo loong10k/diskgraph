@@ -1,0 +1,17 @@
+{
+  "base_sha": "08aad89f7bafe1ef2c76ee68c3d30b808d9c01d7",
+  "overlay_sha256": {
+    "crates/diskgraph-engine/src/recovery_slot/mod.rs": "ee181a367148c6f21cbac2f4119f1c8f1aaa9025164ba5fd1ac2e5bfeeee6ed8",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace.rs": "256e99912fa0bc3370b450e97d9344b2a234c4309ba8194e7c8956ea4e9e6f21",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace_tests.rs": "85dd1bb3ed9707f0fbc4a5c6a82e1d670a79f3fb0d92287b51fd78d195378dec",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_trust.rs": "9ca215b636eb1c66976152f799339868439ed13b56cb2f28d5799399dafdc144",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_peer.rs": "3a292f5ff440078b28ea513ea9d4e8f5de3ff92cea60e964ba177a72bd5228ed",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials.rs": "0402772e25705aa94a2f507c369af79c233683022d80c010dff26e268ecb9e45",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials_tests.rs": "c1534b6a754e4cb34a4675959f984b589ac5f63807f8f68aa3fe43fa3fc8b7af"
+  },
+  "platform": "Linux arm64 Docker Rust1.97",
+  "fixture": "root0755 directories; uid1000-owned0600 original slot; tested as uid1000",
+  "result": "expected security RED: same UID forged CLEAN and reacquired capacity",
+  "product_integrated": false,
+  "goal_complete": false
+}
