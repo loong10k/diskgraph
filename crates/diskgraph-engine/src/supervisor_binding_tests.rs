@@ -133,7 +133,18 @@ fn actual_original_reservation_keeps_active_capacity_until_release() {
     assert!(owner.poll_retirement(deadline()).unwrap());
     assert!(owner.poll_retirement(deadline()).unwrap());
     let next = SlotReservation::acquire(open(&dir.path().join("slot")), deadline()).unwrap();
-    next.abort_before_birth(deadline()).unwrap();
+    assert!(owner.poll_retirement(deadline()).unwrap());
+    assert_eq!(
+        std::fs::read(dir.path().join("slot")).unwrap(),
+        b"DGSL01R\n"
+    );
+    let mut next = next.activate(deadline()).unwrap();
+    assert!(owner.poll_retirement(deadline()).unwrap());
+    next.verify_active(deadline()).unwrap();
+    assert_eq!(
+        std::fs::read(dir.path().join("slot")).unwrap(),
+        b"DGSL01A\n"
+    );
 }
 #[test]
 fn external_engine_reference_prevents_retirement_and_new_native_birth() {

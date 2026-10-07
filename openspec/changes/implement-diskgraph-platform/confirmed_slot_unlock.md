@@ -9,3 +9,5 @@ CLEAN 写入、同步或回读失败仍返回原错误且保留原对象，不�
 本机 active_slot_tests 2 passed，supervisor_binding_tests 9 passed。完整 Unix/Windows 原生 CI 仍待验收；本修改并不证明全量测试偶发 Busy 的原始进程来源已定位，也不实现独立后台监督或 Windows 持久资源池部署。
 
 夹具观察：外层实际 Child 保留原 owner，5 秒 try_wait 期限，失败 kill/wait；stdout/stderr 分别最多读取16KiB。内层释放后2秒WNOHANG观察，超时终止并实际回收；kill 后回收依赖OS，不宣称严格墙钟。新 owner 认领后且释放管道前，原PID的WNOHANG必须返回0；释放后必须确认exit0，防止提前退出造成假绿。最终slot测试2项通过，Engine Clippy及fmt通过，source_layout6项通过；同提交原生平台CI仍待验收。
+
+补充旧 owner 无干扰回归：新 owner 写 RESERVED 与 ACTIVE 后分别再次 poll 已退休 owner，记录必须保持不变；监督绑定9项通过。带实际本轮编译驱动的当前 dirty worktree Engine 全量为531通过、98失败、13忽略；98个失败全部为 Business(Unsupported)，不作全量通过声明。驱动12项及原失败资源处置6项均执行通过，详见 engine_01e450e_actual_driver_2026_10_07.json；夹具不是产品扫描镜像。

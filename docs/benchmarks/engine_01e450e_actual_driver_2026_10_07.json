@@ -1,0 +1,26 @@
+{
+  "head": "01e450eecb2588a070fa55bfc034c875315a28f9",
+  "worktree_dirty": true,
+  "additional_owned_test": "supervisor_binding_tests retirement must not rewrite next owner RESERVED/ACTIVE",
+  "platform": "local macOS",
+  "engine_lib": {
+    "passed": 531,
+    "failed": 98,
+    "ignored": 13,
+    "all_failures_Business_Unsupported": true,
+    "log": "/tmp/diskgraph-current-engine-with-driver.log",
+    "log_sha256": "ed1d4d840aa519b0a0e4d1a4c10318e591390bd55be34bf769bcb994b69cbabd"
+  },
+  "driver_fixture": {
+    "path": "/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/examples/scan_worker_driver_fixture",
+    "sha256": "ea68cfee80f7adf8356e2def7e5784ead57833e3fac11699ce3abe68d4eca9b5",
+    "product_scan_image": false,
+    "source_sha256": "d9ae7d2c2ab8499abf3dd9dbb4ce1a31e9313e0f2c8509705c0ed919ab571862"
+  },
+  "targeted": {
+    "driver_passed": 12,
+    "owned_failure_passed": 6,
+    "supervisor_binding_passed": 9
+  },
+  "production_acceptance": false
+}
