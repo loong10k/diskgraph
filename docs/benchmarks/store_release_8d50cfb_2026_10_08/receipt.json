@@ -1,0 +1,62 @@
+{
+  "source_commit": "8d50cfb7b089467d8d2f661cfb373066e75ec626",
+  "scope": "Store synthetic immutable metadata only; v8 counting SQL vs current aggregate API on same fixture; not prior-commit whole product comparison",
+  "platforms": {
+    "macos_arm64": {
+      "build": "release optimized",
+      "executed_tests": 1,
+      "failed": 0,
+      "max_rss_bytes": 83066880,
+      "test_artifact_sha256": "bb79ec67141fcde6a70bb9f489849f9cf0621947e336ce7a9ea813f414edcb79",
+      "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+      "kernel": "Darwin modalongdeMacBook-Pro-321.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041 arm64"
+    },
+    "linux_arm64_docker": {
+      "build": "release optimized",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+      "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+      "executed_tests": 1,
+      "failed": 0,
+      "max_rss_bytes": 77537280,
+      "test_artifact_sha256": "19059963442b287f442fca32dfcc668c426179002a16add317f52d084610cfcf"
+    }
+  },
+  "rss_scope": "each whole benchmark process including both 20k and 200k fixtures; compiler excluded; not per query or per fixture peak",
+  "limits": [
+    "warm queries; connection opening excluded from query latency",
+    "decoded-node budgets verified; physical SQLite page reads not measured",
+    "1ms WAL/temp sampling is not strict space upper bound",
+    "no actual filesystem scans, CLI/MCP socket, deep-directory or cold-cache measurement",
+    "Linux Docker ARM64 Rust1.97.1 is not exact MSRV1.97.0 or native x86 host proof",
+    "Windows/macOS Intel/current CI still unverified",
+    "existing 200k filesystem paired-performance failure remains open"
+  ],
+  "logs": {
+    "macos_test.log": {
+      "file": "macos_test.log.gz",
+      "sha256": "16a5e93d34eb439774df0d053607c2cc294c24d4903c5f196d23ada9b7bc51b8"
+    },
+    "macos_rss.log": {
+      "file": "macos_rss.log.gz",
+      "sha256": "f5c4c7bd38e7ec26226cd57828b9db1f8a70ce5cadf3e08504857b1ca885fcf9"
+    },
+    "macos_build.stderr": {
+      "file": "macos_build.stderr.gz",
+      "sha256": "d223878c63e8ca50e50aa2199bc53d676943b6c5afaa4d9d66a83a69800b48c1"
+    },
+    "linux_test.log": {
+      "file": "linux_test.log.gz",
+      "sha256": "f7eee14d5905ecc185ba0dfda6b963e94c1b385eb7234755ba5969529de4ee44"
+    },
+    "linux_test.stderr": {
+      "file": "linux_test.stderr.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "linux_build.stderr": {
+      "file": "linux_build.stderr.gz",
+      "sha256": "c817faafad45489180f309e0aedb5499f15a152bde1c395d725cbefc455700c4"
+    }
+  },
+  "linux_rss_runner_source_sha256": "8164bd181b3f8d53a766989783cb723adbcf4bc9d25c99080e8f5993c17423e5",
+  "linux_rss_runner_artifact_sha256": "4ffec3644f2bf4843ff56bba54c0d7a74b374230a7bba614e63db436e3ce164b"
+}
