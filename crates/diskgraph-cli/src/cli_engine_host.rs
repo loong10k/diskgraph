@@ -21,6 +21,15 @@ impl CliEngineHost {
     pub(crate) fn open(config: EngineConfig) -> Result<Self, EngineError> {
         // 整次启动使用一个绝对期限；平台准入先于数据库，macOS只读取固定受保护安装。
         let deadline = Instant::now() + Duration::from_secs(30);
+        Self::open_until(config, deadline)
+    }
+
+    /// 沿调用方原启动期限构造；参数：config为原配置，deadline不得在角色切换或排队后刷新。
+    /// 返回：期限内host或原拒绝；不认证监督角色，不取得容量槽，不保证同步I/O硬抢占。
+    pub(crate) fn open_until(config: EngineConfig, deadline: Instant) -> Result<Self, EngineError> {
+        if Instant::now() >= deadline {
+            return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+        }
         let runtime = ScanWorkerRuntimeBudget::new(
             ProtocolLimits {
                 max_frame_bytes: 1 << 20,
@@ -43,12 +52,21 @@ impl CliEngineHost {
         } else {
             (Engine::open(config)?, None)
         };
-        Ok(Self {
+        let opened = Self {
             engine: Arc::new(engine),
             recovery,
             #[cfg(windows)]
             probe_recovery,
-        })
+        };
+        opened.finish_open_until(deadline)
+    }
+
+    fn finish_open_until(self, deadline: Instant) -> Result<Self, EngineError> {
+        if Instant::now() >= deadline {
+            // 不返回迟到执行能力；恢复仍沿原host处置，不能丢掉最后原Recovery。
+            return self.execute(|_| Err(diskgraph_core::BusinessError::BudgetExceeded.into()));
+        }
+        Ok(self)
     }
 
     fn seal_admission(&self) -> Result<(), EngineError> {

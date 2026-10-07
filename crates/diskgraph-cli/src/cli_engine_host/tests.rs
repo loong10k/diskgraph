@@ -8,8 +8,47 @@ use diskgraph_scan_worker::ProtocolLimits;
 use std::sync::Arc;
 
 #[test]
+fn expired_original_startup_deadline_refuses_database_birth() {
+    let directory = tempfile::tempdir().unwrap();
+    let data = directory.path().join("not_born");
+    let result = CliEngineHost::open_until(
+        EngineConfig {
+            data_dir: data.clone(),
+            ..EngineConfig::default()
+        },
+        std::time::Instant::now(),
+    );
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(
+            diskgraph_core::BusinessError::BudgetExceeded
+        ))
+    ));
+    assert!(
+        !data.exists(),
+        "expired original admission created database state"
+    );
+}
+
+#[test]
 fn command_panic_preserves_original_payload_with_external_empty_recovery() {
     let directory = tempfile::tempdir().unwrap();
+    let session = managed_empty_host(&directory);
+    let survivor = Arc::clone(&session.engine);
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        session.execute(|_| -> Result<(), EngineError> {
+            std::panic::panic_any("cli-original-payload")
+        })
+    }));
+    let payload = result.unwrap_err();
+    assert_eq!(
+        payload.downcast_ref::<&str>(),
+        Some(&"cli-original-payload")
+    );
+    assert_original_registry_sealed(&survivor, &directory);
+}
+
+fn managed_empty_host(directory: &tempfile::TempDir) -> CliEngineHost {
     let image = directory.path().join("ordinary_image");
     std::fs::write(&image, b"abc").unwrap();
     let expected = ScanWorkerHostConfig::from_expected_image(
@@ -43,23 +82,31 @@ fn command_panic_preserves_original_payload_with_external_empty_recovery() {
     .unwrap();
     assert_eq!(recovery.occupied_slots().unwrap(), 0);
     let engine = Arc::new(engine);
-    let survivor = Arc::clone(&engine);
-    let session = CliEngineHost {
+    CliEngineHost {
         engine,
         recovery: Some(recovery),
         #[cfg(windows)]
         probe_recovery: diskgraph_engine::ProbeHost::new(1).unwrap().1,
-    };
-    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        session.execute(|_| -> Result<(), EngineError> {
-            std::panic::panic_any("cli-original-payload")
-        })
-    }));
-    let payload = result.unwrap_err();
-    assert_eq!(
-        payload.downcast_ref::<&str>(),
-        Some(&"cli-original-payload")
-    );
+    }
+}
+
+#[test]
+fn late_startup_rejection_seals_original_registry() {
+    let directory = tempfile::tempdir().unwrap();
+    let session = managed_empty_host(&directory);
+    let survivor = Arc::clone(&session.engine);
+    assert!(directory.path().join("data").exists());
+    let result = session.finish_open_until(std::time::Instant::now());
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(
+            diskgraph_core::BusinessError::BudgetExceeded
+        ))
+    ));
+    assert_original_registry_sealed(&survivor, &directory);
+}
+
+fn assert_original_registry_sealed(survivor: &Arc<Engine>, directory: &tempfile::TempDir) {
     assert!(survivor.server_id().is_ok());
     let root = directory.path().join("scope");
     std::fs::create_dir(&root).unwrap();
