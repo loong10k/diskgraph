@@ -1,0 +1,140 @@
+{
+  "platform": "macOS local",
+  "source_sha256": "98fa3c2479b2740ba42c3d0b0cf0d048deca33a0f5b37ae55af9cacaf3882bc3",
+  "profile": "release",
+  "test_threads": 1,
+  "decision": "retain production reader configuration; unsafe raw total does not materially improve cost",
+  "inference": "cache_size is first database-schema-dependent operation; its stage includes schema initialization, not merely setting cache size",
+  "limitations": [
+    "empty initialized isolated database, missing ownership result",
+    "not Linux 200k production query",
+    "phase instrumentation and warm filesystem caches",
+    "raw variant intentionally unsafe diagnostic only",
+    "initial parallel measurement excluded due potential inter-test interference",
+    "configuration values/order only; production admission and cancellation checks not profiled"
+  ],
+  "production_acceptance": false,
+  "initial_serial_measurements": [
+    {
+      "configured": {
+        "p50_ms": 0.216958,
+        "p95_ms": 0.26895800000000003
+      },
+      "experiment": "reader configuration plus missing ownership SQL and close",
+      "os": "macos",
+      "production_qualification": false,
+      "raw_unsafe_diagnostic": {
+        "p50_ms": 0.214209,
+        "p95_ms": 0.26699999999999996
+      },
+      "samples_per_variant": 100
+    },
+    {
+      "configuration_matches_production": true,
+      "experiment": "configured reader isolated phase cost",
+      "native_scan_qualification": false,
+      "os": "macos",
+      "phases": {
+        "busy_timeout": {
+          "p50_ms": 4.2e-05,
+          "p95_ms": 4.2e-05,
+          "samples": 100
+        },
+        "cache_size": {
+          "p50_ms": 0.164,
+          "p95_ms": 0.196333,
+          "samples": 100
+        },
+        "close": {
+          "p50_ms": 0.021707999999999998,
+          "p95_ms": 0.025332999999999998,
+          "samples": 100
+        },
+        "open": {
+          "p50_ms": 0.018625,
+          "p95_ms": 0.023917,
+          "samples": 100
+        },
+        "ownership_sql": {
+          "p50_ms": 0.007542,
+          "p95_ms": 0.011708999999999999,
+          "samples": 100
+        },
+        "progress_handler": {
+          "p50_ms": 4.2e-05,
+          "p95_ms": 8.4e-05,
+          "samples": 100
+        },
+        "temp_store": {
+          "p50_ms": 0.00075,
+          "p95_ms": 0.0011250000000000001,
+          "samples": 100
+        }
+      },
+      "profile": "release"
+    }
+  ],
+  "initial_serial_log_sha256": "18ba38eb1d0e63501ae860856bd6a2f8df855736054070a94dd57c7b0c704836",
+  "measurements": [
+    {
+      "configured": {
+        "p50_ms": 0.276542,
+        "p95_ms": 0.35362499999999997
+      },
+      "experiment": "reader configuration plus missing ownership SQL and close",
+      "os": "macos",
+      "production_qualification": false,
+      "raw_unsafe_diagnostic": {
+        "p50_ms": 0.27549999999999997,
+        "p95_ms": 0.374209
+      },
+      "samples_per_variant": 100
+    },
+    {
+      "admission_checks_profiled": false,
+      "configuration_values_and_order_match_production": true,
+      "experiment": "configured reader isolated phase cost",
+      "native_scan_qualification": false,
+      "os": "macos",
+      "phases": {
+        "busy_timeout": {
+          "p50_ms": 4.2e-05,
+          "p95_ms": 4.2e-05,
+          "samples": 100
+        },
+        "cache_size": {
+          "p50_ms": 0.16195900000000002,
+          "p95_ms": 0.176209,
+          "samples": 100
+        },
+        "close": {
+          "p50_ms": 0.02175,
+          "p95_ms": 0.023875,
+          "samples": 100
+        },
+        "open": {
+          "p50_ms": 0.019083,
+          "p95_ms": 0.022792,
+          "samples": 100
+        },
+        "ownership_sql": {
+          "p50_ms": 0.007083,
+          "p95_ms": 0.008875000000000001,
+          "samples": 100
+        },
+        "progress_handler": {
+          "p50_ms": 4.2e-05,
+          "p95_ms": 8.4e-05,
+          "samples": 100
+        },
+        "temp_store": {
+          "p50_ms": 0.000584,
+          "p95_ms": 0.000917,
+          "samples": 100
+        }
+      },
+      "profile": "release"
+    }
+  ],
+  "log_sha256": "b8bbbd0f3732cd58ddccfd5ed629967a8584546193de41c3ff9ee6617bdba9fb"
+}

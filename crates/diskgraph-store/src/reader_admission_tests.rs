@@ -202,3 +202,71 @@ fn ownership_reader_configuration_cost_experiment() {
         "raw_unsafe_diagnostic":{"p50_ms":raw[49],"p95_ms":raw[94]}})
     );
 }
+
+#[test]
+#[ignore = "release phase diagnostic only; not an optimized production reader"]
+fn ownership_reader_configuration_phase_costs() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("graph.sqlite");
+    let _writer = SqliteSnapshotStore::open(&path).unwrap();
+    let mut phases: std::collections::BTreeMap<&str, Vec<f64>> = std::collections::BTreeMap::new();
+    // 同一隔离真实迁移库、原配置顺序；阶段记录开销不进入下一阶段计时。
+    for _ in 0..100 {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let mut previous = Instant::now();
+        let mut mark = |label| {
+            let elapsed = previous.elapsed().as_secs_f64() * 1000.0;
+            phases.entry(label).or_default().push(elapsed);
+            previous = Instant::now();
+        };
+        let connection = rusqlite::Connection::open_with_flags(
+            &path,
+            rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+        )
+        .unwrap();
+        mark("open");
+        connection
+            .busy_timeout(
+                deadline
+                    .saturating_duration_since(Instant::now())
+                    .min(Duration::from_secs(1)),
+            )
+            .unwrap();
+        mark("busy_timeout");
+        connection
+            .pragma_update(None, "temp_store", "FILE")
+            .unwrap();
+        mark("temp_store");
+        connection.pragma_update(None, "cache_size", -8192).unwrap();
+        mark("cache_size");
+        connection
+            .progress_handler(1000, Some(move || Instant::now() >= deadline))
+            .unwrap();
+        mark("progress_handler");
+        let reader = SqliteSnapshotStore { connection };
+        assert!(
+            !reader
+                .revision_ownership_matches("missing", "server", "scope")
+                .unwrap()
+        );
+        mark("ownership_sql");
+        drop(reader);
+        mark("close");
+    }
+    let output: std::collections::BTreeMap<_, _> = phases
+        .into_iter()
+        .map(|(label, mut samples)| {
+            samples.sort_by(f64::total_cmp);
+            (
+                label,
+                serde_json::json!({"samples":100,"p50_ms":samples[49],"p95_ms":samples[94]}),
+            )
+        })
+        .collect();
+    println!(
+        "{}",
+        serde_json::json!({"experiment":"configured reader isolated phase cost", "os":std::env::consts::OS,
+        "profile":if cfg!(debug_assertions) {"debug"} else {"release"}, "native_scan_qualification":false,
+        "configuration_values_and_order_match_production":true,"admission_checks_profiled":false,"phases":output})
+    );
+}

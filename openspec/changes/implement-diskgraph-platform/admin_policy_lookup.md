@@ -17,3 +17,9 @@
 独立审查：APPROVE / CLEAR；借用验证修复了非法UTF-8回归，未改变普通scope或恢复管理员规则。
 
 当前源码本机验证：Store 全量 lib 测试 309 通过、0 失败、3 忽略；Engine source_layout 6 通过；Store/Engine fmt 检查及 all-targets Clippy -D warnings 通过。未据此声明全平台或整个 Engine 验收通过。
+
+## 独立读取配置成本诊断（不修改生产）
+
+Store ignored release 诊断对隔离真实迁移库进行100样本串行配置分阶段测量；原configured与故意缺少安全配置的raw总耗时p50分别0.216958/0.214209ms。cache_size阶段p50 0.164ms，但该阶段为首次依赖schema的操作，不能把耗时全归于设置缓存参数。未删除PRAGMA、deadline或新鲜授权观察；本机空库诊断不能关闭Linux200k约1.9倍查询退化。初次并行运行互相干扰，不纳入串行结果。证据 reader_configuration_phases_2026_10_07.json。
+
+输出字段明确限定配置值/顺序，并标记admission未测；改标签后release串行复测configured/raw p50为0.276542/0.275500ms，仍未观察到删配置收益，两次结果均保留。诊断2/0、fmt/Clippy通过，双路APPROVE/CLEAR，schema归因保持推断。
