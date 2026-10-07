@@ -172,3 +172,9 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 隔离数据库回归现为 macOS 5/0，包含实际旧归属审计保留、v14 备份仍为14且包含原归属、显示别名拒绝及具有准确原始根记录的新非 UTF-8 数据授权保留；不是原生扫描或全平台验收。存储全量首轮暴露旧降级夹具保留 v15 表/视图的问题，已更新夹具，第二轮仅余一个当前 schema 常量断言14→15，正在复验；不能在全量收敛前勾选。
 
 历史隔离候选的本机最终验证：store all-targets 318通过、0失败、5明确忽略；Engine隔离行为7/0、源码规范6/0；store/engine Clippy all-targets、fmt检查与OpenSpec strict通过。升级失败保留v14与一致性备份，替换授权视图拒绝新Engine。原生Windows/Linux、完整workspace和最终查询开销仍未验收，不勾选生产或监督总体阶段。完整原失败与最终日志保存在 `docs/benchmarks/historical_binding_3b576/`。
+
+## 9430cf7 Windows 原生共享负向控制修正
+
+实际 Windows MSRV 作业112603743853（run37562821953）中，scope套件11通过/1失败：新增 no-delete 夹具的原属性访问句柄未造成共享冲突，restore重试0、等待释放线程超时。Microsoft CreateFile 合同明确属性访问不受共享标志限制（https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea）；隔离 blocker 改为 FILE_READ_ATTRIBUTES | FILE_LIST_DIRECTORY，不授产品新权限。实际观察OS32后释放与 retries>0 断言保留，不能以取消断言得到绿色结果。本机scope13/0、源码6/0、Clippy通过，但Windows候选尚未原生执行。证据见 `docs/benchmarks/windows_root_restore_943/`。
+
+原过期目标步骤因前一步失败未运行，其always上传缺少日志是第二条流水线错误而不是另一项过期行为失败。为目标步骤加固定id；过期目标可在仅根恢复步骤失败后独立运行，未实际运行的步骤不上传不存在的日志，实际尝试后的日志仍要求存在。两个测试的非零结果继续失败，不改变完成门禁，YAML已解析，实际Actions行为待CI。

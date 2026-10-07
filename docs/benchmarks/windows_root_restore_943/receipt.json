@@ -1,0 +1,29 @@
+{
+  "original_run": 37562821953,
+  "original_job": 112603743853,
+  "original_commit": "9430cf786bba15962fee2a82d6d74e193a599e5c",
+  "original_target_result": {
+    "passed": 11,
+    "failed": 1
+  },
+  "original_failure": "no actual sharing violation: retry count zero; release receiver timed out",
+  "original_job_log_sha256": "e6ca977fe6b6cac1cd1d4a528732a8716d26a3998842c49a2fd9cc5584167895",
+  "candidate": "isolated blocker requests FILE_LIST_DIRECTORY plus FILE_READ_ATTRIBUTES; no FILE_SHARE_DELETE; actual retry assertion retained",
+  "primary_source": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea",
+  "local_scope_result": {
+    "passed": 13,
+    "failed": 0
+  },
+  "local_source_layout_passed": 6,
+  "clippy": "passed",
+  "workflow_yaml": "parsed",
+  "candidate_source_sha256": {
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "944ed66d596e2ca24ff63211e37e2cb2c659676b9767a86b36ba62a110c1266d",
+    ".github/workflows/ci.yml": "34781aced2d139578a518fcb61b336ab47d531eb3549f14030401b193c7384b2"
+  },
+  "limitations": [
+    "Windows runtime not executed locally; candidate pending native CI",
+    "Original observed-expiry step skipped, missing artifact was not an observed expiry regression",
+    "Product access masks, request deadlines, trusted launcher and finite frontend exit are unchanged"
+  ]
+}

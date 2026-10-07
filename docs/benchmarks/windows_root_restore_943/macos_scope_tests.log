@@ -1,0 +1,20 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.95s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 13 tests
+test live_evidence::git_scope_boundary_tests::registered_root_open_restores_thread_hydration_policy_on_success_and_error ... ok
+test live_evidence::git_scope_boundary_tests::scoped_source_symbolic_link_is_rejected_without_reading_target_body ... ok
+test live_evidence::git_scope_boundary_tests::explicit_scope_root_never_discovers_an_ancestor_repository ... ok
+test live_evidence::git_scope_boundary_tests::explicit_scope_root_rejects_gitfile_to_external_metadata ... ok
+test live_evidence::git_scope_boundary_tests::nested_untracked_gitfile_cannot_introduce_another_repository_source ... ok
+test live_evidence::git_scope_boundary_tests::explicit_scope_root_rejects_external_attributes_file ... ok
+test live_evidence::git_scope_boundary_tests::explicit_scope_root_rejects_external_excludes_file ... ok
+test live_evidence::git_scope_boundary_tests::replaced_registered_root_ancestor_rejects_terminal_without_reopening_source ... ok
+test live_evidence::git_scope_boundary_tests::renamed_registered_root_invalidates_terminal_capture_with_nested_project ... ok
+test live_evidence::git_scope_boundary_tests::unrelated_ancestor_sibling_activity_keeps_registered_route_valid ... ok
+test live_evidence::git_scope_boundary_tests::in_scope_gitdir_does_not_authorize_an_external_common_directory ... ok
+test live_evidence::git_scope_boundary_tests::registered_parent_maps_absolute_attributes_and_excludes_dependencies ... ok
+test live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 605 filtered out; finished in 0.74s

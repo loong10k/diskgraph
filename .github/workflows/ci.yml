@@ -628,6 +628,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Native Windows scoped root restoration sharing
+        id: windows_root_restoration
         if: runner.os == 'Windows'
         timeout-minutes: 5
         shell: pwsh
@@ -635,7 +636,7 @@ jobs:
           cargo test -p diskgraph-engine --lib --locked git_scope_boundary_tests -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-root-restoration.log"
           if ($LASTEXITCODE -ne 0) { throw "native scoped root restoration failed" }
       - name: Preserve Windows scoped root restoration evidence
-        if: always() && runner.os == 'Windows'
+        if: always() && runner.os == 'Windows' && (steps.windows_root_restoration.outcome == 'success' || steps.windows_root_restoration.outcome == 'failure')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: windows-root-restoration-${{ matrix.rust }}-${{ github.run_id }}
@@ -643,14 +644,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Native Windows observed request expiry
-        if: runner.os == 'Windows'
+        id: windows_observed_expiry
+        if: runner.os == 'Windows' && (success() || steps.windows_root_restoration.outcome == 'failure')
         timeout-minutes: 5
         shell: pwsh
         run: |
           cargo test -p diskgraph-engine --lib --locked remote_expiry_after_native_observation_prevents_staging_and_publication -- --nocapture 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-observed-expiry.log"
           if ($LASTEXITCODE -ne 0) { throw "native observed request expiry failed" }
       - name: Preserve Windows observed request expiry evidence
-        if: always() && runner.os == 'Windows'
+        if: always() && runner.os == 'Windows' && (steps.windows_observed_expiry.outcome == 'success' || steps.windows_observed_expiry.outcome == 'failure')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: windows-observed-expiry-${{ matrix.rust }}-${{ github.run_id }}

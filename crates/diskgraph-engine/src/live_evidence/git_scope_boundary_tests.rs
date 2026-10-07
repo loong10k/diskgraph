@@ -435,7 +435,8 @@ fn restore_fixture_root(
 fn original_fixture_restore_retries_actual_no_delete_directory_handle() {
     use std::os::windows::fs::OpenOptionsExt;
     use windows_sys::Win32::Storage::FileSystem::{
-        FILE_FLAG_BACKUP_SEMANTICS, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, FILE_SHARE_WRITE,
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_LIST_DIRECTORY, FILE_READ_ATTRIBUTES, FILE_SHARE_READ,
+        FILE_SHARE_WRITE,
     };
     let holder = tempfile::tempdir().unwrap();
     let parent = holder.path().canonicalize().unwrap();
@@ -451,8 +452,10 @@ fn original_fixture_restore_retries_actual_no_delete_directory_handle() {
         directory.version().unwrap()
     };
     restore_fixture_root(&root, &moved, &original, until, || {});
+    // 属性访问不参与共享模式限制；真实阻碍必须持有目录数据读取权限。
+    // 不增加产品权限，本句柄只存在于独占隔离测试中。
     let blocker = std::fs::OpenOptions::new()
-        .access_mode(FILE_READ_ATTRIBUTES)
+        .access_mode(FILE_READ_ATTRIBUTES | FILE_LIST_DIRECTORY)
         .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
         .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
         .open(&moved)
