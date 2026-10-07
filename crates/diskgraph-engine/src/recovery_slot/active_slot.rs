@@ -10,7 +10,8 @@ pub struct ActiveSlot {
     pub(super) retiring: bool,
 }
 impl ActiveSlot {
-    /// 参数：原期限；返回：在原锁内同步 CLEAN，不解锁；仅原绑定 owner 在实际回收后调用。
+    /// 参数：原期限；返回：在原锁内同步回读 CLEAN 后显式释放锁；仅原绑定 owner 实际回收后调用。
+    /// 解锁成功为最终释放点，调用方必须立即消费原槽，不再执行可重试的记录写入。
     #[cfg(any(target_os = "linux", target_os = "macos", windows))]
     pub(crate) fn confirm_original_cleanup(&mut self, deadline: Instant) -> Result<(), SlotError> {
         super::slot_reservation::check(deadline)?;
@@ -19,7 +20,10 @@ impl ActiveSlot {
             return Err(SlotError::InvalidRecord);
         }
         self.retiring = true;
-        super::slot_reservation::write_record(&mut self.file, b"DGSL01C\n", deadline)
+        super::slot_reservation::write_record(&mut self.file, b"DGSL01C\n", deadline)?;
+        // 原资源已清理且 CLEAN 已同步回读；显式释放同一锁，不依赖继承句柄全部关闭。
+        // 成功后不再检查 deadline，避免已释放容量又返回可重试错误。
+        self.file.unlock().map_err(SlotError::Io)
     }
 
     /// 参数：deadline 为原检查期限；返回：原 held 记录仍 ACTIVE，否则拒绝。

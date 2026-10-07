@@ -109,7 +109,7 @@ impl SupervisorOwner {
             .as_mut()
             .expect("original active slot retained")
             .confirm_original_cleanup(deadline)?;
-        // 只有同一锁内同步回读 CLEAN 成功后关闭锁；失败路径不消费 ACTIVE 能力。
+        // 同一原锁的 CLEAN 同步回读及显式解锁成功后立即消费；失败不消费原能力。
         drop(self.slot.take());
         Ok(true)
     }
