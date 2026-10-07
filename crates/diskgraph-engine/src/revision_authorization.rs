@@ -226,11 +226,11 @@ impl Engine {
         let control = self.control_until(deadline)?;
         withdrawal.check(&control)?;
         let authorization =
-            Self::require_terminal_relation(&control, authorizer, principal, &scope);
+            Self::observe_terminal_relation(&control, authorizer, principal, &scope);
         withdrawal.check(&control)?;
-        authorization?;
+        let timely = authorization?;
         self.require_terminal_revision_ownership(revision_id, &scope, &control, deadline)?;
-        if std::time::Instant::now() >= deadline {
+        if !timely || std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
         Ok(result)

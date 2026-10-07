@@ -45,3 +45,9 @@ with_authorized_revision_reader 的初次与末段控制锁原使用阻塞获取
 初始能力回调不得继承控制库 SQLite VM deadline handler；能力阶段前后的持久授权读取分别沿原绝对期限安装 SQL guard。明确 Denied 保留 PermissionDenied，迟到 Allowed 不进入消费者，已有撤权见证仍先于允许结果检查。同步回调仍不可硬抢占、仍持有控制锁，不据此关闭有限退出或全部终检期限任务。借用原控制连接的测试回调在原期限后读取 server_id：旧路径因过期 VM handler 失败（真实 RED），分阶段实现应保持宿主回调 SQL 正常并拒绝迟到允许。
 
 本机验证：新回归真实 RED→GREEN，授权期限组 7/0；source_layout 6/0，fmt/Clippy 通过，双路审查 APPROVE/CLEAR（回调持锁及终检期限仍为 WATCH）。完整 Engine 首次533/99/13，其中98 Unsupported、1原生管道fd检查失败；该项单独1/0，完整复跑534/98/13。偶发fd检查未关闭，不把复跑成功当作消除并发问题。
+
+## 可信 reader 末段复检与关系/历史一致
+
+准备结果之后沿既有 observe_terminal_relation 进行分阶段复检：能力回调不处于SQL guard，每段控制SQL固定50ms观察窗口；数据读取和图归属仍沿原请求deadline。原撤权见证与实际归属拒绝先于迟到允许预算失败。原1000ms请求里末段150ms允许旧实现会返回成功，新增回归必须精确BudgetExceeded；回调内独立连接撤权必须PermissionDenied。同步回调及原资源仍不可硬抢占，50ms控制观察不是整体wall-time保证。
+
+本机末段验证：真实RED旧路径返回Ok；修复后授权组8/0、source_layout6/0，fmt与Clippy通过，双路APPROVE/CLEAR。完整Engine535/98/13，98项均Unsupported；没有将本机平台拒绝标记通过。

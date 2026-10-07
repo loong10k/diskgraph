@@ -1,0 +1,30 @@
+{
+  "scope": "trusted reader terminal phased capability observation",
+  "logs": {
+    "red": {
+      "sha256": "97b2c4041fa2380c7dd3ba28db43d68f0d670f4c4ec9ed9fdae5a37a2019dfe2",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 645 filtered out; finished in 0.20s"
+      ]
+    },
+    "green": {
+      "sha256": "482ffa075348a7ffc9b4b89498cb8c793d4272946a4bb210a76c663d08e11afa",
+      "summary": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 638 filtered out; finished in 2.49s"
+      ]
+    },
+    "full": {
+      "sha256": "2b4f9572bdfe418b6a7a41dc363d99042f0c5c450783235b4a32ff144f95511c",
+      "summary": [
+        "test result: FAILED. 535 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 14.42s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "limits": [
+    "synchronous callback not preemptible",
+    "control mutex held by callback",
+    "original graph deadline not refreshed",
+    "native qualification Unsupported remains"
+  ]
+}

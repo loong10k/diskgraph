@@ -462,3 +462,63 @@ fn reader_capability_callback_does_not_inherit_sql_deadline_handler() {
         Err(EngineError::Business(BusinessError::BudgetExceeded))
     ));
 }
+
+#[test]
+fn trusted_reader_terminal_late_allow_is_refused_and_revocation_wins() {
+    struct Late<'a> {
+        policy: diskgraph_core::PolicyAuthorizer,
+        active: &'a std::cell::Cell<bool>,
+        revoke: Option<RefCell<diskgraph_store::ControlStore>>,
+    }
+    impl diskgraph_core::Authorizer for Late<'_> {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.active.get() {
+                if let Some(control) = &self.revoke {
+                    control.borrow_mut().revoke_scope(scope).unwrap();
+                }
+                std::thread::sleep(std::time::Duration::from_millis(150));
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for revoked in [false, true] {
+        let (dir, engine, principal, _scope, revision) = published_authorization_fixture();
+        let active = std::cell::Cell::new(false);
+        let authorizer = Late {
+            policy: engine.policy_authorizer().unwrap(),
+            active: &active,
+            revoke: revoked.then(|| {
+                RefCell::new(
+                    diskgraph_store::ControlStore::open(
+                        &dir.path().join("data/diskgraph-control.sqlite"),
+                    )
+                    .unwrap(),
+                )
+            }),
+        };
+        let result = engine.with_authorized_revision_reader(
+            revision,
+            &principal,
+            &authorizer,
+            1000,
+            |_, _, _| {
+                active.set(true);
+                Ok(())
+            },
+        );
+        let expected = if revoked {
+            BusinessError::PermissionDenied
+        } else {
+            BusinessError::BudgetExceeded
+        };
+        assert!(
+            matches!(result, Err(EngineError::Business(actual)) if actual == expected),
+            "terminal result: {result:?}"
+        );
+    }
+}
