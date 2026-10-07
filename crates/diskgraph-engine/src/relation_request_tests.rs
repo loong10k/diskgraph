@@ -12,6 +12,75 @@ use std::time::Instant;
 type AfterRead = Box<dyn FnOnce(Instant)>;
 thread_local! {
     static AFTER_READ: RefCell<Option<AfterRead>> = RefCell::new(None);
+    static TERMINAL_READER_OPENS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+pub(super) fn terminal_reader_opened() {
+    TERMINAL_READER_OPENS.with(|count| count.set(count.get() + 1));
+}
+
+#[test]
+fn history_terminal_ownership_opens_one_fresh_reader_per_observation_round() {
+    let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    let budget = QueryBudget::default();
+    TERMINAL_READER_OPENS.with(|count| count.set(0));
+    engine
+        .with_history_readers_until(
+            revision,
+            revision,
+            &principal,
+            &policy,
+            query_deadline(budget).unwrap(),
+            budget,
+            |_, _, _, _, _, _| Ok(()),
+            |_, _| Ok(()),
+        )
+        .unwrap();
+    // 编码前后各有一轮新鲜连接，双侧不重复打开；消费者的原连接不计入此指标。
+    assert_eq!(TERMINAL_READER_OPENS.with(std::cell::Cell::get), 2);
+}
+
+#[test]
+fn shared_terminal_reader_checks_the_second_distinct_revision_ownership() {
+    let (_dir, engine, _principal, scope, revision) = published_authorization_fixture();
+    let second = "second-terminal-revision";
+    let server = engine.server_id().unwrap();
+    {
+        let mut store = engine.graph().unwrap();
+        let mut graph = store.load_revision(revision).unwrap();
+        graph.snapshot.id = "second-terminal-snapshot".into();
+        store
+            .append_staging_nodes("second-terminal-job", &graph.nodes)
+            .unwrap();
+        store
+            .publish_revision_owned(
+                "second-terminal-job",
+                &graph,
+                second,
+                2,
+                Some((server.as_str(), scope.as_str())),
+            )
+            .unwrap();
+    }
+    let control = engine.control_store().unwrap();
+    let deadline = || Instant::now() + std::time::Duration::from_millis(50);
+    engine
+        .require_terminal_revision_ownerships(
+            &[(revision, &scope), (second, &scope)],
+            &control,
+            deadline(),
+        )
+        .unwrap();
+    let wrong_scope = diskgraph_core::ScopeId::new("other-terminal-scope").unwrap();
+    assert!(matches!(
+        engine.require_terminal_revision_ownerships(
+            &[(revision, &scope), (second, &wrong_scope)],
+            &control,
+            deadline()
+        ),
+        Err(EngineError::Business(BusinessError::PermissionDenied))
+    ));
 }
 
 pub(super) fn after_read(deadline: Instant) {

@@ -72,15 +72,8 @@ impl Engine {
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
-            self.require_terminal_revision_ownership(
-                left,
-                &left_scope,
-                &control,
-                authorization_deadline,
-            )?;
-            self.require_terminal_revision_ownership(
-                right,
-                &right_scope,
+            self.require_terminal_revision_ownerships(
+                &[(left, &left_scope), (right, &right_scope)],
                 &control,
                 authorization_deadline,
             )

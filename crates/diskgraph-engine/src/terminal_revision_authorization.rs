@@ -16,15 +16,32 @@ impl Engine {
         control: &ControlStore,
         deadline: Instant,
     ) -> Result<(), EngineError> {
+        self.require_terminal_revision_ownerships(&[(revision, scope)], control, deadline)
+    }
+
+    /// 在同轮原授权期限内用一个新鲜连接逐侧检查，编码后须重新调用。
+    /// 参数：revisions 为首次授权的实际归属，control 为原 guard，deadline 不刷新。
+    /// 返回：所有侧均仍匹配；无读事务、不缓存归属，不复用消费者连接。
+    pub(super) fn require_terminal_revision_ownerships(
+        &self,
+        revisions: &[(&str, &ScopeId)],
+        control: &ControlStore,
+        deadline: Instant,
+    ) -> Result<(), EngineError> {
         let result = (|| {
             let server =
                 control.with_read_deadline(deadline, |control| control.existing_server_id())?;
             let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-            if !reader.revision_ownership_matches(revision, server.as_str(), scope.as_str())? {
-                return Err(BusinessError::PermissionDenied.into());
-            }
-            if Instant::now() >= deadline {
-                return Err(BusinessError::BudgetExceeded.into());
+            #[cfg(test)]
+            crate::relation_request_tests::terminal_reader_opened();
+            for (revision, scope) in revisions {
+                // 每次 SELECT 独立观察当前 WAL；不能开启冻结两侧归属的事务。
+                if !reader.revision_ownership_matches(revision, server.as_str(), scope.as_str())? {
+                    return Err(BusinessError::PermissionDenied.into());
+                }
+                if Instant::now() >= deadline {
+                    return Err(BusinessError::BudgetExceeded.into());
+                }
             }
             Ok(())
         })();
