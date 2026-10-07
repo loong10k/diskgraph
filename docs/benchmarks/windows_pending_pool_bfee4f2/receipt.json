@@ -7,19 +7,21 @@
       "rust": "stable",
       "job": 112712926763,
       "log": "stable.log",
-      "sha256": "37f69047458e93fcb9db0e742b0483a9f9d213cbc112d2d7011cd606aefc2ab0",
+      "sha256": "94e36cb8c4aebdecc264d89c7e7f851c2aee9dad43c1d1707a73d83ede11a8e8",
       "passed": 1,
       "failed": 0,
-      "ignored": 0
+      "ignored": 0,
+      "original_artifact_sha256": "37f69047458e93fcb9db0e742b0483a9f9d213cbc112d2d7011cd606aefc2ab0"
     },
     {
       "rust": "1.97.0",
       "job": 112712926669,
       "log": "msrv.log",
-      "sha256": "3b60f55527cde158b07f03e62af5900e39f28cf107b6a377a37738b36be8ab33",
+      "sha256": "de0bbabbe21ea562e79cad9bd7b61926a1936445bdc0f37e3489c6da582e229d",
       "passed": 1,
       "failed": 0,
-      "ignored": 0
+      "ignored": 0,
+      "original_artifact_sha256": "3b60f55527cde158b07f03e62af5900e39f28cf107b6a377a37738b36be8ab33"
     }
   ],
   "acceptance": "two-slot Pending fairness only",
@@ -28,5 +30,6 @@
     "full Windows suite still running",
     "does not prove hard OS deadlines or bounded traversal time slices",
     "trusted supervisor remains incomplete"
-  ]
+  ],
+  "log_normalization": "CRLF to LF only; sha256 binds repository log, original_artifact_sha256 binds downloaded native artifact"
 }
