@@ -5,6 +5,7 @@ use std::os::unix::fs::MetadataExt;
 use std::time::Instant;
 
 /// 可信本地 launcher 提供的用户持久恢复容量域；不认证任意同 UID 攻击者。
+/// 来源：DiskGraph 原生 Rust PF-06 固定用户容量域，无 Java 对等对象。
 /// 目录定位与全入口统一由 launcher 保证，本对象只在原 held 目录中认领槽。
 pub struct TrustedLocalRecoveryDomain {
     directory: File,

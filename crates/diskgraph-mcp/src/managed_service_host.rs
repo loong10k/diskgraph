@@ -7,6 +7,7 @@ use diskgraph_mcp::{McpConfig, McpService};
 use std::time::Instant;
 
 /// 协议出生前的原服务、扫描恢复责任与容量槽；不声明独立监督进程。
+/// 来源：DiskGraph 原生 Rust PF-06 MCP 宿主准入合同，无 Java 对等对象。
 pub(crate) struct ManagedServiceHost {
     pub(crate) service: McpService,
     pub(crate) recovery: Option<ScanWorkerRecovery>,
@@ -90,5 +91,4 @@ impl ManagedServiceHost {
     }
 }
 #[cfg(test)]
-#[path = "managed_service_host_tests.rs"]
 mod tests;

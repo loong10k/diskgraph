@@ -41,3 +41,7 @@ Linux/macOS 的受管理 CLI 入口已接到固定当前 OS 用户目录：通�
 MCP binary 在镜像与传输安全校验后、数据库/bootstrap之前预留同一当前用户固定四槽域；同一原启动deadline覆盖准入和构造，迟到时不交出服务启动runner。构造失败仅尝试原deadline取消原RESERVED，保留主错误与清理错误；成功ACTIVE后启动原runner。协议catch外保留同一service clone，协议service实际释放和runner实际join后，消费原clone，将原Engine/Recovery/ACTIVE交SupervisorOwner，原引用或资源Pending时不能CLEAN。stdio本地管理引导与HTTP/SSE远程默认拒绝保持；Unix启动业务错误按原分类exit_code返回。
 
 实际准入先后顺序和期限耗尽回归均在缺检查版本失败，最终MCP binary测试7/0，覆盖真实ACTIVE四槽拒绝、本地/远程授权、构造失败原取消以及原service clone阻止退休。普通三字节镜像仅为构造生命周期夹具，不执行原生child；不声称真实产品socket或scanner资格。all-target Clippy通过。Windows路径保留，独立监督出生、私有IPC及有限公开EOF仍未完成，不勾选父任务。
+
+## 新增源码组织门禁补验
+
+6029b83 的 Linux stable job112764052987 实际失败目标为 engine/source_layout：本批恢复域对象缺中文来源，home的两个pub(super)函数缺参数/返回契约。已补齐注释，原规范门禁与生产行为不改。当前本地engine门禁5/1，仅剩受保护未提交Linux候选四处文档缺项，不能称全通过；本批三处报错已消失。MCP测试path覆盖改为标准managed_service_host/tests.rs挂载，原测试内容不变；service_source_layout11/0、binary行为7/0。两个独立审查批准；提交后的完整源码门禁仍须新CI证明。

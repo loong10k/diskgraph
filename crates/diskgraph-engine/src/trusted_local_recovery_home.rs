@@ -8,6 +8,8 @@ use std::os::unix::fs::MetadataExt;
 use std::path::{Component, Path, PathBuf};
 use std::time::Instant;
 
+/// 从 OS 当前用户记录定位固定持久目录，不使用请求或 HOME 环境。
+/// 参数：deadline 为原启动期限；返回：原目录句柄或权限、能力及期限拒绝。
 pub(super) fn current_directory(deadline: Instant) -> Result<File, SlotError> {
     let home = current_home(deadline)?;
     open_directory(&home, deadline)
@@ -59,7 +61,9 @@ fn current_home(deadline: Instant) -> Result<PathBuf, SlotError> {
     }
 }
 
-// 仅供同模块测试提供真实隔离 home；生产定位始终由当前 OS 用户记录决定。
+/// 在给定绝对 home 下逐组件打开固定恢复目录，不允许链接逃逸。
+/// 参数：home 为 OS 用户路径（测试使用该路径下隔离目录），deadline 为原期限。
+/// 返回：核验后的原目录句柄，或 I/O、能力及期限拒绝；不修复已有权限。
 pub(super) fn open_directory(home: &Path, deadline: Instant) -> Result<File, SlotError> {
     check(deadline)?;
     if !home.is_absolute() {
