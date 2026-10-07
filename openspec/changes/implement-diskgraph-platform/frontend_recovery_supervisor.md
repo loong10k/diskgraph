@@ -106,3 +106,9 @@ Linux 使用与 Rust Instant 同源的 CLOCK_MONOTONIC，并绑定真实 nsfs �
 真实另一个进程测试须证明正额度能采用，等待后过期材料被拒绝，而非重获发送时剩余额度；这仍不能替代受信监督启动、IPC 对端身份和公开前端退出验收。
 
 `native_deadline::ClockStamp` 原期限桥接子组件已实现，原型 RED 2/3 → 本机 macOS arm64 GREEN 5/0；真实另一进程过期/正额度测试均执行。Linux 实际 time namespace 门禁已接入 CI，但本机未运行，Windows/QPC 与 macOS Intel 也仍待原生验收。不勾选监督启动或私有通信总体阶段；证据见 `docs/benchmarks/native_deadline_739/`。
+
+## 4000a85 原生 CI 终态复核
+
+Windows stable/MSRV 的真实终态均暴露两个测试生命周期错误：来源 root 首次改名成功，但在原 GitView 仍持有来源捕获时强制恢复改名得到 OS32；以及 Deadline 返回携带未完成清理时，在原 NativeProbeTestBudget/外部 Recovery 尚存且未排空前就断言后代心跳停止。修复测试顺序：保持原 terminal 验证，再 complete/drop 原 view 与预算后恢复隔离名称；保持原 Deadline 主错误断言，再 drop 原预算、由既有原 Recovery 实际完成 drain 后观察心跳。不得放宽分享标志、吞清理错误或跳过真实心跳。
+
+另有 Windows stable 原私有目录显式恢复产生未知 NT INVALID_PARAMETER/OS87，MSRV 原观察钩子未在原 3 秒 token 到期前到达，以及 Linux stable 200k 性能旧基线失败；保留原失败门禁，尚未关闭。Linux MSRV 与 arm64 的 4000a85 全量 CI 成功不替代这些缺口。

@@ -1,0 +1,63 @@
+{
+  "base_commit": "4000a85a3eec42b6f365574d1a5fe5013d9edb51",
+  "run": 37549794669,
+  "logs": {
+    "windows-stable-terminal": {
+      "sha256": "600aae13bf6242ff72b5f4369e5ce5888ef1e1ffae7962b9887ff8061b6b2ddf",
+      "archive_sha256": "9e0c6caa088c240a236f16461bb8f1a6510271c6092c1d88f9bed5e18054150c",
+      "bytes": 12937771
+    },
+    "windows-msrv-terminal": {
+      "sha256": "be3fc94f98105507dc91a9d334c0175645d1b5db90b2063e9cf917eff277cbe0",
+      "archive_sha256": "7f9252d0a88e3f5545ef2e1334a94519e9692a2e34069aa8ef6cc6b0c70a5074",
+      "bytes": 12938103
+    },
+    "linux-stable-terminal": {
+      "sha256": "1728dbf45f33d43ac4f56a55c8b5de7e4f79c954078c18c8672bf62db220a297",
+      "archive_sha256": "cd1068852f184cb6e0c0df9739ee0fbc15eb62ed4d36b0f546f64b0af2b4097d",
+      "bytes": 880707
+    },
+    "root-target": {
+      "sha256": "05846d04da1983a822e67e76b398a0ffd677d8bd819ebe6a3614c6ac8273f905",
+      "archive_sha256": "85b160a328156245ea338ee1bf3e4803bef626de931a41f8afd01add7a6e531a",
+      "bytes": 517
+    },
+    "probe-target": {
+      "sha256": "9a302e81fbf2c1e0b8f70146b1b504cb28cbff983a89bf4664f3c9f22ce34ee9",
+      "archive_sha256": "5598a8965e8449996061b2c91865e5b1eb765a9d750b3451488d356c78888e24",
+      "bytes": 371
+    },
+    "scope-regression": {
+      "sha256": "bc0f4a960d5af8435519ef87fe09038ed7486a84cd4beff9a2d08f898635b01b",
+      "archive_sha256": "142bd70133f3951331f671e91ed7a0b8d370783735b8f2468521c8e2c1baa74d",
+      "bytes": 1817
+    },
+    "probe-regression": {
+      "sha256": "632d9a217233611a553d803b69576a45b1ee013a78121ec3b3d7fd4ffc318184",
+      "archive_sha256": "f77c951d1ba1b7f9db77fa465fe6f7b969b1ddfaf699d173bea56fe942582bdb",
+      "bytes": 1966
+    },
+    "layout": {
+      "sha256": "58a52ca1812fe4fd16d5e2245a106496745f9da2453f9fca34c8bd4dc1188780",
+      "archive_sha256": "797c46372ef108e58737c873b6ce1f5f4f8255182fd5912f86074b71b0b50a43",
+      "bytes": 677
+    },
+    "clippy": {
+      "sha256": "639e0ff7ea97b9205ca582623b5d0596921b0dfe3201dc63d901a9eaf6bdd5ca",
+      "archive_sha256": "5c72c9cd7b5299398fec9b3580f374b21a68ff719d82b4407b4c6d41924ad8b6",
+      "bytes": 188
+    }
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_scope_boundary_tests.rs": "5c6e55f75ea73332c126723a50371a64575bf4451b4124d1f59a17052a170008",
+    "crates/diskgraph-engine/src/live_evidence/probe_tests.rs": "7c19ef9d34b91d867408c4821c75ef716214545d576dee63491e6fd4abe150f8"
+  },
+  "local_platform": "macOS arm64",
+  "unresolved": [
+    "Windows same original directory recovery OS87 at native ID absence probe",
+    "Windows MSRV original observation hook not reached before existing token expiry",
+    "Linux stable paired performance baseline 200k failure",
+    "fixed source Windows validation pending",
+    "actual supervisor birth/IPC/CLI/MCP frontend integration not complete"
+  ]
+}

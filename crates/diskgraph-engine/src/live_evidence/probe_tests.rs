@@ -337,6 +337,9 @@ fn an_exited_leader_does_not_make_inherited_pipes_complete() {
     assert_probe_failure(run_probe(&mut command, &mut budget), |error| {
         matches!(error, ProbeFailure::Deadline)
     });
+    // Deadline 可携带原清理未完成诊断；先结束原会话并实际排空外部 Recovery。
+    // 只有原 Job/管道责任完成后才观察心跳，不把业务返回当作已回收。
+    drop(budget);
     assert_heartbeat_stopped(&marker);
 }
 

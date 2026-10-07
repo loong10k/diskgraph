@@ -191,10 +191,14 @@ fn renamed_registered_root_invalidates_terminal_capture_with_nested_project() {
     };
     let output = view.run(&super::git_scoped_fixture::STATUS[1..], &mut probe);
     let terminal = view.verify(&mut probe);
+    let terminal = view.complete(terminal);
+    // 原 view 仍持有来源子目录/文件能力；Windows 不保证这些句柄允许父目录再次改名。
+    // 先完成原私有目录处置并释放原捕获，再恢复隔离源名称，不改变终态验证结果。
+    drop(view);
+    drop(probe);
     if changed {
         std::fs::rename(&moved, root).unwrap();
     }
-    let terminal = view.complete(terminal);
     let output = output.unwrap();
     assert_eq!(output.exit_code, Some(0));
     assert!(
