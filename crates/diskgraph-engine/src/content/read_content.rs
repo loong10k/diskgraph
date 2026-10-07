@@ -165,19 +165,29 @@ impl Engine {
         })
     }
 
-    // 复用单个 guard；实际 scope/grant 在 Authorizer 返回后重读，独立连接仍可撤权。
-    fn require_read_terminal(
+    // 先检查原范围，再于锁外调用能力来源；返回前新鲜复核实际 scope/grant。
+    /// 复核内容读取终态的实际范围与授权交集。
+    /// 参数：request 为原请求身份和范围，authorizer 为能力来源；返回：允许或拒权/存储错误。
+    pub(super) fn require_read_terminal(
         &self,
         request: &InspectionRequest<'_>,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<(), EngineError> {
-        let control = self.control_store()?;
-        if control.scope(request.scope_id)?.revoked {
-            return Err(EngineError::Business(BusinessError::PermissionDenied));
+        {
+            let control = self.control_store()?;
+            if control.scope(request.scope_id)?.revoked {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
         }
-        Self::require_with_control(
+        let decision = authorizer.decide(
+            request.principal,
+            &diskgraph_core::Permission::ContentRead,
+            request.scope_id,
+        );
+        let control = self.control_store()?;
+        Self::require_decision_with_control(
             &control,
-            authorizer,
+            decision,
             request.principal,
             &diskgraph_core::Permission::ContentRead,
             request.scope_id,

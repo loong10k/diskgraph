@@ -1,0 +1,37 @@
+{
+  "scope": "content terminal authorization callback outside control lock, permission-only regression",
+  "logs": {
+    "red": {
+      "sha256": "916a41a972edd8bfdfa0c18390fd22e894085e130c1e42ed30f7869f4b854f5e",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 649 filtered out; finished in 0.09s"
+      ]
+    },
+    "green": {
+      "sha256": "ffd01290fb585a63cde3c9ca2eb05db78974a9624a5dedc56cb1c77988784885",
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 650 filtered out; finished in 0.05s"
+      ]
+    },
+    "revocation": {
+      "sha256": "720a924b19d50670dc979af179267ec4fe3115340fd87a66fd61627e92914c72",
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 650 filtered out; finished in 0.09s"
+      ]
+    },
+    "full": {
+      "sha256": "a5a090e5b63df61cdb6026d8837ea0738580ee840b128970328c75fc9d4fa7f4",
+      "summary": [
+        "test result: FAILED. 540 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 14.11s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "native_content_qualification": false,
+  "limits": [
+    "permission-only fixtures do not read files",
+    "existing real content tests unchanged",
+    "synchronous callback and control lock wait not hard-preemptible",
+    "native qualification Unsupported remains"
+  ]
+}

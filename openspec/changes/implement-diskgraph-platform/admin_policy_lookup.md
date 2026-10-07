@@ -29,3 +29,9 @@ Store ignored release 诊断对隔离真实迁移库进行100样本串行配置�
 Engine::require 在控制锁外取得请求能力决定，然后在锁内新鲜读取持久授权交集；回调期间撤权仍必须拒绝。原require_with_control保留已有guard调用语义，其他有界终检回调仍持锁，本项不宣称全Engine回调已无锁。50ms有限重入控制读取回归旧路径实际失败，修复后应能读取持久server；独立连接在回调内撤销grant、旧能力允许时最终必须PermissionDenied。不声明同步回调硬抢占或整体期限。
 
 普通require验证：有限重入真实RED→GREEN，相关授权组3/0；source_layout6/0，fmt/Clippy通过，双路APPROVE/CLEAR。完整Engine538/98/13，98项均Unsupported。兼容边界：控制锁中毒等错误现在在外部回调之后观察，回调可能先执行；普通入口仍可能等待控制锁，成功后的独立连接撤权仍依赖调用方后续安全门禁。
+
+## 内容终态授权的锁外回调
+
+require_read_terminal 保留初次范围存在/撤销检查，释放控制锁后取得ContentRead能力决定，再用新鲜控制锁核对持久交集和live_permission（无策略可信兼容模式同样拒绝scope撤销）。权限专用测试不打开文件、不替代内容平台能力门禁：原有限重入控制读失败确认RED；callback期间grant撤销、scope撤销及无策略scope撤销均需PermissionDenied。现有真实read_bounded终态测试保留；本机不支持的原生读取不得改为跳过或通过。
+
+内容终态本机验证：权限重入真实RED→GREEN，专用两项1/0+1/0（撤销测试内3模式）；source_layout6/0，fmt/Clippy与双路APPROVE/CLEAR。完整Engine540/98/13，98项均Unsupported。实际内容能力验收保持未完成，本项未赋予平台读取能力，控制等待仍非硬有界。

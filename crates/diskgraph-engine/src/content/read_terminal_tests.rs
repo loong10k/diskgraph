@@ -161,3 +161,114 @@ fn completed_range_refuses_single_content_grant_revoked_at_return() {
 fn eof_refuses_single_content_grant_revoked_at_return() {
     grant_revocation_case(9);
 }
+
+#[test]
+fn content_terminal_capability_callback_can_read_control_without_reentrant_lock() {
+    struct ReadsControl<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        observed: std::cell::Cell<bool>,
+    }
+    impl Authorizer for ReadsControl<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> Decision {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let read = self
+                .engine
+                .control_until(deadline)
+                .and_then(|control| control.existing_server_id().map_err(EngineError::from));
+            self.observed.set(read.is_ok());
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    // 仅验证终态授权锁边界；不绕过原生文件内容能力门禁。
+    let (dir, engine, principal, scope, _) =
+        crate::relation_request_tests::published_authorization_fixture();
+    engine.set_content_read(&scope, &principal, true).unwrap();
+    let authorizer = ReadsControl {
+        engine: &engine,
+        policy: engine.policy_authorizer().unwrap(),
+        observed: std::cell::Cell::new(false),
+    };
+    let path = dir.path().join("permission-only");
+    let request = InspectionRequest {
+        scope_id: &scope,
+        principal: &principal,
+        path: &path,
+        offset: 0,
+        max_bytes: 1,
+        cancel: None,
+        chunk_bytes: 1,
+    };
+    engine.require_read_terminal(&request, &authorizer).unwrap();
+    assert!(
+        authorizer.observed.get(),
+        "content terminal callback held the control lock"
+    );
+}
+
+#[test]
+fn permission_only_terminal_refuses_callback_scope_or_grant_revocation() {
+    struct Revokes {
+        policy: diskgraph_core::PolicyAuthorizer,
+        control: RefCell<ControlStore>,
+        revoke_scope: bool,
+    }
+    impl Authorizer for Revokes {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> Decision {
+            if self.revoke_scope {
+                self.control.borrow_mut().revoke_scope(scope).unwrap();
+            } else {
+                self.control
+                    .borrow_mut()
+                    .revoke_grant(principal, permission, scope)
+                    .unwrap();
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for mode in 0..3 {
+        let (dir, engine, principal, scope, _) =
+            crate::relation_request_tests::published_authorization_fixture();
+        engine.set_content_read(&scope, &principal, true).unwrap();
+        let policy = engine.policy_authorizer().unwrap();
+        let db = dir.path().join("data/diskgraph-control.sqlite");
+        if mode == 2 {
+            rusqlite::Connection::open(&db)
+                .unwrap()
+                .execute_batch("DELETE FROM grants; DELETE FROM policy;")
+                .unwrap();
+        }
+        let authorizer = Revokes {
+            policy,
+            control: RefCell::new(ControlStore::open(&db).unwrap()),
+            revoke_scope: mode != 0,
+        };
+        let path = dir.path().join("permission-only");
+        let request = InspectionRequest {
+            scope_id: &scope,
+            principal: &principal,
+            path: &path,
+            offset: 0,
+            max_bytes: 1,
+            cancel: None,
+            chunk_bytes: 1,
+        };
+        assert!(
+            matches!(
+                engine.require_read_terminal(&request, &authorizer),
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "callback revocation mode {mode}"
+        );
+    }
+}
