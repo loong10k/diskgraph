@@ -136,10 +136,16 @@ def main():
             "--output", output / f"{archive_name}.load.json",
             deployment=deployment,
         )
+        large_load = accepted(
+            "accept-readonly-load.py", packaged_bin,
+            "--bin-dir", packaged_bin, "--files", "200000",
+            "--output", output / f"{archive_name}.load_200000.json",
+            deployment=deployment,
+        )
     print(json.dumps({"target": args.target, "archive": str(archive),
                       "sha256": archive_hash, "stdio": stdio,
                       "http": http, "upgrade_rollback": upgrade,
-                      "controlled_load": load, "scan_worker": manifest}, indent=2))
+                      "controlled_load": load, "controlled_load_200000": large_load, "scan_worker": manifest}, indent=2))
 
 
 if __name__ == "__main__":

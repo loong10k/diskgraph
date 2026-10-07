@@ -1,0 +1,12 @@
+{
+  "scope": "benchmark acceptance, no Engine behavior change",
+  "red": "completed protocol plus 2 actual isolated SQLite rows was erroneously accepted as 101-file load; 1/2 target tests failed",
+  "green": "2/2 tests; partial row count refused, exact expected count accepted",
+  "native_execution": "pending; mocked CLI plus actual isolated SQLite does not prove native scan",
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "b6850bd6315047f5a19eb0a9877dfdc3dbf157e381101ed90c1864e9d00099de",
+    "scripts/accept-readonly-package.py": "0a642db47512b68fb44cd8ab459ba5728f26ae14643f71dbd33fd7713d7d891d",
+    "scripts/tests/test_readonly_load_coverage.py": "d3a20e0e0e535f27ee277dea1d5f753c5086cb9d69e7644c7e49cab91daa5335"
+  },
+  "compatibility": "existing report fields preserved, extra count check and indexed_nodes; package uses dynamic passed==total"
+}

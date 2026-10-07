@@ -7,6 +7,7 @@ import json
 import math
 import pathlib
 import statistics
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -57,6 +58,17 @@ def main():
         scan_seconds = time.perf_counter() - started
         revision = indexed["data"]["revision_id"]
         checks["full_index_published"] = indexed["data"]["state"] == "completed" and bool(revision)
+        # 精确绑定已发布 revision，只读核对预期节点数量（夹具文件数加根节点）。
+        with sqlite3.connect((data / "diskgraph.sqlite").as_uri() + "?mode=ro", uri=True) as connection:
+            snapshot = connection.execute(
+                "SELECT snapshot_id FROM graph_revisions WHERE revision_id=?", (revision,),
+            ).fetchone()
+            if snapshot is None:
+                raise RuntimeError("published revision has no stored snapshot")
+            indexed_nodes = connection.execute(
+                "SELECT COUNT(*) FROM nodes WHERE snapshot_id=?", (snapshot[0],),
+            ).fetchone()[0]
+        checks["exact_fixture_node_coverage"] = indexed_nodes == args.files + 1
 
         def query(number):
             arguments = ("top", "--scope", scope) if number % 2 else (
@@ -97,6 +109,7 @@ def main():
         "version": version,
         "platform": sys.platform,
         "files": args.files,
+        "indexed_nodes": indexed_nodes,
         "queries": args.queries,
         "concurrent_clients": 4,
         "scan_seconds": round(scan_seconds, 3),
