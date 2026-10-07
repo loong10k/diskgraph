@@ -11,7 +11,7 @@ try:
  else:raise RuntimeError("mount readiness timeout")
  env=dict(os.environ,DG_FUSE_ROOT=str(root),DG_FUSE_LOG="/fixture/current_provider.log")
  with open("/fixture/current_product.log","w") as output:
-  result=subprocess.run(["cargo","test","-p","diskgraph-engine","--test","linux_content_no_recall_probe","--locked","--","--nocapture","--test-threads=1"],env=env,stdout=output,stderr=subprocess.STDOUT,timeout=180)
+  result=subprocess.run(["cargo","test","-p","diskgraph-engine","--test","linux_content_no_recall_probe","--locked","--","--nocapture","--test-threads=1"],env=env,stdout=output,stderr=subprocess.STDOUT,timeout=int(os.environ.get("DG_FUSE_TEST_TIMEOUT", "180")))
  print("PRODUCT_TEST_EXIT",result.returncode)
  text=pathlib.Path("/fixture/current_product.log").read_text();print(text[-4500:]);assert result.returncode==0
  log.seek(0);assert "FUSE_FETCH_DATA" not in log.read(),"product content recall"
