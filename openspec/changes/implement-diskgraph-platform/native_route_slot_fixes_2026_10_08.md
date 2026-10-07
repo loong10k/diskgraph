@@ -1,0 +1,11 @@
+# 原生路由与容量槽回归修正
+
+延续 implement-diskgraph-platform。范围为已有祖先身份稳定／叶完整版本契约及原容量回收契约，不改变已确认生产范围。
+
+Windows CI37669668800/job112957860713实际在root_ancestor/reopened观察0x030，仅last_write/change_time改变。非叶祖先完整版本比较错误地拒绝无关子项活动。修复只将根路由祖先比较改为完整卷／128位ID／creation／目录安全状态；每次原state捕获仍拒绝重解析、placeholder及delete_pending。注册叶、Git元数据目录和正文仍完整Eq。新确定性回归在实际属性／数据打开间创建子项并要求观测到时间差异位：祖先允许，叶拒绝。目标Windows运行未完成。
+
+同批Linux stable Engine651/1/9，异常写入最终drop后的InvalidRecord断言失败；原测试未打印actual error，不能证明fork继承假设。改为单测试exec后创建原槽，保留O_APPEND、损坏字节、持锁Busy、重复清理InvalidRecord与drop后InvalidRecord，并打印实际错误。完成标记及精确1pass阻止零测试假通过。Linux ARM64隔离容器最终2/0，本机此前2/0；全原生CI尚待。诊断读取每路16KiB最多合计32KiB，不宣称输出文件或硬实时上界。
+
+本机Git13/0、结构6/0、Engine严格Clippy通过；Windows源码未由本机编译。两路独立审查APPROVE/CLEAR，最终测试执行确认增量另核对。原始失败与验证、源码摘要见docs/benchmarks/native_route_slot_fixes_2026_10_08；父项不关闭。
+
+连接准备实验仅测试配置，500交替样本的batch p95未改善，未采用生产优化。测试/证据保留供复现，不代表端到端性能改善。

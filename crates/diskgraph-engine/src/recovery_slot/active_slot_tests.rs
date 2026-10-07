@@ -8,6 +8,9 @@ fn deadline() -> Instant {
 }
 #[test]
 fn original_fd_write_anomaly_keeps_lock_and_refuses_retry_without_repair() {
+    if isolated_write_anomaly_fixture() {
+        return;
+    }
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("slot");
     let mut active = SlotReservation::acquire(File::create_new(&path).unwrap(), deadline())
@@ -45,18 +48,74 @@ fn original_fd_write_anomaly_keeps_lock_and_refuses_retry_without_repair() {
     ));
     assert_eq!(std::fs::read(&path).unwrap(), bytes);
     drop(active);
-    assert!(matches!(
-        SlotReservation::acquire(
-            OpenOptions::new()
-                .read(true)
-                .write(true)
-                .open(&path)
-                .unwrap(),
-            deadline()
-        ),
-        Err(SlotError::InvalidRecord)
-    ));
+    let result = SlotReservation::acquire(
+        OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&path)
+            .unwrap(),
+        deadline(),
+    );
+    let observed = result.as_ref().err().map(|error| format!("{error:?}"));
+    assert!(
+        matches!(result, Err(SlotError::InvalidRecord)),
+        "original record refusal: {observed:?}"
+    );
     assert_eq!(std::fs::read(&path).unwrap(), bytes);
+    println!("DG_ORIGINAL_WRITE_ANOMALY_ASSERTIONS_COMPLETE=1");
+}
+
+/// 参数：无；返回：父进程完成精确单测试子进程时 true，子进程执行真实断言时 false。
+fn isolated_write_anomaly_fixture() -> bool {
+    const MARKER: &str = "DISKGRAPH_SLOT_WRITE_ANOMALY_ISOLATED";
+    if std::env::var_os(MARKER).is_some() {
+        return false;
+    }
+    struct FixtureOwner(std::process::Child);
+    impl Drop for FixtureOwner {
+        fn drop(&mut self) {
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+    // 原槽只在 exec 后的单测试进程创建，其他并发测试出生无法暂留其原锁。
+    let stdout = tempfile::tempfile().unwrap();
+    let stderr = tempfile::tempfile().unwrap();
+    let mut owner = FixtureOwner(std::process::Command::new(std::env::current_exe().unwrap())
+        .args(["--exact", "recovery_slot::active_slot_tests::original_fd_write_anomaly_keeps_lock_and_refuses_retry_without_repair", "--nocapture"])
+        .env(MARKER, "1")
+        .stdout(stdout.try_clone().unwrap()).stderr(stderr.try_clone().unwrap())
+        .spawn().unwrap());
+    let until = deadline();
+    let status = loop {
+        if let Some(status) = owner.0.try_wait().unwrap() {
+            break status;
+        }
+        assert!(
+            Instant::now() < until,
+            "isolated write anomaly fixture exceeded deadline"
+        );
+        std::thread::sleep(Duration::from_millis(1));
+    };
+    use std::io::{Read, Seek, SeekFrom};
+    let mut diagnostics = String::new();
+    for mut file in [stdout, stderr] {
+        file.seek(SeekFrom::Start(0)).unwrap();
+        file.take(16384).read_to_string(&mut diagnostics).unwrap();
+    }
+    assert!(
+        status.success(),
+        "isolated write anomaly failed: {diagnostics}"
+    );
+    assert!(
+        diagnostics.contains("DG_ORIGINAL_WRITE_ANOMALY_ASSERTIONS_COMPLETE=1"),
+        "original assertions did not execute: {diagnostics}"
+    );
+    assert!(
+        diagnostics.contains("test result: ok. 1 passed; 0 failed; 0 ignored;"),
+        "isolated exact test count changed: {diagnostics}"
+    );
+    true
 }
 
 #[test]

@@ -1,0 +1,68 @@
+{
+  "source_commit": "314441cbe4708fb6d2555998319e3bb2f00dec60",
+  "command": "cargo test -p diskgraph-store --release --lib --locked reader_admission_tests::ownership_reader_configuration_phase_costs -- --exact --ignored --nocapture",
+  "result": {
+    "passed": 1,
+    "failed": 0
+  },
+  "measurements": {
+    "admission_checks_profiled": false,
+    "configuration_values_and_order_match_production": true,
+    "experiment": "configured reader isolated phase cost",
+    "native_scan_qualification": false,
+    "os": "macos",
+    "phases": {
+      "busy_timeout": {
+        "p50_ms": 4.2e-05,
+        "p95_ms": 4.2e-05,
+        "samples": 100
+      },
+      "cache_size": {
+        "p50_ms": 0.157666,
+        "p95_ms": 0.23075,
+        "samples": 100
+      },
+      "close": {
+        "p50_ms": 0.02075,
+        "p95_ms": 0.028374999999999997,
+        "samples": 100
+      },
+      "open": {
+        "p50_ms": 0.017249999999999998,
+        "p95_ms": 0.034083,
+        "samples": 100
+      },
+      "ownership_sql": {
+        "p50_ms": 0.00725,
+        "p95_ms": 0.0145,
+        "samples": 100
+      },
+      "progress_handler": {
+        "p50_ms": 4.1e-05,
+        "p95_ms": 8.3e-05,
+        "samples": 100
+      },
+      "temp_store": {
+        "p50_ms": 0.000625,
+        "p95_ms": 0.0022500000000000003,
+        "samples": 100
+      }
+    },
+    "profile": "release"
+  },
+  "source_sha256": {
+    "crates/diskgraph-store/src/reader_admission_tests.rs": "98fa3c2479b2740ba42c3d0b0cf0d048deca33a0f5b37ae55af9cacaf3882bc3",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "d83a6a3b331315c01bbdc28ab2376a2f09d6faca57663fc6188a6217ad6fcfb3",
+    "Cargo.lock": "4f2944da418fa1c428fcccce0ba1cfefac033b0746f802a8be0ff0cbe01edbea"
+  },
+  "artifact_sha256": "bb79ec67141fcde6a70bb9f489849f9cf0621947e336ce7a9ea813f414edcb79",
+  "raw_sha256": "bc4949498d1d61f37729ff9d63e1c6f8e05e27c2ba168ad01ca916d6836ad49b",
+  "gzip_sha256": "b7169832b18385aa69682031c4a574f7d77678744600f8b697735ba6f851fb29",
+  "limits": [
+    "macOS synthetic migrated SQLite fixture; not Linux 200k or wire acceptance",
+    "phase labeling does not identify SQLite internal work: cache_size may trigger deferred schema/page access",
+    "moving or removing a PRAGMA may shift cost to ownership SQL rather than reduce request wall time",
+    "admission checks not profiled; no production behavior changed"
+  ],
+  "production_acceptance": false
+}

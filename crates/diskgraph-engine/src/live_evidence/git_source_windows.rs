@@ -51,31 +51,22 @@ pub(super) fn root(
     let attributes = open_drive(FILE_READ_ATTRIBUTES)?;
     let initial = state(&attributes, true)?;
     let mut file = open_drive(FILE_READ_ATTRIBUTES | FILE_LIST_DIRECTORY)?;
-    if state(&file, true)? != initial {
+    if !source_matches(&initial, &state(&file, true)?, !plan.components.is_empty()) {
         return Err("scoped Git drive changed".into());
     }
     let mut route = vec![GitDirectoryVersion::capture(&file)?];
-    #[cfg(test)]
     let component_count = plan.components.len();
-    let components = plan.components.into_iter();
-    #[cfg(test)]
-    let components = components.enumerate();
-    for component in components {
-        #[cfg(test)]
-        let (_index, name) = component;
-        #[cfg(not(test))]
-        let name = component;
+    for (index, name) in plan.components.into_iter().enumerate() {
+        let route_ancestor = index + 1 < component_count;
         probe.check().map_err(|e| e.to_string())?;
-        // 仅诊断原比较发生于路由祖先还是注册叶目录；不记录路径、不增加状态查询。
         #[cfg(test)]
-        let _phase = super::git_source_windows_phase::GitSourceWindowsPhase::new(
-            if _index + 1 == component_count {
-                "root_leaf"
-            } else {
+        let _phase =
+            super::git_source_windows_phase::GitSourceWindowsPhase::new(if route_ancestor {
                 "root_ancestor"
-            },
-        );
-        file = child(&file, &name, true)?;
+            } else {
+                "root_leaf"
+            });
+        file = child_verified(&file, &name, true, route_ancestor)?;
         route.push(GitDirectoryVersion::capture(&file)?);
     }
     Ok((file, route))
@@ -92,8 +83,29 @@ fn state(file: &File, directory: bool) -> Result<WindowsFileState, String> {
 
 /// 参数：parent/name 为锚定父句柄及单名称，directory 指定类型；返回：属性验证后才申请枚举或正文的句柄。
 pub(super) fn child(parent: &File, name: &OsStr, directory: bool) -> Result<File, String> {
+    child_verified(parent, name, directory, false)
+}
+
+/// 参数：原属性与当前状态、是否路由祖先；返回：祖先身份和安全状态或完整叶版本是否一致。
+fn source_matches(initial: &WindowsFileState, current: &WindowsFileState, ancestor: bool) -> bool {
+    // 祖先子项活动不改变授权路由；注册叶、元数据目录和正文仍比较完整版本。
+    if ancestor {
+        initial.matches_scan_root(current)
+    } else {
+        initial == current
+    }
+}
+
+fn child_verified(
+    parent: &File,
+    name: &OsStr,
+    directory: bool,
+    ancestor: bool,
+) -> Result<File, String> {
     let attributes = open_child(parent, name, FILE_READ_ATTRIBUTES)?;
     let initial = state(&attributes, directory)?;
+    #[cfg(test)]
+    tests::after_attributes(name, ancestor);
     let file = open_child(
         parent,
         name,
@@ -106,13 +118,13 @@ pub(super) fn child(parent: &File, name: &OsStr, directory: bool) -> Result<File
     )?;
     // 保留原 || 的短路顺序：首个状态不同便拒绝，绝不为诊断追加第二次属性查询。
     let reopened = state(&file, directory)?;
-    if reopened != initial {
+    if !source_matches(&initial, &reopened, ancestor) {
         #[cfg(test)]
         GitSourceWindowsDiagnostic::record(&initial, &reopened, directory, "reopened");
         return Err("scoped Git source changed before data access".into());
     }
     let rechecked = state(&attributes, directory)?;
-    if rechecked != initial {
+    if !source_matches(&initial, &rechecked, ancestor) {
         #[cfg(test)]
         GitSourceWindowsDiagnostic::record(&initial, &rechecked, directory, "attributes_recheck");
         return Err("scoped Git source changed before data access".into());
@@ -274,3 +286,7 @@ pub(super) fn names(
     names.sort();
     Ok(names)
 }
+
+#[cfg(test)]
+#[path = "git_source_windows_tests.rs"]
+mod tests;

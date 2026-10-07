@@ -130,6 +130,8 @@ mod policy_store;
 mod process_job_protocol_contract_tests;
 #[cfg(test)]
 mod reader_admission_tests;
+#[cfg(test)]
+mod reader_prepare_benchmark;
 mod recovery_entry;
 mod recovery_rule;
 mod recovery_state;

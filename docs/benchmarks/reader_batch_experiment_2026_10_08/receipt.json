@@ -1,0 +1,40 @@
+{
+  "base_commit": "314441cbe4708fb6d2555998319e3bb2f00dec60",
+  "test_only_overlay": true,
+  "source_sha256": {
+    "crates/diskgraph-store/src/reader_prepare_benchmark.rs": "b4309a64672fd78b8b6b51febdbde371214e4b04625ef73e3af0a3f1deb6c9fe",
+    "crates/diskgraph-store/src/lib.rs": "870523f3c2add299d29bf6527ba4dc9404943a6efe523849a1f8fc7c2886b64a",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "d83a6a3b331315c01bbdc28ab2376a2f09d6faca57663fc6188a6217ad6fcfb3",
+    "Cargo.lock": "4f2944da418fa1c428fcccce0ba1cfefac033b0746f802a8be0ff0cbe01edbea"
+  },
+  "measurements": {
+    "batched": {
+      "p50_ms": 0.215125,
+      "p95_ms": 0.399375
+    },
+    "experiment": "separate versus batched identical PRAGMAs plus missing ownership and close",
+    "limits": "synthetic metadata; configuration assertions included; no concurrent load or positive selection",
+    "os": "macos",
+    "production_acceptance": false,
+    "profile": "release",
+    "samples_per_variant": 500,
+    "separate": {
+      "p50_ms": 0.215666,
+      "p95_ms": 0.377
+    }
+  },
+  "result": {
+    "passed": 1,
+    "failed": 0
+  },
+  "artifact_sha256": "3effc62afba07eca54764e219c8e8c3a1935cfe15cdf17278625df54a89d3595",
+  "raw_sha256": "e42a95eaf5db5504afdb510e7b5612844ff1642d62c3176f0fde2da144881438",
+  "gzip_sha256": "d0ee318b212c5609daf2b2746d96ecd2b28afcc90178b69793136a912465ddaa",
+  "decision": "no production batching; no measured improvement in this run",
+  "limits": [
+    "one warm macOS run on isolated migrated metadata",
+    "same settings and fresh connection, missing ownership only; not end-to-end candidates",
+    "initial compile error used absent rusqlite DatabaseName type; corrected to current API main string; not behavioral RED",
+    "does not prove generalized performance superiority or CI acceptance"
+  ]
+}

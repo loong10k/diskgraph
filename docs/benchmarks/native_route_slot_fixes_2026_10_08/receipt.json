@@ -1,0 +1,53 @@
+{
+  "base_commit": "314441cbe4708fb6d2555998319e3bb2f00dec60",
+  "overlay_source_sha256": {
+    "crates/diskgraph-engine/src/live_evidence/git_source_windows.rs": "b47d481ca401a7de1b728b9a9fb16473b1037243c5cac02b90ee38e446a419e3",
+    "crates/diskgraph-engine/src/live_evidence/git_source_windows_tests.rs": "685c25ffd2343b00ee1e38e594a1433e58f1e97251c4951aa9b152e07441d941",
+    "crates/diskgraph-engine/src/recovery_slot/active_slot_tests.rs": "20cd9dc2779acd1be7939f55bae0337f659836e98eea6336f817523b73eee811"
+  },
+  "red_run": 37669668800,
+  "linux_red_job": 112957860529,
+  "windows_red_job": 112957860713,
+  "windows_actual_diagnostic": "root_ancestor reopened directory changed_mask 0x030",
+  "linux_red_actual_error": "not printed by original assertion; inherited handle hypothesis remains unproven",
+  "verification": {
+    "linux_arm64_container_slot_tests": "2 passed, 0 failed; Rust1.97.1 isolated fixture",
+    "macos_git_tests": "13 passed, 0 failed",
+    "source_layout": "6 passed, 0 failed",
+    "macos_engine_clippy": "passed; does not compile Windows cfg"
+  },
+  "logs": {
+    "linux_stable_red.log.gz": {
+      "raw_sha256": "f7404edb47b21034f5197a4002bfeb5efb37693ab2f607ac66db904ad54f4cc3",
+      "gzip_sha256": "53013f606b29b6dcd5de4de3081e04c9682eaceafd8514f9a852257ecb2afef6"
+    },
+    "windows_msrv_red.log.gz": {
+      "raw_sha256": "e117f21791c9d928d15c799f28a273014d9a507657cdcfd3e6684b1483359fac",
+      "gzip_sha256": "cad2dcc82c8d417610d632d41e249c8adf82216a96dc55eeb78ded54741078a4"
+    },
+    "linux_slot_final.log.gz": {
+      "raw_sha256": "edf7dcd6b41170d3b18fdc164d24b855b66335cdff6964e3df4a6ceb4701d8b3",
+      "gzip_sha256": "6555bbd66cddd89306f8822eec9fb9c86e97e2e677ebe16b9230f5108af5f7dd"
+    },
+    "macos_git.log.gz": {
+      "raw_sha256": "1aa26f09a4c1ae8c06731d44e1b3f90010b863d67253ed884702b344ff1b61c5",
+      "gzip_sha256": "ca0dc6a648333e0dd352979cf33f03bae7f907baf7094740f8d61275a980e887"
+    },
+    "macos_clippy.log.gz": {
+      "raw_sha256": "629929bfd3bdab0c2d168806e25f5942cb53810d9979316f40c77e3c74289c54",
+      "gzip_sha256": "d17b40f049d2111330a468d318be16e5a5eb06da5344572d83178d5e01def8b3"
+    },
+    "source_layout.log.gz": {
+      "raw_sha256": "7bad25cd0be851e679c122c0bb1da1504da9bf05a4b163ed6390a4322f81b841",
+      "gzip_sha256": "e3309def39b2fc44b553f3dca4a02612b932c3a5ed1a7f46ee20c24078f7fd26"
+    }
+  },
+  "limits": [
+    "Windows changed source execution pending",
+    "Linux isolated target tests do not replace full native CI",
+    "stdout/stderr read each at most16KiB; output files not size bounded",
+    "fixture watchdog starts after spawn; not hard realtime total bound",
+    "no supervisor product wiring or OS-identity architecture acceptance"
+  ],
+  "production_acceptance": false
+}
