@@ -9,3 +9,7 @@
 ## 原生编译反馈
 
 b3ed055 的 Windows stable与1.97 job112680860002/112680860490均实际失败：目录decoder测试后续仍需将原 FileId 清零，但等价初始化重写遗漏原mut（E0594）。恢复可变绑定，不移除零ID拒绝用例。此前本机Clippy不覆盖Windows条件编译；新原生结果不能视为17条门禁已全部关闭，须后续同SHA重新验证。
+
+## 11dd958 原生 stable 后续门禁
+
+Windows stable job 112687983792 已通过完整 Test 步骤，Clippy 在 git_source_windows.rs:60 报 unused_enumerate_index：索引只在 cfg(test) 阶段诊断中使用，生产却仍 enumerate。修复使 enumerate 仅在测试配置生效，生产按原顺序遍历组件；两种配置都保留逐组件 probe.check、child 身份检查和 route capture。不添加 lint allow，不放宽状态比较。Windows 最终 Clippy 需后续同提交原生 CI 验证，不能以 macOS check 代替。

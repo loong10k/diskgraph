@@ -57,7 +57,14 @@ pub(super) fn root(
     let mut route = vec![GitDirectoryVersion::capture(&file)?];
     #[cfg(test)]
     let component_count = plan.components.len();
-    for (_index, name) in plan.components.into_iter().enumerate() {
+    let components = plan.components.into_iter();
+    #[cfg(test)]
+    let components = components.enumerate();
+    for component in components {
+        #[cfg(test)]
+        let (_index, name) = component;
+        #[cfg(not(test))]
+        let name = component;
         probe.check().map_err(|e| e.to_string())?;
         // 仅诊断原比较发生于路由祖先还是注册叶目录；不记录路径、不增加状态查询。
         #[cfg(test)]
