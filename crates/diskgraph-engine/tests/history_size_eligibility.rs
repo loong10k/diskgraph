@@ -293,15 +293,14 @@ fn unknown_growth_still_rechecks_terminal_authorization_and_budget() {
 }
 
 #[test]
-fn unknown_growth_still_rejects_expiry_at_terminal_authorization() {
+fn unknown_growth_rejects_late_terminal_capability() {
     let f = Fixture::new(true);
     let (left, right) = imported_pair(&f, "a", |node| node.size_known = false, |_| {});
-    let deadline = Instant::now() + Duration::from_secs(2);
+    let deadline = Instant::now() + Duration::from_secs(30);
     let policy = CallbackAuthorizer::new(f.policy.clone(), move |call| {
         if call == 3 {
-            std::thread::sleep(
-                deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1),
-            );
+            // 原数据期限仍有效；仅能力回调超出独立 50 ms 窗口。
+            std::thread::sleep(Duration::from_millis(80));
         }
     });
     let result = f.engine.growth_between_until(
@@ -316,7 +315,7 @@ fn unknown_growth_still_rejects_expiry_at_terminal_authorization() {
     assert!(policy.calls.get() >= 3);
     assert!(matches!(
         result,
-        Err(EngineError::Business(BusinessError::Timeout))
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
     ));
 }
 

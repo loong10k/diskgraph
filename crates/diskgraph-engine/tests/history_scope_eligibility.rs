@@ -216,14 +216,13 @@ fn scope_incompatible_growth_still_rechecks_terminal_revocation() {
 }
 
 #[test]
-fn scope_incompatible_growth_still_rejects_terminal_deadline() {
+fn scope_incompatible_growth_rejects_late_capability() {
     let f = ScopeHistory::new();
-    let deadline = Instant::now() + Duration::from_secs(2);
+    let deadline = Instant::now() + Duration::from_secs(30);
     let policy = CallbackAuthorizer::new(f.engine.policy_authorizer().unwrap(), move |call| {
         if call == 3 {
-            std::thread::sleep(
-                deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1),
-            );
+            // 原数据期限仍有效；仅能力回调超出独立 50 ms 窗口。
+            std::thread::sleep(Duration::from_millis(80));
         }
     });
     let result = f.engine.growth_between_until(
@@ -238,7 +237,7 @@ fn scope_incompatible_growth_still_rejects_terminal_deadline() {
     assert!(policy.calls.get() >= 3);
     assert!(matches!(
         result,
-        Err(EngineError::Business(BusinessError::Timeout))
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
     ));
 }
 
@@ -295,7 +294,7 @@ fn scope_incompatible_changes_still_rechecks_terminal_revocation() {
 }
 
 #[test]
-fn scope_incompatible_changes_cannot_hide_response_budget_or_deadline() {
+fn scope_incompatible_changes_cannot_hide_response_budget_or_late_capability() {
     let f = ScopeHistory::new();
     let result = f.engine.revision_changes_until(
         "before",
@@ -313,12 +312,11 @@ fn scope_incompatible_changes_cannot_hide_response_budget_or_deadline() {
         Err(EngineError::Business(BusinessError::BudgetExceeded))
             | Err(EngineError::Store(StoreError::BudgetExceeded))
     ));
-    let deadline = Instant::now() + Duration::from_secs(2);
+    let deadline = Instant::now() + Duration::from_secs(30);
     let policy = CallbackAuthorizer::new(f.engine.policy_authorizer().unwrap(), move |call| {
         if call == 3 {
-            std::thread::sleep(
-                deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1),
-            );
+            // 原数据期限仍有效；仅能力回调超出独立 50 ms 窗口。
+            std::thread::sleep(Duration::from_millis(80));
         }
     });
     let result = f.engine.revision_changes_until(
@@ -330,16 +328,8 @@ fn scope_incompatible_changes_cannot_hide_response_budget_or_deadline() {
         deadline,
     );
     assert!(policy.calls.get() >= 3);
-    match result {
-        Ok(value) => {
-            assert_eq!(value["complete"], false);
-            assert_eq!(value["summary_is_partial"], true);
-            assert_eq!(value["truncation_reason"], "deadline");
-        }
-        Err(
-            EngineError::Business(BusinessError::Timeout)
-            | EngineError::Store(StoreError::BudgetExceeded),
-        ) => {}
-        other => panic!("deadline was hidden by incompatibility: {other:?}"),
-    }
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
+    ));
 }

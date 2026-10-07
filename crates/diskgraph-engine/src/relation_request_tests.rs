@@ -743,6 +743,88 @@ pub(super) fn published_authorization_fixture() -> (
     (dir, engine, principal, scope, revision)
 }
 
+fn published_history_deadline_fixture(
+    size_known: bool,
+) -> (
+    tempfile::TempDir,
+    crate::Engine,
+    PrincipalId,
+    diskgraph_core::ScopeId,
+    &'static str,
+) {
+    let (_dir, engine, principal, scope, original) = published_authorization_fixture();
+    let revision = "history-data-expiry";
+    let server = engine.server_id().unwrap();
+    {
+        let mut store = engine.graph().unwrap();
+        let mut graph = store.load_revision(original).unwrap();
+        graph.snapshot.id = "history-data-expiry-snapshot".into();
+        graph.nodes[0].files = 1;
+        let mut child = graph.nodes[0].clone();
+        child.id = 2;
+        child.parent_id = Some(1);
+        child.name = "actual-row".into();
+        child.kind = diskgraph_core::NodeKind::File;
+        child.directories = 0;
+        child.size_known = size_known;
+        child.locator = serde_json::from_value(serde_json::json!({
+            "type":"native_path", "value":_dir.path().join("actual-row")
+        }))
+        .unwrap();
+        graph.nodes.push(child);
+        store
+            .append_staging_nodes("history-data-expiry-job", &graph.nodes)
+            .unwrap();
+        store
+            .publish_revision_owned(
+                "history-data-expiry-job",
+                &graph,
+                revision,
+                2,
+                Some((server.as_str(), scope.as_str())),
+            )
+            .unwrap();
+    }
+    (_dir, engine, principal, scope, revision)
+}
+
+#[test]
+fn history_data_expiry_after_read_keeps_real_rows_with_timely_capability() {
+    let (_dir, engine, principal, _scope, revision) = published_history_deadline_fixture(true);
+    let policy = engine.policy_authorizer().unwrap();
+    let deadline = Instant::now() + std::time::Duration::from_secs(1);
+    // 同步点只移动数据期限，不阻塞授权器，也不占有控制库 guard。
+    AFTER_READ.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(|deadline| {
+            std::thread::sleep(
+                deadline.saturating_duration_since(Instant::now())
+                    + std::time::Duration::from_millis(1),
+            );
+        }))
+    });
+    let report = engine
+        .compare_revisions_until(
+            revision,
+            revision,
+            0,
+            QueryBudget::default(),
+            &principal,
+            &policy,
+            deadline,
+        )
+        .unwrap();
+    assert!(
+        AFTER_READ.with(|slot| slot.borrow().is_none()),
+        "actual post-read boundary must execute"
+    );
+    assert_eq!(report.rows.len(), 1);
+    assert_eq!(report.summary.same, 1);
+    let encoded = report.to_json(None);
+    assert_eq!(encoded["complete"], false);
+    assert_eq!(encoded["truncation_reason"], "deadline");
+    assert_eq!(encoded["summary_is_partial"], true);
+}
+
 #[test]
 fn terminal_relation_and_history_revocation_still_precedes_result_delivery() {
     for kind in 0..2 {
@@ -790,5 +872,90 @@ fn terminal_relation_and_history_revocation_still_precedes_result_delivery() {
             Err(EngineError::Business(BusinessError::PermissionDenied))
         ));
         assert!(!encoded.get(), "revoked data reached encoder");
+    }
+}
+
+#[test]
+fn growth_data_expiry_with_timely_capability_is_timeout_for_unknown_and_cross_scope() {
+    for cross_scope in [false, true] {
+        let (dir, engine, principal, _scope, revision) =
+            published_history_deadline_fixture(cross_scope);
+        let after = if cross_scope {
+            let root = dir.path().join("other-history-root");
+            std::fs::create_dir(&root).unwrap();
+            let other_scope = engine
+                .register_scope(&root, &principal, &engine.policy_authorizer().unwrap())
+                .unwrap();
+            let server = engine.server_id().unwrap();
+            let mut store = engine.graph().unwrap();
+            let mut graph = store.load_revision(revision).unwrap();
+            graph.snapshot.id = "other-history-expiry-snapshot".into();
+            graph.snapshot.root =
+                serde_json::from_value(serde_json::json!({"type":"native_path","value":root}))
+                    .unwrap();
+            for node in &mut graph.nodes {
+                let path = if node.parent_id.is_none() {
+                    root.clone()
+                } else {
+                    root.join(&node.name)
+                };
+                node.locator =
+                    serde_json::from_value(serde_json::json!({"type":"native_path","value":path}))
+                        .unwrap();
+            }
+            store
+                .append_staging_nodes("other-history-expiry-job", &graph.nodes)
+                .unwrap();
+            store
+                .publish_revision_owned(
+                    "other-history-expiry-job",
+                    &graph,
+                    "other-history-expiry",
+                    3,
+                    Some((server.as_str(), other_scope.as_str())),
+                )
+                .unwrap();
+            "other-history-expiry"
+        } else {
+            revision
+        };
+        let policy = engine.policy_authorizer().unwrap();
+        let path = std::path::Path::new("actual-row");
+        assert!(
+            engine
+                .growth_between_until(
+                    revision,
+                    after,
+                    path,
+                    QueryBudget::default(),
+                    &principal,
+                    &policy,
+                    Instant::now() + std::time::Duration::from_secs(5)
+                )
+                .unwrap()
+                .is_none()
+        );
+        AFTER_READ.with(|slot| {
+            *slot.borrow_mut() = Some(Box::new(|deadline| {
+                std::thread::sleep(
+                    deadline.saturating_duration_since(Instant::now())
+                        + std::time::Duration::from_millis(1),
+                );
+            }))
+        });
+        let result = engine.growth_between_until(
+            revision,
+            after,
+            path,
+            QueryBudget::default(),
+            &principal,
+            &policy,
+            Instant::now() + std::time::Duration::from_secs(1),
+        );
+        assert!(AFTER_READ.with(|slot| slot.borrow().is_none()));
+        assert!(
+            matches!(result, Err(EngineError::Business(BusinessError::Timeout))),
+            "cross_scope={cross_scope}: {result:?}"
+        );
     }
 }

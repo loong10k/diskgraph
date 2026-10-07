@@ -60,6 +60,9 @@ impl Engine {
                 left_scope == right_scope,
             )
         })();
+        // 仅测试的读后同步点不阻塞授权回调，也不改变生产期限或请求状态。
+        #[cfg(test)]
+        crate::relation_request_tests::after_read(deadline);
         // 终检无法取得原控制库 guard 时拒绝全部结果，不在业务期限外等待另一个请求。
         let control = self
             .try_control_store()?
