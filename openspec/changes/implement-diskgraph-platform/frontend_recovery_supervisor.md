@@ -178,3 +178,7 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 实际 Windows MSRV 作业112603743853（run37562821953）中，scope套件11通过/1失败：新增 no-delete 夹具的原属性访问句柄未造成共享冲突，restore重试0、等待释放线程超时。Microsoft CreateFile 合同明确属性访问不受共享标志限制（https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea）；隔离 blocker 改为 FILE_READ_ATTRIBUTES | FILE_LIST_DIRECTORY，不授产品新权限。实际观察OS32后释放与 retries>0 断言保留，不能以取消断言得到绿色结果。本机scope13/0、源码6/0、Clippy通过，但Windows候选尚未原生执行。证据见 `docs/benchmarks/windows_root_restore_943/`。
 
 原过期目标步骤因前一步失败未运行，其always上传缺少日志是第二条流水线错误而不是另一项过期行为失败。为目标步骤加固定id；过期目标可在仅根恢复步骤失败后独立运行，未实际运行的步骤不上传不存在的日志，实际尝试后的日志仍要求存在。两个测试的非零结果继续失败，不改变完成门禁，YAML已解析，实际Actions行为待CI。
+
+## v15 历史兼容性回归收敛
+
+历史 scope 正向导入夹具原先缺少原始根证明，在 v15 下 11/11 拒绝授权。夹具现从创建时保存的原始 PathBuf 经实际 staging 定位接口持久化唯一根身份；文件节点继续保留未知旧元数据，不从展示文本推测路径，也不放宽生产隔离。新增同显示、不同原始字节的另一 scope 根不能验证历史归属反例，保留原审计映射并拒绝访问。本机历史准备10、scope11、旧归属8、关系准备11，合计40/0；Engine all-targets Clippy及fmt检查通过。证据见 `docs/benchmarks/v15_history_compatibility_569/`。Linux/Windows、完整workspace及生产性能仍未验收，不勾选总体任务。

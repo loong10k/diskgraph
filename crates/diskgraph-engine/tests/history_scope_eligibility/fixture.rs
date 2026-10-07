@@ -1,4 +1,4 @@
-//! 原生平台旧历史元数据夹具与真实 Linux FS 两种独立来源。
+//! 原生平台旧文件元数据与明确原始根证明夹具；真实 Linux FS 为独立来源。
 use diskgraph_core::{
     DiskGraph, DiskNode, DiskSnapshot, Grant, Locator, NodeKind, Permission, PrincipalId,
     QueryBudget, ResourceLocator, ScanCoverage, ScanSettings, ScopeId,
@@ -121,7 +121,7 @@ impl ScopeHistory {
         };
         fixture.publish("before", 0, 100, 1, None);
         fixture.publish("after", 1, 200, 2, None);
-        // 旧/import 显式归属在启动 backfill 后仍须保留，不由相同显示文本重新绑定。
+        // 导入的原始根证明在重启后保持授权；旧文件元数据仍不猜测原始定位。
         fixture.engine = Engine::open(config).unwrap();
         let policy = fixture.engine.policy_authorizer().unwrap();
         for (revision, scope) in [
@@ -168,7 +168,13 @@ impl ScopeHistory {
         let mut store =
             SqliteSnapshotStore::open(&self.directory.path().join("data/diskgraph.sqlite"))
                 .unwrap();
-        store.append_staging_nodes(id, &graph.nodes).unwrap();
+        // 根来自创建夹具时保留的实际 PathBuf，不能从 graph 的显示值反推。
+        // 只为根持久保存已知身份；文件节点保留旧元数据/未知原始定位，不假装原生扫描。
+        let root = diskgraph_core::QualifiedLocator::from_native_path(&self.roots[side]).unwrap();
+        store
+            .append_staging_located_iter(id, std::iter::once((&graph.nodes[0], &root, None)))
+            .unwrap();
+        store.append_staging_nodes(id, &graph.nodes[1..]).unwrap();
         let local = self.engine.server_id().unwrap();
         store
             .publish_revision_owned(

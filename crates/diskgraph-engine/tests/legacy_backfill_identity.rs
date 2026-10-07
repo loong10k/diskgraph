@@ -6,14 +6,14 @@ use diskgraph_engine::{Engine, EngineConfig};
 use diskgraph_store::{ControlStore, SqliteSnapshotStore};
 
 fn backfill(roots: &[Locator], legacy_root: ResourceLocator) -> Option<(String, String)> {
-    legacy_database(roots, legacy_root, false, false).0
+    legacy_database(roots, legacy_root, false, None).0
 }
 
 fn legacy_database(
     roots: &[Locator],
     legacy_root: ResourceLocator,
     already_bound: bool,
-    native_proof: bool,
+    native_proof: Option<usize>,
 ) -> (Option<(String, String)>, bool) {
     let directory = tempfile::tempdir().unwrap();
     let data = directory.path().join("data");
@@ -80,10 +80,11 @@ fn legacy_database(
             )
             .unwrap();
     }
-    if native_proof {
-        let locator =
-            diskgraph_core::QualifiedLocator::from_native_path(&roots[0].to_native_path().unwrap())
-                .unwrap();
+    if let Some(proof_scope) = native_proof {
+        let locator = diskgraph_core::QualifiedLocator::from_native_path(
+            &roots[proof_scope].to_native_path().unwrap(),
+        )
+        .unwrap();
         rusqlite::Connection::open(&graph_path).unwrap().execute(
             "UPDATE nodes SET native_locator_kind='native_path',native_locator_encoding=?1,native_locator_raw=?2 WHERE snapshot_id='legacy-snapshot' AND id=1",
             rusqlite::params![locator.encoding.wire_name(), locator.raw],
@@ -220,7 +221,7 @@ fn historical_lossy_binding_is_denied_without_erasing_original_ownership() {
         std::slice::from_ref(&root),
         ResourceLocator::NativePath(root.display.clone()),
         true,
-        false,
+        None,
     );
     assert!(
         original.is_some(),
@@ -242,7 +243,7 @@ fn actual_persisted_native_root_proof_preserves_non_utf8_scope_access() {
         std::slice::from_ref(&root),
         ResourceLocator::NativePath(root.display.clone()),
         true,
-        true,
+        Some(0),
     );
     assert!(original.is_some());
     assert!(
@@ -314,4 +315,28 @@ fn failed_v15_migration_preserves_exact_v14_backup_and_does_not_enable_engine() 
         );
         assert_eq!(connection.query_row("SELECT COUNT(*) FROM sqlite_schema WHERE type='view' AND name='revision_authorized_ownership'", [], |row| row.get::<_, i64>(0)).unwrap(), 0);
     }
+}
+
+#[cfg(unix)]
+#[test]
+fn another_scopes_raw_root_cannot_validate_same_display_historical_owner() {
+    use std::os::unix::ffi::OsStringExt;
+    let roots = [0xff, 0xfe].map(|byte| {
+        let mut raw = b"/isolated/r".to_vec();
+        raw.push(byte);
+        Locator::from_native_path(&std::path::PathBuf::from(std::ffi::OsString::from_vec(raw)))
+    });
+    assert_eq!(roots[0].display, roots[1].display);
+    assert_ne!(roots[0].raw_b64, roots[1].raw_b64);
+    let (original, authorized) = legacy_database(
+        &roots,
+        ResourceLocator::NativePath(roots[0].display.clone()),
+        true,
+        Some(1),
+    );
+    assert!(original.is_some());
+    assert!(
+        !authorized,
+        "different raw root incorrectly confirmed the displayed owner"
+    );
 }

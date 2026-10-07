@@ -1,0 +1,21 @@
+{
+  "base_sha": "56923f27e719c452ac9221f74250ccbbd7e1b762",
+  "source_sha256": {
+    "crates/diskgraph-engine/tests/history_scope_eligibility/fixture.rs": "198e4f1ae0524824214a87a0dc50c07f7b2bdea2b8faad494b3292b9776a8553",
+    "crates/diskgraph-engine/tests/legacy_backfill_identity.rs": "3ccd236ba8d48f6dab27908d05085c23bbf71044074bbade47fe194c0d442d50"
+  },
+  "local_platform": "macOS",
+  "results": {
+    "history_preparation_budget": 10,
+    "history_scope_eligibility": 11,
+    "legacy_backfill_identity": 8,
+    "relation_preparation_budget": 11
+  },
+  "initial_history_scope_result": "0 passed, 11 failed: original root proof absent in positive fixture",
+  "clippy": "exit 0",
+  "limitations": [
+    "No native Linux/Windows claim",
+    "No full workspace or performance acceptance",
+    "Synthetic imported graph; only original root has native identity proof"
+  ]
+}

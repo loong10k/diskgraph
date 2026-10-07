@@ -10,6 +10,6 @@ Schema v15 retains snapshots and original ownership rows. It records unconfirmed
 
 SQLite consistent backups precede upgrades. Failed migration or view validation prevents opening a usable Engine. Stop older services during upgrade; older binaries that bypass this view must not run alongside the new service. Reindex the authorized root to produce a new revision with native identity proof; display matching cannot clear isolation.
 
-当前候选验证状态：macOS 隔离行为测试 7 项通过；Linux/Windows 原生结果、完整 workspace 与最终查询性能仍需验收。此文档不构成生产就绪证明。
+当前候选验证状态：macOS 隔离行为测试 8 项通过，相关历史与关系回归合计 40 项通过；Linux/Windows 原生结果、完整 workspace 与最终查询性能仍需验收。此文档不构成生产就绪证明。
 
-Candidate validation: seven isolated behavior tests pass on macOS. Native Linux/Windows results, the complete workspace, and final query performance remain pending. This document is not production-readiness evidence.
+Candidate validation: eight isolated behavior tests and 40 related history/relation regressions pass on macOS. Native Linux/Windows results, the complete workspace, and final query performance remain pending. This document is not production-readiness evidence.
