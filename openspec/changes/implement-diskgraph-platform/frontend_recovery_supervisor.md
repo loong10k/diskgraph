@@ -73,6 +73,8 @@ flowchart TD
 
 ### Linux 原生文件名夹具准备修复（2026-10-07）
 
+Windows 隔离目录改名准备现仅对 OS32 在原 ProbeBudget 内重试；每轮核验原完整身份、目标不存在，成功后核验移动对象和原预算。永久冲突、陌生替换及其他错误仍失败，原实际删除断言不变。两条独立静态审查无阻塞；macOS 清理回归 5/0，Windows 原生编译及运行仍待同 SHA CI，不以本机通过替代。Linux Git 对象库组扩大回归为 13/0。
+
 源提交 `7fc3330` 的 Linux ARM64 CI job `112632060463` 在创建 `.git/objects/ff` 时实际返回 AlreadyExists，尚未执行非法原生文件名拒绝断言。初始提交可能已使用该哈希分桶；夹具现使用 `create_dir_all`，保留既有对象及原 `[0xff; 38]` 注入和精确拒绝原因断言。本轮非特权、无网络 Linux ARM64 隔离环境实际执行 `cargo test --offline -p diskgraph-engine --lib native_non_utf8_loose_names_are_not_lossily_normalized -- --nocapture`，结果 1 passed / 0 failed；package fmt、diff check 通过，两条独立审查均无阻塞。一次带 `--exact` 的非全限定过滤实际执行 0 项，明确不计为验收证据。本修复不修改生产逻辑，不关闭监督进程或全平台验收任务。
 
 ## 控制通知模块的实现边界

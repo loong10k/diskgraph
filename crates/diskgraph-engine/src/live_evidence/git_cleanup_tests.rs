@@ -39,7 +39,10 @@ fn moved_private_directory_uses_actual_platform_recovery() {
             &mut probe,
         )
         .unwrap();
+    #[cfg(not(windows))]
     std::fs::rename(&path, &moved).unwrap();
+    #[cfg(windows)]
+    rename_original_fixture(&path, &moved, &mut probe).unwrap();
     let observed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         #[cfg(not(windows))]
         {
@@ -72,13 +75,67 @@ fn moved_private_directory_uses_actual_platform_recovery() {
     }));
     // 原对象尚未被清理时才恢复原名称，再让同一 owner 显式重试；不按路径直接删除原对象。
     if moved.exists() {
+        #[cfg(not(windows))]
         std::fs::rename(&moved, &path).unwrap();
+        #[cfg(windows)]
+        rename_original_fixture(&moved, &path, &mut probe).unwrap();
     }
     assert_eq!(private.complete(Ok(9)).unwrap(), 9);
     assert!(!path.exists());
     assert!(!moved.exists());
     if let Err(payload) = observed {
         std::panic::resume_unwind(payload);
+    }
+}
+
+/// 移动隔离夹具的同一目录。参数：原路径、独占目标和原预算；返回：真实改名及身份确认结果。
+/// 仅测试准备使用；共享冲突不算成功，不延长期限，不修改产品分享权限。
+#[cfg(windows)]
+fn rename_original_fixture(
+    source: &std::path::Path,
+    target: &std::path::Path,
+    probe: &mut ProbeBudget,
+) -> std::io::Result<()> {
+    use super::git_private_allocation::GitPrivateAllocation;
+    let identity = GitPrivateAllocation::capture(source).map_err(std::io::Error::other)?;
+    loop {
+        probe.check().map_err(std::io::Error::other)?;
+        let current = GitPrivateAllocation::capture(source).map_err(std::io::Error::other)?;
+        if !identity.same_identity(&current) {
+            return Err(std::io::Error::other("fixture source identity changed"));
+        }
+        match std::fs::symlink_metadata(target) {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+            Ok(_) => {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::AlreadyExists,
+                    "fixture target exists",
+                ));
+            }
+        }
+        match std::fs::rename(source, target) {
+            Ok(()) => {
+                let moved = GitPrivateAllocation::capture(target).map_err(std::io::Error::other)?;
+                if !identity.same_identity(&moved) {
+                    return Err(std::io::Error::other("moved fixture identity changed"));
+                }
+                probe.check().map_err(std::io::Error::other)?;
+                return Ok(());
+            }
+            Err(error) if error.raw_os_error() == Some(32) => {
+                // 仅等待外部短期共享冲突；下一轮仍检查原身份、目标和原期限。
+                probe.check().map_err(std::io::Error::other)?;
+                std::thread::sleep(
+                    std::time::Duration::from_millis(20).min(
+                        probe
+                            .deadline()
+                            .saturating_duration_since(std::time::Instant::now()),
+                    ),
+                );
+            }
+            Err(error) => return Err(error),
+        }
     }
 }
 
