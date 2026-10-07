@@ -701,7 +701,23 @@ jobs:
           path: ${{ runner.temp }}/windows-observed-expiry.log
           if-no-files-found: error
           retention-days: 7
+      - name: Native history compatibility deadline isolation
+        id: history_deadline_isolation
+        if: runner.os == 'Linux'
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          cargo test -p diskgraph-engine --test history_compatibility_matrix --locked node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null -- --exact --nocapture --test-threads=1 > "$RUNNER_TEMP/history-deadline-isolation.log" 2>&1
+      - name: Preserve isolated history deadline evidence
+        if: always() && runner.os == 'Linux' && (steps.history_deadline_isolation.outcome == 'success' || steps.history_deadline_isolation.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: history-deadline-isolation-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/history-deadline-isolation.log
+          if-no-files-found: error
+          retention-days: 7
       - name: Test
+        if: success() || (!cancelled() && steps.history_deadline_isolation.outcome == 'failure')
         timeout-minutes: 30
         # 恢复失败可能阻止二进制返回；即时保留原断言/诊断，不等待 libtest 最终汇总。
         run: cargo test --workspace --all-targets --locked --no-fail-fast -- --nocapture
