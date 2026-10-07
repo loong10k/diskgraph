@@ -76,7 +76,7 @@ fn held_directory_pages_preserve_raw_utf16_and_full_file_ids() {
 
 #[test]
 fn directory_record_decoder_rejects_invalid_lengths_offsets_and_components() {
-    let record = FILE_ID_EXTD_DIR_INFO {
+    let mut record = FILE_ID_EXTD_DIR_INFO {
         FileNameLength: 2,
         FileName: [120],
         FileId: windows_sys::Win32::Storage::FileSystem::FILE_ID_128 {
