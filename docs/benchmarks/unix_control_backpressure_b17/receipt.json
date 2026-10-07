@@ -1,0 +1,12 @@
+{
+  "platform": "local macOS",
+  "base_commit": "b17f04c4684c5872d32cefeedd52896d812f6600",
+  "test_count": 7,
+  "source_sha256": "01b1cc4a3001f528329c3704f30e508e8dadcc0e96c6d70c1c5ee47444fa663e",
+  "log_sha256": "d571970541cfdd1ebaf0e093e0a39298a9554490ed5ccded6c0f1672e9f6b0ce",
+  "limitations": [
+    "No Linux runtime evidence yet",
+    "No Windows control transport implementation",
+    "Does not prove supervisor launch or frontend finite exit"
+  ]
+}

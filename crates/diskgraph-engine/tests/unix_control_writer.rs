@@ -10,7 +10,7 @@ use std::time::{Duration, Instant};
 fn actual_full_socket_buffer_stops_under_original_deadline() {
     let (mut original, mut peer) = UnixStream::pair().unwrap();
     original.set_nonblocking(true).unwrap();
-    let block = [0u8; 4096];
+    let block = [0u8; 1];
     loop {
         match original.write(&block) {
             Ok(_) => {}
@@ -163,4 +163,37 @@ fn same_original_frame_budget_refuses_further_writes() {
     let mut receiver = ControlReceiver::new([1; 32], Instant::now() + Duration::from_secs(2));
     assert_eq!(receiver.push(&bytes).unwrap().len(), 64);
     assert_eq!(receiver.end_of_stream(), Err(ControlError::Unconfirmed));
+}
+
+#[test]
+fn cancellation_during_actual_backpressure_stops_original_writer() {
+    let (mut original, peer) = UnixStream::pair().unwrap();
+    original.set_nonblocking(true).unwrap();
+    // 单字节填满真实 socket，避免大块写失败后仍有小帧可用空间。
+    loop {
+        match original.write(&[0]) {
+            Ok(1) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => break,
+            result => panic!("unexpected fill result: {result:?}"),
+        }
+    }
+    let until = Instant::now() + Duration::from_secs(2);
+    let mut writer = UnixControlWriter::new(original, [7; 32], until).unwrap();
+    let cancel = AtomicBool::new(false);
+    std::thread::scope(|scope| {
+        scope.spawn(|| {
+            std::thread::sleep(Duration::from_millis(20));
+            cancel.store(true, std::sync::atomic::Ordering::Release);
+        });
+        assert_eq!(
+            writer.send(ControlNotification::Ready {}, &cancel),
+            Err(ControlError::Cancelled)
+        );
+    });
+    cancel.store(false, std::sync::atomic::Ordering::Release);
+    assert_eq!(
+        writer.send(ControlNotification::Ready {}, &cancel),
+        Err(ControlError::Cancelled)
+    );
+    drop(peer);
 }

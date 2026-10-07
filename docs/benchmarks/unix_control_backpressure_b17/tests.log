@@ -1,0 +1,15 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+     Running tests/unix_control_writer.rs (target/debug/deps/unix_control_writer-de261efd983dbe92)
+
+running 7 tests
+test cancellation_is_sticky ... ok
+test actual_peer_close_is_sticky_and_does_not_raise_sigpipe ... ok
+test invalid_order_does_not_write_and_remains_rejected ... ok
+test actual_socket_delivers_original_frames ... ok
+test same_original_frame_budget_refuses_further_writes ... ok
+test cancellation_during_actual_backpressure_stops_original_writer ... ok
+test actual_full_socket_buffer_stops_under_original_deadline ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
