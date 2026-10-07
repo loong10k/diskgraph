@@ -180,10 +180,12 @@ fn dropping_pending_owner_does_not_claim_complete() {
     assert!(!owner.poll_retirement(deadline()).unwrap());
     drop(owner);
     drop(original);
-    assert!(matches!(
-        SlotReservation::acquire(open(&dir.path().join("slot")), deadline()),
-        Err(SlotError::Unconfirmed)
-    ));
+    let reacquired = SlotReservation::acquire(open(&dir.path().join("slot")), deadline());
+    let observed_error = reacquired.as_ref().err();
+    assert!(
+        matches!(reacquired, Err(SlotError::Unconfirmed)),
+        "pending owner must leave unconfirmed capacity; observed error: {observed_error:?}"
+    );
 }
 #[test]
 #[cfg(unix)]

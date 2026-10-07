@@ -1,0 +1,20 @@
+{
+  "source_commit": "21d583ac7601915c21327acd186d04a01cf8eee2",
+  "command": "cargo test --locked -p diskgraph-engine --all-targets --no-fail-fast",
+  "exit_code": 101,
+  "library_result": {
+    "passed": 492,
+    "failed": 115,
+    "ignored": 11
+  },
+  "assessment": "Not acceptance. Native installed worker and standalone driver fixtures absent. Pending owner assertion also failed in concurrent run and passed isolated rerun; cause unresolved.",
+  "diagnostic_candidate_sha256": "06a26ee9c265628ba1d333acf9b10928d3582ef48607498ac994e4f9440e005e",
+  "diagnostic_binding_suite": {
+    "passed": 9,
+    "failed": 0
+  },
+  "limitations": [
+    "Nested subprocess result lines must not be summed as unique tests",
+    "Do not bypass native deployment admission to get green tests"
+  ]
+}

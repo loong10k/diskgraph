@@ -182,3 +182,7 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 ## v15 历史兼容性回归收敛
 
 历史 scope 正向导入夹具原先缺少原始根证明，在 v15 下 11/11 拒绝授权。夹具现从创建时保存的原始 PathBuf 经实际 staging 定位接口持久化唯一根身份；文件节点继续保留未知旧元数据，不从展示文本推测路径，也不放宽生产隔离。新增同显示、不同原始字节的另一 scope 根不能验证历史归属反例，保留原审计映射并拒绝访问。本机历史准备10、scope11、旧归属8、关系准备11，合计40/0；Engine all-targets Clippy及fmt检查通过。证据见 `docs/benchmarks/v15_history_compatibility_569/`。Linux/Windows、完整workspace及生产性能仍未验收，不勾选总体任务。
+
+## 当前源码本机全量回归失败留证
+
+21d583a 的 Engine all-targets 在未准备固定受信 macOS 扫描部署与 standalone driver 夹具的本机退出101；库套件492通过、115失败、11忽略，不作为全量验收。另有 dropping_pending_owner 断言在并发全量失败、单独重跑通过，原因尚未确认；增加实际错误诊断但保持 Unconfirmed 断言，绑定套件9/0不能关闭该并发问题。保留全量与复跑日志于 `docs/benchmarks/engine_full_local_21d583/`。不绕过固定镜像准入、不静默安装root服务。
