@@ -25,9 +25,13 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
     if parts.is_empty() {
         return Err(EngineError::Business(BusinessError::InvalidArgument));
     }
+    #[cfg(target_os = "linux")]
+    let directory_access = libc::O_PATH;
+    #[cfg(not(target_os = "linux"))]
+    let directory_access = libc::O_RDONLY;
     let mut directory = std::fs::OpenOptions::new()
         .read(true)
-        .custom_flags(libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC)
+        .custom_flags(directory_access | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC)
         .open("/")?;
     for component in root.components() {
         let name = match component {
@@ -40,7 +44,7 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
             libc::openat(
                 directory.as_raw_fd(),
                 name.as_ptr(),
-                libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC,
+                directory_access | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC,
             )
         };
         if fd < 0 {
@@ -48,6 +52,8 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
         }
         directory = unsafe { std::fs::File::from_raw_fd(fd) };
     }
+    #[cfg(target_os = "linux")]
+    crate::linux_no_recall_open::refuse_fuse(&directory)?;
     for (index, part) in parts.iter().enumerate() {
         let Component::Normal(name) = part else {
             return Err(EngineError::Business(BusinessError::PermissionDenied));
@@ -55,7 +61,11 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
         let name = CString::new(name.as_bytes())
             .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
         let is_last = index + 1 == parts.len();
-        let flags = libc::O_RDONLY
+        #[cfg(target_os = "linux")]
+        let access = libc::O_PATH;
+        #[cfg(not(target_os = "linux"))]
+        let access = libc::O_RDONLY;
+        let flags = access
             | libc::O_NOFOLLOW
             | libc::O_CLOEXEC
             | if is_last {
@@ -69,7 +79,11 @@ pub(crate) fn open_scoped(root: &Path, path: &Path) -> Result<std::fs::File, Eng
             return Err(std::io::Error::last_os_error().into());
         }
         let opened = unsafe { std::fs::File::from_raw_fd(fd) };
+        #[cfg(target_os = "linux")]
+        crate::linux_no_recall_open::refuse_fuse(&opened)?;
         if is_last {
+            #[cfg(target_os = "linux")]
+            let opened = crate::linux_no_recall_open::open_bound(&opened)?;
             if !opened.metadata()?.is_file() {
                 return Err(EngineError::Business(BusinessError::InvalidArgument));
             }

@@ -1,0 +1,12 @@
+   Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.28s
+     Running tests/linux_content_no_recall_probe.rs (/target/debug/deps/linux_content_no_recall_probe-b62348f63b3cbc4d)
+
+running 2 tests
+test actual_provider_content_read_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=false before=0 after=0 safe=true
+ok
+test actual_provider_digest_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=true before=0 after=0 safe=true
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+

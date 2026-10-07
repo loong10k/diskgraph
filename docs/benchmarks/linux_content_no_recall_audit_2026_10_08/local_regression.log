@@ -1,0 +1,27 @@
+   Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.01s
+     Running unittests src/lib.rs (/target/debug/deps/diskgraph_engine-a427c7dad161c4cb)
+
+running 2 tests
+test linux_no_recall_open_tests::replaced_name_cannot_redirect_the_bound_data_open ... ok
+test linux_no_recall_open_tests::path_only_link_never_becomes_a_data_handle ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 662 filtered out; finished in 0.00s
+
+   Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.00s
+     Running tests/content_flow.rs (/target/debug/deps/content_flow-eff7ffeb4aac24a2)
+
+running 7 tests
+test a_read_stops_at_the_byte_budget_and_says_truncated ... ok
+test a_read_refuses_links_directories_and_out_of_scope_paths ... ok
+test a_placeholder_is_reported_and_never_opened ... ok
+test a_digest_is_bounded_cancellable_and_stable ... ok
+test content_read_requires_the_content_grant ... ok
+test the_metadata_only_export_cannot_carry_body_bytes ... ok
+test duplicate_suspects_group_by_size_and_mark_hard_links ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.51s
+
+error: 'cargo-clippy' is not installed for the toolchain '1.97.1-aarch64-unknown-linux-gnu'.
+help: run `rustup component add clippy` to install it

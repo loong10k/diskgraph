@@ -402,3 +402,9 @@ mod scope_authorization_tests;
 mod authority_expiry;
 
 mod live_permission;
+
+#[cfg(target_os = "linux")]
+mod linux_no_recall_open;
+
+#[cfg(all(test, target_os = "linux"))]
+mod linux_no_recall_open_tests;

@@ -1,0 +1,37 @@
+{
+  "head": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+  "evidence": "Native private FUSE baseline read/digest each triggered READ; candidate refuses before DATA_OPEN and READ; ordinary positive control triggers both",
+  "review": "architecture confirms production gap; unknown no-recall capability must not mean local",
+  "isolated_environment": "kernel supports fuse and fuse.h exists; no fusermount/libfuse; private container mknod+SYS_ADMIN+device cgroup opens /dev/fuse successfully; no package installed or host service changed",
+  "source_sha256": {
+    "crates/diskgraph-disktree/src/hydration_guard.rs": "3037856f37d632d229fc3f8c17a97142941faef5ff8ac455bd0c70da26d0d6d6",
+    "crates/diskgraph-engine/src/content/conservative_probe.rs": "87a654f029b18d640676978414439300670711cb166c26fffaaf8121d5a1d93a",
+    "crates/diskgraph-engine/src/scoped_content.rs": "ad374df15212c43bb966cf8cf6629e5698bfac8194d8e0eb66c6400e99fab593",
+    "crates/diskgraph-engine/src/scoped_file.rs": "ce1ecfd87e54490609b3b9492ebede82fdbbb8372ec76ff669cb457e6d78fbec"
+  },
+  "status": "limited FUSE repair candidate verified locally; generic Linux provider qualification remains incomplete; not full platform acceptance",
+  "runtime": "actual Linux ARM64 kernel FUSE mounted in private container: Engine digest/read 0/2 target RED, each causes real READ content callback, ordinary read positive control causes third callback",
+  "cleanup": "normal umount2 without detach, original provider wait return0 confirmed; no host mount/service or package install",
+  "fixture_sha256": {
+    "fuse_provider.c": "0479e1702d941c7927c90d988d773f62f3a0fcdb0683abbe74d58b49d220f38f",
+    "engine_no_recall_probe.rs": "7c1a8e4222fdc4c47b290e5e46c92192b0021d50ee32d64bb7c8aed40901898e"
+  },
+  "candidate_source_sha256": {
+    "crates/diskgraph-engine/src/lib.rs": "205b8f1c6d2b5fce91b221fd064cb50745feb63c92359df66bcbf8deca0b1ed1",
+    "crates/diskgraph-engine/src/scoped_file.rs": "ee3468bf6a745f99215b2e502cc2b736e346726f5f4199f3da10bb6fe86b9732",
+    "crates/diskgraph-engine/src/linux_no_recall_open.rs": "e5fcc843f18a86215a7de86d94df397a2e07cdcae835cd7b75087a8115310216",
+    "crates/diskgraph-engine/src/linux_no_recall_open_tests.rs": "0deffcde150c8e4029c96b1390f3e9067ac91c84029e99880cb99bf6ae3e08a6"
+  },
+  "current_fixture_sha256": {
+    "fuse_provider.c": "0541fc83c61d1b8e5c054e678e070601bff6b47c21874f10fb46e285143325e6",
+    "engine_no_recall_probe.rs": "ca4539458548a76dbb13dd54eb13dd9d5b516592b77cc843257219ebf7051634",
+    "run_product_probe.py": "3d9f04147e3d9f3240cb93d7d5b03bea68b0871372a06ede1379d011556dc440"
+  },
+  "candidate_validation": {
+    "native_fuse": "2/2 passed; zero product data opens/reads; ordinary positive control fetches",
+    "bound_handle_unit": "2/2 passed",
+    "content_flow": "7/7 passed",
+    "linux_clippy": "not run: cargo-clippy absent from isolated 1.97.1 toolchain; no installation performed",
+    "scope": "Linux ARM64 private container; does not prove macOS/Windows or all Linux filesystems"
+  }
+}

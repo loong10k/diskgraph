@@ -1,0 +1,31 @@
+   Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.12s
+     Running tests/linux_content_no_recall_probe.rs (/target/debug/deps/linux_content_no_recall_probe-b62348f63b3cbc4d)
+
+running 2 tests
+test actual_provider_content_read_must_not_fetch ... actual read bytes=23 stop=None
+DG_ACTUAL_FUSE_PRODUCT digest=false before=0 after=1 safe=false
+
+thread 'actual_provider_content_read_must_not_fetch' (329) panicked at crates/diskgraph-engine/tests/linux_content_no_recall_probe.rs:39:2:
+assertion `left == right` failed: product triggered real content callback
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test actual_provider_digest_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=true before=1 after=2 safe=false
+
+thread 'actual_provider_digest_must_not_fetch' (330) panicked at crates/diskgraph-engine/tests/linux_content_no_recall_probe.rs:39:2:
+assertion `left == right` failed: product triggered real content callback
+  left: 2
+ right: 1
+FAILED
+
+failures:
+
+failures:
+    actual_provider_content_read_must_not_fetch
+    actual_provider_digest_must_not_fetch
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+error: test failed, to rerun pass `-p diskgraph-engine --test linux_content_no_recall_probe`
