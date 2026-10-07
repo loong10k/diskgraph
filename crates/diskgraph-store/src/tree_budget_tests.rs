@@ -115,3 +115,28 @@ fn dense_mixed_unknown_tree_counts_do_not_walk_the_threshold_prefix() {
         steps.load(Ordering::Relaxed)
     );
 }
+
+#[test]
+fn tree_sql_window_scales_with_remaining_budget_not_requested_limit() {
+    let store = child_aggregate_tests::wide_store(false);
+    let steps = child_aggregate_tests::count_steps(&store);
+    let mut budget = ledger(3);
+    // 整次请求已消耗一个节点，调用方的大页不能重新获得完整预算。
+    assert!(budget.admit(1, 0, 0));
+    let (nodes, more) = store
+        .tree_children_with_budget("wide", 1, 0, 5_000, &mut budget)
+        .unwrap();
+    assert_eq!(nodes.len(), 2);
+    assert_eq!(budget.nodes_read(), 3);
+    assert!(more);
+    assert_eq!(
+        budget.stopped(),
+        Some(diskgraph_core::TruncationReason::NodeLimit)
+    );
+    let actual = steps.load(Ordering::Relaxed);
+    eprintln!("tree remaining_nodes=2, requested=5000, VM steps={actual}");
+    assert!(
+        actual < 1_500,
+        "tree SQL window ignored remaining budget: {actual} VM steps"
+    );
+}

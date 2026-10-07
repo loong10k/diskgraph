@@ -24,6 +24,9 @@ impl SqliteSnapshotStore {
             .checked_add(1)
             .and_then(|value| i64::try_from(value).ok())
             .ok_or(StoreError::IntegerOverflow)?;
+        // SQL候选窗口也沿用整次请求剩余额度；保留一行存在探针与原超大limit拒绝。
+        let count = count
+            .min(i64::try_from(budget.remaining_nodes().saturating_add(1)).unwrap_or(i64::MAX));
         // 已知/未知分别匹配 v9 partial index，先取有界 ID 窗口，再统一排序/解码。
         // 不用 OR 扫过宽目录中被 minimum 排除的已知前缀；SQLite 临时状态仍不承诺 RSS。
         let sql = format!(

@@ -1,0 +1,31 @@
+{
+  "base_sha": "1c54b53",
+  "source_sha256": {
+    "crates/diskgraph-store/src/tree_budget_query.rs": "6d285a4b8bd4005f08eae6da834830fe3b122b1c9361599f323dfa69253ad556",
+    "crates/diskgraph-store/src/tree_budget_tests.rs": "f039f4d036d63201e2d9ab76177448d94b711d6e551427713124d9935fef6d4d"
+  },
+  "release_fixture": "actual SQLite 200k-wide metadata fixture; requested 5000, original budget 3 with 1 already consumed",
+  "red": {
+    "vm_steps": 85300,
+    "returned_nodes": 2,
+    "exit_code": 101
+  },
+  "green": {
+    "vm_steps": 400,
+    "returned_nodes": 2,
+    "truncation": "NodeLimit",
+    "tree_tests_passed": 4
+  },
+  "full_store": {
+    "passed": 319,
+    "failed": 0,
+    "ignored": 5,
+    "exit_code": 0
+  },
+  "clippy": "exit 0",
+  "limitations": [
+    "VM instructions are not physical IO or RSS",
+    "Local macOS results only; full platform acceptance remains pending",
+    "Remaining response byte and node budgets retain independent meanings"
+  ]
+}

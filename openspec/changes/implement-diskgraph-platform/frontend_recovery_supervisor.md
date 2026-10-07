@@ -210,3 +210,9 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 复用20k/200k合成元数据夹具，正式children_with_budget/tree_children_with_budget各100次10/100节点页，断言返回和账本解码数匹配页大小；记录p50/p95。只证明有界解码与暖连接时间，不声明SQLite物理页、RSS或CLI/MCP端到端。首轮旧v8迁移夹具保留v15拒绝表导致失败，降级必须移除未来表/视图，不改生产迁移核验。
 
 正式store release测量已两次通过：20k/200k、10/100节点页各100暖查询，账本解码数严格随页大小，目录量十倍未导致页时间同比增长。主次运行原始日志、p50/p95、迁移与staging正式发布DB/WAL/临时空间、整测试进程RSS保存在 `docs/benchmarks/store_release_queries_5649/`。样本不是文件扫描，不涵盖冷缓存、并发、深目录或三平台；原基线是同夹具旧结构计数查询，不是旧发布二进制。Clippy all-targets及fmt通过，最终性能任务仍未勾选。
+
+## 树SQL窗口服从剩余预算
+
+大limit不能让known/unknown/page候选窗口超出整次请求剩余节点数加一行存在探针；此前请求消耗不得重置。真实200k宽目录以SQLite progress_handler(1)测VM工作，剩余2、请求5000，要求返回2且NodeLimit，工作不随5000候选增长。VM不是物理页或RSS；保留原limit溢出拒绝、未知节点语义和lookahead不解码。
+
+树窗口修复RED实际85300 VM指令，GREEN400；相同200k宽目录、原预算3已消耗1、请求5000，仍返回2及NodeLimit。SQL各分支窗口钳制为remaining_nodes+1，原超大limit溢出拒绝保留。release树4/0、store all-targets319/0、5明确忽略，Clippy/fmt通过；证据 `docs/benchmarks/tree_sql_window_1c54b53/`。VM成本不是物理IO/RSS，三平台与总体生产门禁保持未完成。
