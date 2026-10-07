@@ -1,0 +1,22 @@
+{
+  "base_commit": "e0ab919b94c61fb730559a699345b72472866b00",
+  "source_sha256": {
+    "crates/diskgraph-core/src/scan.rs": "1acd47a5e100e87aff72c15d74af2e28a23f23e82d8ff2830629b2edaae5ae76",
+    "crates/diskgraph-core/src/scan_budget_overflow_tests.rs": "e13dd96e3baff2264d86138ba9750ba61e80c6ca607f5df7ddcb8a3b311a463e",
+    "crates/diskgraph-core/src/lib.rs": "eb572fe01dd7952ee8e498deb11ca874f4cb5f07ed30df5a42d2b98d0dec3d10"
+  },
+  "red_passed": 1,
+  "red_failed": 2,
+  "macos_core_lib_passed": 167,
+  "core_clippy": "passed",
+  "target_platform_evidence": [
+    "macOS",
+    "Linux ARM64 Docker"
+  ],
+  "production_acceptance": false,
+  "linux_core_lib_passed": 167,
+  "independent_review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  }
+}

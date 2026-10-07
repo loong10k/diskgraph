@@ -164,3 +164,6 @@ pub use unix_observation_gap::UnixObservationGap;
 mod process_evidence_contract_tests;
 #[cfg(test)]
 mod process_limits_stream_tests;
+
+#[cfg(test)]
+mod scan_budget_overflow_tests;

@@ -195,13 +195,22 @@ pub enum ScanBudgetStop {
 }
 
 impl ScanBudget {
-    /// Accounts one more node and decides whether the walk may continue.
+    /// 累计一个节点及其编码字节；参数：当前usage和实际node_bytes；返回：继续或命名预算停止。
     pub fn charge_node(&self, usage: &mut BudgetUsage, node_bytes: u64) -> BudgetDecision {
-        usage.nodes = usage.nodes.saturating_add(1);
+        // 报告值可饱和，准入必须区分溢出与精确达到可表示上限。
+        let Some(nodes) = usage.nodes.checked_add(1) else {
+            usage.nodes = u64::MAX;
+            return BudgetDecision::Stop(ScanBudgetStop::NodeLimit);
+        };
+        usage.nodes = nodes;
         if usage.nodes > self.max_nodes {
             return BudgetDecision::Stop(ScanBudgetStop::NodeLimit);
         }
-        usage.staged_bytes = usage.staged_bytes.saturating_add(node_bytes);
+        let Some(staged_bytes) = usage.staged_bytes.checked_add(node_bytes) else {
+            usage.staged_bytes = u64::MAX;
+            return BudgetDecision::Stop(ScanBudgetStop::StagingLimit);
+        };
+        usage.staged_bytes = staged_bytes;
         if usage.staged_bytes > self.max_staging_bytes {
             return BudgetDecision::Stop(ScanBudgetStop::StagingLimit);
         }
