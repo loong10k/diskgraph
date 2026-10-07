@@ -108,7 +108,16 @@ impl WindowsGitCleanup {
     pub(super) fn cleanup(&mut self, capacity: Option<&GitPrivateCapacity>) -> Result<(), String> {
         let mut probe =
             ProbeBudget::new(&super::ProbeLimits::default()).map_err(|error| error.to_string())?;
-        self.cleanup_with_budget(capacity, &mut probe)
+        loop {
+            if self.cleanup_with_budget(capacity, &mut probe)? {
+                return Ok(());
+            }
+            probe.check().map_err(|error| error.to_string())?;
+            let remaining = probe
+                .deadline()
+                .saturating_duration_since(std::time::Instant::now());
+            std::thread::sleep(remaining.min(std::time::Duration::from_millis(1)));
+        }
     }
 
     /// 参数：原账本及宿主绝对期限；返回：实际完成或到期保留状态，不建立新的时间窗口。
@@ -123,14 +132,13 @@ impl WindowsGitCleanup {
         let mut probe = ProbeBudget::until(&super::ProbeLimits::default(), deadline)
             .map_err(|error| error.to_string())?;
         self.cleanup_with_budget(capacity, &mut probe)
-            .map(|()| true)
     }
 
     fn cleanup_with_budget(
         &mut self,
         capacity: Option<&GitPrivateCapacity>,
         probe: &mut ProbeBudget,
-    ) -> Result<(), String> {
+    ) -> Result<bool, String> {
         probe.check().map_err(|error| error.to_string())?;
         if !self.initialized {
             let root = self
@@ -196,7 +204,8 @@ impl WindowsGitCleanup {
                     .confirm_cleanup_child_absent(probe)
                     .map_err(|error| error.to_string())?
                 {
-                    return Err("original child deletion pending; recovery retained".into());
+                    // Pending 保留原帧/子项，并把执行机会交还恢复轮的其他槽。
+                    return Ok(false);
                 }
                 continue;
             }
@@ -244,7 +253,7 @@ impl WindowsGitCleanup {
         self.finish_root(probe)
     }
 
-    fn finish_root(&mut self, probe: &mut ProbeBudget) -> Result<(), String> {
+    fn finish_root(&mut self, probe: &mut ProbeBudget) -> Result<bool, String> {
         let expected = self
             .identity
             .as_ref()
@@ -302,17 +311,12 @@ impl WindowsGitCleanup {
             self.root = None;
         }
         probe.check().map_err(|error| error.to_string())?;
-        if self
-            .observation
+        // 只推进原通知一次；有界恢复遇到 Pending 返回 false，不霸占整轮期限。
+        self.observation
             .as_mut()
             .ok_or("original root observation missing")?
             .confirm(expected, probe)
-            .map_err(|error| format!("original root removal confirmation: {error}"))?
-        {
-            Ok(())
-        } else {
-            Err("original root deletion pending; recovery retained".into())
-        }
+            .map_err(|error| format!("original root removal confirmation: {error}"))
     }
 }
 

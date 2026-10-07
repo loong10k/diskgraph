@@ -259,6 +259,22 @@ jobs:
           path: ${{ runner.temp }}/diskgraph-windows-pool-unwind/
           if-no-files-found: error
           retention-days: 7
+      - name: Native Windows pending directory pool fairness
+        if: runner.os == 'Windows'
+        timeout-minutes: 5
+        run: |
+          cargo test -p diskgraph-engine --lib --locked live_evidence::probe_resource_pool_tests::pending_first_directory_does_not_starve_second_original_slot -- --exact --nocapture --test-threads=1 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-pending-pool-fairness.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = Get-Content "$env:RUNNER_TEMP/windows-pending-pool-fairness.log" -Raw
+          if ($log -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;' -or $log -notmatch 'DG_PENDING_FIRST_ORIGINAL_SECOND_RETIRED=1') { throw 'Native pool fairness evidence missing' }
+      - name: Preserve Windows pending directory pool fairness
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-pending-pool-fairness-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-pending-pool-fairness.log
+          if-no-files-found: error
+          retention-days: 7
       - name: Native Windows original directory retry red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10

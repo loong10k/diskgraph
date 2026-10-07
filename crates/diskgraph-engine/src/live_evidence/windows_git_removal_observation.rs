@@ -97,7 +97,7 @@ impl WindowsGitRemovalObservation {
     }
 
     /// 参数：child为原登记身份、probe为本轮预算；返回：完整原通知且原I/O完成后true。
-    /// 无通知时保留原ID查询的正控、pending及未知错误；87永不成为删除证明。
+    /// 无匹配通知时返回 Pending；独立 ID 查询、路径缺失及87均不授予删除完成。
     pub(super) fn confirm(
         &mut self,
         child: &GitPrivateAllocation,
@@ -150,17 +150,8 @@ impl WindowsGitRemovalObservation {
                 return Err(error);
             }
         }
-        let result =
-            super::windows_git_deletion_witness::WindowsGitDeletionWitness::confirm_absent(
-                original.directory(),
-                child,
-                probe,
-            )?;
-        if result {
-            return Err(io::Error::other(
-                "original ID absent without original removal notification",
-            ));
-        }
+        // 尚无匹配通知时只保留原订阅；ID 查询的未知错误或缺失都不能授予完成。
+        // 原 owner 继续持有 I/O 与容量，后续沿同一预算轮询原 REMOVE。
         probe.check().map_err(io::Error::other)?;
         Ok(false)
     }

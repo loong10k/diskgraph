@@ -376,16 +376,14 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     drop(cursor);
     drop(root);
     compare_native_sdk_file_id(&hint, &identity, "pending");
-    // 生产确认接口只观察原ID，未知/权限/等待删除错误均保持原恢复责任。
-    let pending = observation
-        .as_mut()
-        .unwrap()
-        .confirm(&identity, &mut probe)
-        .expect_err("delete-pending original must not be confirmed absent");
-    assert_eq!(
-        pending.raw_os_error(),
-        Some(5),
-        "pending is not proof of deletion"
+    // 外部原句柄仍存活时没有完整原 REMOVE 通知；保持 Pending，不释放清理责任。
+    assert!(
+        !observation
+            .as_mut()
+            .unwrap()
+            .confirm(&identity, &mut probe)
+            .unwrap(),
+        "held original object must remain pending"
     );
     assert_eq!(
         std::fs::read(original.join("foreign")).unwrap(),
@@ -393,13 +391,16 @@ fn pending_original_deletion_is_not_complete_until_external_handle_closes() {
     );
     drop(external);
     compare_native_sdk_file_id(&hint, &identity, "closed");
-    assert!(
-        observation
-            .as_mut()
-            .unwrap()
-            .confirm(&identity, &mut probe)
-            .unwrap()
-    );
+    // 通知投递可晚于 close；沿用原 probe 预算，绝不以路径缺失或 ID 错误确认完成。
+    while !observation
+        .as_mut()
+        .unwrap()
+        .confirm(&identity, &mut probe)
+        .unwrap()
+    {
+        probe.check().unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
     assert_fixture_absent(&moved);
     assert_eq!(
         std::fs::read(original.join("foreign")).unwrap(),

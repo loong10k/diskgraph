@@ -334,3 +334,97 @@ fn expired_probe_recovery_keeps_actual_directory_and_capacity_until_live_retry()
     }
     eprintln!("DG_EXPIRED_PROBE_RECOVERY_RETAINS_ORIGINAL_THEN_ACTUALLY_REMOVES=1");
 }
+
+#[test]
+fn pending_first_directory_does_not_starve_second_original_slot() {
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL, FILE_FLAG_OPEN_REPARSE_POINT,
+        FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE, FILE_SHARE_WRITE,
+    };
+    let (host, recovery) = ProbeHost::new(2).unwrap();
+    let mut originals = Vec::new();
+    let mut roots = Vec::new();
+    for _ in 0..2 {
+        let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+        budget.bind_probe_host(Arc::clone(&host.registry)).unwrap();
+        let mut private = GitPrivateDirectory::new(&mut budget).unwrap();
+        let root = private.path().to_owned();
+        let path = root.join("original-denied-file");
+        private.write(&path, b"original", &mut budget).unwrap();
+        let denied = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ)
+            .open(&path)
+            .unwrap();
+        roots.push(root);
+        originals.push((budget, private, denied));
+    }
+    // 首槽根句柄允许原删除请求，但保持原对象存活；不把共享拒绝当作 Pending。
+    let mut held_root = Some(
+        std::fs::OpenOptions::new()
+            .access_mode(FILE_READ_ATTRIBUTES)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+            .custom_flags(
+                FILE_FLAG_BACKUP_SEMANTICS
+                    | FILE_FLAG_OPEN_REPARSE_POINT
+                    | FILE_FLAG_OPEN_NO_RECALL,
+            )
+            .open(&roots[0])
+            .unwrap(),
+    );
+    let original_root =
+        crate::windows_file_state::WindowsFileState::capture(held_root.as_ref().unwrap()).unwrap();
+    for (_, private, _) in &mut originals {
+        assert!(private.complete(Ok(())).unwrap_err().contains("cleanup"));
+    }
+    // 原 owner 已交回原池；释放会话及文件阻碍，仅保留首槽的真实根句柄。
+    drop(originals);
+    let observed = catch_unwind(AssertUnwindSafe(|| {
+        assert_eq!(recovery.occupied_slots().unwrap(), 2);
+        assert!(host.registry.reserve().is_err());
+        let until = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        while recovery.occupied_slots().unwrap() == 2 {
+            assert!(
+                std::time::Instant::now() < until,
+                "first Pending starved second slot"
+            );
+            assert!(!recovery.drain_until(until).unwrap());
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+        assert_eq!(recovery.occupied_slots().unwrap(), 1);
+        let retained_root =
+            crate::windows_file_state::WindowsFileState::capture(held_root.as_ref().unwrap())
+                .unwrap();
+        assert_eq!(
+            original_root.changed_mask(&retained_root) & 0x8b,
+            0,
+            "held original volume, full ID, creation and directory type must remain"
+        );
+        assert!(
+            !roots[1].exists(),
+            "second original root must actually retire"
+        );
+        let next = host.registry.reserve().unwrap();
+        assert!(
+            host.registry.reserve().is_err(),
+            "first original still occupies capacity"
+        );
+        drop(next);
+    }));
+    // 无论断言是否失败，只解除本夹具原句柄，沿原恢复接口完成清场。
+    drop(held_root.take());
+    let until = std::time::Instant::now() + std::time::Duration::from_secs(10);
+    while !recovery.drain_until(until).unwrap() {
+        assert!(
+            std::time::Instant::now() < until,
+            "original recovery did not retire"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
+    assert_eq!(recovery.occupied_slots().unwrap(), 0);
+    assert!(roots.iter().all(|root| !root.exists()));
+    if let Err(payload) = observed {
+        resume_unwind(payload);
+    }
+    println!("DG_PENDING_FIRST_ORIGINAL_SECOND_RETIRED=1");
+}
