@@ -1,0 +1,417 @@
+{
+  "source_commit": "953c173c70d6f77c8cf32b4f7452bc6de505c3ba",
+  "command": "cargo test -p diskgraph-mcp -p diskgraph-engine --locked --no-fail-fast -- --test-threads=1",
+  "exit": 101,
+  "runtime": "Linux ARM64 Docker root; Rust 1.97.1; Git 2.39.5",
+  "qualification": "diagnostic only; Git below required 2.46; worker fixture env not configured; no native supervisor qualification; no production pass",
+  "counts": {
+    "passed": 648,
+    "failed": 485,
+    "ignored": 13
+  },
+  "targets": [
+    {
+      "target": "unittests src/lib.rs (/fixture/target/debug/deps/diskgraph_engine-ecad4b9cba48c3be)",
+      "passed": 352,
+      "failed": 281,
+      "ignored": 5
+    },
+    {
+      "target": "tests/capacity_baseline.rs (/fixture/target/debug/deps/capacity_baseline-4a216ea46617d0e6)",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 3
+    },
+    {
+      "target": "tests/compare_two_trees.rs (/fixture/target/debug/deps/compare_two_trees-8a51f8583502486c)",
+      "passed": 0,
+      "failed": 3,
+      "ignored": 0
+    },
+    {
+      "target": "tests/content_cloud_windows.rs (/fixture/target/debug/deps/content_cloud_windows-2ed4ed6e0e876063)",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/content_deadlines.rs (/fixture/target/debug/deps/content_deadlines-750692285bb5455f)",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/content_flow.rs (/fixture/target/debug/deps/content_flow-356bab7623a621d6)",
+      "passed": 0,
+      "failed": 7,
+      "ignored": 0
+    },
+    {
+      "target": "tests/content_windows.rs (/fixture/target/debug/deps/content_windows-f0f596968805eb5e)",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/engine_flow.rs (/fixture/target/debug/deps/engine_flow-eff668c32f8cd161)",
+      "passed": 0,
+      "failed": 20,
+      "ignored": 0
+    },
+    {
+      "target": "tests/fencing_exhaustion.rs (/fixture/target/debug/deps/fencing_exhaustion-018afdc87454e29b)",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/growth_narrow_read.rs (/fixture/target/debug/deps/growth_narrow_read-2d5e8d8d84b4d2ff)",
+      "passed": 0,
+      "failed": 5,
+      "ignored": 0
+    },
+    {
+      "target": "tests/hardening.rs (/fixture/target/debug/deps/hardening-e53de7b70ec5805a)",
+      "passed": 0,
+      "failed": 16,
+      "ignored": 0
+    },
+    {
+      "target": "tests/hardening_benchmark.rs (/fixture/target/debug/deps/hardening_benchmark-d6a8a4dd163622b8)",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 1
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (/fixture/target/debug/deps/history_compatibility_matrix-6ee8f15aa55b4dfa)",
+      "passed": 0,
+      "failed": 10,
+      "ignored": 0
+    },
+    {
+      "target": "tests/history_preparation_budget.rs (/fixture/target/debug/deps/history_preparation_budget-e2b1e8feb885fc05)",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/history_scope_eligibility.rs (/fixture/target/debug/deps/history_scope_eligibility-01eb6f2bc14c8102)",
+      "passed": 13,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (/fixture/target/debug/deps/history_size_eligibility-97b18ccd55fc9a92)",
+      "passed": 0,
+      "failed": 9,
+      "ignored": 0
+    },
+    {
+      "target": "tests/legacy_backfill_identity.rs (/fixture/target/debug/deps/legacy_backfill_identity-c724a98cebad0e4a)",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/legacy_relation_terminal.rs (/fixture/target/debug/deps/legacy_relation_terminal-acb34f506f5f7c77)",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/linux_group_view_probe.rs (/fixture/target/debug/deps/linux_group_view_probe-faefbee25d1d8619)",
+      "passed": 0,
+      "failed": 5,
+      "ignored": 0
+    },
+    {
+      "target": "tests/linux_process_epoch.rs (/fixture/target/debug/deps/linux_process_epoch-51fff3f800cf6d96)",
+      "passed": 0,
+      "failed": 2,
+      "ignored": 0
+    },
+    {
+      "target": "tests/linux_process_execution.rs (/fixture/target/debug/deps/linux_process_execution-c34416124637bab3)",
+      "passed": 0,
+      "failed": 2,
+      "ignored": 0
+    },
+    {
+      "target": "tests/linux_process_observation.rs (/fixture/target/debug/deps/linux_process_observation-8e345b0c22e3f927)",
+      "passed": 0,
+      "failed": 2,
+      "ignored": 0
+    },
+    {
+      "target": "tests/macos_installer_api.rs (/fixture/target/debug/deps/macos_installer_api-61d5d49c1f2e2721)",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/native_deadline.rs (/fixture/target/debug/deps/native_deadline-026284a30dfa7220)",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 2
+    },
+    {
+      "target": "tests/process_entry_scope_budget.rs (/fixture/target/debug/deps/process_entry_scope_budget-02ad0595b7120d50)",
+      "passed": 0,
+      "failed": 5,
+      "ignored": 0
+    },
+    {
+      "target": "tests/process_job_dispatch.rs (/fixture/target/debug/deps/process_job_dispatch-0ce6dd32e663656c)",
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0
+    },
+    {
+      "target": "tests/process_native_budget.rs (/fixture/target/debug/deps/process_native_budget-6b09d5590f4144cc)",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/process_preparation_budget.rs (/fixture/target/debug/deps/process_preparation_budget-8094059ecfe34310)",
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0
+    },
+    {
+      "target": "tests/query_finalizer_budget.rs (/fixture/target/debug/deps/query_finalizer_budget-682424f1074dfef5)",
+      "passed": 0,
+      "failed": 3,
+      "ignored": 0
+    },
+    {
+      "target": "tests/query_request_budget.rs (/fixture/target/debug/deps/query_request_budget-0cb806ade9f794fb)",
+      "passed": 0,
+      "failed": 9,
+      "ignored": 0
+    },
+    {
+      "target": "tests/query_until_budget.rs (/fixture/target/debug/deps/query_until_budget-3ca297d54b42a5d1)",
+      "passed": 0,
+      "failed": 10,
+      "ignored": 0
+    },
+    {
+      "target": "tests/recovery_control.rs (/fixture/target/debug/deps/recovery_control-4a434d35b3ce0130)",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/recovery_slot.rs (/fixture/target/debug/deps/recovery_slot-0fbadf2a304a4d40)",
+      "passed": 9,
+      "failed": 0,
+      "ignored": 1
+    },
+    {
+      "target": "tests/relation_preparation_budget.rs (/fixture/target/debug/deps/relation_preparation_budget-1e7da1dbc5ea37ca)",
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/relation_request_budget.rs (/fixture/target/debug/deps/relation_request_budget-ef70832d2a19a73b)",
+      "passed": 0,
+      "failed": 9,
+      "ignored": 0
+    },
+    {
+      "target": "tests/runtime_revision_authorization.rs (/fixture/target/debug/deps/runtime_revision_authorization-0787315609ad7d27)",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scan_options_parity.rs (/fixture/target/debug/deps/scan_options_parity-be8024f80cb1f73c)",
+      "passed": 0,
+      "failed": 5,
+      "ignored": 1
+    },
+    {
+      "target": "tests/scan_worker_engine_flow.rs (/fixture/target/debug/deps/scan_worker_engine_flow-0474af4bf42b8c84)",
+      "passed": 0,
+      "failed": 3,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scan_worker_host_contract.rs (/fixture/target/debug/deps/scan_worker_host_contract-acaf0515e2fc1922)",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scan_worker_installation.rs (/fixture/target/debug/deps/scan_worker_installation-9091d60dfb45ece8)",
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scan_worker_no_host.rs (/fixture/target/debug/deps/scan_worker_no_host-b235ea15cf53ad62)",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scope_authorization_projection_tests.rs (/fixture/target/debug/deps/scope_authorization_projection_tests-dc8ad63428d2d823)",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scope_registration_atomic_tests.rs (/fixture/target/debug/deps/scope_registration_atomic_tests-13704d2ce0f0d14d)",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scope_registration_terminal_tests.rs (/fixture/target/debug/deps/scope_registration_terminal_tests-8a026759246d9efb)",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/source_layout.rs (/fixture/target/debug/deps/source_layout-a429c3f24c1eca97)",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/startup_concurrency.rs (/fixture/target/debug/deps/startup_concurrency-b39d2720686956f9)",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/supervisor_admission_error.rs (/fixture/target/debug/deps/supervisor_admission_error-dafc50af084a31aa)",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/unix_control_reader.rs (/fixture/target/debug/deps/unix_control_reader-821331f0ffd18d9f)",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/unix_control_writer.rs (/fixture/target/debug/deps/unix_control_writer-32ae3292518f0cdc)",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (/fixture/target/debug/deps/verify_comparison_content-465679d964e17658)",
+      "passed": 0,
+      "failed": 9,
+      "ignored": 0
+    },
+    {
+      "target": "unittests src/lib.rs (/fixture/target/debug/deps/diskgraph_mcp-8b0d5a1546a118e9)",
+      "passed": 120,
+      "failed": 34,
+      "ignored": 0
+    },
+    {
+      "target": "unittests src/main.rs (/fixture/target/debug/deps/diskgraph_mcp-3fbf7de28f54fce6)",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/deploy_contract.rs (/fixture/target/debug/deps/deploy_contract-8424ce456804cad5)",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/deployment_settings_compatibility.rs (/fixture/target/debug/deps/deployment_settings_compatibility-15b2a260b070714d)",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/durable_request_authority.rs (/fixture/target/debug/deps/durable_request_authority-92a79d4bdc98d5cb)",
+      "passed": 0,
+      "failed": 4,
+      "ignored": 0
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (/fixture/target/debug/deps/git_evidence_contract-ae3fe771662270fa)",
+      "passed": 0,
+      "failed": 11,
+      "ignored": 0
+    },
+    {
+      "target": "tests/git_evidence_socket.rs (/fixture/target/debug/deps/git_evidence_socket-b28773a3660afca8)",
+      "passed": 0,
+      "failed": 4,
+      "ignored": 0
+    },
+    {
+      "target": "tests/git_status_scope_contract.rs (/fixture/target/debug/deps/git_status_scope_contract-635e98d20e03faa0)",
+      "passed": 0,
+      "failed": 4,
+      "ignored": 0
+    },
+    {
+      "target": "tests/hardening.rs (/fixture/target/debug/deps/hardening-a0c4a68026a1b488)",
+      "passed": 3,
+      "failed": 7,
+      "ignored": 0
+    },
+    {
+      "target": "tests/http_signal_shutdown.rs (/fixture/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)",
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/legacy_delivery.rs (/fixture/target/debug/deps/legacy_delivery-2ac0f37df5defa5b)",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/process_evidence_contract.rs (/fixture/target/debug/deps/process_evidence_contract-43ce98a802f97eaa)",
+      "passed": 0,
+      "failed": 4,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scan_worker_binary_config.rs (/fixture/target/debug/deps/scan_worker_binary_config-5dee9e985ee83fe5)",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/scan_worker_service_startup.rs (/fixture/target/debug/deps/scan_worker_service_startup-aa8affde52d144e6)",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "tests/service_source_layout.rs (/fixture/target/debug/deps/service_source_layout-25ff3264e1550111)",
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "diskgraph_engine",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "target": "diskgraph_mcp",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "log_sha256": "bc8aebc1e28bcac19f9962df536a91c4bdbc0012cef59cc0e1d36fc5a07a7365"
+}
