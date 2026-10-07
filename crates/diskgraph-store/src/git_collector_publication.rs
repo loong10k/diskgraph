@@ -34,7 +34,7 @@ impl SqliteSnapshotStore {
             return Ok(receipt);
         }
         let mut statement=tx.prepare("SELECT r.snapshot_id,s.root_key,o.server_id,o.scope_id
-            FROM graph_revisions r JOIN snapshots s ON s.id=r.snapshot_id JOIN revision_ownership o ON o.revision_id=r.revision_id
+            FROM graph_revisions r JOIN snapshots s ON s.id=r.snapshot_id JOIN revision_authorized_ownership o ON o.revision_id=r.revision_id
             WHERE r.revision_id=?1")?;
         let mut rows = statement.query([input.base_revision_id()])?;
         let row = rows

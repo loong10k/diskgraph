@@ -32,9 +32,9 @@ impl Engine {
         let mut control = ControlStore::open(&config.data_dir.join("diskgraph-control.sqlite"))?;
         let server_id = control.ensure_server()?;
         let mut unverifiable_roots = HashSet::new();
-        let mut roots = control
-            .list_scopes()?
-            .into_iter()
+        let scopes = control.list_scopes()?;
+        let mut roots = scopes
+            .iter()
             .map(|scope| {
                 let root = match scope.root.kind {
                     diskgraph_core::LocatorKind::NativePath => {
@@ -67,6 +67,38 @@ impl Engine {
             })
             .collect::<Vec<_>>();
         // 拒绝整个有损别名组，不能删除冲突候选后人为制造“唯一匹配”。
+        for scope in &scopes {
+            let display_root = match scope.root.kind {
+                diskgraph_core::LocatorKind::NativePath => {
+                    ResourceLocator::NativePath(scope.root.display().to_owned())
+                }
+                diskgraph_core::LocatorKind::DocumentUri => {
+                    ResourceLocator::DocumentUri(scope.root.display().to_owned())
+                }
+            };
+            if unverifiable_roots.contains(&display_root) {
+                let native = match scope.root.kind {
+                    diskgraph_core::LocatorKind::NativePath => {
+                        scope.root.to_native_path().ok().and_then(|path| {
+                            diskgraph_core::QualifiedLocator::from_native_path(&path).ok()
+                        })
+                    }
+                    diskgraph_core::LocatorKind::DocumentUri => scope
+                        .root
+                        .raw_bytes()
+                        .ok()
+                        .and_then(|raw| String::from_utf8(raw).ok())
+                        .and_then(|uri| {
+                            diskgraph_core::QualifiedLocator::from_document_uri(uri).ok()
+                        }),
+                };
+                graph.isolate_unconfirmed_revision_roots(
+                    server_id.as_str(),
+                    scope.scope_id.as_str(),
+                    native.as_ref(),
+                )?;
+            }
+        }
         roots.retain(|(_, root)| !unverifiable_roots.contains(root));
         graph.backfill_revision_ownership(server_id.as_str(), &roots)?;
         Ok(Self {

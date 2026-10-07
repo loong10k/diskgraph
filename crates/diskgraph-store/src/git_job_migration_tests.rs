@@ -15,7 +15,7 @@ fn remove_control_v8(connection: &Connection) {
 fn remove_graph_v13(connection: &Connection) {
     connection
         .execute_batch(
-            "DROP TRIGGER IF EXISTS git_receipt_no_process_job; DROP TABLE IF EXISTS process_job_publication_receipts; DROP TABLE IF EXISTS node_unix_observations; DROP TABLE IF EXISTS scan_staging_unix_observations; DROP TRIGGER job_receipt_no_update; DROP TRIGGER job_receipt_no_delete;
+            "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER IF EXISTS git_receipt_no_process_job; DROP TABLE IF EXISTS process_job_publication_receipts; DROP TABLE IF EXISTS node_unix_observations; DROP TABLE IF EXISTS scan_staging_unix_observations; DROP TRIGGER job_receipt_no_update; DROP TRIGGER job_receipt_no_delete;
         DROP TABLE job_publication_receipts; PRAGMA user_version=12;",
         )
         .unwrap();
@@ -123,7 +123,7 @@ fn graph_v12_upgrade_has_an_exact_backup_and_preserves_the_existing_revision() {
     }
     let (upgraded, backup) =
         SqliteSnapshotStore::open_with_backup(&path, &directory.path().join("backups")).unwrap();
-    assert_eq!(version(&upgraded.connection), 14);
+    assert_eq!(version(&upgraded.connection), 15);
     assert_eq!(
         upgraded
             .latest_revision_for_scope(input.server_id().as_str(), input.scope_id().as_str())
@@ -166,7 +166,7 @@ fn failed_graph_v13_migration_does_not_enable_a_partially_created_protocol() {
     );
     for path in [
         &path,
-        &directory.path().join("backups/graph.sqlite.pre-v14.bak"),
+        &directory.path().join("backups/graph.sqlite.pre-v15.bak"),
     ] {
         let connection = Connection::open(path).unwrap();
         assert_eq!(version(&connection), 12);

@@ -23,7 +23,7 @@ impl SqliteSnapshotStore {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let base: Option<(String,String,String,String)> = tx.query_row(
-            "SELECT r.snapshot_id,s.root_key,o.server_id,o.scope_id FROM graph_revisions r JOIN snapshots s ON s.id=r.snapshot_id JOIN revision_ownership o ON o.revision_id=r.revision_id WHERE r.revision_id=?1",
+            "SELECT r.snapshot_id,s.root_key,o.server_id,o.scope_id FROM graph_revisions r JOIN snapshots s ON s.id=r.snapshot_id JOIN revision_authorized_ownership o ON o.revision_id=r.revision_id WHERE r.revision_id=?1",
             [base_revision_id], |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?,row.get(3)?)),
         ).optional()?;
         let Some((snapshot, root, server, scope)) = base else {

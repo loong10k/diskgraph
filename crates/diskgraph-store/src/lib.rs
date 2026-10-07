@@ -137,6 +137,8 @@ mod relation_queries;
 mod resource_node_identity;
 mod result;
 mod retention_store;
+mod revision_access_audit;
+mod revision_access_migration;
 mod revision_edge_cursor;
 mod revision_evidence_reader;
 #[cfg(test)]

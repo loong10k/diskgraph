@@ -198,7 +198,7 @@ fn occupied_resources_require_an_existing_snapshot_node() {
 }
 
 pub(super) fn downgrade_to_v9(connection: &rusqlite::Connection) {
-    connection.execute_batch("DROP TRIGGER revisions_require_native_observation_writer;
+    connection.execute_batch("DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;

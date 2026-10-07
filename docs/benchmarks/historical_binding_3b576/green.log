@@ -1,0 +1,15 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.35s
+     Running tests/legacy_backfill_identity.rs (target/debug/deps/legacy_backfill_identity-9aa798c975c1abc7)
+
+running 7 tests
+test failed_v15_migration_preserves_exact_v14_backup_and_does_not_enable_engine ... ok
+test excluding_lossy_scope_must_not_turn_colliding_unicode_scope_into_unique_match ... ok
+test replacing_authorized_view_cannot_enable_a_new_engine ... ok
+test exact_unicode_native_root_still_backfills ... ok
+test single_non_utf8_display_alias_must_not_claim_legacy_revision ... ok
+test historical_lossy_binding_is_denied_without_erasing_original_ownership ... ok
+test actual_persisted_native_root_proof_preserves_non_utf8_scope_access ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s

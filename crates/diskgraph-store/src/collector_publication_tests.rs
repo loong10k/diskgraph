@@ -338,7 +338,7 @@ fn migration_v9_preserves_only_unambiguous_membership() {
             [serde_json::to_string(&forged).unwrap()],
         )
         .unwrap();
-    store.connection.execute_batch("DROP TRIGGER revisions_require_native_observation_writer;
+    store.connection.execute_batch("DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;
@@ -372,7 +372,7 @@ fn migration_v9_preserves_only_unambiguous_membership() {
         )
         .unwrap();
     let store = SqliteSnapshotStore::initialize(store.connection).unwrap();
-    assert_eq!(SUPPORTED_SCHEMA_VERSION, 14);
+    assert_eq!(SUPPORTED_SCHEMA_VERSION, 15);
     assert_eq!(count(&store, "relation_run_memberships"), 2);
     assert_eq!(count(&store, "entity_run_memberships"), 3);
     assert_eq!(count(&store, "collector_membership_diagnostics"), 4);

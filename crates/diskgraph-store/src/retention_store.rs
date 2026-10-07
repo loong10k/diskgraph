@@ -80,7 +80,7 @@ impl SqliteSnapshotStore {
             .connection
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
         let revisions: Vec<(RevisionRecord, bool, bool)> = {
-            let mut stmt = tx.prepare("SELECT r.revision_id, r.snapshot_id, r.published_at_unix_ms, s.pinned, EXISTS(SELECT 1 FROM latest_revision l WHERE l.revision_id = r.revision_id) FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id JOIN snapshots s ON s.id = r.snapshot_id WHERE o.server_id = ?1 AND o.scope_id = ?2 ORDER BY r.published_at_unix_ms DESC, r.revision_id DESC")?;
+            let mut stmt = tx.prepare("SELECT r.revision_id, r.snapshot_id, r.published_at_unix_ms, s.pinned, EXISTS(SELECT 1 FROM latest_revision l WHERE l.revision_id = r.revision_id) FROM graph_revisions r JOIN revision_authorized_ownership o ON o.revision_id = r.revision_id JOIN snapshots s ON s.id = r.snapshot_id WHERE o.server_id = ?1 AND o.scope_id = ?2 ORDER BY r.published_at_unix_ms DESC, r.revision_id DESC")?;
             stmt.query_map(params![server_id, scope_id], |row| {
                 Ok((
                     RevisionRecord {

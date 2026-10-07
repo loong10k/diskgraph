@@ -17,7 +17,7 @@ impl SqliteSnapshotStore {
         Ok(self
             .connection
             .query_row(
-                "SELECT server_id, scope_id FROM revision_ownership WHERE revision_id = ?1",
+                "SELECT server_id, scope_id FROM revision_authorized_ownership WHERE revision_id = ?1",
                 [revision_id],
                 |row| Ok((row.get(0)?, row.get(1)?)),
             )
@@ -61,7 +61,7 @@ impl SqliteSnapshotStore {
     /// 参数：snapshot_id：固定快照 ID。
     /// 返回：`Result<Option<String>>` 可选记录，None 表示无匹配；数据库/解码失败返回错误。
     pub fn revision_for_snapshot(&self, snapshot_id: &str) -> Result<Option<String>> {
-        Ok(self.connection.query_row("SELECT r.revision_id FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE r.snapshot_id = ?1 ORDER BY r.published_at_unix_ms DESC, r.revision_id DESC LIMIT 1", [snapshot_id], |row| row.get(0)).optional()?)
+        Ok(self.connection.query_row("SELECT r.revision_id FROM graph_revisions r JOIN revision_authorized_ownership o ON o.revision_id = r.revision_id WHERE r.snapshot_id = ?1 ORDER BY r.published_at_unix_ms DESC, r.revision_id DESC LIMIT 1", [snapshot_id], |row| row.get(0)).optional()?)
     }
 
     /// One published revision.
@@ -113,7 +113,7 @@ impl SqliteSnapshotStore {
     /// 参数：server：所属服务器 ID；scope：实际所属范围 ID。
     /// 返回：`Result<Option<String>>` 可选记录，None 表示无匹配；数据库/解码失败返回错误。
     pub fn latest_revision_for_scope(&self, server: &str, scope: &str) -> Result<Option<String>> {
-        Ok(self.connection.query_row("SELECT r.revision_id FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE o.server_id = ?1 AND o.scope_id = ?2 ORDER BY r.published_at_unix_ms DESC,r.revision_id DESC LIMIT 1",params![server,scope],|row| row.get(0)).optional()?)
+        Ok(self.connection.query_row("SELECT r.revision_id FROM graph_revisions r JOIN revision_authorized_ownership o ON o.revision_id = r.revision_id WHERE o.server_id = ?1 AND o.scope_id = ?2 ORDER BY r.published_at_unix_ms DESC,r.revision_id DESC LIMIT 1",params![server,scope],|row| row.get(0)).optional()?)
     }
 
     /// 只返回实际归属当前 scope 的历史快照；未绑定旧历史不进入外部列表。
@@ -127,7 +127,7 @@ impl SqliteSnapshotStore {
         limit: u64,
         offset: u64,
     ) -> Result<Vec<DiskSnapshot>> {
-        let mut statement=self.connection.prepare("SELECT s.snapshot_json FROM snapshots s WHERE EXISTS(SELECT 1 FROM graph_revisions r JOIN revision_ownership o ON o.revision_id = r.revision_id WHERE r.snapshot_id = s.id AND o.server_id = ?1 AND o.scope_id = ?2) ORDER BY s.captured_at_unix_ms DESC,s.id DESC LIMIT ?3 OFFSET ?4")?;
+        let mut statement=self.connection.prepare("SELECT s.snapshot_json FROM snapshots s WHERE EXISTS(SELECT 1 FROM graph_revisions r JOIN revision_authorized_ownership o ON o.revision_id = r.revision_id WHERE r.snapshot_id = s.id AND o.server_id = ?1 AND o.scope_id = ?2) ORDER BY s.captured_at_unix_ms DESC,s.id DESC LIMIT ?3 OFFSET ?4")?;
         let rows = statement.query_map(
             params![server, scope, as_i64(limit)?, as_i64(offset)?],
             |row| row.get::<_, String>(0),

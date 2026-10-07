@@ -135,7 +135,7 @@ fn unix_staging_v13_upgrade_indexes_existing_rows_without_rewriting_them() {
         let old = rusqlite::Connection::open(&path).unwrap();
         // 构造真正 v13 结构；旧暂存数据仍由原公开 writer 编码，不伪造节点 JSON。
         old.execute_batch(
-            "DROP INDEX IF EXISTS scan_staging_by_job_node_id;
+            "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP INDEX IF EXISTS scan_staging_by_job_node_id;
              DROP TRIGGER process_receipt_no_update;
              DROP TRIGGER process_receipt_no_delete;
              DROP TRIGGER process_receipt_no_git_job;
@@ -181,7 +181,7 @@ fn unix_staging_current_graph_reopen_indexes_existing_rows_without_rewriting_the
             .connection
             .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
             .unwrap(),
-        14
+        crate::SUPPORTED_SCHEMA_VERSION
     );
     let mut reopened = SqliteSnapshotStore::initialize(original.connection).unwrap();
     assert_eq!(reopened.staging_node_count("point-stage").unwrap(), 20_000);

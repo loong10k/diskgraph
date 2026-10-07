@@ -4,7 +4,7 @@ fn migration_backup_includes_committed_wal_frames() {
     let path = dir.path().join("graph.sqlite");
     let store = diskgraph_store::SqliteSnapshotStore::open(&path).unwrap();
     let writer = rusqlite::Connection::open(&path).unwrap();
-    writer.execute_batch("DROP TRIGGER revisions_require_native_observation_writer;
+    writer.execute_batch("DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;
@@ -57,7 +57,7 @@ fn v7_upgrade_backs_up_the_previous_schema_and_builds_candidate_indexes() {
     let writer = rusqlite::Connection::open(&path).unwrap();
     writer
         .execute_batch(
-            "DROP TRIGGER revisions_require_native_observation_writer;
+            "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;

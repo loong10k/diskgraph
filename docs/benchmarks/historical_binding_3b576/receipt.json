@@ -1,0 +1,51 @@
+{
+  "base_commit": "3b57649b72798d023f4d666ccbc3b4ca25b89f4e",
+  "platform": "macOS",
+  "result": {
+    "passed": 3,
+    "failed": 1
+  },
+  "target_failure": "historical_lossy_binding_is_denied_without_erasing_original_ownership",
+  "fixture": "isolated legacy graph plus historical ownership row and explicit live scope MetadataRead grant",
+  "source_sha256": "db74fb4458ea2ed8c24ef421571c93d60aa5c818a18cef9ecbf5f1ea3cd6848f",
+  "log_sha256": "7cf0b73675ad587302973924047a5b526332f5dd28a08f3cc1c476142cf847c0",
+  "status": "candidate local GREEN; native platforms and full workspace pending",
+  "candidate": {
+    "target_tests_passed": 7,
+    "target_tests_failed": 0,
+    "schema_version": 15,
+    "store_suite_status": {
+      "passed": 318,
+      "failed": 0,
+      "ignored": 5,
+      "native_or_operator_drills_not_counted_as_passed": true
+    },
+    "source_sha256": {
+      "crates/diskgraph-engine/src/engine_startup.rs": "99f858050ab7bbd06a33b17cc7ced61519ca9ee2c80773d6029708c200e54327",
+      "crates/diskgraph-store/src/revision_access_audit.rs": "294a3786237340395e1680d5edd56fcdd45e8ea9235e42ebb806a419701af169",
+      "crates/diskgraph-store/src/revision_access_migration.rs": "a88e3a16629e80eb75347d1b981670541bed118bb0c4cf4a6937d1d0f1995288",
+      "crates/diskgraph-engine/tests/legacy_backfill_identity.rs": "2a810cd7b98f3c35fcf6a51db762c85a2df35742b7feb1bf080935ca0acd1aff"
+    },
+    "limitations": [
+      "Windows/Linux runtime pending",
+      "No full workspace or final performance proof",
+      "No native supervisor startup/finite frontend exit proof"
+    ],
+    "fmt": "passed",
+    "clippy": "passed",
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "logs_sha256": {
+      "store_third.log.gz": "7a51d4a1fd45cff3f403966c9612316c1236850fbb3d66d9a267dbd95edf7470",
+      "red.log": "7cf0b73675ad587302973924047a5b526332f5dd28a08f3cc1c476142cf847c0",
+      "store_first.log.gz": "c1c8f9a18622879e7875ce53f24a46b71f94f581b90da917cbb0e42064e9fb11",
+      "store_second.log.gz": "e4b3dccbf837dc9d7c9a03cd5acbc42cf4ea4db0cd0418ff94ab51b7f48704e6",
+      "green.log": "85df7d1e4e9b092587f0e0a5ac331adef6ed45a6defa847c210c11ca56c148dd",
+      "store_verified.log.gz": "d3234b5dc2ea0be616370c1d252e12477d9536c94dd66b0dbd4b016c7d500cdb",
+      "clippy.log": "e063da584f77f4a90f4868b7363a158b1df732d00a9af8aab113057d655c2a3d",
+      "source_layout.log": "20f3b9650058f3c4f99d6740f64c734881e5e7a6c3dffd2aae7c48bb87fb2bf6"
+    }
+  }
+}

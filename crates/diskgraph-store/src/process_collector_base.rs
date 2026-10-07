@@ -16,7 +16,7 @@ pub(crate) fn require_current(
     // 同 owner 或 unowned 的根指针已前进时保留旧可信扫描冲突；缺指针视为损坏基线。
     let incompatible_pointer: bool = connection.query_row(
         "SELECT NOT EXISTS(SELECT 1 FROM latest_revision WHERE root_key=?1)
-         OR EXISTS(SELECT 1 FROM latest_revision l LEFT JOIN revision_ownership o
+         OR EXISTS(SELECT 1 FROM latest_revision l LEFT JOIN revision_authorized_ownership o
              ON o.revision_id=l.revision_id WHERE l.root_key=?1 AND l.revision_id!=?2
              AND (o.revision_id IS NULL OR (o.server_id=?3 AND o.scope_id=?4)))",
         params![
@@ -31,7 +31,7 @@ pub(crate) fn require_current(
     let unbound_update: bool = connection.query_row(
         "SELECT EXISTS(SELECT 1 FROM graph_revisions r JOIN snapshots s ON s.id=r.snapshot_id
          JOIN graph_revisions base ON base.revision_id=?2
-         LEFT JOIN revision_ownership o ON o.revision_id=r.revision_id
+         LEFT JOIN revision_authorized_ownership o ON o.revision_id=r.revision_id
          WHERE s.root_key=?1 AND o.revision_id IS NULL AND
          (r.published_at_unix_ms>base.published_at_unix_ms OR
           (r.published_at_unix_ms=base.published_at_unix_ms AND r.revision_id>base.revision_id)))",
@@ -55,7 +55,7 @@ pub(crate) fn require_latest(
 ) -> Result<()> {
     let matches: Option<bool> = connection
         .query_row(
-            "SELECT r.revision_id=?3 FROM graph_revisions r JOIN revision_ownership o
+            "SELECT r.revision_id=?3 FROM graph_revisions r JOIN revision_authorized_ownership o
          ON o.revision_id=r.revision_id WHERE o.server_id=?1 AND o.scope_id=?2
          ORDER BY r.published_at_unix_ms DESC,r.revision_id DESC LIMIT 1",
             params![

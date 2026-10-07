@@ -160,3 +160,15 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 沿既有旧归属唯一匹配合同补充验收：仅注册一个原始非 UTF-8/非 Unicode 原生根时，不能凭与旧 ResourceLocator 相同的显示投影绑定 revision；旧数据继续未绑定并要求重新索引。正常无损 Unicode 路径仍允许唯一回填。注册表同时存在 Unicode 根和有损别名时，不能排除有损候选后把另一候选视为唯一；整个别名组保持未绑定。URI 同样核对原始 UTF-8 与显示一致。该补充不覆盖已绑定归属、不更改可信内部 store API。隔离数据库回归已确认目标 RED 为 2 通过/1 失败（唯一非 UTF-8 显示别名错误获得归属）。
 
 回填候选修复在 macOS 隔离数据库 GREEN 3/0、源码规范 6/0、Clippy all-targets 通过；新增 Windows unpaired UTF-16 别名回归待原生 CI，不能据本机通过宣称 Windows 完成。证据见 `docs/benchmarks/legacy_backfill_identity_3cc/`。已存在的 ownership 按原合同不自动覆盖；历史错误归属的识别/重新索引仍需要单独闭环，本次不能据未来回填修复宣布历史数据授权已验收。
+
+### 已绑定历史记录的授权门禁（未修复）
+
+隔离夹具真实建立旧显示定位快照、已存在的 server/scope 归属行，并为实际主体明确签发当前策略的 scope MetadataRead 授权。原归属必须保留供审计，但缺少可证明原始根身份的有损绑定不得对外授权。目标回归已复现 RED：3 通过、1 失败，旧错误绑定仍得到访问许可。初次未授 scope 权限的试验因默认拒绝通过，不能作为此问题的验收证据；现已补齐真实授权并重跑。记录见 `docs/benchmarks/historical_binding_3b576/`，尚无 GREEN。需在共同归属读取路径加入可追溯拒绝，并确保正常无损历史与具有真实原始根记录的新非 UTF-8 revision 不受误拒；不得删除快照或覆盖审计绑定。
+
+### 历史隔离候选实现与 v15 迁移（验收进行中）
+
+图库 v15 新增 `revision_access_denials` 与固定 `revision_authorized_ownership` 视图；原 `revision_ownership` 和快照仍保留。默认 Engine 的 SQLite 一致性备份流程覆盖 v14→v15；初始化核验固定视图定义，缺失/替换不得启用新服务。有损显示别名组中，已绑定 revision 只有唯一根节点的明确 kind/encoding/raw 与注册 scope 原始根精确一致才可继续授权，缺失或不一致持久隔离，显示回填不能解除。共同普通/预算归属、snapshot 解析、scope 历史/latest 和 collector 目标均使用过滤视图，可信审计另用 `revision_ownership_for_audit`。拒绝记录随显式历史删除的原 revision 外键级联回收；本轮不自动删除快照或历史映射。
+
+隔离数据库回归现为 macOS 5/0，包含实际旧归属审计保留、v14 备份仍为14且包含原归属、显示别名拒绝及具有准确原始根记录的新非 UTF-8 数据授权保留；不是原生扫描或全平台验收。存储全量首轮暴露旧降级夹具保留 v15 表/视图的问题，已更新夹具，第二轮仅余一个当前 schema 常量断言14→15，正在复验；不能在全量收敛前勾选。
+
+历史隔离候选的本机最终验证：store all-targets 318通过、0失败、5明确忽略；Engine隔离行为7/0、源码规范6/0；store/engine Clippy all-targets、fmt检查与OpenSpec strict通过。升级失败保留v14与一致性备份，替换授权视图拒绝新Engine。原生Windows/Linux、完整workspace和最终查询开销仍未验收，不勾选生产或监督总体阶段。完整原失败与最终日志保存在 `docs/benchmarks/historical_binding_3b576/`。

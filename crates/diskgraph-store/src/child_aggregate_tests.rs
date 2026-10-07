@@ -26,7 +26,7 @@ pub(super) fn wide_store(unknown: bool) -> SqliteSnapshotStore {
     store
         .connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_native_observation_writer;
+            "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;
@@ -252,7 +252,7 @@ fn v8_backup_contains_old_counts_and_failed_migration_rolls_back() {
     store
         .connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_native_observation_writer;
+            "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;
@@ -313,7 +313,7 @@ fn v8_backup_contains_old_counts_and_failed_migration_rolls_back() {
     legacy
         .connection
         .execute_batch(
-            "DROP TRIGGER revisions_require_native_observation_writer;
+            "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;
@@ -385,7 +385,7 @@ fn old_open_writer_cannot_publish_after_schema_upgrade() {
     let mut store = SqliteSnapshotStore::open(&path).unwrap();
     store.save(&graph("current", 100)).unwrap();
     store.connection.execute_batch(
-        "DROP TRIGGER revisions_require_native_observation_writer;
+        "DROP VIEW IF EXISTS revision_authorized_ownership; DROP TABLE IF EXISTS revision_access_denials; DROP TRIGGER revisions_require_native_observation_writer;
          ALTER TABLE graph_revisions DROP COLUMN native_observation_writer_generation;
          ALTER TABLE nodes DROP COLUMN native_observation_format;
          ALTER TABLE nodes DROP COLUMN native_observation_raw;

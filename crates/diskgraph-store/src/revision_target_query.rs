@@ -32,9 +32,9 @@ impl SqliteSnapshotStore {
         admit: &mut dyn FnMut(u64, u64, u64) -> Result<()>,
     ) -> Result<Option<(String, String)>> {
         admit(0, 0, 0)?;
-        let mut statement = self
-            .connection
-            .prepare("SELECT server_id,scope_id FROM revision_ownership WHERE revision_id=?1")?;
+        let mut statement = self.connection.prepare(
+            "SELECT server_id,scope_id FROM revision_authorized_ownership WHERE revision_id=?1",
+        )?;
         let mut rows = statement.query([revision_id])?;
         let row = rows.next()?;
         admit(0, 0, 0)?;
@@ -111,7 +111,7 @@ impl SqliteSnapshotStore {
         check(reads)?;
         let mut statement = self.connection.prepare(
             "SELECT r.snapshot_id,o.server_id,o.scope_id FROM graph_revisions r
-             LEFT JOIN revision_ownership o ON o.revision_id=r.revision_id WHERE r.revision_id=?1",
+             LEFT JOIN revision_authorized_ownership o ON o.revision_id=r.revision_id WHERE r.revision_id=?1",
         )?;
         let mut rows = statement.query([revision_id])?;
         let row = rows.next()?;
