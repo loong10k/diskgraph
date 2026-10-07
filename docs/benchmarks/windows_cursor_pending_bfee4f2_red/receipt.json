@@ -1,0 +1,19 @@
+{
+  "candidate": "bfee4f2005aaf2630f1e4c9fd39beb7c0186252b",
+  "run": 37597292546,
+  "job": 112712926669,
+  "gate": "workspace all-targets Test, engine library failures",
+  "engine_library": {
+    "passed": 572,
+    "failed": 2,
+    "ignored": 3
+  },
+  "failed_cases": [
+    "cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
+    "cleanup_mark_requires_current_identity_and_live_budget_before_mutation"
+  ],
+  "diagnostic": "old unwrap_err(Some(5)) assertion encountered actual Ok(false) Pending",
+  "raw_log_sha256": "4f287081e4517a32b36cee9ce095aef4064b19c77556b19810f8b5eaebc3c2ed",
+  "candidate_fix_native_acceptance": "pending",
+  "production_acceptance": false
+}

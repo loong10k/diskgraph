@@ -14,4 +14,16 @@
 
 ## 恢复公平性
 
-同步 cleanup 在一个原 ProbeBudget 内等待通知；有界 cleanup_until 每次推进到 Pending 即返回 Ok(false)，保留原帧及订阅，把执行机会交给后续槽。不得按错误字符串推断 Pending。同步等待使用 min(1ms, 原期限剩余量)。真实双槽公平性需要覆盖首槽外部句柄阻碍、次槽可完成、首槽仍占用以及解除后完成；该原生测试尚未执行。
+同步 cleanup 在一个原 ProbeBudget 内等待通知；有界 cleanup_until 每次推进到 Pending 即返回 Ok(false)，保留原帧及订阅，把执行机会交给后续槽。不得按错误字符串推断 Pending。同步等待使用 min(1ms, 原期限剩余量)。真实双槽公平性覆盖首槽外部句柄阻碍、次槽可完成、首槽仍占用以及解除后完成；原生执行证据见下文。
+
+## 双槽原生证据（2026-10-07）
+
+提交 bfee4f2005aaf2630f1e4c9fd39beb7c0186252b、CI 37597292546 的 Windows stable job 112712926763 与 Rust 1.97.0 job 112712926669 均已执行精确双槽测试：各 1 passed、0 failed、0 ignored、0.02 秒，并输出 DG_PENDING_FIRST_ORIGINAL_SECOND_RETIRED=1。原日志与摘要见 docs/benchmarks/windows_pending_pool_bfee4f2/receipt.json。
+
+该证据覆盖真实首槽外部原句柄保留、第二槽退休、第一槽容量保持及解除阻碍后的原恢复完成；不证明任意目录遍历阶段严格时间片或原生 OS 调用硬期限。完整 Windows suite、其他通知回归与全平台生产验收仍待完成，不据此勾选总任务。
+
+## 完整回归 RED 与断言修正
+
+同一提交的 Windows Rust 1.97.0 完整 Test 在 engine lib 得到 572 passed、2 failed、3 ignored；两个失败是 cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion 和 cleanup_mark_requires_current_identity_and_live_budget_before_mutation。原生返回严格 Pending Ok(false)，两处遗留断言仍调用 unwrap_err 并期望错误 5。完整原日志及失败回执保存在 docs/benchmarks/windows_cursor_pending_bfee4f2_red/。
+
+候选修正仅改测试和 CI：持有原句柄时严格要求 false，禁止游标跳过当前 child 的断言保留；关闭后沿同一 ProbeBudget 等待原通知，未知错误和到期直接失败。mark 案增加原文件实际消失与 foreign sentinel 未变校验。两案新增前置精确 native gate，分别要求 1/0/0 和原成功标记；生产通知及独立 ID witness 代码不改变。新原生验收尚待完成，不将此 RED 改记为成功。

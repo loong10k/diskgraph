@@ -528,19 +528,16 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
         .mark_cleanup_child(&file, &parent_label, &capacity, &mut probe)
         .unwrap();
     drop(file);
-    assert_eq!(
-        cursor
-            .confirm_cleanup_child_absent(&mut probe)
-            .unwrap_err()
-            .raw_os_error(),
-        Some(5)
+    assert!(
+        !cursor.confirm_cleanup_child_absent(&mut probe).unwrap(),
+        "held original child must remain pending"
     );
     assert!(
         cursor.next_entry(&mut probe).is_err(),
         "pending deletion cannot advance the cursor"
     );
     drop(external);
-    assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    await_original_cleanup_notification(&mut cursor, &mut probe);
     assert_fixture_absent(&path);
     let (second, second_name, _) = cursor
         .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
@@ -554,7 +551,7 @@ fn cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion
         .mark_cleanup_child(&second, &parent_label, &capacity, &mut probe)
         .unwrap();
     drop(second);
-    assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    await_original_cleanup_notification(&mut cursor, &mut probe);
     assert!(
         cursor
             .open_next_cleanup_child(&parent_label, &capacity, &mut probe)
@@ -687,15 +684,34 @@ fn cleanup_mark_requires_current_identity_and_live_budget_before_mutation() {
             .is_err()
     );
     assert!(cursor.next_entry(&mut probe).is_err());
-    assert_eq!(
-        cursor
-            .confirm_cleanup_child_absent(&mut probe)
-            .unwrap_err()
-            .raw_os_error(),
-        Some(5)
+    assert!(
+        !cursor.confirm_cleanup_child_absent(&mut probe).unwrap(),
+        "held delete-requested child must remain pending"
     );
     drop(file);
+    await_original_cleanup_notification(&mut cursor, &mut probe);
+    assert_fixture_absent(&path);
+    assert_eq!(
+        std::fs::read(parent.join("foreign")).unwrap(),
+        b"retain foreign"
+    );
     println!("DG_CLEANUP_MARK_IDENTITY_AND_BUDGET_GUARDS=1");
+}
+
+/// 参数：原游标及原预算；只等待原通知，错误与到期直接失败，不刷新时间窗口。
+fn await_original_cleanup_notification(
+    cursor: &mut WindowsGitDirectoryCursor,
+    probe: &mut ProbeBudget,
+) {
+    while !cursor.confirm_cleanup_child_absent(probe).unwrap() {
+        probe.check().unwrap();
+        std::thread::sleep(
+            probe
+                .deadline()
+                .saturating_duration_since(std::time::Instant::now())
+                .min(std::time::Duration::from_millis(1)),
+        );
+    }
 }
 
 #[test]
@@ -824,7 +840,7 @@ fn empty_directory_post_mark_seal_and_original_removal_are_verified() {
         .unwrap();
     assert!(cursor.cleanup_child_delete_requested());
     drop(file);
-    assert!(cursor.confirm_cleanup_child_absent(&mut probe).unwrap());
+    await_original_cleanup_notification(&mut cursor, &mut probe);
     assert_fixture_absent(&path);
     assert!(
         cursor

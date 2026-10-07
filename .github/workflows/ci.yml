@@ -275,6 +275,31 @@ jobs:
           path: ${{ runner.temp }}/windows-pending-pool-fairness.log
           if-no-files-found: error
           retention-days: 7
+      - name: Native Windows original cursor Pending contract
+        if: runner.os == 'Windows'
+        timeout-minutes: 5
+        run: |
+          $output = Join-Path $env:RUNNER_TEMP 'windows-cursor-pending'
+          New-Item -ItemType Directory -Path $output | Out-Null
+          $cases = @{
+            cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion = 'DG_CLEANUP_CURSOR_RETRY_SAME_CHILD_THEN_ADVANCE=1'
+            cleanup_mark_requires_current_identity_and_live_budget_before_mutation = 'DG_CLEANUP_MARK_IDENTITY_AND_BUDGET_GUARDS=1'
+          }
+          foreach ($name in $cases.Keys) {
+            $path = Join-Path $output "$name.log"
+            cargo test -p diskgraph-engine --lib --locked "live_evidence::windows_git_directory_cursor_tests::$name" -- --exact --nocapture --test-threads=1 2>&1 | Tee-Object -FilePath $path
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $log = Get-Content $path -Raw
+            if ($log -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;' -or -not $log.Contains($cases[$name])) { throw "Original cursor evidence missing: $name" }
+          }
+      - name: Preserve Windows original cursor Pending contract
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-cursor-pending-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/windows-cursor-pending/
+          if-no-files-found: error
+          retention-days: 7
       - name: Native Windows original directory retry red and green
         if: runner.os == 'Windows'
         timeout-minutes: 10

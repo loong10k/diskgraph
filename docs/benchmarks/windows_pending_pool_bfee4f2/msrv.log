@@ -1,0 +1,16 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running unittests src\lib.rs (target\debug\deps\diskgraph_engine-dc6d824459e34e4f.exe)
+
+running 1 test
+DG_POST_MARK_STANDARD links=0; pending=true; directory=false
+DG_ORIGINAL_REMOVAL_PAGE bytes=124; matched=true; child=[60, 3b, 04, 00, 00, 00, 09, 00, 00, 00, 00, 00, 00, 00, 00, 00]; parent=[c5, 88, 02, 00, 00, 00, 13, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+DG_POST_MARK_STANDARD links=0; pending=true; directory=false
+DG_ORIGINAL_REMOVAL_PAGE bytes=124; matched=true; child=[38, d7, 14, 00, 00, 00, 18, 00, 00, 00, 00, 00, 00, 00, 00, 00]; parent=[5d, 6e, 04, 00, 00, 00, 0b, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+DG_ORIGINAL_REMOVAL_PAGE bytes=184; matched=true; child=[5d, 6e, 04, 00, 00, 00, 0b, 00, 00, 00, 00, 00, 00, 00, 00, 00]; parent=[0c, 86, 00, 00, 00, 00, 04, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+DG_ORIGINAL_REMOVAL_PAGE bytes=184; matched=false; child=[c5, 88, 02, 00, 00, 00, 13, 00, 00, 00, 00, 00, 00, 00, 00, 00]; parent=[0c, 86, 00, 00, 00, 00, 04, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+DG_ORIGINAL_REMOVAL_PAGE bytes=184; matched=true; child=[c5, 88, 02, 00, 00, 00, 13, 00, 00, 00, 00, 00, 00, 00, 00, 00]; parent=[0c, 86, 00, 00, 00, 00, 04, 00, 00, 00, 00, 00, 00, 00, 00, 00]
+test live_evidence::probe_resource_pool_tests::pending_first_directory_does_not_starve_second_original_slot ... DG_PENDING_FIRST_ORIGINAL_SECOND_RETIRED=1
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 576 filtered out; finished in 0.02s
+

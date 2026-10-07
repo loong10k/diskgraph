@@ -1,0 +1,32 @@
+{
+  "candidate": "bfee4f2005aaf2630f1e4c9fd39beb7c0186252b",
+  "run": 37597292546,
+  "platform": "native Windows",
+  "tests": [
+    {
+      "rust": "stable",
+      "job": 112712926763,
+      "log": "stable.log",
+      "sha256": "37f69047458e93fcb9db0e742b0483a9f9d213cbc112d2d7011cd606aefc2ab0",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "rust": "1.97.0",
+      "job": 112712926669,
+      "log": "msrv.log",
+      "sha256": "3b60f55527cde158b07f03e62af5900e39f28cf107b6a377a37738b36be8ab33",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "acceptance": "two-slot Pending fairness only",
+  "full_platform_production_acceptance": false,
+  "limits": [
+    "full Windows suite still running",
+    "does not prove hard OS deadlines or bounded traversal time slices",
+    "trusted supervisor remains incomplete"
+  ]
+}
