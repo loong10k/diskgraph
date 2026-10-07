@@ -41,3 +41,9 @@ require_read_terminal 保留初次范围存在/撤销检查，释放控制锁后
 require在锁外固定expiry，能力返回后、控制锁取得后及持久授权成功后检查同一到期时间；None保留可信本机兼容，不能在等待锁期间接受过期Allowed。真实锁持有直到固定expiry之后、能力决定在expiry之前取得的回归，旧路径返回成功为RED，修复须PermissionDenied。复用scope列表已有相同expiry门禁；不刷新请求deadline，不承诺控制锁硬期限。已过期能力优先拒绝，不等待控制错误或读取策略诊断。
 
 固定expiry本机验证：实际锁竞争旧路径Ok真实RED→GREEN，权限组4/0、scope组7/0，source_layout6/0、fmt/Clippy及双路APPROVE/CLEAR。完整Engine548/98/13，98项均Unsupported。错误优先限定：首次expiry检查已发现到期时不获取控制锁；锁获取或授权SQL自身失败仍保留原错误，不保证所有并发到期覆盖其他错误。Unix秒墙钟不是单调执行预算。
+
+## 内容终态固定 token expiry
+
+require_read_terminal在所有控制锁外捕获一次固定expiry，范围观察后、能力返回后、最终锁取得后和SQL授权成功后共用到期门禁。已到期则PermissionDenied，不返回读取body/partial；None本机模式保持。实际固定expiry、能力取得时仍live但回调返回时已到期的权限专用测试旧路径Ok为RED，修复须拒权；不打开文件、不替代原生内容门禁。锁/SQL自身错误保留，不提供同步硬抢占或有限退出证明。
+
+内容expiry本机验证：固定expiry回归旧Ok真实RED→GREEN，permission-only两项2/0，重入1/0，source_layout6/0、fmt/Clippy与双路APPROVE/CLEAR。完整Engine549/98/13，98项均Unsupported。权限专用测试没有打开实际文件，不构成原生内容验收。

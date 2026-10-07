@@ -1,0 +1,37 @@
+{
+  "scope": "content terminal fixed token expiry permission boundary",
+  "logs": {
+    "red": {
+      "sha256": "aacefa7533b80e529e1017adf23d7c18a531016d48c135191ae8f7eb2bfa8cae",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 659 filtered out; finished in 1.41s"
+      ]
+    },
+    "green": {
+      "sha256": "2acec904f304d57406b88961ae90a04293f2a9428cc2c65186859cdc46f1b02d",
+      "summary": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 658 filtered out; finished in 1.74s"
+      ]
+    },
+    "reentry": {
+      "sha256": "2167a9b9de3085492570e53c98370b774a43b210f144959dcec70d298b5dc795",
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 659 filtered out; finished in 0.03s"
+      ]
+    },
+    "full": {
+      "sha256": "b242643dece4c93c0315e16dca0c6eb5360cfa4886440c25fe45e616df23b09b",
+      "summary": [
+        "test result: FAILED. 549 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 15.00s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "native_content_qualification": false,
+  "limits": [
+    "permission-only fixtures do not open content files",
+    "lock wait and callback not hard-preemptible",
+    "lock and SQL errors retain original priority",
+    "native qualification Unsupported remains"
+  ]
+}

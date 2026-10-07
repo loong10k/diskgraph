@@ -173,18 +173,23 @@ impl Engine {
         request: &InspectionRequest<'_>,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<(), EngineError> {
+        let expiry = authorizer.expires_at_unix_seconds();
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         {
             let control = self.control_store()?;
             if control.scope(request.scope_id)?.revoked {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
             }
         }
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let decision = authorizer.decide(
             request.principal,
             &diskgraph_core::Permission::ContentRead,
             request.scope_id,
         );
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let control = self.control_store()?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         Self::require_decision_with_control(
             &control,
             decision,
@@ -200,6 +205,6 @@ impl Engine {
         {
             return Err(EngineError::Business(BusinessError::PermissionDenied));
         }
-        Ok(())
+        crate::authority_expiry::check_authority_expiry(expiry)
     }
 }

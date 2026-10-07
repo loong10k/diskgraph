@@ -272,3 +272,69 @@ fn permission_only_terminal_refuses_callback_scope_or_grant_revocation() {
         );
     }
 }
+
+#[test]
+fn permission_only_content_terminal_refuses_late_allow_after_fixed_expiry() {
+    struct Expires {
+        policy: diskgraph_core::PolicyAuthorizer,
+        expiry: u64,
+        entered_live: std::cell::Cell<bool>,
+    }
+    impl Authorizer for Expires {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> Decision {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap();
+            self.entered_live.set(now.as_secs() < self.expiry);
+            let decision = self.policy.decide(principal, permission, scope);
+            std::thread::sleep(
+                std::time::Duration::from_secs(self.expiry).saturating_sub(now)
+                    + std::time::Duration::from_millis(30),
+            );
+            decision
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    // 权限终态专用回归：不打开资源文件，不替代实际 read_bounded 平台验收。
+    let (dir, engine, principal, scope, _) =
+        crate::relation_request_tests::published_authorization_fixture();
+    engine.set_content_read(&scope, &principal, true).unwrap();
+    let authorizer = Expires {
+        policy: engine.policy_authorizer().unwrap(),
+        expiry: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 2,
+        entered_live: std::cell::Cell::new(false),
+    };
+    let path = dir.path().join("permission-only");
+    let request = InspectionRequest {
+        scope_id: &scope,
+        principal: &principal,
+        path: &path,
+        offset: 0,
+        max_bytes: 1,
+        cancel: None,
+        chunk_bytes: 1,
+    };
+    let result = engine.require_read_terminal(&request, &authorizer);
+    assert!(
+        authorizer.entered_live.get(),
+        "fixture must enter capability before fixed expiry"
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired content terminal returned: {result:?}"
+    );
+}
