@@ -1,0 +1,10 @@
+{
+  "base_commit": "fcc4ed3cd61807f86671923ba692db6c34ff6171",
+  "native_red_evidence": "../windows_test_lifecycle_4000/windows-stable-terminal.log.gz: private_git_drop_retains_original_directory_after_panic_cleanup_failure at recovery.drain().unwrap OS87",
+  "native_green": "pending; not executed on local macOS",
+  "source_sha256": "9cf04495f44e8fae504cc3db709a80749a6200c86ff9af01e6ffb4f58df665e0",
+  "logs": {
+    "layout": "3e1afd670cbea448e9b7f4fc621eca41d767d1a5a757c765db22443fbec77c69",
+    "clippy": "2b34696728dc82b03cbf6311d7e3a6a41658bbde097834c3010a78bc82842c1a"
+  }
+}

@@ -96,7 +96,35 @@ fn resource_case(panic_after_birth: bool) {
             host.registry.reserve().is_err(),
             "retained directory/child must keep capacity occupied"
         );
-        assert!(recovery.drain().unwrap());
+        // 单次恢复可得到尚未抵达原删除通知的真实错误；不能将该错误当作 absent。
+        // 显式重试同一 Recovery，期限固定且容量始终受原槽约束；永久失败仍使测试失败。
+        let original_deadline = std::time::Instant::now() + Duration::from_secs(10);
+        let mut last_diagnostic = String::new();
+        loop {
+            match recovery.drain_until(original_deadline) {
+                Ok(true) => break,
+                Ok(false) => {}
+                Err(error) => {
+                    last_diagnostic = error.to_string();
+                    eprintln!("DG_ORIGINAL_DIRECTORY_RECOVERY_RETAINED={error}");
+                }
+            }
+            assert_eq!(recovery.occupied_slots().unwrap(), 1);
+            assert!(
+                matches!(
+                    host.registry.reserve(),
+                    Err(crate::EngineError::Business(
+                        diskgraph_core::BusinessError::ResourceExhausted
+                    ))
+                ),
+                "unfinished original owner must refuse a replacement session"
+            );
+            assert!(
+                std::time::Instant::now() < original_deadline,
+                "same original recovery did not confirm completion under its deadline: {last_diagnostic}"
+            );
+            std::thread::sleep(Duration::from_millis(20));
+        }
         let after_retry = Hooks::counts();
         assert!(
             after_retry.0 > before_retry.0,

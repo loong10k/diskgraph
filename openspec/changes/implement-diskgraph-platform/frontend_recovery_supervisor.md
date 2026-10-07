@@ -112,3 +112,7 @@ Linux 使用与 Rust Instant 同源的 CLOCK_MONOTONIC，并绑定真实 nsfs �
 Windows stable/MSRV 的真实终态均暴露两个测试生命周期错误：来源 root 首次改名成功，但在原 GitView 仍持有来源捕获时强制恢复改名得到 OS32；以及 Deadline 返回携带未完成清理时，在原 NativeProbeTestBudget/外部 Recovery 尚存且未排空前就断言后代心跳停止。修复测试顺序：保持原 terminal 验证，再 complete/drop 原 view 与预算后恢复隔离名称；保持原 Deadline 主错误断言，再 drop 原预算、由既有原 Recovery 实际完成 drain 后观察心跳。不得放宽分享标志、吞清理错误或跳过真实心跳。
 
 另有 Windows stable 原私有目录显式恢复产生未知 NT INVALID_PARAMETER/OS87，MSRV 原观察钩子未在原 3 秒 token 到期前到达，以及 Linux stable 200k 性能旧基线失败；保留原失败门禁，尚未关闭。Linux MSRV 与 arm64 的 4000a85 全量 CI 成功不替代这些缺口。
+
+## 原目录恢复的显式多次尝试验收
+
+Windows private Git panic/cancel 验收保留原真实出生、一次清理失败、同目录身份及占用断言；显式恢复改为在同一固定 10 秒期限内重复原 `Recovery::drain_until`。Pending 或原错误均保留诊断，每次核验原槽仍占用且新 session 被 ResourceExhausted 拒绝；禁止换池、移除原目录或将 OS87 推定 absent。只有原进程 wait、Job0、原通知和目录实际回收最终完成才算通过，超期/永久失败仍失败。此测试合同调整不修复或放宽生产 ID 查询，Windows 本轮原生结果仍待 CI。
