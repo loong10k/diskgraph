@@ -1,0 +1,7 @@
+# Linux 材料解析 Clippy 修复
+
+运行37661237999的Linux stable全量测试步骤通过，后续Clippy在linux_supervisor_materials.rs的SCM_RIGHTS长度取模检查报manual_is_multiple_of并退出101。采用is_multiple_of的等价判定，size_of<c_int>非零；FD接管和关闭循环、凭据、会话、期限与失败锁存保持原行为。没有关闭lint或降低验收。
+
+当前02e6d77归档加单文件修改的隔离Linux ARM64 Docker Rust1.97.1材料回归6通过/0失败/1显式子夹具ignored；真实child由父回归另行调用。首次容器因cache挂载遮蔽cargo返回127，未执行测试；纠正挂载后实际通过，不把环境失败记作行为RED。Mac source_layout6/0、Engine Clippy及修改文件rustfmt通过，双路审查APPROVE/CLEAR。原始CI/绿灯/环境日志与摘要见docs/benchmarks/linux_supervisor_lint_2026_10_08。
+
+新stable Linux Clippy及精确MSRV1.97.0仍由当前CI验收；容器不是三平台或监督链生产证明。监督职责调整仍待用户确认，原生产父项保持开放。

@@ -294,7 +294,7 @@ impl LinuxSupervisorMaterials {
                 let kind = unsafe { (*header).cmsg_type };
                 let data = unsafe { libc::CMSG_DATA(header) };
                 if level == libc::SOL_SOCKET && kind == libc::SCM_RIGHTS {
-                    if length % std::mem::size_of::<libc::c_int>() != 0 {
+                    if !length.is_multiple_of(std::mem::size_of::<libc::c_int>()) {
                         valid = false;
                     }
                     for index in 0..length / std::mem::size_of::<libc::c_int>() {

@@ -1,0 +1,53 @@
+{
+  "baseline_source": "02e6d77de3731129ec0b1ba7e7abede049ab4dc0",
+  "source_overlay": {
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials.rs": "e130b62df152b78e28a264eb20164e68c10f9b3c54f116cce6778c860b707bbc"
+  },
+  "ci_failure": {
+    "run": 37661237999,
+    "job": 112929001396,
+    "source": "e6066ba3a28693fe66da3b5358c45d2e5b182a51",
+    "failure": "Clippy manual_is_multiple_of; full test step succeeded"
+  },
+  "linux_fixture": {
+    "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+    "rustc": "1.97.1",
+    "architecture": "ARM64 Docker",
+    "materials_tests": {
+      "passed": 6,
+      "failed": 0,
+      "ignored": 1
+    },
+    "original_private_channel_child": "actually executed by parent test",
+    "initial_launch_error": "cache mount hid cargo executable; corrected mount, no test executed in failed launch"
+  },
+  "local_checks": {
+    "engine_all_targets_clippy": "passed on macOS; Linux-gated branch not covered",
+    "source_layout": "6/0",
+    "changed_rustfmt": "passed"
+  },
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "logs": {
+    "ci_failed": {
+      "raw_sha256": "d75bbd39a8668a10631a8292ce793bf4a72b78111174d85bfeb3a65a3302c6c2",
+      "gzip_sha256": "6abb5c18bbe6ae634c3bca46af9f8fd8cd95ff4d53bbac9d2e5bb9c92cbf53ab"
+    },
+    "linux_green": {
+      "raw_sha256": "05172c819175221639731ff732ec4a46827aa99f2a65c449f26d113fb5c40f2d",
+      "gzip_sha256": "628f359b1a0bb18888e582c3a9f8eb9147324ee3f9893ff107d56b48cb08c829"
+    },
+    "initial_fixture_launch_error": {
+      "raw_sha256": "00329bc82ae38144b7ef722fe2436502d3513795d8ebcdc1e99495050c7a8cf1",
+      "gzip_sha256": "6d28bef32b7a58402099304ae01af90b26e74ba5aa0274d6724d5b15832d7008"
+    }
+  },
+  "production_acceptance": false,
+  "limits": [
+    "Linux Clippy tool unavailable locally; new stable CI still required",
+    "Rust1.97.1 test is not exact MSRV1.97.0 CI proof",
+    "supervisor product wiring and OS-identity design still incomplete"
+  ]
+}
