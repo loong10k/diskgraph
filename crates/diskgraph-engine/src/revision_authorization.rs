@@ -235,10 +235,10 @@ impl Engine {
             if server != control.existing_server_id()?.as_str() {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
             }
-            let authorization =
-                Self::require_terminal_relation(control, authorizer, principal, &scope);
+            if control.scope_revoked(&scope)? {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
             withdrawal.check(control)?;
-            authorization?;
             Ok::<_, EngineError>(withdrawal)
         });
         let withdrawal = match initial_authorization {
@@ -251,6 +251,52 @@ impl Engine {
             }
             other => other?,
         };
+        crate::authority_expiry::check_authority_expiry(expiry)?;
+        drop(control);
+        // 初始能力不持控制锁或 SQL handler；两次准入均保持非阻塞语义。
+        let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+        crate::authority_expiry::check_authority_expiry(expiry)?;
+        if matches!(decision, diskgraph_core::Decision::Denied(_)) {
+            if let Ok(Some(control)) = self.try_control_store() {
+                withdrawal.check(&control)?;
+            }
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
+        withdrawal.check(&control)?;
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        let authorization = control.with_read_deadline(deadline, |control| {
+            // 回调可能撤权或改变身份，旧缓存 Allowed 不能替代当前持久授权。
+            if server != control.existing_server_id()?.as_str() {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            Self::require_decision_with_control(
+                control,
+                decision,
+                principal,
+                &Permission::MetadataRead,
+                &scope,
+            )?;
+            if control.scope_revoked(&scope)? {
+                return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            Ok(())
+        });
+        withdrawal.check(&control)?;
+        match authorization {
+            Err(EngineError::Store(error))
+                if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                    || error.is_interrupted()
+                    || error.is_busy() =>
+            {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            other => other?,
+        }
         crate::authority_expiry::check_authority_expiry(expiry)?;
         drop(control);
         // 初次真实授权须在原读取期内完成；未完成的 initial phase 不能借 partial 通路复活。

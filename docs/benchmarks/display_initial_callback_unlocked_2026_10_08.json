@@ -1,0 +1,88 @@
+{
+  "parent_commit": "88d0c38a9cff4398a0b1c29a321ad7ca0c6b48a0",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/revision_authorization.rs": "65278fde889ef3c0821d655fa6e171abc18c8d87651a61b5bf939b9b126e540e",
+    "crates/diskgraph-engine/src/relation_request.rs": "6ee88b346a9b1c3372404bb4dc488b1806637c09b3514eca792e7f5baae5a595",
+    "crates/diskgraph-engine/src/admin_policy_lookup_tests.rs": "07f9bebc5566d6d87874b40dd32d90a3c78004e9dcc827365c5b61fafb319f48"
+  },
+  "red": "actual display initial callback held control failure",
+  "targeted": {
+    "initial_cases": {
+      "passed": 4,
+      "failed": 0
+    },
+    "permissions": {
+      "passed": 20,
+      "failed": 0
+    },
+    "terminal": {
+      "passed": 9,
+      "failed": 0
+    },
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "fmt": "passed",
+    "clippy_all_targets": "passed"
+  },
+  "review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "limits": [
+      "nonpreemptible synchronous callback",
+      "postcallback control contention fails closed",
+      "wall-clock contention test is scheduling-sensitive",
+      "history and product supervision incomplete"
+    ]
+  },
+  "logs": {
+    "red": {
+      "file": "display_initial_callback_red_2026_10_08.log.gz",
+      "sha256": "9b57c7e84c64449194ef3651e711eec2c5e95f94debf864e265dc3019a15eb43"
+    },
+    "initial_cases": {
+      "file": "display_initial_callback_cases_2026_10_08.log.gz",
+      "sha256": "800ee9ac58ea90785a43ce41c7707c4f11cefdb442d6b3e206ff7fccfeae1f4f"
+    },
+    "permissions": {
+      "file": "display_initial_callback_permissions_2026_10_08.log.gz",
+      "sha256": "3628403638f49f4931f66c01246e1c9c1cb7acf0d1c5f7728d3dc13c6aa55e06"
+    },
+    "terminal": {
+      "file": "display_initial_callback_terminal_2026_10_08.log.gz",
+      "sha256": "06e8eb79eb213507bce9d109dad762bd3c31aff14e7c77686f90cf54dad117dd"
+    }
+  },
+  "qualification": "macOS current worktree; preexisting changes preserved. Latest full serial 565/98/13, all 98 failures Unsupported. First full extra expiry fixture failure remains unconfirmed. Not three-platform or production acceptance.",
+  "first_full": {
+    "passed": 564,
+    "failed": 99,
+    "ignored": 13,
+    "log": "display_initial_callback_full_2026_10_08.log.gz",
+    "log_sha256": "522488635b0ffa7c841c10faf1362417da6b185d35753fdeff588c598598f7d8"
+  },
+  "isolated_expiry_repeat": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "log": "display_initial_callback_expiry-repeat_2026_10_08.log.gz",
+    "log_sha256": "8898a3f9813d62be269ad83882ad750607ad98a4e6be8d140f927505bef74bfa"
+  },
+  "unresolved_observation": "First full regression failed existing display consumer expiry fixture before consumer entry. Isolated exact repeat passed. Cause not confirmed; do not classify as environment or resolved.",
+  "source_sha256_before_diagnostic_message": {
+    "crates/diskgraph-engine/src/revision_authorization.rs": "65278fde889ef3c0821d655fa6e171abc18c8d87651a61b5bf939b9b126e540e",
+    "crates/diskgraph-engine/src/relation_request.rs": "6ee88b346a9b1c3372404bb4dc488b1806637c09b3514eca792e7f5baae5a595",
+    "crates/diskgraph-engine/src/admin_policy_lookup_tests.rs": "b1718ee4da28860be9bc300828fa22fdf6286d52ff6b14b1a7773d92d01ea4fc"
+  },
+  "full_serial_repeat": {
+    "passed": 565,
+    "failed": 98,
+    "ignored": 13,
+    "exit": 101,
+    "seconds": 143.23,
+    "all_failures_explicit_unsupported": true,
+    "log": "display_initial_callback_serial_repeat_2026_10_08.log.gz",
+    "log_sha256": "a5a32f6ef92660be44606416925f87d163f5c7d5ad88f41d4278ff3267bbe43a"
+  }
+}

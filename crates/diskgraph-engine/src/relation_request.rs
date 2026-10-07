@@ -108,30 +108,6 @@ impl Engine {
         Ok(result)
     }
 
-    /// 在调用方已有 SQL guard 下复核权限，不安装或清除另一个 deadline handler。
-    /// 参数：control 为既有 guard，其他参数为当前真实身份；返回：授权或原错误。
-    pub(super) fn require_terminal_relation(
-        control: &diskgraph_store::ControlStore,
-        authorizer: &dyn Authorizer,
-        principal: &PrincipalId,
-        scope: &ScopeId,
-    ) -> Result<(), EngineError> {
-        if control.scope_revoked(scope)? {
-            return Err(BusinessError::PermissionDenied.into());
-        }
-        Self::require_with_control(
-            control,
-            authorizer,
-            principal,
-            &Permission::MetadataRead,
-            scope,
-        )?;
-        if control.scope_revoked(scope)? {
-            return Err(BusinessError::PermissionDenied.into());
-        }
-        Ok(())
-    }
-
     /// 分阶段观察关系/历史末段权限，不得在既有 SQL deadline guard 中调用。
     /// 参数：control 为 Engine mutex guard，authorizer/principal/scope 为真实请求身份。
     /// 返回：授权允许是否及时；调用方须先复核其他侧和归属，再将迟到允许拒为预算失败。

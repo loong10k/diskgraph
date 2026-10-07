@@ -4,6 +4,239 @@ use crate::{EngineError, admin_scope};
 use diskgraph_core::{BusinessError, Permission};
 
 #[test]
+fn display_initial_callback_server_replacement_refuses_consumer() {
+    struct ReplaceServer {
+        path: std::path::PathBuf,
+        calls: std::cell::Cell<u32>,
+    }
+    impl diskgraph_core::Authorizer for ReplaceServer {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.calls.get() == 0 {
+                rusqlite::Connection::open(&self.path)
+                    .unwrap()
+                    .execute("UPDATE server SET server_id='srv-replaced' WHERE id=1", [])
+                    .unwrap();
+            }
+            self.calls.set(self.calls.get() + 1);
+            diskgraph_core::Decision::Allowed
+        }
+    }
+    let (dir, engine, principal, _, revision) = published_authorization_fixture();
+    let authorizer = ReplaceServer {
+        path: dir.path().join("data/diskgraph-control.sqlite"),
+        calls: std::cell::Cell::new(0),
+    };
+    let entered = std::cell::Cell::new(false);
+    let result = engine.with_authorized_revision_display_reader_bounded(
+        revision,
+        &principal,
+        &authorizer,
+        diskgraph_core::QueryBudget {
+            deadline_ms: 1000,
+            ..diskgraph_core::QueryBudget::default()
+        },
+        |_, _, _| {
+            entered.set(true);
+            Ok(crate::RevisionDisplayCompletion::Truncated)
+        },
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "replacement server: {result:?}"
+    );
+    assert!(
+        !entered.get(),
+        "replacement identity entered display consumer"
+    );
+}
+
+#[test]
+fn display_initial_callback_control_contention_remains_nonblocking() {
+    struct HoldControl<'a> {
+        engine: &'a crate::Engine,
+        held: std::cell::RefCell<Option<std::sync::MutexGuard<'a, diskgraph_store::ControlStore>>>,
+    }
+    impl diskgraph_core::Authorizer for HoldControl<'_> {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            *self.held.borrow_mut() = Some(
+                self.engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+                    .expect("initial callback must not hold control"),
+            );
+            diskgraph_core::Decision::Allowed
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    let authorizer = HoldControl {
+        engine: &engine,
+        held: std::cell::RefCell::new(None),
+    };
+    let started = std::time::Instant::now();
+    let result = engine.with_authorized_revision_display_reader_bounded(
+        revision,
+        &principal,
+        &authorizer,
+        diskgraph_core::QueryBudget {
+            deadline_ms: 1000,
+            ..diskgraph_core::QueryBudget::default()
+        },
+        |_, _, _| panic!("contended initial authorization entered consumer"),
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ),
+        "contended callback: {result:?}"
+    );
+    assert!(
+        authorizer.held.borrow().is_some(),
+        "callback must retain actual competing guard"
+    );
+    assert!(
+        started.elapsed() < std::time::Duration::from_millis(500),
+        "postcallback admission waited for original query deadline"
+    );
+}
+
+#[test]
+fn display_initial_callback_can_reenter_control_and_revoke() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        reentered: std::cell::Cell<bool>,
+        calls: std::cell::Cell<u32>,
+        mutation: u8,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.calls.get() == 0
+                && let Ok(mut control) = self
+                    .engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+            {
+                self.reentered.set(true);
+                match self.mutation {
+                    1 => control.revoke_grant(principal, permission, scope).unwrap(),
+                    2 => control.revoke_scope(scope).unwrap(),
+                    _ => {}
+                }
+            }
+            self.calls.set(self.calls.get() + 1);
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for completion in [
+        crate::RevisionDisplayCompletion::Complete,
+        crate::RevisionDisplayCompletion::Truncated,
+    ] {
+        for mutation in 0..=2 {
+            let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+            let authorizer = Callback {
+                engine: &engine,
+                policy: engine.policy_authorizer().unwrap(),
+                reentered: std::cell::Cell::new(false),
+                calls: std::cell::Cell::new(0),
+                mutation,
+            };
+            let entered = std::cell::Cell::new(false);
+            let result = engine.with_authorized_revision_display_reader_bounded(
+                revision,
+                &principal,
+                &authorizer,
+                diskgraph_core::QueryBudget {
+                    deadline_ms: 1000,
+                    ..diskgraph_core::QueryBudget::default()
+                },
+                |_, _, _| {
+                    entered.set(true);
+                    Ok(completion)
+                },
+            );
+            assert!(
+                authorizer.reentered.get(),
+                "display initial callback held control"
+            );
+            if mutation == 0 {
+                result.unwrap();
+                assert!(entered.get());
+            } else {
+                assert!(
+                    matches!(
+                        result,
+                        Err(EngineError::Business(BusinessError::PermissionDenied))
+                    ),
+                    "stale initial capability: {result:?}"
+                );
+                assert!(!entered.get());
+            }
+        }
+    }
+}
+
+#[test]
+fn display_initial_late_capability_cannot_enter_consumer() {
+    struct Late {
+        denied: bool,
+    }
+    impl diskgraph_core::Authorizer for Late {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            std::thread::sleep(std::time::Duration::from_millis(150));
+            if self.denied {
+                diskgraph_core::Decision::Denied(diskgraph_core::DenyReason::NoMatchingGrant)
+            } else {
+                diskgraph_core::Decision::Allowed
+            }
+        }
+    }
+    for denied in [false, true] {
+        let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+        let result = engine.with_authorized_revision_display_reader_bounded(
+            revision,
+            &principal,
+            &Late { denied },
+            diskgraph_core::QueryBudget {
+                deadline_ms: 100,
+                ..diskgraph_core::QueryBudget::default()
+            },
+            |_, _, _| panic!("late initial capability entered consumer"),
+        );
+        let expected = if denied {
+            BusinessError::PermissionDenied
+        } else {
+            BusinessError::BudgetExceeded
+        };
+        assert!(
+            matches!(result, Err(EngineError::Business(ref error)) if *error == expected),
+            "late initial capability: {result:?}"
+        );
+    }
+}
+
+#[test]
 fn display_terminal_callback_can_reenter_control_and_revoke() {
     struct Callback<'a> {
         engine: &'a crate::Engine,
@@ -606,7 +839,10 @@ fn display_reader_refuses_token_expired_during_consumer() {
             Ok(crate::RevisionDisplayCompletion::Truncated)
         },
     );
-    assert!(entered.get());
+    assert!(
+        entered.get(),
+        "expiry fixture never entered consumer: {result:?}"
+    );
     assert!(
         matches!(
             result,

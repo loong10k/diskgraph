@@ -98,3 +98,8 @@ Generic reader终检锁隔离验证：有限重入旧RED→GREEN，终检callbac
 完整及截断展示的终检能力回调必须在共享控制锁及 SQLite progress guard 之外执行。回调后非阻塞获取控制锁，重新检查原撤权见证、实时授权及实际 revision 归属；显式拒权保持 PermissionDenied。保留原读取期限和既有独立 50ms 终检观察窗口，不刷新读取预算。回归须在第二次 decide 中重入同一 Engine 并实际撤销 grant，使用旧缓存 Allowed，分别验证 Complete/Truncated 的正常允许和撤权拒绝。初始展示授权及历史回调不据此声明完成，生产监督门禁保持未完成。
 
 本机验收：旧实现真实 RED；权限组16/0、终检期限组9/0、源码规范6/0、fmt/Clippy通过，两路独立复核无本批阻断。正确 driver 夹具下完整 Engine 串行561/98/13，98失败输出均明确Unsupported，不视为整体通过。另一次错误环境变量的545/114/13记录保留且不计有效回归。证据见 `docs/benchmarks/display_terminal_callback_unlocked_2026_10_08.json`；本机结果不替代同SHA三平台CI。
+## Display reader 初始能力回调锁隔离
+
+初始展示授权先在原读取期限内绑定撤权见证并检查实际 server/scope，随后释放控制锁与 SQL guard 再执行首次 decide。回调前后控制锁均保持非阻塞准入；回调后复查原见证、server、实时权限、scope 撤销和固定 expiry，拒绝迟到允许，明确 Denied 保留 PermissionDenied。首次回调正常允许、撤 grant、撤 scope 的可重入测试及迟到 Allowed/Denied 测试覆盖 Complete/Truncated；拒绝不得进入 consumer。不引入终检宽限，不声称历史或产品监督门禁完成。
+
+本机验收：真实 RED；初始专项4/0、权限组20/0、期限组9/0、规范6/0、fmt/Clippy及两路审查无本批阻断。首轮完整564/99/13包含一个旧到期夹具未进入consumer的额外失败，精确单独1/0；保持断言及原预算，仅补失败消息后第二轮565/98/13，98失败均Unsupported。首轮额外失败原因仍未确认，列为WATCH，不以复跑通过关闭。证据见 `docs/benchmarks/display_initial_callback_unlocked_2026_10_08.json`，不替代三平台验收。
