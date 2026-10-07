@@ -29,6 +29,8 @@ impl Engine {
     ) -> Result<T, EngineError> {
         let mut reads = QueryReadBudget::new(budget, deadline)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+        #[cfg(test)]
+        crate::relation_query_diagnostics_tests::mark("reader_open");
         let scope = self.authorize_revision_with_budget(
             &reader,
             expected_scope,
@@ -37,6 +39,8 @@ impl Engine {
             authorizer,
             &mut reads,
         )?;
+        #[cfg(test)]
+        crate::relation_query_diagnostics_tests::mark("initial_authorization");
         // 必需目标与消费者共用最初余额；准备失败同样进入真实范围的末段授权。
         let result = (|| {
             let evidence = match reader.revision_evidence_with_budget(revision, &mut reads) {
@@ -54,6 +58,8 @@ impl Engine {
             };
             consumer(&reader, evidence.as_ref(), &mut reads)
         })();
+        #[cfg(test)]
+        crate::relation_query_diagnostics_tests::mark("data_read");
         // 仅测试的读后同步点不持 control guard，不添加生产回调或共享请求状态。
         #[cfg(test)]
         crate::relation_request_tests::after_read(deadline);
@@ -82,11 +88,17 @@ impl Engine {
             Ok(())
         };
         authorize()?;
+        #[cfg(test)]
+        crate::relation_query_diagnostics_tests::mark("terminal_before_encode");
         let mut result = result?;
         let expired = Instant::now() >= deadline;
         let encoded = finish(&mut result, expired);
+        #[cfg(test)]
+        crate::relation_query_diagnostics_tests::mark("encode");
         // 本 Engine 的 guard 防止重入；独立连接仍可撤权，故编码后重新读实际 scope。
         authorize()?;
+        #[cfg(test)]
+        crate::relation_query_diagnostics_tests::mark("terminal_after_encode");
         encoded?;
         if !expired && Instant::now() >= deadline {
             let encoded = finish(&mut result, true);

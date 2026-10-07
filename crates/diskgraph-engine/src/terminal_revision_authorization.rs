@@ -31,9 +31,15 @@ impl Engine {
         let result = (|| {
             let server =
                 control.with_read_deadline(deadline, |control| control.existing_server_id())?;
+            #[cfg(test)]
+            let reader_started = Instant::now();
             let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
             #[cfg(test)]
+            crate::relation_query_diagnostics_tests::detail("terminal_reader_open", reader_started);
+            #[cfg(test)]
             crate::relation_request_tests::terminal_reader_opened();
+            #[cfg(test)]
+            let ownership_started = Instant::now();
             for (revision, scope) in revisions {
                 // 每次 SELECT 独立观察当前 WAL；不能开启冻结两侧归属的事务。
                 if !reader.revision_ownership_matches(revision, server.as_str(), scope.as_str())? {
@@ -43,6 +49,11 @@ impl Engine {
                     return Err(BusinessError::BudgetExceeded.into());
                 }
             }
+            #[cfg(test)]
+            crate::relation_query_diagnostics_tests::detail(
+                "terminal_ownership_sql",
+                ownership_started,
+            );
             Ok(())
         })();
         match result {

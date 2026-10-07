@@ -147,3 +147,58 @@ fn expired_and_cancelled_reader_keeps_deadline_error_precedence() {
         Err(StoreError::BudgetExceeded)
     ));
 }
+
+#[test]
+#[ignore = "release diagnostic only; raw reader deliberately lacks production admission hooks"]
+fn ownership_reader_configuration_cost_experiment() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("graph.sqlite");
+    let _writer = SqliteSnapshotStore::open(&path).unwrap();
+    let mut configured = Vec::new();
+    let mut raw = Vec::new();
+    // 同一实际迁移库交替打开，计时涵盖 SQL 与关闭；原始连接不是可交付实现。
+    for round in 0..100 {
+        for offset in 0..2 {
+            let full = (round + offset) % 2 == 0;
+            let started = Instant::now();
+            let reader = if full {
+                SqliteSnapshotStore::open_reader_until(
+                    &path,
+                    started + Duration::from_secs(5),
+                    None,
+                )
+                .unwrap()
+            } else {
+                SqliteSnapshotStore {
+                    connection: rusqlite::Connection::open_with_flags(
+                        &path,
+                        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY
+                            | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+                    )
+                    .unwrap(),
+                }
+            };
+            assert!(
+                !reader
+                    .revision_ownership_matches("missing", "server", "scope")
+                    .unwrap()
+            );
+            drop(reader);
+            let elapsed = started.elapsed().as_secs_f64() * 1000.0;
+            if full {
+                configured.push(elapsed);
+            } else {
+                raw.push(elapsed);
+            }
+        }
+    }
+    configured.sort_by(f64::total_cmp);
+    raw.sort_by(f64::total_cmp);
+    println!(
+        "{}",
+        serde_json::json!({"experiment":"reader configuration plus missing ownership SQL and close", "os":std::env::consts::OS,
+        "production_qualification":false,"samples_per_variant":100,
+        "configured":{"p50_ms":configured[49],"p95_ms":configured[94]},
+        "raw_unsafe_diagnostic":{"p50_ms":raw[49],"p95_ms":raw[94]}})
+    );
+}

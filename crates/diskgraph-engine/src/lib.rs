@@ -107,11 +107,11 @@ mod process_publication_tests;
 mod queries;
 mod relation_access;
 mod relation_queries;
+#[cfg(test)]
+mod relation_query_diagnostics_tests;
 mod relation_request;
 #[cfg(test)]
 mod relation_request_tests;
-#[cfg(test)]
-mod terminal_capability_tests;
 mod request_withdrawal_witness;
 mod revision_authorization;
 mod revision_comparison;
@@ -177,6 +177,8 @@ mod snapshot_retention;
 #[cfg(test)]
 mod status_contention_tests;
 mod sync_plan;
+#[cfg(test)]
+mod terminal_capability_tests;
 mod terminal_revision_authorization;
 #[cfg(test)]
 mod tests;
