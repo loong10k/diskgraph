@@ -1,0 +1,53 @@
+{
+  "parent_commit": "a7f8c0bd2589928b56c7f173b27757d115c37c18",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/history_request.rs": "802cbe980b54be57f7850086158ac3da16a81970c4e647e9f12e2d4ff87be812",
+    "crates/diskgraph-engine/src/relation_request.rs": "6b59c454e9bf74227938c752eff2b0c0c34594b507a1f07820c2eb55b800eb87",
+    "crates/diskgraph-engine/src/terminal_capability_tests.rs": "6ebea8c64836d19a03d8ede01b577d905b2b68b231f40dba83912382f88d7995"
+  },
+  "red": {
+    "prior_observation": "summary recorded expired envelope returned Ok before fix",
+    "raw_log": "not found at recorded temporary path; not independently reverified this turn"
+  },
+  "targeted": {
+    "terminal_capability_tests": {
+      "passed": 13,
+      "failed": 0
+    },
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "fmt": "passed",
+    "clippy_all_targets": "passed"
+  },
+  "full_serial": {
+    "passed": 569,
+    "failed": 98,
+    "ignored": 13,
+    "seconds": 127.18,
+    "exit": 101,
+    "all_failures_explicit_unsupported": true
+  },
+  "review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR",
+    "watch": [
+      "real expiry tests depend on scheduler entering while token live",
+      "SQL/lock errors can precede expiry error",
+      "synchronous callbacks not preempted",
+      "envelope expiry during callback lacks direct regression"
+    ]
+  },
+  "qualification": "macOS ARM worktree only; full engine fails 98 Unsupported gates; no all-platform or production acceptance",
+  "logs": {
+    "target": {
+      "file": "history_fixed_expiry_target_2026_10_08.log.gz",
+      "sha256": "2e77c3153a3da1e06958a173eebed5967e17ab5d5fb43bf96763a63c528bb547"
+    },
+    "full": {
+      "file": "history_fixed_expiry_full_2026_10_08.log.gz",
+      "sha256": "493fe006da13c644ca85d1d588bf9a0082a690a344c09ac7abd1eeda06dbd688"
+    }
+  }
+}

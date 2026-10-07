@@ -1,4 +1,5 @@
 //! 关系请求复用真实 revision 授权与独立 reader，返回前在同一 control guard 复检。
+use crate::authority_expiry::check_authority_expiry;
 use crate::{Engine, EngineError};
 use diskgraph_core::{
     Authorizer, BusinessError, Permission, PrincipalId, QueryBudget, QueryReadBudget, ScopeId,
@@ -27,6 +28,8 @@ impl Engine {
         ) -> Result<T, EngineError>,
         mut finish: impl FnMut(&mut T, bool) -> Result<(), EngineError>,
     ) -> Result<T, EngineError> {
+        let expiry = authorizer.expires_at_unix_seconds();
+        check_authority_expiry(expiry)?;
         let mut reads = QueryReadBudget::new(budget, deadline)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         #[cfg(test)]
@@ -43,6 +46,7 @@ impl Engine {
         crate::relation_query_diagnostics_tests::mark("initial_authorization");
         // 必需目标与消费者共用最初余额；准备失败同样进入真实范围的末段授权。
         let result = (|| {
+            check_authority_expiry(expiry)?;
             let evidence = match reader.revision_evidence_with_budget(revision, &mut reads) {
                 Ok(evidence) => Some(evidence),
                 Err(diskgraph_store::StoreError::BudgetExceeded)
@@ -56,6 +60,7 @@ impl Engine {
                 }
                 Err(error) => return Err(error.into()),
             };
+            check_authority_expiry(expiry)?;
             consumer(&reader, evidence.as_ref(), &mut reads)
         })();
         #[cfg(test)]
@@ -65,9 +70,11 @@ impl Engine {
         crate::relation_request_tests::after_read(deadline);
         // 每轮能力回调后开始固定归属窗口；不续期结果读取或编码期限。
         let ownership = || {
+            check_authority_expiry(expiry)?;
             let control = self
                 .try_control_store()?
                 .ok_or(BusinessError::BudgetExceeded)?;
+            check_authority_expiry(expiry)?;
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
@@ -87,10 +94,11 @@ impl Engine {
                 &scope,
                 &control,
                 authorization_deadline,
-            )
+            )?;
+            check_authority_expiry(expiry)
         };
         let authorize = || {
-            let timely = self.observe_terminal_relation(authorizer, principal, &scope)?;
+            let timely = self.observe_terminal_relation(authorizer, principal, &scope, expiry)?;
             ownership()?;
             if !timely {
                 return Err(EngineError::Business(BusinessError::BudgetExceeded));
@@ -115,21 +123,25 @@ impl Engine {
             authorize()?;
             encoded?;
         }
+        check_authority_expiry(expiry)?;
         Ok(result)
     }
 
     /// 分阶段观察关系/历史末段权限，不得在既有 SQL deadline guard 中调用。
-    /// 参数：authorizer/principal/scope 为真实请求身份；各 SQL 阶段非阻塞获取控制锁。
+    /// 参数：authorizer/principal/scope 为真实身份，expiry 是请求开始的固定值；各 SQL 阶段非阻塞取锁。
     /// 返回：授权允许是否及时；调用方须先复核其他侧和归属，再将迟到允许拒为预算失败。
     pub(super) fn observe_terminal_relation(
         &self,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scope: &ScopeId,
+        expiry: Option<u64>,
     ) -> Result<bool, EngineError> {
+        check_authority_expiry(expiry)?;
         let control = self
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
+        check_authority_expiry(expiry)?;
         let before_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -142,17 +154,20 @@ impl Engine {
             })
             .map_err(terminal_control_error)?;
         drop(control);
+        check_authority_expiry(expiry)?;
         // 宿主回调不持控制锁或 SQL handler；回调后重新观察实时权限。
         let capability_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+        check_authority_expiry(expiry)?;
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
         let control = self
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
+        check_authority_expiry(expiry)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -171,28 +186,32 @@ impl Engine {
                 Ok(())
             })
             .map_err(terminal_control_error)?;
+        check_authority_expiry(expiry)?;
         // 不在此提前返回预算错误；调用方还须观察其他侧撤权及新鲜 revision 隔离。
         Ok(Instant::now() < capability_deadline)
     }
 
     /// 完成全部能力回调后，再纯读取每一侧的持久授权。
-    /// 参数：authorizer/principal/scopes 为同请求真实身份与范围；回调不持控制锁。
+    /// 参数：authorizer/principal/scopes 为真实身份与范围，expiry 沿用原值；回调不持控制锁。
     /// 返回：各侧均允许时的及时性；真实拒权优先，迟到允许由调用方完成归属观察后拒绝。
     pub(super) fn require_terminal_relations(
         &self,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scopes: &[&ScopeId],
+        expiry: Option<u64>,
     ) -> Result<bool, EngineError> {
+        check_authority_expiry(expiry)?;
         let mut timely = true;
         for scope in scopes {
-            timely &= self.observe_terminal_relation(authorizer, principal, scope)?;
+            timely &= self.observe_terminal_relation(authorizer, principal, scope, expiry)?;
         }
         // 不再次调用能力授权器，避免最后一个回调继续使前侧复检失效。
         // 全部回调结束后取得新 guard；独立 SQLite 连接仍不受此 mutex 冻结。
         let control = self
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
+        check_authority_expiry(expiry)?;
         let observation_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -209,6 +228,7 @@ impl Engine {
                 Ok(())
             })
             .map_err(terminal_control_error)?;
+        check_authority_expiry(expiry)?;
         Ok(timely)
     }
 
@@ -238,6 +258,8 @@ impl Engine {
         if revisions.is_empty() {
             return Err(BusinessError::InvalidArgument.into());
         }
+        let expiry = authorizer.expires_at_unix_seconds();
+        check_authority_expiry(expiry)?;
         // 实时授权的前后 SQL 与能力回调各有固定窗口，不续期数据查询，也不向消费者交出此连接。
         // 数据已到期时仍须拒绝撤权后的前缀；观察超时则拒绝全部结果。
         let observation_deadline = Instant::now()
@@ -259,6 +281,7 @@ impl Engine {
         let control = self
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+        check_authority_expiry(expiry)?;
         control.with_read_deadline(observation_deadline, |control| {
             let server_id = control.existing_server_id()?;
             for (server, scope) in &ownerships {
@@ -270,14 +293,20 @@ impl Engine {
         })?;
         drop(reader);
         drop(control);
+        check_authority_expiry(expiry)?;
         // 宿主回调不消耗后续新鲜 SQL 的窗口；迟到允许仍不能提交部分数据。
         let capability_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         let decisions = ownerships
             .iter()
-            .map(|(_, scope)| authorizer.decide(principal, &Permission::MetadataRead, scope))
-            .collect::<Vec<_>>();
+            .map(|(_, scope)| {
+                check_authority_expiry(expiry)?;
+                let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+                check_authority_expiry(expiry)?;
+                Ok::<_, EngineError>(decision)
+            })
+            .collect::<Result<Vec<_>, EngineError>>()?;
         if decisions
             .iter()
             .any(|decision| matches!(decision, diskgraph_core::Decision::Denied(_)))
@@ -287,6 +316,7 @@ impl Engine {
         let control = self
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
+        check_authority_expiry(expiry)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -315,6 +345,7 @@ impl Engine {
             }
             Ok::<(), EngineError>(())
         })?;
+        check_authority_expiry(expiry)?;
         let reader =
             SqliteSnapshotStore::open_reader_until(&self.graph_path, after_callback, None)?;
         for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
@@ -322,9 +353,11 @@ impl Engine {
                 return Err(BusinessError::PermissionDenied.into());
             }
         }
+        check_authority_expiry(expiry)?;
         if Instant::now() >= after_callback || Instant::now() >= capability_deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        check_authority_expiry(expiry)?;
         Ok(Instant::now() < deadline)
     }
 }

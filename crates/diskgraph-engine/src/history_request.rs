@@ -1,3 +1,4 @@
+use crate::authority_expiry::check_authority_expiry;
 use crate::{Engine, EngineError};
 use diskgraph_core::{
     Authorizer, BusinessError, Permission, PrincipalId, QueryBudget, QueryReadBudget,
@@ -28,6 +29,8 @@ impl Engine {
         ) -> Result<T, EngineError>,
         mut finish: impl FnMut(&mut T, bool) -> Result<(), EngineError>,
     ) -> Result<T, EngineError> {
+        let expiry = authorizer.expires_at_unix_seconds();
+        check_authority_expiry(expiry)?;
         let mut reads = QueryReadBudget::new(budget, deadline)?;
         let left_reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let right_reader =
@@ -51,8 +54,10 @@ impl Engine {
         // 双侧都已按本服务器真实归属授权；同 ScopeId 绑定同一不可变注册根。
         // 目标准入错误与 consumer 错误一起经过原双侧末检，不提前返回错误或部分结果。
         let result = (|| {
+            check_authority_expiry(expiry)?;
             let left_snapshot = left_reader.revision_snapshot_with_budget(left, &mut reads)?;
             let right_snapshot = right_reader.revision_snapshot_with_budget(right, &mut reads)?;
+            check_authority_expiry(expiry)?;
             consumer(
                 &left_reader,
                 &left_snapshot,
@@ -68,9 +73,11 @@ impl Engine {
         let scopes = [&left_scope, &right_scope];
         // 两侧每轮共用固定授权窗口；只读过滤归属，不续期历史迭代与编码预算。
         let ownerships = || {
+            check_authority_expiry(expiry)?;
             let control = self
                 .try_control_store()?
                 .ok_or(BusinessError::BudgetExceeded)?;
+            check_authority_expiry(expiry)?;
             // 能力回调可能消耗原查询期限；每轮归属观察才开始独立的有限窗口。
             // 同轮双侧共享此窗口，原 reads/deadline 不刷新，迟到结果仍由 finish 拒绝。
             let authorization_deadline = Instant::now()
@@ -96,10 +103,11 @@ impl Engine {
                 &[(left, &left_scope), (right, &right_scope)],
                 &control,
                 authorization_deadline,
-            )
+            )?;
+            check_authority_expiry(expiry)
         };
         let authorize = || {
-            let timely = self.require_terminal_relations(authorizer, principal, &scopes)?;
+            let timely = self.require_terminal_relations(authorizer, principal, &scopes, expiry)?;
             ownerships()?;
             if !timely {
                 return Err(EngineError::Business(BusinessError::BudgetExceeded));
@@ -118,6 +126,7 @@ impl Engine {
             authorize()?;
             encoded?;
         }
+        check_authority_expiry(expiry)?;
         Ok(result)
     }
 }

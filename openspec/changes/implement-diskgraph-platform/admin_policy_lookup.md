@@ -108,3 +108,8 @@ Generic reader终检锁隔离验证：有限重入旧RED→GREEN，终检callbac
 关系和双侧历史的能力观察不持 Engine 控制锁；各次 SQL 与回调继续采用既有有限窗口，控制锁各阶段非阻塞准入。全部历史回调结束后重新纯读所有侧的授权，再沿共同新鲜窗口检查 revision 归属；后侧回调撤销前侧权限必须拒绝，迟到允许不覆盖拒权。编码前后分别复核，不刷新数据 deadline，不在编码时持控制锁。已有 envelope finalize 同样释放控制锁后调用能力，并在回调后重新检查 server、授权及归属。固定 expiry 的全部历史路径覆盖另行验证，不能据锁隔离声称生产门禁完成。
 
 本机验收：历史回调持锁真实 RED；终检组11/0，关系组7/8/0且8失败均Unsupported，规范6/0、fmt/Clippy及双路独立审查无本批阻断。完整串行Engine567/98/13，98失败均Unsupported。证据见 `docs/benchmarks/history_terminal_callback_unlocked_2026_10_08.json`。多个观察阶段不能称整个终检只有50ms，独立连接不受mutex冻结，竞争失败关闭，不宣称整体或三平台通过。
+## 关系、历史与 envelope 固定 token expiry
+
+请求开始在控制锁外固定 expiry；准备、消费、每次终检回调前后、重获控制锁、授权与归属完成及返回均检查同一值。过期返回 PermissionDenied，不返回完整或 partial；None 保留可信本机兼容。消费或编码错误沿既有终检规则处理，锁/SQL自身错误保持原含义，不扩大原 deadline 或有限观察窗口。隔离合法快照覆盖预先到期、真实消费/编码跨到期及 getter 后续改为 None 的情况；不能用后续 getter 隐去首次 expiry。
+
+本机验收：当前终检组13/0、源码规范6/0、fmt/Clippy及独立APPROVE/CLEAR。完整串行Engine569/98/13，98失败块均含Unsupported，整体未通过。此前摘要记录预先到期envelope真实RED，但对应临时原始日志当前缺失，不能作为本轮可复查RED证据。当前日志与源码摘要保存于 `docs/benchmarks/history_fixed_expiry_2026_10_08.json`。实际到期夹具仍有调度敏感性，envelope回调跨到期直接测试待补；不声明原生三平台或生产门禁完成。

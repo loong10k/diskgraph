@@ -5,6 +5,169 @@ use diskgraph_core::{BusinessError, Permission, PrincipalId, QueryBudget, query_
 use std::cell::RefCell;
 
 #[test]
+fn expired_relation_history_and_envelope_capability_is_denied() {
+    struct Expired;
+    impl diskgraph_core::Authorizer for Expired {
+        fn decide(
+            &self,
+            _: &PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            diskgraph_core::Decision::Allowed
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(0)
+        }
+    }
+    for kind in 0..3 {
+        let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+        let budget = QueryBudget::default();
+        let deadline = query_deadline(budget).unwrap();
+        let result = match kind {
+            0 => engine.with_relation_reader_until(
+                revision,
+                &principal,
+                &Expired,
+                deadline,
+                budget,
+                None,
+                |_, _, _| panic!("expired relation entered consumer"),
+                |_: &mut (), _| Ok(()),
+            ),
+            1 => engine.with_history_readers_until(
+                revision,
+                revision,
+                &principal,
+                &Expired,
+                deadline,
+                budget,
+                |_, _, _, _, _, _| panic!("expired history entered consumer"),
+                |_: &mut (), _| Ok(()),
+            ),
+            _ => engine
+                .finalize_revisions_read_until(
+                    &[revision, revision],
+                    &principal,
+                    &Expired,
+                    deadline,
+                )
+                .map(|_| ()),
+        };
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "expired kind {kind}: {result:?}"
+        );
+    }
+}
+
+#[test]
+fn relation_and_history_preserve_original_expiry_across_consumer_and_encoding() {
+    struct Fixed {
+        policy: diskgraph_core::PolicyAuthorizer,
+        expiry: u64,
+        getters: std::cell::Cell<u32>,
+    }
+    impl diskgraph_core::Authorizer for Fixed {
+        fn decide(
+            &self,
+            p: &PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.policy.decide(p, permission, scope)
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            let first = self.getters.get() == 0;
+            self.getters.set(self.getters.get() + 1);
+            first.then_some(self.expiry)
+        }
+    }
+    for history in [false, true] {
+        for during_encoding in [false, true] {
+            let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+            let policy = engine.policy_authorizer().unwrap();
+            let expiry = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+                + 2;
+            let authorizer = Fixed {
+                policy,
+                expiry,
+                getters: std::cell::Cell::new(0),
+            };
+            let entered = std::cell::Cell::new(false);
+            let encoded = std::cell::Cell::new(false);
+            let wait_expiry = || {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap();
+                assert!(
+                    now.as_secs() < expiry,
+                    "fixture must enter while capability is live"
+                );
+                std::thread::sleep(
+                    std::time::Duration::from_secs(expiry).saturating_sub(now)
+                        + std::time::Duration::from_millis(20),
+                );
+            };
+            let consume = || {
+                entered.set(true);
+                if !during_encoding {
+                    wait_expiry();
+                }
+                Ok(())
+            };
+            let finish = |_: &mut (), _: bool| {
+                encoded.set(true);
+                if during_encoding {
+                    wait_expiry();
+                }
+                Ok(())
+            };
+            let budget = QueryBudget::default();
+            let deadline = query_deadline(budget).unwrap();
+            let result = if history {
+                engine.with_history_readers_until(
+                    revision,
+                    revision,
+                    &principal,
+                    &authorizer,
+                    deadline,
+                    budget,
+                    |_, _, _, _, _, _| consume(),
+                    finish,
+                )
+            } else {
+                engine.with_relation_reader_until(
+                    revision,
+                    &principal,
+                    &authorizer,
+                    deadline,
+                    budget,
+                    None,
+                    |_, _, _| consume(),
+                    finish,
+                )
+            };
+            assert!(entered.get());
+            assert_eq!(encoded.get(), during_encoding);
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(BusinessError::PermissionDenied))
+                ),
+                "original expiry history={history} encode={during_encoding}: {result:?}"
+            );
+        }
+    }
+}
+
+#[test]
 fn relation_and_envelope_callbacks_can_reenter_control_and_revoke() {
     struct Callback<'a> {
         engine: &'a crate::Engine,
@@ -485,7 +648,8 @@ fn late_history_side_does_not_hide_the_other_scope_revocation() {
             second: second.clone(),
             first_is_slow,
         };
-        let result = engine.require_terminal_relations(&authorizer, &principal, &[&first, &second]);
+        let result =
+            engine.require_terminal_relations(&authorizer, &principal, &[&first, &second], None);
         if !matches!(
             result,
             Err(EngineError::Business(BusinessError::PermissionDenied))
