@@ -1,0 +1,11 @@
+{
+  "run": 37695471590,
+  "job": 113046019929,
+  "commit": "fa400fa5e6119a85b9fad74ccfa8e18bdd56accb",
+  "ci_failure": "display_complete_reader_refuses_token_expired_during_consumer: entered=false, original error not printed",
+  "engine_ci_summary": "652 passed, 1 failed, 9 ignored",
+  "candidate": "assertion now prints result; behavior, budgets, expiry and original rejection assertions unchanged",
+  "candidate_sha256": "e787d476a9b5075d43b19769ed92cf001db28bde343f7153e2d215f3eacb8ffa",
+  "cpu2_companion": "20/20 passed with 10 threads; not reproduced, not CI acceptance",
+  "status": "open; no production fix proven"
+}

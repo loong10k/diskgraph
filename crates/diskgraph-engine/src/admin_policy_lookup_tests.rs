@@ -914,7 +914,7 @@ fn display_complete_reader_refuses_token_expired_during_consumer() {
             Ok(crate::RevisionDisplayCompletion::Complete)
         },
     );
-    assert!(entered.get());
+    assert!(entered.get(), "consumer was not entered: {result:?}");
     assert!(
         matches!(
             result,
