@@ -71,6 +71,19 @@ def free_port():
         return probe.getsockname()[1]
 
 
+def stop_server(process):
+    """停止原进程并实际等待；不能将强制清理当作正常退出验收。"""
+    process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=5)
+        raise RuntimeError('normal shutdown exceeded 5 seconds; forced cleanup is not acceptance')
+    if sys.platform != 'win32' and process.returncode != 0:
+        raise RuntimeError(f'normal shutdown failed: original process exited {process.returncode}')
+
+
 @contextlib.contextmanager
 def server(data, transport, key_file, work):
     port = free_port()
@@ -98,12 +111,7 @@ def server(data, transport, key_file, work):
                 raise RuntimeError(f"server did not listen: {log_path.read_text()}")
             yield port
         finally:
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait(timeout=5)
+            stop_server(process)
 
 
 def request(port, path, body=None, bearer=None, origin=None):
