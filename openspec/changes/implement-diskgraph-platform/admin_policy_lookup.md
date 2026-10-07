@@ -79,3 +79,5 @@ Owner回调锁隔离验收：旧有限重入真实RED→GREEN；权限组12/0，
 全部路径失败时，du 保留首个注册/index/run 业务错误；只有没有实际业务错误时保持 NotFound。部分成功的输出兼容。隔离目录和明确拒权 Authorizer 回归旧 PermissionDenied 被改为 NotFound 实际 RED，要求保留 PermissionDenied；不依赖原生扫描资格。
 
 Du原错误本机回归：明确拒权旧NotFound实际RED→PermissionDenied GREEN；CLI完整单元70/12/0，12失败均Unsupported。fmt/Clippy与双路APPROVE/CLEAR通过。全workspace诊断另见workspace_diagnostic_7c430bd_2026_10_07.json，包含测试夹具及工作区修改，不用其证明后续CLI或原生平台通过。
+
+全workspace失败分类：455项中437项输出明确Unsupported，18项未确认归因（退出码、缺失快照或Conflict等）。不能将18项未经实际重现归为平台资格，也不能将455项视为455个独立漏洞。详细目标与测试定位见workspace_failure_classification_2026_10_07.json，绑定原诊断日志摘要。原生门禁与产品监督链仍是阻断项，未勾选生产验收。

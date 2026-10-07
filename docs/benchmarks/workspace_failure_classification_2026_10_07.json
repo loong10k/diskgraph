@@ -1,0 +1,2741 @@
+{
+  "source_log_sha256": "76286ec8cf6fa169ae144cefe87a814ee83ff781278a12549eee68c1475f9f8e",
+  "run": "workspace_diagnostic_7c430bd_2026_10_07",
+  "qualification": "diagnostic only; no proof that unresolved failures share a root cause",
+  "counts": {
+    "explicit_unsupported": 437,
+    "unresolved": 18
+  },
+  "failures": [
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::encoded_tree_refuses_terminal_scope_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::plan_cannot_escape_as_usable_steps_when_encoding_terminal_authorization_expires",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::encoded_changes_refuses_terminal_scope_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::encoded_growth_refuses_terminal_grant_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::tree_and_history_do_not_complete_after_the_dispatch_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "query_terminal_tests::encoded_comparison_refuses_terminal_grant_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "scan_terminal_tests::synchronous_wait_settles_only_its_expired_cancelled_or_revoked_job",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "scan_terminal_tests::synchronous_wait_reclaims_only_its_expired_job",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "scan_terminal_tests::waiting_for_another_owners_failed_job_is_not_success",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/main.rs (target/debug/deps/diskgraph-b064a2cabf3626a3)",
+      "test": "tui::tests::nested_frame_limits_queries_and_keeps_navigation_visible",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "du_reports_missing_paths_and_still_measures_the_rest",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "du_summarizes_multiple_paths_like_du_sh",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "full_readonly_flow_with_business_exit_codes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "children_reports_unknown_sizes_and_honours_filters",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "positive_candidate_cli_does_not_decode_an_unrelated_corrupt_node",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "cursors_bind_principal_and_policy_epoch",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "search_explore_and_impact_report_bounded_results",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "changes_and_growth_refuse_incomparable_revisions_honestly",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "snapshots_prune_previews_then_removes_only_old_history",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "policy_revocation_denies_everything_until_republish",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "top_growth_changes_report_bounded_and_honest_results",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/cli_flow.rs (target/debug/deps/cli_flow-563e5238c081afaf)",
+      "test": "synchronous_budget_failure_never_returns_a_success_envelope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/controlled_environment.rs (target/debug/deps/controlled_environment-066c85870d9041cb)",
+      "test": "a_fresh_process_reuses_the_persisted_index",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/controlled_environment.rs (target/debug/deps/controlled_environment-066c85870d9041cb)",
+      "test": "the_engine_reports_its_own_capabilities_without_probing_system_tools",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'the_engine_reports_its_own_capabilities_without_probing_system_tools' (13639053) panicked at crates/diskgraph-cli/tests/controlled_environment.rs:203:5:\nassertion `left == right` failed: stderr: \n  left: 6\n right: 0\n\n"
+    },
+    {
+      "target": "tests/controlled_environment.rs (target/debug/deps/controlled_environment-066c85870d9041cb)",
+      "test": "indexing_and_queries_work_with_no_system_utilities_on_path",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'indexing_and_queries_work_with_no_system_utilities_on_path' (13639052) panicked at crates/diskgraph-cli/tests/controlled_environment.rs:95:5:\nassertion `left == right` failed: scope add/index must not shell out: \n  left: 6\n right: 0\n\n\n"
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "cli_git_status_denies_a_principal_without_operation_view_on_the_actual_scope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "git_wait_diagnostic::tests::posterior_failed_reports_only_the_real_persisted_safe_failure",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "explicit_git_sync_without_content_read_is_business_denied_before_enqueue",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "sync_without_collector_still_scans_and_waits_without_content_read",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "explicit_git_sync_queues_a_durable_job_without_publishing_during_enqueue",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "git_wait_diagnostic::tests::posterior_completed_reads_the_real_receipt_and_new_owner_latest",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "repeated_git_sync_reports_the_actual_running_merged_job",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "git_wait_diagnostic::tests::posterior_without_git_job_reports_absence_and_the_real_base_latest",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "reopened_cli_status_reports_only_the_persisted_safe_git_failure",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "explicit_git_sync_wait_uses_the_persisted_publication_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-591e18a008761e7b)",
+      "test": "git_wait_diagnostic::tests::posterior_queued_and_running_reads_the_actual_claimed_fence",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_budget.rs (target/debug/deps/history_budget-834951e97bfcf4be)",
+      "test": "history_decode_failure_keeps_a_bounded_business_error_envelope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_budget.rs (target/debug/deps/history_budget-834951e97bfcf4be)",
+      "test": "comparison_fits_the_complete_cli_envelope_and_reports_partial",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_evidence_flow.rs (target/debug/deps/process_evidence_flow-84ad8446a806d879)",
+      "test": "unqualified_native_epoch_is_unsupported_and_does_not_enqueue_or_rescan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_evidence_flow.rs (target/debug/deps/process_evidence_flow-84ad8446a806d879)",
+      "test": "existing_scan_and_git_controls_still_work_and_unknown_collectors_do_not_enqueue",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_budget.rs (target/debug/deps/relation_budget-128450283966ac00)",
+      "test": "impact_refuses_a_scope_hint_that_does_not_own_the_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_budget.rs (target/debug/deps/relation_budget-128450283966ac00)",
+      "test": "impact_does_not_decode_an_unrelated_corrupt_relation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::expired_queued_git_claim_releases_its_terminal_cancellation_handle",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_admission_tests::git_enqueue_admits_legal_revision_header_before_owning_snapshot_identity",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_actual_cancellation_after_capture_is_cancelled_without_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_input_budget_failure_is_typed_and_does_not_publish_partial_counts",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_claim_preparation_keeps_the_original_absolute_execution_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_job_cannot_publish_for_a_replacement_directory_after_enqueue",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_content_revocation_after_capture_prevents_any_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_original_request_expiry_after_capture_fails_without_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_execution_tests::git_keeper_observes_content_revocation_during_the_active_execution_window",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_cancellation_tests::live_git_owner_rejection_and_cancel_preserve_the_active_handle",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_cancellation_tests::queued_git_explicit_cancel_releases_the_terminal_handle",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_cancellation_tests::legacy_scan_terminal_cancel_and_claim_refusal_release_only_queued_handles",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_status_tests::completed_git_status_rechecks_all_live_grants_after_the_last_terminal_callback",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_status_tests::pruned_git_result_keeps_authorized_receipt_and_marks_result_unavailable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_cancellation_tests::queued_git_live_permission_rejection_releases_the_terminal_handle",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_job_status_tests::completed_git_status_requires_live_metadata_permission_in_addition_to_operation_view",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_late_enqueue_tests::durable_cancel_between_claim_and_local_flag_registration_prevents_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_late_enqueue_tests::queued_producer_handle_does_not_survive_remote_engine_completion",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "git_late_enqueue_tests::enqueue_cannot_register_a_terminal_handle_after_another_engine_completes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_authorization_tests::claimed_job_graph_preparation_wait_consumes_the_original_scan_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_authorization_tests::live_grant_revocation_after_native_observation_prevents_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_authorization_tests::live_remote_authority_can_publish_through_the_strict_runner",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_authorization_tests::remote_expiry_after_native_observation_prevents_staging_and_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_authorization_tests::strict_execution_does_not_upgrade_a_legacy_job_to_local_authority",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_authorization_tests::trusted_runner_still_obeys_a_persisted_remote_expiry",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_keeper_unwind_tests::execution_unwind_joins_keeper_without_revocation_or_rescue_cancellation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_outcome_tests::real_identity_conflict_is_not_replaced_by_a_later_keeper_authorization_error",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_outcome_tests::a_real_committed_receipt_remains_completed_after_late_keeper_denial",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_outcome_tests::keeper_join_propagates_its_real_panic_without_rewriting_committed_facts",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_tests::keeper_real_sqlite_busy_is_retained_instead_of_a_derived_scan_conflict",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_tests::keeper_sqlite_busy_after_final_native_validation_is_not_permission_denied",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_tests::scan_guard_keeps_its_actual_permission_denied_before_cooperative_stop",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_conflict_tests::a_specific_local_commit_stop_can_be_denied_without_rewriting_other_store_errors",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_cause_tests::scan_heartbeat_keeps_a_real_sqlite_error_instead_of_guessing_stale_owner",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_conflict_tests::observed_denial_does_not_replace_a_real_indexed_directory_identity_conflict",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_registration_tests::request_arriving_during_registration_lock_wait_stops_before_dispatch",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_signals_tests::keeper_authorization_failure_is_not_inferred_from_the_stop_atomic",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_signals_tests::a_request_set_before_claim_is_consumed_by_that_claim_without_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_registration_tests::denial_arriving_during_registration_lock_wait_stops_before_dispatch",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_signals_tests::original_run_job_remains_a_real_compatible_completion_entry",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_signals_tests::stop_signals_after_real_completion_do_not_rewrite_the_committed_fact",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_signals_tests::running_keeper_distinguishes_request_cancel_from_verified_deny_stop",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "job_stop_signals_tests::request_in_the_claim_before_registration_window_survives_operation_view_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "live_evidence::git_indexed_identity_tests::indexed_git_directory_replacement_cannot_be_sampled_as_the_original_node",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "process_fence_priority_tests::original_expiry_remains_authority_denied_when_execution_deadline_already_elapsed",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "process_fence_priority_tests::current_owner_and_live_metadata_grant_still_gate_unexpired_work",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "process_entry_budget_tests::process_entry_control_contention_is_bounded_across_the_whole_original_request",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "process_fence_priority_tests::live_public_claim_and_original_authority_reach_fence_work",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "process_fence_priority_tests::wrong_owner_is_rejected_before_unexpired_fence_work",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::a_post_authorization_budget_failure_still_requires_live_terminal_authorization",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::encoded_budget_failure_still_checks_the_real_terminal_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_evidence_tests::ambiguous_legacy_evidence_refuses_claims_but_preserves_file_tree",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_evidence_tests::dependency_batches_do_not_reactivate_old_assertions",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_evidence_tests::old_revision_cannot_explain_newer_entities",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_evidence_tests::old_revision_cannot_read_newer_batch_from_the_same_snapshot",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_denies_ungranted_subject_before_decoding_corrupt_raw",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_large_raw_refuses_before_invalid_identity_decode",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_legacy_row_requires_reindex_instead_of_display_fallback",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_missing_node_is_not_an_unavailable_legacy_node",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_preserves_original_deadline_through_terminal_authorization",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_reads_actual_published_node_without_display_addressing",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_refuses_terminal_metadata_grant_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_scope_a_permission_cannot_read_scope_b_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_locator_tests::qualified_locator_refuses_terminal_scope_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_denies_ungranted_subject_before_decoding_corrupt_raw",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::complete_windows_metadata_can_be_read_on_a_foreign_host_without_path_conversion",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_legacy_row_reports_not_captured_without_inference",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_large_raw_refuses_before_invalid_identity_decode",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_missing_node_is_not_an_unavailable_legacy_node",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_preserves_original_deadline_through_terminal_authorization",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_reads_actual_published_node_as_metadata",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_refuses_terminal_metadata_grant_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_refuses_terminal_scope_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "runner::tests::stop_preserves_original_background_panic_payload",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "revision_windows_observation_tests::windows_observation_scope_a_permission_cannot_read_scope_b_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "runner::tests::strict_tick_bounds_candidate_work_and_advances_past_legacy_jobs",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_locator_tests::completed_scan_preserves_native_locator_bytes_and_own_mtime_after_reopen",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_observation_tests::non_windows_scan_publishes_explicit_unsupported_native_observation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_observation_tests::observation_guard_checks_fast_cancellation_and_original_scan_clock",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_observation_tests::observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_locator_tests::scan_staging_budget_includes_raw_locator_storage_cost",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_observation_tests::staging_lock_wait_cannot_spend_expired_or_cancelled_scan_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_publication_tests::scan_expiring_after_staging_cannot_publish_a_revision_or_collector",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "scan_observation_tests::scan_budget_charges_gap_bytes_in_addition_to_qualified_locator_cost",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "status_contention_tests::expired_status_classification_never_restarts_its_request_window",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "status_contention_tests::status_contention_does_not_wait_past_original_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "status_contention_tests::status_contention_waits_for_short_owner_without_false_budget_failure",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "status_contention_tests::status_waiting_for_owner_still_observes_permission_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_engine-3fd6fe6f2d71b21d)",
+      "test": "tests::reclaimed_generation_does_not_reuse_a_cancelled_flag",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/compare_two_trees.rs (target/debug/deps/compare_two_trees-0f9ae6b1a9c21f0a)",
+      "test": "a_tree_compared_with_itself_has_nothing_actionable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/compare_two_trees.rs (target/debug/deps/compare_two_trees-0f9ae6b1a9c21f0a)",
+      "test": "two_unrelated_directories_compare_by_their_relative_paths",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/compare_two_trees.rs (target/debug/deps/compare_two_trees-0f9ae6b1a9c21f0a)",
+      "test": "a_report_says_what_it_compared_and_what_it_cost",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "the_metadata_only_export_cannot_carry_body_bytes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "content_read_requires_the_content_grant",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "a_read_refuses_links_directories_and_out_of_scope_paths",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "a_placeholder_is_reported_and_never_opened",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "a_digest_is_bounded_cancellable_and_stable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "a_read_stops_at_the_byte_budget_and_says_truncated",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/content_flow.rs (target/debug/deps/content_flow-8847a1e161e80cec)",
+      "test": "duplicate_suspects_group_by_size_and_mark_hard_links",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "cargo_fixture_produces_typed_evidence_bound_to_the_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "per_principal_job_quotas_refuse_excess_without_running",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "a_controlled_rescan_records_absence_without_deleting_history",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "completed_job_keeps_its_revision_after_a_later_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "authorized_reader_refuses_scope_revoked_during_consumer_without_persisted_policy",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "index_flow_publishes_latest_revision_and_v1_graph",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "capacity_watermarks_refuse_new_work_without_touching_existing_data",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "over_budget_scans_fail_without_publishing",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "authorized_reader_refuses_revoked_grant_before_calling_consumer",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "scope_listing_intersects_stale_policy_with_live_scope_and_admin_grants",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "revoked_scopes_stop_accepting_jobs",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "queued_jobs_cancel_without_running_and_terminal_jobs_never_rerun",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "unauthorized_principals_are_denied_everywhere",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "recovering_a_job_clears_only_the_expired_fence_staging",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "server_identity_and_scope_survive_an_engine_restart",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "sync_republishes_and_snapshot_retention_is_authorized",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "the_walk_budget_stops_a_scan_for_a_named_reason",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "directory_pages_cover_all_children_without_silent_clipping",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "byte_charges_bill_each_file_once_not_once_per_ancestor",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/engine_flow.rs (target/debug/deps/engine_flow-820b4bcf414fd503)",
+      "test": "cancellation_from_another_engine_blocks_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/growth_narrow_read.rs (target/debug/deps/growth_narrow_read-1e6593cd651eaee7)",
+      "test": "different_roots_are_never_compared",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/growth_narrow_read.rs (target/debug/deps/growth_narrow_read-1e6593cd651eaee7)",
+      "test": "walking_to_a_path_matches_loading_the_graph_and_finding_it",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/growth_narrow_read.rs (target/debug/deps/growth_narrow_read-1e6593cd651eaee7)",
+      "test": "growth_of_a_nested_path_costs_two_rows_and_reports_the_delta",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/growth_narrow_read.rs (target/debug/deps/growth_narrow_read-1e6593cd651eaee7)",
+      "test": "an_unknown_revision_is_an_error_not_a_growth_of_zero",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/growth_narrow_read.rs (target/debug/deps/growth_narrow_read-1e6593cd651eaee7)",
+      "test": "an_unchanged_path_reports_zero_rather_than_refusing",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "a_fresh_data_directory_accepts_work_when_its_volume_has_headroom",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "a_scope_grant_cannot_authorize_another_scopes_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "a_wide_tree_reports_its_node_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "a_revoked_queued_scan_never_publishes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "large_file_capacity_does_not_consume_metadata_staging_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "capacity_refusal_prevents_job_creation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "high_degree_impact_reads_a_page_and_revocation_blocks_the_next_request",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "a_bounded_history_report_does_not_claim_complete_statistics",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "ambiguous_legacy_revision_ownership_remains_denied",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "an_in_place_write_invalidates_the_digest",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "digest_never_exceeds_its_budget_or_confirms_a_partial_file",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "matching_owner_name_cannot_steal_an_unexpired_running_job",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "revoking_a_running_job_prevents_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "sqlite_history_deadline_refuses_unprepared_data_or_marks_a_verified_prefix",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "pruning_retains_pins_and_the_latest_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-9c8d5a9ffc05cb72)",
+      "test": "withdrawing_content_authorization_after_preflight_prevents_hashing",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "native_scan_growth_and_rename_follow_real_host_paths_without_identity_inference",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "contradictory_complete_coverage_is_refused_by_public_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "reverse_observation_order_has_an_explicit_incompatibility",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "imported_same_owner_root_and_volume_keep_signed_growth_and_change_counts",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "every_recorded_scan_setting_difference_refuses_growth_and_changes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "partial_unreadable_and_depth_coverage_never_claim_removed_paths",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "generic_metadata_comparison_keeps_distinct_known_identities_legal",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "same_identity_renamed_path_is_one_addition_and_one_removal_not_growth",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-43894edcb0ee2b8e)",
+      "test": "imported_volume_or_provider_domain_changes_are_not_silently_compared",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "revision_changes_excludes_unknown_and_type_replacement_from_size_changed",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "directory_unknown_comparison_has_null_bytes_and_unknown_summary_not_same",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "root_unknown_growth_and_unknown_type_replacement_never_produce_delta",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "unknown_growth_rejects_late_terminal_capability",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "growth_refuses_unknown_or_read_error_on_either_side_in_both_public_apis",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "comparison_unknown_side_is_null_while_known_zero_remains_zero",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "growth_refuses_same_path_file_directory_replacement_in_both_directions",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "known_directory_size_changes_count_but_count_only_changes_do_not",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/history_size_eligibility.rs (target/debug/deps/history_size_eligibility-f86cb5c7e59e0c4b)",
+      "test": "unknown_growth_still_rechecks_terminal_authorization_and_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_entry_scope_budget.rs (target/debug/deps/process_entry_scope_budget-599908837b87121a)",
+      "test": "missing_index_capability_denies_before_large_scope_ownership",
+      "classification": "unresolved",
+      "diagnostic": "\nrunning 1 test\ntest missing_index_capability_denies_before_large_scope_ownership ... FAILED\n\n"
+    },
+    {
+      "target": "tests/process_entry_scope_budget.rs (target/debug/deps/process_entry_scope_budget-599908837b87121a)",
+      "test": "full_scope_projection_with_sufficient_budget_proves_large_registration_is_legal",
+      "classification": "unresolved",
+      "diagnostic": "\nrunning 1 test\ntest full_scope_projection_with_sufficient_budget_proves_large_registration_is_legal ... FAILED\n\n"
+    },
+    {
+      "target": "tests/process_entry_scope_budget.rs (target/debug/deps/process_entry_scope_budget-599908837b87121a)",
+      "test": "giant_optional_scope_fields_are_not_owned_by_public_process_entry",
+      "classification": "unresolved",
+      "diagnostic": "\nrunning 1 test\ntest giant_optional_scope_fields_are_not_owned_by_public_process_entry ... FAILED\n\n"
+    },
+    {
+      "target": "tests/process_entry_scope_budget.rs (target/debug/deps/process_entry_scope_budget-599908837b87121a)",
+      "test": "ordinary_scope_entry_preserves_real_platform_qualification",
+      "classification": "unresolved",
+      "diagnostic": "\nrunning 1 test\ntest ordinary_scope_entry_preserves_real_platform_qualification ... FAILED\n\n"
+    },
+    {
+      "target": "tests/process_entry_scope_budget.rs (target/debug/deps/process_entry_scope_budget-599908837b87121a)",
+      "test": "missing_metadata_capability_denies_before_large_scope_ownership",
+      "classification": "unresolved",
+      "diagnostic": "\nrunning 1 test\ntest missing_metadata_capability_denies_before_large_scope_ownership ... FAILED\n\n"
+    },
+    {
+      "target": "tests/process_job_dispatch.rs (target/debug/deps/process_job_dispatch-d57abeb5a1b2445d)",
+      "test": "unsupported_process_method_fails_its_own_job_without_a_scope_rescan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_finalizer_budget.rs (target/debug/deps/query_finalizer_budget-8f1c22df26fa8c63)",
+      "test": "grouped_reply_refuses_scope_revoked_by_the_last_authorizer",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_finalizer_budget.rs (target/debug/deps/query_finalizer_budget-8f1c22df26fa8c63)",
+      "test": "grouped_reply_refuses_one_grant_revoked_by_the_last_authorizer",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_finalizer_budget.rs (target/debug/deps/query_finalizer_budget-8f1c22df26fa8c63)",
+      "test": "empty_reply_revision_set_cannot_be_considered_authorized",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "initial_tree_authorization_belongs_to_the_default_request_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "history_header_that_cannot_fit_returns_an_explicit_budget_error",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "matching_history_nodes_on_both_sides_share_the_node_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "escaped_history_root_is_measured_in_the_complete_report",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "exhausted_history_budget_does_not_decode_the_next_corrupt_node",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "generic_reader_refuses_scope_revoked_inside_the_final_authorizer",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "completed_read_does_not_hide_cancellation_behind_the_exhausted_byte_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "query_request_budget::history_deadline_phases::history_expired_before_preparation_returns_no_report",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_request_budget.rs (target/debug/deps/query_request_budget-1ef739b0dc6781f3)",
+      "test": "query_request_budget::history_deadline_phases::history_late_capability_returns_no_partial_report",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "all_until_entry_points_refuse_an_already_expired_request",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "final_right_authorizer_cannot_revoke_the_already_checked_left_grant",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "terminal_scope_revocation_is_checked_after_the_encoded_history",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "a_partial_history_cannot_become_a_usable_sync_plan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "terminal_single_metadata_grant_revocation_refuses_the_encoded_history",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "history_keeps_the_completed_pair_without_decoding_the_next_corrupt_pair",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "published_unknown_tree_size_keeps_its_diagnostic_and_numeric_minimum_contract",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "typed_history_deadline_keeps_the_existing_more_than_one_second_contract",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "final_right_authorizer_cannot_revoke_the_already_checked_left_scope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/query_until_budget.rs (target/debug/deps/query_until_budget-5e28bf8d9f0c8930)",
+      "test": "read_preparation_cannot_open_content_after_the_shared_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "authorization_time_exhausts_empty_and_positive_candidate_requests",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "candidate_required_evidence_is_atomic_under_the_edge_cap",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "escaped_impact_data_must_fit_the_actual_json_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "impact_keeps_its_text_contract_while_filtered_relations_keep_blob_compatibility",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "two_direction_pages_cannot_exceed_a_single_output_node_slot",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "authorization_time_exhausts_empty_impact_request",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "expired_owner_preparation_refuses_a_fabricated_authorized_prefix",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-d7da1352c009f34f)",
+      "test": "oversized_candidate_raw_evidence_is_refused_before_invalid_u8_decoding",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/scan_options_parity.rs (target/debug/deps/scan_options_parity-6d5d0d940995d3be)",
+      "test": "no_hidden_skips_dotfiles_and_records_the_exclusion",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/scan_options_parity.rs (target/debug/deps/scan_options_parity-6d5d0d940995d3be)",
+      "test": "differently_configured_snapshots_are_not_comparable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/scan_options_parity.rs (target/debug/deps/scan_options_parity-6d5d0d940995d3be)",
+      "test": "apparent_size_matches_disktrees_own_walk_for_the_same_tree",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/scan_options_parity.rs (target/debug/deps/scan_options_parity-6d5d0d940995d3be)",
+      "test": "a_depth_limit_marks_coverage_depth_limited_like_disktree",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/scan_options_parity.rs (target/debug/deps/scan_options_parity-6d5d0d940995d3be)",
+      "test": "allocated_size_matches_disktrees_own_walk_for_the_same_tree",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "cumulative_budget_and_expired_deadline_never_confirm_partial_hashes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "a_verified_row_says_it_was_read_not_inferred",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "withdrawing_the_grant_stops_the_reads",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "failed_pairs_consume_the_attempt_and_successful_side_bytes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "metadata_alone_calls_two_different_files_the_same",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "a_file_over_the_budget_is_left_unverified_rather_than_hashed",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "reading_contents_separates_the_two_files_metadata_confused",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "an_ungranted_read_is_unverified_and_never_identical",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/verify_comparison_content.rs (target/debug/deps/verify_comparison_content-3083021a74aad657)",
+      "test": "the_file_budget_bounds_the_pass",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "authorization_tests::a_proven_legacy_control_database_remains_readable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "authorization_tests::ambiguous_legacy_control_is_not_assigned_to_either_graph",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "authorization_tests::graph_files_in_one_directory_have_distinct_control_realms",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_eligibility_tests::ffi_root_growth_unknown_or_read_error_is_success_null",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "async_tests::the_ffi_layer_is_independent_of_any_host_application",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'async_tests::the_ffi_layer_is_independent_of_any_host_application' (13673766) panicked at crates/diskgraph-ffi/src/async_tests.rs:78:5:\nassertion `left == right` failed\n  left: Bool(false)\n right: true\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_eligibility_tests::ffi_unknown_growth_keeps_borrowed_row_budget_before_null_result",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "authorization_tests::legacy_reads_do_not_bypass_scope_revocation",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'authorization_tests::legacy_reads_do_not_bypass_scope_revocation' (13673770) panicked at crates/diskgraph-ffi/src/authorization_tests.rs:143:5:\nassertion `left == right` failed\n  left: Bool(false)\n right: true\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_eligibility_tests::ffi_growth_real_same_path_file_directory_replacement_refuses_delta",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "async_tests::a_spawned_scan_returns_a_handle_at_once_and_join_later",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_eligibility_tests::ffi_growth_unknown_and_read_error_on_either_side_returns_success_null",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_eligibility_tests::ffi_unknown_growth_still_rechecks_terminal_grant_and_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_lifecycle_tests::poll_only_host_can_complete_more_scans_than_the_retained_limit",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::legacy_children_do_not_decode_the_continuation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_manager_tests::legacy_drain_is_explicitly_unsupported_and_poll_only_scans_do_not_exhaust_records",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_revision_candidate_tests::native_candidate_callback_keeps_revision_resolved_before_new_publication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_revision_candidate_tests::native_candidate_exports_block_active_typed_process_and_protection",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_runner_exit_tests::completed_result_waits_for_actual_inner_runner_tls_exit",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_runner_exit_tests::completed_result_waits_for_actual_inner_runner_tls_exit' (13675008) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:124:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Conflict)\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_runner_exit_tests::coordinator_unwind_does_not_abandon_its_actual_inner_runner",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_runner_exit_tests::coordinator_unwind_does_not_abandon_its_actual_inner_runner' (13675013) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:124:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Conflict)\n\nthread 'diskgraph-native-scan' (13675059) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:99:17:\n\u771f\u5b9e\u534f\u8c03\u7ebf\u7a0b\u5728\u6301\u6709 inner runner \u65f6 unwind\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_scoped_owner_tests::scoped_service_scans_with_physical_host_and_closes_after_scope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::legacy_explain_rejects_raw_evidence_before_invalid_confidence_decode",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::native_error_diagnostic_is_bounded_after_json_escaping",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::native_envelope_accepts_the_exact_byte_cap_and_refuses_one_more",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::native_partial_deadline_preserves_the_selected_prefix_and_gap",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::native_node_rejects_an_oversized_borrowed_name_before_owned_decode",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::reply_wait_cannot_return_an_expired_native_success",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_runner_exit_tests::late_permission_denial_waits_for_runner_without_rewriting_committed_fact",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_runner_exit_tests::late_permission_denial_waits_for_runner_without_rewriting_committed_fact' (13675014) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:124:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Conflict)\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::native_reply_budget_tests::scope_revoked_at_reply_boundary_cannot_escape_the_session",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::tests::shutdown_after_final_authorization_cannot_return_success",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_service::tests::shutdown_after_final_authorization_cannot_return_success' (13675067) panicked at crates/diskgraph-ffi/src/native_service.rs:327:61:\ncalled `Option::unwrap()` on a `None` value\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service::tests::shutdown_does_not_wait_for_a_read_or_publish_its_response",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_service::tests::shutdown_does_not_wait_for_a_read_or_publish_its_response' (13675074) panicked at crates/diskgraph-ffi/src/native_service.rs:354:61:\ncalled `Option::unwrap()` on a `None` value\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service_tests::completed_native_job_handle_does_not_keep_revoked_permissions",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service_tests::persistent_service_queries_deny_revoked_scope_and_closed_session",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_service_tests::persistent_service_queries_deny_revoked_scope_and_closed_session' (13675097) panicked at crates/diskgraph-ffi/src/native_service_tests.rs:68:57:\ncalled `Option::unwrap()` on a `None` value\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service_tests::session_children_clip_bytes_and_advance_by_actual_page_size",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'native_service_tests::session_children_clip_bytes_and_advance_by_actual_page_size' (13675099) panicked at crates/diskgraph-ffi/src/native_service_tests.rs:113:57:\ncalled `Option::unwrap()` on a `None` value\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "tests::growth_and_candidates_do_not_decode_unrelated_nodes",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'tests::growth_and_candidates_do_not_decode_unrelated_nodes' (13675123) panicked at crates/diskgraph-ffi/src/tests.rs:79:57:\ncalled `Option::unwrap()` on a `None` value\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "tests::read_only_bindings_scan_and_query_native_directory",
+      "classification": "unresolved",
+      "diagnostic": "\nthread 'tests::read_only_bindings_scan_and_query_native_directory' (13675131) panicked at crates/diskgraph-ffi/src/tests.rs:17:5:\nassertion `left == right` failed\n  left: Bool(false)\n right: true\n\n"
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service_tests::two_native_handles_for_a_coalesced_job_return_the_same_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ffi-c7c82ae952ef1037)",
+      "test": "native_service_owner_tests::managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::encoded_socket_history_rechecks_both_grant_sides",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::encoded_socket_history_rechecks_both_scope_sides",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::a_client_side_path_is_never_resolved_against_the_server",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::mcp_search_cursors_expire_with_policy_updates",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::a_disconnected_client_job_completes_and_stays_queryable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::scope_ids_from_another_server_are_not_found",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::query_tests::explicit_revision_and_node_id_select_historical_data",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::relation_tests::explain_checks_entity_bytes_before_decoding",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "tests::relation_tests::relation_queries_bound_decoding_and_report_continuation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::dropping_every_connection_is_not_a_cancellation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_mcp-dc9c9182d2de23f3)",
+      "test": "http::tests::legacy_disconnect_leaves_the_job_queryable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/durable_request_authority.rs (target/debug/deps/durable_request_authority-c748857023fa99e2)",
+      "test": "an_authenticated_queued_sync_cannot_outlive_its_original_token",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/durable_request_authority.rs (target/debug/deps/durable_request_authority-c748857023fa99e2)",
+      "test": "valid_remote_index_and_sync_publish_and_remain_queryable_after_disconnect",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/durable_request_authority.rs (target/debug/deps/durable_request_authority-c748857023fa99e2)",
+      "test": "a_database_writer_with_a_narrow_token_cannot_queue_index_or_sync",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/durable_request_authority.rs (target/debug/deps/durable_request_authority-c748857023fa99e2)",
+      "test": "an_authenticated_queued_index_cannot_outlive_its_original_token",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "merged_git_sync_reports_the_existing_running_job_state",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "git_sync_cannot_accept_client_paths_commands_or_authority",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "sync_schema_discovers_explicit_git_target_without_client_execution_controls",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "sync_without_a_collector_keeps_the_existing_scan_contract",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "failed_git_job_exposes_only_fixed_durable_diagnostic_after_reconnect",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "git_sync_requires_content_read_in_live_database_grants",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "git_sync_rejects_a_registered_scope_that_does_not_own_the_revision",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "git_sync_requires_content_read_in_the_verified_token_ceiling",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "git_arguments_are_all_or_none_and_do_not_silently_trigger_a_scan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "authenticated_git_sync_returns_a_durable_job_for_the_verified_principal",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_contract.rs (target/debug/deps/git_evidence_contract-10158eabe2bd29a0)",
+      "test": "authenticated_git_job_execution_is_reconnectable_with_the_actual_receipt",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_socket.rs (target/debug/deps/git_evidence_socket-ea325d4a1db34c86)",
+      "test": "real_socket_identical_git_targets_never_merge_across_verified_principals",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_socket.rs (target/debug/deps/git_evidence_socket-ea325d4a1db34c86)",
+      "test": "real_socket_queued_git_expiry_cannot_be_extended_by_reconnecting",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_socket.rs (target/debug/deps/git_evidence_socket-ea325d4a1db34c86)",
+      "test": "real_socket_queued_git_status_needs_only_actual_scope_operation_view",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_evidence_socket.rs (target/debug/deps/git_evidence_socket-ea325d4a1db34c86)",
+      "test": "real_socket_git_job_intersects_verified_capabilities_and_publishes_safe_result",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_status_scope_contract.rs (target/debug/deps/git_status_scope_contract-1d37ed1f60f8ac7e)",
+      "test": "completed_git_status_binds_outer_scope_and_revision_to_actual_job_not_default_scope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_status_scope_contract.rs (target/debug/deps/git_status_scope_contract-1d37ed1f60f8ac7e)",
+      "test": "git_status_explicit_other_scope_is_permission_denied_even_when_both_are_authorized",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_status_scope_contract.rs (target/debug/deps/git_status_scope_contract-1d37ed1f60f8ac7e)",
+      "test": "completed_git_status_outer_revision_does_not_follow_a_new_scan_latest",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/git_status_scope_contract.rs (target/debug/deps/git_status_scope_contract-1d37ed1f60f8ac7e)",
+      "test": "queued_git_status_requires_only_verified_actual_scope_operation_view",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "opening_remote_on_a_local_database_does_not_reuse_local_privileges",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "a_real_sse_connection_cannot_bypass_origin_or_authentication",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "socket_sse_expires_with_its_authenticated_token",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "a_valid_unscoped_token_does_not_inherit_the_local_admin",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "socket_sse_quota_is_per_subject_and_revocation_closes_connections",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "socket_requests_intersect_subject_grants_and_token_capabilities",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/hardening.rs (target/debug/deps/hardening-b765cf7c74860438)",
+      "test": "node_and_top_do_not_decode_unrelated_revision_rows",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_evidence_contract.rs (target/debug/deps/process_evidence_contract-b96fddbd99ef1308)",
+      "test": "process_sync_rejects_forged_fields_and_a_different_actual_revision_owner",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_evidence_contract.rs (target/debug/deps/process_evidence_contract-b96fddbd99ef1308)",
+      "test": "process_sync_requires_metadata_and_index_in_both_original_token_and_live_grants",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_evidence_contract.rs (target/debug/deps/process_evidence_contract-b96fddbd99ef1308)",
+      "test": "ordinary_scan_and_git_keep_their_existing_durable_entry_contracts",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "tests/process_evidence_contract.rs (target/debug/deps/process_evidence_contract-b96fddbd99ef1308)",
+      "test": "unqualified_native_epoch_refuses_metadata_job_without_source_or_queue_changes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_crash_after_the_file_moved_is_never_replayed_blindly",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_crash_after_intent_leaves_the_operation_needing_attention",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_cross_volume_move_parked_at_the_source_seam_keeps_both_sides",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_batch_with_one_blocked_item_ends_partial_and_keeps_the_rest",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_link_planted_in_the_destination_stops_the_move",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_lost_response_retry_returns_the_result_without_repeating_the_move",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_link_planted_in_the_source_after_planning_stops_the_move",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_cross_volume_move_publishes_before_the_source_is_removed",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_missing_node_is_refused_not_guessed",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_parked_operation_is_never_resumed_automatically",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_plan_cannot_be_applied_twice",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_parked_purge_retry_returns_the_same_operation_without_replaying",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_plan_show_and_validate_surface_the_exact_object_set",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_purge_refuses_a_swapped_object_and_never_touches_the_imposter",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_plan_is_immutable_and_digest_addressed",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_restore_can_target_another_authorized_location",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_restore_of_a_vanished_object_is_refused",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_restore_never_overwrites_a_reoccupied_original",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_revoked_approval_blocks_execution",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_reused_key_with_a_different_approval_is_refused",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_retried_key_returns_the_original_operation_without_moving_twice",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_restored_object_returns_to_its_original_place",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_revoked_scope_yields_no_plan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_volume_report_separates_processed_retained_and_measured_space",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::a_write_failure_leaves_the_control_plane_usable_and_auditable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_approval_is_bound_to_the_plan_and_its_principal",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_empty_file_round_trips_through_trash_and_restore",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_empty_object_batch_moves_nothing_and_says_so",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_expired_approval_does_not_verify",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_empty_or_oversized_request_is_refused",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_object_replaced_after_planning_is_refused",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_ungranted_subject_cannot_resolve_a_file_operation_plan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::another_principal_cannot_cancel_someone_elses_operation",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::apply_without_a_valid_approval_moves_nothing",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::an_occupied_target_is_never_overwritten",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::approval_digest_binds_deadline_recovery_and_exact_bytes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::applying_a_move_moves_the_file_once_and_records_it",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::building_a_trash_plan_does_not_touch_any_file",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::changed_same_inode_cannot_exceed_approved_bytes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::cancelling_a_finished_operation_leaves_it_untouched",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::copy_plan_rejects_unregistered_destination",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::cancelling_a_stalled_operation_stops_only_the_remaining_items",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::copy_plan_requires_an_action_grant_not_only_metadata_read",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::duplicate_objects_are_refused_rather_than_double_counted",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::expired_plan_refuses_a_still_live_approval",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::only_the_configured_authority_may_approve_a_purge",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::old_plan_without_source_fingerprint_requires_replanning",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::operations_and_recovery_survive_rebuilding_the_graph_history",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::parent_and_child_requests_collapse_to_the_child",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::operations_are_listed_and_shown_only_to_their_principal",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::a_cross_wired_root_latest_pointer_cannot_replace_scope_ownership",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::a_stale_earlier_path_is_not_hidden_by_a_later_missing_node",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::a_selected_malformed_column_fails_before_plan_persistence",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::final_authorization_lock_wait_cannot_extend_the_metadata_deadline",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::missing_ids_outside_sqlite_range_remain_missing_nodes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::selected_legacy_unknown_size_rows_keep_their_live_evidence",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::policy_epoch_change_invalidates_approved_plan",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::plan_query_tests::plans_decode_only_selected_rows_and_preserve_the_exact_items",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::recorded_details_name_objects_without_leaking_whole_paths",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::purge_requires_a_configured_authority",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::real_approval_revocation_and_operation_cancel_stop_staging",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::purging_is_refused_rather_than_silently_enabled",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::recovery_references_protect_scope_history_from_pruning",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::restoring_after_a_purge_reports_irrecoverable",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::revoked_destination_scope_blocks_previously_approved_copy",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::revoked_scope_cannot_apply_an_already_approved_move",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::revoking_an_approval_mid_flight_stops_the_next_step",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::same_size_rewrite_cannot_use_an_old_approval",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::the_index_is_refreshed_so_a_later_query_sees_the_moved_file",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::trash_moves_into_quarantine_and_never_deletes",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::unresolved_parent_components_cannot_escape_the_destination_scope",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    },
+    {
+      "target": "unittests src/lib.rs (target/debug/deps/diskgraph_ops-4aaae1d5a9f93a5c)",
+      "test": "tests::withdrawn_action_cannot_apply_an_already_approved_move",
+      "classification": "explicit_unsupported",
+      "diagnostic": null
+    }
+  ]
+}
