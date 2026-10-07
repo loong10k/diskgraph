@@ -98,6 +98,7 @@ jobs:
         env:
           DISKGRAPH_ACCEPT_BIN_DIR: target/${{ matrix.target }}/release
         run: |
+          python -m unittest discover -s scripts/tests -p test_http_shutdown_acceptance.py -v
           python scripts/accept-readonly-stdio.py
           python scripts/accept-readonly-http.py
       # Native Linux packages. dpkg-deb and rpmbuild are both available on

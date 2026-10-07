@@ -581,6 +581,7 @@ jobs:
           retention-days: 7
       - name: Read-only CLI, stdio and authenticated HTTP acceptance
         run: |
+          python -m unittest discover -s scripts/tests -p test_http_shutdown_acceptance.py -v
           python scripts/accept-readonly-stdio.py
           python scripts/accept-readonly-http.py
       # Preserve exact deadline assertions in both isolated and concurrent runs.
