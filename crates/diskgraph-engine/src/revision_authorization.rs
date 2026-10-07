@@ -295,6 +295,8 @@ impl Engine {
         let deadline = std::time::Instant::now()
             .checked_add(Duration::from_millis(deadline_ms))
             .ok_or(BusinessError::InvalidArgument)?;
+        let expiry = authorizer.expires_at_unix_seconds();
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
@@ -331,6 +333,7 @@ impl Engine {
             }
             other => other?,
         };
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         drop(control);
         // 初次真实授权须在原读取期内完成；未完成的 initial phase 不能借 partial 通路复活。
         if std::time::Instant::now() >= deadline {
@@ -341,11 +344,13 @@ impl Engine {
             if std::time::Instant::now() >= deadline {
                 return Err(BusinessError::BudgetExceeded.into());
             }
+            crate::authority_expiry::check_authority_expiry(expiry)?;
             consumer(&reader, &snapshot_id, reads)
         })();
         let control = self
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let authorization = (|| {
             // Engine 自有 SQL 与能力回调分离；两段 SQL 均保留执行期限和 busy 上界。
             let before_callback = std::time::Instant::now()
@@ -362,6 +367,7 @@ impl Engine {
                 .checked_add(Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
             let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+            crate::authority_expiry::check_authority_expiry(expiry)?;
             // SQL 自身的执行窗口不消耗宿主回调时间；允许结果仍受原能力终检期限约束。
             let after_callback = std::time::Instant::now()
                 .checked_add(Duration::from_millis(50))
@@ -409,6 +415,7 @@ impl Engine {
         {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         Ok(())
     }
 }

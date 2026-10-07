@@ -432,3 +432,190 @@ fn revision_reader_refuses_token_expired_during_consumer() {
         "expired terminal authorization: {result:?}"
     );
 }
+
+#[test]
+fn display_reader_rejects_expired_token_before_preparing_canvas() {
+    struct Expired;
+    impl diskgraph_core::Authorizer for Expired {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            diskgraph_core::Decision::Allowed
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(0)
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    for completion in [
+        crate::RevisionDisplayCompletion::Complete,
+        crate::RevisionDisplayCompletion::Truncated,
+    ] {
+        let entered = std::cell::Cell::new(false);
+        let result = engine.with_authorized_revision_display_reader_bounded(
+            revision,
+            &principal,
+            &Expired,
+            diskgraph_core::QueryBudget::default(),
+            |_, _, _| {
+                entered.set(true);
+                Ok(completion)
+            },
+        );
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "expired display: {result:?}"
+        );
+        assert!(!entered.get(), "expired request prepared canvas");
+    }
+}
+
+#[test]
+fn display_reader_refuses_token_expired_during_consumer() {
+    struct Fixed {
+        policy: diskgraph_core::PolicyAuthorizer,
+        expiry: u64,
+    }
+    impl diskgraph_core::Authorizer for Fixed {
+        fn decide(
+            &self,
+            p: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.policy.decide(p, permission, scope)
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    // 留足原始一秒执行预算：在墙钟秒的后半段开始，消费只等待下一个固定秒边界。
+    let mut now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap();
+    if now.subsec_millis() < 500 {
+        std::thread::sleep(std::time::Duration::from_millis(
+            500 - u64::from(now.subsec_millis()),
+        ));
+        now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap();
+    }
+    let authorizer = Fixed {
+        policy: engine.policy_authorizer().unwrap(),
+        expiry: now.as_secs() + 1,
+    };
+    let entered = std::cell::Cell::new(false);
+    let result = engine.with_authorized_revision_display_reader_bounded(
+        revision,
+        &principal,
+        &authorizer,
+        diskgraph_core::QueryBudget::default(),
+        |_, _, reads| {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap();
+            assert!(
+                now.as_secs() < authorizer.expiry,
+                "consumer must start before expiry"
+            );
+            entered.set(true);
+            std::thread::sleep(
+                std::time::Duration::from_secs(authorizer.expiry).saturating_sub(now)
+                    + std::time::Duration::from_millis(20),
+            );
+            assert!(
+                std::time::Instant::now() < reads.deadline(),
+                "original query budget must remain live"
+            );
+            Ok(crate::RevisionDisplayCompletion::Truncated)
+        },
+    );
+    assert!(entered.get());
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired terminal authorization: {result:?}"
+    );
+}
+
+#[test]
+fn display_complete_reader_refuses_token_expired_during_consumer() {
+    struct Fixed {
+        policy: diskgraph_core::PolicyAuthorizer,
+        expiry: u64,
+    }
+    impl diskgraph_core::Authorizer for Fixed {
+        fn decide(
+            &self,
+            p: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.policy.decide(p, permission, scope)
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    // 留足原始一秒执行预算：在墙钟秒的后半段开始，消费只等待下一个固定秒边界。
+    let mut now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap();
+    if now.subsec_millis() < 500 {
+        std::thread::sleep(std::time::Duration::from_millis(
+            500 - u64::from(now.subsec_millis()),
+        ));
+        now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap();
+    }
+    let authorizer = Fixed {
+        policy: engine.policy_authorizer().unwrap(),
+        expiry: now.as_secs() + 1,
+    };
+    let entered = std::cell::Cell::new(false);
+    let result = engine.with_authorized_revision_display_reader_bounded(
+        revision,
+        &principal,
+        &authorizer,
+        diskgraph_core::QueryBudget::default(),
+        |_, _, reads| {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap();
+            assert!(
+                now.as_secs() < authorizer.expiry,
+                "consumer must start before expiry"
+            );
+            entered.set(true);
+            std::thread::sleep(
+                std::time::Duration::from_secs(authorizer.expiry).saturating_sub(now)
+                    + std::time::Duration::from_millis(20),
+            );
+            assert!(
+                std::time::Instant::now() < reads.deadline(),
+                "original query budget must remain live"
+            );
+            Ok(crate::RevisionDisplayCompletion::Complete)
+        },
+    );
+    assert!(entered.get());
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired terminal authorization: {result:?}"
+    );
+}

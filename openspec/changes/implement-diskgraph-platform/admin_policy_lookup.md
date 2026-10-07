@@ -61,3 +61,9 @@ authorize_revision_owner_until 与 require_reader_capability_until 复用固定�
 with_authorized_revision_reader 在 consumer 成功返回后、终检控制锁取得后、终检能力/实时授权成功后及归属检查完成后复核初始锁外捕获的同一 expiry。到期不提交结果，None 兼容不变，原 consumer/SQL/锁错误保留。真实 consumer 在 expiry 前开始、expiry 后结束且原执行预算仍有效的回归，旧代码 Ok 为 RED，要求 PermissionDenied。此项不关闭 display reader 或其他 reader 的全部终检差距，不保证控制锁及同步回调硬抢占。
 
 终检 expiry 本机验证：旧 Ok 实际 RED；权限组8/0、完整Engine553/98/13（98项均Unsupported），source_layout6/0、fmt/Clippy与双路APPROVE/CLEAR。仍不构成平台通过。
+
+## Display reader 固定 expiry
+
+导航和截断画布共用初始锁外固定 expiry，在准备前、初始授权后、消费后终检阶段、能力回调后及返回前检查；过期请求不可进入画布消费者，Truncated 不绕过到期。旧代码过期 Allowed 返回 Ok 的真实回归为 RED。保持已有消费错误经终检、归属及撤权优先规则，不刷新执行预算。不声称同步回调锁隔离或三平台完成。
+
+Display本机验证：预先到期真实RED→GREEN；消费期间到期Truncated与Complete分别通过（原执行预算仍有效）。完整Engine555/98/13于Complete补测加入前执行，随后Complete精确测试1/0；98失败均Unsupported。source_layout6/0、fmt/Clippy与双路APPROVE/CLEAR。本项不冒充最新完整或平台验收。

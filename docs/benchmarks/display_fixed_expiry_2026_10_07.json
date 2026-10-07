@@ -1,0 +1,20 @@
+{
+  "scope": "display reader fixed token expiry",
+  "red": "expired Allowed returned Ok",
+  "full_engine_before_complete_test_added": {
+    "passed": 555,
+    "failed": 98,
+    "ignored": 13,
+    "failure_class": "Unsupported"
+  },
+  "additional_complete_test": {
+    "passed": 1
+  },
+  "source_layout": 6,
+  "clippy": "pass",
+  "reviews": [
+    "APPROVE",
+    "CLEAR"
+  ],
+  "platform_acceptance": false
+}
