@@ -23,3 +23,9 @@
 Store ignored release 诊断对隔离真实迁移库进行100样本串行配置分阶段测量；原configured与故意缺少安全配置的raw总耗时p50分别0.216958/0.214209ms。cache_size阶段p50 0.164ms，但该阶段为首次依赖schema的操作，不能把耗时全归于设置缓存参数。未删除PRAGMA、deadline或新鲜授权观察；本机空库诊断不能关闭Linux200k约1.9倍查询退化。初次并行运行互相干扰，不纳入串行结果。证据 reader_configuration_phases_2026_10_07.json。
 
 输出字段明确限定配置值/顺序，并标记admission未测；改标签后release串行复测configured/raw p50为0.276542/0.275500ms，仍未观察到删配置收益，两次结果均保留。诊断2/0、fmt/Clippy通过，双路APPROVE/CLEAR，schema归因保持推断。
+
+## 普通权限入口回调与控制锁分离
+
+Engine::require 在控制锁外取得请求能力决定，然后在锁内新鲜读取持久授权交集；回调期间撤权仍必须拒绝。原require_with_control保留已有guard调用语义，其他有界终检回调仍持锁，本项不宣称全Engine回调已无锁。50ms有限重入控制读取回归旧路径实际失败，修复后应能读取持久server；独立连接在回调内撤销grant、旧能力允许时最终必须PermissionDenied。不声明同步回调硬抢占或整体期限。
+
+普通require验证：有限重入真实RED→GREEN，相关授权组3/0；source_layout6/0，fmt/Clippy通过，双路APPROVE/CLEAR。完整Engine538/98/13，98项均Unsupported。兼容边界：控制锁中毒等错误现在在外部回调之后观察，回调可能先执行；普通入口仍可能等待控制锁，成功后的独立连接撤权仍依赖调用方后续安全门禁。

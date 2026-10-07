@@ -408,7 +408,7 @@ impl Engine {
 }
 
 impl Engine {
-    /// 在控制库锁下求请求能力与实时策略交集。
+    /// 在控制库锁外取得请求能力，再在锁内读取实时策略并求交集。
     /// 参数：authorizer/principal/permission/scope 指定授权上下文。
     /// 返回：允许或权限/控制库失败。
     pub(super) fn require(
@@ -418,8 +418,10 @@ impl Engine {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<(), EngineError> {
+        // 外部能力回调先执行；持久授权随后在锁内新鲜读取，防止回调重入控制锁。
+        let decision = authorizer.decide(principal, permission, scope);
         let control = self.control()?;
-        Self::require_with_control(&control, authorizer, principal, permission, scope)
+        Self::require_decision_with_control(&control, decision, principal, permission, scope)
     }
 }
 

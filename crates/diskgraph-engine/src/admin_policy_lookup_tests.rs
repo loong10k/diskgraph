@@ -42,3 +42,75 @@ fn admin_lookup_observes_independent_revocation_and_corrupt_text() {
         }
     }
 }
+
+#[test]
+fn ordinary_requirement_callback_can_read_engine_control_without_reentrant_lock() {
+    struct ReadsEngine<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        read_succeeded: std::cell::Cell<bool>,
+    }
+    impl diskgraph_core::Authorizer for ReadsEngine<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
+            let read = self
+                .engine
+                .control_until(deadline)
+                .and_then(|control| control.existing_server_id().map_err(EngineError::from));
+            self.read_succeeded.set(read.is_ok());
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+    let authorizer = ReadsEngine {
+        engine: &engine,
+        policy: engine.policy_authorizer().unwrap(),
+        read_succeeded: std::cell::Cell::new(false),
+    };
+    engine
+        .require(&authorizer, &principal, &Permission::MetadataRead, &scope)
+        .unwrap();
+    assert!(
+        authorizer.read_succeeded.get(),
+        "host capability callback executed under the engine control lock"
+    );
+}
+
+#[test]
+fn ordinary_requirement_observes_revocation_committed_inside_capability_callback() {
+    struct Revokes {
+        policy: diskgraph_core::PolicyAuthorizer,
+        control: std::cell::RefCell<diskgraph_store::ControlStore>,
+    }
+    impl diskgraph_core::Authorizer for Revokes {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.control
+                .borrow_mut()
+                .revoke_grant(principal, permission, scope)
+                .unwrap();
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let (dir, engine, principal, scope, _) = published_authorization_fixture();
+    let authorizer = Revokes {
+        policy: engine.policy_authorizer().unwrap(),
+        control: std::cell::RefCell::new(
+            diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+                .unwrap(),
+        ),
+    };
+    assert!(matches!(
+        engine.require(&authorizer, &principal, &Permission::MetadataRead, &scope),
+        Err(EngineError::Business(BusinessError::PermissionDenied))
+    ));
+}

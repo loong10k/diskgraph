@@ -1,0 +1,30 @@
+{
+  "scope": "ordinary Engine require capability callback outside control lock",
+  "logs": {
+    "red": {
+      "sha256": "57719c256fb46ac793426c38bfcc05597263f05ec747d72797483aa5f6b19051",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 647 filtered out; finished in 0.09s"
+      ]
+    },
+    "green": {
+      "sha256": "bf67c83d26452235b54171f8425ad17d29d690e9e12d8cfee4775c57d3b1cd55",
+      "summary": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 646 filtered out; finished in 0.13s"
+      ]
+    },
+    "full": {
+      "sha256": "6c7bda22aa228abb63c50de8e0836e5c4f6a5645819fe2798a8b5565ca317c7d",
+      "summary": [
+        "test result: FAILED. 538 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 15.16s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "limits": [
+    "other existing guarded callbacks unchanged",
+    "synchronous capability is not preemptible",
+    "control errors observed after capability callback",
+    "native qualification Unsupported remains"
+  ]
+}
