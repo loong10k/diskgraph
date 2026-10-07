@@ -1,0 +1,11 @@
+{
+  "run": 37700048722,
+  "job": 113061066895,
+  "commit": "65ff9dc70dce917819b0273f222a9fc03f8f36c2f",
+  "test": "live_evidence::git_source_windows::tests::registered_leaf_change_between_attributes_and_data_is_still_refused",
+  "observed": "after real create_dir, changed_mask & 0x030 remained zero; assertion failed before product refusal check",
+  "source": "git_source_windows_tests.rs changed_during_open; git_source_windows.rs source_matches compares full WindowsFileState for leaf",
+  "status": "open: filesystem time update semantics, fixture determinism and product directory version coverage must be distinguished",
+  "not_claimed": "not proven product race exploit; not dismissed as fixture-only failure",
+  "log_compressed_sha256": "5b75274e83c5e84f88af6951955c869a1f86a34d3a876b7a771a394435b52119"
+}

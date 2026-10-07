@@ -37,6 +37,8 @@ fn changed_during_open(ancestor: bool) -> Result<(), String> {
     let name = target.file_name().unwrap().to_os_string();
     let changed = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let observed = changed.clone();
+    let version_mask = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
+    let recorded_mask = version_mask.clone();
     HOOK.with(|slot| {
         *slot.borrow_mut() = Some(Box::new(move |component, route| {
             if component == name
@@ -60,10 +62,10 @@ fn changed_during_open(ancestor: bool) -> Result<(), String> {
                 let before = super::state(&attributes, true).unwrap();
                 std::fs::create_dir(target.join("unrelated-entry")).unwrap();
                 let after = super::state(&attributes, true).unwrap();
-                assert_ne!(
-                    before.changed_mask(&after) & 0x030,
-                    0,
-                    "actual directory time change not observed"
+                // 先记录真实版本差异，允许原产品路径完成；末段仍强制核验夹具变更。
+                recorded_mask.store(
+                    before.changed_mask(&after),
+                    std::sync::atomic::Ordering::Relaxed,
                 );
             }
         }))
@@ -74,6 +76,11 @@ fn changed_during_open(ancestor: bool) -> Result<(), String> {
     assert!(
         changed.load(std::sync::atomic::Ordering::Relaxed),
         "actual source attributes boundary not exercised"
+    );
+    assert_ne!(
+        version_mask.load(std::sync::atomic::Ordering::Relaxed) & 0x030,
+        0,
+        "actual directory time change not observed: ancestor={ancestor} product_result={result:?}"
     );
     result
 }

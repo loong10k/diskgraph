@@ -138,17 +138,26 @@ impl HistoryFixture {
 
     /// 参数：左右 revision 与相对路径；返回：公开授权增长，测试失败保留实际错误。
     pub(crate) fn growth(&self, left: &str, right: &str, path: &str) -> Option<RevisionGrowth> {
-        self.engine
-            .growth_between_until(
-                left,
-                right,
-                Path::new(path),
-                QueryBudget::default(),
-                &self.principal,
-                &self.engine.policy_authorizer().unwrap(),
-                deadline(),
-            )
-            .unwrap()
+        let authorizer =
+            request_authorizer::RequestAuthorizer::new(self.engine.policy_authorizer().unwrap());
+        let started = Instant::now();
+        let result = self.engine.growth_between_until(
+            left,
+            right,
+            Path::new(path),
+            QueryBudget::default(),
+            &self.principal,
+            &authorizer,
+            deadline(),
+        );
+        if let Err(error) = &result {
+            authorizer.report();
+            eprintln!(
+                "HISTORY_GROWTH_DIAGNOSTIC elapsed_ms={} error={error:?}",
+                started.elapsed().as_secs_f64() * 1000.0,
+            );
+        }
+        result.unwrap()
     }
 
     /// 参数：左右 revision；返回：公开授权变化 JSON。
@@ -183,17 +192,26 @@ impl HistoryFixture {
 
     /// 参数：左右 revision；返回：独立的通用授权元数据比较报告，不调用内容读取。
     pub(crate) fn compare(&self, left: &str, right: &str) -> ComparisonReport {
-        self.engine
-            .compare_revisions_until(
-                left,
-                right,
-                0,
-                QueryBudget::default(),
-                &self.principal,
-                &self.engine.policy_authorizer().unwrap(),
-                deadline(),
-            )
-            .unwrap()
+        let authorizer =
+            request_authorizer::RequestAuthorizer::new(self.engine.policy_authorizer().unwrap());
+        let started = Instant::now();
+        let result = self.engine.compare_revisions_until(
+            left,
+            right,
+            0,
+            QueryBudget::default(),
+            &self.principal,
+            &authorizer,
+            deadline(),
+        );
+        if let Err(error) = &result {
+            authorizer.report();
+            eprintln!(
+                "HISTORY_COMPARE_DIAGNOSTIC elapsed_ms={} error={error:?}",
+                started.elapsed().as_secs_f64() * 1000.0,
+            );
+        }
+        result.unwrap()
     }
 
     /// 参数：无；返回：当前真实根的完整扫描 revision，用于与合成矩阵区分的宿主证据。

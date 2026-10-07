@@ -7,6 +7,8 @@ mod fixture;
 #[cfg(target_os = "linux")]
 #[path = "history_scope_eligibility/linux_fs_tests.rs"]
 mod linux_fs_tests;
+#[path = "history_compatibility/request_authorizer.rs"]
+mod request_authorizer;
 use callback_authorizer::CallbackAuthorizer;
 use diskgraph_core::{BusinessError, Permission, QueryBudget};
 use diskgraph_engine::EngineError;
@@ -117,18 +119,26 @@ fn generic_authorized_comparison_remains_available_across_scopes_and_roots() {
             Some((f.engine.server_id().unwrap().as_str(), scope.as_str())),
         )
         .unwrap();
-    let report = f
-        .engine
-        .compare_revisions_until(
-            "before",
-            "other-root",
-            0,
-            QueryBudget::default(),
-            &f.principal,
-            &f.engine.policy_authorizer().unwrap(),
-            Instant::now() + Duration::from_secs(30),
-        )
-        .unwrap();
+    let authorizer =
+        request_authorizer::RequestAuthorizer::new(f.engine.policy_authorizer().unwrap());
+    let started = Instant::now();
+    let result = f.engine.compare_revisions_until(
+        "before",
+        "other-root",
+        0,
+        QueryBudget::default(),
+        &f.principal,
+        &authorizer,
+        Instant::now() + Duration::from_secs(30),
+    );
+    if let Err(error) = &result {
+        authorizer.report();
+        eprintln!(
+            "CROSS_SCOPE_COMPARE_DIAGNOSTIC elapsed_ms={} error={error:?}",
+            started.elapsed().as_secs_f64() * 1000.0,
+        );
+    }
+    let report = result.unwrap();
     assert_ne!(report.left_root, report.right_root);
     assert_eq!(report.rows.len(), 1);
     assert_eq!(report.summary.different, 1);
