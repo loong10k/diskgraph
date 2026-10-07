@@ -55,7 +55,7 @@ def main():
     shutil.copyfile(fixture / 'engine_no_recall_probe.rs',
                     source / 'crates/diskgraph-engine/tests/linux_content_no_recall_probe.rs')
     command = ['docker', 'run', '--rm', '--cidfile', str(output / 'container.cid'),
-               '--cap-add=SYS_ADMIN',
+               '--cap-add=SYS_ADMIN', '--security-opt', 'apparmor=unconfined',
                '--device-cgroup-rule=c 10:229 rwm',
                '-v', f'{source}:/src:ro', '-v', f'{output}:/fixture',
                '-w', '/src', '-e', 'CARGO_TARGET_DIR=/tmp/target',

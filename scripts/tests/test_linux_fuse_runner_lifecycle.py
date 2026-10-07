@@ -40,6 +40,10 @@ class LifecycleTests(unittest.TestCase):
                 self.assertEqual(pending['retained_source'], str(source))
                 self.assertEqual(len(pending['fixture_sha256']), 3)
                 self.assertEqual(command[command.index('--cidfile') + 1], str(output / 'container.cid'))
+                self.assertIn('--security-opt', command)
+                self.assertEqual(command[command.index('--security-opt') + 1], 'apparmor=unconfined')
+                self.assertNotIn('--privileged', command)
+                self.assertNotIn('--pid=host', command)
                 if outcome == 'timeout':
                     raise subprocess.TimeoutExpired(command, 1500)
                 if outcome == 'valid':

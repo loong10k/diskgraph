@@ -37,3 +37,7 @@ scripts/qualify_linux_fuse_no_recall.py --output-dir <新目录> 从确切 HEAD 
 ## 客户端生命周期回归
 
 增加模拟客户端 TimeoutExpired、退出0但证据不全、完整证据三场景，验证出生前pending记录、CID定位、原材料保留、verified门禁和源码回收。与日志门禁合计8/8通过，CI入口覆盖全部。首次三项失败为macOS临时目录 /var 与 /private/var 定位差异，修正测试夹具 resolve 后通过；不是产品行为RED，不声称TDD行为失败。此模拟测试不证明实际Docker原容器退休。
+
+## Linux 容器挂载策略
+
+Docker 默认 AppArmor 模板含 deny mount（来源 https://github.com/moby/profiles/blob/main/apparmor/template.go 及 https://docs.docker.com/engine/security/apparmor/）。推断启用默认profile的runner会在真实产品测试之前拒绝私有FUSE挂载；尚未宣称该runner已复现。只在验收临时容器设置 apparmor=unconfined，保留私有PID/mount命名空间、精确设备规则与只读源码；不使用 --privileged 或 host PID，不改宿主AppArmor或daemon配置。三项客户端命令合同先失败于缺少security-opt，修复后与证据门禁合计8/8通过；这是配置合同RED，不是原生挂载RED。实际挂载仍待CI验收。

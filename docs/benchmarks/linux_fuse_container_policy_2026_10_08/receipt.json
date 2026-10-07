@@ -1,0 +1,12 @@
+{
+  "scope": "private ephemeral FUSE qualification container only",
+  "evidence": "Docker default AppArmor template deny mount; Linux runner reproduction pending",
+  "source": "https://github.com/moby/profiles/blob/main/apparmor/template.go",
+  "red": "3 argv-contract failures because security-opt absent; not native mounting RED",
+  "green": "8 script tests passed; not actual container execution",
+  "review": "APPROVE, limited private-container profile override",
+  "source_sha256": {
+    "scripts/qualify_linux_fuse_no_recall.py": "b9434bb1ab90465e70e8e2147c122105dcffe6a5fc2ac81901849d1dba39d678",
+    "scripts/tests/test_linux_fuse_runner_lifecycle.py": "bfd1eca706c01bbf80fdc8ce93f1e6e287411bb6b39c0629ca0a452085cae81e"
+  }
+}

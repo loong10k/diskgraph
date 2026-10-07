@@ -1,0 +1,13 @@
+test_actual_four_cases_are_accepted (test_linux_fuse_receipt.ReceiptTests.test_actual_four_cases_are_accepted) ... ok
+test_missing_original_retirement_is_refused (test_linux_fuse_receipt.ReceiptTests.test_missing_original_retirement_is_refused) ... ok
+test_missing_positive_control_is_refused (test_linux_fuse_receipt.ReceiptTests.test_missing_positive_control_is_refused) ... ok
+test_old_two_cases_do_not_satisfy_nested_acceptance (test_linux_fuse_receipt.ReceiptTests.test_old_two_cases_do_not_satisfy_nested_acceptance) ... ok
+test_product_content_callback_is_refused (test_linux_fuse_receipt.ReceiptTests.test_product_content_callback_is_refused) ... ok
+test_only_verified_retirement_allows_source_cleanup (test_linux_fuse_runner_lifecycle.LifecycleTests.test_only_verified_retirement_allows_source_cleanup) ... ok
+test_successful_client_with_invalid_evidence_is_not_verified (test_linux_fuse_runner_lifecycle.LifecycleTests.test_successful_client_with_invalid_evidence_is_not_verified) ... ok
+test_timeout_retains_original_material_and_identity (test_linux_fuse_runner_lifecycle.LifecycleTests.test_timeout_retains_original_material_and_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.016s
+
+OK
