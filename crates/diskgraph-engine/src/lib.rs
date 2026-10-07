@@ -394,3 +394,6 @@ mod trusted_local_recovery_home;
 pub use trusted_local_recovery_domain::TrustedLocalRecoveryDomain;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod trusted_local_recovery_domain_tests;
+
+#[cfg(test)]
+mod scope_authorization_tests;

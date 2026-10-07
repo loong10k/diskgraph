@@ -1,4 +1,4 @@
-//! 共享 Engine 的 scope_service 职责；原调用与持锁顺序保持。
+//! scope 注册、可见范围列表与撤销服务；列表能力回调位于控制锁外。
 
 use crate::{Engine, EngineError, admin_scope};
 use diskgraph_core::{
@@ -79,11 +79,25 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Vec<ScopeRecord>, EngineError> {
+        let admin_decision =
+            authorizer.decide(principal, &Permission::MetadataRead, &admin_scope());
+        let scopes = self.control()?.list_scopes()?;
+        // 外部回调不能持有共享锁；收集决定后再读取实时持久授权，覆盖跨项撤权。
+        let decisions = scopes
+            .into_iter()
+            .map(|scope| {
+                let decision =
+                    authorizer.decide(principal, &Permission::MetadataRead, &scope.scope_id);
+                (scope, decision)
+            })
+            .collect::<Vec<_>>();
+        let expiry = authorizer.expires_at_unix_seconds();
+        scope_list_authority_live(expiry)?;
         let control = self.control()?;
-        let permitted = |scope: &ScopeId| -> Result<bool, EngineError> {
-            match Self::require_with_control(
+        let permitted = |decision, scope: &ScopeId| -> Result<bool, EngineError> {
+            match Self::require_decision_with_control(
                 &control,
-                authorizer,
+                decision,
                 principal,
                 &Permission::MetadataRead,
                 scope,
@@ -93,22 +107,18 @@ impl Engine {
                 Err(error) => Err(error),
             }
         };
-        let authorizer_is_permissive = permitted(&admin_scope())?;
-        let scopes = control.list_scopes()?;
-        if scopes.is_empty() {
-            return Ok(Vec::new());
-        }
+        let authorizer_is_permissive = permitted(admin_decision, &admin_scope())?;
         let mut allowed = Vec::new();
-        for scope in scopes {
-            if permitted(&scope.scope_id)? {
+        for (scope, decision) in decisions {
+            if permitted(decision, &scope.scope_id)? {
                 allowed.push(scope);
             }
         }
-        // A principal whose only grant is administration sees the whole
-        // registry; every other principal sees only its own scopes.
+        // 管理回退使用所有回调完成后的持久授权；不能复用撤权之前的允许状态。
         if allowed.is_empty() && authorizer_is_permissive {
-            return Ok(control.list_scopes()?);
+            allowed = control.list_scopes()?;
         }
+        scope_list_authority_live(expiry)?;
         Ok(allowed)
     }
 }
@@ -181,4 +191,18 @@ fn locator_volume_id(locator: &Locator) -> Option<String> {
 #[cfg(not(any(unix, windows)))]
 fn locator_volume_id(_locator: &Locator) -> Option<String> {
     None
+}
+
+// 能力决定可早于 token 到期取得；控制锁等待与SQL完成后仍须拒绝过期结果。
+fn scope_list_authority_live(expiry: Option<u64>) -> Result<(), EngineError> {
+    if let Some(expiry) = expiry {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?
+            .as_secs();
+        if now >= expiry {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+    }
+    Ok(())
 }

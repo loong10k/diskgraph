@@ -1,0 +1,40 @@
+{
+  "scope": "scope list callback lock boundary and final persistent permission intersection",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scope_service.rs": "cef5ea5a9652808c8bbc8b68df7b87bdaa9593149ecccf29f67e34dc704e60b8",
+    "crates/diskgraph-engine/src/scope_authorization_tests.rs": "1c4865a80c0a11adbc33ed1bb5179431511363e852e8a529db9582e60f70f35f"
+  },
+  "logs": {
+    "red": {
+      "sha256": "1afb85db211a954dd3d42c5ed386abb311d579455eb159ab16527b0820321350",
+      "summary": [
+        "test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 651 filtered out; finished in 0.19s"
+      ]
+    },
+    "expiry-red": {
+      "sha256": "147af061ca5f1a483a8e3236d2a424931334ba2fff6e6376ff3bbb1a70946cf4",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 654 filtered out; finished in 0.10s"
+      ]
+    },
+    "compat-green": {
+      "sha256": "07b5b2830a172f241cfafe15040158ffafbcff4bf943b8851b6ffad5baab964b",
+      "summary": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 651 filtered out; finished in 0.46s"
+      ]
+    },
+    "full": {
+      "sha256": "c0cff4e0e24b2d2df50d0dfa791ca192220b0d84a7edfce1ac36af7638257afe",
+      "summary": [
+        "test result: FAILED. 545 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 16.41s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "limitations": [
+    "candidate registry observed before callbacks",
+    "independent SQLite connections are not frozen",
+    "O(n) decision storage, no performance gain claimed",
+    "strict list budget and platform qualification remain open"
+  ]
+}
