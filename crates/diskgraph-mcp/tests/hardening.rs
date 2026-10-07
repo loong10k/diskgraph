@@ -454,6 +454,31 @@ fn socket_requests_intersect_subject_grants_and_token_capabilities() {
             "permission_denied"
         );
     }
+    // 同时释放不同主体及同主体不同能力的请求，验证请求上下文不会串用。
+    let barrier = std::sync::Barrier::new(12);
+    std::thread::scope(|threads| {
+        let mut clients = Vec::new();
+        for index in 0..12 {
+            let call = &call;
+            let barrier = &barrier;
+            let token = &tokens[index % tokens.len()];
+            clients.push(threads.spawn(move || {
+                barrier.wait();
+                (index % 3, call(token))
+            }));
+        }
+        for client in clients {
+            let (identity, reply) = client.join().unwrap();
+            if identity == 0 {
+                assert_eq!(reply["result"]["isError"], false, "{reply}");
+            } else {
+                assert_eq!(
+                    reply["error"]["data"]["business_code"], "permission_denied",
+                    "{reply}"
+                );
+            }
+        }
+    });
     control
         .revoke_grant(&alice, &Permission::MetadataRead, &scope)
         .unwrap();

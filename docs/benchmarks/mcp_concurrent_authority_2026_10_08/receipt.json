@@ -1,0 +1,17 @@
+{
+  "base_commit": "c9e537b76476fde38f6722ea5ec31c99f34b895d",
+  "test_sha256": "b455cab8327a65a7d62fb9112bce20512780dd050d8328a7b4e66124c47d2cf1",
+  "platform": "Linux ARM64 Docker actual scan worker",
+  "concurrent_requests": 12,
+  "allowed_subject_requests": 4,
+  "ungranted_subject_requests": 4,
+  "missing_token_capability_requests": 4,
+  "test_passed": 1,
+  "initial_failure": "test barrier lifetime compile error; not behavior RED",
+  "production_changed": false,
+  "macos_windows_executed": false,
+  "latency_acceptance": false,
+  "linux_hardening_passed": 10,
+  "macos_mcp_test_clippy": "passed",
+  "claims_actual_execution_overlap": false
+}

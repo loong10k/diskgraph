@@ -1,0 +1,8 @@
+{
+  "base_commit": "c9e537b76476fde38f6722ea5ec31c99f34b895d",
+  "uncommitted_test_sha256": "758fe17042efecf2fc5d6c19a5745b289f01ea68e3e79895a7f84d7285406c69",
+  "linux_cost_suite_passed": 5,
+  "macos_new_row_test_passed": 1,
+  "store_clippy": "passed",
+  "production_behavior_changed": false
+}
