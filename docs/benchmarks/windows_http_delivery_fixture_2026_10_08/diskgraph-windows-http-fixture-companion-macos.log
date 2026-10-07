@@ -1,0 +1,14 @@
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.25s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_mcp-74b353ab38591c0b)
+
+running 6 tests
+test http_request_audit_tests::socket_audit_keeps_admitted_subject_when_reauthentication_would_expire ... ok
+test http_request_audit_tests::exhausted_generation_capture_does_not_renew_delivery_and_keeps_failed_audit_subject ... ok
+test http_request_audit_tests::actual_remote_revocation_stops_an_inflight_reply ... ok
+test http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline ... ok
+test http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline ... ok
+test http_request_audit_tests::actual_remote_token_expiry_stops_an_inflight_reply ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 171 filtered out; finished in 2.87s
+

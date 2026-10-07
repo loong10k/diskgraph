@@ -27,3 +27,7 @@ flowchart TD
 进一步重复原信号夹具复现 SIGTERM 非正常退出。原 readiness 只连接释放后的端口，无法证明是本 child 的 listener；现改为本 child stderr 确认绑定后再探测，原信号退出断言不变。初次测试编辑遗漏 URL scheme 导致 0/3，纠正后连续 10 轮共 30 项通过；端口串用仍是待证假设，不宣称产品信号缺陷已修复。Windows 失败已定位 Engine late capability 断言第516行，增加实际结果诊断，未放宽标准。
 
 补诊断后的 Windows 失败同名测试在隔离 Linux 通过 1/1；这不关闭 Windows 失败，后续同版本原生 CI 必须确认实际错误与结果。最终格式及 Clippy 检查通过。
+
+## Windows 真实大响应夹具接线候选
+
+同一四项慢读、不读、撤权、到期测试新增 WinSock SO_SNDBUF 配置并进入 Windows cfg；API 与现有 windows-sys 0.61.2 源码核对，只扩展既有依赖 feature。macOS 同夹具 6/6 和 all-target Clippy 通过。本机只有 ARM macOS target，不声称 Windows 编译或运行通过；监听缓冲继承及实际发送截断须在原生 CI 验证。证据见 docs/benchmarks/windows_http_delivery_fixture_2026_10_08。

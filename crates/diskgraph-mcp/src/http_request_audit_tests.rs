@@ -229,9 +229,12 @@ fn exhausted_generation_capture_does_not_renew_delivery_and_keeps_failed_audit_s
     assert_eq!(request["delivery"], "failed");
 }
 
-#[cfg(unix)]
+#[cfg(any(unix, windows))]
 fn actual_large_reply_interruption(case: &str) {
+    #[cfg(unix)]
     use std::os::fd::AsRawFd;
+    #[cfg(windows)]
+    use std::os::windows::io::AsRawSocket;
     let dir = tempfile::tempdir().unwrap();
     let service = McpService::open(McpConfig {
         data_dir: dir.path().join("data"),
@@ -263,9 +266,10 @@ fn actual_large_reply_interruption(case: &str) {
         .unwrap();
     let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).unwrap();
     let port = listener.local_addr().unwrap().port();
-    let send_bytes: libc::c_int = 4096;
+    let send_bytes: i32 = 4096;
     // 测试夹具限制监听socket继承的发送缓冲，使真实业务响应无法全部排入内核。
     // 原listener句柄仍存活，optval指向本地c_int，长度与其布局一致。
+    #[cfg(unix)]
     let configured = unsafe {
         libc::setsockopt(
             listener.as_raw_fd(),
@@ -275,7 +279,18 @@ fn actual_large_reply_interruption(case: &str) {
             std::mem::size_of_val(&send_bytes) as libc::socklen_t,
         )
     };
-    assert_eq!(configured, 0);
+    #[cfg(windows)]
+    let configured = unsafe {
+        // 原 listener 由标准库建立 Winsock 生命周期；有效句柄和 i32 缓冲保持至调用结束。
+        windows_sys::Win32::Networking::WinSock::setsockopt(
+            listener.as_raw_socket() as usize,
+            windows_sys::Win32::Networking::WinSock::SOL_SOCKET,
+            windows_sys::Win32::Networking::WinSock::SO_SNDBUF,
+            (&send_bytes as *const i32).cast(),
+            std::mem::size_of_val(&send_bytes) as i32,
+        )
+    };
+    assert_eq!(configured, 0, "native send buffer configuration failed");
     let captured = Arc::new(Mutex::new(Vec::new()));
     let timeout = if matches!(case, "deadline" | "slow") {
         Duration::from_secs(1)
@@ -402,23 +417,23 @@ fn actual_large_reply_interruption(case: &str) {
     assert_eq!(request["delivery"], "failed");
 }
 
-#[cfg(unix)]
+#[cfg(any(unix, windows))]
 #[test]
 fn actual_remote_nonreading_peer_cannot_renew_delivery_deadline() {
     actual_large_reply_interruption("deadline");
 }
-#[cfg(unix)]
+#[cfg(any(unix, windows))]
 #[test]
 fn actual_remote_revocation_stops_an_inflight_reply() {
     actual_large_reply_interruption("revoke");
 }
-#[cfg(unix)]
+#[cfg(any(unix, windows))]
 #[test]
 fn actual_remote_token_expiry_stops_an_inflight_reply() {
     actual_large_reply_interruption("expiry");
 }
 
-#[cfg(unix)]
+#[cfg(any(unix, windows))]
 #[test]
 fn actual_remote_slow_progress_cannot_renew_delivery_deadline() {
     actual_large_reply_interruption("slow");

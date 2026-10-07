@@ -1,0 +1,11 @@
+{
+  "status": "candidate; Windows native compile/runtime pending",
+  "baseline_commit": "12bcf7005778266cea7f2e84fac5a793bacdb308",
+  "macos_companion": "6/6 passed; clippy all-target passed",
+  "windows_sys_api_source": "installed windows-sys 0.61.2 WinSock mod.rs setsockopt line256; SOL_SOCKET and SO_SNDBUF constants",
+  "installed_local_target": "aarch64-apple-darwin only; no cross-compile claimed",
+  "source_sha256": {
+    "crates/diskgraph-mcp/Cargo.toml": "b4f28a92b523681c9a1514df010eb5ba28c3bb5f33706d25fe9e8f2278e319eb",
+    "crates/diskgraph-mcp/src/http_request_audit_tests.rs": "7d0bff2a014e1407a012337036dc5597ca3c4c9122eea072567eece9323b86ea"
+  }
+}
