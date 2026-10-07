@@ -12,6 +12,24 @@ fn open(path: &Path) -> File {
 fn deadline() -> Instant {
     Instant::now() + Duration::from_secs(5)
 }
+
+fn assert_unconfirmed_after_lock_release(path: &Path) {
+    // Linux 的并行 fork 可能短暂继承原锁，直到 exec 关闭 CLOEXEC 文件描述符。
+    // Busy 仍是安全拒绝；只在同一观察期限内等待锁释放，不允许成功认领或改写 RESERVED。
+    let until = deadline();
+    let rejection = loop {
+        match SlotReservation::acquire(open(path), until) {
+            Err(SlotError::Busy) if Instant::now() < until => {
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            result => break result.err(),
+        }
+    };
+    assert!(
+        matches!(rejection, Some(SlotError::Unconfirmed)),
+        "unconfirmed record must refuse admission; actual rejection: {rejection:?}"
+    );
+}
 fn child(path: &Path, mode: &str) -> std::process::ExitStatus {
     let process = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--ignored", "--exact", "slot_child", "--nocapture"])
@@ -52,10 +70,7 @@ fn actual_process_death_releases_lock_but_not_active_record() {
     drop(File::create_new(&p).unwrap());
     assert_eq!(child(&p, "die").code(), Some(42));
     let bytes = std::fs::read(&p).unwrap();
-    assert!(matches!(
-        SlotReservation::acquire(open(&p), deadline()),
-        Err(SlotError::Unconfirmed)
-    ));
+    assert_unconfirmed_after_lock_release(&p);
     assert_eq!(std::fs::read(&p).unwrap(), bytes);
 }
 #[test]
@@ -64,10 +79,7 @@ fn dropping_reserved_owner_does_not_fake_completion() {
     let p = d.path().join("slot");
     let slot = SlotReservation::acquire(File::create_new(&p).unwrap(), deadline()).unwrap();
     drop(slot);
-    assert!(matches!(
-        SlotReservation::acquire(open(&p), deadline()),
-        Err(SlotError::Unconfirmed)
-    ));
+    assert_unconfirmed_after_lock_release(&p);
 }
 #[test]
 fn invalid_records_are_refused_without_modification() {
@@ -179,10 +191,7 @@ fn expiry_during_reserved_phase_preserves_unconfirmed_record() {
         Err(SlotError::Deadline)
     ));
     assert_eq!(std::fs::read(&p).unwrap(), original);
-    assert!(matches!(
-        SlotReservation::acquire(open(&p), deadline()),
-        Err(SlotError::Unconfirmed)
-    ));
+    assert_unconfirmed_after_lock_release(&p);
 }
 
 #[test]
@@ -249,10 +258,7 @@ fn inherited_original_lock_survives_frontend_close_until_actual_child_death() {
     child.child.as_mut().unwrap().wait().unwrap();
     child.child.take();
     // 子进程死亡只释放内核锁；ACTIVE 不能被误写为 CLEAN 或自动允许新工作。
-    assert!(matches!(
-        SlotReservation::acquire(open(&path), deadline()),
-        Err(SlotError::Unconfirmed)
-    ));
+    assert_unconfirmed_after_lock_release(&path);
     assert_eq!(std::fs::read(path).unwrap(), b"DGSL01A\n");
 }
 
