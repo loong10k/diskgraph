@@ -1,0 +1,28 @@
+{
+  "platform": "local macOS",
+  "base_commit": "d631ccf4a4cc4782bb6e1f6ef06b275011b55f97",
+  "cli_red": {
+    "passed": 0,
+    "failed": 1,
+    "actual_error": "Unsupported instead of sealed registry Conflict"
+  },
+  "cli_green": {
+    "passed": 1,
+    "failed": 0
+  },
+  "mcp_baseline_and_candidate": {
+    "passed": 120,
+    "failed": 34,
+    "identical_failed_test_names": true
+  },
+  "limitations": [
+    "MCP full suite not green; scan preconditions Unsupported",
+    "Windows probe retirement pending native CI",
+    "Finite frontend exit and supervisor role not implemented"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "0d5aabeb54f971c85ee4ca1bc177886bbf059367873484508f265ff0bf9dbca8",
+    "crates/diskgraph-cli/src/cli_engine_host/tests.rs": "8a351461cea09f8c7a2633f30610af6c7da80767ae713fd439a985a1481e5c40",
+    "crates/diskgraph-mcp/src/scan_worker_shutdown.rs": "f85486ad41eafc2bd6463291db136345f4908c3a032ac56fcc71288817e25081"
+  }
+}

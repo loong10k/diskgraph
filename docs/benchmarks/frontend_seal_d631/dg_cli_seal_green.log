@@ -1,0 +1,81 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.71s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-af05c3b2dd9dd6eb)
+
+running 1 test
+test cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 68 filtered out; finished in 0.04s
+
+     Running tests/cli_flow.rs (target/debug/deps/cli_flow-d16cbfa2c3dd92f2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 16 filtered out; finished in 0.00s
+
+     Running tests/controlled_environment.rs (target/debug/deps/controlled_environment-e50bb6b2665a3650)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/entry_source_layout.rs (target/debug/deps/entry_source_layout-eee97787a290aa7f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/git_evidence_flow.rs (target/debug/deps/git_evidence_flow-fb30b76bfe048584)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+
+     Running tests/git_sync_arguments.rs (target/debug/deps/git_sync_arguments-2a2e0a31f892c989)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/history_budget.rs (target/debug/deps/history_budget-511a13cab60a7fdb)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/process_evidence_flow.rs (target/debug/deps/process_evidence_flow-6c38e86e7196257c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/relation_budget.rs (target/debug/deps/relation_budget-d391e3f408f08f73)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/scan_worker_binary_config.rs (target/debug/deps/scan_worker_binary_config-1568c68305c5420b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/scan_worker_host_lifecycle.rs (target/debug/deps/scan_worker_host_lifecycle-7e24e099f40fbaa4)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/serve_remote_startup.rs (target/debug/deps/serve_remote_startup-37f96b4751574934)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests/serve_windows_exit_status.rs (target/debug/deps/serve_windows_exit_status-98189c828aab6804)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

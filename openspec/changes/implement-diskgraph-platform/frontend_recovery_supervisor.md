@@ -120,3 +120,7 @@ Windows private Git panic/cancel 验收保留原真实出生、一次清理失�
 ## Unix 私有通知的有界写入
 
 Linux/macOS 原已认证 UnixStream 能力的通知写入必须使用单次 send 的 DONTWAIT/NOSIGNAL，构造前必须提供唯一未克隆的私有 stream 能力，并明确设置原 socket 非阻塞模式，不继承公共 stdout/stderr。写入前后及每次重试检查原绝对期限/取消；原版本、会话、序列、状态、累计帧/字节通过同一控制解析门禁。部分写入或 I/O 错误后锁存 Unconfirmed，不重发帧、不刷新期限、不释放原 Recovery/槽。调用者仍持有原资源。背压期限、对端断开、取消及完整真实 socket 传输须验证。此 API 不认证对端、不启动监督进程、不能代替 Windows 原管道及 CLI/MCP 实际接入。
+
+## 前端兼容退出的准入关闭
+
+CLI 命令正常/失败/panic 后与 MCP runner 停止并 join 后，兼容恢复循环先沿同一 Recovery 关闭原资源池准入，再调用原 drain。关闭失败保留原责任并重试，禁止仅凭暂时空槽退出后仍允许新工作出生。Windows 探针池同样处理。此处仍使用原无限兼容回收，不声明有限退出；监督出生、公开 EOF 和私有 IPC 总体验收保持打开。

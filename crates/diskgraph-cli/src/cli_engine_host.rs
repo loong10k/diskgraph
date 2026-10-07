@@ -63,7 +63,8 @@ impl CliEngineHost {
         if let Some(recovery) = &self.recovery {
             let mut reported = false;
             loop {
-                match recovery.drain() {
+                // 先关闭同一资源池准入；失败仍保留原责任，不以空槽观察允许新工作出生。
+                match recovery.seal_admission().and_then(|()| recovery.drain()) {
                     Ok(true) => break,
                     Ok(false) => {}
                     Err(_) if !reported => {
@@ -81,7 +82,11 @@ impl CliEngineHost {
         {
             let mut reported = false;
             loop {
-                match self.probe_recovery.drain() {
+                match self
+                    .probe_recovery
+                    .seal_admission()
+                    .and_then(|()| self.probe_recovery.drain())
+                {
                     Ok(true) => break,
                     Ok(false) => {}
                     Err(_) if !reported => {

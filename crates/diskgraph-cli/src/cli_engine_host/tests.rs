@@ -61,5 +61,25 @@ fn command_panic_preserves_original_payload_with_external_empty_recovery() {
         Some(&"cli-original-payload")
     );
     assert!(survivor.server_id().is_ok());
+    let root = directory.path().join("scope");
+    std::fs::create_dir(&root).unwrap();
+    let principal = diskgraph_core::PrincipalId::new("retired-host-test").unwrap();
+    survivor.bootstrap_local_admin(&principal).unwrap();
+    let auth = survivor.policy_authorizer().unwrap();
+    let scope = survivor.register_scope(&root, &principal, &auth).unwrap();
+    let job = survivor
+        .index_scope(&scope, &principal, &survivor.policy_authorizer().unwrap())
+        .unwrap();
+    let outcome = survivor.run_job_strict(&job.job_id, "retired-host");
+    assert!(
+        matches!(
+            outcome,
+            Err(EngineError::Business(
+                diskgraph_core::BusinessError::Conflict
+            ))
+        ),
+        "retired original registry must reject new births before image execution: {outcome:?}"
+    );
+    assert!(survivor.latest_revision(&scope).unwrap().is_none());
     // 没有 child 出生，只验证同一宿主异常边界，不能代替活跃 child 回收验收。
 }

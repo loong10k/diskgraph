@@ -7,7 +7,8 @@ use std::time::Duration;
 pub(crate) fn finish(recovery: &ScanWorkerRecovery) {
     let mut reported = false;
     loop {
-        match recovery.drain() {
+        // 先关闭同一资源池准入；失败仍保留原责任，不以空槽观察允许新工作出生。
+        match recovery.seal_admission().and_then(|()| recovery.drain()) {
             Ok(true) => return,
             Ok(false) => {}
             Err(_) if !reported => {
@@ -28,7 +29,8 @@ pub(crate) fn finish(recovery: &ScanWorkerRecovery) {
 pub(crate) fn finish_probe(recovery: &diskgraph_engine::ProbeRecovery) {
     let mut reported = false;
     loop {
-        match recovery.drain() {
+        // 先关闭同一资源池准入；失败仍保留原责任，不以空槽观察允许新工作出生。
+        match recovery.seal_admission().and_then(|()| recovery.drain()) {
             Ok(true) => return,
             Ok(false) => {}
             Err(_) if !reported => {

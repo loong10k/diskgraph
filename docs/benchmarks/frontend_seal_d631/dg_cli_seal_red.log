@@ -1,0 +1,25 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-af05c3b2dd9dd6eb)
+
+running 1 test
+test cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery ... FAILED
+
+failures:
+
+---- cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery stdout ----
+
+thread 'cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery' (362519) panicked at crates/diskgraph-cli/src/cli_engine_host/tests.rs:55:13:
+cli-original-payload
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery' (362519) panicked at crates/diskgraph-cli/src/cli_engine_host/tests.rs:72:5:
+retired original registry must reject new births before image execution: Err(Business(Unsupported))
+
+
+failures:
+    cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 68 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p diskgraph-cli --bin diskgraph`
