@@ -6,7 +6,7 @@ use std::cell::RefCell;
 
 #[test]
 fn initial_authorization_control_contention_expires_while_original_lock_is_held() {
-    for snapshot in [false, true] {
+    for mode in 0..3 {
         let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
         let snapshot_id = engine
             .graph()
@@ -14,6 +14,7 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
             .revision(revision)
             .unwrap()
             .snapshot_id;
+        let reader = engine.revision_reader().unwrap();
         let engine = std::sync::Arc::new(engine);
         let policy = engine.policy_authorizer().unwrap();
         let released = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
@@ -31,12 +32,20 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
             .recv_timeout(std::time::Duration::from_secs(5))
             .unwrap();
         let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
-        let result = if snapshot {
-            engine.authorize_snapshot_until(&snapshot_id, &principal, &policy, deadline)
-        } else {
-            engine
+        let result = match mode {
+            0 => engine.authorize_snapshot_until(&snapshot_id, &principal, &policy, deadline),
+            1 => engine
                 .authorize_revision_until(None, revision, &principal, &policy, deadline)
-                .map(|_| ())
+                .map(|_| ()),
+            _ => {
+                let mut reads =
+                    diskgraph_core::QueryReadBudget::new(QueryBudget::default(), deadline).unwrap();
+                engine
+                    .authorize_revision_with_budget(
+                        &reader, None, revision, &principal, &policy, &mut reads,
+                    )
+                    .map(|_| ())
+            }
         };
         let returned_while_held = !released.load(std::sync::atomic::Ordering::Acquire);
         owner.join().unwrap();

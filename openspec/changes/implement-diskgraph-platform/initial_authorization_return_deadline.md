@@ -19,3 +19,11 @@
 错误优先级：已观察到的真实拒权和能力回调明确 Denied 返回 PermissionDenied。回调耗尽原期限后返回 Allowed 时直接返回 BudgetExceeded，不增加撤权观察宽限，也不承诺读取期限结束后才提交的撤权。不会提交任何迟到授权数据。初始准入与已有末段独立撤权观察窗口的职责不同。
 
 本机最终验证：4 项授权回归通过，其中两个初始入口分别覆盖迟到 Allowed 与迟到明确 Denied；6 项 source_layout 通过；Engine all-targets Clippy -D warnings 与 fmt check 通过。两条独立审查对生产代码返回 APPROVE / CLEAR。真实昂贵 SQL 中断和完整平台验收仍未由本批证明。
+
+## 预算化关系与历史初始授权
+
+随后审计发现 authorize_revision_with_budget 仍调用无期限 owner helper。控制锁竞争夹具增加第三种入口，在修复前精确业务预算断言实际失败；修复后改为传递 reads.deadline() 至同一有期限 owner helper。归属原始字节仍通过 revision_ownership_with_budget 计费，不重建账本或查询期限。
+
+当前授权回归 4 passed（控制锁场景实际覆盖三个入口）；relation_request_tests 为 7 passed / 8 failed，八个失败均在原生扫描夹具初始化 line 110 返回 Business(Unsupported)，不能当成查询行为通过。七个使用已发布元数据的回归覆盖初始授权、末段归属、撤权及历史数据到期语义。原生失败仍需在对应平台 CI 闭环。
+
+初始控制授权 helper 已迁至 initial_revision_authorization.rs，满足生产文件小于 500 行的门禁，lib.rs 仅增加模块声明。拆分后最终授权 4 项、source_layout 6 项、Engine Clippy 与 fmt 均通过；独立两条审查 APPROVE / CLEAR。无期限兼容接口仍保持原路径。

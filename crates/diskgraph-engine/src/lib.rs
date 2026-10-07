@@ -38,6 +38,7 @@ mod git_late_enqueue_tests;
 mod history_namespace;
 mod history_node_lookup;
 mod history_request;
+mod initial_revision_authorization;
 mod job_authorization;
 #[cfg(test)]
 mod job_authorization_tests;
