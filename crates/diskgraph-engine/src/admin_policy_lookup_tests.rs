@@ -776,3 +776,73 @@ fn revision_reader_preserves_explicit_denial_after_callback_deadline() {
         "observed denial changed: {result:?}"
     );
 }
+
+#[test]
+fn revision_reader_terminal_callback_can_reenter_control_and_revoke() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        read_succeeded: std::cell::Cell<bool>,
+        calls: std::cell::Cell<u32>,
+        revoke: bool,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.calls.get() == 1
+                && let Ok(mut control) = self
+                    .engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+            {
+                self.read_succeeded.set(true);
+                if self.revoke {
+                    control.revoke_grant(principal, permission, scope).unwrap();
+                }
+            }
+            self.calls.set(self.calls.get() + 1);
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for revoke in [false, true] {
+        let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+        let authorizer = Callback {
+            engine: &engine,
+            policy: engine.policy_authorizer().unwrap(),
+            read_succeeded: std::cell::Cell::new(false),
+            calls: std::cell::Cell::new(0),
+            revoke,
+        };
+        let entered = std::cell::Cell::new(false);
+        let result = engine.with_authorized_revision_reader(
+            revision,
+            &principal,
+            &authorizer,
+            1000,
+            |_, _, _| {
+                entered.set(true);
+                Ok(())
+            },
+        );
+        assert!(
+            authorizer.read_succeeded.get(),
+            "terminal capability callback ran under control lock"
+        );
+        if revoke {
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(BusinessError::PermissionDenied))
+                ),
+                "revoked capability: {result:?}"
+            );
+            assert!(entered.get());
+        } else {
+            result.unwrap();
+            assert!(entered.get());
+        }
+    }
+}

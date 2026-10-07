@@ -87,3 +87,9 @@ Du原错误本机回归：明确拒权旧NotFound实际RED→PermissionDenied GR
 初始撤权见证与server观察后释放控制锁。helper独立沿原deadline检查scope，再在控制锁与SQL handler之外调用宿主decide，重获控制锁交集实时授权。caller在consumer前重验server与撤权见证，固定expiry不刷新。通用reader逻辑按职责移入revision_reader_authorization.rs；既有SQL handler回归通过实际Engine入口及独立控制连接验证，不降低迟到允许拒绝断言。初始回调有限重入旧RED，终检回调仍持锁，不声称整体完成。
 
 Generic reader初始回调验证：初始重入与迟到拒权实际RED→GREEN，权限组14/0、source_layout6/0、fmt/Clippy及复审APPROVE/CLEAR。串行完整Engine559/98/13，98项Unsupported；并发558/99/13有一项growth超时分类观察，单项与串行通过，原因未确认，不删除原断言或声称并发问题关闭。driver缺失的两次无效夹具运行额外16失败不作为行为通过。终检回调持锁、平台监督链与三平台资格仍未完成。
+
+## Generic reader 终检能力回调锁隔离
+
+终检前控制SQL观察后释放control，宿主decide在锁外；随后非阻塞重新取得control，先检查撤权见证，再在原50ms SQL观察规则下求实时权限交集。明确Denied不被重新取锁预算覆盖；capability原50ms及时性、固定token expiry与原数据deadline不续租，新鲜归属检查保持。终检回调在同Engine控制锁内撤grant的回归旧有限重入失败为RED，要求正常允许成功与撤权拒绝已准备结果。display/history其他回调不据此关闭。
+
+Generic reader终检锁隔离验证：有限重入旧RED→GREEN，终检callback撤grant精确拒权；权限15/0、能力9/0、source_layout6/0、fmt/Clippy、双路APPROVE/CLEAR。串行完整Engine560/98/13，98均Unsupported。callback后control竞争失败关闭BudgetExceeded，不承诺同时撤权可观察、全局线性化或硬抢占；display/history及原生门禁仍开放。

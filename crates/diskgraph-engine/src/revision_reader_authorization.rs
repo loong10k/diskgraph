@@ -1,6 +1,6 @@
 //! 通用可信 revision reader 的初始与终态授权边界。
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, BusinessError, PrincipalId, ScopeId};
+use diskgraph_core::{Authorizer, BusinessError, Permission, PrincipalId, ScopeId};
 use diskgraph_store::SqliteSnapshotStore;
 use std::time::Duration;
 
@@ -97,10 +97,52 @@ impl Engine {
         let control = self.control_until(deadline)?;
         crate::authority_expiry::check_authority_expiry(expiry)?;
         withdrawal.check(&control)?;
-        let authorization =
-            Self::observe_terminal_relation(&control, authorizer, principal, &scope);
+        let before_callback = std::time::Instant::now()
+            .checked_add(Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        control
+            .with_read_deadline(before_callback, |control| {
+                if control.scope_revoked(&scope)? {
+                    return Err(BusinessError::PermissionDenied.into());
+                }
+                Ok::<(), EngineError>(())
+            })
+            .map_err(reader_terminal_control_error)?;
+        drop(control);
+        // 宿主终检能力不持共享控制锁；固定能力期限与SQL观察窗口分别沿既有50ms规则计量。
+        let capability_deadline = std::time::Instant::now()
+            .checked_add(Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+        crate::authority_expiry::check_authority_expiry(expiry)?;
+        if matches!(decision, diskgraph_core::Decision::Denied(_)) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let control = self
+            .try_control_store()?
+            .ok_or(BusinessError::BudgetExceeded)?;
         withdrawal.check(&control)?;
-        let timely = authorization?;
+        let after_callback = std::time::Instant::now()
+            .checked_add(Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let authorization = control
+            .with_read_deadline(after_callback, |control| {
+                Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::MetadataRead,
+                    &scope,
+                )?;
+                if control.scope_revoked(&scope)? {
+                    return Err(BusinessError::PermissionDenied.into());
+                }
+                Ok::<(), EngineError>(())
+            })
+            .map_err(reader_terminal_control_error);
+        withdrawal.check(&control)?;
+        authorization?;
+        let timely = std::time::Instant::now() < capability_deadline;
         crate::authority_expiry::check_authority_expiry(expiry)?;
         self.require_terminal_revision_ownership(revision_id, &scope, &control, deadline)?;
         if !timely || std::time::Instant::now() >= deadline {
@@ -108,5 +150,19 @@ impl Engine {
         }
         crate::authority_expiry::check_authority_expiry(expiry)?;
         Ok(result)
+    }
+}
+
+// 终检控制SQL错误仅映射执行预算、busy及中断，损坏和拒权保持原语义。
+fn reader_terminal_control_error(error: EngineError) -> EngineError {
+    match error {
+        EngineError::Store(error)
+            if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                || error.is_interrupted()
+                || error.is_busy() =>
+        {
+            EngineError::Business(BusinessError::BudgetExceeded)
+        }
+        other => other,
     }
 }

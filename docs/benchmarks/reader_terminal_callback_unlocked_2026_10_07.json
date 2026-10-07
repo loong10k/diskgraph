@@ -1,0 +1,31 @@
+{
+  "scope": "generic revision reader terminal callback mutex separation",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "e9da23cdef56edea37da29c1eb77e0586b269692f650e27d2821e44fbf007619",
+    "crates/diskgraph-engine/src/admin_policy_lookup_tests.rs": "4a0b5933d8a78ddc091361fee1470785823879725747e79086839b8db5ce2753"
+  },
+  "red": "terminal callback same Engine bounded control reentry failed",
+  "green": {
+    "permission_tests": 15,
+    "capability_tests": 9,
+    "source_layout": 6,
+    "serial_engine": {
+      "passed": 560,
+      "failed": 98,
+      "ignored": 13,
+      "failure_class": "Unsupported",
+      "seconds": 109.94
+    },
+    "fmt": "pass",
+    "clippy": "pass"
+  },
+  "reviews": [
+    "APPROVE",
+    "CLEAR"
+  ],
+  "limits": [
+    "post callback control contention fails closed with BudgetExceeded",
+    "no global revocation linearization or callback preemption",
+    "display/history callbacks and native qualification incomplete"
+  ]
+}
