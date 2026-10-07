@@ -76,10 +76,14 @@ fn held_directory_pages_preserve_raw_utf16_and_full_file_ids() {
 
 #[test]
 fn directory_record_decoder_rejects_invalid_lengths_offsets_and_components() {
-    let mut record = FILE_ID_EXTD_DIR_INFO::default();
-    record.FileNameLength = 2;
-    record.FileName = [120];
-    record.FileId.Identifier = [1; 16];
+    let record = FILE_ID_EXTD_DIR_INFO {
+        FileNameLength: 2,
+        FileName: [120],
+        FileId: windows_sys::Win32::Storage::FileSystem::FILE_ID_128 {
+            Identifier: [1; 16],
+        },
+        ..FILE_ID_EXTD_DIR_INFO::default()
+    };
     let encode = |record: &FILE_ID_EXTD_DIR_INFO| {
         let mut page = vec![0u8; 256];
         unsafe { std::ptr::write_unaligned(page.as_mut_ptr().cast(), *record) };

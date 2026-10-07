@@ -443,7 +443,11 @@ pub(super) fn parse_entry(
         std::ptr::read_unaligned(page.as_ptr().add(offset).cast::<FILE_ID_EXTD_DIR_INFO>())
     };
     let length = record.FileNameLength as usize;
-    if length == 0 || length % 2 != 0 || length > 65534 || record.FileId.Identifier == [0; 16] {
+    if length == 0
+        || !length.is_multiple_of(2)
+        || length > 65534
+        || record.FileId.Identifier == [0; 16]
+    {
         return Err("directory record has invalid name length or unknown full ID".into());
     }
     let start = offset
@@ -462,7 +466,7 @@ pub(super) fn parse_entry(
         let next = offset
             .checked_add(distance)
             .ok_or("directory next record overflow")?;
-        if distance % 8 != 0 || next < end || next >= page.len() {
+        if !distance.is_multiple_of(8) || next < end || next >= page.len() {
             return Err("directory next record does not advance within page".into());
         }
         Some(next)

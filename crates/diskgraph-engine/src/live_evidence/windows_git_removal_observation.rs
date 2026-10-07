@@ -249,9 +249,10 @@ pub(super) fn matches_removal(bytes: &[u8], child: [u8; 16], parent: [u8; 16]) -
         let length = field(80) as usize;
         if !(1..=5).contains(&action)
             || length == 0
-            || length % 2 != 0
+            || !length.is_multiple_of(2)
             || length > record.len() - 84
-            || (next != 0 && (next % 4 != 0 || next < 84 + length || next >= record.len()))
+            || (next != 0
+                && (!next.is_multiple_of(4) || next < 84 + length || next >= record.len()))
         {
             return Err(io::Error::other("invalid removal notification record"));
         }

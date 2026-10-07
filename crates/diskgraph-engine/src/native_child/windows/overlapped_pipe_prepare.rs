@@ -130,7 +130,6 @@ impl OverlappedPipe {
         Ok(self.phase == WindowsPipeIoPhase::Ready && !self.pending)
     }
     /// 参数：wait 指定是否同步等待，owner_cancelled 表示原 owner 已请求取消；返回：连接完成或原查询错误，未完成时保留 pending 责任，不标记读取 EOF。
-
     pub(super) fn finish_connect(
         &mut self,
         wait: bool,

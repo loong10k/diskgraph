@@ -203,7 +203,6 @@ impl OverlappedControlPipe {
         Ok((self.handle()?, self.event.as_raw()))
     }
     /// 参数：无；返回：最后实际完成查询的原生错误码，尚未记录时为 None。
-
     /// 仅记录实际GetOverlappedResult终态，供接管线程证明取消完成而非线程退出。
     #[cfg(test)]
     pub(super) fn completion_error_for_test(&self) -> Option<u32> {

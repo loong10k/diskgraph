@@ -52,7 +52,7 @@ fn removed(bytes: &[u8], child: u64, parent: u64) -> bool {
         let u64_at = |n| u64::from_le_bytes(record[n..n + 8].try_into().unwrap());
         let next = u32_at(0) as usize;
         let length = u32_at(80) as usize;
-        assert!(length > 0 && length % 2 == 0 && length <= record.len() - 84);
+        assert!(length > 0 && length.is_multiple_of(2) && length <= record.len() - 84);
         println!(
             "DG_NOTIFY action={} child={} parent={} bytes={}",
             u32_at(4),
@@ -65,7 +65,7 @@ fn removed(bytes: &[u8], child: u64, parent: u64) -> bool {
         if next == 0 {
             return found;
         }
-        assert!(next % 4 == 0 && next >= 84 + length && next < record.len());
+        assert!(next.is_multiple_of(4) && next >= 84 + length && next < record.len());
         offset = offset.checked_add(next).unwrap();
     }
 }

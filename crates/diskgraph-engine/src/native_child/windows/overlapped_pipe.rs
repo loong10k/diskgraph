@@ -180,7 +180,6 @@ impl OverlappedPipe {
         failure.map_or(Ok(()), Err)
     }
     /// 参数：无；返回：原 pending 操作的 HANDLE、OVERLAPPED 和缓冲区地址；没有 pending 时拒绝。
-
     /// 只供真实pending读跨线程测试观察，不修改原内存或句柄。
     #[cfg(test)]
     pub(super) fn io_witness(
@@ -203,14 +202,12 @@ impl OverlappedPipe {
         ))
     }
     /// 参数：无；返回：当前操作是否仍处于连接阶段，不表示读取完成。
-
     /// 测试区分真实 Connect 与 Read；不修改内核操作。
     #[cfg(test)]
     pub(super) fn connecting_for_test(&self) -> bool {
         self.phase == WindowsPipeIoPhase::Connecting
     }
     /// 参数：无；返回：无；在当前测试线程设置一次查询故障，不取消原 pending 操作。
-
     /// 一次性注入查询失败，不声称内核拒权；实际pending仍由原OS操作建立。
     #[cfg(test)]
     pub(super) fn fail_next_query_for_test() {

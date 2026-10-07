@@ -45,7 +45,6 @@ impl ProbeBudget {
         })
     }
     /// 参数：pool 为同一可信宿主资源池；返回：成功绑定唯一会话，或原预算、重复绑定及容量错误。
-
     /// 绑定同一受信宿主，不创建容量或重置原期限、输出及取消；来源：PF-06。
     #[cfg(windows)]
     pub(super) fn bind_probe_host(

@@ -165,10 +165,10 @@ impl JobRunner {
     /// 返回：至多一个任务的执行记录、无可执行任务的 None 或执行错误。
     pub fn tick(&self) -> Result<Option<JobRecord>, EngineError> {
         #[cfg(windows)]
-        if let Some(recovery) = &self.probe_recovery {
-            if !recovery.drain()? {
-                return Ok(None);
-            }
+        if let Some(recovery) = &self.probe_recovery
+            && !recovery.drain()?
+        {
+            return Ok(None);
         }
         run_one_queued(
             &self.engine,

@@ -308,7 +308,6 @@ impl WindowsChild {
         Ok(())
     }
     /// 参数：无；返回：依次为原 Job 是否持有、原 leader 是否持有、是否已确认清理完成。
-
     /// 测试只读快照：原Job、leader责任句柄是否仍持有，以及是否已宣称清理完成。
     #[cfg(test)]
     pub(super) fn cleanup_state_for_test(&self) -> (bool, bool, bool) {

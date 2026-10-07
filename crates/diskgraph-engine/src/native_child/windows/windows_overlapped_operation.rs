@@ -18,8 +18,10 @@ unsafe impl Send for WindowsOverlappedOperation {}
 impl WindowsOverlappedOperation {
     /// 参数：由外层保活的event；返回：不会因owner跨线程转移而换址的操作内存。
     pub(super) fn new(event: HANDLE) -> Self {
-        let mut operation = OVERLAPPED::default();
-        operation.hEvent = event;
+        let operation = OVERLAPPED {
+            hEvent: event,
+            ..OVERLAPPED::default()
+        };
         Self {
             storage: Box::new(UnsafeCell::new(operation)),
         }
@@ -27,8 +29,10 @@ impl WindowsOverlappedOperation {
     /// 参数：event 为原 owner 持有的事件句柄，调用前必须确认无 pending；返回：无，原存储地址保持稳定。
     /// 仅外层确认没有pending操作时调用；参数：event沿原owner，不改变内存地址。
     pub(super) fn reset(&mut self, event: HANDLE) {
-        let mut operation = OVERLAPPED::default();
-        operation.hEvent = event;
+        let operation = OVERLAPPED {
+            hEvent: event,
+            ..OVERLAPPED::default()
+        };
         unsafe { self.as_ptr().write(operation) };
     }
     /// 参数：无；返回：原 OVERLAPPED 存储地址，借用者不得越过 owner 寿命使用。
