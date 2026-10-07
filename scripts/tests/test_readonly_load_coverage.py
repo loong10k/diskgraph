@@ -19,7 +19,7 @@ SPEC.loader.exec_module(MODULE)
 class CoverageTests(unittest.TestCase):
     """模拟 CLI 协议，使用真实隔离 SQLite 证明部分结果不能计作完整负载。"""
 
-    def exercise(self, count):
+    def exercise(self, count, duplicate=False):
         def invoke(cli, data, *arguments, **kwargs):
             if arguments[:2] == ('scope', 'add'):
                 return {'data': {'scope_id': 'scope'}}
@@ -27,9 +27,13 @@ class CoverageTests(unittest.TestCase):
                 data.mkdir()
                 with sqlite3.connect(data / 'diskgraph.sqlite') as connection:
                     connection.execute('CREATE TABLE graph_revisions(revision_id TEXT, snapshot_id TEXT)')
-                    connection.execute('CREATE TABLE nodes(snapshot_id TEXT)')
+                    connection.execute('CREATE TABLE nodes(snapshot_id TEXT, id INTEGER, parent_id INTEGER, name TEXT)')
                     connection.execute("INSERT INTO graph_revisions VALUES('revision','snapshot')")
-                    connection.executemany('INSERT INTO nodes VALUES(?)', [('snapshot',)] * count)
+                    rows = [('snapshot', 0, None, 'project')]
+                    rows.extend(('snapshot', index + 1, 0, f'file-{index:06}.bin') for index in range(count - 1))
+                    if duplicate:
+                        rows[-1] = ('snapshot', count - 1, 0, 'file-000000.bin')
+                    connection.executemany('INSERT INTO nodes VALUES(?,?,?,?)', rows)
                 return {'data': {'state': 'completed', 'revision_id': 'revision'}}
             if arguments[0] == '--max-nodes-per-scan':
                 return {'error': {'code': 'budget_exceeded'}}
@@ -48,6 +52,10 @@ class CoverageTests(unittest.TestCase):
     def test_completed_but_underpopulated_snapshot_is_refused(self):
         result, _ = self.exercise(2)
         self.assertEqual(result, 1, 'two nodes must not qualify as a 101-file load')
+
+    def test_equal_count_with_missing_and_duplicate_paths_is_refused(self):
+        result, _ = self.exercise(102, duplicate=True)
+        self.assertEqual(result, 1, 'equal counts must not hide a missing fixture file')
 
     def test_exact_files_and_root_coverage_is_accepted(self):
         result, _ = self.exercise(102)

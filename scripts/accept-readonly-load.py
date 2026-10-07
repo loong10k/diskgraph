@@ -33,6 +33,38 @@ def invoke(cli, data, *arguments, timeout=300, expected=0):
     return json.loads(lines[-1])
 
 
+
+def fixture_paths_complete(connection, snapshot_id, files):
+    """流式核对平面夹具的唯一根、父子关系及完整文件名集合。"""
+    roots = connection.execute(
+        "SELECT id FROM nodes WHERE snapshot_id=? AND parent_id IS NULL LIMIT 2",
+        (snapshot_id,),
+    ).fetchall()
+    if len(roots) != 1:
+        return False
+    root_id = roots[0][0]
+    # 每个文件仅占一个字节；避免为 200k 负载保留完整节点 JSON 或路径集合。
+    seen = bytearray(files)
+    matched = 0
+    for parent, name in connection.execute(
+        "SELECT parent_id, name FROM nodes WHERE snapshot_id=? AND parent_id IS NOT NULL",
+        (snapshot_id,),
+    ):
+        if parent != root_id or not isinstance(name, str):
+            return False
+        if not name.startswith("file-") or not name.endswith(".bin"):
+            return False
+        digits = name[5:-4]
+        if not digits.isascii() or not digits.isdecimal():
+            return False
+        index = int(digits)
+        if index >= files or name != f"file-{index:06}.bin" or seen[index]:
+            return False
+        seen[index] = 1
+        matched += 1
+    return matched == files
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bin-dir", required=True, type=pathlib.Path)
@@ -68,6 +100,8 @@ def main():
             indexed_nodes = connection.execute(
                 "SELECT COUNT(*) FROM nodes WHERE snapshot_id=?", (snapshot[0],),
             ).fetchone()[0]
+            paths_complete = fixture_paths_complete(connection, snapshot[0], args.files)
+        checks["exact_fixture_path_coverage"] = paths_complete
         checks["exact_fixture_node_coverage"] = indexed_nodes == args.files + 1
 
         def query(number):
