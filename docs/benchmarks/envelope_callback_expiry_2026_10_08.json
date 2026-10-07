@@ -1,0 +1,32 @@
+{
+  "parent_commit": "4c7168dea11a04b088f65aa06d067b8166a8bf69",
+  "source_sha256": "756ad8d941f077623e93bb7696f6d16bb3ba4d228f6ee9a2e8ed7f69e4cb5a4e",
+  "scope": "test-only direct envelope callback expiry coverage; no production implementation change",
+  "targeted": {
+    "single": {
+      "passed": 1,
+      "failed": 0
+    },
+    "terminal_group": {
+      "passed": 14,
+      "failed": 0
+    },
+    "clippy_all_targets": "passed",
+    "fmt": "passed"
+  },
+  "limits": [
+    "real wall expiry depends on callback admission before expiration",
+    "not hard callback preemption",
+    "no fresh full workspace or three-platform qualification"
+  ],
+  "logs": {
+    "single": {
+      "file": "envelope_callback_expiry_single_2026_10_08.log.gz",
+      "sha256": "2ba81827cf059fba7b51e290f1bbdb8435ef82a6ed0e53ff50d01e5c49541351"
+    },
+    "group": {
+      "file": "envelope_callback_expiry_group_2026_10_08.log.gz",
+      "sha256": "ca6d273545aa0fe189a8c0acbb25ee70c977d00c69198cfe3ec92fb8bfb0f0af"
+    }
+  }
+}

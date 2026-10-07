@@ -65,6 +65,63 @@ fn expired_relation_history_and_envelope_capability_is_denied() {
 }
 
 #[test]
+fn envelope_expiry_during_callback_stops_remaining_observations() {
+    struct Expiring {
+        expiry: u64,
+        calls: std::cell::Cell<u32>,
+    }
+    impl diskgraph_core::Authorizer for Expiring {
+        fn decide(
+            &self,
+            _: &PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.calls.set(self.calls.get() + 1);
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap();
+            assert!(
+                now.as_secs() < self.expiry,
+                "callback fixture entered too late"
+            );
+            std::thread::sleep(
+                std::time::Duration::from_secs(self.expiry).saturating_sub(now)
+                    + std::time::Duration::from_millis(20),
+            );
+            diskgraph_core::Decision::Allowed
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    let authorizer = Expiring {
+        expiry: std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 2,
+        calls: std::cell::Cell::new(0),
+    };
+    let deadline = query_deadline(QueryBudget::default()).unwrap();
+    let result = engine.finalize_revisions_read_until(
+        &[revision, revision],
+        &principal,
+        &authorizer,
+        deadline,
+    );
+    assert_eq!(authorizer.calls.get(), 1);
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired envelope callback: {result:?}"
+    );
+}
+
+#[test]
 fn relation_and_history_preserve_original_expiry_across_consumer_and_encoding() {
     struct Fixed {
         policy: diskgraph_core::PolicyAuthorizer,

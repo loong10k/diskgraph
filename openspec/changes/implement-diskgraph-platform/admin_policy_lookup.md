@@ -113,3 +113,5 @@ Generic reader终检锁隔离验证：有限重入旧RED→GREEN，终检callbac
 请求开始在控制锁外固定 expiry；准备、消费、每次终检回调前后、重获控制锁、授权与归属完成及返回均检查同一值。过期返回 PermissionDenied，不返回完整或 partial；None 保留可信本机兼容。消费或编码错误沿既有终检规则处理，锁/SQL自身错误保持原含义，不扩大原 deadline 或有限观察窗口。隔离合法快照覆盖预先到期、真实消费/编码跨到期及 getter 后续改为 None 的情况；不能用后续 getter 隐去首次 expiry。
 
 本机验收：当前终检组13/0、源码规范6/0、fmt/Clippy及独立APPROVE/CLEAR。完整串行Engine569/98/13，98失败块均含Unsupported，整体未通过。此前摘要记录预先到期envelope真实RED，但对应临时原始日志当前缺失，不能作为本轮可复查RED证据。当前日志与源码摘要保存于 `docs/benchmarks/history_fixed_expiry_2026_10_08.json`。实际到期夹具仍有调度敏感性，envelope回调跨到期直接测试待补；不声明原生三平台或生产门禁完成。
+
+Envelope回调跨到期直接补测：真实首次能力回调等待越过原expiry，断言只执行一次回调且精确PermissionDenied，后续侧未被观察。单项1/0、终检整组14/0、fmt/Clippy通过；仅测试扩展，不重复用旧完整回归证明681项最新全量通过。日志见 `docs/benchmarks/envelope_callback_expiry_2026_10_08.json`。调度敏感性与同步回调不可抢占限制保留，三平台门禁未关闭。
