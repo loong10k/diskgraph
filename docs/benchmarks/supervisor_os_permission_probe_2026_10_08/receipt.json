@@ -1,0 +1,59 @@
+{
+  "source_commit": "68835454fbfab749ff1cdee8bab8e93676a8cb29",
+  "scope": "OS permission separation only; not product wiring or production acceptance",
+  "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+  "platform": "Linux ARM64 Docker",
+  "directory_mode": "0700",
+  "file_mode": "0600",
+  "frontend_uid_gid": 1001,
+  "service_uid_gid": 1000,
+  "supplementary_groups": "cleared by setpriv",
+  "results": [
+    "frontend_reads_own_private=PASS",
+    "service_cannot_read_frontend_private=PASS",
+    "service_reads_own_private=PASS",
+    "frontend_cannot_read_service_private=PASS"
+  ],
+  "raw_log_sha256": "1fa533cc55539173454ba5b5b10fd1c62ddc667953089ee5fc1d8c10a72f6463",
+  "limits": [
+    "no Engine/CLI/MCP execution",
+    "auxiliary group OS case covered; no product auxiliary-group acquisition/binding or ACL parity proof",
+    "no macOS/Windows proof",
+    "does not validate proposed guardian/executor protections"
+  ],
+  "production_acceptance": false,
+  "superseded_six_case_probe": {
+    "log": "reproducible.log",
+    "log_sha256": "312df482aa20d3e80e6173795fcac68671aec427f858c01e73257a96e3487006",
+    "limits": "arbitrary command failure accepted; superseded by exact helper; not precise permission acceptance"
+  },
+  "exact_probe": {
+    "script": "scripts/probe_supervisor_os_permissions.sh",
+    "script_sha256": "7c8c58aa7eb815880e9ab4c5e27710f1ad5e07ee03cbdbbd29140135b1723f92",
+    "helper": "scripts/fixtures/supervisor_os_permission_probe.rs",
+    "helper_sha256": "90095a450181603eb536af5e305f8afb4a4b622d96343c4f8f38cf2b5a206424",
+    "command": "docker run --rm --network none -v <repo>/scripts:/fixture:ro -e DISKGRAPH_ISOLATED_PERMISSION_FIXTURE=1 rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97 sh /fixture/probe_supervisor_os_permissions.sh",
+    "log": "exact.log",
+    "log_sha256": "312df482aa20d3e80e6173795fcac68671aec427f858c01e73257a96e3487006",
+    "results": [
+      "frontend_reads_own_private=PASS",
+      "service_cannot_read_frontend_private=PASS",
+      "service_reads_own_private=PASS",
+      "frontend_cannot_read_service_private=PASS",
+      "uid_gid_without_supplementary_group_refused=PASS",
+      "original_supplementary_group_reads_group_private=PASS"
+    ],
+    "assertions": [
+      "actual effective UID/GID and supplementary groups match each invocation",
+      "positive file bytes equal synthetic",
+      "negative read raw OS errno equals EACCES(13)"
+    ],
+    "group_fixture": {
+      "owner_uid": 1002,
+      "group_gid": 2001,
+      "directory_mode": "0750",
+      "file_mode": "0640",
+      "principal_uid_gid": 1001
+    }
+  }
+}

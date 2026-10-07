@@ -1,0 +1,4 @@
+frontend_reads_own_private=PASS
+service_cannot_read_frontend_private=PASS
+service_reads_own_private=PASS
+frontend_cannot_read_service_private=PASS
