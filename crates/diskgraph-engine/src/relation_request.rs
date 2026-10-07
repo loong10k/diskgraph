@@ -73,27 +73,31 @@ impl Engine {
                 authorization_deadline,
             )
         };
-        Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
-        ownership()?;
+        let authorize = || {
+            let timely = Self::observe_terminal_relation(&control, authorizer, principal, &scope)?;
+            ownership()?;
+            if !timely {
+                return Err(EngineError::Business(BusinessError::BudgetExceeded));
+            }
+            Ok(())
+        };
+        authorize()?;
         let mut result = result?;
         let expired = Instant::now() >= deadline;
         let encoded = finish(&mut result, expired);
         // 本 Engine 的 guard 防止重入；独立连接仍可撤权，故编码后重新读实际 scope。
-        Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
-        ownership()?;
+        authorize()?;
         encoded?;
         if !expired && Instant::now() >= deadline {
             let encoded = finish(&mut result, true);
-            Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
-            ownership()?;
+            authorize()?;
             encoded?;
         }
         Ok(result)
     }
 
-    /// 在既有 guard 下复核真实 scope 及授权器返回之后的撤销状态。
-    /// 参数：control 为本 Engine guard，authorizer/principal/scope 为真实请求身份。
-    /// 返回：末段授权结果；独立连接在 Authorizer 期间撤 scope 同样拒绝。
+    /// 在调用方已有 SQL guard 下复核权限，不安装或清除另一个 deadline handler。
+    /// 参数：control 为既有 guard，其他参数为当前真实身份；返回：授权或原错误。
     pub(super) fn require_terminal_relation(
         control: &diskgraph_store::ControlStore,
         authorizer: &dyn Authorizer,
@@ -116,29 +120,85 @@ impl Engine {
         Ok(())
     }
 
+    /// 分阶段观察关系/历史末段权限，不得在既有 SQL deadline guard 中调用。
+    /// 参数：control 为 Engine mutex guard，authorizer/principal/scope 为真实请求身份。
+    /// 返回：授权允许是否及时；调用方须先复核其他侧和归属，再将迟到允许拒为预算失败。
+    pub(super) fn observe_terminal_relation(
+        control: &diskgraph_store::ControlStore,
+        authorizer: &dyn Authorizer,
+        principal: &PrincipalId,
+        scope: &ScopeId,
+    ) -> Result<bool, EngineError> {
+        let before_callback = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        control
+            .with_read_deadline(before_callback, |control| {
+                if control.scope_revoked(scope)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                Ok(())
+            })
+            .map_err(terminal_control_error)?;
+        // 不在控制库 progress guard 内调用宿主授权器，避免嵌套或其耗时续期允许结果。
+        let capability_deadline = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+        let after_callback = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        control
+            .with_read_deadline(after_callback, |control| {
+                Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::MetadataRead,
+                    scope,
+                )?;
+                if control.scope_revoked(scope)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                Ok(())
+            })
+            .map_err(terminal_control_error)?;
+        // 不在此提前返回预算错误；调用方还须观察其他侧撤权及新鲜 revision 隔离。
+        Ok(Instant::now() < capability_deadline)
+    }
+
     /// 完成全部能力回调后，再纯读取每一侧的持久授权。
     /// 参数：control 为现有 guard，authorizer/principal/scopes 为同请求真实身份与范围。
-    /// 返回：各侧均仍允许；后侧回调撤前侧权限不能由顺序检查遗漏。
+    /// 返回：各侧均允许时的及时性；真实拒权优先，迟到允许由调用方完成归属观察后拒绝。
     pub(super) fn require_terminal_relations(
         control: &diskgraph_store::ControlStore,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scopes: &[&ScopeId],
-    ) -> Result<(), EngineError> {
+    ) -> Result<bool, EngineError> {
+        let mut timely = true;
         for scope in scopes {
-            Self::require_terminal_relation(control, authorizer, principal, scope)?;
+            timely &= Self::observe_terminal_relation(control, authorizer, principal, scope)?;
         }
         // 不再次调用能力授权器，避免最后一个回调继续使前侧复检失效。
         // guard 不冻结独立 SQLite 连接；此处是协作式末段观察边界。
-        for scope in scopes {
-            if control.scope_revoked(scope)?
-                || control.live_permission(principal, &Permission::MetadataRead, scope)?
-                    == Some(false)
-            {
-                return Err(BusinessError::PermissionDenied.into());
-            }
-        }
-        Ok(())
+        let observation_deadline = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
+        control
+            .with_read_deadline(observation_deadline, |control| {
+                for scope in scopes {
+                    if control.scope_revoked(scope)?
+                        || control.live_permission(principal, &Permission::MetadataRead, scope)?
+                            == Some(false)
+                    {
+                        return Err(EngineError::Business(BusinessError::PermissionDenied));
+                    }
+                }
+                Ok(())
+            })
+            .map_err(terminal_control_error)?;
+        Ok(timely)
     }
 
     /// 适配器完成真实 envelope 编码后再复核 revision 权限与共同期限。
@@ -241,5 +301,19 @@ impl Engine {
             return Err(BusinessError::BudgetExceeded.into());
         }
         Ok(Instant::now() < deadline)
+    }
+}
+
+/// 将控制 SQL 的期限、中断及锁等待映射为预算拒绝，其他原错误不改写。
+fn terminal_control_error(error: EngineError) -> EngineError {
+    match error {
+        EngineError::Store(error)
+            if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                || error.is_busy()
+                || error.is_interrupted() =>
+        {
+            BusinessError::BudgetExceeded.into()
+        }
+        other => other,
     }
 }

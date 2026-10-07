@@ -110,6 +110,8 @@ mod relation_queries;
 mod relation_request;
 #[cfg(test)]
 mod relation_request_tests;
+#[cfg(test)]
+mod terminal_capability_tests;
 mod request_withdrawal_witness;
 mod revision_authorization;
 mod revision_comparison;

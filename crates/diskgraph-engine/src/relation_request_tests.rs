@@ -690,8 +690,9 @@ fn original_terminal_control_lock_is_refused_before_holder_release() {
     );
 }
 
-// 真实发布合法元数据夹具；不需要扫描部署，也不伪造任务或资源退休。
-fn published_authorization_fixture() -> (
+/// 真实发布合法元数据夹具；参数：无；返回：隔离数据库、原 Engine、主体、scope 和 revision。
+/// 不需要扫描部署，也不伪造任务或资源退休。
+pub(super) fn published_authorization_fixture() -> (
     tempfile::TempDir,
     crate::Engine,
     PrincipalId,

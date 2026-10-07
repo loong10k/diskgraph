@@ -285,3 +285,8 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 - **WHEN** a relation/tree or history query reaches terminal authorization while another thread holds the actual control store guard
 - **THEN** it refuses with budget_exceeded without waiting for that holder to release the guard, and returns no complete or partial payload without terminal authorization.
 - **AND** the original query deadline is not renewed; uncontended paths retain live grant, revocation, and actual revision ownership checks before and after encoding.
+
+#### Scenario: Late terminal capability still observes cross-side denial
+- **WHEN** 关系或历史末段能力回调在原 50ms 能力观察窗口之后返回允许
+- **THEN** 完成必要的各侧持久授权和新鲜 revision 归属观察后拒绝预算，不提交完整或部分编码结果。
+- **AND** 后侧回调撤销前侧、其他侧已撤权或回调期间 revision 被隔离时，实际拒权优先于迟到允许。控制 SQL 分阶段设置执行期限，能力回调不位于 SQL progress guard 内，不能嵌套覆盖已有 guard；同步回调不承诺硬抢占，原数据期限不得刷新。

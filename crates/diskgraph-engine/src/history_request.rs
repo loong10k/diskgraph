@@ -78,19 +78,25 @@ impl Engine {
                 authorization_deadline,
             )
         };
-        Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
-        ownerships()?;
+        let authorize = || {
+            let timely =
+                Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
+            ownerships()?;
+            if !timely {
+                return Err(EngineError::Business(BusinessError::BudgetExceeded));
+            }
+            Ok(())
+        };
+        authorize()?;
         let mut result = result?;
         let expired = Instant::now() >= deadline;
         let encoded = finish(&mut result, expired);
         // guard 只限制本 Engine 重入；独立连接依然能撤权，编码后重新读取。
-        Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
-        ownerships()?;
+        authorize()?;
         encoded?;
         if !expired && Instant::now() >= deadline {
             let encoded = finish(&mut result, true);
-            Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
-            ownerships()?;
+            authorize()?;
             encoded?;
         }
         Ok(result)
