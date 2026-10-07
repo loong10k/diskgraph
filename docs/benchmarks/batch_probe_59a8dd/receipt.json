@@ -1,0 +1,27 @@
+{
+  "base_sha": "59a8dd4",
+  "source_sha256": "54ae580844bf2da95a36c4ea08b14c36b5d38c128f3a81ef7885088776c8286e",
+  "profile": "release",
+  "fixture": "Isolated temporary synthetic SQLite table. No operator/home database opened.",
+  "red": {
+    "reported_rows": 200000,
+    "actual_rows": 199680,
+    "exit_code": 101
+  },
+  "green": {
+    "actual_rows_per_case": 200000,
+    "transactions": {
+      "512": 391,
+      "2048": 98,
+      "8192": 25,
+      "32768": 7
+    },
+    "exit_code": 0
+  },
+  "clippy": "exit 0",
+  "limitations": [
+    "Single synthetic sample per batch; cannot choose production batch default from this",
+    "Not actual store staging, scan or all-platform performance comparison",
+    "Operator database probes were not executed"
+  ]
+}

@@ -198,3 +198,9 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 ## Windows恢复后源版本核验原生失败
 
 09047fd 的Windows MSRV作业112608135249已结束failure，scope11/1。失败在恢复后的原目录重新打开时，报 scoped Git source changed before data access，并非之前retries==0；不得直接将其归为同一个已修问题。原作业Build、真实CLI/stdio/HTTP与HTTP停止/期限步骤通过，只属于该旧SHA。候选仅在夹具moved/restored根核验失败时报告已捕获Windows状态差异，不追加状态读取、不重试、不放宽Eq/身份/权限/期限。macOS scope13/0、Clippy通过；原生诊断待CI。完整日志与receipt见 `docs/benchmarks/windows_restored_source_09047/`，该问题保持未完成。
+
+## 批次写入测量真实性
+
+隔离性能探针必须实际写入全部报告行，包含不足一批的尾部；事务边界须随配置batch size变化，而非全部行共用一个事务。吞吐分母来自实际插入行，并查询数据库COUNT确认。该合成SQLite探针不是正式staging、文件扫描或全平台性能验收。
+
+测量修复RED确认原报告200000实际199680；GREEN每例200000真实持久行、512/2048/8192/32768批次分别391/98/25/7个实际事务。仅运行隔离合成SQLite release探针，未打开operator/home库；Clippy通过。日志见 `docs/benchmarks/batch_probe_59a8dd/`。单次样本不能据此更改生产默认批次，也不能勾选最终性能验收。

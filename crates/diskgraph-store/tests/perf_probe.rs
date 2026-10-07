@@ -58,7 +58,7 @@ fn decompose_load_revision_cost() {
 }
 
 #[test]
-#[ignore = "real-data probe: batch insert throughput at different batch sizes"]
+#[ignore = "isolated synthetic SQLite transaction throughput; not production staging acceptance"]
 fn batch_insert_throughput_by_size() {
     let directory = tempfile::TempDir::with_prefix("dg-perf-batch-").unwrap();
     let database = directory.path().join("probe.sqlite");
@@ -83,26 +83,40 @@ fn batch_insert_throughput_by_size() {
         let total = 200_000_usize;
         let started = Instant::now();
         let mut id = 0_i64;
-        let transaction = connection.unchecked_transaction().unwrap();
-        {
-            let mut statement = transaction
-                .prepare("INSERT INTO nodes VALUES ('s', ?1, ?2, ?3, ?4, ?5, ?6)")
-                .unwrap();
-            for _ in 0..(total / batch_size) {
-                for _ in 0..batch_size {
+        let mut transactions = 0_usize;
+        while (id as usize) < total {
+            let end = ((id as usize) + batch_size).min(total);
+            let transaction = connection.unchecked_transaction().unwrap();
+            {
+                let mut statement = transaction
+                    .prepare("INSERT INTO nodes VALUES ('s', ?1, ?2, ?3, ?4, ?5, ?6)")
+                    .unwrap();
+                while (id as usize) < end {
                     statement
                         .execute(rusqlite::params![id, 0, "k", "n", 4096_i64, sample])
                         .unwrap();
                     id += 1;
                 }
             }
+            transaction.commit().unwrap();
+            transactions += 1;
         }
-        transaction.commit().unwrap();
         let seconds = started.elapsed().as_secs_f64();
+        let stored: i64 = connection
+            .query_row("SELECT COUNT(*) FROM nodes", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(
+            id as usize, total,
+            "benchmark must actually insert every reported row"
+        );
+        assert_eq!(
+            stored, id,
+            "reported insert count must match persisted rows"
+        );
+        assert_eq!(transactions, total.div_ceil(batch_size));
         println!(
-            "PROBE batch={batch_size}: {:.0} rows/s ({} rows in {seconds:.2}s)",
-            total as f64 / seconds,
-            total
+            "PROBE batch={batch_size}: {:.0} rows/s ({stored} actual rows, {transactions} committed transactions in {seconds:.2}s)",
+            stored as f64 / seconds,
         );
         connection.execute("DELETE FROM nodes", []).unwrap();
     }
