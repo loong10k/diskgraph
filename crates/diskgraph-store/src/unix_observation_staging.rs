@@ -30,12 +30,14 @@ impl SqliteSnapshotStore {
                     "invalid Unix observation staging target".into(),
                 ));
             }
-            let raw = observation
-                .map(|o| o.encode().map_err(|e| StoreError::InvalidGraph(e.into())))
-                .transpose()?;
+            let encoded =
+                crate::staging_unix_observation_encoding::StagingUnixObservationEncoding::encode(
+                    observation,
+                    gap,
+                )?;
             tx.execute(
                 "INSERT INTO scan_staging_unix_observations VALUES(?1,?2,?3,?4,14)",
-                params![job, id, raw, gap.map(|g| g.code())],
+                params![job, id, encoded.raw, encoded.gap],
             )?;
             check()?;
         }

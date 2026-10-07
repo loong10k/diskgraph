@@ -242,10 +242,21 @@ impl Engine {
                     observed.0.as_ref(),
                     observed.1,
                 )?;
-                // Unix 编码受 Core 的 1024 字节上限约束，预留整个编码额度，不能绕过原扫描预算。
+                // 与旁表写入共用编码校验，按实际元数据字节计费，保留Core编码上限。
                 #[cfg(target_os = "linux")]
                 let cost = cost
-                    .checked_add(if unix_observed.is_some() { 1024 } else { 0 })
+                    .checked_add(
+                        unix_observed
+                            .as_ref()
+                            .map(|(observation, gap)| {
+                                diskgraph_store::staging_unix_observation_encoded_cost(
+                                    observation.as_ref(),
+                                    *gap,
+                                )
+                            })
+                            .transpose()?
+                            .unwrap_or(0),
+                    )
                     .ok_or(BusinessError::BudgetExceeded)?;
                 if let BudgetDecision::Stop(stop) = self.scan_budget.charge_node(&mut usage, cost) {
                     eprintln!(

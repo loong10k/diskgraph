@@ -330,3 +330,8 @@ pub use authorization_withdrawal_watch::AuthorizationWithdrawalWatch;
 mod withdrawal_publish_hook;
 #[cfg(all(test, windows))]
 mod withdrawal_publish_order_tests;
+
+mod staging_unix_observation_encoding;
+pub use staging_unix_observation_encoding::staging_unix_observation_encoded_cost;
+#[cfg(test)]
+mod unix_staging_cost_tests;

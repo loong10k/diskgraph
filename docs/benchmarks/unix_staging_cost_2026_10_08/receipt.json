@@ -1,0 +1,26 @@
+{
+  "source_state": "uncommitted overlay on 5ca2d40",
+  "source_sha256": {
+    "crates/diskgraph-store/src/staging_unix_observation_encoding.rs": "6612ff865e5815d59e478578cfd73db3da5762df41385da8436dcdd8eb3e03d8",
+    "crates/diskgraph-store/src/unix_staging_cost_tests.rs": "2827bbb1b39e45062b9aaee171c8a1fa3b13b7e7b8e92eac4b56734bd690420d",
+    "crates/diskgraph-store/src/unix_observation_staging.rs": "252d00d50176f9246459970b86219aab4e4c9d97cddb464dc646d7febe46e92f",
+    "crates/diskgraph-engine/src/scan_execution.rs": "a3ec23ea105a123cf9dc6447d172d17e2d1bf96d49cbe72e8b8babc38484bebd",
+    "crates/diskgraph-store/src/lib.rs": "93039cbfa2affba8fa41a6f697d87c001ab823f496a4efabbfd6b2ed8de034f6"
+  },
+  "red": {
+    "passed": 1,
+    "failed": 2
+  },
+  "linux": {
+    "engine_check": "passed",
+    "cost_tests": 4,
+    "writer_tests": 3,
+    "engine_budget_regressions": 3
+  },
+  "macos": {
+    "cost_tests": 4,
+    "writer_tests": 3,
+    "clippy": "passed"
+  },
+  "production_ready": false
+}
