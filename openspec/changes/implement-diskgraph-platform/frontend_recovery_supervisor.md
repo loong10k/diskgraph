@@ -154,3 +154,9 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 监督退休原实现使用短路返回：扫描 seal 错误会跳过探针 seal，扫描 drain Pending/错误会跳过探针 drain。现改为先分别尝试两池 seal 再汇总原错误，在取得唯一 Engine 后分别按同一原期限 drain 再汇总结果；任一未完成仍保留 ACTIVE/Recovery，不把另一池完成作为整体完成。多错误保持既有扫描优先的返回顺序，不改成成功。macOS 原绑定回归 9/0、Clippy all-targets 通过。新增 Windows 真实原扫描 slots Mutex poison 测试，要求原 poison 返回时探针池已拒绝新准入且原 Engine Arc 身份仍保留；本机未编译/运行该 Windows 分支，不声称原生 RED/GREEN，必须等待 CI。证据见 `docs/benchmarks/supervisor_independent_pools_943/`。
 
 追加 Windows Pending 公平推进回归：真实预留原扫描槽，真实结束同一探针会话并保留其恢复槽；在实际原探针清理检查点注入既有一次 panic，要求即使扫描 Pending 也观察到原 payload，两池与 ACTIVE 保留。按同一期限重试须先释放原探针槽，扫描槽仍占用；只有原扫描预留归还后才完成退休。该 Windows 测试尚未实际运行，当前仅 macOS 绑定回归 9/0及源码规范 6/0通过，不能据此报告 Windows 故障验收通过。
+
+## 旧 revision 回填的展示别名拒绝
+
+沿既有旧归属唯一匹配合同补充验收：仅注册一个原始非 UTF-8/非 Unicode 原生根时，不能凭与旧 ResourceLocator 相同的显示投影绑定 revision；旧数据继续未绑定并要求重新索引。正常无损 Unicode 路径仍允许唯一回填。注册表同时存在 Unicode 根和有损别名时，不能排除有损候选后把另一候选视为唯一；整个别名组保持未绑定。URI 同样核对原始 UTF-8 与显示一致。该补充不覆盖已绑定归属、不更改可信内部 store API。隔离数据库回归已确认目标 RED 为 2 通过/1 失败（唯一非 UTF-8 显示别名错误获得归属）。
+
+回填候选修复在 macOS 隔离数据库 GREEN 3/0、源码规范 6/0、Clippy all-targets 通过；新增 Windows unpaired UTF-16 别名回归待原生 CI，不能据本机通过宣称 Windows 完成。证据见 `docs/benchmarks/legacy_backfill_identity_3cc/`。已存在的 ownership 按原合同不自动覆盖；历史错误归属的识别/重新索引仍需要单独闭环，本次不能据未来回填修复宣布历史数据授权已验收。

@@ -1,0 +1,33 @@
+{
+  "base_commit": "3ccf3cd85fcec404d809ccae7616521d817fde25",
+  "platform": "macOS",
+  "red": {
+    "passed": 2,
+    "failed": 1,
+    "target_failure": "single_non_utf8_display_alias_must_not_claim_legacy_revision"
+  },
+  "green": {
+    "passed": 3,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "clippy": "engine all targets passed",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/engine_startup.rs": "d6cd2695e9c87df2aca9cfea78fb6e4292cf4fc832462239637f72a2e6157c20",
+    "crates/diskgraph-engine/tests/legacy_backfill_identity.rs": "c1b77010c5272d0334381663add1b682d2ec947287b4b343e6f3e75d8e9d9b4d"
+  },
+  "logs_sha256": {
+    "red.log": "2694691ca41de2c00936d31a1ac3e7d2101fe919d7f8c329d3d02dd0bd45c507",
+    "green.log": "9b741f81dc00734954dc1f1a6f52c6558f523e53c9fe62cc0bb08b7b8a6d36fb",
+    "source_layout.log": "af218d07e7ee89a6e54fcac20b964fb08ad6139935d6bcbcf3017edb84503fbe"
+  },
+  "limitations": [
+    "Windows unpaired UTF-16 native regression pending CI",
+    "Only future unbound revision backfill is changed; existing ownership is not overwritten",
+    "Old already-misbound records require separate identification and reindexing",
+    "No native supervisor startup or finite frontend exit proof"
+  ]
+}

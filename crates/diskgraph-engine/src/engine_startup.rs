@@ -3,7 +3,7 @@
 use crate::{Engine, EngineConfig, EngineError};
 use diskgraph_core::{ResourceLocator, ServerId};
 use diskgraph_store::{ControlStore, SqliteSnapshotStore};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Mutex;
 
@@ -31,23 +31,43 @@ impl Engine {
         )?;
         let mut control = ControlStore::open(&config.data_dir.join("diskgraph-control.sqlite"))?;
         let server_id = control.ensure_server()?;
-        let roots = control
+        let mut unverifiable_roots = HashSet::new();
+        let mut roots = control
             .list_scopes()?
             .into_iter()
             .map(|scope| {
-                (
-                    scope.scope_id.as_str().to_owned(),
-                    match scope.root.kind {
-                        diskgraph_core::LocatorKind::NativePath => {
-                            ResourceLocator::NativePath(scope.root.display().to_owned())
-                        }
-                        diskgraph_core::LocatorKind::DocumentUri => {
-                            ResourceLocator::DocumentUri(scope.root.display().to_owned())
-                        }
-                    },
-                )
+                let root = match scope.root.kind {
+                    diskgraph_core::LocatorKind::NativePath => {
+                        ResourceLocator::NativePath(scope.root.display().to_owned())
+                    }
+                    diskgraph_core::LocatorKind::DocumentUri => {
+                        ResourceLocator::DocumentUri(scope.root.display().to_owned())
+                    }
+                };
+                // 旧快照仅有字符串：先证明注册根的原始身份能无损表示为该字符串。
+                // 非 UTF-8、外平台不可解码或损坏定位不能凭显示别名获得旧 revision。
+                let lossless = match scope.root.kind {
+                    diskgraph_core::LocatorKind::NativePath => scope
+                        .root
+                        .to_native_path()
+                        .ok()
+                        .and_then(|path| path.to_str().map(str::to_owned))
+                        .is_some_and(|path| path == scope.root.display()),
+                    diskgraph_core::LocatorKind::DocumentUri => scope
+                        .root
+                        .raw_bytes()
+                        .ok()
+                        .and_then(|bytes| String::from_utf8(bytes).ok())
+                        .is_some_and(|uri| uri == scope.root.display()),
+                };
+                if !lossless {
+                    unverifiable_roots.insert(root.clone());
+                }
+                (scope.scope_id.as_str().to_owned(), root)
             })
             .collect::<Vec<_>>();
+        // 拒绝整个有损别名组，不能删除冲突候选后人为制造“唯一匹配”。
+        roots.retain(|(_, root)| !unverifiable_roots.contains(root));
         graph.backfill_revision_ownership(server_id.as_str(), &roots)?;
         Ok(Self {
             data_dir: config.data_dir,
