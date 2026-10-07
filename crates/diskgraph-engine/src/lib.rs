@@ -3,6 +3,8 @@
 #[cfg(all(test, any(target_os = "linux", target_os = "macos", windows)))]
 mod native_scan_engine_fixture;
 
+#[cfg(test)]
+mod admin_policy_lookup_tests;
 mod collectors;
 mod compare_row;
 mod comparison_report;

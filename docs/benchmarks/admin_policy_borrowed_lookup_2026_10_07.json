@@ -1,0 +1,21 @@
+{
+  "candidate_p50_ns": 2604917,
+  "candidate_p95_ns": 2994625,
+  "database": "isolated in-memory",
+  "full_type_validation": true,
+  "grants": 20001,
+  "legacy_p50_ns": 4365250,
+  "legacy_p95_ns": 5073709,
+  "pairs": 40,
+  "warm_cache": true,
+  "head": "0e519820824369a93b29ccc0b0304165437e58a9",
+  "dirty_candidate": true,
+  "engine_integrated": true,
+  "percentile": "nearest rank; indices19/37 for40",
+  "utf8_validation": true,
+  "source_hashes": {
+    "crates/diskgraph-store/src/policy_permission.rs": "0137f4fa9329be362ec8cf43ae299920fff23b4d8fb4d5f2a09373c19e3cc4fd",
+    "crates/diskgraph-store/src/policy_permission_tests.rs": "f28efdf33124e50728047591bf68e17d1ccae379234521cec1684e0594d2cf8b"
+  },
+  "production_acceptance": false
+}

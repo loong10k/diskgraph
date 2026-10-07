@@ -455,11 +455,7 @@ impl Engine {
             diskgraph_core::Decision::Allowed => {
                 // 请求能力只是上限；持久策略存在时，始终与当前数据库授权取交集。
                 let denied = if scope == &admin_scope() {
-                    control.policy_state()?.is_some()
-                        && !matches!(
-                            control.authorizer()?.decide(principal, permission, scope),
-                            diskgraph_core::Decision::Allowed
-                        )
+                    control.policy_permission(principal, permission, scope)? == Some(false)
                 } else if control.policy_state()?.is_some() {
                     control.live_permission(principal, permission, scope)? == Some(false)
                 } else {

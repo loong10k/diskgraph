@@ -1,0 +1,21 @@
+{
+  "candidate_p50_ns": 1650458,
+  "candidate_p95_ns": 3440292,
+  "database": "isolated in-memory",
+  "full_type_validation": true,
+  "grants": 20001,
+  "legacy_p50_ns": 4514958,
+  "legacy_p95_ns": 8539083,
+  "pairs": 40,
+  "warm_cache": true,
+  "head": "0e519820824369a93b29ccc0b0304165437e58a9",
+  "dirty_candidate": true,
+  "engine_integrated": false,
+  "source_hashes": {
+    "crates/diskgraph-store/src/policy_permission.rs": "2b08460d7f7ce5e164432a799ce8022ff7095ac3b0af1b17bc369eb163ad0ed9",
+    "crates/diskgraph-store/src/policy_permission_tests.rs": "2c9d3c6ff48af0168e562b09b0988f392876ded7607266d59aab4b0fddf3a1f1"
+  },
+  "production_acceptance": false,
+  "status": "rejected",
+  "reason": "typeof-only validation misses invalid UTF-8 TEXT; original reported percentiles used indices20/38 rather than nearest rank19/37"
+}
