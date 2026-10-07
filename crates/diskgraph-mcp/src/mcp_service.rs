@@ -174,6 +174,22 @@ impl McpService {
         )
     }
 
+    /// 消费原宿主服务并交给实际退休 owner；不会复制扫描恢复责任或清除槽。
+    /// 参数：scan/slot 为同次启动的原恢复责任和 ACTIVE 槽，runner 须已停止并 join。
+    /// 返回：保留原 Engine 的完整材料；绑定验证由 SupervisorOwner 执行，非远程工具入口。
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    pub fn into_supervisor_parts(
+        self,
+        scan: Option<ScanWorkerRecovery>,
+        slot: diskgraph_engine::recovery_slot::ActiveSlot,
+    ) -> diskgraph_engine::SupervisorParts {
+        diskgraph_engine::SupervisorParts {
+            engine: self.engine,
+            scan,
+            slot,
+        }
+    }
+
     /// 读取服务启用的工具集合。
     /// 参数：无。返回：当前工具 profile。
     pub fn profile(&self) -> ToolProfile {

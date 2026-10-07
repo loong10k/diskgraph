@@ -131,3 +131,10 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **THEN** 原启动期限内先取得当前 OS 用户固定持久容量域的四槽之一；域不由 HOME、请求或数据目录选择。Busy 返回 resource_exhausted，异常 RESERVED/ACTIVE 返回 recovery_unconfirmed，损坏记录返回 needs_attention，拒绝时数据库不得出生，也不得修复记录或权限。
 - **AND** 构造只初始化数据库、未启动 runner 或向消费者提供 Engine；构造失败仅允许在原期限内确认原出生前预留取消。消费者开始前同步 ACTIVE；命令结束后原 SupervisorOwner 拥有同一 Engine、Recovery 和槽，实际资源完成及 Engine 退休后才同步 CLEAN，保留原业务错误和 panic。
 - **AND** 本阶段不代替实际监督进程出生、私有 IPC、有限前台退出、MCP 全入口共享容量或 Windows 原生容量域验收；不声明抵御任意恶意同 UID 进程。
+
+### Scenario: Managed Unix MCP admission and original retirement
+
+- **WHEN** Linux/macOS MCP binary opens a trusted scanner host over stdio, HTTP or legacy SSE
+- **THEN** the fixed current-user four-slot domain reserves capacity before any database bootstrap; Busy, Unconfirmed and InvalidRecord keep the existing EngineError classifications. Constructor failure aborts only that original prebirth reservation within the original startup deadline, retaining primary and cleanup errors.
+- **AND** ACTIVE is durable before the original runner starts; local mode retains local bootstrap, while remote mode never grants local administration. After protocol completion/unwind and actual runner join, the original service Engine, scan Recovery and slot retire together; CLEAN requires actual original retirement.
+- **AND** this stage does not claim independent supervisor birth, bounded foreground exit or Windows qualification.

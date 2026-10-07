@@ -35,3 +35,9 @@ Linux/macOS 的受管理 CLI 入口已接到固定当前 OS 用户目录：通�
 单元测试的容量目录显式隔离，真实镜像验证仍走同一产品路径；不让并行测试占用用户产品全局域。此测试注入只存在 cfg(test)，没有生产参数或远程输入。当前进程仍同步等待原退休，不具备有限前台退出；MCP、Windows及真实监督出生／IPC尚未接入，父门禁保持打开。
 
 最新分类回归先确认损坏槽错误被错误映射而失败，再复用 EngineError::from(SlotError) 后通过：损坏记录 needs_attention，异常 RESERVED/ACTIVE recovery_unconfirmed；二者均在数据库出生前拒绝并保留原记录。目录夹具通过 getpwuid_r 的真实 home 创建隔离子目录并从根逐组件打开，当前 macOS 默认 home 正控3/0；不创建产品容量域，也不将本机结果推广为所有链接 home 的兼容性证明。
+
+## Unix MCP 实际入口接入
+
+MCP binary 在镜像与传输安全校验后、数据库/bootstrap之前预留同一当前用户固定四槽域；同一原启动deadline覆盖准入和构造，迟到时不交出服务启动runner。构造失败仅尝试原deadline取消原RESERVED，保留主错误与清理错误；成功ACTIVE后启动原runner。协议catch外保留同一service clone，协议service实际释放和runner实际join后，消费原clone，将原Engine/Recovery/ACTIVE交SupervisorOwner，原引用或资源Pending时不能CLEAN。stdio本地管理引导与HTTP/SSE远程默认拒绝保持；Unix启动业务错误按原分类exit_code返回。
+
+实际准入先后顺序和期限耗尽回归均在缺检查版本失败，最终MCP binary测试7/0，覆盖真实ACTIVE四槽拒绝、本地/远程授权、构造失败原取消以及原service clone阻止退休。普通三字节镜像仅为构造生命周期夹具，不执行原生child；不声称真实产品socket或scanner资格。all-target Clippy通过。Windows路径保留，独立监督出生、私有IPC及有限公开EOF仍未完成，不勾选父任务。

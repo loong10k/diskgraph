@@ -53,3 +53,33 @@ fn round(
 
 #[cfg(test)]
 mod tests;
+
+/// 退休同次 MCP 启动的全部原材料；Pending 或错误均保留原 owner。
+/// 参数：parts 为 runner join 后的原 Engine/Recovery/ACTIVE。返回：实际完成且 CLEAN 已同步。
+/// 当前仍是无限兼容等待，不声明有限前台退出。
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub(crate) fn finish_original(mut parts: diskgraph_engine::SupervisorParts) {
+    let mut owner = loop {
+        match diskgraph_engine::SupervisorOwner::bind(
+            parts,
+            std::time::Instant::now() + Duration::from_millis(50),
+        ) {
+            Ok(owner) => break owner,
+            Err(original) => parts = original,
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    };
+    let mut reported = false;
+    loop {
+        match owner.poll_retirement(std::time::Instant::now() + Duration::from_millis(50)) {
+            Ok(true) => return,
+            Ok(false) => {}
+            Err(_) if !reported => {
+                eprintln!("native recovery incomplete; original MCP owner retains responsibility");
+                reported = true;
+            }
+            Err(_) => {}
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}

@@ -6,9 +6,13 @@ use std::io::{self, BufReader, Read};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+use diskgraph_mcp::McpService;
 use diskgraph_mcp::protocol::ToolProfile;
-use diskgraph_mcp::{McpConfig, McpService, ScanWorkerSettings, http, serve_stdio};
+use diskgraph_mcp::{McpConfig, ScanWorkerSettings, http, serve_stdio};
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod managed_service_host;
 mod scan_worker_shutdown;
 
 #[cfg(windows)]
@@ -180,7 +184,7 @@ fn main() -> ExitCode {
     #[cfg(windows)]
     let opened =
         McpService::open_with_process_hosts(config, worker_host, probe_host, transport == "stdio");
-    #[cfg(not(windows))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
     let opened = match (transport == "stdio", worker_host) {
         (true, Some(host)) => McpService::open_with_scan_worker(config, host)
             .map(|(service, recovery)| (service, Some(recovery))),
@@ -189,6 +193,27 @@ fn main() -> ExitCode {
         (true, None) => McpService::open(config).map(|service| (service, None)),
         (false, None) => McpService::open_remote(config).map(|service| (service, None)),
     };
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let opened = managed_service_host::ManagedServiceHost::open(
+        config,
+        worker_host,
+        transport == "stdio",
+        worker_deadline,
+    );
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let (mut service, recovery, slot) = match opened {
+        Ok(host) => (host.service, host.recovery, host.slot),
+        Err(error) => {
+            eprintln!("failed to open the DiskGraph service: {error}");
+            return match error.primary() {
+                diskgraph_engine::EngineError::Business(business) => {
+                    ExitCode::from(business.exit_code())
+                }
+                _ => ExitCode::from(10),
+            };
+        }
+    };
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     let (mut service, recovery) = match opened {
         Ok(opened) => opened,
         Err(error) => {
@@ -196,6 +221,9 @@ fn main() -> ExitCode {
             return ExitCode::from(10);
         }
     };
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let retirement_service = slot.as_ref().map(|_| service.clone());
 
     // Jobs requested over any transport progress without their connection;
     // the runner outlives every socket (MCP-05).
@@ -267,6 +295,15 @@ fn main() -> ExitCode {
     }));
     // 先停止调度并 join runner，才能处置仍保留的原 OS owner。
     let runner_outcome = job_runner.stop_and_join();
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    match (retirement_service, slot) {
+        (Some(original), Some(slot)) => {
+            scan_worker_shutdown::finish_original(original.into_supervisor_parts(recovery, slot))
+        }
+        (None, None) => scan_worker_shutdown::finish(recovery.as_ref()),
+        _ => unreachable!("original service and slot are created together"),
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     scan_worker_shutdown::finish(
         recovery.as_ref(),
         #[cfg(windows)]
