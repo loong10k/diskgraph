@@ -1,0 +1,25 @@
+{
+  "scope": "generic trusted revision reader terminal fixed expiry",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/revision_authorization.rs": "1ff0f9bb20293a462ac012db9d590175abba89ef7ea81cbbbbf44712b4fa729b",
+    "crates/diskgraph-engine/src/admin_policy_lookup_tests.rs": "3a6e80c1b53a93f495aa707935205f23baf7e7bf055d55518398b8dc503690ee"
+  },
+  "red": "consumer completes after expiry within original deadline; old implementation returns Ok",
+  "green": {
+    "permission_tests": 8,
+    "source_layout": 6,
+    "full_engine": {
+      "passed": 553,
+      "failed": 98,
+      "ignored": 13,
+      "failures": "Unsupported"
+    },
+    "fmt": "pass",
+    "clippy": "pass"
+  },
+  "review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "platform_acceptance": false
+}

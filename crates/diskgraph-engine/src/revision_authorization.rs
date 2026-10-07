@@ -224,17 +224,21 @@ impl Engine {
         drop(control);
         let snapshot_id = reader.revision(revision_id)?.snapshot_id;
         let result = consumer(&reader, &snapshot_id, deadline)?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         // 撤销与单项权限在同一控制库锁下复核，可信兼容模式同样不能越过撤销。
         let control = self.control_until(deadline)?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         withdrawal.check(&control)?;
         let authorization =
             Self::observe_terminal_relation(&control, authorizer, principal, &scope);
         withdrawal.check(&control)?;
         let timely = authorization?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         self.require_terminal_revision_ownership(revision_id, &scope, &control, deadline)?;
         if !timely || std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         Ok(result)
     }
 

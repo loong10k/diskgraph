@@ -55,3 +55,9 @@ authorize_revision_owner_until 与 require_reader_capability_until 复用固定�
 回归 initial_revision_authorization_rejects_expired_allowed_capability 使用已发布的隔离 metadata 夹具和明确到期但返回 Allowed 的 Authorizer：旧 owner 路径实际返回 Ok 为 RED；修复后 owner 和 trusted reader 两条路径均 PermissionDenied。权限组本机 5/0；尚未完成本批完整回归、双路审查及三平台 CI，不标记平台验收完成。
 
 本批追加验证：真实能力回调跨到期时间的 owner/reader 两路径拒权通过；公开 reader 的 expiry getter 有限控制锁重入通过。完整 Engine 552/98/13，98 个失败均 Unsupported，不视为平台通过；Clippy 通过。末段 expiry 全覆盖及 decide 持 mutex 仍未闭环。
+
+## Trusted revision reader 终态固定 expiry
+
+with_authorized_revision_reader 在 consumer 成功返回后、终检控制锁取得后、终检能力/实时授权成功后及归属检查完成后复核初始锁外捕获的同一 expiry。到期不提交结果，None 兼容不变，原 consumer/SQL/锁错误保留。真实 consumer 在 expiry 前开始、expiry 后结束且原执行预算仍有效的回归，旧代码 Ok 为 RED，要求 PermissionDenied。此项不关闭 display reader 或其他 reader 的全部终检差距，不保证控制锁及同步回调硬抢占。
+
+终检 expiry 本机验证：旧 Ok 实际 RED；权限组8/0、完整Engine553/98/13（98项均Unsupported），source_layout6/0、fmt/Clippy与双路APPROVE/CLEAR。仍不构成平台通过。

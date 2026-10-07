@@ -360,3 +360,75 @@ fn revision_reader_expiry_getter_can_reenter_control() {
         "expiry getter ran under control lock"
     );
 }
+
+#[test]
+fn revision_reader_refuses_token_expired_during_consumer() {
+    struct Fixed {
+        policy: diskgraph_core::PolicyAuthorizer,
+        expiry: u64,
+    }
+    impl diskgraph_core::Authorizer for Fixed {
+        fn decide(
+            &self,
+            p: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.policy.decide(p, permission, scope)
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    // 留足原始一秒执行预算：在墙钟秒的后半段开始，消费只等待下一个固定秒边界。
+    let mut now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap();
+    if now.subsec_millis() < 500 {
+        std::thread::sleep(std::time::Duration::from_millis(
+            500 - u64::from(now.subsec_millis()),
+        ));
+        now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap();
+    }
+    let authorizer = Fixed {
+        policy: engine.policy_authorizer().unwrap(),
+        expiry: now.as_secs() + 1,
+    };
+    let entered = std::cell::Cell::new(false);
+    let result = engine.with_authorized_revision_reader(
+        revision,
+        &principal,
+        &authorizer,
+        1000,
+        |_, _, deadline| {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap();
+            assert!(
+                now.as_secs() < authorizer.expiry,
+                "consumer must start before expiry"
+            );
+            entered.set(true);
+            std::thread::sleep(
+                std::time::Duration::from_secs(authorizer.expiry).saturating_sub(now)
+                    + std::time::Duration::from_millis(20),
+            );
+            assert!(
+                std::time::Instant::now() < deadline,
+                "fixture must retain original query budget"
+            );
+            Ok(())
+        },
+    );
+    assert!(entered.get());
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired terminal authorization: {result:?}"
+    );
+}
