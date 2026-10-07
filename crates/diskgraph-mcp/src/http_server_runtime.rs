@@ -34,6 +34,11 @@ impl HttpServerRuntime {
             thread: Some(thread),
         })
     }
+    /// 检查原 accept 线程是否返回，不以此替代连接与线程的实际 join。
+    /// 参数：无；返回：原线程已结束或已被消费时为 true。
+    pub fn is_finished(&self) -> bool {
+        self.thread.as_ref().is_none_or(JoinHandle::is_finished)
+    }
     /// 参数：无；返回：仍登记的原连接数，仅诊断，不能替代实际 join。
     pub fn active_connections(&self) -> usize {
         self.state.active()

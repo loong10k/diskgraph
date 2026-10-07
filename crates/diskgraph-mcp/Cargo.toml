@@ -34,3 +34,6 @@ syn = { version = "2.0.119", features = ["full", "visit"] }
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
 diskgraph-testkit.workspace = true
 tempfile = "3"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

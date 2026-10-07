@@ -14,6 +14,8 @@ use diskgraph_mcp::{McpConfig, ScanWorkerSettings, http, serve_stdio};
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod managed_service_host;
 mod scan_worker_shutdown;
+#[cfg(unix)]
+mod termination_signal;
 
 #[cfg(windows)]
 mod auth_key_acl;
@@ -146,6 +148,19 @@ fn main() -> ExitCode {
         trusted_proxies,
     };
 
+    #[cfg(unix)]
+    let termination = if transport != "stdio" {
+        match termination_signal::TerminationSignal::install() {
+            Ok(guard) => Some(guard),
+            Err(error) => {
+                eprintln!("cannot install HTTP shutdown signals: {error}");
+                return ExitCode::from(10);
+            }
+        }
+    } else {
+        None
+    };
+
     // 部署材料来自本地环境，须在创建数据库前完整拒绝部分/非法配置。
     let worker_deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
     let worker_host = match diskgraph_engine::ScanWorkerRuntimeBudget::new(
@@ -167,6 +182,14 @@ fn main() -> ExitCode {
             return ExitCode::from(10);
         }
     };
+    #[cfg(unix)]
+    if termination
+        .as_ref()
+        .is_some_and(termination_signal::TerminationSignal::requested)
+    {
+        // 尚未创建服务或恢复责任；停止请求不再进入数据库/bootstrap。
+        return ExitCode::SUCCESS;
+    }
     let config = McpConfig {
         data_dir,
         profile,
@@ -223,6 +246,19 @@ fn main() -> ExitCode {
     };
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
+    if termination
+        .as_ref()
+        .is_some_and(termination_signal::TerminationSignal::requested)
+    {
+        // 构造期间到达的终止请求仍消费同一原材料；不启动 runner，不提前丢掉 ACTIVE。
+        if let Some(slot) = slot {
+            scan_worker_shutdown::finish_original(service.into_supervisor_parts(recovery, slot));
+        } else {
+            scan_worker_shutdown::finish(recovery.as_ref());
+        }
+        return ExitCode::SUCCESS;
+    }
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     let retirement_service = slot.as_ref().map(|_| service.clone());
 
     // Jobs requested over any transport progress without their connection;
@@ -268,6 +304,34 @@ fn main() -> ExitCode {
             } else {
                 http::ServerConfig::modern(limits, security)
             };
+            #[cfg(unix)]
+            return match diskgraph_mcp::HttpServerRuntime::start(
+                service,
+                listener,
+                config,
+                io::stderr(),
+            ) {
+                Ok(runtime) => {
+                    while !runtime.is_finished()
+                        && !termination.as_ref().expect("HTTP signal guard").requested()
+                    {
+                        std::thread::sleep(std::time::Duration::from_millis(10));
+                    }
+                    match runtime.stop_and_join() {
+                        Ok(Ok(_)) => ExitCode::SUCCESS,
+                        Ok(Err(error)) => {
+                            eprintln!("http loop failed: {error}");
+                            ExitCode::from(10)
+                        }
+                        Err(payload) => std::panic::resume_unwind(payload),
+                    }
+                }
+                Err(error) => {
+                    eprintln!("http startup failed: {error}");
+                    ExitCode::from(10)
+                }
+            };
+            #[cfg(not(unix))]
             return match http::serve_config(service, listener, config, io::stderr()) {
                 Ok(_) => ExitCode::from(0),
                 Err(error) => {

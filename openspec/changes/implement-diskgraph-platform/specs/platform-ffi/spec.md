@@ -138,3 +138,10 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **THEN** the fixed current-user four-slot domain reserves capacity before any database bootstrap; Busy, Unconfirmed and InvalidRecord keep the existing EngineError classifications. Constructor failure aborts only that original prebirth reservation within the original startup deadline, retaining primary and cleanup errors.
 - **AND** ACTIVE is durable before the original runner starts; local mode retains local bootstrap, while remote mode never grants local administration. After protocol completion/unwind and actual runner join, the original service Engine, scan Recovery and slot retire together; CLEAN requires actual original retirement.
 - **AND** this stage does not claim independent supervisor birth, bounded foreground exit or Windows qualification.
+
+### Scenario: Normal Unix HTTP termination retains original cleanup
+
+- **WHEN** a Unix MCP HTTP/legacy-SSE binary receives SIGTERM or SIGINT during normal service operation
+- **THEN** its signal handler only records a shutdown request; the original HTTP runtime stops accepting, closes original connections and actually joins, followed by the original job runner and existing Engine/Recovery retirement.
+- **AND** only actual retirement can write CLEAN. SIGKILL or abnormal death still leaves ACTIVE unconfirmed; no automatic record repair or expanded capacity is allowed.
+- **AND** this does not prove finite foreground exit under Pending native recovery or Windows termination behavior.

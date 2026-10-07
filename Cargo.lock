@@ -660,6 +660,7 @@ dependencies = [
  "diskgraph-store",
  "diskgraph-testkit",
  "hmac",
+ "libc",
  "rusqlite",
  "serde",
  "serde_json",
