@@ -167,6 +167,12 @@ fn cancellation_at_gate_handoff_cannot_be_skipped_by_successful_acquisition() {
 
 #[test]
 fn raw_pipe_panic_closes_original_descriptors_and_poison_does_not_break_next_birth() {
+    const MARKER: &str = "DISKGRAPH_RAW_PIPE_ISOLATED_TEST";
+    if std::env::var_os(MARKER).is_none() {
+        run_isolated_pipe_panic_test(MARKER);
+        return;
+    }
+    // 原数字 FD 的 EBADF 只在独立单测试进程中核验；并行测试可复用已关闭的数字。
     let captured = Arc::new(Mutex::new(None));
     let observer = Arc::clone(&captured);
     set_raw_pipe_hook(Box::new(move |fds| {
@@ -281,4 +287,60 @@ fn contended_admission_rejection_does_not_advance_lifecycle_callback() {
     });
     thread.join().unwrap();
     drop(held);
+}
+
+// 子进程保持原 panic 清理与后续出生断言，不用宽松身份判断替代真实关闭。
+fn run_isolated_pipe_panic_test(marker: &str) {
+    struct OriginalChild(std::process::Child);
+    impl Drop for OriginalChild {
+        fn drop(&mut self) {
+            if !matches!(self.0.try_wait(), Ok(Some(_))) {
+                let _ = self.0.kill();
+                let _ = self.0.wait();
+            }
+        }
+    }
+    let diagnostic = tempfile::tempfile().unwrap();
+    let mut child = OriginalChild(
+        Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "native_child::native_birth_gate_tests::raw_pipe_panic_closes_original_descriptors_and_poison_does_not_break_next_birth",
+                "--test-threads=1",
+                "--nocapture",
+            ])
+            .env(marker, "1")
+            .stdin(std::process::Stdio::null())
+            .stdout(diagnostic.try_clone().unwrap())
+            .stderr(diagnostic.try_clone().unwrap())
+            .spawn().unwrap(),
+    );
+    let deadline = std::time::Instant::now() + Duration::from_secs(5);
+    let status = loop {
+        if let Some(status) = child.0.try_wait().unwrap() {
+            break status;
+        }
+        assert!(
+            std::time::Instant::now() < deadline,
+            "isolated pipe test timed out"
+        );
+        std::thread::sleep(Duration::from_millis(20));
+    };
+    // 限制失败诊断读取；父进程不依赖公共管道 EOF 来等待子进程。
+    use std::io::{Read, Seek};
+    let mut diagnostic = diagnostic;
+    diagnostic.rewind().unwrap();
+    let mut message = String::new();
+    diagnostic
+        .take(16 * 1024)
+        .read_to_string(&mut message)
+        .unwrap();
+    assert!(
+        status.success(),
+        "isolated pipe panic regression failed: {message}"
+    );
+    assert!(
+        message.contains("test result: ok. 1 passed; 0 failed;"),
+        "isolated child did not execute exactly one successful regression: {message}"
+    );
 }

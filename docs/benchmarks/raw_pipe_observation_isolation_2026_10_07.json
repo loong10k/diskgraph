@@ -1,0 +1,15 @@
+{
+  "scope": "test-only original raw pipe panic self-exec isolation",
+  "full_engine": {
+    "passed": 534,
+    "failed": 98,
+    "ignored": 13,
+    "failure_kind": "Business(Unsupported)"
+  },
+  "full_log_sha256": "c0bf3737333198e1b4fbe7490283ddaabcde0c6e581a54cf9f859ca36749ce16",
+  "birth_gate_tests": 8,
+  "source_layout_tests": 6,
+  "final_exact_test": 1,
+  "production_code_changed": false,
+  "production_root_cause_confirmed": false
+}
