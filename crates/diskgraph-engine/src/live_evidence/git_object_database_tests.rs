@@ -478,7 +478,8 @@ fn native_non_utf8_loose_names_are_not_lossily_normalized() {
     use std::os::unix::ffi::OsStringExt;
     let fixture = GitIsolationFixture::new("sha1");
     let fanout = fixture.path().join(".git/objects/ff");
-    std::fs::create_dir(&fanout).unwrap();
+    // 初始提交的对象哈希可能已使用 ff 分桶；保留既有对象，再注入非法原生名称。
+    std::fs::create_dir_all(&fanout).unwrap();
     let name = std::ffi::OsString::from_vec(vec![0xff; 38]);
     std::fs::write(fanout.join(name), b"invalid native name").unwrap();
     assert_unsupported(fixture.sample(), "unsupported Git loose object name");
