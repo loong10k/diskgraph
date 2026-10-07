@@ -1,0 +1,28 @@
+{
+  "base_sha": "7562c7f",
+  "source_sha256": {
+    "crates/diskgraph-store/src/child_aggregate_benchmark.rs": "24ffebad082f02833a9e51840c2dcb4734d027db4b365b0cc5a909314eb4bbaf",
+    ".github/workflows/ci.yml": "7886f178483885ac0349b15bb64f1a384a359c8337a57c40adb6037ed65ef727"
+  },
+  "local_platform": "macOS aarch64",
+  "profile": "release",
+  "actual_readonly_connections": 4,
+  "samples_per_connection_per_dataset": 100,
+  "datasets": [
+    20000,
+    200000
+  ],
+  "decoded_nodes_per_query": 100,
+  "two_runs_passed": true,
+  "whole_test_process_peak_rss_bytes": 83542016,
+  "clippy": "exit 0",
+  "workflow_yaml": "parsed with Ruby YAML",
+  "ci_integration": "Required test matrix stage with original log artifact; native candidate execution pending",
+  "limitations": [
+    "Warm synthetic metadata; no actual files scanned",
+    "Connection creation excluded from query latency",
+    "Independent store connections; not authorized concurrent Engine/MCP requests",
+    "Whole test RSS includes fixture, migration and publication",
+    "Native Linux/Windows execution not established"
+  ]
+}

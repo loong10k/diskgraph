@@ -698,6 +698,21 @@ jobs:
                       raise SystemExit(f"native metadata sentinel {name} failed on attempt {attempt + 1}")
                   print(f"native metadata sentinel {name} {attempt + 1}/20 passed", flush=True)
           PY
+      - name: Isolated release store query costs at 20k and 200k
+        id: store_query_costs
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --release --locked -p diskgraph-store --lib child_aggregate_benchmark::measure_directory_aggregate_costs -- --ignored --exact --nocapture 2>&1 | tee "$RUNNER_TEMP/store-query-costs.log"
+      - name: Preserve isolated release store query measurements
+        if: always() && (steps.store_query_costs.outcome == 'success' || steps.store_query_costs.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: store-query-costs-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/store-query-costs.log
+          if-no-files-found: error
+          retention-days: 7
       - name: Clippy
         if: matrix.rust == 'stable'
         run: cargo clippy --workspace --all-targets --locked -- -D warnings

@@ -227,6 +227,47 @@ fn measure_directory_aggregate_costs() {
                 "does_not_measure_sqlite_pages_or_process_rss":true,
             }));
         }
+        let concurrent_pages = std::thread::scope(|threads| {
+            let start = Arc::new(std::sync::Barrier::new(4));
+            let handles: Vec<_> = (0..4)
+                .map(|_| {
+                    let start = Arc::clone(&start);
+                    let path = &path;
+                    threads.spawn(move || {
+                        let reader = SqliteSnapshotStore::open_reader_until(
+                            path,
+                            Instant::now() + std::time::Duration::from_secs(30),
+                            None,
+                        )
+                        .unwrap();
+                        start.wait();
+                        timed(|| {
+                            let mut reads = diskgraph_core::QueryReadBudget::new(
+                                diskgraph_core::QueryBudget {
+                                    max_nodes: 100,
+                                    max_response_bytes: 1 << 20,
+                                    ..diskgraph_core::QueryBudget::default()
+                                },
+                                Instant::now() + std::time::Duration::from_secs(1),
+                            )
+                            .unwrap();
+                            let (nodes, more, unknown) = reader
+                                .children_with_budget("legacy", 1, 0, 100, true, &mut reads)
+                                .unwrap();
+                            assert_eq!(nodes.len(), 100);
+                            assert_eq!(reads.nodes_read(), 100);
+                            assert!(more);
+                            assert_eq!(unknown, 0);
+                            assert!(reads.stopped().is_none());
+                        })
+                    })
+                })
+                .collect();
+            handles
+                .into_iter()
+                .map(|thread| thread.join().unwrap())
+                .collect::<Vec<_>>()
+        });
         upgraded
             .connection
             .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);")
@@ -275,7 +316,7 @@ fn measure_directory_aggregate_costs() {
         });
         let fenced_publish_ms = started.elapsed().as_secs_f64() * 1000.0;
         assert_eq!(publisher.node_count("published").unwrap(), count + 1);
-        let result = serde_json::json!({"profile":"release","os":std::env::consts::OS,"arch":std::env::consts::ARCH,"fixture":"synthetic immutable metadata","publish_phase_includes_sampler_validation_commit_checkpoint":true,"children":count,"distinct_sizes":count,"before_counts":before_counts,"after_counts":after_counts,"bounded_pages":bounded_pages,"migration_including_backup_ms":migration_ms,"db_before_migration_bytes":before_db,"db_after_migration_bytes":after_db,"backup_bytes":bytes(&backup.unwrap()),"migration_sampled_peak_wal_bytes":migration_wal,"migration_sampled_peak_sqlite_temp_bytes":migration_temp,"owned_staging_fenced_publish_ms":fenced_publish_ms,"staging_db_before_publish_bytes":staged_db,"db_after_publish_bytes":bytes(&publish_path),"publish_sampled_peak_wal_bytes":publish_wal,"publish_sampled_peak_sqlite_temp_bytes":publish_temp,"space_sampling_interval_ms":1,"temp_sampling_is_upper_bound":false});
+        let result = serde_json::json!({"profile":"release","os":std::env::consts::OS,"arch":std::env::consts::ARCH,"fixture":"synthetic immutable metadata","publish_phase_includes_sampler_validation_commit_checkpoint":true,"children":count,"distinct_sizes":count,"before_counts":before_counts,"after_counts":after_counts,"bounded_pages":bounded_pages,"concurrent_directory_pages":{"connections":4,"page_size":100,"decoded_nodes_per_query":100,"per_connection":concurrent_pages,"connection_opening_excluded_from_query_timing":true},"migration_including_backup_ms":migration_ms,"db_before_migration_bytes":before_db,"db_after_migration_bytes":after_db,"backup_bytes":bytes(&backup.unwrap()),"migration_sampled_peak_wal_bytes":migration_wal,"migration_sampled_peak_sqlite_temp_bytes":migration_temp,"owned_staging_fenced_publish_ms":fenced_publish_ms,"staging_db_before_publish_bytes":staged_db,"db_after_publish_bytes":bytes(&publish_path),"publish_sampled_peak_wal_bytes":publish_wal,"publish_sampled_peak_sqlite_temp_bytes":publish_temp,"space_sampling_interval_ms":1,"temp_sampling_is_upper_bound":false});
         println!("{result}");
         results.push(result);
     }
