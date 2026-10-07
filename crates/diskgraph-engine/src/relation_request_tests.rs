@@ -513,17 +513,18 @@ fn expired_envelope_still_observes_live_authorization_without_renewing_data_dead
             self.0.decide(principal, permission, scope)
         }
     }
+    let late_result = engine.finalize_revision_read_until(
+        revision,
+        &principal,
+        &SlowPermit(engine.policy_authorizer().unwrap()),
+        expired,
+    );
     assert!(
         matches!(
-            engine.finalize_revision_read_until(
-                revision,
-                &principal,
-                &SlowPermit(engine.policy_authorizer().unwrap()),
-                expired
-            ),
+            late_result,
             Err(EngineError::Business(BusinessError::BudgetExceeded))
         ),
-        "a late capability decision must refuse even a truncated reply"
+        "a late capability decision must refuse even a truncated reply: {late_result:?}"
     );
     /// 慢回调通过独立真实控制连接撤权，返回允许也必须保留拒权优先。
     struct SlowRevoke {

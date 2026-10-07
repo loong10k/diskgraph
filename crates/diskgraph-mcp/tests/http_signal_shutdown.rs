@@ -52,7 +52,13 @@ fn expect_normal_signal_shutdown(signal: libc::c_int, debug_unicode: bool) {
             child.0.try_wait().unwrap().is_none(),
             "server exited before readiness"
         );
-        if std::net::TcpStream::connect(("127.0.0.1", port)).is_ok() {
+        // 空闲端口释放后可能被另一夹具复用；必须先证明本 child 已绑定，不能仅探测任意 listener。
+        let own_listener = std::fs::read_to_string(dir.path().join("stderr"))
+            .unwrap_or_default()
+            .contains(&format!(
+                "diskgraph-mcp listening on http://127.0.0.1:{port}/mcp"
+            ));
+        if own_listener && std::net::TcpStream::connect(("127.0.0.1", port)).is_ok() {
             break;
         }
         assert!(Instant::now() < until, "server did not listen");
@@ -76,7 +82,11 @@ fn expect_normal_signal_shutdown(signal: libc::c_int, debug_unicode: bool) {
                     header.len() < 16 << 10 && Instant::now() < until,
                     "response header budget"
                 );
-                socket.read_exact(&mut byte).unwrap();
+                socket.read_exact(&mut byte).unwrap_or_else(|error| {
+                    let stderr = std::fs::read_to_string(dir.path().join("stderr"))
+                        .unwrap_or_else(|read_error| format!("stderr unavailable: {read_error}"));
+                    panic!("original HTTP response failed: {error}; server stderr: {stderr}");
+                });
                 header.push(byte[0]);
             }
             let header = String::from_utf8(header).unwrap();

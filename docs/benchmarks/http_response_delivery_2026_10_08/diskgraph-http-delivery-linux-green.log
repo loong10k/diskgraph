@@ -1,0 +1,403 @@
+   Compiling diskgraph-mcp v0.3.0 (/src/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.07s
+     Running unittests src/lib.rs (/target/debug/deps/diskgraph_mcp-8b0d5a1546a118e9)
+
+running 177 tests
+test auth::tests::a_missing_token_is_refused ... ok
+test auth::tests::a_deployment_with_no_issuer_authenticates_nobody ... ok
+test auth::tests::a_token_from_an_unknown_issuer_is_refused ... ok
+test auth::tests::a_token_minted_for_another_audience_is_refused ... ok
+test auth::tests::a_token_missing_a_required_claim_is_refused ... ok
+test auth::tests::a_forged_signature_is_refused ... ok
+test auth::tests::an_expired_token_is_refused ... ok
+test auth::tests::a_token_without_scope_grants_nothing_by_default ... ok
+test auth::tests::a_well_formed_signed_token_authenticates ... ok
+test auth::tests::a_token_inside_the_skew_window_is_still_accepted ... ok
+test auth::tests::constant_time_comparison_rejects_different_lengths_and_values ... ok
+test auth::tests::hmac_sha256_matches_the_published_test_vector ... ok
+test auth::tests::authentication_alone_grants_no_permission ... ok
+test auth::tests::malformed_tokens_and_unsigned_ones_are_refused ... ok
+test bounded_json_writer::tests::oversized_write_is_refused_before_allocating_or_retaining_its_bytes ... ok
+test auth::tests::the_unauthorized_body_never_echoes_token_or_index_material ... ok
+test auth::tests::unknown_scope_values_are_ignored_rather_than_widened ... ok
+test auth::tests::proxy_identity_headers_are_never_trusted ... ok
+test bounded_json_writer::tests::unicode_and_escaped_results_are_complete_or_refused_by_encoded_bytes ... ok
+test connection_rejection::tests::a_silent_rejected_peer_does_not_hold_the_request_timeout ... ok
+test connection_rejection::tests::rejected_body_cleanup_never_reads_beyond_64_kib ... ok
+test doctor::tests::a_healthy_engine_reports_no_errors ... ok
+test doctor::tests::directory_size_is_measured_without_shelling_out ... ok
+test children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility ... FAILED
+test children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation ... FAILED
+test children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy ... FAILED
+test engine_error_cleanup_tests::mcp_cleanup_does_not_classify_io_from_business_like_text ... ok
+test engine_error_cleanup_tests::mcp_cleanup_keeps_business_codes_and_jsonrpc_association ... ok
+test engine_error_cleanup_tests::mcp_cleanup_keeps_existing_store_failure_codes ... ok
+test doctor::tests::doctor_never_mutates_the_data_directory ... ok
+test doctor::tests::the_report_states_the_served_tool_set ... ok
+test history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides ... FAILED
+test history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides ... FAILED
+test history_budget_tests::encoded_socket_history_rechecks_both_grant_sides ... FAILED
+test history_budget_tests::encoded_socket_history_rechecks_both_scope_sides ... FAILED
+test history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket ... FAILED
+test history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership ... FAILED
+test history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline ... FAILED
+test history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline ... FAILED
+test http::tests::a_client_side_path_is_never_resolved_against_the_server ... FAILED
+test http::tests::a_hostile_origin_is_refused_even_with_a_valid_token ... ok
+test http::tests::a_modern_only_server_reports_the_legacy_adapter_as_disabled ... ok
+test http::tests::a_posted_initialize_answers_over_http ... ok
+test http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call ... FAILED
+test http::tests::client_addresses_preserve_ipv6_and_normalize_mapped_ipv4 ... ok
+test http::tests::an_unsupported_protocol_version_is_reported_not_downgraded ... ok
+test http::tests::duplicate_forwarded_fields_keep_the_proxy_appended_client ... ok
+test http::tests::forwarded_addresses_are_proxy_gated ... ok
+test http::tests::forwarded_chains_cannot_launder_a_spoofed_prefix ... ok
+test http::tests::a_disconnected_client_job_completes_and_stays_queryable ... FAILED
+test http::tests::ipv6_loopback_origin_without_port_is_valid ... ok
+test http::tests::get_and_delete_follow_the_transport_contract ... ok
+test http::tests::a_stalled_connection_does_not_starve_other_clients ... ok
+test http::tests::malformed_bind_hosts_never_receive_local_trust ... ok
+test http::tests::malformed_http_header_tokens_are_rejected_before_dispatch ... ok
+test http::tests::malformed_origins_are_not_truncated_or_allowed_by_configuration ... ok
+test http::tests::mcp_search_cursors_expire_with_policy_updates ... FAILED
+test http::tests::origins_are_validated_before_anything_else ... ok
+test http::tests::over_rate_requests_are_refused_with_429 ... ok
+test http::tests::oversized_bodies_and_batches_are_refused ... ok
+test http::tests::rate_state_does_not_refill_twice_after_stale_clock_observations ... ok
+test http::tests::rate_state_is_bounded_without_evicting_active_clients ... ok
+test http::tests::rate_state_rejects_oversized_keys ... ok
+test http::tests::remote_requests_require_a_valid_bearer_token ... ok
+test http::tests::request_deadline_does_not_restart_after_each_received_byte ... ok
+test http::tests::request_line_and_headers_are_bounded_before_authentication ... ok
+test http::tests::scope_ids_from_another_server_are_not_found ... FAILED
+test http::tests::the_bind_policy_gates_network_interfaces_honestly ... ok
+test http::tests::the_connection_cap_refuses_excess_connections ... ok
+test http::tests::the_health_endpoint_reports_no_indexed_data ... ok
+test http::tests::the_legacy_adapter_serves_a_spec_conformant_client ... ok
+test http::tests::the_rate_limiter_throttles_bursts_and_recovers ... ok
+test http::tests::the_server_stream_survives_read_timeouts ... ok
+test http::tests::tool_listing_and_calls_work_over_the_same_service ... ok
+test http::tests::unknown_paths_and_methods_never_reach_the_engine ... ok
+test http::tests::unsupported_or_ambiguous_http_framing_is_rejected ... ok
+test http_debug_request_tests::debug_metadata_does_not_disclose_body_contents ... ok
+test http_debug_request_tests::empty_body_and_unicode_path_are_representable ... ok
+test http_debug_request_tests::unicode_body_at_the_old_byte_boundary_never_panics ... ok
+test http_delivery_writer_tests::a_nonreading_peer_cannot_extend_the_absolute_deadline ... ok
+test http_delivery_writer_tests::authorization_change_between_chunks_stops_remaining_bytes ... ok
+test http_delivery_writer_tests::authorization_time_consumes_the_same_delivery_deadline ... ok
+test http_delivery_writer_tests::changed_authorization_prevents_the_first_byte ... ok
+test http_delivery_writer_tests::exhausted_deadline_never_sends_the_first_byte ... ok
+test http_delivery_writer_tests::expired_request_context_prevents_the_first_byte ... ok
+test http_delivery_writer_tests::long_request_id_cannot_expand_the_http_session_header ... ok
+test http_delivery_writer_tests::successful_delivery_restores_blocking_reads_for_the_next_request ... ok
+test http_delivery_writer_tests::unicode_request_id_keeps_the_session_header_printable_ascii ... ok
+test http_lifecycle_tests::foreground_panic_raii_joins_original_server_before_directory_cleanup ... ok
+test http_lifecycle_tests::malformed_origins_are_refused_before_auth_on_all_real_transport_routes ... ok
+test http_lifecycle_tests::runtime_read_polling_keeps_the_original_request_deadline ... ok
+test http::tests::dropping_every_connection_is_not_a_cancellation ... FAILED
+test http_lifecycle_tests::stop_closes_accepted_incomplete_request_before_long_read_timeout ... ok
+test http_lifecycle_tests::stop_joins_idle_accept_and_releases_original_listener ... ok
+test http::tests::legacy_disconnect_leaves_the_job_queryable ... FAILED
+test http_lifecycle_tests::runtime_read_polling_preserves_partial_headers_and_body_without_resetting_request ... ok
+test http_lifecycle_tests::stop_joins_legacy_sse_with_client_still_connected ... ok
+test http_lifecycle_tests::stop_joins_modern_sse_with_client_still_connected ... ok
+test http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline ... ok
+test http_request_audit_tests::actual_remote_revocation_stops_an_inflight_reply ... ok
+test http_request_audit_tests::exhausted_generation_capture_does_not_renew_delivery_and_keeps_failed_audit_subject ... ok
+test http_request_audit_tests::socket_audit_keeps_admitted_subject_when_reauthentication_would_expire ... ok
+test http_request_syntax_tests::duplicate_mcp_session_and_protocol_headers_are_rejected_before_dispatch ... ok
+test http_request_syntax_tests::malformed_request_line_never_becomes_a_dispatchable_request ... ok
+test http_request_syntax_tests::supported_http_versions_preserve_request_and_single_value_headers ... ok
+test install::tests::add_preserves_other_servers ... ok
+test install::tests::add_writes_once_and_is_idempotent ... ok
+test install::tests::preview_never_writes_and_reports_the_change ... ok
+test install::tests::remove_deletes_only_the_owned_entry ... ok
+test install::tests::show_reports_registration_without_changing_anything ... ok
+test install::tests::the_registration_marks_itself_owned ... ok
+test install::tests::unknown_clients_are_refused_before_any_file_access ... ok
+test legacy::tests::a_dropped_sse_end_closes_the_session_for_posters ... ok
+test legacy::tests::message_events_carry_one_complete_json_line ... ok
+test legacy::tests::sessions_round_trip_and_close ... ok
+test legacy::tests::the_endpoint_event_names_the_session_message_url ... ok
+test legacy_delivery_registry::tests::closing_a_receiver_releases_queued_frames_and_invalidates_pending_work ... ok
+test legacy_delivery_registry::tests::concurrent_admission_cannot_overbook_the_global_bytes ... ok
+test legacy_delivery_registry::tests::disconnected_send_releases_the_frame_without_lock_reentry_deadlock ... ok
+test legacy_delivery_registry::tests::global_bytes_and_principal_binding_cannot_be_bypassed_by_another_session ... ok
+test legacy_delivery_registry::tests::oversized_or_expanding_reservations_never_consume_more_credit ... ok
+test legacy_delivery_registry::tests::queued_and_in_flight_frames_share_byte_and_count_budgets ... ok
+test legacy_transport::tests::a_policy_change_prevents_old_results_from_starting_a_socket_write ... ok
+test legacy_transport::tests::a_sqlite_exclusive_lock_cannot_renew_the_frame_read_deadline ... ok
+test legacy_transport::tests::a_stalled_consumer_cannot_renew_the_frame_write_deadline ... ok
+test http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline ... ok
+test legacy_transport::tests::legacy_backpressure_refuses_before_enqueuing_an_index_job ... ok
+test legacy_transport::tests::control_lock_contention_must_not_delay_a_frame_past_its_deadline ... ok
+test legacy_transport::tests::revoking_one_scope_stops_its_old_frame_while_the_subject_remains_live_elsewhere ... ok
+test protocol::tests::advertised_schemas_describe_actual_dispatch_arguments ... ok
+test protocol::tests::business_failures_carry_their_code_and_exit_code_over_mcp ... ok
+test protocol::tests::decoding_rejects_malformed_batched_and_notification_frames ... ok
+test protocol::tests::host_side_commands_are_never_mcp_tools ... ok
+test protocol::tests::manage_adds_scope_and_index_management ... ok
+test protocol::tests::read_full_adds_every_metadata_query_but_no_write_tools ... ok
+test protocol::tests::read_minimal_profile_exposes_exactly_the_common_read_tools ... ok
+test protocol::tests::required_permissions_never_include_approval_capabilities ... ok
+test protocol::tests::schemas_declare_their_permissions_and_reject_unknown_properties ... ok
+test protocol::tests::tool_names_are_unique_and_map_back_to_their_catalog_id ... ok
+test protocol::tests::undelivered_stages_answer_unsupported_not_silence ... ok
+test legacy_transport::tests::nonblocking_partial_writes_deliver_a_complete_large_frame ... ok
+test relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope ... FAILED
+test relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation ... FAILED
+test relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline ... FAILED
+test sse_identity_deadline_tests::identity_check_refuses_while_control_owner_still_holds_lock ... ok
+test sse_identity_deadline_tests::modern_authenticated_stream_rejects_client_noise ... ok
+test sse_identity_deadline_tests::modern_authenticated_stream_rejects_noise_prefetched_with_get_headers ... ok
+test http_request_audit_tests::actual_remote_token_expiry_stops_an_inflight_reply ... ok
+test sse_identity_deadline_tests::legacy_socket_closes_and_joins_while_control_owner_holds_lock ... ok
+test tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied ... FAILED
+test tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision ... FAILED
+test tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap ... FAILED
+test sse_identity_deadline_tests::modern_socket_closes_and_joins_while_control_owner_holds_lock ... ok
+test tests::envelope_tests::with_ids_serializes_the_scope_and_revision_it_bound ... ok
+test tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision ... FAILED
+test tests::job_runner_fixture::tests::idle_runner_is_actually_joined_before_source_owner_returns ... ok
+test status_deadline_tests::mcp_status_authorizer_does_not_block_beyond_original_request_deadline ... ok
+test tests::management_tests::an_index_job_is_reachable_after_the_call_returns ... ok
+test tests::management_tests::the_manage_profile_serves_scope_listing ... ok
+test tests::protocol_tests::a_tool_outside_the_active_profile_is_refused_not_merely_hidden ... ok
+test tests::protocol_tests::initialize_and_tool_listing_work_over_the_protocol ... ok
+test tests::protocol_tests::unknown_methods_and_tools_answer_protocol_errors ... ok
+test tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments ... FAILED
+test tests::query_tests::explicit_revision_and_node_id_select_historical_data ... FAILED
+test tests::query_tests::imported_queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly ... ok
+test http::tests::legacy_posts_enforce_sessions_auth_and_origin ... ok
+test tests::query_tests::imported_explicit_revision_and_node_id_select_historical_data ... ok
+test tests::query_tests::imported_two_scopes_stay_isolated_and_reuse_their_own_revisions ... ok
+test tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions ... FAILED
+test tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly ... FAILED
+test tests::relation_tests::explain_checks_entity_bytes_before_decoding ... FAILED
+test tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges ... FAILED
+test tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project ... FAILED
+test tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations ... FAILED
+test tests::stdio_tests::batched_frames_are_refused_explicitly ... ok
+test tests::relation_tests::relation_queries_bound_decoding_and_report_continuation ... FAILED
+test tests::stdio_tests::stdio_serves_frames_and_logs_rejects_to_the_log_sink_only ... ok
+
+failures:
+
+---- children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility stdout ----
+
+thread 'children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility' (626) panicked at crates/diskgraph-mcp/src/children_cursor_tests.rs:30:44:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation stdout ----
+
+thread 'children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation' (625) panicked at crates/diskgraph-mcp/src/children_cursor_tests.rs:30:44:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy stdout ----
+
+thread 'children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy' (624) panicked at crates/diskgraph-mcp/src/children_cursor_tests.rs:30:44:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides stdout ----
+
+thread 'history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides' (640) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides stdout ----
+
+thread 'history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides' (641) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::encoded_socket_history_rechecks_both_grant_sides stdout ----
+
+thread 'history_budget_tests::encoded_socket_history_rechecks_both_grant_sides' (642) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::encoded_socket_history_rechecks_both_scope_sides stdout ----
+
+thread 'history_budget_tests::encoded_socket_history_rechecks_both_scope_sides' (643) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket stdout ----
+
+thread 'history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket' (647) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership stdout ----
+
+thread 'history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership' (646) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline stdout ----
+
+thread 'history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline' (649) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline stdout ----
+
+thread 'history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline' (651) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- http::tests::a_client_side_path_is_never_resolved_against_the_server stdout ----
+
+thread 'http::tests::a_client_side_path_is_never_resolved_against_the_server' (654) panicked at crates/diskgraph-mcp/src/http.rs:1624:60:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call stdout ----
+
+thread 'http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call' (664) panicked at crates/diskgraph-mcp/src/http.rs:1571:60:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- http::tests::a_disconnected_client_job_completes_and_stays_queryable stdout ----
+diskgraph job runner: unsupported (exit 6)
+
+thread 'http::tests::a_disconnected_client_job_completes_and_stays_queryable' (656) panicked at crates/diskgraph-mcp/src/http.rs:2581:9:
+assertion `left == right` failed: disconnect must not fail the job; job_id=job-2508d76c-2bf8-4658-8a3e-3407a9592a77; request_id=2; elapsed=134.685875ms; status JSON={"id":2,"jsonrpc":"2.0","result":{"content":[{"text":"{\"api_version\":2,\"coverage\":null,\"data\":{\"job_id\":\"job-2508d76c-2bf8-4658-8a3e-3407a9592a77\",\"scope_id\":\"scope-75bd7585-d608-4714-ade4-65b1bfd56500\",\"state\":\"failed\"},\"ok\":true,\"scope_id\":\"scope-75bd7585-d608-4714-ade4-65b1bfd56500\",\"server_id\":\"srv-860a6e5e-fb66-408d-9cca-a72637923670\",\"truncated\":false,\"warnings\":[]}","type":"text"}],"isError":false,"structuredContent":{"api_version":2,"coverage":null,"data":{"job_id":"job-2508d76c-2bf8-4658-8a3e-3407a9592a77","scope_id":"scope-75bd7585-d608-4714-ade4-65b1bfd56500","state":"failed"},"ok":true,"scope_id":"scope-75bd7585-d608-4714-ade4-65b1bfd56500","server_id":"srv-860a6e5e-fb66-408d-9cca-a72637923670","truncated":false,"warnings":[]}}}; HTTP body="{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"{\\\"api_version\\\":2,\\\"coverage\\\":null,\\\"data\\\":{\\\"job_id\\\":\\\"job-2508d76c-2bf8-4658-8a3e-3407a9592a77\\\",\\\"scope_id\\\":\\\"scope-75bd7585-d608-4714-ade4-65b1bfd56500\\\",\\\"state\\\":\\\"failed\\\"},\\\"ok\\\":true,\\\"scope_id\\\":\\\"scope-75bd7585-d608-4714-ade4-65b1bfd56500\\\",\\\"server_id\\\":\\\"srv-860a6e5e-fb66-408d-9cca-a72637923670\\\",\\\"truncated\\\":false,\\\"warnings\\\":[]}\",\"type\":\"text\"}],\"isError\":false,\"structuredContent\":{\"api_version\":2,\"coverage\":null,\"data\":{\"job_id\":\"job-2508d76c-2bf8-4658-8a3e-3407a9592a77\",\"scope_id\":\"scope-75bd7585-d608-4714-ade4-65b1bfd56500\",\"state\":\"failed\"},\"ok\":true,\"scope_id\":\"scope-75bd7585-d608-4714-ade4-65b1bfd56500\",\"server_id\":\"srv-860a6e5e-fb66-408d-9cca-a72637923670\",\"truncated\":false,\"warnings\":[]}}}"
+  left: "failed"
+ right: "completed"
+
+---- http::tests::mcp_search_cursors_expire_with_policy_updates stdout ----
+
+thread 'http::tests::mcp_search_cursors_expire_with_policy_updates' (700) panicked at crates/diskgraph-mcp/src/http.rs:2776:14:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- http::tests::scope_ids_from_another_server_are_not_found stdout ----
+
+thread 'http::tests::scope_ids_from_another_server_are_not_found' (716) panicked at crates/diskgraph-mcp/src/http.rs:1704:57:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- http::tests::dropping_every_connection_is_not_a_cancellation stdout ----
+diskgraph job runner: unsupported (exit 6)
+
+thread 'http::tests::dropping_every_connection_is_not_a_cancellation' (676) panicked at crates/diskgraph-mcp/src/http.rs:2656:13:
+job job-42426c65-58a8-4bb4-9906-f7500a64af6b state: Failed
+
+---- http::tests::legacy_disconnect_leaves_the_job_queryable stdout ----
+diskgraph job runner: unsupported (exit 6)
+
+thread 'http::tests::legacy_disconnect_leaves_the_job_queryable' (686) panicked at crates/diskgraph-mcp/src/http.rs:2748:9:
+assertion `left == right` failed
+  left: "failed"
+ right: "completed"
+
+---- relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope stdout ----
+
+thread 'relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope' (871) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation stdout ----
+
+thread 'relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation' (872) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline stdout ----
+
+thread 'relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline' (874) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied stdout ----
+
+thread 'tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied' (909) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision stdout ----
+
+thread 'tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision' (911) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap stdout ----
+
+thread 'tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap' (913) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision stdout ----
+
+thread 'tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision' (915) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments stdout ----
+
+thread 'tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments' (924) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::query_tests::explicit_revision_and_node_id_select_historical_data stdout ----
+
+thread 'tests::query_tests::explicit_revision_and_node_id_select_historical_data' (926) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions stdout ----
+
+thread 'tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions' (937) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly stdout ----
+
+thread 'tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly' (936) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::relation_tests::explain_checks_entity_bytes_before_decoding stdout ----
+
+thread 'tests::relation_tests::explain_checks_entity_bytes_before_decoding' (938) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges stdout ----
+
+thread 'tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges' (939) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project stdout ----
+
+thread 'tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project' (941) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations stdout ----
+
+thread 'tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations' (943) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- tests::relation_tests::relation_queries_bound_decoding_and_report_continuation stdout ----
+
+thread 'tests::relation_tests::relation_queries_bound_decoding_and_report_continuation' (945) panicked at crates/diskgraph-mcp/src/tests/support.rs:64:55:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+
+failures:
+    children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy
+    children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation
+    children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility
+    history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides
+    history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides
+    history_budget_tests::encoded_socket_history_rechecks_both_grant_sides
+    history_budget_tests::encoded_socket_history_rechecks_both_scope_sides
+    history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership
+    history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket
+    history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline
+    history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline
+    http::tests::a_client_side_path_is_never_resolved_against_the_server
+    http::tests::a_disconnected_client_job_completes_and_stays_queryable
+    http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call
+    http::tests::dropping_every_connection_is_not_a_cancellation
+    http::tests::legacy_disconnect_leaves_the_job_queryable
+    http::tests::mcp_search_cursors_expire_with_policy_updates
+    http::tests::scope_ids_from_another_server_are_not_found
+    relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope
+    relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation
+    relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline
+    tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied
+    tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision
+    tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap
+    tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision
+    tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments
+    tests::query_tests::explicit_revision_and_node_id_select_historical_data
+    tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly
+    tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions
+    tests::relation_tests::explain_checks_entity_bytes_before_decoding
+    tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges
+    tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project
+    tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations
+    tests::relation_tests::relation_queries_bound_decoding_and_report_continuation
+
+test result: FAILED. 143 passed; 34 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.62s
+
+error: test failed, to rerun pass `-p diskgraph-mcp --lib`

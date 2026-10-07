@@ -1,0 +1,19 @@
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.01s
+     Running tests/service_source_layout.rs (target/debug/deps/service_source_layout-b30005e38ba9745a)
+
+running 11 tests
+test gate_accepts_real_documented_bodies_without_confusing_empty_match_arms ... ok
+test root_public_types_defaults_and_stdio_entry_remain_importable ... ok
+test http_request_has_real_logic_in_own_module_and_preserves_public_path ... ok
+test filesystem_gate_rejects_nested_cfg_attr_path_override ... ok
+test filesystem_gate_accepts_safe_cfg_attr_and_visits_standard_child ... ok
+test aggregate_entry_accepts_explicit_reexports_and_rejects_private_imports ... ok
+test http_configuration_and_response_objects_have_real_modules_and_stable_public_contracts ... ok
+test gate_rejects_hidden_paths_multiple_objects_stubs_and_missing_contracts ... ok
+test filesystem_gate_finds_root_and_nested_orphans_but_accepts_mounted_sources ... ok
+test filesystem_gate_rejects_direct_cfg_attr_path_override ... ok
+test service_entry_and_mounted_modules_have_real_responsibilities ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+

@@ -1,0 +1,64 @@
+   Compiling diskgraph-mcp v0.3.0 (/src/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.98s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test sigterm_stops_actual_http_runtime_and_returns_success ... FAILED
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+
+failures:
+
+---- sigterm_stops_actual_http_runtime_and_returns_success stdout ----
+
+thread 'sigterm_stops_actual_http_runtime_and_returns_success' (208) panicked at crates/diskgraph-mcp/tests/http_signal_shutdown.rs:135:5:
+signal killed the original process instead of completing normal retirement: signal: 15 (SIGTERM)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    sigterm_stops_actual_http_runtime_and_returns_success
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+error: test failed, to rerun pass `-p diskgraph-mcp --test http_signal_shutdown`

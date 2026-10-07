@@ -1,0 +1,36 @@
+   Compiling diskgraph-mcp v0.3.0 (/src/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.06s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... FAILED
+test sigterm_stops_actual_http_runtime_and_returns_success ... FAILED
+test sigint_stops_actual_http_runtime_and_returns_success ... FAILED
+
+failures:
+
+---- debug_unicode_request_keeps_the_original_authenticated_listener_alive stdout ----
+
+thread 'debug_unicode_request_keeps_the_original_authenticated_listener_alive' (109) panicked at crates/diskgraph-mcp/tests/http_signal_shutdown.rs:62:9:
+server did not listen
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- sigterm_stops_actual_http_runtime_and_returns_success stdout ----
+
+thread 'sigterm_stops_actual_http_runtime_and_returns_success' (111) panicked at crates/diskgraph-mcp/tests/http_signal_shutdown.rs:62:9:
+server did not listen
+
+---- sigint_stops_actual_http_runtime_and_returns_success stdout ----
+
+thread 'sigint_stops_actual_http_runtime_and_returns_success' (110) panicked at crates/diskgraph-mcp/tests/http_signal_shutdown.rs:62:9:
+server did not listen
+
+
+failures:
+    debug_unicode_request_keeps_the_original_authenticated_listener_alive
+    sigint_stops_actual_http_runtime_and_returns_success
+    sigterm_stops_actual_http_runtime_and_returns_success
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.01s
+
+error: test failed, to rerun pass `-p diskgraph-mcp --test http_signal_shutdown`

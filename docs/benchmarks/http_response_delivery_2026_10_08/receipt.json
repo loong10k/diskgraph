@@ -1,0 +1,29 @@
+{
+  "baseline": "e8333b3 HTTP plus bounded session header; current test modules",
+  "candidate_sha256": {
+    "http.rs": "cf5a73b7917c9f5cf7c4903c64066c6948332e33bb6c250c0fe215c672165e57",
+    "http_delivery_writer.rs": "96e501a356994de4757102feb63e18bb896214117975530529127cef74665eaa",
+    "http_delivery_authority.rs": "bea9da8f2d87bb2ff0c36df487041478bc84eb11f29736faf6c888b60cba1c54",
+    "http_delivery_writer_tests.rs": "354c0764affbfa630776952c6c3ba320e940129db570f2a172f441ca2b753348",
+    "http_request_audit_tests.rs": "87c573c459b734921283b571435859ae78fbbb83fe70ae7644f9493e9c72e3d2",
+    "lib.rs": "9265b3d450577a842c12b27ac8bf0cf35727560c4fd8157e9b920027c6e6a2b3"
+  },
+  "linux_initial_full_run": "143 pass / 34 Unsupported failures: omitted native worker fixture environment; not acceptance",
+  "macos": "actual remote audit 6 pass; writer 9 pass",
+  "linux_worker_full_run": "MCP lib 177/0 and main 7/0; native worker fixture configured",
+  "windows_large_reply": "not verified; heavy fixtures cfg(unix)",
+  "linux_worker_full_run_results": [
+    "test result: ok. 177 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.82s",
+    "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s"
+  ],
+  "review": "code APPROVE; architecture CLEAR; neither establishes full platform readiness",
+  "static_checks": "diff check, fmt check, MCP all-target clippy -D warnings passed; Mac layout 11/11",
+  "integration_caveat": "initial debug_unicode integration ConnectionReset once; isolated recheck passed; subsequent full signal/legacy/layout group passed; root cause not established, not erased",
+  "readiness_diagnostic": "Repeated original fixture reproduced SIGTERM exit; readiness now requires original child listening log before connect. First test edit omitted http:// and failed 0/3; corrected format passed 10 rounds x3 tests. Port alias hypothesis remains unproven; no product signal fix claimed.",
+  "windows_failure": "previous e833 Windows MSRV Engine line516 late capability expected Business BudgetExceeded; added actual error diagnostic without relaxing assertion",
+  "diagnostic_test_sha256": {
+    "crates/diskgraph-mcp/tests/http_signal_shutdown.rs": "9777646ac87b6b2ff41f0bb38e8225e45a7cfc68552e208523d33f37d81fcda2",
+    "crates/diskgraph-engine/src/relation_request_tests.rs": "25d405c9594909d577bf642a7be96f2fd8663ac6d04aff4879984cdc21c2fae8"
+  },
+  "final_static_checks": "final fmt check, diff check and all-target MCP clippy passed"
+}

@@ -83,3 +83,9 @@ mod http_debug_request_tests;
 
 #[cfg(test)]
 mod http_request_audit_tests;
+
+mod http_delivery_writer;
+#[cfg(test)]
+mod http_delivery_writer_tests;
+
+mod http_delivery_authority;

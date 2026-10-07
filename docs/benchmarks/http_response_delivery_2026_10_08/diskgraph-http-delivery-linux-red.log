@@ -1,0 +1,45 @@
+   Compiling diskgraph-mcp v0.3.0 (/src/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.06s
+     Running unittests src/lib.rs (/target/debug/deps/diskgraph_mcp-8b0d5a1546a118e9)
+
+running 4 tests
+test http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline ... FAILED
+test http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline ... FAILED
+test http_request_audit_tests::actual_remote_revocation_stops_an_inflight_reply ... FAILED
+test http_request_audit_tests::actual_remote_token_expiry_stops_an_inflight_reply ... FAILED
+
+failures:
+
+---- http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline stdout ----
+
+thread 'http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline' (280) panicked at crates/diskgraph-mcp/src/http_request_audit_tests.rs:374:17:
+assertion `left == right` failed: nonreading peer renewed real HTTP delivery
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline stdout ----
+
+thread 'http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline' (282) panicked at crates/diskgraph-mcp/src/http_request_audit_tests.rs:341:9:
+slow read progress renewed real HTTP delivery
+
+---- http_request_audit_tests::actual_remote_revocation_stops_an_inflight_reply stdout ----
+
+thread 'http_request_audit_tests::actual_remote_revocation_stops_an_inflight_reply' (281) panicked at crates/diskgraph-mcp/src/http_request_audit_tests.rs:388:9:
+old result continued after revoke
+
+---- http_request_audit_tests::actual_remote_token_expiry_stops_an_inflight_reply stdout ----
+
+thread 'http_request_audit_tests::actual_remote_token_expiry_stops_an_inflight_reply' (283) panicked at crates/diskgraph-mcp/src/http_request_audit_tests.rs:388:9:
+old result continued after expiry
+
+
+failures:
+    http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline
+    http_request_audit_tests::actual_remote_revocation_stops_an_inflight_reply
+    http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline
+    http_request_audit_tests::actual_remote_token_expiry_stops_an_inflight_reply
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 173 filtered out; finished in 7.40s
+
+error: test failed, to rerun pass `-p diskgraph-mcp --lib`

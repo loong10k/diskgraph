@@ -1,0 +1,36 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/legacy_delivery.rs (/target/debug/deps/legacy_delivery-2ac0f37df5defa5b)
+
+running 3 tests
+test legacy_refuses_a_budget_that_cannot_fit_the_correlated_error_before_ack ... ok
+test authenticated_legacy_responses_obey_the_configured_byte_limit ... ok
+test grant_revocation_closes_the_legacy_stream_and_removes_its_delivery_session ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.17s
+
+     Running tests/service_source_layout.rs (/target/debug/deps/service_source_layout-25ff3264e1550111)
+
+running 11 tests
+test aggregate_entry_accepts_explicit_reexports_and_rejects_private_imports ... ok
+test filesystem_gate_accepts_safe_cfg_attr_and_visits_standard_child ... ok
+test filesystem_gate_finds_root_and_nested_orphans_but_accepts_mounted_sources ... ok
+test filesystem_gate_rejects_direct_cfg_attr_path_override ... ok
+test gate_accepts_real_documented_bodies_without_confusing_empty_match_arms ... ok
+test gate_rejects_hidden_paths_multiple_objects_stubs_and_missing_contracts ... ok
+test root_public_types_defaults_and_stdio_entry_remain_importable ... ok
+test filesystem_gate_rejects_nested_cfg_attr_path_override ... ok
+test http_request_has_real_logic_in_own_module_and_preserves_public_path ... ok
+test http_configuration_and_response_objects_have_real_modules_and_stable_public_contracts ... ok
+test service_entry_and_mounted_modules_have_real_responsibilities ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+

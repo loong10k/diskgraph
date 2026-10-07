@@ -284,7 +284,7 @@ pub fn handle_secured(
     limits: &HttpLimits,
     security: &Security,
 ) -> HttpResponse {
-    handle_secured_with_context(service, request, limits, security, &mut None, None)
+    handle_secured_with_context(service, request, limits, security, &mut None)
 }
 
 /// 将实际认证建立的原上下文交给传输；响应后审计不再重新认证或恢复未验证claim。
@@ -294,7 +294,6 @@ fn handle_secured_with_context(
     limits: &HttpLimits,
     security: &Security,
     admitted: &mut Option<crate::request_context::RequestContext>,
-    delivery: Option<&mut Option<(Option<u64>, Instant)>>,
 ) -> HttpResponse {
     *admitted = (security.authenticator.is_none() && service.context.trusted_local())
         .then(|| service.context.clone());
@@ -337,20 +336,6 @@ fn handle_secured_with_context(
     };
     // 身份来自本次实际认证的请求服务，既不重读token，也不写入共享Engine。
     *admitted = Some(service.context.clone());
-    if let Some(delivery) = delivery {
-        // 认证后、业务分发前固定版本；SQL、业务耗时及发送不刷新同一个投递窗口。
-        let deadline = Instant::now() + limits.read_timeout;
-        *delivery = Some((None, deadline));
-        match crate::http_delivery_authority::generation_until(service, deadline) {
-            Ok(generation) => *delivery = Some((Some(generation), deadline)),
-            Err(_) => {
-                return HttpResponse::json(
-                    503,
-                    json!({"error":"delivery_authorization_unavailable"}),
-                );
-            }
-        }
-    }
     match request.method.as_str() {
         "POST" => handle_post(service, request, limits),
         // GET /mcp is answered inline by the serve loop as a long-lived
@@ -777,13 +762,6 @@ fn write_response_with_connection(
     response: &HttpResponse,
     keep_alive: bool,
 ) -> std::io::Result<()> {
-    let head = response_head(response, keep_alive);
-    stream.write_all(head.as_bytes())?;
-    stream.write_all(response.body.as_bytes())?;
-    stream.flush()
-}
-
-fn response_head(response: &HttpResponse, keep_alive: bool) -> String {
     let reason = match response.status {
         200 => "OK",
         202 => "Accepted",
@@ -808,7 +786,9 @@ fn response_head(response: &HttpResponse, keep_alive: bool) -> String {
     } else {
         "Connection: close\r\n\r\n"
     });
-    head
+    stream.write_all(head.as_bytes())?;
+    stream.write_all(response.body.as_bytes())?;
+    stream.flush()
 }
 
 /// Serves connections until the listener is closed. Returns the number of
@@ -1153,27 +1133,14 @@ pub(crate) fn serve_config_with_runtime(
                     break;
                 }
                 let mut admitted_context = None;
-                let mut delivery = None;
                 let response = {
                     let mut service = shared_service.as_ref().clone();
-                    handle_secured_with_context(&mut service, &request, &limits, &security, &mut admitted_context, Some(&mut delivery))
+                    handle_secured_with_context(&mut service, &request, &limits, &security, &mut admitted_context)
                 };
-                let head = response_head(&response, true);
-                let deadline = delivery.map(|(_, deadline)| deadline)
-                    .unwrap_or_else(|| Instant::now() + limits.read_timeout);
-                let sent = crate::http_delivery_writer::write_until(&mut stream,
-                    &[head.as_bytes(), response.body.as_bytes()], deadline, || {
-                        if connection_state.stopped() {
-                            return Err(std::io::Error::new(ErrorKind::Interrupted, "HTTP server stopping"));
-                        }
-                        if let (Some(context), Some((Some(generation), _))) = (&admitted_context, delivery) {
-                            crate::http_delivery_authority::authorize_until(&shared_service, context, generation, deadline)?;
-                        }
-                        Ok(())
-                    });
-                if sent.is_ok() {
-                    handled.fetch_add(1, Ordering::SeqCst);
+                if write_response(&mut stream, &response).is_err() {
+                    break;
                 }
+                handled.fetch_add(1, Ordering::SeqCst);
                 let principal = admitted_context.as_ref()
                     .map(|context| context.principal().as_str())
                     .unwrap_or("anonymous");
@@ -1186,15 +1153,11 @@ pub(crate) fn serve_config_with_runtime(
                             &[
                                 ("principal", principal),
                                 ("client", &client),
-                                ("path", &request.path),
-                                ("delivery", if sent.is_ok() { "complete" } else { "failed" })
+                                ("path", &request.path)
                             ]
                         )
                     );
                 });
-                if sent.is_err() {
-                    break;
-                }
             }
             }));
             connection_state.release(connection_id);

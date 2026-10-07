@@ -1,0 +1,17 @@
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.12s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_mcp-74b353ab38591c0b)
+
+running 9 tests
+test http_delivery_writer_tests::exhausted_deadline_never_sends_the_first_byte ... ok
+test http_delivery_writer_tests::authorization_time_consumes_the_same_delivery_deadline ... ok
+test http_delivery_writer_tests::successful_delivery_restores_blocking_reads_for_the_next_request ... ok
+test http_delivery_writer_tests::a_nonreading_peer_cannot_extend_the_absolute_deadline ... ok
+test http_delivery_writer_tests::expired_request_context_prevents_the_first_byte ... ok
+test http_delivery_writer_tests::unicode_request_id_keeps_the_session_header_printable_ascii ... ok
+test http_delivery_writer_tests::long_request_id_cannot_expand_the_http_session_header ... ok
+test http_delivery_writer_tests::changed_authorization_prevents_the_first_byte ... ok
+test http_delivery_writer_tests::authorization_change_between_chunks_stops_remaining_bytes ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 164 filtered out; finished in 0.20s
+

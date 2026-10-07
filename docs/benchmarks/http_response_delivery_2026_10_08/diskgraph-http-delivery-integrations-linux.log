@@ -1,0 +1,69 @@
+   Compiling diskgraph-mcp v0.3.0 (/src/crates/diskgraph-mcp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.10s
+     Running tests/deploy_contract.rs (/target/debug/deps/deploy_contract-8424ce456804cad5)
+
+running 6 tests
+test the_packaging_script_runs_on_linux_hosts_not_darwin ... ok
+test the_http_unit_requires_operator_authentication_configuration ... ok
+test the_packaging_script_verifies_restart_safety_and_local_only ... ok
+test the_unit_defaults_to_loopback_and_keeps_sqlite_local ... ok
+test the_unit_execstart_names_the_shipped_binary_and_profile ... ok
+test the_unit_runs_unprivileged_with_hardening ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/deployment_settings_compatibility.rs (/target/debug/deps/deployment_settings_compatibility-15b2a260b070714d)
+
+running 1 test
+test mcp_public_deployment_settings_are_the_engine_type ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/durable_request_authority.rs (/target/debug/deps/durable_request_authority-92a79d4bdc98d5cb)
+
+running 4 tests
+test a_database_writer_with_a_narrow_token_cannot_queue_index_or_sync ... ok
+test valid_remote_index_and_sync_publish_and_remain_queryable_after_disconnect ... ok
+test an_authenticated_queued_index_cannot_outlive_its_original_token ... ok
+test an_authenticated_queued_sync_cannot_outlive_its_original_token ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.82s
+
+     Running tests/hardening.rs (/target/debug/deps/hardening-a0c4a68026a1b488)
+
+running 10 tests
+test legacy_sessions_are_bound_to_the_handshake_principal ... ok
+test negative_token_expiry_is_malformed ... ok
+test issuers_cannot_alias_the_same_subject ... ok
+test a_valid_unscoped_token_does_not_inherit_the_local_admin ... ok
+test a_real_sse_connection_cannot_bypass_origin_or_authentication ... ok
+test opening_remote_on_a_local_database_does_not_reuse_local_privileges ... ok
+test node_and_top_do_not_decode_unrelated_revision_rows ... ok
+test socket_sse_quota_is_per_subject_and_revocation_closes_connections ... ok
+test socket_requests_intersect_subject_grants_and_token_capabilities ... ok
+test socket_sse_expires_with_its_authenticated_token ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.24s
+
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 3 tests
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... FAILED
+test sigint_stops_actual_http_runtime_and_returns_success ... ok
+test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+
+failures:
+
+---- debug_unicode_request_keeps_the_original_authenticated_listener_alive stdout ----
+
+thread 'debug_unicode_request_keeps_the_original_authenticated_listener_alive' (907) panicked at crates/diskgraph-mcp/tests/http_signal_shutdown.rs:79:46:
+called `Result::unwrap()` on an `Err` value: Os { code: 104, kind: ConnectionReset, message: "Connection reset by peer" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    debug_unicode_request_keeps_the_original_authenticated_listener_alive
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+error: test failed, to rerun pass `-p diskgraph-mcp --test http_signal_shutdown`

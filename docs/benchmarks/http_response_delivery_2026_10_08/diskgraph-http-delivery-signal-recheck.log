@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running tests/http_signal_shutdown.rs (/target/debug/deps/http_signal_shutdown-74a955288ce9a4e6)
+
+running 1 test
+test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.17s
+
