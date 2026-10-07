@@ -1,0 +1,8 @@
+{
+  "commit": "76e91947d87564ac0d0d37fcb14b1494b09a9334",
+  "platform": "Linux ARM64 Docker LinuxKit, uid1000, network none, read-only source mount",
+  "profile": "release",
+  "raw_log_sha256": "c1fe7d6dbeebb8fcf00e9c289973b617f7da04daf54b6f5612f460e3d88811ed",
+  "status": "passed",
+  "limits": "Paired full-load vs narrow reads on same revision; not historical scan comparison, strict RSS bound, native host deployment or other platform acceptance."
+}
