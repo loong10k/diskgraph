@@ -36,4 +36,8 @@ impl Authorizer for RequestAuthorizer {
     fn policy_version(&self) -> u64 {
         self.policy.policy_version()
     }
+
+    fn expires_at_unix_seconds(&self) -> Option<u64> {
+        self.expires_at
+    }
 }

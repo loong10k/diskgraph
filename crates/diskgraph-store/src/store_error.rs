@@ -32,6 +32,13 @@ pub enum StoreError {
     StaleOwner,
     #[error("conflict: {0}")]
     Conflict(String),
+    /// 注册已经提交，后续连接清理失败；不得当作未授权或未提交结果。
+    #[error("scope {scope_id} registration committed; connection cleanup failed: {source}")]
+    RegistrationCommitted {
+        scope_id: diskgraph_core::ScopeId,
+        #[source]
+        source: Box<StoreError>,
+    },
     #[error("retention violation: {0}")]
     RetentionViolation(String),
     #[error("invalid graph: {0}")]

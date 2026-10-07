@@ -1,0 +1,29 @@
+{
+  "run_id": 37564413917,
+  "job_id": 112608759515,
+  "source_sha": "56923f27e719c452ac9221f74250ccbbd7e1b762",
+  "conclusion": "failure",
+  "failed_tests": [
+    "test live_evidence::evidence_probe_session_tests::git_metadata_entries_accumulate_across_observations ... FAILED",
+    "test foreign_server_owned_history_is_denied_before_comparability ... FAILED",
+    "test generic_authorized_comparison_remains_available_across_scopes_and_roots ... FAILED",
+    "test authorized_distinct_actual_scopes_are_not_growth_compatible ... FAILED",
+    "test authorized_distinct_actual_scopes_have_changes_incompatibility ... FAILED",
+    "test missing_grant_on_either_side_is_denied_instead_of_incompatible ... FAILED",
+    "test same_actual_scope_history_keeps_positive_delta_and_size_changes ... FAILED",
+    "test scope_incompatible_changes_cannot_hide_response_budget_or_deadline ... FAILED",
+    "test scope_incompatible_changes_still_rechecks_terminal_revocation ... FAILED",
+    "test scope_incompatible_growth_still_cannot_fit_null_in_one_byte_budget ... FAILED",
+    "test scope_incompatible_growth_still_rechecks_terminal_revocation ... FAILED",
+    "test scope_incompatible_growth_still_rejects_terminal_deadline ... FAILED",
+    "test native_growth_scope_tests::ffi_authorized_different_actual_scopes_return_null_for_root_and_child ... FAILED",
+    "test native_growth_scope_tests::ffi_different_scope_history_requires_both_grants ... FAILED",
+    "test native_growth_scope_tests::ffi_foreign_server_history_is_denied_before_comparability ... FAILED",
+    "test native_growth_scope_tests::ffi_incompatible_scope_null_still_rechecks_each_terminal_grant ... FAILED",
+    "test native_growth_scope_tests::ffi_incompatible_scope_null_still_rechecks_terminal_deadline ... FAILED",
+    "test native_growth_scope_tests::ffi_same_actual_scope_preserves_positive_growth ... FAILED"
+  ],
+  "is_current_source": false,
+  "history_fixture_fixed_in": "21d583a",
+  "note": "library evidence probe cause needs current source diagnosis; old passing root/expiry cases do not imply full job success"
+}

@@ -105,6 +105,13 @@ pub trait Authorizer {
     fn policy_version(&self) -> u64 {
         0
     }
+
+    /// 返回请求认证不可延长的绝对到期时间，单位为 Unix 秒。
+    /// 参数：无；返回：可信本地策略为 None，远程请求返回原认证期限。
+    /// 写事务等待和提交复验使用此固定值；它不能代替逐项能力决定。
+    fn expires_at_unix_seconds(&self) -> Option<u64> {
+        None
+    }
 }
 
 /// The default: deny everything. A deployment that never grants capabilities

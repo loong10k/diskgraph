@@ -13,3 +13,17 @@ SQLite consistent backups precede upgrades. Failed migration or view validation 
 当前候选验证状态：macOS 隔离行为测试 8 项通过，相关历史与关系回归合计 40 项通过；Linux/Windows 原生结果、完整 workspace 与最终查询性能仍需验收。此文档不构成生产就绪证明。
 
 Candidate validation: eight isolated behavior tests and 40 related history/relation regressions pass on macOS. Native Linux/Windows results, the complete workspace, and final query performance remain pending. This document is not production-readiness evidence.
+
+## 运行中撤权与注册事务 / Runtime isolation and registration transactions
+
+scope 注册会重新核验原生根别名组。对外查询在最终返回前使用新读连接重新读取授权视图；旧消费者连接的读事务不能维持已隔离 revision 的访问资格。关系、显示树以及历史比较的两侧均执行末段核验，沿用原查询预算或既有末段授权窗口，不重新签发数据预算。原归属仍供可信内部审计读取。
+
+注册 scope 与三项默认 grant 在控制库同一个 `BEGIN IMMEDIATE` 事务中写入。请求权限在取得锁后重新检查，持久管理员授权与固定 policy epoch 在事务内检查，图库负向隔离先于控制库提交。提交前失败回滚 scope/grants；已经发生的图库隔离保留为 fail-closed 状态。COMMIT 后连接清理失败返回 `RegistrationCommitted`，携带已提交 scope 与原错误，不投射为认证失败。五秒提交准入窗口不是文件系统、Mutex 或图库回调的硬墙钟返回保证。
+
+Runtime scope registration reconciles native root aliases. External reads recheck the authorization view before returning, using a fresh read connection so a consumer-held snapshot cannot preserve access to a quarantined revision. Tree, relation and both historical inputs retain the original data budget or existing terminal authorization window. Trusted audit access still retains the original ownership row.
+
+Scope and default grants share a control-database `BEGIN IMMEDIATE` transaction. Request authority is checked after lock acquisition; persistent admin authority and a fixed policy epoch are checked inside the transaction. Graph denial precedes control commit. Pre-commit failures roll back scope and grants; graph denial already applied remains fail-closed. A post-COMMIT connection-cleanup failure reports `RegistrationCommitted` with the committed scope and original error. The five-second commit-admission window does not guarantee a hard return deadline for filesystem calls, Mutex acquisition or graph callbacks.
+
+新增隔离夹具覆盖查询中注册导致隔离的 25 种路径；FFI 原始根身份兼容夹具六项回归已在本机通过。证据目录为 `docs/benchmarks/runtime_authorization_54d9/`。本机 FFI 全库结果为 39 通过、52 失败；41 项明确 Unsupported，其余失败仍需逐项追踪，不能以目标测试通过替代全库验收。Windows 清理错误只增加阶段诊断，尚无新原生运行证明，也未将 OS 87 当作删除成功。
+
+The runtime isolation fixture covers 25 read/registration paths. Six FFI native-root compatibility regressions pass locally. Full local FFI testing reports 39 passed and 52 failed, including 41 explicit Unsupported results; the remaining failures require individual tracing. Targeted passes do not replace full-suite acceptance. Windows cleanup now identifies its failing phase; native validation is pending and OS error 87 is never interpreted as deletion success.

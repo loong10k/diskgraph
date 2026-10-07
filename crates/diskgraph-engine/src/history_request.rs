@@ -1,5 +1,5 @@
 use crate::{Engine, EngineError};
-use diskgraph_core::{Authorizer, PrincipalId, QueryBudget, QueryReadBudget};
+use diskgraph_core::{Authorizer, BusinessError, PrincipalId, QueryBudget, QueryReadBudget};
 use diskgraph_store::SqliteSnapshotStore;
 use std::time::Instant;
 
@@ -61,17 +61,38 @@ impl Engine {
             )
         })();
         let control = self.control_store()?;
+        let authorization_deadline = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
         let scopes = [&left_scope, &right_scope];
+        // 两侧每轮共用固定授权窗口；只读过滤归属，不续期历史迭代与编码预算。
+        let ownerships = || {
+            self.require_terminal_revision_ownership(
+                left,
+                &left_scope,
+                &control,
+                authorization_deadline,
+            )?;
+            self.require_terminal_revision_ownership(
+                right,
+                &right_scope,
+                &control,
+                authorization_deadline,
+            )
+        };
         Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
+        ownerships()?;
         let mut result = result?;
         let expired = Instant::now() >= deadline;
         let encoded = finish(&mut result, expired);
         // guard 只限制本 Engine 重入；独立连接依然能撤权，编码后重新读取。
         Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
+        ownerships()?;
         encoded?;
         if !expired && Instant::now() >= deadline {
             let encoded = finish(&mut result, true);
             Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
+            ownerships()?;
             encoded?;
         }
         Ok(result)

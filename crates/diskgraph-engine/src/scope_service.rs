@@ -2,7 +2,7 @@
 
 use crate::{Engine, EngineError, admin_scope};
 use diskgraph_core::{
-    Authorizer, BusinessError, Grant, Locator, Permission, PrincipalId, ResourceRef, ScopeId,
+    Authorizer, BusinessError, Locator, Permission, PrincipalId, ResourceRef, ScopeId,
 };
 use diskgraph_store::{ScopeRecord, StoreError};
 use std::path::Path;
@@ -18,6 +18,10 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<ScopeId, EngineError> {
+        let deadline = std::time::Instant::now()
+            .checked_add(std::time::Duration::from_secs(5))
+            .ok_or(BusinessError::InvalidArgument)?;
+        let expiry = authorizer.expires_at_unix_seconds();
         self.require(
             authorizer,
             principal,
@@ -30,30 +34,35 @@ impl Engine {
         // 与扫描发布/历史回收保持 graph→control 顺序，注册与隔离完成前不授新权限。
         let mut graph = self.graph()?;
         let mut control = self.control()?;
-        let scope_id = control.register_scope(&locator, volume_id.as_deref())?;
-        crate::revision_root_reconciliation::eligible_roots(
-            &mut graph,
-            &control.ensure_server()?,
-            &control.list_scopes()?,
+        // 等待路径解析和双锁期间，能力或数据库策略可能失效；写入前复核。
+        Self::require_with_control(
+            &control,
+            authorizer,
+            principal,
+            &Permission::ScopeAdmin,
+            &admin_scope(),
         )?;
-        // The registrar receives scope-local index/metadata/operation rights;
-        // server administration itself stays bound to the admin scope.
-        let version = control.policy_version()?;
-        if version > 0 {
-            for permission in [
-                Permission::IndexWrite,
-                Permission::MetadataRead,
-                Permission::OperationView,
-            ] {
-                control.upsert_grant(&Grant {
-                    principal: principal.clone(),
-                    permission,
-                    scope: scope_id.clone(),
-                    policy_version: version,
-                })?;
+        let registered = control.register_scope_with_grants_until(
+            &locator,
+            volume_id.as_deref(),
+            principal,
+            &admin_scope(),
+            deadline,
+            expiry,
+            |server, scopes| {
+                crate::revision_root_reconciliation::eligible_roots(&mut graph, server, scopes)
+                    .map(|_| ())
+            },
+        );
+        match registered {
+            Ok(Some(scope)) => Ok(scope),
+            Ok(None) => Err(BusinessError::PermissionDenied.into()),
+            // 只转换写守卫确认的原认证到期；已提交清理错误不伪装成拒权。
+            Err(StoreError::Conflict(message)) if message == "job request authority expired" => {
+                Err(BusinessError::PermissionDenied.into())
             }
+            Err(error) => Err(error.into()),
         }
-        Ok(scope_id)
     }
 }
 

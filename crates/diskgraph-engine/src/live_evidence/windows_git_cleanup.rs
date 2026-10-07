@@ -186,7 +186,7 @@ impl WindowsGitCleanup {
                 if cursor.cleanup_child_delete_requested() {
                     self.frames.pop();
                 }
-                result.map_err(|error| error.to_string())?;
+                result.map_err(|error| format!("original child directory cleanup: {error}"))?;
                 continue;
             }
             let frame = &mut self.frames[last];
@@ -238,7 +238,7 @@ impl WindowsGitCleanup {
                     .as_mut()
                     .expect("original cursor")
                     .mark_cleanup_child(&file, &frame.label, capacity, probe)
-                    .map_err(|error| error.to_string())?;
+                    .map_err(|error| format!("original child file cleanup: {error}"))?;
             }
         }
         self.finish_root(probe)
@@ -256,7 +256,7 @@ impl WindowsGitCleanup {
                         .as_ref()
                         .ok_or("original root missing")?
                         .reopen_for_delete()
-                        .map_err(|error| error.to_string())?,
+                        .map_err(|error| format!("original root deletion lease: {error}"))?,
                 );
             }
             if self.observation.is_none() {
@@ -270,21 +270,22 @@ impl WindowsGitCleanup {
                     expected,
                     probe,
                 )
-                .map_err(|error| error.to_string())?;
+                .map_err(|error| format!("original root parent binding: {error}"))?;
                 WindowsGitRemovalObservation::prepare_into(
                     &actual_parent,
                     expected,
                     probe,
                     &mut self.observation,
                 )
-                .map_err(|error| error.to_string())?;
+                .map_err(|error| format!("original root removal subscription: {error}"))?;
             }
             self.observation
                 .as_ref()
                 .expect("original root observation")
                 .check_before_delete(expected, probe)
-                .map_err(|error| error.to_string())?;
-            mark(self.delete_file.as_ref().expect("original delete handle"))?;
+                .map_err(|error| format!("original root pre-delete observation: {error}"))?;
+            mark(self.delete_file.as_ref().expect("original delete handle"))
+                .map_err(|error| format!("original root disposition request: {error}"))?;
             self.delete_requested = true;
         }
         if !self.post_mark_verified {
@@ -294,7 +295,7 @@ impl WindowsGitCleanup {
                     .ok_or("original root seal handle missing")?,
                 expected,
             )
-            .map_err(|error| error.to_string())?;
+            .map_err(|error| format!("original root deletion seal: {error}"))?;
             self.post_mark_verified = true;
             // 全部原根句柄关闭后才能观察真实删除；副作用与seal事实先锁存。
             self.delete_file = None;
@@ -306,7 +307,7 @@ impl WindowsGitCleanup {
             .as_mut()
             .ok_or("original root observation missing")?
             .confirm(expected, probe)
-            .map_err(|error| error.to_string())?
+            .map_err(|error| format!("original root removal confirmation: {error}"))?
         {
             Ok(())
         } else {

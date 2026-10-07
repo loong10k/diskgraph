@@ -109,7 +109,7 @@ impl NativeGrowthScopeFixture {
         fixture
     }
 
-    /// 通过可信旧节点发布入口导入记录；参数：标识、根序号、大小、时间、可选归属服务；返回：无。
+    /// 保留原始根身份并导入旧节点；参数：标识、根序号、大小、时间、可选归属服务；返回：无。
     pub(crate) fn publish(
         &self,
         id: &str,
@@ -120,7 +120,13 @@ impl NativeGrowthScopeFixture {
     ) {
         let graph = stored_graph(id, &self.roots[side], bytes, time, "2049".into());
         let mut store = SqliteSnapshotStore::open(Path::new(&self.database)).unwrap();
-        store.append_staging_nodes(id, &graph.nodes).unwrap();
+        // 根身份来自夹具保留的原始 PathBuf，禁止从有损显示路径反推。
+        // 文件节点仍保留旧元数据，不虚构原生扫描身份。
+        let root = diskgraph_core::QualifiedLocator::from_native_path(&self.roots[side]).unwrap();
+        store
+            .append_staging_located_iter(id, std::iter::once((&graph.nodes[0], &root, None)))
+            .unwrap();
+        store.append_staging_nodes(id, &graph.nodes[1..]).unwrap();
         let local = self.engine.server_id().unwrap();
         store
             .publish_revision_owned(

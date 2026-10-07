@@ -1,51 +1,11 @@
 //! 旧归属回填只使用可证明无损的身份；所有数据库均为隔离夹具，不启动扫描。
-use diskgraph_core::{
-    DiskGraph, DiskSnapshot, Locator, ResourceLocator, ScanCoverage, ScanSettings,
-};
+use diskgraph_core::{Locator, ResourceLocator};
 use diskgraph_engine::{Engine, EngineConfig};
 use diskgraph_store::{ControlStore, SqliteSnapshotStore};
 
-fn legacy_graph(legacy_root: ResourceLocator) -> DiskGraph {
-    DiskGraph {
-        snapshot: DiskSnapshot {
-            id: "legacy-snapshot".into(),
-            root: legacy_root.clone(),
-            volume_id: None,
-            captured_at_unix_ms: 1,
-            settings: ScanSettings {
-                apparent_size: true,
-                follow_links: false,
-                include_hidden: true,
-                one_filesystem: true,
-                max_depth: None,
-                dedup_hardlinks: true,
-            },
-            coverage: ScanCoverage {
-                complete: true,
-                unreadable_nodes: 0,
-                depth_limited: false,
-            },
-        },
-        nodes: vec![diskgraph_core::DiskNode {
-            id: 1,
-            parent_id: None,
-            locator: legacy_root,
-            name: "root".into(),
-            kind: diskgraph_core::NodeKind::Directory,
-            subtree_bytes: 0,
-            direct_bytes: 0,
-            size_known: true,
-            files: 0,
-            directories: 1,
-            modified_unix_seconds: None,
-            file_identity: None,
-            category_hint: None,
-            reclaim_hint: None,
-            read_error: false,
-        }],
-        evidence: vec![],
-    }
-}
+#[path = "support/legacy_graph.rs"]
+mod legacy_graph;
+use legacy_graph::legacy_graph;
 
 fn backfill(roots: &[Locator], legacy_root: ResourceLocator) -> Option<(String, String)> {
     legacy_database(roots, legacy_root, false, None).0

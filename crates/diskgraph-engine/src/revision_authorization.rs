@@ -210,6 +210,7 @@ impl Engine {
             Self::require_terminal_relation(&control, authorizer, principal, &scope);
         withdrawal.check(&control)?;
         authorization?;
+        self.require_terminal_revision_ownership(revision_id, &scope, &control, deadline)?;
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
@@ -317,7 +318,7 @@ impl Engine {
             }
             consumer(&reader, &snapshot_id, reads)
         })();
-        // 归属来自读取前解析的不可变已发布 revision，不在过期 graph reader 上追加查询。
+        // 数据读取仍用原期限；固定末段窗口还须观察运行期新提交的 revision 隔离。
         let authorization_deadline = std::time::Instant::now()
             .checked_add(Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
@@ -350,6 +351,12 @@ impl Engine {
             other => other?,
         }
         withdrawal.check(&control)?;
+        self.require_terminal_revision_ownership(
+            revision,
+            &scope,
+            &control,
+            authorization_deadline,
+        )?;
         // 已授权准备和消费的错误也先通过终检；撤权不能被预算错误遮盖。
         let completion = completion?;
         if completion == crate::RevisionDisplayCompletion::Complete

@@ -58,16 +58,38 @@ impl Engine {
         #[cfg(test)]
         crate::relation_request_tests::after_read(deadline);
         let control = self.control_store()?;
+        // 只用于末段授权，不续期结果读取；所有编码后复检沿用同一个窗口。
+        let authorization_deadline = Instant::now()
+            .checked_add(std::time::Duration::from_millis(50))
+            .ok_or(BusinessError::InvalidArgument)?;
         Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+        self.require_terminal_revision_ownership(
+            revision,
+            &scope,
+            &control,
+            authorization_deadline,
+        )?;
         let mut result = result?;
         let expired = Instant::now() >= deadline;
         let encoded = finish(&mut result, expired);
         // 本 Engine 的 guard 防止重入；独立连接仍可撤权，故编码后重新读实际 scope。
         Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+        self.require_terminal_revision_ownership(
+            revision,
+            &scope,
+            &control,
+            authorization_deadline,
+        )?;
         encoded?;
         if !expired && Instant::now() >= deadline {
             let encoded = finish(&mut result, true);
             Self::require_terminal_relation(&control, authorizer, principal, &scope)?;
+            self.require_terminal_revision_ownership(
+                revision,
+                &scope,
+                &control,
+                authorization_deadline,
+            )?;
             encoded?;
         }
         Ok(result)
@@ -174,6 +196,13 @@ impl Engine {
             .map(|(_, scope)| scope)
             .collect::<Vec<_>>();
         Self::require_terminal_relations(&control, authorizer, principal, &scopes)?;
+        // 上面的最后能力回调可通过独立 Engine 注册并隔离先前解析的 revision。
+        // 此 reader 未交给消费者、也未持显式读事务；回调完成后各 SELECT 观察新提交。
+        for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
+            if !reader.revision_ownership_matches(revision, server, scope.as_str())? {
+                return Err(BusinessError::PermissionDenied.into());
+            }
+        }
         Ok(Instant::now() < deadline)
     }
 }

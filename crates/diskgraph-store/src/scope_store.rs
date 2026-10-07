@@ -42,6 +42,15 @@ impl ControlStore {
     /// 参数：root：无损根定位或根过滤条件；volume_id：可选卷身份。
     /// 返回：`Result<ScopeId>` 的当前持久查询结果；数据库/格式/状态错误向调用者传播。
     pub fn register_scope(&mut self, root: &Locator, volume_id: Option<&str>) -> Result<ScopeId> {
+        self.register_scope_on_connection(root, volume_id)
+    }
+
+    /// 参数：根与卷身份；返回：当前连接/当前事务的范围，不建立另一连接或事务。
+    pub(crate) fn register_scope_on_connection(
+        &self,
+        root: &Locator,
+        volume_id: Option<&str>,
+    ) -> Result<ScopeId> {
         let existing: Option<(String, i64)> = self
             .connection
             .query_row(

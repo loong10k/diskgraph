@@ -1,0 +1,111 @@
+{
+  "created_utc": "2026-10-07T04:01:46.893402+00:00",
+  "base_sha": "54d9a51780a6e0905e3a07ab016dbdb98ddb9aaa",
+  "scope": "Runtime revision isolation, atomic scope registration, legacy FFI native root proof, Windows cleanup phase diagnostics",
+  "source_sha256": {
+    "crates/diskgraph-core/src/permissions.rs": "abde4e25336c45c0bd990f9cbdfb8f9b0308ea4e6c33729bdfaabceeca718d08",
+    "crates/diskgraph-engine/src/history_request.rs": "1264499b48fd1c77a973b7ec65587cc1dca9ecea48d8582d2eecff1cf8e0d15d",
+    "crates/diskgraph-engine/src/lib.rs": "a21eee07c5c1a67780b55204632072f12a42c209d968aa786769a91601e810c3",
+    "crates/diskgraph-engine/src/relation_request.rs": "7ab96227b0dc8ed2ca0ffb1aaa1a4321c1d6478240fde4c794477862757957cf",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "c14d54b094b98fb92d8b60671736ac168367bbace5be6f4b9fbf2d87e5a32064",
+    "crates/diskgraph-engine/src/revision_root_reconciliation.rs": "6ccb2c87d755075df05bac51e8361b8f6a3c655cb4777190aaea5889feb8e6a9",
+    "crates/diskgraph-engine/src/scope_service.rs": "1079f6d2c5f72f89716d27af8ad1c2ed4cca60e8da2600e0e189f4529836b002",
+    "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "a39785f2d72e4964524fade09c303554bd3e61003fb22d5a4b94671aa6c1c7d9",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "0a5b640323cb41afe3137378d2c4f99b787eb3334e87f1a646caf7fddd207abe",
+    "crates/diskgraph-engine/tests/legacy_backfill_identity.rs": "c317cefea25560b8bcd7f9f71bc0eebbf0acc3d13a8d24a816b89a627d0844f1",
+    "crates/diskgraph-engine/tests/runtime_revision_authorization.rs": "2228ae5a2a23ec4eb45a69d3474a17698df4e05602c2687cb66aaffc1405b43d",
+    "crates/diskgraph-engine/tests/scope_registration_atomic_tests.rs": "1d12b31a41433d165dd180251e30f81dbd91543de1d9c40182f9c2d13e650add",
+    "crates/diskgraph-engine/tests/scope_registration_terminal_tests.rs": "1b574d0627bc73e835f8136e273b8867a22db76ea713e7138c99cb263f9a2e6f",
+    "crates/diskgraph-engine/tests/support/legacy_graph.rs": "8e6c1521bc6b453193ec58e9f44623a953b5638de6739e6da50c8e1623412bff",
+    "crates/diskgraph-mcp/src/request_authorizer.rs": "5dc6eac1f5f28b1b94e9df188f05dbae133d75cf01c32ba88d7497f5d457849d",
+    "crates/diskgraph-store/src/lib.rs": "8acf7198434be7ccd79a1877262d8fc92f0fe0ff95bdde00c4ac60c577093591",
+    "crates/diskgraph-store/src/policy_store.rs": "1a11480fcd5522d6a0cbac02a2b5544a3a07eb84c6c41abde64a7cce13b1f13e",
+    "crates/diskgraph-store/src/revision_queries.rs": "650dd5d7d41f68794a1b39baa342a134215f510904b3e3ec31e6b6f039f874c6",
+    "crates/diskgraph-store/src/scope_store.rs": "a7f494e07e56366fca5ba66e7f93697e7d1d1127b507f66cce2c4d7eaeb5fd4a",
+    "crates/diskgraph-store/src/store_error.rs": "6f09130cb8a229cb8bbc2d82e05ac2bcff4cfee428d1c02236443449130a17c2",
+    "crates/diskgraph-store/src/scope_registration_transaction.rs": "409781e9daeee3cb8275f404431c8dfadbd0a25d79abf0d3a2105454f38a6ab3",
+    "crates/diskgraph-store/src/scope_registration_transaction_tests.rs": "2d00ee852f125ba480f859128513b27fccfcb18b474e26236b2493aee9227153",
+    "crates/diskgraph-ffi/src/native_growth_scope_fixture.rs": "8cb4c528e795d51872ad54c91742d39fcc865d6dcd4a7e49f7e2beb72035822a",
+    "docs/revision_ownership_isolation.md": "e5dc7945c166228852ee5ced1ec478a0cc574c15a391fb05fdc7c421b48d47a7",
+    "openspec/changes/implement-diskgraph-platform/specs/scope-authorization/spec.md": "1a631c82d6ec60ee191a0d5047e9ea2d45f9151e8d79ff5623e44980ec034128"
+  },
+  "test_counts": {
+    "store_final.log.gz": {
+      "passed": 324,
+      "failed": 0,
+      "ignored": 5
+    },
+    "core_final.log.gz": {
+      "passed": 175,
+      "failed": 0,
+      "ignored": 0
+    },
+    "engine_metadata_final.log.gz": {
+      "passed": 40,
+      "failed": 0,
+      "ignored": 0
+    },
+    "ffi_historical_scope_green.log.gz": {
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0
+    },
+    "ffi_lib_final.log.gz": {
+      "passed": 39,
+      "failed": 52,
+      "ignored": 0
+    },
+    "vendor_final.log.gz": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "checks": {
+    "fmt": "passed, five specified packages",
+    "clippy": "passed, five packages all targets, -D warnings",
+    "vendor": "pinned_upstream 4 tests passed"
+  },
+  "red_logs": [
+    "revision_terminal_red.log.gz",
+    "history_terminal_red.log.gz",
+    "registration_atomic_red.log.gz",
+    "ffi_historical_scope_red.log.gz"
+  ],
+  "independent_review": {
+    "security": "APPROVE this increment only",
+    "architecture": "CLEAR increment, WATCH hard-return limit and no direct post-COMMIT cleanup fault injection"
+  },
+  "platform": "aarch64-apple-darwin local; Windows diagnostics not natively built or executed",
+  "limitations": [
+    "Not production-ready",
+    "Full FFI library: 39 pass, 52 fail; 41 explicit Unsupported; 11 require further tracing",
+    "Fixed trusted macOS scan-worker installation absent; no installation performed",
+    "Windows old-source full CI failed; 18 tests, including OS87 and historical fixture failures; not a current-source verdict",
+    "Frontend supervisor integration and finite public CLI/MCP exit incomplete",
+    "Same-SHA cross-platform full CI and performance acceptance pending"
+  ],
+  "evidence_sha256": {
+    "windows_56923_failure_summary.json": "ee4146eaf0ddafe645b7195de704978ac950f4f0ab5f3e5c32d36b2ad1ec0edb",
+    "registration_atomic_green.log.gz": "2406032e868a717d4e2c413d3a6b10686516ddd31cc40d0e0cd19c2100e658cd",
+    "revision_terminal_red.log.gz": "5b8440d9c2e892d38813ec25f61da6c8f66ac6c757960fba7df253eb73a668f4",
+    "revision_terminal_green.log.gz": "346f02141d4da0633589912daa402116cb39432e66d4dff32afdda807964a162",
+    "ffi_historical_scope_green.log.gz": "dcc7fc0a17e62efc1b4a903cc6b05d88a4e43d63384cd175e38167ed686fdced",
+    "clippy.log.gz": "f4c353b42a3328bf24b211e33daef932da085169eb09ea16d93e4779b7737c73",
+    "history_terminal_red.log.gz": "3962ddf89a6b3c97478349538ada66806e26bc81b0c25e1b1507ae13b6905c37",
+    "store_final.log.gz": "1eb378bae987aaceb8aa847d4d710a5fd8398c599a833f0ba04c6f493e0e8373",
+    "clippy_final.log.gz": "162087f5d898bb64820a0578345f417275c3a38948d99be8067601f20be53333",
+    "engine_metadata_final.log.gz": "3196e1a192cb829b07ea55d5520279b437ffb3e2deb0e814b482dc1106b391dd",
+    "ffi_lib_final.log.gz": "3fd34019b1fc36ffac227078af3ba9f9ccbd474eacd0984077c1986f8db703a6",
+    "core_final.log.gz": "5d40e444830cd69215b4146febcfc9a3f548abe53551f77cc32bd9f715f89aa1",
+    "fmt_final.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "vendor_final.log.gz": "000f9d4b9d35802224b921ed874719480756a9e3010311a91f8cfc63d172c788",
+    "windows_56923_msrv_full_job.log.gz": "4f9ceb93b1089022a3a53543d6f4ce38ca945650fc1e8feeaffdcd54a4a445b5",
+    "ffi_historical_scope_red.log.gz": "861e013e036c447446fa962e95499bd39719c64e8a067a6515a730e242d06f12",
+    "ffi_lib_failure_classification.json": "4d740602a62c8882efac9577f8f4789da0516a0a33698a5e1a0a48c3c6efb7c5",
+    "history_terminal_green.log.gz": "68f75c8fb24c705f4f9a665104126cdc60b3248e4aef03b8e7cf8e28548a18e0",
+    "registration_atomic_red.log.gz": "8a9fc3c5b81d1c3f44fd346b703bfc781fa3ed0fb1bd1099559b42ac0be1d06e",
+    "registration_transaction_green.log.gz": "c494c92cde7c0991d0e4c380d0ee47bfa3803fbbca6471e4efb73e0c5b15af66"
+  },
+  "log_storage": "Gzip archives preserve raw command bytes, including trailing blank lines."
+}

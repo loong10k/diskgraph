@@ -55,6 +55,11 @@ impl ControlStore {
     /// 参数：grant：完整主体/权限/范围/epoch 授权。
     /// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
     pub fn upsert_grant(&mut self, grant: &Grant) -> Result<()> {
+        self.upsert_grant_on_connection(grant)
+    }
+
+    /// 参数：固定 epoch 的 grant；返回：当前事务内幂等写入，不另建事务。
+    pub(crate) fn upsert_grant_on_connection(&self, grant: &Grant) -> Result<()> {
         // 重复本地 bootstrap 只读已有键，避免每个查询进程重写权限和争夺提交锁。
         let existing: bool = self.connection.query_row(
             "SELECT EXISTS(SELECT 1 FROM grants WHERE principal_id=?1 AND permission=?2 AND scope_id=?3 AND policy_version=?4)",

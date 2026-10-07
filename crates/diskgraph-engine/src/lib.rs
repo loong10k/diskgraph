@@ -175,6 +175,7 @@ mod snapshot_retention;
 #[cfg(test)]
 mod status_contention_tests;
 mod sync_plan;
+mod terminal_revision_authorization;
 #[cfg(test)]
 mod tests;
 mod tree_queries;

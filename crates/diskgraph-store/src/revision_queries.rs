@@ -9,6 +9,23 @@ use rusqlite::params;
 use serde_json::{from_str, to_string};
 
 impl SqliteSnapshotStore {
+    /// 纯查询 revision 当前过滤归属是否仍匹配，不拥有持久字符串字段。
+    /// 参数：revision_id/server_id/scope_id 是首次准入的真实资源身份。
+    /// 返回：未绑定、隔离或归属不符为 false；SQL 错误保留，不构成独立授权。
+    /// 来源：DiskGraph 原生 Rust SC-04；无 Java 对应对象。
+    pub fn revision_ownership_matches(
+        &self,
+        revision_id: &str,
+        server_id: &str,
+        scope_id: &str,
+    ) -> Result<bool> {
+        Ok(self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM revision_authorized_ownership WHERE revision_id=?1 AND server_id=?2 AND scope_id=?3)",
+            params![revision_id, server_id, scope_id],
+            |row| row.get(0),
+        )?)
+    }
+
     /// 返回持久化的实际归属；旧记录未绑定时返回 None，调用者必须拒绝对外访问。
     /// 按固定历史或持久归属解析 revision；旧归属仅唯一匹配时回填。
     /// 参数：revision_id：已发布 revision ID。

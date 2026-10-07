@@ -155,6 +155,9 @@ mod revision_writer;
 mod scan_staging_store;
 mod scope_preparation_store;
 mod scope_record;
+mod scope_registration_transaction;
+#[cfg(test)]
+mod scope_registration_transaction_tests;
 mod scope_store;
 mod search_queries;
 mod snapshot_queries;

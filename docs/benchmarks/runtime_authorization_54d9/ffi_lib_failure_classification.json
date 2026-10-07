@@ -1,0 +1,266 @@
+{
+  "command": "cargo test --locked -p diskgraph-ffi --lib",
+  "result": "39 passed; 52 failed",
+  "failures": [
+    {
+      "test": "authorization_tests::a_proven_legacy_control_database_remains_readable",
+      "unsupported": true,
+      "detail": "thread 'authorization_tests::a_proven_legacy_control_database_remains_readable' (2344797) panicked at crates/diskgraph-ffi/src/authorization_tests.rs:24:73:\ncalled `Result::unwrap()` on an `Err` value: Business(Unsupported)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+    },
+    {
+      "test": "authorization_tests::ambiguous_legacy_control_is_not_assigned_to_either_graph",
+      "unsupported": true,
+      "detail": "thread 'authorization_tests::ambiguous_legacy_control_is_not_assigned_to_either_graph' (2344798) panicked at crates/diskgraph-ffi/src/authorization_tests.rs:73:77:\ncalled `Result::unwrap()` on an `Err` value: Business(Unsupported)"
+    },
+    {
+      "test": "authorization_tests::graph_files_in_one_directory_have_distinct_control_realms",
+      "unsupported": true,
+      "detail": "thread 'authorization_tests::graph_files_in_one_directory_have_distinct_control_realms' (2344799) panicked at crates/diskgraph-ffi/src/authorization_tests.rs:115:9:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "async_tests::a_spawned_scan_returns_a_handle_at_once_and_join_later",
+      "unsupported": true,
+      "detail": "thread 'async_tests::a_spawned_scan_returns_a_handle_at_once_and_join_later' (2344795) panicked at crates/diskgraph-ffi/src/async_tests.rs:22:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_eligibility_tests::ffi_unknown_growth_keeps_borrowed_row_budget_before_null_result",
+      "unsupported": true,
+      "detail": "thread 'native_growth_eligibility_tests::ffi_unknown_growth_keeps_borrowed_row_budget_before_null_result' (2344811) panicked at crates/diskgraph-ffi/src/native_growth_eligibility_tests.rs:34:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "async_tests::the_ffi_layer_is_independent_of_any_host_application",
+      "unsupported": false,
+      "detail": "thread 'async_tests::the_ffi_layer_is_independent_of_any_host_application' (2344796) panicked at crates/diskgraph-ffi/src/async_tests.rs:78:5:\nassertion `left == right` failed\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_eligibility_tests::ffi_growth_unknown_and_read_error_on_either_side_returns_success_null",
+      "unsupported": true,
+      "detail": "thread 'native_growth_eligibility_tests::ffi_growth_unknown_and_read_error_on_either_side_returns_success_null' (2344809) panicked at crates/diskgraph-ffi/src/native_growth_eligibility_tests.rs:34:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_eligibility_tests::ffi_growth_real_same_path_file_directory_replacement_refuses_delta",
+      "unsupported": true,
+      "detail": "thread 'native_growth_eligibility_tests::ffi_growth_real_same_path_file_directory_replacement_refuses_delta' (2344806) panicked at crates/diskgraph-ffi/src/native_growth_eligibility_tests.rs:137:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "authorization_tests::legacy_reads_do_not_bypass_scope_revocation",
+      "unsupported": false,
+      "detail": "thread 'authorization_tests::legacy_reads_do_not_bypass_scope_revocation' (2344800) panicked at crates/diskgraph-ffi/src/authorization_tests.rs:143:5:\nassertion `left == right` failed\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_eligibility_tests::ffi_root_growth_unknown_or_read_error_is_success_null",
+      "unsupported": true,
+      "detail": "thread 'native_growth_eligibility_tests::ffi_root_growth_unknown_or_read_error_is_success_null' (2344810) panicked at crates/diskgraph-ffi/src/native_growth_eligibility_tests.rs:34:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_eligibility_tests::ffi_unknown_growth_still_rechecks_terminal_grant_and_deadline",
+      "unsupported": true,
+      "detail": "thread 'native_growth_eligibility_tests::ffi_unknown_growth_still_rechecks_terminal_grant_and_deadline' (2344816) panicked at crates/diskgraph-ffi/src/native_growth_eligibility_tests.rs:34:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind' (2344849) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics' (2344851) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget' (2344850) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null' (2344852) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope' (2344853) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode' (2344857) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null' (2344866) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants' (2344867) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null",
+      "unsupported": true,
+      "detail": "thread 'native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null' (2344870) panicked at crates/diskgraph-ffi/src/native_growth_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_lifecycle_tests::poll_only_host_can_complete_more_scans_than_the_retained_limit",
+      "unsupported": true,
+      "detail": "thread 'native_lifecycle_tests::poll_only_host_can_complete_more_scans_than_the_retained_limit' (2344871) panicked at crates/diskgraph-ffi/src/native_lifecycle_tests.rs:211:17:\nassertion `left == right` failed: 第 0 次扫描: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding' (2344888) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::legacy_children_do_not_decode_the_continuation",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::legacy_children_do_not_decode_the_continuation' (2344891) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping' (2344892) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it' (2344895) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count' (2344897) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation' (2344911) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind' (2344910) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows",
+      "unsupported": true,
+      "detail": "thread 'native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows' (2344912) panicked at crates/diskgraph-ffi/src/native_listing_tests.rs:21:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_manager_tests::legacy_drain_is_explicitly_unsupported_and_poll_only_scans_do_not_exhaust_records",
+      "unsupported": true,
+      "detail": "thread 'native_manager_tests::legacy_drain_is_explicitly_unsupported_and_poll_only_scans_do_not_exhaust_records' (2344913) panicked at crates/diskgraph-ffi/src/native_manager_tests.rs:139:9:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_revision_candidate_tests::native_candidate_callback_keeps_revision_resolved_before_new_publication",
+      "unsupported": true,
+      "detail": "thread 'native_revision_candidate_tests::native_candidate_callback_keeps_revision_resolved_before_new_publication' (2344926) panicked at crates/diskgraph-ffi/src/native_revision_candidate_tests.rs:30:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_revision_candidate_tests::native_candidate_exports_block_active_typed_process_and_protection",
+      "unsupported": true,
+      "detail": "thread 'native_revision_candidate_tests::native_candidate_exports_block_active_typed_process_and_protection' (2344930) panicked at crates/diskgraph-ffi/src/native_revision_candidate_tests.rs:30:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_runner_exit_tests::completed_result_waits_for_actual_inner_runner_tls_exit",
+      "unsupported": false,
+      "detail": "thread 'native_runner_exit_tests::completed_result_waits_for_actual_inner_runner_tls_exit' (2344931) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:124:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Conflict)"
+    },
+    {
+      "test": "native_runner_exit_tests::coordinator_unwind_does_not_abandon_its_actual_inner_runner",
+      "unsupported": false,
+      "detail": "thread 'native_runner_exit_tests::coordinator_unwind_does_not_abandon_its_actual_inner_runner' (2344937) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:124:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Conflict)\n\nthread 'diskgraph-native-scan' (2344986) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:99:17:\n真实协调线程在持有 inner runner 时 unwind"
+    },
+    {
+      "test": "native_scoped_owner_tests::scoped_service_scans_with_physical_host_and_closes_after_scope",
+      "unsupported": true,
+      "detail": "thread 'native_scoped_owner_tests::scoped_service_scans_with_physical_host_and_closes_after_scope' (2344966) panicked at crates/diskgraph-ffi/src/native_scoped_owner_tests.rs:25:9:\nassertion `left == right` failed: actual scoped scan failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::legacy_explain_rejects_raw_evidence_before_invalid_confidence_decode",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::legacy_explain_rejects_raw_evidence_before_invalid_confidence_decode' (2344975) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::native_envelope_accepts_the_exact_byte_cap_and_refuses_one_more",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::native_envelope_accepts_the_exact_byte_cap_and_refuses_one_more' (2344978) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::native_error_diagnostic_is_bounded_after_json_escaping",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::native_error_diagnostic_is_bounded_after_json_escaping' (2344979) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::native_node_rejects_an_oversized_borrowed_name_before_owned_decode",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::native_node_rejects_an_oversized_borrowed_name_before_owned_decode' (2344980) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::native_partial_deadline_preserves_the_selected_prefix_and_gap",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::native_partial_deadline_preserves_the_selected_prefix_and_gap' (2344981) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::reply_wait_cannot_return_an_expired_native_success",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::reply_wait_cannot_return_an_expired_native_success' (2344988) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_runner_exit_tests::late_permission_denial_waits_for_runner_without_rewriting_committed_fact",
+      "unsupported": false,
+      "detail": "thread 'native_runner_exit_tests::late_permission_denial_waits_for_runner_without_rewriting_committed_fact' (2344938) panicked at crates/diskgraph-ffi/src/native_runner_exit_tests.rs:124:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Conflict)"
+    },
+    {
+      "test": "native_service::tests::shutdown_after_final_authorization_cannot_return_success",
+      "unsupported": false,
+      "detail": "thread 'native_service::tests::shutdown_after_final_authorization_cannot_return_success' (2344993) panicked at crates/diskgraph-ffi/src/native_service.rs:327:61:\ncalled `Option::unwrap()` on a `None` value"
+    },
+    {
+      "test": "native_service::native_reply_budget_tests::scope_revoked_at_reply_boundary_cannot_escape_the_session",
+      "unsupported": true,
+      "detail": "thread 'native_service::native_reply_budget_tests::scope_revoked_at_reply_boundary_cannot_escape_the_session' (2344992) panicked at crates/diskgraph-ffi/src/native_reply_budget_tests.rs:28:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service::tests::shutdown_does_not_wait_for_a_read_or_publish_its_response",
+      "unsupported": false,
+      "detail": "thread 'native_service::tests::shutdown_does_not_wait_for_a_read_or_publish_its_response' (2344999) panicked at crates/diskgraph-ffi/src/native_service.rs:354:61:\ncalled `Option::unwrap()` on a `None` value"
+    },
+    {
+      "test": "native_service_tests::completed_native_job_handle_does_not_keep_revoked_permissions",
+      "unsupported": true,
+      "detail": "thread 'native_service_tests::completed_native_job_handle_does_not_keep_revoked_permissions' (2345011) panicked at crates/diskgraph-ffi/src/native_service_tests.rs:218:9:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service_tests::persistent_service_queries_deny_revoked_scope_and_closed_session",
+      "unsupported": false,
+      "detail": "thread 'native_service_tests::persistent_service_queries_deny_revoked_scope_and_closed_session' (2345024) panicked at crates/diskgraph-ffi/src/native_service_tests.rs:68:57:\ncalled `Option::unwrap()` on a `None` value"
+    },
+    {
+      "test": "native_service_tests::session_children_clip_bytes_and_advance_by_actual_page_size",
+      "unsupported": false,
+      "detail": "thread 'native_service_tests::session_children_clip_bytes_and_advance_by_actual_page_size' (2345026) panicked at crates/diskgraph-ffi/src/native_service_tests.rs:113:57:\ncalled `Option::unwrap()` on a `None` value"
+    },
+    {
+      "test": "tests::growth_and_candidates_do_not_decode_unrelated_nodes",
+      "unsupported": false,
+      "detail": "thread 'tests::growth_and_candidates_do_not_decode_unrelated_nodes' (2345062) panicked at crates/diskgraph-ffi/src/tests.rs:79:57:\ncalled `Option::unwrap()` on a `None` value"
+    },
+    {
+      "test": "tests::read_only_bindings_scan_and_query_native_directory",
+      "unsupported": false,
+      "detail": "thread 'tests::read_only_bindings_scan_and_query_native_directory' (2345067) panicked at crates/diskgraph-ffi/src/tests.rs:17:5:\nassertion `left == right` failed\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service_tests::two_native_handles_for_a_coalesced_job_return_the_same_revision",
+      "unsupported": true,
+      "detail": "thread 'native_service_tests::two_native_handles_for_a_coalesced_job_return_the_same_revision' (2345027) panicked at crates/diskgraph-ffi/src/native_service_tests.rs:159:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    },
+    {
+      "test": "native_service_owner_tests::managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads",
+      "unsupported": true,
+      "detail": "managed drain elapsed=35.027708ms, pending=Err(Unavailable { reason: \"coordinator drain deadline exceeded\" }), worker_released=Ok(true), manager_released=Ok(true)\n\nthread 'native_service_owner_tests::managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads' (2345005) panicked at crates/diskgraph-ffi/src/native_service_owner_tests.rs:126:5:\nassertion `left == right` failed: {\"error\":\"unsupported (exit 6)\",\"ok\":false,\"schema_version\":1}\n  left: Bool(false)\n right: true"
+    }
+  ]
+}

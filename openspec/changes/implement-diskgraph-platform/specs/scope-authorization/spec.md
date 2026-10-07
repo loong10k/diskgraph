@@ -15,6 +15,13 @@
 - **WHEN** 远程查询携带未注册的根路径
 - **THEN** 返回范围拒绝且不创建 scope。
 
+#### Scenario: Registration commits scope and grants together
+- **WHEN** 请求能力初检成功，scope 注册等待实际控制库写锁期间管理员授权被撤销或策略换代
+- **THEN** 在同一 IMMEDIATE 控制事务内重新检查实时 ScopeAdmin，并固定授予权限使用的策略版本；拒绝时不提交 scope 或任一 grant。
+- **AND** 新 scope 和三项默认 grant 作为一个控制事务提交。图库负向隔离先完成，再提交控制事务；图库失败、grant 写入失败、期限耗尽或 COMMIT 失败均回滚控制注册，不返回成功。
+- **AND** COMMIT 成功后连接清理失败明确返回已提交 scope 的 `RegistrationCommitted` 与原始原因，不把已经提交的注册误报为认证失败或未提交。
+- **AND** 跨库不承诺原子提交；图库已持久隔离而控制提交失败时保留保守拒绝及原始审计归属，重试不能解除隔离。认证到期不因写锁等待、图隔离或提交重试而延期。
+
 ### Requirement: SC-02 Server and principal bound resources
 系统 SHALL 将资源引用绑定 server、scope、revision 与对象 ID，并对每次请求按主体校验范围；知道或猜到 ID 不构成授权。
 
@@ -47,6 +54,12 @@
 #### Scenario: Destination outside grant
 - **WHEN** 移动目标不在主体授权范围
 - **THEN** 拒绝计划，不因源目录合法而接受目标。
+
+#### Scenario: Registration invalidates an in-flight historical read
+- **WHEN** 请求已解析并获准读取历史 revision，随后实际 scope 注册因无损根证明不足而持久隔离该 revision
+- **THEN** 读取及响应编码完成后的终检重新查询过滤后的实际归属，拒绝完整和截断数据；scope 权限仍有效不能替代 revision 的当前可访问性。
+- **AND** 终检不复用消费者可能持有旧 SQLite 读事务的连接，不获取共享图库写锁；展示已存在的50ms终检窗口只用于授权，不续期数据查询、不重建原始读取账本。
+- **AND** 末段能力回调或编码期间完成隔离，同样须在回调及编码之后拒绝；原始归属审计行保留。
 
 #### Scenario: Durable withdrawal during terminal authorization
 - **WHEN** 真实请求首次获准后，同进程可信控制库入口在末段授权回调中成功持久撤销该请求依赖的 grant 或 scope，且准确绑定实际已打开控制库的请求级负向见证确认此事实

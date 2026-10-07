@@ -1,5 +1,4 @@
 //! 启动与运行期注册共用原始根隔离规则；来源：SC-01 历史 revision 授权合同。
-use crate::EngineError;
 use diskgraph_core::{ResourceLocator, ServerId};
 use diskgraph_store::{ScopeRecord, SqliteSnapshotStore};
 use std::collections::HashSet;
@@ -10,7 +9,7 @@ pub(super) fn eligible_roots(
     graph: &mut SqliteSnapshotStore,
     server_id: &ServerId,
     scopes: &[ScopeRecord],
-) -> Result<Vec<(String, ResourceLocator)>, EngineError> {
+) -> diskgraph_store::Result<Vec<(String, ResourceLocator)>> {
     let mut unverifiable_roots = HashSet::new();
     let mut roots = scopes
         .iter()
