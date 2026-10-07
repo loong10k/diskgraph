@@ -181,6 +181,8 @@ impl Engine {
         let deadline = std::time::Instant::now()
             .checked_add(Duration::from_millis(deadline_ms))
             .ok_or(BusinessError::InvalidArgument)?;
+        let expiry = authorizer.expires_at_unix_seconds();
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let (server, scope) = reader
             .revision_ownership(revision_id)?
@@ -211,7 +213,7 @@ impl Engine {
                 other => other,
             })?;
         let authorization = Self::require_reader_capability_until(
-            &control, authorizer, principal, &scope, deadline,
+            &control, authorizer, principal, &scope, expiry, deadline,
         );
         withdrawal.check(&control)?;
         authorization?;

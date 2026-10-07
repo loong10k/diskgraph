@@ -1,0 +1,32 @@
+{
+  "scope": "initial revision authorization fixed token expiry only",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/initial_revision_authorization.rs": "cf26a61172d8b8d993fc36d0f4b773cd8ce8ad4000c1f944cb946f4b6c9889b8",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "696b6edc1fd5345f6937f5cf9a4baed2603ed0b9325396c39c3161bddb1796c8",
+    "crates/diskgraph-engine/src/admin_policy_lookup_tests.rs": "072124fc2718fbc5209ebd091c7145f8ee3f04b7afb03ede8012870f2b7f50c2",
+    "crates/diskgraph-engine/src/terminal_capability_tests.rs": "e937f7c4836c6fafb4a65aa1857694cb29bb1d4b6ba44017992149e3778dc330"
+  },
+  "red": "expired owner capability returned Ok",
+  "green": {
+    "initial_expiry_tests": 2,
+    "getter_reentry": 1,
+    "source_layout": 6,
+    "fmt": "pass",
+    "clippy": "pass",
+    "full_engine": {
+      "passed": 552,
+      "failed": 98,
+      "ignored": 13,
+      "failure_class": "all Unsupported"
+    }
+  },
+  "review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "limitations": [
+    "terminal expiry coverage incomplete",
+    "decide callbacks still hold control mutex",
+    "platform qualification incomplete"
+  ]
+}

@@ -452,6 +452,7 @@ fn reader_capability_callback_does_not_inherit_sql_deadline_handler() {
         &probe,
         &principal,
         &scope,
+        None,
         std::time::Instant::now() + std::time::Duration::from_millis(100),
     );
     assert!(

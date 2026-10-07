@@ -47,3 +47,11 @@ require在锁外固定expiry，能力返回后、控制锁取得后及持久授�
 require_read_terminal在所有控制锁外捕获一次固定expiry，范围观察后、能力返回后、最终锁取得后和SQL授权成功后共用到期门禁。已到期则PermissionDenied，不返回读取body/partial；None本机模式保持。实际固定expiry、能力取得时仍live但回调返回时已到期的权限专用测试旧路径Ok为RED，修复须拒权；不打开文件、不替代原生内容门禁。锁/SQL自身错误保留，不提供同步硬抢占或有限退出证明。
 
 内容expiry本机验证：固定expiry回归旧Ok真实RED→GREEN，permission-only两项2/0，重入1/0，source_layout6/0、fmt/Clippy与双路APPROVE/CLEAR。完整Engine549/98/13，98项均Unsupported。权限专用测试没有打开实际文件，不构成原生内容验收。
+
+## Revision 初始授权固定 token expiry
+
+authorize_revision_owner_until 与 require_reader_capability_until 复用固定请求到期时间，trusted reader 在获取控制锁前捕获并作为参数传入 helper；初始观察前、能力回调前后及最终持久授权成功后拒绝过期能力。None 保留可信本机语义；不刷新请求执行期限。既有控制锁内的回调尚未移出，本项不声称解决回调重入、硬抢占或有限退出。
+
+回归 initial_revision_authorization_rejects_expired_allowed_capability 使用已发布的隔离 metadata 夹具和明确到期但返回 Allowed 的 Authorizer：旧 owner 路径实际返回 Ok 为 RED；修复后 owner 和 trusted reader 两条路径均 PermissionDenied。权限组本机 5/0；尚未完成本批完整回归、双路审查及三平台 CI，不标记平台验收完成。
+
+本批追加验证：真实能力回调跨到期时间的 owner/reader 两路径拒权通过；公开 reader 的 expiry getter 有限控制锁重入通过。完整 Engine 552/98/13，98 个失败均 Unsupported，不视为平台通过；Clippy 通过。末段 expiry 全覆盖及 decide 持 mutex 仍未闭环。

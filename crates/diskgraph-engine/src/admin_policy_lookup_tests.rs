@@ -186,3 +186,177 @@ fn ordinary_requirement_refuses_token_expired_while_waiting_for_control() {
         "expired capability returned: {result:?}"
     );
 }
+
+#[test]
+fn initial_revision_authorization_rejects_expired_allowed_capability() {
+    struct Expired;
+    impl diskgraph_core::Authorizer for Expired {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            diskgraph_core::Decision::Allowed
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(0)
+        }
+    }
+    let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+    let server = engine
+        .control_store()
+        .unwrap()
+        .existing_server_id()
+        .unwrap();
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    let owner_result = engine.authorize_revision_owner_until(
+        Some((server.as_str().to_owned(), scope.as_str().to_owned())),
+        Some(&scope),
+        &principal,
+        &Expired,
+        deadline,
+    );
+    assert!(
+        matches!(
+            owner_result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired owner authorization: {owner_result:?}"
+    );
+    let control = engine.control_store().unwrap();
+    let reader_result = crate::Engine::require_reader_capability_until(
+        &control,
+        &Expired,
+        &principal,
+        &scope,
+        Some(0),
+        deadline,
+    );
+    assert!(
+        matches!(
+            reader_result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired reader authorization: {reader_result:?}"
+    );
+}
+
+#[test]
+fn initial_revision_authorization_refuses_allowed_callback_returning_after_expiry() {
+    struct Late {
+        expiry: u64,
+        entered_live: std::cell::Cell<bool>,
+    }
+    impl diskgraph_core::Authorizer for Late {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap();
+            self.entered_live.set(now.as_secs() < self.expiry);
+            std::thread::sleep(
+                std::time::Duration::from_secs(self.expiry).saturating_sub(now)
+                    + std::time::Duration::from_millis(30),
+            );
+            diskgraph_core::Decision::Allowed
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    for reader in [false, true] {
+        let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+        let expiry = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 2;
+        let authorizer = Late {
+            expiry,
+            entered_live: std::cell::Cell::new(false),
+        };
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+        let result = if reader {
+            let control = engine.control_store().unwrap();
+            crate::Engine::require_reader_capability_until(
+                &control,
+                &authorizer,
+                &principal,
+                &scope,
+                Some(expiry),
+                deadline,
+            )
+        } else {
+            let server = engine
+                .control_store()
+                .unwrap()
+                .existing_server_id()
+                .unwrap();
+            engine
+                .authorize_revision_owner_until(
+                    Some((server.as_str().to_owned(), scope.as_str().to_owned())),
+                    Some(&scope),
+                    &principal,
+                    &authorizer,
+                    deadline,
+                )
+                .map(|_| ())
+        };
+        assert!(
+            authorizer.entered_live.get(),
+            "callback must start before fixed expiry"
+        );
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "reader={reader}: {result:?}"
+        );
+    }
+}
+
+#[test]
+fn revision_reader_expiry_getter_can_reenter_control() {
+    struct Getter<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        read_succeeded: std::cell::Cell<bool>,
+    }
+    impl diskgraph_core::Authorizer for Getter<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.policy.decide(principal, permission, scope)
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            self.read_succeeded.set(
+                self.engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+                    .is_ok(),
+            );
+            None
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    let authorizer = Getter {
+        engine: &engine,
+        policy: engine.policy_authorizer().unwrap(),
+        read_succeeded: std::cell::Cell::new(false),
+    };
+    engine
+        .with_authorized_revision_reader(revision, &principal, &authorizer, 1000, |_, _, _| Ok(()))
+        .unwrap();
+    assert!(
+        authorizer.read_succeeded.get(),
+        "expiry getter ran under control lock"
+    );
+}

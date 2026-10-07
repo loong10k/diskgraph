@@ -1,4 +1,5 @@
 //! 初始授权的控制锁、SQL 与能力回调期限边界。
+use crate::authority_expiry::check_authority_expiry;
 use crate::{Engine, EngineError};
 use diskgraph_core::{Authorizer, BusinessError, Permission, PrincipalId, ScopeId};
 
@@ -15,9 +16,12 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: std::time::Instant,
     ) -> Result<ScopeId, EngineError> {
+        let expiry = authorizer.expires_at_unix_seconds();
+        check_authority_expiry(expiry)?;
         let (server, scope) = ownership.ok_or(BusinessError::PermissionDenied)?;
         let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
         let control = self.control_until(deadline)?;
+        check_authority_expiry(expiry)?;
         let authorization = control.with_read_deadline(deadline, |control| {
             if server != control.existing_server_id()?.as_str()
                 || expected_scope.is_some_and(|expected| expected != &scope)
@@ -40,7 +44,9 @@ impl Engine {
             other => other?,
         }
         // 宿主回调不运行在 SQLite handler 内；明确拒权始终拒绝，迟到允许不续租 SQL。
+        check_authority_expiry(expiry)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+        check_authority_expiry(expiry)?;
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
@@ -73,6 +79,7 @@ impl Engine {
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        check_authority_expiry(expiry)?;
         Ok(scope)
     }
 }
@@ -86,8 +93,10 @@ impl Engine {
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scope: &ScopeId,
+        expiry: Option<u64>,
         deadline: std::time::Instant,
     ) -> Result<(), EngineError> {
+        check_authority_expiry(expiry)?;
         control
             .with_read_deadline(deadline, |control| {
                 if control.scope_revoked(scope)? {
@@ -97,7 +106,9 @@ impl Engine {
             })
             .map_err(reader_control_error)?;
         // 宿主能力回调处于两个 SQL 阶段之间；迟到允许不能延长后续观察期限。
+        check_authority_expiry(expiry)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+        check_authority_expiry(expiry)?;
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
@@ -118,7 +129,8 @@ impl Engine {
                 }
                 Ok(())
             })
-            .map_err(reader_control_error)
+            .map_err(reader_control_error)?;
+        check_authority_expiry(expiry)
     }
 }
 
