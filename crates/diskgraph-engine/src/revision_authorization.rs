@@ -318,8 +318,11 @@ impl Engine {
                 }
                 Ok(())
             })?;
+            let capability_deadline = std::time::Instant::now()
+                .checked_add(Duration::from_millis(50))
+                .ok_or(BusinessError::InvalidArgument)?;
             let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
-            // 仅排除同步宿主回调耗时，原数据读取期限不刷新。
+            // SQL 自身的执行窗口不消耗宿主回调时间；允许结果仍受原能力终检期限约束。
             let after_callback = std::time::Instant::now()
                 .checked_add(Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
@@ -342,7 +345,12 @@ impl Engine {
                 Ok(())
             })?;
             // 退出原 control SQL guard 后沿同一绝对期限查归属，禁止嵌套 progress guard。
-            self.require_terminal_revision_ownership(revision, &scope, &control, after_callback)
+            self.require_terminal_revision_ownership(revision, &scope, &control, after_callback)?;
+            // 先保留实时拒权/归属错误；慢回调即使最终允许，也不能提交已准备的 partial。
+            if std::time::Instant::now() >= capability_deadline {
+                return Err(EngineError::Business(BusinessError::BudgetExceeded));
+            }
+            Ok(())
         })();
         match authorization {
             Err(EngineError::Store(error))

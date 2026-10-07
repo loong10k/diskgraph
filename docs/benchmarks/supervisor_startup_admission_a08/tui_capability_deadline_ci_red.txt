@@ -1,0 +1,14 @@
+source_sha=a08a5b1e0ddc12344a1f7bf9cca14464b284cc01
+run=37579701185 job=112656311547
+2026-10-07T06:09:52.6623028Z tui_authorizer_phase calls_first_last_us=(2, Some(660), Some(122767))
+2026-10-07T06:09:52.6698614Z test tui::deadline_frame_tests::expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend ... ok
+2026-10-07T06:09:53.3935198Z test tui::deadline_frame_tests::expired_nested_frame_refuses_single_metadata_grant_revoked_during_paint ... ok
+2026-10-07T06:09:53.4080561Z test tui::deadline_frame_tests::expired_nested_frame_refuses_scope_revoked_during_paint ... ok
+2026-10-07T06:09:54.0163642Z test tui::deadline_frame_tests::generic_authorized_reader_still_refuses_an_expired_complete_success ... ok
+2026-10-07T06:09:54.1213357Z 
+2026-10-07T06:09:54.1214289Z thread 'tui::deadline_frame_tests::expired_partial_frame_cannot_renew_a_slow_terminal_authorization' (6115) panicked at crates/diskgraph-cli/src/tui_deadline_frame_tests.rs:284:5:
+2026-10-07T06:09:54.1215029Z partial rendering renewed terminal authorization: Ok(())
+2026-10-07T06:09:54.1239722Z test tui::deadline_frame_tests::expired_partial_frame_cannot_renew_a_slow_terminal_authorization ... FAILED
+2026-10-07T06:09:54.5124541Z test tui::deadline_frame_tests::initial_control_lock_is_refused_before_paint_or_owner_release ... ok
+2026-10-07T06:09:54.7054181Z test tui::deadline_frame_tests::navigation_control_lock_cannot_wait_beyond_its_original_read_deadline ... ok
+2026-10-07T06:09:54.8016497Z test tui::deadline_frame_tests::navigation_control_lock_is_refused_before_returning_a_layer_or_owner_release ... ok
