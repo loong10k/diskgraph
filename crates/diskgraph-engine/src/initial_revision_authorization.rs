@@ -76,3 +76,62 @@ impl Engine {
         Ok(scope)
     }
 }
+
+impl Engine {
+    /// 在可信 reader 的原期限内核对能力与实时持久授权。
+    /// 参数：control 为既有控制锁，身份与 scope 为实际归属，deadline 不得刷新。
+    /// 返回：允许、明确拒权或预算失败；回调不得继承 SQLite VM handler。
+    pub(super) fn require_reader_capability_until(
+        control: &diskgraph_store::ControlStore,
+        authorizer: &dyn Authorizer,
+        principal: &PrincipalId,
+        scope: &ScopeId,
+        deadline: std::time::Instant,
+    ) -> Result<(), EngineError> {
+        control
+            .with_read_deadline(deadline, |control| {
+                if control.scope_revoked(scope)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                Ok(())
+            })
+            .map_err(reader_control_error)?;
+        // 宿主能力回调处于两个 SQL 阶段之间；迟到允许不能延长后续观察期限。
+        let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+        if matches!(decision, diskgraph_core::Decision::Denied(_)) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        control
+            .with_read_deadline(deadline, |control| {
+                Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::MetadataRead,
+                    scope,
+                )?;
+                if control.scope_revoked(scope)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                Ok(())
+            })
+            .map_err(reader_control_error)
+    }
+}
+
+// 只映射查询执行期限与锁等待；其他损坏及权限错误保留原含义。
+fn reader_control_error(error: EngineError) -> EngineError {
+    match error {
+        EngineError::Store(error)
+            if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                || error.is_interrupted()
+                || error.is_busy() =>
+        {
+            BusinessError::BudgetExceeded.into()
+        }
+        other => other,
+    }
+}

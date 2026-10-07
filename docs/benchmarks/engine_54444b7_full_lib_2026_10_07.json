@@ -1,0 +1,14 @@
+{
+  "commit": "54444b75f5935e365c0ff5ecc960e0720aa8cb35",
+  "scope": "macOS local engine lib, isolated test fixtures with scan driver fixture",
+  "result": {
+    "passed": 533,
+    "failed": 98,
+    "ignored": 13
+  },
+  "failure_classification": {
+    "Business(Unsupported)": 98
+  },
+  "log_sha256": "8ee77d84b9acf4eb2fc5871a504f738ee7ec005447cd570ab0f968c8b401d5a5",
+  "production_acceptance": false
+}

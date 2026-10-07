@@ -197,10 +197,7 @@ impl Engine {
                 if server != control.existing_server_id()?.as_str() {
                     return Err(EngineError::Business(BusinessError::PermissionDenied));
                 }
-                let authorization =
-                    Self::require_terminal_relation(control, authorizer, principal, &scope);
                 withdrawal.check(control)?;
-                authorization?;
                 Ok::<_, EngineError>(withdrawal)
             })
             .map_err(|error| match error {
@@ -213,6 +210,11 @@ impl Engine {
                 }
                 other => other,
             })?;
+        let authorization = Self::require_reader_capability_until(
+            &control, authorizer, principal, &scope, deadline,
+        );
+        withdrawal.check(&control)?;
+        authorization?;
         // 即使短 SQL 未触发 VM handler，初始授权过期也不能进入消费者。
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());

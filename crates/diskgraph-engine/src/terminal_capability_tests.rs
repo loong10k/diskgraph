@@ -420,3 +420,45 @@ fn late_terminal_allow_is_refused_but_actual_revocation_still_wins() {
         "late terminal decision escaped: {failures:?}"
     );
 }
+
+#[test]
+fn reader_capability_callback_does_not_inherit_sql_deadline_handler() {
+    struct Probe<'a> {
+        control: &'a diskgraph_store::ControlStore,
+        sql_succeeded: std::cell::Cell<bool>,
+    }
+    impl diskgraph_core::Authorizer for Probe<'_> {
+        fn decide(
+            &self,
+            _: &PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            std::thread::sleep(std::time::Duration::from_millis(150));
+            self.sql_succeeded
+                .set(self.control.existing_server_id().is_ok());
+            diskgraph_core::Decision::Allowed
+        }
+    }
+    let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+    let control = engine.control_store().unwrap();
+    let probe = Probe {
+        control: &control,
+        sql_succeeded: std::cell::Cell::new(false),
+    };
+    let result = crate::Engine::require_reader_capability_until(
+        &control,
+        &probe,
+        &principal,
+        &scope,
+        std::time::Instant::now() + std::time::Duration::from_millis(100),
+    );
+    assert!(
+        probe.sql_succeeded.get(),
+        "host callback inherited expired SQL handler"
+    );
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(BusinessError::BudgetExceeded))
+    ));
+}

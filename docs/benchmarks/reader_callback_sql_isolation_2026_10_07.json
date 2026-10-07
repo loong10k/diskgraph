@@ -1,0 +1,37 @@
+{
+  "candidate": "initial control callback SQL isolation",
+  "logs": {
+    "red": {
+      "sha256": "742d4ed42f264a578dd325554478e5151788bc62bfd626a5fd7bf0e141e3219b",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 644 filtered out; finished in 0.20s"
+      ]
+    },
+    "green": {
+      "sha256": "6a6fae2090b5e0b41076248bc10dd6f83c13f3bc67df11076370496e6dda0573",
+      "summary": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 638 filtered out; finished in 2.45s"
+      ]
+    },
+    "full": {
+      "sha256": "2cfe6694ba89688c5d787a8edbb9b11d867dd720b0b9933291dffaba6a2458ea",
+      "summary": [
+        "test result: FAILED. 533 passed; 99 failed; 13 ignored; 0 measured; 0 filtered out; finished in 13.83s"
+      ]
+    },
+    "pipe-repeat": {
+      "sha256": "f9919b94dc239a550b033bd47e3a7f28cbb4cef881dc1ac1f1b76e65ed07bf11",
+      "summary": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 644 filtered out; finished in 0.01s"
+      ]
+    },
+    "full-repeat": {
+      "sha256": "552733278f8c94cd01f3391a724989e57c8b4869f9ab3ef3a68b44a6988bb3d2",
+      "summary": [
+        "test result: FAILED. 534 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 13.78s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "unresolved": "98 Unsupported and intermittent raw pipe fd assertion; terminal SQL and synchronous callback limits remain"
+}

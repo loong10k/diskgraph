@@ -39,3 +39,9 @@ with_authorized_revision_reader 的初次与末段控制锁原使用阻塞获取
 真实已发布元数据夹具中，100 ms 初次预算的能力回调在期限内进入并等待300 ms返回允许；旧包装实际 RED 为 Store(Sqlite(OperationInterrupted))。初次控制 SQL 的预算、busy与interrupted现统一返回 Business(BudgetExceeded)，其他原错误保持。成功授权后还检查原deadline，避免短SQL未触发handler时迟到进入消费者。
 
 当前授权回归6项通过。仅规范化初次控制预算错误并限制消费者准入；同步回调仍在SQL guard中，不能硬抢占。末段控制SQL与回调期限的完整改造仍开放；不能把这一修复称为全链有界执行。
+
+## 可信 reader 的能力回调 SQL 隔离
+
+初始能力回调不得继承控制库 SQLite VM deadline handler；能力阶段前后的持久授权读取分别沿原绝对期限安装 SQL guard。明确 Denied 保留 PermissionDenied，迟到 Allowed 不进入消费者，已有撤权见证仍先于允许结果检查。同步回调仍不可硬抢占、仍持有控制锁，不据此关闭有限退出或全部终检期限任务。借用原控制连接的测试回调在原期限后读取 server_id：旧路径因过期 VM handler 失败（真实 RED），分阶段实现应保持宿主回调 SQL 正常并拒绝迟到允许。
+
+本机验证：新回归真实 RED→GREEN，授权期限组 7/0；source_layout 6/0，fmt/Clippy 通过，双路审查 APPROVE/CLEAR（回调持锁及终检期限仍为 WATCH）。完整 Engine 首次533/99/13，其中98 Unsupported、1原生管道fd检查失败；该项单独1/0，完整复跑534/98/13。偶发fd检查未关闭，不把复跑成功当作消除并发问题。
