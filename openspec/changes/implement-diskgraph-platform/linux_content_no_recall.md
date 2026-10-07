@@ -33,3 +33,7 @@ scripts/qualify_linux_fuse_no_recall.py --output-dir <新目录> 从确切 HEAD 
 ## CI 接线（结果待确认）
 
 新增独立 Linux ARM64 私有 FUSE job，确切提交导出源码，固定 Docker 镜像，五项证据门禁先行，真实四场景随后执行，正常执行及失败路径使用 always 上传原产品/provider/回收日志与容器身份；取消或硬性 job 超时不能保证上传。26 分钟步骤和30分钟job预算不代表超时已回收；未确认状态仍拒绝验收。此 job 尚待 GitHub 实际执行，不勾选 CT-02 全平台完成。
+
+## 客户端生命周期回归
+
+增加模拟客户端 TimeoutExpired、退出0但证据不全、完整证据三场景，验证出生前pending记录、CID定位、原材料保留、verified门禁和源码回收。与日志门禁合计8/8通过，CI入口覆盖全部。首次三项失败为macOS临时目录 /var 与 /private/var 定位差异，修正测试夹具 resolve 后通过；不是产品行为RED，不声称TDD行为失败。此模拟测试不证明实际Docker原容器退休。
