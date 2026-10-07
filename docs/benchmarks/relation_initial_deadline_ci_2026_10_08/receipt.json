@@ -1,0 +1,24 @@
+{
+  "source_commit": "8d50cfb7b089467d8d2f661cfb373066e75ec626",
+  "run": 37657600131,
+  "job": 112916581584,
+  "failure_target": "relation_request_budget",
+  "passed": 7,
+  "failed": 2,
+  "cause": "old initial late-Allowed partial assertions conflict with existing original-deadline fail-closed contract",
+  "raw_log_sha256": "1f4a2aec140e99f81fb69f34ffc851654d1080dd221a9a3a2dad66a2ecedf01b",
+  "compressed_log_sha256": "040a057fffa82c9923afd6d2bfb1448831bd4cf11bc2cbe2cf76f08c764d744f",
+  "local_validation": {
+    "positive_empty_partial_test": "1 passed /0 failed; two entry points",
+    "integration_target": "compiled; native execution pending CI",
+    "source_layout": "6 passed /0 failed",
+    "engine_all_targets_clippy": "passed",
+    "changed_files_rustfmt": "passed",
+    "workspace_fmt": "fails on existing vendored formatting; vendor untouched"
+  },
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "production_acceptance": false
+}

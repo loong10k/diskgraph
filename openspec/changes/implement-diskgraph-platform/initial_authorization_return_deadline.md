@@ -57,3 +57,12 @@ with_authorized_revision_reader 的初次与末段控制锁原使用阻塞获取
 MCP C16 无显式revision时的 latest_revision_until 也必须在原期限内取得控制锁并读取scope/server，不以无限期control()等待。只读阶段使用已初始化server身份，缺失身份拒绝，不在请求中补建。隔离控制锁持有300ms、请求50ms的公开API回归需在原锁仍占用时返回业务BudgetExceeded。旧入口 latest_revision 保留可信兼容行为；本项不构成查询性能改善证据。
 
 最新解析验证：公开锁竞争回归真实RED→GREEN；授权组8/0，另补有效latest读取及删除server后不补建身份1/0；source_layout6/0，fmt/Clippy通过。完整Engine（额外身份测试添加前）535/98/13，98项均Unsupported。双路审查APPROVE/CLEAR，保留调用方授权及短图SQL期限WATCH。
+
+
+## 2026-10-08 Linux CI 旧断言对齐
+
+运行37657600131、提交8d50cfb的Linux stable全量目标中，relation_request_budget为7通过/2失败；失败均在首次能力回调睡过原deadline后unwrap返回Business(BudgetExceeded)，并非数据阶段partial丢失。旧测试此前期待空partial，与本变更既定的“迟到Allowed不进入消费者”冲突。保留candidate目标0/1和空impact覆盖，改为精确Business(BudgetExceeded)，不放宽生产期限或授权。
+
+另增candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes，通过真实AFTER_READ一次性同步点耗尽数据期限，及时能力仍返回空partial、Deadline；candidate要求complete=false，两入口均断言同步点已执行。本机1通过/0失败，集成目标编译通过。此正向只覆盖空结果，不声称非空前缀或Linux/Windows原生整体验收已通过；原失败集成用例运行仍须当前CI证明。
+
+本批source_layout 6/0、Engine all-target Clippy和修改文件rustfmt通过，双路审查APPROVE/CLEAR。cargo fmt --all检查报告既有vendor格式差异，未修改vendor；不记全workspace格式通过。原始Linux job日志与摘要见docs/benchmarks/relation_initial_deadline_ci_2026_10_08。

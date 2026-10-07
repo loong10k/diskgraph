@@ -150,46 +150,42 @@ impl Authorizer for ExpireDuringAuthorization {
 }
 
 #[test]
-fn authorization_time_exhausts_empty_and_positive_candidate_requests() {
+fn late_initial_authorization_refuses_empty_and_positive_candidate_requests() {
     let f = Fixture::new();
     f.evidence("one", 100);
-    let observed: Vec<_> = [0, 1]
-        .into_iter()
-        .map(|target| {
-            let budget = QueryBudget {
-                deadline_ms: 1000,
-                ..QueryBudget::default()
-            };
-            let deadline = diskgraph_core::query_deadline(budget).unwrap();
-            let auth = ExpireDuringAuthorization {
-                policy: f.engine.policy_authorizer().unwrap(),
-                deadline,
-            };
-            (
-                target,
-                f.engine
-                    .review_candidates_until(
-                        &f.revision,
-                        target,
-                        budget,
-                        &f.principal,
-                        &auth,
-                        deadline,
-                    )
-                    .unwrap(),
-            )
-        })
-        .collect();
-    for (target, result) in observed {
-        assert!(!result.complete, "late target {target} was complete");
-        assert_eq!(result.truncated, Some(TruncationReason::Deadline));
-        assert_eq!(result.remaining_bytes, target);
-        assert!(result.candidates.is_empty());
+    for target in [0, 1] {
+        let budget = QueryBudget {
+            deadline_ms: 1000,
+            ..QueryBudget::default()
+        };
+        let deadline = diskgraph_core::query_deadline(budget).unwrap();
+        let auth = ExpireDuringAuthorization {
+            policy: f.engine.policy_authorizer().unwrap(),
+            deadline,
+        };
+        // 首次授权尚未完成，不能把迟到允许包装成已授权的空前缀。
+        let result = f.engine.review_candidates_until(
+            &f.revision,
+            target,
+            budget,
+            &f.principal,
+            &auth,
+            deadline,
+        );
+        assert!(
+            matches!(
+                result,
+                Err(diskgraph_engine::EngineError::Business(
+                    diskgraph_core::BusinessError::BudgetExceeded
+                ))
+            ),
+            "late target {target} returned {result:?}"
+        );
     }
 }
 
 #[test]
-fn authorization_time_exhausts_empty_impact_request() {
+fn late_initial_authorization_refuses_empty_impact_request() {
     let f = Fixture::new();
     let budget = QueryBudget {
         deadline_ms: 1000,
@@ -200,12 +196,24 @@ fn authorization_time_exhausts_empty_impact_request() {
         policy: f.engine.policy_authorizer().unwrap(),
         deadline,
     };
-    let result = f
-        .engine
-        .revision_impact_until(&f.revision, "absent", budget, &f.principal, &auth, deadline)
-        .unwrap();
-    assert_eq!(result.truncated, Some(TruncationReason::Deadline));
-    assert!(result.entries.is_empty());
+    let result = f.engine.revision_impact_until(
+        &f.revision,
+        "absent",
+        budget,
+        &f.principal,
+        &auth,
+        deadline,
+    );
+    // 无匹配结果也不能绕过首次授权的原绝对期限。
+    assert!(
+        matches!(
+            result,
+            Err(diskgraph_engine::EngineError::Business(
+                diskgraph_core::BusinessError::BudgetExceeded
+            ))
+        ),
+        "late initial authorization returned unexpected result"
+    );
 }
 
 #[test]

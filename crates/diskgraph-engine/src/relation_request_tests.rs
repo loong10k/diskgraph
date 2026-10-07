@@ -959,3 +959,59 @@ fn growth_data_expiry_with_timely_capability_is_timeout_for_unknown_and_cross_sc
         );
     }
 }
+
+#[test]
+fn candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes() {
+    for impact in [false, true] {
+        let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
+        let policy = engine.policy_authorizer().unwrap();
+        let deadline = Instant::now() + std::time::Duration::from_secs(1);
+        // 初始授权和读取已完成，仅在真实读后边界耗尽原数据期限。
+        AFTER_READ.with(|slot| {
+            *slot.borrow_mut() = Some(Box::new(|deadline| {
+                std::thread::sleep(
+                    deadline.saturating_duration_since(Instant::now())
+                        + std::time::Duration::from_millis(1),
+                );
+            }));
+        });
+        if impact {
+            let result = engine
+                .revision_impact_until(
+                    revision,
+                    "absent",
+                    QueryBudget::default(),
+                    &principal,
+                    &policy,
+                    deadline,
+                )
+                .unwrap();
+            assert!(result.entries.is_empty());
+            assert_eq!(
+                result.truncated,
+                Some(diskgraph_core::TruncationReason::Deadline)
+            );
+        } else {
+            let result = engine
+                .review_candidates_until(
+                    revision,
+                    0,
+                    QueryBudget::default(),
+                    &principal,
+                    &policy,
+                    deadline,
+                )
+                .unwrap();
+            assert!(result.candidates.is_empty());
+            assert!(!result.complete);
+            assert_eq!(
+                result.truncated,
+                Some(diskgraph_core::TruncationReason::Deadline)
+            );
+        }
+        assert!(
+            AFTER_READ.with(|slot| slot.borrow().is_none()),
+            "actual post-read boundary must execute"
+        );
+    }
+}
