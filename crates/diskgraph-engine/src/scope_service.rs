@@ -31,13 +31,15 @@ impl Engine {
         let canonical = root.canonicalize()?;
         let locator = Locator::from_native_path(&canonical);
         let volume_id = locator_volume_id(&locator);
+        // 路径解析后的第二次能力观察在双锁外；写入前仍在锁内核验当前持久授权。
+        let decision = authorizer.decide(principal, &Permission::ScopeAdmin, &admin_scope());
         // 与扫描发布/历史回收保持 graph→control 顺序，注册与隔离完成前不授新权限。
         let mut graph = self.graph()?;
         let mut control = self.control()?;
-        // 等待路径解析和双锁期间，能力或数据库策略可能失效；写入前复核。
-        Self::require_with_control(
+        // 等待双锁期间的撤权必须拒绝；固定 token expiry 由原写守卫继续核验。
+        Self::require_decision_with_control(
             &control,
-            authorizer,
+            decision,
             principal,
             &Permission::ScopeAdmin,
             &admin_scope(),

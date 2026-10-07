@@ -1,0 +1,34 @@
+{
+  "scope": "scope registration capability outside graph/control locks",
+  "logs": {
+    "red": {
+      "sha256": "af4b942ae656d2f73fa8c22d2c39da119ad09bce94d45cb92a18b2c2490e4a54",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 656 filtered out; finished in 0.09s"
+      ]
+    },
+    "green": {
+      "sha256": "353d7b9300c2947daefb8cf71a04ad802be765a367b5c7c28503f70139d14e55",
+      "summary": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 651 filtered out; finished in 0.91s"
+      ]
+    },
+    "full": {
+      "sha256": "3b0cf55eb54babc5cc26ffeb582e9e2854f5dba1831d06f94d5adbb5d1cedabe",
+      "summary": [
+        "test result: FAILED. 547 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 16.73s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "preserved": [
+    "graph to control lock order",
+    "current stored admin permission",
+    "original fixed transaction deadline and token expiry",
+    "transaction authorization fencing"
+  ],
+  "limits": [
+    "synchronous callbacks and mutex wait not hard-preemptible",
+    "native qualification Unsupported remains"
+  ]
+}
