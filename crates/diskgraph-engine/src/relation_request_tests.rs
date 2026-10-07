@@ -986,7 +986,13 @@ fn candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes()
                     &policy,
                     deadline,
                 )
-                .unwrap();
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "impact={impact} post_read_hook_consumed={} original_deadline_elapsed={} error={error:?}",
+                        AFTER_READ.with(|slot| slot.borrow().is_none()),
+                        Instant::now() >= deadline,
+                    )
+                });
             assert!(result.entries.is_empty());
             assert_eq!(
                 result.truncated,
@@ -1002,7 +1008,13 @@ fn candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes()
                     &policy,
                     deadline,
                 )
-                .unwrap();
+                .unwrap_or_else(|error| {
+                    panic!(
+                        "impact={impact} post_read_hook_consumed={} original_deadline_elapsed={} error={error:?}",
+                        AFTER_READ.with(|slot| slot.borrow().is_none()),
+                        Instant::now() >= deadline,
+                    )
+                });
             assert!(result.candidates.is_empty());
             assert!(!result.complete);
             assert_eq!(

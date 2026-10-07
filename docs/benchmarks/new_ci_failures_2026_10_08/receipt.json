@@ -1,0 +1,25 @@
+{
+  "fuse": {
+    "run": 37700215196,
+    "job": 113061595746,
+    "commit": "a3811d16a8242c1d5a6e122debedfab0cb3206ec",
+    "artifact": 11517852130,
+    "observed": "mount fuse: Permission denied; provider exited before product probe",
+    "not_proven": "exact host policy cause; current AppArmor-adjusted runner runtime"
+  },
+  "windows": {
+    "run": 37699315022,
+    "job": 113058674032,
+    "commit": "d94a39fd3ed9d7ea7a2265b9fead8062deb51fb7",
+    "test": "candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes",
+    "observed": "candidate branch unwrap Business(BudgetExceeded); Engine 628 passed / 1 failed / 4 ignored",
+    "not_proven": "before-read refusal versus terminal observation budget failure",
+    "change": "diagnostic panic retains hook-consumed state, original-deadline state and actual error; no budget or acceptance relaxation",
+    "validation": "Rustfmt edition 2024 and diff check passed; native regression not executed locally"
+  },
+  "artifacts_sha256": {
+    "113061595746.log.gz": "b5961ab34d6767e3e96d10550fedb7bf0361fcc81b622494b3a15aec0b426d86",
+    "113058674032.log.gz": "f082f3dc2e824bf96e9f5d074347be2a6f1e94b3ccaa487185e910287fe7647e",
+    "fuse_artifact.zip": "d2b79b8410c8770b2bd065f711da4878fbd4bb17a82b4ce3ba221274320f64d8"
+  }
+}
