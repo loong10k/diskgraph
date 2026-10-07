@@ -55,8 +55,19 @@ pub(super) fn root(
         return Err("scoped Git drive changed".into());
     }
     let mut route = vec![GitDirectoryVersion::capture(&file)?];
-    for name in plan.components {
+    #[cfg(test)]
+    let component_count = plan.components.len();
+    for (_index, name) in plan.components.into_iter().enumerate() {
         probe.check().map_err(|e| e.to_string())?;
+        // 仅诊断原比较发生于路由祖先还是注册叶目录；不记录路径、不增加状态查询。
+        #[cfg(test)]
+        let _phase = super::git_source_windows_phase::GitSourceWindowsPhase::new(
+            if _index + 1 == component_count {
+                "root_leaf"
+            } else {
+                "root_ancestor"
+            },
+        );
         file = child(&file, &name, true)?;
         route.push(GitDirectoryVersion::capture(&file)?);
     }

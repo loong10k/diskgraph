@@ -1,0 +1,7 @@
+2026-10-07T06:36:03.0508409Z test live_evidence::git_scope_boundary_tests::explicit_scope_root_rejects_gitfile_to_external_metadata ... ok
+2026-10-07T06:36:03.0537689Z SCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=true phase=unknown branch=attributes_recheck kind=directory changed_mask=0x030 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256
+2026-10-07T06:36:03.0540337Z 
+2026-10-07T06:36:03.0541878Z thread 'live_evidence::git_scope_boundary_tests::original_fixture_restore_retries_actual_no_delete_directory_handle' (4380) panicked at crates\diskgraph-engine\src\live_evidence\git_scope_boundary_tests.rs:404:25:
+2026-10-07T06:36:03.0544247Z original moved fixture source verification failed: scoped Git source changed before data access
+2026-10-07T06:36:03.0547027Z test live_evidence::git_scope_boundary_tests::original_fixture_restore_retries_actual_no_delete_directory_handle ... FAILED
+2026-10-07T06:38:22.7882450Z test result: FAILED. 572 passed; 1 failed; 3 ignored; 0 measured; 0 filtered out; finished in 248.39s
