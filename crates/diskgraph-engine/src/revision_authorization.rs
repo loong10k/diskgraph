@@ -333,6 +333,7 @@ impl Engine {
                 .checked_add(Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
             let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+            let capability_timely = std::time::Instant::now() < capability_deadline;
             crate::authority_expiry::check_authority_expiry(expiry)?;
             if matches!(decision, diskgraph_core::Decision::Denied(_)) {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
@@ -367,7 +368,7 @@ impl Engine {
             // 退出原 control SQL guard 后沿同一绝对期限查归属，禁止嵌套 progress guard。
             self.require_terminal_revision_ownership(revision, &scope, &control, after_callback)?;
             // 先保留实时拒权/归属错误；慢回调即使最终允许，也不能提交已准备的 partial。
-            if std::time::Instant::now() >= capability_deadline {
+            if !capability_timely {
                 return Err(EngineError::Business(BusinessError::BudgetExceeded));
             }
             Ok(())

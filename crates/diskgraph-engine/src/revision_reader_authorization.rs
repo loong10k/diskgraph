@@ -114,6 +114,7 @@ impl Engine {
             .checked_add(Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
+        let timely = std::time::Instant::now() < capability_deadline;
         crate::authority_expiry::check_authority_expiry(expiry)?;
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
@@ -142,7 +143,6 @@ impl Engine {
             .map_err(reader_terminal_control_error);
         withdrawal.check(&control)?;
         authorization?;
-        let timely = std::time::Instant::now() < capability_deadline;
         crate::authority_expiry::check_authority_expiry(expiry)?;
         self.require_terminal_revision_ownership(revision_id, &scope, &control, deadline)?;
         if !timely || std::time::Instant::now() >= deadline {

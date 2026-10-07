@@ -1,0 +1,49 @@
+{
+  "base_commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "candidate_callback_fix": true,
+  "diagnostic_overlay": true,
+  "linux": "ARM64 Docker CPU2 Rust1.97.1",
+  "test_threads": 10,
+  "passed": 9,
+  "failed": 1,
+  "failed_phase": "ownership_reader_open",
+  "failed_phase_ms": 52.539167,
+  "uncompressed_sha256": {
+    "history-phase-repro.log.gz": "89ba1550f6dc4b8faa4903315f704cf904420f45a00f5d25e0bb1019e8c8037c",
+    "executed_history_request.rs.txt": "2bef3239c85aa78d0b1704d3cd5059c1908368f74212711e0a3f245b3212c1b0",
+    "executed_terminal_revision_authorization.rs.txt": "aa585c041e2574d9ba120963df84b018f81176680184864a14a594ee1e4e9a92",
+    "reader_config.log.gz": "5e5c09c756fea32a4622f2ba6198df614d8806c4a3edbddb58151a52497a31ef",
+    "executed_sqlite_snapshot_store.rs.txt": "38f6cf5fa8dacdff434f52b42ede30a8b95b90be9e005cc3809e908fbca4d710",
+    "cpu-limit.txt": "07eb5019b2babb019fbbfe1cb328ec5b7affac5e07da4b94ebedb5e110dfab69",
+    "cpu-before.txt": "652579a1ffc9938c88d1f6f10cbfdada8bca28c723c54c0e2761bbf488167625",
+    "cpu-after.txt": "664fe8df2b1362652c4a25a6db2444299983be10cd4782de4c1e31bcfab2638b",
+    "history-cpu-observation.log.gz": "a4f453ce1d98e4022620edd4526bce8bd3a36c9a7a3861097102e7b5ba23c57c",
+    "noquota-limit.txt": "04afe0d058a8924a172509ae2f711347aca93cbca3879c64bd8d3d1b2e559ee7",
+    "noquota-before.txt": "9667e481e5dc95be471a65069785500f95f1635cf8006ec07a2ec1db0e018dc2",
+    "noquota-after.txt": "b5ff1f459455b362df73b3a9da35ce6d311838be8da7ab3885ccacc82bd0e83a",
+    "history-noquota.log.gz": "cfb409a5cca051ca64fe913c7b06fabfa9ef8daf009f3fc6f714648c9e7663d7"
+  },
+  "production_acceptance": false,
+  "explains_all_history_failures": false,
+  "reader_config_reproduction": {
+    "passed": 9,
+    "failed": 1,
+    "open_us": 161.375,
+    "temp_cumulative_us": 163.834,
+    "cache_cumulative_ms": 52.397042,
+    "interpretation": "cache_size call includes deferred SQLite initialization and scheduler time; intrinsic PRAGMA cost not proven"
+  },
+  "cpu_comparison": {
+    "limited": {
+      "passed": 9,
+      "failed": 1,
+      "throttled_periods": 15,
+      "throttled_usec": 1525107
+    },
+    "unlimited": {
+      "passed": 10,
+      "failed": 0
+    },
+    "limitations": "single paired observation; no exact per-call scheduler proof; no native x86 stable root-cause closure"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "base_commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "uncommitted_overlay_sha256": {
+    "crates/diskgraph-engine/src/relation_request.rs": "50c256be8a5246cff0bf09a1ab992143c417454846872a16d0a8d9f4fe71fc1a",
+    "crates/diskgraph-engine/src/relation_request_tests.rs": "2815e2b7d35f09eae830075869f8a51963302fa49e942e2d3f338655cef81537",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "3825adf5a5c0be95e69ae5e3ae0e92c4f34e630f330e350ad26133b7b782af14",
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "96f23e5402f2db121edc117247c284ec98f7f4cf3d25d9f0ceab0d845f4a9436"
+  },
+  "logs_uncompressed_sha256": {
+    "target_red.log.gz": "962169734b71314ba31614dd1e3e1f69cd3fb2b745a5ba1bc0f4936c3e735164",
+    "target_green.log.gz": "b574b4b60618c4f6d3eecac39824c7aa9fa73b35c34f654c5ca861e50d6ec733",
+    "capability_macos.log.gz": "bfe172669bff51f37f0d880da4bf1184e6136aa5c1da36b4250f2cd418d7b7e2",
+    "clippy.log.gz": "ae79f1e3d7239efc1a0db3bd4aebb5ca9026376f10f65336ca29342c9e8953d0",
+    "linux_expanded.log.gz": "ac43f7672bce913a5c3429003217f01e942b53f1b1e44d00002218af710cea64",
+    "callback-relations.log.gz": "d97cba99c99f6c62edeee68e5ac087fe0f5709959580b636f6dd937a38111c10",
+    "callback-capability.log.gz": "2d167838222752a5ebe24ac814486420a3f77bccce83c3db4e3c6c3de84c9c2a",
+    "callback-history.log.gz": "b379b3925c0832bc9e426e73ccd699678d6ba3bd34cc0a0a0f167aec895e0665",
+    "linux_exact_history.log.gz": "5f3c78bfb1946b01b8304e13c36bd12b9ffb6900cccffde34e8a1c5c583aedb8"
+  },
+  "target_red": {
+    "passed": 0,
+    "failed": 1
+  },
+  "target_green": {
+    "passed": 1,
+    "failed": 0
+  },
+  "macos_capability": {
+    "passed": 14,
+    "failed": 0
+  },
+  "linux_expanded": {
+    "passed": 43,
+    "failed": 8,
+    "limitations": "7 Git/host environment failures; 1 actual history BudgetExceeded"
+  },
+  "all_target_clippy": "passed",
+  "production_acceptance": false,
+  "original_ci_root_cause_proven": false,
+  "linux_relations": {
+    "passed": 17,
+    "failed": 0
+  },
+  "linux_capability": {
+    "passed": 14,
+    "failed": 0
+  },
+  "linux_history": {
+    "passed": 5,
+    "failed": 5,
+    "ignored": 0
+  },
+  "linux_exact_candidate_history": {
+    "passed": 10,
+    "failed": 0,
+    "cpu_quota": "unlimited",
+    "test_threads": 10,
+    "temporary_phase_diagnostics": false,
+    "closes_original_ci_failure": false
+  }
+}

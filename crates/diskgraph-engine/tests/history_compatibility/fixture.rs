@@ -1,5 +1,7 @@
 //! D35 合法旧观测导入夹具；只通过公开 Store API 发布，不修改已注册 scope。
 
+mod request_authorizer;
+
 use diskgraph_core::{
     DiskGraph, DiskNode, DiskSnapshot, FileIdentity, NodeKind, PrincipalId, QueryBudget,
     ResourceLocator, ScanCoverage, ScanSettings, ScopeId,
@@ -151,16 +153,32 @@ impl HistoryFixture {
 
     /// 参数：左右 revision；返回：公开授权变化 JSON。
     pub(crate) fn changes(&self, left: &str, right: &str) -> serde_json::Value {
-        self.engine
-            .revision_changes_until(
-                left,
-                right,
-                QueryBudget::default(),
-                &self.principal,
-                &self.engine.policy_authorizer().unwrap(),
-                deadline(),
-            )
-            .unwrap()
+        let authorizer =
+            request_authorizer::RequestAuthorizer::new(self.engine.policy_authorizer().unwrap());
+        let started = Instant::now();
+        let result = self.engine.revision_changes_until(
+            left,
+            right,
+            QueryBudget::default(),
+            &self.principal,
+            &authorizer,
+            deadline(),
+        );
+        if let Err(error) = &result {
+            authorizer.report();
+            eprintln!(
+                "HISTORY_CHANGES_DIAGNOSTIC elapsed_ms={} configured_budget_ms={} business_budget_exceeded={}",
+                started.elapsed().as_secs_f64() * 1000.0,
+                QueryBudget::default().deadline_ms,
+                matches!(
+                    error,
+                    diskgraph_engine::EngineError::Business(
+                        diskgraph_core::BusinessError::BudgetExceeded
+                    )
+                )
+            );
+        }
+        result.unwrap()
     }
 
     /// 参数：左右 revision；返回：独立的通用授权元数据比较报告，不调用内容读取。

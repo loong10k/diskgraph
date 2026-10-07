@@ -160,6 +160,9 @@ impl Engine {
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
+        let capability_timely = Instant::now() < capability_deadline;
+        #[cfg(test)]
+        crate::relation_request_tests::after_terminal_callback();
         check_authority_expiry(expiry)?;
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
@@ -188,7 +191,7 @@ impl Engine {
             .map_err(terminal_control_error)?;
         check_authority_expiry(expiry)?;
         // 不在此提前返回预算错误；调用方还须观察其他侧撤权及新鲜 revision 隔离。
-        Ok(Instant::now() < capability_deadline)
+        Ok(capability_timely)
     }
 
     /// 完成全部能力回调后，再纯读取每一侧的持久授权。
@@ -307,6 +310,7 @@ impl Engine {
                 Ok::<_, EngineError>(decision)
             })
             .collect::<Result<Vec<_>, EngineError>>()?;
+        let capability_timely = Instant::now() < capability_deadline;
         if decisions
             .iter()
             .any(|decision| matches!(decision, diskgraph_core::Decision::Denied(_)))
@@ -354,7 +358,7 @@ impl Engine {
             }
         }
         check_authority_expiry(expiry)?;
-        if Instant::now() >= after_callback || Instant::now() >= capability_deadline {
+        if Instant::now() >= after_callback || !capability_timely {
             return Err(BusinessError::BudgetExceeded.into());
         }
         check_authority_expiry(expiry)?;

@@ -1015,3 +1015,37 @@ fn candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes()
         );
     }
 }
+
+// 仅测试的回调结束同步点；不进入生产路径。
+thread_local! {
+    static AFTER_TERMINAL_CALLBACK: RefCell<Option<Box<dyn FnOnce()>>> = RefCell::new(None);
+}
+
+pub(super) fn after_terminal_callback() {
+    AFTER_TERMINAL_CALLBACK.with(|hook| {
+        if let Some(hook) = hook.borrow_mut().take() {
+            hook();
+        }
+    });
+}
+
+#[test]
+fn timely_terminal_callback_does_not_pay_for_post_callback_observation() {
+    let (_dir, engine, principal, scope, _revision) = published_authorization_fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    AFTER_TERMINAL_CALLBACK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(|| {
+            std::thread::sleep(std::time::Duration::from_millis(60))
+        }));
+    });
+    // 能力决定已结束；后置观察拥有自己的新窗口，原数据期限没有续期。
+    assert!(
+        engine
+            .observe_terminal_relation(&policy, &principal, &scope, None)
+            .unwrap()
+    );
+    assert!(
+        AFTER_TERMINAL_CALLBACK.with(|hook| hook.borrow().is_none()),
+        "测试同步点必须实际消费"
+    );
+}
