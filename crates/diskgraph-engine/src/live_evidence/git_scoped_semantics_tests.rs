@@ -149,9 +149,18 @@ fn scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git() {
         let locator = diskgraph_core::QualifiedLocator::from_native_path(fixture.path()).unwrap();
         let before = fixture.metadata();
         let mut session = EvidenceProbeSession::new(&ProbeLimits::default()).unwrap();
-        let sample = session
-            .sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator)
-            .unwrap();
+        // 仅本线程复用原状态诊断；失败先报告，再保留原 unwrap 的失败语义。
+        #[cfg(windows)]
+        let diagnostic = super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic::new();
+        let sample_result =
+            session.sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator);
+        #[cfg(windows)]
+        if sample_result.is_err() {
+            diagnostic.report();
+        }
+        let sample = sample_result.unwrap();
+        #[cfg(windows)]
+        drop(diagnostic);
         assert_eq!(sample.ahead_of_upstream, Some(1));
         assert_eq!(sample.behind_upstream, Some(1));
         assert_eq!(sample.dirty_count, 0);
@@ -160,9 +169,13 @@ fn scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git() {
             if format == "sha1" { 40 } else { 64 }
         );
         let first = session.resources_for_test();
-        let second = session
-            .sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator)
-            .unwrap();
+        let second_result =
+            session.sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator);
+        #[cfg(windows)]
+        if second_result.is_err() {
+            diagnostic.report();
+        }
+        let second = second_result.unwrap();
         assert_eq!(second.ahead_of_upstream, Some(1));
         let remaining = session.resources_for_test();
         assert!(

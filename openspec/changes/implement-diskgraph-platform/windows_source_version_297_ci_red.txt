@@ -1,0 +1,5 @@
+2026-10-07T07:10:13.7250326Z thread 'live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git' (4192) panicked at crates\diskgraph-engine\src\live_evidence\git_scoped_semantics_tests.rs:154:14:
+2026-10-07T07:10:13.7252389Z called `Result::unwrap()` on an `Err` value: "scoped Git source changed before data access"
+2026-10-07T07:10:13.7253991Z test live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git ... FAILED
+2026-10-07T07:10:13.8305254Z DG_POST_MARK_STANDARD links=0; pending=true; directory=false
+2026-10-07T07:12:49.7740471Z test result: FAILED. 572 passed; 1 failed; 3 ignored; 0 measured; 0 filtered out; finished in 276.99s
