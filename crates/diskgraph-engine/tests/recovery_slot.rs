@@ -104,6 +104,42 @@ fn original_expiry_refuses_before_writing_a_virgin_slot() {
 fn slot_child() {
     let path = std::env::var_os("DG_SLOT_TEST_PATH").expect("isolated child path");
     let mode = std::env::var("DG_SLOT_TEST_MODE").unwrap();
+    #[cfg(unix)]
+    if mode == "inherited" {
+        use std::os::fd::FromRawFd;
+        // 该 fd 仅由父测试在子进程 pre_exec 中 dup2；不授予产品监督启动能力。
+        let inherited = unsafe { File::from_raw_fd(198) };
+        use std::os::unix::fs::MetadataExt;
+        let actual = inherited.metadata().unwrap();
+        let expected = std::fs::metadata(&path).unwrap();
+        assert_eq!(
+            (actual.dev(), actual.ino()),
+            (expected.dev(), expected.ino())
+        );
+        let ready = std::env::var_os("DG_SLOT_TEST_READY").unwrap();
+        std::fs::write(ready, b"original inherited slot held").unwrap();
+        let until = deadline();
+        while Instant::now() < until {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        drop(inherited);
+        return;
+    }
+    #[cfg(windows)]
+    if mode == "inherited-windows" {
+        use std::io::Read;
+        let mut bytes = [0_u8; 8];
+        let error = std::io::stdin().read_exact(&mut bytes).unwrap_err();
+        // LockFileEx 的锁属于原进程；继承文件句柄不能访问父进程锁定的区域。
+        assert_eq!(error.raw_os_error(), Some(33));
+        let ready = std::env::var_os("DG_SLOT_TEST_READY").unwrap();
+        std::fs::write(ready, b"inherited handle cannot read parent lock").unwrap();
+        let until = deadline();
+        while Instant::now() < until {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        return;
+    }
     match SlotReservation::acquire(open(Path::new(&path)), deadline()) {
         Err(SlotError::Busy) => std::process::exit(73),
         Err(error) => panic!("unexpected child slot rejection: {error}"),
@@ -159,4 +195,117 @@ fn append_mode_cannot_return_an_ambiguous_reserved_owner() {
         SlotReservation::acquire(file, deadline()),
         Err(SlotError::InvalidRecord | SlotError::Io(_))
     ));
+}
+
+#[cfg(unix)]
+#[test]
+fn inherited_original_lock_survives_frontend_close_until_actual_child_death() {
+    use std::os::fd::AsRawFd;
+    use std::os::unix::process::CommandExt;
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("slot");
+    let ready = directory.path().join("ready");
+    let original = File::create_new(&path).unwrap();
+    let original_fd = original.as_raw_fd();
+    let active = SlotReservation::acquire(original, deadline())
+        .unwrap()
+        .activate(deadline())
+        .unwrap();
+    let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+    command
+        .args(["--ignored", "--exact", "slot_child", "--nocapture"])
+        .env("DG_SLOT_TEST_PATH", &path)
+        .env("DG_SLOT_TEST_MODE", "inherited")
+        .env("DG_SLOT_TEST_READY", &ready);
+    // 仅测试夹具使用 pre_exec；回调只调用 async-signal-safe dup2，不改变父进程 fd 标志。
+    // 实际产品启动仍必须使用受信原生 launcher，而非本测试的 Command 路径。
+    unsafe {
+        command.pre_exec(move || {
+            if libc::dup2(original_fd, 198) < 0 {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    let mut child = SlotTestChild {
+        child: Some(command.spawn().unwrap()),
+    };
+    let until = Instant::now() + Duration::from_secs(3);
+    while !ready.exists() {
+        assert!(child.child.as_mut().unwrap().try_wait().unwrap().is_none());
+        assert!(
+            Instant::now() < until,
+            "original inherited child never became ready"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    // 实际关闭前端原 fd；第二次打开同一 inode 仍必须被原子进程的原锁拒绝。
+    drop(active);
+    assert!(matches!(
+        SlotReservation::acquire(open(&path), deadline()),
+        Err(SlotError::Busy)
+    ));
+    child.child.as_mut().unwrap().kill().unwrap();
+    child.child.as_mut().unwrap().wait().unwrap();
+    child.child.take();
+    // 子进程死亡只释放内核锁；ACTIVE 不能被误写为 CLEAN 或自动允许新工作。
+    assert!(matches!(
+        SlotReservation::acquire(open(&path), deadline()),
+        Err(SlotError::Unconfirmed)
+    ));
+    assert_eq!(std::fs::read(path).unwrap(), b"DGSL01A\n");
+}
+
+#[cfg(windows)]
+#[test]
+fn inherited_windows_handle_does_not_transfer_original_process_lock() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("slot");
+    let ready = directory.path().join("ready");
+    let original = File::create_new(&path).unwrap();
+    // Stdio 只为隔离资格测试继承同一文件对象；不是产品监督启动入口。
+    let inherited = original.try_clone().unwrap();
+    let active = SlotReservation::acquire(original, deadline())
+        .unwrap()
+        .activate(deadline())
+        .unwrap();
+    let process = std::process::Command::new(std::env::current_exe().unwrap())
+        .args(["--ignored", "--exact", "slot_child", "--nocapture"])
+        .env("DG_SLOT_TEST_PATH", &path)
+        .env("DG_SLOT_TEST_MODE", "inherited-windows")
+        .env("DG_SLOT_TEST_READY", &ready)
+        .stdin(std::process::Stdio::from(inherited))
+        .spawn()
+        .unwrap();
+    let mut child = SlotTestChild {
+        child: Some(process),
+    };
+    let until = Instant::now() + Duration::from_secs(3);
+    while !ready.exists() {
+        assert!(child.child.as_mut().unwrap().try_wait().unwrap().is_none());
+        assert!(
+            Instant::now() < until,
+            "inherited Windows lock rejection not observed"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    drop(active);
+    // 等待原 OS 释放，不重新计时、不创建替代槽；活动记录必须仍拒绝新工作。
+    loop {
+        assert!(
+            Instant::now() < until,
+            "original parent lock did not release"
+        );
+        match SlotReservation::acquire(open(&path), until) {
+            Err(SlotError::Busy) => std::thread::sleep(Duration::from_millis(10)),
+            Err(SlotError::Unconfirmed) => break,
+            Err(error) => panic!("unexpected inherited lock error: {error:?}"),
+            Ok(_) => panic!("inherited lock unexpectedly admitted new work"),
+        }
+    }
+    assert!(child.child.as_mut().unwrap().try_wait().unwrap().is_none());
+    child.child.as_mut().unwrap().kill().unwrap();
+    child.child.as_mut().unwrap().wait().unwrap();
+    child.child.take();
+    assert_eq!(std::fs::read(path).unwrap(), b"DGSL01A\n");
 }

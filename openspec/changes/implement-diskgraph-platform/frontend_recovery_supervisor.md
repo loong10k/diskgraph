@@ -138,3 +138,13 @@ macOS 真子进程诊断确认：出生前 socketpair 的 LOCAL_PEERPID 在前�
 `324311b` 的 Windows stable 全 workspace 作业显示 engine 569 passed/1 failed/3 ignored，唯一失败仍为 scoped 根改名测试在释放 view/原预算后恢复源名称的 OS32。恢复只作用于隔离夹具：保留捕获前的完整原生目录身份，终态结果固定且原资源回收后，另设固定 10 秒夹具观察期限，每轮核验原目录身份与目标确实不存在，仅 OS32 重试，恢复后再核验原身份。该期限不进入原业务预算、不重新捕获、不放宽权限/发布或将占用推定 absent；永久共享冲突及未知错误仍失败。Windows 修复结果须由新提交实际 CI 证明，不能以 macOS 通过代替。
 
 `324311b` Windows MSRV engine 568 passed/2 failed/3 ignored，另一失败是原生观察前 3 秒 token 已到期并被正确 PermissionDenied。观察后过期夹具的初始 exp 明确改为入队前固定 30 秒；原 ctx/控制库 authority 前后完全相等，真实观察必须在原 exp 前发生，再等待真实原 exp 后验证确切 PermissionDenied 及 staging/revision 均无发布。没有运行中续租 token、回写 exp、替换时钟或修改生产 token 策略；新测试仍须真实平台执行，不能将观察前拒绝替代观察后验收。
+
+## Unix 原槽锁继承的实际进程验证
+
+macOS 上已验证同一 ACTIVE 文件锁由测试子进程继承，前端原 File 关闭后，另一次打开的真实准入仍返回 Busy；原子进程实际 kill/wait 后，内核锁释放，但原 ACTIVE 记录返回 Unconfirmed，不能自动清除或接纳新工作。隔离套件 8 通过、1 个仅由父测试调用的子入口忽略；Clippy 通过，日志及源码指纹见 `docs/benchmarks/inherited_slot_6ebc/`。测试仅使用子进程内 async-signal-safe dup2，不修改父 fd 标志；该 Command/pre_exec 夹具不属于产品受信 launcher，不证明同版本监督启动、命名空间信任或前端有限退出。Linux 运行和 Windows 句柄锁继承仍待分别验收；整体任务不勾选。
+
+### Windows 锁所有权不能按 Unix 继承
+
+Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能访问父进程锁定区域（https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-lockfileex）。Windows 不得把前端取得的 `SlotReservation`/ACTIVE 文件句柄继承视为监督槽能力转移；原监督进程必须在任何 Engine/探针出生前自行持有原锁。出生前全局容量仍需由独立受保护的 bootstrap 准入保持到实际监督槽确认，不允许先释放前端锁再凭 PID 或消息补认领。该 bootstrap 尚未实现。
+
+新增 Windows 原生负向测试：通过测试子进程标准输入继承同一文件对象，验证原父进程持锁时实际 ReadFile 返回 ERROR_LOCK_VIOLATION；原父 owner 关闭后，在子进程仍实际存活时重新准入只得到 ACTIVE 的 Unconfirmed，不能认为继承句柄仍持有父锁。固定观察期限内可等原 OS 释放延迟，但不续期或清除记录。该测试本机未编译/运行，必须由 Windows CI 验收；不据官方文档推定测试已通过。

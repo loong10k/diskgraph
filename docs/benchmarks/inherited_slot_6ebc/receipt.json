@@ -1,0 +1,19 @@
+{
+  "base_commit": "6ebc099652b040c57fc145eb8a054358bb9f9f94",
+  "platform": "macOS",
+  "test_result": {
+    "passed": 8,
+    "failed": 0,
+    "ignored_child_entry": 1
+  },
+  "source_sha256": "27d9f953dd11432bd6ff5978c97f9a4c44777f1e77cf81e366e042901adfac84",
+  "log_sha256": "3efd455af2656ef1a4d025660ed8f7869a4276dba6e1ee68ffff973d0762d95c",
+  "clippy": "passed",
+  "limitations": [
+    "test-only Command/pre_exec is not production trusted launcher",
+    "Linux runtime pending",
+    "Windows inherited-handle negative-control test added; native compile/runtime pending CI",
+    "No supervisor bootstrap or finite frontend exit proof"
+  ],
+  "windows_primary_source": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-lockfileex"
+}
