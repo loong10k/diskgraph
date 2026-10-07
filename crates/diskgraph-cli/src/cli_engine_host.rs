@@ -51,6 +51,20 @@ impl CliEngineHost {
         })
     }
 
+    fn seal_admission(&self) -> Result<(), EngineError> {
+        let scan = self
+            .recovery
+            .as_ref()
+            .map_or(Ok(()), |r| r.seal_admission());
+        // 两个池均先尝试关闭；即使扫描关闭失败，也不让探针准入继续开放。
+        #[cfg(windows)]
+        let probe = self.probe_recovery.seal_admission();
+        scan?;
+        #[cfg(windows)]
+        probe?;
+        Ok(())
+    }
+
     /// 执行单次命令；正常失败或 panic 后均先实际处置全部原进程。
     /// 参数：operation 只借用共享 Engine，不取得恢复句柄；返回：原业务结果或继续原 panic。
     pub(crate) fn execute<T>(
@@ -64,7 +78,7 @@ impl CliEngineHost {
             let mut reported = false;
             loop {
                 // 先关闭同一资源池准入；失败仍保留原责任，不以空槽观察允许新工作出生。
-                match recovery.seal_admission().and_then(|()| recovery.drain()) {
+                match self.seal_admission().and_then(|()| recovery.drain()) {
                     Ok(true) => break,
                     Ok(false) => {}
                     Err(_) if !reported => {
@@ -83,7 +97,6 @@ impl CliEngineHost {
             let mut reported = false;
             loop {
                 match self
-                    .probe_recovery
                     .seal_admission()
                     .and_then(|()| self.probe_recovery.drain())
                 {

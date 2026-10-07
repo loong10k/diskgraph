@@ -124,3 +124,5 @@ Linux/macOS 原已认证 UnixStream 能力的通知写入必须使用单次 send
 ## 前端兼容退出的准入关闭
 
 CLI 命令正常/失败/panic 后与 MCP runner 停止并 join 后，兼容恢复循环先沿同一 Recovery 关闭原资源池准入，再调用原 drain。关闭失败保留原责任并重试，禁止仅凭暂时空槽退出后仍允许新工作出生。Windows 探针池同样处理。此处仍使用原无限兼容回收，不声明有限退出；监督出生、公开 EOF 和私有 IPC 总体验收保持打开。
+
+Windows 前端退休必须先尝试关闭扫描与探针两类原池，然后才开始任意 drain；一个池关闭失败也不跳过另一池的关闭尝试。MCP 使用单一组合恢复入口，保留两个原 Recovery，不将扫描 Pending 当成忽略探针错误的理由。CLI 保持原命令结果与 panic 顺序。Unix 空原池回归只能证明准入关闭，Windows 原 pending 及有限退出仍待真实平台验收。

@@ -267,11 +267,11 @@ fn main() -> ExitCode {
     }));
     // 先停止调度并 join runner，才能处置仍保留的原 OS owner。
     let runner_outcome = job_runner.stop_and_join();
-    if let Some(recovery) = recovery {
-        scan_worker_shutdown::finish(&recovery);
-    }
-    #[cfg(windows)]
-    scan_worker_shutdown::finish_probe(&probe_recovery);
+    scan_worker_shutdown::finish(
+        recovery.as_ref(),
+        #[cfg(windows)]
+        &probe_recovery,
+    );
     match outcome {
         Ok(code) => match runner_outcome {
             Ok(()) => code,

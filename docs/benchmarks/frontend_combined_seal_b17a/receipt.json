@@ -1,0 +1,23 @@
+{
+  "platform": "local macOS",
+  "base_commit": "b17a43e240e77eb302bb0047e56d72bb6eee172d",
+  "observed_checks": {
+    "cli_panic_and_sealed_birth_regression": 1,
+    "mcp_original_pool_shutdown_regression": 1,
+    "cli_layout": 2,
+    "mcp_layout": 11,
+    "clippy": "exit 0"
+  },
+  "limitations": [
+    "Windows dual-pool branch has not run locally",
+    "No pending native child was born in these Unix fixtures",
+    "No finite frontend exit or supervisor startup proof",
+    "MCP full-suite baseline has 34 failures recorded separately"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "d780ff21a9fb8f84251a9987db3c9ead7374e373554d1351ad0fbd4e4dea3dbd",
+    "crates/diskgraph-mcp/src/main.rs": "710c4abbaeb3ce59f1be9349a0e06238f43c7a4b4745370b2cca6f4fa9369c67",
+    "crates/diskgraph-mcp/src/scan_worker_shutdown.rs": "46c7e9f96fb2e1445f578f0256b006bf61e721d03af900ca715e4c8f331548a5",
+    "crates/diskgraph-mcp/src/scan_worker_shutdown/tests.rs": "b60997440c395a231f4396dd126388ae3676b796c990c8a1860fff3ac284fafc"
+  }
+}
