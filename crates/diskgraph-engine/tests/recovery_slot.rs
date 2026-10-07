@@ -14,7 +14,7 @@ fn deadline() -> Instant {
 }
 
 fn assert_unconfirmed_after_lock_release(path: &Path) {
-    // Linux 的并行 fork 可能短暂继承原锁，直到 exec 关闭 CLOEXEC 文件描述符。
+    // Unix 的并行 fork 可能短暂继承原锁，直到 exec 关闭 CLOEXEC 文件描述符。
     // Busy 仍是安全拒绝；只在同一观察期限内等待锁释放，不允许成功认领或改写 RESERVED。
     let until = deadline();
     let rejection = loop {
@@ -91,12 +91,70 @@ fn invalid_records_are_refused_without_modification() {
         b"DGSL01A\nextra".as_slice(),
     ] {
         std::fs::write(&p, bytes).unwrap();
-        assert!(matches!(
-            SlotReservation::acquire(open(&p), deadline()),
-            Err(SlotError::InvalidRecord)
-        ));
+        assert_invalid_after_lock_release(&p, deadline());
         assert_eq!(std::fs::read(&p).unwrap(), bytes);
     }
+}
+
+/// 参数：损坏槽与原观察期限；返回：精确 InvalidRecord 拒绝，不改写正文。
+fn assert_invalid_after_lock_release(path: &Path, until: Instant) {
+    // 锁优先于正文校验；Busy 是拒绝而非损坏正文的观察，不得据此修改记录。
+    // 原固定期限内等实际锁释放；只允许最终 InvalidRecord，不接受成功或其他错误。
+    let rejection = loop {
+        match SlotReservation::acquire(open(path), until) {
+            Err(SlotError::Busy) if Instant::now() < until => {
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            result => break result.err(),
+        }
+    };
+    assert!(
+        matches!(rejection, Some(SlotError::InvalidRecord)),
+        "expected invalid record after lock release, got {rejection:?}"
+    );
+}
+
+#[test]
+fn actual_child_lock_delays_invalid_record_observation_without_repair() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("slot");
+    let ready = directory.path().join("ready");
+    let release = directory.path().join("release");
+    let bytes = b"DGSL99C\n";
+    std::fs::write(&path, bytes).unwrap();
+    let process = std::process::Command::new(std::env::current_exe().unwrap())
+        .args(["--ignored", "--exact", "slot_child", "--nocapture"])
+        .env("DG_SLOT_TEST_PATH", &path)
+        .env("DG_SLOT_TEST_MODE", "invalid-held")
+        .env("DG_SLOT_TEST_READY", &ready)
+        .env("DG_SLOT_TEST_RELEASE", &release)
+        .spawn()
+        .unwrap();
+    let mut child = SlotTestChild {
+        child: Some(process),
+    };
+    let until = deadline();
+    while !ready.exists() {
+        assert!(child.child.as_mut().unwrap().try_wait().unwrap().is_none());
+        assert!(Instant::now() < until, "child did not acquire actual lock");
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    assert!(matches!(
+        SlotReservation::acquire(open(&path), until),
+        Err(SlotError::Busy)
+    ));
+    std::fs::write(release, b"release original lock").unwrap();
+    assert_invalid_after_lock_release(&path, until);
+    loop {
+        if let Some(status) = child.child.as_mut().unwrap().try_wait().unwrap() {
+            assert!(status.success());
+            child.child.take();
+            break;
+        }
+        assert!(Instant::now() < until, "actual lock holder has not exited");
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    assert_eq!(std::fs::read(path).unwrap(), bytes);
 }
 #[test]
 fn original_expiry_refuses_before_writing_a_virgin_slot() {
@@ -116,6 +174,22 @@ fn original_expiry_refuses_before_writing_a_virgin_slot() {
 fn slot_child() {
     let path = std::env::var_os("DG_SLOT_TEST_PATH").expect("isolated child path");
     let mode = std::env::var("DG_SLOT_TEST_MODE").unwrap();
+    if mode == "invalid-held" {
+        let file = open(Path::new(&path));
+        file.try_lock().unwrap();
+        let ready = std::env::var_os("DG_SLOT_TEST_READY").unwrap();
+        let release = std::env::var_os("DG_SLOT_TEST_RELEASE").unwrap();
+        std::fs::write(ready, b"actual invalid record lock held").unwrap();
+        let until = deadline();
+        while !Path::new(&release).exists() {
+            assert!(Instant::now() < until, "parent did not request release");
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        // 明确制造释放前的观察竞态；不改写原记录，返回后原 held file 才关闭。
+        std::thread::sleep(Duration::from_millis(100));
+        drop(file);
+        return;
+    }
     #[cfg(unix)]
     if mode == "inherited" {
         use std::os::fd::FromRawFd;
