@@ -13,3 +13,5 @@
 29701a3 的 Windows stable job112670021363实际失败转移至 local_tracking_divergence 第一 sample_git_scoped，Engine572通过/1失败/3忽略；原目录恢复重试测试通过。错误仍为原 source changed before data access，原TLS诊断未在此次入口启用，因此尚不能判断祖先/叶目录。相应固定错误摘录见 windows_source_version_297_ci_red.txt。
 
 现在仅在该原测试线程创建诊断guard，两个原sample错误先报告固定phase/bits，再执行原unwrap；未新增原生查询、重试或预算，不接受任意错误作为通过。macOS目标测试1/0；Windows观察仍待同SHA CI。不据这一诊断宣布竞态修复或生产就绪。
+
+394b3af原生CI job112682858287/112682858316发现E0382：两次采样的guard分离编辑未实际插入第二个guard，第二次错误报告引用已释放对象。显式在第二次采样前构造新guard，完整查看两次采样和退场顺序；这是诊断编译修正，不改变采样预算与结果。Windows原生运行仍待新SHA。

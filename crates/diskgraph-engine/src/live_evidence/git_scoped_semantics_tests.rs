@@ -169,6 +169,8 @@ fn scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git() {
             if format == "sha1" { 40 } else { 64 }
         );
         let first = session.resources_for_test();
+        #[cfg(windows)]
+        let diagnostic = super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic::new();
         let second_result =
             session.sample_git_scoped(std::path::Path::new("git"), fixture.path(), &locator);
         #[cfg(windows)]
