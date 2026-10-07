@@ -1,0 +1,74 @@
+{
+  "baseline_commit": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+  "host": "macOS arm64",
+  "scope": "Q-02 independent reader admission boundary",
+  "source_sha256": {
+    "crates/diskgraph-store/src/lib.rs": "18bc37b1b96b46c9fd5377ccac9a9f6321dc9ca8308e5bcf176e4673df56c920",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "d83a6a3b331315c01bbdc28ab2376a2f09d6faca57663fc6188a6217ad6fcfb3",
+    "crates/diskgraph-store/src/reader_admission_tests.rs": "f7754d6e41c3a0af9ebbd0f5bc452f8ecca08be7ba8a7e24c677ae346e678437",
+    "openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md": "6e5411ec8a1b508dcb608f42fd28509f8b63c4212db911a59a330ef81b509fe1"
+  },
+  "logs": [
+    {
+      "label": "red",
+      "file": "red.log.gz",
+      "raw_sha256": "6cc5da0d1b6ceb542499850a96ba00802f0eee69ea3fe743d4da29ab90c6c0c6",
+      "stored_sha256": "113c3520b54f69dad8337cfc0068cce624d3e0808e3b5d592de9491ef80e8e88"
+    },
+    {
+      "label": "green",
+      "file": "green.log.gz",
+      "raw_sha256": "4faeb0d7034cff08bd236545c7d38b98e9a44cdf8ac1e9a7eb53fb29f6e4079f",
+      "stored_sha256": "bb35f57a20652fb01cac11ff8484a623a717ba3d37e88aea85af18ad12198fbc"
+    },
+    {
+      "label": "store_regression",
+      "file": "store_regression.log.gz",
+      "raw_sha256": "945b1da6ac5760d451546b48c5e521e3c836998b7f90579e6484fc4038a0c2f2",
+      "stored_sha256": "db00264097f6336d5aec5c5c33efeeea991e9cb221598a8f491da2e52d09ba10"
+    },
+    {
+      "label": "clippy",
+      "file": "clippy.log.gz",
+      "raw_sha256": "d15a0f64269f565954cea45dedba72088e3d19184ff008453e6e707f49a4b703",
+      "stored_sha256": "8fd9a6255f385652c958eda9750d5cac5be51a3134cd2d534308cb0b5f024ead"
+    },
+    {
+      "label": "workspace_check",
+      "file": "workspace_check.log.gz",
+      "raw_sha256": "6aeab96fc86ab749657646e41aefc42d4a50972cf07dcf857f5504c1a91462af",
+      "stored_sha256": "1e9203eb2cf877e1205b1a9828fb86892f82e6cd44c7178ecd9b6cccbb629e7e"
+    },
+    {
+      "label": "fmt",
+      "file": "fmt.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  ],
+  "red": {
+    "passed": 1,
+    "failed": 3,
+    "reason": "missing pre-open deadline and cancellation admission"
+  },
+  "green": {
+    "passed": 7,
+    "failed": 0
+  },
+  "store_regression": {
+    "passed": 305,
+    "failed": 0,
+    "ignored": 1
+  },
+  "independent_reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "production_ready": false,
+  "limits": [
+    "no hard preemption of synchronous SQLite or OS operations",
+    "post-check concurrent cancellation still requires caller/runtime gates",
+    "native CI for this candidate is pending",
+    "supervisor birth, bounded foreground exit and original recovery remain separate open gates"
+  ]
+}

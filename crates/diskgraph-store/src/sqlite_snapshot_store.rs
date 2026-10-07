@@ -61,6 +61,24 @@ impl SqliteSnapshotStore {
         deadline: std::time::Instant,
         cancel: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
     ) -> Result<Self> {
+        // 准备前后均检查原始预算，短 SQL 不能依赖每千步的回调完成准入。
+        let check_admission = || -> Result<()> {
+            if std::time::Instant::now() >= deadline {
+                return Err(StoreError::BudgetExceeded);
+            }
+            if cancel
+                .as_ref()
+                .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Relaxed))
+            {
+                return Err(rusqlite::Error::SqliteFailure(
+                    rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_INTERRUPT),
+                    None,
+                )
+                .into());
+            }
+            Ok(())
+        };
+        check_admission()?;
         let connection = Connection::open_with_flags(
             path,
             rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
@@ -72,15 +90,19 @@ impl SqliteSnapshotStore {
         )?;
         connection.pragma_update(None, "temp_store", "FILE")?;
         connection.pragma_update(None, "cache_size", -8192)?;
+        let execution_cancel = cancel.clone();
         connection.progress_handler(
             1000,
             Some(move || {
                 std::time::Instant::now() >= deadline
-                    || cancel
+                    || execution_cancel
                         .as_ref()
                         .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Relaxed))
             }),
         )?;
+        #[cfg(test)]
+        crate::reader_admission_tests::after_prepare();
+        check_admission()?;
         Ok(Self { connection })
     }
 

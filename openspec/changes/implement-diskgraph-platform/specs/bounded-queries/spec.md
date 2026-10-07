@@ -26,6 +26,10 @@
 - **WHEN** related、explain、impact 或 candidates 的解析、授权、连接准备、读取或返回前授权等待耗尽请求期限
 - **THEN** 全阶段使用同一个绝对协作期限，不在授权后重新计时；空结果、零目标和未完整覆盖同样不能成为晚到完整成功。能表示部分结果时保留已计费前缀并明确 Deadline，否则返回明确预算错误；同步 I/O、锁和调度不被描述为可抢占的严格墙钟保证。
 
+#### Scenario: Independent reader preparation refuses expired or cancelled admission
+- **WHEN** 独立只读连接开始准备前原绝对期限已过或取消标志已设置，或连接配置完成时上述条件成立
+- **THEN** 不返回可用连接；已过期限返回预算错误，取消沿用 SQLite interrupted 语义。开始前失败不得先访问数据库路径；期限与取消同时成立时期限错误优先，准备中已有真实 SQLite 失败不被后检覆盖。检查后的并发失效仍须调用方及执行阶段复验；SQL 运行中的期限/取消仍由进度回调检查，不将入口检查描述为可抢占同步 I/O。
+
 #### Scenario: Relation deadline fixtures distinguish owner preparation from authorized expiry
 - **WHEN** 请求在准入真实 revision 归属前已到期，或完成归属准入后由实际授权回调耗尽原期限
 - **THEN** 前者返回明确预算错误，不伪造已授权前缀；后者能容纳既有关系／影响／候选诊断时保留空 Deadline 截断及未完成目标。回归固定这两个阶段，不要求任意宿主在 1 ms 内完成连接／归属准备，不接受其他错误、额度重置或晚到完整成功。

@@ -125,6 +125,8 @@ mod plan_store;
 mod policy_store;
 #[cfg(test)]
 mod process_job_protocol_contract_tests;
+#[cfg(test)]
+mod reader_admission_tests;
 mod recovery_entry;
 mod recovery_rule;
 mod recovery_state;
