@@ -1,0 +1,12 @@
+{
+  "source_commit": "953c173c70d6f77c8cf32b4f7452bc6de505c3ba",
+  "command": "cargo test -p diskgraph-engine --test scan_worker_engine_flow --locked -- --test-threads=1",
+  "worker": "/fixture/target/debug/diskgraph-scan-worker",
+  "worker_origin": "cargo build from same isolated source archive",
+  "exit": 0,
+  "passed": 3,
+  "failed": 0,
+  "runtime": "Linux ARM64 Docker root; Rust 1.97.1",
+  "qualification": "component diagnostic with explicit actual worker artifact; no ordinary-user supervised namespace qualifier; no product supervisor or CLI/MCP scan acceptance",
+  "log_sha256": "e95ff91ed0891fb610b1e238170db97434f572869761a46fddbde70807fcc74e"
+}
