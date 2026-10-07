@@ -1,0 +1,25 @@
+{
+  "native_source_sha": "09047fd963f9ec5ddf4c6313db111493318e3521",
+  "run_id": 37564215669,
+  "job_id": 112608135249,
+  "native_conclusion": "failure",
+  "native_failed_target": "original_fixture_restore_retries_actual_no_delete_directory_handle",
+  "actual_error": "scoped Git source changed before data access at restored root verification",
+  "distinction": "Not the earlier retries==0 failure. Scope suite 11 passed, 1 failed. Expiry step skipped; missing upload is secondary.",
+  "native_successful_steps": [
+    "Build",
+    "Read-only CLI, stdio and authenticated HTTP acceptance",
+    "Native HTTP shutdown and original request deadline",
+    "Native Windows expired recovery red and green",
+    "Native Windows bound product Runtime and retained image recovery"
+  ],
+  "candidate_source_sha256": "1dd04d9844bc814a48e08cfbda8b2be389dae41068d69ddca35e29968830f352",
+  "candidate_change": "Fixture-only existing Windows state diagnostic reports on moved/restored root verification error. No retry, no relaxed equality or changed permission.",
+  "local_scope_tests": 13,
+  "local_clippy": "exit 0",
+  "limitations": [
+    "Candidate Windows branch pending native CI",
+    "Old-SHA successful steps do not establish current-SHA full acceptance",
+    "Root cause of source mismatch remains unconfirmed"
+  ]
+}

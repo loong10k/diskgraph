@@ -390,13 +390,19 @@ fn restore_fixture_root(
 ) -> usize {
     let mut restoration =
         super::probe_budget::ProbeBudget::until(&ProbeLimits::default(), until).unwrap();
+    #[cfg(windows)]
+    let source_diagnostic = super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic::new();
     let mut retries = 0;
     loop {
         restoration.check().unwrap();
         let current = {
             let (directory, _) =
                 super::git_source_directory::GitSourceDirectory::root(moved, &mut restoration)
-                    .unwrap();
+                    .unwrap_or_else(|error| {
+                        #[cfg(windows)]
+                        source_diagnostic.report();
+                        panic!("original moved fixture source verification failed: {error}")
+                    });
             directory.version().unwrap()
         };
         assert!(
@@ -423,7 +429,12 @@ fn restore_fixture_root(
     }
     let restored = {
         let (directory, _) =
-            super::git_source_directory::GitSourceDirectory::root(root, &mut restoration).unwrap();
+            super::git_source_directory::GitSourceDirectory::root(root, &mut restoration)
+                .unwrap_or_else(|error| {
+                    #[cfg(windows)]
+                    source_diagnostic.report();
+                    panic!("restored original fixture source verification failed: {error}")
+                });
         directory.version().unwrap()
     };
     assert!(original_root.same_identity(&restored));

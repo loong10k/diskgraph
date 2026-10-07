@@ -194,3 +194,7 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 运行期注册候选复用 `revision_root_reconciliation` 与启动相同的隔离逻辑；沿原 graph→control 顺序，在新范围授权前处理注册表。真实无效UTF-8目录创建在本机返回Illegal byte sequence，未到授权断言，不能称目标RED；该原生测试限定Linux等待CI。macOS既有隔离8、历史11、历史准备10、关系11、源码6通过，Clippy通过，不据此勾选运行期Linux验收。记录见 `docs/benchmarks/live_scope_isolation_389/`。
 
 运行期旧库导入补充本机验收：Engine启动后在隔离数据库建立真实旧归属及当前MetadataRead授权，实际Unicode目录注册触发隔离；重复注册不能解除隔离，原审计归属保留。此夹具不创建无效字节目录、不声称原生扫描。仅移除注册隔离调用的敏感性试验在目标授权断言失败，随后原源码逐字恢复，套件9/0及Clippy通过。不是Linux原生RED/GREEN；见 `docs/benchmarks/live_scope_import_f6c814/`。
+
+## Windows恢复后源版本核验原生失败
+
+09047fd 的Windows MSRV作业112608135249已结束failure，scope11/1。失败在恢复后的原目录重新打开时，报 scoped Git source changed before data access，并非之前retries==0；不得直接将其归为同一个已修问题。原作业Build、真实CLI/stdio/HTTP与HTTP停止/期限步骤通过，只属于该旧SHA。候选仅在夹具moved/restored根核验失败时报告已捕获Windows状态差异，不追加状态读取、不重试、不放宽Eq/身份/权限/期限。macOS scope13/0、Clippy通过；原生诊断待CI。完整日志与receipt见 `docs/benchmarks/windows_restored_source_09047/`，该问题保持未完成。
