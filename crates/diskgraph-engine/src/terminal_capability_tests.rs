@@ -441,14 +441,15 @@ fn reader_capability_callback_does_not_inherit_sql_deadline_handler() {
             diskgraph_core::Decision::Allowed
         }
     }
-    let (_dir, engine, principal, scope, _) = published_authorization_fixture();
-    let control = engine.control_store().unwrap();
+    let (dir, engine, principal, scope, _) = published_authorization_fixture();
+    let control =
+        diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+            .unwrap();
     let probe = Probe {
         control: &control,
         sql_succeeded: std::cell::Cell::new(false),
     };
-    let result = crate::Engine::require_reader_capability_until(
-        &control,
+    let result = engine.require_reader_capability_until(
         &probe,
         &principal,
         &scope,

@@ -224,15 +224,8 @@ fn initial_revision_authorization_rejects_expired_allowed_capability() {
         ),
         "expired owner authorization: {owner_result:?}"
     );
-    let control = engine.control_store().unwrap();
-    let reader_result = crate::Engine::require_reader_capability_until(
-        &control,
-        &Expired,
-        &principal,
-        &scope,
-        Some(0),
-        deadline,
-    );
+    let reader_result =
+        engine.require_reader_capability_until(&Expired, &principal, &scope, Some(0), deadline);
     assert!(
         matches!(
             reader_result,
@@ -282,9 +275,7 @@ fn initial_revision_authorization_refuses_allowed_callback_returning_after_expir
         };
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
         let result = if reader {
-            let control = engine.control_store().unwrap();
-            crate::Engine::require_reader_capability_until(
-                &control,
+            engine.require_reader_capability_until(
                 &authorizer,
                 &principal,
                 &scope,
@@ -683,4 +674,105 @@ fn revision_owner_callback_can_reenter_control_and_observes_revocation() {
             assert_eq!(result.unwrap(), scope);
         }
     }
+}
+
+#[test]
+fn revision_reader_initial_callback_can_reenter_control() {
+    struct Callback<'a> {
+        engine: &'a crate::Engine,
+        policy: diskgraph_core::PolicyAuthorizer,
+        read_succeeded: std::cell::Cell<bool>,
+        calls: std::cell::Cell<u32>,
+        revoke: bool,
+    }
+    impl diskgraph_core::Authorizer for Callback<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            if self.calls.get() == 0
+                && let Ok(mut control) = self
+                    .engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_millis(50))
+            {
+                self.read_succeeded.set(true);
+                if self.revoke {
+                    control.revoke_grant(principal, permission, scope).unwrap();
+                }
+            }
+            self.calls.set(self.calls.get() + 1);
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for revoke in [false, true] {
+        let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+        let authorizer = Callback {
+            engine: &engine,
+            policy: engine.policy_authorizer().unwrap(),
+            read_succeeded: std::cell::Cell::new(false),
+            calls: std::cell::Cell::new(0),
+            revoke,
+        };
+        let entered = std::cell::Cell::new(false);
+        let result = engine.with_authorized_revision_reader(
+            revision,
+            &principal,
+            &authorizer,
+            1000,
+            |_, _, _| {
+                entered.set(true);
+                Ok(())
+            },
+        );
+        assert!(
+            authorizer.read_succeeded.get(),
+            "initial capability callback ran under control lock"
+        );
+        if revoke {
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(BusinessError::PermissionDenied))
+                ),
+                "revoked capability: {result:?}"
+            );
+            assert!(!entered.get());
+        } else {
+            result.unwrap();
+            assert!(entered.get());
+        }
+    }
+}
+
+#[test]
+fn revision_reader_preserves_explicit_denial_after_callback_deadline() {
+    struct LateDenied;
+    impl diskgraph_core::Authorizer for LateDenied {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            std::thread::sleep(std::time::Duration::from_millis(150));
+            diskgraph_core::Decision::Denied(diskgraph_core::DenyReason::NoMatchingGrant)
+        }
+    }
+    let (_dir, engine, principal, _, revision) = published_authorization_fixture();
+    let result: Result<(), EngineError> = engine.with_authorized_revision_reader(
+        revision,
+        &principal,
+        &LateDenied,
+        100,
+        |_, _, _| panic!("denied request entered consumer"),
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "observed denial changed: {result:?}"
+    );
 }

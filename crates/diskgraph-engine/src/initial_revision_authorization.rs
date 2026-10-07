@@ -92,10 +92,10 @@ impl Engine {
 
 impl Engine {
     /// 在可信 reader 的原期限内核对能力与实时持久授权。
-    /// 参数：control 为既有控制锁，身份与 scope 为实际归属，deadline 不得刷新。
+    /// 参数：身份与 scope 为实际归属，expiry 是锁外固定值，deadline 不得刷新。
     /// 返回：允许、明确拒权或预算失败；回调不得继承 SQLite VM handler。
     pub(super) fn require_reader_capability_until(
-        control: &diskgraph_store::ControlStore,
+        &self,
         authorizer: &dyn Authorizer,
         principal: &PrincipalId,
         scope: &ScopeId,
@@ -103,6 +103,7 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<(), EngineError> {
         check_authority_expiry(expiry)?;
+        let control = self.control_until(deadline)?;
         control
             .with_read_deadline(deadline, |control| {
                 if control.scope_revoked(scope)? {
@@ -111,7 +112,8 @@ impl Engine {
                 Ok(())
             })
             .map_err(reader_control_error)?;
-        // 宿主能力回调处于两个 SQL 阶段之间；迟到允许不能延长后续观察期限。
+        drop(control);
+        // 宿主能力回调不持控制锁；回调后沿原期限重新观察实时权限。
         check_authority_expiry(expiry)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
         check_authority_expiry(expiry)?;
@@ -121,6 +123,8 @@ impl Engine {
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
+        let control = self.control_until(deadline)?;
+        check_authority_expiry(expiry)?;
         control
             .with_read_deadline(deadline, |control| {
                 Self::require_decision_with_control(

@@ -1,0 +1,44 @@
+{
+  "scope": "generic trusted revision reader initial callback mutex separation",
+  "source_sha256": {
+    "initial_revision_authorization.rs": "f7f38129df38ed4da26b29c4499ef7293864718debb8d890a7a242bc071c25a8",
+    "revision_authorization.rs": "e46e5519cd53d5bedcaf064751f912671a8fe344230242ae6756a0c212fd2f45",
+    "revision_reader_authorization.rs": "07e59b154a7f405dd0b63c482bb815eb9eec98cc28967f3998e9fd2975b3dd26",
+    "admin_policy_lookup_tests.rs": "99c887533b0ff9ecbd456f57df80ceeddcdacfd6487610783e7751d88ad63760",
+    "terminal_capability_tests.rs": "bf4fef14f1ba411aa73ab1fac0df7e85b3bd6593a805da6ce2e5d01c0cdd5b41",
+    "lib.rs": "73862096ee4c8fe09a76313a0d9a8a394d66be088a727db215e1260a60d5020d"
+  },
+  "red": [
+    "bounded initial callback cannot reenter control",
+    "late explicit denial overwritten by BudgetExceeded"
+  ],
+  "green": {
+    "permission_tests": 14,
+    "source_layout": 6,
+    "fmt": "pass",
+    "clippy": "pass",
+    "serial_full_engine": {
+      "passed": 559,
+      "failed": 98,
+      "ignored": 13,
+      "failed_class": "Unsupported",
+      "seconds": 119.19
+    }
+  },
+  "parallel_full_engine": {
+    "passed": 558,
+    "failed": 99,
+    "ignored": 13,
+    "additional_failure": "growth_data_expiry_with_timely_capability_is_timeout_for_unknown_and_cross_scope; isolated exact rerun passes; root cause unconfirmed"
+  },
+  "invalid_fixture_attempt": "16 additional failures from missing driver executable; these attempts do not prove behavior",
+  "reviews": [
+    "APPROVE",
+    "CLEAR"
+  ],
+  "limitations": [
+    "terminal callbacks still hold control mutex",
+    "native platform qualification incomplete",
+    "parallel timeout classification observation unresolved"
+  ]
+}
