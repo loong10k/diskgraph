@@ -27,3 +27,12 @@
 同一提交的 Windows Rust 1.97.0 完整 Test 在 engine lib 得到 572 passed、2 failed、3 ignored；两个失败是 cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion 和 cleanup_mark_requires_current_identity_and_live_budget_before_mutation。原生返回严格 Pending Ok(false)，两处遗留断言仍调用 unwrap_err 并期望错误 5。完整原日志及失败回执保存在 docs/benchmarks/windows_cursor_pending_bfee4f2_red/。
 
 候选修正仅改测试和 CI：持有原句柄时严格要求 false，禁止游标跳过当前 child 的断言保留；关闭后沿同一 ProbeBudget 等待原通知，未知错误和到期直接失败。mark 案增加原文件实际消失与 foreign sentinel 未变校验。两案新增前置精确 native gate，分别要求 1/0/0 和原成功标记；生产通知及独立 ID witness 代码不改变。新原生验收尚待完成，不将此 RED 改记为成功。
+
+
+## 逐文件诊断的执行成本
+
+测试构建的 REMOVE 页及 post-mark 诊断仅在显式环境变量 `DISKGRAPH_TRACE_WINDOWS_CLEANUP=1` 时输出；按测试线程缓存开关，禁用时不进行额外诊断用 FILE_STANDARD_INFO 查询。真实通知解析、匹配、删除 seal、容量记账和竞态 hook 始终执行，生产构建不读取该变量。成功/失败验收标记及原断言不受影响。
+
+PowerShell 排障：`$env:DISKGRAPH_TRACE_WINDOWS_CLEANUP='1'` 后执行原精确测试。每个新测试进程在第一次使用诊断时固定该值。默认关闭只减少诊断成本，尚未测量墙钟收益，也不证明任何生产授权或恢复门禁通过。
+
+English: Per-file REMOVE and post-mark tracing is opt-in in test builds via `DISKGRAPH_TRACE_WINDOWS_CLEANUP=1`. The disabled path avoids the additional diagnostic metadata query. Authorization, identity seals, notifications, accounting, race hooks and acceptance assertions still execute. No timing improvement is claimed until native measurements exist.

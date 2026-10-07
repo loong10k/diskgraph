@@ -2,6 +2,9 @@ use std::cell::RefCell;
 
 thread_local! {
     static BEFORE_MARK: RefCell<Option<Box<dyn FnOnce()>>> = RefCell::new(None);
+    // 每个测试线程首次使用时读取一次，避免逐文件查询环境和默认输出数万条诊断。
+    static TRACE_ENABLED: bool = std::env::var_os("DISKGRAPH_TRACE_WINDOWS_CLEANUP")
+        .is_some_and(|value| value == "1");
 }
 
 /// 原生竞态测试的一次性时机控制；来源：Windows删除最后核验/副作用边界，无Java对应。
@@ -9,6 +12,11 @@ thread_local! {
 pub(super) struct WindowsCleanupMarkHook;
 
 impl WindowsCleanupMarkHook {
+    /// 返回：显式设置 DISKGRAPH_TRACE_WINDOWS_CLEANUP=1 时启用原生诊断；仅测试构建。
+    pub(super) fn trace_enabled() -> bool {
+        TRACE_ENABLED.with(|enabled| *enabled)
+    }
+
     /// 参数：action为本线程实际竞态操作；返回：无，拒绝覆盖未消费的回调。
     pub(super) fn install(action: impl FnOnce() + 'static) {
         BEFORE_MARK.with(|slot| {
@@ -28,6 +36,9 @@ impl WindowsCleanupMarkHook {
 
     /// 参数：file为已成功标记的原DELETE句柄；返回：无，记录真实后置元数据，不改动生产结果。
     pub(super) fn inspect_marked(file: &std::fs::File) {
+        if !Self::trace_enabled() {
+            return;
+        }
         use std::os::windows::io::AsRawHandle;
         use windows_sys::Win32::Storage::FileSystem::{
             FILE_STANDARD_INFO, FileStandardInfo, GetFileInformationByHandleEx,
