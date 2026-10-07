@@ -51,3 +51,9 @@ with_authorized_revision_reader 的初次与末段控制锁原使用阻塞获取
 准备结果之后沿既有 observe_terminal_relation 进行分阶段复检：能力回调不处于SQL guard，每段控制SQL固定50ms观察窗口；数据读取和图归属仍沿原请求deadline。原撤权见证与实际归属拒绝先于迟到允许预算失败。原1000ms请求里末段150ms允许旧实现会返回成功，新增回归必须精确BudgetExceeded；回调内独立连接撤权必须PermissionDenied。同步回调及原资源仍不可硬抢占，50ms控制观察不是整体wall-time保证。
 
 本机末段验证：真实RED旧路径返回Ok；修复后授权组8/0、source_layout6/0，fmt与Clippy通过，双路APPROVE/CLEAR。完整Engine535/98/13，98项均Unsupported；没有将本机平台拒绝标记通过。
+
+## 隐式最新 revision 解析
+
+MCP C16 无显式revision时的 latest_revision_until 也必须在原期限内取得控制锁并读取scope/server，不以无限期control()等待。只读阶段使用已初始化server身份，缺失身份拒绝，不在请求中补建。隔离控制锁持有300ms、请求50ms的公开API回归需在原锁仍占用时返回业务BudgetExceeded。旧入口 latest_revision 保留可信兼容行为；本项不构成查询性能改善证据。
+
+最新解析验证：公开锁竞争回归真实RED→GREEN；授权组8/0，另补有效latest读取及删除server后不补建身份1/0；source_layout6/0，fmt/Clippy通过。完整Engine（额外身份测试添加前）535/98/13，98项均Unsupported。双路审查APPROVE/CLEAR，保留调用方授权及短图SQL期限WATCH。

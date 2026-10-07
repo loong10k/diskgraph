@@ -6,7 +6,7 @@ use std::cell::RefCell;
 
 #[test]
 fn initial_authorization_control_contention_expires_while_original_lock_is_held() {
-    for mode in 0..4 {
+    for mode in 0..5 {
         let (_dir, engine, principal, _scope, revision) = published_authorization_fixture();
         let snapshot_id = engine
             .graph()
@@ -37,6 +37,7 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
             1 => engine
                 .authorize_revision_until(None, revision, &principal, &policy, deadline)
                 .map(|_| ()),
+            4 => engine.latest_revision_until(&_scope, deadline).map(|_| ()),
             3 => engine.with_authorized_revision_reader(
                 revision,
                 &principal,
@@ -521,4 +522,35 @@ fn trusted_reader_terminal_late_allow_is_refused_and_revocation_wins() {
             "terminal result: {result:?}"
         );
     }
+}
+
+#[test]
+fn latest_resolution_reads_existing_identity_and_never_repairs_missing_server() {
+    let (dir, engine, _principal, scope, revision) = published_authorization_fixture();
+    let deadline = || std::time::Instant::now() + std::time::Duration::from_secs(1);
+    assert_eq!(
+        engine
+            .latest_revision_until(&scope, deadline())
+            .unwrap()
+            .as_deref(),
+        Some(revision)
+    );
+    let independent =
+        rusqlite::Connection::open(dir.path().join("data/diskgraph-control.sqlite")).unwrap();
+    independent
+        .execute("DELETE FROM server WHERE id=1", [])
+        .unwrap();
+    assert!(matches!(
+        engine.latest_revision_until(&scope, deadline()),
+        Err(EngineError::Store(
+            diskgraph_store::StoreError::InvalidGraph(_)
+        ))
+    ));
+    let count: i64 = independent
+        .query_row("SELECT COUNT(*) FROM server", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(
+        count, 0,
+        "bounded read must not mint a replacement identity"
+    );
 }
