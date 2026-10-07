@@ -13,6 +13,23 @@ SPEC.loader.exec_module(MODULE)
 
 @unittest.skipIf(sys.platform == 'win32', 'Windows terminate 不提供 Unix 正常信号协议')
 class ShutdownAcceptance(unittest.TestCase):
+    def test_actual_unresponsive_child_is_reaped_but_rejected(self):
+        child = subprocess.Popen([sys.executable, '-c',
+            'import signal,time; signal.signal(signal.SIGTERM, signal.SIG_IGN); '
+            'print("ready", flush=True); time.sleep(30)'],
+            stdout=subprocess.PIPE, text=True)
+        try:
+            self.assertEqual(child.stdout.readline().strip(), 'ready')
+            with self.assertRaisesRegex(RuntimeError, 'forced cleanup is not acceptance'):
+                MODULE.stop_server(child)
+            self.assertIsNotNone(child.poll())
+            self.assertNotEqual(child.returncode, 0)
+        finally:
+            if child.poll() is None:
+                child.kill()
+                child.wait()
+            child.stdout.close()
+
     def test_actual_handled_signal_is_success(self):
         child = subprocess.Popen([sys.executable, '-c',
             'import signal,time,sys; signal.signal(signal.SIGTERM, lambda *_: sys.exit(0)); '
