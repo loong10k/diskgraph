@@ -397,3 +397,5 @@ mod trusted_local_recovery_domain_tests;
 
 #[cfg(test)]
 mod scope_authorization_tests;
+
+mod authority_expiry;

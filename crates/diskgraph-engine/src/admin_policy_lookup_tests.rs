@@ -114,3 +114,75 @@ fn ordinary_requirement_observes_revocation_committed_inside_capability_callback
         Err(EngineError::Business(BusinessError::PermissionDenied))
     ));
 }
+
+#[test]
+fn ordinary_requirement_refuses_token_expired_while_waiting_for_control() {
+    struct Expiring {
+        policy: diskgraph_core::PolicyAuthorizer,
+        expiry: u64,
+        entered_live: std::cell::Cell<bool>,
+    }
+    impl diskgraph_core::Authorizer for Expiring {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            self.entered_live.set(
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs()
+                    < self.expiry,
+            );
+            self.policy.decide(principal, permission, scope)
+        }
+        fn expires_at_unix_seconds(&self) -> Option<u64> {
+            Some(self.expiry)
+        }
+    }
+    let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    let expiry = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        + 2;
+    let engine = std::sync::Arc::new(engine);
+    let holder = engine.clone();
+    let (ready_tx, ready_rx) = std::sync::mpsc::channel();
+    let owner = std::thread::spawn(move || {
+        let guard = holder.control_store().unwrap();
+        ready_tx.send(()).unwrap();
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap();
+        std::thread::sleep(
+            std::time::Duration::from_secs(expiry).saturating_sub(now)
+                + std::time::Duration::from_millis(30),
+        );
+        drop(guard);
+    });
+    ready_rx
+        .recv_timeout(std::time::Duration::from_secs(5))
+        .unwrap();
+    let authorizer = Expiring {
+        policy,
+        expiry,
+        entered_live: std::cell::Cell::new(false),
+    };
+    let result = engine.require(&authorizer, &principal, &Permission::MetadataRead, &scope);
+    owner.join().unwrap();
+    assert!(
+        authorizer.entered_live.get(),
+        "fixture must obtain capability before expiry"
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "expired capability returned: {result:?}"
+    );
+}

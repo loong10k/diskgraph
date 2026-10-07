@@ -94,7 +94,7 @@ impl Engine {
             })
             .collect::<Vec<_>>();
         let expiry = authorizer.expires_at_unix_seconds();
-        scope_list_authority_live(expiry)?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let control = self.control()?;
         let permitted = |decision, scope: &ScopeId| -> Result<bool, EngineError> {
             match Self::require_decision_with_control(
@@ -120,7 +120,7 @@ impl Engine {
         if allowed.is_empty() && authorizer_is_permissive {
             allowed = control.list_scopes()?;
         }
-        scope_list_authority_live(expiry)?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         Ok(allowed)
     }
 }
@@ -193,18 +193,4 @@ fn locator_volume_id(locator: &Locator) -> Option<String> {
 #[cfg(not(any(unix, windows)))]
 fn locator_volume_id(_locator: &Locator) -> Option<String> {
     None
-}
-
-// 能力决定可早于 token 到期取得；控制锁等待与SQL完成后仍须拒绝过期结果。
-fn scope_list_authority_live(expiry: Option<u64>) -> Result<(), EngineError> {
-    if let Some(expiry) = expiry {
-        let now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?
-            .as_secs();
-        if now >= expiry {
-            return Err(BusinessError::PermissionDenied.into());
-        }
-    }
-    Ok(())
 }

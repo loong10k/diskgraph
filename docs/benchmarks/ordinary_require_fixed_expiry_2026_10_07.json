@@ -1,0 +1,36 @@
+{
+  "scope": "ordinary require fixed token expiry after control wait and authorization SQL",
+  "logs": {
+    "red": {
+      "sha256": "b457d6588d18a440f095be4f8b93b5875920d173a71f2afe5f420cef16d5c481",
+      "summary": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 658 filtered out; finished in 2.04s"
+      ]
+    },
+    "green": {
+      "sha256": "504ebb26b383801c031fc10974966c9213d112b4e239a00368c2c9234907b53b",
+      "summary": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 655 filtered out; finished in 1.29s"
+      ]
+    },
+    "scope": {
+      "sha256": "9efc855d4c7441b7f21d6ae0d7843dfd47872feceb027c1ce6a53250638782e0",
+      "summary": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 652 filtered out; finished in 0.88s"
+      ]
+    },
+    "full": {
+      "sha256": "3aa03891361c315930475c757ede23f2ec3139987918c94bfcaf872cba77f293",
+      "summary": [
+        "test result: FAILED. 548 passed; 98 failed; 13 ignored; 0 measured; 0 filtered out; finished in 14.47s"
+      ]
+    }
+  },
+  "production_acceptance": false,
+  "limits": [
+    "Unix seconds token clock distinct from monotonic execution budget",
+    "lock and callback not hard-preemptible",
+    "control acquisition or SQL errors retain original priority",
+    "native qualification Unsupported remains"
+  ]
+}

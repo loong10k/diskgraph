@@ -418,10 +418,14 @@ impl Engine {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<(), EngineError> {
-        // 外部能力回调先执行；持久授权随后在锁内新鲜读取，防止回调重入控制锁。
+        // 固定到期信息在锁外取得；回调、锁等待和授权SQL均不能让迟到允许越过到期。
+        let expiry = authorizer.expires_at_unix_seconds();
         let decision = authorizer.decide(principal, permission, scope);
+        crate::authority_expiry::check_authority_expiry(expiry)?;
         let control = self.control()?;
-        Self::require_decision_with_control(&control, decision, principal, permission, scope)
+        crate::authority_expiry::check_authority_expiry(expiry)?;
+        Self::require_decision_with_control(&control, decision, principal, permission, scope)?;
+        crate::authority_expiry::check_authority_expiry(expiry)
     }
 }
 

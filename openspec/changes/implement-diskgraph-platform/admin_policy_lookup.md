@@ -35,3 +35,9 @@ Engine::require 在控制锁外取得请求能力决定，然后在锁内新鲜�
 require_read_terminal 保留初次范围存在/撤销检查，释放控制锁后取得ContentRead能力决定，再用新鲜控制锁核对持久交集和live_permission（无策略可信兼容模式同样拒绝scope撤销）。权限专用测试不打开文件、不替代内容平台能力门禁：原有限重入控制读失败确认RED；callback期间grant撤销、scope撤销及无策略scope撤销均需PermissionDenied。现有真实read_bounded终态测试保留；本机不支持的原生读取不得改为跳过或通过。
 
 内容终态本机验证：权限重入真实RED→GREEN，专用两项1/0+1/0（撤销测试内3模式）；source_layout6/0，fmt/Clippy与双路APPROVE/CLEAR。完整Engine540/98/13，98项均Unsupported。实际内容能力验收保持未完成，本项未赋予平台读取能力，控制等待仍非硬有界。
+
+## 普通权限入口固定 token expiry
+
+require在锁外固定expiry，能力返回后、控制锁取得后及持久授权成功后检查同一到期时间；None保留可信本机兼容，不能在等待锁期间接受过期Allowed。真实锁持有直到固定expiry之后、能力决定在expiry之前取得的回归，旧路径返回成功为RED，修复须PermissionDenied。复用scope列表已有相同expiry门禁；不刷新请求deadline，不承诺控制锁硬期限。已过期能力优先拒绝，不等待控制错误或读取策略诊断。
+
+固定expiry本机验证：实际锁竞争旧路径Ok真实RED→GREEN，权限组4/0、scope组7/0，source_layout6/0、fmt/Clippy及双路APPROVE/CLEAR。完整Engine548/98/13，98项均Unsupported。错误优先限定：首次expiry检查已发现到期时不获取控制锁；锁获取或授权SQL自身失败仍保留原错误，不保证所有并发到期覆盖其他错误。Unix秒墙钟不是单调执行预算。
