@@ -5,29 +5,8 @@ use diskgraph_core::{
 use diskgraph_engine::{Engine, EngineConfig};
 use diskgraph_store::{ControlStore, SqliteSnapshotStore};
 
-fn backfill(roots: &[Locator], legacy_root: ResourceLocator) -> Option<(String, String)> {
-    legacy_database(roots, legacy_root, false, None).0
-}
-
-fn legacy_database(
-    roots: &[Locator],
-    legacy_root: ResourceLocator,
-    already_bound: bool,
-    native_proof: Option<usize>,
-) -> (Option<(String, String)>, bool) {
-    let directory = tempfile::tempdir().unwrap();
-    let data = directory.path().join("data");
-    std::fs::create_dir(&data).unwrap();
-    let mut control = ControlStore::open(&data.join("diskgraph-control.sqlite")).unwrap();
-    let server = control.ensure_server().unwrap();
-    let mut scopes = Vec::new();
-    for root in roots {
-        scopes.push(control.register_scope(root, None).unwrap());
-    }
-    drop(control);
-    let graph_path = data.join("diskgraph.sqlite");
-    let mut store = SqliteSnapshotStore::open(&graph_path).unwrap();
-    let graph = DiskGraph {
+fn legacy_graph(legacy_root: ResourceLocator) -> DiskGraph {
+    DiskGraph {
         snapshot: DiskSnapshot {
             id: "legacy-snapshot".into(),
             root: legacy_root.clone(),
@@ -65,7 +44,32 @@ fn legacy_database(
             read_error: false,
         }],
         evidence: vec![],
-    };
+    }
+}
+
+fn backfill(roots: &[Locator], legacy_root: ResourceLocator) -> Option<(String, String)> {
+    legacy_database(roots, legacy_root, false, None).0
+}
+
+fn legacy_database(
+    roots: &[Locator],
+    legacy_root: ResourceLocator,
+    already_bound: bool,
+    native_proof: Option<usize>,
+) -> (Option<(String, String)>, bool) {
+    let directory = tempfile::tempdir().unwrap();
+    let data = directory.path().join("data");
+    std::fs::create_dir(&data).unwrap();
+    let mut control = ControlStore::open(&data.join("diskgraph-control.sqlite")).unwrap();
+    let server = control.ensure_server().unwrap();
+    let mut scopes = Vec::new();
+    for root in roots {
+        scopes.push(control.register_scope(root, None).unwrap());
+    }
+    drop(control);
+    let graph_path = data.join("diskgraph.sqlite");
+    let mut store = SqliteSnapshotStore::open(&graph_path).unwrap();
+    let graph = legacy_graph(legacy_root);
     store
         .publish_revision("legacy-job", &graph, "legacy-revision", 1)
         .unwrap();
@@ -338,5 +342,77 @@ fn another_scopes_raw_root_cannot_validate_same_display_historical_owner() {
     assert!(
         !authorized,
         "different raw root incorrectly confirmed the displayed owner"
+    );
+}
+
+#[test]
+#[cfg(target_os = "linux")]
+fn live_scope_registration_isolates_existing_lossy_alias_without_restart() {
+    use std::os::unix::ffi::OsStringExt;
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().join("r�");
+    let alias = directory
+        .path()
+        .join(std::ffi::OsString::from_vec(b"r\xff".to_vec()));
+    std::fs::create_dir(&root).unwrap();
+    std::fs::create_dir(&alias).unwrap();
+    let data = directory.path().join("data");
+    let engine = Engine::open(EngineConfig {
+        data_dir: data.clone(),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    let actor = diskgraph_core::PrincipalId::new("live-admin").unwrap();
+    engine.bootstrap_local_admin(&actor).unwrap();
+    let scope = engine
+        .register_scope(&root, &actor, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    drop(engine);
+    SqliteSnapshotStore::open(&data.join("diskgraph.sqlite"))
+        .unwrap()
+        .publish_revision(
+            "legacy-job",
+            &legacy_graph(ResourceLocator::NativePath(
+                root.canonicalize().unwrap().to_str().unwrap().into(),
+            )),
+            "legacy-revision",
+            1,
+        )
+        .unwrap();
+    let engine = Engine::open(EngineConfig {
+        data_dir: data.clone(),
+        ..EngineConfig::default()
+    })
+    .unwrap();
+    assert!(
+        engine
+            .authorize_revision(
+                Some(&scope),
+                "legacy-revision",
+                &actor,
+                &engine.policy_authorizer().unwrap()
+            )
+            .is_ok()
+    );
+    engine
+        .register_scope(&alias, &actor, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    assert!(
+        engine
+            .authorize_revision(
+                Some(&scope),
+                "legacy-revision",
+                &actor,
+                &engine.policy_authorizer().unwrap()
+            )
+            .is_err(),
+        "live registration must isolate the alias group before granting access"
+    );
+    assert!(
+        SqliteSnapshotStore::open(&data.join("diskgraph.sqlite"))
+            .unwrap()
+            .revision_ownership_for_audit("legacy-revision")
+            .unwrap()
+            .is_some()
     );
 }

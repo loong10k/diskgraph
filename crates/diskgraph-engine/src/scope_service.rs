@@ -27,8 +27,15 @@ impl Engine {
         let canonical = root.canonicalize()?;
         let locator = Locator::from_native_path(&canonical);
         let volume_id = locator_volume_id(&locator);
+        // 与扫描发布/历史回收保持 graph→control 顺序，注册与隔离完成前不授新权限。
+        let mut graph = self.graph()?;
         let mut control = self.control()?;
         let scope_id = control.register_scope(&locator, volume_id.as_deref())?;
+        crate::revision_root_reconciliation::eligible_roots(
+            &mut graph,
+            &control.ensure_server()?,
+            &control.list_scopes()?,
+        )?;
         // The registrar receives scope-local index/metadata/operation rights;
         // server administration itself stays bound to the admin scope.
         let version = control.policy_version()?;

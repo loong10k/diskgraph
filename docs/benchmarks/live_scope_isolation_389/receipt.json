@@ -1,0 +1,25 @@
+{
+  "base_sha": "3896549",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/engine_startup.rs": "d6a2aa54d6b800e80013af0585acc374ef7c3a8ec79c45eb93fa3ec7f7bb8c29",
+    "crates/diskgraph-engine/src/revision_root_reconciliation.rs": "48dee76ea60f03441971e31fb882d5118efea4f0326bb41d50f954c7e0381211",
+    "crates/diskgraph-engine/src/scope_service.rs": "41d4156f0959cf7769eb6a03ec4eb3445eb706a7a8c5434c591484a5a8a1f9f3",
+    "crates/diskgraph-engine/src/lib.rs": "8dba41b024a6f13d36fd06e9d40648c611dc17e8b7c7b79425fcf8f0639bc29f",
+    "crates/diskgraph-engine/tests/legacy_backfill_identity.rs": "5a2a9eee11ea5134eee05bc8316fbf518db5492defc008fc8e3199adaf4d4a43"
+  },
+  "local_results": {
+    "legacy_identity": 8,
+    "history_scope": 11,
+    "history_preparation": 10,
+    "relation_preparation": 11,
+    "source_layout": 6
+  },
+  "clippy": "exit 0",
+  "native_red": "Not reproduced on macOS: filesystem rejects invalid UTF8 name before target assertion. Preserved log.",
+  "linux_live_registration": "Added target_os=linux actual-directory regression; not run locally.",
+  "limitations": [
+    "No Linux native RED/GREEN yet",
+    "No production readiness claim",
+    "Existing source-lock order graph then control retained"
+  ]
+}

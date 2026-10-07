@@ -186,3 +186,9 @@ Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能
 ## 当前源码本机全量回归失败留证
 
 21d583a 的 Engine all-targets 在未准备固定受信 macOS 扫描部署与 standalone driver 夹具的本机退出101；库套件492通过、115失败、11忽略，不作为全量验收。另有 dropping_pending_owner 断言在并发全量失败、单独重跑通过，原因尚未确认；增加实际错误诊断但保持 Unconfirmed 断言，绑定套件9/0不能关闭该并发问题。保留全量与复跑日志于 `docs/benchmarks/engine_full_local_21d583/`。不绕过固定镜像准入、不静默安装root服务。
+
+## 运行期 scope 注册隔离验收
+
+服务运行中注册有损根展示别名后，整个冲突组中缺少原始根证明的已有 revision 必须在注册返回前隔离；原审计归属保留，无须重启。已有准确原始根证明保持可用。先使用实际临时目录、ScopeAdmin 注册、真实旧图与实时授权复现，不以控制库假注册代替产品入口。
+
+运行期注册候选复用 `revision_root_reconciliation` 与启动相同的隔离逻辑；沿原 graph→control 顺序，在新范围授权前处理注册表。真实无效UTF-8目录创建在本机返回Illegal byte sequence，未到授权断言，不能称目标RED；该原生测试限定Linux等待CI。macOS既有隔离8、历史11、历史准备10、关系11、源码6通过，Clippy通过，不据此勾选运行期Linux验收。记录见 `docs/benchmarks/live_scope_isolation_389/`。

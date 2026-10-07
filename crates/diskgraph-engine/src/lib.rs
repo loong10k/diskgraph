@@ -123,6 +123,7 @@ mod revision_locator;
 mod revision_locator_tests;
 mod revision_queries;
 mod revision_reader;
+mod revision_root_reconciliation;
 mod revision_windows_observation;
 #[cfg(test)]
 mod revision_windows_observation_tests;
