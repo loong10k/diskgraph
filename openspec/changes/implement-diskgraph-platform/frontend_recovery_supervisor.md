@@ -148,3 +148,9 @@ macOS 上已验证同一 ACTIVE 文件锁由测试子进程继承，前端原 Fi
 Microsoft `LockFileEx` 官方合同说明，继承文件句柄的子进程不能访问父进程锁定区域（https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-lockfileex）。Windows 不得把前端取得的 `SlotReservation`/ACTIVE 文件句柄继承视为监督槽能力转移；原监督进程必须在任何 Engine/探针出生前自行持有原锁。出生前全局容量仍需由独立受保护的 bootstrap 准入保持到实际监督槽确认，不允许先释放前端锁再凭 PID 或消息补认领。该 bootstrap 尚未实现。
 
 新增 Windows 原生负向测试：通过测试子进程标准输入继承同一文件对象，验证原父进程持锁时实际 ReadFile 返回 ERROR_LOCK_VIOLATION；原父 owner 关闭后，在子进程仍实际存活时重新准入只得到 ACTIVE 的 Unconfirmed，不能认为继承句柄仍持有父锁。固定观察期限内可等原 OS 释放延迟，但不续期或清除记录。该测试本机未编译/运行，必须由 Windows CI 验收；不据官方文档推定测试已通过。
+
+## 退休轮询分别推进原扫描与探针池
+
+监督退休原实现使用短路返回：扫描 seal 错误会跳过探针 seal，扫描 drain Pending/错误会跳过探针 drain。现改为先分别尝试两池 seal 再汇总原错误，在取得唯一 Engine 后分别按同一原期限 drain 再汇总结果；任一未完成仍保留 ACTIVE/Recovery，不把另一池完成作为整体完成。多错误保持既有扫描优先的返回顺序，不改成成功。macOS 原绑定回归 9/0、Clippy all-targets 通过。新增 Windows 真实原扫描 slots Mutex poison 测试，要求原 poison 返回时探针池已拒绝新准入且原 Engine Arc 身份仍保留；本机未编译/运行该 Windows 分支，不声称原生 RED/GREEN，必须等待 CI。证据见 `docs/benchmarks/supervisor_independent_pools_943/`。
+
+追加 Windows Pending 公平推进回归：真实预留原扫描槽，真实结束同一探针会话并保留其恢复槽；在实际原探针清理检查点注入既有一次 panic，要求即使扫描 Pending 也观察到原 payload，两池与 ACTIVE 保留。按同一期限重试须先释放原探针槽，扫描槽仍占用；只有原扫描预留归还后才完成退休。该 Windows 测试尚未实际运行，当前仅 macOS 绑定回归 9/0及源码规范 6/0通过，不能据此报告 Windows 故障验收通过。

@@ -21,7 +21,8 @@ fn open(path: &Path) -> File {
         .open(path)
         .unwrap()
 }
-fn fixture() -> (tempfile::TempDir, SupervisorParts, Arc<ScanWorkerRegistry>) {
+/// 参数：无；返回：隔离目录、原监督材料和同一扫描表，不出生实际子进程。
+pub(super) fn fixture() -> (tempfile::TempDir, SupervisorParts, Arc<ScanWorkerRegistry>) {
     let dir = tempfile::tempdir().unwrap();
     let slot = SlotReservation::acquire(
         File::create_new(dir.path().join("slot")).unwrap(),
@@ -293,4 +294,44 @@ fn foreign_probe_recovery_is_rejected_and_both_original_pools_remain_usable() {
     drop(rejected);
     drop(original_probe);
     drop(foreign_host);
+}
+
+#[test]
+#[cfg(windows)]
+fn scan_pending_does_not_skip_original_probe_cleanup_or_panic() {
+    let (directory, mut parts, scan_registry) = fixture();
+    let original_scan = scan_registry.reserve().unwrap();
+    let (probe, recovery) = crate::ProbeHost::new(1).unwrap();
+    let probe_registry = Arc::clone(&probe.registry);
+    let session = probe_registry.reserve().unwrap();
+    let original_probe = session.inner().reserve().unwrap();
+    // 先结束实际会话，再归还原预留；这使同一探针槽进入恢复，而不构造假 owner。
+    drop(session);
+    drop(original_probe);
+    Arc::get_mut(&mut parts.engine).unwrap().probe_host = Some(probe);
+    parts.probe = Some(recovery);
+    let mut owner = bound(parts);
+    crate::probe_pool_cleanup_fault::ProbePoolCleanupFault::arm();
+    let until = deadline();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        owner.poll_retirement(until)
+    }));
+    let original_panic = result.expect_err("pending scan skipped actual original probe recovery");
+    assert_eq!(
+        original_panic.downcast_ref::<&str>(),
+        Some(&"original-probe-pool-cleanup-panic")
+    );
+    assert!(owner.engine().is_none());
+    assert_eq!(scan_registry.occupied().unwrap(), 1);
+    assert_eq!(probe_registry.occupied().unwrap(), 1);
+    assert!(matches!(
+        SlotReservation::acquire(open(&directory.path().join("slot")), until),
+        Err(SlotError::Busy)
+    ));
+    // 不刷新同一轮期限；原 panic 后探针槽保留，下一轮真实释放但扫描仍 Pending。
+    assert!(!owner.poll_retirement(until).unwrap());
+    assert_eq!(probe_registry.occupied().unwrap(), 0);
+    assert_eq!(scan_registry.occupied().unwrap(), 1);
+    drop(original_scan);
+    assert!(owner.poll_retirement(until).unwrap());
 }

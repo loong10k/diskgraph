@@ -1,0 +1,16 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.52s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 9 tests
+test supervisor_binding_tests::dropping_pending_owner_does_not_claim_complete ... ok
+test supervisor_binding_tests::damaged_record_is_not_repaired_or_released_by_retirement ... ok
+test supervisor_binding_tests::foreign_recovery_is_rejected_without_consuming_original_materials ... ok
+test supervisor_binding_tests::expired_retirement_keeps_original_engine_and_active_slot ... ok
+test supervisor_binding_tests::original_bind_expiry_returns_every_original_part_without_sealing ... ok
+test supervisor_binding_tests::unconfigured_engine_and_extra_recovery_are_not_supervisor_capabilities ... ok
+test supervisor_binding_tests::missing_recovery_is_rejected_with_original_slot_and_engine_preserved ... ok
+test supervisor_binding_tests::external_engine_reference_prevents_retirement_and_new_native_birth ... ok
+test supervisor_binding_tests::actual_original_reservation_keeps_active_capacity_until_release ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 609 filtered out; finished in 0.44s

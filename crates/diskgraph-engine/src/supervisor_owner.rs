@@ -61,13 +61,19 @@ impl SupervisorOwner {
         if self.slot.is_none() {
             return Ok(true);
         }
-        if let Some(scan) = &self.scan {
-            scan.seal_admission()?;
-        }
+        // 两个原池均先尝试封闭；一个池失败不能留下另一个池仍可出生新工作。
+        let scan_sealed = self
+            .scan
+            .as_ref()
+            .map_or(Ok(()), |scan| scan.seal_admission());
         #[cfg(windows)]
-        if let Some(probe) = &self.probe {
-            probe.seal_admission()?;
-        }
+        let probe_sealed = self
+            .probe
+            .as_ref()
+            .map_or(Ok(()), |probe| probe.seal_admission());
+        scan_sealed?;
+        #[cfg(windows)]
+        probe_sealed?;
         if let Some(engine) = self.engine.take() {
             // 原子取得唯一 Engine；失败还回原 Arc，不能依据瞬时计数或弱引用推定独占。
             match Arc::try_unwrap(engine) {
@@ -78,15 +84,22 @@ impl SupervisorOwner {
                 }
             }
         }
-        if let Some(scan) = &self.scan
-            && !scan.drain_until(deadline)?
-        {
-            return Ok(false);
-        }
+        // 同一期限内分别推进两个原池；Pending/错误不能使另一池长期得不到恢复机会。
+        let scan_done = self
+            .scan
+            .as_ref()
+            .map_or(Ok(true), |scan| scan.drain_until(deadline));
         #[cfg(windows)]
-        if let Some(probe) = &self.probe
-            && !probe.drain_until(deadline)?
-        {
+        let probe_done = self
+            .probe
+            .as_ref()
+            .map_or(Ok(true), |probe| probe.drain_until(deadline));
+        let scan_done = scan_done?;
+        #[cfg(windows)]
+        let probe_done = probe_done?;
+        #[cfg(not(windows))]
+        let probe_done = true;
+        if !scan_done || !probe_done {
             return Ok(false);
         }
         if Instant::now() >= deadline {

@@ -179,3 +179,7 @@ mod registry_unwind_tests;
 #[cfg(all(test, target_os = "linux"))]
 #[path = "linux_registry_deadline_tests.rs"]
 mod linux_registry_deadline_tests;
+
+#[cfg(all(test, windows))]
+#[path = "supervisor_seal_failure_tests.rs"]
+mod supervisor_seal_failure_tests;

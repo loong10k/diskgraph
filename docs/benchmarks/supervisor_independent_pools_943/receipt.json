@@ -1,0 +1,27 @@
+{
+  "base_commit": "9430cf786bba15962fee2a82d6d74e193a599e5c",
+  "local_platform": "macOS",
+  "binding_tests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "clippy": "engine all targets passed",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervisor_owner.rs": "97dd4deb22b3ed3c9ab39c10741847c789c9d01192797d581efce042469b08dd",
+    "crates/diskgraph-engine/src/supervisor_seal_failure_tests.rs": "5cfb04941f033d86c57e298fe7007ddca5889ddfad812ce0869a7f1383decb57",
+    "crates/diskgraph-engine/src/supervisor_binding_tests.rs": "d2f904adbbad4926394d41c06576bc410ddc97b093dcda6c36a22e6483b5e268"
+  },
+  "limitations": [
+    "Windows native poison regression pending CI; no native RED/GREEN claimed",
+    "No trusted supervisor startup or finite frontend exit proof"
+  ],
+  "log_sha256": "4c6ffc395810aa551d6fc6e7a73cb5381def54c83b3924279f3e2398df415bcc",
+  "source_layout_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "native_windows_added_tests": [
+    "original_scan_seal_failure_still_closes_probe_admission_and_retains_engine",
+    "scan_pending_does_not_skip_original_probe_cleanup_or_panic"
+  ]
+}
