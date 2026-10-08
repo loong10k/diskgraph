@@ -18,7 +18,20 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<ScopeId, EngineError> {
-        let deadline = std::time::Instant::now()
+        let started = std::time::Instant::now();
+        let diagnostic = std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").as_deref()
+            == Some(std::ffi::OsStr::new("1"));
+        // 仅固定阶段和单调耗时；不输出根路径、身份或凭据，不重置原期限。
+        let trace = |phase: &str| {
+            if diagnostic {
+                eprintln!(
+                    "diskgraph: scope_registration_phase={phase} elapsed_ms={}",
+                    started.elapsed().as_millis()
+                );
+            }
+        };
+        trace("begin");
+        let deadline = started
             .checked_add(std::time::Duration::from_secs(5))
             .ok_or(BusinessError::InvalidArgument)?;
         let expiry = authorizer.expires_at_unix_seconds();
@@ -27,8 +40,13 @@ impl Engine {
             principal,
             &Permission::ScopeAdmin,
             &admin_scope(),
-        )?;
-        let canonical = root.canonicalize()?;
+        )
+        .inspect_err(|_| trace("initial_authorization_failed"))?;
+        trace("initial_authorization_complete");
+        let canonical = root
+            .canonicalize()
+            .inspect_err(|_| trace("canonicalization_failed"))?;
+        trace("canonicalization_complete");
         let locator = Locator::from_native_path(&canonical);
         let volume_id = locator_volume_id(&locator);
         // 路径解析后的第二次能力观察在双锁外；写入前仍在锁内核验当前持久授权。
@@ -36,6 +54,7 @@ impl Engine {
         // 与扫描发布/历史回收保持 graph→control 顺序，注册与隔离完成前不授新权限。
         let mut graph = self.graph()?;
         let mut control = self.control()?;
+        trace("locks_acquired");
         // 等待双锁期间的撤权必须拒绝；固定 token expiry 由原写守卫继续核验。
         Self::require_decision_with_control(
             &control,
@@ -52,10 +71,23 @@ impl Engine {
             deadline,
             expiry,
             |server, scopes| {
-                crate::revision_root_reconciliation::eligible_roots(&mut graph, server, scopes)
-                    .map(|_| ())
+                trace("reconciliation_begin");
+                let result =
+                    crate::revision_root_reconciliation::eligible_roots(&mut graph, server, scopes)
+                        .map(|_| ());
+                trace(if result.is_ok() {
+                    "reconciliation_complete"
+                } else {
+                    "reconciliation_failed"
+                });
+                result
             },
         );
+        trace(if registered.is_ok() {
+            "transaction_returned"
+        } else {
+            "transaction_failed"
+        });
         match registered {
             Ok(Some(scope)) => Ok(scope),
             Ok(None) => Err(BusinessError::PermissionDenied.into()),

@@ -88,6 +88,19 @@ impl SqliteSnapshotStore {
         mut check: impl FnMut() -> Result<()>,
     ) -> Result<()> {
         let (revision_id, published_at_unix_ms) = revision;
+        let started = std::time::Instant::now();
+        let diagnostic = std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").as_deref()
+            == Some(std::ffi::OsStr::new("1"));
+        // 单调计时仅用于分离实际 SQL/commit 与提交后维护，禁止输出资源标识。
+        let trace = |phase: &str| {
+            if diagnostic {
+                eprintln!(
+                    "diskgraph: publish_phase={phase} elapsed_ms={}",
+                    started.elapsed().as_millis()
+                );
+            }
+        };
+        trace("prepare_begin");
         check()?;
         let has_display_aliases = graph
             .nodes
@@ -197,6 +210,7 @@ impl SqliteSnapshotStore {
                 ])?;
             }
         }
+        trace("nodes_and_evidence_complete");
         crate::unix_observation_staging::publish(&transaction, job_id, &graph.snapshot.id)?;
         check()?;
         transaction.execute(
@@ -241,11 +255,18 @@ impl SqliteSnapshotStore {
             "DELETE FROM scan_staging_search WHERE job_id = ?1",
             [job_id],
         )?;
+        trace("aggregates_begin");
         directory_aggregates::rebuild(&transaction, Some(&graph.snapshot.id))?;
+        trace("aggregates_complete");
         crate::collector_protocol::seal(&transaction, revision_id)?;
+        trace("seal_complete");
         // 必须位于最后一次 SQL 和实际 commit 之间；失败回滚 latest、归属、节点及 staging 清理。
-        check()?;
-        transaction.commit()?;
+        check().inspect_err(|_| trace("terminal_check_failed"))?;
+        trace("commit_begin");
+        transaction
+            .commit()
+            .inspect_err(|_| trace("commit_failed"))?;
+        trace("commit_complete");
         Ok(())
     }
 

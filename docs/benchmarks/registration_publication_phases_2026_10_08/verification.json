@@ -1,0 +1,29 @@
+{
+  "purpose": "Locate Windows registration and publication budget failure without changing budgets or error classification",
+  "opt_in": "DISKGRAPH_SCAN_DIAGNOSTICS=1",
+  "diagnostic_content": "fixed phase names and monotonic elapsed milliseconds only; no resource IDs or paths",
+  "checks": {
+    "publication_regressions": "5 passed; repeated with opt-in to exercise trace branch, not 10 distinct cases",
+    "registration_authorization_regressions": "2 passed",
+    "source_layout": "6 passed",
+    "clippy": "Engine and Store all targets passed",
+    "format": "Engine and Store passed"
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/scope_service.rs": "497265d4d0bf8ccebcf5b833690181381e68595d502a26e207204824ebc11f58",
+    "crates/diskgraph-store/src/revision_writer.rs": "b240bb7caa2d13cca6b8cfe370064efd60f9804717334a4ed60033eb697cc3ea"
+  },
+  "logs": {
+    "store": "68c094b1fb15371b4c94d31f98208fe89a56974ae090c41038540ac664bd30b0",
+    "trace": "0ae5c1561f14b28b703e2830be742d326d775ba515f766a83b35b1859e68ac5f",
+    "registration": "90313a04d6b75f796bfddbf1081c222a3d9f225b8aa3c4c00f105287c6713ba7",
+    "layout": "0a447284d6da1919207ff37e785102519900061d49cc9d2352d818ce63349b34",
+    "fmt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy": "7026a1cc932b3bb2935ba6f1f046e1feb452e9e1ad8e46b9497ef35afec55644"
+  },
+  "limitations": [
+    "Diagnostic addition does not fix the measured platform failure",
+    "Native Windows and Intel run on this source remains pending",
+    "No strict time or memory guarantee inferred"
+  ]
+}
