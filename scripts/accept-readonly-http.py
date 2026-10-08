@@ -15,6 +15,7 @@ import pathlib
 import secrets
 import socket
 import sqlite3
+import stat
 import subprocess
 import sys
 import tempfile
@@ -30,6 +31,27 @@ CLI = BIN_DIR / f"diskgraph{SUFFIX}"
 MCP = BIN_DIR / f"diskgraph-mcp{SUFFIX}"
 ISSUER, AUDIENCE, SUBJECT = "diskgraph-readonly-accept", "diskgraph", "remote-reader"
 ORIGIN = "http://diskgraph-accept.invalid"
+
+
+def binary_evidence(path):
+    """有限读取实际镜像内容；只记录摘要，不将其当作执行身份或授权。"""
+    maximum = 128 * 1024 * 1024
+    digest = hashlib.sha256()
+    length = 0
+    with pathlib.Path(path).open('rb') as image:
+        before = os.fstat(image.fileno())
+        if not stat.S_ISREG(before.st_mode) or before.st_size > maximum:
+            raise RuntimeError('acceptance image is not a bounded regular file')
+        while chunk := image.read(min(1024 * 1024, maximum - length + 1)):
+            length += len(chunk)
+            if length > maximum:
+                raise RuntimeError('acceptance image exceeded byte budget')
+            digest.update(chunk)
+        after = os.fstat(image.fileno())
+        fields = ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+        if length != before.st_size or any(getattr(before, key) != getattr(after, key) for key in fields):
+            raise RuntimeError('acceptance image changed during evidence capture')
+    return {'bytes': length, 'sha256': digest.hexdigest()}
 
 
 def restrict_windows_key(path):
@@ -245,6 +267,7 @@ def main():
         parser.error('--soak-seconds must be finite and between 0 and 86400')
     if args.output and args.output.exists():
         parser.error('--output already exists; use a fresh report path')
+    binary_before = {name: binary_evidence(path) for name, path in [('cli', CLI), ('mcp', MCP)]}
     checks = {}
     soak = None
     with tempfile.TemporaryDirectory(prefix="diskgraph-http-accept-") as temporary:
@@ -344,8 +367,13 @@ def main():
             checks["everyone_readable_key_refused"] = rejects_key(key_file)
 
     passed = sum(checks.values())
+    binary_after = {name: binary_evidence(path) for name, path in [('cli', CLI), ('mcp', MCP)]}
+    if binary_before != binary_after:
+        raise RuntimeError('acceptance CLI or MCP image changed between phases')
     report = json.dumps({"passed": passed, "total": len(checks), "checks": checks,
-                         "sustained_http": soak, "platform": sys.platform}, indent=2)
+                         "sustained_http": soak, "platform": sys.platform,
+                         "binary_content_before": binary_before,
+                         "binary_content_after": binary_after}, indent=2)
     if args.output:
         # 独占创建避免并发验收覆盖旧证据；中途失败不伪造完成报告。
         with args.output.open('x', encoding='utf-8') as output:

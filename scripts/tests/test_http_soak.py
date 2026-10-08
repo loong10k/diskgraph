@@ -15,6 +15,24 @@ SPEC.loader.exec_module(MODULE)
 
 
 class HttpSoakTests(unittest.TestCase):
+    def test_binary_evidence_detects_replaced_content_without_loading_whole_image(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / 'mcp'
+            image.write_bytes(b'first image')
+            first = MODULE.binary_evidence(image)
+            self.assertEqual(first['bytes'], 11)
+            self.assertEqual(first['sha256'], MODULE.hashlib.sha256(b'first image').hexdigest())
+            image.write_bytes(b'second image')
+            self.assertNotEqual(first, MODULE.binary_evidence(image))
+
+    def test_binary_evidence_rejects_oversize_sparse_image(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / 'oversize'
+            with image.open('wb') as output:
+                output.truncate(128 * 1024 * 1024 + 1)
+            with self.assertRaisesRegex(RuntimeError, 'bounded regular file'):
+                MODULE.binary_evidence(image)
+
     def test_existing_report_is_preserved_before_starting_any_product(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / 'prior.json'

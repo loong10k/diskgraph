@@ -1,0 +1,31 @@
+{
+  "base_sha": "346d4e4076a980f1d805d0940e63b3dc2d63ee6c",
+  "logs": [
+    {
+      "name": "red",
+      "sha256": "d6a52308b28afe66f9f9acedd10e8a19f9cc0940f07ea8dae665815e6a2bf0db"
+    },
+    {
+      "name": "green",
+      "sha256": "631401e5c9ba5b1fcd52edcf5e33954feda6585bb6b8a298b1d8155045238803"
+    },
+    {
+      "name": "scripts",
+      "sha256": "c06bac6146070fd42a70231f076c16579511a8d66a4a31bff3d8460130c53748"
+    },
+    {
+      "name": "package",
+      "sha256": "6f02f4d600dffb021a0efedab70d36eaf6a63768ae8435dc7ae28a2ffcf492a7"
+    }
+  ],
+  "native_http_sustained_run": false,
+  "script_suite": {
+    "total": 307,
+    "passed": 306,
+    "skipped": 1
+  },
+  "source_sha256": {
+    "scripts/accept-readonly-http.py": "87842dcdbc5bf448c64937b604e838f339d2cc9becb8198e57c1ec9239e67b8b",
+    "scripts/tests/test_http_soak.py": "0fa2596c91a1bdeb028bda8bdc7a57d0101eeebe234ffa0f512b2c5f030e7737"
+  }
+}

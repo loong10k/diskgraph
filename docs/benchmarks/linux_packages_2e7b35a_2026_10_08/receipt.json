@@ -1,0 +1,74 @@
+{
+  "source_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "run_id": 37765612472,
+  "results": [
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "archive_sha256": "053f2982c0ee465104a7cc12364234fbf121ea399e45cac7287e16434fd32d62",
+      "images": {
+        "diskgraph": {
+          "bytes": 8869680,
+          "sha256": "9384311bedfc4f81f9e7e8772bc5f08eb26d0e6e80e64b540ea7e8505fd813b2"
+        },
+        "diskgraph-mcp": {
+          "bytes": 7559840,
+          "sha256": "5dc424e75b3a31aac7886c20ae36e543320478b75969c62a2c6ac9c0fc9fff7a"
+        },
+        "diskgraph-scan-worker": {
+          "bytes": 1285640,
+          "sha256": "c692c2e95be32b80229c32262ce2946937815c49a4cb1a6ee3a015c00246407f"
+        }
+      },
+      "manifest": {
+        "executable": {
+          "bytes": 1285640,
+          "name": "diskgraph-scan-worker",
+          "sha256": "c692c2e95be32b80229c32262ce2946937815c49a4cb1a6ee3a015c00246407f"
+        },
+        "package_version": "0.3.0",
+        "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+        "protocol_version": 2,
+        "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+        "schema_version": 1,
+        "target": "aarch64-unknown-linux-gnu"
+      }
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "archive_sha256": "9154627ede6735ef2b45efcd63ca9637acf1632ca6d9791b51c1f3866dcfa57f",
+      "images": {
+        "diskgraph": {
+          "bytes": 9408080,
+          "sha256": "bdbd9ca0bfb064abbe3fae5626e4e04ea4dc0e921e01d910ded9a30495929557"
+        },
+        "diskgraph-mcp": {
+          "bytes": 7965944,
+          "sha256": "9665a0e771ac241671232cbea273fd728feb2ad5afaf2d2bc4a2f7731a172785"
+        },
+        "diskgraph-scan-worker": {
+          "bytes": 1229984,
+          "sha256": "3f71552bff9cde5b7cabbd19be067565c56a38175cde674c2f7c6ec050ca6b9f"
+        }
+      },
+      "manifest": {
+        "executable": {
+          "bytes": 1229984,
+          "name": "diskgraph-scan-worker",
+          "sha256": "3f71552bff9cde5b7cabbd19be067565c56a38175cde674c2f7c6ec050ca6b9f"
+        },
+        "package_version": "0.3.0",
+        "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+        "protocol_version": 2,
+        "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+        "schema_version": 1,
+        "target": "x86_64-unknown-linux-gnu"
+      }
+    }
+  ],
+  "production_ready": false,
+  "limitations": [
+    "Current full Rust CI still running",
+    "No sustained HTTP changes from later local commits included",
+    "No packaged RSS or long-run qualification"
+  ]
+}
