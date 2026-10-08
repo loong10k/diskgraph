@@ -45,8 +45,18 @@ impl CliEngineHost {
                 }
                 let domain =
                     diskgraph_engine::TrustedLocalRecoveryDomain::for_current_user(deadline)
+                        .inspect_err(|_| {
+                            // 固定阶段区分目录准入与槽认领；不输出用户目录或修改原错误。
+                            eprintln!("diskgraph: recovery stage=user_domain failed");
+                        })
                         .map_err(slot_error)?;
-                domain.reserve(deadline).map(Some).map_err(slot_error)
+                domain
+                    .reserve(deadline)
+                    .inspect_err(|_| {
+                        eprintln!("diskgraph: recovery stage=slot_acquisition failed");
+                    })
+                    .map(Some)
+                    .map_err(slot_error)
             })
         }
         #[cfg(not(any(target_os = "linux", target_os = "macos")))]
