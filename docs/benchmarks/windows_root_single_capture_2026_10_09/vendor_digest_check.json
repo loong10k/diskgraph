@@ -1,0 +1,7 @@
+{
+  "checked_files": 14,
+  "all_match": true,
+  "pin": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+  "manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+  "scope": "readonly digest verification; no regeneration or upstream edits"
+}

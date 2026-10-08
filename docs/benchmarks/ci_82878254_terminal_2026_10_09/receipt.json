@@ -1,0 +1,191 @@
+{
+  "conclusion": "failure",
+  "headSha": "8287825410d3688ffdb73322625289372ebfef3d",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 113432084280,
+      "name": "Vendored scanner",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084280"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084513,
+      "name": "Kotlin native host (macos-15-intel)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084513"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084514,
+      "name": "Kotlin native host (windows-2022)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084514"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084517,
+      "name": "Swift native host (macos-15-intel)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084517"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084534,
+      "name": "Swift native host (macos-15)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084534"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084575,
+      "name": "Kotlin native host (macos-15)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084575"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084589,
+      "name": "Linux ARM64 private FUSE content refusal",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084589"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084596,
+      "name": "rustfmt",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084596"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084636,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084636"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084657,
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084657"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084668,
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084668"
+    },
+    {
+      "conclusion": "failure",
+      "id": 113432084733,
+      "name": "Test (windows-latest / Rust stable)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084733"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084793,
+      "name": "Test (macos-latest / Rust stable)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084793"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084796,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084796"
+    },
+    {
+      "conclusion": "cancelled",
+      "id": 113432084826,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084826"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432084945,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084945"
+    },
+    {
+      "conclusion": "failure",
+      "id": 113432084984,
+      "name": "Test (macos-15-intel / Rust stable)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432084984"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432085011,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432085011"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432234104,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432234104"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432234193,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432234193"
+    },
+    {
+      "conclusion": "failure",
+      "id": 113432234197,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432234197"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432234308,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432234308"
+    },
+    {
+      "conclusion": "success",
+      "id": 113432234390,
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "status": "completed",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37812330459/job/113432234390"
+    }
+  ],
+  "status": "completed",
+  "logs": {
+    "windows-stable": {
+      "available": true,
+      "bytes": 534816,
+      "sha256": "b5987a3bef31ee29e73a7ad03320d90faf8457895b8a8b3ae1dcc03d9a0f66d5"
+    },
+    "macos-intel": {
+      "available": true,
+      "bytes": 554772,
+      "sha256": "8e21b64a8c980b967fdae9b7fdbc203aa6bec64a85063c832603f598ab55bfcd"
+    },
+    "windows-package": {
+      "available": true,
+      "bytes": 100891,
+      "sha256": "48bb8d71b3372173d1c02357ab8f83f3d6312b325c0f81ae12b2ab9298b6da4b"
+    },
+    "macos-msrv-cancelled": {
+      "available": false,
+      "reason": "HTTP 404 BlobNotFound; authoritative cancelled job has no steps",
+      "diagnostic_file": "macos-msrv-log-api-404.xml.gz",
+      "diagnostic_sha256": "04ce4dff6b42ee0858a161ac28305681cacbec9ff171d6548f7a509a6a1e48a3"
+    }
+  }
+}

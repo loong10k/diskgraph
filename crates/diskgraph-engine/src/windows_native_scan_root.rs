@@ -25,6 +25,8 @@ pub(crate) struct WindowsNativeScanRoot {
     chain: Vec<File>,
     identities: Vec<WindowsFileState>,
     cost: Option<WindowsScanCost>,
+    #[cfg(test)]
+    root_captures: std::sync::atomic::AtomicUsize,
 }
 
 impl WindowsNativeScanRoot {
@@ -68,6 +70,8 @@ impl WindowsNativeScanRoot {
             cost: (std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").as_deref()
                 == Some(std::ffi::OsStr::new("1")))
             .then(WindowsScanCost::default),
+            #[cfg(test)]
+            root_captures: std::sync::atomic::AtomicUsize::new(0),
         };
         lease.validate_held_root(check)?;
         Ok(lease)
@@ -245,14 +249,10 @@ impl WindowsNativeScanRoot {
         &self,
         check: &dyn Fn() -> Result<(), EngineError>,
     ) -> Result<(), EngineError> {
-        for (file, identity) in self.chain.iter().zip(&self.identities) {
-            let current = WindowsFileState::capture_checked(file, check)??;
-            if !identity.matches_scan_root(&current) {
-                return Err(BusinessError::Conflict.into());
-            }
-        }
         // 属性句柄不冻结目录名称。原对象即使被重命名，其句柄身份也可能不变。
         // 重新核对 drive 与保留父句柄下每个名称，绝不从注册根的完整路径追随新对象。
+        // 当前绑定必须匹配原卷、完整ID、创建时间及安全属性；保留句柄不会更换对象，
+        // 因而无需在这轮新鲜捕获之前再读取同一保留对象。不能省略名称重新打开。
         let drive = checked(check, || open_drive(&self.drive_root))?
             .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
         self.validate_binding(&drive, &self.identities[0], check)?;
@@ -271,12 +271,24 @@ impl WindowsNativeScanRoot {
         check: &dyn Fn() -> Result<(), EngineError>,
     ) -> Result<(), EngineError> {
         // 外层检查错误原样传播；无法确认当前 namespace 绑定则保守拒绝该根。
-        let current = WindowsFileState::capture_checked(file, check)?
+        let current = self
+            .capture_root(file, check)?
             .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
         if !identity.matches_scan_root(&current) || current.validate(true).is_err() {
             return Err(BusinessError::Conflict.into());
         }
         check()
+    }
+
+    fn capture_root(
+        &self,
+        file: &File,
+        check: &dyn Fn() -> Result<(), EngineError>,
+    ) -> Result<Result<WindowsFileState, EngineError>, EngineError> {
+        #[cfg(test)]
+        self.root_captures
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        WindowsFileState::capture_checked(file, check)
     }
 }
 
@@ -357,4 +369,24 @@ fn gap(
         _ => WindowsObservationGap::CaptureFailed,
     };
     (None, Some(gap))
+}
+
+#[cfg(test)]
+mod validation_cost_tests {
+    use super::WindowsNativeScanRoot;
+    use std::sync::atomic::Ordering;
+
+    #[test]
+    fn current_namespace_validation_captures_each_bound_object_once() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().canonicalize().unwrap();
+        let lease = WindowsNativeScanRoot::open(&root, &|| Ok(())).unwrap();
+        lease.root_captures.store(0, Ordering::Relaxed);
+        lease.validate_root(&|| Ok(())).unwrap();
+        assert_eq!(
+            lease.root_captures.load(Ordering::Relaxed),
+            lease.chain.len(),
+            "fresh namespace binding must not recapture the same held objects first"
+        );
+    }
 }

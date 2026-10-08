@@ -1,0 +1,31 @@
+{
+  "receipt": {
+    "command": [
+      "cargo",
+      "+1.99.0",
+      "test",
+      "--locked",
+      "-p",
+      "diskgraph-engine",
+      "--lib",
+      "--target",
+      "x86_64-pc-windows-msvc",
+      "windows_native_scan_root::validation_cost_tests",
+      "--",
+      "--nocapture"
+    ],
+    "exit_code": 101,
+    "elapsed_seconds": 101.17200000000594,
+    "source_sha256": "de4d17f40c6d6285fa2ac4d4a998c45d904d38f2c7ad4effecf7b8b6de7b32cd"
+  },
+  "logs": {
+    "stderr.log": {
+      "bytes": 3405,
+      "sha256": "937ba4b8be80c237c2e20a216ef7b92dd7d329662586614ed217f79945a02c35"
+    },
+    "stdout.log": {
+      "bytes": 380,
+      "sha256": "b25cc3bbe4fab8a6505a17137fc047ea344f36e58a21d14f1206fc86f5a03e93"
+    }
+  }
+}

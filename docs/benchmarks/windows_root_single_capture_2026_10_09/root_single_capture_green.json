@@ -1,0 +1,131 @@
+{
+  "receipt": {
+    "base_head": "8287825410d3688ffdb73322625289372ebfef3d",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/windows_native_scan_root.rs": "7d80fda9af7dae498fad2b68da35b75679a7884134664f76d9935076012501dd",
+      "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+      "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+      "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+      "crates/diskgraph-engine/src/live_evidence/git_stash_location.rs": "bb279a122cff5f60faed3620a3e3d86d77e710d102cfbbddbeb09411ff7b6e78",
+      "crates/diskgraph-engine/src/live_evidence/git_stash.rs": "cc64135a83e781fe0f143b797ed327477bfc5922903da07ab1095c9919dd269f",
+      "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "c144ad08ecca727f420ed2e2350d7bf1afcfe64f0ec35b3bce7d0a0c35bb4c17",
+      "crates/diskgraph-engine/src/live_evidence/git_references.rs": "a7dce184a03b9611ed0ee6862e4a7620809107b3c65e1f572e0c4df5e7d1eec7",
+      "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+      "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "4d1fc6c7fd55db5f7c9451384bcfd3ca9ba68d6cf704b7503c04587d9b129027",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "cde642fe0b81cb100b3a17a825b6c88d1d4258815bb029caf0bccdb7b2d8aa15",
+      "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de",
+      "crates/diskgraph-engine/src/git_evidence_execution_tests.rs": "1097abae2f5f4ef697eb8fbb7184277f4561ebb544cf3582954aa5f75a4ee73e"
+    },
+    "commands": [
+      {
+        "name": "root_cost",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "windows_native_scan_root::validation_cost_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 17.828000000008615
+      },
+      {
+        "name": "native_scan",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "windows_native_scan_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.5779999999940628
+      },
+      {
+        "name": "layout",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--test",
+          "source_layout",
+          "--target",
+          "x86_64-pc-windows-msvc"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 14.343999999997322
+      },
+      {
+        "name": "clippy",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "clippy",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--all-targets",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 101,
+        "elapsed_seconds": 27.23399999999674
+      }
+    ]
+  },
+  "logs": {
+    "clippy.stderr.log": {
+      "bytes": 4220,
+      "sha256": "cb7f554adf82838f54b11b02bdac16f71475e3e1c1aab591f626a243ffbcad2a"
+    },
+    "clippy.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "layout.stderr.log": {
+      "bytes": 311,
+      "sha256": "d48f39a859494d0a2a3802b299c88d398ab2f0c0bc6cd76b6e4f9a2c3999065d"
+    },
+    "layout.stdout.log": {
+      "bytes": 517,
+      "sha256": "5aad70ecbecfc71a6ee9908b20503c951f204d4c7cbf2947d55b066c4b307570"
+    },
+    "native_scan.stderr.log": {
+      "bytes": 301,
+      "sha256": "268240e84f0b766d397e0ecf5654c4c6727502836b8c1263ab5e0021fe950557"
+    },
+    "native_scan.stdout.log": {
+      "bytes": 1505,
+      "sha256": "f8dab34e932ecb84bd70f31934ab7bfc147dbcc468ea1824cfeff48b81c5ad1e"
+    },
+    "root_cost.stderr.log": {
+      "bytes": 312,
+      "sha256": "dfa0db2877f7cbc8f2d479209ee0e3e03f05e0ab5dd8a93c627f081a3057d1e4"
+    },
+    "root_cost.stdout.log": {
+      "bytes": 236,
+      "sha256": "7aa464449e1f706c4c3a667cc1ec24f61d3fe7aa33af13770ac021e308732dd3"
+    }
+  }
+}

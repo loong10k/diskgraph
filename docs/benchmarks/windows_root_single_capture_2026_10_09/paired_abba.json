@@ -1,0 +1,206 @@
+{
+  "order": [
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline"
+  ],
+  "files_per_round": 20000,
+  "binary_sha256_before": {
+    "baseline": {
+      "diskgraph.exe": "01ed8c7ed5ecb0b685e4bec9734010b3ee9a7af06b9fd1e9cfa3ae2c846cc4b2",
+      "diskgraph-mcp.exe": "daf9001538e81c4b1ee821600bcd04d6bd36b4956cf9bc7d5a342bf016c90c07",
+      "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+    },
+    "candidate": {
+      "diskgraph.exe": "5305f24aefe61081ad80b56887abe86613d8efaa855d9e0bb0142a6fe163d73f",
+      "diskgraph-mcp.exe": "a5ed186b550b30b466f5efc29d7ce9a316e7eb40c12235b7f94cd2ead1ad23ae",
+      "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+    }
+  },
+  "production_acceptance": false,
+  "limits": "same host sequential ABBA; another project compiler observed on host; preserves all observations including preceding candidate/baseline; no RSS or 200k qualification",
+  "rounds": [
+    {
+      "variant": "baseline",
+      "exit_code": 0,
+      "elapsed_seconds": 116.21899999999732,
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "-c",
+        "import sys;sys.path.insert(0,sys.argv[1]);from windows_acceptance_job import run_owned;r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','20000'],capture_output=True,text=True,encoding='utf-8',timeout=300);sys.stdout.write(r.stdout or '');sys.stderr.write(r.stderr or '');sys.exit(r.returncode)",
+        "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+        "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\root_single_capture_release_baseline\\bin"
+      ],
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 1,
+        "fixture_seconds": 15.437,
+        "scan_seconds": 57.506,
+        "cleanup_seconds": 13.912,
+        "cleanup_workers": 1,
+        "query_p50_ms": 1566.773,
+        "query_p95_ms": 2623.723,
+        "database_and_wal_bytes": 54996992,
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "log_sha256": {
+        "stdout": "f6cd5dbf27e294b7bade56dca47781d92f244249bd91ca752712044efba8baa4",
+        "stderr": "2ac2353fb3af698c76b26c14ebe84fd4a02a6362b0860af944f6d262f4521089"
+      }
+    },
+    {
+      "variant": "candidate",
+      "exit_code": 0,
+      "elapsed_seconds": 105.15600000000268,
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "-c",
+        "import sys;sys.path.insert(0,sys.argv[1]);from windows_acceptance_job import run_owned;r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','20000'],capture_output=True,text=True,encoding='utf-8',timeout=300);sys.stdout.write(r.stdout or '');sys.stderr.write(r.stderr or '');sys.exit(r.returncode)",
+        "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+        "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\root_single_capture_release_candidate\\bin"
+      ],
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 1,
+        "fixture_seconds": 13.147,
+        "scan_seconds": 51.235,
+        "cleanup_seconds": 13.774,
+        "cleanup_workers": 1,
+        "query_p50_ms": 1275.158,
+        "query_p95_ms": 1837.654,
+        "database_and_wal_bytes": 54996992,
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "log_sha256": {
+        "stdout": "aa1de26df76687a8611461aa658a25a1e7b1b6d6a5129a169094d75ca1886515",
+        "stderr": "1386173ab86a9c4129201f0ac4328d8dc3dfab5183a30d2680f9d20e8298f3df"
+      }
+    },
+    {
+      "variant": "candidate",
+      "exit_code": 0,
+      "elapsed_seconds": 112.26600000000326,
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "-c",
+        "import sys;sys.path.insert(0,sys.argv[1]);from windows_acceptance_job import run_owned;r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','20000'],capture_output=True,text=True,encoding='utf-8',timeout=300);sys.stdout.write(r.stdout or '');sys.stderr.write(r.stderr or '');sys.exit(r.returncode)",
+        "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+        "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\root_single_capture_release_candidate\\bin"
+      ],
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 1,
+        "fixture_seconds": 11.244,
+        "scan_seconds": 68.077,
+        "cleanup_seconds": 25.232,
+        "cleanup_workers": 1,
+        "query_p50_ms": 100.874,
+        "query_p95_ms": 142.911,
+        "database_and_wal_bytes": 54996992,
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "log_sha256": {
+        "stdout": "18a367bbd37ea83e007c5fe2acde070e7b46cbb2471051514498043c749bf8ab",
+        "stderr": "35712abd823fe3bd41227f5153de68b4ceba20d2c5fac5d59d7bfb11cac3ffc8"
+      }
+    },
+    {
+      "variant": "baseline",
+      "exit_code": 0,
+      "elapsed_seconds": 137.39100000000326,
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "-c",
+        "import sys;sys.path.insert(0,sys.argv[1]);from windows_acceptance_job import run_owned;r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','20000'],capture_output=True,text=True,encoding='utf-8',timeout=300);sys.stdout.write(r.stdout or '');sys.stderr.write(r.stderr or '');sys.exit(r.returncode)",
+        "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+        "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\root_single_capture_release_baseline\\bin"
+      ],
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 1,
+        "fixture_seconds": 13.143,
+        "scan_seconds": 85.037,
+        "cleanup_seconds": 32.653,
+        "cleanup_workers": 1,
+        "query_p50_ms": 168.659,
+        "query_p95_ms": 272.208,
+        "database_and_wal_bytes": 54996992,
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "log_sha256": {
+        "stdout": "6c0490adbd085fa53c61c6a770f64c0feb7045ce4256407209f073a1ef81bf0a",
+        "stderr": "b990a933b8c90e9ca8de950ef3083096b3a1ecc5cff3747cbb970c9a3c988826"
+      }
+    }
+  ],
+  "binary_sha256_after": {
+    "baseline": {
+      "diskgraph.exe": "01ed8c7ed5ecb0b685e4bec9734010b3ee9a7af06b9fd1e9cfa3ae2c846cc4b2",
+      "diskgraph-mcp.exe": "daf9001538e81c4b1ee821600bcd04d6bd36b4956cf9bc7d5a342bf016c90c07",
+      "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+    },
+    "candidate": {
+      "diskgraph.exe": "5305f24aefe61081ad80b56887abe86613d8efaa855d9e0bb0142a6fe163d73f",
+      "diskgraph-mcp.exe": "a5ed186b550b30b466f5efc29d7ce9a316e7eb40c12235b7f94cd2ead1ad23ae",
+      "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+    }
+  },
+  "complete": true
+}

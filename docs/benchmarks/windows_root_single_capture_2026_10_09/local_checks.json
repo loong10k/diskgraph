@@ -1,0 +1,10 @@
+{
+  "source_sha256": "1bc396705682562d2459d0b745e745688d20e9b51a9b96e9374a9e0b3d85cd28",
+  "layout_passed": 6,
+  "layout_failed": 0,
+  "raw_log_sha256": "3a89235635137c944616518d84f798228d8f63bc3f4b67dd76e787313e9eb4fa",
+  "limits": "macOS source layout only; native Windows and release receipts separate. Initial fmt --all included pinned vendor and reported existing differences; exact CI package formatting produced no differences. No vendor edits.",
+  "workspace-fmt_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "openspec_log_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+  "format_scope": "exact CI package list excluding pinned vendor; own Windows root rustfmt and Engine package fmt passed"
+}
