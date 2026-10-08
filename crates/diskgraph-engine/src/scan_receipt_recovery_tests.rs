@@ -96,12 +96,7 @@ fn committed_scan_recovers_after_revocation_without_rescanning_and_is_idempotent
             .unwrap(),
         Some(receipt.clone())
     );
-    assert_eq!(
-        engine
-            .run_job_strict(receipt.job_id(), "another-owner")
-            .unwrap(),
-        result
-    );
+    assert_eq!(engine.settle_expired_job(receipt.job_id()).unwrap(), result);
     assert!(
         engine
             .graph()
@@ -165,4 +160,69 @@ fn recovery_rejects_changed_job_provenance_without_settling() {
         ));
         assert_eq!(engine.job_status(receipt.job_id()).unwrap(), prior);
     }
+}
+
+#[test]
+fn new_scan_can_claim_while_the_shared_graph_mutex_is_held() {
+    use std::sync::Arc;
+    use std::time::{Duration, Instant};
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("root");
+    std::fs::create_dir(&root).unwrap();
+    let engine = Arc::new(
+        Engine::open(EngineConfig {
+            data_dir: dir.path().join("data"),
+            ..EngineConfig::default()
+        })
+        .unwrap(),
+    );
+    let actor = PrincipalId::new("queued-owner").unwrap();
+    engine.bootstrap_local_admin(&actor).unwrap();
+    let scope = engine
+        .register_scope(&root, &actor, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    let job = engine
+        .index_scope(&scope, &actor, &engine.policy_authorizer().unwrap())
+        .unwrap();
+    let graph = engine.graph().unwrap();
+    let worker_engine = Arc::clone(&engine);
+    let job_id = job.job_id.clone();
+    let worker = std::thread::spawn(move || {
+        worker_engine.run_job_strict(&job_id, "claim-before-preparation")
+    });
+    let deadline = Instant::now() + Duration::from_secs(2);
+    let claimed = loop {
+        if engine.job_status(&job.job_id).unwrap().state == JobState::Running {
+            break true;
+        }
+        if Instant::now() >= deadline {
+            break false;
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    };
+    drop(graph);
+    let result = worker.join().unwrap();
+    // 本机没有受管扫描器，分发后的结果不作为原生扫描验收；只验证真实持久认领发生在图准备前。
+    assert!(
+        claimed,
+        "scan receipt lookup blocked claim behind writer mutex: {result:?}"
+    );
+}
+
+#[test]
+fn completed_scan_execution_preserves_terminal_claim_conflict() {
+    let (dir, engine, receipt) = fixture();
+    expire(&dir, receipt.job_id());
+    let completed = engine
+        .run_job_strict(receipt.job_id(), "recovery-owner")
+        .unwrap();
+    assert!(matches!(
+        engine.run_job(receipt.job_id(), "legacy-retry"),
+        Err(EngineError::Store(StoreError::Conflict(_)))
+    ));
+    assert!(matches!(
+        engine.run_job_strict(receipt.job_id(), "strict-retry"),
+        Err(EngineError::Store(StoreError::Conflict(_)))
+    ));
+    assert_eq!(engine.job_status(receipt.job_id()).unwrap(), completed);
 }

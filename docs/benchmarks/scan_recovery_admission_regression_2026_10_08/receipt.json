@@ -1,0 +1,35 @@
+{
+  "status": "candidate_local_regression_passed_native_revalidation_pending",
+  "base_commit": "f25943647f2be4a4117da21353f35b0e3a072e62",
+  "ci_failure_source": "8db36176ddb518d84b2f81fad92129e4c6fba8da",
+  "ci_run": 37740264224,
+  "ci_jobs": [
+    113189102860,
+    113189103314
+  ],
+  "cause": "scan receipt recovery introduced writer mutex waiting before durable claim and changed completed scan execution from Conflict to success",
+  "fix": "independent bounded WAL reader; terminal jobs fall through to original claim rejection; explicit settlement stays idempotent",
+  "red": {
+    "passed": 5,
+    "failed": 2
+  },
+  "green": {
+    "passed": 7,
+    "failed": 0
+  },
+  "checks": {
+    "clippy_all_targets": "passed",
+    "source_layout": 6,
+    "openspec_strict": "passed"
+  },
+  "limits": [
+    "actual native claim/cancel/denial regression suites still require same-SHA CI",
+    "local admission regression validates real durable claim under real mutex but scan dispatch is unsupported on this host",
+    "previous added test assumed execution retries returned success; replaced with original terminal Conflict contract and explicit settlement idempotency"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "e5a37f598ef9be10672e8aaf66600ca09aa57cd00d127c175a568de3224962b5",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "76b736b990163b23ca1d026704f0111545430e62af505f9f22bc29ae4ccda853",
+    "openspec/changes/implement-diskgraph-platform/specs/runtime-governance/spec.md": "02471f60859724bbfa524569516323d936dbfe42525ed3929d08e9892c5868ca"
+  }
+}

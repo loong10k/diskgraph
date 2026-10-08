@@ -126,6 +126,11 @@ doctor/status SHALL 展示平台、协议、依赖、权限、数据版本、任
 - **THEN** 新 owner 只在原租约失效后核对不可变扫描回执与原 job、主体、scope/server、fence 及真实 revision/snapshot，结算已提交事实，不重新扫描或再次发布。
 - **AND** 回执与正式扫描结果同事务写入，拒绝或回滚不留下回执；回执不能被更新、删除或随历史级联回收。缺失回执仍执行原重扫协议，损坏回执明确拒绝，不能降级为缺失。
 
+#### Scenario: Scan recovery preserves admission and terminal execution contracts
+- **WHEN** 扫描对账检查已提交回执，且其他调用持有同 Engine 图写互斥锁
+- **THEN** 通过有期限的独立只读连接查询已提交账本，不在认领前无限等待共享写锁；原取消、撤权与扫描准备的认领后窗口继续有效。
+- **AND** 已完成任务的普通或严格执行重试保留原 Conflict，不重新扫描；显式结算与状态查询保持幂等并保留原结果。
+
 #### Scenario: Synchronous CLI recovers an expired owner
 - **WHEN** a CLI explicitly waits for one job, its foreign owner expires without a long-lived runner, and no committed publication receipt exists
 - **THEN** that CLI conditionally reclaims only that job, rescans with a new fencing generation and leaves unrelated queued jobs untouched
