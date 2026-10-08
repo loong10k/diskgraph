@@ -1,0 +1,14 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+  "exit": 0,
+  "verified": true,
+  "qualification": "limited Linux ARM64 FUSE refusal; not generic provider qualification",
+  "retained_source": "/tmp/diskgraph-fuse-source-ejvzd7kw",
+  "fixture_sha256": {
+    "fuse_provider.c": "0541fc83c61d1b8e5c054e678e070601bff6b47c21874f10fb46e285143325e6",
+    "engine_no_recall_probe.rs": "60343627843c554309ae7a1656b02a01b6d188b2c23f4e98e5a0502282eaa763",
+    "run_product_probe.py": "67e0f6d9ff78027dc3255fc6572066f09961d948941811b7940c85edfe44002a"
+  },
+  "source_cleanup": "after verified original provider retirement"
+}

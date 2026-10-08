@@ -1,0 +1,12 @@
+{
+  "run": 37728300386,
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "fixture_hashes_match_current_source": true,
+  "passed": 4,
+  "total": 4,
+  "positive_control_fetches": 1,
+  "original_provider_unmounted_and_reaped": true,
+  "qualification": "limited Linux ARM64 FUSE refusal; not generic provider qualification",
+  "includes_local_digest_fix_6816f97": false,
+  "production_ready": false
+}
