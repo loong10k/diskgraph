@@ -1,0 +1,37 @@
+{
+  "source_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "run": 37765612472,
+  "job": 113273033344,
+  "job_conclusion": "failure",
+  "original_log_bytes": 660283,
+  "original_log_sha256": "a6cc206d612e54bd00716afbdcf13253b0efae715764fff636b260254a08730d",
+  "engine_unit_tests": {
+    "passed": 673,
+    "failed": 1,
+    "ignored": 4
+  },
+  "history_compatibility_matrix": {
+    "passed": 9,
+    "failed": 1
+  },
+  "failures": [
+    {
+      "test": "scan_worker_driver_additional_tests::busy_output_does_not_pay_an_idle_interval_per_fixed_block",
+      "elapsed_seconds": 1.6010678,
+      "original_limit_seconds": 1,
+      "root_cause_confirmed": false
+    },
+    {
+      "test": "node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null",
+      "error": "Business(BudgetExceeded)",
+      "elapsed_ms": 62.8532,
+      "root_cause_confirmed": false
+    }
+  ],
+  "production_ready": false,
+  "limitations": [
+    "Failure diagnosis only; other targets passing cannot erase these failures.",
+    "No native Windows MSRV terminal result in this receipt.",
+    "Original success assertions and authorization deadlines remain unchanged."
+  ]
+}

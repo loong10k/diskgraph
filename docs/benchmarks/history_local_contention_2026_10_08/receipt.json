@@ -1,0 +1,209 @@
+{
+  "source_sha": "d32a52b2c4fcdc4518a13c7e857796e9eef23312",
+  "binary_sha256": "274a54ce079cc6f5ac7a1ba247d66f3d48aa0fdd64f990c176898016f8bed106",
+  "platform": "macOS ARM64 local",
+  "fixture": "existing isolated historical metadata; no native scan deployment",
+  "concurrent_processes": 4,
+  "cases": 32,
+  "elapsed_seconds": 0.6377223330055131,
+  "passed": 32,
+  "failed": 0,
+  "results": [
+    {
+      "case": 0,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.08s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 1,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.08s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 2,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.08s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 3,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.08s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 4,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.07s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 5,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.07s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 6,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 7,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 8,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 9,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 10,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 11,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 12,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 13,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 14,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 15,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 16,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 17,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 18,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 19,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 20,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 21,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 22,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 23,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 24,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.12s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 25,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.11s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 26,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.12s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 27,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.11s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 28,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 29,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 30,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    },
+    {
+      "case": 31,
+      "exit_code": 0,
+      "stdout": "\nrunning 1 test\ntest generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.06s\n\n",
+      "stderr": ""
+    }
+  ],
+  "limitations": [
+    "Does not reproduce macOS Intel scheduling or identify exact terminal stage",
+    "No production stress acceptance claim"
+  ]
+}
