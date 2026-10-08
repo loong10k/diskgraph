@@ -278,3 +278,10 @@ MCP/FFI 的有期限请求授权快照 SHALL 通过参数化、可索引的主�
 #### Scenario: Many unrelated subjects do not amplify a point query policy capture
 - **WHEN** 目标主体权限不变，无关主体 grant 从 100 增至 20000
 - **THEN** 请求能力构建的 SQLite VM 工作量保持索引查找量级，不解码无关记录；所选主体的允许/拒绝、策略升级和撤销语义与原完整策略一致。
+
+### Requirement: Final response observes withdrawal throughout capability callbacks
+最终响应授权 SHALL 在所有宿主能力回调前绑定真实主体和各侧 scope 的负向撤权见证，在回调之后及终态读取之后复核。已观察的撤权优先于预算错误；无可靠原生见证的平台 SHALL 拒绝未知授权代次变化，不以恢复后的实时 grant 抹去窗口内撤权。
+
+#### Scenario: A capability callback revokes and restores the original grant
+- **WHEN** 最终响应能力回调通过独立控制连接撤销原元数据 grant 并恢复，然后返回原能力快照的 Allowed
+- **THEN** 当前 grant 确实已恢复，最终响应仍拒绝；原生见证报告 PermissionDenied，未知代次变化报告 Conflict，不返回完整或部分数据

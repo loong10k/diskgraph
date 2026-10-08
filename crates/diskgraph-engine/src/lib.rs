@@ -18,6 +18,8 @@ mod engine_error;
 mod engine_startup;
 mod explanation;
 #[cfg(test)]
+mod finalize_withdrawal_tests;
+#[cfg(test)]
 mod git_evidence_admission_tests;
 mod git_evidence_batch;
 mod git_evidence_entry;

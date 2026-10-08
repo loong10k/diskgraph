@@ -306,15 +306,24 @@ impl Engine {
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
         check_authority_expiry(expiry)?;
-        control.with_read_deadline(observation_deadline, |control| {
-            let server_id = control.existing_server_id()?;
-            for (server, scope) in &ownerships {
-                if server != server_id.as_str() || control.scope_revoked(scope)? {
-                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+        let (withdrawals, generation) =
+            control.with_read_deadline(observation_deadline, |control| {
+                let server_id = control.existing_server_id()?;
+                for (server, scope) in &ownerships {
+                    if server != server_id.as_str() || control.scope_revoked(scope)? {
+                        return Err(EngineError::Business(BusinessError::PermissionDenied));
+                    }
                 }
-            }
-            Ok::<(), EngineError>(())
-        })?;
+                let withdrawals = ownerships
+                    .iter()
+                    .map(|(_, scope)| {
+                        crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
+                            control, principal, scope,
+                        )
+                    })
+                    .collect::<Result<Vec<_>, EngineError>>()?;
+                Ok::<_, EngineError>((withdrawals, control.authorization_generation()?))
+            })?;
         drop(reader);
         drop(control);
         check_authority_expiry(expiry)?;
@@ -341,43 +350,63 @@ impl Engine {
         let control = self
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
+        // 回调期间的负向事件先于 SQL 观察预算；恢复后的 Allowed 不能抹去原撤权。
+        for withdrawal in &withdrawals {
+            withdrawal.check(&control)?;
+        }
         check_authority_expiry(expiry)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
-        control.with_read_deadline(after_callback, |control| {
-            let current_server = control.existing_server_id()?;
-            for ((server, scope), decision) in ownerships.iter().zip(decisions) {
-                if server != current_server.as_str() {
-                    return Err(BusinessError::PermissionDenied.into());
+        let terminal_observation = (|| {
+            control.with_read_deadline(after_callback, |control| {
+                let current_server = control.existing_server_id()?;
+                for ((server, scope), decision) in ownerships.iter().zip(decisions) {
+                    if server != current_server.as_str() {
+                        return Err(BusinessError::PermissionDenied.into());
+                    }
+                    Self::require_decision_with_control(
+                        control,
+                        decision,
+                        principal,
+                        &Permission::MetadataRead,
+                        scope,
+                    )?;
                 }
-                Self::require_decision_with_control(
-                    control,
-                    decision,
-                    principal,
-                    &Permission::MetadataRead,
-                    scope,
-                )?;
-            }
-            // 所有能力回调结束后纯读每侧授权，后侧回调不能撤销已检查的前侧后逃逸。
-            for (_, scope) in &ownerships {
-                if control.scope_revoked(scope)?
-                    || control.live_permission(principal, &Permission::MetadataRead, scope)?
-                        == Some(false)
-                {
-                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                // 所有能力回调结束后纯读每侧授权，后侧回调不能撤销已检查的前侧后逃逸。
+                for (_, scope) in &ownerships {
+                    if control.scope_revoked(scope)?
+                        || control.live_permission(principal, &Permission::MetadataRead, scope)?
+                            == Some(false)
+                    {
+                        return Err(EngineError::Business(BusinessError::PermissionDenied));
+                    }
+                }
+                for withdrawal in &withdrawals {
+                    withdrawal.check(control)?;
+                    if !withdrawal.has_native_watch()
+                        && control.authorization_generation()? != generation
+                    {
+                        return Err(BusinessError::Conflict.into());
+                    }
+                }
+                Ok::<(), EngineError>(())
+            })?;
+            check_authority_expiry(expiry)?;
+            let reader =
+                SqliteSnapshotStore::open_reader_until(&self.graph_path, after_callback, None)?;
+            for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
+                if !reader.revision_ownership_matches(revision, server, scope.as_str())? {
+                    return Err(BusinessError::PermissionDenied.into());
                 }
             }
             Ok::<(), EngineError>(())
-        })?;
-        check_authority_expiry(expiry)?;
-        let reader =
-            SqliteSnapshotStore::open_reader_until(&self.graph_path, after_callback, None)?;
-        for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
-            if !reader.revision_ownership_matches(revision, server, scope.as_str())? {
-                return Err(BusinessError::PermissionDenied.into());
-            }
+        })();
+        // 独立控制连接可在终态读取中提交撤权，已知拒权不能被存储超时遮盖。
+        for withdrawal in &withdrawals {
+            withdrawal.check(&control)?;
         }
+        terminal_observation?;
         check_authority_expiry(expiry)?;
         if Instant::now() >= after_callback || !capability_timely {
             return Err(BusinessError::BudgetExceeded.into());
