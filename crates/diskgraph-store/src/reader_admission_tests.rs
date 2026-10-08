@@ -75,6 +75,185 @@ fn admitted_reader_keeps_runtime_cancellation_hook() {
 
 thread_local! {
     static AFTER_PREPARE: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = const { std::cell::RefCell::new(None) };
+    static AFTER_OPEN: std::cell::RefCell<Option<ConfigurationHook>> = const { std::cell::RefCell::new(None) };
+    static AFTER_TEMP_STORE: std::cell::RefCell<Option<ConfigurationHook>> = const { std::cell::RefCell::new(None) };
+}
+
+/// 仅在真实连接准备边界观察SQL，不进入生产构建或替换SQLite执行。
+type ConfigurationHook = Box<dyn FnOnce(&rusqlite::Connection)>;
+
+/// 参数：刚打开的原连接；返回：无，仅调用本线程一次性测试观察。
+pub(crate) fn after_open(connection: &rusqlite::Connection) {
+    if let Some(hook) = AFTER_OPEN.with(|slot| slot.borrow_mut().take()) {
+        hook(connection);
+    }
+}
+
+/// 参数：已完成temp_store的原连接；返回：无，不替换或重试配置SQL。
+pub(crate) fn after_temp_store(connection: &rusqlite::Connection) {
+    if let Some(hook) = AFTER_TEMP_STORE.with(|slot| slot.borrow_mut().take()) {
+        hook(connection);
+    }
+}
+
+fn count_configuration_sql(
+    connection: &rusqlite::Connection,
+    calls: Arc<std::sync::atomic::AtomicUsize>,
+) {
+    use rusqlite::hooks::{AuthAction, AuthContext, Authorization};
+    connection
+        .authorizer(Some(move |context: AuthContext<'_>| {
+            if matches!(
+                context.action,
+                AuthAction::Pragma {
+                    pragma_name: "temp_store" | "cache_size",
+                    ..
+                }
+            ) {
+                calls.fetch_add(1, Ordering::Relaxed);
+            }
+            Authorization::Allow
+        }))
+        .unwrap();
+}
+
+#[test]
+fn expiry_after_open_starts_no_configuration_sql() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("graph.sqlite");
+    let _writer = SqliteSnapshotStore::open(&path).unwrap();
+    let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let observed = Arc::clone(&calls);
+    let deadline = Instant::now() + Duration::from_secs(1);
+    AFTER_OPEN.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(move |connection| {
+            count_configuration_sql(connection, observed);
+            std::thread::sleep(
+                deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(1),
+            );
+        }));
+    });
+    assert!(matches!(
+        SqliteSnapshotStore::open_reader_until(&path, deadline, None),
+        Err(StoreError::BudgetExceeded)
+    ));
+    assert!(
+        AFTER_OPEN.with(|slot| slot.borrow().is_none()),
+        "actual connection-open boundary required"
+    );
+    assert_eq!(
+        calls.load(Ordering::Relaxed),
+        0,
+        "expired preparation began real configuration SQL"
+    );
+}
+
+#[test]
+fn cancellation_after_temp_store_starts_no_cache_configuration_sql() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("graph.sqlite");
+    let _writer = SqliteSnapshotStore::open(&path).unwrap();
+    let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let observed = Arc::clone(&calls);
+    let cancel = Arc::new(AtomicBool::new(false));
+    let flag = Arc::clone(&cancel);
+    AFTER_TEMP_STORE.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(move |connection| {
+            count_configuration_sql(connection, observed);
+            flag.store(true, Ordering::Relaxed);
+        }));
+    });
+    let error = SqliteSnapshotStore::open_reader_until(
+        &path,
+        Instant::now() + Duration::from_secs(5),
+        Some(cancel),
+    )
+    .err()
+    .expect("cancelled preparation must fail");
+    assert!(error.is_interrupted(), "{error}");
+    assert!(
+        AFTER_TEMP_STORE.with(|slot| slot.borrow().is_none()),
+        "actual first configuration SQL boundary required"
+    );
+    assert_eq!(
+        calls.load(Ordering::Relaxed),
+        0,
+        "cancelled preparation began real cache_size SQL"
+    );
+}
+
+#[test]
+fn cache_configuration_busy_wait_uses_remaining_original_deadline() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("graph.sqlite");
+    let _writer = SqliteSnapshotStore::open(&path).unwrap();
+    let deadline = Instant::now() + Duration::from_secs(1);
+    let remaining = Arc::new(std::sync::atomic::AtomicU64::new(0));
+    let observed = Arc::clone(&remaining);
+    AFTER_TEMP_STORE.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(move |_| {
+            std::thread::sleep(
+                (deadline - Duration::from_millis(300)).saturating_duration_since(Instant::now()),
+            );
+            observed.store(
+                u64::try_from(
+                    deadline
+                        .saturating_duration_since(Instant::now())
+                        .as_millis(),
+                )
+                .unwrap(),
+                Ordering::Relaxed,
+            );
+        }));
+    });
+    let reader = SqliteSnapshotStore::open_reader_until(&path, deadline, None).unwrap();
+    let busy: i64 = reader
+        .connection
+        .pragma_query_value(None, "busy_timeout", |row| row.get(0))
+        .unwrap();
+    let bound = remaining.load(Ordering::Relaxed);
+    assert!(bound > 0 && bound <= 300, "real remaining budget: {bound}");
+    assert!(
+        busy >= 0 && u64::try_from(busy).unwrap() <= bound,
+        "busy wait {busy}ms exceeds remaining original {bound}ms"
+    );
+    assert!(AFTER_TEMP_STORE.with(|slot| slot.borrow().is_none()));
+}
+
+#[test]
+fn live_preparation_still_executes_both_required_configuration_statements() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("graph.sqlite");
+    let _writer = SqliteSnapshotStore::open(&path).unwrap();
+    let calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let observed = Arc::clone(&calls);
+    AFTER_OPEN.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(move |connection| {
+            count_configuration_sql(connection, observed)
+        }))
+    });
+    let reader = SqliteSnapshotStore::open_reader_until(
+        &path,
+        Instant::now() + Duration::from_secs(5),
+        None,
+    )
+    .unwrap();
+    assert_eq!(calls.load(Ordering::Relaxed), 2);
+    assert!(reader.connection.is_readonly("main").unwrap());
+    assert_eq!(
+        reader
+            .connection
+            .pragma_query_value(None, "temp_store", |row| row.get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        reader
+            .connection
+            .pragma_query_value(None, "cache_size", |row| row.get::<_, i64>(0))
+            .unwrap(),
+        -8192
+    );
 }
 
 /// 测试专用准备边界回调，生产构建不包含回调或可注入入口。

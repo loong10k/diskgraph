@@ -23,3 +23,5 @@
 最终诊断源码在Windows Rust1.99.0/MSVC运行 `cargo clippy --locked -p diskgraph-engine --lib --tests --target x86_64-pc-windows-msvc -- -Dwarnings` 成功；不是全量资格。最终test文件SHA-256为 `db4727dce4b5ae03c8d74d3cc95979cd5e3da95f08a279b7cabb681f1ec0901e`，mod文件为 `f6aaf75edb2203d30a277c29933db3a183c2eb6f78b8880bb300edc85fa171ec`。首轮出生诊断发生在增加版本对照前，不能以最终源码指纹绑定首轮通过。
 
 原始日志、两轮脚本、版本布局观察、Clippy日志及最终诊断源码保存在 `docs/benchmarks/windows_git_concurrency_isolation_2026_10_09/git_timing_evidence.zip`（10810字节，SHA-256 `7bd9fa9fcfdd3e6eb243df0e795c7e7e22900795ee1a88602cfe14ffb72d00cc`）。归档与Windows原始字节校验一致。当前未关闭：默认并发全量、原15秒完整Git采样、失败后的有限资源恢复及同源码三平台资格。
+
+连接准备期限的后续修复与验收见 `reader_configuration_budget.md`；该修复不改变Git引用语法策略或整次采样15秒门禁。

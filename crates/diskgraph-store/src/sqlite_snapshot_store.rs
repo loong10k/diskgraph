@@ -83,13 +83,10 @@ impl SqliteSnapshotStore {
             path,
             rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
         )?;
-        connection.busy_timeout(
-            deadline
-                .saturating_duration_since(std::time::Instant::now())
-                .min(std::time::Duration::from_secs(1)),
-        )?;
-        connection.pragma_update(None, "temp_store", "FILE")?;
-        connection.pragma_update(None, "cache_size", -8192)?;
+        #[cfg(test)]
+        crate::reader_admission_tests::after_open(&connection);
+        check_admission()?;
+        // 首条配置SQL也受原执行期限/取消保护，不能等配置完成才安装VM检查。
         let execution_cancel = cancel.clone();
         connection.progress_handler(
             1000,
@@ -100,6 +97,22 @@ impl SqliteSnapshotStore {
                         .is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Relaxed))
             }),
         )?;
+        // 每条SQL重新取原期限的剩余量，防止前一步耗时后沿用旧busy等待额度。
+        let prepare_statement = || -> Result<()> {
+            check_admission()?;
+            connection.busy_timeout(
+                deadline
+                    .saturating_duration_since(std::time::Instant::now())
+                    .min(std::time::Duration::from_secs(1)),
+            )?;
+            check_admission()
+        };
+        prepare_statement()?;
+        connection.pragma_update(None, "temp_store", "FILE")?;
+        #[cfg(test)]
+        crate::reader_admission_tests::after_temp_store(&connection);
+        prepare_statement()?;
+        connection.pragma_update(None, "cache_size", -8192)?;
         #[cfg(test)]
         crate::reader_admission_tests::after_prepare();
         check_admission()?;

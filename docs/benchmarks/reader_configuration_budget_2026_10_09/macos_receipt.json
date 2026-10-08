@@ -1,0 +1,30 @@
+{
+  "platform": "macOS ARM64",
+  "base_head": "7e29a64dd3bed8c3ece6d8bbf601cc9676812d37",
+  "source_sha256": {
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "f0cb6395e635ede251643b001ef0a664ad5dd68b7db5130611afebc8ab512a53",
+    "crates/diskgraph-store/src/reader_admission_tests.rs": "213aed96a115081389183776494ceb4bc3d0eac6332f032cdf9a43ab15ec405c",
+    "crates/diskgraph-store/src/lib.rs": "ab973026ea73bbad4755197d2275678cec2a21d5b9590bff6875c11b8b6bcd7f",
+    "crates/diskgraph-store/src/reader_observation_tests.rs": "57a4970c6970ffbe9766839382affe66415ad399c304a8f5bf3c6d5a1df7f08a"
+  },
+  "qualified_production": false,
+  "red": {
+    "passed": 8,
+    "failed": 2,
+    "ignored": 2,
+    "source": "initial hook/test version before extra busy-timeout test"
+  },
+  "green": {
+    "passed": 11,
+    "failed": 0,
+    "ignored": 2
+  },
+  "store_all_targets": {
+    "passed": 377,
+    "failed": 0,
+    "ignored": 11
+  },
+  "clippy": "all-targets -D warnings passed",
+  "fmt": "affected files edition2024 passed",
+  "limits": "Local lib.rs includes two preexisting uncommitted reader observation tests; not an exact committed test inventory. Windows full regression failed; see native archive."
+}
