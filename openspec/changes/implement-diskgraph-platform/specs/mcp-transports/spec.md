@@ -101,3 +101,14 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** a request supplies an empty, signed, non-decimal or overflowing Content-Length
 - **THEN** the shared HTTP reader refuses it before body allocation and dispatch; integer parser extensions such as a leading plus sign cannot establish framing
 - **AND** zero and digit-only leading-zero values retain their existing semantics, subject to the original body byte and absolute-time limits
+
+#### Scenario: Control owner contention before revision dispatch and legacy acceptance
+- **WHEN** the control owner remains locked beyond an explicit-revision tool's original deadline or the legacy POST acceptance window
+- **THEN** explicit-revision authorization returns budget exhaustion without waiting for owner release; legacy generation capture returns 503 before accepting the request
+- **AND** the failed acceptance releases its reservation; this scenario does not claim that every scope-resolution or downstream tool wait is already bounded
+
+#### Scenario: Scope discovery and common authorization consume the original deadline
+- **WHEN** a control owner remains occupied during explicit/default scope discovery, revision resolution, or the common permission check
+- **THEN** these dispatch prerequisites return budget exhaustion within the original request window, without mapping expiry to not_found or permission_denied
+- **AND** scope-list capability callbacks remain outside the control lock, with live grant and expiry checks after all callbacks; trusted compatibility listing retains its existing behavior
+- **AND** legacy tools use the earlier of the remaining POST window and the default tool window, so a longer transport timeout cannot enlarge the tool budget

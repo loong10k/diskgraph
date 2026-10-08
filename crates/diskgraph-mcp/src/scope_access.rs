@@ -7,20 +7,30 @@ use serde_json::Value;
 impl McpService {
     /// 解析可选范围参数；省略时沿现有列表顺序选择未撤销范围。
     /// 参数：arguments 为可选 scope 字段。返回：可选范围；未知范围返回 not_found，不伪装 permission_denied。
-    pub(crate) fn resolve_scope(&self, arguments: &Value) -> Result<Option<ScopeId>, EngineError> {
+    pub(crate) fn resolve_scope_until(
+        &self,
+        arguments: &Value,
+        deadline: std::time::Instant,
+    ) -> Result<Option<ScopeId>, EngineError> {
         if let Some(scope) = arguments.get("scope").and_then(Value::as_str) {
             let scope_id = ScopeId::new(scope.to_owned())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
             // Unknown scopes are not_found, not permission_denied: the caller
             // can tell a wrong scope from a hidden one.
-            if self.engine.scope(&scope_id).is_err() {
-                return Err(EngineError::Business(BusinessError::NotFound));
+            match self.engine.scope_until(&scope_id, deadline) {
+                Ok(_) => {}
+                Err(EngineError::Store(diskgraph_store::StoreError::ScopeNotFound(_))) => {
+                    return Err(EngineError::Business(BusinessError::NotFound));
+                }
+                Err(error) => return Err(error),
             }
             return Ok(Some(scope_id));
         }
-        let scopes = self
-            .engine
-            .list_scopes(self.context.principal(), &self.authorizer()?)?;
+        let scopes = self.engine.list_scopes_until(
+            self.context.principal(),
+            &self.authorizer_until(deadline)?,
+            deadline,
+        )?;
         Ok(scopes
             .into_iter()
             .find(|scope| !scope.revoked)
@@ -57,6 +67,55 @@ impl McpService {
             &self.authorizer()?,
         )?;
         Ok(revision)
+    }
+
+    /// 在原请求期限内固定版本并验证实际归属，预算错误不会映射为拒绝或不存在。
+    /// 参数：scope/arguments 为版本断言，deadline 为原期限。返回：授权版本或错误。
+    pub(crate) fn require_revision_until(
+        &self,
+        scope: &Option<ScopeId>,
+        arguments: &Value,
+        deadline: std::time::Instant,
+    ) -> Result<String, EngineError> {
+        let scope_id = self.require_scope(scope)?;
+        let revision = match arguments.get("revision").and_then(Value::as_str) {
+            Some(revision) => revision.to_owned(),
+            None => self
+                .engine
+                .latest_revision_until(&scope_id, deadline)?
+                .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
+        };
+        self.engine.authorize_revision_until(
+            Some(&scope_id),
+            &revision,
+            self.context.principal(),
+            &self.authorizer_until(deadline)?,
+            deadline,
+        )?;
+        Ok(revision)
+    }
+
+    /// 在原请求期限内检查 token 能力与实时数据库策略的交集。
+    /// 参数：permission/scope 为授权目标，deadline 为原期限。返回：允许或预算/拒绝错误。
+    pub(crate) fn require_until(
+        &self,
+        permission: &Permission,
+        scope: &ScopeId,
+        deadline: std::time::Instant,
+    ) -> Result<(), EngineError> {
+        let authorizer = self.authorizer_until(deadline)?;
+        let decision = authorizer.decide(self.context.principal(), permission, scope);
+        match decision {
+            diskgraph_core::Decision::Allowed => {
+                if std::time::Instant::now() >= deadline {
+                    return Err(EngineError::Business(BusinessError::BudgetExceeded));
+                }
+                Ok(())
+            }
+            diskgraph_core::Decision::Denied(_) => {
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            }
+        }
     }
 
     /// 使用实时策略与当前请求身份检查指定权限。

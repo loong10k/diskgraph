@@ -43,6 +43,25 @@ impl McpService {
         }
     }
 
+    /// 在传输入口固定的期限内处理请求，不为工具执行重建预算。
+    /// 参数：request 为已解码请求，deadline 为原单调期限。返回：关联响应帧。
+    pub(crate) fn handle_until(
+        &mut self,
+        request: &protocol::Request,
+        deadline: std::time::Instant,
+    ) -> Value {
+        if request.method == "tools/call" {
+            // 传输剩余额度只可缩短工具原有预算，不能放大默认查询窗口。
+            let deadline = match diskgraph_core::query_deadline(QueryBudget::default()) {
+                Ok(query_deadline) => deadline.min(query_deadline),
+                Err(error) => return tool_error(&request.id, error, &error.to_string()),
+            };
+            self.call_tool_until(&request.id, &request.params, deadline)
+        } else {
+            self.handle(request)
+        }
+    }
+
     /// 按原期限依次执行工具目录、profile、schema、授权与响应末检。
     /// 参数：id 为请求关联，params 为工具调用字段。返回：成功或协议/业务错误帧。
     fn call_tool(&mut self, id: &Value, params: &Value) -> Value {
@@ -50,6 +69,22 @@ impl McpService {
             Ok(deadline) => deadline,
             Err(error) => return tool_error(id, error, &error.to_string()),
         };
+        self.call_tool_until(id, params, deadline)
+    }
+
+    fn call_tool_until(
+        &mut self,
+        id: &Value,
+        params: &Value,
+        deadline: std::time::Instant,
+    ) -> Value {
+        if std::time::Instant::now() >= deadline {
+            return tool_error(
+                id,
+                BusinessError::BudgetExceeded,
+                "request deadline exhausted",
+            );
+        }
         #[cfg(test)]
         relation_budget_tests::request_started();
         #[cfg(test)]
@@ -170,27 +205,16 @@ impl McpService {
                         .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))
                 })
                 .transpose()?;
-            let authorizer = self.authorizer()?;
-            Some(
-                if matches!(catalog_id, "C06" | "C07" | "C13" | "C14" | "C15" | "C16") {
-                    self.engine.authorize_revision_until(
-                        expected.as_ref(),
-                        revision,
-                        self.context.principal(),
-                        &authorizer,
-                        deadline,
-                    )?
-                } else {
-                    self.engine.authorize_revision(
-                        expected.as_ref(),
-                        revision,
-                        self.context.principal(),
-                        &authorizer,
-                    )?
-                },
-            )
+            let authorizer = self.authorizer_until(deadline)?;
+            Some(self.engine.authorize_revision_until(
+                expected.as_ref(),
+                revision,
+                self.context.principal(),
+                &authorizer,
+                deadline,
+            )?)
         } else {
-            self.resolve_scope(arguments)?
+            self.resolve_scope_until(arguments, deadline)?
         };
         let mut pinned_arguments = arguments.clone();
         if matches!(catalog_id, "C08" | "C09" | "C10" | "C11" | "C12" | "C16")
@@ -201,7 +225,7 @@ impl McpService {
                     .latest_revision_until(&self.require_scope(&scope)?, deadline)?
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?
             } else {
-                self.require_revision(&scope, arguments)?
+                self.require_revision_until(&scope, arguments, deadline)?
             };
             pinned_arguments["revision"] = json!(revision);
         }
@@ -230,7 +254,7 @@ impl McpService {
                 admin_scope()
             };
         for permission in protocol::permissions_for_action(catalog_id, action) {
-            self.require(&permission, &authorization_scope)?;
+            self.require_until(&permission, &authorization_scope, deadline)?;
         }
         match catalog_id {
             "C01" => self.scope_tool(arguments),

@@ -191,6 +191,7 @@ impl LegacyTransport {
         stream.flush()
     }
 
+    #[cfg(test)]
     fn authorization_generation(service: &McpService) -> Option<u64> {
         service
             .engine()
@@ -246,6 +247,7 @@ impl LegacyTransport {
         shared_service: &Arc<McpService>,
         log: &Arc<Mutex<impl Write + Send>>,
     ) -> bool {
+        let deadline = Instant::now() + self.limits.read_timeout;
         if security.policy.origin_decision(request.header("origin")) == OriginDecision::Refused {
             return Self::reply(stream, 403, json!({"error":"forbidden_origin"}));
         }
@@ -319,7 +321,7 @@ impl LegacyTransport {
                 return Self::reply(stream, status, json!({"error":reason}));
             }
         };
-        let Some(authorization_generation) = Self::authorization_generation(shared_service) else {
+        let Ok(authorization_generation) = Self::generation_until(shared_service, deadline) else {
             return Self::reply(stream, 503, json!({"error":"legacy_unavailable"}));
         };
         let accepted = "HTTP/1.1 202 Accepted\r\nContent-Length: 0\r\n\r\n";
@@ -330,9 +332,9 @@ impl LegacyTransport {
         let response = if let Some(identity) = &identity {
             service
                 .for_transport_identity(identity, "legacy_sse")
-                .handle(&decoded)
+                .handle_until(&decoded, deadline)
         } else {
-            service.handle(&decoded)
+            service.handle_until(&decoded, deadline)
         };
         let mut wire = BoundedJsonWriter::encode(&response, self.limits.max_response_bytes)
             .unwrap_or(overflow);

@@ -81,9 +81,42 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
     ) -> Result<Vec<ScopeRecord>, EngineError> {
+        self.list_scopes_with_deadline(principal, authorizer, None)
+    }
+
+    /// 在原请求期限内列出实时可见范围，控制锁及 SQL 共用预算。
+    /// 参数：principal/authorizer 为请求身份，deadline 为原截止时间。返回：可见范围或预算/授权错误。
+    pub fn list_scopes_until(
+        &self,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+    ) -> Result<Vec<ScopeRecord>, EngineError> {
+        self.list_scopes_with_deadline(principal, authorizer, Some(deadline))
+    }
+
+    fn read_scope_control<T>(
+        &self,
+        deadline: Option<std::time::Instant>,
+        read: impl FnOnce(&diskgraph_store::ControlStore) -> Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
+        match deadline {
+            Some(deadline) => self
+                .control_until(deadline)?
+                .with_read_deadline(deadline, read),
+            None => read(&*self.control()?),
+        }
+    }
+
+    fn list_scopes_with_deadline(
+        &self,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Option<std::time::Instant>,
+    ) -> Result<Vec<ScopeRecord>, EngineError> {
         let admin_decision =
             authorizer.decide(principal, &Permission::MetadataRead, &admin_scope());
-        let scopes = self.control()?.list_scopes()?;
+        let scopes = self.read_scope_control(deadline, |control| Ok(control.list_scopes()?))?;
         // 外部回调不能持有共享锁；收集决定后再读取实时持久授权，覆盖跨项撤权。
         let decisions = scopes
             .into_iter()
@@ -95,33 +128,34 @@ impl Engine {
             .collect::<Vec<_>>();
         let expiry = authorizer.expires_at_unix_seconds();
         crate::authority_expiry::check_authority_expiry(expiry)?;
-        let control = self.control()?;
-        let permitted = |decision, scope: &ScopeId| -> Result<bool, EngineError> {
-            match Self::require_decision_with_control(
-                &control,
-                decision,
-                principal,
-                &Permission::MetadataRead,
-                scope,
-            ) {
-                Ok(()) => Ok(true),
-                Err(EngineError::Business(BusinessError::PermissionDenied)) => Ok(false),
-                Err(error) => Err(error),
+        self.read_scope_control(deadline, |control| {
+            let permitted = |decision, scope: &ScopeId| -> Result<bool, EngineError> {
+                match Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::MetadataRead,
+                    scope,
+                ) {
+                    Ok(()) => Ok(true),
+                    Err(EngineError::Business(BusinessError::PermissionDenied)) => Ok(false),
+                    Err(error) => Err(error),
+                }
+            };
+            let authorizer_is_permissive = permitted(admin_decision, &admin_scope())?;
+            let mut allowed = Vec::new();
+            for (scope, decision) in decisions {
+                if permitted(decision, &scope.scope_id)? {
+                    allowed.push(scope);
+                }
             }
-        };
-        let authorizer_is_permissive = permitted(admin_decision, &admin_scope())?;
-        let mut allowed = Vec::new();
-        for (scope, decision) in decisions {
-            if permitted(decision, &scope.scope_id)? {
-                allowed.push(scope);
+            // 管理回退使用所有回调完成后的持久授权；不能复用撤权之前的允许状态。
+            if allowed.is_empty() && authorizer_is_permissive {
+                allowed = control.list_scopes()?;
             }
-        }
-        // 管理回退使用所有回调完成后的持久授权；不能复用撤权之前的允许状态。
-        if allowed.is_empty() && authorizer_is_permissive {
-            allowed = control.list_scopes()?;
-        }
-        crate::authority_expiry::check_authority_expiry(expiry)?;
-        Ok(allowed)
+            crate::authority_expiry::check_authority_expiry(expiry)?;
+            Ok(allowed)
+        })
     }
 }
 
@@ -155,6 +189,16 @@ impl Engine {
     /// Loads one scope.
     pub fn scope(&self, scope_id: &ScopeId) -> Result<ScopeRecord, EngineError> {
         Ok(self.control()?.scope(scope_id)?)
+    }
+
+    /// 在原请求期限内读取注册范围，不替代调用方的权限检查。
+    /// 参数：scope_id 为持久范围，deadline 为原截止时间。返回：记录或预算/存储错误。
+    pub fn scope_until(
+        &self,
+        scope_id: &ScopeId,
+        deadline: std::time::Instant,
+    ) -> Result<ScopeRecord, EngineError> {
+        self.read_scope_control(Some(deadline), |control| Ok(control.scope(scope_id)?))
     }
 }
 

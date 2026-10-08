@@ -317,3 +317,41 @@ fn revoking_one_scope_stops_its_old_frame_while_the_subject_remains_live_elsewhe
     client.read_to_end(&mut data).unwrap();
     assert!(data.is_empty());
 }
+
+#[test]
+fn post_generation_wait_refuses_while_control_owner_holds_lock() {
+    let (_dir, service) = fixture();
+    let transport = LegacyTransport::new(HttpLimits {
+        read_timeout: Duration::from_millis(50),
+        ..HttpLimits::default()
+    });
+    let (id, _receiver) = transport.registry.open(None).unwrap();
+    let request = HttpRequest {
+        method: "POST".into(),
+        path: "/messages/".into(),
+        query: format!("session_id={id}"),
+        headers: HashMap::new(),
+        body: json!({"jsonrpc":"2.0","id":1,"method":"ping"}).to_string(),
+    };
+    let owner = service.engine().control_store().unwrap();
+    let request_service = Arc::clone(&service);
+    let (client, mut server) = sockets();
+    let (finished, result) = std::sync::mpsc::channel();
+    let worker = std::thread::spawn(move || {
+        transport.post(
+            &mut server,
+            &request,
+            &Security::local(None),
+            &request_service,
+            &Arc::new(Mutex::new(Vec::new())),
+        );
+        finished.send(()).unwrap();
+    });
+    let bounded = result.recv_timeout(Duration::from_millis(300));
+    drop(owner);
+    worker.join().unwrap();
+    assert!(bounded.is_ok(), "POST waited for control owner release");
+    let mut status = String::new();
+    BufReader::new(client).read_line(&mut status).unwrap();
+    assert!(status.contains("503"), "{status}");
+}

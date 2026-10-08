@@ -1,0 +1,35 @@
+{
+  "base_sha": "8eef61e479bc784657ad27ed73361acaeae3ccc6",
+  "local_platform": "macOS arm64",
+  "target_tests": {
+    "sse_identity_deadline_tests": 12,
+    "legacy_transport_tests": 8,
+    "scope_authorization_tests": 7
+  },
+  "full_mcp": {
+    "passed": 151,
+    "failed": 34,
+    "boundary": "All 34 failure blocks include Unsupported scan fixture/runner errors; not a passing full-suite result and not proven unaffected by this diff."
+  },
+  "red_boundary": "Expired-transport and uncapped-transport adapters model former behavior; scope RED covers three lookups, not the subsequently added revision regression.",
+  "remaining": [
+    "handler-internal compatibility authorization reads",
+    "modern HTTP original deadline propagation",
+    "strict scope-list memory bound",
+    "full same-SHA native platform acceptance"
+  ],
+  "uncompressed_log_sha256": {
+    "dispatch_authorization_red.log.gz": "a8e9a62b11f79d1248e7c64f9cc147cb8920e9d884431e1222e8c5898519e58f",
+    "legacy_generation_red.log.gz": "ddf7b95a5f836f33204b0e576e8801ca5610e09af92bca425e8eb56d15200911",
+    "transport_deadline_red.log.gz": "5b7d41aaf01fd748aec8a043555ebc27eb8a69a40f1e272be4154490e6998206",
+    "tool_budget_cap_red.log.gz": "85bdf211150a147973e926f5307ab98abb52383d17b869fd05f1f5162bb99ef8",
+    "scope_authorization_red.log.gz": "af58f3707c686e19ac2ec65557bd9ccd019f5b37a709cf3c37c6fd5e42dfe20e",
+    "scope_authorization_final5.log.gz": "6b4e139d0117e9e9d7ac4777d83c9139d23900501587670623b76a7becec8dc1",
+    "authorization_final_legacy.log.gz": "cf12d838d7ff3f572a97bbd9db78001136371a2aa64a738d37253760485a478b",
+    "scope_semantics_regression.log.gz": "8f3d1399e385e0c20721271723e28894af5545f06fa8a5093f59bd512f905c56",
+    "mcp_authorization_full.log.gz": "0ca91188cada825d210d61926106909fb640b36887a7c6340face7afe8cde572",
+    "scope_authorization_final_clippy.log.gz": "ac9a7fe8376681dceb8f02c9718f52dbe2ed1fa7084199d166206f6b08c0a5fd",
+    "authorization_final_fmt.log.gz": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope_authorization_spec.log.gz": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+  }
+}
