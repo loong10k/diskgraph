@@ -1,0 +1,20 @@
+{
+  "base_sha": "5acda732a916507a782ab2078b297bf9e52274a7",
+  "source_sha256": {
+    "crates/diskgraph-scan-worker/src/decoded_tree.rs": "7b79e957e1407211cee11effd1eff028ec9fa9113e94eba5c1b0964bd199cadf",
+    "crates/diskgraph-scan-worker/tests/disposal_allocation.rs": "18432d0fc49995db0e66b7f2044179ac61a35fcdbfb95c29e7a402607fbd82c2"
+  },
+  "logs": {
+    "worker_all_targets": {
+      "file": "worker_all_targets.log.gz",
+      "original_bytes": 15652,
+      "original_sha256": "859898991c9129c66e689169747e5c43a7800e4a3a203241f101a99e6ec00018"
+    },
+    "source_layout": {
+      "file": "source_layout.log.gz",
+      "original_bytes": 793,
+      "original_sha256": "7fea05d7599916ff6b938f2443d41f9e336e2fd4da31098f0df3961a337e0cf4"
+    }
+  },
+  "scope": "local candidate; does not establish same-SHA cross-platform production qualification"
+}
