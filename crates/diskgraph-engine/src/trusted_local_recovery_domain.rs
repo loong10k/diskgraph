@@ -55,7 +55,25 @@ impl TrustedLocalRecoveryDomain {
             if raw < 0 {
                 // 先捕获原 errno；诊断输出不得改变返回的系统错误，也不包含用户路径。
                 let error = std::io::Error::last_os_error();
-                eprintln!("diskgraph: recovery slot_stage=open failed");
+                // held 目录被移除后 fstat 仍可成功，但创建子项可能 ENOENT；只记录状态诊断，
+                // 不输出目录路径/身份，不重建容量域，也不将失败重试为新的出生授权。
+                let directory_links = self
+                    .directory
+                    .metadata()
+                    .ok()
+                    .map(|metadata| metadata.nlink());
+                #[cfg(target_os = "macos")]
+                let namespace = if error.raw_os_error() == Some(libc::ENOENT) {
+                    held_path_state(&self.directory)
+                } else {
+                    "not_enoent"
+                };
+                #[cfg(not(target_os = "macos"))]
+                let namespace = "unobserved";
+                eprintln!(
+                    "diskgraph: recovery slot_stage=open failed errno={:?} directory_links={directory_links:?} namespace={namespace}",
+                    error.raw_os_error()
+                );
                 return Err(error.into());
             }
             let file = unsafe { File::from_raw_fd(raw) };
@@ -107,4 +125,49 @@ impl TrustedLocalRecoveryDomain {
         }
         Ok(())
     }
+}
+
+// 仅失败诊断：APFS 在目录被移除后仍可能报告非零 nlink，不能据此认定命名空间存在。
+// 内核给出的路径只用于 lstat 比较，不打开正文、不输出路径，不参与授权或容量域恢复。
+#[cfg(target_os = "macos")]
+fn held_path_state(directory: &File) -> &'static str {
+    let mut path = [0_u8; libc::PATH_MAX as usize];
+    if unsafe { libc::fcntl(directory.as_raw_fd(), libc::F_GETPATH, path.as_mut_ptr()) } < 0 {
+        return "unknown";
+    }
+    let Ok(path) = std::ffi::CStr::from_bytes_until_nul(&path) else {
+        return "unknown";
+    };
+    let mut named = std::mem::MaybeUninit::<libc::stat>::uninit();
+    if unsafe { libc::lstat(path.as_ptr(), named.as_mut_ptr()) } < 0 {
+        return if std::io::Error::last_os_error().raw_os_error() == Some(libc::ENOENT) {
+            "held_path_missing"
+        } else {
+            "unknown"
+        };
+    }
+    let named = unsafe { named.assume_init() };
+    match directory.metadata() {
+        Ok(held) if held.dev() == named.st_dev as u64 && held.ino() == named.st_ino => {
+            "held_path_same"
+        }
+        Ok(_) => "held_path_changed",
+        Err(_) => "unknown",
+    }
+}
+
+#[cfg(all(test, target_os = "macos"))]
+#[test]
+fn removed_held_directory_is_observed_without_trusting_its_link_count() {
+    let parent = tempfile::tempdir().unwrap();
+    let path = parent.path().join("held");
+    std::fs::create_dir(&path).unwrap();
+    let directory = File::open(&path).unwrap();
+    assert_eq!(held_path_state(&directory), "held_path_same");
+    std::fs::remove_dir(&path).unwrap();
+    assert!(
+        directory.metadata().is_ok(),
+        "held metadata remains readable after removal"
+    );
+    assert_eq!(held_path_state(&directory), "held_path_missing");
 }

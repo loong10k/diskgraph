@@ -1,0 +1,32 @@
+{
+  "status": "diagnostic only; CI root cause remains unconfirmed",
+  "local_os_observation": {
+    "removed_held_directory_metadata_remained_readable": true,
+    "removed_held_directory_link_count": 2,
+    "creating_child_errno": 2,
+    "F_GETPATH_retained_original_path": true
+  },
+  "regression": {
+    "test": "removed_held_directory_is_observed_without_trusting_its_link_count",
+    "native_macos_passed": 1,
+    "scope": "actual removed directory; no mocked metadata"
+  },
+  "related_domain_tests": {
+    "passed": 10,
+    "failed": 0,
+    "ignored_subprocess_helper": 1
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "clippy": "Engine lib passed",
+  "source_sha256": "243fffd471b9c87d6c0950b6edd36d4e7dd274b26df77ac9b1e543b64adbf0f4",
+  "limits": [
+    "Does not recreate directories, retry a failed slot, or change capacity/authorization",
+    "Only on ENOENT, macOS kernel-held path is lstat compared; paths and inode values are not logged",
+    "The observation is advisory and races with namespace changes; not an authorization proof",
+    "Current CI still needs to distinguish removed/mismatched directory from a live original namespace"
+  ],
+  "production_acceptance": false
+}
