@@ -2724,6 +2724,10 @@ mod tests {
         .unwrap();
         assert_eq!(status, 202);
         let job: Value = serde_json::from_str(&sse.next_message().unwrap()).unwrap();
+        assert_eq!(
+            job["result"]["isError"], false,
+            "legacy index admission failed before disconnect: {job}"
+        );
         let job_id = job["result"]["structuredContent"]["data"]["job_id"]
             .as_str()
             .unwrap()
