@@ -51,13 +51,15 @@ impl CliEngineHost {
             #[cfg(windows)]
             let (probe_host, probe_recovery) = diskgraph_engine::ProbeHost::new(1)?;
             #[cfg(windows)]
-            let (engine, recovery) = Engine::open_with_process_hosts(config, host, probe_host)?;
+            let (engine, recovery) =
+                Engine::open_with_process_hosts_until(config, host, probe_host, deadline)?;
             #[cfg(not(windows))]
             let (engine, recovery) = if let Some(host) = host {
-                let (engine, recovery) = Engine::open_with_scan_worker(config, host)?;
+                let (engine, recovery) =
+                    Engine::open_with_scan_worker_until(config, host, deadline)?;
                 (engine, Some(recovery))
             } else {
-                (Engine::open(config)?, None)
+                (Engine::open_until(config, deadline)?, None)
             };
             let opened = Self {
                 engine: Arc::new(engine),
@@ -133,10 +135,10 @@ impl CliEngineHost {
         let opened = if Instant::now() >= deadline {
             Err(diskgraph_core::BusinessError::BudgetExceeded.into())
         } else if let Some(host) = host {
-            Engine::open_with_scan_worker(config, host)
+            Engine::open_with_scan_worker_until(config, host, deadline)
                 .map(|(engine, recovery)| (engine, Some(recovery)))
         } else {
-            Engine::open(config).map(|engine| (engine, None))
+            Engine::open_until(config, deadline).map(|engine| (engine, None))
         };
         let (engine, recovery) = match opened {
             Ok(opened) => opened,

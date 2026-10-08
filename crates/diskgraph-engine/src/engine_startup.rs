@@ -8,12 +8,36 @@ use std::path::Path;
 use std::sync::Mutex;
 
 impl Engine {
+    /// 沿原绝对启动期限打开引擎。参数：config为原配置，deadline为调用方原期限。
+    /// 返回：期限内实例或预算错误；同步存储操作不提供硬抢占。
+    pub fn open_until(
+        config: EngineConfig,
+        deadline: std::time::Instant,
+    ) -> Result<Self, EngineError> {
+        Self::open_checked(config, &|| {
+            if std::time::Instant::now() >= deadline {
+                Err(diskgraph_core::BusinessError::BudgetExceeded.into())
+            } else {
+                Ok(())
+            }
+        })
+    }
+
     /// 创建并打开现有数据布局，备份升级并回填可确认的 revision 归属。
     /// 参数：config 指定数据库路径、容量、作业与扫描配置。
     /// 返回：唯一引擎实例或升级/存储/权限失败；不启动 runner。
     /// Opens (creating if needed) the engine's data directory with both stores.
     pub fn open(config: EngineConfig) -> Result<Self, EngineError> {
+        Self::open_checked(config, &|| Ok(()))
+    }
+
+    fn open_checked(
+        config: EngineConfig,
+        check: &dyn Fn() -> Result<(), EngineError>,
+    ) -> Result<Self, EngineError> {
+        check()?;
         std::fs::create_dir_all(&config.data_dir)?;
+        check()?;
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
@@ -25,18 +49,25 @@ impl Engine {
             .graph_database_path
             .clone()
             .unwrap_or_else(|| config.data_dir.join("diskgraph.sqlite"));
+        check()?;
         let (mut graph, _) = SqliteSnapshotStore::open_with_backup(
             &graph_path,
             &config.data_dir.join("migration_backups"),
         )?;
+        check()?;
         let mut control = ControlStore::open(&config.data_dir.join("diskgraph-control.sqlite"))?;
+        check()?;
         let server_id = control.ensure_server()?;
+        check()?;
         let roots = crate::revision_root_reconciliation::eligible_roots(
             &mut graph,
             &server_id,
             &control.list_scopes()?,
         )?;
+        check()?;
         graph.backfill_revision_ownership(server_id.as_str(), &roots)?;
+        // 同步迁移/回填可能越过原期限；不得向调用方交出迟到实例。
+        check()?;
         Ok(Self {
             data_dir: config.data_dir,
             graph_path,
@@ -79,6 +110,19 @@ impl Engine {
 }
 
 impl Engine {
+    /// 参数：config与host沿用原契约，deadline为原启动期限。
+    /// 返回：期限内引擎和恢复责任；未启动任何worker，不刷新期限。
+    pub fn open_with_scan_worker_until(
+        config: EngineConfig,
+        host: crate::ScanWorkerHost,
+        deadline: std::time::Instant,
+    ) -> Result<(Self, crate::ScanWorkerRecovery), EngineError> {
+        let mut engine = Self::open_until(config, deadline)?;
+        let recovery = crate::ScanWorkerRecovery::new(std::sync::Arc::clone(&host.registry));
+        engine.scan_worker = Some(std::sync::Arc::new(host));
+        Ok((engine, recovery))
+    }
+
     /// 参数：config保留旧两库/扫描配置，host为普通Rust独立受信镜像/响应额度/有限容量。
     /// 返回：原Engine与必须在catch_unwind外保存的唯一Recovery；不启动runner或授予请求权限。
     /// 旧open签名不变；服务Drop不把未回收槽清空，宿主必须join runner并实际drain至完成。
@@ -114,3 +158,29 @@ impl Engine {
         Ok((engine, recovery))
     }
 }
+
+#[cfg(windows)]
+impl Engine {
+    /// 参数：config、scan和probe为原宿主配置，deadline为原启动期限。
+    /// 返回：期限内引擎和可选扫描恢复责任；不启动原生任务。
+    pub fn open_with_process_hosts_until(
+        config: EngineConfig,
+        scan: Option<crate::ScanWorkerHost>,
+        probe: crate::ProbeHost,
+        deadline: std::time::Instant,
+    ) -> Result<(Self, Option<crate::ScanWorkerRecovery>), EngineError> {
+        let (mut engine, recovery) = match scan {
+            Some(host) => {
+                let (engine, recovery) = Self::open_with_scan_worker_until(config, host, deadline)?;
+                (engine, Some(recovery))
+            }
+            None => (Self::open_until(config, deadline)?, None),
+        };
+        engine.probe_host = Some(probe);
+        Ok((engine, recovery))
+    }
+}
+
+#[cfg(test)]
+#[path = "engine_startup_tests.rs"]
+mod tests;

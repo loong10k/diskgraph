@@ -1,0 +1,26 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-engine/src/engine_startup.rs": "dcd7c1f8302a32bc298f46d646b4345ce8dbcdc6efb9d104dd08378de7432cb4",
+    "crates/diskgraph-engine/src/engine_startup_tests.rs": "36f7dd7bf14bafc3b449c4b7704bbe19f4c00f74498722a8c1e1ed30f0a803ff",
+    "crates/diskgraph-engine/tests/startup_deadline.rs": "d5657c41aee3386511c59469629412d50bdd965aaf53cab6604cbdf99ae981ab",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "6a4afed3b345a609ca236dbd08d1599443d7a665b31067a3df665b7248c088ca"
+  },
+  "red": "deadline-ignoring adapter:1 passed/1 failed; not compile or environment failure",
+  "green": {
+    "integration": 2,
+    "stage_fault_injection": 1,
+    "cli_host": 9
+  },
+  "clippy": "passed CLI binary -D warnings",
+  "review": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "limitations": [
+    "stage test injects budget check failure, not real slow IO",
+    "synchronous IO not forcibly preempted",
+    "old trusted open remains unbounded",
+    "Windows/Linux native latest SHA CI pending",
+    "first stage test build failed no disk space, not behavior failure"
+  ]
+}

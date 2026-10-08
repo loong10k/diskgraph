@@ -202,3 +202,14 @@ The CLI SHALL recheck the original absolute startup deadline after recovery-slot
 #### Scenario: Nonzero measurement leaves a same-group helper
 - **WHEN** 自建测量进程启动同组helper后以非零状态退出
 - **THEN** 验收器保留尚未回收的leader身份，向原进程组发送SIGKILL，再回收leader并保存原失败状态；拒绝将该测量视为成功。发送信号不等于已确认全部后代退休
+
+### Requirement: Engine startup carries the original absolute deadline
+Deadline-aware Engine constructors SHALL check the caller's original deadline before data directory creation, between persistent initialization stages and after revision ownership reconciliation. CLI startup SHALL use these constructors on each platform. Existing trusted constructors retain compatibility. Synchronous filesystem and SQLite operations are not forcibly preempted; completed stages are not rolled back or deleted on timeout.
+
+#### Scenario: Original startup deadline has already elapsed
+- **WHEN** deadline-aware construction begins at or after its original deadline
+- **THEN** it returns BudgetExceeded without creating the data directory
+
+#### Scenario: Persistent initialization consumes the remaining startup budget
+- **WHEN** a persistent initialization stage completes after the original deadline
+- **THEN** the next check refuses further stages and does not return a usable Engine
