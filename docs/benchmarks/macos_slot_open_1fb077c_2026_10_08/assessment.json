@@ -1,0 +1,27 @@
+{
+  "commit": "1fb077c35704d5bfd3d8fabdf1dc7ba6312cf449",
+  "run_id": 37731786365,
+  "records": [
+    {
+      "job_id": 113162338558,
+      "raw_log_sha256": "a5a4557460e97a1d803b3500228485ede3d90d4c1534533d6f8364235c2be100",
+      "failed_test_lines": [
+        "2026-10-08T05:29:13.8608520Z test changes_and_growth_refuse_incomparable_revisions_honestly ... FAILED",
+        "2026-10-08T05:34:58.7185250Z test scan_worker_sources_follow_the_same_rust_contract ... FAILED"
+      ],
+      "timeout_lines": []
+    },
+    {
+      "job_id": 113162452773,
+      "raw_log_sha256": "52f70f357e99543048019767f62c8d89beecb4cbd1fa986314e6d20c6f23528b",
+      "failed_test_lines": [],
+      "timeout_lines": [
+        "2026-10-08T05:40:44.3160960Z subprocess.TimeoutExpired: Command '['/Library/Frameworks/Python.framework/Versions/3.13/bin/python', '/Users/runner/work/diskgraph/diskgraph/scripts/accept-readonly-load.py', '--bin-dir', '/var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/diskgraph-package-accept-yd4a9bmr/extracted/diskgraph-x86_64-apple-darwin/bin', '--files', '200000', '--output', '/Users/runner/work/diskgraph/diskgraph/dist/diskgraph-x86_64-apple-darwin.load_200000.json']' timed out after 300 seconds"
+      ]
+    }
+  ],
+  "enoent_observation": "CLI changes_and_growth_refuse_incomparable_revisions_honestly failed scope add with OS error 2 and recovery slot_stage=open failed",
+  "boundary": "openat of supervisor slot, after user directory admission and before slot reservation locking",
+  "root_cause_confirmed": false,
+  "production_acceptance": false
+}
