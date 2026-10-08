@@ -1,0 +1,127 @@
+{
+  "root_capture_red": {
+    "receipt": {
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "combined_root_capture_keeps_full_state_with_fewer_native_boundaries",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 44.46899999999732,
+      "head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+      "source_hashes": {
+        "crates/diskgraph-engine/src/windows_file_state.rs": "c16739d565687a73decf1561c265937cce6bf6a92d46ee592e81c10145887955",
+        "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "78d2e2e9e8ea407e07d02198a574f23bc17aa3dc94dcff200bd0ec738b323957"
+      }
+    },
+    "logs": {
+      "stderr.log": "   Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.26\n   Compiling windows-link v0.2.1\n   Compiling version_check v0.9.5\n   Compiling crossbeam-utils v0.8.23\n   Compiling generic-array v0.14.7\n   Compiling typenum v1.20.1\n   Compiling windows-strings v0.5.1\n   Compiling windows-result v0.4.1\n   Compiling serde_core v1.0.229\n   Compiling cfg-if v1.0.5\n   Compiling syn v2.0.119\n   Compiling syn v3.0.6\n   Compiling crossbeam-epoch v0.9.21\n   Compiling find-msvc-tools v0.1.14\n   Compiling zmij v1.0.23\n   Compiling shlex v2.0.1\n   Compiling crossbeam-deque v0.8.8\n   Compiling cc v1.5.1\n   Compiling crypto-common v0.1.7\n   Compiling windows-implement v0.60.2\n   Compiling windows-interface v0.59.3\n   Compiling block-buffer v0.10.4\n   Compiling serde_json v1.0.151\n   Compiling rayon-core v1.13.0\n   Compiling windows-core v0.62.2\n   Compiling serde v1.0.229\n   Compiling getrandom v0.4.3\n   Compiling autocfg v1.5.1\n   Compiling num-traits v0.2.19\n   Compiling digest v0.10.7\n   Compiling serde_derive v1.0.229\n   Compiling windows-sys v0.61.2\n   Compiling windows-threading v0.2.1\n   Compiling itoa v1.0.18\n   Compiling cpufeatures v0.2.17\n   Compiling memchr v2.8.3\n   Compiling windows-future v0.3.2\n   Compiling windows-collections v0.3.2\n   Compiling windows-numerics v0.3.1\n   Compiling either v1.18.0\n   Compiling vcpkg v0.2.15\n   Compiling pkg-config v0.3.34\n   Compiling rayon v1.12.0\n   Compiling libsqlite3-sys v0.38.2\n   Compiling windows v0.62.2\n   Compiling sha2 v0.10.9\n   Compiling log v0.4.34\n   Compiling foldhash v0.2.0\n   Compiling base64 v0.22.1\n   Compiling scopeguard v1.2.0\n   Compiling diskgraph-core v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-core)\n   Compiling hashbrown v0.17.1\n   Compiling chrono v0.4.45\n   Compiling winapi-util v0.1.11\n   Compiling rustc-hash v2.1.3\n   Compiling thiserror v2.0.21\n   Compiling hashlink v0.12.2\n   Compiling uuid v1.26.1\n   Compiling thiserror-impl v2.0.21\n   Compiling bitflags v2.13.2\n   Compiling diskgraph-scan-worker v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-scan-worker)\n   Compiling smallvec v1.16.2\n   Compiling fallible-iterator v0.3.0\n   Compiling fastrand v2.5.0\n   Compiling once_cell v1.21.4\n   Compiling libc v0.2.189\n   Compiling fallible-streaming-iterator v0.1.9\n   Compiling rusqlite v0.40.2\n   Compiling tempfile v3.27.0\n   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n   Compiling trash v5.2.9\n   Compiling diskgraph-disktree-core v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-disktree-core)\n   Compiling diskgraph-disktree v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-disktree)\n   Compiling diskgraph-store v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-store)\n   Compiling diskgraph-testkit v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-testkit)\n   Compiling sha1 v0.10.7\n   Compiling hex v0.4.3\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 42.86s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n\nthread 'windows_native_scan_tests::root_binding_tests::combined_root_capture_keeps_full_state_with_fewer_native_boundaries' (31708) panicked at crates\\diskgraph-engine\\src\\windows_native_scan_tests\\root_binding_tests.rs:39:9:\ncombined=8 ordinary=8\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n",
+      "stdout.log": "\nrunning 1 test\ntest windows_native_scan_tests::root_binding_tests::combined_root_capture_keeps_full_state_with_fewer_native_boundaries ... FAILED\n\nfailures:\n\nfailures:\n    windows_native_scan_tests::root_binding_tests::combined_root_capture_keeps_full_state_with_fewer_native_boundaries\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 691 filtered out; finished in 0.00s\n\n"
+    }
+  },
+  "root_capture_green": {
+    "receipt": {
+      "head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+      "source_hashes": {
+        "crates/diskgraph-engine/src/windows_file_state.rs": "84ef23f9bb357df8ec2728d0f58d33fbfde8e0ce1ab453b7deb39d68b5647750",
+        "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "78d2e2e9e8ea407e07d02198a574f23bc17aa3dc94dcff200bd0ec738b323957",
+        "crates/diskgraph-engine/src/windows_native_scan_root.rs": "df5b856bdb713ed8f4b19f5d81f01dcae3ee47c5a5ff10c8a08065d2103ce290"
+      },
+      "commands": [
+        {
+          "name": "native",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "windows_native_scan_tests",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 12.5
+        },
+        {
+          "name": "prefix",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "windows_file_state::tests",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.4529999999940628
+        },
+        {
+          "name": "clippy",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "clippy",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--all-targets",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 16.703000000008615
+        }
+      ]
+    },
+    "logs": {
+      "clippy.stderr.log": "    Checking windows-link v0.2.1\n    Checking typenum v1.20.1\n    Checking cfg-if v1.0.5\n    Checking crossbeam-utils v0.8.23\n    Checking windows-strings v0.5.1\n    Checking windows-result v0.4.1\n    Checking serde_core v1.0.229\n    Checking windows-core v0.62.2\n    Checking crossbeam-epoch v0.9.21\n    Checking generic-array v0.14.7\n    Checking crossbeam-deque v0.8.8\n    Checking zmij v1.0.23\n    Checking windows-sys v0.61.2\n    Checking windows-threading v0.2.1\n    Checking memchr v2.8.3\n    Checking crypto-common v0.1.7\n    Checking block-buffer v0.10.4\n    Checking digest v0.10.7\n    Checking cpufeatures v0.2.17\n    Checking itoa v1.0.18\n    Checking windows-future v0.3.2\n    Checking rayon-core v1.13.0\n    Checking serde_json v1.0.151\n    Checking serde v1.0.229\n    Checking windows-collections v0.3.2\n    Checking windows-numerics v0.3.1\n    Checking getrandom v0.4.3\n    Checking either v1.18.0\n    Checking num-traits v0.2.19\n    Checking windows v0.62.2\n    Checking rayon v1.12.0\n    Checking sha2 v0.10.9\n    Checking scopeguard v1.2.0\n    Checking log v0.4.34\n    Checking foldhash v0.2.0\n    Checking base64 v0.22.1\n    Checking winapi-util v0.1.11\n    Checking hashbrown v0.17.1\n    Checking diskgraph-core v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-core)\n    Checking chrono v0.4.45\n    Checking rustc-hash v2.1.3\n    Checking libsqlite3-sys v0.38.2\n    Checking hashlink v0.12.2\n    Checking uuid v1.26.1\n    Checking fallible-iterator v0.3.0\n   Compiling diskgraph-scan-worker v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-scan-worker)\n    Checking fallible-streaming-iterator v0.1.9\n    Checking unicode-ident v1.0.26\n    Checking smallvec v1.16.2\n    Checking bitflags v2.13.2\n    Checking rusqlite v0.40.2\n    Checking proc-macro2 v1.0.107\n    Checking thiserror v2.0.21\n   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Checking fastrand v2.5.0\n    Checking once_cell v1.21.4\n    Checking diskgraph-store v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-store)\n    Checking tempfile v3.27.0\n    Checking quote v1.0.47\n    Checking libc v0.2.189\n    Checking sha1 v0.10.7\n    Checking hex v0.4.3\n    Checking shlex v2.0.1\n    Checking find-msvc-tools v0.1.14\n    Checking syn v2.0.119\n    Checking cc v1.5.1\n    Checking diskgraph-testkit v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-testkit)\n    Checking trash v5.2.9\n    Checking diskgraph-disktree-core v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-disktree-core)\n    Checking diskgraph-disktree v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-disktree)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 16.13s\n",
+      "clippy.stdout.log": "",
+      "native.stderr.log": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.70s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\nfilesystem enforced stronger rename exclusion while lease is held: 拒绝访问。 (os error 5)\n",
+      "native.stdout.log": "\nrunning 14 tests\ntest windows_native_scan_tests::native_state_checks_between_each_query_and_preserves_caller_error ... ok\ntest windows_native_scan_tests::same_handle_change_between_captures_is_not_confirmed ... ok\ntest windows_native_scan_tests::root_binding_tests::combined_root_capture_keeps_full_state_with_fewer_native_boundaries ... ok\ntest windows_native_scan_tests::root_binding_tests::preencoded_component_keeps_identity_and_rejects_invalid_names ... ok\ntest windows_native_scan_tests::relative_planning_rejects_outside_root_dot_ads_namespace_and_case_guessing ... ok\ntest windows_native_scan_tests::root_binding_tests::held_root_allows_directory_time_change_without_replacement ... ok\ntest windows_native_scan_tests::native_scan_observes_root_directory_file_and_drive_root ... ok\ntest windows_native_scan_tests::root_binding_tests::renamed_and_rebound_registered_root_is_conflict ... ok\ntest windows_native_scan_tests::native_alignment_refuses_type_size_and_unknown_size_assumptions ... ok\ntest windows_native_scan_tests::cancellation_deadline_authorization_and_fence_errors_are_not_gap_labels ... ok\ntest windows_native_scan_tests::native_hardlinks_keep_full_identity_and_replacement_is_tree_mismatch ... ok\ntest windows_native_scan_tests::root_binding_tests::renamed_and_rebound_ancestor_is_conflict ... ok\ntest windows_native_scan_tests::junction_leaf_is_observed_without_following_and_parent_junction_is_rejected ... ok\ntest windows_native_scan_tests::attribute_observation_does_not_require_read_data_permission ... ok\n\ntest result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 679 filtered out; finished in 0.21s\n\n",
+      "prefix.stderr.log": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n",
+      "prefix.stdout.log": "\nrunning 1 test\ntest windows_file_state::tests::root_query_never_accepts_missing_prefix_or_other_status ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 692 filtered out; finished in 0.00s\n\n"
+    }
+  },
+  "query_probe": {
+    "success": true,
+    "output": {
+      "language": "python",
+      "stdout_tail": "{\"ntstatus\": \"0x80000005\", \"returned_bytes\": 104, \"buffer_bytes\": 104, \"basic_matches\": true, \"standard_matches\": true, \"original_3000_seconds\": 0.01739800001087133, \"combined_3000_seconds\": 0.012114600001950748}\n",
+      "stdout_lines": 1
+    },
+    "error": null
+  },
+  "drive_probe": {
+    "success": true,
+    "output": {
+      "language": "python",
+      "stdout_tail": "{\"C:\\\\\": {\"drive_type\": 3, \"get_drive_type_3000_seconds\": 0.0012710999872069806, \"open_close_3000_seconds\": 0.17393259999516886}, \"E:\\\\\": {\"drive_type\": 3, \"get_drive_type_3000_seconds\": 0.0011744000075850636, \"open_close_3000_seconds\": 0.15258429999812506}}\n",
+      "stdout_lines": 1
+    },
+    "error": null
+  },
+  "log_boundary": "At most final 10000 Unicode characters per remote regression log; original full logs retained on desktop."
+}

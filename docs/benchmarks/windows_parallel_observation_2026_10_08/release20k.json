@@ -1,0 +1,97 @@
+{
+  "receipt": {
+    "base_head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "candidate_source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "bbbdc6b5d3cb19d6b88c2bb2b34e218ca80b0de312103b454f884f5369727c08",
+      "crates/diskgraph-engine/src/scan_execution.rs": "e0d0156274a9cd758e9f3e3695398cc463b13edecc386dc468dbc1e1e2eb04ff",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d"
+    },
+    "commands": [
+      {
+        "name": "build",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "build",
+          "--locked",
+          "--release",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "-p",
+          "diskgraph-cli",
+          "-p",
+          "diskgraph-mcp",
+          "-p",
+          "diskgraph-scan-worker",
+          "--bins",
+          "--message-format=json"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 67.98399999999674
+      },
+      {
+        "name": "binding",
+        "argv": [
+          "powershell.exe",
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\powershell_bom\\configure_windows_acceptance_worker.ps1",
+          "-Artifacts",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\parallel_observation_release\\build.stdout.log",
+          "-OutputDir",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\parallel_observation_release\\worker-binding"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.6720000000059372
+      },
+      {
+        "name": "load20k",
+        "argv": [
+          "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+          "-c",
+          "import sys;sys.path.insert(0,sys.argv[1]);from windows_acceptance_job import run_owned;r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','20000'],capture_output=True,text=True,encoding='utf-8',timeout=300);sys.stdout.write(r.stdout or '');sys.stderr.write(r.stderr or '');sys.exit(r.returncode)",
+          "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+          "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-parallel-observation\\x86_64-pc-windows-msvc\\release"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 59.03100000000268
+      }
+    ],
+    "binary_sha256": {
+      "diskgraph.exe": "c356c668424ecb7f9bd195258f3b2c587db1e2d1c6ed335fce836288fcd6e640",
+      "diskgraph-mcp.exe": "b311ed57c8a2d1915ebbdd3746e2c736f122e8ffc3461746d362fe3f9d0a1778",
+      "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+    },
+    "complete": true
+  },
+  "report": {
+    "version": "diskgraph 0.3.0",
+    "platform": "win32",
+    "files": 20000,
+    "indexed_nodes": 20001,
+    "queries": 32,
+    "concurrent_clients": 4,
+    "fixture_workers": 1,
+    "fixture_seconds": 9.779,
+    "scan_seconds": 32.914,
+    "cleanup_seconds": 11.085,
+    "cleanup_workers": 1,
+    "query_p50_ms": 63.258,
+    "query_p95_ms": 71.834,
+    "database_and_wal_bytes": 54996992,
+    "passed": 6,
+    "total": 6,
+    "checks": {
+      "full_index_published": true,
+      "exact_fixture_path_coverage": true,
+      "exact_fixture_node_coverage": true,
+      "concurrent_reads_bound_to_revision": true,
+      "query_results_bounded": true,
+      "node_budget_refuses_partial_publish": true
+    }
+  },
+  "phase_log": "{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 119974.8177639}\n{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 119984.5972557}\n{\"phase\": \"scope_registration\", \"event\": \"begin\", \"monotonic_seconds\": 119984.5973078}\n{\"phase\": \"scope_registration\", \"event\": \"end\", \"monotonic_seconds\": 119984.9234034}\n{\"phase\": \"index\", \"event\": \"begin\", \"monotonic_seconds\": 119984.9234414}\n{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 3}\n{\"scan_phase\": \"worker_complete\", \"nodes\": 0, \"elapsed_ms\": 7676}\n{\"scan_phase\": \"conversion_complete\", \"nodes\": 20001, \"elapsed_ms\": 11202}\n{\"scan_phase\": \"staging_batch_complete\", \"nodes\": 20001, \"elapsed_ms\": 31642}\n{\"scan_phase\": \"staging_complete\", \"nodes\": 20001, \"elapsed_ms\": 31643}\n{\"scan_cost\": \"windows_root_validation\", \"nodes\": 20001, \"total_ms\": 73853}\n{\"scan_root_validation\": true, \"calls\": 40003, \"chain_handles\": 8, \"total_ms\": 73853}\n{\"scan_cost\": \"observations_and_encoding\", \"nodes\": 20001, \"total_ms\": 19972}\n{\"scan_cost\": \"staging_write\", \"nodes\": 20001, \"total_ms\": 443}\n{\"scan_phase\": \"publication_begin\", \"nodes\": 20001, \"elapsed_ms\": 31663}\n{\"scan_phase\": \"publication_complete\", \"nodes\": 20001, \"elapsed_ms\": 32803}\n{\"phase\": \"index\", \"event\": \"end\", \"monotonic_seconds\": 120017.8378039}\n{\"phase\": \"coverage_validation\", \"event\": \"begin\", \"monotonic_seconds\": 120017.8378207}\n{\"phase\": \"coverage_validation\", \"event\": \"end\", \"monotonic_seconds\": 120017.8964276}\n{\"phase\": \"queries\", \"event\": \"begin\", \"monotonic_seconds\": 120017.8964823}\n{\"phase\": \"queries\", \"event\": \"end\", \"monotonic_seconds\": 120018.4699262}\n{\"phase\": \"budget_refusal\", \"event\": \"begin\", \"monotonic_seconds\": 120018.4699922}\n{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 3}\n{\"phase\": \"budget_refusal\", \"event\": \"end\", \"monotonic_seconds\": 120021.898485}\n{\"phase\": \"workspace_cleanup\", \"event\": \"begin\", \"monotonic_seconds\": 120021.8997701}\n{\"phase\": \"workspace_cleanup\", \"event\": \"end\", \"monotonic_seconds\": 120032.9844477}\n"
+}

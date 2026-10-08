@@ -1,0 +1,56 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "items": [
+        {
+          "job_id": "wc_job_EsN6silEjvahS41y",
+          "status": "completed",
+          "terminal": true,
+          "changed": true,
+          "log_delta_status": "reset",
+          "observation_token": "wj3_WbfqRPLwGdILofJP.4.1n.1",
+          "observation_ref": "~j25",
+          "exit_code": 0,
+          "command_execution_state": "completed",
+          "detected_summary": {
+            "kind": "validation",
+            "outcome": "passed"
+          },
+          "stdout_tail": "  \"scan_seconds\": 76.103,\n  \"cleanup_seconds\": 12.641,\n  \"cleanup_workers\": 1,\n  \"query_p50_ms\": 72.148,\n  \"query_p95_ms\": 86.175,\n  \"database_and_wal_bytes\": 54996992,\n  \"passed\": 6,\n  \"total\": 6,\n  \"checks\": {\n    \"full_index_published\": true,\n    \"exact_fixture_path_coverage\": true,\n    \"exact_fixture_node_coverage\": true,\n    \"concurrent_reads_bound_to_revision\": true,\n    \"query_results_bounded\": true,\n    \"node_budget_refuses_partial_publish\": true\n  }\n}\n\n{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 118949.3723693}\n{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 118959.3060205}\n{\"phase\": \"scope_registration\", \"event\": \"begin\", \"monotonic_seconds\": 118959.3060854}\n{\"phase\": \"scope_registration\", \"event\": \"end\", \"monotonic_seconds\": 118959.5751413}\n{\"phase\": \"index\", \"event\": \"begin\", \"monotonic_seconds\": 118959.57519}\n{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 3}\n{\"scan_phase\": \"worker_complete\", \"nodes\": 0, \"elapsed_ms\": 7695}\n{\"scan_phase\": \"conversion_complete\", \"nodes\": 20001, \"elapsed_ms\": 10985}\n{\"scan_phase\": \"staging_batch_complete\", \"nodes\": 20001, \"elapsed_ms\": 74558}\n{\"scan_phase\": \"staging_complete\", \"nodes\": 20001, \"elapsed_ms\": 74559}\n{\"scan_cost\": \"windows_root_validation\", \"nodes\": 20001, \"total_ms\": 58074}\n{\"scan_root_validation\": true, \"calls\": 40003, \"chain_handles\": 8, \"total_ms\": 58074}\n{\"scan_cost\": \"observations_and_encoding\", \"nodes\": 20001, \"total_ms\": 63014}\n{\"scan_cost\": \"staging_write\", \"nodes\": 20001, \"total_ms\": 540}\n{\"scan_phase\": \"publication_begin\", \"nodes\": 20001, \"elapsed_ms\": 74586}\n{\"scan_phase\": \"publication_complete\", \"nodes\": 20001, \"elapsed_ms\": 75968}\n{\"phase\": \"index\", \"event\": \"end\", \"monotonic_seconds\": 119035.6785717}\n{\"phase\": \"coverage_validation\", \"event\": \"begin\", \"monotonic_seconds\": 119035.6785895}\n{\"phase\": \"coverage_validation\", \"event\": \"end\", \"monotonic_seconds\": 119035.751795}\n{\"phase\": \"queries\", \"event\": \"begin\", \"monotonic_seconds\": 119035.7518485}\n{\"phase\": \"queries\", \"event\": \"end\", \"monotonic_seconds\": 119036.4496134}\n{\"phase\": \"budget_refusal\", \"event\": \"begin\", \"monotonic_seconds\": 119036.4496577}\n{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 4}\n{\"phase\": \"budget_refusal\", \"event\": \"end\", \"monotonic_seconds\": 119039.7923799}\n{\"phase\": \"workspace_cleanup\", \"event\": \"begin\", \"monotonic_seconds\": 119039.7935941}\n{\"phase\": \"workspace_cleanup\", \"event\": \"end\", \"monotonic_seconds\": 119052.4344556}\n\n",
+          "stderr_tail": "",
+          "stdout_truncated": true,
+          "stdout_delta_reset": true,
+          "stdout_lines": 58,
+          "stderr_lines": 0,
+          "stdout_returned_lines": 45,
+          "stderr_returned_lines": 0,
+          "stdout_retained_from_line": 1,
+          "stderr_retained_from_line": 1,
+          "cursor": {
+            "stdout": 59,
+            "stderr": 1
+          },
+          "last_update_seq": 3,
+          "stderr_truncated": false,
+          "stderr_delta_reset": false,
+          "earlier_stdout_unavailable": false,
+          "earlier_stderr_unavailable": false,
+          "purpose": "validation",
+          "command_summary": "python script (3261 bytes, 0 args)"
+        }
+      ],
+      "wait": {
+        "outcome": "terminal"
+      }
+    },
+    "error": null
+  },
+  "isError": false
+}

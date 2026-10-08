@@ -1,0 +1,195 @@
+diff --git a/crates/diskgraph-engine/src/windows_file_state.rs b/crates/diskgraph-engine/src/windows_file_state.rs
+index 1f20c008..b8164ccb 100644
+--- a/crates/diskgraph-engine/src/windows_file_state.rs
++++ b/crates/diskgraph-engine/src/windows_file_state.rs
+@@ -2,12 +2,16 @@ use std::fs::File;
+ use std::os::windows::io::AsRawHandle;
+ 
+ use diskgraph_core::{BusinessError, FileIdentity, WindowsFileObservation, WindowsTreeAlignment};
++use windows_sys::Wdk::Storage::FileSystem::{
++    FILE_ALL_INFORMATION, FileAllInformation, NtQueryInformationFile,
++};
+ use windows_sys::Win32::Storage::FileSystem::{
+     FILE_ATTRIBUTE_OFFLINE, FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS, FILE_ATTRIBUTE_RECALL_ON_OPEN,
+     FILE_ATTRIBUTE_REPARSE_POINT, FILE_BASIC_INFO, FILE_ID_INFO, FILE_STANDARD_INFO,
+     FILE_TYPE_DISK, FileBasicInfo, FileIdInfo, FileStandardInfo, GetFileInformationByHandleEx,
+     GetFileType,
+ };
++use windows_sys::Win32::System::IO::IO_STATUS_BLOCK;
+ 
+ use crate::EngineError;
+ 
+@@ -27,6 +31,63 @@ pub(crate) struct WindowsFileState {
+ }
+ 
+ impl WindowsFileState {
++    /// 合并根目录的属性查询；参数：file 为原属性句柄，check 为原任务门禁。
++    /// 返回：完整身份与版本，或原生错误；不缓存查询结果，不新增句柄权限。
++    pub(crate) fn capture_root_checked(
++        file: &File,
++        check: &dyn Fn() -> Result<(), EngineError>,
++    ) -> Result<Result<Self, EngineError>, EngineError> {
++        let handle = file.as_raw_handle();
++        if checked_native(check, || unsafe { GetFileType(handle) })? != FILE_TYPE_DISK {
++            return Ok(Err(BusinessError::Unsupported.into()));
++        }
++        let mut id = FILE_ID_INFO::default();
++        let identity = checked_native(check, || unsafe {
++            GetFileInformationByHandleEx(
++                handle,
++                FileIdInfo,
++                (&mut id as *mut FILE_ID_INFO).cast(),
++                std::mem::size_of::<FILE_ID_INFO>() as u32,
++            )
++        })?;
++        if identity == 0 {
++            return Ok(Err(BusinessError::Unsupported.into()));
++        }
++        let mut all = FILE_ALL_INFORMATION::default();
++        let mut io = IO_STATUS_BLOCK::default();
++        // 固定大小、正确对齐的输出只使用Basic和Standard前缀；不分配或解析文件名称。
++        // 仅名称缓冲溢出可接受，且必须确认完整固定前缀已返回。
++        let status = checked_native(check, || unsafe {
++            NtQueryInformationFile(
++                handle,
++                &mut io,
++                (&mut all as *mut FILE_ALL_INFORMATION).cast(),
++                std::mem::size_of::<FILE_ALL_INFORMATION>() as u32,
++                FileAllInformation,
++            )
++        })?;
++        if !root_prefix_complete(status, io.Information) {
++            // 不支持合并查询的文件系统沿用原捕获，不增加权限或把未知状态当成功。
++            return Self::capture_checked(file, check);
++        }
++        let basic = all.BasicInformation;
++        let standard = all.StandardInformation;
++        if standard.EndOfFile < 0 {
++            return Ok(Err(BusinessError::Unsupported.into()));
++        }
++        Ok(Ok(Self {
++            volume: id.VolumeSerialNumber,
++            id: id.FileId.Identifier,
++            len: standard.EndOfFile as u64,
++            creation: basic.CreationTime,
++            modified: basic.LastWriteTime,
++            changed: basic.ChangeTime,
++            attributes: basic.FileAttributes,
++            directory: standard.Directory,
++            delete_pending: standard.DeletePending,
++        }))
++    }
++
+     /// 参数：other 为同次原有捕获状态；不读取句柄或复制字段值。
+     /// 返回：完整 Eq 字段的差异位：卷、ID、EOF、创建、写入、变化、属性、类型、删除依次为 bit0..8。
+     #[cfg(test)]
+@@ -239,6 +300,12 @@ impl WindowsFileState {
+     }
+ }
+ 
++fn root_prefix_complete(status: i32, returned: usize) -> bool {
++    matches!(status as u32, 0 | 0x8000_0005)
++        && returned >= std::mem::offset_of!(FILE_ALL_INFORMATION, InternalInformation)
++        && returned <= std::mem::size_of::<FILE_ALL_INFORMATION>()
++}
++
+ fn checked_native<T>(
+     check: &dyn Fn() -> Result<(), EngineError>,
+     native: impl FnOnce() -> T,
+@@ -248,3 +315,24 @@ fn checked_native<T>(
+     check()?;
+     Ok(result)
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::{FILE_ALL_INFORMATION, root_prefix_complete};
++
++    #[test]
++    fn root_query_never_accepts_missing_prefix_or_other_status() {
++        let minimum = std::mem::offset_of!(FILE_ALL_INFORMATION, InternalInformation);
++        let size = std::mem::size_of::<FILE_ALL_INFORMATION>();
++        for status in [0, 0x8000_0005_u32 as i32] {
++            assert!(root_prefix_complete(status, minimum));
++            assert!(root_prefix_complete(status, size));
++            for returned in [0, minimum - 1, size + 1, usize::MAX] {
++                assert!(!root_prefix_complete(status, returned));
++            }
++        }
++        for status in [0x103, 0x8000_0006_u32 as i32, 0xc000_0004_u32 as i32, -1] {
++            assert!(!root_prefix_complete(status, size));
++        }
++    }
++}
+diff --git a/crates/diskgraph-engine/src/windows_native_scan_root.rs b/crates/diskgraph-engine/src/windows_native_scan_root.rs
+index 13972d43..8a69b41f 100644
+--- a/crates/diskgraph-engine/src/windows_native_scan_root.rs
++++ b/crates/diskgraph-engine/src/windows_native_scan_root.rs
+@@ -246,7 +246,7 @@ impl WindowsNativeScanRoot {
+         check: &dyn Fn() -> Result<(), EngineError>,
+     ) -> Result<(), EngineError> {
+         for (file, identity) in self.chain.iter().zip(&self.identities) {
+-            let current = WindowsFileState::capture_checked(file, check)??;
++            let current = WindowsFileState::capture_root_checked(file, check)??;
+             if !identity.matches_scan_root(&current) {
+                 return Err(BusinessError::Conflict.into());
+             }
+@@ -271,7 +271,7 @@ impl WindowsNativeScanRoot {
+         check: &dyn Fn() -> Result<(), EngineError>,
+     ) -> Result<(), EngineError> {
+         // 外层检查错误原样传播；无法确认当前 namespace 绑定则保守拒绝该根。
+-        let current = WindowsFileState::capture_checked(file, check)?
++        let current = WindowsFileState::capture_root_checked(file, check)?
+             .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
+         if !identity.matches_scan_root(&current) || current.validate(true).is_err() {
+             return Err(BusinessError::Conflict.into());
+diff --git a/crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs b/crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs
+index 05fee4cf..e24f7343 100644
+--- a/crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs
++++ b/crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs
+@@ -6,6 +6,45 @@ use crate::windows_native_scan_root::WindowsNativeScanRoot;
+ 
+ use super::{node, root, settings};
+ 
++#[test]
++fn combined_root_capture_keeps_full_state_with_fewer_native_boundaries() {
++    use crate::windows_file_state::WindowsFileState;
++    use crate::windows_native_open::{open_child, open_drive};
++    use std::cell::Cell;
++    let workspace = tempfile::tempdir().unwrap();
++    let root = root(&workspace);
++    let plan = crate::windows_path_plan::WindowsPathPlan::for_root(&root).unwrap();
++    let mut directory = open_drive(&plan.drive_root).unwrap();
++    for name in &plan.components {
++        directory = open_child(&directory, name, true).unwrap();
++    }
++    // 真正打开的同一句柄应保留全部字段，包括目录内容变化后的原生时间。
++    for index in 0..3 {
++        std::fs::write(root.join(format!("change-{index}")), b"change").unwrap();
++        let ordinary_checks = Cell::new(0);
++        let ordinary = WindowsFileState::capture_checked(&directory, &|| {
++            ordinary_checks.set(ordinary_checks.get() + 1);
++            Ok(())
++        })
++        .unwrap()
++        .unwrap();
++        let combined_checks = Cell::new(0);
++        let combined = WindowsFileState::capture_root_checked(&directory, &|| {
++            combined_checks.set(combined_checks.get() + 1);
++            Ok(())
++        })
++        .unwrap()
++        .unwrap();
++        assert_eq!(ordinary, combined);
++        assert!(
++            combined_checks.get() < ordinary_checks.get(),
++            "combined={} ordinary={}",
++            combined_checks.get(),
++            ordinary_checks.get()
++        );
++    }
++}
++
+ #[test]
+ fn preencoded_component_keeps_identity_and_rejects_invalid_names() {
+     use crate::windows_file_state::WindowsFileState;

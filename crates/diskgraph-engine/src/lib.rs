@@ -144,6 +144,8 @@ mod scan_jobs;
 #[cfg(test)]
 mod scan_locator_tests;
 mod scan_node_locator;
+#[cfg(any(windows, test))]
+mod scan_observation_batch;
 #[cfg(test)]
 mod scan_observation_deadline_tests;
 mod scan_observation_guard;

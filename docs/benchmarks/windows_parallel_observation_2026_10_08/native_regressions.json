@@ -1,0 +1,135 @@
+{
+  "parallel_observation_native": {
+    "receipt": {
+      "base_head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+      "source_hashes": {
+        "crates/diskgraph-engine/src/lib.rs": "bbbdc6b5d3cb19d6b88c2bb2b34e218ca80b0de312103b454f884f5369727c08",
+        "crates/diskgraph-engine/src/scan_execution.rs": "e0d0156274a9cd758e9f3e3695398cc463b13edecc386dc468dbc1e1e2eb04ff",
+        "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d"
+      },
+      "commands": [
+        {
+          "name": "scan_observation",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "scan_observation",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 101,
+          "elapsed_seconds": 16.218999999997322
+        }
+      ]
+    },
+    "logs": {
+      "scan_observation.stderr.log": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.76s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n\nthread '<unnamed>' (54640) panicked at crates\\diskgraph-engine\\src\\scan_observation_batch.rs:92:52:\nBox<dyn Any>\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread 'scan_observation_tests::staging_lock_wait_cannot_spend_expired_or_cancelled_scan_budget' (39052) panicked at crates\\diskgraph-engine\\src\\scan_observation_tests.rs:58:6:\ncalled `Result::unwrap()` on an `Err` value: Business(Unsupported)\n\nthread 'scan_observation_tests::observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture' (26528) panicked at crates\\diskgraph-engine\\src\\scan_observation_tests.rs:58:6:\ncalled `Result::unwrap()` on an `Err` value: Business(Unsupported)\n\nthread 'scan_observation_tests::observation_guard_checks_fast_cancellation_and_original_scan_clock' (3628) panicked at crates\\diskgraph-engine\\src\\scan_observation_tests.rs:58:6:\ncalled `Result::unwrap()` on an `Err` value: Business(Unsupported)\n\nthread 'scan_observation_tests::windows_native_observation_persists_real_file_and_hardlink_identity_after_reopen' (5568) panicked at crates\\diskgraph-engine\\src\\scan_observation_tests.rs:91:47:\ncalled `Result::unwrap()` on an `Err` value: Business(Unsupported)\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n",
+      "scan_observation.stdout.log": "\nrunning 13 tests\ntest scan_observation_batch::tests::empty_batch_never_calls_the_sampler ... ok\ntest scan_observation_batch::tests::original_error_and_panic_payload_are_preserved ... ok\ntest scan_observation_tests::observation_guard_checks_fast_cancellation_and_original_scan_clock ... FAILED\ntest scan_observation_tests::staging_lock_wait_cannot_spend_expired_or_cancelled_scan_budget ... FAILED\ntest scan_observation_tests::observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture ... FAILED\ntest scan_observation_tests::windows_native_observation_persists_real_file_and_hardlink_identity_after_reopen ... FAILED\ntest scan_observation_batch::tests::four_bounded_workers_overlap_and_preserve_input_order ... ok\ntest scan_observation_deadline_tests::competing_sqlite_writer_cannot_extend_the_original_observation_budget ... ok\ntest scan_observation_deadline_tests::live_guard_still_refuses_persistent_scope_revocation ... ok\ntest scan_observation_deadline_tests::held_control_lock_cannot_extend_the_original_observation_budget ... ok\ntest scan_observation_deadline_tests::cancellation_and_original_stop_reason_interrupt_an_actual_control_wait ... ok\ntest scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason ... ok\ntest scan_observation_deadline_tests::bounded_observation_preserves_cancel_permission_and_fence_denials ... ok\n\nfailures:\n\nfailures:\n    scan_observation_tests::observation_guard_checks_fast_cancellation_and_original_scan_clock\n    scan_observation_tests::observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture\n    scan_observation_tests::staging_lock_wait_cannot_spend_expired_or_cancelled_scan_budget\n    scan_observation_tests::windows_native_observation_persists_real_file_and_hardlink_identity_after_reopen\n\ntest result: FAILED. 9 passed; 4 failed; 0 ignored; 0 measured; 681 filtered out; finished in 1.95s\n\n"
+    }
+  },
+  "parallel_observation_bound_native": {
+    "receipt": {
+      "base_head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+      "source_hashes": {
+        "crates/diskgraph-engine/src/lib.rs": "bbbdc6b5d3cb19d6b88c2bb2b34e218ca80b0de312103b454f884f5369727c08",
+        "crates/diskgraph-engine/src/scan_execution.rs": "e0d0156274a9cd758e9f3e3695398cc463b13edecc386dc468dbc1e1e2eb04ff",
+        "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d"
+      },
+      "commands": [
+        {
+          "name": "scan_observation",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "scan_observation",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 10.438000000009197
+        },
+        {
+          "name": "windows_native_scan_tests",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "windows_native_scan_tests",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 0.7339999999967404
+        },
+        {
+          "name": "job_stop_cause_tests",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "job_stop_cause_tests",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 13.235000000000582
+        },
+        {
+          "name": "clippy",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "clippy",
+            "--locked",
+            "-p",
+            "diskgraph-engine",
+            "--all-targets",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 4.35899999999674
+        }
+      ]
+    },
+    "logs": {
+      "clippy.stderr.log": "    Checking diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.83s\n",
+      "clippy.stdout.log": "",
+      "job_stop_cause_tests.stderr.log": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n",
+      "job_stop_cause_tests.stdout.log": "\nrunning 4 tests\ntest job_stop_cause_tests::scan_guard_keeps_its_actual_permission_denied_before_cooperative_stop ... ok\ntest job_stop_cause_tests::keeper_real_sqlite_busy_is_retained_instead_of_a_derived_scan_conflict ... ok\ntest job_stop_cause_tests::keeper_sqlite_busy_after_final_native_validation_is_not_permission_denied ... ok\ntest job_stop_cause_tests::scan_heartbeat_keeps_a_real_sqlite_error_instead_of_guessing_stale_owner ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 690 filtered out; finished in 12.68s\n\n",
+      "scan_observation.stderr.log": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n\nthread '<unnamed>' (25472) panicked at crates\\diskgraph-engine\\src\\scan_observation_batch.rs:92:52:\nBox<dyn Any>\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+      "scan_observation.stdout.log": "\nrunning 13 tests\ntest scan_observation_batch::tests::empty_batch_never_calls_the_sampler ... ok\ntest scan_observation_batch::tests::original_error_and_panic_payload_are_preserved ... ok\ntest scan_observation_batch::tests::four_bounded_workers_overlap_and_preserve_input_order ... ok\ntest scan_observation_deadline_tests::live_guard_still_refuses_persistent_scope_revocation ... ok\ntest scan_observation_deadline_tests::competing_sqlite_writer_cannot_extend_the_original_observation_budget ... ok\ntest scan_observation_tests::observation_guard_checks_fast_cancellation_and_original_scan_clock ... ok\ntest scan_observation_deadline_tests::held_control_lock_cannot_extend_the_original_observation_budget ... ok\ntest scan_observation_deadline_tests::cancellation_and_original_stop_reason_interrupt_an_actual_control_wait ... ok\ntest scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason ... ok\ntest scan_observation_deadline_tests::bounded_observation_preserves_cancel_permission_and_fence_denials ... ok\ntest scan_observation_tests::windows_native_observation_persists_real_file_and_hardlink_identity_after_reopen ... ok\ntest scan_observation_tests::observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture ... ok\ntest scan_observation_tests::staging_lock_wait_cannot_spend_expired_or_cancelled_scan_budget ... ok\n\ntest result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 681 filtered out; finished in 9.98s\n\n",
+      "windows_native_scan_tests.stderr.log": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\nfilesystem enforced stronger rename exclusion while lease is held: 拒绝访问。 (os error 5)\n",
+      "windows_native_scan_tests.stdout.log": "\nrunning 13 tests\ntest windows_native_scan_tests::native_state_checks_between_each_query_and_preserves_caller_error ... ok\ntest windows_native_scan_tests::same_handle_change_between_captures_is_not_confirmed ... ok\ntest windows_native_scan_tests::relative_planning_rejects_outside_root_dot_ads_namespace_and_case_guessing ... ok\ntest windows_native_scan_tests::root_binding_tests::preencoded_component_keeps_identity_and_rejects_invalid_names ... ok\ntest windows_native_scan_tests::root_binding_tests::held_root_allows_directory_time_change_without_replacement ... ok\ntest windows_native_scan_tests::native_scan_observes_root_directory_file_and_drive_root ... ok\ntest windows_native_scan_tests::root_binding_tests::renamed_and_rebound_registered_root_is_conflict ... ok\ntest windows_native_scan_tests::native_hardlinks_keep_full_identity_and_replacement_is_tree_mismatch ... ok\ntest windows_native_scan_tests::cancellation_deadline_authorization_and_fence_errors_are_not_gap_labels ... ok\ntest windows_native_scan_tests::native_alignment_refuses_type_size_and_unknown_size_assumptions ... ok\ntest windows_native_scan_tests::root_binding_tests::renamed_and_rebound_ancestor_is_conflict ... ok\ntest windows_native_scan_tests::junction_leaf_is_observed_without_following_and_parent_junction_is_rejected ... ok\ntest windows_native_scan_tests::attribute_observation_does_not_require_read_data_permission ... ok\n\ntest result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 681 filtered out; finished in 0.23s\n\n"
+    }
+  }
+}

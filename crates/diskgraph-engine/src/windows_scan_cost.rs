@@ -2,7 +2,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
 
 /// 单个Windows根租约的有限诊断计数；来源：原生扫描根链校验成本定位。
-/// 只计正常返回（含错误）的累计时间；不保存路径、不参与授权或执行期限。
+/// 只计正常返回（含错误）的累计时间；并发调用的耗时相加，可超过扫描墙钟时间。
+/// 不保存路径、不参与授权或执行期限。
 #[derive(Default)]
 pub(crate) struct WindowsScanCost {
     calls: AtomicU64,

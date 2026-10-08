@@ -207,22 +207,45 @@ impl Engine {
                 return Err(BusinessError::ResourceExhausted.into());
             }
             let observation_started = timing.then(Instant::now);
+            #[cfg(windows)]
+            let observations = crate::scan_observation_batch::collect_ordered(batch, &|chunk| {
+                // 门禁局部状态不能跨线程共享；原期限、授权与取消标记保持同一执行代次。
+                // keeper原错误只由主执行器消费，采样线程不取走其所有权。
+                let guard =
+                    ScanObservationGuard::new(self, &job, authority.as_ref(), cancel, scan_started);
+                chunk
+                    .iter()
+                    .map(|node| {
+                        guard.check()?;
+                        let locator = qualify_scan_locator(node)?;
+                        let observed = native_root.observe(
+                            &locator
+                                .to_native_path()
+                                .map_err(|_| BusinessError::Unsupported)?,
+                            &node.v1,
+                            node.self_modified,
+                            &scanned.snapshot.settings,
+                            &|| guard.check(),
+                        )?;
+                        Ok((locator, observed))
+                    })
+                    .collect::<Result<Vec<_>, EngineError>>()
+            });
+            #[cfg(windows)]
+            observation_guard.check_now()?;
+            #[cfg(windows)]
+            let mut observations = observations?.into_iter();
             let mut prepared_nodes = Vec::with_capacity(batch.len());
             #[cfg(target_os = "linux")]
             let mut unix_observations = Vec::with_capacity(batch.len());
             for node in batch {
                 observation_guard.check()?;
+                #[cfg(not(windows))]
                 let locator = qualify_scan_locator(node)?;
                 #[cfg(windows)]
-                let observed = native_root.observe(
-                    &locator
-                        .to_native_path()
-                        .map_err(|_| BusinessError::Unsupported)?,
-                    &node.v1,
-                    node.self_modified,
-                    &scanned.snapshot.settings,
-                    &|| observation_guard.check(),
-                )?;
+                let (locator, observed) = observations
+                    .next()
+                    .expect("one observation per successfully sampled node");
                 #[cfg(not(windows))]
                 let observed = (None, Some(WindowsObservationGap::Unsupported));
                 #[cfg(target_os = "linux")]
