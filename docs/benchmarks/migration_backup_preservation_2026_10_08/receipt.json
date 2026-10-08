@@ -1,0 +1,25 @@
+{
+  "base_commit": "56a10458a2afd9bba3101bdd9283016565c35514",
+  "red": {
+    "passed": 0,
+    "failed": 2,
+    "finding": "previous graph/control recovery backups overwritten"
+  },
+  "migration_regression": {
+    "passed": 21,
+    "failed": 0,
+    "ignored": 0
+  },
+  "includes_concurrent_actual_sqlite_backups": true,
+  "clippy": "passed",
+  "reviews": [
+    "code APPROVE",
+    "architecture CLEAR"
+  ],
+  "boundary": "cooperative reservation safety; not hostile writable-directory protection or all-platform concurrent migration acceptance",
+  "logs_sha256": {
+    "red": "27ccacc8baf58dabc5c825e60d03eec6af8099c93b918f4989b5e9f3ff0ea9a4",
+    "green": "2ce6e95639d773002f4461002e3ea1c64a540901d5d1d0070ae6cef2f78f35ee",
+    "clippy": "96e238d30282f1bfc35cca6fcc585cf5c33d2d0cf3bd17e20181f6e33b166a75"
+  }
+}

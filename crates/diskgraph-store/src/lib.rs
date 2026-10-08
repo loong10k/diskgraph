@@ -101,6 +101,7 @@ mod job_store;
 #[cfg(test)]
 mod locator_budget_tests;
 mod metadata_read_cost;
+mod migration_backup;
 mod native_locator_migration;
 mod native_locator_query;
 #[cfg(test)]

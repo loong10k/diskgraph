@@ -85,3 +85,58 @@ fn migration_backup_is_written_and_open_failure_keeps_v1_intact() {
     let (_, no_backup) = SqliteSnapshotStore::open_with_backup(&db, &backup_dir).unwrap();
     assert!(no_backup.is_none());
 }
+
+#[test]
+fn migration_retry_preserves_existing_recovery_backup() {
+    let directory = tempfile::tempdir().unwrap();
+    let db = directory.path().join("graph.sqlite");
+    write_v1_database(&db);
+    let backups = directory.path().join("backups");
+    std::fs::create_dir(&backups).unwrap();
+    let first = backups.join(format!("graph.sqlite.pre-v{SUPPORTED_SCHEMA_VERSION}.bak"));
+    let prior = Connection::open(&first).unwrap();
+    prior.execute_batch("CREATE TABLE recovery_marker(value TEXT); INSERT INTO recovery_marker VALUES ('original');").unwrap();
+    drop(prior);
+    let original = std::fs::read(&first).unwrap();
+    let (_, latest) = SqliteSnapshotStore::open_with_backup(&db, &backups).unwrap();
+    assert_eq!(
+        std::fs::read(&first).unwrap(),
+        original,
+        "migration retry overwrote the previous recovery snapshot"
+    );
+    let latest = latest.unwrap();
+    assert_ne!(latest, first);
+    assert_eq!(
+        Connection::open(&latest)
+            .unwrap()
+            .query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+}
+
+#[test]
+fn control_migration_failure_preserves_previous_recovery_backup() {
+    let directory = tempfile::tempdir().unwrap();
+    let db = directory.path().join("control.sqlite");
+    Connection::open(&db)
+        .unwrap()
+        .execute_batch("PRAGMA user_version=8;")
+        .unwrap();
+    let backups = directory.path().join("migration_backups");
+    std::fs::create_dir(&backups).unwrap();
+    let first = backups.join("control.sqlite.pre-v9.bak");
+    let prior = Connection::open(&first).unwrap();
+    prior.execute_batch("CREATE TABLE recovery_marker(value TEXT); INSERT INTO recovery_marker VALUES ('original');").unwrap();
+    drop(prior);
+    let original = std::fs::read(&first).unwrap();
+    assert!(
+        crate::ControlStore::open(&db).is_err(),
+        "malformed old schema must not start service"
+    );
+    assert_eq!(
+        std::fs::read(&first).unwrap(),
+        original,
+        "failed migration retry overwrote the previous recovery snapshot"
+    );
+}

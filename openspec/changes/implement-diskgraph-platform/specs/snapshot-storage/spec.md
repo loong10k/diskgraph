@@ -64,3 +64,12 @@ The system SHALL persist revision server/scope ownership, list and resolve lates
 #### Scenario: Retained history
 - **WHEN** pruning old revisions with keep-last one
 - **THEN** pinned and latest revisions survive and no referenced operation/recovery data is removed
+
+### Requirement: Migration recovery backups are never overwritten
+Graph and control database migrations SHALL reserve a new backup destination atomically and use SQLite consistent backup before migrating. Existing recovery files SHALL remain unchanged across retries and concurrent reservation conflicts.
+
+#### Scenario: Retry finds an existing recovery backup
+- **WHEN** a prior recovery backup occupies the preferred migration filename
+- **THEN** the migration writes its consistent backup to a distinct newly reserved filename
+- **AND** the prior recovery bytes remain unchanged
+- **AND** migration failure does not return a usable store or overwrite previous recovery material

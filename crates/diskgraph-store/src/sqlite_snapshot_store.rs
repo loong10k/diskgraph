@@ -186,12 +186,12 @@ impl SqliteSnapshotStore {
                 .and_then(|name| name.to_str())
                 .ok_or_else(|| StoreError::InvalidGraph("unrepresentable db path".into()))?
         ));
-        probe.backup(rusqlite::MAIN_DB, &backup, None)?;
+        let backup = crate::migration_backup::create_migration_backup(&probe, &backup)?;
         drop(probe);
         match Self::open(path) {
             Ok(store) => Ok((store, Some(backup))),
             Err(error) => {
-                // Keep the database exactly as it was; the backup stays for recovery.
+                // 迁移可能已完成早期步骤；原始一致性备份保留，失败不返回存储服务。
                 Err(error)
             }
         }

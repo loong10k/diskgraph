@@ -38,9 +38,9 @@ impl ControlStore {
                 .ok_or_else(|| {
                     StoreError::InvalidGraph("unrepresentable control database path".into())
                 })?;
-            connection.backup(
-                rusqlite::MAIN_DB,
-                backup_dir.join(format!(
+            crate::migration_backup::create_migration_backup(
+                &connection,
+                &backup_dir.join(format!(
                     "{name}.pre-v{}.bak",
                     if version < 4 {
                         4
@@ -56,7 +56,6 @@ impl ControlStore {
                         9
                     }
                 )),
-                None,
             )?;
         }
         connection.busy_timeout(std::time::Duration::from_secs(5))?;
