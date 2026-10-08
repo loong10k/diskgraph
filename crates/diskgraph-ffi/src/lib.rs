@@ -84,3 +84,6 @@ mod native_growth_eligibility_tests;
 mod native_growth_scope_fixture;
 #[cfg(all(test, any(unix, windows)))]
 mod native_growth_scope_tests;
+
+#[cfg(test)]
+mod native_reply_deadline_tests;

@@ -1,0 +1,24 @@
+{
+  "status": "local_targeted_passed_native_ci_pending",
+  "base_commit": "8db36176ddb518d84b2f81fad92129e4c6fba8da",
+  "red": "real control lock outlives native query deadline; baseline still blocked after 300ms",
+  "tests": {
+    "native_reply_deadline": 4,
+    "source_layout": 8,
+    "clippy_all_targets": "passed",
+    "openspec_strict": "passed"
+  },
+  "behavior": "capture immutable local request policy once under original deadline; terminal live database authorization retained",
+  "limits": [
+    "initial policy capture still reads all grants once",
+    "native Intel budget failure not claimed resolved",
+    "fixture directly publishes a real isolated graph; not managed worker qualification",
+    "current remote CI does not contain this candidate"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-ffi/src/lib.rs": "2b73bc5fc80acaa217b4d9cafbccb696da25b65978bdc8b6e51566d42c631c18",
+    "crates/diskgraph-ffi/src/native_reply.rs": "cda45959921f34165a12b41bb04f8a90d07844e9c780833bc890efd8e2a4a21d",
+    "crates/diskgraph-ffi/src/native_reply_deadline_tests.rs": "02697cc2a2321dbcaf3bbeb34a1a63fde7f71eccff359609cde27147b44dbc33",
+    "openspec/changes/implement-diskgraph-platform/specs/runtime-governance/spec.md": "7fb93d14794ead3d100a7b81dd1622d025957ad1d5779ff3610ac2b380d8af0c"
+  }
+}

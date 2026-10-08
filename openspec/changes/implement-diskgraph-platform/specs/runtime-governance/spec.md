@@ -242,3 +242,11 @@ Scope 注册 SHALL 使用原五秒期限覆盖初始持久授权、共享图锁�
 #### Scenario: Graph writer remains occupied during registration
 - **WHEN** 真实共享图库写锁一直被其他调用持有，注册请求原五秒期限耗尽
 - **THEN** 请求在锁仍被持有时返回预算错误，不写 scope 或 grants；后续正常注册不继承过期截止时间。
+
+
+### Requirement: RT-08 Native query policy capture is bounded and request-local
+可信本机 FFI 查询 SHALL 在原请求期限内取得一次不可变能力快照，不在数据读取或终态重新全库加载策略。终态仍 SHALL 以数据库实时授权、归属、撤权与会话关闭状态验证响应，不得把请求快照当作绕过实时策略的许可。
+
+#### Scenario: Control owner outlives a native query deadline
+- **WHEN** 原生查询在初始能力快照阶段遇到持续持有的控制锁，原期限耗尽
+- **THEN** 持锁者尚未释放时查询返回预算错误，不读取节点，也不进入新的等待窗口。

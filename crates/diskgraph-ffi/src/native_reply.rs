@@ -25,13 +25,13 @@ pub(crate) fn query_with_revision(
         return Err("session closed".into());
     }
     let principal = local_principal()?;
+    // 请求能力只捕获一次，读取与末检仍由 Engine 与数据库实时策略求交集。
+    // 不在每个末检前无限等待控制锁或重新加载其他主体的全部授权。
+    let policy = engine
+        .policy_authorizer_until(deadline)
+        .map_err(|e| e.to_string())?;
     engine
-        .authorize_snapshot_until(
-            snapshot,
-            &principal,
-            &engine.policy_authorizer().map_err(|e| e.to_string())?,
-            deadline,
-        )
+        .authorize_snapshot_until(snapshot, &principal, &policy, deadline)
         .map_err(|e| e.to_string())?;
     let reader = engine
         .revision_reader_with_cancel_until(cancel.clone(), deadline)
@@ -49,12 +49,7 @@ pub(crate) fn query_with_revision(
         Ok(answer) => answer,
         Err(error) => {
             engine
-                .finalize_revision_read_until(
-                    &revision,
-                    &principal,
-                    &engine.policy_authorizer().map_err(|e| e.to_string())?,
-                    deadline,
-                )
+                .finalize_revision_read_until(&revision, &principal, &policy, deadline)
                 .map_err(|e| e.to_string())?;
             return Err(error);
         }
@@ -65,12 +60,7 @@ pub(crate) fn query_with_revision(
         before_reply();
     }
     let live = engine
-        .finalize_revision_read_until(
-            &revision,
-            &principal,
-            &engine.policy_authorizer().map_err(|e| e.to_string())?,
-            deadline,
-        )
+        .finalize_revision_read_until(&revision, &principal, &policy, deadline)
         .map_err(|e| e.to_string())?;
     if cancel.load(Ordering::SeqCst) {
         return Err("session closed".into());
@@ -86,12 +76,7 @@ pub(crate) fn query_with_revision(
     answer["truncated"] = json!("deadline");
     let encoded = encode(&answer);
     engine
-        .finalize_revision_read_until(
-            &revision,
-            &principal,
-            &engine.policy_authorizer().map_err(|e| e.to_string())?,
-            deadline,
-        )
+        .finalize_revision_read_until(&revision, &principal, &policy, deadline)
         .map_err(|e| e.to_string())?;
     if cancel.load(Ordering::SeqCst) {
         return Err("session closed".into());
