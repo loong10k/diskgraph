@@ -1,0 +1,14 @@
+{
+  "defect": "sqlite3.Connection context manager ends transactions but did not close actual read-only database handle before TemporaryDirectory cleanup",
+  "red": "actual SQLite SELECT 1 still succeeded during cleanup admission; 1 of 4 regression tests failed",
+  "fix": "contextlib.closing explicitly closes successful and exceptional database paths",
+  "green": {
+    "coverage_and_actual_connection_lifecycle": 4,
+    "package_composition_and_manifest": 9
+  },
+  "independent_reviews": {
+    "code": "APPROVE",
+    "architecture": "APPROVE"
+  },
+  "qualification": "actual host SQLite lifetime regression; Windows native file deletion remains pending"
+}

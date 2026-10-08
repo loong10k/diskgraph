@@ -3,6 +3,7 @@
 
 import argparse
 import concurrent.futures
+import contextlib
 import json
 import math
 import pathlib
@@ -91,7 +92,9 @@ def main():
         revision = indexed["data"]["revision_id"]
         checks["full_index_published"] = indexed["data"]["state"] == "completed" and bool(revision)
         # 精确绑定已发布 revision，只读核对预期节点数量（夹具文件数加根节点）。
-        with sqlite3.connect((data / "diskgraph.sqlite").as_uri() + "?mode=ro", uri=True) as connection:
+        with contextlib.closing(sqlite3.connect(
+            (data / "diskgraph.sqlite").as_uri() + "?mode=ro", uri=True,
+        )) as connection:
             snapshot = connection.execute(
                 "SELECT snapshot_id FROM graph_revisions WHERE revision_id=?", (revision,),
             ).fetchone()

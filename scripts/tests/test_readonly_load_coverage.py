@@ -19,7 +19,7 @@ SPEC.loader.exec_module(MODULE)
 class CoverageTests(unittest.TestCase):
     """模拟 CLI 协议，使用真实隔离 SQLite 证明部分结果不能计作完整负载。"""
 
-    def exercise(self, count, duplicate=False):
+    def exercise(self, count, duplicate=False, verify_closed=False):
         def invoke(cli, data, *arguments, **kwargs):
             if arguments[:2] == ('scope', 'add'):
                 return {'data': {'scope_id': 'scope'}}
@@ -41,9 +41,35 @@ class CoverageTests(unittest.TestCase):
                 return {'error': {'code': 'not_indexed'}}
             return {'ok': True, 'data': {'revision_id': 'revision', 'items': [1]}}
 
+        real_tempdir = MODULE.tempfile.TemporaryDirectory
+        real_coverage = MODULE.fixture_paths_complete
+        readers = []
+        test = self
+
+        def record_reader(connection, *arguments):
+            readers.append(connection)
+            return real_coverage(connection, *arguments)
+
+        class CheckedTemporaryDirectory(real_tempdir):
+            def __exit__(self, *arguments):
+                try:
+                    test.assertTrue(readers, 'must observe actual read-only SQLite connection')
+                    for connection in readers:
+                        with test.assertRaises(sqlite3.ProgrammingError,
+                                               msg='reader must close before fixture cleanup'):
+                            connection.execute('SELECT 1')
+                finally:
+                    # 失败用例也关闭自己的真实句柄，避免红灯夹具残留。
+                    for connection in readers:
+                        connection.close()
+                    super().__exit__(*arguments)
+
         output = io.StringIO()
         with patch.object(sys, 'argv', ['load', '--bin-dir', '.', '--files', '101', '--queries', '4']), \
              patch.object(MODULE, 'invoke', side_effect=invoke), \
+             patch.object(MODULE, 'fixture_paths_complete', side_effect=record_reader), \
+             patch.object(MODULE.tempfile, 'TemporaryDirectory',
+                          CheckedTemporaryDirectory if verify_closed else real_tempdir), \
              patch.object(MODULE.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, 'diskgraph test\n')), \
              contextlib.redirect_stdout(output):
             result = MODULE.main()
@@ -56,6 +82,10 @@ class CoverageTests(unittest.TestCase):
     def test_equal_count_with_missing_and_duplicate_paths_is_refused(self):
         result, _ = self.exercise(102, duplicate=True)
         self.assertEqual(result, 1, 'equal counts must not hide a missing fixture file')
+
+    def test_readonly_connection_closes_before_fixture_cleanup(self):
+        result, _ = self.exercise(102, verify_closed=True)
+        self.assertEqual(result, 0)
 
     def test_exact_files_and_root_coverage_is_accepted(self):
         result, _ = self.exercise(102)
