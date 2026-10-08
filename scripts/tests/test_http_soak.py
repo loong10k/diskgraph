@@ -15,6 +15,64 @@ SPEC.loader.exec_module(MODULE)
 
 
 class HttpSoakTests(unittest.TestCase):
+    def test_fast_reads_are_paced_without_bursts_or_extending_deadline(self):
+        now = [100.0]
+        starts = []
+
+        def read(*args, **kwargs):
+            starts.append(now[0])
+            return 200, {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': [1]}}}}
+
+        def sleep(seconds):
+            self.assertGreater(seconds, 0)
+            now[0] += seconds
+
+        # 有限时钟观测也防止无节流实现陷入无限循环。
+        observations = [0]
+        def clock():
+            observations[0] += 1
+            if observations[0] > 1000:
+                self.fail('fast reads spun without advancing the original deadline')
+            return now[0]
+
+        with patch.object(MODULE.time, 'monotonic', side_effect=clock), \
+                patch.object(MODULE.time, 'sleep', side_effect=sleep), \
+                patch.object(MODULE, 'request', side_effect=read):
+            result = MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        self.assertTrue(39 <= len(starts) <= 41)
+        self.assertTrue(all(b - a >= 0.025 - 1e-10 for a, b in zip(starts, starts[1:])))
+        self.assertEqual(result['elapsed_seconds'], 1.0)
+        self.assertEqual(result['offered_max_requests_per_second'], 40)
+
+    def test_rate_limit_rejection_is_failure_and_is_not_retried(self):
+        with patch.object(MODULE, 'request', return_value=(429, {
+                'error': 'rate_limited', 'retry_after_ms': 20})) as read:
+            with self.assertRaisesRegex(RuntimeError, 'http_status.*429'):
+                MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        read.assert_called_once()
+
+    def test_budget_failure_reports_only_safe_classification_and_never_retries(self):
+        answer = {'error': {'message': 'private path /private/example',
+                            'data': {'business_code': 'budget_exceeded',
+                                     'principal': 'private-subject'}}}
+        with patch.object(MODULE, 'request', return_value=(200, answer)) as read:
+            with self.assertRaisesRegex(RuntimeError, 'business_code.*budget_exceeded') as raised:
+                MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        read.assert_called_once()
+        self.assertNotIn('/private/example', str(raised.exception))
+        self.assertNotIn('private-subject', str(raised.exception))
+
+    def test_malformed_response_and_unknown_error_text_cannot_enter_diagnostics(self):
+        answers = [[], {'error': {'data': {'business_code': '/private/example\nsecret'}}},
+                   {'result': {'structuredContent': 'private-content'}}]
+        for answer in answers:
+            with self.subTest(answer=answer), patch.object(MODULE, 'request', return_value=(200, answer)):
+                with self.assertRaisesRegex(RuntimeError, 'soak read') as raised:
+                    MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+                self.assertNotIn('/private/example', str(raised.exception))
+                self.assertNotIn('private-content', str(raised.exception))
+
     def test_binary_evidence_detects_replaced_content_without_loading_whole_image(self):
         with tempfile.TemporaryDirectory() as directory:
             image = Path(directory) / 'mcp'
@@ -104,6 +162,8 @@ class HttpSoakTests(unittest.TestCase):
             with self.assertRaises(TimeoutError) as raised:
                 MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
         self.assertIs(raised.exception, original)
+        notes = getattr(original, '__notes__', [])
+        self.assertTrue(any('soak_request_timing' in note for note in notes))
 
     def test_rejects_nonfinite_or_nonpositive_duration_before_request(self):
         for seconds in (0, -1, float('nan'), float('inf'), 86401):

@@ -1,0 +1,10 @@
+{
+  "commit": "5acda732a916507a782ab2078b297bf9e52274a7",
+  "ci_run": 37771002316,
+  "artifact_id": 11547958305,
+  "artifact_sha256": "c81b0f71ae20c47d84055c8cf63f46f73a2caf2d5ef0dd71a62cb8f9153dae31",
+  "production_acceptance": false,
+  "formal_timeout_seconds": 300,
+  "diagnostic_timeout_seconds": 900,
+  "observed_total_seconds": 438.2658823999999
+}

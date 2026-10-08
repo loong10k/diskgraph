@@ -176,14 +176,53 @@ def soak_reads(port, body, key, scope, seconds):
     deadline = started + seconds
     samples = deque(maxlen=4096)
     count = 0
+    # 默认服务桶为每客户端50次/秒；持续稳定性负载留出控制请求余量。
+    # 按实际开始时间节流，慢请求后不补发积压；429仍失败，绝不重试。
+    offered_rate = 40
+    next_start = started
     while (remaining := deadline - time.monotonic()) > 0:
+        delay = next_start - time.monotonic()
+        if delay > 0:
+            time.sleep(min(delay, remaining))
+            continue
         before = time.monotonic()
+        remaining = deadline - before
+        if remaining <= 0:
+            break
+        next_start = before + 1 / offered_rate
         # 为后续请求签发同一主体的新token，不更新总期限或数据库授权。
-        status, answer = request(port, '/mcp', body, token(key), ORIGIN,
-                                 timeout=min(10, remaining))
-        content = (answer or {}).get('result', {}).get('structuredContent', {})
-        if status != 200 or content.get('scope_id') != scope or not content.get('data', {}).get('items'):
-            raise RuntimeError('soak read failed HTTP, authorization, scope or nonempty-result check')
+        try:
+            status, answer = request(port, '/mcp', body, token(key), ORIGIN,
+                                     timeout=min(10, remaining))
+        except OSError as error:
+            # 原异常与截止时间保持；只增加数值阶段信息，区分末段期限和服务停顿。
+            error.add_note('soak_request_timing ' + json.dumps({
+                'completed_requests': count, 'remaining_at_start_ms': remaining * 1000,
+                'request_elapsed_ms': (time.monotonic() - before) * 1000,
+                'elapsed_seconds': time.monotonic() - started,
+                'offered_max_requests_per_second': offered_rate,
+            }, sort_keys=True))
+            raise
+        result = answer.get('result') if isinstance(answer, dict) else None
+        content = result.get('structuredContent') if isinstance(result, dict) else None
+        data = content.get('data') if isinstance(content, dict) else None
+        scope_matches = isinstance(content, dict) and content.get('scope_id') == scope
+        items_present = isinstance(data, dict) and bool(data.get('items'))
+        if status != 200 or not scope_matches or not items_present:
+            # 只保留允许列表分类，原正文、路径、主体和错误message绝不进入诊断。
+            error = answer.get('error') if isinstance(answer, dict) else None
+            error_data = error.get('data') if isinstance(error, dict) else None
+            code = error_data.get('business_code') if isinstance(error_data, dict) else None
+            allowed = {'invalid_argument', 'ambiguous', 'permission_denied', 'approval_required',
+                       'not_indexed', 'not_found', 'stale_plan', 'revision_expired',
+                       'incompatible_history', 'unsupported', 'unavailable', 'budget_exceeded',
+                       'timeout', 'resource_exhausted', 'partial', 'needs_attention',
+                       'recovery_unconfirmed', 'conflict', 'idempotency_conflict', 'internal_error'}
+            diagnostic = {'http_status': status if type(status) is int and 100 <= status <= 599 else None,
+                          'business_code': code if isinstance(code, str) and code in allowed else 'unknown',
+                          'rpc_error': isinstance(answer, dict) and 'error' in answer,
+                          'scope_matches': scope_matches, 'items_present': items_present}
+            raise RuntimeError('soak read failed ' + json.dumps(diagnostic, sort_keys=True))
         samples.append((time.monotonic() - before) * 1000)
         count += 1
     if not count:
@@ -191,6 +230,7 @@ def soak_reads(port, body, key, scope, seconds):
     ordered = sorted(samples)
     return {'requests': count, 'requested_seconds': seconds,
             'elapsed_seconds': time.monotonic() - started,
+            'offered_max_requests_per_second': offered_rate,
             'latency_sample_window': 'last_4096_requests', 'latency_samples': len(ordered),
             'p50_ms': ordered[math.ceil(len(ordered) * 0.50) - 1],
             'p95_ms': ordered[math.ceil(len(ordered) * 0.95) - 1],

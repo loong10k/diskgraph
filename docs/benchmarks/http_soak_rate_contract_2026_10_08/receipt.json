@@ -1,0 +1,76 @@
+{
+  "base_sha": "5acda732a916507a782ab2078b297bf9e52274a7",
+  "source_sha256": {
+    "scripts/accept-readonly-http.py": "505cf41621346a8f347a802554c5f1a0617e56f71fd8a4d13de5b58bbc51891d",
+    "scripts/tests/test_http_soak.py": "78a084365eb9c6f238ee41afe5ff6fe1b6a210887e79d526b68144a09ffd713c"
+  },
+  "logs": {
+    "pacing_red": {
+      "file": "pacing_red.log.gz",
+      "original_bytes": 1952,
+      "original_sha256": "3b5ec39aea9d5839dafe7c083d95376702152ca0e3bbdb615ec86748c01b2b47"
+    },
+    "pacing_green": {
+      "file": "pacing_green.log.gz",
+      "original_bytes": 112,
+      "original_sha256": "dc7b8f43cd03d7df7608e5236293d6bdf0affb9e660b376bbd898e1bf48e0270"
+    },
+    "script_suite": {
+      "file": "script_suite.log.gz",
+      "original_bytes": 1239,
+      "original_sha256": "64e8b93800416e71bd79d428a020a2231c21fac4a9939458a736cb2a7fbfc1de"
+    },
+    "composition": {
+      "file": "composition.log.gz",
+      "original_bytes": 240,
+      "original_sha256": "bc14cdc76b4df5d88764d9da91b33c7293b6bdc7765653f8cedc195069f79f10"
+    },
+    "native_socket_rate_limit": {
+      "file": "native_socket_rate_limit.log.gz",
+      "original_bytes": 1330,
+      "original_sha256": "4997ef938b36c8f773db4d430e25d57476d115a02fecd51401810a65b1a1a514"
+    },
+    "native_build": {
+      "file": "native_build.log.gz",
+      "original_bytes": 3573,
+      "original_sha256": "629c7cb651632edd150a558d4a2219467579452837619123703c8269b8996681"
+    },
+    "native_acceptance_fixture_failure": {
+      "file": "native_acceptance_fixture_failure.log.gz",
+      "original_bytes": 1275,
+      "original_sha256": "9d6d90319022c481cd5102ed3b1c77b760cbbc06b91c848fc5f45968e5950adc"
+    },
+    "linux_x86_ci_failure": {
+      "file": "linux_x86_ci_failure.log.gz",
+      "original_bytes": 78280,
+      "original_sha256": "f8bc7823aded97079864998fbea2cbeed51157ba75d82c4d89605d79b80e3935"
+    },
+    "linux_arm_ci_failure": {
+      "file": "linux_arm_ci_failure.log.gz",
+      "original_bytes": 79094,
+      "original_sha256": "6320aa7921737f1e2162d9fa06c695dd6f38126f60a9df6530441a0153128507"
+    },
+    "windows_ci_failure": {
+      "file": "windows_ci_failure.log.gz",
+      "original_bytes": 96612,
+      "original_sha256": "a0abdee00b71d2d79cd34a12aea8413c2ec58c3de966e12834095e15aca1eeae"
+    },
+    "timing_red": {
+      "file": "timing_red.log.gz",
+      "original_bytes": 730,
+      "original_sha256": "9887ef3370d32f7c1b6cec1dff008aeb829b49fb8bf9197dcab7fe494e2a9ebb"
+    },
+    "macos_arm_ci_failure": {
+      "file": "macos_arm_ci_failure.log.gz",
+      "original_bytes": 84451,
+      "original_sha256": "df7d5932e5ca2057bb75dfa2c58f1fdcc536f19c62994de6db291b61cb3b8819"
+    }
+  },
+  "scope": "local candidate; does not establish same-SHA cross-platform production qualification",
+  "native_local_result": {
+    "phase": "fixture_index_before_http",
+    "exit_code": 6,
+    "business_code": "unsupported",
+    "sustained_http_executed": false
+  }
+}
