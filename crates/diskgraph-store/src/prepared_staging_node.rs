@@ -5,6 +5,7 @@ use diskgraph_core::{DiskNode, QualifiedLocator, WindowsFileObservation, Windows
 
 /// 已完整校验的节点暂存载荷，仅保留当前配置批次；字段私有防止准入后替换内容。
 /// 不包含任务授权或 fence，实际写入仍由调用方的原执行上下文检查。
+/// 来源：DiskGraph 原生 Rust 扫描预算准入与原子暂存写入契约；无 Java 对等对象。
 pub struct PreparedStagingNode {
     pub(crate) encoded: StagingNodeEncoding,
     pub(crate) locator: Option<QualifiedLocator>,

@@ -3,6 +3,193 @@ use crate::ControlStore;
 use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId, ScopeId};
 
 #[test]
+fn live_permission_preserves_unpublished_revoked_and_exact_grant_semantics() {
+    let mut store = ControlStore::open_in_memory().unwrap();
+    let scope = store
+        .register_scope(
+            &diskgraph_core::Locator::from_document_uri("content://fixture"),
+            None,
+        )
+        .unwrap();
+    let principal = PrincipalId::new("actor").unwrap();
+    assert_eq!(
+        store
+            .live_permission(&principal, &Permission::MetadataRead, &scope)
+            .unwrap(),
+        None
+    );
+    assert!(matches!(
+        store.live_permission(
+            &principal,
+            &Permission::MetadataRead,
+            &ScopeId::new("missing").unwrap()
+        ),
+        Err(crate::StoreError::ScopeNotFound(_))
+    ));
+    store
+        .connection
+        .execute(
+            "INSERT INTO grants VALUES('actor','metadata:read',?1,1)",
+            [scope.as_str()],
+        )
+        .unwrap();
+    for version in [-1, 0, 1, 2] {
+        for policy_revoked in [0, 1] {
+            for scope_revoked in [0, 1] {
+                store
+                    .connection
+                    .execute(
+                        "INSERT OR REPLACE INTO policy VALUES(1,?1,?2)",
+                        rusqlite::params![version, policy_revoked],
+                    )
+                    .unwrap();
+                store
+                    .connection
+                    .execute(
+                        "UPDATE scopes SET revoked=?1 WHERE scope_id=?2",
+                        rusqlite::params![scope_revoked, scope.as_str()],
+                    )
+                    .unwrap();
+                for actor in ["actor", "other"] {
+                    for permission in [Permission::MetadataRead, Permission::ContentRead] {
+                        let actual = store
+                            .live_permission(&PrincipalId::new(actor).unwrap(), &permission, &scope)
+                            .unwrap();
+                        assert_eq!(
+                            actual,
+                            Some(
+                                version == 1
+                                    && policy_revoked == 0
+                                    && scope_revoked == 0
+                                    && actor == "actor"
+                                    && permission == Permission::MetadataRead
+                            )
+                        );
+                    }
+                }
+            }
+        }
+    }
+    store
+        .connection
+        .execute_batch("DELETE FROM policy; UPDATE scopes SET revoked=1")
+        .unwrap();
+    assert_eq!(
+        store
+            .live_permission(&principal, &Permission::MetadataRead, &scope)
+            .unwrap(),
+        Some(false)
+    );
+}
+
+#[test]
+fn live_permission_rejects_corrupt_required_policy_without_decoding_revoked_scope_policy() {
+    let mut store = ControlStore::open_in_memory().unwrap();
+    let scope = store
+        .register_scope(
+            &diskgraph_core::Locator::from_document_uri("content://fixture"),
+            None,
+        )
+        .unwrap();
+    let principal = PrincipalId::new("actor").unwrap();
+    for column in ["version", "revoked"] {
+        store
+            .connection
+            .execute_batch(
+                "DELETE FROM policy; INSERT INTO policy VALUES(1,1,0); UPDATE scopes SET revoked=0",
+            )
+            .unwrap();
+        store
+            .connection
+            .execute_batch(&format!("UPDATE policy SET {column}=X'FF'"))
+            .unwrap();
+        assert!(
+            store
+                .live_permission(&principal, &Permission::MetadataRead, &scope)
+                .is_err()
+        );
+        store
+            .connection
+            .execute_batch("UPDATE scopes SET revoked=1")
+            .unwrap();
+        assert_eq!(
+            store
+                .live_permission(&principal, &Permission::MetadataRead, &scope)
+                .unwrap(),
+            Some(false)
+        );
+    }
+}
+
+#[test]
+fn live_permission_observes_scope_revocation_committed_before_policy_read() {
+    use rusqlite::hooks::{AuthAction, AuthContext, Authorization};
+    use std::sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    };
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("control.sqlite");
+    let mut store = ControlStore::open(&path).unwrap();
+    let scope = store
+        .register_scope(&diskgraph_core::Locator::from_native_path(dir.path()), None)
+        .unwrap();
+    let principal = PrincipalId::new("actor").unwrap();
+    store
+        .connection
+        .execute_batch("INSERT INTO policy VALUES(1,1,0)")
+        .unwrap();
+    store
+        .connection
+        .execute(
+            "INSERT INTO grants VALUES('actor','metadata:read',?1,1)",
+            [scope.as_str()],
+        )
+        .unwrap();
+    assert_eq!(
+        store
+            .live_permission(&principal, &Permission::MetadataRead, &scope)
+            .unwrap(),
+        Some(true)
+    );
+    let other = rusqlite::Connection::open(&path).unwrap();
+    let changed = Arc::new(AtomicBool::new(false));
+    let observed = changed.clone();
+    let scope_id = scope.as_str().to_owned();
+    // 在真实 SQL 准备 policy 读取时从另一连接提交撤权。旧的范围 SELECT 已结束。
+    store
+        .connection
+        .authorizer(Some(move |context: AuthContext<'_>| {
+            if matches!(
+                context.action,
+                AuthAction::Read {
+                    table_name: "policy",
+                    ..
+                }
+            ) && !observed.swap(true, Ordering::SeqCst)
+            {
+                other
+                    .execute("UPDATE scopes SET revoked=1 WHERE scope_id=?1", [&scope_id])
+                    .unwrap();
+            }
+            Authorization::Allow
+        }))
+        .unwrap();
+    let result = store
+        .live_permission(&principal, &Permission::MetadataRead, &scope)
+        .unwrap();
+    assert!(
+        changed.load(Ordering::SeqCst),
+        "must actually commit the independent revocation"
+    );
+    assert_eq!(
+        result,
+        Some(false),
+        "scope and policy must share one SQL observation"
+    );
+}
+
+#[test]
 fn lookup_matches_legacy_policy_versions_and_exact_grants() {
     let store = ControlStore::open_in_memory().unwrap();
     let principal = PrincipalId::new("actor").unwrap();

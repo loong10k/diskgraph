@@ -97,6 +97,11 @@
 - **WHEN** 仅获 scope A 权限的主体携带 scope B revision
 - **THEN** 返回拒绝，不泄露 B 的数据。
 
+#### Scenario: Atomic live scope and grant observation
+- **WHEN** 实时权限查询准备策略读取前，独立控制连接已提交实际 scope 的撤销
+- **THEN** 同次查询在同一 SQLite 观察中读取 scope、策略及精确 grant，返回拒绝；不得拼接旧 scope 状态与新策略读取后返回允许。
+- **AND** 未注册 scope 仍报不存在，未发布策略的可信兼容入口仍返回未定义权限，损坏必需字段仍拒绝；每次调用重新观察持久状态，不缓存授权结果。
+
 #### Scenario: Impact traversal with a foreign revision
 - **WHEN** 仅获 scope A 权限的主体对 scope B revision 调用关系影响分析
 - **THEN** 在读取任何关系前按 B 的实际归属拒绝，不以客户端传入的 A scope 代替 B。

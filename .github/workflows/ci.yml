@@ -743,6 +743,8 @@ jobs:
               ('diskgraph-engine', '--test', 'relation_request_budget', 'decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges'),
               ('diskgraph-engine', '--lib', None, 'revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window'),
               ('diskgraph-engine', '--test', 'history_size_eligibility', 'revision_changes_excludes_unknown_and_type_replacement_from_size_changed'),
+              ('diskgraph-engine', '--test', 'relation_request_budget', 'escaped_impact_data_must_fit_the_actual_json_budget'),
+              ('diskgraph-engine', '--test', 'history_compatibility_matrix', 'node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null'),
           ]
           receipt = {'commit': os.environ['GITHUB_SHA'], 'production_acceptance': False,
                      'purpose': 'failure isolation only; original workspace failure remains', 'cases': []}

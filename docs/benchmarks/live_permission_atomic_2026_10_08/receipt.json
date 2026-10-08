@@ -1,0 +1,85 @@
+{
+  "base_commit": "cfaf9395777e91bd913deccf2e34b11c30490ae3",
+  "platform": "macOS ARM64",
+  "logs": {
+    "red": {
+      "sha256": "9b6474b9d9304f9a4857a1ab01b4bb035f76b4118e9adf5a7a3c575232cf483c",
+      "bytes": 1076
+    },
+    "green": {
+      "sha256": "4c9bfbe349c2c851102e7eb771df8c0e2baf37472c91500b4ceb86422d1cafcc",
+      "bytes": 496
+    },
+    "matrix": {
+      "sha256": "db8ebc9d31ad66f0da2a5feecd63d822d6f758bdb53ef447be4ede35e89eda22",
+      "bytes": 1220
+    },
+    "layout": {
+      "sha256": "6d60ed9b97798dda32ef17b9b36819b71c8342ee41c4d2bbf212a5a363903646",
+      "bytes": 466
+    },
+    "clippy": {
+      "sha256": "753b57c5144bf7d75b6ac62f5a64cd03cbb89f50f0d8d75f75a64d98d33e3667",
+      "bytes": 1223
+    },
+    "engine_revocation": {
+      "sha256": "2551cf8b0bef3f2c099f070f1b85c201c066e023c9637033be65e57d0fed04b4",
+      "bytes": 499
+    },
+    "local_native_integration_unsupported": {
+      "sha256": "0b822ff1cc6eeb2e376f1192dffcafcfeb5099a9efe6258d3d531a577810f823",
+      "bytes": 2489
+    },
+    "store_regression": {
+      "sha256": "a0a84aa91c0534cb2ca0ea3602a3e765da1b9d121715735884384306a1f108bb",
+      "bytes": 36650
+    },
+    "openspec": {
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "bytes": 47
+    },
+    "project_fmt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "engine_clippy": {
+      "sha256": "3ba4c985e6b6523edd37f3d410b09966c23859701aea042162fa0194cfac9226",
+      "bytes": 779
+    },
+    "all_fmt_vendor_difference": {
+      "sha256": "5188455349012fe1df4bf163eb40d3a31b776009b9db7aa0f5455ff554053b8b",
+      "bytes": 107369
+    },
+    "ci_linux_msrv_original": {
+      "sha256": "2e0127d27d5466c5c694fdce10a854554977076cd130edeb639f22f6ad7ebff6",
+      "bytes": 616017
+    },
+    "ci_macos_stable_original": {
+      "sha256": "274f77098fa7cd200fbc3cab5e56b688349d1595d6d4629a0c1b9cb98567b503",
+      "bytes": 537930
+    },
+    "ci_windows_package_original": {
+      "sha256": "cc71ddc78fc7ffe8181f3e8886167e3928c218baf797e459fd71ac9bec43c23e",
+      "bytes": 103606
+    }
+  },
+  "behavioral_red": "independent scope revocation committed before policy read but old live_permission returned Some(true)",
+  "green": "same real two-connection regression returns Some(false)",
+  "production_ready": false,
+  "limitations": [
+    "native scan integration locally refused Unsupported before business assertion; not a regression reproduction",
+    "new source still requires full native CI",
+    "this fix does not establish the cause of the original Linux relation budget failure"
+  ],
+  "store_regression": {
+    "passed": 342,
+    "ignored": 5,
+    "scope": "working tree includes two user-owned uncommitted reader tests"
+  },
+  "source_sha256": {
+    "crates/diskgraph-store/src/policy_store.rs": "31d052e7e2fc53c0449df7e63a58d600ffaaf52a13a84351793dec29ade5f9cf",
+    "crates/diskgraph-store/src/policy_permission_tests.rs": "c0c04ad416dd5224efafc05579641f7bb53320ea61d265101ab90edcb0dfd3b9",
+    "crates/diskgraph-store/src/prepared_staging_node.rs": "c469e7df58a7e5a99e3d7bd955f8980f202c564eae7071d88e456b7fc71ddb8f",
+    "crates/diskgraph-engine/tests/relation_request_budget.rs": "1e246024403866cdd5d7b4fdf268b14133aeb2c1a51310500c9cb3f5de026d93"
+  }
+}

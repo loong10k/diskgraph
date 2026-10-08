@@ -3,7 +3,7 @@
 use rusqlite::OptionalExtension;
 
 use crate::control_codec::parse_permission;
-use crate::{ControlStore, Result};
+use crate::{ControlStore, Result, StoreError};
 use diskgraph_core::{Grant, Permission, PolicyAuthorizer, PrincipalId, ScopeId};
 use rusqlite::params;
 
@@ -185,14 +185,30 @@ impl ControlStore {
         permission: &Permission,
         scope: &ScopeId,
     ) -> Result<Option<bool>> {
-        let revoked = self.scope_revoked(scope)?;
-        if revoked {
-            return Ok(Some(false));
-        }
-        if self.policy_state()?.is_none() {
-            return Ok(None);
-        }
-        Ok(Some(self.connection.query_row("SELECT EXISTS(SELECT 1 FROM policy p JOIN grants g ON g.policy_version = p.version WHERE p.id = 1 AND p.revoked = 0 AND g.principal_id = ?1 AND g.permission = ?2 AND g.scope_id = ?3)",params![principal.as_str(),permission.wire_name(),scope.as_str()],|row| row.get(0))?))
+        // 一条 SQL 共享同一 WAL 观察，避免把撤权前的 scope 与撤权后的策略拼接。
+        // 不开启跨请求事务、不缓存允许结果；按旧顺序解码必要字段，保留拒权及损坏语义。
+        self.connection
+            .query_row(
+                "SELECT s.revoked, p.id, p.version, p.revoked,
+                EXISTS(SELECT 1 FROM grants g WHERE g.policy_version=p.version
+                    AND p.revoked=0 AND g.principal_id=?1 AND g.permission=?2 AND g.scope_id=?3)
+             FROM scopes s LEFT JOIN policy p ON p.id=1 WHERE s.scope_id=?3",
+                params![principal.as_str(), permission.wire_name(), scope.as_str()],
+                |row| {
+                    if row.get::<_, i64>(0)? != 0 {
+                        return Ok(Some(false));
+                    }
+                    if row.get::<_, Option<i64>>(1)?.is_none() {
+                        return Ok(None);
+                    }
+                    // policy_state 原接口会解码两列，不能让 EXISTS 掩盖损坏策略。
+                    let _version = row.get::<_, i64>(2)?;
+                    let _revoked = row.get::<_, i64>(3)?;
+                    Ok(Some(row.get(4)?))
+                },
+            )
+            .optional()?
+            .ok_or_else(|| StoreError::ScopeNotFound(scope.as_str().into()))
     }
 
     /// Builds the live authorizer from stored policy and grants.

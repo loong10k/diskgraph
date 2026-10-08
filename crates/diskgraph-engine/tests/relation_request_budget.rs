@@ -17,6 +17,10 @@ use diskgraph_engine::EngineConfig;
 use rusqlite::{Connection, params};
 use std::time::{Duration, Instant};
 
+// 复用历史夹具的定长授权诊断，真实决定、版本和期限保持不变。
+#[path = "history_compatibility/request_authorizer.rs"]
+mod request_authorizer;
+
 struct Fixture {
     _directory: tempfile::TempDir,
     engine: Engine,
@@ -304,16 +308,24 @@ fn escaped_impact_data_must_fit_the_actual_json_budget() {
     let edge = serde_json::json!({"edge_id":"edge", "source_entity_id":"start", "relation":"rebuildable_by", "target_entity_id":target, "assertion_kind":"observed", "evidence_refs":[]});
     f.db.execute("INSERT INTO relations(snapshot_id,edge_id,source_entity_id,target_entity_id,relation,edge_json) VALUES (?1,?2,?3,?4,?5,?6)", params![f.snapshot,"edge","start",target,"rebuildable_by",edge.to_string()]).unwrap();
     f.bind_edge("edge");
-    let result = f
-        .engine
-        .revision_impact(
-            &f.revision,
-            "start",
-            QueryBudget::default(),
-            &f.principal,
-            &f.engine.policy_authorizer().unwrap(),
-        )
-        .unwrap();
+    let authorizer =
+        request_authorizer::RequestAuthorizer::new(f.engine.policy_authorizer().unwrap());
+    let started = Instant::now();
+    let result = f.engine.revision_impact(
+        &f.revision,
+        "start",
+        QueryBudget::default(),
+        &f.principal,
+        &authorizer,
+    );
+    if let Err(error) = &result {
+        authorizer.report();
+        eprintln!(
+            "ESCAPED_IMPACT_DIAGNOSTIC elapsed_ms={} error={error:?}",
+            started.elapsed().as_secs_f64() * 1000.0
+        );
+    }
+    let result = result.unwrap();
     let data = serde_json::json!({"entries":result.entries.iter().map(|entry|serde_json::json!({"entity_id":entry.entity_id,"relation":entry.relation.wire_name(),"depth":entry.depth})).collect::<Vec<_>>(),"complete":result.truncated.is_none(),"truncated":result.truncated.map(|reason|reason.wire_name()),"grants_execution":false});
     assert!(data.to_string().len() <= QueryBudget::default().max_response_bytes);
     assert_eq!(result.truncated, Some(TruncationReason::ByteLimit));
