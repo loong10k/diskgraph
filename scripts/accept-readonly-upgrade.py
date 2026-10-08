@@ -14,7 +14,7 @@ import tempfile
 def call(binary, data, *arguments):
     result = subprocess.run(
         [binary, "--data-dir", data, "--json", *arguments],
-        capture_output=True, text=True, check=True, timeout=120,
+        capture_output=True, text=True, encoding="utf-8", check=True, timeout=120,
     )
     return json.loads(result.stdout.splitlines()[-1])
 
@@ -53,7 +53,7 @@ def main():
         checks["control_schema_advanced"] = schema(data / "diskgraph-control.sqlite") > old_control_schema
         incompatible = subprocess.run(
             [old_cli, "--data-dir", data, "--json", "tree", "--scope", scope],
-            capture_output=True, text=True, timeout=120,
+            capture_output=True, text=True, encoding="utf-8", timeout=120,
         )
         checks["old_binary_refuses_upgraded_schema"] = incompatible.returncode != 0
 

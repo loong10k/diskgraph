@@ -1,6 +1,6 @@
 # Windows 台式机原生验收任务
 
-状态：执行中。2026-10-08 WebCodex-台式机连接已恢复，实际定位 `E:\workspaces\workspace-loong10k\diskgraph`，干净main从26b6f1ca快进到b3259315。Windows 11 build26200、i7-13700K、约32GiB内存、NTFS可用约111GiB；已有Rust stable1.99.0、MSVC2022、Python3.11.15、PowerShell5.1。精确Rust1.97.0、Python3.13、PowerShell7未发现，不静默安装或冒称已运行。正在绑定最终固定提交与原生验收材料。
+状态：执行中。2026-10-08 WebCodex-台式机连接已恢复，实际定位 `E:\workspaces\workspace-loong10k\diskgraph`，干净main快进到1ac266a0。Windows 11 build26200、i7-13700K、约32GiB内存、NTFS可用约111GiB；已有Rust stable1.99.0、MSVC2022、PowerShell5.1。PATH默认Python3.11.15，进一步找到已有uv Python3.13.12并明确使用；精确Rust1.97.0和PowerShell7未发现，不静默安装。完整失败与通过结果见 windows_desktop_native_2026_10_08.md，当前不满足全部门禁。
 
 范围：Windows x86_64 只读 CLI/MCP，与 macOS/Linux 工作并行。此清单延续 implement-diskgraph-platform，不另建规格体系。Windows 验收未完成不阻塞其他平台实现，但不得将总目标标记生产就绪。默认关闭危险写工具，不操作用户业务数据库或扫描真实全盘。
 
@@ -14,6 +14,8 @@
 ## WD-02 受信扫描夹具准备
 
 已有依赖缺失时报告，不静默安装。建议 PowerShell 7、现有 MSVC x64 和 Python 3.13；分别核验 stable 与 Rust 1.97.0。以下相对路径都从真实仓库根目录执行。每条外部命令必须检查 `$LASTEXITCODE`；非零不得继续称前置成功。
+
+台式机现有Python3.13.12位于 `%APPDATA%\uv\python\cpython-3.13.12-windows-x86_64-none\python.exe`。脚本中的 `python` 必须绑定经实际版本检查的解释器；不能直接沿用 Espressif 的 PATH 默认解释器。符号链接攻击夹具需要创建链接权限，本机当前 WinError 1314 属于未验收，不能忽略失败或改成通过。
 
 ```powershell
 $dgEvidence = Join-Path $env:TEMP ("diskgraph-desktop-" + [guid]::NewGuid().ToString('N'))
@@ -31,15 +33,46 @@ cargo build --workspace --all-targets --locked
 cargo build -p diskgraph-scan-worker --locked --message-format=json > "$dgEvidence/worker-build.jsonl"
 ./scripts/configure_windows_acceptance_worker.ps1 -Artifacts "$dgEvidence/worker-build.jsonl" -OutputDir $dgEvidence
 
-# CI 的 GITHUB_ENV 在本地不会自动载入，必须在当前进程显式应用。
-Get-Content -LiteralPath $env:GITHUB_ENV | ForEach-Object {
+# 驱动测试需要独立协议夹具；产品 worker 不能代替它。与 CI 绑定同一 Cargo example。
+# 由 Python 写入 Cargo 原始字节，避免 PowerShell 5.1 的重定向产生 UTF-16。
+@'
+import hashlib, json, os, subprocess
+from pathlib import Path
+output = Path(os.environ['RUNNER_TEMP'])
+with (output / 'protocol-driver-build.jsonl').open('wb') as stream:
+    subprocess.run(['cargo', 'build', '-p', 'diskgraph-engine', '--example',
+                    'scan_worker_driver_fixture', '--locked', '--message-format=json'],
+                   stdout=stream, check=True)
+rows = [json.loads(line) for line in (output / 'protocol-driver-build.jsonl').read_text(encoding='utf-8').splitlines()]
+artifacts = [row for row in rows if row.get('reason') == 'compiler-artifact'
+             and row.get('target', {}).get('name') == 'scan_worker_driver_fixture'
+             and row.get('target', {}).get('kind') == ['example'] and row.get('executable')]
+if len(artifacts) != 1:
+    raise SystemExit('one actual Cargo protocol-driver artifact is required')
+image = Path(artifacts[0]['executable'])
+if not image.is_absolute() or image.is_symlink() or not image.is_file() or any(c in str(image) for c in '\r\n\0'):
+    raise SystemExit('invalid protocol-driver artifact path')
+with image.open('rb') as stream:
+    digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+receipt = {'checkout_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+           'fixture_sha256': digest, 'fixture_bytes': image.stat().st_size,
+           'fixture_source_sha256': hashlib.sha256(Path('crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs').read_bytes()).hexdigest(),
+           'product_scan_image': False, 'production_acceptance': False}
+(output / 'protocol-driver-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+with Path(os.environ['GITHUB_ENV']).open('a', encoding='utf-8') as stream:
+    stream.write('DISKGRAPH_SCAN_DRIVER_FIXTURE=' + str(image) + '\n')
+'@ | python -
+if ($LASTEXITCODE -ne 0) { throw 'Protocol-driver fixture preparation failed' }
+
+# CI 的 GITHUB_ENV 在本地不会自动载入，必须在当前进程按 UTF-8 显式应用。
+Get-Content -LiteralPath $env:GITHUB_ENV -Encoding utf8 | ForEach-Object {
     if ($_ -match '^([A-Z][A-Z0-9_]*)=(.*)$') {
         [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
     }
 }
 ```
 
-- [ ] 保存 Cargo JSON、product-worker-receipt.json、退出码夹具摘要。扫描程序必须来自固定 SHA 的真实构建，不从邻接清单自行建立信任。
+- [ ] 保存 Cargo JSON、product-worker-receipt.json、protocol-driver-receipt.json、退出码夹具摘要。扫描程序必须来自固定 SHA 的真实构建，不从邻接清单自行建立信任。运行前确认 DISKGRAPH_SCAN_DRIVER_FIXTURE 已载入；缺少时 driver 测试会明确失败，不计为产品行为验收。
 - [ ] 重新跑另一 toolchain 或 release 时使用新的独占 output-dir；现有脚本的 CreateNew 不能以覆盖文件绕过。
 
 ## WD-03 已知撤权与期限回归（优先）

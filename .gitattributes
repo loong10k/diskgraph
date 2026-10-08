@@ -1,2 +1,8 @@
+# Keep reviewed source digests stable even when the host enables core.autocrlf.
+* text=auto eol=lf
+
+# Preserve captured evidence bytes and their recorded hashes.
+docs/benchmarks/** -text
+
 # Preserve the pinned upstream scanner's recorded bytes on Windows checkouts.
 crates/diskgraph-disktree-core/** -text

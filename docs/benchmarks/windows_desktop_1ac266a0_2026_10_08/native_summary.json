@@ -1,0 +1,185 @@
+{
+  "native_receipt": {
+    "source_commit": "1ac266a0c7b13e7da1eb31f4376538aa5efb00bd",
+    "toolchain": "1.99.0-x86_64-pc-windows-msvc",
+    "started_utc": "2026-10-08T14:16:53.574358+00:00",
+    "project": "E:\\workspaces\\workspace-loong10k\\diskgraph",
+    "cargo_target_dir": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0",
+    "commands": [
+      {
+        "name": "withdrawal",
+        "started_utc": "2026-10-08T14:16:53.921047+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 33.76600000000326,
+        "stdout_sha256": "9fd81b4ba9ec9dcc8adef66ff63832227063b83250d684fbf8ac8f1c954cfd89",
+        "stderr_sha256": "9f499887c8cd7f2bb804f970862021ba776c116129f51eccdf4a73d9c455e385"
+      },
+      {
+        "name": "capability",
+        "started_utc": "2026-10-08T14:17:27.977767+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 10.062000000005355,
+        "stdout_sha256": "2a11e558fc0e76528ce1faf855572d76565b75d6d8f24187f09fa57e545efed9",
+        "stderr_sha256": "f328f50e8c2e34be43bd7e312e86b2b8433153c7c6bb90a23c100d323e6bca88"
+      },
+      {
+        "name": "relations",
+        "started_utc": "2026-10-08T14:17:38.332370+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 8.640999999988708,
+        "stdout_sha256": "8e3e8d13bef9ffd7a3c321fbac9c1f2a6c536d9d88ddbbce7ff266aff9482a29",
+        "stderr_sha256": "57ad310efc0b8b3597463fc870e2f381022732193dfec8722e542a416ad11c4c"
+      },
+      {
+        "name": "workspace",
+        "started_utc": "2026-10-08T14:17:47.279662+00:00",
+        "exit_code": 101,
+        "elapsed_seconds": 646.8279999999941,
+        "stdout_sha256": "9e24c5b4f6869d49459bdb4a5de260d3630a0f7fdf5c6bee5cd1841c6aa9338b",
+        "stderr_sha256": "cc482c7dbd08cd771650e0589fe07b3a91ac6e51863bd251818f64787197ac3e"
+      },
+      {
+        "name": "store",
+        "started_utc": "2026-10-08T14:28:34.628892+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 179.875,
+        "stdout_sha256": "f46da1d584ebddc74a7d93eb144270477b9147e8f91227e2ace7d0a0e153fc98",
+        "stderr_sha256": "9410a713fad271995f61f0a11d3fca6f75888c679a86828119564d0be46d23a4"
+      },
+      {
+        "name": "clippy",
+        "started_utc": "2026-10-08T14:31:34.783252+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 37.82799999999406,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "a54c7f9af4b3a50aa1449a435d1e0656149fcc1f4733f46928e7f44fdd148c72"
+      },
+      {
+        "name": "scripts",
+        "started_utc": "2026-10-08T14:32:12.964020+00:00",
+        "exit_code": 1,
+        "elapsed_seconds": 63.46899999999732,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "6a2275d61f115febc2c315bb69afb5faa3252f29da266616f4154b870f9dae7a"
+      },
+      {
+        "name": "package_script",
+        "started_utc": "2026-10-08T14:33:16.716771+00:00",
+        "exit_code": 1,
+        "elapsed_seconds": 0.3289999999979045,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "2eefcc13ef236394fab3da5bef428ffd7d02e3b56f12118e986a45ac7ee4fbfa"
+      },
+      {
+        "name": "manifest_script",
+        "started_utc": "2026-10-08T14:33:17.348722+00:00",
+        "exit_code": 1,
+        "elapsed_seconds": 0.28099999998812564,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "1e17e4f37bbe5a3d854e8b5a9def94f4f93951e82f30fb35d7d586a21e26dee4"
+      },
+      {
+        "name": "cloud_files",
+        "started_utc": "2026-10-08T14:33:17.956175+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 8.735000000000582,
+        "stdout_sha256": "abc73262684a5324fee5b0efecf6ca8641e80072d13bcfde599c5e83cf0268af",
+        "stderr_sha256": "a11de78bdec3e56a15b2a0ecfda81202687aae62ed1fd03859b3df83193d3ae8"
+      }
+    ],
+    "complete": true,
+    "environment_binding": "Validated artifact receipts; original PS5 GITHUB_ENV encoding failure retained. No product source change.",
+    "finished_utc": "2026-10-08T14:33:26.698725+00:00",
+    "head_after": "1ac266a0c7b13e7da1eb31f4376538aa5efb00bd",
+    "status_after": ""
+  },
+  "python313_contracts": [
+    {
+      "name": "package",
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "scripts/test_scan_worker_package.py",
+        "-v"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 1.687999999994645,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c330383f730512d3f9f326926e35efcc1de2971cdd3514baf6e88237bf8c0cd8"
+    },
+    {
+      "name": "manifest",
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "scripts/test_worker_manifest_admission.py",
+        "-v"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 0.5,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "a1c46c700523d1788cae17fe20ad81892094833c134298c35df15979f6cc1332"
+    },
+    {
+      "name": "job_retirement",
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-p",
+        "test_windows_acceptance_job.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.312000000005355,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9ba8247606ee593659c402e1583379195c0b8efc37dce2203c6793ef1e5b9aa0"
+    },
+    {
+      "name": "checkout",
+      "argv": [
+        "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+        "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\python313_contracts\\test_checkout.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.062999999994645,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "4fdc3c88183a53ae475e970b6418f046f61c9c61a2a509ebbf442a0aa949aaa2"
+    }
+  ],
+  "workspace": {
+    "stdout_test_binaries": 133,
+    "stdout_pass_fail_ignore_sums": [
+      2148,
+      18,
+      25
+    ],
+    "failed_summaries": [
+      "test result: FAILED. 669 passed; 18 failed; 4 ignored; 0 measured; 0 filtered out; finished in 162.79s"
+    ]
+  },
+  "store": {
+    "stdout_test_binaries": 1,
+    "stdout_pass_fail_ignore_sums": [
+      359,
+      0,
+      7
+    ],
+    "failed_summaries": []
+  },
+  "cloud_files": {
+    "stdout_test_binaries": 1,
+    "stdout_pass_fail_ignore_sums": [
+      1,
+      0,
+      0
+    ],
+    "failed_summaries": []
+  },
+  "scripts": {
+    "stdout_test_binaries": 0,
+    "stdout_pass_fail_ignore_sums": [],
+    "failed_summaries": []
+  }
+}

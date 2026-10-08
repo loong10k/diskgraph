@@ -1,0 +1,87 @@
+{
+  "failures": [
+    "test live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::linked_worktree_keeps_its_own_head_index_and_the_common_stash ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::shallow_boundary_is_preserved_in_the_private_view ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::sha256_format_and_tracking_counts_are_preserved_without_skipping_capability ... FAILED",
+    "test live_evidence::git_metadata_tests::assume_valid_bit_preserves_git_status_semantics_in_private_view ... FAILED",
+    "test live_evidence::git_resource_tests::git_head_and_upstream_resource_errors_cannot_be_missing_references ... FAILED",
+    "test live_evidence::git_object_database_tests::orphan_pack_and_promisor_markers_are_explicitly_rejected ... FAILED",
+    "test live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes ... FAILED",
+    "test live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency ... FAILED",
+    "test live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git ... FAILED",
+    "test live_evidence::git_semantics_tests::sha256_repository_keeps_full_oids_and_correct_commit_counts ... FAILED",
+    "test live_evidence::probe_tests::an_exited_leader_does_not_make_inherited_pipes_complete ... FAILED"
+  ],
+  "results": [
+    "test result: FAILED. 674 passed; 13 failed; 4 ignored; 0 measured; 0 filtered out; finished in 159.85s"
+  ],
+  "driver_tests_passed": [
+    "test scan_worker_driver_additional_tests::actual_progress_dto_is_retained_without_fabricated_node_counters ... ok",
+    "test scan_worker_driver_additional_tests::checkpoint_panic_keeps_payload_and_cleans_even_when_caller_retains_driver ... ok",
+    "test scan_worker_driver_additional_tests::caller_cancel_after_tree_eof_still_rejects_tree_and_cleans_actual_child ... ok",
+    "test scan_worker_driver_additional_tests::busy_output_does_not_pay_an_idle_interval_per_fixed_block ... ok",
+    "test scan_worker_driver_additional_tests::live_child_without_output_keeps_idle_backoff_and_requires_actual_exit ... ok",
+    "test scan_worker_driver_tests::checkpoint_denial_retains_nonclone_primary_and_performs_error_cleanup_not_normal_exit ... ok",
+    "test scan_worker_driver_tests::stderr_limit_is_not_unbounded_diagnostic_memory_or_a_success_tree ... ok",
+    "test scan_worker_driver_tests::malformed_frame_preserves_protocol_cause_and_reaps_the_real_process ... ok",
+    "test scan_worker_driver_tests::pending_cancel_is_sent_only_after_complete_request_and_never_delivers_tree ... ok",
+    "test scan_worker_driver_tests::stdout_and_stderr_consume_one_original_response_total ... ok",
+    "test scan_worker_driver_tests::stderr_backpressure_is_drained_while_request_and_stdout_progress ... ok",
+    "test scan_worker_driver_tests::end_control_closed_and_two_eofs_do_not_deliver_while_actual_leader_is_alive ... ok"
+  ],
+  "receipt": {
+    "source_commit": "1ac266a0c7b13e7da1eb31f4376538aa5efb00bd",
+    "toolchain": "1.99.0-x86_64-pc-windows-msvc",
+    "environment_change": "actual Cargo protocol-driver fixture now explicitly bound; original failed workspace retained",
+    "commands": [
+      {
+        "name": "driver_build",
+        "argv": [
+          "cargo",
+          "build",
+          "-p",
+          "diskgraph-engine",
+          "--example",
+          "scan_worker_driver_fixture",
+          "--locked",
+          "--message-format=json"
+        ],
+        "started_utc": "2026-10-08T14:34:07.968417+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 1.8439999999973224,
+        "stdout_sha256": "9ed54b406732cc2a244dd435e365768507fadf8b0ea5d5ce02641dca68f7cafc",
+        "stderr_sha256": "a311c30b358a1b7050ff520668e75a3f5a023c50454a046135eb8586588ef38c"
+      },
+      {
+        "name": "engine",
+        "argv": [
+          "cargo",
+          "test",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--locked",
+          "--",
+          "--nocapture"
+        ],
+        "started_utc": "2026-10-08T14:34:09.807837+00:00",
+        "exit_code": 101,
+        "elapsed_seconds": 160.48500000000058,
+        "stdout_sha256": "c0dbd377ad0741f05780eedd2d33ab0b7836f558f7d85baa56f642ac94dc9326",
+        "stderr_sha256": "68f7e6191b81b3fd183438cf339e4bb83cb627f61533d201b1bf7912424a02c8"
+      }
+    ],
+    "complete": true,
+    "driver": {
+      "path": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe",
+      "sha256": "938b2fb44f624f70255825a51359e9450df67bddb199c6b136e22c7e207f8d4c",
+      "bytes": 2112512,
+      "source_sha256": "5367cac28ba166b22ded67fe33d7480331419082755793ea0817f630ebeff7c1",
+      "product_scan_image": false
+    },
+    "head_after": "1ac266a0c7b13e7da1eb31f4376538aa5efb00bd",
+    "status_after": ""
+  }
+}

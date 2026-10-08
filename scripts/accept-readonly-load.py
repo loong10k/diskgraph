@@ -60,7 +60,7 @@ def invoke(cli, data, *arguments, timeout=300, expected=0):
     try:
         result = subprocess.run(
             [cli, "--data-dir", data, "--json", *arguments],
-            capture_output=True, text=True, timeout=timeout,
+            capture_output=True, text=True, encoding="utf-8", timeout=timeout,
         )
     except subprocess.TimeoutExpired as error:
         # 保留有限尾部供阶段诊断，原异常和原 timeout 不变；不输出无限子进程日志。
@@ -156,7 +156,7 @@ def main():
     if args.files < 101 or args.queries < 4:
         parser.error("need at least 101 files and 4 queries")
     cli = args.bin_dir.resolve() / f"diskgraph{SUFFIX}"
-    version = subprocess.run([cli, "--version"], capture_output=True, text=True,
+    version = subprocess.run([cli, "--version"], capture_output=True, text=True, encoding="utf-8",
                              check=True, timeout=10).stdout.strip()
     checks = {}
     with tempfile.TemporaryDirectory(prefix="diskgraph-readonly-load-") as temporary:

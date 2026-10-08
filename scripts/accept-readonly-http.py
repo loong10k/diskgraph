@@ -126,7 +126,7 @@ def server(data, transport, key_file, work):
                     if sys.platform == "win32":
                         acl = subprocess.run(["icacls", str(key_file)], capture_output=True,
                                              text=True).stdout
-                    raise RuntimeError(f"server exited early: {log_path.read_text()}\nkey ACL: {acl}")
+                    raise RuntimeError(f"server exited early: {log_path.read_text(encoding='utf-8')}\nkey ACL: {acl}")
                 try:
                     with socket.create_connection(("127.0.0.1", port), timeout=0.1):
                         break
@@ -339,10 +339,10 @@ def main():
         (root / "Cargo.toml").write_text("[package]\nname='accept'\n")
         (root / "target" / "bin").write_bytes(bytes(4096))
         added = subprocess.run([CLI, "--data-dir", data, "--json", "scope", "add", "--root", root],
-                               capture_output=True, text=True, check=True, timeout=120)
+                               capture_output=True, text=True, encoding="utf-8", check=True, timeout=120)
         scope = json.loads(added.stdout)["data"]["scope_id"]
         subprocess.run([CLI, "--data-dir", data, "--json", "index", "--scope", scope, "--wait"],
-                       capture_output=True, text=True, check=True, timeout=120)
+                       capture_output=True, text=True, encoding="utf-8", check=True, timeout=120)
         with contextlib.closing(sqlite3.connect(data / "diskgraph-control.sqlite")) as connection, connection:
             version = connection.execute("SELECT version FROM policy WHERE id = 1").fetchone()[0]
             connection.execute("INSERT INTO grants (principal_id, permission, scope_id, policy_version) "
@@ -406,7 +406,7 @@ def main():
             result = subprocess.run([
                 MCP, "--data-dir", data, "--transport", "streamable-http",
                 "--auth-key-file", ISSUER, AUDIENCE, path,
-            ], capture_output=True, text=True, timeout=10)
+            ], capture_output=True, text=True, encoding="utf-8", timeout=10)
             return result.returncode == 6 and key not in result.stdout + result.stderr
 
         checks["missing_key_file_refused"] = rejects_key(work / "missing.key")
@@ -417,7 +417,7 @@ def main():
         forwarded = subprocess.run([
             CLI, "--data-dir", data, "serve", "--transport", "streamable-http",
             "--auth-key-file", ISSUER, AUDIENCE, short_file,
-        ], capture_output=True, text=True, timeout=10)
+        ], capture_output=True, text=True, encoding="utf-8", timeout=10)
         checks["cli_serve_forwards_key_file"] = forwarded.returncode == 6
         if sys.platform != "win32":
             key_file.chmod(0o644)

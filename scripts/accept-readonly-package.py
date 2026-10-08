@@ -59,10 +59,12 @@ def packaged_worker_environment(bin_dir, inherited):
 def accepted(script, bin_dir, *arguments, deployment=None):
     environment = dict(os.environ if deployment is None else deployment)
     environment["DISKGRAPH_ACCEPT_BIN_DIR"] = str(bin_dir)
+    # 验收子脚本输出固定 UTF-8；宿主代码页不决定 JSON/诊断协议编码。
+    environment["PYTHONIOENCODING"] = "utf-8"
     try:
         result = run_acceptance(
             [sys.executable, str(ROOT / "scripts" / script), *map(str, arguments)],
-            cwd=ROOT, env=environment, capture_output=True, text=True, timeout=300,
+            cwd=ROOT, env=environment, capture_output=True, text=True, encoding="utf-8", timeout=300,
         )
     except subprocess.TimeoutExpired as failure:
         # TimeoutExpired 即使 text=True 也可能携带 bytes；保留阶段日志及原异常。

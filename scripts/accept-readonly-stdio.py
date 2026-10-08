@@ -20,7 +20,7 @@ MCP = BIN_DIR / f"diskgraph-mcp{SUFFIX}"
 
 
 def run(*args):
-    result = subprocess.run(args, capture_output=True, text=True, timeout=120)
+    result = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", timeout=120)
     if result.returncode:
         raise RuntimeError(
             f"command {args[0]} exited {result.returncode}:\n"
@@ -73,7 +73,7 @@ def main():
     diagnostics = {}
     version = tomllib.loads((ROOT / "Cargo.toml").read_text())["workspace"]["package"]["version"]
     for name, binary in (("diskgraph", CLI), ("diskgraph-mcp", MCP)):
-        observed = subprocess.run([binary, "--version"], capture_output=True, text=True, timeout=10)
+        observed = subprocess.run([binary, "--version"], capture_output=True, text=True, encoding="utf-8", timeout=10)
         require(f"{name}_version", observed.returncode == 0 and
                 observed.stdout.strip() == f"{name} {version}", checks)
     with tempfile.TemporaryDirectory(prefix="diskgraph-readonly-accept-") as temporary:
@@ -131,7 +131,7 @@ def main():
         session = subprocess.run(
             [MCP, "--data-dir", data, "--profile", "read-full", "--transport", "stdio"],
             input="\n".join(json.dumps(frame) for frame in frames) + "\n",
-            capture_output=True, text=True, timeout=120, check=True,
+            capture_output=True, text=True, encoding="utf-8", timeout=120, check=True,
             env={**os.environ, "DISKGRAPH_QUERY_DIAGNOSTICS": "1"},
         )
         responses = {message["id"]: message for line in session.stdout.splitlines()
@@ -162,7 +162,7 @@ def main():
 
         forwarded = subprocess.run(
             [CLI, "--data-dir", data, "serve", "--profile", "read-full", "--transport", "stdio"],
-            input=json.dumps(frames[0]) + "\n", capture_output=True, text=True, timeout=120,
+            input=json.dumps(frames[0]) + "\n", capture_output=True, text=True, encoding="utf-8", timeout=120,
         )
         reply = json.loads(forwarded.stdout.splitlines()[0]) if forwarded.stdout.strip() else {}
         require("cli_serve_delegates_to_mcp_binary", forwarded.returncode == 0 and
