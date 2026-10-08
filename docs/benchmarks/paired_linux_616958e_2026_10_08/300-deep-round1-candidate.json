@@ -1,0 +1,220 @@
+[
+  {
+    "after_narrow_candidates": {
+      "p50_ms": 2.270639,
+      "p95_ms": 2.651134,
+      "samples": 11
+    },
+    "after_narrow_top20": {
+      "p50_ms": 0.505478,
+      "p95_ms": 0.5446150000000001,
+      "samples": 31
+    },
+    "before_full_revision_candidates": {
+      "p50_ms": 0.9446669999999999,
+      "p95_ms": 1.238473,
+      "samples": 3
+    },
+    "before_full_revision_top20": {
+      "p50_ms": 0.915717,
+      "p95_ms": 1.401972,
+      "samples": 7
+    },
+    "budgeted_tree": {
+      "p50_ms": 0.9789760000000001,
+      "p95_ms": 1.162259,
+      "samples": 11
+    },
+    "concurrent_4_readers": [
+      {
+        "p50_ms": 3.8786039999999997,
+        "p95_ms": 4.215171,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.9596370000000003,
+        "p95_ms": 4.461129000000001,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.973479,
+        "p95_ms": 4.378728,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.8486789999999997,
+        "p95_ms": 4.266076,
+        "samples": 31
+      }
+    ],
+    "database_bytes": 3411968,
+    "files": 300,
+    "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+    "native_qualification": {
+      "captured_files": 300,
+      "gaps": 0,
+      "method": "linux_handle",
+      "qualified": true,
+      "snapshot_id": "40e1c1f4-d4d8-4b3e-9b09-227e9758f3c9",
+      "witnesses": [
+        {
+          "epoch": {
+            "device": 66305,
+            "filesystem_domain_sha256": [
+              43,
+              129,
+              83,
+              112,
+              139,
+              6,
+              212,
+              244,
+              52,
+              76,
+              199,
+              239,
+              90,
+              104,
+              176,
+              245,
+              84,
+              88,
+              232,
+              244,
+              242,
+              7,
+              134,
+              212,
+              64,
+              127,
+              252,
+              209,
+              208,
+              174,
+              99,
+              114
+            ],
+            "handle_bytes": [
+              15,
+              0,
+              148,
+              0,
+              123,
+              204,
+              223,
+              169
+            ],
+            "handle_type": 1,
+            "inode": 9699343,
+            "kind": "linux_handle"
+          },
+          "node_id": 601,
+          "relative_path": "d/file-000000"
+        },
+        {
+          "epoch": {
+            "device": 66305,
+            "filesystem_domain_sha256": [
+              43,
+              129,
+              83,
+              112,
+              139,
+              6,
+              212,
+              244,
+              52,
+              76,
+              199,
+              239,
+              90,
+              104,
+              176,
+              245,
+              84,
+              88,
+              232,
+              244,
+              242,
+              7,
+              134,
+              212,
+              64,
+              127,
+              252,
+              209,
+              208,
+              174,
+              99,
+              114
+            ],
+            "handle_bytes": [
+              101,
+              2,
+              148,
+              0,
+              34,
+              218,
+              20,
+              80
+            ],
+            "handle_type": 1,
+            "inode": 9699941,
+            "kind": "linux_handle"
+          },
+          "node_id": 302,
+          "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+        }
+      ]
+    },
+    "process_scan_high_water_rss_bytes": 48205824,
+    "process_total_high_water_rss_bytes": 48205824,
+    "reaped_child_scan_high_water_rss_bytes": 3321856,
+    "scan_parent_and_child_high_water_sum_bytes": 51527680,
+    "scan_seconds": 0.13335253,
+    "shape": "deep",
+    "storage_phases": {
+      "after_queries": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3411968,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "after_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3411968,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 0
+      },
+      "before_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 4096,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 564472
+      },
+      "query_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 0,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "scan_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3407872,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": -564472
+      }
+    },
+    "wal_bytes": 12392
+  }
+]
