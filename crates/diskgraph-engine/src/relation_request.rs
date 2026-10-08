@@ -86,24 +86,32 @@ impl Engine {
         // 每轮能力回调后开始固定归属窗口；不续期结果读取或编码期限。
         let ownership = || {
             check_authority_expiry(expiry)?;
-            let control = self
-                .try_control_store()?
-                .ok_or(BusinessError::BudgetExceeded)?;
+            let control =
+                crate::authorization_phase_diagnostic::observe("relation_terminal_lock", || {
+                    self.try_control_store()?
+                        .ok_or_else(|| BusinessError::BudgetExceeded.into())
+                })?;
             check_authority_expiry(expiry)?;
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
-            let control_authorization = control
-                .with_read_deadline(authorization_deadline, |control| {
-                    if control.scope_revoked(&scope)?
-                        || control.live_permission(principal, &Permission::MetadataRead, &scope)?
-                            == Some(false)
-                    {
-                        return Err(EngineError::Business(BusinessError::PermissionDenied));
-                    }
-                    withdrawals.check_after_live_authorization(control)
-                })
-                .map_err(terminal_control_error);
+            let control_authorization =
+                crate::authorization_phase_diagnostic::observe("relation_terminal_control", || {
+                    control
+                        .with_read_deadline(authorization_deadline, |control| {
+                            if control.scope_revoked(&scope)?
+                                || control.live_permission(
+                                    principal,
+                                    &Permission::MetadataRead,
+                                    &scope,
+                                )? == Some(false)
+                            {
+                                return Err(EngineError::Business(BusinessError::PermissionDenied));
+                            }
+                            withdrawals.check_after_live_authorization(control)
+                        })
+                        .map_err(terminal_control_error)
+                });
             self.prioritize_revision_quarantine(
                 control_authorization,
                 &[(revision, &scope)],

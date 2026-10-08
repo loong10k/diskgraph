@@ -1,0 +1,18 @@
+{
+  "source_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "run": 37765612472,
+  "conclusion": "failure",
+  "counts": {
+    "success": 20,
+    "failure": 3
+  },
+  "windows_msrv_job": 113273033534,
+  "windows_msrv_conclusion": "success",
+  "log_bytes": 1014108,
+  "log_sha256": "4ed123a3e0d9bf0754bb4fcf9c55fe61536b2d729ff4e0bf5d1d895ddf92ed99",
+  "production_ready": false,
+  "limitations": [
+    "Terminal result belongs to 2e7b35a only, not later local candidates.",
+    "Failures in other native jobs remain failures."
+  ]
+}

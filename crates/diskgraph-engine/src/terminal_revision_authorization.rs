@@ -46,10 +46,20 @@ impl Engine {
     ) -> Result<(), EngineError> {
         let result = (|| {
             let server =
-                control.with_read_deadline(deadline, |control| control.existing_server_id())?;
+                crate::authorization_phase_diagnostic::observe("terminal_server_sql", || {
+                    Ok(control
+                        .with_read_deadline(deadline, |control| control.existing_server_id())?)
+                })?;
             #[cfg(test)]
             let reader_started = Instant::now();
-            let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+            let reader =
+                crate::authorization_phase_diagnostic::observe("terminal_reader_open", || {
+                    Ok(SqliteSnapshotStore::open_reader_until(
+                        &self.graph_path,
+                        deadline,
+                        None,
+                    )?)
+                })?;
             #[cfg(test)]
             crate::relation_query_diagnostics_tests::detail("terminal_reader_open", reader_started);
             #[cfg(test)]
@@ -58,12 +68,19 @@ impl Engine {
             let ownership_started = Instant::now();
             for (revision, scope) in revisions {
                 // 每次 SELECT 独立观察当前 WAL；不能开启冻结两侧归属的事务。
-                if !reader.revision_ownership_matches(revision, server.as_str(), scope.as_str())? {
-                    return Err(BusinessError::PermissionDenied.into());
-                }
-                if Instant::now() >= deadline {
-                    return Err(BusinessError::BudgetExceeded.into());
-                }
+                crate::authorization_phase_diagnostic::observe("terminal_ownership_sql", || {
+                    if !reader.revision_ownership_matches(
+                        revision,
+                        server.as_str(),
+                        scope.as_str(),
+                    )? {
+                        return Err(BusinessError::PermissionDenied.into());
+                    }
+                    if Instant::now() >= deadline {
+                        return Err(BusinessError::BudgetExceeded.into());
+                    }
+                    Ok(())
+                })?;
             }
             #[cfg(test)]
             crate::relation_query_diagnostics_tests::detail(

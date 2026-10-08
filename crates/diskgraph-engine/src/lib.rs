@@ -5,6 +5,7 @@ mod native_scan_engine_fixture;
 
 #[cfg(test)]
 mod admin_policy_lookup_tests;
+mod authorization_phase_diagnostic;
 mod collectors;
 mod compare_row;
 mod comparison_report;

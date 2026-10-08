@@ -721,6 +721,9 @@ jobs:
         id: workspace_tests
         if: success() || (!cancelled() && steps.history_deadline_isolation.outcome == 'failure')
         timeout-minutes: 30
+        env:
+          # 调试构建仅在原授权预算失败时记录固定阶段与耗时；不输出请求身份或路径。
+          DISKGRAPH_QUERY_DIAGNOSTICS: '1'
         # 恢复失败可能阻止二进制返回；即时保留原断言/诊断，不等待 libtest 最终汇总。
         run: cargo test --workspace --all-targets --locked --no-fail-fast -- --nocapture
       - name: Observe original macOS failures without concurrent test scheduling
