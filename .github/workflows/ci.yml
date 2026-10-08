@@ -745,24 +745,26 @@ jobs:
           receipt = {'commit': os.environ['GITHUB_SHA'], 'production_acceptance': False,
                      'purpose': 'failure isolation only; original workspace failure remains', 'cases': []}
           failed = False
+          (output / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
           for index, (package, kind, target, test) in enumerate(cases):
               command = ['cargo', 'test', '-p', package, kind]
               if target is not None:
                   command.append(target)
               command += ['--locked', test, '--', '--exact', '--nocapture', '--test-threads=1']
               started = time.monotonic()
-              record = {'test': test, 'command': command, 'status': 'failed'}
+              record = {'test': test, 'command': command, 'status': 'running'}
+              receipt['cases'].append(record)
+              (output / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
               with (output / f'case-{index}.log').open('wb') as stream:
                   result = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT)
                   stream.flush()
                   log = (output / f'case-{index}.log').read_text(errors='replace')
                   exact_pass = ('test ' + test + ' ...') in log and re.search(r'test result: ok\. 1 passed; 0 failed; 0 ignored;', log) is not None
-                  record.update(returncode=result.returncode, exact_case_passed=exact_pass)
+                  record.update(returncode=result.returncode, exact_case_passed=exact_pass, status='failed')
                   if result.returncode == 0 and exact_pass:
                       record['status'] = 'passed'
               record['elapsed_seconds'] = time.monotonic() - started
               failed |= record['status'] != 'passed'
-              receipt['cases'].append(record)
               (output / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
           raise SystemExit(1 if failed else 0)
           PYTHON
