@@ -293,5 +293,6 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 
 #### Scenario: Ordinary revision readers tolerate brief terminal control contention
 - **WHEN** a CLI/MCP authorized narrow reader finishes its capability callback while another request briefly owns the shared control connection
-- **THEN** terminal lock acquisition and its SQL observation share the existing 50 ms observation window, capped by the original request deadline; brief contention alone does not fail the request
+- **THEN** terminal lock acquisition and its SQL observation share the existing 50 ms observation window; waiting for the lock is additionally capped by the original request deadline, and brief contention alone does not fail the request
+- **AND** an immediately available control guard still observes explicit revocation in the existing terminal SQL window after the data deadline; this negative observation never extends data work or permits a successful result after the original deadline
 - **AND** a lock held past that window returns BudgetExceeded, withdrawal and live authorization checks remain mandatory, and dedicated TUI nonblocking admission is unchanged

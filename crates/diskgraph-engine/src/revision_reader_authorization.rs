@@ -160,9 +160,13 @@ impl Engine {
         // 普通请求允许短暂竞争；取锁与 SQL 共用原观察窗口，不在获取锁后续期。
         let after_callback = std::time::Instant::now()
             .checked_add(Duration::from_millis(50))
-            .ok_or(BusinessError::InvalidArgument)?
-            .min(deadline);
-        let control = self.control_until(after_callback)?;
+            .ok_or(BusinessError::InvalidArgument)?;
+        // 原数据期限耗尽后不再等锁；已能取得的 guard 仍沿原终检窗口观察明确撤权。
+        // 这只允许负向授权复检，成功返回仍受原数据期限限制。
+        let control = match self.try_control_store()? {
+            Some(control) => control,
+            None => self.control_until(after_callback.min(deadline))?,
+        };
         withdrawal.check(&control)?;
         let authorization = control
             .with_read_deadline(after_callback, |control| {

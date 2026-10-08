@@ -123,3 +123,57 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
         });
     }
 }
+
+#[test]
+fn known_terminal_withdrawal_wins_after_original_reader_deadline() {
+    use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId, ScopeId};
+    use std::cell::{Cell, RefCell};
+    use std::time::{Duration, Instant};
+    /// 在终检实际提交撤权后耗尽原期限，能力仍返回缓存允许。
+    struct Withdrawn {
+        calls: Cell<u32>,
+        control: RefCell<diskgraph_store::ControlStore>,
+        deadline: Instant,
+    }
+    impl Authorizer for Withdrawn {
+        fn decide(&self, _: &PrincipalId, _: &Permission, scope: &ScopeId) -> Decision {
+            self.calls.set(self.calls.get() + 1);
+            if self.calls.get() == 2 {
+                self.control.borrow_mut().revoke_scope(scope).unwrap();
+                std::thread::sleep(
+                    self.deadline.saturating_duration_since(Instant::now())
+                        + Duration::from_millis(5),
+                );
+            }
+            Decision::Allowed
+        }
+    }
+    let (dir, engine, principal, _scope, revision) =
+        crate::relation_request_tests::published_authorization_fixture();
+    let control =
+        diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+            .unwrap();
+    let deadline = Instant::now() + Duration::from_millis(200);
+    let policy = Withdrawn {
+        calls: Cell::new(0),
+        control: RefCell::new(control),
+        deadline,
+    };
+    let result = engine.with_authorized_revision_reader_until(
+        revision,
+        &principal,
+        &policy,
+        deadline,
+        |_, _, _| Ok(()),
+    );
+    assert_eq!(policy.calls.get(), 2);
+    assert!(
+        matches!(
+            result,
+            Err(crate::EngineError::Business(
+                diskgraph_core::BusinessError::PermissionDenied
+            ))
+        ),
+        "withdrawal masked: {result:?}"
+    );
+}
