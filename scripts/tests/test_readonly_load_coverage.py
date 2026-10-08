@@ -77,8 +77,12 @@ class FixtureCreationTests(unittest.TestCase):
 class CoverageTests(unittest.TestCase):
     """模拟 CLI 协议，使用真实隔离 SQLite 证明部分结果不能计作完整负载。"""
 
-    def exercise(self, count, duplicate=False, verify_closed=False, verify_all_closed=False):
+    def exercise(self, count, duplicate=False, verify_closed=False, verify_all_closed=False,
+                 phase_events=None, cleanup_error=None):
+        workspaces = []
         def invoke(cli, data, *arguments, **kwargs):
+            if not workspaces:
+                workspaces.append(data.parent)
             if arguments[:2] == ('scope', 'add'):
                 return {'data': {'scope_id': 'scope'}}
             if arguments[0] == 'index':
@@ -129,6 +133,12 @@ class CoverageTests(unittest.TestCase):
                     for connection in connections:
                         connection.close()
                     super().__exit__(*arguments)
+                if cleanup_error is not None:
+                    raise cleanup_error
+
+        def record_phase(name, event):
+            if phase_events is not None and name == 'workspace_cleanup':
+                phase_events.append((event, workspaces[0].exists()))
 
         output = io.StringIO()
         with patch.object(sys, 'argv', ['load', '--bin-dir', '.', '--files', '101', '--queries', '4']), \
@@ -136,11 +146,28 @@ class CoverageTests(unittest.TestCase):
              patch.object(MODULE, 'fixture_paths_complete', side_effect=record_reader), \
              patch.object(MODULE.sqlite3, 'connect', side_effect=record_connection), \
              patch.object(MODULE.tempfile, 'TemporaryDirectory',
-                          CheckedTemporaryDirectory if verify_closed or verify_all_closed else real_tempdir), \
+                          CheckedTemporaryDirectory if verify_closed or verify_all_closed or cleanup_error else real_tempdir), \
+             patch.object(MODULE, 'phase', side_effect=record_phase), \
              patch.object(MODULE.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, 'diskgraph test\n')), \
              contextlib.redirect_stdout(output):
             result = MODULE.main()
         return result, json.loads(output.getvalue())
+
+    def test_cleanup_measurement_brackets_actual_directory_retirement(self):
+        events = []
+        result, report = self.exercise(102, verify_all_closed=True, phase_events=events)
+        self.assertEqual(result, 0)
+        self.assertEqual(events, [('begin', True), ('end', False)])
+        self.assertGreaterEqual(report['cleanup_seconds'], 0)
+        self.assertEqual(report['passed'], report['total'])
+
+    def test_failed_cleanup_preserves_error_and_never_reports_retirement_end(self):
+        events = []
+        failure = OSError('original cleanup failure')
+        with self.assertRaises(OSError) as caught:
+            self.exercise(102, phase_events=events, cleanup_error=failure)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(events, [('begin', True)])
 
     def test_completed_but_underpopulated_snapshot_is_refused(self):
         result, _ = self.exercise(2)

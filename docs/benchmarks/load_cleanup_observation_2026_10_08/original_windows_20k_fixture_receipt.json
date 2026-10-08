@@ -1,0 +1,61 @@
+{
+  "status": "complete",
+  "purpose": "diagnostic only; no production SLO claim",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "python": "3.13.16",
+  "source_commit": "cfaf9395777e91bd913deccf2e34b11c30490ae3",
+  "cases": [
+    {
+      "workers": 1,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 4.499632799999972,
+      "cleanup_seconds": 2.5381618999999773,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 2,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 3.952387599999838,
+      "cleanup_seconds": 1.9070533999999952,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 4,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 5.009421799999927,
+      "cleanup_seconds": 3.3722797000000355,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 4,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 5.215092200000072,
+      "cleanup_seconds": 1.6245539999999892,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 2,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 4.271227400000043,
+      "cleanup_seconds": 1.48213399999986,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 1,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 4.262294699999984,
+      "cleanup_seconds": 2.0070533000000523,
+      "coverage": "exact names, count, contents and distinct links verified"
+    }
+  ],
+  "source_sha256": {
+    "scripts\\diagnose_windows_fixture_workers.py": "aa09d6d402c352430827a73e2718395a6f4ff5bc389218bd57ec4a607a80a86f",
+    "scripts\\accept-readonly-load.py": "c7431d1cc00fdd263073e0b82487565e01bb1808970a9e8fab57ae5e5f81e49d"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "base_commit": "616958e2a4f47dfb14bd7b302b1354eb76ac206b",
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "b0d3c7b88be5006654b8cb5d4842b449efc264f2703305fb27ee2d8acc2435c9",
+    "scripts/tests/test_readonly_load_coverage.py": "70781298981e42918f0ee8316d18be37d5a272fc9eae584220cc077412b0e151"
+  },
+  "logs": {
+    "red": {
+      "bytes": 4621,
+      "sha256": "6d9e7981efe76b53a182a4c97ad7bbefde4ad2da03b1fe1f6751b2a452d6657a"
+    },
+    "green": {
+      "bytes": 2925,
+      "sha256": "12f50beaa4114112a967c7f966d4136527d76ef069d3bed36e1f57fe2230976b"
+    },
+    "diagnostic_regression": {
+      "bytes": 744,
+      "sha256": "e6e63b269255dd91d8eebdf391da666801d09ca3574dde17dae791432e6e08fd"
+    },
+    "script_suite": {
+      "bytes": 58671,
+      "sha256": "1b1812ed131d0b4a2660ff0ff83ca5591793a520956fca69d64331a706b6b8dc"
+    },
+    "openspec": {
+      "bytes": 47,
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    "cfaf_diagnostic_stderr": {
+      "bytes": 1674,
+      "sha256": "8cb3fa4d348333511fe1806ac9fa00342bc3b81d8e6cb317f1e1802599623f8b"
+    },
+    "cfaf_diagnostic_stdout": {
+      "bytes": 636,
+      "sha256": "3d624036166dcd22d79408cd21ff89a2a01a89141598f278160cef53667a49e7"
+    }
+  },
+  "tests": {
+    "load_coverage": {
+      "passed": 17
+    },
+    "windows_diagnostic_contract": {
+      "passed": 4
+    },
+    "script_suite": {
+      "total": 297,
+      "passed": 296,
+      "skipped": 1
+    }
+  },
+  "production_acceptance": false,
+  "limitations": [
+    "cleanup stage still requires native Windows measurement",
+    "20k fixture cleanup samples do not establish 200k cost",
+    "full original Windows 300s package gate failed; subsequent 302s diagnostic is not acceptance",
+    "current native CI 37759437051 measures the prior committed harness; this diagnostic edit is not pushed while it is running"
+  ]
+}

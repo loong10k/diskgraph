@@ -216,6 +216,12 @@ def main():
         database_bytes = sum(
             path.stat().st_size for path in data.glob("diskgraph*.sqlite*") if path.is_file()
         )
+        # 必须测到真实 TemporaryDirectory.__exit__ 完成；不得提前报告成功或绕过清理。
+        phase("workspace_cleanup", "begin")
+        cleanup_started = time.perf_counter()
+
+    cleanup_seconds = time.perf_counter() - cleanup_started
+    phase("workspace_cleanup", "end")
 
     report = {
         "version": version,
@@ -227,6 +233,7 @@ def main():
         "fixture_workers": fixture_workers,
         "fixture_seconds": round(fixture_seconds, 3),
         "scan_seconds": round(scan_seconds, 3),
+        "cleanup_seconds": round(cleanup_seconds, 3),
         "query_p50_ms": round(statistics.median(latencies) * 1000, 3),
         "query_p95_ms": round(latencies[math.ceil(0.95 * len(latencies)) - 1] * 1000, 3),
         "database_and_wal_bytes": database_bytes,
