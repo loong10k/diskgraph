@@ -6,18 +6,31 @@ use std::collections::{HashMap, HashSet};
 /// 参数：graph：完整观测图。
 /// 返回：成功为 ()，数据库/格式或状态冲突以 StoreError 返回。
 pub(crate) fn validate_graph(graph: &DiskGraph) -> Result<()> {
-    validate_graph_display_aliases(graph, false)
+    validate_graph_display_aliases(graph, false).map(|_| ())
 }
 
 /// 有无损暂存身份的发布可允许显示别名；原始身份唯一性由同一发布事务检查。
 /// 参数：graph 为完整观测图，allow_aliases 表示发布事务另行验证原始定位唯一性。
-/// 返回：图结构有效时成功；身份、父节点或覆盖冲突返回 InvalidGraph。
-pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: bool) -> Result<()> {
+/// 返回：图结构有效时返回显示别名标记；原始定位仍须在发布事务中另行验证。
+/// 身份、父节点或覆盖冲突返回 InvalidGraph，不改变各拒绝条件的顺序。
+pub(crate) fn validate_graph_display_aliases(
+    graph: &DiskGraph,
+    allow_aliases: bool,
+) -> Result<bool> {
     if graph.snapshot.id.is_empty() || graph.nodes.is_empty() {
         return Err(StoreError::InvalidGraph(
             "missing snapshot ID or nodes".into(),
         ));
     }
+    // 显示定位只计一次；临时集合在 ID 表和颜色表分配前释放，发布调用方复用纯标记。
+    // 标记不是可信身份或授权，仍按原顺序完成结构检查后才判断是否允许别名。
+    let has_display_aliases = graph
+        .nodes
+        .iter()
+        .map(|node| &node.locator)
+        .collect::<HashSet<_>>()
+        .len()
+        != graph.nodes.len();
     let ids: HashMap<_, _> = graph
         .nodes
         .iter()
@@ -67,8 +80,7 @@ pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: b
             current = graph.nodes[index].parent_id.map(|parent| ids[&parent]);
         }
     }
-    let locators: HashSet<_> = graph.nodes.iter().map(|node| &node.locator).collect();
-    if !allow_aliases && locators.len() != graph.nodes.len() {
+    if !allow_aliases && has_display_aliases {
         return Err(StoreError::InvalidGraph(
             "duplicate resource locators".into(),
         ));
@@ -87,5 +99,5 @@ pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: b
     {
         return Err(StoreError::InvalidGraph("invalid evidence".into()));
     }
-    Ok(())
+    Ok(has_display_aliases)
 }

@@ -1,0 +1,74 @@
+{
+  "base_commit": "616958e2a4f47dfb14bd7b302b1354eb76ac206b",
+  "logs": {
+    "before_release": {
+      "bytes": 2336,
+      "sha256": "6d6c4f05031fb303e500a22ae6c26b8e34cd74d58b96a31766833844de4594b1"
+    },
+    "after_release": {
+      "bytes": 722,
+      "sha256": "ba468f86b1781c3cd536686587ee1a2957a239dd811b0cbb3a1489e4da0b6c37"
+    },
+    "publication_regressions": {
+      "bytes": 1341,
+      "sha256": "947421b2d7dbe337216a417acdb9313b040138668562b4961032b517b54c6403"
+    },
+    "alias_regressions": {
+      "bytes": 1342,
+      "sha256": "e288fec2639fdeaade52254f689ae80f827fe82c75b5a46040e781d36ee5eebd"
+    },
+    "full_store": {
+      "bytes": 36824,
+      "sha256": "9fde8c5c789940ec78f6d95d00d148ffc2a6abdd3b267cef03b6d4de6447a0fd"
+    },
+    "layout": {
+      "bytes": 466,
+      "sha256": "9c3f529f3bc1138a1de712ad857d21aafea334019a7ba9824c7f645785aae19a"
+    },
+    "clippy": {
+      "bytes": 186,
+      "sha256": "07de603569684516d2e82a2463388deb6a41ee2202d2e9a87e35d6206ae7cfb4"
+    },
+    "fmt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspec": {
+      "bytes": 47,
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    "prior_linux_msrv_native_success": {
+      "bytes": 976263,
+      "sha256": "0565db555984f83b76de5d2879470b5531266813170dca5bc63b64c7e1ccb86c"
+    }
+  },
+  "before_source_sha256": {
+    "crates/diskgraph-store/src/graph_validation.rs": "229e4bca9dacf5b5f84114380fdd663e0562ab31cefcbbbed76cd5e710d0de7c",
+    "crates/diskgraph-store/src/revision_writer.rs": "151997b7975b0bfec0cd5041aa85370b904ccff8364c03010cb1c9e0416ebe56"
+  },
+  "after_source_sha256": {
+    "crates/diskgraph-store/src/graph_validation.rs": "17f09576902edb9c22c6fb4770f054d34b8dfa13476096baea0291125b02b1c6",
+    "crates/diskgraph-store/src/revision_writer.rs": "78f10baba960360e442cef3e4bfc21628b0e68fc872fafa23fa5657d6cdf2b06"
+  },
+  "measurement_source_sha256": "8bc16292d85740e763a5990fdbaddca49dc86b01ddb74e961fc467a8f9f26085",
+  "before_ms": {
+    "p50": 25.535709,
+    "p95": 28.772292
+  },
+  "after_ms": {
+    "p50": 19.502875,
+    "p95": 20.836750000000002
+  },
+  "measurement": "one ordered before/after release preparation-only synthetic metadata experiment; 4 warmups/20 samples per variant",
+  "store_regression": {
+    "passed": 342,
+    "ignored": 6,
+    "scope": "working tree includes two user uncommitted reader tests"
+  },
+  "production_acceptance": false,
+  "limits": [
+    "no behavioral change claimed and no fabricated behavioral RED",
+    "not a full scan/publication/RSS/platform SLO benchmark",
+    "prior Linux MSRV success applies to committed 616958e, not this modified source"
+  ]
+}

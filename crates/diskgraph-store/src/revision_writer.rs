@@ -148,14 +148,7 @@ impl SqliteSnapshotStore {
         };
         trace("prepare_begin");
         check()?;
-        let has_display_aliases = graph
-            .nodes
-            .iter()
-            .map(|node| &node.locator)
-            .collect::<std::collections::HashSet<_>>()
-            .len()
-            != graph.nodes.len();
-        validate_graph_display_aliases(graph, ownership.is_some())?;
+        let has_display_aliases = validate_graph_display_aliases(graph, ownership.is_some())?;
         let root_key = to_string(&graph.snapshot.root)?;
         let transaction = self.connection.transaction()?;
         check()?;

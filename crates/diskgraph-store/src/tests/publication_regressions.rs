@@ -2,6 +2,55 @@ use crate::{SqliteSnapshotStore, StoreError};
 use diskgraph_core::ResourceLocator;
 
 use super::fixtures::graph;
+
+#[test]
+#[ignore = "manual metadata-only publication preparation measurement; not native scan acceptance"]
+fn publication_preparation_metadata_costs() {
+    let mut input = graph("publication-preparation-cost", 1);
+    let template = input.nodes[1].clone();
+    input.nodes.truncate(1);
+    for id in 2..=200_000 {
+        let mut node = template.clone();
+        node.id = id;
+        node.name = format!("node-{id}");
+        node.locator = ResourceLocator::NativePath(format!("/tmp/diskgraph-test/node-{id}"));
+        input.nodes.push(node);
+    }
+    let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+    let mut samples = Vec::new();
+    for iteration in 0..24 {
+        let started = std::time::Instant::now();
+        let mut checks = 0;
+        // 第二检查点在事务内、写入 snapshot 之前，隔离真实准备段且验证拒绝没有发布数据。
+        let result = store.publish_revision_owned_with_batch_checked(
+            "cost-job",
+            &input,
+            ("cost-revision", 1),
+            Some(("server", "scope")),
+            None,
+            || {
+                checks += 1;
+                if checks == 2 {
+                    Err(StoreError::BudgetExceeded)
+                } else {
+                    Ok(())
+                }
+            },
+        );
+        assert!(matches!(result, Err(StoreError::BudgetExceeded)));
+        assert_eq!(checks, 2);
+        let elapsed = started.elapsed().as_secs_f64() * 1000.0;
+        assert!(store.list_snapshots(None, 1, 0).unwrap().is_empty());
+        if iteration >= 4 {
+            samples.push(elapsed);
+        }
+    }
+    samples.sort_by(f64::total_cmp);
+    println!(
+        "{}",
+        serde_json::json!({"synthetic_metadata_nodes":input.nodes.len(),"samples":samples.len(),"p50_ms":samples[9],"p95_ms":samples[18],"profile":if cfg!(debug_assertions){"debug"}else{"release"},"production_acceptance":false,"limits":"preparation and cancelled transaction only; no scan, successful publication, RSS or platform SLO proof"})
+    );
+}
 #[test]
 fn staging_is_invisible_until_published_and_latest_advances_atomically() {
     let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
