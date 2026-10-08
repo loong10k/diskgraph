@@ -145,3 +145,14 @@ Native hosts SHALL have a persistent read-only service session. Closing the sess
 - **THEN** its signal handler only records a shutdown request; the original HTTP runtime stops accepting, closes original connections and actually joins, followed by the original job runner and existing Engine/Recovery retirement.
 - **AND** only actual retirement can write CLEAN. SIGKILL or abnormal death still leaves ACTIVE unconfirmed; no automatic record repair or expanded capacity is allowed.
 - **AND** this does not prove finite foreground exit under Pending native recovery or Windows termination behavior.
+
+### Requirement: macOS bounded protocol rounds preserve installation exclusion
+macOS 扫描 SHALL 在每次有界 driver poll 前沿原期限读取并核对活跃安装代，并持有安装共享锁直到该 poll 完成。更新者 SHALL 使用同一安装排他锁。轮内授权、取消和期限检查 SHALL 保留，不缓存跨轮安装授权，不在闲置退避期间持锁。
+
+#### Scenario: Decoding checkpoints share the protected installation round
+- **WHEN** 一个有界 stdout/stderr 处理轮包含多个解码检查点
+- **THEN** 安装代核验执行一次且其共享锁覆盖整轮，轮内业务检查仍逐次执行；下一轮重新核验活跃代。
+
+#### Scenario: Failure releases the round before cleanup
+- **WHEN** poll 因期限、撤权、取消、协议错误或 panic 退出
+- **THEN** 原安装共享锁释放，原 child 仍由已有失败恢复责任处置，不交付结果、不刷新期限。

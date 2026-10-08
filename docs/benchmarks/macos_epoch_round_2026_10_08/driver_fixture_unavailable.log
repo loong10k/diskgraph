@@ -1,0 +1,93 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.91s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-5758aed9fc117a0f)
+
+running 12 tests
+test scan_worker_driver_additional_tests::actual_progress_dto_is_retained_without_fabricated_node_counters ... ok
+test scan_worker_driver_additional_tests::busy_output_does_not_pay_an_idle_interval_per_fixed_block ... FAILED
+test scan_worker_driver_additional_tests::caller_cancel_after_tree_eof_still_rejects_tree_and_cleans_actual_child ... FAILED
+test scan_worker_driver_additional_tests::checkpoint_panic_keeps_payload_and_cleans_even_when_caller_retains_driver ... FAILED
+test scan_worker_driver_additional_tests::live_child_without_output_keeps_idle_backoff_and_requires_actual_exit ... FAILED
+test scan_worker_driver_tests::checkpoint_denial_retains_nonclone_primary_and_performs_error_cleanup_not_normal_exit ... FAILED
+test scan_worker_driver_tests::end_control_closed_and_two_eofs_do_not_deliver_while_actual_leader_is_alive ... FAILED
+test scan_worker_driver_tests::malformed_frame_preserves_protocol_cause_and_reaps_the_real_process ... FAILED
+test scan_worker_driver_tests::pending_cancel_is_sent_only_after_complete_request_and_never_delivers_tree ... FAILED
+test scan_worker_driver_tests::stderr_backpressure_is_drained_while_request_and_stdout_progress ... FAILED
+test scan_worker_driver_tests::stderr_limit_is_not_unbounded_diagnostic_memory_or_a_success_tree ... FAILED
+test scan_worker_driver_tests::stdout_and_stderr_consume_one_original_response_total ... FAILED
+
+failures:
+
+---- scan_worker_driver_additional_tests::busy_output_does_not_pay_an_idle_interval_per_fixed_block stdout ----
+
+thread 'scan_worker_driver_additional_tests::busy_output_does_not_pay_an_idle_interval_per_fixed_block' (21969482) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- scan_worker_driver_additional_tests::caller_cancel_after_tree_eof_still_rejects_tree_and_cleans_actual_child stdout ----
+
+thread 'scan_worker_driver_additional_tests::caller_cancel_after_tree_eof_still_rejects_tree_and_cleans_actual_child' (21969483) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_additional_tests::checkpoint_panic_keeps_payload_and_cleans_even_when_caller_retains_driver stdout ----
+
+thread 'scan_worker_driver_additional_tests::checkpoint_panic_keeps_payload_and_cleans_even_when_caller_retains_driver' (21969484) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_additional_tests::live_child_without_output_keeps_idle_backoff_and_requires_actual_exit stdout ----
+
+thread 'scan_worker_driver_additional_tests::live_child_without_output_keeps_idle_backoff_and_requires_actual_exit' (21969485) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::checkpoint_denial_retains_nonclone_primary_and_performs_error_cleanup_not_normal_exit stdout ----
+
+thread 'scan_worker_driver_tests::checkpoint_denial_retains_nonclone_primary_and_performs_error_cleanup_not_normal_exit' (21969486) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::end_control_closed_and_two_eofs_do_not_deliver_while_actual_leader_is_alive stdout ----
+
+thread 'scan_worker_driver_tests::end_control_closed_and_two_eofs_do_not_deliver_while_actual_leader_is_alive' (21969487) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::malformed_frame_preserves_protocol_cause_and_reaps_the_real_process stdout ----
+
+thread 'scan_worker_driver_tests::malformed_frame_preserves_protocol_cause_and_reaps_the_real_process' (21969488) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::pending_cancel_is_sent_only_after_complete_request_and_never_delivers_tree stdout ----
+
+thread 'scan_worker_driver_tests::pending_cancel_is_sent_only_after_complete_request_and_never_delivers_tree' (21969489) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::stderr_backpressure_is_drained_while_request_and_stdout_progress stdout ----
+
+thread 'scan_worker_driver_tests::stderr_backpressure_is_drained_while_request_and_stdout_progress' (21969490) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::stderr_limit_is_not_unbounded_diagnostic_memory_or_a_success_tree stdout ----
+
+thread 'scan_worker_driver_tests::stderr_limit_is_not_unbounded_diagnostic_memory_or_a_success_tree' (21969491) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+---- scan_worker_driver_tests::stdout_and_stderr_consume_one_original_response_total stdout ----
+
+thread 'scan_worker_driver_tests::stdout_and_stderr_consume_one_original_response_total' (21969492) panicked at crates/diskgraph-engine/src/scan_worker_driver_test_support.rs:33:87:
+qualification: root must compile and provide fresh standalone driver fixture
+
+
+failures:
+    scan_worker_driver_additional_tests::busy_output_does_not_pay_an_idle_interval_per_fixed_block
+    scan_worker_driver_additional_tests::caller_cancel_after_tree_eof_still_rejects_tree_and_cleans_actual_child
+    scan_worker_driver_additional_tests::checkpoint_panic_keeps_payload_and_cleans_even_when_caller_retains_driver
+    scan_worker_driver_additional_tests::live_child_without_output_keeps_idle_backoff_and_requires_actual_exit
+    scan_worker_driver_tests::checkpoint_denial_retains_nonclone_primary_and_performs_error_cleanup_not_normal_exit
+    scan_worker_driver_tests::end_control_closed_and_two_eofs_do_not_deliver_while_actual_leader_is_alive
+    scan_worker_driver_tests::malformed_frame_preserves_protocol_cause_and_reaps_the_real_process
+    scan_worker_driver_tests::pending_cancel_is_sent_only_after_complete_request_and_never_delivers_tree
+    scan_worker_driver_tests::stderr_backpressure_is_drained_while_request_and_stdout_progress
+    scan_worker_driver_tests::stderr_limit_is_not_unbounded_diagnostic_memory_or_a_success_tree
+    scan_worker_driver_tests::stdout_and_stderr_consume_one_original_response_total
+
+test result: FAILED. 1 passed; 11 failed; 0 ignored; 0 measured; 686 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

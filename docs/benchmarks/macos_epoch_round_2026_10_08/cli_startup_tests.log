@@ -1,0 +1,16 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.79s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-64ee356d0932d7a8)
+
+running 9 tests
+test cli_engine_host::tests::admitted_cli_retires_original_engine_and_slot_after_command_error ... ok
+test cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery ... ok
+test cli_engine_host::tests::database_construction_failure_aborts_only_original_prebirth_reservation ... ok
+test cli_engine_host::tests::expired_original_startup_deadline_refuses_database_birth ... ok
+test cli_engine_host::tests::invalid_user_domain_requires_attention_before_database_birth ... ok
+test cli_engine_host::tests::late_startup_rejection_seals_original_registry ... ok
+test cli_engine_host::tests::occupied_user_domain_refuses_cli_before_database_birth ... ok
+test cli_engine_host::tests::startup_deadline_expiring_during_admission_refuses_database_birth ... ok
+test cli_engine_host::tests::unconfirmed_user_domain_refuses_cli_before_any_database_birth ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 74 filtered out; finished in 1.31s

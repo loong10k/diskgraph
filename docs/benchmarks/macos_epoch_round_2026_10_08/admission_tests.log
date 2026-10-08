@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-5758aed9fc117a0f)
+
+running 3 tests
+test macos_host_admission_tests::fixed_installation_constructor_preserves_original_cancellation ... ok
+test macos_host_admission_tests::ordinary_file_constructor_never_acquires_mac_execution_qualification ... ok
+test macos_host_admission_tests::running_epoch_check_preserves_cancellation_and_rejects_ordinary_file_host ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 695 filtered out; finished in 0.00s

@@ -1,0 +1,14 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-5758aed9fc117a0f)
+
+running 8 tests
+test macos_installation_lock_tests::denied_post_acquisition_checkpoint_unlocks_with_surviving_reference ... ok
+test macos_installation_lock_tests::dropping_guard_unlocks_before_a_surviving_kernel_reference_closes ... ok
+test macos_installation_lock_tests::dropping_shared_guard_releases_same_kernel_lock_without_clone ... ok
+test macos_installation_lock_tests::exclusive_fixture ... ok
+test macos_installation_lock_tests::post_acquisition_panic_unlocks_original_guard_before_outer_catch ... ok
+test macos_installation_lock_tests::real_cross_process_contention_expires_at_original_deadline ... ok
+test macos_installation_lock_tests::real_cross_process_contention_preserves_original_cancel ... ok
+test macos_installation_lock_tests::updater_lock_preserves_original_cancel_and_rejects_unprivileged_identity ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 690 filtered out; finished in 0.05s

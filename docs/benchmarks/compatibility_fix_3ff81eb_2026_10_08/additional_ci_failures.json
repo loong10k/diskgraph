@@ -1,0 +1,27 @@
+{
+  "baseline_commit": "3ff81eb390275b8c70ca4ff45d3e0fa1c9e09b23",
+  "run": 37722599345,
+  "failures": [
+    {
+      "job": 113133862967,
+      "platform": "macos ARM stable",
+      "symptom": "cli_flow children fixture scope add startup ENOENT; separate from timeout/revision fixes",
+      "root_cause": "unconfirmed"
+    },
+    {
+      "job": 113133976534,
+      "platform": "macos Intel package",
+      "symptom": "concurrent top query engine startup ENOENT",
+      "root_cause": "unconfirmed"
+    },
+    {
+      "job": 113133976627,
+      "platform": "macos ARM package",
+      "symptom": "200000 files total 300s timeout; fixture create 25.470044s; index began, no completion before timeout",
+      "root_cause": "unconfirmed"
+    }
+  ],
+  "candidate_run": 37724336702,
+  "candidate_commit": "e77a7e2d3abf23f17edd4a879c6d264c8a1d45b1",
+  "candidate_result": "pending; no production acceptance claim"
+}

@@ -70,16 +70,6 @@ impl<'a> ScanWorkerRuntime<'a> {
                     .as_mut()
                     .expect("original launched child is owned outside catch"),
             );
-            // 出生前启动器持更新锁并在摘要前后核对安装代；保留原业务检查，
-            // 不在每个摘要块中嵌套重复读取安装配置。出生后协议阶段逐轮检查安装代。
-            #[cfg(target_os = "macos")]
-            let mut epoch_checkpoint = || {
-                self.host
-                    .authorize_macos_epoch(self.deadline, &mut *checkpoint)
-                    .map(|_| ())
-            };
-            #[cfg(target_os = "macos")]
-            let checkpoint = &mut epoch_checkpoint;
             match ScanWorkerDriver::new(
                 &mut launched,
                 request,
@@ -111,9 +101,29 @@ impl<'a> ScanWorkerRuntime<'a> {
                 let active = driver
                     .as_mut()
                     .expect("configured driver remains outside catch");
-                let outcome = active
-                    .poll(false, &mut *checkpoint)
-                    .map_err(|error| ScanWorkerErrorProjection::driver(error, |primary| primary))?;
+                // 安装更新者必须持排他锁：一轮有界协议处理共用同一共享锁与安装代，
+                // 不在每个解码检查点重复打开祖先、读取配置和核验 ACL。
+                // 轮内业务取消/授权/原期限仍逐次检查，下一轮重新读取活跃代。
+                let outcome = {
+                    #[cfg(target_os = "macos")]
+                    let epoch_guard = self
+                        .host
+                        .authorize_macos_epoch(self.deadline, &mut *checkpoint)?;
+                    // 按值移交给 poll；poll 在原生失败清理前销毁检查器及其安装锁。
+                    #[cfg(target_os = "macos")]
+                    let round_checkpoint = {
+                        let checkpoint = &mut *checkpoint;
+                        move || {
+                            let _held = &epoch_guard;
+                            checkpoint()
+                        }
+                    };
+                    #[cfg(not(target_os = "macos"))]
+                    let round_checkpoint = &mut *checkpoint;
+                    active.poll(false, round_checkpoint).map_err(|error| {
+                        ScanWorkerErrorProjection::driver(error, |primary| primary)
+                    })?
+                };
                 if let Some(snapshot) = active.progress() {
                     progress(snapshot)?;
                 }

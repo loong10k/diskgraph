@@ -104,12 +104,18 @@ impl ScanWorkerDriver {
         }
         // 检查函数或 native 后处理 panic 时，借用 self 的 unwind 也必须实际清理；
         // 不能只依赖调用者最终 Drop。原 panic payload 原样继续展开。
-        match catch_unwind(AssertUnwindSafe(|| {
+        let observed = catch_unwind(AssertUnwindSafe(|| {
             self.poll_checked(request_cancel, &mut checkpoint)
-        })) {
+        }));
+        // 轮级检查器可拥有安装共享锁；必须先释放借用保护，再进入可能等待的原生清理。
+        // catch 已结束对检查器的借用，原错误和 panic payload 仍由原 owner 处理。
+        drop(checkpoint);
+        match observed {
             Ok(Ok(result)) => Ok(result),
             Ok(Err(error)) => {
                 self.stopped = true;
+                #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+                crate::scan_worker_driver_tests::observe_checkpoint_release_before_cleanup();
                 Err(error.with_cleanup(
                     self.child
                         .as_mut()
@@ -119,6 +125,8 @@ impl ScanWorkerDriver {
             }
             Err(payload) => {
                 self.stopped = true;
+                #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+                crate::scan_worker_driver_tests::observe_checkpoint_release_before_cleanup();
                 self.unwind_cleanup = self
                     .child
                     .as_mut()

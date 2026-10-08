@@ -32,7 +32,10 @@ impl CliEngineHost {
         if Instant::now() >= deadline {
             return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
         }
-        let host = Self::prepare_host_until(&config, deadline)?;
+        let host = Self::prepare_host_until(&config, deadline).inspect_err(|_| {
+            // 仅报告固定阶段，不输出安装路径、配置或凭据，原错误分类保持不变。
+            eprintln!("diskgraph: startup stage=worker_admission failed");
+        })?;
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         {
             let managed = host.is_some();
@@ -94,7 +97,10 @@ impl CliEngineHost {
         directory: std::fs::File,
     ) -> Result<Self, EngineError> {
         let deadline = Instant::now() + Duration::from_secs(30);
-        let host = Self::prepare_host_until(&config, deadline)?;
+        let host = Self::prepare_host_until(&config, deadline).inspect_err(|_| {
+            // 仅报告固定阶段，不输出安装路径、配置或凭据，原错误分类保持不变。
+            eprintln!("diskgraph: startup stage=worker_admission failed");
+        })?;
         let managed = host.is_some();
         Self::open_admitted_until(config, host, deadline, || {
             if !managed {
@@ -122,7 +128,9 @@ impl CliEngineHost {
             return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
         }
         // 持久预留必须先于数据库出生；原生工作只能在 ACTIVE 及原绑定建立后执行。
-        let reservation = reserve()?;
+        let reservation = reserve().inspect_err(|_| {
+            eprintln!("diskgraph: startup stage=recovery_reservation failed");
+        })?;
         if host.is_some() != reservation.is_some() {
             if let Some(reservation) = reservation {
                 reservation
@@ -143,6 +151,7 @@ impl CliEngineHost {
         let (engine, recovery) = match opened {
             Ok(opened) => opened,
             Err(primary) => {
+                eprintln!("diskgraph: startup stage=engine_initialization failed");
                 // 构造只初始化数据库，未向消费者交出 Engine、未启动 runner/原生工作。
                 // 保留原错误；原期限内不能确认出生前取消时，记录保持未确认。
                 if let Some(reservation) = reservation
@@ -158,7 +167,10 @@ impl CliEngineHost {
         };
         let slot = reservation
             .map(|slot| slot.activate(deadline).map_err(slot_error))
-            .transpose()?;
+            .transpose()
+            .inspect_err(|_| {
+                eprintln!("diskgraph: startup stage=recovery_activation failed");
+            })?;
         Self {
             engine: Arc::new(engine),
             recovery,

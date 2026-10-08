@@ -204,3 +204,102 @@ fn stdout_and_stderr_consume_one_original_response_total() {
     );
     f.assert_reaped();
 }
+
+/// 检查器拥有资源的释放见证；来源：PF-06 轮级安装锁释放次序回归。
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+struct CheckpointReleaseProbe {
+    released_before_cleanup: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+impl Drop for CheckpointReleaseProbe {
+    fn drop(&mut self) {
+        self.released_before_cleanup
+            .store(true, std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
+#[test]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn owned_checkpoint_resources_release_before_error_and_panic_child_cleanup() {
+    for panics in [false, true] {
+        let mut fixture = DriverFixture::new("checkpoint", 4096);
+        let deadline = fixture.deadline;
+        while !fixture.reached("checkpoint-ready") {
+            assert!(
+                fixture
+                    .driver
+                    .poll(false, || check(deadline))
+                    .unwrap()
+                    .is_none()
+            );
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        let released = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let probe = CheckpointReleaseProbe {
+            released_before_cleanup: std::sync::Arc::clone(&released),
+        };
+        let observed = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        CLEANUP_RELEASE_WITNESS.with(|slot| {
+            *slot.borrow_mut() = Some((
+                std::sync::Arc::clone(&released),
+                std::sync::Arc::clone(&observed),
+            ));
+        });
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            fixture.driver.poll(false, move || {
+                let _held = &probe;
+                if panics {
+                    std::panic::panic_any(OriginalDenial(91));
+                }
+                Err(OriginalDenial(91))
+            })
+        }));
+        CLEANUP_RELEASE_WITNESS.with(|slot| slot.borrow_mut().take());
+        assert!(
+            observed.load(std::sync::atomic::Ordering::SeqCst),
+            "real cleanup entry was not observed"
+        );
+        if panics {
+            assert_eq!(
+                *result.unwrap_err().downcast::<OriginalDenial>().unwrap(),
+                OriginalDenial(91)
+            );
+        } else {
+            assert!(matches!(
+                result.unwrap(),
+                Err(ScanWorkerFailure::Checkpoint {
+                    primary: OriginalDenial(91),
+                    cleanup: None
+                })
+            ));
+        }
+        assert!(
+            released.load(std::sync::atomic::Ordering::SeqCst),
+            "checkpoint resource survived into child cleanup"
+        );
+        fixture.assert_reaped();
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+thread_local! {
+    static CLEANUP_RELEASE_WITNESS: std::cell::RefCell<Option<(
+        std::sync::Arc<std::sync::atomic::AtomicBool>,
+        std::sync::Arc<std::sync::atomic::AtomicBool>,
+    )>> = const { std::cell::RefCell::new(None) };
+}
+
+/// 在真实driver清理入口核对检查器销毁；仅线程本地测试见证，不修改child处置。
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub(crate) fn observe_checkpoint_release_before_cleanup() {
+    CLEANUP_RELEASE_WITNESS.with(|slot| {
+        if let Some((released, observed)) = slot.borrow().as_ref() {
+            assert!(
+                released.load(std::sync::atomic::Ordering::SeqCst),
+                "checkpoint resource retained at cleanup entry"
+            );
+            observed.store(true, std::sync::atomic::Ordering::SeqCst);
+        }
+    });
+}
