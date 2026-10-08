@@ -32,7 +32,9 @@ pub(crate) fn run(
                 authorizer,
                 deadline,
             )?;
-            let data = engine.explain_bounded_until(
+            let server = engine.server_id_until(deadline)?;
+            let mut encoded = None;
+            engine.explain_bounded_with_finish_until(
                 revision,
                 entity,
                 after_edge.as_deref(),
@@ -41,10 +43,16 @@ pub(crate) fn run(
                 principal,
                 authorizer,
                 deadline,
+                |data, expired| {
+                    encoded = Some(relation_reply::encode_within_request(
+                        server.clone(),
+                        data,
+                        expired,
+                    )?);
+                    Ok(())
+                },
             )?;
-            out.push(relation_reply::finish(
-                engine, principal, authorizer, revision, data, deadline,
-            )?);
+            out.push(encoded.ok_or(BusinessError::BudgetExceeded)?);
             Ok(())
         }
         Command::Related {
@@ -72,7 +80,9 @@ pub(crate) fn run(
                 ),
                 None => None,
             };
-            let data = engine.related_bounded_until(
+            let server = engine.server_id_until(deadline)?;
+            let mut encoded = None;
+            engine.related_bounded_with_finish_until(
                 revision,
                 entity,
                 relation,
@@ -83,10 +93,16 @@ pub(crate) fn run(
                 principal,
                 authorizer,
                 deadline,
+                |data, expired| {
+                    encoded = Some(relation_reply::encode_within_request(
+                        server.clone(),
+                        data,
+                        expired,
+                    )?);
+                    Ok(())
+                },
             )?;
-            out.push(relation_reply::finish(
-                engine, principal, authorizer, revision, data, deadline,
-            )?);
+            out.push(encoded.ok_or(BusinessError::BudgetExceeded)?);
             Ok(())
         }
         Command::Impact {
@@ -110,27 +126,38 @@ pub(crate) fn run(
                 max_edges: *max_edges,
                 ..QueryBudget::default()
             };
-            let answer = engine
-                .revision_impact_until(revision, entity, budget, principal, authorizer, deadline)?;
-            out.push(relation_reply::finish(
-                engine,
+            let server = engine.server_id_until(deadline)?;
+            let mut encoded = None;
+            engine.revision_impact_with_finish_until(
+                revision,
+                entity,
+                budget,
                 principal,
                 authorizer,
-                revision,
-                serde_json::json!({
-                    "revision_id": revision,
-                    "entity": entity,
-                    "entries": answer.entries.iter().map(|entry| serde_json::json!({
-                        "entity_id": entry.entity_id,
-                        "relation": entry.relation.wire_name(),
-                        "depth": entry.depth,
-                    })).collect::<Vec<_>>(),
-                    "grants_execution": false,
-                    "complete": answer.truncated.is_none(),
-                    "truncated": answer.truncated.map(|reason|reason.wire_name()),
-                }),
                 deadline,
-            )?);
+                |answer, expired| {
+                    let data = serde_json::json!({
+                        "revision_id": revision,
+                        "entity": entity,
+                        "entries": answer.entries.iter().map(|entry| serde_json::json!({
+                            "entity_id": entry.entity_id,
+                            "relation": entry.relation.wire_name(),
+                            "depth": entry.depth,
+                        })).collect::<Vec<_>>(),
+                        "grants_execution": false,
+                        "complete": answer.truncated.is_none(),
+                        "truncated": answer.truncated.map(|reason|reason.wire_name()),
+                    });
+                    encoded = Some(relation_reply::encode_within_request(
+                        server.clone(),
+                        &data,
+                        expired,
+                    )?);
+                    Ok(())
+                },
+            )?;
+            // 编码只是准备文本；原请求终检成功后才交给输出适配器。
+            out.push(encoded.ok_or(BusinessError::BudgetExceeded)?);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

@@ -1,0 +1,69 @@
+{
+  "run": 37839056646,
+  "head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+  "jobs": [
+    {
+      "job_id": "113523484612",
+      "failures": [
+        "2026-10-08T20:27:08.3495543Z test query_terminal_tests::encoded_changes_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:08.3505051Z changes: Err(Business(Conflict))",
+        "2026-10-08T20:27:09.3040717Z test query_terminal_tests::encoded_comparison_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:09.3085074Z compare: Err(Business(Conflict))",
+        "2026-10-08T20:27:10.6497733Z test query_terminal_tests::encoded_growth_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:10.6545362Z growth: Err(Business(Conflict))",
+        "2026-10-08T20:27:10.9639124Z html: Err(Business(Conflict))",
+        "2026-10-08T20:27:10.9649095Z test query_terminal_tests::encoded_html_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:11.9077162Z plan: Err(Business(Conflict))",
+        "2026-10-08T20:27:11.9080483Z test query_terminal_tests::encoded_plan_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:12.6192594Z tree: Err(Business(Conflict))",
+        "2026-10-08T20:27:12.6207857Z test query_terminal_tests::encoded_tree_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:13.5570072Z verified_compare: Err(Business(Conflict))",
+        "2026-10-08T20:27:13.5582114Z test query_terminal_tests::encoded_verified_comparison_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:20.9210208Z test result: FAILED. 83 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.31s",
+        "2026-10-08T20:36:09.9466480Z ##[error]Process completed with exit code 101."
+      ]
+    },
+    {
+      "job_id": "113523484572",
+      "failures": [
+        "2026-10-08T20:27:01.1819465Z changes: Err(Business(Conflict))",
+        "2026-10-08T20:27:01.1847077Z test query_terminal_tests::encoded_changes_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:01.3608828Z test query_terminal_tests::encoded_comparison_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:01.3610464Z compare: Err(Business(Conflict))",
+        "2026-10-08T20:27:02.2592772Z growth: Err(Business(Conflict))",
+        "2026-10-08T20:27:02.2610817Z test query_terminal_tests::encoded_growth_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:02.4247604Z html: Err(Business(Conflict))",
+        "2026-10-08T20:27:02.4248729Z test query_terminal_tests::encoded_html_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:03.0874452Z test query_terminal_tests::encoded_plan_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:03.0892189Z plan: Err(Business(Conflict))",
+        "2026-10-08T20:27:03.4998840Z test query_terminal_tests::encoded_tree_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:03.5004415Z tree: Err(Business(Conflict))",
+        "2026-10-08T20:27:04.1505378Z verified_compare: Err(Business(Conflict))",
+        "2026-10-08T20:27:04.1507238Z test query_terminal_tests::encoded_verified_comparison_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:27:10.4387584Z test result: FAILED. 83 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.46s",
+        "2026-10-08T20:34:01.7441266Z ##[error]Process completed with exit code 101."
+      ]
+    },
+    {
+      "job_id": "113523484466",
+      "failures": [
+        "2026-10-08T20:26:51.1249492Z changes: Err(Business(Conflict))",
+        "2026-10-08T20:26:51.1262401Z test query_terminal_tests::encoded_changes_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:51.8242922Z compare: Err(Business(Conflict))",
+        "2026-10-08T20:26:51.8255764Z test query_terminal_tests::encoded_comparison_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:52.1486407Z growth: Err(Business(Conflict))",
+        "2026-10-08T20:26:52.1501790Z test query_terminal_tests::encoded_growth_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:52.3355243Z plan: Err(Business(Conflict))",
+        "2026-10-08T20:26:52.3374672Z test query_terminal_tests::encoded_plan_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:52.4112505Z html: Err(Business(Conflict))",
+        "2026-10-08T20:26:52.4132191Z test query_terminal_tests::encoded_html_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:53.0527664Z tree: Err(Business(Conflict))",
+        "2026-10-08T20:26:53.0545081Z test query_terminal_tests::encoded_tree_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:53.1079123Z verified_compare: Err(Business(Conflict))",
+        "2026-10-08T20:26:53.1112737Z test query_terminal_tests::encoded_verified_comparison_remembers_grant_revocation_even_if_restored ... FAILED",
+        "2026-10-08T20:26:59.3931129Z test result: FAILED. 83 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.51s",
+        "2026-10-08T20:32:45.5813576Z ##[error]Process completed with exit code 101."
+      ]
+    }
+  ]
+}

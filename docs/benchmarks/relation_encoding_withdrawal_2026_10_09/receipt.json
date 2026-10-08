@@ -1,0 +1,378 @@
+{
+  "date": "2026-10-09",
+  "scope": "relation response encoding continuous withdrawal; not whole platform production acceptance",
+  "windows": {
+    "relation_encoding_native": {
+      "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+      "source_hashes": {
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919",
+        "crates/diskgraph-mcp/src/history_budget_tests.rs": "6ad95041c1a680a353beca3b916efa812ae09520b0e80fdafabb3ac007dd5fcf",
+        "crates/diskgraph-mcp/src/lib.rs": "8227c5fe29c106e5bfabbef2d697c35580432a89022ecf178154209b8ab42f68",
+        "crates/diskgraph-mcp/src/relation_budget_tests.rs": "1901e6fa1a8f66a2c539263d2748919ef05e0720d963f15356bf055572ddcef1",
+        "crates/diskgraph-mcp/src/relation_reply.rs": "296c7b8b372f7a32f7754150513fa8c8dc26a0e6bfda65431efa3645ff714613",
+        "crates/diskgraph-mcp/src/relation_tools.rs": "bae4d4aba5fb52666b9124c96eda2f5c49b110dffbd0ced515c7f3999043185d",
+        "crates/diskgraph-mcp/src/service_dispatch.rs": "ff9fccc84306efd54eb50492a25ce01e8c5a48d0b7bc9ce2cdd18feb62fd2af1",
+        "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs": "bea7ac0a32bb02f3cdf3688ccb6951ad284387138001eed4599a5ef69cd7a5ad",
+        "crates/diskgraph-mcp/src/relation_encoding_tests.rs": "25b66462c3488d63e02e6c6a01b41fa4dd84ea40a19735d410beb10d99876005"
+      },
+      "commands": [
+        {
+          "name": "mcp_relation",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-mcp",
+            "--lib",
+            "relation_encoding_tests",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 19.28200000000652
+        },
+        {
+          "name": "mcp_lib",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-mcp",
+            "--lib",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 22.280999999988126
+        }
+      ],
+      "working_tree_diff_sha256": "f5d570c943684d5056809ae3868f7e2361433d0775e2601c97cf88bb8ccaf5f1",
+      "tracked_status": " M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n",
+      "summaries": {
+        "mcp_lib.stdout.log": [
+          "test result: ok. 231 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.53s"
+        ],
+        "mcp_relation.stdout.log": [
+          "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 223 filtered out; finished in 3.12s"
+        ]
+      },
+      "raw_hashes": {
+        "mcp_lib.stderr.log": "e04118ad1eed2c1924791a8e9f4fa92ffae103701eef871a91e3cc0014c7e703",
+        "mcp_lib.stdout.log": "5d60d237ef48d962d3c7df880b7e7831a8bd6b7232a2836861eb74af057db2e3",
+        "mcp_relation.stderr.log": "488c4f8a815817a2e6f412398b4da702c1b134ef8ddb32914a22f99db33f8e1c",
+        "mcp_relation.stdout.log": "f5151fa80d078f101cfa8d50c74e72adee300d4c8a8e6a6fd60c75d0d829f127",
+        "receipt.json": "a932bb3ddf9e26d770ac70daf59090e2feb76714b6522e0a63d1878f991d956f",
+        "run.py": "ee9c5e68cd12357243db0afa4d4519f00d787421e36497413c825e255ddf90cb",
+        "source.diff": "f5d570c943684d5056809ae3868f7e2361433d0775e2601c97cf88bb8ccaf5f1"
+      },
+      "post_source_hashes": {
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919",
+        "crates/diskgraph-mcp/src/history_budget_tests.rs": "6ad95041c1a680a353beca3b916efa812ae09520b0e80fdafabb3ac007dd5fcf",
+        "crates/diskgraph-mcp/src/lib.rs": "8227c5fe29c106e5bfabbef2d697c35580432a89022ecf178154209b8ab42f68",
+        "crates/diskgraph-mcp/src/relation_budget_tests.rs": "1901e6fa1a8f66a2c539263d2748919ef05e0720d963f15356bf055572ddcef1",
+        "crates/diskgraph-mcp/src/relation_reply.rs": "296c7b8b372f7a32f7754150513fa8c8dc26a0e6bfda65431efa3645ff714613",
+        "crates/diskgraph-mcp/src/relation_tools.rs": "bae4d4aba5fb52666b9124c96eda2f5c49b110dffbd0ced515c7f3999043185d",
+        "crates/diskgraph-mcp/src/service_dispatch.rs": "ff9fccc84306efd54eb50492a25ce01e8c5a48d0b7bc9ce2cdd18feb62fd2af1",
+        "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs": "bea7ac0a32bb02f3cdf3688ccb6951ad284387138001eed4599a5ef69cd7a5ad",
+        "crates/diskgraph-mcp/src/relation_encoding_tests.rs": "25b66462c3488d63e02e6c6a01b41fa4dd84ea40a19735d410beb10d99876005"
+      }
+    },
+    "cli_relation_encoding_red": {
+      "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+      "source_hashes": {
+        "crates/diskgraph-cli/src/query_terminal_tests.rs": "beac1bb3d0b25cfb315b99d9aa663d7616af96157270ec1ca63b74889bbe7ddc",
+        "crates/diskgraph-cli/src/relation_reply.rs": "244c5a53e5742c79f45638db09a46e2860ebd5dd0dec730ee4d9a085ee42cc3b",
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+      },
+      "commands": [
+        {
+          "name": "cli_relation_red",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-cli",
+            "--bin",
+            "diskgraph",
+            "encoded_relation_",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 101,
+          "elapsed_seconds": 20.39100000000326
+        }
+      ],
+      "working_tree_diff_sha256": "2a9105ddff74a98d7355332a4be80ada349d784353202ee5dbaa1dcae2128310",
+      "tracked_status": " M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n",
+      "summaries": {
+        "cli_relation_red.stdout.log": [
+          "test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 84 filtered out; finished in 4.27s"
+        ]
+      },
+      "raw_hashes": {
+        "cli_relation_red.stderr.log": "637ce3c8fdae8a14845b3b02f53f56e106ea9c2bc8673ea9d1aa0921a2809ba2",
+        "cli_relation_red.stdout.log": "a94a3ea1b4fa7f367cf35e1bcbe67c67e83299f52961abda5a4e40e390e46bef",
+        "receipt.json": "c16307bb6a822a61494cb48250a2bf02522817614da750a2791d056c52b9427a",
+        "run.py": "d6f721dc4be107d44fc38df9a764ab875ec05deafca55fcb47d1ae0eff2f6e83",
+        "source.diff": "2a9105ddff74a98d7355332a4be80ada349d784353202ee5dbaa1dcae2128310"
+      },
+      "post_source_hashes": {
+        "crates/diskgraph-cli/src/query_terminal_tests.rs": "bb4fad2f58b0d9f1b1ae90bb16de4a336baf448afe2cc0112eb0cfaa04f6edc9",
+        "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+      }
+    },
+    "cli_relation_encoding_green": {
+      "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+      "source_hashes": {
+        "crates/diskgraph-cli/src/query_terminal_tests.rs": "bb4fad2f58b0d9f1b1ae90bb16de4a336baf448afe2cc0112eb0cfaa04f6edc9",
+        "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+        "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+        "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9",
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+      },
+      "commands": [
+        {
+          "name": "cli_relation_green",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-cli",
+            "--bin",
+            "diskgraph",
+            "remembers_grant_revocation_even_if_restored",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 10.780999999988126
+        },
+        {
+          "name": "cli_full",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-cli",
+            "--bin",
+            "diskgraph",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 14.812000000005355
+        }
+      ],
+      "working_tree_diff_sha256": "fc6d5d7a7f41742938945a9a1cbb00f37df1dafa414dda8abf9edbce4dc3a990",
+      "tracked_status": " M crates/diskgraph-cli/src/candidate_commands.rs\n M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_commands.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n",
+      "summaries": {
+        "cli_full.stdout.log": [
+          "test result: ok. 88 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.18s"
+        ],
+        "cli_relation_green.stdout.log": [
+          "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 3.96s"
+        ]
+      },
+      "raw_hashes": {
+        "cli_full.stderr.log": "d4f02d673f1fe77d33c306aae8fcb87f7d9c32c97aa1db32fca8b6971f2e73c1",
+        "cli_full.stdout.log": "f06b2a5916ffe5cc7a02dfbae53f438fea13dde0a5d293ded7c4e86dcc686421",
+        "cli_relation_green.stderr.log": "51f316a586120915e7e19bf81faf4f82db4f0eeb0b82bfcfb74fda0e11c344eb",
+        "cli_relation_green.stdout.log": "349d852b9b5ff61713f14db09563701e5180454af7fdc3d5b3ed1d64364227a1",
+        "receipt.json": "437a5df29b2398454d8cd7336cd0f982d5da655fe4ea0106a048f51aab0f914a",
+        "run.py": "6042ae5566d875c2e02db4ee3f1f8c4dcbc27eda760cac47c2968817cfa78aa9",
+        "source.diff": "fc6d5d7a7f41742938945a9a1cbb00f37df1dafa414dda8abf9edbce4dc3a990"
+      },
+      "post_source_hashes": {
+        "crates/diskgraph-cli/src/query_terminal_tests.rs": "bb4fad2f58b0d9f1b1ae90bb16de4a336baf448afe2cc0112eb0cfaa04f6edc9",
+        "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+        "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+        "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9",
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+      }
+    },
+    "cli_relation_capability_contract": {
+      "job_id": "wc_job_iDyYdX7b_R8_YKUj",
+      "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+      "source_hashes": {
+        "crates/diskgraph-cli/src/query_terminal_tests.rs": "dfd3148eed26e29f6441a36c7fd2a5366a1422e5a8af21b1fa3c4d6b7c910ae6",
+        "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+        "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+        "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9",
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+      },
+      "commands": [
+        {
+          "name": "cli_relation_green",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-cli",
+            "--bin",
+            "diskgraph",
+            "remembers_grant_revocation_even_if_restored",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 13.405999999988126
+        },
+        {
+          "name": "cli_full",
+          "argv": [
+            "cargo",
+            "+1.99.0",
+            "test",
+            "--locked",
+            "-p",
+            "diskgraph-cli",
+            "--bin",
+            "diskgraph",
+            "--target",
+            "x86_64-pc-windows-msvc",
+            "--",
+            "--nocapture"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 15.78100000001723
+        }
+      ],
+      "working_tree_diff_sha256": "bac139b14fc5cf6003406392409e24ef6c917c180ba6e99b3599cb28d9694871",
+      "tracked_status": " M crates/diskgraph-cli/src/candidate_commands.rs\n M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_commands.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n",
+      "summaries": {
+        "cli_full.stdout.log": [
+          "test result: ok. 88 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.96s"
+        ],
+        "cli_relation_green.stdout.log": [
+          "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 4.85s"
+        ]
+      },
+      "raw_hashes": {
+        "cli_full.stderr.log": "65972f3db90ea229a4fb42a59327539970b1b9f6e2de2a6e36905d51ffe1fb66",
+        "cli_full.stdout.log": "b1d4ab2ba408ca4a74505d421deba675b3843773312ceeb1987e5184c9ccf756",
+        "cli_relation_green.stderr.log": "0c8558cf074ef604c664d46508ae73a8888d2fa07cea85784cbedb5cf9b31de3",
+        "cli_relation_green.stdout.log": "3411305d7254f466106a4efe3ce8a0e496a802e426510f7129354b7fa4851a6d",
+        "receipt.json": "51e8bdd6386319edcd376932c9e44f90eca0443dfa45faaa25f65691dd0979d9",
+        "run.py": "6f62f707818eb2bd96c43d4bbd9d81ba1aabb34f2e31fc569821be52ea42634f",
+        "source.diff": "bac139b14fc5cf6003406392409e24ef6c917c180ba6e99b3599cb28d9694871"
+      },
+      "post_source_hashes": {
+        "crates/diskgraph-cli/src/query_terminal_tests.rs": "dfd3148eed26e29f6441a36c7fd2a5366a1422e5a8af21b1fa3c4d6b7c910ae6",
+        "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+        "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+        "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9",
+        "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+        "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+      }
+    }
+  },
+  "raw_windows_root": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0",
+  "jobs": {
+    "mcp": "wc_job_ZgBZQWGx6Jnduts3",
+    "cli_red": "wc_job_7JiPr0VyJcYymh3F",
+    "cli_green": "wc_job_a3rlz9rhQsdrg3Bh",
+    "cli_capability_contract": "wc_job_iDyYdX7b_R8_YKUj"
+  },
+  "limitations": [
+    "Previous default full failures remain recorded; one later successful run does not prove repeated stability.",
+    "No whole-workspace acceptance or Windows 200k performance claim.",
+    "Native raw logs remain Windows; local receipt contains observed summaries and source fingerprints."
+  ],
+  "local_current_source_hashes": {
+    "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+    "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919",
+    "crates/diskgraph-mcp/src/history_budget_tests.rs": "6ad95041c1a680a353beca3b916efa812ae09520b0e80fdafabb3ac007dd5fcf",
+    "crates/diskgraph-mcp/src/lib.rs": "8227c5fe29c106e5bfabbef2d697c35580432a89022ecf178154209b8ab42f68",
+    "crates/diskgraph-mcp/src/relation_budget_tests.rs": "1901e6fa1a8f66a2c539263d2748919ef05e0720d963f15356bf055572ddcef1",
+    "crates/diskgraph-mcp/src/relation_reply.rs": "296c7b8b372f7a32f7754150513fa8c8dc26a0e6bfda65431efa3645ff714613",
+    "crates/diskgraph-mcp/src/relation_tools.rs": "bae4d4aba5fb52666b9124c96eda2f5c49b110dffbd0ced515c7f3999043185d",
+    "crates/diskgraph-mcp/src/service_dispatch.rs": "ff9fccc84306efd54eb50492a25ce01e8c5a48d0b7bc9ce2cdd18feb62fd2af1",
+    "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs": "bea7ac0a32bb02f3cdf3688ccb6951ad284387138001eed4599a5ef69cd7a5ad",
+    "crates/diskgraph-mcp/src/relation_encoding_tests.rs": "25b66462c3488d63e02e6c6a01b41fa4dd84ea40a19735d410beb10d99876005",
+    "crates/diskgraph-cli/src/query_terminal_tests.rs": "dfd3148eed26e29f6441a36c7fd2a5366a1422e5a8af21b1fa3c4d6b7c910ae6",
+    "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+    "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+    "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9"
+  },
+  "macos_logs": {
+    "diskgraph-mcp-relation-encoding-red.log": {
+      "sha256": "87c47dbf605bbe83514d112f79adbde72b92da93e52414849909bffaa369f763",
+      "summary_lines": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.69s",
+        "test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 223 filtered out; finished in 0.25s"
+      ]
+    },
+    "diskgraph-mcp-relation-encoding-final.log": {
+      "sha256": "a3cfb06267641deffb9d0d09172e83f11ff2b7c9f0784a54dc98ef76c8473c4d",
+      "summary_lines": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.42s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 223 filtered out; finished in 1.61s"
+      ]
+    },
+    "diskgraph-relation-final-clippy.log": {
+      "sha256": "cf7b51b50e4ea1599e71c4cc9d01a0f01b077a1d603b992385d05259f0dee633",
+      "summary_lines": [
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.60s"
+      ]
+    },
+    "diskgraph-relation-filesystem-final.log": {
+      "sha256": "1814d91f7bb8996c53ca960e33dd0184a0de1b0020e253b5a581b5c5781ed842",
+      "summary_lines": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.67s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 223 filtered out; finished in 0.48s"
+      ]
+    },
+    "diskgraph-relation-capability-clippy.log": {
+      "sha256": "6e3dd4ce5738f116f11a48f0d5ca61a2a44666e8bdcec374eb1d5b17f9fd705b",
+      "summary_lines": [
+        "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.21s"
+      ]
+    },
+    "diskgraph-relation-request-final.log": {
+      "sha256": "21df7bb2850e559209d33f8fd26cc7b1ff13af4a9203f965b495effe853d5881",
+      "summary_lines": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s",
+        "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 209 filtered out; finished in 1.56s"
+      ]
+    },
+    "diskgraph-relation-engine-withdrawal-final.log": {
+      "sha256": "c9a6d1f9327938fc49d360491dfc4ff451cb2720b25dc6662c11f3f0b39f74d8",
+      "summary_lines": [
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.82s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 748 filtered out; finished in 1.04s"
+      ]
+    }
+  }
+}

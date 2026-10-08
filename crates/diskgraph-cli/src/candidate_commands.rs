@@ -23,48 +23,44 @@ pub(crate) fn run(
         } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            // A scope that does not exist is not_found, never a permission
-            // probe; only live scopes reach the authorization check.
-            engine.scope(&scope_id)?;
+            // 范围查询沿用原期限；不存在的范围仍先返回 not_found。
+            engine.scope_until(&scope_id, deadline)?;
             require_metadata(authorizer, principal, &scope_id)?;
             let Some(revision) = engine.latest_revision_until(&scope_id, deadline)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
-            let answer = engine.review_candidates_until(
+            let server = engine.server_id_until(deadline)?;
+            let mut encoded = None;
+            engine.review_candidates_with_finish_until(
                 &revision,
                 *target_bytes,
                 QueryBudget::default(),
                 principal,
                 authorizer,
                 deadline,
+                |answer, expired| {
+                    let candidates: Vec<_> = answer.candidates.iter().map(|(node, evidence)| {
+                        serde_json::json!({ "node": node, "evidence": evidence })
+                    }).collect();
+                    let data = serde_json::json!({
+                        "candidates": candidates,
+                        "review_only": true,
+                        "coverage_complete": answer.coverage_complete,
+                        "coverage_observed": answer.coverage_observed,
+                        "complete": answer.complete,
+                        "truncated": answer.truncated.map(|reason| reason.wire_name()),
+                        "selected_bytes": answer.selected_bytes.to_string(),
+                        "remaining_bytes": answer.remaining_bytes.to_string(),
+                    });
+                    encoded = Some(relation_reply::encode_within_request(
+                        server.clone(),
+                        &data,
+                        expired,
+                    )?);
+                    Ok(())
+                },
             )?;
-            let candidates: Vec<_> = answer
-                .candidates
-                .into_iter()
-                .map(|(node, evidence)| {
-                    serde_json::json!({
-                        "node": node,
-                        "evidence": evidence,
-                    })
-                })
-                .collect();
-            out.push(relation_reply::finish(
-                engine,
-                principal,
-                authorizer,
-                &revision,
-                serde_json::json!({
-                    "candidates": candidates,
-                    "review_only": true,
-                    "coverage_complete": answer.coverage_complete,
-                    "coverage_observed": answer.coverage_observed,
-                    "complete": answer.complete,
-                    "truncated": answer.truncated.map(|reason| reason.wire_name()),
-                    "selected_bytes": answer.selected_bytes.to_string(),
-                    "remaining_bytes": answer.remaining_bytes.to_string(),
-                }),
-                deadline,
-            )?);
+            out.push(encoded.ok_or(BusinessError::BudgetExceeded)?);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

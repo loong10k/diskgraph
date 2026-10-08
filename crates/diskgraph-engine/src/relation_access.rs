@@ -172,6 +172,31 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<CandidateSelection, EngineError> {
+        self.review_candidates_with_finish_until(
+            revision_id,
+            target_bytes,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在原单侧请求内准备实际响应，保持撤权见证覆盖编码阶段。
+    /// 参数：原查询范围、预算、身份及期限；finish 可再次调用，不能发布数据。
+    /// 返回：编码后仍获授权的有界结果；保留原类型与诊断语义。
+    #[allow(clippy::too_many_arguments)] // 原请求上下文与同请求编码回调不可省略。
+    pub fn review_candidates_with_finish_until(
+        &self,
+        revision_id: &str,
+        target_bytes: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut CandidateSelection, bool) -> Result<(), EngineError>,
+    ) -> Result<CandidateSelection, EngineError> {
         budget.validated()?;
         let answer = self.with_relation_reader_until(
             revision_id,
@@ -206,7 +231,7 @@ impl Engine {
                 {
                     return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
                 }
-                Ok(())
+                finish(answer, expired)
             },
         )?;
         Ok(answer)
@@ -247,6 +272,31 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
         deadline: Instant,
+    ) -> Result<ImpactResult, EngineError> {
+        self.revision_impact_with_finish_until(
+            revision_id,
+            entity_id,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在原单侧请求内准备实际响应，保持撤权见证覆盖编码阶段。
+    /// 参数：原查询范围、预算、身份及期限；finish 可再次调用，不能发布数据。
+    /// 返回：编码后仍获授权的有界结果；保留原类型与诊断语义。
+    #[allow(clippy::too_many_arguments)] // 原请求上下文与同请求编码回调不可省略。
+    pub fn revision_impact_with_finish_until(
+        &self,
+        revision_id: &str,
+        entity_id: &str,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut ImpactResult, bool) -> Result<(), EngineError>,
     ) -> Result<ImpactResult, EngineError> {
         budget.validated()?;
         let answer = self.with_relation_reader_until(
@@ -314,7 +364,7 @@ impl Engine {
                 {
                     return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
                 }
-                Ok(())
+                finish(answer, expired)
             },
         )?;
         Ok(answer)

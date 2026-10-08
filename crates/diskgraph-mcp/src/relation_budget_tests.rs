@@ -14,6 +14,11 @@ thread_local! {
 }
 type ReplyHook = Box<dyn FnOnce(&crate::McpService)>;
 
+/// 安装或清除本测试线程的实际编码观察点；参数为一次性回调，不进入生产状态。
+pub(super) fn install_before_reply(hook: Option<ReplyHook>) {
+    BEFORE_REPLY.with(|slot| *slot.borrow_mut() = hook);
+}
+
 pub(super) fn before_reply(service: &crate::McpService) {
     if let Some(hook) = BEFORE_REPLY.with(|slot| slot.borrow_mut().take()) {
         hook(service);

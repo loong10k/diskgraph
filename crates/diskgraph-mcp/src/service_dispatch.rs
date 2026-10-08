@@ -120,28 +120,24 @@ impl McpService {
         if let Err(message) = tool_input_schema::validate_arguments(catalog_id, &arguments) {
             return protocol_error(id.clone(), -32602, &message);
         }
-        // 固定请求能力供编码末检使用；持久撤权仍由 Engine 在终态实时复验。
-        let reply_authorizer = match self.authorizer_until(deadline) {
-            Ok(authorizer) => authorizer,
-            Err(error) => return tool_error(id, business_of(&error), &error.to_string()),
-        };
+        // 沿原期限确认请求能力；实际查询的原撤权见证持续覆盖响应编码。
+        if let Err(error) = self.authorizer_until(deadline) {
+            return tool_error(id, business_of(&error), &error.to_string());
+        }
         let reply_service = self.clone();
-        let mut history_encoded = None;
+        let mut prepared_text = None;
         match self
             .dispatch_with_finish(catalog_id, &arguments, deadline, |envelope, expired| {
-                history_encoded = Some(snapshot_reply::encode_within_request(
-                    &reply_service,
-                    envelope,
-                    expired,
-                )?);
+                prepared_text = Some(if matches!(catalog_id, "C06" | "C07") {
+                    snapshot_reply::encode_within_request(&reply_service, envelope, expired)?
+                } else {
+                    relation_reply::encode_within_request(&reply_service, envelope, expired)?
+                });
                 Ok(())
             })
             .and_then(|data| {
-                if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
-                    relation_reply::finish(self, data, deadline, &reply_authorizer)
-                        .map_err(|error| error.with_context(catalog_id))
-                } else if matches!(catalog_id, "C06" | "C07") {
-                    history_encoded
+                if matches!(catalog_id, "C06" | "C07" | "C13" | "C14" | "C15" | "C16") {
+                    prepared_text
                         .take()
                         .map(|text| (data, text))
                         .ok_or_else(|| {
@@ -177,7 +173,7 @@ impl McpService {
         self.dispatch_with_finish(catalog_id, arguments, deadline, |_, _| Ok(()))
     }
 
-    /// 将历史实际响应编码接入原请求，其他目录项保持既有分发。
+    /// 将历史与关系的实际响应编码接入原请求，其他目录项保持既有分发。
     /// 参数：目录项、参数、原期限与仅准备结果的 finish 回调。返回：连续授权后的 envelope。
     fn dispatch_with_finish(
         &mut self,
@@ -282,18 +278,30 @@ impl McpService {
             self.require_until(&permission, &authorization_scope, deadline)?;
         }
         let server_id = self.engine.server_id_until(deadline)?;
-        if matches!(catalog_id, "C06" | "C07") {
+        if matches!(catalog_id, "C06" | "C07" | "C13" | "C14" | "C15" | "C16") {
             let revision_id = response_revision
                 .and_then(|revision| diskgraph_core::RevisionId::new(revision).ok());
             let mut prepared = None;
-            self.history_tool_with_finish(catalog_id, arguments, deadline, |data, expired| {
+            let mut prepare = |data: &Value, expired| {
                 let mut envelope = Envelope::ok(data.clone())
                     .with_ids(Some(server_id.clone()), scope.clone(), revision_id.clone())
                     .into_json();
                 finish(&mut envelope, expired)?;
                 prepared = Some(envelope);
                 Ok(())
-            })?;
+            };
+            match catalog_id {
+                "C06" | "C07" => {
+                    self.history_tool_with_finish(catalog_id, arguments, deadline, &mut prepare)
+                }
+                "C13" => self.related_tool_with_finish(arguments, deadline, &mut prepare),
+                "C14" => self.explain_tool_with_finish(arguments, deadline, &mut prepare),
+                "C15" => self.impact_tool_with_finish(arguments, deadline, &mut prepare),
+                "C16" => {
+                    self.candidates_tool_with_finish(&scope, arguments, deadline, &mut prepare)
+                }
+                _ => Err(BusinessError::Unsupported.into()),
+            }?;
             return prepared.ok_or_else(|| BusinessError::BudgetExceeded.into());
         }
         match catalog_id {
@@ -307,10 +315,6 @@ impl McpService {
             "C10" => self.node_tool(&scope, arguments, deadline),
             "C11" => self.children_tool(&scope, arguments, deadline),
             "C12" => self.top_tool(&scope, arguments, deadline),
-            "C13" => self.related_tool(arguments, deadline),
-            "C14" => self.explain_tool(arguments, deadline),
-            "C15" => self.impact_tool(arguments, deadline),
-            "C16" => self.candidates_tool(&scope, arguments, deadline),
             // Any catalog entry without a handler here has not shipped; the
             // business code names that, and the wrapper adds the catalog ID.
             _ => Err(EngineError::Business(BusinessError::Unsupported)),

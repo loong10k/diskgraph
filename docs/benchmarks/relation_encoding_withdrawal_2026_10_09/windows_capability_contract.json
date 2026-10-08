@@ -1,0 +1,80 @@
+{
+  "job_id": "wc_job_iDyYdX7b_R8_YKUj",
+  "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+  "source_hashes": {
+    "crates/diskgraph-cli/src/query_terminal_tests.rs": "dfd3148eed26e29f6441a36c7fd2a5366a1422e5a8af21b1fa3c4d6b7c910ae6",
+    "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+    "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+    "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9",
+    "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+    "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+  },
+  "commands": [
+    {
+      "name": "cli_relation_green",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-cli",
+        "--bin",
+        "diskgraph",
+        "remembers_grant_revocation_even_if_restored",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.405999999988126
+    },
+    {
+      "name": "cli_full",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-cli",
+        "--bin",
+        "diskgraph",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.78100000001723
+    }
+  ],
+  "working_tree_diff_sha256": "bac139b14fc5cf6003406392409e24ef6c917c180ba6e99b3599cb28d9694871",
+  "tracked_status": " M crates/diskgraph-cli/src/candidate_commands.rs\n M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_commands.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n",
+  "summaries": {
+    "cli_full.stdout.log": [
+      "test result: ok. 88 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.96s"
+    ],
+    "cli_relation_green.stdout.log": [
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 4.85s"
+    ]
+  },
+  "raw_hashes": {
+    "cli_full.stderr.log": "65972f3db90ea229a4fb42a59327539970b1b9f6e2de2a6e36905d51ffe1fb66",
+    "cli_full.stdout.log": "b1d4ab2ba408ca4a74505d421deba675b3843773312ceeb1987e5184c9ccf756",
+    "cli_relation_green.stderr.log": "0c8558cf074ef604c664d46508ae73a8888d2fa07cea85784cbedb5cf9b31de3",
+    "cli_relation_green.stdout.log": "3411305d7254f466106a4efe3ce8a0e496a802e426510f7129354b7fa4851a6d",
+    "receipt.json": "51e8bdd6386319edcd376932c9e44f90eca0443dfa45faaa25f65691dd0979d9",
+    "run.py": "6f62f707818eb2bd96c43d4bbd9d81ba1aabb34f2e31fc569821be52ea42634f",
+    "source.diff": "bac139b14fc5cf6003406392409e24ef6c917c180ba6e99b3599cb28d9694871"
+  },
+  "post_source_hashes": {
+    "crates/diskgraph-cli/src/query_terminal_tests.rs": "dfd3148eed26e29f6441a36c7fd2a5366a1422e5a8af21b1fa3c4d6b7c910ae6",
+    "crates/diskgraph-cli/src/relation_reply.rs": "5f0fd60e5c2ac40ffad8e83f34591caf4f54d1a51c5c658c8da984839f0fd2a8",
+    "crates/diskgraph-cli/src/relation_commands.rs": "c3f16d352b2177a544d3cb383f128197b2158c89cdd3c75900bf0d806badf6eb",
+    "crates/diskgraph-cli/src/candidate_commands.rs": "dfe1313a7706583e13a982954f96df072da8e461c88c2a4018640ce11211fbc9",
+    "crates/diskgraph-engine/src/relation_access.rs": "2d127b67fce9855fe2ba1c1d8a7679fbfa38e184050e71b572dbbe5df64d5bc3",
+    "crates/diskgraph-engine/src/relation_queries.rs": "8b086cbef140d7d7a84bcbc71159406f1760b903730f828d4e767f5e167bf919"
+  }
+}

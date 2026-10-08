@@ -2,7 +2,8 @@
 
 use crate::McpService;
 use diskgraph_core::{
-    DiskGraph, DiskNode, DiskSnapshot, NodeKind, ResourceLocator, ScanCoverage, ScanSettings,
+    CollectorBatch, CollectorRun, DiskGraph, DiskNode, DiskSnapshot, Entity, EntityKind, NodeKind,
+    ResourceLocator, ScanCoverage, ScanSettings, ScopeId,
 };
 use diskgraph_store::SqliteSnapshotStore;
 use std::path::Path;
@@ -15,6 +16,57 @@ static REVISION_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 pub(crate) struct QueryRevisionFixture;
 
 impl QueryRevisionFixture {
+    /// 为已合法导入的版本发布显式单实体证据，供真实 socket 授权测试使用。
+    /// 参数：服务、基线 revision 及其实际 scope；返回：复用文件快照的新采集版本。
+    /// 不执行或模拟扫描，不据此声明采集器/原生扫描资格。
+    pub(crate) fn publish_relation_import(
+        service: &McpService,
+        base: &str,
+        scope: &ScopeId,
+    ) -> String {
+        let mut store =
+            SqliteSnapshotStore::open(&service.engine().data_dir().join("diskgraph.sqlite"))
+                .unwrap();
+        let snapshot = store.load_revision(base).unwrap().snapshot.id;
+        let run_id = format!("relation-import-{base}");
+        let revision = format!("relation-revision-{base}");
+        let batch = CollectorBatch {
+            run: CollectorRun {
+                run_id: run_id.clone(),
+                snapshot_id: snapshot,
+                collector_id: "security-query-import".into(),
+                collector_version: 1,
+                rule_version: 1,
+                observed_at_unix_ms: 1,
+                coverage_complete: true,
+                errors: Vec::new(),
+            },
+            entities: vec![Entity {
+                entity_id: "resource-1".into(),
+                kind: EntityKind::Resource,
+                identity: "{\"node_id\":1}".into(),
+                display: "explicit root observation".into(),
+                source_run_id: run_id.clone(),
+            }],
+            evidence: Vec::new(),
+            edges: Vec::new(),
+        };
+        store
+            .publish_collector_revision(
+                base,
+                &revision,
+                2,
+                (
+                    service.engine().server_id().unwrap().as_str(),
+                    scope.as_str(),
+                ),
+                &batch,
+                &[(run_id.as_str(), "active")],
+            )
+            .unwrap();
+        revision
+    }
+
     /// 注册真实范围并通过公开 staging/归属发布事务导入固定项目观测。
     /// 参数：service 为真实服务，root 为保活夹具根目录；返回：已注册 scope。
     /// 不创建或完成扫描 job，不采集关系，不证明原生扫描能力。

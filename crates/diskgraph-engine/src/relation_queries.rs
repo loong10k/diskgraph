@@ -79,6 +79,39 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<Value, EngineError> {
+        self.related_bounded_with_finish_until(
+            revision,
+            entity,
+            relation,
+            outgoing,
+            after,
+            limit,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在原关系请求的撤权见证内执行编码，回调不得发布响应。
+    /// 参数：范围、过滤、身份与原期限沿用兼容接口；finish 可再次调用转换期限诊断。
+    /// 返回：原请求终检成功后的有界结果，撤权拒绝全部数据。
+    #[allow(clippy::too_many_arguments)] // 原请求上下文与连续授权编码回调均必需。
+    pub fn related_bounded_with_finish_until(
+        &self,
+        revision: &str,
+        entity: &str,
+        relation: Option<Relation>,
+        outgoing: bool,
+        after: Option<&str>,
+        limit: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        finish: impl FnMut(&mut Value, bool) -> Result<(), EngineError>,
+    ) -> Result<Value, EngineError> {
         self.relation_answer_until(
             revision,
             entity,
@@ -90,6 +123,7 @@ impl Engine {
             principal,
             authorizer,
             deadline,
+            finish,
         )
     }
     /// 解释页共用最外层期限；实体、关系及实际证据读取逐项累计。
@@ -107,8 +141,38 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<Value, EngineError> {
+        self.explain_bounded_with_finish_until(
+            revision,
+            entity,
+            after,
+            limit,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在原关系请求的撤权见证内执行编码，回调不得发布响应。
+    /// 参数：范围、过滤、身份与原期限沿用兼容接口；finish 可再次调用转换期限诊断。
+    /// 返回：原请求终检成功后的有界结果，撤权拒绝全部数据。
+    #[allow(clippy::too_many_arguments)] // 原请求上下文与连续授权编码回调均必需。
+    pub fn explain_bounded_with_finish_until(
+        &self,
+        revision: &str,
+        entity: &str,
+        after: Option<&str>,
+        limit: u64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        finish: impl FnMut(&mut Value, bool) -> Result<(), EngineError>,
+    ) -> Result<Value, EngineError> {
         self.relation_answer_until(
             revision, entity, None, None, after, limit, budget, principal, authorizer, deadline,
+            finish,
         )
     }
     #[allow(clippy::too_many_arguments)]
@@ -124,6 +188,7 @@ impl Engine {
         principal: &PrincipalId,
         authorizer: &dyn Authorizer,
         deadline: Instant,
+        mut finish: impl FnMut(&mut Value, bool) -> Result<(), EngineError>,
     ) -> Result<Value, EngineError> {
         budget.validated()?;
         if limit == 0 {
@@ -161,7 +226,7 @@ impl Engine {
                 {
                     return Err(BusinessError::BudgetExceeded.into());
                 }
-                Ok(())
+                finish(answer, expired)
             },
         )?;
         Ok(answer)

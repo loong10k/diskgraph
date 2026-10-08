@@ -38,6 +38,8 @@ mod rate_limit_state;
 mod rate_limiter;
 #[cfg(test)]
 mod relation_budget_tests;
+#[cfg(test)]
+mod relation_encoding_tests;
 mod relation_reply;
 mod request_authorizer;
 mod request_context;

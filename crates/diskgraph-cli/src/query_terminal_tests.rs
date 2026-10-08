@@ -297,6 +297,16 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool, restore_grant
     let root = directory.path().join("root");
     std::fs::create_dir(&root).unwrap();
     std::fs::write(root.join("file"), b"data").unwrap();
+    let relation_command = matches!(command, "related" | "explain" | "impact" | "candidates");
+    if relation_command {
+        std::fs::write(
+            root.join("Cargo.toml"),
+            b"[package]\nname = \"withdrawal-fixture\"\nversion = \"0.1.0\"\n",
+        )
+        .unwrap();
+        std::fs::create_dir(root.join("target")).unwrap();
+        std::fs::write(root.join("target/bin"), b"artifact").unwrap();
+    }
     let data = directory.path().join("data");
     let engine = CliTestEngine::open(EngineConfig {
         data_dir: data.clone(),
@@ -313,6 +323,33 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool, restore_grant
         .unwrap();
     engine.run_job(&job.job_id, "fixture").unwrap();
     let revision = engine.latest_revision(&scope).unwrap().unwrap();
+    let entity = if relation_command {
+        let connection = rusqlite::Connection::open(data.join("diskgraph.sqlite")).unwrap();
+        connection
+            .query_row(
+                "SELECT source_entity_id FROM relations WHERE relation = 'rebuildable_by' LIMIT 1",
+                [],
+                |row| row.get::<_, String>(0),
+            )
+            .unwrap()
+    } else {
+        String::new()
+    };
+    let native_watch = engine
+        .control_store()
+        .unwrap()
+        .watch_authorization_withdrawal(
+            &principal,
+            &scope,
+            &diskgraph_core::Permission::MetadataRead,
+        )
+        .unwrap()
+        .is_some();
+    let expected = if restore_grant && !native_watch {
+        BusinessError::Conflict
+    } else {
+        BusinessError::PermissionDenied
+    };
     let revoked = scope.clone();
     let revoked_principal = principal.clone();
     let encoded = Arc::new(AtomicBool::new(false));
@@ -350,6 +387,16 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool, restore_grant
     let html_destination = directory.path().join("withdrawal.html");
     let html_path = html_destination.to_string_lossy();
     let args = match command {
+        "related" | "explain" | "impact" => vec![
+            command,
+            "--scope",
+            scope.as_str(),
+            "--revision",
+            &revision,
+            "--entity",
+            &entity,
+        ],
+        "candidates" => vec![command, "--scope", scope.as_str(), "--target-bytes", "0"],
         "tree" => vec![command, "--scope", scope.as_str()],
         "html" => vec!["tree", "--scope", scope.as_str(), "--html", &html_path],
         "compare" => vec![command, "--from", &revision, "--to", &revision],
@@ -389,9 +436,9 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool, restore_grant
     assert!(
         matches!(
             result,
-            Err(EngineError::Business(BusinessError::PermissionDenied))
+            Err(EngineError::Business(error)) if error == expected
         ),
-        "{command}: {result:?}"
+        "{command}: {result:?}, expected {expected:?}"
     );
     assert!(output.is_empty());
     assert!(!html_destination.exists());
@@ -447,4 +494,24 @@ fn encoded_changes_refuses_terminal_scope_revocation() {
 #[test]
 fn encoded_growth_refuses_terminal_grant_revocation() {
     assert_encoded_query_revoked("growth", false, false);
+}
+
+#[test]
+fn encoded_relation_related_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("related", false, true);
+}
+
+#[test]
+fn encoded_relation_explain_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("explain", false, true);
+}
+
+#[test]
+fn encoded_relation_impact_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("impact", false, true);
+}
+
+#[test]
+fn encoded_relation_candidates_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("candidates", false, true);
 }

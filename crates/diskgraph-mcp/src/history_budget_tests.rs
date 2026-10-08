@@ -202,6 +202,10 @@ fn start_socket(
     let (started, hook) = hooks;
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let address = listener.local_addr().unwrap();
+    let relation_tool = matches!(
+        tool,
+        "diskgraph_related" | "diskgraph_explain" | "diskgraph_impact" | "diskgraph_candidates"
+    );
     let worker = std::thread::spawn(move || {
         let (mut stream, _) = listener.accept().unwrap();
         stream
@@ -211,7 +215,11 @@ fn start_socket(
             .set_write_timeout(Some(Duration::from_secs(5)))
             .unwrap();
         STARTED.with(|slot| *slot.borrow_mut() = started);
-        BEFORE_REPLY.with(|slot| *slot.borrow_mut() = hook.map(|hook| hook as ReplyHook));
+        if relation_tool {
+            crate::relation_budget_tests::install_before_reply(hook.map(|hook| hook as ReplyHook));
+        } else {
+            BEFORE_REPLY.with(|slot| *slot.borrow_mut() = hook.map(|hook| hook as ReplyHook));
+        }
         let limits = HttpLimits::default();
         let request = http::read_request(&mut BufReader::new(stream.try_clone().unwrap()), &limits)
             .unwrap()
@@ -220,6 +228,7 @@ fn start_socket(
         http::write_response(&mut stream, &response).unwrap();
         STARTED.with(|slot| slot.borrow_mut().take());
         BEFORE_REPLY.with(|slot| slot.borrow_mut().take());
+        crate::relation_budget_tests::install_before_reply(None);
         stream.shutdown(Shutdown::Write).unwrap();
     });
     let body = json!({"jsonrpc":"2.0", "id":41, "method":"tools/call",
@@ -367,9 +376,26 @@ fn terminal_revocation(tool: &str, revoke_scope: bool) {
     terminal_withdrawal(tool, revoke_scope, false);
 }
 
-fn terminal_withdrawal(tool: &str, revoke_scope: bool, restore_grant: bool) {
+/// 验证真实编码期间的撤权；参数指定工具与撤权方式，不授予或模拟远程身份。
+pub(super) fn terminal_withdrawal(tool: &str, revoke_scope: bool, restore_grant: bool) {
     for side in 0..2 {
-        let fixture = Fixture::with_query_import("history-terminal-auth", restore_grant);
+        let mut fixture = Fixture::with_query_import("history-terminal-auth", restore_grant);
+        let arguments = if matches!(tool, "diskgraph_changes" | "diskgraph_growth") {
+            fixture.arguments()
+        } else {
+            fixture.revisions[side] = crate::tests::QueryRevisionFixture::publish_relation_import(
+                &fixture.service,
+                &fixture.revisions[side],
+                &fixture.scopes[side],
+            );
+            let mut arguments = json!({"revision": fixture.revisions[side], "scope": fixture.scopes[side].as_str()});
+            if tool == "diskgraph_candidates" {
+                arguments["target_bytes"] = json!(0);
+            } else {
+                arguments["entity"] = json!("resource-1");
+            }
+            arguments
+        };
         let path = fixture.control_path.clone();
         let scope = fixture.scopes[side].clone();
         let principal = fixture.principal.clone();
@@ -414,7 +440,7 @@ fn terminal_withdrawal(tool: &str, revoke_scope: bool, restore_grant: bool) {
             &fixture.token,
             ORIGIN,
             tool,
-            fixture.arguments(),
+            arguments.clone(),
             (None, Some(hook)),
         ));
         assert!(
@@ -455,7 +481,7 @@ fn terminal_withdrawal(tool: &str, revoke_scope: bool, restore_grant: bool) {
             permission_denied(status, &reply);
         }
         if restore_grant {
-            let (next_status, next_reply) = fixture.call(tool, fixture.arguments());
+            let (next_status, next_reply) = fixture.call(tool, arguments);
             assert_eq!(next_status, 200, "{next_reply}");
             assert_eq!(next_reply["result"]["isError"], false, "{next_reply}");
         }
@@ -490,4 +516,51 @@ fn encoded_socket_history_remembers_grant_revocation_even_if_restored() {
 #[test]
 fn encoded_socket_growth_remembers_grant_revocation_even_if_restored() {
     terminal_withdrawal("diskgraph_growth", false, true);
+}
+
+/// 验证实际编码后到期仍返回有界且一致的部分诊断；参数为关系工具名。
+pub(super) fn relation_encoded_expiry(tool: &str) {
+    let mut fixture = Fixture::with_query_import("relation-encoded-expiry", true);
+    fixture.revisions[0] = crate::tests::QueryRevisionFixture::publish_relation_import(
+        &fixture.service,
+        &fixture.revisions[0],
+        &fixture.scopes[0],
+    );
+    let mut arguments = json!({"revision": fixture.revisions[0]});
+    if tool == "diskgraph_candidates" {
+        arguments["target_bytes"] = json!(0);
+    } else {
+        arguments["entity"] = json!("resource-1");
+    }
+    let observed = Arc::new(AtomicBool::new(false));
+    let encoded = observed.clone();
+    let hook: ThreadReplyHook = Box::new(move |_| {
+        encoded.store(true, Ordering::SeqCst);
+        // 真实原请求已经完成首轮编码；不改变生产时钟或原预算。
+        std::thread::sleep(Duration::from_millis(
+            QueryBudget::default().deadline_ms + 100,
+        ));
+    });
+    let (status, reply) = finish_socket(start_socket(
+        fixture.service.clone(),
+        fixture.security.clone(),
+        &fixture.token,
+        ORIGIN,
+        tool,
+        arguments,
+        (None, Some(hook)),
+    ));
+    assert!(
+        observed.load(Ordering::SeqCst),
+        "encoding was not reached: {reply}"
+    );
+    assert_eq!(status, 200, "{reply}");
+    assert_eq!(reply["result"]["isError"], false, "{reply}");
+    let envelope = &reply["result"]["structuredContent"];
+    assert_eq!(envelope["truncated"], true, "{reply}");
+    assert_eq!(envelope["data"]["complete"], false, "{reply}");
+    assert_eq!(envelope["data"]["truncated"], "deadline", "{reply}");
+    let text = reply["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.len() <= QueryBudget::default().max_response_bytes);
+    assert_eq!(&serde_json::from_str::<Value>(text).unwrap(), envelope);
 }
