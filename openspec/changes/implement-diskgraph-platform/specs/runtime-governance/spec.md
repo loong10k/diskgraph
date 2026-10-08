@@ -250,3 +250,11 @@ Scope 注册 SHALL 使用原五秒期限覆盖初始持久授权、共享图锁�
 #### Scenario: Control owner outlives a native query deadline
 - **WHEN** 原生查询在初始能力快照阶段遇到持续持有的控制锁，原期限耗尽
 - **THEN** 持锁者尚未释放时查询返回预算错误，不读取节点，也不进入新的等待窗口。
+
+
+### Requirement: RT-09 Request policy reads only the authenticated principal
+MCP/FFI 的有期限请求授权快照 SHALL 通过参数化、可索引的主体条件读取，保留策略版本、撤销、默认拒绝与 token 能力交集。可信内部全策略接口保持兼容；窄接口不得授权其他主体。
+
+#### Scenario: Many unrelated subjects do not amplify a point query policy capture
+- **WHEN** 目标主体权限不变，无关主体 grant 从 100 增至 20000
+- **THEN** 请求能力构建的 SQLite VM 工作量保持索引查找量级，不解码无关记录；所选主体的允许/拒绝、策略升级和撤销语义与原完整策略一致。

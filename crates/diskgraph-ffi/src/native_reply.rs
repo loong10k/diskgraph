@@ -28,7 +28,7 @@ pub(crate) fn query_with_revision(
     // 请求能力只捕获一次，读取与末检仍由 Engine 与数据库实时策略求交集。
     // 不在每个末检前无限等待控制锁或重新加载其他主体的全部授权。
     let policy = engine
-        .policy_authorizer_until(deadline)
+        .policy_authorizer_for_principal_until(&principal, deadline)
         .map_err(|e| e.to_string())?;
     engine
         .authorize_snapshot_until(snapshot, &principal, &policy, deadline)

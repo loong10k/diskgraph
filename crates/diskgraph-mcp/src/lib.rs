@@ -98,3 +98,6 @@ mod request_deadline_tests;
 
 #[cfg(test)]
 mod management_deadline_tests;
+
+#[cfg(test)]
+mod principal_policy_tests;

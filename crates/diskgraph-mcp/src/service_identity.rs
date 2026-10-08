@@ -21,7 +21,9 @@ impl McpService {
         deadline: std::time::Instant,
     ) -> Result<request_authorizer::RequestAuthorizer, EngineError> {
         Ok(request_authorizer::RequestAuthorizer {
-            policy: self.engine.policy_authorizer_until(deadline)?,
+            policy: self
+                .engine
+                .policy_authorizer_for_principal_until(self.context.principal(), deadline)?,
             capabilities: self.context.capabilities(),
             expires_at: self.context.expires_at(),
         })

@@ -1,0 +1,47 @@
+{
+  "status": "local_verified_native_ci_pending",
+  "base_commit": "3a2f5dcce4b88d24105a5b9fec5456db5023b984",
+  "measurement": {
+    "unit": "SQLite VM steps, actual progress handler callback count",
+    "unrelated_grants": [
+      100,
+      20000
+    ],
+    "baseline_full_authorizer": [
+      630,
+      120030
+    ],
+    "candidate_principal_authorizer": [
+      35,
+      35
+    ],
+    "wall_latency_claim": false
+  },
+  "tests": {
+    "store_full": {
+      "passed": 331,
+      "failed": 0,
+      "ignored": 5
+    },
+    "policy": 2,
+    "ffi": 4,
+    "mcp_component": 1,
+    "clippy_all_targets": "passed",
+    "openspec_strict": "passed"
+  },
+  "incomplete": {
+    "original_mcp_cross_scope_test": "failed at real scan: Business(Unsupported), not passed",
+    "native_platforms": "pending same SHA CI",
+    "store_suite_scope": "mixed worktree includes preserved pre-existing reader observation module"
+  },
+  "source_sha256": {
+    "crates/diskgraph-store/src/policy_store.rs": "c2e874ddccbd839d23c351dcb4979723a042a3f737b8c02bd2d03cf461ebb691",
+    "crates/diskgraph-store/src/principal_policy_query_tests.rs": "1a9cf6788c13222a216ad173f6854aeadb0c82a89cf97a74b5eda3a8c9e34415",
+    "crates/diskgraph-engine/src/policy_service.rs": "de8fb03f648225d6d5f4a8233f38507e9fbf543235b023395240378d3fee2798",
+    "crates/diskgraph-ffi/src/native_reply.rs": "55c5d5368150f3321c5268256e996d5cf16a3ae1088d8fca2cca20bc3d4480fb",
+    "crates/diskgraph-mcp/src/service_identity.rs": "8ffea2a2f9a1bc55bf598684df771a56ef57ab5e9f66ca2b32914db4e9f3c868",
+    "crates/diskgraph-mcp/src/lib.rs": "e9d9f5e71eec58028b7885b8ff0db7da768ccba8763bb7bd65ff4457a1b89b4e",
+    "crates/diskgraph-mcp/src/principal_policy_tests.rs": "6f0f859c506d13ddce17b0d2218a267ab70dd46d66f1bf45979cef3efb19e69c",
+    "crates/diskgraph-store/src/lib.rs": "514979d2a4c172714d2e020cb9fa40b72f88a6adb35e7526a5c2d7676a3bd779"
+  }
+}

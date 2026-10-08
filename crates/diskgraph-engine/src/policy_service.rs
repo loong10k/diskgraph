@@ -169,3 +169,19 @@ impl Engine {
 pub fn admin_scope() -> ScopeId {
     ScopeId::new("diskgraph-admin").expect("constant is valid")
 }
+
+impl Engine {
+    /// 在原期限内只构建已认证主体的能力快照，SQL 和控制锁共用同一窗口。
+    /// 参数：principal 为固定请求主体，deadline 为原单调期限；返回：窄授权器或原错误。
+    /// 全策略兼容入口仍保留；调用方的 token 上限及末检实时授权不能省略。
+    pub fn policy_authorizer_for_principal_until(
+        &self,
+        principal: &PrincipalId,
+        deadline: std::time::Instant,
+    ) -> Result<PolicyAuthorizer, EngineError> {
+        let control = self.control_until(deadline)?;
+        control.with_read_deadline(deadline, |store| {
+            Ok(store.authorizer_for_principal(principal)?)
+        })
+    }
+}

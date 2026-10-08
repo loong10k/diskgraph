@@ -200,6 +200,16 @@ impl ControlStore {
     /// 参数：无额外输入；实例方法使用当前连接/记录。
     /// 返回：按真实版本和撤销状态重建的授权器。
     pub fn authorizer(&self) -> Result<PolicyAuthorizer> {
+        self.authorizer_filtered(None)
+    }
+
+    /// 仅重建指定真实主体的授权快照，不授予其他主体能力。
+    /// 参数：principal 为已认证请求主体；返回：保留版本、撤销和默认拒绝的窄策略。
+    pub fn authorizer_for_principal(&self, principal: &PrincipalId) -> Result<PolicyAuthorizer> {
+        self.authorizer_filtered(Some(principal))
+    }
+
+    fn authorizer_filtered(&self, principal: Option<&PrincipalId>) -> Result<PolicyAuthorizer> {
         let version = self.policy_version()?;
         let mut authorizer = PolicyAuthorizer::new(version);
         if let Some((_, true)) = self.policy_state()? {
@@ -208,17 +218,24 @@ impl ControlStore {
         if version == 0 {
             return Ok(authorizer);
         }
-        let mut statement = self
-            .connection
-            .prepare("SELECT principal_id, permission, scope_id, policy_version FROM grants")?;
-        let rows = statement.query_map([], |row| {
-            Ok((
-                row.get::<_, String>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, String>(2)?,
-                row.get::<_, i64>(3)?,
-            ))
-        })?;
+        // 两条静态 SQL 分别保留全策略兼容和主体主键前缀查找，避免 OR 条件退化为全表扫描。
+        let sql = if principal.is_some() {
+            "SELECT principal_id, permission, scope_id, policy_version FROM grants WHERE principal_id=?1"
+        } else {
+            "SELECT principal_id, permission, scope_id, policy_version FROM grants"
+        };
+        let mut statement = self.connection.prepare(sql)?;
+        let rows = statement.query_map(
+            rusqlite::params_from_iter(principal.into_iter().map(PrincipalId::as_str)),
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                ))
+            },
+        )?;
         for row in rows {
             let (principal, permission, scope, policy_version) = row?;
             let Ok(principal) = PrincipalId::new(principal) else {

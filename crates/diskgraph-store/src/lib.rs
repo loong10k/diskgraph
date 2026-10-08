@@ -347,3 +347,6 @@ pub use scan_publication_receipt::ScanPublicationReceipt;
 mod scan_receipt_query;
 
 mod scan_job_recovery;
+
+#[cfg(test)]
+mod principal_policy_query_tests;
