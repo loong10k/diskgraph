@@ -1,0 +1,16 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "results": [
+    {
+      "mode": "serial",
+      "seconds": 1.4621135420020437,
+      "files": 20000
+    },
+    {
+      "mode": "parallel4",
+      "seconds": 0.8606220420042519,
+      "files": 20000
+    }
+  ],
+  "scope": "fixture preparation only; single local sample, no Windows speedup or product scan claim"
+}

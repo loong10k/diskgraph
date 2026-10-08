@@ -1,0 +1,44 @@
+{
+  "commit": "8ccdb4155671aa100760ddb5003691cc11a5bf59",
+  "run_id": 37709936467,
+  "job_id": 113093368002,
+  "raw_log_sha256": "2cce711bf64837a7f0cb7ff35c200df607e718b674b32547f7290bb737f27b67",
+  "phases": [
+    {
+      "phase": "fixture_create",
+      "event": "begin",
+      "monotonic_seconds": 455.2289571
+    },
+    {
+      "phase": "fixture_create",
+      "event": "end",
+      "monotonic_seconds": 625.6078731
+    },
+    {
+      "phase": "scope_registration",
+      "event": "begin",
+      "monotonic_seconds": 625.6079428
+    },
+    {
+      "phase": "scope_registration",
+      "event": "end",
+      "monotonic_seconds": 626.9921437
+    },
+    {
+      "phase": "index",
+      "event": "begin",
+      "monotonic_seconds": 626.9921993
+    }
+  ],
+  "fixture_creation_seconds": 170.378916,
+  "scope_registration_seconds": 1.3842008999999962,
+  "outer_timeout_seconds": 300,
+  "observation": "outer timeout occurred after index began and before index end; fixture generation consumes most of outer execution deadline",
+  "not_proven": [
+    "scan time exceeding 300 seconds",
+    "scan completion",
+    "process retirement",
+    "production readiness"
+  ],
+  "followup": "verify native owned Job; measure preparation separately from product scan; do not claim the fixture cost is product scan latency"
+}

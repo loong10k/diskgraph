@@ -25,3 +25,5 @@ Windows API 依据：[PROCESS_MEMORY_COUNTERS](https://learn.microsoft.com/en-us
 Windows 验收 Job 候选继续开放：新增 scripts/windows_acceptance_job.py 与契约/原生候选测试。当前仅本机生命周期替身 3/3、Windows 原生 1 项未运行。尚未接入打包入口：需先解决 Python subprocess.run 超时后 communicate 等待后代继承管道的问题；必须在等待管道前终止原 Job，使用有界退休检查并保留原异常。不能把候选当作已实现或原生通过。
 
 Windows 验收 Job 候选已补齐有界管道退出并接入打包入口：Windows 分支持原无名 Job，以显式 handle_list 传继承副本；可信包装器先绑定自身再执行目标脚本。执行沿原300秒绝对期限，清理使用独立5秒期限。Job未知仍尝试原Popen终止；所有句柄独立释放，清理错误附加原异常或使正常路径失败。模拟契约7/7、包装11/11、负载5/5；两路复审APPROVE/CLEAR。新增Windows原生后代启动/timeout回收测试在打包前运行，尚未执行；产品嵌套Job、200k负载与全部平台门禁保持开放。SDK依据：https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects 与 SDK Job基础计数/扩展限制结构。
+
+Windows阶段证据（8ccdb41，CI37709936467/job113093368002）：200k真实夹具创建170.378916秒、注册1.384201秒，index开始后外层300秒超时；不能据此称扫描本身超过300秒。后续仅将夹具准备改为固定4线程/4任务的步进分区，完整32字节文件、名称/数量和所有原覆盖/扫描/授权/300秒门禁不变。重叠写边界旧串行RED 8项1失败→8/8，打包11/11，双复审APPROVE/CLEAR。macOS20k单样本串行1.462114秒→并行0.860622秒，仅准备阶段，不证明Windows收益或产品扫描性能。原始阶段日志及本机测量分别保存在docs/benchmarks/windows_200k_stage_8ccdb41_2026_10_08与fixture_preparation_parallel_2026_10_08。Windows同源码200k及nativeJob仍待CI，任务未关闭。

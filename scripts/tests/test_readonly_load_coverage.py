@@ -7,6 +7,7 @@ from pathlib import Path
 import sqlite3
 import subprocess
 import sys
+import threading
 import unittest
 from unittest.mock import patch
 
@@ -14,6 +15,46 @@ ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('load_coverage', ROOT / 'scripts/accept-readonly-load.py')
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+
+
+class FixtureCreationTests(unittest.TestCase):
+    """并行准备仍创建完整真实文件，写入错误不能变成成功。"""
+    def test_exact_names_and_contents_with_non_multiple_file_count(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            MODULE.create_fixture(root, 103)
+            self.assertEqual({p.name for p in root.iterdir()},
+                             {f'file-{i:06}.bin' for i in range(103)})
+            self.assertTrue(all(p.read_bytes() == b'x' * 32 for p in root.iterdir()))
+
+    def test_preparation_uses_at_most_four_workers_and_overlaps_io(self):
+        barrier = threading.Barrier(4, timeout=2)
+        lock = threading.Lock()
+        threads = set()
+        real_write = Path.write_bytes
+
+        def write(path, content):
+            identity = threading.get_ident()
+            with lock:
+                first = identity not in threads
+                threads.add(identity)
+            if first:
+                barrier.wait()
+            return real_write(path, content)
+
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            with patch.object(Path, 'write_bytes', write):
+                MODULE.create_fixture(Path(temporary), 103)
+            self.assertEqual(len(list(Path(temporary).iterdir())), 103)
+        self.assertEqual(len(threads), 4)
+
+    def test_write_failure_propagates(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            error = OSError('fixture storage unavailable')
+            with patch.object(Path, 'write_bytes', side_effect=error):
+                with self.assertRaises(OSError) as caught:
+                    MODULE.create_fixture(Path(temporary), 103)
+            self.assertIs(caught.exception, error)
 
 
 class CoverageTests(unittest.TestCase):

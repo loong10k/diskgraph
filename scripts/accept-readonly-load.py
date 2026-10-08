@@ -72,6 +72,18 @@ def fixture_paths_complete(connection, snapshot_id, files):
     return matched == files
 
 
+def create_fixture(root, files):
+    """用最多4个工作线程创建完整夹具；仅保留4个任务，写失败直接传播。"""
+    def write_partition(partition):
+        for index in range(partition, files, 4):
+            (root / f"file-{index:06}.bin").write_bytes(b"x" * 32)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as workers:
+        tasks = [workers.submit(write_partition, partition) for partition in range(4)]
+        for task in tasks:
+            task.result()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bin-dir", required=True, type=pathlib.Path)
@@ -90,8 +102,9 @@ def main():
         root, data = work / "project", work / "data"
         root.mkdir()
         phase("fixture_create", "begin")
-        for index in range(args.files):
-            (root / f"file-{index:06}.bin").write_bytes(b"x" * 32)
+        fixture_started = time.perf_counter()
+        create_fixture(root, args.files)
+        fixture_seconds = time.perf_counter() - fixture_started
         phase("fixture_create", "end")
         phase("scope_registration", "begin")
         scope = invoke(cli, data, "scope", "add", "--root", root)["data"]["scope_id"]
@@ -168,6 +181,8 @@ def main():
         "indexed_nodes": indexed_nodes,
         "queries": args.queries,
         "concurrent_clients": 4,
+        "fixture_workers": 4,
+        "fixture_seconds": round(fixture_seconds, 3),
         "scan_seconds": round(scan_seconds, 3),
         "query_p50_ms": round(statistics.median(latencies) * 1000, 3),
         "query_p95_ms": round(latencies[math.ceil(0.95 * len(latencies)) - 1] * 1000, 3),
