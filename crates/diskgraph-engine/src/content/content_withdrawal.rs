@@ -6,6 +6,7 @@ use diskgraph_store::ControlStore;
 use std::time::Instant;
 
 /// 原请求内容权限的负向见证及未知平台的保守授权代次。
+/// 来源：DiskGraph 原生 CT-01/02 内容请求生命周期，没有 Java 对照对象。
 pub(super) struct ContentWithdrawal {
     witness: RequestWithdrawalWitness,
     generation: u64,
