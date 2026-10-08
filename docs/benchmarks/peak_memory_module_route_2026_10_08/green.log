@@ -1,0 +1,25 @@
+   Compiling diskgraph_memory_module_route_probe v0.0.0 (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-module-route-93rmbiu9)
+warning: unused imports: `child_rss`, `combined_rss`, and `rss`
+ --> src/lib.rs:6:25
+  |
+6 | use benchmark_support::{child_rss, combined_rss, rss};
+  |                         ^^^^^^^^^  ^^^^^^^^^^^^  ^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `diskgraph_memory_module_route_probe` (lib) generated 1 warning (run `cargo fix --lib -p diskgraph_memory_module_route_probe` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running unittests src/lib.rs (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-contract-gd5_e2cj/target/debug/deps/diskgraph_memory_module_route_probe-1437199e2210230d)
+
+running 3 tests
+test benchmark_support::peak_memory::tests::unknown_or_overflow_is_not_a_measured_sum ... ok
+test benchmark_support::peak_memory::tests::native_host_observes_positive_lifetime_memory ... ok
+test exported_memory_route_is_callable ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests diskgraph_memory_module_route_probe
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

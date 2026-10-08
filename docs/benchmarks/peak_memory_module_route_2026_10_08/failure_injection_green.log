@@ -1,0 +1,9 @@
+   Compiling diskgraph_memory_contract_probe v0.0.0 (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-contract-gd5_e2cj)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-contract-gd5_e2cj/target/debug/deps/diskgraph_memory_contract_probe-a5444ab5319d0316)
+
+running 2 tests
+test failed_child_measurement_is_unknown ... ok
+test failed_host_measurement_is_unknown ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s

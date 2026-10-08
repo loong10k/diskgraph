@@ -1,0 +1,94 @@
+     Locking 1 package to latest Rust 1.98.1 compatible version
+   Compiling diskgraph_memory_module_route_probe v0.0.0 (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-module-route-93rmbiu9)
+error[E0364]: `child_rss` is private, and cannot be re-exported
+ --> src/lib.rs:4:30
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                              ^^^^^^^^^
+  |
+note: consider marking `child_rss` as `pub` in the imported module
+ --> src/lib.rs:4:30
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                              ^^^^^^^^^
+
+error[E0364]: `combined_rss` is private, and cannot be re-exported
+ --> src/lib.rs:4:41
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                                         ^^^^^^^^^^^^
+  |
+note: consider marking `combined_rss` as `pub` in the imported module
+ --> src/lib.rs:4:41
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                                         ^^^^^^^^^^^^
+
+error[E0364]: `rss` is private, and cannot be re-exported
+ --> src/lib.rs:4:55
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                                                       ^^^
+  |
+note: consider marking `rss` as `pub` in the imported module
+ --> src/lib.rs:4:55
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                                                       ^^^
+
+error[E0603]: function import `child_rss` is private
+  --> src/lib.rs:6:25
+   |
+ 6 | use benchmark_support::{child_rss, combined_rss, rss};
+   |                         ^^^^^^^^^ private function import
+   |
+note: the function import `child_rss` is defined here...
+  --> src/lib.rs:4:30
+   |
+ 4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+   |                              ^^^^^^^^^
+note: ...and refers to the function `child_rss` which is defined here
+  --> /Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs:32:1
+   |
+32 | pub(super) fn child_rss() -> Option<u64> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0603]: function import `combined_rss` is private
+  --> src/lib.rs:6:36
+   |
+ 6 | use benchmark_support::{child_rss, combined_rss, rss};
+   |                                    ^^^^^^^^^^^^ private function import
+   |
+note: the function import `combined_rss` is defined here...
+  --> src/lib.rs:4:41
+   |
+ 4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+   |                                         ^^^^^^^^^^^^
+note: ...and refers to the function `combined_rss` which is defined here
+  --> /Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs:55:1
+   |
+55 | pub(super) fn combined_rss(parent: Option<u64>, children: Option<u64>) -> Option<u64> {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0603]: function import `rss` is private
+ --> src/lib.rs:6:50
+  |
+6 | use benchmark_support::{child_rss, combined_rss, rss};
+  |                                                  ^^^ private function import
+  |
+note: the function import `rss` is defined here...
+ --> src/lib.rs:4:55
+  |
+4 | pub(super) use peak_memory::{child_rss, combined_rss, rss};
+  |                                                       ^^^
+note: ...and refers to the function `rss` which is defined here
+ --> /Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs:4:1
+  |
+4 | pub(super) fn rss() -> Option<u64> {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some errors have detailed explanations: E0364, E0603.
+For more information about an error, try `rustc --explain E0364`.
+error: could not compile `diskgraph_memory_module_route_probe` (lib) due to 6 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `diskgraph_memory_module_route_probe` (lib test) due to 6 previous errors

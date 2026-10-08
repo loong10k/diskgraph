@@ -1,7 +1,7 @@
 //! 基准进程生命周期内存高水位；失败与未观测不伪装为零。
 
 /// 参数：无；返回：当前进程生命周期 RSS/工作集高水位（字节），测量失败为未知。
-pub(super) fn rss() -> Option<u64> {
+pub(crate) fn rss() -> Option<u64> {
     #[cfg(unix)]
     {
         unix_rss(libc::RUSAGE_SELF)
@@ -29,7 +29,7 @@ pub(super) fn rss() -> Option<u64> {
 }
 
 /// 参数：无；返回：Unix 已回收子进程的独立高水位；无对应 Windows 观测则为未知。
-pub(super) fn child_rss() -> Option<u64> {
+pub(crate) fn child_rss() -> Option<u64> {
     #[cfg(unix)]
     {
         unix_rss(libc::RUSAGE_CHILDREN)
@@ -52,7 +52,7 @@ fn unix_rss(who: libc::c_int) -> Option<u64> {
 }
 
 /// 参数：父/子独立高水位；返回：都已知且无溢出时的和，不表示同时峰值或严格内存上限。
-pub(super) fn combined_rss(parent: Option<u64>, children: Option<u64>) -> Option<u64> {
+pub(crate) fn combined_rss(parent: Option<u64>, children: Option<u64>) -> Option<u64> {
     parent?.checked_add(children?)
 }
 

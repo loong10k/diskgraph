@@ -1,0 +1,11 @@
+{
+  "native_red_job": 113086959471,
+  "native_commit": "e76aaac5633cf2162f76db40b1f6dab0ee691039",
+  "native_log_sha256": "26eedf6e23fa9ac79e59111f4356f36e8bc28b97d1df88aad502119c822f40eb",
+  "defect": "pub(super) only reached parent support module, reexport tried to widen visibility",
+  "local_red": "actual helper with actual support reexport and benchmark import in same two-level hierarchy: E0364/E0603",
+  "local_green": "same two-level actual source route: 3/3",
+  "regression": "measurement failure injection remains 2/2",
+  "scope": "integration test crate only; no product public API change",
+  "not_qualified": "Full Engine integration build and native Windows/Linux repaired branch acceptance"
+}
