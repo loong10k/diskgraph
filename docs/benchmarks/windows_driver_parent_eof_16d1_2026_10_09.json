@@ -1,0 +1,94 @@
+{
+  "head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs": "d9ae7d2c2ab8499abf3dd9dbb4ce1a31e9313e0f2c8509705c0ed919ab571862"
+  },
+  "default_test_parallelism": true,
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.14100000000326
+    },
+    {
+      "name": "driver_regression",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "scan_worker_driver_",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.75
+    },
+    {
+      "name": "engine_format",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "fmt",
+        "-p",
+        "diskgraph-engine",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.5309999999881256
+    }
+  ],
+  "production_acceptance": false,
+  "driver": {
+    "path": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe",
+    "sha256": "561d26f139468d956fab7e57bc1913a5dc470c7c56285211ee594ee3c5c0a2fc"
+  },
+  "logs": {
+    "driver_build.stdout.log": {
+      "bytes": 103029,
+      "sha256": "efe71a5ab20e678038c1ed16764ac7968a46d9528862e501290b19305f278abc"
+    },
+    "driver_build.stderr.log": {
+      "bytes": 178,
+      "sha256": "fac57f1c7a78e667e189667dffd5cb532db370e04c95a7f4e5772e2eb6f2aeb2"
+    },
+    "driver_regression.stdout.log": {
+      "bytes": 1457,
+      "sha256": "a75c9d4f65edb05bf7db58e73f153b9b0d229030665cfb5c7f033f9507828b5a"
+    },
+    "driver_regression.stderr.log": {
+      "bytes": 666,
+      "sha256": "5df0420a49e7b549d9a933ce40f364bf246a85ccdeb98cfbe22e8d3e9f6b2545"
+    },
+    "engine_format.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "engine_format.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "test_summaries": [
+    "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 708 filtered out; finished in 0.65s"
+  ],
+  "job_id": "wc_job_sulMsYTZozT0a9sn",
+  "qualification": "Targeted native Windows driver regression only. Original default-parallel Engine 99 failures retained; no full regression after test observation correction. No product behavior change; 20s original driver deadline retained."
+}

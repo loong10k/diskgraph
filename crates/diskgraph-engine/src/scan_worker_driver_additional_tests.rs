@@ -58,7 +58,8 @@ fn actual_progress_dto_is_retained_without_fabricated_node_counters() {
 fn caller_cancel_after_tree_eof_still_rejects_tree_and_cleans_actual_child() {
     let mut fixture = DriverFixture::new("held-end", 4096);
     let deadline = fixture.deadline;
-    while !fixture.reached("pipes-closed") {
+    // 子端关闭见证不等于父端已收到 EOF；必须先到达本测试声称的真实组装边界。
+    while !fixture.reached("pipes-closed") || !fixture.driver.has_assembled_tree_for_test() {
         assert!(
             fixture
                 .driver

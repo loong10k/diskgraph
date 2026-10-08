@@ -1,0 +1,28 @@
+{
+  "project": "E:\\workspaces\\workspace-loong10k\\diskgraph",
+  "head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "job_id": "wc_job_oOrIgtOE7tS10yJW",
+  "argv": ["cargo", "+1.99.0", "test", "--locked", "-p", "diskgraph-store"],
+  "exit_code": 0,
+  "elapsed_seconds": 56.547,
+  "default_test_parallelism": true,
+  "source_diff_against_HEAD": "",
+  "passed": 396,
+  "failed": 0,
+  "ignored": 12,
+  "test_summaries": [
+    "370 passed; 0 failed; 8 ignored; finished in 43.80s",
+    "10 passed; 0 failed; 0 ignored; finished in 0.34s",
+    "13 passed; 0 failed; 0 ignored; finished in 0.58s",
+    "2 passed; 0 failed; 0 ignored; finished in 0.27s",
+    "0 passed; 0 failed; 4 ignored; finished in 0.00s",
+    "1 passed; 0 failed; 0 ignored; finished in 0.27s",
+    "doc-tests: 0 passed; 0 failed; finished in 0.00s"
+  ],
+  "logs": {
+    "stdout.log": {"bytes": 43020, "sha256": "2975e87272f207c0630353c997db55d1cd190b309d31b8eb30c391d6cda0a8ed"},
+    "stderr.log": {"bytes": 850, "sha256": "de16f1cb871c4dc2659ba0a4186f8d426e715fca1aa3b7adc2ed5d51165ec6cb"}
+  },
+  "remote_log_directory": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_store_default_16d1",
+  "qualification": "Native Windows Store package passed. Twelve existing ignored tests were not executed. Does not supersede the failed default-parallel Engine regression, the failed 200k 300s envelope, or qualify all-platform production readiness."
+}

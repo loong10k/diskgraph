@@ -25,6 +25,12 @@ pub(crate) struct ScanWorkerDriver {
 }
 
 impl ScanWorkerDriver {
+    /// 参数：无；返回：父端已读到真实 EOF 并完成树组装的测试观测，不授予退出许可。
+    #[cfg(test)]
+    pub(super) fn has_assembled_tree_for_test(&self) -> bool {
+        self.output.tree()
+    }
+
     /// 有限等待下一轮。参数：无；返回：等待成功或原生事件错误，绝不刷新请求期限。
     /// Windows 等待原 pending I/O 事件，Unix 保持原待机；事件完成仍须经过下一轮完整检查。
     pub(crate) fn wait_for_next_poll(&self) -> Result<(), ChildError> {
