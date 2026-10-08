@@ -44,6 +44,86 @@ class HttpSoakTests(unittest.TestCase):
         self.assertTrue(all(b - a >= 0.025 - 1e-10 for a, b in zip(starts, starts[1:])))
         self.assertEqual(result['elapsed_seconds'], 1.0)
         self.assertEqual(result['offered_max_requests_per_second'], 40)
+        self.assertEqual(result['dispatch_reserve_ms'], 25.0)
+
+    def test_final_partial_dispatch_interval_is_observed_without_new_request(self):
+        now = [100.0]
+        requests = []
+        sleeps = []
+
+        def read(*args, **kwargs):
+            requests.append(now[0])
+            # 复现原生报告：已成功请求后仅剩3.3ms，不足一次25ms发起间隔。
+            now[0] = 100.9967
+            return 200, {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': [1]}}}}
+
+        def sleep(seconds):
+            sleeps.append(seconds)
+            now[0] += seconds
+
+        def clock():
+            if len(requests) > 1:
+                self.fail('issued a request without one remaining dispatch interval')
+            return now[0]
+
+        with patch.object(MODULE.time, 'monotonic', side_effect=clock), \
+                patch.object(MODULE.time, 'sleep', side_effect=sleep), \
+                patch.object(MODULE, 'request', side_effect=read):
+            result = MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        self.assertEqual(len(requests), 1)
+        self.assertAlmostEqual(sum(sleeps), 0.0033)
+        self.assertEqual(result['elapsed_seconds'], 1.0)
+        self.assertAlmostEqual(result['dispatch_reserve_ms'], 996.7)
+
+    def test_token_cost_must_leave_a_dispatch_interval_before_network(self):
+        now = [100.0]
+        minted = [0]
+
+        def mint(key):
+            minted[0] += 1
+            if minted[0] == 2:
+                now[0] = 100.9967
+            return 'same-principal-token'
+
+        def read(*args, **kwargs):
+            self.assertEqual(minted[0], 1, 'late token preparation must prevent dispatch')
+            now[0] += 0.25
+            return 200, {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': [1]}}}}
+
+        with patch.object(MODULE.time, 'monotonic', side_effect=lambda: now[0]), \
+                patch.object(MODULE.time, 'sleep', side_effect=lambda t: now.__setitem__(0, now[0] + t)), \
+                patch.object(MODULE, 'token', side_effect=mint), \
+                patch.object(MODULE, 'request', side_effect=read) as request:
+            result = MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        request.assert_called_once()
+        self.assertEqual(result['elapsed_seconds'], 1.0)
+
+    def test_observed_request_cost_is_reserved_on_slower_platforms(self):
+        now = [100.0]
+        minted = [0]
+
+        def mint(key):
+            minted[0] += 1
+            if minted[0] == 2:
+                now[0] = 100.972
+            return 'same-principal-token'
+
+        def read(*args, **kwargs):
+            self.assertEqual(minted[0], 1, '28ms cannot admit the observed 40ms request cost')
+            now[0] += 0.040
+            return 200, {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': [1]}}}}
+
+        with patch.object(MODULE.time, 'monotonic', side_effect=lambda: now[0]), \
+                patch.object(MODULE.time, 'sleep', side_effect=lambda t: now.__setitem__(0, now[0] + t)), \
+                patch.object(MODULE, 'token', side_effect=mint), \
+                patch.object(MODULE, 'request', side_effect=read) as request:
+            result = MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        request.assert_called_once()
+        self.assertEqual(result['elapsed_seconds'], 1.0)
+        self.assertAlmostEqual(result['dispatch_reserve_ms'], 40.0)
 
     def test_rate_limit_rejection_is_failure_and_is_not_retried(self):
         with patch.object(MODULE, 'request', return_value=(429, {

@@ -179,8 +179,15 @@ def soak_reads(port, body, key, scope, seconds):
     # 默认服务桶为每客户端50次/秒；持续稳定性负载留出控制请求余量。
     # 按实际开始时间节流，慢请求后不补发积压；429仍失败，绝不重试。
     offered_rate = 40
+    dispatch_interval = 1 / offered_rate
+    dispatch_reserve = dispatch_interval
     next_start = started
     while (remaining := deadline - time.monotonic()) > 0:
+        # 原生Windows曾在只剩3.3ms时再次发起请求，网络往返必须挤入这段余量。
+        # 准入至少保留原节奏间隔及已观测请求成本；末段仍等到原期限，错误不被吞掉。
+        if remaining < dispatch_reserve:
+            time.sleep(remaining)
+            continue
         delay = next_start - time.monotonic()
         if delay > 0:
             time.sleep(min(delay, remaining))
@@ -189,12 +196,15 @@ def soak_reads(port, body, key, scope, seconds):
         remaining = deadline - before
         if remaining <= 0:
             break
-        next_start = before + 1 / offered_rate
+        next_start = before + dispatch_interval
         # 为后续请求签发同一主体的新token，不更新总期限或数据库授权。
         bearer = token(key)
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             break
+        if remaining < dispatch_reserve:
+            time.sleep(remaining)
+            continue
         try:
             status, answer = request(port, '/mcp', body, bearer, ORIGIN,
                                      timeout=min(10, remaining))
@@ -229,7 +239,11 @@ def soak_reads(port, body, key, scope, seconds):
                           'rpc_error': rpc_error,
                           'scope_matches': scope_matches, 'items_present': items_present}
             raise RuntimeError('soak read failed ' + json.dumps(diagnostic, sort_keys=True))
-        samples.append((time.monotonic() - before) * 1000)
+        elapsed = time.monotonic() - before
+        samples.append(elapsed * 1000)
+        # 观测较慢的平台沿用本轮已付出的最大请求成本作后续准入保留；
+        # 这不是新的请求超时上限，也不保证未来请求不会变慢。已发请求仍原样失败。
+        dispatch_reserve = max(dispatch_reserve, elapsed)
         count += 1
     if not count:
         raise RuntimeError('soak read completed no requests')
@@ -237,6 +251,7 @@ def soak_reads(port, body, key, scope, seconds):
     return {'requests': count, 'requested_seconds': seconds,
             'elapsed_seconds': time.monotonic() - started,
             'offered_max_requests_per_second': offered_rate,
+            'dispatch_reserve_ms': dispatch_reserve * 1000,
             'latency_sample_window': 'last_4096_requests', 'latency_samples': len(ordered),
             'p50_ms': ordered[math.ceil(len(ordered) * 0.50) - 1],
             'p95_ms': ordered[math.ceil(len(ordered) * 0.95) - 1],

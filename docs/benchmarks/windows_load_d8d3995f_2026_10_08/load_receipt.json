@@ -1,0 +1,58 @@
+{
+  "command": [
+    "C:\\hostedtoolcache\\windows\\Python\\3.13.15\\x64\\python.exe",
+    "D:\\a\\diskgraph\\diskgraph\\scripts\\accept-readonly-load.py",
+    "--bin-dir",
+    "D:\\a\\diskgraph\\diskgraph\\target\\x86_64-pc-windows-msvc\\release",
+    "--files",
+    "200000"
+  ],
+  "started_unix_seconds": 1791462506.3004808,
+  "clean_environment_confirmed": false,
+  "preceding_formal_acceptance": "failed; retirement uncertainty may affect diagnostic",
+  "inner_cli_timeout_seconds": 300,
+  "status": "complete",
+  "production_acceptance": false,
+  "purpose": "diagnostic only; formal acceptance remains independent",
+  "commit": "d8d3995f4f5cc1c2bbf09263814d18b322900f79",
+  "binary_sha256": {
+    "diskgraph.exe": "a08fa47336a06fcc507a6808e0349bb10ec77a5e88a5fe40746a451df3b0d5ca",
+    "diskgraph-mcp.exe": "214d8238aa698a7e739d9f9ec9d6d5c06eb30e3f17d90456c82862fc4661f893",
+    "diskgraph-scan-worker.exe": "7d54fb952a55736cb0da2757f8906aa074d615ce10496ba3cc90047a2ed94e7c"
+  },
+  "formal_timeout_seconds": 300,
+  "diagnostic_timeout_seconds": 900,
+  "source_sha256": {
+    "scripts\\diagnose_windows_load.py": "bb9beb738d6216dcd2f7292731e074af17e9eab8364abf9a986cd22f7ebd72b0",
+    "scripts\\accept-readonly-load.py": "6c8c20941180d3ac77763e62c0fbd25f5627bed7673616ec141f4da673965274",
+    "scripts\\windows_acceptance_job.py": "997761982b6f29b07451d30772eda891bf814f30d4cafd3231fdf298aa957356"
+  },
+  "elapsed_seconds": 670.7664396,
+  "observed_unix_seconds": 1791463177.0668044,
+  "observed_load": {
+    "version": "diskgraph 0.3.0",
+    "platform": "win32",
+    "files": 200000,
+    "indexed_nodes": 200001,
+    "queries": 32,
+    "concurrent_clients": 4,
+    "fixture_workers": 1,
+    "fixture_seconds": 252.347,
+    "scan_seconds": 164.821,
+    "cleanup_seconds": 249.023,
+    "cleanup_workers": 1,
+    "query_p50_ms": 30.567,
+    "query_p95_ms": 44.229,
+    "database_and_wal_bytes": 553598976,
+    "passed": 6,
+    "total": 6,
+    "checks": {
+      "full_index_published": true,
+      "exact_fixture_path_coverage": true,
+      "exact_fixture_node_coverage": true,
+      "concurrent_reads_bound_to_revision": true,
+      "query_results_bounded": true,
+      "node_budget_refuses_partial_publish": true
+    }
+  }
+}

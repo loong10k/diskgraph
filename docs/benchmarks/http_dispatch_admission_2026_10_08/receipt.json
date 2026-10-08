@@ -1,0 +1,29 @@
+{
+  "failed_source_sha": "d8d3995f4f5cc1c2bbf09263814d18b322900f79",
+  "run_id": 37776446882,
+  "jobs": {
+    "windows_package": 113308539188,
+    "macos_intel_package": 113308539189,
+    "macos_intel_stdio": 113308402369
+  },
+  "logs_sha256": {
+    "suite.log": "59b491ad9fd10321cb5bd576652f12c8a33a37841523ae22e0dd0332216bddb9",
+    "package_tests.log": "832d34975164a3fd1dcda9cea0f7b1f6f267a9e6fdc64846962eb168cc4c6e7c",
+    "dispatch_green.log": "faf5f48349f42dfa6c7148f19ce1f8f028613558354d9d0e96dda9a33d4f7058",
+    "test_http_soak.py.baseline_red.log": "be25892fa2f5a96cee006d0b7b747ebf6423e13046892859cd721efd18892c69",
+    "stdio_green.log": "62f8f49e0a2a771a57de65cef9a0b6af045315e41eff5e6979982597c1734519",
+    "spec.log": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+    "macos_intel_package_failure.log": "5c62b9491da262f3e5f82a6e089366dca1eb915c697c0ae6bb7468e2ca46183d",
+    "test_stdio_diagnostics.py.baseline_red.log": "2d7d1b65fa9df5e30586c742cdd28b111adff41fb2fa28713cde9ad875382968",
+    "windows_package_failure.log": "e7a639ac407497ccfa2152ed3a4fd32e800e1ee7f81c2068956e6b841650d48e",
+    "macos_intel_stdio_failure.log": "13d471277c5f4e0085809ff00b3fa7f80c05f57d3ef750992a8b9eb72b69c3a1"
+  },
+  "baseline_red": "Reproduced from git show d8d3995f against three dispatch and four diagnostic cases; initial temporary red logs were no longer available.",
+  "candidate_source_sha256": {
+    "scripts/accept-readonly-http.py": "32abd98615c930fa16bcf53e62d08c908aac6201c4810ac036a2b447fa5b8f64",
+    "scripts/accept-readonly-stdio.py": "5edb4afd436af37110e8bf15fefb9c8ede4cde43409b397c6c87d94fc4a67b16",
+    "scripts/tests/test_http_soak.py": "d659dd87c97bd43984380d47c3a91a0cb5e7e34aad11df3e97f5f7c197ca834e",
+    "scripts/tests/test_stdio_diagnostics.py": "c97a570410ea1da098731453719b4c9dc22807572d06782e4c5a3b18d68e84f5"
+  },
+  "native_candidate_qualified": false
+}

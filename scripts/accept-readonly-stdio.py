@@ -4,6 +4,8 @@
 import json
 import os
 import pathlib
+import re
+from collections import deque
 import subprocess
 import sys
 import tempfile
@@ -31,8 +33,44 @@ def require(name, condition, checks):
     checks[name] = bool(condition)
 
 
+def dispatch_diagnostic(response, schema_valid):
+    """保留有界错误分类；参数和任意响应文本不进入验收报告。"""
+    response = response if isinstance(response, dict) else {}
+    error = response.get('error')
+    error = error if isinstance(error, dict) else {}
+    code = error.get('code')
+    data = error.get('data')
+    business = data.get('business_code') if isinstance(data, dict) else None
+    allowed = {'invalid_argument', 'ambiguous', 'permission_denied', 'approval_required',
+               'not_indexed', 'not_found', 'stale_plan', 'revision_expired',
+               'incompatible_history', 'unsupported', 'unavailable', 'budget_exceeded',
+               'timeout', 'resource_exhausted', 'partial', 'needs_attention',
+               'recovery_unconfirmed', 'conflict', 'idempotency_conflict', 'internal_error'}
+    result = response.get('result')
+    content = result.get('structuredContent') if isinstance(result, dict) else None
+    return {'schema_valid': bool(schema_valid), 'rpc_error': 'error' in response,
+            'rpc_error_code': code if type(code) is int and -32768 <= code <= -32000 else None,
+            'business_code': business if isinstance(business, str) and len(business) <= 32
+                             and business in allowed else 'unknown',
+            'structured_ok': isinstance(content, dict) and content.get('ok') is True}
+
+
+def budget_phase_diagnostics(stderr):
+    """只读取有限尾部及固定授权阶段的数值；release 未启用诊断时返回空列表。"""
+    allowed = {'relation_terminal_lock', 'relation_terminal_control', 'terminal_server_sql',
+               'terminal_reader_open', 'terminal_ownership_sql'}
+    samples = deque(maxlen=32)
+    for line in stderr[-131072:].splitlines():
+        matched = re.fullmatch(r'diskgraph: authorization_budget_phase=([a-z_]{1,40}) '
+                               r'elapsed_us=([0-9]{1,20})', line)
+        if matched and matched[1] in allowed:
+            samples.append({'phase': matched[1], 'elapsed_us': int(matched[2])})
+    return list(samples)
+
+
 def main():
     checks = {}
+    diagnostics = {}
     version = tomllib.loads((ROOT / "Cargo.toml").read_text())["workspace"]["package"]["version"]
     for name, binary in (("diskgraph", CLI), ("diskgraph-mcp", MCP)):
         observed = subprocess.run([binary, "--version"], capture_output=True, text=True, timeout=10)
@@ -94,6 +132,7 @@ def main():
             [MCP, "--data-dir", data, "--profile", "read-full", "--transport", "stdio"],
             input="\n".join(json.dumps(frame) for frame in frames) + "\n",
             capture_output=True, text=True, timeout=120, check=True,
+            env={**os.environ, "DISKGRAPH_QUERY_DIAGNOSTICS": "1"},
         )
         responses = {message["id"]: message for line in session.stdout.splitlines()
                      if (message := json.loads(line)).get("id") is not None}
@@ -111,8 +150,11 @@ def main():
                 field=schema["properties"][key]
                 valid=valid and ((field["type"]=="string" and isinstance(value,str)) or (field["type"]=="integer" and type(value) is int))
                 if isinstance(value,str): valid=valid and len(value)>=field.get("minLength",0)
-            result=responses[number].get("result",{}).get("structuredContent",{})
-            require(f"stdio_schema_and_dispatch_{name}",valid and result.get("ok") is True,checks)
+            diagnostic = dispatch_diagnostic(responses.get(number), valid)
+            check_name = f"stdio_schema_and_dispatch_{name}"
+            require(check_name, valid and diagnostic['structured_ok'] and not diagnostic['rpc_error'], checks)
+            if not checks[check_name]:
+                diagnostics[check_name] = diagnostic
         node=responses[6].get("result",{}).get("structuredContent",{}).get("data",{}).get("node",{})
         require("stdio_explicit_nonroot_node",node.get("id")==target_node["id"],checks)
         require("stdio_unknown_argument_rejected",responses[11].get("error",{}).get("code")==-32602,checks)
@@ -127,7 +169,8 @@ def main():
                 reply.get("result", {}).get("serverInfo", {}).get("name") == "diskgraph", checks)
 
     passed = sum(checks.values())
-    print(json.dumps({"passed": passed, "total": len(checks), "checks": checks}, indent=2))
+    print(json.dumps({"passed": passed, "total": len(checks), "checks": checks, "diagnostics": diagnostics,
+                      "authorization_budget_phases": budget_phase_diagnostics(session.stderr)}, indent=2))
     return 0 if passed == len(checks) else 1
 
 
