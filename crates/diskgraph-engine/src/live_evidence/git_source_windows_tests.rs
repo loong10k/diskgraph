@@ -37,7 +37,7 @@ fn changed_during_open(ancestor: bool) -> Result<(), String> {
     let name = target.file_name().unwrap().to_os_string();
     let changed = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let observed = changed.clone();
-    let version_mask = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
+    let version_mask = std::sync::Arc::new(std::sync::atomic::AtomicU16::new(0));
     let recorded_mask = version_mask.clone();
     HOOK.with(|slot| {
         *slot.borrow_mut() = Some(Box::new(move |component, route| {

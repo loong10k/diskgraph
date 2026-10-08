@@ -1,0 +1,7 @@
+{
+  "fix": "AtomicU16 matches current changed_mask u16 return",
+  "validation": "exact current pure struct, method and diagnostic expressions extracted into host rustc --test; 1/1 passed",
+  "not_qualified": "Windows API compilation/runtime; only aarch64-apple-darwin Rust target installed",
+  "source_test": "git_source_windows_tests.rs",
+  "native_red_job": 113077958114
+}
