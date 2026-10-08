@@ -1,0 +1,19 @@
+{
+  "base_commit": "51a6340aae1e7198332779a85fab167b1ef906b0",
+  "source": "crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs",
+  "source_sha256": "a6c79e57ac47a4d9bc332af7403f6bb36e591c77224954631fe63666fc057ab7",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "targeted_tests": {
+    "passed": 3,
+    "failed": 0
+  },
+  "contention_repeats": {
+    "process_concurrency": 4,
+    "runs": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "clippy": "passed",
+  "production_deadlines_changed": false,
+  "native_ci_failure_resolved": false
+}
