@@ -127,7 +127,7 @@ class PackageFixture(unittest.TestCase):
 
 
 class PackageCompositionTests(PackageFixture):
-    """旧 main 的 helper 遗漏须是实际组成失败，四个外部 native 流程均不执行。"""
+    """旧 main 的 helper 遗漏须是实际组成失败，外部 native 流程由边界替身观察，不执行真实平台验收。"""
 
     def test_archive_contains_three_exact_artifacts_and_verified_manifest(self):
         package = self.actual_package()
@@ -141,7 +141,7 @@ class PackageCompositionTests(PackageFixture):
                                  hashlib.sha256(self.payloads[NAMES[2]]).hexdigest())
             # 观察真实 main 自己解出的内容；不替换 copy、归档、摘要或解压函数。
             files = {path.name: path.read_bytes() for path in pathlib.Path(bin_dir).iterdir() if path.is_file()}
-            calls.append((script, files, tuple(map(str, arguments))))
+            calls.append((script, files, tuple(map(str, arguments)), str(bin_dir)))
             return 1
 
         report = self.call_main(package, accepted)
@@ -174,14 +174,26 @@ class PackageCompositionTests(PackageFixture):
         self.assertEqual([call[0] for call in calls], [
             "accept-readonly-stdio.py", "accept-readonly-http.py",
             "accept-readonly-upgrade.py", "accept-readonly-load.py",
+            "accept-readonly-load.py",
         ])
-        for _, files, _ in calls:
+        for _, files, _, _ in calls:
             self.assertEqual(set(files), set(NAMES) | {MANIFEST_NAME})
             for name, payload in self.payloads.items():
                 self.assertEqual(files[name], payload)
             self.assert_manifest(json.loads(files[MANIFEST_NAME]))
         self.assertIn(str(self.old_cli.resolve()), calls[2][2])
-        for field in ("stdio", "http", "upgrade_rollback", "controlled_load"):
+        small = dict(zip(calls[3][2][::2], calls[3][2][1::2]))
+        large = dict(zip(calls[4][2][::2], calls[4][2][1::2]))
+        self.assertEqual(small["--files"], "20000")
+        self.assertEqual(large["--files"], "200000")
+        self.assertEqual(small["--bin-dir"], calls[3][3])
+        self.assertEqual(large["--bin-dir"], calls[4][3])
+        self.assertEqual(calls[3][3], calls[4][3])
+        self.assertNotEqual(small["--output"], large["--output"])
+        self.assertTrue(small["--output"].endswith(".load.json"))
+        self.assertTrue(large["--output"].endswith(".load_200000.json"))
+        for field in ("stdio", "http", "upgrade_rollback", "controlled_load",
+                      "controlled_load_200000"):
             self.assertEqual(report[field], 1)
 
     def test_missing_helper_fails_before_any_external_acceptance(self):

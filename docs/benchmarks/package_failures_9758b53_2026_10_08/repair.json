@@ -1,0 +1,12 @@
+{
+  "cause": "existing package composition test expected four acceptance calls after implementation added the second load invocation",
+  "failed_before_native_load": true,
+  "local_red": "9 tests, 1 failed: extra accept-readonly-load.py call",
+  "repair": "explicit 20000 and 200000 arguments, fifth invocation, same extracted bin directory and exact artifacts, distinct output paths, report contains both controlled-load fields",
+  "green": {
+    "native_host_python_package_contract": 9,
+    "simulated_linux_python_deployment_branch": 9,
+    "load_coverage_regressions": 3
+  },
+  "limits": "mocked external acceptance; no native scan runtime established by these Python tests"
+}

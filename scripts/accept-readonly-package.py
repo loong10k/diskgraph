@@ -132,7 +132,7 @@ def main():
         )
         load = accepted(
             "accept-readonly-load.py", packaged_bin,
-            "--bin-dir", packaged_bin,
+            "--bin-dir", packaged_bin, "--files", "20000",
             "--output", output / f"{archive_name}.load.json",
             deployment=deployment,
         )
