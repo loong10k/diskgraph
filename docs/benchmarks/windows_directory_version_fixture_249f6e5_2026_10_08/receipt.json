@@ -1,0 +1,16 @@
+{
+  "source_commit": "249f6e5bfd858c60638641838eee2b31d6b3cc81",
+  "windows_job": 113101368642,
+  "engine_result": {
+    "passed": 627,
+    "failed": 2,
+    "ignored": 4
+  },
+  "failure_precondition": "changed_mask &0x030 is zero for both ancestor and registered leaf; product_result Ok; NOT timestamps themselves equal zero",
+  "linux_stable_job": 113101368745,
+  "linux_conclusion": "success",
+  "linux_cost_artifact": 11522733771,
+  "candidate_native_validation": "not executed; no installed Windows Rust target on current macOS host",
+  "log_sha256": "2d62233fc8839b754506e29a2acedffedbb83651695939de86e768cfd4d0aebc",
+  "candidate_boundary": "explicit handle timestamp mutation retains version-change assertion; natural child activity diagnostic retained; product unchanged"
+}

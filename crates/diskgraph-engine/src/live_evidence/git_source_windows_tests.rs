@@ -48,10 +48,10 @@ fn changed_during_open(ancestor: bool) -> Result<(), String> {
                 use std::os::windows::fs::OpenOptionsExt;
                 use windows_sys::Win32::Storage::FileSystem::{
                     FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_NO_RECALL,
-                    FILE_FLAG_OPEN_REPARSE_POINT, FILE_READ_ATTRIBUTES,
+                    FILE_FLAG_OPEN_REPARSE_POINT, FILE_READ_ATTRIBUTES, FILE_WRITE_ATTRIBUTES,
                 };
                 let attributes = std::fs::OpenOptions::new()
-                    .access_mode(FILE_READ_ATTRIBUTES)
+                    .access_mode(FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES)
                     .custom_flags(
                         FILE_FLAG_BACKUP_SEMANTICS
                             | FILE_FLAG_OPEN_REPARSE_POINT
@@ -61,6 +61,20 @@ fn changed_during_open(ancestor: bool) -> Result<(), String> {
                     .unwrap();
                 let before = super::state(&attributes, true).unwrap();
                 std::fs::create_dir(target.join("unrelated-entry")).unwrap();
+                let natural_after = super::state(&attributes, true).unwrap();
+                eprintln!(
+                    "DG_WINDOWS_DIRECTORY_NATURAL_CHANGE_MASK={}",
+                    before.changed_mask(&natural_after)
+                );
+                // 真实Windows CI未观测到此次子项活动的时间变化；显式改变本夹具目录写入时间，
+                // 仍强制验证真实句柄版本确实变化，不能把未触发前提当作版本拒绝通过。
+                let modified = attributes.metadata().unwrap().modified().unwrap();
+                let changed_time = modified
+                    .checked_add(std::time::Duration::from_secs(60))
+                    .unwrap();
+                attributes
+                    .set_times(std::fs::FileTimes::new().set_modified(changed_time))
+                    .unwrap();
                 let after = super::state(&attributes, true).unwrap();
                 // 先记录真实版本差异，允许原产品路径完成；末段仍强制核验夹具变更。
                 recorded_mask.store(
