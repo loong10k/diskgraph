@@ -172,10 +172,6 @@ class CoverageTests(unittest.TestCase):
         result, _ = self.exercise(102)
         self.assertEqual(result, 0)
 
-
-if __name__ == '__main__':
-    unittest.main()
-
 class TimeoutDiagnosticTests(unittest.TestCase):
     """原索引超时必须保留有限阶段证据，不改变原异常或验收期限。"""
     def test_timeout_preserves_original_exception_and_bounded_stderr_tail(self):
@@ -188,3 +184,7 @@ class TimeoutDiagnosticTests(unittest.TestCase):
         self.assertIs(raised.exception, error)
         self.assertIn('last-scan-stage', captured.getvalue())
         self.assertLessEqual(len(captured.getvalue().encode()), 65537)
+
+
+if __name__ == '__main__':
+    unittest.main()
