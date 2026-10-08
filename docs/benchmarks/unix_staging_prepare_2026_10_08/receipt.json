@@ -1,0 +1,19 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-store/src/unix_observation_staging.rs": "d44c3dec4e33ca2c13fe8a4e601f34c7d8bcc64fd0d41f6360b790731051b052",
+    "crates/diskgraph-store/src/process_unix_staging_query_tests.rs": "759ddaa392327b0a1cef9f57ba7019997f045852ebd21623ef4a0a7b5108fc8f"
+  },
+  "target_tests": 10,
+  "full_store_worktree": {
+    "passed": 362,
+    "ignored": 9,
+    "includes_two_uncommitted_reader_observation_tests": true
+  },
+  "measured_sqlite_steps_for_three_points": {
+    "20000_nodes": 232,
+    "200000_nodes": 232
+  },
+  "old_insert_compilations_for_64_rows": 64,
+  "new_select_and_insert_compilations_per_batch": 1,
+  "native_end_to_end_speedup_measured": false
+}

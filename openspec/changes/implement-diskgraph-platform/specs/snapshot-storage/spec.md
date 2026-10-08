@@ -83,3 +83,8 @@ Graph and control database migrations SHALL reserve a new backup destination ato
 - **WHEN** a completed graph has one matching root and existing parent IDs but also contains a self-parent or disconnected multi-node parent cycle
 - **THEN** publication returns InvalidGraph before publishing any snapshot, ownership or latest pointer
 - **AND** parent validation runs in linear graph traversal work, accepts valid deep trees in arbitrary node order, and does not recurse on the native call stack
+
+#### Scenario: Unix 观测批次复用实际点查与写入语句
+- **WHEN** 同一 checked 事务暂存多个 Unix 文件观测
+- **THEN** 节点目标点查和观测 INSERT 各仅编译一次并复用参数绑定
+- **AND** 保留每项前后授权/取消/期限检查、COUNT(*)=1 歧义拒绝和整批失败回滚；不得为性能移除原生身份校验

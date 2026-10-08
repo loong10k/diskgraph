@@ -21,25 +21,28 @@ impl SqliteSnapshotStore {
         check()?;
         let tx = self.connection.transaction()?;
         check()?;
-        for (node, observation, gap) in items {
-            check()?;
-            let id = crate::node_codec::as_i64(node)?;
-            let exists:bool=tx.query_row("SELECT COUNT(*)=1 FROM scan_staging WHERE job_id=?1 AND json_extract(node_json,'$.id')=?2 AND native_locator_kind='native_path' AND native_locator_encoding='unix_bytes' AND json_extract(node_json,'$.kind')='file' AND json_extract(node_json,'$.read_error')=0",params![job,id],|r|r.get(0))?;
-            if !exists || observation.is_some() == gap.is_some() {
-                return Err(StoreError::InvalidGraph(
-                    "invalid Unix observation staging target".into(),
-                ));
-            }
-            let encoded =
+        {
+            // 点查已使用节点表达式索引；批次内复用编译结果，不改动目标一致性和逐项末检。
+            let mut target = tx.prepare("SELECT COUNT(*)=1 FROM scan_staging WHERE job_id=?1 AND json_extract(node_json,'$.id')=?2 AND native_locator_kind='native_path' AND native_locator_encoding='unix_bytes' AND json_extract(node_json,'$.kind')='file' AND json_extract(node_json,'$.read_error')=0")?;
+            let mut insert =
+                tx.prepare("INSERT INTO scan_staging_unix_observations VALUES(?1,?2,?3,?4,14)")?;
+            for (node, observation, gap) in items {
+                check()?;
+                let id = crate::node_codec::as_i64(node)?;
+                let exists: bool = target.query_row(params![job, id], |r| r.get(0))?;
+                if !exists || observation.is_some() == gap.is_some() {
+                    return Err(StoreError::InvalidGraph(
+                        "invalid Unix observation staging target".into(),
+                    ));
+                }
+                let encoded =
                 crate::staging_unix_observation_encoding::StagingUnixObservationEncoding::encode(
                     observation,
                     gap,
                 )?;
-            tx.execute(
-                "INSERT INTO scan_staging_unix_observations VALUES(?1,?2,?3,?4,14)",
-                params![job, id, encoded.raw, encoded.gap],
-            )?;
-            check()?;
+                insert.execute(params![job, id, encoded.raw, encoded.gap])?;
+                check()?;
+            }
         }
         check()?;
         tx.commit()?;

@@ -277,3 +277,50 @@ fn unix_staging_target_requires_ordinary_readable_and_lossless_unix_metadata() {
         );
     }
 }
+
+#[test]
+fn unix_staging_statements_are_compiled_once_per_batch() {
+    use rusqlite::hooks::{AuthAction, AuthContext, Authorization};
+    for rows in [1, 64, 1024] {
+        let mut store = staged_store(rows);
+        let compilations = Arc::new(AtomicU64::new(0));
+        let measured = Arc::clone(&compilations);
+        let selects = Arc::new(AtomicU64::new(0));
+        let measured_selects = Arc::clone(&selects);
+        store
+            .connection
+            .authorizer(Some(move |context: AuthContext<'_>| {
+                if matches!(
+                    context.action,
+                    AuthAction::Insert {
+                        table_name: "scan_staging_unix_observations"
+                    }
+                ) {
+                    measured.fetch_add(1, Ordering::Relaxed);
+                }
+                if matches!(context.action, AuthAction::Select) {
+                    measured_selects.fetch_add(1, Ordering::Relaxed);
+                }
+                Authorization::Allow
+            }))
+            .unwrap();
+        let observed = observation();
+        store
+            .append_staging_unix_observations_checked(
+                "point-stage",
+                (1..=rows).map(|id| (id, Some(&observed), None)),
+                || Ok(()),
+            )
+            .unwrap();
+        assert_eq!(
+            compilations.load(Ordering::Relaxed),
+            1,
+            "insert batch={rows}"
+        );
+        assert_eq!(selects.load(Ordering::Relaxed), 1, "target batch={rows}");
+        assert_eq!(
+            crate::process_job_test_fixtures::count(&store, "scan_staging_unix_observations"),
+            rows as i64
+        );
+    }
+}
