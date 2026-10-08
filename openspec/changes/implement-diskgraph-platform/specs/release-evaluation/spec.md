@@ -32,6 +32,7 @@
 #### Scenario: Windows desktop worker qualification with built-in PowerShell
 - **WHEN** Windows 台式机使用系统 PowerShell 5.1 从真实 Cargo artifact 准备受信验收副本
 - **THEN** 路径准入与SHA256计算不依赖仅新版.NET提供的API；相对路径、盘符相对路径、根相对路径均拒绝，完整绝对路径的独占副本与原字节/摘要一致，已有副本拒绝覆盖且不得重写已发布环境。
+- **AND** 真实退出状态C夹具以明确UTF-8输入编译，继续启用/WX；JSON回执及共享环境文件明确使用UTF-8，不依赖系统代码页或PowerShell默认重定向编码。两种原始32位退出码须实际执行验证。
 
 #### Scenario: Full packaged load includes fixture retirement
 - **WHEN** 完整打包负载已完成原文件数、路径覆盖、并发读取及超限拒绝检查

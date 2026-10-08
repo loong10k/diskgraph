@@ -9,10 +9,32 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts/configure_windows_acceptance_worker.ps1"
+EXIT_SCRIPT = ROOT / "scripts/configure_windows_exit_fixtures.ps1"
 
 
 @unittest.skipUnless(os.name == "nt", "requires actual Windows PowerShell")
 class WindowsWorkerPowerShellTests(unittest.TestCase):
+    def test_native_exit_fixture_build_does_not_depend_on_active_code_page(self):
+        with tempfile.TemporaryDirectory(prefix="dg-exit-ps51-") as directory:
+            root = Path(directory)
+            environment = dict(os.environ, RUNNER_TEMP=str(root), GITHUB_ENV=str(root / "acceptance.env"))
+            environment.pop("CL", None)
+            environment.pop("_CL_", None)
+            result = subprocess.run([
+                "powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                "-File", str(EXIT_SCRIPT),
+            ], cwd=ROOT, env=environment, capture_output=True, timeout=90)
+            self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
+            receipt = json.loads((root / "diskgraph-windows-exit-fixtures/receipt.json").read_text(encoding="utf-8-sig"))
+            exported = dict(line.split("=", 1) for line in (root / "acceptance.env").read_text(encoding="utf-8-sig").splitlines())
+            self.assertEqual({r["code"] for r in receipt["artifacts"]}, {"C0000000", "C0000005"})
+            for artifact in receipt["artifacts"]:
+                binary = Path(artifact["path"])
+                self.assertEqual(exported["DISKGRAPH_WINDOWS_EXIT_" + artifact["code"] + "_FIXTURE"], str(binary))
+                self.assertEqual(hashlib.sha256(binary.read_bytes()).hexdigest(), artifact["sha256"])
+                exited = subprocess.run([str(binary)], capture_output=True, timeout=10)
+                self.assertEqual(exited.returncode & 0xFFFFFFFF, int(artifact["code"], 16))
+
     def run_fixture(self, source, output, artifacts):
         artifacts.write_text(json.dumps({
             "reason": "compiler-artifact",

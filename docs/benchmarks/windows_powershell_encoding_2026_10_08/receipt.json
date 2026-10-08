@@ -1,0 +1,108 @@
+{
+  "base_commit": "1ac266a0c7b13e7da1eb31f4376538aa5efb00bd",
+  "runner": "home-wandl-61c36d31a9af4c1a",
+  "red_codepage": {
+    "original_job": "wc_job_Dva9Mx35_A4VeO6d",
+    "error": "C4819 treated as error C2220 under /WX with Windows code page 936",
+    "remote_evidence": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\exit_fixtures.stdout"
+  },
+  "red_environment": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Command exited with status 1.\nNo files were modified by WebCodex itself; command side effects, if any, are from the invoked command.\nstdout_tail:\n\nstderr_tail:\ntest_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page) ... ERROR\n\n======================================================================\nERROR: test_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<string>\", line 29, in test_native_exit_fixture_build_does_not_depend_on_active_code_page\n  File \"C:\\Espressif\\tools\\python\\Lib\\pathlib.py\", line 1059, in read_text\n    return f.read()\n           ^^^^^^^^\n  File \"<frozen codecs>\", line 322, in decode\n  File \"C:\\Espressif\\tools\\python\\Lib\\encodings\\utf_8_sig.py\", line 69, in _buffer_decode\n    return codecs.utf_8_decode(input, errors, final)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n\n----------------------------------------------------------------------\nRan 1 test in 7.393s\n\nFAILED (errors=1)\n\nRetry guidance: inspect stderr/stdout above, then fix the reported issue or use a narrower tool."
+      }
+    ],
+    "structuredContent": {
+      "success": false,
+      "output": {
+        "exit_code": 1,
+        "language": "python",
+        "stdout_tail": "",
+        "stderr_tail": "test_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page) ... ERROR\n\n======================================================================\nERROR: test_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<string>\", line 29, in test_native_exit_fixture_build_does_not_depend_on_active_code_page\n  File \"C:\\Espressif\\tools\\python\\Lib\\pathlib.py\", line 1059, in read_text\n    return f.read()\n           ^^^^^^^^\n  File \"<frozen codecs>\", line 322, in decode\n  File \"C:\\Espressif\\tools\\python\\Lib\\encodings\\utf_8_sig.py\", line 69, in _buffer_decode\n    return codecs.utf_8_decode(input, errors, final)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n\n----------------------------------------------------------------------\nRan 1 test in 7.393s\n\nFAILED (errors=1)\n",
+        "stdout_lines": 0,
+        "stderr_lines": 20,
+        "stdout_truncated": false,
+        "stderr_truncated": false,
+        "command_started": true,
+        "command_completed": true,
+        "command_ok": false,
+        "execution_state": "completed",
+        "failure_kind": "command_exit_nonzero",
+        "tool_failure": false,
+        "promoted_to_job": false,
+        "terminal": true,
+        "job_id": null,
+        "job_status": null,
+        "effective_timeout_secs": 120,
+        "sync_wait_secs": 10,
+        "async_handoff_available": true
+      },
+      "error": "Command exited with status 1.\nNo files were modified by WebCodex itself; command side effects, if any, are from the invoked command.\nstdout_tail:\n\nstderr_tail:\ntest_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page) ... ERROR\n\n======================================================================\nERROR: test_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<string>\", line 29, in test_native_exit_fixture_build_does_not_depend_on_active_code_page\n  File \"C:\\Espressif\\tools\\python\\Lib\\pathlib.py\", line 1059, in read_text\n    return f.read()\n           ^^^^^^^^\n  File \"<frozen codecs>\", line 322, in decode\n  File \"C:\\Espressif\\tools\\python\\Lib\\encodings\\utf_8_sig.py\", line 69, in _buffer_decode\n    return codecs.utf_8_decode(input, errors, final)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n\n----------------------------------------------------------------------\nRan 1 test in 7.393s\n\nFAILED (errors=1)\n\nRetry guidance: inspect stderr/stdout above, then fix the reported issue or use a narrower tool.",
+      "error_code": "INVALID_ARGUMENT"
+    },
+    "isError": true
+  },
+  "green": {
+    "content": [
+      {
+        "type": "text",
+        "text": "WebCodex tool completed successfully."
+      }
+    ],
+    "structuredContent": {
+      "success": true,
+      "output": {
+        "items": [
+          {
+            "job_id": "wc_job_nWdMoi2J9hCmDiww",
+            "status": "completed",
+            "terminal": true,
+            "changed": true,
+            "log_delta_status": "reset",
+            "observation_token": "wj3_vaai6B7kEIASyq3B.4.2.9",
+            "observation_ref": "~j4",
+            "exit_code": 0,
+            "command_execution_state": "completed",
+            "detected_summary": {
+              "kind": "test",
+              "outcome": "passed",
+              "tests_detected": false,
+              "tests_run_count": null,
+              "zero_tests_run": null,
+              "tests_passed": null,
+              "tests_failed": null
+            },
+            "stdout_tail": "candidate_source_sha256=9dfca5b11a7f818b93d61f826c7aff2124b97ce2facaa1c565ae9931e8528d87\n",
+            "stderr_tail": "test_native_exit_fixture_build_does_not_depend_on_active_code_page (candidate_tests.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page) ... ok\ntest_relative_drive_relative_and_root_relative_are_rejected (candidate_tests.WindowsWorkerPowerShellTests.test_relative_drive_relative_and_root_relative_are_rejected) ... ok\ntest_windows_powershell_copies_exact_bytes_and_refuses_overwrite (candidate_tests.WindowsWorkerPowerShellTests.test_windows_powershell_copies_exact_bytes_and_refuses_overwrite) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 13.650s\n\nOK\n",
+            "stdout_delta_reset": true,
+            "stderr_delta_reset": true,
+            "stdout_lines": 1,
+            "stderr_lines": 8,
+            "stdout_returned_lines": 1,
+            "stderr_returned_lines": 8,
+            "stdout_retained_from_line": 1,
+            "stderr_retained_from_line": 1,
+            "cursor": {
+              "stdout": 2,
+              "stderr": 9
+            },
+            "last_update_seq": 3,
+            "stdout_truncated": false,
+            "stderr_truncated": false,
+            "earlier_stdout_unavailable": false,
+            "earlier_stderr_unavailable": false,
+            "purpose": "test",
+            "command_summary": "python script (10434 bytes, 0 args)"
+          }
+        ],
+        "wait": {
+          "outcome": "terminal"
+        }
+      },
+      "error": null
+    },
+    "isError": false
+  },
+  "boundary": "Native fixture compiler/encoding validation only; final product tests remain separate."
+}

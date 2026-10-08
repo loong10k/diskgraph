@@ -1,0 +1,18 @@
+{
+  "run_id": 37783534636,
+  "source_commit": "b3259315c674cc67c1bd7d72c669f2af9b29f73f",
+  "status": "completed",
+  "passed_jobs": 19,
+  "failed_jobs": 4,
+  "windows_stable_original_log_sha256": "e4636fd5df78c9b4e43386c489deca725f1d94964e8b283ed8f76ae8ec03e4fe",
+  "new_failure": {
+    "test": "relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes",
+    "result": "Business(BudgetExceeded)",
+    "engine_summary": {
+      "passed": 686,
+      "failed": 1,
+      "ignored": 4
+    }
+  },
+  "boundary": "Original concurrent suite failure retained. Windows MSRV job passed; stable failed. Not a same-SHA full-platform pass."
+}

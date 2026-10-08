@@ -21,7 +21,7 @@ Push-Location $output
 try {
     foreach ($bits in @('C0000000', 'C0000005')) {
         $binary = Join-Path $output "exit_$bits.exe"
-        & cl.exe /nologo /W4 /WX /O2 "/DFIXTURE_EXIT_CODE=0x${bits}UL" "/Fe:$binary" $source
+        & cl.exe /nologo /utf-8 /W4 /WX /O2 "/DFIXTURE_EXIT_CODE=0x${bits}UL" "/Fe:$binary" $source
         if ($LASTEXITCODE -ne 0) { throw "Native exit fixture build failed: $bits" }
         $receipts += @{
             code = $bits
@@ -38,8 +38,8 @@ try {
     source_sha256 = (Get-FileHash -Algorithm SHA256 $source).Hash.ToLowerInvariant()
     artifacts = $receipts
     status = 'compiled; direct and CLI execution remain required'
-} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'receipt.json')
+} | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 (Join-Path $output 'receipt.json')
 # 所有产物构建成功后绑定绝对路径；实际测试独立验证两次原 32 位失败状态。
 foreach ($receipt in $receipts) {
-    "DISKGRAPH_WINDOWS_EXIT_$($receipt.code)_FIXTURE=$($receipt.path)" >> $env:GITHUB_ENV
+    "DISKGRAPH_WINDOWS_EXIT_$($receipt.code)_FIXTURE=$($receipt.path)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 }
