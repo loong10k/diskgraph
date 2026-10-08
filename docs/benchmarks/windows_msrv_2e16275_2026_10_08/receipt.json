@@ -1,0 +1,13 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "run": 37728300386,
+  "job": 113151390506,
+  "platform": "Windows x86_64 Rust 1.97.0",
+  "failed_tests": [
+    "native_windows_cancellation_and_deadline_never_confirm_content"
+  ],
+  "log_sha256": "d55fae74a6cb48f47a6bf1e270fa30f84d40bc40baf7c4f1b0cd1440f5792be6",
+  "local_fix_commit": "6816f974e0999ba5f73837237c9ef810b5874310",
+  "fix_in_tested_commit": false,
+  "production_ready": false
+}
