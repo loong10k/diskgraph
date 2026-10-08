@@ -1,13 +1,13 @@
 # Windows 台式机原生验收任务
 
-状态：待执行。执行入口为用户指定的 WebCodex-台式机；2026-10-08 本次连接返回 tunnel_client_not_seen，尚未访问或修改远端仓库。用户已授权找到对应 diskgraph checkout、更新代码并执行验证；连接恢复后由当前任务继续执行，无需用户手动编码。
+状态：执行中。2026-10-08 WebCodex-台式机连接已恢复，实际定位 `E:\workspaces\workspace-loong10k\diskgraph`，干净main从26b6f1ca快进到b3259315。Windows 11 build26200、i7-13700K、约32GiB内存、NTFS可用约111GiB；已有Rust stable1.99.0、MSVC2022、Python3.11.15、PowerShell5.1。精确Rust1.97.0、Python3.13、PowerShell7未发现，不静默安装或冒称已运行。正在绑定最终固定提交与原生验收材料。
 
 范围：Windows x86_64 只读 CLI/MCP，与 macOS/Linux 工作并行。此清单延续 implement-diskgraph-platform，不另建规格体系。Windows 验收未完成不阻塞其他平台实现，但不得将总目标标记生产就绪。默认关闭危险写工具，不操作用户业务数据库或扫描真实全盘。
 
 ## WD-01 仓库与执行身份
 
-- [ ] 在台式机实际工作区中定位 `workspace-loong10k/diskgraph`，记录真实绝对路径、Git 根目录、分支、HEAD、origin、工作区状态及已有 AGENTS.md。
-- [ ] 检查本地未提交工作与活动构建；不得 reset、clean、stash、覆盖用户改动或更换现有分支。确认 origin 为 loong10k/diskgraph。满足快进条件后执行 `git fetch origin`、`git merge --ff-only origin/main`；不满足时保存差异并报告。
+- [x] 在台式机实际工作区中定位 `workspace-loong10k/diskgraph`，记录真实绝对路径、Git 根目录、分支、HEAD、origin、工作区状态及已有 AGENTS.md。
+- [x] 检查本地未提交工作与活动构建；不得 reset、clean、stash、覆盖用户改动或更换现有分支。确认 origin 为 loong10k/diskgraph。满足快进条件后执行 `git fetch origin`、`git merge --ff-only origin/main`；不满足时保存差异并报告。
 - [ ] 固定验证 SHA，开始和结束分别记录 HEAD、受测源文件摘要和产物 SHA256。运行期间不要再次更新源码。不得把旧提交日志与新提交混合为通过。
 - [ ] 记录 Windows 版本、CPU、内存、卷格式/剩余空间、Python/MSVC/Rust 版本以及后台负载。创建独占临时验收目录，保留成功与失败的完整输出、退出码、开始/结束时间。
 

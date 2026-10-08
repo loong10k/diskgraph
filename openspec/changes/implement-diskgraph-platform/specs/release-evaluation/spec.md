@@ -29,6 +29,10 @@
 - **WHEN** Linux 配对扫描验收的持久观察数、成功捕获数或缺口数不满足原精确门禁
 - **THEN** 仍然失败，并按该快照汇总固定缺口原因计数；未知值映射为固定 invalid_gap，不输出路径、文件名或原始观察。诊断失败不得改成通过，成功路径不额外执行缺口聚合。
 
+#### Scenario: Windows desktop worker qualification with built-in PowerShell
+- **WHEN** Windows 台式机使用系统 PowerShell 5.1 从真实 Cargo artifact 准备受信验收副本
+- **THEN** 路径准入与SHA256计算不依赖仅新版.NET提供的API；相对路径、盘符相对路径、根相对路径均拒绝，完整绝对路径的独占副本与原字节/摘要一致，已有副本拒绝覆盖且不得重写已发布环境。
+
 #### Scenario: Full packaged load includes fixture retirement
 - **WHEN** 完整打包负载已完成原文件数、路径覆盖、并发读取及超限拒绝检查
 - **THEN** 记录真实临时目录清理的开始、结束及耗时，在目录实际删除后才输出成功报告；清理失败保留原异常，不输出清理完成或成功报告。
