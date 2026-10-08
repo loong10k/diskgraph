@@ -53,3 +53,73 @@ fn continuous_revocation_between_initial_locks_has_denial_priority() {
     );
     assert!(!entered.get(), "revoked request entered consumer");
 }
+
+#[test]
+fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window() {
+    use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId, ScopeId};
+    use std::cell::Cell;
+    use std::time::{Duration, Instant};
+
+    // 第二次能力回调精确对应终检；先确认另一线程持有真实控制锁再返回。
+    /// 在终检回调同步制造真实控制锁竞争，验证短竞争与超时的不同结果。
+    struct Contended<F> {
+        calls: Cell<u32>,
+        terminal_started: Cell<Option<Instant>>,
+        contend: F,
+    }
+    impl<F: Fn()> Authorizer for Contended<F> {
+        fn decide(&self, _: &PrincipalId, _: &Permission, _: &ScopeId) -> Decision {
+            self.calls.set(self.calls.get() + 1);
+            if self.calls.get() == 2 {
+                (self.contend)();
+                self.terminal_started.set(Some(Instant::now()));
+            }
+            Decision::Allowed
+        }
+    }
+    for (hold_ms, allowed) in [(20, true), (500, false)] {
+        let (_dir, engine, principal, _, revision) =
+            crate::relation_request_tests::published_authorization_fixture();
+        std::thread::scope(|threads| {
+            let policy = Contended {
+                calls: Cell::new(0),
+                terminal_started: Cell::new(None),
+                contend: || {
+                    let (tx, rx) = std::sync::mpsc::channel();
+                    let engine = &engine;
+                    threads.spawn(move || {
+                        let held = engine.control_store().unwrap();
+                        tx.send(()).unwrap();
+                        std::thread::sleep(Duration::from_millis(hold_ms));
+                        drop(held);
+                    });
+                    rx.recv_timeout(Duration::from_secs(2)).unwrap();
+                },
+            };
+            let started = Instant::now();
+            let result = engine.with_authorized_revision_reader_until(
+                revision,
+                &principal,
+                &policy,
+                started + Duration::from_secs(1),
+                |_, _, _| Ok(()),
+            );
+            let elapsed = policy.terminal_started.get().unwrap().elapsed();
+            assert_eq!(policy.calls.get(), 2);
+            if allowed {
+                assert!(result.is_ok(), "brief terminal contention: {result:?}");
+            } else {
+                assert!(
+                    matches!(
+                        result,
+                        Err(crate::EngineError::Business(
+                            diskgraph_core::BusinessError::BudgetExceeded
+                        ))
+                    ),
+                    "held terminal contention: {result:?}"
+                );
+                assert!(elapsed < Duration::from_millis(300), "{elapsed:?}");
+            }
+        });
+    }
+}

@@ -1,0 +1,10 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.60s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 2 tests
+test revision_reader_lock_gap_tests::continuous_revocation_between_initial_locks_has_denial_priority ... ok
+test revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 724 filtered out; finished in 0.63s
+

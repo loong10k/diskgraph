@@ -157,13 +157,13 @@ impl Engine {
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
-        withdrawal.check(&control)?;
+        // 普通请求允许短暂竞争；取锁与 SQL 共用原观察窗口，不在获取锁后续期。
         let after_callback = std::time::Instant::now()
             .checked_add(Duration::from_millis(50))
-            .ok_or(BusinessError::InvalidArgument)?;
+            .ok_or(BusinessError::InvalidArgument)?
+            .min(deadline);
+        let control = self.control_until(after_callback)?;
+        withdrawal.check(&control)?;
         let authorization = control
             .with_read_deadline(after_callback, |control| {
                 Self::require_decision_with_control(

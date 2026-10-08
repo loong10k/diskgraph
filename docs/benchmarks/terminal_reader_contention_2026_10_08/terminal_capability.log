@@ -1,0 +1,21 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 14 tests
+test terminal_capability_tests::latest_resolution_reads_existing_identity_and_never_repairs_missing_server ... ok
+test terminal_capability_tests::reader_capability_callback_does_not_inherit_sql_deadline_handler ... ok
+test terminal_capability_tests::bounded_reader_terminal_control_contention_refuses_prepared_result ... ok
+test terminal_capability_tests::history_terminal_callbacks_can_reenter_and_revoke_the_other_scope ... ok
+test terminal_capability_tests::expired_relation_history_and_envelope_capability_is_denied ... ok
+test terminal_capability_tests::late_history_side_does_not_hide_the_other_scope_revocation ... ok
+test terminal_capability_tests::relation_and_envelope_callbacks_can_reenter_control_and_revoke ... ok
+test terminal_capability_tests::trusted_reader_terminal_late_allow_is_refused_and_revocation_wins ... ok
+test terminal_capability_tests::trusted_reader_late_capability_preserves_budget_and_explicit_denial ... ok
+test terminal_capability_tests::late_terminal_allow_is_refused_but_actual_revocation_still_wins ... ok
+test terminal_capability_tests::initial_authorization_control_contention_expires_while_original_lock_is_held ... ok
+test terminal_capability_tests::envelope_expiry_during_callback_stops_remaining_observations ... ok
+test terminal_capability_tests::initial_revision_and_snapshot_authorization_do_not_return_late_allow ... ok
+test terminal_capability_tests::relation_and_history_preserve_original_expiry_across_consumer_and_encoding ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 712 filtered out; finished in 8.43s
+

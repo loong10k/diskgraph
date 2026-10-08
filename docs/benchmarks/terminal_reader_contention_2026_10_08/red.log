@@ -1,0 +1,19 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.19s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 1 test
+
+thread 'revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window' (25482697) panicked at crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs:106:17:
+brief terminal contention: Err(Business(BudgetExceeded))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window ... FAILED
+
+failures:
+
+failures:
+    revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 725 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

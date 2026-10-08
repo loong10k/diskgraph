@@ -290,3 +290,8 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 - **WHEN** 关系或历史末段能力回调在原 50ms 能力观察窗口之后返回允许
 - **THEN** 完成必要的各侧持久授权和新鲜 revision 归属观察后拒绝预算，不提交完整或部分编码结果。
 - **AND** 后侧回调撤销前侧、其他侧已撤权或回调期间 revision 被隔离时，实际拒权优先于迟到允许。控制 SQL 分阶段设置执行期限，能力回调不位于 SQL progress guard 内，不能嵌套覆盖已有 guard；同步回调不承诺硬抢占，原数据期限不得刷新。
+
+#### Scenario: Ordinary revision readers tolerate brief terminal control contention
+- **WHEN** a CLI/MCP authorized narrow reader finishes its capability callback while another request briefly owns the shared control connection
+- **THEN** terminal lock acquisition and its SQL observation share the existing 50 ms observation window, capped by the original request deadline; brief contention alone does not fail the request
+- **AND** a lock held past that window returns BudgetExceeded, withdrawal and live authorization checks remain mandatory, and dedicated TUI nonblocking admission is unchanged
