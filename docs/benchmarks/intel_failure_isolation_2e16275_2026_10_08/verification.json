@@ -1,0 +1,15 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "run": 37728300386,
+  "artifact": 11529805382,
+  "exact_named_cases_passed": 5,
+  "deadlines_and_assertions_changed": false,
+  "qualification": "failure isolation only; scheduling contribution supported, root causes not all confirmed",
+  "log_sha256": {
+    "case-0.log": "841d592580386ad81fd2dcdc83a18a3b8824e3da3cc1c1cc995a533fa7659af8",
+    "case-1.log": "ec7e76a72800186bba9cec9f2ecd7fa4c6e6f1cf4e7601ae1194e31a1c9e7525",
+    "case-2.log": "0e54386684c3ec85ddea95dbe13c00cc461eae30a5adbacf696b95414c12b1ac",
+    "case-3.log": "ce1ffa73a857dae0eef2d3169dde5504d5503153ccb1719f7eefde9ccc1507c9",
+    "case-4.log": "3ee70826fed68520917724c7d0b3b5d554dd170a83d63639d257671a34144c0b"
+  }
+}
