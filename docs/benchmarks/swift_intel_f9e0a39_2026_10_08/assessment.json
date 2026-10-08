@@ -1,0 +1,17 @@
+{
+  "run": 37735499585,
+  "job": 113173973270,
+  "sha": "f9e0a393c39ee13945081e8477d4586da98fa7f5",
+  "log_sha256": "e4a4986d4235e1739b13c439de9e8899c241f96594120da117e7fbafa3c29257",
+  "observed": [
+    "Swift FFI session/paging/poll/v1 and system SQLite smoke passed",
+    "GRDB 7.11.1 release executable linked",
+    "Runtime payload assertion failed with StoreError BudgetExceeded text"
+  ],
+  "unproven": [
+    "which FFI call failed; payload helper has no caller context",
+    "deadline vs byte/node allowance",
+    "causal relationship to 50ms terminal authorization window"
+  ],
+  "status": "open; not a compilation/link failure"
+}

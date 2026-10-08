@@ -1,0 +1,37 @@
+{
+  "scope": "EC-02 terminal request priority; native retirement remains open",
+  "red": "2 failed, 4 passed; original Unix completed-output merge semantics",
+  "green": "56 passed, 0 failed, 0 ignored",
+  "logs": {
+    "red": {
+      "sha256": "36aa2773c178560688c3010d3dc25a088f32e5e696956ad2b884d4e3ebcd7fa2",
+      "path": "docs/benchmarks/probe_terminal_priority_2026_10_08/red.log.gz"
+    },
+    "green": {
+      "sha256": "53ef67f32cf944d4c9d6d01c92e00c29a6d888f6073987a3b92f02f78cc64333",
+      "path": "docs/benchmarks/probe_terminal_priority_2026_10_08/green.log.gz"
+    },
+    "layout": {
+      "sha256": "fe20c1207ddfd6d34f1439165b52b7f2d01d531655d7326f32671e4743ee7849",
+      "path": "docs/benchmarks/probe_terminal_priority_2026_10_08/layout.log.gz"
+    },
+    "fmt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/benchmarks/probe_terminal_priority_2026_10_08/fmt.log.gz"
+    },
+    "spec": {
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "path": "docs/benchmarks/probe_terminal_priority_2026_10_08/spec.log.gz"
+    },
+    "clippy": {
+      "sha256": "956aa990b8017fc6508d65ecb1c77f5b6fb6952fb7af86d00a2cd87b94f31389",
+      "path": "docs/benchmarks/probe_terminal_priority_2026_10_08/clippy.log.gz"
+    }
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/live_evidence/probe_output.rs": "1e681a0f637b1a28dc2837986a75a102bbec0c1389eb7966cefa96ad1829dfaa",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "1d3a12e53e356fc5ff1f94fcb071996b6e1499e5cb3a369706fca5db75033b3a",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "ad2d44b6eade13b5bc9e44cc35f7b2542138d427712495573389a05d3df5e25a",
+    "crates/diskgraph-engine/src/live_evidence/probe_output_tests.rs": "f688778c8c84d2ece592e5a54f9fa4ec2883d879bb642425196c1913303460c1"
+  }
+}

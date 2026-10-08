@@ -43,14 +43,9 @@ fn execute(command: &mut Command, budget: &mut ProbeBudget) -> Result<ProbeOutpu
     let mut child = PlatformChild::spawn(command, budget)?;
     let result = collect_output(&mut child, budget);
     let cleanup = child.cleanup();
-    match (result, cleanup) {
-        (Ok(output), Ok(())) => {
-            budget.check()?;
-            Ok(output)
-        }
-        (Err(primary), Err(cleanup)) => Err(primary.with_cleanup(Err(cleanup))),
-        (Err(error), Ok(())) => Err(error),
-        (Ok(output), Err(error)) => output.with_cleanup(Err(error)),
+    match result {
+        Ok(output) => output.finish(budget, cleanup),
+        Err(primary) => Err(primary.with_cleanup(cleanup)),
     }
 }
 

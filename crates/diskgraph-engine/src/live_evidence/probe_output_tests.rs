@@ -73,3 +73,48 @@ fn latched_error_clone_shares_charged_stderr_and_keeps_product_error_bounded() {
         super::git_product_error::GitProductError::Unavailable
     );
 }
+
+#[test]
+fn deadline_after_collection_remains_primary_when_cleanup_fails() {
+    let mut budget = super::probe_budget::ProbeBudget::new(&super::ProbeLimits::default()).unwrap();
+    budget.expire_for_test();
+    let failure = output(128)
+        .finish(
+            &mut budget,
+            Err(ProbeFailure::Unsupported("original owner retained")),
+        )
+        .unwrap_err();
+    let ProbeFailure::Cleanup { primary, cleanup } = failure else {
+        panic!("missing original failure and cleanup cause");
+    };
+    assert!(matches!(*primary, ProbeFailure::Deadline));
+    assert!(matches!(
+        *cleanup,
+        ProbeFailure::Unsupported("original owner retained")
+    ));
+    assert!(matches!(budget.check(), Err(ProbeFailure::Deadline)));
+}
+
+#[test]
+fn cancellation_after_collection_remains_primary_when_cleanup_fails() {
+    let limits = super::ProbeLimits::default();
+    let mut budget = super::probe_budget::ProbeBudget::new(&limits).unwrap();
+    limits
+        .cancel
+        .store(true, std::sync::atomic::Ordering::Release);
+    let failure = output(0)
+        .finish(
+            &mut budget,
+            Err(ProbeFailure::Unsupported("original owner retained")),
+        )
+        .unwrap_err();
+    let ProbeFailure::Cleanup { primary, cleanup } = failure else {
+        panic!("missing original failure and cleanup cause");
+    };
+    assert!(matches!(*primary, ProbeFailure::Cancelled));
+    assert!(matches!(
+        *cleanup,
+        ProbeFailure::Unsupported("original owner retained")
+    ));
+    assert!(matches!(budget.check(), Err(ProbeFailure::Cancelled)));
+}

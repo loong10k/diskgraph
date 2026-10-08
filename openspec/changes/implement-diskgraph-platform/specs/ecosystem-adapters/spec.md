@@ -133,6 +133,10 @@ Cargo/Docker 等执行 SHALL 使用版本化、允许列表化的专用操作计
 - **WHEN** 一次证据采样执行多个子命令或 stdout/stderr 持续输出
 - **THEN** 全部命令与两条管道共用绝对期限、累计字节预算与取消状态；失败停止后续工作，不返回完整成功样本。
 
+#### Scenario: Cleanup cannot mask terminal request cancellation or deadline
+- **WHEN** 探针已收齐输出，但原 owner 清理结束时原请求已经取消或期限耗尽，且清理也未确认完成
+- **THEN** Unix 和 Windows 均保留原请求取消或期限为主错误、清理失败为次因；锁存原预算失败，不返回输出、不启动后续命令，也不释放仍由恢复域持有的资源。
+
 #### Scenario: Shared budget across multiple observations
 - **WHEN** 同一证据任务连续采样多个 Git 项目或进程路径集合
 - **THEN** 使用独占且不可克隆的会话共享从创建时起的绝对期限、累计 stdout/stderr/stash 输出和取消状态；调用间耗时也计入期限。Git 元数据字节和条目累计扣费，成功清理后的真实余额可继续使用，不为下一目标补充额度。

@@ -8,6 +8,21 @@ pub(super) struct ProbeOutput {
 }
 
 impl ProbeOutput {
+    /// 在清理结束后裁决本次输出，保持整次采样的预算状态。
+    /// 参数：budget 为原采样预算，cleanup 为原 owner 的清理结果。
+    /// 返回：仍有效的完整输出，或带清理次因的失败。
+    pub(super) fn finish(
+        self,
+        budget: &mut super::probe_budget::ProbeBudget,
+        cleanup: Result<(), super::probe_failure::ProbeFailure>,
+    ) -> Result<Self, super::probe_failure::ProbeFailure> {
+        // 清理本身可能消耗期限或观察到取消；不能用次要清理错误遮蔽请求中止。
+        match budget.check() {
+            Ok(()) => self.with_cleanup(cleanup),
+            Err(primary) => Err(primary.with_cleanup(cleanup)),
+        }
+    }
+
     /// 合并已经收齐的输出与原 owner 清理结果。
     /// 参数：cleanup 为实际执行后的清理状态；返回：完整输出或仍需恢复的失败。
     pub(super) fn with_cleanup(
