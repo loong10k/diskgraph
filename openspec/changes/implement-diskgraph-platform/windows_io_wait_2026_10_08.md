@@ -24,3 +24,9 @@ macOS ARM64 使用本轮 Cargo 实际构建的独立 `scan_worker_driver_fixture
 - Engine 全 targets Clippy `-D warnings`、Engine fmt、OpenSpec strict 与 diff 空白检查通过。
 
 首次本机编译发现 wait 原生错误误用了 `from_child`（其参数是带检查点的 spawn 错误）；已改为现有 `From<ChildError>`，随后上述构建与检查通过。该编译失败不是 Windows 行为红灯。新增四个 Win32 event 测试未在本机运行，Windows 全量验收保持未完成。
+
+## Windows stable原生补验（5acda732）
+
+CI `37771002316`、job `113290271339`终态success：四项Win32 event测试全部通过，原忙碌输出用例完整natural-exit为42.8876ms，保留原1秒断言。Engine 681通过/0失败/4忽略，Store 356通过/0失败/6忽略；workspace全量、Clippy及串行迁移均成功。原始完整日志与摘要见`docs/benchmarks/windows_stable_5acda73_2026_10_08`。这是该提交的实际原生回归证据，不是后续未推送候选或产品包通过，也不是整体性能配对结论；五个平台包本轮仍失败，Windows完整负载仍超过原300秒。
+
+MSRV job `113290271572`也终态success：同一忙输出用例52.2125ms，Engine 681/0/4，Store 356/0/6，原workspace及串行迁移通过。完整矩阵最终18成功、5失败；MSRV完整日志、macOS Intel包超时原日志、原API矩阵与摘要见`docs/benchmarks/terminal_ci_5acda73_2026_10_08`。不将失败矩阵或其中的成功子项重标为生产验收成功。

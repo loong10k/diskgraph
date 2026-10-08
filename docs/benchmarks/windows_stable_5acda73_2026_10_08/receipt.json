@@ -1,0 +1,22 @@
+{
+  "commit": "5acda732a916507a782ab2078b297bf9e52274a7",
+  "run_id": 37771002316,
+  "job_id": 113290271339,
+  "job_conclusion": "success",
+  "log_original_sha256": "849b0523357799533ad2e5f5a4a8eb2f0db812e0518e1d257f5b4686409bd97e",
+  "log_original_bytes": 1020726,
+  "engine": {
+    "passed": 681,
+    "failed": 0,
+    "ignored": 4
+  },
+  "store": {
+    "passed": 356,
+    "failed": 0,
+    "ignored": 6
+  },
+  "busy_output_elapsed_ms": 42.8876,
+  "busy_output_original_limit_ms": 1000,
+  "native_event_wait_cases_passed": 4,
+  "production_acceptance": false
+}

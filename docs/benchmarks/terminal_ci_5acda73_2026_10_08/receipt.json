@@ -1,0 +1,21 @@
+{
+  "run_id": 37771002316,
+  "commit": "5acda732a916507a782ab2078b297bf9e52274a7",
+  "conclusion": "failure",
+  "success_jobs": 18,
+  "failed_jobs": 5,
+  "matrix_original_sha256": "f82f399754cb12a00b5c9470857bff39c5537fff648d8e291b3f3a67447f173b",
+  "production_acceptance": false,
+  "logs": {
+    "windows_msrv_full": {
+      "file": "windows_msrv_full.log.gz",
+      "original_bytes": 1019536,
+      "original_sha256": "05c7bbda2688d459f668fe222a34b59513e4ff7cd31c67c5bb7bfda2f1757fd5"
+    },
+    "macos_intel_package_failure": {
+      "file": "macos_intel_package_failure.log.gz",
+      "original_bytes": 87413,
+      "original_sha256": "d30f4379c2e88d9b696c5b2c3f522e2292b4dc6b782255a0aadcaf36c7519688"
+    }
+  }
+}
