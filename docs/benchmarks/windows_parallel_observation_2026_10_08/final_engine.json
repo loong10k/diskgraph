@@ -1,0 +1,59 @@
+{
+  "receipt": {
+    "base_head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "bbbdc6b5d3cb19d6b88c2bb2b34e218ca80b0de312103b454f884f5369727c08",
+      "crates/diskgraph-engine/src/scan_execution.rs": "e0d0156274a9cd758e9f3e3695398cc463b13edecc386dc468dbc1e1e2eb04ff",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d"
+    },
+    "commands": [
+      {
+        "name": "engine_default_parallel",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 101,
+        "elapsed_seconds": 189.29699999999139
+      }
+    ]
+  },
+  "head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+  "status": "",
+  "summary": "\nfailures:\n    live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes\n    live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes\n    live_evidence::git_object_database_tests::source_alternates_and_recursive_foreign_objects_are_rejected\n    live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency\n    live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git\n\ntest result: FAILED. 685 passed; 5 failed; 4 ignored; 0 measured; 0 filtered out; finished in 182.18s\n\n",
+  "failures": [
+    {
+      "test": "live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes",
+      "diagnostic": "thread 'live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes' (41576) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_config_policy_tests.rs:98:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnative evidence test recovery retains original owner: private Git cleanup failed: original root deletion lease: 另一个程序正在使用此文件，进程无法访问。 (os error 32)\nDG_FIXTURE_ROOT_RESTORE_SHARING_RETAINED=32\nindexed directory replaced before capture; actual scoped result=Err(IdentityChanged)\n"
+    },
+    {
+      "test": "live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes",
+      "diagnostic": "thread 'live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes' (56096) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:38:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"\nancestor replacement blocked by Windows: Some(5)\nDG_WINDOWS_DIRECTORY_NATURAL_CHANGE_MASK=48\nDG_WINDOWS_DIRECTORY_NATURAL_CHANGE_MASK=48\nverbatim GLOBAL: exit=Some(128), stderr=\"fatal: unknown error occurred while reading the configuration files\\n\"\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256\n"
+    },
+    {
+      "test": "live_evidence::git_object_database_tests::source_alternates_and_recursive_foreign_objects_are_rejected",
+      "diagnostic": "thread 'live_evidence::git_object_database_tests::source_alternates_and_recursive_foreign_objects_are_rejected' (20072) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_object_database_tests.rs:24:5:\nprobe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\n"
+    },
+    {
+      "test": "live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency",
+      "diagnostic": "thread 'live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency' (60496) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_scope_boundary_tests.rs:93:25:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"\n\nrunning 1 test\ntest live_evidence::git_tool_path_tests::filtered_shell_path_child ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 693 filtered out; finished in 1.68s\n\n\nexcluded host shell PATH entry \"\\\\\\\\?\\\\C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\.tmpfIsyZG\\\\unused\\\\..\\\\directory\": unsupported Git tool path: component changes ordinary Win32 identity\nexcluded host shell PATH entry \"\\\\\\\\?\\\\C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\.tmpfIsyZG\\\\unused\\\\\\\\directory\": unsupported Git tool path: component changes ordinary Win32 identity\nexcluded host shell PATH entry \"\\\\\\\\?\\\\C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\.tmpfIsyZG\\\\unused.\": unsupported Git tool path: component changes ordinary Win32 identity\nexcluded host shell PATH entry \"C:\\\\unused\\\\file:stream\": unsupported Git tool path: component changes ordinary Win32 identity\nexcluded host shell PATH entry \"C:\\\\Program Files (x86)\\\\Gpg4win\\\\..\\\\GnuPG\\\\bin\": unsupported Git tool path: component changes ordinary Win32 identity\nhost SystemRoot: Some((\"C:\\\\Windows\", Ok(\"C:\\\\Windows\")))\n\nordinary GLOBAL: exit=Some(0), stderr=\"\"\nconfig --file \"\\\\\\\\?\\\\C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\dg git 中文 KOjlzl\\\\empty\": exit=Some(128), stderr=\"fatal: unable to read config file '\\\\\\\\?\\\\C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\dg git 中文 KOjlzl\\\\empty': No such file or directory\\n\"\nconfig --file \"C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\dg git 中文 KOjlzl\\\\empty\": exit=Some(0), stderr=\"\"\nexcluded host shell PATH entry \"C:\\\\Program Files (x86)\\\\Gpg4win\\\\..\\\\GnuPG\\\\bin\": unsupported Git tool path: component changes ordinary Win32 identity\nhost SystemRoot: Some((\"C:\\\\Windows\", Ok(\"C:\\\\Windows\")))\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256\n"
+    },
+    {
+      "test": "live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git",
+      "diagnostic": "thread 'live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git' (31596) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_scoped_semantics_tests.rs:180:36:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n"
+    }
+  ],
+  "full_log_sha256": {
+    "engine_default_parallel.stdout.log": "2eec73053fcf4de98b55fe501bbc8cedee5c502ac57146543ebdb379169f2b14",
+    "engine_default_parallel.stderr.log": "f3112b39eddbd47b1b316e56b324876a38b0f5434f0dc701818cf3245d2c51d3"
+  }
+}

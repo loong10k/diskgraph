@@ -1,0 +1,24 @@
+{
+  "retirement": [
+    {
+      "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-readonly-load-donji_44",
+      "created": 1791475198.2991493,
+      "files": 200000,
+      "process_closure": "prior process inventory found no matching live diskgraph/worker/Git process",
+      "completed": true,
+      "elapsed_seconds": 108.98400000001129,
+      "exists": false
+    },
+    {
+      "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-readonly-load-k37wmdy0",
+      "created": 1791475560.6701012,
+      "files": 200000,
+      "process_closure": "prior process inventory found no matching live diskgraph/worker/Git process",
+      "completed": true,
+      "elapsed_seconds": 105.01600000000326,
+      "exists": false
+    }
+  ],
+  "head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+  "status": ""
+}

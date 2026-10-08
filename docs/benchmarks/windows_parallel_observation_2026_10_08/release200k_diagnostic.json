@@ -1,0 +1,32 @@
+{
+  "receipt": {
+    "base_head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "candidate_source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "bbbdc6b5d3cb19d6b88c2bb2b34e218ca80b0de312103b454f884f5369727c08",
+      "crates/diskgraph-engine/src/scan_execution.rs": "e0d0156274a9cd758e9f3e3695398cc463b13edecc386dc468dbc1e1e2eb04ff",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d"
+    },
+    "commands": [
+      {
+        "name": "load200k_diagnostic",
+        "argv": [
+          "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+          "-c",
+          "import sys,subprocess\nsys.path.insert(0,sys.argv[1])\nfrom windows_acceptance_job import run_owned\ndef emit(value,stream):\n if isinstance(value,bytes): value=value.decode('utf-8','replace')\n stream.write(value or '')\ntry:\n r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','200000'],capture_output=True,text=True,encoding='utf-8',timeout=300)\n emit(r.stdout,sys.stdout);emit(r.stderr,sys.stderr);sys.exit(r.returncode)\nexcept subprocess.TimeoutExpired as error:\n emit(error.stdout,sys.stdout);emit(error.stderr,sys.stderr)\n print('owned workflow timed out at original 300s deadline',file=sys.stderr)\n sys.exit(124)\n",
+          "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+          "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-parallel-observation\\x86_64-pc-windows-msvc\\release"
+        ],
+        "exit_code": 124,
+        "elapsed_seconds": 300.0939999999973
+      }
+    ],
+    "binary_sha256": {
+      "diskgraph.exe": "c356c668424ecb7f9bd195258f3b2c587db1e2d1c6ed335fce836288fcd6e640",
+      "diskgraph-mcp.exe": "b311ed57c8a2d1915ebbdd3746e2c736f122e8ffc3461746d362fe3f9d0a1778",
+      "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+    }
+  },
+  "stdout": "",
+  "stderr": "{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 120638.6835104}\n{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 120759.7767129}\n{\"phase\": \"scope_registration\", \"event\": \"begin\", \"monotonic_seconds\": 120759.7767583}\n{\"phase\": \"scope_registration\", \"event\": \"end\", \"monotonic_seconds\": 120759.9652602}\n{\"phase\": \"index\", \"event\": \"begin\", \"monotonic_seconds\": 120759.9653012}\nowned workflow timed out at original 300s deadline\n",
+  "status": " M crates/diskgraph-engine/src/lib.rs\n M crates/diskgraph-engine/src/scan_execution.rs\n?? crates/diskgraph-engine/src/scan_observation_batch.rs\n"
+}
