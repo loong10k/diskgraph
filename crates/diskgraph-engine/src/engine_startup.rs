@@ -110,6 +110,15 @@ impl Engine {
 }
 
 impl Engine {
+    /// 在原请求期限内读取已初始化的服务器身份，不在请求中生成新身份。
+    /// 参数：deadline 为原单调截止时间。返回：持久 server ID 或预算/存储错误。
+    pub fn server_id_until(&self, deadline: std::time::Instant) -> Result<ServerId, EngineError> {
+        let control = self.control_until(deadline)?;
+        control.with_read_deadline(deadline, |control| Ok(control.existing_server_id()?))
+    }
+}
+
+impl Engine {
     /// 参数：config与host沿用原契约，deadline为原启动期限。
     /// 返回：期限内引擎和恢复责任；未启动任何worker，不刷新期限。
     pub fn open_with_scan_worker_until(

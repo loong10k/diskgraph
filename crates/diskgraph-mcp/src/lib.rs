@@ -89,3 +89,9 @@ mod http_delivery_writer;
 mod http_delivery_writer_tests;
 
 mod http_delivery_authority;
+
+#[cfg(test)]
+mod filesystem_deadline_tests;
+
+#[cfg(test)]
+mod request_deadline_tests;

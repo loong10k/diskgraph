@@ -1,0 +1,54 @@
+{
+  "base_sha": "8c8f0c5213421c3b3500c54dc154988ce0866159",
+  "local_platform": "macOS arm64",
+  "final_mcp_full": {
+    "passed": 174,
+    "failed": 34,
+    "failure_names_equal_prior_run": true,
+    "unsupported_failure_blocks": 34,
+    "qualification": "FAILED, not a native scanner or platform production qualification",
+    "boundary_after_test_relocation": "Full-suite log precedes test-only relocation; final 32-target and 11-layout tests verify relocated modules. Production implementation unchanged by relocation."
+  },
+  "engine_admin_policy_regression": {
+    "passed": 20,
+    "failed": 0
+  },
+  "isolated_published_snapshot_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "red_boundary": "Modern POST 0/1; relation handlers 0/4; history 0/1; filesystem adapter group 6 pass/5 fail; terminal reply 0/2. Signature-only filesystem adapter exposes original blocking behavior.",
+  "remaining": [
+    "management/index/status/snapshot compatibility paths",
+    "socket-read versus routed deadline lifecycle integration",
+    "strict memory bound and native frontend retirement",
+    "full same-SHA native platform acceptance"
+  ],
+  "terminal_boundary": "Existing fixed 50 ms terminal observation windows retained; data budget is not refreshed. Full reader is a trusted internal interface, not a snapshot sandbox.",
+  "uncompressed_log_sha256": {
+    "modern_post_deadline_red.log.gz": "83fd67f3a4d12c9f7f3cc5a23e1275dc17638641a97657242f861548ce2dc741",
+    "modern_post_deadline_green.log.gz": "0a4d3d65397a5811fb8f679f07432db054cd3a785064676add372b93ef2fb3f7",
+    "relation_handler_deadline_red.log.gz": "ea095b2bd82d0b4766f8ada6bff28883e3a3132f74caa3d06184695549d8e952",
+    "history_handler_deadline_red.log.gz": "b39c3318845a8bf024337006897be27b6de62c3ae0ed0b89aa977983c0194688",
+    "filesystem_handler_deadline_red.log.gz": "9b6b91673ca417c0a60a8f105fbf9b98f9f3c1f4e1032b571297a3bd1d3c1404",
+    "filesystem_handler_deadline_green.log.gz": "f3ded96b405c3e020411903c9582540103dc05136fd3b9f1cf22290252138982",
+    "terminal_reply_policy_red.log.gz": "57e983dd6af900dcdab09f1f807d2522a09ef854d7f9f111a7e97b74eec405d3",
+    "terminal_reply_policy_final.log.gz": "2a9d4bbc46369cec2aab1e43206a85d3972e64beb6581bbc9e89ac82e3a15850",
+    "authorized_reader_until_regression.log.gz": "21599205ae93940142fa84849e3b04fcb69f03763422e5ca7c94ce6dc1d61fae",
+    "modern_filesystem_final_full.log.gz": "9acbec340aa499179daea974a7669817f3bae4e2db3677258484a4b5db798495",
+    "modern_filesystem_final_clippy.log.gz": "5689776ddd348a4b49dff7159a4580e5f35f62d1e2731988a51f98d4aeded178",
+    "modern_filesystem_final_fmt.log.gz": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "modern_filesystem_spec.log.gz": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+    "modern_filesystem_layout.log.gz": "b00432151a4d9bec79617ae5528ad6d64418cc43bb2eca083f3ad2c2fec654fd",
+    "modern_filesystem_layout_green.log.gz": "267e05ae338c5b2f9edeea636b6c9b7084f654f4ea0b5f9910cf792452cf9845",
+    "modern_filesystem_final_targets.log.gz": "b041f2e492e4976df5e4f45ba2c3af3b2b70b13682555799e2346b14726e81fb"
+  },
+  "final_deadline_target_tests": {
+    "passed": 32,
+    "failed": 0
+  },
+  "source_layout": {
+    "red": "10 passed, 1 failed: SSE test module exceeded 500 lines",
+    "green": "11 passed, 0 failed after moving request deadline tests into their own mounted module"
+  }
+}

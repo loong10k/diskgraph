@@ -45,30 +45,6 @@ impl McpService {
             .ok_or(EngineError::Business(BusinessError::InvalidArgument))
     }
 
-    /// 固定显式版本或范围 latest，并复验实际版本所有者授权。
-    /// 参数：scope 为范围断言，arguments 为版本字段。返回：授权版本标识或错误。
-    pub(crate) fn require_revision(
-        &self,
-        scope: &Option<ScopeId>,
-        arguments: &Value,
-    ) -> Result<String, EngineError> {
-        let scope_id = self.require_scope(scope)?;
-        let revision = match arguments.get("revision").and_then(Value::as_str) {
-            Some(revision) => revision.to_owned(),
-            None => self
-                .engine
-                .latest_revision(&scope_id)?
-                .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
-        };
-        self.engine.authorize_revision(
-            Some(&scope_id),
-            &revision,
-            self.context.principal(),
-            &self.authorizer()?,
-        )?;
-        Ok(revision)
-    }
-
     /// 在原请求期限内固定版本并验证实际归属，预算错误不会映射为拒绝或不存在。
     /// 参数：scope/arguments 为版本断言，deadline 为原期限。返回：授权版本或错误。
     pub(crate) fn require_revision_until(

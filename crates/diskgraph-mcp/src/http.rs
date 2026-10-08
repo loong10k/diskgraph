@@ -296,6 +296,7 @@ fn handle_secured_with_context(
     admitted: &mut Option<crate::request_context::RequestContext>,
     delivery: Option<&mut Option<(Option<u64>, Instant)>>,
 ) -> HttpResponse {
+    let deadline = Instant::now() + limits.read_timeout;
     *admitted = (security.authenticator.is_none() && service.context.trusted_local())
         .then(|| service.context.clone());
     if request.path == HEALTH_ENDPOINT {
@@ -339,7 +340,6 @@ fn handle_secured_with_context(
     *admitted = Some(service.context.clone());
     if let Some(delivery) = delivery {
         // 认证后、业务分发前固定版本；SQL、业务耗时及发送不刷新同一个投递窗口。
-        let deadline = Instant::now() + limits.read_timeout;
         *delivery = Some((None, deadline));
         match crate::http_delivery_authority::generation_until(service, deadline) {
             Ok(generation) => *delivery = Some((Some(generation), deadline)),
@@ -352,7 +352,7 @@ fn handle_secured_with_context(
         }
     }
     match request.method.as_str() {
-        "POST" => handle_post(service, request, limits),
+        "POST" => handle_post(service, request, limits, deadline),
         // GET /mcp is answered inline by the serve loop as a long-lived
         // event stream; buffered callers (tests) get the handshake frame.
         "GET" => HttpResponse {
@@ -378,6 +378,7 @@ fn handle_post(
     service: &mut McpService,
     request: &HttpRequest,
     limits: &HttpLimits,
+    deadline: Instant,
 ) -> HttpResponse {
     if request.body.len() > limits.max_body_bytes {
         return HttpResponse::json(
@@ -440,7 +441,7 @@ fn handle_post(
             ),
         );
     }
-    let response = service.handle(&decoded);
+    let response = service.handle_until(&decoded, deadline);
     let Some(body) =
         crate::bounded_json_writer::BoundedJsonWriter::encode(&response, limits.max_response_bytes)
     else {

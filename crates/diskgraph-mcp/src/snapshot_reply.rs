@@ -16,12 +16,14 @@ pub(super) fn budget() -> QueryBudget {
 
 /// 编码后分别复核 before/after 实际归属与 token/数据库权限交集。
 /// 参数：service 为当前真实身份，envelope 为响应，revisions 为历史双侧，deadline 为原请求期限。
+/// authorizer 为同次请求有界捕获的能力上限；持久授权仍实时复验，不跨请求缓存。
 /// 返回：有限响应及文本；撤权、过期无法确认归属或最小诊断超限时拒绝数据。
 pub(super) fn finish(
     service: &McpService,
     mut envelope: Value,
     revisions: &[&str],
     deadline: Instant,
+    authorizer: &dyn diskgraph_core::Authorizer,
 ) -> Result<(Value, String), EngineError> {
     envelope["truncated"] = json!(
         envelope["data"]["complete"] == false
@@ -32,7 +34,7 @@ pub(super) fn finish(
     let encoded = encode(&envelope);
     #[cfg(test)]
     crate::history_budget_tests::before_reply(service);
-    let live = finalize(service, revisions, deadline)?;
+    let live = finalize(service, revisions, deadline, authorizer)?;
     let text = encoded?;
     if live {
         return Ok((envelope, text));
@@ -45,7 +47,7 @@ pub(super) fn finish(
     }
     envelope["truncated"] = json!(true);
     let encoded = encode(&envelope);
-    finalize(service, revisions, deadline)?;
+    finalize(service, revisions, deadline, authorizer)?;
     Ok((envelope, encoded?))
 }
 
@@ -53,11 +55,12 @@ fn finalize(
     service: &McpService,
     revisions: &[&str],
     deadline: Instant,
+    authorizer: &dyn diskgraph_core::Authorizer,
 ) -> Result<bool, EngineError> {
     service.engine.finalize_revisions_read_until(
         revisions,
         service.context.principal(),
-        &service.authorizer()?,
+        authorizer,
         deadline,
     )
 }

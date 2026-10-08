@@ -58,14 +58,14 @@ impl McpService {
             expected.as_ref(),
             before,
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
             deadline,
         )?;
         self.engine.authorize_revision_until(
             expected.as_ref(),
             after,
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
             deadline,
         )?;
         if catalog_id == "C07" {
@@ -75,7 +75,7 @@ impl McpService {
                 std::path::Path::new(""),
                 snapshot_reply::budget(),
                 self.context.principal(),
-                &self.authorizer()?,
+                &self.authorizer_until(deadline)?,
                 deadline,
             )?;
             return Ok(json!({
@@ -88,7 +88,7 @@ impl McpService {
             after,
             snapshot_reply::budget(),
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
             deadline,
         )
     }

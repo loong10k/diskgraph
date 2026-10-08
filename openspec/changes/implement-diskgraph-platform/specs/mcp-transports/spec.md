@@ -112,3 +112,15 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **THEN** these dispatch prerequisites return budget exhaustion within the original request window, without mapping expiry to not_found or permission_denied
 - **AND** scope-list capability callbacks remain outside the control lock, with live grant and expiry checks after all callbacks; trusted compatibility listing retains its existing behavior
 - **AND** legacy tools use the earlier of the remaining POST window and the default tool window, so a longer transport timeout cannot enlarge the tool budget
+
+#### Scenario: Modern routing and query handlers retain the admitted deadline
+- **WHEN** a modern POST has exhausted its routing window, or metadata/relationship/history handlers wait for an occupied control owner
+- **THEN** routing does not create a fresh tools/call window, and handler-internal revision/authorizer acquisition uses the original dispatch deadline
+- **AND** explore/search/node/children/top share one authorized read connection with that deadline and perform terminal live authorization; Unicode substring search, ordering, cursors and coverage fields retain their semantics
+- **AND** response server identity is captured within the original deadline before query execution rather than acquired through an unbounded lock after data production
+- **AND** existing fixed terminal-observation windows and remaining management compatibility paths are separate limits; these scenarios do not qualify complete frontend retirement or the whole platform
+
+#### Scenario: Captured request capability does not replace terminal persistent authorization
+- **WHEN** relationship/history reply encoding finishes after the data deadline or a control owner remains occupied
+- **THEN** reply finalization reuses the request capability obtained within its original deadline instead of rebuilding policy through an unbounded lock; the Engine still checks current scope, grant, policy and token expiry
+- **AND** a live expired read retains its explicit partial/deadline diagnostic, while a grant revoked after capability capture refuses both complete and partial data

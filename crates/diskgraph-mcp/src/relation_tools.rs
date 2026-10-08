@@ -37,7 +37,7 @@ impl McpService {
                 .unwrap_or(QueryBudget::default().max_edges as u64),
             QueryBudget::default(),
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
             deadline,
         )
     }
@@ -60,7 +60,7 @@ impl McpService {
                 .unwrap_or(QueryBudget::default().max_edges as u64),
             QueryBudget::default(),
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
             deadline,
         )
     }
@@ -73,7 +73,7 @@ impl McpService {
         deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
         let (revision, entity) = self.revision_and_entity(arguments)?;
-        let authorizer = self.authorizer()?;
+        let authorizer = self.authorizer_until(deadline)?;
         let answer = self.engine.revision_impact_until(
             &revision,
             &entity,
@@ -106,12 +106,12 @@ impl McpService {
         arguments: &Value,
         deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
-        let revision = self.require_revision(scope, arguments)?;
+        let revision = self.require_revision_until(scope, arguments, deadline)?;
         let target = arguments
             .get("target_bytes")
             .and_then(Value::as_u64)
             .unwrap_or(0);
-        let authorizer = self.authorizer()?;
+        let authorizer = self.authorizer_until(deadline)?;
         let answer = self.engine.review_candidates_until(
             &revision,
             target,

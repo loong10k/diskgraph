@@ -26,6 +26,26 @@ impl Engine {
         let deadline = std::time::Instant::now()
             .checked_add(Duration::from_millis(deadline_ms))
             .ok_or(BusinessError::InvalidArgument)?;
+        self.with_authorized_revision_reader_until(
+            revision_id,
+            principal,
+            authorizer,
+            deadline,
+            consumer,
+        )
+    }
+
+    /// 继承调用链原始期限执行授权窄读，并在返回前复验身份与撤权。
+    /// 参数：revision_id/principal/authorizer 为实际资源与请求身份，deadline 为原期限，consumer 为可信只读消费者。
+    /// 返回：消费者结果或预算/授权错误；消费者须仅访问获授权快照；完整 reader 类型本身不提供快照沙箱。
+    pub fn with_authorized_revision_reader_until<T>(
+        &self,
+        revision_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+        consumer: impl FnOnce(&SqliteSnapshotStore, &str, std::time::Instant) -> Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
         let expiry = authorizer.expires_at_unix_seconds();
         crate::authority_expiry::check_authority_expiry(expiry)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;

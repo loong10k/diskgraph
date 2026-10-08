@@ -120,11 +120,16 @@ impl McpService {
         if let Err(message) = tool_input_schema::validate_arguments(catalog_id, &arguments) {
             return protocol_error(id.clone(), -32602, &message);
         }
+        // 固定请求能力供编码末检使用；持久撤权仍由 Engine 在终态实时复验。
+        let reply_authorizer = match self.authorizer_until(deadline) {
+            Ok(authorizer) => authorizer,
+            Err(error) => return tool_error(id, business_of(&error), &error.to_string()),
+        };
         match self
             .dispatch(catalog_id, &arguments, deadline)
             .and_then(|data| {
                 if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
-                    relation_reply::finish(self, data, deadline)
+                    relation_reply::finish(self, data, deadline, &reply_authorizer)
                         .map_err(|error| error.with_context(catalog_id))
                 } else if matches!(catalog_id, "C06" | "C07") {
                     let mut revisions = [""; 2];
@@ -135,7 +140,7 @@ impl McpService {
                                     .with_context(catalog_id)
                             })?;
                     }
-                    snapshot_reply::finish(self, data, &revisions, deadline)
+                    snapshot_reply::finish(self, data, &revisions, deadline, &reply_authorizer)
                         .map_err(|error| error.with_context(catalog_id))
                 } else {
                     let text = data.to_string();
@@ -256,6 +261,7 @@ impl McpService {
         for permission in protocol::permissions_for_action(catalog_id, action) {
             self.require_until(&permission, &authorization_scope, deadline)?;
         }
+        let server_id = self.engine.server_id_until(deadline)?;
         match catalog_id {
             "C01" => self.scope_tool(arguments),
             "C02" => self.index_tool(&scope, arguments, false),
@@ -263,11 +269,11 @@ impl McpService {
             "C04" => self.status_tool(arguments),
             "C05" => self.snapshots_tool(&scope, arguments),
             "C06" | "C07" => self.history_tool(catalog_id, arguments, deadline),
-            "C08" => self.explore_tool(&scope, arguments),
-            "C09" => self.search_tool(&scope, arguments),
-            "C10" => self.node_tool(&scope, arguments),
-            "C11" => self.children_tool(&scope, arguments),
-            "C12" => self.top_tool(&scope, arguments),
+            "C08" => self.explore_tool(&scope, arguments, deadline),
+            "C09" => self.search_tool(&scope, arguments, deadline),
+            "C10" => self.node_tool(&scope, arguments, deadline),
+            "C11" => self.children_tool(&scope, arguments, deadline),
+            "C12" => self.top_tool(&scope, arguments, deadline),
             "C13" => self.related_tool(arguments, deadline),
             "C14" => self.explain_tool(arguments, deadline),
             "C15" => self.impact_tool(arguments, deadline),
@@ -277,18 +283,19 @@ impl McpService {
             _ => Err(EngineError::Business(BusinessError::Unsupported)),
         }
         .and_then(|data| {
-            let revision = response_revision.or_else(|| {
-                scope
-                    .as_ref()
-                    .and_then(|scope| self.engine.latest_revision(scope).ok().flatten())
-            });
+            let revision = match response_revision {
+                Some(revision) => Some(revision),
+                None => match scope.as_ref() {
+                    Some(scope) => self.engine.latest_revision_until(scope, deadline)?,
+                    None => None,
+                },
+            };
             let revision_id =
                 revision.and_then(|revision| diskgraph_core::RevisionId::new(revision).ok());
             let truncated = data
                 .get("truncated")
                 .is_some_and(|value| !matches!(value, Value::Null | Value::Bool(false)));
-            let mut envelope =
-                Envelope::ok(data).with_ids(Some(self.engine.server_id()?), scope, revision_id);
+            let mut envelope = Envelope::ok(data).with_ids(Some(server_id), scope, revision_id);
             envelope.truncated = truncated;
             Ok(envelope.into_json())
         })

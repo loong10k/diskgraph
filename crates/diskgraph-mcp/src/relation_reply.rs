@@ -7,11 +7,13 @@ use std::time::Instant;
 
 /// 编码完成后确认真实 revision 的实时权限；到期保留合法前缀并报告 deadline。
 /// 参数：service 为当前身份，envelope 为实际响应，deadline 在 tools/call 入口创建。
+/// authorizer 为同次请求有界捕获的能力上限；持久授权仍实时复验，不跨请求缓存。
 /// 返回：有限 envelope 和对应文本；无法容纳完整诊断或撤权时返回失败。
 pub(super) fn finish(
     service: &McpService,
     mut envelope: Value,
     deadline: Instant,
+    authorizer: &dyn diskgraph_core::Authorizer,
 ) -> Result<(Value, String), EngineError> {
     let revision = envelope["revision_id"]
         .as_str()
@@ -24,7 +26,7 @@ pub(super) fn finish(
     let live = service.engine.finalize_revision_read_until(
         &revision,
         service.context.principal(),
-        &service.authorizer()?,
+        authorizer,
         deadline,
     )?;
     let text = encoded?;
@@ -39,7 +41,7 @@ pub(super) fn finish(
     service.engine.finalize_revision_read_until(
         &revision,
         service.context.principal(),
-        &service.authorizer()?,
+        authorizer,
         deadline,
     )?;
     Ok((envelope, encoded?))
