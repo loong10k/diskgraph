@@ -1,0 +1,14 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "run": 37728300386,
+  "source_hashes_verified_including_windows_crlf": true,
+  "fixture_seconds": 176.53883559999986,
+  "scope_seconds": 0.5054192000000057,
+  "index_completed": false,
+  "index_command_timeout_seconds": 300,
+  "diagnostic_elapsed_seconds": 666.0733551000001,
+  "cause": "index command did not complete within original 300s; no scan/publication substage evidence",
+  "clean_environment_confirmed": false,
+  "formal_acceptance_passed": false,
+  "production_ready": false
+}

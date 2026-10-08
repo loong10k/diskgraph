@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\hostedtoolcache\\windows\\Python\\3.13.16\\x64\\python.exe",
+    "D:\\a\\diskgraph\\diskgraph\\scripts\\accept-readonly-load.py",
+    "--bin-dir",
+    "D:\\a\\diskgraph\\diskgraph\\target\\x86_64-pc-windows-msvc\\release",
+    "--files",
+    "200000"
+  ],
+  "started_unix_seconds": 1791434810.253454,
+  "clean_environment_confirmed": false,
+  "preceding_formal_acceptance": "failed; retirement uncertainty may affect diagnostic",
+  "inner_cli_timeout_seconds": 300,
+  "status": "failed",
+  "production_acceptance": false,
+  "purpose": "diagnostic only; formal acceptance remains independent",
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "binary_sha256": {
+    "diskgraph.exe": "031914859ae385206bfc2e7d7ca3a960dcb9b1117a6074dc3f9a4285f5925225",
+    "diskgraph-mcp.exe": "7a61e4bdc05a389c6d2227385dbbbe50c300e870e01a29593debbe489929ad53",
+    "diskgraph-scan-worker.exe": "41eb3b8c39d298126f8228a9565f945c0558b9b2dded1b2b784f5bff2abc72b1"
+  },
+  "formal_timeout_seconds": 300,
+  "diagnostic_timeout_seconds": 900,
+  "source_sha256": {
+    "scripts\\diagnose_windows_load.py": "bc38bbfaf9c4dc2c7668dab6efa78eddc2c1feae3fd5612f6d903ab092451650",
+    "scripts\\accept-readonly-load.py": "e25309e3bd4f8e4de721e8926323fd4f9fb4d3a7c5d7e63e78060d18b6628c50",
+    "scripts\\windows_acceptance_job.py": "997761982b6f29b07451d30772eda891bf814f30d4cafd3231fdf298aa957356"
+  },
+  "elapsed_seconds": 666.0733551000001,
+  "observed_unix_seconds": 1791435476.3337638
+}
