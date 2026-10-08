@@ -4,6 +4,7 @@ import sys
 import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import qualify_windows_enumerated_absence as qualifier
+from qualify_windows_capacity_replay import SUPPORT
 
 class AbsenceModuleTests(unittest.TestCase):
     def test_preserves_exports_and_removes_only_unreachable_new_modules(self):
@@ -34,6 +35,15 @@ class AbsenceRollbackTests(unittest.TestCase):
                 data = (b"#[cfg(windows)]\r\nmod windows_git_root_parent;\r\n"
                         b"#[cfg(windows)]\r\nmod windows_git_foreign_removal_witness;\r\n"
                         b"current exports\r\n" if name.endswith("mod.rs") else b"current source\r\n")
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(data)
+                originals[name] = data
+            # 新创建恢复已从旧容量回放中不可达；测试夹具仍须覆盖全部恢复文件。
+            for name in SUPPORT:
+                data = (originals[name] + b"#[cfg(windows)]\nmod git_private_created_entry;\n"
+                        b"#[cfg(all(test, windows))]\nmod git_private_write_profile;\n"
+                        if name.endswith("mod.rs") else (qualifier.ROOT / name).read_bytes())
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(data)

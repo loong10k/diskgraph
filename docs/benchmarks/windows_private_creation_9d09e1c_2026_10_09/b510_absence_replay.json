@@ -1,0 +1,72 @@
+{
+  "candidate": "b510f823858b1b3026dd485ec0fcc25a8cc007f2",
+  "baseline": "6c3b7295e26e31933d9258f8ee8328cc6b241f64",
+  "candidate_sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "d2c133e21c50057be7d19f6187044bc0dd25f79020218c3659a92d9335c293bc",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "92f754812bbac92d50252b2a57451d352fc85a866128fef40edf7c031acf216e",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "330086a0be6d15360adbb3a07b54e197abbb9df09e0d080c9650b58ca8a25e86",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "41d8adc89a58cc1cdb2f5c80693718d3989eac8507302a0bfce317b2b4404532",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "a0acd698247861ac55ca535634c1564308529c538b0481c7b5eb6d513059cdc6",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4"
+  },
+  "baseline_original_sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "f285e6c01e1e552dc0162e68b94386acc49392afc76e86b6b5b872604db5a44f",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "efb6f9ac875f45b29428b3e2157ca71a396e5d5af1b2d93981bcfdb109edca48",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "d9afa8ef247fc743a69c09982fd617b170fbe06af260d7b9beebd96f5e05d518",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "05e0a1ad8e856bc959c9a1639907fbdf92f182b6b1084404f219688483573ee1",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "0d951fc59bf402cb1162d81611c6e7a82c03e18460d26f625382169b8623fc67"
+  },
+  "baseline_sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "96f085a6e46e0648e241f3361acbdd2a198541f76f89da2e3048db786e32e99a",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_private_root.rs": "efb6f9ac875f45b29428b3e2157ca71a396e5d5af1b2d93981bcfdb109edca48",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "bcd163ffe42dce1df947c30dc1b1fa1f35f97d54908b2d7fb9f26b4198803245",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "05e0a1ad8e856bc959c9a1639907fbdf92f182b6b1084404f219688483573ee1",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_deletion_witness.rs": "0d951fc59bf402cb1162d81611c6e7a82c03e18460d26f625382169b8623fc67",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "4f807c9b397f91f243c9b3eb7753452aeb2b511de1021cf17d878d4727cbed9a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "7fe7a6f4bb6240be0929e7e9e3475c8e3d586dbacfa85fb638a0620e0a5b76f0",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "5f9f7ce417b7345673f45f10abc5ad2f377f7820c075a5382dfc782cc0102588"
+  },
+  "shared_support_sources": {
+    "crates/diskgraph-engine/src/live_evidence/windows_git_foreign_removal_witness.rs": "795ef9c62179862813f202e6c8df752b44f2424822a3fc8056bdb5a93037d0cb",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_root_parent.rs": "2383831bf689aa135560b3ca01aefef6d2d1466523f0ce72057552ca3aa9351d",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "49e5fe841f1015be9ce197f002f0653508366116136307995e24a8c15016baca",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup_tests.rs": "7f59b153eaecd9e1cb8f64e256cc938adbd16b08fa07c50a2f933af6f062a490"
+  },
+  "status": "native red and green verified; product shutdown gate remains open",
+  "red": "original enumeration preserved moved/replacement identities; vanished entry remained stuck",
+  "restored": true,
+  "native_job": "wc_job_7uSleZq3CCwwBqDd",
+  "logs": {
+    "green-cursor.log": [
+      "test live_evidence::windows_git_directory_cursor_tests::vanished_unregistered_entry_advances_only_after_original_full_id_absence ... DG_WINDOWS_ENUMERATED_ABSENCE_RED_READY=1",
+      "DG_WINDOWS_ENUMERATED_ABSENCE_GREEN=1",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 714 filtered out; finished in 0.03s"
+    ],
+    "green-last-close.log": [
+      "test live_evidence::windows_git_directory_cursor_tests::foreign_removal_preserves_hard_links_and_outstanding_external_handle ... DG_WINDOWS_FOREIGN_LINKS_AND_LAST_CLOSE=1",
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 714 filtered out; finished in 0.01s"
+    ],
+    "green-product.log": [
+      "test live_evidence::windows_git_cleanup_tests::original_root_cross_parent_cleanup_preserves_foreign_replacement ... DG_CROSS_PARENT_ORIGINAL_ROOT_RED_READY=1",
+      "DG_CROSS_PARENT_ORIGINAL_ROOT_GREEN=1",
+      "test live_evidence::windows_git_cleanup_tests::product_cleanup_keeps_unregistered_foreign_children_and_original_owner ... DG_WINDOWS_FOREIGN_ENTRY_PRODUCT_RECOVERY=1",
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 710 filtered out; finished in 0.07s"
+    ],
+    "red.log": [
+      "test live_evidence::windows_git_directory_cursor_tests::vanished_unregistered_entry_advances_only_after_original_full_id_absence ... DG_WINDOWS_ENUMERATED_ABSENCE_RED_READY=1",
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 714 filtered out; finished in 15.02s"
+    ]
+  },
+  "qualification_sources": {
+    "scripts\\qualify_windows_private_disposal.py": "62578f7bdf7bba032cac5d0c20bd06170c48468554416d17173435248bdbe831",
+    "scripts\\qualify_windows_capacity_replay.py": "6c6ea09f818400f635253a2e05b9b9f051401c3ec8f27afa998a9ef62ea0f50f",
+    "scripts\\qualify_windows_enumerated_absence.py": "6cbb286a279f31cec495532083f0d47e00c4dbc949fc51b8e71c153109a72f42",
+    "scripts\\qualify_windows_legacy_api.py": "2e0bf339bbc5f5cee9222d21c40517b0fdc84c10d8933e9f160109b038a58182"
+  },
+  "tracked_status": " M scripts/qualify_windows_enumerated_absence.py\n M scripts/qualify_windows_private_disposal.py\n"
+}

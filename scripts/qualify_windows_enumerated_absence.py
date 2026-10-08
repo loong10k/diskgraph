@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 from qualify_windows_legacy_api import MARKER, bridge_baseline
+from qualify_windows_capacity_replay import prepare
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,12 +62,15 @@ def main():
     old = {name: subprocess.check_output(["git", "show", f"{BASELINE}:{name}"], cwd=ROOT)
            for name in SOURCES}
     baseline_original = dict(old)
+    support_current, support_old = prepare(ROOT, BASELINE, subprocess.check_output)
+    original.update(support_current)
+    old.update(support_old)
     module_source = "crates/diskgraph-engine/src/live_evidence/mod.rs"
     cleanup_source = "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs"
     if any(name.encode() in old[cleanup_source] for name in
            ("windows_git_root_parent", "windows_git_foreign_removal_witness")):
         raise RuntimeError("frozen cleanup unexpectedly uses new absence/root support")
-    old[module_source] = baseline_modules(original[module_source])
+    old[module_source] = baseline_modules(old[module_source])
     old[cleanup_source] = bridge_baseline(original[cleanup_source], old[cleanup_source], "directory")
     receipt = {
         "candidate": candidate, "baseline": BASELINE,
