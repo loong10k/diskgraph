@@ -160,6 +160,30 @@ class HttpSoakTests(unittest.TestCase):
         self.assertEqual(result['elapsed_seconds'], 1.0)
         self.assertFalse(result['native_long_run_qualified'])
 
+    def test_token_preparation_cannot_issue_a_request_after_original_deadline(self):
+        now = [100.0]
+        minted = [0]
+
+        def mint(key):
+            minted[0] += 1
+            if minted[0] == 2:
+                now[0] += 0.75
+            return 'fixture-bearer'
+
+        def read(*args, **kwargs):
+            self.assertLess(now[0], 101.0, 'network request started after its original deadline')
+            now[0] += 0.25
+            return 200, {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': [1]}}}}
+
+        with patch.object(MODULE.time, 'monotonic', side_effect=lambda: now[0]), \
+                patch.object(MODULE, 'token', side_effect=mint), \
+                patch.object(MODULE, 'request', side_effect=read) as request:
+            result = MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
+        request.assert_called_once()
+        self.assertEqual(result['requests'], 1)
+        self.assertEqual(result['elapsed_seconds'], 1.0)
+
     def test_wrong_scope_and_permission_error_are_not_success(self):
         answers = [
             (200, {'result': {'structuredContent': {

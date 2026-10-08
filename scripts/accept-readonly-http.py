@@ -191,8 +191,12 @@ def soak_reads(port, body, key, scope, seconds):
             break
         next_start = before + 1 / offered_rate
         # 为后续请求签发同一主体的新token，不更新总期限或数据库授权。
+        bearer = token(key)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            break
         try:
-            status, answer = request(port, '/mcp', body, token(key), ORIGIN,
+            status, answer = request(port, '/mcp', body, bearer, ORIGIN,
                                      timeout=min(10, remaining))
         except OSError as error:
             # 原异常与截止时间保持；只增加数值阶段信息，区分末段期限和服务停顿。
