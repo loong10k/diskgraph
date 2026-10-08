@@ -1,4 +1,4 @@
-# 构建真实 ExitProcess 夹具；仅验证 CLI 完整退出状态，不授予产品能力。
+﻿# 构建真实 ExitProcess 夹具；仅验证 CLI 完整退出状态，不授予产品能力。
 $ErrorActionPreference = 'Stop'
 $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
 $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath

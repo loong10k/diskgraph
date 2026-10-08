@@ -15,3 +15,11 @@
 进一步实测发现PowerShell5.1的重定向将GITHUB_ENV写为UTF-16，UTF-8读取报UnicodeDecodeError。先新增明确UTF-8读取与路径绑定断言，实际红灯1/1；将回执Set-Content与环境Out-File都显式指定utf8后，三项原生测试全部通过，未通过移除中文注释或关闭警告绕过失败。
 
 该轮完整Rust验证仍固定1ac266a0；已成功生成的实际worker与退出程序重新核验来源SHA、长度和SHA256后，从回执显式绑定测试环境。原编码失败及后续候选脚本修复证据分别保留，不冒称旧脚本已通过。最终脚本改动须随下一次提交验收，当前在执行的原生CI不取消。
+
+## UTF-8/LF 脚本的 PowerShell 5.1 解析
+
+9ade861e 的台式机源码完成与 Git blob 一致的 LF 物化后，两个 PS1 文件实际出现 UnexpectedToken，三项测试为 2 失败 / 1 通过。保留失败日志于 package_9ade861e/powershell.stderr；不能用此前 CRLF 候选的通过代替当前文件验收。
+
+仅为两个 PS1 文件增加 UTF-8 BOM，在独占临时目录运行完全相同的三项测试，实际 3/3 通过（11.763 秒），包括 MSVC 两种完整退出状态。worker 脚本候选 SHA256 为 ed88d6de9218e74094a2a90478a4027dee785e748b21ba8d5ab18c9eb701c77d，exit 脚本为 18c46b1f83935c34ab1b04e2287bd32d952686a1e7a8e53509070ee9e75cf5b3。为 CI Windows 矩阵增加明确调用 powershell.exe 的这组三项测试；不以 CI 默认 PowerShell 7 通过代替 5.1。
+
+9ade861e 的后续包验收使用这一已验证 BOM 临时脚本准备真实 Cargo worker，并记录候选摘要；产品源码与验收脚本保持该固定提交，checkout 干净。两处 BOM 仓库修改待正在运行的原生 CI 结束后推送，不取消其余平台验证。

@@ -1,4 +1,4 @@
-# 从当前 checkout 的真实 Cargo binary 构造独占验收副本，不接受远程程序选择。
+﻿# 从当前 checkout 的真实 Cargo binary 构造独占验收副本，不接受远程程序选择。
 param([Parameter(Mandatory=$true)][string]$Artifacts, [Parameter(Mandatory=$true)][string]$OutputDir)
 $ErrorActionPreference = 'Stop'
 # Windows PowerShell 5.1 使用 .NET Framework；只接受盘符绝对路径或完整 UNC 根。

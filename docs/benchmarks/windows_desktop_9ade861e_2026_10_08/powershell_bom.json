@@ -1,0 +1,84 @@
+{
+  "bom_candidate": {
+    "source_commit": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "candidate_change": "UTF-8 BOM only in two temporary PowerShell scripts",
+    "exit_code": 0,
+    "elapsed_seconds": 12.203000000008615,
+    "digests": {
+      "configure_windows_acceptance_worker.ps1": "ed88d6de9218e74094a2a90478a4027dee785e748b21ba8d5ab18c9eb701c77d",
+      "configure_windows_exit_fixtures.ps1": "18c46b1f83935c34ab1b04e2287bd32d952686a1e7a8e53509070ee9e75cf5b3",
+      "test.stderr": "f589e9082bf52f1b9f8f56527d266870e53fda2d3ae4746aaa4324898b384341",
+      "test.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test_powershell.py": "f48e7c6733f160e3b82fe81a62c4aceb67a3900c3daaabae29be6fab3c2c0d85"
+    }
+  },
+  "original_lf_run": {
+    "source_commit": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "python": "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+    "toolchain": "1.99.0-x86_64-pc-windows-msvc",
+    "commands": [
+      {
+        "name": "utf8",
+        "argv": [
+          "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts/tests",
+          "-p",
+          "test_readonly_process_encoding.py",
+          "-v"
+        ],
+        "started_utc": "2026-10-08T15:03:55.245978+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 0.42199999999138527,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "5414853e7920c49d757b122d8c1da8288ee1b7ba3b0813a2a2222511ff2d6acc"
+      },
+      {
+        "name": "checkout",
+        "argv": [
+          "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts/tests",
+          "-p",
+          "test_source_checkout_bytes.py",
+          "-v"
+        ],
+        "started_utc": "2026-10-08T15:03:55.662951+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 1.9530000000086147,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "05cb8770172acb186ffc0b439d82d2eaa6ae933902714f2cd4c974adb75410f9"
+      },
+      {
+        "name": "powershell",
+        "argv": [
+          "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts/tests",
+          "-p",
+          "test_windows_worker_powershell.py",
+          "-v"
+        ],
+        "started_utc": "2026-10-08T15:03:57.626137+00:00",
+        "exit_code": 1,
+        "elapsed_seconds": 2.2660000000032596,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "571ed58ecae485a542bc9d0c931671ef6c135e6243aa53885c92c96629ff8493"
+      }
+    ],
+    "complete": true,
+    "prior_native_gate_passed": false,
+    "failure": "powershell failed: 1",
+    "head_after": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "status_after": ""
+  }
+}
