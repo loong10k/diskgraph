@@ -54,16 +54,7 @@ impl ManagedServiceHost {
         if Instant::now() >= deadline {
             return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
         }
-        let opened = match (trusted_local, host) {
-            (true, Some(host)) => {
-                McpService::open_with_scan_worker(config, host).map(|(s, r)| (s, Some(r)))
-            }
-            (false, Some(host)) => {
-                McpService::open_remote_with_scan_worker(config, host).map(|(s, r)| (s, Some(r)))
-            }
-            (true, None) => McpService::open(config).map(|s| (s, None)),
-            (false, None) => McpService::open_remote(config).map(|s| (s, None)),
-        };
+        let opened = McpService::open_with_host_until(config, host, trusted_local, deadline);
         let opened = match opened {
             Ok(opened) => opened,
             Err(primary) => {

@@ -15,6 +15,100 @@ pub struct McpService {
 }
 
 impl McpService {
+    /// 参数：config为原配置，host为可选可信宿主，trusted_local由传输选择，deadline为原启动期限。
+    /// 返回：服务与可选恢复责任；远程模式不创建本地管理员。
+    pub fn open_with_host_until(
+        config: McpConfig,
+        host: Option<ScanWorkerHost>,
+        trusted_local: bool,
+        deadline: std::time::Instant,
+    ) -> Result<(Self, Option<ScanWorkerRecovery>), EngineError> {
+        let engine_config = EngineConfig {
+            data_dir: config.data_dir.clone(),
+            max_nodes_per_scan: 2_000_000,
+            ..EngineConfig::default()
+        };
+        let (engine, recovery) = match host {
+            Some(host) => {
+                let (engine, recovery) =
+                    Engine::open_with_scan_worker_until(engine_config, host, deadline)?;
+                (engine, Some(recovery))
+            }
+            None => (Engine::open_until(engine_config, deadline)?, None),
+        };
+        Ok((
+            Self::finish_startup_until(config, engine, trusted_local, deadline)?,
+            recovery,
+        ))
+    }
+
+    fn finish_startup_until(
+        config: McpConfig,
+        engine: Engine,
+        trusted_local: bool,
+        deadline: std::time::Instant,
+    ) -> Result<Self, EngineError> {
+        let check = || -> Result<(), EngineError> {
+            if std::time::Instant::now() >= deadline {
+                Err(diskgraph_core::BusinessError::BudgetExceeded.into())
+            } else {
+                Ok(())
+            }
+        };
+        Self::finish_startup_checked(config, engine, trusted_local, &check)
+    }
+
+    fn finish_startup_checked(
+        config: McpConfig,
+        engine: Engine,
+        trusted_local: bool,
+        check: &dyn Fn() -> Result<(), EngineError>,
+    ) -> Result<Self, EngineError> {
+        check()?;
+        if trusted_local {
+            engine.bootstrap_local_admin(&config.principal)?;
+        }
+        // 引导权限也属于原启动窗口；远程模式始终跳过本地管理引导。
+        check()?;
+        Ok(Self {
+            engine: std::sync::Arc::new(engine),
+            context: if trusted_local {
+                request_context::RequestContext::local(config.principal)
+            } else {
+                request_context::RequestContext::unauthenticated(config.principal)
+            },
+            profile: config.profile,
+            legacy_sse: config.legacy_sse,
+            initialized: false,
+        })
+    }
+
+    /// 参数：config/scan/probe为原Windows宿主配置，trusted_local由传输选择，deadline为原期限。
+    /// 返回：期限内服务及可选扫描恢复责任；调用者继续持有原probe恢复责任。
+    #[cfg(windows)]
+    pub fn open_with_process_hosts_until(
+        config: McpConfig,
+        scan: Option<ScanWorkerHost>,
+        probe: diskgraph_engine::ProbeHost,
+        trusted_local: bool,
+        deadline: std::time::Instant,
+    ) -> Result<(Self, Option<ScanWorkerRecovery>), EngineError> {
+        let (engine, recovery) = Engine::open_with_process_hosts_until(
+            EngineConfig {
+                data_dir: config.data_dir.clone(),
+                max_nodes_per_scan: 2_000_000,
+                ..EngineConfig::default()
+            },
+            scan,
+            probe,
+            deadline,
+        )?;
+        Ok((
+            Self::finish_startup_until(config, engine, trusted_local, deadline)?,
+            recovery,
+        ))
+    }
+
     /// 打开本地 Engine 并按 CLI 相同策略引导 stdio 主体。
     /// 参数：config 为本地服务配置。返回：服务或引擎错误。
     pub fn open(config: McpConfig) -> Result<Self, EngineError> {
@@ -196,3 +290,6 @@ impl McpService {
         self.profile
     }
 }
+
+#[cfg(test)]
+mod startup_deadline_tests;

@@ -205,17 +205,20 @@ fn main() -> ExitCode {
         }
     };
     #[cfg(windows)]
-    let opened =
-        McpService::open_with_process_hosts(config, worker_host, probe_host, transport == "stdio");
+    let opened = McpService::open_with_process_hosts_until(
+        config,
+        worker_host,
+        probe_host,
+        transport == "stdio",
+        worker_deadline,
+    );
     #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
-    let opened = match (transport == "stdio", worker_host) {
-        (true, Some(host)) => McpService::open_with_scan_worker(config, host)
-            .map(|(service, recovery)| (service, Some(recovery))),
-        (false, Some(host)) => McpService::open_remote_with_scan_worker(config, host)
-            .map(|(service, recovery)| (service, Some(recovery))),
-        (true, None) => McpService::open(config).map(|service| (service, None)),
-        (false, None) => McpService::open_remote(config).map(|service| (service, None)),
-    };
+    let opened = McpService::open_with_host_until(
+        config,
+        worker_host,
+        transport == "stdio",
+        worker_deadline,
+    );
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     let opened = managed_service_host::ManagedServiceHost::open(
         config,

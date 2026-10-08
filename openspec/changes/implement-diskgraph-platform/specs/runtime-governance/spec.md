@@ -213,3 +213,14 @@ Deadline-aware Engine constructors SHALL check the caller's original deadline be
 #### Scenario: Persistent initialization consumes the remaining startup budget
 - **WHEN** a persistent initialization stage completes after the original deadline
 - **THEN** the next check refuses further stages and does not return a usable Engine
+
+### Requirement: MCP startup preserves the original constructor deadline
+MCP binary startup SHALL carry the original deployment deadline through Engine initialization and trusted-local bootstrap. Remote startup SHALL NOT bootstrap a local administrator. Legacy trusted library constructors retain compatibility.
+
+#### Scenario: Local or remote service startup is already expired
+- **WHEN** deadline-aware MCP startup begins at or after the original deadline
+- **THEN** it returns BudgetExceeded before database creation, without returning a service or starting a runner
+
+#### Scenario: Local bootstrap exhausts the startup budget
+- **WHEN** the terminal startup budget check fails after local policy bootstrap
+- **THEN** startup refuses to return a service and preserves already persisted policy rather than deleting it

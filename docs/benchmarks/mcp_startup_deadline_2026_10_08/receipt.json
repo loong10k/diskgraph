@@ -1,0 +1,28 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/mcp_service.rs": "11d682fc0af7cfdf1df4ac3dd2cb742d153833baaa87bfc3678bb695f27cbe6f",
+    "crates/diskgraph-mcp/src/main.rs": "ae18dfde1590dc9822e138cea00a6307652dcbe56f952d7749130a5cf6b501e7",
+    "crates/diskgraph-mcp/src/managed_service_host.rs": "3b24082f9649b3232ce6776877914e686d7069f2210d188644cca07afae6d460",
+    "crates/diskgraph-mcp/src/mcp_service/startup_deadline_tests.rs": "f05c4ec5062b67e664a3d2597c6e6f0bb47652c4398ab75c0973e33efa08c2be",
+    "crates/diskgraph-mcp/tests/startup_deadline.rs": "0c144ed109f8908ecb7d31a22220e76bc2085a4c18f8d4df76b4ef20ce897051"
+  },
+  "red": "deadline-ignoring original startup adapter:0 passed1failed",
+  "green": {
+    "startup": 2,
+    "bootstrap_stage": 1,
+    "managed_host": 6,
+    "legacy_host_compatibility": 3,
+    "source_layout": 11
+  },
+  "clippy": "lib and bin -D warnings passed",
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "limitations": [
+    "stage fault injection not slow IO measurement",
+    "synchronous bootstrap may persist before deadline failure; no rollback",
+    "native latest SHA qualification pending"
+  ],
+  "stage_log_note": "only1 lib test counts; filtered integration tests rerun unfiltered in integrations.log.gz"
+}
