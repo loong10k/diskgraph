@@ -73,28 +73,6 @@ impl Engine {
         self.authorize_revision_owner(ownership, expected_scope, principal, authorizer)
     }
 
-    /// 真实归属的原始字段与后续历史读取共用账本；来源：原生 Rust Q-08 / D41。
-    /// 参数：reader/revision、可选范围断言及请求身份固定，reads 不得重置。
-    /// 返回：实际授权 scope；预算、缺失归属与拒权保留原错误。
-    pub(super) fn authorize_revision_with_budget(
-        &self,
-        reader: &SqliteSnapshotStore,
-        expected_scope: Option<&ScopeId>,
-        revision_id: &str,
-        principal: &PrincipalId,
-        authorizer: &dyn Authorizer,
-        reads: &mut QueryReadBudget,
-    ) -> Result<ScopeId, EngineError> {
-        let ownership = reader.revision_ownership_with_budget(revision_id, reads)?;
-        self.authorize_revision_owner_until(
-            ownership,
-            expected_scope,
-            principal,
-            authorizer,
-            reads.deadline(),
-        )
-    }
-
     fn authorize_revision_owner(
         &self,
         ownership: Option<(String, String)>,

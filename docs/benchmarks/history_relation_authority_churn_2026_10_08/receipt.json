@@ -1,0 +1,29 @@
+{
+  "base_commit": "a98586616d7438aa673b2dae93ce5b54e7e814e6",
+  "red": "0 passed, 2 failed; old history/relation return Ok after real read-stage revoke/regrant",
+  "final": "4 passed: read/encode, either distinct history scope, 9 initial/terminal callback cases",
+  "admin": "20 passed",
+  "terminal": "14 passed",
+  "management": "7 passed",
+  "clippy_final": "passed; original dead-code failure preserved, unused wrapper removed and its deadline test follows actual owner path",
+  "fmt": "passed",
+  "openspec": "strict valid",
+  "reviews": "independent code APPROVE and architecture CLEAR",
+  "limitations": [
+    "Unknown native watch causes conservative Conflict on any authorization generation change",
+    "Additional control registration/SQL cost not benchmarked",
+    "Not full workspace, native, same-SHA platform or production qualification"
+  ],
+  "sha256": {
+    "churn_red.log.gz": "99df37be52ac967e881ff8d5796f7ae93e2963b4fd83a16663b1fc2b242d4a91",
+    "churn_green.log.gz": "2706d9e0cd9d66be4e6e3437bce4398ff36329c578d4350102d906dc9a46f0bb",
+    "churn_final.log.gz": "a6826dd87a98a8028b34e2b5a0feda5139ba49480c2b63dd79a00c683b34adef",
+    "admin_final.log.gz": "6e34b782a5b74eb628f8d8110911ab710a47817abb2a583de23c5d93df899658",
+    "terminal_final.log.gz": "358a9d125317ee57a4ad2a2e732f4daae9fc4355e313e61105ea33afe83bfcd7",
+    "management_final.log.gz": "bc6c6b53ade1e330107a3753ec35f343ff5c5174124de24faab3df246bb6e6d3",
+    "clippy.log.gz": "b937dbf78058692b59a7396f18644f8d6865809d0c719b7ae83ba079c9f1e23a",
+    "clippy_final.log.gz": "269d58ea204e556531bb3ca4f8cbe827406a016cac33d0446f98385de9d3fdf5",
+    "fmt.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "spec.log.gz": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+  }
+}

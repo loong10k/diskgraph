@@ -34,13 +34,27 @@ impl Engine {
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("reader_open");
-        let scope = self.authorize_revision_with_budget(
-            &reader,
+        let owner = reader
+            .revision_ownership_with_budget(revision, &mut reads)?
+            .ok_or(BusinessError::PermissionDenied)?;
+        let scope = ScopeId::new(owner.1.clone()).map_err(|_| BusinessError::PermissionDenied)?;
+        let control = self.control_until(deadline)?;
+        let withdrawals = control
+            .with_read_deadline(deadline, |control| {
+                crate::request_metadata_withdrawals::RequestMetadataWithdrawals::capture(
+                    control,
+                    principal,
+                    &[&scope],
+                )
+            })
+            .map_err(terminal_control_error)?;
+        drop(control);
+        self.authorize_revision_owner_until(
+            Some(owner),
             expected_scope,
-            revision,
             principal,
             authorizer,
-            &mut reads,
+            deadline,
         )?;
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("initial_authorization");
@@ -86,7 +100,7 @@ impl Engine {
                     {
                         return Err(EngineError::Business(BusinessError::PermissionDenied));
                     }
-                    Ok(())
+                    withdrawals.check_after_live_authorization(control)
                 })
                 .map_err(terminal_control_error)?;
             self.require_terminal_revision_ownership(

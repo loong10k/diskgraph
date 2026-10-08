@@ -416,3 +416,8 @@ mod job_status_read;
 
 #[cfg(test)]
 mod revision_reader_lock_gap_tests;
+
+#[cfg(test)]
+mod history_relation_withdrawal_tests;
+
+mod request_metadata_withdrawals;

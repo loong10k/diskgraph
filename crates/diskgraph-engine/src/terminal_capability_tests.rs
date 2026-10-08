@@ -458,9 +458,16 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
             _ => {
                 let mut reads =
                     diskgraph_core::QueryReadBudget::new(QueryBudget::default(), deadline).unwrap();
+                let ownership = reader
+                    .revision_ownership_with_budget(revision, &mut reads)
+                    .unwrap();
                 engine
-                    .authorize_revision_with_budget(
-                        &reader, None, revision, &principal, &policy, &mut reads,
+                    .authorize_revision_owner_until(
+                        ownership,
+                        None,
+                        &principal,
+                        &policy,
+                        reads.deadline(),
                     )
                     .map(|_| ())
             }

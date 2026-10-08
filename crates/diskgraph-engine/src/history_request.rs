@@ -35,21 +35,41 @@ impl Engine {
         let left_reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let right_reader =
             SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
-        let left_scope = self.authorize_revision_with_budget(
-            &left_reader,
+        // 在任何能力回调前读实际归属并绑定双侧撤权，复用原账本而不重复查图。
+        let left_owner = left_reader
+            .revision_ownership_with_budget(left, &mut reads)?
+            .ok_or(BusinessError::PermissionDenied)?;
+        let right_owner = right_reader
+            .revision_ownership_with_budget(right, &mut reads)?
+            .ok_or(BusinessError::PermissionDenied)?;
+        let left_scope = diskgraph_core::ScopeId::new(left_owner.1.clone())
+            .map_err(|_| BusinessError::PermissionDenied)?;
+        let right_scope = diskgraph_core::ScopeId::new(right_owner.1.clone())
+            .map_err(|_| BusinessError::PermissionDenied)?;
+        let control = self.control_until(deadline)?;
+        let withdrawals = control
+            .with_read_deadline(deadline, |control| {
+                crate::request_metadata_withdrawals::RequestMetadataWithdrawals::capture(
+                    control,
+                    principal,
+                    &[&left_scope, &right_scope],
+                )
+            })
+            .map_err(crate::relation_request::terminal_control_error)?;
+        drop(control);
+        self.authorize_revision_owner_until(
+            Some(left_owner),
             None,
-            left,
             principal,
             authorizer,
-            &mut reads,
+            deadline,
         )?;
-        let right_scope = self.authorize_revision_with_budget(
-            &right_reader,
+        self.authorize_revision_owner_until(
+            Some(right_owner),
             None,
-            right,
             principal,
             authorizer,
-            &mut reads,
+            deadline,
         )?;
         // 双侧都已按本服务器真实归属授权；同 ScopeId 绑定同一不可变注册根。
         // 目标准入错误与 consumer 错误一起经过原双侧末检，不提前返回错误或部分结果。
@@ -96,7 +116,7 @@ impl Engine {
                             return Err(EngineError::Business(BusinessError::PermissionDenied));
                         }
                     }
-                    Ok(())
+                    withdrawals.check_after_live_authorization(control)
                 })
                 .map_err(crate::relation_request::terminal_control_error)?;
             self.require_terminal_revision_ownerships(

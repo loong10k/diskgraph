@@ -147,3 +147,8 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** metadata authorization is withdrawn then restored inside the lock-free capability callback during bounded revision admission
 - **THEN** admission fails using the captured native witness or conservative generation conflict fallback
 - **AND** actual server and scope ownership and continuous live denial are checked first, under the original request deadline
+
+#### Scenario: History and relation requests remember withdrawal through encoding
+- **WHEN** metadata permission on either actual history owner or the relation owner is withdrawn then restored during request preparation, reading, terminal callbacks or encoding
+- **THEN** witnesses captured before initial capability callbacks reject results using reliable native withdrawal notification or conservative generation conflict
+- **AND** all affected scopes are checked for continuous live denial before generation fallback; original read budgets and terminal observation windows are preserved
