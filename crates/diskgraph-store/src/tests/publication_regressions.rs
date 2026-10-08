@@ -289,3 +289,102 @@ fn graph_validation_accepts_reverse_ordered_twenty_thousand_level_tree() {
     input.nodes.reverse();
     crate::graph_validation::validate_graph(&input).unwrap();
 }
+
+#[test]
+fn graph_identity_validation_keeps_arbitrary_order_ranges_and_error_priority() {
+    for (root, child) in [(0, 1), (7, 8), (u64::MAX - 1, u64::MAX), (1, 1000)] {
+        for reversed in [false, true] {
+            let mut input = graph("identity-ranges", 1);
+            input.nodes[0].id = root;
+            input.nodes[1].id = child;
+            input.nodes[1].parent_id = Some(root);
+            input.evidence[0].node_id = child;
+            if reversed {
+                input.nodes.reverse();
+            }
+            crate::graph_validation::validate_graph(&input).unwrap();
+            let root_index = usize::from(reversed);
+            let child_index = usize::from(!reversed);
+            let mut duplicate = input.clone();
+            duplicate.nodes[child_index].id = root;
+            // 同时造成后续证据错误，重复ID仍应先被拒绝。
+            duplicate.evidence[0].node_id = 999_999;
+            assert!(matches!(
+                crate::graph_validation::validate_graph(&duplicate),
+                Err(StoreError::InvalidGraph(reason)) if reason == "duplicate node IDs"
+            ));
+            let mut missing = input.clone();
+            missing.nodes[child_index].parent_id = Some(999_999);
+            assert!(matches!(
+                crate::graph_validation::validate_graph(&missing),
+                Err(StoreError::InvalidGraph(reason)) if reason == "missing parent node"
+            ));
+            let mut cycle = input.clone();
+            cycle.nodes[child_index].parent_id = Some(child);
+            assert!(matches!(
+                crate::graph_validation::validate_graph(&cycle),
+                Err(StoreError::InvalidGraph(reason)) if reason == "parent cycle"
+            ));
+            let mut evidence = input.clone();
+            evidence.evidence[0].node_id = 999_999;
+            assert!(matches!(
+                crate::graph_validation::validate_graph(&evidence),
+                Err(StoreError::InvalidGraph(reason)) if reason == "invalid evidence"
+            ));
+            assert_eq!(input.nodes[root_index].parent_id, None);
+        }
+    }
+}
+
+#[test]
+fn contiguous_publication_preparation_avoids_per_node_id_allocations() {
+    let name = "tests::publication_regressions::contiguous_publication_preparation_avoids_per_node_id_allocations";
+    if crate::git_raw_allocation_tests::isolated(name) {
+        return;
+    }
+    let mut input = graph("identity-allocation", 1);
+    let template = input.nodes[1].clone();
+    input.nodes.truncate(1);
+    let count = 20_000;
+    for id in 2..=count {
+        let mut node = template.clone();
+        node.id = id;
+        node.locator = ResourceLocator::NativePath(format!("/tmp/diskgraph-test/node-{id}"));
+        input.nodes.push(node);
+    }
+    let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+    let mut preparation = |input: &diskgraph_core::DiskGraph| {
+        let mut checks = 0;
+        let (result, bytes) = crate::git_raw_allocation_tests::measure(|| {
+            store.publish_revision_owned_with_batch_checked(
+                "allocation-job",
+                input,
+                ("allocation-revision", 1),
+                Some(("server", "scope")),
+                None,
+                || {
+                    checks += 1;
+                    if checks == 2 {
+                        Err(StoreError::BudgetExceeded)
+                    } else {
+                        Ok(())
+                    }
+                },
+            )
+        });
+        assert_eq!(checks, 2);
+        assert!(matches!(result, Err(StoreError::BudgetExceeded)));
+        assert!(store.list_snapshots(None, 1, 0).unwrap().is_empty());
+        bytes
+    };
+    let contiguous = preparation(&input);
+    input.nodes.reverse();
+    let arbitrary_order = preparation(&input);
+    eprintln!(
+        "publication Rust requested: contiguous={contiguous}, arbitrary_order={arbitrary_order}, nodes={count}; no SQLite C/RSS measurement"
+    );
+    assert!(
+        arbitrary_order > contiguous + count as usize * 8,
+        "contiguous preparation retained per-node ID allocation"
+    );
+}

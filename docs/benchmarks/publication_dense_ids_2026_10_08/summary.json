@@ -1,0 +1,82 @@
+{
+  "parent_commit": "6decf1a60be1460323cb62b6ce8956493462d5fd",
+  "before": {
+    "limits": "preparation and cancelled transaction only; no scan, successful publication, RSS or platform SLO proof",
+    "p50_ms": 18.919458,
+    "p95_ms": 20.778166000000002,
+    "production_acceptance": false,
+    "profile": "release",
+    "samples": 20,
+    "synthetic_metadata_nodes": 200000
+  },
+  "after": {
+    "limits": "preparation and cancelled transaction only; no scan, successful publication, RSS or platform SLO proof",
+    "p50_ms": 11.848625,
+    "p95_ms": 12.738041,
+    "production_acceptance": false,
+    "profile": "release",
+    "samples": 20,
+    "synthetic_metadata_nodes": 200000
+  },
+  "measurement_order": "one before-then-after pair, not alternating native scan qualification",
+  "rust_requested_20k": {
+    "before_contiguous": 872144,
+    "after_contiguous": 315080,
+    "after_same_graph_reversed": 872144,
+    "scope": "isolated process actual checked publication preparation cancelled at second original check; successful Rust requested bytes only, no SQLite C or RSS"
+  },
+  "source_sha256": {
+    "crates/diskgraph-store/src/graph_validation.rs": "fa4acb2d56d4cace0130216667f3df5c2a41e990a686280d1e64fd58e63a6c6f",
+    "crates/diskgraph-store/src/tests/publication_regressions.rs": "13dc38f782331f8a79d73f58720a15ba8af6a076ddac9096bc5e1147a4e2711f"
+  },
+  "before_validation_source_sha256": "17f09576902edb9c22c6fb4770f054d34b8dfa13476096baea0291125b02b1c6",
+  "verification": {
+    "identity_contract_before": "passed on original implementation",
+    "allocation_contract_before": "failed on original actual per-node allocation",
+    "publication_regressions": "9 passed, 1 ignored",
+    "store_full": "344 passed, 6 ignored; includes 2 user uncommitted reader tests",
+    "store_all_targets_clippy": "passed",
+    "openspec_strict": "passed",
+    "source_layout": "1 passed",
+    "affected_engine_reader": "3 passed"
+  },
+  "files": {
+    "before.log.gz": {
+      "uncompressed_sha256": "0ead1a747f7f8ad03ac7abd6b3890a110dae963ebd7b37e8e99f8f55baaa7b94"
+    },
+    "after.log.gz": {
+      "uncompressed_sha256": "f1f1ccfd8ef2e1586f5be26bed2ed9fd804c0751c40e19132ea0f05ac0e9210d"
+    },
+    "identity_contract_before.log.gz": {
+      "uncompressed_sha256": "b7af525752c0372c75d1f32c0c0a833147af882b7e695ad9d93c0f8009980725"
+    },
+    "allocation_red.log.gz": {
+      "uncompressed_sha256": "b5288ea5b00f0f421421c02866f900879c2a55a64ba3fcd72bede07ca1dd0eae"
+    },
+    "publication_regressions.log.gz": {
+      "uncompressed_sha256": "f154b00a24a11db30f0195bbd5dd028bba38345d6249feb92fc408706e291f3e"
+    },
+    "store_full.log.gz": {
+      "uncompressed_sha256": "051dc5245f54e8cd4f29dc9b072b2ab299ba8b38673c4c3187a0218ceda5f015"
+    },
+    "clippy.log.gz": {
+      "uncompressed_sha256": "5e47d0c6914d003a5d19a1cb8f204240a797429a75b908ce467831c9d54214b5"
+    },
+    "openspec.log.gz": {
+      "uncompressed_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    "macos_intel_616_ci.log.gz": {
+      "uncompressed_sha256": "3bad4f3f9a19737775838f13a4491da02b1429df788c55b40cc9f8f15ec42f4b"
+    },
+    "source_layout.log.gz": {
+      "uncompressed_sha256": "21afc999f091a11d23f6ca1f01f088a1abc4a41336883a735d6169c82d0c9b2c"
+    },
+    "engine_reader_regression.log.gz": {
+      "uncompressed_sha256": "a883a63bb995e57f7f41303f903cdd9b92e07f4cf9f5efbaa55bb733172a8c11"
+    },
+    "windows_stable_616_observation.json.gz": {
+      "uncompressed_sha256": "c66158585eeb8e5138b34610c6c1238751e5e506e43c68befee7a51134a0ed4d"
+    }
+  },
+  "production_acceptance": false
+}

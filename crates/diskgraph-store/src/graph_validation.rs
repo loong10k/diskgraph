@@ -31,12 +31,7 @@ pub(crate) fn validate_graph_display_aliases(
         .collect::<HashSet<_>>()
         .len()
         != graph.nodes.len();
-    let ids: HashMap<_, _> = graph
-        .nodes
-        .iter()
-        .enumerate()
-        .map(|(index, node)| (node.id, index))
-        .collect();
+    let ids = NodeIndices::new(&graph.nodes);
     if ids.len() != graph.nodes.len() {
         return Err(StoreError::InvalidGraph("duplicate node IDs".into()));
     }
@@ -67,7 +62,10 @@ pub(crate) fn validate_graph_display_aliases(
                 1 => return Err(StoreError::InvalidGraph("parent cycle".into())),
                 _ => {
                     colors[index] = 1;
-                    current = graph.nodes[index].parent_id.map(|parent| ids[&parent]);
+                    current = graph.nodes[index].parent_id.map(|parent| {
+                        ids.get(&parent)
+                            .expect("parent existence already validated")
+                    });
                 }
             }
         }
@@ -77,7 +75,10 @@ pub(crate) fn validate_graph_display_aliases(
                 break;
             }
             colors[index] = 2;
-            current = graph.nodes[index].parent_id.map(|parent| ids[&parent]);
+            current = graph.nodes[index].parent_id.map(|parent| {
+                ids.get(&parent)
+                    .expect("parent existence already validated")
+            });
         }
     }
     if !allow_aliases && has_display_aliases {
@@ -100,4 +101,58 @@ pub(crate) fn validate_graph_display_aliases(
         return Err(StoreError::InvalidGraph("invalid evidence".into()));
     }
     Ok(has_display_aliases)
+}
+
+/// 图校验的节点ID索引，连续编号经全量证明后使用范围，其他输入保留原哈希索引。
+/// 来源：DiskGraph 原生 Rust 图身份与父链校验；不推断未检查的编号或父关系。
+enum NodeIndices {
+    Contiguous { first: u64, count: usize },
+    Sparse(HashMap<u64, usize>),
+}
+
+impl NodeIndices {
+    fn new(nodes: &[diskgraph_core::DiskNode]) -> Self {
+        if let Some(first) = nodes.first().map(|node| node.id)
+            && nodes.iter().enumerate().all(|(index, node)| {
+                u64::try_from(index)
+                    .ok()
+                    .and_then(|offset| first.checked_add(offset))
+                    == Some(node.id)
+            })
+        {
+            // 每项均检查且加法不溢出，这一范围才同时证明唯一性和位置映射。
+            return Self::Contiguous {
+                first,
+                count: nodes.len(),
+            };
+        }
+        Self::Sparse(
+            nodes
+                .iter()
+                .enumerate()
+                .map(|(index, node)| (node.id, index))
+                .collect(),
+        )
+    }
+
+    fn len(&self) -> usize {
+        match self {
+            Self::Contiguous { count, .. } => *count,
+            Self::Sparse(ids) => ids.len(),
+        }
+    }
+
+    fn get(&self, id: &u64) -> Option<usize> {
+        match self {
+            Self::Contiguous { first, count } => id
+                .checked_sub(*first)
+                .and_then(|offset| usize::try_from(offset).ok())
+                .filter(|index| index < count),
+            Self::Sparse(ids) => ids.get(id).copied(),
+        }
+    }
+
+    fn contains_key(&self, id: &u64) -> bool {
+        self.get(id).is_some()
+    }
 }

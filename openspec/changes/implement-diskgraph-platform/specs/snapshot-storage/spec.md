@@ -100,3 +100,9 @@ Graph and control database migrations SHALL reserve a new backup destination ato
 - **WHEN** 扫描为当前有界批次计算节点原生观测的实际编码字节预算
 - **THEN** 暂存写入复用同一份不可变已校验编码；节点 JSON、Unicode 搜索折叠、原始定位、时间和观测字段不得在预算准入后被替换
 - **AND** 每项取消检查、提交前检查、fencing 命名空间和批次事务保持；取消或写入冲突回滚节点与搜索两表，旧借用接口保持兼容。缓存只存当前配置批次，不声明严格 RSS 上限。
+
+#### Scenario: Continuous scan IDs use bounded validation auxiliaries
+- **WHEN** 发布准备逐项确认输入节点ID是无溢出的连续递增序列
+- **THEN** 身份与父链校验使用经证明的编号范围，避免每节点ID哈希索引分配；不连续、乱序及旧图保留任意ID支持。
+- **AND** 重复ID、缺失父节点、循环、错误根、定位别名、覆盖及无效证据的拒绝条件与优先顺序保持；不把ID编号推断为原始文件身份、权限或staging一致性。
+- **AND** 独占进程测量公开checked发布准备入口的Rust requested allocation，与同一图的任意顺序对照；真实事务仍在第二检查点拒绝并回滚。此测量不代表SQLite C分配、RSS、完整扫描或成功发布的总成本。
