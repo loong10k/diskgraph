@@ -1,0 +1,38 @@
+{
+  "scope": "content chunk authorization only",
+  "red": "old body path returned Ok(empty body, Deadline) after late callback; regression requires BudgetExceeded",
+  "green": "19 content/scoped-content unit tests passed",
+  "checks": [
+    "strict engine lib Clippy",
+    "engine fmt",
+    "strict existing OpenSpec validation"
+  ],
+  "limits": [
+    "terminal control waits remain unbounded",
+    "full-lifetime withdrawal witness unfinished",
+    "callbacks and native IO cooperative, not preempted",
+    "no target-platform or performance qualification from these tests"
+  ],
+  "logs": {
+    "red": {
+      "sha256": "7e7207aede6e02c15eb063d9bae8981ef460c5a6f212c1c210fb9a673cffa2d8",
+      "compressed_sha256": "e25a3d7c12433b47e9e704192ab29453b584579a4410537bf00efeb43a5f5762"
+    },
+    "green": {
+      "sha256": "7ffd16d1c8feef6c5b3087541b1b776ad1447249afa522b6a54e7e3647144b66",
+      "compressed_sha256": "31e86081988e8cbe0b64f772794a05190bce6e1a3b79fe021cd7633b4bed5950"
+    },
+    "clippy": {
+      "sha256": "b9d49102a2507a420ae526375030d5c01afa700a1732ea1530ae1697e04b3068",
+      "compressed_sha256": "5c7406fbdcd48dd539070c2a4384c832f65f72fe8ae130e300908dadfa1c9dd9"
+    },
+    "fmt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "spec": {
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "compressed_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    }
+  }
+}

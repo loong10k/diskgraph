@@ -97,36 +97,22 @@ impl Engine {
                 stopped = Some(InspectionStop::Deadline);
                 break;
             }
-            if self
-                .require(
-                    authorizer,
-                    request.principal,
-                    &diskgraph_core::Permission::ContentRead,
-                    request.scope_id,
-                )
-                .is_err()
-            {
-                stopped = Some(InspectionStop::PermissionRevoked);
-                break;
-            }
-            match self.control_store().and_then(|store| {
-                store
-                    .live_permission(
-                        request.principal,
-                        &diskgraph_core::Permission::ContentRead,
-                        request.scope_id,
-                    )
-                    .map_err(EngineError::from)
-            }) {
-                Ok(Some(false)) => {
+            // 能力和数据库授权共用原期限；预算失败不能误报为撤权。
+            match self.require_content_initial_until(request, authorizer, deadline) {
+                Ok(_) => {}
+                Err(EngineError::Business(BusinessError::PermissionDenied)) => {
                     stopped = Some(InspectionStop::PermissionRevoked);
                     break;
                 }
+                Err(EngineError::Business(BusinessError::BudgetExceeded)) => {
+                    stopped = Some(InspectionStop::Deadline);
+                    break;
+                }
                 Err(_) => {
+                    // until 接口保留已读取成本；其他失败也不能确认摘要。
                     stopped = Some(InspectionStop::ReadError);
                     break;
                 }
-                _ => {}
             }
             // 授权或实时策略查询可能等待；耗尽期限后不得再开始一个读取块。
             if std::time::Instant::now() >= deadline {

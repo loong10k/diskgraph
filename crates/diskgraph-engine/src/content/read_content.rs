@@ -85,20 +85,8 @@ impl Engine {
         let mut truncated = false;
         let mut stopped = None;
         loop {
-            self.require(
-                authorizer,
-                request.principal,
-                &diskgraph_core::Permission::ContentRead,
-                request.scope_id,
-            )?;
-            if self.control_store()?.live_permission(
-                request.principal,
-                &diskgraph_core::Permission::ContentRead,
-                request.scope_id,
-            )? == Some(false)
-            {
-                return Err(EngineError::Business(BusinessError::PermissionDenied));
-            }
+            // 每块授权沿用整次期限；控制锁竞争不得重新获得等待预算。
+            self.require_content_initial_until(request, authorizer, deadline)?;
             // 授权或控制连接可以等待；每个数据块前重新检查整次期限与取消。
             if std::time::Instant::now() >= deadline {
                 stopped = Some(InspectionStop::Deadline);

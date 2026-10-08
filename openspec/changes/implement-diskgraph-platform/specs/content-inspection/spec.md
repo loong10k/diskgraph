@@ -87,3 +87,9 @@ Placeholder digest results SHALL recheck the original scope and current capabili
 - **THEN** the bounded-until digest reports permission revoked with zero bytes digested and no digest
 - **AND** trusted local compatibility and persistent policy modes both enforce the revocation
 - **AND** deadline or cancellation observed after diagnosis prevents an ordinary placeholder completion
+
+#### Scenario: Chunk admission shares the original content deadline
+- **WHEN** a content request reaches a chunk authorization callback or waits for the control database
+- **THEN** that authorization uses the original absolute request deadline and does not obtain a fresh lock or SQL budget
+- **AND** late chunk admission refuses a body result with budget exceeded; digest admission records deadline without a confirmed digest, while permission denial remains permission revoked and other chunk failures retain consumed bytes and remain read errors without a confirmed digest
+- **AND** synchronous callbacks and native I/O remain cooperative; terminal authorization and full-lifetime withdrawal qualification remain separate unfinished gates
