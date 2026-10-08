@@ -93,22 +93,4 @@ impl McpService {
             }
         }
     }
-
-    /// 使用实时策略与当前请求身份检查指定权限。
-    /// 参数：permission 为能力，scope 为实际授权范围。返回：允许时为空结果，否则 permission_denied。
-    pub(crate) fn require(
-        &self,
-        permission: &Permission,
-        scope: &ScopeId,
-    ) -> Result<(), EngineError> {
-        let authorizer = self
-            .authorizer()
-            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
-        match authorizer.decide(self.context.principal(), permission, scope) {
-            diskgraph_core::Decision::Allowed => Ok(()),
-            diskgraph_core::Decision::Denied(_) => {
-                Err(EngineError::Business(BusinessError::PermissionDenied))
-            }
-        }
-    }
 }

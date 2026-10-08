@@ -11,16 +11,18 @@ impl McpService {
         &self,
         scope: &Option<ScopeId>,
         arguments: &Value,
+        deadline: std::time::Instant,
     ) -> Result<Value, EngineError> {
         let scope_id = self.require_scope(scope)?;
         let limit = arguments.get("limit").and_then(Value::as_u64).unwrap_or(20);
         let offset = arguments.get("offset").and_then(Value::as_u64).unwrap_or(0);
-        let snapshots = self.engine.list_snapshots(
+        let snapshots = self.engine.list_snapshots_until(
             &scope_id,
             self.context.principal(),
-            &self.authorizer()?,
+            &self.authorizer_until(deadline)?,
             limit,
             offset,
+            deadline,
         )?;
         Ok(json!({
             "snapshots": snapshots

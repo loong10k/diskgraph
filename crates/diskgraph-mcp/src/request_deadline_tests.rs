@@ -194,6 +194,19 @@ fn scope_authorization_stops_before_owner_release(mode: u8) {
                     deadline,
                 )
                 .map(|_| ()),
+            15 => request
+                .scope_tool(&serde_json::json!({}), deadline)
+                .map(|_| ()),
+            16 => request
+                .status_tool(&serde_json::json!({}), deadline)
+                .map(|_| ()),
+            17 => request
+                .snapshots_tool(
+                    &Some(diskgraph_core::ScopeId::new("missing").unwrap()),
+                    &serde_json::json!({}),
+                    deadline,
+                )
+                .map(|_| ()),
             _ => request.require_until(
                 &diskgraph_core::Permission::MetadataRead,
                 &diskgraph_engine::admin_scope(),
@@ -316,4 +329,17 @@ fn children_handler_cannot_wait_past_request_deadline() {
 #[test]
 fn top_handler_cannot_wait_past_request_deadline() {
     scope_authorization_stops_before_owner_release(14);
+}
+
+#[test]
+fn scope_management_handler_cannot_wait_past_request_deadline() {
+    scope_authorization_stops_before_owner_release(15);
+}
+#[test]
+fn status_management_handler_cannot_wait_past_request_deadline() {
+    scope_authorization_stops_before_owner_release(16);
+}
+#[test]
+fn snapshots_management_handler_cannot_wait_past_request_deadline() {
+    scope_authorization_stops_before_owner_release(17);
 }

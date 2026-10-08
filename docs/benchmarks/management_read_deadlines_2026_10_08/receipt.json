@@ -1,0 +1,28 @@
+{
+  "base_commit": "65cd47b68da20f68224180a6edfc84e3d78af50d",
+  "scope": "Management read-only deadline and actual-scope live authorization",
+  "target_tests": "39 passed",
+  "layout_final": "11 passed; fixed missing native-origin test object documentation",
+  "full_mcp": "181 passed, 34 failed; Unsupported scanner fixtures; NOT qualified",
+  "clippy": "passed",
+  "fmt": "passed",
+  "openspec": "strict valid",
+  "limitations": [
+    "No full workspace or current native platform qualification",
+    "Unknown native notification capability conservatively rejects any authorization generation change as Conflict",
+    "No global terminal deadline or native identity guarantee added"
+  ],
+  "sha256": {
+    "red.log.gz": "ebd77f64adaf5a3caa91d7e65489b6ca525165da2ad86cce02c63b05018b7b49",
+    "green.log.gz": "2ee5eb019492903525b844e22129203f4cc0f865f62be0a10a43bc2a9a3f48e4",
+    "authority_green.log.gz": "aa908d9edfa2bea13b2e32c202a6f3447f1a2b21776b4152c96a9e6af8d2aaaa",
+    "authority_final.log.gz": "1f98a4529487447b682faaef98ffeb36226527c91e52a514a69cdf14eb296da8",
+    "final_targets.log.gz": "1437bc7e27fb80d4eb0a767953a12a2d329e8ecd679dc85b4746566b7795ceb9",
+    "final_clippy.log.gz": "dfdd30ef56461ad131b6098e8421cf546756e530649daf8165528dada9218247",
+    "final_fmt.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "spec.log.gz": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+    "layout.log.gz": "755e0e26f0806ef06f71c57016e1f5e579ae1bdf22e6e94c4166ee83377281fc",
+    "layout_final.log.gz": "1183d947f393f97fb442dfe8d67d9cb210c4b275db31c8b29dd43c8ea81bc34b",
+    "full.log.gz": "1d2444597532525f547bd1235cbc3323339a9d7b22406fedb33ba8b3e044302e"
+  }
+}

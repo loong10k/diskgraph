@@ -124,3 +124,10 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** relationship/history reply encoding finishes after the data deadline or a control owner remains occupied
 - **THEN** reply finalization reuses the request capability obtained within its original deadline instead of rebuilding policy through an unbounded lock; the Engine still checks current scope, grant, policy and token expiry
 - **AND** a live expired read retains its explicit partial/deadline diagnostic, while a grant revoked after capability capture refuses both complete and partial data
+
+#### Scenario: Management reads use the admitted deadline and live actual scope
+- **WHEN** scope listing, snapshot listing or legacy scan status encounters an occupied control owner
+- **THEN** the handler-internal authorization and SQL consume the original request deadline, including service identity lookup
+- **AND** snapshots recheck metadata permission after reading; job status authorizes operation:view against the stored job scope, with capability callbacks outside the control lock
+- **AND** a revoke/regrant during either read cannot silently restore the in-flight result: reliable native negative notification returns permission_denied; where notification identity is unknown, an authorization-generation change on the same control connection conservatively returns conflict
+- **AND** generation-only conflict does not claim which permission changed, and may conservatively refuse an unrelated concurrent authorization update; continuously revoked live grants retain permission_denied

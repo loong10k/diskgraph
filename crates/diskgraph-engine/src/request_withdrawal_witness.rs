@@ -26,6 +26,12 @@ impl RequestWithdrawalWitness {
         })
     }
 
+    /// 查询当前见证是否有可靠原生负向通知能力。
+    /// 参数：无；返回：true 表示存在原连接绑定通知，false 须由调用方保守处理未知变化。
+    pub(super) fn has_native_watch(&self) -> bool {
+        self.watch.is_some()
+    }
+
     /// 检查已提交撤权，不执行 SQL，也不替代当前授权与原期限。
     /// 参数：control 必须是首次注册使用的控制连接。
     /// 返回：已知撤权为拒权，连接代次失效为冲突，否则继续实时授权。

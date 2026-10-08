@@ -4,7 +4,8 @@ use diskgraph_core::{BusinessError, ScopeId};
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
-fn fixture() -> (tempfile::TempDir, McpService, ScopeId) {
+/// 建立隔离已发布快照。参数：无；返回：保活目录、服务及真实范围。
+pub(super) fn fixture() -> (tempfile::TempDir, McpService, ScopeId) {
     let dir = tempfile::tempdir().unwrap();
     let service = McpService::open(McpConfig {
         data_dir: dir.path().join("data"),

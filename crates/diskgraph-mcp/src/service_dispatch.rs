@@ -263,11 +263,11 @@ impl McpService {
         }
         let server_id = self.engine.server_id_until(deadline)?;
         match catalog_id {
-            "C01" => self.scope_tool(arguments),
+            "C01" => self.scope_tool(arguments, deadline),
             "C02" => self.index_tool(&scope, arguments, false),
             "C03" => self.index_tool(&scope, arguments, true),
-            "C04" => self.status_tool(arguments),
-            "C05" => self.snapshots_tool(&scope, arguments),
+            "C04" => self.status_tool(arguments, deadline),
+            "C05" => self.snapshots_tool(&scope, arguments, deadline),
             "C06" | "C07" => self.history_tool(catalog_id, arguments, deadline),
             "C08" => self.explore_tool(&scope, arguments, deadline),
             "C09" => self.search_tool(&scope, arguments, deadline),
