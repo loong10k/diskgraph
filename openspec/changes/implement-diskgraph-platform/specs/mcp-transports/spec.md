@@ -142,3 +142,8 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** metadata permission is withdrawn then restored during display preparation, consumption or terminal authorization
 - **THEN** both complete and truncated display results are refused by the original native withdrawal witness, or by a changed authorization generation when native notification is unavailable
 - **AND** continuous live denial remains permission denied, callbacks stay outside the control lock, and existing display budget and terminal observation windows remain unchanged
+
+#### Scenario: Initial revision ownership admission retains authorization withdrawal
+- **WHEN** metadata authorization is withdrawn then restored inside the lock-free capability callback during bounded revision admission
+- **THEN** admission fails using the captured native witness or conservative generation conflict fallback
+- **AND** actual server and scope ownership and continuous live denial are checked first, under the original request deadline

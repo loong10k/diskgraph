@@ -1,0 +1,20 @@
+{
+  "base_commit": "50427e89e4ecc17147ef501b5202a0bf33a39519",
+  "actual_red": "bounded revision admission returned ScopeId after real callback revoke/regrant",
+  "management": "7 passed",
+  "admin": "20 passed",
+  "layout": "11 passed",
+  "clippy": "passed",
+  "fmt": "passed",
+  "openspec": "strict valid",
+  "review": "code APPROVE; architecture CLEAR",
+  "qualification": "initial admission only; no full lifecycle/native/full workspace/production qualification",
+  "remaining": "history/relation read and encode lifetime must retain request withdrawal independently of admission",
+  "sha256": {
+    "churn_red.log.gz": "3db50d76d8895ba2dd6fe5f526ca9f09f68ebd48866e7b492256e8a349704fe4",
+    "management.log.gz": "6f2cf2bdd8d5a67517ea613a992c5b543b91a3bb7291eb2380d9a3f2aab2f4d2",
+    "admin.log.gz": "1bfb5a127029e9f998d3bd2c168fd97bb6ed9e50f5060c7dccae7e2232934f7d",
+    "layout.log.gz": "aeb8f86e7184a6fb492cd1556030a92ab267da548cc601b4783a7e8fed9a074b",
+    "clippy.log.gz": "53f3db07c7622e5d7c13378c7c228fd532005c22987e3a59e986ec66c55e0101"
+  }
+}

@@ -372,3 +372,42 @@ fn display_reader_remembers_revocation_restored_during_capability_callback() {
         );
     }
 }
+
+#[test]
+fn revision_admission_remembers_revocation_restored_during_capability_callback() {
+    let (_dir, service, scope) = fixture();
+    let native_watch = service
+        .engine()
+        .control_store()
+        .unwrap()
+        .watch_authorization_withdrawal(
+            service.context.principal(),
+            &scope,
+            &diskgraph_core::Permission::MetadataRead,
+        )
+        .unwrap()
+        .is_some();
+    let authority = RegrantingAuthority {
+        engine: service.engine(),
+        policy: service.authorizer().unwrap(),
+        scope,
+        permission: diskgraph_core::Permission::MetadataRead,
+        calls: std::cell::Cell::new(0),
+        target: 0,
+    };
+    let result = service.engine().authorize_revision_until(
+        None,
+        "deadline-revision",
+        service.context.principal(),
+        &authority,
+        Instant::now() + Duration::from_secs(1),
+    );
+    assert_eq!(
+        crate::business_of(&result.unwrap_err()),
+        if native_watch {
+            BusinessError::PermissionDenied
+        } else {
+            BusinessError::Conflict
+        }
+    );
+}

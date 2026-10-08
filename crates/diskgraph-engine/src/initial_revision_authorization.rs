@@ -31,9 +31,12 @@ impl Engine {
             if control.scope_revoked(&scope)? {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
             }
-            Ok(())
+            let withdrawal = crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
+                control, principal, &scope,
+            )?;
+            Ok::<_, EngineError>((withdrawal, control.authorization_generation()?))
         });
-        match authorization {
+        let (withdrawal, generation) = match authorization {
             Err(EngineError::Store(error))
                 if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
                     || error.is_interrupted()
@@ -42,7 +45,7 @@ impl Engine {
                 return Err(BusinessError::BudgetExceeded.into());
             }
             other => other?,
-        }
+        };
         drop(control);
         // 宿主回调位于控制锁和 SQLite handler 之外；回调后重新观察归属及实时授权。
         check_authority_expiry(expiry)?;
@@ -69,6 +72,11 @@ impl Engine {
             )?;
             if control.scope_revoked(&scope)? {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            withdrawal.check(control)?;
+            // 未知通知能力下，恢复后的允许不能抹去首次授权窗口里的代次变化。
+            if !withdrawal.has_native_watch() && control.authorization_generation()? != generation {
+                return Err(BusinessError::Conflict.into());
             }
             Ok(())
         });
