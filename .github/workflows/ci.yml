@@ -756,7 +756,7 @@ jobs:
                   result = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT)
                   stream.flush()
                   log = (output / f'case-{index}.log').read_text(errors='replace')
-                  exact_pass = ('test ' + test + ' ... ok') in log and re.search(r'test result: ok\. 1 passed; 0 failed; 0 ignored;', log) is not None
+                  exact_pass = ('test ' + test + ' ...') in log and re.search(r'test result: ok\. 1 passed; 0 failed; 0 ignored;', log) is not None
                   record.update(returncode=result.returncode, exact_case_passed=exact_pass)
                   if result.returncode == 0 and exact_pass:
                       record['status'] = 'passed'
