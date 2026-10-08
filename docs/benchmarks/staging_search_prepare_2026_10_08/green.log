@@ -1,0 +1,9 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.95s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_store-eed76b49d76f3e27)
+
+running 1 test
+test tests::publication_regressions::staging_search_statement_is_prepared_once_per_batch_with_unicode_rows_intact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 337 filtered out; finished in 0.18s
+

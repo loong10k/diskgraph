@@ -73,3 +73,8 @@ Graph and control database migrations SHALL reserve a new backup destination ato
 - **THEN** the migration writes its consistent backup to a distinct newly reserved filename
 - **AND** the prior recovery bytes remain unchanged
 - **AND** migration failure does not return a usable store or overwrite previous recovery material
+
+#### Scenario: Staging search inserts reuse one prepared statement per batch
+- **WHEN** a scan appends a batch of nodes and Unicode normalized search fields to invisible staging
+- **THEN** the search insert is compiled once per batch and executed with bound values for every node; increasing batch rows does not multiply statement preparation
+- **AND** Unicode lowercase fields, staging ordering, atomic rollback and per-node cancellation checks remain unchanged

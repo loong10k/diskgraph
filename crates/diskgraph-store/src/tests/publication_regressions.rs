@@ -126,3 +126,55 @@ fn snapshots_list_pages_newest_first_and_can_filter_by_root() {
 
     assert_eq!(store.list_snapshots(None, 10, 0).unwrap().len(), 3);
 }
+
+#[test]
+fn staging_search_statement_is_prepared_once_per_batch_with_unicode_rows_intact() {
+    use rusqlite::hooks::{AuthAction, AuthContext, Authorization};
+    use std::sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    };
+    for count in [1, 64, 8192] {
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        let template = graph("prepare-cost", 1).nodes[1].clone();
+        let nodes: Vec<_> = (0..count)
+            .map(|index| {
+                let mut node = template.clone();
+                node.id = index + 1;
+                node.name = format!("İΣ文件-{index}");
+                node.locator = ResourceLocator::NativePath(format!("/tmp/İΣ文件-{index}"));
+                node
+            })
+            .collect();
+        let preparations = Arc::new(AtomicUsize::new(0));
+        let observed = Arc::clone(&preparations);
+        store
+            .connection
+            .authorizer(Some(move |context: AuthContext<'_>| {
+                // SQLite authorizer 在语句编译时调用；不是按执行行数统计的 update hook。
+                if matches!(
+                    context.action,
+                    AuthAction::Insert {
+                        table_name: "scan_staging_search"
+                    }
+                ) {
+                    observed.fetch_add(1, Ordering::SeqCst);
+                }
+                Authorization::Allow
+            }))
+            .unwrap();
+        store
+            .append_staging_nodes("prepared-batch", &nodes)
+            .unwrap();
+        assert_eq!(preparations.load(Ordering::SeqCst), 1, "batch={count}");
+        let rows: Vec<(String, String)> = store.connection.prepare(
+            "SELECT name_fold,path_fold FROM scan_staging_search WHERE job_id='prepared-batch' ORDER BY node_seq"
+        ).unwrap().query_map([], |row| Ok((row.get(0)?,row.get(1)?))).unwrap().collect::<Result<_,_>>().unwrap();
+        assert_eq!(rows.len(), count as usize);
+        for (index, (name, path)) in rows.iter().enumerate() {
+            assert_eq!(name, &format!("İΣ文件-{index}").to_lowercase());
+            assert_eq!(path, &format!("/tmp/İΣ文件-{index}").to_lowercase());
+        }
+        assert_eq!(store.staging_node_count("prepared-batch").unwrap(), count);
+    }
+}

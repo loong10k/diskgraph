@@ -112,6 +112,9 @@ impl SqliteSnapshotStore {
             let mut statement = transaction.prepare(
                 "INSERT INTO scan_staging (job_id,node_seq,node_json,native_locator_kind,native_locator_encoding,native_locator_raw,self_modified_unix_seconds,native_observation_format,native_observation_raw,native_observation_gap) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)",
             )?;
+            // 每批编译一次搜索写入，逐节点仅绑定值；仍与节点写入共用同一事务。
+            let mut search_statement =
+                transaction.prepare("INSERT INTO scan_staging_search VALUES (?1,?2,?3,?4)")?;
             let existing: i64 = transaction.query_row(
                 "SELECT COALESCE(MAX(node_seq),0) FROM scan_staging WHERE job_id=?1",
                 [job_id],
@@ -145,10 +148,12 @@ impl SqliteSnapshotStore {
                     encoded.observation_raw.as_ref().map(|raw| raw.as_slice()),
                     gap.map(|value| value.code())
                 ])?;
-                transaction.execute(
-                    "INSERT INTO scan_staging_search VALUES (?1,?2,?3,?4)",
-                    params![job_id, sequence, encoded.name_fold, encoded.path_fold],
-                )?;
+                search_statement.execute(params![
+                    job_id,
+                    sequence,
+                    encoded.name_fold,
+                    encoded.path_fold
+                ])?;
             }
         }
         check()?;
