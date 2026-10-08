@@ -1,0 +1,220 @@
+[
+  {
+    "after_narrow_candidates": {
+      "p50_ms": 2.146382,
+      "p95_ms": 2.2621160000000002,
+      "samples": 11
+    },
+    "after_narrow_top20": {
+      "p50_ms": 0.460864,
+      "p95_ms": 0.5199929999999999,
+      "samples": 31
+    },
+    "before_full_revision_candidates": {
+      "p50_ms": 0.805983,
+      "p95_ms": 1.246256,
+      "samples": 3
+    },
+    "before_full_revision_top20": {
+      "p50_ms": 0.780585,
+      "p95_ms": 1.425406,
+      "samples": 7
+    },
+    "budgeted_tree": {
+      "p50_ms": 0.909709,
+      "p95_ms": 1.022109,
+      "samples": 11
+    },
+    "concurrent_4_readers": [
+      {
+        "p50_ms": 3.0034419999999997,
+        "p95_ms": 3.236704,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.028841,
+        "p95_ms": 3.232177,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.030072,
+        "p95_ms": 3.34737,
+        "samples": 31
+      },
+      {
+        "p50_ms": 2.9832520000000002,
+        "p95_ms": 3.347991,
+        "samples": 31
+      }
+    ],
+    "database_bytes": 3411968,
+    "files": 300,
+    "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+    "native_qualification": {
+      "captured_files": 300,
+      "gaps": 0,
+      "method": "linux_handle",
+      "qualified": true,
+      "snapshot_id": "a88416f8-c5ae-4987-91de-9953763aab99",
+      "witnesses": [
+        {
+          "epoch": {
+            "device": 66305,
+            "filesystem_domain_sha256": [
+              103,
+              45,
+              25,
+              37,
+              248,
+              77,
+              218,
+              31,
+              4,
+              216,
+              164,
+              111,
+              76,
+              219,
+              92,
+              143,
+              147,
+              82,
+              129,
+              159,
+              37,
+              165,
+              130,
+              76,
+              34,
+              87,
+              132,
+              45,
+              36,
+              108,
+              50,
+              43
+            ],
+            "handle_bytes": [
+              15,
+              0,
+              144,
+              0,
+              138,
+              234,
+              214,
+              243
+            ],
+            "handle_type": 1,
+            "inode": 9437199,
+            "kind": "linux_handle"
+          },
+          "node_id": 601,
+          "relative_path": "d/file-000000"
+        },
+        {
+          "epoch": {
+            "device": 66305,
+            "filesystem_domain_sha256": [
+              103,
+              45,
+              25,
+              37,
+              248,
+              77,
+              218,
+              31,
+              4,
+              216,
+              164,
+              111,
+              76,
+              219,
+              92,
+              143,
+              147,
+              82,
+              129,
+              159,
+              37,
+              165,
+              130,
+              76,
+              34,
+              87,
+              132,
+              45,
+              36,
+              108,
+              50,
+              43
+            ],
+            "handle_bytes": [
+              101,
+              2,
+              144,
+              0,
+              151,
+              17,
+              71,
+              120
+            ],
+            "handle_type": 1,
+            "inode": 9437797,
+            "kind": "linux_handle"
+          },
+          "node_id": 302,
+          "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+        }
+      ]
+    },
+    "process_scan_high_water_rss_bytes": 47792128,
+    "process_total_high_water_rss_bytes": 47792128,
+    "reaped_child_scan_high_water_rss_bytes": 3350528,
+    "scan_parent_and_child_high_water_sum_bytes": 51142656,
+    "scan_seconds": 0.141088541,
+    "shape": "deep",
+    "storage_phases": {
+      "after_queries": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3411968,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "after_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3411968,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 0
+      },
+      "before_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 4096,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 564472
+      },
+      "query_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 0,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "scan_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3407872,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": -564472
+      }
+    },
+    "wal_bytes": 12392
+  }
+]
