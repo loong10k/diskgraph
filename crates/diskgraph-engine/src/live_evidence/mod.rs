@@ -233,3 +233,8 @@ mod windows_git_share_retry_tests;
 
 #[cfg(test)]
 mod probe_failure_assertion;
+
+#[cfg(test)]
+mod git_reference_verification_tests;
+
+mod git_stash_location;

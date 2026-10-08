@@ -1,0 +1,118 @@
+[
+  {
+    "name": "diskgraph-reference-reuse-clippy.log",
+    "raw_sha256": "ac9053aae579171156d1310a4f5b62ac28cc8c5a503b48e3cb5d5e7093750e8e",
+    "gzip_sha256": "8c7b5f10871907204c0c8d4476102e212e3d32b537c867c9f9d9f08882f2e8e3",
+    "results": []
+  },
+  {
+    "name": "diskgraph-reference-reuse-green.log",
+    "raw_sha256": "e40fd9e32676adad2e0fc31873c5ed3355c019a6296c02432c5a1a4a3f50a471",
+    "gzip_sha256": "642aa978f4abbda82121d834fbc33599b3514034e0665d2b863a43cc8d3b9f18",
+    "results": [
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 746 filtered out; finished in 0.00s"
+    ]
+  },
+  {
+    "name": "diskgraph-reference-reuse-layout.log",
+    "raw_sha256": "db7ceea813cbba3cad1e4e353a607a72ce7a88ce35a17708ede3721fb8be9208",
+    "gzip_sha256": "43a907b64608c42ee4beb09ce678c60b6a6044b4cb4eaa92d11fc94fe3650157",
+    "results": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.91s"
+    ]
+  },
+  {
+    "name": "diskgraph-reference-reuse-red.log",
+    "raw_sha256": "41bbf88ea26418e54e93b9d801899567b27b11706282202fe5ceb83a27be52b5",
+    "gzip_sha256": "c90ac029ea7436712ed1374d1d21d41e306691e460b1a568fd5ceecbef28afc7",
+    "results": [
+      "test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 746 filtered out; finished in 0.00s"
+    ]
+  },
+  {
+    "name": "diskgraph-reference-reuse-resources.log",
+    "raw_sha256": "fb2c55746749564314e83d04bad0ffad4970bf87bb802bedf030cda0a9edbda0",
+    "gzip_sha256": "a5440785933912bcb6b70e748e5a78d639315bbc52ee1a3b7b7371a5e28a4c22",
+    "results": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 748 filtered out; finished in 1.44s"
+    ]
+  },
+  {
+    "name": "diskgraph-reference-reuse-scoped.log",
+    "raw_sha256": "be9ce03fe9048bcbecf83dfa859ac0b2b6d96f8c466e506efbb636b86c99f638",
+    "gzip_sha256": "05c2a6c7842b62d095bc87dcd6c6ce8c5b11bf26f0b2d6699eacbf675a11dff0",
+    "results": [
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 742 filtered out; finished in 1.84s"
+    ]
+  },
+  {
+    "name": "diskgraph-reference-reuse-semantics.log",
+    "raw_sha256": "b2f9a350fc06935a4346e0746ee50930b64d78a116e7bd4d64d132166daa334d",
+    "gzip_sha256": "793e7ca7b4ce0672fc67c47d6c6703f6fab41399d5cf295ee946c4355f2bd63a",
+    "results": [
+      "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 732 filtered out; finished in 1.08s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-clippy.log",
+    "raw_sha256": "2c32b0bdebbcb950fc64dc12cd8413200e7e121ec735b87df2b8d5498a69e530",
+    "gzip_sha256": "dbbef46064b9664ae2c96f75e82511a24c43daa357b8e4bd47c000a1140f6a62",
+    "results": []
+  },
+  {
+    "name": "diskgraph-stash-location-fscache-macos.log",
+    "raw_sha256": "2ed8bbc77deb8a153b1cc2778340bc0b1d01c0fdad09a15efa7afdc8c01fabcd",
+    "gzip_sha256": "6b074406f3e4a31c4358e51de52fc2df92e096f316d59b5e82a07905fb1a522c",
+    "results": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 752 filtered out; finished in 1.56s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-git-semantics.log",
+    "raw_sha256": "dad0dfbab1a93a78be0c6a020bf7d19ee470e2b7c31d9312ff2bff749b5a69ca",
+    "gzip_sha256": "195e983c901d7c33593ae3e42a49959efb02ac483177fee46e9b641626d8075f",
+    "results": [
+      "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 735 filtered out; finished in 0.93s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-green.log",
+    "raw_sha256": "792e69ab6bf4cae77b264301506b24aac80acaa9335214ba7d4147edd0862f2c",
+    "gzip_sha256": "84bee9de99367b1336edc7cb5218898a4a037c941dde0328096cf970149c1a00",
+    "results": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 751 filtered out; finished in 0.37s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-layout.log",
+    "raw_sha256": "f1d2436223fcbb6517acef2922c6ee92ce40c68902fb5daf6a6abdee79504272",
+    "gzip_sha256": "67ade31527034a02a81f681353d9513e00c0c8154060a0115b5729c873635882",
+    "results": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.88s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-real.log",
+    "raw_sha256": "b04d314e8ba93257c616c3efe942045dca1a19bc8ab8f0eb92846f034ea47ca6",
+    "gzip_sha256": "59f3b744ba47da9b9a856e9f9e673fef5fe905be97168f3697db1fee4acc6139",
+    "results": [
+      "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 738 filtered out; finished in 1.42s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-red.log",
+    "raw_sha256": "02141c6c1712353a800b8e5a674c091bcd41a11a344de56cc8b7f5c846f20f5e",
+    "gzip_sha256": "463f2a4b2ee078f12fd7e287fa9184e38bb837d927638717120c61a78c3e5989",
+    "results": [
+      "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 751 filtered out; finished in 0.00s"
+    ]
+  },
+  {
+    "name": "diskgraph-stash-location-resources.log",
+    "raw_sha256": "8560026999f8dd5fcca741457494d0eb124fae9bb635801f4f210a26e9908deb",
+    "gzip_sha256": "65632d1e32c89124271f12d318bfb6aba44e0c302be1029e9171f7b0c438dbc9",
+    "results": [
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 751 filtered out; finished in 1.42s"
+    ]
+  }
+]

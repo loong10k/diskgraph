@@ -15,16 +15,9 @@ pub(super) fn count(
     budget: &mut ProbeBudget,
 ) -> Result<u64, String> {
     budget.check().map_err(|error| error.to_string())?;
-    let backend = successful(run(&["rev-parse", "--show-ref-format"], budget)?)?;
-    if backend != b"files\n" {
-        return Err("unsupported Git reference backend for complete stash count".into());
-    }
-    let tip_before = stash_tip(run, budget)?;
+    let (tip_before, raw_common) =
+        super::git_stash_location::locate(&mut |args| run(args, budget))?;
     // Git 会 canonicalize --git-path 的完整结果，掩盖日志路径中的链接；只让 Git 定位 common 根。
-    let raw_common = successful(run(
-        &["rev-parse", "--path-format=absolute", "--git-common-dir"],
-        budget,
-    )?)?;
     let path = log_path(&raw_common)?;
     let mut log = GitReflogFile::open(&path, budget)?;
     let first = match log.as_mut() {

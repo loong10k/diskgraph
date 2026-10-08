@@ -3,11 +3,30 @@
 use super::git_output::{line, object_id, successful};
 use super::probe_output::ProbeOutput;
 
+/// 复核已采样HEAD；参数：expected必须来自同一私有视图的head成功结果。
+/// 返回：当前OID和直接分支仍一致时成功，所有命令/格式错误原样传播。
+pub(super) fn verify_head(
+    run: &mut impl FnMut(&[&str]) -> Result<ProbeOutput, String>,
+    expected: &(Option<String>, Option<String>),
+) -> Result<(), String> {
+    if read_head(run, expected.1.as_deref())? != *expected {
+        return Err("HEAD changed during Git sampling".into());
+    }
+    Ok(())
+}
+
 /// 观察 HEAD 的 commit OID 与当前分支。来源：原生 Rust Git 引用采样。
 /// 参数：run 是借用整次执行预算的固定参数执行入口。
 /// 返回：已验证的 OID/分支；只有明确缺少当前分支才返回无 OID。
 pub(super) fn head(
     run: &mut impl FnMut(&[&str]) -> Result<ProbeOutput, String>,
+) -> Result<(Option<String>, Option<String>), String> {
+    read_head(run, None)
+}
+
+fn read_head(
+    run: &mut impl FnMut(&[&str]) -> Result<ProbeOutput, String>,
+    verified_branch: Option<&str>,
 ) -> Result<(Option<String>, Option<String>), String> {
     let output = run(&["rev-parse", "--verify", "--quiet", "HEAD^{commit}"])?;
     let oid = if output.exit_code == Some(1) && output.stdout.is_empty() && output.stderr.is_empty()
@@ -28,7 +47,10 @@ pub(super) fn head(
         if !branch.starts_with("refs/heads/") {
             return Err("HEAD does not name a supported local branch".into());
         }
-        validate_name(run, &branch)?;
+        // 仅复用本视图初读成功的同一字符串的纯语法结果，不缓存引用身份或存在性。
+        if verified_branch != Some(branch.as_str()) {
+            validate_name(run, &branch)?;
+        }
         Some(branch)
     };
     if oid.is_none() {

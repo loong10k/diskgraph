@@ -1,0 +1,59 @@
+{
+  "base_head": "8287825410d3688ffdb73322625289372ebfef3d",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+    "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+    "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+    "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+    "crates/diskgraph-engine/src/live_evidence/git_command_context.rs": "4ced6427147f8bbebf03ec9f96ad88f0cdb2160d9845208953c8aedaff6623ad",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "c144ad08ecca727f420ed2e2350d7bf1afcfe64f0ec35b3bce7d0a0c35bb4c17",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "a7dce184a03b9611ed0ee6862e4a7620809107b3c65e1f572e0c4df5e7d1eec7",
+    "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+    "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "4d1fc6c7fd55db5f7c9451384bcfd3ca9ba68d6cf704b7503c04587d9b129027",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "f2195fe901d9579f2cbf75d1dd7563ec2648b19cef8228cb4b95f70f2f43ee55",
+    "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de",
+    "crates/diskgraph-engine/src/git_evidence_execution_tests.rs": "1097abae2f5f4ef697eb8fbb7184277f4561ebb544cf3582954aa5f75a4ee73e"
+  },
+  "commands": [
+    {
+      "name": "native_fscache",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "native_fscache_preserves",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 55.96899999999732
+    }
+  ],
+  "phases": [
+    "git_command_phase name=config elapsed_us=992960 ok=true",
+    "git_command_phase name=config elapsed_us=454979 ok=true",
+    "git_command_phase name=config elapsed_us=477603 ok=true",
+    "git_command_phase name=var elapsed_us=451506 ok=true",
+    "git_command_phase name=rev-parse elapsed_us=447994 ok=true",
+    "git_command_phase name=symbolic-ref elapsed_us=516379 ok=true",
+    "git_command_phase name=check-ref-format elapsed_us=426876 ok=true",
+    "git_command_phase name=status elapsed_us=529019 ok=true",
+    "git_command_phase name=show-ref elapsed_us=646400 ok=true",
+    "git_command_phase name=rev-parse elapsed_us=561011 ok=true",
+    "git_command_phase name=rev-parse elapsed_us=5447714 ok=true",
+    "git_command_phase name=rev-parse elapsed_us=506364 ok=true",
+    "git_command_phase name=cat-file elapsed_us=445501 ok=true",
+    "git_command_phase name=stash elapsed_us=603228 ok=true",
+    "git_command_phase name=rev-parse elapsed_us=405268 ok=true",
+    "git_command_phase name=for-each-ref elapsed_us=560893 ok=true",
+    "git_command_phase name=check-ref-format elapsed_us=418938 ok=true",
+    "git_command_phase name=show-ref elapsed_us=534978 ok=false"
+  ],
+  "stderr_sha256": "1880eb1251ce41b710e9772254e099078724f0be168ce420b314fb9ec9fd31e8"
+}

@@ -1,0 +1,173 @@
+{
+  "base_head": "8287825410d3688ffdb73322625289372ebfef3d",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+    "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+    "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+    "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+    "crates/diskgraph-engine/src/live_evidence/git_stash_location.rs": "bb279a122cff5f60faed3620a3e3d86d77e710d102cfbbddbeb09411ff7b6e78",
+    "crates/diskgraph-engine/src/live_evidence/git_stash.rs": "cc64135a83e781fe0f143b797ed327477bfc5922903da07ab1095c9919dd269f",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "c144ad08ecca727f420ed2e2350d7bf1afcfe64f0ec35b3bce7d0a0c35bb4c17",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "a7dce184a03b9611ed0ee6862e4a7620809107b3c65e1f572e0c4df5e7d1eec7",
+    "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+    "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "4d1fc6c7fd55db5f7c9451384bcfd3ca9ba68d6cf704b7503c04587d9b129027",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "cde642fe0b81cb100b3a17a825b6c88d1d4258815bb029caf0bccdb7b2d8aa15",
+    "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de",
+    "crates/diskgraph-engine/src/git_evidence_execution_tests.rs": "1097abae2f5f4ef697eb8fbb7184277f4561ebb544cf3582954aa5f75a4ee73e"
+  },
+  "commands": [
+    {
+      "name": "stash_location",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "git_stash_location",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 43.76599999998871
+    },
+    {
+      "name": "stash_semantics",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "git_stash_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 50.562000000005355
+    },
+    {
+      "name": "native_fscache",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "native_fscache_preserves",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 63.96899999999732
+    },
+    {
+      "name": "layout",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "source_layout",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.343999999997322
+    },
+    {
+      "name": "clippy",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "clippy",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--all-targets",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 11.110000000000582
+    }
+  ],
+  "logs": {
+    "clippy.stderr.log": {
+      "sha256": "4980408aa36e32bfdeb9b39415369775d12cdcdba08a1c81c1a301e02f0a65b9",
+      "bytes": 178,
+      "results": []
+    },
+    "clippy.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "results": []
+    },
+    "layout.stderr.log": {
+      "sha256": "4aa71db2f5688d6843991deb80d17fc51d84a27f1b1faa0fa65045f12f3bda00",
+      "bytes": 311,
+      "results": []
+    },
+    "layout.stdout.log": {
+      "sha256": "3c591cd3dacbef65983006f51a2bb68845fbb6e5e33db21d16c3d334b0e80386",
+      "bytes": 517,
+      "results": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.78s"
+      ]
+    },
+    "native_fscache.stderr.log": {
+      "sha256": "17511377ea0e7155f0aa610e134b74a813f28097e480c80f3ba1828413136a9d",
+      "bytes": 205,
+      "results": []
+    },
+    "native_fscache.stdout.log": {
+      "sha256": "36b6dd59585f81ce0e1c10c81f8e0ad067fe21af5d766be9112347ff37f65386",
+      "bytes": 393,
+      "results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 706 filtered out; finished in 62.75s"
+      ]
+    },
+    "stash_location.stderr.log": {
+      "sha256": "bdba720a357e5e04fdc2ba26a23f09fcfdf36083c36e46ebcce97c3f3bed5998",
+      "bytes": 312,
+      "results": []
+    },
+    "stash_location.stdout.log": {
+      "sha256": "77070a10094730b74a6985cf421a495eb8f2f36a15afd073d97b1e6852852e0e",
+      "bytes": 478,
+      "results": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 704 filtered out; finished in 8.42s"
+      ]
+    },
+    "stash_semantics.stderr.log": {
+      "sha256": "5e9e646c478b06b0ad31690c811b8ed57f0fb6768f11de2e1b0b4dc2f7ec7a2f",
+      "bytes": 257,
+      "results": []
+    },
+    "stash_semantics.stdout.log": {
+      "sha256": "e6e4d1a19403b9dc69c78cbae409ae93835510be0bd962a33551985d8367d435",
+      "bytes": 1110,
+      "results": [
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 697 filtered out; finished in 48.59s"
+      ]
+    }
+  }
+}

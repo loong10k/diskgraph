@@ -1,0 +1,46 @@
+{
+  "native_commit": "8287825410d3688ffdb73322625289372ebfef3d",
+  "previous": "125 passed and one environment failure: current Cargo-built MCP companion absent",
+  "rerun": {
+    "job_id": "wc_job_-epAlOPbNrsfKJyM",
+    "status": "completed",
+    "terminal": true,
+    "changed": true,
+    "log_delta_status": "reset",
+    "observation_token": "wj3_sv5FCzKdBMfdC4h4.4.c.1",
+    "observation_ref": "~j65",
+    "exit_code": 0,
+    "command_execution_state": "completed",
+    "detected_summary": {
+      "kind": "test",
+      "outcome": "passed",
+      "tests_detected": true,
+      "tests_run_count": 1,
+      "zero_tests_run": false,
+      "tests_passed": 1,
+      "tests_failed": 0
+    },
+    "stdout_tail": "build_companion 0\n\nremote_startup 0\n\nrunning 1 test\ntest rejected_remote_serve_does_not_open_local_stores_or_bootstrap_admin ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.78s\n\n\n{\"head\": \"8287825410d3688ffdb73322625289372ebfef3d\", \"commands\": [{\"argv\": [\"cargo\", \"+1.99.0\", \"build\", \"--locked\", \"-p\", \"diskgraph-mcp\", \"--bin\", \"diskgraph-mcp\", \"--target\", \"x86_64-pc-windows-msvc\"], \"exit_code\": 0, \"seconds\": 7.14100000000326}, {\"argv\": [\"cargo\", \"+1.99.0\", \"test\", \"--locked\", \"-p\", \"diskgraph-cli\", \"--test\", \"serve_remote_startup\", \"--target\", \"x86_64-pc-windows-msvc\", \"--\", \"--nocapture\"], \"exit_code\": 0, \"seconds\": 2.4210000000020955}], \"companion\": {\"path\": \"E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph\\\\target\\\\desktop-1ac266a0\\\\x86_64-pc-windows-msvc\\\\debug\\\\diskgraph-mcp.exe\", \"bytes\": 9951744, \"sha256\": \"e19ef8f2a1a5c2cd2e8a386a5f1bc988e03b73aec96d9f13148bd3ab09bf32b6\"}}\n",
+    "stderr_tail": "",
+    "stdout_delta_reset": true,
+    "stderr_delta_reset": true,
+    "stdout_lines": 11,
+    "stderr_lines": 0,
+    "stdout_returned_lines": 11,
+    "stderr_returned_lines": 0,
+    "stdout_retained_from_line": 1,
+    "stderr_retained_from_line": 1,
+    "cursor": {
+      "stdout": 12,
+      "stderr": 1
+    },
+    "last_update_seq": 3,
+    "stdout_truncated": false,
+    "stderr_truncated": false,
+    "earlier_stdout_unavailable": false,
+    "earlier_stderr_unavailable": false,
+    "purpose": "test",
+    "command_summary": "python script (1595 bytes, 0 args)"
+  },
+  "note": "Only the failed target rerun after building actual current companion; no source modification and no repeating passed targets."
+}

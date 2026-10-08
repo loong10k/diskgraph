@@ -1,0 +1,150 @@
+{
+  "base_head": "8287825410d3688ffdb73322625289372ebfef3d",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+    "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+    "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+    "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+    "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+    "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "c42a9ccaae3ed6c9232aec252ee5b538567ceeb1e11793168cf649c74b8aff98",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "cb3bf54ee5d4a056dc68a900463f9c450f86c4b2a3a51ca98207717003e08b80",
+    "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de",
+    "crates/diskgraph-engine/src/git_evidence_execution_tests.rs": "1097abae2f5f4ef697eb8fbb7184277f4561ebb544cf3582954aa5f75a4ee73e"
+  },
+  "commands": [
+    {
+      "name": "engine_default_parallel",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 279.82799999999406
+    },
+    {
+      "name": "mcp_default_parallel",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-mcp",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 55.17200000000594
+    },
+    {
+      "name": "layout",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "source_layout",
+        "--target",
+        "x86_64-pc-windows-msvc"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.952999999994063
+    },
+    {
+      "name": "clippy",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "clippy",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "-p",
+        "diskgraph-mcp",
+        "--all-targets",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 20.609000000011292
+    }
+  ],
+  "log_summaries": {
+    "clippy.stderr.log": {
+      "sha256": "2f8d749e853c34bb028edbead72324568f5753544a38c960676baeb5b5525d8c",
+      "bytes": 1168,
+      "test_results": [],
+      "fatal_tls_abort": false
+    },
+    "clippy.stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "test_results": [],
+      "fatal_tls_abort": false
+    },
+    "engine_default_parallel.stderr.log": {
+      "sha256": "0304b82bde821a47fbe716d5a919f49cd9c113a4407385c9d37693d909c5fa51",
+      "bytes": 35994,
+      "test_results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 698 filtered out; finished in 2.01s",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 698 filtered out; finished in 18.29s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 698 filtered out; finished in 0.00s"
+      ],
+      "fatal_tls_abort": false
+    },
+    "engine_default_parallel.stdout.log": {
+      "sha256": "a35b75f28e4a74a46fdba0f26d71800af930773556c5688d3fde33124f22be9f",
+      "bytes": 83710,
+      "test_results": [
+        "test result: FAILED. 661 passed; 34 failed; 4 ignored; 0 measured; 0 filtered out; finished in 269.89s"
+      ],
+      "fatal_tls_abort": false
+    },
+    "layout.stderr.log": {
+      "sha256": "0d395ff0a8730725af949edcd4f908fef25c44fd4976240e7a1920b78debe2ac",
+      "bytes": 310,
+      "test_results": [],
+      "fatal_tls_abort": false
+    },
+    "layout.stdout.log": {
+      "sha256": "2a785030924fc6d31d9db9dba917183bc1249ce6e4e22a8ee51f650d17200c1f",
+      "bytes": 517,
+      "test_results": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s"
+      ],
+      "fatal_tls_abort": false
+    },
+    "mcp_default_parallel.stderr.log": {
+      "sha256": "85835ab387eb47e6192337cbd2711e5f78cdc14812029d342f788a48af97e33d",
+      "bytes": 1580,
+      "test_results": [],
+      "fatal_tls_abort": false
+    },
+    "mcp_default_parallel.stdout.log": {
+      "sha256": "c08100e3c26c3677a2bcd3472a312b643d77efb04dc87dc2ad33c819a99cab7f",
+      "bytes": 19505,
+      "test_results": [
+        "test result: ok. 221 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.21s"
+      ],
+      "fatal_tls_abort": false
+    }
+  }
+}

@@ -139,9 +139,7 @@ pub(super) fn observe(view: &mut GitView, budget: &mut ProbeBudget) -> Result<Gi
     } else {
         notes.push("detached HEAD has no branch upstream; whether commits are pushed is unknown and is never reported as pushed".into());
     }
-    if git_references::head(&mut |args| run(args, budget))? != observed_head {
-        return Err("HEAD changed during Git sampling".into());
-    }
+    git_references::verify_head(&mut |args| run(args, budget), &observed_head)?;
     view.verify(budget)?;
     budget.check().map_err(|error| error.to_string())?;
     Ok(GitSample {
