@@ -28,5 +28,14 @@
     "crates/diskgraph-scan-worker/src/worker_output_terminal_tests.rs": "d8e0b712af846fbab551e90fd26bb061ac0219b37e869b475d5fd66c543699bd"
   },
   "additional_passed_test": "buffered_terminal_flush_failure_preserves_pipe_error_and_latches_output",
-  "failure_test_qualification": "injected platform-independent raw error, not native Windows pipe qualification"
+  "failure_test_qualification": "injected platform-independent raw error, not native Windows pipe qualification",
+  "full_crate_regression": {
+    "command": "CARGO_INCREMENTAL=0 cargo test -p diskgraph-scan-worker --locked",
+    "exit": 0,
+    "passed": 121,
+    "ignored": 0,
+    "failed": 0,
+    "test_binaries_with_executed_cases": 26,
+    "platform": "macOS ARM64 only"
+  }
 }
