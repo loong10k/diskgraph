@@ -25,6 +25,8 @@
   "source_sha256": {
     "crates/diskgraph-scan-worker/src/worker_output.rs": "f6ee31e04f643eb4a9f35cf392872edea5a092f687fba82a5fb81900c9e6ccd5",
     "crates/diskgraph-scan-worker/src/worker_runtime.rs": "921a764a3fdd34ab33b50d0352c73ca438f6df9dff7d487b94df25e70f484e3b",
-    "crates/diskgraph-scan-worker/src/worker_output_terminal_tests.rs": "9535dd820781824194ecf446c5a58f13ba9a1563a2eda85e451b4a1bfc82cefe"
-  }
+    "crates/diskgraph-scan-worker/src/worker_output_terminal_tests.rs": "d8e0b712af846fbab551e90fd26bb061ac0219b37e869b475d5fd66c543699bd"
+  },
+  "additional_passed_test": "buffered_terminal_flush_failure_preserves_pipe_error_and_latches_output",
+  "failure_test_qualification": "injected platform-independent raw error, not native Windows pipe qualification"
 }
