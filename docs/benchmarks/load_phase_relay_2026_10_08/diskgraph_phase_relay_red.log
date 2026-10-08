@@ -1,0 +1,112 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.076022166}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.084052291}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.084079958}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.084119083}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.084126708}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.085252}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.08527475}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.097688916}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.097727916}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.0982335}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.098272125}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.0983145}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.10479575}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.111143708}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.111167916}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.111198916}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.1112065}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.112414541}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.112432916}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.112745125}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.112756416}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.113128041}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.113150541}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.113184083}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.119886625}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.131132458}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.131157333}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.131190416}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.131197333}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.132817041}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.132844458}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.133172541}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.133188375}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.133530916}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.133598916}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.133634}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.140200291}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.154821541}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.154847041}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.154879166}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.154958}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.160089291}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.16013625}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.160504708}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.160517875}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.162617125}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.165715166}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.165812333}
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.181023708}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.188790708}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.188825166}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.188858583}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.188866833}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.190208291}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.1902235}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.190485125}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.190512125}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.1909695}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.191023916}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.191049416}
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.215148625}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.223628625}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.223668958}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.22370775}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.223716291}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.22495025}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.224972166}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.225234583}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.225244541}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.225486541}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.225501208}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.225526875}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.235749416}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.24406575}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.2440945}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.24412875}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.244137291}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.245432375}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.24545575}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.245767125}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.245781208}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.246019041}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.246032166}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.246064875}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 108224.251228125}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 108224.2672085}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 108224.267305333}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 108224.267535916}
+{"phase": "index", "event": "begin", "monotonic_seconds": 108224.267646416}
+{"phase": "index", "event": "end", "monotonic_seconds": 108224.275238333}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 108224.275380083}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 108224.27624075}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 108224.2763085}
+{"phase": "queries", "event": "end", "monotonic_seconds": 108224.276576666}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 108224.276588875}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 108224.276620041}
+.......F.
+======================================================================
+FAIL: test_success_preserves_only_bounded_opt_in_scan_phase_records (test_readonly_load_coverage.TimeoutDiagnosticTests.test_success_preserves_only_bounded_opt_in_scan_phase_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 203, in test_success_preserves_only_bounded_opt_in_scan_phase_records
+    self.assertIn({'scan_phase': 'publication_complete', 'nodes': 200001,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   'elapsed_ms': 193010}, records)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'scan_phase': 'publication_complete', 'nodes': 200001, 'elapsed_ms': 193010} not found in []
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.314s
+
+FAILED (failures=1)

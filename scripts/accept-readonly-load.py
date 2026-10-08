@@ -6,7 +6,9 @@ import concurrent.futures
 import contextlib
 import json
 import math
+import os
 import pathlib
+import re
 import statistics
 import sqlite3
 import subprocess
@@ -22,6 +24,25 @@ def phase(name, event):
     """向 stderr 输出不含路径和参数的阶段时间，供外层超时诊断。"""
     print(json.dumps({"phase": name, "event": event,
                       "monotonic_seconds": time.monotonic()}), file=sys.stderr, flush=True)
+
+
+def relay_scan_phases(stderr):
+    """仅显式诊断时转存有限阶段数值，普通 stderr 不进入负载诊断日志。"""
+    if os.environ.get('DISKGRAPH_SCAN_DIAGNOSTICS') != '1' or not stderr:
+        return
+    stages = {'worker_begin', 'worker_complete', 'conversion_complete',
+              'staging_batch_complete', 'staging_complete',
+              'publication_begin', 'publication_complete'}
+    records = {}
+    # 后缀准入限制解析成本，截断可能遗漏早期阶段；不得补造缺失的采样。
+    for line in stderr[-131072:].splitlines():
+        match = re.fullmatch(r'diskgraph: scan_phase=([a-z_]{1,32}) '
+                             r'nodes=([0-9]{1,20}) elapsed_ms=([0-9]{1,20})', line)
+        if match and match[1] in stages:
+            records[match[1]] = {'scan_phase': match[1], 'nodes': int(match[2]),
+                                 'elapsed_ms': int(match[3])}
+    for record in records.values():
+        print(json.dumps(record), file=sys.stderr, flush=True)
 
 
 def invoke(cli, data, *arguments, timeout=300, expected=0):
@@ -45,6 +66,7 @@ def invoke(cli, data, *arguments, timeout=300, expected=0):
             f"{arguments!r} exited {result.returncode}, expected {expected}:\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
         )
+    relay_scan_phases(result.stderr)
     lines = [line for line in result.stdout.splitlines() if line.strip()]
     if not lines:
         raise RuntimeError(f"{arguments!r} produced no JSON response")

@@ -219,6 +219,11 @@ The CLI SHALL recheck the original absolute startup deadline after recovery-slot
 ### Requirement: Failed performance measurement process cleanup
 性能验收命令普通非零退出时，验收器 MUST 向其独立进程组发送终止信号并保留原退出码；不得仅等待直接进程后继续，将仍运行的同组后代计入后续测量。该机制不声明可以回收逃离进程组的后代。
 
+#### Scenario: Successful load command retains explicitly enabled stage diagnostics
+- **WHEN** trusted local diagnostics enable scan phase timing and an individual CLI command succeeds
+- **THEN** the load harness preserves only validated fixed stage names, node counts and elapsed milliseconds, with bounded input and at most one latest record per stage
+- **AND** arbitrary stderr, paths and content are not relayed; diagnostics remain disabled by default and do not change command results, workload coverage or acceptance deadlines
+
 #### Scenario: Nonzero measurement leaves a same-group helper
 - **WHEN** 自建测量进程启动同组helper后以非零状态退出
 - **THEN** 验收器保留尚未回收的leader身份，向原进程组发送SIGKILL，再回收leader并保存原失败状态；拒绝将该测量视为成功。发送信号不等于已确认全部后代退休

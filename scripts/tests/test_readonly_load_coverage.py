@@ -185,6 +185,40 @@ class TimeoutDiagnosticTests(unittest.TestCase):
         self.assertIn('last-scan-stage', captured.getvalue())
         self.assertLessEqual(len(captured.getvalue().encode()), 65537)
 
+    def test_success_preserves_only_bounded_opt_in_scan_phase_records(self):
+        stderr = ('private path and content must not be relayed\n'
+                  'diskgraph: scan_phase=worker_begin nodes=0 elapsed_ms=1\n'
+                  + 'diskgraph: scan_phase=staging_batch_complete nodes=2 elapsed_ms=3\n' * 10000
+                  + 'diskgraph: scan_phase=staging_batch_complete nodes=200001 elapsed_ms=193000\n'
+                  'diskgraph: scan_phase=publication_complete nodes=200001 elapsed_ms=193010\n'
+                  'diskgraph: scan_phase=unknown nodes=1 elapsed_ms=2\n'
+                  'diskgraph: scan_phase=worker_complete nodes=0 elapsed_ms=2 secret\n')
+        response = subprocess.CompletedProcess([], 0, '{"ok":true}\n', stderr)
+        captured = io.StringIO()
+        with patch.object(MODULE.subprocess, 'run', return_value=response), \
+             patch.dict('os.environ', {'DISKGRAPH_SCAN_DIAGNOSTICS': '1'}), \
+             contextlib.redirect_stderr(captured):
+            self.assertEqual(MODULE.invoke('diskgraph', 'data', 'index'), {'ok': True})
+        records = [json.loads(line) for line in captured.getvalue().splitlines()]
+        self.assertIn({'scan_phase': 'publication_complete', 'nodes': 200001,
+                       'elapsed_ms': 193010}, records)
+        self.assertIn({'scan_phase': 'staging_batch_complete', 'nodes': 200001,
+                       'elapsed_ms': 193000}, records)
+        self.assertLessEqual(len(records), 7)
+        self.assertNotIn('secret', captured.getvalue())
+        self.assertNotIn('private', captured.getvalue())
+        self.assertNotIn('unknown', captured.getvalue())
+
+    def test_success_diagnostics_are_disabled_by_default(self):
+        response = subprocess.CompletedProcess([], 0, '{"ok":true}\n',
+            'diskgraph: scan_phase=worker_begin nodes=0 elapsed_ms=1\n')
+        captured = io.StringIO()
+        with patch.object(MODULE.subprocess, 'run', return_value=response), \
+             patch.dict('os.environ', {}, clear=True), \
+             contextlib.redirect_stderr(captured):
+            self.assertEqual(MODULE.invoke('diskgraph', 'data', 'index'), {'ok': True})
+        self.assertEqual(captured.getvalue(), '')
+
 
 if __name__ == '__main__':
     unittest.main()

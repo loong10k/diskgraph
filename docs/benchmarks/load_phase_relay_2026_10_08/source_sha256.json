@@ -1,0 +1,4 @@
+{
+  "scripts/accept-readonly-load.py": "52d3802c160a9d38bb8d29a196e4bd9704840126af1be38cc060ff4a973fdda4",
+  "scripts/tests/test_readonly_load_coverage.py": "e5d9de2c8860280ae4edd115dbcd5489fe54d5e709d40339189701b73d424edf"
+}
