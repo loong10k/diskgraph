@@ -28,9 +28,13 @@ final class Failures: @unchecked Sendable {
     }
 }
 
-func payload(_ text: String) -> [String: Any] {
+// 在调用点记录失败位置与本次调用耗时，预算与成功断言保持不变。
+func payload(_ call: @autoclosure () -> String, file: StaticString = #fileID, line: UInt = #line) -> [String: Any] {
+    let started = DispatchTime.now().uptimeNanoseconds
+    let text = call()
+    let elapsedMs = (DispatchTime.now().uptimeNanoseconds - started) / 1_000_000
     let envelope = try! JSONSerialization.jsonObject(with: Data(text.utf8)) as! [String: Any]
-    verify(envelope["ok"] as? Bool == true, "FFI failed: \(text)")
+    verify(envelope["ok"] as? Bool == true, "FFI failed after \(elapsedMs)ms: \(text)", file: file, line: line)
     return envelope["data"] as! [String: Any]
 }
 

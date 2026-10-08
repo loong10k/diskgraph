@@ -1,0 +1,24 @@
+{
+  "run": 37735499585,
+  "job": 113173973363,
+  "sha": "f9e0a393c39ee13945081e8477d4586da98fa7f5",
+  "observed_failure": "Python signal-handling child exceeded existing 5s stop deadline",
+  "rust_http_lifecycle_tests": "8 passed, 0 failed, expected panic test passed",
+  "local_shutdown_tests": "3 passed with original 5s gate; not native Intel proof",
+  "swift_diagnostic_change": "call-site file/line and monotonic elapsed; autoclosure evaluated exactly once; success data preserved",
+  "verification_scope": "Swift source parse and extracted diagnostic function execution only; integrated GRDB/native Intel run pending",
+  "sources": {
+    "fixtures/ffi_grdb_host/Sources/FfiGrdbHost/main.swift": "4daa8abf107a342835bf9252b5fb9daf24a673416823af80904d14ae9a39a674"
+  },
+  "unknown": [
+    "Intel process scheduling/signal delivery cause",
+    "whether Swift StoreError BudgetExceeded came from bytes or time",
+    "which Swift query call failed on existing run"
+  ],
+  "logs": {
+    "native_job": "bb233cdf792c19693a42b261de3e862fd80f3ea5742e5ce9a006a7edcefb134c",
+    "local_shutdown": "1f688ba04d421d576d129b4ac623f298192dbd49bc4466e5d3a8a044e27c7797",
+    "swift_failure_projection": "a9fc6f1b4ed6463ce4fff85576a42bdc37e30e718f7c14ace184224f2d059a88",
+    "swift_success_projection": "45f4a3e79d2d69939ada909495387c4f5679d4f6beffd599bc6c1a1003546c06"
+  }
+}
