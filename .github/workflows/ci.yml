@@ -1051,7 +1051,24 @@ jobs:
       - name: Verify load coverage refusal regression
         run: python -m unittest discover -s scripts/tests -p test_readonly_load_coverage.py -v
       - name: Verify archive and packaged binaries
+        id: readonly_package_acceptance
         run: python scripts/accept-readonly-package.py --target ${{ matrix.target }} --bin-dir target/${{ matrix.target }}/release --old-cli previous/target/${{ matrix.target }}/release/diskgraph${{ runner.os == 'Windows' && '.exe' || '' }}
+      - name: Diagnose full Windows 200k phases without changing acceptance
+        if: failure() && runner.os == 'Windows' && steps.readonly_package_acceptance.outcome == 'failure'
+        id: full_load_diagnostic
+        timeout-minutes: 18
+        run: |
+          python -m unittest discover -s scripts/tests -p test_windows_load_diagnostic.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/diagnose_windows_load.py --bin-dir "target/${{ matrix.target }}/release" --output-dir "${{ runner.temp }}/full-load-diagnostic"
+      - name: Preserve full Windows load diagnostic
+        if: always() && runner.os == 'Windows' && (steps.full_load_diagnostic.outcome == 'success' || steps.full_load_diagnostic.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-full-load-diagnostic-${{ github.run_id }}
+          path: ${{ runner.temp }}/full-load-diagnostic
+          if-no-files-found: error
+          retention-days: 7
       - name: Diagnose native Windows fixture worker costs after acceptance failure
         if: failure() && runner.os == 'Windows'
         id: fixture_worker_diagnostic
