@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "cargo",
+    "+1.99.0",
+    "test",
+    "--locked",
+    "--release",
+    "-p",
+    "diskgraph-store",
+    "--lib",
+    "--target",
+    "x86_64-pc-windows-msvc",
+    "reader_admission_tests::ownership_reader_configuration_cost_experiment",
+    "--",
+    "--ignored",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 89.70299999999406
+}

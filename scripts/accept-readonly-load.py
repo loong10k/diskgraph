@@ -34,6 +34,10 @@ def relay_scan_phases(stderr):
               'staging_batch_complete', 'staging_complete',
               'publication_begin', 'publication_complete'}
     costs = {'observations_and_encoding', 'staging_write', 'windows_root_validation'}
+    publication_stages = {'prepare_begin', 'nodes_and_evidence_complete',
+                          'aggregates_begin', 'aggregates_complete', 'seal_complete',
+                          'terminal_check_failed', 'commit_begin', 'commit_failed',
+                          'commit_complete', 'checkpoint_complete'}
     records = {}
     # 后缀准入限制解析成本，截断可能遗漏早期阶段；不得补造缺失的采样。
     for line in stderr[-131072:].splitlines():
@@ -52,6 +56,14 @@ def relay_scan_phases(stderr):
         if root:
             records['root_validation'] = {'scan_root_validation': True, 'calls': int(root[1]),
                                           'chain_handles': int(root[2]), 'total_ms': int(root[3])}
+        publication = re.fullmatch(r'diskgraph: publish_phase=([a-z_]{1,32}) '
+                                   r'elapsed_ms=([0-9]{1,20})', line)
+        if publication and publication[1] in publication_stages:
+            # 只保留各阶段最后的数值；发布与checkpoint使用各自的原始计时，不推算缺失阶段。
+            records[('publish', publication[1])] = {
+                'publish_phase': publication[1], 'elapsed_ms': int(publication[2])}
+        if line == 'diskgraph: publish_phase=checkpoint_begin':
+            records[('publish', 'checkpoint_begin')] = {'publish_phase': 'checkpoint_begin'}
     for record in records.values():
         print(json.dumps(record), file=sys.stderr, flush=True)
 

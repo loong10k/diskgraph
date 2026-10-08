@@ -1,0 +1,34 @@
+{
+  "run_id": 37820467541,
+  "source_commit": "61283557117eaccf45ecc766c93dfcef57321007",
+  "parent_run_terminal": false,
+  "logs": [
+    {
+      "job_id": 113460153715,
+      "status": "completed",
+      "conclusion": "failure",
+      "file": "windows-package.log.gz",
+      "raw_sha256": "4026e57dc3597e3ba8d7f5bb7528a5c1bfd58e0e0a3d1bec0b593bb5b1184d27"
+    },
+    {
+      "job_id": 113459877774,
+      "status": "completed",
+      "conclusion": "failure",
+      "file": "macos-intel.log.gz",
+      "raw_sha256": "5e93fa6cbca50025dfbb043703b8205a51568b43fcfb56eeaff400f3dfbc5f89"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11569389102,
+      "file": "full-load.zip",
+      "sha256": "fac13253439fce6eb7d34054ba473bc9bb03f3401cfad1180a95fab40095e17f"
+    },
+    {
+      "id": 11570311727,
+      "file": "fixture-workers.zip",
+      "sha256": "cac25db801cd343f40c59abdacb126958142691d175d07964bc2f5419d9a1f8c"
+    }
+  ],
+  "extracted_text_views": "LF-normalized copies; exact original bytes remain in SHA-256-bound artifact zip files"
+}

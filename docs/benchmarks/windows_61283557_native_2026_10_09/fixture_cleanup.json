@@ -1,0 +1,10 @@
+{
+  "job": "wc_job_J3_5DJvx9V-DOVCk",
+  "fixture": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-readonly-load-pfgp8wco",
+  "parent_file_id": 10696049117785278,
+  "remaining_project_entries": 0,
+  "cleanup_seconds": 74.92200000000594,
+  "diagnostic_cleanup_outside_acceptance": true,
+  "database_preserved": true,
+  "exit_code": 0
+}

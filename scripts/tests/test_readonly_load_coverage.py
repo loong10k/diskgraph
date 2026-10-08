@@ -375,6 +375,42 @@ class TimeoutDiagnosticTests(unittest.TestCase):
             self.assertEqual(MODULE.invoke('diskgraph', 'data', 'index'), {'ok': True})
         self.assertEqual(captured.getvalue(), '')
 
+    def test_publication_phases_keep_only_bounded_numeric_allowlisted_records(self):
+        lines = [
+            'diskgraph: publish_phase=prepare_begin elapsed_ms=0',
+            'diskgraph: publish_phase=nodes_and_evidence_complete elapsed_ms=12',
+            'diskgraph: publish_phase=aggregates_begin elapsed_ms=14',
+            'diskgraph: publish_phase=aggregates_complete elapsed_ms=35',
+            'diskgraph: publish_phase=commit_begin elapsed_ms=37',
+            'diskgraph: publish_phase=commit_complete elapsed_ms=38',
+            'diskgraph: publish_phase=commit_complete elapsed_ms=40',
+            'diskgraph: publish_phase=checkpoint_begin',
+            'diskgraph: publish_phase=checkpoint_complete elapsed_ms=7',
+            'diskgraph: publish_phase=private_resource elapsed_ms=1',
+            'diskgraph: publish_phase=commit_complete elapsed_ms=-1',
+            'diskgraph: publish_phase=commit_complete elapsed_ms=' + '9' * 21,
+            'diskgraph: publish_phase=commit_complete elapsed_ms=1 private-path',
+            'diskgraph: publish_phase=aggregates_complete',
+        ]
+        captured = io.StringIO()
+        with patch.dict('os.environ', {'DISKGRAPH_SCAN_DIAGNOSTICS': '1'}), \
+             contextlib.redirect_stderr(captured):
+            MODULE.relay_scan_phases('\n'.join(lines))
+        self.assertEqual([json.loads(line) for line in captured.getvalue().splitlines()], [
+            {'publish_phase': 'prepare_begin', 'elapsed_ms': 0},
+            {'publish_phase': 'nodes_and_evidence_complete', 'elapsed_ms': 12},
+            {'publish_phase': 'aggregates_begin', 'elapsed_ms': 14},
+            {'publish_phase': 'aggregates_complete', 'elapsed_ms': 35},
+            {'publish_phase': 'commit_begin', 'elapsed_ms': 37},
+            {'publish_phase': 'commit_complete', 'elapsed_ms': 40},
+            {'publish_phase': 'checkpoint_begin'},
+            {'publish_phase': 'checkpoint_complete', 'elapsed_ms': 7},
+        ])
+        captured = io.StringIO()
+        with patch.dict('os.environ', {}, clear=True), contextlib.redirect_stderr(captured):
+            MODULE.relay_scan_phases('\n'.join(lines))
+        self.assertEqual(captured.getvalue(), '')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,16 @@
+{
+  "red": {
+    "command": "python3 -m unittest discover -s scripts/tests -p test_readonly_load_coverage.py -k publication_phases -v",
+    "exit_code": 1,
+    "failure": "expected eight numeric publication records, observed empty list"
+  },
+  "green": {
+    "macos_passed": 26,
+    "windows_passed": 26
+  },
+  "runtime_validation": {
+    "files": 20000,
+    "checks_passed": 6,
+    "production_qualification": false
+  }
+}

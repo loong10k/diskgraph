@@ -1,0 +1,26 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 775.2280933}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 949.9883242}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 949.9883824}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 950.481873}
+{"phase": "index", "event": "begin", "monotonic_seconds": 950.4819262}
+{"scan_phase": "worker_begin", "nodes": 0, "elapsed_ms": 1}
+{"scan_phase": "worker_complete", "nodes": 0, "elapsed_ms": 15455}
+{"scan_phase": "conversion_complete", "nodes": 200001, "elapsed_ms": 20400}
+{"scan_phase": "staging_batch_complete", "nodes": 200001, "elapsed_ms": 109015}
+{"scan_phase": "staging_complete", "nodes": 200001, "elapsed_ms": 109016}
+{"scan_cost": "windows_root_validation", "nodes": 200001, "total_ms": 313496}
+{"scan_root_validation": true, "calls": 400003, "chain_handles": 8, "total_ms": 313496}
+{"scan_cost": "observations_and_encoding", "nodes": 200001, "total_ms": 83104}
+{"scan_cost": "staging_write", "nodes": 200001, "total_ms": 5406}
+{"scan_phase": "publication_begin", "nodes": 200001, "elapsed_ms": 109094}
+{"scan_phase": "publication_complete", "nodes": 200001, "elapsed_ms": 150933}
+{"phase": "index", "event": "end", "monotonic_seconds": 1101.5819257}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 1101.5819663}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 1101.8891496}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 1101.8892371}
+{"phase": "queries", "event": "end", "monotonic_seconds": 1102.1860936}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 1102.1861413}
+{"scan_phase": "worker_begin", "nodes": 0, "elapsed_ms": 1}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 1105.0130533}
+{"phase": "workspace_cleanup", "event": "begin", "monotonic_seconds": 1105.0136962}
+{"phase": "workspace_cleanup", "event": "end", "monotonic_seconds": 1278.5190392}

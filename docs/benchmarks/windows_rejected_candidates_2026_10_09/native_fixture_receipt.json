@@ -1,0 +1,39 @@
+{
+  "prototype_sha256": "055f06610595dd6e9cc3a92a2799b0f22b313d9b1671829c26c10dbacf9965b8",
+  "production_acceptance": false,
+  "files_per_round": 5000,
+  "rounds": [
+    {
+      "index": 0,
+      "variant": "pathlib",
+      "create_seconds": 1.8130000000091968,
+      "cleanup_seconds": 10.344000000011874,
+      "exact_names_and_bytes": true,
+      "native_collision_refused": null
+    },
+    {
+      "index": 1,
+      "variant": "native",
+      "create_seconds": 4.4060000000026776,
+      "cleanup_seconds": 4.077999999994063,
+      "exact_names_and_bytes": true,
+      "native_collision_refused": true
+    },
+    {
+      "index": 2,
+      "variant": "native",
+      "create_seconds": 3.625,
+      "cleanup_seconds": 4.485000000000582,
+      "exact_names_and_bytes": true,
+      "native_collision_refused": true
+    },
+    {
+      "index": 3,
+      "variant": "pathlib",
+      "create_seconds": 4.73399999999674,
+      "cleanup_seconds": 3.6410000000032596,
+      "exact_names_and_bytes": true,
+      "native_collision_refused": null
+    }
+  ]
+}

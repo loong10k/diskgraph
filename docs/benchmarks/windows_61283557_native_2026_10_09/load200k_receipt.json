@@ -1,0 +1,23 @@
+{
+  "head": "61283557117eaccf45ecc766c93dfcef57321007",
+  "artifact_provenance": "previous independently built candidate; exact binary hashes retained; not relabeled a fresh commit build",
+  "binary_sha256": {
+    "diskgraph.exe": "5305f24aefe61081ad80b56887abe86613d8efaa855d9e0bb0142a6fe163d73f",
+    "diskgraph-mcp.exe": "a5ed186b550b30b466f5efc29d7ce9a316e7eb40c12235b7f94cd2ead1ad23ae",
+    "diskgraph-scan-worker.exe": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af"
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "1bc396705682562d2459d0b745e745688d20e9b51a9b96e9374a9e0b3d85cd28",
+    "scripts/accept-readonly-load.py": "78680eefa3e40e4bb93e1cce0dc9209325a61ed22d46d8e6bd92d747fde96401",
+    "scripts/windows_acceptance_job.py": "d9a9148a87e9d39b34ff4721d3a3fbd9bbeda6270d5de848e05333a89ad0ee3c"
+  },
+  "whole_workload_deadline_seconds": 300,
+  "result": {
+    "status": "timeout",
+    "exit_code": 124,
+    "elapsed_seconds": 300.0631742999976
+  },
+  "phase_log": "{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 127831.0487456}\n{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 128119.3364136}\n{\"phase\": \"scope_registration\", \"event\": \"begin\", \"monotonic_seconds\": 128119.3364858}\n{\"phase\": \"scope_registration\", \"event\": \"end\", \"monotonic_seconds\": 128119.9661048}\n{\"phase\": \"index\", \"event\": \"begin\", \"monotonic_seconds\": 128119.966193}\n",
+  "stdout": "",
+  "binaries_unchanged": true
+}
