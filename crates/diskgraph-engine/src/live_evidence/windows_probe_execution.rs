@@ -75,7 +75,7 @@ pub(super) fn execute(
             // 成功输出也先复核原请求；到期/取消保持主原因，清理Pending仅作次诊断。
             match (budget.check(), cleanup.map_err(ProbeFailure::from)) {
                 (Ok(()), Ok(())) => Ok(output),
-                (Ok(()), Err(cleanup)) => Err(cleanup),
+                (Ok(()), Err(cleanup)) => output.with_cleanup(Err(cleanup)),
                 (Err(primary), cleanup) => Err(primary.with_cleanup(cleanup)),
             }
         }

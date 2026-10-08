@@ -20,7 +20,11 @@ impl GitProductError {
             Some(ProbeFailure::Cancelled) => Self::Cancelled,
             Some(ProbeFailure::OutputLimit | ProbeFailure::ResourceLimit) => Self::Budget,
             Some(ProbeFailure::IdentityChanged) => Self::IdentityChanged,
-            Some(ProbeFailure::Io(_) | ProbeFailure::AbnormalExit(_)) => Self::Unavailable,
+            Some(
+                ProbeFailure::Io(_)
+                | ProbeFailure::AbnormalExit(_)
+                | ProbeFailure::CommandExit { .. },
+            ) => Self::Unavailable,
             Some(ProbeFailure::Cleanup { primary, .. }) => Self::from_failure(Some(primary)),
             Some(ProbeFailure::InvalidLimits | ProbeFailure::Unsupported(_)) | None => {
                 Self::Unverifiable

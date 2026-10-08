@@ -2,6 +2,29 @@
 
 use super::probe_output::ProbeOutput;
 
+/// 将原探针失败投影为可信 Git 库诊断，保留清理次因。
+/// 参数：error 为实际执行错误；返回：不被清理状态覆盖的原命令失败文本。
+pub(super) fn execution_error(error: super::probe_failure::ProbeFailure) -> String {
+    use super::probe_failure::ProbeFailure;
+    match error {
+        ProbeFailure::CommandExit { exit_code, stderr } => format!(
+            "git exit status {:?}; stderr: {}",
+            Some(exit_code),
+            if stderr.is_empty() {
+                "<empty>".into()
+            } else {
+                String::from_utf8_lossy(&stderr)
+            }
+        ),
+        ProbeFailure::Cleanup { primary, cleanup } => format!(
+            "{}; cleanup also failed: {}",
+            execution_error(*primary),
+            execution_error(*cleanup)
+        ),
+        other => other.to_string(),
+    }
+}
+
 /// 校验 Git 的 SHA-1/SHA-256 对象名，包括 NUL 字段或最多一个末尾 LF 的命令输出。
 /// 来源：原生 Rust diskgraph-engine::live_evidence::git_output 与 Git 对象名格式。
 /// 参数：bytes 为单个原始对象名字段。返回：保留原字母大小写的完整对象名，或 invalid object id。

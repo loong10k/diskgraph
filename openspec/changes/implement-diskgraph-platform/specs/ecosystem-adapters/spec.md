@@ -14,6 +14,11 @@
 ### Requirement: EC-02 Git and process evidence
 可选证据适配器 SHALL 报告 Git 修改、stash、相对已知跟踪引用的提交差异及进程可见覆盖；Git 检查不默认联网，无法证明的远端或占用状态保留 unknown。
 
+#### Scenario: Nonzero command exit survives deferred native cleanup
+- **WHEN** 固定 Git 命令已经正常非零退出且双管道已 EOF，但原生进程清理仍 Pending 或失败
+- **THEN** 探针保留真实退出码和已计费 stderr 为主要命令失败，同时报告原清理失败；原 owner 和私有目录仍留在同一恢复容量域，不返回成功采样
+- **AND** 原期限或取消检查失败仍优先；正常零退出不能因保留输出而绕过清理完成要求，已清理的非零输出继续遵循既有 Git 调用语义
+
 #### Scenario: No upstream or low privilege
 - **WHEN** 仓库无跟踪分支或进程信息受权限限制
 - **THEN** 不得声称所有提交已推送或目录无人使用。

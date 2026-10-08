@@ -133,6 +133,8 @@ mod probe_isolation_tests;
 mod probe_limits;
 mod probe_output;
 #[cfg(test)]
+mod probe_output_tests;
+#[cfg(test)]
 mod probe_tests;
 #[cfg(windows)]
 mod probe_windows;

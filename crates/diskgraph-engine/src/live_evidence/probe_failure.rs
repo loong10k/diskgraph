@@ -18,6 +18,12 @@ pub(super) enum ProbeFailure {
     InvalidLimits,
     #[error("probe terminated without a supported normal exit status: {0:?}")]
     AbnormalExit(Option<i32>),
+    #[error("probe command exit status {exit_code:?}")]
+    CommandExit {
+        exit_code: i32,
+        // 已扣费的 stderr 转移进共享错误；锁存/克隆失败不复制可能较大的字节正文。
+        stderr: std::sync::Arc<Vec<u8>>,
+    },
     #[error("probe unsupported: {0}")]
     Unsupported(&'static str),
     #[error("probe I/O failed: {0}")]

@@ -49,7 +49,8 @@ fn execute(command: &mut Command, budget: &mut ProbeBudget) -> Result<ProbeOutpu
             Ok(output)
         }
         (Err(primary), Err(cleanup)) => Err(primary.with_cleanup(Err(cleanup))),
-        (Err(error), Ok(())) | (Ok(_), Err(error)) => Err(error),
+        (Err(error), Ok(())) => Err(error),
+        (Ok(output), Err(error)) => output.with_cleanup(Err(error)),
     }
 }
 

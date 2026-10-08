@@ -1,0 +1,43 @@
+{
+  "trigger": {
+    "run_id": 37731786365,
+    "job_id": 113162338400,
+    "commit": "1fb077c35704d5bfd3d8fabdf1dc7ba6312cf449",
+    "test": "live_evidence::git_stash_tests::damaged_older_reflog_record_cannot_be_silently_omitted",
+    "observation": "normal completed output was discarded when cleanup remained Pending; primary nonzero command exit was not projected"
+  },
+  "red": {
+    "command": "CARGO_INCREMENTAL=0 cargo test -p diskgraph-engine --lib probe_output_tests -- --nocapture",
+    "passed": 2,
+    "failed": 1,
+    "target_failure": "nonzero_exit_keeps_command_error_and_original_cleanup_failure saw only probe unsupported: original owner retained"
+  },
+  "green": {
+    "probe_regressions": 29,
+    "git_stash": 15,
+    "private_cleanup": 5,
+    "source_layout": 6,
+    "failed": 0,
+    "ignored": 0,
+    "clippy": "Engine all-targets passed",
+    "openspec": "strict validation passed"
+  },
+  "resource_contract": "failed stdout is discarded; already-charged stderr Vec is moved into Arc<Vec<u8>>; cloned/latching failures share bytes",
+  "source_sha256": {
+    "probe_output.rs": "0978d27577b0333abdf9fb09bcb2cd98d759a9c4982ffd94070c003da36ac08d",
+    "probe_output_tests.rs": "79a1bf8a396231d20a4552132ce07b17e25f9e5628d0fc8a1fa5ba6e3ac9588b",
+    "probe_failure.rs": "98dbc26c3191f1d5ce72dbe65c91638de8e2db6d16a6c9817eef23c18c56e24e",
+    "probe_execution.rs": "baacf5860b36923240256dd925b0f58b70222db766ac50b7ab60eebb841b7931",
+    "windows_probe_execution.rs": "dd05a4b6d571fe642efe8278206a986a4bc7d93c1f8e3e3052ea7c56dbc564fc",
+    "git_output.rs": "0f00c224a10da65630762efa043542ab0c028306621d2dbc0c286aa69358d262",
+    "git_command_context.rs": "2496f107e9291162fd12c334de99509308679c389aa5157d7c2143a8abeb6c2e",
+    "git_product_error.rs": "9bdd7441c6eb82f57bd66eeba5ede9b4fa45514b98c57f270b0a6f51bba19c51",
+    "mod.rs": "35f07342d3a28fe22b42e07de88fda497e4756d01ffdfbd92862ddeeb5f2e47e"
+  },
+  "limits": [
+    "Local macOS tests and deterministic result projection do not prove native Windows retirement",
+    "Windows owner retention, original recovery pool, cleanup polling and deadlines are unchanged",
+    "Native Windows regression requires next source CI; current CI 37735499585 runs f9e0a39 without this change"
+  ],
+  "production_acceptance": false
+}

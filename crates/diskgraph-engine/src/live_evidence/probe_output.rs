@@ -6,3 +6,25 @@ pub(super) struct ProbeOutput {
     pub(super) stderr: Vec<u8>,
     pub(super) exit_code: Option<i32>,
 }
+
+impl ProbeOutput {
+    /// 合并已经收齐的输出与原 owner 清理结果。
+    /// 参数：cleanup 为实际执行后的清理状态；返回：完整输出或仍需恢复的失败。
+    pub(super) fn with_cleanup(
+        self,
+        cleanup: Result<(), super::probe_failure::ProbeFailure>,
+    ) -> Result<Self, super::probe_failure::ProbeFailure> {
+        use super::probe_failure::ProbeFailure;
+        match cleanup {
+            Ok(()) => Ok(self),
+            Err(cleanup) => match self.exit_code {
+                Some(exit_code) if exit_code > 0 => Err(ProbeFailure::CommandExit {
+                    exit_code,
+                    stderr: std::sync::Arc::new(self.stderr),
+                }
+                .with_cleanup(Err(cleanup))),
+                _ => Err(cleanup),
+            },
+        }
+    }
+}

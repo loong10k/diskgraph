@@ -72,7 +72,7 @@ impl GitCommandContext {
         probe: &mut ProbeBudget,
     ) -> Result<ProbeOutput, String> {
         let mut command = self.command(args.iter().map(OsStr::new), false)?;
-        run_probe(&mut command, probe).map_err(|error| error.to_string())
+        run_probe(&mut command, probe).map_err(super::git_output::execution_error)
     }
 
     /// 在空 bootstrap 工作目录解析配置副本或读取固定宿主数据。
@@ -107,7 +107,7 @@ impl GitCommandContext {
         if host_attributes {
             command.env_remove("GIT_ATTR_NOSYSTEM");
         }
-        run_probe(&mut command, probe).map_err(|error| error.to_string())
+        run_probe(&mut command, probe).map_err(super::git_output::execution_error)
     }
 
     fn command(
