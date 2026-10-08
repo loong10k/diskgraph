@@ -54,7 +54,18 @@ pub(crate) fn open_child(
     name: &OsStr,
     deny_reparse: bool,
 ) -> Result<File, EngineError> {
-    let mut wide: Vec<u16> = name.encode_wide().take(32768).collect();
+    let wide: Vec<u16> = name.encode_wide().take(32768).collect();
+    open_child_utf16(parent, &wide, deny_reparse)
+}
+
+/// 使用预编码的单组件名称执行同一属性打开，不复制或缓存查询结果。
+/// 参数：parent为保留父句柄，wide为原生UTF-16名称，deny_reparse为父/根策略。
+/// 返回：属性句柄或原错误；名称边界仍逐次验证，输入在同步调用期间只读借用。
+pub(crate) fn open_child_utf16(
+    parent: &File,
+    wide: &[u16],
+    deny_reparse: bool,
+) -> Result<File, EngineError> {
     if wide.is_empty()
         || wide.len() >= 32768
         || wide == [46]
@@ -68,7 +79,8 @@ pub(crate) fn open_child(
     let unicode = UNICODE_STRING {
         Length: length,
         MaximumLength: length,
-        Buffer: wide.as_mut_ptr(),
+        // Windows输入结构使用可变指针类型，但NtCreateFile的ObjectAttributes只读。
+        Buffer: wide.as_ptr().cast_mut(),
     };
     let attributes = OBJECT_ATTRIBUTES {
         Length: std::mem::size_of::<OBJECT_ATTRIBUTES>() as u32,

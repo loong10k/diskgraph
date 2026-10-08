@@ -1,5 +1,6 @@
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::fs::File;
+use std::os::windows::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -11,7 +12,7 @@ use diskgraph_core::{
 use crate::EngineError;
 use crate::scoped_content::ScopedContent;
 use crate::windows_file_state::WindowsFileState;
-use crate::windows_native_open::{open_child, open_drive};
+use crate::windows_native_open::{open_child, open_child_utf16, open_drive};
 use crate::windows_path_plan::WindowsPathPlan;
 use crate::windows_scan_cost::WindowsScanCost;
 
@@ -20,7 +21,7 @@ use crate::windows_scan_cost::WindowsScanCost;
 pub(crate) struct WindowsNativeScanRoot {
     path: PathBuf,
     drive_root: PathBuf,
-    components: Vec<OsString>,
+    components: Vec<Vec<u16>>,
     chain: Vec<File>,
     identities: Vec<WindowsFileState>,
     cost: Option<WindowsScanCost>,
@@ -56,7 +57,12 @@ impl WindowsNativeScanRoot {
         let lease = Self {
             path: root.to_path_buf(),
             drive_root: plan.drive_root,
-            components: plan.components,
+            // 只预编码固定名称；后续仍逐次重新打开并捕获完整根链身份。
+            components: plan
+                .components
+                .iter()
+                .map(|name| name.encode_wide().collect())
+                .collect(),
             chain,
             identities,
             cost: (std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").as_deref()
@@ -251,7 +257,7 @@ impl WindowsNativeScanRoot {
             .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
         self.validate_binding(&drive, &self.identities[0], check)?;
         for (index, name) in self.components.iter().enumerate() {
-            let current = checked(check, || open_child(&self.chain[index], name, true))?
+            let current = checked(check, || open_child_utf16(&self.chain[index], name, true))?
                 .map_err(|_| EngineError::Business(BusinessError::Conflict))?;
             self.validate_binding(&current, &self.identities[index + 1], check)?;
         }

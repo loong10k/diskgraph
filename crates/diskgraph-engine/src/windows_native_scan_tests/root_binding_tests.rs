@@ -7,6 +7,54 @@ use crate::windows_native_scan_root::WindowsNativeScanRoot;
 use super::{node, root, settings};
 
 #[test]
+fn preencoded_component_keeps_identity_and_rejects_invalid_names() {
+    use crate::windows_file_state::WindowsFileState;
+    use crate::windows_native_open::{open_child, open_child_utf16, open_drive};
+    use std::ffi::OsString;
+    use std::os::windows::ffi::{OsStrExt, OsStringExt};
+    let workspace = tempfile::tempdir().unwrap();
+    let root = root(&workspace);
+    let plan = crate::windows_path_plan::WindowsPathPlan::for_root(&root).unwrap();
+    let mut parent = open_drive(&plan.drive_root).unwrap();
+    for name in &plan.components {
+        let encoded: Vec<u16> = name.encode_wide().collect();
+        let ordinary = open_child(&parent, name, true).unwrap();
+        let prepared = open_child_utf16(&parent, &encoded, true).unwrap();
+        assert_eq!(
+            WindowsFileState::capture(&ordinary).unwrap(),
+            WindowsFileState::capture(&prepared).unwrap()
+        );
+        parent = prepared;
+    }
+    for invalid in [
+        vec![],
+        vec![46],
+        vec![46, 46],
+        vec![47],
+        vec![58],
+        vec![92],
+        vec![0],
+        vec![b'x' as u16; 32768],
+    ] {
+        assert!(matches!(
+            open_child_utf16(&parent, &invalid, true),
+            Err(EngineError::Business(BusinessError::InvalidArgument))
+        ));
+    }
+    // 原生名称不经过UTF-8替换；包括未配对surrogate的实际文件。
+    for encoded in [vec![0x4e2d, 0x6587], vec![0x78, 0xd800]] {
+        let name = OsString::from_wide(&encoded);
+        std::fs::write(root.join(&name), b"native").unwrap();
+        let ordinary = open_child(&parent, &name, false).unwrap();
+        let prepared = open_child_utf16(&parent, &encoded, false).unwrap();
+        assert_eq!(
+            WindowsFileState::capture(&ordinary).unwrap(),
+            WindowsFileState::capture(&prepared).unwrap()
+        );
+    }
+}
+
+#[test]
 fn held_root_allows_directory_time_change_without_replacement() {
     let workspace = tempfile::tempdir().unwrap();
     let parent = root(&workspace);

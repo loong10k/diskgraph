@@ -1,0 +1,24 @@
+{
+  "base_sha": "af9dc4e5b85d37e60fea8cb5861afdc76770d62d",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/windows_native_open.rs": "39580dce7221b2da4cdeb45cc3e9d16456b7491b2c0807e90ba6bace052fe411",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "54fb70e6d6853deb300ba912519d297214f195739eec4480b39e80fe094b78e7",
+    "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "a28d52bbff6cdd64490c63cdfa670b4b419d8ef538f943646d3856436f0194b2"
+  },
+  "host_target": "aarch64-apple-darwin",
+  "windows_compiled": false,
+  "windows_runtime_tests_executed": false,
+  "performance_measured": false,
+  "logs": {
+    "source_layout": {
+      "file": "source_layout.log.gz",
+      "original_bytes": 677,
+      "original_sha256": "0901d12808bcdc803c6b02dda4c66c15adde836d3e4b0c33e1daef4f223497bf"
+    },
+    "host_clippy": {
+      "file": "host_clippy.log.gz",
+      "original_bytes": 314,
+      "original_sha256": "187aa2cef623dee9c6bfe8cd401e3b1985eff41b9566382da7a939cbfa3b5e8b"
+    }
+  }
+}
