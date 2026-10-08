@@ -21,3 +21,7 @@ Windows API 依据：[PROCESS_MEMORY_COUNTERS](https://learn.microsoft.com/en-us
 原生打包任务 113089493625 / CI 37708407574 仍失败，不能判定生产就绪。负载 stderr 新增固定阶段与单调时间，含创建、注册、index、覆盖核验、查询、预算拒绝；外层 TimeoutExpired 重放捕获日志并传播同一异常。300 秒期限不变。包装工作区成功时回收，异常时保留并报告路径，以免未知后代仍占用文件时删除失败掩盖原异常。保留材料不代表进程退休完成，也不解决性能根因。
 
 回归：日志丢失 RED 10 项中 1 失败 → GREEN 10/10；工作区保留 RED 11 项中 1 失败 → GREEN 11/11；负载覆盖 5/5。仍待新提交 Windows 原生阶段日志与进程生命周期验收，不勾选父项。
+
+Windows 验收 Job 候选继续开放：新增 scripts/windows_acceptance_job.py 与契约/原生候选测试。当前仅本机生命周期替身 3/3、Windows 原生 1 项未运行。尚未接入打包入口：需先解决 Python subprocess.run 超时后 communicate 等待后代继承管道的问题；必须在等待管道前终止原 Job，使用有界退休检查并保留原异常。不能把候选当作已实现或原生通过。
+
+Windows 验收 Job 候选已补齐有界管道退出并接入打包入口：Windows 分支持原无名 Job，以显式 handle_list 传继承副本；可信包装器先绑定自身再执行目标脚本。执行沿原300秒绝对期限，清理使用独立5秒期限。Job未知仍尝试原Popen终止；所有句柄独立释放，清理错误附加原异常或使正常路径失败。模拟契约7/7、包装11/11、负载5/5；两路复审APPROVE/CLEAR。新增Windows原生后代启动/timeout回收测试在打包前运行，尚未执行；产品嵌套Job、200k负载与全部平台门禁保持开放。SDK依据：https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects 与 SDK Job基础计数/扩展限制结构。

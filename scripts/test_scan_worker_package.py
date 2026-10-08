@@ -318,7 +318,7 @@ class TimeoutDiagnosticTests(PackageFixture):
                                             output=b'partial stdout',
                                             stderr=b'phase=index begin\n')
         diagnostics = io.StringIO()
-        with mock.patch.object(package.subprocess, 'run', side_effect=failure), \
+        with mock.patch.object(package, 'run_acceptance', side_effect=failure), \
                 contextlib.redirect_stderr(diagnostics):
             with self.assertRaises(subprocess.TimeoutExpired) as caught:
                 package.accepted('accept-readonly-load.py', self.bin_dir)

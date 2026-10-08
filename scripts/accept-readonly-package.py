@@ -18,6 +18,12 @@ from worker_manifest import (MANIFEST_NAME, MAX_IMAGE_BYTES, bounded_digest,
                              verify_manifest, workspace_version, write_manifest)
 
 
+if sys.platform == "win32":
+    from windows_acceptance_job import run_owned as run_acceptance
+else:
+    run_acceptance = subprocess.run
+
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SUFFIX = ".exe" if sys.platform == "win32" else ""
 
@@ -54,7 +60,7 @@ def accepted(script, bin_dir, *arguments, deployment=None):
     environment = dict(os.environ if deployment is None else deployment)
     environment["DISKGRAPH_ACCEPT_BIN_DIR"] = str(bin_dir)
     try:
-        result = subprocess.run(
+        result = run_acceptance(
             [sys.executable, str(ROOT / "scripts" / script), *map(str, arguments)],
             cwd=ROOT, env=environment, capture_output=True, text=True, timeout=300,
         )

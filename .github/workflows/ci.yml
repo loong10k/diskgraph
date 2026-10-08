@@ -1044,6 +1044,9 @@ jobs:
           name: package-worker-identity-${{ matrix.target }}
           path: ${{ runner.temp }}/product-worker-receipt.json
           retention-days: 7
+      - name: Verify native Windows acceptance process tree retirement
+        if: runner.os == 'Windows'
+        run: python -m unittest discover -s scripts/tests -p test_windows_acceptance_job.py -v
       - name: Verify load coverage refusal regression
         run: python -m unittest discover -s scripts/tests -p test_readonly_load_coverage.py -v
       - name: Verify archive and packaged binaries
