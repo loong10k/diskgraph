@@ -15,3 +15,7 @@ Windows Rust 1.99 MSVC release、200 对交替样本：通用连接 p50 1.1418ms
 初版 Windows：Store 6 通过/1 失败/1 忽略，Engine 撤权 6 通过，终检 13 通过/1 失败，MCP 224 通过/7 失败，CLI 84 通过/4 失败。保留这些失败；修正后的原生验证尚待完成。此变更和微基准均不替代全量并发、跨平台及完整 200k 工作负载验收。
 
 禁止 busy 重试后的 Windows 对应源码指纹与命令见 `docs/benchmarks/ownership_reader_2026_10_09/windows_zero_busy.json`：Store 7 通过/1 忽略，恢复协议 9 通过，终检 14 通过，CLI 88 通过；MCP 229 通过/2 失败，失败为 impact/candidates 编码后到期的部分诊断。未把一次不同负载结果的失败数量减少解释为统计显著性能收益。全量 Engine 重测与 MCP 阶段诊断继续执行。
+
+随后原默认并发 Engine 全量在 600.016s 达到验证外壳期限，未产出完整 suite 结果。大量空文件夹具先在原 120s 构造期限内失败，原恢复责任继续处理目录清理，输出 `probe cumulative output byte limit exceeded`。外壳结束原测试树不能证明产品有限退出或原目录回收。保留失败与原源码/命令记录：`windows_full_engine_timeout.json`。
+
+MCP 开启阶段诊断的默认并发全量为 230 通过/1 失败，失败换为 related 编码到期的部分诊断；原终检 ownership SQL 实耗 39.746ms 后整体原窗口已耗尽。不同运行失败集合变化，仍表明并发稳定性门禁未通过，不能按最后一次较少失败数量关闭问题。原 50ms、15s Git 采样及完整 Windows 200k 的 300s 门禁均保留。

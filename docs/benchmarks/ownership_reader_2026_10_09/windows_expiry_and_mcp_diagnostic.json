@@ -1,0 +1,68 @@
+{
+  "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+  "source_hashes": {
+    "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+    "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+    "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+    "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+    "crates/diskgraph-store/src/revision_ownership_reader.rs": "fbb3dff05b2102fd0364ee2977c307c03b2fd10c397c9e92b7ba655da752cf33",
+    "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "e4d5b32b76684decb7db5ad4cb99ee17f7daa9bfd4bfb81a92ea81dd469e5e2f"
+  },
+  "commands": [
+    {
+      "name": "expiry_fixture",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "token_expired_during_consumer",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.952999999979511
+    },
+    {
+      "name": "mcp_diagnostic",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-mcp",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 23.812999999994645
+    }
+  ],
+  "working_tree_diff_sha256": "591cf648d9f91ce07f8681f53c03d6a0623be5974d8878e4f373a4957662190c",
+  "tracked_status": " M crates/diskgraph-cli/src/candidate_commands.rs\n M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_commands.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/admin_policy_lookup_tests.rs\n M crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-engine/src/terminal_revision_authorization.rs\n M crates/diskgraph-engine/tests/recovery_control.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n M crates/diskgraph-store/src/lib.rs\n",
+  "admin_fixture_sha256": "aa2abe8cb744bfbd085cd70129d72d9f1f96aebead9ca587bb43aac7228a7029",
+  "summaries": {
+    "expiry_fixture": {
+      "results": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 707 filtered out; finished in 1.66s"
+      ],
+      "failure": null
+    },
+    "mcp_diagnostic": {
+      "results": [
+        "test relation_encoding_tests::encoded_socket_related_expiry_preserves_bounded_partial_diagnostic ... FAILED",
+        "test result: FAILED. 230 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.15s"
+      ],
+      "failure": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_mcp-4b7465d1dc0c0cbc.exe)\n\nthread 'http_lifecycle_tests::foreground_panic_raii_joins_original_server_before_directory_cleanup' (47236) panicked at crates\\diskgraph-mcp\\src\\http_lifecycle_tests.rs:119:9:\noriginal HTTP fixture panic\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\ndiskgraph: authorization_budget_phase=terminal_ownership_sql elapsed_us=39746\n\nthread 'relation_encoding_tests::encoded_socket_related_expiry_preserves_bounded_partial_diagnostic' (56568) panicked at crates\\diskgraph-mcp\\src\\history_budget_tests.rs:558:5:\nassertion `left == right` failed: {\"error\":{\"code\":-32001,\"data\":{\"business_code\":\"budget_exceeded\",\"exit_code\":7},\"message\":\"budget_exceeded (exit 7) (while serving C13)\"},\"id\":41,\"jsonrpc\":\"2.0\"}\n  left: Null\n right: false\nerror: test failed, to rerun pass `-p diskgraph-mcp --lib`\n"
+    }
+  }
+}

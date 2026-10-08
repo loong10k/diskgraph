@@ -684,20 +684,31 @@ fn revision_reader_refuses_token_expired_during_consumer() {
         }
     }
     let (_dir, engine, principal, _, revision) = published_authorization_fixture();
-    // 留足原始一秒执行预算：在墙钟秒的后半段开始，消费只等待下一个固定秒边界。
-    let mut now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap();
-    if now.subsec_millis() < 500 {
-        std::thread::sleep(std::time::Duration::from_millis(
-            500 - u64::from(now.subsec_millis()),
-        ));
-        now = std::time::SystemTime::now()
+    let policy = engine.policy_authorizer().unwrap();
+    // 在真实秒的 500–550ms 区间开始，避免旧夹具在 999ms 开始而先于 consumer 到期。
+    // 每次 sleep 后重读墙钟；不重试请求、不更改 token 的固定到期时间或一秒查询预算。
+    let preparation_deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    let now = loop {
+        assert!(
+            std::time::Instant::now() < preparation_deadline,
+            "expiry fixture could not enter the real clock phase"
+        );
+        let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap();
-    }
+        let phase = u64::from(now.subsec_millis());
+        if (500..=550).contains(&phase) {
+            break now;
+        }
+        let wait = if phase < 500 {
+            500 - phase
+        } else {
+            1500 - phase
+        };
+        std::thread::sleep(std::time::Duration::from_millis(wait));
+    };
     let authorizer = Fixed {
-        policy: engine.policy_authorizer().unwrap(),
+        policy,
         expiry: now.as_secs() + 1,
     };
     let entered = std::cell::Cell::new(false);
@@ -799,20 +810,31 @@ fn display_reader_refuses_token_expired_during_consumer() {
         }
     }
     let (_dir, engine, principal, _, revision) = published_authorization_fixture();
-    // 留足原始一秒执行预算：在墙钟秒的后半段开始，消费只等待下一个固定秒边界。
-    let mut now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap();
-    if now.subsec_millis() < 500 {
-        std::thread::sleep(std::time::Duration::from_millis(
-            500 - u64::from(now.subsec_millis()),
-        ));
-        now = std::time::SystemTime::now()
+    let policy = engine.policy_authorizer().unwrap();
+    // 与 revision 夹具一样先选择真实秒中段，避免初始授权先于消费跨过到期边界。
+    // sleep 后重读墙钟；原 token 到期时间与查询预算固定，不重试请求。
+    let preparation_deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    let now = loop {
+        assert!(
+            std::time::Instant::now() < preparation_deadline,
+            "expiry fixture could not enter the real clock phase"
+        );
+        let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap();
-    }
+        let phase = u64::from(now.subsec_millis());
+        if (500..=550).contains(&phase) {
+            break now;
+        }
+        let wait = if phase < 500 {
+            500 - phase
+        } else {
+            1500 - phase
+        };
+        std::thread::sleep(std::time::Duration::from_millis(wait));
+    };
     let authorizer = Fixed {
-        policy: engine.policy_authorizer().unwrap(),
+        policy,
         expiry: now.as_secs() + 1,
     };
     let entered = std::cell::Cell::new(false);

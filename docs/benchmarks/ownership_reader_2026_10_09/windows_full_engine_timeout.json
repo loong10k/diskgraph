@@ -1,0 +1,60 @@
+{
+  "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+  "source_hashes": {
+    "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+    "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+    "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+    "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+    "crates/diskgraph-store/src/revision_ownership_reader.rs": "fbb3dff05b2102fd0364ee2977c307c03b2fd10c397c9e92b7ba655da752cf33",
+    "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "e4d5b32b76684decb7db5ad4cb99ee17f7daa9bfd4bfb81a92ea81dd469e5e2f"
+  },
+  "commands": [
+    {
+      "name": "engine_full",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "harness_timeout": true,
+      "elapsed_seconds": 600.0159999999742
+    }
+  ],
+  "working_tree_diff_sha256": "0a23c9ce9608c410b9f21eaa411b45c92fe5150c72395a146cf03f3fe7932588",
+  "tracked_status": " M crates/diskgraph-cli/src/candidate_commands.rs\n M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_commands.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-engine/src/terminal_revision_authorization.rs\n M crates/diskgraph-engine/tests/recovery_control.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n M crates/diskgraph-store/src/lib.rs\n",
+  "failure_observations": [
+    "test git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision ... FAILED",
+    "test git_job_cancellation_tests::live_git_owner_rejection_and_cancel_preserve_the_active_handle ... FAILED",
+    "test job_stop_signals_tests::keeper_authorization_failure_is_not_inferred_from_the_stop_atomic ... FAILED",
+    "test live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::linked_worktree_keeps_its_own_head_index_and_the_common_stash ... FAILED",
+    "test live_evidence::git_isolation_tests::source_metadata_is_unchanged_on_success_budget_failure_and_precancel ... FAILED",
+    "test live_evidence::git_metadata_tests::assume_valid_bit_preserves_git_status_semantics_in_private_view ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes ... FAILED",
+    "test live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes ... FAILED",
+    "test live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency ... FAILED",
+    "test live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git ... FAILED",
+    "test revision_evidence_tests::dependency_batches_do_not_reactivate_old_assertions ... FAILED",
+    "test revision_evidence_tests::old_revision_cannot_read_newer_batch_from_the_same_snapshot ... FAILED",
+    "test revision_evidence_tests::old_revision_cannot_explain_newer_entities ... FAILED",
+    "test live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit has been running for over 60 seconds",
+    "test windows_scan_runtime_tests::successful_birth_retains_image_after_host_release ... FAILED"
+  ],
+  "recovery_error_context": [
+    "",
+    "thread 'live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit' (9412) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_private_capacity_tests.rs:297:14:",
+    "called `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"",
+    "native probe test recovery retains original owner: private Git cleanup failed: probe cumulative output byte limit exceeded",
+    "called `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"",
+    "native probe test recovery retains original owner: private Git cleanup failed: probe cumulative output byte limit exceeded"
+  ],
+  "qualification": "harness timeout; no completed Engine suite; no product finite-exit or cleanup acceptance"
+}
