@@ -80,32 +80,62 @@ impl<'a> ScanObservationGuard<'a> {
     /// 原生 I/O 不在本方法持有的控制事务内执行；发布自身仍使用原子 fence 事务。
     pub(super) fn check_now(&self) -> Result<(), EngineError> {
         self.check_fast()?;
-        let mut control = self.engine.control()?;
+        let deadline = self
+            .started
+            .checked_add(Duration::from_millis(
+                self.engine.scan_budget.max_duration_ms,
+            ))
+            .ok_or(BusinessError::BudgetExceeded)?;
+        let mut control = self.engine.control_until(deadline)?;
         self.check_fast()?;
-        if control.scope(&self.job.scope_id)?.revoked {
-            return Err(BusinessError::PermissionDenied.into());
-        }
-        if control.cancellation_requested(&self.job.job_id, self.job.fencing_token)? {
-            return Err(BusinessError::Conflict.into());
-        }
-        if control.policy_state()?.is_some()
-            && control.live_permission(
-                &self.job.principal,
-                &Permission::IndexWrite,
-                &self.job.scope_id,
-            )? != Some(true)
-        {
-            return Err(BusinessError::PermissionDenied.into());
-        }
-        control.with_job_fence(
-            &self.job.job_id,
-            &self.job.owner,
-            self.job.fencing_token,
-            || Ok(()),
-        )?;
+        // 同一原期限约束锁等待与实时标量检查，不为撤权轮询重复解码整个 scope。
+        control
+            .with_read_deadline(deadline, |control| {
+                if control.scope_revoked(&self.job.scope_id)? {
+                    return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                if control.cancellation_requested(&self.job.job_id, self.job.fencing_token)? {
+                    return Err(BusinessError::Conflict.into());
+                }
+                if control.policy_state()?.is_some()
+                    && control.live_permission(
+                        &self.job.principal,
+                        &Permission::IndexWrite,
+                        &self.job.scope_id,
+                    )? != Some(true)
+                {
+                    return Err(BusinessError::PermissionDenied.into());
+                }
+                Ok(())
+            })
+            .map_err(observation_control_error)?;
+        // 先退出只读 progress guard，再用既有有期限 fence 事务；不能嵌套连接 handler。
+        control
+            .with_job_fence_until(
+                &self.job.job_id,
+                &self.job.owner,
+                self.job.fencing_token,
+                deadline,
+                || Ok(()),
+            )
+            .map_err(|error| observation_control_error(error.into()))?;
         drop(control);
         self.check_fast()?;
         self.checked.set(Some(Instant::now()));
         Ok(())
+    }
+}
+
+// 仅预算、busy 和中断统一为扫描预算错误；失权、损坏及 stale owner 保留原分类。
+fn observation_control_error(error: EngineError) -> EngineError {
+    match error {
+        EngineError::Store(error)
+            if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
+                || error.is_busy()
+                || error.is_interrupted() =>
+        {
+            BusinessError::BudgetExceeded.into()
+        }
+        other => other,
     }
 }

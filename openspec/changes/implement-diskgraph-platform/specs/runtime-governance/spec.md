@@ -153,6 +153,11 @@ doctor/status SHALL 展示平台、协议、依赖、权限、数据版本、任
 - **WHEN** 新 fencing owner 从头扫描并成功发布
 - **THEN** 已确认失效的旧代次 staging 被安全回收，当前 owner 的 staging 不被误删。
 
+#### Scenario: Scan observation control contention consumes the original scan deadline
+- **WHEN** periodic native scan observation waits for the shared control lock or a competing SQLite writer
+- **THEN** lock acquisition, live cancellation/revocation checks and the fencing transaction inherit the original absolute scan deadline, returning BudgetExceeded on expiry
+- **AND** expiry does not refresh the budget or admit staging/publication; current owner, durable request authority, scope and permission checks remain required
+
 ### Requirement: RT-07 Explicit history reclamation
 The CLI SHALL preview `snapshots prune --scope S --keep-last N` without deletion and SHALL require `--apply` to remove old history. Reclamation SHALL preserve latest revisions, pins, and data needed by operation or recovery records. Ambiguous legacy references SHALL cause conservative retention.
 

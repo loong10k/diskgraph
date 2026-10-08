@@ -140,6 +140,8 @@ mod scan_jobs;
 #[cfg(test)]
 mod scan_locator_tests;
 mod scan_node_locator;
+#[cfg(test)]
+mod scan_observation_deadline_tests;
 mod scan_observation_guard;
 #[cfg(test)]
 mod scan_observation_tests;
