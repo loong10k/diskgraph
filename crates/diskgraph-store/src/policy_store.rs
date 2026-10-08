@@ -15,11 +15,8 @@ impl ControlStore {
     pub fn policy_version(&self) -> Result<u64> {
         let row: Option<(i64, i64)> = self
             .connection
-            .query_row(
-                "SELECT version, revoked FROM policy WHERE id = 1",
-                [],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
+            .prepare_cached("SELECT version, revoked FROM policy WHERE id = 1")?
+            .query_row([], |row| Ok((row.get(0)?, row.get(1)?)))
             .optional()?;
         match row {
             Some((version, 0)) => Ok(version.max(0) as u64),
@@ -166,11 +163,8 @@ impl ControlStore {
     pub fn policy_state(&self) -> Result<Option<(u64, bool)>> {
         let row: Option<(i64, i64)> = self
             .connection
-            .query_row(
-                "SELECT version, revoked FROM policy WHERE id = 1",
-                [],
-                |row| Ok((row.get(0)?, row.get(1)?)),
-            )
+            .prepare_cached("SELECT version, revoked FROM policy WHERE id = 1")?
+            .query_row([], |row| Ok((row.get(0)?, row.get(1)?)))
             .optional()?;
         Ok(row.map(|(version, revoked)| (version.max(0) as u64, revoked != 0)))
     }
@@ -187,12 +181,15 @@ impl ControlStore {
     ) -> Result<Option<bool>> {
         // 一条 SQL 共享同一 WAL 观察，避免把撤权前的 scope 与撤权后的策略拼接。
         // 不开启跨请求事务、不缓存允许结果；按旧顺序解码必要字段，保留拒权及损坏语义。
+        // 只复用有界连接缓存中的编译语句；重新绑定参数并执行，绝不缓存允许结果。
         self.connection
-            .query_row(
+            .prepare_cached(
                 "SELECT s.revoked, p.id, p.version, p.revoked,
                 EXISTS(SELECT 1 FROM grants g WHERE g.policy_version=p.version
                     AND p.revoked=0 AND g.principal_id=?1 AND g.permission=?2 AND g.scope_id=?3)
              FROM scopes s LEFT JOIN policy p ON p.id=1 WHERE s.scope_id=?3",
+            )?
+            .query_row(
                 params![principal.as_str(), permission.wire_name(), scope.as_str()],
                 |row| {
                     if row.get::<_, i64>(0)? != 0 {
@@ -324,3 +321,7 @@ impl ControlStore {
         Ok(grants)
     }
 }
+
+#[cfg(test)]
+#[path = "control_query_cache_tests.rs"]
+mod control_query_cache_tests;

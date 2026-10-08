@@ -1,0 +1,92 @@
+{
+  "base_commit": "b3259315c674cc67c1bd7d72c669f2af9b29f73f",
+  "source_sha256": {
+    "Cargo.lock": "7ec8938251c354b70e279ea306b13b17c7298e06b36a783e7ad19d48920a33f0",
+    "crates/diskgraph-store/Cargo.toml": "f8385b0602ec8ec5f55d75b0a09db184b21111eaf3f91d379aee125c0aba9b32",
+    "crates/diskgraph-store/src/policy_store.rs": "5272c8c5c37af5b2e1bd87e81e424b23a004b42ce4d13da7327dbd6edcea843b",
+    "crates/diskgraph-store/src/scope_preparation_store.rs": "ab9717508f9c49121c2cdb97e93e3d1bf00dde720984366c00586990e8cada5d",
+    "crates/diskgraph-store/src/authorization_generation.rs": "2a06733a0ae7a3414f8269aa4a1944540112f10c0ae309da21af314156534ff4",
+    "crates/diskgraph-store/src/control_read_budget.rs": "eeda1982e47cd08b5905d524bccb6af94ed22eed6829b1a3170fa9e73773ed41",
+    "crates/diskgraph-store/src/control_query_cache_tests.rs": "b635479009f3f2ce586ca51ff2d9d5d1f4402f4c2f9c55e26a659d82e853f513"
+  },
+  "preserved_worktree_test_context_sha256": {
+    "crates/diskgraph-store/src/lib.rs": "ab973026ea73bbad4755197d2275678cec2a21d5b9590bff6875c11b8b6bcd7f",
+    "crates/diskgraph-store/src/reader_observation_tests.rs": "57a4970c6970ffbe9766839382affe66415ad399c304a8f5bf3c6d5a1df7f08a"
+  },
+  "tests": {
+    "clippy.log": [],
+    "engine_capability.log": [
+      "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 724 filtered out; finished in 8.42s"
+    ],
+    "engine_withdrawal.log": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 732 filtered out; finished in 0.92s"
+    ],
+    "fmt.log": [],
+    "green.log": [
+      "test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 350 filtered out; finished in 0.02s"
+    ],
+    "initial_compile_probe.log": [],
+    "openspec.log": [],
+    "red.log": [
+      "test result: FAILED. 2 passed; 1 failed; 1 ignored; 0 measured; 350 filtered out; finished in 0.02s"
+    ],
+    "release_comparison.log": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 353 filtered out; finished in 0.10s"
+    ],
+    "store_regression.log": [
+      "test result: ok. 347 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out; finished in 149.10s"
+    ],
+    "upstream.log": [
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s"
+    ]
+  },
+  "log_sha256": {
+    "clippy.log.gz": "b90d1049ecca0182cd810d0a128f4617dc3c776ffc9c63d54d17713422c15ebc",
+    "engine_capability.log.gz": "cfa5bc54f629d34f3649bbcd7f17a31af5bdb8e9aab68168115b93d7436b1547",
+    "engine_withdrawal.log.gz": "2d61247efa056c29c6e2de18fa323f2780cf0500ef83aec3c9e1253f244dd0f2",
+    "fmt.log.gz": "07468ddcc55c8ba680a1889ed30774c6e3a61c53d518e47c46ba5b092ff6084f",
+    "green.log.gz": "980c3dce8dad6c8562e8bcc08df95fdc8a47b809d7f273784f18e14ea98cc763",
+    "initial_compile_probe.log.gz": "0e3f7c7a7860a58929a560430e0943fbc882c0cff24ae7f547af6531620b0b3e",
+    "openspec.log.gz": "6b3a0dfc172874caa3db08e89a734b85f375c30fcf9e41485cba2b9ff4a8b644",
+    "red.log.gz": "19659f35398a476e59a9d4acd81317e385037e081f675c751d6f059581ed15d7",
+    "release_comparison.log.gz": "ef1473359c3203f69e7c55d086c64c7066f372454ae32c2b1cb41223ca7b6242",
+    "store_regression.log.gz": "92d6c6c801000edee92c785e96728b3cbbe7cf82b831002b59c0f66e751f7be2",
+    "upstream.log.gz": "8b35e3e4b2c5631181f73db6dff0510a28dca2b25f033df16d4f8e9f93c1c299"
+  },
+  "measurement": {
+    "os": "macos",
+    "release": true,
+    "rounds": [
+      {
+        "capacity": 0,
+        "p50_ns": 19875,
+        "p95_ns": 21959,
+        "samples": 2000,
+        "total_ns": 41386816
+      },
+      {
+        "capacity": 16,
+        "p50_ns": 2875,
+        "p95_ns": 3000,
+        "samples": 2000,
+        "total_ns": 5791768
+      },
+      {
+        "capacity": 16,
+        "p50_ns": 2875,
+        "p95_ns": 3042,
+        "samples": 2000,
+        "total_ns": 5843414
+      },
+      {
+        "capacity": 0,
+        "p50_ns": 20208,
+        "p95_ns": 21375,
+        "samples": 2000,
+        "total_ns": 41462393
+      }
+    ],
+    "scope": "in-memory control SQL compilation only"
+  },
+  "qualification": "macOS worktree only; cache-disabled reference is not a previous release artifact; no end-to-end, Linux or Windows performance claim"
+}

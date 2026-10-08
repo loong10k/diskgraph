@@ -7,11 +7,10 @@ impl ControlStore {
     /// 参数：无额外输入，使用当前控制库连接。
     /// 返回：单调计数，缺失或损坏时失败关闭。
     pub fn authorization_generation(&self) -> Result<u64> {
-        let generation: i64 = self.connection.query_row(
-            "SELECT generation FROM authorization_state WHERE id = 1",
-            [],
-            |row| row.get(0),
-        )?;
+        let generation: i64 = self
+            .connection
+            .prepare_cached("SELECT generation FROM authorization_state WHERE id = 1")?
+            .query_row([], |row| row.get(0))?;
         u64::try_from(generation)
             .map_err(|_| crate::StoreError::InvalidGraph("invalid authorization generation".into()))
     }

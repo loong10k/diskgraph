@@ -14,11 +14,8 @@ impl ControlStore {
     /// 参数：实际范围身份；返回：撤销状态，缺失范围仍返回 ScopeNotFound。
     pub fn scope_revoked(&self, scope: &ScopeId) -> Result<bool> {
         self.connection
-            .query_row(
-                "SELECT revoked FROM scopes WHERE scope_id=?1",
-                [scope.as_str()],
-                |row| Ok(row.get::<_, i64>(0)? != 0),
-            )
+            .prepare_cached("SELECT revoked FROM scopes WHERE scope_id=?1")?
+            .query_row([scope.as_str()], |row| Ok(row.get::<_, i64>(0)? != 0))
             .optional()?
             .ok_or_else(|| StoreError::ScopeNotFound(scope.as_str().into()))
     }

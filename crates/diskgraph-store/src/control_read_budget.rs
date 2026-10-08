@@ -11,9 +11,8 @@ impl ControlStore {
     pub fn existing_server_id(&self) -> crate::Result<ServerId> {
         let id: String = self
             .connection
-            .query_row("SELECT server_id FROM server WHERE id=1", [], |row| {
-                row.get(0)
-            })
+            .prepare_cached("SELECT server_id FROM server WHERE id=1")?
+            .query_row([], |row| row.get(0))
             .optional()?
             .ok_or_else(|| StoreError::InvalidGraph("stored server id is missing".into()))?;
         ServerId::new(id)
