@@ -39,9 +39,22 @@ pub(crate) fn run(
                     .latest_revision_until(&scope_id, deadline)?
                     .ok_or(EngineError::Business(BusinessError::NotIndexed))?,
             };
-            // The narrow read path: no full-graph materialization. A pre-v4
-            // snapshot falls back inside the engine and renders identically.
-            let mut view = engine.tree_view_until(
+            let server_id = engine.server_id()?;
+            let root_label = if html.is_some() {
+                let scope_record = engine.scope(&scope_id)?;
+                let root = scope_record
+                    .root
+                    .raw_bytes()
+                    .ok()
+                    .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
+                    .unwrap_or_else(|| scope.clone());
+                Some(if *anonymize { "home".to_owned() } else { root })
+            } else {
+                None
+            };
+            let mut encoded = None;
+            // 实际 JSON/HTML 编码复用原读取的撤权见证，编码后的恢复授权不能复活原请求。
+            engine.tree_view_with_finish_until(
                 &scope_id,
                 &revision,
                 principal,
@@ -50,34 +63,39 @@ pub(crate) fn run(
                 *min_bytes,
                 snapshot_reply::budget(),
                 deadline,
+                |view, expired| {
+                    if *anonymize {
+                        html::anonymize_tree(&mut view.root, "home");
+                    }
+                    if let Some(root_label) = &root_label {
+                        let truncated = html::tree_is_truncated(&view.root);
+                        let page =
+                            html::render_page(&view.root, root_label, &revision, truncated, *depth);
+                        #[cfg(test)]
+                        query_terminal_tests::before_reply();
+                        if expired {
+                            return Err(BusinessError::BudgetExceeded.into());
+                        }
+                        encoded = Some(page);
+                    } else {
+                        let data = serde_json::json!({
+                            "revision_id": revision,
+                            "rendered_depth": depth,
+                            "tree": view.root,
+                        });
+                        encoded = Some(snapshot_reply::encode_data(
+                            server_id.clone(),
+                            &data,
+                            expired,
+                        )?);
+                    }
+                    Ok(())
+                },
             )?;
-            if *anonymize {
-                html::anonymize_tree(&mut view.root, "home");
-            }
+            let encoded = encoded.ok_or(BusinessError::InternalError)?;
             if let Some(destination) = html {
-                let scope_record = engine.scope(&scope_id)?;
-                let root = scope_record
-                    .root
-                    .raw_bytes()
-                    .ok()
-                    .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
-                    .unwrap_or_else(|| scope.clone());
-                // A shared report must not disclose the user name in the root
-                // path; the anonymized root label replaces it.
-                let root_label = if *anonymize {
-                    "home".to_owned()
-                } else {
-                    root.clone()
-                };
-                let truncated = html::tree_is_truncated(&view.root);
-                let page = html::render_page(&view.root, &root_label, &revision, truncated, *depth);
-                #[cfg(test)]
-                query_terminal_tests::before_reply();
-                if !snapshot_reply::finalize(engine, principal, authorizer, &[&revision], deadline)?
-                {
-                    return Err(BusinessError::BudgetExceeded.into());
-                }
-                std::fs::write(destination, page)?;
+                // 原请求已完成编码后授权；只在成功返回后发布文件。
+                std::fs::write(destination, encoded)?;
                 out.push(envelope_line(
                     engine,
                     Ok(serde_json::json!({
@@ -88,18 +106,7 @@ pub(crate) fn run(
                 ));
                 return Ok(());
             }
-            out.push(snapshot_reply::finish(
-                engine,
-                principal,
-                authorizer,
-                &[&revision],
-                serde_json::json!({
-                    "revision_id": revision,
-                    "rendered_depth": depth,
-                    "tree": view.root,
-                }),
-                deadline,
-            )?);
+            out.push(encoded);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

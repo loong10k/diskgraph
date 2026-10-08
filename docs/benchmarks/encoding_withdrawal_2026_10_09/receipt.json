@@ -1,0 +1,261 @@
+{
+  "source_hashes": {
+    "crates/diskgraph-mcp/src/history_budget_tests.rs": "84f00e92ca728a7b308ad5b4a5ab1dc23aacd8ba8d3f9d7542b9e3d53cfddde4",
+    "crates/diskgraph-mcp/src/service_dispatch.rs": "3082796cf0023a088935c9d9be36f183d5d7d8c22cc5bda69b5c6804fd73ec00",
+    "crates/diskgraph-mcp/src/snapshot_reply.rs": "82b77b0a2b93580a322614463d0e80639f9cd59953af2bfe1f8770c670896e34",
+    "crates/diskgraph-mcp/src/snapshot_tools.rs": "ee85446dd7191a4f8cb99e367c27f598c2b84ac94c95426dc9aa5800d103ecc6",
+    "crates/diskgraph-mcp/src/tests/mod.rs": "48807d9973932e1db6db65258723ef75fd80582d68afc4bb9c95f33775815238",
+    "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs": "08c41aa99298aeba7d0dd195c7b062cffe7cd2291ba1b61eede69f0913837d05",
+    "crates/diskgraph-cli/src/query_terminal_tests.rs": "df89212c7f7174023849fc2b07d19f882309b7fb859310136c96521f51d0d320",
+    "crates/diskgraph-cli/src/snapshot_reply.rs": "8cbb1e880f6d65b29ba18b2837f2a07825ebca635d5784c8710e7ebdf044e0fe",
+    "crates/diskgraph-cli/src/tree_commands.rs": "b0d4f5a70ef6c5211abf5c0d479cb02a16383e371278ab2362e0edb8e5d98d0c",
+    "crates/diskgraph-cli/src/comparison_commands.rs": "69a9644cc12fd769025b8b367665dada09e112792a3a04b4ae4c0f81218baad8",
+    "crates/diskgraph-cli/src/history_commands.rs": "98ee02d89fcdec468389b65f5d4a80453a487a9aa3596af9a0adec24d095dad6",
+    "crates/diskgraph-engine/src/revision_history.rs": "a062332054c12c708591b075bfabe75cb5bceb9be2345f070463bae42f81ff67",
+    "crates/diskgraph-engine/src/revision_comparison.rs": "274833e124afb459e1cd948ab3f291e9cdd579876666f2310f681ef5165679bd",
+    "crates/diskgraph-engine/src/tree_queries.rs": "8c22fbfdd7afe29a951a0a2703c28354f3de712a244117ae49eb24020b7e06d5",
+    "crates/diskgraph-engine/src/sync_plan.rs": "edd3ed8763184bfbe06d4f2b37e27e0df228b5577126c22afe494e68db10f266",
+    "crates/diskgraph-engine/src/verify/verification.rs": "f1860e12f8782811080408ae0d8846c4f6f2a69e44fc666218c45e43e4bf275e",
+    "crates/diskgraph-engine/src/verify/mod.rs": "26c61ea681897a72b2ae084753de36076de49a6e31c85482edef04e73da9361f"
+  },
+  "local_logs": {
+    "mcp-encoding-withdrawal-red": {
+      "file": "mcp-encoding-withdrawal-red.log.gz",
+      "raw_sha256": "ccb8124a325426a5d989cb26254640d74c8d98b7e8b31235d554ae20692e53f3",
+      "raw_bytes": 3734
+    },
+    "mcp-encoding-withdrawal-green": {
+      "file": "mcp-encoding-withdrawal-green.log.gz",
+      "raw_sha256": "f83e1bbade5bc84d9f8e893d9598f7595a14f90f62839b7a1b79bd0ffcb13187",
+      "raw_bytes": 1773
+    },
+    "mcp-encoding-withdrawal-green-platform": {
+      "file": "mcp-encoding-withdrawal-green-platform.log.gz",
+      "raw_sha256": "992aec75bb953595f0d0e5b0c4ebba2f797cfac6703245abf2fd082184100b0a",
+      "raw_bytes": 584
+    },
+    "mcp-encoding-withdrawal-green-final": {
+      "file": "mcp-encoding-withdrawal-green-final.log.gz",
+      "raw_sha256": "554995dc3e34b861085b89ecea01606ecdacc494a6624310e4b85609fd6f7382",
+      "raw_bytes": 584
+    },
+    "mcp-encoding-withdrawal-clippy-final": {
+      "file": "mcp-encoding-withdrawal-clippy-final.log.gz",
+      "raw_sha256": "9e9ca746fc1ebbdc96e20c6d779c5bfdb67655067dd87e4a45702daec291eb13",
+      "raw_bytes": 182
+    },
+    "mcp-encoding-filesystem-regression": {
+      "file": "mcp-encoding-filesystem-regression.log.gz",
+      "raw_sha256": "d8724a886729a875234ef1e44ff192f441f02d6f1e612d586d85f92748f503c0",
+      "raw_bytes": 1270
+    },
+    "mcp-encoding-request-regression": {
+      "file": "mcp-encoding-request-regression.log.gz",
+      "raw_sha256": "612b2536b7020df500e1edace850dc73e6fd04cbefc46715d2f115f69539bea9",
+      "raw_bytes": 2315
+    },
+    "cli-encoding-all-clippy": {
+      "file": "cli-encoding-all-clippy.log.gz",
+      "raw_sha256": "8aa017032a2d39be9348af40e40560f44244249253b596d34e18f99ec440a922",
+      "raw_bytes": 408
+    },
+    "cli-encoding-history-regression": {
+      "file": "cli-encoding-history-regression.log.gz",
+      "raw_sha256": "2fa4fa6bf4c3ed5247552b05f78fcb74d52862d83ed90620ef3534aff92f66dc",
+      "raw_bytes": 1039
+    }
+  },
+  "local_results": {
+    "mcp_red": {
+      "passed": 0,
+      "failed": 2,
+      "cause": "actual successful encoded data after grant revocation and restoration"
+    },
+    "mcp_first_fix": {
+      "passed": 0,
+      "failed": 2,
+      "cause": "test expected permission_denied but existing non-native-watch contract returned conflict without data; preserve this failed assertion"
+    },
+    "mcp_final": {
+      "passed": 2,
+      "failed": 0,
+      "cases": "both sides; real authenticated TCP; restored grant admits new request; imported query fixture does not prove scanner"
+    },
+    "mcp_filesystem_deadline": {
+      "passed": 8,
+      "failed": 0
+    },
+    "mcp_request_deadline": {
+      "passed": 22,
+      "failed": 0
+    },
+    "engine_original_withdrawal": {
+      "passed": 6,
+      "failed": 0
+    },
+    "clippy": "CLI/Engine and final MCP passed"
+  },
+  "windows_raw_root": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0",
+  "windows_workspace": {
+    "job_id": "wc_job_5vjjZybeIzsdhkA3",
+    "status": "stopped by request after observed retained foreign-object recovery loop; not complete workspace acceptance",
+    "engine": "incomplete; no complete lib summary before stop",
+    "exit_status_initial": "two failures missing required native artifact bindings; subsequent explicitly bound native test artifact passed 2/0",
+    "cli_unit_binary": {
+      "passed": 72,
+      "failed": 12,
+      "ignored": 0
+    }
+  },
+  "windows_exit_status": {
+    "job_id": "wc_job_-6RpmGPiVHwxLKid",
+    "passed": 2,
+    "failed": 0,
+    "raw_directory": "windows_exit_status_bound",
+    "test_artifact_sha256": "09b2a001a0c73cad72caed5a8c35c3719766e953ace2052990458d2572302237",
+    "fixture_source_sha256": "cab1b4db5cd54777a58d94418a551e18e84370ed322a6e295c39271aa842b058"
+  },
+  "windows_cli_mcp_final": {
+    "job_id": "wc_job_UpHGViRAUlFUkZho",
+    "status": "failed; completed Windows MCP lib 219 passed / 4 failed / 0 ignored",
+    "mcp_passed": 219,
+    "mcp_failed": 4,
+    "mcp_ignored": 0,
+    "mcp_seconds": 45.62,
+    "cli_selector_failure": "invalid --lib selector; no CLI tests ran in this attempt",
+    "native_patch_sha256": "dafeb2fd0b39c2f408a2965336fe5c6794b6c4f296ad767273ad9852a3b74edd",
+    "mcp_failures": [
+      "captured_reply_capability_cannot_outlive_persistent_grant_revocation: BudgetExceeded instead of PermissionDenied",
+      "expired_reply_preserves_partial_diagnostic_with_live_captured_capability: BudgetExceeded",
+      "encoded_socket_history_remembers_grant_revocation_even_if_restored: initial request rejected correctly; restored new request returned BudgetExceeded",
+      "history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket: budget_exceeded instead of internal_error"
+    ]
+  },
+  "qualification": "Uncommitted targeted changes, not whole-platform production qualification. CI head abb87836 differs. All earlier native budget and fixture failures retained separately.",
+  "format_checks": {
+    "cargo_fmt_all": "fails exclusively on preserved vendored upstream source; no vendor edits made",
+    "project_ci_package_list": "passed"
+  },
+  "upstream_digest": {
+    "passed": 4,
+    "failed": 0,
+    "log": "/tmp/diskgraph-encoding-upstream-digest.log"
+  },
+  "windows_followup_diagnostic": {
+    "job_id": "wc_job_h4oodP7YF4GFIeEo",
+    "status": "completed exit 0",
+    "source_hashes": {
+      "crates/diskgraph-mcp/src/history_budget_tests.rs": "84f00e92ca728a7b308ad5b4a5ab1dc23aacd8ba8d3f9d7542b9e3d53cfddde4",
+      "crates/diskgraph-mcp/src/service_dispatch.rs": "3082796cf0023a088935c9d9be36f183d5d7d8c22cc5bda69b5c6804fd73ec00",
+      "crates/diskgraph-mcp/src/snapshot_reply.rs": "82b77b0a2b93580a322614463d0e80639f9cd59953af2bfe1f8770c670896e34",
+      "crates/diskgraph-mcp/src/snapshot_tools.rs": "ee85446dd7191a4f8cb99e367c27f598c2b84ac94c95426dc9aa5800d103ecc6",
+      "crates/diskgraph-mcp/src/tests/mod.rs": "48807d9973932e1db6db65258723ef75fd80582d68afc4bb9c95f33775815238",
+      "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs": "08c41aa99298aeba7d0dd195c7b062cffe7cd2291ba1b61eede69f0913837d05",
+      "crates/diskgraph-store/src/reader_admission_tests.rs": "726c807358512ff8058c6e33ae371b21f9eb72ae534e6248ea01ec94a13af0e6",
+      "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "f0cb6395e635ede251643b001ef0a664ad5dd68b7db5130611afebc8ab512a53",
+      "crates/diskgraph-engine/src/revision_history.rs": "a062332054c12c708591b075bfabe75cb5bceb9be2345f070463bae42f81ff67",
+      "crates/diskgraph-engine/src/revision_comparison.rs": "274833e124afb459e1cd948ab3f291e9cdd579876666f2310f681ef5165679bd",
+      "crates/diskgraph-engine/src/sync_plan.rs": "edd3ed8763184bfbe06d4f2b37e27e0df228b5577126c22afe494e68db10f266",
+      "crates/diskgraph-cli/src/history_commands.rs": "98ee02d89fcdec468389b65f5d4a80453a487a9aa3596af9a0adec24d095dad6",
+      "crates/diskgraph-cli/src/comparison_commands.rs": "69a9644cc12fd769025b8b367665dada09e112792a3a04b4ae4c0f81218baad8",
+      "crates/diskgraph-engine/src/verify/verification.rs": "f1860e12f8782811080408ae0d8846c4f6f2a69e44fc666218c45e43e4bf275e",
+      "crates/diskgraph-engine/src/verify/mod.rs": "26c61ea681897a72b2ae084753de36076de49a6e31c85482edef04e73da9361f",
+      "crates/diskgraph-cli/src/query_terminal_tests.rs": "df89212c7f7174023849fc2b07d19f882309b7fb859310136c96521f51d0d320",
+      "crates/diskgraph-cli/src/snapshot_reply.rs": "8cbb1e880f6d65b29ba18b2837f2a07825ebca635d5784c8710e7ebdf044e0fe",
+      "crates/diskgraph-cli/src/tree_commands.rs": "b0d4f5a70ef6c5211abf5c0d479cb02a16383e371278ab2362e0edb8e5d98d0c",
+      "crates/diskgraph-engine/src/tree_queries.rs": "8c22fbfdd7afe29a951a0a2703c28354f3de712a244117ae49eb24020b7e06d5",
+      "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "435cc69e2b5a69b0974bb22474d582aa41cf19ad964d452ffec1b5c22d2f60e2",
+      "crates/diskgraph-engine/src/native_child/windows/windows_cleanup_hooks.rs": "437a5d7eafaa9fceeb75cd467df8f33a400f77d6f5a8d976f64897950f025759",
+      "crates/diskgraph-engine/src/native_child/windows/windows_probe_recovery_tests.rs": "fb984f57e6f33d5b0e90282b5fde13c1ed4f2414b6b34978ca1b50469e73955c",
+      "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+      "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+      "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+      "crates/diskgraph-engine/src/live_evidence/git_stash_location.rs": "bb279a122cff5f60faed3620a3e3d86d77e710d102cfbbddbeb09411ff7b6e78",
+      "crates/diskgraph-engine/src/live_evidence/git_stash.rs": "cc64135a83e781fe0f143b797ed327477bfc5922903da07ab1095c9919dd269f",
+      "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "c144ad08ecca727f420ed2e2350d7bf1afcfe64f0ec35b3bce7d0a0c35bb4c17",
+      "crates/diskgraph-engine/src/live_evidence/git_references.rs": "a7dce184a03b9611ed0ee6862e4a7620809107b3c65e1f572e0c4df5e7d1eec7",
+      "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+      "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "4d1fc6c7fd55db5f7c9451384bcfd3ca9ba68d6cf704b7503c04587d9b129027",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "cde642fe0b81cb100b3a17a825b6c88d1d4258815bb029caf0bccdb7b2d8aa15",
+      "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de",
+      "crates/diskgraph-engine/src/git_evidence_execution_tests.rs": "1097abae2f5f4ef697eb8fbb7184277f4561ebb544cf3582954aa5f75a4ee73e"
+    },
+    "patch_sha256": "dafeb2fd0b39c2f408a2965336fe5c6794b6c4f296ad767273ad9852a3b74edd",
+    "commands": [
+      {
+        "name": "cli_bin_withdrawal",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-cli",
+          "--bin",
+          "diskgraph",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "remembers_grant_revocation_even_if_restored",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 21.655999999988126
+      },
+      {
+        "name": "mcp_withdrawal_diagnostic",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-mcp",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "remembers_grant_revocation_even_if_restored",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 3.0320000000065193
+      },
+      {
+        "name": "mcp_filesystem_diagnostic",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-mcp",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "filesystem_deadline_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.2179999999934807
+      }
+    ],
+    "results": {
+      "cli_bin_withdrawal": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 4.39s"
+      ],
+      "cli_bin_withdrawal_budget_diagnostics": [],
+      "mcp_withdrawal_diagnostic": [
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 221 filtered out; finished in 1.60s"
+      ],
+      "mcp_withdrawal_diagnostic_budget_diagnostics": [],
+      "mcp_filesystem_diagnostic": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 215 filtered out; finished in 1.42s"
+      ],
+      "mcp_filesystem_diagnostic_budget_diagnostics": []
+    },
+    "qualification": "CLI ran with default environment and default parallelism. MCP targeted runs explicitly enabled diagnostics. All 17 changed source hashes match local files. Previous full/default failures remain open."
+  }
+}

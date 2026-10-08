@@ -24,6 +24,35 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<diskgraph_core::SyncPlan, EngineError> {
+        self.sync_plan_with_finish_until(
+            from,
+            to,
+            method,
+            tolerance,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 同步计划的实际编码沿用双侧原请求的撤权见证。
+    /// 参数：原计划范围、身份、预算和期限；finish 不得发布或执行计划。
+    /// 返回：编码后仍授权的完整计划，过期不生成可用步骤。
+    #[allow(clippy::too_many_arguments)] // 原计划上下文与受授权保护的实际编码均必需。
+    pub fn sync_plan_with_finish_until(
+        &self,
+        from: &str,
+        to: &str,
+        method: diskgraph_core::SyncMethod,
+        tolerance: i64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut diskgraph_core::SyncPlan, bool) -> Result<(), EngineError>,
+    ) -> Result<diskgraph_core::SyncPlan, EngineError> {
         self.with_history_readers_until(
             from,
             to,
@@ -105,7 +134,7 @@ impl Engine {
                 {
                     return Err(BusinessError::BudgetExceeded.into());
                 }
-                Ok(())
+                finish(plan, expired)
             },
         )
     }

@@ -52,13 +52,23 @@ struct Fixture {
 
 impl Fixture {
     fn new(label: &str) -> Self {
+        Self::with_query_import(label, false)
+    }
+
+    // 撤权连续性只需合法版本导入与真实 socket，不以此夹具证明原生扫描。
+    fn with_query_import(label: &str, query_import: bool) -> Self {
         let (mut local, directory) =
             crate::tests::service(crate::protocol::ToolProfile::ReadFull, label);
         let scopes = ["before", "after", "remaining"].map(|name| {
             let root = directory.path().join(name);
             std::fs::create_dir(&root).unwrap();
             std::fs::write(root.join("ordinary.txt"), name).unwrap();
-            ScopeId::new(crate::tests::seed(&mut local, &root)).unwrap()
+            let scope = if query_import {
+                crate::tests::QueryRevisionFixture::publish(&mut local, &root)
+            } else {
+                crate::tests::seed(&mut local, &root)
+            };
+            ScopeId::new(scope).unwrap()
         });
         let revisions = scopes
             .each_ref()
@@ -354,11 +364,23 @@ fn socket_growth_initial_authorization_cannot_reset_deadline() {
 }
 
 fn terminal_revocation(tool: &str, revoke_scope: bool) {
+    terminal_withdrawal(tool, revoke_scope, false);
+}
+
+fn terminal_withdrawal(tool: &str, revoke_scope: bool, restore_grant: bool) {
     for side in 0..2 {
-        let fixture = Fixture::new("history-terminal-auth");
+        let fixture = Fixture::with_query_import("history-terminal-auth", restore_grant);
         let path = fixture.control_path.clone();
         let scope = fixture.scopes[side].clone();
         let principal = fixture.principal.clone();
+        let native_watch = fixture
+            .service
+            .engine
+            .control_store()
+            .unwrap()
+            .watch_authorization_withdrawal(&principal, &scope, &Permission::MetadataRead)
+            .unwrap()
+            .is_some();
         let observed = Arc::new(AtomicBool::new(false));
         let callback_observed = observed.clone();
         let hook: ThreadReplyHook = Box::new(move |service| {
@@ -372,6 +394,17 @@ fn terminal_revocation(tool: &str, revoke_scope: bool) {
                 control
                     .revoke_grant(&principal, &Permission::MetadataRead, &scope)
                     .unwrap();
+                if restore_grant {
+                    let policy_version = control.policy_version().unwrap();
+                    control
+                        .upsert_grant(&Grant {
+                            principal: principal.clone(),
+                            permission: Permission::MetadataRead,
+                            scope: scope.clone(),
+                            policy_version,
+                        })
+                        .unwrap();
+                }
             }
             callback_observed.store(true, Ordering::SeqCst);
         });
@@ -408,7 +441,24 @@ fn terminal_revocation(tool: &str, revoke_scope: bool) {
         );
         assert_eq!(remaining_status, 200);
         assert_eq!(remaining["result"]["isError"], false, "{remaining}");
-        permission_denied(status, &reply);
+        if restore_grant && !native_watch {
+            // 无原生精确通知时，原契约以代次变化冲突拒绝，不能把它当作成功。
+            assert_eq!(status, 200, "{reply}");
+            assert_eq!(reply["error"]["code"], -32001, "{reply}");
+            assert_eq!(
+                reply["error"]["data"]["business_code"], "conflict",
+                "{reply}"
+            );
+            assert_eq!(reply["error"]["data"]["exit_code"], 9, "{reply}");
+            assert!(reply.get("result").is_none(), "denial leaked data: {reply}");
+        } else {
+            permission_denied(status, &reply);
+        }
+        if restore_grant {
+            let (next_status, next_reply) = fixture.call(tool, fixture.arguments());
+            assert_eq!(next_status, 200, "{next_reply}");
+            assert_eq!(next_reply["result"]["isError"], false, "{next_reply}");
+        }
     }
 }
 
@@ -430,4 +480,14 @@ fn encoded_socket_growth_rechecks_both_scope_sides() {
 #[test]
 fn encoded_socket_growth_rechecks_both_grant_sides() {
     terminal_revocation("diskgraph_growth", false);
+}
+
+#[test]
+fn encoded_socket_history_remembers_grant_revocation_even_if_restored() {
+    terminal_withdrawal("diskgraph_changes", false, true);
+}
+
+#[test]
+fn encoded_socket_growth_remembers_grant_revocation_even_if_restored() {
+    terminal_withdrawal("diskgraph_growth", false, true);
 }

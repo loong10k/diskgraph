@@ -1,0 +1,36 @@
+{
+  "run_id": 37832285574,
+  "head": "abb87836fc320841dc89ce8b6a1dd346d54c2bd3",
+  "run_status_at_observation": "in_progress; Windows stable and MSRV not terminal",
+  "logs": {
+    "mac_intel": {
+      "file": "mac_intel.log.gz",
+      "uncompressed_sha256": "69cd03f83258bee6fa1a59f7b433028fef53504a4a96e40137cca7fc9e75a0fe",
+      "uncompressed_bytes": 555187
+    },
+    "windows_package": {
+      "file": "windows_package.log.gz",
+      "uncompressed_sha256": "433260a1933bfc991d2c82bb603ba891c4990e75f235145fd6a587f6fb2fff86",
+      "uncompressed_bytes": 102299
+    }
+  },
+  "failed_jobs": {
+    "mac_intel": {
+      "job_id": 113500400172,
+      "target": "cli_flow",
+      "passed": 15,
+      "failed": 1,
+      "failure": "changes_and_growth_refuse_incomparable_revisions_honestly",
+      "phase": "terminal_reader_open",
+      "elapsed_us": 73848,
+      "unchanged_limit_ms": 50
+    },
+    "windows_package": {
+      "job_id": 113500556990,
+      "failure": "200000-file packaged acceptance timed out",
+      "timeout_seconds": 299.9983534,
+      "unchanged_limit_seconds": 300
+    }
+  },
+  "qualification": "Both failures remain open. These logs qualify only the exact CI head, not local uncommitted CLI/MCP fixes."
+}

@@ -12,13 +12,13 @@ static REVISION_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 
 /// 发布查询测试所需的有限、显式节点观测。
 /// 来源：原生 Rust MCP Q-01/SC-04 测试；无 Java 对应对象。
-pub(super) struct QueryRevisionFixture;
+pub(crate) struct QueryRevisionFixture;
 
 impl QueryRevisionFixture {
     /// 注册真实范围并通过公开 staging/归属发布事务导入固定项目观测。
     /// 参数：service 为真实服务，root 为保活夹具根目录；返回：已注册 scope。
     /// 不创建或完成扫描 job，不采集关系，不证明原生扫描能力。
-    pub(super) fn publish(service: &mut McpService, root: &Path) -> String {
+    pub(crate) fn publish(service: &mut McpService, root: &Path) -> String {
         let root = root.canonicalize().unwrap();
         let scope = service
             .engine()

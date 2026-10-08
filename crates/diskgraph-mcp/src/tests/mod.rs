@@ -10,6 +10,7 @@ mod relation_tests;
 mod service_fixture;
 mod stdio_tests;
 mod support;
+pub(crate) use query_revision_fixture::QueryRevisionFixture;
 pub(crate) use service_fixture::McpTestDirectory;
 pub(crate) use support::{call, cargo_project, seed, service};
 

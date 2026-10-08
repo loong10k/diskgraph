@@ -64,6 +64,33 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<Option<RevisionGrowth>, EngineError> {
+        self.growth_between_with_finish_until(
+            before,
+            after,
+            relative,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在双侧增长请求的原撤权见证内执行实际编码。
+    /// 参数：范围、身份、账本和期限沿用 growth_between_until；finish 不得自行输出。
+    /// 返回：编码后仍有效的增长；可能再次调用 finish 转换期限状态，不重新读取文件。
+    #[allow(clippy::too_many_arguments)] // 原双侧上下文与连续授权编码回调各自必需。
+    pub fn growth_between_with_finish_until(
+        &self,
+        before: &str,
+        after: &str,
+        relative: &Path,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut Option<RevisionGrowth>, bool) -> Result<(), EngineError>,
+    ) -> Result<Option<RevisionGrowth>, EngineError> {
         self.with_history_readers_until(
             before,
             after,
@@ -85,7 +112,10 @@ impl Engine {
                     ledger,
                 )
             },
-            |value, expired| finish_growth(value, budget, expired),
+            |value, expired| {
+                finish_growth(value, budget, expired)?;
+                finish(value, expired)
+            },
         )
     }
 
@@ -174,6 +204,31 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<serde_json::Value, EngineError> {
+        self.revision_changes_with_finish_until(
+            before,
+            after,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在双侧变化的原撤权见证内完成适配器实际编码。
+    /// 参数：范围、身份、预算与期限沿用 revision_changes_until；finish 可因过期被再次调用。
+    /// 返回：编码后仍授权的变化；回调不得发布响应或文件。
+    #[allow(clippy::too_many_arguments)] // 双侧上下文与同请求编码回调不可省略。
+    pub fn revision_changes_with_finish_until(
+        &self,
+        before: &str,
+        after: &str,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut serde_json::Value, bool) -> Result<(), EngineError>,
+    ) -> Result<serde_json::Value, EngineError> {
         self.with_history_readers_until(
             before,
             after,
@@ -197,7 +252,10 @@ impl Engine {
                     ledger,
                 )
             },
-            |value, expired| finish_changes(value, budget, expired),
+            |value, expired| {
+                finish_changes(value, budget, expired)?;
+                finish(value, expired)
+            },
         )
     }
 

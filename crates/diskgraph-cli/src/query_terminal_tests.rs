@@ -292,7 +292,7 @@ fn html_export_does_not_write_after_terminal_scope_revocation() {
     assert!(output.is_empty());
 }
 
-fn assert_encoded_query_revoked(command: &str, revoke_scope: bool) {
+fn assert_encoded_query_revoked(command: &str, revoke_scope: bool, restore_grant: bool) {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().join("root");
     std::fs::create_dir(&root).unwrap();
@@ -315,6 +315,8 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool) {
     let revision = engine.latest_revision(&scope).unwrap().unwrap();
     let revoked = scope.clone();
     let revoked_principal = principal.clone();
+    let encoded = Arc::new(AtomicBool::new(false));
+    let reached = Arc::clone(&encoded);
     BEFORE_REPLY.with(|slot| {
         *slot.borrow_mut() = Some(Box::new(move || {
             let mut control =
@@ -330,12 +332,36 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool) {
                         &revoked,
                     )
                     .unwrap();
+                if restore_grant {
+                    let policy_version = control.policy_version().unwrap();
+                    control
+                        .upsert_grant(&diskgraph_core::Grant {
+                            principal: revoked_principal,
+                            permission: diskgraph_core::Permission::MetadataRead,
+                            scope: revoked,
+                            policy_version,
+                        })
+                        .unwrap();
+                }
             }
+            reached.store(true, Ordering::SeqCst);
         }))
     });
+    let html_destination = directory.path().join("withdrawal.html");
+    let html_path = html_destination.to_string_lossy();
     let args = match command {
         "tree" => vec![command, "--scope", scope.as_str()],
+        "html" => vec!["tree", "--scope", scope.as_str(), "--html", &html_path],
         "compare" => vec![command, "--from", &revision, "--to", &revision],
+        "verified_compare" => vec![
+            "compare",
+            "--from-scope",
+            scope.as_str(),
+            "--to-scope",
+            scope.as_str(),
+            "--verify-content",
+        ],
+        "plan" => vec!["compare", "--from", &revision, "--to", &revision, "--plan"],
         _ => vec![
             command,
             "--scope",
@@ -357,6 +383,10 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool) {
         diskgraph_core::query_deadline(QueryBudget::default()).unwrap(),
     );
     assert!(
+        encoded.load(Ordering::SeqCst),
+        "{command}: actual encoding hook was not reached: {result:?}"
+    );
+    assert!(
         matches!(
             result,
             Err(EngineError::Business(BusinessError::PermissionDenied))
@@ -364,21 +394,57 @@ fn assert_encoded_query_revoked(command: &str, revoke_scope: bool) {
         "{command}: {result:?}"
     );
     assert!(output.is_empty());
+    assert!(!html_destination.exists());
+}
+
+#[test]
+fn encoded_tree_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("tree", false, true);
+}
+
+#[test]
+fn encoded_html_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("html", false, true);
+}
+
+#[test]
+fn encoded_comparison_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("compare", false, true);
+}
+
+#[test]
+fn encoded_verified_comparison_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("verified_compare", false, true);
+}
+
+#[test]
+fn encoded_changes_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("changes", false, true);
+}
+
+#[test]
+fn encoded_growth_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("growth", false, true);
+}
+
+#[test]
+fn encoded_plan_remembers_grant_revocation_even_if_restored() {
+    assert_encoded_query_revoked("plan", false, true);
 }
 
 #[test]
 fn encoded_tree_refuses_terminal_scope_revocation() {
-    assert_encoded_query_revoked("tree", true);
+    assert_encoded_query_revoked("tree", true, false);
 }
 #[test]
 fn encoded_comparison_refuses_terminal_grant_revocation() {
-    assert_encoded_query_revoked("compare", false);
+    assert_encoded_query_revoked("compare", false, false);
 }
 #[test]
 fn encoded_changes_refuses_terminal_scope_revocation() {
-    assert_encoded_query_revoked("changes", true);
+    assert_encoded_query_revoked("changes", true, false);
 }
 #[test]
 fn encoded_growth_refuses_terminal_grant_revocation() {
-    assert_encoded_query_revoked("growth", false);
+    assert_encoded_query_revoked("growth", false, false);
 }

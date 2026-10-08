@@ -37,7 +37,9 @@ pub(crate) fn run(
                 authorizer,
                 deadline,
             )?;
-            let growth = engine.growth_between_until(
+            let server_id = engine.server_id()?;
+            let mut encoded = None;
+            engine.growth_between_with_finish_until(
                 before,
                 after,
                 std::path::Path::new(path),
@@ -45,19 +47,20 @@ pub(crate) fn run(
                 principal,
                 authorizer,
                 deadline,
+                |growth, expired| {
+                    encoded = Some(snapshot_reply::encode_data(
+                        server_id.clone(),
+                        &serde_json::json!({
+                            "delta_bytes": growth.as_ref().map(|g| g.delta_bytes.to_string()),
+                            "comparable": growth.is_some(),
+                            "path": if path.is_empty() { ".".to_owned() } else { path.clone() },
+                        }),
+                        expired,
+                    )?);
+                    Ok(())
+                },
             )?;
-            out.push(snapshot_reply::finish(
-                engine,
-                principal,
-                authorizer,
-                &[before, after],
-                serde_json::json!({
-                    "delta_bytes": growth.as_ref().map(|g| g.delta_bytes.to_string()),
-                    "comparable": growth.is_some(),
-                    "path": if path.is_empty() { ".".to_owned() } else { path.clone() },
-                }),
-                deadline,
-            )?);
+            out.push(encoded.ok_or(BusinessError::InternalError)?);
             Ok(())
         }
         Command::Changes {
@@ -80,22 +83,25 @@ pub(crate) fn run(
                 authorizer,
                 deadline,
             )?;
-            let data = engine.revision_changes_until(
+            let server_id = engine.server_id()?;
+            let mut encoded = None;
+            engine.revision_changes_with_finish_until(
                 before,
                 after,
                 snapshot_reply::budget(),
                 principal,
                 authorizer,
                 deadline,
+                |data, expired| {
+                    encoded = Some(snapshot_reply::encode_data(
+                        server_id.clone(),
+                        data,
+                        expired,
+                    )?);
+                    Ok(())
+                },
             )?;
-            out.push(snapshot_reply::finish(
-                engine,
-                principal,
-                authorizer,
-                &[before, after],
-                data,
-                deadline,
-            )?);
+            out.push(encoded.ok_or(BusinessError::InternalError)?);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

@@ -37,11 +37,25 @@ impl McpService {
 
     /// 沿原期限授权两侧历史版本并查询 changes 或 growth。
     /// 参数：catalog_id 为历史查询类型，arguments 为两侧版本，deadline 为原期限。返回：历史结果或错误。
+    #[cfg(test)]
     pub(crate) fn history_tool(
         &self,
         catalog_id: &str,
         arguments: &Value,
         deadline: std::time::Instant,
+    ) -> Result<Value, EngineError> {
+        self.history_tool_with_finish(catalog_id, arguments, deadline, |_, _| Ok(()))
+    }
+
+    /// 在原双侧请求的撤权见证内准备响应，不在回调内发布数据。
+    /// 参数：目录项、参数和原期限沿用历史查询；finish 负责实际编码，可再次调用转换期限状态。
+    /// 返回：编码结束后仍获授权的历史结果或错误。
+    pub(crate) fn history_tool_with_finish(
+        &self,
+        catalog_id: &str,
+        arguments: &Value,
+        deadline: std::time::Instant,
+        mut finish: impl FnMut(&Value, bool) -> Result<(), EngineError>,
     ) -> Result<Value, EngineError> {
         let before = arguments.get("before").and_then(Value::as_str);
         let after = arguments.get("after").and_then(Value::as_str);
@@ -71,7 +85,7 @@ impl McpService {
             deadline,
         )?;
         if catalog_id == "C07" {
-            let growth = self.engine.growth_between_until(
+            let growth = self.engine.growth_between_with_finish_until(
                 before,
                 after,
                 std::path::Path::new(""),
@@ -79,19 +93,26 @@ impl McpService {
                 self.context.principal(),
                 &self.authorizer_until(deadline)?,
                 deadline,
+                |growth, expired| {
+                    finish(&json!({
+                        "comparable": growth.is_some(),
+                        "delta_bytes": growth.as_ref().map(|growth| growth.delta_bytes.to_string()),
+                    }), expired)
+                },
             )?;
             return Ok(json!({
                 "comparable": growth.is_some(),
                 "delta_bytes": growth.map(|growth| growth.delta_bytes.to_string()),
             }));
         }
-        self.engine.revision_changes_until(
+        self.engine.revision_changes_with_finish_until(
             before,
             after,
             snapshot_reply::budget(),
             self.context.principal(),
             &self.authorizer_until(deadline)?,
             deadline,
+            |data, expired| finish(data, expired),
         )
     }
 }

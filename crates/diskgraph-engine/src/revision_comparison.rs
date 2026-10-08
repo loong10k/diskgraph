@@ -87,6 +87,33 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<ComparisonReport, EngineError> {
+        self.compare_revisions_with_finish_until(
+            left,
+            right,
+            tolerance,
+            budget,
+            principal,
+            authorizer,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在双侧比较原请求内执行实际编码及可选内容检查，保留连续撤权见证。
+    /// 参数：原双侧范围、身份、预算和期限；finish 可因期限转换再次调用，不能输出。
+    /// 返回：编码后仍授权的报告，不复制整份报告或刷新读取账本。
+    #[allow(clippy::too_many_arguments)] // 原比较上下文加同一授权生命周期的编码回调。
+    pub fn compare_revisions_with_finish_until(
+        &self,
+        left: &str,
+        right: &str,
+        tolerance: i64,
+        budget: QueryBudget,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut ComparisonReport, bool) -> Result<(), EngineError>,
+    ) -> Result<ComparisonReport, EngineError> {
         self.with_history_readers_until(
             left,
             right,
@@ -107,7 +134,10 @@ impl Engine {
                     ledger,
                 )
             },
-            |report, expired| Self::finish_comparison(report, budget, expired),
+            |report, expired| {
+                Self::finish_comparison(report, budget, expired)?;
+                finish(report, expired)
+            },
         )
     }
 

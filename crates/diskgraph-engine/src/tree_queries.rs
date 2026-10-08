@@ -50,6 +50,35 @@ impl Engine {
         budget: QueryBudget,
         deadline: Instant,
     ) -> Result<TreeView, EngineError> {
+        self.tree_view_with_finish_until(
+            scope,
+            revision,
+            principal,
+            authorizer,
+            depth,
+            min_bytes,
+            budget,
+            deadline,
+            |_, _| Ok(()),
+        )
+    }
+
+    /// 在原树请求的连续撤权见证内完成适配器的实际编码。
+    /// 参数：范围、身份、预算和期限沿用 tree_view_until；finish 接收树与原数据期限是否耗尽。
+    /// 返回：编码后仍获授权的树；finish 可能因期限转为 partial 被再次调用，不得发布文件或响应。
+    #[allow(clippy::too_many_arguments)] // 保留原请求参数，仅增加受同一授权生命周期保护的编码回调。
+    pub fn tree_view_with_finish_until(
+        &self,
+        scope: &ScopeId,
+        revision: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        depth: usize,
+        min_bytes: u64,
+        budget: QueryBudget,
+        deadline: Instant,
+        mut finish: impl FnMut(&mut TreeView, bool) -> Result<(), EngineError>,
+    ) -> Result<TreeView, EngineError> {
         self.with_relation_reader_until(
             revision,
             principal,
@@ -79,7 +108,7 @@ impl Engine {
                 {
                     return Err(BusinessError::BudgetExceeded.into());
                 }
-                Ok(())
+                finish(tree, expired)
             },
         )
     }

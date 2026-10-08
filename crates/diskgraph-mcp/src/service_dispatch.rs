@@ -125,23 +125,29 @@ impl McpService {
             Ok(authorizer) => authorizer,
             Err(error) => return tool_error(id, business_of(&error), &error.to_string()),
         };
+        let reply_service = self.clone();
+        let mut history_encoded = None;
         match self
-            .dispatch(catalog_id, &arguments, deadline)
+            .dispatch_with_finish(catalog_id, &arguments, deadline, |envelope, expired| {
+                history_encoded = Some(snapshot_reply::encode_within_request(
+                    &reply_service,
+                    envelope,
+                    expired,
+                )?);
+                Ok(())
+            })
             .and_then(|data| {
                 if matches!(catalog_id, "C13" | "C14" | "C15" | "C16") {
                     relation_reply::finish(self, data, deadline, &reply_authorizer)
                         .map_err(|error| error.with_context(catalog_id))
                 } else if matches!(catalog_id, "C06" | "C07") {
-                    let mut revisions = [""; 2];
-                    for (position, key) in ["before", "after"].into_iter().enumerate() {
-                        revisions[position] =
-                            arguments.get(key).and_then(Value::as_str).ok_or_else(|| {
-                                EngineError::Business(BusinessError::InvalidArgument)
-                                    .with_context(catalog_id)
-                            })?;
-                    }
-                    snapshot_reply::finish(self, data, &revisions, deadline, &reply_authorizer)
-                        .map_err(|error| error.with_context(catalog_id))
+                    history_encoded
+                        .take()
+                        .map(|text| (data, text))
+                        .ok_or_else(|| {
+                            EngineError::Business(BusinessError::BudgetExceeded)
+                                .with_context(catalog_id)
+                        })
                 } else {
                     let text = data.to_string();
                     Ok((data, text))
@@ -161,13 +167,26 @@ impl McpService {
 
     /// 逐请求授权并执行目录项，不依赖工具列表是否曾显示该工具。
     /// 参数：catalog_id 为目录项，arguments 为参数，deadline 为原请求期限。返回：业务数据或附目录上下文的错误。
+    #[cfg(test)]
     pub(crate) fn dispatch(
         &mut self,
         catalog_id: &str,
         arguments: &Value,
         deadline: std::time::Instant,
     ) -> Result<Value, diskgraph_engine::ContextualEngineError> {
-        let outcome = self.dispatch_inner(catalog_id, arguments, deadline);
+        self.dispatch_with_finish(catalog_id, arguments, deadline, |_, _| Ok(()))
+    }
+
+    /// 将历史实际响应编码接入原请求，其他目录项保持既有分发。
+    /// 参数：目录项、参数、原期限与仅准备结果的 finish 回调。返回：连续授权后的 envelope。
+    fn dispatch_with_finish(
+        &mut self,
+        catalog_id: &str,
+        arguments: &Value,
+        deadline: std::time::Instant,
+        mut finish: impl FnMut(&mut Value, bool) -> Result<(), EngineError>,
+    ) -> Result<Value, diskgraph_engine::ContextualEngineError> {
+        let outcome = self.dispatch_inner(catalog_id, arguments, deadline, &mut finish);
         match outcome {
             Ok(data) => Ok(data),
             Err(error) => Err(error.with_context(catalog_id)),
@@ -181,6 +200,7 @@ impl McpService {
         catalog_id: &str,
         arguments: &Value,
         deadline: std::time::Instant,
+        finish: &mut dyn FnMut(&mut Value, bool) -> Result<(), EngineError>,
     ) -> Result<Value, EngineError> {
         // 证据 C04 使用实际任务授权和回执身份，不能先用默认 scope 的通用目录权限拒绝。
         if catalog_id == "C04"
@@ -262,13 +282,26 @@ impl McpService {
             self.require_until(&permission, &authorization_scope, deadline)?;
         }
         let server_id = self.engine.server_id_until(deadline)?;
+        if matches!(catalog_id, "C06" | "C07") {
+            let revision_id = response_revision
+                .and_then(|revision| diskgraph_core::RevisionId::new(revision).ok());
+            let mut prepared = None;
+            self.history_tool_with_finish(catalog_id, arguments, deadline, |data, expired| {
+                let mut envelope = Envelope::ok(data.clone())
+                    .with_ids(Some(server_id.clone()), scope.clone(), revision_id.clone())
+                    .into_json();
+                finish(&mut envelope, expired)?;
+                prepared = Some(envelope);
+                Ok(())
+            })?;
+            return prepared.ok_or_else(|| BusinessError::BudgetExceeded.into());
+        }
         match catalog_id {
             "C01" => self.scope_tool(arguments, deadline),
             "C02" => self.index_tool(&scope, arguments, false),
             "C03" => self.index_tool(&scope, arguments, true),
             "C04" => self.status_tool(arguments, deadline),
             "C05" => self.snapshots_tool(&scope, arguments, deadline),
-            "C06" | "C07" => self.history_tool(catalog_id, arguments, deadline),
             "C08" => self.explore_tool(&scope, arguments, deadline),
             "C09" => self.search_tool(&scope, arguments, deadline),
             "C10" => self.node_tool(&scope, arguments, deadline),

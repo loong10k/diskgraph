@@ -108,6 +108,59 @@ pub fn verify_same_rows_with_limits_until(
     limits: &VerifyLimits,
     deadline: std::time::Instant,
 ) -> Result<(ComparisonReport, VerifySummary), EngineError> {
+    let mut report = report;
+    let summary = verify_same_rows_in_place_with_limits_until(
+        engine,
+        &mut report,
+        left_scope,
+        right_scope,
+        principal,
+        authorizer,
+        budget,
+        limits,
+        deadline,
+    )?;
+    Ok((report, summary))
+}
+
+/// 在原比较请求的编码阶段原地核验，不克隆整份报告或转移请求撤权见证。
+/// 参数：报告借用、双侧范围、主体、内容预算和原绝对期限；返回：实际读取成本与核验摘要。
+#[allow(clippy::too_many_arguments)] // 原双侧内容身份与独立预算均为必要参数。
+pub fn verify_same_rows_in_place_until(
+    engine: &Engine,
+    report: &mut ComparisonReport,
+    left_scope: &ScopeId,
+    right_scope: &ScopeId,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+    budget: VerifyBudget,
+    deadline: std::time::Instant,
+) -> Result<VerifySummary, EngineError> {
+    verify_same_rows_in_place_with_limits_until(
+        engine,
+        report,
+        left_scope,
+        right_scope,
+        principal,
+        authorizer,
+        budget,
+        &VerifyLimits::default(),
+        deadline,
+    )
+}
+
+#[allow(clippy::too_many_arguments)] // 内部复用原核验上下文，不创建新的预算或身份。
+fn verify_same_rows_in_place_with_limits_until(
+    engine: &Engine,
+    report: &mut ComparisonReport,
+    left_scope: &ScopeId,
+    right_scope: &ScopeId,
+    principal: &PrincipalId,
+    authorizer: &dyn Authorizer,
+    budget: VerifyBudget,
+    limits: &VerifyLimits,
+    deadline: std::time::Instant,
+) -> Result<VerifySummary, EngineError> {
     let own_deadline = std::time::Instant::now()
         .checked_add(std::time::Duration::from_millis(limits.max_duration_ms))
         .ok_or(diskgraph_core::BusinessError::InvalidArgument)?;
@@ -118,9 +171,7 @@ pub fn verify_same_rows_with_limits_until(
     let left_root = native_root(&report.left_root)?;
     let right_root = native_root(&report.right_root)?;
     let mut summary = VerifySummary::default();
-    let mut report = report;
-    let mut rows = Vec::with_capacity(report.rows.len());
-    for row in std::mem::take(&mut report.rows) {
+    for row in &mut report.rows {
         // Only the rows metadata already called the same. A difference has
         // already been decided, and re-deciding it with a costlier test would
         // make the two paths disagree about the same pair of files.
@@ -150,7 +201,6 @@ pub fn verify_same_rows_with_limits_until(
             if is_file && matches!(row.verdict, Verdict::Same { .. }) {
                 summary.unverified += 1;
             }
-            rows.push(row);
             continue;
         }
         let left_path = left_root.join(&row.path);
@@ -184,7 +234,6 @@ pub fn verify_same_rows_with_limits_until(
         summary.bytes_read = summary.bytes_read.saturating_add(right.bytes_read);
         match (left.digest, right.digest) {
             (Some(left), Some(right)) => {
-                let mut row = row;
                 // The values travel with the row, not just the conclusion: a
                 // caller comparing against a manifest elsewhere needs the
                 // hash, and a caller that trusts the verdict has to be able to
@@ -201,22 +250,19 @@ pub fn verify_same_rows_with_limits_until(
                         reason: diskgraph_core::DifferentReason::Content,
                     };
                 }
-                rows.push(row);
             }
             _ => {
                 // A file neither side could be read says nothing about whether
                 // the two match, so the row keeps its metadata verdict and the
                 // summary records that the claim was never upgraded.
                 summary.unverified += 1;
-                rows.push(row);
             }
         }
     }
-    report.rows = rows;
     if std::time::Instant::now() >= deadline {
         report.truncated = Some("deadline");
     }
-    Ok((report, summary))
+    Ok(summary)
 }
 /// The filesystem path behind a locator. A comparison is between two
 /// directories on this machine, so a document URI is not something to read.
