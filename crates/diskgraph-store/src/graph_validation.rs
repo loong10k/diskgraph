@@ -1,6 +1,6 @@
 use crate::{Result, StoreError};
 use diskgraph_core::DiskGraph;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 /// 验证图身份、父子关系、定位与覆盖一致性。
 /// 参数：graph：完整观测图。
@@ -18,15 +18,19 @@ pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: b
             "missing snapshot ID or nodes".into(),
         ));
     }
-    let ids: HashSet<_> = graph.nodes.iter().map(|node| node.id).collect();
+    let ids: HashMap<_, _> = graph
+        .nodes
+        .iter()
+        .enumerate()
+        .map(|(index, node)| (node.id, index))
+        .collect();
     if ids.len() != graph.nodes.len() {
         return Err(StoreError::InvalidGraph("duplicate node IDs".into()));
     }
-    if graph
-        .nodes
-        .iter()
-        .any(|node| node.parent_id.is_some_and(|parent| !ids.contains(&parent)))
-    {
+    if graph.nodes.iter().any(|node| {
+        node.parent_id
+            .is_some_and(|parent| !ids.contains_key(&parent))
+    }) {
         return Err(StoreError::InvalidGraph("missing parent node".into()));
     }
     let roots: Vec<_> = graph
@@ -38,6 +42,30 @@ pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: b
         return Err(StoreError::InvalidGraph(
             "snapshot must have one matching root".into(),
         ));
+    }
+    // 每个节点至多进入一次灰色路径、一次完成路径；不递归、不逐节点重走整个祖先链。
+    // 父 ID 已全部核验存在；有限无环父链必然终止于上面确认的唯一根。
+    let mut colors = vec![0_u8; graph.nodes.len()];
+    for start in 0..graph.nodes.len() {
+        let mut current = Some(start);
+        while let Some(index) = current {
+            match colors[index] {
+                2 => break,
+                1 => return Err(StoreError::InvalidGraph("parent cycle".into())),
+                _ => {
+                    colors[index] = 1;
+                    current = graph.nodes[index].parent_id.map(|parent| ids[&parent]);
+                }
+            }
+        }
+        let mut current = Some(start);
+        while let Some(index) = current {
+            if colors[index] == 2 {
+                break;
+            }
+            colors[index] = 2;
+            current = graph.nodes[index].parent_id.map(|parent| ids[&parent]);
+        }
     }
     let locators: HashSet<_> = graph.nodes.iter().map(|node| &node.locator).collect();
     if !allow_aliases && locators.len() != graph.nodes.len() {
@@ -55,7 +83,7 @@ pub(crate) fn validate_graph_display_aliases(graph: &DiskGraph, allow_aliases: b
     if graph
         .evidence
         .iter()
-        .any(|edge| !ids.contains(&edge.node_id) || edge.confidence > 100)
+        .any(|edge| !ids.contains_key(&edge.node_id) || edge.confidence > 100)
     {
         return Err(StoreError::InvalidGraph("invalid evidence".into()));
     }

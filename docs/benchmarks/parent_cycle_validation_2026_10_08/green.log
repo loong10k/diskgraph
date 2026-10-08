@@ -1,0 +1,15 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.80s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_store-eed76b49d76f3e27)
+
+running 7 tests
+test tests::publication_regressions::graph_validation_accepts_reverse_ordered_twenty_thousand_level_tree ... ok
+test tests::publication_regressions::stale_fencing_staging_is_removed_without_touching_current_or_other_jobs ... ok
+test tests::publication_regressions::snapshot_removal_respects_pins_and_revision_dependencies ... ok
+test tests::publication_regressions::snapshots_list_pages_newest_first_and_can_filter_by_root ... ok
+test tests::publication_regressions::staging_is_invisible_until_published_and_latest_advances_atomically ... ok
+test tests::publication_regressions::publication_rejects_disconnected_parent_cycles_without_changing_latest ... ok
+test tests::publication_regressions::staging_search_statement_is_prepared_once_per_batch_with_unicode_rows_intact ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 333 filtered out; finished in 0.48s
+

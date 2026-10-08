@@ -178,3 +178,65 @@ fn staging_search_statement_is_prepared_once_per_batch_with_unicode_rows_intact(
         assert_eq!(store.staging_node_count("prepared-batch").unwrap(), count);
     }
 }
+
+#[test]
+fn publication_rejects_disconnected_parent_cycles_without_changing_latest() {
+    for (self_cycle, ownership) in [
+        (true, None),
+        (false, None),
+        (true, Some(("server", "scope"))),
+        (false, Some(("server", "scope"))),
+    ] {
+        let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+        let original = graph("original-tree", 1);
+        store
+            .publish_revision("original-job", &original, "original-revision", 1)
+            .unwrap();
+        let mut invalid = graph("invalid-tree", 2);
+        invalid.nodes[1].parent_id = Some(if self_cycle { 2 } else { 3 });
+        if !self_cycle {
+            let mut third = invalid.nodes[1].clone();
+            third.id = 3;
+            third.parent_id = Some(2);
+            third.name = "other".into();
+            third.locator = ResourceLocator::NativePath("/tmp/diskgraph-test/other".into());
+            invalid.nodes.push(third);
+        }
+        if ownership.is_some() {
+            store
+                .append_staging_nodes("invalid-job", &invalid.nodes)
+                .unwrap();
+        }
+        let result =
+            store.publish_revision_owned("invalid-job", &invalid, "invalid-revision", 2, ownership);
+        assert!(
+            matches!(result, Err(StoreError::InvalidGraph(_))),
+            "cycle accepted: {result:?}"
+        );
+        assert!(store.snapshot("invalid-tree").is_err());
+        assert_eq!(
+            store
+                .latest_revision_for_root(&original.snapshot.root)
+                .unwrap()
+                .as_deref(),
+            Some("original-revision")
+        );
+    }
+}
+
+#[test]
+fn graph_validation_accepts_reverse_ordered_twenty_thousand_level_tree() {
+    let mut input = graph("deep-tree", 1);
+    let template = input.nodes[1].clone();
+    input.nodes.truncate(1);
+    for id in 2..=20_000 {
+        let mut node = template.clone();
+        node.id = id;
+        node.parent_id = Some(id - 1);
+        node.name = format!("node-{id}");
+        node.locator = ResourceLocator::NativePath(format!("/deep/node-{id}"));
+        input.nodes.push(node);
+    }
+    input.nodes.reverse();
+    crate::graph_validation::validate_graph(&input).unwrap();
+}

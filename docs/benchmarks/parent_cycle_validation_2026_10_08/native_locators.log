@@ -1,0 +1,17 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_store-eed76b49d76f3e27)
+
+running 10 tests
+test native_locator_tests::staging_encoding_cost_matches_every_persisted_payload_field ... ok
+test native_locator_tests::located_node_schema_is_present_without_guessing_legacy_bytes ... ok
+test native_locator_tests::located_owned_publication_failure_keeps_staging_and_rolls_back_raw_rows ... ok
+test native_locator_tests::same_display_distinct_raw_nodes_publish_only_with_complete_exact_staging ... ok
+test native_locator_tests::known_foreign_encoding_and_document_uri_are_explicitly_unsupported ... ok
+test native_locator_tests::exact_native_locator_preserves_raw_and_self_time_and_legacy_unavailable ... ok
+test native_locator_tests::locator_budget_checks_raw_before_decoding_and_accumulates_nodes_bytes_deadline ... ok
+test native_locator_tests::v10_migration_backups_preserve_unknown_locators_and_reject_already_open_old_writer ... ok
+test native_locator_tests::display_aliases_reject_old_staging_missing_identity_and_mismatched_exact_nodes ... ok
+test native_locator_tests::locator_half_columns_bad_types_unknown_encoding_and_wrong_display_are_rejected ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 330 filtered out; finished in 0.78s
+

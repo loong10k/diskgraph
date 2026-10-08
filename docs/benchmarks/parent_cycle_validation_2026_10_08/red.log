@@ -1,0 +1,22 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.53s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_store-eed76b49d76f3e27)
+
+running 1 test
+test tests::publication_regressions::publication_rejects_disconnected_parent_cycles_without_changing_latest ... FAILED
+
+failures:
+
+---- tests::publication_regressions::publication_rejects_disconnected_parent_cycles_without_changing_latest stdout ----
+
+thread 'tests::publication_regressions::publication_rejects_disconnected_parent_cycles_without_changing_latest' (25789853) panicked at crates/diskgraph-store/src/tests/publication_regressions.rs:199:9:
+cycle accepted: Ok(())
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::publication_regressions::publication_rejects_disconnected_parent_cycles_without_changing_latest
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 338 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p diskgraph-store --lib`

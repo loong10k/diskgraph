@@ -78,3 +78,8 @@ Graph and control database migrations SHALL reserve a new backup destination ato
 - **WHEN** a scan appends a batch of nodes and Unicode normalized search fields to invisible staging
 - **THEN** the search insert is compiled once per batch and executed with bound values for every node; increasing batch rows does not multiply statement preparation
 - **AND** Unicode lowercase fields, staging ordering, atomic rollback and per-node cancellation checks remain unchanged
+
+#### Scenario: Snapshot publication refuses disconnected parent cycles
+- **WHEN** a completed graph has one matching root and existing parent IDs but also contains a self-parent or disconnected multi-node parent cycle
+- **THEN** publication returns InvalidGraph before publishing any snapshot, ownership or latest pointer
+- **AND** parent validation runs in linear graph traversal work, accepts valid deep trees in arbitrary node order, and does not recurse on the native call stack

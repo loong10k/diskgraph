@@ -1,0 +1,30 @@
+{
+  "platform": "Darwin",
+  "processes": 4,
+  "attempts_per_process": 1000,
+  "elapsed_seconds": 0.26050633400154766,
+  "results": [
+    {
+      "acquired": 1000,
+      "busy": 875,
+      "failures": []
+    },
+    {
+      "acquired": 1000,
+      "busy": 848,
+      "failures": []
+    },
+    {
+      "acquired": 1000,
+      "busy": 886,
+      "failures": []
+    },
+    {
+      "acquired": 1000,
+      "busy": 868,
+      "failures": []
+    }
+  ],
+  "production_acceptance": false,
+  "scope": "isolated syscall/lock/write/fsync probe; does not execute Engine startup"
+}

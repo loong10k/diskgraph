@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_store-eed76b49d76f3e27)
+
+running 5 tests
+test job_publication_check_tests::staging_final_denial_rolls_back_rows_actually_written_before_commit ... ok
+test job_publication_check_tests::valid_checks_commit_the_original_owned_revision_and_release_staging ... ok
+test job_publication_check_tests::publication_denial_after_real_seal_rolls_back_latest_ownership_and_staging_cleanup ... ok
+test job_publication_check_tests::fenced_publication_excludes_post_commit_checkpoint_but_compatibility_retains_it ... ok
+test job_publication_check_tests::real_token_expiry_during_final_sql_cannot_commit_a_revision ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 335 filtered out; finished in 1.88s
+
