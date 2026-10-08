@@ -1,0 +1,19 @@
+# 末段控制锁竞争回归的实际调度边界
+
+整体未生产就绪，不关闭父项或间歇预算问题。
+
+CI37759437051（616958e）macOS stable/MSRV均仅Engine库竞争测试失败：stable请求持锁20ms但实际51.061ms，终检52.009ms返回BudgetExceeded；MSRV终检50.227ms返回时持锁线程尚未释放。原生产50ms窗口下这两项不能作为错误提前拒绝的证据，也不能用一次绿色证明所有期限问题消失。
+
+仅调整测试刺激：复用原control_until中已有cfg(test) WouldBlock观察点，另一线程确认取得真实控制锁后等待该信号；短竞争收到信号立即释放，仍严格断言Ok，持续竞争收到信号后保留500ms持锁并严格断言BudgetExceeded及原300ms外部观察界限。增加实际竞争见证断言，不把无竞争成功当作通过。不增加生产钩子、不修改生产分支、期限、SQL、授权或原归属保护。
+
+本机ARM macOS：三项lock-gap回归通过；短竞争实际持锁约0.2ms，持续竞争终检约50ms拒绝；六项scan observation回归通过；Engine all-targets Clippy通过。临时仅把末段竞争分支改回立即BudgetExceeded，目标真实竞争测试失败；随后完整恢复原生产源码并重新通过3/3。这是旧竞争行为的mutation回归证据，不宣称新增生产行为的TDD红灯。最终同SHA原生CI待运行。
+
+Windows同轮正式200k完整300秒验收仍失败。其后独立诊断548.862秒完成6/6检查，夹具191.224秒、scan156.644秒；clean_environment_confirmed=false。不将诊断成功当正式验收；尚未加入本地新清理计时，剩余墙钟不直接归因于清理。
+
+证据位于docs/benchmarks/terminal_contention_handshake_2026_10_08，原日志gzip无损保留并记录解压摘要。当前仍有原生CI活跃任务，待终态后成批推送，避免打断。
+
+## 全库本机验证限制
+
+另行执行当前Engine全库：602通过、115失败、13忽略。逐项panic分类为98项原生能力Business(Unsupported)，17项缺少root编译的新鲜standalone driver fixture；本机没有原生受保护部署/驱动验收环境，未执行特权安装或放宽原生准入。故本机全库不能报告通过，不将这些环境失败当作已修复或用窄测替代。原日志完整保留。CI已配置原生安装和夹具，仍须等待对应目标终态。原生产revision_reader_authorization.rs与本次父提交逐字节一致，摘要随证据保存。
+
+短/长真实锁竞争的同一完整目标在本机ARM macOS独立重复20次，20/20通过，保留每轮完整原始输出；不代替负载调度压力、其他平台或最终同SHA CI。

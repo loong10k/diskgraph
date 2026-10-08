@@ -80,11 +80,12 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
             Decision::Allowed
         }
     }
-    for (hold_ms, allowed) in [(20, true), (500, false)] {
+    for allowed in [true, false] {
         let (_dir, engine, principal, _, revision) =
             crate::relation_request_tests::published_authorization_fixture();
-        // 实测实际锁持有时间；sleep 只是请求时长，不能证明宿主准时调度。
+        // 短竞争仅在原取锁循环实际观察 WouldBlock 后释放，不依赖 sleep 准时唤醒。
         let held_elapsed = std::sync::Mutex::new(None);
+        let observed_wait = std::sync::atomic::AtomicBool::new(false);
         std::thread::scope(|threads| {
             let policy = Contended {
                 calls: Cell::new(0),
@@ -92,13 +93,20 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                 callback_elapsed: Cell::new(Duration::ZERO),
                 contend: || {
                     let (tx, rx) = std::sync::mpsc::channel();
+                    let (wait_tx, wait_rx) = std::sync::mpsc::channel();
+                    crate::scan_observation_deadline_tests::observe_next_control_wait(wait_tx);
+                    let observed_wait = &observed_wait;
                     let engine = &engine;
                     let held_elapsed = &held_elapsed;
                     threads.spawn(move || {
                         let held = engine.control_store().unwrap();
                         let held_started = Instant::now();
                         tx.send(()).unwrap();
-                        std::thread::sleep(Duration::from_millis(hold_ms));
+                        let actually_waiting = wait_rx.recv_timeout(Duration::from_secs(2)).is_ok();
+                        observed_wait.store(actually_waiting, std::sync::atomic::Ordering::SeqCst);
+                        if !allowed {
+                            std::thread::sleep(Duration::from_millis(500));
+                        }
                         drop(held);
                         *held_elapsed.lock().unwrap() = Some(held_started.elapsed());
                     });
@@ -115,13 +123,17 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
             );
             let elapsed = policy.terminal_started.get().unwrap().elapsed();
             let timing = format!(
-                "requested_hold_ms={hold_ms}, actual_hold={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
+                "short_release_on_actual_wait={allowed}, actual_hold={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
                 *held_elapsed.lock().unwrap(),
                 policy.callback_elapsed.get(),
                 started.elapsed(),
             );
             eprintln!("terminal_contention: {timing}; result={result:?}");
             assert_eq!(policy.calls.get(), 2);
+            assert!(
+                observed_wait.load(std::sync::atomic::Ordering::SeqCst),
+                "must witness actual control lock contention"
+            );
             if allowed {
                 assert!(
                     result.is_ok(),

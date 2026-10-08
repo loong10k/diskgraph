@@ -19,6 +19,17 @@ pub(super) fn waiting_for_control() {
     });
 }
 
+/// 参数：sender 为当前测试线程的单次真实锁竞争观察者；返回：无，不改变生产取锁行为。
+pub(super) fn observe_next_control_wait(sender: std::sync::mpsc::Sender<()>) {
+    CONTROL_WAIT.with(|slot| {
+        assert!(
+            slot.borrow().is_none(),
+            "control wait observer already installed"
+        );
+        *slot.borrow_mut() = Some(sender);
+    });
+}
+
 fn fixture() -> (tempfile::TempDir, Engine, diskgraph_store::JobRecord) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path().join("root");

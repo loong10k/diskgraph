@@ -133,3 +133,9 @@
 - **WHEN** Git 证据任务通过原可信认领、续租或发布 fence 入口执行
 - **THEN** 持久任务类型强制 MetadataRead、IndexWrite、ContentRead 与原 token 上限及实时 grants 的交集；调用方省略权限集合不得降低三项要求，缺少合法固定目标输入不得退回扫描或实时工作树采样。
 - **AND** 固定目标包含实际本机 server、scope、base revision、正整数 node 与服务端有限配置，不含 bearer、任意路径或命令；重开时重新验证类型、归属、原始长度、摘要和输入版本，同主体不同目标或不同原请求约束不得合并。
+
+#### Scenario: Terminal reader actual lock contention
+- **WHEN** 末段能力回调确认另一线程已持有真实控制锁，原取锁循环实际观察到 WouldBlock，持锁线程随观察信号立即释放
+- **THEN** 正常请求仍须通过实时授权和归属复检并成功返回，不因第一次竞争立即拒绝；成功断言不接受超时作为替代。
+- **AND** 持锁线程在观察信号之后持续占锁超过原50ms窗口时，原请求返回 BudgetExceeded；生产能力、锁和SQL观察期限均不增加、不续期。
+- **AND** 测试用真实竞争信号确定释放次序，不把 sleep 请求20ms当作实际占锁低于50ms的证明；记录真实耗时，原生CI仍独立验收。

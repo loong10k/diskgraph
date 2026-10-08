@@ -1,0 +1,75 @@
+{
+  "ci_sha": "616958e2a4f47dfb14bd7b302b1354eb76ac206b",
+  "ci_run": 37759437051,
+  "local_parent": "b2bba6bd5bc03ba12d6d61c1017ed6b4d76dcf9f",
+  "files": {
+    "macos_stable_ci.log.gz": {
+      "uncompressed_sha256": "c46eff959bf3d56a700614dacd30bf200c683e926de3e34cb30fcb00348ac1b6"
+    },
+    "macos_msrv_ci.log.gz": {
+      "uncompressed_sha256": "668cbceb936057c633f6bbefe6a5560390370a6afc5a1860125e63152f65bd23"
+    },
+    "windows_package_ci.log.gz": {
+      "uncompressed_sha256": "d9f45737d3dd91dae753f4aa72985476f1b95be11765381411b381bf6edfeb97"
+    },
+    "handshake_green.log.gz": {
+      "uncompressed_sha256": "c4f5a6432c68ef8e9704a27207d524af8129171564ee11810e69295379be47cf"
+    },
+    "immediate_refusal_mutation_red.log.gz": {
+      "uncompressed_sha256": "90c97baac52bafb15c02afae074064244179493cd530add3c177875565cd8789"
+    },
+    "observation_regression.log.gz": {
+      "uncompressed_sha256": "c0d505a1fd0423eed66654ed9da455c2266152d2aac0bd915dd40aa6cff417e5"
+    },
+    "clippy.log.gz": {
+      "uncompressed_sha256": "0f4b2ee1b848202ce3e64b46ec6dda9681f7815be842028d71b658d3a786bd3f"
+    },
+    "windows_diagnostic_receipt.json.gz": {
+      "uncompressed_sha256": "5e0743f1defaf25396edeab03c6bb5953d6c464d33636db58322702474b07123"
+    },
+    "windows_diagnostic_stdout.log.gz": {
+      "uncompressed_sha256": "211f2290a32aadb2fc31125a83d45e7d6e3fc91d53e4a711a985464fe80d7be5"
+    },
+    "windows_diagnostic_stderr.log.gz": {
+      "uncompressed_sha256": "a86fa59070a7e2d07b22ee7af685f81cd3ba7113910ce031825f108c0c5bec1e"
+    },
+    "engine_full_environment_failure.log.gz": {
+      "uncompressed_sha256": "1176cc726b41cd47af9bb8bd256d36caae2b1fa8f1833c841b086db0a88f2736"
+    },
+    "openspec_validate.log.gz": {
+      "uncompressed_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    "repetition.log.gz": {
+      "uncompressed_sha256": "2a45d420a6f84e8593511cc73cd3d9b1a512575717a653482299fa1460ffa11f"
+    },
+    "repetition.json.gz": {
+      "uncompressed_sha256": "143bb9e452dfba549aca9be791453399698a165bedae2e95e4d458047294dd25"
+    }
+  },
+  "scope": "Test-only scheduling correction; not overall production qualification.",
+  "unchanged_production_source": {
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "9f9df0b071e278436228d3e58bf1d4ea3ded145ee075be1cfa6c5ad850481373"
+  },
+  "local_verification": {
+    "lock_gap_passed": 3,
+    "scan_observation_passed": 6,
+    "immediate_refusal_mutation": "target failed as expected, source restored",
+    "engine_full": {
+      "passed": 602,
+      "failed": 115,
+      "ignored": 13,
+      "failure_classification": {
+        "Business(Unsupported)": 98,
+        "missing_fresh_root_driver_fixture": 17
+      }
+    },
+    "clippy_all_targets": "passed",
+    "openspec_strict": "passed",
+    "production_readiness": false,
+    "native_arm_macos_repetition": {
+      "passed": 20,
+      "total": 20,
+      "scope": "unchanged 50ms actual terminal contention test only"
+    }
+  }
+}
