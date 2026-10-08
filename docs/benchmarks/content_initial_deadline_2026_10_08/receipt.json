@@ -1,0 +1,26 @@
+{
+  "base_commit": "f38ca535e3cdfba63b5ecef5ea293af3c26baef0",
+  "red": "actual read deadline50ms waited for original owner500ms; assertion failed",
+  "green": "one regression covers both read and digest, original owner still held, exact BudgetExceeded",
+  "terminal": "11 passed",
+  "content_and_scoped_regression": "6 passed",
+  "clippy": "passed",
+  "fmt": "passed",
+  "openspec": "strict valid",
+  "reviews": "code APPROVE; architecture CLEAR",
+  "limitations": [
+    "Initial admission only; later chunk and terminal unbounded waits remain",
+    "No hard preemption of synchronous native I/O or authorizer callbacks",
+    "No full content withdrawal lifetime or native provider qualification",
+    "Not full workspace/platform/production qualification"
+  ],
+  "sha256": {
+    "deadline_red.log.gz": "e30299e15c30894c0899134bc158daf906b983f5f97bf1f99dba5234f76e7390",
+    "deadline_green.log.gz": "5a154fe6c539ba7a9f31bb5d353347f71cc64a5b60105c0b00db61b36c87b3a4",
+    "terminal.log.gz": "d29b31f4880625a76f43187fa6a9f33cfb45dc8258c9c340e983d24df6e74659",
+    "regression.log.gz": "afa35e5736145f28dd5a7341ce2a95f0707575b5e011a107e00e26eb72374de2",
+    "clippy.log.gz": "4865dce1cee22b9f7a8ac7318997b9c31274dd1ad553802ee420df237623b884",
+    "fmt.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "spec.log.gz": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+  }
+}

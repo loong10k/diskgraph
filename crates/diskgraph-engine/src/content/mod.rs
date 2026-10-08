@@ -33,3 +33,8 @@ mod unix_identity;
 pub(crate) use unix_identity::{
     ensure_inside_scope, ensure_plain_file, file_identity, identity_stable,
 };
+
+#[cfg(test)]
+mod initial_deadline_tests;
+
+mod initial_authorization;

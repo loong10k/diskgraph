@@ -37,16 +37,7 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<ReadOutcome, EngineError> {
         let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
-        self.require(
-            authorizer,
-            request.principal,
-            &diskgraph_core::Permission::ContentRead,
-            request.scope_id,
-        )?;
-        let record = self.scope(request.scope_id)?;
-        if record.revoked {
-            return Err(EngineError::Business(BusinessError::PermissionDenied));
-        }
+        let record = self.require_content_initial_until(request, authorizer, deadline)?;
         let root = record
             .root
             .to_native_path()

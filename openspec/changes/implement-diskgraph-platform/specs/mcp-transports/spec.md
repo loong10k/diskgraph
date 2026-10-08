@@ -152,3 +152,8 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** metadata permission on either actual history owner or the relation owner is withdrawn then restored during request preparation, reading, terminal callbacks or encoding
 - **THEN** witnesses captured before initial capability callbacks reject results using reliable native withdrawal notification or conservative generation conflict
 - **AND** all affected scopes are checked for continuous live denial before generation fallback; original read budgets and terminal observation windows are preserved
+
+#### Scenario: Initial content authorization cannot outwait the original request
+- **WHEN** the control owner holds the database lock beyond a bounded read or digest request's original deadline
+- **THEN** initial permission and actual scope preparation fail within that request's lock/SQL budget, before any content read
+- **AND** capability callbacks stay outside the control lock and late allows are refused; expiry, live ContentRead permission and scope revocation remain mandatory
