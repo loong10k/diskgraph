@@ -28,3 +28,9 @@ macOS 当前工作区 Store：347通过、0失败、7忽略；新增 release 性
 容量0是同源码禁用编译缓存的对照，不是旧发布二进制。该结果只说明小型控制SQL的重复编译成本，不能推导CLI/MCP整体加速倍数、200k扫描改善、RSS或跨平台通过；也不证明 macOS Intel explain 旧失败已经修复。Linux/Windows和同SHA全平台门禁仍待验证，未勾选整体生产任务。
 
 证据及源码摘要：`docs/benchmarks/control_query_compilation_2026_10_08/receipt.json`，所有初始失败、行为RED/GREEN、完整回归与测量日志均压缩保留。
+
+## Linux ARM64 固定提交补充验收
+
+将提交 `d4561895df3955eaa18104dac1e5471ea651c5fc` 的源码导出后，在固定摘要的 Rust 1.97.0 Debian trixie 容器执行，配额2 CPU/4GiB、用户501:20，未挂载真实业务数据库。Store 345通过、0失败、7忽略（156.17秒）；该清单来自已提交树，不包含 macOS 工作区另有的2项未提交测试。release 微基准1/1通过。
+
+同样0/16/16/0容量、每组2000轮：p50分别19.542/3.333/3.375/19.417微秒，p95分别30.083/3.458/3.458/22.667微秒。其范围仍仅为内存SQLite控制SQL编译开销；不代表原生文件系统采集、全量Engine、Windows、macOS Intel、200k整流程或同SHA全平台就绪。源码归档、镜像摘要、脚本和日志摘要见 `docs/benchmarks/linux_control_query_d4561895_2026_10_08/receipt.json`。

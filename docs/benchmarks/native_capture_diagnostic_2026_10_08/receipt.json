@@ -1,0 +1,20 @@
+{
+  "base_commit": "d4561895df3955eaa18104dac1e5471ea651c5fc",
+  "source_sha256": {
+    "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "0042027a06fd0d58f4d2c857eaeef2f99ff7377c66bceffa56a2952938d1777c"
+  },
+  "target_test": {
+    "passed": 1,
+    "failed": 0
+  },
+  "clippy": "passed",
+  "fmt": "passed",
+  "openspec_strict": "passed",
+  "boundary": "Failure diagnostics only; original Linux 200k capture gap remains unclassified until native replay. No product behavior RED claimed.",
+  "logs_sha256": {
+    "spec.log.gz": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+    "clippy.log.gz": "17c773105556d48c9439e09813cef894c15f6e0a4a396e28110f188e44eaab3f",
+    "fmt.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "test.log.gz": "2fab3d9f50661319c01ee774eadc646aa2e130b333a553b45a31ba2331939b15"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source_commit": "b3259315c674cc67c1bd7d72c669f2af9b29f73f",
+  "run_id": 37783534636,
+  "state": "still_running_at_capture",
+  "failures": [
+    {
+      "job_id": 113332530292,
+      "platform": "windows package",
+      "cause": "full 200000 fixture workflow exceeded unchanged 300s gate"
+    },
+    {
+      "job_id": 113332367837,
+      "platform": "macOS Intel stable",
+      "test": "growth_refuses_same_path_file_directory_replacement_in_both_directions",
+      "cause": "Business(BudgetExceeded) at history_size_eligibility.rs:249"
+    }
+  ],
+  "log_sha256": {
+    "macos_intel.log.gz": "c6ed050af2cf2102cb022562a1cc42dc861e3534daa5bbc9401f8acaf92b6ff6",
+    "windows_package.log.gz": "aa907eb74ff0d335d25cc15028312d7e5fae3a1b089b529965c2769de93f28a8"
+  }
+}

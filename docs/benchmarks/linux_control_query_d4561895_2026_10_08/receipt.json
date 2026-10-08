@@ -1,0 +1,81 @@
+{
+  "source_commit": "d4561895df3955eaa18104dac1e5471ea651c5fc",
+  "source_archive_sha256": "09e21a23972382fe58bee41cb1b967415c94370521485d9df9df6ca169379b5a",
+  "image": "rust:1.97.0-slim-trixie",
+  "image_digest": "sha256:686a437ead83701e8f871e66e838c3ec55f46b5fc235b025756396ac823bdc51",
+  "container": "diskgraph-control-d4561895-01",
+  "limits": {
+    "cpus": 2,
+    "memory_gib": 4,
+    "user": "501:20"
+  },
+  "store": {
+    "passed": 345,
+    "failed": 0,
+    "ignored": 7,
+    "seconds": 156.17
+  },
+  "release_benchmark": {
+    "os": "linux",
+    "release": true,
+    "rounds": [
+      {
+        "capacity": 0,
+        "p50_ns": 19542,
+        "p95_ns": 30083,
+        "samples": 2000,
+        "total_ns": 43672283
+      },
+      {
+        "capacity": 16,
+        "p50_ns": 3333,
+        "p95_ns": 3458,
+        "samples": 2000,
+        "total_ns": 7125849
+      },
+      {
+        "capacity": 16,
+        "p50_ns": 3375,
+        "p95_ns": 3458,
+        "samples": 2000,
+        "total_ns": 7373391
+      },
+      {
+        "capacity": 0,
+        "p50_ns": 19417,
+        "p95_ns": 22667,
+        "samples": 2000,
+        "total_ns": 41404468
+      }
+    ],
+    "scope": "in-memory control SQL compilation only"
+  },
+  "boundary": "Exact committed source in Linux ARM64 Docker; control SQL and Store only, not full product or host filesystem acceptance.",
+  "files": {
+    "store.log.gz": {
+      "raw_sha256": "e00ea528f63f1a095962ffd4548d6dcd977932d738d8bff0dfa0649182f9fb22",
+      "compressed_sha256": "248a64035cda5145f0ca555e92e4ba628da35ca7dddb9f5c9db19e748bafc3aa"
+    },
+    "release.log.gz": {
+      "raw_sha256": "5963caeccb2f42de5fa183d4586581c4839ec98f2e3ccad1060ab58949bce9b4",
+      "compressed_sha256": "bcbf0238c51ec535220a6d13bccb7e574f2f3cb432ca59dffa79532460bab60a"
+    },
+    "image_pull.log.gz": {
+      "raw_sha256": "7726c3f75d3f1c6139ef8cd7c0240e52c7ea63c054256437431646dc36c86251",
+      "compressed_sha256": "307a2ad3ad66adc4894bcb3356e5ca49d8e3e6d013058b487bdf9efb5934932f"
+    },
+    "container.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "run.sh": {
+      "sha256": "d4326e782e984b30b8fb4de44378dd541e8220262acb9fc18255c294ce9e8702"
+    },
+    "status.txt": {
+      "sha256": "fb2996c99e87962a84e589510a93df02ff57cee6f423d5f2091019d9e89175b7"
+    },
+    "environment.txt": {
+      "sha256": "9d6769e7ef57eea8d9b3eccadabb032a031c1d58325cacad31c3fec351719d57"
+    }
+  }
+}

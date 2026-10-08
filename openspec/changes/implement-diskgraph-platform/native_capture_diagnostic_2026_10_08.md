@@ -1,0 +1,11 @@
+# 原生身份采集缺口诊断
+
+原始CI：提交 `b3259315c674cc67c1bd7d72c669f2af9b29f73f`、运行37783534636、Linux stable任务113332368040。200000-wide-round2-candidate退出101，观察记录200000、捕获199999、缺口1。失败发生在身份采集资格校验，尚未执行该轮后续查询测量；不能把局部结果称为完整配对比较。
+
+旧断言只保留总数，原数据库未归档，因此尚无证据确认缺口属于unsupported、changed、tree_mismatch或其他分类。没有将EAGAIN或控制库预算推断为既定根因，也没有修改原生打开、捕获及发布行为来绕过此门禁。
+
+本次仅为配对验收增加失败路径的固定原因聚合：按原snapshot查询，未知数据库值归类invalid_gap，未捕获且没有原因的记录归类missing_observation。聚合最多8个固定键，不输出路径、文件名或原始观察；聚合失败保留固定诊断不可用结果并继续使原门禁失败。成功路径不增加聚合SQL。
+
+隔离SQLite回归验证重复计数、snapshot隔离、未知字符串与二进制值脱敏及空结果，1/1通过；目标Clippy、格式与OpenSpec严格校验通过。这是诊断增强，没有可声称的产品行为RED/GREEN，也未证明原始Linux缺口已修复。原日志与制品摘要在 `docs/benchmarks/ci_b3259315_linux_stable_2026_10_08/`；下载的大型原始制品保留本地，未纳入Git。
+
+同轮另有macOS Intel历史大小资格测试返回Business(BudgetExceeded)，Windows包200000文件完整流程超过原300秒。分别保留原日志于 `docs/benchmarks/ci_b3259315_platform_failures_2026_10_08/`。Windows台式机连接在本次检查仍为tunnel_client_not_seen，未在该桌面执行更新或验收。当前所有整体生产门禁保持未完成。

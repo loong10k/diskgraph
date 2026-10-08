@@ -25,6 +25,10 @@
 - **WHEN** 仅热缓存单次查询更快
 - **THEN** 不足以声称整体提效；补齐准确性和累计成本比较。
 
+#### Scenario: Native scan benchmark has an incomplete identity capture
+- **WHEN** Linux 配对扫描验收的持久观察数、成功捕获数或缺口数不满足原精确门禁
+- **THEN** 仍然失败，并按该快照汇总固定缺口原因计数；未知值映射为固定 invalid_gap，不输出路径、文件名或原始观察。诊断失败不得改成通过，成功路径不额外执行缺口聚合。
+
 #### Scenario: Full packaged load includes fixture retirement
 - **WHEN** 完整打包负载已完成原文件数、路径覆盖、并发读取及超限拒绝检查
 - **THEN** 记录真实临时目录清理的开始、结束及耗时，在目录实际删除后才输出成功报告；清理失败保留原异常，不输出清理完成或成功报告。

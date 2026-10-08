@@ -56,11 +56,15 @@ pub(crate) fn qualify(
         "SELECT count(*), coalesce(sum(observation_raw IS NOT NULL AND gap IS NULL),0), coalesce(sum(gap IS NOT NULL),0) FROM node_unix_observations WHERE snapshot_id=?1",
         [&snapshot.id], |row| Ok((row.get(0)?,row.get(1)?,row.get(2)?)),
     ).unwrap();
-    assert_eq!(
-        (rows, captured, gaps),
-        (count as i64, count as i64, 0),
-        "Unsupported/gap must not be measured as successful native capture"
-    );
+    if (rows, captured, gaps) != (count as i64, count as i64, 0) {
+        // 只在失败时汇总有限原因码，不输出文件名、路径、原始观察或未知数据库字段。
+        let diagnostic = capture_gaps(&connection, &snapshot.id)
+            .unwrap_or_else(|_| json!({"diagnostic_unavailable": true}));
+        panic!(
+            "Unsupported/gap must not be measured as successful native capture; \
+             expected={count}; rows={rows}; captured={captured}; gaps={gaps}; reasons={diagnostic}"
+        );
+    }
     let store = diskgraph_store::SqliteSnapshotStore::open(&data.join("diskgraph.sqlite")).unwrap();
     let mut witnesses = Vec::new();
     for index in [0, count - 1] {
@@ -95,4 +99,52 @@ pub(crate) fn qualify(
     }
     json!({"qualified":true,"method":"linux_handle","captured_files":captured,
         "gaps":gaps,"snapshot_id":snapshot.id,"witnesses":witnesses})
+}
+
+/// 参数：只读夹具连接与原快照；返回：固定八种缺口计数，不暴露原始字段。
+fn capture_gaps(connection: &rusqlite::Connection, snapshot: &str) -> rusqlite::Result<Value> {
+    let mut statement = connection.prepare(
+        "SELECT CASE
+            WHEN gap IS NULL THEN 'missing_observation'
+            WHEN gap IN ('not_captured','unsupported','denied','changed','capture_failed','tree_mismatch') THEN gap
+            ELSE 'invalid_gap' END AS reason, count(*)
+         FROM node_unix_observations
+         WHERE snapshot_id=?1 AND (gap IS NOT NULL OR observation_raw IS NULL)
+         GROUP BY reason ORDER BY reason",
+    )?;
+    let records = statement.query_map([snapshot], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+    })?;
+    let mut counts = serde_json::Map::new();
+    for record in records {
+        let (reason, count) = record?;
+        counts.insert(reason, json!(count));
+    }
+    Ok(Value::Object(counts))
+}
+
+#[test]
+fn capture_gap_diagnostics_are_scoped_counted_and_do_not_echo_raw_fields() {
+    let connection = rusqlite::Connection::open_in_memory().unwrap();
+    connection
+        .execute_batch(
+            "CREATE TABLE node_unix_observations(snapshot_id TEXT, observation_raw BLOB, gap);
+         INSERT INTO node_unix_observations VALUES
+         ('selected',X'01',NULL),
+         ('selected',NULL,'unsupported'), ('selected',NULL,'unsupported'),
+         ('selected',NULL,'tree_mismatch'), ('selected',NULL,'changed'),
+         ('selected',NULL,'capture_failed'), ('selected',NULL,'denied'),
+         ('selected',NULL,'not_captured'), ('selected',NULL,NULL),
+         ('selected',NULL,'/private/sensitive-name'), ('selected',NULL,X'FFFF'),
+         ('other',NULL,'denied');",
+        )
+        .unwrap();
+    assert_eq!(
+        capture_gaps(&connection, "selected").unwrap(),
+        json!({
+            "unsupported":2,"tree_mismatch":1,"changed":1,"capture_failed":1,
+            "denied":1,"not_captured":1,"missing_observation":1,"invalid_gap":2
+        })
+    );
+    assert_eq!(capture_gaps(&connection, "absent").unwrap(), json!({}));
 }
