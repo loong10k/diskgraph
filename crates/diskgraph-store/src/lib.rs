@@ -152,6 +152,9 @@ mod revision_edge_cursor;
 mod revision_evidence_reader;
 #[cfg(test)]
 mod revision_evidence_tests;
+mod revision_ownership_reader;
+#[cfg(test)]
+mod revision_ownership_reader_tests;
 mod revision_queries;
 mod revision_record;
 mod revision_relation_page_queries;
@@ -214,6 +217,7 @@ pub use recovery_entry::RecoveryEntry;
 pub use recovery_rule::RecoveryRule;
 pub use recovery_state::RecoveryState;
 pub use result::Result;
+pub use revision_ownership_reader::RevisionOwnershipReader;
 pub use revision_record::RevisionRecord;
 pub use scope_record::ScopeRecord;
 pub use sqlite_snapshot_store::{SUPPORTED_SCHEMA_VERSION, SqliteSnapshotStore};

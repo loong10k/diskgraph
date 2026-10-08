@@ -148,8 +148,9 @@ fn malformed_duplicate_or_unknown_fields_are_rejected_without_reopening_receiver
 
 #[test]
 fn a_fragment_cannot_renew_the_original_deadline() {
-    let mut r = ControlReceiver::new([7; 32], Instant::now() + Duration::from_millis(30));
+    // 先准备发送方帧，接收方原期限只围绕本测试要验证的分片接收阶段。
     let bytes = frame(0, Notice::Ready {}).encode().unwrap();
+    let mut r = ControlReceiver::new([7; 32], Instant::now() + Duration::from_millis(30));
     r.push(&bytes[..2]).unwrap();
     std::thread::sleep(Duration::from_millis(60));
     assert_eq!(r.push(&bytes[2..]), Err(ControlError::Deadline));

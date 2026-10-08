@@ -1,0 +1,13 @@
+{
+  "qualification": "initial candidate microbenchmark only; no improvement established; not current zero-busy source",
+  "job": "wc_job_gas3X7sUDWfbHGUq",
+  "target": "x86_64-pc-windows-msvc",
+  "rust": "1.99.0",
+  "profile": "release",
+  "samples": 200,
+  "reader_source_sha256": "1027802a7524406f6eda0ef97975f9b08b7b8dbc1795be3156353a4294cb9b8a",
+  "general_p50_ns": 1141800,
+  "general_p95_ns": 1734200,
+  "narrow_p50_ns": 1159500,
+  "narrow_p95_ns": 1771500
+}

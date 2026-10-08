@@ -1,7 +1,7 @@
 //! revision 读取后终检；来源：OpenSpec SC-04，授权观察不续期数据读取。
 use crate::{Engine, EngineError};
 use diskgraph_core::{BusinessError, ScopeId};
-use diskgraph_store::{ControlStore, SqliteSnapshotStore, StoreError};
+use diskgraph_store::{ControlStore, RevisionOwnershipReader, StoreError};
 use std::time::Instant;
 
 impl Engine {
@@ -54,10 +54,9 @@ impl Engine {
             let reader_started = Instant::now();
             let reader =
                 crate::authorization_phase_diagnostic::observe("terminal_reader_open", || {
-                    Ok(SqliteSnapshotStore::open_reader_until(
+                    Ok(RevisionOwnershipReader::open_until(
                         &self.graph_path,
                         deadline,
-                        None,
                     )?)
                 })?;
             #[cfg(test)]
@@ -69,11 +68,7 @@ impl Engine {
             for (revision, scope) in revisions {
                 // 每次 SELECT 独立观察当前 WAL；不能开启冻结两侧归属的事务。
                 crate::authorization_phase_diagnostic::observe("terminal_ownership_sql", || {
-                    if !reader.revision_ownership_matches(
-                        revision,
-                        server.as_str(),
-                        scope.as_str(),
-                    )? {
+                    if !reader.matches(revision, server.as_str(), scope.as_str())? {
                         return Err(BusinessError::PermissionDenied.into());
                     }
                     if Instant::now() >= deadline {

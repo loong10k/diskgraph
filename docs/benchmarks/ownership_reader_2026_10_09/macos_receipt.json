@@ -1,0 +1,77 @@
+{
+  "diskgraph-narrow-ownership-busy-red.log": {
+    "sha256": "aad6e90b4568240826947201cebf1bf0aecd3185b47513664177b72f95f52dd8",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s",
+      "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 365 filtered out; finished in 0.28s"
+    ]
+  },
+  "diskgraph-narrow-ownership-contract-final.log": {
+    "sha256": "c723916436d30e2ea805adac45c55a658936228a7560ff047ae5c36046e3c5fd",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.37s",
+      "test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 358 filtered out; finished in 0.16s"
+    ]
+  },
+  "diskgraph-narrow-ownership-clippy.log": {
+    "sha256": "5ee0a86a3c3e9a0599413189e423577c630436f08882b955b41da1ef67ea1ac4",
+    "summary": [
+      "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.05s"
+    ]
+  },
+  "diskgraph-recovery-control-fixture-final.log": {
+    "sha256": "a3760510ac6b9485f98c6113c1ce8611bee26cf06687f31835bcf87073b9452c",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.01s",
+      "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s"
+    ]
+  },
+  "diskgraph-history-withdrawal-phase-final.log": {
+    "sha256": "b809b4b2876706558cd6c9516d21972ea158024aae57ce9007abd11643e08246",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.14s",
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 748 filtered out; finished in 0.91s"
+    ]
+  },
+  "diskgraph-narrow-ownership-zero-busy.log": {
+    "sha256": "f9899e03de121dc18e85aa9bb49c320134f39707e6ce8459c8cdadac84da3899",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.55s",
+      "test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 358 filtered out; finished in 0.17s"
+    ]
+  },
+  "diskgraph-narrow-zero-busy-clippy.log": {
+    "sha256": "12b2067ce97903ad717937b628d4e49cc9828915c93aa08e57b0eb74dfd49026",
+    "summary": [
+      "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.49s"
+    ]
+  },
+  "diskgraph-narrow-terminal-capability.log": {
+    "sha256": "2417d742bbf64070120f66147c1e0c188d143c62084b5ac4e72c9cdfa783fa60",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.08s",
+      "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 740 filtered out; finished in 8.39s"
+    ]
+  },
+  "diskgraph-narrow-engine-withdrawal-final.log": {
+    "sha256": "e6e53d0c80bf78c5e57f31fd9b29423ebef182ce091e8de447965f749016cba8",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s",
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 748 filtered out; finished in 0.93s"
+    ]
+  },
+  "diskgraph-narrow-finalize-withdrawal-final.log": {
+    "sha256": "b6158867bd5bb06c9b2221ea84acaf4a6513747e48c19bc14d3e2e3ed47d825a",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s",
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 752 filtered out; finished in 0.06s"
+    ]
+  },
+  "diskgraph-both-expiry-phase-final.log": {
+    "sha256": "2fcc238c873e672a3166aee4be9edbcd120d2e8e1c99f0eff0e38e322c844ea1",
+    "summary": [
+      "    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.96s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 751 filtered out; finished in 0.99s"
+    ]
+  }
+}
