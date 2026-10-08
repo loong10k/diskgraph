@@ -8,6 +8,6 @@
 
 台式机 Rust 1.99.0/MSVC：新回归在旧产品实现实际失败，错误为 `probe cleanup pending; original owner retained`；修复后 1/1 通过。整理代码结构后完整恢复组 5/5 通过（含原取消 wait/query 故障、panic 和到期不进入旧阻塞清理），Clippy lib/tests `-Dwarnings` 通过。最终产品文件 SHA-256 为 `435cc69e2b5a69b0974bb22474d582aa41cf19ad964d452ffec1b5c22d2f60e2`。归档 `docs/benchmarks/windows_probe_pending_cleanup_2026_10_09` 保留原日志、脚本和逐次源码摘要。RED 外层包装误用 CompletedProcess 作为退出值，外层记录1；内层 Cargo 实际101及目标断言失败已保留。GREEN及后续包装已正确传播 returncode。
 
-默认并发 Engine 全量正在运行；其900秒测试宿主窗口仅供完整收集结果，不改变生产 Git 15秒预算、授权50ms或200k全流程300秒验收。不得将未结束的全量算作通过。
+默认并发 Engine 全量已完整结束：623通过、82失败、4忽略，测试512.91秒，Cargo全流程515.141秒、退出101。新增暂时清理回归在全量中仍通过，但Git整次预算、终检授权和部分任务/旧revision读取失败仍未关闭；82个失败测试不能等同82个独立缺陷。源码摘要全部与已推送提交 `d3fae86b` 一致；启动时Git HEAD仍为61283557，期间只fast-forward并核验源码字节不变，归档不把旧HEAD标签冒充构建来源。台式机同步后受跟踪文件干净。本轮900秒测试宿主窗口仅供完整收集结果，不改变生产 Git 15秒预算、授权50ms或200k全流程300秒验收。原始全量ZIP和失败清单见同一证据目录 `full_native.zip` / `full_result.json`。
 
 旧提交 `61283557` 的 CI `37820467541` 已终态：19成功、4失败；Windows stable/MSRV Engine 各703通过、1失败、4忽略，均为 relation 数据期限耗尽后终检授权预算；另有 macOS Intel history 与 Windows 200k 包失败。原始日志及终态见 `docs/benchmarks/ci_61283557_terminal_2026_10_09`。它们不是本修复后的同提交验证，仍保留为开放门禁，不因本次定向通过被覆盖。
