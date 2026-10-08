@@ -1,6 +1,7 @@
 use crate::recovery_slot::{SlotError, SlotReservation};
 use std::fs::File;
-use std::os::fd::{AsRawFd, FromRawFd};
+#[cfg(target_os = "macos")]
+use std::os::fd::AsRawFd;
 use std::os::unix::fs::MetadataExt;
 use std::time::Instant;
 
@@ -40,45 +41,35 @@ impl TrustedLocalRecoveryDomain {
             c"supervisor_3.slot",
         ] {
             self.check_directory(deadline)?;
-            let raw = unsafe {
-                libc::openat(
-                    self.directory.as_raw_fd(),
-                    name.as_ptr(),
-                    libc::O_RDWR
-                        | libc::O_CREAT
-                        | libc::O_NOFOLLOW
-                        | libc::O_CLOEXEC
-                        | libc::O_NONBLOCK,
-                    0o600,
-                )
+            let file = match crate::recovery_slot_open::open(&self.directory, name, deadline) {
+                Ok(file) => file,
+                Err(SlotError::Io(error)) => {
+                    // helper 已捕获原 errno；诊断不能覆盖原系统错误。
+                    let (entry, entry_errno) =
+                        crate::recovery_slot_entry_diagnostic::observe(&self.directory, name);
+                    // held 目录被移除后 fstat 仍可成功，但创建子项可能 ENOENT；只记录状态诊断，
+                    // 不输出目录路径/身份，不重建容量域，也不将失败重试为新的出生授权。
+                    let directory_links = self
+                        .directory
+                        .metadata()
+                        .ok()
+                        .map(|metadata| metadata.nlink());
+                    #[cfg(target_os = "macos")]
+                    let namespace = if error.raw_os_error() == Some(libc::ENOENT) {
+                        held_path_state(&self.directory)
+                    } else {
+                        "not_enoent"
+                    };
+                    #[cfg(not(target_os = "macos"))]
+                    let namespace = "unobserved";
+                    eprintln!(
+                        "diskgraph: recovery slot_stage=open failed errno={:?} directory_links={directory_links:?} namespace={namespace} entry={entry} entry_errno={entry_errno:?}",
+                        error.raw_os_error()
+                    );
+                    return Err(error.into());
+                }
+                Err(error) => return Err(error),
             };
-            if raw < 0 {
-                // 先捕获原 errno；诊断输出不得改变返回的系统错误，也不包含用户路径。
-                let error = std::io::Error::last_os_error();
-                let (entry, entry_errno) =
-                    crate::recovery_slot_entry_diagnostic::observe(&self.directory, name);
-                // held 目录被移除后 fstat 仍可成功，但创建子项可能 ENOENT；只记录状态诊断，
-                // 不输出目录路径/身份，不重建容量域，也不将失败重试为新的出生授权。
-                let directory_links = self
-                    .directory
-                    .metadata()
-                    .ok()
-                    .map(|metadata| metadata.nlink());
-                #[cfg(target_os = "macos")]
-                let namespace = if error.raw_os_error() == Some(libc::ENOENT) {
-                    held_path_state(&self.directory)
-                } else {
-                    "not_enoent"
-                };
-                #[cfg(not(target_os = "macos"))]
-                let namespace = "unobserved";
-                eprintln!(
-                    "diskgraph: recovery slot_stage=open failed errno={:?} directory_links={directory_links:?} namespace={namespace} entry={entry} entry_errno={entry_errno:?}",
-                    error.raw_os_error()
-                );
-                return Err(error.into());
-            }
-            let file = unsafe { File::from_raw_fd(raw) };
             let metadata = file.metadata().inspect_err(|_| {
                 eprintln!("diskgraph: recovery slot_stage=metadata failed");
             })?;

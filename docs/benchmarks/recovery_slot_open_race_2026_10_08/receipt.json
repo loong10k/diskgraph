@@ -1,0 +1,26 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-engine/src/recovery_slot_open.rs": "dde1d688f66a4eb9f070cbd6f1a06d6d809fa8445b1480dfb660b61d616f04bf",
+    "crates/diskgraph-engine/src/trusted_local_recovery_domain.rs": "0544c9dc65b848172fc607b05e2a932d1db9ce677cfb668d15c56c98444ce42e",
+    "crates/diskgraph-engine/src/trusted_local_recovery_domain_tests.rs": "d9d9f9fe059dce2d447803901f477da26c8b4cb6d524892e8425e5a959f9aa84",
+    "crates/diskgraph-engine/tests/recovery_domain_concurrency.rs": "896f54c044667771406ab57a61dec58974bdb4f00cd6e748b6b4ab74e623abfc"
+  },
+  "platform": "native macOS ARM64",
+  "red": "four real processes; original O_CREAT admission returned ENOENT while original namespace and regular slot remained",
+  "green_claims": [
+    2048,
+    2048,
+    512
+  ],
+  "final_parent_tests": 1,
+  "final_ignored_worker_tests": 1,
+  "ignored_worker_actually_invoked_by_parent": 4,
+  "domain_tests": {
+    "passed": 7,
+    "ignored": 1
+  },
+  "diagnostic_tests": 3,
+  "source_layout_tests": 6,
+  "linux_docker_attempt": "container was not created; Docker metadata read-only filesystem; no Linux validation claim",
+  "other_platform_verification": "pending native CI"
+}

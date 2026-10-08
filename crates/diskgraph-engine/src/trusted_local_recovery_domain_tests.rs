@@ -311,3 +311,21 @@ fn observed_child_timeout_is_reaped_and_keeps_its_active_slot_unconfirmed() {
     ));
     drop(original);
 }
+
+#[test]
+fn removed_original_domain_is_not_recreated_by_slot_admission() {
+    let dir = private_directory();
+    let path = dir.path().to_path_buf();
+    let domain = domain(&path);
+    std::fs::remove_dir(&path).unwrap();
+    let result = domain.reserve(deadline());
+    assert!(
+        matches!(result, Err(SlotError::Io(ref error))
+        if error.raw_os_error() == Some(libc::ENOENT)),
+        "removed original directory must preserve ENOENT"
+    );
+    assert!(
+        !path.exists(),
+        "admission cannot recreate the original domain"
+    );
+}
