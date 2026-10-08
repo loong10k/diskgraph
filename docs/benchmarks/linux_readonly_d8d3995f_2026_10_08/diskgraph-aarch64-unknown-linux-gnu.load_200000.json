@@ -1,0 +1,26 @@
+{
+  "version": "diskgraph 0.3.0",
+  "platform": "linux",
+  "files": 200000,
+  "indexed_nodes": 200001,
+  "queries": 32,
+  "concurrent_clients": 4,
+  "fixture_workers": 4,
+  "fixture_seconds": 12.709,
+  "scan_seconds": 19.968,
+  "cleanup_seconds": 7.278,
+  "cleanup_workers": 1,
+  "query_p50_ms": 12.312,
+  "query_p95_ms": 16.652,
+  "database_and_wal_bytes": 594546688,
+  "passed": 6,
+  "total": 6,
+  "checks": {
+    "full_index_published": true,
+    "exact_fixture_path_coverage": true,
+    "exact_fixture_node_coverage": true,
+    "concurrent_reads_bound_to_revision": true,
+    "query_results_bounded": true,
+    "node_budget_refuses_partial_publish": true
+  }
+}

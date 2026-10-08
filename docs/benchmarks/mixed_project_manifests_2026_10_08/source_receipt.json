@@ -1,0 +1,9 @@
+{
+  "base_sha": "d8d3995f4f5cc1c2bbf09263814d18b322900f79",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/collectors/project_collector.rs": "f225b3005f2822547ca621a6599f368a9cbb6c1c564f16c153c023e6acd46276",
+    "crates/diskgraph-engine/src/collectors/ecosystem.rs": "9cdbcfa258302cbf1df1c417d49f3e9eebd2192b753febfdcfd4da1a6787ffc0",
+    "crates/diskgraph-engine/src/collectors/tests.rs": "a0547777c438db02fef07eb8b6cd494a7327f29dc0533c5893bcc471e7c136e4"
+  },
+  "test_scope": "host collector + isolated SQLite publication; not full native platform qualification"
+}

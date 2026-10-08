@@ -28,8 +28,7 @@ const ECOSYSTEMS: &[Ecosystem] = &[
         proves_rebuildable: false,
     },
     Ecosystem {
-        // Maven and Gradle both keep build output in `target`; whichever
-        // manifest sits beside it defines the project.
+        // Maven 默认产物为 target；与其他清单共享产物时保留多条布局依据。
         manifest: "pom.xml",
         output: "target",
         tool: "maven",

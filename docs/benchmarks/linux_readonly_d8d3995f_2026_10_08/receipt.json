@@ -1,0 +1,35 @@
+{
+  "run_id": 37776446882,
+  "source_sha": "d8d3995f4f5cc1c2bbf09263814d18b322900f79",
+  "run_url": "https://github.com/loong10k/diskgraph/actions/runs/37776446882",
+  "artifacts": [
+    {
+      "artifact_id": 11549939570,
+      "target": "x86_64-unknown-linux-gnu",
+      "original_zip_sha256": "dbd3cb752866378e45c8b52854c35eaa0fb79b349c65dfc3734661da92faab87",
+      "files": {
+        "diskgraph-x86_64-unknown-linux-gnu.http.json": "3dc004e14c0dacf51b7248aaf305c9513f3ea27e4ad804fdbda5d3a2392d952b",
+        "diskgraph-x86_64-unknown-linux-gnu.load.json": "db5e0b809e85c9d1c8444cbdb12e5e5d3bdf79dac90c07e3bbe4a2d2c2306b11",
+        "diskgraph-x86_64-unknown-linux-gnu.load_200000.json": "254ab7e78275de793d4c7821d2e2976662b0003010bcb902ccb08bb9079f2dfd",
+        "diskgraph-x86_64-unknown-linux-gnu.tar.gz.sha256": "8baa1ac8bd1aa61cb9c70ae0783728b29f3ecc22c72119f11cde13bd7df4723b"
+      }
+    },
+    {
+      "artifact_id": 11549669668,
+      "target": "aarch64-unknown-linux-gnu",
+      "original_zip_sha256": "06458e64b03f1803f62cf361553738348b5d533204f888f0c0563ab37d659425",
+      "files": {
+        "diskgraph-aarch64-unknown-linux-gnu.http.json": "0b245c3b08b1d61ea35dee62afb2bdb0129861791e2b6df44bdddfb89b39a66e",
+        "diskgraph-aarch64-unknown-linux-gnu.load.json": "8c594f3f13ef3702d6fbf8a39fd3e50575008c9c83c731b00b7f174e4b17d941",
+        "diskgraph-aarch64-unknown-linux-gnu.load_200000.json": "fe86a443e02b5cac944ef3edb7c7451a8ffb1a1932b2f94f587be6fa7b1e5e2a",
+        "diskgraph-aarch64-unknown-linux-gnu.tar.gz.sha256": "54c0ac1166a8acd383d07d25531cd43d4234543a65a4ef6b567e9dd3d89a31ec"
+      }
+    }
+  ],
+  "boundaries": [
+    "Only Linux native package jobs completed at observation time",
+    "60s HTTP smoke is not long-run qualification",
+    "No paired RSS improvement claim",
+    "Mixed manifest repair is not included in this SHA"
+  ]
+}
