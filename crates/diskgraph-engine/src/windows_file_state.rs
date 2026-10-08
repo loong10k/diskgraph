@@ -27,6 +27,30 @@ pub(crate) struct WindowsFileState {
 }
 
 impl WindowsFileState {
+    /// 从同一借用句柄已成功查询的三块原生信息投影版本，不再次访问内核。
+    /// 参数：id/basic/standard 为 FileId/Basic/StandardInfo 原输出；调用方须先核验磁盘句柄及查询成功。
+    /// 返回：保留完整身份、原生时间和属性的状态；负长度拒绝，不声称三次查询为原子快照。
+    pub(crate) fn from_native_information(
+        id: &FILE_ID_INFO,
+        basic: &FILE_BASIC_INFO,
+        standard: &FILE_STANDARD_INFO,
+    ) -> Result<Self, EngineError> {
+        if standard.EndOfFile < 0 {
+            return Err(BusinessError::Unsupported.into());
+        }
+        Ok(Self {
+            volume: id.VolumeSerialNumber,
+            id: id.FileId.Identifier,
+            len: standard.EndOfFile as u64,
+            creation: basic.CreationTime,
+            modified: basic.LastWriteTime,
+            changed: basic.ChangeTime,
+            attributes: basic.FileAttributes,
+            directory: standard.Directory,
+            delete_pending: standard.DeletePending,
+        })
+    }
+
     /// 参数：other 为同次原有捕获状态；不读取句柄或复制字段值。
     /// 返回：完整 Eq 字段的差异位：卷、ID、EOF、创建、写入、变化、属性、类型、删除依次为 bit0..8。
     #[cfg(test)]
@@ -90,17 +114,7 @@ impl WindowsFileState {
         if size == 0 || standard.EndOfFile < 0 {
             return Ok(Err(BusinessError::Unsupported.into()));
         }
-        Ok(Ok(Self {
-            volume: id.VolumeSerialNumber,
-            id: id.FileId.Identifier,
-            len: standard.EndOfFile as u64,
-            creation: basic.CreationTime,
-            modified: basic.LastWriteTime,
-            changed: basic.ChangeTime,
-            attributes: basic.FileAttributes,
-            directory: standard.Directory,
-            delete_pending: standard.DeletePending,
-        }))
+        Ok(Self::from_native_information(&id, &basic, &standard))
     }
 
     /// 比较根租约的完整身份与目录安全状态；允许目录时间和普通属性变化。
@@ -197,17 +211,7 @@ impl WindowsFileState {
         if !queried || standard.EndOfFile < 0 {
             return Err(EngineError::Business(BusinessError::Unsupported));
         }
-        Ok(Self {
-            volume: id.VolumeSerialNumber,
-            id: id.FileId.Identifier,
-            len: standard.EndOfFile as u64,
-            creation: basic.CreationTime,
-            modified: basic.LastWriteTime,
-            changed: basic.ChangeTime,
-            attributes: basic.FileAttributes,
-            directory: standard.Directory,
-            delete_pending: standard.DeletePending,
-        })
+        Self::from_native_information(&id, &basic, &standard)
     }
 
     /// 判断句柄是否暴露云占位/离线属性；返回 true 时不得申请数据访问。

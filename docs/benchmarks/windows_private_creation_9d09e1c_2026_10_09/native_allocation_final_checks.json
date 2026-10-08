@@ -1,0 +1,94 @@
+{
+  "base_head": "b510f823858b1b3026dd485ec0fcc25a8cc007f2",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/windows_file_state.rs": "9c477d8bf79bfaab92396806f8b53a802ce899ceae7a999de1e4e57fe79631b3",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "bd311d87e692d0cb436fc1f618191a5479e3a028fe49b526885671b868dedf2a",
+    "crates/diskgraph-engine/src/lib.rs": "fed00229aa92bb1c88cbce1a53514b5ca3b276ed62bf5dcf92e3bf5a80900724",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_allocation_tests.rs": "8d2fbd59de27de181beebfccaf57f8036bd4956d25e0f0510f64a2a9f3728e57",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "6bafdcca756b5c54efbe9f892c55e301b8fd5c2f855b1f606eab6a39544ebd9f",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "f8eacd66496eb5881509c81a434e7182a290a6e8ecbcdadc76e9718c191b97f9",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+    "crates/diskgraph-engine/src/live_evidence/git_private_created_entry.rs": "e0e533e2e7e84b985f8a31f6572d265cc263a5085cf2b67384e5518096a8944b",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_removal_budget_tests.rs": "f04f96b193ea77b14a8e57dae88c178d57537f6ecdbc25d34c165c406f16ec60",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "9b3810f32348cf6eab3e3cecc5164e561ef3374918d65810f5e054abcd0c3820",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "581ed3798c2cbdae6d6e707f76f1c38ead5e390ad1b56871c841552a110e62aa",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "a1d6b35ef516180f1571188f8ae4680899a07259a3368c3f4e86da0c8e300f10",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+    "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+    "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+    "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+    "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+    "crates/diskgraph-store/src/revision_ownership_reader.rs": "b194b92509199a6a7b0c3d91b70bc197fcc19ac2fbf2b2eaf2ade2983f127a26",
+    "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "577f7f39b321c49a24b1bee5d94023a7e981b39688748ab2ba0a8d09a0933439"
+  },
+  "commands": [
+    {
+      "name": "terminal_busy_phases",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-store",
+        "--lib",
+        "a_later_busy_select_uses_only_the_original_remaining_window",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 27.719000000011874
+    },
+    {
+      "name": "engine_source_layout",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "source_layout",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.34299999999348
+    },
+    {
+      "name": "fmt_owned",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "fmt",
+        "-p",
+        "diskgraph-engine",
+        "-p",
+        "diskgraph-store",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.9539999999979045
+    }
+  ],
+  "working_tree_diff_sha256": "02c1e13562996d7617b35ad4e635144099d096fe6c3342355cc951d5784daf1f",
+  "tracked_status": " M crates/diskgraph-engine/src/lib.rs\n M crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs\n M crates/diskgraph-engine/src/live_evidence/mod.rs\n M crates/diskgraph-engine/src/windows_file_state.rs\n M crates/diskgraph-store/src/revision_ownership_reader_tests.rs\n M scripts/qualify_windows_enumerated_absence.py\n M scripts/qualify_windows_private_disposal.py\n",
+  "native_job": "wc_job_frO8B9dEpMvrV4tu",
+  "observations": {
+    "engine_source_layout.stderr.log": [],
+    "engine_source_layout.stdout.log": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.53s"
+    ],
+    "fmt_owned.stderr.log": [],
+    "fmt_owned.stdout.log": [],
+    "terminal_busy_phases.stderr.log": [
+      "terminal_busy_phases admission=291.1µs locked=427.5µs before_select=101.0282ms select=30.8601ms total=131.8883ms result=Err(Sqlite(SqliteFailure(Error { code: DatabaseBusy, extended_code: 5 }, Some(\"database is locked\"))))"
+    ],
+    "terminal_busy_phases.stdout.log": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 377 filtered out; finished in 0.19s"
+    ]
+  }
+}

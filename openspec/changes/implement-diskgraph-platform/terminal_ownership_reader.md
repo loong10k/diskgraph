@@ -19,3 +19,7 @@ Windows Rust 1.99 MSVC release、200 对交替样本：通用连接 p50 1.1418ms
 随后原默认并发 Engine 全量在 600.016s 达到验证外壳期限，未产出完整 suite 结果。大量空文件夹具先在原 120s 构造期限内失败，原恢复责任继续处理目录清理，输出 `probe cumulative output byte limit exceeded`。外壳结束原测试树不能证明产品有限退出或原目录回收。保留失败与原源码/命令记录：`windows_full_engine_timeout.json`。
 
 MCP 开启阶段诊断的默认并发全量为 230 通过/1 失败，失败换为 related 编码到期的部分诊断；原终检 ownership SQL 实耗 39.746ms 后整体原窗口已耗尽。不同运行失败集合变化，仍表明并发稳定性门禁未通过，不能按最后一次较少失败数量关闭问题。原 50ms、15s Git 采样及完整 Windows 200k 的 300s 门禁均保留。
+
+CI 37849885654 的 b510f823 macOS MSRV Store 完整组为 355 通过、1 失败、8 忽略；失败仍为 a_later_busy_select_uses_only_the_original_remaining_window，含准备与 100ms sleep 的实耗 246.773333ms，超过原 240ms 测试总门禁。当前连接已禁止 busy 重试，单一总耗时尚不能区分准入/夹具锁/调度延迟与 SELECT 本身；不据此宣布原因已修复。增加四阶段原单调时钟诊断，保留 150ms 原期限、100ms 实际等待、240ms 总门禁及断言，不改变产品 50ms 期限或测试并行数。macOS 对应复验保持开放。
+
+最终诊断在查询返回时保存原实耗，再输出阶段记录，避免日志调度增加被测操作时间。Windows Rust 1.99 实际目标测试 1/1：准入 0.563ms，持锁 0.624ms，SELECT 前 100.929ms，SELECT 18.772ms，总 119.701ms，返回真实 DatabaseBusy；当前 Engine/Store all-target Clippy 及格式通过。证据 `docs/benchmarks/windows_private_creation_9d09e1c_2026_10_09/native_final_busy_phase.json`，任务 wc_job_f1MOeIgeBZdCaCSs。该隔离结果不消除 macOS MSRV 的完整组失败或原并发稳定性问题。

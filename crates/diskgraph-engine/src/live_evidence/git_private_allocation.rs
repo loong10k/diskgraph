@@ -160,8 +160,11 @@ impl GitPrivateAllocation {
             {
                 return Err("unsupported private Git native allocation".into());
             }
-            let state = crate::windows_file_state::WindowsFileState::capture(file)
-                .map_err(|error| format!("private Git native file version: {error}"))?;
+            // 分配与版本共用刚读取的完整原生信息；末段独立复核仍重新查询原句柄。
+            let state = crate::windows_file_state::WindowsFileState::from_native_information(
+                &id, &basic, &standard,
+            )
+            .map_err(|error| format!("private Git native file version: {error}"))?;
             state
                 .validate(standard.Directory)
                 .map_err(|error| error.to_string())?;

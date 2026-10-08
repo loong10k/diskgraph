@@ -199,6 +199,8 @@ pub mod verify;
 mod verify_limits;
 #[cfg(windows)]
 mod windows_file_state;
+#[cfg(all(test, windows))]
+mod windows_file_state_tests;
 #[cfg(windows)]
 mod windows_native_open;
 #[cfg(windows)]

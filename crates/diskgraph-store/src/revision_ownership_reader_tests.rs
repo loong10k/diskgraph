@@ -213,19 +213,30 @@ fn a_later_busy_select_uses_only_the_original_remaining_window() {
     let started = Instant::now();
     let deadline = started + Duration::from_millis(150);
     let terminal = RevisionOwnershipReader::open_until(&path, deadline).unwrap();
+    let admission_elapsed = started.elapsed();
     // 真实 rollback-journal 写锁阻止新读；在原窗口已用去大半后才执行 SELECT。
     connection.execute_batch("BEGIN EXCLUSIVE").unwrap();
+    let locked_elapsed = started.elapsed();
     std::thread::sleep(Duration::from_millis(100));
+    let select_started = Instant::now();
+    let before_select_elapsed = started.elapsed();
     let result = terminal.matches("base", "server", "scope");
+    let select_elapsed = select_started.elapsed();
+    let total_elapsed = started.elapsed();
+    // 原墙钟门禁不放宽；分开记录调度/夹具准备与真实 SELECT，避免将总耗时推断为重试续期。
+    // 计时截至原查询返回；诊断输出自身不能增加被测操作的实耗。
+    eprintln!(
+        "terminal_busy_phases admission={admission_elapsed:?} locked={locked_elapsed:?} before_select={before_select_elapsed:?} select={select_elapsed:?} total={total_elapsed:?} result={result:?}"
+    );
     assert!(
         matches!(&result, Err(StoreError::BudgetExceeded))
             || matches!(&result, Err(error) if error.is_busy() || error.is_interrupted()),
         "{result:?}"
     );
     assert!(
-        started.elapsed() < Duration::from_millis(240),
+        total_elapsed < Duration::from_millis(240),
         "old busy timeout renewed the original window: {:?}",
-        started.elapsed()
+        total_elapsed
     );
     connection.execute_batch("ROLLBACK").unwrap();
 }

@@ -685,7 +685,7 @@ fn revision_reader_refuses_token_expired_during_consumer() {
     }
     let (_dir, engine, principal, _, revision) = published_authorization_fixture();
     let policy = engine.policy_authorizer().unwrap();
-    // 在真实秒的 500–550ms 区间开始，避免旧夹具在 999ms 开始而先于 consumer 到期。
+    // 在真实秒的 250–650ms 区间开始，预留消费前与原一秒预算内的真实到期余量。
     // 每次 sleep 后重读墙钟；不重试请求、不更改 token 的固定到期时间或一秒查询预算。
     let preparation_deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
     let now = loop {
@@ -697,13 +697,13 @@ fn revision_reader_refuses_token_expired_during_consumer() {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap();
         let phase = u64::from(now.subsec_millis());
-        if (500..=550).contains(&phase) {
+        if (250..=650).contains(&phase) {
             break now;
         }
-        let wait = if phase < 500 {
-            500 - phase
+        let wait = if phase < 250 {
+            250 - phase
         } else {
-            1500 - phase
+            1250 - phase
         };
         std::thread::sleep(std::time::Duration::from_millis(wait));
     };
@@ -823,13 +823,13 @@ fn display_reader_refuses_token_expired_during_consumer() {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap();
         let phase = u64::from(now.subsec_millis());
-        if (500..=550).contains(&phase) {
+        if (250..=650).contains(&phase) {
             break now;
         }
-        let wait = if phase < 500 {
-            500 - phase
+        let wait = if phase < 250 {
+            250 - phase
         } else {
-            1500 - phase
+            1250 - phase
         };
         std::thread::sleep(std::time::Duration::from_millis(wait));
     };

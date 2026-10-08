@@ -1,0 +1,48 @@
+{
+  "run": 37849885654,
+  "commit": "b510f823858b1b3026dd485ec0fcc25a8cc007f2",
+  "overall_status_at_observation": "in_progress",
+  "purpose": "Classify actual failures without treating partial CI as qualification",
+  "failures": [
+    {
+      "jobs": [113559898212, 113559898340],
+      "platform": "Windows stable and MSRV",
+      "phase": "Native Windows modified private evidence disposal red and green",
+      "cause": "Historical capacity replay mixed with current creation callers: E0599 create_owned/recover_created_entry; behavioral RED never ran",
+      "repair_commit": "235d5fe40084bc03db95fe9ecb8634acbaf5d3cf",
+      "boundary": "Native desktop RED/GREEN verified; repaired CI not yet run"
+    },
+    {
+      "job": 113559898443,
+      "platform": "macOS MSRV",
+      "phase": "Full Store tests",
+      "result": {"passed": 355, "failed": 1, "ignored": 8},
+      "test": "revision_ownership_reader_tests::a_later_busy_select_uses_only_the_original_remaining_window",
+      "elapsed_ms": 246.773333,
+      "original_harness_limit_ms": 240,
+      "boundary": "Unresolved; phase diagnostics added with original product and harness limits preserved"
+    },
+    {
+      "job": 113559898308,
+      "platform": "macOS Intel stable",
+      "phase": "Full Engine tests",
+      "result": {"passed": 740, "failed": 1, "ignored": 13},
+      "test": "admin_policy_lookup_tests::display_reader_refuses_token_expired_during_consumer",
+      "cause": "Preparation failed to enter 50ms-wide real-clock phase within original five seconds; request was not executed",
+      "boundary": "Preparation phase adjusted without changing expiry/request budgets; Windows target group passed, macOS Intel CI pending"
+    },
+    {
+      "job": 113560050562,
+      "platform": "Windows native read-only package",
+      "phase": "200000-file complete load",
+      "fixture_create_seconds": 231.1301604,
+      "last_completed_phase": "scope_registration",
+      "phase_at_timeout": "index",
+      "original_total_budget_seconds": 300,
+      "observed_outer_timeout_seconds": 299.9981424,
+      "boundary": "Failed; no complete 200k report or cleanup acceptance. Do not extend budget or substitute smaller fixtures"
+    }
+  ],
+  "still_running": {"job": 113559898441, "platform": "macOS stable", "phase": "Test"},
+  "production_ready": false
+}

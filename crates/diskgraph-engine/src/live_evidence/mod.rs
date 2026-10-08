@@ -193,6 +193,8 @@ mod windows_git_private_root_tests;
 
 #[cfg(all(test, windows))]
 mod windows_cleanup_mark_hook;
+#[cfg(all(test, windows))]
+mod windows_git_allocation_tests;
 #[cfg(windows)]
 mod windows_git_child_open;
 #[cfg(windows)]
