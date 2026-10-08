@@ -122,16 +122,21 @@ impl<'a> ScanObservationGuard<'a> {
                 Ok(())
             })
             .map_err(observation_control_error)?;
+        #[cfg(test)]
+        crate::scan_observation_deadline_tests::entering_sql_fence();
         // 先退出只读 progress guard，再用既有有期限 fence 事务；不能嵌套连接 handler。
-        control
-            .with_job_fence_until(
-                &self.job.job_id,
-                &self.job.owner,
-                self.job.fencing_token,
-                deadline,
-                || Ok(()),
-            )
-            .map_err(|error| observation_control_error(error.into()))?;
+        // 借用检查器只检查当前执行，不重入控制库；保留原 keeper 错误而非转换为存储预算。
+        let mut execution_error = None;
+        let result = control.with_scan_observation_fence_until(self.job, deadline, &mut || {
+            self.check_fast().map_err(|error| {
+                execution_error = Some(error);
+                diskgraph_store::StoreError::Conflict("scan execution stopped".into())
+            })
+        });
+        if let Some(error) = execution_error {
+            return Err(error);
+        }
+        result.map_err(|error| observation_control_error(error.into()))?;
         drop(control);
         self.check_fast()?;
         self.checked.set(Some(Instant::now()));

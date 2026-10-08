@@ -283,3 +283,51 @@ fn control_write_expired_twenty_millisecond_window_refuses_before_a_transaction(
     assert_eq!(fixture.persisted_state(), before);
     fixture.assert_connection_restored(731);
 }
+
+#[test]
+fn checked_boundary_interrupts_an_actual_busy_retry_and_restores_connection() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cancel.sqlite");
+    let connection = Connection::open(&path).unwrap();
+    connection
+        .execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE observed(value INTEGER)")
+        .unwrap();
+    connection.busy_timeout(Duration::from_millis(731)).unwrap();
+    let writer = Connection::open(&path).unwrap();
+    writer.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let checks = Cell::new(0);
+    let started = Instant::now();
+    let window =
+        ControlWriteDeadline::new(&connection, started + Duration::from_secs(2), None).unwrap();
+    let result = window.begin_checked(&mut || {
+        checks.set(checks.get() + 1);
+        // 写锁始终由另连接持有；第二次调用只能来自实际 BEGIN BUSY 后的重试。
+        if checks.get() == 2 {
+            Err(StoreError::Conflict("original execution cancelled".into()))
+        } else {
+            Ok(())
+        }
+    });
+    let result = window.finish(result);
+    assert!(
+        matches!(result, Err(StoreError::Conflict(message)) if message == "original execution cancelled")
+    );
+    assert_eq!(checks.get(), 2);
+    assert!(started.elapsed() < Duration::from_millis(300));
+    assert!(connection.is_autocommit());
+    let busy: i64 = connection
+        .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(busy, 731);
+    writer.execute_batch("ROLLBACK").unwrap();
+    connection
+        .execute("INSERT INTO observed VALUES(1)", [])
+        .unwrap();
+    assert_eq!(
+        connection
+            .query_row("SELECT count(*) FROM observed", [], |row| row
+                .get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+}

@@ -1,0 +1,15 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.86s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 6 tests
+test scan_observation_deadline_tests::live_guard_still_refuses_persistent_scope_revocation ... ok
+test scan_observation_deadline_tests::competing_sqlite_writer_cannot_extend_the_original_observation_budget ... ok
+test scan_observation_deadline_tests::held_control_lock_cannot_extend_the_original_observation_budget ... ok
+test scan_observation_deadline_tests::cancellation_and_original_stop_reason_interrupt_an_actual_control_wait ... ok
+test scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason ... ok
+test scan_observation_deadline_tests::bounded_observation_preserves_cancel_permission_and_fence_denials ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 0.43s
+

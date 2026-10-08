@@ -6,6 +6,7 @@ use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
 thread_local! {
+    static SQL_FENCE: std::cell::RefCell<Option<std::sync::mpsc::Sender<()>>> = const { std::cell::RefCell::new(None) };
     static CONTROL_WAIT: std::cell::RefCell<Option<std::sync::mpsc::Sender<()>>> = const { std::cell::RefCell::new(None) };
 }
 
@@ -227,5 +228,64 @@ fn bounded_observation_preserves_cancel_permission_and_fence_denials() {
                 "{result:?}"
             ),
         }
+    }
+}
+
+/// 仅通知测试线程已完成只读检查、即将进入原 fence 事务。
+pub(super) fn entering_sql_fence() {
+    SQL_FENCE.with(|slot| {
+        if let Some(sender) = slot.borrow_mut().take() {
+            let _ = sender.send(());
+        }
+    });
+}
+
+#[test]
+fn cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason() {
+    use crate::job_execution_stop_reason::JobExecutionStopReason;
+    use std::sync::atomic::Ordering;
+    for original_reason in [false, true] {
+        let (dir, mut engine, job) = fixture();
+        engine.scan_budget.max_duration_ms = 2_000;
+        let writer =
+            rusqlite::Connection::open(dir.path().join("data/diskgraph-control.sqlite")).unwrap();
+        writer.execute_batch("BEGIN IMMEDIATE").unwrap();
+        let cancel = AtomicBool::new(false);
+        let reason = JobExecutionStopReason::new();
+        let (entered_tx, entered_rx) = std::sync::mpsc::channel();
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::scope(|threads| {
+            threads.spawn(|| {
+                SQL_FENCE.with(|slot| *slot.borrow_mut() = Some(entered_tx));
+                let guard = ScanObservationGuard::new(&engine, &job, None, &cancel, Instant::now())
+                    .with_stop_reason(&reason);
+                tx.send(guard.check_now()).unwrap();
+            });
+            entered_rx.recv_timeout(Duration::from_secs(2)).unwrap();
+            if original_reason {
+                reason.record(BusinessError::PermissionDenied.into());
+            }
+            cancel.store(true, Ordering::SeqCst);
+            let before_release = rx.recv_timeout(Duration::from_millis(300));
+            writer.execute_batch("ROLLBACK").unwrap();
+            let promptly = before_release.is_ok();
+            let result =
+                before_release.unwrap_or_else(|_| rx.recv_timeout(Duration::from_secs(2)).unwrap());
+            assert!(
+                promptly,
+                "cancelled scan waited for SQLite writer release: {result:?}"
+            );
+            let expected = if original_reason {
+                BusinessError::PermissionDenied
+            } else {
+                BusinessError::Conflict
+            };
+            assert!(matches!(result, Err(EngineError::Business(actual)) if actual == expected));
+            engine
+                .control()
+                .unwrap()
+                .with_job_fence(&job.job_id, &job.owner, job.fencing_token, || Ok(()))
+                .unwrap();
+        });
     }
 }

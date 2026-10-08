@@ -290,3 +290,8 @@ MCP/FFI 的有期限请求授权快照 SHALL 通过参数化、可索引的主�
 #### Scenario: A capability callback revokes and restores the original grant
 - **WHEN** 最终响应能力回调通过独立控制连接撤销原元数据 grant 并恢复，然后返回原能力快照的 Allowed
 - **THEN** 当前 grant 确实已恢复，最终响应仍拒绝；原生见证报告 PermissionDenied，未知代次变化报告 Conflict，不返回完整或部分数据
+
+#### Scenario: Scan cancellation interrupts control transaction admission
+- **WHEN** a scan observation waits for a real competing SQLite writer during its original fence transaction and the original execution is cancelled
+- **THEN** transaction boundary retries check that execution's cancellation without waiting for the writer release or refreshing the scan deadline
+- **AND** the original keeper stop reason is preserved, no fence work is replayed, and rollback, progress handler and busy timeout cleanup still run

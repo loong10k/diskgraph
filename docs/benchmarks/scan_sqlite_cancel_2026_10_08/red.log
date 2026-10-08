@@ -1,0 +1,22 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.05s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-992d657d8a448059)
+
+running 1 test
+test scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason ... FAILED
+
+failures:
+
+---- scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason stdout ----
+
+thread 'scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason' (25574091) panicked at crates/diskgraph-engine/src/scan_observation_deadline_tests.rs:272:13:
+cancelled scan waited for SQLite writer release: Err(Business(Conflict))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 726 filtered out; finished in 0.35s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

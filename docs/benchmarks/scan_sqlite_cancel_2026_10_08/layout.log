@@ -1,0 +1,14 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.13s
+     Running tests/source_layout.rs (target/debug/deps/source_layout-fbc2cabb440a7bf9)
+
+running 6 tests
+test gate_rejects_hidden_objects_private_stubs_and_undocumented_trait_methods ... ok
+test gate_excludes_only_explicit_test_modules ... ok
+test gate_rejects_explicit_module_path_escape_before_reading ... ok
+test gate_mounts_path_attributes_relative_to_the_declaring_file ... ok
+test scan_worker_sources_follow_the_same_rust_contract ... ok
+test all_platform_engine_sources_follow_the_rust_contract ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s
+

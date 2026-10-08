@@ -112,13 +112,18 @@ impl<'a> ControlWriteDeadline<'a> {
 
     // 仅重试这两个事务边界，绝不重放含准入/写入副作用的 statement consumer。
     // SQLite 内建 busy 睡眠累计名义间隔，不能替代原绝对时钟；单次系统调用/I/O 仍不可抢占。
-    fn run_transaction_boundary(&self, commit: bool) -> Result<()> {
+    fn run_transaction_boundary(
+        &self,
+        commit: bool,
+        check_execution: &mut dyn FnMut() -> Result<()>,
+    ) -> Result<()> {
         let sql = if commit { "COMMIT" } else { "BEGIN IMMEDIATE" };
         let host_deadline = Instant::now()
             .checked_add(self.previous_busy)
             .ok_or(StoreError::IntegerOverflow)?;
         self.connection.busy_timeout(Duration::ZERO)?;
         loop {
+            check_execution()?;
             self.check()?;
             match self.connection.execute_batch(sql) {
                 Ok(()) => return Ok(()),
@@ -153,8 +158,27 @@ impl<'a> ControlWriteDeadline<'a> {
 
     /// 参数：无；返回：同一连接的 IMMEDIATE 写事务已取得，失败由守卫清理。
     pub(crate) fn begin(&self) -> Result<()> {
-        self.run_transaction_boundary(false)?;
+        self.run_transaction_boundary(false, &mut || Ok(()))?;
         self.check()
+    }
+
+    /// 参数：原执行检查器；返回：同一原期限内取得事务，BUSY 重试前持续检查取消。
+    pub(crate) fn begin_checked(
+        &self,
+        check_execution: &mut dyn FnMut() -> Result<()>,
+    ) -> Result<()> {
+        self.run_transaction_boundary(false, check_execution)?;
+        check_execution()?;
+        self.check()
+    }
+
+    /// 参数：原执行检查器；返回：原期限和取消门禁下的实际提交，不重放事务内容。
+    pub(crate) fn commit_checked(
+        &self,
+        check_execution: &mut dyn FnMut() -> Result<()>,
+    ) -> Result<()> {
+        self.clear_progress()?;
+        self.run_transaction_boundary(true, check_execution)
     }
 
     fn clear_progress(&self) -> Result<()> {
@@ -170,7 +194,7 @@ impl<'a> ControlWriteDeadline<'a> {
     pub(crate) fn commit(&self) -> Result<()> {
         // 移除过期 VM 回调后再作纯末检，避免 COMMIT 成功之后的 VM 回调否认已提交事实。
         self.clear_progress()?;
-        self.run_transaction_boundary(true)
+        self.run_transaction_boundary(true, &mut || Ok(()))
     }
 
     fn cleanup(&self) -> Result<()> {

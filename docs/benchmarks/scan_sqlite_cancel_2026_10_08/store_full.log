@@ -1,0 +1,411 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_store-eed76b49d76f3e27)
+
+running 337 tests
+test child_aggregate_benchmark::measure_directory_aggregate_costs ... ignored, isolated release 20k/200k aggregation, migration and fenced publication measurements
+test authorization_generation::tests::unrelated_job_writes_do_not_invalidate_queued_results ... ok
+test authorization_generation::tests::deadline_reads_restore_the_actual_connection_timeout_and_leave_no_expired_callback ... ok
+test authorization_generation::tests::rolled_back_or_duplicate_grants_do_not_change_generation_and_overflow_fails_closed ... ok
+test authorization_generation::tests::authorization_generation_tracks_individual_grants_scopes_and_policy ... ok
+test authorization_generation::tests::a_failed_v6_migration_keeps_v5_data_and_rolls_back_all_new_objects ... ok
+test authorization_generation::tests::v5_upgrade_has_a_consistent_backup_and_cross_connection_invalidation ... ok
+test child_aggregate_tests::missing_count_indexes_are_an_error_instead_of_confirmed_zero ... ok
+test child_aggregate_tests::initialized_schema_does_not_acquire_the_writer_lock ... ok
+test child_aggregate_tests::snapshot_removal_cascades_all_count_tables ... ok
+test child_aggregate_tests::all_writer_routes_preserve_unknown_and_threshold_counts ... ok
+test child_aggregate_tests::old_open_writer_cannot_publish_after_schema_upgrade ... ok
+test collector_migration_integrity_tests::legacy_revision_rejects_selected_run_from_another_snapshot ... ok
+test collector_protocol_tests::occupied_resources_require_an_existing_snapshot_node ... ok
+test collector_protocol_tests::existing_v9_writer_cannot_publish_after_v10_upgrade ... ok
+test collector_protocol_tests::sealed_revision_rejects_late_batch_append ... ok
+test collector_protocol_tests::sealed_selection_rejects_raw_mutations_and_allows_parent_prune ... ok
+test collector_protocol_tests::selected_existing_runs_require_their_original_entity_sources ... ok
+test collector_protocol_tests::stale_collector_publication_cannot_replace_a_newer_file_scan ... ok
+test collector_publication_tests::collector_publication_database_failure_rolls_back_every_layer ... ok
+test collector_publication_tests::collector_publication_keeps_revision_selection_and_reuses_immutable_entities ... ok
+test collector_publication_tests::collector_publication_rejects_owner_snapshot_role_and_forged_provenance ... ok
+test collector_publication_tests::compatibility_binding_rejects_cross_snapshot_and_rolls_back_partial_selection ... ok
+test collector_protocol_tests::recollection_recovers_new_revision_without_rewriting_ambiguous_history ... ok
+test collector_publication_tests::scan_publication_includes_batch_or_rolls_back_snapshot_and_staging ... ok
+test control_read_budget_tests::control_deadline_interrupts_real_sqlite_execution_and_restores_the_connection ... ok
+test control_read_budget_tests::control_deadline_restores_actual_configuration_after_success_and_error ... ok
+test collector_migration_integrity_tests::legacy_three_generation_sources_require_explicit_upstream_selection ... ok
+test control_read_budget_tests::control_deadline_refuses_a_late_success_and_restores_the_connection ... ok
+test control_tests::cancellation_is_durable_and_invalidates_the_running_publish_fence ... ok
+test control_tests::a_repeated_grant_does_not_require_a_write_lock ... ok
+test control_read_budget_tests::control_deadline_restores_the_connection_before_resuming_unwind ... ok
+test control_tests::jobs_merge_per_scope_and_enforce_owner_fencing ... ok
+test control_tests::control_database_file_is_owner_only ... ok
+test control_tests::policy_grants_round_trip_through_storage_and_rebuild_the_authorizer ... ok
+test control_tests::revoked_expired_job_does_not_precede_eligible_work_forever ... ok
+test control_tests::revoked_scopes_reject_new_jobs_but_records_survive ... ok
+test control_tests::scope_registration_is_idempotent_until_revoked ... ok
+test control_tests::unknown_scope_and_job_ids_are_reported_not_invented ... ok
+test control_tests::server_identity_is_minted_once_and_persisted ... ok
+test control_tests::v4_jobs_migrate_to_persistent_cancellation_with_backup ... ok
+test collector_protocol_tests::selecting_incomplete_legacy_run_cannot_claim_complete ... ok
+test collector_publication_tests::migration_v9_preserves_only_unambiguous_membership ... ok
+test collector_migration_integrity_tests::legacy_revision_must_select_edge_endpoint_sources_and_valid_roles ... ok
+test control_write_boundary_interrupt_tests::control_write_live_external_vm_interruption_keeps_the_real_sqlite_error ... ok
+test control_write_boundary_retry_tests::control_write_commit_contention_does_not_replay_a_completed_budgeted_statement ... ok
+test control_write_boundary_retry_tests::control_write_zero_host_busy_refuses_a_real_competing_writer_without_waiting_for_release ... ok
+test control_write_deadline_tests::checked_boundary_interrupts_an_actual_busy_retry_and_restores_connection ... ok
+test control_write_deadline_tests::control_write_expired_twenty_millisecond_window_refuses_before_a_transaction ... ok
+test control_write_deadline_probe_tests::control_write_external_writer_original_deadline_has_real_stage_diagnostics ... ok
+test control_write_boundary_retry_tests::process_enqueue_commit_contention_writes_its_fixed_input_only_once ... ok
+test control_write_deadline_tests::process_enqueue_commit_read_lock_keeps_the_original_deadline_and_rolls_back ... ok
+test control_write_boundary_retry_tests::process_enqueue_zero_host_busy_still_creates_and_merges_without_contention ... ok
+test control_write_boundary_interrupt_tests::control_write_begin_interrupted_after_prepare_exhausts_the_original_deadline ... ok
+test control_write_deadline_probe_tests::control_write_external_writer_short_host_busy_is_not_request_expiry ... ok
+test execution_tests::action_names_round_trip ... ok
+test execution_tests::approvals_bind_to_digest_principal_and_action ... ok
+test execution_tests::encoded_separator_detection_stays_on_byte_boundaries ... ok
+test execution_tests::expired_plans_never_look_valid ... ok
+test control_write_deadline_tests::control_write_real_vm_interrupt_clears_progress_before_partial_transaction_rollback ... ok
+test control_write_deadline_tests::control_write_rust_unwind_rolls_back_and_restores_the_real_connection ... ok
+test execution_tests::hardlink_aliases_claim_the_same_source_identity ... ok
+test execution_tests::independent_connections_cannot_claim_the_same_source ... ok
+test execution_tests::intent_is_recorded_before_results ... ok
+test execution_tests::one_idempotency_key_maps_to_one_operation ... ok
+test execution_tests::operations_are_listed_per_scope ... ok
+test execution_tests::overlapping_sources_and_targets_are_claimed_in_one_transaction ... ok
+test execution_tests::plans_are_immutable_and_digest_addressed ... ok
+test execution_tests::recovery_entries_survive_and_can_be_consumed_once ... ok
+test execution_tests::revoked_and_expired_approvals_are_refused ... ok
+test git_collector_publication_tests::actual_last_receipt_sql_is_rolled_back_when_terminal_check_refuses ... ok
+test git_collector_publication_tests::bounded_selection_rejects_large_legal_run_json_before_decoding ... ok
+test git_collector_publication_tests::a_broken_source_closure_and_unsafe_summary_cannot_be_published_as_complete ... ok
+test git_collector_publication_tests::latest_base_cas_and_receipt_replay_never_duplicate_a_publication ... ok
+test git_collector_publication_tests::ordinary_trusted_scan_publication_conflicts_with_the_fixed_git_base ... ok
+test child_aggregate_tests::known_page_does_not_walk_higher_ranked_unknown_siblings ... ok
+test git_collector_publication_tests::receipt_survives_result_pruning_and_rejects_mutation_or_old_protocol_writer ... ok
+test git_collector_publication_tests::same_target_demotes_only_old_git_assertions_and_keeps_other_target_active ... ok
+test git_job_authorization_tests::missing_git_input_is_failed_instead_of_falling_back_to_trusted_scan ... ok
+test git_job_authorization_tests::pending_git_protects_its_base_and_survives_reap_for_receipt_reconciliation ... ok
+test git_job_authorization_tests::recovery_rejects_a_validly_encoded_receipt_for_a_different_fixed_target ... ok
+test git_job_contract_tests::durable_git_kind_has_a_stable_wire_tag ... ok
+test git_job_authorization_tests::typed_git_input_and_original_authority_merge_only_when_identical ... ok
+test git_job_authorization_tests::every_git_permission_is_required_in_ceiling_and_old_heartbeat_or_fence_apis ... ok
+test git_job_contract_tests::v7_control_upgrade_has_a_consistent_pre_v8_backup_and_typed_input_table ... ok
+test git_job_contract_tests::graph_publication_receipts_are_part_of_the_current_schema ... ok
+test git_job_failure_tests::diagnostic_insert_failure_rolls_back_the_actual_terminal_update ... ok
+test git_job_failure_tests::failed_git_job_and_safe_diagnostic_reconnect_together_without_raw_error_text ... ok
+test git_job_failure_tests::invalidated_owner_cannot_write_the_new_owner_terminal_or_diagnostic ... ok
+test git_job_failure_tests::queued_explicit_git_cancel_has_a_durable_fixed_admission_diagnostic ... ok
+test git_job_failure_tests::queued_git_cancel_compatibility_api_also_has_a_fixed_admission_diagnostic ... ok
+test git_job_failure_tests::queued_live_grant_failure_is_durable_admission_conflict_not_guessed_owner_loss ... ok
+test git_job_failure_tests::queued_git_scope_revocation_has_a_durable_fixed_admission_diagnostic ... ok
+test git_job_failure_tests::queued_cancellation_diagnostic_failure_rolls_back_all_three_public_paths ... ok
+test git_job_input_tests::typed_git_job_input_is_immutable_and_creation_rolls_back_if_input_write_fails ... ok
+test git_job_migration_tests::failed_v8_control_migration_keeps_the_old_version_and_consistent_backup ... ok
+test git_job_migration_tests::failed_graph_v13_migration_does_not_enable_a_partially_created_protocol ... ok
+test git_job_migration_tests::graph_v12_upgrade_has_an_exact_backup_and_preserves_the_existing_revision ... ok
+test git_job_migration_tests::v7_control_upgrade_backs_up_exact_wal_state_and_never_steals_a_live_running_lease ... ok
+test git_owned_base_tests::a_backdated_git_result_that_cannot_be_owner_latest_rolls_back_every_publication_row ... ok
+test git_owned_base_tests::a_later_unowned_same_root_revision_cannot_be_hidden_by_another_owner_pointer ... ok
+test git_legacy_terminal_tests::legacy_terminal_api_cannot_bypass_typed_git_failure_or_receipt_protocol ... ok
+test git_job_input_tests::raw_input_rejects_hash_scope_server_and_extension_corruption_without_claiming ... ok
+test git_raw_allocation_tests::input_redundant_server_column_is_checked_before_owned_allocation ... ok
+test git_owned_base_tests::a_new_revision_in_the_actual_owner_scope_rejects_the_fixed_git_base ... ok
+test git_raw_allocation_tests::receipt_redundant_server_column_is_checked_before_owned_allocation ... ok
+test git_owned_base_tests::another_owner_with_the_same_root_key_does_not_make_the_owned_git_base_stale ... ok
+test git_selection_integrity_tests::a_complete_selected_run_is_preserved_by_normal_git_publication ... ok
+test job_authority_decode_tests::corrupt_version_oversized_json_and_secret_fields_never_fall_back_to_legacy ... ok
+test git_selection_integrity_tests::a_dangling_selected_run_cannot_be_laundered_into_a_complete_git_revision ... ok
+test job_authority_migration_tests::failed_authority_migration_does_not_enable_v7_or_erase_backup ... ok
+test job_authority_tests::authority_row_is_immutable_but_real_parent_deletion_can_cascade ... ok
+test job_authority_migration_tests::real_v6_upgrade_keeps_a_consistent_backup_and_unknown_old_jobs ... ok
+test job_authority_tests::capability_ceiling_and_live_grants_are_both_required_to_enqueue ... ok
+test job_authority_tests::explicit_local_keeps_cross_kind_merge_and_no_policy_compatibility ... ok
+test job_authority_tests::persisted_authority_reopens_without_bearer_or_job_record_shape_change ... ok
+test job_authority_tests::remote_merges_only_same_kind_and_exact_normalized_original_authority ... ok
+test job_authority_tests::malformed_persisted_authority_never_becomes_legacy_or_local ... ok
+test job_authority_tests::strict_legacy_unknown_does_not_steal_live_running_lease ... ok
+test job_authority_tests::withdrawn_live_permission_prevents_publication_callback_and_preserves_failed_state ... ok
+test job_cancel_generation_tests::an_old_permit_cannot_cancel_a_reclaimed_generation_with_the_same_owner_name ... ok
+test job_cancel_generation_tests::current_generation_cancel_survives_operation_view_revocation_without_renewal ... ok
+test job_cancel_generation_tests::ordinary_authorized_cancel_keeps_its_queued_compatibility ... ok
+test job_cancel_generation_tests::queued_terminal_and_missing_jobs_are_not_generation_cancelled ... ok
+test job_cancel_generation_tests::revoked_scope_still_allows_deny_only_stop_of_the_exact_running_generation ... ok
+test job_cancel_generation_tests::scope_revocation_waits_for_original_writer_without_read_upgrade_deadlock ... ok
+test job_cancel_generation_tests::wrong_owner_fence_and_unrepresentable_fence_have_no_mutation ... ok
+test child_aggregate_tests::wide_directory_counts_are_exact_without_walking_siblings ... ok
+test job_publication_check_tests::fenced_publication_excludes_post_commit_checkpoint_but_compatibility_retains_it ... ok
+test child_aggregate_tests::a_directory_page_does_not_decode_its_continuation_probe ... ok
+test job_publication_check_tests::publication_denial_after_real_seal_rolls_back_latest_ownership_and_staging_cleanup ... ok
+test job_publication_check_tests::staging_final_denial_rolls_back_rows_actually_written_before_commit ... ok
+test job_queue_query_tests::manual_strict_reap_is_limited_and_does_not_preempt_a_live_legacy_lease ... ok
+test job_publication_check_tests::valid_checks_commit_the_original_owned_revision_and_release_staging ... ok
+test job_authority_tests::queued_expiry_is_failed_by_strict_and_trusted_claim_without_delegation ... ok
+test job_authority_tests::running_expiry_rejects_heartbeat_and_old_fence_but_failure_can_be_persisted ... ok
+test migration_backup::tests::concurrent_migration_backups_keep_both_original_snapshots ... ok
+test locator_budget_tests::indexed_locator_preserves_type_unicode_and_legacy_unknown_size ... ok
+test job_queue_query_tests::queue_page_uses_active_order_index_and_does_not_decode_unselected_jobs ... ok
+test collector_migration_integrity_tests::legacy_occupied_resource_requires_valid_snapshot_node_mapping ... ok
+test native_locator_tests::exact_native_locator_preserves_raw_and_self_time_and_legacy_unavailable ... ok
+test native_locator_tests::known_foreign_encoding_and_document_uri_are_explicitly_unsupported ... ok
+test job_publication_check_tests::real_token_expiry_during_final_sql_cannot_commit_a_revision ... ok
+test native_locator_tests::located_node_schema_is_present_without_guessing_legacy_bytes ... ok
+test native_locator_tests::located_owned_publication_failure_keeps_staging_and_rolls_back_raw_rows ... ok
+test native_locator_tests::locator_budget_checks_raw_before_decoding_and_accumulates_nodes_bytes_deadline ... ok
+test native_locator_tests::same_display_distinct_raw_nodes_publish_only_with_complete_exact_staging ... ok
+test native_locator_tests::staging_encoding_cost_matches_every_persisted_payload_field ... ok
+test navigation_query_tests::expired_navigation_starts_no_subsequent_sql ... ok
+test native_locator_tests::display_aliases_reject_old_staging_missing_identity_and_mismatched_exact_nodes ... ok
+test navigation_query_tests::legacy_projection_preserves_unknown_and_checks_payload_id ... ok
+test navigation_query_tests::navigation_existence_probe_never_selects_large_invalid_legacy_payload ... ok
+test directory_budget_tests::known_page_skips_unknown_siblings_without_decoding_their_payloads ... ok
+test navigation_query_tests::navigation_shared_ledger_rejects_large_legacy_input_before_decoding ... ok
+test native_locator_tests::v10_migration_backups_preserve_unknown_locators_and_reject_already_open_old_writer ... ok
+test child_aggregate_tests::directory_keyset_seeks_past_large_prefixes_and_equal_sizes ... ok
+test policy_permission_tests::independent_connection_revocation_is_observed_without_cache ... ok
+test policy_permission_tests::paired_large_policy_lookup_diagnostic ... ignored, manual release diagnostic; not a production performance gate
+test policy_permission_tests::lookup_matches_legacy_policy_versions_and_exact_grants ... ok
+test policy_permission_tests::unrelated_corrupt_grant_remains_an_error ... ok
+test policy_permission_tests::unrelated_invalid_utf8_text_remains_an_error ... ok
+test navigation_query_tests::navigation_sql_excludes_unused_columns_and_counts_required_input ... ok
+test principal_policy_query_tests::principal_policy_preserves_epoch_revocation_and_default_deny ... ok
+test native_locator_tests::locator_half_columns_bad_types_unknown_encoding_and_wrong_display_are_rejected ... ok
+test principal_policy_query_tests::request_policy_vm_work_does_not_scale_with_unrelated_subjects ... ok
+test process_collector_publication_tests::actual_last_receipt_sql_refusal_rolls_back_every_publication_row ... ok
+test process_collector_publication_tests::bounded_selection_is_complete_or_refuses_without_demoting_any_run ... ok
+test native_locator_point_query_tests::native_locator_point_query_does_not_scan_or_decode_unrelated_nodes ... ok
+test process_collector_publication_tests::dangling_selected_process_source_cannot_publish_a_complete_revision ... ok
+test process_collector_publication_tests::malformed_process_relation_and_missing_scan_epoch_refuse_publication ... ok
+test process_collector_publication_tests::obsolete_process_receipt_writer_and_cross_kind_job_id_are_rejected ... ok
+test process_collector_publication_tests::partial_and_complete_empty_refreshes_keep_old_positive_active ... ok
+test process_collector_publication_tests::publication_is_atomic_replayable_and_only_changes_the_new_revision ... ok
+test process_fence_admission_tests::process_fence_admission_keeps_original_deadline_and_rolls_back_failed_work ... ok
+test process_fence_admission_tests::process_fence_admission_expired_original_identity_precedes_session_failure ... ok
+test process_fence_admission_tests::process_fence_admission_stopped_session_never_enters_work_or_changes_job ... ok
+test process_fence_admission_tests::process_fence_admission_uses_the_actual_transaction_lease_and_same_costs ... ok
+test process_job_authorization_tests::ceiling_and_live_metadata_are_required_at_claim_and_fence ... ok
+test child_aggregate_tests::v8_backup_contains_old_counts_and_failed_migration_rolls_back ... ok
+test process_job_authorization_tests::legacy_reaper_leaves_process_receipt_reconciliation_to_the_typed_runner ... ok
+test process_job_authorization_tests::metadata_only_authority_roundtrips_merges_and_never_uses_old_scan_entry ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_expired_quota_request_is_budget_error_without_any_mutation ... ok
+test process_job_authorization_tests::missing_typed_input_fails_closed_without_stealing_a_live_lease ... ok
+test process_job_authorization_tests::obsolete_terminal_entry_and_stale_owner_cannot_settle_process ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_expired_original_authority_keeps_its_authorization_error ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_running_merge_cannot_wait_past_the_original_deadline ... ok
+test process_job_authorization_tests::queued_scope_or_explicit_cancel_persists_fixed_diagnostic ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_late_real_commit_abort_is_not_rewritten_as_budget_error ... ok
+test process_fence_admission_tests::process_fence_admission_live_revoke_cancel_and_owner_refusal_precede_session ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_writer_wait_consumes_the_original_remaining_deadline ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_timely_quota_none_preserves_configuration_and_storage ... ok
+test process_job_protocol_contract_tests::durable_process_kind_has_only_metadata_and_index_permissions ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_host_busy_timeout_is_not_relabelled_as_request_expiry ... ok
+test process_job_protocol_contract_tests::control_v8_upgrade_preserves_git_bytes_and_a_live_lease_in_its_backup ... ok
+test process_job_protocol_contract_tests::process_receipts_have_a_separate_current_schema ... ok
+test process_job_protocol_contract_tests::graph_v13_upgrade_preserves_git_receipt_bytes_and_the_old_input_api ... ok
+test process_job_protocol_contract_tests::wrong_process_input_table_refuses_control_upgrade_without_partial_protocol ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_writer_revocation_is_rechecked_after_transaction_acquisition ... ok
+test process_job_protocol_contract_tests::same_named_unix_side_columns_with_wrong_types_cannot_enable_v14 ... ok
+test process_job_protocol_contract_tests::wrong_process_receipt_table_refuses_graph_upgrade_without_partial_protocol ... ok
+test process_job_recovery_tests::pending_process_job_protects_history_and_missing_receipt_never_completes ... ok
+test process_job_recovery_tests::pruned_process_result_keeps_its_unique_committed_receipt ... ok
+test process_preparation_projection_tests::process_preparation_projection_bootstrap_is_not_full_input_authorization ... ok
+test process_preparation_projection_tests::process_preparation_projection_checks_every_control_and_graph_entry ... ok
+test process_preparation_projection_tests::process_preparation_projection_preserves_graph_target_and_missing_gap_semantics ... ok
+test process_preparation_projection_tests::process_preparation_projection_rejects_large_legal_scope_before_rust_owning ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_timely_create_and_merge_preserve_the_original_job ... ok
+test process_raw_allocation_tests::oversized_input_server_is_rejected_before_owning_raw_field ... ok
+test process_raw_allocation_tests::oversized_receipt_server_is_rejected_before_owning_raw_field ... ok
+test process_preparation_projection_tests::process_preparation_projection_rejects_before_decoding_invalid_borrowed_node ... ok
+test process_preparation_projection_tests::process_preparation_projection_shares_control_costs_and_preserves_original_values ... ok
+test process_unix_observation_tests::actual_unix_staging_insert_is_rolled_back_when_its_final_check_refuses ... ok
+test process_unix_observation_tests::captured_unix_epoch_is_published_atomically_and_legacy_is_missing ... ok
+test process_unix_observation_tests::staging_requires_the_real_existing_ordinary_file_and_last_check ... ok
+test process_job_enqueue_deadline_tests::process_enqueue_last_input_insert_expiry_rolls_back_all_durable_tables ... ok
+test process_unix_staging_query_tests::unix_staging_duplicate_ids_and_missing_ids_are_refused_without_observation_rows ... ok
+test directory_budget_tests::node_budget_and_page_limit_do_not_decode_a_bad_continuation ... ok
+test reader_admission_tests::admitted_reader_keeps_runtime_cancellation_hook ... ok
+test process_unix_staging_query_tests::unix_staging_target_requires_ordinary_readable_and_lossless_unix_metadata ... ok
+test reader_admission_tests::cancelled_reader_refuses_before_database_path_access ... ok
+test reader_admission_tests::expired_and_cancelled_reader_keeps_deadline_error_precedence ... ok
+test reader_admission_tests::cancellation_during_reader_preparation_refuses_the_prepared_connection ... ok
+test reader_admission_tests::expired_reader_refuses_before_database_path_access ... ok
+test reader_admission_tests::expired_reader_does_not_return_a_connection_for_short_queries ... ok
+test reader_admission_tests::ownership_reader_configuration_cost_experiment ... ignored, release diagnostic only; raw reader deliberately lacks production admission hooks
+test reader_admission_tests::ownership_reader_configuration_phase_costs ... ignored, release phase diagnostic only; not an optimized production reader
+test process_unix_staging_query_tests::unix_staging_current_graph_reopen_indexes_existing_rows_without_rewriting_them ... ok
+test process_unix_staging_query_tests::unix_staging_three_points_do_not_walk_twenty_thousand_other_nodes ... ok
+test reader_prepare_benchmark::separate_and_batched_configuration_total_costs ... ignored, isolated release preparation experiment; not production acceptance
+test reader_observation_tests::preopened_reader_observes_independent_commits_without_a_read_transaction ... ok
+test relation_budget_tests::bad_huge_lookahead_is_only_an_existence_probe ... ok
+test reader_observation_tests::preopened_reader_is_not_proof_of_current_database_path_identity ... ok
+test relation_budget_tests::bounded_candidate_evidence_preserves_the_legacy_text_column_contract ... ok
+test relation_budget_tests::candidate_late_node_is_atomic_and_gap_stays_exact ... ok
+test process_unix_staging_query_tests::unix_staging_v13_upgrade_indexes_existing_rows_without_rewriting_them ... ok
+test relation_budget_tests::evidence_raw_exact_limit_and_one_byte_excess_precede_deserialization ... ok
+test relation_budget_tests::legacy_relation_page_preserves_text_type_without_decoding_its_lookahead ... ok
+test directory_budget_tests::wide_directory_decoding_scales_with_the_page_and_not_the_snapshot ... ok
+test relation_budget_tests::legacy_unknown_and_unicode_node_behavior_is_preserved ... ok
+test relation_budget_tests::legacy_zero_raw_cap_keeps_empty_and_format_error_semantics ... ok
+test relation_budget_tests::malformed_budgeted_edge_is_not_hidden_as_a_truncation ... ok
+test process_job_recovery_tests::receipt_recovery_preserves_committed_fact_after_expiry_and_revocation ... ok
+test reader_admission_tests::expiry_during_reader_preparation_refuses_the_prepared_connection ... ok
+test relation_budget_tests::required_evidence_cumulative_bytes_do_not_return_a_partial_node ... ok
+test relation_budget_tests::selected_node_raw_fields_are_gated_before_bad_locator_parse ... ok
+test relation_budget_tests::self_loop_decoded_in_both_directions_uses_two_units ... ok
+test revision_candidate_tests::active_typed_occupancy_blocks_candidates_only_in_its_revision ... ok
+test revision_candidate_tests::dependency_only_assertions_do_not_block_current_candidates ... ok
+test revision_evidence_tests::revision_evidence_budget_precedes_bad_json_and_lookahead_decode ... ok
+test revision_evidence_tests::revision_evidence_expired_shared_deadline_is_not_complete_empty ... ok
+test revision_evidence_tests::revision_evidence_ignores_cross_snapshot_members_even_with_corrupt_binding ... ok
+test revision_evidence_tests::revision_evidence_keyset_deduplicates_self_loop_and_multiple_memberships ... ok
+test revision_evidence_tests::revision_evidence_selects_active_assertions_and_dependency_provenance ... ok
+test revision_evidence_tests::revision_evidence_shares_entity_and_provenance_raw_budget ... ok
+test revision_target_query_tests::actual_owner_projection_charges_all_fields_on_the_original_shared_ledger ... ok
+test revision_target_query_tests::separated_owner_and_target_share_exact_raw_admission_without_reset ... ok
+test revision_candidate_tests::typed_protection_excludes_both_ancestors_and_descendants ... ok
+test scan_receipt_protocol_tests::corrupt_scan_receipt_is_an_error_instead_of_absence ... ok
+test scan_receipt_protocol_tests::duplicate_scan_job_rolls_back_second_publication ... ok
+test revision_target_query_tests::legal_large_snapshot_id_and_expired_deadline_are_refused_without_refreshing_the_budget ... ok
+test scan_receipt_protocol_tests::obsolete_snapshot_insert_cannot_bypass_the_new_writer_generation ... ok
+test scan_receipt_protocol_tests::history_pruning_preserves_scan_publication_receipt ... ok
+test scan_receipt_protocol_tests::scan_receipt_migration_rolls_back_on_a_conflicting_old_table ... ok
+test scope_native_projection_tests::scope_native_projection_large_optional_fields_do_not_enter_scalar_or_root_reads ... ok
+test scope_native_projection_tests::scope_native_projection_large_required_raw_is_refused_before_decode ... ok
+test scan_receipt_protocol_tests::scan_receipt_protocol_rejects_a_replaced_immutability_trigger ... ok
+test scope_native_projection_tests::scope_native_projection_preserves_native_units_without_a_display_fallback ... ok
+test scope_native_projection_tests::scope_native_projection_rejects_kind_encoding_and_column_errors ... ok
+test scope_native_projection_tests::scope_native_projection_reuses_original_budget_and_terminal_callback ... ok
+test scope_native_projection_tests::scope_native_projection_scalar_preserves_missing_policy_grants_and_revocation ... ok
+test scope_native_projection_tests::scope_native_projection_sql_never_reads_optional_display_or_volume ... ok
+test scan_receipt_protocol_tests::scan_receipt_storage_is_immutable_and_independent_of_history ... ok
+test scope_registration_transaction_tests::a_callback_panic_rolls_back_and_restores_the_original_connection ... ok
+test scope_registration_transaction_tests::a_same_transaction_policy_change_cannot_commit_old_epoch_grants ... ok
+test scope_registration_transaction_tests::registration_is_invisible_to_another_connection_until_all_grants_commit ... ok
+test scan_receipt_protocol_tests::final_scan_check_rolls_back_receipt_and_revision_together ... ok
+test scan_receipt_protocol_tests::v15_upgrade_preserves_history_and_adds_receipt_protocol ... ok
+test scope_registration_transaction_tests::waiting_registration_rechecks_a_committed_withdrawal_or_new_epoch ... ok
+test tests::migration_regressions::control_migration_failure_preserves_previous_recovery_backup ... ok
+test scope_registration_transaction_tests::expired_authentication_after_isolation_rolls_back_without_renewal ... ok
+test tests::collector_regressions::collector_batches_store_validate_and_explain ... ok
+test tests::collector_regressions::endpoint_violations_reject_the_whole_batch ... ok
+test tests::migration_regressions::unknown_future_schema_versions_are_rejected ... ok
+test tests::migration_regressions::migration_backup_is_written_and_open_failure_keeps_v1_intact ... ok
+test tests::migration_regressions::migration_retry_preserves_existing_recovery_backup ... ok
+test tests::migration_regressions::persists_across_connections ... ok
+test tests::migration_regressions::v1_databases_migrate_in_place_keeping_existing_rows ... ok
+test tests::node_regressions::a_measured_node_stores_no_payload_and_still_reads_back_identically ... ok
+test tests::node_regressions::a_node_of_unknown_size_keeps_its_payload_because_it_is_the_record ... ok
+test tests::node_regressions::narrow_legacy_reads_refuse_payload_id_that_disagrees_with_the_row ... ok
+test tests::node_regressions::rejects_invalid_graph_without_persisting_a_partial_snapshot ... ok
+test tests::node_regressions::snapshots_are_immutable_and_queries_are_ordered ... ok
+test tests::node_regressions::v4_structured_rows_read_identically_to_their_json_payload ... ok
+test tests::publication_regressions::snapshots_list_pages_newest_first_and_can_filter_by_root ... ok
+test tests::publication_regressions::snapshot_removal_respects_pins_and_revision_dependencies ... ok
+test tests::publication_regressions::staging_is_invisible_until_published_and_latest_advances_atomically ... ok
+test tests::publication_regressions::stale_fencing_staging_is_removed_without_touching_current_or_other_jobs ... ok
+test tests::query_regressions::ordered_history_cursor_uses_an_index_before_decoding_nodes ... ok
+test tests::query_regressions::relation_pages_decode_only_requested_edges_and_keep_a_stable_cursor ... ok
+test tests::query_regressions::unknown_child_count_uses_a_sparse_index ... ok
+test tests::wal_regressions::a_healthy_log_is_left_alone ... ok
+test tests::wal_regressions::a_publish_leaves_no_write_ahead_log_behind ... ok
+test git_job_authorization_tests::committed_receipt_recovers_after_real_expiry_cancel_revoke_and_does_not_steal_a_live_lease ... ok
+test tests::node_regressions::narrow_reads_refuse_wrong_column_types_instead_of_defaulting_them ... ok
+test tests::wal_regressions::the_locator_index_is_not_rebuilt ... ok
+test tests::wal_regressions::an_oversized_wal_is_folded_back_into_the_database_at_open ... ok
+test tests::wal_regressions::the_wal_is_capped_so_it_cannot_grow_without_bound ... ok
+test tests::query_regressions::bidirectional_relation_page_uses_adjacency_indexes ... ok
+test locator_budget_tests::exact_locator_seeks_in_a_wide_revision_without_scanning_siblings ... ok
+test unix_staging_cost_tests::actual_cost_accepts_equal_budget_and_rejects_one_byte_less ... ok
+test unix_staging_cost_tests::complete_observation_charges_real_validated_encoding ... ok
+test unix_staging_cost_tests::every_gap_charges_its_exact_code_and_two_integer_fields ... ok
+test unix_staging_cost_tests::measured_payload_matches_the_actual_staging_row ... ok
+test unix_staging_cost_tests::missing_or_conflicting_payload_is_rejected ... ok
+test windows_observation_publication_tests::windows_observation_gaps_survive_publish_and_fenced_cleanup_removes_metadata ... ok
+test navigation_query_tests::navigation_query_work_scales_with_the_page ... ok
+test windows_observation_publication_tests::windows_observation_publication_failure_keeps_staging_and_rolls_back_latest ... ok
+test windows_observation_publication_tests::windows_observation_v11_backup_is_consistent_and_old_open_writer_is_rejected ... ok
+test windows_observation_tests::windows_observation_budget_admits_borrowed_blob_before_decode_and_accumulates ... ok
+test windows_observation_tests::windows_observation_invalid_batch_rolls_back_preceding_rows_and_search ... ok
+test navigation_query_tests::navigation_page_does_not_decode_bad_continuation_and_preserves_offset ... ok
+test windows_observation_tests::windows_observation_roundtrip_reopen_preserves_full_bits_and_old_unknown ... ok
+test windows_observation_tests::windows_observation_schema_exists_without_inventing_legacy_metadata ... ok
+test windows_observation_tests::windows_observation_staging_cost_matches_actual_fields_and_gap_is_portable ... ok
+test withdrawal_capability_tests::private_in_memory_database_has_no_cross_connection_withdrawal_capability ... ok
+test withdrawal_capability_tests::unix_default_vfs_does_not_guess_namespace_from_path_or_server ... ok
+test windows_observation_publication_tests::windows_observation_point_query_work_is_independent_of_unrelated_nodes ... ok
+test process_unix_staging_query_tests::unix_staging_three_points_do_not_walk_two_hundred_thousand_other_nodes ... ok
+test windows_observation_tests::windows_observation_query_rejects_half_columns_types_unknown_formats_and_bad_codec ... ok
+test revision_history_budget_tests::selected_page_does_not_scan_same_entity_inactive_history ... ok
+test revision_evidence_tests::revision_evidence_narrow_query_does_not_scan_200k_unrelated_memberships ... ok
+test search_keyset_tests::deep_search_keyset_does_not_revisit_preceding_matches ... ok
+test tree_budget_tests::tree_sql_window_scales_with_remaining_budget_not_requested_limit ... ok
+test tree_budget_tests::sparse_unknown_tree_page_seeks_without_visiting_the_known_prefix ... ok
+test tests::node_regressions::actual_point_lookup_vm_work_scales_with_selection_not_snapshot_size ... ok
+test tree_budget_tests::dense_mixed_unknown_tree_counts_do_not_walk_the_threshold_prefix ... ok
+test tree_budget_tests::merged_tree_window_does_not_decode_a_corrupt_unknown_continuation ... ok
+
+test result: ok. 332 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 51.81s
+
+     Running tests/candidate_query.rs (target/debug/deps/candidate_query-447ed94db561c8af)
+
+running 10 tests
+test admitted_partial_candidate_header_is_observed_with_real_coverage_gap ... ok
+test admitted_complete_candidate_header_is_explicitly_observed ... ok
+test expired_candidate_deadline_keeps_an_unobserved_ordinary_header ... ok
+test oversized_legal_snapshot_header_is_rejected_by_candidate_raw_budget ... ok
+test positive_target_candidates_skip_unrelated_corrupt_nodes_and_report_the_gap ... ok
+test expired_candidate_deadline_keeps_an_unobserved_oversized_header ... ok
+test candidate_result_never_calls_a_budget_cut_complete ... ok
+test migrated_prestructured_directory_remains_a_candidate ... ok
+test candidate_snapshot_header_and_required_evidence_share_remaining_raw_bytes ... ok
+test admitted_snapshot_headers_preserve_candidate_protection_gap_and_completeness ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s
+
+     Running tests/job_claim.rs (target/debug/deps/job_claim-fdaa6e24c54cf957)
+
+running 13 tests
+test process_claim_worker ... ok
+test strict_claim_refuses_a_second_claim_by_the_same_owner ... ok
+test admission_rechecks_the_live_grant_inside_its_transaction ... ok
+test an_expired_job_is_reclaimed_instead_of_remaining_stuck ... ok
+test merging_jobs_never_substitutes_another_request_subject ... ok
+test concurrent_connections_cannot_both_claim_a_job ... ok
+test an_expired_owner_cannot_finish_a_job ... ok
+test two_processes_cannot_both_claim_a_job ... ok
+test a_revoked_policy_prevents_fenced_work ... ok
+test a_reused_owner_name_does_not_reuse_the_old_fence ... ok
+test final_integer_fencing_generation_is_valid_but_cannot_be_recycled ... ok
+test invalid_or_exhausted_fencing_never_commits_a_claim ... ok
+test migration_preserves_a_live_legacy_running_lease ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/migration_backup.rs (target/debug/deps/migration_backup-02c53cb111a35714)
+
+running 2 tests
+test migration_backup_includes_committed_wal_frames ... ok
+test v7_upgrade_backs_up_the_previous_schema_and_builds_candidate_indexes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests/perf_probe.rs (target/debug/deps/perf_probe-6c0d814dfd7c12a2)
+
+running 4 tests
+test batch_insert_throughput_by_size ... ignored, isolated synthetic SQLite transaction throughput; not production staging acceptance
+test decompose_load_revision_cost ... ignored, real-data probe over the operator's home revision
+test pragma_overhead_isolation ... ignored, real-data probe v4: isolate the pragma overhead
+test store_load_revision_end_to_end ... ignored, real-data probe v3: store-layer load_revision end to end
+
+test result: ok. 0 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/source_layout.rs (target/debug/deps/source_layout-59ee145661e32284)
+
+running 1 test
+test production_storage_entry_types_and_imports_follow_the_rust_contract ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+   Doc-tests diskgraph_store
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
