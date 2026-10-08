@@ -14,6 +14,8 @@ mod windows_command_line;
 #[cfg(test)]
 mod windows_dll_policy_tests;
 #[cfg(test)]
+mod windows_git_probe_timing_tests;
+#[cfg(test)]
 mod windows_io_transfer_tests;
 mod windows_normal_exit;
 mod windows_overlapped_operation;

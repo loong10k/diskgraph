@@ -1,0 +1,75 @@
+{
+  "source_head": "d3fae86b16c7abfadd692e32750a1f92356102d1",
+  "binary_sha256": "0a498e88a61f54745c7cb96ce95355c82dc159f27b0cd6e00c9c7f9c21e4bf6f",
+  "binary_bytes": 22599680,
+  "concurrent_processes": 8,
+  "elapsed_seconds": 21.39100000000326,
+  "results": [
+    {
+      "index": 0,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 18.23s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (59652) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 1,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 18.75s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (45940) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 2,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 18.25s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (6072) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 3,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 18.74s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (29964) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 4,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 20.81s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (36760) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 5,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 20.70s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (45744) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 6,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 18.64s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (27180) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "index": 7,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 20.43s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (63648) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:82:47:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    }
+  ],
+  "production_acceptance": false,
+  "limitations": "Eight actual native samplers in independent processes with isolated repositories; does not replace default parallel full suite or change each sample original 15s budget."
+}

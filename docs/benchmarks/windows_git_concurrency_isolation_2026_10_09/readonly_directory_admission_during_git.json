@@ -1,0 +1,26 @@
+{
+  "diagnostic": "read-only component opens with original access/share/no-reparse/no-recall flags",
+  "results": {
+    "temp": {
+      "attempts": 20,
+      "depth": 6,
+      "native_calls": 120,
+      "errors": [],
+      "open_p50_us": 74.0,
+      "open_p95_us": 336.9,
+      "open_max_us": 1326.5
+    },
+    "repository": {
+      "attempts": 20,
+      "depth": 4,
+      "native_calls": 80,
+      "errors": [],
+      "open_p50_us": 58.7,
+      "open_p95_us": 418.9,
+      "open_max_us": 735.0
+    }
+  },
+  "condition": "Dispatched while eight-sampler job was active; scheduling overlap is not guaranteed",
+  "production_acceptance": false,
+  "limits": "No timing budget is replaced; no file creation or writes; directory type checked, not full production volume/identity validation. One time observation does not exclude intermittent contention."
+}

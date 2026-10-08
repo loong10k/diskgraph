@@ -1,0 +1,19 @@
+{
+  "source_head": "d3fae86b16c7abfadd692e32750a1f92356102d1",
+  "binary_sha256": "0a498e88a61f54745c7cb96ce95355c82dc159f27b0cd6e00c9c7f9c21e4bf6f",
+  "binary_bytes": 22599680,
+  "concurrent_processes": 1,
+  "elapsed_seconds": 40.73499999998603,
+  "results": [
+    {
+      "index": 0,
+      "exit_code": 101,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 708 filtered out; finished in 40.40s"
+      ],
+      "error_tail": "\nthread 'live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly' (45992) panicked at crates\\diskgraph-engine\\src\\live_evidence\\tests.rs:90:45:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    }
+  ],
+  "production_acceptance": false,
+  "limitations": "One actual native sampler in independent processes with isolated repositories; does not replace default parallel full suite or change each sample original 15s budget."
+}
