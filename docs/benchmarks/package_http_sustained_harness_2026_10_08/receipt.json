@@ -1,0 +1,28 @@
+{
+  "base_sha": "203b6227936ae1ddf927cf8621021678d6fe10de",
+  "native_package_sustained_run": false,
+  "logs": [
+    {
+      "name": "red",
+      "uncompressed_sha256": "7e3be44ad855b5aa2163f024dce82e98f9a7a07e3b73390e2943135e91cf7386"
+    },
+    {
+      "name": "green",
+      "uncompressed_sha256": "76a3d73af1178a8dac0729de9c95973406906dc5cfe49067d06a213fe1773468"
+    },
+    {
+      "name": "scripts",
+      "uncompressed_sha256": "e2bcc42f28d87aa6f4e6bd449b82fc0c80a30a6275e5d0bbdd1a93c7ec4b70d9"
+    },
+    {
+      "name": "http",
+      "uncompressed_sha256": "27a152d1536ddcde8c7f6b720421a03b33c0321b7e23787d0b64526a82dbadf1"
+    }
+  ],
+  "source_sha256": {
+    "scripts/accept-readonly-http.py": "a413fab2beafc0d2808cb9f80ea4b0b877ee46eb1e0bc6b51ad5897f5b8e280a",
+    "scripts/accept-readonly-package.py": "668eea8a9bd7723e55df97415638f2c9eea6f8b75024a47d4d05fe3ea8cc2e4f",
+    "scripts/test_scan_worker_package.py": "fa5b6dea352286d27e775da3b45cad23910b7bfc5de6e335426d45971862e7e6",
+    "scripts/tests/test_http_soak.py": "9b8c2a79f4d836f62ccb41b820d0f682658008da5527026606e9a4336f25e4e1"
+  }
+}

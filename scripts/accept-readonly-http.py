@@ -238,9 +238,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--soak-seconds', type=float, default=0,
                         help='Optional sustained HTTP reads; 0 disables, maximum 86400 seconds')
+    parser.add_argument('--output', type=pathlib.Path,
+                        help='Save the completed acceptance report at this path')
     args = parser.parse_args()
     if not math.isfinite(args.soak_seconds) or not 0 <= args.soak_seconds <= 86400:
         parser.error('--soak-seconds must be finite and between 0 and 86400')
+    if args.output and args.output.exists():
+        parser.error('--output already exists; use a fresh report path')
     checks = {}
     soak = None
     with tempfile.TemporaryDirectory(prefix="diskgraph-http-accept-") as temporary:
@@ -340,8 +344,13 @@ def main():
             checks["everyone_readable_key_refused"] = rejects_key(key_file)
 
     passed = sum(checks.values())
-    print(json.dumps({"passed": passed, "total": len(checks), "checks": checks,
-                      "sustained_http": soak}, indent=2))
+    report = json.dumps({"passed": passed, "total": len(checks), "checks": checks,
+                         "sustained_http": soak, "platform": sys.platform}, indent=2)
+    if args.output:
+        # 独占创建避免并发验收覆盖旧证据；中途失败不伪造完成报告。
+        with args.output.open('x', encoding='utf-8') as output:
+            output.write(report + '\n')
+    print(report)
     return 0 if passed == len(checks) else 1
 
 

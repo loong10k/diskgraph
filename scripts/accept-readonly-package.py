@@ -154,7 +154,10 @@ def main():
         deployment = (packaged_worker_environment(packaged_bin, os.environ)
                       if sys.platform == "linux" else None)
         stdio = accepted("accept-readonly-stdio.py", packaged_bin, deployment=deployment)
-        http = accepted("accept-readonly-http.py", packaged_bin, deployment=deployment)
+        http = accepted("accept-readonly-http.py", packaged_bin,
+                        "--soak-seconds", "60",
+                        "--output", output / f"{archive_name}.http.json",
+                        deployment=deployment)
         upgrade = accepted(
             "accept-readonly-upgrade.py", packaged_bin,
             "--old-cli", old_cli, "--new-cli", packaged_bin / binaries[0],

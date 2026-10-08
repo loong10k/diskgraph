@@ -1,7 +1,10 @@
 """持续请求夹具不能把错误结果或未满时长当作验收成功。"""
 import importlib.util
 import io
+import contextlib
 from pathlib import Path
+import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -12,6 +15,19 @@ SPEC.loader.exec_module(MODULE)
 
 
 class HttpSoakTests(unittest.TestCase):
+    def test_existing_report_is_preserved_before_starting_any_product(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'prior.json'
+            output.write_text('original evidence')
+            with patch.object(sys, 'argv', ['accept-readonly-http.py', '--output', str(output)]), \
+                    patch.object(MODULE.subprocess, 'run') as run, \
+                    contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    MODULE.main()
+            self.assertEqual(raised.exception.code, 2)
+            self.assertEqual(output.read_text(), 'original evidence')
+            run.assert_not_called()
+
     def test_response_byte_limit_rejects_oversize(self):
         self.assertEqual(len(MODULE.read_response(io.BytesIO(b'x' * (1024 * 1024)))),
                          1024 * 1024)
