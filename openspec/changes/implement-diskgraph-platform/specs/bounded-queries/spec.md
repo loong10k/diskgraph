@@ -296,3 +296,8 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 - **THEN** terminal lock acquisition and its SQL observation share the existing 50 ms observation window; waiting for the lock is additionally capped by the original request deadline, and brief contention alone does not fail the request
 - **AND** an immediately available control guard still observes explicit revocation in the existing terminal SQL window after the data deadline; this negative observation never extends data work or permits a successful result after the original deadline
 - **AND** a lock held past that window returns BudgetExceeded, withdrawal and live authorization checks remain mandatory, and dedicated TUI nonblocking admission is unchanged
+
+#### Scenario: 响应末检已知 revision 隔离优先于未知授权代次
+- **WHEN** 能力回调期间其他主体授权改变代次，且当前 revision 已实际持久隔离
+- **THEN** 响应末检在原固定观察窗口内用新鲜归属投影返回 PermissionDenied
+- **AND** 原归属审计记录保留；若 revision 仍可授权则保留 Conflict，不刷新期限或返回受保护数据

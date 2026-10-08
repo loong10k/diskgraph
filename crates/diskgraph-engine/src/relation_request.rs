@@ -350,14 +350,24 @@ impl Engine {
         let control = self
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
-        // 回调期间的负向事件先于 SQL 观察预算；恢复后的 Allowed 不能抹去原撤权。
-        for withdrawal in &withdrawals {
-            withdrawal.check(&control)?;
-        }
-        check_authority_expiry(expiry)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
+        let bound_revisions: Vec<_> = revisions
+            .iter()
+            .zip(&ownerships)
+            .map(|(revision, (_, scope))| (*revision, scope))
+            .collect();
+        // 负向撤权仍优先；未知代次冲突须先观察实际隔离，不用冲突遮盖已知拒权。
+        for withdrawal in &withdrawals {
+            self.prioritize_revision_quarantine(
+                withdrawal.check(&control),
+                &bound_revisions,
+                &control,
+                after_callback,
+            )?;
+        }
+        check_authority_expiry(expiry)?;
         let terminal_observation = (|| {
             control.with_read_deadline(after_callback, |control| {
                 let current_server = control.existing_server_id()?;
@@ -404,9 +414,19 @@ impl Engine {
         })();
         // 独立控制连接可在终态读取中提交撤权，已知拒权不能被存储超时遮盖。
         for withdrawal in &withdrawals {
-            withdrawal.check(&control)?;
+            self.prioritize_revision_quarantine(
+                withdrawal.check(&control),
+                &bound_revisions,
+                &control,
+                after_callback,
+            )?;
         }
-        terminal_observation?;
+        self.prioritize_revision_quarantine(
+            terminal_observation,
+            &bound_revisions,
+            &control,
+            after_callback,
+        )?;
         check_authority_expiry(expiry)?;
         if Instant::now() >= after_callback || !capability_timely {
             return Err(BusinessError::BudgetExceeded.into());

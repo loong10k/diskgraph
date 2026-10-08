@@ -77,3 +77,95 @@ fn final_response_refuses_grant_withdrawn_and_restored_in_its_capability_callbac
         "withdrawal followed by restoration escaped final authorization: {result:?}"
     );
 }
+
+#[test]
+fn final_response_quarantine_denial_precedes_unrelated_policy_generation_conflict() {
+    struct QuarantineDuringDecision {
+        policy: PolicyAuthorizer,
+        control: RefCell<diskgraph_store::ControlStore>,
+        graph: RefCell<diskgraph_store::SqliteSnapshotStore>,
+        server: String,
+        calls: Cell<u32>,
+    }
+    impl Authorizer for QuarantineDuringDecision {
+        fn decide(
+            &self,
+            principal: &PrincipalId,
+            permission: &Permission,
+            scope: &ScopeId,
+        ) -> Decision {
+            self.calls.set(self.calls.get() + 1);
+            let mut control = self.control.borrow_mut();
+            let version = control.policy_version().unwrap();
+            control
+                .upsert_grant(&Grant {
+                    principal: PrincipalId::new("unrelated-quarantine-subject").unwrap(),
+                    permission: Permission::MetadataRead,
+                    scope: scope.clone(),
+                    policy_version: version,
+                })
+                .unwrap();
+            assert_eq!(
+                self.graph
+                    .borrow_mut()
+                    .isolate_unconfirmed_revision_roots(&self.server, scope.as_str(), None)
+                    .unwrap(),
+                1
+            );
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    let (dir, engine, principal, scope, revision) = published_authorization_fixture();
+    let authorizer = QuarantineDuringDecision {
+        policy: engine.policy_authorizer().unwrap(),
+        control: RefCell::new(
+            diskgraph_store::ControlStore::open(&dir.path().join("data/diskgraph-control.sqlite"))
+                .unwrap(),
+        ),
+        graph: RefCell::new(
+            diskgraph_store::SqliteSnapshotStore::open(&dir.path().join("data/diskgraph.sqlite"))
+                .unwrap(),
+        ),
+        server: engine.server_id().unwrap().as_str().to_owned(),
+        calls: Cell::new(0),
+    };
+    let result = engine.finalize_revision_read_until(
+        revision,
+        &principal,
+        &authorizer,
+        Instant::now() + Duration::from_secs(1),
+    );
+    assert_eq!(authorizer.calls.get(), 1);
+    assert_eq!(
+        engine
+            .control()
+            .unwrap()
+            .live_permission(&principal, &Permission::MetadataRead, &scope)
+            .unwrap(),
+        Some(true),
+        "original subject remains authorized"
+    );
+    assert!(
+        authorizer
+            .graph
+            .borrow()
+            .revision_ownership(revision)
+            .unwrap()
+            .is_none()
+    );
+    assert!(
+        authorizer
+            .graph
+            .borrow()
+            .revision_ownership_for_audit(revision)
+            .unwrap()
+            .is_some()
+    );
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::PermissionDenied))
+        ),
+        "confirmed revision quarantine must precede unknown generation conflict: {result:?}"
+    );
+}

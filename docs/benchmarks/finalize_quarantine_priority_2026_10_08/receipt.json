@@ -1,0 +1,19 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-engine/src/relation_request.rs": "133117721077bd5c4176745e0a6d8461dfe7444668e65a285f75b7293b8df514",
+    "crates/diskgraph-engine/src/finalize_withdrawal_tests.rs": "fa16328ce4a4c3ecd8cf327691e66bae152779ce46ac0426b05dcca34fcd2d02"
+  },
+  "ci_run": 37750244950,
+  "ci_commit": "1d434c90aef1f8321c1ffe3676bf237b7a9d269b",
+  "linux_jobs": [
+    113221426209,
+    113221426328
+  ],
+  "ci_failure": "runtime_revision_authorization mode4 returned Conflict, expected PermissionDenied",
+  "local_target_tests": 2,
+  "runtime_integration_tests": 1,
+  "runtime_modes": 28,
+  "terminal_capability_tests": 14,
+  "source_layout_tests": 6,
+  "new_fix_native_ci": "not yet run"
+}
