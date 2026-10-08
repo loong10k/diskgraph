@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Cross-platform real-binary acceptance for authenticated HTTP and legacy SSE."""
 
+import argparse
 import base64
+from collections import deque
 import csv
 import contextlib
 import hashlib
 import hmac
 import json
+import math
 import os
 import pathlib
 import secrets
@@ -114,7 +117,7 @@ def server(data, transport, key_file, work):
             stop_server(process)
 
 
-def request(port, path, body=None, bearer=None, origin=None):
+def request(port, path, body=None, bearer=None, origin=None, *, timeout=10):
     headers = {}
     if bearer:
         headers["Authorization"] = f"Bearer {bearer}"
@@ -125,12 +128,51 @@ def request(port, path, body=None, bearer=None, origin=None):
     wire = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(f"http://127.0.0.1:{port}{path}", data=wire, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=10) as response:
-            raw = response.read()
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            raw = read_response(response)
             return response.status, json.loads(raw) if raw else None
     except urllib.error.HTTPError as error:
-        raw = error.read()
-        return error.code, json.loads(raw) if raw else None
+        with error:
+            raw = read_response(error)
+            return error.code, json.loads(raw) if raw else None
+
+
+def read_response(response):
+    """响应上限为1MiB；超限拒绝，不持有无限响应或输出正文。"""
+    limit = 1024 * 1024
+    raw = response.read(limit + 1)
+    if len(raw) > limit:
+        raise RuntimeError('HTTP acceptance response exceeds 1 MiB')
+    return raw
+
+
+def soak_reads(port, body, key, scope, seconds):
+    """在原截止时间内重复实际请求；有限采样不自动证明长期生产稳定性。"""
+    if not math.isfinite(seconds) or not 0 < seconds <= 86400:
+        raise ValueError('soak duration must be finite and in (0, 86400] seconds')
+    started = time.monotonic()
+    deadline = started + seconds
+    samples = deque(maxlen=4096)
+    count = 0
+    while (remaining := deadline - time.monotonic()) > 0:
+        before = time.monotonic()
+        # 为后续请求签发同一主体的新token，不更新总期限或数据库授权。
+        status, answer = request(port, '/mcp', body, token(key), ORIGIN,
+                                 timeout=min(10, remaining))
+        content = (answer or {}).get('result', {}).get('structuredContent', {})
+        if status != 200 or content.get('scope_id') != scope or not content.get('data', {}).get('items'):
+            raise RuntimeError('soak read failed HTTP, authorization, scope or nonempty-result check')
+        samples.append((time.monotonic() - before) * 1000)
+        count += 1
+    if not count:
+        raise RuntimeError('soak read completed no requests')
+    ordered = sorted(samples)
+    return {'requests': count, 'requested_seconds': seconds,
+            'elapsed_seconds': time.monotonic() - started,
+            'latency_sample_window': 'last_4096_requests', 'latency_samples': len(ordered),
+            'p50_ms': ordered[math.ceil(len(ordered) * 0.50) - 1],
+            'p95_ms': ordered[math.ceil(len(ordered) * 0.95) - 1],
+            'native_long_run_qualified': False}
 
 
 class LineReader:
@@ -193,7 +235,14 @@ def raw_post(port, path, payload, bearer):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--soak-seconds', type=float, default=0,
+                        help='Optional sustained HTTP reads; 0 disables, maximum 86400 seconds')
+    args = parser.parse_args()
+    if not math.isfinite(args.soak_seconds) or not 0 <= args.soak_seconds <= 86400:
+        parser.error('--soak-seconds must be finite and between 0 and 86400')
     checks = {}
+    soak = None
     with tempfile.TemporaryDirectory(prefix="diskgraph-http-accept-") as temporary:
         work = pathlib.Path(temporary)
         data = work / "data"
@@ -233,6 +282,11 @@ def main():
             checks["modern_authorized_scope_read"] = (status == 200 and
                 answer["result"]["structuredContent"]["scope_id"] == scope and
                 bool(answer["result"]["structuredContent"]["data"]["items"]))
+            if args.soak_seconds:
+                soak = soak_reads(port, top, key, scope, args.soak_seconds)
+                checks['modern_sustained_scope_reads'] = soak['requests'] > 0
+                # 长时运行后使用仍有效的同主体token，撤权检查不能被token到期替代。
+                bearer = token(key)
             with contextlib.closing(sqlite3.connect(data / "diskgraph-control.sqlite")) as connection, connection:
                 connection.execute("DELETE FROM grants WHERE principal_id = ?", (principal(),))
             revoked, revoked_answer = request(port, "/mcp", top, bearer, ORIGIN)
@@ -286,7 +340,8 @@ def main():
             checks["everyone_readable_key_refused"] = rejects_key(key_file)
 
     passed = sum(checks.values())
-    print(json.dumps({"passed": passed, "total": len(checks), "checks": checks}, indent=2))
+    print(json.dumps({"passed": passed, "total": len(checks), "checks": checks,
+                      "sustained_http": soak}, indent=2))
     return 0 if passed == len(checks) else 1
 
 

@@ -1,0 +1,27 @@
+{
+  "base_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "native_sustained_mcp_run": false,
+  "logs": [
+    {
+      "name": "red",
+      "sha256": "ef120e01a592753a5018a2c202da39decf57c0dbee60cd2fccf38c8752efcf73"
+    },
+    {
+      "name": "green",
+      "sha256": "2804ed6a6459c5bcb3c02bce32fa64db13289ae03f157f8919a4234c98cface4"
+    },
+    {
+      "name": "scripts",
+      "sha256": "4b2e08f1e3824266ac4ed31efbdf0b653ceefc5981a98d75c7ba1e81b96708c3"
+    }
+  ],
+  "scripts": {
+    "total": 304,
+    "passed": 303,
+    "skipped": 1
+  },
+  "source_sha256": {
+    "scripts/accept-readonly-http.py": "f878eddc35210c0a69637fdecd9bc55987e1bc0af7cfeb46d75e530013f05f09",
+    "scripts/tests/test_http_soak.py": "d10d7c59fa007a51bc33158d733254637f7faec882eb6d4d7023815ba0a5d287"
+  }
+}
