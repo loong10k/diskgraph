@@ -1,0 +1,13 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "run": 37728300386,
+  "job": 113151390416,
+  "platform": "Windows x86_64 stable",
+  "failed_tests": [
+    "native_windows_cancellation_and_deadline_never_confirm_content"
+  ],
+  "log_sha256": "4706dae2d83d655e85a2ec50dc417d715b547474fb63a19276d42f4de877e7c2",
+  "local_fix_commit": "6816f974e0999ba5f73837237c9ef810b5874310",
+  "fix_in_tested_commit": false,
+  "production_ready": false
+}
