@@ -247,7 +247,11 @@ impl Engine {
                 .revision_id()
                 .to_owned()
         } else {
-            format!("rev-{}-{}", job_id, job.fencing_token)
+            // 恢复结算会递增 fence，结果必须来自原回执；旧已完成任务保留可信兼容解析。
+            match self.graph()?.scan_publication_receipt(job_id)? {
+                Some(receipt) => receipt.revision_id().to_owned(),
+                None => format!("rev-{}-{}", job_id, job.fencing_token),
+            }
         };
         self.authorize_revision(Some(&job.scope_id), &revision, principal, authorizer)?;
         Ok(revision)
@@ -271,6 +275,13 @@ impl Engine {
     /// 可信执行器按任务 ID 回收过期且取消/撤销的 owner；返回持久任务状态。
     /// 不认领其他任务、不抢占存活租约，远程调用仍需先做任务范围授权。
     pub fn settle_expired_job(&self, job_id: &str) -> Result<JobRecord, EngineError> {
+        // 先对账图提交事实，不能由无图库上下文的取消回收器覆盖已经完成的发布。
+        match self.recover_scan_publication(job_id, "scan-receipt-recovery") {
+            Ok(Some(record)) => return Ok(record),
+            Ok(None) => {}
+            Err(EngineError::Store(StoreError::StaleOwner)) => return self.job_status(job_id),
+            Err(error) => return Err(error),
+        }
         let (changed, job) = {
             let mut control = self.control()?;
             let changed = control.reap_unclaimable_job(job_id)?;
@@ -291,9 +302,7 @@ impl Engine {
     /// 返回：排队任务列表或控制库失败。
     /// Every queued job across scopes; the job runner drains this list.
     pub fn queued_jobs(&self) -> Result<Vec<JobRecord>, EngineError> {
-        let mut control = self.control()?;
-        control.reap_unclaimable_jobs()?;
-        Ok(control.list_queued_jobs()?)
+        self.queued_jobs_limited(i64::MAX as usize)
     }
 }
 
@@ -305,8 +314,18 @@ impl Engine {
         &self,
         maximum: usize,
     ) -> Result<Vec<JobRecord>, EngineError> {
-        let mut control = self.control()?;
-        control.reap_unclaimable_jobs()?;
-        Ok(control.list_queued_jobs_limited(maximum)?)
+        let candidates = self.control()?.list_queued_jobs_limited(maximum)?;
+        let mut queued = Vec::with_capacity(candidates.len());
+        for job in candidates {
+            let job = if matches!(job.kind, JobKind::Index | JobKind::Sync) {
+                self.settle_expired_job(&job.job_id)?
+            } else {
+                job
+            };
+            if matches!(job.state, JobState::Queued | JobState::Running) {
+                queued.push(job);
+            }
+        }
+        Ok(queued)
     }
 }

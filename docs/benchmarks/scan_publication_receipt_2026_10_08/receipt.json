@@ -1,0 +1,43 @@
+{
+  "status": "candidate_native_ci_pending",
+  "base_commit": "282af33e2890d4f21f310148c75a835503aec538",
+  "local_store": {
+    "passed": 329,
+    "failed": 0,
+    "ignored": 5
+  },
+  "recovery": {
+    "passed": 5
+  },
+  "protocol": {
+    "passed": 9
+  },
+  "engine_full": {
+    "passed": 583,
+    "failed": 115,
+    "ignored": 13,
+    "failure_boundary": "97 Unsupported; 18 missing standalone driver fixture"
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/job_execution.rs": "00315fe506d8d78d5089a92630dfa07976f757d5bee76977b320ccc5405c61e7",
+    "crates/diskgraph-engine/src/lib.rs": "5cb1ce5dbebac768801c37d51098aa4c013d5dea49c3b987ec47004c35f6c5ef",
+    "crates/diskgraph-engine/src/scan_execution.rs": "5e04a63f55f8deb6fec74959818f9e5d918247a12e9b7c22b12a77c888c5b185",
+    "crates/diskgraph-engine/src/scan_jobs.rs": "41bf2b81f2f9698139937939cebf994c04fbf4350f0e81546f3af89d7d3a8ac3",
+    "crates/diskgraph-store/src/collector_publication_tests.rs": "7129227d8b912db4a209f972ed8d26099c963808ad09292ff8680ac48d731d8c",
+    "crates/diskgraph-store/src/git_job_migration_tests.rs": "8de8c2d8ee6c79b04a056b402f72d170fd11e506bec363fc667760144f69e5dc",
+    "crates/diskgraph-store/src/job_queue_query.rs": "8248f92195455810f97d2706cdba519de362a2e8106c284ceb62e8c189dbf4b3",
+    "crates/diskgraph-store/src/process_job_protocol_contract_tests.rs": "52694b3903c2a551f36fecac958f6822a322a34d3d5b797e8ce6bce591c138a3",
+    "crates/diskgraph-store/src/revision_writer.rs": "151997b7975b0bfec0cd5041aa85370b904ccff8364c03010cb1c9e0416ebe56",
+    "crates/diskgraph-store/src/snapshot_writer.rs": "5fb73ab49017b07bb459f10ca2fd1f53fdb43b4ea4a00e8d8b61e917b230e9ae",
+    "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "12fd3e68d9be4a425ad5cd9863954d06da77fe19afd0457a35b21a86741d9cb6",
+    "crates/diskgraph-store/src/scan_receipt_migration.rs": "9aaf9738e734d660de48ef36e57bc1ad12c16a18c275b5bf43055be15e1b4dee",
+    "crates/diskgraph-store/src/scan_publication_receipt.rs": "0fe6250023a04632dc5379df73f499688b1d128c95dbd17456e37e6634084577",
+    "crates/diskgraph-store/src/scan_receipt_query.rs": "13bed92cd7f5822ddfaffca10fa34554a667f55ada37e9a549d4f94da1f2e6bd",
+    "crates/diskgraph-store/src/scan_job_recovery.rs": "fc2fd6ebde28776baa30523e371d3c739a93c30e33271d6fd56da2a0652d152d",
+    "crates/diskgraph-store/src/scan_receipt_protocol_tests.rs": "0639cf72f6d223be3b677d3d1d3071b140b2b7e600988674f330befe1de34c62",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "e213caec4bb23c6fee2a2905b8840e5d507a7b46ba01a31c5fa1e5dbde864fe5",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "5b42c6b7f94eaf24aaf075a7574ed22afcfdd3bfd13645230a1568485fe6fa76",
+    "crates/diskgraph-store/src/lib.rs": "86e313eba6455b4e82e35ce9dfcffaf0ea9b7c9c4188d251eb740fa06998bff1"
+  },
+  "scope": "mixed worktree local tests; staged candidate hashes; native CI unverified"
+}

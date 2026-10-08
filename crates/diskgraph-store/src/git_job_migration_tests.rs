@@ -123,7 +123,7 @@ fn graph_v12_upgrade_has_an_exact_backup_and_preserves_the_existing_revision() {
     }
     let (upgraded, backup) =
         SqliteSnapshotStore::open_with_backup(&path, &directory.path().join("backups")).unwrap();
-    assert_eq!(version(&upgraded.connection), 15);
+    assert_eq!(version(&upgraded.connection), 16);
     assert_eq!(
         upgraded
             .latest_revision_for_scope(input.server_id().as_str(), input.scope_id().as_str())
@@ -166,7 +166,7 @@ fn failed_graph_v13_migration_does_not_enable_a_partially_created_protocol() {
     );
     for path in [
         &path,
-        &directory.path().join("backups/graph.sqlite.pre-v15.bak"),
+        &directory.path().join("backups/graph.sqlite.pre-v16.bak"),
     ] {
         let connection = Connection::open(path).unwrap();
         assert_eq!(version(&connection), 12);

@@ -421,3 +421,8 @@ mod revision_reader_lock_gap_tests;
 mod history_relation_withdrawal_tests;
 
 mod request_metadata_withdrawals;
+
+mod scan_publication_recovery;
+
+#[cfg(test)]
+mod scan_receipt_recovery_tests;

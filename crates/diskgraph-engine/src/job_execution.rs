@@ -21,10 +21,14 @@ impl Engine {
         signals: Option<(Arc<AtomicBool>, Arc<AtomicBool>)>,
     ) -> Result<JobRecord, EngineError> {
         let prior_cancel = self.cancellations()?.get(job_id).cloned();
-        if let Some(recovered) = self
-            .recover_git_publication(job_id, owner)?
-            .or(self.recover_process_publication(job_id, owner)?)
-        {
+        let recovered = if let Some(scan) = self.recover_scan_publication(job_id, owner)? {
+            Some(scan)
+        } else if let Some(git) = self.recover_git_publication(job_id, owner)? {
+            Some(git)
+        } else {
+            self.recover_process_publication(job_id, owner)?
+        };
+        if let Some(recovered) = recovered {
             // 对账成功才清理进入本次调用时的旧标志，不触碰后续并发代次。
             let _cleanup = prior_cancel.map(|flag| JobCancellationGuard {
                 entries: &self.cancellations,
@@ -200,7 +204,9 @@ impl Engine {
                     .graph()?
                     .process_job_publication_receipt(job_id)?
                     .is_some(),
-                JobKind::Index | JobKind::Sync => false,
+                JobKind::Index | JobKind::Sync => {
+                    self.graph()?.scan_publication_receipt(job_id)?.is_some()
+                }
             };
             if committed {
                 return outcome.map(|()| claimed);

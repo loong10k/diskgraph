@@ -18,8 +18,8 @@ impl SqliteSnapshotStore {
         validate_graph(graph)?;
         let transaction = self.connection.transaction()?;
         transaction.execute(
-            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, count_schema)
-             VALUES (?1, ?2, ?3, ?4, 9)",
+            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, count_schema, scan_receipt_writer)
+             VALUES (?1, ?2, ?3, ?4, 9, 16)",
             params![
                 graph.snapshot.id,
                 to_string(&graph.snapshot.root)?,

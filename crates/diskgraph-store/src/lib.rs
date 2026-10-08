@@ -336,3 +336,14 @@ mod staging_unix_observation_encoding;
 pub use staging_unix_observation_encoding::staging_unix_observation_encoded_cost;
 #[cfg(test)]
 mod unix_staging_cost_tests;
+
+#[cfg(test)]
+mod scan_receipt_protocol_tests;
+
+mod scan_receipt_migration;
+
+mod scan_publication_receipt;
+pub use scan_publication_receipt::ScanPublicationReceipt;
+mod scan_receipt_query;
+
+mod scan_job_recovery;

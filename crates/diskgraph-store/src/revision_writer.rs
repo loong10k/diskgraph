@@ -85,7 +85,53 @@ impl SqliteSnapshotStore {
         revision: (&str, u64),
         ownership: Option<(&str, &str)>,
         batch: Option<&CollectorBatch>,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        self.publish_revision_with_receipt_inner(
+            job_id, graph, revision, ownership, batch, check, None,
+        )
+    }
+
+    /// 参数：本代 staging、完整观测、原任务回执、采集批次及原末检；返回：结果与回执同事务提交或全部回滚。
+    /// 原请求和 fence 仍由调用者在控制事务内核验；回执本身不授予执行权限。
+    pub fn publish_scan_revision_checked(
+        &mut self,
+        staging_id: &str,
+        graph: &DiskGraph,
+        receipt: &crate::ScanPublicationReceipt,
+        batch: Option<&CollectorBatch>,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        receipt.validate()?;
+        if staging_id != format!("{}:{}", receipt.job_id, receipt.publishing_fence)
+            || graph.snapshot.id != receipt.snapshot_id
+        {
+            return Err(StoreError::InvalidGraph(
+                "scan receipt result mismatch".into(),
+            ));
+        }
+        self.publish_revision_with_receipt_inner(
+            staging_id,
+            graph,
+            (&receipt.revision_id, receipt.published_at_unix_ms),
+            Some((receipt.server_id.as_str(), receipt.scope_id.as_str())),
+            batch,
+            check,
+            Some(receipt),
+        )
+    }
+
+    // 保留旧可信入口；原子扫描发布额外携带同事务唯一回执，不复制完整发布实现。
+    #[allow(clippy::too_many_arguments)]
+    fn publish_revision_with_receipt_inner(
+        &mut self,
+        job_id: &str,
+        graph: &DiskGraph,
+        revision: (&str, u64),
+        ownership: Option<(&str, &str)>,
+        batch: Option<&CollectorBatch>,
         mut check: impl FnMut() -> Result<()>,
+        receipt: Option<&crate::ScanPublicationReceipt>,
     ) -> Result<()> {
         let (revision_id, published_at_unix_ms) = revision;
         let started = std::time::Instant::now();
@@ -114,8 +160,8 @@ impl SqliteSnapshotStore {
         let transaction = self.connection.transaction()?;
         check()?;
         transaction.execute(
-            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, pinned, count_schema)
-             VALUES (?1, ?2, ?3, ?4, 0, 9)",
+            "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, pinned, count_schema, scan_receipt_writer)
+             VALUES (?1, ?2, ?3, ?4, 0, 9, 16)",
             params![
                 graph.snapshot.id,
                 root_key,
@@ -259,6 +305,9 @@ impl SqliteSnapshotStore {
         directory_aggregates::rebuild(&transaction, Some(&graph.snapshot.id))?;
         trace("aggregates_complete");
         crate::collector_protocol::seal(&transaction, revision_id)?;
+        if let Some(receipt) = receipt {
+            crate::scan_receipt_query::write(&transaction, receipt)?;
+        }
         trace("seal_complete");
         // 必须位于最后一次 SQL 和实际 commit 之间；失败回滚 latest、归属、节点及 staging 清理。
         check().inspect_err(|_| trace("terminal_check_failed"))?;

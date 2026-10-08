@@ -406,6 +406,14 @@ impl Engine {
         let server_id = control.ensure_server()?;
         control.heartbeat_fenced(job_id, owner, job.fencing_token)?;
         let lease_expires = control.job(job_id)?.lease_expires_unix_ms;
+        let receipt = diskgraph_store::ScanPublicationReceipt::new(
+            &job,
+            server_id.clone(),
+            authority.clone(),
+            observed_graph.snapshot.id.clone(),
+            revision_id.clone(),
+            published_at,
+        )?;
         trace("publication_begin", usage.nodes);
         let result = control.with_job_fence(job_id, owner, job.fencing_token, || {
             let elapsed = scan_started.elapsed();
@@ -415,11 +423,10 @@ impl Engine {
             if elapsed > Duration::from_millis(self.scan_budget.max_duration_ms) {
                 return Err(StoreError::BudgetExceeded);
             }
-            graph.publish_revision_owned_with_batch_checked(
+            graph.publish_scan_revision_checked(
                 &staging_id,
                 &observed_graph,
-                (&revision_id, published_at),
-                Some((server_id.as_str(), job.scope_id.as_str())),
+                &receipt,
                 Some(&collector),
                 || {
                     crate::job_authorization::check_scan_commit(

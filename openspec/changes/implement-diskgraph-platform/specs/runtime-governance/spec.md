@@ -118,16 +118,21 @@ doctor/status SHALL 展示平台、协议、依赖、权限、数据版本、任
 - **THEN** 不创建新任务，不自动删除历史。
 
 #### Scenario: Owner expired
-- **WHEN** owner 租约过期并被新 owner 接管
+- **WHEN** owner 租约过期、没有已提交的不可变扫描回执并被新 owner 接管
 - **THEN** 新 owner 从头扫描，旧 owner 不得发布。
 
+#### Scenario: Scan publication survives a control settlement crash
+- **WHEN** Index 或 Sync 已提交图库事务，但在控制库结算完成前进程崩溃
+- **THEN** 新 owner 只在原租约失效后核对不可变扫描回执与原 job、主体、scope/server、fence 及真实 revision/snapshot，结算已提交事实，不重新扫描或再次发布。
+- **AND** 回执与正式扫描结果同事务写入，拒绝或回滚不留下回执；回执不能被更新、删除或随历史级联回收。缺失回执仍执行原重扫协议，损坏回执明确拒绝，不能降级为缺失。
+
 #### Scenario: Synchronous CLI recovers an expired owner
-- **WHEN** a CLI explicitly waits for one job and its foreign owner expires without a long-lived runner
+- **WHEN** a CLI explicitly waits for one job, its foreign owner expires without a long-lived runner, and no committed publication receipt exists
 - **THEN** that CLI conditionally reclaims only that job, rescans with a new fencing generation and leaves unrelated queued jobs untouched
 - **AND** it does not preempt a live lease; failed or cancelled terminal states return a nonzero outcome
 
 #### Scenario: Cancelled or revoked expired owner without a runner
-- **WHEN** the job being explicitly waited on has an expired owner and a persisted cancellation or revoked scope
+- **WHEN** the job being explicitly waited on has an expired owner and a persisted cancellation or revoked scope, with no committed publication receipt
 - **THEN** the waiter conditionally settles only that job as cancelled and reports an incomplete outcome without another 120-second wait
 - **AND** live leases and unrelated expired/unclaimable jobs remain unchanged
 

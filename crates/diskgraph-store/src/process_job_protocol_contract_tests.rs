@@ -178,7 +178,7 @@ fn graph_v13_upgrade_preserves_git_receipt_bytes_and_the_old_input_api() {
     }
     let (upgraded, backup) =
         SqliteSnapshotStore::open_with_backup(&path, &directory.path().join("backups")).unwrap();
-    assert_eq!(version(&upgraded.connection), 15);
+    assert_eq!(version(&upgraded.connection), 16);
     assert_eq!(git_receipt_bytes(&upgraded.connection), exact_bytes);
     assert_eq!(
         upgraded.job_publication_receipt("job-one").unwrap(),
@@ -261,7 +261,7 @@ fn wrong_process_receipt_table_refuses_graph_upgrade_without_partial_protocol() 
     ));
     for path in [
         &path,
-        &directory.path().join("backups/graph.sqlite.pre-v15.bak"),
+        &directory.path().join("backups/graph.sqlite.pre-v16.bak"),
     ] {
         let old = Connection::open(path).unwrap();
         assert_eq!(version(&old), 13);
@@ -284,7 +284,7 @@ fn same_named_unix_side_columns_with_wrong_types_cannot_enable_v14() {
     ));
     for path in [
         &path,
-        &directory.path().join("backups/graph.sqlite.pre-v15.bak"),
+        &directory.path().join("backups/graph.sqlite.pre-v16.bak"),
     ] {
         let old = Connection::open(path).unwrap();
         assert_eq!(version(&old), 13);

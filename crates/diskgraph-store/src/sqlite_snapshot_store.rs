@@ -17,7 +17,7 @@ pub struct SqliteSnapshotStore {
 
 /// The newest schema this build understands; older binaries refuse newer files
 /// through [`StoreError::UnsupportedSchema`] (design D6, spec ST-02).
-pub const SUPPORTED_SCHEMA_VERSION: i64 = 15;
+pub const SUPPORTED_SCHEMA_VERSION: i64 = 16;
 
 /// A WAL this size or larger is a leftover from a killed or out-of-memory
 /// run: a healthy scan checkpoints as it goes, and a clean close removes
@@ -214,7 +214,7 @@ impl SqliteSnapshotStore {
             0 => {
                 connection.execute_batch(V1_SCHEMA)?;
             }
-            1..=15 => {}
+            1..=16 => {}
             other => return Err(StoreError::UnsupportedSchema(other)),
         }
         let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
@@ -310,6 +310,10 @@ impl SqliteSnapshotStore {
         if version < 15 {
             crate::revision_access_migration::migrate(&connection)?;
         }
+        if version < 16 {
+            crate::scan_receipt_migration::migrate(&connection)?;
+        }
+        crate::scan_receipt_migration::validate(&connection)?;
         crate::revision_access_migration::validate(&connection)?;
         crate::job_receipt_migration::validate(&connection)?;
         crate::process_receipt_migration::validate(&connection)?;
