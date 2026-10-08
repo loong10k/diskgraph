@@ -30,7 +30,7 @@ pub fn run_worker_stdio() -> ! {
     let (root, options, limits) = match prepared {
         Ok(prepared) => prepared,
         Err(error) => {
-            let mut output = WorkerOutput::new(io::stdout().lock(), INPUT_LIMITS);
+            let mut output = WorkerOutput::for_pipe(io::stdout().lock(), INPUT_LIMITS);
             if output
                 .failure(&WorkerFailure::new("protocol", error))
                 .is_err()
@@ -40,7 +40,7 @@ pub fn run_worker_stdio() -> ! {
             process::exit(1);
         }
     };
-    let mut output = WorkerOutput::new(io::stdout().lock(), limits);
+    let mut output = WorkerOutput::for_pipe(io::stdout().lock(), limits);
     if output.hello().is_err() {
         diagnostic();
         process::exit(1);

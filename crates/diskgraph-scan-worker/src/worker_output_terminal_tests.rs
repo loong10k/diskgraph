@@ -93,3 +93,81 @@ fn end_consumes_reserved_space_after_last_node_without_an_extra_data_header() {
         ExecutionOutcome::Tree(_)
     ));
 }
+
+/// 统计真实下游 Write 调用；固定树可验证批量传输而非仅检查缓冲类型。
+struct CountedPipe {
+    bytes: Arc<std::sync::Mutex<Vec<u8>>>,
+    writes: Arc<std::sync::atomic::AtomicUsize>,
+}
+impl io::Write for CountedPipe {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        self.writes
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        self.bytes.lock().unwrap().extend_from_slice(bytes);
+        Ok(bytes.len())
+    }
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+#[test]
+fn actual_pipe_output_batches_nodes_and_flushes_hello_and_complete_terminal() {
+    let mut root = Node::directory("root");
+    root.children = (0..1000)
+        .map(|n| Node::directory(format!("child-{n}")))
+        .collect();
+    let mut bound = limits();
+    bound.max_nodes = 1001;
+    bound.max_stream_bytes = 2 << 20;
+    let bytes = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let writes = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let (release, gate) = mpsc::channel();
+    let reader = FrameReader::new(GatedEof(gate), limits());
+    let mut control = WorkerControl::start(reader, Arc::new(ScanProgress::default())).unwrap();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let mut output = WorkerOutput::for_pipe(
+            CountedPipe {
+                bytes: Arc::clone(&bytes),
+                writes: Arc::clone(&writes),
+            },
+            bound,
+        );
+        output.hello().unwrap();
+        assert!(!bytes.lock().unwrap().is_empty(), "Hello was not flushed");
+        assert!(output.tree(&root, &control).is_ok());
+        // 尚未 drop writer：成功 End 必须已经刷新，不借析构证明交付。
+        let bytes = bytes.lock().unwrap();
+        let mut decoder = ExecutionDecoder::new(
+            bound,
+            env!("DISKGRAPH_WORKER_TARGET"),
+            "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+        )
+        .unwrap();
+        let mut remaining = bytes.as_slice();
+        while !remaining.is_empty() {
+            let (consumed, _) = decoder.push(remaining).unwrap();
+            assert!(consumed > 0);
+            remaining = &remaining[consumed..];
+        }
+        assert!(matches!(
+            decoder.finish_eof().unwrap(),
+            ExecutionOutcome::Tree(_)
+        ));
+        eprintln!(
+            "PIPE_BATCH nodes=1001 writes={} encoded_bytes={}",
+            writes.load(std::sync::atomic::Ordering::SeqCst),
+            bytes.len()
+        );
+        assert!(
+            writes.load(std::sync::atomic::Ordering::SeqCst) < 100,
+            "1001 nodes still require per-frame pipe writes"
+        );
+    }));
+    control.mark_terminal();
+    release.send(()).unwrap();
+    control.finish().unwrap();
+    if let Err(payload) = result {
+        std::panic::resume_unwind(payload);
+    }
+}

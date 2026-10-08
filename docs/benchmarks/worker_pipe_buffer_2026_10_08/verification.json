@@ -1,0 +1,30 @@
+{
+  "change": "fixed 64 KiB pipe buffer; original protocol budget and explicit Hello/Progress/End/Error flush preserved",
+  "red": "compiled regression failed: 1001 nodes still require per-frame pipe writes",
+  "green": {
+    "nodes": 1001,
+    "encoded_bytes": 238164,
+    "downstream_write_calls": 5,
+    "complete_decode_before_writer_drop": true
+  },
+  "passed_tests": {
+    "library": 13,
+    "worker_control_process": 3,
+    "worker_process": 6,
+    "worker_terminal_admission": 5,
+    "writer_limits": 6
+  },
+  "checks": [
+    "Clippy all targets passed with warnings denied",
+    "fmt check passed",
+    "diff check passed"
+  ],
+  "platform": "local macOS ARM64",
+  "windows_200k_performance_verified": false,
+  "vendor_modified": false,
+  "source_sha256": {
+    "crates/diskgraph-scan-worker/src/worker_output.rs": "f6ee31e04f643eb4a9f35cf392872edea5a092f687fba82a5fb81900c9e6ccd5",
+    "crates/diskgraph-scan-worker/src/worker_runtime.rs": "921a764a3fdd34ab33b50d0352c73ca438f6df9dff7d487b94df25e70f484e3b",
+    "crates/diskgraph-scan-worker/src/worker_output_terminal_tests.rs": "9535dd820781824194ecf446c5a58f13ba9a1563a2eda85e451b4a1bfc82cefe"
+  }
+}
