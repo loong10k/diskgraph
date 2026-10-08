@@ -1,0 +1,10 @@
+{
+  "native_red_job": 113083909985,
+  "native_commit": "2cd5860b064124267b1fcc2ae50025dc95ee092a",
+  "native_log_sha256": "1e61583e0a118f9dae003046fc36c55aee5e3121c87766a434fe8f8462ab6452",
+  "native_result": "4 tests; 3 errors from SQLite writer file handle during TemporaryDirectory cleanup",
+  "local_red": "5 tests; 1 failure; real writer connection remains usable before directory cleanup",
+  "local_green": "5/5; all writer and reader connections unusable before cleanup; prior actual database coverage retains transaction commit visibility",
+  "package_regression": "9/9",
+  "not_qualified": "Windows native repaired fixture execution; full packaged product acceptance"
+}

@@ -19,13 +19,13 @@ SPEC.loader.exec_module(MODULE)
 class CoverageTests(unittest.TestCase):
     """模拟 CLI 协议，使用真实隔离 SQLite 证明部分结果不能计作完整负载。"""
 
-    def exercise(self, count, duplicate=False, verify_closed=False):
+    def exercise(self, count, duplicate=False, verify_closed=False, verify_all_closed=False):
         def invoke(cli, data, *arguments, **kwargs):
             if arguments[:2] == ('scope', 'add'):
                 return {'data': {'scope_id': 'scope'}}
             if arguments[0] == 'index':
                 data.mkdir()
-                with sqlite3.connect(data / 'diskgraph.sqlite') as connection:
+                with contextlib.closing(sqlite3.connect(data / 'diskgraph.sqlite')) as connection, connection:
                     connection.execute('CREATE TABLE graph_revisions(revision_id TEXT, snapshot_id TEXT)')
                     connection.execute('CREATE TABLE nodes(snapshot_id TEXT, id INTEGER, parent_id INTEGER, name TEXT)')
                     connection.execute("INSERT INTO graph_revisions VALUES('revision','snapshot')")
@@ -44,7 +44,14 @@ class CoverageTests(unittest.TestCase):
         real_tempdir = MODULE.tempfile.TemporaryDirectory
         real_coverage = MODULE.fixture_paths_complete
         readers = []
+        connections = []
+        real_connect = sqlite3.connect
         test = self
+
+        def record_connection(*arguments, **keywords):
+            connection = real_connect(*arguments, **keywords)
+            connections.append(connection)
+            return connection
 
         def record_reader(connection, *arguments):
             readers.append(connection)
@@ -54,13 +61,14 @@ class CoverageTests(unittest.TestCase):
             def __exit__(self, *arguments):
                 try:
                     test.assertTrue(readers, 'must observe actual read-only SQLite connection')
-                    for connection in readers:
+                    observed = connections if verify_all_closed else readers
+                    for connection in observed:
                         with test.assertRaises(sqlite3.ProgrammingError,
-                                               msg='reader must close before fixture cleanup'):
+                                               msg='every observed connection must close before fixture cleanup'):
                             connection.execute('SELECT 1')
                 finally:
                     # 失败用例也关闭自己的真实句柄，避免红灯夹具残留。
-                    for connection in readers:
+                    for connection in connections:
                         connection.close()
                     super().__exit__(*arguments)
 
@@ -68,8 +76,9 @@ class CoverageTests(unittest.TestCase):
         with patch.object(sys, 'argv', ['load', '--bin-dir', '.', '--files', '101', '--queries', '4']), \
              patch.object(MODULE, 'invoke', side_effect=invoke), \
              patch.object(MODULE, 'fixture_paths_complete', side_effect=record_reader), \
+             patch.object(MODULE.sqlite3, 'connect', side_effect=record_connection), \
              patch.object(MODULE.tempfile, 'TemporaryDirectory',
-                          CheckedTemporaryDirectory if verify_closed else real_tempdir), \
+                          CheckedTemporaryDirectory if verify_closed or verify_all_closed else real_tempdir), \
              patch.object(MODULE.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, 'diskgraph test\n')), \
              contextlib.redirect_stdout(output):
             result = MODULE.main()
@@ -85,6 +94,10 @@ class CoverageTests(unittest.TestCase):
 
     def test_readonly_connection_closes_before_fixture_cleanup(self):
         result, _ = self.exercise(102, verify_closed=True)
+        self.assertEqual(result, 0)
+
+    def test_writer_and_reader_close_before_fixture_cleanup(self):
+        result, _ = self.exercise(102, verify_all_closed=True)
         self.assertEqual(result, 0)
 
     def test_exact_files_and_root_coverage_is_accepted(self):

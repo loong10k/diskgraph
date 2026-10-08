@@ -1,0 +1,33 @@
+..../opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py:2252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x10a0567a0>
+  def __init__(self, name, parent):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py:2252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x10a147b50>
+  def __init__(self, name, parent):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/mock.py:2252: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x10a147e20>
+  def __init__(self, name, parent):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F
+======================================================================
+FAIL: test_writer_and_reader_close_before_fixture_cleanup (scripts.tests.test_readonly_load_coverage.CoverageTests.test_writer_and_reader_close_before_fixture_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 100, in test_writer_and_reader_close_before_fixture_cleanup
+    result, _ = self.exercise(102, verify_all_closed=True)
+                ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 84, in exercise
+    result = MODULE.main()
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/accept-readonly-load.py", line 82, in main
+    with tempfile.TemporaryDirectory(prefix="diskgraph-readonly-load-") as temporary:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 66, in __exit__
+    with test.assertRaises(sqlite3.ProgrammingError,
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           msg='every observed connection must close before fixture cleanup'):
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ProgrammingError not raised : every observed connection must close before fixture cleanup
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.122s
+
+FAILED (failures=1)
