@@ -1,0 +1,14 @@
+{
+  "run": 37735499585,
+  "job": 113174143772,
+  "commit": "f9e0a393c39ee13945081e8477d4586da98fa7f5",
+  "log_sha256": "92513aeac996155e47a35f1f2f9d698e4e3dd5beecf709bceaf38b4ed5f636bc",
+  "formal_gate": "200000 files within original 300-second package acceptance",
+  "result": "outer subprocess TimeoutExpired; failed",
+  "production_acceptance": false,
+  "limitations": [
+    "Formal outer timeout log does not establish whether scanning or fixture cleanup consumed the deadline",
+    "No stage breakdown sufficient to infer that checkpoint change solved or caused the Intel timeout",
+    "Do not extend deadline or reduce fixture count to mark acceptance passed"
+  ]
+}
