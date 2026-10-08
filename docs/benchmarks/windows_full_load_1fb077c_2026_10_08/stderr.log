@@ -1,0 +1,96 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 2951.342093}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 3174.1133284}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 3174.1134037}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 3174.8441035}
+{"phase": "index", "event": "begin", "monotonic_seconds": 3174.8441598}
+diskgraph: scan_phase=worker_begin nodes=0 elapsed_ms=1
+diskgraph: scan_phase=worker_complete nodes=0 elapsed_ms=7943
+diskgraph: scan_phase=conversion_complete nodes=200001 elapsed_ms=10995
+diskgraph: scan_phase=staging_batch_complete nodes=8192 elapsed_ms=13671
+diskgraph: scan_phase=staging_batch_complete nodes=16384 elapsed_ms=16420
+diskgraph: scan_phase=staging_batch_complete nodes=24576 elapsed_ms=19160
+diskgraph: scan_phase=staging_batch_complete nodes=32768 elapsed_ms=21889
+diskgraph: scan_phase=staging_batch_complete nodes=40960 elapsed_ms=25715
+diskgraph: scan_phase=staging_batch_complete nodes=49152 elapsed_ms=28740
+diskgraph: scan_phase=staging_batch_complete nodes=57344 elapsed_ms=31395
+diskgraph: scan_phase=staging_batch_complete nodes=65536 elapsed_ms=34047
+diskgraph: scan_phase=staging_batch_complete nodes=73728 elapsed_ms=36929
+diskgraph: scan_phase=staging_batch_complete nodes=81920 elapsed_ms=39653
+diskgraph: scan_phase=staging_batch_complete nodes=90112 elapsed_ms=42427
+diskgraph: scan_phase=staging_batch_complete nodes=98304 elapsed_ms=45058
+diskgraph: scan_phase=staging_batch_complete nodes=106496 elapsed_ms=47615
+diskgraph: scan_phase=staging_batch_complete nodes=114688 elapsed_ms=50408
+diskgraph: scan_phase=staging_batch_complete nodes=122880 elapsed_ms=54221
+diskgraph: scan_phase=staging_batch_complete nodes=131072 elapsed_ms=57115
+diskgraph: scan_phase=staging_batch_complete nodes=139264 elapsed_ms=59670
+diskgraph: scan_phase=staging_batch_complete nodes=147456 elapsed_ms=62369
+diskgraph: scan_phase=staging_batch_complete nodes=155648 elapsed_ms=65017
+diskgraph: scan_phase=staging_batch_complete nodes=163840 elapsed_ms=67673
+diskgraph: scan_phase=staging_batch_complete nodes=172032 elapsed_ms=70477
+diskgraph: scan_phase=staging_batch_complete nodes=180224 elapsed_ms=73168
+diskgraph: scan_phase=staging_batch_complete nodes=188416 elapsed_ms=75803
+diskgraph: scan_phase=staging_batch_complete nodes=196608 elapsed_ms=78623
+diskgraph: scan_phase=staging_batch_complete nodes=200001 elapsed_ms=79722
+diskgraph: scan_phase=staging_complete nodes=200001 elapsed_ms=79723
+diskgraph: scan_phase=publication_begin nodes=200001 elapsed_ms=79802
+diskgraph: scan_phase=publication_complete nodes=200001 elapsed_ms=156491
+diskgraph: scan_phase=worker_begin nodes=0 elapsed_ms=1
+diskgraph: scan_phase=worker_complete nodes=0 elapsed_ms=7783
+diskgraph: scan_phase=conversion_complete nodes=200001 elapsed_ms=10590
+diskgraph: scan_phase=staging_batch_complete nodes=8192 elapsed_ms=19167
+diskgraph: scan_phase=staging_batch_complete nodes=16384 elapsed_ms=30339
+diskgraph: scan_phase=staging_batch_complete nodes=24576 elapsed_ms=38767
+diskgraph: scan_phase=staging_batch_complete nodes=32768 elapsed_ms=47413
+diskgraph: scan_phase=staging_batch_complete nodes=40960 elapsed_ms=52678
+diskgraph: scan_phase=staging_batch_complete nodes=49152 elapsed_ms=56700
+diskgraph: scan_phase=staging_batch_complete nodes=57344 elapsed_ms=60662
+diskgraph: scan_phase=staging_batch_complete nodes=65536 elapsed_ms=64939
+diskgraph: scan_phase=staging_batch_complete nodes=73728 elapsed_ms=68863
+diskgraph: scan_phase=staging_batch_complete nodes=81920 elapsed_ms=73071
+diskgraph: scan_phase=staging_batch_complete nodes=90112 elapsed_ms=77110
+diskgraph: scan_phase=staging_batch_complete nodes=98304 elapsed_ms=81015
+diskgraph: scan_phase=staging_batch_complete nodes=106496 elapsed_ms=85088
+diskgraph: scan_phase=staging_batch_complete nodes=114688 elapsed_ms=89413
+diskgraph: scan_phase=staging_batch_complete nodes=122880 elapsed_ms=93526
+diskgraph: scan_phase=staging_batch_complete nodes=131072 elapsed_ms=97496
+diskgraph: scan_phase=staging_batch_complete nodes=139264 elapsed_ms=101580
+diskgraph: scan_phase=staging_batch_complete nodes=147456 elapsed_ms=105695
+diskgraph: scan_phase=staging_batch_complete nodes=155648 elapsed_ms=109656
+diskgraph: scan_phase=staging_batch_complete nodes=163840 elapsed_ms=113703
+diskgraph: scan_phase=staging_batch_complete nodes=172032 elapsed_ms=118075
+diskgraph: scan_phase=staging_batch_complete nodes=180224 elapsed_ms=122360
+diskgraph: scan_phase=staging_batch_complete nodes=188416 elapsed_ms=126481
+diskgraph: scan_phase=staging_batch_complete nodes=196608 elapsed_ms=130686
+diskgraph: scan_phase=staging_batch_complete nodes=200001 elapsed_ms=132429
+diskgraph: scan_phase=staging_complete nodes=200001 elapsed_ms=132429
+diskgraph: scan_phase=publication_begin nodes=200001 elapsed_ms=132513
+
+Traceback (most recent call last):
+  File "D:\a\diskgraph\diskgraph\scripts\windows_acceptance_job.py", line 199, in <module>
+    main()
+    ~~~~^^
+  File "D:\a\diskgraph\diskgraph\scripts\windows_acceptance_job.py", line 195, in main
+    runpy.run_path(script, run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\diskgraph\diskgraph\scripts\accept-readonly-load.py", line 218, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "D:\a\diskgraph\diskgraph\scripts\accept-readonly-load.py", line 129, in main
+    indexed = invoke(cli, data, "index", "--scope", scope, "--wait")
+  File "D:\a\diskgraph\diskgraph\scripts\accept-readonly-load.py", line 29, in invoke
+    result = subprocess.run(
+        [cli, "--data-dir", data, "--json", *arguments],
+        capture_output=True, text=True, timeout=timeout,
+    )
+  File "C:\hostedtoolcache\windows\Python\3.13.16\x64\Lib\subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.13.16\x64\Lib\subprocess.py", line 1223, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.13.16\x64\Lib\subprocess.py", line 1666, in _communicate
+    raise TimeoutExpired(self.args, orig_timeout)
+subprocess.TimeoutExpired: Command '[WindowsPath('D:/a/diskgraph/diskgraph/target/x86_64-pc-windows-msvc/release/diskgraph.exe'), '--data-dir', WindowsPath('C:/Users/RUNNER~1/AppData/Local/Temp/diskgraph-readonly-load-2tic6oci/data'), '--json', 'index', '--scope', 'scope-9803c2a2-dede-467f-987d-533231bb5ba9', '--wait']' timed out after 300 seconds

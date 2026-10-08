@@ -256,6 +256,13 @@ impl Engine {
         self.graph()?
             .clear_stale_job_staging(job_id, claimed.fencing_token)?;
         outcome?;
+        // 显式 WAL 维护可能远超 30 秒租约；必须在 Completed 已持久化且控制锁释放后执行。
+        // 维护失败不能把已提交事实改为 Failed，也不能让旧 owner 因维护期间租约到期重扫。
+        if matches!(claimed.kind, JobKind::Index | JobKind::Sync)
+            && let Ok(graph) = self.graph()
+        {
+            let _ = graph.checkpoint_after_publication();
+        }
         Ok(record)
     }
 }

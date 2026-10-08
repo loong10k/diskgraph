@@ -1,0 +1,31 @@
+{
+  "artifact_id": 11530268358,
+  "run_id": 37731786365,
+  "job_id": 113162452772,
+  "commit": "1fb077c35704d5bfd3d8fabdf1dc7ba6312cf449",
+  "source_hashes_verified_with_windows_crlf": {
+    "scripts/diagnose_windows_load.py": "bb9beb738d6216dcd2f7292731e074af17e9eab8364abf9a986cd22f7ebd72b0",
+    "scripts/accept-readonly-load.py": "093ec977f73c3dc8341d34b835b63f0eaaec57bf7292607c4e368fb743004614",
+    "scripts/windows_acceptance_job.py": "997761982b6f29b07451d30772eda891bf814f30d4cafd3231fdf298aa957356"
+  },
+  "fixture_create_seconds": 222.7712354,
+  "worker_executions_observed_in_one_index_invocation": 2,
+  "first_worker_seconds": 7.943,
+  "first_conversion_complete_seconds": 10.995,
+  "first_staging_complete_seconds": 79.723,
+  "first_publication_begin_seconds": 79.802,
+  "first_publication_complete_seconds": 156.491,
+  "first_publication_window_seconds": 76.689,
+  "second_worker_seconds": 7.783,
+  "second_staging_complete_seconds": 132.429,
+  "second_publication_begin_seconds": 132.513,
+  "second_publication_complete_observed": false,
+  "inner_index_timeout_seconds": 300,
+  "production_acceptance": false,
+  "limits": [
+    "Preceding formal workload may affect environment; receipt does not confirm clean retirement",
+    "Phase trace does not identify checkpoint versus SQL/commit time within publication",
+    "Trace has no job/fence identifiers; repeated worker execution is observed, exact reclaim cause remains an inference",
+    "Moving explicit checkpoint after terminal settlement fixes a source-confirmed risk but does not prove the Windows performance gate now passes"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "red": {
+    "command": "CARGO_INCREMENTAL=0 cargo test -p diskgraph-store fenced_publication_excludes_post_commit_checkpoint -- --nocapture",
+    "exit_code": 101,
+    "target_failure": "fenced commit must return before explicit post-commit maintenance"
+  },
+  "green": {
+    "publication": {
+      "passed": 5,
+      "failed": 0
+    },
+    "wal": {
+      "passed": 5,
+      "failed": 0
+    },
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "store_worktree_full": {
+      "passed": 320,
+      "failed": 0,
+      "ignored": 5,
+      "includes_preserved_uncommitted_reader_observation_tests": true
+    },
+    "clippy": "store and engine all targets passed"
+  },
+  "production_acceptance": false,
+  "native_engine_and_windows_performance": "pending next CI",
+  "limits": "SQLite implicit auto-checkpoint/commit I/O still belongs to commit; cross-database commit/settlement crash gap remains. This change only moves explicit post-commit checkpoint out of the fenced running-job interval."
+}

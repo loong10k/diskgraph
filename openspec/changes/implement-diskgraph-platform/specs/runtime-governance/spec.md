@@ -44,6 +44,11 @@ The system SHALL stop scheduling at its next admission check when a runner handl
 ### Requirement: RT-01 Durable jobs and leases
 长任务 SHALL 具有持久 ID、所有者、进度和终态；同 scope 的冲突扫描合并或排队，租约不能只依赖 PID，崩溃后可识别并恢复或明确失败。
 
+#### Scenario: Post-commit WAL maintenance does not hold a running scan lease
+- **WHEN** 扫描图库事务已完成提交，随后需要执行可能较慢的 WAL checkpoint
+- **THEN** 原子发布回调只覆盖必要的提交和授权检查，不在持有控制库 fence 事务时执行提交后的显式 checkpoint；Engine 先持久结算任务终态，再进行该维护
+- **AND** 维护失败不得改写已提交的任务事实；提交前的租约、取消、认证期限检查仍保持，可信旧发布入口继续保留其 WAL 清理行为
+
 #### Scenario: Concurrent sync requests
 - **WHEN** 两个客户端同时触发相同范围同步
 - **THEN** 获得同一活动作业或明确排队结果，不同时发布相互覆盖快照。

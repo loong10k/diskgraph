@@ -67,13 +67,17 @@ impl SqliteSnapshotStore {
             ownership,
             batch,
             || Ok(()),
-        )
+        )?;
+        // 可信兼容入口保留同步维护；持有任务 fence 的调用方使用 checked 入口单独结算。
+        let _ = self.checkpoint_after_publication();
+        Ok(())
     }
 
     /// 在真实图库事务提交前复核原认证、取消及当前租约时钟。
     /// 参数：暂存代次、图、(revision ID,发布时间)、实际归属、可选批次及纯检查回调。
     /// 返回：全部提交或回滚；回调须只读既有不可变上下文，禁止重入持有的控制库。
     /// 旧接口保持可信兼容包装；检查后的 commit 仍不构成跨库或硬墙钟原子承诺。
+    /// 此入口不执行提交后的显式 checkpoint，任务调用方须先结算终态再维护 WAL。
     pub fn publish_revision_owned_with_batch_checked(
         &mut self,
         job_id: &str,
@@ -242,15 +246,27 @@ impl SqliteSnapshotStore {
         // 必须位于最后一次 SQL 和实际 commit 之间；失败回滚 latest、归属、节点及 staging 清理。
         check()?;
         transaction.commit()?;
-        // The scan's entire write-ahead log is now redundant. Folding it back
-        // here — rather than waiting for the next checkpoint — is what keeps a
-        // multi-million-node publish from leaving a log nearly as large as the
-        // snapshot it just wrote. A concurrent reader can hold a snapshot open
-        // and make the checkpoint a no-op; the log is then merely large, and
-        // the next open heals it.
-        let _ = self
-            .connection
-            .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);");
+        Ok(())
+    }
+
+    /// 提交后尝试折叠和截断 WAL，不承担发布或任务状态转换。
+    /// 参数：self 为原图库写连接；任务调用方必须已释放控制库 fence 并结算终态。
+    /// 返回：SQLite 维护调用结果；读取事务可阻止截断，错误不回滚已提交 revision。
+    pub fn checkpoint_after_publication(&self) -> Result<()> {
+        let started = std::time::Instant::now();
+        let diagnostics =
+            std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").is_some_and(|value| value == "1");
+        if diagnostics {
+            eprintln!("diskgraph: publish_phase=checkpoint_begin");
+        }
+        self.connection
+            .execute_batch("PRAGMA wal_checkpoint(TRUNCATE);")?;
+        if diagnostics {
+            eprintln!(
+                "diskgraph: publish_phase=checkpoint_complete elapsed_ms={}",
+                started.elapsed().as_millis()
+            );
+        }
         Ok(())
     }
 }

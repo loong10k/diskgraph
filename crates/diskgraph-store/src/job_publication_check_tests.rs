@@ -11,6 +11,54 @@ use std::sync::{
 };
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
+#[test]
+fn fenced_publication_excludes_post_commit_checkpoint_but_compatibility_retains_it() {
+    use rusqlite::hooks::{AuthAction, AuthContext, Authorization};
+    let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+    let checkpoint = Arc::new(AtomicBool::new(false));
+    let seen = checkpoint.clone();
+    store
+        .connection
+        .authorizer(Some(move |context: AuthContext<'_>| {
+            if let AuthAction::Pragma {
+                pragma_name: "wal_checkpoint",
+                ..
+            } = context.action
+            {
+                seen.store(true, Ordering::SeqCst);
+            }
+            Authorization::Allow
+        }))
+        .unwrap();
+    let first = graph("fenced-maintenance", 100);
+    store
+        .append_staging_nodes("fenced-maintenance:1", &first.nodes)
+        .unwrap();
+    store
+        .publish_revision_owned_with_batch_checked(
+            "fenced-maintenance:1",
+            &first,
+            ("fenced-revision", 1),
+            Some(("server", "scope")),
+            None,
+            || Ok(()),
+        )
+        .unwrap();
+    assert!(
+        !checkpoint.load(Ordering::SeqCst),
+        "fenced commit must return before explicit post-commit maintenance"
+    );
+    assert!(store.revision("fenced-revision").is_ok());
+    let second = graph("compatibility-maintenance", 100);
+    store
+        .publish_revision("compatibility-job", &second, "compatibility-revision", 2)
+        .unwrap();
+    assert!(
+        checkpoint.load(Ordering::SeqCst),
+        "positive control: trusted compatibility publication must retain checkpoint"
+    );
+}
+
 fn locators(graph: &diskgraph_core::DiskGraph) -> Vec<QualifiedLocator> {
     graph
         .nodes
