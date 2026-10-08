@@ -1,0 +1,50 @@
+{
+  "candidate": "dc1b400ff0f13ce947584344efbcbfa4751a7e17",
+  "job": 113571414305,
+  "run": 37853307573,
+  "artifact": 11583705187,
+  "classification": "historical replay compile failure before behavioral RED; not product acceptance",
+  "original_receipt": {
+    "candidate": "dc1b400ff0f13ce947584344efbcbfa4751a7e17",
+    "baseline": "296e533f5a262833d64da145d8dca3fb0824c57b",
+    "baseline_test_binding": "same test-only unarmed pool checkpoint; directory retry targets do not arm it; original owner retry unchanged",
+    "candidate_sources": {
+      "crates/diskgraph-engine/src/probe_resource_pool.rs": "ea124e8f294c262cc6979c168d4a215ebdaa7d636a1d1b94ac5cd6d13d8c37cb",
+      "crates/diskgraph-engine/src/probe_directory_binding.rs": "4b90fa232b5f810b3a89c1435e8b4acbfa76deb65325e09f62277f3ba576d2a4",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b"
+    },
+    "baseline_original_sources": {
+      "crates/diskgraph-engine/src/probe_resource_pool.rs": "638faa96bf8bd3768d292735f1b9b8bb50d1452f0ef16022334a62cf60a3a62f",
+      "crates/diskgraph-engine/src/probe_directory_binding.rs": "ac018199bbead03ec0b644fa50255dfd4143384d3ac11675b7a5fe3ce9a717f4",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "450d632f0d78bd7e1ccc43b23ce70731b6b22c1538af5b4c2644b85bb395f431"
+    },
+    "baseline_sources": {
+      "crates/diskgraph-engine/src/probe_resource_pool.rs": "064dbd4bc070d155554c38058f48044f1290215aace883eef99b2eb1fbe41e37",
+      "crates/diskgraph-engine/src/probe_directory_binding.rs": "ac018199bbead03ec0b644fa50255dfd4143384d3ac11675b7a5fe3ce9a717f4",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "450d632f0d78bd7e1ccc43b23ce70731b6b22c1538af5b4c2644b85bb395f431",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "e14900930124c9cc018cb1c022b9972652ec63ee68b7bf9d687857e3a7724798",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "2d552ca11855517b9b3858f639f80b49e9dfb1f45743152e1794b0aa1eb04994"
+    },
+    "unreachable_deadline_support": {
+      "original_sources": {
+        "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+        "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b"
+      },
+      "baseline_sources": {
+        "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "e14900930124c9cc018cb1c022b9972652ec63ee68b7bf9d687857e3a7724798",
+        "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "2d552ca11855517b9b3858f639f80b49e9dfb1f45743152e1794b0aa1eb04994"
+      },
+      "policy": "only unreachable new methods omitted; original compatibility cleanup body unchanged"
+    },
+    "shared_support_sources": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+      "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs": "4bdeaaaa22626437539983a7d8c7b770e3b01b5c8e4826c2de1018994a653e57",
+      "crates/diskgraph-engine/src/probe_pool_cleanup_fault.rs": "d7422d0e70df09e1e54b7978e52fcf7b7e41f7a843db3cffa54c161f84a8060c"
+    },
+    "status": "pending",
+    "restored": true
+  },
+  "original_red_log": "\u001b[1m\u001b[92m   Compiling\u001b[0m diskgraph-engine v0.3.0 (D:\\a\\diskgraph\\diskgraph\\crates\\diskgraph-engine)\n\u001b[1m\u001b[91merror[E0599]\u001b[0m\u001b[1m\u001b[97m: no associated function or constant named `create_directory` found for struct `GitPrivateAllocation` in the current scope\u001b[0m\n   \u001b[1m\u001b[96m--> \u001b[0mcrates\\diskgraph-engine\\src\\live_evidence\\git_private_directory.rs:232:46\n    \u001b[1m\u001b[96m|\u001b[0m\n\u001b[1m\u001b[96m232\u001b[0m \u001b[1m\u001b[96m|\u001b[0m             let file = GitPrivateAllocation::create_directory(lease.leaf_file(), name)?;\n    \u001b[1m\u001b[96m|\u001b[0m                                              \u001b[1m\u001b[91m^^^^^^^^^^^^^^^^\u001b[0m \u001b[1m\u001b[91massociated function or constant not found in `GitPrivateAllocation`\u001b[0m\n    \u001b[1m\u001b[96m|\u001b[0m\n   \u001b[1m\u001b[96m::: \u001b[0mcrates\\diskgraph-engine\\src\\live_evidence\\git_private_allocation.rs:9:1\n    \u001b[1m\u001b[96m|\u001b[0m\n\u001b[1m\u001b[96m  9\u001b[0m \u001b[1m\u001b[96m|\u001b[0m pub(super) struct GitPrivateAllocation {\n    \u001b[1m\u001b[96m|\u001b[0m \u001b[1m\u001b[96m--------------------------------------\u001b[0m \u001b[1m\u001b[96massociated function or constant `create_directory` not found for this struct\u001b[0m\n    \u001b[1m\u001b[96m|\u001b[0m\n\u001b[1m\u001b[92mnote\u001b[0m: if you're trying to build a new `GitPrivateAllocation` consider using one of the following associated functions:\n      GitPrivateAllocation::capture\n      GitPrivateAllocation::from_file\n   \u001b[1m\u001b[96m--> \u001b[0mcrates\\diskgraph-engine\\src\\live_evidence\\git_private_allocation.rs:36:5\n    \u001b[1m\u001b[96m|\u001b[0m\n\u001b[1m\u001b[96m 36\u001b[0m \u001b[1m\u001b[96m|\u001b[0m     pub(super) fn capture(path: &Path) -> Result<Self, String> {\n    \u001b[1m\u001b[96m|\u001b[0m     \u001b[1m\u001b[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\u001b[0m\n\u001b[1m\u001b[96m...\u001b[0m\n\u001b[1m\u001b[96m 88\u001b[0m \u001b[1m\u001b[96m|\u001b[0m     pub(super) fn from_file(file: &File) -> Result<Self, String> {\n    \u001b[1m\u001b[96m|\u001b[0m     \u001b[1m\u001b[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\u001b[0m\n\u001b[1m\u001b[96mhelp\u001b[0m: there is a method `is_directory` with a similar name, but with different arguments\n   \u001b[1m\u001b[96m--> \u001b[0mcrates\\diskgraph-engine\\src\\live_evidence\\git_private_allocation.rs:205:5\n    \u001b[1m\u001b[96m|\u001b[0m\n\u001b[1m\u001b[96m205\u001b[0m \u001b[1m\u001b[96m|\u001b[0m     pub(super) fn is_directory(&self) -> bool {\n    \u001b[1m\u001b[96m|\u001b[0m     \u001b[1m\u001b[96m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\u001b[0m\n\n\u001b[1m\u001b[97mFor more information about this error, try `rustc --explain E0599`.\u001b[0m\n\u001b[1m\u001b[91merror\u001b[0m: could not compile `diskgraph-engine` (lib test) due to 1 previous error\n"
+}

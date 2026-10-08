@@ -1,0 +1,100 @@
+{
+  "relative-fixture-abba-2500.json": {
+    "status": "complete",
+    "purpose": "diagnostic only; not production acceptance",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.15",
+    "head": "dc1b400ff0f13ce947584344efbcbfa4751a7e17",
+    "source_sha256": {
+      "scripts/accept-readonly-load.py": "9d8d0ba80fd6857085f361a6c7b37edfdfabecf894d005092052f8dcc8541881",
+      "scripts/windows_relative_fixture.py": "90149baee092b54f775dac17e1171b5a626933132bccae416b13666e740be014",
+      "scripts/diagnose_windows_relative_fixture.py": "78cf911da87d63d318bc48b992f31e31fc6cbe4641bb5323bdeef494cf9e2cb4",
+      "scripts/tests/test_windows_relative_fixture.py": "d43bb3a43d271fcb48e477cfc3234471d3e27c49deedef6d5010bee5b9d4a3b7"
+    },
+    "cases": [
+      {
+        "mode": "path",
+        "files": 2500,
+        "bytes_per_file": 32,
+        "create_seconds": 49.475755799998296,
+        "verify_seconds": 1.17379470000742,
+        "cleanup_seconds": 1.5646988999797031,
+        "whole_seconds": 52.512769499997376,
+        "temporary_directory_exit_completed": true
+      },
+      {
+        "mode": "relative",
+        "files": 2500,
+        "bytes_per_file": 32,
+        "create_seconds": 1.5419818999944255,
+        "verify_seconds": 1.1149282999977004,
+        "cleanup_seconds": 1.5889537000039127,
+        "whole_seconds": 4.246802699984983,
+        "temporary_directory_exit_completed": true
+      },
+      {
+        "mode": "relative",
+        "files": 2500,
+        "bytes_per_file": 32,
+        "create_seconds": 1.396696800016798,
+        "verify_seconds": 1.097471899993252,
+        "cleanup_seconds": 1.556494099990232,
+        "whole_seconds": 4.051247199997306,
+        "temporary_directory_exit_completed": true
+      },
+      {
+        "mode": "path",
+        "files": 2500,
+        "bytes_per_file": 32,
+        "create_seconds": 1.5173947000002954,
+        "verify_seconds": 1.1229888999951072,
+        "cleanup_seconds": 1.408761400001822,
+        "whole_seconds": 4.04959880001843,
+        "temporary_directory_exit_completed": true
+      }
+    ]
+  },
+  "relative-fixture-abba-20000.json": {
+    "status": "running",
+    "purpose": "diagnostic only; not production acceptance",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.15",
+    "head": "dc1b400ff0f13ce947584344efbcbfa4751a7e17",
+    "source_sha256": {
+      "scripts/accept-readonly-load.py": "9d8d0ba80fd6857085f361a6c7b37edfdfabecf894d005092052f8dcc8541881",
+      "scripts/windows_relative_fixture.py": "90149baee092b54f775dac17e1171b5a626933132bccae416b13666e740be014",
+      "scripts/diagnose_windows_relative_fixture.py": "78cf911da87d63d318bc48b992f31e31fc6cbe4641bb5323bdeef494cf9e2cb4",
+      "scripts/tests/test_windows_relative_fixture.py": "d43bb3a43d271fcb48e477cfc3234471d3e27c49deedef6d5010bee5b9d4a3b7"
+    },
+    "cases": [
+      {
+        "mode": "path",
+        "files": 20000,
+        "bytes_per_file": 32,
+        "create_seconds": 165.77810150000732,
+        "verify_seconds": 9.887563800002681,
+        "cleanup_seconds": 11.683017300005304,
+        "whole_seconds": 187.6503253999981,
+        "temporary_directory_exit_completed": true
+      }
+    ]
+  },
+  "twenty_thousand_harness_job": "wc_job_ckacYsIQ3zF_tdnz",
+  "twenty_thousand_outcome": "outer 240s timeout; relative case incomplete; Rust replay compilation overlapped; no acceptance or stable performance claim",
+  "retained_diagnostic_roots": [
+    "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-relative-diagnostic-36y_b1xh"
+  ],
+  "native_contract": {
+    "tests": 7,
+    "passed": 7,
+    "skipped": 0,
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "scripts/tests/test_windows_relative_fixture.py",
+      "-v"
+    ],
+    "execution": "real Windows, 0.027s reported suite duration"
+  }
+}

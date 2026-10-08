@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from qualify_windows_legacy_api import MARKER, SEAL_MARKER, prepare_pool_deadline_support
+from qualify_windows_legacy_api import MARKER, SEAL_MARKER, prepare_pool_deadline_support, strip_unused_pool_deadline_method
+from qualify_windows_capacity_replay import prepare as prepare_capacity_replay
 from qualify_windows_pool_unwind import instrument_baseline
 
 
@@ -17,6 +18,10 @@ SOURCES = [
     "crates/diskgraph-engine/src/probe_resource_pool.rs",
     "crates/diskgraph-engine/src/probe_directory_binding.rs",
     "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs",
 ]
 
 
@@ -50,6 +55,24 @@ def main():
     baseline_original = dict(old)
     support_original, support_adapted = prepare_pool_deadline_support(ROOT)
     original.update(support_original)
+    creation_original, creation_adapted = prepare_capacity_replay(ROOT, BASELINE, subprocess.check_output)
+    original.update(creation_original)
+    old.update(creation_adapted)
+    modules = "crates/diskgraph-engine/src/live_evidence/mod.rs"
+    # 冻结清理/枚举不引用这两个后续新增类型；不改变当前产品模块或警告策略。
+    for declaration in (
+        b"#[cfg(windows)]\nmod windows_git_foreign_removal_witness;\n",
+        b"#[cfg(windows)]\nmod windows_git_root_parent;\n",
+    ):
+        if old[modules].count(declaration) != 1:
+            raise RuntimeError("frozen directory unreachable module boundary is not unique")
+        old[modules] = old[modules].replace(declaration, b"", 1)
+    # 两种不可达支持剔除组合在同一 owner 副本上，不相互覆盖恢复调用边界。
+    for name in support_adapted:
+        if name in SOURCES:
+            support_adapted[name] = strip_unused_pool_deadline_method(old[name])
+        elif name in creation_adapted:
+            support_adapted[name] = strip_unused_pool_deadline_method(creation_adapted[name])
     pool_source = "crates/diskgraph-engine/src/probe_resource_pool.rs"
     old[pool_source] = instrument_baseline(old[pool_source], original[pool_source])
     old.update(support_adapted)
@@ -62,12 +85,11 @@ def main():
         "unreachable_deadline_support": {
             "original_sources": {name: digest(data) for name, data in support_original.items()},
             "baseline_sources": {name: digest(data) for name, data in support_adapted.items()},
-            "policy": "only unreachable new methods omitted; original compatibility cleanup body unchanged",
+            "policy": "cleanup/cursor/capacity/allocation frozen to baseline; current owner omits unsupported creation recovery and unreachable deadline methods",
         },
-        # 两阶段共用当前诊断投影与同一真实测试；只有上面的 owner 重试实现被替换。
+        # 两阶段共用同一真实测试与未启用的故障点；所有临时实现差异由上方源码摘要记录。
         "shared_support_sources": {
             name: digest((ROOT / name).read_bytes()) for name in [
-                "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs",
                 "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs",
                 "crates/diskgraph-engine/src/probe_pool_cleanup_fault.rs",
             ]
@@ -75,7 +97,7 @@ def main():
         "status": "pending",
     }
     try:
-        # 仅临时替换这三个实现文件；同一新测试、真实 Windows OS 和原预算保持不变。
+        # 目录与分配接口冻结为同一提交；同一真实测试及原预算不变，不伪造缺失方法。
         for name, data in old.items():
             (ROOT / name).write_bytes(data)
         code, log = cargo("explicit_directory_retry_reborrows_only_original_live_session_owner",

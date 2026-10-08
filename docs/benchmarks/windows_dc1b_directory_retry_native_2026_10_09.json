@@ -1,0 +1,63 @@
+{
+  "candidate": "dc1b400ff0f13ce947584344efbcbfa4751a7e17",
+  "baseline": "296e533f5a262833d64da145d8dca3fb0824c57b",
+  "baseline_test_binding": "same test-only unarmed pool checkpoint; directory retry targets do not arm it; original owner retry unchanged",
+  "candidate_sources": {
+    "crates/diskgraph-engine/src/probe_resource_pool.rs": "ea124e8f294c262cc6979c168d4a215ebdaa7d636a1d1b94ac5cd6d13d8c37cb",
+    "crates/diskgraph-engine/src/probe_directory_binding.rs": "4b90fa232b5f810b3a89c1435e8b4acbfa76deb65325e09f62277f3ba576d2a4",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "a1d6b35ef516180f1571188f8ae4680899a07259a3368c3f4e86da0c8e300f10",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "330086a0be6d15360adbb3a07b54e197abbb9df09e0d080c9650b58ca8a25e86",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "9b3810f32348cf6eab3e3cecc5164e561ef3374918d65810f5e054abcd0c3820"
+  },
+  "baseline_original_sources": {
+    "crates/diskgraph-engine/src/probe_resource_pool.rs": "638faa96bf8bd3768d292735f1b9b8bb50d1452f0ef16022334a62cf60a3a62f",
+    "crates/diskgraph-engine/src/probe_directory_binding.rs": "ac018199bbead03ec0b644fa50255dfd4143384d3ac11675b7a5fe3ce9a717f4",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "450d632f0d78bd7e1ccc43b23ce70731b6b22c1538af5b4c2644b85bb395f431",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "7fe7a6f4bb6240be0929e7e9e3475c8e3d586dbacfa85fb638a0620e0a5b76f0",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "f285e6c01e1e552dc0162e68b94386acc49392afc76e86b6b5b872604db5a44f",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "05e0a1ad8e856bc959c9a1639907fbdf92f182b6b1084404f219688483573ee1"
+  },
+  "baseline_sources": {
+    "crates/diskgraph-engine/src/probe_resource_pool.rs": "064dbd4bc070d155554c38058f48044f1290215aace883eef99b2eb1fbe41e37",
+    "crates/diskgraph-engine/src/probe_directory_binding.rs": "ac018199bbead03ec0b644fa50255dfd4143384d3ac11675b7a5fe3ce9a717f4",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "450d632f0d78bd7e1ccc43b23ce70731b6b22c1538af5b4c2644b85bb395f431",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "7fe7a6f4bb6240be0929e7e9e3475c8e3d586dbacfa85fb638a0620e0a5b76f0",
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "f285e6c01e1e552dc0162e68b94386acc49392afc76e86b6b5b872604db5a44f",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "05e0a1ad8e856bc959c9a1639907fbdf92f182b6b1084404f219688483573ee1",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "1f44cc76d10b7abefdffe66f323b7fc102d0a92cc992b61705b4bbc8ad3386bf",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "e80b0e7410a78f0db8284e4a924ebc3d5184ced240eeba939b5be3e1d2a6738a"
+  },
+  "unreachable_deadline_support": {
+    "original_sources": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b"
+    },
+    "baseline_sources": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "1f44cc76d10b7abefdffe66f323b7fc102d0a92cc992b61705b4bbc8ad3386bf",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "f285e6c01e1e552dc0162e68b94386acc49392afc76e86b6b5b872604db5a44f"
+    },
+    "policy": "only unreachable new methods omitted; original compatibility cleanup body unchanged"
+  },
+  "shared_support_sources": {
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+    "crates/diskgraph-engine/src/live_evidence/probe_resource_pool_tests.rs": "4bdeaaaa22626437539983a7d8c7b770e3b01b5c8e4826c2de1018994a653e57",
+    "crates/diskgraph-engine/src/probe_pool_cleanup_fault.rs": "d7422d0e70df09e1e54b7978e52fcf7b7e41f7a843db3cffa54c161f84a8060c"
+  },
+  "status": "native red and green verified; product shutdown gate remains open",
+  "red": "actual denied deletion and retained original slot; exact retry failed",
+  "restored": true,
+  "native_job": "wc_job_p5jhEMf2xAbo0E_Y",
+  "qualifier_source_sha256": "769978d5c76327bbcf0f96bc5cccdcb5cb79586fa6b819eb630a9fdab8086ed4",
+  "logs": {
+    "green.log": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 16.88s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nrunning 2 tests\ntest live_evidence::probe_resource_pool_tests::directory_retry_after_session_release_cannot_take_recovery_owner ... DG_WINDOWS_RELEASED_SESSION_CANNOT_REBORROW_DIRECTORY=1\nok\ntest live_evidence::probe_resource_pool_tests::explicit_directory_retry_reborrows_only_original_live_session_owner ... DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_READY=1\nDG_WINDOWS_ORIGINAL_DIRECTORY_EXPLICIT_RETRY=1\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 716 filtered out; finished in 0.38s\n\n",
+    "red.log": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.04s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nrunning 1 test\ntest live_evidence::probe_resource_pool_tests::explicit_directory_retry_reborrows_only_original_live_session_owner ... DG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_READY=1\n\nthread 'live_evidence::probe_resource_pool_tests::explicit_directory_retry_reborrows_only_original_live_session_owner' (33284) panicked at crates\\diskgraph-engine\\src\\live_evidence\\probe_resource_pool_tests.rs:157:44:\ncalled `Result::unwrap()` on an `Err` value: \"private Git owner retained for recovery\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nDG_WINDOWS_ORIGINAL_DIRECTORY_RETRY_RED_CLEANUP=1\nFAILED\n\nfailures:\n\nfailures:\n    live_evidence::probe_resource_pool_tests::explicit_directory_retry_reborrows_only_original_live_session_owner\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 717 filtered out; finished in 0.02s\n\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n"
+  },
+  "current_restoration_verified": true,
+  "note": "Qualifier receipt-only metadata clarified after execution; Rust replay sources and assertions unchanged."
+}

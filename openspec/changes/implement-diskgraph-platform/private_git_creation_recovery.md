@@ -39,3 +39,8 @@ Windows 原生扩展回归：创建失败/取消/panic 恢复及原通知跨轮�
 已直接复用原 FileId/Basic/StandardInfo 输出，移除私有分配捕获中的第二组 GetFileType 与三项查询；修改时间读取及末段重新打开复核不变。Windows Rust 1.99 debug 同一普通文件每轮 4096 次捕获：基线 40,165 / 41,021 / 45,115 微秒，修改后 26,546 / 25,277 / 24,358 微秒；属于顺序局部诊断，没有 release、配对交错或全负载统计证明。完整 128 位身份、访问时间排除、change/长度变化和负长度/重解析/占位/删除投影两项测试通过，原生 all-target Clippy 通过。
 
 对应 Windows 默认并行 Engine 完整结果为 702 通过、9 失败、7 忽略，254.93 秒，原命令 255.719 秒自然结束。新增忽略项仅为显式执行过的局部成本诊断，未忽略既有失败。32k 原 120 秒创建在第 28,525 项到期；其余失败为普通/scoped/packed Git 语义、fscache、源 alternates 拒绝、累计元数据预算与旧证据树保留。与上次 697/12 的失败集合不同，不据此推断并发稳定性已改善，更不关闭原期限问题。完整命令、源码摘要、成本与失败名称见同目录 native_allocation_query_reuse.json，原生任务 wc_job_XkPhXjnORske8FnC。
+## 历史目录重试的创建依赖配套
+
+dc1b400f Windows stable CI 的目录重试回放在真实 RED 之前编译失败：旧目录调用 `GitPrivateAllocation::create_directory`，当前分配实现已移除此入口。回放须冻结同一 baseline 的目录、分配、容量、清理和枚举实现，保留当前测试、真实原生调用与原期限；禁止补空方法或把 E0599 当成行为 RED。当前 owner 仅移除旧创建流程不存在的 prepared 恢复槽调用及旧池不可达的 deadline 方法；新创建槽和诊断模块不参与旧回放。新增回归测试先确认依赖错配而失败，再验证异常、超时、意外 GREEN 和编译错误路径均逐字恢复全部九个文件。原生 RED/GREEN 完成前仍不算该门禁通过。
+
+Windows Rust 1.99 原生回放最终完成：旧版本真实返回 `private Git owner retained for recovery`，RED 为 0 通过/1 失败；当前版本显式重试与会话释放后禁止重借共 2/2 通过。两阶段构建分别 19.04/16.88 秒，测试 0.02/0.38 秒，九个原文件 SHA256 在结束后再次核验一致。原生任务 `wc_job_p5jhEMf2xAbo0E_Y`；这不是完整 Engine 或生产关闭期限验证。
