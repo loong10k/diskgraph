@@ -1,0 +1,31 @@
+{
+  "base_sha": "10dc27f6fc7c5e2b34e5f8fdede58167b81b96f0",
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "3bd26689de653bc58749fc04e56cab4cb792588c35c43e3aa5b7e36d7067eda8",
+    "scripts/tests/test_readonly_load_coverage.py": "1aa4864550c7357f917cd70d72ebf7771df01dfa3ec6d06c9381c01aed85098d"
+  },
+  "windows_200k_candidate_qualified": false,
+  "native_20k_artifact": {
+    "run_id": 37771002316,
+    "artifact_id": 11548327642,
+    "commit": "5acda732a916507a782ab2078b297bf9e52274a7",
+    "sha256": "57991c47ffe93d6f2453d95474efea524a4876e322b1c0a50ab9b28b42393552"
+  },
+  "logs": {
+    "red": {
+      "file": "red.log.gz",
+      "original_bytes": 1583,
+      "original_sha256": "1fc10976fe73a75ddf5f879182c35b69157b35a33d9a0aece7ffd7d8969ab21b"
+    },
+    "green": {
+      "file": "green.log.gz",
+      "original_bytes": 124,
+      "original_sha256": "91844d88574104727b8ab127f74651f621ec913dfede827b6e1d90cc24ea8a14"
+    },
+    "script_suite": {
+      "file": "script_suite.log.gz",
+      "original_bytes": 1240,
+      "original_sha256": "401338b3f0026fb92bafdfbcab5bfbfaae54b8c05797783a05c93496d3e5847a"
+    }
+  }
+}

@@ -232,9 +232,9 @@ class CoverageTests(unittest.TestCase):
                 patch.object(MODULE, 'retire_fixture', wraps=original) as retirement:
             result, report = self.exercise(102, verify_all_closed=True, phase_events=events)
         self.assertEqual(result, 0)
-        self.assertEqual(report['cleanup_workers'], 4)
+        self.assertEqual(report['cleanup_workers'], 1)
         self.assertEqual(events, [('begin', True), ('end', False)])
-        self.assertEqual(retirement.call_args.kwargs, {'workers': 4})
+        self.assertEqual(retirement.call_args.kwargs, {'workers': 1})
 
     def test_windows_retirement_failure_never_reports_cleanup_complete(self):
         events = []
@@ -271,7 +271,7 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(result, 0)
 
     def test_platform_workers_are_forwarded_and_reported(self):
-        for platform, expected in [('win32', 2), ('linux', 4), ('darwin', 4)]:
+        for platform, expected in [('win32', 1), ('linux', 4), ('darwin', 4)]:
             with self.subTest(platform=platform), \
                  patch.object(MODULE.sys, 'platform', platform), \
                  patch.object(MODULE, 'create_fixture', wraps=MODULE.create_fixture) as create:

@@ -165,8 +165,8 @@ def main():
         root.mkdir()
         phase("fixture_create", "begin")
         fixture_started = time.perf_counter()
-        # Windows 原生两轮诊断中，2线程均快于4线程；保留完整文件覆盖与期限。
-        fixture_workers = 2 if sys.platform == "win32" else 4
+        # 最新Windows对称20k观测中1线程优于2/4；200k原门禁仍须实际验证。
+        fixture_workers = 1 if sys.platform == "win32" else 4
         create_fixture(root, args.files, workers=fixture_workers)
         fixture_seconds = time.perf_counter() - fixture_started
         phase("fixture_create", "end")
@@ -240,7 +240,8 @@ def main():
         # 必须测到真实 TemporaryDirectory.__exit__ 完成；不得提前报告成功或绕过清理。
         phase("workspace_cleanup", "begin")
         cleanup_started = time.perf_counter()
-        cleanup_workers = 4 if sys.platform == 'win32' else 1
+        # 单worker减少同一宽目录的并发元数据竞争，不减少删除集合或延后清理。
+        cleanup_workers = 1
         if sys.platform == 'win32':
             retire_fixture(root, args.files, workers=cleanup_workers)
 
