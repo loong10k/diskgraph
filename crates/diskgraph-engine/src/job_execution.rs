@@ -209,6 +209,13 @@ impl Engine {
                 }
             };
             if committed {
+                // 控制提交失败不能丢弃已提交图库的维护；此处已释放原 fence。
+                // 保留 Running 和原始错误，后续仍须按回执对账，不重新采集。
+                if matches!(claimed.kind, JobKind::Index | JobKind::Sync)
+                    && let Ok(graph) = self.graph()
+                {
+                    let _ = graph.checkpoint_after_publication();
+                }
                 return outcome.map(|()| claimed);
             }
         }

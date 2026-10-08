@@ -150,7 +150,12 @@ impl SqliteSnapshotStore {
         check()?;
         let has_display_aliases = validate_graph_display_aliases(graph, ownership.is_some())?;
         let root_key = to_string(&graph.snapshot.root)?;
-        let transaction = self.connection.transaction()?;
+        let _checkpoint = crate::publication_checkpoint_guard::PublicationCheckpointGuard::suspend(
+            &self.connection,
+        )?;
+        // 外层 &mut self 保持独占；共享借用允许守卫在事务结束后恢复配置。
+        // unchecked_transaction 仍由 SQLite 拒绝嵌套事务，未跳过运行时事务校验。
+        let transaction = self.connection.unchecked_transaction()?;
         check()?;
         transaction.execute(
             "INSERT INTO snapshots (id, root_key, captured_at_unix_ms, snapshot_json, pinned, count_schema, scan_receipt_writer)

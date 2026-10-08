@@ -1,0 +1,154 @@
+{
+  "conclusion": "failure",
+  "headSha": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "jobs": [
+    {
+      "name": "Swift native host (macos-15)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629086
+    },
+    {
+      "name": "Test (macos-latest / Rust stable)",
+      "conclusion": "failure",
+      "status": "completed",
+      "databaseId": 113580629325
+    },
+    {
+      "name": "Vendored scanner",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629338
+    },
+    {
+      "name": "Kotlin native host (macos-15-intel)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629369
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629374
+    },
+    {
+      "name": "Kotlin native host (macos-15)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629377
+    },
+    {
+      "name": "Linux ARM64 private FUSE content refusal",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629412
+    },
+    {
+      "name": "Kotlin native host (windows-2022)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629430
+    },
+    {
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629434
+    },
+    {
+      "name": "Test (windows-latest / Rust stable)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629438
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629468
+    },
+    {
+      "name": "Test (macos-15-intel / Rust stable)",
+      "conclusion": "failure",
+      "status": "completed",
+      "databaseId": 113580629471
+    },
+    {
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629472
+    },
+    {
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629479
+    },
+    {
+      "name": "Swift native host (macos-15-intel)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629481
+    },
+    {
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629501
+    },
+    {
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629510
+    },
+    {
+      "name": "rustfmt",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580629571
+    },
+    {
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580771623
+    },
+    {
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "conclusion": "failure",
+      "status": "completed",
+      "databaseId": 113580771638
+    },
+    {
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580771652
+    },
+    {
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580771700
+    },
+    {
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "conclusion": "success",
+      "status": "completed",
+      "databaseId": 113580771736
+    }
+  ],
+  "status": "completed",
+  "run_id": 37856131524,
+  "production_acceptance": false,
+  "local_log_sha256": {
+    "diskgraph_16d1_windows_package_job.log": "84d7da4cd0f08c6c0c4cfed781daf2645c353f099be727d38c12ee30c30309fa",
+    "diskgraph_16d1_windows_stable_job.log": "04c37ab6d3373da4a2baf860a8c6fb89536ab5d6a2e8fdb1825b042989ae7375",
+    "diskgraph_16d1_windows_msrv_job.log": "4573f9fabaab804f8ceed1418483f78f3e5895768ba8acc7d39fac76e228200c",
+    "diskgraph_16d1_macos_intel_job.log": "a429fa3bcb18cb59b52ab17f78327f772ac280a2ab810e9ba6d68c6372e5e122",
+    "diskgraph_16d1_macos_arm_job.log": "fdf87e605eaf55afd7040e770e9de387c28b4c2d61cae12118b3d1ef3972e8ee"
+  }
+}

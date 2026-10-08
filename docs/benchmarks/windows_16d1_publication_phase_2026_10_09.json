@@ -1,0 +1,30 @@
+{
+  "source_commit": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "ci_run": 37856131524,
+  "artifact_sha256": "31625f28fde855db49b625f540208dfe5a963ce01d53723ce1fdd69be8ce1443",
+  "phase_lines": [
+    "{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 1527.0535005}",
+    "{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 1841.9640418}",
+    "{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 1}",
+    "{\"scan_phase\": \"worker_complete\", \"nodes\": 0, \"elapsed_ms\": 16817}",
+    "{\"scan_phase\": \"conversion_complete\", \"nodes\": 200001, \"elapsed_ms\": 20479}",
+    "{\"scan_phase\": \"staging_batch_complete\", \"nodes\": 200001, \"elapsed_ms\": 99663}",
+    "{\"scan_phase\": \"staging_complete\", \"nodes\": 200001, \"elapsed_ms\": 99664}",
+    "{\"scan_cost\": \"windows_root_validation\", \"nodes\": 200001, \"total_ms\": 197085}",
+    "{\"scan_root_validation\": true, \"calls\": 400003, \"chain_handles\": 8, \"total_ms\": 197085}",
+    "{\"scan_phase\": \"publication_begin\", \"nodes\": 200001, \"elapsed_ms\": 99758}",
+    "{\"publish_phase\": \"prepare_begin\", \"elapsed_ms\": 0}",
+    "{\"publish_phase\": \"nodes_and_evidence_complete\", \"elapsed_ms\": 2649}",
+    "{\"publish_phase\": \"aggregates_begin\", \"elapsed_ms\": 3379}",
+    "{\"publish_phase\": \"aggregates_complete\", \"elapsed_ms\": 3562}",
+    "{\"publish_phase\": \"seal_complete\", \"elapsed_ms\": 3562}",
+    "{\"publish_phase\": \"commit_begin\", \"elapsed_ms\": 3562}",
+    "{\"publish_phase\": \"commit_complete\", \"elapsed_ms\": 100094}",
+    "{\"scan_phase\": \"publication_complete\", \"nodes\": 200001, \"elapsed_ms\": 199853}",
+    "{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 1}"
+  ],
+  "commit_wall_ms": 96532,
+  "root_validation_summed_concurrent_ms_not_wall": 197085,
+  "production_acceptance": false,
+  "interpretation": "Automatic checkpoint is verified by a separate disk-database regression, but no proof yet that all 96532 ms are checkpoint I/O. Formal fixture creation alone exceeded original 300s gate. Extended run was not clean-environment acceptance."
+}

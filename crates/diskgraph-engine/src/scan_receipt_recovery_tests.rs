@@ -2,6 +2,30 @@
 use crate::{Engine, EngineConfig, EngineError};
 use diskgraph_core::PrincipalId;
 use diskgraph_store::{JobState, ScanPublicationReceipt, StoreError};
+#[test]
+fn recovered_scan_performs_wal_maintenance_after_real_terminal_settlement() {
+    let (dir, engine, receipt) = fixture();
+    let wal = dir.path().join("data/diskgraph.sqlite-wal");
+    assert!(
+        std::fs::metadata(&wal).unwrap().len() > 0,
+        "fixture must retain real committed WAL"
+    );
+    expire(&dir, receipt.job_id());
+    let recovered = engine.settle_expired_job(receipt.job_id()).unwrap();
+    assert_eq!(recovered.state, JobState::Completed);
+    assert_eq!(
+        std::fs::metadata(&wal).unwrap().len(),
+        0,
+        "receipt recovery skipped committed WAL maintenance"
+    );
+    assert!(
+        engine
+            .graph()
+            .unwrap()
+            .revision(receipt.revision_id())
+            .is_ok()
+    );
+}
 
 fn fixture() -> (tempfile::TempDir, Engine, ScanPublicationReceipt) {
     let dir = tempfile::tempdir().unwrap();

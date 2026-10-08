@@ -1,0 +1,78 @@
+{
+  "head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "source_diff_sha256": "57993cd20a064b0943315eb061a72c00a6980bebcd4a23ede0870a5e7b0caf17",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.327999999979511
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 219.04699999999139
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_engine_directory_identity_16d1\\current_source_driver.exe",
+    "sha256": "7f231789e2d2655772f014029f2e6069d06cfc97e0291c08a96adb77639b2b6f",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: FAILED. 708 passed; 8 failed; 7 ignored; 0 measured; 0 filtered out; finished in 199.81s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 86942,
+      "sha256": "df375bfc1c2380867d93a4bea4c5ec5f745a8dcf4031696e89859d1fac2014e6"
+    },
+    "engine.stderr.log": {
+      "bytes": 10451,
+      "sha256": "f4cb63562c0c2b24e573b495f88b042626f036ef0a87a7e352ee26547ecb2581"
+    }
+  },
+  "source_hashes_after": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24"
+  },
+  "wrapper_exit_code": 1,
+  "wrapper_failure": "UnicodeEncodeError (gbk printing microsecond symbol), after Cargo and receipt finished; Cargo exit 101 remains actual test failure",
+  "job_id": "wc_job_ELT9bhJqIKds5sD_",
+  "matches_local_committed_source": "80a933f03d77cb8aff37f6b49d672e08154425de (seven-file overlay, not Windows HEAD)"
+}

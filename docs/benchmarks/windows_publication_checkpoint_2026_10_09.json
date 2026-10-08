@@ -1,0 +1,179 @@
+{
+  "initial": {
+    "commands": [
+      {
+        "name": "format",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "fmt",
+          "-p",
+          "diskgraph-store",
+          "-p",
+          "diskgraph-engine"
+        ],
+        "exit": 0,
+        "seconds": 2.0940000000118744,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summaries": []
+      },
+      {
+        "name": "store_full",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-store"
+        ],
+        "exit": 101,
+        "seconds": 47.96799999999348,
+        "sha256": "c9bd03b31e129466b3c7fe2379ac8a229f2edd061b25e42f0166e12926478625",
+        "test_summaries": [
+          "test result: ok. 372 passed; 0 failed; 8 ignored; 0 measured; 0 filtered out; finished in 39.66s",
+          "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s",
+          "test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.98s",
+          "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s",
+          "test result: ok. 0 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+          "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s"
+        ]
+      }
+    ],
+    "default_test_parallelism": true,
+    "production_acceptance": false
+  },
+  "followup": {
+    "commands": [
+      {
+        "name": "layout",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-store",
+          "--test",
+          "source_layout"
+        ],
+        "exit": 0,
+        "seconds": 2.640999999974156,
+        "sha256": "b8740d9811ea4e32340726ddd9a9624f0d4c3a49f8d1ba6033f2f4f412261b4e",
+        "test_summaries": [
+          "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s"
+        ]
+      },
+      {
+        "name": "doc",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-store",
+          "--doc"
+        ],
+        "exit": 0,
+        "seconds": 0.9060000000172295,
+        "sha256": "3f4dc422eb9c59491ceca1dfd0bf220816e1dbc0fe409f6cc3810c69a9e3c106",
+        "test_summaries": [
+          "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+        ]
+      },
+      {
+        "name": "fmt_check",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "fmt",
+          "-p",
+          "diskgraph-store",
+          "-p",
+          "diskgraph-engine",
+          "--",
+          "--check"
+        ],
+        "exit": 0,
+        "seconds": 1.937999999994645,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "test_summaries": []
+      },
+      {
+        "name": "clippy",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "clippy",
+          "--locked",
+          "-p",
+          "diskgraph-store",
+          "-p",
+          "diskgraph-engine",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "seconds": 5.467999999993481,
+        "sha256": "b2d88b98c291dbfbdf7f9c0733108761f1ca3203e30b60744abb2433e69a4021",
+        "test_summaries": []
+      }
+    ],
+    "production_acceptance": false
+  },
+  "production_acceptance": false,
+  "native_rust": "1.99.0 MSVC x64",
+  "logs": {
+    "red": {
+      "sha256": "b2e4f4df22889108384ad06215a4a750c30ccaf97981cd336434d09af3ccb2ae",
+      "bytes": 1048,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 379 filtered out; finished in 0.08s"
+      ]
+    },
+    "green": {
+      "sha256": "2c7036bdee86eb3d85da1ad5d19e5c2d9ab2057259b43e37f0bad98219b197b6",
+      "bytes": 2592,
+      "summaries": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 373 filtered out; finished in 1.31s"
+      ]
+    },
+    "recovery_red": {
+      "sha256": "f938392a34048c1b29feabc224f364bc91caaf3811f1e398d2b70f3621ad586a",
+      "bytes": 1197,
+      "summaries": [
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 723 filtered out; finished in 0.30s"
+      ]
+    },
+    "recovery_green": {
+      "sha256": "65ae88a84f4613c06b1585a880ae6f96dfd5341d4b75f3df6a9d26e766f11812",
+      "bytes": 13368,
+      "summaries": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 716 filtered out; finished in 0.94s"
+      ]
+    }
+  },
+  "source_hashes": {
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7"
+  },
+  "job_ids": [
+    "wc_job_PdTIVVLPt1bfkxnp",
+    "wc_job_VnXL7JujzdeBe27S",
+    "wc_job_ATSkJelCRJ6EsgFm",
+    "wc_job_19lKsHBZmm65r194",
+    "wc_job_hbS7mPXRPruFkWKd",
+    "wc_job_qVa15Vu6h8ckbZVE"
+  ],
+  "failure_notes": [
+    "Initial wrapper used the script-only owner API incorrectly; Cargo was not run in that invocation. Corrected before actual behavioral RED.",
+    "Full Store behavioral tests passed; source_layout failed for missing explicit native provenance. Added only provenance comment and reran layout, doc, fmt and Clippy; no gate relaxed."
+  ]
+}

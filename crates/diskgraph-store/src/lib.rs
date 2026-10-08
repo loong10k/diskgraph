@@ -130,6 +130,7 @@ mod policy_permission_tests;
 mod policy_store;
 #[cfg(test)]
 mod process_job_protocol_contract_tests;
+mod publication_checkpoint_guard;
 #[cfg(test)]
 mod reader_admission_tests;
 #[cfg(test)]

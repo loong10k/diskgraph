@@ -10,6 +10,109 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+#[test]
+fn fenced_publication_defers_actual_automatic_checkpoint_and_restores_threshold() {
+    let dir = tempfile::tempdir().unwrap();
+    let database = dir.path().join("graph.sqlite");
+    let copied = dir.path().join("main-only.sqlite");
+    let mut store = SqliteSnapshotStore::open(&database).unwrap();
+    store.checkpoint_after_publication().unwrap();
+    store
+        .connection
+        .pragma_update(None, "wal_autocheckpoint", 1)
+        .unwrap();
+    let next = graph("automatic-checkpoint", 100);
+    store
+        .publish_revision_owned_with_batch_checked(
+            "automatic-job",
+            &next,
+            ("automatic-revision", 1),
+            None,
+            None,
+            || Ok(()),
+        )
+        .unwrap();
+    assert!(store.revision("automatic-revision").is_ok());
+    assert_eq!(
+        store
+            .connection
+            .query_row("PRAGMA wal_autocheckpoint", [], |row| row.get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+    // 主库副本不携带 WAL；真实自动 checkpoint 若发生，已提交 revision 会提前出现。
+    std::fs::copy(&database, &copied).unwrap();
+    let main = rusqlite::Connection::open(&copied).unwrap();
+    assert_eq!(
+        main.query_row(
+            "SELECT COUNT(*) FROM graph_revisions WHERE revision_id='automatic-revision'",
+            [],
+            |row| row.get::<_, i64>(0)
+        )
+        .unwrap(),
+        0
+    );
+    drop(main);
+    store.checkpoint_after_publication().unwrap();
+    std::fs::copy(&database, &copied).unwrap();
+    let maintained = rusqlite::Connection::open(&copied).unwrap();
+    assert_eq!(
+        maintained
+            .query_row(
+                "SELECT COUNT(*) FROM graph_revisions WHERE revision_id='automatic-revision'",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        1
+    );
+}
+
+#[test]
+fn rejected_or_panicking_publication_restores_automatic_checkpoint() {
+    let mut store = SqliteSnapshotStore::open_in_memory().unwrap();
+    store
+        .connection
+        .pragma_update(None, "wal_autocheckpoint", 17)
+        .unwrap();
+    for panic in [false, true] {
+        let next = graph("checkpoint-rollback", 100);
+        let mut calls = 0;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            store.publish_revision_owned_with_batch_checked(
+                "rollback-job",
+                &next,
+                ("rollback-revision", 1),
+                None,
+                None,
+                || {
+                    calls += 1;
+                    if calls == 1 {
+                        return Ok(());
+                    }
+                    // 第二次回调已进入真实事务，覆盖 rollback 与配置恢复顺序。
+                    if panic {
+                        panic!("injected publication callback panic")
+                    }
+                    Err(StoreError::Conflict("injected denial".into()))
+                },
+            )
+        }));
+        if panic {
+            assert!(result.is_err());
+        } else {
+            assert!(result.unwrap().is_err());
+        }
+        assert_eq!(
+            store
+                .connection
+                .query_row("PRAGMA wal_autocheckpoint", [], |row| row.get::<_, i64>(0))
+                .unwrap(),
+            17
+        );
+        assert!(store.revision("rollback-revision").is_err());
+    }
+}
 
 #[test]
 fn fenced_publication_excludes_post_commit_checkpoint_but_compatibility_retains_it() {

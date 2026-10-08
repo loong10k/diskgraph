@@ -20,10 +20,17 @@ impl Engine {
         // WAL 独立 reader 沿既有有限期限读取，活事务未提交的回执不会被当作事实。
         let receipt = self.revision_reader()?.scan_publication_receipt(job_id)?;
         match receipt {
-            Some(receipt) => Ok(Some(
-                self.control()?
-                    .recover_committed_scan_job(job_id, owner, &receipt)?,
-            )),
+            Some(receipt) => {
+                let record = self
+                    .control()?
+                    .recover_committed_scan_job(job_id, owner, &receipt)?;
+                // 控制终态已提交并释放锁，才执行可能耗时的 WAL 维护。
+                // 维护失败不改变原回执，也不把已提交扫描重新入队。
+                if let Ok(graph) = self.graph() {
+                    let _ = graph.checkpoint_after_publication();
+                }
+                Ok(Some(record))
+            }
             None => Ok(None),
         }
     }
