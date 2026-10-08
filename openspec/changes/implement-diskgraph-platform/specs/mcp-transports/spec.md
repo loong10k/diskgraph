@@ -137,3 +137,8 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **THEN** a reliable native withdrawal witness rejects the request as permission denied
 - **AND** without such a witness, a changed control authorization generation rejects the request as conflict rather than returning snapshot data
 - **AND** continuous live denial takes priority; callbacks stay outside the control lock and existing request deadlines remain unchanged
+
+#### Scenario: Display partial results cannot forget authorization churn
+- **WHEN** metadata permission is withdrawn then restored during display preparation, consumption or terminal authorization
+- **THEN** both complete and truncated display results are refused by the original native withdrawal witness, or by a changed authorization generation when native notification is unavailable
+- **AND** continuous live denial remains permission denied, callbacks stay outside the control lock, and existing display budget and terminal observation windows remain unchanged

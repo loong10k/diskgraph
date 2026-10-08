@@ -239,9 +239,9 @@ impl Engine {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
             }
             withdrawal.check(control)?;
-            Ok::<_, EngineError>(withdrawal)
+            Ok::<_, EngineError>((withdrawal, control.authorization_generation()?))
         });
-        let withdrawal = match initial_authorization {
+        let (withdrawal, generation) = match initial_authorization {
             Err(EngineError::Store(error))
                 if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
                     || error.is_interrupted()
@@ -283,6 +283,10 @@ impl Engine {
             )?;
             if control.scope_revoked(&scope)? {
                 return Err(EngineError::Business(BusinessError::PermissionDenied));
+            }
+            // 只有可靠原生通知可区分无关变更；未知平台不让恢复授权抹去请求窗口变化。
+            if !withdrawal.has_native_watch() && control.authorization_generation()? != generation {
+                return Err(BusinessError::Conflict.into());
             }
             Ok(())
         });
@@ -362,6 +366,11 @@ impl Engine {
                         == Some(false)
                 {
                     return Err(EngineError::Business(BusinessError::PermissionDenied));
+                }
+                if !withdrawal.has_native_watch()
+                    && control.authorization_generation()? != generation
+                {
+                    return Err(BusinessError::Conflict.into());
                 }
                 Ok(())
             })?;

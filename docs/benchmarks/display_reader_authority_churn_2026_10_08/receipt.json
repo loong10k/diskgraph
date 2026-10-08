@@ -1,0 +1,25 @@
+{
+  "base_commit": "a5cec8e7af7d98bde9e4b1b5774a6018095fb38a",
+  "actual_red": "old display reader returns Ok(()) after revoke/regrant",
+  "green": "1 test covers initial callback, terminal callback and consumer; Truncated completion",
+  "admin": "20 passed",
+  "management": "6 passed",
+  "layout": "11 passed",
+  "clippy": "passed",
+  "fmt": "passed",
+  "openspec": "strict valid",
+  "review": "code APPROVE; architecture CLEAR",
+  "qualification": "targeted only; not native/full workspace/production qualification",
+  "limitations": [
+    "Unknown native notification uses conservative authorization generation conflict, including unrelated updates",
+    "Other read pipelines require separate review; this receipt covers display reader only"
+  ],
+  "sha256": {
+    "churn_red.log.gz": "478f65814e6351992fd7e843e95ccb1746aa461d9fae6ea66df5b3572232a406",
+    "churn_green.log.gz": "3ea6ec4cf4830cfff1a19d7cd6966cede617ef28a68345456e5ca25bba7aad18",
+    "admin.log.gz": "eb59a537d56776f52ce563de7a63f3860db5bbc541427fe2d56189894b78fa5b",
+    "management.log.gz": "d393e61667ac644cf5dc69f92eeb5c3b96dba228674c4d65270149281cc67708",
+    "layout.log.gz": "28ad73f47637384c79d3ab6a1dd9297cab22dd9b511db01022696625cff386d2",
+    "clippy.log.gz": "bace526ce0cdc72208c59ed100d590197f51e2ffe484f64571ac9258e03b2012"
+  }
+}
