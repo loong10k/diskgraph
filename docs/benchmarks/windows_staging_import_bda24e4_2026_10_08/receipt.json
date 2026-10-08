@@ -1,0 +1,12 @@
+{
+  "failed_candidate": "bda24e4bc7f3a6fce76239f6cecc80e0a5f853a6",
+  "failed_run": 37755841811,
+  "failed_job": 113240050571,
+  "native_red": "Windows -D warnings unused import WindowsObservationGap",
+  "source_sha256": "903b0ed7787f526110de61df34918bdcff6b316af740480b1c1c443a36b961e5",
+  "change": "cfg(not(windows)) import only; no execution or budget change",
+  "host_clippy": "passed",
+  "host_source_layout_passed": 6,
+  "native_windows_green": "pending next CI",
+  "supersede_reason": "verified native build failure, not observation timeout"
+}

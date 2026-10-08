@@ -4,9 +4,11 @@ use crate::job_execution_stop_reason::JobExecutionStopReason;
 use crate::scan_node_locator::qualify_scan_locator;
 use crate::scan_observation_guard::ScanObservationGuard;
 use crate::{Engine, EngineError, collect_projects};
+#[cfg(not(windows))]
+use diskgraph_core::WindowsObservationGap;
 use diskgraph_core::{
     Authorizer, BudgetDecision, BudgetUsage, BusinessError, DiskGraph, Permission, ScanBudgetStop,
-    ScanWindow, WindowsObservationGap,
+    ScanWindow,
 };
 use diskgraph_store::{PreparedStagingNode, StoreError};
 use std::io;
