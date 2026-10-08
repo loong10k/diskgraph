@@ -243,3 +243,75 @@ fn captured_reply_capability_cannot_outlive_persistent_grant_revocation() {
         );
     }
 }
+
+#[test]
+fn top_retains_one_row_lookahead_without_loading_full_revision() {
+    let (dir, service, scope) = fixture();
+    let db = rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap();
+    db.execute("UPDATE nodes SET kind='invalid-kind' WHERE id=2", [])
+        .unwrap();
+    let result = service.top_tool(
+        &Some(scope),
+        &json!({"revision":"deadline-revision","limit":1}),
+        Instant::now() + Duration::from_secs(1),
+    );
+    assert!(
+        result.is_err(),
+        "top lost existing lookahead validation: {result:?}"
+    );
+}
+
+#[test]
+fn top_does_not_decode_corruption_outside_page_and_one_lookahead() {
+    let (dir, service, scope) = fixture();
+    let db = rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap();
+    let columns: Vec<String> = db
+        .prepare("PRAGMA table_info(nodes)")
+        .unwrap()
+        .query_map([], |row| row.get(1))
+        .unwrap()
+        .collect::<Result<_, _>>()
+        .unwrap();
+    let projections: Vec<String> = columns
+        .iter()
+        .map(|column| match column.as_str() {
+            "id" => "4".into(),
+            "name" => "'outside'".into(),
+            "subtree_bytes" => "0".into(),
+            "kind" => "'invalid-kind'".into(),
+            _ => format!("\"{column}\""),
+        })
+        .collect();
+    db.execute(
+        &format!(
+            "INSERT INTO nodes ({}) SELECT {} FROM nodes WHERE id=2",
+            columns
+                .iter()
+                .map(|column| format!("\"{column}\""))
+                .collect::<Vec<_>>()
+                .join(","),
+            projections.join(",")
+        ),
+        [],
+    )
+    .unwrap();
+    let arguments = |limit| json!({"revision":"deadline-revision","limit":limit});
+    let scope = Some(scope);
+    let result = service
+        .top_tool(
+            &scope,
+            &arguments(1),
+            Instant::now() + Duration::from_secs(1),
+        )
+        .unwrap();
+    assert_eq!(result["items"].as_array().unwrap().len(), 1);
+    assert!(
+        service
+            .top_tool(
+                &scope,
+                &arguments(2),
+                Instant::now() + Duration::from_secs(1)
+            )
+            .is_err()
+    );
+}

@@ -1,0 +1,24 @@
+{
+  "base_commit": "5cef0a3cae54b5b3d57632de502bfe0c5f92b8eb",
+  "native_failure": {
+    "sha": "65cd47b68da20f68224180a6edfc84e3d78af50d",
+    "run": 37718966471,
+    "job": 113121943484,
+    "test": "node_and_top_do_not_decode_unrelated_revision_rows",
+    "result": "hardening 9 pass, 1 fail; lost one-row lookahead"
+  },
+  "red": "actual isolated old top returns success despite malformed lookahead row",
+  "green": "filesystem suite 8 passed; malformed lookahead refused, malformed outside window not read",
+  "layout": "11 passed",
+  "clippy": "passed",
+  "fmt": "passed",
+  "scope": "restore legacy revision_layer limit+1 decoding and truncate behavior in authorized narrow reader; no wire change",
+  "qualification": "targeted local only; current native hardening remains unverified",
+  "sha256": {
+    "red.log.gz": "e426241ca60e5340712b6ac4370f6076f5bfc4a92ed1904970f8858a737fa22e",
+    "green.log.gz": "d63a286d8b01091f902102e45655260b719881e33bbf0837984f63d88033f0b3",
+    "layout.log.gz": "8e421cdd261d9521e05f72c8a5261cdb60246852186a1f96edddfdfcd7437dcf",
+    "clippy.log.gz": "86b910892fc14c0a86a95ab4b309a1017d30f7ebf5acb1847f11337b110959b9",
+    "linux_native_failure.log.gz": "c08690f30996caf0eb0b17f02be18ee7ef60c9caff8dca06ec53aa02f7d4c423"
+  }
+}

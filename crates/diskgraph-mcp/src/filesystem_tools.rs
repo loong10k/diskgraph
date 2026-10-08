@@ -316,7 +316,10 @@ impl McpService {
                 reader
                     .node(snapshot, parent_id)?
                     .ok_or(BusinessError::NotFound)?;
-                let items = reader.children(snapshot, parent_id, 0, limit.min(100) as u64)?;
+                let limit = limit.min(100);
+                // 保留旧 revision_layer 的一条前瞻验证，读取量仍随页面而非整棵树增长。
+                let mut items = reader.children(snapshot, parent_id, 0, (limit as u64) + 1)?;
+                items.truncate(limit);
                 let (items, truncated) = Self::bound_nodes(items, 0)?;
                 if Self::wants_treemap(arguments) {
                     let rows = Self::treemap_rows(items.iter());
