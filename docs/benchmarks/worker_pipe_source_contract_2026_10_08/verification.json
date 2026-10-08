@@ -1,0 +1,46 @@
+{
+  "failed_commit": "1fb077c35704d5bfd3d8fabdf1dc7ba6312cf449",
+  "ci_run": 37731786365,
+  "red_evidence": [
+    {
+      "job_id": 113162338444,
+      "log_sha256": "fcbcd6daff6876de79131f6f2a228be8bb956e17e71e7cf45e57218f83a478fb",
+      "failure": "worker_output.rs: for_pipe: 缺少中文参数/返回契约",
+      "other_failed_tests": []
+    },
+    {
+      "job_id": 113162338503,
+      "log_sha256": "442ff774be0f9e1e4f37ac9b6008a9e59c2f16aa9f69837c421bde085b5cdf14",
+      "failure": "worker_output.rs: for_pipe: 缺少中文参数/返回契约",
+      "other_failed_tests": []
+    },
+    {
+      "job_id": 113162338547,
+      "log_sha256": "61fd3110fb1c895bf5ea5b7125d307b81099ee618679ebc2fa11ab3b6b11e3a6",
+      "failure": "worker_output.rs: for_pipe: 缺少中文参数/返回契约",
+      "other_failed_tests": []
+    },
+    {
+      "job_id": 113162338642,
+      "log_sha256": "a1dd6344c7e0b691f94f7e1ae1d0510eb0860c49ad432b76818195062201e6f7",
+      "failure": "worker_output.rs: for_pipe: 缺少中文参数/返回契约",
+      "other_failed_tests": []
+    },
+    {
+      "job_id": 113162338671,
+      "log_sha256": "397ec1ae73264f1220e279bb6ca70777b1fd3d8aa637bd4b0b5e94c57d679ca1",
+      "failure": "worker_output.rs: for_pipe: 缺少中文参数/返回契约",
+      "other_failed_tests": []
+    }
+  ],
+  "fix": "Document the exact input and return contract of for_pipe; no runtime or test-gate changes",
+  "source_sha256": "ba1bfedf84774c407c7be383b0279498dcf99eefd16c6494a114a7fff895b821",
+  "local_verification": {
+    "command": "CARGO_INCREMENTAL=0 cargo test -p diskgraph-engine --test source_layout",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "format": "CI workspace package list passed; vendored source excluded by design"
+  },
+  "production_acceptance": false
+}

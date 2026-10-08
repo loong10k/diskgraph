@@ -26,7 +26,8 @@ impl<W: Write> WorkerOutput<W> {
         }
     }
 
-    /// 为实际管道构造固定 64 KiB 缓冲；参数为原 writer 与协议额度。
+    /// 为实际管道构造固定 64 KiB 缓冲。
+    /// 参数：output 为原管道 writer，limits 为已校验的原协议额度。
     /// 返回：同一协议账本；Hello、Progress、End 和 Error 显式刷新，不能借 Drop 证明交付。
     pub(crate) fn for_pipe(output: W, limits: ProtocolLimits) -> WorkerOutput<io::BufWriter<W>> {
         WorkerOutput::new(io::BufWriter::with_capacity(64 << 10, output), limits)
