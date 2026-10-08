@@ -1,0 +1,9 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "job": 113141652591,
+  "run": 37725110323,
+  "platform": "Linux x86_64 Rust 1.97.0",
+  "conclusion": "success",
+  "log_sha256": "37a641570201e0747efcc1ab196aa194e99fe2915ef83c06d9a3731ce73551d7",
+  "owned_checkpoint_real_child_regression": "executed and passed"
+}

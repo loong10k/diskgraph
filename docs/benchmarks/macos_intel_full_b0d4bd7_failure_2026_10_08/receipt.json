@@ -1,0 +1,14 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run": 37725110323,
+  "job": 113141652572,
+  "failed_tests": [
+    "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+    "revision_evidence_tests::dependency_batches_do_not_reactivate_old_assertions",
+    "partial_unreadable_and_depth_coverage_never_claim_removed_paths",
+    "every_consumer_keeps_the_remaining_preparation_balance",
+    "decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges"
+  ],
+  "log_sha256": "d7e689547ae5ab01156c90aa67460da018611e97f667a77a20615912d6eaabb7",
+  "root_causes": "unconfirmed; preserve deadlines and assertions pending investigation"
+}

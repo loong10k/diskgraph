@@ -1,0 +1,10 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run": 37725110323,
+  "job": 113141652666,
+  "platform": "macOS ARM64 Rust 1.97.0",
+  "conclusion": "success",
+  "log_sha256": "a6f07296490462a67b31f32b3d8d345b6b7552be6b6bc3cd2d99f5bf4c47c841",
+  "startup_test": "passed on this runner; macOS stable ENOENT root cause remains unconfirmed",
+  "owned_checkpoint_real_child_regression": "executed and passed"
+}

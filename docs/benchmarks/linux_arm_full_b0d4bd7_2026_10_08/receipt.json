@@ -1,0 +1,10 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run": 37725110323,
+  "job": 113141652529,
+  "platform": "Linux ARM64",
+  "job_conclusion": "success",
+  "log_sha256": "644c0ba41627789e5dedfdc4cb322b3d853eadb91785c8cbaf3b1fe72d1a4b78",
+  "owned_checkpoint_real_child_regression": "executed and passed",
+  "scope": "this job only; Windows package remains failed"
+}
