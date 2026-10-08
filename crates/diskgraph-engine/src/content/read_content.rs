@@ -37,10 +37,18 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<ReadOutcome, EngineError> {
         let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
-        let withdrawal =
-            super::content_withdrawal::ContentWithdrawal::capture(self, request, deadline)?;
-        let record =
-            self.require_content_withdrawal_until(request, authorizer, deadline, &withdrawal)?;
+        // 保留旧正文准备 Timeout 分类，同时让控制锁/SQL 沿原期限退出。
+        let (withdrawal, record) = (|| {
+            let withdrawal =
+                super::content_withdrawal::ContentWithdrawal::capture(self, request, deadline)?;
+            let record =
+                self.require_content_withdrawal_until(request, authorizer, deadline, &withdrawal)?;
+            Ok::<_, EngineError>((withdrawal, record))
+        })()
+        .map_err(|error| match error {
+            EngineError::Business(BusinessError::BudgetExceeded) => BusinessError::Timeout.into(),
+            other => other,
+        })?;
         let root = record
             .root
             .to_native_path()

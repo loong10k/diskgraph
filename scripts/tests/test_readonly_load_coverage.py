@@ -158,6 +158,16 @@ class CoverageTests(unittest.TestCase):
         result, _ = self.exercise(102, verify_all_closed=True)
         self.assertEqual(result, 0)
 
+    def test_platform_workers_are_forwarded_and_reported(self):
+        for platform, expected in [('win32', 2), ('linux', 4), ('darwin', 4)]:
+            with self.subTest(platform=platform), \
+                 patch.object(MODULE.sys, 'platform', platform), \
+                 patch.object(MODULE, 'create_fixture', wraps=MODULE.create_fixture) as create:
+                result, report = self.exercise(102)
+                self.assertEqual(result, 0)
+                self.assertEqual(create.call_args.kwargs, {'workers': expected})
+                self.assertEqual(report['fixture_workers'], expected)
+
     def test_exact_files_and_root_coverage_is_accepted(self):
         result, _ = self.exercise(102)
         self.assertEqual(result, 0)

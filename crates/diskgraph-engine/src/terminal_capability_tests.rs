@@ -463,6 +463,7 @@ fn initial_authorization_control_contention_expires_while_original_lock_is_held(
                     .unwrap();
                 engine
                     .authorize_revision_owner_until(
+                        revision,
                         ownership,
                         None,
                         &principal,

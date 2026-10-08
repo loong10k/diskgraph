@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-5758aed9fc117a0f)
+
+running 4 tests
+test history_relation_withdrawal_tests::history_and_relation_remember_withdrawal_in_capability_observations ... ok
+test history_relation_withdrawal_tests::history_request_remembers_each_distinct_scope_through_encoding ... ok
+test history_relation_withdrawal_tests::history_request_remembers_revocation_during_read_and_encode ... ok
+test history_relation_withdrawal_tests::relation_request_remembers_revocation_during_read_and_encode ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 694 filtered out; finished in 0.60s
+

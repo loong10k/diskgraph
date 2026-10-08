@@ -1,0 +1,28 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.87s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-5758aed9fc117a0f)
+
+running 20 tests
+test admin_policy_lookup_tests::admin_lookup_observes_independent_revocation_and_corrupt_text ... ok
+test admin_policy_lookup_tests::display_complete_reader_refuses_token_expired_during_consumer ... ok
+test admin_policy_lookup_tests::display_initial_callback_can_reenter_control_and_revoke ... ok
+test admin_policy_lookup_tests::display_initial_callback_control_contention_remains_nonblocking ... ok
+test admin_policy_lookup_tests::display_initial_callback_server_replacement_refuses_consumer ... ok
+test admin_policy_lookup_tests::display_initial_late_capability_cannot_enter_consumer ... ok
+test admin_policy_lookup_tests::display_reader_refuses_token_expired_during_consumer ... ok
+test admin_policy_lookup_tests::display_reader_rejects_expired_token_before_preparing_canvas ... ok
+test admin_policy_lookup_tests::display_terminal_callback_can_reenter_control_and_revoke ... ok
+test admin_policy_lookup_tests::initial_revision_authorization_refuses_allowed_callback_returning_after_expiry ... ok
+test admin_policy_lookup_tests::initial_revision_authorization_rejects_expired_allowed_capability ... ok
+test admin_policy_lookup_tests::ordinary_requirement_callback_can_read_engine_control_without_reentrant_lock ... ok
+test admin_policy_lookup_tests::ordinary_requirement_observes_revocation_committed_inside_capability_callback ... ok
+test admin_policy_lookup_tests::ordinary_requirement_refuses_token_expired_while_waiting_for_control ... ok
+test admin_policy_lookup_tests::revision_owner_callback_can_reenter_control_and_observes_revocation ... ok
+test admin_policy_lookup_tests::revision_reader_expiry_getter_can_reenter_control ... ok
+test admin_policy_lookup_tests::revision_reader_initial_callback_can_reenter_control ... ok
+test admin_policy_lookup_tests::revision_reader_preserves_explicit_denial_after_callback_deadline ... ok
+test admin_policy_lookup_tests::revision_reader_refuses_token_expired_during_consumer ... ok
+test admin_policy_lookup_tests::revision_reader_terminal_callback_can_reenter_control_and_revoke ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 678 filtered out; finished in 8.56s
+

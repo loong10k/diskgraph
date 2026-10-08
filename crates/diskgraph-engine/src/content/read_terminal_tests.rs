@@ -552,7 +552,7 @@ fn digest_never_confirms_restored_grant_at_initial_chunk_or_terminal_callback() 
                 control
                     .upsert_grant(&diskgraph_core::Grant {
                         principal: principal.clone(),
-                        permission: permission.clone(),
+                        permission: *permission,
                         scope: scope.clone(),
                         policy_version,
                     })

@@ -52,11 +52,16 @@ fn content_initial_authorization_returns_before_original_control_owner_releases(
                 returned_while_held,
                 "content waited past original deadline; digest={digest}"
             );
+            // 正文旧准备入口返回 Timeout；哈希预算入口保留 BudgetExceeded。
             assert!(
-                matches!(
-                    result,
-                    Err(EngineError::Business(BusinessError::BudgetExceeded))
-                ),
+                if digest {
+                    matches!(
+                        result,
+                        Err(EngineError::Business(BusinessError::BudgetExceeded))
+                    )
+                } else {
+                    matches!(result, Err(EngineError::Business(BusinessError::Timeout)))
+                },
                 "digest={digest}: {result:?}"
             );
         });

@@ -73,7 +73,7 @@ def fixture_paths_complete(connection, snapshot_id, files):
 
 
 def create_fixture(root, files, *, workers=4):
-    """用1至4个工作线程创建完整夹具；正式验收默认仍为4，诊断可指定数量。"""
+    """用1至4个工作线程创建完整夹具；调用方按平台选择数量，诊断可指定数量。"""
     if not isinstance(workers, int) or isinstance(workers, bool) or not 1 <= workers <= 4:
         raise ValueError("fixture workers must be between 1 and 4")
     def write_partition(partition):
@@ -105,7 +105,9 @@ def main():
         root.mkdir()
         phase("fixture_create", "begin")
         fixture_started = time.perf_counter()
-        create_fixture(root, args.files)
+        # Windows 原生两轮诊断中，2线程均快于4线程；保留完整文件覆盖与期限。
+        fixture_workers = 2 if sys.platform == "win32" else 4
+        create_fixture(root, args.files, workers=fixture_workers)
         fixture_seconds = time.perf_counter() - fixture_started
         phase("fixture_create", "end")
         phase("scope_registration", "begin")
@@ -183,7 +185,7 @@ def main():
         "indexed_nodes": indexed_nodes,
         "queries": args.queries,
         "concurrent_clients": 4,
-        "fixture_workers": 4,
+        "fixture_workers": fixture_workers,
         "fixture_seconds": round(fixture_seconds, 3),
         "scan_seconds": round(scan_seconds, 3),
         "query_p50_ms": round(statistics.median(latencies) * 1000, 3),

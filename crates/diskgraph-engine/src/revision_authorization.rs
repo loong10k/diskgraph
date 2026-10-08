@@ -45,6 +45,7 @@ impl Engine {
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
         let ownership = reader.revision_ownership(revision_id)?;
         let scope = self.authorize_revision_owner_until(
+            revision_id,
             ownership,
             expected_scope,
             principal,
@@ -131,7 +132,9 @@ impl Engine {
             .revision_for_snapshot(snapshot_id)?
             .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
         let ownership = reader.revision_ownership(&revision)?;
-        self.authorize_revision_owner_until(ownership, None, principal, authorizer, deadline)?;
+        self.authorize_revision_owner_until(
+            &revision, ownership, None, principal, authorizer, deadline,
+        )?;
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
@@ -277,7 +280,12 @@ impl Engine {
             {
                 return Err(BusinessError::BudgetExceeded.into());
             }
-            other => other?,
+            other => self.prioritize_revision_quarantine(
+                other,
+                &[(revision, &scope)],
+                &control,
+                deadline,
+            )?,
         }
         crate::authority_expiry::check_authority_expiry(expiry)?;
         drop(control);
@@ -329,7 +337,7 @@ impl Engine {
             let after_callback = std::time::Instant::now()
                 .checked_add(Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
-            control.with_read_deadline(after_callback, |control| {
+            let control_authorization = control.with_read_deadline(after_callback, |control| {
                 let authorization = Self::require_decision_with_control(
                     control,
                     decision,
@@ -351,7 +359,13 @@ impl Engine {
                     return Err(BusinessError::Conflict.into());
                 }
                 Ok(())
-            })?;
+            });
+            self.prioritize_revision_quarantine(
+                control_authorization,
+                &[(revision, &scope)],
+                &control,
+                after_callback,
+            )?;
             // 退出原 control SQL guard 后沿同一绝对期限查归属，禁止嵌套 progress guard。
             self.require_terminal_revision_ownership(revision, &scope, &control, after_callback)?;
             // 先保留实时拒权/归属错误；慢回调即使最终允许，也不能提交已准备的 partial。

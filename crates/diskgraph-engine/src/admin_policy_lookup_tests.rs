@@ -521,6 +521,7 @@ fn initial_revision_authorization_rejects_expired_allowed_capability() {
         .unwrap();
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
     let owner_result = engine.authorize_revision_owner_until(
+        "expired-unused-revision",
         Some((server.as_str().to_owned(), scope.as_str().to_owned())),
         Some(&scope),
         &principal,
@@ -573,7 +574,7 @@ fn initial_revision_authorization_refuses_allowed_callback_returning_after_expir
         }
     }
     for reader in [false, true] {
-        let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+        let (_dir, engine, principal, scope, revision) = published_authorization_fixture();
         let expiry = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
@@ -600,6 +601,7 @@ fn initial_revision_authorization_refuses_allowed_callback_returning_after_expir
                 .unwrap();
             engine
                 .authorize_revision_owner_until(
+                    revision,
                     Some((server.as_str().to_owned(), scope.as_str().to_owned())),
                     Some(&scope),
                     &principal,
@@ -936,7 +938,7 @@ fn revision_owner_callback_can_reenter_control_and_observes_revocation() {
         }
     }
     for revoke in [false, true] {
-        let (_dir, engine, principal, scope, _) = published_authorization_fixture();
+        let (_dir, engine, principal, scope, revision) = published_authorization_fixture();
         let server = engine
             .control_store()
             .unwrap()
@@ -949,6 +951,7 @@ fn revision_owner_callback_can_reenter_control_and_observes_revocation() {
             revoke,
         };
         let result = engine.authorize_revision_owner_until(
+            revision,
             Some((server.as_str().to_owned(), scope.as_str().to_owned())),
             Some(&scope),
             &principal,

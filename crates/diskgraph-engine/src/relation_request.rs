@@ -50,6 +50,7 @@ impl Engine {
             .map_err(terminal_control_error)?;
         drop(control);
         self.authorize_revision_owner_until(
+            revision,
             Some(owner),
             expected_scope,
             principal,
@@ -92,7 +93,7 @@ impl Engine {
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
-            control
+            let control_authorization = control
                 .with_read_deadline(authorization_deadline, |control| {
                     if control.scope_revoked(&scope)?
                         || control.live_permission(principal, &Permission::MetadataRead, &scope)?
@@ -102,7 +103,13 @@ impl Engine {
                     }
                     withdrawals.check_after_live_authorization(control)
                 })
-                .map_err(terminal_control_error)?;
+                .map_err(terminal_control_error);
+            self.prioritize_revision_quarantine(
+                control_authorization,
+                &[(revision, &scope)],
+                &control,
+                authorization_deadline,
+            )?;
             self.require_terminal_revision_ownership(
                 revision,
                 &scope,

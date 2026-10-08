@@ -1,0 +1,29 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-5758aed9fc117a0f)
+
+running 22 tests
+test content::initial_deadline_tests::body_refuses_result_when_chunk_authorization_exhausts_original_deadline ... ok
+test content::initial_deadline_tests::content_initial_authorization_returns_before_original_control_owner_releases ... ok
+test content::read_terminal_tests::body_does_not_escape_when_terminal_authorization_misses_original_deadline ... ok
+test content::read_terminal_tests::body_refuses_content_grant_withdrawn_and_restored_before_return ... ok
+test content::read_terminal_tests::completed_range_rechecks_cancellation_after_identity_validation ... ok
+test content::read_terminal_tests::completed_range_refuses_actual_scope_revoked_at_return ... ok
+test content::read_terminal_tests::completed_range_refuses_single_content_grant_revoked_at_return ... ok
+test content::read_terminal_tests::content_terminal_capability_callback_can_read_control_without_reentrant_lock ... ok
+test content::read_terminal_tests::digest_never_confirms_restored_grant_at_initial_chunk_or_terminal_callback ... ok
+test content::read_terminal_tests::eof_rechecks_cancellation_after_identity_validation ... ok
+test content::read_terminal_tests::eof_refuses_actual_scope_revoked_at_return_without_persistent_policy ... ok
+test content::read_terminal_tests::eof_refuses_single_content_grant_revoked_at_return ... ok
+test content::read_terminal_tests::permission_only_content_terminal_refuses_late_allow_after_fixed_expiry ... ok
+test content::read_terminal_tests::permission_only_terminal_refuses_callback_scope_or_grant_revocation ... ok
+test content::read_terminal_tests::placeholder_digest_preserves_revocation_without_confirming_content ... ok
+test content::read_terminal_tests::placeholder_digest_rechecks_cancel_and_deadline_after_probe ... ok
+test content::tests::metadata_only_export_drops_bytes_and_names_their_count ... ok
+test content::tests::sha256_matches_the_known_vectors ... ok
+test content::tests::stability_is_void_when_the_object_vanishes_mid_read ... ok
+test content::tests::the_redacted_log_never_carries_content ... ok
+test scoped_content::tests::a_missing_native_guard_api_reports_publicly_unsupported ... ok
+test scoped_content::tests::other_native_guard_failures_preserve_io_error_semantics ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 676 filtered out; finished in 3.01s
+

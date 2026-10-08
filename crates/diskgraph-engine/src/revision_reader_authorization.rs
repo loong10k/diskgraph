@@ -91,7 +91,7 @@ impl Engine {
         crate::revision_reader_lock_gap_tests::after_initial_authorization(self);
         let control = self.control_until(deadline)?;
         withdrawal.check(&control)?;
-        let current_server = control
+        let current_server_result = control
             .with_read_deadline(deadline, |control| {
                 // 首次能力已在锁外验证；本锁内先复验实时拒权，再判断未知代次变化。
                 Self::require_decision_with_control(
@@ -112,7 +112,13 @@ impl Engine {
                 }
                 Ok::<_, EngineError>(control.existing_server_id()?)
             })
-            .map_err(reader_terminal_control_error)?;
+            .map_err(reader_terminal_control_error);
+        let current_server = self.prioritize_revision_quarantine(
+            current_server_result,
+            &[(revision_id, &scope)],
+            &control,
+            deadline,
+        )?;
         if server != current_server.as_str() {
             return Err(BusinessError::PermissionDenied.into());
         }
@@ -179,7 +185,12 @@ impl Engine {
             })
             .map_err(reader_terminal_control_error);
         withdrawal.check(&control)?;
-        authorization?;
+        self.prioritize_revision_quarantine(
+            authorization,
+            &[(revision_id, &scope)],
+            &control,
+            after_callback,
+        )?;
         crate::authority_expiry::check_authority_expiry(expiry)?;
         self.require_terminal_revision_ownership(revision_id, &scope, &control, deadline)?;
         if !timely || std::time::Instant::now() >= deadline {

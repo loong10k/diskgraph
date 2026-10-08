@@ -5,6 +5,22 @@ use diskgraph_store::{ControlStore, SqliteSnapshotStore, StoreError};
 use std::time::Instant;
 
 impl Engine {
+    /// 让已确认的图库隔离拒权优先于未知授权代次冲突。
+    /// 参数：result 为已退出 SQL guard 的授权结果，revisions/control/deadline 沿用原观察窗口。
+    /// 返回：归属失效拒权；归属有效保留原 Conflict，不刷新期限或复用消费者事务。
+    pub(super) fn prioritize_revision_quarantine<T>(
+        &self,
+        result: Result<T, EngineError>,
+        revisions: &[(&str, &ScopeId)],
+        control: &ControlStore,
+        deadline: Instant,
+    ) -> Result<T, EngineError> {
+        if matches!(&result, Err(EngineError::Business(BusinessError::Conflict))) {
+            self.require_terminal_revision_ownerships(revisions, control, deadline)?;
+        }
+        result
+    }
+
     /// 在能力回调/编码之后读取新鲜过滤归属，不复用消费者连接。
     /// 参数：revision/scope 为首次授权身份，control 是当前终检 guard，deadline 是固定授权期限。
     /// 返回：隔离/未绑定/不匹配为拒权，无法完成观察为原错误或预算失败。

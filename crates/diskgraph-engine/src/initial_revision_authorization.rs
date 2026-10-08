@@ -10,6 +10,7 @@ impl Engine {
     /// 返回：实际 scope；已观察拒权优先，迟到允许及控制预算耗尽拒绝。
     pub(super) fn authorize_revision_owner_until(
         &self,
+        revision: &str,
         ownership: Option<(String, String)>,
         expected_scope: Option<&ScopeId>,
         principal: &PrincipalId,
@@ -88,7 +89,12 @@ impl Engine {
             {
                 return Err(BusinessError::BudgetExceeded.into());
             }
-            other => other?,
+            other => self.prioritize_revision_quarantine(
+                other,
+                &[(revision, &scope)],
+                &control,
+                deadline,
+            )?,
         }
         if std::time::Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());

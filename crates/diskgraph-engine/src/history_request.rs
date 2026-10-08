@@ -58,6 +58,7 @@ impl Engine {
             .map_err(crate::relation_request::terminal_control_error)?;
         drop(control);
         self.authorize_revision_owner_until(
+            left,
             Some(left_owner),
             None,
             principal,
@@ -65,6 +66,7 @@ impl Engine {
             deadline,
         )?;
         self.authorize_revision_owner_until(
+            right,
             Some(right_owner),
             None,
             principal,
@@ -103,7 +105,7 @@ impl Engine {
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
-            control
+            let control_authorization = control
                 .with_read_deadline(authorization_deadline, |control| {
                     for scope in &scopes {
                         if control.scope_revoked(scope)?
@@ -118,7 +120,13 @@ impl Engine {
                     }
                     withdrawals.check_after_live_authorization(control)
                 })
-                .map_err(crate::relation_request::terminal_control_error)?;
+                .map_err(crate::relation_request::terminal_control_error);
+            self.prioritize_revision_quarantine(
+                control_authorization,
+                &[(left, &left_scope), (right, &right_scope)],
+                &control,
+                authorization_deadline,
+            )?;
             self.require_terminal_revision_ownerships(
                 &[(left, &left_scope), (right, &right_scope)],
                 &control,

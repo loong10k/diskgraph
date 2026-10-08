@@ -105,3 +105,8 @@ Placeholder digest results SHALL recheck the original scope and current capabili
 - **THEN** a request-local witness captured before the first capability callback remains attached through chunk and terminal checks
 - **AND** a supported native withdrawal notification refuses the request; absent a reliable native watch, any authorization generation change conservatively conflicts
 - **AND** live permission denial is checked before the witness, body is refused and digest cannot be confirmed; unrelated authorization updates can also cause conservative conflicts on unknown-notification platforms
+
+#### Scenario: Initial body preparation preserves the public timeout classification
+- **WHEN** the original body preparation deadline is exhausted during witness registration, initial capability or persistent authorization
+- **THEN** read_bounded_until preserves the existing Timeout error without opening or returning content
+- **AND** digest preparation and later body chunk/terminal budget checks retain their budget classifications; no lock or SQL waiting receives a new deadline

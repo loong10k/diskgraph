@@ -1,0 +1,134 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.5811745}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.595500333}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.595518625}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.59554875}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.595557083}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.598907458}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.598923916}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.633469083}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.633497083}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.633751083}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.63376725}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.633803625}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.63997925}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.644022208}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.644036}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.644054208}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.644061291}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.645212958}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.645225416}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.645459833}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.64547}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.645646208}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.645658625}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.645685333}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.650571875}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.654283708}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.654293958}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.654310041}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.654317291}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.655368708}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.655379708}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.655643041}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.655651166}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.6558205}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.655840583}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.655865208}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.662011875}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.665497416}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.665508333}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.665525333}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.665531583}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.666429333}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.666441041}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.666635791}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.666644}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.666809041}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.666819375}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.666842}
+F{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.67202}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.675989875}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.67600425}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.676032875}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.676040625}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.6770855}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.677096708}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.677358916}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.677366125}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.677532666}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.677542916}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.677567333}
+F{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.6827185}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.686291708}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.686305166}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.686319708}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.686325625}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.68712275}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.6871305}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.687312791}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.687319958}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.687488208}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.687498041}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.687521541}
+F{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.69249275}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.695874041}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.695882791}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.695897333}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.695904541}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.696968708}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.696976958}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.69723125}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.697238041}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.697397083}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.697407541}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.697434291}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95038.70260575}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95038.706441291}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95038.706450791}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95038.706465083}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95038.706471625}
+{"phase": "index", "event": "end", "monotonic_seconds": 95038.70741525}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95038.707425958}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95038.70764425}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95038.707652125}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95038.707812041}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95038.707823666}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95038.70785075}
+......
+======================================================================
+FAIL: test_platform_workers_are_forwarded_and_reported (scripts.tests.test_readonly_load_coverage.CoverageTests.test_platform_workers_are_forwarded_and_reported) (platform='win32')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 168, in test_platform_workers_are_forwarded_and_reported
+    self.assertEqual(create.call_args.kwargs, {'workers': expected})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} != {'workers': 2}
+- {}
++ {'workers': 2}
+
+======================================================================
+FAIL: test_platform_workers_are_forwarded_and_reported (scripts.tests.test_readonly_load_coverage.CoverageTests.test_platform_workers_are_forwarded_and_reported) (platform='linux')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 168, in test_platform_workers_are_forwarded_and_reported
+    self.assertEqual(create.call_args.kwargs, {'workers': expected})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} != {'workers': 4}
+- {}
++ {'workers': 4}
+
+======================================================================
+FAIL: test_platform_workers_are_forwarded_and_reported (scripts.tests.test_readonly_load_coverage.CoverageTests.test_platform_workers_are_forwarded_and_reported) (platform='darwin')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_readonly_load_coverage.py", line 168, in test_platform_workers_are_forwarded_and_reported
+    self.assertEqual(create.call_args.kwargs, {'workers': expected})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} != {'workers': 4}
+- {}
++ {'workers': 4}
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.182s
+
+FAILED (failures=3)
