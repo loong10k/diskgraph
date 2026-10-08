@@ -7,6 +7,7 @@ use crate::live_evidence::probe_windows::WindowsProbeChild;
 use crate::native_child::{ChildError, ChildInputMode, CleanupProgress, WindowsChild};
 use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
 use std::process::Command;
+use std::time::Duration;
 
 /// 参数：command为受信命令，budget持有原期限、输出、取消与宿主；返回：完整输出或原失败。
 /// 出生前预留容量；一次处置失败移交原owner后才投影错误，panic原payload原样继续。
@@ -54,20 +55,41 @@ pub(super) fn execute(
         .or_else(|| running.take().map(WindowsProbeChild::into_child));
     // 保持原生错误直到同一个owner已回收或放回预留槽，不能依靠Drop再尝试来释放容量。
     let cleanup: Result<(), ChildError> = match owner {
-        Some(mut child) => match child.poll_cleanup(budget.deadline()) {
-            Ok(CleanupProgress::Complete) => Ok(()),
-            Ok(CleanupProgress::Pending) => {
-                // 不调用兼容cleanup/Drop续等；同一原槽保留Job及全部pending I/O。
-                reservation.retain(child);
-                Err(ChildError::Unsupported(
-                    "probe cleanup pending; original owner retained",
-                ))
+        Some(mut child) => {
+            let mut progress = child.poll_cleanup(budget.deadline());
+            // Pending不是失败；仅成功输出可在同一原预算内继续观察同一个owner。
+            // 取消、到期、真实清理错误和panic不续等，仍由外部宿主接管原容量。
+            while matches!(progress, Ok(CleanupProgress::Pending))
+                && matches!(&observed, Ok(Ok(_)))
+                && budget.check().is_ok()
+            {
+                std::thread::sleep(
+                    Duration::from_millis(1).min(
+                        budget
+                            .deadline()
+                            .saturating_duration_since(std::time::Instant::now()),
+                    ),
+                );
+                if budget.check().is_err() {
+                    break;
+                }
+                progress = child.poll_cleanup(budget.deadline());
             }
-            Err(error) => {
-                reservation.retain(child);
-                Err(error)
+            match progress {
+                Ok(CleanupProgress::Complete) => Ok(()),
+                Ok(CleanupProgress::Pending) => {
+                    // 不调用兼容cleanup/Drop续等；同一原槽保留Job及全部pending I/O。
+                    reservation.retain(child);
+                    Err(ChildError::Unsupported(
+                        "probe cleanup pending; original owner retained",
+                    ))
+                }
+                Err(error) => {
+                    reservation.retain(child);
+                    Err(error)
+                }
             }
-        },
+        }
         None => Ok(()),
     };
     match observed {

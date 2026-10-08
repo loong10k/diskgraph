@@ -1,6 +1,8 @@
 //! 仅测试线程局部的一次性cleanup失败；不改变生产算法，不把注入称为内核拒绝。
 use std::cell::Cell;
-use windows_sys::Win32::Foundation::{ERROR_ACCESS_DENIED, SetLastError, WAIT_FAILED};
+use windows_sys::Win32::Foundation::{
+    ERROR_ACCESS_DENIED, SetLastError, WAIT_FAILED, WAIT_TIMEOUT,
+};
 
 thread_local! {
     // 注入阶段、真实wait次数、真实accounting次数、实际消费注入次数。
@@ -10,9 +12,9 @@ thread_local! {
 /// Windows恢复回归的请求局部观察器；来源：PF-06原owner失败重试合同，无Java对象。
 pub(super) struct WindowsCleanupHooks;
 impl WindowsCleanupHooks {
-    /// 参数：stage为1=wait/2=query；重置计数并仅注入一次。
+    /// 参数：stage为1=wait失败/2=query失败/3=暂缓一次wait观察；重置计数并仅注入一次。
     pub(super) fn arm(stage: u8) {
-        assert!(stage == 1 || stage == 2);
+        assert!((1..=3).contains(&stage));
         STATE.with(|state| state.set((stage, 0, 0, 0)));
     }
     /// 卸除尚未消费的注入；保留真实调用计数供finally之后断言。
@@ -31,7 +33,10 @@ impl WindowsCleanupHooks {
     }
     /// 在原wait位置一次性返回WAIT_FAILED；随后原函数真实调用且计数。
     pub(super) fn wait(native: impl FnOnce() -> u32) -> u32 {
-        if Self::observe(1) {
+        if STATE.with(|state| state.get().0 == 3) && Self::observe(3) {
+            // 仅模拟调度使本轮没有退出证明，不伪造成功；后续仍须真实wait和Job0。
+            WAIT_TIMEOUT
+        } else if Self::observe(1) {
             unsafe { SetLastError(ERROR_ACCESS_DENIED) };
             WAIT_FAILED
         } else {

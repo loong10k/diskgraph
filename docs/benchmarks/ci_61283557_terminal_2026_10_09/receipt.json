@@ -1,0 +1,26 @@
+{
+  "source_head": "61283557117eaccf45ecc766c93dfcef57321007",
+  "run_id": 37820467541,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37820467541",
+  "status": "completed",
+  "conclusion": "failure",
+  "counts": {
+    "failure": 4,
+    "success": 19
+  },
+  "logs": {
+    "windows-stable": {
+      "raw_bytes": 678785,
+      "raw_sha256": "a1cf12c3124341d2bd8e3b43812a5d8a5e67aad705fb10c99497d16fee293de7"
+    },
+    "windows-msrv": {
+      "raw_bytes": 676819,
+      "raw_sha256": "cdc0fc84596a6fe8cd65b29f7281fddf9b41e754048eca4ce282443234d04129"
+    }
+  },
+  "notes": [
+    "Both Windows Engine suites: 703 passed, 1 failed, 4 ignored; same relation data expiry / terminal authorization test failed.",
+    "macOS Intel history compatibility matrix and Windows native 200k package failures retained in ci_61283557_completed_failures_2026_10_09.",
+    "Partial results do not qualify production readiness."
+  ]
+}

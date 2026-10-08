@@ -185,3 +185,55 @@ fn expired_managed_probe_transfers_original_owner_without_legacy_wait() {
         resume_unwind(payload);
     }
 }
+
+#[test]
+fn managed_probe_success_reobserves_pending_cleanup_with_original_budget() {
+    let directory = tempfile::tempdir().unwrap();
+    let (host, recovery) = ProbeHost::new(1).unwrap();
+    let limits = ProbeLimits {
+        timeout: Duration::from_secs(10),
+        ..ProbeLimits::default()
+    };
+    let rescue = Rc::new(RefCell::new(None::<WindowsCleanupRescue>));
+    let hook_rescue = Rc::clone(&rescue);
+    let hook = WindowsBirthTestHook::install(move |child| {
+        *hook_rescue.borrow_mut() = Some(WindowsCleanupRescue::capture(child).unwrap());
+        // 保守暂缓一次退出观察，不伪造leader退出、管道EOF或Job空闲。
+        Hooks::arm(3);
+    });
+    let observed = catch_unwind(AssertUnwindSafe(|| {
+        let result =
+            run_managed_probe_for_test(&mut command("stamp", directory.path()), &limits, &host);
+        let counts = Hooks::counts();
+        assert_eq!(counts.2, 1, "must encounter the deferred observation");
+        result.expect("successful output must survive transient cleanup Pending");
+        assert!(directory.path().join("eof").exists());
+        assert!(
+            counts.0 > 0 && counts.1 > 0,
+            "require actual native observations"
+        );
+        assert_eq!(recovery.occupied_slots().unwrap(), 0);
+        assert!(rescue.borrow().as_ref().unwrap().waited().unwrap());
+        assert_eq!(rescue.borrow().as_ref().unwrap().active().unwrap(), 0);
+    }));
+    drop(hook);
+    Hooks::disarm();
+    let rescued = rescue
+        .borrow()
+        .as_ref()
+        .map_or(Ok(()), WindowsCleanupRescue::finish);
+    let drained = recovery.drain();
+    if rescued.is_err() || !matches!(drained, Ok(true)) {
+        std::mem::forget(rescue);
+        std::mem::forget(host);
+        std::mem::forget(recovery);
+        let _ = directory.keep();
+        if let Err(payload) = observed {
+            resume_unwind(payload);
+        }
+        panic!("pending probe rescue incomplete; original responsibilities retained");
+    }
+    if let Err(payload) = observed {
+        resume_unwind(payload);
+    }
+}
