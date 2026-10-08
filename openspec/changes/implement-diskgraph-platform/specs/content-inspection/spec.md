@@ -99,3 +99,9 @@ Placeholder digest results SHALL recheck the original scope and current capabili
 - **THEN** terminal capability and persistent scope checks use that original deadline, with callbacks outside control guards and bounded lock/SQL waits
 - **AND** an unverified body result is refused with budget exceeded; digest returns deadline and an empty digest while retaining actual bytes consumed
 - **AND** terminal permission denial remains a refusal; this does not certify lifetime withdrawal detection or hard preemption of synchronous callbacks/native I/O
+
+#### Scenario: Restoring a content grant does not revive an in-flight request
+- **WHEN** ContentRead is withdrawn then restored between initial request preparation and terminal content authorization
+- **THEN** a request-local witness captured before the first capability callback remains attached through chunk and terminal checks
+- **AND** a supported native withdrawal notification refuses the request; absent a reliable native watch, any authorization generation change conservatively conflicts
+- **AND** live permission denial is checked before the witness, body is refused and digest cannot be confirmed; unrelated authorization updates can also cause conservative conflicts on unknown-notification platforms

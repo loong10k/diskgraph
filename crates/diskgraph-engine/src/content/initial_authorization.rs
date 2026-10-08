@@ -6,13 +6,14 @@ use diskgraph_store::ScopeRecord;
 use std::time::Instant;
 
 impl Engine {
-    /// 参数：request 为原内容主体/范围，authorizer 为锁外能力，deadline 为原期限。
-    /// 返回：当前获准范围或原授权/预算/存储错误，不在控制锁内调用能力来源。
-    pub(super) fn require_content_initial_until(
+    /// 沿原期限复核内容授权，并在同一控制窗口检查全过程撤权。
+    /// 参数：withdrawal 为首次回调前捕获的见证；返回：范围或拒权、冲突、预算错误。
+    pub(super) fn require_content_withdrawal_until(
         &self,
         request: &InspectionRequest<'_>,
         authorizer: &dyn Authorizer,
         deadline: Instant,
+        withdrawal: &super::content_withdrawal::ContentWithdrawal,
     ) -> Result<ScopeRecord, EngineError> {
         let expiry = authorizer.expires_at_unix_seconds();
         crate::authority_expiry::check_authority_expiry(expiry)?;
@@ -45,6 +46,7 @@ impl Engine {
                 if record.revoked {
                     return Err(BusinessError::PermissionDenied.into());
                 }
+                withdrawal.check_after_live_authorization(control)?;
                 Ok::<_, EngineError>(record)
             })
             .map_err(|error| match error {

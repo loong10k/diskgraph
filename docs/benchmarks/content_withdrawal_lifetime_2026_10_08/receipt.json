@@ -1,0 +1,49 @@
+{
+  "scope": "request-local ContentRead withdrawal witness before initial callback through terminal authorization",
+  "baseline": "17a44e4 production content files",
+  "red": [
+    "body returned after revoke and restore",
+    "digest continued through four callbacks after initial withdrawal instead of refusing admission"
+  ],
+  "green": {
+    "content_tests": 22,
+    "history_relation_tests": 4,
+    "digest_callback_stages": 4
+  },
+  "checks": [
+    "strict engine lib Clippy",
+    "engine fmt"
+  ],
+  "limits": [
+    "native target-platform validation pending",
+    "unknown native notification platforms conflict on any authorization generation change",
+    "synchronous callbacks and IO not hard-preempted",
+    "no full workspace or production qualification claimed"
+  ],
+  "logs": {
+    "body_red": {
+      "sha256": "838d8fd077f9f4eeb0237981bb8b9375221e741e634afb56ca0cc9dc4f9e833a",
+      "gzip_sha256": "50f83d7e04debeec38450ed5d5879566ceb63fb9127dbea82d5e7050431594b8"
+    },
+    "digest_red": {
+      "sha256": "9422bea31986ce5124baf39f74c417f55171025ee3ce9c17a249c950c8ffa1dd",
+      "gzip_sha256": "0e6cd15b252c94badba825b6ff83835de4775e4544f6565aa7536ee660f9df69"
+    },
+    "green": {
+      "sha256": "16e7dd66d966345d91b925c7d4d9e9810ac16212ba962a804627ff6d60fbedb1",
+      "gzip_sha256": "ebd7a106beed41d0bbf1aaccbcdf1b3af1b5f7640745e2f5c5ed91f418f97824"
+    },
+    "metadata": {
+      "sha256": "ab368a487f33173bfbe85683769731de4393c18b73a5c2ecf6835066cbda1991",
+      "gzip_sha256": "5d395f5c6c778ca151ecc0767df9e9488aeb44bfa4e2d35ba2ddaf24d06c8a7c"
+    },
+    "clippy": {
+      "sha256": "0bc7b9e21fa82f5a2ce844c838f79475a9f36049a10e4cf9834d9a6eaa2b8230",
+      "gzip_sha256": "d1c7b87098bab2d5500c9640e7a17b42d8525059b1486925e5eea4aaf25204a1"
+    },
+    "fmt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  }
+}

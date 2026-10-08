@@ -489,3 +489,135 @@ fn body_does_not_escape_when_terminal_authorization_misses_original_deadline() {
         "{result:?}"
     );
 }
+
+#[test]
+fn body_refuses_content_grant_withdrawn_and_restored_before_return() {
+    let fixture = ReadTerminalFixture::new(true);
+    let path = fixture
+        .directory
+        .path()
+        .join("data/diskgraph-control.sqlite");
+    let principal = fixture.principal.clone();
+    let scope = fixture.scope.clone();
+    BEFORE_REPLY.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(move || {
+            let mut control = ControlStore::open(&path).unwrap();
+            let policy_version = control.policy_version().unwrap();
+            control
+                .revoke_grant(&principal, &Permission::ContentRead, &scope)
+                .unwrap();
+            control
+                .upsert_grant(&diskgraph_core::Grant {
+                    principal,
+                    permission: Permission::ContentRead,
+                    scope,
+                    policy_version,
+                })
+                .unwrap();
+        }));
+    });
+    let result = read(&fixture, 8, None);
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(
+                BusinessError::PermissionDenied | BusinessError::Conflict
+            ))
+        ),
+        "{result:?}"
+    );
+}
+
+#[test]
+fn digest_never_confirms_restored_grant_at_initial_chunk_or_terminal_callback() {
+    struct Churn<'a> {
+        policy: &'a diskgraph_core::PolicyAuthorizer,
+        control: RefCell<ControlStore>,
+        calls: std::cell::Cell<usize>,
+        churn_at: usize,
+    }
+    impl Authorizer for Churn<'_> {
+        fn decide(
+            &self,
+            principal: &diskgraph_core::PrincipalId,
+            permission: &Permission,
+            scope: &diskgraph_core::ScopeId,
+        ) -> Decision {
+            let call = self.calls.get() + 1;
+            self.calls.set(call);
+            if call == self.churn_at {
+                let mut control = self.control.borrow_mut();
+                let policy_version = control.policy_version().unwrap();
+                control.revoke_grant(principal, permission, scope).unwrap();
+                control
+                    .upsert_grant(&diskgraph_core::Grant {
+                        principal: principal.clone(),
+                        permission: permission.clone(),
+                        scope: scope.clone(),
+                        policy_version,
+                    })
+                    .unwrap();
+            }
+            self.policy.decide(principal, permission, scope)
+        }
+    }
+    for churn_at in 1..=4 {
+        let fixture = ReadTerminalFixture::new(true);
+        let authorizer = Churn {
+            policy: &fixture.policy,
+            control: RefCell::new(
+                ControlStore::open(
+                    &fixture
+                        .directory
+                        .path()
+                        .join("data/diskgraph-control.sqlite"),
+                )
+                .unwrap(),
+            ),
+            calls: std::cell::Cell::new(0),
+            churn_at,
+        };
+        let request = InspectionRequest {
+            scope_id: &fixture.scope,
+            principal: &fixture.principal,
+            path: &fixture.path,
+            offset: 0,
+            max_bytes: 8,
+            cancel: None,
+            chunk_bytes: 8,
+        };
+        let result = fixture.engine.digest_bounded_until(
+            &request,
+            &ConservativeProbe,
+            &authorizer,
+            std::time::Instant::now() + std::time::Duration::from_secs(2),
+        );
+        assert_eq!(
+            authorizer.calls.get(),
+            churn_at,
+            "callback stage not reached"
+        );
+        if churn_at == 1 {
+            assert!(
+                matches!(
+                    result,
+                    Err(EngineError::Business(
+                        BusinessError::PermissionDenied | BusinessError::Conflict
+                    ))
+                ),
+                "{result:?}"
+            );
+        } else {
+            let outcome = result.unwrap();
+            assert!(
+                outcome.digest_hex.is_empty(),
+                "confirmed restored grant at {churn_at}"
+            );
+            assert!(matches!(
+                outcome.stopped,
+                Some(InspectionStop::PermissionRevoked | InspectionStop::ReadError)
+            ));
+            assert_eq!(outcome.bytes_digested, if churn_at >= 3 { 8 } else { 0 });
+        }
+    }
+}

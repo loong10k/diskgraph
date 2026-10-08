@@ -47,7 +47,10 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<DigestOutcome, EngineError> {
         let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
-        let record = self.require_content_initial_until(request, authorizer, deadline)?;
+        let withdrawal =
+            super::content_withdrawal::ContentWithdrawal::capture(self, request, deadline)?;
+        let record =
+            self.require_content_withdrawal_until(request, authorizer, deadline, &withdrawal)?;
         let root = record
             .root
             .to_native_path()
@@ -56,7 +59,12 @@ impl Engine {
         if prepared.file.is_none() {
             // 占位诊断也可能调用 provider 并等待；提前返回不能绕过终态撤权。
             // until 接口保留零读取成本，旧兼容接口继续映射 permission_denied。
-            let stopped = match self.require_read_terminal_until(request, authorizer, deadline) {
+            let stopped = match self.require_read_terminal_until(
+                request,
+                authorizer,
+                deadline,
+                &withdrawal,
+            ) {
                 Err(EngineError::Business(BusinessError::PermissionDenied)) => {
                     InspectionStop::PermissionRevoked
                 }
@@ -101,7 +109,8 @@ impl Engine {
                 break;
             }
             // 能力和数据库授权共用原期限；预算失败不能误报为撤权。
-            match self.require_content_initial_until(request, authorizer, deadline) {
+            match self.require_content_withdrawal_until(request, authorizer, deadline, &withdrawal)
+            {
                 Ok(_) => {}
                 Err(EngineError::Business(BusinessError::PermissionDenied)) => {
                     stopped = Some(InspectionStop::PermissionRevoked);
@@ -159,7 +168,7 @@ impl Engine {
         }
         if stopped.is_none() {
             // EOF/精确预算和最终元数据查询也可能耗时；包括空文件，确认前重验授权。
-            match self.require_read_terminal_until(request, authorizer, deadline) {
+            match self.require_read_terminal_until(request, authorizer, deadline, &withdrawal) {
                 Ok(()) => {}
                 Err(EngineError::Business(BusinessError::PermissionDenied)) => {
                     stopped = Some(InspectionStop::PermissionRevoked);

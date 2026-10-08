@@ -37,7 +37,10 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<ReadOutcome, EngineError> {
         let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
-        let record = self.require_content_initial_until(request, authorizer, deadline)?;
+        let withdrawal =
+            super::content_withdrawal::ContentWithdrawal::capture(self, request, deadline)?;
+        let record =
+            self.require_content_withdrawal_until(request, authorizer, deadline, &withdrawal)?;
         let root = record
             .root
             .to_native_path()
@@ -47,7 +50,7 @@ impl Engine {
         }
         let mut prepared = crate::scoped_content::ScopedContent::open(&root, request.path, probe)?;
         if prepared.file.is_none() {
-            self.require_read_terminal_until(request, authorizer, deadline)?;
+            self.require_read_terminal_until(request, authorizer, deadline, &withdrawal)?;
             return Ok(ReadOutcome {
                 requested_path: request.path.to_path_buf(),
                 offset: request.offset,
@@ -86,7 +89,7 @@ impl Engine {
         let mut stopped = None;
         loop {
             // 每块授权沿用整次期限；控制锁竞争不得重新获得等待预算。
-            self.require_content_initial_until(request, authorizer, deadline)?;
+            self.require_content_withdrawal_until(request, authorizer, deadline, &withdrawal)?;
             // 授权或控制连接可以等待；每个数据块前重新检查整次期限与取消。
             if std::time::Instant::now() >= deadline {
                 stopped = Some(InspectionStop::Deadline);
@@ -123,7 +126,7 @@ impl Engine {
         #[cfg(test)]
         super::read_terminal_tests::before_reply();
         // EOF、精确范围和原生版本检查都可能耗时；任何中止也不能跳过撤权检查。
-        self.require_read_terminal_until(request, authorizer, deadline)?;
+        self.require_read_terminal_until(request, authorizer, deadline, &withdrawal)?;
         if stopped.is_none() && std::time::Instant::now() >= deadline {
             stopped = Some(InspectionStop::Deadline);
         } else if stopped.is_none()
@@ -152,8 +155,9 @@ impl Engine {
         request: &InspectionRequest<'_>,
         authorizer: &dyn diskgraph_core::Authorizer,
         deadline: std::time::Instant,
+        withdrawal: &super::content_withdrawal::ContentWithdrawal,
     ) -> Result<(), EngineError> {
-        self.require_content_initial_until(request, authorizer, deadline)
+        self.require_content_withdrawal_until(request, authorizer, deadline, withdrawal)
             .map(|_| ())
     }
 
@@ -165,10 +169,9 @@ impl Engine {
         request: &InspectionRequest<'_>,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<(), EngineError> {
-        self.require_read_terminal_until(
-            request,
-            authorizer,
-            std::time::Instant::now() + std::time::Duration::from_secs(30),
-        )
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+        let withdrawal =
+            super::content_withdrawal::ContentWithdrawal::capture(self, request, deadline)?;
+        self.require_read_terminal_until(request, authorizer, deadline, &withdrawal)
     }
 }

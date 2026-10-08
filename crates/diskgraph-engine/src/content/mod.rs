@@ -38,3 +38,5 @@ pub(crate) use unix_identity::{
 mod initial_deadline_tests;
 
 mod initial_authorization;
+
+mod content_withdrawal;

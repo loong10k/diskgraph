@@ -17,12 +17,19 @@ impl RequestWithdrawalWitness {
         principal: &PrincipalId,
         scope: &ScopeId,
     ) -> Result<Self, EngineError> {
+        Self::capture_permission(control, principal, scope, &Permission::MetadataRead)
+    }
+
+    /// 为实际内容或元数据权限注册负向见证。
+    /// 参数：control 为原连接，主体/范围/权限为原请求依赖；返回：不能授予权限的见证。
+    pub(super) fn capture_permission(
+        control: &ControlStore,
+        principal: &PrincipalId,
+        scope: &ScopeId,
+        permission: &Permission,
+    ) -> Result<Self, EngineError> {
         Ok(Self {
-            watch: control.watch_authorization_withdrawal(
-                principal,
-                scope,
-                &Permission::MetadataRead,
-            )?,
+            watch: control.watch_authorization_withdrawal(principal, scope, permission)?,
         })
     }
 
