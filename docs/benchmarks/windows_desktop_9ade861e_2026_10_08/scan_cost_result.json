@@ -1,0 +1,47 @@
+{
+  "source": "WebCodex Windows desktop known diagnostic job wc_job_-qvmz9qzcMkacXe9",
+  "receipt": {
+    "source_commit": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "purpose": "diagnostic of original 20k scan cost; does not replace failed 200k gate",
+    "files": 20000,
+    "argv": [
+      "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+      "-c",
+      "import sys;sys.path.insert(0,sys.argv[1]);from windows_acceptance_job import run_owned;r=run_owned([sys.executable,sys.argv[1]+'/accept-readonly-load.py','--bin-dir',sys.argv[2],'--files','20000'],capture_output=True,text=True,encoding='utf-8',timeout=300);sys.stdout.write(r.stdout or '');sys.stderr.write(r.stderr or '');sys.exit(r.returncode)",
+      "E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts",
+      "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-9ade861e\\x86_64-pc-windows-msvc\\release"
+    ],
+    "complete": true,
+    "exit_code": 0,
+    "elapsed_seconds": 98.56299999999464,
+    "stdout_sha256": "1e77c5171d26394d99ab037cb82489a404444253f8dab6e88bdfe1eab1b10e76",
+    "stderr_sha256": "350e4c5ada7aa21cfe447a33d2b6d2ddb844bbf4bb3bcfd0f1ba211084249d8b"
+  },
+  "report": {
+    "version": "diskgraph 0.3.0",
+    "platform": "win32",
+    "files": 20000,
+    "indexed_nodes": 20001,
+    "queries": 32,
+    "concurrent_clients": 4,
+    "fixture_workers": 1,
+    "fixture_seconds": 9.297,
+    "scan_seconds": 73.057,
+    "cleanup_seconds": 10.757,
+    "cleanup_workers": 1,
+    "query_p50_ms": 58.751,
+    "query_p95_ms": 66.429,
+    "database_and_wal_bytes": 54996992,
+    "passed": 6,
+    "total": 6,
+    "checks": {
+      "full_index_published": true,
+      "exact_fixture_path_coverage": true,
+      "exact_fixture_node_coverage": true,
+      "concurrent_reads_bound_to_revision": true,
+      "query_results_bounded": true,
+      "node_budget_refuses_partial_publish": true
+    }
+  },
+  "phase_log": "{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 117848.1475896}\n{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 117857.444335}\n{\"phase\": \"scope_registration\", \"event\": \"begin\", \"monotonic_seconds\": 117857.4443831}\n{\"phase\": \"scope_registration\", \"event\": \"end\", \"monotonic_seconds\": 117858.2069964}\n{\"phase\": \"index\", \"event\": \"begin\", \"monotonic_seconds\": 117858.2070459}\n{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 3}\n{\"scan_phase\": \"worker_complete\", \"nodes\": 0, \"elapsed_ms\": 7527}\n{\"scan_phase\": \"conversion_complete\", \"nodes\": 20001, \"elapsed_ms\": 10889}\n{\"scan_phase\": \"staging_batch_complete\", \"nodes\": 20001, \"elapsed_ms\": 71866}\n{\"scan_phase\": \"staging_complete\", \"nodes\": 20001, \"elapsed_ms\": 71867}\n{\"scan_cost\": \"windows_root_validation\", \"nodes\": 20001, \"total_ms\": 55715}\n{\"scan_root_validation\": true, \"calls\": 40003, \"chain_handles\": 8, \"total_ms\": 55715}\n{\"scan_cost\": \"observations_and_encoding\", \"nodes\": 20001, \"total_ms\": 60410}\n{\"scan_cost\": \"staging_write\", \"nodes\": 20001, \"total_ms\": 547}\n{\"scan_phase\": \"publication_begin\", \"nodes\": 20001, \"elapsed_ms\": 71894}\n{\"scan_phase\": \"publication_complete\", \"nodes\": 20001, \"elapsed_ms\": 72947}\n{\"phase\": \"index\", \"event\": \"end\", \"monotonic_seconds\": 117931.2637534}\n{\"phase\": \"coverage_validation\", \"event\": \"begin\", \"monotonic_seconds\": 117931.2637712}\n{\"phase\": \"coverage_validation\", \"event\": \"end\", \"monotonic_seconds\": 117931.3191927}\n{\"phase\": \"queries\", \"event\": \"begin\", \"monotonic_seconds\": 117931.3192447}\n{\"phase\": \"queries\", \"event\": \"end\", \"monotonic_seconds\": 117931.8629333}\n{\"phase\": \"budget_refusal\", \"event\": \"begin\", \"monotonic_seconds\": 117931.8629727}\n{\"scan_phase\": \"worker_begin\", \"nodes\": 0, \"elapsed_ms\": 3}\n{\"phase\": \"budget_refusal\", \"event\": \"end\", \"monotonic_seconds\": 117935.0984793}\n{\"phase\": \"workspace_cleanup\", \"event\": \"begin\", \"monotonic_seconds\": 117935.0997931}\n{\"phase\": \"workspace_cleanup\", \"event\": \"end\", \"monotonic_seconds\": 117945.8570047}\n"
+}

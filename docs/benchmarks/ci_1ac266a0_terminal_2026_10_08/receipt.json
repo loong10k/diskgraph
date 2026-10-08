@@ -1,0 +1,141 @@
+{
+  "headSha": "1ac266a0c7b13e7da1eb31f4376538aa5efb00bd",
+  "status": "completed",
+  "conclusion": "failure",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37789747757",
+  "jobs": [
+    {
+      "name": "Vendored scanner",
+      "databaseId": 113353667443,
+      "conclusion": "success"
+    },
+    {
+      "name": "Swift native host (macos-15-intel)",
+      "databaseId": 113353667842,
+      "conclusion": "success"
+    },
+    {
+      "name": "Kotlin native host (windows-2022)",
+      "databaseId": 113353668082,
+      "conclusion": "success"
+    },
+    {
+      "name": "Swift native host (macos-15)",
+      "databaseId": 113353668095,
+      "conclusion": "success"
+    },
+    {
+      "name": "Linux ARM64 private FUSE content refusal",
+      "databaseId": 113353668107,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (macos-latest / Rust stable)",
+      "databaseId": 113353668128,
+      "conclusion": "success"
+    },
+    {
+      "name": "rustfmt",
+      "databaseId": 113353668158,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "databaseId": 113353668174,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "databaseId": 113353668180,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (windows-latest / Rust stable)",
+      "databaseId": 113353668219,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "databaseId": 113353668234,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "databaseId": 113353668268,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (macos-15-intel / Rust stable)",
+      "databaseId": 113353668297,
+      "conclusion": "failure"
+    },
+    {
+      "name": "Kotlin native host (macos-15)",
+      "databaseId": 113353668377,
+      "conclusion": "success"
+    },
+    {
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "databaseId": 113353668398,
+      "conclusion": "success"
+    },
+    {
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "databaseId": 113353668443,
+      "conclusion": "success"
+    },
+    {
+      "name": "Kotlin native host (macos-15-intel)",
+      "databaseId": 113353668448,
+      "conclusion": "success"
+    },
+    {
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "databaseId": 113353668579,
+      "conclusion": "failure"
+    },
+    {
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "databaseId": 113354045140,
+      "conclusion": "failure"
+    },
+    {
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "databaseId": 113354045191,
+      "conclusion": "success"
+    },
+    {
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "databaseId": 113354045192,
+      "conclusion": "success"
+    },
+    {
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "databaseId": 113354045209,
+      "conclusion": "success"
+    },
+    {
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "databaseId": 113354045350,
+      "conclusion": "failure"
+    }
+  ],
+  "logs": {
+    "intel-test": {
+      "raw_sha256": "45de620a8ff4ae5948f2085033d73e0031a2d379b18290f2149c0e071afb66fb",
+      "gzip_sha256": "26269ac7ade4bbae4eae028e2fb17966a586a380f080d2504ac67284b8a8b97f"
+    },
+    "intel-package": {
+      "raw_sha256": "4010f51e580d0a73d789828c7f8aaf15dc3bc064a5a6c126514954e6fdb45542",
+      "gzip_sha256": "e2bdf6dbc8f637e67cdfbc0f07751258b5a66596b162536164fc2ae64ce35b0c"
+    },
+    "windows-msrv": {
+      "raw_sha256": "9b3001d2e690ade08acc2957f597d1631fdaf1e3079058b9b730d79705f10280",
+      "gzip_sha256": "4e6fb6c149014480a0d907eb412e1d23f74f1fd98ade829b383002233a8ebded"
+    },
+    "windows-package": {
+      "raw_sha256": "1093f527eb59c67efa642144bf8d99c1da409d92407eaa329352b344808424cc",
+      "gzip_sha256": "10b10a9d593e829b1e455b8f0f6ee4a18d6825fa75cae6b4144d49c0dfeb9ab2"
+    }
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "receipt": {
+    "source_commit": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "python": "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+    "toolchain": "1.99.0-x86_64-pc-windows-msvc",
+    "commands": [
+      {
+        "name": "release_build",
+        "argv": [
+          "cargo",
+          "build",
+          "--release",
+          "--locked",
+          "-p",
+          "diskgraph-cli",
+          "-p",
+          "diskgraph-mcp",
+          "-p",
+          "diskgraph-scan-worker",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--message-format=json"
+        ],
+        "started_utc": "2026-10-08T15:07:43.554753+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 68.36000000000058,
+        "stdout_sha256": "e9295d7ea118da432f89907660f6b089d2d5c580adddb7e1d0499343407bcb7c",
+        "stderr_sha256": "3d1cc486c16ea339d4ff31a5e02bf2b160222e8b3a73b2d129841d8157eb765d"
+      },
+      {
+        "name": "bind_worker",
+        "argv": [
+          "powershell.exe",
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-File",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\powershell_bom\\configure_windows_acceptance_worker.ps1",
+          "-Artifacts",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\package_9ade861e_bom\\release_build.stdout",
+          "-OutputDir",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\package_9ade861e_bom"
+        ],
+        "started_utc": "2026-10-08T15:08:51.908106+00:00",
+        "exit_code": 0,
+        "elapsed_seconds": 1.5470000000059372,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "acceptance",
+        "argv": [
+          "C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\python.exe",
+          "scripts/accept-readonly-package.py",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--bin-dir",
+          "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-9ade861e\\x86_64-pc-windows-msvc\\release",
+          "--old-cli",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\release_package\\previous\\target\\x86_64-pc-windows-msvc\\release\\diskgraph.exe",
+          "--output-dir",
+          "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\package_9ade861e_bom\\artifacts"
+        ],
+        "started_utc": "2026-10-08T15:08:53.477736+00:00",
+        "exit_code": 1,
+        "elapsed_seconds": 466.3439999999973,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "b710ec2c6cadfb9a0f4f482eabb02bb60e93da8ea072afdddce9918865cc57d5"
+      }
+    ],
+    "complete": true,
+    "prior_native_gate_passed": false,
+    "preparation_candidate": {
+      "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\powershell_bom\\configure_windows_acceptance_worker.ps1",
+      "sha256": "ed88d6de9218e74094a2a90478a4027dee785e748b21ba8d5ab18c9eb701c77d",
+      "change": "UTF-8 BOM only; product source unchanged"
+    },
+    "binary_sha256": {
+      "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-9ade861e\\x86_64-pc-windows-msvc\\release\\diskgraph.exe": "5df682fb56b1d028d32bb9cff3364f9e496a1d6b732b2bdc80cf7a2eea98968d",
+      "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-9ade861e\\x86_64-pc-windows-msvc\\release\\diskgraph-mcp.exe": "ab36220c9b50ea652519cb4dee71b96c0bca9ee8c12eb794431eeac53157e094",
+      "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-9ade861e\\x86_64-pc-windows-msvc\\release\\diskgraph-scan-worker.exe": "3562a5c23fb88f726df19b1165099558b202809042db8a8409f8432a8f45b42a",
+      "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\release_package\\previous\\target\\x86_64-pc-windows-msvc\\release\\diskgraph.exe": "1c6c59aa2aca6465e7744c5dd6961da1c1af72131233e29d1e7eb2e753d6f3c3"
+    },
+    "failure": "acceptance failed: 1",
+    "head_after": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "status_after": ""
+  },
+  "stderr": "{\"phase\": \"fixture_create\", \"event\": \"begin\", \"monotonic_seconds\": 117377.9049273}\n{\"phase\": \"fixture_create\", \"event\": \"end\", \"monotonic_seconds\": 117505.7334902}\n{\"phase\": \"scope_registration\", \"event\": \"begin\", \"monotonic_seconds\": 117505.7335612}\n{\"phase\": \"scope_registration\", \"event\": \"end\", \"monotonic_seconds\": 117506.1016239}\n{\"phase\": \"index\", \"event\": \"begin\", \"monotonic_seconds\": 117506.1016661}\n\npackage acceptance failed; retained workspace: C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-package-accept-glhi2nmi\nTraceback (most recent call last):\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\accept-readonly-package.py\", line 187, in <module>\n    main()\n    ~~~~^^\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\accept-readonly-package.py\", line 174, in main\n    large_load = accepted(\n        \"accept-readonly-load.py\", packaged_bin,\n    ...<2 lines>...\n        deployment=deployment,\n    )\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\accept-readonly-package.py\", line 65, in accepted\n    result = run_acceptance(\n        [sys.executable, str(ROOT / \"scripts\" / script), *map(str, arguments)],\n        cwd=ROOT, env=environment, capture_output=True, text=True, encoding=\"utf-8\", timeout=300,\n    )\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\windows_acceptance_job.py\", line 126, in run_owned\n    stdout, stderr = process.communicate(timeout=max(0, deadline - time.monotonic()))\n                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\Lib\\subprocess.py\", line 1222, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\hnxyh\\AppData\\Roaming\\uv\\python\\cpython-3.13.12-windows-x86_64-none\\Lib\\subprocess.py\", line 1665, in _communicate\n    raise TimeoutExpired(self.args, orig_timeout)\nsubprocess.TimeoutExpired: Command '['C:\\\\Users\\\\hnxyh\\\\AppData\\\\Roaming\\\\uv\\\\python\\\\cpython-3.13.12-windows-x86_64-none\\\\python.exe', 'E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph\\\\scripts\\\\windows_acceptance_job.py', '628', 'E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph\\\\scripts\\\\accept-readonly-load.py', '--bin-dir', 'C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\diskgraph-package-accept-glhi2nmi\\\\extracted\\\\diskgraph-x86_64-pc-windows-msvc\\\\bin', '--files', '200000', '--output', 'C:\\\\Users\\\\hnxyh\\\\AppData\\\\Local\\\\Temp\\\\diskgraph-desktop-jetfdyj0\\\\package_9ade861e_bom\\\\artifacts\\\\diskgraph-x86_64-pc-windows-msvc.load_200000.json']' timed out after 299.98312430000806 seconds\n",
+  "reports": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": {
+      "passed": 14,
+      "total": 14,
+      "checks": {
+        "modern_anonymous_401": true,
+        "modern_hostile_origin_403": true,
+        "modern_signed_but_ungranted_denied": true,
+        "modern_authorized_scope_read": true,
+        "modern_sustained_scope_reads": true,
+        "modern_live_revocation_denied": true,
+        "legacy_anonymous_401": true,
+        "legacy_hostile_origin_403": true,
+        "legacy_endpoint_event": true,
+        "legacy_authorized_scope_read": true,
+        "missing_key_file_refused": true,
+        "short_key_file_refused": true,
+        "cli_serve_forwards_key_file": true,
+        "everyone_readable_key_refused": true
+      },
+      "sustained_http": {
+        "requests": 1547,
+        "requested_seconds": 60,
+        "elapsed_seconds": 60.000855799997225,
+        "offered_max_requests_per_second": 40,
+        "dispatch_reserve_ms": 66.13540000398643,
+        "latency_sample_window": "last_4096_requests",
+        "latency_samples": 1547,
+        "p50_ms": 42.222099989885464,
+        "p95_ms": 49.95919999782927,
+        "native_long_run_qualified": false
+      },
+      "platform": "win32",
+      "binary_content_before": {
+        "cli": {
+          "bytes": 7167488,
+          "sha256": "5df682fb56b1d028d32bb9cff3364f9e496a1d6b732b2bdc80cf7a2eea98968d"
+        },
+        "mcp": {
+          "bytes": 5905920,
+          "sha256": "ab36220c9b50ea652519cb4dee71b96c0bca9ee8c12eb794431eeac53157e094"
+        }
+      },
+      "binary_content_after": {
+        "cli": {
+          "bytes": 7167488,
+          "sha256": "5df682fb56b1d028d32bb9cff3364f9e496a1d6b732b2bdc80cf7a2eea98968d"
+        },
+        "mcp": {
+          "bytes": 5905920,
+          "sha256": "ab36220c9b50ea652519cb4dee71b96c0bca9ee8c12eb794431eeac53157e094"
+        }
+      }
+    },
+    "diskgraph-x86_64-pc-windows-msvc.load.json": {
+      "version": "diskgraph 0.3.0",
+      "platform": "win32",
+      "files": 20000,
+      "indexed_nodes": 20001,
+      "queries": 32,
+      "concurrent_clients": 4,
+      "fixture_workers": 1,
+      "fixture_seconds": 9.102,
+      "scan_seconds": 72.011,
+      "cleanup_seconds": 10.826,
+      "cleanup_workers": 1,
+      "query_p50_ms": 61.317,
+      "query_p95_ms": 75.461,
+      "database_and_wal_bytes": 54996992,
+      "passed": 6,
+      "total": 6,
+      "checks": {
+        "full_index_published": true,
+        "exact_fixture_path_coverage": true,
+        "exact_fixture_node_coverage": true,
+        "concurrent_reads_bound_to_revision": true,
+        "query_results_bounded": true,
+        "node_budget_refuses_partial_publish": true
+      }
+    }
+  }
+}
