@@ -1,0 +1,99 @@
+{
+  "qualification": "not_production_ready",
+  "platform": "Windows native desktop, Rust 1.99.0 MSVC",
+  "test_overlay": "shortened artificial wait; unchanged 1s deadline; no serial test flag",
+  "receipts": {
+    "short_wait_red": {
+      "base_head": "abb87836fc320841dc89ce8b6a1dd346d54c2bd3",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-store",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "reader_admission_tests",
+        "--",
+        "--nocapture"
+      ],
+      "elapsed_seconds": 29.51600000000326,
+      "exit_code": 101,
+      "hashes": {
+        "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "c5dc0b03e11a54d033856efbdf916318b51ce24f54908716bdd800999cba3483",
+        "crates/diskgraph-store/src/reader_admission_tests.rs": "726c807358512ff8058c6e33ae371b21f9eb72ae534e6248ea01ec94a13af0e6"
+      }
+    },
+    "short_wait_green": {
+      "base_head": "abb87836fc320841dc89ce8b6a1dd346d54c2bd3",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-store",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "reader_admission_tests",
+        "--",
+        "--nocapture"
+      ],
+      "elapsed_seconds": 29.094000000011874,
+      "exit_code": 101,
+      "hashes": {
+        "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "f0cb6395e635ede251643b001ef0a664ad5dd68b7db5130611afebc8ab512a53",
+        "crates/diskgraph-store/src/reader_admission_tests.rs": "726c807358512ff8058c6e33ae371b21f9eb72ae534e6248ea01ec94a13af0e6"
+      }
+    },
+    "short_wait_full": {
+      "base_head": "abb87836fc320841dc89ce8b6a1dd346d54c2bd3",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-store",
+        "--all-targets",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "elapsed_seconds": 87.90599999998813,
+      "exit_code": 0,
+      "hashes": {
+        "crates/diskgraph-store/src/sqlite_snapshot_store.rs": "f0cb6395e635ede251643b001ef0a664ad5dd68b7db5130611afebc8ab512a53",
+        "crates/diskgraph-store/src/reader_admission_tests.rs": "726c807358512ff8058c6e33ae371b21f9eb72ae534e6248ea01ec94a13af0e6"
+      }
+    }
+  },
+  "top_level_store": {
+    "passed": 389,
+    "failed": 0,
+    "ignored": 11,
+    "library_seconds": 70.78
+  },
+  "prior_targeted_final_implementation": {
+    "passed": 9,
+    "failed": 2,
+    "ignored": 2,
+    "preserved": true
+  },
+  "native_archive": {
+    "path": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\acceptance-receipts\\reader_short_wait_2026_10_09.zip",
+    "bytes": 29381,
+    "sha256": "c69de04d12e43a5efb09091316e7d34ce589803d7e034ffff26e1c25024b4485",
+    "export": "connector rejected sensitive target path; not retried through alternate path"
+  },
+  "macos": {
+    "passed": 11,
+    "failed": 0,
+    "ignored": 2,
+    "scope": "targeted; mixed workspace; not exact clean-commit qualification"
+  }
+}

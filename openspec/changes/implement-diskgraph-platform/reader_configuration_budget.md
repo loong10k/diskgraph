@@ -31,3 +31,16 @@
 本项关闭连接配置阶段“预算已耗尽仍开始下一条SQL”的实际缺陷，不证明macOS Intel的89ms/82ms连接打开超限已修复。同步内核/SQLite C调用仍不保证硬抢占；50ms稳定性、原15秒Git完整采样、Windows200k原300秒全负载、有限前端退出和当前同SHA全平台资格均继续开放。没有修改阈值、默认测试并发或既有忽略清单。
 
 旧源码d3fae86b的CI37826207944现已结束，23作业中21成功、2失败；Windows stable/MSRV整个作业成功，各Engine705通过/0失败/4忽略。macOS Intel两套历史/质量测试分别因终检连接打开89.098ms及82.809ms超限失败；Windows原300秒整次200k打包验收在夹具创建266.092秒后进入index并超时。这是旧源码终态，不能用于验收本修复，也不覆盖台式机默认并发全量反例。原始四份日志、终态和摘要在 `docs/benchmarks/ci_d3fae86b_terminal_2026_10_09/`。
+
+## 台式机后续默认并发回归
+
+台式机已快进至 `abb87836fc320841dc89ce8b6a1dd346d54c2bd3`，开始时跟踪文件干净。仅将新增busy等待测试的人工等待改为20ms；原1秒期限、真实SQLite配置、busy等待不超过实际剩余预算的断言均保留。此修改避免主动消耗约700ms，不承诺解决宿主调度或同步I/O延迟。
+
+- 结构化临时恢复旧产品实现后运行定向RED：8通过、3失败、2既有忽略；实际busy等待991ms，而配置间等待后原期限只剩971ms。到期配置及取消配置计数仍分别为2/1；随后已结构化恢复原修复版产品文件。
+- 修复版定向尝试：9通过、2失败、2既有忽略，耗时6.13秒。失败为busy正控返回BudgetExceeded，以及既有准备末边界未到达；保留失败，不以之后通过覆盖，也不推断安全软件等宿主因素的因果关系。
+- 同源码Windows Store all-targets默认并发：顶层389通过、0失败、11既有忽略；lib为363/0/7，70.78秒，其余通过分别为candidate_query 10、job_claim 13、migration_backup 2、source_layout 1，perf_probe 4既有忽略。整次含构建87.906秒。工具汇总包含6个嵌套子进程测试，因此395不是顶层清单数量。
+- macOS定向：11通过、0失败、2既有忽略；受影响源码格式检查通过。生产文件未改变，此轮仅修改测试等待方式；前述本机混合工作区限制继续适用。
+
+本轮测试文件SHA-256为 `726c807358512ff8058c6e33ae371b21f9eb72ae534e6248ea01ec94a13af0e6`，产品文件仍为 `f0cb6395e635ede251643b001ef0a664ad5dd68b7db5130611afebc8ab512a53`。台式机原始三轮日志、receipt、脚本及最终两源码归档在 `E:\workspaces\workspace-loong10k\diskgraph\target\acceptance-receipts\reader_short_wait_2026_10_09.zip`，29381字节，SHA-256 `c69de04d12e43a5efb09091316e7d34ce589803d7e034ffff26e1c25024b4485`。连接器拒绝导出该target路径，未绕过其策略；归档仍保留在台式机。
+
+本轮仅是abb87836加上述测试overlay的原生Store结果，不能称作未修改commit或全部Windows验收。当前commit全平台CI及真实扫描部署的Windows workspace验收仍分别跟踪，不在本项直接关闭生产门禁。

@@ -192,9 +192,8 @@ fn cache_configuration_busy_wait_uses_remaining_original_deadline() {
     let observed = Arc::clone(&remaining);
     AFTER_TEMP_STORE.with(|slot| {
         *slot.borrow_mut() = Some(Box::new(move |_| {
-            std::thread::sleep(
-                (deadline - Duration::from_millis(300)).saturating_duration_since(Instant::now()),
-            );
+            // 只消耗足以区分两次配置的预算，避免正控主动耗尽绝大部分原期限。
+            std::thread::sleep(Duration::from_millis(20));
             observed.store(
                 u64::try_from(
                     deadline
@@ -212,7 +211,7 @@ fn cache_configuration_busy_wait_uses_remaining_original_deadline() {
         .pragma_query_value(None, "busy_timeout", |row| row.get(0))
         .unwrap();
     let bound = remaining.load(Ordering::Relaxed);
-    assert!(bound > 0 && bound <= 300, "real remaining budget: {bound}");
+    assert!(bound > 0 && bound < 1000, "real remaining budget: {bound}");
     assert!(
         busy >= 0 && u64::try_from(busy).unwrap() <= bound,
         "busy wait {busy}ms exceeds remaining original {bound}ms"
