@@ -205,6 +205,8 @@ mod windows_native_scan_tests;
 #[cfg(windows)]
 mod windows_path_plan;
 #[cfg(windows)]
+mod windows_scan_cost;
+#[cfg(windows)]
 mod windows_scan_image_binding;
 #[cfg(windows)]
 mod windows_scan_image_lease;

@@ -236,6 +236,28 @@ class TimeoutDiagnosticTests(unittest.TestCase):
         self.assertNotIn('private', captured.getvalue())
         self.assertNotIn('unknown', captured.getvalue())
 
+    def test_windows_root_cost_is_opt_in_bounded_and_contains_no_paths(self):
+        lines = [
+            'diskgraph: scan_cost=windows_root_validation nodes=200001 total_ms=70000',
+            'diskgraph: scan_root_validation calls=400003 chain_handles=7 total_ms=70000',
+            'diskgraph: scan_root_validation calls=1 chain_handles=7 total_ms=1 private-path',
+            'diskgraph: scan_root_validation calls=-1 chain_handles=7 total_ms=1',
+            'diskgraph: scan_root_validation calls=' + '9' * 21 + ' chain_handles=7 total_ms=1',
+        ]
+        captured = io.StringIO()
+        with patch.dict('os.environ', {'DISKGRAPH_SCAN_DIAGNOSTICS': '1'}), \
+             contextlib.redirect_stderr(captured):
+            MODULE.relay_scan_phases('\n'.join(lines))
+        self.assertEqual([json.loads(line) for line in captured.getvalue().splitlines()], [
+            {'scan_cost': 'windows_root_validation', 'nodes': 200001, 'total_ms': 70000},
+            {'scan_root_validation': True, 'calls': 400003, 'chain_handles': 7,
+             'total_ms': 70000},
+        ])
+        captured = io.StringIO()
+        with patch.dict('os.environ', {}, clear=True), contextlib.redirect_stderr(captured):
+            MODULE.relay_scan_phases('\n'.join(lines))
+        self.assertEqual(captured.getvalue(), '')
+
     def test_scan_cost_records_are_bounded_and_allowlisted(self):
         lines = [
             'diskgraph: scan_cost=observations_and_encoding nodes=200001 total_ms=106000',

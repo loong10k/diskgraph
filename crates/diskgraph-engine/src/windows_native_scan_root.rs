@@ -13,6 +13,7 @@ use crate::scoped_content::ScopedContent;
 use crate::windows_file_state::WindowsFileState;
 use crate::windows_native_open::{open_child, open_drive};
 use crate::windows_path_plan::WindowsPathPlan;
+use crate::windows_scan_cost::WindowsScanCost;
 
 /// 扫描期间保留 drive 到注册根的属性租约；来源：D31 与 NtCreateFile RootDirectory。
 /// 它约束补充属性读取，不把上游路径线程池扫描或文件内容称为原子快照。
@@ -22,6 +23,7 @@ pub(crate) struct WindowsNativeScanRoot {
     components: Vec<OsString>,
     chain: Vec<File>,
     identities: Vec<WindowsFileState>,
+    cost: Option<WindowsScanCost>,
 }
 
 impl WindowsNativeScanRoot {
@@ -57,6 +59,9 @@ impl WindowsNativeScanRoot {
             components: plan.components,
             chain,
             identities,
+            cost: (std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").as_deref()
+                == Some(std::ffi::OsStr::new("1")))
+            .then(WindowsScanCost::default),
         };
         lease.validate_held_root(check)?;
         Ok(lease)
@@ -205,7 +210,32 @@ impl WindowsNativeScanRoot {
         Ok(file)
     }
 
+    /// 参数：nodes为当前已计费节点数；返回：无，显式诊断时输出有限纯数值。
+    /// 累计根检查包括租约出生至staging完成，不代表单纯内核调用或业务总成本。
+    pub(crate) fn emit_cost_diagnostic(&self, nodes: u64) {
+        if let Some(cost) = &self.cost {
+            let (calls, total_ms) = cost.snapshot();
+            eprintln!(
+                "diskgraph: scan_cost=windows_root_validation nodes={nodes} total_ms={total_ms}"
+            );
+            eprintln!(
+                "diskgraph: scan_root_validation calls={calls} chain_handles={} total_ms={total_ms}",
+                self.chain.len()
+            );
+        }
+    }
+
     fn validate_held_root(
+        &self,
+        check: &dyn Fn() -> Result<(), EngineError>,
+    ) -> Result<(), EngineError> {
+        match &self.cost {
+            Some(cost) => cost.measure(|| self.validate_held_root_inner(check)),
+            None => self.validate_held_root_inner(check),
+        }
+    }
+
+    fn validate_held_root_inner(
         &self,
         check: &dyn Fn() -> Result<(), EngineError>,
     ) -> Result<(), EngineError> {

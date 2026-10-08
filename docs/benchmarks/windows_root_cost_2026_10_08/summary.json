@@ -1,0 +1,58 @@
+{
+  "parent_commit": "034fd78baf0fd8e6c26472e4d54b208c1d8356bb",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/windows_scan_cost.rs": "0874079450b72e76e941e2b733e9343d8596d027c78b55d65b52dfc0e6d0a643",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "4a16ccf7be6022cccc7d4a682c4f1022142b9db02da378536f69fa102cbdb2d1",
+    "crates/diskgraph-engine/src/scan_execution.rs": "256d184a6c4fa0d80c79fb9edf27604c5867c802b1d79a1bf7abc527a13c16e8",
+    "scripts/accept-readonly-load.py": "9d89ab3272df8c54f9a74e7bda33489425e348400a4bd74270deaab9f18f05a8"
+  },
+  "verification": {
+    "counter_std_unit_tests_on_arm_macos": "3 passed, standalone rustc source test; not native Windows",
+    "relay": "18 passed after 1 target behavior failure on original parser",
+    "scripts_full": "298 total, 297 passed, 1 native Windows test skipped on macOS",
+    "engine_all_targets_clippy_on_macos": "passed; Windows cfg code not compiled",
+    "openspec_strict": "passed",
+    "windows_native_new_source": "not run yet"
+  },
+  "ci_original": {
+    "sha": "616958e2a4f47dfb14bd7b302b1354eb76ac206b",
+    "run": 37759437051,
+    "conclusion": "failure",
+    "jobs_success": 19,
+    "jobs_failed": 4,
+    "windows_stable_and_msrv_full_jobs": "success, Engine670/4ignored and Store354/5ignored; no current new-source qualification"
+  },
+  "files": {
+    "relay_red.log.gz": {
+      "uncompressed_sha256": "34f6c1bb90f7d84ad4202ad57d6d19c620eef9726a6dd6bd464ced331e596290"
+    },
+    "relay_green.log.gz": {
+      "uncompressed_sha256": "fbc8e3ae36843fb84681cb0d103a1ce2ebaabc3faa2a3156a0cbe769b366c54b"
+    },
+    "counter_green.log.gz": {
+      "uncompressed_sha256": "b076fd1e1a08641f77674ac045d2d315144a4551d85945d26e08144c3f219693"
+    },
+    "scripts_full.log.gz": {
+      "uncompressed_sha256": "f038f5ff484696fcf2cfbc71f1ef149a4696955f4cdd5406293c0ddf6f7a3fd4"
+    },
+    "clippy.log.gz": {
+      "uncompressed_sha256": "438e673aa9f37b681d28ca1c9acb1150e4e168f3590d5ffaf064c51d3cabfb28"
+    },
+    "openspec.log.gz": {
+      "uncompressed_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    "validator_body_proof.json.gz": {
+      "uncompressed_sha256": "cf5bec5a3b7c7deaf6fd6a1343e0b5a2c094c6716f60c1b0123721a03626e0e3"
+    },
+    "ci_616_terminal.json.gz": {
+      "uncompressed_sha256": "91616f907933b727e70a6cbe0cae74b4a877e5583833a91d191ea53c1fe9d029"
+    },
+    "windows_616_stable_full.log.gz": {
+      "uncompressed_sha256": "c46859dbc421820eaf14f242286345c88bbc8693715cd63ae19ba63610d90f82"
+    },
+    "windows_616_msrv_full.log.gz": {
+      "uncompressed_sha256": "50cf4e0ee66011f91029c882be6148d4f4f218e86479909ca73e5350309502c0"
+    }
+  },
+  "production_acceptance": false
+}

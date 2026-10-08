@@ -33,7 +33,7 @@ def relay_scan_phases(stderr):
     stages = {'worker_begin', 'worker_complete', 'conversion_complete',
               'staging_batch_complete', 'staging_complete',
               'publication_begin', 'publication_complete'}
-    costs = {'observations_and_encoding', 'staging_write'}
+    costs = {'observations_and_encoding', 'staging_write', 'windows_root_validation'}
     records = {}
     # 后缀准入限制解析成本，截断可能遗漏早期阶段；不得补造缺失的采样。
     for line in stderr[-131072:].splitlines():
@@ -47,6 +47,11 @@ def relay_scan_phases(stderr):
         if cost and cost[1] in costs:
             records[('cost', cost[1])] = {'scan_cost': cost[1], 'nodes': int(cost[2]),
                                          'total_ms': int(cost[3])}
+        root = re.fullmatch(r'diskgraph: scan_root_validation calls=([0-9]{1,20}) '
+                            r'chain_handles=([0-9]{1,20}) total_ms=([0-9]{1,20})', line)
+        if root:
+            records['root_validation'] = {'scan_root_validation': True, 'calls': int(root[1]),
+                                          'chain_handles': int(root[2]), 'total_ms': int(root[3])}
     for record in records.values():
         print(json.dumps(record), file=sys.stderr, flush=True)
 

@@ -69,3 +69,9 @@
 #### Scenario: Native library package lacks host proof
 - **WHEN** XCFramework/AAR 只有生成源码、编译或解包证据
 - **THEN** 不标记原生嵌入就绪，必须验证库加载、SQLite 共存、查询、取消与授权撤销。
+
+#### Scenario: Windows root validation cost stays diagnostic
+- **WHEN** 完整负载显式开启DISKGRAPH_SCAN_DIAGNOSTICS=1且原staging阶段完成
+- **THEN** 输出截至该阶段已返回根校验的累计耗时、调用数和保留链句柄数，保留原根链/当前名称绑定校验与所有任务检查；此分项与观测编码时间重叠，不能相加成总耗时。
+- **AND** 默认不输出；负载转存只接受固定标签、有限数字与固定字段，不转存路径、正文、未知标签或额外后缀。计数饱和不回绕，原返回值、错误及panic不被诊断替换。
+- **AND** 纯计数器和parser本机测试不证明Windows原生根校验或正式200k/300秒验收；真实平台分项数据仍须绑定当前源码和实际二进制。

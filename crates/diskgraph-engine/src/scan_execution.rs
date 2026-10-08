@@ -343,6 +343,8 @@ impl Engine {
             trace("staging_batch_complete", usage.nodes);
         }
         trace("staging_complete", usage.nodes);
+        #[cfg(windows)]
+        native_root.emit_cost_diagnostic(usage.nodes);
         if timing {
             crate::scan_cost_diagnostic::emit(observation_time, staging_write_time, usage.nodes);
         }
