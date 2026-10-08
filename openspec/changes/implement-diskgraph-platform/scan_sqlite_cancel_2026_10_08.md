@@ -17,3 +17,5 @@ ControlWriteDeadline 的显式事务边界增加借用执行检查器，每次�
 ## 限制
 
 原生单次 I/O 仍不可抢占；短 SQL VM 的取消未由此宣称完成。当前远程 CI 的5dc825d不含本次修改；目标平台须在后续同SHA验证，整体生产门禁不勾选。
+
+补充证据边界：上述工作区全套数量包含两个用户未提交 reader_observation_tests 测试，不等同已提交候选数量。后续 f25b3ef 隔离归档验证排除此模块，Store 359通过、9忽略；详见 committed_candidate_f25b3ef_2026_10_08.md。原工作区与用户修改未移动或覆盖。

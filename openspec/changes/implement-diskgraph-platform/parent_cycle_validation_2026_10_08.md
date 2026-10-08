@@ -19,3 +19,5 @@ publication_regressions 7通过，native_locator_tests 10通过，job_publicatio
 隔离四进程共4,000次槽位认领探针包含openat、真实flock、记录写入、fsync、回读与释放，未复现ENOENT。它没有运行Engine启动或生产监督器，不证明CI问题已修复；原始脚本和结果单独归档于同目录。macOS启动问题继续开放。
 
 当前远程5dc825d CI不含本修复，整体生产门禁保持未完成。
+
+补充证据边界：上述工作区全套数量包含两个用户未提交 reader_observation_tests 测试，不等同已提交候选数量。后续 f25b3ef 隔离归档验证排除此模块，Store 359通过、9忽略；详见 committed_candidate_f25b3ef_2026_10_08.md。原工作区与用户修改未移动或覆盖。

@@ -1,0 +1,49 @@
+{
+  "commit": "f25b3ef2ff9f742bb355554141d5334eb3c24c1d",
+  "source": "git archive of tracked candidate source; excludes working-tree changes",
+  "paths": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates",
+    "scripts",
+    "fixtures",
+    "deploy",
+    "packaging",
+    ".github",
+    ".gitignore",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md",
+    "openspec"
+  ],
+  "production_acceptance": false,
+  "results": {
+    "store": {
+      "passed": 359,
+      "ignored": 9
+    },
+    "engine_scan_cancel": 6,
+    "engine_reader_contention": 2,
+    "engine_withdrawal": 1,
+    "engine_terminal_capability": 14,
+    "engine_source_layout": 6,
+    "vendored_pin_and_digests": 4,
+    "engine_store_clippy_all_targets": "passed"
+  },
+  "limitations": [
+    "local macOS only",
+    "not full workspace acceptance",
+    "no managed worker installation or native Windows/Linux qualification",
+    "not production readiness"
+  ],
+  "source_blobs": {
+    "crates/diskgraph-store/src/lib.rs": "74767ce39f892b09af6778a2f5ce69578584981a",
+    "crates/diskgraph-store/src/graph_validation.rs": "c1ac2595d5479c37d584c24120d9670f6493c917",
+    "crates/diskgraph-store/src/scan_staging_store.rs": "f36d6e7f1b3a63500ce67f3fb5690b27d4ed76ef",
+    "crates/diskgraph-store/src/control_write_deadline.rs": "66d36df5744508659d62ed4be609e87a3f08e353",
+    "crates/diskgraph-store/src/job_fence_deadline.rs": "92293d0249c3160c19a000ff981bc0a41bbb5d91",
+    "crates/diskgraph-engine/src/scan_observation_guard.rs": "11b2915849a75896ed9462fbc98329972cf5c70f",
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "68c2b21181016d3481f85cb111715e6812297ef6",
+    "crates/diskgraph-engine/src/relation_request.rs": "398e97aba77e66749ed1d4bcccf929eea7c020f7"
+  }
+}
