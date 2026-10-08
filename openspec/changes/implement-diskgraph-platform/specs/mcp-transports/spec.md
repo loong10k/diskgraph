@@ -96,3 +96,8 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **WHEN** an HTTP request body contains malformed UTF-8, including malformed bytes inside an otherwise valid JSON string
 - **THEN** the shared HTTP reader refuses the request as invalid data before modern or legacy protocol dispatch, without lossy replacement or logging the body
 - **AND** valid UTF-8, including Chinese, emoji and an explicitly encoded U+FFFD character, is preserved byte-for-byte in the decoded request; original byte and absolute-time budgets remain unchanged
+
+#### Scenario: Content-Length uses decimal framing without numeric extensions
+- **WHEN** a request supplies an empty, signed, non-decimal or overflowing Content-Length
+- **THEN** the shared HTTP reader refuses it before body allocation and dispatch; integer parser extensions such as a leading plus sign cannot establish framing
+- **AND** zero and digit-only leading-zero values retain their existing semantics, subject to the original body byte and absolute-time limits

@@ -622,6 +622,13 @@ fn read_request_with_shutdown(
     let length: usize = headers
         .get("content-length")
         .map(|value| {
+            // HTTP framing 只接受十进制数字；Rust 整数解析接受的前导加号不能沿用。
+            if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+                return Err(std::io::Error::new(
+                    ErrorKind::InvalidData,
+                    "invalid content length",
+                ));
+            }
             value
                 .parse()
                 .map_err(|_| std::io::Error::new(ErrorKind::InvalidData, "invalid content length"))

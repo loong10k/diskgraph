@@ -1,0 +1,18 @@
+{
+  "base_commit": "d971427f58f72c5f5ab3f6e410d62db058577d19",
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/http.rs": "05e9001784a2b9dc3932f3084861d6c07010f03658c87bb4738b4a02f78bf7ac",
+    "crates/diskgraph-mcp/src/http_request_syntax_tests.rs": "8c7452c4992b427fff83a61a6710c8aab7c44509311e1b1f0d773a7816e800f7"
+  },
+  "red": {
+    "passed": 6,
+    "failed": 1,
+    "accepted_invalid_length": "+2"
+  },
+  "green": {
+    "passed": 7,
+    "failed": 0
+  },
+  "scope": "actual extracted production reader with original types and real socket tests; not full MCP or native matrix acceptance",
+  "reference": "https://www.rfc-editor.org/rfc/rfc9110.html#name-content-length"
+}

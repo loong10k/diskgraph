@@ -39,7 +39,7 @@ class PackageWorkerDeployment(unittest.TestCase):
     def test_child_acceptance_receives_packaged_worker_environment(self):
         deployment = MODULE.packaged_worker_environment(self.bin, self.environment)
         completed = mock.Mock(returncode=0, stdout='{"passed": 1, "total": 1}', stderr='')
-        with mock.patch.object(MODULE.subprocess, 'run', return_value=completed) as run:
+        with mock.patch.object(MODULE, 'run_acceptance', return_value=completed) as run:
             self.assertEqual(MODULE.accepted('accept-readonly-stdio.py', self.bin,
                                              deployment=deployment), 1)
         environment = run.call_args.kwargs['env']

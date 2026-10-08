@@ -1,0 +1,24 @@
+
+running 7 tests
+test http_request_syntax_tests::valid_unicode_and_literal_replacement_character_remain_unchanged ... ok
+test http_request_syntax_tests::invalid_utf8_body_is_rejected_before_dispatch_without_replacement ... ok
+test http_request_syntax_tests::content_length_rejects_non_decimal_framing_before_dispatch ... FAILED
+test http_request_syntax_tests::supported_http_versions_preserve_request_and_single_value_headers ... ok
+test http_request_syntax_tests::content_length_preserves_zero_and_leading_zero_decimal_values ... ok
+test http_request_syntax_tests::duplicate_mcp_session_and_protocol_headers_are_rejected_before_dispatch ... ok
+test http_request_syntax_tests::malformed_request_line_never_becomes_a_dispatchable_request ... ok
+
+failures:
+
+---- http_request_syntax_tests::content_length_rejects_non_decimal_framing_before_dispatch stdout ----
+
+thread 'http_request_syntax_tests::content_length_rejects_non_decimal_framing_before_dispatch' (19989577) panicked at /Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp/src/http_request_syntax_tests.rs:91:39:
++2: Some(HttpRequest { method: "POST", path: "/mcp", query: "", headers: {"content-length": "+2"}, body: "{}" })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    http_request_syntax_tests::content_length_rejects_non_decimal_framing_before_dispatch
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

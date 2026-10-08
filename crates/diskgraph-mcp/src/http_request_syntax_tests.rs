@@ -82,3 +82,20 @@ fn valid_unicode_and_literal_replacement_character_remain_unchanged() {
     );
     assert_eq!(parse_wire(&wire).unwrap().unwrap().body, body);
 }
+
+#[test]
+fn content_length_rejects_non_decimal_framing_before_dispatch() {
+    for length in ["+2", "-0", "2 0", "0x2", "", "184467440737095516160"] {
+        let wire = format!("POST /mcp HTTP/1.1\r\nContent-Length: {length}\r\n\r\n{{}}");
+        let error = parse_wire(&wire).expect_err(length);
+        assert_eq!(error.kind(), ErrorKind::InvalidData, "{length:?}");
+    }
+}
+
+#[test]
+fn content_length_preserves_zero_and_leading_zero_decimal_values() {
+    for (length, body) in [("0", ""), ("2", "{}"), ("0002", "{}")] {
+        let wire = format!("POST /mcp HTTP/1.1\r\nContent-Length: {length}\r\n\r\n{body}");
+        assert_eq!(parse_wire(&wire).unwrap().unwrap().body, body);
+    }
+}
