@@ -47,7 +47,7 @@ impl Engine {
         }
         let mut prepared = crate::scoped_content::ScopedContent::open(&root, request.path, probe)?;
         if prepared.file.is_none() {
-            self.require_read_terminal(request, authorizer)?;
+            self.require_read_terminal_until(request, authorizer, deadline)?;
             return Ok(ReadOutcome {
                 requested_path: request.path.to_path_buf(),
                 offset: request.offset,
@@ -123,7 +123,7 @@ impl Engine {
         #[cfg(test)]
         super::read_terminal_tests::before_reply();
         // EOF、精确范围和原生版本检查都可能耗时；任何中止也不能跳过撤权检查。
-        self.require_read_terminal(request, authorizer)?;
+        self.require_read_terminal_until(request, authorizer, deadline)?;
         if stopped.is_none() && std::time::Instant::now() >= deadline {
             stopped = Some(InspectionStop::Deadline);
         } else if stopped.is_none()
@@ -144,46 +144,31 @@ impl Engine {
         })
     }
 
-    // 先检查原范围，再于锁外调用能力来源；返回前新鲜复核实际 scope/grant。
-    /// 复核内容读取终态的实际范围与授权交集。
-    /// 参数：request 为原请求身份和范围，authorizer 为能力来源；返回：允许或拒权/存储错误。
+    /// 复核内容终态授权，沿用请求期限。
+    /// 参数：request 为原身份及范围，authorizer 为锁外能力来源，deadline 为原绝对期限。
+    /// 返回：授权完成或拒权、预算、存储错误；失败时调用者不得返回正文或确认摘要。
+    pub(super) fn require_read_terminal_until(
+        &self,
+        request: &InspectionRequest<'_>,
+        authorizer: &dyn diskgraph_core::Authorizer,
+        deadline: std::time::Instant,
+    ) -> Result<(), EngineError> {
+        self.require_content_initial_until(request, authorizer, deadline)
+            .map(|_| ())
+    }
+
+    /// 供权限边界回归使用的独立终态检查。
+    /// 参数：request/authorizer 为原身份和能力；返回：三十秒期限内的授权结果。
+    #[cfg(test)]
     pub(super) fn require_read_terminal(
         &self,
         request: &InspectionRequest<'_>,
         authorizer: &dyn diskgraph_core::Authorizer,
     ) -> Result<(), EngineError> {
-        let expiry = authorizer.expires_at_unix_seconds();
-        crate::authority_expiry::check_authority_expiry(expiry)?;
-        {
-            let control = self.control_store()?;
-            if control.scope(request.scope_id)?.revoked {
-                return Err(EngineError::Business(BusinessError::PermissionDenied));
-            }
-        }
-        crate::authority_expiry::check_authority_expiry(expiry)?;
-        let decision = authorizer.decide(
-            request.principal,
-            &diskgraph_core::Permission::ContentRead,
-            request.scope_id,
-        );
-        crate::authority_expiry::check_authority_expiry(expiry)?;
-        let control = self.control_store()?;
-        crate::authority_expiry::check_authority_expiry(expiry)?;
-        Self::require_decision_with_control(
-            &control,
-            decision,
-            request.principal,
-            &diskgraph_core::Permission::ContentRead,
-            request.scope_id,
-        )?;
-        if control.live_permission(
-            request.principal,
-            &diskgraph_core::Permission::ContentRead,
-            request.scope_id,
-        )? == Some(false)
-        {
-            return Err(EngineError::Business(BusinessError::PermissionDenied));
-        }
-        crate::authority_expiry::check_authority_expiry(expiry)
+        self.require_read_terminal_until(
+            request,
+            authorizer,
+            std::time::Instant::now() + std::time::Duration::from_secs(30),
+        )
     }
 }

@@ -56,9 +56,12 @@ impl Engine {
         if prepared.file.is_none() {
             // 占位诊断也可能调用 provider 并等待；提前返回不能绕过终态撤权。
             // until 接口保留零读取成本，旧兼容接口继续映射 permission_denied。
-            let stopped = match self.require_read_terminal(request, authorizer) {
+            let stopped = match self.require_read_terminal_until(request, authorizer, deadline) {
                 Err(EngineError::Business(BusinessError::PermissionDenied)) => {
                     InspectionStop::PermissionRevoked
+                }
+                Err(EngineError::Business(BusinessError::BudgetExceeded)) => {
+                    InspectionStop::Deadline
                 }
                 Err(error) => return Err(error),
                 Ok(()) if std::time::Instant::now() >= deadline => InspectionStop::Deadline,
@@ -156,31 +159,15 @@ impl Engine {
         }
         if stopped.is_none() {
             // EOF/精确预算和最终元数据查询也可能耗时；包括空文件，确认前重验授权。
-            if self
-                .require(
-                    authorizer,
-                    request.principal,
-                    &diskgraph_core::Permission::ContentRead,
-                    request.scope_id,
-                )
-                .is_err()
-            {
-                stopped = Some(InspectionStop::PermissionRevoked);
-            } else {
-                // 可信兼容入口可能没有持久 policy，但数据库 scope 撤销仍然有效。
-                match self.control_store().and_then(|store| {
-                    store
-                        .live_permission(
-                            request.principal,
-                            &diskgraph_core::Permission::ContentRead,
-                            request.scope_id,
-                        )
-                        .map_err(EngineError::from)
-                }) {
-                    Ok(Some(false)) => stopped = Some(InspectionStop::PermissionRevoked),
-                    Err(_) => stopped = Some(InspectionStop::ReadError),
-                    _ => {}
+            match self.require_read_terminal_until(request, authorizer, deadline) {
+                Ok(()) => {}
+                Err(EngineError::Business(BusinessError::PermissionDenied)) => {
+                    stopped = Some(InspectionStop::PermissionRevoked);
                 }
+                Err(EngineError::Business(BusinessError::BudgetExceeded)) => {
+                    stopped = Some(InspectionStop::Deadline);
+                }
+                Err(_) => stopped = Some(InspectionStop::ReadError),
             }
             if stopped.is_none() && std::time::Instant::now() >= deadline {
                 stopped = Some(InspectionStop::Deadline);

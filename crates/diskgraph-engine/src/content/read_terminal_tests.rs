@@ -456,3 +456,36 @@ fn placeholder_digest_rechecks_cancel_and_deadline_after_probe() {
         assert!(outcome.digest_hex.is_empty());
     }
 }
+
+#[test]
+fn body_does_not_escape_when_terminal_authorization_misses_original_deadline() {
+    let fixture = ReadTerminalFixture::new(true);
+    BEFORE_REPLY.with(|slot| {
+        *slot.borrow_mut() = Some(Box::new(|| {
+            std::thread::sleep(std::time::Duration::from_millis(80));
+        }));
+    });
+    let request = InspectionRequest {
+        scope_id: &fixture.scope,
+        principal: &fixture.principal,
+        path: &fixture.path,
+        offset: 0,
+        max_bytes: 8,
+        cancel: None,
+        chunk_bytes: 8,
+    };
+    let result = fixture.engine.read_bounded_until(
+        &request,
+        &ConservativeProbe,
+        &fixture.policy,
+        std::time::Instant::now() + std::time::Duration::from_millis(50),
+    );
+    assert!(BEFORE_REPLY.with(|slot| slot.borrow().is_none()));
+    assert!(
+        matches!(
+            result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ),
+        "{result:?}"
+    );
+}

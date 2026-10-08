@@ -93,3 +93,9 @@ Placeholder digest results SHALL recheck the original scope and current capabili
 - **THEN** that authorization uses the original absolute request deadline and does not obtain a fresh lock or SQL budget
 - **AND** late chunk admission refuses a body result with budget exceeded; digest admission records deadline without a confirmed digest, while permission denial remains permission revoked and other chunk failures retain consumed bytes and remain read errors without a confirmed digest
 - **AND** synchronous callbacks and native I/O remain cooperative; terminal authorization and full-lifetime withdrawal qualification remain separate unfinished gates
+
+#### Scenario: Terminal content authorization cannot return a late body
+- **WHEN** EOF, version validation or a placeholder probe consumes the original content deadline before terminal authorization completes
+- **THEN** terminal capability and persistent scope checks use that original deadline, with callbacks outside control guards and bounded lock/SQL waits
+- **AND** an unverified body result is refused with budget exceeded; digest returns deadline and an empty digest while retaining actual bytes consumed
+- **AND** terminal permission denial remains a refusal; this does not certify lifetime withdrawal detection or hard preemption of synchronous callbacks/native I/O

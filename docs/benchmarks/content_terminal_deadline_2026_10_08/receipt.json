@@ -1,0 +1,37 @@
+{
+  "scope": "original deadline for body and digest terminal authorization",
+  "red": "HEAD f8a0f32 body returned all 8 bytes with Deadline after terminal seam delay; test requires BudgetExceeded",
+  "green": "20 content/scoped-content tests passed",
+  "checks": [
+    "strict engine lib Clippy",
+    "engine fmt",
+    "strict OpenSpec validation"
+  ],
+  "limits": [
+    "no full-lifetime withdrawal witness yet",
+    "callbacks and synchronous native IO cannot be preempted",
+    "no current full-workspace or native multi-platform qualification"
+  ],
+  "logs": {
+    "red": {
+      "sha256": "618c8b4cfb5f18d68090c11844bd56b509e2920a218e3714d11cd15a6240499d",
+      "gzip_sha256": "d8d78590669c1ff4ce8d948dcad11a5a8762664904fd7eca8a1eb080087d4f2c"
+    },
+    "green": {
+      "sha256": "0b0a52bb748f19a89a63c3a9f57640401db708d021ee4a54ae45ecce27a7902d",
+      "gzip_sha256": "899667f84dca9efe93e858711a074bf384bb8d6d8fd87f927b755112ec5654cc"
+    },
+    "clippy": {
+      "sha256": "825a3fc27d60a282f618475ba7fe5848cc172aa78118fc3c774b24b7b17281a6",
+      "gzip_sha256": "81561a2f0a1867127a60285d3f4ac0410cecc30201216eaf5584b797121432b2"
+    },
+    "fmt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "spec": {
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff",
+      "gzip_sha256": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5"
+    }
+  }
+}
