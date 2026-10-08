@@ -1,0 +1,21 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "run": 37728300386,
+  "job": 113151390480,
+  "platform": "macOS ARM64 Rust 1.97.0",
+  "failed_case": "cursors_bind_principal_and_policy_epoch",
+  "observed_error": "ENOENT during slot_acquisition; user_domain admitted",
+  "root_cause_confirmed": false,
+  "local_os_probe": {
+    "operations": 800,
+    "errors": 0,
+    "qualification": "Python OS calls only, not Rust reproduction"
+  },
+  "change": "fixed phase diagnostics preserve original errors and safety checks",
+  "checks": [
+    "cargo check -p diskgraph-engine --locked passed",
+    "cargo fmt -p diskgraph-engine -- --check passed",
+    "git diff --check passed"
+  ],
+  "production_ready": false
+}

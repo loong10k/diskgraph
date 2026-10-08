@@ -53,10 +53,15 @@ impl TrustedLocalRecoveryDomain {
                 )
             };
             if raw < 0 {
-                return Err(std::io::Error::last_os_error().into());
+                // 先捕获原 errno；诊断输出不得改变返回的系统错误，也不包含用户路径。
+                let error = std::io::Error::last_os_error();
+                eprintln!("diskgraph: recovery slot_stage=open failed");
+                return Err(error.into());
             }
             let file = unsafe { File::from_raw_fd(raw) };
-            let metadata = file.metadata()?;
+            let metadata = file.metadata().inspect_err(|_| {
+                eprintln!("diskgraph: recovery slot_stage=metadata failed");
+            })?;
             if !metadata.is_file()
                 || metadata.uid() != unsafe { libc::geteuid() }
                 || metadata.nlink() != 1
@@ -65,13 +70,18 @@ impl TrustedLocalRecoveryDomain {
                 return Err(SlotError::Unsupported);
             }
             // 新槽的目录项先持久化，随后原协议同步 RESERVED/ACTIVE；不能只 fsync 文件正文。
-            self.directory.sync_all()?;
+            self.directory.sync_all().inspect_err(|_| {
+                eprintln!("diskgraph: recovery slot_stage=directory_sync failed");
+            })?;
             self.check_directory(deadline)?;
             match SlotReservation::acquire(file, deadline) {
                 Ok(reservation) => return Ok(reservation),
                 Err(SlotError::Busy) => {}
                 Err(SlotError::Unconfirmed) => unconfirmed = true,
-                Err(error) => return Err(error),
+                Err(error) => {
+                    eprintln!("diskgraph: recovery slot_stage=reservation failed");
+                    return Err(error);
+                }
             }
         }
         if unconfirmed {
