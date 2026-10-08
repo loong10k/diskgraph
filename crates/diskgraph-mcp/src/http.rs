@@ -651,12 +651,15 @@ fn read_request_with_shutdown(
         }
         filled += count;
     }
+    // 网络 JSON 必须保持原输入语义；非法编码不能替换字符后成为另一个请求。
+    let body = String::from_utf8(body)
+        .map_err(|_| std::io::Error::new(ErrorKind::InvalidData, "HTTP body is not UTF-8"))?;
     Ok(Some(HttpRequest {
         method,
         path,
         query,
         headers,
-        body: String::from_utf8_lossy(&body).into_owned(),
+        body,
     }))
 }
 

@@ -4,9 +4,13 @@ use std::io::{BufReader, ErrorKind, Write};
 use std::net::{TcpListener, TcpStream};
 
 fn parse_wire(wire: &str) -> std::io::Result<Option<HttpRequest>> {
+    parse_wire_bytes(wire.as_bytes())
+}
+
+fn parse_wire_bytes(wire: &[u8]) -> std::io::Result<Option<HttpRequest>> {
     let listener = TcpListener::bind("127.0.0.1:0")?;
     let mut client = TcpStream::connect(listener.local_addr()?)?;
-    client.write_all(wire.as_bytes())?;
+    client.write_all(wire)?;
     let (server, _) = listener.accept()?;
     read_request(&mut BufReader::new(server), &HttpLimits::default())
 }
@@ -53,4 +57,28 @@ fn supported_http_versions_preserve_request_and_single_value_headers() {
         assert_eq!(request.header("mcp-session-id"), Some("own-session"));
         assert_eq!(request.header("mcp-protocol-version"), Some("2025-03-26"));
     }
+}
+
+#[test]
+fn invalid_utf8_body_is_rejected_before_dispatch_without_replacement() {
+    let body = b"{\"method\":\"bad\xff\"}";
+    let mut wire = format!(
+        "POST /mcp HTTP/1.1\r\nContent-Length: {}\r\n\r\n",
+        body.len()
+    )
+    .into_bytes();
+    wire.extend_from_slice(body);
+    let error = parse_wire_bytes(&wire)
+        .expect_err("invalid body must not become a replacement-character request");
+    assert_eq!(error.kind(), ErrorKind::InvalidData);
+}
+
+#[test]
+fn valid_unicode_and_literal_replacement_character_remain_unchanged() {
+    let body = "{\"method\":\"查询😀�\"}";
+    let wire = format!(
+        "POST /mcp HTTP/1.1\r\nContent-Length: {}\r\n\r\n{body}",
+        body.len()
+    );
+    assert_eq!(parse_wire(&wire).unwrap().unwrap().body, body);
 }

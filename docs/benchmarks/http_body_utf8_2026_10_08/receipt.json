@@ -1,0 +1,22 @@
+{
+  "base_commit": "04d28b10d8eb2baa3550f7371ddf685d37ee887d",
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/http.rs": "95d62a2e043209a88c229495bfa5ded73e7cebf670a9af7957c1c5a2c073c2b8",
+    "crates/diskgraph-mcp/src/http_request.rs": "3c3cf05abb0a8c9816eca05d2818a0672e8e02deca18bf39d4f639f3ad986d62",
+    "crates/diskgraph-mcp/src/http_limits.rs": "117e83d2e25435adfec5c9a863259d790aebc5a71fa1b5065cfbc6c2362be73e",
+    "crates/diskgraph-mcp/src/http_shutdown_state.rs": "05a5527f2e4d74631398f47b89401448dae00e97b5f34658e3ed664e06ac8911",
+    "crates/diskgraph-mcp/src/http_request_syntax_tests.rs": "b3e06dda3a589ccf8e112444f4d8e0b1f5f0fc31a3d2672e62bab93e17a92099"
+  },
+  "method": "rustc --edition=2024 --test; entire current HTTP reader and dependent real source modules; current real socket tests; no substitute parser or business logic",
+  "red": {
+    "passed": 4,
+    "failed": 1,
+    "behavior": "malformed input became dispatchable bad replacement-character JSON"
+  },
+  "green": {
+    "passed": 5,
+    "failed": 0
+  },
+  "limits": "source-extracted parser test only; full MCP/workspace and native CI still pending",
+  "reference": "https://www.rfc-editor.org/rfc/rfc8259#section-8.1"
+}

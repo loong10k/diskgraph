@@ -1,0 +1,10 @@
+
+running 5 tests
+test http_request_syntax_tests::valid_unicode_and_literal_replacement_character_remain_unchanged ... ok
+test http_request_syntax_tests::invalid_utf8_body_is_rejected_before_dispatch_without_replacement ... ok
+test http_request_syntax_tests::supported_http_versions_preserve_request_and_single_value_headers ... ok
+test http_request_syntax_tests::duplicate_mcp_session_and_protocol_headers_are_rejected_before_dispatch ... ok
+test http_request_syntax_tests::malformed_request_line_never_becomes_a_dispatchable_request ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
