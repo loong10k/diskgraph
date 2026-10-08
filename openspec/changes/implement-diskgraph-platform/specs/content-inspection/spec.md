@@ -78,3 +78,12 @@ duplicates SHALL 先基于元数据生成疑似组，明确授权后才执行有
 #### Scenario: Windows native ordinary file regression
 - **WHEN** a Windows NTFS fixture is inspected under explicit content grants
 - **THEN** bounded ranges and complete digests work, one-byte digests remain unconfirmed, cancellation/deadline and revocation return no confirmed content, and alternate data streams and namespace escapes are refused. A writer present when acquiring data conflicts; mutation during the attribute-only acquisition is rejected as conflict without body/confirmed digest; a writer opened while reading conflicts with the data handle, and the retained parents prevent replacement. Cancellation/deadline are cooperative between native I/O operations, not hard preemption of a synchronous open or read.
+
+### Requirement: Placeholder digest terminal authorization
+Placeholder digest results SHALL recheck the original scope and current capability after placeholder diagnosis, before returning a result.
+
+#### Scenario: Scope revoked during placeholder diagnosis
+- **WHEN** placeholder diagnosis revokes the original scope before returning
+- **THEN** the bounded-until digest reports permission revoked with zero bytes digested and no digest
+- **AND** trusted local compatibility and persistent policy modes both enforce the revocation
+- **AND** deadline or cancellation observed after diagnosis prevents an ordinary placeholder completion

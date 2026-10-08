@@ -63,11 +63,28 @@ impl Engine {
             .map_err(|_| EngineError::Business(BusinessError::Unsupported))?;
         let mut prepared = crate::scoped_content::ScopedContent::open(&root, request.path, probe)?;
         if prepared.file.is_none() {
+            // 占位诊断也可能调用 provider 并等待；提前返回不能绕过终态撤权。
+            // until 接口保留零读取成本，旧兼容接口继续映射 permission_denied。
+            let stopped = match self.require_read_terminal(request, authorizer) {
+                Err(EngineError::Business(BusinessError::PermissionDenied)) => {
+                    InspectionStop::PermissionRevoked
+                }
+                Err(error) => return Err(error),
+                Ok(()) if std::time::Instant::now() >= deadline => InspectionStop::Deadline,
+                Ok(())
+                    if request
+                        .cancel
+                        .is_some_and(|cancel| cancel.load(std::sync::atomic::Ordering::SeqCst)) =>
+                {
+                    InspectionStop::Cancelled
+                }
+                Ok(()) => InspectionStop::Placeholder,
+            };
             return Ok(DigestOutcome {
                 requested_path: request.path.to_path_buf(),
                 digest_hex: String::new(),
                 bytes_digested: 0,
-                stopped: Some(InspectionStop::Placeholder),
+                stopped: Some(stopped),
                 observed_at_unix_ms: now_ms(),
             });
         }

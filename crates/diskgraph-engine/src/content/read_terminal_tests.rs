@@ -338,3 +338,121 @@ fn permission_only_content_terminal_refuses_late_allow_after_fixed_expiry() {
         "expired content terminal returned: {result:?}"
     );
 }
+
+#[test]
+fn placeholder_digest_preserves_revocation_without_confirming_content() {
+    /// 在占位诊断期间撤销原范围；仅同步竞态，不替代原生访问保护。
+    struct RevokingProbe {
+        control_path: std::path::PathBuf,
+        scope: diskgraph_core::ScopeId,
+    }
+    impl super::PlaceholderProbe for RevokingProbe {
+        fn is_placeholder(&self, _: &std::path::Path) -> bool {
+            ControlStore::open(&self.control_path)
+                .unwrap()
+                .revoke_scope(&self.scope)
+                .unwrap();
+            true
+        }
+    }
+    for persistent_policy in [false, true] {
+        let fixture = ReadTerminalFixture::new(persistent_policy);
+        let probe = RevokingProbe {
+            control_path: fixture
+                .directory
+                .path()
+                .join("data/diskgraph-control.sqlite"),
+            scope: fixture.scope.clone(),
+        };
+        let outcome = fixture
+            .engine
+            .digest_bounded_until(
+                &InspectionRequest {
+                    scope_id: &fixture.scope,
+                    principal: &fixture.principal,
+                    path: &fixture.path,
+                    offset: 0,
+                    max_bytes: 8,
+                    cancel: None,
+                    chunk_bytes: 8,
+                },
+                &probe,
+                &fixture.policy,
+                std::time::Instant::now() + std::time::Duration::from_secs(30),
+            )
+            .unwrap();
+        assert_eq!(outcome.stopped, Some(InspectionStop::PermissionRevoked));
+        assert_eq!(outcome.bytes_digested, 0);
+        assert!(outcome.digest_hex.is_empty());
+    }
+}
+
+#[test]
+fn placeholder_digest_rechecks_cancel_and_deadline_after_probe() {
+    /// 在真实占位诊断调用中触发取消或跨越原期限。
+    struct StoppingProbe<'a> {
+        cancel: &'a AtomicBool,
+        deadline: std::time::Instant,
+        expire: bool,
+        entered: std::cell::Cell<bool>,
+    }
+    impl super::PlaceholderProbe for StoppingProbe<'_> {
+        fn is_placeholder(&self, _: &std::path::Path) -> bool {
+            self.entered.set(true);
+            if self.expire {
+                std::thread::sleep(
+                    self.deadline
+                        .saturating_duration_since(std::time::Instant::now())
+                        + std::time::Duration::from_millis(1),
+                );
+            } else {
+                self.cancel.store(true, Ordering::SeqCst);
+            }
+            true
+        }
+    }
+    for expire in [false, true] {
+        let fixture = ReadTerminalFixture::new(true);
+        let cancel = AtomicBool::new(false);
+        let deadline = std::time::Instant::now()
+            + if expire {
+                std::time::Duration::from_millis(20)
+            } else {
+                std::time::Duration::from_secs(30)
+            };
+        let probe = StoppingProbe {
+            cancel: &cancel,
+            deadline,
+            expire,
+            entered: std::cell::Cell::new(false),
+        };
+        let outcome = fixture
+            .engine
+            .digest_bounded_until(
+                &InspectionRequest {
+                    scope_id: &fixture.scope,
+                    principal: &fixture.principal,
+                    path: &fixture.path,
+                    offset: 0,
+                    max_bytes: 8,
+                    cancel: Some(&cancel),
+                    chunk_bytes: 8,
+                },
+                &probe,
+                &fixture.policy,
+                deadline,
+            )
+            .unwrap();
+        assert!(probe.entered.get());
+        assert_eq!(
+            outcome.stopped,
+            Some(if expire {
+                InspectionStop::Deadline
+            } else {
+                InspectionStop::Cancelled
+            })
+        );
+        assert_eq!(outcome.bytes_digested, 0);
+        assert!(outcome.digest_hex.is_empty());
+    }
+}

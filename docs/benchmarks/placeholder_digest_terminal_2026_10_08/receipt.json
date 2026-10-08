@@ -1,0 +1,34 @@
+{
+  "base_commit": "249f6e5bfd858c60638641838eee2b31d6b3cc81",
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "observed": "Placeholder returned after scope revoked during diagnosis"
+  },
+  "content_library": {
+    "passed": 17,
+    "failed": 0,
+    "ignored": 0
+  },
+  "clippy": "passed",
+  "integration": {
+    "passed": 0,
+    "failed": 7,
+    "boundary": "all fail at Engine::open with Unsupported before content assertion; required macOS native deployment unavailable"
+  },
+  "independent_reviews": [
+    "code APPROVE",
+    "architecture CLEAR"
+  ],
+  "qualification": "macOS ARM64 targeted content library; full native matrix pending",
+  "logs_sha256": {
+    "red": "96394ebbe804bf512a0eb85ac903cb93b66d6aef799eb99d9a9012b6c5c7bab5",
+    "green": "e09e162342976767c174da5df2d2048f9ad82b7cf4be370b475cc0cc8a19b92b",
+    "clippy": "db1adf237fc7d3e445fd48bc5cec1f7d6743aa299f009d92cbb373a442e648df",
+    "content_flow_unqualified": "52df3ca3e8737f1b9502fa9e48dc824eb541496f8022b8152b027a789cc271ed"
+  },
+  "sources": {
+    "crates/diskgraph-engine/src/content/digest_content.rs": "246af4d285d6c67f0b7baa54caa25b9a50e6322bdd35f92266f0df380defbaea",
+    "crates/diskgraph-engine/src/content/read_terminal_tests.rs": "a93e62661877e3db68a5651a705e10be6d9be476a8654022671f0f39aec551bd"
+  }
+}
