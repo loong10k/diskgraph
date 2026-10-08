@@ -195,3 +195,10 @@ The CLI SHALL recheck the original absolute startup deadline after recovery-slot
 - **THEN** startup refuses with the original budget-exceeded failure before creating the data directory or either database
 - **AND** any acquired reservation follows the existing pre-birth abort path; unconfirmed cleanup must not be reported as successful retirement
 - **AND** this check does not claim hard interruption of filesystem or SQLite operations or complete supervisor integration
+
+### Requirement: Failed performance measurement process cleanup
+性能验收命令普通非零退出时，验收器 MUST 向其独立进程组发送终止信号并保留原退出码；不得仅等待直接进程后继续，将仍运行的同组后代计入后续测量。该机制不声明可以回收逃离进程组的后代。
+
+#### Scenario: Nonzero measurement leaves a same-group helper
+- **WHEN** 自建测量进程启动同组helper后以非零状态退出
+- **THEN** 验收器保留尚未回收的leader身份，向原进程组发送SIGKILL，再回收leader并保存原失败状态；拒绝将该测量视为成功。发送信号不等于已确认全部后代退休

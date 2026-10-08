@@ -76,6 +76,8 @@ def inventory(root):
 
 def terminate_group(process):
     """终止自建会话的整组后代并回收直接子进程，避免超时 Cargo 留下编译器。"""
+    if process.returncode is not None:
+        raise RuntimeError("cannot signal a reaped process group leader")
     try:
         os.killpg(process.pid, signal.SIGKILL)
     except ProcessLookupError:
@@ -83,7 +85,24 @@ def terminate_group(process):
     process.wait()
 
 
+
+def observe_exit(process, timeout):
+    """只观察不回收leader；保留PID身份直到组信号完成，沿用原命令期限。"""
+    deadline = time.monotonic() + timeout
+    while True:
+        observed = os.waitid(os.P_PID, process.pid,
+                             os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        if observed is not None and observed.si_pid == process.pid:
+            return observed.si_status if observed.si_code == os.CLD_EXITED else -observed.si_status
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired(process.args, timeout)
+        time.sleep(min(0.01, remaining))
+
+
 def command(argv, cwd, output, label, report, env=None, timeout=1200, required=True):
+    if not all(hasattr(os, name) for name in ("waitid", "WNOWAIT", "WEXITED", "WNOHANG", "P_PID")):
+        raise RuntimeError("non-reaping child exit observation is unsupported")
     stdout, stderr = output / f"{label}.stdout", output / f"{label}.stderr"
     started = time.monotonic()
     record = {"argv": [str(arg) for arg in argv], "cwd": str(cwd), "label": label,
@@ -95,7 +114,12 @@ def command(argv, cwd, output, label, report, env=None, timeout=1200, required=T
                                    start_new_session=True)
         record["process_group_id"] = process.pid
         try:
-            record["exit_code"] = process.wait(timeout=timeout)
+            observed_exit = observe_exit(process, timeout)
+            if observed_exit != 0:
+                # 主进程失败不代表同组helper已经退出；停止同组后代，保留原退出码。
+                terminate_group(process)
+                record["failure_terminated_process_group"] = True
+            record["exit_code"] = process.wait()
         except subprocess.TimeoutExpired:
             terminate_group(process)
             record["exit_code"] = None

@@ -1,0 +1,20 @@
+{
+  "source_sha256": {
+    "scripts/accept-linux-scan-namespace-cost.py": "fa7e20a709ca743141879d7bcb49c2a2e5a58b5a45fea907f5a80b4123513dc7",
+    "scripts/tests/test_scan_cost_worker_binding.py": "3d18c5a4e7af71177f85e0018c0bdfb7ee930eddfdc56184c40ea0f4a11e3d90",
+    "openspec/changes/implement-diskgraph-platform/specs/runtime-governance/spec.md": "3c97240506522dea6f7e3b10ee420b99b4c531b7b3f8bc8729917fee21e3017b"
+  },
+  "full_tests": {
+    "total": 280,
+    "passed": 279,
+    "skipped": 1,
+    "exit_code": 0
+  },
+  "target_tests": 10,
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "boundary": "WNOWAIT preserves leader identity until group signal; direct leader reaped; no proof of escaped descendants or complete group retirement",
+  "original_red": "actual same-group helper wrote after direct parent exited 7; regression failed before implementation"
+}
