@@ -131,3 +131,9 @@ HTTP 模式 SHALL 在服务器本机管理索引和文件操作；返回 server/
 - **AND** snapshots recheck metadata permission after reading; job status authorizes operation:view against the stored job scope, with capability callbacks outside the control lock
 - **AND** a revoke/regrant during either read cannot silently restore the in-flight result: reliable native negative notification returns permission_denied; where notification identity is unknown, an authorization-generation change on the same control connection conservatively returns conflict
 - **AND** generation-only conflict does not claim which permission changed, and may conservatively refuse an unrelated concurrent authorization update; continuously revoked live grants retain permission_denied
+
+#### Scenario: Revision reader conservatively remembers unknown-platform authorization changes
+- **WHEN** metadata capability is withdrawn and restored during initial or terminal authorization of the same revision read
+- **THEN** a reliable native withdrawal witness rejects the request as permission denied
+- **AND** without such a witness, a changed control authorization generation rejects the request as conflict rather than returning snapshot data
+- **AND** continuous live denial takes priority; callbacks stay outside the control lock and existing request deadlines remain unchanged

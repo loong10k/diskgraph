@@ -55,7 +55,7 @@ impl Engine {
         let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
         let control = self.control_until(deadline)?;
         // 在首次授权前绑定实际依赖；所有 SQL 仍使用请求最初的截止时间。
-        let withdrawal = control
+        let (withdrawal, generation) = control
             .with_read_deadline(deadline, |control| {
                 let withdrawal =
                     crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
@@ -65,7 +65,7 @@ impl Engine {
                     return Err(EngineError::Business(BusinessError::PermissionDenied));
                 }
                 withdrawal.check(control)?;
-                Ok::<_, EngineError>(withdrawal)
+                Ok::<_, EngineError>((withdrawal, control.authorization_generation()?))
             })
             .map_err(|error| match error {
                 EngineError::Store(error)
@@ -87,20 +87,32 @@ impl Engine {
             }
             return Err(error);
         }
+        #[cfg(test)]
+        crate::revision_reader_lock_gap_tests::after_initial_authorization(self);
         let control = self.control_until(deadline)?;
         withdrawal.check(&control)?;
         let current_server = control
-            .with_read_deadline(deadline, |control| control.existing_server_id())
-            .map_err(|error| {
-                if matches!(error, diskgraph_store::StoreError::BudgetExceeded)
-                    || error.is_interrupted()
-                    || error.is_busy()
-                {
-                    EngineError::Business(BusinessError::BudgetExceeded)
-                } else {
-                    EngineError::Store(error)
+            .with_read_deadline(deadline, |control| {
+                // 首次能力已在锁外验证；本锁内先复验实时拒权，再判断未知代次变化。
+                Self::require_decision_with_control(
+                    control,
+                    diskgraph_core::Decision::Allowed,
+                    principal,
+                    &Permission::MetadataRead,
+                    &scope,
+                )?;
+                if control.scope_revoked(&scope)? {
+                    return Err(BusinessError::PermissionDenied.into());
                 }
-            })?;
+                // 未知原生通知能力时，不能把恢复后的授权视作请求期间从未撤权。
+                if !withdrawal.has_native_watch()
+                    && control.authorization_generation()? != generation
+                {
+                    return Err(EngineError::Business(BusinessError::Conflict));
+                }
+                Ok::<_, EngineError>(control.existing_server_id()?)
+            })
+            .map_err(reader_terminal_control_error)?;
         if server != current_server.as_str() {
             return Err(BusinessError::PermissionDenied.into());
         }
@@ -157,6 +169,11 @@ impl Engine {
                 )?;
                 if control.scope_revoked(&scope)? {
                     return Err(BusinessError::PermissionDenied.into());
+                }
+                if !withdrawal.has_native_watch()
+                    && control.authorization_generation()? != generation
+                {
+                    return Err(BusinessError::Conflict.into());
                 }
                 Ok::<(), EngineError>(())
             })

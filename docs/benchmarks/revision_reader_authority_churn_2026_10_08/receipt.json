@@ -1,0 +1,34 @@
+{
+  "base_commit": "709c87f52a3ffe2e2be67b69c08bb1cd7c8a6426",
+  "state": "reviewed candidate; targeted validation complete; NOT production qualified",
+  "actual_red": "old implementation returned snapshot after revoke/regrant",
+  "management_final": "5 passed (initial callback, terminal callback, consumer revoke/regrant)",
+  "admin_before_priority_adjustment": "20 passed; not final-source proof",
+  "broad_deadline_group": "50 passed, 3 failed; all three fail in scanner setup with Business(Unsupported); NOT qualified",
+  "review": "independent code APPROVE and architecture CLEAR",
+  "sha256": {
+    "regrant_red.log.gz": "710568cf5ee84db968892ecc1096d51a5f0fc2c597a56f9b438cc43b9f7d2e20",
+    "regrant_green.log.gz": "4691db5af797dbc157253c11631f66cd9e4dc94123da42b155f1b9cde94fdb37",
+    "regrant_consumer.log.gz": "1b2ed23081b8e5555eda6b674cba08b2de58bd6d9bcfb025fdaf5ce2d3fcfac4",
+    "deadline_targets.log.gz": "7d03538d5d5acbdae6eec06853ff35b063d05734ca5f06e27f1d0218111d577c",
+    "admin_targets.log.gz": "33f5a17c1ac9b65d6bf526c552cf38af8ee2c6ae12c5941cd6048d4f4a148558",
+    "clippy.log.gz": "5f2199ef4e15b317c79e6aed453043920ccef542972e64dc85a1f6c1d328fee7",
+    "clippy_final.log.gz": "32d82b5ab90b2b293a7b92f2c7294346152478704811d04972630f819ff672ad",
+    "management_final.log.gz": "011940bc549e30a0e234de68829410c768d8c62b2ca8843ba7df907ebc704ac6",
+    "layout.log.gz": "2e428dc891522dc44c4c8952ac3f5c4b4d7831a23efc22108f319c96ffb4c1f4",
+    "spec.log.gz": "121e8124486643e2065ec7fb2e049f35fd42e670e452cf7f216bd551d265e8a5",
+    "lock_gap_red.log.gz": "67007878f583d43b146aefad613618356db337301cad46cc932eb71f82edde5c",
+    "lock_gap_green.log.gz": "6c306e037e0b53f303d6d7ba4497bf12dad2226a0cabff2721e5d87e5a219466",
+    "admin_final.log.gz": "57e72c449ef42bff87af64838846dd33dd4bf7a3c97ed01bf9ec3bcf70959098",
+    "layout_final.log.gz": "ee06a7dc72aa51c98b80761bc10433c7f777024b5d01e09c50c89c6d2fcd71f1"
+  },
+  "admin_final": "20 passed",
+  "lock_gap": "actual prior candidate RED Conflict; fixed GREEN PermissionDenied, consumer not entered",
+  "layout_final": "11 passed",
+  "clippy_final": "passed",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "0750a5c288d9f7e12fe86ebf030bbc8b777ca619e304cec9264503f025ac2aad",
+    "crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs": "acda3c5b3fbb1f45b6cbe7dabcaf1357c84878926889c8bab76d39552e3cb3be",
+    "crates/diskgraph-mcp/src/management_deadline_tests.rs": "8738eb815ab1c2eef8a020f51185d50c3f8c91032fb8ed83d6bc1e44d9c6f3c8"
+  }
+}

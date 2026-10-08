@@ -413,3 +413,6 @@ mod linux_no_recall_open_tests;
 mod authority_expiry_clock;
 
 mod job_status_read;
+
+#[cfg(test)]
+mod revision_reader_lock_gap_tests;

@@ -1,0 +1,152 @@
+{
+  "source_commit": "709c87f52a3ffe2e2be67b69c08bb1cd7c8a6426",
+  "log_sha256": "794e8330e6489e5490d99bc6b6142ce3003d15cd9f268633bf5eb17b416ff777",
+  "passed": 181,
+  "failed": 34,
+  "failures": [
+    {
+      "test": "children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::encoded_socket_history_rechecks_both_scope_sides",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::encoded_socket_history_rechecks_both_grant_sides",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "http::tests::a_client_side_path_is_never_resolved_against_the_server",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "http::tests::mcp_search_cursors_expire_with_policy_updates",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "http::tests::a_disconnected_client_job_completes_and_stays_queryable",
+      "unsupported_evidence": "job runner: unsupported (exit 6)"
+    },
+    {
+      "test": "http::tests::scope_ids_from_another_server_are_not_found",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::query_tests::explicit_revision_and_node_id_select_historical_data",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::relation_tests::explain_checks_entity_bytes_before_decoding",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "tests::relation_tests::relation_queries_bound_decoding_and_report_continuation",
+      "unsupported_evidence": "Business(Unsupported)"
+    },
+    {
+      "test": "http::tests::dropping_every_connection_is_not_a_cancellation",
+      "unsupported_evidence": "job runner: unsupported (exit 6)"
+    },
+    {
+      "test": "http::tests::legacy_disconnect_leaves_the_job_queryable",
+      "unsupported_evidence": "job runner: unsupported (exit 6)"
+    }
+  ],
+  "observed_fixed_install_exists": false,
+  "current_source_chain": [
+    "McpTestDirectory::open -> ScanWorkerSettings::host_from_environment",
+    "macOS -> ScanWorkerHost::from_installed_macos -> fixed active.json absent -> None",
+    "McpService::open without scan host -> real run_job returns Unsupported"
+  ],
+  "qualification": "FAILED; missing native installation is a setup boundary, not a test pass; product behavior with installed host remains unverified",
+  "ci_preparation": ".github/workflows/ci.yml Prepare actual fixed macOS installation for workspace"
+}

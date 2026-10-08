@@ -159,7 +159,7 @@ impl Authorizer for RegrantingAuthority<'_> {
             control
                 .upsert_grant(&diskgraph_core::Grant {
                     principal: principal.clone(),
-                    permission: self.permission.clone(),
+                    permission: self.permission,
                     scope: self.scope.clone(),
                     policy_version,
                 })
@@ -263,4 +263,55 @@ fn job_status_remembers_revocation_restored_during_capability_callback() {
             BusinessError::Conflict
         }
     );
+}
+
+#[test]
+fn revision_reader_remembers_revocation_restored_during_capability_callback() {
+    for (target, during_consumer) in [(0, false), (1, false), (1, true)] {
+        let (_dir, service, scope) = fixture();
+        let native_watch = service
+            .engine()
+            .control_store()
+            .unwrap()
+            .watch_authorization_withdrawal(
+                service.context.principal(),
+                &scope,
+                &diskgraph_core::Permission::MetadataRead,
+            )
+            .unwrap()
+            .is_some();
+        let authority = RegrantingAuthority {
+            engine: service.engine(),
+            policy: service.authorizer().unwrap(),
+            scope,
+            permission: diskgraph_core::Permission::MetadataRead,
+            calls: std::cell::Cell::new(0),
+            target,
+        };
+        let result = service.engine().with_authorized_revision_reader_until(
+            "deadline-revision",
+            service.context.principal(),
+            &authority,
+            Instant::now() + Duration::from_secs(1),
+            |reader, snapshot, _| {
+                if during_consumer {
+                    authority.decide(
+                        service.context.principal(),
+                        &diskgraph_core::Permission::MetadataRead,
+                        &authority.scope,
+                    );
+                }
+                Ok(reader.snapshot(snapshot)?.id)
+            },
+        );
+        assert_eq!(
+            crate::business_of(&result.unwrap_err()),
+            if native_watch {
+                BusinessError::PermissionDenied
+            } else {
+                BusinessError::Conflict
+            },
+            "callback position {target}"
+        );
+    }
 }
