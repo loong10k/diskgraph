@@ -55,6 +55,8 @@ impl TrustedLocalRecoveryDomain {
             if raw < 0 {
                 // 先捕获原 errno；诊断输出不得改变返回的系统错误，也不包含用户路径。
                 let error = std::io::Error::last_os_error();
+                let (entry, entry_errno) =
+                    crate::recovery_slot_entry_diagnostic::observe(&self.directory, name);
                 // held 目录被移除后 fstat 仍可成功，但创建子项可能 ENOENT；只记录状态诊断，
                 // 不输出目录路径/身份，不重建容量域，也不将失败重试为新的出生授权。
                 let directory_links = self
@@ -71,7 +73,7 @@ impl TrustedLocalRecoveryDomain {
                 #[cfg(not(target_os = "macos"))]
                 let namespace = "unobserved";
                 eprintln!(
-                    "diskgraph: recovery slot_stage=open failed errno={:?} directory_links={directory_links:?} namespace={namespace}",
+                    "diskgraph: recovery slot_stage=open failed errno={:?} directory_links={directory_links:?} namespace={namespace} entry={entry} entry_errno={entry_errno:?}",
                     error.raw_os_error()
                 );
                 return Err(error.into());

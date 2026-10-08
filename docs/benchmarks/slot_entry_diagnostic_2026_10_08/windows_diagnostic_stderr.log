@@ -1,0 +1,12 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 729.2808437}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 949.618637}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 949.6186966}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 950.2461337}
+{"phase": "index", "event": "begin", "monotonic_seconds": 950.246187}
+{"phase": "index", "event": "end", "monotonic_seconds": 1143.3434659}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 1143.3435312}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 1143.6544626}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 1143.6545359}
+{"phase": "queries", "event": "end", "monotonic_seconds": 1143.9632678}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 1143.9633195}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 1147.1792309}

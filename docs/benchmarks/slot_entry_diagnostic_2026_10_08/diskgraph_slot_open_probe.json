@@ -1,0 +1,51 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "processes": 8,
+  "elapsed_seconds": 0.8219327919941861,
+  "total_attempts": 80000,
+  "errors": 0,
+  "results": [
+    {
+      "pid": 74225,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74231,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74228,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74230,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74229,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74227,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74224,
+      "attempts": 10000,
+      "errors": []
+    },
+    {
+      "pid": 74232,
+      "attempts": 10000,
+      "errors": []
+    }
+  ],
+  "scope": "isolated openat flag reproduction only; no recovery slot protocol or managed-worker acceptance"
+}

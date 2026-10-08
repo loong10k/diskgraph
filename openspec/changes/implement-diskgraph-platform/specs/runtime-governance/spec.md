@@ -205,6 +205,11 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 ### Requirement: Startup admission preserves the original deadline before database creation
 The CLI SHALL recheck the original absolute startup deadline after recovery-slot admission and before constructing the Engine. Admission SHALL NOT refresh that deadline.
 
+#### Scenario: Native slot open failure retains its primary error
+- **WHEN** opening a fixed recovery slot fails
+- **THEN** diagnostics may observe the original held directory entry using no-follow metadata only, reporting a coarse type and a separate diagnostic errno without paths or file content
+- **AND** the original error is returned without retry, slot deletion, namespace repair or new capacity; a later metadata observation is not treated as proof of the entry state at the failed open
+
 #### Scenario: Admission consumes the remaining startup budget
 - **WHEN** recovery admission starts before the original deadline but returns after it
 - **THEN** startup refuses with the original budget-exceeded failure before creating the data directory or either database

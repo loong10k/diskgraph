@@ -388,6 +388,8 @@ mod supervisor_binding_tests;
 pub mod native_deadline;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
+mod recovery_slot_entry_diagnostic;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 mod trusted_local_recovery_domain;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod trusted_local_recovery_home;

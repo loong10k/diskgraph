@@ -1,0 +1,5 @@
+{
+  "crates/diskgraph-engine/src/recovery_slot_entry_diagnostic.rs": "6823e3827ee5eb70fb63feb9c11fbb304f979c1c2a36810367fb90ff56223488",
+  "crates/diskgraph-engine/src/trusted_local_recovery_domain.rs": "84d4b68fbd3382f29deb606d5eef620b659a62c2f47a6f21c7c85ae3d3748563",
+  "crates/diskgraph-engine/src/lib.rs": "cea75ab2d6cf3444f9275465f372ff47e48405fadc00287a9d3cd101091d4f5b"
+}
