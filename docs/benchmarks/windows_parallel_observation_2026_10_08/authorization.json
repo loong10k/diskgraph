@@ -1,0 +1,33 @@
+{
+  "receipt": {
+    "base_head": "9ade861e331366e7fd5279940118fe9ba4d5ec79",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "bbbdc6b5d3cb19d6b88c2bb2b34e218ca80b0de312103b454f884f5369727c08",
+      "crates/diskgraph-engine/src/scan_execution.rs": "e0d0156274a9cd758e9f3e3695398cc463b13edecc386dc468dbc1e1e2eb04ff",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d"
+    },
+    "commands": [
+      {
+        "name": "job_authorization_tests",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "job_authorization_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 31.453000000008615
+      }
+    ]
+  },
+  "stdout": "\nrunning 6 tests\ntest job_authorization_tests::strict_execution_does_not_upgrade_a_legacy_job_to_local_authority ... ok\ntest job_authorization_tests::claimed_job_graph_preparation_wait_consumes_the_original_scan_budget ... ok\ntest job_authorization_tests::trusted_runner_still_obeys_a_persisted_remote_expiry ... ok\ntest job_authorization_tests::live_remote_authority_can_publish_through_the_strict_runner ... ok\ntest job_authorization_tests::live_grant_revocation_after_native_observation_prevents_publication ... ok\ntest job_authorization_tests::remote_expiry_after_native_observation_prevents_staging_and_publication ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 688 filtered out; finished in 30.41s\n\n",
+  "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.82s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\nclaimed=true, original budget=50ms, held after claim=100ms, state=Failed, latest=None, result=Err(Business(BudgetExceeded))\n"
+}
