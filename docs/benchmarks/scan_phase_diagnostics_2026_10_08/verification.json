@@ -1,0 +1,17 @@
+{
+  "purpose": "diagnose Windows 200k index timeout without changing workload or deadlines",
+  "red": "timeout diagnostic regression failed because original captured stderr was discarded",
+  "green": "12 load coverage tests and 4 Windows diagnostic tests passed",
+  "checks": [
+    "cargo check -p diskgraph-engine --locked passed",
+    "cargo fmt -p diskgraph-engine -- --check passed",
+    "git diff --check passed"
+  ],
+  "native_performance_verified": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scan_execution.rs": "1a21fdaf07dd77bfa1dfa81824775bb67013ef07d3e4a948ee4c97c370017dbb",
+    "scripts/accept-readonly-load.py": "99e1603970b703d5b6eb99a77044bfa39ce27e9ff1820d1afb0ccd36932c7ffc",
+    "scripts/diagnose_windows_load.py": "b40460414d5fcd85967ff4ca5943bfe3278ad39e9e95e23243c6b9d0e99d8a76",
+    "scripts/tests/test_readonly_load_coverage.py": "e167142ba391de2e8d74a4dbfa3a62017d67ce7e926d7034f4c395368779b0f5"
+  }
+}

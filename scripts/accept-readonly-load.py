@@ -25,10 +25,21 @@ def phase(name, event):
 
 
 def invoke(cli, data, *arguments, timeout=300, expected=0):
-    result = subprocess.run(
-        [cli, "--data-dir", data, "--json", *arguments],
-        capture_output=True, text=True, timeout=timeout,
-    )
+    try:
+        result = subprocess.run(
+            [cli, "--data-dir", data, "--json", *arguments],
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as error:
+        # 保留有限尾部供阶段诊断，原异常和原 timeout 不变；不输出无限子进程日志。
+        tail = error.stderr or ""
+        if isinstance(tail, bytes):
+            tail = tail[-16384:].decode("utf-8", errors="replace")
+        else:
+            tail = tail[-16384:]
+        if tail:
+            print(tail, file=sys.stderr, flush=True)
+        raise
     if result.returncode != expected:
         raise RuntimeError(
             f"{arguments!r} exited {result.returncode}, expected {expected}:\n"

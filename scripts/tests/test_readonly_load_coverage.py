@@ -175,3 +175,16 @@ class CoverageTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class TimeoutDiagnosticTests(unittest.TestCase):
+    """原索引超时必须保留有限阶段证据，不改变原异常或验收期限。"""
+    def test_timeout_preserves_original_exception_and_bounded_stderr_tail(self):
+        error = subprocess.TimeoutExpired(['diskgraph'], 300,
+                                          stderr=b'x' * 70000 + b'last-scan-stage')
+        captured = io.StringIO()
+        with patch.object(MODULE.subprocess, 'run', side_effect=error), contextlib.redirect_stderr(captured):
+            with self.assertRaises(subprocess.TimeoutExpired) as raised:
+                MODULE.invoke('diskgraph', 'data', 'index')
+        self.assertIs(raised.exception, error)
+        self.assertIn('last-scan-stage', captured.getvalue())
+        self.assertLessEqual(len(captured.getvalue().encode()), 65537)

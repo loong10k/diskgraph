@@ -48,7 +48,8 @@ def run(bin_dir, output):
     save()
     try:
         result = run_owned(command,
-                           cwd=ROOT, capture_output=True, text=True, timeout=900)
+                           cwd=ROOT, capture_output=True, text=True, timeout=900,
+                           env={**os.environ, 'DISKGRAPH_SCAN_DIAGNOSTICS': '1'})
         capture(result.stdout, result.stderr)
         if result.returncode:
             raise RuntimeError('full-load diagnostic command failed; see captured phase logs')

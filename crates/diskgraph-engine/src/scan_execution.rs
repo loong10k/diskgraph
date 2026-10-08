@@ -87,6 +87,18 @@ impl Engine {
             .checked_add(Duration::from_millis(self.scan_budget.max_duration_ms))
             .ok_or(BusinessError::BudgetExceeded)?;
         let runtime = crate::scan_worker_runtime::ScanWorkerRuntime::new(host, deadline);
+        // 仅可信本地诊断显式开启；固定阶段不携带路径、主体、job 或正文。
+        let timing =
+            std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").is_some_and(|value| value == "1");
+        let trace = |phase: &str, nodes: u64| {
+            if timing {
+                eprintln!(
+                    "diskgraph: scan_phase={phase} nodes={nodes} elapsed_ms={}",
+                    scan_started.elapsed().as_millis()
+                );
+            }
+        };
+        trace("worker_begin", 0);
         let mut scanner_observed = false;
         let tree = runtime.run(
             &root,
@@ -152,6 +164,7 @@ impl Engine {
                 Ok(())
             },
         )?;
+        trace("worker_complete", 0);
         let scanned = diskgraph_disktree::convert_tree(&root, &tree, scan_settings(&options))
             .map_err(|error| {
                 if error.kind() == io::ErrorKind::Unsupported {
@@ -161,6 +174,7 @@ impl Engine {
                 }
             })?;
         drop(tree);
+        trace("conversion_complete", scanned.nodes.len() as u64);
         let window = ScanWindow {
             started_at_unix_ms,
             finished_at_unix_ms: now_ms(),
@@ -328,7 +342,9 @@ impl Engine {
                 )?;
                 Ok(())
             })?;
+            trace("staging_batch_complete", usage.nodes);
         }
+        trace("staging_complete", usage.nodes);
         let v1_nodes: Vec<diskgraph_core::DiskNode> =
             scanned.nodes.into_iter().map(|node| node.v1).collect();
         let revision_id = format!("rev-{}-{}", job_id, job.fencing_token);
@@ -390,6 +406,7 @@ impl Engine {
         let server_id = control.ensure_server()?;
         control.heartbeat_fenced(job_id, owner, job.fencing_token)?;
         let lease_expires = control.job(job_id)?.lease_expires_unix_ms;
+        trace("publication_begin", usage.nodes);
         let result = control.with_job_fence(job_id, owner, job.fencing_token, || {
             let elapsed = scan_started.elapsed();
             #[cfg(test)]
@@ -421,6 +438,7 @@ impl Engine {
             return Err(error.into());
         }
 
+        trace("publication_complete", usage.nodes);
         Ok(())
     }
 }
