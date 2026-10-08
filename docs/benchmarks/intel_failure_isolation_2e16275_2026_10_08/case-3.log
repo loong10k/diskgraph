@@ -1,0 +1,16 @@
+[1m[92m   Compiling[0m diskgraph-engine v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-engine)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1.00s
+[1m[92m     Running[0m tests/relation_preparation_budget.rs (target/debug/deps/relation_preparation_budget-ca809bf3f8e143b2)
+
+running 1 test
+test every_consumer_keeps_the_remaining_preparation_balance ... cumulative method=related, target_bytes=31750, consumer_bytes=4271, allowance=36020, result=Ok(Object {"complete": Bool(false), "edges": Array [], "next_after_edge": Null, "truncated": String("byte_limit")})
+cumulative method=explain, target_bytes=31750, consumer_bytes=115, allowance=31864, result=Err(Business(BudgetExceeded))
+cumulative method=impact, target_bytes=31750, consumer_bytes=4271, allowance=36020, result=Ok(Object {"complete": Bool(false), "entries": Array [], "grants_execution": Bool(false), "truncated": String("byte_limit")})
+cumulative method=candidate, target_bytes=31750, consumer_bytes=32146, allowance=63895, result=Err(Store(BudgetExceeded))
+cumulative method=tree, target_bytes=31750, consumer_bytes=174, allowance=31923, result=Err(Store(BudgetExceeded))
+cumulative method=trusted_tree, target_bytes=31750, consumer_bytes=174, allowance=31923, result=Err(Store(BudgetExceeded))
+cumulative method=store_candidate, target_bytes=31750, consumer_bytes=32146, allowance=63895, result=Err(Store(BudgetExceeded))
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.19s
+

@@ -1,0 +1,111 @@
+{
+  "commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "production_acceptance": false,
+  "purpose": "failure isolation only; original workspace failure remains",
+  "cases": [
+    {
+      "test": "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "diskgraph-cli",
+        "--bin",
+        "diskgraph",
+        "--locked",
+        "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "exact_case_passed": true,
+      "elapsed_seconds": 42.90258507500039
+    },
+    {
+      "test": "revision_evidence_tests::dependency_batches_do_not_reactivate_old_assertions",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--locked",
+        "revision_evidence_tests::dependency_batches_do_not_reactivate_old_assertions",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "exact_case_passed": true,
+      "elapsed_seconds": 1.467171356000108
+    },
+    {
+      "test": "partial_unreadable_and_depth_coverage_never_claim_removed_paths",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "history_compatibility_matrix",
+        "--locked",
+        "partial_unreadable_and_depth_coverage_never_claim_removed_paths",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "exact_case_passed": true,
+      "elapsed_seconds": 4.846537910999359
+    },
+    {
+      "test": "every_consumer_keeps_the_remaining_preparation_balance",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "relation_preparation_budget",
+        "--locked",
+        "every_consumer_keeps_the_remaining_preparation_balance",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "exact_case_passed": true,
+      "elapsed_seconds": 1.2714263520001623
+    },
+    {
+      "test": "decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "relation_request_budget",
+        "--locked",
+        "decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges",
+        "--",
+        "--exact",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "status": "passed",
+      "returncode": 0,
+      "exact_case_passed": true,
+      "elapsed_seconds": 2.689538094999989
+    }
+  ]
+}

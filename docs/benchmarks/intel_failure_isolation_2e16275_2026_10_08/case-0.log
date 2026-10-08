@@ -1,0 +1,29 @@
+[1m[92m   Compiling[0m serde v1.0.229
+[1m[92m   Compiling[0m strum_macros v0.28.0
+[1m[92m   Compiling[0m derive_more-impl v2.1.1
+[1m[92m   Compiling[0m clap_builder v4.6.7
+[1m[92m   Compiling[0m diskgraph-core v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-core)
+[1m[92m   Compiling[0m derive_more v2.1.1
+[1m[92m   Compiling[0m crossterm v0.29.0
+[1m[92m   Compiling[0m strum v0.28.0
+[1m[92m   Compiling[0m diskgraph-scan-worker v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-scan-worker)
+[1m[92m   Compiling[0m ratatui-core v0.1.2
+[1m[92m   Compiling[0m diskgraph-store v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-store)
+[1m[92m   Compiling[0m diskgraph-disktree v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-disktree)
+[1m[92m   Compiling[0m ratatui-widgets v0.3.2
+[1m[92m   Compiling[0m ratatui-crossterm v0.1.2
+[1m[92m   Compiling[0m clap_derive v4.6.7
+[1m[92m   Compiling[0m tempfile v3.27.0
+[1m[92m   Compiling[0m ratatui v0.30.2
+[1m[92m   Compiling[0m clap v4.6.7
+[1m[92m   Compiling[0m diskgraph-engine v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-engine)
+[1m[92m   Compiling[0m diskgraph-mcp v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-mcp)
+[1m[92m   Compiling[0m diskgraph-cli v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-cli)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 35.25s
+[1m[92m     Running[0m unittests src/main.rs (target/debug/deps/diskgraph-4a33686c7c9ed879)
+
+running 1 test
+test query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 82 filtered out; finished in 7.49s
+

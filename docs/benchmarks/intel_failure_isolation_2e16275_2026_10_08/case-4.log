@@ -1,0 +1,9 @@
+[1m[92m   Compiling[0m diskgraph-engine v0.3.0 (/Users/runner/work/diskgraph/diskgraph/crates/diskgraph-engine)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1.13s
+[1m[92m     Running[0m tests/relation_request_budget.rs (target/debug/deps/relation_request_budget-dee9cd5259b6c97f)
+
+running 1 test
+test decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 1.48s
+
