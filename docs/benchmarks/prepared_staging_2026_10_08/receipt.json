@@ -1,0 +1,28 @@
+{
+  "base_commit": "18f83b754006ac47ef25a63bc844d0d2cfc28679",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scan_execution.rs": "047f7a4ca6d07ba9d9e8a2da001abb64c3d036fb666ad8f6dd1422e145fe64b1",
+    "crates/diskgraph-store/src/scan_staging_store.rs": "09e4e6f4eefaa3df3225e1b403e1fb7ebcd7cd30d69443be0c54f5bf0b8441c2",
+    "crates/diskgraph-store/src/prepared_staging_node.rs": "59f422ba6fcf8745f872a08d5e60c8bbbfa86c0f2d01153c193b841688edfd5e",
+    "crates/diskgraph-store/src/prepared_staging_node_tests.rs": "32670de24d996964a53cde2ae80fc867efdcac80be7aea2fc89ac12f93dd0b79"
+  },
+  "platform": "macOS ARM64",
+  "targeted_tests": {
+    "passed": 3,
+    "failed": 0
+  },
+  "store_lib_tests": {
+    "passed": 339,
+    "failed": 0,
+    "ignored": 5,
+    "worktree_includes_uncommitted_reader_observation_test_mount": true
+  },
+  "engine_source_layout": {
+    "passed": 6
+  },
+  "clippy_all_targets": "passed on host",
+  "initial_test_result": "missing new API compilation failure, not a reproduced behavioral RED",
+  "native_windows_performance": "not measured",
+  "release_performance_comparison": "not measured",
+  "schema_and_vendor_changed": false
+}

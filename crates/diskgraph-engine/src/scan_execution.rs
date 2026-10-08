@@ -6,9 +6,9 @@ use crate::scan_observation_guard::ScanObservationGuard;
 use crate::{Engine, EngineError, collect_projects};
 use diskgraph_core::{
     Authorizer, BudgetDecision, BudgetUsage, BusinessError, DiskGraph, Permission, ScanBudgetStop,
-    ScanWindow, WindowsFileObservation, WindowsObservationGap,
+    ScanWindow, WindowsObservationGap,
 };
-use diskgraph_store::StoreError;
+use diskgraph_store::{PreparedStagingNode, StoreError};
 use std::io;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -205,11 +205,7 @@ impl Engine {
                 return Err(BusinessError::ResourceExhausted.into());
             }
             let observation_started = timing.then(Instant::now);
-            let mut locators = Vec::with_capacity(batch.len());
-            let mut observations: Vec<(
-                Option<WindowsFileObservation>,
-                Option<WindowsObservationGap>,
-            )> = Vec::with_capacity(batch.len());
+            let mut prepared_nodes = Vec::with_capacity(batch.len());
             #[cfg(target_os = "linux")]
             let mut unix_observations = Vec::with_capacity(batch.len());
             for node in batch {
@@ -252,13 +248,14 @@ impl Engine {
                 observation_guard.check()?;
                 usage.elapsed_ms =
                     u64::try_from(scan_started.elapsed().as_millis()).unwrap_or(u64::MAX);
-                let cost = diskgraph_store::staging_observed_node_encoded_cost(
+                let prepared = PreparedStagingNode::new(
                     &node.v1,
-                    Some(&locator),
+                    Some(locator),
                     node.self_modified,
                     observed.0.as_ref(),
                     observed.1,
                 )?;
+                let cost = prepared.encoded_cost();
                 // 与旁表写入共用编码校验，按实际元数据字节计费，保留Core编码上限。
                 #[cfg(target_os = "linux")]
                 let cost = cost
@@ -286,8 +283,7 @@ impl Engine {
                     }
                     .into());
                 }
-                locators.push(locator);
-                observations.push(observed);
+                prepared_nodes.push(prepared);
                 #[cfg(target_os = "linux")]
                 unix_observations.push(unix_observed);
             }
@@ -303,19 +299,9 @@ impl Engine {
             let mut control = self.control()?;
             let lease_expires = control.job(job_id)?.lease_expires_unix_ms;
             control.with_job_fence(job_id, owner, job.fencing_token, || {
-                graph.append_staging_observed_iter_checked(
+                graph.append_prepared_staging_iter_checked(
                     &staging_id,
-                    batch.iter().zip(&locators).zip(&observations).map(
-                        |((node, locator), (observed, gap))| {
-                            (
-                                &node.v1,
-                                locator,
-                                node.self_modified,
-                                observed.as_ref(),
-                                *gap,
-                            )
-                        },
-                    ),
+                    prepared_nodes.iter(),
                     || {
                         crate::job_authorization::check_scan_commit(
                             authority.as_ref(),

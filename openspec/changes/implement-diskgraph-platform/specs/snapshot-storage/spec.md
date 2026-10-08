@@ -88,3 +88,8 @@ Graph and control database migrations SHALL reserve a new backup destination ato
 - **WHEN** 同一 checked 事务暂存多个 Unix 文件观测
 - **THEN** 节点目标点查和观测 INSERT 各仅编译一次并复用参数绑定
 - **AND** 保留每项前后授权/取消/期限检查、COUNT(*)=1 歧义拒绝和整批失败回滚；不得为性能移除原生身份校验
+
+#### Scenario: Reuse the admitted staging encoding
+- **WHEN** 扫描为当前有界批次计算节点原生观测的实际编码字节预算
+- **THEN** 暂存写入复用同一份不可变已校验编码；节点 JSON、Unicode 搜索折叠、原始定位、时间和观测字段不得在预算准入后被替换
+- **AND** 每项取消检查、提交前检查、fencing 命名空间和批次事务保持；取消或写入冲突回滚节点与搜索两表，旧借用接口保持兼容。缓存只存当前配置批次，不声明严格 RSS 上限。

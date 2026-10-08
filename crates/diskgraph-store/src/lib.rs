@@ -351,3 +351,8 @@ mod scan_job_recovery;
 
 #[cfg(test)]
 mod principal_policy_query_tests;
+
+mod prepared_staging_node;
+pub use prepared_staging_node::PreparedStagingNode;
+#[cfg(test)]
+mod prepared_staging_node_tests;

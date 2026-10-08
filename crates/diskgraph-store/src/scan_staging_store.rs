@@ -1,9 +1,10 @@
 //! 有界扫描暂存与失效 fencing 代次清理。
 
-use crate::staging_node_encoding::{StagingNodeEncoding, kind_name};
-use crate::{Result, SqliteSnapshotStore};
+use crate::staging_node_encoding::kind_name;
+use crate::{PreparedStagingNode, Result, SqliteSnapshotStore};
 use diskgraph_core::{DiskNode, QualifiedLocator, WindowsFileObservation, WindowsObservationGap};
 use rusqlite::params;
+use std::borrow::Borrow;
 
 impl SqliteSnapshotStore {
     /// Appends scanned nodes to invisible staging for a running job; ordinary
@@ -105,6 +106,33 @@ impl SqliteSnapshotStore {
         >,
         mut check: impl FnMut() -> Result<()>,
     ) -> Result<()> {
+        self.append_prepared_results(
+            job_id,
+            nodes.map(|(node, locator, modified, observation, gap)| {
+                PreparedStagingNode::new(node, locator.cloned(), modified, observation, gap)
+            }),
+            &mut check,
+        )
+    }
+
+    /// 写入已按实际编码成本准入的不可变批次，不重新编码或读取源路径。
+    /// 参数：job_id 为原 fencing 命名空间，nodes 只借用当前批次，check 沿原 clock/cancel/fence。
+    /// 返回：全批提交或回滚，节点和搜索字段共用同一事务；调用方负责预算准入与实时授权。
+    pub fn append_prepared_staging_iter_checked<'a>(
+        &mut self,
+        job_id: &str,
+        nodes: impl Iterator<Item = &'a PreparedStagingNode>,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        self.append_prepared_results(job_id, nodes.map(Ok), check)
+    }
+
+    fn append_prepared_results<S: Borrow<PreparedStagingNode>>(
+        &mut self,
+        job_id: &str,
+        mut nodes: impl Iterator<Item = Result<S>>,
+        mut check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
         check()?;
         let transaction = self.connection.transaction()?;
         check()?;
@@ -120,20 +148,18 @@ impl SqliteSnapshotStore {
                 [job_id],
                 |row| row.get(0),
             )?;
-            for (offset, (node, locator, modified, observation, gap)) in nodes.enumerate() {
+            let mut offset = 0i64;
+            loop {
+                // 先检查，再推进可能执行编码的旧接口迭代器；外部纯回调不得重入此库。
                 check()?;
-                let encoded = StagingNodeEncoding::encode_observed(
-                    node,
-                    locator,
-                    modified,
-                    observation,
-                    gap,
-                )?;
+                let Some(prepared) = nodes.next() else { break };
+                let prepared = prepared?;
+                let prepared = prepared.borrow();
+                let encoded = &prepared.encoded;
+                let locator = prepared.locator.as_ref();
                 check()?;
                 let sequence = existing
-                    .checked_add(
-                        i64::try_from(offset).map_err(|_| crate::StoreError::IntegerOverflow)?,
-                    )
+                    .checked_add(offset)
                     .and_then(|value| value.checked_add(1))
                     .ok_or(crate::StoreError::IntegerOverflow)?;
                 statement.execute(params![
@@ -143,10 +169,13 @@ impl SqliteSnapshotStore {
                     locator.map(|value| kind_name(value.kind())),
                     locator.map(|value| value.encoding().wire_name()),
                     locator.map(|value| value.raw_bytes()),
-                    modified,
-                    observation.map(|_| WindowsFileObservation::FORMAT_LABEL),
+                    prepared.modified,
+                    encoded
+                        .observation_raw
+                        .as_ref()
+                        .map(|_| WindowsFileObservation::FORMAT_LABEL),
                     encoded.observation_raw.as_ref().map(|raw| raw.as_slice()),
-                    gap.map(|value| value.code())
+                    prepared.gap.map(|value| value.code())
                 ])?;
                 search_statement.execute(params![
                     job_id,
@@ -154,6 +183,9 @@ impl SqliteSnapshotStore {
                     encoded.name_fold,
                     encoded.path_fold
                 ])?;
+                offset = offset
+                    .checked_add(1)
+                    .ok_or(crate::StoreError::IntegerOverflow)?;
             }
         }
         check()?;
