@@ -723,9 +723,9 @@ jobs:
         timeout-minutes: 30
         # 恢复失败可能阻止二进制返回；即时保留原断言/诊断，不等待 libtest 最终汇总。
         run: cargo test --workspace --all-targets --locked --no-fail-fast -- --nocapture
-      - name: Observe original macOS Intel failures without concurrent test scheduling
-        if: failure() && matrix.os == 'macos-15-intel' && steps.workspace_tests.outcome == 'failure'
-        id: intel_failure_isolation
+      - name: Observe original macOS failures without concurrent test scheduling
+        if: failure() && runner.os == 'macOS' && steps.workspace_tests.outcome == 'failure'
+        id: macos_failure_isolation
         continue-on-error: true
         timeout-minutes: 16
         shell: bash
@@ -733,7 +733,7 @@ jobs:
           python3 - <<'PYTHON'
           import json, os, re, subprocess, time
           from pathlib import Path
-          output = Path(os.environ['RUNNER_TEMP']) / 'intel-failure-isolation'
+          output = Path(os.environ['RUNNER_TEMP']) / 'macos-failure-isolation'
           output.mkdir(exist_ok=True)
           cases = [
               ('diskgraph-cli', '--bin', 'diskgraph', 'query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires'),
@@ -741,6 +741,8 @@ jobs:
               ('diskgraph-engine', '--test', 'history_compatibility_matrix', 'partial_unreadable_and_depth_coverage_never_claim_removed_paths'),
               ('diskgraph-engine', '--test', 'relation_preparation_budget', 'every_consumer_keeps_the_remaining_preparation_balance'),
               ('diskgraph-engine', '--test', 'relation_request_budget', 'decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges'),
+              ('diskgraph-engine', '--lib', None, 'revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window'),
+              ('diskgraph-engine', '--test', 'history_size_eligibility', 'revision_changes_excludes_unknown_and_type_replacement_from_size_changed'),
           ]
           receipt = {'commit': os.environ['GITHUB_SHA'], 'production_acceptance': False,
                      'purpose': 'failure isolation only; original workspace failure remains', 'cases': []}
@@ -768,12 +770,12 @@ jobs:
               (output / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
           raise SystemExit(1 if failed else 0)
           PYTHON
-      - name: Preserve original macOS Intel failure isolation
-        if: always() && (steps.intel_failure_isolation.outcome == 'success' || steps.intel_failure_isolation.outcome == 'failure')
+      - name: Preserve original macOS failure isolation
+        if: always() && (steps.macos_failure_isolation.outcome == 'success' || steps.macos_failure_isolation.outcome == 'failure')
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: intel-failure-isolation-${{ github.run_id }}
-          path: ${{ runner.temp }}/intel-failure-isolation
+          name: macos-failure-isolation-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/macos-failure-isolation
           if-no-files-found: error
           retention-days: 7
       - name: Native HTTP shutdown and original request deadline

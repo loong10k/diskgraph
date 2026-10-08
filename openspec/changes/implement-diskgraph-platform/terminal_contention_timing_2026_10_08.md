@@ -9,3 +9,9 @@
 原 CI 失败仍保持未关闭。此次本机通过不能证明 macOS Intel、Linux、Windows 或拥挤 CI 下稳定；下一次相同提交 CI 应根据新诊断定位真实超时阶段。现有负向撤权优先、期限耗尽拒绝与长竞争回归均保留。没有新增或勾选生产就绪任务。
 
 原始压缩日志及源码摘要见 docs/benchmarks/terminal_contention_timing_2026_10_08/。
+
+## 下一轮 macOS CI 失败隔离
+
+现有失败后串行诊断从 Intel 扩展到 macOS 各矩阵，保留原五个诊断用例，并加入本轮实际失败的短终检锁竞争与历史尺寸用例。每个用例仍要求真实 exact 测试名称、1 passed/0 failed/0 ignored，原完整 workspace 失败不会被诊断成功覆盖。诊断工件名称包含 OS、工具链和 run，避免多个矩阵覆盖同名输出。原 30 分钟 workspace 门槛、16 分钟诊断门槛和全部业务时间额度保持不变。
+
+该配置变更只经过本地 YAML/内嵌 Python 语法及用例清单检查；实际诊断结果必须等待新提交 CI，不能据配置存在关闭原 macOS 失败。
