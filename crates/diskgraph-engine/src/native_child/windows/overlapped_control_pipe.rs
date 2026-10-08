@@ -38,6 +38,12 @@ pub(super) struct OverlappedControlPipe {
 }
 
 impl OverlappedControlPipe {
+    /// 借用原 pending 控制操作的事件。参数：无；返回：原 owner 持有的完成事件或空。
+    /// 唤醒不替代 poll_write 对实际字节与取消完成的观察。
+    pub(super) fn pending_event(&self) -> Option<HANDLE> {
+        self.pending.then(|| self.event.as_raw())
+    }
+
     /// 写入一个自有数据块，禁止覆盖未完成块。参数：source 非空且最多 4096 字节。返回：真实内核完成字节数、Pending 或原 I/O 错误；不证明 worker 已读取。
     pub(super) fn start_write(&mut self, source: &[u8]) -> Result<ControlWriteStatus, ChildError> {
         if self.connecting || self.closing || self.write.is_none() {

@@ -25,6 +25,30 @@ pub(crate) struct ScanWorkerDriver {
 }
 
 impl ScanWorkerDriver {
+    /// 有限等待下一轮。参数：无；返回：等待成功或原生事件错误，绝不刷新请求期限。
+    /// Windows 等待原 pending I/O 事件，Unix 保持原待机；事件完成仍须经过下一轮完整检查。
+    pub(crate) fn wait_for_next_poll(&self) -> Result<(), ChildError> {
+        if self.next_poll_delay().is_zero() {
+            return Ok(());
+        }
+        #[cfg(windows)]
+        {
+            self.child
+                .as_ref()
+                .expect("driver owns its child")
+                .wait_for_io_until(self.deadline)
+        }
+        #[cfg(not(windows))]
+        {
+            std::thread::sleep(
+                self.deadline
+                    .saturating_duration_since(Instant::now())
+                    .min(self.next_poll_delay()),
+            );
+            Ok(())
+        }
+    }
+
     /// 参数：无；返回：本轮实际消费输出时零等待，否则待机20ms；不扩大读取块或预算。
     pub(crate) fn next_poll_delay(&self) -> Duration {
         if self.output_advanced {

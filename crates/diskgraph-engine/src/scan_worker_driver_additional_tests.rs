@@ -125,7 +125,7 @@ fn busy_output_does_not_pay_an_idle_interval_per_fixed_block() {
         {
             break outcome;
         }
-        std::thread::sleep(f.driver.next_poll_delay());
+        f.driver.wait_for_next_poll().unwrap();
     };
     let elapsed = start.elapsed();
     assert!(matches!(
@@ -169,7 +169,7 @@ fn live_child_without_output_keeps_idle_backoff_and_requires_actual_exit() {
             ));
             break;
         }
-        std::thread::sleep(f.driver.next_poll_delay());
+        f.driver.wait_for_next_poll().unwrap();
     }
     assert!(f.reached("natural-exit"));
     f.assert_reaped();

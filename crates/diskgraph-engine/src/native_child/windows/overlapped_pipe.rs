@@ -41,6 +41,12 @@ pub(super) struct OverlappedPipe {
 }
 
 impl OverlappedPipe {
+    /// 借用原 pending 操作的完成事件。参数：无；返回：仍由本管道持有的事件或空。
+    /// 不消费完成、不改变缓冲或取消责任，已进入清理时不供业务等待。
+    pub(super) fn pending_event(&self) -> Option<windows_sys::Win32::Foundation::HANDLE> {
+        (self.pending && !self.cleanup_started).then(|| self.event.as_raw())
+    }
+
     /// 非阻塞收取一次最多 4096 字节。参数：无。返回：数据切片、暂无数据/EOF 或 Win32 错误。
     pub(super) fn read_next(&mut self) -> Result<Option<&[u8]>, ChildError> {
         if self.eof {

@@ -40,6 +40,8 @@ pub(crate) struct WindowsChild {
 
 #[path = "windows_child_poll_cleanup.rs"]
 mod windows_child_poll_cleanup;
+#[path = "windows_child_poll_wait.rs"]
+mod windows_child_poll_wait;
 #[path = "windows_child_prepare.rs"]
 mod windows_child_prepare;
 #[cfg(test)]
