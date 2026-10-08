@@ -86,7 +86,20 @@ impl<'a> ScanObservationGuard<'a> {
                 self.engine.scan_budget.max_duration_ms,
             ))
             .ok_or(BusinessError::BudgetExceeded)?;
-        let mut control = self.engine.control_until(deadline)?;
+        let mut control = loop {
+            // 锁竞争期间仍检查本代取消、原停止原因和认证到期，不能只等待扫描总期限。
+            self.check_fast()?;
+            let remaining = deadline.saturating_duration_since(Instant::now());
+            if remaining.is_zero() {
+                return Err(BusinessError::BudgetExceeded.into());
+            }
+            if let Some(control) = self.engine.try_control_store()? {
+                break control;
+            }
+            #[cfg(test)]
+            crate::scan_observation_deadline_tests::waiting_for_control();
+            std::thread::sleep(remaining.min(Duration::from_millis(1)));
+        };
         self.check_fast()?;
         // 同一原期限约束锁等待与实时标量检查，不为撤权轮询重复解码整个 scope。
         control

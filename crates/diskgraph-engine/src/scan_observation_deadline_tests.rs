@@ -5,6 +5,19 @@ use diskgraph_core::{BusinessError, PrincipalId};
 use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
+thread_local! {
+    static CONTROL_WAIT: std::cell::RefCell<Option<std::sync::mpsc::Sender<()>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// 仅在实际 WouldBlock 后通知本测试线程绑定的竞争观察者；不等待、不读写数据库。
+pub(super) fn waiting_for_control() {
+    CONTROL_WAIT.with(|slot| {
+        if let Some(sender) = slot.borrow_mut().take() {
+            let _ = sender.send(());
+        }
+    });
+}
+
 fn fixture() -> (tempfile::TempDir, Engine, diskgraph_store::JobRecord) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path().join("root");
@@ -59,6 +72,56 @@ fn held_control_lock_cannot_extend_the_original_observation_budget() {
             "{result:?}"
         );
     });
+}
+
+#[test]
+fn cancellation_and_original_stop_reason_interrupt_an_actual_control_wait() {
+    use crate::job_execution_stop_reason::JobExecutionStopReason;
+    use std::sync::atomic::Ordering;
+
+    for original_reason in [false, true] {
+        let (_dir, engine, job) = fixture();
+        let held = engine.control().unwrap();
+        let cancel = AtomicBool::new(false);
+        let reason = JobExecutionStopReason::new();
+        let (wait_tx, wait_rx) = std::sync::mpsc::channel();
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::scope(|threads| {
+            threads.spawn(|| {
+                CONTROL_WAIT.with(|slot| *slot.borrow_mut() = Some(wait_tx));
+                let guard = ScanObservationGuard::new(&engine, &job, None, &cancel, Instant::now())
+                    .with_stop_reason(&reason);
+                tx.send(guard.check_now()).unwrap();
+            });
+            let actually_waiting = wait_rx.recv_timeout(Duration::from_secs(2)).is_ok();
+            if original_reason {
+                reason.record(BusinessError::PermissionDenied.into());
+            }
+            cancel.store(true, Ordering::SeqCst);
+            let before_release = rx.recv_timeout(Duration::from_millis(300));
+            drop(held);
+            let returned_before_release = before_release.is_ok();
+            let result =
+                before_release.unwrap_or_else(|_| rx.recv_timeout(Duration::from_secs(2)).unwrap());
+            assert!(
+                actually_waiting,
+                "must observe the real contended lock before cancellation"
+            );
+            assert!(
+                returned_before_release,
+                "cancelled observation kept waiting for the held control lock"
+            );
+            let expected = if original_reason {
+                BusinessError::PermissionDenied
+            } else {
+                BusinessError::Conflict
+            };
+            assert!(
+                matches!(result, Err(EngineError::Business(actual)) if actual == expected),
+                "cancellation lost its original reason"
+            );
+        });
+    }
 }
 
 #[test]

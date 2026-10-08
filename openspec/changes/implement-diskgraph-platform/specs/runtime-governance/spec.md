@@ -158,6 +158,11 @@ doctor/status SHALL 展示平台、协议、依赖、权限、数据版本、任
 - **THEN** lock acquisition, live cancellation/revocation checks and the fencing transaction inherit the original absolute scan deadline, returning BudgetExceeded on expiry
 - **AND** expiry does not refresh the budget or admit staging/publication; current owner, durable request authority, scope and permission checks remain required
 
+#### Scenario: A cancellation arrives while scan observation waits for the shared control lock
+- **WHEN** observation has actually encountered the held shared control mutex and the original execution cancellation flag becomes set
+- **THEN** it stops before that mutex is released, retaining the first original keeper failure when present, instead of waiting until the full scan deadline
+- **AND** the original scan/token deadlines and durable authorization/fencing checks are not weakened; synchronous filesystem and SQLite operations are not claimed forcibly interruptible
+
 ### Requirement: RT-07 Explicit history reclamation
 The CLI SHALL preview `snapshots prune --scope S --keep-last N` without deletion and SHALL require `--apply` to remove old history. Reclamation SHALL preserve latest revisions, pins, and data needed by operation or recovery records. Ambiguous legacy references SHALL cause conservative retention.
 

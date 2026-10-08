@@ -1,0 +1,5 @@
+{
+  "crates/diskgraph-engine/src/scan_observation_guard.rs": "8c796107558df7509e3a4357156bc2a5b0c42acf267800d273b8cbe9dc98bfbf",
+  "crates/diskgraph-engine/src/scan_observation_deadline_tests.rs": "99fad33db0b959c7ba2b3bcc38e7620fa83af93117d66c6763513b88fc146e57",
+  "crates/diskgraph-engine/src/control_access.rs": "2d198c52813e8b3a6147525c88b875186a66375c5e962377908e4e8ecc150718"
+}

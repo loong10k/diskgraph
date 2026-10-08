@@ -42,6 +42,8 @@ impl Engine {
                 }
                 return Ok(guard);
             }
+            #[cfg(test)]
+            crate::scan_observation_deadline_tests::waiting_for_control();
             std::thread::sleep(remaining.min(std::time::Duration::from_millis(1)));
         }
     }
