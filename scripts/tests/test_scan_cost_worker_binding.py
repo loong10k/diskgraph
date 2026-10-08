@@ -30,3 +30,22 @@ class WorkerBindingTests(unittest.TestCase):
 
     def test_historical_side_has_no_worker_environment(self):
         self.assertEqual(cost.worker_environment({"worker": None}), {})
+
+
+class MemoryReportTests(unittest.TestCase):
+    def test_missing_observation_never_becomes_zero_difference(self):
+        for candidate, baseline in ((None, 10), (10, None), (None, None)):
+            with self.subTest(candidate=candidate, baseline=baseline):
+                self.assertIsNone(cost.memory_difference(candidate, baseline))
+
+    def test_valid_high_water_difference_can_be_negative(self):
+        self.assertEqual(cost.memory_difference(10, 20), -10)
+        self.assertEqual(cost.memory_difference(20, 10), 10)
+
+    def test_invalid_observation_is_unknown(self):
+        for candidate in (-1, True, "10", 1.5):
+            with self.subTest(candidate=candidate):
+                self.assertIsNone(cost.memory_difference(candidate, 10))
+
+    def test_archived_harness_includes_memory_module(self):
+        self.assertIn("crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs", cost.HARNESS)

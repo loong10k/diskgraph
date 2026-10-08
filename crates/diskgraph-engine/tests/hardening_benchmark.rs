@@ -1,6 +1,7 @@
 //! 隔离 release 夹具；旧完整加载与新窄读在同一 revision 上配对比较。
 mod benchmark_support;
 
+use benchmark_support::{child_rss, combined_rss, rss};
 use diskgraph_core::{PrincipalId, QueryBudget};
 use diskgraph_engine::EngineConfig;
 use std::{sync::Arc, time::Instant};
@@ -18,36 +19,6 @@ fn timed(mut action: impl FnMut(), times: usize) -> serde_json::Value {
         })
         .collect();
     serde_json::json!({"p50_ms":percentile(values.clone(),0.5),"p95_ms":percentile(values,0.95),"samples":times})
-}
-fn rss() -> u64 {
-    #[cfg(unix)]
-    {
-        let mut usage = std::mem::MaybeUninit::<libc::rusage>::uninit();
-        if unsafe { libc::getrusage(libc::RUSAGE_SELF, usage.as_mut_ptr()) } == 0 {
-            let raw = unsafe { usage.assume_init() }.ru_maxrss as u64;
-            return if cfg!(target_os = "macos") {
-                raw
-            } else {
-                raw * 1024
-            };
-        }
-    }
-    0
-}
-fn child_rss() -> u64 {
-    #[cfg(unix)]
-    {
-        let mut usage = std::mem::MaybeUninit::<libc::rusage>::uninit();
-        if unsafe { libc::getrusage(libc::RUSAGE_CHILDREN, usage.as_mut_ptr()) } == 0 {
-            let raw = unsafe { usage.assume_init() }.ru_maxrss as u64;
-            return if cfg!(target_os = "macos") {
-                raw
-            } else {
-                raw * 1024
-            };
-        }
-    }
-    0
 }
 fn size(path: &std::path::Path) -> u64 {
     std::fs::metadata(path).map(|m| m.len()).unwrap_or(0)
@@ -257,7 +228,7 @@ fn measure_isolated_release_fixtures() {
         let storage_after_queries = benchmark_support::storage(&data);
         let storage =
             benchmark_support::phases(storage_before, storage_after_scan, storage_after_queries);
-        let result = serde_json::json!({"native_qualification":qualification,"storage_phases":storage,"files":count,"shape":shape,"scan_seconds":scan_seconds,"process_scan_high_water_rss_bytes":scan_peak_rss,"process_total_high_water_rss_bytes":rss(),"reaped_child_scan_high_water_rss_bytes":reaped_child_peak_rss,"scan_parent_and_child_high_water_sum_bytes":scan_peak_rss.saturating_add(reaped_child_peak_rss),"database_bytes":size(&data.join("diskgraph.sqlite")),"wal_bytes":size(&data.join("diskgraph.sqlite-wal")),"before_full_revision_top20":full,"after_narrow_top20":narrow,"before_full_revision_candidates":candidate_full,"after_narrow_candidates":candidate_narrow,"budgeted_tree":budget_tree,"concurrent_4_readers":concurrent});
+        let result = serde_json::json!({"native_qualification":qualification,"storage_phases":storage,"memory_measurement_notes":"Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound","files":count,"shape":shape,"scan_seconds":scan_seconds,"process_scan_high_water_rss_bytes":scan_peak_rss,"process_total_high_water_rss_bytes":rss(),"reaped_child_scan_high_water_rss_bytes":reaped_child_peak_rss,"scan_parent_and_child_high_water_sum_bytes":combined_rss(scan_peak_rss, reaped_child_peak_rss),"database_bytes":size(&data.join("diskgraph.sqlite")),"wal_bytes":size(&data.join("diskgraph.sqlite-wal")),"before_full_revision_top20":full,"after_narrow_top20":narrow,"before_full_revision_candidates":candidate_full,"after_narrow_candidates":candidate_narrow,"budgeted_tree":budget_tree,"concurrent_4_readers":concurrent});
         println!("{}", result);
         results.push(result);
     }

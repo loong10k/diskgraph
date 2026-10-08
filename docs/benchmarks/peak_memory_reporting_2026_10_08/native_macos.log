@@ -1,0 +1,18 @@
+     Locking 1 package to latest Rust 1.98.1 compatible version
+   Compiling libc v0.2.190
+   Compiling diskgraph_memory_native_probe v0.0.0 (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-native-96gs9g51)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.27s
+     Running unittests src/lib.rs (/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-memory-contract-gd5_e2cj/target/debug/deps/diskgraph_memory_native_probe-417d24892f7a4ba1)
+
+running 2 tests
+test peak_memory::tests::unknown_or_overflow_is_not_a_measured_sum ... ok
+test peak_memory::tests::native_host_observes_positive_lifetime_memory ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests diskgraph_memory_native_probe
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

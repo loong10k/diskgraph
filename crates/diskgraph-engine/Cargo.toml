@@ -47,7 +47,7 @@ cc = "1"
 
 [target.'cfg(windows)'.dev-dependencies]
 cc = "1"
-windows-sys = { version = "0.61.2", features = ["Win32_Storage_CloudFilters", "Win32_System_CorrelationVector"] }
+windows-sys = { version = "0.61.2", features = ["Win32_Storage_CloudFilters", "Win32_System_CorrelationVector", "Win32_System_ProcessStatus"] }
 
 # 真实协议/进程处置夹具；不作为可信安装或产品扫描 helper。
 [[example]]

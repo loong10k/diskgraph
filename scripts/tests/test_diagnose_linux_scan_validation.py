@@ -28,6 +28,7 @@ EXPECTED = {
 HARNESS = (
     "crates/diskgraph-engine/tests/hardening_benchmark.rs",
     "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
+    "crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs",
     "crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs",
     "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs",
     "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs",

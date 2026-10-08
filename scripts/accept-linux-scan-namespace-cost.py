@@ -17,6 +17,7 @@ import time
 BASE = "5c9985b84645dcac8c82ae06903ee7249b06dbdd"
 HARNESS = ["crates/diskgraph-engine/tests/hardening_benchmark.rs",
            "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
+           "crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs",
            "crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs",
            "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs",
            "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs"]
@@ -276,7 +277,14 @@ def measure(binaries, work, output, report, smoke):
             report["pairs"].append({"fixture": fixture_name, "round": number,
                 "candidate_over_baseline_scan_seconds": pair["candidate"]["scan_seconds"] / pair["baseline"]["scan_seconds"],
                 "candidate_minus_baseline_scan_high_water_rss_bytes":
-                    pair["candidate"]["process_scan_high_water_rss_bytes"] - pair["baseline"]["process_scan_high_water_rss_bytes"]})
+                    memory_difference(pair["candidate"]["process_scan_high_water_rss_bytes"], pair["baseline"]["process_scan_high_water_rss_bytes"])})
+
+
+def memory_difference(candidate, baseline):
+    """参数为独立高水位字节观测；返回有效整数差值，未知或无效观测为 None。"""
+    if type(candidate) is not int or type(baseline) is not int or min(candidate, baseline) < 0:
+        return None
+    return candidate - baseline
 
 
 def commit_sha(value):

@@ -1,0 +1,86 @@
+FEEEEEEEE..
+======================================================================
+ERROR: test_invalid_observation_is_unknown (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_invalid_observation_is_unknown) (candidate=-1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 48, in test_invalid_observation_is_unknown
+    self.assertIsNone(cost.memory_difference(candidate, 10))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_invalid_observation_is_unknown (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_invalid_observation_is_unknown) (candidate=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 48, in test_invalid_observation_is_unknown
+    self.assertIsNone(cost.memory_difference(candidate, 10))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_invalid_observation_is_unknown (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_invalid_observation_is_unknown) (candidate='10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 48, in test_invalid_observation_is_unknown
+    self.assertIsNone(cost.memory_difference(candidate, 10))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_invalid_observation_is_unknown (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_invalid_observation_is_unknown) (candidate=1.5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 48, in test_invalid_observation_is_unknown
+    self.assertIsNone(cost.memory_difference(candidate, 10))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_missing_observation_never_becomes_zero_difference (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_missing_observation_never_becomes_zero_difference) (candidate=None, baseline=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 39, in test_missing_observation_never_becomes_zero_difference
+    self.assertIsNone(cost.memory_difference(candidate, baseline))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_missing_observation_never_becomes_zero_difference (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_missing_observation_never_becomes_zero_difference) (candidate=10, baseline=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 39, in test_missing_observation_never_becomes_zero_difference
+    self.assertIsNone(cost.memory_difference(candidate, baseline))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_missing_observation_never_becomes_zero_difference (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_missing_observation_never_becomes_zero_difference) (candidate=None, baseline=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 39, in test_missing_observation_never_becomes_zero_difference
+    self.assertIsNone(cost.memory_difference(candidate, baseline))
+                      ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+ERROR: test_valid_high_water_difference_can_be_negative (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_valid_high_water_difference_can_be_negative)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 42, in test_valid_high_water_difference_can_be_negative
+    self.assertEqual(cost.memory_difference(10, 20), -10)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cost' has no attribute 'memory_difference'
+
+======================================================================
+FAIL: test_archived_harness_includes_memory_module (scripts.tests.test_scan_cost_worker_binding.MemoryReportTests.test_archived_harness_includes_memory_module)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_cost_worker_binding.py", line 51, in test_archived_harness_includes_memory_module
+    self.assertIn("crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs", cost.HARNESS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs' not found in ['crates/diskgraph-engine/tests/hardening_benchmark.rs', 'crates/diskgraph-engine/tests/benchmark_support/mod.rs', 'crates/diskgraph-engine/tests/benchmark_support/benchmark_engine.rs', 'crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs', 'crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs']
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+FAILED (failures=1, errors=8)

@@ -1,0 +1,15 @@
+{
+  "old_red": "exact original rss/child_rss bodies, getrusage failure injection: 0/2 passed, two 0-vs-null behavioral failures",
+  "new_green": "current actual helper module, same API-failure injection: 2/2",
+  "native_macos": "actual helper module compiled with cached libc offline: 2/2",
+  "current_module_sha256": "2b08e7655b35c0ae7252e710e9ca36c962cde65f4268cfca79e4eaad497277b5",
+  "not_qualified": [
+    "Windows native API compilation and runtime",
+    "full Engine benchmark integration",
+    "whole process tree peak RSS",
+    "strict memory limit",
+    "full platform performance acceptance"
+  ],
+  "consumer_red": "new memory-difference API absent and archive omitted helper; 6 tests, 1 failure and 8 subtest errors",
+  "consumer_green": "33 real Python binding/diagnostic lifecycle/overlay regression tests passed"
+}
