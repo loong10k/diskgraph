@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "platform": "Windows x86_64 MSVC",
+  "base_head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "qualification": "targeted native tests and diagnostic debug microbenchmark; not production qualification",
+  "development_red_kind": "E0599 missing new method; compile-time API red, not behavioral production regression",
+  "native_job": "wc_job_aWMydFZOjkXIAPL0",
+  "native_exit_code": 0,
+  "full_regression_observation": {
+    "job_id": "wc_job_-LK3AdG27qBX-YPX",
+    "observed_state": "failed",
+    "actual_cargo_stage": "Engine lib tests failed: 614 passed, 99 failed, 7 ignored; integration tests were not reached",
+    "engine_command_exit_code": 101,
+    "test_seconds": 438.14,
+    "final_receipt": "windows_modified_time_default_engine_16d1_2026_10_09.json",
+    "stage_diagnostic_job": "wc_job_PoL_kEIhAgniUR0N",
+    "initial_format_check": "cargo fmt --all -- --check exited 1; incorrectly included vendored source excluded by repository policy; no source was formatted",
+    "policy_format_check_job": "wc_job_-lE-LPG1z6yo7Anv",
+    "policy_format_check_exit_code": 0,
+    "policy_format_packages": ["diskgraph-core", "diskgraph-store", "diskgraph-disktree", "diskgraph-scan-worker", "diskgraph-ffi", "diskgraph-testkit", "diskgraph-engine", "diskgraph-cli", "diskgraph-mcp", "diskgraph-ops"],
+    "auxiliary_receipt_read_job": "wc_job_QOxQyCIgxKSSR6U7",
+    "auxiliary_receipt_read_outcome": "lost; execution outcome unknown",
+    "auxiliary_powershell_read_job": "wc_job_U5bbmkZqmyvTptvQ",
+    "auxiliary_powershell_read_outcome": "timeout after 30 seconds; no log output",
+    "terminal_wait_id": "wc_job_wait_bhvV4FGSpImqeyMO",
+    "qualification": "failed; original logs retained; targeted green does not supersede full regression failure"
+  },
+  "capture_count_per_round": 4096,
+  "before_microseconds": [
+    22249,
+    22081,
+    22607
+  ],
+  "after_microseconds": [
+    13214,
+    13844,
+    14506
+  ],
+  "limitations": [
+    "sequential debug measurements, not randomized release ABBA",
+    "no full-scan improvement established",
+    "green-stage receipt omitted hashes of windows_file_state.rs and tests; later full regression captures both",
+    "test formatting changed after green; later full regression captures formatted source",
+    "default-parallel Engine regression failed with 99 failures; not production ready",
+    "50ms authorization, 15s Git and 300s complete 200k gates unchanged"
+  ],
+  "cases": [
+    {
+      "case": "native_modified_time_baseline_16d1",
+      "receipt": {
+        "base_head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+        "source_hashes": {
+          "crates/diskgraph-engine/src/live_evidence/windows_git_allocation_tests.rs": "8d2fbd59de27de181beebfccaf57f8036bd4956d25e0f0510f64a2a9f3728e57",
+          "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "6bafdcca756b5c54efbe9f892c55e301b8fd5c2f855b1f606eab6a39544ebd9f",
+          "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "f8eacd66496eb5881509c81a434e7182a290a6e8ecbcdadc76e9718c191b97f9",
+          "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+          "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+          "crates/diskgraph-engine/src/live_evidence/git_private_created_entry.rs": "e0e533e2e7e84b985f8a31f6572d265cc263a5085cf2b67384e5518096a8944b",
+          "crates/diskgraph-engine/src/live_evidence/windows_git_removal_budget_tests.rs": "f04f96b193ea77b14a8e57dae88c178d57537f6ecdbc25d34c165c406f16ec60",
+          "crates/diskgraph-engine/src/live_evidence/mod.rs": "9b3810f32348cf6eab3e3cecc5164e561ef3374918d65810f5e054abcd0c3820",
+          "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "581ed3798c2cbdae6d6e707f76f1c38ead5e390ad1b56871c841552a110e62aa",
+          "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "a1d6b35ef516180f1571188f8ae4680899a07259a3368c3f4e86da0c8e300f10",
+          "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+          "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+          "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+          "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+          "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+          "crates/diskgraph-store/src/revision_ownership_reader.rs": "b194b92509199a6a7b0c3d91b70bc197fcc19ac2fbf2b2eaf2ade2983f127a26",
+          "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "06190cce26d00221769b798fa235d0ba2dfbf0bae6691110ff3f5b0566100cf2"
+        },
+        "commands": [
+          {
+            "name": "allocation_capture_cost",
+            "argv": [
+              "cargo",
+              "+1.99.0",
+              "test",
+              "--locked",
+              "-p",
+              "diskgraph-engine",
+              "--lib",
+              "native_allocation_repeated_capture_cost",
+              "--",
+              "--ignored",
+              "--nocapture"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 1.0309999999881256
+          }
+        ],
+        "working_tree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tracked_status": ""
+      },
+      "logs": {
+        "allocation_capture_cost.stderr.log": {
+          "sha256": "43fa1ef21c1f20c879daa0d515650ad67d86686c3b80fec073bde12fd3bb0724",
+          "bytes": 182,
+          "tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.71s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n"
+        },
+        "allocation_capture_cost.stdout.log": {
+          "sha256": "71f0196d7ea547a9365ac277854cbed97037bcadffa8187a30ff0ef58fa4a1dc",
+          "bytes": 415,
+          "tail": "\nrunning 1 test\nDG_NATIVE_ALLOCATION_CAPTURE round=0 captures=4096 elapsed_us=22249\nDG_NATIVE_ALLOCATION_CAPTURE round=1 captures=4096 elapsed_us=22081\nDG_NATIVE_ALLOCATION_CAPTURE round=2 captures=4096 elapsed_us=22607\ntest live_evidence::windows_git_allocation_tests::native_allocation_repeated_capture_cost ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 717 filtered out; finished in 0.07s\n\n"
+        }
+      }
+    },
+    {
+      "case": "native_modified_time_api_red_16d1",
+      "receipt": {
+        "base_head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+        "source_hashes": {
+          "crates/diskgraph-engine/src/live_evidence/windows_git_allocation_tests.rs": "8d2fbd59de27de181beebfccaf57f8036bd4956d25e0f0510f64a2a9f3728e57",
+          "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "6bafdcca756b5c54efbe9f892c55e301b8fd5c2f855b1f606eab6a39544ebd9f",
+          "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "f8eacd66496eb5881509c81a434e7182a290a6e8ecbcdadc76e9718c191b97f9",
+          "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+          "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+          "crates/diskgraph-engine/src/live_evidence/git_private_created_entry.rs": "e0e533e2e7e84b985f8a31f6572d265cc263a5085cf2b67384e5518096a8944b",
+          "crates/diskgraph-engine/src/live_evidence/windows_git_removal_budget_tests.rs": "f04f96b193ea77b14a8e57dae88c178d57537f6ecdbc25d34c165c406f16ec60",
+          "crates/diskgraph-engine/src/live_evidence/mod.rs": "9b3810f32348cf6eab3e3cecc5164e561ef3374918d65810f5e054abcd0c3820",
+          "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "581ed3798c2cbdae6d6e707f76f1c38ead5e390ad1b56871c841552a110e62aa",
+          "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "a1d6b35ef516180f1571188f8ae4680899a07259a3368c3f4e86da0c8e300f10",
+          "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+          "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+          "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+          "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+          "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+          "crates/diskgraph-store/src/revision_ownership_reader.rs": "b194b92509199a6a7b0c3d91b70bc197fcc19ac2fbf2b2eaf2ade2983f127a26",
+          "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "06190cce26d00221769b798fa235d0ba2dfbf0bae6691110ff3f5b0566100cf2"
+        },
+        "commands": [
+          {
+            "name": "modified_time_api_red",
+            "argv": [
+              "cargo",
+              "+1.99.0",
+              "test",
+              "--locked",
+              "-p",
+              "diskgraph-engine",
+              "--lib",
+              "native_write_time_projection",
+              "--",
+              "--nocapture"
+            ],
+            "exit_code": 101,
+            "elapsed_seconds": 3.7190000000118744
+          }
+        ],
+        "working_tree_diff_sha256": "d14b6b2ecf33b7d034557ac8df7ca8e854b5023776b84fedf18379a0b8c95deb",
+        "tracked_status": " M crates/diskgraph-engine/src/windows_file_state_tests.rs\n"
+      },
+      "logs": {
+        "modified_time_api_red.stderr.log": {
+          "sha256": "6d45afbf945feeb147b7f746c7d5fa4e254878e2aff9cef79f89c54cb89dcd33",
+          "bytes": 1382,
+          "tail": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\nerror[E0599]: no method named `modified_time` found for struct `WindowsFileState` in the current scope\n  --> crates\\diskgraph-engine\\src\\windows_file_state_tests.rs:89:26\n   |\n89 |         assert_eq!(state.modified_time().ok(), expected, \"raw FILETIME={ticks}\");\n   |                          ^^^^^^^^^^^^^ method not found in `WindowsFileState`\n   |\n  ::: crates\\diskgraph-engine\\src\\windows_file_state.rs:17:1\n   |\n17 | pub(crate) struct WindowsFileState {\n   | ---------------------------------- method `modified_time` not found for this struct\n\nerror[E0599]: no method named `modified_time` found for struct `WindowsFileState` in the current scope\n   --> crates\\diskgraph-engine\\src\\windows_file_state_tests.rs:112:26\n    |\n112 |         assert_eq!(state.modified_time().unwrap(), original.metadata().unwrap().modified().unwrap());\n    |                          ^^^^^^^^^^^^^ method not found in `WindowsFileState`\n    |\n   ::: crates\\diskgraph-engine\\src\\windows_file_state.rs:17:1\n    |\n 17 | pub(crate) struct WindowsFileState {\n    | ---------------------------------- method `modified_time` not found for this struct\n\nFor more information about this error, try `rustc --explain E0599`.\nerror: could not compile `diskgraph-engine` (lib test) due to 2 previous errors\n"
+        },
+        "modified_time_api_red.stdout.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "tail": ""
+        }
+      }
+    },
+    {
+      "case": "native_modified_time_green_16d1",
+      "receipt": {
+        "base_head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+        "source_hashes": {
+          "crates/diskgraph-engine/src/live_evidence/windows_git_allocation_tests.rs": "8d2fbd59de27de181beebfccaf57f8036bd4956d25e0f0510f64a2a9f3728e57",
+          "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "6bafdcca756b5c54efbe9f892c55e301b8fd5c2f855b1f606eab6a39544ebd9f",
+          "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "f8eacd66496eb5881509c81a434e7182a290a6e8ecbcdadc76e9718c191b97f9",
+          "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+          "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+          "crates/diskgraph-engine/src/live_evidence/git_private_created_entry.rs": "e0e533e2e7e84b985f8a31f6572d265cc263a5085cf2b67384e5518096a8944b",
+          "crates/diskgraph-engine/src/live_evidence/windows_git_removal_budget_tests.rs": "f04f96b193ea77b14a8e57dae88c178d57537f6ecdbc25d34c165c406f16ec60",
+          "crates/diskgraph-engine/src/live_evidence/mod.rs": "9b3810f32348cf6eab3e3cecc5164e561ef3374918d65810f5e054abcd0c3820",
+          "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "581ed3798c2cbdae6d6e707f76f1c38ead5e390ad1b56871c841552a110e62aa",
+          "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+          "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+          "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+          "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+          "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+          "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+          "crates/diskgraph-store/src/revision_ownership_reader.rs": "b194b92509199a6a7b0c3d91b70bc197fcc19ac2fbf2b2eaf2ade2983f127a26",
+          "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "06190cce26d00221769b798fa235d0ba2dfbf0bae6691110ff3f5b0566100cf2"
+        },
+        "commands": [
+          {
+            "name": "modified_time_green",
+            "argv": [
+              "cargo",
+              "+1.99.0",
+              "test",
+              "--locked",
+              "-p",
+              "diskgraph-engine",
+              "--lib",
+              "windows_file_state_tests",
+              "--",
+              "--nocapture"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 23.14100000000326
+          },
+          {
+            "name": "allocation_capture_cost",
+            "argv": [
+              "cargo",
+              "+1.99.0",
+              "test",
+              "--locked",
+              "-p",
+              "diskgraph-engine",
+              "--lib",
+              "native_allocation_repeated_capture_cost",
+              "--",
+              "--ignored",
+              "--nocapture"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 0.9219999999913853
+          },
+          {
+            "name": "engine_clippy",
+            "argv": [
+              "cargo",
+              "+1.99.0",
+              "clippy",
+              "--locked",
+              "-p",
+              "diskgraph-engine",
+              "--all-targets",
+              "--",
+              "-D",
+              "warnings"
+            ],
+            "exit_code": 0,
+            "elapsed_seconds": 6.187000000005355
+          }
+        ],
+        "working_tree_diff_sha256": "db2333e6b59b5cbeac5164d7e6e7e06dfb7ff0d2a622addf14c95344b170140f",
+        "tracked_status": " M crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs\n M crates/diskgraph-engine/src/windows_file_state.rs\n M crates/diskgraph-engine/src/windows_file_state_tests.rs\n"
+      },
+      "logs": {
+        "allocation_capture_cost.stderr.log": {
+          "sha256": "95b5c8ced2c5165cb145ca6a68952a885d760537d6947ab425c070a5ede01baf",
+          "bytes": 182,
+          "tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.66s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n"
+        },
+        "allocation_capture_cost.stdout.log": {
+          "sha256": "26971dc6583cfc9bbbec9ba0de6863f2a3b1adee32db15c3d20d1b691f0ad67e",
+          "bytes": 415,
+          "tail": "\nrunning 1 test\nDG_NATIVE_ALLOCATION_CAPTURE round=0 captures=4096 elapsed_us=13214\nDG_NATIVE_ALLOCATION_CAPTURE round=1 captures=4096 elapsed_us=13844\nDG_NATIVE_ALLOCATION_CAPTURE round=2 captures=4096 elapsed_us=14506\ntest live_evidence::windows_git_allocation_tests::native_allocation_repeated_capture_cost ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 719 filtered out; finished in 0.04s\n\n"
+        },
+        "engine_clippy.stderr.log": {
+          "sha256": "5efb4906fc92d3681c2c57d7f9a1f464b84739de2450df9e2d77cf86d0f06c17",
+          "bytes": 178,
+          "tail": "    Checking diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.50s\n"
+        },
+        "engine_clippy.stdout.log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "tail": ""
+        },
+        "modified_time_green.stderr.log": {
+          "sha256": "fc935cd483e7654dd6fc10cce904ce946e484028dee5dd94da8d01e44d972e42",
+          "bytes": 289,
+          "tail": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 21.19s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n"
+        },
+        "modified_time_green.stdout.log": {
+          "sha256": "1a9edf76ddff6682da262292292ab6b1fbfa343f4bd17f3ab6a8675fad86b0c4",
+          "bytes": 546,
+          "tail": "\nrunning 4 tests\ntest windows_file_state_tests::native_projection_preserves_high_identity_bits_and_version_changes ... ok\ntest windows_file_state_tests::native_projection_retains_reparse_placeholder_deletion_and_negative_length_gates ... ok\ntest windows_file_state_tests::native_write_time_projection_preserves_epoch_precision_and_unsigned_bits ... ok\ntest windows_file_state_tests::native_write_time_projection_matches_actual_file_metadata ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 716 filtered out; finished in 0.00s\n\n"
+        }
+      }
+    }
+  ]
+}

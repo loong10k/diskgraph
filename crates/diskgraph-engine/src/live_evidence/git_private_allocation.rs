@@ -176,8 +176,8 @@ impl GitPrivateAllocation {
             } else {
                 Some(GitMetadataVersion::from_windows_state(
                     &state,
-                    file.metadata()
-                        .and_then(|metadata| metadata.modified())
+                    state
+                        .modified_time()
                         .map_err(|error| format!("private Git modified time: {error}"))?,
                 ))
             };

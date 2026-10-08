@@ -44,3 +44,11 @@ Windows 原生扩展回归：创建失败/取消/panic 恢复及原通知跨轮�
 dc1b400f Windows stable CI 的目录重试回放在真实 RED 之前编译失败：旧目录调用 `GitPrivateAllocation::create_directory`，当前分配实现已移除此入口。回放须冻结同一 baseline 的目录、分配、容量、清理和枚举实现，保留当前测试、真实原生调用与原期限；禁止补空方法或把 E0599 当成行为 RED。当前 owner 仅移除旧创建流程不存在的 prepared 恢复槽调用及旧池不可达的 deadline 方法；新创建槽和诊断模块不参与旧回放。新增回归测试先确认依赖错配而失败，再验证异常、超时、意外 GREEN 和编译错误路径均逐字恢复全部九个文件。原生 RED/GREEN 完成前仍不算该门禁通过。
 
 Windows Rust 1.99 原生回放最终完成：旧版本真实返回 `private Git owner retained for recovery`，RED 为 0 通过/1 失败；当前版本显式重试与会话释放后禁止重借共 2/2 通过。两阶段构建分别 19.04/16.88 秒，测试 0.02/0.38 秒，九个原文件 SHA256 在结束后再次核验一致。原生任务 `wc_job_p5jhEMf2xAbo0E_Y`；这不是完整 Engine 或生产关闭期限验证。
+
+## 已捕获修改时间的无 I/O 投影
+
+分配捕获已取得同一原句柄的 FILE_BASIC_INFO.LastWriteTime；修改时间须可直接投影到 SystemTime，保留 FILETIME 的完整 unsigned 位型、1601 UTC 纪元与 100 ns 精度，不经毫秒或浮点转换。覆盖 Unix 纪元之前/之后、零及高位值，并与真实 Windows 文件 metadata.modified() 逐项比较。消除第二次 metadata 查询不取消末段重新捕获、完整身份或版本复核，不缓存跨操作状态，不声称单组原生查询原子化。新增投影 API 的缺失编译仅作为开发 RED，不能计作已复现的生产行为失败。先记录基线，再执行原生等价性、安全回归及原成本夹具；完整默认并发与平台门禁仍开放。
+
+Windows 原生任务 `wc_job_aWMydFZOjkXIAPL0` 已完成：原生状态及时间投影共 4/4，通过 all-target Engine Clippy。相同 debug 普通文件夹具每轮 4096 次捕获，基线 22,249 / 22,081 / 22,607 微秒，修改后 13,214 / 13,844 / 14,506 微秒；顺序诊断没有 release、配对交错或全负载统计证明。证据 `docs/benchmarks/windows_modified_time_projection_16d1_2026_10_09.json` 保留开发 API 编译 RED、原命令和日志摘要。新完整 Engine 任务保留原并发和期限，结果尚未确定；不得以这次局部收益关闭原 32k、15 秒 Git 或 200k/300 秒失败。
+
+随后默认并发 Engine 原生命令自然结束：lib 614 通过、99 失败、7 忽略，测试 438.14 秒、命令 466.625 秒，返回 101，未进入后续集成测试。失败扩展到普通进程探针的原期限、Job 清理确认及 keeper/Git 验收，不能将这轮性能变化归因于时间投影，也不能声称并发稳定。证据 `docs/benchmarks/windows_modified_time_default_engine_16d1_2026_10_09.json` 绑定格式化后三个修改源码及日志摘要。包装器误用 `cargo fmt --all` 纳入保留原样的 vendored 源码而返回 1；没有修改源文件，之后按 CI 明确的非 vendor 包列表重检返回 0（`wc_job_-lE-LPG1z6yo7Anv`）。完整失败和原门禁继续保留。

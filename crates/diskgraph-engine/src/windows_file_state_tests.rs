@@ -69,3 +69,66 @@ fn native_projection_retains_reparse_placeholder_deletion_and_negative_length_ga
             .is_err()
     );
 }
+
+#[test]
+fn native_write_time_projection_preserves_epoch_precision_and_unsigned_bits() {
+    use std::time::{Duration, SystemTime};
+    let epoch_ticks = 116_444_736_000_000_000_u64;
+    let file_epoch = SystemTime::UNIX_EPOCH
+        .checked_sub(Duration::from_secs(11_644_473_600))
+        .unwrap();
+    for ticks in [
+        0,
+        1,
+        epoch_ticks - 1,
+        epoch_ticks,
+        epoch_ticks + 1,
+        epoch_ticks + 12_345_678,
+        i64::MAX as u64,
+        1_u64 << 63,
+        u64::MAX,
+    ] {
+        let basic = FILE_BASIC_INFO {
+            LastWriteTime: ticks as i64,
+            ..FILE_BASIC_INFO::default()
+        };
+        let state = WindowsFileState::from_native_information(
+            &FILE_ID_INFO::default(),
+            &basic,
+            &FILE_STANDARD_INFO::default(),
+        )
+        .unwrap();
+        let expected = file_epoch.checked_add(Duration::new(
+            ticks / 10_000_000,
+            ((ticks % 10_000_000) * 100) as u32,
+        ));
+        assert_eq!(state.modified_time().ok(), expected, "raw FILETIME={ticks}");
+    }
+}
+
+#[test]
+fn native_write_time_projection_matches_actual_file_metadata() {
+    use std::fs::{File, FileTimes};
+    use std::time::{Duration, SystemTime};
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("timestamp.bin");
+    std::fs::write(&path, b"original timestamp content").unwrap();
+    for modified in [
+        SystemTime::UNIX_EPOCH - Duration::from_nanos(100),
+        SystemTime::UNIX_EPOCH,
+        SystemTime::UNIX_EPOCH + Duration::from_nanos(100),
+        SystemTime::UNIX_EPOCH + Duration::from_nanos(1_234_567_800),
+        SystemTime::now(),
+    ] {
+        let file = File::options().read(true).write(true).open(&path).unwrap();
+        file.set_times(FileTimes::new().set_modified(modified))
+            .unwrap();
+        drop(file);
+        let original = File::open(&path).unwrap();
+        let state = WindowsFileState::capture(&original).unwrap();
+        assert_eq!(
+            state.modified_time().unwrap(),
+            original.metadata().unwrap().modified().unwrap()
+        );
+    }
+}

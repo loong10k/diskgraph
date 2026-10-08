@@ -27,6 +27,23 @@ pub(crate) struct WindowsFileState {
 }
 
 impl WindowsFileState {
+    /// 将已捕获原句柄写入时间投影为 SystemTime，不再读取文件或查询内核。
+    /// 参数：无；返回：完整 FILETIME 位型的 100 ns 精度时间，平台不能表示时明确拒绝。
+    pub(crate) fn modified_time(&self) -> Result<std::time::SystemTime, EngineError> {
+        use std::time::{Duration, SystemTime};
+        const UNIX_EPOCH_TICKS: u64 = 116_444_736_000_000_000;
+        // FILE_BASIC_INFO 使用有符号容器，FILETIME 是无符号位型；不得丢弃最高位。
+        let ticks = self.modified as u64;
+        let delta = ticks.abs_diff(UNIX_EPOCH_TICKS);
+        let duration = Duration::new(delta / 10_000_000, ((delta % 10_000_000) * 100) as u32);
+        let time = if ticks >= UNIX_EPOCH_TICKS {
+            SystemTime::UNIX_EPOCH.checked_add(duration)
+        } else {
+            SystemTime::UNIX_EPOCH.checked_sub(duration)
+        };
+        time.ok_or_else(|| BusinessError::Unsupported.into())
+    }
+
     /// 从同一借用句柄已成功查询的三块原生信息投影版本，不再次访问内核。
     /// 参数：id/basic/standard 为 FileId/Basic/StandardInfo 原输出；调用方须先核验磁盘句柄及查询成功。
     /// 返回：保留完整身份、原生时间和属性的状态；负长度拒绝，不声称三次查询为原子快照。

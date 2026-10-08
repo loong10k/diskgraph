@@ -1,0 +1,77 @@
+{
+  "base_head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7"
+  },
+  "commands": [
+    {
+      "name": "source_format",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 18.25
+    },
+    {
+      "name": "engine_default_parallel",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 466.625
+    }
+  ],
+  "working_tree_diff_sha256": "bf334eb647e355e7c645b2c7c167950350154129f211d5b1f5aa341b65ce09bd",
+  "tracked_status": " M crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs\n M crates/diskgraph-engine/src/windows_file_state.rs\n M crates/diskgraph-engine/src/windows_file_state_tests.rs\n",
+  "logs": {
+    "engine_default_parallel.stderr.log": {
+      "bytes": 9015,
+      "sha256": "c252830f38fe37090dd393d3373246edc6df7bf5e42130c205153711c2f0938b"
+    },
+    "engine_default_parallel.stdout.log": {
+      "bytes": 154344,
+      "sha256": "9022dd0e83e7024170a9e7101567e026c5901e1655261e680aabaa75fe0856c5"
+    },
+    "source_format.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source_format.stdout.log": {
+      "bytes": 115049,
+      "sha256": "c41dbaa1486cc34c803cb8623667c73fa6630156f598d5bd2896092f695bdc34"
+    }
+  },
+  "test_summary": [
+    "test result: FAILED. 614 passed; 99 failed; 7 ignored; 0 measured; 0 filtered out; finished in 438.14s"
+  ],
+  "job_id": "wc_job_-LK3AdG27qBX-YPX",
+  "qualification": "FAILED default-parallel Engine library regression; cargo stopped before integration tests; original 99 failures remain open",
+  "host_resources_after_regression": {
+    "diagnostic_job": "wc_job_6XAxmiIqgJUGFUWM",
+    "cpu_count": 24,
+    "RUST_TEST_THREADS": null,
+    "memory_load_percent": 96,
+    "total_physical_bytes": 34088243200,
+    "available_physical_bytes": 1212043264,
+    "system_volume_free_bytes": 40460066816,
+    "repository_volume_free_bytes": 55912751104,
+    "interpretation": "post-run snapshot, not peak measurement or causal proof; failures are not waived"
+  },
+  "related_format_recheck": {
+    "job_id": "wc_job_-lE-LPG1z6yo7Anv",
+    "exit_code": 0,
+    "scope": "repository CI explicitly listed packages, excluding unchanged vendored disktree"
+  }
+}
