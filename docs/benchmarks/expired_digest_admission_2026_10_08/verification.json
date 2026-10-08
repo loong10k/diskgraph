@@ -1,0 +1,26 @@
+{
+  "baseline_commit": "2e16275ae3389b7d560c39967b3da126ec0e8a41",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/content/digest_content.rs": "cfb2d6bac73d093043b2f3c70d4e0ba0b51c09ac36075d116986964d4c6b8397",
+    "crates/diskgraph-engine/src/content/initial_deadline_tests.rs": "7f014b3ce54feeb9c151724a9bbaca6b9298053cd5291d00d08a794bc2063903",
+    "openspec/changes/implement-diskgraph-platform/specs/content-inspection/spec.md": "a52e052ca1da55f49945770389062e8a3dcb968149d46e42ec0cba487ccbc731"
+  },
+  "red": {
+    "case": "already_expired_digest_stops_without_authorization_or_provider_access",
+    "executed": 1,
+    "failed": 1,
+    "observed": "Business(BudgetExceeded)"
+  },
+  "green": {
+    "content_unit_tests": 23,
+    "content_deadlines_integration": 3
+  },
+  "local_environment_failures": {
+    "content_flow": 7,
+    "stage": "fixture line 46 initial native scan",
+    "observed": "Business(Unsupported)",
+    "reason": "required root installed macOS scan host unavailable; no content assertion executed"
+  },
+  "openspec_strict": "passed",
+  "platform_scope": "local macOS only; Windows existing regression pending current-source native CI"
+}

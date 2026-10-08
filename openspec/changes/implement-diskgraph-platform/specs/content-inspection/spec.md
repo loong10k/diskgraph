@@ -110,3 +110,9 @@ Placeholder digest results SHALL recheck the original scope and current capabili
 - **WHEN** the original body preparation deadline is exhausted during witness registration, initial capability or persistent authorization
 - **THEN** read_bounded_until preserves the existing Timeout error without opening or returning content
 - **AND** digest preparation and later body chunk/terminal budget checks retain their budget classifications; no lock or SQL waiting receives a new deadline
+
+#### Scenario: Digest deadline expired before initial admission
+- **WHEN** digest_bounded_until is invoked with an already expired absolute deadline
+- **THEN** it returns an unconfirmed Deadline stop with zero digested bytes and no digest before hydration, provider, file or authorization preparation
+- **AND** this generic stop reveals no file existence, identity or authorization qualification; an absent path produces the same stop
+- **AND** deadlines consumed during a live initial authorization attempt retain BudgetExceeded, while admitted chunk/terminal stops retain their actual read costs

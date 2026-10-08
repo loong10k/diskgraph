@@ -117,3 +117,59 @@ fn body_refuses_result_when_chunk_authorization_exhausts_original_deadline() {
         "{result:?}"
     );
 }
+
+#[test]
+fn already_expired_digest_stops_without_authorization_or_provider_access() {
+    /// 过期前置请求不得进入 provider 诊断。
+    struct ForbiddenProbe;
+    impl super::PlaceholderProbe for ForbiddenProbe {
+        fn is_placeholder(&self, _: &std::path::Path) -> bool {
+            panic!("expired digest reached provider");
+        }
+    }
+    /// 零成本停止不读取授权数据，也不声明授权或内容资格。
+    struct ForbiddenAuthorizer;
+    impl diskgraph_core::Authorizer for ForbiddenAuthorizer {
+        fn decide(
+            &self,
+            _: &diskgraph_core::PrincipalId,
+            _: &diskgraph_core::Permission,
+            _: &diskgraph_core::ScopeId,
+        ) -> diskgraph_core::Decision {
+            panic!("expired digest attempted authorization");
+        }
+        fn policy_version(&self) -> u64 {
+            panic!("expired digest observed policy");
+        }
+    }
+    let fixture = ReadTerminalFixture::new(true);
+    // 同一线程持有控制锁；已到期请求仍必须立即返回，不能续租或探测路径存在性。
+    let _control = fixture.engine.control_store().unwrap();
+    for path in [
+        fixture.path.clone(),
+        fixture.directory.path().join("missing"),
+    ] {
+        let request = InspectionRequest {
+            scope_id: &fixture.scope,
+            principal: &fixture.principal,
+            path: &path,
+            offset: 0,
+            max_bytes: 8,
+            cancel: None,
+            chunk_bytes: 8,
+        };
+        let result = fixture
+            .engine
+            .digest_bounded_until(
+                &request,
+                &ForbiddenProbe,
+                &ForbiddenAuthorizer,
+                Instant::now(),
+            )
+            .expect("already expired digest must report zero-cost stop");
+        assert_eq!(result.stopped, Some(super::InspectionStop::Deadline));
+        assert_eq!(result.bytes_digested, 0);
+        assert!(result.digest_hex.is_empty());
+        assert!(!result.confirmed());
+    }
+}

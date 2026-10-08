@@ -1,0 +1,11 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run": 37725110323,
+  "job": 113141652546,
+  "failed_tests": [
+    "revision_evidence_tests::ambiguous_legacy_evidence_refuses_claims_but_preserves_file_tree",
+    "native_windows_cancellation_and_deadline_never_confirm_content"
+  ],
+  "log_sha256": "55481631ca0731d25097a2b4cdb1197f294a54e8bbd8a3351b16b5c97ae55b57",
+  "conclusion": "failure"
+}

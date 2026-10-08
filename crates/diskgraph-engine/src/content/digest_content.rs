@@ -46,6 +46,17 @@ impl Engine {
         authorizer: &dyn diskgraph_core::Authorizer,
         deadline: std::time::Instant,
     ) -> Result<DigestOutcome, EngineError> {
+        // 尚未准入且期限已过时，只返回零成本停止，不探测对象存在性、权限或 provider。
+        // 已开始的初始授权仍沿原期限报错；不得用此分支替代终态授权或确认摘要。
+        if std::time::Instant::now() >= deadline {
+            return Ok(DigestOutcome {
+                requested_path: request.path.to_path_buf(),
+                digest_hex: String::new(),
+                bytes_digested: 0,
+                stopped: Some(InspectionStop::Deadline),
+                observed_at_unix_ms: now_ms(),
+            });
+        }
         let _hydration = crate::scoped_content::ScopedContent::hydration_guard()?;
         let withdrawal =
             super::content_withdrawal::ContentWithdrawal::capture(self, request, deadline)?;
