@@ -72,14 +72,16 @@ def fixture_paths_complete(connection, snapshot_id, files):
     return matched == files
 
 
-def create_fixture(root, files):
-    """用最多4个工作线程创建完整夹具；仅保留4个任务，写失败直接传播。"""
+def create_fixture(root, files, *, workers=4):
+    """用1至4个工作线程创建完整夹具；正式验收默认仍为4，诊断可指定数量。"""
+    if not isinstance(workers, int) or isinstance(workers, bool) or not 1 <= workers <= 4:
+        raise ValueError("fixture workers must be between 1 and 4")
     def write_partition(partition):
-        for index in range(partition, files, 4):
+        for index in range(partition, files, workers):
             (root / f"file-{index:06}.bin").write_bytes(b"x" * 32)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as workers:
-        tasks = [workers.submit(write_partition, partition) for partition in range(4)]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        tasks = [pool.submit(write_partition, partition) for partition in range(workers)]
         for task in tasks:
             task.result()
 

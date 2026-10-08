@@ -1051,6 +1051,19 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p test_readonly_load_coverage.py -v
       - name: Verify archive and packaged binaries
         run: python scripts/accept-readonly-package.py --target ${{ matrix.target }} --bin-dir target/${{ matrix.target }}/release --old-cli previous/target/${{ matrix.target }}/release/diskgraph${{ runner.os == 'Windows' && '.exe' || '' }}
+      - name: Diagnose native Windows fixture worker costs after acceptance failure
+        if: failure() && runner.os == 'Windows'
+        id: fixture_worker_diagnostic
+        timeout-minutes: 10
+        run: python scripts/diagnose_windows_fixture_workers.py --output "${{ runner.temp }}/fixture-worker-diagnostic.json"
+      - name: Preserve native Windows fixture diagnostic
+        if: always() && runner.os == 'Windows' && steps.fixture_worker_diagnostic.outcome != 'skipped'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-fixture-workers-${{ github.run_id }}
+          path: ${{ runner.temp }}/fixture-worker-diagnostic.json
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         with:
           name: readonly-candidate-${{ matrix.target }}

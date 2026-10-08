@@ -1,0 +1,31 @@
+{
+  "base_commit": "a481be79415ab8c4e8762fdb014ce4602f6ac817",
+  "native_failure": {
+    "run": 37718066708,
+    "job": 113121155823,
+    "sha": "8c8f0c5213421c3b3500c54dc154988ce0866159",
+    "fixture_seconds": 246.0427424,
+    "scope_seconds": 0.4766545,
+    "result": "300-second external timeout after index begin; no evidence index alone exceeds 300"
+  },
+  "changes": "diagnostic only; six actual Windows20k-file cases 1/2/4/4/2/1 workers after original acceptance failure; exact files/content/link validation and cleanup costs",
+  "default_acceptance": "unchanged workers4, files200000, external300seconds",
+  "tests": {
+    "fixture": 10,
+    "diagnostic": 4,
+    "package": 11,
+    "all_passed": true
+  },
+  "workflow": "parsed by system Ruby YAML; Python PyYAML unavailable, not installed",
+  "native_diagnostic": "NOT EXECUTED; pending Windows CI; local smoke cannot prove Windows speed",
+  "review": "code APPROVE; nonblocking receipt exception masking suggestion fixed with actual RED/GREEN",
+  "sha256": {
+    "native_failure.log.gz": "1aa8ef9d364785c2038b8398df3f2e05ba7ae3d7833a7ee5f0cf96d3a2cd5707",
+    "workers_red.log.gz": "34c595c0b17bdded50e1387912bb653da1b96eebfa396ae4d19dd5933ad7043a",
+    "workers_green.log.gz": "aeae57bba7f97a38d440adbccea3d230968f57e7080b13ba68de5ee51d518ced",
+    "receipt_red.log.gz": "0299b2034a45f989f6ebd2749e55cb2a9901fad9a7f5deb61df4177a0e549690",
+    "diagnostic_tests.log.gz": "ab5f247fc391dcb948523b2f38ec2420197a2e123338aff8b799f9ff4e015ea2",
+    "package_regression.log.gz": "8584ebdd24bfdb589611e566f16d9fff045b12259e9fa0f758c8591864c6e81e",
+    "nonwindows_refusal.log.gz": "16bb76567a64d22ca9e1817e5ebf9cbfbcfeb9b649c077953dee7ec671864abf"
+  }
+}

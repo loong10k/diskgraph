@@ -27,6 +27,23 @@ class FixtureCreationTests(unittest.TestCase):
                              {f'file-{i:06}.bin' for i in range(103)})
             self.assertTrue(all(p.read_bytes() == b'x' * 32 for p in root.iterdir()))
 
+    def test_diagnostic_worker_counts_preserve_identical_real_files(self):
+        for workers in (1, 2, 4):
+            with self.subTest(workers=workers), MODULE.tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                MODULE.create_fixture(root, 103, workers=workers)
+                self.assertEqual({p.name for p in root.iterdir()},
+                                 {f'file-{i:06}.bin' for i in range(103)})
+                self.assertTrue(all(p.read_bytes() == b'x' * 32 for p in root.iterdir()))
+
+    def test_diagnostic_worker_count_refuses_outside_bounded_range(self):
+        for workers in (0, 5):
+            with self.subTest(workers=workers), MODULE.tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.assertRaises(ValueError):
+                    MODULE.create_fixture(root, 103, workers=workers)
+                self.assertEqual(list(root.iterdir()), [])
+
     def test_preparation_uses_at_most_four_workers_and_overlaps_io(self):
         barrier = threading.Barrier(4, timeout=2)
         lock = threading.Lock()
