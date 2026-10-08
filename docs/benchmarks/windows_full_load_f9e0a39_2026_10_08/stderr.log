@@ -1,0 +1,29 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 2321.4202269}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 2495.3696118}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 2495.3696713}
+Traceback (most recent call last):
+  File "D:\a\diskgraph\diskgraph\scripts\windows_acceptance_job.py", line 199, in <module>
+    main()
+    ~~~~^^
+  File "D:\a\diskgraph\diskgraph\scripts\windows_acceptance_job.py", line 195, in main
+    runpy.run_path(script, run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\diskgraph\diskgraph\scripts\accept-readonly-load.py", line 218, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "D:\a\diskgraph\diskgraph\scripts\accept-readonly-load.py", line 125, in main
+    scope = invoke(cli, data, "scope", "add", "--root", root)["data"]["scope_id"]
+            ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\diskgraph\diskgraph\scripts\accept-readonly-load.py", line 44, in invoke
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: ('scope', 'add', '--root', WindowsPath('C:/Users/RUNNER~1/AppData/Local/Temp/diskgraph-readonly-load-54i1ktzp/project')) exited 7, expected 0:
+stdout:
+{"api_version":2,"coverage":null,"error":{"code":"budget_exceeded","exit_code":7,"message":"query response budget exceeded by one record"},"ok":false,"truncated":false,"warnings":[]}
+
+stderr:
+

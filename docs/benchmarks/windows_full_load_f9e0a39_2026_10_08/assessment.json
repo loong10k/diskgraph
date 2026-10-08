@@ -1,0 +1,30 @@
+{
+  "run": 37735499585,
+  "job": 113174143903,
+  "artifact": 11531799308,
+  "commit": "f9e0a393c39ee13945081e8477d4586da98fa7f5",
+  "verified_script_hashes_windows_crlf": {
+    "scripts/diagnose_windows_load.py": "bb9beb738d6216dcd2f7292731e074af17e9eab8364abf9a986cd22f7ebd72b0",
+    "scripts/accept-readonly-load.py": "093ec977f73c3dc8341d34b835b63f0eaaec57bf7292607c4e368fb743004614",
+    "scripts/windows_acceptance_job.py": "997761982b6f29b07451d30772eda891bf814f30d4cafd3231fdf298aa957356"
+  },
+  "job_log_sha256": "ded779501e4ddd877f3fb3ba646b6590afe9b1e7fceaee8651e147e304baa4c6",
+  "formal_acceptance": "failed at original 300-second gate",
+  "diagnostic_status": "failed during scope registration before index invocation",
+  "fixture_create_seconds": 173.9493848999996,
+  "diagnostic_elapsed_seconds": 346.40151590000005,
+  "diagnostic_error": "scope add exit 7 StoreError BudgetExceeded",
+  "clean_environment_confirmed": false,
+  "production_acceptance": false,
+  "unproven": [
+    "Windows scan performance after checkpoint change; index was not reached",
+    "where scope registration consumed its budget",
+    "how much command startup or retirement contributed to overall elapsed time",
+    "safe retirement of preceding formal workload"
+  ],
+  "source_review": [
+    "scan publication holds control mutex and control write transaction across graph preparation and commit, excluding keeper heartbeat",
+    "pure commit callback checks original lease and token; cannot lengthen lease or omit checks as a performance workaround",
+    "Index/Sync still lack durable graph publication receipt; crash reconciliation remains open"
+  ]
+}
