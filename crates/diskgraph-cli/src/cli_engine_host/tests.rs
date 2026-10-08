@@ -358,3 +358,42 @@ fn invalid_user_domain_requires_attention_before_database_birth() {
     assert!(!data.exists());
     assert_eq!(std::fs::read(record).unwrap(), b"DGSL99C\n");
 }
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[test]
+fn startup_deadline_expiring_during_admission_refuses_database_birth() {
+    let directory = tempfile::tempdir().unwrap();
+    let data = directory.path().join("not_born_after_admission");
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
+    let entered = std::cell::Cell::new(false);
+    let result = CliEngineHost::open_admitted_until(
+        EngineConfig {
+            data_dir: data.clone(),
+            ..EngineConfig::default()
+        },
+        None,
+        deadline,
+        || {
+            entered.set(true);
+            std::thread::sleep(
+                deadline.saturating_duration_since(std::time::Instant::now())
+                    + std::time::Duration::from_millis(1),
+            );
+            Ok(None)
+        },
+    );
+    assert!(
+        entered.get(),
+        "admission callback must consume the original deadline"
+    );
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(
+            diskgraph_core::BusinessError::BudgetExceeded
+        ))
+    ));
+    assert!(
+        !data.exists(),
+        "expired admission created database state before terminal refusal"
+    );
+}

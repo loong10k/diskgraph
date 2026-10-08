@@ -129,7 +129,10 @@ impl CliEngineHost {
             }
             return Err(diskgraph_core::BusinessError::RecoveryUnconfirmed.into());
         }
-        let opened = if let Some(host) = host {
+        // 准入可能等待到原期限之后；构造前复验，失败仍沿已有 reservation 撤销路径。
+        let opened = if Instant::now() >= deadline {
+            Err(diskgraph_core::BusinessError::BudgetExceeded.into())
+        } else if let Some(host) = host {
             Engine::open_with_scan_worker(config, host)
                 .map(|(engine, recovery)| (engine, Some(recovery)))
         } else {

@@ -186,3 +186,12 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 - **THEN** only that typed sharing conflict is retried under the same absolute ProbeBudget deadline and cancellation, without changing the requested access/share modes or reopening through links
 - **AND** success still validates the returned original component identity/type/volume; expiry or cancellation terminates retries, and any other native error returns immediately
 - **AND** an isolated actual write-access directory handle must establish the sharing conflict; after its release the same lease operation succeeds, while the original implementation fails at the actual sharing-conflict assertion
+
+### Requirement: Startup admission preserves the original deadline before database creation
+The CLI SHALL recheck the original absolute startup deadline after recovery-slot admission and before constructing the Engine. Admission SHALL NOT refresh that deadline.
+
+#### Scenario: Admission consumes the remaining startup budget
+- **WHEN** recovery admission starts before the original deadline but returns after it
+- **THEN** startup refuses with the original budget-exceeded failure before creating the data directory or either database
+- **AND** any acquired reservation follows the existing pre-birth abort path; unconfirmed cleanup must not be reported as successful retirement
+- **AND** this check does not claim hard interruption of filesystem or SQLite operations or complete supervisor integration

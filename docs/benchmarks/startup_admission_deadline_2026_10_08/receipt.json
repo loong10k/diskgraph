@@ -1,0 +1,33 @@
+{
+  "base_commit": "f784fd0289364e58f2b60725d9de60259d118533",
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "finding": "expired admission returned BudgetExceeded after creating database directory"
+  },
+  "host_regression": {
+    "passed": 9,
+    "failed": 0
+  },
+  "cli_unit": {
+    "passed": 71,
+    "failed": 12,
+    "boundary": "all 12 fail with Unsupported at native deployment fixture initialization before business assertion"
+  },
+  "clippy": "passed",
+  "reviews": [
+    "code APPROVE",
+    "architecture CLEAR"
+  ],
+  "qualification": "Linux/macOS shared admission path locally tested on macOS ARM64; no real reserved-slot cancellation or full supervisor claim",
+  "sources": {
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "8b9728ffa3928e5ef76f952045de179ed32ad2c25d63b6a09b4006137ba14533",
+    "crates/diskgraph-cli/src/cli_engine_host/tests.rs": "1474081db59bf596689a5aef40f15a137b3e54958bc4a94b4a078ad2eef41638"
+  },
+  "logs_sha256": {
+    "red": "5e28459600f1007f1caa55eca8c5f51ed2f64c010a693057f1aca09fb6a906a8",
+    "green": "d0a4afa49d7043341d80db15e2da1a946275d4c285caac686e5f07007b74971b",
+    "cli_full_unqualified": "3c7ffb0bd6acf132826af692fad7658fb2bdd56843c1a63b07435ad147b57a16",
+    "clippy": "09bc80154aa67f752ed4e79cf79590215ab2168d290fbd047dad930b310f63e1"
+  }
+}
