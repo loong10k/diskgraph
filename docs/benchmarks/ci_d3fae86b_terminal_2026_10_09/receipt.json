@@ -1,0 +1,58 @@
+{
+  "head_sha": "d3fae86b16c7abfadd692e32750a1f92356102d1",
+  "run_id": 37826207944,
+  "status": "completed",
+  "conclusion": "failure",
+  "success_jobs": 21,
+  "failed_jobs": [
+    "Test (macos-15-intel / Rust stable)",
+    "Native read-only package (x86_64-pc-windows-msvc)"
+  ],
+  "engine_windows_stable": {
+    "passed": 705,
+    "failed": 0,
+    "ignored": 4,
+    "seconds": 365.58
+  },
+  "engine_windows_msrv": {
+    "passed": 705,
+    "failed": 0,
+    "ignored": 4,
+    "seconds": 404.44
+  },
+  "macos_intel": {
+    "failed_suites": [
+      "node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null",
+      "final_right_authorizer_cannot_revoke_the_already_checked_left_grant"
+    ],
+    "terminal_reader_open_us": [
+      89098,
+      82809
+    ]
+  },
+  "windows_package": {
+    "original_whole_200k_timeout_seconds": 300,
+    "fixture_create_seconds": 266.091942,
+    "reached": "index begin; no successful full 200k receipt"
+  },
+  "production_qualified": false,
+  "raw_logs": {
+    "windows-stable": {
+      "bytes": 1039395,
+      "sha256": "decb267e3d83107d08eb55a5c813eccdcff31cedba4380ad75a626f93be09156"
+    },
+    "windows-msrv": {
+      "bytes": 1035436,
+      "sha256": "bb0052b75700aef64725b5801ec155710dd2003787f5b0474c928b9a1c5429b9"
+    },
+    "mac-intel": {
+      "bytes": 555408,
+      "sha256": "87e10a94e919421ec8c241b8da690bc7756bcfccdb77799ad674dd96e5b9ada3"
+    },
+    "windows-package": {
+      "bytes": 100846,
+      "sha256": "27ed9e30a5ec763eaba49a81e9ec04cdd41ce3bd88cd394c57d611e0814c4156"
+    }
+  },
+  "archive_sha256": "2cb77211a16a57d069210b12f5123c1978ea0f8a0341f48674be4f753ecfddaa"
+}
