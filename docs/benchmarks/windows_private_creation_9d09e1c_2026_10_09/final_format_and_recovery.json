@@ -1,0 +1,74 @@
+{
+  "job_id": "wc_job__aF0sAI4p5uaAHXd",
+  "exit_code": 0,
+  "summary": {
+    "kind": "test",
+    "outcome": "passed",
+    "tests_detected": true,
+    "tests_run_count": 4,
+    "zero_tests_run": false,
+    "tests_passed": 4,
+    "tests_failed": 0
+  },
+  "receipt": {
+    "base_head": "9d09e1cc425b3c35b35cd898325804b454334d15",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "6bafdcca756b5c54efbe9f892c55e301b8fd5c2f855b1f606eab6a39544ebd9f",
+      "crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs": "f8eacd66496eb5881509c81a434e7182a290a6e8ecbcdadc76e9718c191b97f9",
+      "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+      "crates/diskgraph-engine/src/live_evidence/git_private_created_entry.rs": "e0e533e2e7e84b985f8a31f6572d265cc263a5085cf2b67384e5518096a8944b",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_removal_budget_tests.rs": "f04f96b193ea77b14a8e57dae88c178d57537f6ecdbc25d34c165c406f16ec60",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "92f754812bbac92d50252b2a57451d352fc85a866128fef40edf7c031acf216e",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs": "581ed3798c2cbdae6d6e707f76f1c38ead5e390ad1b56871c841552a110e62aa",
+      "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "a0acd698247861ac55ca535634c1564308529c538b0481c7b5eb6d513059cdc6",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+      "crates/diskgraph-store/src/lib.rs": "01e6b6a43d6ba8914f40221aeb4aa5a7e5b7abf940fee4fc636c7fdafa8ff513",
+      "crates/diskgraph-engine/src/terminal_revision_authorization.rs": "04d90c60a1aae214320dd5ab3d1c511c7e0e74185572ee23bb9870b447a1c561",
+      "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "8b34fadbbcad91742493eb013808607c825bf0aa998e05f02431a2dcdf48f72d",
+      "crates/diskgraph-engine/tests/recovery_control.rs": "43221ed949fdf86fe986274e459f2e217277ad61d44ea6482561c006e4622685",
+      "crates/diskgraph-store/src/revision_ownership_reader.rs": "b194b92509199a6a7b0c3d91b70bc197fcc19ac2fbf2b2eaf2ade2983f127a26",
+      "crates/diskgraph-store/src/revision_ownership_reader_tests.rs": "e4d5b32b76684decb7db5ad4cb99ee17f7daa9bfd4bfb81a92ea81dd469e5e2f"
+    },
+    "commands": [
+      {
+        "name": "native_fmt",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "fmt",
+          "-p",
+          "diskgraph-engine",
+          "-p",
+          "diskgraph-store",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.1570000000065193
+      },
+      {
+        "name": "creation_recovery",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "windows_git_removal_budget_tests",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 8.437000000005355
+      }
+    ],
+    "working_tree_diff_sha256": "251124a552f97c055c4a8c1857099bc98d6349a6c6daf07a936fc1bf7365f294",
+    "tracked_status": " M crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs\n M crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs\n M crates/diskgraph-engine/src/live_evidence/git_private_capacity_tests.rs\n M crates/diskgraph-engine/src/live_evidence/git_private_directory.rs\n M crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs\n M crates/diskgraph-engine/src/live_evidence/mod.rs\n M crates/diskgraph-engine/src/live_evidence/windows_git_child_open.rs\n M crates/diskgraph-store/src/revision_ownership_reader.rs\n"
+  },
+  "qualification": "Native Windows fmt and four creation recovery regressions passed after declaration ordering only. Full default run remains 12 failures."
+}

@@ -21,6 +21,9 @@ impl GitPrivateDirectoryOwner {
         if std::time::Instant::now() >= deadline {
             return Ok(false);
         }
+        if let Some(capacity) = self.capacity.as_mut() {
+            capacity.recover_created_entry()?;
+        }
         let cleanup = self
             .windows_cleanup
             .as_mut()
@@ -41,6 +44,9 @@ impl GitPrivateDirectoryOwner {
         }
         #[cfg(windows)]
         if let Some(cleanup) = self.windows_cleanup.as_mut() {
+            if let Some(capacity) = self.capacity.as_mut() {
+                capacity.recover_created_entry()?;
+            }
             cleanup
                 .cleanup(self.capacity.as_ref())
                 .map_err(|error| format!("private Git cleanup failed: {error}"))?;

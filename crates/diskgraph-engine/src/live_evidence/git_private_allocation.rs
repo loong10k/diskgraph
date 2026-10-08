@@ -384,6 +384,7 @@ impl GitPrivateAllocation {
 
     /// 在持有父目录下独占创建目录，权限在创建时生效。
     /// 参数：parent/name 为安全父句柄和单组件名。返回：新目录句柄；既有目标明确冲突。
+    #[cfg(not(windows))]
     pub(super) fn create_directory(parent: &File, name: &std::ffi::OsStr) -> Result<File, String> {
         #[cfg(unix)]
         {
@@ -411,17 +412,6 @@ impl GitPrivateAllocation {
                 ));
             }
             Ok(unsafe { File::from_raw_fd(fd) })
-        }
-        #[cfg(windows)]
-        {
-            WindowsGitChildOpen::open(
-                parent,
-                name,
-                true,
-                true,
-                false,
-                windows_sys::Win32::Storage::FileSystem::FILE_SHARE_READ,
-            )
         }
         #[cfg(not(any(unix, windows)))]
         {

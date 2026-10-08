@@ -66,10 +66,14 @@ mod git_private_allocation;
 mod git_private_capacity;
 #[cfg(test)]
 mod git_private_capacity_tests;
+#[cfg(windows)]
+mod git_private_created_entry;
 mod git_private_directory;
 pub(crate) mod git_private_directory_owner;
 #[cfg(test)]
 mod git_private_integrity_tests;
+#[cfg(all(test, windows))]
+mod git_private_write_profile;
 mod git_product_error;
 #[cfg(test)]
 mod git_product_tests;
@@ -211,6 +215,8 @@ mod windows_git_foreign_removal_witness;
 mod windows_git_native_id_protocol;
 #[cfg(windows)]
 mod windows_git_private_root;
+#[cfg(all(test, windows))]
+mod windows_git_removal_budget_tests;
 #[cfg(windows)]
 mod windows_git_removal_observation;
 #[cfg(windows)]

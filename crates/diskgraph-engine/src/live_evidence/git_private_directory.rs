@@ -229,8 +229,14 @@ impl GitPrivateDirectory {
                 continue;
             }
             capacity.preflight(&current, 0, probe)?;
+            #[cfg(windows)]
+            let file = capacity.create_owned(&current, lease.leaf_file(), true, probe)?;
+            #[cfg(not(windows))]
             let file = GitPrivateAllocation::create_directory(lease.leaf_file(), name)?;
+            #[cfg(not(windows))]
             capacity.observe(&current, &file, probe)?;
+            #[cfg(windows)]
+            drop(file);
             capacity.observe(&parent, lease.leaf_file(), probe)?;
             capacity.finish_operation(probe)?;
         }
@@ -245,16 +251,33 @@ impl GitPrivateDirectory {
         bytes: &[u8],
         probe: &mut ProbeBudget,
     ) -> Result<(), String> {
+        #[cfg(all(test, windows))]
+        let mut profile = super::git_private_write_profile::GitPrivateWriteProfile::new();
         let parent = path.parent().ok_or("private Git file parent missing")?;
         let name = path.file_name().ok_or("private Git file name missing")?;
         self.active_capacity()?
             .preflight(path, bytes.len() as u64, probe)?;
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
         let lease = GitDirectoryLease::open(parent, probe)
             .map_err(|error| format!("private Git parent lease: {error}"))?;
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
         let capacity = self.active_capacity()?;
         capacity.check_identity(parent, lease.leaf_file(), true)?;
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
         let registered = capacity.registered(path);
+        #[cfg(windows)]
+        let mut file = if registered {
+            GitPrivateAllocation::open_write(lease.leaf_file(), name, false)?
+        } else {
+            capacity.create_owned(path, lease.leaf_file(), false, probe)?
+        };
+        #[cfg(not(windows))]
         let mut file = GitPrivateAllocation::open_write(lease.leaf_file(), name, !registered)?;
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
         if registered {
             capacity.check_identity(path, &file, false)?;
         } else if GitPrivateAllocation::from_file(&file)?.is_directory() {
@@ -271,12 +294,21 @@ impl GitPrivateDirectory {
         }
         file.flush()
             .map_err(|error| format!("private Git flush: {error}"))?;
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
         probe.check().map_err(|error| error.to_string())?;
         let file = GitPrivateAllocation::finish_write(lease.leaf_file(), name, file)?;
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
         probe.check().map_err(|error| error.to_string())?;
         capacity.observe(path, &file, probe)?;
         capacity.observe(parent, lease.leaf_file(), probe)?;
-        capacity.finish_operation(probe)
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
+        let result = capacity.finish_operation(probe);
+        #[cfg(all(test, windows))]
+        super::git_private_write_profile::GitPrivateWriteProfile::mark(&mut profile);
+        result
     }
 
     /// 一次独占创建并流式写入完整捕获文件，所有块共享同一容量 owner。
@@ -298,6 +330,9 @@ impl GitPrivateDirectory {
         if capacity.registered(path) {
             return Err("private Git stream target already exists".into());
         }
+        #[cfg(windows)]
+        let mut file = capacity.create_owned(path, lease.leaf_file(), false, probe)?;
+        #[cfg(not(windows))]
         let mut file = GitPrivateAllocation::open_write(lease.leaf_file(), name, true)?;
         let result = write(&mut file, probe)?;
         file.flush()

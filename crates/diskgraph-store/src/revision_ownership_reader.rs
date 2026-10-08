@@ -12,7 +12,7 @@ pub struct RevisionOwnershipReader {
 }
 
 impl RevisionOwnershipReader {
-    /// 参数：path为引擎固定图库路径，deadline为原终检期限；返回独立只读连接或原错误。
+    /// 参数：path为引擎固定图库路径，deadline为原终检期限；返回：独立只读连接或原错误。
     /// 不迁移、不创建数据库，不配置通用节点缓存或临时存储；同步打开仅协作受限。
     pub fn open_until(path: &Path, deadline: Instant) -> Result<Self> {
         check(deadline)?;
@@ -32,7 +32,7 @@ impl RevisionOwnershipReader {
         })
     }
 
-    /// 参数：revision/server/scope为首次真实授权身份；返回当前匹配布尔值或原SQL/期限失败。
+    /// 参数：revision/server/scope为首次真实授权身份；返回：当前匹配布尔值或原SQL/期限失败。
     /// 未绑定、隔离和不匹配均为false；真实拒绝先于查询结束后的期限，允许结果须仍在原期限内。
     pub fn matches(&self, revision: &str, server: &str, scope: &str) -> Result<bool> {
         check(self.deadline)?;

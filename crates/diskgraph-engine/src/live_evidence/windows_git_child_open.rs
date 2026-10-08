@@ -15,6 +15,27 @@ impl WindowsGitChildOpen {
         write: bool,
         share_mode: u32,
     ) -> Result<File, String> {
+        let mut owner = None;
+        Self::open_into(
+            parent, name, create, directory, write, share_mode, &mut owner,
+        )?;
+        owner.ok_or_else(|| "private Git native open returned no handle".into())
+    }
+
+    /// 将内核返回的有效句柄直接交给预先登记的 owner，再解释状态。
+    /// 参数：前六项与 open 相同，owner 为原恢复槽位。返回：原成功状态；失败不丢弃已取得的句柄。
+    pub(super) fn open_into(
+        parent: &File,
+        name: &std::ffi::OsStr,
+        create: bool,
+        directory: bool,
+        write: bool,
+        share_mode: u32,
+        owner: &mut Option<File>,
+    ) -> Result<(), String> {
+        if owner.is_some() {
+            return Err("private Git native handle owner already occupied".into());
+        }
         use std::os::windows::ffi::OsStrExt;
         use std::os::windows::io::{AsRawHandle, FromRawHandle};
         use windows_sys::Wdk::Foundation::OBJECT_ATTRIBUTES;
@@ -24,8 +45,7 @@ impl WindowsGitChildOpen {
             NtCreateFile,
         };
         use windows_sys::Win32::Foundation::{
-            CloseHandle, INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError,
-            UNICODE_STRING,
+            INVALID_HANDLE_VALUE, OBJ_DONT_REPARSE, RtlNtStatusToDosError, UNICODE_STRING,
         };
         use windows_sys::Win32::Storage::FileSystem::{
             FILE_READ_ATTRIBUTES, FILE_READ_DATA, FILE_WRITE_ATTRIBUTES, FILE_WRITE_DATA,
@@ -79,15 +99,16 @@ impl WindowsGitChildOpen {
                 0,
             )
         };
-        if status != 0 || handle.is_null() || handle == INVALID_HANDLE_VALUE {
-            if !handle.is_null() && handle != INVALID_HANDLE_VALUE {
-                unsafe { CloseHandle(handle) };
-            }
+        if !handle.is_null() && handle != INVALID_HANDLE_VALUE {
+            // 不在状态投影、元数据查询或业务预算检查之前释放创建责任。
+            *owner = Some(unsafe { File::from_raw_handle(handle) });
+        }
+        if status != 0 || owner.is_none() {
             return Err(format!(
                 "private Git native create/open: {}",
                 std::io::Error::from_raw_os_error(unsafe { RtlNtStatusToDosError(status) as i32 })
             ));
         }
-        Ok(unsafe { File::from_raw_handle(handle) })
+        Ok(())
     }
 }

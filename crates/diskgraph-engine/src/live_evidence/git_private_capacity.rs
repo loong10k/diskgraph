@@ -14,6 +14,8 @@ pub(super) struct GitPrivateCapacity {
     min_free: u64,
     used: u64,
     allocations: BTreeMap<PathBuf, GitPrivateAllocation>,
+    #[cfg(windows)]
+    pending_creation: Option<super::git_private_created_entry::GitPrivateCreatedEntry>,
 }
 
 impl GitPrivateCapacity {
@@ -42,7 +44,104 @@ impl GitPrivateCapacity {
             min_free,
             used,
             allocations,
+            #[cfg(windows)]
+            pending_creation: None,
         })
+    }
+
+    /// 在副作用前登记恢复槽位，确认原句柄身份后才交给业务写入。
+    /// 参数：path/parent 为已准入路径与已验证父句柄，directory 为类型，probe 为原业务预算。返回：已登记且准入的原创建句柄。
+    #[cfg(windows)]
+    pub(super) fn create_owned(
+        &mut self,
+        path: &Path,
+        parent: &File,
+        directory: bool,
+        probe: &mut ProbeBudget,
+    ) -> Result<File, String> {
+        if self.pending_creation.is_some() || self.registered(path) {
+            return Err("private Git creation owner already occupied".into());
+        }
+        self.validate_path(path)?;
+        self.pending_creation = Some(
+            super::git_private_created_entry::GitPrivateCreatedEntry::prepare(path, directory),
+        );
+        let result = self.pending_creation.as_mut().unwrap().create(parent);
+        if let Err(error) = result {
+            if self.pending_creation.as_ref().unwrap().file.is_none() {
+                self.pending_creation = None;
+            }
+            return Err(error);
+        }
+        self.register_pending_creation()?;
+        // 原归属先于预算失败落账；复用本次原生分配查询，不立即重复读取元数据。
+        if self.used > self.quota {
+            probe.mark_resource_limit();
+            return Err(format!(
+                "private Git allocation quota exceeded: reported={} quota={}",
+                self.used, self.quota
+            ));
+        }
+        probe.check().map_err(|error| error.to_string())?;
+        self.pending_creation
+            .take()
+            .and_then(|entry| entry.file)
+            .ok_or_else(|| "private Git original created handle missing".into())
+    }
+
+    // 只处理成功原子创建的原句柄；独立于已失效业务预算，不授予业务继续执行权。
+    #[cfg(windows)]
+    fn register_pending_creation(&mut self) -> Result<(), String> {
+        let Some(entry) = self.pending_creation.as_ref() else {
+            return Ok(());
+        };
+        if !entry.confirmed {
+            return Err(
+                "private Git native creation status unconfirmed; original handle retained".into(),
+            );
+        }
+        let current = GitPrivateAllocation::from_file(
+            entry
+                .file
+                .as_ref()
+                .ok_or("private Git original created handle missing")?,
+        )?;
+        if current.is_directory() != entry.directory {
+            return Err("private Git created entry type mismatch".into());
+        }
+        let root = self
+            .allocations
+            .get(&self.root)
+            .ok_or("private Git root allocation missing")?;
+        if !root.same_volume(&current) {
+            return Err("private Git created entry volume changed".into());
+        }
+        if let Some(old) = self.allocations.get(&entry.path)
+            && !old.same_identity(&current)
+        {
+            return Err("private Git created entry identity changed".into());
+        }
+        let old = self
+            .allocations
+            .get(&entry.path)
+            .map_or(0, GitPrivateAllocation::bytes);
+        let used = self
+            .used
+            .checked_sub(old)
+            .and_then(|value| value.checked_add(current.bytes()))
+            .ok_or("private Git created allocation accounting overflow")?;
+        self.allocations.insert(entry.path.clone(), current);
+        self.used = used;
+        Ok(())
+    }
+
+    /// 恢复同一个待登记原句柄，登记后关闭写句柄以允许原生删除。
+    /// 参数：无。返回：原身份登记成功；查询失败保留原槽位供下一轮恢复。
+    #[cfg(windows)]
+    pub(super) fn recover_created_entry(&mut self) -> Result<(), String> {
+        self.register_pending_creation()?;
+        self.pending_creation = None;
+        Ok(())
     }
 
     /// 原生查询所在卷可用量，不把失败当无限空间。参数：path 为实际存在对象，required 为保守预留的逻辑写入量，min_free 为余量，probe 为整次预算。

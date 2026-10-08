@@ -294,7 +294,9 @@ fn zero_allocation_files_still_reach_the_real_owner_entry_limit() {
     for number in 1..32_767 {
         directory
             .write(&root.join(format!("empty-{number}")), b"", &mut budget)
-            .unwrap();
+            .unwrap_or_else(|error| {
+                panic!("original 32k creation failed at index={number}: {error}")
+            });
     }
     let error = directory
         .write(&root.join("one-too-many"), b"", &mut budget)
