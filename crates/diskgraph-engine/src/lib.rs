@@ -136,6 +136,7 @@ mod revision_windows_observation;
 #[cfg(test)]
 mod revision_windows_observation_tests;
 mod runner;
+mod scan_cost_diagnostic;
 mod scan_execution;
 mod scan_image_identity;
 mod scan_jobs;

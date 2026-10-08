@@ -193,6 +193,8 @@ impl Engine {
             return Err(BusinessError::BudgetExceeded.into());
         }
 
+        let mut observation_time = Duration::ZERO;
+        let mut staging_write_time = Duration::ZERO;
         // 采样和编码发生于数据库写锁外，额外对象只保留当前配置批次。
         for batch in scanned
             .nodes
@@ -202,6 +204,7 @@ impl Engine {
             if !self.accepts_new_work() {
                 return Err(BusinessError::ResourceExhausted.into());
             }
+            let observation_started = timing.then(Instant::now);
             let mut locators = Vec::with_capacity(batch.len());
             let mut observations: Vec<(
                 Option<WindowsFileObservation>,
@@ -288,6 +291,10 @@ impl Engine {
                 #[cfg(target_os = "linux")]
                 unix_observations.push(unix_observed);
             }
+            if let Some(started) = observation_started {
+                observation_time += started.elapsed();
+            }
+            let staging_write_started = timing.then(Instant::now);
             observation_guard.check_now()?;
             // 原生调用已结束；遵循既有 graph→control 写锁顺序，并在原子 fence 下暂存。
             #[cfg(test)]
@@ -342,9 +349,15 @@ impl Engine {
                 )?;
                 Ok(())
             })?;
+            if let Some(started) = staging_write_started {
+                staging_write_time += started.elapsed();
+            }
             trace("staging_batch_complete", usage.nodes);
         }
         trace("staging_complete", usage.nodes);
+        if timing {
+            crate::scan_cost_diagnostic::emit(observation_time, staging_write_time, usage.nodes);
+        }
         let v1_nodes: Vec<diskgraph_core::DiskNode> =
             scanned.nodes.into_iter().map(|node| node.v1).collect();
         let revision_id = format!("rev-{}-{}", job_id, job.fencing_token);

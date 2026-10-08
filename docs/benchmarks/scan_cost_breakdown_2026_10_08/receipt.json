@@ -1,0 +1,19 @@
+{
+  "base_commit": "1d434c90aef1f8321c1ffe3676bf237b7a9d269b",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scan_execution.rs": "54ee716ca31cabb75f5ddfc818213864f4385606c69ae30ebb53e8660c9e9376",
+    "crates/diskgraph-engine/src/scan_cost_diagnostic.rs": "9a07f489aabac8033e2a4febf747d5241de3d184a942ce3d99b2b8ecc0ec121c",
+    "scripts/accept-readonly-load.py": "89531ba1a6a7a787737906c3a216cc1df40a408bfa14cac46b5781d2d95a7f0d",
+    "scripts/tests/test_readonly_load_coverage.py": "98fb44b4f2ae3a30dca700bd0e3aeb8953415e4603efb77aa0a3068b79112f2f"
+  },
+  "load_tests": 15,
+  "windows_script_tests": 8,
+  "source_layout_tests": 6,
+  "engine_observation_tests": {
+    "passed": 6,
+    "failed": 5,
+    "failure": "Business(Unsupported) at local native deployment setup; no business acceptance claimed"
+  },
+  "native_cost_measurements": "not yet run",
+  "thresholds_changed": false
+}

@@ -209,6 +209,28 @@ class TimeoutDiagnosticTests(unittest.TestCase):
         self.assertNotIn('private', captured.getvalue())
         self.assertNotIn('unknown', captured.getvalue())
 
+    def test_scan_cost_records_are_bounded_and_allowlisted(self):
+        lines = [
+            'diskgraph: scan_cost=observations_and_encoding nodes=200001 total_ms=106000',
+            'diskgraph: scan_cost=staging_write nodes=2 total_ms=4',
+            'diskgraph: scan_cost=staging_write nodes=200001 total_ms=8000',
+            'diskgraph: scan_cost=unknown nodes=1 total_ms=2',
+            'diskgraph: scan_cost=staging_write nodes=1 total_ms=2 secret',
+            'diskgraph: scan_cost=staging_write nodes=1 total_ms=' + '9' * 21,
+        ]
+        captured = io.StringIO()
+        with patch.dict('os.environ', {'DISKGRAPH_SCAN_DIAGNOSTICS': '1'}), \
+             contextlib.redirect_stderr(captured):
+            MODULE.relay_scan_phases('\n'.join(lines))
+        self.assertEqual([json.loads(line) for line in captured.getvalue().splitlines()], [
+            {'scan_cost': 'observations_and_encoding', 'nodes': 200001, 'total_ms': 106000},
+            {'scan_cost': 'staging_write', 'nodes': 200001, 'total_ms': 8000},
+        ])
+        captured = io.StringIO()
+        with patch.dict('os.environ', {}, clear=True), contextlib.redirect_stderr(captured):
+            MODULE.relay_scan_phases('\n'.join(lines))
+        self.assertEqual(captured.getvalue(), '')
+
     def test_success_diagnostics_are_disabled_by_default(self):
         response = subprocess.CompletedProcess([], 0, '{"ok":true}\n',
             'diskgraph: scan_phase=worker_begin nodes=0 elapsed_ms=1\n')

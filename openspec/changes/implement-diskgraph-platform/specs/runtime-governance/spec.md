@@ -295,3 +295,12 @@ MCP/FFI 的有期限请求授权快照 SHALL 通过参数化、可索引的主�
 - **WHEN** a scan observation waits for a real competing SQLite writer during its original fence transaction and the original execution is cancelled
 - **THEN** transaction boundary retries check that execution's cancellation without waiting for the writer release or refreshing the scan deadline
 - **AND** the original keeper stop reason is preserved, no fence work is replayed, and rollback, progress handler and busy timeout cleanup still run
+
+### Requirement: 显式扫描诊断提供有限分项耗时
+
+扫描诊断 MUST 仅在 DISKGRAPH_SCAN_DIAGNOSTICS=1 时额外记录原生观测与编码、staging 写入两项累计墙钟耗时。写入耗时包含锁等待和 fence 检查，不得称为纯 SQL 或 CPU 时间。诊断不得改变原期限、授权、取消和性能门槛。
+
+#### Scenario: 负载工具只转存已知分项
+- **WHEN** 开启诊断并收到分项记录、重复记录、未知标签、超长数值或带额外正文的记录
+- **THEN** 仅保留两种已知分项的最后一条严格匹配记录，每个数值最多20位；与既有七种阶段合计最多九条
+- **AND** 未开启诊断时不转存任何分项记录，日志不包含路径、主体或正文
