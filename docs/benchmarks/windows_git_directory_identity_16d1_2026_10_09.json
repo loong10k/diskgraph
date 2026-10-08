@@ -1,0 +1,157 @@
+{
+  "head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "6420854e64675ad46a924440d01b2cb7b1e7adb808c0804f6d93072f21314fa5"
+  },
+  "commands": [
+    {
+      "name": "projection",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "live_evidence::git_directory_version::tests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.264999999984866
+    },
+    {
+      "name": "native_state",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "windows_file_state_tests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5
+    },
+    {
+      "name": "format",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "fmt",
+        "-p",
+        "diskgraph-engine",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.6410000000032596
+    },
+    {
+      "name": "clippy",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "clippy",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 3.5
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "red": "development E0599 missing constructor only; wrapper diagnostic phrase assertion also failed; no behavioral production RED claimed",
+  "final": {
+    "commands": [
+      {
+        "name": "projection_final",
+        "exit_code": 0,
+        "elapsed_seconds": 6.032000000006519,
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "live_evidence::git_directory_version::tests"
+        ]
+      },
+      {
+        "name": "format_final",
+        "exit_code": 0,
+        "elapsed_seconds": 1.5309999999881256,
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "fmt",
+          "-p",
+          "diskgraph-engine",
+          "--",
+          "--check"
+        ]
+      },
+      {
+        "name": "clippy_final",
+        "exit_code": 0,
+        "elapsed_seconds": 3.3280000000086147,
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "clippy",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ]
+      }
+    ],
+    "source_hashes": {
+      "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+      "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24"
+    },
+    "production_acceptance": false
+  },
+  "logs": {
+    "projection_final.stdout.log": {
+      "bytes": 465,
+      "sha256": "55530e982647094f83537f3dab767af03523a888a1608457e0d0927e91021a30"
+    },
+    "projection_final.stderr.log": {
+      "bytes": 288,
+      "sha256": "791f956aa56f2d0278ddcf33bc05af7eb0a1527df1c9e5fd6cce0d8eac54b885"
+    },
+    "format_final.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "format_final.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clippy_final.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clippy_final.stderr.log": {
+      "bytes": 178,
+      "sha256": "5cd4073e54423644fee1acc928dc5ad1c665d104b33e35b92cbcd93f72b0e3f4"
+    }
+  },
+  "initial_job": "wc_job__XnbZXURgGMG-cS9",
+  "final_job": "wc_job_D5H9AFYXUixh4l5b",
+  "qualification": "Final native projection 3/3, format and all-target Clippy passed. Initial native-state 4/4 passed before fixture initializer-only correction. Prior Clippy failure retained. No release throughput or complete-platform performance acceptance claimed."
+}

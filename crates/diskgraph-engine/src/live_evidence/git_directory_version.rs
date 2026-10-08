@@ -1,5 +1,9 @@
 use std::fs::File;
 
+#[cfg(all(test, windows))]
+#[path = "git_directory_version_tests.rs"]
+mod tests;
+
 /// 不持有句柄的目录身份与完整版本。来源：Unix fstat 或 Windows FileId/BasicInfo。
 /// 祖先只比较完整身份，叶目录比较身份、长度与原生时间；不将外部祖先 mtime 变化当成冲突。
 #[derive(Eq, PartialEq)]
@@ -38,36 +42,29 @@ impl GitDirectoryVersion {
         }
         #[cfg(windows)]
         {
-            use std::os::windows::io::AsRawHandle;
-            use windows_sys::Win32::Storage::FileSystem::{
-                FILE_ID_INFO, FileIdInfo, GetFileInformationByHandleEx,
-            };
             let state = crate::windows_file_state::WindowsFileState::capture(file)
                 .map_err(|error| error.to_string())?;
-            state.validate(true).map_err(|error| error.to_string())?;
-            let mut id = FILE_ID_INFO::default();
-            if unsafe {
-                GetFileInformationByHandleEx(
-                    file.as_raw_handle(),
-                    FileIdInfo,
-                    (&mut id as *mut FILE_ID_INFO).cast(),
-                    std::mem::size_of::<FILE_ID_INFO>() as u32,
-                )
-            } == 0
-                || id.VolumeSerialNumber != state.volume
-            {
-                return Err("unsupported Git directory identity".into());
-            }
-            Ok(Self {
-                state,
-                identity: (id.VolumeSerialNumber, id.FileId.Identifier),
-            })
+            Self::from_windows_state(state)
         }
         #[cfg(not(any(unix, windows)))]
         {
             let _ = file;
             Err("unsupported Git directory platform".into())
         }
+    }
+
+    /// 参数：state 为本次原句柄已完整捕获的状态；返回：安全目录版本或原验证错误。
+    /// 纯状态投影不再次读取文件，保留完整 128 位 ID；后续独立复核仍重新捕获。
+    #[cfg(windows)]
+    fn from_windows_state(
+        state: crate::windows_file_state::WindowsFileState,
+    ) -> Result<Self, String> {
+        state.validate(true).map_err(|error| error.to_string())?;
+        let observed = state.observation(0, 0, diskgraph_core::WindowsTreeAlignment::Matched);
+        Ok(Self {
+            identity: (observed.volume, observed.file_id),
+            state,
+        })
     }
 
     /// 对照已索引目录身份。参数：expected 为持久 revision 派生身份；返回：同一原生对象时 true。

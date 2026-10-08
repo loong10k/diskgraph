@@ -1,0 +1,42 @@
+{
+  "head": "16d1cec4ec388712e7b3d064e06742efd05bea6b",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7"
+  },
+  "driver": {
+    "path": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe",
+    "sha256": "561d26f139468d956fab7e57bc1913a5dc470c7c56285211ee594ee3c5c0a2fc"
+  },
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "default_test_parallelism": true,
+  "qualification": "FAILED full default-parallel native Engine library regression. 697 passed, 16 failed, 7 ignored. Cargo stopped before integration tests. No outer timeout. Cannot infer causal improvement from previous 99 failures.",
+  "argv": [
+    "cargo",
+    "+1.99.0",
+    "test",
+    "--locked",
+    "-p",
+    "diskgraph-engine"
+  ],
+  "exit_code": 101,
+  "elapsed_seconds": 247.95300000000861,
+  "logs": {
+    "stdout.log": {
+      "bytes": 89865,
+      "sha256": "8ab750871aabe2017de747eab1c9027e53adfe4eb3e9467b3fde150652512abe"
+    },
+    "stderr.log": {
+      "bytes": 9954,
+      "sha256": "e379267e2d5839c301a18fc4a1ddcf0e3a70f17fe1dde4353f708578805e4075"
+    }
+  },
+  "test_summaries": [
+    "test result: FAILED. 697 passed; 16 failed; 7 ignored; 0 measured; 0 filtered out; finished in 230.00s"
+  ],
+  "job_id": "wc_job_BB-WMFIxRFqWqdtZ",
+  "source_commit_with_same_Rust_files": "26f1a1c4"
+}

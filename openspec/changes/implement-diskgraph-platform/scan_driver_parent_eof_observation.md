@@ -7,3 +7,5 @@ Windows 默认并发 Engine 回归在 `caller_cancel_after_tree_eof_still_reject
 本项只修正边界观测，不把完整 Engine 的其他 98 项失败解释为误报，不关闭 Git 15 秒、Windows 200k/300 秒或同 SHA 全平台门禁。未勾选整体完成。
 
 Windows Rust 1.99 原生任务 `wc_job_sulMsYTZozT0a9sn`：从当前源码重新构建独立真实夹具后，父驱动测试默认并发 12/12 通过（含原七个冻结测试），测试 0.65 秒；Engine 包格式检查通过。源码、夹具产物及日志摘要见 `docs/benchmarks/windows_driver_parent_eof_16d1_2026_10_09.json`。这是定向回归，完整默认并发尚需复验，不能将它报告成 99 项全量失败已消除。
+
+随后完整默认并发任务 `wc_job_BB-WMFIxRFqWqdtZ` 自然结束：lib 697 通过、16 失败、7 忽略，测试 230.00 秒、命令 247.953 秒，返回 101，未进入集成测试。原 EOF 取消测试通过；失败集中于 Git 采样/发布及撤权前置边界未在原期限内完成。与上一轮 99 项失败相比的变化不构成因果性能证明。完整源码、原夹具与日志摘要见 `docs/benchmarks/windows_engine_parent_eof_full_16d1_2026_10_09.json`。整体门禁保持失败。
