@@ -1,0 +1,17 @@
+{
+  "run": 37725110323,
+  "artifact": 11527414340,
+  "receipt_sha256": "c9e719ee834b7498929b62e3daf2f19c3185f11b60c78e402ce555b61cee39a1",
+  "all_declared_artifact_sizes_and_sha256": "verified by streaming archive contents",
+  "unchanged_roots": 3,
+  "measurements": 12,
+  "limits": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ]
+}
