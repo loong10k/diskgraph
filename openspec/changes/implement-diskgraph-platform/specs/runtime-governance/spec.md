@@ -234,3 +234,11 @@ MCP binary startup SHALL carry the original deployment deadline through Engine i
 #### Scenario: Local bootstrap exhausts the startup budget
 - **WHEN** the terminal startup budget check fails after local policy bootstrap
 - **THEN** startup refuses to return a service and preserves already persisted policy rather than deleting it
+
+
+### Requirement: RT-07 Scope registration uses one admission deadline
+Scope 注册 SHALL 使用原五秒期限覆盖初始持久授权、共享图锁和控制锁等待；等待不得无限阻塞，也不得在获取后一律重建期限。能力回调仍在锁外执行；路径解析和外部同步回调不声明硬实时中断能力。
+
+#### Scenario: Graph writer remains occupied during registration
+- **WHEN** 真实共享图库写锁一直被其他调用持有，注册请求原五秒期限耗尽
+- **THEN** 请求在锁仍被持有时返回预算错误，不写 scope 或 grants；后续正常注册不继承过期截止时间。

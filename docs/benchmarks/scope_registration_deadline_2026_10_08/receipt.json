@@ -1,0 +1,15 @@
+{
+  "status": "local_regression_passed_native_ci_pending",
+  "base_commit": "0530fcf64f8ad77a1286c9fb2a6fcd259ca3a1a7",
+  "red": "real graph lock held: registration still blocked after 5500ms",
+  "green": "4 registration tests passed; 6 source layout tests passed; clippy all-targets and OpenSpec strict passed",
+  "unchanged_limit_seconds": 5,
+  "limits": "synchronous canonicalization and external callbacks remain non-preemptible; this does not establish Windows registration performance acceptance",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/lib.rs": "e7c78024d3a103b331c8ff76c6c8284d72e33a1f0d64af77c91f871d19ab18ce",
+    "crates/diskgraph-engine/src/scope_service.rs": "b2318232cb191a1457915de1245489a6241bff469fab3651fe5a13387f286a82",
+    "crates/diskgraph-engine/src/graph_access.rs": "231559a7c38e4dad99abb7f813dc24d3fa4b5461a8752a2dcee05cad07cdb01d",
+    "crates/diskgraph-engine/src/scope_registration_deadline_tests.rs": "ab39bdee7d24dcde9d48517c069aa0026af193066bef6075aab068ccc2e3d761",
+    "openspec/changes/implement-diskgraph-platform/specs/runtime-governance/spec.md": "31cc0afe89aeaf4d2a82425e7e17a32ff9e1c614e18a08706d1fd437dce6874e"
+  }
+}

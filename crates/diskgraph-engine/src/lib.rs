@@ -426,3 +426,8 @@ mod scan_publication_recovery;
 
 #[cfg(test)]
 mod scan_receipt_recovery_tests;
+
+#[cfg(test)]
+mod scope_registration_deadline_tests;
+
+mod graph_access;

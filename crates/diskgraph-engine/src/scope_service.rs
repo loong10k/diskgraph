@@ -35,13 +35,23 @@ impl Engine {
             .checked_add(std::time::Duration::from_secs(5))
             .ok_or(BusinessError::InvalidArgument)?;
         let expiry = authorizer.expires_at_unix_seconds();
-        self.require(
-            authorizer,
-            principal,
-            &Permission::ScopeAdmin,
-            &admin_scope(),
-        )
-        .inspect_err(|_| trace("initial_authorization_failed"))?;
+        let initial_authorization = (|| {
+            let decision = authorizer.decide(principal, &Permission::ScopeAdmin, &admin_scope());
+            crate::authority_expiry::check_authority_expiry(expiry)?;
+            let control = self.control_until(deadline)?;
+            crate::authority_expiry::check_authority_expiry(expiry)?;
+            control.with_read_deadline(deadline, |control| {
+                Self::require_decision_with_control(
+                    control,
+                    decision,
+                    principal,
+                    &Permission::ScopeAdmin,
+                    &admin_scope(),
+                )
+            })?;
+            crate::authority_expiry::check_authority_expiry(expiry)
+        })();
+        initial_authorization.inspect_err(|_| trace("initial_authorization_failed"))?;
         trace("initial_authorization_complete");
         let canonical = root
             .canonicalize()
@@ -52,17 +62,19 @@ impl Engine {
         // 路径解析后的第二次能力观察在双锁外；写入前仍在锁内核验当前持久授权。
         let decision = authorizer.decide(principal, &Permission::ScopeAdmin, &admin_scope());
         // 与扫描发布/历史回收保持 graph→control 顺序，注册与隔离完成前不授新权限。
-        let mut graph = self.graph()?;
-        let mut control = self.control()?;
+        let mut graph = self.graph_until(deadline)?;
+        let mut control = self.control_until(deadline)?;
         trace("locks_acquired");
         // 等待双锁期间的撤权必须拒绝；固定 token expiry 由原写守卫继续核验。
-        Self::require_decision_with_control(
-            &control,
-            decision,
-            principal,
-            &Permission::ScopeAdmin,
-            &admin_scope(),
-        )?;
+        control.with_read_deadline(deadline, |control| {
+            Self::require_decision_with_control(
+                control,
+                decision,
+                principal,
+                &Permission::ScopeAdmin,
+                &admin_scope(),
+            )
+        })?;
         let registered = control.register_scope_with_grants_until(
             &locator,
             volume_id.as_deref(),
