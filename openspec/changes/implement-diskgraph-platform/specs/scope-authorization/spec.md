@@ -68,6 +68,11 @@
 - **THEN** 当前请求返回 PermissionDenied，不交付完整或部分数据；原授权期限、控制库 FULL 和已有精确拒权断言保持，不因撤权调用超过期限把已知拒权改成 BudgetExceeded。
 - **AND** 见证只记录成功提交的精确负向事实，不缓存 Allow；注册覆盖初检、消费与末检，同一请求的已知撤权不因随后重授而清除，新请求仍按实时授权判断。
 
+#### Scenario: Known terminal withdrawal survives SQL observation expiry
+- **WHEN** 关系或历史请求的原生负向见证已记录本请求依赖的成功撤权，随后末段 SQL 观察在原 50ms 窗口耗尽
+- **THEN** 若原控制连接可非阻塞取得，纯内存复核该负向见证并返回 PermissionDenied，不执行追加 SQL、不刷新期限、不进入编码或交付结果。
+- **AND** 无已知精确撤权、连接见证失效或原锁仍被占用时保留原预算错误；不得把未知状态当作拒权，也不得使失败结果变为成功。
+
 #### Scenario: Unknown or unrelated withdrawal does not manufacture denial
 - **WHEN** 原期限耗尽但没有可靠的适用负向见证，或撤销只涉及另一数据库、主体、scope、permission，或事务回滚、提交结果未知、DELETE 未删除授权行
 - **THEN** 保留原实时 SQL 与期限错误语义，不把 BudgetExceeded、busy 或 interrupted 批量映射为 PermissionDenied，不延长期限或以路径、server ID、复制库中的 UUID 猜测同一实际数据库。

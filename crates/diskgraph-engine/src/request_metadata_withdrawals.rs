@@ -27,6 +27,33 @@ impl RequestMetadataWithdrawals {
         })
     }
 
+    /// 在末段预算失败后保留原连接已知的精确撤权事实，不追加 SQL。
+    /// 参数：engine 为原请求引擎，result 为原末段结果；返回：已知撤权拒绝或原结果。
+    /// 原锁繁忙、连接失效和未知能力均不猜测拒权；此方法绝不能将错误改成成功。
+    pub(super) fn prioritize_terminal_budget<T>(
+        &self,
+        engine: &crate::Engine,
+        result: Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
+        if matches!(
+            &result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+        ) {
+            // 仅负向内存观察，不等待锁、不更新读取期限或复用已过期的 SQL guard。
+            if let Ok(Some(control)) = engine.try_control_store() {
+                for witness in &self.witnesses {
+                    if matches!(
+                        witness.check(&control),
+                        Err(EngineError::Business(BusinessError::PermissionDenied))
+                    ) {
+                        return Err(BusinessError::PermissionDenied.into());
+                    }
+                }
+            }
+        }
+        result
+    }
+
     /// 参数：control 为原连接且调用方已在原 SQL 窗口内复验实时拒权；返回：允许继续观察或拒绝。
     /// 本方法不授予权限；未知通知能力的任何授权变更均保守冲突。
     pub(super) fn check_after_live_authorization(

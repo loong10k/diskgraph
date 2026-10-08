@@ -95,6 +95,8 @@ impl Engine {
             let authorization_deadline = Instant::now()
                 .checked_add(std::time::Duration::from_millis(50))
                 .ok_or(BusinessError::InvalidArgument)?;
+            #[cfg(test)]
+            crate::history_relation_withdrawal_tests::before_terminal_sql(authorization_deadline);
             let control_authorization =
                 crate::authorization_phase_diagnostic::observe("relation_terminal_control", || {
                     control
@@ -127,12 +129,16 @@ impl Engine {
             check_authority_expiry(expiry)
         };
         let authorize = || {
-            let timely = self.observe_terminal_relation(authorizer, principal, &scope, expiry)?;
-            ownership()?;
-            if !timely {
-                return Err(EngineError::Business(BusinessError::BudgetExceeded));
-            }
-            Ok(())
+            let observed = (|| {
+                let timely =
+                    self.observe_terminal_relation(authorizer, principal, &scope, expiry)?;
+                ownership()?;
+                if !timely {
+                    return Err(EngineError::Business(BusinessError::BudgetExceeded));
+                }
+                Ok(())
+            })();
+            withdrawals.prioritize_terminal_budget(self, observed)
         };
         authorize()?;
         #[cfg(test)]

@@ -269,3 +269,119 @@ fn history_and_relation_remember_withdrawal_in_capability_observations() {
         }
     }
 }
+
+// 仅测试：在已建立的原窗口内制造确定性过期，不改生产时钟或查询额度。
+thread_local! {
+    static EXPIRE_TERMINAL_SQL: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// 在本线程指定的原 SQL 观察窗口中制造过期；参数为原期限，返回后生产逻辑继续拒绝。
+pub(super) fn before_terminal_sql(deadline: std::time::Instant) {
+    if EXPIRE_TERMINAL_SQL.with(|expire| expire.replace(false)) {
+        std::thread::sleep(
+            deadline.saturating_duration_since(std::time::Instant::now())
+                + std::time::Duration::from_millis(2),
+        );
+    }
+}
+
+#[test]
+fn committed_withdrawal_survives_terminal_sql_expiry() {
+    terminal_sql_expiry_preserves_known_denial(true);
+}
+
+#[test]
+fn terminal_sql_expiry_without_withdrawal_remains_budget_exceeded() {
+    terminal_sql_expiry_preserves_known_denial(false);
+}
+
+fn terminal_sql_expiry_preserves_known_denial(withdraw: bool) {
+    let mut failures = Vec::new();
+    for history in [false, true] {
+        let (_dir, engine, actor, scope, revision) =
+            crate::relation_request_tests::published_authorization_fixture();
+        let policy = engine.policy_authorizer().unwrap();
+        let native = engine
+            .control_store()
+            .unwrap()
+            .watch_authorization_withdrawal(&actor, &scope, &Permission::MetadataRead)
+            .unwrap()
+            .is_some();
+        #[cfg(windows)]
+        assert!(
+            native,
+            "Windows fixture must exercise actual native withdrawal identity"
+        );
+        let target = if history { 2 } else { 1 };
+        let authority = CallbackWithdrawal {
+            engine: &engine,
+            policy: &policy,
+            scope: &scope,
+            calls: std::cell::Cell::new(0),
+            target: if withdraw { target } else { usize::MAX },
+        };
+        let consumed = std::cell::Cell::new(false);
+        let encoded = std::cell::Cell::new(false);
+        let consume = || {
+            consumed.set(true);
+            EXPIRE_TERMINAL_SQL.with(|expire| expire.set(true));
+            Ok(())
+        };
+        let finish = |_: &mut (), _: bool| {
+            encoded.set(true);
+            Ok(())
+        };
+        let budget = diskgraph_core::QueryBudget::default();
+        let deadline = diskgraph_core::query_deadline(budget).unwrap();
+        let result = if history {
+            engine.with_history_readers_until(
+                revision,
+                revision,
+                &actor,
+                &authority,
+                deadline,
+                budget,
+                |_, _, _, _, _, _| consume(),
+                finish,
+            )
+        } else {
+            engine.with_relation_reader_until(
+                revision,
+                &actor,
+                &authority,
+                deadline,
+                budget,
+                None,
+                |_, _, _| consume(),
+                finish,
+            )
+        };
+        assert!(consumed.get());
+        assert!(
+            !encoded.get(),
+            "failed authorization must not enter encoding"
+        );
+        assert!(
+            !EXPIRE_TERMINAL_SQL.with(std::cell::Cell::get),
+            "original SQL window was not exercised"
+        );
+        assert!(
+            authority.calls.get() > target,
+            "terminal callback must actually execute"
+        );
+        let expected = if withdraw && native {
+            BusinessError::PermissionDenied
+        } else {
+            BusinessError::BudgetExceeded
+        };
+        if !matches!(&result, Err(EngineError::Business(error)) if *error == expected) {
+            failures.push(format!(
+                "history={history}, native={native}: {result:?}, expected {expected:?}"
+            ));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "terminal withdrawal priority: {failures:?}"
+    );
+}

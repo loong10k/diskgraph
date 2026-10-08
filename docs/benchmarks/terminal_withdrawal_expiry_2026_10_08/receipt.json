@@ -1,0 +1,45 @@
+{
+  "baseline_native_red": "../ci_d8d3995f_terminal_2026_10_08/windows_msrv.log.gz",
+  "base_commit": "31d79eff8e60ac6e0b247f93ca034ef6207b43fa",
+  "windows_fix_verified": false,
+  "macos_pre_fix": "unknown watch branch passed; not a native red reproduction",
+  "source_sha256": {
+    "history_relation_withdrawal_tests.rs": "d7be4dc79309691286e35b722ff815a0d3af04dd8f7d3e78e5aa49f0ff4863f9",
+    "history_request.rs": "1838be4158f4dd6abb9e41af592b52856220ba95ec4e3ebc183e6188d41f345a",
+    "relation_request.rs": "ec5671c93fef7daf2379f572037340d1afb14d579e83eecca23bf8d934750214",
+    "request_metadata_withdrawals.rs": "ad41356b172d57ac00aff0095e8668a7b8c497e874e20f6afe58fed20c58fb93"
+  },
+  "tests": {
+    "capability_regression.log": [
+      "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 724 filtered out; finished in 7.70s"
+    ],
+    "clippy.log": [],
+    "display_budget_isolation.log": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 737 filtered out; finished in 0.12s"
+    ],
+    "fmt.log": [],
+    "green.log": [
+      "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 732 filtered out; finished in 0.89s"
+    ],
+    "history_budget_isolation.log": [
+      "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 737 filtered out; finished in 0.06s"
+    ],
+    "pre_fix_macos_unknown_watch.log": [
+      "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 736 filtered out; finished in 0.25s"
+    ],
+    "terminal_regression.log": [
+      "test result: FAILED. 44 passed; 17 failed; 0 ignored; 0 measured; 677 filtered out; finished in 10.42s"
+    ]
+  },
+  "log_sha256": {
+    "capability_regression.log.gz": "1d3d8b152e7a0d8b44b35c96ed87d74a5e01871a14e3809fc3ad2c1c923ea4fa",
+    "clippy.log.gz": "43321622ba6a59d11a3e02bf29ad885927d3c7f1d5cd25c0cf136e3740efa769",
+    "display_budget_isolation.log.gz": "175a5ecd5b6322fc8a1b1ecb11eff3f8e1ef92920fc52820f1a8ef3b168707d5",
+    "fmt.log.gz": "9300cc4250974cd3d4ce6b5e1d5cc4518a93ba2184e90f3ae00c216c8c484eae",
+    "green.log.gz": "5dd7e06ac0161391b0785b79ef8cba37cebd9dcadb04a25493315c4a6b19c450",
+    "history_budget_isolation.log.gz": "33e8ce056ec6e762485380407cf8f22b5a76c8889e40d5145e60cb3130515491",
+    "pre_fix_macos_unknown_watch.log.gz": "0817f1f2341a82954e5fb68c288b8aff41741b20154fdf5fcddfbf669c793b20",
+    "terminal_regression.log.gz": "662aa603ed87fa40adf26ff7da4a190b40a43d5c23d1159a69941ef1bbdb640c"
+  },
+  "post_test_change": "Chinese doc comment only; runtime source unchanged"
+}

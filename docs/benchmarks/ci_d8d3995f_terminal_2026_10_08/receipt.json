@@ -1,0 +1,22 @@
+{
+  "source_commit": "d8d3995f4f5cc1c2bbf09263814d18b322900f79",
+  "run_url": "https://github.com/loong10k/diskgraph/actions/runs/37776446882",
+  "conclusion": "failure",
+  "counts": {
+    "success": 19,
+    "failure": 4
+  },
+  "logs": {
+    "windows_msrv.log.gz": "5b5397b52c95d74c7b6ae5b82de2176b86d522dac1c2afd9508c5124fa6471b3",
+    "windows_stable.log.gz": "c761b696a7885225d2f9106e2e59dc535dfda27e4b14e8c6c75926734bd1b41f"
+  },
+  "windows_msrv_failure": {
+    "test": "history_relation_withdrawal_tests::history_and_relation_remember_withdrawal_in_capability_observations",
+    "expected": "PermissionDenied",
+    "actual": "BudgetExceeded",
+    "phase": "relation_terminal_control",
+    "elapsed_us": 60005,
+    "engine_summary": "681 passed; 1 failed; 4 ignored"
+  },
+  "scope": "original d8d3995f native run, not proof for later fixes"
+}
