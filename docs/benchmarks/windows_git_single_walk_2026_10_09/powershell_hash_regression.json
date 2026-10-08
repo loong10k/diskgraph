@@ -1,0 +1,91 @@
+{
+  "baseline_commit": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+  "platform": "Windows desktop x86_64 MSVC; Windows PowerShell 5.1",
+  "regression": "CI Get-FileHash unavailable; explicitly import modules before poisoning the function to prevent autoload replacing the test double",
+  "red": {
+    "job_id": "wc_job_Tr6AyG-WylaSeDUd",
+    "status": "failed",
+    "terminal": true,
+    "changed": true,
+    "log_delta_status": "reset",
+    "observation_token": "wj3_BDfRGrWKkuGIp-xf.4.1.18",
+    "observation_ref": "~j56",
+    "exit_code": 1,
+    "command_execution_state": "completed",
+    "detected_summary": {
+      "kind": "test",
+      "outcome": "failed",
+      "tests_detected": false,
+      "tests_run_count": null,
+      "zero_tests_run": null,
+      "tests_passed": null,
+      "tests_failed": null
+    },
+    "stdout_tail": "",
+    "stderr_tail": "test_native_exit_fixture_build_does_not_depend_on_active_code_page (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page) ... ok\ntest_native_exit_fixture_does_not_require_file_hash_cmdlet (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_native_exit_fixture_does_not_require_file_hash_cmdlet) ... FAIL\ntest_relative_drive_relative_and_root_relative_are_rejected (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_relative_drive_relative_and_root_relative_are_rejected) ... ok\ntest_windows_powershell_copies_exact_bytes_and_refuses_overwrite (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_windows_powershell_copies_exact_bytes_and_refuses_overwrite) ... ok\ntest_worker_snapshot_verification_does_not_require_file_hash_cmdlet (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_worker_snapshot_verification_does_not_require_file_hash_cmdlet) ... FAIL\n\n======================================================================\nFAIL: test_native_exit_fixture_does_not_require_file_hash_cmdlet (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_native_exit_fixture_does_not_require_file_hash_cmdlet)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\tests\\test_windows_worker_powershell.py\", line 21, in test_native_exit_fixture_does_not_require_file_hash_cmdlet\n    self.check_exit_fixture(without_file_hash=True)\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\tests\\test_windows_worker_powershell.py\", line 44, in check_exit_fixture\n    self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors=\"replace\"))\nAssertionError: 1 != 0 : windows_exit_status_fixture.c\nGet-FileHash unavailable in this host\nAt C:\\Users\\hnxyh\\AppData\\Local\\Temp\\dg-exit-ps51-rl9xh1ca\\without_file_hash.ps1:3 char:32\n+ ... global:Get-FileHash { throw 'Get-FileHash unavailable in this host' }\n+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : OperationStopped: (Get-FileHash unavailable in this host:String) [], RuntimeException\n    + FullyQualifiedErrorId : Get-FileHash unavailable in this host\n \n\n\n======================================================================\nFAIL: test_worker_snapshot_verification_does_not_require_file_hash_cmdlet (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_worker_snapshot_verification_does_not_require_file_hash_cmdlet)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"E:\\workspaces\\workspace-loong10k\\diskgraph\\scripts\\tests\\test_windows_worker_powershell.py\", line 86, in test_worker_snapshot_verification_does_not_require_file_hash_cmdlet\n    self.assertEqual(result.returncode, 0, result.stderr.decode(errors=\"replace\"))\nAssertionError: 1 != 0 : Get-FileHash unavailable in this host\nAt C:\\Users\\hnxyh\\AppData\\Local\\Temp\\dg-worker-no-hash-t5fket1z\\without_file_hash.ps1:3 char:32\n+ ... global:Get-FileHash { throw 'Get-FileHash unavailable in this host' }\n+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : OperationStopped: (Get-FileHash unavailable in this host:String) [], RuntimeException\n    + FullyQualifiedErrorId : Get-FileHash unavailable in this host\n \n\n\n----------------------------------------------------------------------\nRan 5 tests in 26.572s\n\nFAILED (failures=2)\n",
+    "stdout_delta_reset": true,
+    "stderr_delta_reset": true,
+    "stdout_lines": 0,
+    "stderr_lines": 43,
+    "stdout_returned_lines": 0,
+    "stderr_returned_lines": 43,
+    "stdout_retained_from_line": 1,
+    "stderr_retained_from_line": 1,
+    "cursor": {
+      "stdout": 1,
+      "stderr": 44
+    },
+    "last_update_seq": 3,
+    "stdout_truncated": false,
+    "stderr_truncated": false,
+    "earlier_stdout_unavailable": false,
+    "earlier_stderr_unavailable": false,
+    "purpose": "test",
+    "command_summary": "python -m unittest discover -s scripts/tests -p test_windows_worker_powershell.py -v"
+  },
+  "green": {
+    "job_id": "wc_job_OZVqgZtcXTk02LhH",
+    "status": "completed",
+    "terminal": true,
+    "changed": true,
+    "log_delta_status": "reset",
+    "observation_token": "wj3_EW4r4rBSv2jgrF-a.4.1.b",
+    "observation_ref": "~j57",
+    "exit_code": 0,
+    "command_execution_state": "completed",
+    "detected_summary": {
+      "kind": "test",
+      "outcome": "passed",
+      "tests_detected": false,
+      "tests_run_count": null,
+      "zero_tests_run": null,
+      "tests_passed": null,
+      "tests_failed": null
+    },
+    "stdout_tail": "",
+    "stderr_tail": "test_native_exit_fixture_build_does_not_depend_on_active_code_page (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_native_exit_fixture_build_does_not_depend_on_active_code_page) ... ok\ntest_native_exit_fixture_does_not_require_file_hash_cmdlet (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_native_exit_fixture_does_not_require_file_hash_cmdlet) ... ok\ntest_relative_drive_relative_and_root_relative_are_rejected (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_relative_drive_relative_and_root_relative_are_rejected) ... ok\ntest_windows_powershell_copies_exact_bytes_and_refuses_overwrite (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_windows_powershell_copies_exact_bytes_and_refuses_overwrite) ... ok\ntest_worker_snapshot_verification_does_not_require_file_hash_cmdlet (test_windows_worker_powershell.WindowsWorkerPowerShellTests.test_worker_snapshot_verification_does_not_require_file_hash_cmdlet) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 48.122s\n\nOK\n",
+    "stdout_delta_reset": true,
+    "stderr_delta_reset": true,
+    "stdout_lines": 0,
+    "stderr_lines": 10,
+    "stdout_returned_lines": 0,
+    "stderr_returned_lines": 10,
+    "stdout_retained_from_line": 1,
+    "stderr_retained_from_line": 1,
+    "cursor": {
+      "stdout": 1,
+      "stderr": 11
+    },
+    "last_update_seq": 3,
+    "stdout_truncated": false,
+    "stderr_truncated": false,
+    "earlier_stdout_unavailable": false,
+    "earlier_stderr_unavailable": false,
+    "purpose": "test",
+    "command_summary": "python -m unittest discover -s scripts/tests -p test_windows_worker_powershell.py -v"
+  },
+  "limits": [
+    "Script regressions only; no production qualification",
+    "Python indentation normalized after green without changing generated wrapper bytes"
+  ]
+}

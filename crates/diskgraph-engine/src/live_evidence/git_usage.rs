@@ -1,7 +1,7 @@
 //! 用既有本地 Git 命令采样项目状态。
 
 use super::git_metadata_budget::GitMetadataBudget;
-use super::git_output::{commit_count, status_count, successful};
+use super::git_output::{status_count, successful};
 use super::git_view::GitView;
 use super::probe_budget::ProbeBudget;
 use super::probe_output::ProbeOutput;
@@ -123,14 +123,10 @@ pub(super) fn observe(view: &mut GitView, budget: &mut ProbeBudget) -> Result<Gi
             git_references::upstream(&mut |args| run(args, budget), branch, head)?;
         if let Some(upstream) = upstream {
             // 只使用完整 OID 范围，引用名不成为 revision 表达式或额外选项。
-            ahead = Some(commit_count(&successful(run(
-                &["rev-list", "--count", &format!("{upstream}..{head}")],
-                budget,
-            )?)?)?);
-            behind = Some(commit_count(&successful(run(
-                &["rev-list", "--count", &format!("{head}..{upstream}")],
-                budget,
-            )?)?)?);
+            let (observed_ahead, observed_behind) =
+                super::git_divergence::count(head, &upstream, &mut |args| run(args, budget))?;
+            ahead = Some(observed_ahead);
+            behind = Some(observed_behind);
         } else if mapped {
             notes.push("configured upstream reference is unavailable locally; whether commits are pushed is unknown and is never reported as pushed".into());
         } else {

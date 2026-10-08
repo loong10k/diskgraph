@@ -46,12 +46,12 @@ pub(super) fn assert_crash_after_commit_reached(job: &str) {
     });
 }
 pub(super) fn assert_publication_reached(actual: &impl std::fmt::Debug) {
-    PUBLICATION.with(|slot| {
-        assert!(
-            slot.borrow().is_none(),
-            "did not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual={actual:?}"
-        )
-    });
+    // 未到同步点时回调可能仍持有Engine；在原断言展开期间释放，不拖到TLS析构。
+    let pending = PUBLICATION.with(|slot| slot.borrow_mut().take());
+    assert!(
+        pending.is_none(),
+        "did not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual={actual:?}"
+    );
 }
 fn assert_capture_reached(actual: &EngineError) {
     CAPTURE.with(|slot| {
@@ -60,6 +60,35 @@ fn assert_capture_reached(actual: &EngineError) {
             "did not reach the required active capture boundary; phase=active_capture_not_reached; actual={actual:?}"
         )
     });
+}
+
+#[test]
+fn failed_publication_assertion_releases_its_unreached_callback_before_returning() {
+    use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    struct ReleaseWitness(Arc<AtomicBool>);
+    impl Drop for ReleaseWitness {
+        fn drop(&mut self) {
+            PUBLICATION.with(|slot| assert!(slot.borrow().is_none()));
+            self.0.store(true, Ordering::SeqCst);
+        }
+    }
+    let released = Arc::new(AtomicBool::new(false));
+    let witness = ReleaseWitness(released.clone());
+    at_publication("unreached-fixture-job", move || drop(witness));
+    let failure = std::panic::catch_unwind(|| assert_publication_reached(&"original timeout"));
+    let released_before_return = released.load(Ordering::SeqCst);
+    // 红灯也在TLS仍有效时释放捕获对象，避免把一次可观察失败变成整个测试进程abort。
+    let remaining = PUBLICATION.with(|slot| slot.borrow_mut().take());
+    drop(remaining);
+    assert!(
+        failure.is_err(),
+        "original missing-boundary assertion was lost"
+    );
+    assert!(
+        released_before_return,
+        "unreached callback outlived the original assertion unwind"
+    );
 }
 pub(super) fn after_publication(job: &str) -> Result<(), EngineError> {
     let crash = CRASH_AFTER_COMMIT.with(|slot| {
@@ -210,8 +239,13 @@ fn git_original_request_expiry_after_capture_fails_without_publication() {
     });
     let started = std::time::Instant::now();
     let error = f.engine.run_job_strict(&job.job_id, "expired").unwrap_err();
-    PUBLICATION.with(|slot| assert!(slot.borrow().is_none(),
-        "did not reach the required post-capture publication boundary: original_expiry={expiry}, now={}, elapsed={:?}, error={error:?}", now(), started.elapsed()));
+    let pending_publication = PUBLICATION.with(|slot| slot.borrow_mut().take());
+    assert!(
+        pending_publication.is_none(),
+        "did not reach the required post-capture publication boundary: original_expiry={expiry}, now={}, elapsed={:?}, error={error:?}",
+        now(),
+        started.elapsed()
+    );
     assert_publication_reached(&error);
     assert!(
         matches!(

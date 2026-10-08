@@ -15,14 +15,31 @@ EXIT_SCRIPT = ROOT / "scripts/configure_windows_exit_fixtures.ps1"
 @unittest.skipUnless(os.name == "nt", "requires actual Windows PowerShell")
 class WindowsWorkerPowerShellTests(unittest.TestCase):
     def test_native_exit_fixture_build_does_not_depend_on_active_code_page(self):
+        self.check_exit_fixture()
+
+    def test_native_exit_fixture_does_not_require_file_hash_cmdlet(self):
+        self.check_exit_fixture(without_file_hash=True)
+
+    def check_exit_fixture(self, without_file_hash=False):
         with tempfile.TemporaryDirectory(prefix="dg-exit-ps51-") as directory:
             root = Path(directory)
             environment = dict(os.environ, RUNNER_TEMP=str(root), GITHUB_ENV=str(root / "acceptance.env"))
             environment.pop("CL", None)
             environment.pop("_CL_", None)
+            invocation = [str(EXIT_SCRIPT)]
+            if without_file_hash:
+                wrapper = root / "without_file_hash.ps1"
+                wrapper.write_text(
+                    "param($ScriptPath)\n"
+                    "Import-Module Microsoft.PowerShell.Utility, Microsoft.PowerShell.Management\n"
+                    "function global:Get-FileHash { throw 'Get-FileHash unavailable in this host' }\n"
+                    "& $ScriptPath\n",
+                    encoding="utf-8",
+                )
+                invocation = [str(wrapper), "-ScriptPath", str(EXIT_SCRIPT)]
             result = subprocess.run([
                 "powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
-                "-File", str(EXIT_SCRIPT),
+                "-File", *invocation,
             ], cwd=ROOT, env=environment, capture_output=True, timeout=90)
             self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
             receipt = json.loads((root / "diskgraph-windows-exit-fixtures/receipt.json").read_text(encoding="utf-8-sig"))
@@ -35,18 +52,41 @@ class WindowsWorkerPowerShellTests(unittest.TestCase):
                 exited = subprocess.run([str(binary)], capture_output=True, timeout=10)
                 self.assertEqual(exited.returncode & 0xFFFFFFFF, int(artifact["code"], 16))
 
-    def run_fixture(self, source, output, artifacts):
+    def run_fixture(self, source, output, artifacts, without_file_hash=False):
         artifacts.write_text(json.dumps({
             "reason": "compiler-artifact",
             "target": {"name": "diskgraph-scan-worker", "kind": ["bin"]},
             "executable": str(source),
         }) + "\n", encoding="utf-8")
         environment = dict(os.environ, GITHUB_ENV=str(output / "acceptance.env"))
+        invocation = [str(SCRIPT)]
+        if without_file_hash:
+            wrapper = output / "without_file_hash.ps1"
+            wrapper.write_text(
+                "param($ScriptPath, $Artifacts, $OutputDir)\n"
+                "Import-Module Microsoft.PowerShell.Utility, Microsoft.PowerShell.Management\n"
+                "function global:Get-FileHash { throw 'Get-FileHash unavailable in this host' }\n"
+                "& $ScriptPath -Artifacts $Artifacts -OutputDir $OutputDir\n",
+                encoding="utf-8",
+            )
+            invocation = [str(wrapper), "-ScriptPath", str(SCRIPT)]
         return subprocess.run([
             "powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
-            "-File", str(SCRIPT),
+            "-File", *invocation,
             "-Artifacts", str(artifacts), "-OutputDir", str(output),
         ], cwd=ROOT, env=environment, capture_output=True, timeout=30)
+
+    def test_worker_snapshot_verification_does_not_require_file_hash_cmdlet(self):
+        with tempfile.TemporaryDirectory(prefix="dg-worker-no-hash-") as directory:
+            root = Path(directory)
+            source = root / "synthetic.exe"
+            payload = b"independent hash verification\x00\xff"
+            source.write_bytes(payload)
+            result = self.run_fixture(source, root, root / "artifacts.jsonl", without_file_hash=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+            receipt = json.loads((root / "product-worker-receipt.json").read_text(encoding="utf-8-sig"))
+            self.assertEqual(receipt["worker_sha256"].lower(), hashlib.sha256(payload).hexdigest())
+            self.assertEqual((root / "product-scan-worker.exe").read_bytes(), payload)
 
     def test_windows_powershell_copies_exact_bytes_and_refuses_overwrite(self):
         with tempfile.TemporaryDirectory(prefix="dg-worker-ps51-") as directory:

@@ -1,0 +1,148 @@
+{
+  "receipt": {
+    "base_head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+      "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+      "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+      "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+      "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "c42a9ccaae3ed6c9232aec252ee5b538567ceeb1e11793168cf649c74b8aff98",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "cb3bf54ee5d4a056dc68a900463f9c450f86c4b2a3a51ca98207717003e08b80",
+      "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de"
+    },
+    "commands": [
+      {
+        "name": "git_fscache_isolated",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 49.78100000000268
+      },
+      {
+        "name": "engine_default_parallel",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 3221226505,
+        "elapsed_seconds": 73.09399999999732
+      },
+      {
+        "name": "source_layout",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--test",
+          "source_layout",
+          "--target",
+          "x86_64-pc-windows-msvc"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 6.937999999994645
+      },
+      {
+        "name": "clippy",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "clippy",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--all-targets",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.984000000011292
+      }
+    ]
+  },
+  "logs": {
+    "git_fscache_isolated": {
+      "summary_lines": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 697 filtered out; finished in 35.66s"
+      ],
+      "failed_test_lines": [],
+      "fatal_tls_abort": false,
+      "stderr_tail": " diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.49s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n",
+      "sha256": {
+        "stdout": "1c7cbe7c2cea4fc30eb492d5ca61a87437cba707469c474ce8d5b0e5c34982c7",
+        "stderr": "08b09c0a4f0e72104397323af6585a583ec563c6d900c317ae96bf06cb9d8db6"
+      }
+    },
+    "engine_default_parallel": {
+      "summary_lines": [],
+      "failed_test_lines": [
+        "test git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision ... FAILED",
+        "test git_evidence_execution_tests::git_content_revocation_after_capture_prevents_any_publication ... FAILED",
+        "test git_evidence_execution_tests::git_actual_cancellation_after_capture_is_cancelled_without_publication ... FAILED",
+        "test git_evidence_execution_tests::git_original_request_expiry_after_capture_fails_without_publication ... FAILED",
+        "test git_job_cancellation_tests::live_git_owner_rejection_and_cancel_preserve_the_active_handle ... FAILED",
+        "test git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner ... FAILED",
+        "test git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision ... FAILED",
+        "test git_job_status_tests::completed_git_status_requires_live_metadata_permission_in_addition_to_operation_view ... FAILED",
+        "test live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes ... FAILED",
+        "test live_evidence::git_isolation_semantics_tests::linked_worktree_keeps_its_own_head_index_and_the_common_stash ... FAILED",
+        "test live_evidence::git_isolation_semantics_tests::shallow_boundary_is_preserved_in_the_private_view ... FAILED"
+      ],
+      "fatal_tls_abort": true,
+      "stderr_tail": "sts.rs:98:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\nthread 'live_evidence::git_isolation_semantics_tests::linked_worktree_keeps_its_own_head_index_and_the_common_stash' (3188) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:93:6:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nDG_FIXTURE_ROOT_RESTORE_SHARING_RETAINED=32\n\nthread 'live_evidence::git_isolation_semantics_tests::shallow_boundary_is_preserved_in_the_private_view' (59780) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:113:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\nthread 'job_stop_signals_tests::running_keeper_distinguishes_request_cancel_from_verified_deny_stop' (63928) panicked at crates\\diskgraph-engine\\src\\git_evidence_execution_tests.rs:50:9:\ndid not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual=Err(Business(Timeout))\n\nthread 'job_stop_signals_tests::running_keeper_distinguishes_request_cancel_from_verified_deny_stop' (63928) panicked at /rustc/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/library\\std\\src\\thread\\local.rs:429:25:\ncannot access a Thread Local Storage value during or after destruction: AccessError\nfatal runtime error: thread local panicked on drop, aborting\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n\nCaused by:\n  process didn't exit successfully: `E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe --nocapture` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)\n",
+      "sha256": {
+        "stdout": "e6965c07a4ed75a1906b3fd08210bf849854ac23c2d7d15797058459c1b746c2",
+        "stderr": "b0f4efcd3c6c7b5e326c7991621db02966e114e0d90dcfd3b382c47718710975"
+      }
+    },
+    "source_layout": {
+      "summary_lines": [
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s"
+      ],
+      "failed_test_lines": [],
+      "fatal_tls_abort": false,
+      "stderr_tail": "ng diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.03s\n     Running tests\\source_layout.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\source_layout-c6ac9d789f99c4fd.exe)\n",
+      "sha256": {
+        "stdout": "aa1523992c19f4f15075160d4288fc8c8ba7f7d13d8cf61fb85c80d65034fd63",
+        "stderr": "78e783a5bf3ae2dc9ba3e83319e6f6fa3bb20f5c73324e8d55a7f9519c6a3d00"
+      }
+    },
+    "clippy": {
+      "summary_lines": [],
+      "failed_test_lines": [],
+      "fatal_tls_abort": false,
+      "stderr_tail": "    Checking diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.31s\n",
+      "sha256": {
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "db062baca5af638560007823a5b64357f3ca63cdf6cf0898000c00d012c83952"
+      }
+    }
+  }
+}

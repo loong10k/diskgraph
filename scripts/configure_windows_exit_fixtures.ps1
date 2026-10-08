@@ -1,5 +1,13 @@
 ﻿# 构建真实 ExitProcess 夹具；仅验证 CLI 完整退出状态，不授予产品能力。
 $ErrorActionPreference = 'Stop'
+# PowerShell 5.1可继承不完整的模块路径；直接使用.NET并确保所有句柄释放。
+function Get-NativeSha256([string]$Path) {
+    $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+    try {
+        $hasher = [Security.Cryptography.SHA256]::Create()
+        try { return [BitConverter]::ToString($hasher.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() } finally { $hasher.Dispose() }
+    } finally { $stream.Dispose() }
+}
 $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
 $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 if ($LASTEXITCODE -ne 0 -or !$installation) { throw 'Existing MSVC required' }
@@ -26,7 +34,7 @@ try {
         $receipts += @{
             code = $bits
             path = $binary
-            sha256 = (Get-FileHash -Algorithm SHA256 $binary).Hash.ToLowerInvariant()
+            sha256 = Get-NativeSha256 $binary
             bytes = (Get-Item $binary).Length
         }
     }
@@ -35,7 +43,7 @@ try {
 }
 @{
     commit = (git rev-parse HEAD)
-    source_sha256 = (Get-FileHash -Algorithm SHA256 $source).Hash.ToLowerInvariant()
+    source_sha256 = Get-NativeSha256 $source
     artifacts = $receipts
     status = 'compiled; direct and CLI execution remain required'
 } | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 (Join-Path $output 'receipt.json')

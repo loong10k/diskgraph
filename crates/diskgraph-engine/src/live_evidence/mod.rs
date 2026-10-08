@@ -26,6 +26,7 @@ mod git_directory_security;
 #[cfg(test)]
 mod git_directory_tests;
 mod git_directory_version;
+mod git_divergence;
 mod git_executable;
 #[cfg(test)]
 mod git_executable_native_tests;

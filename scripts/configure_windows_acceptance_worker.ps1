@@ -25,7 +25,13 @@ try {
     $inputStream.Position = 0
     $hasher = [Security.Cryptography.SHA256]::Create()
     try { $digest = [BitConverter]::ToString($hasher.ComputeHash($inputStream)).Replace('-', '') } finally { $hasher.Dispose() }
-    if ((Get-Item -LiteralPath $destination).Length -ne $size -or (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash -ne $digest) { throw 'Exclusive worker snapshot differs from original artifact' }
+    # 不依赖宿主模块的Get-FileHash；在禁止写入/删除的句柄上独立验证副本。
+    $verificationStream = [IO.File]::Open($destination, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+    try {
+        $verificationHasher = [Security.Cryptography.SHA256]::Create()
+        try { $verifiedDigest = [BitConverter]::ToString($verificationHasher.ComputeHash($verificationStream)).Replace('-', '') } finally { $verificationHasher.Dispose() }
+        if ($verificationStream.Length -ne $size -or $verifiedDigest -ne $digest) { throw 'Exclusive worker snapshot differs from original artifact' }
+    } finally { $verificationStream.Dispose() }
 } finally { $inputStream.Dispose() }
 $sha = git rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Missing current checkout identity' }

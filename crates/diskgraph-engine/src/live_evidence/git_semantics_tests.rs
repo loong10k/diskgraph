@@ -258,7 +258,7 @@ fn assert_bad_fixture(stage: &str, diagnostic: &str) {
         'rev-parse --abbrev-ref --symbolic-full-name @{{upstream}}') {old_upstream};;\n\
         'for-each-ref --format=%(refname)%00%(objectname)%00%(upstream)%00 -- refs/heads/main') {metadata};;\n\
         'rev-parse --verify --quiet refs/remotes/origin/main^{{commit}}') printf '{upstream}\\n';;\n\
-        'rev-list --count '*) printf '{counter}\\n';;\n\
+        'rev-list --left-right --count '*) printf '{counter}\\t0\\n';;\n\
         *) printf 'unexpected fixture command\\n' >&2; exit 23;;\nesac\n"
     );
     // 单独 writer 退出后才执行目标，避免并发 fork 继承脚本写 FD 的 ETXTBSY。

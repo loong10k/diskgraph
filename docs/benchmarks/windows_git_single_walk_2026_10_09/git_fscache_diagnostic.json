@@ -1,0 +1,46 @@
+{
+  "receipt": {
+    "base_head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+      "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+      "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324"
+    },
+    "commands": [
+      {
+        "name": "git_fscache_isolated",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 55.51600000000326
+      }
+    ]
+  },
+  "logs": {
+    "git_fscache_isolated": {
+      "summary_lines": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 693 filtered out; finished in 54.49s"
+      ],
+      "failed_test_lines": [],
+      "fatal_tls_abort": false,
+      "stderr_tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n",
+      "sha256": {
+        "stdout": "ea8f95557e3a74313e63e8ae8934554d87e7c7986fd751c62958d41f976311d0",
+        "stderr": "ba5cdc1ae923a0c313abbf3af27d866b853bcbf417b8b52109b10d3c512b9fe3"
+      }
+    }
+  }
+}

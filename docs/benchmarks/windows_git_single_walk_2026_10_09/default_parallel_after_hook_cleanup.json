@@ -1,0 +1,81 @@
+{
+  "receipt": {
+    "base_head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+      "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+      "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324",
+      "crates/diskgraph-engine/src/live_evidence/git_divergence.rs": "ffb2d49d41817a1259d730a61066eb5e85006055e7edeedd925c1f6e7e4a5959",
+      "crates/diskgraph-engine/src/live_evidence/git_usage.rs": "c42a9ccaae3ed6c9232aec252ee5b538567ceeb1e11793168cf649c74b8aff98",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "cb3bf54ee5d4a056dc68a900463f9c450f86c4b2a3a51ca98207717003e08b80",
+      "crates/diskgraph-engine/src/live_evidence/git_semantics_tests.rs": "999a2c72994932138c97eb7d24a65a04719b79d3f2233ac6a3e220f7cae047de",
+      "crates/diskgraph-engine/src/git_evidence_execution_tests.rs": "1097abae2f5f4ef697eb8fbb7184277f4561ebb544cf3582954aa5f75a4ee73e"
+    },
+    "commands": [
+      {
+        "name": "hook_cleanup",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "failed_publication_assertion_releases",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 27.375
+      },
+      {
+        "name": "engine_default_parallel",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 101,
+        "elapsed_seconds": 225.25
+      },
+      {
+        "name": "clippy",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "clippy",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--all-targets",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 6.562000000005355
+      }
+    ]
+  },
+  "engine_summary": "\nfailures:\n    git_evidence_execution_tests::git_actual_cancellation_after_capture_is_cancelled_without_publication\n    git_evidence_execution_tests::git_content_revocation_after_capture_prevents_any_publication\n    git_evidence_execution_tests::git_original_request_expiry_after_capture_fails_without_publication\n    git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner\n    git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision\n    git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision\n    git_job_cancellation_tests::live_git_owner_rejection_and_cancel_preserve_the_active_handle\n    git_job_status_tests::completed_git_status_rechecks_all_live_grants_after_the_last_terminal_callback\n    git_job_status_tests::completed_git_status_requires_live_metadata_permission_in_addition_to_operation_view\n    git_job_status_tests::pruned_git_result_keeps_authorized_receipt_and_marks_result_unavailable\n    git_late_enqueue_tests::enqueue_cannot_register_a_terminal_handle_after_another_engine_completes\n    git_late_enqueue_tests::queued_producer_handle_does_not_survive_remote_engine_completion\n    job_stop_cause_outcome_tests::keeper_join_propagates_its_real_panic_without_rewriting_committed_facts\n    job_stop_conflict_tests::observed_denial_does_not_replace_a_real_indexed_directory_identity_conflict\n    live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes\n    live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes\n    live_evidence::git_isolation_tests::source_metadata_is_unchanged_on_success_budget_failure_and_precancel\n    live_evidence::git_object_database_tests::oversized_alternates_are_rejected_without_parsing_the_source_file\n    live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes\n    live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit\n    live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency\n    live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git\n    live_evidence::git_semantics_tests::missing_tracking_ref_is_reported_as_unavailable_not_unconfigured\n    live_evidence::git_semantics_tests::sha256_repository_keeps_full_oids_and_correct_commit_counts\n    live_evidence::git_stash_tests::malformed_raw_record_is_not_a_valid_stash_count\n    live_evidence::git_status_output_tests::real_wide_status_exhausts_default_output_without_partial_sample_or_private_data\n    live_evidence::probe_tests::an_exited_leader_does_not_make_inherited_pipes_complete\n    live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly\n    relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes\n    relation_request_tests::expired_envelope_still_observes_live_authorization_without_renewing_data_deadline\n\ntest result: FAILED. 665 passed; 30 failed; 4 ignored; 0 measured; 0 filtered out; finished in 224.01s\n\n",
+  "fatal_tls_abort": false,
+  "stderr_tail": " environment variable to display a backtrace\n\n\nthread 'live_evidence::git_stash_tests::malformed_raw_record_is_not_a_valid_stash_count' (58156) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_stash_tests.rs:63:14:\nbaseline: two valid stash entries must be observable: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery; stash semantic fixture elapsed=60068ms, timeout=60000ms\"\n\nthread 'live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit' (46600) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_private_capacity_tests.rs:297:14:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"\nnative probe test recovery retains original owner: private Git cleanup failed: probe cumulative output byte limit exceeded\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n",
+  "log_sha256": {
+    "engine_default_parallel.stdout.log": "30cb05a034d18d1fd19a6b3453c80311dc4512c1c2fa922d209eb50dc1d7f83d",
+    "engine_default_parallel.stderr.log": "182b0ef2a36615ece4e058e9901633724f32d11b6412a30483cf9d06573b2c88"
+  }
+}
