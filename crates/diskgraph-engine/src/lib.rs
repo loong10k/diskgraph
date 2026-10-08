@@ -408,3 +408,6 @@ mod linux_no_recall_open;
 
 #[cfg(all(test, target_os = "linux"))]
 mod linux_no_recall_open_tests;
+
+#[cfg(test)]
+mod authority_expiry_clock;

@@ -11,6 +11,8 @@ pub(super) fn check_authority_expiry(expiry: Option<u64>) -> Result<(), EngineEr
             .duration_since(std::time::UNIX_EPOCH)
             .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?
             .as_secs();
+        #[cfg(test)]
+        let now = crate::authority_expiry_clock::AuthorityExpiryClock::now().unwrap_or(now);
         if now >= expiry {
             return Err(BusinessError::PermissionDenied.into());
         }

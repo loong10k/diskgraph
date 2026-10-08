@@ -1,0 +1,23 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-engine/src/authority_expiry.rs": "bbdeea5719feed72f4e1d90b4b0758a5c842ecbd0a4babf324d7f4172bc4aaa6",
+    "crates/diskgraph-engine/src/authority_expiry_clock.rs": "aa96559069df816b26eb062b486d416d2d9b2c29899e2a5d90c1081fbf213cc1",
+    "crates/diskgraph-engine/src/admin_policy_lookup_tests.rs": "b6d5f8f2f2008e1806b1b9dbcbe36233f2d2d90e96dd1d6fcb94efb01cea75e1",
+    "crates/diskgraph-engine/src/lib.rs": "f82c9157382a1eb2e1f46f54ffbf067a9a4b0ff81caad4e23dd62a6ad5e993b4"
+  },
+  "original_native_failure": {
+    "run": 37713475985,
+    "job": 113104517757,
+    "engine_passed": 656,
+    "engine_failed": 1,
+    "engine_ignored": 9,
+    "cause": "fixed token expired before consumer entry; existing test left variable subsecond startup window"
+  },
+  "green": 22,
+  "non_send": "actual guard cross-thread compile rejected E0277 as expected",
+  "reviews": {
+    "code": "APPROVE",
+    "architecture": "CLEAR"
+  },
+  "boundary": "test-only thread-local clock; fixed expiry unchanged; original monotonic query budget unchanged; other real-wall-clock regressions retained; not latest native platform acceptance"
+}

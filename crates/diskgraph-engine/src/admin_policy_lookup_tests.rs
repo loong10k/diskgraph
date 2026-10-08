@@ -872,21 +872,11 @@ fn display_complete_reader_refuses_token_expired_during_consumer() {
         }
     }
     let (_dir, engine, principal, _, revision) = published_authorization_fixture();
-    // 留足原始一秒执行预算：在墙钟秒的后半段开始，消费只等待下一个固定秒边界。
-    let mut now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap();
-    if now.subsec_millis() < 500 {
-        std::thread::sleep(std::time::Duration::from_millis(
-            500 - u64::from(now.subsec_millis()),
-        ));
-        now = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap();
-    }
+    // 只推进本测试线程的授权墙钟；固定token到期值与原单调查询预算均不刷新。
+    let clock = crate::authority_expiry_clock::AuthorityExpiryClock::install(99);
     let authorizer = Fixed {
         policy: engine.policy_authorizer().unwrap(),
-        expiry: now.as_secs() + 1,
+        expiry: 100,
     };
     let entered = std::cell::Cell::new(false);
     let result = engine.with_authorized_revision_display_reader_bounded(
@@ -895,18 +885,12 @@ fn display_complete_reader_refuses_token_expired_during_consumer() {
         &authorizer,
         diskgraph_core::QueryBudget::default(),
         |_, _, reads| {
-            let now = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap();
-            assert!(
-                now.as_secs() < authorizer.expiry,
-                "consumer must start before expiry"
+            assert_eq!(
+                crate::authority_expiry_clock::AuthorityExpiryClock::now(),
+                Some(99)
             );
             entered.set(true);
-            std::thread::sleep(
-                std::time::Duration::from_secs(authorizer.expiry).saturating_sub(now)
-                    + std::time::Duration::from_millis(20),
-            );
+            clock.advance(authorizer.expiry);
             assert!(
                 std::time::Instant::now() < reads.deadline(),
                 "original query budget must remain live"
