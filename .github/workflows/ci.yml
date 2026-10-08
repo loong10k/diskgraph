@@ -13,9 +13,10 @@ env:
 permissions:
   contents: read
 
-# 每个提交保留完整验收；仅重复执行同一提交时取消旧运行，避免新修复中断原生证据。
+# 同一分支优先完整验收最新提交，避免旧候选占满原生 runner。
+# 被替代运行的取消不是通过；正式结论必须绑定最终提交的全部验收。
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
