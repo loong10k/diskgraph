@@ -74,6 +74,70 @@ class FixtureCreationTests(unittest.TestCase):
             self.assertIs(caught.exception, error)
 
 
+class FixtureRetirementTests(unittest.TestCase):
+    """只清理自己创建的固定文件集合，错误与后续目录回收保持真实。"""
+    def test_exact_fixture_members_retired_other_entry_untouched(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            MODULE.create_fixture(root, 103)
+            other = root / 'other'
+            other.write_bytes(b'preserve')
+            MODULE.retire_fixture(root, 103, workers=4)
+            self.assertEqual(list(root.iterdir()), [other])
+            self.assertEqual(other.read_bytes(), b'preserve')
+
+    def test_retirement_overlaps_io_with_four_bounded_workers(self):
+        barrier = threading.Barrier(4, timeout=2)
+        threads = set()
+        lock = threading.Lock()
+        real_unlink = Path.unlink
+
+        def unlink(path, *args, **kwargs):
+            identity = threading.get_ident()
+            with lock:
+                first = identity not in threads
+                threads.add(identity)
+            if first:
+                barrier.wait()
+            return real_unlink(path, *args, **kwargs)
+
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            MODULE.create_fixture(root, 103)
+            with patch.object(Path, 'unlink', unlink):
+                MODULE.retire_fixture(root, 103, workers=4)
+            self.assertEqual(list(root.iterdir()), [])
+        self.assertEqual(len(threads), 4)
+
+    def test_unlink_failure_propagates_original_error(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            error = OSError('fixture retirement failed')
+            with patch.object(Path, 'unlink', side_effect=error):
+                with self.assertRaises(OSError) as caught:
+                    MODULE.retire_fixture(root, 103, workers=4)
+            self.assertIs(caught.exception, error)
+
+    def test_worker_count_outside_bounded_range_does_not_unlink(self):
+        for workers in (0, 5):
+            with self.subTest(workers=workers), patch.object(Path, 'unlink') as unlink:
+                with self.assertRaises(ValueError):
+                    MODULE.retire_fixture(Path('unused'), 103, workers=workers)
+                unlink.assert_not_called()
+
+    def test_retirement_removes_only_link_name_and_preserves_external_object(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            root = parent / 'fixture'
+            root.mkdir()
+            outside = parent / 'outside'
+            outside.write_bytes(b'preserve outside')
+            (root / 'file-000000.bin').hardlink_to(outside)
+            MODULE.retire_fixture(root, 1, workers=4)
+            self.assertEqual(outside.read_bytes(), b'preserve outside')
+            self.assertEqual(list(root.iterdir()), [])
+
+
 class CoverageTests(unittest.TestCase):
     """模拟 CLI 协议，使用真实隔离 SQLite 证明部分结果不能计作完整负载。"""
 
@@ -160,6 +224,27 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(events, [('begin', True), ('end', False)])
         self.assertGreaterEqual(report['cleanup_seconds'], 0)
         self.assertEqual(report['passed'], report['total'])
+
+    def test_windows_branch_retires_real_fixture_before_directory_cleanup(self):
+        events = []
+        original = MODULE.retire_fixture
+        with patch.object(MODULE.sys, 'platform', 'win32'), \
+                patch.object(MODULE, 'retire_fixture', wraps=original) as retirement:
+            result, report = self.exercise(102, verify_all_closed=True, phase_events=events)
+        self.assertEqual(result, 0)
+        self.assertEqual(report['cleanup_workers'], 4)
+        self.assertEqual(events, [('begin', True), ('end', False)])
+        self.assertEqual(retirement.call_args.kwargs, {'workers': 4})
+
+    def test_windows_retirement_failure_never_reports_cleanup_complete(self):
+        events = []
+        original = OSError('original parallel retirement failure')
+        with patch.object(MODULE.sys, 'platform', 'win32'), \
+                patch.object(MODULE, 'retire_fixture', side_effect=original):
+            with self.assertRaises(OSError) as caught:
+                self.exercise(102, verify_all_closed=True, phase_events=events)
+        self.assertIs(caught.exception, original)
+        self.assertEqual(events, [('begin', True)])
 
     def test_failed_cleanup_preserves_error_and_never_reports_retirement_end(self):
         events = []

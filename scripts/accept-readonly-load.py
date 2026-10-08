@@ -130,6 +130,22 @@ def create_fixture(root, files, *, workers=4):
             task.result()
 
 
+def retire_fixture(root, files, *, workers):
+    """回收本轮固定名称的夹具文件；线程有界且任何删除错误原样传播。"""
+    if not 1 <= workers <= 4:
+        raise ValueError('fixture retirement workers must be between 1 and 4')
+
+    def unlink_partition(partition):
+        for index in range(partition, files, workers):
+            # 仅删除验收程序创建的名称；unlink不跟随末叶链接，不递归未知子目录。
+            (root / f'file-{index:06}.bin').unlink()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        tasks = [pool.submit(unlink_partition, partition) for partition in range(workers)]
+        for task in tasks:
+            task.result()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bin-dir", required=True, type=pathlib.Path)
@@ -224,6 +240,9 @@ def main():
         # 必须测到真实 TemporaryDirectory.__exit__ 完成；不得提前报告成功或绕过清理。
         phase("workspace_cleanup", "begin")
         cleanup_started = time.perf_counter()
+        cleanup_workers = 4 if sys.platform == 'win32' else 1
+        if sys.platform == 'win32':
+            retire_fixture(root, args.files, workers=cleanup_workers)
 
     cleanup_seconds = time.perf_counter() - cleanup_started
     phase("workspace_cleanup", "end")
@@ -239,6 +258,7 @@ def main():
         "fixture_seconds": round(fixture_seconds, 3),
         "scan_seconds": round(scan_seconds, 3),
         "cleanup_seconds": round(cleanup_seconds, 3),
+        "cleanup_workers": cleanup_workers,
         "query_p50_ms": round(statistics.median(latencies) * 1000, 3),
         "query_p95_ms": round(latencies[math.ceil(0.95 * len(latencies)) - 1] * 1000, 3),
         "database_and_wal_bytes": database_bytes,

@@ -1,0 +1,53 @@
+{
+  "base_sha": "9dc653492cebdc83273443696d788ee5b524f18d",
+  "native_diagnostic_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "ci_run": 37765612472,
+  "native_parallel_cleanup_qualified": false,
+  "logs": [
+    {
+      "name": "red",
+      "uncompressed_sha256": "3fd9ecb45483a26df391a163d7ca330eb6d9d37435e6568463f4a96b1e3e7369"
+    },
+    {
+      "name": "green",
+      "uncompressed_sha256": "91844d88574104727b8ab127f74651f621ec913dfede827b6e1d90cc24ea8a14"
+    },
+    {
+      "name": "scripts",
+      "uncompressed_sha256": "4e208e6e0fdcdceef0ebcd643af87697fe43541cab83634ba206e2f84302cd7c"
+    },
+    {
+      "name": "package",
+      "uncompressed_sha256": "416c068c753f6d6eccccda3a43b4cd8f943861866c64f162211c09825491bacc"
+    },
+    {
+      "name": "native_diagnostic_receipt.json",
+      "uncompressed_sha256": "1d6dbf734c8661e106da510b82ca2c8f456506ac82e16418a4cf320dffc956f3"
+    },
+    {
+      "name": "native_diagnostic_stdout.log",
+      "uncompressed_sha256": "878aba9789588712c6b61a6fcbee08a8dc41d06e950f6fa50e0a4d1f810a6f41"
+    },
+    {
+      "name": "native_diagnostic_stderr.log",
+      "uncompressed_sha256": "8496d974f233df5cc364320c1eaf00aa81b6730a34285ba89a5f8001440a453b"
+    },
+    {
+      "name": "macos_intel_full",
+      "uncompressed_sha256": "b6f40a2e88d4d8ba2fdc90dbb902c8be056d2f1abd2c222004244d875d58314c"
+    },
+    {
+      "name": "windows_package_full",
+      "uncompressed_sha256": "3b6151074f3efdc326fba950b7054d354478f9e108e4b5d37065129d0040db15"
+    }
+  ],
+  "tests": {
+    "total": 314,
+    "passed": 313,
+    "skipped": 1
+  },
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "7906c6279110afb80b4a14ffba5643d409fc49b52fc8047df3c71847d9be1b1d",
+    "scripts/tests/test_readonly_load_coverage.py": "2d4eef4f749ca3732fd296a2f9ae0b0873761960686705797c9f38561f459a2c"
+  }
+}
