@@ -15,6 +15,8 @@ import json
 import os
 import pathlib
 import platform
+import shutil
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -305,5 +307,46 @@ class WorkerManifestTests(PackageFixture):
         self.rejected(manifest)
 
 
+
+
+class TimeoutDiagnosticTests(PackageFixture):
+    """外层超时保留原异常并输出已捕获的阶段诊断。"""
+
+    def test_timeout_replays_partial_stderr_and_preserves_exception(self):
+        package = self.actual_package()
+        failure = subprocess.TimeoutExpired(['acceptance'], 300,
+                                            output=b'partial stdout',
+                                            stderr=b'phase=index begin\n')
+        diagnostics = io.StringIO()
+        with mock.patch.object(package.subprocess, 'run', side_effect=failure), \
+                contextlib.redirect_stderr(diagnostics):
+            with self.assertRaises(subprocess.TimeoutExpired) as caught:
+                package.accepted('accept-readonly-load.py', self.bin_dir)
+        self.assertIs(caught.exception, failure)
+        self.assertIn('phase=index begin', diagnostics.getvalue())
+        self.assertIn('partial stdout', diagnostics.getvalue())
+
+    def test_failure_retains_workspace_and_original_exception(self):
+        package = self.actual_package()
+        failure = subprocess.TimeoutExpired(['acceptance'], 300)
+        retained = []
+
+        def fail(script, bin_dir, *arguments, **kwargs):
+            retained.append(pathlib.Path(bin_dir).parents[2])
+            raise failure
+
+        diagnostics = io.StringIO()
+        try:
+            with contextlib.redirect_stderr(diagnostics):
+                with self.assertRaises(subprocess.TimeoutExpired) as caught:
+                    self.call_main(package, fail)
+            self.assertIs(caught.exception, failure)
+            self.assertTrue(retained[0].exists())
+            self.assertIn(str(retained[0]), diagnostics.getvalue())
+        finally:
+            for path in retained:
+                # 这里没有真实子进程，测试拥有全部临时文件。
+                shutil.rmtree(path, ignore_errors=True)
+
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main()

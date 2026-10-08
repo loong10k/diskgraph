@@ -18,6 +18,12 @@ import time
 SUFFIX = ".exe" if sys.platform == "win32" else ""
 
 
+def phase(name, event):
+    """向 stderr 输出不含路径和参数的阶段时间，供外层超时诊断。"""
+    print(json.dumps({"phase": name, "event": event,
+                      "monotonic_seconds": time.monotonic()}), file=sys.stderr, flush=True)
+
+
 def invoke(cli, data, *arguments, timeout=300, expected=0):
     result = subprocess.run(
         [cli, "--data-dir", data, "--json", *arguments],
@@ -83,14 +89,21 @@ def main():
         work = pathlib.Path(temporary)
         root, data = work / "project", work / "data"
         root.mkdir()
+        phase("fixture_create", "begin")
         for index in range(args.files):
             (root / f"file-{index:06}.bin").write_bytes(b"x" * 32)
+        phase("fixture_create", "end")
+        phase("scope_registration", "begin")
         scope = invoke(cli, data, "scope", "add", "--root", root)["data"]["scope_id"]
+        phase("scope_registration", "end")
+        phase("index", "begin")
         started = time.perf_counter()
         indexed = invoke(cli, data, "index", "--scope", scope, "--wait")
         scan_seconds = time.perf_counter() - started
+        phase("index", "end")
         revision = indexed["data"]["revision_id"]
         checks["full_index_published"] = indexed["data"]["state"] == "completed" and bool(revision)
+        phase("coverage_validation", "begin")
         # 精确绑定已发布 revision，只读核对预期节点数量（夹具文件数加根节点）。
         with contextlib.closing(sqlite3.connect(
             (data / "diskgraph.sqlite").as_uri() + "?mode=ro", uri=True,
@@ -107,6 +120,8 @@ def main():
         checks["exact_fixture_path_coverage"] = paths_complete
         checks["exact_fixture_node_coverage"] = indexed_nodes == args.files + 1
 
+        phase("coverage_validation", "end")
+
         def query(number):
             arguments = ("top", "--scope", scope) if number % 2 else (
                 "children", "--scope", scope, "--limit", "25"
@@ -115,6 +130,7 @@ def main():
             answer = invoke(cli, data, *arguments)
             return time.perf_counter() - started, answer
 
+        phase("queries", "begin")
         query(0)
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as workers:
             results = list(workers.map(query, range(args.queries)))
@@ -129,6 +145,8 @@ def main():
             for index, (_, answer) in enumerate(results)
         )
 
+        phase("queries", "end")
+        phase("budget_refusal", "begin")
         limited_data = work / "limited-data"
         limited_scope = invoke(cli, limited_data, "scope", "add", "--root", root)["data"]["scope_id"]
         refusal = invoke(cli, limited_data, "--max-nodes-per-scan", "100", "index",
@@ -138,6 +156,7 @@ def main():
             refusal["error"]["code"] == "budget_exceeded"
             and unindexed["error"]["code"] == "not_indexed"
         )
+        phase("budget_refusal", "end")
         database_bytes = sum(
             path.stat().st_size for path in data.glob("diskgraph*.sqlite*") if path.is_file()
         )

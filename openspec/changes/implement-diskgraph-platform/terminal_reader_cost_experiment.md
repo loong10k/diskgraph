@@ -15,3 +15,9 @@ Windows预算失败仍待原生诊断；生产父任务不勾选。
 本批本机验证：旧函数注入 getrusage 失败 0/2，新函数同故障 2/2；macOS 实际模块 2/2，报告消费者与冻结夹具 overlay 回归 33/33。消费者对未知或非有效整数输出 null，保留合法负差；精确夹具清单加入新模块，历史产品源码摘要未修改。独立代码复审 APPROVE、架构复审 CLEAR。整体基准和 Windows 原生仍待 CI。
 
 Windows API 依据：[PROCESS_MEMORY_COUNTERS](https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters)、[GetProcessMemoryInfo](https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getprocessmemoryinfo)。
+
+### Windows 200k 外层超时诊断与原异常保护（2026-10-08）
+
+原生打包任务 113089493625 / CI 37708407574 仍失败，不能判定生产就绪。负载 stderr 新增固定阶段与单调时间，含创建、注册、index、覆盖核验、查询、预算拒绝；外层 TimeoutExpired 重放捕获日志并传播同一异常。300 秒期限不变。包装工作区成功时回收，异常时保留并报告路径，以免未知后代仍占用文件时删除失败掩盖原异常。保留材料不代表进程退休完成，也不解决性能根因。
+
+回归：日志丢失 RED 10 项中 1 失败 → GREEN 10/10；工作区保留 RED 11 项中 1 失败 → GREEN 11/11；负载覆盖 5/5。仍待新提交 Windows 原生阶段日志与进程生命周期验收，不勾选父项。

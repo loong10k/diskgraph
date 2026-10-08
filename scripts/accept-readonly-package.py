@@ -2,6 +2,7 @@
 """Package native binaries, verify the archive, and drill read-only upgrade/rollback."""
 
 import argparse
+import contextlib
 import json
 import os
 import pathlib
@@ -52,16 +53,39 @@ def packaged_worker_environment(bin_dir, inherited):
 def accepted(script, bin_dir, *arguments, deployment=None):
     environment = dict(os.environ if deployment is None else deployment)
     environment["DISKGRAPH_ACCEPT_BIN_DIR"] = str(bin_dir)
-    result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / script), *map(str, arguments)],
-        cwd=ROOT, env=environment, capture_output=True, text=True, timeout=300,
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / script), *map(str, arguments)],
+            cwd=ROOT, env=environment, capture_output=True, text=True, timeout=300,
+        )
+    except subprocess.TimeoutExpired as failure:
+        # TimeoutExpired 即使 text=True 也可能携带 bytes；保留阶段日志及原异常。
+        for captured in (failure.stdout, failure.stderr):
+            if captured:
+                diagnostic = (captured.decode("utf-8", errors="replace")
+                              if isinstance(captured, bytes) else captured)
+                print(diagnostic, file=sys.stderr, flush=True)
+        raise
     if result.returncode:
         raise RuntimeError(f"{script} failed:\n{result.stdout}\n{result.stderr}")
     report = json.loads(result.stdout)
     if report["passed"] != report["total"]:
         raise RuntimeError(f"{script} did not pass every check: {result.stdout}")
     return report["passed"]
+
+
+@contextlib.contextmanager
+def acceptance_workspace():
+    """成功后回收；失败时保留可能仍被后代使用的文件并传播原异常。"""
+    temporary = tempfile.mkdtemp(prefix="diskgraph-package-accept-")
+    try:
+        yield temporary
+    except BaseException:
+        print(f"package acceptance failed; retained workspace: {temporary}",
+              file=sys.stderr, flush=True)
+        raise
+    else:
+        shutil.rmtree(temporary)
 
 
 def main():
@@ -80,7 +104,7 @@ def main():
     archive_name = f"diskgraph-{args.target}"
     archive = output / (archive_name + (".zip" if SUFFIX else ".tar.gz"))
 
-    with tempfile.TemporaryDirectory(prefix="diskgraph-package-accept-") as temporary:
+    with acceptance_workspace() as temporary:
         work = pathlib.Path(temporary)
         staging = work / archive_name
         staging_bin = staging / "bin"
