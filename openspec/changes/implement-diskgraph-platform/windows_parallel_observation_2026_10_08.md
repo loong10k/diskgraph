@@ -20,6 +20,8 @@ Windows真实授权回归另6/6通过，包含原生采样后远程token到期�
 
 正式提交5e87b9f5已在台式机安全快进并确认工作区干净。默认并发Engine全量：685通过、5失败、4忽略，测试182.18秒；5项均为Git探测原期限耗尽，部分伴随清理等待原owner，详见final_engine.json。未降低默认并发或放宽15秒期限。200k诊断重测维持300秒：创建121.093秒，注册0.189秒，扫描未在剩余约178.7秒内结束，退出124；阶段日志与程序摘要见release200k_diagnostic.json。原生全量与大负载均未通过，任务与生产门禁保持开放。
 
+5e87b9f5的Linux stable/MSRV CI暴露本次新增代码使scan_execution.rs达到511行，违反既有少于500行的源码门禁；本机精确重现该红灯。将Windows采样适配与批次门禁工厂提取为windows_scan_observation.rs后主文件495行，本机源码布局6/6及Clippy通过。Windows补充验证采样13、授权6、布局6，合计25/25、Clippy通过，摘要与日志见layout_fix.json。此结构修复不放宽源码门禁，旧Release与全量结果仍绑定原提交/摘要，不能自动当作新候选全量及性能验收。
+
 ```mermaid
 flowchart TD
     B["当前 staging 批次"] --> P["最多 4 个连续分片"]

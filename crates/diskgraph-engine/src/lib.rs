@@ -216,6 +216,8 @@ mod windows_scan_image_lease;
 #[cfg(all(test, windows))]
 mod windows_scan_image_lease_tests;
 #[cfg(windows)]
+mod windows_scan_observation;
+#[cfg(windows)]
 mod windows_scoped_file;
 
 pub use collectors::{

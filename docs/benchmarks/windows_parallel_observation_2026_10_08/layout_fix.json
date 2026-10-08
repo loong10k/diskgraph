@@ -1,0 +1,105 @@
+{
+  "receipt": {
+    "base_head": "5e87b9f5032e7ba0c4f05f471d14e845358c5456",
+    "source_hashes": {
+      "crates/diskgraph-engine/src/lib.rs": "69af130b27ba7ef2d2ef87064ba542663843c1a5de9af1cee6369e8bfdd281ea",
+      "crates/diskgraph-engine/src/scan_execution.rs": "dc28a00763e8be5e559c78f39ca45146e7ee22fbf4c88133710e423a1c6871d5",
+      "crates/diskgraph-engine/src/scan_observation_batch.rs": "789082436679d3efd1c84a82955a269ec1bf42b1945edd530bebc47b1ecda06d",
+      "crates/diskgraph-engine/src/windows_scan_observation.rs": "1fd19935da1bb4e770d11ea32c6c88813b3c7a838cbb946176cfbe5afc79e324"
+    },
+    "commands": [
+      {
+        "name": "scan_observation",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "scan_observation",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 25.89100000000326
+      },
+      {
+        "name": "job_authorization_tests",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--lib",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "job_authorization_tests",
+          "--",
+          "--nocapture"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 30.514999999999418
+      },
+      {
+        "name": "source_layout",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "test",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--test",
+          "source_layout",
+          "--target",
+          "x86_64-pc-windows-msvc"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 9.64100000000326
+      },
+      {
+        "name": "clippy",
+        "argv": [
+          "cargo",
+          "+1.99.0",
+          "clippy",
+          "--locked",
+          "-p",
+          "diskgraph-engine",
+          "--all-targets",
+          "--target",
+          "x86_64-pc-windows-msvc",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.3439999999973224
+      }
+    ]
+  },
+  "logs": {
+    "scan_observation": {
+      "stdout": "\nrunning 13 tests\ntest scan_observation_batch::tests::empty_batch_never_calls_the_sampler ... ok\ntest scan_observation_batch::tests::original_error_and_panic_payload_are_preserved ... ok\ntest scan_observation_batch::tests::four_bounded_workers_overlap_and_preserve_input_order ... ok\ntest scan_observation_deadline_tests::live_guard_still_refuses_persistent_scope_revocation ... ok\ntest scan_observation_tests::observation_guard_checks_fast_cancellation_and_original_scan_clock ... ok\ntest scan_observation_deadline_tests::competing_sqlite_writer_cannot_extend_the_original_observation_budget ... ok\ntest scan_observation_deadline_tests::held_control_lock_cannot_extend_the_original_observation_budget ... ok\ntest scan_observation_deadline_tests::cancellation_and_original_stop_reason_interrupt_an_actual_control_wait ... ok\ntest scan_observation_deadline_tests::cancellation_interrupts_sqlite_fence_wait_and_preserves_keeper_reason ... ok\ntest scan_observation_deadline_tests::bounded_observation_preserves_cancel_permission_and_fence_denials ... ok\ntest scan_observation_tests::windows_native_observation_persists_real_file_and_hardlink_identity_after_reopen ... ok\ntest scan_observation_tests::observation_stage_refuses_grant_scope_and_fence_changes_after_native_capture ... ok\ntest scan_observation_tests::staging_lock_wait_cannot_spend_expired_or_cancelled_scan_budget ... ok\n\ntest result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 681 filtered out; finished in 9.35s\n\n",
+      "stderr": "    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n    Blocking waiting for file lock on package cache\n   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.99s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\n\nthread '<unnamed>' (59872) panicked at crates\\diskgraph-engine\\src\\scan_observation_batch.rs:92:52:\nBox<dyn Any>\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    "job_authorization_tests": {
+      "stdout": "\nrunning 6 tests\ntest job_authorization_tests::strict_execution_does_not_upgrade_a_legacy_job_to_local_authority ... ok\ntest job_authorization_tests::claimed_job_graph_preparation_wait_consumes_the_original_scan_budget ... ok\ntest job_authorization_tests::live_grant_revocation_after_native_observation_prevents_publication ... ok\ntest job_authorization_tests::live_remote_authority_can_publish_through_the_strict_runner ... ok\ntest job_authorization_tests::trusted_runner_still_obeys_a_persisted_remote_expiry ... ok\ntest job_authorization_tests::remote_expiry_after_native_observation_prevents_staging_and_publication ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 688 filtered out; finished in 30.03s\n\n",
+      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\diskgraph_engine-083264b40112e51a.exe)\nclaimed=true, original budget=50ms, held after claim=100ms, state=Failed, latest=None, result=Err(Business(BudgetExceeded))\n"
+    },
+    "source_layout": {
+      "stdout": "\nrunning 6 tests\ntest gate_excludes_only_explicit_test_modules ... ok\ntest gate_rejects_hidden_objects_private_stubs_and_undocumented_trait_methods ... ok\ntest gate_rejects_explicit_module_path_escape_before_reading ... ok\ntest gate_mounts_path_attributes_relative_to_the_declaring_file ... ok\ntest scan_worker_sources_follow_the_same_rust_contract ... ok\ntest all_platform_engine_sources_follow_the_rust_contract ... ok\n\ntest result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.24s\n\n",
+      "stderr": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.97s\n     Running tests\\source_layout.rs (target\\desktop-1ac266a0\\x86_64-pc-windows-msvc\\debug\\deps\\source_layout-c6ac9d789f99c4fd.exe)\n"
+    },
+    "clippy": {
+      "stdout": "",
+      "stderr": "    Checking diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.82s\n"
+    }
+  }
+}

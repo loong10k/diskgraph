@@ -1,6 +1,7 @@
 //! 共享 Engine 的 scan_execution 职责；原调用与持锁顺序保持。
 
 use crate::job_execution_stop_reason::JobExecutionStopReason;
+#[cfg(not(windows))]
 use crate::scan_node_locator::qualify_scan_locator;
 use crate::scan_observation_guard::ScanObservationGuard;
 use crate::{Engine, EngineError, collect_projects};
@@ -208,29 +209,12 @@ impl Engine {
             }
             let observation_started = timing.then(Instant::now);
             #[cfg(windows)]
-            let observations = crate::scan_observation_batch::collect_ordered(batch, &|chunk| {
-                // 门禁局部状态不能跨线程共享；原期限、授权与取消标记保持同一执行代次。
-                // keeper原错误只由主执行器消费，采样线程不取走其所有权。
-                let guard =
-                    ScanObservationGuard::new(self, &job, authority.as_ref(), cancel, scan_started);
-                chunk
-                    .iter()
-                    .map(|node| {
-                        guard.check()?;
-                        let locator = qualify_scan_locator(node)?;
-                        let observed = native_root.observe(
-                            &locator
-                                .to_native_path()
-                                .map_err(|_| BusinessError::Unsupported)?,
-                            &node.v1,
-                            node.self_modified,
-                            &scanned.snapshot.settings,
-                            &|| guard.check(),
-                        )?;
-                        Ok((locator, observed))
-                    })
-                    .collect::<Result<Vec<_>, EngineError>>()
-            });
+            let observations = crate::windows_scan_observation::observe_batch(
+                batch,
+                &native_root,
+                &scanned.snapshot.settings,
+                &|| ScanObservationGuard::new(self, &job, authority.as_ref(), cancel, scan_started),
+            );
             #[cfg(windows)]
             observation_guard.check_now()?;
             #[cfg(windows)]
