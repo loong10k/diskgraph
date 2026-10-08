@@ -207,8 +207,10 @@ def soak_reads(port, body, key, scope, seconds):
         content = result.get('structuredContent') if isinstance(result, dict) else None
         data = content.get('data') if isinstance(content, dict) else None
         scope_matches = isinstance(content, dict) and content.get('scope_id') == scope
-        items_present = isinstance(data, dict) and bool(data.get('items'))
-        if status != 200 or not scope_matches or not items_present:
+        items_present = (isinstance(data, dict) and isinstance(data.get('items'), list)
+                         and bool(data['items']))
+        rpc_error = isinstance(answer, dict) and 'error' in answer
+        if status != 200 or rpc_error or not scope_matches or not items_present:
             # 只保留允许列表分类，原正文、路径、主体和错误message绝不进入诊断。
             error = answer.get('error') if isinstance(answer, dict) else None
             error_data = error.get('data') if isinstance(error, dict) else None
@@ -220,7 +222,7 @@ def soak_reads(port, body, key, scope, seconds):
                        'recovery_unconfirmed', 'conflict', 'idempotency_conflict', 'internal_error'}
             diagnostic = {'http_status': status if type(status) is int and 100 <= status <= 599 else None,
                           'business_code': code if isinstance(code, str) and code in allowed else 'unknown',
-                          'rpc_error': isinstance(answer, dict) and 'error' in answer,
+                          'rpc_error': rpc_error,
                           'scope_matches': scope_matches, 'items_present': items_present}
             raise RuntimeError('soak read failed ' + json.dumps(diagnostic, sort_keys=True))
         samples.append((time.monotonic() - before) * 1000)

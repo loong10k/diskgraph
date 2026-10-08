@@ -1,0 +1,25 @@
+{
+  "base_sha": "758a5f2b2d84e7e9638d524ae76c5e536f606860",
+  "source_sha256": {
+    "scripts/accept-readonly-http.py": "225948898ea8f7c8faa462a92bf10745935f3fe74542e2b442fceb400dc3d5cc",
+    "scripts/tests/test_http_soak.py": "d3e692fd97db3c54f10350a0a751b82c493e09df170be4d1602b8417e32f1f66"
+  },
+  "production_acceptance": false,
+  "logs": {
+    "red": {
+      "file": "red.log.gz",
+      "original_bytes": 2451,
+      "original_sha256": "ddc4da46d1561c657bdabb1ccac1151ed43e7df71ca88e7a1bfec5896be31fe5"
+    },
+    "green": {
+      "file": "green.log.gz",
+      "original_bytes": 113,
+      "original_sha256": "11f347ee11ed006f949a2b3bab1bf82a33059276bac3fdb5aee3c64ee4294648"
+    },
+    "script_suite": {
+      "file": "script_suite.log.gz",
+      "original_bytes": 1240,
+      "original_sha256": "0b808d9f92489b26443ad9f358948574a7e3bc4de3b4429e3ba3908523353bd0"
+    }
+  }
+}

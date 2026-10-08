@@ -52,6 +52,23 @@ class HttpSoakTests(unittest.TestCase):
                 MODULE.soak_reads(1234, {}, 'key', 'scope-a', 1.0)
         read.assert_called_once()
 
+    def test_non_list_items_and_result_with_rpc_error_cannot_pass(self):
+        answers = [
+            {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': 'malformed'}}}},
+            {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': {'foreign': 1}}}}},
+            {'result': {'structuredContent': {
+                'scope_id': 'scope-a', 'data': {'items': [1]}}},
+             'error': {'data': {'business_code': 'permission_denied'}}},
+        ]
+        for answer in answers:
+            with self.subTest(answer=answer), \
+                    patch.object(MODULE, 'request', return_value=(200, answer)) as read:
+                with self.assertRaisesRegex(RuntimeError, 'soak read'):
+                    MODULE.soak_reads(1234, {}, 'key', 'scope-a', 0.03)
+                read.assert_called_once()
+
     def test_budget_failure_reports_only_safe_classification_and_never_retries(self):
         answer = {'error': {'message': 'private path /private/example',
                             'data': {'business_code': 'budget_exceeded',
