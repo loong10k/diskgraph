@@ -1143,10 +1143,13 @@ jobs:
           path: ${{ runner.temp }}/fixture-worker-diagnostic.json
           if-no-files-found: error
           retention-days: 7
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+      - name: Preserve actual read-only package evidence after acceptance
+        if: always() && (steps.readonly_package_acceptance.outcome == 'success' || steps.readonly_package_acceptance.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
         with:
           name: readonly-candidate-${{ matrix.target }}
           path: dist/diskgraph-${{ matrix.target }}.*
+          if-no-files-found: error
           retention-days: 7
 
   linux_fuse_content:
