@@ -32,9 +32,19 @@ impl WindowsScanCost {
 }
 
 fn add_saturating(counter: &AtomicU64, value: u64) {
-    let _ = counter.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
-        Some(current.saturating_add(value))
-    });
+    let mut current = counter.load(Ordering::Relaxed);
+    // 使用跨工具链稳定的CAS；竞争失败后基于最新值重算，避免丢失增量。
+    loop {
+        match counter.compare_exchange_weak(
+            current,
+            current.saturating_add(value),
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        ) {
+            Ok(_) => return,
+            Err(actual) => current = actual,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -66,5 +76,20 @@ mod tests {
         assert_eq!(counter.load(Ordering::Relaxed), u64::MAX);
         add_saturating(&counter, 1);
         assert_eq!(counter.load(Ordering::Relaxed), u64::MAX);
+    }
+
+    #[test]
+    fn concurrent_increments_preserve_all_completed_calls() {
+        let counter = AtomicU64::new(0);
+        std::thread::scope(|scope| {
+            for _ in 0..8 {
+                scope.spawn(|| {
+                    for _ in 0..10_000 {
+                        add_saturating(&counter, 1);
+                    }
+                });
+            }
+        });
+        assert_eq!(counter.load(Ordering::Relaxed), 80_000);
     }
 }

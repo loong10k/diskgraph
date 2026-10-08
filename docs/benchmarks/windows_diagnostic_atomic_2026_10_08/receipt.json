@@ -1,0 +1,27 @@
+{
+  "source_sha": "72e6be2f9e306da505f5ce0351a9c90b7a2f82e3",
+  "run_id": 37764626953,
+  "logs": [
+    {
+      "name": "windows_package",
+      "uncompressed_sha256": "afc38b1f7570066c3d52fd953c835868d33f64318d2716d7d7b5a2f82c414b68"
+    },
+    {
+      "name": "windows_stable",
+      "uncompressed_sha256": "6f5058713525d8e305f4512e6be38ee7c4b4564b4b81b1470fe9dc962a20eff9"
+    },
+    {
+      "name": "kotlin_windows",
+      "uncompressed_sha256": "a46578f20dc43f72f90a0709bdc5029bd05b04c46f6f32cac26dbf701a5304d4"
+    },
+    {
+      "name": "swift_intel",
+      "uncompressed_sha256": "9c66335504820a54b9013278fc6a5c03ff4090df3fe6b94a08fe92187c75d1d9"
+    }
+  ],
+  "windows_root_cause": "fetch_update deprecated under remote stable -D warnings",
+  "swift_intel_root_cause": "rustup stable download DNS resolution failure",
+  "local_toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "local_red_reproduced": false,
+  "native_fix_qualification": "pending"
+}
