@@ -1,0 +1,25 @@
+{
+  "run_id": 37940369957,
+  "source_commit": "027744a236a622388190569a1a60b8198aeaa108",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_counts": {
+    "success": 20,
+    "failure": 3
+  },
+  "failed_jobs": [
+    {
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "job_id": 113853075476
+    },
+    {
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "job_id": 113853075496
+    },
+    {
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "job_id": 113853075678
+    }
+  ],
+  "scope": "Exact source SHA only. Windows full-workspace CI succeeded; desktop and later-source qualification remain separate. Linux GNU ABI and Intel original 300-second complete workload remain failed."
+}
