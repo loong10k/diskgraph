@@ -440,6 +440,8 @@ mod revision_reader_lock_gap_tests;
 mod history_relation_withdrawal_tests;
 
 mod request_metadata_withdrawals;
+#[cfg(test)]
+mod request_metadata_withdrawals_tests;
 
 mod scan_publication_recovery;
 

@@ -325,6 +325,9 @@ mod authorization_withdrawal_watch;
 
 mod control_database_identity;
 
+mod committed_authorization_generation;
+#[cfg(test)]
+mod committed_authorization_generation_tests;
 mod control_store_incarnation;
 
 mod withdrawal_entry;
@@ -334,6 +337,7 @@ mod withdrawal_registry;
 mod withdrawal_store;
 pub use authorization_withdrawal_status::AuthorizationWithdrawalStatus;
 pub use authorization_withdrawal_watch::AuthorizationWithdrawalWatch;
+pub use committed_authorization_generation::CommittedAuthorizationGeneration;
 #[cfg(test)]
 mod withdrawal_publish_hook;
 #[cfg(all(test, windows))]

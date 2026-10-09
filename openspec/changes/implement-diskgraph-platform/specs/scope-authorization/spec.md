@@ -149,3 +149,8 @@
 - **WHEN** 同一控制连接重复执行固定授权 SQL
 - **THEN** 可复用有界连接级编译语句，避免每次重新解析；不得缓存 Allow、grant 行、scope 撤销状态或跨调用读事务。
 - **AND** 后续调用重新绑定主体/权限/scope，观察其他连接已提交的撤权、策略代次与授权代次；SQLite 进度取消、原期限和损坏字段拒绝保持有效。
+
+#### Scenario: Known local authorization commits survive terminal SQL expiry
+- **WHEN** 不具备原生跨连接撤权通知的平台，在请求原控制连接确实提交了撤权并恢复授权，随后末段原SQL窗口耗尽
+- **THEN** 以绑定原连接代次的纯内存已提交授权代次下界保留保守Conflict，不将已知变化降级为BudgetExceeded；精确原生撤权见证仍优先返回PermissionDenied。
+- **AND** 见证只接收原事务已确认且提交成功的负向事实，不读取额外SQL、不缓存Allow、不续期，不从其他连接推定未变；未记录变化、无关心跳/服务器写入、回滚或原连接失效时不得补造变化。完整交付仍须实时授权及归属复检。

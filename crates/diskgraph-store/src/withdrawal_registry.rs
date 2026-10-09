@@ -147,6 +147,10 @@ pub(crate) fn register(
 /// 提交后通知 scope 依赖；没有身份或没有订阅表时无需建立任何新共享状态。
 /// 参数：store 为已提交的原连接，scope 为确实由未撤销变为撤销的范围；返回：无，仅发布负向事实。
 pub(crate) fn publish_scope(store: &ControlStore, scope: &ScopeId, generation: u64) {
+    // 即使没有跨连接身份，也保留原连接已提交的负向计数，不新增SQL或授予权限。
+    store
+        .withdrawal_incarnation
+        .record_committed_generation(generation);
     let (Some(identity), Some(registry)) =
         (store.withdrawal_incarnation.identity(), REGISTRY.get())
     else {
@@ -168,6 +172,9 @@ pub(crate) fn publish_grant(
     epoch: u64,
     generation: u64,
 ) {
+    store
+        .withdrawal_incarnation
+        .record_committed_generation(generation);
     let (Some(identity), Some(registry)) =
         (store.withdrawal_incarnation.identity(), REGISTRY.get())
     else {

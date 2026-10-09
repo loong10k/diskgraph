@@ -1,13 +1,14 @@
 //! 多侧查询从初始准入前到编码完成的撤权见证；来源：DiskGraph 原生请求授权契约。
 use crate::{EngineError, request_withdrawal_witness::RequestWithdrawalWitness};
 use diskgraph_core::{BusinessError, PrincipalId, ScopeId};
-use diskgraph_store::ControlStore;
+use diskgraph_store::{CommittedAuthorizationGeneration, ControlStore};
 
 /// 绑定原控制连接的元数据读取依赖及未知通知平台的保守代次基线。
 /// 来源：DiskGraph 原生历史和关系查询生命周期，无 Java 对照对象。
 pub(super) struct RequestMetadataWithdrawals {
     witnesses: Vec<RequestWithdrawalWitness>,
     generation: u64,
+    committed_generation: CommittedAuthorizationGeneration,
 }
 
 impl RequestMetadataWithdrawals {
@@ -24,6 +25,7 @@ impl RequestMetadataWithdrawals {
         Ok(Self {
             witnesses,
             generation: control.authorization_generation()?,
+            committed_generation: control.committed_authorization_generation_witness(),
         })
     }
 
@@ -48,6 +50,18 @@ impl RequestMetadataWithdrawals {
                     ) {
                         return Err(BusinessError::PermissionDenied.into());
                     }
+                }
+                // 未知通知平台仅使用原连接已确认的提交下界；不延长SQL窗口或补造未变。
+                if self
+                    .witnesses
+                    .iter()
+                    .any(|witness| !witness.has_native_watch())
+                    && self
+                        .committed_generation
+                        .latest_known_for(&control)
+                        .is_some_and(|generation| generation > self.generation)
+                {
+                    return Err(BusinessError::Conflict.into());
                 }
             }
         }

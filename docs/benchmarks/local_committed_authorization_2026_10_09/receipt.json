@@ -1,0 +1,45 @@
+{
+  "base_commit": "4c40276d0b117c03ed6c3c406d5c632c7d7f7a4f",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/request_metadata_withdrawals.rs": "9f827a40a2886363d017ffe2776147423c23854eceba1288ee43495d9fd4dcc6",
+    "crates/diskgraph-engine/src/request_metadata_withdrawals_tests.rs": "8fbede3a7203772f286bc97f8131203715c3faf952f96cef33f7bf2bbf3e481e",
+    "crates/diskgraph-store/src/committed_authorization_generation.rs": "0b840e47b057116804b28df0548c03a784bb47465eaf6b865a6a08a6c8e8b5d7",
+    "crates/diskgraph-store/src/committed_authorization_generation_tests.rs": "a557f545cb18397a205d12191c539c3418e6f5fbd4f2211b36ec237bed3f1f39",
+    "crates/diskgraph-store/src/control_store_incarnation.rs": "4708b0a936b33eda07197841b12666fddfdc210e8fc86e0610c11c3407a0cf29",
+    "crates/diskgraph-store/src/withdrawal_registry.rs": "e93233966383d1d800278522ec94959e30791fb36e230aff25bfa34e4de439ce"
+  },
+  "engine_targeted": {
+    "passed": 5,
+    "failed": 0
+  },
+  "store_all_targets": {
+    "passed": 404,
+    "failed": 0,
+    "ignored": 12
+  },
+  "engine_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "production_acceptance": false,
+  "native_ci_for_change": "pending",
+  "red_fixture_failure_is_behavior_red": false,
+  "behavior_red": {
+    "passed": 2,
+    "failed": 1
+  },
+  "limits": [
+    "No positive permission cache; no additional SQL or extended deadline",
+    "Store 12 ignored tests remain unqualified",
+    "Current full Engine/native-platform suite not yet validated"
+  ],
+  "log_sha256": {
+    "fixture_setup_failure.log.gz": "b58cbc8cd47599eb3837742735c5d92fa42752bb778f32b94efaf39101ef95bc",
+    "clippy.log.gz": "b8c3fedf3e55e9572cf23334c72e0b841b1db2dfcddb71c11ea745c32c2fa0cd",
+    "store_regression.log.gz": "5d2d666387a75d7bde47e27d7b0e9d112f16ee03a22d858bdcaeb1177a06d6a8",
+    "fmt.log.gz": "2b0e2f5c9666570fa0b4652643e5ebc2543a64cc42e8f8a4996fe09adedcee10",
+    "layout.log.gz": "0715b4bea3761ac0d997520106b2eeb7149eac1b2af2cf5b16f735bbe85ce157",
+    "engine_green.log.gz": "c8e787dca5329ba597fbbd1ab2fbfaae71495ee1e5fad3f611ca1f9ea3dd98f1",
+    "behavior_red.log.gz": "ac1938dae8216170cc576c0796fba0abc14e47be540185ce5e57f472f6d91fa9"
+  }
+}
