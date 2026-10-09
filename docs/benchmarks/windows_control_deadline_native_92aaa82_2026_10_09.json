@@ -1,0 +1,16 @@
+{
+  "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+  "job": "wc_job_5osLsFluat5eJq0D",
+  "scope": "control_write_deadline_tests only; Engine diagnostic still running",
+  "production_acceptance": false,
+  "logs": {
+    "control_deadline.stdout.log": {
+      "sha256": "daafc2cca081aaf98105b7e7817d15f11920793bf1c9d9575dc79f97bed8ea00",
+      "text": "\nrunning 5 tests\ntest control_write_deadline_tests::checked_boundary_interrupts_an_actual_busy_retry_and_restores_connection ... ok\ntest control_write_deadline_tests::control_write_expired_twenty_millisecond_window_refuses_before_a_transaction ... ok\ntest control_write_deadline_tests::process_enqueue_commit_read_lock_keeps_the_original_deadline_and_rolls_back ... ok\ntest control_write_deadline_tests::control_write_real_vm_interrupt_clears_progress_before_partial_transaction_rollback ... ok\ntest control_write_deadline_tests::control_write_rust_unwind_rolls_back_and_restores_the_real_connection ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 375 filtered out; finished in 2.48s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s\n\n"
+    },
+    "control_deadline.stderr.log": {
+      "sha256": "2e7d704b58598b3a9683fe1b4e6e0aa404cb2c56df26a1b74e399b6b5d129bd2",
+      "text": "   Compiling diskgraph-store v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-store)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.36s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_store-da1cb7c1c48553f2.exe)\n     Running tests\\candidate_query.rs (target\\desktop-1ac266a0\\debug\\deps\\candidate_query-10b423378ba50a32.exe)\n     Running tests\\job_claim.rs (target\\desktop-1ac266a0\\debug\\deps\\job_claim-b435db0bfe968ef9.exe)\n     Running tests\\migration_backup.rs (target\\desktop-1ac266a0\\debug\\deps\\migration_backup-e7a294b8cdf06511.exe)\n     Running tests\\perf_probe.rs (target\\desktop-1ac266a0\\debug\\deps\\perf_probe-9b4eb1861e05513e.exe)\n     Running tests\\source_layout.rs (target\\desktop-1ac266a0\\debug\\deps\\source_layout-3f874d2a937a9bcc.exe)\n"
+    }
+  }
+}

@@ -74,6 +74,8 @@ pub(crate) mod git_private_directory_owner;
 mod git_private_integrity_tests;
 #[cfg(all(test, windows))]
 mod git_private_write_profile;
+#[cfg(all(test, windows))]
+mod git_private_write_summary;
 mod git_product_error;
 #[cfg(test)]
 mod git_product_tests;

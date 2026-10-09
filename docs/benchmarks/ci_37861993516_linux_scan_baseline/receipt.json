@@ -1,0 +1,22 @@
+{
+  "run_id": 37861993516,
+  "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+  "artifact_id": 11587162935,
+  "artifact_sha256": "623d6d8e69c0031b4e694db2e48c4b9fd5bd7a5c1cb7393d28ec4bf637bfc696",
+  "production_acceptance": false,
+  "files": {
+    "200000-wide-round2-baseline.stdout": {
+      "bytes": 227,
+      "sha256": "a3fa1767eb0eac469072789bf55a8fb950d0f296ffabac6add337289edf71cad",
+      "archive_file": "200000-wide-round2-baseline.stdout.gz",
+      "archive_sha256": "5e0da1ffa9b6925ce8da462b0c5844cdfb76b8330068419de43cafd8f4256656"
+    },
+    "200000-wide-round2-baseline.stderr": {
+      "bytes": 2347,
+      "sha256": "95b664597fe7f5ab00de292c010601f8f78885502b2a8fcd83dab339a0507cdb",
+      "archive_file": "200000-wide-round2-baseline.stderr.gz",
+      "archive_sha256": "69fe4453e95893c943c7fa2dd6e53761d5c8c609d3a305a2edfc13d63576eb38"
+    }
+  },
+  "failure": "Original release baseline returned Business(Conflict) before revision publication; posterior diagnostics do not identify the first cause."
+}

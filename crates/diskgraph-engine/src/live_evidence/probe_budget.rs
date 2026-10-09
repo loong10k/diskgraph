@@ -7,6 +7,8 @@ use std::time::Instant;
 /// 每次采样独占的绝对期限、累计输出与中止水位。
 /// 来源：原生 Rust diskgraph-engine::live_evidence::ProbeBudget。
 pub(super) struct ProbeBudget {
+    #[cfg(all(test, windows))]
+    _write_summary: Option<super::git_private_write_summary::GitPrivateWriteSummary>,
     #[cfg(windows)]
     session: Option<crate::probe_session_lease::ProbeSessionLease>,
     deadline: Instant,
@@ -34,6 +36,8 @@ impl ProbeBudget {
             return Err(ProbeFailure::InvalidLimits);
         }
         Ok(Self {
+            #[cfg(all(test, windows))]
+            _write_summary: super::git_private_write_summary::GitPrivateWriteSummary::new(),
             #[cfg(windows)]
             session: None,
             deadline,

@@ -1,0 +1,82 @@
+{
+  "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+  "source_diff_sha256": "81a587cf10085574b8705efeb32055a0a2babed260104ef32519bf656bf12efe",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.5939999999827705
+    },
+    {
+      "name": "control_deadline",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-store",
+        "control_write_deadline_tests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.609000000025844
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 219.85999999998603
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_deadline_diagnostic_92aaa82\\current_source_driver.exe",
+    "sha256": "f22350ee461689c5220ce5457e1e8dbe5903ac9c5ec1d1d9c3a428eb73ce4d29",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: FAILED. 703 passed; 16 failed; 7 ignored; 0 measured; 0 filtered out; finished in 219.08s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 92372,
+      "sha256": "92e10e38b2ff80626c05f05e458e90561a0e625e9b9896d79673ef2d4f025539"
+    },
+    "engine.stderr.log": {
+      "bytes": 9094,
+      "sha256": "f5cf0679eeaef5f7a396c2dfa458b3c64c2cb8d3e69edac35d5630da79476a6e"
+    }
+  },
+  "diagnostic_environment": {
+    "DISKGRAPH_QUERY_DIAGNOSTICS": "1",
+    "DG_PRIVATE_WRITE_PROFILE": "1"
+  },
+  "failure_details": "failures:\n\n---- content::read_terminal_tests::body_does_not_escape_when_terminal_authorization_misses_original_deadline stdout ----\n\nthread 'content::read_terminal_tests::body_does_not_escape_when_terminal_authorization_misses_original_deadline' (61540) panicked at crates\\diskgraph-engine\\src\\content\\read_terminal_tests.rs:483:5:\nassertion failed: BEFORE_REPLY.with(|slot| slot.borrow().is_none())\n\n---- git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner stdout ----\n\nthread 'git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner' (63372) panicked at crates\\diskgraph-engine\\src\\git_evidence_execution_tests.rs:51:5:\ndid not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual=Business(Timeout)\n\n---- git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision stdout ----\nrecovery prerequisite: outcome=Err(Business(Timeout)), state=JobRecord { job_id: \"job-9a0e809f-2908-4bc8-b50f-27276f70a88f\", scope_id: ScopeId(\"scope-a4760605-1478-45bb-b58e-bad3e27dbe02\"), kind: GitEvidence, state: Failed, created_at_unix_ms: 1791504704354, heartbeat_unix_ms: 1791504719712, owner: \"crashed-owner\", fencing_token: 1, lease_expires_unix_ms: 1791504749655, principal: PrincipalId(\"git-job-fixture\") }, failure=Some(GitEvidenceFailure { phase: Execution, code: Timeout }), receipt=None, expiry=1791504724, now=1791504719\n\nthread 'git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision' (24764) panicked at crates\\diskgraph-engine\\src\\git_evidence_publication_tests.rs:145:5:\nonly the actual post-commit simulated crash qualifies: Err(Business(Timeout))\n\n---- live_evidence::git_callback_tests::native_same_size_private_index_rewrite_is_not_a_complete_public_sample stdout ----\n\nthread 'live_evidence::git_callback_tests::native_same_size_private_index_rewrite_is_not_a_complete_public_sample' (56240) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_callback_tests.rs:217:5:\nprobe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\n\n---- live_evidence::git_isolation_semantics_tests::configured_rename_count_is_not_silently_changed_by_dropping_config stdout ----\nnative evidence test recovery retains original owner: private Git cleanup failed: original root deletion lease: 另一个程序正在使用此文件，进程无法访问。 (os error 32)\n\nthread 'live_evidence::git_isolation_semantics_tests::configured_rename_count_is_not_silently_changed_by_dropping_config' (52800) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:186:33:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_isolation_semantics_tests::builtin_crlf_normalization_is_kept_without_external_filters stdout ----\n\nthread 'live_evidence::git_isolation_semantics_tests::builtin_crlf_normalization_is_kept_without_external_filters' (10644) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:150:33:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_isolation_semantics_tests::info_exclude_patterns_are_preserved_in_untracked_counts stdout ----\n\nthread 'live_evidence::git_isolation_semantics_tests::info_exclude_patterns_are_preserved_in_untracked_counts' (48780) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:169:33:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes stdout ----\n\nthread 'live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes' (66168) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_config_policy_tests.rs:98:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes stdout ----\n\nthread 'live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes' (60720) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:38:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_object_database_tests::known_object_accelerators_are_not_private_git_inputs stdout ----\n\nthread 'live_evidence::git_object_database_tests::known_object_accelerators_are_not_private_git_inputs' (57988) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_object_database_tests.rs:395:6:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency stdout ----\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256\n\nthread 'live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency' (59192) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_scope_boundary_tests.rs:93:25:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_semantics_tests::detached_head_keeps_dirty_observations_and_unknown_upstream stdout ----\n\nthread 'live_evidence::git_semantics_tests::detached_head_keeps_dirty_observations_and_unknown_upstream' (53436) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_semantics_tests.rs:124:57:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git stdout ----\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256\n\nthread 'live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git' (50840) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_scoped_semantics_tests.rs:161:36:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"\n\n---- live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes stdout ----\n\nthread 'live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes' (11460) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_object_database_tests.rs:344:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::probe_tests::command_outputs_accumulate_in_the_sample_budget stdout ----\nDG_NATIVE_PROBE_ORIGINAL_ERROR=Cleanup { primary: Deadline, cleanup: Unsupported(\"probe cleanup pending; original owner retained\") }\n\nthread 'live_evidence::probe_tests::command_outputs_accumulate_in_the_sample_budget' (3984) panicked at crates\\diskgraph-engine\\src\\live_evidence\\probe_failure_assertion.rs:21:5:\noriginal probe failure with retained cleanup: Cleanup { primary: Deadline, cleanup: Unsupported(\"probe cleanup pending; original owner retained\") }\n\n---- relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes stdout ----\n\nthread 'relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes' (52228) panicked at crates\\diskgraph-engine\\src\\relation_request_tests.rs:990:21:\nimpact=true post_read_hook_consumed",
+  "failure_details_truncated": true,
+  "budget_phase_diagnostics": [
+    "diskgraph: authorization_budget_phase=relation_terminal_control elapsed_us=243",
+    "diskgraph: authorization_budget_phase=history_terminal_control elapsed_us=3182",
+    "diskgraph: authorization_budget_phase=relation_terminal_control elapsed_us=2",
+    "diskgraph: authorization_budget_phase=history_terminal_control elapsed_us=2"
+  ]
+}

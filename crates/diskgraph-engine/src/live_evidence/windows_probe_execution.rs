@@ -31,6 +31,12 @@ pub(super) fn execute(
     // 两个状态槽都在catch外；从出生owner转到输出适配之间没有外部调用或分配。
     let mut born = None;
     let mut running = None;
+    #[cfg(test)]
+    let profile = (std::env::var_os("DG_PRIVATE_WRITE_PROFILE").as_deref()
+        == Some(std::ffi::OsStr::new("1")))
+    .then(std::time::Instant::now);
+    #[cfg(test)]
+    let spawn_elapsed = std::cell::Cell::new(None);
     let observed = catch_unwind(AssertUnwindSafe(|| {
         {
             // 两阶段检查依次借同一原预算；不复制账本，不以调用次数推断出生。
@@ -44,12 +50,18 @@ pub(super) fn execute(
             )
             .map_err(ProbeFailure::from)?;
         }
+        #[cfg(test)]
+        if let Some(started) = profile {
+            spawn_elapsed.set(Some(started.elapsed()));
+        }
         running = born.take().map(WindowsProbeChild::from_child);
         let child = running
             .as_mut()
             .ok_or(ProbeFailure::Unsupported("probe owner absent"))?;
         collect_output(child, budget)
     }));
+    #[cfg(test)]
+    let observed_elapsed = profile.map(|started| started.elapsed());
     let owner = born
         .take()
         .or_else(|| running.take().map(WindowsProbeChild::into_child));
@@ -92,6 +104,27 @@ pub(super) fn execute(
         }
         None => Ok(()),
     };
+    #[cfg(test)]
+    if let (Some(started), Some(observed_elapsed)) = (profile, observed_elapsed) {
+        // 只报告同一次原生执行的阶段，不记录命令参数、路径、输出或凭据。
+        // 同线程编号与写入汇总关联；写日志失败不替换原结果或 panic payload。
+        use std::io::Write;
+        let spawn_us = spawn_elapsed.get().map(|elapsed| elapsed.as_micros());
+        let collect_us = spawn_elapsed
+            .get()
+            .map(|elapsed| observed_elapsed.saturating_sub(elapsed).as_micros());
+        let cleanup_us = started
+            .elapsed()
+            .saturating_sub(observed_elapsed)
+            .as_micros();
+        let _ = writeln!(
+            std::io::stdout().lock(),
+            "DG_PROBE_EXECUTION thread={:?} spawn_us={spawn_us:?} collect_us={collect_us:?} cleanup_us={cleanup_us} observed_ok={} cleanup_ok={}",
+            std::thread::current().id(),
+            matches!(&observed, Ok(Ok(_))),
+            cleanup.is_ok(),
+        );
+    }
     match observed {
         Ok(Ok(output)) => {
             // 成功输出也先复核原请求；到期/取消保持主原因，清理Pending仅作次诊断。

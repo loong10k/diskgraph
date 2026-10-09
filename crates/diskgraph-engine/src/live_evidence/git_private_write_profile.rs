@@ -14,6 +14,11 @@ pub(super) struct GitPrivateWriteProfile {
 }
 
 impl GitPrivateWriteProfile {
+    /// 参数：无；返回：当前线程的累计阶段微秒及写入次数，只用于同线程诊断差值。
+    pub(super) fn snapshot() -> ([u128; 9], u64) {
+        TOTALS.with_borrow(|(stages, writes, _)| (*stages, *writes))
+    }
+
     /// 参数：无。返回：显式环境开关开启时的阶段计时器，否则不采样。
     pub(super) fn new() -> Option<Self> {
         (std::env::var_os("DG_PRIVATE_WRITE_PROFILE").as_deref() == Some(std::ffi::OsStr::new("1")))
