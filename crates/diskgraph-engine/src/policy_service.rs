@@ -5,6 +5,10 @@ use diskgraph_core::{
     Authorizer, BusinessError, Grant, Permission, PolicyAuthorizer, PrincipalId, ScopeId,
 };
 
+#[cfg(test)]
+#[path = "policy_capture_deadline_tests.rs"]
+mod deadline_tests;
+
 impl Engine {
     /// 从控制库重建实时策略授权器。
     /// 参数：无。
@@ -25,7 +29,9 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<PolicyAuthorizer, EngineError> {
         let control = self.control_until(deadline)?;
-        control.with_read_deadline(deadline, |store| Ok(store.authorizer()?))
+        control
+            .with_read_deadline(deadline, |store| Ok(store.authorizer()?))
+            .map_err(crate::relation_request::terminal_control_error)
     }
 }
 
@@ -180,8 +186,10 @@ impl Engine {
         deadline: std::time::Instant,
     ) -> Result<PolicyAuthorizer, EngineError> {
         let control = self.control_until(deadline)?;
-        control.with_read_deadline(deadline, |store| {
-            Ok(store.authorizer_for_principal(principal)?)
-        })
+        control
+            .with_read_deadline(deadline, |store| {
+                Ok(store.authorizer_for_principal(principal)?)
+            })
+            .map_err(crate::relation_request::terminal_control_error)
     }
 }

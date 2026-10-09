@@ -1,0 +1,28 @@
+{
+  "production_change": "map policy-capture own deadline/busy/interrupt into existing budget business error; preserve nonbudget SQL errors",
+  "behavior_red": {
+    "passed": 1,
+    "failed": 2,
+    "actual_error": "SQLITE_INTERRUPT"
+  },
+  "final_green": {
+    "passed": 3,
+    "failed": 0
+  },
+  "ffi_deadline_regression": {
+    "passed": 4,
+    "failed": 0
+  },
+  "strict_clippy": "passed",
+  "openspec": "valid",
+  "additional_growth_regression": {
+    "passed": 6,
+    "failed": 14,
+    "failure": "unsupported while establishing native scan fixture; not a behavioral failure of policy capture"
+  },
+  "native_windows_new_change_qualification": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/policy_service.rs": "df9bf5b8eb07b9c8060f27a1e86d4a4c8d44971adaec31215db6b37649b2580e",
+    "crates/diskgraph-engine/src/policy_capture_deadline_tests.rs": "815469c140591c0f0889e9434ed6dc0fad2add3050076aabb4827ea75d4980f8"
+  }
+}

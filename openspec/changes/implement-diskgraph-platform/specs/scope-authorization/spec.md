@@ -90,9 +90,15 @@
 - **THEN** 响应移除未授权原始路径、内容和秘密，日志同样脱敏。
 
 ### Requirement: SC-06 Request-bound identities and revisions
+
 服务 SHALL 对每次远程请求执行 token 能力与实时主体授权的交集，并验证 revision 的持久 server/scope 归属。
 
 远程 Index、Sync 及实时证据任务 SHALL 保存服务端从已认证请求取得的原主体、签发方、能力上限与绝对到期约束，不持久保存 bearer。持久任务与断线恢复不构成超越原请求能力或到期时间的无限委派；runner 的可信本地身份不得补足、替换或续期该约束。入队、实际执行和发布按任务所需权限与当前数据库授权取交集，租约续租和重领不得延长认证有效期。旧可信本地兼容入口保持独立，不进入远程执行旁路。
+
+#### Scenario: Policy capture preserves deadline error semantics
+- **WHEN** 指定主体或可信全策略能力捕获在原控制库 SQL 期限内开始，但真实 VM 执行或锁等待耗尽该期限
+- **THEN** 对外返回预算拒绝，不把期限中断暴露为通用 SQLite 故障；不延长原期限、不进入数据消费者、不授予未完成捕获的能力。
+- **AND** 真实数据库结构或其他非预算故障保留原错误；连接执行回调和原 busy_timeout 仍按既有控制库 guard 还原，后续正常授权可以继续。
 
 #### Scenario: Token without capabilities
 - **WHEN** 有效 token 无权限 scope 请求目录或工具
