@@ -1,0 +1,34 @@
+{
+  "base_commit": "98455bcfa1859db3f73c14e90b8fa9a979bd6bc0",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "ae2326fb306a3730fa233a3e6a66a096e8c6419bec073e2ea367d00b523276d4",
+    "scripts/tests/test_readonly_load_coverage.py": "db48a7edd0b08e0d50454393f015248fbde5c634da4257defca6254909291688",
+    "openspec/changes/implement-diskgraph-platform/specs/release-evaluation/spec.md": "4c25d9e13faa977d94f568a5d5888ba31d2a2156f8294f10ea9d5567615ff9c3"
+  },
+  "red": {
+    "command": "python3 -m unittest scripts.tests.test_readonly_load_coverage.StorageFootprintTests",
+    "exit_code": 1,
+    "tests": 3,
+    "errors": 3,
+    "cause": "database_footprint helper absent; actual real SQLite and file fixture tests executed before implementation",
+    "raw_log": "not saved; tool output records three AttributeError failures"
+  },
+  "green": {
+    "command": "python3 -m unittest scripts.tests.test_readonly_load_coverage scripts.tests.test_windows_load_diagnostic scripts.tests.test_windows_acceptance_job",
+    "exit_code": 0,
+    "tests": 46,
+    "skipped": 1,
+    "raw_log": "green.log",
+    "boundary": "macOS Python regression and real SQLite fixtures, not target Windows native process acceptance"
+  },
+  "openspec_validate": {
+    "command": "openspec validate implement-diskgraph-platform --strict",
+    "exit_code": 0
+  },
+  "production_deadlines_changed": false,
+  "workload_reduced": false,
+  "concurrency_changed": false,
+  "rss_measured": false,
+  "native_binary_load_executed": false
+}

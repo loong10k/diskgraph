@@ -17,6 +17,57 @@ MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
 
+class StorageFootprintTests(unittest.TestCase):
+    """真实SQLite的WAL增长与checkpoint缩减必须分开保留。"""
+
+    def test_real_wal_growth_and_checkpoint_shrink_are_signed(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with contextlib.closing(sqlite3.connect(root / 'diskgraph.sqlite')) as connection:
+                connection.execute('PRAGMA journal_mode=WAL')
+                connection.execute('PRAGMA wal_autocheckpoint=0')
+                before = MODULE.database_footprint(root)
+                connection.execute('CREATE TABLE fixture(value BLOB)')
+                connection.execute('INSERT INTO fixture VALUES (?)', (b'x' * 65536,))
+                connection.commit()
+                after = MODULE.database_footprint(root)
+                growth = MODULE.footprint_delta(before, after)
+                self.assertGreater(growth['wal_bytes'], 65536)
+                self.assertEqual(after['total_bytes'], sum(
+                    after[name] for name in ('database_bytes', 'wal_bytes', 'shared_memory_bytes')))
+                connection.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+                retired = MODULE.database_footprint(root)
+                shrink = MODULE.footprint_delta(after, retired)
+                self.assertEqual(retired['wal_bytes'], 0)
+                self.assertEqual(shrink['wal_bytes'], -after['wal_bytes'])
+                self.assertGreaterEqual(shrink['database_bytes'], 0)
+
+    def test_only_two_databases_and_their_sidecars_are_measured(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            expected = {'database_bytes': 30, 'wal_bytes': 7,
+                        'shared_memory_bytes': 3, 'total_bytes': 40}
+            for name, size in [('diskgraph.sqlite', 10), ('diskgraph-control.sqlite', 20),
+                               ('diskgraph.sqlite-wal', 7), ('diskgraph-control.sqlite-shm', 3),
+                               ('diskgraph-other.sqlite', 500), ('other', 600)]:
+                (root / name).write_bytes(b'x' * size)
+            self.assertEqual(MODULE.database_footprint(root), expected)
+
+    def test_unreadable_observation_propagates_instead_of_becoming_zero(self):
+        error = PermissionError('storage observation denied')
+        with patch.object(Path, 'lstat', side_effect=error):
+            with self.assertRaises(PermissionError) as caught:
+                MODULE.database_footprint(Path('unused'))
+        self.assertIs(caught.exception, error)
+
+    def test_directory_at_sidecar_name_is_refused(self):
+        with MODULE.tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'diskgraph.sqlite-wal').mkdir()
+            with self.assertRaises(ValueError):
+                MODULE.database_footprint(root)
+
+
 class FixtureCreationTests(unittest.TestCase):
     """并行准备仍创建完整真实文件，写入错误不能变成成功。"""
     def test_exact_names_and_contents_with_non_multiple_file_count(self):
@@ -224,6 +275,19 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(events, [('begin', True), ('end', False)])
         self.assertGreaterEqual(report['cleanup_seconds'], 0)
         self.assertEqual(report['passed'], report['total'])
+
+    def test_main_reports_three_storage_observations_and_preserves_legacy_total(self):
+        result, report = self.exercise(102)
+        self.assertEqual(result, 0)
+        storage = report['storage_cost']
+        for stage in ('before_scan', 'after_scan', 'after_queries'):
+            self.assertEqual(set(storage[stage]),
+                             {'database_bytes', 'wal_bytes', 'shared_memory_bytes', 'total_bytes'})
+        self.assertEqual(report['database_and_wal_bytes'], storage['after_queries']['total_bytes'])
+        self.assertEqual(storage['scan_delta'], MODULE.footprint_delta(
+            storage['before_scan'], storage['after_scan']))
+        self.assertEqual(storage['query_delta'], MODULE.footprint_delta(
+            storage['after_scan'], storage['after_queries']))
 
     def test_windows_branch_retires_real_fixture_before_directory_cleanup(self):
         events = []

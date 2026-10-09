@@ -1,0 +1,9 @@
+......................................s.owner release unconfirmed: duplicate close
+.owner release unconfirmed: owner close
+.Job retirement or pipe drain unconfirmed: query failed
+...Job retirement or pipe drain unconfirmed: still active
+.
+----------------------------------------------------------------------
+Ran 46 tests in 0.299s
+
+OK (skipped=1)

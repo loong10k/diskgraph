@@ -11,6 +11,7 @@ import pathlib
 import re
 import statistics
 import sqlite3
+import stat
 import subprocess
 import sys
 import tempfile
@@ -18,6 +19,29 @@ import time
 
 
 SUFFIX = ".exe" if sys.platform == "win32" else ""
+
+
+def database_footprint(data):
+    """参数：隔离数据目录；返回：两库及WAL/SHM文件长度，不代表累计写入或卷分配。"""
+    result = {'database_bytes': 0, 'wal_bytes': 0, 'shared_memory_bytes': 0}
+    for database in ('diskgraph.sqlite', 'diskgraph-control.sqlite'):
+        for suffix, category in (('', 'database_bytes'), ('-wal', 'wal_bytes'),
+                                 ('-shm', 'shared_memory_bytes')):
+            try:
+                metadata = (data / (database + suffix)).lstat()
+            except FileNotFoundError:
+                # SQLite退出/checkpoint可能合法移除sidecar；其他读取错误不能当作零。
+                continue
+            if not stat.S_ISREG(metadata.st_mode):
+                raise ValueError('database cost observation requires a regular file')
+            result[category] += metadata.st_size
+    result['total_bytes'] = sum(result.values())
+    return result
+
+
+def footprint_delta(before, after):
+    """参数：同一隔离目录的前后成本；返回：有符号差值，checkpoint缩减不夹为零。"""
+    return {name: after[name] - value for name, value in before.items()}
 
 
 def phase(name, event):
@@ -185,11 +209,13 @@ def main():
         phase("scope_registration", "begin")
         scope = invoke(cli, data, "scope", "add", "--root", root)["data"]["scope_id"]
         phase("scope_registration", "end")
+        storage_before_scan = database_footprint(data)
         phase("index", "begin")
         started = time.perf_counter()
         indexed = invoke(cli, data, "index", "--scope", scope, "--wait")
         scan_seconds = time.perf_counter() - started
         phase("index", "end")
+        storage_after_scan = database_footprint(data)
         revision = indexed["data"]["revision_id"]
         checks["full_index_published"] = indexed["data"]["state"] == "completed" and bool(revision)
         phase("coverage_validation", "begin")
@@ -246,9 +272,8 @@ def main():
             and unindexed["error"]["code"] == "not_indexed"
         )
         phase("budget_refusal", "end")
-        database_bytes = sum(
-            path.stat().st_size for path in data.glob("diskgraph*.sqlite*") if path.is_file()
-        )
+        storage_after_queries = database_footprint(data)
+        database_bytes = storage_after_queries['total_bytes']
         # 必须测到真实 TemporaryDirectory.__exit__ 完成；不得提前报告成功或绕过清理。
         phase("workspace_cleanup", "begin")
         cleanup_started = time.perf_counter()
@@ -275,6 +300,14 @@ def main():
         "query_p50_ms": round(statistics.median(latencies) * 1000, 3),
         "query_p95_ms": round(latencies[math.ceil(0.95 * len(latencies)) - 1] * 1000, 3),
         "database_and_wal_bytes": database_bytes,
+        "storage_cost": {
+            "metric": "file lengths in bytes; not cumulative writes, allocated volume or peak WAL",
+            "before_scan": storage_before_scan,
+            "after_scan": storage_after_scan,
+            "after_queries": storage_after_queries,
+            "scan_delta": footprint_delta(storage_before_scan, storage_after_scan),
+            "query_delta": footprint_delta(storage_after_scan, storage_after_queries),
+        },
         "passed": sum(checks.values()),
         "total": len(checks),
         "checks": checks,
