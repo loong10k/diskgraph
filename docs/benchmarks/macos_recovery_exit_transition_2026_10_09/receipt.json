@@ -1,0 +1,34 @@
+{
+  "base_commit": "027744a236a622388190569a1a60b8198aeaa108",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "regression_cases": {
+    "macos": 12,
+    "unix_lifetime": 10,
+    "rapid_test_real_child_rounds": 128
+  },
+  "red_observation": "red_observation.txt records the actual tool-captured pre-fix failure, not a raw log",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/macos_child_group.rs": "fbfbad202f8f353eb864699b9d730f775e17463640764f972e335cfd80c62a30",
+    "crates/diskgraph-engine/src/native_child/macos_group_query_tests.rs": "e9b51af1b7bf6172dbfe62c43867122ef999799cacabcc9d3217d614da8859f6",
+    "crates/diskgraph-engine/src/native_child/macos_registry_deadline_tests.rs": "dc4b6946adc6438c9df6c40dcaf88f943c06322c607e58cf5fc22221845302e8",
+    "crates/diskgraph-engine/src/native_child/unix_child_cleanup_poll.rs": "2f4e0e5009ac538afce7ed71ab18e7b2bcdb6664c135e8d6b134aab743797479",
+    "crates/diskgraph-engine/src/native_child/unix_child_group.rs": "d6007c10985b0b6d047e0dafb99080d51b49651c9dcfb0e0f500d3ea5ba1689e"
+  },
+  "checks": {
+    "fmt": 0,
+    "clippy": 0,
+    "openspec": 0
+  },
+  "native_intel_qualified": false,
+  "production_ready": false,
+  "limitations": [
+    "macOS Intel CI remains required",
+    "Linux and Windows gates unchanged",
+    "No hard OS scheduling deadline claimed"
+  ],
+  "raw_logs": {
+    "unix_lifetime_regression.log.gz": "4e0eb4c77bd794d5ad4a08b401446c9722e04a5c83343774268dfa3354854853",
+    "macos_regression.log.gz": "4fe28b003f002aea16bff58c110361dd0d9894f87d3598270c9f65ca8f061453"
+  }
+}

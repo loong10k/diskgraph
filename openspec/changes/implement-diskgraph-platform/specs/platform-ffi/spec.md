@@ -63,6 +63,13 @@ iOS SHALL 从最初契约就限制在 App 自有及用户授予的文档范围�
 ### Requirement: PF-06 Native service lifetime
 Native hosts SHALL have a persistent read-only service session. Closing the session SHALL deny subsequent work and cancel active session jobs. Query results SHALL use authorized revision ownership and bounded reads. Existing stateless FFI signatures SHALL remain trusted local compatibility entry points and SHALL not be used for a remote identity.
 
+#### Scenario: Darwin recovery distinguishes exit transition from completed retirement
+- **GIVEN** the original owner retains the qualified private-session leader and its wait responsibility
+- **WHEN** a single group termination returns EPERM and two complete native enumerations match, every member has the expected PID/PGID, the leader retains its parent identity, and all members are zombies or have the public PROC_FLAG_INEXIT flag
+- **THEN** an exit transition is Pending, preserving the same owner, capacity slot and original deadline; it does not permit reaping, publication or successful retirement
+- **AND** real live members, missing identity, incomplete enumeration and unknown native queries do not qualify this exception; genuine permission failures retain their original error
+- **AND** completion still requires the existing full-group exit checks and actual consumption of the original wait responsibility
+
 #### Scenario: Host closes while a scan is running
 - **WHEN** a host closes its native service or releases its final scan handle
 - **THEN** cancellation is requested cooperatively and new session queries are refused; no detached job is silently treated as a completed host request.

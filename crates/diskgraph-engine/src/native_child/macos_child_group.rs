@@ -95,6 +95,19 @@ fn unknown(reason: &'static str) -> (MacosGroupView, bool) {
 /// 返回：两次完整枚举一致且每个成员确认退出时 true；未知、变化或活动成员均 false。
 /// XNU killpg1 排除 SZOMB，组存在但无可发送成员时返回 EPERM。
 pub(super) fn zombies_only(leader: u32) -> bool {
+    terminal_members_only(leader, false)
+}
+
+/// 核验原组全部成员已进入退出或 zombie 状态，仅许可保留 owner 后继续轮询。
+/// 参数：leader 是尚未 wait 的原 leader；返回：完整双重枚举一致且身份匹配为 true。
+/// INEXIT 不代表退出完成，不能据此消费 wait、释放槽或发布扫描结果。
+pub(super) fn exiting_only(leader: u32) -> bool {
+    terminal_members_only(leader, true)
+}
+
+fn terminal_members_only(leader: u32, allow_exiting: bool) -> bool {
+    // Darwin 公共 sys/proc_info.h 的 PROC_FLAG_INEXIT=4；当前 libc 未导出此 ABI 常量。
+    const PROC_FLAG_INEXIT: u32 = 4;
     // 固定 4 KiB 枚举，不按宿主总进程数分配；等于容量视为截断并拒绝。
     let mut pids = [0i32; 1024];
     let Some(count) = list_group(leader, &mut pids) else {
@@ -117,8 +130,10 @@ pub(super) fn zombies_only(leader: u32) -> bool {
             )
         };
         if queried as usize != size_of::<libc::proc_bsdinfo>()
+            || info.pbi_pid != pid as u32
             || info.pbi_pgid != leader
-            || info.pbi_status != libc::SZOMB
+            || !(info.pbi_status == libc::SZOMB
+                || (allow_exiting && info.pbi_flags & PROC_FLAG_INEXIT != 0))
         {
             return false;
         }
@@ -132,7 +147,7 @@ pub(super) fn zombies_only(leader: u32) -> bool {
     if !saw_leader {
         return false;
     }
-    // 每个已确认 zombie 都不能再 fork。再次完整枚举防止检查过程中新成员
+    // 对退出过渡仅报告 Pending；再次完整枚举防止检查过程中新成员
     // 被第一份快照遗漏；保留 leader、父身份与宿主不外部 wait 的契约仍必需。
     let mut after = [0i32; 1024];
     let Some(after_count) = list_group(leader, &mut after) else {

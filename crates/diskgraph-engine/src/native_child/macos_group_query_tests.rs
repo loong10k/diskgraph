@@ -5,6 +5,25 @@ use super::unix_normal_exit_test_support as fixture;
 use std::cell::{Cell, RefCell};
 use std::time::{Duration, Instant};
 
+/// 退出过渡准入不能接受真实活动进程，且已退出判断必须继续保留原等待身份。
+#[test]
+fn terminal_group_checks_reject_live_members_and_accept_retained_zombies() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut child = fixture::spawn("live_end", directory.path());
+    let pid = fixture::qualified_identity(directory.path());
+    assert!(!super::macos_child_group::exiting_only(pid as u32));
+    assert!(!super::macos_child_group::zombies_only(pid as u32));
+    child.request_control_close().unwrap();
+    fixture::release(directory.path());
+    fixture::drain(&mut child, true);
+    fixture::retained(pid);
+    assert!(super::macos_child_group::exiting_only(pid as u32));
+    assert!(super::macos_child_group::zombies_only(pid as u32));
+    assert!(child.poll_normal_exit(|| Ok::<(), ()>(())).unwrap());
+    fixture::reaped(pid);
+    assert!(!super::macos_child_group::exiting_only(pid as u32));
+}
+
 thread_local! {
     static SAMPLES: Cell<usize> = const { Cell::new(0) };
     static TARGET: Cell<i32> = const { Cell::new(0) };

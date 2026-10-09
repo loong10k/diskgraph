@@ -1,0 +1,9 @@
+Source base: 027744a236a622388190569a1a60b8198aeaa108, with the new rapid recovery regression only.
+Captured tool result, not a redirected raw log:
+Command: cargo test -p diskgraph-engine --lib native_child::macos_registry_deadline_tests::rapid_recovery_polling_keeps_original_owner_until_actual_reap --locked -- --exact --nocapture
+Exit code: 101
+round 0: Some(Io(Os { code: 1, kind: PermissionDenied, message: "Operation not permitted" }))
+0 passed; 1 failed; 0 ignored; 0 measured; 773 filtered out; finished in 0.01s
+
+First implementation compile failed because libc does not export PROC_FLAG_INEXIT. Public Darwin SDK defines it as 4.
+First negative fixture failed because it omitted request_control_close before poll_normal_exit; this is a fixture error, not a product regression.

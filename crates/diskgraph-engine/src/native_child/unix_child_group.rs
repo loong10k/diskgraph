@@ -7,9 +7,10 @@ pub(super) struct UnixChildGroup;
 
 impl UnixChildGroup {
     /// 单次终止原保留组，不等待 Darwin 退出过渡，不在期限内 sleep/retry。
-    /// 参数：pid 为仍保有等待权的原正 leader；返回：单次原 OS 错误，未知或权限拒绝仍失败。
+    /// 参数：pid 为仍保有等待权的原正 leader；返回：已发送/全 zombie 为 true，退出过渡为 false。
+    /// false 必须保留原 owner 继续轮询，未知或权限拒绝仍返回原错误。
     #[cfg(target_os = "macos")]
-    pub(super) fn terminate_once(pid: i32) -> Result<(), ChildError> {
+    pub(super) fn terminate_once(pid: i32) -> Result<bool, ChildError> {
         #[cfg(test)]
         if super::unix_normal_exit_tests::group_termination_failure() {
             return Err(ChildError::io(
@@ -18,14 +19,19 @@ impl UnixChildGroup {
             ));
         }
         if unsafe { libc::kill(-pid, libc::SIGKILL) } == 0 {
-            return Ok(());
+            return Ok(true);
         }
         let error = io::Error::last_os_error();
         if error.raw_os_error() == Some(libc::ESRCH)
             || (error.raw_os_error() == Some(libc::EPERM)
                 && super::macos_child_group::zombies_only(pid as u32))
         {
-            return Ok(());
+            return Ok(true);
+        }
+        if error.raw_os_error() == Some(libc::EPERM)
+            && super::macos_child_group::exiting_only(pid as u32)
+        {
+            return Ok(false);
         }
         Err(ChildError::io("terminate owned process group", error))
     }

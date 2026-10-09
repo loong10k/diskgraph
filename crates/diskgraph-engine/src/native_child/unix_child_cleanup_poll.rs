@@ -39,7 +39,9 @@ impl UnixChild {
         let pid = i32::try_from(self.child.id())
             .map_err(|_| ChildError::Unsupported("unrepresentable child pid"))?;
         // 终止组失败不得消费 leader；它仍是下一次原组重试的身份锚点。
-        UnixChildGroup::terminate_once(pid)?;
+        if !UnixChildGroup::terminate_once(pid)? {
+            return Ok(false);
+        }
         if Instant::now() >= deadline {
             return Ok(false);
         }
