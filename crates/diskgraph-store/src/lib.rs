@@ -131,7 +131,6 @@ mod policy_store;
 #[cfg(test)]
 mod process_job_protocol_contract_tests;
 mod publication_checkpoint_guard;
-mod staging_checkpoint_guard;
 #[cfg(test)]
 mod reader_admission_tests;
 #[cfg(test)]
@@ -177,6 +176,7 @@ mod search_queries;
 mod snapshot_queries;
 mod snapshot_writer;
 mod sqlite_snapshot_store;
+mod staging_checkpoint_guard;
 mod staging_locator_validation;
 mod staging_node_encoding;
 mod store_error;

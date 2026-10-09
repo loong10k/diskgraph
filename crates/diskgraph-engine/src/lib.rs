@@ -139,7 +139,6 @@ mod revision_windows_observation_tests;
 mod runner;
 mod scan_cost_diagnostic;
 mod scan_execution;
-mod staging_wal;
 mod scan_image_identity;
 mod scan_jobs;
 #[cfg(test)]
@@ -187,6 +186,7 @@ mod scoped_content;
 #[cfg(not(windows))]
 mod scoped_file;
 mod snapshot_retention;
+mod staging_wal;
 #[cfg(test)]
 mod status_contention_tests;
 mod sync_plan;
