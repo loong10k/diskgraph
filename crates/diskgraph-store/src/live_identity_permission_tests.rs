@@ -63,6 +63,50 @@ fn live_identity_work_does_not_scan_other_principals_or_scopes() {
 }
 
 #[test]
+fn oversized_scope_identity_is_refused_before_owned_allocation() {
+    use crate::git_raw_allocation_tests::{isolated, measure};
+    let name = "policy_store::live_identity_permission::tests::oversized_scope_identity_is_refused_before_owned_allocation";
+    if isolated(name) {
+        return;
+    }
+    let mut store = ControlStore::open_in_memory().unwrap();
+    store.publish_policy_version(1).unwrap();
+    let oversized = "0".repeat(2 << 20);
+    store.connection.execute(
+        "INSERT INTO scopes(scope_id,root_kind,root_raw_b64,root_display,created_at_unix_ms) VALUES(?1,'document_uri','unused','unused',0)",
+        [&oversized],
+    ).unwrap();
+    store.connection.execute(
+        "INSERT INTO grants(principal_id,permission,scope_id,policy_version) VALUES(?1,'metadata:read',?2,1)",
+        rusqlite::params![actor().as_str(), oversized],
+    ).unwrap();
+    let principal = actor();
+    let management = admin();
+    let check = |store: &ControlStore| {
+        measure(|| {
+            store.identity_has_live_permission(&principal, &[Permission::MetadataRead], &management)
+        })
+    };
+    let (result, requested) = check(&store);
+    assert!(!result.unwrap(), "invalid identity must never authorize");
+    eprintln!("oversized 2MiB identity; Rust requested={requested}");
+    assert!(
+        requested < 65536,
+        "invalid identity was owned before validation: {requested}"
+    );
+    grant(&mut store, &management, 1);
+    let (result, requested) = check(&store);
+    assert!(
+        result.unwrap(),
+        "invalid row must not hide a valid live grant"
+    );
+    assert!(
+        requested < 65536,
+        "invalid prefix inflated authorized read: {requested}"
+    );
+}
+
+#[test]
 fn live_identity_preserves_epoch_token_scope_and_admin_semantics() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("control.sqlite");
@@ -120,4 +164,28 @@ fn live_identity_preserves_epoch_token_scope_and_admin_semantics() {
             .identity_has_live_permission(&actor(), &[Permission::MetadataRead], &admin())
             .is_err()
     );
+}
+
+#[test]
+fn scope_identity_conversion_errors_remain_errors() {
+    for expression in ["x'ff'", "CAST(x'ff' AS TEXT)"] {
+        let mut store = ControlStore::open_in_memory().unwrap();
+        store.publish_policy_version(1).unwrap();
+        // 仅固定测试表达式进入SQL；模拟真实BLOB/非法UTF-8列，不将转换失败变成有效授权。
+        store
+            .connection
+            .execute_batch(&format!(
+            "INSERT INTO scopes(scope_id,root_kind,root_raw_b64,root_display,created_at_unix_ms)
+             VALUES({expression},'document_uri','unused','unused',0);
+             INSERT INTO grants(principal_id,permission,scope_id,policy_version)
+             VALUES('stream-actor','metadata:read',{expression},1);"
+        ))
+            .unwrap();
+        let result =
+            store.identity_has_live_permission(&actor(), &[Permission::MetadataRead], &admin());
+        assert!(
+            matches!(result, Err(crate::StoreError::Sqlite(_))),
+            "{expression}: {result:?}"
+        );
+    }
 }

@@ -37,7 +37,15 @@ impl ControlStore {
                 version as i64
             ])?;
             while let Some(row) = rows.next()? {
-                let scope: String = row.get(0)?;
+                let value = row.get_ref(0)?;
+                let scope = value.as_str().map_err(|error| {
+                    rusqlite::Error::FromSqlConversionFailure(0, value.data_type(), Box::new(error))
+                })?;
+                // ID合同最多64个ASCII字节；先检查借用字段，避免非法值及其错误对象各复制一次大文本。
+                // 类型/UTF-8转换失败仍传播；这里只跳过不能成为合法ScopeId的超长文本。
+                if scope.len() > 64 {
+                    continue;
+                }
                 let Ok(scope) = ScopeId::new(scope) else {
                     continue;
                 };

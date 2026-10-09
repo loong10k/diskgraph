@@ -1,0 +1,27 @@
+{
+  "head": "41620dbf0f8e1843ea2bc0b667c2e3f01e995a6a",
+  "source_hashes": {
+    "crates/diskgraph-store/src/live_identity_permission.rs": "845bbfdac16dcc44a6b800aa054e9cdbd1d3127dc2be8da9ea11424e2156e4ed",
+    "crates/diskgraph-store/src/live_identity_permission_tests.rs": "1c2726c9bdea43c77cb4d6f3cdb648327e0d9984116a1accac38da32d7e33c47"
+  },
+  "production_acceptance": false,
+  "qualification": "Current two-file source plus preserved preexisting Store lib reader_observation test wiring. Requested Rust allocations are not SQLite C allocations or RSS. Existing isolated probe launches one exact test child; full Store uses default parallelism.",
+  "logs": {
+    "red": {
+      "sha256": "eff33b022079f9755d3688bc137fa4ed08a9492254a86f832ee1145c2f067d4c",
+      "bytes": 1799
+    },
+    "green": {
+      "sha256": "d7eaf5396e34ad7dc0fb6ca7e280d64d8f195d2297716de41646f25aa3bbc67a",
+      "bytes": 1165
+    },
+    "store_regression": {
+      "sha256": "c2db64360c89423ff55ddca5a76c3a5377cb1c44723cdf3a34a08950bee61485",
+      "bytes": 44129
+    },
+    "clippy": {
+      "sha256": "b97cdd4d2f98de487734c57d696feea9c56b585633c954389644db599eccdecc",
+      "bytes": 186
+    }
+  }
+}

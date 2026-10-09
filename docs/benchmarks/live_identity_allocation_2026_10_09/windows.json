@@ -1,0 +1,42 @@
+{
+  "head": "2552d0823f9a72a4130e56914230406e08d30a0d",
+  "source_hashes": {
+    "crates/diskgraph-store/src/live_identity_permission.rs": "845bbfdac16dcc44a6b800aa054e9cdbd1d3127dc2be8da9ea11424e2156e4ed",
+    "crates/diskgraph-store/src/live_identity_permission_tests.rs": "1c2726c9bdea43c77cb4d6f3cdb648327e0d9984116a1accac38da32d7e33c47"
+  },
+  "tracked_status_before": " M crates/diskgraph-store/src/live_identity_permission.rs\n M crates/diskgraph-store/src/live_identity_permission_tests.rs\n",
+  "production_acceptance": false,
+  "argv": [
+    "cargo",
+    "+1.99.0",
+    "test",
+    "--locked",
+    "-p",
+    "diskgraph-store",
+    "--lib",
+    "live_identity_permission",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 16.155999999988126,
+  "source_hashes_after": {
+    "crates/diskgraph-store/src/live_identity_permission.rs": "845bbfdac16dcc44a6b800aa054e9cdbd1d3127dc2be8da9ea11424e2156e4ed",
+    "crates/diskgraph-store/src/live_identity_permission_tests.rs": "1c2726c9bdea43c77cb4d6f3cdb648327e0d9984116a1accac38da32d7e33c47"
+  },
+  "logs": {
+    "stdout.log": {
+      "bytes": 613,
+      "sha256": "eeed0b4be6b40e946c224f613585d9aec73bffc47da075f1563cdea237a5490a"
+    },
+    "stderr.log": {
+      "bytes": 564,
+      "sha256": "d8530cf1ce7f6a14bf19201eaaba1e48042b0b4df5eceaa0c70da616bec0f47c"
+    }
+  },
+  "qualification": "Two-file overlay, fixed source hashes. Group uses default test parallelism; existing requested-allocation probe uses its own single-test child. No SQLite C memory, RSS, full workspace or frontend acceptance claim.",
+  "stdout": "\nrunning 4 tests\nlive_identity_sqlite_vm_steps=54\ntest policy_store::live_identity_permission::tests::live_identity_work_does_not_scan_other_principals_or_scopes ... ok\ntest policy_store::live_identity_permission::tests::scope_identity_conversion_errors_remain_errors ... ok\ntest policy_store::live_identity_permission::tests::oversized_scope_identity_is_refused_before_owned_allocation ... ok\ntest policy_store::live_identity_permission::tests::live_identity_preserves_epoch_token_scope_and_admin_semantics ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 388 filtered out; finished in 0.31s\n\n",
+  "stderr": "   Compiling diskgraph-store v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-store)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.39s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_store-da1cb7c1c48553f2.exe)\n\nrunning 1 test\ntest policy_store::live_identity_permission::tests::oversized_scope_identity_is_refused_before_owned_allocation ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 391 filtered out; finished in 0.02s\n\noversized 2MiB identity; Rust requested=689\n\n",
+  "job_id": "wc_job_hyxbJmHvCEzZG8Hb",
+  "job_terminal_exit_code": 0
+}
