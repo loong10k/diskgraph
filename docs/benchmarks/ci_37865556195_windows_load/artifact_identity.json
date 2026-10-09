@@ -1,0 +1,17 @@
+{
+  "run": 37865556195,
+  "head": "658bade82738562e2c882042b3203bc14fdc2be3",
+  "artifacts": [
+    {
+      "id": 11588314518,
+      "file": "load.zip",
+      "sha256": "b20a308c477818d978e7ef10faa92ab1f7e62d043f55da83abcbfd47d1eca6de"
+    },
+    {
+      "id": 11588558861,
+      "file": "workers.zip",
+      "sha256": "624dcb4745c51c06e24ab3c17c930adcce590aad8ad43b628e9ec828e454296a"
+    }
+  ],
+  "production_acceptance": false
+}

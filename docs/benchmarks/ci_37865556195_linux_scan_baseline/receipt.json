@@ -1,0 +1,65 @@
+{
+  "run_id": 37865556195,
+  "artifact_id": 11588288241,
+  "artifact_bytes": 138952567,
+  "retrieval": "verified HTTP byte ranges; ZIP entry CRC and extracted file SHA256; entire archive not downloaded or hashed",
+  "files": {
+    "200000-wide-round1-baseline.stderr": {
+      "bytes": 2344,
+      "sha256": "38491718a46a80b5c3a4e2a1c586fcebf63f01c76e1c9fd786c1f93471a958b5",
+      "stored_as": "200000-wide-round1-baseline.stderr.gz"
+    },
+    "200000-wide-round1-baseline.stdout": {
+      "bytes": 226,
+      "sha256": "0034c0835e5569b055e555467557ef022444f250264ac70752a7d7a7dcefd104",
+      "stored_as": "200000-wide-round1-baseline.stdout.gz"
+    }
+  },
+  "ranges": [
+    {
+      "start": 138952545,
+      "bytes": 22,
+      "sha256": "2c0a3244a35c3844e65c8cc2b26623e5604a2ad9a2fa54f9e6b407a7b8318248"
+    },
+    {
+      "start": 138952525,
+      "bytes": 20,
+      "sha256": "db438a0b11204f46f1bcf6b4da4301a26c8ea40170141bbcfd372c43c4d81a01"
+    },
+    {
+      "start": 138949239,
+      "bytes": 3306,
+      "sha256": "8bb13b6cccc839da5c77ffd15160113879dced9c45b2edb9d7d857f2f8d7bfcb"
+    },
+    {
+      "start": 9956,
+      "bytes": 30,
+      "sha256": "dfa4af7a0c5e989c5c992005bbcae0767a3503f919a16099c8486ff8ae42f93e"
+    },
+    {
+      "start": 9986,
+      "bytes": 34,
+      "sha256": "ae13b00064251e355a4448262a14d0e0d60c173027370b89ea7071a3716e6fff"
+    },
+    {
+      "start": 10020,
+      "bytes": 1059,
+      "sha256": "e4c854d40c88b7db149d1cc8d64b7bb7067903ca5ba550073a909885eed38a0d"
+    },
+    {
+      "start": 11095,
+      "bytes": 30,
+      "sha256": "dfa4af7a0c5e989c5c992005bbcae0767a3503f919a16099c8486ff8ae42f93e"
+    },
+    {
+      "start": 11125,
+      "bytes": 34,
+      "sha256": "5e08e4bc7d08ff149b7411c7c488bbca33cdcec286b64221952d648d5a1667f7"
+    },
+    {
+      "start": 11159,
+      "bytes": 139,
+      "sha256": "83e0f3fa60042d324935eed804b37ae85eed05e6bed1b01ee7f49c175c3b8042"
+    }
+  ]
+}

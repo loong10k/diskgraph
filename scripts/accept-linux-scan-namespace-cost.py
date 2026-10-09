@@ -15,6 +15,81 @@ import tempfile
 import time
 
 BASE = "5c9985b84645dcac8c82ae06903ee7249b06dbdd"
+BASELINE_DIAGNOSTIC_REVISION = "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d"
+BASELINE_ROOT = "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs"
+BASELINE_NATIVE = "crates/diskgraph-engine/src/native_process/linux_open.rs"
+BASELINE_ROOT_SHA = "4787a0d69af24d0914e8a394716a4ea2dac3ba4b9b029fac3864e60701fbf9bc"
+BASELINE_NATIVE_SHA = "b569eda8885214eb66f9fc026daa9751e504f88ac6cb7f347a5f2e0441d635d8"
+# 仅原失败分支取证；成功调用、判断顺序、解析标志及错误分类保持原样。
+BASELINE_DIAGNOSTIC_EDITS = [('        )?;\n        same_identity(&self.anchor, &current_anchor, check)?;',
+  '        ).map_err(|failure| {\n'
+  '                let errno = std::io::Error::last_os_error().raw_os_error();\n'
+  '                eprintln!("DG_BASELINE_ANCHOR_OPEN_FAILURE class={failure:?} '
+  'errno={errno:?}");\n'
+  '                failure\n'
+  '            })?;\n'
+  '        same_identity(&self.anchor, &current_anchor, check)?;'),
+ ('            )?;\n            same_identity(original, &current, check)?;',
+  '            ).map_err(|failure| {\n'
+  '                let errno = std::io::Error::last_os_error().raw_os_error();\n'
+  '                eprintln!("DG_BASELINE_COMPONENT_OPEN_FAILURE class={failure:?} '
+  'errno={errno:?}");\n'
+  '                failure\n'
+  '            })?;\n'
+  '            same_identity(original, &current, check)?;'),
+ ('unique_mount(original)?',
+  'unique_mount(original).map_err(|failure| {\n'
+  '        eprintln!("DG_BASELINE_HELD_MOUNT_FAILURE class={failure:?}");\n'
+  '        failure\n'
+  '    })?'),
+ ('unique_mount(current)?',
+  'unique_mount(current).map_err(|failure| {\n'
+  '        eprintln!("DG_BASELINE_REOPENED_MOUNT_FAILURE class={failure:?}");\n'
+  '        failure\n'
+  '    })?'),
+ ('let before = original.metadata().map_err(|_| Failure::Unavailable)?;',
+  'let before = original.metadata().map_err(|failure| {\n'
+  '        eprintln!("DG_BASELINE_HELD_METADATA_FAILURE errno={:?}", failure.raw_os_error());\n'
+  '        Failure::Unavailable\n'
+  '    })?;'),
+ ('let after = current.metadata().map_err(|_| Failure::Unavailable)?;',
+  'let after = current.metadata().map_err(|failure| {\n'
+  '        eprintln!("DG_BASELINE_REOPENED_METADATA_FAILURE errno={:?}", failure.raw_os_error());\n'
+  '        Failure::Unavailable\n'
+  '    })?;'),
+ ('        return Err(Failure::Conflict);',
+  '        eprintln!("DG_BASELINE_ROOT_IDENTITY_FAILURE");\n'
+  '        return Err(Failure::Conflict);')]
+
+
+def baseline_diagnostic_source(root, native):
+    """校验冻结实现后仅覆盖失败分支；返回可逆源码，不放宽基线算法。"""
+    if (hashlib.sha256(root).hexdigest() != BASELINE_ROOT_SHA
+            or hashlib.sha256(native).hexdigest() != BASELINE_NATIVE_SHA):
+        raise RuntimeError("frozen baseline diagnostic source mismatch")
+    # last_error 只读取线程 errno；绑定完整 native 文件以免后续调用污染 errno。
+    for original, diagnostic in BASELINE_DIAGNOSTIC_EDITS:
+        before, after = original.encode(), diagnostic.encode()
+        if root.count(before) != 1:
+            raise RuntimeError("frozen baseline diagnostic anchor mismatch")
+        root = root.replace(before, after)
+    return root
+
+def apply_baseline_diagnostic(source, label, revision):
+    """仅指定历史侧写入自建副本；候选和其他提交不读取或修改源码。"""
+    if label != "baseline" or revision != BASELINE_DIAGNOSTIC_REVISION:
+        return None
+    root = source / BASELINE_ROOT
+    original = root.read_bytes()
+    native = (source / BASELINE_NATIVE).read_bytes()
+    changed = baseline_diagnostic_source(original, native)
+    root.write_bytes(changed)
+    return {"mode": "failure-only diagnostic; original algorithm unchanged",
+            "path": BASELINE_ROOT, "original_sha256": hashlib.sha256(original).hexdigest(),
+            "measured_sha256": hashlib.sha256(changed).hexdigest(),
+            "native_sha256": hashlib.sha256(native).hexdigest()}
+
+
 HARNESS = ["crates/diskgraph-engine/tests/hardening_benchmark.rs",
            "crates/diskgraph-engine/tests/benchmark_support/mod.rs",
            "crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs",
@@ -199,6 +274,7 @@ def build_pair(repo, work, output, report, baseline=BASE, candidate=None):
             bundle.extractall(source, filter="data")
         original = inventory(source)
         save(output / f"{label}-original-source.json", original)
+        diagnostic = apply_baseline_diagnostic(source, label, revision)
         for name in HARNESS:
             destination = source / name
             destination.parent.mkdir(parents=True, exist_ok=True)
@@ -252,7 +328,7 @@ def build_pair(repo, work, output, report, baseline=BASE, candidate=None):
             "lock_sha256": sha(source / "Cargo.lock"), "binary": str(binary),
             "binary_sha256": sha(binary), "harness": {name: overlaid[name] for name in HARNESS if name != ADAPTER},
             "adapter_sha256": overlaid[ADAPTER], "adapter_mode": "explicit_native_host" if native_host else "historical_engine_open",
-            "worker": worker}
+            "worker": worker, "baseline_failure_diagnostic": diagnostic}
         save(output / "receipt.json", report)
     assert report["sources"]["baseline"]["harness"] == report["sources"]["candidate"]["harness"]
     return binaries

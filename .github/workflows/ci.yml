@@ -864,7 +864,9 @@ jobs:
         id: linux_scan_cost
         if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
         timeout-minutes: 75
-        run: python scripts/accept-linux-scan-namespace-cost.py --baseline-sha 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d --candidate-sha "${{ github.sha }}" --output-dir "${{ runner.temp }}/diskgraph-linux-scan-cost"
+        run: |
+          python -m unittest discover -s scripts/tests -p test_frozen_baseline_failure_diagnostic.py -v
+          python scripts/accept-linux-scan-namespace-cost.py --baseline-sha 2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d --candidate-sha "${{ github.sha }}" --output-dir "${{ runner.temp }}/diskgraph-linux-scan-cost"
       - name: Preserve paired Linux scan cost evidence
         if: always() && matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3

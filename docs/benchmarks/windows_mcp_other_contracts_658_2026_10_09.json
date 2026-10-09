@@ -1,0 +1,111 @@
+{
+  "head": "658bade82738562e2c882042b3203bc14fdc2be3",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.860000000015134
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--no-fail-fast",
+        "--locked",
+        "-p",
+        "diskgraph-mcp",
+        "--test",
+        "git_status_scope_contract",
+        "--test",
+        "process_evidence_contract",
+        "--test",
+        "hardening",
+        "--test",
+        "startup_deadline",
+        "--test",
+        "scan_worker_binary_config",
+        "--test",
+        "legacy_delivery",
+        "--test",
+        "http_signal_shutdown",
+        "--test",
+        "scan_worker_service_startup",
+        "--test",
+        "service_source_layout"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 28.453000000008615
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "299b01d1aa244b77eee51f09a9fb75244850e19f018752f1be0bf8e36ee49d0f",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "2732190df2f76a0ef5d286da4587234c7867b880aa6000febd166cfebe5f2187",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "9718ad8e1a73340e0afc048c39118772df4a29ce39aeccbf2cf60c732e55b987",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "713a70d52c6a02c892c414f14bac3740f093fc10aec84bc33aa8d6db27f0d582",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "5fe6e4a4ecdf3867518e27271e081b5db3f327f5f400d9474757086821f6d4d3",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "06a075efe5109627894a8a36aa7f3ccf56f96957defe7d872fe80619e83f7edf",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "4fdba428f78a617caf6e9922baa98f305bef157dad527a47ad572cc9d7be6f0a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_summary.rs": "679a58f0959a9b1a7c59984ba43e141cbcfe30ad8488ac9bc29344fe519cf899",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "c8ea5e886ccb646d9bebc25da0b02d701637b9874e37cc0c66ee09ee0468fbee"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_mcp_other_contracts_658_oct09\\current_source_driver.exe",
+    "sha256": "48662e8ad5f689daef26fd870b57cd6bcf68ccfefb234e01c108b0d59fb59fab",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.77s",
+    "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.07s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.63s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.13s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.63s",
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 4221,
+      "sha256": "0b0461510b338077fcae1913b1c08b75b6a95cf7f02d17af74409bd2d8e826af"
+    },
+    "engine.stderr.log": {
+      "bytes": 1177,
+      "sha256": "7fe39fbccd0ab068cac412d9f726b5824c3fb34e6b62380f9d25328cbfbda7a4"
+    }
+  },
+  "source_hashes_unchanged": true,
+  "raw_stdout": "\nrunning 4 tests\ntest queued_git_status_requires_only_verified_actual_scope_operation_view ... ok\ntest git_status_explicit_other_scope_is_permission_denied_even_when_both_are_authorized ... ok\ntest completed_git_status_binds_outer_scope_and_revision_to_actual_job_not_default_scope ... ok\ntest completed_git_status_outer_revision_does_not_follow_a_new_scan_latest ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.77s\n\n\nrunning 10 tests\ntest negative_token_expiry_is_malformed ... ok\ntest legacy_sessions_are_bound_to_the_handshake_principal ... ok\ntest issuers_cannot_alias_the_same_subject ... ok\ntest a_valid_unscoped_token_does_not_inherit_the_local_admin ... ok\ntest a_real_sse_connection_cannot_bypass_origin_or_authentication ... ok\ntest opening_remote_on_a_local_database_does_not_reuse_local_privileges ... ok\ntest node_and_top_do_not_decode_unrelated_revision_rows ... ok\ntest socket_requests_intersect_subject_grants_and_token_capabilities ... ok\ntest socket_sse_quota_is_per_subject_and_revocation_closes_connections ... ok\ntest socket_sse_expires_with_its_authenticated_token ... ok\n\ntest result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.07s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest legacy_refuses_a_budget_that_cannot_fit_the_correlated_error_before_ack ... ok\ntest authenticated_legacy_responses_obey_the_configured_byte_limit ... ok\ntest grant_revocation_closes_the_legacy_stream_and_removes_its_delivery_session ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.63s\n\n\nrunning 4 tests\ntest process_sync_rejects_forged_fields_and_a_different_actual_revision_owner ... ok\ntest unqualified_native_epoch_refuses_metadata_job_without_source_or_queue_changes ... ok\ntest ordinary_scan_and_git_keep_their_existing_durable_entry_contracts ... ok\ntest process_sync_requires_metadata_and_index_in_both_original_token_and_live_grants ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.13s\n\n\nrunning 4 tests\ntest partial_configuration_refuses_actual_stdio_startup_before_database_creation ... ok\ntest invalid_configuration_refuses_actual_stdio_startup_before_database_creation ... ok\ntest incorrect_expected_length_refuses_actual_startup_before_database_creation ... ok\ntest explicit_material_serves_eof_and_finishes_empty_recovery ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s\n\n\nrunning 3 tests\ntest remote_host_startup_does_not_publish_policy_or_bootstrap_administration ... ok\ntest remote_host_keeps_existing_grants_but_does_not_inherit_local_request_privileges ... ok\ntest trusted_stdio_host_bootstraps_once_and_service_clones_share_external_recovery ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.63s\n\n\nrunning 11 tests\ntest root_public_types_defaults_and_stdio_entry_remain_importable ... ok\ntest aggregate_entry_accepts_explicit_reexports_and_rejects_private_imports ... ok\ntest gate_accepts_real_documented_bodies_without_confusing_empty_match_arms ... ok\ntest gate_rejects_hidden_paths_multiple_objects_stubs_and_missing_contracts ... ok\ntest http_request_has_real_logic_in_own_module_and_preserves_public_path ... ok\ntest http_configuration_and_response_objects_have_real_modules_and_stable_public_contracts ... ok\ntest filesystem_gate_rejects_nested_cfg_attr_path_override ... ok\ntest filesystem_gate_accepts_safe_cfg_attr_and_visits_standard_child ... ok\ntest filesystem_gate_finds_root_and_nested_orphans_but_accepts_mounted_sources ... ok\ntest filesystem_gate_rejects_direct_cfg_attr_path_override ... ok\ntest service_entry_and_mounted_modules_have_real_responsibilities ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s\n\n\nrunning 2 tests\ntest expired_local_and_remote_startup_never_create_databases ... ok\ntest live_remote_startup_does_not_bootstrap_local_policy ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s\n\n"
+}
