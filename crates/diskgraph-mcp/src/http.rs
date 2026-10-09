@@ -1026,6 +1026,24 @@ pub(crate) fn serve_config_with_runtime(
                         let _ = write_response(&mut stream, &unauthorized(AuthFailure::Missing));
                         break;
                     }
+                    // 成功头、主体槽和 legacy endpoint 都必须在实时授权确认之后出生。
+                    // 无法确认时不签发马上失效的会话；周期观察仍独立执行，不缓存允许结果。
+                    if (request.path == MCP_ENDPOINT || legacy_sse)
+                        && let Some(identity) = &stream_identity
+                    {
+                        let refusal = match shared_service.identity_liveness(identity) {
+                            Ok(true) => None,
+                            Ok(false) => Some((403, "permission_denied")),
+                            Err(_) => Some((503, "authorization_unavailable")),
+                        };
+                        if let Some((status, error)) = refusal {
+                            let _ = write_response(
+                                &mut stream,
+                                &HttpResponse::json(status, json!({"error":error})),
+                            );
+                            break;
+                        }
+                    }
                     let principal = stream_identity
                         .as_ref()
                         .map(|identity| identity.principal.as_str())

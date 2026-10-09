@@ -264,3 +264,90 @@ fn modern_authenticated_stream_rejects_client_noise() {
 fn modern_authenticated_stream_rejects_noise_prefetched_with_get_headers() {
     assert_modern_authenticated_stream_rejects_client_noise(true);
 }
+
+fn assert_sse_handshake_refusal(path: &str, blocked: bool) {
+    use std::io::{Read, Write};
+    let dir = tempfile::tempdir().unwrap();
+    let service = McpService::open(McpConfig {
+        data_dir: dir.path().join("data"),
+        ..McpConfig::default()
+    })
+    .unwrap();
+    let auth = crate::auth::Authenticator::new(crate::auth::AuthConfig::single(
+        "fixture",
+        "aud",
+        b"handshake-fixture",
+    ));
+    let token =
+        crate::auth::TokenMinter::new(b"handshake-fixture").mint(&crate::auth::TokenClaims {
+            issuer: "fixture".into(),
+            audience: "aud".into(),
+            subject: "ungranted-reader".into(),
+            expires_at_unix_seconds: u64::MAX,
+            scope: Some("metadata:read".into()),
+        });
+    if blocked {
+        service
+            .engine()
+            .bootstrap_local_admin(&auth.authenticate(Some(&token)).unwrap().principal)
+            .unwrap();
+    }
+    let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let server = crate::http_server_runtime::HttpServerRuntime::start(
+        service.clone(),
+        listener,
+        crate::http::ServerConfig::modern(
+            crate::http::HttpLimits::default(),
+            crate::http::Security::local(Some(&auth)),
+        )
+        .with_legacy(),
+        Vec::new(),
+    )
+    .unwrap();
+    let owner = blocked.then(|| service.engine().control_store().unwrap());
+    let mut stream = std::net::TcpStream::connect(("127.0.0.1", port)).unwrap();
+    stream
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .unwrap();
+    write!(
+        stream,
+        "GET {path} HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {token}\r\n\r\n"
+    )
+    .unwrap();
+    let mut bytes = Vec::new();
+    let read = stream.read_to_end(&mut bytes);
+    // 失败也先释放原 owner 并实际 join，不能把原竞争留给后续测试。
+    drop(owner);
+    drop(stream);
+    assert!(server.stop_and_join().is_ok_and(|result| result.is_ok()));
+    read.unwrap();
+    let wire = String::from_utf8(bytes).unwrap();
+    let status = if blocked {
+        "HTTP/1.1 503"
+    } else {
+        "HTTP/1.1 403"
+    };
+    assert!(
+        wire.starts_with(status),
+        "unexpected successful SSE handshake: {wire}"
+    );
+    assert!(
+        !wire.contains("event: endpoint") && !wire.contains("text/event-stream"),
+        "unconfirmed authority issued a session: {wire}"
+    );
+}
+
+#[test]
+fn sse_handshake_refuses_ungranted_identity_before_success_or_session() {
+    for path in ["/mcp", "/sse"] {
+        assert_sse_handshake_refusal(path, false);
+    }
+}
+
+#[test]
+fn sse_handshake_reports_unavailable_while_original_control_owner_is_held() {
+    for path in ["/mcp", "/sse"] {
+        assert_sse_handshake_refusal(path, true);
+    }
+}

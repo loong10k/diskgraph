@@ -49,6 +49,10 @@ the tools it serves; catalog families this build does not implement answer
 - All HTTP/SSE binds require authentication, including loopback: HS256 JWTs with
   issuer, audience, and expiry verified before dispatch. Token capabilities
   intersect live database grants; remote startup never bootstraps local admin.
+  SSE success headers and legacy session endpoints are issued only after a
+  bounded live-grant check. An authenticated identity with no grant gets 403;
+  unavailable or timed-out authorization gets 503. Established streams still
+  recheck authorization and close when it cannot be confirmed.
   Provision grants for the issuer/subject-derived principal through a trusted
   local administrator. The systemd unit reads issuer/audience from
   `/etc/diskgraph/mcp.env` and a 32+ byte key from `/etc/diskgraph/mcp.key`.

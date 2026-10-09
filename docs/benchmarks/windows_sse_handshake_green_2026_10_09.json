@@ -1,0 +1,101 @@
+{
+  "head": "82e692d4c89e67760eed30ae18109ffd49460b02",
+  "source_diff_sha256": "4ea8e7d26df929c611a1b83ca4f82e8b6a9decb8b71dd38c584853ae4727318e",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.921999999991385
+    },
+    {
+      "name": "store",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-mcp",
+        "--lib",
+        "sse_handshake_",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.562000000005355
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "299b01d1aa244b77eee51f09a9fb75244850e19f018752f1be0bf8e36ee49d0f",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "2732190df2f76a0ef5d286da4587234c7867b880aa6000febd166cfebe5f2187",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "9718ad8e1a73340e0afc048c39118772df4a29ce39aeccbf2cf60c732e55b987",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "713a70d52c6a02c892c414f14bac3740f093fc10aec84bc33aa8d6db27f0d582",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "5fe6e4a4ecdf3867518e27271e081b5db3f327f5f400d9474757086821f6d4d3",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "06a075efe5109627894a8a36aa7f3ccf56f96957defe7d872fe80619e83f7edf",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "4fdba428f78a617caf6e9922baa98f305bef157dad527a47ad572cc9d7be6f0a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_summary.rs": "679a58f0959a9b1a7c59984ba43e141cbcfe30ad8488ac9bc29344fe519cf899",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "85f540b8bb1a39f16dcb0c21f443082e2e96b91883e78825fdb7681191a3f333",
+    "crates/diskgraph-engine/src/live_evidence/git_configuration.rs": "68f391cf651b7d9fc13d349916fae60f86ccf94d9db1d710fd42fae1dea39080",
+    "crates/diskgraph-engine/src/live_evidence/git_view.rs": "3aa83d4ff651397eb986b954f8c653347a9cf02d6d67dde2632da659eba5c9ac",
+    "crates/diskgraph-engine/src/live_evidence/git_empty_configuration_tests.rs": "def2e0c7d73dc18e50608ad264c64fc36e4f665fd035cb3b06a0ae916e8cbe4b",
+    "crates/diskgraph-store/src/revision_ownership_reader.rs": "abb7a04a31be52668270980196766dcd87f660116179529060f7780745c28521",
+    "crates/diskgraph-store/src/revision_ownership_cache_tests.rs": "3a024ab1dbbdfd06b28544ab5d705e63621f271263fe10ba215ac3786cd1c746",
+    "crates/diskgraph-store/src/policy_store.rs": "84e5f6dadf749b3141c2ee1dfb839d165ec20ea4e6052828fd9fda48bf95bd48",
+    "crates/diskgraph-store/src/live_identity_permission.rs": "c007a5966cb4e78e9f57ed59a02c937585d13ba17f0fd551af9340ce4d5e4bfd",
+    "crates/diskgraph-store/src/live_identity_permission_tests.rs": "1309705dc12076f3d9521041c55ca67db30b09c2cc11217304f906b37b475953",
+    "crates/diskgraph-engine/src/live_permission.rs": "f4cdec5392956656b63d94f081eec50ea7003e9211665aeb136f79883fa1eb16",
+    "crates/diskgraph-mcp/src/sse_identity_deadline_tests.rs": "7e9781f0ca9e2a78326c271c1deca771144206f8222271923be726a74e3267bf",
+    "crates/diskgraph-mcp/src/service_identity.rs": "8b8acfc49f685d9ad9d6352a891cdfdca7f187a5604c085365cc101b2a8eef0c",
+    "crates/diskgraph-mcp/src/http.rs": "a11568f669b75b8e425de02dd22dba3561e97bdbe75e4899bf41f297631d8637"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\windows_sse_handshake_green_applied_oct09\\current_source_driver.exe",
+    "sha256": "57795816e6fd114f55f93f0a6844da2fff0d539c57d70d0c4a8a012b735f7482",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 0.90s"
+  ],
+  "logs": {
+    "store.stdout.log": {
+      "bytes": 335,
+      "sha256": "e6d9a2a071cb3123bbdef9a092e94975a1cef66fb36fa330a27eedd1367d7208"
+    },
+    "store.stderr.log": {
+      "bytes": 537,
+      "sha256": "3a3ac70bba4c7019789f6e017aba2c60f53a3b87a0aa6c06e7dd018fa85f67a9"
+    }
+  },
+  "source_unchanged_during_execution": true,
+  "stdout": "\nrunning 2 tests\ntest sse_identity_deadline_tests::sse_handshake_refuses_ungranted_identity_before_success_or_session ... ok\ntest sse_identity_deadline_tests::sse_handshake_reports_unavailable_while_original_control_owner_is_held ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 0.90s\n\n",
+  "stderr": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n   Compiling diskgraph-mcp v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-mcp)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.23s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_mcp-94246d44b80613f5.exe)\ndiskgraph: authorization_budget_phase=stream_identity_lock elapsed_us=50230\ndiskgraph: authorization_budget_phase=stream_identity_lock elapsed_us=50175\n"
+}

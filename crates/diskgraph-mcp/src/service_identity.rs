@@ -50,8 +50,17 @@ impl McpService {
     /// 查询认证主体是否仍有实际数据库授权，供长连接撤权终止。
     /// 参数：identity 为已认证主体。返回：存在有效实时授权时为 true。
     pub(crate) fn identity_is_live(&self, identity: &auth::AuthenticatedPrincipal) -> bool {
+        self.identity_liveness(identity).unwrap_or(false)
+    }
+
+    /// 有界确认握手主体实时权限。参数：已认证身份；返回：允许、拒绝或无法确认的原错误。
+    /// 与存活检查共用原窗口；握手在错误时返回不可用，不签发成功会话。
+    pub(crate) fn identity_liveness(
+        &self,
+        identity: &auth::AuthenticatedPrincipal,
+    ) -> Result<bool, EngineError> {
         if identity.permissions.is_empty() {
-            return false;
+            return Ok(false);
         }
         // 每轮控制观察共用固定窗口；失败关闭，不等待无限期mutex或缓存grant。
         let deadline = std::time::Instant::now() + std::time::Duration::from_millis(50);
@@ -60,12 +69,15 @@ impl McpService {
                 .duration_since(std::time::UNIX_EPOCH)
                 .is_ok_and(|now| now.as_secs() < identity.expires_at_unix_seconds)
         };
-        unexpired()
-            && self
-                .engine
-                .has_live_permission_until(&identity.principal, &identity.permissions, deadline)
-                .unwrap_or(false)
-            && unexpired()
+        if !unexpired() {
+            return Ok(false);
+        }
+        let live = self.engine.has_live_permission_until(
+            &identity.principal,
+            &identity.permissions,
+            deadline,
+        )?;
+        Ok(live && unexpired())
     }
 
     /// 读取请求传输和经过校验的签发方，供日志使用。

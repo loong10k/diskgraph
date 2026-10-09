@@ -11,3 +11,7 @@
 回归：macOS Store 364/0/8，Windows Store 376/0/8；Store/Engine 全目标严格 Clippy、定向 rustfmt、diff 检查通过。Windows 原期限默认并发 MCP 229/2/0，仍有一次新鲜归属 SQL 63.497 ms 超限，以及 legacy 会话 404 而非 202。上一轮归属编译复用后的 CLI 单元 88/0、全部 CLI 集成通过，MCP 单元 228/3；另一次诊断为 228/3 且失败项目不同。失败波动不能证明本优化修复了 SSE，也不能替代端到端稳定性验收。原始程序/源码/日志摘要见 windows_live_identity_narrow_2026_10_09.json 和 windows_frontends_ownership_cache_82e692d4_2026_10_09.json。
 
 状态：本窄读实现及上述局部验证完成，实际全平台生产门禁保持开放。CI 37872537642 绑定旧 82e692d4，不含此优化；本机历史集成仍缺受信宿主部署，未据 Store 通过声称已覆盖。
+
+后续定位：沿现有显式 debug 授权诊断，为长连接存活观察增加固定 stream_identity_lock/stream_identity_sql 阶段标签。仅原 BudgetExceeded/busy/interrupted 才输出无身份与路径的耗时；不改变错误、原期限或连接关闭行为。须用实际默认并发 Windows 结果区分控制锁与 SQL 耗尽，不能由 404 推定撤权或缓存问题。
+
+阶段诊断首次 Windows MCP 默认并发 231/0，输出中包含刻意持锁回归引发的 lock 超限和一次 SQL 75.369 ms，不能将这些无请求关联的固定标签归因于未复现的 legacy 案。实际握手顺序缺陷另用独立真实 socket RED/GREEN 修复，详见 sse_handshake_live_authority.md；全平台稳定性父项仍开放。

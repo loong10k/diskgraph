@@ -11,9 +11,14 @@ impl Engine {
         permissions: &[Permission],
         deadline: Instant,
     ) -> Result<bool, EngineError> {
-        let control = self.control_until(deadline)?;
-        control.with_read_deadline(deadline, |store| {
-            Ok(store.identity_has_live_permission(principal, permissions, &admin_scope())?)
+        let control =
+            crate::authorization_phase_diagnostic::observe("stream_identity_lock", || {
+                self.control_until(deadline)
+            })?;
+        crate::authorization_phase_diagnostic::observe("stream_identity_sql", || {
+            control.with_read_deadline(deadline, |store| {
+                Ok(store.identity_has_live_permission(principal, permissions, &admin_scope())?)
+            })
         })
     }
 }
