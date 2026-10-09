@@ -124,17 +124,81 @@ fn production_modules(path: &Path, out: &mut Vec<(PathBuf, syn::File)>) {
             && module.content.is_none()
             && !test_only(&module.attrs)
         {
-            let name = module.ident.to_string();
-            let source = base.join(format!("{name}.rs"));
-            let source = if source.exists() {
-                source
+            let explicit = module.attrs.iter().find_map(|attribute| {
+                if attribute.path().is_ident("path")
+                    && let syn::Meta::NameValue(value) = &attribute.meta
+                    && let syn::Expr::Lit(value) = &value.value
+                    && let syn::Lit::Str(value) = &value.lit
+                {
+                    Some(value.value())
+                } else {
+                    None
+                }
+            });
+            // 文件模块的显式 path 相对于声明所在文件，不能套用默认子模块目录。
+            // 缺失来源仍由递归读取拒绝，不跳过合法路由的真实生产代码。
+            let source = if let Some(explicit) = explicit {
+                path.parent().unwrap().join(explicit)
             } else {
-                base.join(name).join("mod.rs")
+                let name = module.ident.to_string();
+                let source = base.join(format!("{name}.rs"));
+                if source.exists() {
+                    source
+                } else {
+                    base.join(name).join("mod.rs")
+                }
             };
             production_modules(&source, out);
         }
     }
     out.push((path.to_path_buf(), file));
+}
+
+#[test]
+fn explicit_module_path_is_visited_instead_of_an_invented_default_path() {
+    let dir = tempfile::tempdir().unwrap();
+    let source = dir.path().join("lib.rs");
+    std::fs::write(&source, "#[path = \"real.rs\"] mod routed;\n").unwrap();
+    std::fs::write(dir.path().join("real.rs"), "pub struct Undocumented;\n").unwrap();
+    std::fs::write(dir.path().join("routed.rs"), "// decoy default path\n").unwrap();
+    let mut modules = Vec::new();
+    production_modules(&source, &mut modules);
+    let mut visitor = ProductionUseVisitor::default();
+    for (_, file) in &modules {
+        visitor.visit_file(file);
+    }
+    assert!(
+        modules
+            .iter()
+            .any(|(path, _)| path == &dir.path().join("real.rs"))
+    );
+    assert!(
+        visitor
+            .violations
+            .iter()
+            .any(|violation| violation.contains("Undocumented"))
+    );
+}
+
+#[test]
+fn non_root_file_explicit_path_is_relative_to_its_declaring_file() {
+    let dir = tempfile::tempdir().unwrap();
+    let source = dir.path().join("lib.rs");
+    std::fs::write(&source, "mod parent;\n").unwrap();
+    std::fs::write(
+        dir.path().join("parent.rs"),
+        "#[path = \"real.rs\"] mod routed;\n",
+    )
+    .unwrap();
+    std::fs::write(dir.path().join("real.rs"), "pub struct Undocumented;\n").unwrap();
+    let mut modules = Vec::new();
+    production_modules(&source, &mut modules);
+    assert_eq!(modules.len(), 3);
+    assert!(
+        modules
+            .iter()
+            .any(|(path, _)| path == &dir.path().join("real.rs"))
+    );
 }
 
 #[test]
