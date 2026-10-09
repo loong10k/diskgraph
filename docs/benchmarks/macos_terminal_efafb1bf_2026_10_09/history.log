@@ -1,0 +1,21 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on build directory
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.97s
+     Running tests/history_compatibility_matrix.rs (target/debug/deps/history_compatibility_matrix-50e8318745483c5a)
+
+running 1 test
+
+thread 'imported_volume_or_provider_domain_changes_are_not_silently_compared' (1560218) panicked at crates/diskgraph-engine/tests/history_compatibility/fixture.rs:47:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test imported_volume_or_provider_domain_changes_are_not_silently_compared ... FAILED
+
+failures:
+
+failures:
+    imported_volume_or_provider_domain_changes_are_not_silently_compared
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p diskgraph-engine --test history_compatibility_matrix`

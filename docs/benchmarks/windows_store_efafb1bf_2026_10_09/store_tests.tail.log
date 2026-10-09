@@ -1,0 +1,91 @@
+test withdrawal_watch_tests::deleting_only_non_current_epoch_rows_does_not_manufacture_denial ... ok
+test withdrawal_watch_tests::in_progress_real_commit_never_publishes_before_successful_return ... ok
+test withdrawal_watch_tests::legacy_scope_only_watch_ignores_unused_grant_but_observes_committed_scope_revoke ... ok
+test withdrawal_watch_tests::pure_status_preserves_known_withdrawal_without_sql_after_the_original_deadline ... ok
+test windows_observation_publication_tests::windows_observation_point_query_work_is_independent_of_unrelated_nodes ... ok
+test withdrawal_watch_tests::successful_scope_commit_is_observed_even_when_the_following_reap_fails ... ok
+test withdrawal_watch_namespace_tests::per_database_capacity_is_bounded_and_dead_weak_entries_are_reclaimed ... ok
+test withdrawal_watch_tests::real_commit_abort_does_not_publish_grant_or_scope_withdrawal ... ok
+test withdrawal_watch_tests::unrelated_principal_scope_permission_and_delete_zero_never_mark_withdrawn ... ok
+test directory_budget_tests::node_budget_and_page_limit_do_not_decode_a_bad_continuation ... ok
+test directory_budget_tests::wide_directory_decoding_scales_with_the_page_and_not_the_snapshot ... ok
+test locator_budget_tests::exact_locator_seeks_in_a_wide_revision_without_scanning_siblings ... ok
+test navigation_query_tests::navigation_query_work_scales_with_the_page ... ok
+test navigation_query_tests::navigation_page_does_not_decode_bad_continuation_and_preserves_offset ... ok
+test child_aggregate_tests::directory_keyset_seeks_past_large_prefixes_and_equal_sizes ... ok
+test child_aggregate_tests::v8_backup_contains_old_counts_and_failed_migration_rolls_back ... ok
+test revision_history_budget_tests::selected_page_does_not_scan_same_entity_inactive_history ... ok
+test revision_evidence_tests::revision_evidence_narrow_query_does_not_scan_200k_unrelated_memberships ... ok
+test withdrawal_registry_tests::isolated_registry_enforces_4096_live_watches_across_real_databases_and_reclaims_weak_slots ... ok
+test process_unix_staging_query_tests::unix_staging_three_points_do_not_walk_two_hundred_thousand_other_nodes ... ok
+test search_keyset_tests::deep_search_keyset_does_not_revisit_preceding_matches ... ok
+test tests::wal_regressions::an_oversized_wal_is_folded_back_into_the_database_at_open ... ok
+test tree_budget_tests::tree_sql_window_scales_with_remaining_budget_not_requested_limit ... ok
+test tree_budget_tests::sparse_unknown_tree_page_seeks_without_visiting_the_known_prefix ... ok
+test tree_budget_tests::merged_tree_window_does_not_decode_a_corrupt_unknown_continuation ... ok
+test tests::node_regressions::actual_point_lookup_vm_work_scales_with_selection_not_snapshot_size ... ok
+test tree_budget_tests::dense_mixed_unknown_tree_counts_do_not_walk_the_threshold_prefix ... ok
+
+test result: ok. 385 passed; 0 failed; 8 ignored; 0 measured; 0 filtered out; finished in 46.71s
+
+     Running tests\candidate_query.rs (target\debug\deps\candidate_query-16f9eeeeee20dacd.exe)
+
+running 10 tests
+test expired_candidate_deadline_keeps_an_unobserved_ordinary_header ... ok
+test candidate_result_never_calls_a_budget_cut_complete ... ok
+test admitted_partial_candidate_header_is_observed_with_real_coverage_gap ... ok
+test admitted_complete_candidate_header_is_explicitly_observed ... ok
+test oversized_legal_snapshot_header_is_rejected_by_candidate_raw_budget ... ok
+test expired_candidate_deadline_keeps_an_unobserved_oversized_header ... ok
+test candidate_snapshot_header_and_required_evidence_share_remaining_raw_bytes ... ok
+test migrated_prestructured_directory_remains_a_candidate ... ok
+test positive_target_candidates_skip_unrelated_corrupt_nodes_and_report_the_gap ... ok
+test admitted_snapshot_headers_preserve_candidate_protection_gap_and_completeness ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests\job_claim.rs (target\debug\deps\job_claim-eea24bf7a3debb63.exe)
+
+running 13 tests
+test process_claim_worker ... ok
+test admission_rechecks_the_live_grant_inside_its_transaction ... ok
+test concurrent_connections_cannot_both_claim_a_job ... ok
+test strict_claim_refuses_a_second_claim_by_the_same_owner ... ok
+test a_revoked_policy_prevents_fenced_work ... ok
+test merging_jobs_never_substitutes_another_request_subject ... ok
+test an_expired_owner_cannot_finish_a_job ... ok
+test an_expired_job_is_reclaimed_instead_of_remaining_stuck ... ok
+test a_reused_owner_name_does_not_reuse_the_old_fence ... ok
+test final_integer_fencing_generation_is_valid_but_cannot_be_recycled ... ok
+test two_processes_cannot_both_claim_a_job ... ok
+test invalid_or_exhausted_fencing_never_commits_a_claim ... ok
+test migration_preserves_a_live_legacy_running_lease ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.29s
+
+     Running tests\migration_backup.rs (target\debug\deps\migration_backup-470dcf59a87293ad.exe)
+
+running 2 tests
+test v7_upgrade_backs_up_the_previous_schema_and_builds_candidate_indexes ... ok
+test migration_backup_includes_committed_wal_frames ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.70s
+
+     Running tests\perf_probe.rs (target\debug\deps\perf_probe-48bbb7bf64e2deaa.exe)
+
+running 4 tests
+test batch_insert_throughput_by_size ... ignored, isolated synthetic SQLite transaction throughput; not production staging acceptance
+test decompose_load_revision_cost ... ignored, real-data probe over the operator's home revision
+test pragma_overhead_isolation ... ignored, real-data probe v4: isolate the pragma overhead
+test store_load_revision_end_to_end ... ignored, real-data probe v3: store-layer load_revision end to end
+
+test result: ok. 0 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\source_layout.rs (target\debug\deps\source_layout-2213e7aa87e11678.exe)
+
+running 3 tests
+test non_root_file_explicit_path_is_relative_to_its_declaring_file ... ok
+test explicit_module_path_is_visited_instead_of_an_invented_default_path ... ok
+test production_storage_entry_types_and_imports_follow_the_rust_contract ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s

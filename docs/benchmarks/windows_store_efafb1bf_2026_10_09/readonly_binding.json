@@ -1,0 +1,13 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "job": "wc_job_09Jl43sXrIstjH5h",
+  "exit": 0,
+  "scope": "stdio18, HTTP14 including60s soak, 20k6; not full workspace, not native long-run, not200k",
+  "prior_configuration_failure_job": "wc_job_063LXY8LFec1LMtW",
+  "configuration_correction": "bind DISKGRAPH_ACCEPT_BIN_DIR for stdio/http; honor each script argument contract; same existing release hashes, no rebuild or product change",
+  "prior_configuration_failure": "retained; not erased or treated as product regression",
+  "snapshots": {
+    "readonly_receipt.json": 8898507827990827,
+    "harness_configuration_failure_receipt.json": 8898507827990826
+  }
+}

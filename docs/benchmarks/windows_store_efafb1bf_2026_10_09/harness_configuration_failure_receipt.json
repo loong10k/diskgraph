@@ -1,0 +1,21 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "binary_sha256": {
+    "diskgraph.exe": "3d6e74ad2775a67ff56238eaa90f31de483307fe9fac5c6b3b6e51c9b90b4887",
+    "diskgraph-mcp.exe": "9b923ded07e1ae1996d27ec17c4b8d2b27b93a4f68564feb3e04a6884d86e258",
+    "diskgraph-scan-worker.exe": "e1df1d335f261f59989fd1587935c92ce44e1bb5ed863aa39743ccf413593b7d"
+  },
+  "fixture_parent": "E:\\workspaces\\workspace-loong10k\\diskgraph\\artifacts\\windows_readonly_efafb1bf\\fixtures",
+  "cases": [
+    {
+      "name": "stdio",
+      "exit": 1,
+      "seconds": 0.21900000001187436,
+      "report": null
+    }
+  ],
+  "qualification": "changed control-consumer path, stdio/http/20k; 200k previous failure remains open",
+  "complete": false,
+  "error": "RuntimeError('stdio failed')"
+}

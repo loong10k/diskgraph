@@ -1,0 +1,20 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "qualification": "local harness configuration failures only; no admitted Engine, no terminal-authority behavior verification",
+  "worker_artifact": "/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/diskgraph-scan-worker",
+  "worker_sha256": "ca740b2fbefa408bd3cd0b2a75ecdcfd24586646030abbbf67223c32a5d21518",
+  "configuration_failures_retained": "CLI --lib has no target; history lacked explicitly deployed worker; neither is behavior regression evidence",
+  "cases": [
+    {
+      "name": "html",
+      "exit": 101,
+      "seconds": 12.809001166999224
+    },
+    {
+      "name": "history",
+      "exit": 101,
+      "seconds": 12.807423707999988
+    }
+  ],
+  "macos_configuration": "legacy worker environment is explicitly unsupported; fixed protected active.json is absent on this host; no installation or policy bypass performed"
+}

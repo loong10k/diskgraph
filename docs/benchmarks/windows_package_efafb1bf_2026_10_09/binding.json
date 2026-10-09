@@ -1,0 +1,10 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "run": 37908889161,
+  "job": 113749359238,
+  "job_status": "completed",
+  "job_conclusion": "success",
+  "artifact": "readonly-candidate-x86_64-pc-windows-msvc",
+  "qualification": "native CI package tests; not desktop200k or long-run qualification",
+  "raw_artifact_json": "native byte copies preserved in gzip; readable JSON newline normalized"
+}

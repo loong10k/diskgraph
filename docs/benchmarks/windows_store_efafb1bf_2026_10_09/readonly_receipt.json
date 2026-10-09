@@ -1,0 +1,135 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "binary_sha256": {
+    "diskgraph.exe": "3d6e74ad2775a67ff56238eaa90f31de483307fe9fac5c6b3b6e51c9b90b4887",
+    "diskgraph-mcp.exe": "9b923ded07e1ae1996d27ec17c4b8d2b27b93a4f68564feb3e04a6884d86e258",
+    "diskgraph-scan-worker.exe": "e1df1d335f261f59989fd1587935c92ce44e1bb5ed863aa39743ccf413593b7d"
+  },
+  "fixture_parent": "E:\\workspaces\\workspace-loong10k\\diskgraph\\artifacts\\windows_readonly_efafb1bf_configured\\fixtures",
+  "cases": [
+    {
+      "name": "stdio",
+      "exit": 0,
+      "seconds": 5.764999999984866,
+      "report": {
+        "passed": 18,
+        "total": 18,
+        "checks": {
+          "diskgraph_version": true,
+          "diskgraph-mcp_version": true,
+          "cli_tree_revision_binding": true,
+          "cli_top_bounded": true,
+          "cli_candidates_review_only": true,
+          "stdio_initialize": true,
+          "stdio_tool_discovery": true,
+          "stdio_scope_0_bound": true,
+          "stdio_scope_1_bound": true,
+          "stdio_write_tool_disabled": true,
+          "stdio_schema_and_dispatch_diskgraph_node": true,
+          "stdio_schema_and_dispatch_diskgraph_search": true,
+          "stdio_schema_and_dispatch_diskgraph_explain": true,
+          "stdio_schema_and_dispatch_diskgraph_related": true,
+          "stdio_schema_and_dispatch_diskgraph_changes": true,
+          "stdio_explicit_nonroot_node": true,
+          "stdio_unknown_argument_rejected": true,
+          "cli_serve_delegates_to_mcp_binary": true
+        },
+        "diagnostics": {},
+        "authorization_budget_phases": []
+      }
+    },
+    {
+      "name": "http",
+      "exit": 0,
+      "seconds": 62.110000000015134,
+      "report": {
+        "passed": 14,
+        "total": 14,
+        "checks": {
+          "modern_anonymous_401": true,
+          "modern_hostile_origin_403": true,
+          "modern_signed_but_ungranted_denied": true,
+          "modern_authorized_scope_read": true,
+          "modern_sustained_scope_reads": true,
+          "modern_live_revocation_denied": true,
+          "legacy_anonymous_401": true,
+          "legacy_hostile_origin_403": true,
+          "legacy_endpoint_event": true,
+          "legacy_authorized_scope_read": true,
+          "missing_key_file_refused": true,
+          "short_key_file_refused": true,
+          "cli_serve_forwards_key_file": true,
+          "everyone_readable_key_refused": true
+        },
+        "sustained_http": {
+          "requests": 1827,
+          "requested_seconds": 60.0,
+          "elapsed_seconds": 60.0,
+          "offered_max_requests_per_second": 40,
+          "dispatch_reserve_ms": 358.99999999674037,
+          "latency_sample_window": "last_4096_requests",
+          "latency_samples": 1827,
+          "p50_ms": 16.00000000325963,
+          "p95_ms": 32.00000000651926,
+          "native_long_run_qualified": false
+        },
+        "platform": "win32",
+        "binary_content_before": {
+          "cli": {
+            "bytes": 7256064,
+            "sha256": "3d6e74ad2775a67ff56238eaa90f31de483307fe9fac5c6b3b6e51c9b90b4887"
+          },
+          "mcp": {
+            "bytes": 5987328,
+            "sha256": "9b923ded07e1ae1996d27ec17c4b8d2b27b93a4f68564feb3e04a6884d86e258"
+          }
+        },
+        "binary_content_after": {
+          "cli": {
+            "bytes": 7256064,
+            "sha256": "3d6e74ad2775a67ff56238eaa90f31de483307fe9fac5c6b3b6e51c9b90b4887"
+          },
+          "mcp": {
+            "bytes": 5987328,
+            "sha256": "9b923ded07e1ae1996d27ec17c4b8d2b27b93a4f68564feb3e04a6884d86e258"
+          }
+        }
+      }
+    },
+    {
+      "name": "load_20000",
+      "exit": 0,
+      "seconds": 68.03099999998813,
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 1,
+        "fixture_seconds": 10.735,
+        "scan_seconds": 38.343,
+        "cleanup_seconds": 13.943,
+        "cleanup_workers": 1,
+        "query_p50_ms": 84.721,
+        "query_p95_ms": 106.046,
+        "database_and_wal_bytes": 68800512,
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ],
+  "qualification": "changed control-consumer path, stdio/http/20k; 200k previous failure remains open",
+  "complete": true,
+  "tracked_clean_after": true
+}

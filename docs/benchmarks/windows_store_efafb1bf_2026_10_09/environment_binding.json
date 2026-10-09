@@ -1,0 +1,7 @@
+{
+  "source": "native PowerShell read-only observation",
+  "job": "wc_job_SbX5I7K0DC-TilfU",
+  "exit": 0,
+  "observed_after_acceptance_failures": true,
+  "interpretation": "E is NVMe NTFS with about 7.45GB remaining; this is correlation, not proof of timeout causality; Defender not running; no settings changed"
+}

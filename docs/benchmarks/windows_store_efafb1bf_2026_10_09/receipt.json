@@ -1,0 +1,20 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "tracked_clean_before": true,
+  "cases": [
+    {
+      "name": "store_tests",
+      "exit": 0,
+      "seconds": 82.96900000001187,
+      "log_sha256": "59954ece8c1eb3b39bee1d802b99d2d4979a07e562033a59102ddd9d01dcd9e6"
+    },
+    {
+      "name": "store_clippy",
+      "exit": 0,
+      "seconds": 13.171999999991385,
+      "log_sha256": "9fdeda7b8ccbf9d027f56d2471c414e895a8cca60ebb5716cfc1478c0ef548ac"
+    }
+  ],
+  "qualification": "native Windows store tests; not full workspace or 200k qualification"
+}

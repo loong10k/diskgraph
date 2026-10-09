@@ -1,0 +1,116 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling libc v0.2.189
+   Compiling allocator-api2 v0.2.21
+   Compiling either v1.18.0
+   Compiling equivalent v1.0.2
+   Compiling rustix v1.1.5
+   Compiling syn v3.0.6
+   Compiling syn v2.0.119
+   Compiling digest v0.10.7
+   Compiling strsim v0.11.1
+   Compiling unicode-segmentation v1.13.3
+   Compiling rustversion v1.0.23
+   Compiling heck v0.5.0
+   Compiling ident_case v1.0.1
+   Compiling signal-hook v0.3.18
+   Compiling parking_lot_core v0.9.12
+   Compiling rayon v1.12.0
+   Compiling scopeguard v1.2.0
+   Compiling hashbrown v0.17.1
+   Compiling lock_api v0.4.14
+   Compiling convert_case v0.10.0
+   Compiling hashbrown v0.16.1
+   Compiling itertools v0.14.0
+   Compiling static_assertions v1.1.0
+   Compiling ryu v1.0.23
+   Compiling rustix v0.38.44
+   Compiling unicode-width v0.2.0
+   Compiling hashlink v0.12.2
+   Compiling lru v0.18.5
+   Compiling utf8parse v0.2.2
+   Compiling litrs v1.0.0
+   Compiling critical-section v1.2.0
+   Compiling indoc v2.0.7
+   Compiling rusqlite v0.40.2
+   Compiling curve25519-dalek v4.1.3
+   Compiling anstyle-parse v1.0.0
+   Compiling powerfmt v0.2.0
+   Compiling castaway v0.2.4
+   Compiling document-features v0.2.12
+   Compiling deranged v0.5.8
+   Compiling anstyle v1.0.14
+   Compiling unicode-truncate v2.0.1
+   Compiling errno v0.3.14
+   Compiling cpufeatures v0.2.17
+   Compiling getrandom v0.4.3
+   Compiling mio v1.2.3
+   Compiling sha2 v0.10.9
+   Compiling signal-hook-registry v1.4.8
+   Compiling strum_macros v0.28.0
+   Compiling parking_lot v0.12.5
+   Compiling derive_more-impl v2.1.1
+   Compiling darling_core v0.24.1
+   Compiling uuid v1.26.1
+   Compiling signal-hook-mio v0.2.5
+   Compiling num_threads v0.1.7
+   Compiling anstyle-query v1.1.5
+   Compiling num-conv v0.2.2
+   Compiling colorchoice v1.0.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling time-core v0.1.9
+   Compiling compact_str v0.9.1
+   Compiling ed25519-dalek v2.2.0
+   Compiling anstream v1.0.0
+   Compiling crossterm v0.28.1
+   Compiling sha1 v0.10.7
+   Compiling derive_more v2.1.1
+   Compiling time v0.3.55
+   Compiling line-clipping v0.3.8
+   Compiling clap_lex v1.1.1
+   Compiling diskgraph-disktree-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree-core)
+   Compiling hmac v0.12.1
+   Compiling clap_builder v4.6.7
+   Compiling tempfile v3.27.0
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_derive v1.0.229
+   Compiling clap_derive v4.6.7
+   Compiling strum v0.28.0
+   Compiling darling_macro v0.24.1
+   Compiling crossterm v0.29.0
+   Compiling darling v0.24.1
+   Compiling thiserror v2.0.21
+   Compiling clap v4.6.7
+   Compiling serde v1.0.229
+   Compiling kasuari v0.4.12
+   Compiling instability v0.3.14
+   Compiling ratatui-core v0.1.2
+   Compiling diskgraph-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-core)
+   Compiling diskgraph-scan-worker v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-scan-worker)
+   Compiling ratatui-crossterm v0.1.2
+   Compiling ratatui-widgets v0.3.2
+   Compiling diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling ratatui v0.30.2
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.94s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-86b04bbaf01cfdfb)
+
+running 1 test
+diskgraph: startup stage=worker_admission failed
+
+thread 'query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation' (1560224) panicked at crates/diskgraph-cli/src/query_terminal_tests.rs:247:6:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation ... FAILED
+
+failures:
+
+failures:
+    query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 93 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p diskgraph-cli --bin diskgraph`

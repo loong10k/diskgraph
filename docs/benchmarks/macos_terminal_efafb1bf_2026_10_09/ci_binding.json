@@ -1,0 +1,12 @@
+{
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "run": 37908889161,
+  "job": 113748955526,
+  "status": "completed",
+  "conclusion": "success",
+  "verified_pass_lines": [
+    "2026-10-09T09:08:10.0516440Z test query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation ... ok",
+    "2026-10-09T09:11:56.9558710Z test imported_volume_or_provider_domain_changes_are_not_silently_compared ... ok"
+  ],
+  "qualification": "current commit macOS ARM CI; no root cause closure merely from one green run"
+}

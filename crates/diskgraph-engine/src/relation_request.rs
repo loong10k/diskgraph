@@ -173,21 +173,27 @@ impl Engine {
         expiry: Option<u64>,
     ) -> Result<bool, EngineError> {
         check_authority_expiry(expiry)?;
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
+        let control = crate::authorization_phase_diagnostic::observe(
+            "relation_callback_before_lock",
+            || {
+                self.try_control_store()?
+                    .ok_or_else(|| BusinessError::BudgetExceeded.into())
+            },
+        )?;
         check_authority_expiry(expiry)?;
         let before_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
-        control
-            .with_read_deadline(before_callback, |control| {
-                if control.scope_revoked(scope)? {
-                    return Err(EngineError::Business(BusinessError::PermissionDenied));
-                }
-                Ok(())
-            })
-            .map_err(terminal_control_error)?;
+        crate::authorization_phase_diagnostic::observe("relation_callback_before_sql", || {
+            control
+                .with_read_deadline(before_callback, |control| {
+                    if control.scope_revoked(scope)? {
+                        return Err(EngineError::Business(BusinessError::PermissionDenied));
+                    }
+                    Ok(())
+                })
+                .map_err(terminal_control_error)
+        })?;
         drop(control);
         check_authority_expiry(expiry)?;
         // 宿主回调不持控制锁或 SQL handler；回调后重新观察实时权限。
@@ -202,28 +208,32 @@ impl Engine {
         if matches!(decision, diskgraph_core::Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
-        let control = self
-            .try_control_store()?
-            .ok_or(BusinessError::BudgetExceeded)?;
+        let control =
+            crate::authorization_phase_diagnostic::observe("relation_callback_after_lock", || {
+                self.try_control_store()?
+                    .ok_or_else(|| BusinessError::BudgetExceeded.into())
+            })?;
         check_authority_expiry(expiry)?;
         let after_callback = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
-        control
-            .with_read_deadline(after_callback, |control| {
-                Self::require_decision_with_control(
-                    control,
-                    decision,
-                    principal,
-                    &Permission::MetadataRead,
-                    scope,
-                )?;
-                if control.scope_revoked(scope)? {
-                    return Err(EngineError::Business(BusinessError::PermissionDenied));
-                }
-                Ok(())
-            })
-            .map_err(terminal_control_error)?;
+        crate::authorization_phase_diagnostic::observe("relation_callback_after_sql", || {
+            control
+                .with_read_deadline(after_callback, |control| {
+                    Self::require_decision_with_control(
+                        control,
+                        decision,
+                        principal,
+                        &Permission::MetadataRead,
+                        scope,
+                    )?;
+                    if control.scope_revoked(scope)? {
+                        return Err(EngineError::Business(BusinessError::PermissionDenied));
+                    }
+                    Ok(())
+                })
+                .map_err(terminal_control_error)
+        })?;
         check_authority_expiry(expiry)?;
         // 不在此提前返回预算错误；调用方还须观察其他侧撤权及新鲜 revision 隔离。
         Ok(capability_timely)

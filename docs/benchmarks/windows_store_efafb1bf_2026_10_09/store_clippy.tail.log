@@ -1,0 +1,10 @@
+    Checking rayon v1.12.0
+    Checking sha2 v0.10.9
+    Checking serde_json v1.0.151
+   Compiling serde_derive v1.0.229
+   Compiling thiserror-impl v2.0.21
+    Checking thiserror v2.0.21
+    Checking serde v1.0.229
+    Checking diskgraph-core v0.3.0 (E:\workspaces\workspace-loong10k\diskgraph\crates\diskgraph-core)
+    Checking diskgraph-store v0.3.0 (E:\workspaces\workspace-loong10k\diskgraph\crates\diskgraph-store)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 12.73s

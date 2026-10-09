@@ -1,0 +1,33 @@
+{
+    "Physical":  [
+                     {
+                         "FriendlyName":  "WDC WD40EFAX-68JH4N1",
+                         "MediaType":  "HDD",
+                         "BusType":  "SATA",
+                         "HealthStatus":  "Healthy"
+                     },
+                     {
+                         "FriendlyName":  "Samsung SSD 990 PRO 2TB",
+                         "MediaType":  "SSD",
+                         "BusType":  "NVMe",
+                         "HealthStatus":  "Healthy"
+                     }
+                 ],
+    "Disk":  {
+                 "Number":  1,
+                 "FriendlyName":  "Samsung SSD 990 PRO 2TB",
+                 "BusType":  "NVMe",
+                 "Size":  2000398934016
+             },
+    "Volume":  {
+                   "FileSystem":  "NTFS",
+                   "Size":  496828981248,
+                   "SizeRemaining":  7452020736,
+                   "HealthStatus":  "Healthy"
+               },
+    "Defender":  {
+                     "RealTimeProtectionEnabled":  false,
+                     "AntivirusEnabled":  false,
+                     "AMRunningMode":  "Not running"
+                 }
+}

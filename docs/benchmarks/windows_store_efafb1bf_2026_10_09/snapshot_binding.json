@@ -1,0 +1,29 @@
+{
+  "job": "wc_job_zFsmLs_OVWahX70z",
+  "exit": 0,
+  "store_passed": 413,
+  "store_ignored": 12,
+  "source_commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "projection": "receipt full; test log 425-516, Clippy log40-49, full native log digests in receipt",
+  "ranges": [
+    {
+      "path": "receipt.json",
+      "start": 1,
+      "end": 20,
+      "total": 20
+    },
+    {
+      "path": "store_tests.tail.log",
+      "start": 425,
+      "end": 516,
+      "total": 516
+    },
+    {
+      "path": "store_clippy.tail.log",
+      "start": 40,
+      "end": 49,
+      "total": 49
+    }
+  ],
+  "store_tail_text_normalization": "Removed extra trailing blank line only; original snapshot bytes preserved in store_tests.tail.original.log.gz. Snapshot remains partial."
+}

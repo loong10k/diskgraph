@@ -1,0 +1,14 @@
+{
+  "commit": "efafb1bf6b0224a7052d32b201e5ecdfcb277b07",
+  "run": 37908889161,
+  "job": 113748955629,
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs_passed": 22,
+  "jobs_total": 23,
+  "failure": "relation_request_tests::timely_terminal_callback_does_not_pay_for_post_callback_observation",
+  "cause": "not established; BudgetExceeded at direct terminal observation; phase diagnosis pending",
+  "original_log_sha256": "1e135e8aa2f9b1ff9056cf47fdb047a29eae857aca18c7db1499b4aa8b43bdb4",
+  "original_metadata_sha256": "18a896220bb210d6b294b82bd7378f16dee4f64b525d82e0fb3c8fff7c110d22",
+  "production_deadline_changed": false
+}
