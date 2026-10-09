@@ -6,6 +6,7 @@ use super::probe_windows::WindowsProbeChild as PlatformChild;
 #[cfg(unix)]
 use super::unix_probe_child::UnixProbeChild as PlatformChild;
 use std::process::Command;
+#[cfg(unix)]
 use std::time::Duration;
 
 /// 执行受信结构化命令，两管道与后续命令共享同一资源边界。
@@ -98,7 +99,10 @@ fn collect_output(
             });
         }
         if !progress {
+            #[cfg(unix)]
             std::thread::sleep(Duration::from_millis(5));
+            #[cfg(windows)]
+            child.wait_for_activity(budget)?;
         }
     }
 }

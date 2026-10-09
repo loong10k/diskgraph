@@ -1,0 +1,9 @@
+# Windows 探针空闲输出等待
+
+延续 Windows Git 阶段定位：输出收集是主要观察耗时之一，尚不能把它全归因于轮询。原 Windows collect_output 空闲时固定 sleep 5ms，原 native child 已有受限的 pending I/O 事件等待。
+
+验收行为：Windows 空闲输出收集必须等待原 owner 的原 pending I/O 事件，等待至原 ProbeBudget deadline 与从当前时刻起 5ms 中较早者；前后复查同一个预算，禁止新建预算、补充输出额度或隐藏后台等待线程。唤醒本身不确认读取、EOF、退出或清理，仍走原 poll/read/完成/末检路径。Unix 行为保持兼容。
+
+测试先以真实 silent 子进程完成和线程局部原生等待见证断言复现旧路径没有使用事件等待。然后验证原生管道双流、零长度数据、到期、取消、异常状态、子孙 Job 和 pending I/O 恢复测试。真实 Git 语义、默认并发完整回归与 release 性能仍必须独立验收；不能用本次窄改动关闭全平台生产父项。
+
+原生 RED 为 0/1，silent 子进程先真实正常退出且完整输出已收到，随后“原生事件等待次数为零”断言失败，排除准备阶段超时。实现后原生探针 9/9，包括真实子进程出生后的到期/取消短路；原 native 事件语义 4/4。fmt 与 Engine 全目标严格 Clippy 通过。Git 语义回归仍 25/2/0，两项为采样期限耗尽，不宣称本优化解决了总体超时或已取得 release 性能改善。源码前后摘要相同；原始 RED、命令、日志摘要和失败保存在 `docs/benchmarks/windows_native_activity_wait_f36_2026_10_09.json`。完整默认并发 Engine 回归另行执行，未验收前不勾选父项。

@@ -1,0 +1,183 @@
+{
+  "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+  "source_diff_sha256": "229259f164838a790d328ae8eca794c770152f9255f7a4723e839e7fd2ae1ce5",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.702999999979511
+    },
+    {
+      "name": "format",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "fmt",
+        "-p",
+        "diskgraph-core",
+        "-p",
+        "diskgraph-store",
+        "-p",
+        "diskgraph-disktree",
+        "-p",
+        "diskgraph-scan-worker",
+        "-p",
+        "diskgraph-ffi",
+        "-p",
+        "diskgraph-testkit",
+        "-p",
+        "diskgraph-engine",
+        "-p",
+        "diskgraph-cli",
+        "-p",
+        "diskgraph-mcp",
+        "-p",
+        "diskgraph-ops",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.796999999991385
+    },
+    {
+      "name": "clippy",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "clippy",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.26600000000326
+    },
+    {
+      "name": "native_wait_tests",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "probe_windows::windows_native_tests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 24.530999999988126
+    },
+    {
+      "name": "native_event_tests",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "windows_child_poll_wait::tests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.8900000000139698
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "_semantics_tests",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 37.89100000000326
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "5fe6e4a4ecdf3867518e27271e081b5db3f327f5f400d9474757086821f6d4d3",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "713a70d52c6a02c892c414f14bac3740f093fc10aec84bc33aa8d6db27f0d582",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "9718ad8e1a73340e0afc048c39118772df4a29ce39aeccbf2cf60c732e55b987",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "06a075efe5109627894a8a36aa7f3ccf56f96957defe7d872fe80619e83f7edf"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_activity_wait_validation_f36\\current_source_driver.exe",
+    "sha256": "b7f0968a361dcc302741447b3fbd89e84e362d957e160a95902881667800a809",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: FAILED. 25 passed; 2 failed; 0 ignored; 0 measured; 703 filtered out; finished in 37.06s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 62322,
+      "sha256": "573f9d8aab8751f84eba9b3bcd3da1122c45bf1834df60c7bd317f8369593dc1"
+    },
+    "engine.stderr.log": {
+      "bytes": 1369,
+      "sha256": "e98bc157411f5c54e846e5e156c114a9fd2b10d060da90ace40339e1c85be9aa"
+    }
+  },
+  "all_source_hashes_match": true,
+  "subsets": {
+    "native_wait_tests": {
+      "summaries": [
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 2.16s"
+      ],
+      "log_sha256": "4b7b51b5c97296f86d79b69e6bf865277dc91d6e1b6f830b74f9fac82fb3437f"
+    },
+    "native_event_tests": {
+      "summaries": [
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 726 filtered out; finished in 0.00s"
+      ],
+      "log_sha256": "d209264c05a8ac9889029794aec60392fca448f8e989a02b381074def0a91c2c"
+    }
+  },
+  "failure_details": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256\n\nthread 'live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git' (47968) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_scoped_semantics_tests.rs:180:36:\ncalled `Result::unwrap()` on an `Err` value: \"private Git directory lease: git metadata drive open: probe deadline exceeded\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nthread 'live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes' (35976) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:38:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n",
+  "red": {
+    "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+    "argv": [
+      "cargo",
+      "+1.99.0",
+      "test",
+      "--locked",
+      "-p",
+      "diskgraph-engine",
+      "--lib",
+      "live_evidence::probe_windows::windows_native_tests::output_collection_waits_on_original_native_activity_without_losing_completion",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "test_exit_code": 101,
+    "elapsed_seconds": 24.29700000002049,
+    "summary_present": true,
+    "stdout": "\nrunning 1 test\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(135203) collect_us=Some(2172425) cleanup_us=68 observed_ok=true cleanup_ok=true\nDG_PRIVATE_WRITE_SUMMARY writes=0 elapsed_us=2308341 stage_us=[0, 0, 0, 0, 0, 0, 0, 0, 0] stages=preflight,parent_lease,parent_identity,open_create,write,finish_write,observe,finish_operation,return thread=ThreadId(2)\ntest live_evidence::probe_windows::windows_native_tests::output_collection_waits_on_original_native_activity_without_losing_completion ... FAILED\n\nfailures:\n\nfailures:\n    live_evidence::probe_windows::windows_native_tests::output_collection_waits_on_original_native_activity_without_losing_completion\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 728 filtered out; finished in 2.31s\n\n",
+    "stderr": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.39s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nthread 'live_evidence::probe_windows::windows_native_tests::output_collection_waits_on_original_native_activity_without_losing_completion' (51268) panicked at crates\\diskgraph-engine\\src\\live_evidence\\probe_windows\\windows_native_tests.rs:216:5:\nidle output collection never waited on the original native I/O events\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n",
+    "production_acceptance": false
+  }
+}

@@ -1,9 +1,13 @@
-#[cfg(test)]
 use crate::live_evidence::probe_budget::ProbeBudget;
 use crate::live_evidence::probe_failure::ProbeFailure;
 use crate::native_child::WindowsChild;
 #[cfg(test)]
 use std::process::Command;
+
+#[cfg(test)]
+thread_local! {
+    pub(super) static NATIVE_ACTIVITY_WAITS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
 
 /// 原探针的薄入口，只借原账本并保留原业务错误。来源：原生 Rust diskgraph-engine::WindowsProbeChild。
 pub(in crate::live_evidence) struct WindowsProbeChild {
@@ -35,6 +39,24 @@ impl WindowsProbeChild {
     /// 观察但保留原 leader 身份。参数：无；返回：原操作结果或原探针错误。
     pub(in crate::live_evidence) fn poll(&mut self) -> Result<bool, ProbeFailure> {
         self.child.poll().map_err(ProbeFailure::from)
+    }
+
+    /// 在原期限及至多 5ms 内等待原生 I/O。参数：budget 为同一次采样账本；返回：唤醒或原失败。
+    /// 唤醒不授予输出、EOF 或退出许可；不续期，前后仍检查原取消与期限。
+    pub(in crate::live_evidence) fn wait_for_activity(
+        &self,
+        budget: &mut ProbeBudget,
+    ) -> Result<(), ProbeFailure> {
+        budget.check()?;
+        let deadline = std::time::Instant::now()
+            .checked_add(std::time::Duration::from_millis(5))
+            .map_or(budget.deadline(), |tick| tick.min(budget.deadline()));
+        self.child
+            .wait_for_io_until(deadline)
+            .map_err(ProbeFailure::from)?;
+        #[cfg(test)]
+        NATIVE_ACTIVITY_WAITS.with(|count| count.set(count.get().saturating_add(1)));
+        budget.check()
     }
 
     /// 读取固定 stdout 片段。参数：无；返回：原操作结果或原探针错误。

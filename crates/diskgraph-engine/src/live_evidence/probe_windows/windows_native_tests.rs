@@ -201,6 +201,51 @@ fn zero_length_writes_on_both_pipes_do_not_hide_following_payload() {
     );
 }
 
+#[test]
+fn output_collection_waits_on_original_native_activity_without_losing_completion() {
+    super::windows_probe_child::NATIVE_ACTIVITY_WAITS.with(|count| count.set(0));
+    let mut command = fixture("silent");
+    let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
+    let output = run_probe(&mut command, &mut budget).unwrap();
+    assert_eq!(output.exit_code, Some(0));
+    assert!(
+        output
+            .stdout
+            .windows(b"1 passed; 0 failed".len())
+            .any(|bytes| bytes == b"1 passed; 0 failed"),
+        "the real silent child must finish normally with complete stdout"
+    );
+    assert!(
+        super::windows_probe_child::NATIVE_ACTIVITY_WAITS.with(|count| count.get()) > 0,
+        "idle output collection never waited on the original native I/O events"
+    );
+}
+
+#[test]
+fn expired_or_cancelled_activity_wait_refuses_before_native_wait() {
+    for cancelled in [false, true] {
+        let limits = ProbeLimits::default();
+        let cancel = std::sync::Arc::clone(&limits.cancel);
+        let mut budget = ProbeBudget::new(&limits).unwrap();
+        let mut child = WindowsProbeChild::spawn(&mut fixture("silent"), &mut budget).unwrap();
+        super::windows_probe_child::NATIVE_ACTIVITY_WAITS.with(|count| count.set(0));
+        if cancelled {
+            cancel.store(true, std::sync::atomic::Ordering::Release);
+        } else {
+            budget.expire_for_test();
+        }
+        let result = child.wait_for_activity(&mut budget);
+        let waits = super::windows_probe_child::NATIVE_ACTIVITY_WAITS.with(|count| count.get());
+        child.cleanup().unwrap();
+        assert_eq!(waits, 0, "stopped request entered a native activity wait");
+        if cancelled {
+            assert!(matches!(result, Err(ProbeFailure::Cancelled)));
+        } else {
+            assert!(matches!(result, Err(ProbeFailure::Deadline)));
+        }
+    }
+}
+
 fn job_accounting(job: HANDLE) -> JOBOBJECT_BASIC_ACCOUNTING_INFORMATION {
     let mut accounting = JOBOBJECT_BASIC_ACCOUNTING_INFORMATION::default();
     assert_ne!(
