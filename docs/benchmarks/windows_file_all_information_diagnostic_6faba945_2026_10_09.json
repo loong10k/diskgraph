@@ -1,0 +1,139 @@
+{
+  "purpose": "native diagnostic only; product capture unchanged",
+  "head": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "abi_bytes": {
+    "basic": 40,
+    "standard": 24,
+    "id": 24,
+    "io": 16,
+    "name_offset": 100,
+    "buffer": 1024
+  },
+  "cases": [
+    {
+      "directory": false,
+      "baseline_state": [
+        6261377020721176000,
+        "05831a00000072000000000000000000",
+        134359839617638960,
+        134359839617638960,
+        134359839617638960,
+        32,
+        32,
+        1,
+        0,
+        0
+      ],
+      "combined_state": [
+        6261377020721176000,
+        "05831a00000072000000000000000000",
+        134359839617638960,
+        134359839617638960,
+        134359839617638960,
+        32,
+        32,
+        1,
+        0,
+        0
+      ],
+      "equal": true,
+      "short_buffer": {
+        "status": "0x80000005",
+        "io_status": "0x80000005",
+        "bytes": 104
+      },
+      "body_read_refused": true,
+      "body_read_error": 5,
+      "rounds": [
+        {
+          "mode": "baseline",
+          "captures": 5000,
+          "seconds": 0.030045899999095127,
+          "same_state": true
+        },
+        {
+          "mode": "combined",
+          "captures": 5000,
+          "seconds": 0.02959950000513345,
+          "same_state": true
+        },
+        {
+          "mode": "combined",
+          "captures": 5000,
+          "seconds": 0.02914480000617914,
+          "same_state": true
+        },
+        {
+          "mode": "baseline",
+          "captures": 5000,
+          "seconds": 0.02911230002064258,
+          "same_state": true
+        }
+      ]
+    },
+    {
+      "directory": true,
+      "baseline_state": [
+        6261377020721176000,
+        "02831a0000005f000000000000000000",
+        134359839617627790,
+        134359839617638960,
+        134359839617638960,
+        16,
+        0,
+        1,
+        0,
+        1
+      ],
+      "combined_state": [
+        6261377020721176000,
+        "02831a0000005f000000000000000000",
+        134359839617627790,
+        134359839617638960,
+        134359839617638960,
+        16,
+        0,
+        1,
+        0,
+        1
+      ],
+      "equal": true,
+      "short_buffer": {
+        "status": "0x80000005",
+        "io_status": "0x80000005",
+        "bytes": 104
+      },
+      "rounds": [
+        {
+          "mode": "baseline",
+          "captures": 5000,
+          "seconds": 0.03466529998695478,
+          "same_state": true
+        },
+        {
+          "mode": "combined",
+          "captures": 5000,
+          "seconds": 0.02843469998333603,
+          "same_state": true
+        },
+        {
+          "mode": "combined",
+          "captures": 5000,
+          "seconds": 0.02868229997693561,
+          "same_state": true
+        },
+        {
+          "mode": "baseline",
+          "captures": 5000,
+          "seconds": 0.03482209998765029,
+          "same_state": true
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Diagnostic on two local NTFS objects only; product unchanged.",
+    "No stable file capture speedup; directory query timing does not establish full scan improvement.",
+    "No placeholder, asynchronous handle, long path or cross-filesystem acceptance."
+  ]
+}

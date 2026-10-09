@@ -1,0 +1,82 @@
+{
+  "failures": [
+    {
+      "test": "git_job_cancellation_tests::live_git_owner_rejection_and_cancel_preserve_the_active_handle",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_job_cancellation_tests.rs:113:5:\npublication heartbeat must report the actual durable cancellation: Err(Business(Timeout))"
+    },
+    {
+      "test": "git_job_status_tests::completed_git_status_requires_live_metadata_permission_in_addition_to_operation_view",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_job_status_tests.rs:86:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)"
+    },
+    {
+      "test": "git_evidence_execution_tests::git_content_revocation_after_capture_prevents_any_publication",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_evidence_execution_tests.rs:51:5:\ndid not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual=Business(Timeout)"
+    },
+    {
+      "test": "git_job_status_tests::completed_git_status_rechecks_all_live_grants_after_the_last_terminal_callback",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_job_status_tests.rs:148:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)"
+    },
+    {
+      "test": "git_evidence_execution_tests::git_actual_cancellation_after_capture_is_cancelled_without_publication",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_evidence_execution_tests.rs:51:5:\ndid not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual=Business(Timeout)"
+    },
+    {
+      "test": "git_job_status_tests::pruned_git_result_keeps_authorized_receipt_and_marks_result_unavailable",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_job_status_tests.rs:13:14:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)\nrecovery prerequisite: outcome=Err(Business(Timeout)), state=JobRecord { job_id: \"job-222df894-280e-4238-9608-a3811980ec9f\", scope_id: ScopeId(\"scope-c089d8f8-6f0a-4797-a541-0fcb42b01eda\"), kind: GitEvidence, state: Failed, created_at_unix_ms: 1791510572243, heartbeat_unix_ms: 1791510587941, owner: \"crashed-owner\", fencing_token: 1, lease_expires_unix_ms: 1791510617489, princ"
+    },
+    {
+      "test": "git_evidence_execution_tests::git_original_request_expiry_after_capture_fails_without_publication",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_evidence_execution_tests.rs:243:5:\ndid not reach the required post-capture publication boundary: original_expiry=1791510592, now=1791510587, elapsed=15.0754852s, error=Business(Timeout)"
+    },
+    {
+      "test": "git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_evidence_publication_tests.rs:145:5:\nonly the actual post-commit simulated crash qualifies: Err(Business(Timeout))"
+    },
+    {
+      "test": "git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_evidence_execution_tests.rs:51:5:\ndid not reach the required post-capture publication boundary; phase=post_capture_publication_not_reached; actual=Business(Timeout)"
+    },
+    {
+      "test": "git_late_enqueue_tests::enqueue_cannot_register_a_terminal_handle_after_another_engine_completes",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_late_enqueue_tests.rs:44:14:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)"
+    },
+    {
+      "test": "git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_evidence_publication_tests.rs:15:14:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)"
+    },
+    {
+      "test": "git_late_enqueue_tests::queued_producer_handle_does_not_survive_remote_engine_completion",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\git_late_enqueue_tests.rs:80:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)\nDG_WINDOWS_MOVED_PRIVATE_COMPLETION=1"
+    },
+    {
+      "test": "live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_config_policy_tests.rs:98:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nDG_FIXTURE_ROOT_RESTORE_SHARING_RETAINED=32\nnative evidence test recovery retains original owner: private Git cleanup failed: original root deletion lease: 另一个程序正在使用此文件，进程无法访问。 (os err"
+    },
+    {
+      "test": "live_evidence::git_isolation_semantics_tests::racy_index_same_size_change_with_restored_mtime_remains_dirty",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:63:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\""
+    },
+    {
+      "test": "live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:38:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nindexed directory replaced before capture; actual scoped result=Err(IdentityChanged)\nancestor replacement blocked by Windows: Some(5)\nDG_WINDOWS_DIRECTORY_NATURAL_CHANGE_MASK=48\n"
+    },
+    {
+      "test": "live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_object_database_tests.rs:344:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_ti"
+    },
+    {
+      "test": "live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_scope_boundary_tests.rs:93:25:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\nverbatim GLOBAL: exit=Some(128), stderr=\"fatal: unknown error occurred while reading the configuration files\\n\"\nordinary GLOBAL: exit=Some(0), stderr=\"\"\nconfig --file \"\\\\\\\\?\\\\C:\\\\User"
+    },
+    {
+      "test": "live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_scoped_semantics_tests.rs:161:36:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\""
+    },
+    {
+      "test": "live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit",
+      "diagnostic_excerpt": "crates\\diskgraph-engine\\src\\live_evidence\\git_private_capacity_tests.rs:298:17:\noriginal 32k creation failed at index=31677: private Git parent lease: git metadata directory NtCreateFile component \"diskgraph-git-4bc6b1bb-ddea-4599-b1f2-1640b088d3fc\": probe deadline exceeded\nnative probe test recovery retains original owner: private Git cleanup failed: probe cumulative output byte limit exceeded\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n"
+    }
+  ],
+  "excerpt_limit": 500,
+  "full_logs": "retained remotely; exact digests in companion receipt"
+}

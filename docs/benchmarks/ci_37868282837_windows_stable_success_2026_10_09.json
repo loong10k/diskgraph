@@ -1,0 +1,21 @@
+{
+  "source_commit": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "run_id": 37868282837,
+  "job_id": 113620149776,
+  "log_sha256": "5fddb8e50b9b0b8508681373e9c0d41011429eea5918042f8cec80469a5775cc",
+  "log_bytes": 1054134,
+  "selected_full_target_summaries": [
+    "2026-10-09T01:20:08.1688291Z test result: ok. 88 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 58.14s",
+    "2026-10-09T01:20:42.9291350Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.23s",
+    "2026-10-09T01:27:13.0232342Z test result: ok. 723 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out; finished in 380.81s",
+    "2026-10-09T01:29:32.3689825Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.23s",
+    "2026-10-09T01:31:17.0249133Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.09s",
+    "2026-10-09T01:36:16.4020214Z test result: ok. 231 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 137.08s",
+    "2026-10-09T01:36:43.2325210Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.93s",
+    "2026-10-09T01:37:23.0226670Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s",
+    "2026-10-09T01:37:50.3113498Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "2026-10-09T01:39:46.4100761Z test result: ok. 372 passed; 0 failed; 8 ignored; 0 measured; 0 filtered out; finished in 116.00s",
+    "2026-10-09T01:49:34.6750406Z test result: ok. 372 passed; 0 failed; 8 ignored; 0 measured; 0 filtered out; finished in 202.56s"
+  ],
+  "scope": "Windows hosted stable CI job only; not the later source overlay or desktop acceptance"
+}
