@@ -1,0 +1,34 @@
+[
+  {
+    "path": "artifacts/windows_auth_followup_8bd76e5a/policy.log",
+    "sha256": "9ab7cd9c733184ae94c34ae36dc39bb0f81185caac89bcc43375900e20e3d8fa"
+  },
+  {
+    "path": "artifacts/windows_auth_followup_8bd76e5a/group.log",
+    "sha256": "614da6d3eb580aa6dacd928e349ca1e8d0513f6cd9e5c09d62691c1ad84668bf"
+  },
+  {
+    "path": "artifacts/windows_auth_followup_8bd76e5a/clippy.log",
+    "sha256": "1706e8e3871514e20d12901046bc715542dea9c7922b2d7b6764c10c7a0ae665"
+  },
+  {
+    "path": "artifacts/windows_auth_followup_8bd76e5a/receipt.json",
+    "sha256": "ec320b0792e6a8e52e5be2da931cb18af4cd83c203559b900af80d73378e2e6c"
+  },
+  {
+    "path": "artifacts/windows_exit_followup_f07/build.log",
+    "sha256": "419891ecc0b8e1ef21fdeeccb056af9d87eed75399449f15fc7e273194f6d4ae"
+  },
+  {
+    "path": "artifacts/windows_exit_followup_f07/test.log",
+    "sha256": "f9097e8ae460a88e96949a889dc429002b48ae5817a5ae4eba1c5f652af72469"
+  },
+  {
+    "path": "artifacts/windows_exit_followup_f07/receipt.json",
+    "sha256": "9268e4d265813251277f79b58565322fe6f3702effa5baee8e40c67131267862"
+  },
+  {
+    "path": "artifacts/windows_exit_followup_f07/diskgraph-windows-exit-fixtures/receipt.json",
+    "sha256": "59b343c2b314f96984e18fc96b87f59395ebd172352aec2bde3550373b690022"
+  }
+]
