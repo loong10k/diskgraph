@@ -1,0 +1,48 @@
+{
+  "production_qualification": false,
+  "native_windows_harness_executed": false,
+  "phase_seconds": 1800,
+  "recommended_outer_seconds": 4500,
+  "red": {
+    "tests": 7,
+    "failures": 3,
+    "errors": 3
+  },
+  "green": {
+    "tests": 7,
+    "failures": 0,
+    "errors": 0
+  },
+  "owner_regression": {
+    "tests": 8,
+    "skipped_native": 1
+  },
+  "raw": {
+    "red.log": {
+      "bytes": 7552,
+      "sha256": "8a14ae098d42a53a33a972767358efd745f8459e935bbfc939496fb6a1aff280"
+    },
+    "green.log": {
+      "bytes": 4380,
+      "sha256": "3a7e25e06a8760b2f1998c7950d2909925752723fd78bf59c2a4956049417432"
+    },
+    "owner_regression.log": {
+      "bytes": 1673,
+      "sha256": "cf138b86c58f31274e0755fe641488da34be9657a3cdaf85e51111203b10e954"
+    },
+    "final_green.log": {
+      "bytes": 3231,
+      "sha256": "50005807a0948568924ad1b7df363ebd05f57688688e1ed0bae415476539040b"
+    }
+  },
+  "source": {
+    "scripts/run_windows_workspace_validation.py": "17f344e23219b398345d4378123216cf8ed09307297c2d1d07a8824f4d0b3424",
+    "scripts/tests/test_windows_workspace_validation.py": "47fa2ad91168bf281aa6bb7d76dd5070e1c388cf35eb6718828d947264d6e8ee",
+    "scripts/windows_acceptance_job.py": "d9a9148a87e9d39b34ff4721d3a3fbd9bbeda6270d5de848e05333a89ad0ee3c"
+  },
+  "remaining": [
+    "Windows native execution of new full-workspace harness pending",
+    "Original Windows desktop full-workspace job timed out; no full-suite pass",
+    "Current CI still has platform failures; no production qualification"
+  ]
+}

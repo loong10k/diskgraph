@@ -34,6 +34,12 @@
 - **THEN** 路径准入与SHA256计算不依赖仅新版.NET提供的API；相对路径、盘符相对路径、根相对路径均拒绝，完整绝对路径的独占副本与原字节/摘要一致，已有副本拒绝覆盖且不得重写已发布环境。
 - **AND** 真实退出状态C夹具以明确UTF-8输入编译，继续启用/WX；JSON回执及共享环境文件明确使用UTF-8，不依赖系统代码页或PowerShell默认重定向编码。两种原始32位退出码须实际执行验证。
 
+#### Scenario: Windows desktop full workspace validation has separate phase budgets
+- **WHEN** 台式机执行完整 workspace 验收
+- **THEN** 与 CI 相同的 foundation 和 entry 两段分别拥有原 1800 秒期限，覆盖每个 workspace package 恰好一次，保留 all-targets、locked、no-fail-fast 和原测试并发；完整流程的外层期限包含两段及准备、回收时间，不以单个 1800 秒总窗口截断全部测试。
+- **AND** 每段在启动 Cargo 前进入本轮独占 Windows Job，超时后确认该 Job 活动进程归零才能开始下一段；回收不确定时停止后续执行并明确报告，不按进程名终止无关工作。
+- **AND** 分段记录真实退出码、超时和回收不确定状态，任意失败不得输出完整验收通过；不修改产品查询、扫描、撤权、取消或打包负载的原预算。
+
 #### Scenario: Full packaged load includes fixture retirement
 - **WHEN** 完整打包负载已完成原文件数、路径覆盖、并发读取及超限拒绝检查
 - **THEN** 记录真实临时目录清理的开始、结束及耗时，在目录实际删除后才输出成功报告；清理失败保留原异常，不输出清理完成或成功报告。

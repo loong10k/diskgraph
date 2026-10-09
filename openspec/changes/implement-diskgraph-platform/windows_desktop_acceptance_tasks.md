@@ -89,8 +89,10 @@ cargo test -p diskgraph-engine --lib --locked relation_request_tests -- --nocapt
 
 ## WD-04 完整源码与原生安全验收
 
+完整 workspace 与 CI 同样分成 foundation 和 entry，各自保留 1800 秒；默认测试并发及 all-targets/locked/no-fail-fast 不变。准备夹具后使用下方原生 Job 包装器，不再把两段合计限制为 1800 秒。WebCodex 外层执行可设置 4500 秒，给两段共 3600 秒以及准备、回收和回执留出余量；这是验证总流程的期限，不改变产品扫描或原打包负载期限。需要 Python 3.11 或更新的已有解释器。超时仍算失败；只有本段独占 Job 实际退休后才执行后段，回收不确定时拒绝继续。
+
 ```powershell
-cargo test --workspace --all-targets --locked --no-fail-fast -- --nocapture
+python scripts/run_windows_workspace_validation.py --output-dir "$dgEvidence/workspace"
 cargo test -p diskgraph-store --lib --locked -- --test-threads=1
 cargo clippy --workspace --all-targets --locked -- -D warnings
 python -m unittest discover -s scripts/tests -v
@@ -101,6 +103,7 @@ cargo test -p diskgraph-engine --test content_cloud_windows --locked -- --nocapt
 ```
 
 - [ ] stable 与 1.97.0 分别记录完整测试结果；换 toolchain 使用 `cargo +<toolchain>` 并重新构建、绑定该组 worker，不能只修改版本标签。
+- [ ] 分段包装器实际在 Windows 执行并保存 foundation.log、entry.log、receipt.json；本机契约测试不等于此项通过，任意阶段失败/超时/回收不确定仍保持完整验收未完成。
 - [ ] Cloud Files 测试必须 1 passed / 0 ignored，并出现 `DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1`；产品 fetch=0、普通读正控 fetch>0。
 - [ ] 路径/卷/128位 file ID、reparse point、根与父目录替换、并发修改、未知大小、历史身份不足拒绝和非 UTF-8 兼容语义均检查实际 Windows 测试输出。
 - [ ] 真实 Job/后代退休、失败 owner 保留、取消/撤权/租约 fence、不发布部分扫描和数据库迁移/回收保护检查实际执行数量，不把零测试或 ignored 算成功。
