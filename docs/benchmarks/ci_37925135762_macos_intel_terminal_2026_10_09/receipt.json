@@ -1,0 +1,15 @@
+{
+  "run_id": 37925135762,
+  "job_id": 113802145332,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37925135762/job/113802145332",
+  "name": "Test (macos-15-intel / Rust stable)",
+  "status": "completed",
+  "conclusion": "failure",
+  "head_sha": "f07f463b053484c404794def7d4194c8af7abd31",
+  "log_sha256": "0b3ac763dd642b42624c598925076ec0a097fb9124d2c8f0b4b396f265d8355d",
+  "observed_failed_test_lines": [
+    "node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null"
+  ],
+  "qualification": "CI job failed; expected unwind test panic lines are not automatically failures",
+  "production_qualification": false
+}
