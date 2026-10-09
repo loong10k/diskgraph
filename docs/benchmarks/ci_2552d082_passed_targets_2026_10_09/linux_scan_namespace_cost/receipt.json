@@ -1,0 +1,4069 @@
+{
+  "acceptance_scope": "release_20k_200k_300deep",
+  "artifacts": {
+    "20000-wide-filesystem.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20000-wide-filesystem.stdout": {
+      "bytes": 33,
+      "sha256": "564b886ae9e99d1f7d31460577719de123357f778df423a2cd42eb4ec0100c68"
+    },
+    "20000-wide-round1-baseline.json": {
+      "bytes": 5376,
+      "sha256": "1db7d0f45e3c7f5e47fcd72e95b2cab44d443d6d679c5eeddeff9c5ccf56ba04"
+    },
+    "20000-wide-round1-baseline.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20000-wide-round1-baseline.stdout": {
+      "bytes": 3102,
+      "sha256": "3244abab936e756de96fab67a9e3a12a56ace738491150bd13d9e3a99bddb3c8"
+    },
+    "20000-wide-round1-candidate.json": {
+      "bytes": 5304,
+      "sha256": "f0c755b0023f350bc82cc433791d01df1c04bf32c2ed3ec919663cd2054b16b5"
+    },
+    "20000-wide-round1-candidate.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20000-wide-round1-candidate.stdout": {
+      "bytes": 3030,
+      "sha256": "506c88af2d6031229c6438490d368bad57d95e08e67659554fb754e8307fc1be"
+    },
+    "20000-wide-round2-baseline.json": {
+      "bytes": 5318,
+      "sha256": "15b253219f2f0fae6b478a14e7006b0aa9baf985649c3f4d0d043e05b6a82ff8"
+    },
+    "20000-wide-round2-baseline.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20000-wide-round2-baseline.stdout": {
+      "bytes": 3044,
+      "sha256": "ee4059a5a9a3ae8574807e568673405cc2b455d2082fd1f61e3560bf6c5097f0"
+    },
+    "20000-wide-round2-candidate.json": {
+      "bytes": 5353,
+      "sha256": "d898e9c879996d1a4ca02bd564c00d3c03177a09218afa9d2c9e00e8dbb92b16"
+    },
+    "20000-wide-round2-candidate.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20000-wide-round2-candidate.stdout": {
+      "bytes": 3079,
+      "sha256": "09e10fea016e617fc703ded35e3f6c61b559ca5fb238b0ece632b79f3723176c"
+    },
+    "200000-wide-filesystem.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "200000-wide-filesystem.stdout": {
+      "bytes": 33,
+      "sha256": "9a3c8c0bf0fc463223a5c501b00d1e21b78f58dd180e400e23bc446ac6af9b5f"
+    },
+    "200000-wide-round1-baseline.json": {
+      "bytes": 5346,
+      "sha256": "2734adcf446e8bcf697ab6ff14f019ffab02fd556552ae11007b834cb4fa5b11"
+    },
+    "200000-wide-round1-baseline.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "200000-wide-round1-baseline.stdout": {
+      "bytes": 3073,
+      "sha256": "7dcd96e7ee4fda5a8b50700515e68f8993c12a043cd60d185454312b30b4f57f"
+    },
+    "200000-wide-round1-candidate.json": {
+      "bytes": 5361,
+      "sha256": "6963689ced63e04cd468fcf2f29cdbc79e6516de311817c0cc33a462a323e475"
+    },
+    "200000-wide-round1-candidate.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "200000-wide-round1-candidate.stdout": {
+      "bytes": 3088,
+      "sha256": "a8617dc0d57e0b9d15d6f885f3ac1943bd07adecb4f28d81b73f3b0f89a15561"
+    },
+    "200000-wide-round2-baseline.json": {
+      "bytes": 5348,
+      "sha256": "46c6dee98d8e53ed0b439271f4fa982b23490dfc3bb0a77203131bb36e01e3f0"
+    },
+    "200000-wide-round2-baseline.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "200000-wide-round2-baseline.stdout": {
+      "bytes": 3075,
+      "sha256": "6397687e12ab8f0ecff24c08cee869c26e1ba0cf9e32bfc087be424d0d2f057d"
+    },
+    "200000-wide-round2-candidate.json": {
+      "bytes": 5352,
+      "sha256": "dfa86ad06495e9b77af56a2442d8cbab4a2a86aed33d6b77fcc7c6024e5d6c81"
+    },
+    "200000-wide-round2-candidate.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "200000-wide-round2-candidate.stdout": {
+      "bytes": 3079,
+      "sha256": "198d05e3e00ba385c430446a7a4d8373eccf3d31cb200d9e6428b71c12e06831"
+    },
+    "300-deep-filesystem.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "300-deep-filesystem.stdout": {
+      "bytes": 33,
+      "sha256": "f2450b4d69376919acfc4e213520ca239207b2a80f6b2c5145ac227749ccfa1a"
+    },
+    "300-deep-round1-baseline.json": {
+      "bytes": 5928,
+      "sha256": "3b2ec025d0d37ce58be8554df5ca029d122f0f79de76ecf234fdc2a35a37580e"
+    },
+    "300-deep-round1-baseline.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "300-deep-round1-baseline.stdout": {
+      "bytes": 3654,
+      "sha256": "83d3bde4e203990f945f0d252c155e12a54858291af71f1cdaf9806ccdc1b3ec"
+    },
+    "300-deep-round1-candidate.json": {
+      "bytes": 5924,
+      "sha256": "c7ff611870abcde16443d883303f57db4e64d863926e7f70931d06aeec424fa3"
+    },
+    "300-deep-round1-candidate.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "300-deep-round1-candidate.stdout": {
+      "bytes": 3650,
+      "sha256": "ef5f4ddc1e77e78969be9a8f89fe273c45e0b5c72fb85c3b1d84d3d5e2d3625a"
+    },
+    "300-deep-round2-baseline.json": {
+      "bytes": 5897,
+      "sha256": "8af79832e5944e423353040fa7cb324f61f994ad5244cdb63f794d149b090def"
+    },
+    "300-deep-round2-baseline.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "300-deep-round2-baseline.stdout": {
+      "bytes": 3623,
+      "sha256": "ed9a4ad728253b97770a106ea753c0104c7f0ae1f580553e2d1fc87c29058e3c"
+    },
+    "300-deep-round2-candidate.json": {
+      "bytes": 5910,
+      "sha256": "d2160981fefabaee4689cb89b50eb21cca1c633d7f215ef2c78f1c2a728df8ce"
+    },
+    "300-deep-round2-candidate.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "300-deep-round2-candidate.stdout": {
+      "bytes": 3636,
+      "sha256": "a1243ade217568d3ae0a423450478cce5e48fd0ea73fabda4e600317b673389d"
+    },
+    "baseline-archive.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-archive.stdout": {
+      "bytes": 18616320,
+      "sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33"
+    },
+    "baseline-build.stderr": {
+      "bytes": 3369,
+      "sha256": "a8565ccefd18144735b408e173674436d6a4dda122285a158484861ac85b7f87"
+    },
+    "baseline-build.stdout": {
+      "bytes": 79264,
+      "sha256": "d48a7b611e49345446713f15c425cc954506498da3d1e25b1ce2b09380a221ae"
+    },
+    "baseline-fetch.stderr": {
+      "bytes": 119,
+      "sha256": "6316ac0ad25804802b3367a893fd693ccfffecd9d812c72468120864a4e6c326"
+    },
+    "baseline-fetch.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-measured-source.json": {
+      "bytes": 288681,
+      "sha256": "1b011873d933d966a9c705320f76095b739ab5fec616a68ccb98d6b7835d6e3e"
+    },
+    "baseline-object.stderr": {
+      "bytes": 81,
+      "sha256": "63878008d180a39a68c3d4db6cac5fdedb26c094a6bc3aab3ba58f68bb4127d1"
+    },
+    "baseline-object.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-original-source.json": {
+      "bytes": 287989,
+      "sha256": "f28ac5033fb34079010b3ab93fb74a4458873bb71f5a383eb2aa64dff4c03388"
+    },
+    "candidate-archive.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-archive.stdout": {
+      "bytes": 153640960,
+      "sha256": "b998935bc1b00ab65ca42e2c98690c5ec6b54781d41798f03a8f37872f52424b"
+    },
+    "candidate-build.stderr": {
+      "bytes": 2664,
+      "sha256": "9726be3d421d7248cb72b7d37b059a8a41241193f94b7e5aa5fe2b7c208b80e4"
+    },
+    "candidate-build.stdout": {
+      "bytes": 85737,
+      "sha256": "690a2c93770343401218503a464ec7bfd9415b348359287009aa6614a60d9a06"
+    },
+    "candidate-measured-source.json": {
+      "bytes": 1515858,
+      "sha256": "6a0f043d73b3580ed865f9c8cc8e8b2f458eb9095b8321f1dfc9f9a3116b2bec"
+    },
+    "candidate-object.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-object.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-original-source.json": {
+      "bytes": 1515858,
+      "sha256": "6a0f043d73b3580ed865f9c8cc8e8b2f458eb9095b8321f1dfc9f9a3116b2bec"
+    },
+    "candidate-worker-build.stderr": {
+      "bytes": 1475,
+      "sha256": "699530daa139278414393fc0a154b7a7ea458b3bdb6a88dfb3ea3d4eb2b59f16"
+    },
+    "candidate-worker-build.stdout": {
+      "bytes": 39232,
+      "sha256": "e01cfcd6fff6b401319e7f3754be9e7ccc52c2473b7d11c5543fc42bf1ce148c"
+    },
+    "cargo-version.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cargo-version.stdout": {
+      "bytes": 36,
+      "sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+    },
+    "host-cpuinfo.txt": {
+      "bytes": 5228,
+      "sha256": "03afeb4ac3bf9802f4b967768ead2bcbd8da3543b92c36708b4549c80751765a"
+    },
+    "host-meminfo.txt": {
+      "bytes": 1615,
+      "sha256": "1af4594fa09e08ba483680acccdbff2fa1b655b1fa19b8ccef83a9df551ce8db"
+    },
+    "host-mountinfo.txt": {
+      "bytes": 2504,
+      "sha256": "53b44c8ce29e93d291cd728958198fe6ba0ebdfd9832120c8185ed13f39a799c"
+    },
+    "rustc.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rustc.stdout": {
+      "bytes": 196,
+      "sha256": "b569b0c98ea3133c7252b4b8ea6b39b7b353813df0dd5f5c412c355691424112"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "rustc",
+        "-vV"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.020672482999998465,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "rustc",
+      "process_group_id": 24787,
+      "stderr": "rustc.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "rustc.stdout",
+      "stdout_sha256": "b569b0c98ea3133c7252b4b8ea6b39b7b353813df0dd5f5c412c355691424112"
+    },
+    {
+      "argv": [
+        "cargo",
+        "--version"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.010635305000050721,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "cargo-version",
+      "process_group_id": 24793,
+      "stderr": "cargo-version.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "cargo-version.stdout",
+      "stdout_sha256": "1f88eaf7fe1aaec83184752cf4c944cd22f00184136ff36a3e4c318cc60ef566"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-e",
+        "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d^{commit}"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.010567958000137878,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 128,
+      "failure_terminated_process_group": true,
+      "label": "baseline-object",
+      "process_group_id": 24798,
+      "stderr": "baseline-object.stderr",
+      "stderr_sha256": "63878008d180a39a68c3d4db6cac5fdedb26c094a6bc3aab3ba58f68bb4127d1",
+      "stdout": "baseline-object.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--no-tags",
+        "--depth=1",
+        "origin",
+        "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.6059600200001114,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "baseline-fetch",
+      "process_group_id": 24799,
+      "stderr": "baseline-fetch.stderr",
+      "stderr_sha256": "6316ac0ad25804802b3367a893fd693ccfffecd9d812c72468120864a4e6c326",
+      "stdout": "baseline-fetch.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.07104013899993333,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "baseline-archive",
+      "process_group_id": 24809,
+      "stderr": "baseline-archive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "baseline-archive.stdout",
+      "stdout_sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "hardening_benchmark",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/baseline",
+      "elapsed_seconds": 77.85325882899997,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline",
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "baseline-build",
+      "process_group_id": 24810,
+      "stderr": "baseline-build.stderr",
+      "stderr_sha256": "a8565ccefd18144735b408e173674436d6a4dda122285a158484861ac85b7f87",
+      "stdout": "baseline-build.stdout",
+      "stdout_sha256": "d48a7b611e49345446713f15c425cc954506498da3d1e25b1ce2b09380a221ae"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-e",
+        "2552d0823f9a72a4130e56914230406e08d30a0d^{commit}"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.010666662999938126,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "candidate-object",
+      "process_group_id": 26135,
+      "stderr": "candidate-object.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "candidate-object.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "2552d0823f9a72a4130e56914230406e08d30a0d"
+      ],
+      "cwd": "/home/runner/work/diskgraph/diskgraph",
+      "elapsed_seconds": 0.33319218699989506,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "candidate-archive",
+      "process_group_id": 26136,
+      "stderr": "candidate-archive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "candidate-archive.stdout",
+      "stdout_sha256": "b998935bc1b00ab65ca42e2c98690c5ec6b54781d41798f03a8f37872f52424b"
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "--release",
+        "--locked",
+        "-p",
+        "diskgraph-scan-worker",
+        "--message-format=json"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/candidate",
+      "elapsed_seconds": 11.805919717000052,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate",
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "candidate-worker-build",
+      "process_group_id": 26137,
+      "stderr": "candidate-worker-build.stderr",
+      "stderr_sha256": "699530daa139278414393fc0a154b7a7ea458b3bdb6a88dfb3ea3d4eb2b59f16",
+      "stdout": "candidate-worker-build.stdout",
+      "stdout_sha256": "e01cfcd6fff6b401319e7f3754be9e7ccc52c2473b7d11c5543fc42bf1ce148c"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--test",
+        "hardening_benchmark",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/candidate",
+      "elapsed_seconds": 74.09466592500007,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate",
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "candidate-build",
+      "process_group_id": 26802,
+      "stderr": "candidate-build.stderr",
+      "stderr_sha256": "9726be3d421d7248cb72b7d37b059a8a41241193f94b7e5aa5fe2b7c208b80e4",
+      "stdout": "candidate-build.stdout",
+      "stdout_sha256": "690a2c93770343401218503a464ec7bfd9415b348359287009aa6614a60d9a06"
+    },
+    {
+      "argv": [
+        "stat",
+        "-f",
+        "-c",
+        "%T %s %b %f",
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-20000-wide"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.011222823000025528,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "20000-wide-filesystem",
+      "process_group_id": 27724,
+      "stderr": "20000-wide-filesystem.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "20000-wide-filesystem.stdout",
+      "stdout_sha256": "564b886ae9e99d1f7d31460577719de123357f778df423a2cd42eb4ec0100c68"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 3.807807063999917,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "20000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round1-baseline",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-20000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/20000-wide-round1-baseline.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": null,
+        "DISKGRAPH_SCAN_WORKER_PATH": null,
+        "DISKGRAPH_SCAN_WORKER_SHA256": null,
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "20000-wide-round1-baseline",
+      "process_group_id": 27725,
+      "stderr": "20000-wide-round1-baseline.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "20000-wide-round1-baseline.stdout",
+      "stdout_sha256": "3244abab936e756de96fab67a9e3a12a56ace738491150bd13d9e3a99bddb3c8"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 3.457100135000019,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "20000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round1-candidate",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-20000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/20000-wide-round1-candidate.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": "1235024",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "20000-wide-round1-candidate",
+      "process_group_id": 27741,
+      "stderr": "20000-wide-round1-candidate.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "20000-wide-round1-candidate.stdout",
+      "stdout_sha256": "506c88af2d6031229c6438490d368bad57d95e08e67659554fb754e8307fc1be"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 3.4338619330001166,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "20000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round2-candidate",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-20000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/20000-wide-round2-candidate.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": "1235024",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "20000-wide-round2-candidate",
+      "process_group_id": 27763,
+      "stderr": "20000-wide-round2-candidate.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "20000-wide-round2-candidate.stdout",
+      "stdout_sha256": "09e10fea016e617fc703ded35e3f6c61b559ca5fb238b0ece632b79f3723176c"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 3.765450059999921,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "20000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round2-baseline",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-20000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/20000-wide-round2-baseline.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": null,
+        "DISKGRAPH_SCAN_WORKER_PATH": null,
+        "DISKGRAPH_SCAN_WORKER_SHA256": null,
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "20000-wide-round2-baseline",
+      "process_group_id": 27785,
+      "stderr": "20000-wide-round2-baseline.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "20000-wide-round2-baseline.stdout",
+      "stdout_sha256": "ee4059a5a9a3ae8574807e568673405cc2b455d2082fd1f61e3560bf6c5097f0"
+    },
+    {
+      "argv": [
+        "stat",
+        "-f",
+        "-c",
+        "%T %s %b %f",
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-200000-wide"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.01071668800000225,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "200000-wide-filesystem",
+      "process_group_id": 27804,
+      "stderr": "200000-wide-filesystem.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "200000-wide-filesystem.stdout",
+      "stdout_sha256": "9a3c8c0bf0fc463223a5c501b00d1e21b78f58dd180e400e23bc446ac6af9b5f"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 37.69110211299994,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "200000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round1-baseline",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-200000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/200000-wide-round1-baseline.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": null,
+        "DISKGRAPH_SCAN_WORKER_PATH": null,
+        "DISKGRAPH_SCAN_WORKER_SHA256": null,
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "200000-wide-round1-baseline",
+      "process_group_id": 27805,
+      "stderr": "200000-wide-round1-baseline.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "200000-wide-round1-baseline.stdout",
+      "stdout_sha256": "7dcd96e7ee4fda5a8b50700515e68f8993c12a043cd60d185454312b30b4f57f"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 33.76665639499993,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "200000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round1-candidate",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-200000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/200000-wide-round1-candidate.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": "1235024",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "200000-wide-round1-candidate",
+      "process_group_id": 27823,
+      "stderr": "200000-wide-round1-candidate.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "200000-wide-round1-candidate.stdout",
+      "stdout_sha256": "a8617dc0d57e0b9d15d6f885f3ac1943bd07adecb4f28d81b73f3b0f89a15561"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 34.003690002999974,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "200000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round2-candidate",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-200000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/200000-wide-round2-candidate.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": "1235024",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "200000-wide-round2-candidate",
+      "process_group_id": 27850,
+      "stderr": "200000-wide-round2-candidate.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "200000-wide-round2-candidate.stdout",
+      "stdout_sha256": "198d05e3e00ba385c430446a7a4d8373eccf3d31cb200d9e6428b71c12e06831"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 37.65303896899991,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "200000",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round2-baseline",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-200000-wide",
+        "DG_MEASURE_SHAPE": "wide",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/200000-wide-round2-baseline.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": null,
+        "DISKGRAPH_SCAN_WORKER_PATH": null,
+        "DISKGRAPH_SCAN_WORKER_SHA256": null,
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "200000-wide-round2-baseline",
+      "process_group_id": 27876,
+      "stderr": "200000-wide-round2-baseline.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "200000-wide-round2-baseline.stdout",
+      "stdout_sha256": "6397687e12ab8f0ecff24c08cee869c26e1ba0cf9e32bfc087be424d0d2f057d"
+    },
+    {
+      "argv": [
+        "stat",
+        "-f",
+        "-c",
+        "%T %s %b %f",
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-300-deep"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.010908844999903522,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": null,
+        "DG_MEASURE_DATA": null,
+        "DG_MEASURE_ROOT": null,
+        "DG_MEASURE_SHAPE": null,
+        "DISKGRAPH_BENCHMARK_OUTPUT": null,
+        "DISKGRAPH_SCAN_WORKER_BYTES": "19622592",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/product-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "5d736695cd08d63acb9e49c8ee998830f1fe36d7484eb8864d5d5ce200428cec",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "300-deep-filesystem",
+      "process_group_id": 27896,
+      "stderr": "300-deep-filesystem.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "300-deep-filesystem.stdout",
+      "stdout_sha256": "f2450b4d69376919acfc4e213520ca239207b2a80f6b2c5145ac227749ccfa1a"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.33360160900019764,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "300",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round1-baseline",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-300-deep",
+        "DG_MEASURE_SHAPE": "deep",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/300-deep-round1-baseline.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": null,
+        "DISKGRAPH_SCAN_WORKER_PATH": null,
+        "DISKGRAPH_SCAN_WORKER_SHA256": null,
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "300-deep-round1-baseline",
+      "process_group_id": 27897,
+      "stderr": "300-deep-round1-baseline.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "300-deep-round1-baseline.stdout",
+      "stdout_sha256": "83d3bde4e203990f945f0d252c155e12a54858291af71f1cdaf9806ccdc1b3ec"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.4039691989999028,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "300",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round1-candidate",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-300-deep",
+        "DG_MEASURE_SHAPE": "deep",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/300-deep-round1-candidate.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": "1235024",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "300-deep-round1-candidate",
+      "process_group_id": 27913,
+      "stderr": "300-deep-round1-candidate.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "300-deep-round1-candidate.stdout",
+      "stdout_sha256": "ef5f4ddc1e77e78969be9a8f89fe273c45e0b5c72fb85c3b1d84d3d5e2d3625a"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.40392946699989807,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "300",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round2-candidate",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-300-deep",
+        "DG_MEASURE_SHAPE": "deep",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/300-deep-round2-candidate.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": "1235024",
+        "DISKGRAPH_SCAN_WORKER_PATH": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "DISKGRAPH_SCAN_WORKER_SHA256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "300-deep-round2-candidate",
+      "process_group_id": 27935,
+      "stderr": "300-deep-round2-candidate.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "300-deep-round2-candidate.stdout",
+      "stdout_sha256": "a1243ade217568d3ae0a423450478cce5e48fd0ea73fabda4e600317b673389d"
+    },
+    {
+      "argv": [
+        "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+        "--exact",
+        "measure_isolated_release_fixtures",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "cwd": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z",
+      "elapsed_seconds": 0.3338409610000781,
+      "environment": {
+        "CARGO_BUILD_JOBS": null,
+        "CARGO_TARGET_DIR": null,
+        "DG_MEASURE_CASE": "300",
+        "DG_MEASURE_DATA": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round2-baseline",
+        "DG_MEASURE_ROOT": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-300-deep",
+        "DG_MEASURE_SHAPE": "deep",
+        "DISKGRAPH_BENCHMARK_OUTPUT": "/home/runner/work/_temp/diskgraph-linux-scan-cost/300-deep-round2-baseline.json",
+        "DISKGRAPH_SCAN_WORKER_BYTES": null,
+        "DISKGRAPH_SCAN_WORKER_PATH": null,
+        "DISKGRAPH_SCAN_WORKER_SHA256": null,
+        "LANG": "C.UTF-8",
+        "LC_ALL": null,
+        "PATH": "/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "RUSTFLAGS": "-D warnings",
+        "RUSTUP_TOOLCHAIN": null,
+        "TMPDIR": null
+      },
+      "exit_code": 0,
+      "label": "300-deep-round2-baseline",
+      "process_group_id": 27957,
+      "stderr": "300-deep-round2-baseline.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "300-deep-round2-baseline.stdout",
+      "stdout_sha256": "ed9a4ad728253b97770a106ea753c0104c7f0ae1f580553e2d1fc87c29058e3c"
+    }
+  ],
+  "fixtures": [
+    {
+      "content_bytes_per_file": 32,
+      "content_recipe_sha256": "0b09be9d93a3c9a63f931915dbccf251d361af9c7114e6db52625defc3090ff3",
+      "file_identity_sha256": "81b5513a70787d9aa93a3a664a982d5eb0804a30c1a3312c6383a1bcc4712c77",
+      "files": 20000,
+      "root": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-20000-wide",
+      "root_component_depth": 7,
+      "root_device": 2049,
+      "root_inode": 10500716,
+      "shape": "wide",
+      "source_mutated_during_measurement": false,
+      "verified_unchanged_after_all_four_runs": true
+    },
+    {
+      "content_bytes_per_file": 32,
+      "content_recipe_sha256": "418b9f91e84be34db23297a3dd9d7ada9d4875fa84482c1b326f2fe57c27c153",
+      "file_identity_sha256": "32314ecc4289d9615f1f81a2b21218559528997494c1cf786be711a8d0ce1d73",
+      "files": 200000,
+      "root": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-200000-wide",
+      "root_component_depth": 7,
+      "root_device": 2049,
+      "root_inode": 10520745,
+      "shape": "wide",
+      "source_mutated_during_measurement": false,
+      "verified_unchanged_after_all_four_runs": true
+    },
+    {
+      "content_bytes_per_file": 32,
+      "content_recipe_sha256": "e915dddec497f677feed7e5e936d3425f321a75ffa38419e0ecee013fc3c4927",
+      "file_identity_sha256": "e4b0fc28553a3b60a97aac1b31ad77db915710f37cb48178bee5551245490b04",
+      "files": 300,
+      "root": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/fixture-300-deep",
+      "root_component_depth": 7,
+      "root_device": 2049,
+      "root_inode": 11010051,
+      "shape": "deep",
+      "source_mutated_during_measurement": false,
+      "verified_unchanged_after_all_four_runs": true
+    }
+  ],
+  "hardware": {
+    "cpu_count": 4,
+    "uname": [
+      "Linux",
+      "runnervmmprz5",
+      "6.17.0-1022-azure",
+      "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+      "x86_64",
+      "x86_64"
+    ]
+  },
+  "limitations": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ],
+  "measurements": [
+    {
+      "command": "20000-wide-round1-baseline",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round1-baseline",
+      "fixture": "20000-wide",
+      "label": "baseline",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.352647,
+          "p95_ms": 1.482642,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.643592,
+          "p95_ms": 0.7307859999999999,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 31.021340000000002,
+          "p95_ms": 32.174567,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 30.053948000000002,
+          "p95_ms": 33.578314999999996,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.3079129999999999,
+          "p95_ms": 1.4414740000000001,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.1859990000000002,
+            "p95_ms": 3.6843269999999997,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.146174,
+            "p95_ms": 3.485373,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.15495,
+            "p95_ms": 3.568448,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.2854859999999997,
+            "p95_ms": 3.553261,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63381504,
+        "files": 20000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "686a4556-3ebe-4e3f-a1f2-8483fa0e9426",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  109,
+                  58,
+                  160,
+                  0,
+                  240,
+                  228,
+                  38,
+                  115
+                ],
+                "handle_type": 1,
+                "inode": 10500717,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  143,
+                  136,
+                  160,
+                  0,
+                  83,
+                  119,
+                  103,
+                  44
+                ],
+                "handle_type": 1,
+                "inode": 10520719,
+                "kind": "linux_handle"
+              },
+              "node_id": 20001,
+              "relative_path": "file-019999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 51232768,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 51232768,
+        "scan_seconds": 3.271403565,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63381504,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63381504,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63377408,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "1db7d0f45e3c7f5e47fcd72e95b2cab44d443d6d679c5eeddeff9c5ccf56ba04",
+      "round": 1
+    },
+    {
+      "command": "20000-wide-round1-candidate",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round1-candidate",
+      "fixture": "20000-wide",
+      "label": "candidate",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 2.537638,
+          "p95_ms": 2.673113,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.663009,
+          "p95_ms": 0.695971,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 30.870967,
+          "p95_ms": 31.291687999999997,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 30.639501,
+          "p95_ms": 32.849492,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.376652,
+          "p95_ms": 1.56627,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.724643,
+            "p95_ms": 4.158761,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.643811,
+            "p95_ms": 4.008618,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.675721,
+            "p95_ms": 4.021191,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.654511,
+            "p95_ms": 4.152719,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63406080,
+        "files": 20000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "6b6dc853-83af-4597-95ab-55fcb40201e7",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  109,
+                  58,
+                  160,
+                  0,
+                  240,
+                  228,
+                  38,
+                  115
+                ],
+                "handle_type": 1,
+                "inode": 10500717,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  143,
+                  136,
+                  160,
+                  0,
+                  83,
+                  119,
+                  103,
+                  44
+                ],
+                "handle_type": 1,
+                "inode": 10520719,
+                "kind": "linux_handle"
+              },
+              "node_id": 20001,
+              "relative_path": "file-019999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 52801536,
+        "reaped_child_scan_high_water_rss_bytes": 8163328,
+        "scan_parent_and_child_high_water_sum_bytes": 59396096,
+        "scan_seconds": 2.902974725,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63406080,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63406080,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 564472
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63401984,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -564472
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "f0c755b0023f350bc82cc433791d01df1c04bf32c2ed3ec919663cd2054b16b5",
+      "round": 1
+    },
+    {
+      "command": "20000-wide-round2-candidate",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round2-candidate",
+      "fixture": "20000-wide",
+      "label": "candidate",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 2.491922,
+          "p95_ms": 2.6936310000000003,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.6624979999999999,
+          "p95_ms": 0.698605,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 30.341229000000002,
+          "p95_ms": 30.623289,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 29.695524000000002,
+          "p95_ms": 34.687323,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.395978,
+          "p95_ms": 1.5095830000000001,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.519026,
+            "p95_ms": 4.026762,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.533192,
+            "p95_ms": 3.872801,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.568088,
+            "p95_ms": 3.8993320000000002,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.62183,
+            "p95_ms": 3.967069,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63406080,
+        "files": 20000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "1f0bd6a2-80aa-4f7a-9652-89787c3daaab",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  109,
+                  58,
+                  160,
+                  0,
+                  240,
+                  228,
+                  38,
+                  115
+                ],
+                "handle_type": 1,
+                "inode": 10500717,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  143,
+                  136,
+                  160,
+                  0,
+                  83,
+                  119,
+                  103,
+                  44
+                ],
+                "handle_type": 1,
+                "inode": 10520719,
+                "kind": "linux_handle"
+              },
+              "node_id": 20001,
+              "relative_path": "file-019999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 52330496,
+        "reaped_child_scan_high_water_rss_bytes": 8273920,
+        "scan_parent_and_child_high_water_sum_bytes": 59506688,
+        "scan_seconds": 2.885027588,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63406080,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63406080,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 564472
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63401984,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -564472
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "d898e9c879996d1a4ca02bd564c00d3c03177a09218afa9d2c9e00e8dbb92b16",
+      "round": 2
+    },
+    {
+      "command": "20000-wide-round2-baseline",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-20000-wide-round2-baseline",
+      "fixture": "20000-wide",
+      "label": "baseline",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.349671,
+          "p95_ms": 1.4357630000000001,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.616971,
+          "p95_ms": 0.671825,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 30.657073999999998,
+          "p95_ms": 30.901083,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 30.620024,
+          "p95_ms": 32.096685,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.325967,
+          "p95_ms": 1.4690059999999998,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.207128,
+            "p95_ms": 3.472629,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.281298,
+            "p95_ms": 3.808719,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.252444,
+            "p95_ms": 3.742727,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.237536,
+            "p95_ms": 3.68042,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63381504,
+        "files": 20000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "c25acf7e-64d1-4267-9109-9b9d83e5c47b",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  109,
+                  58,
+                  160,
+                  0,
+                  240,
+                  228,
+                  38,
+                  115
+                ],
+                "handle_type": 1,
+                "inode": 10500717,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  143,
+                  136,
+                  160,
+                  0,
+                  83,
+                  119,
+                  103,
+                  44
+                ],
+                "handle_type": 1,
+                "inode": 10520719,
+                "kind": "linux_handle"
+              },
+              "node_id": 20001,
+              "relative_path": "file-019999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 51232768,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 51232768,
+        "scan_seconds": 3.246391224,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63381504,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63381504,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63377408,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "15b253219f2f0fae6b478a14e7006b0aa9baf985649c3f4d0d043e05b6a82ff8",
+      "round": 2
+    },
+    {
+      "command": "200000-wide-round1-baseline",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round1-baseline",
+      "fixture": "200000-wide",
+      "label": "baseline",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.320176,
+          "p95_ms": 1.411127,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.624016,
+          "p95_ms": 0.673228,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 280.652894,
+          "p95_ms": 282.200577,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 271.284963,
+          "p95_ms": 279.088928,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.32248,
+          "p95_ms": 1.653864,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.277311,
+            "p95_ms": 3.7084829999999998,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.3128670000000002,
+            "p95_ms": 3.64343,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.132899,
+            "p95_ms": 3.567387,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.2264250000000003,
+            "p95_ms": 3.7517840000000002,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636403712,
+        "files": 200000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "944d5ce1-2dd3-426e-9c1c-7cb07f26daf8",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  171,
+                  136,
+                  160,
+                  0,
+                  21,
+                  5,
+                  81,
+                  59
+                ],
+                "handle_type": 1,
+                "inode": 10520747,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  234,
+                  149,
+                  163,
+                  0,
+                  211,
+                  165,
+                  184,
+                  217
+                ],
+                "handle_type": 1,
+                "inode": 10720746,
+                "kind": "linux_handle"
+              },
+              "node_id": 200001,
+              "relative_path": "file-199999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 205111296,
+        "process_total_high_water_rss_bytes": 299626496,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 205111296,
+        "scan_seconds": 34.635211006,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636399616,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "2734adcf446e8bcf697ab6ff14f019ffab02fd556552ae11007b834cb4fa5b11",
+      "round": 1
+    },
+    {
+      "command": "200000-wide-round1-candidate",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round1-candidate",
+      "fixture": "200000-wide",
+      "label": "candidate",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 2.456155,
+          "p95_ms": 2.5498510000000003,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.6676059999999999,
+          "p95_ms": 0.711329,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 281.54465600000003,
+          "p95_ms": 284.496594,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 273.573827,
+          "p95_ms": 280.92801299999996,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.372575,
+          "p95_ms": 1.677849,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.528794,
+            "p95_ms": 3.805395,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.7068890000000003,
+            "p95_ms": 4.053412,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.631187,
+            "p95_ms": 3.939848,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.742436,
+            "p95_ms": 4.164223,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636428288,
+        "files": 200000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "299e8dfa-e0df-44db-9f39-aa0f0cf66515",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  171,
+                  136,
+                  160,
+                  0,
+                  21,
+                  5,
+                  81,
+                  59
+                ],
+                "handle_type": 1,
+                "inode": 10520747,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  234,
+                  149,
+                  163,
+                  0,
+                  211,
+                  165,
+                  184,
+                  217
+                ],
+                "handle_type": 1,
+                "inode": 10720746,
+                "kind": "linux_handle"
+              },
+              "node_id": 200001,
+              "relative_path": "file-199999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 205123584,
+        "process_total_high_water_rss_bytes": 312078336,
+        "reaped_child_scan_high_water_rss_bytes": 57167872,
+        "scan_parent_and_child_high_water_sum_bytes": 262291456,
+        "scan_seconds": 30.667776569,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636428288,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636428288,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 564472
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636424192,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -564472
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "6963689ced63e04cd468fcf2f29cdbc79e6516de311817c0cc33a462a323e475",
+      "round": 1
+    },
+    {
+      "command": "200000-wide-round2-candidate",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round2-candidate",
+      "fixture": "200000-wide",
+      "label": "candidate",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 2.481212,
+          "p95_ms": 2.583694,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.667226,
+          "p95_ms": 0.705688,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 279.345294,
+          "p95_ms": 280.147995,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 269.08146,
+          "p95_ms": 277.114034,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.3831740000000001,
+          "p95_ms": 1.644857,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.750953,
+            "p95_ms": 6.955636999999999,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.7276990000000003,
+            "p95_ms": 3.9924169999999997,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.684117,
+            "p95_ms": 4.006534,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.66493,
+            "p95_ms": 4.471509,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636428288,
+        "files": 200000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "f929b3d6-c314-46ac-984a-ea85b5b2480c",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  171,
+                  136,
+                  160,
+                  0,
+                  21,
+                  5,
+                  81,
+                  59
+                ],
+                "handle_type": 1,
+                "inode": 10520747,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  234,
+                  149,
+                  163,
+                  0,
+                  211,
+                  165,
+                  184,
+                  217
+                ],
+                "handle_type": 1,
+                "inode": 10720746,
+                "kind": "linux_handle"
+              },
+              "node_id": 200001,
+              "relative_path": "file-199999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 203923456,
+        "process_total_high_water_rss_bytes": 307257344,
+        "reaped_child_scan_high_water_rss_bytes": 58159104,
+        "scan_parent_and_child_high_water_sum_bytes": 262082560,
+        "scan_seconds": 30.946299683,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636428288,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636428288,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 564472
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636424192,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -564472
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "dfa86ad06495e9b77af56a2442d8cbab4a2a86aed33d6b77fcc7c6024e5d6c81",
+      "round": 2
+    },
+    {
+      "command": "200000-wide-round2-baseline",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-200000-wide-round2-baseline",
+      "fixture": "200000-wide",
+      "label": "baseline",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.347367,
+          "p95_ms": 1.557973,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.6230129999999999,
+          "p95_ms": 0.673158,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 290.534115,
+          "p95_ms": 292.992624,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 276.115347,
+          "p95_ms": 284.311301,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.3399429999999999,
+          "p95_ms": 1.668842,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.2160550000000003,
+            "p95_ms": 3.627951,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.1604609999999997,
+            "p95_ms": 3.417036,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.132899,
+            "p95_ms": 3.406984,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.165651,
+            "p95_ms": 3.440818,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636403712,
+        "files": 200000,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "927c36a3-c55f-44cf-8063-1d36ef95179d",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  171,
+                  136,
+                  160,
+                  0,
+                  21,
+                  5,
+                  81,
+                  59
+                ],
+                "handle_type": 1,
+                "inode": 10520747,
+                "kind": "linux_handle"
+              },
+              "node_id": 2,
+              "relative_path": "file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  234,
+                  149,
+                  163,
+                  0,
+                  211,
+                  165,
+                  184,
+                  217
+                ],
+                "handle_type": 1,
+                "inode": 10720746,
+                "kind": "linux_handle"
+              },
+              "node_id": 200001,
+              "relative_path": "file-199999"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 205008896,
+        "process_total_high_water_rss_bytes": 301740032,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 205008896,
+        "scan_seconds": 34.541511494,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636399616,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "46c6dee98d8e53ed0b439271f4fa982b23490dfc3bb0a77203131bb36e01e3f0",
+      "round": 2
+    },
+    {
+      "command": "300-deep-round1-baseline",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round1-baseline",
+      "fixture": "300-deep",
+      "label": "baseline",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.326873,
+          "p95_ms": 1.407845,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.595003,
+          "p95_ms": 0.6350480000000001,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 1.045066,
+          "p95_ms": 1.659055,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 1.0326529999999998,
+          "p95_ms": 1.269987,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.1507830000000001,
+          "p95_ms": 1.209444,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.2975209999999997,
+            "p95_ms": 3.70295,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.2802890000000002,
+            "p95_ms": 3.639451,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.332827,
+            "p95_ms": 3.643831,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.236086,
+            "p95_ms": 3.5689089999999997,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3387392,
+        "files": 300,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "c8864eff-8001-4cce-95b3-2be3324b15cc",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  6,
+                  0,
+                  168,
+                  0,
+                  91,
+                  237,
+                  24,
+                  177
+                ],
+                "handle_type": 1,
+                "inode": 11010054,
+                "kind": "linux_handle"
+              },
+              "node_id": 601,
+              "relative_path": "d/file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  92,
+                  2,
+                  168,
+                  0,
+                  175,
+                  222,
+                  123,
+                  246
+                ],
+                "handle_type": 1,
+                "inode": 11010652,
+                "kind": "linux_handle"
+              },
+              "node_id": 302,
+              "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 51232768,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 51232768,
+        "scan_seconds": 0.108098845,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3383296,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "3b2ec025d0d37ce58be8554df5ca029d122f0f79de76ecf234fdc2a35a37580e",
+      "round": 1
+    },
+    {
+      "command": "300-deep-round1-candidate",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round1-candidate",
+      "fixture": "300-deep",
+      "label": "candidate",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 2.495601,
+          "p95_ms": 2.579919,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.6302789999999999,
+          "p95_ms": 0.695682,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 1.054594,
+          "p95_ms": 1.522459,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 1.0472700000000001,
+          "p95_ms": 1.7526499999999998,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.201578,
+          "p95_ms": 1.3117750000000001,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.618824,
+            "p95_ms": 4.071025,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.632309,
+            "p95_ms": 4.073468999999999,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.625759,
+            "p95_ms": 3.989281,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.723801,
+            "p95_ms": 4.514367,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3411968,
+        "files": 300,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "d31564d2-d8ce-4f91-9b18-b3109cb3f9d1",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  6,
+                  0,
+                  168,
+                  0,
+                  91,
+                  237,
+                  24,
+                  177
+                ],
+                "handle_type": 1,
+                "inode": 11010054,
+                "kind": "linux_handle"
+              },
+              "node_id": 601,
+              "relative_path": "d/file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  92,
+                  2,
+                  168,
+                  0,
+                  175,
+                  222,
+                  123,
+                  246
+                ],
+                "handle_type": 1,
+                "inode": 11010652,
+                "kind": "linux_handle"
+              },
+              "node_id": 302,
+              "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 51232768,
+        "reaped_child_scan_high_water_rss_bytes": 3317760,
+        "scan_parent_and_child_high_water_sum_bytes": 54550528,
+        "scan_seconds": 0.154677346,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3411968,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3411968,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 564472
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3407872,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -564472
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "c7ff611870abcde16443d883303f57db4e64d863926e7f70931d06aeec424fa3",
+      "round": 1
+    },
+    {
+      "command": "300-deep-round2-candidate",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round2-candidate",
+      "fixture": "300-deep",
+      "label": "candidate",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 2.5264469999999997,
+          "p95_ms": 2.61857,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.653611,
+          "p95_ms": 0.689287,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 1.062461,
+          "p95_ms": 1.533087,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 1.0392070000000002,
+          "p95_ms": 1.759933,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.19473,
+          "p95_ms": 1.291361,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.5665549999999997,
+            "p95_ms": 3.979863,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.5759030000000003,
+            "p95_ms": 3.876208,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.673687,
+            "p95_ms": 4.261875,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.6115,
+            "p95_ms": 3.918598,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3411968,
+        "files": 300,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "cf7e7649-5bbf-4033-ba36-93cd45965674",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  6,
+                  0,
+                  168,
+                  0,
+                  91,
+                  237,
+                  24,
+                  177
+                ],
+                "handle_type": 1,
+                "inode": 11010054,
+                "kind": "linux_handle"
+              },
+              "node_id": 601,
+              "relative_path": "d/file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  92,
+                  2,
+                  168,
+                  0,
+                  175,
+                  222,
+                  123,
+                  246
+                ],
+                "handle_type": 1,
+                "inode": 11010652,
+                "kind": "linux_handle"
+              },
+              "node_id": 302,
+              "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 51232768,
+        "reaped_child_scan_high_water_rss_bytes": 3338240,
+        "scan_parent_and_child_high_water_sum_bytes": 54571008,
+        "scan_seconds": 0.15516123,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3411968,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3411968,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 564472
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3407872,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -564472
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "d2160981fefabaee4689cb89b50eb21cca1c633d7f215ef2c78f1c2a728df8ce",
+      "round": 2
+    },
+    {
+      "command": "300-deep-round2-baseline",
+      "data_dir": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/data-300-deep-round2-baseline",
+      "fixture": "300-deep",
+      "label": "baseline",
+      "metrics": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.328271,
+          "p95_ms": 1.426396,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.60047,
+          "p95_ms": 0.6380319999999999,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 1.0170649999999999,
+          "p95_ms": 1.586327,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 1.022986,
+          "p95_ms": 1.357886,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.156808,
+          "p95_ms": 1.230206,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.458151,
+            "p95_ms": 3.7235300000000002,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.364083,
+            "p95_ms": 3.727989,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.410642,
+            "p95_ms": 3.73353,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.385965,
+            "p95_ms": 3.730189,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3387392,
+        "files": 300,
+        "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "7953667a-f332-41d4-94eb-12b10cfb0140",
+          "witnesses": [
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  6,
+                  0,
+                  168,
+                  0,
+                  91,
+                  237,
+                  24,
+                  177
+                ],
+                "handle_type": 1,
+                "inode": 11010054,
+                "kind": "linux_handle"
+              },
+              "node_id": 601,
+              "relative_path": "d/file-000000"
+            },
+            {
+              "epoch": {
+                "device": 2049,
+                "filesystem_domain_sha256": [
+                  121,
+                  149,
+                  139,
+                  180,
+                  168,
+                  73,
+                  110,
+                  171,
+                  1,
+                  17,
+                  131,
+                  181,
+                  58,
+                  221,
+                  21,
+                  181,
+                  102,
+                  53,
+                  16,
+                  65,
+                  100,
+                  185,
+                  95,
+                  212,
+                  131,
+                  152,
+                  19,
+                  59,
+                  26,
+                  96,
+                  1,
+                  56
+                ],
+                "handle_bytes": [
+                  92,
+                  2,
+                  168,
+                  0,
+                  175,
+                  222,
+                  123,
+                  246
+                ],
+                "handle_type": 1,
+                "inode": 11010652,
+                "kind": "linux_handle"
+              },
+              "node_id": 302,
+              "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+            }
+          ]
+        },
+        "process_scan_high_water_rss_bytes": 51232768,
+        "process_total_high_water_rss_bytes": 51232768,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 51232768,
+        "scan_seconds": 0.108207505,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3383296,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392
+      },
+      "metrics_sha256": "8af79832e5944e423353040fa7cb324f61f994ad5244cdb63f794d149b090def",
+      "round": 2
+    }
+  ],
+  "pairs": [
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 0.8873789697053167,
+      "fixture": "20000-wide",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 0.8886875884432837,
+      "fixture": "20000-wide",
+      "round": 2
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 12288,
+      "candidate_over_baseline_scan_seconds": 0.8854508368286625,
+      "fixture": "200000-wide",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": -1085440,
+      "candidate_over_baseline_scan_seconds": 0.8959161989299599,
+      "fixture": "200000-wide",
+      "round": 2
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.4308880543543272,
+      "fixture": "300-deep",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.4339229982245687,
+      "fixture": "300-deep",
+      "round": 2
+    }
+  ],
+  "schema_version": 1,
+  "script_sha256": "ac95184aa71e366ddbb0d84a5b19396ac3449a347a198c095cb9a027d358ce91",
+  "sources": {
+    "baseline": {
+      "adapter_mode": "historical_engine_open",
+      "adapter_sha256": "cf8fbe696a1bf4d3a1dca18ca799ffa2afb15493a1fcaf1ba19a9b0c4ccb8d5d",
+      "archive_sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+      "baseline_failure_diagnostic": {
+        "measured_sha256": "3992ab80cae531c19df7d5efa4eceb4375a29ce9fdd024fd24bd540fbbd39434",
+        "mode": "failure-only diagnostic; original algorithm unchanged",
+        "native_sha256": "b569eda8885214eb66f9fc026daa9751e504f88ac6cb7f347a5f2e0441d635d8",
+        "original_sha256": "4787a0d69af24d0914e8a394716a4ea2dac3ba4b9b029fac3864e60701fbf9bc",
+        "path": "crates/diskgraph-engine/src/native_process/linux_scan_namespace.rs"
+      },
+      "binary": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+      "binary_sha256": "8cd380a6f43fa1df9589b92decad1830336b74354337ffb8755e485466af5dae",
+      "commit": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+      "harness": {
+        "crates/diskgraph-engine/tests/benchmark_support/mod.rs": "e3dedf49537c77d55652dba3574036d71dc241e401474c1dc72b5c5286543b4e",
+        "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "0042027a06fd0d58f4d2c857eaeef2f99ff7377c66bceffa56a2952938d1777c",
+        "crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs": "5b85fce8c77bf2748755ee496b8695d7e6517f41d9485799d7e0c61397882fb5",
+        "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500",
+        "crates/diskgraph-engine/tests/hardening_benchmark.rs": "307ea2b6945a1abdc15f5c9925862bf9b201c7949b2fe2407970d7d930989752"
+      },
+      "lock_sha256": "4b1b9a275602e77343e4b6f8357643736e122d31d989ed183e3a9b3040e25b6d",
+      "measured_manifest_sha256": "1b011873d933d966a9c705320f76095b739ab5fec616a68ccb98d6b7835d6e3e",
+      "original_manifest_sha256": "f28ac5033fb34079010b3ab93fb74a4458873bb71f5a383eb2aa64dff4c03388",
+      "worker": null
+    },
+    "candidate": {
+      "adapter_mode": "explicit_native_host",
+      "adapter_sha256": "f371b99427293765b43a0f1696ba707775d9bd9a296c558ce66dd5f58e68bc95",
+      "archive_sha256": "b998935bc1b00ab65ca42e2c98690c5ec6b54781d41798f03a8f37872f52424b",
+      "baseline_failure_diagnostic": null,
+      "binary": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/deps/hardening_benchmark-7e1e31ff3234efce",
+      "binary_sha256": "3436f05b509059864f2063defc398688e7f90d331e73820bd6acfdc393a47671",
+      "commit": "2552d0823f9a72a4130e56914230406e08d30a0d",
+      "harness": {
+        "crates/diskgraph-engine/tests/benchmark_support/mod.rs": "e3dedf49537c77d55652dba3574036d71dc241e401474c1dc72b5c5286543b4e",
+        "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "0042027a06fd0d58f4d2c857eaeef2f99ff7377c66bceffa56a2952938d1777c",
+        "crates/diskgraph-engine/tests/benchmark_support/peak_memory.rs": "5b85fce8c77bf2748755ee496b8695d7e6517f41d9485799d7e0c61397882fb5",
+        "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500",
+        "crates/diskgraph-engine/tests/hardening_benchmark.rs": "307ea2b6945a1abdc15f5c9925862bf9b201c7949b2fe2407970d7d930989752"
+      },
+      "lock_sha256": "7ec8938251c354b70e279ea306b13b17c7298e06b36a783e7ad19d48920a33f0",
+      "measured_manifest_sha256": "6a0f043d73b3580ed865f9c8cc8e8b2f458eb9095b8321f1dfc9f9a3116b2bec",
+      "original_manifest_sha256": "6a0f043d73b3580ed865f9c8cc8e8b2f458eb9095b8321f1dfc9f9a3116b2bec",
+      "worker": {
+        "binary": "/home/runner/work/_temp/diskgraph-scan-cost-39plto_z/target-candidate/release/diskgraph-scan-worker",
+        "binary_sha256": "84752393531b0c7594219f3ac8b9598c0f87b0bcc41b7e459ab3d8e173b20e83",
+        "bytes": 1235024,
+        "commit": "2552d0823f9a72a4130e56914230406e08d30a0d",
+        "source_manifest_sha256": "6a0f043d73b3580ed865f9c8cc8e8b2f458eb9095b8321f1dfc9f9a3116b2bec"
+      }
+    }
+  },
+  "status": "passed"
+}

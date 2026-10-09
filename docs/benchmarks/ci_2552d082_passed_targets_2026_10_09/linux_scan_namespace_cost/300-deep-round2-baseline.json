@@ -1,0 +1,220 @@
+[
+  {
+    "after_narrow_candidates": {
+      "p50_ms": 1.328271,
+      "p95_ms": 1.426396,
+      "samples": 11
+    },
+    "after_narrow_top20": {
+      "p50_ms": 0.60047,
+      "p95_ms": 0.6380319999999999,
+      "samples": 31
+    },
+    "before_full_revision_candidates": {
+      "p50_ms": 1.0170649999999999,
+      "p95_ms": 1.586327,
+      "samples": 3
+    },
+    "before_full_revision_top20": {
+      "p50_ms": 1.022986,
+      "p95_ms": 1.357886,
+      "samples": 7
+    },
+    "budgeted_tree": {
+      "p50_ms": 1.156808,
+      "p95_ms": 1.230206,
+      "samples": 11
+    },
+    "concurrent_4_readers": [
+      {
+        "p50_ms": 3.458151,
+        "p95_ms": 3.7235300000000002,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.364083,
+        "p95_ms": 3.727989,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.410642,
+        "p95_ms": 3.73353,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.385965,
+        "p95_ms": 3.730189,
+        "samples": 31
+      }
+    ],
+    "database_bytes": 3387392,
+    "files": 300,
+    "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+    "native_qualification": {
+      "captured_files": 300,
+      "gaps": 0,
+      "method": "linux_handle",
+      "qualified": true,
+      "snapshot_id": "7953667a-f332-41d4-94eb-12b10cfb0140",
+      "witnesses": [
+        {
+          "epoch": {
+            "device": 2049,
+            "filesystem_domain_sha256": [
+              121,
+              149,
+              139,
+              180,
+              168,
+              73,
+              110,
+              171,
+              1,
+              17,
+              131,
+              181,
+              58,
+              221,
+              21,
+              181,
+              102,
+              53,
+              16,
+              65,
+              100,
+              185,
+              95,
+              212,
+              131,
+              152,
+              19,
+              59,
+              26,
+              96,
+              1,
+              56
+            ],
+            "handle_bytes": [
+              6,
+              0,
+              168,
+              0,
+              91,
+              237,
+              24,
+              177
+            ],
+            "handle_type": 1,
+            "inode": 11010054,
+            "kind": "linux_handle"
+          },
+          "node_id": 601,
+          "relative_path": "d/file-000000"
+        },
+        {
+          "epoch": {
+            "device": 2049,
+            "filesystem_domain_sha256": [
+              121,
+              149,
+              139,
+              180,
+              168,
+              73,
+              110,
+              171,
+              1,
+              17,
+              131,
+              181,
+              58,
+              221,
+              21,
+              181,
+              102,
+              53,
+              16,
+              65,
+              100,
+              185,
+              95,
+              212,
+              131,
+              152,
+              19,
+              59,
+              26,
+              96,
+              1,
+              56
+            ],
+            "handle_bytes": [
+              92,
+              2,
+              168,
+              0,
+              175,
+              222,
+              123,
+              246
+            ],
+            "handle_type": 1,
+            "inode": 11010652,
+            "kind": "linux_handle"
+          },
+          "node_id": 302,
+          "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+        }
+      ]
+    },
+    "process_scan_high_water_rss_bytes": 51232768,
+    "process_total_high_water_rss_bytes": 51232768,
+    "reaped_child_scan_high_water_rss_bytes": 0,
+    "scan_parent_and_child_high_water_sum_bytes": 51232768,
+    "scan_seconds": 0.108207505,
+    "shape": "deep",
+    "storage_phases": {
+      "after_queries": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3387392,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "after_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3387392,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 0
+      },
+      "before_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 4096,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 510912
+      },
+      "query_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 0,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "scan_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3383296,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": -510912
+      }
+    },
+    "wal_bytes": 12392
+  }
+]

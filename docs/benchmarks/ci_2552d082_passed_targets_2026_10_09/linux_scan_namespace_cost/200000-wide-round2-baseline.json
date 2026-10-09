@@ -1,0 +1,220 @@
+[
+  {
+    "after_narrow_candidates": {
+      "p50_ms": 1.347367,
+      "p95_ms": 1.557973,
+      "samples": 11
+    },
+    "after_narrow_top20": {
+      "p50_ms": 0.6230129999999999,
+      "p95_ms": 0.673158,
+      "samples": 31
+    },
+    "before_full_revision_candidates": {
+      "p50_ms": 290.534115,
+      "p95_ms": 292.992624,
+      "samples": 3
+    },
+    "before_full_revision_top20": {
+      "p50_ms": 276.115347,
+      "p95_ms": 284.311301,
+      "samples": 7
+    },
+    "budgeted_tree": {
+      "p50_ms": 1.3399429999999999,
+      "p95_ms": 1.668842,
+      "samples": 11
+    },
+    "concurrent_4_readers": [
+      {
+        "p50_ms": 3.2160550000000003,
+        "p95_ms": 3.627951,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.1604609999999997,
+        "p95_ms": 3.417036,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.132899,
+        "p95_ms": 3.406984,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.165651,
+        "p95_ms": 3.440818,
+        "samples": 31
+      }
+    ],
+    "database_bytes": 636403712,
+    "files": 200000,
+    "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+    "native_qualification": {
+      "captured_files": 200000,
+      "gaps": 0,
+      "method": "linux_handle",
+      "qualified": true,
+      "snapshot_id": "927c36a3-c55f-44cf-8063-1d36ef95179d",
+      "witnesses": [
+        {
+          "epoch": {
+            "device": 2049,
+            "filesystem_domain_sha256": [
+              121,
+              149,
+              139,
+              180,
+              168,
+              73,
+              110,
+              171,
+              1,
+              17,
+              131,
+              181,
+              58,
+              221,
+              21,
+              181,
+              102,
+              53,
+              16,
+              65,
+              100,
+              185,
+              95,
+              212,
+              131,
+              152,
+              19,
+              59,
+              26,
+              96,
+              1,
+              56
+            ],
+            "handle_bytes": [
+              171,
+              136,
+              160,
+              0,
+              21,
+              5,
+              81,
+              59
+            ],
+            "handle_type": 1,
+            "inode": 10520747,
+            "kind": "linux_handle"
+          },
+          "node_id": 2,
+          "relative_path": "file-000000"
+        },
+        {
+          "epoch": {
+            "device": 2049,
+            "filesystem_domain_sha256": [
+              121,
+              149,
+              139,
+              180,
+              168,
+              73,
+              110,
+              171,
+              1,
+              17,
+              131,
+              181,
+              58,
+              221,
+              21,
+              181,
+              102,
+              53,
+              16,
+              65,
+              100,
+              185,
+              95,
+              212,
+              131,
+              152,
+              19,
+              59,
+              26,
+              96,
+              1,
+              56
+            ],
+            "handle_bytes": [
+              234,
+              149,
+              163,
+              0,
+              211,
+              165,
+              184,
+              217
+            ],
+            "handle_type": 1,
+            "inode": 10720746,
+            "kind": "linux_handle"
+          },
+          "node_id": 200001,
+          "relative_path": "file-199999"
+        }
+      ]
+    },
+    "process_scan_high_water_rss_bytes": 205008896,
+    "process_total_high_water_rss_bytes": 301740032,
+    "reaped_child_scan_high_water_rss_bytes": 0,
+    "scan_parent_and_child_high_water_sum_bytes": 205008896,
+    "scan_seconds": 34.541511494,
+    "shape": "wide",
+    "storage_phases": {
+      "after_queries": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 636403712,
+        "diskgraph.sqlite-shm": 1146880,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "after_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 636403712,
+        "diskgraph.sqlite-shm": 1146880,
+        "diskgraph.sqlite-wal": 0
+      },
+      "before_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 4096,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 510912
+      },
+      "query_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 0,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "scan_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 636399616,
+        "diskgraph.sqlite-shm": 1114112,
+        "diskgraph.sqlite-wal": -510912
+      }
+    },
+    "wal_bytes": 12392
+  }
+]

@@ -1,0 +1,220 @@
+[
+  {
+    "after_narrow_candidates": {
+      "p50_ms": 2.495601,
+      "p95_ms": 2.579919,
+      "samples": 11
+    },
+    "after_narrow_top20": {
+      "p50_ms": 0.6302789999999999,
+      "p95_ms": 0.695682,
+      "samples": 31
+    },
+    "before_full_revision_candidates": {
+      "p50_ms": 1.054594,
+      "p95_ms": 1.522459,
+      "samples": 3
+    },
+    "before_full_revision_top20": {
+      "p50_ms": 1.0472700000000001,
+      "p95_ms": 1.7526499999999998,
+      "samples": 7
+    },
+    "budgeted_tree": {
+      "p50_ms": 1.201578,
+      "p95_ms": 1.3117750000000001,
+      "samples": 11
+    },
+    "concurrent_4_readers": [
+      {
+        "p50_ms": 3.618824,
+        "p95_ms": 4.071025,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.632309,
+        "p95_ms": 4.073468999999999,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.625759,
+        "p95_ms": 3.989281,
+        "samples": 31
+      },
+      {
+        "p50_ms": 3.723801,
+        "p95_ms": 4.514367,
+        "samples": 31
+      }
+    ],
+    "database_bytes": 3411968,
+    "files": 300,
+    "memory_measurement_notes": "Lifetime host and reaped-child high waters are independent; unknown is null; sum is not simultaneous RSS or a strict bound",
+    "native_qualification": {
+      "captured_files": 300,
+      "gaps": 0,
+      "method": "linux_handle",
+      "qualified": true,
+      "snapshot_id": "d31564d2-d8ce-4f91-9b18-b3109cb3f9d1",
+      "witnesses": [
+        {
+          "epoch": {
+            "device": 2049,
+            "filesystem_domain_sha256": [
+              121,
+              149,
+              139,
+              180,
+              168,
+              73,
+              110,
+              171,
+              1,
+              17,
+              131,
+              181,
+              58,
+              221,
+              21,
+              181,
+              102,
+              53,
+              16,
+              65,
+              100,
+              185,
+              95,
+              212,
+              131,
+              152,
+              19,
+              59,
+              26,
+              96,
+              1,
+              56
+            ],
+            "handle_bytes": [
+              6,
+              0,
+              168,
+              0,
+              91,
+              237,
+              24,
+              177
+            ],
+            "handle_type": 1,
+            "inode": 11010054,
+            "kind": "linux_handle"
+          },
+          "node_id": 601,
+          "relative_path": "d/file-000000"
+        },
+        {
+          "epoch": {
+            "device": 2049,
+            "filesystem_domain_sha256": [
+              121,
+              149,
+              139,
+              180,
+              168,
+              73,
+              110,
+              171,
+              1,
+              17,
+              131,
+              181,
+              58,
+              221,
+              21,
+              181,
+              102,
+              53,
+              16,
+              65,
+              100,
+              185,
+              95,
+              212,
+              131,
+              152,
+              19,
+              59,
+              26,
+              96,
+              1,
+              56
+            ],
+            "handle_bytes": [
+              92,
+              2,
+              168,
+              0,
+              175,
+              222,
+              123,
+              246
+            ],
+            "handle_type": 1,
+            "inode": 11010652,
+            "kind": "linux_handle"
+          },
+          "node_id": 302,
+          "relative_path": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/file-000299"
+        }
+      ]
+    },
+    "process_scan_high_water_rss_bytes": 51232768,
+    "process_total_high_water_rss_bytes": 51232768,
+    "reaped_child_scan_high_water_rss_bytes": 3317760,
+    "scan_parent_and_child_high_water_sum_bytes": 54550528,
+    "scan_seconds": 0.154677346,
+    "shape": "deep",
+    "storage_phases": {
+      "after_queries": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3411968,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "after_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3411968,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 0
+      },
+      "before_scan": {
+        "diskgraph-control.sqlite": 167936,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 4096,
+        "diskgraph.sqlite-shm": 32768,
+        "diskgraph.sqlite-wal": 564472
+      },
+      "query_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 0,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": 12392
+      },
+      "scan_signed_delta": {
+        "diskgraph-control.sqlite": 0,
+        "diskgraph-control.sqlite-shm": 0,
+        "diskgraph-control.sqlite-wal": 0,
+        "diskgraph.sqlite": 3407872,
+        "diskgraph.sqlite-shm": 0,
+        "diskgraph.sqlite-wal": -564472
+      }
+    },
+    "wal_bytes": 12392
+  }
+]

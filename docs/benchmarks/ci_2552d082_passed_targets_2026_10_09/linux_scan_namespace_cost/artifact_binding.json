@@ -1,0 +1,18 @@
+{
+  "run_id": 37880305608,
+  "job_id": 113658242739,
+  "artifact_id": 11595001879,
+  "artifact_name": "linux-scan-namespace-cost-37880305608",
+  "source_sha": "2552d0823f9a72a4130e56914230406e08d30a0d",
+  "download_zip_sha256": "237ef42ebeb58c71373b8dca9a1e522da1ff1204d45f6865d3033d16e12329d8",
+  "overall_production_acceptance": false,
+  "qualifications": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ]
+}
