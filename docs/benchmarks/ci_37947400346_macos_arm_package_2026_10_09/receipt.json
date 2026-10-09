@@ -1,0 +1,47 @@
+{
+  "run_id": 37947400346,
+  "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+  "job_id": 113877279661,
+  "artifact_id": 11624433389,
+  "artifact_archive_sha256": "99c3c94c7d54af8d1bb11e0c7831a5d253d530d2699ef87d4812b01b221c5681",
+  "raw_log_sha256": "174987cc71fc9c3091c3724f333357b21d9ad6b6038a4954f3568bdf3109b5c4",
+  "reports": [
+    {
+      "name": "diskgraph-aarch64-apple-darwin.http.json",
+      "raw_sha256": "fa7b4da582f57519cb29c41802e672b94a7927ab89d92b62a5b935f0c38f4913",
+      "checks": {
+        "passed": 14,
+        "total": 14
+      }
+    },
+    {
+      "name": "diskgraph-aarch64-apple-darwin.load.json",
+      "raw_sha256": "a9e3f4895d3cefd2038088467103e7219cef96f981e0bdfdcf18aebc0152e897",
+      "checks": {
+        "passed": 6,
+        "total": 6,
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "scan_seconds": 2.208,
+        "query_p95_ms": 87.509,
+        "fixture_seconds": 2.546,
+        "cleanup_seconds": 1.275
+      }
+    },
+    {
+      "name": "diskgraph-aarch64-apple-darwin.load_200000.json",
+      "raw_sha256": "ab964e76288d64be0f5025d3a302e3c712e31c6679222c599ffe28312f0b5aa6",
+      "checks": {
+        "passed": 6,
+        "total": 6,
+        "files": 200000,
+        "indexed_nodes": 200001,
+        "scan_seconds": 25.477,
+        "query_p95_ms": 81.243,
+        "fixture_seconds": 29.959,
+        "cleanup_seconds": 54.771
+      }
+    }
+  ],
+  "scope": "Native ARM macOS CI package acceptance only; Intel and whole platform readiness remain separate."
+}
