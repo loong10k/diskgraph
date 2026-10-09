@@ -1,0 +1,20 @@
+{
+  "run_id": 37865556195,
+  "candidate": "658bade82738562e2c882042b3203bc14fdc2be3",
+  "run_terminal": false,
+  "macos_arm_stable": {
+    "job_id": 113611314724,
+    "log_sha256": "367839795d6ee4201c3eae6856af3d75de7114455436a364b99743645851328a",
+    "failed_test": "revision_ownership_reader_tests::a_later_busy_select_uses_only_the_original_remaining_window",
+    "phase_line": "2026-10-09T00:50:18.3414140Z terminal_busy_phases admission=97.875µs locked=115.833µs before_select=247.527583ms select=2.375µs total=247.529916ms result=Err(BudgetExceeded)",
+    "finding": "test preparation sleep exceeded the original total wall gate before SELECT; observed SELECT returned BudgetExceeded in 2.375us; this run does not prove SQLite renewed its timeout",
+    "original_wall_gate_ms": 240,
+    "gate_unchanged": true
+  },
+  "linux_stable": {
+    "job_id": 113611314889,
+    "log_sha256": "33d430a7f3246429a8a61304e3926fdd2a48f9096ebfe9855c7e3dc3fdb7bc8e",
+    "failure_line": "2026-10-09T00:49:28.5989319Z RuntimeError: 200000-wide-round1-baseline failed: {'argv': ['/home/runner/work/_temp/diskgraph-scan-cost-9pukiz5v/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538', '--exact', 'measure_isolated_release_fixtures', '--ignored', '--nocapture', '--test-threads=1'], 'cwd': '/home/runner/work/_temp/diskgraph-scan-cost-9pukiz5v', 'label': '200000-wide-round1-baseline', 'environment': {'PATH': '/opt/hostedtoolcache/Python/3.13.16/x64/bin:/opt/hostedtoolcache/Python/3.13.16/x64:/snap/bin:/home/runner/.local/bin:/opt/pipx_bin:/home/runner/.cargo/bin:/home/runner/.config/composer/vendor/bin:/usr/local/.ghcup/bin:/home/runner/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'RUSTFLAGS': '-D warnings', 'RUSTUP_TOOLCHAIN': None, 'CARGO_BUILD_JOBS': None, 'CARGO_TARGET_DIR': None, 'TMPDIR': None, 'LANG': 'C.UTF-8', 'LC_ALL': None, 'DG_MEASURE_CASE': '200000', 'DG_MEASURE_SHAPE': 'wide', 'DG_MEASURE_ROOT': '/home/runner/work/_temp/diskgraph-scan-cost-9pukiz5v/fixture-200000-wide', 'DG_MEASURE_DATA': '/home/runner/work/_temp/diskgraph-scan-cost-9pukiz5v/data-200000-wide-round1-baseline', 'DISKGRAPH_BENCHMARK_OUTPUT': '/home/runner/work/_temp/diskgraph-linux-scan-cost/200000-wide-round1-baseline.json', 'DISKGRAPH_SCAN_WORKER_PATH': None, 'DISKGRAPH_SCAN_WORKER_SHA256': None, 'DISKGRAPH_SCAN_WORKER_BYTES': None}, 'stdout': '200000-wide-round1-baseline.stdout', 'stderr': '200000-wide-round1-baseline.stderr', 'process_group_id': 27486, 'failure_terminated_process_group': True, 'exit_code': 101, 'elapsed_seconds': 3.0218906029999744, 'stdout_sha256': '0034c0835e5569b055e555467557ef022444f250264ac70752a7d7a7dcefd104', 'stderr_sha256': '38491718a46a80b5c3a4e2a1c586fcebf63f01c76e1c9fd786c1f93471a958b5'}",
+    "finding": "historical release baseline failed; full comparison incomplete; original child stderr requires further first-cause diagnosis"
+  }
+}
