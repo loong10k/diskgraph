@@ -11,6 +11,15 @@ use std::time::{Duration, Instant};
 // 后者2s只保证宿主比较阶段资格，非响应门限；两案总耗时仍严格小于550ms。
 fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
     let fixture = ProcessEnqueueFixture::new();
+    let blocking_locks: bool = fixture
+        .store
+        .connection
+        .query_row(
+            "SELECT sqlite_compileoption_used('ENABLE_SETLK_TIMEOUT')",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
     fixture.set_busy_timeout(host_busy_ms);
     let before = fixture.persisted_state();
     let path = fixture.database_path();
@@ -107,6 +116,8 @@ fn writer_phase_probe(host_busy_ms: u64, request_limited: bool) {
     eprintln!(
         "D44_WRITER_PHASE {}",
         serde_json::json!({
+            "sqlite_version": rusqlite::version(),
+            "sqlite_setlk_timeout_enabled": blocking_locks,
             "host_busy_ms": host_busy_ms,
             "original_window_ms": original_window_ms,
             "preconsume_injected": request_limited,

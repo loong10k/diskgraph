@@ -13,6 +13,85 @@ use std::cell::RefCell;
 type CaptureHook = (String, Box<dyn FnOnce()>);
 thread_local! { static AFTER_OBSERVE: RefCell<Option<CaptureHook>> = RefCell::new(None); }
 thread_local! { static BEFORE_STAGE_LOCK: RefCell<Option<CaptureHook>> = RefCell::new(None); }
+thread_local! { static AFTER_STAGE_FENCE: RefCell<Option<CaptureHook>> = RefCell::new(None); }
+
+pub(super) fn after_stage_fence(job_id: &str) {
+    let callback = AFTER_STAGE_FENCE.with(|slot| {
+        if slot.borrow().as_ref().is_some_and(|(job, _)| job == job_id) {
+            slot.borrow_mut().take().map(|(_, callback)| callback)
+        } else {
+            None
+        }
+    });
+    if let Some(callback) = callback {
+        callback();
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos", windows))]
+#[test]
+fn staged_batch_releases_control_before_maintenance_and_honors_live_revocation() {
+    let (dir, engine, _actor, scope, job) = fixture();
+    let same_engine = engine.engine.clone();
+    let revoked_scope = scope.clone();
+    AFTER_STAGE_FENCE.with(|slot| {
+        *slot.borrow_mut() = Some((
+            job.job_id.clone(),
+            Box::new(move || {
+                // 此时仍保留原图库写 guard，但控制锁和实际控制 SQL fence 都必须结束。
+                let mut control = same_engine
+                    .control_until(std::time::Instant::now() + std::time::Duration::from_secs(2))
+                    .expect("staging maintenance retained the control mutex");
+                control.revoke_scope(&revoked_scope).unwrap();
+            }),
+        ));
+    });
+    let result = engine.run_job(&job.job_id, "stage-maintenance-revocation");
+    assert!(
+        matches!(
+            result,
+            Err(crate::EngineError::Business(
+                diskgraph_core::BusinessError::PermissionDenied,
+            )) | Err(crate::EngineError::Store(
+                diskgraph_store::StoreError::StaleOwner
+            ))
+        ),
+        "revocation must prevent publication: {result:?}"
+    );
+    assert!(
+        AFTER_STAGE_FENCE.with(|slot| slot.borrow().is_none()),
+        "real batch never reached maintenance boundary"
+    );
+    // 撤权通知与发布 fence 可按不同顺序被观察；保留真实 owner 错误，不统一为拒权。
+    // 两种路径都必须持久化取消、保留原 owner 代次并结束任务，且不产生任何发布。
+    let control = engine.control().unwrap();
+    assert!(control.scope(&scope).unwrap().revoked);
+    let settled = control.job(&job.job_id).unwrap();
+    assert_eq!(settled.owner, "stage-maintenance-revocation");
+    assert_eq!(settled.fencing_token, job.fencing_token + 1);
+    assert!(
+        control
+            .cancellation_requested(&job.job_id, settled.fencing_token)
+            .unwrap()
+    );
+    assert!(matches!(
+        settled.state,
+        diskgraph_store::JobState::Cancelled | diskgraph_store::JobState::Failed
+    ));
+    drop(control);
+    let database = rusqlite::Connection::open(dir.path().join("data/diskgraph.sqlite")).unwrap();
+    for table in [
+        "scan_staging",
+        "snapshots",
+        "graph_revisions",
+        "collector_runs",
+    ] {
+        let rows: i64 = database
+            .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(rows, 0, "revocation left {table} data");
+    }
+}
 
 pub(super) fn before_stage_lock(job_id: &str) {
     let callback = BEFORE_STAGE_LOCK.with(|slot| {

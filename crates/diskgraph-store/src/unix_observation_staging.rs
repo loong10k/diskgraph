@@ -16,10 +16,48 @@ impl SqliteSnapshotStore {
                 Option<UnixObservationGap>,
             ),
         >,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        self.append_staging_unix_observations_inner(job, items, check)
+    }
+
+    /// 延迟 Unix 观测旁表 commit 的自动 checkpoint，保留原目标和末检语义。
+    /// 参数：原 staging 命名空间、真实观测、累计维护责任与原准入回调；返回：提交/恢复结果。
+    /// 调用方必须先释放原控制 fence，再执行原连接维护，不能遗忘该实际提交。
+    pub fn append_staging_unix_observations_checked_deferred<'a>(
+        &mut self,
+        job: &str,
+        items: impl Iterator<
+            Item = (
+                u64,
+                Option<&'a UnixFileObservation>,
+                Option<UnixObservationGap>,
+            ),
+        >,
+        checkpoint_due: &mut bool,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        let checkpoint =
+            crate::staging_checkpoint_guard::StagingCheckpointGuard::suspend(&self.connection)?;
+        self.append_staging_unix_observations_inner(job, items, check)?;
+        checkpoint.finish(checkpoint_due)
+    }
+
+    fn append_staging_unix_observations_inner<'a>(
+        &self,
+        job: &str,
+        items: impl Iterator<
+            Item = (
+                u64,
+                Option<&'a UnixFileObservation>,
+                Option<UnixObservationGap>,
+            ),
+        >,
         mut check: impl FnMut() -> Result<()>,
     ) -> Result<()> {
         check()?;
-        let tx = self.connection.transaction()?;
+        // 公开入口仍要求原 Store 独占；SQLite 本身继续拒绝嵌套事务。
+        let tx = self.connection.unchecked_transaction()?;
         check()?;
         {
             // 点查已使用节点表达式索引；批次内复用编译结果，不改动目标一致性和逐项末检。

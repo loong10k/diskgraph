@@ -127,14 +127,41 @@ impl SqliteSnapshotStore {
         self.append_prepared_results(job_id, nodes.map(Ok), check)
     }
 
-    fn append_prepared_results<S: Borrow<PreparedStagingNode>>(
+    /// 延迟批次的自动 checkpoint，供调用方在释放原控制 fence 后维护。
+    /// 参数：当前 fencing 命名空间、已编码节点、累计维护责任与原准入检查；返回：提交/恢复结果。
+    /// 调用方必须在下一批次之前处理真实提交产生的维护请求；旧可信入口保持兼容。
+    pub fn append_prepared_staging_iter_checked_deferred<'a>(
         &mut self,
+        job_id: &str,
+        nodes: impl Iterator<Item = &'a PreparedStagingNode>,
+        checkpoint_due: &mut bool,
+        check: impl FnMut() -> Result<()>,
+    ) -> Result<()> {
+        let checkpoint =
+            crate::staging_checkpoint_guard::StagingCheckpointGuard::suspend(&self.connection)?;
+        self.append_prepared_results(job_id, nodes.map(Ok), check)?;
+        checkpoint.finish(checkpoint_due)
+    }
+
+    /// 在原控制 fence 已释放之后执行非阻塞读者的 WAL 维护。
+    /// 参数：无，使用原图库写连接；返回：维护调用成功或 SQLite 错误。
+    /// PASSIVE 不强迫现有读事务结束，剩余 WAL 继续由实际容量门禁计费。
+    pub fn checkpoint_after_staging(&self) -> Result<()> {
+        self.connection
+            .execute_batch("PRAGMA wal_checkpoint(PASSIVE)")?;
+        Ok(())
+    }
+
+    fn append_prepared_results<S: Borrow<PreparedStagingNode>>(
+        &self,
         job_id: &str,
         mut nodes: impl Iterator<Item = Result<S>>,
         mut check: impl FnMut() -> Result<()>,
     ) -> Result<()> {
         check()?;
-        let transaction = self.connection.transaction()?;
+        // 外层公开入口仍要求 &mut self；共享借用使原 checkpoint 守卫可跨越事务。
+        // SQLite 仍拒绝嵌套 BEGIN，不绕过实际事务检查。
+        let transaction = self.connection.unchecked_transaction()?;
         check()?;
         {
             let mut statement = transaction.prepare(
@@ -266,3 +293,7 @@ impl SqliteSnapshotStore {
         Ok(())
     }
 }
+
+#[cfg(test)]
+#[path = "staging_checkpoint_tests.rs"]
+mod checkpoint_tests;

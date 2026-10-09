@@ -307,10 +307,12 @@ impl Engine {
             let mut graph = self.graph()?;
             let mut control = self.control()?;
             let lease_expires = control.job(job_id)?.lease_expires_unix_ms;
-            control.with_job_fence(job_id, owner, job.fencing_token, || {
-                graph.append_prepared_staging_iter_checked(
+            let mut checkpoint_due = false;
+            let staging_result = control.with_job_fence(job_id, owner, job.fencing_token, || {
+                graph.append_prepared_staging_iter_checked_deferred(
                     &staging_id,
                     prepared_nodes.iter(),
+                    &mut checkpoint_due,
                     || {
                         crate::job_authorization::check_scan_commit(
                             authority.as_ref(),
@@ -322,7 +324,7 @@ impl Engine {
                     },
                 )?;
                 #[cfg(target_os = "linux")]
-                graph.append_staging_unix_observations_checked(
+                graph.append_staging_unix_observations_checked_deferred(
                     &staging_id,
                     batch
                         .iter()
@@ -332,6 +334,7 @@ impl Engine {
                                 .as_ref()
                                 .map(|(value, gap)| (node.v1.id, value.as_ref(), *gap))
                         }),
+                    &mut checkpoint_due,
                     || {
                         crate::job_authorization::check_scan_commit(
                             authority.as_ref(),
@@ -343,7 +346,8 @@ impl Engine {
                     },
                 )?;
                 Ok(())
-            })?;
+            });
+            crate::staging_wal::finish(control, &graph, staging_result, checkpoint_due, job_id)?;
             if let Some(started) = staging_write_started {
                 staging_write_time += started.elapsed();
             }
