@@ -1,0 +1,7 @@
+test_bounded_phases_cover_every_workspace_package_once (test_workspace_ci_coverage.WorkspaceCiCoverageTests.test_bounded_phases_cover_every_workspace_package_once) ... ok
+test_phase_coverage_survives_legacy_host_encoding (test_workspace_ci_coverage.WorkspaceCiCoverageTests.test_phase_coverage_survives_legacy_host_encoding) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+OK

@@ -1,0 +1,24 @@
+test_bounded_phases_cover_every_workspace_package_once (test_workspace_ci_coverage.WorkspaceCiCoverageTests.test_bounded_phases_cover_every_workspace_package_once) ... ok
+test_phase_coverage_survives_legacy_host_encoding (test_workspace_ci_coverage.WorkspaceCiCoverageTests.test_phase_coverage_survives_legacy_host_encoding) ... ERROR
+
+======================================================================
+ERROR: test_phase_coverage_survives_legacy_host_encoding (test_workspace_ci_coverage.WorkspaceCiCoverageTests.test_phase_coverage_survives_legacy_host_encoding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_workspace_ci_coverage.py", line 21, in test_phase_coverage_survives_legacy_host_encoding
+    self.test_bounded_phases_cover_every_workspace_package_once()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_workspace_ci_coverage.py", line 24, in test_bounded_phases_cover_every_workspace_package_once
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/encodings/cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x90 in position 169: character maps to <undefined>
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (errors=1)

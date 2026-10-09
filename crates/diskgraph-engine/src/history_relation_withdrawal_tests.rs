@@ -379,6 +379,9 @@ fn terminal_sql_expiry_preserves_known_denial(withdraw: bool) {
         );
         let expected = if withdraw && native {
             BusinessError::PermissionDenied
+        } else if withdraw {
+            // 原连接已提交撤权属于已知变化；未知原生通知能力仍须保留保守冲突。
+            BusinessError::Conflict
         } else {
             BusinessError::BudgetExceeded
         };

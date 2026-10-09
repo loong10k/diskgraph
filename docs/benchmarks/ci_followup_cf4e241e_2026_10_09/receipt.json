@@ -1,0 +1,17 @@
+{
+  "ci_run": 37921794454,
+  "ci_commit": "cf4e241ec9237d5b7cf61a0ad7f7d063db786293",
+  "ci_result": {
+    "passed": 15,
+    "failed": 8
+  },
+  "fixes": [
+    "explicit UTF-8 CI source reads, regression red and green",
+    "existing known-withdrawal test aligned to approved conservative Conflict"
+  ],
+  "remaining": "macOS Intel additional authorization deadline failures, GNU ABI baseline and Windows full qualification remain open",
+  "source_sha256": {
+    "scripts/tests/test_workspace_ci_coverage.py": "321561525ede6bd2f7cc6e3e22032229fa409afb2c507376242ebc90ff7536d0",
+    "crates/diskgraph-engine/src/history_relation_withdrawal_tests.rs": "ab0a689b1582ce7b8a2bb98821f0c46ee7527fe2217361b472fd3c9c2a6a93a9"
+  }
+}
