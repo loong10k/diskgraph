@@ -68,7 +68,7 @@ def load_file(test, name, path):
 
 
 class PackageFixture(unittest.TestCase):
-    """真实临时三文件及独立旧 CLI；没有 native 执行或假 ELF/PE 能力判断。"""
+    """真实临时三文件及旧 CLI；GNU 使用版本节夹具，不代表可执行程序。"""
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="diskgraph-package-unit-")
@@ -76,16 +76,25 @@ class PackageFixture(unittest.TestCase):
         self.work = pathlib.Path(temporary.name)
         self.bin_dir = self.work / "built"
         self.bin_dir.mkdir()
+        self.target = native_target()
         self.payloads = {
             name: b"composition-only\x00" + name.encode("ascii") + bytes(range(64))
             for name in NAMES
         }
+        if self.target.endswith("-unknown-linux-gnu"):
+            # 组成测试通过真实 ABI 解析，保留外部执行边界；不模拟兼容性通过结果。
+            abi_fixture = load_file(self, "composition_elf_fixture",
+                                    SCRIPTS / "tests" / "test_linux_abi_requirements.py")
+            machine = 183 if self.target.startswith("aarch64-") else 62
+            self.payloads = {
+                name: abi_fixture.fixture(["GLIBC_2.17"], machine) + name.encode("ascii")
+                for name in NAMES
+            }
         for name, payload in self.payloads.items():
             (self.bin_dir / name).write_bytes(payload)
         self.old_cli = self.work / ("old-diskgraph" + SUFFIX)
         self.old_cli.write_bytes(b"previous-version-composition-only")
         self.output = self.work / "output"
-        self.target = native_target()
 
     def assert_manifest(self, manifest):
         self.assertEqual(set(manifest), {

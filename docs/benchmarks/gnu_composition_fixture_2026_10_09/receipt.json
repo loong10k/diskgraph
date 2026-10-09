@@ -1,0 +1,13 @@
+{
+  "ci_run": 37925135762,
+  "ci_commit": "f07f463b053484c404794def7d4194c8af7abd31",
+  "original_failure": "composition placeholder bytes refused before actual package ABI step",
+  "composition_targets": [
+    "aarch64-unknown-linux-gnu",
+    "x86_64-unknown-linux-gnu"
+  ],
+  "composition_passed": 22,
+  "abi_regression_passed": 13,
+  "native_qualification": false,
+  "production_gate_unchanged": true
+}
