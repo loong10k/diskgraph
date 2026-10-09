@@ -1,0 +1,9 @@
+{
+  "run_id": 37931001245,
+  "job_id": 113821402057,
+  "source_commit": "a3184f175b2d393741d2937663b0f436d05d1897",
+  "job_conclusion": "failure",
+  "raw_sha256": "78193dc468d7e81e6e78e29ec5008a8efd33afe2b14abf08aab73e3038f61306",
+  "raw_bytes": 706788,
+  "production_qualification": false
+}
