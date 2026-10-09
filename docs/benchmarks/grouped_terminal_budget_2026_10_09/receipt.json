@@ -1,0 +1,25 @@
+{
+  "behavior_red": "actual control VM SQLITE_INTERRUPT returned as Store error",
+  "new_regression": {
+    "passed": 1,
+    "failed": 0
+  },
+  "existing_relation_regressions": {
+    "passed": 9,
+    "failed": 8,
+    "failed_phase": "native physical scan fixture Unsupported before target query"
+  },
+  "strict_clippy": "passed",
+  "fmt": "passed",
+  "openspec": "valid",
+  "production_changes": [
+    "budget semantics normalized in grouped terminal preparation and SQL",
+    "independent narrow ownership reader retains originally observed server/scope"
+  ],
+  "original_50ms_windows_unchanged": true,
+  "windows_qualification": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/relation_request.rs": "3c4d83e90ec0a3991e4a1940f95ba00e3c0ad9cd47ed258e94be023221955b58",
+    "crates/diskgraph-engine/src/grouped_terminal_budget_tests.rs": "62da150dec82985cceffbc0dc15b858b0993ba7e65021e4a3f735309ef61d3c7"
+  }
+}

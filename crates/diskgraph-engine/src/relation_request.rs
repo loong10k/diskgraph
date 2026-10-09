@@ -5,8 +5,12 @@ use diskgraph_core::{
     Authorizer, BusinessError, Permission, PrincipalId, QueryBudget, QueryReadBudget, ScopeId,
     TruncationReason,
 };
-use diskgraph_store::{RevisionEvidenceReader, SqliteSnapshotStore};
+use diskgraph_store::{RevisionEvidenceReader, RevisionOwnershipReader, SqliteSnapshotStore};
 use std::time::Instant;
+
+#[cfg(test)]
+#[path = "grouped_terminal_budget_tests.rs"]
+mod grouped_budget_tests;
 
 impl Engine {
     /// 执行一次真实归属查询，有限完成结果后复核授权与期限。
@@ -314,7 +318,8 @@ impl Engine {
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
         let reader =
-            SqliteSnapshotStore::open_reader_until(&self.graph_path, observation_deadline, None)?;
+            SqliteSnapshotStore::open_reader_until(&self.graph_path, observation_deadline, None)
+                .map_err(|error| terminal_control_error(error.into()))?;
         let ownerships = revisions
             .iter()
             .map(|revision| {
@@ -325,13 +330,14 @@ impl Engine {
                     .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
                 Ok((server, scope))
             })
-            .collect::<Result<Vec<_>, EngineError>>()?;
+            .collect::<Result<Vec<_>, EngineError>>()
+            .map_err(terminal_control_error)?;
         let control = self
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
         check_authority_expiry(expiry)?;
-        let (withdrawals, generation) =
-            control.with_read_deadline(observation_deadline, |control| {
+        let (withdrawals, generation) = control
+            .with_read_deadline(observation_deadline, |control| {
                 let server_id = control.existing_server_id()?;
                 for (server, scope) in &ownerships {
                     if server != server_id.as_str() || control.scope_revoked(scope)? {
@@ -347,7 +353,8 @@ impl Engine {
                     })
                     .collect::<Result<Vec<_>, EngineError>>()?;
                 Ok::<_, EngineError>((withdrawals, control.authorization_generation()?))
-            })?;
+            })
+            .map_err(terminal_control_error)?;
         drop(reader);
         drop(control);
         check_authority_expiry(expiry)?;
@@ -427,10 +434,11 @@ impl Engine {
                 Ok::<(), EngineError>(())
             })?;
             check_authority_expiry(expiry)?;
-            let reader =
-                SqliteSnapshotStore::open_reader_until(&self.graph_path, after_callback, None)?;
+            // 归属末检不需要节点查询的 cache/temp PRAGMA；仍新开连接观察当前 WAL。
+            // 固定比较首次捕获的 server 和 scope，不能接受终检间隙被替换的绑定。
+            let reader = RevisionOwnershipReader::open_until(&self.graph_path, after_callback)?;
             for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
-                if !reader.revision_ownership_matches(revision, server, scope.as_str())? {
+                if !reader.matches(revision, server, scope.as_str())? {
                     return Err(BusinessError::PermissionDenied.into());
                 }
             }
@@ -446,7 +454,7 @@ impl Engine {
             )?;
         }
         self.prioritize_revision_quarantine(
-            terminal_observation,
+            terminal_observation.map_err(terminal_control_error),
             &bound_revisions,
             &control,
             after_callback,

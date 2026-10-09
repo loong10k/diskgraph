@@ -100,6 +100,11 @@
 - **THEN** 对外返回预算拒绝，不把期限中断暴露为通用 SQLite 故障；不延长原期限、不进入数据消费者、不授予未完成捕获的能力。
 - **AND** 真实数据库结构或其他非预算故障保留原错误；连接执行回调和原 busy_timeout 仍按既有控制库 guard 还原，后续正常授权可以继续。
 
+#### Scenario: Grouped revision terminal SQL keeps bounded semantics
+- **WHEN** 同一次多 revision 请求在原终检窗口执行归属或实时授权 SQL，实际 VM 执行、锁等待或窄读准备耗尽窗口
+- **THEN** 返回预算拒绝并保留已观察撤权的优先级，不将中断返回为通用 SQLite 故障；非预算数据库故障仍保留。
+- **AND** 编码后的归属末检使用独立窄连接逐侧比较最初捕获的 server/scope，重新观察过滤归属，不复用消费者事务、不加载节点、不扩大原 50 ms SQL 窗口。
+
 #### Scenario: Token without capabilities
 - **WHEN** 有效 token 无权限 scope 请求目录或工具
 - **THEN** 不返回索引信息，不使用本地管理员身份。
