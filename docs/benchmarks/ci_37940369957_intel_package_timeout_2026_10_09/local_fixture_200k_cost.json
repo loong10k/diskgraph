@@ -1,0 +1,23 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "observations": [
+    {
+      "workers": 4,
+      "cleanup": "rmtree",
+      "files": 200000,
+      "create_seconds": 10.2913,
+      "cleanup_seconds": 13.2623,
+      "root_removed": true
+    },
+    {
+      "workers": 1,
+      "cleanup": "rmtree",
+      "files": 200000,
+      "create_seconds": 16.2559,
+      "cleanup_seconds": 21.8815,
+      "root_removed": true
+    }
+  ],
+  "native_intel_evidence": false
+}

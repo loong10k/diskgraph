@@ -130,6 +130,8 @@ python scripts/accept-readonly-package.py --target x86_64-pc-windows-msvc --bin-
 
 ## WD-06 Windows 200k 性能门槛
 
+2026-10-09：提交 `027744a236a622388190569a1a60b8198aeaa108` 的 Windows 原生 CI 包任务 `113853075490` 已实际通过原 300 秒外层门禁。200000 文件、200001 节点、32 查询/4 客户端与 6/6 行为检查保持原值；造数据 25.516 秒、扫描 75.295 秒、清理 13.713 秒，查询 p50/p95 为 25.007/35.720 ms。正式 HTTP 检查 14/14（含实际 60 秒、2349 次请求、匿名/恶意 Origin/无数据库授权/实时撤权），stdio 检查 18 项通过。日志和原 artifact 报告保存于 `docs/benchmarks/ci_37940369957_windows_package_2026_10_09/`。这是 Windows CI runner 的包验收，不能代替下方台式机复验、尚未结束的完整 workspace、后续提交或长期 soak；不把其他平台的失败改写为通过。
+
 - [ ] 正式验收沿用 accept-readonly-package.py 的 300 秒外层期限，覆盖造数据、扫描、查询和清理。文件数必须 200000、节点数 200001，32 查询/4 客户端及 6/6 行为校验不减少。
 - [ ] 记录造数据、扫描、查询 p50/p95、清理、全流程、数据库/WAL 增量和硬件/后台负载。旧 d8d3995f 失败后诊断为 670.766 秒（252.347 + 164.821 + 249.023 等），不是干净配对基线。
 - [ ] 如果正式流程失败，可另外运行 `python scripts/diagnose_windows_load.py --bin-dir target/x86_64-pc-windows-msvc/release --output-dir <新的独占目录>`。该脚本900秒诊断结果只能用于定位，不能替代300秒通过；clean_environment_confirmed=false 不改写为 true。
