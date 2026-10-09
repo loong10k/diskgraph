@@ -1,0 +1,26 @@
+[
+  {
+    "requirement": "Q-08 Narrow reads and bounded historical comparison",
+    "all_original_clauses_preserved": true
+  },
+  {
+    "requirement": "OP-14 Maintainable operation boundaries",
+    "all_original_clauses_preserved": true
+  },
+  {
+    "requirement": "OP-15 Narrow authorized plan resolution",
+    "all_original_clauses_preserved": true
+  },
+  {
+    "requirement": "RT-09 Maintainable Rust Engine boundaries",
+    "all_original_clauses_preserved": true
+  },
+  {
+    "requirement": "RT-10 Maintainable MCP source boundaries",
+    "all_original_clauses_preserved": true
+  },
+  {
+    "requirement": "ST-06 Maintainable Rust storage boundaries",
+    "all_original_clauses_preserved": true
+  }
+]

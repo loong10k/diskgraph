@@ -148,7 +148,11 @@ v2 SHALL 为不透明 ID、字节数和跨语言不安全整数提供无损编�
 - **THEN** CLI/MCP/Swift/Kotlin 往返不损失精度且 v1 数字类型不被无声改变。
 
 ### Requirement: Q-08 Narrow reads and bounded historical comparison
-The system SHALL decode only the requested page or bounded tree nodes, use independent SQLite read connections with deadlines, preserve Rust Unicode lowercase substring search, and bind v2 keyset cursors to principal, scope, revision, filters, actual ordering and policy version. Explicit offsets SHALL remain supported. Legacy cursors SHALL be rejected and require a fresh query. Ordered history merge SHALL retain no more than the output budget plus current iterator entries; truncated statistics SHALL be labelled partial.
+The system SHALL decode only the requested page or bounded tree nodes, use independent SQLite read connections with deadlines, preserve Rust Unicode lowercase substring search, and bind v2 keyset cursors to principal, scope, revision, filters, actual ordering and policy version.
+
+#### Scenario: Enforce every constraint of Q-08
+- **WHEN** the implementation is built, modified, or used
+- **THEN** Explicit offsets SHALL remain supported. Legacy cursors SHALL be rejected and require a fresh query. Ordered history merge SHALL retain no more than the output budget plus current iterator entries; truncated statistics SHALL be labelled partial.
 
 #### Scenario: Small page avoids unrelated node decoding
 - **WHEN** an unrelated node outside a node/top/search page contains an invalid locator
@@ -280,7 +284,13 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 - **THEN** 首次准备返回明确预算错误，不进入 paint、不向实际终端提交旧缓存；授权回调后的阶段不得重新获得时间窗口。超大头仍在拥有前受原始字节准入约束，Rust累计分配门禁保持不变。
 - **AND** 功能回归使用真实策略的延迟委托固定初次到期阶段，不把任意宿主的调度墙钟作为硬实时保证；记录实际调用耗时，生产50ms额度不增加，普通成功对照和已有绘制阶段到期/末段撤权测试保持独立。
 
-### Scenario: Terminal relation and history control contention
+#### Scenario: Control configuration preparation consumes the original read window
+- **WHEN** real SQLite configuration preparation completes after the original control read deadline
+- **THEN** the read consumer SHALL NOT be called at that observed expired admission boundary
+- **AND** the result SHALL be BudgetExceeded, with the connection's actual prior busy timeout and progress configuration restored
+- **AND** a timely admitted consumer's original error or panic SHALL retain its existing propagation and restoration semantics
+
+#### Scenario: Terminal relation and history control contention
 
 - **WHEN** a relation/tree or history query reaches terminal authorization while another thread holds the actual control store guard
 - **THEN** it refuses with budget_exceeded without waiting for that holder to release the guard, and returns no complete or partial payload without terminal authorization.

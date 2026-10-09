@@ -1,0 +1,35 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 178912.375}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 179058.203}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 179058.203}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 179058.437}
+{"phase": "index", "event": "begin", "monotonic_seconds": 179058.437}
+{"scan_phase": "worker_begin", "nodes": 0, "elapsed_ms": 1}
+{"scan_phase": "worker_complete", "nodes": 0, "elapsed_ms": 22574}
+{"scan_phase": "conversion_complete", "nodes": 200001, "elapsed_ms": 67735}
+{"scan_phase": "staging_batch_complete", "nodes": 200001, "elapsed_ms": 267943}
+{"scan_phase": "staging_complete", "nodes": 200001, "elapsed_ms": 267944}
+{"scan_cost": "windows_root_validation", "nodes": 200001, "total_ms": 713948}
+{"scan_root_validation": true, "calls": 400003, "chain_handles": 9, "total_ms": 713948}
+{"scan_cost": "observations_and_encoding", "nodes": 200001, "total_ms": 194537}
+{"scan_cost": "staging_write", "nodes": 200001, "total_ms": 5521}
+{"scan_phase": "publication_begin", "nodes": 200001, "elapsed_ms": 268031}
+{"publish_phase": "prepare_begin", "elapsed_ms": 0}
+{"publish_phase": "nodes_and_evidence_complete", "elapsed_ms": 5840}
+{"publish_phase": "aggregates_begin", "elapsed_ms": 7932}
+{"publish_phase": "aggregates_complete", "elapsed_ms": 8285}
+{"publish_phase": "seal_complete", "elapsed_ms": 8286}
+{"publish_phase": "commit_begin", "elapsed_ms": 8286}
+{"publish_phase": "commit_complete", "elapsed_ms": 9584}
+{"scan_phase": "publication_complete", "nodes": 200001, "elapsed_ms": 277616}
+{"publish_phase": "checkpoint_begin"}
+{"publish_phase": "checkpoint_complete", "elapsed_ms": 2767}
+{"phase": "index", "event": "end", "monotonic_seconds": 179339.062}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 179339.062}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 179339.546}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 179339.546}
+{"phase": "queries", "event": "end", "monotonic_seconds": 179340.203}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 179340.203}
+{"scan_phase": "worker_begin", "nodes": 0, "elapsed_ms": 3}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 179343.593}
+{"phase": "workspace_cleanup", "event": "begin", "monotonic_seconds": 179343.593}
+{"phase": "workspace_cleanup", "event": "end", "monotonic_seconds": 179438.906}

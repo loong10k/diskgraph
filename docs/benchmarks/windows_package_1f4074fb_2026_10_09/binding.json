@@ -1,0 +1,17 @@
+{
+  "commit": "1f4074fbf42876f328a99f3afd02ce7adc719111",
+  "run": 37901867819,
+  "job": 113726171010,
+  "artifact": 11603455518,
+  "formal_package_success": true,
+  "desktop_acceptance_complete": false,
+  "desktop_build_job": "wc_job_szuSukYbfEo4sz-l",
+  "desktop_build_exit": 0,
+  "desktop_validation_limit": "Initial run omitted trusted deployment settings and failed unsupported; corrected run not started due to remote project/runner resolution errors.",
+  "reports_sha256": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": "c60d55bdad14226b2d0f921de435e86e0ada12fe17ab947ce701179b1158778a",
+    "diskgraph-x86_64-pc-windows-msvc.load_200000.json": "d670bc9ece836a48c3a6bc750c0b17bfd209191ba246cc48146351cc04ab2bbb",
+    "job.json": "e6bf6667fd4809afe39490975dc8e2169fc6cb66385b1bb51a0efd6f977f6f2b",
+    "diskgraph-x86_64-pc-windows-msvc.load.json": "798bfebabff9d996c1eceddbf27e8a4a942414bf8bef6a47d05471d8204a6563"
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "head": "1f4074fbf42876f328a99f3afd02ce7adc719111",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "binary_sha256": {
+    "diskgraph.exe": "f8b1e72c2694a655feaca6956fd11ca6bfd50ac89573239eaa74deec678aae46",
+    "diskgraph-mcp.exe": "307e49ed8b8dd59f24fd12f6e6b928f8007d5a244e05d0fdb35d35b535571630",
+    "diskgraph-scan-worker.exe": "e1df1d335f261f59989fd1587935c92ce44e1bb5ed863aa39743ccf413593b7d"
+  },
+  "cases": [
+    {
+      "name": "stdio",
+      "exit": 0,
+      "elapsed": 4.921999999991385,
+      "report": {
+        "passed": 18,
+        "total": 18,
+        "checks": {
+          "diskgraph_version": true,
+          "diskgraph-mcp_version": true,
+          "cli_tree_revision_binding": true,
+          "cli_top_bounded": true,
+          "cli_candidates_review_only": true,
+          "stdio_initialize": true,
+          "stdio_tool_discovery": true,
+          "stdio_scope_0_bound": true,
+          "stdio_scope_1_bound": true,
+          "stdio_write_tool_disabled": true,
+          "stdio_schema_and_dispatch_diskgraph_node": true,
+          "stdio_schema_and_dispatch_diskgraph_search": true,
+          "stdio_schema_and_dispatch_diskgraph_explain": true,
+          "stdio_schema_and_dispatch_diskgraph_related": true,
+          "stdio_schema_and_dispatch_diskgraph_changes": true,
+          "stdio_explicit_nonroot_node": true,
+          "stdio_unknown_argument_rejected": true,
+          "cli_serve_delegates_to_mcp_binary": true
+        },
+        "diagnostics": {},
+        "authorization_budget_phases": []
+      }
+    },
+    {
+      "name": "http",
+      "exit": 0,
+      "elapsed": 62.780999999988126,
+      "report": {
+        "passed": 14,
+        "total": 14,
+        "checks": {
+          "modern_anonymous_401": true,
+          "modern_hostile_origin_403": true,
+          "modern_signed_but_ungranted_denied": true,
+          "modern_authorized_scope_read": true,
+          "modern_sustained_scope_reads": true,
+          "modern_live_revocation_denied": true,
+          "legacy_anonymous_401": true,
+          "legacy_hostile_origin_403": true,
+          "legacy_endpoint_event": true,
+          "legacy_authorized_scope_read": true,
+          "missing_key_file_refused": true,
+          "short_key_file_refused": true,
+          "cli_serve_forwards_key_file": true,
+          "everyone_readable_key_refused": true
+        },
+        "sustained_http": {
+          "requests": 1892,
+          "requested_seconds": 60.0,
+          "elapsed_seconds": 60.0,
+          "offered_max_requests_per_second": 40,
+          "dispatch_reserve_ms": 78.00000000861473,
+          "latency_sample_window": "last_4096_requests",
+          "latency_samples": 1892,
+          "p50_ms": 30.999999988125637,
+          "p95_ms": 32.00000000651926,
+          "native_long_run_qualified": false
+        },
+        "platform": "win32",
+        "binary_content_before": {
+          "cli": {
+            "bytes": 7250432,
+            "sha256": "f8b1e72c2694a655feaca6956fd11ca6bfd50ac89573239eaa74deec678aae46"
+          },
+          "mcp": {
+            "bytes": 5981184,
+            "sha256": "307e49ed8b8dd59f24fd12f6e6b928f8007d5a244e05d0fdb35d35b535571630"
+          }
+        },
+        "binary_content_after": {
+          "cli": {
+            "bytes": 7250432,
+            "sha256": "f8b1e72c2694a655feaca6956fd11ca6bfd50ac89573239eaa74deec678aae46"
+          },
+          "mcp": {
+            "bytes": 5981184,
+            "sha256": "307e49ed8b8dd59f24fd12f6e6b928f8007d5a244e05d0fdb35d35b535571630"
+          }
+        }
+      }
+    },
+    {
+      "name": "load_20000",
+      "exit": 0,
+      "elapsed": 69.95300000000861,
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "win32",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 1,
+        "fixture_seconds": 10.006,
+        "scan_seconds": 39.961,
+        "cleanup_seconds": 12.312,
+        "cleanup_workers": 1,
+        "query_p50_ms": 88.765,
+        "query_p95_ms": 699.706,
+        "database_and_wal_bytes": 68800512,
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ],
+  "complete": false,
+  "deployment": "explicit trusted local build",
+  "error": "TimeoutExpired(['C:\\\\Espressif\\\\tools\\\\python\\\\python.exe', 'E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph\\\\scripts\\\\windows_acceptance_job.py', '736', 'E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph\\\\scripts\\\\accept-readonly-load.py', '--bin-dir', 'E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph\\\\target\\\\release', '--files', '200000'], 299.875)"
+}

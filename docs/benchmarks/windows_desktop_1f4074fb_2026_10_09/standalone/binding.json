@@ -1,0 +1,13 @@
+{
+  "source_commit": "1f4074fbf42876f328a99f3afd02ce7adc719111",
+  "job": "wc_job_2CfV1EfXjxr2S4Zp",
+  "exit": 1,
+  "formal_timeout_seconds": 300,
+  "result": "failed, partial 200k scan; no complete load report",
+  "path_contrast": "same E volume outside checkout; changed absolute input, not code optimization",
+  "snapshot_text": "UTF-8 normalized read_files text; not native CRLF bytes",
+  "read_revisions": {
+    "receipt.json": 8898507827990822,
+    "load_200000.stderr.log": 8898507827990821
+  }
+}

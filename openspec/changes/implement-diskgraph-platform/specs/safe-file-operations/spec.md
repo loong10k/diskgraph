@@ -137,7 +137,11 @@ A transfer SHALL recheck the plan expiry, policy version, approval and operation
 - **THEN** removal rejects the new version and leaves the source intact
 
 ### Requirement: OP-14 Maintainable operation boundaries
-The operation crate SHALL keep lib.rs and mod.rs to module declarations and explicit reexports. Each production source file SHALL define one distinct type at most, keep fewer than 500 physical lines and contain actual behavior rather than placeholders. Mutually exclusive platform definitions of the same type SHALL keep one owner. Types and public methods SHALL document their actual native Rust provenance and parameter/return semantics in Chinese. The split SHALL preserve existing root, specialist and docker public paths, method signatures, error and serialized representations, SQL, transaction and lock order, approved-version checks, resource ownership and explicit cleanup timing. It SHALL NOT enable dangerous CLI/MCP tools or replace unsupported platform actions with generic filesystem or shell fallbacks.
+The operation crate SHALL keep lib.rs and mod.rs to module declarations and explicit reexports.
+
+#### Scenario: Enforce every constraint of OP-14
+- **WHEN** the implementation is built, modified, or used
+- **THEN** Each production source file SHALL define one distinct type at most, keep fewer than 500 physical lines and contain actual behavior rather than placeholders. Mutually exclusive platform definitions of the same type SHALL keep one owner. Types and public methods SHALL document their actual native Rust provenance and parameter/return semantics in Chinese. The split SHALL preserve existing root, specialist and docker public paths, method signatures, error and serialized representations, SQL, transaction and lock order, approved-version checks, resource ownership and explicit cleanup timing. It SHALL NOT enable dangerous CLI/MCP tools or replace unsupported platform actions with generic filesystem or shell fallbacks.
 
 #### Scenario: Complete operation source structure
 - **WHEN** the layout gate walks every production operation module, including specialist and docker modules
@@ -151,7 +155,11 @@ The operation crate SHALL keep lib.rs and mod.rs to module declarations and expl
 - **AND** a source comparison and the same-commit native CI verify the structural increment; passing library tests does not enable unverified write capabilities
 
 ### Requirement: OP-15 Narrow authorized plan resolution
-Plan construction SHALL resolve only explicitly selected node IDs from the scope's published revision through an authorized independent read connection. The graph metadata phase SHALL share a 1000 ms cooperative deadline across revision resolution, authorization and selected-node reads, including a final check after authorization returns. Expiration SHALL refuse the whole plan before source evidence capture or plan persistence. It SHALL NOT load a complete revision for a small selection, omit selected nodes as a truncated plan, change per-selection error order or weaken actual server/scope ownership checks. SQLite column decoding failures SHALL propagate instead of becoming default field values; valid nullable fields, legacy JSON rows and unknown-size representations SHALL remain compatible.
+Plan construction SHALL resolve only explicitly selected node IDs from the scope's published revision through an authorized independent read connection.
+
+#### Scenario: Enforce every constraint of OP-15
+- **WHEN** the implementation is built, modified, or used
+- **THEN** The graph metadata phase SHALL share a 1000 ms cooperative deadline across revision resolution, authorization and selected-node reads, including a final check after authorization returns. Expiration SHALL refuse the whole plan before source evidence capture or plan persistence. It SHALL NOT load a complete revision for a small selection, omit selected nodes as a truncated plan, change per-selection error order or weaken actual server/scope ownership checks. SQLite column decoding failures SHALL propagate instead of becoming default field values; valid nullable fields, legacy JSON rows and unknown-size representations SHALL remain compatible.
 
 #### Scenario: Selected nodes among unrelated damaged metadata
 - **WHEN** one or several valid native nodes are selected in a revision containing unrelated malformed rows

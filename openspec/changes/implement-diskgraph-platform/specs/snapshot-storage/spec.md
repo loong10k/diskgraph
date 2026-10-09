@@ -12,7 +12,11 @@
 - **THEN** 原有原始身份逐项验证及发布回滚语义保持；可信旧无所有权入口仍拒绝重复显示定位，结构、覆盖及证据错误保持原分类和拒绝顺序。
 
 ### Requirement: ST-06 Maintainable Rust storage boundaries
-The storage crate SHALL keep lib.rs and mod.rs to module declarations and public reexports. Each production Rust source file SHALL define no more than one type and SHALL contain real implementation rather than placeholders. Public interfaces SHALL keep their existing root exports and wire/SQLite semantics during the structural change. Production wildcard imports SHALL be absent. Types and public methods SHALL have Chinese documentation with actual provenance and parameter/return semantics; a native Rust implementation SHALL not invent a Java counterpart.
+The storage crate SHALL keep lib.rs and mod.rs to module declarations and public reexports.
+
+#### Scenario: Enforce every constraint of ST-06
+- **WHEN** the implementation is built, modified, or used
+- **THEN** Each production Rust source file SHALL define no more than one type and SHALL contain real implementation rather than placeholders. Public interfaces SHALL keep their existing root exports and wire/SQLite semantics during the structural change. Production wildcard imports SHALL be absent. Types and public methods SHALL have Chinese documentation with actual provenance and parameter/return semantics; a native Rust implementation SHALL not invent a Java counterpart.
 
 #### Scenario: Storage entry and source structure
 - **WHEN** the source-layout gate parses production storage modules

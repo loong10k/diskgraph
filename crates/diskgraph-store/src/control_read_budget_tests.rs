@@ -1,6 +1,11 @@
 //! 控制授权窗口必须在成功、错误、到期及 unwind 后还原；来源：Q-08 / 13.6。
 
 use crate::{ControlStore, StoreError};
+use rusqlite::hooks::{AuthAction, AuthContext, Authorization};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 use std::time::{Duration, Instant};
 
 fn configured_store() -> ControlStore {
@@ -96,5 +101,55 @@ fn control_deadline_interrupts_real_sqlite_execution_and_restores_the_connection
         error.is_interrupted(),
         "actual SQLite execution was not interrupted: {error}"
     );
+    assert_restored(&store);
+}
+
+#[test]
+fn control_deadline_never_enters_consumer_after_sqlite_preparation_expires() {
+    let store = configured_store();
+    let prepared = Arc::new(AtomicBool::new(false));
+    let observed = Arc::clone(&prepared);
+    // 此例验证准备耗尽后的准入，不校准性能；留足首次进入真实准备回调的调度余量。
+    let deadline = Instant::now() + Duration::from_secs(1);
+    store
+        .connection
+        .authorizer(Some(move |context: AuthContext<'_>| {
+            if matches!(
+                context.action,
+                AuthAction::Pragma {
+                    pragma_name: "busy_timeout",
+                    ..
+                }
+            ) && !observed.swap(true, Ordering::SeqCst)
+            {
+                // 延迟真实SQLite配置语句的首次准备，不替换SQL结果或生产时钟。
+                std::thread::sleep(
+                    deadline.saturating_duration_since(Instant::now()) + Duration::from_millis(5),
+                );
+            }
+            Authorization::Allow
+        }))
+        .unwrap();
+    let entered = AtomicBool::new(false);
+    let result: crate::Result<()> = store.with_read_deadline(deadline, |_| {
+        entered.store(true, Ordering::SeqCst);
+        Ok(())
+    });
+    assert!(
+        prepared.load(Ordering::SeqCst),
+        "actual SQLite preparation must run"
+    );
+    assert!(
+        matches!(result, Err(StoreError::BudgetExceeded)),
+        "{result:?}"
+    );
+    assert!(
+        !entered.load(Ordering::SeqCst),
+        "expired consumer was executed"
+    );
+    store
+        .connection
+        .authorizer(None::<fn(AuthContext<'_>) -> Authorization>)
+        .unwrap();
     assert_restored(&store);
 }

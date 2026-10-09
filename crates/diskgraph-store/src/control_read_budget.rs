@@ -51,7 +51,15 @@ impl ControlStore {
             return Err(StoreError::from(error).into());
         }
         // 连接和 closure 可能不实现 UnwindSafe；仅捕获以还原配置，然后继续原始 panic。
-        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| consumer(self)));
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            // 配置语句准备与回调安装也消耗原窗口；不能先执行过期消费者再拒绝其结果。
+            // 仍经下方统一还原连接配置，不在过期分支提前返回或刷新期限。
+            if Instant::now() >= deadline {
+                Err(StoreError::BudgetExceeded.into())
+            } else {
+                consumer(self)
+            }
+        }));
         let expired = Instant::now() >= deadline;
         // 错误路径同样清除 handler，防止下一次正常控制读写继承过期期限。
         let cleared = self.connection.progress_handler(0, None::<fn() -> bool>);

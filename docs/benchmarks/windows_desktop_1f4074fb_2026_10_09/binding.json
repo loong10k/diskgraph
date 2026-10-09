@@ -1,0 +1,22 @@
+{
+  "source_commit": "1f4074fbf42876f328a99f3afd02ce7adc719111",
+  "native_platform": "win32",
+  "formal_job": "wc_job_GqtRwa-VZOd5ZcP8",
+  "formal_exit": 1,
+  "diagnostic_job": "wc_job_lHqD2xA9deEgWdRH",
+  "diagnostic_exit": 0,
+  "formal_300_seconds": "failed; never substituted by diagnostic",
+  "diagnostic_900_seconds": "completed; original CLI timeout 300 retained",
+  "snapshot_read_text": "UTF-8 text via read_files; not original CRLF byte copies",
+  "stdout_prefix": "first5 of26 lines; complete report recovered from diagnostic receipt observed_load",
+  "root_validation": "400003 calls,9 held chain handles,713948 ms cumulative across overlapping calls; not additive wall time",
+  "standalone_comparison_job": "wc_job_2CfV1EfXjxr2S4Zp",
+  "standalone_comparison_status": "running when observed; same E volume, outside checkout, changed absolute input path, no changed code performance claim",
+  "checks_sha256": {
+    "diagnostic_receipt.json": "2365106d4935115f97937b18b30ecdd36449b8431587fcfa4eccc183c3f099ec",
+    "diagnostic_stderr.log": "e6b2edf8ccd674b27790aa41dc45938799c0e7b137743acf1f8e435db7ad7091",
+    "diagnostic_stdout_prefix.log": "d9935c20518384fe81c0b329ece45d9b36093c0ae890b09f4f080f9657fd8d6f",
+    "diagnostic_report.json": "80ee7623065db47fdc80b63388c49dbc0f4114ea130f00b8f886caea30105f41",
+    "receipt.json": "0d18dcd539d703145a0d3a4a897a5c8afcbe16965d8cd6e4d908bc80e58a6607"
+  }
+}

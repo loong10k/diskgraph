@@ -1,0 +1,5 @@
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 180091.203}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 180271.859}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 180271.859}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 180272.843}
+{"phase": "index", "event": "begin", "monotonic_seconds": 180272.843}

@@ -1,0 +1,20 @@
+{
+  "base_commit": "1f4074fbf42876f328a99f3afd02ce7adc719111",
+  "test_file_sha256": "a51e82daa7b74fd7a3a6a1749d6394b75e6a268121285b42430fb943851b0789",
+  "production_deadline_changed": false,
+  "red": "Restore unconditional original elapsed assertion on deliberate 250 ms pre-SQL delay: exit101, target failed with BudgetExceeded in 1.458us.",
+  "green": "Original 150 ms deadline; 100 and 250 ms preparations exercise lock refusal and expired refusal. Ownership group 9 pass, 1 ignored.",
+  "store_worktree_regression": {
+    "passed": 400,
+    "ignored": 12,
+    "failed": 0,
+    "boundary": "Includes pre-existing dirty lib.rs and untracked reader_observation_tests; not exact-commit full-workspace qualification."
+  },
+  "clippy_store_all_targets": "exit0",
+  "format_project_scope": "exit0, same ten packages as CI; vendored upstream excluded by existing policy",
+  "format_all": "failed on pinned vendored upstream; upstream unchanged",
+  "openspec_strict": "6 existing long-requirement warnings remain; not passed",
+  "scenario_headers_corrected": 4,
+  "current_ci_run": 37901867819,
+  "macos_arm_current_failure": "html_export_does_not_write_after_terminal_scope_revocation returned Business(BudgetExceeded), not PermissionDenied; not explained by this Store test fix."
+}

@@ -1,0 +1,53 @@
+{
+  "passed": 14,
+  "total": 14,
+  "checks": {
+    "modern_anonymous_401": true,
+    "modern_hostile_origin_403": true,
+    "modern_signed_but_ungranted_denied": true,
+    "modern_authorized_scope_read": true,
+    "modern_sustained_scope_reads": true,
+    "modern_live_revocation_denied": true,
+    "legacy_anonymous_401": true,
+    "legacy_hostile_origin_403": true,
+    "legacy_endpoint_event": true,
+    "legacy_authorized_scope_read": true,
+    "missing_key_file_refused": true,
+    "short_key_file_refused": true,
+    "cli_serve_forwards_key_file": true,
+    "everyone_readable_key_refused": true
+  },
+  "sustained_http": {
+    "requests": 2368,
+    "requested_seconds": 60.0,
+    "elapsed_seconds": 60.000576499999966,
+    "offered_max_requests_per_second": 40,
+    "dispatch_reserve_ms": 35.01080000000911,
+    "latency_sample_window": "last_4096_requests",
+    "latency_samples": 2368,
+    "p50_ms": 9.6573000000717,
+    "p95_ms": 21.309199999905104,
+    "native_long_run_qualified": false
+  },
+  "platform": "win32",
+  "binary_content_before": {
+    "cli": {
+      "bytes": 7247360,
+      "sha256": "8328fa7d9b16128bb5e6fcece3eae2a65cd0557771b04f8b295b10f1cde716b2"
+    },
+    "mcp": {
+      "bytes": 5977600,
+      "sha256": "5783f1585add1daaef0468e0c7181124c187b960e475164d3f034d5053c6a31b"
+    }
+  },
+  "binary_content_after": {
+    "cli": {
+      "bytes": 7247360,
+      "sha256": "8328fa7d9b16128bb5e6fcece3eae2a65cd0557771b04f8b295b10f1cde716b2"
+    },
+    "mcp": {
+      "bytes": 5977600,
+      "sha256": "5783f1585add1daaef0468e0c7181124c187b960e475164d3f034d5053c6a31b"
+    }
+  }
+}

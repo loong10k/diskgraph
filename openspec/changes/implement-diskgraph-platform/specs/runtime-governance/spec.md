@@ -5,7 +5,11 @@
 ## ADDED Requirements
 
 ### Requirement: RT-09 Maintainable Rust Engine boundaries
-The Engine crate SHALL keep lib.rs and mod.rs to module declarations and explicit reexports. Every production source file SHALL define at most one object, including private records, traits and aliases, and SHALL contain fewer than 500 physical lines. Real implementations SHALL be grouped by responsibility; a file split SHALL NOT introduce placeholder implementations or duplicate state owners. Types SHALL have Chinese documentation with actual native provenance, and public functions/methods SHALL document their parameters and return semantics in Chinese. Production wildcard imports SHALL be absent.
+The Engine crate SHALL keep lib.rs and mod.rs to module declarations and explicit reexports.
+
+#### Scenario: Enforce every constraint of RT-09
+- **WHEN** the implementation is built, modified, or used
+- **THEN** Every production source file SHALL define at most one object, including private records, traits and aliases, and SHALL contain fewer than 500 physical lines. Real implementations SHALL be grouped by responsibility; a file split SHALL NOT introduce placeholder implementations or duplicate state owners. Types SHALL have Chinese documentation with actual native provenance, and public functions/methods SHALL document their parameters and return semantics in Chinese. Production wildcard imports SHALL be absent.
 
 The structural change SHALL preserve existing root exports, the public content/live_evidence/verify module paths, function signatures, tuple aliases, wire fields, error conversions, default values, SQL/JSON constants and observable behavior. Engine SHALL remain the single owner of its graph/control connections, cancellation flags and progress state. Internal visibility MAY change only as needed for the same crate-level collaboration; no new externally accessible fields or helpers SHALL be introduced.
 
@@ -173,7 +177,11 @@ The CLI SHALL preview `snapshots prune --scope S --keep-last N` without deletion
 
 
 ### Requirement: RT-10 Maintainable MCP source boundaries
-The MCP crate SHALL keep its library entry to standard module declarations and explicit public reexports. Existing public module paths, McpConfig/McpService/STDIO_PRINCIPAL/serve_stdio exports, method signatures, defaults and wire fields SHALL remain compatible. Real configuration, service state, dispatch, scope access, query adapters and stdio framing SHALL have responsibility modules without duplicate Engine or request-state owners. Production files SHALL contain fewer than 500 physical lines and at most one object, with Chinese documentation stating actual native provenance and public parameter/return semantics; wildcard imports and placeholder implementations SHALL be absent.
+The MCP crate SHALL keep its library entry to standard module declarations and explicit public reexports.
+
+#### Scenario: Enforce every constraint of RT-10
+- **WHEN** the implementation is built, modified, or used
+- **THEN** Existing public module paths, McpConfig/McpService/STDIO_PRINCIPAL/serve_stdio exports, method signatures, defaults and wire fields SHALL remain compatible. Real configuration, service state, dispatch, scope access, query adapters and stdio framing SHALL have responsibility modules without duplicate Engine or request-state owners. Production files SHALL contain fewer than 500 physical lines and at most one object, with Chinese documentation stating actual native provenance and public parameter/return semantics; wildcard imports and placeholder implementations SHALL be absent.
 
 #### Scenario: Thin service entry preserves the security contract
 - **WHEN** the existing MCP library configuration and service implementation move into real modules
@@ -206,7 +214,7 @@ The MCP crate SHALL keep its library entry to standard module declarations and e
 - **THEN** 条件认领拒绝，不修改 state、owner、heartbeat、lease 或 token，不先提交无效代次后再因解码失败报错。
 - **AND** 合法末个代次从上限减一递增到上限仍可认领；该代次失效后不能回绕、提升为浮点数或重用零代次。正常跨进程竞争、实时授权和旧 owner 禁写合同保持不变。
 
-### Scenario: Windows directory lease retries transient sharing contention within the original budget
+#### Scenario: Windows directory lease retries transient sharing contention within the original budget
 - **WHEN** a directory component cannot open because a concurrent native handle causes ERROR_SHARING_VIOLATION
 - **THEN** only that typed sharing conflict is retried under the same absolute ProbeBudget deadline and cancellation, without changing the requested access/share modes or reopening through links
 - **AND** success still validates the returned original component identity/type/volume; expiry or cancellation terminates retries, and any other native error returns immediately

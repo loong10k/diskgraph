@@ -1,0 +1,20 @@
+{
+  "reason": "preserve original CI bytes in gzip, commit normalized JSON for readable diff",
+  "files": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": {
+      "native_sha256": "c60d55bdad14226b2d0f921de435e86e0ada12fe17ab947ce701179b1158778a",
+      "normalized_sha256": "616ddc99ead22fd637d8738df06fbadcb22fc979baf9377582e34ccc122e5588",
+      "native_copy": "diskgraph-x86_64-pc-windows-msvc.http.json.native.gz"
+    },
+    "diskgraph-x86_64-pc-windows-msvc.load_200000.json": {
+      "native_sha256": "d670bc9ece836a48c3a6bc750c0b17bfd209191ba246cc48146351cc04ab2bbb",
+      "normalized_sha256": "3a35a029109bc35c59df99f7dcad86dfe91145a4de4234c0628d7e867d51b759",
+      "native_copy": "diskgraph-x86_64-pc-windows-msvc.load_200000.json.native.gz"
+    },
+    "diskgraph-x86_64-pc-windows-msvc.load.json": {
+      "native_sha256": "798bfebabff9d996c1eceddbf27e8a4a942414bf8bef6a47d05471d8204a6563",
+      "normalized_sha256": "f52aa5c720e620332c0a0d8d52819ca5199a66d7f75dcfc06475df92aeacfc15",
+      "native_copy": "diskgraph-x86_64-pc-windows-msvc.load.json.native.gz"
+    }
+  }
+}

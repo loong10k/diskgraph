@@ -1,0 +1,14 @@
+{
+  "qualification": "current dirty workspace store regression, not exact commit whole workspace",
+  "red_exit": 101,
+  "regression_exit": 0,
+  "passed": 401,
+  "ignored": 12,
+  "production_deadline": "unchanged; original absolute deadline rechecked before consumer",
+  "source_sha256": {
+    "crates/diskgraph-store/src/control_read_budget.rs": "58f0bc6c7e6eb577ca7603edd33d4c9d76512aefc1ca598d8f979ae5dd75557d",
+    "crates/diskgraph-store/src/control_read_budget_tests.rs": "c1dc81ed5c14c9a6c9c28a8adb3dd2197af5e389faa60d0d889276ddc023eaf4"
+  },
+  "strict_openspec": "passed after preserving six full constraint bodies in scenario details",
+  "clippy": "store all-targets -D warnings passed"
+}

@@ -210,33 +210,45 @@ fn a_later_busy_select_uses_only_the_original_remaining_window() {
     let path = directory.path().join("graph.sqlite");
     let connection = rusqlite::Connection::open(&path).unwrap();
     connection.execute_batch("CREATE TABLE ownership(revision_id TEXT,server_id TEXT,scope_id TEXT); CREATE VIEW revision_authorized_ownership AS SELECT * FROM ownership;").unwrap();
-    let started = Instant::now();
-    let deadline = started + Duration::from_millis(150);
-    let terminal = RevisionOwnershipReader::open_until(&path, deadline).unwrap();
-    let admission_elapsed = started.elapsed();
-    // 真实 rollback-journal 写锁阻止新读；在原窗口已用去大半后才执行 SELECT。
-    connection.execute_batch("BEGIN EXCLUSIVE").unwrap();
-    let locked_elapsed = started.elapsed();
-    std::thread::sleep(Duration::from_millis(100));
-    let select_started = Instant::now();
-    let before_select_elapsed = started.elapsed();
-    let result = terminal.matches("base", "server", "scope");
-    let select_elapsed = select_started.elapsed();
-    let total_elapsed = started.elapsed();
-    // 原墙钟门禁不放宽；分开记录调度/夹具准备与真实 SELECT，避免将总耗时推断为重试续期。
-    // 计时截至原查询返回；诊断输出自身不能增加被测操作的实耗。
-    eprintln!(
-        "terminal_busy_phases admission={admission_elapsed:?} locked={locked_elapsed:?} before_select={before_select_elapsed:?} select={select_elapsed:?} total={total_elapsed:?} result={result:?}"
-    );
-    assert!(
-        matches!(&result, Err(StoreError::BudgetExceeded))
-            || matches!(&result, Err(error) if error.is_busy() || error.is_interrupted()),
-        "{result:?}"
-    );
-    assert!(
-        total_elapsed < Duration::from_millis(240),
-        "old busy timeout renewed the original window: {:?}",
-        total_elapsed
-    );
-    connection.execute_batch("ROLLBACK").unwrap();
+    // 同一真实锁夹具覆盖窗口尚未耗尽和调用前已过期两种请求；每轮有独立原期限。
+    for pause_ms in [100, 250] {
+        let started = Instant::now();
+        let deadline = started + Duration::from_millis(150);
+        let terminal = RevisionOwnershipReader::open_until(&path, deadline).unwrap();
+        let admission_elapsed = started.elapsed();
+        // 真实 rollback-journal 写锁阻止新读；在原窗口已用去大半后才执行 SELECT。
+        connection.execute_batch("BEGIN EXCLUSIVE").unwrap();
+        let locked_elapsed = started.elapsed();
+        std::thread::sleep(Duration::from_millis(pause_ms));
+        let select_started = Instant::now();
+        let before_select_elapsed = started.elapsed();
+        let result = terminal.matches("base", "server", "scope");
+        let select_elapsed = select_started.elapsed();
+        let total_elapsed = started.elapsed();
+        // 原墙钟门禁不放宽；分开记录调度/夹具准备与真实 SELECT，避免将总耗时推断为重试续期。
+        // 计时截至原查询返回；诊断输出自身不能增加被测操作的实耗。
+        eprintln!(
+            "terminal_busy_phases admission={admission_elapsed:?} locked={locked_elapsed:?} before_select={before_select_elapsed:?} select={select_elapsed:?} total={total_elapsed:?} result={result:?}"
+        );
+        assert!(
+            matches!(&result, Err(StoreError::BudgetExceeded))
+                || matches!(&result, Err(error) if error.is_busy() || error.is_interrupted()),
+            "{result:?}"
+        );
+        if select_started >= deadline {
+            // sleep可能被调度器延后；此时SQL前必须按原期限拒绝，不能把准备耗时归因于busy重试。
+            // 不接受busy/interrupted替代此断言，否则过期请求仍执行SQL的回归会被掩盖。
+            assert!(
+                matches!(result, Err(StoreError::BudgetExceeded)),
+                "{result:?}"
+            );
+        } else {
+            assert!(
+                total_elapsed < Duration::from_millis(240),
+                "old busy timeout renewed the original window: {:?}",
+                total_elapsed
+            );
+        }
+        connection.execute_batch("ROLLBACK").unwrap();
+    }
 }
