@@ -1,6 +1,6 @@
 //! 长连接实时权限的有界控制观察。
 use crate::{Engine, EngineError, admin_scope};
-use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId};
+use diskgraph_core::{Permission, PrincipalId};
 use std::time::Instant;
 impl Engine {
     /// 检查主体的候选权限是否仍有实时grant。参数：principal、token允许的permissions及原deadline。
@@ -13,24 +13,7 @@ impl Engine {
     ) -> Result<bool, EngineError> {
         let control = self.control_until(deadline)?;
         control.with_read_deadline(deadline, |store| {
-            let policy = store.authorizer()?;
-            if permissions.iter().any(|permission| {
-                matches!(
-                    policy.decide(principal, permission, &admin_scope()),
-                    Decision::Allowed
-                )
-            }) {
-                return Ok(true);
-            }
-            Ok(store.list_scopes()?.iter().any(|scope| {
-                !scope.revoked
-                    && permissions.iter().any(|permission| {
-                        matches!(
-                            policy.decide(principal, permission, &scope.scope_id),
-                            Decision::Allowed
-                        )
-                    })
-            }))
+            Ok(store.identity_has_live_permission(principal, permissions, &admin_scope())?)
         })
     }
 }

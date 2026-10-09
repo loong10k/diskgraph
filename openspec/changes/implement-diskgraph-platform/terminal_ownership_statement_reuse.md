@@ -13,3 +13,5 @@ macOS 历史集成的首次命令误用 library 过滤，运行 0 项，不能�
 另行在未经本优化的 `82e692d4` 上启用诊断运行 Windows 默认 CLI：86/2/0，仍报告 `terminal_ownership_sql` 原窗口耗尽。该结果与此前 82/6/0 的波动说明不能由单轮失败数推导修复收益。此项只证明同轮重复编译消除与列出的正确性回归；没有宣称 Windows 完整 CLI/MCP、macOS Intel 或 200k 性能门禁已修复。Windows 原始源码/程序摘要、日志摘要及回执见 `docs/benchmarks/windows_ownership_cache_{red,green}_82e692d4_2026_10_09.json`、`windows_store_full_ownership_cache_82e692d4_2026_10_09.json`、`windows_history_ownership_cache_82e692d4_2026_10_09.json`。
 
 状态：本项实现与上述验证完成，平台生产父项保持开放。当前三平台 CI 绑定 `82e692d4`，尚不包含本优化。
+
+后续 Windows 默认并发 CLI/MCP 全目标已收齐：CLI 单元 88/0/0、各 CLI 集成目标通过；MCP 单元 228/3/0，两个关系编码后到期部分诊断返回预算失败，legacy 会话 404 而非 202，其余 MCP 集成目标通过。另一次启用原授权阶段诊断的 MCP 为 228/3/0，失败项目变化，包含控制观察 66.835 ms 和归属 SQL 58.280/55.835 ms。未调整原窗口；不能据单轮 CLI 通过关闭稳定性或生产门禁。回执 windows_frontends_ownership_cache_82e692d4_2026_10_09.json 保留原 argv、源码和程序摘要。

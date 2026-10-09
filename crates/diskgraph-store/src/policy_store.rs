@@ -325,3 +325,6 @@ impl ControlStore {
 #[cfg(test)]
 #[path = "control_query_cache_tests.rs"]
 mod control_query_cache_tests;
+
+#[path = "live_identity_permission.rs"]
+mod live_identity_permission;
