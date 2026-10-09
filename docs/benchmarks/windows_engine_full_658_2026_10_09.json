@@ -1,0 +1,143 @@
+{
+  "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+  "source_diff_sha256": "229259f164838a790d328ae8eca794c770152f9255f7a4723e839e7fd2ae1ce5",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.375
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 300.9679999999935
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "299b01d1aa244b77eee51f09a9fb75244850e19f018752f1be0bf8e36ee49d0f",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "2732190df2f76a0ef5d286da4587234c7867b880aa6000febd166cfebe5f2187",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "9718ad8e1a73340e0afc048c39118772df4a29ce39aeccbf2cf60c732e55b987",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "713a70d52c6a02c892c414f14bac3740f093fc10aec84bc33aa8d6db27f0d582",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "5fe6e4a4ecdf3867518e27271e081b5db3f327f5f400d9474757086821f6d4d3",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "06a075efe5109627894a8a36aa7f3ccf56f96957defe7d872fe80619e83f7edf",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "4fdba428f78a617caf6e9922baa98f305bef157dad527a47ad572cc9d7be6f0a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_summary.rs": "679a58f0959a9b1a7c59984ba43e141cbcfe30ad8488ac9bc29344fe519cf899",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "c8ea5e886ccb646d9bebc25da0b02d701637b9874e37cc0c66ee09ee0468fbee"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_engine_activity_wait_full_f36\\current_source_driver.exe",
+    "sha256": "b7f0968a361dcc302741447b3fbd89e84e362d957e160a95902881667800a809",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 729 filtered out; finished in 22.06s",
+    "test result: FAILED. 670 passed; 53 failed; 7 ignored; 0 measured; 0 filtered out; finished in 271.71s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 115624,
+      "sha256": "4df2efca1bff3676e9e4866dfa227d21ddacc017f2bcadb4253b06be639aeebe"
+    },
+    "engine.stderr.log": {
+      "bytes": 8869,
+      "sha256": "463b1c27e6681550e71462a7e870e2fbd6175fc66bdb0479ddc9f5e3fc836dc3"
+    }
+  },
+  "source_hashes_unchanged": true,
+  "top_level_summary": "test result: FAILED. 670 passed; 53 failed; 7 ignored; 0 measured; 0 filtered out; finished in 271.71s",
+  "failed_tests": [
+    "admin_policy_lookup_tests::display_terminal_callback_can_reenter_control_and_revoke",
+    "history_relation_withdrawal_tests::history_and_relation_remember_withdrawal_in_capability_observations",
+    "git_job_cancellation_tests::live_git_owner_rejection_and_cancel_preserve_the_active_handle",
+    "git_evidence_execution_tests::git_owner_loss_after_capture_cannot_publish_or_finish_the_new_owner",
+    "git_evidence_execution_tests::git_original_request_expiry_after_capture_fails_without_publication",
+    "git_evidence_execution_tests::git_content_revocation_after_capture_prevents_any_publication",
+    "git_job_status_tests::completed_git_status_requires_live_metadata_permission_in_addition_to_operation_view",
+    "git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision",
+    "git_job_status_tests::pruned_git_result_keeps_authorized_receipt_and_marks_result_unavailable",
+    "git_job_status_tests::completed_git_status_rechecks_all_live_grants_after_the_last_terminal_callback",
+    "git_evidence_execution_tests::git_actual_cancellation_after_capture_is_cancelled_without_publication",
+    "git_late_enqueue_tests::enqueue_cannot_register_a_terminal_handle_after_another_engine_completes",
+    "git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision",
+    "git_late_enqueue_tests::queued_producer_handle_does_not_survive_remote_engine_completion",
+    "job_stop_cause_outcome_tests::a_real_committed_receipt_remains_completed_after_late_keeper_denial",
+    "job_keeper_unwind_tests::execution_unwind_joins_keeper_without_revocation_or_rescue_cancellation",
+    "job_stop_cause_outcome_tests::keeper_join_propagates_its_real_panic_without_rewriting_committed_facts",
+    "job_stop_cause_outcome_tests::real_identity_conflict_is_not_replaced_by_a_later_keeper_authorization_error",
+    "job_stop_conflict_tests::observed_denial_does_not_replace_a_real_indexed_directory_identity_conflict",
+    "job_stop_signals_tests::stop_signals_after_real_completion_do_not_rewrite_the_committed_fact",
+    "job_stop_signals_tests::keeper_authorization_failure_is_not_inferred_from_the_stop_atomic",
+    "job_stop_signals_tests::running_keeper_distinguishes_request_cancel_from_verified_deny_stop",
+    "live_evidence::git_callback_tests::native_same_size_private_index_rewrite_is_not_a_complete_public_sample",
+    "live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes",
+    "live_evidence::git_isolation_semantics_tests::linked_worktree_keeps_its_own_head_index_and_the_common_stash",
+    "live_evidence::git_indexed_identity_tests::indexed_git_directory_replacement_cannot_be_sampled_as_the_original_node",
+    "live_evidence::git_isolation_semantics_tests::sha256_format_and_tracking_counts_are_preserved_without_skipping_capability",
+    "live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes",
+    "live_evidence::git_resource_tests::git_head_and_upstream_resource_errors_cannot_be_missing_references",
+    "live_evidence::git_object_database_tests::known_object_accelerators_are_not_private_git_inputs",
+    "live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes",
+    "live_evidence::git_scope_boundary_tests::registered_parent_maps_absolute_attributes_and_excludes_dependencies",
+    "live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency",
+    "live_evidence::git_semantics_tests::committed_repository_counts_untracked_files_not_directory_display_rows",
+    "live_evidence::git_scoped_semantics_tests::scoped_unborn_staged_and_untracked_files_keep_status_records",
+    "live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git",
+    "live_evidence::git_scoped_semantics_tests::scoped_stash_reference_and_log_preserve_real_local_history",
+    "live_evidence::git_semantics_tests::unborn_repository_counts_each_untracked_and_staged_file",
+    "live_evidence::git_semantics_tests::detached_head_keeps_dirty_observations_and_unknown_upstream",
+    "live_evidence::git_semantics_tests::missing_tracking_ref_is_reported_as_unavailable_not_unconfigured",
+    "live_evidence::git_semantics_tests::sha256_repository_keeps_full_oids_and_correct_commit_counts",
+    "live_evidence::git_status_output_tests::real_wide_status_exhausts_default_output_without_partial_sample_or_private_data",
+    "live_evidence::probe_tests::an_exited_leader_does_not_make_inherited_pipes_complete",
+    "live_evidence::probe_tests::command_outputs_accumulate_in_the_sample_budget",
+    "live_evidence::git_view_race_tests::replaced_source_config_cannot_execute_after_private_view_capture",
+    "live_evidence::git_view_race_tests::live_attribute_macro_activating_unused_process_driver_is_unsupported",
+    "live_evidence::git_view_race_tests::live_attribute_macro_activating_unused_clean_driver_is_unsupported",
+    "relation_request_tests::growth_data_expiry_with_timely_capability_is_timeout_for_unknown_and_cross_scope",
+    "live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly",
+    "revision_evidence_tests::old_revision_cannot_read_newer_batch_from_the_same_snapshot",
+    "revision_windows_observation_tests::windows_observation_reads_actual_published_node_as_metadata",
+    "terminal_capability_tests::late_history_side_does_not_hide_the_other_scope_revocation",
+    "live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit"
+  ],
+  "candidate_commit": "658bade82738562e2c882042b3203bc14fdc2be3",
+  "job_id": "wc_job_6mJym3ZoLpbyg5aX",
+  "receipt_path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_engine_activity_wait_full_f36\\receipt.json"
+}

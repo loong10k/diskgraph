@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import qualify_windows_private_disposal as qualifier
-from qualify_windows_capacity_replay import SUPPORT
+from qualify_windows_capacity_replay import BUDGET, SUPPORT
 
 
 class DisposalReplayTests(unittest.TestCase):
@@ -17,7 +17,7 @@ class DisposalReplayTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             originals = {}
-            for name in dict.fromkeys(qualifier.SOURCES + SUPPORT):
+            for name in dict.fromkeys(qualifier.SOURCES + SUPPORT + [BUDGET]):
                 data = (qualifier.ROOT / name).read_bytes()
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -34,6 +34,8 @@ class DisposalReplayTests(unittest.TestCase):
             def cargo(*args):
                 self.assertNotIn(b"recover_created_entry", (root / SUPPORT[2]).read_bytes())
                 self.assertNotIn(b"git_private_created_entry", (root / SUPPORT[3]).read_bytes())
+                self.assertNotIn(b"git_private_write_summary", (root / SUPPORT[3]).read_bytes())
+                self.assertNotIn(b"_write_summary", (root / BUDGET).read_bytes())
                 if isinstance(result, Exception):
                     raise result
                 return result

@@ -1,0 +1,85 @@
+{
+  "head": "658bade82738562e2c882042b3203bc14fdc2be3",
+  "exit_code": 0,
+  "elapsed_seconds": 103.89100000000326,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "330086a0be6d15360adbb3a07b54e197abbb9df09e0d080c9650b58ca8a25e86",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "c8ea5e886ccb646d9bebc25da0b02d701637b9874e37cc0c66ee09ee0468fbee",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea"
+  },
+  "source_hashes_unchanged": true,
+  "logs": {
+    "qualification.stderr.log": {
+      "sha256": "f601014956bdc8537d5298d558850041f99f873cba1f2b86205d3b58b610e64b",
+      "bytes": 121,
+      "tail": "From https://github.com/loong10k/diskgraph\n * branch              ee39a5ef38f495349bda3f68cfeec9c8efc89381 -> FETCH_HEAD\n"
+    },
+    "qualification.stdout.log": {
+      "sha256": "e60fa8ad273ea20f8768d140f8a687c89750e8891b9083b566bff3e5b4145693",
+      "bytes": 117,
+      "tail": "native modified-evidence rejection and original disposal verified; other permanent cleanup failures remain separate\n"
+    },
+    "diskgraph-windows-private-disposal\\green-disposal.log": {
+      "sha256": "d23a9b9f164f24168a3a9876a058c988cff91641f8cfc15fdadf8c42f4019e81",
+      "bytes": 652,
+      "tail": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 32.65s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nrunning 1 test\ntest live_evidence::windows_git_directory_cursor_tests::modified_original_private_artifact_is_rejected_as_evidence_but_actually_disposed ... DG_MODIFIED_PRIVATE_IDENTITY_REJECTION_RED_READY=1\nDG_MODIFIED_PRIVATE_DISPOSAL_WITHOUT_EVIDENCE_TRUST=1\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 729 filtered out; finished in 0.01s\n\n"
+    },
+    "diskgraph-windows-private-disposal\\green-public-rejection.log": {
+      "sha256": "c9684f0c4cbcbb07833177988c25a529599aa696ae184d55741d2e0a08c8ca1f",
+      "bytes": 415,
+      "tail": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nrunning 1 test\ntest live_evidence::git_callback_tests::native_same_size_private_index_rewrite_is_not_a_complete_public_sample ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 729 filtered out; finished in 17.45s\n\n"
+    },
+    "diskgraph-windows-private-disposal\\red.log": {
+      "sha256": "c79d1afb4f55e06956c9fabd6ff5cef704fb3d02f52a23800adecaceee4e4fab",
+      "bytes": 1295,
+      "tail": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 38.63s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nrunning 1 test\ntest live_evidence::windows_git_directory_cursor_tests::modified_original_private_artifact_is_rejected_as_evidence_but_actually_disposed ... DG_MODIFIED_PRIVATE_IDENTITY_REJECTION_RED_READY=1\n\nthread 'live_evidence::windows_git_directory_cursor_tests::modified_original_private_artifact_is_rejected_as_evidence_but_actually_disposed' (60940) panicked at crates\\diskgraph-engine\\src\\live_evidence\\windows_git_directory_cursor_tests.rs:1003:5:\nmodified original private artifact must remain disposable: Err(Custom { kind: Other, error: \"private Git registered file version changed\" })\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nFAILED\n\nfailures:\n\nfailures:\n    live_evidence::windows_git_directory_cursor_tests::modified_original_private_artifact_is_rejected_as_evidence_but_actually_disposed\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 727 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n"
+    }
+  },
+  "qualification": {
+    "candidate": "658bade82738562e2c882042b3203bc14fdc2be3",
+    "baseline": "ee39a5ef38f495349bda3f68cfeec9c8efc89381",
+    "candidate_sources": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "b6a2e83ce4b935800ba5428a3a05d3a8fd80f42ea694f4e2f1e0ac4e961732de",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "330086a0be6d15360adbb3a07b54e197abbb9df09e0d080c9650b58ca8a25e86",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "6e0a00f6a7057c528bf08134949218c7a608267de15fcc3d6e5714f8a36ccb5b",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "0efc55603ae4929015e34b0493855239737fa155cdaefab5d770220564f70587",
+      "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "06344b3bf4e3c8679d0c80ed91378706834537a8938dbb4a37aed4d9ce5e9fb4",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "c8ea5e886ccb646d9bebc25da0b02d701637b9874e37cc0c66ee09ee0468fbee",
+      "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea"
+    },
+    "baseline_original_sources": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "700b22baa82b37f2c70ef33ec46a40ed99e513e84f08c0c242ecfe09a22bc4e8",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "ca715f31d78fa4015a14c71d3fd5f0b1acc088695658b76a2677d8fdf3af9ed8"
+    },
+    "baseline_sources": {
+      "crates/diskgraph-engine/src/live_evidence/git_private_capacity.rs": "333926b2ded3b1cfb450733ee81f6579ea24ada0e57ca0ee0458573dfde248c8",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "700b22baa82b37f2c70ef33ec46a40ed99e513e84f08c0c242ecfe09a22bc4e8",
+      "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup.rs": "09a7491bd27d007ab41f46892f9d57edbb5322319cc660322b4399dc24438c68",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory.rs": "4f807c9b397f91f243c9b3eb7753452aeb2b511de1021cf17d878d4727cbed9a",
+      "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "7fe7a6f4bb6240be0929e7e9e3475c8e3d586dbacfa85fb638a0620e0a5b76f0",
+      "crates/diskgraph-engine/src/live_evidence/git_private_directory_owner.rs": "5f9f7ce417b7345673f45f10abc5ad2f377f7820c075a5382dfc782cc0102588",
+      "crates/diskgraph-engine/src/live_evidence/mod.rs": "6be7ebe09ac9a16db76399a8d3706515f054c8cfca695ad65933275dcebb6c9d",
+      "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "b7ed5713bd469144b3633d12e5cccc2119d547aab0226dd3963ba45d205dce27"
+    },
+    "shared_test_sources": {
+      "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor_tests.rs": "49e5fe841f1015be9ce197f002f0653508366116136307995e24a8c15016baca",
+      "crates/diskgraph-engine/src/live_evidence/git_callback_tests.rs": "dbdfba2f55eac163bedc1eebbd226ab74981be8b02c171ccb57a60956020ae85"
+    },
+    "status": "native modified-evidence rejection and original disposal verified; other permanent cleanup failures remain separate",
+    "red": "same original full identity and changed version proven; productive rejection also blocked artifact disposal",
+    "restored": true
+  },
+  "script_hashes": {
+    "scripts/qualify_windows_capacity_replay.py": "b0ca13074dbefb99cd947fd45980e1a8ddf610d1a4ff142432a0159d5703039d",
+    "scripts/tests/test_windows_capacity_replay.py": "e65c137795818f7155df6a9c9f74326a0f7edde4d3f79b535aea1575789ecf8b",
+    "scripts/tests/test_windows_private_disposal_qualification.py": "e27281cc328c41e8efcbd80b78d2f7f9e33b89a19b3e20055aad5aed2ac71a4a"
+  },
+  "job_id": "wc_job_vNmA_qIr-vy0p61J"
+}

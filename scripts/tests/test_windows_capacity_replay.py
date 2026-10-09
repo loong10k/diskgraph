@@ -8,6 +8,23 @@ from qualify_windows_capacity_replay import adapt_support, SUPPORT
 
 
 class CapacityReplayTests(unittest.TestCase):
+    def test_current_summary_and_budget_are_removed_together_only_in_replay(self):
+        root = Path(__file__).resolve().parents[2]
+        current = {name: (root / name).read_bytes() for name in SUPPORT}
+        budget = "crates/diskgraph-engine/src/live_evidence/probe_budget.rs"
+        current[budget] = (root / budget).read_bytes()
+        result = adapt_support(current)
+        self.assertNotIn(b"mod git_private_write_summary;", result[SUPPORT[3]])
+        self.assertNotIn(b"_write_summary", result[budget])
+        expected = current[budget].replace(
+            b"    #[cfg(all(test, windows))]\n"
+            b"    _write_summary: Option<super::git_private_write_summary::GitPrivateWriteSummary>,\n", b""
+        ).replace(
+            b"            #[cfg(all(test, windows))]\n"
+            b"            _write_summary: super::git_private_write_summary::GitPrivateWriteSummary::new(),\n", b""
+        )
+        self.assertEqual(result[budget], expected)
+
     def test_removes_only_unreachable_creation_recovery_calls(self):
         block = (b"        if let Some(capacity) = self.capacity.as_mut() {\n"
                  b"            capacity.recover_created_entry()?;\n        }\n")

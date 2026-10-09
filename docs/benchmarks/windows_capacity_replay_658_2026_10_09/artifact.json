@@ -1,0 +1,19 @@
+{
+  "run_id": 37865556195,
+  "job_id": 113611314798,
+  "artifact_id": 11588311467,
+  "archive_sha256": "26377ce0f0886fa8db926a478379ebe5bb13ac0b392b9d0e1c77d880910ff29d",
+  "status": "compile failure before behavior RED; not native product failure proof",
+  "original_files": {
+    "red.log": {
+      "sha256": "66faa4bc8a383b57a9d5747b689aa01a5eeb412de72f1d3f2dfb02e57812c3cb",
+      "bytes": 705,
+      "stored_as": "red.log.gz"
+    },
+    "receipt.json": {
+      "sha256": "f1bd11c823b353a684ac5d5c6fdd02d768741ee565401bc3e719bb8a6bf51612",
+      "bytes": 3019,
+      "stored_as": "receipt.json.gz"
+    }
+  }
+}
