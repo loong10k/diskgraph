@@ -1,0 +1,19 @@
+{
+  "commit": "cf4e241ec9237d5b7cf61a0ad7f7d063db786293",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "diskgraph-engine",
+    "--lib",
+    "windows_native_scan_tests::root_binding_tests::repeated_observations_parse_only_the_requested_path",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/windows_path_plan.rs": "4c7d1816d3a22ee1b40c9503ac62a8fc7d12f872e02581ba02f931fb9f6684e0",
+    "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "71fe72b87092fdcbfad0f5184df603313703838180ac2eeb5fd16b6535fbb9a6"
+  }
+}

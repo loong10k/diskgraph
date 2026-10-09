@@ -7,6 +7,38 @@ use crate::windows_native_scan_root::WindowsNativeScanRoot;
 use super::{node, root, settings};
 
 #[test]
+fn repeated_observations_parse_only_the_requested_path() {
+    use crate::windows_path_plan::WindowsPathPlan;
+
+    let workspace = tempfile::tempdir().unwrap();
+    let root = root(&workspace);
+    let paths: Vec<_> = (0..20).map(|i| root.join(format!("node-{i}"))).collect();
+    for path in &paths {
+        std::fs::write(path, b"owned").unwrap();
+    }
+    let lease = WindowsNativeScanRoot::open(&root, &|| Ok(())).unwrap();
+    let before = WindowsPathPlan::parse_work_for_tests();
+    for path in &paths {
+        let (observed, gap) = lease
+            .observe(
+                path,
+                &node(path, NodeKind::File, 5),
+                None,
+                &settings(),
+                &|| Ok(()),
+            )
+            .unwrap();
+        assert!(observed.is_some());
+        assert!(gap.is_none());
+    }
+    assert_eq!(
+        WindowsPathPlan::parse_work_for_tests() - before,
+        paths.len(),
+        "fixed registered root must not be re-parsed for every node"
+    );
+}
+
+#[test]
 fn preencoded_component_keeps_identity_and_rejects_invalid_names() {
     use crate::windows_file_state::WindowsFileState;
     use crate::windows_native_open::{open_child, open_child_utf16, open_drive};

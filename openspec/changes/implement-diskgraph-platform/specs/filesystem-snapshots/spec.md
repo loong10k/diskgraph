@@ -59,6 +59,11 @@
 - **THEN** 重新验证当前 drive 锚及各保留父句柄下的单组件名称绑定，比较完整卷/128 位身份和目录安全状态；绑定缺失、身份改变、重解析或跨卷返回 conflict，采样和发布均被拒绝
 - **AND** 目录自身修改时间变化保持允许；不为冻结名称额外申请正文/枚举/删除权限，不声称属性共享标记保证重命名失败，也不将有限复核称为原子文件系统快照
 
+#### Scenario: Immutable Windows lexical root planning has bounded repeated work
+- **WHEN** 一个扫描根租约已经完成注册根的词法检查，随后补充多个节点的原生属性
+- **THEN** 每个节点只重新解析请求路径，不重复分配和解析固定注册根；原生根链名称重新打开、卷与完整身份检查、首末取消/撤权/fencing 检查仍逐次执行
+- **AND** 请求路径的 NUL、点步、ADS、长度、namespace、大小写与原生 UTF-16 边界保持原规则；词法计划复用不缓存授权结果或文件系统绑定，不声明整体扫描速度或严格内存上限已经达标
+
 #### Scenario: Linux scan observation rejects ancestor rebinding
 - **WHEN** Linux 扫描的补充原生观测完成后、发布之前，注册根的祖先目录被替换，即使原根和文件被移回相同展示路径且最终 inode 未变
 - **THEN** 使用遍历开始前固定的原生锚与逐组件名称绑定验证祖先和根；发现绑定变化时返回 conflict，任务失败并清理本次暂存，不发布 revision 或推进 latest

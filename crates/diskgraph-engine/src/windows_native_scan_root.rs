@@ -19,7 +19,7 @@ use crate::windows_scan_cost::WindowsScanCost;
 /// 扫描期间保留 drive 到注册根的属性租约；来源：D31 与 NtCreateFile RootDirectory。
 /// 它约束补充属性读取，不把上游路径线程池扫描或文件内容称为原子快照。
 pub(crate) struct WindowsNativeScanRoot {
-    path: PathBuf,
+    path_plan: WindowsPathPlan,
     drive_root: PathBuf,
     components: Vec<Vec<u16>>,
     chain: Vec<File>,
@@ -57,14 +57,14 @@ impl WindowsNativeScanRoot {
             identities.push(state);
         }
         let lease = Self {
-            path: root.to_path_buf(),
-            drive_root: plan.drive_root,
+            drive_root: plan.drive_root.clone(),
             // 只预编码固定名称；后续仍逐次重新打开并捕获完整根链身份。
             components: plan
                 .components
                 .iter()
                 .map(|name| name.encode_wide().collect())
                 .collect(),
+            path_plan: plan,
             chain,
             identities,
             cost: (std::env::var_os("DISKGRAPH_SCAN_DIAGNOSTICS").as_deref()
@@ -101,9 +101,7 @@ impl WindowsNativeScanRoot {
             Err(error) => return Ok(gap(error)),
         };
         self.validate_held_root(check)?;
-        let names = checked(check, || {
-            WindowsPathPlan::relative_to_root(&self.path, path)
-        })?;
+        let names = checked(check, || self.path_plan.relative_path(path))?;
         let names = match names {
             Ok(names) => names,
             Err(error) => return Ok(gap(error)),

@@ -1,0 +1,32 @@
+{
+  "runner": "home-wandl-61c36d31a9af4c1a",
+  "platform": "x86_64-pc-windows-msvc",
+  "project": "E:/workspaces/workspace-loong10k/diskgraph",
+  "native_scan_tests": {
+    "passed": 14,
+    "failed": 0,
+    "ignored": 0
+  },
+  "strict_clippy": {
+    "job_id": "wc_job_Yu62SfyRr69NU890",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "-p",
+      "diskgraph-engine",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  "production_qualification": false,
+  "remaining": [
+    "full current-source workspace and CLI/MCP tests",
+    "200k acceptance",
+    "protected frontend recovery supervisor",
+    "provider refusal and long-run gates"
+  ]
+}

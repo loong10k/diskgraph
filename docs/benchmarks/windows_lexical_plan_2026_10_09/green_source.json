@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "diskgraph-engine",
+    "--lib",
+    "windows_native_scan_tests::",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/windows_path_plan.rs": "64394f5df655aa0251f15670cb9426d5f84309363c6a4e1f30d55256cc2503e0",
+    "crates/diskgraph-engine/src/windows_native_scan_root.rs": "c9503d24f35e67bf2ea292887c992a76c657969c65d113ec60fe905a7c99c110",
+    "crates/diskgraph-engine/src/windows_native_scan_tests/root_binding_tests.rs": "71fe72b87092fdcbfad0f5184df603313703838180ac2eeb5fd16b6535fbb9a6"
+  }
+}
