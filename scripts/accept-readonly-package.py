@@ -13,6 +13,7 @@ import sys
 import tarfile
 import tempfile
 import zipfile
+from linux_abi_requirements import GNU_TARGET_MACHINES, require_gnu_package
 from worker_manifest import (MANIFEST_NAME, MAX_IMAGE_BYTES, bounded_digest,
                              copy_artifact, executable_name, image_metadata, read_manifest,
                              verify_manifest, workspace_version, write_manifest)
@@ -106,6 +107,9 @@ def main():
     executable_name(args.target)
     binaries = [f"diskgraph{SUFFIX}", f"diskgraph-mcp{SUFFIX}", f"diskgraph-scan-worker{SUFFIX}"]
     source = args.bin_dir.resolve()
+    # 在写归档或执行程序之前拒绝不满足原兼容声明的真实GNU制品。
+    if args.target in GNU_TARGET_MACHINES:
+        require_gnu_package(source, args.target)
     old_cli = args.old_cli.resolve()
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -119,6 +123,9 @@ def main():
         staging_bin.mkdir(parents=True)
         for name in binaries:
             copy_artifact(source / name, staging_bin / name)
+        if args.target in GNU_TARGET_MACHINES:
+            abi = require_gnu_package(staging_bin, args.target)
+            (staging / "gnu-abi.json").write_text(json.dumps(abi, indent=2) + "\n")
         version = workspace_version()
         write_manifest(staging_bin, args.target, version)
         for name in ("README.md", "LICENSE"):
@@ -152,6 +159,9 @@ def main():
                 raise RuntimeError(f"packaged {name} differs from the built binary")
         manifest = read_manifest(packaged_bin / MANIFEST_NAME)
         verify_manifest(packaged_bin, manifest, args.target, version)
+        if args.target in GNU_TARGET_MACHINES:
+            if require_gnu_package(packaged_bin, args.target) != abi:
+                raise RuntimeError("extracted GNU ABI differs from staged images")
 
         deployment = (packaged_worker_environment(packaged_bin, os.environ)
                       if sys.platform == "linux" else None)

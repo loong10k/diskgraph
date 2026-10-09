@@ -1,0 +1,36 @@
+{
+  "base_commit": "cf4e241ec9237d5b7cf61a0ad7f7d063db786293",
+  "source_sha256": {
+    "scripts/linux_abi_requirements.py": "e2fa9416d292656de248495fdbe185850514df6e9e98f021ca2a42b3a1b19ef9",
+    "scripts/accept-readonly-package.py": "c3ac8d2118e25bebb14957253c340516108a5a37fc57cb2c45cb4a7e46ba4cd7",
+    "scripts/package-linux.sh": "3ef03ca2d270af243a26e2b225a1f8d723f4fc54b3860d478c64bc055208b7fd",
+    "scripts/tests/test_linux_abi_requirements.py": "59c6a28f813b602fed9089ed6f75707afd12d6fef9e90d94bd0e6e1b016b427a",
+    "scripts/tests/test_linux_package_abi_gate.py": "d244396cefb7ea4978bb15d77fc508ce203115a7b3612e058769500c901333b0",
+    ".github/workflows/ci.yml": "65935c478bdf1678254c6896427c82ca1b880df64ead1a771eda5f6a7c91e628"
+  },
+  "abi_tests_passed": 13,
+  "package_composition_passed": 11,
+  "file_admission_passed": 5,
+  "deployment_binding_passed": 7,
+  "rust_deploy_contract_passed": 6,
+  "behavior_red": "original HEAD package entry: 1 test, 3 failing subcases; ValueError not raised",
+  "initial_harness_errors_are_behavior_red": false,
+  "production_acceptance": false,
+  "old_glibc_runtime_qualification": false,
+  "native_ci_for_change": "not yet run",
+  "log_sha256": {
+    "final_gate_green.log.gz": "5eaef46b6d117f52c0897a95e129a4ee9a331f241155dcfe4fb96bb957c66b8e",
+    "composition.log.gz": "926aa49dcba2799441878c29ed0c005e2c5ca4f94d7686069c3f87cb05e2e54a",
+    "abi_green.log.gz": "11fd8406297b8cc1d4ea031399501e339d9bd9a36128ce6b8cdc2ca9f2c56c4a",
+    "workflow_syntax.log.gz": "4db7f06e2edc91563438486afc50c75e2d12590cac63ccd7dfa61f84a79ce00f",
+    "deployment_binding.log.gz": "56fcbbc72dbc10d4b84353da40ffd92db80031c2db7cba67831994aa1acb293f",
+    "real_images.log.gz": "712c740ced20e062e50786e4a3df209ee4fa33f00aa5923549ad6983bd560852",
+    "file_admission.log.gz": "34e7201b6d364ee48aace05aac2eae7135493cb95a2c72656f527fa387b5e89b",
+    "deploy_contract.log.gz": "7e72f046c2c1d6b08d2adb419e8076dc2cc0c86ce2dfe82e8eee4e27cb72426b",
+    "initial_test_harness_errors.log.gz": "bd33e02a84905e85c04e9cd939994e0494afb324a9d0552a451386689e7fbb64",
+    "independent_inspector.log.gz": "6b60fa2890d46ff4f350c085162452030a212604a0243b62f19fcf3639657b5b",
+    "openspec.log.gz": "1f5477583f510edbbe3054f5bb6e9f9faf46a4e0617fa5d6cb3b6e6d532ebaef",
+    "workflow_coverage.log.gz": "3a023b87bc000e933968264f2dc328d67c2af6798013ada5063044c954a5e456",
+    "entry_behavior_red.log.gz": "41d1dafc4e534d1bce4e5e144e021c8be22148972d4c95a68335a082892adade"
+  }
+}

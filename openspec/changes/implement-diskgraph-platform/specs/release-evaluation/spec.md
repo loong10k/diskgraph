@@ -102,6 +102,7 @@
 #### Scenario: GNU package ABI cannot exceed its advertised baseline
 - **WHEN** 生成声明glibc最低版本的Linux GNU制品
 - **THEN** 从最终CLI、MCP和scan worker的实际ELF版本需求核验声明，不根据构建机、目标triple或弱符号名称猜测兼容；超过声明或未知/损坏的版本需求必须拒绝包验收，不发布误导清单。
+- **AND** 包入口在写归档或执行程序之前检查三份源镜像，并复核实际staging与解包镜像；目标架构、有限规则文件准入、同句柄摘要和静态需求绑定，保留原归档而不以超标镜像覆盖。私有Linux bundle在复制前及生成清单前检查，CI保存失败诊断。静态报告明确不代表旧环境运行验收。
 - **AND** 至少在声明的旧glibc运行环境中执行实际制品启动和隔离业务验收；新版Ubuntu绿色不能替代旧环境。不得通过删除ELF版本需求、补造符号、关闭pidfd/镜像/授权防护或改写已有兼容承诺使门禁通过。旧glibc与现代内核能力分别验收，缺内核安全能力保持明确拒绝。
 
 #### Scenario: Last HTTP dispatch interval has insufficient budget

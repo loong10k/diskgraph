@@ -2,9 +2,11 @@
 import importlib.util
 from pathlib import Path
 import struct
+import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'scripts'))
 SPEC = importlib.util.spec_from_file_location('linux_abi', ROOT / 'scripts/linux_abi_requirements.py')
 
 

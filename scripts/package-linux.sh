@@ -26,14 +26,23 @@ mkdir -p "$OUT_DIR/bin" "$OUT_DIR/deploy"
 echo "==> building release binaries on $(uname -s) $ARCH"
 cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker
 
+# 不允许本机构建静默提高原清单承诺；超出基线时在安装文件和写清单前失败。
+BUILD_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
+python3 scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target "$BUILD_TARGET" \
+    target/release/diskgraph target/release/diskgraph-mcp target/release/diskgraph-scan-worker
+
 for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
     install -m 0755 "target/release/$binary" "$OUT_DIR/bin/$binary"
 done
 
+# 复制后检查真正包内字节，不能用源路径的旧观察为后续副本提供兼容证明。
+python3 scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target "$BUILD_TARGET" \
+    "$OUT_DIR/bin/diskgraph" "$OUT_DIR/bin/diskgraph-mcp" "$OUT_DIR/bin/diskgraph-scan-worker" \
+    > "$OUT_DIR/GNU_ABI.jsonl"
+
 echo "==> installing the systemd unit example"
 install -m 0644 deploy/diskgraph-mcp.service "$OUT_DIR/deploy/diskgraph-mcp.service"
 
-BUILD_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
 python3 scripts/worker_manifest.py --bin-dir "$OUT_DIR/bin" --target "$BUILD_TARGET" --version "$VERSION"
 
 echo "==> recording checksums and provenance"

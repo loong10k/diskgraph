@@ -1,0 +1,60 @@
+{
+  "source_commit": "98455bcfa1859db3f73c14e90b8fa9a979bd6bc0",
+  "archive_sha256": "953ae86888a92cb6f1ba73222f3754b7e60ecd58ffaae68a9eea45d164f90fb9",
+  "images": [
+    {
+      "name": "diskgraph",
+      "bytes": 9040824,
+      "sha256": "d28a7a83167dd1eb0659f02730697019254899116d89923cb2c5a49c9df3e0ed",
+      "glibc_requirements": [
+        "2.17",
+        "2.18",
+        "2.25",
+        "2.27",
+        "2.28",
+        "2.29",
+        "2.30",
+        "2.32",
+        "2.33",
+        "2.34",
+        "2.39"
+      ]
+    },
+    {
+      "name": "diskgraph-mcp",
+      "bytes": 7730728,
+      "sha256": "3e778814a8d0b4ba07b7d6e2f3a7b374d342896b9797f9547a533a9a6069a6b7",
+      "glibc_requirements": [
+        "2.17",
+        "2.18",
+        "2.25",
+        "2.27",
+        "2.28",
+        "2.29",
+        "2.30",
+        "2.32",
+        "2.33",
+        "2.34",
+        "2.39"
+      ]
+    },
+    {
+      "name": "diskgraph-scan-worker",
+      "bytes": 1287624,
+      "sha256": "fc70ccc2498f5496ee69ee7c6d0ce8df02e8a94c1e34cd258b2359d5a5b904c5",
+      "glibc_requirements": [
+        "2.17",
+        "2.18",
+        "2.28",
+        "2.30",
+        "2.32",
+        "2.33",
+        "2.34"
+      ]
+    }
+  ],
+  "entry_returncode": 1,
+  "output_created": false,
+  "native_execution_attempted": false,
+  "runtime_qualification": false
+}

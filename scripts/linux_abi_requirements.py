@@ -1,11 +1,14 @@
 """核对最终GNU ELF的glibc版本需求；不修补镜像、不推定内核能力或原生验收。"""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
 import struct
+from worker_manifest import admitted_file
 
 MAX_IMAGE_BYTES = 128 * 1024 * 1024
+GNU_TARGET_MACHINES = {'x86_64-unknown-linux-gnu': 62, 'aarch64-unknown-linux-gnu': 183}
 
 
 def glibc_requirements(raw):
@@ -103,17 +106,43 @@ def require_baseline(raw, maximum):
     return versions
 
 
+def inspect_image(path, maximum, expected_machine=None):
+    """参数：真实有限文件、既定基线和可选机器码；返回：同句柄读取的静态ABI及摘要。"""
+    path = Path(path)
+    # 复用已有不跟随链接、长度预算与打开身份复验，不以另一遍摘要拼接证明。
+    with admitted_file(path, MAX_IMAGE_BYTES) as (stream, before):
+        raw = stream.read(before.st_size)
+        if len(raw) != before.st_size:
+            raise ValueError('ELF image changed during bounded read')
+        versions = require_baseline(raw, maximum)
+        if expected_machine is not None and struct.unpack_from('<H', raw, 18)[0] != expected_machine:
+            raise ValueError('ELF architecture differs from package target')
+        result = {'name': path.name, 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(),
+                  'glibc_requirements': versions}
+    return result
+
+
+def require_gnu_package(bin_dir, target):
+    """参数：最终三个GNU镜像目录及目标；返回：固定2.17声明的静态证据，不替代旧环境运行。"""
+    if target not in GNU_TARGET_MACHINES:
+        raise ValueError('unsupported GNU package target')
+    images = [inspect_image(Path(bin_dir) / name, '2.17', GNU_TARGET_MACHINES[target])
+              for name in ('diskgraph', 'diskgraph-mcp', 'diskgraph-scan-worker')]
+    return {'target': target, 'advertised_baseline': '2.17', 'images': images,
+            'runtime_qualification': False}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--maximum-glibc', required=True)
+    parser.add_argument('--target', choices=sorted(GNU_TARGET_MACHINES))
     parser.add_argument('images', nargs='+', type=Path)
     arguments = parser.parse_args()
     for path in arguments.images:
-        with path.open('rb') as image:
-            raw = image.read(MAX_IMAGE_BYTES + 1)
-        versions = require_baseline(raw, arguments.maximum_glibc)
-        print(json.dumps({'image': path.name, 'glibc_requirements': versions,
-                          'advertised_baseline': arguments.maximum_glibc}))
+        result = inspect_image(path, arguments.maximum_glibc,
+                               GNU_TARGET_MACHINES.get(arguments.target))
+        result.update(image=path.name, advertised_baseline=arguments.maximum_glibc)
+        print(json.dumps(result))
 
 
 if __name__ == '__main__':
