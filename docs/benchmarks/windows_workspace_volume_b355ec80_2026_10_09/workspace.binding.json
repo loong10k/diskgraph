@@ -1,0 +1,22 @@
+{
+  "source_commit": "b355ec801c99c02efa4b823e50e39593f4fd4ad4",
+  "run_id": 37888266414,
+  "job_id": 113683173695,
+  "artifact_id": 11598380460,
+  "archive_sha256": "5c1fa3ab4abdffc110918182cf66787696d2f5cb868efac87df463b7cefaf501",
+  "exports": {
+    "receipt.json": {
+      "stored_file": "workspace.receipt.json.gz",
+      "raw_sha256": "97b44b3968d3b23011bb90ed240b134cdcaa82b196ee2f6b31ff4497e8017047"
+    },
+    "stdout.log": {
+      "stored_file": "workspace.stdout.log.gz",
+      "raw_sha256": "21610d5585ceea98999d02e02d0fba2944efddfa4d56934b68ac4bf184b6fd28"
+    },
+    "stderr.log": {
+      "stored_file": "workspace.stderr.log.gz",
+      "raw_sha256": "0d57d1205d5192ac0452fa3291d84cbaf22d534ef2e889a5e70a8d321a56076e"
+    }
+  },
+  "qualification": "Diagnostic only; formal package result remains failed"
+}

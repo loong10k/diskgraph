@@ -1123,7 +1123,27 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p test_readonly_load_coverage.py -v
       - name: Verify archive and packaged binaries
         id: readonly_package_acceptance
-        run: python scripts/accept-readonly-package.py --target ${{ matrix.target }} --bin-dir target/${{ matrix.target }}/release --old-cli previous/target/${{ matrix.target }}/release/diskgraph${{ runner.os == 'Windows' && '.exe' || '' }}
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          # Windows系统TEMP位于OS卷；完整夹具使用runner提供的隔离工作卷，原期限与回收不变。
+          if sys.platform == "win32":
+              parent = Path(os.environ["RUNNER_TEMP"]).resolve(strict=True)
+              if not parent.is_dir():
+                  raise NotADirectoryError(parent)
+              for name in ("TMP", "TEMP", "TMPDIR"):
+                  os.environ[name] = str(parent)
+          suffix = ".exe" if sys.platform == "win32" else ""
+          subprocess.run([
+              sys.executable, "scripts/accept-readonly-package.py",
+              "--target", "${{ matrix.target }}",
+              "--bin-dir", "target/${{ matrix.target }}/release",
+              "--old-cli", "previous/target/${{ matrix.target }}/release/diskgraph" + suffix,
+          ], check=True)
       - name: Diagnose full Windows 200k phases without changing acceptance
         if: failure() && runner.os == 'Windows' && steps.readonly_package_acceptance.outcome == 'failure'
         id: full_load_diagnostic

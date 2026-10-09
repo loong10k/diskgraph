@@ -1,0 +1,14 @@
+{
+  "job_id": "wc_job_EN6oaMOHOxUXazvh",
+  "terminal_exit_code": 0,
+  "head_before": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "head_after": "b355ec801c99c02efa4b823e50e39593f4fd4ad4",
+  "origin_main": "b355ec801c99c02efa4b823e50e39593f4fd4ad4",
+  "tracked_status": "clean",
+  "overlay_matches_committed_bytes": {
+    "scripts/diagnose_windows_load.py": "ed1b5b9efb981ec016e1f69cb2ddf6b6c23bb48f8dace1bac50d2d3cae6a7cb4",
+    "scripts/tests/test_windows_load_diagnostic.py": "3507e4c5b2f2f765e820cf72dfc3380444facc793dba3193d971f630b197a4da"
+  },
+  "retained_overlay_stash": "8215a7661c9e8795fc823869acc60afb02d5c303",
+  "qualification": "Normal fast-forward workspace update only; no new full workspace or 200k acceptance claim"
+}

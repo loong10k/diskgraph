@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "platform": "native Windows desktop",
+  "source_sha256": "245e39babfc0724cc5cd77aa98af2ad947b14368fe91e2c67742ad8559d2d839",
+  "actual_child_parent_verified": true,
+  "cleanup_verified": true,
+  "delegated_target": "x86_64-pc-windows-msvc",
+  "qualification": "CI launcher routing with actual Python temporary child; package invocation mocked, not formal package acceptance"
+}
