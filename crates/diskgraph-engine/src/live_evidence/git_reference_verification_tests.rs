@@ -39,7 +39,7 @@ fn same_verified_branch_reuses_only_syntax_and_reads_both_identity_fields_again(
                 .iter()
                 .filter(|a| a[0] == "check-ref-format")
                 .count(),
-            1
+            0
         );
         assert_eq!(commands.iter().filter(|a| a[0] == "rev-parse").count(), 2);
         assert_eq!(
@@ -69,11 +69,10 @@ fn different_branch_is_validated_and_rejected_while_changed_oid_is_not_cached() 
         )
         .unwrap_err();
         assert_eq!(error, "HEAD changed during Git sampling");
-        if terminal_branch != "refs/heads/main" {
-            assert_eq!(validated, [terminal_branch]);
-        } else {
-            assert!(validated.is_empty());
-        }
+        assert!(
+            validated.is_empty(),
+            "valid reference syntax must not spawn Git"
+        );
     }
 }
 
@@ -89,8 +88,8 @@ fn fresh_observations_do_not_share_validation_and_unborn_conflicts_are_rechecked
     let first = head(&mut run).unwrap();
     head(&mut run).unwrap();
     assert_eq!(
-        validations, 2,
-        "separate observations cannot share syntax state"
+        validations, 0,
+        "pure reference syntax must not launch a native process"
     );
     let error = verify_head(
         &mut |args| {
@@ -154,4 +153,69 @@ fn terminal_native_failure_and_invalid_new_branch_keep_original_errors() {
     )
     .unwrap_err();
     assert_eq!(error, "original invalid reference");
+}
+#[test]
+fn pure_reference_syntax_matches_actual_git_for_all_default_rules() {
+    use super::git_references::well_formed_name;
+    let names = [
+        "refs/heads/main",
+        "refs/heads/中文",
+        "refs/heads/é",
+        "refs/heads/-topic",
+        "refs/heads/a./b",
+        "refs/heads/a.LOCK",
+        "refs/heads/a@b",
+        "refs/heads/a]b",
+        "refs/heads/a{b",
+        "refs/heads/a}b",
+        "refs/heads/a;b",
+        "refs/heads/a\"b",
+        "refs/",
+        "refs//main",
+        "refs/heads/main/",
+        "refs/heads/.main",
+        "refs/.hidden/main",
+        "refs/heads/a.lock",
+        "refs/heads/a.lock/b",
+        "refs/heads/a..b",
+        "refs/heads/main.",
+        "refs/heads/a@{b",
+        "refs/heads/a b",
+        "refs/heads/a~b",
+        "refs/heads/a^b",
+        "refs/heads/a:b",
+        "refs/heads/a?b",
+        "refs/heads/a*b",
+        "refs/heads/a[b",
+        "refs/heads/a\\b",
+        "refs/heads/a\tb",
+        "refs/heads/a\nb",
+        "refs/heads/a\u{7f}b",
+    ];
+    for name in names {
+        let output = std::process::Command::new("git")
+            .args(["check-ref-format", name])
+            .output()
+            .expect("native Git reference oracle must be installed");
+        assert!(
+            matches!(output.status.code(), Some(0 | 1)),
+            "unexpected native Git oracle: {output:?}"
+        );
+        assert_eq!(well_formed_name(name), output.status.success(), "{name:?}");
+    }
+}
+
+#[test]
+fn reference_syntax_rejects_each_ascii_control_and_keeps_unicode_bytes() {
+    use super::git_references::well_formed_name;
+    for byte in 0..=32u8 {
+        assert!(!well_formed_name(&format!(
+            "refs/heads/a{}b",
+            char::from(byte)
+        )));
+    }
+    assert!(!well_formed_name("refs/heads/a\u{7f}b"));
+    assert!(!well_formed_name("HEAD"));
+    assert!(!well_formed_name("heads/main"));
+    assert!(well_formed_name("refs/heads/分支\u{80}\u{a0}"));
 }

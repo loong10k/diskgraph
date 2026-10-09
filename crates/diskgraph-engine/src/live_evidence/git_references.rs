@@ -130,9 +130,33 @@ fn validate_name(
     if !name.starts_with("refs/") {
         return Err("invalid complete Git reference name".into());
     }
+    // 合法名称只做公开语法运算，避免为纯语法启动原生进程。
+    // 未通过快速校验仍走原命令，保留非法名称与原生错误的兼容路径。
+    if well_formed_name(name) {
+        return Ok(());
+    }
     let result = successful(run(&["check-ref-format", name])?)?;
     if !result.is_empty() {
         return Err("invalid reference validation response".into());
     }
     Ok(())
+}
+
+/// 按 Git 默认完整引用名规则校验纯字节语法；来源：git-check-ref-format 官方契约。
+/// 参数：name 为原有输出预算内的 UTF-8 完整引用；返回：规则满足时 true。
+/// 不检查引用存在性、对象类型、HEAD 身份或文件系统能力，不接受分支缩写。
+pub(super) fn well_formed_name(name: &str) -> bool {
+    name.starts_with("refs/")
+        && !name.ends_with('.')
+        && !name.contains("..")
+        && !name.contains("@{")
+        && !name.as_bytes().iter().any(|byte| {
+            matches!(
+                *byte,
+                0..=32 | 127 | b'~' | b'^' | b':' | b'?' | b'*' | b'[' | b'\\'
+            )
+        })
+        && name.split('/').all(|component| {
+            !component.is_empty() && !component.starts_with('.') && !component.ends_with(".lock")
+        })
 }

@@ -1,0 +1,90 @@
+{
+  "head": "92aaa82b244c9624a6d07172c59ec6c862dc70fc",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.032000000006519
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 213.23500000001513
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_engine_checkpoint_92aaa82\\current_source_driver.exe",
+    "sha256": "87f20401a7423f87ebd789ce8c3bfcc0cd01cd98425eac127e5bb3b5a5fe7057",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: FAILED. 711 passed; 6 failed; 7 ignored; 0 measured; 0 filtered out; finished in 193.99s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 85313,
+      "sha256": "35d55c1b06f114f91799aa5d706c17d3975d5add333e12c2d74e44c5c6e7d071"
+    },
+    "engine.stderr.log": {
+      "bytes": 10811,
+      "sha256": "814e7c453a69aedfda042be07a5f85e8ef5ed15eab967f246b31881988613a88"
+    }
+  },
+  "source_hashes_after": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259"
+  },
+  "failure_details": "failures:\n\n---- git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision stdout ----\nrecovery prerequisite: outcome=Err(Business(Timeout)), state=JobRecord { job_id: \"job-e534e6fc-a17b-4f7a-8b09-e239fcb22cef\", scope_id: ScopeId(\"scope-b984c45b-0eb1-4cc6-a1e0-7c37e0fe3e6b\"), kind: GitEvidence, state: Failed, created_at_unix_ms: 1791503771627, heartbeat_unix_ms: 1791503786731, owner: \"crashed-owner\", fencing_token: 1, lease_expires_unix_ms: 1791503812115, principal: PrincipalId(\"git-job-fixture\") }, failure=Some(GitEvidenceFailure { phase: Execution, code: Timeout }), receipt=None, expiry=1791503791, now=1791503786\n\nthread 'git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision' (65996) panicked at crates\\diskgraph-engine\\src\\git_evidence_publication_tests.rs:145:5:\nonly the actual post-commit simulated crash qualifies: Err(Business(Timeout))\n\n---- git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision stdout ----\n\nthread 'git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision' (43072) panicked at crates\\diskgraph-engine\\src\\git_evidence_publication_tests.rs:83:10:\ncalled `Result::unwrap()` on an `Err` value: Business(Timeout)\n\n---- live_evidence::git_isolation_semantics_tests::racy_index_same_size_change_with_restored_mtime_remains_dirty stdout ----\n\nthread 'live_evidence::git_isolation_semantics_tests::racy_index_same_size_change_with_restored_mtime_remains_dirty' (37600) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_isolation_semantics_tests.rs:63:35:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"\n\n---- live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git stdout ----\nSCOPED_GIT_WINDOWS_CHILD_DIAGNOSTIC observed=false phase=unknown branch=unknown kind=unknown changed_mask=0x000 mask_bits=volume:1,file_id:2,eof:4,creation:8,last_write:16,change_time:32,attributes:64,directory:128,delete_pending:256\n\nthread 'live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git' (34064) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_scoped_semantics_tests.rs:180:36:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n---- live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes stdout ----\n\nthread 'live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes' (27208) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_object_database_tests.rs:344:39:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded\"\n\n---- live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes stdout ----\n\nthread 'live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes' (32112) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_config_policy_tests.rs:108:37:\ncalled `Result::unwrap()` on an `Err` value: \"probe deadline exceeded; cleanup also failed: probe unsupported: probe cleanup pending; original owner retained; cleanup also failed: private Git cleanup deferred until original child recovery\"\n\n\nfailures:\n    git_evidence_publication_tests::committed_git_receipt_recovers_after_expiry_without_resampling_or_new_revision\n    git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision\n    live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes\n    live_evidence::git_isolation_semantics_tests::racy_index_same_size_change_with_restored_mtime_remains_dirty\n    live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes\n    live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git\n\ntest result: FAILED. 711 passed; 6 failed; 7 ignored; 0 measured; 0 filtered out; finished in 193.99s\n\n",
+  "job_id": "wc_job_ZpI4IDk6uTEcg1Gu"
+}
