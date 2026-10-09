@@ -1,0 +1,961 @@
+{
+  "commit": "2552d0823f9a72a4130e56914230406e08d30a0d",
+  "run_id": 37880305608,
+  "run_url": "https://github.com/loong10k/diskgraph/actions/runs/37880305608",
+  "job": {
+    "completedAt": "2026-10-09T03:58:03Z",
+    "conclusion": "success",
+    "databaseId": 113658242722,
+    "name": "Test (ubuntu-24.04-arm / Rust stable)",
+    "startedAt": "2026-10-09T03:40:01Z",
+    "status": "completed",
+    "steps": [
+      {
+        "completedAt": "2026-10-09T03:40:04Z",
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "startedAt": "2026-10-09T03:40:02Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:07Z",
+        "conclusion": "success",
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "number": 2,
+        "startedAt": "2026-10-09T03:40:04Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:08Z",
+        "conclusion": "success",
+        "name": "Run dtolnay/rust-toolchain@stable",
+        "number": 3,
+        "startedAt": "2026-10-09T03:40:07Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:24Z",
+        "conclusion": "success",
+        "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+        "number": 4,
+        "startedAt": "2026-10-09T03:40:08Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:24Z",
+        "conclusion": "success",
+        "name": "Diagnostic inherited Unix socket credentials",
+        "number": 5,
+        "startedAt": "2026-10-09T03:40:24Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:25Z",
+        "conclusion": "success",
+        "name": "Preserve inherited Unix socket credential diagnostic",
+        "number": 6,
+        "startedAt": "2026-10-09T03:40:24Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:25Z",
+        "conclusion": "skipped",
+        "name": "Build exact native Windows CLI exit fixtures",
+        "number": 7,
+        "startedAt": "2026-10-09T03:40:25Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:25Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows CLI exit fixture receipt",
+        "number": 8,
+        "startedAt": "2026-10-09T03:40:25Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:25Z",
+        "conclusion": "success",
+        "name": "Build exact native Linux group-view fixture",
+        "number": 9,
+        "startedAt": "2026-10-09T03:40:25Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "success",
+        "name": "Build exact native Linux atomic-birth fixtures",
+        "number": 10,
+        "startedAt": "2026-10-09T03:40:25Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "success",
+        "name": "Build exact native Linux atomic-launcher fixtures",
+        "number": 11,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows image material unit boundary",
+        "number": 12,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows current Rust surviving writable image view",
+        "number": 13,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve current Rust Windows image-view admission result",
+        "number": 14,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows borrowed process image-name binding",
+        "number": 15,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows process image-name binding result",
+        "number": 16,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows directory sharing retry red and green",
+        "number": 17,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve native Windows directory sharing retry evidence",
+        "number": 18,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows actual root parent red and green",
+        "number": 19,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve original root parent qualification",
+        "number": 20,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows modified private evidence disposal red and green",
+        "number": 21,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve original private evidence disposal qualification",
+        "number": 22,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows original registration rejection red and green",
+        "number": 23,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve original registration rejection qualification",
+        "number": 24,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows original child membership red and green",
+        "number": 25,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve original child membership qualification",
+        "number": 26,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows expired recovery red and green",
+        "number": 27,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve native Windows expired recovery evidence",
+        "number": 28,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows original pool unwind red and green",
+        "number": 29,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve original pool unwind qualification",
+        "number": 30,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows pending directory pool fairness",
+        "number": 31,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows pending directory pool fairness",
+        "number": 32,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows original cursor Pending contract",
+        "number": 33,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows original cursor Pending contract",
+        "number": 34,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows original directory retry red and green",
+        "number": 35,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve native Windows directory retry evidence",
+        "number": 36,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows foreign entry absence red and green",
+        "number": 37,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve native Windows foreign entry absence evidence",
+        "number": 38,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows private directory cleanup unit boundary",
+        "number": 39,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows pre-resume admission boundary",
+        "number": 40,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows pending IO ownership transfer",
+        "number": 41,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows bounded pending cleanup",
+        "number": 42,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows suspended image load policy",
+        "number": 43,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows suspended scan signature policy",
+        "number": 44,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve actual Windows scan signature policy result",
+        "number": 45,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Native Windows resumed DLL loading positive and negative controls",
+        "number": 46,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve actual Windows resumed DLL loader result",
+        "number": 47,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "number": 48,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Prepare actual fixed macOS installation for workspace",
+        "number": 49,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:40:26Z",
+        "conclusion": "skipped",
+        "name": "Preserve macOS deployment preparation evidence",
+        "number": 50,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:22Z",
+        "conclusion": "success",
+        "name": "Build",
+        "number": 51,
+        "startedAt": "2026-10-09T03:40:26Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:22Z",
+        "conclusion": "skipped",
+        "name": "Build actual Windows scan worker for protocol qualification",
+        "number": 52,
+        "startedAt": "2026-10-09T03:41:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:22Z",
+        "conclusion": "skipped",
+        "name": "Native Windows actual worker protocol and original cancellation",
+        "number": 53,
+        "startedAt": "2026-10-09T03:41:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:22Z",
+        "conclusion": "skipped",
+        "name": "Preserve actual Windows worker protocol evidence",
+        "number": 54,
+        "startedAt": "2026-10-09T03:41:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:22Z",
+        "conclusion": "skipped",
+        "name": "Native Windows bound product Runtime and retained image recovery",
+        "number": 55,
+        "startedAt": "2026-10-09T03:41:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:22Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows bound product Runtime evidence",
+        "number": 56,
+        "startedAt": "2026-10-09T03:41:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:30Z",
+        "conclusion": "success",
+        "name": "Native Linux thread-group and procfs qualification",
+        "number": 57,
+        "startedAt": "2026-10-09T03:41:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:43Z",
+        "conclusion": "success",
+        "name": "Native Linux atomic-birth qualification",
+        "number": 58,
+        "startedAt": "2026-10-09T03:41:30Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:43Z",
+        "conclusion": "success",
+        "name": "Preserve native Linux atomic-birth qualification",
+        "number": 59,
+        "startedAt": "2026-10-09T03:41:43Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:44Z",
+        "conclusion": "success",
+        "name": "Preserve native Linux group-view qualification",
+        "number": 60,
+        "startedAt": "2026-10-09T03:41:43Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:45Z",
+        "conclusion": "success",
+        "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "number": 61,
+        "startedAt": "2026-10-09T03:41:44Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:46Z",
+        "conclusion": "success",
+        "name": "Build explicit protocol-driver test fixture",
+        "number": 62,
+        "startedAt": "2026-10-09T03:41:45Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:47Z",
+        "conclusion": "success",
+        "name": "Checkout byte identity and UTF-8 acceptance protocol",
+        "number": 63,
+        "startedAt": "2026-10-09T03:41:46Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:47Z",
+        "conclusion": "skipped",
+        "name": "Windows PowerShell 5.1 fixture preparation",
+        "number": 64,
+        "startedAt": "2026-10-09T03:41:47Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:48Z",
+        "conclusion": "success",
+        "name": "Preserve actual protocol-driver identity",
+        "number": 65,
+        "startedAt": "2026-10-09T03:41:47Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:48Z",
+        "conclusion": "success",
+        "name": "Verify current sealed-image source contracts",
+        "number": 66,
+        "startedAt": "2026-10-09T03:41:48Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:50Z",
+        "conclusion": "success",
+        "name": "Native Linux sealed-image component qualification",
+        "number": 67,
+        "startedAt": "2026-10-09T03:41:48Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:41:51Z",
+        "conclusion": "success",
+        "name": "Preserve Linux sealed-image component evidence",
+        "number": 68,
+        "startedAt": "2026-10-09T03:41:50Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:02Z",
+        "conclusion": "success",
+        "name": "Build scoped owner acceptance library",
+        "number": 69,
+        "startedAt": "2026-10-09T03:41:51Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:03Z",
+        "conclusion": "success",
+        "name": "Native scoped owner type constraints",
+        "number": 70,
+        "startedAt": "2026-10-09T03:42:02Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:04Z",
+        "conclusion": "success",
+        "name": "Preserve scoped owner compile diagnostics",
+        "number": 71,
+        "startedAt": "2026-10-09T03:42:03Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:05Z",
+        "conclusion": "success",
+        "name": "Configure actual Linux worker for product acceptance",
+        "number": 72,
+        "startedAt": "2026-10-09T03:42:04Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:06Z",
+        "conclusion": "success",
+        "name": "Preserve actual Linux product worker identity",
+        "number": 73,
+        "startedAt": "2026-10-09T03:42:05Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:18Z",
+        "conclusion": "success",
+        "name": "Read-only CLI, stdio and authenticated HTTP acceptance",
+        "number": 74,
+        "startedAt": "2026-10-09T03:42:06Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:48Z",
+        "conclusion": "success",
+        "name": "Native expiry after actual scan observation in isolation",
+        "number": 75,
+        "startedAt": "2026-10-09T03:42:18Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:42:48Z",
+        "conclusion": "success",
+        "name": "Preserve native observation expiry result",
+        "number": 76,
+        "startedAt": "2026-10-09T03:42:48Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:01Z",
+        "conclusion": "success",
+        "name": "Native queue deadline isolation",
+        "number": 77,
+        "startedAt": "2026-10-09T03:42:48Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:06Z",
+        "conclusion": "success",
+        "name": "Native control write deadline isolation",
+        "number": 78,
+        "startedAt": "2026-10-09T03:43:01Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:08Z",
+        "conclusion": "success",
+        "name": "Native control writer stage diagnostics",
+        "number": 79,
+        "startedAt": "2026-10-09T03:43:06Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:08Z",
+        "conclusion": "success",
+        "name": "Native Linux queued startup error after socket reset",
+        "number": 80,
+        "startedAt": "2026-10-09T03:43:08Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:13Z",
+        "conclusion": "success",
+        "name": "Native Linux authorization changes after actual capture",
+        "number": 81,
+        "startedAt": "2026-10-09T03:43:08Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:13Z",
+        "conclusion": "success",
+        "name": "Native Linux normal wait authorization contract",
+        "number": 82,
+        "startedAt": "2026-10-09T03:43:13Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:14Z",
+        "conclusion": "success",
+        "name": "Preserve native Linux normal wait evidence",
+        "number": 83,
+        "startedAt": "2026-10-09T03:43:13Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:29Z",
+        "conclusion": "success",
+        "name": "Native Linux public FFI synchronous scan",
+        "number": 84,
+        "startedAt": "2026-10-09T03:43:14Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:31Z",
+        "conclusion": "success",
+        "name": "Native Linux scoped FFI service scan",
+        "number": 85,
+        "startedAt": "2026-10-09T03:43:29Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:32Z",
+        "conclusion": "success",
+        "name": "Native Linux public FFI asynchronous scan",
+        "number": 86,
+        "startedAt": "2026-10-09T03:43:31Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:35Z",
+        "conclusion": "success",
+        "name": "Native Linux legacy FFI service scan and revocation",
+        "number": 87,
+        "startedAt": "2026-10-09T03:43:32Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:36Z",
+        "conclusion": "success",
+        "name": "Native Linux private deadline time namespace rejection",
+        "number": 88,
+        "startedAt": "2026-10-09T03:43:35Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:37Z",
+        "conclusion": "success",
+        "name": "Preserve native private deadline namespace evidence",
+        "number": 89,
+        "startedAt": "2026-10-09T03:43:36Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:37Z",
+        "conclusion": "skipped",
+        "name": "Native Windows scoped root restoration sharing",
+        "number": 90,
+        "startedAt": "2026-10-09T03:43:37Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:37Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows scoped root restoration evidence",
+        "number": 91,
+        "startedAt": "2026-10-09T03:43:37Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:37Z",
+        "conclusion": "skipped",
+        "name": "Native Windows observed request expiry",
+        "number": 92,
+        "startedAt": "2026-10-09T03:43:37Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:37Z",
+        "conclusion": "skipped",
+        "name": "Preserve Windows observed request expiry evidence",
+        "number": 93,
+        "startedAt": "2026-10-09T03:43:37Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:39Z",
+        "conclusion": "success",
+        "name": "Native history compatibility deadline isolation",
+        "number": 94,
+        "startedAt": "2026-10-09T03:43:37Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:43:39Z",
+        "conclusion": "success",
+        "name": "Preserve isolated history deadline evidence",
+        "number": 95,
+        "startedAt": "2026-10-09T03:43:39Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:52:53Z",
+        "conclusion": "success",
+        "name": "Test",
+        "number": 96,
+        "startedAt": "2026-10-09T03:43:39Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:52:53Z",
+        "conclusion": "skipped",
+        "name": "Observe original macOS failures without concurrent test scheduling",
+        "number": 97,
+        "startedAt": "2026-10-09T03:52:53Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:52:53Z",
+        "conclusion": "skipped",
+        "name": "Preserve original macOS failure isolation",
+        "number": 98,
+        "startedAt": "2026-10-09T03:52:53Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:53:07Z",
+        "conclusion": "success",
+        "name": "Native HTTP shutdown and original request deadline",
+        "number": 99,
+        "startedAt": "2026-10-09T03:52:53Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:53:21Z",
+        "conclusion": "success",
+        "name": "Native Linux identity and process scan fixtures",
+        "number": 100,
+        "startedAt": "2026-10-09T03:53:07Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:53:21Z",
+        "conclusion": "skipped",
+        "name": "Native Git source-metadata sentinel repetition",
+        "number": 101,
+        "startedAt": "2026-10-09T03:53:21Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:53:59Z",
+        "conclusion": "success",
+        "name": "Isolated release store query costs at 20k and 200k",
+        "number": 102,
+        "startedAt": "2026-10-09T03:53:21Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:53:59Z",
+        "conclusion": "success",
+        "name": "Preserve isolated release store query measurements",
+        "number": 103,
+        "startedAt": "2026-10-09T03:53:59Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:54:09Z",
+        "conclusion": "success",
+        "name": "Clippy",
+        "number": 104,
+        "startedAt": "2026-10-09T03:53:59Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:57:57Z",
+        "conclusion": "success",
+        "name": "Migration gate (ST-02)",
+        "number": 105,
+        "startedAt": "2026-10-09T03:54:09Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "success",
+        "name": "Real-host drills stay out of the regular run (RE-02)",
+        "number": 106,
+        "startedAt": "2026-10-09T03:57:57Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "FFI bindings generate (macOS)",
+        "number": 107,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Paired native Linux scan namespace cost",
+        "number": 108,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Preserve paired Linux scan cost evidence",
+        "number": 109,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Classify actual paired scan failure side",
+        "number": 110,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Diagnose original Linux baseline failure once",
+        "number": 111,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Preserve separate Linux baseline diagnostic evidence",
+        "number": 112,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Native Windows actual Cloud Files no-recall content",
+        "number": 113,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:00Z",
+        "conclusion": "skipped",
+        "name": "Preserve actual Windows Cloud Files qualification",
+        "number": 114,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:01Z",
+        "conclusion": "success",
+        "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "number": 226,
+        "startedAt": "2026-10-09T03:58:00Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:01Z",
+        "conclusion": "success",
+        "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+        "number": 227,
+        "startedAt": "2026-10-09T03:58:01Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:01Z",
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "number": 228,
+        "startedAt": "2026-10-09T03:58:01Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:58:01Z",
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 229,
+        "startedAt": "2026-10-09T03:58:01Z",
+        "status": "completed"
+      }
+    ],
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37880305608/job/113658242722"
+  },
+  "qualification": "Only this exact source and target; parent run has a formatting failure and package jobs were skipped. Other platforms, Windows desktop failures and production gates remain open."
+}

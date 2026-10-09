@@ -1,0 +1,121 @@
+{
+  "commit": "2552d0823f9a72a4130e56914230406e08d30a0d",
+  "run_id": 37880305608,
+  "run_url": "https://github.com/loong10k/diskgraph/actions/runs/37880305608",
+  "job": {
+    "completedAt": "2026-10-09T03:54:49Z",
+    "conclusion": "success",
+    "databaseId": 113658242627,
+    "name": "Swift native host (macos-15-intel)",
+    "startedAt": "2026-10-09T03:45:08Z",
+    "status": "completed",
+    "steps": [
+      {
+        "completedAt": "2026-10-09T03:45:12Z",
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "startedAt": "2026-10-09T03:45:09Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:45:22Z",
+        "conclusion": "success",
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "number": 2,
+        "startedAt": "2026-10-09T03:45:12Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:45:41Z",
+        "conclusion": "success",
+        "name": "Run dtolnay/rust-toolchain@stable",
+        "number": 3,
+        "startedAt": "2026-10-09T03:45:22Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:46:28Z",
+        "conclusion": "success",
+        "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+        "number": 4,
+        "startedAt": "2026-10-09T03:45:41Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:46:28Z",
+        "conclusion": "success",
+        "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "number": 5,
+        "startedAt": "2026-10-09T03:46:28Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:48:10Z",
+        "conclusion": "success",
+        "name": "Prepare actual fixed macOS installation for swift",
+        "number": 6,
+        "startedAt": "2026-10-09T03:46:28Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:48:12Z",
+        "conclusion": "success",
+        "name": "Preserve macOS deployment preparation evidence",
+        "number": 7,
+        "startedAt": "2026-10-09T03:48:10Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:49:40Z",
+        "conclusion": "success",
+        "name": "Generate, compile and run real Swift host and system SQLite CRUD",
+        "number": 8,
+        "startedAt": "2026-10-09T03:48:12Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:54:43Z",
+        "conclusion": "success",
+        "name": "GRDB concurrent CRUD alongside Rust FFI, close and reopen",
+        "number": 9,
+        "startedAt": "2026-10-09T03:49:40Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:54:44Z",
+        "conclusion": "success",
+        "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "number": 16,
+        "startedAt": "2026-10-09T03:54:44Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:54:44Z",
+        "conclusion": "success",
+        "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+        "number": 17,
+        "startedAt": "2026-10-09T03:54:44Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:54:45Z",
+        "conclusion": "success",
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "number": 18,
+        "startedAt": "2026-10-09T03:54:44Z",
+        "status": "completed"
+      },
+      {
+        "completedAt": "2026-10-09T03:54:47Z",
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 19,
+        "startedAt": "2026-10-09T03:54:45Z",
+        "status": "completed"
+      }
+    ],
+    "url": "https://github.com/loong10k/diskgraph/actions/runs/37880305608/job/113658242627"
+  },
+  "qualification": "Only this exact source and target; parent run has a formatting failure and package jobs were skipped. Other platforms, Windows desktop failures and production gates remain open."
+}
