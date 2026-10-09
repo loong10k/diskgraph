@@ -1,0 +1,11 @@
+{
+  "run_id": 37947400346,
+  "job_id": 113877134378,
+  "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+  "raw_log_sha256": "3759cee2b9d3ea26dc6b38ada0c537b5715282ac3c90f6f80e7467a9633620aa",
+  "native_target": "x86_64-apple-darwin",
+  "actual_passing_test_lines": [
+    "2026-10-09T15:11:42.0122160Z test native_child::macos_registry_deadline_tests::rapid_recovery_polling_keeps_original_owner_until_actual_reap ... ok"
+  ],
+  "scope": "Native Intel workspace job succeeded, including original-owner rapid recovery regression. Does not establish whole matrix success or frontend supervisor integration."
+}
