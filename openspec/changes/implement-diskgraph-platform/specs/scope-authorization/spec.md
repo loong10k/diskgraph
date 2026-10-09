@@ -105,6 +105,11 @@
 - **THEN** 返回预算拒绝并保留已观察撤权的优先级，不将中断返回为通用 SQLite 故障；非预算数据库故障仍保留。
 - **AND** 编码后的归属末检使用独立窄连接逐侧比较最初捕获的 server/scope，重新观察过滤归属，不复用消费者事务、不加载节点、不扩大原 50 ms SQL 窗口。
 
+#### Scenario: Legacy native growth retains its original policy deadline
+- **WHEN** 旧 FFI growth 请求的初始能力捕获或双侧读取后的响应末检遇到被持有的控制锁
+- **THEN** 在原请求期限内拒绝，不因重新构建全策略而在期限之外等待；初始只捕获该主体能力，成组末检仍按双侧实际 revision 归属和实时数据库授权检查。
+- **AND** 不兼容历史仍保留原 null 语义，实际撤权仍拒绝，数据库的非预算故障不被改写为成功。
+
 #### Scenario: Token without capabilities
 - **WHEN** 有效 token 无权限 scope 请求目录或工具
 - **THEN** 不返回索引信息，不使用本地管理员身份。

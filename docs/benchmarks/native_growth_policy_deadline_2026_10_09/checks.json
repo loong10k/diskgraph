@@ -1,0 +1,110 @@
+[
+  {
+    "name": "final_green",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "diskgraph-ffi",
+      "--lib",
+      "native_growth::deadline_tests",
+      "--",
+      "--nocapture"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "reply_regression",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "diskgraph-ffi",
+      "--lib",
+      "native_reply_deadline_tests",
+      "--",
+      "--nocapture"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "layout",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "diskgraph-ffi",
+      "--test",
+      "source_layout"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "-p",
+      "diskgraph-ffi",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--check"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "openspec",
+    "command": [
+      "openspec",
+      "validate",
+      "implement-diskgraph-platform",
+      "--strict"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "ci_format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "diskgraph-core",
+      "-p",
+      "diskgraph-store",
+      "-p",
+      "diskgraph-disktree",
+      "-p",
+      "diskgraph-scan-worker",
+      "-p",
+      "diskgraph-ffi",
+      "-p",
+      "diskgraph-testkit",
+      "-p",
+      "diskgraph-engine",
+      "-p",
+      "diskgraph-cli",
+      "-p",
+      "diskgraph-mcp",
+      "-p",
+      "diskgraph-ops",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0
+  }
+]

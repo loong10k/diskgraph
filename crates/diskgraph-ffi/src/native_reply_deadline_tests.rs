@@ -42,7 +42,7 @@ fn native_query_policy_capture_does_not_wait_for_an_unbounded_control_owner() {
     );
 }
 
-fn published_fixture() -> (tempfile::TempDir, Engine, String) {
+pub(crate) fn published_fixture() -> (tempfile::TempDir, Engine, String) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path().join("root");
     std::fs::create_dir(&root).unwrap();

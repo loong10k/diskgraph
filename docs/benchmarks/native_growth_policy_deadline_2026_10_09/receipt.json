@@ -1,0 +1,27 @@
+{
+  "source_sha256": {
+    "crates/diskgraph-ffi/src/native_growth.rs": "799aecdc3089b9740f754a8cc84b5251db91332c005543a21d7c93b5600ed578",
+    "crates/diskgraph-ffi/src/native_growth_deadline_tests.rs": "6fe0516a7e6c607e809919e9a45da91c12763c8120db0ec1f380c3485a71e216",
+    "crates/diskgraph-ffi/src/native_reply_deadline_tests.rs": "4f418fc2b3fed298866d3701af100c8d476e68f55a2c28af9f88da86186f2b78",
+    "openspec/changes/implement-diskgraph-platform/specs/scope-authorization/spec.md": "3856a0a996a00be85a0869b0d5d1d749e2805f1c1df212681ef179ccbb2526c6"
+  },
+  "new_regressions": {
+    "red_lock_cases": 2,
+    "green_all_cases": 4,
+    "unrelated_grant_red": 1
+  },
+  "existing_reply_regressions_passed": 4,
+  "source_layout_passed": 8,
+  "strict_clippy_exit_code": 0,
+  "ci_format_exit_code": 0,
+  "openspec_strict_exit_code": 0,
+  "first_fixture_attempt": "invalid locator JSON; corrected before behavioral initial red",
+  "unrelated_first_attempt": "unknown text permission is intentionally skipped; corrected to a real BLOB column type error",
+  "all_crates_format": "failed on vendored disktree source; no vendored files changed; followed exact project CI formatter",
+  "platforms": {
+    "macos_arm64": "targeted checks passed",
+    "windows": "new FFI patch not yet applied; earlier complete worker run still in progress",
+    "linux": "new FFI patch not yet validated"
+  },
+  "production_qualification": false
+}

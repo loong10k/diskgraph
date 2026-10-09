@@ -6,6 +6,10 @@ use diskgraph_engine::Engine;
 use serde_json::{Value, json};
 use std::time::Instant;
 
+#[cfg(test)]
+#[path = "native_growth_deadline_tests.rs"]
+mod deadline_tests;
+
 /// 保持旧 growth 导出数据形态，从解析和打开引擎前建立期限。
 /// 参数：path、双侧 snapshot 和 locator JSON。返回：有界成功/失败 envelope。
 pub(crate) fn legacy(path: &str, before: &str, after: &str, locator: &str) -> String {
@@ -35,7 +39,11 @@ pub(crate) fn query(
     }
     let locator: ResourceLocator = serde_json::from_str(locator_json).map_err(|e| e.to_string())?;
     let principal = local_principal()?;
-    let policy = engine.policy_authorizer().map_err(|e| e.to_string())?;
+    // 只在原请求期限内捕获本主体能力；末检不重新加载其他主体或无限等待控制锁。
+    // Engine 成组末检仍读取实时授权和双侧真实归属，捕获能力不能代替撤权观察。
+    let policy = engine
+        .policy_authorizer_for_principal_until(&principal, deadline)
+        .map_err(|e| e.to_string())?;
     let reader = engine
         .revision_reader_with_cancel_until(
             std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
@@ -93,7 +101,7 @@ pub(crate) fn query(
         .finalize_revisions_read_until(
             &[&revisions[0], &revisions[1]],
             &principal,
-            &engine.policy_authorizer().map_err(|e| e.to_string())?,
+            &policy,
             deadline,
         )
         .map_err(|e| e.to_string())?;

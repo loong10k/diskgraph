@@ -1,0 +1,6 @@
+{
+  "initial_attempt": "0 passed / 2 failed",
+  "initial_capture": "invalid hand-written locator JSON: missing field type; not a behavior red",
+  "terminal_capture": "actual blocked terminal reconstruction timed out",
+  "fixture_correction": "serialize actual ResourceLocator with serde_json"
+}
