@@ -1,0 +1,44 @@
+{
+  "run_id": 37947400346,
+  "jobs": [
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "job_id": 113877279748,
+      "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+      "raw_log_sha256": "c3762a6395382fd0b2f4d22cfdd9ecd9b6f16395e6e612c0086d87cda43edfaa",
+      "relevant_lines": [
+        "2026-10-09T14:53:10.9167539Z \u001b[36;1mpython scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target 'aarch64-unknown-linux-gnu' \\\u001b[0m",
+        "2026-10-09T14:53:11.1863589Z test_invalid_baseline_and_no_glibc_proof_are_refused (test_linux_abi_requirements.GnuAbiTests.test_invalid_baseline_and_no_glibc_proof_are_refused) ... ok",
+        "2026-10-09T14:53:11.1868979Z test_unknown_glibc_requirement_is_refused (test_linux_abi_requirements.GnuAbiTests.test_unknown_glibc_requirement_is_refused) ... ok"
+      ],
+      "qualified": false,
+      "abi_artifact_id": 11623538301,
+      "abi_reports": [
+        {
+          "name": "gnu-abi.log",
+          "sha256": "4d8bc39cd4156f6d019ccc6beac103e4f5077e75ba233d3796cc4876abb40435"
+        }
+      ]
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "job_id": 113877279831,
+      "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+      "raw_log_sha256": "ea6588d20d4a629131d8c16cb818681bee5a293ff1fcb4ca568ed3b8afd54828",
+      "relevant_lines": [
+        "2026-10-09T14:53:21.4157443Z \u001b[36;1mpython scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target 'x86_64-unknown-linux-gnu' \\\u001b[0m",
+        "2026-10-09T14:53:21.7458680Z test_invalid_baseline_and_no_glibc_proof_are_refused (test_linux_abi_requirements.GnuAbiTests.test_invalid_baseline_and_no_glibc_proof_are_refused) ... ok",
+        "2026-10-09T14:53:21.7470296Z test_unknown_glibc_requirement_is_refused (test_linux_abi_requirements.GnuAbiTests.test_unknown_glibc_requirement_is_refused) ... ok"
+      ],
+      "qualified": false,
+      "abi_artifact_id": 11623988407,
+      "abi_reports": [
+        {
+          "name": "gnu-abi.log",
+          "sha256": "de17d9f53446496a73fe7d5fe440e3f3668661265564ee84e33ad207234887e3"
+        }
+      ]
+    }
+  ],
+  "overall_run_terminal": false
+}

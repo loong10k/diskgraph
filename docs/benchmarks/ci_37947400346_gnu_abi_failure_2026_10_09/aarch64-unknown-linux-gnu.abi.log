@@ -1,0 +1,1 @@
+{"ok": false, "error": "gnu_abi_refused", "image": "target/aarch64-unknown-linux-gnu/release/diskgraph", "target": "aarch64-unknown-linux-gnu", "advertised_baseline": "2.17", "detail": "glibc 2.39 exceeds advertised baseline 2.17"}

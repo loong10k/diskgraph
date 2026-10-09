@@ -132,6 +132,8 @@ python scripts/accept-readonly-package.py --target x86_64-pc-windows-msvc --bin-
 
 2026-10-09：提交 `027744a236a622388190569a1a60b8198aeaa108` 的 Windows 原生 CI 包任务 `113853075490` 已实际通过原 300 秒外层门禁。200000 文件、200001 节点、32 查询/4 客户端与 6/6 行为检查保持原值；造数据 25.516 秒、扫描 75.295 秒、清理 13.713 秒，查询 p50/p95 为 25.007/35.720 ms。正式 HTTP 检查 14/14（含实际 60 秒、2349 次请求、匿名/恶意 Origin/无数据库授权/实时撤权），stdio 检查 18 项通过。日志和原 artifact 报告保存于 `docs/benchmarks/ci_37940369957_windows_package_2026_10_09/`。这是 Windows CI runner 的包验收，不能代替下方台式机复验、后续提交或长期 soak；本轮 Windows 双 Rust 完整 workspace 在同一 SHA 的 CI 中已终态成功；不把其他平台的失败改写为通过。
 
+2026-10-09 复验：提交 `5fd11d6c0b190f88f0f81c212281ae7693e3efa3` 的原生 CI 包任务 `113877279742` 再次通过原门禁。200000 文件/200001 节点、32 查询/4 客户端与 6/6 校验保持不变；扫描 48.552 秒，查询 p95 35.923 ms，HTTP 14/14。原始报告及日志以无损 gzip 保存在 `docs/benchmarks/ci_37947400346_windows_package_2026_10_09/`，receipt 绑定实际制品及原始字节摘要。不同 runner 观测不视为受控性能前后对比；台式机尚未运行，本轮全矩阵尚未结束。
+
 - [ ] 正式验收沿用 accept-readonly-package.py 的 300 秒外层期限，覆盖造数据、扫描、查询和清理。文件数必须 200000、节点数 200001，32 查询/4 客户端及 6/6 行为校验不减少。
 - [ ] 记录造数据、扫描、查询 p50/p95、清理、全流程、数据库/WAL 增量和硬件/后台负载。旧 d8d3995f 失败后诊断为 670.766 秒（252.347 + 164.821 + 249.023 等），不是干净配对基线。
 - [ ] 如果正式流程失败，可另外运行 `python scripts/diagnose_windows_load.py --bin-dir target/x86_64-pc-windows-msvc/release --output-dir <新的独占目录>`。该脚本900秒诊断结果只能用于定位，不能替代300秒通过；clean_environment_confirmed=false 不改写为 true。
