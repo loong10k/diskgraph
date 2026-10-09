@@ -1,0 +1,47 @@
+{
+  "run_id": 37947400346,
+  "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+  "job_id": 113877279800,
+  "artifact_id": 11626215739,
+  "artifact_archive_sha256": "1d0ebceb88a2598dc0e4b1ac3645900330eaa5b648c0bf2ba0645839bbe4aeae",
+  "raw_log_sha256": "f88f1be632b2511eac47f917be897dc01bcd31df2bca358481d28e14a2f62a00",
+  "reports": [
+    {
+      "name": "diskgraph-x86_64-apple-darwin.http.json",
+      "raw_sha256": "225f50a74ab71c8a529d0c91cb23626b4a80156b79778235c948fcb864af93bf",
+      "checks": {
+        "passed": 14,
+        "total": 14
+      }
+    },
+    {
+      "name": "diskgraph-x86_64-apple-darwin.load.json",
+      "raw_sha256": "241697f9cad576eae9d983cea816a873187762a97d978c0eb7805e80e5e2091c",
+      "checks": {
+        "passed": 6,
+        "total": 6,
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "scan_seconds": 3.685,
+        "query_p95_ms": 120.918,
+        "fixture_seconds": 5.883,
+        "cleanup_seconds": 5.15
+      }
+    },
+    {
+      "name": "diskgraph-x86_64-apple-darwin.load_200000.json",
+      "raw_sha256": "08abdfa6315b385906db8b5e7126eef0e89dea63cc033e100aae660535fc38a4",
+      "checks": {
+        "passed": 6,
+        "total": 6,
+        "files": 200000,
+        "indexed_nodes": 200001,
+        "scan_seconds": 46.828,
+        "query_p95_ms": 160.555,
+        "fixture_seconds": 92.004,
+        "cleanup_seconds": 58.113
+      }
+    }
+  ],
+  "scope": "Native Intel package passed original 300-second workload. Prior timeout remains recorded; one pass does not explain variance or prove long-run stability."
+}
