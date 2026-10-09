@@ -130,7 +130,8 @@ fn session_cumulative_raw_budget_keeps_prefix_and_actual_continuation() {
         next["error"]
             .as_str()
             .unwrap()
-            .contains("unknown node kind")
+            .contains("unknown node kind"),
+        "next-page error must preserve the in-budget corruption: {next}"
     );
     let legacy: Value = serde_json::from_str(&children_json(path, snapshot, 1, 0, 2)).unwrap();
     assert_eq!(legacy["ok"], false);
