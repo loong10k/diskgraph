@@ -1,0 +1,23 @@
+{
+  "run_id": 37916198928,
+  "commit": "98455bcfa1859db3f73c14e90b8fa9a979bd6bc0",
+  "overall": "failure",
+  "jobs_passed": 21,
+  "jobs_failed": 2,
+  "failed_jobs": [
+    113772863223,
+    113772863302
+  ],
+  "sha256": {
+    "macos_intel.log.gz": "38212802aa41abe343185658fc02c90d075350e609edaf8e855b0287fba8f6b1",
+    "windows_msrv.log.gz": "50c876b32780f44018d56dfea7eed077373e652a6bc1e528a01b03e9c3f402cc",
+    "phase_green.log": "260e8133ca72606ca8780ad26495a4bb58e02016c2fc1834c451d29cb22f9665",
+    "actionlint_syntax.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "phase_red.log": "999206212335434eaf885773e6acd7b33e44f5549b17f0eadfac5085bba095e7",
+    "actionlint_full.log": "6165fe95c4890196f062d6a3b447a2b8905105ac8a1187190e0bb24cddeb65f6"
+  },
+  "production_acceptance": false,
+  "phase_test": "1 passed; static workflow coverage only",
+  "actionlint_syntax": "passed with shellcheck disabled",
+  "actionlint_full": "failed; pre-existing PowerShell/sh parsing limitation"
+}

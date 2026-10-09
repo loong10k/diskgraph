@@ -521,6 +521,7 @@ jobs:
         run: |
           python -m unittest discover -s scripts/tests -p test_source_checkout_bytes.py -v
           python -m unittest discover -s scripts/tests -p test_readonly_process_encoding.py -v
+          python -m unittest discover -s scripts/tests -p test_workspace_ci_coverage.py -v
       - name: Windows PowerShell 5.1 fixture preparation
         if: runner.os == 'Windows'
         run: python -m unittest discover -s scripts/tests -p test_windows_worker_powershell.py -v
@@ -725,15 +726,29 @@ jobs:
           path: ${{ runner.temp }}/history-deadline-isolation.log
           if-no-files-found: error
           retention-days: 7
-      - name: Test
-        id: workspace_tests
+      # 分段保留整个 workspace 的 all-targets，避免把多 crate 总耗时当成一个测试卡死。
+      # 每段仍有原30分钟上限，不改变 crate 内测试并发、授权窗口或负面验收。
+      - name: Test foundation packages
+        id: workspace_foundation_tests
         if: success() || (!cancelled() && steps.history_deadline_isolation.outcome == 'failure')
+        timeout-minutes: 30
+        env:
+          DISKGRAPH_QUERY_DIAGNOSTICS: '1'
+        run: >-
+          cargo test -p diskgraph-core -p diskgraph-store -p diskgraph-disktree
+          -p diskgraph-scan-worker -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-ops
+          --all-targets --locked --no-fail-fast -- --nocapture
+      - name: Test engine and entry packages
+        id: workspace_tests
+        if: success() || (!cancelled() && (steps.history_deadline_isolation.outcome == 'failure' || steps.workspace_foundation_tests.outcome == 'failure'))
         timeout-minutes: 30
         env:
           # 调试构建仅在原授权预算失败时记录固定阶段与耗时；不输出请求身份或路径。
           DISKGRAPH_QUERY_DIAGNOSTICS: '1'
         # 恢复失败可能阻止二进制返回；即时保留原断言/诊断，不等待 libtest 最终汇总。
-        run: cargo test --workspace --all-targets --locked --no-fail-fast -- --nocapture
+        run: >-
+          cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp
+          --all-targets --locked --no-fail-fast -- --nocapture
       - name: Observe original macOS failures without concurrent test scheduling
         if: failure() && runner.os == 'macOS' && steps.workspace_tests.outcome == 'failure'
         id: macos_failure_isolation

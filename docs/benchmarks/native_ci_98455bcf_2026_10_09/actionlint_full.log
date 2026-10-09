@@ -1,0 +1,224 @@
+.github/workflows/ci.yml:132:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+132 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:132:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+132 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:132:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+132 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:151:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+151 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:151:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+151 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:151:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+151 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:183:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+183 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:183:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+183 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:183:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+183 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:234:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+234 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:234:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+234 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:234:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+234 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:251:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+251 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:251:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+251 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:251:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+251 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:266:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+266 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:266:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+266 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:266:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+266 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC1083:warning:3:11: This { is literal. Check expression (missing ;/\n?) or quote it [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC1089:error:6:1: Parsing stopped here. Is this keyword correctly matched up? [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC2086:info:1:21: Double quote to prevent globbing and word splitting [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC2086:info:2:36: Double quote to prevent globbing and word splitting [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC2283:error:1:9: Remove spaces around = to assign (or use [ ] to compare, or quote '=' if literal) [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC2283:error:3:8: Remove spaces around = to assign (or use [ ] to compare, or quote '=' if literal) [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC2283:error:4:81: Remove spaces around = to assign (or use [ ] to compare, or quote '=' if literal) [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:282:9: shellcheck reported issue in this script: SC2283:error:5:74: Remove spaces around = to assign (or use [ ] to compare, or quote '=' if literal) [shellcheck]
+    |
+282 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:307:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+307 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:307:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+307 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:307:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+307 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:349:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+349 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:349:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+349 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:349:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+349 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:367:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+367 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:367:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+367 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:367:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+367 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:405:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+405 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:405:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+405 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:405:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+405 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:412:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+412 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:412:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+412 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:412:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+412 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:434:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+434 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:434:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+434 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:434:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+434 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:918:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+    |
+918 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:918:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+    |
+918 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:918:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+    |
+918 |         run: |
+    |         ^~~~
+.github/workflows/ci.yml:1024:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+     |
+1024 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1024:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+     |
+1024 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1024:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+     |
+1024 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1123:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+     |
+1123 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1123:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+     |
+1123 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1123:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+     |
+1123 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1166:9: shellcheck reported issue in this script: SC1050:error:2:26: Expected 'then' [shellcheck]
+     |
+1166 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1166:9: shellcheck reported issue in this script: SC1072:error:2:28: Unexpected . Fix any mentioned problems and try again [shellcheck]
+     |
+1166 |         run: |
+     |         ^~~~
+.github/workflows/ci.yml:1166:9: shellcheck reported issue in this script: SC1073:error:2:1: Couldn't parse this if expression. Fix to allow more checks [shellcheck]
+     |
+1166 |         run: |
+     |         ^~~~

@@ -107,3 +107,8 @@
 #### Scenario: Last HTTP dispatch interval has insufficient budget
 - **WHEN** 40次/秒持续读取的原总期限剩余不足max(25ms发起间隔, 本轮已观测最大请求耗时)，包括token准备消耗后的剩余额度
 - **THEN** 不再准入新的网络请求；继续等待原观测截止时间，报告实际准入保留值，不缩短60秒观测、不刷新期限、不补发积压。已发出的请求仍使用原剩余时间且任何超时或HTTP/业务失败均失败，不能将此检查用作吞掉末次错误的重试机制。
+
+#### Scenario: Bounded CI phases retain whole workspace coverage
+- **WHEN** Windows MSRV完整workspace测试累计超过原30分钟步骤期限，但日志尚无断言失败
+- **THEN** 分为基础与Engine/入口两个有限阶段，各保留30分钟上限；全部workspace包恰好覆盖一次，保留all-targets、locked、no-fail-fast和原crate内并发。
+- **AND** 基础阶段失败不得隐藏入口阶段，任一失败仍使CI失败；分段不增加生产授权窗口，不以定向重跑冒充完整测试，原timeout证据持续保留。

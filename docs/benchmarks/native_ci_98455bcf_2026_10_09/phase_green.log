@@ -1,0 +1,6 @@
+test_bounded_phases_cover_every_workspace_package_once (test_workspace_ci_coverage.WorkspaceCiCoverageTests.test_bounded_phases_cover_every_workspace_package_once) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+OK
