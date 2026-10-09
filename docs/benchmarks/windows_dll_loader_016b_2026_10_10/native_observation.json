@@ -1,0 +1,57 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "items": [
+        {
+          "job_id": "wc_job_6NnV5fWno4h_FXRh",
+          "status": "completed",
+          "terminal": true,
+          "changed": true,
+          "log_delta_status": "reset",
+          "observation_token": "wj3_0F9wm72EpSFlLylf.4.6.1",
+          "observation_ref": "~j725",
+          "exit_code": 0,
+          "command_execution_state": "completed",
+          "detected_summary": {
+            "kind": "diagnostic",
+            "outcome": "passed"
+          },
+          "stdout_tail": "BUILD_EXIT 0\n{\"case\": \"native_child::windows::windows_dll_policy_tests::resumed_scan_rejects_unsigned_dll_and_loads_system32_dependency\", \"exit_code\": 0, \"binary\": \"E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_016bcd99_20261010\\\\target\\\\debug\\\\deps\\\\diskgraph_engine-46b7752420dbcdb6.exe\", \"binary_sha256\": \"562ac8afb80eff59085945268fe8095e5f114a60beaefe0800869cbf44729b0c\"}\n\"\\nrunning 1 test\\ntest native_child::windows::windows_dll_policy_tests::resumed_scan_rejects_unsigned_dll_and_loads_system32_dependency ... DG_SCAN_UNSIGNED_REJECTED_SYSTEM32_LOADED={\\\"system32_error\\\":null,\\\"system32_loaded\\\":true,\\\"unsigned_error\\\":577,\\\"unsigned_loaded\\\":false}\\nok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 750 filtered out; finished in 12.50s\\n\\n\"\n{\"case\": \"native_child::windows::windows_dll_policy_tests::resumed_null_probe_loads_the_same_valid_unsigned_dll\", \"exit_code\": 0, \"binary\": \"E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_016bcd99_20261010\\\\target\\\\debug\\\\deps\\\\diskgraph_engine-46b7752420dbcdb6.exe\", \"binary_sha256\": \"562ac8afb80eff59085945268fe8095e5f114a60beaefe0800869cbf44729b0c\"}\n\"\\nrunning 1 test\\ntest native_child::windows::windows_dll_policy_tests::resumed_null_probe_loads_the_same_valid_unsigned_dll ... DG_NULL_UNSIGNED_DLL_POSITIVE={\\\"system32_error\\\":null,\\\"system32_loaded\\\":true,\\\"unsigned_error\\\":null,\\\"unsigned_loaded\\\":true}\\nok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 750 filtered out; finished in 0.91s\\n\\n\"\n",
+          "stderr_tail": "",
+          "stdout_delta_reset": true,
+          "stderr_delta_reset": true,
+          "stdout_lines": 5,
+          "stderr_lines": 0,
+          "stdout_returned_lines": 5,
+          "stderr_returned_lines": 0,
+          "stdout_retained_from_line": 1,
+          "stderr_retained_from_line": 1,
+          "cursor": {
+            "stdout": 6,
+            "stderr": 1
+          },
+          "last_update_seq": 3,
+          "stdout_truncated": false,
+          "stderr_truncated": false,
+          "earlier_stdout_unavailable": false,
+          "earlier_stderr_unavailable": false,
+          "purpose": "diagnostic",
+          "command_summary": "python script (13498 bytes, 0 args)"
+        }
+      ],
+      "wait": {
+        "outcome": "terminal",
+        "waited_ms": 34803
+      }
+    },
+    "error": null
+  },
+  "isError": false
+}

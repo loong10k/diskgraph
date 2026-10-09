@@ -14,6 +14,7 @@ unsafe extern "system" {
     fn LoadLibraryW(path: *const u16) -> *mut c_void;
     fn FreeLibrary(module: *mut c_void) -> i32;
     fn GetProcAddress(module: *mut c_void, name: *const u8) -> *mut c_void;
+    fn SetThreadErrorMode(mode: u32, old_mode: *mut u32) -> i32;
 }
 
 fn load(path: &Path, marker: bool) -> (bool, Option<i32>) {
@@ -34,13 +35,23 @@ fn load(path: &Path, marker: bool) -> (bool, Option<i32>) {
 /// 参数：directory为该真实子进程的独占夹具目录；返回：写入实际加载结果。
 /// 从恢复后的子进程调用Windows加载器，既不修改政策，也不把错误模拟成拒绝。
 pub(super) fn run_child(directory: &Path) {
+    // 负向加载必须把原生错误返回本线程，避免无人值守夹具等待系统错误对话框。
+    // 不改变进程签名策略，也不改变 LoadLibraryW 的真实返回值或错误码。
+    assert_ne!(
+        unsafe { SetThreadErrorMode(0x0001, std::ptr::null_mut()) }, // SDK SEM_FAILCRITICALERRORS
+        0
+    );
+    std::fs::write(directory.join("loader-stage"), b"child-entered").unwrap();
     let mut wide = vec![0_u16; 32768];
     let count = unsafe { GetSystemDirectoryW(wide.as_mut_ptr(), wide.len() as u32) } as usize;
     assert!(count > 0 && count < wide.len());
     use std::os::windows::ffi::OsStringExt;
     let system = std::path::PathBuf::from(std::ffi::OsString::from_wide(&wide[..count]));
+    std::fs::write(directory.join("loader-stage"), b"system32-load").unwrap();
     let signed = load(&system.join("version.dll"), false);
+    std::fs::write(directory.join("loader-stage"), b"unsigned-load").unwrap();
     let unsigned = load(&directory.join("unsigned.dll"), true);
+    std::fs::write(directory.join("loader-stage"), b"loads-completed").unwrap();
     std::fs::write(
         directory.join("loader-result.json"),
         serde_json::to_vec(&serde_json::json!({
@@ -117,7 +128,44 @@ fn observed(mode: ChildInputMode) -> serde_json::Value {
         let mut close_polling = false;
         let mut output_bytes = 0usize;
         loop {
-            check(deadline).unwrap();
+            if let Err(error) = check(deadline) {
+                // 期限失败仍失败；只记录原 owner 的实际状态，不能把加载器或传输阻塞猜成策略拒绝。
+                use windows_sys::Win32::System::JobObjects::{
+                    JOBOBJECT_BASIC_ACCOUNTING_INFORMATION, JobObjectBasicAccountingInformation,
+                    QueryInformationJobObject,
+                };
+                let leader = child.poll();
+                let mut accounting = JOBOBJECT_BASIC_ACCOUNTING_INFORMATION::default();
+                let queried = unsafe {
+                    QueryInformationJobObject(
+                        job.as_raw(),
+                        JobObjectBasicAccountingInformation,
+                        (&raw mut accounting).cast(),
+                        std::mem::size_of_val(&accounting) as u32,
+                        std::ptr::null_mut(),
+                    )
+                };
+                eprintln!(
+                    "DG_DLL_POLICY_TIMEOUT mode={mode:?} control_closed={closed} close_polling={close_polling} leader={leader:?} exit={:?} stdout_eof={} stderr_eof={} output_bytes={output_bytes} job_query_ok={} active={} result_exists={}",
+                    child.exit_code(),
+                    child.stdout_eof(),
+                    child.stderr_eof(),
+                    queried != 0,
+                    accounting.ActiveProcesses,
+                    directory.path().join("loader-result.json").exists(),
+                );
+                super::windows_job_test_diagnostics::WindowsJobTestDiagnostics::observe(
+                    job.as_raw(),
+                    std::ptr::null_mut(),
+                    accounting.ActiveProcesses,
+                    Instant::now(),
+                );
+                eprintln!(
+                    "DG_DLL_LOADER_STAGE={:?}",
+                    std::fs::read_to_string(directory.path().join("loader-stage"))
+                );
+                panic!("original DLL policy deadline: {error}");
+            }
             if !closed {
                 let status = if close_polling {
                     child.poll_control_write().unwrap()
