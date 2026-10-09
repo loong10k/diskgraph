@@ -1,0 +1,33 @@
+{
+  "kind": "isolated_cleanup_diagnostic_only",
+  "production_acceptance": false,
+  "project_commit": "5ead1bc04f2a2a544b329f288ad87a3b67acfea2",
+  "runner": "WebCodex Windows desktop",
+  "job_id": "wc_job_Czd2MOwBUDR60iJe",
+  "observation_token": "wj3_JhU_mu9-tOugxi4i.4.2.1",
+  "exit_code": 0,
+  "fixture": {
+    "files_per_round": 20000,
+    "bytes_per_file": 32,
+    "creation_workers": 1,
+    "layout": "flat private temporary directory per round",
+    "order": ["fixed_names", "native_rmdir", "native_rmdir", "fixed_names"]
+  },
+  "methods": {
+    "fixed_names": "Path.unlink each exact generated name, then Path.rmdir",
+    "native_rmdir": "COMSPEC /d /c rmdir /s /q on this process's fresh private fixture only; argv path excluded shell metacharacters"
+  },
+  "results": [
+    {"method": "fixed_names", "files": 20000, "create_seconds": 23.33418839998194, "cleanup_seconds": 20.001550299988594, "actual_absent": true},
+    {"method": "native_rmdir", "files": 20000, "create_seconds": 19.213053800020134, "cleanup_seconds": 54.77498240000568, "actual_absent": true},
+    {"method": "native_rmdir", "files": 20000, "create_seconds": 16.339482499985024, "cleanup_seconds": 59.366668300004676, "actual_absent": true},
+    {"method": "fixed_names", "files": 20000, "create_seconds": 16.928610700007994, "cleanup_seconds": 15.653721900016535, "actual_absent": true}
+  ],
+  "decision": "Reject native_rmdir as a performance candidate; no product or acceptance-script change.",
+  "limitations": [
+    "20k cleanup diagnostic only, not the 200k formal gate or a DiskGraph scan measurement.",
+    "No RSS, WAL, kernel tracing, filesystem filter attribution, or independently idle-host proof.",
+    "Observed native absence is fixture cleanup evidence, not DiskGraph recovery-owner retirement evidence.",
+    "Original 300-second full-envelope acceptance remains unchanged and open."
+  ]
+}
