@@ -1,0 +1,40 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "observations": [
+    {
+      "workers": 4,
+      "cleanup": "rmtree",
+      "files": 20000,
+      "create_seconds": 0.8715,
+      "cleanup_seconds": 1.0518,
+      "root_removed": true
+    },
+    {
+      "workers": 1,
+      "cleanup": "rmtree",
+      "files": 20000,
+      "create_seconds": 1.4673,
+      "cleanup_seconds": 0.9444,
+      "root_removed": true
+    },
+    {
+      "workers": 4,
+      "cleanup": "retire",
+      "files": 20000,
+      "create_seconds": 0.7695,
+      "cleanup_seconds": 1.0363,
+      "root_removed": true
+    },
+    {
+      "workers": 1,
+      "cleanup": "retire",
+      "files": 20000,
+      "create_seconds": 1.566,
+      "cleanup_seconds": 0.9713,
+      "root_removed": true
+    }
+  ],
+  "native_intel_evidence": false,
+  "interpretation": "On this local macOS ARM 20k sample, four creation workers were faster than one; explicit single-worker retirement did not materially improve cleanup. This does not justify changing the Intel benchmark strategy or declaring the failed 200k workload passed."
+}

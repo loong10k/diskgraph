@@ -1,0 +1,21 @@
+{
+  "run_id": 37940369957,
+  "job_id": 113853075476,
+  "source_commit": "027744a236a622388190569a1a60b8198aeaa108",
+  "raw_log_sha256": "66be56c235f347f90851e41a8abf6b97bc24496804447aa1b13abb8490882942",
+  "result": "failed",
+  "native_target": "x86_64-apple-darwin",
+  "files": 200000,
+  "outer_workload_timeout_seconds": 300,
+  "phase_seconds": {
+    "fixture_create": 130.223,
+    "scope_registration": 0.253,
+    "index": 97.788,
+    "coverage_validation": 0.821,
+    "queries": 1.227,
+    "budget_refusal": 0.582
+  },
+  "last_started_phase": "workspace_cleanup",
+  "complete_workload_pass": false,
+  "interpretation": "Observed index, coverage, queries and budget-refusal phases ended; timeout occurred after workspace cleanup began. Neither successful phase completion alone nor published revision proves the whole workload passed."
+}
