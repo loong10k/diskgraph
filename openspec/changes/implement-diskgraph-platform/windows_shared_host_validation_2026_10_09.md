@@ -15,3 +15,5 @@ Windows 工作区 `E:\workspaces\workspace-loong10k\diskgraph` 已正常 fast-fo
 全量失败目标为 CLI bin、Engine lib及 growth_narrow_read / hardening / history_compatibility_matrix / relation_preparation_budget、FFI lib、MCP lib，共8个。对应通过/失败/忽略分别为75/13/0、643/87/7、4/1/0、14/1/0、5/5/0、8/3/0、89/4/0、214/19/0。原日志记录133条失败测试行，不等于133个独立缺陷。Store主测试382/0/8，保留此前独立运行380/2/8的期限失败，不能以本次通过抹去。
 
 诊断包装器的 failed_tests 正则误加转义，最初得到空数组；已从原 stdout 按实际行前后缀重新提取133条，并保留修正说明。测试结果及原始日志摘要没有改变。FFI 的两项 listing 失败分别返回 budget_exceeded 和 Store BudgetExceeded；后者错误文本为“query response budget exceeded by one record”，单凭该文本不能判定耗尽的是字节预算，须继续隔离诊断。未观察到这些失败返回成功数据，仍不能据此代替安全断言通过。
+
+后续单独诊断 Job `wc_job_cgu34JEt_wRh2lTI` 终态0，`diskgraph-ffi --lib native_listing_tests` 9/0，测试阶段22.33秒（含依赖重新编译的命令255.375秒），保持默认并发与原期限。证据见 `docs/benchmarks/windows_listing_diagnostic_2552d082_2026_10_09.json`。单包与全 workspace 的 Cargo feature unification 不同，worker/driver实际摘要独立保存；此结果不能替代全量通过，也不能证明共享负载是唯一根因。

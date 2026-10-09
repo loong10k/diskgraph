@@ -1,0 +1,13 @@
+{
+  "run_id": 37880305608,
+  "job_id": 113658242750,
+  "head": "2552d0823f9a72a4130e56914230406e08d30a0d",
+  "conclusion": "failure",
+  "log_sha256": "6d3ac1afb28dd3c83d5542c76754eacde910636da08619ac43788ae176d229a3",
+  "failed_target": "engine history_scope_eligibility",
+  "failed_test": "generic_authorized_comparison_remains_available_across_scopes_and_roots",
+  "observed_error": "Business(BudgetExceeded)",
+  "observed_elapsed_ms": 154.396951,
+  "acceptance": false,
+  "qualification": "Original CI failure retained. No deadline extension or assumption that scheduling is the sole cause."
+}
