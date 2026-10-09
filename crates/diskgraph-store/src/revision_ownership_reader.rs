@@ -3,6 +3,10 @@ use rusqlite::{Connection, OpenFlags, params};
 use std::path::Path;
 use std::time::{Duration, Instant};
 
+#[cfg(test)]
+#[path = "revision_ownership_cache_tests.rs"]
+mod cache_tests;
+
 /// 终检专用独立归属连接；来源：原生Rust SC-04/Q-08，无Java对等对象。
 /// 不交给消费者、不提供事务或广域查询，只按实际过滤视图读取布尔结果。
 /// 可信内部接口，不代替请求主体、scope授权或数据库启动时的schema校验。
@@ -24,6 +28,8 @@ impl RevisionOwnershipReader {
         // SQLite 默认 busy 回调累计的是请求 sleep 毫秒数，不是单调时钟实耗；
         // Windows 的睡眠粒度/调度可令短窗口显著超时。终检不重试锁竞争，直接失败关闭。
         connection.busy_timeout(Duration::ZERO)?;
+        // 每轮独立连接只保留这条窄读的编译产物，既不缓存结果也不保留读事务。
+        connection.set_prepared_statement_cache_capacity(1);
         connection.progress_handler(1000, Some(move || Instant::now() >= deadline))?;
         check(deadline)?;
         Ok(Self {
@@ -36,10 +42,9 @@ impl RevisionOwnershipReader {
     /// 未绑定、隔离和不匹配均为false；真实拒绝先于查询结束后的期限，允许结果须仍在原期限内。
     pub fn matches(&self, revision: &str, server: &str, scope: &str) -> Result<bool> {
         check(self.deadline)?;
-        let matches: bool = self.connection.query_row(
+        let matches: bool = self.connection.prepare_cached(
             "SELECT EXISTS(SELECT 1 FROM revision_authorized_ownership WHERE revision_id=?1 AND server_id=?2 AND scope_id=?3)",
-            params![revision, server, scope], |row| row.get(0),
-        )?;
+        )?.query_row(params![revision, server, scope], |row| row.get(0))?;
         if matches {
             check(self.deadline)?;
         }
