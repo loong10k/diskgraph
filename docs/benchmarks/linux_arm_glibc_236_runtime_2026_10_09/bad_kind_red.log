@@ -1,0 +1,32 @@
+FFF
+======================================================================
+FAIL: test_relocatable_or_unknown_object_cannot_claim_a_package_abi (scripts.tests.test_linux_abi_requirements.GnuAbiTests.test_relocatable_or_unknown_object_cannot_claim_a_package_abi) (kind=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_abi_requirements.py", line 90, in test_relocatable_or_unknown_object_cannot_claim_a_package_abi
+    with self.subTest(kind=kind), self.assertRaises(ValueError):
+                                  ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_relocatable_or_unknown_object_cannot_claim_a_package_abi (scripts.tests.test_linux_abi_requirements.GnuAbiTests.test_relocatable_or_unknown_object_cannot_claim_a_package_abi) (kind=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_abi_requirements.py", line 90, in test_relocatable_or_unknown_object_cannot_claim_a_package_abi
+    with self.subTest(kind=kind), self.assertRaises(ValueError):
+                                  ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_relocatable_or_unknown_object_cannot_claim_a_package_abi (scripts.tests.test_linux_abi_requirements.GnuAbiTests.test_relocatable_or_unknown_object_cannot_claim_a_package_abi) (kind=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_abi_requirements.py", line 90, in test_relocatable_or_unknown_object_cannot_claim_a_package_abi
+    with self.subTest(kind=kind), self.assertRaises(ValueError):
+                                  ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (failures=3)

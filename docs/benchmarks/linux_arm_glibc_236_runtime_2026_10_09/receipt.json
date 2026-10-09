@@ -1,0 +1,15 @@
+{
+  "source_commit": "98455bcfa1859db3f73c14e90b8fa9a979bd6bc0",
+  "ci_run": 37916198928,
+  "artifact": "readonly-candidate-aarch64-unknown-linux-gnu",
+  "archive_sha256": "953ae86888a92cb6f1ba73222f3754b7e60ecd58ffaae68a9eea45d164f90fb9",
+  "cli_sha256": "d28a7a83167dd1eb0659f02730697019254899116d89923cb2c5a49c9df3e0ed",
+  "base_image": "sha256:f1bdb327cbde65024f6cbdcecfd3e69e55a7ad7b87cb84f53be77cc0b1b93ead",
+  "platform": "Linux aarch64 container on Docker Desktop macOS",
+  "runtime_glibc": "2.36",
+  "command": "packaged diskgraph --version under UID1000, read-only rootfs, no network, all capabilities dropped",
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "/diskgraph-candidate/diskgraph: /lib/aarch64-linux-gnu/libc.so.6: version `GLIBC_2.39' not found (required by /diskgraph-candidate/diskgraph)\n",
+  "boundary": "Runtime loader compatibility probe only; no database, scan, production host or privileged deployment acceptance"
+}

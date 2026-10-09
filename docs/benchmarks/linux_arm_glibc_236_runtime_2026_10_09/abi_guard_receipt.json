@@ -1,0 +1,77 @@
+{
+  "source_commit": "98455bcfa1859db3f73c14e90b8fa9a979bd6bc0",
+  "audit_tool_sha256": "e836a84909297b24967b7b4381c33245b550006a0219372b5792b8e57245d25c",
+  "tests": "9 local parser regressions passed after invalid ELF kinds actually failed three subcases; initial missing-file error is separate",
+  "actual_runtime_red": "receipt.json: packaged CLI loader rejected glibc 2.36",
+  "images": [
+    {
+      "image": "diskgraph",
+      "sha256": "d28a7a83167dd1eb0659f02730697019254899116d89923cb2c5a49c9df3e0ed",
+      "glibc_versions": [
+        "2.17",
+        "2.18",
+        "2.25",
+        "2.27",
+        "2.28",
+        "2.29",
+        "2.30",
+        "2.32",
+        "2.33",
+        "2.34",
+        "2.39"
+      ],
+      "declared_2_17_rejection": "glibc 2.39 exceeds advertised baseline 2.17",
+      "positive_control": "parser accepts actual required maximum; not runtime acceptance"
+    },
+    {
+      "image": "diskgraph-mcp",
+      "sha256": "3e778814a8d0b4ba07b7d6e2f3a7b374d342896b9797f9547a533a9a6069a6b7",
+      "glibc_versions": [
+        "2.17",
+        "2.18",
+        "2.25",
+        "2.27",
+        "2.28",
+        "2.29",
+        "2.30",
+        "2.32",
+        "2.33",
+        "2.34",
+        "2.39"
+      ],
+      "declared_2_17_rejection": "glibc 2.39 exceeds advertised baseline 2.17",
+      "positive_control": "parser accepts actual required maximum; not runtime acceptance"
+    },
+    {
+      "image": "diskgraph-scan-worker",
+      "sha256": "fc70ccc2498f5496ee69ee7c6d0ce8df02e8a94c1e34cd258b2359d5a5b904c5",
+      "glibc_versions": [
+        "2.17",
+        "2.18",
+        "2.28",
+        "2.30",
+        "2.32",
+        "2.33",
+        "2.34"
+      ],
+      "declared_2_17_rejection": "glibc 2.34 exceeds advertised baseline 2.17",
+      "positive_control": "parser accepts actual required maximum; not runtime acceptance"
+    }
+  ],
+  "fixed_binary_built": false,
+  "baseline_container_prepared": false,
+  "native_old_baseline_acceptance": false,
+  "red_behavior": {
+    "command": "python3 -m unittest scripts.tests.test_linux_abi_requirements.GnuAbiTests.test_relocatable_or_unknown_object_cannot_claim_a_package_abi",
+    "exit_code": 1,
+    "tests": 1,
+    "failures": 3,
+    "log": "bad_kind_red.log"
+  },
+  "green": {
+    "command": "python3 -m unittest scripts.tests.test_linux_abi_requirements",
+    "exit_code": 0,
+    "tests": 9,
+    "log": "green.log"
+  }
+}

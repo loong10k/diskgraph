@@ -99,6 +99,11 @@
 - **THEN** 只计两库及各自WAL/SHM的实际文件长度，分别报告三个时点及扫描/查询的有符号增量；checkpoint导致WAL缩减时保留负值，不把缺失WAL或文件总长度当作累计写入字节。
 - **AND** 原database_and_wal_bytes字段兼容保留，原时间门禁、四客户端并发、精确节点/路径覆盖、拒绝部分发布和回收验证不变。该成本不是卷分配量、峰值WAL或RSS；未执行目标平台程序时不宣称原生负载通过。
 
+#### Scenario: GNU package ABI cannot exceed its advertised baseline
+- **WHEN** 生成声明glibc最低版本的Linux GNU制品
+- **THEN** 从最终CLI、MCP和scan worker的实际ELF版本需求核验声明，不根据构建机、目标triple或弱符号名称猜测兼容；超过声明或未知/损坏的版本需求必须拒绝包验收，不发布误导清单。
+- **AND** 至少在声明的旧glibc运行环境中执行实际制品启动和隔离业务验收；新版Ubuntu绿色不能替代旧环境。不得通过删除ELF版本需求、补造符号、关闭pidfd/镜像/授权防护或改写已有兼容承诺使门禁通过。旧glibc与现代内核能力分别验收，缺内核安全能力保持明确拒绝。
+
 #### Scenario: Last HTTP dispatch interval has insufficient budget
 - **WHEN** 40次/秒持续读取的原总期限剩余不足max(25ms发起间隔, 本轮已观测最大请求耗时)，包括token准备消耗后的剩余额度
 - **THEN** 不再准入新的网络请求；继续等待原观测截止时间，报告实际准入保留值，不缩短60秒观测、不刷新期限、不补发积压。已发出的请求仍使用原剩余时间且任何超时或HTTP/业务失败均失败，不能将此检查用作吞掉末次错误的重试机制。

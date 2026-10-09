@@ -1,0 +1,13 @@
+{
+  "commit": "3c66430bc23fa7953fc6151934b724be3c5692a4",
+  "lockfile_sha256": "7ec8938251c354b70e279ea306b13b17c7298e06b36a783e7ad19d48920a33f0",
+  "audit_tool": "cargo-audit-audit 0.22.2",
+  "command": "cargo audit --json",
+  "exit_code": 0,
+  "database_commit": "7eebec69c352c7191b1f13eb95dd510eeca5d1de",
+  "database_last_updated": "2026-10-09T10:12:02+02:00",
+  "dependency_count": 250,
+  "ignored_advisories": [],
+  "audit_report_sha256": "8932a230c21a1f7d5575a703b1c6352357402474ebcf219af127200e530b2a29",
+  "boundary": "Known advisories for current Cargo.lock only; no claim of application security, native platform acceptance or production readiness."
+}

@@ -1,0 +1,714 @@
+[
+  {
+    "symbol": "pidfd_spawnp",
+    "version": "GLIBC_2.39"
+  },
+  {
+    "symbol": "pidfd_getpid",
+    "version": "GLIBC_2.39"
+  },
+  {
+    "symbol": "pthread_mutexattr_init",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_attr_getguardsize",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_mutex_trylock",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_setspecific",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_detach",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "__libc_start_main",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "dlclose",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_join",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "dlsym",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "dlerror",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_setname_np",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_key_delete",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_attr_setstacksize",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "dlopen",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_mutexattr_settype",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_mutexattr_destroy",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_key_create",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_attr_getstack",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "pthread_create",
+    "version": "GLIBC_2.34"
+  },
+  {
+    "symbol": "fstatat64",
+    "version": "GLIBC_2.33"
+  },
+  {
+    "symbol": "fstatat",
+    "version": "GLIBC_2.33"
+  },
+  {
+    "symbol": "lstat64",
+    "version": "GLIBC_2.33"
+  },
+  {
+    "symbol": "stat64",
+    "version": "GLIBC_2.33"
+  },
+  {
+    "symbol": "fstat64",
+    "version": "GLIBC_2.33"
+  },
+  {
+    "symbol": "pthread_getattr_np",
+    "version": "GLIBC_2.32"
+  },
+  {
+    "symbol": "gettid",
+    "version": "GLIBC_2.30"
+  },
+  {
+    "symbol": "posix_spawn_file_actions_addchdir_np",
+    "version": "GLIBC_2.29"
+  },
+  {
+    "symbol": "log",
+    "version": "GLIBC_2.29"
+  },
+  {
+    "symbol": "statx",
+    "version": "GLIBC_2.28"
+  },
+  {
+    "symbol": "fcntl64",
+    "version": "GLIBC_2.28"
+  },
+  {
+    "symbol": "memfd_create",
+    "version": "GLIBC_2.27"
+  },
+  {
+    "symbol": "getrandom",
+    "version": "GLIBC_2.25"
+  },
+  {
+    "symbol": "__cxa_thread_atexit_impl",
+    "version": "GLIBC_2.18"
+  },
+  {
+    "symbol": "memcpy",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "send",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fchmod",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "readlink",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawnattr_init",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__environ",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "execvp",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "socketpair",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "dirfd",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "calloc",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fchown",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "dup2",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_mutex_lock",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strlen",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__stack_chk_fail",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "waitpid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getsid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawnp",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pread64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "geteuid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "open",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "futimens",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__stack_chk_guard",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_attr_init",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "setgroups",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "setsid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pipe2",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "memcmp",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "writev",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sigemptyset",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fstatfs",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "free",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "mprotect",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "memset",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "name_to_handle_at",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strchr",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_mutex_unlock",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "isatty",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawnattr_setsigdefault",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "qsort",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__cxa_finalize",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "realloc",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawnattr_setpgroup",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "setpgid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "mmap64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "_exit",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "access",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_mutex_init",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "read",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "chroot",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawn_file_actions_init",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "closedir",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "gettimeofday",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawnattr_destroy",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_attr_destroy",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "setgid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "ioctl",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strcspn",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawn_file_actions_adddup2",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "nanosleep",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pause",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "unlink",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getsockname",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "mremap",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "syscall",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "epoll_create1",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "dl_iterate_phdr",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "openat64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "clock_gettime",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "memchr",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getpid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "recv",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strncmp",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "readdir",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "readdir64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_memalign",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "rename",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strspn",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fdopendir",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "munmap",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fsync",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "opendir",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "chmod",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "ftruncate64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "localtime_r",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "chdir",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "lseek64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "kill",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "memmove",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__memmove_chk",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getpeername",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawn_file_actions_destroy",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "time",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strrchr",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__errno_location",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sched_yield",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__memset_chk",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "dup",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "mkdir",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "openat",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pwrite64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sigaddset",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getpgid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fork",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getcwd",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "close",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "strcmp",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "epoll_ctl",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__xpg_strerror_r",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "write",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "unlinkat",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "mkdirat",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getauxval",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "flock",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "malloc",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "setuid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "recvmsg",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getpwuid_r",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "abort",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getenv",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "signal",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "epoll_wait",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_mutex_destroy",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "__memcpy_chk",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sysconf",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "open64",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "exit",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "posix_spawnattr_setflags",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "pthread_self",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "poll",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "getuid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "gnu_get_libc_version",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "realpath",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sigaltstack",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "fcntl",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sigaction",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "waitid",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "utimes",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "clock_nanosleep",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "environ",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "sendmsg",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "bcmp",
+    "version": "GLIBC_2.17"
+  },
+  {
+    "symbol": "rmdir",
+    "version": "GLIBC_2.17"
+  }
+]
