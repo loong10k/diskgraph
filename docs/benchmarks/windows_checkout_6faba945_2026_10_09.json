@@ -1,0 +1,23 @@
+{
+  "head": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "project_root": "E:/workspaces/workspace-loong10k/diskgraph",
+  "branch": "main",
+  "tracked_clean_after_fast_forward": true,
+  "preserved_owned_overlay_stash": "3b819fc716e948ff1dbb7f1f65b41effda012c39",
+  "update_job": "wc_job_XWbwciawwtPT0WsT",
+  "validation_job": "wc_job_vDuEZzF8JHsr0Ele",
+  "validation": "Python frozen baseline, capacity replay and private disposal qualification adapter contracts",
+  "tests": 12,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 0.15600000001722947,
+  "production_acceptance": false,
+  "ci_run": 37868282837,
+  "ci_status_at_observation": "not terminal; 2 successful, 17 running, 4 queued",
+  "limits": [
+    "Rust source tree unchanged from native 658bade verification; prior failures remain open",
+    "Python adapter validation does not establish native Rust platform acceptance",
+    "Full Git integration timeout and original Windows 200k 300-second end-to-end gate remain failed"
+  ]
+}

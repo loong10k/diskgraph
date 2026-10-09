@@ -1,0 +1,61 @@
+{
+  "status": "complete",
+  "purpose": "diagnostic only; no production SLO claim",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "python": "3.13.16",
+  "source_commit": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "cases": [
+    {
+      "workers": 1,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 6.756093799999917,
+      "cleanup_seconds": 3.914159199999858,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 2,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 7.278611499999897,
+      "cleanup_seconds": 4.688239500000009,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 4,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 6.603303200000028,
+      "cleanup_seconds": 4.653284700000086,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 4,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 6.399804399999994,
+      "cleanup_seconds": 3.941713400000026,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 2,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 8.964859500000102,
+      "cleanup_seconds": 3.127311899999995,
+      "coverage": "exact names, count, contents and distinct links verified"
+    },
+    {
+      "workers": 1,
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 6.984060600000021,
+      "cleanup_seconds": 5.80971599999998,
+      "coverage": "exact names, count, contents and distinct links verified"
+    }
+  ],
+  "source_sha256": {
+    "scripts\\diagnose_windows_fixture_workers.py": "4fc6134b2d6b9b8e8149647f5cffc47f82c38f16b4d6770541aa5331a6d21448",
+    "scripts\\accept-readonly-load.py": "9d8d0ba80fd6857085f361a6c7b37edfdfabecf894d005092052f8dcc8541881"
+  }
+}

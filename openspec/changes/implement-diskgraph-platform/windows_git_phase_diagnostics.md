@@ -10,4 +10,6 @@
 
 阶段为 preflight、parent_lease、parent_identity、open_create、write、finish_write、observe、finish_operation、return。保持先定位实际瓶颈、再改变实现；当前不勾选任何生产就绪父项。
 
+6faba945 Windows 台式机显式运行既有 ignored 实机计时目标，1/0，原 15 秒预算不变：未提交仓库采样 9.882 秒（13 次出生），已提交仓库 6.389 秒（12 次出生）。实际索引发布正向目标另外 1/0，两次采样窗口 10.378 / 7.572 秒，真实私有写入分别约 49 / 54 毫秒；主要可见成本仍在子进程执行/收集。两份原回执绑定当前 worker、driver 及源码前后摘要，保存在 `docs/benchmarks/native_git_phase_6faba945_2026_10_09.json` 与 `native_git_product_phase_6faba945_2026_10_09.json`。独立定向通过不覆盖默认并发回归的原失败，也不证明 release 吞吐。PATH 的 Git cmd 启动器与同安装 mingw64 原程序各三次版本命令约 0.27–0.31 秒，无稳定改进依据，保留现有程序解析策略。
+
 原生语义定位两次均 26/1/0，仍是跨 SHA1/SHA256 本地跟踪采样超时。第二次加入出生/输出收集/清理计时，fmt 与 Engine 全目标严格 Clippy 通过，启用/关闭回归仍 2/2。一个 15.002569 秒的窗口中，34 次私有写入被计时阶段合计 0.110280 秒；同线程累计 25 个子命令，出生 0.874851 秒、输出收集 10.614904 秒、清理 0.002611 秒，包含一次失败。线程可有多个预算，故该线程累计不能当成该单一窗口的互斥分解；它将后续定位指向输出收集/子进程执行。保持原输出预算、原子出生、Job、EOF 和恢复 owner，不以该诊断证明 release 性能。最终源码前后摘要与原始日志摘要见 `docs/benchmarks/windows_git_execution_phase_e77_2026_10_09.json`；前一轮与 RED/纠正驱动/2项持久回归见 `windows_git_phase_diagnostics_e77_2026_10_09.json`。

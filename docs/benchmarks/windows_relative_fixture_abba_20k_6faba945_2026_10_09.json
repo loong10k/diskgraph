@@ -1,0 +1,55 @@
+{
+  "status": "complete",
+  "purpose": "diagnostic only; not production acceptance",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.15",
+  "head": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "9d8d0ba80fd6857085f361a6c7b37edfdfabecf894d005092052f8dcc8541881",
+    "scripts/windows_relative_fixture.py": "90149baee092b54f775dac17e1171b5a626933132bccae416b13666e740be014",
+    "scripts/diagnose_windows_relative_fixture.py": "78cf911da87d63d318bc48b992f31e31fc6cbe4641bb5323bdeef494cf9e2cb4",
+    "scripts/tests/test_windows_relative_fixture.py": "d43bb3a43d271fcb48e477cfc3234471d3e27c49deedef6d5010bee5b9d4a3b7"
+  },
+  "cases": [
+    {
+      "mode": "path",
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 16.9287671999773,
+      "verify_seconds": 10.794672599993646,
+      "cleanup_seconds": 15.025588000018615,
+      "whole_seconds": 42.753315299982205,
+      "temporary_directory_exit_completed": true
+    },
+    {
+      "mode": "relative",
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 24.173041300004115,
+      "verify_seconds": 17.60948750001262,
+      "cleanup_seconds": 25.75530499999877,
+      "whole_seconds": 67.53836910001701,
+      "temporary_directory_exit_completed": true
+    },
+    {
+      "mode": "relative",
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 25.379088799993042,
+      "verify_seconds": 14.202419800014468,
+      "cleanup_seconds": 21.466488199977903,
+      "whole_seconds": 61.05044329998782,
+      "temporary_directory_exit_completed": true
+    },
+    {
+      "mode": "path",
+      "files": 20000,
+      "bytes_per_file": 32,
+      "create_seconds": 16.854698100010864,
+      "verify_seconds": 17.735347100009676,
+      "cleanup_seconds": 16.276160100009292,
+      "whole_seconds": 50.86671309999656,
+      "temporary_directory_exit_completed": true
+    }
+  ]
+}

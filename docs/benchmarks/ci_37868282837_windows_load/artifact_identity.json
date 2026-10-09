@@ -1,0 +1,21 @@
+{
+  "run": 37868282837,
+  "job": 113620285558,
+  "commit": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "formal_acceptance": "failed original 300 second deadline",
+  "production_acceptance": false,
+  "artifacts": [
+    {
+      "id": 11589399868,
+      "archive": "load.zip",
+      "bytes": 2334,
+      "sha256": "2452db93c0aa7b2d309ca86b19965df19bb92b70c1e97fc0c297903472cd2f17"
+    },
+    {
+      "id": 11589509800,
+      "archive": "workers.zip",
+      "bytes": 766,
+      "sha256": "84aec8d9c9b30aa2a695dfa44d3f670e5ae6f0eb8b015fc673d648e011d59bd6"
+    }
+  ]
+}

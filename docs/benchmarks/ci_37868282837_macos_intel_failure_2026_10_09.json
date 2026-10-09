@@ -1,0 +1,62 @@
+{
+  "run": 37868282837,
+  "job": 113620149617,
+  "commit": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "job_conclusion": "failure",
+  "failure_step": "Test",
+  "raw_log_bytes": 561120,
+  "raw_log_sha256": "fd0b2ca8605b13adf6765f7b535fa201bc55e3c84b6e785130af299bc8d78029",
+  "failed_targets": [
+    "history_compatibility_matrix",
+    "history_size_eligibility"
+  ],
+  "evidence": [
+    {
+      "first_log_line": 2721,
+      "lines": [
+        "2026-10-09T01:24:35.5039180Z ",
+        "2026-10-09T01:24:35.5884960Z running 10 tests",
+        "2026-10-09T01:24:36.5703750Z test generic_metadata_comparison_keeps_distinct_known_identities_legal ... ok",
+        "2026-10-09T01:24:37.3020360Z test contradictory_complete_coverage_is_refused_by_public_publication ... ok",
+        "2026-10-09T01:24:37.6765020Z diskgraph: authorization_budget_phase=terminal_ownership_sql elapsed_us=92776",
+        "2026-10-09T01:24:37.6766500Z test imported_same_owner_root_and_volume_keep_signed_growth_and_change_counts ... FAILED",
+        "2026-10-09T01:24:37.7095670Z HISTORY_AUTHORITY_DIAGNOSTIC calls=6 wall_ms=102.668559 recorded_offsets_and_costs=[(3.638793ms, 6.075µs), (3.944631ms, 3.336µs), (5.049847ms, 3.648µs), (5.18257ms, 2.77µs), (7.591474ms, 4.075µs), (7.73434ms, 2.973µs)]",
+        "2026-10-09T01:24:37.8098810Z HISTORY_CHANGES_DIAGNOSTIC elapsed_ms=102.761118 configured_budget_ms=1000 business_budget_exceeded=true",
+        "2026-10-09T01:24:37.8550570Z ",
+        "2026-10-09T01:24:37.9138630Z thread 'imported_same_owner_root_and_volume_keep_signed_growth_and_change_counts' (92468) panicked at crates/diskgraph-engine/tests/history_compatibility/fixture.rs:190:16:",
+        "2026-10-09T01:24:38.0011250Z called `Result::unwrap()` on an `Err` value: Business(BudgetExceeded)",
+        "2026-10-09T01:24:38.0255100Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "2026-10-09T01:24:41.7876960Z test native_scan_growth_and_rename_follow_real_host_paths_without_identity_inference ... ok",
+        "2026-10-09T01:24:42.0889250Z test imported_volume_or_provider_domain_changes_are_not_silently_compared ... ok",
+        "2026-10-09T01:24:42.7648980Z test reverse_observation_order_has_an_explicit_incompatibility ... ok",
+        "2026-10-09T01:24:43.4270430Z test same_identity_renamed_path_is_one_addition_and_one_removal_not_growth ... ok",
+        "2026-10-09T01:24:43.6592970Z test node_quality_and_type_replacement_matrix_keeps_unknown_bytes_null ... ok",
+        "2026-10-09T01:24:46.0519150Z test every_recorded_scan_setting_difference_refuses_growth_and_changes ... ok"
+      ]
+    },
+    {
+      "first_log_line": 2861,
+      "lines": [
+        "2026-10-09T01:24:58.3737370Z test comparison_unknown_side_is_null_while_known_zero_remains_zero ... ok",
+        "2026-10-09T01:25:00.4928540Z diskgraph: authorization_budget_phase=terminal_ownership_sql elapsed_us=62443",
+        "2026-10-09T01:25:00.4933470Z test directory_unknown_comparison_has_null_bytes_and_unknown_summary_not_same ... ok",
+        "2026-10-09T01:25:00.4971890Z ",
+        "2026-10-09T01:25:00.5360910Z thread 'growth_refuses_unknown_or_read_error_on_either_side_in_both_public_apis' (93244) panicked at crates/diskgraph-engine/tests/history_size_eligibility.rs:128:22:",
+        "2026-10-09T01:25:00.5363020Z test growth_refuses_unknown_or_read_error_on_either_side_in_both_public_apis ... FAILED",
+        "2026-10-09T01:25:00.5420970Z called `Result::unwrap()` on an `Err` value: Business(BudgetExceeded)",
+        "2026-10-09T01:25:00.5991660Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "2026-10-09T01:25:02.2630750Z test unknown_growth_rejects_late_terminal_capability ... ok",
+        "2026-10-09T01:25:03.5335250Z test revision_changes_excludes_unknown_and_type_replacement_from_size_changed ... ok",
+        "2026-10-09T01:25:03.7611580Z test known_directory_size_changes_count_but_count_only_changes_do_not ... ok",
+        "2026-10-09T01:25:05.1112700Z test unknown_growth_still_rechecks_terminal_authorization_and_budget ... ok",
+        "2026-10-09T01:25:06.3038530Z test root_unknown_growth_and_unknown_type_replacement_never_produce_delta ... ok",
+        "2026-10-09T01:25:06.3039310Z ",
+        "2026-10-09T01:25:06.3039490Z failures:",
+        "2026-10-09T01:25:06.3039720Z ",
+        "2026-10-09T01:25:06.3039920Z failures:",
+        "2026-10-09T01:25:06.3040750Z     growth_refuses_unknown_or_read_error_on_either_side_in_both_public_apis"
+      ]
+    }
+  ],
+  "boundary": "Both actual history requests failed with Business(BudgetExceeded); terminal_ownership_sql diagnostics 92776us and 62443us; no assertion or deadline weakened."
+}

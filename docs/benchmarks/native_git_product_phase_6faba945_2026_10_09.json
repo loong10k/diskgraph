@@ -1,0 +1,89 @@
+{
+  "head": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.1089999999967404
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 25.64000000001397
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "299b01d1aa244b77eee51f09a9fb75244850e19f018752f1be0bf8e36ee49d0f",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "2732190df2f76a0ef5d286da4587234c7867b880aa6000febd166cfebe5f2187",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "9718ad8e1a73340e0afc048c39118772df4a29ce39aeccbf2cf60c732e55b987",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "713a70d52c6a02c892c414f14bac3740f093fc10aec84bc33aa8d6db27f0d582",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "5fe6e4a4ecdf3867518e27271e081b5db3f327f5f400d9474757086821f6d4d3",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "06a075efe5109627894a8a36aa7f3ccf56f96957defe7d872fe80619e83f7edf",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "4fdba428f78a617caf6e9922baa98f305bef157dad527a47ad572cc9d7be6f0a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_summary.rs": "679a58f0959a9b1a7c59984ba43e141cbcfe30ad8488ac9bc29344fe519cf899",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "c8ea5e886ccb646d9bebc25da0b02d701637b9874e37cc0c66ee09ee0468fbee"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\native_git_product_phase_6faba945_oct09\\current_source_driver.exe",
+    "sha256": "48662e8ad5f689daef26fd870b57cd6bcf68ccfefb234e01c108b0d59fb59fab",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 729 filtered out; finished in 24.63s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 4301,
+      "sha256": "91591755331a8c1ec610e6ee1bff94de6564f753b35636a859a3b6fca04a11be"
+    },
+    "engine.stderr.log": {
+      "bytes": 182,
+      "sha256": "bd36dfdf6a92ba5017cc7e5ade934d34d9b485d9da2f8453dc3c3dce632679a9"
+    }
+  },
+  "source_hashes_unchanged": true,
+  "raw_stdout": "\nrunning 1 test\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(46278) collect_us=Some(1207208) cleanup_us=187 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(55986) collect_us=Some(307310) cleanup_us=198 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(49082) collect_us=Some(348290) cleanup_us=214 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(29016) collect_us=Some(652463) cleanup_us=73 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(34320) collect_us=Some(547111) cleanup_us=292 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(28844) collect_us=Some(515001) cleanup_us=85 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(41768) collect_us=Some(328166) cleanup_us=170 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(33078) collect_us=Some(837903) cleanup_us=176 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(45824) collect_us=Some(737690) cleanup_us=167 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(27089) collect_us=Some(664004) cleanup_us=73 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(26041) collect_us=Some(640185) cleanup_us=173 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(38141) collect_us=Some(1106884) cleanup_us=205 observed_ok=true cleanup_ok=true\nDG_PRIVATE_WRITE_SUMMARY writes=0 elapsed_us=135410 stage_us=[0, 0, 0, 0, 0, 0, 0, 0, 0] stages=preflight,parent_lease,parent_identity,open_create,write,finish_write,observe,finish_operation,return thread=ThreadId(2)\nDG_PRIVATE_WRITE_SUMMARY writes=14 elapsed_us=10378407 stage_us=[3314, 22449, 370, 8964, 2020, 7384, 913, 3425, 2520] stages=preflight,parent_lease,parent_identity,open_create,write,finish_write,observe,finish_operation,return thread=ThreadId(2)\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(26736) collect_us=Some(888950) cleanup_us=215 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(34631) collect_us=Some(366693) cleanup_us=101 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(29693) collect_us=Some(510354) cleanup_us=151 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(24083) collect_us=Some(439813) cleanup_us=220 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(27472) collect_us=Some(431515) cleanup_us=150 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(29057) collect_us=Some(450397) cleanup_us=69 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(51839) collect_us=Some(574233) cleanup_us=152 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(25273) collect_us=Some(322399) cleanup_us=156 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(25834) collect_us=Some(291746) cleanup_us=184 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(22930) collect_us=Some(319061) cleanup_us=69 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(20676) collect_us=Some(284915) cleanup_us=160 observed_ok=true cleanup_ok=true\nDG_PROBE_EXECUTION thread=ThreadId(2) spawn_us=Some(20983) collect_us=Some(512269) cleanup_us=163 observed_ok=true cleanup_ok=true\nDG_PRIVATE_WRITE_SUMMARY writes=0 elapsed_us=126671 stage_us=[0, 0, 0, 0, 0, 0, 0, 0, 0] stages=preflight,parent_lease,parent_identity,open_create,write,finish_write,observe,finish_operation,return thread=ThreadId(2)\nDG_PRIVATE_WRITE_SUMMARY writes=14 elapsed_us=7572169 stage_us=[3760, 19603, 365, 12389, 7675, 6184, 936, 2210, 2496] stages=preflight,parent_lease,parent_identity,open_create,write,finish_write,observe,finish_operation,return thread=ThreadId(2)\ntest git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 729 filtered out; finished in 24.63s\n\n"
+}
