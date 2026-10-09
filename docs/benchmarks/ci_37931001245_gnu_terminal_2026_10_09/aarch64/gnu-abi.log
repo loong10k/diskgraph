@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/runner/work/diskgraph/diskgraph/scripts/linux_abi_requirements.py", line 149, in <module>
+    main()
+    ~~~~^^
+  File "/home/runner/work/diskgraph/diskgraph/scripts/linux_abi_requirements.py", line 142, in main
+    result = inspect_image(path, arguments.maximum_glibc,
+                           GNU_TARGET_MACHINES.get(arguments.target))
+  File "/home/runner/work/diskgraph/diskgraph/scripts/linux_abi_requirements.py", line 117, in inspect_image
+    versions = require_baseline(raw, maximum)
+  File "/home/runner/work/diskgraph/diskgraph/scripts/linux_abi_requirements.py", line 105, in require_baseline
+    raise ValueError(f'glibc {versions[-1]} exceeds advertised baseline {maximum}')
+ValueError: glibc 2.39 exceeds advertised baseline 2.17

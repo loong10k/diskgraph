@@ -1,0 +1,27 @@
+[
+  {
+    "name": "green",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests",
+      "-p",
+      "test_linux*abi*.py",
+      "-v"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "openspec",
+    "command": [
+      "openspec",
+      "validate",
+      "implement-diskgraph-platform",
+      "--strict"
+    ],
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "jobs": [
+    {
+      "job_id": 113821567312,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37931001245/job/113821567312",
+      "head_sha": "a3184f175b2d393741d2937663b0f436d05d1897",
+      "conclusion": "failure"
+    },
+    {
+      "job_id": 113821567362,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37931001245/job/113821567362",
+      "head_sha": "a3184f175b2d393741d2937663b0f436d05d1897",
+      "conclusion": "failure"
+    }
+  ],
+  "failure_phase": "actual built GNU ELF admission after all ABI unit tests passed",
+  "observed_requirement": "2.39",
+  "advertised_baseline": "2.17",
+  "files_sha256": {
+    "113821567362.log.gz": "1eb12af500a8b2c8310f2442eaaf4a82d1f79c8c5920a2540f25a610c83d8bbd",
+    "113821567312.log.gz": "5e6599100a497b75beff5c71d170c9be5b1b25cfa95f8e34a18e89c570959fa4",
+    "aarch64/gnu-abi.log": "83ec1c22b83f36ed26fd11a8eb75ff72b808100a33f8762155de0c7d549b4dd3",
+    "x86_64/gnu-abi.log": "83ec1c22b83f36ed26fd11a8eb75ff72b808100a33f8762155de0c7d549b4dd3"
+  },
+  "production_qualification": false
+}

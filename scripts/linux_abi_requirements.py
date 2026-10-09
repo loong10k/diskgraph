@@ -138,10 +138,35 @@ def main():
     parser.add_argument('--target', choices=sorted(GNU_TARGET_MACHINES))
     parser.add_argument('images', nargs='+', type=Path)
     arguments = parser.parse_args()
+    results = []
     for path in arguments.images:
-        result = inspect_image(path, arguments.maximum_glibc,
-                               GNU_TARGET_MACHINES.get(arguments.target))
+        try:
+            result = inspect_image(path, arguments.maximum_glibc,
+                                   GNU_TARGET_MACHINES.get(arguments.target))
+        except (OSError, ValueError) as error:
+            # 失败绑定实际输入，不让先前已通过的镜像输出被误当成完整包资格。
+            # 原文件准入、架构及基线判定不变，不吞掉内部编程错误或取消。
+            report = {
+                'ok': False, 'error': 'gnu_abi_refused', 'image': str(path),
+                'target': arguments.target,
+                'advertised_baseline': arguments.maximum_glibc,
+                'detail': str(error),
+            }
+            message = json.dumps(report)
+            if len(message) + 1 > 65536:
+                # json.dumps 默认 ASCII 转义，字符数就是最终 UTF-8 字节数。
+                # 截断展示字段但保留完整原诊断摘要，不构造伪造的完整资格报告。
+                report['diagnostic_sha256'] = hashlib.sha256(message.encode('ascii')).hexdigest()
+                report['diagnostic_truncated'] = True
+                report['image'] = report['image'][:4096]
+                report['advertised_baseline'] = report['advertised_baseline'][:128]
+                report['detail'] = report['detail'][:2048]
+                message = json.dumps(report)
+            parser.exit(1, message + '\n')
         result.update(image=path.name, advertised_baseline=arguments.maximum_glibc)
+        results.append(result)
+    # 全部有限镜像已完成同句柄检查后才发布原格式的逐行成功报告。
+    for result in results:
         print(json.dumps(result))
 
 

@@ -1,0 +1,39 @@
+{
+  "source_sha256": {
+    "scripts/linux_abi_requirements.py": "bf47153de88da735966838ffdd5060fa5df8901d1a39964c7ae4b6cfecb09155",
+    "scripts/tests/test_linux_abi_cli.py": "bdf64ed981fa88e8e439b5654b325c044a4064d51c2b5f62733bc3b107ad8a6f",
+    "openspec/changes/implement-diskgraph-platform/specs/release-evaluation/spec.md": "107d0ee8f038a37a3c0e2bbe312aa306af34c23b868420e17a8dded3b46ca65e"
+  },
+  "checks": [
+    {
+      "name": "final_green",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-p",
+        "test_linux*abi*.py",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "final_openspec",
+      "command": [
+        "openspec",
+        "validate",
+        "implement-diskgraph-platform",
+        "--strict"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "initial_behavior_red": "1 passed / 1 failed / 2 errors; partial success stdout and non-JSON refusal",
+  "oversized_initial_fixture": "ELF name was correctly rejected at existing 256-byte admission cap, not a diagnostic size red; corrected to long command baseline",
+  "bounded_behavior_red": "160249 diagnostic bytes exceeded 65536",
+  "final_green": "18 passed",
+  "production_qualification": false
+}
