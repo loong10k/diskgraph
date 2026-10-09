@@ -10,6 +10,27 @@ pub(super) struct GitConfiguration {
 }
 
 impl GitConfiguration {
+    /// 合并已捕获配置的原生解析结果，使用原期限与取消状态。
+    /// 参数：captured 为原始完整字节，probe 为原预算，parse 为非空配置解析操作。
+    /// 返回：保留顺序的原生输出或原失败；不捕获源文件或重置任何额度。
+    pub(super) fn parse_captured(
+        &mut self,
+        captured: &[u8],
+        probe: &mut super::probe_budget::ProbeBudget,
+        parse: impl FnOnce(&mut super::probe_budget::ProbeBudget) -> Result<Vec<u8>, String>,
+    ) -> Result<Vec<u8>, String> {
+        probe.check().map_err(|error| error.to_string())?;
+        // 只有完整的零字节捕获可确定没有字段；空白及注释仍交给原生 Git。
+        // 源文件仍保留在元数据集合中，由原来的末段复核检查身份及内容变化。
+        if captured.is_empty() {
+            return Ok(Vec::new());
+        }
+        let parsed = parse(probe)?;
+        probe.check().map_err(|error| error.to_string())?;
+        self.extend(&parsed)?;
+        Ok(parsed)
+    }
+
     /// 判断捕获的配置是否声明 filter driver。
     /// 参数：无。返回：存在 driver 字段时 true；不能由此判断工作树是否应用 driver。
     pub(super) fn has_filters(&self) -> bool {

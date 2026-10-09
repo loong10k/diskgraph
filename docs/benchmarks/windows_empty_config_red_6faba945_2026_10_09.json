@@ -1,0 +1,93 @@
+{
+  "head": "6faba945697f4182b00a284ec17ca9820d64c7cc",
+  "source_diff_sha256": "1e323b6a7b6fd586208d135e111a99e22398a53cbee86b1bf30aae1f08db09ff",
+  "worker_sha256": "75c24eb2d1bdcd179d0259505e48f5e4ed2d1fc93f0e17f44f906676dc1062af",
+  "commands": [
+    {
+      "name": "driver_build",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--example",
+        "scan_worker_driver_fixture",
+        "--message-format=json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.467999999993481
+    },
+    {
+      "name": "engine",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "live_evidence::git_empty_configuration_tests::captured_empty_configuration_never_starts_a_parser",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 14.25
+    }
+  ],
+  "default_test_parallelism": true,
+  "production_acceptance": false,
+  "source_hashes": {
+    "crates/diskgraph-engine/src/scan_worker_driver.rs": "453d5258be9e9d7452affea180dc0465dd7236403a12f2dec3cf3c3a4022e05b",
+    "crates/diskgraph-engine/src/scan_worker_driver_additional_tests.rs": "a99a87644f04ed7fe0d89a764f19d74e0db2fd19418b7a5691533145e3fba300",
+    "crates/diskgraph-engine/src/windows_file_state.rs": "fced985e99654ce0692cd6a12d378056f90bc6d0e24b84e78f58aa671b30050d",
+    "crates/diskgraph-engine/src/windows_file_state_tests.rs": "d9fd3dca77a714bb4177725d70104928bf4c5edd4ed8bae53dec58520497a27a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_allocation.rs": "4b14e75569ce348c7d247c8e0b4ec1342ef98bf7df0934d6a810aa31554c40d7",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version.rs": "b6521861bd5c9f9792eac03151630a3107f32c40f34f2a386f12c53af4a886ce",
+    "crates/diskgraph-engine/src/live_evidence/git_directory_version_tests.rs": "8c715a0d9092c5e9d6378f717f1e7da165093ad4622e02bd5859b0cf6a86ad24",
+    "crates/diskgraph-engine/src/job_execution.rs": "51512c1694d4fe670f961e7301b7bfc289919751e5c668bee0cbf962b2588755",
+    "crates/diskgraph-engine/src/scan_publication_recovery.rs": "b8d3e297a1c9fb6dbf4edba632e3d2fd64f38c05d5fb644dfedff8b385e55544",
+    "crates/diskgraph-engine/src/scan_receipt_recovery_tests.rs": "50f8e09f0592aa5f1c2f76c5e7aafbe476d92a54c53479da81dea902df10ebf7",
+    "crates/diskgraph-store/src/publication_checkpoint_guard.rs": "817ad1630f0bd284a26f89536d76086c702fa9cd65382219cd031f8096be1247",
+    "crates/diskgraph-store/src/job_publication_check_tests.rs": "d69b3255515da0e2a79dd5d5c1276c7b14dc3d2f191bbb8a6db36d8e8c281a2f",
+    "crates/diskgraph-store/src/revision_writer.rs": "ce8a6bbc7480655dfcdff06bb002fade8228686946318ccc93ca8eea3bd7ad2d",
+    "crates/diskgraph-store/src/lib.rs": "eb0e3dfbf7a7a9ca0746a66bc3ac73717b55f9702f68e083f8783d0bd3d4a259",
+    "crates/diskgraph-engine/src/live_evidence/git_references.rs": "299b01d1aa244b77eee51f09a9fb75244850e19f018752f1be0bf8e36ee49d0f",
+    "crates/diskgraph-engine/src/live_evidence/git_reference_verification_tests.rs": "2732190df2f76a0ef5d286da4587234c7867b880aa6000febd166cfebe5f2187",
+    "crates/diskgraph-engine/src/live_evidence/probe_execution.rs": "9718ad8e1a73340e0afc048c39118772df4a29ce39aeccbf2cf60c732e55b987",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_probe_child.rs": "713a70d52c6a02c892c414f14bac3740f093fc10aec84bc33aa8d6db27f0d582",
+    "crates/diskgraph-engine/src/live_evidence/probe_windows/windows_native_tests.rs": "5fe6e4a4ecdf3867518e27271e081b5db3f327f5f400d9474757086821f6d4d3",
+    "crates/diskgraph-engine/src/live_evidence/windows_probe_execution.rs": "06a075efe5109627894a8a36aa7f3ccf56f96957defe7d872fe80619e83f7edf",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_profile.rs": "4fdba428f78a617caf6e9922baa98f305bef157dad527a47ad572cc9d7be6f0a",
+    "crates/diskgraph-engine/src/live_evidence/git_private_write_summary.rs": "679a58f0959a9b1a7c59984ba43e141cbcfe30ad8488ac9bc29344fe519cf899",
+    "crates/diskgraph-engine/src/live_evidence/probe_budget.rs": "7174787fe3c4ab91afc75209320664ff8dd6b54ed38047dc0bd17b43606ca1ea",
+    "crates/diskgraph-engine/src/live_evidence/mod.rs": "8735ebcef90754e1a8c4544c61e109e9f3f271bc1f712fcf8254268a9b5e3f7c",
+    "crates/diskgraph-engine/src/live_evidence/git_configuration.rs": "e8b01afa1025e06e9e262d0bb12efc848c76f034ef6776eee86f1d8eb78ce179",
+    "crates/diskgraph-engine/src/live_evidence/git_view.rs": "3aa83d4ff651397eb986b954f8c653347a9cf02d6d67dde2632da659eba5c9ac",
+    "crates/diskgraph-engine/src/live_evidence/git_empty_configuration_tests.rs": "def2e0c7d73dc18e50608ad264c64fc36e4f665fd035cb3b06a0ae916e8cbe4b"
+  },
+  "driver": {
+    "path": "C:\\Users\\hnxyh\\AppData\\Local\\Temp\\diskgraph-desktop-jetfdyj0\\windows_empty_config_red_6faba945_oct09\\current_source_driver.exe",
+    "sha256": "749b2545046401eede606335699de848a6e742b6ba54cf1263cc4fca50080451",
+    "compiler_output": "E:\\workspaces\\workspace-loong10k\\diskgraph\\target\\desktop-1ac266a0\\debug\\examples\\scan_worker_driver_fixture.exe"
+  },
+  "test_summaries": [
+    "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 735 filtered out; finished in 0.00s"
+  ],
+  "logs": {
+    "engine.stdout.log": {
+      "bytes": 354,
+      "sha256": "1a1714f29111989e111d3cccac836cca08d3868a3504e6ba31d347e5f9d7b6f2"
+    },
+    "engine.stderr.log": {
+      "bytes": 757,
+      "sha256": "fb731bb4e5ac7972a93c45d3035e980ea8f7d9357d0a3b6d257924db0a108e9d"
+    }
+  },
+  "source_hashes_after_equal": true,
+  "stdout": "\nrunning 1 test\ntest live_evidence::git_empty_configuration_tests::captured_empty_configuration_never_starts_a_parser ... FAILED\n\nfailures:\n\nfailures:\n    live_evidence::git_empty_configuration_tests::captured_empty_configuration_never_starts_a_parser\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 735 filtered out; finished in 0.00s\n\n",
+  "stderr": "   Compiling diskgraph-engine v0.3.0 (E:\\workspaces\\workspace-loong10k\\diskgraph\\crates\\diskgraph-engine)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.57s\n     Running unittests src\\lib.rs (target\\desktop-1ac266a0\\debug\\deps\\diskgraph_engine-b4ffb11cb495eca1.exe)\n\nthread 'live_evidence::git_empty_configuration_tests::captured_empty_configuration_never_starts_a_parser' (53980) panicked at crates\\diskgraph-engine\\src\\live_evidence\\git_empty_configuration_tests.rs:16:5:\nassertion `left == right` failed\n  left: Err(\"empty configuration unexpectedly started a native parser\")\n right: Ok([])\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nerror: test failed, to rerun pass `-p diskgraph-engine --lib`\n"
+}

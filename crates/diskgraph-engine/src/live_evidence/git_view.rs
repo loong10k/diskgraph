@@ -397,25 +397,30 @@ impl GitView {
         probe: &mut ProbeBudget,
     ) -> Result<Vec<u8>, String> {
         let target = self.directory.path().join(name);
-        if self.copy_optional(source, &target, probe)?.is_none() {
+        let Some(index) = self.copy_optional(source, &target, probe)? else {
             return Ok(Vec::new());
-        }
+        };
+        let captured = self
+            .metadata
+            .get(index)
+            .bytes()
+            .expect("captured configuration");
         let tool_target = super::git_tool_path::from_native(&target)?;
-        let parsed = successful(self.context.bootstrap(
-            &[
-                OsStr::new("config"),
-                OsStr::new("--file"),
-                tool_target.as_os_str(),
-                OsStr::new("--no-includes"),
-                OsStr::new("--null"),
-                OsStr::new("--list"),
-            ],
-            probe,
-            false,
-            false,
-        )?)?;
-        configuration.extend(&parsed)?;
-        Ok(parsed)
+        configuration.parse_captured(captured, probe, |probe| {
+            successful(self.context.bootstrap(
+                &[
+                    OsStr::new("config"),
+                    OsStr::new("--file"),
+                    tool_target.as_os_str(),
+                    OsStr::new("--no-includes"),
+                    OsStr::new("--null"),
+                    OsStr::new("--list"),
+                ],
+                probe,
+                false,
+                false,
+            )?)
+        })
     }
 
     fn capture_system_configuration(
