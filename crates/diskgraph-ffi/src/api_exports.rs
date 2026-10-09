@@ -1,6 +1,5 @@
 // 稳定 UniFFI 只读函数导出；来源：原 lib.rs 绑定入口。
 use serde_json::{Value, json};
-use std::path::Path;
 
 /// Reports implemented capabilities; unsupported scopes are never claimed empty.
 #[cfg_attr(
@@ -39,39 +38,7 @@ pub fn scan_native_json(database_path: String, root_path: String) -> String {
 )]
 #[uniffi::export]
 pub fn latest_native_snapshot_json(database_path: String, root_path: String) -> String {
-    response((|| {
-        let canonical = Path::new(&root_path)
-            .canonicalize()
-            .map_err(|error| error.to_string())?;
-        let engine = open_engine(&database_path)?;
-        let principal = local_principal()?;
-        let policy = engine
-            .policy_authorizer()
-            .map_err(|error| error.to_string())?;
-        let scopes = engine
-            .list_scopes(&principal, &policy)
-            .map_err(|error| error.to_string())?;
-        let scope = scopes
-            .into_iter()
-            .find(|scope| {
-                !scope.revoked && scope.root.to_native_path().ok().as_deref() == Some(&canonical)
-            })
-            .ok_or_else(|| {
-                "scope is unbound or access is denied; register and reindex".to_owned()
-            })?;
-        let revision = engine
-            .latest_revision(&scope.scope_id)
-            .map_err(|error| error.to_string())?;
-        let id = revision
-            .map(|revision| {
-                engine
-                    .revision_snapshot(&revision)
-                    .map(|snapshot| snapshot.id)
-            })
-            .transpose()
-            .map_err(|error| error.to_string())?;
-        Ok(json!({ "snapshot_id": id }))
-    })())
+    native_latest::legacy(&database_path, &root_path)
 }
 
 #[cfg_attr(

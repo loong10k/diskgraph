@@ -1,0 +1,102 @@
+{
+  "production_qualification": false,
+  "native_platform": "macOS ARM",
+  "behavior_red": {
+    "passed": 0,
+    "failed": 3
+  },
+  "final_target": {
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0
+  },
+  "regressions": {
+    "native_reply_deadline": 4,
+    "native_growth_deadline": 4,
+    "ffi_source_layout": 8,
+    "engine_source_layout": 6
+  },
+  "qualification_limits": [
+    "No Linux/Windows execution for this increment yet",
+    "Legacy compatibility probe failed before query with Business Unsupported in native scan fixture",
+    "No release p50/p95 or RSS comparison claimed",
+    "Initial regrant test expected exact withdrawal without checking native watch; actual unknown watch correctly refused with Conflict; expectation aligned with existing Engine contract",
+    "Foreign-key/writer guard/borrow failures were test fixture faults, not product red evidence"
+  ],
+  "raw": {
+    "behavior_red": {
+      "bytes": 1913,
+      "sha256": "3d49c4ad4081abb9c47002f277b77d42b598cdd7e03474c429c6cf0aee26c728"
+    },
+    "initial_three_green": {
+      "bytes": 1248,
+      "sha256": "13d7568e659e369a097b556c632d868bc0908af891daa4781c28e038934b507d"
+    },
+    "watch_expectation_failure": {
+      "bytes": 1731,
+      "sha256": "55cfbf684b29e7777e87ef83b6754e28eb9e09b01cbf2147589c1a5e251e0a75"
+    },
+    "foreign_key_fixture_failure": {
+      "bytes": 1770,
+      "sha256": "6f4f0c41d1387f9ba1dc12feacec6290b9d4daba157a0b1049456b6ebb695cdb"
+    },
+    "writer_guard_fixture_failure": {
+      "bytes": 1692,
+      "sha256": "bd661daa649599b27509969832fb35122be5ba769f0a5936d17c499b7be20d19"
+    },
+    "borrow_fixture_compile_failure": {
+      "bytes": 1035,
+      "sha256": "8190bfcbabecef8569c6443916324e9275105dc7227a517771afc7ef282f6fe8"
+    },
+    "final_seven_green": {
+      "bytes": 1189,
+      "sha256": "11c94631210b3e8e35f9d87f2852e33623ddc10103f7446f9be4b7004283e845"
+    },
+    "byte_witness_green": {
+      "bytes": 1073,
+      "sha256": "bc34673d928cfdd3c35870c97145dfbdcee1e01a652d0333df0e79482179cda8"
+    },
+    "reply_regression": {
+      "bytes": 707,
+      "sha256": "e351a5068b759cca77ea5a385ccd78fa7ef858d58f554b88d61233d39c562d0f"
+    },
+    "growth_regression": {
+      "bytes": 698,
+      "sha256": "fe1930eb3cd7c6fa28502b0b533cbcfb43b287d345e44c63d78ce9dd537b96f5"
+    },
+    "ffi_layout": {
+      "bytes": 998,
+      "sha256": "e36e9a301fadac924d5fdcf0c2e5d73e9bec154b1dddd8e95b84f72491f57d13"
+    },
+    "engine_layout": {
+      "bytes": 907,
+      "sha256": "6c1b05727ccfe095f36f9697ee6a366419ae70367454ab4942ef6b0ecd2e533a"
+    },
+    "legacy_unsupported": {
+      "bytes": 822,
+      "sha256": "42ab472c4d02c9a3d1501ffbb193708e4401162a0e0a56761691a012fba03b8d"
+    },
+    "clippy": {
+      "bytes": 298,
+      "sha256": "a0e57040db22841a86765b52074e4aad050e2862e27f7a2dc0c9b25342b9fb7d"
+    },
+    "fmt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspec": {
+      "bytes": 47,
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    }
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/latest_snapshot_query.rs": "5c53d7ef6214aa1598fab9870e8b4efc0137afd74be93fdf683e0814d841de25",
+    "crates/diskgraph-engine/src/lib.rs": "48a3ba5d1a4255c7b1432a7cc0f8e749973db33f1d419aea8dd21f9a6eee4583",
+    "crates/diskgraph-store/src/scope_preparation_store.rs": "3269251b1698320b600f6934944cd948aede58eb4b8f128f48ab4763f1cb1cf7",
+    "crates/diskgraph-store/src/revision_target_query.rs": "97bfb2b6d1b63e10be12f3844249706b2451a4e20ff0c4b8e29a4bbf482c1762",
+    "crates/diskgraph-ffi/src/native_latest.rs": "ae30be955077aeccdcb35bb73e8942604af83bb038292b4fbc0c49137d97c81c",
+    "crates/diskgraph-ffi/src/native_latest_tests.rs": "67ea628db5d1f9b0e702ed532656c1db402e40c30818b2254718d055262c024d",
+    "crates/diskgraph-ffi/src/api_exports.rs": "e20fe858dfc9a6534d33832ad177c43b8743ebe1f6ecdb17bbf1c5fd00b50db3",
+    "crates/diskgraph-ffi/src/lib.rs": "1c0976ff03cb4148bad147a0eef1391377b24dde0797a2dcd00690d7269379d2"
+  }
+}

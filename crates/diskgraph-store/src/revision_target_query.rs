@@ -5,6 +5,39 @@ use diskgraph_core::QueryReadBudget;
 use rusqlite::types::ValueRef;
 
 impl SqliteSnapshotStore {
+    /// 按实际归属读取最新 revision/snapshot 必要标识，不解码完整快照。来源：SC-02/Q-08。
+    /// 参数：server/scope 是实际授权归属，reads 沿用原请求账本；返回：标识对或空值/预算错误。
+    pub fn latest_snapshot_ids_with_budget(
+        &self,
+        server: &str,
+        scope: &str,
+        reads: &mut QueryReadBudget,
+    ) -> Result<Option<(String, String)>> {
+        if !reads.admit(0, 0, 0) {
+            return Err(StoreError::BudgetExceeded);
+        }
+        let mut statement = self.connection.prepare("SELECT r.revision_id,r.snapshot_id,EXISTS(SELECT 1 FROM snapshots s WHERE s.id=r.snapshot_id) FROM graph_revisions r JOIN revision_authorized_ownership o ON o.revision_id=r.revision_id WHERE o.server_id=?1 AND o.scope_id=?2 ORDER BY r.published_at_unix_ms DESC,r.revision_id DESC LIMIT 1")?;
+        let mut rows = statement.query(rusqlite::params![server, scope])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let revision = text(row.get_ref(0)?)?;
+        let snapshot = text(row.get_ref(1)?)?;
+        let bytes = revision
+            .len()
+            .checked_add(snapshot.len())
+            .ok_or(StoreError::BudgetExceeded)?;
+        if !reads.admit(0, 0, bytes) {
+            return Err(StoreError::BudgetExceeded);
+        }
+        if !row.get::<_, bool>(2)? {
+            return Err(StoreError::InvalidGraph(
+                "published snapshot is missing".into(),
+            ));
+        }
+        Ok(Some((revision.to_owned(), snapshot.to_owned())))
+    }
+
     /// 先借用并准入真实归属字段，供授权前准备使用；来源：原生 Rust Q-08 / D41。
     /// 参数：revision_id 为固定历史，reads 为整次共享账本；返回：可选实际 server/scope。
     pub fn revision_ownership_with_budget(

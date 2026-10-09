@@ -2,7 +2,7 @@
 use crate::{ControlStore, Result, ScopeRecord, StoreError};
 use base64::Engine as _;
 use base64::engine::general_purpose::STANDARD as BASE64;
-use diskgraph_core::{Locator, ScopeId, ServerId};
+use diskgraph_core::{Locator, QueryReadBudget, ScopeId, ServerId};
 use rusqlite::OptionalExtension;
 use rusqlite::types::ValueRef;
 use std::path::PathBuf;
@@ -10,6 +10,39 @@ use std::path::PathBuf;
 pub(crate) const SCOPE_SQL: &str = "SELECT root_kind, root_raw_b64, root_display, volume_id, created_at_unix_ms, revoked, scope_id FROM scopes WHERE scope_id = ?1";
 
 impl ControlStore {
+    /// 按无损注册根窄读未撤销范围，不拥有显示文本或其他范围。来源：SC-02。
+    /// 参数：root 为原始根定位，reads 为原请求账本；返回：实际范围身份或空值/预算错误。
+    pub fn scope_id_for_root_with_budget(
+        &self,
+        root: &Locator,
+        reads: &mut QueryReadBudget,
+    ) -> Result<Option<ScopeId>> {
+        if !reads.admit(0, 0, 0) {
+            return Err(StoreError::BudgetExceeded);
+        }
+        let mut statement = self.connection.prepare(
+            "SELECT scope_id FROM scopes WHERE root_kind=?1 AND root_raw_b64=?2 AND revoked=0",
+        )?;
+        let mut rows = statement.query(rusqlite::params![
+            crate::control_codec::locator_kind_tag(root.kind),
+            root.raw_b64
+        ])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let ValueRef::Text(raw) = row.get_ref(0)? else {
+            return Err(StoreError::InvalidGraph("scope id is not text".into()));
+        };
+        if !reads.admit(0, 0, raw.len()) {
+            return Err(StoreError::BudgetExceeded);
+        }
+        let value =
+            std::str::from_utf8(raw).map_err(|e| StoreError::InvalidGraph(e.to_string()))?;
+        Ok(Some(
+            ScopeId::new(value.to_owned()).map_err(|e| StoreError::InvalidGraph(e.to_string()))?,
+        ))
+    }
+
     /// 只查询范围的实时撤销标量，不读取显示文本或卷描述。来源：Rust SC-04/D42。
     /// 参数：实际范围身份；返回：撤销状态，缺失范围仍返回 ScopeNotFound。
     pub fn scope_revoked(&self, scope: &ScopeId) -> Result<bool> {

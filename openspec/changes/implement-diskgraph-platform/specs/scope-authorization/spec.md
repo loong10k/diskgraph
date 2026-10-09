@@ -33,6 +33,11 @@
 - **WHEN** 无权主体请求其他用户的 top、搜索或统计
 - **THEN** 不返回对方名称、数量、尺寸、证据或内容。
 
+#### Scenario: Legacy native latest snapshot read
+- **WHEN** 旧 FFI 按本机根查询最新 snapshot_id
+- **THEN** 按无损注册根、实际 server/scope 归属窄读必要标识，不加载完整范围清单或 snapshot JSON；控制锁、SQL、必要标识拥有和响应编码使用原请求预算。
+- **AND** 非空及空结果都在首次授权前注册撤权见证，完整编码后重新检查请求能力、当前数据库权限、范围/服务器身份和已选择 revision 的实际归属；撤权或撤权再重授均不能释放已编码结果。
+
 ### Requirement: SC-03 Separate capabilities
 系统 SHALL 默认仅允许已授予的元数据查询，并分别授权 content:read、index:manage、files:move、files:copy、files:trash、files:restore、files:purge 与 admin:scope；FFI、CLI 与所有传输执行同一策略。
 

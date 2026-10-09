@@ -69,6 +69,7 @@ mod job_stop_conflict_tests;
 mod job_stop_registration_tests;
 #[cfg(test)]
 mod job_stop_signals_tests;
+mod latest_snapshot_query;
 pub mod live_evidence;
 mod native_child;
 mod native_locator;

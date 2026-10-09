@@ -13,6 +13,7 @@ mod native_growth_tests;
 mod native_job_entry;
 mod native_jobs;
 mod native_join_task;
+mod native_latest;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos", windows)))]
 mod native_legacy_fixture;
 mod native_lifecycle;
