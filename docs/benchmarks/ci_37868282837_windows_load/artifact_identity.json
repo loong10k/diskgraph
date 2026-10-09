@@ -17,5 +17,23 @@
       "bytes": 766,
       "sha256": "84aec8d9c9b30aa2a695dfa44d3f670e5ae6f0eb8b015fc673d648e011d59bd6"
     }
+  ],
+  "extracted_json": [
+    {
+      "archive": "load.zip",
+      "member": "receipt.json",
+      "original_member_sha256": "399efb2d4b3c57a25967cb6f652bd92c24441f81bdb02840ea52197ad55c856a",
+      "projection": "load_receipt.json",
+      "projection_sha256": "6b583c6e3ee456a033ec6e3db9093f2b4ffdf7a035a607ab8bf950916e6876ee",
+      "transformation": "CRLF to LF only; original bytes retained in verified ZIP"
+    },
+    {
+      "archive": "workers.zip",
+      "member": "fixture-worker-diagnostic.json",
+      "original_member_sha256": "c1fb6bbf758718a87f9fdbe3c29ea7f644f1dac7c490e6a2d2b2f1c3a03d040a",
+      "projection": "workers_fixture-worker-diagnostic.json",
+      "projection_sha256": "20604305ed33b586b0bd06ffac69bc097ba36b46c296888a58f2db039e3ccf6d",
+      "transformation": "CRLF to LF only; original bytes retained in verified ZIP"
+    }
   ]
 }
