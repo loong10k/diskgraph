@@ -1,0 +1,20 @@
+{
+  "job_id": 113821402090,
+  "name": "Test (ubuntu-latest / Rust stable)",
+  "status": "completed",
+  "conclusion": "failure",
+  "head_sha": "a3184f175b2d393741d2937663b0f436d05d1897",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37931001245/job/113821402090",
+  "log_sha256": "188c50b409cd843836ac912e99b1e7a88ad38acaae7e369d53ff9181942cc03a",
+  "failed_test_lines": [
+    "imported_same_owner_root_and_volume_keep_signed_growth_and_change_counts"
+  ],
+  "new_ffi_growth_tests_actually_ok": [
+    "native_growth::deadline_tests::captured_growth_policy_preserves_zero_null_and_actual_revocation",
+    "native_growth::deadline_tests::growth_does_not_decode_unrelated_principal_grants",
+    "native_growth::deadline_tests::growth_initial_policy_capture_keeps_original_deadline_under_control_lock",
+    "native_growth::deadline_tests::growth_terminal_check_does_not_rebuild_policy_under_control_lock"
+  ],
+  "diagnosis": "terminal_ownership_sql elapsed_us=86999; original 50ms budget exceeded",
+  "production_qualification": false
+}
