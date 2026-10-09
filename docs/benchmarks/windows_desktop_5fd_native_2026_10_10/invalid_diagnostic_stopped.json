@@ -1,0 +1,44 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "items": [
+        {
+          "job_id": "wc_job_c4-7KH-fgfLaE53x",
+          "status": "stopped",
+          "terminal": true,
+          "changed": false,
+          "log_delta_status": "baseline",
+          "observation_token": "wj3_gfPWOBqs1w7OnRrV.6.2.1",
+          "observation_ref": "~j684",
+          "exit_code": -1,
+          "command_execution_state": "completed",
+          "detected_summary": {
+            "kind": "test",
+            "outcome": "cancelled",
+            "tests_detected": false,
+            "tests_run_count": null,
+            "zero_tests_run": null,
+            "tests_passed": null,
+            "tests_failed": null
+          },
+          "stdout_tail": "SERIAL_DIAGNOSTIC E:\\workspaces\\workspace-loong10k\\diskgraph_native_5fd11d6c_20261009\\serial_workspace_diagnostic.py\n",
+          "stderr_tail": "job stopped by request\n",
+          "purpose": "test",
+          "command_summary": "python script (2114 bytes, 0 args)"
+        }
+      ],
+      "wait": {
+        "outcome": "immediate"
+      }
+    },
+    "error": null
+  },
+  "isError": false
+}

@@ -1,0 +1,44 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "items": [
+        {
+          "job_id": "wc_job_9m90W1ixYDjGKlTf",
+          "status": "completed",
+          "terminal": true,
+          "changed": false,
+          "log_delta_status": "baseline",
+          "observation_token": "wj3_4e6l_1moNIxs1mk7.4.3.1",
+          "observation_ref": "~j680",
+          "exit_code": 0,
+          "command_execution_state": "completed",
+          "detected_summary": {
+            "kind": "test",
+            "outcome": "passed",
+            "tests_detected": true,
+            "tests_run_count": null,
+            "zero_tests_run": null,
+            "tests_passed": null,
+            "tests_failed": null
+          },
+          "stdout_tail": "REPLAY_SCRIPT E:\\workspaces\\workspace-loong10k\\diskgraph_native_5fd11d6c_20261009\\isolated_failure_replay_89fa2d9c82be49938231fa0365bedae7.py\n[{\"package\": \"diskgraph-store\", \"test\": \"reader_admission_tests::cache_configuration_busy_wait_uses_remaining_original_deadline\", \"exit_code\": 0, \"output\": \"   Compiling windows-sys v0.61.2\\n   Compiling tempfile v3.27.0\\n   Compiling diskgraph-store v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-store)\\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 23.29s\\n     Running unittests src\\\\lib.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_store-e929ff9f441c3e98.exe)\\n\\nrunning 1 test\\ntest reader_admission_tests::cache_configuration_busy_wait_uses_remaining_original_deadline ... ok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 395 filtered out; finished in 0.09s\\n\\n\"}, {\"package\": \"diskgraph-store\", \"test\": \"revision_ownership_reader_tests::terminal_sql_is_interrupted_under_original_deadline\", \"exit_code\": 0, \"output\": \"    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s\\n     Running unittests src\\\\lib.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_store-e929ff9f441c3e98.exe)\\n\\nrunning 1 test\\ntest revision_ownership_reader_tests::terminal_sql_is_interrupted_under_original_deadline ... ok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 395 filtered out; finished in 0.12s\\n\\n\"}, {\"package\": \"diskgraph-ffi\", \"test\": \"native_reply_deadline_tests::captured_policy_still_allows_a_normal_authorized_query\", \"exit_code\": 0, \"output\": \"    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.75s\\n     Running unittests src\\\\lib.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_ffi-987efed559c0d024.exe)\\n\\nrunning 1 test\\ntest native_reply_deadline_tests::captured_policy_still_allows_a_normal_authorized_query ... ok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 103 filtered out; finished in 0.31s\\n\\n\"}, {\"package\": \"diskgraph-mcp\", \"test\": \"history_budget_tests::encoded_socket_history_rechecks_both_grant_sides\", \"exit_code\": 0, \"output\": \"   Compiling windows-sys v0.61.2\\n   Compiling diskgraph-core v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-core)\\n   Compiling diskgraph-store v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-store)\\n   Compiling winapi-util v0.1.11\\n   Compiling tempfile v3.27.0\\n   Compiling diskgraph-disktree-core v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-disktree-core)\\n   Compiling diskgraph-testkit v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-testkit)\\n   Compiling diskgraph-scan-worker v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-scan-worker)\\n   Compiling diskgraph-disktree v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-disktree)\\n   Compiling diskgraph-engine v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-engine)\\n   Compiling diskgraph-mcp v0.3.0 (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\source\\\\crates\\\\diskgraph-mcp)\\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 26.61s\\n     Running unittests src\\\\lib.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_mcp-5767b52f38d945ac.exe)\\n\\nrunning 1 test\\ntest history_budget_tests::encoded_socket_history_rechecks_both_grant_sides ... ok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 232 filtered out; finished in 6.66s\\n\\n\"}, {\"package\": \"diskgraph-mcp\", \"test\": \"sse_identity_deadline_tests::modern_socket_closes_and_joins_while_control_owner_holds_lock\", \"exit_code\": 0, \"output\": \"    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s\\n     Running unittests src\\\\lib.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_mcp-5767b52f38d945ac.exe)\\n\\nrunning 1 test\\ntest sse_identity_deadline_tests::modern_socket_closes_and_joins_while_control_owner_holds_lock ... ok\\n\\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 232 filtered out; finished in 2.32s\\n\\n\"}]\n",
+          "stderr_tail": "",
+          "purpose": "test",
+          "command_summary": "python script (2403 bytes, 0 args)"
+        }
+      ],
+      "wait": {
+        "outcome": "immediate"
+      }
+    },
+    "error": null
+  },
+  "isError": false
+}

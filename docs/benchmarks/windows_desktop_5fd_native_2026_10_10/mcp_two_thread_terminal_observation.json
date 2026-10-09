@@ -1,0 +1,37 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "items": [
+        {
+          "job_id": "wc_job_q4tXoreAk-aBbrpj",
+          "status": "completed",
+          "terminal": true,
+          "changed": true,
+          "log_delta_status": "delta",
+          "observation_token": "wj3_AiHWI5KreMpaUPHG.4.2.1",
+          "observation_ref": "~j705",
+          "exit_code": 0,
+          "command_execution_state": "completed",
+          "detected_summary": {
+            "kind": "diagnostic",
+            "outcome": "passed"
+          },
+          "stdout_tail": "{\"source_commit\": \"5fd11d6c0b190f88f0f81c212281ae7693e3efa3\", \"binary_sha256\": \"fda0545b1e1dd512e281a166329cf1e968baae1b823949779bea1ea48242c4ac\", \"diagnostic_only\": true, \"production_qualification\": false, \"threads\": 2, \"exit_code\": 0, \"timed_out\": false, \"job_retirement_confirmed\": true, \"elapsed_seconds\": 85.31200000000536}\n",
+          "stderr_tail": ""
+        }
+      ],
+      "wait": {
+        "outcome": "terminal"
+      }
+    },
+    "error": null
+  },
+  "isError": false
+}

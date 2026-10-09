@@ -1,0 +1,24 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "language": "python",
+      "stdout_tail": "{\"diagnostic_only\": true, \"source_commit\": \"5fd11d6c0b190f88f0f81c212281ae7693e3efa3\", \"records\": [{\"test\": \"live_evidence::git_resource_tests::git_head_and_upstream_resource_errors_cannot_be_missing_references\", \"exit_code\": 0, \"timed_out\": false, \"job_retirement_confirmed\": true, \"elapsed_seconds\": 18.530999999988126}, {\"test\": \"live_evidence::git_scope_boundary_tests::unrelated_ancestor_sibling_activity_keeps_registered_route_valid\", \"exit_code\": 0, \"timed_out\": false, \"job_retirement_confirmed\": true, \"elapsed_seconds\": 16.89100000000326}]}\n{\"log\": \"0.log\", \"results\": [\"test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 746 filtered out; finished in 4.94s\"], \"bytes\": 26128}\n{\"log\": \"1.log\", \"results\": [\"test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 746 filtered out; finished in 10.52s\"], \"bytes\": 26137}\n{\"mcp_running\": [\"     Running unittests src\\\\lib.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_mcp-c3a96ac32331cd5f.exe)\", \"     Running unittests src\\\\main.rs (E:\\\\workspaces\\\\workspace-loong10k\\\\diskgraph_native_5fd11d6c_20261009\\\\native_validation_stable\\\\target\\\\debug\\\\deps\\\\diskgraph_mcp-7a311b880d222b34.exe)\"]}\n{\"mcp_bytes\": 21253, \"tail\": [\"test tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges ... ok\", \"test tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations ... ok\", \"test tests::stdio_tests::batched_frames_are_refused_explicitly ... ok\", \"test tests::stdio_tests::stdio_serves_frames_and_logs_rejects_to_the_log_sink_only ... ok\", \"test tests::relation_tests::relation_queries_bound_decoding_and_report_continuation ... ok\", \"\", \"test result: ok. 233 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 85.09s\", \"\"], \"failed\": []}\n",
+      "workflow_recording_attention": {
+        "status": "recording_session_missing",
+        "candidate_session_id": "wc_sess_tdT_FU7pA0vVQmEa",
+        "project": "agent:home-wandl-61c36d31a9af4c1a:diskgraph-1bcb9f0f",
+        "reason": "same_window_recent_explicit_association"
+      },
+      "stdout_lines": 5
+    },
+    "error": null
+  },
+  "isError": false
+}

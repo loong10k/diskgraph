@@ -1,0 +1,27 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "production_qualification": false,
+  "tdd_red": {
+    "passed": 7,
+    "failed": 3
+  },
+  "references_final": {
+    "passed": 11,
+    "failed": 0
+  },
+  "real_git_semantics": {
+    "passed": 19,
+    "failed": 0
+  },
+  "clippy": "passed",
+  "targeted_rustfmt": "passed",
+  "git_regression": {
+    "passed": 242,
+    "failed": 1,
+    "ignored": 3,
+    "failure": "NativeScanEngine::open returns Business(Unsupported) before Git sampling; trusted macOS installed worker fixture unavailable",
+    "log_sha256": "193507f4107a92d0b8338483fbc3fed04fed921250f530bb41fc8bc6c021bd2c",
+    "test_inventory": "before fourth new reference test"
+  },
+  "production_source_sha256": "270ae02bb9352a600b23fa2056d8ea2672758506f7192d0c00db9da0408707ec"
+}

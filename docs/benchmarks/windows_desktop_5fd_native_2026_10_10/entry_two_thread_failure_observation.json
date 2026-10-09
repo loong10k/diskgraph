@@ -1,0 +1,24 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "language": "python",
+      "stdout_tail": "{\"source_commit\": \"5fd11d6c0b190f88f0f81c212281ae7693e3efa3\", \"binary_sha256\": \"fda0545b1e1dd512e281a166329cf1e968baae1b823949779bea1ea48242c4ac\", \"diagnostic_only\": true, \"production_qualification\": false, \"threads\": 2, \"scope\": \"original_entry_all_targets\", \"exit_code\": null, \"timed_out\": false}\n{\"bytes\": 55309, \"tail\": [\"test live_evidence::git_object_database_tests::captured_loose_content_changes_are_detected_at_the_terminal_guard ... ok\", \"test live_evidence::git_object_database_tests::known_object_accelerators_are_not_private_git_inputs ... ok\", \"test live_evidence::git_object_database_tests::late_alternate_is_not_a_git_input_and_source_change_is_rejected ... ok\", \"test live_evidence::git_object_database_tests::orphan_pack_and_promisor_markers_are_explicitly_rejected ... ok\", \"test live_evidence::git_object_database_tests::oversized_alternates_are_rejected_without_parsing_the_source_file ... ok\", \"test live_evidence::git_object_database_tests::source_alternates_and_recursive_foreign_objects_are_rejected ... ok\", \"test live_evidence::git_object_database_tests::unknown_loose_names_are_not_normalized_or_ignored ... ok\", \"test live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes ... ok\", \"test live_evidence::git_object_resources_tests::resource_child_fixture ... ignored, \\u4ec5\\u7531\\u56db\\u4e2a\\u771f\\u5b9e\\u5b50\\u5bbf\\u4e3b\\u56de\\u5f52\\u4ee5\\u9694\\u79bb\\u4e34\\u65f6\\u6839\\u8c03\\u7528\", \"test live_evidence::git_object_database_tests::unreferenced_loose_objects_cannot_escape_the_shared_byte_budget ... ok\", \"test live_evidence::git_object_resources_tests::sampler_object_copy_allocation_failure_removes_private_data ... ok\", \"test live_evidence::git_object_resources_tests::sampler_object_copy_input_failure_removes_private_data ... ok\"], \"results\": [\"test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.62s\", \"test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s\", \"test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s\", \"test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s\", \"test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.90s\", \"test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.26s\"], \"failed\": [\"test live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes ... FAILED\"]}\n{\"resource_test\": [], \"sibling_test\": []}\n",
+      "workflow_recording_attention": {
+        "status": "recording_session_missing",
+        "candidate_session_id": "wc_sess_tdT_FU7pA0vVQmEa",
+        "project": "agent:home-wandl-61c36d31a9af4c1a:diskgraph-1bcb9f0f",
+        "reason": "same_window_recent_explicit_association"
+      },
+      "stdout_lines": 3
+    },
+    "error": null
+  },
+  "isError": false
+}

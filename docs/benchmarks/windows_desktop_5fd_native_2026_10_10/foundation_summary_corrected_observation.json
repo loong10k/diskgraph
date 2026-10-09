@@ -1,0 +1,24 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "language": "python",
+      "stdout_tail": "{\"receipt\": {\"source\": {\"commit\": \"5fd11d6c0b190f88f0f81c212281ae7693e3efa3\", \"tree\": \"a840a8c04550426fa90f9f58bc1213b57a9a956f\", \"archive_sha256\": \"9cf7dd8b16194359fdda5b4788a24757627c2aa588304a6019f4f662909510c0\", \"source_attestation\": \"every exported file verified against fixed Git archive before native execution\", \"harness_sha256\": \"17f344e23219b398345d4378123216cf8ed09307297c2d1d07a8824f4d0b3424\", \"clean_environment_confirmed\": false, \"fixtures\": {\"worker\": {\"name\": \"product-scan-worker.exe\", \"bytes\": 2098688, \"sha256\": \"4424f9b355344c5e0f102133b404e623622eff1018f3730ac880f969950221cf\"}, \"driver\": {\"name\": \"protocol-driver.exe\", \"bytes\": 2124288, \"sha256\": \"309292366c0641d3a622c792949ab52e1f586498d0f82db936b232430d778c1d\"}, \"exit_C0000000\": {\"name\": \"exit_C0000000.exe\", \"bytes\": 108032, \"sha256\": \"4bf615a5fb0ed857cf895e66cf82d6a6da97a0d106705b5cef8c5b2fc605c17d\"}, \"exit_C0000005\": {\"name\": \"exit_C0000005.exe\", \"bytes\": 108032, \"sha256\": \"2e6e0851a316d088d020458f1a590485c4b47ec820364722ad758721ae262079\"}}, \"diagnostic_only\": true, \"rust_test_threads\": 1, \"original_parallel_failed\": true}, \"phases\": [{\"phase\": \"foundation\", \"command\": [\"cargo\", \"test\", \"-p\", \"diskgraph-core\", \"-p\", \"diskgraph-store\", \"-p\", \"diskgraph-disktree\", \"-p\", \"diskgraph-scan-worker\", \"-p\", \"diskgraph-ffi\", \"-p\", \"diskgraph-testkit\", \"-p\", \"diskgraph-ops\", \"--all-targets\", \"--locked\", \"--no-fail-fast\", \"--\", \"--nocapture\"], \"exit_code\": 0, \"timed_out\": false, \"job_retirement_confirmed\": true, \"elapsed_seconds\": 849.9379999999946}, {\"phase\": \"entry\", \"command\": [\"cargo\", \"test\", \"-p\", \"diskgraph-engine\", \"-p\", \"diskgraph-cli\", \"-p\", \"diskgraph-mcp\", \"--all-targets\", \"--locked\", \"--no-fail-fast\", \"--\", \"--nocapture\"], \"exit_code\": null, \"timed_out\": false, \"job_retirement_confirmed\": false}], \"passed\": false, \"production_qualification\": false, \"phase_seconds\": 1800}, \"foundation_log\": {\"bytes\": 143478, \"sha256\": \"ad929a3954db10d1a8252c7bbaa7cb5808ffa0ddf50872ef8e7aab1a3d62b08f\", \"library_results\": {\"diskgraph_core-a807ee8ee1edb803\": \"test result: ok. 167 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s\", \"diskgraph_disktree-b1b2a97ea25628d8\": \"test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s\", \"diskgraph_ffi-987efed559c0d024\": \"test result: ok. 104 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 211.57s\", \"uniffi_bindgen-fe30aa2d841e0543\": \"test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\", \"diskgraph_ops-b2787791477a949f\": \"test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s\", \"diskgraph_scan_worker-e3584f26d52ad219\": \"test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s\", \"diskgraph_scan_worker-3174516beecdf9d2\": \"test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\", \"diskgraph_store-466fc8a55dea97bb\": \"test result: ok. 388 passed; 0 failed; 8 ignored; 0 measured; 0 filtered out; finished in 463.67s\", \"diskgraph_testkit-ac26d558c02da07c\": \"test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\"}, \"vm_measurements\": [\"test tests::node_regressions::actual_point_lookup_vm_work_scales_with_selection_not_snapshot_size ... POINT_NODE_VM rows=20000 selected=1 steps=59 selected=16 steps=944\", \"POINT_NODE_VM rows=200000 selected=1 steps=59 selected=16 steps=944\"], \"failed_results\": []}}\n",
+      "workflow_recording_attention": {
+        "status": "recording_session_missing",
+        "candidate_session_id": "wc_sess_tdT_FU7pA0vVQmEa",
+        "project": "agent:home-wandl-61c36d31a9af4c1a:diskgraph-1bcb9f0f",
+        "reason": "same_window_recent_explicit_association"
+      },
+      "stdout_lines": 1
+    },
+    "error": null
+  },
+  "isError": false
+}

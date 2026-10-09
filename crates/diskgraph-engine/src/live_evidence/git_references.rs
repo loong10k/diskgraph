@@ -89,15 +89,25 @@ pub(super) fn upstream(
     }
     let name = line(fields[2])?;
     validate_name(run, name)?;
-    if !exists(run, name)? {
-        return Ok((None, true));
-    }
-    let oid = object_id(&successful(run(&[
+    // 成功解析 commit 本身已证明引用存在，普通路径无需再启动 show-ref。
+    // 原生执行失败仍由 run 直接传播；只有正常、安静的解析失败才允许归类为缺失。
+    let output = run(&[
         "rev-parse",
         "--verify",
         "--quiet",
         &format!("{name}^{{commit}}"),
-    ])?)?)?;
+    ])?;
+    if output.exit_code != Some(0) {
+        let present = exists(run, name)?;
+        if !present
+            && output.exit_code == Some(1)
+            && output.stdout.is_empty()
+            && output.stderr.is_empty()
+        {
+            return Ok((None, true));
+        }
+    }
+    let oid = object_id(&successful(output)?)?;
     Ok((Some(oid), true))
 }
 

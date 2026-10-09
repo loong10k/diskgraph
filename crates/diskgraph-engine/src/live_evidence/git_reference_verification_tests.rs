@@ -1,6 +1,144 @@
 //! 同一采样的纯引用语法结论可复用，HEAD身份和存在性必须重新读取。
-use super::git_references::{head, verify_head};
+use super::git_references::{head, upstream, verify_head};
 use super::probe_output::ProbeOutput;
+
+#[test]
+fn resolved_upstream_commit_does_not_launch_a_redundant_existence_query() {
+    for width in [40, 64] {
+        let head_oid = "a".repeat(width);
+        let upstream_oid = "b".repeat(width);
+        let mut commands = Vec::new();
+        let result = upstream(
+            &mut |args| {
+                commands.push(args[0].to_owned());
+                let stdout = match args[0] {
+                    "for-each-ref" => {
+                        format!("refs/heads/main\0{head_oid}\0refs/remotes/origin/main\0\n")
+                    }
+                    "rev-parse" => format!("{upstream_oid}\n"),
+                    _ => return Err("redundant upstream existence process".into()),
+                };
+                Ok(ProbeOutput {
+                    stdout: stdout.into_bytes(),
+                    stderr: Vec::new(),
+                    exit_code: Some(0),
+                })
+            },
+            "refs/heads/main",
+            &head_oid,
+        )
+        .unwrap();
+        assert_eq!(result, (Some(upstream_oid), true));
+        assert_eq!(commands, ["for-each-ref", "rev-parse"]);
+    }
+}
+
+#[test]
+fn unresolved_upstream_still_distinguishes_missing_and_damaged_references() {
+    let head_oid = "a".repeat(40);
+    for (exists_code, missing) in [(2, true), (0, false), (1, false)] {
+        let mut commands = Vec::new();
+        let result = upstream(
+            &mut |args| {
+                commands.push(args[0].to_owned());
+                let (stdout, exit_code) = match args[0] {
+                    "for-each-ref" => (
+                        format!("refs/heads/main\0{head_oid}\0refs/remotes/origin/main\0\n")
+                            .into_bytes(),
+                        0,
+                    ),
+                    "rev-parse" => (Vec::new(), 1),
+                    "show-ref" => (Vec::new(), exists_code),
+                    _ => panic!("unexpected upstream command"),
+                };
+                Ok(ProbeOutput {
+                    stdout,
+                    stderr: Vec::new(),
+                    exit_code: Some(exit_code),
+                })
+            },
+            "refs/heads/main",
+            &head_oid,
+        );
+        if missing {
+            assert_eq!(result.unwrap(), (None, true));
+        } else {
+            assert!(
+                result.is_err(),
+                "existing or damaged upstream cannot become absent"
+            );
+        }
+        assert_eq!(commands, ["for-each-ref", "rev-parse", "show-ref"]);
+    }
+}
+
+#[test]
+fn upstream_resolution_resource_failure_is_not_reclassified_as_absence() {
+    let head_oid = "a".repeat(40);
+    let mut calls = 0;
+    let error = upstream(
+        &mut |args| {
+            calls += 1;
+            if args[0] == "for-each-ref" {
+                return Ok(ProbeOutput {
+                    stdout: format!("refs/heads/main\0{head_oid}\0refs/remotes/origin/main\0\n")
+                        .into_bytes(),
+                    stderr: Vec::new(),
+                    exit_code: Some(0),
+                });
+            }
+            assert_eq!(args[0], "rev-parse");
+            Err("original probe deadline exceeded".into())
+        },
+        "refs/heads/main",
+        &head_oid,
+    )
+    .unwrap_err();
+    assert_eq!(error, "original probe deadline exceeded");
+    assert_eq!(calls, 2);
+}
+
+#[test]
+fn upstream_invalid_success_and_noisy_failure_are_never_missing_references() {
+    let head_oid = "a".repeat(40);
+    for (code, stdout, stderr) in [
+        (0, b"not-an-oid\n".as_slice(), b"".as_slice()),
+        (1, b"".as_slice(), b"real tool error".as_slice()),
+    ] {
+        let result = upstream(
+            &mut |args| {
+                let output = match args[0] {
+                    "for-each-ref" => ProbeOutput {
+                        stdout: format!(
+                            "refs/heads/main\0{head_oid}\0refs/remotes/origin/main\0\n"
+                        )
+                        .into_bytes(),
+                        stderr: Vec::new(),
+                        exit_code: Some(0),
+                    },
+                    "rev-parse" => ProbeOutput {
+                        stdout: stdout.to_vec(),
+                        stderr: stderr.to_vec(),
+                        exit_code: Some(code),
+                    },
+                    "show-ref" => ProbeOutput {
+                        stdout: Vec::new(),
+                        stderr: Vec::new(),
+                        exit_code: Some(2),
+                    },
+                    _ => panic!("unexpected upstream command"),
+                };
+                Ok(output)
+            },
+            "refs/heads/main",
+            &head_oid,
+        );
+        assert!(
+            result.is_err(),
+            "invalid output cannot become an absent upstream"
+        );
+    }
+}
 
 fn reply(args: &[&str], oid: Option<&str>, branch: Option<&str>) -> ProbeOutput {
     let (stdout, code) = match args {

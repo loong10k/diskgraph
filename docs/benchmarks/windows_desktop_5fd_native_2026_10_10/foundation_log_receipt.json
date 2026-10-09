@@ -1,0 +1,19 @@
+{
+  "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+  "job_id": "wc_job_lBvuY8G8CiuXNph4",
+  "phase": "foundation",
+  "exit_code": 0,
+  "timed_out": false,
+  "job_retirement_confirmed": true,
+  "elapsed_seconds": 849.938,
+  "diagnostic_only": true,
+  "rust_test_threads": 1,
+  "clean_environment_confirmed": false,
+  "full_log": "foundation.log.gz",
+  "raw_bytes": 143478,
+  "raw_sha256": "ad929a3954db10d1a8252c7bbaa7cb5808ffa0ddf50872ef8e7aab1a3d62b08f",
+  "gzip_sha256": "33e3cc6ac5c26d491f10135ff85bf8823185daeeb67d1adf18f6e21f226acfc8",
+  "raw_byte_integrity_verified": true,
+  "original_parallel_failures_closed": false,
+  "production_qualification": false
+}
