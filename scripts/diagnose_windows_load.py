@@ -14,8 +14,16 @@ from windows_acceptance_job import run_owned
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(bin_dir, output):
+def run(bin_dir, output, *, workspace_parent=None):
     """执行同源码release完整负载并保留阶段输出；原失败不被回执失败覆盖。"""
+    environment = {**os.environ, 'DISKGRAPH_SCAN_DIAGNOSTICS': '1'}
+    if workspace_parent is not None:
+        workspace_parent = workspace_parent.resolve(strict=True)
+        if not workspace_parent.is_dir():
+            raise NotADirectoryError(workspace_parent)
+        # 仅改变本轮受控子进程的临时目录；不移动原数据、不减少真实文件或延后回收。
+        for name in ('TMP', 'TEMP', 'TMPDIR'):
+            environment[name] = str(workspace_parent)
     bin_dir = bin_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     images = {}
@@ -26,6 +34,7 @@ def run(bin_dir, output):
                '--bin-dir', str(bin_dir), '--files', '200000']
     started = time.monotonic()
     receipt = {'command': command, 'started_unix_seconds': time.time(),
+               'workspace_parent': str(workspace_parent) if workspace_parent is not None else None,
                'clean_environment_confirmed': False,
                'preceding_formal_acceptance': 'failed; retirement uncertainty may affect diagnostic',
                'inner_cli_timeout_seconds': 300,
@@ -49,7 +58,7 @@ def run(bin_dir, output):
     try:
         result = run_owned(command,
                            cwd=ROOT, capture_output=True, text=True, timeout=900,
-                           env={**os.environ, 'DISKGRAPH_SCAN_DIAGNOSTICS': '1'})
+                           env=environment)
         capture(result.stdout, result.stderr)
         if result.returncode:
             raise RuntimeError('full-load diagnostic command failed; see captured phase logs')
@@ -78,10 +87,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--bin-dir', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
+    parser.add_argument('--workspace-parent', type=Path,
+                        help='Existing diagnostic temporary parent; formal acceptance remains unchanged')
     args = parser.parse_args()
     if sys.platform != 'win32':
         parser.error('native Windows required; host mocks do not qualify Windows')
-    run(args.bin_dir, args.output_dir)
+    run(args.bin_dir, args.output_dir, workspace_parent=args.workspace_parent)
 
 
 if __name__ == '__main__':

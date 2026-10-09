@@ -1,0 +1,15 @@
+{
+  "source_commit": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "run_id": 37884037236,
+  "job_id": 113670063796,
+  "job_conclusion": "success",
+  "job_url": "https://github.com/loong10k/diskgraph/actions/runs/37884037236/job/113670063796",
+  "artifact_id": 11596035502,
+  "archive_sha256": "7ff5802f2883450b3f7e02d7c7e3d98d637bb2d2611aac2dbf7bd7c1ce23f075",
+  "report_sha256": {
+    "diskgraph-x86_64-unknown-linux-gnu.http.json": "3d674aac0c811f73c23ac24c7911be714065e39f242a93561725d938b147b3db",
+    "diskgraph-x86_64-unknown-linux-gnu.load.json": "637842d8c23a6177a595b3f32488fb6e22650a02acceefcfd2969082cc4f4e20",
+    "diskgraph-x86_64-unknown-linux-gnu.load_200000.json": "1ff711e56d5290f26f9b875664de4a0f26d146860482315e937e10077141a291"
+  },
+  "qualification": "Linux x86_64 current-source native package acceptance only; not Windows or full-platform production acceptance"
+}

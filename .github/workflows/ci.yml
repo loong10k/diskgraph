@@ -1140,6 +1140,19 @@ jobs:
           path: ${{ runner.temp }}/full-load-diagnostic
           if-no-files-found: error
           retention-days: 7
+      - name: Diagnose full Windows 200k on runner workspace volume
+        if: failure() && runner.os == 'Windows' && steps.readonly_package_acceptance.outcome == 'failure'
+        id: workspace_volume_diagnostic
+        timeout-minutes: 18
+        run: python scripts/diagnose_windows_load.py --bin-dir "target/${{ matrix.target }}/release" --output-dir "${{ runner.temp }}/workspace-volume-load-diagnostic" --workspace-parent "${{ runner.temp }}"
+      - name: Preserve Windows workspace volume load diagnostic
+        if: always() && runner.os == 'Windows' && (steps.workspace_volume_diagnostic.outcome == 'success' || steps.workspace_volume_diagnostic.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-workspace-volume-load-${{ github.run_id }}
+          path: ${{ runner.temp }}/workspace-volume-load-diagnostic
+          if-no-files-found: error
+          retention-days: 7
       - name: Diagnose native Windows fixture worker costs after acceptance failure
         if: failure() && runner.os == 'Windows'
         id: fixture_worker_diagnostic

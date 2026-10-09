@@ -1,0 +1,15 @@
+{
+  "source_commit": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "run_id": 37884037236,
+  "job_id": 113670063766,
+  "job_conclusion": "success",
+  "job_url": "https://github.com/loong10k/diskgraph/actions/runs/37884037236/job/113670063766",
+  "artifact_id": 11596391518,
+  "archive_sha256": "1ee20ed3236aa3e002ecd57b002e44815809410e9b028ba2a26d81447e553d0b",
+  "report_sha256": {
+    "diskgraph-aarch64-apple-darwin.http.json": "ed635d4097fa8df0ecec6154bd5441772e596bfc77a4806353b22c1c85dac593",
+    "diskgraph-aarch64-apple-darwin.load.json": "54244feb327def2a9cba37dea22cb4fc9abd0122fc0fe88d5a1aad128babbef0",
+    "diskgraph-aarch64-apple-darwin.load_200000.json": "2e70400d153727328113f6ff37b0af13bea7cc64d01e61c4ff5000bb654bde8c"
+  },
+  "qualification": "macOS ARM current-source native package acceptance only; not Windows or full-platform production acceptance"
+}

@@ -1,0 +1,16 @@
+{
+  "qualification": "Native Windows adapter unit tests only; fake binary inputs do not qualify production load",
+  "job_source": "WebCodex typed Python script on Windows",
+  "overlay_base_commit": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "test_complete_observation_never_claims_acceptance_and_keeps_full_workload (test_windows_load_diagnostic.DiagnosticTests.test_complete_observation_never_claims_acceptance_and_keeps_full_workload) ... ok\ntest_default_preserves_inherited_workspace_environment (test_windows_load_diagnostic.DiagnosticTests.test_default_preserves_inherited_workspace_environment) ... ok\ntest_explicit_parent_routes_real_child_temporary_directory (test_windows_load_diagnostic.DiagnosticTests.test_explicit_parent_routes_real_child_temporary_directory) ... ok\ntest_file_parent_refuses_before_worker_dispatch (test_windows_load_diagnostic.DiagnosticTests.test_file_parent_refuses_before_worker_dispatch) ... ok\ntest_nonzero_command_exit_remains_failed (test_windows_load_diagnostic.DiagnosticTests.test_nonzero_command_exit_remains_failed) ... ok\ntest_partial_result_is_not_a_complete_diagnostic (test_windows_load_diagnostic.DiagnosticTests.test_partial_result_is_not_a_complete_diagnostic) ... ok\ntest_timeout_is_preserved_and_receipt_stays_failed (test_windows_load_diagnostic.DiagnosticTests.test_timeout_is_preserved_and_receipt_stays_failed) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.295s\n\nOK\n",
+  "source_before": {
+    "scripts/diagnose_windows_load.py": "ed1b5b9efb981ec016e1f69cb2ddf6b6c23bb48f8dace1bac50d2d3cae6a7cb4",
+    "scripts/tests/test_windows_load_diagnostic.py": "3507e4c5b2f2f765e820cf72dfc3380444facc793dba3193d971f630b197a4da"
+  },
+  "source_after": {
+    "scripts/diagnose_windows_load.py": "ed1b5b9efb981ec016e1f69cb2ddf6b6c23bb48f8dace1bac50d2d3cae6a7cb4",
+    "scripts/tests/test_windows_load_diagnostic.py": "3507e4c5b2f2f765e820cf72dfc3380444facc793dba3193d971f630b197a4da"
+  }
+}

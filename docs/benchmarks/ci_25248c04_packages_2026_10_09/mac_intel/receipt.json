@@ -1,0 +1,15 @@
+{
+  "source_commit": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "run_id": 37884037236,
+  "job_id": 113670063826,
+  "job_conclusion": "success",
+  "job_url": "https://github.com/loong10k/diskgraph/actions/runs/37884037236/job/113670063826",
+  "artifact_id": 11596127057,
+  "archive_sha256": "6e3ee508f51b3b3432ff7e46b5c3a3e16b2886e3143bff72ea37bd93d9224670",
+  "report_sha256": {
+    "diskgraph-x86_64-apple-darwin.http.json": "556ee6036ce3c3c66a60732946083fe0384f14c452628ea33324904e9ef4f869",
+    "diskgraph-x86_64-apple-darwin.load.json": "3ef6e0ee9c512e451c6cc3dc22f2df2b6a9b16076e2b43c0acef39f96093d853",
+    "diskgraph-x86_64-apple-darwin.load_200000.json": "31f79f9c67612011064d4f2f0facc7c4d6d8c0271c952efeb92697d7337e67af"
+  },
+  "qualification": "x86_64-apple-darwin current-source native package acceptance only; not Windows or full-platform production acceptance"
+}

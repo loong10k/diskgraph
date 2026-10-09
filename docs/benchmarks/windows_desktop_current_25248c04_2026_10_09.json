@@ -1,0 +1,23 @@
+{
+  "qualification": "workspace identity and live resource observation only; not full-platform acceptance",
+  "observation_window_start_utc": "2026-10-09T04:40:11Z",
+  "project": "agent:home-wandl-61c36d31a9af4c1a:diskgraph-1bcb9f0f",
+  "workspace": "E:\\workspaces\\workspace-loong10k\\diskgraph",
+  "head": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "origin_main": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "tracked_status": "clean",
+  "logical_cpus": 24,
+  "memory_load_percent": 94,
+  "total_physical_bytes": 34088243200,
+  "available_physical_bytes": 1977761792,
+  "full_workspace_result": "not rerun on this SHA; original 2552d082 failure retained",
+  "ci_run": 37884037236,
+  "windows_package_job": 113670063857,
+  "windows_package_acceptance_step": "failure; independent diagnostic still running at observation",
+  "diagnostic_success_is_production_acceptance": false,
+  "limitations": [
+    "Resource pressure is an observed condition, not proof of the sole cause of prior failures.",
+    "No unrelated processes were stopped and no test deadlines or workload counts were changed.",
+    "The entire CI run and Windows Rust jobs were still running at observation."
+  ]
+}

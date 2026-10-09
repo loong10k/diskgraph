@@ -23,3 +23,7 @@ Windows 工作区 `E:\workspaces\workspace-loong10k\diskgraph` 已正常 fast-fo
 同SHA GitHub Windows stable job `113658242776` 已终态success，完整原日志及元数据保存于 `docs/benchmarks/ci_2552d082_passed_targets_2026_10_09/windows_stable_*`。这是独立CI环境的真实通过，不替代台式机原失败根因收敛；parent CI仍有格式与macOS Intel失败、MSRV待终态，不能声明整个Windows或全平台生产就绪。
 
 CI最终状态补充：`37880305608`所有job已终态。Windows stable与MSRV1.97均success；整个run为failure，仍有rustfmt与macOS Intel历史比较预算失败，打包skipped。完整元数据见 `ci_2552d082_passed_targets_2026_10_09/run_terminal.json`；因此现在可正常推送下一批修复而不取消原验证。
+
+当前版本补充：台式机正常更新后，2026-10-09 04:40 UTC 起的只读复核确认 HEAD 与 origin/main 同为 `25248c0406a8aa2d7d4e1d1c25baa6945880a4b3`，跟踪文件干净。实际内存占用94%，可用1977761792字节；没有停止其他项目进程，也没有在相同压力下重复全量测试。此版本的主体字段分配定向测试已完成，原2552d082全量失败继续保留。回执见 `docs/benchmarks/windows_desktop_current_25248c04_2026_10_09.json`。
+
+同版本CI `37884037236` 的Windows原生打包job `113670063857` 于04:40:03 UTC记录正式打包验收步骤failure，随后执行既有独立200k阶段诊断。整个job和Rust矩阵当时尚未终态；尚未取得完整失败日志，不能推断具体耗时阶段或根因，也不能把诊断结果当成原300秒正式门禁通过。Linux x86_64及ARM64原生只读打包job已终态success，平台结果分别记录，生产父项不勾选。

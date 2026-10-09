@@ -1,0 +1,57 @@
+{
+  "run_id": 37884037236,
+  "job_id": 113670063857,
+  "source_commit": "25248c0406a8aa2d7d4e1d1c25baa6945880a4b3",
+  "artifact_id": 11596422040,
+  "artifact_sha256": "804931e0d41fcd5dfa33b8fc5b1e65705dda22d63dd6142c44940b80bce47afd",
+  "file_sha256": {
+    "receipt.json": "f543c8754c0a3811656ebf66206495322e580f7e35849029081d2193a37fc311",
+    "stdout.log": "52a565346ec6c58c6c9ceffd1c14590f04de22c4d7aadd7a10b9bd3a7115bc76",
+    "stderr.log": "490a90475b23af9b002eadc4b2659bf3dcb60820d9867dd1cca7b3a211aa3bb2"
+  },
+  "qualification": "Complete diagnostic workload only. Formal 300-second package acceptance failed and remains open.",
+  "job_conclusion": "failure",
+  "job_raw_log_sha256": "cf18cbe893cf68d4c6f1127b50b2b2a275c407c00b8c68796495134985ae6f21",
+  "job_raw_log_bytes": 101926,
+  "fixture_workers_artifact": {
+    "id": 11595514717,
+    "sha256": "9e9bdd956d63a7b047673444d2eb2d1ac98748b2ec3498c3bb1951ee946b2038"
+  },
+  "failed_package_artifact": {
+    "id": 11596242859,
+    "sha256": "3255f11be20bb8177328fbe66008cec400cc28a4eb2e33d7708953c1d2d89501",
+    "qualification": "Preserved failed formal acceptance; no full 200k success report in this artifact."
+  },
+  "compressed_raw_exports": {
+    "receipt.json": {
+      "stored_file": "receipt.json.gz",
+      "raw_sha256": "f543c8754c0a3811656ebf66206495322e580f7e35849029081d2193a37fc311",
+      "compressed_sha256": "dceef950d434882ef901c6138fab3404631430fc661d40ca8532a998edf1dd7e"
+    },
+    "stdout.log": {
+      "stored_file": "stdout.log.gz",
+      "raw_sha256": "52a565346ec6c58c6c9ceffd1c14590f04de22c4d7aadd7a10b9bd3a7115bc76",
+      "compressed_sha256": "5ee7a93305454a0e5894c2a20753821b3418652bd7f332ab08c0f807d6e969bf"
+    },
+    "stderr.log": {
+      "stored_file": "stderr.log.gz",
+      "raw_sha256": "490a90475b23af9b002eadc4b2659bf3dcb60820d9867dd1cca7b3a211aa3bb2",
+      "compressed_sha256": "144ee15d4d332e15d8f0d4d8c05e40726e711b36b8b2e3324889e35b426c08d2"
+    },
+    "fixture-worker-diagnostic.json": {
+      "stored_file": "fixture-worker-diagnostic.json.gz",
+      "raw_sha256": "e1d7412a2a337ca832dae4ea3ea6e1de875eb372000e48fd6ce3d6b2ae9c9ea8",
+      "compressed_sha256": "8d6bab0113ab3703e080dde05e11c5489ca364c1defa25a90e7a8cdac8071a48"
+    },
+    "diskgraph-x86_64-pc-windows-msvc.http.json": {
+      "stored_file": "diskgraph-x86_64-pc-windows-msvc.http.json.gz",
+      "raw_sha256": "e91729722b3744c2dc77e4befb123b8a14514e68f95a4e970580d8ae028e7190",
+      "compressed_sha256": "94e7edddff80605bd041f72e3f8521b1c5e0a7b808608d62f4186d8f46b0ddec"
+    },
+    "diskgraph-x86_64-pc-windows-msvc.load.json": {
+      "stored_file": "diskgraph-x86_64-pc-windows-msvc.load.json.gz",
+      "raw_sha256": "05abb916992b3944aca72a97069db8c2b49aa9d318b881373e43de4d922eb336",
+      "compressed_sha256": "7583c8d2f26f730655e1a503b9c38b4bbf114b5f8db6b81b8c779a090ae3c078"
+    }
+  }
+}
