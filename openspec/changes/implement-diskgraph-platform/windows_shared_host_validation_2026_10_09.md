@@ -17,3 +17,9 @@ Windows 工作区 `E:\workspaces\workspace-loong10k\diskgraph` 已正常 fast-fo
 诊断包装器的 failed_tests 正则误加转义，最初得到空数组；已从原 stdout 按实际行前后缀重新提取133条，并保留修正说明。测试结果及原始日志摘要没有改变。FFI 的两项 listing 失败分别返回 budget_exceeded 和 Store BudgetExceeded；后者错误文本为“query response budget exceeded by one record”，单凭该文本不能判定耗尽的是字节预算，须继续隔离诊断。未观察到这些失败返回成功数据，仍不能据此代替安全断言通过。
 
 后续单独诊断 Job `wc_job_cgu34JEt_wRh2lTI` 终态0，`diskgraph-ffi --lib native_listing_tests` 9/0，测试阶段22.33秒（含依赖重新编译的命令255.375秒），保持默认并发与原期限。证据见 `docs/benchmarks/windows_listing_diagnostic_2552d082_2026_10_09.json`。单包与全 workspace 的 Cargo feature unification 不同，worker/driver实际摘要独立保存；此结果不能替代全量通过，也不能证明共享负载是唯一根因。
+
+进一步原程序路径复用诊断 Job `wc_job_FCQ2l4gEjgSrxh0e`：不重新编译，从原workspace日志命名路径复制并冻结FFI测试程序，9项listing默认并发通过；同一冻结程序随后完整FFI默认并发87通过/6失败。失败集合与原89/4不同，均保留实际错误；不能以子集绿色关闭全量问题。原全量运行未单独记录FFI程序摘要，因此只证明本次两次运行之间字节一致，不能追溯声明与更早全量程序逐字一致。源码前后45项摘要一致，worker/driver仍使用原冻结镜像；证据见 `docs/benchmarks/windows_workspace_ffi_reuse_2552d082_2026_10_09.json`。
+
+同SHA GitHub Windows stable job `113658242776` 已终态success，完整原日志及元数据保存于 `docs/benchmarks/ci_2552d082_passed_targets_2026_10_09/windows_stable_*`。这是独立CI环境的真实通过，不替代台式机原失败根因收敛；parent CI仍有格式与macOS Intel失败、MSRV待终态，不能声明整个Windows或全平台生产就绪。
+
+CI最终状态补充：`37880305608`所有job已终态。Windows stable与MSRV1.97均success；整个run为failure，仍有rustfmt与macOS Intel历史比较预算失败，打包skipped。完整元数据见 `ci_2552d082_passed_targets_2026_10_09/run_terminal.json`；因此现在可正常推送下一批修复而不取消原验证。
