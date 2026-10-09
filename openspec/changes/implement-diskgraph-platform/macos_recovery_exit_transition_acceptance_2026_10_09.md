@@ -10,4 +10,4 @@ ABI 依据：[Apple proc_info.h](https://github.com/apple-oss-distributions/xnu/
 
 本机 macOS ARM 验证：macOS 相关 12 项通过（含固定 128 轮实际回收、活动成员拒绝与已回收身份拒绝）；既有 Unix 生命周期 10 项通过；Engine all-targets Clippy、五个修改 Rust 文件的 fmt 和 OpenSpec strict 通过。新负向 fixture 首次遗漏 control close 导致正常退出许可拒绝，已修正 fixture；第一次编译因 libc 缺少常量失败，分别保留为 fixture/编译故障，不算行为红灯。
 
-证据在 `docs/benchmarks/macos_recovery_exit_transition_2026_10_09/`，receipt 绑定实际修改文件 SHA-256，red_observation 明确为工具捕获记录，绿灯与静态检查有原始日志。验收未增加内部 sleep、未扩大原请求期限、未改 vendored scanner。Intel CI 尚未验证这批源码，Linux/Windows、GNU ABI、监督器集成和性能门禁均保持原状态；本机通过不证明全平台生产就绪。
+证据在 `docs/benchmarks/macos_recovery_exit_transition_2026_10_09/`，receipt 绑定实际修改文件 SHA-256，red_observation 明确为工具捕获记录，绿灯与静态检查有原始日志。验收未增加内部 sleep、未扩大原请求期限、未改 vendored scanner。2026-10-09：源码 `5fd11d6c0b190f88f0f81c212281ae7693e3efa3` 的原生 Intel workspace 任务 `113877134378` 已终态成功，日志明确记录固定 128 轮快速回收用例通过；原始日志和摘要见 `docs/benchmarks/ci_37947400346_intel_recovery_2026_10_09/`。同 SHA 的矩阵 `37947400346` 为 21/23 成功，失败仅为两个 GNU 包的实际 glibc 2.39 超过声明 2.17；三组 macOS/Windows 原生包及 Windows 双 Rust 完整任务成功。该证据关闭本修复的 Intel 原生回归缺口，不关闭 GNU 兼容构建、台式机验证、监督器集成、长期性能或生产就绪父任务。

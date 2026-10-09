@@ -1,0 +1,35 @@
+{
+  "run_id": 37947400346,
+  "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_counts": {
+    "success": 21,
+    "failure": 2
+  },
+  "failed_jobs": [
+    {
+      "job_id": 113877279748,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)"
+    },
+    {
+      "job_id": 113877279831,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)"
+    }
+  ],
+  "windows_workspace_logs": [
+    {
+      "job_id": 113877134640,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "conclusion": "success",
+      "raw_log_sha256": "5c04c6ccd439ac129047b177862db6cc431ca33f86edcacea1eeb035c07ac64c"
+    },
+    {
+      "job_id": 113877134643,
+      "name": "Test (windows-latest / Rust stable)",
+      "conclusion": "success",
+      "raw_log_sha256": "760dd4934c2ae63607262373264f1c11c60493628bb7273e73dc2023673ce897"
+    }
+  ],
+  "remaining": "GNU packages actually require glibc 2.39, above declared 2.17. Desktop native validation remains independent and in progress. Supervisor integration and longer production soak are not qualified by this matrix."
+}
