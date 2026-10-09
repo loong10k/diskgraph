@@ -1,0 +1,15 @@
+{
+  "run_id": 37925135762,
+  "head_sha": "f07f463b053484c404794def7d4194c8af7abd31",
+  "conclusion": "failure",
+  "job_counts": {
+    "success": 19,
+    "failure": 4,
+    "cancelled": 0
+  },
+  "windows_stable_log_sha256": "103d21a91c956b3236b45fb5067284cc970761f70a99928105e0e1056b5d92df",
+  "windows_stable_failed_test_lines": [
+    "every_recorded_scan_setting_difference_refuses_growth_and_changes"
+  ],
+  "production_qualification": false
+}
