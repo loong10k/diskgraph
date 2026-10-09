@@ -1,0 +1,14 @@
+{
+  "source_commit": "a3184f175b2d393741d2937663b0f436d05d1897",
+  "conclusion": "failure",
+  "counts": {
+    "success": 18,
+    "failure": 5,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "windows_stable_job_id": 113821401931,
+  "windows_stable_raw_sha256": "70d17036dbd9a5dd4b579ade70632515429f1a17aed466511e2dae7d5bab0d25",
+  "windows_stable_raw_bytes": 1083193,
+  "production_qualification": false
+}
