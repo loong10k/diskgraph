@@ -1,0 +1,22 @@
+{
+  "run_id": 37969595796,
+  "head_sha": "40da9ce48a87ec1544b211bc1226a65cdb5c523c",
+  "records": [
+    {
+      "job_id": 113952655677,
+      "raw_log_bytes": 1082982,
+      "raw_log_sha256": "e0d6bb5e813de18d1d1b0a7271d2b58ee43ea51584b53fdc52aebcc05b56ea1a",
+      "extracted_summary_file": "113952655677_test_summaries.log",
+      "extracted_summary_sha256": "930973d8289087baa95813b28ef786a8759e0385588bb75f0cb058c261c576a8",
+      "failed_test_summaries": 0
+    },
+    {
+      "job_id": 113952655742,
+      "raw_log_bytes": 1086302,
+      "raw_log_sha256": "f52c01c06be8f639af3cc69f27cc771809e71f1ad776acd4b925c5eb50ee03fc",
+      "extracted_summary_file": "113952655742_test_summaries.log",
+      "extracted_summary_sha256": "3ef0fe55a07bac508ace4f7442f886a3fe827b2e2ca3f1368a4a4f0027187958",
+      "failed_test_summaries": 0
+    }
+  ]
+}

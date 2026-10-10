@@ -1,0 +1,23 @@
+{
+  "production_commit": "40da9ce48a87ec1544b211bc1226a65cdb5c523c",
+  "source_projection": "verified 5fd archive plus three current Rust overlays; documentation tree is not current",
+  "remote_root": "E:\\workspaces\\workspace-loong10k\\diskgraph_native_016bcd99_20261010",
+  "raw_log": "full_entry_v1/entry.log",
+  "remote_owner_receipt": "full_entry_v1_owner_receipt.json",
+  "observation_job": "wc_job_11iBQCJh7LgmqhR3",
+  "original_default_test_concurrency": true,
+  "original_outer_timeout_seconds": 1800,
+  "timed_out": false,
+  "job_retirement_confirmed": true,
+  "exit_code": 101,
+  "elapsed_seconds": 535.0620000000054,
+  "engine_library": {"passed": 719, "failed": 25, "ignored": 7, "elapsed_seconds": 214.38},
+  "mcp_library": {"passed": 233, "failed": 0, "ignored": 0, "elapsed_seconds": 17.58},
+  "complete_entry_suite_passed": false,
+  "observed_failure_boundaries": [
+    "Git post-capture publication prerequisites returned Business(Timeout)",
+    "history withdrawal assertion received BudgetExceeded; original fixture did not record whether withdrawal was reached",
+    "terminal capability callback reentry prerequisite was not reached"
+  ],
+  "limitations": ["not full foundation workspace evidence", "independent isolated success cannot replace this failed default-concurrency run"]
+}

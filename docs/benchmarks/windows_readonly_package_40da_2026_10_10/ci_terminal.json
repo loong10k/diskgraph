@@ -1,0 +1,146 @@
+{
+  "conclusion": "failure",
+  "headSha": "40da9ce48a87ec1544b211bc1226a65cdb5c523c",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 113952655297,
+      "name": "rustfmt",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655558,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655613,
+      "name": "Kotlin native host (macos-15-intel)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655677,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655678,
+      "name": "Test (macos-latest / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655682,
+      "name": "Vendored scanner",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655686,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655693,
+      "name": "Linux ARM64 private FUSE content refusal",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655722,
+      "name": "Test (macos-15-intel / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655730,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655732,
+      "name": "Swift native host (macos-15-intel)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655742,
+      "name": "Test (windows-latest / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655743,
+      "name": "Kotlin native host (windows-2022)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655762,
+      "name": "Swift native host (macos-15)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655799,
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655821,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655845,
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952655982,
+      "name": "Kotlin native host (macos-15)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952899850,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "failure",
+      "id": 113952899867,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "failure",
+      "id": 113952899870,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952899912,
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 113952899993,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "status": "completed"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37969595796"
+}

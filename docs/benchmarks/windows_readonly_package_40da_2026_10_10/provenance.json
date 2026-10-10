@@ -1,0 +1,23 @@
+{
+  "run_id": 37969595796,
+  "head_sha": "40da9ce48a87ec1544b211bc1226a65cdb5c523c",
+  "artifact_id": 11635396983,
+  "artifact_name": "readonly-candidate-x86_64-pc-windows-msvc",
+  "package_zip_sha256": "ba50b755cf72b17e924e95b4c840d24a8331790aa717b4ad342a4c76b31735e4",
+  "sidecar_sha256": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": "59a2a151ad05178e323e8e133e495f125f5cfb9c97105ed9866c1c90a2de3216",
+    "diskgraph-x86_64-pc-windows-msvc.load_200000.json": "796ba28aa3f051d5fb8308b37057bf8abdc0a7404eeb9735d3cf6cd930133a05",
+    "diskgraph-x86_64-pc-windows-msvc.load.json": "c2874b6942a2523df0a72677be349cfb1c92e579a96506726502b7e3408b0394"
+  },
+  "limitations": [
+    "not full workspace acceptance",
+    "60 second HTTP test is not long soak",
+    "no peak RSS measurement"
+  ],
+  "stored_sidecar_line_endings": "LF; upstream sidecar_sha256 records original CRLF bytes",
+  "stored_sidecar_sha256": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": "ab42323fe63b9fc4d3f04b1e664dd280875764355bc97cf0f4ebbe2a78ec5868",
+    "diskgraph-x86_64-pc-windows-msvc.load_200000.json": "54965c4ab42df48e3f12e5181138a75b0aaccf7f311b0137c781a5b2851cbec9",
+    "diskgraph-x86_64-pc-windows-msvc.load.json": "d97467f2329949ea89cf6db3a24b34e58aeff1867ada7a012fb3765679f62b48"
+  }
+}

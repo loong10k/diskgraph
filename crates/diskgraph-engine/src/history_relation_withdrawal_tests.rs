@@ -46,6 +46,7 @@ fn history_request_remembers_revocation_during_read_and_encode() {
             deadline_ms: 1000,
             ..diskgraph_core::QueryBudget::default()
         };
+        let withdrawal_committed = std::cell::Cell::new(false);
         let result = engine.with_history_readers_until(
             revision,
             revision,
@@ -56,15 +57,22 @@ fn history_request_remembers_revocation_during_read_and_encode() {
             |_, _, _, _, _, _| {
                 if !during_encode {
                     revoke_and_restore(&engine, &actor, &scope);
+                    withdrawal_committed.set(true);
                 }
                 Ok(())
             },
             |_, _| {
                 if during_encode {
                     revoke_and_restore(&engine, &actor, &scope);
+                    withdrawal_committed.set(true);
                 }
                 Ok(())
             },
+        );
+        // 只有实际完成撤权恢复，才能把末检结果用于验证连续撤权语义。
+        assert!(
+            withdrawal_committed.get(),
+            "target withdrawal not reached: during_encode={during_encode}, actual={result:?}"
         );
         assert_withdrawn(result, native);
     }
@@ -86,6 +94,7 @@ fn relation_request_remembers_revocation_during_read_and_encode() {
             deadline_ms: 1000,
             ..diskgraph_core::QueryBudget::default()
         };
+        let withdrawal_committed = std::cell::Cell::new(false);
         let result = engine.with_relation_reader_until(
             revision,
             &actor,
@@ -96,15 +105,22 @@ fn relation_request_remembers_revocation_during_read_and_encode() {
             |_, _, _| {
                 if !during_encode {
                     revoke_and_restore(&engine, &actor, &scope);
+                    withdrawal_committed.set(true);
                 }
                 Ok(())
             },
             |_, _| {
                 if during_encode {
                     revoke_and_restore(&engine, &actor, &scope);
+                    withdrawal_committed.set(true);
                 }
                 Ok(())
             },
+        );
+        // 与双侧历史用例采用相同的真实目标阶段门禁，不接受提前超时冒充撤权验证。
+        assert!(
+            withdrawal_committed.get(),
+            "target withdrawal not reached: during_encode={during_encode}, actual={result:?}"
         );
         assert_withdrawn(result, native);
     }
