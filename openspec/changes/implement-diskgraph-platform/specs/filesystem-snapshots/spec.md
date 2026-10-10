@@ -106,6 +106,10 @@
 - **WHEN** 扫描遇到仅云端内容的文件
 - **THEN** 记录占位与未知元数据，不读取正文触发下载。
 
+#### Scenario: Windows junction points outside the selected root
+- **WHEN** 默认原生扫描遇到指向授权根外目录的真实 Windows junction
+- **THEN** 保留 junction 节点及对象本身的原生身份，不将目标目录的身份记作链接身份，不索引目标内容；原生夹具移除链接后外部目标原文仍保持不变。
+
 ### Requirement: FS-06 Incremental invalidation
 系统 SHALL 将文件事件视为重查提示，变化失效相关证据；事件丢失、休眠、挂载或权限变化触发受影响范围重扫，失败发布不得推进最新完成版本。
 

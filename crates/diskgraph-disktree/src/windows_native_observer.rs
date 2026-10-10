@@ -134,4 +134,50 @@ mod tests {
         );
         assert!(graph.nodes.iter().all(|node| node.identity.is_some()));
     }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_scan_records_junction_identity_without_indexing_its_target() {
+        let workspace = tempfile::tempdir().unwrap();
+        let root = workspace.path().join("root");
+        let outside = workspace.path().join("outside");
+        std::fs::create_dir(&root).unwrap();
+        std::fs::create_dir(&outside).unwrap();
+        let secret = outside.join("outside_secret.bin");
+        std::fs::write(&secret, b"outside private data").unwrap();
+        let junction = root.join("junction");
+        // 使用不要求符号链接特权的真实目录重解析点，不以模拟属性替代原生门禁。
+        let created = std::process::Command::new("cmd")
+            .args(["/d", "/c", "mklink", "/J"])
+            .arg(&junction)
+            .arg(&outside)
+            .output()
+            .unwrap();
+        assert!(
+            created.status.success(),
+            "native junction fixture failed: {}",
+            String::from_utf8_lossy(&created.stderr)
+        );
+        let link_identity = super::observe(&junction).unwrap().0;
+        let target_identity = super::observe(&outside).unwrap().0;
+        assert!(link_identity.is_some());
+        assert!(target_identity.is_some());
+        assert_ne!(link_identity, target_identity);
+        let graph = crate::scan_native_v2(
+            &root,
+            diskgraph_disktree_core::scan::ScanOptions::default(),
+        )
+        .unwrap();
+        let node = graph
+            .nodes
+            .iter()
+            .find(|node| node.v1.name == "junction")
+            .expect("junction itself must remain visible");
+        assert_eq!(node.v1.kind, diskgraph_core::NodeKind::Symlink);
+        assert_eq!(node.identity, link_identity);
+        assert_eq!(graph.nodes.len(), 2, "external target must not be indexed");
+        // 删除本方 junction 后检查外部原文，证明夹具清理没有跨链接边界。
+        std::fs::remove_dir(&junction).unwrap();
+        assert_eq!(std::fs::read(&secret).unwrap(), b"outside private data");
+    }
 }
