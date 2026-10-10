@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "source_sha": "0e90fb389823060bd6d2d29cf12e961909afccc1",
+  "run_id": 38066204452,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/38066204452",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs_passed": 23,
+  "jobs_total": 23,
+  "raw_sha256": "e8ddf8983615a25a2d5581fb76d5af7a6aa9f587136e322ba554627902493651",
+  "qualification_scope": "250ms terminal database window native CI; not independent supervisor service qualification",
+  "installation_preparation_source_covered": false
+}
