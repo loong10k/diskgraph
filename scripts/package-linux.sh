@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 # Builds the private Linux service bundle (P4 task 5.10, specs AI-01 / ST-05).
 #
-# RUN THIS ON THE LINUX HOST: the bundle is built where it will run, so no
-# cross-compilation toolchain is required and the binaries link the host's
-# own SQLite and libc. Produces a tar.gz with binaries, a hardened systemd
-# unit, checksums, and a smoke test that verifies start/stop/restart/upgrade
-# against the local SQLite databases without touching user data.
+# RUN THIS ON A LINUX GNU HOST: cargo-zigbuild and Zig must already be
+# installed, along with the host's Rust target. Builds against glibc 2.17
+# with bundled SQLite, then verifies the actual ELF requirements and runs
+# an isolated native smoke test. This script does not install tools.
 #
 # Usage: ./scripts/package-linux.sh [output-dir]
 set -euo pipefail
@@ -21,18 +20,34 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 
-mkdir -p "$OUT_DIR/bin" "$OUT_DIR/deploy"
+if [ "$(uname -s)" != Linux ]; then
+    echo "package-linux.sh requires a native Linux GNU host" >&2
+    exit 1
+fi
+BUILD_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
+case "$BUILD_TARGET" in
+    x86_64-unknown-linux-gnu|aarch64-unknown-linux-gnu) ;;
+    *) echo "unsupported native GNU package target: $BUILD_TARGET" >&2; exit 1 ;;
+esac
+if ! cargo zigbuild --version >/dev/null 2>&1; then
+    echo "GNU glibc 2.17 packaging requires preinstalled cargo-zigbuild and Zig; no tools were installed" >&2
+    exit 1
+fi
+# Zig 可由 cargo-zigbuild 从已安装 Python wheel 定位，不强制要求 PATH 中有 zig。
+# 实际构建失败（含缺失 Zig）由 set -e 拒绝，发生在候选目录创建之前。
+BUILD_DIR="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/release"
 
 echo "==> building release binaries on $(uname -s) $ARCH"
-cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker
+cargo zigbuild --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker \
+    --target "$BUILD_TARGET.2.17"
 
 # 不允许本机构建静默提高原清单承诺；超出基线时在安装文件和写清单前失败。
-BUILD_TARGET="$(rustc -vV | sed -n 's/^host: //p')"
 python3 scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target "$BUILD_TARGET" \
-    target/release/diskgraph target/release/diskgraph-mcp target/release/diskgraph-scan-worker
+    "$BUILD_DIR/diskgraph" "$BUILD_DIR/diskgraph-mcp" "$BUILD_DIR/diskgraph-scan-worker"
 
+mkdir -p "$OUT_DIR/bin" "$OUT_DIR/deploy"
 for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
-    install -m 0755 "target/release/$binary" "$OUT_DIR/bin/$binary"
+    install -m 0755 "$BUILD_DIR/$binary" "$OUT_DIR/bin/$binary"
 done
 
 # 复制后检查真正包内字节，不能用源路径的旧观察为后续副本提供兼容证明。
