@@ -4,6 +4,16 @@ use std::process::{Command, Stdio};
 
 #[test]
 fn rejected_remote_serve_does_not_open_local_stores_or_bootstrap_admin() {
+    assert_rejected_remote_serve(false);
+}
+
+#[test]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn inherited_auto_reaping_keeps_actual_remote_companion_exit_status() {
+    assert_rejected_remote_serve(true);
+}
+
+fn assert_rejected_remote_serve(inherited_auto_reaping: bool) {
     let directory = tempfile::tempdir().unwrap();
     let cli = PathBuf::from(env!("CARGO_BIN_EXE_diskgraph"));
     let companion = std::env::var_os("DISKGRAPH_CLI_MCP_BINARY")
@@ -34,6 +44,26 @@ fn rejected_remote_serve_does_not_open_local_stores_or_bootstrap_admin() {
     .unwrap();
     let data = directory.path().join("unopened_data");
     let mut command = Command::new(installed_cli);
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    if inherited_auto_reaping {
+        use std::os::unix::process::CommandExt;
+        // 仅改变将exec的隔离CLI子进程，不改变并行测试父进程的信号。
+        unsafe {
+            command.pre_exec(|| {
+                let mut action: libc::sigaction = std::mem::zeroed();
+                action.sa_sigaction = libc::SIG_IGN;
+                action.sa_flags = libc::SA_NOCLDWAIT;
+                if libc::sigemptyset(&mut action.sa_mask) != 0
+                    || libc::sigaction(libc::SIGCHLD, &action, std::ptr::null_mut()) != 0
+                {
+                    return Err(std::io::Error::last_os_error());
+                }
+                Ok(())
+            });
+        }
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    let _ = inherited_auto_reaping;
     command
         .arg("--data-dir")
         .arg(&data)

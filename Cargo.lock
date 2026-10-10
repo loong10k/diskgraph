@@ -560,6 +560,7 @@ dependencies = [
  "diskgraph-mcp",
  "diskgraph-scan-worker",
  "diskgraph-store",
+ "libc",
  "ratatui",
  "rusqlite",
  "serde_json",

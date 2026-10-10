@@ -16,6 +16,11 @@ use std::process::ExitCode;
 /// 保留 cli_main 的原生业务职责与错误语义。来源：DiskGraph CLI main::cli_main。
 /// 参数：与原入口的 cli_main 请求及执行依赖相同。返回：原业务结果或真实执行错误。
 pub(crate) fn cli_main() -> CliExit {
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    if let Err(error) = diskgraph_engine::prepare_standalone_child_reaping() {
+        eprintln!("diskgraph: child ownership startup failed: {error}");
+        return CliExit::Code(ExitCode::from(10));
+    }
     let cli = Cli::parse();
     // serve 必须在任何 CLI Engine/LocalIdentity 构造之前交接给 MCP。
     let outcome = if matches!(&cli.command, Command::Serve { .. }) {

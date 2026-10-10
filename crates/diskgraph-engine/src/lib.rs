@@ -447,6 +447,11 @@ mod request_metadata_withdrawals_tests;
 
 mod scan_publication_recovery;
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod standalone_child_reaping;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use standalone_child_reaping::prepare_standalone_child_reaping;
+
 #[cfg(test)]
 mod scan_receipt_recovery_tests;
 

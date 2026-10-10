@@ -21,6 +21,11 @@ mod termination_signal;
 mod auth_key_acl;
 
 fn main() -> ExitCode {
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    if let Err(error) = diskgraph_engine::prepare_standalone_child_reaping() {
+        eprintln!("diskgraph-mcp: child ownership startup failed: {error}");
+        return ExitCode::from(10);
+    }
     let mut data_dir = PathBuf::from("diskgraph-data");
     let mut profile = ToolProfile::ReadFull;
     let mut transport = String::from("stdio");
