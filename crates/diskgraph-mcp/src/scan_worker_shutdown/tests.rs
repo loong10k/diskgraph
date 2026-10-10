@@ -35,6 +35,11 @@ fn original_mcp_shutdown_seals_surviving_engine_before_new_birth() {
         host,
     )
     .unwrap();
+    // 原恢复窗口已经耗尽时，即使资源池为空，也不得作出新的完成确认。
+    assert!(
+        !super::round(Some(&recovery), std::time::Instant::now()).unwrap(),
+        "expired recovery observation must remain unconfirmed"
+    );
     super::finish(Some(&recovery));
     assert_eq!(recovery.occupied_slots().unwrap(), 0);
     let root = directory.path().join("scope");

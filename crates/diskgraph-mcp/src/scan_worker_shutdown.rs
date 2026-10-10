@@ -15,6 +15,7 @@ pub(crate) fn finish(
             recovery,
             #[cfg(windows)]
             probe,
+            std::time::Instant::now() + Duration::from_millis(50),
         ) {
             Ok(true) => return,
             Ok(false) => {}
@@ -31,6 +32,7 @@ pub(crate) fn finish(
 fn round(
     recovery: Option<&ScanWorkerRecovery>,
     #[cfg(windows)] probe: &diskgraph_engine::ProbeRecovery,
+    deadline: std::time::Instant,
 ) -> Result<bool, EngineError> {
     let scan_sealed = recovery.map_or(Ok(()), |r| r.seal_admission());
     // 先尝试关闭全部原池，任一关闭失败也不能留下另一池继续接受新工作。
@@ -39,16 +41,30 @@ fn round(
     scan_sealed?;
     #[cfg(windows)]
     probe_sealed?;
-    let scan_done = recovery.map_or(Ok(true), |r| r.drain());
+    if std::time::Instant::now() >= deadline {
+        return Ok(false);
+    }
+    let scan_done = recovery.map_or(Ok(true), |r| {
+        #[cfg(any(target_os = "linux", target_os = "macos", windows))]
+        {
+            // 清理只推进本轮；Pending/错误保留原 owner，不能进入同步 wait。
+            r.drain_until(deadline)
+        }
+        #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
+        {
+            // 没有桌面child类型的平台仅检查原池实际为空，不提供伪清理。
+            r.drain()
+        }
+    });
     #[cfg(windows)]
-    let probe_done = probe.drain();
+    let probe_done = probe.drain_until(deadline);
     let done = scan_done?;
     #[cfg(windows)]
     let done = {
         let probe_done = probe_done?;
         done && probe_done
     };
-    Ok(done)
+    Ok(done && std::time::Instant::now() < deadline)
 }
 
 #[cfg(test)]
