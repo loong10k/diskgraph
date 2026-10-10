@@ -8,6 +8,15 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 
 class WorkspaceCiCoverageTests(unittest.TestCase):
+    def test_macos_failure_isolation_includes_the_actual_settings_matrix_failure(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
+        match = re.search(r"(?m)^        id: macos_failure_isolation\n(?P<body>.*?)(?=^      - |\Z)", workflow, re.S | re.M)
+        self.assertIsNotNone(match)
+        body = match.group("body")
+        self.assertIn("'every_recorded_scan_setting_difference_refuses_growth_and_changes'", body)
+        self.assertIn("DISKGRAPH_QUERY_DIAGNOSTICS: '1'", body)
+        self.assertIn("original workspace failure remains", body)
+
     def test_phase_coverage_survives_legacy_host_encoding(self):
         original_open = Path.open
 

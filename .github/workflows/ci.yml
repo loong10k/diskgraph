@@ -754,6 +754,8 @@ jobs:
         id: macos_failure_isolation
         continue-on-error: true
         timeout-minutes: 16
+        env:
+          DISKGRAPH_QUERY_DIAGNOSTICS: '1'
         shell: bash
         run: |
           python3 - <<'PYTHON'
@@ -765,6 +767,7 @@ jobs:
               ('diskgraph-cli', '--bin', 'diskgraph', 'query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires'),
               ('diskgraph-engine', '--lib', None, 'revision_evidence_tests::dependency_batches_do_not_reactivate_old_assertions'),
               ('diskgraph-engine', '--test', 'history_compatibility_matrix', 'partial_unreadable_and_depth_coverage_never_claim_removed_paths'),
+              ('diskgraph-engine', '--test', 'history_compatibility_matrix', 'every_recorded_scan_setting_difference_refuses_growth_and_changes'),
               ('diskgraph-engine', '--test', 'relation_preparation_budget', 'every_consumer_keeps_the_remaining_preparation_balance'),
               ('diskgraph-engine', '--test', 'relation_request_budget', 'decoded_nonpropagating_edges_consume_the_same_budget_as_outgoing_edges'),
               ('diskgraph-engine', '--lib', None, 'revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window'),

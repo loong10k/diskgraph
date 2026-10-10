@@ -196,6 +196,7 @@ mod terminal_capability_tests;
 mod terminal_revision_authorization;
 #[cfg(test)]
 mod tests;
+mod thread_cpu_observation;
 mod tree_queries;
 pub mod verify;
 mod verify_limits;

@@ -1,0 +1,9 @@
+# 原预算失败的线程 CPU 观察
+
+沿用 Q-02/SC-04 的诊断合同，不修改请求、50ms终检观察窗口、授权或测试并发。b14aa43a 的 macOS Rust 1.97 CI job114183921354实际仅 history_compatibility_matrix::every_recorded_scan_setting_difference_refuses_growth_and_changes 失败：请求110.813ms，terminal_ownership_sql阶段66.589ms，返回BudgetExceeded。现有九项隔离诊断没有包含该确切用例，因此不构成它的重跑证据。
+
+只有显式开启的debug诊断在预算失败时新增固定标签、墙钟微秒及当前线程CPU微秒；原authorization_budget_phase行保持兼容。CPU读取失败、倒退或转换溢出省略新行，不伪造零值。Linux/macOS使用线程CPU时钟；Windows使用当前线程原伪句柄GetThreadTimes，不关闭伪句柄或依据PID重新打开其他线程。其他平台保持未知。诊断写入失败和采样失败不得改变原错误、清理payload、授权决定或期限；release与关闭诊断不调用CPU时钟。
+
+这是用来区分实际CPU成本与CPU以外等待的证据，不把低CPU直接称为调度饥饿，也不声称已修复CI失败。须验证旧格式、新字段、未知值与原错误保持；实际平台和新的默认并发CI仍开放。
+
+TDD：CPU诊断格式回归先实际失败（原行存在，新CPU行缺失），最终六项诊断测试及三项CPU观察测试通过，包含真实macOS线程CPU读取、未知/倒退/溢出、禁用诊断和原错误/payload保持。CI确切用例覆盖回归也先失败，加入用例和显式诊断环境后3/0。Engine all-targets严格Clippy、目标rustfmt与diff通过。05fd8aca隔离归档上仅覆盖本批三个Engine源码的结构检查6/0；这是结构证据，不是该归档完整运行资格。本机确切历史用例重跑在NativeScanEngine构造时返回Unsupported，未到达原失败阶段，不能算重跑成功。待批准GNU工具安装候选仍留在工作区，未暂存；本次workflow仅暂存确切失败隔离及诊断开关三行。
