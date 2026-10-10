@@ -1,0 +1,14 @@
+{
+  "workflow_run": 38057448226,
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "original_attempt": 1,
+  "original_failed_job": 114228716453,
+  "observed_infrastructure_failure": "ArtifactService CreateArtifact request timeouts after five upload-action attempts.",
+  "command": "gh run rerun 38057448226 --job 114228716453",
+  "command_exit": 0,
+  "new_attempt": 2,
+  "new_job": 114239019628,
+  "observed_status": "in_progress",
+  "qualification": false,
+  "constraints": "Only original infrastructure-failed Intel job rerun; production code, assertions, default scheduling and deadlines unchanged."
+}

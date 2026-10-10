@@ -1,0 +1,21 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228716238,
+  "artifact_id": 11670948045,
+  "original_log_sha256": "bf9c9ed65d67fea962ac45083c3b2ed8c3e96662a1d2b70d1ee7dc3711695b05",
+  "fixture_sha256": {
+    "fuse_provider.c": "0541fc83c61d1b8e5c054e678e070601bff6b47c21874f10fb46e285143325e6",
+    "engine_no_recall_probe.rs": "60343627843c554309ae7a1656b02a01b6d188b2c23f4e98e5a0502282eaa763",
+    "run_product_probe.py": "67e0f6d9ff78027dc3255fc6572066f09961d948941811b7940c85edfe44002a"
+  },
+  "fixture_copy_provenance": "Git ca67178f copies, checked against runner hashes; C/Python also match downloaded artifact bytes.",
+  "passed": 4,
+  "failed": 0,
+  "ignored": 0,
+  "provider_retired": true,
+  "limits": [
+    "Private native ARM64 FUSE refusal contract only; does not qualify generic commercial cloud providers.",
+    "Full production readiness remains incomplete."
+  ]
+}

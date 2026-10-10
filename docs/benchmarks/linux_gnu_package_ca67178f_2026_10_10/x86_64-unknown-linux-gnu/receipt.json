@@ -1,0 +1,14 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228794664,
+  "conclusion": "success",
+  "archive_sha256": "b9ea40d208442703f52fa9ff94b302b3a86bea2ca708f098dfda57010bdde80b",
+  "packaged_worker_sha256": "5f0b759a1a56cfc62a034cf792398ca752a76c70ced05d12809503bec0e419ea",
+  "original_log_sha256": "8496958e9209849afa98714e5cff8c8bbc1df7c35ffe561845994b78537bcaf2",
+  "full_workflow_qualified": false,
+  "limits": [
+    "Workflow still running; package success does not qualify all remaining gates.",
+    "Static ELF baseline does not prove old glibc userland runtime or sustained production operation."
+  ]
+}

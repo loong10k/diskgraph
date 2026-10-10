@@ -1,0 +1,46 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "archive_sha256": "57da8d5005752928e3533058320483da64d6a4ddbc8f5771f65324784e72b703",
+  "fingerprints_before": {
+    "diskgraph": {
+      "bytes": 6443640,
+      "sha256": "2e8dab1abb046c962dd83e5de4096348ed3406aafde6082fede3e78d56037a6b"
+    },
+    "diskgraph-mcp": {
+      "bytes": 5467560,
+      "sha256": "53a8e4fdecc6571e1dc308cda75166d587666085579e21d274aa1c3533c9892c"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 834792,
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+    },
+    "scan-worker-manifest.json": {
+      "bytes": 461,
+      "sha256": "d8a91e4426d71705363ebcb7eb6a65cc7f99f988ce5fd93427d54df85efbaba9"
+    }
+  },
+  "sampler_sha256": "5cd9cb43d8d74e931df54b9cb2d82d1d4eb4056578ca618d40d38749ea916dc2",
+  "load_script_sha256": "641ebfe927508e24a41743a05ed49765f57ef30f1063b651228389d11c8ffb6a",
+  "image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "limits": {
+    "cpus": 2,
+    "memory": "3g",
+    "pids": 128,
+    "network": "none"
+  },
+  "measurement": "20ms procfs descendant RSS excluding benchmark Python parent; sampled RSS, no strict upper bound or paired improvement claim",
+  "trusted_build_deployment": {
+    "job_id": 114228794618,
+    "path_in_measurement": "/output/bin/diskgraph-scan-worker",
+    "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+    "bytes": 834792,
+    "source": "CI controlled build deployment environment, independently checked against archive bytes; not neighboring manifest trust"
+  },
+  "initial_unconfigured_attempt": {
+    "exit": 1,
+    "product_index_exit": 6,
+    "result": "unsupported: required trusted worker deployment was absent",
+    "qualification": false,
+    "container_removed": true
+  }
+}

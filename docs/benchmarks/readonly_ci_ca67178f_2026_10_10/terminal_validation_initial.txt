@@ -1,0 +1,1 @@
+Initial validator incorrectly required inherited job database IDs to stay equal. Latest API allocated new display IDs; revalidation matches each inherited execution start/end and every step timestamp/result. No CI rerun triggered by this validator correction.

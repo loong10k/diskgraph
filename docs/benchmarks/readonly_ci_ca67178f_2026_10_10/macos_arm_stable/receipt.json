@@ -1,0 +1,30 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228716381,
+  "conclusion": "success",
+  "original_log_sha256": "f653bb7efc60261f7893e8c9924badbd01e2cce317ceed8f46f49796bc21c522",
+  "actual_workspace_stages": [
+    {
+      "command": "##[group]Run cargo test -p diskgraph-core -p diskgraph-store -p diskgraph-disktree -p diskgraph-scan-worker -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-ops --all-targets --locked --no-fail-fast -- --nocapture",
+      "suites": 63,
+      "passed": 968,
+      "failed": 0,
+      "ignored": 17
+    },
+    {
+      "command": "##[group]Run cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp --all-targets --locked --no-fail-fast -- --nocapture",
+      "suites": 118,
+      "passed": 1525,
+      "failed": 0,
+      "ignored": 22
+    }
+  ],
+  "http_signal_native_positive_controls": true,
+  "full_workflow_qualified": false,
+  "limits": [
+    "Counts cover actual default-scheduled all-targets execution stages, excluding repeated migration, isolated fixtures and test inventory.",
+    "Other current workflow gates remain incomplete.",
+    "Original prior pre-readiness exit cause was unobserved; current success does not retroactively establish it."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "target": "x86_64-pc-windows-msvc",
+  "archive": "D:\\a\\diskgraph\\diskgraph\\dist\\diskgraph-x86_64-pc-windows-msvc.zip",
+  "sha256": "756259358a0b871d7feebcbdc05377c3c552d95ade1c82764e4d1ecb01b7ef13",
+  "stdio": 18,
+  "http": 14,
+  "upgrade_rollback": 7,
+  "controlled_load": 6,
+  "controlled_load_200000": 6,
+  "scan_worker": {
+    "executable": {
+      "bytes": 865280,
+      "name": "diskgraph-scan-worker.exe",
+      "sha256": "c391399a8b5534705ae64515b62af57360e2df29c73095c1b32982b0f2dfafc1"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "x86_64-pc-windows-msvc"
+  }
+}

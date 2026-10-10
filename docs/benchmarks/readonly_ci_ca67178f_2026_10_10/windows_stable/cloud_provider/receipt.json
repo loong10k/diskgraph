@@ -1,0 +1,20 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228716356,
+  "artifact_id": 11672557766,
+  "artifact_name": "windows-real-cloud-content-stable-38057448226",
+  "original_log_sha256": "ac2fab0a4630cd2dc05de0e0e993ecca633f84939c29cec76fb2834cc90a6ddd",
+  "fixture_source_sha256": {
+    "crates/diskgraph-engine/tests/content_cloud_windows.rs": "f84f5c074572d739bfcbcce012595e821146a5616fda53b97ed7ba9d3b29e8aa",
+    "crates/diskgraph-engine/tests/cloud_fixture/windows_cloud_provider.rs": "396887726fa4bdab0ead0a6ddc5afd264a40d11a82359a4b340af3a1e706bf07"
+  },
+  "passed": 1,
+  "failed": 0,
+  "ignored": 0,
+  "observed_contract": "Isolated actual CFAPI provider: product read/hash do not fetch; ordinary read triggers FETCH_DATA positive control and returns no content.",
+  "limits": [
+    "This qualifies the native no-recall rejection contract, including explicit Unsupported; it does not prove readable cloud content or every vendor provider.",
+    "Other workflow gates and full production readiness remain incomplete."
+  ]
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_msrv/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_msrv/diskgraph-core_actual.log.gz",
+    "bytes": 184861,
+    "sha256": "8c4c1fd589884758420dd56a9863b9569ccf21b611afc35e30e422be6a873246",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_msrv/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_msrv/diskgraph-engine_actual.log.gz",
+    "bytes": 291743,
+    "sha256": "751471c27b829cb1c37a821f6b965b39a2ff3d783ac269f22239d5ecb588fd84",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_stable/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_stable/diskgraph-core_actual.log.gz",
+    "bytes": 184283,
+    "sha256": "ca4ab6fe29edd6715c3ff7e4c13ecc1bc819ca6c3ebd01f63c70b2569418237e",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_stable/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_stable/diskgraph-engine_actual.log.gz",
+    "bytes": 288643,
+    "sha256": "31373d16c5bb0431840ef1c5e4927092f83a0de2df7b6326a41575905ceb6500",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_arm/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_arm/diskgraph-core_actual.log.gz",
+    "bytes": 195011,
+    "sha256": "adf41b17854a9a22778618733b2038104c454cc6817ce4349381b41b3fb8e1bd",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_arm/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_arm/diskgraph-engine_actual.log.gz",
+    "bytes": 278858,
+    "sha256": "90fb394625d605e9e5415614d4e77a5744095db62bd31f21c880d30412e44e41",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_msrv/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_msrv/diskgraph-core_actual.log.gz",
+    "bytes": 195877,
+    "sha256": "e13241c4063178443c14208718f3735199392e6f4794711f1d1a85d4856026fa",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_msrv/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_msrv/diskgraph-engine_actual.log.gz",
+    "bytes": 271000,
+    "sha256": "a1d483ad806a258ab231d0d4b5357e7cea520ab2d663ecae16e597b8b4691765",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_stable/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_stable/diskgraph-core_actual.log.gz",
+    "bytes": 195010,
+    "sha256": "55dd664e548f6e0ba27913ab6edf95f69fbe003eb070de86bf970128f8487f67",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_stable/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_stable/diskgraph-engine_actual.log.gz",
+    "bytes": 279130,
+    "sha256": "29e4f54197ce846ebf8ff426fdb9a82c2bad75f6b2e43196df3da9f60ab6662d",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_intel_rerun/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_intel_rerun/diskgraph-core_actual.log.gz",
+    "bytes": 196213,
+    "sha256": "6b6a372e0e85497617b49cc551d53ad087ddb8ffd75b3180e4cf657f823bd918",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_intel_rerun/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_intel_rerun/diskgraph-engine_actual.log.gz",
+    "bytes": 271085,
+    "sha256": "3e3d6657143f16bb91a45ebf20e6dc72473800c9d4250704f5487aec51ec6f64",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_stable/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_stable/diskgraph-core_actual.log.gz",
+    "bytes": 195955,
+    "sha256": "cd09ec2db548be7d947ce4a17f517d66186de4506c5da82571234d3dfb73b83b",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_stable/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/macos_arm_stable/diskgraph-engine_actual.log.gz",
+    "bytes": 270987,
+    "sha256": "16496a648b8eb3662063634007deb115c54887fb6ec598c13d7239ea301fbea0",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_msrv/diskgraph-core_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_msrv/diskgraph-core_actual.log.gz",
+    "bytes": 194983,
+    "sha256": "08ceace8f322996f195e8530210f0669a60029c3ae1a38d60fe52122b02ec641",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_msrv/diskgraph-engine_actual.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/linux_msrv/diskgraph-engine_actual.log.gz",
+    "bytes": 278939,
+    "sha256": "a50979c5504ac480289aaac7cfbf4faa870a4c849046d63989e896d2d709f987",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_stable/cloud_provider/readable.log",
+    "stored_path": "docs/benchmarks/readonly_ci_ca67178f_2026_10_10/windows_stable/cloud_provider/readable.log.gz",
+    "bytes": 526,
+    "sha256": "14e244d5c30a631039e2e549b391be292fd97a49e712d94fffff26599d97d771",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/release_rss_ca67178f_2026_10_10/rss-200000.log",
+    "stored_path": "docs/benchmarks/release_rss_ca67178f_2026_10_10/rss-200000.log.gz",
+    "bytes": 2677,
+    "sha256": "9c4dc0941282fbdcd8448a654c630d4927d444e3b97cc2aa041961d65b4a15c5",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/release_rss_ca67178f_2026_10_10/rss-20000.log",
+    "stored_path": "docs/benchmarks/release_rss_ca67178f_2026_10_10/rss-20000.log.gz",
+    "bytes": 2653,
+    "sha256": "1bba1fde252fd2b3ee99e6068cb0477dcd31e92692160b6711205001dc464c48",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  },
+  {
+    "original_path": "docs/benchmarks/release_rss_ca67178f_2026_10_10/unconfigured_attempt/rss-20000.log",
+    "stored_path": "docs/benchmarks/release_rss_ca67178f_2026_10_10/unconfigured_attempt/rss-20000.log.gz",
+    "bytes": 1064,
+    "sha256": "aeecd8ab3943d03eac37898704efb9216d07f03e8ef70051b9efc4de90982617",
+    "encoding": "lossless gzip; original CRLF, whitespace and bytes preserved"
+  }
+]

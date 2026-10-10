@@ -1,0 +1,67 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "archive_sha256": "57da8d5005752928e3533058320483da64d6a4ddbc8f5771f65324784e72b703",
+  "binary_sha256": {
+    "diskgraph": {
+      "bytes": 6443640,
+      "sha256": "2e8dab1abb046c962dd83e5de4096348ed3406aafde6082fede3e78d56037a6b"
+    },
+    "diskgraph-mcp": {
+      "bytes": 5467560,
+      "sha256": "53a8e4fdecc6571e1dc308cda75166d587666085579e21d274aa1c3533c9892c"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 834792,
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+    },
+    "scan-worker-manifest.json": {
+      "bytes": 461,
+      "sha256": "d8a91e4426d71705363ebcb7eb6a65cc7f99f988ce5fd93427d54df85efbaba9"
+    }
+  },
+  "fixture_source": "Existing deep_release_fa400fa_2026_10_08/measure.py with only two executable/output paths substituted; assertions unchanged.",
+  "measure_sha256": "f7f06b966e342ed9ea7c0f61b667816d127760b9c9fac4e98dad282690e8c1fd",
+  "image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "runtime_limits": {
+    "cpus": 2,
+    "memory": "3g",
+    "pids": 128,
+    "network": "none"
+  },
+  "configured_worker_deployment": {
+    "job_id": 114228794618,
+    "path_in_measurement": "/output/bin/diskgraph-scan-worker",
+    "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+    "bytes": 834792,
+    "source": "CI controlled build deployment environment, independently checked against archive bytes; not neighboring manifest trust"
+  },
+  "container_command_exit": 0,
+  "container_id": "98ad8682ba62f29e5a555992b2a900e915d0dc250a50f17d46028bc9228bf171",
+  "container_terminal": "exact original container absent after --rm",
+  "retirement_inspect_exit": 1,
+  "retirement_inspect_stderr": "error: no such object: 98ad8682ba62f29e5a555992b2a900e915d0dc250a50f17d46028bc9228bf171",
+  "fingerprints_before_after_unchanged": true,
+  "result": {
+    "depth": 300,
+    "files": 300,
+    "directories_excluding_root": 300,
+    "scan_seconds": 0.11822641699109226,
+    "queries": 32,
+    "clients": 4,
+    "p50_ms": 14.567291502316948,
+    "p95_ms": 18.911499995738268,
+    "database_and_wal_bytes": 3117056,
+    "checks": {
+      "completed_revision": true,
+      "concurrent_revision_binding": true,
+      "bounded_results": true,
+      "exact_601_nodes_and_depth_301": true
+    },
+    "limits": "no RSS or baseline comparison; Linux ARM64 Docker only",
+    "production_acceptance": false
+  },
+  "limits": [
+    "Native Linux ARM64 container only; not Windows/macOS deep performance proof.",
+    "No paired baseline, deep-workload RSS, peak WAL or production SLO proof."
+  ]
+}

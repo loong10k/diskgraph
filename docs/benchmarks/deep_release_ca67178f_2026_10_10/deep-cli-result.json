@@ -1,0 +1,19 @@
+{
+  "depth": 300,
+  "files": 300,
+  "directories_excluding_root": 300,
+  "scan_seconds": 0.11822641699109226,
+  "queries": 32,
+  "clients": 4,
+  "p50_ms": 14.567291502316948,
+  "p95_ms": 18.911499995738268,
+  "database_and_wal_bytes": 3117056,
+  "checks": {
+    "completed_revision": true,
+    "concurrent_revision_binding": true,
+    "bounded_results": true,
+    "exact_601_nodes_and_depth_301": true
+  },
+  "limits": "no RSS or baseline comparison; Linux ARM64 Docker only",
+  "production_acceptance": false
+}

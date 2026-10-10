@@ -1,0 +1,11 @@
+{
+  "files": 20000,
+  "exit_code": 0,
+  "sampled_process_tree_peak_rss_kib": 33020,
+  "samples": 123,
+  "max_descendant_processes": 4,
+  "proc_entries_unreadable": 0,
+  "interval_ms": 20,
+  "elapsed_seconds": 2.5407887929904973,
+  "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+}

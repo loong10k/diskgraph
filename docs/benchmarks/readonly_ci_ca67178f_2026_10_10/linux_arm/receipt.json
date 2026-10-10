@@ -1,0 +1,28 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228716425,
+  "conclusion": "success",
+  "original_log_sha256": "7ebc6b4af5d1298d9f604a72127886d499d23b5becbfc98fdae75a0f5ba67acc",
+  "actual_workspace_stages": [
+    {
+      "command": "##[group]Run cargo test -p diskgraph-core -p diskgraph-store -p diskgraph-disktree -p diskgraph-scan-worker -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-ops --all-targets --locked --no-fail-fast -- --nocapture",
+      "suites": 63,
+      "passed": 954,
+      "failed": 0,
+      "ignored": 17
+    },
+    {
+      "command": "##[group]Run cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp --all-targets --locked --no-fail-fast -- --nocapture",
+      "suites": 121,
+      "passed": 1524,
+      "failed": 0,
+      "ignored": 19
+    }
+  ],
+  "full_workflow_qualified": false,
+  "limits": [
+    "Counts cover only actual default-scheduled all-targets execution stages, excluding repeated migration, isolated fixtures and test inventory.",
+    "Other current workflow gates remain incomplete."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228716453,
+  "conclusion": "failure",
+  "original_log_sha256": "a4469ec7b2d70a85bb9c786552d8dc16bdc4c77e89441144fc2cda63931d2ff8",
+  "failure_step": "Preserve native observation expiry result",
+  "observed_cause": "ArtifactService CreateArtifact timed out after five upload-action attempts",
+  "qualification": false,
+  "observed_checks": {
+    "entry": 18,
+    "http": 13,
+    "http_lifecycle_tests": 8
+  },
+  "remaining": "Following default workspace tests, Clippy and migration steps skipped; no pass inferred."
+}

@@ -1,0 +1,29 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228716337,
+  "conclusion": "success",
+  "original_log_sha256": "88140c6c5577f05051d9237561a6613da39387f55f9389329138b3ba2f2dd9d4",
+  "actual_workspace_stages": [
+    {
+      "command": "##[group]Run cargo test -p diskgraph-core -p diskgraph-store -p diskgraph-disktree -p diskgraph-scan-worker -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-ops --all-targets --locked --no-fail-fast -- --nocapture\r",
+      "suites": 63,
+      "passed": 876,
+      "failed": 0,
+      "ignored": 15
+    },
+    {
+      "command": "##[group]Run cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp --all-targets --locked --no-fail-fast -- --nocapture\r",
+      "suites": 119,
+      "passed": 1468,
+      "failed": 0,
+      "ignored": 14
+    }
+  ],
+  "junction_no_target_scan_native_test": "passed",
+  "full_workflow_qualified": false,
+  "limits": [
+    "Counts cover only actual default-scheduled all-targets execution stages, excluding repeated migration, isolated fixtures and test inventory.",
+    "First attempt 22 success / 1 artifact-upload failure; Intel follow-on workspace gates not qualified."
+  ]
+}

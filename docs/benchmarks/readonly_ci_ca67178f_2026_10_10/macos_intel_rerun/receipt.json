@@ -1,0 +1,30 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "attempt": 2,
+  "job_id": 114239019628,
+  "conclusion": "success",
+  "original_log_sha256": "19663342fb1eb9be255a4f5aa310d8f45a57cb515054c3824cb8d16440009553",
+  "actual_workspace_stages": [
+    {
+      "command": "##[group]Run cargo test -p diskgraph-core -p diskgraph-store -p diskgraph-disktree -p diskgraph-scan-worker -p diskgraph-ffi -p diskgraph-testkit -p diskgraph-ops --all-targets --locked --no-fail-fast -- --nocapture",
+      "suites": 63,
+      "passed": 968,
+      "failed": 0,
+      "ignored": 17
+    },
+    {
+      "command": "##[group]Run cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp --all-targets --locked --no-fail-fast -- --nocapture",
+      "suites": 118,
+      "passed": 1525,
+      "failed": 0,
+      "ignored": 22
+    }
+  ],
+  "full_workflow_qualified": true,
+  "production_ready": false,
+  "limits": [
+    "First attempt 22 success / 1 ArtifactService upload failure preserved. Only infrastructure-failed Intel job re-executed. GitHub allocated new display job IDs for inherited 22 successes; all original execution and step timestamps/results match.",
+    "Original 50ms authorization observation failures and abnormal-I/O retirement/deployment decisions not resolved by this passed run."
+  ]
+}

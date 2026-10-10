@@ -1,0 +1,1 @@
+First retirement validator rejected lowercase Docker message: error: no such object: adf6bce66e3c09ae9343ae7f7e4d50cad15aec798ee0416d32c3a5f15540fcf3. Corrected case matching and re-observed exact original container IDs; no benchmark rerun.

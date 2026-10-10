@@ -1,0 +1,236 @@
+{
+  "artifact": {
+    "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+    "archive_sha256": "57da8d5005752928e3533058320483da64d6a4ddbc8f5771f65324784e72b703",
+    "fingerprints_before": {
+      "diskgraph": {
+        "bytes": 6443640,
+        "sha256": "2e8dab1abb046c962dd83e5de4096348ed3406aafde6082fede3e78d56037a6b"
+      },
+      "diskgraph-mcp": {
+        "bytes": 5467560,
+        "sha256": "53a8e4fdecc6571e1dc308cda75166d587666085579e21d274aa1c3533c9892c"
+      },
+      "diskgraph-scan-worker": {
+        "bytes": 834792,
+        "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+      },
+      "scan-worker-manifest.json": {
+        "bytes": 461,
+        "sha256": "d8a91e4426d71705363ebcb7eb6a65cc7f99f988ce5fd93427d54df85efbaba9"
+      }
+    },
+    "sampler_sha256": "5cd9cb43d8d74e931df54b9cb2d82d1d4eb4056578ca618d40d38749ea916dc2",
+    "load_script_sha256": "641ebfe927508e24a41743a05ed49765f57ef30f1063b651228389d11c8ffb6a",
+    "image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+    "limits": {
+      "cpus": 2,
+      "memory": "3g",
+      "pids": 128,
+      "network": "none"
+    },
+    "measurement": "20ms procfs descendant RSS excluding benchmark Python parent; sampled RSS, no strict upper bound or paired improvement claim",
+    "trusted_build_deployment": {
+      "job_id": 114228794618,
+      "path_in_measurement": "/output/bin/diskgraph-scan-worker",
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+      "bytes": 834792,
+      "source": "CI controlled build deployment environment, independently checked against archive bytes; not neighboring manifest trust"
+    },
+    "initial_unconfigured_attempt": {
+      "exit": 1,
+      "product_index_exit": 6,
+      "result": "unsupported: required trusted worker deployment was absent",
+      "qualification": false,
+      "container_removed": true
+    }
+  },
+  "fingerprints_after": {
+    "diskgraph": {
+      "bytes": 6443640,
+      "sha256": "2e8dab1abb046c962dd83e5de4096348ed3406aafde6082fede3e78d56037a6b"
+    },
+    "diskgraph-mcp": {
+      "bytes": 5467560,
+      "sha256": "53a8e4fdecc6571e1dc308cda75166d587666085579e21d274aa1c3533c9892c"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 834792,
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+    },
+    "scan-worker-manifest.json": {
+      "bytes": 461,
+      "sha256": "d8a91e4426d71705363ebcb7eb6a65cc7f99f988ce5fd93427d54df85efbaba9"
+    }
+  },
+  "fingerprints_unchanged": true,
+  "containers": {
+    "container.cid": {
+      "id": "adf6bce66e3c09ae9343ae7f7e4d50cad15aec798ee0416d32c3a5f15540fcf3",
+      "terminal": "exact original container absent after --rm",
+      "inspect_exit": 1,
+      "inspect_stderr": "error: no such object: adf6bce66e3c09ae9343ae7f7e4d50cad15aec798ee0416d32c3a5f15540fcf3"
+    },
+    "container_configured.cid": {
+      "id": "7284acfe244de62422f1ca939ecee78d19a7ed81d7b0a49310b8ac5b4505b226",
+      "terminal": "exact original container absent after --rm",
+      "inspect_exit": 1,
+      "inspect_stderr": "error: no such object: 7284acfe244de62422f1ca939ecee78d19a7ed81d7b0a49310b8ac5b4505b226"
+    }
+  },
+  "configured_container_command_exit": 0,
+  "measurements": [
+    {
+      "files": 20000,
+      "memory": {
+        "files": 20000,
+        "exit_code": 0,
+        "sampled_process_tree_peak_rss_kib": 33020,
+        "samples": 123,
+        "max_descendant_processes": 4,
+        "proc_entries_unreadable": 0,
+        "interval_ms": 20,
+        "elapsed_seconds": 2.5407887929904973,
+        "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 4,
+        "fixture_seconds": 1.021,
+        "scan_seconds": 0.98,
+        "cleanup_seconds": 0.176,
+        "cleanup_workers": 1,
+        "query_p50_ms": 12.282,
+        "query_p95_ms": 14.227,
+        "database_and_wal_bytes": 41431040,
+        "storage_cost": {
+          "metric": "file lengths in bytes; not cumulative writes, allocated volume or peak WAL",
+          "before_scan": {
+            "database_bytes": 520192,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 520192
+          },
+          "after_scan": {
+            "database_bytes": 41431040,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 41431040
+          },
+          "after_queries": {
+            "database_bytes": 41431040,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 41431040
+          },
+          "scan_delta": {
+            "database_bytes": 40910848,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 40910848
+          },
+          "query_delta": {
+            "database_bytes": 0,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 0
+          }
+        },
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "files": 200000,
+      "memory": {
+        "files": 200000,
+        "exit_code": 0,
+        "sampled_process_tree_peak_rss_kib": 182660,
+        "samples": 1363,
+        "max_descendant_processes": 4,
+        "proc_entries_unreadable": 0,
+        "interval_ms": 20,
+        "elapsed_seconds": 29.064033263988676,
+        "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "indexed_nodes": 200001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 4,
+        "fixture_seconds": 11.849,
+        "scan_seconds": 13.96,
+        "cleanup_seconds": 2.793,
+        "cleanup_workers": 1,
+        "query_p50_ms": 11.787,
+        "query_p95_ms": 13.782,
+        "database_and_wal_bytes": 415907840,
+        "storage_cost": {
+          "metric": "file lengths in bytes; not cumulative writes, allocated volume or peak WAL",
+          "before_scan": {
+            "database_bytes": 520192,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 520192
+          },
+          "after_scan": {
+            "database_bytes": 415875072,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 415875072
+          },
+          "after_queries": {
+            "database_bytes": 415875072,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 32768,
+            "total_bytes": 415907840
+          },
+          "scan_delta": {
+            "database_bytes": 415354880,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 415354880
+          },
+          "query_delta": {
+            "database_bytes": 0,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 32768,
+            "total_bytes": 32768
+          }
+        },
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Container-native Linux ARM64 on macOS ARM64, existing glibc 2.28 runtime; not Windows/macOS RSS or old glibc runtime proof.",
+    "Sampled RSS excludes benchmark Python parent, may miss short peaks and double count shared pages; no strict memory bound.",
+    "Single current-package run per file count; not paired baseline, performance improvement or long-run SLO proof.",
+    "Initial absent-deployment Unsupported measurement retained separately, not counted as qualified RSS."
+  ]
+}

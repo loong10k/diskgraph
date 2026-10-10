@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Test (ubuntu-latest / Rust 1.97.0)",
+    "original_job_id": 114228716353,
+    "latest_display_job_id": 114239019820,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T14:10:19Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Test (macos-latest / Rust 1.97.0)",
+    "original_job_id": 114228716247,
+    "latest_display_job_id": 114239019924,
+    "startedAt": "2026-10-10T13:53:18Z",
+    "completedAt": "2026-10-10T14:17:26Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Test (windows-latest / Rust 1.97.0)",
+    "original_job_id": 114228716337,
+    "latest_display_job_id": 114239020131,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T14:45:27Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+    "original_job_id": 114228794664,
+    "latest_display_job_id": 114239020252,
+    "startedAt": "2026-10-10T13:53:39Z",
+    "completedAt": "2026-10-10T13:58:00Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Native read-only package (x86_64-pc-windows-msvc)",
+    "original_job_id": 114228794677,
+    "latest_display_job_id": 114239020273,
+    "startedAt": "2026-10-10T13:53:39Z",
+    "completedAt": "2026-10-10T14:01:02Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Kotlin native host (windows-2022)",
+    "original_job_id": 114228716325,
+    "latest_display_job_id": 114239020274,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T13:55:53Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Test (ubuntu-latest / Rust stable)",
+    "original_job_id": 114228716355,
+    "latest_display_job_id": 114239020286,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T14:16:25Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+    "original_job_id": 114228794618,
+    "latest_display_job_id": 114239020308,
+    "startedAt": "2026-10-10T13:53:41Z",
+    "completedAt": "2026-10-10T13:57:05Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Native read-only package (x86_64-apple-darwin)",
+    "original_job_id": 114228794674,
+    "latest_display_job_id": 114239020464,
+    "startedAt": "2026-10-10T14:02:57Z",
+    "completedAt": "2026-10-10T14:15:14Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Test (windows-latest / Rust stable)",
+    "original_job_id": 114228716356,
+    "latest_display_job_id": 114239020471,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T14:31:18Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Test (ubuntu-24.04-arm / Rust stable)",
+    "original_job_id": 114228716425,
+    "latest_display_job_id": 114239020520,
+    "startedAt": "2026-10-10T13:53:16Z",
+    "completedAt": "2026-10-10T14:12:30Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Swift native host (macos-15-intel)",
+    "original_job_id": 114228716343,
+    "latest_display_job_id": 114239020865,
+    "startedAt": "2026-10-10T13:53:14Z",
+    "completedAt": "2026-10-10T14:01:14Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Native read-only package (aarch64-apple-darwin)",
+    "original_job_id": 114228794652,
+    "latest_display_job_id": 114239038513,
+    "startedAt": "2026-10-10T14:01:19Z",
+    "completedAt": "2026-10-10T14:07:13Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Swift native host (macos-15)",
+    "original_job_id": 114228716289,
+    "latest_display_job_id": 114239040447,
+    "startedAt": "2026-10-10T13:57:52Z",
+    "completedAt": "2026-10-10T14:00:49Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Kotlin native host (macos-15-intel)",
+    "original_job_id": 114228716330,
+    "latest_display_job_id": 114239040450,
+    "startedAt": "2026-10-10T13:53:15Z",
+    "completedAt": "2026-10-10T13:57:46Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "rustfmt",
+    "original_job_id": 114228716303,
+    "latest_display_job_id": 114239041252,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T13:53:29Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Test (macos-latest / Rust stable)",
+    "original_job_id": 114228716381,
+    "latest_display_job_id": 114239041610,
+    "startedAt": "2026-10-10T13:53:19Z",
+    "completedAt": "2026-10-10T14:15:20Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Kotlin native host (ubuntu-24.04-arm)",
+    "original_job_id": 114228716354,
+    "latest_display_job_id": 114239042942,
+    "startedAt": "2026-10-10T13:53:15Z",
+    "completedAt": "2026-10-10T13:54:27Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Linux ARM64 private FUSE content refusal",
+    "original_job_id": 114228716238,
+    "latest_display_job_id": 114239050272,
+    "startedAt": "2026-10-10T13:53:15Z",
+    "completedAt": "2026-10-10T13:54:16Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Vendored scanner",
+    "original_job_id": 114228716112,
+    "latest_display_job_id": 114239051720,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T13:53:37Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Kotlin native host (ubuntu-24.04)",
+    "original_job_id": 114228716367,
+    "latest_display_job_id": 114239052665,
+    "startedAt": "2026-10-10T13:53:13Z",
+    "completedAt": "2026-10-10T13:54:21Z",
+    "all_step_timestamps_and_results_identical": true
+  },
+  {
+    "name": "Kotlin native host (macos-15)",
+    "original_job_id": 114228716362,
+    "latest_display_job_id": 114239053087,
+    "startedAt": "2026-10-10T14:00:55Z",
+    "completedAt": "2026-10-10T14:02:55Z",
+    "all_step_timestamps_and_results_identical": true
+  }
+]

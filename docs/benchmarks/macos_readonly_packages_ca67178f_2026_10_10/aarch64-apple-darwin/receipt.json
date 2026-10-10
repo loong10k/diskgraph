@@ -1,0 +1,14 @@
+{
+  "source_sha": "ca67178f294d4abf1c64241245c7e431db41026e",
+  "workflow_run": 38057448226,
+  "job_id": 114228794652,
+  "conclusion": "success",
+  "archive_sha256": "e1f310f9f46454a13a97125ed4bb644e317f68b784c683c5ea331e39fc779c6e",
+  "packaged_worker_sha256": "f0ffcd796ebde43d6ee856c302b56f830e9dbdf6a0d742da192c06cc6e7a62c3",
+  "original_log_sha256": "334a1caea57243c45fb67c36ab505d041005b5e9672cdffe93a42422d59c560b",
+  "full_workflow_qualified": false,
+  "limits": [
+    "Workflow still running; package success does not replace remaining native workspace gates.",
+    "Controlled HTTP/load acceptance does not establish sustained production operation."
+  ]
+}
