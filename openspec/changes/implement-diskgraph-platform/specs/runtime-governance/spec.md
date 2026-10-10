@@ -317,3 +317,20 @@ MCP/FFI 的有期限请求授权快照 SHALL 通过参数化、可索引的主�
 - **WHEN** 多个实际进程在同一个稳定受信原目录中认领固定恢复槽
 - **THEN** 已有槽以 no-follow 普通打开，缺失槽才独占创建，创建冲突仅重开同名原目录项一次
 - **AND** 原期限、普通文件/owner/0600/单链接、独占锁和 RESERVED/ACTIVE 拒绝继续生效，不修复目录或异常记录，不把父目录丢失当作可恢复成功
+
+### Requirement: Linux supervisor installation preparation retains protected identities
+The trusted installer SHALL prepare a fresh root-controlled installation using an independently expected archive digest, fixed role image names and dedicated service/frontend identity separation. Preparation SHALL NOT start services or grant runtime supervision capability.
+
+#### Scenario: A prepared package cannot overwrite active recovery state
+- **WHEN** the requested installation prefix already exists, including an ACTIVE service slot
+- **THEN** preparation refuses without modifying original slot bytes or deployment configuration; it does not automatically reset recovery records
+
+#### Scenario: Native service and frontend identities are separated
+- **WHEN** a trusted installer provisions a protected namespace and a dedicated service UID
+- **THEN** the service UID is excluded from every allowed frontend UID, root identities and duplicate/empty/unbounded frontend sets are refused, service slot permissions are 0600 and namespace ancestors cannot be modified by either identity
+- **AND** the root bootstrap and fixed image files cannot be modified by the service or frontend identities
+
+#### Scenario: Unverified package never becomes enabled supervision
+- **WHEN** package digest, image manifest, archive paths, links, entry uniqueness, architecture or byte limits fail validation
+- **THEN** preparation refuses, no enabled configuration or service is published, and already existing installation state remains unchanged
+- **AND** a successful preparation is explicitly recorded as prepared_not_enabled; role authentication, original owner lifetime, Pending frontend exit and native service installation must be independently implemented and verified

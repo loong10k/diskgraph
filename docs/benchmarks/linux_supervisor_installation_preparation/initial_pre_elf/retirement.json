@@ -1,0 +1,7 @@
+{
+  "container_id": "cd7d728c279afb18a153b2d1bb138893b27d514061ad9eb5b22362abdd8942b3",
+  "returncode": 1,
+  "stdout": "[]\n",
+  "stderr": "error: no such object: cd7d728c279afb18a153b2d1bb138893b27d514061ad9eb5b22362abdd8942b3\n",
+  "original_container_absent": true
+}

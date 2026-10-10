@@ -1,0 +1,56 @@
+{
+  "commit": "0e90fb389823060bd6d2d29cf12e961909afccc1",
+  "run": 38066204452,
+  "job": 114254340260,
+  "overall_ci_terminal": false,
+  "archive_sha256": "750dc1c9875edcfa8c953330f29079da00dceff713325cb69ed1ee0b05dddb66",
+  "actual_summary": {
+    "target": "aarch64-unknown-linux-gnu",
+    "archive": "/home/runner/work/diskgraph/diskgraph/dist/diskgraph-aarch64-unknown-linux-gnu.tar.gz",
+    "sha256": "750dc1c9875edcfa8c953330f29079da00dceff713325cb69ed1ee0b05dddb66",
+    "stdio": 18,
+    "http": 14,
+    "upgrade_rollback": 7,
+    "controlled_load": 6,
+    "controlled_load_200000": 6,
+    "scan_worker": {
+      "executable": {
+        "bytes": 834792,
+        "name": "diskgraph-scan-worker",
+        "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+      },
+      "package_version": "0.3.0",
+      "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+      "protocol_version": 2,
+      "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+      "schema_version": 1,
+      "target": "aarch64-unknown-linux-gnu"
+    }
+  },
+  "archive_binaries": {
+    "diskgraph": {
+      "bytes": 6443640,
+      "sha256": "c5385f2aa88cfba515ded5eeadd408294d88ec56400d532bf43f971e60188868"
+    },
+    "diskgraph-mcp": {
+      "bytes": 5467560,
+      "sha256": "7d4ad0ce5a3642757e2ef9bab730ad627c96d2828041cdb99e8b3a37ffc88798"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 834792,
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+    },
+    "scan-worker-manifest.json": {
+      "bytes": 461,
+      "sha256": "d8a91e4426d71705363ebcb7eb6a65cc7f99f988ce5fd93427d54df85efbaba9"
+    }
+  },
+  "worker_independent_build_environment_match": true,
+  "raw_log_sha256": "e9d3b6fe783448454e36196ed1f91707ff7d77455ab6b975052850faea22509b",
+  "limits": [
+    "Current source package gate only; full native workspace remains pending.",
+    "60s HTTP smoke is not native long-run qualification.",
+    "No independent supervisor runtime or installation qualification.",
+    "Single native measurement is not a paired performance improvement."
+  ]
+}

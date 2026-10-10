@@ -1,0 +1,106 @@
+{
+  "checks": {
+    "actual_three_images_root_owned_digest_match": true,
+    "protected_directory_identity": true,
+    "new_clean_slots_have_distinct_real_owners": true,
+    "actual_service_uid_can_open_only_its_slot": true,
+    "actual_frontend_uid_cannot_modify_service_or_namespace": true,
+    "existing_active_record_and_config_preserved": true,
+    "wrong_digest_never_publishes_deployment": true,
+    "source_link_refused_before_directory_birth": true
+  },
+  "passed": 8,
+  "total": 8,
+  "actual_preparation": {
+    "schema_version": 1,
+    "status": "prepared_not_enabled",
+    "target": "aarch64-unknown-linux-gnu",
+    "archive_sha256": "750dc1c9875edcfa8c953330f29079da00dceff713325cb69ed1ee0b05dddb66",
+    "identity_policy": {
+      "service_uid": 1000,
+      "service_gid": 1000,
+      "frontend_uids": [
+        1001
+      ]
+    },
+    "role_images": {
+      "diskgraph": {
+        "bytes": 6443640,
+        "sha256": "c5385f2aa88cfba515ded5eeadd408294d88ec56400d532bf43f971e60188868",
+        "device": 58,
+        "inode": 54594,
+        "uid": 0,
+        "gid": 0,
+        "mode": 365,
+        "links": 1
+      },
+      "diskgraph-mcp": {
+        "bytes": 5467560,
+        "sha256": "7d4ad0ce5a3642757e2ef9bab730ad627c96d2828041cdb99e8b3a37ffc88798",
+        "device": 58,
+        "inode": 54595,
+        "uid": 0,
+        "gid": 0,
+        "mode": 365,
+        "links": 1
+      },
+      "diskgraph-scan-worker": {
+        "bytes": 834792,
+        "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+        "device": 58,
+        "inode": 54581,
+        "uid": 0,
+        "gid": 0,
+        "mode": 365,
+        "links": 1
+      }
+    },
+    "worker_manifest": {
+      "executable": {
+        "bytes": 834792,
+        "name": "diskgraph-scan-worker",
+        "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+      },
+      "package_version": "0.3.0",
+      "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+      "protocol_version": 2,
+      "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+      "schema_version": 1,
+      "target": "aarch64-unknown-linux-gnu"
+    },
+    "state_identity": {
+      "device": 58,
+      "inode": 54582
+    },
+    "bootstrap_slot": {
+      "bytes": 8,
+      "sha256": "3fc4c80393c2934cc2f64eb6af9b8837eea379bfe164ed397174ddf2c530478f",
+      "device": 58,
+      "inode": 54596,
+      "uid": 0,
+      "gid": 0,
+      "mode": 384,
+      "links": 1
+    },
+    "service_slot": {
+      "bytes": 8,
+      "sha256": "3fc4c80393c2934cc2f64eb6af9b8837eea379bfe164ed397174ddf2c530478f",
+      "device": 58,
+      "inode": 54597,
+      "uid": 1000,
+      "gid": 1000,
+      "mode": 384,
+      "links": 1
+    },
+    "services_started": false,
+    "broker_authenticated": false,
+    "supervisor_lifecycle_qualified": false
+  },
+  "installer_sha256": "0e104ad2be0cad50fa680c7065754062144a421a807148bddc30144e7a9ea10f",
+  "qualification_sha256": "597f9beca5a2d6da82b5d83a82c7e47f1f3a50ede91bd0c52c4283a514278fe2",
+  "limits": [
+    "Linux ARM64 root fixture only; broker and supervisor product entry are not implemented here.",
+    "No service registration or service start; no desktop installation.",
+    "Kernel UID tests qualify deployment permissions, not runtime peer authentication or pending I/O retirement."
+  ]
+}

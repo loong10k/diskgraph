@@ -1,0 +1,31 @@
+{
+  "args": [
+    "docker",
+    "run",
+    "--rm",
+    "--cidfile",
+    "/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-supervisor-installation-omm7zsjx/container.cid",
+    "--network",
+    "none",
+    "--memory",
+    "512m",
+    "--cpus",
+    "2",
+    "--pids-limit",
+    "64",
+    "--entrypoint",
+    "/usr/bin/python3",
+    "-v",
+    "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/prepare_linux_supervisor_installation.py:/input/prepare_linux_supervisor_installation.py:ro",
+    "-v",
+    "/tmp/diskgraph-window-250-linux-arm/diskgraph-aarch64-unknown-linux-gnu.tar.gz:/input/package.tar.gz:ro",
+    "-v",
+    "/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-supervisor-installation-omm7zsjx/qualify.py:/input/qualify.py:ro",
+    "-v",
+    "/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/diskgraph-supervisor-installation-omm7zsjx:/output:rw",
+    "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+    "/input/qualify.py"
+  ],
+  "image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "mysql_started": false
+}

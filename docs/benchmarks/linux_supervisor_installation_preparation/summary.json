@@ -1,0 +1,47 @@
+{
+  "qualified_code_commit_before_new_installer": "0e90fb389823060bd6d2d29cf12e961909afccc1",
+  "installer_source_sha256": "0e104ad2be0cad50fa680c7065754062144a421a807148bddc30144e7a9ea10f",
+  "tests_source_sha256": "3fd107ad1d3b8b5ba286674adb1eeac959ed6d97aaf4e2a96574c8207e5fa52c",
+  "red": {
+    "tests_run": 5,
+    "failed_assertions": 7,
+    "exit_code": 1,
+    "cause": "service/frontend overlap and privileged, duplicate or empty identity policies were accepted"
+  },
+  "green": {
+    "tests_run": 13,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "native": {
+    "platform": "Linux ARM64",
+    "container_image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+    "passed": 8,
+    "total": 8,
+    "mysql_started": false,
+    "original_container_absent": true,
+    "final_original_container_id": "dcb7c88b12df8c3c714f3d3aa276acaa49c9f33cbf9941108aebd66253d16ae7",
+    "all_original_fixture_containers_absent": true
+  },
+  "scope": "new installation preparation component; not service activation or runtime authentication",
+  "limits": [
+    "Linux ARM64 root fixture only; broker and supervisor product entry are not implemented here.",
+    "No service registration or service start; no desktop installation.",
+    "Kernel UID tests qualify deployment permissions, not runtime peer authentication or pending I/O retirement.",
+    "Numeric device/inode receipt is audit evidence, not a source of persistent runtime trust.",
+    "Installer does not create OS accounts; a dedicated service account must be independently provisioned by the trusted deployer.",
+    "ACTIVE fixture bytes test preservation by installer, not native job ownership or lifecycle."
+  ],
+  "elf_red": {
+    "tests_run": 13,
+    "failed_assertions": 2,
+    "exit_code": 1,
+    "cause": "non-ELF or incompatible machine role image was accepted before header validation"
+  },
+  "reserved_identity_red": {
+    "tests_run": 13,
+    "failed_assertions": 1,
+    "exit_code": 1,
+    "cause": "UINT32_MAX kernel chown sentinel was accepted as service identity"
+  }
+}

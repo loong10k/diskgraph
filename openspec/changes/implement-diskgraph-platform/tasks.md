@@ -345,3 +345,5 @@ D43原生最终：66f2e4c的CI37196289598终态22/22；12份审查源码摘要�
 2026-10-05 helper 包增量：三二进制与闭合清单、同句柄有界复制/摘要、链接与 FIFO 准入反例已实现。组成2RED、准入3RED、源链接1RED与最终13GREEN分开记录。本机真实 release 归档 stdio18/18、HTTP13/13、升级回滚7/7、负载4/4通过；worker取消夹具保持原预算/失败断言，实际3案、全package tests、Clippy/fmt通过。旧 ada6335 CI21/22，Intel两案缺活进度未发动作；修复同SHA原生CI待运行。Linux x64/arm64原子出生机制各8实际通过，仅机制证据，未接Rust Engine。父项不关闭，见 docs/benchmarks/worker_package_2026_10_05_acceptance.json。
 
 终检数据库窗口增量：用户已授权数据库250ms／能力回调50ms及三平台独立监督服务（仅隔离验收）。真实100ms控制锁竞争在旧50ms窗口RED，修改后GREEN；500ms持锁约250ms拒绝，60ms原请求不续期。定向授权回归14/0、锁3/0、历史撤权6/0、最新标识1/0；Clippy和原上游摘要4/0。完整本机Engine657/116/14（缺少原生部署99、协议驱动17）不计全绿；协议驱动受控编译后13/0与owner6/0。原始日志和源码摘要见docs/benchmarks/terminal_database_window_250ms/receipt.json。同源码三平台CI待验收，监督产品链继续实施；不勾选父项。
+
+Linux监督安装准备增量：独立归档SHA／root独占副本／固定三镜像／禁止链接逃逸／展开字节预算／不覆盖已有安装与槽记录已实现。身份隔离实际5测试7失败断言RED、ELF机器身份13测试2失败RED、保留UID哨兵1失败RED→13/0 GREEN；LinuxARM隔离root容器新源码8/8，包括实际UID1000/1001权限反例和原ACTIVE字节保留，原容器已移除，未启动MySQL或服务。见docs/benchmarks/linux_supervisor_installation_preparation/summary.json。此项仅为prepare组件，不提供broker认证、槽生命周期、前端EOF或服务注册；不以device/inode回执签发运行信任，不勾选监督父项。
