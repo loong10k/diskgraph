@@ -11,3 +11,5 @@ TDD：新的隔离 Bash 调用回归实际记录旧脚本 cargo build 参数，�
 后续隔离 Git archive 05fd8aca 的完整本机 workspace 尝试退出101；33目标失败，多项扫描夹具因未提供受信部署材料返回Unsupported、协议driver夹具缺失，不能计为完整通过。该尝试还真实暴露MCP deploy_contract仍断言普通cargo build；同步为Linux平台拒绝、显式zigbuild/.2.17及ABI门禁先于安装的既定新契约。此断言修正不替代实际GNU二进制验收。
 
 归档源tree为b58037ab4afb26f2531ff8cf0b34473a21725944，source.tar SHA256为f551a1752d2d1652b99eb539453218859e6d7efd236a97c38943efe726bede21，原日志在本机隔离目录/tmp/diskgraph-05fd-workspace-P5zOtv/workspace.log。修正后MCP deploy_contract六项通过，目标严格Clippy、rustfmt、diff及OpenSpec strict通过；另外包内worker独立部署七项、workspace CI覆盖两项通过。这些结果均不关闭完整原生workspace门禁。
+
+2026-10-10 用户明确批准仅在 GitHub 临时 runner 安装固定 cargo-zigbuild 0.23.4 与 ziglang 0.16.0。CI 使用 RUNNER_TEMP 内的 venv，不改桌面或全局环境；当前 GNU 三镜像、升级回滚用的旧 CLI 与 worker receipt 构建均显式使用 `.2.17`，保留实际 ELF 门禁。官方 PyPI 两个版本均提供 x86_64/aarch64 Linux wheel；尚不代表编译成功。新增 CI 合同测试对已提交旧工作流实际失败（缺少隔离编译器步骤），候选四项通过；19 项 ABI 回归通过。源 671fd4e1 的实际 x86_64 ELF 仍被拒绝为 glibc 2.39，来自 run38045974868 artifact11666683759，不将该源码包标为合格。新工作流实际构建及完整包验收待执行。

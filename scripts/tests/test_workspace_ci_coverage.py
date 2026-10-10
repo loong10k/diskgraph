@@ -8,6 +8,34 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 
 class WorkspaceCiCoverageTests(unittest.TestCase):
+    def test_gnu_package_builds_and_worker_receipt_share_the_advertised_baseline(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
+        def step(name):
+            match = re.search(r"(?m)^      - name: " + re.escape(name) +
+                              r"\n(?P<body>.*?)(?=^      - |\Z)", workflow, re.S | re.M)
+            self.assertIsNotNone(match, name)
+            return match.group("body")
+
+        setup = step("Prepare isolated GNU compatibility compiler")
+        self.assertIn("if: runner.os == 'Linux'", setup)
+        self.assertIn('python -m venv "$RUNNER_TEMP/diskgraph-gnu-builder"', setup)
+        for pin in ('cargo-zigbuild==0.23.4', 'ziglang==0.16.0'):
+            self.assertIn(pin, setup)
+        self.assertIn('CARGO_ZIGBUILD_PYTHON_PATH=', setup)
+        for name in ("Build GNU release binaries against original glibc baseline",
+                     "Build previous GNU CLI against original glibc baseline",
+                     "Bind Linux package acceptance to actual release worker"):
+            body = step(name)
+            self.assertIn("if: runner.os == 'Linux'", body)
+            self.assertIn('cargo zigbuild --release --locked', body)
+            self.assertIn('--target ${{ matrix.target }}.2.17', body)
+            self.assertNotIn('cargo build ', body)
+        for name in ("Build current release binaries", "Build previous CLI for isolated upgrade and rollback"):
+            self.assertIn("if: runner.os != 'Linux'", step(name))
+        self.assertLess(workflow.index('Prepare isolated GNU compatibility compiler'),
+                        workflow.index('Build GNU release binaries against original glibc baseline'))
+        self.assertIn('Verify actual GNU package ABI baseline', workflow)
+
     def test_macos_failure_isolation_includes_the_actual_settings_matrix_failure(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
         match = re.search(r"(?m)^        id: macos_failure_isolation\n(?P<body>.*?)(?=^      - |\Z)", workflow, re.S | re.M)

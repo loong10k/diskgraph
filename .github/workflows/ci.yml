@@ -1107,7 +1107,21 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Build current release binaries
+        if: runner.os != 'Linux'
         run: cargo build --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker --target ${{ matrix.target }}
+      - name: Prepare isolated GNU compatibility compiler
+        if: runner.os == 'Linux'
+        run: |
+          python -m venv "$RUNNER_TEMP/diskgraph-gnu-builder"
+          "$RUNNER_TEMP/diskgraph-gnu-builder/bin/python" -m pip install --only-binary=:all: \
+            'cargo-zigbuild==0.23.4' 'ziglang==0.16.0'
+          echo "$RUNNER_TEMP/diskgraph-gnu-builder/bin" >> "$GITHUB_PATH"
+          echo "CARGO_ZIGBUILD_PYTHON_PATH=$RUNNER_TEMP/diskgraph-gnu-builder/bin/python" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/diskgraph-gnu-builder/bin/python" -m ziglang version
+          "$RUNNER_TEMP/diskgraph-gnu-builder/bin/cargo-zigbuild" --version
+      - name: Build GNU release binaries against original glibc baseline
+        if: runner.os == 'Linux'
+        run: cargo zigbuild --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker --target ${{ matrix.target }}.2.17
       - name: Verify actual GNU package ABI baseline
         if: runner.os == 'Linux'
         id: gnu_abi
@@ -1131,13 +1145,18 @@ jobs:
           ref: e4d6074df496dd0816abca531362cdc68e082510
           path: previous
       - name: Build previous CLI for isolated upgrade and rollback
+        if: runner.os != 'Linux'
         working-directory: previous
         run: cargo build --release --locked -p diskgraph-cli --target ${{ matrix.target }}
+      - name: Build previous GNU CLI against original glibc baseline
+        if: runner.os == 'Linux'
+        working-directory: previous
+        run: cargo zigbuild --release --locked -p diskgraph-cli --target ${{ matrix.target }}.2.17
       - name: Bind Linux package acceptance to actual release worker
         if: runner.os == 'Linux'
         run: |
           python -m unittest discover -s scripts/tests -p test_package_worker_deployment.py -v
-          cargo build --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --target ${{ matrix.target }} --message-format=json > "$RUNNER_TEMP/package-worker-artifacts.jsonl"
+          cargo zigbuild --release --locked -p diskgraph-scan-worker --bin diskgraph-scan-worker --target ${{ matrix.target }}.2.17 --message-format=json > "$RUNNER_TEMP/package-worker-artifacts.jsonl"
           python scripts/configure_linux_acceptance_worker.py --artifacts "$RUNNER_TEMP/package-worker-artifacts.jsonl" --output-dir "$RUNNER_TEMP"
       - name: Bind Windows package acceptance to actual release scan worker
         if: runner.os == 'Windows'
