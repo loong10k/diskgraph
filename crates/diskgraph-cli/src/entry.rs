@@ -22,6 +22,22 @@ pub(crate) fn cli_main() -> CliExit {
         return CliExit::Code(ExitCode::from(10));
     }
     let cli = Cli::parse();
+    #[cfg(target_os = "linux")]
+    if (std::env::var_os("DISKGRAPH_LINUX_SUPERVISOR_BIRTH").is_some()
+        || std::env::var_os("DISKGRAPH_LINUX_SUPERVISOR_FD").is_some())
+        && (!matches!(&cli.command, Command::Doctor) || !cli.json)
+    {
+        // 内部出生通道首轮只接既有 doctor，不转交 serve 或其他命令，不创建本地身份。
+        if cli.json {
+            println!(
+                "{}",
+                error_reply::line(&BusinessError::PermissionDenied.into())
+            );
+        } else {
+            eprintln!("supervisor role refused");
+        }
+        return CliExit::Code(ExitCode::from(BusinessError::PermissionDenied.exit_code()));
+    }
     // serve 必须在任何 CLI Engine/LocalIdentity 构造之前交接给 MCP。
     let outcome = if matches!(&cli.command, Command::Serve { .. }) {
         match crate::serve_command::run(&cli) {

@@ -349,3 +349,5 @@ D43原生最终：66f2e4c的CI37196289598终态22/22；12份审查源码摘要�
 Linux监督安装准备增量：独立归档SHA／root独占副本／固定三镜像／禁止链接逃逸／展开字节预算／不覆盖已有安装与槽记录已实现。身份隔离实际5测试7失败断言RED、ELF机器身份13测试2失败RED、保留UID哨兵1失败RED→13/0 GREEN；LinuxARM隔离root容器新源码8/8，包括实际UID1000/1001权限反例和原ACTIVE字节保留，原容器已移除，未启动MySQL或服务。见docs/benchmarks/linux_supervisor_installation_preparation/summary.json。此项仅为prepare组件，不提供broker认证、槽生命周期、前端EOF或服务注册；不以device/inode回执签发运行信任，不勾选监督父项。
 
 250ms 同源码原生 CI 终检：0e90fb38／38066204452 已完成23/23 success；保留终态原始JSON及源码摘要回执。仅关闭本次窗口改动的原生CI缺口；独立监督服务与安装准备后续源码尚未取得对应全量CI，不勾选父项。
+
+Linux监督doctor构造增量：root原父消息凭据绑定JSON摘要／原目录与ns／ClockStamp／固定服务UID槽已接入CLI构造；共享解析RED1/2→macOS GREEN3/0，兼容host9/0与两包Clippy通过。新Linux分支尚未原生编译/验收，八场景脚本及CI已配置待执行；公共broker、bootstrap原child owner、私有退休确认和有限前端退出仍未实现。不据构造接线勾选监督父项。见linux_supervisor_birth_constructor.md及对应receipt.json。

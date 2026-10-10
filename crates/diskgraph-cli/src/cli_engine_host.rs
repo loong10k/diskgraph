@@ -13,6 +13,8 @@ pub(crate) struct CliEngineHost {
     recovery: Option<ScanWorkerRecovery>,
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     slot: Option<diskgraph_engine::recovery_slot::ActiveSlot>,
+    #[cfg(target_os = "linux")]
+    namespace_guard: Option<diskgraph_engine::recovery_slot::LinuxSupervisorNamespace>,
     #[cfg(windows)]
     probe_recovery: diskgraph_engine::ProbeRecovery,
 }
@@ -31,6 +33,20 @@ impl CliEngineHost {
     pub(crate) fn open_until(config: EngineConfig, deadline: Instant) -> Result<Self, EngineError> {
         if Instant::now() >= deadline {
             return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
+        }
+        #[cfg(target_os = "linux")]
+        if let Some(birth) = diskgraph_engine::LinuxSupervisorBirth::receive_from_environment()? {
+            if config.data_dir != birth.data_dir() {
+                return Err(diskgraph_core::BusinessError::PermissionDenied.into());
+            }
+            let runtime = Self::runtime_budget(&config)?;
+            let (host, namespace, deadline) = birth.into_host(runtime, deadline)?;
+            // 原 root/ns 材料在 Engine 初始化、出生前撤销及退休整个调用栈中均保持。
+            let mut opened = Self::open_admitted_until(config, Some(host), deadline, || {
+                namespace.reserve(deadline).map(Some).map_err(slot_error)
+            })?;
+            opened.namespace_guard = Some(namespace);
+            return Ok(opened);
         }
         let host = Self::prepare_host_until(&config, deadline).inspect_err(|_| {
             // 仅报告固定阶段，不输出安装路径、配置或凭据，原错误分类保持不变。
@@ -88,7 +104,12 @@ impl CliEngineHost {
         config: &EngineConfig,
         deadline: Instant,
     ) -> Result<Option<diskgraph_engine::ScanWorkerHost>, EngineError> {
-        let runtime = ScanWorkerRuntimeBudget::new(
+        let runtime = Self::runtime_budget(config)?;
+        ScanWorkerSettings::host_from_environment(runtime, deadline, &mut || Ok(()))
+    }
+
+    fn runtime_budget(config: &EngineConfig) -> Result<ScanWorkerRuntimeBudget, EngineError> {
+        ScanWorkerRuntimeBudget::new(
             ProtocolLimits {
                 max_frame_bytes: 1 << 20,
                 max_stream_bytes: 2 << 30,
@@ -97,8 +118,7 @@ impl CliEngineHost {
             },
             64 << 10,
             1,
-        )?;
-        ScanWorkerSettings::host_from_environment(runtime, deadline, &mut || Ok(()))
+        )
     }
 
     #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
@@ -185,6 +205,8 @@ impl CliEngineHost {
             engine: Arc::new(engine),
             recovery,
             slot,
+            #[cfg(target_os = "linux")]
+            namespace_guard: None,
         }
         .finish_open_until(deadline)
     }
@@ -268,6 +290,8 @@ impl CliEngineHost {
         self,
         outcome: std::thread::Result<Result<T, EngineError>>,
     ) -> Result<T, EngineError> {
+        #[cfg(target_os = "linux")]
+        let _namespace_guard = self.namespace_guard;
         let mut parts = diskgraph_engine::SupervisorParts {
             engine: self.engine,
             scan: self.recovery,

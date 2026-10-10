@@ -91,6 +91,8 @@ fn managed_empty_host(directory: &tempfile::TempDir) -> CliEngineHost {
         recovery: Some(recovery),
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         slot: None,
+        #[cfg(target_os = "linux")]
+        namespace_guard: None,
         #[cfg(windows)]
         probe_recovery: diskgraph_engine::ProbeHost::new(1).unwrap().1,
     }

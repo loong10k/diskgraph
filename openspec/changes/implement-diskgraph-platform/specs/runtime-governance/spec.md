@@ -334,3 +334,16 @@ The trusted installer SHALL prepare a fresh root-controlled installation using a
 - **WHEN** package digest, image manifest, archive paths, links, entry uniqueness, architecture or byte limits fail validation
 - **THEN** preparation refuses, no enabled configuration or service is published, and already existing installation state remains unchanged
 - **AND** a successful preparation is explicitly recorded as prepared_not_enabled; role authentication, original owner lifetime, Pending frontend exit and native service installation must be independently implemented and verified
+
+### Requirement: Linux supervisor doctor authenticates birth before Engine construction
+The internal Linux doctor role SHALL bind the exact bounded startup JSON digest to the original root parent kernel credentials on its birth-private datagram, retain independently delivered directory/user/mount namespace objects, and adopt the original ClockStamp deadline before constructing Engine. Internal-role failure SHALL NOT fall back to ordinary local startup.
+
+#### Scenario: A fresh authenticated service slot executes the existing doctor
+- **WHEN** the original trusted root birth layer launches the fixed CLI image under its dedicated non-root UID and delivers matching materials for a CLEAN protected service slot
+- **THEN** the existing doctor executes only after reservation and activation; the original namespace is retained through actual SupervisorOwner retirement and CLEAN confirmation
+- **AND** this constructor result does not certify public broker admission, global bootstrap lifetime, private cleanup confirmation or finite Pending frontend exit
+
+#### Scenario: Forged or mismatched birth never initializes databases
+- **WHEN** private credentials/session, schema/version, service identity, original deadline, image expectation or data directory binding fails, or the original service slot is ACTIVE
+- **THEN** startup refuses before database creation, internal-role configuration never grants local compatibility fallback, and ACTIVE is not reset
+- **AND** the internal role accepts only the existing JSON doctor command until separately qualified protocol roles are implemented

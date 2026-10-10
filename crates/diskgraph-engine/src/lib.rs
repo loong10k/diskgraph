@@ -462,3 +462,11 @@ mod scan_receipt_recovery_tests;
 mod scope_registration_deadline_tests;
 
 mod graph_access;
+
+#[cfg(any(test, target_os = "linux"))]
+mod linux_supervisor_birth_request;
+
+#[cfg(target_os = "linux")]
+mod linux_supervisor_birth;
+#[cfg(target_os = "linux")]
+pub use linux_supervisor_birth::LinuxSupervisorBirth;

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "status": "constructor_implemented_native_qualification_pending",
+  "prior_source_sha": "0e90fb389823060bd6d2d29cf12e961909afccc1",
+  "prior_binary_archive_sha256": "750dc1c9875edcfa8c953330f29079da00dceff713325cb69ed1ee0b05dddb66",
+  "prior_behavior_red": {
+    "internal_role_marker_ignored": true,
+    "database_created": true,
+    "was_old_privilege_escalation": false
+  },
+  "parser_red": {
+    "passed": 1,
+    "failed": 2
+  },
+  "parser_macos_green": {
+    "passed": 3,
+    "failed": 0
+  },
+  "cli_host_macos_regression": {
+    "passed": 9,
+    "failed": 0
+  },
+  "macos_all_targets_clippy_passed": true,
+  "new_linux_module_native_compiled": false,
+  "new_linux_constructor_native_qualified": false,
+  "public_broker_implemented": false,
+  "frontend_pending_exit_qualified": false,
+  "services_installed": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/linux_supervisor_birth_request.rs": "99e15f5e40b9e007d27ff38ed9398b841068fa8c2766669919bfa59347d34342",
+    "crates/diskgraph-engine/src/linux_supervisor_birth_request_tests.rs": "2429686e9d767a30cf956948ea69c615b981b36e89436734aa60d97eb10a8357",
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "de38e5db98cc3705ec531a762f0c55f011aefdbc2d96cc697748a46830fddbb3",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "42a135388d9d53c620e56c9fcf8fd58109d690d9ad8ab874ec6ac445a5f71bbb",
+    "crates/diskgraph-cli/src/entry.rs": "1c8dfb293ce57dc84114a25ea8428522c11dab4312eec7e096e1256a450dbf85",
+    "scripts/qualify_linux_supervisor_birth.py": "fbdd51fa5f9cd501f6ca58af43c48b3c0f19362da0e4f8f8371352659fbf020c"
+  },
+  "old_native_eight_case_red": {
+    "passed": 1,
+    "failed": 7,
+    "negative_cases_all_created_database": true,
+    "original_children_all_waited": true,
+    "container_retired": true
+  },
+  "macos_format_check_passed": true
+}
