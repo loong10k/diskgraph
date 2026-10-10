@@ -14,5 +14,11 @@
     "No sampled peak RSS, peak WAL or long-term host qualification",
     "Full workspace and lifecycle gates still running"
   ],
-  "independent_worker_snapshot_matches": true
+  "independent_worker_snapshot_matches": true,
+  "original_ci_json_sha256": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": "9ac86efa5aee001bc5b3314b9702c647e2e11f69bd7cecc99cb4d024f5d542a2",
+    "diskgraph-x86_64-pc-windows-msvc.load_200000.json": "9ff6dc1cf24e4b4af7ab98eb8516c2e1123982a1182645a40f467bb031cde15e",
+    "diskgraph-x86_64-pc-windows-msvc.load.json": "439ac553b9e4137aeeed4c4b65340a29a2324d95959bbdc5d468d2f8fe05ed6a"
+  },
+  "json_representation": "LF line endings; original CI bytes preserved in matching .json.gz files"
 }
