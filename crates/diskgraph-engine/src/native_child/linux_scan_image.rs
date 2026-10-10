@@ -36,8 +36,10 @@ impl LinuxScanImage {
         check(deadline, &mut checkpoint)?;
         source.seek(SeekFrom::Start(0))?;
         // 安全性：固定NUL结尾名称只用于匿名对象诊断；不依赖文件路径或宿主环境。
+        // 直接调用内核以兼容 glibc 2.17；不支持时沿原 errno 拒绝，不回退未密封文件。
         let descriptor = unsafe {
-            libc::memfd_create(
+            libc::syscall(
+                libc::SYS_memfd_create,
                 c"diskgraph-scan-image".as_ptr(),
                 libc::MFD_CLOEXEC | libc::MFD_ALLOW_SEALING | libc::MFD_EXEC,
             )
@@ -46,7 +48,7 @@ impl LinuxScanImage {
             return Err(io::Error::last_os_error().into());
         }
         // 安全性：成功创建的描述符只在此处转为唯一File，所有错误与unwind由RAII关闭。
-        let mut file = unsafe { File::from_raw_fd(descriptor) };
+        let mut file = unsafe { File::from_raw_fd(descriptor as i32) };
         let mut block = [0_u8; 64 * 1024];
         let mut remaining = config.expected_bytes;
         let mut digest = Sha256::new();

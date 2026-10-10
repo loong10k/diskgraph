@@ -13,3 +13,5 @@ TDD：新的隔离 Bash 调用回归实际记录旧脚本 cargo build 参数，�
 归档源tree为b58037ab4afb26f2531ff8cf0b34473a21725944，source.tar SHA256为f551a1752d2d1652b99eb539453218859e6d7efd236a97c38943efe726bede21，原日志在本机隔离目录/tmp/diskgraph-05fd-workspace-P5zOtv/workspace.log。修正后MCP deploy_contract六项通过，目标严格Clippy、rustfmt、diff及OpenSpec strict通过；另外包内worker独立部署七项、workspace CI覆盖两项通过。这些结果均不关闭完整原生workspace门禁。
 
 2026-10-10 用户明确批准仅在 GitHub 临时 runner 安装固定 cargo-zigbuild 0.23.4 与 ziglang 0.16.0。CI 使用 RUNNER_TEMP 内的 venv，不改桌面或全局环境；当前 GNU 三镜像、升级回滚用的旧 CLI 与 worker receipt 构建均显式使用 `.2.17`，保留实际 ELF 门禁。官方 PyPI 两个版本均提供 x86_64/aarch64 Linux wheel；尚不代表编译成功。新增 CI 合同测试对已提交旧工作流实际失败（缺少隔离编译器步骤），候选四项通过；19 项 ABI 回归通过。源 671fd4e1 的实际 x86_64 ELF 仍被拒绝为 glibc 2.39，来自 run38045974868 artifact11666683759，不将该源码包标为合格。新工作流实际构建及完整包验收待执行。
+
+源 6c1c26d1 的 run38046270976 两种 GNU runner 已实际安装并运行固定工具，但 release 链接均失败：生产代码强引用 glibc 2.17 不提供的 `statx` 与 `memfd_create`。这是实际二进制构建 RED，不是工具缺失。对应调用改为 `libc::syscall(SYS_statx, …)` 与 `libc::syscall(SYS_memfd_create, …)`，沿用原参数、返回/errno、唯一挂载能力检查及执行镜像密封；不增加较弱回退，不修改 vendored 上游。Rust 标准库自己的弱 statx 探测不替换、不导出全局 statx 符号。修复后的 Linux 链接、原生 syscall/密封行为、实际 ELF 及包验收仍待 CI；macOS 格式检查不代表 Linux 编译通过。

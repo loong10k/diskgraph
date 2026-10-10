@@ -46,8 +46,10 @@ pub(super) fn filesystem(file: &File) -> Result<i128, Failure> {
 pub(super) fn unique_mount(file: &File) -> Result<u64, Failure> {
     let mut value: libc::statx = unsafe { std::mem::zeroed() };
     const UNIQUE: u32 = 0x4000;
+    // statx 的 glibc 包装晚于 2.17；直接调用内核，保留 errno 与能力缺失拒绝。
     if unsafe {
-        libc::statx(
+        libc::syscall(
+            libc::SYS_statx,
             file.as_raw_fd(),
             c"".as_ptr(),
             libc::AT_EMPTY_PATH | libc::AT_NO_AUTOMOUNT,
