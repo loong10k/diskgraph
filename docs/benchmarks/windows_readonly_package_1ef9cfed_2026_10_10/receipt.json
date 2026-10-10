@@ -1,0 +1,11 @@
+{
+  "source_sha": "1ef9cfed2286e2488612114bb20fb7b8187ff092",
+  "run": 38053924409,
+  "job": 114218533950,
+  "archive_sha256": "37cf9cca0953101d0636c0288642d76cb90c23a359a8278c83d7391de362642b",
+  "archive_checksum_verified": true,
+  "actual_worker_verified": true,
+  "full_ci_qualified": false,
+  "native_junction_test_qualified": false,
+  "raw_log_sha256": "fc55fcf95550a69cf4461eb4f720a64636ace62cd9addc67ee964303287034ca"
+}

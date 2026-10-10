@@ -279,8 +279,9 @@ def main():
         cleanup_started = time.perf_counter()
         # 单worker减少同一宽目录的并发元数据竞争，不减少删除集合或延后清理。
         cleanup_workers = 1
-        if sys.platform == 'win32':
-            retire_fixture(root, args.files, workers=cleanup_workers)
+        # 所有宿主先逐个删除本轮固定名称，避免通用递归清理收集整个宽目录。
+        # 外层仍实际执行完整目录回收；失败传播，不能提前输出成功。
+        retire_fixture(root, args.files, workers=cleanup_workers)
 
     cleanup_seconds = time.perf_counter() - cleanup_started
     phase("workspace_cleanup", "end")

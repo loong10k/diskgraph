@@ -1,6 +1,5 @@
 //! Unix 产品 HTTP 服务的真实信号退出，不把进程被杀计为正常回收。
 #![cfg(unix)]
-use std::net::TcpListener;
 use std::process::{Child, Command, Stdio};
 use std::time::{Duration, Instant};
 /// 测试持有原 child，异常时实际 kill/wait 后才删除隔离目录。
@@ -17,10 +16,6 @@ fn expect_normal_signal_shutdown(signal: libc::c_int, debug_unicode: bool) {
     let key = dir.path().join("key");
     std::fs::write(&key, b"signal-qualification-key-at-least-32-bytes").unwrap();
     std::fs::set_permissions(&key, std::fs::Permissions::from_mode(0o600)).unwrap();
-    let port = {
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        listener.local_addr().unwrap().port()
-    };
     let log = std::fs::File::create(dir.path().join("stderr")).unwrap();
     let mut child = OriginalChild(
         Command::new(env!("CARGO_BIN_EXE_diskgraph-mcp"))
@@ -30,7 +25,7 @@ fn expect_normal_signal_shutdown(signal: libc::c_int, debug_unicode: bool) {
                 "--host",
                 "127.0.0.1",
                 "--port",
-                &port.to_string(),
+                "0",
                 "--auth-key-file",
                 "signal-test",
                 "signal-client",
@@ -47,23 +42,31 @@ fn expect_normal_signal_shutdown(signal: libc::c_int, debug_unicode: bool) {
             .unwrap(),
     );
     let until = Instant::now() + Duration::from_secs(10);
-    loop {
-        assert!(
-            child.0.try_wait().unwrap().is_none(),
-            "server exited before readiness"
-        );
-        // 空闲端口释放后可能被另一夹具复用；必须先证明本 child 已绑定，不能仅探测任意 listener。
-        let own_listener = std::fs::read_to_string(dir.path().join("stderr"))
-            .unwrap_or_default()
-            .contains(&format!(
-                "diskgraph-mcp listening on http://127.0.0.1:{port}/mcp"
-            ));
-        if own_listener && std::net::TcpStream::connect(("127.0.0.1", port)).is_ok() {
-            break;
+    let port = loop {
+        let stderr = std::fs::read_to_string(dir.path().join("stderr"))
+            .unwrap_or_else(|error| format!("stderr unavailable: {error}"));
+        if let Some(status) = child.0.try_wait().unwrap() {
+            panic!("server exited before readiness: {status}; server stderr: {stderr}");
         }
-        assert!(Instant::now() < until, "server did not listen");
+        // 由原 child 直接绑定端口 0；不释放父进程预选端口，也不探测其他夹具的 listener。
+        let own_port = stderr.lines().find_map(|line| {
+            line.strip_prefix("diskgraph-mcp listening on http://127.0.0.1:")?
+                .strip_suffix("/mcp")?
+                .parse::<u16>()
+                .ok()
+                .filter(|port| *port != 0)
+        });
+        if let Some(port) = own_port
+            && std::net::TcpStream::connect(("127.0.0.1", port)).is_ok()
+        {
+            break port;
+        }
+        assert!(
+            Instant::now() < until,
+            "server did not listen; server stderr: {stderr}"
+        );
         std::thread::sleep(Duration::from_millis(10));
-    }
+    };
     if debug_unicode {
         use std::io::{Read, Write};
         let exchange = |request: String| {

@@ -1,0 +1,17 @@
+2026-10-10T13:19:46.0604750Z [1m[92m     Running[0m tests/http_signal_shutdown.rs (target/debug/deps/http_signal_shutdown-8d6da3f6d5f5a0cd)
+2026-10-10T13:19:46.0916250Z
+2026-10-10T13:19:46.0916830Z running 3 tests
+2026-10-10T13:19:46.9994490Z
+2026-10-10T13:19:46.9998290Z thread 'sigint_stops_actual_http_runtime_and_returns_success' (117735) panicked at crates/diskgraph-mcp/tests/http_signal_shutdown.rs:51:9:
+2026-10-10T13:19:47.0000230Z server exited before readiness
+2026-10-10T13:19:47.0000910Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-10T13:19:47.0021100Z test sigint_stops_actual_http_runtime_and_returns_success ... FAILED
+2026-10-10T13:19:47.0550070Z test sigterm_stops_actual_http_runtime_and_returns_success ... ok
+2026-10-10T13:19:47.1259180Z test debug_unicode_request_keeps_the_original_authenticated_listener_alive ... ok
+2026-10-10T13:19:47.1260170Z
+2026-10-10T13:19:47.1260530Z failures:
+2026-10-10T13:19:47.1260860Z
+2026-10-10T13:19:47.1261120Z failures:
+2026-10-10T13:19:47.1261910Z     sigint_stops_actual_http_runtime_and_returns_success
+2026-10-10T13:19:47.1262580Z
+2026-10-10T13:19:47.1263340Z test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s

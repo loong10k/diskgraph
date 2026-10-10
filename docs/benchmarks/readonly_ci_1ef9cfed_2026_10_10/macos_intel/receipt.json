@@ -1,0 +1,18 @@
+{
+  "source_sha": "1ef9cfed2286e2488612114bb20fb7b8187ff092",
+  "run": 38053924409,
+  "job": 114218485043,
+  "conclusion": "failure",
+  "target": "history_compatibility_matrix",
+  "passed": 9,
+  "failed": 1,
+  "ignored": 0,
+  "failed_test": "every_recorded_scan_setting_difference_refuses_growth_and_changes",
+  "failure_phase": "terminal_ownership_sql",
+  "wall_us": 125493,
+  "thread_cpu_us": 1578,
+  "authorization_window_ms": 50,
+  "scheduler_or_io_cause_unproven": true,
+  "raw_log_sha256": "a2ddd86b1866eb289ba67c93483cda56fda593f4f61b9823c2db99651666a756",
+  "no_budget_change": true
+}

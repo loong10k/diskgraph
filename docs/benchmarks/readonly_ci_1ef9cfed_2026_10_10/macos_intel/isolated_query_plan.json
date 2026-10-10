@@ -1,0 +1,39 @@
+{
+  "qualification": "isolated schema/query plan using current SQL; local SQLite is not the native failing process",
+  "sqlite_version": "3.53.4",
+  "view_sql": "CREATE VIEW revision_authorized_ownership AS SELECT o.revision_id,o.server_id,o.scope_id FROM revision_ownership o WHERE NOT EXISTS(SELECT 1 FROM revision_access_denials d WHERE d.revision_id=o.revision_id)",
+  "query_sql": "SELECT EXISTS(SELECT 1 FROM revision_authorized_ownership WHERE revision_id=?1 AND server_id=?2 AND scope_id=?3)",
+  "plan": [
+    [
+      1,
+      0,
+      0,
+      "SCAN CONSTANT ROW"
+    ],
+    [
+      4,
+      0,
+      0,
+      "SCALAR SUBQUERY 1"
+    ],
+    [
+      9,
+      4,
+      39,
+      "SEARCH o USING INDEX sqlite_autoindex_revision_ownership_1 (revision_id=?)"
+    ],
+    [
+      21,
+      4,
+      0,
+      "CORRELATED SCALAR SUBQUERY 4"
+    ],
+    [
+      25,
+      21,
+      39,
+      "SEARCH d USING COVERING INDEX sqlite_autoindex_revision_access_denials_1 (revision_id=?)"
+    ]
+  ],
+  "native_delay_cause_proven": false
+}

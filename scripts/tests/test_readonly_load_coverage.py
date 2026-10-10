@@ -310,6 +310,32 @@ class CoverageTests(unittest.TestCase):
         self.assertIs(caught.exception, original)
         self.assertEqual(events, [('begin', True)])
 
+    def test_unix_branch_retires_real_fixture_before_directory_cleanup(self):
+        for platform in ('linux', 'darwin'):
+            events = []
+            original = MODULE.retire_fixture
+            with self.subTest(platform=platform), \
+                    patch.object(MODULE.sys, 'platform', platform), \
+                    patch.object(MODULE, 'retire_fixture', wraps=original) as retirement:
+                result, report = self.exercise(102, verify_all_closed=True, phase_events=events)
+                self.assertEqual(result, 0)
+                retirement.assert_called_once()
+                self.assertEqual(retirement.call_args.kwargs, {'workers': 1})
+                self.assertEqual(report['cleanup_workers'], 1)
+                self.assertEqual(events, [('begin', True), ('end', False)])
+
+    def test_unix_retirement_failure_never_reports_cleanup_complete(self):
+        for platform in ('linux', 'darwin'):
+            events = []
+            failure = OSError('original Unix fixture retirement failure')
+            with self.subTest(platform=platform), \
+                    patch.object(MODULE.sys, 'platform', platform), \
+                    patch.object(MODULE, 'retire_fixture', side_effect=failure):
+                with self.assertRaises(OSError) as caught:
+                    self.exercise(102, verify_all_closed=True, phase_events=events)
+                self.assertIs(caught.exception, failure)
+                self.assertEqual(events, [('begin', True)])
+
     def test_failed_cleanup_preserves_error_and_never_reports_retirement_end(self):
         events = []
         failure = OSError('original cleanup failure')

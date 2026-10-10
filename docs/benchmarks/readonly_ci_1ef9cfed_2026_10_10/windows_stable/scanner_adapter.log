@@ -1,0 +1,15 @@
+2026-10-10T13:15:21.1497135Z      Running unittests src\lib.rs (target\debug\deps\diskgraph_disktree-a371b4d7c6014e66.exe)
+2026-10-10T13:15:21.1600342Z
+2026-10-10T13:15:21.1600901Z running 10 tests
+2026-10-10T13:15:21.1608138Z test hydration_guard::windows_tests::native_windows_placeholder_mode_is_exposed_and_restored_when_nested ... ok
+2026-10-10T13:15:21.1654495Z test tests::a_native_scan_records_the_owning_volume ... ok
+2026-10-10T13:15:21.1655818Z test tests::depth_limited_scan_does_not_claim_completeness ... ok
+2026-10-10T13:15:21.1657019Z test windows_native_observer::tests::native_identity_never_truncates_a_128_bit_file_id ... ok
+2026-10-10T13:15:21.2010631Z test tests::scans_hidden_files_without_granting_delete_authority ... ok
+2026-10-10T13:15:21.2013914Z test tests::v2_nodes_carry_identity_locator_and_self_mtime ... ok
+2026-10-10T13:15:21.2017841Z test windows_placeholder_mode::tests::a_missing_mode_export_is_unsupported_without_changing_the_thread ... ok
+2026-10-10T13:15:21.2107442Z test windows_native_observer::tests::windows_native_hardlinks_share_identity_and_replacement_does_not ... ok
+2026-10-10T13:15:21.2290051Z test windows_native_observer::tests::windows_scan_records_junction_identity_without_indexing_its_target ... ok
+2026-10-10T13:15:21.3841489Z test tests::valid_replacement_character_names_remain_distinct_and_supported ... ok
+2026-10-10T13:15:21.3842265Z
+2026-10-10T13:15:21.3842593Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s

@@ -1,0 +1,12 @@
+{
+  "source_sha": "1ef9cfed2286e2488612114bb20fb7b8187ff092",
+  "run": 38053924409,
+  "job": 114218485137,
+  "conclusion": "failure",
+  "target": "http_signal_shutdown",
+  "passed": 2,
+  "failed": 1,
+  "failure": "server exited before readiness",
+  "server_exit_reason_proven": false,
+  "raw_log_sha256": "55cf14e94a8f36527f0011188872437ab3773f16f38d7a633d06e36797787e28"
+}

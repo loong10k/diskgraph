@@ -1,0 +1,15 @@
+{
+  "source_sha": "1ef9cfed2286e2488612114bb20fb7b8187ff092",
+  "run": 38053924409,
+  "job": 114218485186,
+  "conclusion": "success",
+  "adapter_tests": {
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  "native_junction_qualified": true,
+  "windows_msrv_qualified": false,
+  "full_workflow_qualified": false,
+  "raw_log_sha256": "09c187c5b33d790050cb500ec2da5ef98b49a84854be7e9e6b082cd6da2b8c00"
+}

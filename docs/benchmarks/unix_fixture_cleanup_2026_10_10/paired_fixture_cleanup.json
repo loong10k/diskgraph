@@ -1,0 +1,62 @@
+{
+  "platform": "darwin",
+  "qualification": "local fixture cleanup only; not Intel runner or product scan benchmark",
+  "rows": [
+    {
+      "files": 20000,
+      "round": 1,
+      "method": "temporary_directory",
+      "cleanup_seconds": 0.9222907910007052,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 20000,
+      "round": 1,
+      "method": "known_names",
+      "cleanup_seconds": 0.8628010419924976,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 20000,
+      "round": 2,
+      "method": "known_names",
+      "cleanup_seconds": 0.913284541995381,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 20000,
+      "round": 2,
+      "method": "temporary_directory",
+      "cleanup_seconds": 0.9438214999972843,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 200000,
+      "round": 1,
+      "method": "temporary_directory",
+      "cleanup_seconds": 14.079809417002252,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 200000,
+      "round": 1,
+      "method": "known_names",
+      "cleanup_seconds": 13.84097954200115,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 200000,
+      "round": 2,
+      "method": "known_names",
+      "cleanup_seconds": 15.393024292003247,
+      "actual_directory_absent": true
+    },
+    {
+      "files": 200000,
+      "round": 2,
+      "method": "temporary_directory",
+      "cleanup_seconds": 26.583177334003267,
+      "actual_directory_absent": true
+    }
+  ]
+}

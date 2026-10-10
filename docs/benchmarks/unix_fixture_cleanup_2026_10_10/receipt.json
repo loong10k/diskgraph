@@ -1,0 +1,18 @@
+{
+  "qualification": "local macOS ARM fixture changes; native Intel qualification pending",
+  "cleanup_tdd": {
+    "target_tests": 2,
+    "red_subcase_failures": 4,
+    "green_suite_tests": 33
+  },
+  "http_signal_tests": 3,
+  "production_authorization_window_changed": false,
+  "package_timeout_changed": false,
+  "original_intel_timeout_preserved": true,
+  "native_intel_timeout_fixed_claim": false,
+  "source_sha256": {
+    "scripts/accept-readonly-load.py": "641ebfe927508e24a41743a05ed49765f57ef30f1063b651228389d11c8ffb6a",
+    "scripts/tests/test_readonly_load_coverage.py": "544ad5bcfd54fbfebee53e0c30645c873acad76504ad7fb26eda372dd7e81266",
+    "crates/diskgraph-mcp/tests/http_signal_shutdown.rs": "8f8a91f86388eb19bc67be51d5c405bcce5343b122046c0fbd4f6caee598a56f"
+  }
+}
