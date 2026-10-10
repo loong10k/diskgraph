@@ -163,11 +163,8 @@ mod tests {
         assert!(link_identity.is_some());
         assert!(target_identity.is_some());
         assert_ne!(link_identity, target_identity);
-        let graph = crate::scan_native_v2(
-            &root,
-            diskgraph_disktree_core::scan::ScanOptions::default(),
-        )
-        .unwrap();
+        let options = diskgraph_disktree_core::scan::ScanOptions::default();
+        let graph = crate::scan_native_v2(&root, options).unwrap();
         let node = graph
             .nodes
             .iter()

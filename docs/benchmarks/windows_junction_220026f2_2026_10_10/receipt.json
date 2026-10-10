@@ -1,0 +1,10 @@
+{
+  "source_sha": "220026f24e1efb1479c8a992b295e6ae13174454",
+  "run": 38053809439,
+  "job": 114218168674,
+  "conclusion": "failure",
+  "stage": "rustfmt",
+  "native_junction_qualified": false,
+  "raw_log_sha256": "c24e7b4cbe84b32d507201c3375c47cd2ec73f7ac44f299d72d1ced6d9d97ad6",
+  "correction": "Separate default options binding removes the long call formatting discrepancy; native assertions unchanged."
+}
