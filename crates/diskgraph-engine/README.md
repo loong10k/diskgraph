@@ -257,3 +257,11 @@ deadline path and frontend ownership handoff remain pending. The legacy
 Linux deadline recovery uses the original birth-time pidfd with single nonblocking `waitid` calls and zero-timeout polling. Expired calls leave the original owner and capacity retained; errors preserve the original wait responsibility. The shared Unix registry guard also returns that owner on panic. Legacy `drain`, child Drop, and frontend shutdown still need separate finite-exit acceptance.
 
 Linux 期限恢复沿用出生时的原 pidfd，每轮使用非阻塞 `waitid` 和零超时轮询。过期调用保留原 owner 与容量；等待错误保留原回收责任。Unix 共享 registry 守卫也在 panic 时归还原 owner。兼容 `drain`、child Drop 和前端退出仍须独立完成有限退出验收。
+
+## Terminal authorization windows
+
+Terminal database authorization uses a fixed 250ms window per observation phase. Control SQL and fresh revision ownership checks share the phase deadline; ordinary reader lock waiting is also capped by the original request deadline. Capability callbacks retain a separate cooperative 50ms acceptance window. This does not renew data reads, cache authorization results, or permit late responses after revocation, quarantine, cancellation or expiry. Synchronous callbacks and filesystem I/O do not have a hard preemption guarantee.
+
+数据库终检每阶段使用固定250ms窗口，控制SQL和新鲜revision归属检查共享原阶段期限；普通读取器等待控制锁仍受原请求期限限制。能力回调保留独立的合作式50ms接受窗口。数据预算不续期、不缓存授权结果，撤权、隔离、取消或到期后仍拒绝返回。同步回调和文件系统I/O不承诺硬抢占。
+
+Current-source cross-platform acceptance and independent supervisor deployment remain separate gates. See the retained regression evidence in `docs/benchmarks/terminal_database_window_250ms/`; passing these targeted tests does not qualify the supervisor lifecycle.

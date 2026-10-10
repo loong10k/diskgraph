@@ -97,7 +97,7 @@ impl Engine {
                 })?;
             check_authority_expiry(expiry)?;
             let authorization_deadline = Instant::now()
-                .checked_add(std::time::Duration::from_millis(50))
+                .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
                 .ok_or(BusinessError::InvalidArgument)?;
             #[cfg(test)]
             crate::history_relation_withdrawal_tests::before_terminal_sql(authorization_deadline);
@@ -186,7 +186,7 @@ impl Engine {
         )?;
         check_authority_expiry(expiry)?;
         let before_callback = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         crate::authorization_phase_diagnostic::observe("relation_callback_before_sql", || {
             control
@@ -202,7 +202,7 @@ impl Engine {
         check_authority_expiry(expiry)?;
         // 宿主回调不持控制锁或 SQL handler；回调后重新观察实时权限。
         let capability_deadline = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::CAPABILITY_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, scope);
         let capability_timely = Instant::now() < capability_deadline;
@@ -219,7 +219,7 @@ impl Engine {
             })?;
         check_authority_expiry(expiry)?;
         let after_callback = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         crate::authorization_phase_diagnostic::observe("relation_callback_after_sql", || {
             control
@@ -265,7 +265,7 @@ impl Engine {
             .ok_or(BusinessError::BudgetExceeded)?;
         check_authority_expiry(expiry)?;
         let observation_deadline = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         control
             .with_read_deadline(observation_deadline, |control| {
@@ -315,7 +315,7 @@ impl Engine {
         // 实时授权的前后 SQL 与能力回调各有固定窗口，不续期数据查询，也不向消费者交出此连接。
         // 数据已到期时仍须拒绝撤权后的前缀；观察超时则拒绝全部结果。
         let observation_deadline = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         let reader = crate::authorization_phase_diagnostic::observe("grouped_reader_open", || {
             SqliteSnapshotStore::open_reader_until(&self.graph_path, observation_deadline, None)
@@ -367,7 +367,7 @@ impl Engine {
         check_authority_expiry(expiry)?;
         // 宿主回调不消耗后续新鲜 SQL 的窗口；迟到允许仍不能提交部分数据。
         let capability_deadline = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::CAPABILITY_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         let decisions = ownerships
             .iter()
@@ -389,7 +389,7 @@ impl Engine {
             .try_control_store()?
             .ok_or(BusinessError::BudgetExceeded)?;
         let after_callback = Instant::now()
-            .checked_add(std::time::Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         let bound_revisions: Vec<_> = revisions
             .iter()

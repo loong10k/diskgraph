@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "base_commit": "3fc6bfe226662b181d19ef974e32de46269d0af7",
+  "scope": "authorized database terminal window change, native CI pending",
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "original_data_deadline_renewed": false,
+  "red": {
+    "test": "terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window",
+    "exit_code": 101,
+    "cause": "100ms actual control contention rejected by previous 50ms database window"
+  },
+  "targeted": {
+    "capability": {
+      "passed": 14,
+      "failed": 0
+    },
+    "locks": {
+      "passed": 3,
+      "failed": 0
+    },
+    "withdrawal": {
+      "passed": 6,
+      "failed": 0
+    },
+    "latest": {
+      "passed": 1,
+      "failed": 0
+    },
+    "protocol_driver": {
+      "passed": 13,
+      "failed": 0
+    },
+    "owned_failure": {
+      "passed": 6,
+      "failed": 0
+    },
+    "upstream_pin_digest": {
+      "passed": 4,
+      "failed": 0
+    }
+  },
+  "full_engine_lib": {
+    "passed": 657,
+    "failed": 116,
+    "ignored": 14,
+    "missing_native_installation_unsupported": 99,
+    "missing_standalone_driver": 17,
+    "qualified_full_suite": false
+  },
+  "fixture_correction": "latest snapshot test initially used noncanonical macOS temporary alias; positive lookup was correctly denied. Canonical registered root fixes test input, not product logic. Initial failure retained.",
+  "clippy_engine_all_targets": true,
+  "logs": [
+    {
+      "path": "red.log.gz",
+      "raw_sha256": "e0d11751a6a8934acd97abbd1fd1cfdf3d96405ed421df23bbc4ebf71b78cab9",
+      "raw_bytes": 1530
+    },
+    {
+      "path": "green.log.gz",
+      "raw_sha256": "82340c3202e00f4b53985dbbc6f34f8afd153c4081ddf6395ac1254693d89bbd",
+      "raw_bytes": 1596
+    },
+    {
+      "path": "engine-lib.log.gz",
+      "raw_sha256": "3be5ca4dc9230ec0d6c72f00fe3cfd87d582640996290268f5cbad27c6a1ea7f",
+      "raw_bytes": 141367
+    },
+    {
+      "path": "capability.log.gz",
+      "raw_sha256": "cbe32ab91ee33c305c45948f8604d7a15aac6fd0311246947a2fe5c9725a0101",
+      "raw_bytes": 1758
+    },
+    {
+      "path": "locks.log.gz",
+      "raw_sha256": "886a8d83079f46ba5b7a7dea8713e9cb84fe378524d82379a8dcf616d7a02551",
+      "raw_bytes": 726
+    },
+    {
+      "path": "withdrawal.log.gz",
+      "raw_sha256": "994dfa3fba7bbb87b6b712a75cd5b0f71b578954a70bcae752d65ae61a5e66e2",
+      "raw_bytes": 923
+    },
+    {
+      "path": "latest.log.gz",
+      "raw_sha256": "bb79a5de63c9d39ca891e868ac85476090c39dc9a900e28c145eea417016e225",
+      "raw_bytes": 505
+    },
+    {
+      "path": "latest-fixture-failure.log.gz",
+      "raw_sha256": "5b17c6bd9c5636714c0d3a581020c6f8a636ad11afaa3fecdf2272ea68cec25a",
+      "raw_bytes": 1143
+    },
+    {
+      "path": "clippy.log.gz",
+      "raw_sha256": "80c10d7d961d3136c983b959929f72cde6d20de99708aa4022c0286170a6f35c",
+      "raw_bytes": 188
+    },
+    {
+      "path": "upstream.log.gz",
+      "raw_sha256": "249f676d219709f30192e1842d427b2320b76e17770bfe7aed817b7ee51ded22",
+      "raw_bytes": 863
+    },
+    {
+      "path": "scan_worker_driver_.log.gz",
+      "raw_sha256": "2391a9e7f39c9f3706fbeaa222a2b8f9a0b4f9a72160d5dd28f33680e775d4a5",
+      "raw_bytes": 1728
+    },
+    {
+      "path": "scan_worker_owned_failure_tests.log.gz",
+      "raw_sha256": "624aea9c72962badb9895dbceebb963172e2dad6603551ba418983434082b7a5",
+      "raw_bytes": 1008
+    }
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/history_request.rs": "52a9a77550ebf2b82446d77dde084879d3a788e99062c09da30e708ea29b4798",
+    "crates/diskgraph-engine/src/latest_snapshot_query.rs": "9fb141e35ecbdd3824eaa04bc805ea9bc7209716d04adbcc85863de0f3c9108d",
+    "crates/diskgraph-engine/src/latest_snapshot_authorization_tests.rs": "9c4a948a239a3aacb1e5796624973aaedb3c22e1451f9a619022e2abe6ed2e2a",
+    "crates/diskgraph-engine/src/lib.rs": "f02d98aee197c2be79897dff47693dd41fd55642dabb892ddf6c83dfd1eee301",
+    "crates/diskgraph-engine/src/relation_request.rs": "83a1210bd56cbe0ac0856d75215ae844e449df825ed9b9a02573d87509adb92c",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "6d3b3b04791acfd339b30d4b15541595b118ace95ddc0c951e841db2fbbdb5e5",
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "deba7587ee6c463c06d61dfbfa410393b972b819f8b13bd9414dd97245a6d9da",
+    "crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs": "25eb7b71e85db62c130e034eb08fcfa404e7ed47bdbfdf845d8d097df319460c",
+    "crates/diskgraph-engine/src/terminal_authorization_windows.rs": "ee33b2fab3d46dec4e37c989059c84f6f093309f6611874e8dd9576dbfcc25ec"
+  },
+  "limits": [
+    "Full current-source native CI remains required; previous ca67178f success does not certify this change.",
+    "No fixed macOS scan installation added to desktop.",
+    "Temporary Cargo protocol driver is not a trusted product installation.",
+    "Independent supervisor product lifecycle and three-platform installation artifacts remain unimplemented and unqualified."
+  ]
+}

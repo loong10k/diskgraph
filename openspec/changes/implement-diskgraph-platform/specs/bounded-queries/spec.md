@@ -227,7 +227,7 @@ The system SHALL decode only the requested page or bounded tree nodes, use indep
 
 #### Scenario: Encoded prefixes retain bounded terminal authorization after data expiry
 - **WHEN** an adapter has prepared a bounded prefix and its original data deadline expires before response finalization
-- **THEN** finalization observes actual revision ownership and current scope/grants with fixed 50 ms authorization-only windows before and after the capability callback, using an independent reader and refusing control-lock contention without waiting
+- **THEN** finalization observes actual revision ownership and current scope/grants with fixed 250 ms database authorization-only windows before and after the capability callback, using an independent reader and refusing control-lock contention without waiting
 - **AND** that reader is never exposed to a data consumer; the original data deadline is not renewed. Successful observation returns expired status, permitting only the existing explicit incomplete/deadline response. Revocation, ownership mismatch or failed authorization observation refuses all data. Capability callbacks have a fixed cooperative 50 ms acceptance window; fresh SQL after callbacks still checks revocation before rejecting a late permit. Adapters retain their existing cancellation checks before and after finalization; this method does not introduce a cancellation input.
 
 #### Scenario: Concurrent read-only CLI startup
@@ -303,7 +303,7 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 
 #### Scenario: Ordinary revision readers tolerate brief terminal control contention
 - **WHEN** a CLI/MCP authorized narrow reader finishes its capability callback while another request briefly owns the shared control connection
-- **THEN** terminal lock acquisition and its SQL observation share the existing 50 ms observation window; waiting for the lock is additionally capped by the original request deadline, and brief contention alone does not fail the request
+- **THEN** terminal lock acquisition and its SQL observation share the fixed 250 ms database observation window; waiting for the lock is additionally capped by the original request deadline, and brief contention alone does not fail the request
 - **AND** an immediately available control guard still observes explicit revocation in the existing terminal SQL window after the data deadline; this negative observation never extends data work or permits a successful result after the original deadline
 - **AND** a lock held past that window returns BudgetExceeded, withdrawal and live authorization checks remain mandatory, and dedicated TUI nonblocking admission is unchanged
 
@@ -311,3 +311,9 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 - **WHEN** 能力回调期间其他主体授权改变代次，且当前 revision 已实际持久隔离
 - **THEN** 响应末检在原固定观察窗口内用新鲜归属投影返回 PermissionDenied
 - **AND** 原归属审计记录保留；若 revision 仍可授权则保留 Conflict，不刷新期限或返回受保护数据
+
+#### Scenario: Database terminal observation is independent of the capability window
+- **WHEN** terminal authorization encounters 100ms of actual control-lock contention within an unexpired original request deadline
+- **THEN** ordinary revision readers may complete within the fixed 250ms database window; lock acquisition and SQL share that same absolute window
+- **AND** contention exceeding 250ms refuses results, and a shorter original request deadline caps waiting without renewal
+- **AND** capability callbacks retain their independent cooperative 50ms acceptance window; late permits, revocation, quarantine, cancellation and expiry still refuse protected data

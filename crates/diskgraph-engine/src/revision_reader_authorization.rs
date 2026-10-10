@@ -136,7 +136,7 @@ impl Engine {
         crate::authority_expiry::check_authority_expiry(expiry)?;
         withdrawal.check(&control)?;
         let before_callback = std::time::Instant::now()
-            .checked_add(Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         control
             .with_read_deadline(before_callback, |control| {
@@ -147,9 +147,9 @@ impl Engine {
             })
             .map_err(reader_terminal_control_error)?;
         drop(control);
-        // 宿主终检能力不持共享控制锁；固定能力期限与SQL观察窗口分别沿既有50ms规则计量。
+        // 宿主终检能力不持共享控制锁；能力回调保留50ms，SQL独立使用250ms窗口，不续期数据读取。
         let capability_deadline = std::time::Instant::now()
-            .checked_add(Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::CAPABILITY_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
         let timely = std::time::Instant::now() < capability_deadline;
@@ -159,7 +159,7 @@ impl Engine {
         }
         // 普通请求允许短暂竞争；取锁与 SQL 共用原观察窗口，不在获取锁后续期。
         let after_callback = std::time::Instant::now()
-            .checked_add(Duration::from_millis(50))
+            .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
             .ok_or(BusinessError::InvalidArgument)?;
         // 原数据期限耗尽后不再等锁；已能取得的 guard 仍沿原终检窗口观察明确撤权。
         // 这只允许负向授权复检，成功返回仍受原数据期限限制。

@@ -145,7 +145,7 @@ impl Engine {
     /// 参数：revision/principal/authorizer 为真实请求；consumer 准备完整导航页或绘制画布并给出状态。
     /// 返回：可以提交页面或画布的许可或错误，不返回任意晚到查询数据。
     /// 导航必须给出 Complete 并遵守原读取期限，只有已绘制真实提示的画布可以给出 Truncated。
-    /// 图 SQL 永远沿用最初 deadline；末段授权另有固定 50ms 控制窗口，不续租图请求。
+    /// 图 SQL 永远沿用最初 deadline；末段数据库授权另有固定 250ms 控制窗口，能力回调保留 50ms，不续租图请求。
     /// 控制锁竞争立即拒绝；SQL 和同步授权回调返回后的期限失败均不能变成部分画布。
     /// 此兼容包装以默认原始字节额度准备目标；实际 TUI 使用 bounded 方法传递整份账本。
     pub fn with_authorized_revision_display_reader(
@@ -308,7 +308,7 @@ impl Engine {
         let authorization = (|| {
             // Engine 自有 SQL 与能力回调分离；两段 SQL 均保留执行期限和 busy 上界。
             let before_callback = std::time::Instant::now()
-                .checked_add(Duration::from_millis(50))
+                .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
                 .ok_or(BusinessError::InvalidArgument)?;
             control.with_read_deadline(before_callback, |control| {
                 withdrawal.check(control)?;
@@ -320,7 +320,7 @@ impl Engine {
             drop(control);
             // 宿主能力回调不持共享控制锁，也不继承 SQLite progress guard。
             let capability_deadline = std::time::Instant::now()
-                .checked_add(Duration::from_millis(50))
+                .checked_add(crate::terminal_authorization_windows::CAPABILITY_WINDOW)
                 .ok_or(BusinessError::InvalidArgument)?;
             let decision = authorizer.decide(principal, &Permission::MetadataRead, &scope);
             let capability_timely = std::time::Instant::now() < capability_deadline;
@@ -335,7 +335,7 @@ impl Engine {
             withdrawal.check(&control)?;
             // SQL 自身的执行窗口不消耗宿主回调时间；允许结果仍受原能力终检期限约束。
             let after_callback = std::time::Instant::now()
-                .checked_add(Duration::from_millis(50))
+                .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
                 .ok_or(BusinessError::InvalidArgument)?;
             let control_authorization = control.with_read_deadline(after_callback, |control| {
                 let authorization = Self::require_decision_with_control(

@@ -343,3 +343,5 @@ D43原生最终：66f2e4c的CI37196289598终态22/22；12份审查源码摘要�
   - D42 基础本机验收：typed输入／原授权／fencing／Unix旁表与原子发布恢复、CLI/MCP真实分发已实现；末回调、失败锁存、句柄释放及暂存20k/200k点查真实先红后绿，最终workspace1474/0/18、相关Git11/11、修正排版后的fmt／Clippy／build通过。原生Linux执行器仍Unsupported，Linux-only目标本机零执行不算验收，8.6／15.13保持开放；完整证据与剩余边界见process_job_foundation_acceptance_2026_10_04.json。
 
 2026-10-05 helper 包增量：三二进制与闭合清单、同句柄有界复制/摘要、链接与 FIFO 准入反例已实现。组成2RED、准入3RED、源链接1RED与最终13GREEN分开记录。本机真实 release 归档 stdio18/18、HTTP13/13、升级回滚7/7、负载4/4通过；worker取消夹具保持原预算/失败断言，实际3案、全package tests、Clippy/fmt通过。旧 ada6335 CI21/22，Intel两案缺活进度未发动作；修复同SHA原生CI待运行。Linux x64/arm64原子出生机制各8实际通过，仅机制证据，未接Rust Engine。父项不关闭，见 docs/benchmarks/worker_package_2026_10_05_acceptance.json。
+
+终检数据库窗口增量：用户已授权数据库250ms／能力回调50ms及三平台独立监督服务（仅隔离验收）。真实100ms控制锁竞争在旧50ms窗口RED，修改后GREEN；500ms持锁约250ms拒绝，60ms原请求不续期。定向授权回归14/0、锁3/0、历史撤权6/0、最新标识1/0；Clippy和原上游摘要4/0。完整本机Engine657/116/14（缺少原生部署99、协议驱动17）不计全绿；协议驱动受控编译后13/0与owner6/0。原始日志和源码摘要见docs/benchmarks/terminal_database_window_250ms/receipt.json。同源码三平台CI待验收，监督产品链继续实施；不勾选父项。

@@ -69,6 +69,8 @@ mod job_stop_conflict_tests;
 mod job_stop_registration_tests;
 #[cfg(test)]
 mod job_stop_signals_tests;
+#[cfg(test)]
+mod latest_snapshot_authorization_tests;
 mod latest_snapshot_query;
 pub mod live_evidence;
 mod native_child;
@@ -191,6 +193,7 @@ mod staging_wal;
 #[cfg(test)]
 mod status_contention_tests;
 mod sync_plan;
+mod terminal_authorization_windows;
 #[cfg(test)]
 mod terminal_capability_tests;
 mod terminal_revision_authorization;

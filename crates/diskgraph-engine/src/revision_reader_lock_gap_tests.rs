@@ -80,7 +80,12 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
             Decision::Allowed
         }
     }
-    for allowed in [true, false] {
+    for (hold_ms, request_ms, allowed) in [
+        (0, 1000, true),
+        (100, 1000, true),
+        (500, 1000, false),
+        (100, 60, false),
+    ] {
         let (_dir, engine, principal, _, revision) =
             crate::relation_request_tests::published_authorization_fixture();
         // 短竞争仅在原取锁循环实际观察 WouldBlock 后释放，不依赖 sleep 准时唤醒。
@@ -104,8 +109,8 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                         tx.send(()).unwrap();
                         let actually_waiting = wait_rx.recv_timeout(Duration::from_secs(2)).is_ok();
                         observed_wait.store(actually_waiting, std::sync::atomic::Ordering::SeqCst);
-                        if !allowed {
-                            std::thread::sleep(Duration::from_millis(500));
+                        if hold_ms > 0 {
+                            std::thread::sleep(Duration::from_millis(hold_ms));
                         }
                         drop(held);
                         *held_elapsed.lock().unwrap() = Some(held_started.elapsed());
@@ -118,12 +123,12 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                 revision,
                 &principal,
                 &policy,
-                started + Duration::from_secs(1),
+                started + Duration::from_millis(request_ms),
                 |_, _, _| Ok(()),
             );
             let elapsed = policy.terminal_started.get().unwrap().elapsed();
             let timing = format!(
-                "short_release_on_actual_wait={allowed}, actual_hold={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
+                "hold_ms={hold_ms}, request_ms={request_ms}, allowed={allowed}, actual_hold={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
                 *held_elapsed.lock().unwrap(),
                 policy.callback_elapsed.get(),
                 started.elapsed(),

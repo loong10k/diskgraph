@@ -4,7 +4,7 @@ use diskgraph_core::{
     Authorizer, BusinessError, Locator, PrincipalId, QueryBudget, QueryReadBudget,
 };
 use diskgraph_store::{ControlStore, RevisionOwnershipReader, SqliteSnapshotStore, StoreError};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 impl Engine {
     /// 编码指定已注册根的最新快照标识，并在释放结果前复验实际归属。
@@ -66,7 +66,8 @@ impl Engine {
         withdrawal.check(&control)?;
         drop(control);
         self.require_reader_capability_until(authorizer, principal, &scope, expiry, deadline)?;
-        let terminal = (Instant::now() + Duration::from_millis(50)).min(deadline);
+        let terminal =
+            (Instant::now() + crate::terminal_authorization_windows::DATABASE_WINDOW).min(deadline);
         let control = self.control_until(terminal)?;
         withdrawal.check(&control)?;
         let terminal_control = control.with_read_deadline(terminal, |control| {

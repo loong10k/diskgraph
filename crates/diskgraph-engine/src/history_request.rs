@@ -105,7 +105,7 @@ impl Engine {
             // 能力回调可能消耗原查询期限；每轮归属观察才开始独立的有限窗口。
             // 同轮双侧共享此窗口，原 reads/deadline 不刷新，迟到结果仍由 finish 拒绝。
             let authorization_deadline = Instant::now()
-                .checked_add(std::time::Duration::from_millis(50))
+                .checked_add(crate::terminal_authorization_windows::DATABASE_WINDOW)
                 .ok_or(BusinessError::InvalidArgument)?;
             #[cfg(test)]
             crate::history_relation_withdrawal_tests::before_terminal_sql(authorization_deadline);
