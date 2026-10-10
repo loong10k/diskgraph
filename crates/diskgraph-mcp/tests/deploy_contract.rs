@@ -72,10 +72,13 @@ fn the_packaging_script_verifies_restart_safety_and_local_only() {
 #[test]
 fn the_packaging_script_runs_on_linux_hosts_not_darwin() {
     let script = package_script();
-    // Honest scoping: the script targets Linux (stat -c, /dev/zero) and is
-    // meant for the deployment host; macOS cannot produce this evidence.
-    assert!(script.contains("uname -s"));
-    assert!(script.contains("cargo build --release --locked"));
+    // 本机 Linux 验收与显式 glibc 基线都须保留，不能把宿主 libc 当兼容证明。
+    assert!(script.contains("if [ \"$(uname -s)\" != Linux ]"));
+    assert!(script.contains("cargo zigbuild --release --locked"));
+    assert!(script.contains("--target \"$BUILD_TARGET.2.17\""));
+    let abi_gate = script.find("scripts/linux_abi_requirements.py").unwrap();
+    let install = script.find("install -m 0755").unwrap();
+    assert!(abi_gate < install, "实际 ELF 验证必须先于安装候选镜像");
 }
 
 #[test]
