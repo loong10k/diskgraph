@@ -1,0 +1,11 @@
+# CLI 兼容恢复轮询接线
+
+沿用 PF-06 和既有恢复公平性要求。独立监督进程尚未接入时，CLI 兼容等待路径不能在扫描池使用同步 cleanup/wait，使同轮探针轮询饥饿。
+
+验收行为：先尝试关闭所有池准入；关闭成功后，对原扫描池、原 Windows 探针池分别调用已实现的 drain_until。各池获得本轮独立50ms恢复观察窗口，不刷新业务请求期限、不增加业务能力。即使扫描Pending或错误，仍尝试探针；未完成或错误均保留原恢复责任，全部完成才返回原业务结果或继续原panic。单次OS调用和短归还锁仍不承诺硬墙钟上限。
+
+本次仅替换CliEngineHost兼容路径中的drain调用。Unix已接入SupervisorOwner的路径保持原语义。恢复窗口不是扫描时间上限，不改变1800秒测试步骤上限，不启用危险写操作。
+
+复用已有recovery_round确定性回归，检查Pending/原错误/准入失败/两池完成的调度行为；有界原native cleanup语义由既有registry原生回归覆盖。Windows条件路径仍须对应原生CI编译和验收。此接线不关闭独立监督出生、有限公共EOF或全平台生产就绪。
+
+本机macOS验证：recovery_round五项通过；CLI宿主九项通过，包含启动拒绝、原槽退休及原panic payload；原生registry三项通过，包含实际清理panic后原槽回归、清理错误保留容量、状态锁竞争不消费owner。CLI binary严格Clippy、目标rustfmt、diff检查及OpenSpec strict通过。复用了已存在的行为测试；本轮没有新增“旧实现红灯”的测例，不声称完成新的TDD红绿闭环。完整workspace和Windows条件路径尚待提交后CI，父门禁保持开放。

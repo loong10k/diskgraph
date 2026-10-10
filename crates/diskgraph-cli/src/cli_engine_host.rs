@@ -228,11 +228,17 @@ impl CliEngineHost {
         loop {
             let round = crate::recovery_round::recovery_round(
                 || self.seal_admission(),
-                || self.recovery.as_ref().map_or(Ok(true), |r| r.drain()),
+                || {
+                    self.recovery.as_ref().map_or(Ok(true), |r| {
+                        // 每个原池独立获得一轮恢复窗口；Pending 保留原 owner，不能阻塞另一池。
+                        r.drain_until(Instant::now() + Duration::from_millis(50))
+                    })
+                },
                 || {
                     #[cfg(windows)]
                     {
-                        self.probe_recovery.drain()
+                        self.probe_recovery
+                            .drain_until(Instant::now() + Duration::from_millis(50))
                     }
                     #[cfg(not(windows))]
                     {
