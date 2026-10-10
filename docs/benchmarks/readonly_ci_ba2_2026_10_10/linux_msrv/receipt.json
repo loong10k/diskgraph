@@ -1,0 +1,24 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "job_id": 114197458721,
+  "conclusion": "success",
+  "raw_log_sha256": "4f5b73785c2143085bb0a9f5f9e4a29527f235032f0e95b8a6f9b74777749ba2",
+  "scope": "This Linux Rust 1.97.0 job only; not complete platform readiness",
+  "actual_selected_native_passes": [
+    "standalone_child_reaping::tests::inherited_auto_reaping_is_normalized_in_an_isolated_real_process",
+    "thread_cpu_observation::tests::native_cpu_observation_reads_the_same_current_thread",
+    "native_child::linux_scan_image_tests::prepared_copy_survives_original_in_place_rewrite_and_path_replacement"
+  ],
+  "engine_library": {
+    "passed": 755,
+    "failed": 0,
+    "ignored": 10
+  },
+  "mcp_library": {
+    "passed": 233,
+    "failed": 0,
+    "ignored": 0
+  },
+  "ignored_helpers_are_not_automatically_passes": true
+}

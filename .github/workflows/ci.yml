@@ -799,6 +799,19 @@ jobs:
               record['elapsed_seconds'] = time.monotonic() - started
               failed |= record['status'] != 'passed'
               (output / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          # 保留原失败，同时观察整个集成目标的默认调度；不以串行单用例替代并发门禁。
+          command = ['cargo', 'test', '-p', 'diskgraph-engine', '--test',
+                     'history_preparation_budget', '--locked', '--', '--nocapture']
+          started = time.monotonic()
+          with (output / 'history-preparation-default-scheduling.log').open('wb') as stream:
+              result = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT)
+          log = (output / 'history-preparation-default-scheduling.log').read_text(errors='replace')
+          passed = result.returncode == 0 and re.search(r'test result: ok\. 10 passed; 0 failed; 0 ignored;', log) is not None
+          receipt['whole_history_target'] = {'command': command, 'returncode': result.returncode,
+              'passed': passed, 'elapsed_seconds': time.monotonic() - started,
+              'replaces_original_failure': False}
+          failed |= not passed
+          (output / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
           raise SystemExit(1 if failed else 0)
           PYTHON
       - name: Preserve original macOS failure isolation
@@ -807,6 +820,27 @@ jobs:
         with:
           name: macos-failure-isolation-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
           path: ${{ runner.temp }}/macos-failure-isolation
+          if-no-files-found: error
+          retention-days: 7
+      - name: Observe original Windows FFI failure with default scheduling
+        id: windows_ffi_failure_observation
+        if: failure() && !cancelled() && runner.os == 'Windows' && steps.workspace_foundation_tests.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          DISKGRAPH_QUERY_DIAGNOSTICS: '1'
+        shell: pwsh
+        run: |
+          # 完整原目标保留默认线程数、原期限和原失败；此观察不能将原 workspace 标为成功。
+          $observationPath = Join-Path $env:RUNNER_TEMP 'ffi-default-scheduling.log'
+          cargo test -p diskgraph-ffi --lib --locked -- --nocapture 2>&1 | Tee-Object -FilePath $observationPath
+          exit $LASTEXITCODE
+      - name: Preserve original Windows FFI observation
+        if: always() && (steps.windows_ffi_failure_observation.outcome == 'success' || steps.windows_ffi_failure_observation.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: windows-ffi-default-scheduling-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/ffi-default-scheduling.log
           if-no-files-found: error
           retention-days: 7
       - name: Native HTTP shutdown and original request deadline

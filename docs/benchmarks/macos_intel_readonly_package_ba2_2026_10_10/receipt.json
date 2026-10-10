@@ -1,0 +1,39 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "job_id": 114197521356,
+  "target": "x86_64-apple-darwin",
+  "conclusion": "success",
+  "archive_sha256": "066754a8ee2ce849b5b349f8e5d67d0ac63a1f6923aada5f4d5d76cfdbe40bd7",
+  "archive_name": "diskgraph-x86_64-apple-darwin.tar.gz",
+  "packaged_worker_sha256": "4546292d335406a4fea8a492f462b86cd491bfb0a29182d49e9de0dea946e329",
+  "packaged_worker_bytes": 1108056,
+  "full_workflow_qualified": false,
+  "separate_independent_worker_receipt_available": false,
+  "limits": [
+    "Single CI run; not a performance improvement comparison",
+    "No native sampled peak RSS, peak WAL or long-term host qualification",
+    "Full workflow retains actual failures"
+  ],
+  "load_results": [
+    {
+      "files": 20000,
+      "indexed_nodes": 20001,
+      "scan_seconds": 4.675,
+      "query_p50_ms": 91.5,
+      "query_p95_ms": 111.97,
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "files": 200000,
+      "indexed_nodes": 200001,
+      "scan_seconds": 76.55,
+      "query_p50_ms": 119.795,
+      "query_p95_ms": 131.373,
+      "passed": 6,
+      "total": 6
+    }
+  ],
+  "package_summary_verified": true
+}

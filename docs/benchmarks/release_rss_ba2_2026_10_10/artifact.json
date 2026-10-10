@@ -1,0 +1,19 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "archive_sha256": "fd7ae25672d433e91edf6613f7027290f5096f38efdbb5f41315ff7968e1a3aa",
+  "worker_sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+  "sampler_sha256": "5cd9cb43d8d74e931df54b9cb2d82d1d4eb4056578ca618d40d38749ea916dc2",
+  "load_script_sha256": "ae2326fb306a3730fa233a3e6a66a096e8c6419bec073e2ea367d00b523276d4",
+  "docker_image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "platform": "native Linux ARM64 container on macOS ARM64",
+  "python": "3.9.18",
+  "glibc": "2.28",
+  "kernel": "7.0.14-linuxkit",
+  "network": "none",
+  "limits": {
+    "cpus": 2,
+    "memory": "3g",
+    "pids": 128
+  },
+  "sampling": "20ms procfs descendant RSS; excludes Python benchmark parent; shared pages may double count; transient/reparented processes and short peaks may be missed"
+}

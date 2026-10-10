@@ -1,0 +1,60 @@
+{
+  "target": "x86_64-unknown-linux-gnu",
+  "advertised_baseline": "2.17",
+  "images": [
+    {
+      "name": "diskgraph",
+      "bytes": 7181696,
+      "sha256": "8d8e2e2316ab48860544770943764affdf85979d0c13c00f3f2a560b74e0a3a8",
+      "glibc_requirements": [
+        "2.2.5",
+        "2.3",
+        "2.3.2",
+        "2.3.4",
+        "2.4",
+        "2.6",
+        "2.9",
+        "2.12",
+        "2.14",
+        "2.15",
+        "2.16",
+        "2.17"
+      ]
+    },
+    {
+      "name": "diskgraph-mcp",
+      "bytes": 6047824,
+      "sha256": "ab6384594996a998637f8b684c8bec319ff693eb78654103033ece49557259ee",
+      "glibc_requirements": [
+        "2.2.5",
+        "2.3",
+        "2.3.4",
+        "2.4",
+        "2.6",
+        "2.9",
+        "2.10",
+        "2.12",
+        "2.14",
+        "2.15",
+        "2.16",
+        "2.17"
+      ]
+    },
+    {
+      "name": "diskgraph-scan-worker",
+      "bytes": 889848,
+      "sha256": "5f0b759a1a56cfc62a034cf792398ca752a76c70ced05d12809503bec0e419ea",
+      "glibc_requirements": [
+        "2.2.5",
+        "2.3",
+        "2.3.4",
+        "2.4",
+        "2.12",
+        "2.14",
+        "2.16",
+        "2.17"
+      ]
+    }
+  ],
+  "runtime_qualification": false
+}

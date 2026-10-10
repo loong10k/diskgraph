@@ -1,0 +1,178 @@
+{
+  "artifact": {
+    "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+    "archive_sha256": "fd7ae25672d433e91edf6613f7027290f5096f38efdbb5f41315ff7968e1a3aa",
+    "worker_sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+    "sampler_sha256": "5cd9cb43d8d74e931df54b9cb2d82d1d4eb4056578ca618d40d38749ea916dc2",
+    "load_script_sha256": "ae2326fb306a3730fa233a3e6a66a096e8c6419bec073e2ea367d00b523276d4",
+    "docker_image_id": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+    "platform": "native Linux ARM64 container on macOS ARM64",
+    "python": "3.9.18",
+    "glibc": "2.28",
+    "kernel": "7.0.14-linuxkit",
+    "network": "none",
+    "limits": {
+      "cpus": 2,
+      "memory": "3g",
+      "pids": 128
+    },
+    "sampling": "20ms procfs descendant RSS; excludes Python benchmark parent; shared pages may double count; transient/reparented processes and short peaks may be missed"
+  },
+  "container_id": "96bb19f8793568e8df77244ebd8f789baa507f9f5905fb2c84b8b50947361530",
+  "container_terminal": "Docker command exit 0, then exact original ID absent after --rm",
+  "final_binary_and_benchmark_fingerprints_unchanged": true,
+  "measurements": [
+    {
+      "files": 20000,
+      "memory": {
+        "files": 20000,
+        "exit_code": 0,
+        "sampled_process_tree_peak_rss_kib": 33944,
+        "samples": 177,
+        "max_descendant_processes": 4,
+        "proc_entries_unreadable": 1,
+        "interval_ms": 20,
+        "elapsed_seconds": 3.9410835839953506,
+        "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "indexed_nodes": 20001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 4,
+        "fixture_seconds": 1.643,
+        "scan_seconds": 1.573,
+        "cleanup_seconds": 0.168,
+        "cleanup_workers": 1,
+        "query_p50_ms": 16.857,
+        "query_p95_ms": 39.114,
+        "database_and_wal_bytes": 41431040,
+        "storage_cost": {
+          "metric": "file lengths in bytes; not cumulative writes, allocated volume or peak WAL",
+          "before_scan": {
+            "database_bytes": 520192,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 520192
+          },
+          "after_scan": {
+            "database_bytes": 41431040,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 41431040
+          },
+          "after_queries": {
+            "database_bytes": 41431040,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 41431040
+          },
+          "scan_delta": {
+            "database_bytes": 40910848,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 40910848
+          },
+          "query_delta": {
+            "database_bytes": 0,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 0
+          }
+        },
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "files": 200000,
+      "memory": {
+        "files": 200000,
+        "exit_code": 0,
+        "sampled_process_tree_peak_rss_kib": 183324,
+        "samples": 1420,
+        "max_descendant_processes": 4,
+        "proc_entries_unreadable": 1,
+        "interval_ms": 20,
+        "elapsed_seconds": 30.717397431013524,
+        "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+      },
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "indexed_nodes": 200001,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "fixture_workers": 4,
+        "fixture_seconds": 12.673,
+        "scan_seconds": 13.678,
+        "cleanup_seconds": 3.9,
+        "cleanup_workers": 1,
+        "query_p50_ms": 11.972,
+        "query_p95_ms": 17.327,
+        "database_and_wal_bytes": 415875072,
+        "storage_cost": {
+          "metric": "file lengths in bytes; not cumulative writes, allocated volume or peak WAL",
+          "before_scan": {
+            "database_bytes": 520192,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 520192
+          },
+          "after_scan": {
+            "database_bytes": 415875072,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 415875072
+          },
+          "after_queries": {
+            "database_bytes": 415875072,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 415875072
+          },
+          "scan_delta": {
+            "database_bytes": 415354880,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 415354880
+          },
+          "query_delta": {
+            "database_bytes": 0,
+            "wal_bytes": 0,
+            "shared_memory_bytes": 0,
+            "total_bytes": 0
+          }
+        },
+        "passed": 6,
+        "total": 6,
+        "checks": {
+          "full_index_published": true,
+          "exact_fixture_path_coverage": true,
+          "exact_fixture_node_coverage": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Not a paired baseline or a production SLO proof",
+    "Container-native Linux only; not Windows/macOS RSS proof",
+    "Snapshot samples may miss short peaks and double-count shared pages",
+    "No peak WAL measurement; storage report uses file lengths at phase boundaries"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "platform": "macOS ARM local",
+  "target": "diskgraph-engine --test history_preparation_budget",
+  "test_threads_override": false,
+  "passed": 10,
+  "failed": 0,
+  "original_intel_ci_failure_not_replaced": true,
+  "raw_log_sha256": "be3293adb6c93a81ec98a6d7d2eeb60d1be4693d6f3424af22bef284085d700c",
+  "source_condition": "Protected existing worktree modifications remain; current ba2 history paths were tested before grouped finalizer diagnostics edit"
+}

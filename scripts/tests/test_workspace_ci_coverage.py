@@ -8,6 +8,25 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 
 class WorkspaceCiCoverageTests(unittest.TestCase):
+    def test_budget_failure_observations_keep_default_target_scheduling(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
+        match = re.search(r"(?m)^      - name: Observe original Windows FFI failure with default scheduling\n(?P<body>.*?)(?=^      - |\Z)", workflow, re.S | re.M)
+        self.assertIsNotNone(match)
+        body = match.group('body')
+        self.assertIn("steps.workspace_foundation_tests.outcome == 'failure'", body)
+        self.assertIn("DISKGRAPH_QUERY_DIAGNOSTICS: '1'", body)
+        self.assertIn('cargo test -p diskgraph-ffi --lib --locked -- --nocapture', body)
+        self.assertNotIn('--test-threads', body)
+        self.assertNotIn('--exact', body)
+        self.assertIn('exit $LASTEXITCODE', body)
+        start = workflow.index("command = ['cargo', 'test', '-p', 'diskgraph-engine', '--test',")
+        end = workflow.index('raise SystemExit(1 if failed else 0)', start)
+        whole_target = workflow[start:end]
+        self.assertIn("'history_preparation_budget'", whole_target)
+        self.assertNotIn('--test-threads', whole_target)
+        self.assertNotIn('--exact', whole_target)
+        self.assertIn("'replaces_original_failure': False", whole_target)
+
     def test_gnu_package_builds_and_worker_receipt_share_the_advertised_baseline(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
         def step(name):

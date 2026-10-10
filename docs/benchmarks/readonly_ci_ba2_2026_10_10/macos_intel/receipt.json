@@ -1,0 +1,25 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "job_id": 114197458786,
+  "conclusion": "failure",
+  "raw_log_sha256": "68c7adc2c26ac6061f79d3c2046cafe014135ba82daf1fcc3e7f2eea058340f9",
+  "failed_tests": [
+    "ordinary_and_adequately_budgeted_headers_keep_real_history_results"
+  ],
+  "failed_target": "history_preparation_budget",
+  "observed_case": {
+    "method": "compare",
+    "positive_id_length": 8,
+    "raw_budget_bytes": 65536,
+    "requested_rust_allocation_bytes": 31202,
+    "result": "Business(BudgetExceeded)",
+    "child_test_elapsed_seconds": 0.22,
+    "request_deadline_ms": 1000,
+    "failure_phase": "terminal_reader_open",
+    "phase_wall_microseconds": 89955,
+    "phase_thread_cpu_microseconds": 1139
+  },
+  "root_cause": "Independent terminal SQLite connection opening exceeded the unchanged 50 ms authorization window. The log does not distinguish scheduling from blocking I/O; this is not evidence of byte-budget exhaustion.",
+  "successful_isolation_does_not_replace_this_failure": true
+}

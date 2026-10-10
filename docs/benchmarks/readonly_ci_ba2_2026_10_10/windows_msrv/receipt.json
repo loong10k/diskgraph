@@ -1,0 +1,17 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "job_id": 114197458801,
+  "log_is_partial": false,
+  "foundation_step_conclusion": "failure",
+  "failed_target": "diskgraph-ffi --lib",
+  "failed_test": "tests::growth_and_candidates_do_not_decode_unrelated_nodes",
+  "ffi_summary": {
+    "passed": 103,
+    "failed": 1
+  },
+  "observed_error": "budget_exceeded (exit 7)",
+  "root_cause": "Unproven: grouped FFI finalizer currently lacks phase diagnostics. No deadline or concurrency changed.",
+  "raw_log_sha256": "1d0c1e302bc64b8ce7d85077aa5246e742cc73e19f39b41b26ef6d5d0b3180a8",
+  "conclusion": "failure"
+}

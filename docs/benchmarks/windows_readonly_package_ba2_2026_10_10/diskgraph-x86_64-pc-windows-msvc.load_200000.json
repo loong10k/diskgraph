@@ -1,0 +1,59 @@
+{
+  "version": "diskgraph 0.3.0",
+  "platform": "win32",
+  "files": 200000,
+  "indexed_nodes": 200001,
+  "queries": 32,
+  "concurrent_clients": 4,
+  "fixture_workers": 1,
+  "fixture_seconds": 13.431,
+  "scan_seconds": 58.308,
+  "cleanup_seconds": 8.104,
+  "cleanup_workers": 1,
+  "query_p50_ms": 18.729,
+  "query_p95_ms": 28.124,
+  "database_and_wal_bytes": 473374720,
+  "storage_cost": {
+    "metric": "file lengths in bytes; not cumulative writes, allocated volume or peak WAL",
+    "before_scan": {
+      "database_bytes": 520192,
+      "wal_bytes": 0,
+      "shared_memory_bytes": 0,
+      "total_bytes": 520192
+    },
+    "after_scan": {
+      "database_bytes": 473374720,
+      "wal_bytes": 0,
+      "shared_memory_bytes": 0,
+      "total_bytes": 473374720
+    },
+    "after_queries": {
+      "database_bytes": 473374720,
+      "wal_bytes": 0,
+      "shared_memory_bytes": 0,
+      "total_bytes": 473374720
+    },
+    "scan_delta": {
+      "database_bytes": 472854528,
+      "wal_bytes": 0,
+      "shared_memory_bytes": 0,
+      "total_bytes": 472854528
+    },
+    "query_delta": {
+      "database_bytes": 0,
+      "wal_bytes": 0,
+      "shared_memory_bytes": 0,
+      "total_bytes": 0
+    }
+  },
+  "passed": 6,
+  "total": 6,
+  "checks": {
+    "full_index_published": true,
+    "exact_fixture_path_coverage": true,
+    "exact_fixture_node_coverage": true,
+    "concurrent_reads_bound_to_revision": true,
+    "query_results_bounded": true,
+    "node_budget_refuses_partial_publish": true
+  }
+}

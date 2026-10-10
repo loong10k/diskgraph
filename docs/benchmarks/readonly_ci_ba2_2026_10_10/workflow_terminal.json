@@ -1,0 +1,126 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 114197458655,
+      "name": "Vendored scanner",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458701,
+      "name": "Swift native host (macos-15-intel)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458705,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458718,
+      "name": "rustfmt",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458721,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458734,
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458744,
+      "name": "Test (macos-latest / Rust stable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458745,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458747,
+      "name": "Swift native host (macos-15)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458749,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458756,
+      "name": "Test (windows-latest / Rust stable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458761,
+      "name": "Linux ARM64 private FUSE content refusal",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458786,
+      "name": "Test (macos-15-intel / Rust stable)",
+      "conclusion": "failure"
+    },
+    {
+      "id": 114197458801,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "conclusion": "failure"
+    },
+    {
+      "id": 114197458802,
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458804,
+      "name": "Kotlin native host (macos-15)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458811,
+      "name": "Kotlin native host (macos-15-intel)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197458814,
+      "name": "Kotlin native host (windows-2022)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197521356,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197521380,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197521382,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197521415,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "conclusion": "success"
+    },
+    {
+      "id": 114197521431,
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "conclusion": "success"
+    }
+  ],
+  "successes": 21,
+  "failures": 2,
+  "production_qualified": false
+}

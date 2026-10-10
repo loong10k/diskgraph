@@ -317,34 +317,40 @@ impl Engine {
         let observation_deadline = Instant::now()
             .checked_add(std::time::Duration::from_millis(50))
             .ok_or(BusinessError::InvalidArgument)?;
-        let reader =
+        let reader = crate::authorization_phase_diagnostic::observe("grouped_reader_open", || {
             SqliteSnapshotStore::open_reader_until(&self.graph_path, observation_deadline, None)
-                .map_err(|error| terminal_control_error(error.into()))?;
-        let ownerships = revisions
-            .iter()
-            .map(|revision| {
-                let (server, scope) = reader
-                    .revision_ownership(revision)?
-                    .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
-                let scope = ScopeId::new(scope)
-                    .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
-                Ok((server, scope))
-            })
-            .collect::<Result<Vec<_>, EngineError>>()
-            .map_err(terminal_control_error)?;
+                .map_err(|error| terminal_control_error(error.into()))
+        })?;
+        let ownerships =
+            crate::authorization_phase_diagnostic::observe("grouped_ownership_sql", || {
+                revisions
+                    .iter()
+                    .map(|revision| {
+                        let (server, scope) = reader
+                            .revision_ownership(revision)?
+                            .ok_or(EngineError::Business(BusinessError::PermissionDenied))?;
+                        let scope = ScopeId::new(scope)
+                            .map_err(|_| EngineError::Business(BusinessError::PermissionDenied))?;
+                        Ok((server, scope))
+                    })
+                    .collect::<Result<Vec<_>, EngineError>>()
+                    .map_err(terminal_control_error)
+            })?;
         let control = self
             .try_control_store()?
             .ok_or(EngineError::Business(BusinessError::BudgetExceeded))?;
         check_authority_expiry(expiry)?;
-        let (withdrawals, generation) = control
-            .with_read_deadline(observation_deadline, |control| {
-                let server_id = control.existing_server_id()?;
-                for (server, scope) in &ownerships {
-                    if server != server_id.as_str() || control.scope_revoked(scope)? {
-                        return Err(EngineError::Business(BusinessError::PermissionDenied));
-                    }
-                }
-                let withdrawals = ownerships
+        let (withdrawals, generation) =
+            crate::authorization_phase_diagnostic::observe("grouped_initial_control", || {
+                control
+                    .with_read_deadline(observation_deadline, |control| {
+                        let server_id = control.existing_server_id()?;
+                        for (server, scope) in &ownerships {
+                            if server != server_id.as_str() || control.scope_revoked(scope)? {
+                                return Err(EngineError::Business(BusinessError::PermissionDenied));
+                            }
+                        }
+                        let withdrawals = ownerships
                     .iter()
                     .map(|(_, scope)| {
                         crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
@@ -352,9 +358,10 @@ impl Engine {
                         )
                     })
                     .collect::<Result<Vec<_>, EngineError>>()?;
-                Ok::<_, EngineError>((withdrawals, control.authorization_generation()?))
-            })
-            .map_err(terminal_control_error)?;
+                        Ok::<_, EngineError>((withdrawals, control.authorization_generation()?))
+                    })
+                    .map_err(terminal_control_error)
+            })?;
         drop(reader);
         drop(control);
         check_authority_expiry(expiry)?;
@@ -399,51 +406,55 @@ impl Engine {
             )?;
         }
         check_authority_expiry(expiry)?;
-        let terminal_observation = (|| {
-            control.with_read_deadline(after_callback, |control| {
-                let current_server = control.existing_server_id()?;
-                for ((server, scope), decision) in ownerships.iter().zip(decisions) {
-                    if server != current_server.as_str() {
+        let terminal_observation =
+            crate::authorization_phase_diagnostic::observe("grouped_terminal_observation", || {
+                control.with_read_deadline(after_callback, |control| {
+                    let current_server = control.existing_server_id()?;
+                    for ((server, scope), decision) in ownerships.iter().zip(decisions) {
+                        if server != current_server.as_str() {
+                            return Err(BusinessError::PermissionDenied.into());
+                        }
+                        Self::require_decision_with_control(
+                            control,
+                            decision,
+                            principal,
+                            &Permission::MetadataRead,
+                            scope,
+                        )?;
+                    }
+                    // 所有能力回调结束后纯读每侧授权，后侧回调不能撤销已检查的前侧后逃逸。
+                    for (_, scope) in &ownerships {
+                        if control.scope_revoked(scope)?
+                            || control.live_permission(
+                                principal,
+                                &Permission::MetadataRead,
+                                scope,
+                            )? == Some(false)
+                        {
+                            return Err(EngineError::Business(BusinessError::PermissionDenied));
+                        }
+                    }
+                    for withdrawal in &withdrawals {
+                        withdrawal.check(control)?;
+                        if !withdrawal.has_native_watch()
+                            && control.authorization_generation()? != generation
+                        {
+                            return Err(BusinessError::Conflict.into());
+                        }
+                    }
+                    Ok::<(), EngineError>(())
+                })?;
+                check_authority_expiry(expiry)?;
+                // 归属末检不需要节点查询的 cache/temp PRAGMA；仍新开连接观察当前 WAL。
+                // 固定比较首次捕获的 server 和 scope，不能接受终检间隙被替换的绑定。
+                let reader = RevisionOwnershipReader::open_until(&self.graph_path, after_callback)?;
+                for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
+                    if !reader.matches(revision, server, scope.as_str())? {
                         return Err(BusinessError::PermissionDenied.into());
-                    }
-                    Self::require_decision_with_control(
-                        control,
-                        decision,
-                        principal,
-                        &Permission::MetadataRead,
-                        scope,
-                    )?;
-                }
-                // 所有能力回调结束后纯读每侧授权，后侧回调不能撤销已检查的前侧后逃逸。
-                for (_, scope) in &ownerships {
-                    if control.scope_revoked(scope)?
-                        || control.live_permission(principal, &Permission::MetadataRead, scope)?
-                            == Some(false)
-                    {
-                        return Err(EngineError::Business(BusinessError::PermissionDenied));
-                    }
-                }
-                for withdrawal in &withdrawals {
-                    withdrawal.check(control)?;
-                    if !withdrawal.has_native_watch()
-                        && control.authorization_generation()? != generation
-                    {
-                        return Err(BusinessError::Conflict.into());
                     }
                 }
                 Ok::<(), EngineError>(())
-            })?;
-            check_authority_expiry(expiry)?;
-            // 归属末检不需要节点查询的 cache/temp PRAGMA；仍新开连接观察当前 WAL。
-            // 固定比较首次捕获的 server 和 scope，不能接受终检间隙被替换的绑定。
-            let reader = RevisionOwnershipReader::open_until(&self.graph_path, after_callback)?;
-            for (revision, (server, scope)) in revisions.iter().zip(&ownerships) {
-                if !reader.matches(revision, server, scope.as_str())? {
-                    return Err(BusinessError::PermissionDenied.into());
-                }
-            }
-            Ok::<(), EngineError>(())
-        })();
+            });
         // 独立控制连接可在终态读取中提交撤权，已知拒权不能被存储超时遮盖。
         for withdrawal in &withdrawals {
             self.prioritize_revision_quarantine(
@@ -461,7 +472,10 @@ impl Engine {
         )?;
         check_authority_expiry(expiry)?;
         if Instant::now() >= after_callback || !capability_timely {
-            return Err(BusinessError::BudgetExceeded.into());
+            return crate::authorization_phase_diagnostic::observe(
+                "grouped_terminal_deadline",
+                || Err(BusinessError::BudgetExceeded.into()),
+            );
         }
         check_authority_expiry(expiry)?;
         Ok(Instant::now() < deadline)

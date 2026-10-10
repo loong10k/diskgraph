@@ -1,0 +1,31 @@
+{
+  "target": "aarch64-unknown-linux-gnu",
+  "advertised_baseline": "2.17",
+  "images": [
+    {
+      "name": "diskgraph",
+      "bytes": 6454528,
+      "sha256": "1603d74378bebaf1608c04ec441cbd5f4a0267b33a396456528871937a19ca90",
+      "glibc_requirements": [
+        "2.17"
+      ]
+    },
+    {
+      "name": "diskgraph-mcp",
+      "bytes": 5477768,
+      "sha256": "6f8e1eabea15e5f91ba5e5eeaaa015c290cf6cd41a9c1c4d16c91fd8bb61aaee",
+      "glibc_requirements": [
+        "2.17"
+      ]
+    },
+    {
+      "name": "diskgraph-scan-worker",
+      "bytes": 834792,
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663",
+      "glibc_requirements": [
+        "2.17"
+      ]
+    }
+  ],
+  "runtime_qualification": false
+}

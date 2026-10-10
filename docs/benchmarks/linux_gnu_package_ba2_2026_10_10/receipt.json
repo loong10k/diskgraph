@@ -1,0 +1,27 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "scope": "GNU native read-only package jobs only; whole workflow not yet terminal",
+  "targets": {
+    "x86_64-unknown-linux-gnu": {
+      "job_id": 114197521380,
+      "conclusion": "success",
+      "archive_sha256": "a604e3ba035adc665fad267e742cf23cd511cc80276f298fdc059cc03b63b419",
+      "archive_name": "diskgraph-x86_64-unknown-linux-gnu.tar.gz",
+      "packaged_worker_matches_independent_snapshot": true
+    },
+    "aarch64-unknown-linux-gnu": {
+      "job_id": 114197521415,
+      "conclusion": "success",
+      "archive_sha256": "fd7ae25672d433e91edf6613f7027290f5096f38efdbb5f41315ff7968e1a3aa",
+      "archive_name": "diskgraph-aarch64-unknown-linux-gnu.tar.gz",
+      "packaged_worker_matches_independent_snapshot": true
+    }
+  },
+  "limitations": [
+    "Single-run CI measurements; no before/after improvement claim",
+    "RSS and peak WAL not measured in these package reports",
+    "ABI parser evidence does not prove runtime on glibc 2.17 userland",
+    "Full macOS/Windows/Linux workspace and lifecycle gates remain open"
+  ]
+}

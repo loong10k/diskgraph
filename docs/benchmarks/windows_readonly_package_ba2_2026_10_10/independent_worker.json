@@ -1,0 +1,9 @@
+{
+  "cargo_artifact_path": "D:\\a\\diskgraph\\diskgraph\\target\\x86_64-pc-windows-msvc\\release\\diskgraph-scan-worker.exe",
+  "product_acceptance": "pending",
+  "worker_sha256": "29A105D1D7569EBAE28EA6030109EFD7790962BDD305F7D0F26BD0F27A51E699",
+  "worker_bytes": 865280,
+  "trust_source": "current CI checkout Cargo binary artifact snapshot",
+  "checkout_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "worker_path": "D:\\a\\_temp\\product-scan-worker.exe"
+}

@@ -1,0 +1,9 @@
+{
+  "worker_path": "/home/runner/work/_temp/product-scan-worker",
+  "cargo_artifact_path": "/home/runner/work/diskgraph/diskgraph/target/x86_64-unknown-linux-gnu/release/diskgraph-scan-worker",
+  "worker_sha256": "5f0b759a1a56cfc62a034cf792398ca752a76c70ced05d12809503bec0e419ea",
+  "worker_bytes": 889848,
+  "trust_source": "current CI checkout Cargo binary artifact snapshot",
+  "product_acceptance": "pending",
+  "checkout_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20"
+}

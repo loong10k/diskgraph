@@ -1,0 +1,53 @@
+{
+  "passed": 14,
+  "total": 14,
+  "checks": {
+    "modern_anonymous_401": true,
+    "modern_hostile_origin_403": true,
+    "modern_signed_but_ungranted_denied": true,
+    "modern_authorized_scope_read": true,
+    "modern_sustained_scope_reads": true,
+    "modern_live_revocation_denied": true,
+    "legacy_anonymous_401": true,
+    "legacy_hostile_origin_403": true,
+    "legacy_endpoint_event": true,
+    "legacy_authorized_scope_read": true,
+    "missing_key_file_refused": true,
+    "short_key_file_refused": true,
+    "cli_serve_forwards_key_file": true,
+    "group_readable_key_refused": true
+  },
+  "sustained_http": {
+    "requests": 1273,
+    "requested_seconds": 60.0,
+    "elapsed_seconds": 60.09363720799996,
+    "offered_max_requests_per_second": 40,
+    "dispatch_reserve_ms": 78.65524999999707,
+    "latency_sample_window": "last_4096_requests",
+    "latency_samples": 1273,
+    "p50_ms": 21.582625000007738,
+    "p95_ms": 45.009624999977405,
+    "native_long_run_qualified": false
+  },
+  "platform": "darwin",
+  "binary_content_before": {
+    "cli": {
+      "bytes": 7972144,
+      "sha256": "d98e24c29f029d5f506d3cd4740f421a95476dec34d3aa4844937fb909c6628f"
+    },
+    "mcp": {
+      "bytes": 6817744,
+      "sha256": "da8156f331f8f783d0d445c959497aeedbe2034e60ab8bbaaf8fac007ebee591"
+    }
+  },
+  "binary_content_after": {
+    "cli": {
+      "bytes": 7972144,
+      "sha256": "d98e24c29f029d5f506d3cd4740f421a95476dec34d3aa4844937fb909c6628f"
+    },
+    "mcp": {
+      "bytes": 6817744,
+      "sha256": "da8156f331f8f783d0d445c959497aeedbe2034e60ab8bbaaf8fac007ebee591"
+    }
+  }
+}

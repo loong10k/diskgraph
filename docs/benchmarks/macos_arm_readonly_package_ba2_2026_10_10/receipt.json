@@ -1,0 +1,18 @@
+{
+  "source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "workflow_run": 38046631229,
+  "job_id": 114197521431,
+  "target": "aarch64-apple-darwin",
+  "conclusion": "success",
+  "archive_sha256": "4e10c0ab7a1adc1d37cdf59a0b44ca3df66bc55ec586c1cdc77535731ff7a228",
+  "archive_name": "diskgraph-aarch64-apple-darwin.tar.gz",
+  "packaged_worker_sha256": "f0ffcd796ebde43d6ee856c302b56f830e9dbdf6a0d742da192c06cc6e7a62c3",
+  "packaged_worker_bytes": 1144944,
+  "full_workflow_qualified": false,
+  "limits": [
+    "Single CI run; not a performance improvement comparison",
+    "No sampled peak RSS, peak WAL or long-term host qualification",
+    "Full workspace and lifecycle gates still running"
+  ],
+  "separate_independent_worker_receipt_available": false
+}

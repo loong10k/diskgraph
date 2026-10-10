@@ -1,0 +1,21 @@
+{
+  "base_source_sha": "ba2aa6ec2e6543fd11d8c71432f0c1c7c7cd1f20",
+  "candidate_files": [
+    "crates/diskgraph-engine/src/relation_request.rs",
+    ".github/workflows/ci.yml",
+    "scripts/tests/test_workspace_ci_coverage.py"
+  ],
+  "native_failure_fixed": false,
+  "checks": {
+    "actual_recursive_control_budget_test": 1,
+    "terminal_capability_regressions": 14,
+    "observer_result_preservation_tests": 6,
+    "ci_contract_tests": 5,
+    "engine_library_clippy": "passed",
+    "engine_fmt": "passed"
+  },
+  "limits": [
+    "These checks validate diagnostic behavior and CI coverage, not Windows/Intel production qualification.",
+    "All fixed deadlines, callback ordering and failure precedence remain unchanged."
+  ]
+}
