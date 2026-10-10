@@ -13,3 +13,10 @@ Windows MSRV job `114197458801` 的 FFI lib 为 103/1。`growth_and_candidates_d
 当前制品另在已有 Linux ARM 容器中完成 20k/200k 负载各 6/6；20ms 进程树 RSS 采样峰值分别 33944/183324KiB。该观察使用当前包、隔离数据库、固定容器资源，不代表严格 RSS 上限、Windows/macOS 原生 RSS 或配对性能提升。
 
 证据位于 `docs/benchmarks/readonly_ci_ba2_2026_10_10/`、四组原生包证据目录、`release_rss_ba2_2026_10_10/` 和 `grouped_authorization_diagnostics_2026_10_10/`。有限前端退出、完整原生同源码门禁及其他尚未验收的平台能力继续开放；不勾选父任务，不归档变更。
+
+
+## 同源码原生终态补充
+
+源码 `2e5199459c1aacfb07ee93fc0827e02e3918f100` 的 CI `38049846922` 已终态成功，23/23 job 全部通过，未重跑失败 job。macOS Intel 完整原生任务中 `history_preparation_budget` 实际 10/0/0；Windows Rust 1.97.0 的完整 FFI lib 实际 104/0/0，原失败 `growth_and_candidates_do_not_decode_unrelated_nodes` 明确为 ok。五个原生包验收同样成功。终态 API、实际日志和独立回执见 `docs/benchmarks/readonly_ci_2e519945_2026_10_10/`。
+
+这证明该提交的本轮原生门禁通过，不证明原调度／I/O 偶发失败的根因已经消除。生产授权窗口和查询期限未增加，原 ba2 失败证据继续保留。旧 glibc 2.17 userland 运行、云占位 provider、不确定 I/O 下有限前端退出，以及尚未验收的写操作／移动宿主能力仍不能由此声明完成。

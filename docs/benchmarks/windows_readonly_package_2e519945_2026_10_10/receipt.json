@@ -1,0 +1,18 @@
+{
+  "source_sha": "2e5199459c1aacfb07ee93fc0827e02e3918f100",
+  "workflow_run": 38049846922,
+  "job_id": 114206695184,
+  "conclusion": "success",
+  "archive_sha256": "3f686fecfa1df6f6760957caeb8379d0c10c47bef91f5cc98e3d8700e147306e",
+  "packaged_worker_sha256": "5a0dbff1914c76c5a7a9a36322456e280b73a5fc35cb279cc87148ce9a0bd95b",
+  "original_ci_json_sha256": {
+    "diskgraph-x86_64-pc-windows-msvc.http.json": "02b0446ec20eb696c8579f037867cdf15ff2d4e6ea87a6207953dc63f60a2e7b",
+    "diskgraph-x86_64-pc-windows-msvc.load_200000.json": "d4943168548f04c944d1f3691cfc1029968be5516017116baf0de14331667e3a",
+    "diskgraph-x86_64-pc-windows-msvc.load.json": "d413ab54fbac411c33e97c33f2c167826c051fe34f505c36db4a09b038319a54"
+  },
+  "full_workflow_qualified": false,
+  "limits": [
+    "Package success does not qualify the still-running full workspace, recovery or other platform gates.",
+    "JSON line endings normalized; original CI bytes retained in matching .json.gz files."
+  ]
+}

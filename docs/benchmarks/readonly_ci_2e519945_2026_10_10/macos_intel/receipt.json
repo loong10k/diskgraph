@@ -1,0 +1,17 @@
+{
+  "source_sha": "2e5199459c1aacfb07ee93fc0827e02e3918f100",
+  "workflow_run": 38049846922,
+  "job_id": 114206600910,
+  "conclusion": "success",
+  "history_preparation_budget": {
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  "raw_log_sha256": "725e291c199bf17f652a1a3ae4c936573db29fc779fe58051113a5448c0c58f3",
+  "original_ba2_failure_preserved": true,
+  "root_cause_eliminated_claim": false,
+  "full_workflow_qualified": false,
+  "focused_extract_normalization": "CRLF and terminal color removed; trailing whitespace stripped; original full log retained in job.log.gz",
+  "focused_extract_sha256": "644102676fd7d4e7e2639e900d0a9357a3deb604949fb0c0ab0957735b3786a7"
+}

@@ -1,0 +1,13 @@
+{
+  "source_sha": "2e5199459c1aacfb07ee93fc0827e02e3918f100",
+  "workflow_run": 38049846922,
+  "job_id": 114206695214,
+  "conclusion": "success",
+  "archive_sha256": "27df9a03a7cf3bdd7ecba3bd79cea0fbd0d849788ee9576d130a3f4a5156a8fc",
+  "packaged_worker_sha256": "f0ffcd796ebde43d6ee856c302b56f830e9dbdf6a0d742da192c06cc6e7a62c3",
+  "full_workflow_qualified": false,
+  "limits": [
+    "Package success does not replace incomplete full workspace or recovery gates.",
+    "Single run, no paired performance improvement claim or native RSS measurement."
+  ]
+}

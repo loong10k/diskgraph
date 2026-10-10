@@ -1,0 +1,146 @@
+{
+  "conclusion": "success",
+  "headSha": "2e5199459c1aacfb07ee93fc0827e02e3918f100",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "id": 114206600551,
+      "name": "Linux ARM64 private FUSE content refusal",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600668,
+      "name": "Swift native host (macos-15-intel)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600683,
+      "name": "Swift native host (macos-15)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600709,
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600713,
+      "name": "Vendored scanner",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600716,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600749,
+      "name": "Kotlin native host (macos-15-intel)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600750,
+      "name": "Test (windows-latest / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600753,
+      "name": "rustfmt",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600798,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600800,
+      "name": "Kotlin native host (macos-15)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600805,
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600817,
+      "name": "Kotlin native host (windows-2022)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600855,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600869,
+      "name": "Test (macos-latest / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600878,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600910,
+      "name": "Test (macos-15-intel / Rust stable)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206600966,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206695184,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206695206,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206695214,
+      "name": "Native read-only package (aarch64-apple-darwin)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206695221,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "id": 114206695240,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)",
+      "status": "completed"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/38049846922"
+}

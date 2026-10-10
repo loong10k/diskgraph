@@ -1,0 +1,90 @@
+2026-10-10T12:12:01.2674830Z      Running tests/history_preparation_budget.rs (target/debug/deps/history_preparation_budget-16252f790bca7a15)
+2026-10-10T12:12:01.2842270Z
+2026-10-10T12:12:01.2843890Z running 10 tests
+2026-10-10T12:12:02.5063090Z
+2026-10-10T12:12:02.5063880Z test both_headers_and_snapshot_preparation_share_the_original_raw_balance ... ok
+2026-10-10T12:12:02.5908010Z running 1 test
+2026-10-10T12:12:02.5975980Z test both_headers_and_snapshot_preparation_share_the_original_raw_balance ... ok
+2026-10-10T12:12:02.5995490Z
+2026-10-10T12:12:02.6008120Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.12s
+2026-10-10T12:12:02.6017110Z
+2026-10-10T12:12:02.6294850Z
+2026-10-10T12:12:02.8009790Z
+2026-10-10T12:12:02.8010470Z test changes_admits_right_revision_target_before_owning_it ... ok
+2026-10-10T12:12:02.8013790Z running 1 test
+2026-10-10T12:12:02.8016010Z test changes_admits_left_revision_target_before_owning_it ... ok
+2026-10-10T12:12:02.8030750Z test changes_admits_right_revision_target_before_owning_it ... method=changes, left_id=8, right_id=2097152, whole_request_rust_bytes=7137, result=Err(Store(BudgetExceeded))
+2026-10-10T12:12:02.8034900Z test actual_permission_denial_precedes_the_oversized_target ... ok
+2026-10-10T12:12:02.8035690Z ok
+2026-10-10T12:12:02.8038610Z
+2026-10-10T12:12:02.8064530Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.43s
+2026-10-10T12:12:02.8095640Z
+2026-10-10T12:12:02.8101290Z
+2026-10-10T12:12:02.8122080Z
+2026-10-10T12:12:02.8130150Z running 1 test
+2026-10-10T12:12:02.8153790Z test changes_admits_left_revision_target_before_owning_it ... method=changes, left_id=2097152, right_id=8, whole_request_rust_bytes=7124, result=Err(Store(BudgetExceeded))
+2026-10-10T12:12:02.8246320Z ok
+2026-10-10T12:12:02.8258230Z
+2026-10-10T12:12:02.8311490Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.44s
+2026-10-10T12:12:02.8330320Z
+2026-10-10T12:12:02.8333710Z
+2026-10-10T12:12:02.8339340Z
+2026-10-10T12:12:02.8341560Z running 1 test
+2026-10-10T12:12:02.8348390Z test actual_permission_denial_precedes_the_oversized_target ... ok
+2026-10-10T12:12:02.8375740Z
+2026-10-10T12:12:02.8398170Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.47s
+2026-10-10T12:12:02.8405940Z
+2026-10-10T12:12:02.8409490Z
+2026-10-10T12:12:04.2927370Z
+2026-10-10T12:12:04.2928040Z test compare_admits_left_revision_target_before_owning_it ... ok
+2026-10-10T12:12:04.2952900Z running 1 test
+2026-10-10T12:12:04.2996660Z test compare_admits_left_revision_target_before_owning_it ... method=compare, left_id=2097152, right_id=8, whole_request_rust_bytes=7124, result=Err(Store(BudgetExceeded))
+2026-10-10T12:12:04.4000600Z ok
+2026-10-10T12:12:04.4029200Z
+2026-10-10T12:12:04.4035200Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.81s
+2026-10-10T12:12:04.4041290Z
+2026-10-10T12:12:04.4047710Z
+2026-10-10T12:12:04.4351810Z test growth_admits_right_revision_target_before_owning_it ... ok
+2026-10-10T12:12:04.4353490Z
+2026-10-10T12:12:04.4363700Z test compare_admits_right_revision_target_before_owning_it ... ok
+2026-10-10T12:12:04.4427840Z running 1 test
+2026-10-10T12:12:04.4440010Z test growth_admits_right_revision_target_before_owning_it ... method=growth, left_id=8, right_id=2097152, whole_request_rust_bytes=7137, result=Err(Store(BudgetExceeded))
+2026-10-10T12:12:04.4490760Z ok
+2026-10-10T12:12:04.4500910Z
+2026-10-10T12:12:04.4559320Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.60s
+2026-10-10T12:12:04.4567690Z
+2026-10-10T12:12:04.4572780Z
+2026-10-10T12:12:04.4634820Z
+2026-10-10T12:12:04.4646020Z running 1 test
+2026-10-10T12:12:04.4702670Z test compare_admits_right_revision_target_before_owning_it ... method=compare, left_id=8, right_id=2097152, whole_request_rust_bytes=7137, result=Err(Store(BudgetExceeded))
+2026-10-10T12:12:04.4723440Z ok
+2026-10-10T12:12:04.4776440Z
+2026-10-10T12:12:04.4787720Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.68s
+2026-10-10T12:12:04.4821390Z
+2026-10-10T12:12:04.4844720Z
+2026-10-10T12:12:04.5342160Z
+2026-10-10T12:12:04.5342760Z test growth_admits_left_revision_target_before_owning_it ... ok
+2026-10-10T12:12:04.5344640Z running 1 test
+2026-10-10T12:12:04.5347350Z test growth_admits_left_revision_target_before_owning_it ... method=growth, left_id=2097152, right_id=8, whole_request_rust_bytes=7124, result=Err(Store(BudgetExceeded))
+2026-10-10T12:12:04.5350170Z ok
+2026-10-10T12:12:04.5351650Z
+2026-10-10T12:12:04.5353480Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.75s
+2026-10-10T12:12:04.5355590Z
+2026-10-10T12:12:04.5357380Z
+2026-10-10T12:12:05.6818970Z test terminal_revocation_precedes_an_admitted_owner_target_budget_failure ... ok
+2026-10-10T12:12:06.6742170Z
+2026-10-10T12:12:06.6742710Z running 1 test
+2026-10-10T12:12:06.6743980Z test ordinary_and_adequately_budgeted_headers_keep_real_history_results ... method=compare, positive_id=8, budget=65536, whole_request_rust_bytes=38553
+2026-10-10T12:12:06.6746060Z method=growth, positive_id=8, budget=65536, whole_request_rust_bytes=19507
+2026-10-10T12:12:06.6747090Z method=changes, positive_id=8, budget=65536, whole_request_rust_bytes=26122
+2026-10-10T12:12:06.6748180Z method=compare, positive_id=2097152, budget=33554432, whole_request_rust_bytes=4232841
+2026-10-10T12:12:06.6749330Z method=growth, positive_id=2097152, budget=33554432, whole_request_rust_bytes=12602371
+2026-10-10T12:12:06.6750470Z method=changes, positive_id=2097152, budget=33554432, whole_request_rust_bytes=12608986
+2026-10-10T12:12:06.6751670Z ok
+2026-10-10T12:12:06.6751890Z
+2026-10-10T12:12:06.6752380Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 2.36s
+2026-10-10T12:12:06.6753090Z
+2026-10-10T12:12:06.6753100Z
+2026-10-10T12:12:06.6753560Z test ordinary_and_adequately_budgeted_headers_keep_real_history_results ... ok
+2026-10-10T12:12:06.6754230Z
+2026-10-10T12:12:06.6754730Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.39s

@@ -1,0 +1,133 @@
+Running unittests src\lib.rs (target\debug\deps\diskgraph_ffi-410e87e82ce5ee9c.exe)
+2026-10-10T12:09:04.9658995Z
+2026-10-10T12:09:04.9659694Z running 104 tests
+2026-10-10T12:09:04.9752713Z test async_tests::a_cancelled_job_reports_honestly_instead_of_half_publishing ... ok
+2026-10-10T12:09:11.9900271Z test async_tests::a_spawned_scan_returns_a_handle_at_once_and_join_later ... ok
+2026-10-10T12:09:12.0473534Z test authorization_tests::a_proven_legacy_control_database_remains_readable ... ok
+2026-10-10T12:09:12.0640605Z test async_tests::the_ffi_layer_is_independent_of_any_host_application ... ok
+2026-10-10T12:09:14.9381988Z test native_admission_tests::all_in_flight_admissions_are_bounded_and_remain_pending_after_close ... ok
+2026-10-10T12:09:16.2425133Z test authorization_tests::legacy_reads_do_not_bypass_scope_revocation ... ok
+2026-10-10T12:09:17.8138576Z test native_admission_tests::close_during_admission_refuses_path_work_and_never_enqueues ... ok
+2026-10-10T12:09:18.6325317Z test authorization_tests::ambiguous_legacy_control_is_not_assigned_to_either_graph ... ok
+2026-10-10T12:09:19.0718799Z test native_admission_tests::closed_service_refuses_scan_before_resolving_a_missing_path ... ok
+2026-10-10T12:09:20.0931660Z test authorization_tests::graph_files_in_one_directory_have_distinct_control_realms ... ok
+2026-10-10T12:09:20.7872533Z
+2026-10-10T12:09:20.7874536Z thread 'native_admission_tests::path_failure_and_admission_unwind_return_the_original_quota' (1692) panicked at crates\diskgraph-ffi\src\native_admission_tests.rs:215:55:
+2026-10-10T12:09:20.7876160Z 真实准入后 unwind 夹具
+2026-10-10T12:09:20.7876864Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-10T12:09:20.9174485Z test native_admission_tests::path_failure_and_admission_unwind_return_the_original_quota ... ok
+2026-10-10T12:09:22.1042910Z test native_growth::deadline_tests::captured_growth_policy_preserves_zero_null_and_actual_revocation ... ok
+2026-10-10T12:09:22.2240141Z test native_growth::deadline_tests::growth_initial_policy_capture_keeps_original_deadline_under_control_lock ... ok
+2026-10-10T12:09:22.5764284Z test native_growth::deadline_tests::growth_does_not_decode_unrelated_principal_grants ... ok
+2026-10-10T12:09:23.8469207Z test native_growth::deadline_tests::growth_terminal_check_does_not_rebuild_policy_under_control_lock ... ok
+2026-10-10T12:09:27.3466641Z test native_growth_eligibility_tests::ffi_growth_real_same_path_file_directory_replacement_refuses_delta ... ok
+2026-10-10T12:09:28.7997698Z test native_growth_eligibility_tests::ffi_unknown_growth_keeps_borrowed_row_budget_before_null_result ... ok
+2026-10-10T12:09:33.9810321Z test native_growth_eligibility_tests::ffi_root_growth_unknown_or_read_error_is_success_null ... ok
+2026-10-10T12:09:34.8591510Z test native_growth_scope_tests::ffi_authorized_different_actual_scopes_return_null_for_root_and_child ... ok
+2026-10-10T12:09:39.3798633Z test native_growth_scope_tests::ffi_foreign_server_history_is_denied_before_comparability ... ok
+2026-10-10T12:09:41.4446161Z test native_growth_eligibility_tests::ffi_unknown_growth_still_rechecks_terminal_grant_and_deadline ... ok
+2026-10-10T12:09:42.2362940Z test native_growth_scope_tests::ffi_different_scope_history_requires_both_grants ... ok
+2026-10-10T12:09:45.5875397Z test native_growth_eligibility_tests::ffi_growth_unknown_and_read_error_on_either_side_returns_success_null ... ok
+2026-10-10T12:09:45.6327496Z test native_growth_scope_tests::ffi_same_actual_scope_preserves_positive_growth ... ok
+2026-10-10T12:09:46.2557786Z test native_growth_scope_tests::ffi_incompatible_scope_null_still_rechecks_each_terminal_grant ... ok
+2026-10-10T12:09:46.7138272Z test native_growth_scope_tests::ffi_incompatible_scope_null_still_rechecks_terminal_deadline ... ok
+2026-10-10T12:09:49.7942362Z test native_growth_tests::legacy_growth_cumulative_two_sided_rows_cannot_reset_raw_budget ... ok
+2026-10-10T12:09:49.8350146Z test native_growth_tests::legacy_growth_admits_raw_columns_before_decoding_corrupt_kind ... ok
+2026-10-10T12:09:50.7503129Z test native_growth_tests::legacy_growth_limits_actual_json_escaping_and_error_diagnostics ... ok
+2026-10-10T12:09:50.9685838Z test native_growth_tests::legacy_growth_preserves_zero_delta_and_missing_locator_null ... ok
+2026-10-10T12:09:54.1234870Z test native_growth_tests::legacy_growth_refuses_oversized_snapshot_before_json_decode ... ok
+2026-10-10T12:09:54.3603422Z test native_growth_tests::legacy_growth_refuses_oversized_rows_before_returning_the_envelope ... ok
+2026-10-10T12:09:55.1308712Z test native_growth_tests::legacy_growth_refuses_unbound_snapshot_and_preserves_incompatible_null ... ok
+2026-10-10T12:09:57.8812187Z test native_latest::tests::latest_cannot_accept_metadata_grant_withdrawn_and_restored_after_encoding ... ok
+2026-10-10T12:09:58.6072104Z test native_latest::tests::latest_empty_result_keeps_null_and_refuses_withdrawal_after_encoding ... ok
+2026-10-10T12:10:00.6709102Z test native_latest::tests::latest_encoded_success_is_refused_after_real_policy_revocation ... ok
+2026-10-10T12:10:01.9510332Z test native_latest::tests::latest_ignores_unrelated_invalid_grants_and_scope_display_documents ... ok
+2026-10-10T12:10:02.3377962Z test native_growth_tests::legacy_growth_terminal_expiry_rejects_both_data_and_null ... ok
+2026-10-10T12:10:02.4687764Z test native_latest::tests::latest_policy_capture_keeps_original_control_lock_deadline ... ok
+2026-10-10T12:10:05.4996011Z test native_latest::tests::latest_reads_id_without_decoding_unused_snapshot_document ... ok
+2026-10-10T12:10:05.5022744Z test native_lifecycle_tests::retained_limit_allows_same_root_and_last_subscriber_cancels ... ok
+2026-10-10T12:10:05.5343443Z tls_drain elapsed=30.1883ms release_sent=Ok(()) released=Ok(true) pending=Err(Unavailable { reason: "coordinator drain deadline exceeded" })
+2026-10-10T12:10:05.5348239Z test native_lifecycle_tests::tls_pending_record_survives_deadline_then_concurrent_waiters_join_it ... ok
+2026-10-10T12:10:09.3094840Z test native_latest::tests::latest_refuses_oversized_snapshot_id_before_owning_the_result ... ok
+2026-10-10T12:10:09.3107448Z test native_listing_tests::invalid_legacy_limits_do_not_open_or_create_a_database ... ok
+2026-10-10T12:10:13.8735432Z test native_listing_tests::legacy_children_do_not_decode_the_continuation ... ok
+2026-10-10T12:10:15.1473283Z test native_growth_tests::legacy_growth_terminal_authorization_checks_both_scopes_and_grants ... ok
+2026-10-10T12:10:18.6748670Z test native_listing_tests::legacy_list_data_and_error_diagnostics_bound_actual_json_escaping ... ok
+2026-10-10T12:10:19.2008996Z test native_listing_tests::legacy_top_refuses_an_oversized_row_instead_of_returning_it ... ok
+2026-10-10T12:10:23.5263071Z test native_listing_tests::listing_keeps_legacy_unknown_nodes_and_session_unknown_count ... ok
+2026-10-10T12:10:23.9568072Z test native_listing_tests::session_children_admit_raw_fields_before_decoding_an_invalid_kind ... ok
+2026-10-10T12:10:27.6639064Z test native_listing_tests::session_cumulative_raw_budget_keeps_prefix_and_actual_continuation ... ok
+2026-10-10T12:10:28.1454374Z test native_listing_tests::session_keeps_zero_size_and_filters_negative_legacy_rows ... ok
+2026-10-10T12:10:28.1463780Z test native_manager_tests::managed_worker_cannot_wait_for_its_own_record_after_manager_takes_handle ... ok
+2026-10-10T12:10:28.1470482Z
+2026-10-10T12:10:28.1471317Z thread 'diskgraph-native-join' (7236) panicked at crates\diskgraph-ffi\src\native_manager_tests.rs:41:21:
+2026-10-10T12:10:28.1472885Z real manager failure after taking active handle
+2026-10-10T12:10:28.2802728Z test native_manager_tests::manager_panic_retains_active_and_queued_handles_until_host_reclaims_them ... ok
+2026-10-10T12:10:31.6143572Z test native_reply_deadline_tests::captured_policy_does_not_bypass_live_revocation_during_read ... ok
+2026-10-10T12:10:34.2625859Z test native_reply_deadline_tests::captured_policy_still_allows_a_normal_authorized_query ... ok
+2026-10-10T12:10:36.1140674Z test native_reply_deadline_tests::native_query_policy_capture_does_not_wait_for_an_unbounded_control_owner ... ok
+2026-10-10T12:10:38.4244152Z test native_reply_deadline_tests::native_query_terminal_check_does_not_rebuild_policy_under_a_blocked_control_owner ... ok
+2026-10-10T12:10:41.5995544Z test native_lifecycle_tests::poll_only_host_can_complete_more_scans_than_the_retained_limit ... ok
+2026-10-10T12:10:42.1153688Z test native_revision_candidate_tests::native_candidate_callback_keeps_revision_resolved_before_new_publication ... ok
+2026-10-10T12:10:45.9321452Z inner runner mode=completed, early_result=Err(Timeout), tls_released=Ok(true)
+2026-10-10T12:10:46.0103661Z test native_runner_exit_tests::completed_result_waits_for_actual_inner_runner_tls_exit ... ok
+2026-10-10T12:10:51.2288269Z
+2026-10-10T12:10:51.2289535Z thread 'diskgraph-native-scan' (6344) panicked at crates\diskgraph-ffi\src\native_runner_exit_tests.rs:99:17:
+2026-10-10T12:10:51.2290817Z 真实协调线程在持有 inner runner 时 unwind
+2026-10-10T12:10:51.3366664Z inner runner mode=unwind, early_result=Err(Timeout), tls_released=Ok(true)
+2026-10-10T12:10:51.3747429Z test native_runner_exit_tests::coordinator_unwind_does_not_abandon_its_actual_inner_runner ... ok
+2026-10-10T12:10:52.0996275Z test native_revision_candidate_tests::native_candidate_exports_block_active_typed_process_and_protection ... ok
+2026-10-10T12:10:54.3234503Z test native_manager_tests::legacy_drain_is_explicitly_unsupported_and_poll_only_scans_do_not_exhaust_records ... ok
+2026-10-10T12:10:55.8783249Z inner runner mode=denied, early_result=Err(Timeout), tls_released=Ok(true)
+2026-10-10T12:10:55.9293895Z test native_runner_exit_tests::late_permission_denial_waits_for_runner_without_rewriting_committed_fact ... ok
+2026-10-10T12:10:56.1304949Z test native_runner_signal_tests::actual_operation_view_denial_stops_runner_without_permanent_cancel ... ok
+2026-10-10T12:10:58.1815780Z test native_runner_signal_tests::caller_cancel_reaches_the_actual_claimed_generation ... ok
+2026-10-10T12:10:58.1822525Z test native_scan_gate::dropping_native_scan_gate_releases_the_paused_worker ... ok
+2026-10-10T12:10:59.9685121Z test native_runner_signal_tests::cancelled_request_with_failed_claim_does_not_cancel_other_live_owner ... ok
+2026-10-10T12:11:00.0721504Z test native_runner_signal_tests::observed_denial_wins_over_the_original_caller_cancel_signal ... ok
+2026-10-10T12:11:00.8670907Z test native_scoped_owner_tests::escaped_service_is_closed_after_forgotten_owner_scope_finishes ... ok
+2026-10-10T12:11:01.7931562Z
+2026-10-10T12:11:01.7932713Z thread '<unnamed>' (9952) panicked at crates\diskgraph-ffi\src\native_scoped_owner_tests.rs:80:21:
+2026-10-10T12:11:01.7933478Z scoped host original panic
+2026-10-10T12:11:01.9502929Z test native_scoped_owner_tests::forgotten_capability_keeps_manager_owned_during_callback_unwind ... ok
+2026-10-10T12:11:02.3734759Z test native_listing_tests::every_listing_checks_permission_cancellation_and_deadline_after_encoding ... ok
+2026-10-10T12:11:02.5663055Z
+2026-10-10T12:11:02.5664499Z thread 'diskgraph-native-join' (880) panicked at crates\diskgraph-ffi\src\native_scoped_owner_tests.rs:162:9:
+2026-10-10T12:11:02.5665764Z actual scoped manager failure
+2026-10-10T12:11:02.6941724Z test native_scoped_owner_tests::scope_reports_real_manager_failure_after_callback_forgot_capability ... ok
+2026-10-10T12:11:04.9453341Z test native_scoped_owner_tests::forgotten_capability_keeps_manager_owned_until_scope_returns ... ok
+2026-10-10T12:11:05.9267786Z test native_scoped_owner_tests::scoped_service_scans_with_physical_host_and_closes_after_scope ... ok
+2026-10-10T12:11:06.4551241Z test native_service::native_reply_budget_tests::legacy_explain_rejects_raw_evidence_before_invalid_confidence_decode ... ok
+2026-10-10T12:11:06.6069118Z test native_service::native_reply_budget_tests::native_envelope_accepts_the_exact_byte_cap_and_refuses_one_more ... ok
+2026-10-10T12:11:09.3030243Z test native_service::native_reply_budget_tests::native_error_diagnostic_is_bounded_after_json_escaping ... ok
+2026-10-10T12:11:10.4000139Z test native_service::native_reply_budget_tests::native_node_rejects_an_oversized_borrowed_name_before_owned_decode ... ok
+2026-10-10T12:11:11.8741220Z test native_service::native_reply_budget_tests::native_partial_deadline_preserves_the_selected_prefix_and_gap ... ok
+2026-10-10T12:11:12.0611655Z test native_service::native_reply_budget_tests::reply_wait_cannot_return_an_expired_native_success ... ok
+2026-10-10T12:11:12.1354799Z test native_service_owner_tests::failed_database_construction_does_not_start_a_manager ... ok
+2026-10-10T12:11:12.8375432Z test native_service::native_reply_budget_tests::scope_revoked_at_reply_boundary_cannot_escape_the_session ... ok
+2026-10-10T12:11:13.2968338Z test native_service::tests::shutdown_after_final_authorization_cannot_return_success ... ok
+2026-10-10T12:11:14.9027006Z test native_service_owner_tests::host_owner_drop_finalizes_manager_after_service_has_been_dropped ... ok
+2026-10-10T12:11:15.6418207Z test native_service::tests::shutdown_does_not_wait_for_a_read_or_publish_its_response ... ok
+2026-10-10T12:11:15.6423299Z test native_service_tests::last_job_handle_drop_requests_cancel_and_poll_never_joins ... ok
+2026-10-10T12:11:18.8342136Z test native_service_tests::legacy_service_scan_does_not_restore_revoked_admin_grant ... ok
+2026-10-10T12:11:19.0409261Z managed drain elapsed=32.0928ms, pending=Err(Unavailable { reason: "coordinator drain deadline exceeded" }), worker_released=Ok(true), manager_released=Ok(true)
+2026-10-10T12:11:19.0717619Z test native_service_owner_tests::managed_worker_deadline_and_host_finalization_wait_for_distinct_real_threads ... ok
+2026-10-10T12:11:20.6594788Z test native_service_tests::active_native_job_handle_observes_individual_grant_revocation ... ok
+2026-10-10T12:11:20.6618054Z test native_worker::tests::self_wait_is_denied_even_after_another_waiter_takes_the_handle ... ok
+2026-10-10T12:11:20.9137692Z test native_worker_exit_tests::concurrent_result_waiters_share_the_actual_worker_join ... ok
+2026-10-10T12:11:21.1803386Z test native_worker_exit_tests::result_json_waits_for_worker_tls_exit_while_poll_remains_nonblocking ... ok
+2026-10-10T12:11:21.1805834Z
+2026-10-10T12:11:21.1806592Z thread 'diskgraph-native-scan' (1244) panicked at crates\diskgraph-ffi\src\native_worker_exit_tests.rs:205:35:
+2026-10-10T12:11:21.1808101Z 真实工作闭包恐慌，验证原错误和线程回收
+2026-10-10T12:11:21.1809338Z test native_worker_exit_tests::worker_panic_is_joined_and_keeps_the_existing_error_envelope ... ok
+2026-10-10T12:11:21.2103135Z test scan_coordinator::engine_error_cleanup_tests::ffi_cleanup_does_not_convert_io_kind_to_business_permission_denied ... ok
+2026-10-10T12:11:21.2741874Z test scan_coordinator::engine_error_cleanup_tests::ffi_cleanup_keeps_store_diagnostic_without_new_structured_code ... ok
+2026-10-10T12:11:21.3182972Z test scan_coordinator::engine_error_cleanup_tests::ffi_cleanup_preserves_budget_code_in_the_legacy_string_wire ... ok
+2026-10-10T12:11:21.3947156Z test scan_coordinator::engine_error_cleanup_tests::ffi_nested_cleanup_retains_exact_permission_denied_wire ... ok
+2026-10-10T12:11:25.4764252Z test native_service_tests::completed_native_job_handle_does_not_keep_revoked_permissions ... ok
+2026-10-10T12:11:25.5232339Z test native_service_tests::persistent_service_queries_deny_revoked_scope_and_closed_session ... ok
+2026-10-10T12:11:25.6728523Z test tests::growth_and_candidates_do_not_decode_unrelated_nodes ... ok
+2026-10-10T12:11:27.4315477Z test native_service_tests::two_native_handles_for_a_coalesced_job_return_the_same_revision ... ok
+2026-10-10T12:11:28.5570544Z test tests::read_only_bindings_scan_and_query_native_directory ... ok
+2026-10-10T12:11:28.5571357Z
+2026-10-10T12:11:28.5571758Z test result: ok. 104 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 143.59s

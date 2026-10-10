@@ -1,0 +1,23 @@
+{
+  "target": "aarch64-unknown-linux-gnu",
+  "archive": "/home/runner/work/diskgraph/diskgraph/dist/diskgraph-aarch64-unknown-linux-gnu.tar.gz",
+  "sha256": "2a69ffe2fa33de7d702443b6fbe46089fbf4c8745027186994ed1b618f0e0ae7",
+  "stdio": 18,
+  "http": 14,
+  "upgrade_rollback": 7,
+  "controlled_load": 6,
+  "controlled_load_200000": 6,
+  "scan_worker": {
+    "executable": {
+      "bytes": 834792,
+      "name": "diskgraph-scan-worker",
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "aarch64-unknown-linux-gnu"
+  }
+}

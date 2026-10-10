@@ -1,0 +1,23 @@
+{
+  "target": "aarch64-apple-darwin",
+  "archive": "/Users/runner/work/diskgraph/diskgraph/dist/diskgraph-aarch64-apple-darwin.tar.gz",
+  "sha256": "27df9a03a7cf3bdd7ecba3bd79cea0fbd0d849788ee9576d130a3f4a5156a8fc",
+  "stdio": 18,
+  "http": 14,
+  "upgrade_rollback": 7,
+  "controlled_load": 6,
+  "controlled_load_200000": 6,
+  "scan_worker": {
+    "executable": {
+      "bytes": 1144944,
+      "name": "diskgraph-scan-worker",
+      "sha256": "f0ffcd796ebde43d6ee856c302b56f830e9dbdf6a0d742da192c06cc6e7a62c3"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "aarch64-apple-darwin"
+  }
+}
