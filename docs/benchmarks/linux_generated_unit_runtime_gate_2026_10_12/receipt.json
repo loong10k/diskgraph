@@ -1,0 +1,22 @@
+{
+  "increment": "generated systemd unit isolated runtime gate",
+  "cleanup_tests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "installer_tests": {
+    "passed": 18,
+    "failed": 0
+  },
+  "ci_contract_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "workflow_yaml_and_shell": "passed",
+  "spec_validation": "passed",
+  "actual_systemd_runtime": "not executed; next native CI",
+  "desktop_service_installed": false,
+  "stop_failure_contract": "retain original unit, installation and ACTIVE records; never claim retirement from fixture disposal",
+  "actual_pending_owner_qualified": false,
+  "production_ready": false
+}

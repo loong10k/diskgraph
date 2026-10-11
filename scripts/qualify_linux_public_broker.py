@@ -12,6 +12,9 @@ import tempfile
 import tarfile
 import platform
 import io
+import uuid
+import contextlib
+import sys
 import time
 
 
@@ -148,12 +151,83 @@ c.close();s.close()
 
 
 
+
+def systemd_installation(prefix, config, retained):
+    # 仅临时Linux runner独占unit；不enable，不操作其他服务，失败清理不能充当原资源退休。
+    from prepare_linux_supervisor_installation import write_at, verify_root_directory
+    unit_name = 'dg-isolated-' + uuid.uuid4().hex + '.service'
+    directory = os.open('/run/systemd/system', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    slots, frontend = [], None
+    installed = False
+    try:
+        verify_root_directory(directory)
+        body = (prefix / 'diskgraph-supervisor.service').read_bytes()
+        write_at(directory, unit_name, io.BytesIO(body), 4096, 0o644)
+        installed = True
+        os.fsync(directory)
+        for name in ['bootstrap.slot', 'uid_23111.slot']:
+            slots.append(os.open(prefix / 'state' / name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC))
+        subprocess.run(['systemctl', 'daemon-reload'], check=True, timeout=20, capture_output=True)
+        subprocess.run(['systemctl', 'start', unit_name], check=True, timeout=20, capture_output=True)
+        endpoint = Path(config['socket_path'])
+        started = time.monotonic()
+        while not endpoint.exists() or (endpoint.stat().st_mode & 0o777) != 0o666:
+            assert time.monotonic() - started < 30, 'actual service never bound original socket'
+            time.sleep(0.005)
+        frontend = subprocess.Popen([str(prefix / 'images/diskgraph'), '--json', '--supervisor-socket', str(endpoint), 'doctor'],
+                                    preexec_fn=lowered, env={}, cwd=prefix, stdin=subprocess.DEVNULL,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = frontend.communicate(timeout=35)
+        assert frontend.returncode == 0 and json.loads(stdout)['ok'] is True, (stdout, stderr)
+        retirement = time.monotonic() + 5
+        while any(os.pread(fd, 8, 0) != b'DGSL01C\n' for fd in slots):
+            assert time.monotonic() < retirement, 'original service owner did not retire both original slots'
+            time.sleep(0.005)
+        subprocess.run(['systemctl', 'stop', unit_name], check=True, timeout=35, capture_output=True)
+        assert all(os.pread(fd, 8, 0) == b'DGSL01C\n' for fd in slots)
+        return {'generated_unit_started': True, 'actual_frontend_exit': 0,
+                'original_slot_fds_clean_before_stop': True, 'desktop_service_installed': False,
+                'boot_enable_performed': False}
+    finally:
+        try:
+            if frontend is not None:
+                original_dispose(frontend)
+            if installed:
+                # 仅退出夹具：只有上面的实际正控能够记录退休通过。
+                try:
+                    subprocess.run(['systemctl', 'stop', unit_name], check=True, timeout=35, capture_output=True)
+                except BaseException:
+                    # 原服务尚未确认停止时保留unit、安装树与槽位，不能通过删夹具丢失恢复责任。
+                    retained['retain'] = True
+                    raise
+                else:
+                    os.unlink(unit_name, dir_fd=directory)
+                    os.fsync(directory)
+                    subprocess.run(['systemctl', 'daemon-reload'], check=True, timeout=20, capture_output=True)
+        finally:
+            for fd in slots:
+                os.close(fd)
+            os.close(directory)
+
+
+@contextlib.contextmanager
+def installed_workspace():
+    retained = {'root': Path(tempfile.mkdtemp(prefix='dg-installed-', dir='/var/lib')), 'retain': False}
+    try:
+        yield retained
+    finally:
+        if retained['retain']:
+            print('unretired isolated service installation retained at ' + str(retained['root']), file=sys.stderr)
+        else:
+            shutil.rmtree(retained['root'])
+
+
 def prepared_installation(args):
     # 实际四镜像归档由独立安装者摘要准入；不复制手写配置代替prepare路径。
     from prepare_linux_supervisor_installation import prepare, PIN
     target = {'x86_64': 'x86_64-unknown-linux-gnu', 'aarch64': 'aarch64-unknown-linux-gnu'}[platform.machine()]
-    with tempfile.TemporaryDirectory(prefix='dg-installed-', dir='/var/lib') as folder:
-        root = Path(folder)
+    with installed_workspace() as retained:
+        root = retained['root']
         os.chmod(root, 0o755)
         archive_path = root / 'product.tar.gz'
         images = {'diskgraph': args.cli, 'diskgraph-mcp': args.mcp,
@@ -204,8 +278,12 @@ def prepared_installation(args):
             else:
                 raise AssertionError('installer replaced existing original deployment')
             assert config_path.read_bytes() == original_config
-            return {'mode': 'actual_prepared_installation', 'frontend_exit': 0, 'original_broker_wait_consumed': True,
-                    'static_unit_verified': True, 'systemd_service_started': False, 'repeat_install_refused': True}
+            result = {'mode': 'actual_prepared_installation', 'frontend_exit': 0, 'original_broker_wait_consumed': True,
+                      'static_unit_verified': True, 'systemd_service_started': False, 'repeat_install_refused': True}
+            if args.systemd:
+                result['systemd_runtime'] = systemd_installation(prefix, config, retained)
+                result['systemd_service_started'] = True
+            return result
         finally:
             if frontend is not None:
                 original_dispose(frontend)
@@ -218,15 +296,19 @@ def main():
     parser.add_argument("--worker", type=Path, required=True)
     parser.add_argument("--broker", type=Path, required=True)
     parser.add_argument("--mcp", type=Path, help="actual fourth installed image for preparation qualification")
+    parser.add_argument("--systemd", action="store_true", help="run generated unit only inside explicit isolated Linux root acceptance")
     parser.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
+    if args.systemd and args.mcp is None:
+        parser.error("--systemd requires the actual installed MCP image via --mcp")
     if os.geteuid() != 0 or os.environ.get("DG_ISOLATED_ROOT_ACCEPTANCE") != "1":
         raise SystemExit("requires explicit isolated root acceptance; never installs desktop service")
     rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest")]
     rows += [delegated_sender(args, lower) for lower in (False, True)]
     if args.mcp is not None:
         rows.append(prepared_installation(args))
-    receipt = {"passed": len(rows), "failed": 0, "actual_product_binaries": True, "system_service_installed": False,
+    receipt = {"passed": len(rows), "failed": 0, "actual_product_binaries": True, "system_service_installed": args.systemd,
+               "desktop_service_installed": False, "isolated_runner_only": True,
                "active_pending_owner_injected": False, "platform": "Linux", "cases": rows,
                "binary_sha256": {name: digest(getattr(args, name)) for name in ("cli", "worker", "broker")}}
     args.receipt.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")

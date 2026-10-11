@@ -15,3 +15,5 @@
 现有隔离安装准备器增加显式`--with-broker`：旧三镜像准备路径保持兼容；启用该模式必须包含第四个原生broker镜像，且首期恰有一个前端UID。所有配置检查在创建安装树前完成，输出root所有0600配置、root保护socket位置、state/data专用服务目录及未启用的systemd unit。配置摘要取实际独占复制的镜像，不能引用包内自签摘要。unit执行固定broker及配置，异常退出不自动重启或删除ACTIVE；准备器不得调用systemctl或安装桌面服务。隔离原生验收须用实际打包的四镜像经准备器启动broker，检查实际CLI结果、原owner退休及新安装tree重复准备拒绝。三平台服务父项保持开放。
 
 Linux GNU安装归档新增固定broker镜像，实际构建、入包、解包三阶段均检查原glibc2.17基线与镜像摘要；缺少broker或其ABI超标必须在写归档、执行程序前拒绝。非Linux包保持现有镜像集合，不能把Linux服务产物当作其他平台实现。
+
+隔离CI的systemd运行场景：只在明确root隔离验收开关下，将生成unit以随机独占名称写入临时runner的/run/systemd/system，启动实际固定broker并以独立前端UID调用doctor；须从始终持有的原槽FD观察两个CLEAN，再正常停止该唯一unit。失败处置不算原owner退休，移除临时unit不算恢复。此场景不在桌面运行，不启用开机启动，不能覆盖实际Pending与异常I/O验收。

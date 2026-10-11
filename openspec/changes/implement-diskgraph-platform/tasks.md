@@ -429,3 +429,6 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 
 
 2c71eab0原生新失败保留：Linux stable broker运行五场景5/0但Clippy拒绝复杂返回类型/嵌套if；ARM64原owner7/0，frontend3/1在exec前ETXTBSY，未到身份/协议验收，后续broker未运行。修正返回类型别名与短路条件，不禁用lint；仅夹具同一只读镜像出生前ETXTBSY按原固定5秒准备期限重试，其余错误立即失败，原连接期限不改。Linux GNU包增加第四个实际broker及随包安装准备器，中间/解包镜像均保持glibc2.17验收。包门禁RED7项中3失败→ABI回归22/0；worker部署7/0、源码门禁6/0、本机macOS Clippy及CI契约8/0。新Linux原生修正和安装链路尚待CI，不把本机通过或归档静态测试当执行证据。见linux_broker_package_and_native_fixes_2026_10_12。
+
+
+生成unit的原生运行门禁接入：仅临时Linux runner随机独占/run/systemd/system unit，禁止enable；实际安装四镜像后调用真实doctor，经始终持有的原槽FD确认两个CLEAN，再正常stop。stop失败保留原unit/安装树/ACTIVE，夹具处置不算退休。仅测试的控制失败注入2/0、安装产物回归18/0、CI契约8/0、YAML/shell/Python解析和OpenSpec验证通过；实际systemd场景未运行，三平台服务父项仍开放。见linux_generated_unit_runtime_gate_2026_10_12。

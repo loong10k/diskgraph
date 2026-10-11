@@ -18,4 +18,4 @@ python3 scripts/prepare_linux_supervisor_installation.py \
 
 前端执行 `diskgraph --json --supervisor-socket /var/lib/diskgraph-isolated/front.sock doctor`。原30秒包含连接、认证帧、输出和终态后的真实 EOF。前端结束不释放恢复容量；原监督 owner 实际退休且两个原槽变为 CLEAN 后才能重新准入。
 
-生成的 unit 禁止自动重启；异常失败保留 ACTIVE，由显式恢复流程处理。重启进程或删除 socket 不能证明资源退休。隔离 CI 验证实际安装镜像和 unit 静态语法；静态校验不代替 systemd 服务运行验收。本轮未安装桌面服务，生产启用仍需原生服务生命周期验收。
+生成的 unit 禁止自动重启；异常失败保留 ACTIVE，由显式恢复流程处理。重启进程或删除 socket 不能证明资源退休。隔离 CI 门禁检查实际安装镜像和 unit 静态语法，并在临时 Linux runner 用随机独占名称运行该生成 unit；通过原槽 FD 确认两个 CLEAN 后才正常停止。停止失败则保留 unit、安装树和原记录。静态语法检查不能代替这项运行门禁；新增运行场景尚待原生验收。本轮未安装桌面服务，生产启用仍需原生服务生命周期验收。
