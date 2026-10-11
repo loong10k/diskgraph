@@ -1,0 +1,44 @@
+{
+  "baseline_source": "69b30d9b277110e77cec9b824c2b2fb18185812a",
+  "scope": "Unix original owner / private writer binding component; no actual native child born",
+  "baseline": "existing trusted raw writer can encode Complete while original real reservation is pending; this is missing wiring, not a remote endpoint exploit",
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "failure": "original reservation remains pending but control claimed cleanup"
+  },
+  "green": {
+    "passed": 8,
+    "failed": 0
+  },
+  "original_owner_regression": {
+    "passed": 9,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "clippy": {
+    "package": "diskgraph-engine",
+    "all_targets": true,
+    "passed": true
+  },
+  "platform": "macOS ARM64 local",
+  "format_passed": true,
+  "bound_owner_required": true,
+  "private_failure_never_blocks_original_cleanup": true,
+  "notifications_maximum": 4,
+  "control_deadline_refreshed": false,
+  "actual_cli_mcp_service_wired": false,
+  "peer_authentication_qualified": false,
+  "native_linux_qualified": false,
+  "native_windows_qualified": false,
+  "full_service_lifecycle_qualified": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervisor_control_owner.rs": "b11042cd2279512d074548fb51e5f8eda1cd1336ea5ab5d19429c1895f83b892",
+    "crates/diskgraph-engine/src/supervisor_control_progress.rs": "24ff77b057ca3cf1198c00ff9c731a636d77f3b61b9329b405b48c314b27e1c0",
+    "crates/diskgraph-engine/src/supervisor_control_owner_tests.rs": "61506d83a0ae4b3a21c0009c23cbe484ea97ed90d70f446134cfcad4a8ac533e",
+    "crates/diskgraph-engine/src/lib.rs": "a36a61d102ca9d0521808a2c9f3879bda2ee84088a194197d9b1ed8a06befce5"
+  }
+}

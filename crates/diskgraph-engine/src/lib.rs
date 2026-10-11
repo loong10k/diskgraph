@@ -473,3 +473,15 @@ pub use linux_supervisor_birth::LinuxSupervisorBirth;
 
 #[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
 mod verify_supervisor_birth_image;
+
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod supervisor_control_owner_tests;
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod supervisor_control_owner;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod supervisor_control_progress;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use supervisor_control_owner::SupervisorControlOwner;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use supervisor_control_progress::SupervisorControlProgress;

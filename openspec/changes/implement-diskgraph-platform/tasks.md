@@ -357,3 +357,5 @@ Linux监督doctor构造增量：root原父消息凭据绑定JSON摘要／原目�
 Linux doctor 构造原生补验：d76ad70f 的独立校验 LinuxARM归档在受保护隔离目录八场景8/0，错误SHA拒绝且数据不出生。原CI夹具Unsupported保留；可写/opt重现4/4，具体原runner权限未观察。夹具改用预检/var/lib且记录实际祖先，不放宽生产目录校验。同源码全量新CI待执行，服务父项仍开放。见linux_supervisor_birth_constructor.md及linux_supervisor_birth_protected_fixture/。
 
 Windows revision回调夹具：将新revision全部材料由逐条autocommit改为单事务，保持实际发布原子边界、原选定revision断言及原期限。本机行为测试因未安装固定macOS镜像Unsupported，不记行为绿灯；FFI Clippy通过。Windows原生复验待执行，历史终检494ms超时仍未诊断关闭。见docs/benchmarks/windows_atomic_revision_fixture/receipt.json。
+
+监督原owner/私有通知绑定组件增量：真实原预留Pending却被独立raw encoder声明Complete的缺接线回归RED0/1→绑定组件GREEN8/0；原owner回归9/0、规范6/0、全目标Clippy及格式通过。组件不认证通道，不执行原生child，尚未接入CLI/MCP/服务；父生命周期与三平台门禁继续开放。见docs/benchmarks/supervisor_control_owner_binding/receipt.json。
