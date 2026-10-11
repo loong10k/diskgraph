@@ -327,15 +327,28 @@ fn supervisor_root_owner_keeps_bootstrap_active_without_private_completion() {
     assert!(owner.abort_unborn(deadline).is_err());
     assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01A\n");
     drop(owner);
-    let file = File::options()
-        .read(true)
-        .write(true)
-        .open(&slot_path)
-        .unwrap();
-    assert!(matches!(
-        SlotReservation::acquire(file, deadline),
-        Err(SlotError::Unconfirmed)
-    ));
+    let mut busy_observations = 0;
+    loop {
+        let file = File::options()
+            .read(true)
+            .write(true)
+            .open(&slot_path)
+            .unwrap();
+        match SlotReservation::acquire(file, deadline) {
+            Err(SlotError::Unconfirmed) => break,
+            Err(SlotError::Busy) if Instant::now() < deadline => {
+                // 并行原子出生可短暂继承仍未close_range的原FD；Busy也是拒绝，不能据此宣布CLEAN。
+                busy_observations += 1;
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            Err(error) => panic!(
+                "original ACTIVE must remain unconfirmed after owner drop; error={error:?}, busy_observations={busy_observations}"
+            ),
+            Ok(_) => panic!("unconfirmed ACTIVE unexpectedly admitted new work"),
+        }
+    }
+    assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01A\n");
+    eprintln!("unconfirmed original ACTIVE observed; transient_busy={busy_observations}");
 }
 
 #[test]

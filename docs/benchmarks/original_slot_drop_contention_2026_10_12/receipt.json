@@ -1,0 +1,16 @@
+{
+  "run": 38156890357,
+  "job": 114521668705,
+  "source": "126cc4ce4d3380a4ba4d7e9fe15a21190cab499e",
+  "original_owner_tests": {
+    "passed": 6,
+    "failed": 1
+  },
+  "failed_case": "supervisor_root_owner_keeps_bootstrap_active_without_private_completion",
+  "original_failure": "assertion requires Unconfirmed after owner drop, actual variant not logged",
+  "inference": "Busy may occur while parallel clone child still retains inherited original FD before close_range",
+  "change": "Retry only Busy within original 5 second deadline; still require Unconfirmed and exact ACTIVE bytes, no admitted new work. Report actual unexpected error and busy count.",
+  "fixed_native_test_passed": false,
+  "local_clippy_passed": true,
+  "local_clippy_does_not_compile_linux_test": true
+}
