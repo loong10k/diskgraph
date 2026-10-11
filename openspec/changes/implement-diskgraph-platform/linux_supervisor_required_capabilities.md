@@ -20,3 +20,9 @@ Python 回归先失败 18 通过/1 失败，缺少明确能力配置。实现与
 已有 Zig 0.16.0 编译当前 C 夹具，Linux ARM64 无网络/只读临时容器实际四场景满足预期：缺 SETUID 的 C 子进程 phase 17 / EPERM 且原 wait 消耗；三个能力齐备可降至 UID/GID 23111、组 0、capabilities 空且正常退休；缺 KILL 的原 pidfd 信号 EPERM，推进原 ACK 后自然退出并消耗原 wait；三个能力齐备原 pidfd 信号成功且原 wait 确认 CLD_KILLED / SIGKILL。无新工具安装，无桌面服务安装。
 
 证据 docs/benchmarks/linux_supervisor_required_capabilities_2026_10_12/。原 bded CI 的生成服务失败原样保留；修复后的真正 systemd、Linux x86、三平台服务及 Engine 异常 I/O 验收仍未完成。
+
+## 当前源码的真实 Linux x86 MSRV 服务验收
+
+CI38179170488、源码2a6e2db60104e676a88b83e3538e25fa747304eb、原job114587860136的原生监督步骤成功。已下载并逐字段核对原artifact11716879880：实际systemd MainPID CapEff/CapBnd/CapPrm=0xe0，CapAmb/CapInh=0x80，NoNewPrivs=1，Seccomp=2。实际生成unit启动，原frontend doctor退出0，原槽FD在stop之前CLEAN，未boot-enable、未安装桌面服务。该环境原phase17缺SETUID失败已修复，公开broker18场景通过、0失败。
+
+原完整回执、能力观察和原日志保留在 docs/benchmarks/linux_systemd_minimal_capabilities_native_2026_10_12/。只关闭此Linux x86 MSRV生成服务的能力与普通退休子验收；整轮CI尚未结束，运行中异常Pending owner未注入，macOS/Windows服务以及后续e21e80d1终检窗口候选均不能由此证明。三平台和异常I/O父项仍不勾选。
