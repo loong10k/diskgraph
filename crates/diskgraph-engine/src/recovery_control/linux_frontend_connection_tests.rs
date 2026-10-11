@@ -22,9 +22,16 @@ fn run(mode: &str, uid: u32, expected_rejection: bool) {
     std::fs::set_permissions(&role, std::fs::Permissions::from_mode(0o555)).unwrap();
     let mut command = Command::new(role);
     command.args(["frontend", socket.to_str().unwrap(), mode]);
+    let retain_groups = mode == "plain";
     unsafe {
         command.pre_exec(move || {
-            if libc::setgroups(0, std::ptr::null()) != 0
+            let groups = [23114_u32, 23115_u32];
+            let (count, pointer) = if retain_groups {
+                (2, groups.as_ptr())
+            } else {
+                (0, std::ptr::null())
+            };
+            if libc::setgroups(count, pointer) != 0
                 || libc::setgid(uid) != 0
                 || libc::setuid(uid) != 0
             {
@@ -61,6 +68,16 @@ fn run(mode: &str, uid: u32, expected_rejection: bool) {
         assert!(matches!(admitted, Err(ControlError::Protocol)));
     } else {
         let mut connection = admitted.unwrap();
+        assert_eq!(connection.unix_identity().uid(), uid);
+        assert_eq!(connection.unix_identity().gid(), uid);
+        assert_eq!(
+            connection.unix_identity().supplementary_groups(),
+            if mode == "plain" {
+                &[23114_u32, 23115_u32][..]
+            } else {
+                &[][..]
+            }
+        );
         let outcome = loop {
             assert!(Instant::now() < deadline);
             match connection.poll_input_until(deadline, &cancel) {

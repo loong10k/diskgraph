@@ -1,0 +1,46 @@
+CASE clean
+{"passed":true,"uid":23111,"gid":23111,"groups":0,"private_endpoints":true,"capabilities_empty":true,"whitelist":true,"no_new_privs":true}
+{"startup_after_ack_bytes":0,"startup_kind":0,"startup_phase":0,"startup_errno":0}
+{"original_pidfd_waited":true,"public_eof_before_init":true,"handshake":true,"exited_normally":true,"exit_code":0}
+EXIT 0
+CASE supplementary
+{"passed":true,"uid":23111,"gid":23111,"groups":2,"private_endpoints":true,"capabilities_empty":true,"whitelist":true,"no_new_privs":true}
+{"startup_after_ack_bytes":0,"startup_kind":0,"startup_phase":0,"startup_errno":0}
+{"original_pidfd_waited":true,"public_eof_before_init":true,"handshake":true,"exited_normally":true,"exit_code":0}
+EXIT 0
+CASE root_uid
+{"before_birth_rejected":true,"errno":1,"pidfd_unchanged":true}
+EXIT 0
+CASE root_gid
+{"before_birth_rejected":true,"errno":1,"pidfd_unchanged":true}
+EXIT 0
+CASE sentinel_uid
+{"before_birth_rejected":true,"errno":1,"pidfd_unchanged":true}
+EXIT 0
+CASE sentinel_gid
+{"before_birth_rejected":true,"errno":1,"pidfd_unchanged":true}
+EXIT 0
+CASE low_fd
+{"before_birth_rejected":true,"errno":22,"pidfd_unchanged":true}
+EXIT 0
+CASE aliased_fd
+{"before_birth_rejected":true,"errno":22,"pidfd_unchanged":true}
+EXIT 0
+CASE missing_groups
+{"before_birth_rejected":true,"errno":22,"pidfd_unchanged":true}
+EXIT 0
+CASE oversized_groups
+{"before_birth_rejected":true,"errno":22,"pidfd_unchanged":true}
+EXIT 0
+CASE sentinel_group
+{"before_birth_rejected":true,"errno":22,"pidfd_unchanged":true}
+EXIT 0
+CASE denied_groups
+{"startup_after_ack_bytes":12,"startup_kind":2,"startup_phase":15,"startup_errno":1}
+{"original_pidfd_waited":true,"public_eof_before_init":true,"handshake":false,"exited_normally":true,"exit_code":127}
+EXIT 42
+CASE signal_after_ready
+{"original_pidfd_signal_sent":true,"signal_errno":0}
+{"startup_after_ack_bytes":0,"startup_kind":0,"startup_phase":0,"startup_errno":0}
+{"original_pidfd_waited":true,"public_eof_before_init":true,"handshake":false,"exited_normally":false,"exit_code":9}
+EXIT 0

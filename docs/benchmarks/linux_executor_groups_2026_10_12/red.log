@@ -1,0 +1,3 @@
+{"passed":false,"uid":23111,"gid":23111,"groups":0,"private_endpoints":true,"capabilities_empty":true,"whitelist":true,"no_new_privs":true}
+{"startup_after_ack_bytes":0,"startup_kind":0,"startup_phase":0,"startup_errno":0}
+{"original_pidfd_waited":true,"public_eof_before_init":true,"handshake":true,"exited_normally":true,"exit_code":3}

@@ -17,6 +17,9 @@ _Static_assert(sizeof(void *) == 8, "native64 pointers");
 _Static_assert(sizeof(struct dg_supervisor_action) == 32, "kernel rt_sigaction layout");
 _Static_assert(sizeof(struct dg_supervisor_message) == 12, "fixed startup message");
 _Static_assert(offsetof(struct dg_supervisor_request, argv) == 40, "supervisor pointer offset");
+_Static_assert(offsetof(struct dg_supervisor_request, group_count) == 56, "supervisor group count offset");
+_Static_assert(offsetof(struct dg_supervisor_request, groups) == 64, "supervisor groups offset");
+_Static_assert(sizeof(struct dg_supervisor_request) == 72, "supervisor request native64 layout");
 
 static __attribute__((noreturn)) void supervisor_exit(void) {
     dg_raw(SYS_exit_group, 127, 0, 0, 0, 0, 0);
@@ -69,7 +72,7 @@ static __attribute__((noreturn)) void supervisor_child(const struct dg_superviso
     supervisor_checked(dg_raw(SYS_prctl, PR_SET_KEEPCAPS, 0, 0, 0, 0, 0), 4, 12);
     supervisor_checked(dg_raw(SYS_prctl, PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0, 0), 4, 13);
     supervisor_checked(dg_raw(SYS_prctl, PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0, 0), 4, 14);
-    supervisor_checked(dg_raw(SYS_setgroups, 0, 0, 0, 0, 0, 0), 4, 15);
+    supervisor_checked(dg_raw(SYS_setgroups, request->group_count, (long)request->groups, 0, 0, 0, 0), 4, 15);
     supervisor_checked(dg_raw(SYS_setresgid, request->gid, request->gid, request->gid, 0, 0, 0), 4, 16);
     supervisor_checked(dg_raw(SYS_setresuid, request->uid, request->uid, request->uid, 0, 0, 0), 4, 17);
     const struct __user_cap_header_struct capabilities_header = {_LINUX_CAPABILITY_VERSION_3, 0};
@@ -93,6 +96,10 @@ long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
         return -EPERM;
     if (!request->uid || !request->gid || request->uid == UINT32_MAX || request->gid == UINT32_MAX)
         return -EPERM;
+    /* Linux NGROUPS_MAX；原数组由父侧持有直至clone完成，禁止child分配或读取客户字段。 */
+    if (request->group_count > 65536 || (request->group_count && !request->groups)) return -EINVAL;
+    for (uint32_t index = 0; index < request->group_count; ++index)
+        if (request->groups[index] == UINT32_MAX) return -EINVAL;
     for (int index = 0; index < 7; ++index) {
         if (request->fds[index] < 10) return -EINVAL;
         for (int previous = 0; previous < index; ++previous)

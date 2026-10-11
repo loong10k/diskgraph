@@ -1,4 +1,4 @@
-use super::{ControlError, FrontendRead, UnixForegroundOutput};
+use super::{ControlError, FrontendRead, LinuxPeerUnixIdentity, UnixForegroundOutput};
 use crate::recovery_slot::LinuxSupervisorPeer;
 use std::os::fd::AsRawFd;
 use std::os::unix::net::UnixListener;
@@ -10,6 +10,7 @@ use std::time::Instant;
 pub struct LinuxFrontendConnection {
     output: UnixForegroundOutput,
     peer: LinuxSupervisorPeer,
+    identity: LinuxPeerUnixIdentity,
     bytes: [u8; 4096],
     failure: Option<ControlError>,
     ended: bool,
@@ -39,27 +40,9 @@ impl LinuxFrontendConnection {
     /// 接收前须已启用SO_PASSCRED；不接受客户端自报UID，不从环境或任意路径推导安装信任。
     pub fn new(output: UnixForegroundOutput, expected_uid: u32) -> Result<Self, ControlError> {
         let fd = output.raw_fd().ok_or(ControlError::Protocol)?;
-        if expected_uid == 0 || expected_uid == u32::MAX {
-            return Err(ControlError::Protocol);
-        }
-        let mut actual: libc::ucred = unsafe { std::mem::zeroed() };
-        let mut length = std::mem::size_of_val(&actual) as libc::socklen_t;
-        if unsafe {
-            libc::getsockopt(
-                fd,
-                libc::SOL_SOCKET,
-                libc::SO_PEERCRED,
-                (&mut actual as *mut libc::ucred).cast(),
-                &mut length,
-            )
-        } != 0
-            || length as usize != std::mem::size_of_val(&actual)
-            || actual.uid != expected_uid
-        {
-            return Err(ControlError::Protocol);
-        }
+        let identity = LinuxPeerUnixIdentity::capture(fd, expected_uid)?;
         let mut enabled: libc::c_int = 0;
-        length = std::mem::size_of_val(&enabled) as libc::socklen_t;
+        let mut length = std::mem::size_of_val(&enabled) as libc::socklen_t;
         if unsafe {
             libc::getsockopt(
                 fd,
@@ -80,11 +63,17 @@ impl LinuxFrontendConnection {
         }
         Ok(Self {
             output,
-            peer: LinuxSupervisorPeer::from_host(actual.pid, actual.uid, actual.gid)?,
+            peer: LinuxSupervisorPeer::from_host(identity.pid(), identity.uid(), identity.gid())?,
+            identity,
             bytes: [0; 4096],
             failure: None,
             ended: false,
         })
+    }
+
+    /// 参数：无；返回：原连接的内核Unix身份借用，未包含LSM执行上下文或远程能力。
+    pub fn unix_identity(&self) -> &LinuxPeerUnixIdentity {
+        &self.identity
     }
 
     fn check(&self, deadline: Instant, cancel: &AtomicBool) -> Result<(), ControlError> {

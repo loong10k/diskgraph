@@ -3,6 +3,10 @@
 mod frontend_read;
 #[cfg(target_os = "linux")]
 mod linux_frontend_connection;
+#[cfg(target_os = "linux")]
+mod linux_peer_unix_identity;
+#[cfg(target_os = "linux")]
+pub use linux_peer_unix_identity::LinuxPeerUnixIdentity;
 #[cfg(all(test, target_os = "linux"))]
 mod linux_frontend_connection_tests;
 #[cfg(target_os = "linux")]

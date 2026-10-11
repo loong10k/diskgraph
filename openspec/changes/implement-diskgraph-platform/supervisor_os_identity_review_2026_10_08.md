@@ -1,12 +1,12 @@
 # 监督产品接线的 OS 权限保真审查
 
-状态：架构审查与待确认职责调整，尚未实施，不替代现有验收。事实源仍为 implement-diskgraph-platform。
+状态：2026-10-12 用户已批准 guardian＋用户 executor 职责调整，保持完整只读范围；产品接线与三平台验收尚未完成。事实源仍为 implement-diskgraph-platform。
 
 ## 当前缺口
 
 frontend_recovery_supervisor.md 的已确认 Linux 纵向链让专用 service UID 的监督直接持 CliEngineHost。当前 CliEngineHost 未提供原客户完整 OS 凭据执行边界。因此专用服务 UID 与前端 UID 分离虽然阻止前端伪造持久槽，却不能证明用户0700目录/0600文件的读取语义保真；服务身份自身权限也不应变成客户权限。doctor 无文件读取的启动验收不能证明此项。独立架构审查对作为全功能生产方案的直接接线给出 BLOCK，已有槽库组件继续有效。
 
-## 建议职责调整（待确认）
+## 已批准职责调整
 
 ```mermaid
 flowchart TD
@@ -34,7 +34,7 @@ root只承担启动及身份配置，业务读取前降权；不使用root Engin
 
 脚本scripts/probe_supervisor_os_permissions.sh及Rust helper在固定digest的一次性Linux ARM64 root容器中实际执行六场景。每次降权后的真实euid/egid/groups全部匹配，正向内容为synthetic，负向精确EACCES(13)。覆盖用户0700/0600和服务0700/0600的双向拒绝，以及第三方组0750/0640：仅UID/主组不可读，保留原辅助组后可读。原日志、源摘要见docs/benchmarks/supervisor_os_permission_probe_2026_10_08。任意非零即拒绝的旧探针明确superseded，不能代替精确断言。shell语法检查和diff检查通过，双路复核APPROVE/CLEAR。
 
-此证据验证OS身份保真需求，不验证产品凭据获取、绑定、注入保护、ACL、guardian/executor接线或三平台；职责调整仍待确认，不据此修改原生产验收状态。
+此证据验证OS身份保真需求，不验证产品凭据获取、绑定、注入保护、ACL、guardian/executor接线或三平台；职责调整现已批准，原生探针不据此升级为产品生产验收。
 
 ## Linux 同 UID 环境材料保护的候选实测
 
@@ -45,3 +45,13 @@ root只承担启动及身份配置，业务读取前降权；不使用root Engin
 仅在exec前调用PR_SET_DUMPABLE不是已验证的完整保护。0511允许root原镜像摘要读取而不增加DAC绕过能力，但客户身份自身不能重新打开worker读取摘要，产品需通过root出生时传递的原已核验镜像FD完成，不能忽略摘要检查。原根身份、辅助组、安全上下文、私有FD、命名空间、guardian与原owner/资源退休仍须整体接线验收；本次只证明候选exec边界，不改变当前专用service UID业务角色、不启用MCP转发、不关闭生产父项。
 
 夹具与实测回执见 scripts/fixtures/linux_executor_dumpability.c 和 docs/benchmarks/linux_executor_dumpability_2026_10_12/。最初0111输入使去除DAC能力后的root父无法读取镜像，是夹具输入错误，已记录；不把它称为业务RED或产品漏洞。
+
+## 已批准方案的首批身份组件（2026-10-12）
+
+验收新增：连接身份读取必须使用内核保存的原Unix连接凭据，包括完整辅助组；拒绝账户组数据库、客户端字段和PID路径推断。executor出生前安装原辅助组，guardian旧入口保持零辅助组。非法组数组必须在clone前拒绝，setgroups失败仍由原pidfd owner回收，不以Ready代替真正exec。
+
+LinuxFrontendConnection现保留SO_PEERCRED/SO_PEERGROUPS不可变快照，组长度最多Linux NGROUPS_MAX的65536项，先读取长度再分配实际数组；不支持或长度异常拒绝，不降级为空组。LinuxSupervisorLauncher新增使用该快照的executor组件准备入口，原prepare仍清组。原C出生ABI扩展组数组，Rust及原owner测试镜像布局同步更新，数组只由受信父侧保留到clone完成。该入口尚未接通产品executor。
+
+原生产setgroups(0)在新真实exec夹具中丢失两项受信组，角色退出3；原pidfd仍确认退休。修复后Linux ARM64隔离容器13场景通过：两组实际保留、guardian零组、非法数组出生前拒绝、setgroups拒绝时原owner回收、原pidfd信号与wait。x86_64只完成严格交叉编译；原生Rust连接快照与launcher尚待新CI，不能用C实测代替。回执见docs/benchmarks/linux_executor_groups_2026_10_12。
+
+内核依据：[Linux v6.12 sock.c](https://github.com/torvalds/linux/blob/v6.12/net/core/sock.c)，两项socket选项均从连接保留的sk_peer_cred读取。此快照只证明Unix DAC身份，不证明LSM执行上下文或PID寿命；有效GID为0的executor仍受旧出生组件拒绝限制。真正guardian/executor责任分离、私有worker FD、LSM/ACL、同UID注入保护、完整CLI/MCP及三平台服务接线仍未完成，不勾选生产父项。

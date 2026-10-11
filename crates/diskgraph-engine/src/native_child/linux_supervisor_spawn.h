@@ -9,6 +9,8 @@ struct dg_supervisor_request {
     uint32_t uid, gid;
     char *const *argv;
     char *const *envp;
+    uint32_t group_count;
+    const uint32_t *groups; /* 受信父侧出生前固定的辅助组；零组保持guardian旧契约。 */
 };
 long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
     int *pidfd, uint64_t *old_mask, int *mask_active);

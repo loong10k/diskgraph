@@ -125,8 +125,12 @@ int main(int argc, char **argv) {
     uid_t real_uid, effective_uid, saved_uid;
     gid_t real_gid, effective_gid, saved_gid;
     int saved_ids = getresuid(&real_uid, &effective_uid, &saved_uid) == 0 && getresgid(&real_gid, &effective_gid, &saved_gid) == 0 && saved_uid == 23111 && saved_gid == 23111;
+    gid_t actual_groups[2] = {0, 0};
+    int supplementary = argc == 2 && strcmp(argv[1], "supplementary") == 0;
+    int groups_match = supplementary ? getgroups(2, actual_groups) == 2 &&
+        actual_groups[0] == 23112 && actual_groups[1] == 23113 : getgroups(0, NULL) == 0;
     int identities = saved_ids && getuid() == 23111 && geteuid() == 23111 &&
-        getgid() == 23111 && getegid() == 23111 && getgroups(0, NULL) == 0;
+        getgid() == 23111 && getegid() == 23111 && groups_match;
     int endpoints = fcntl(5, F_GETFD) >= 0 && fcntl(6, F_GETFD) >= 0;
     int image_closed = fcntl(3, F_GETFD) == -1 && errno == EBADF;
     int startup_closed = fcntl(4, F_GETFD) == -1 && errno == EBADF;

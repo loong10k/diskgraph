@@ -1,0 +1,32 @@
+{
+  "platform": "isolated Linux ARM64 actual ELF exec",
+  "image": "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+  "red": "old setgroups(0) erased two trusted birth groups; role exited 3; original pidfd retired",
+  "green_cases": [
+    "clean",
+    "supplementary",
+    "root_uid",
+    "root_gid",
+    "sentinel_uid",
+    "sentinel_gid",
+    "low_fd",
+    "aliased_fd",
+    "missing_groups",
+    "oversized_groups",
+    "sentinel_group",
+    "denied_groups",
+    "signal_after_ready"
+  ],
+  "passed": 13,
+  "failed": 0,
+  "x86_64": "strict cross compilation only; not native execution",
+  "rust_kernel_capture": "awaiting native CI",
+  "guardian_executor_product": "not integrated",
+  "services_installed": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "664dea2c9f409e848be81aa578913e7a3b62c1e1f1b87ef66a5f4d9da7e589c2",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.h": "33b16023ac0c292e2603184c9a65b9b54df8d26eea792a95fa78990b965e7a07",
+    "scripts/fixtures/linux_supervisor_birth/driver.c": "0fe6771937069ac2ab4678c3097260bf7965879fb6e579c62c01c1487597b2ac",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "d64cc6da69ec6f69ed37d3e7247f23a4611013f11fb652c2c2739754b8f3bb3c"
+  }
+}

@@ -9,7 +9,7 @@ use super::linux_supervisor_launch_error::LinuxSupervisorLaunchError;
 use super::linux_supervisor_process::LinuxSupervisorProcess;
 use super::unix_child_setup::UnixChildSetup;
 use super::{ChildError, ChildSpawnError};
-use crate::recovery_control::LinuxControlReader;
+use crate::recovery_control::{LinuxControlReader, LinuxPeerUnixIdentity};
 use crate::recovery_slot::{LinuxSupervisorMaterials, LinuxSupervisorPeer, SlotReservation};
 use std::ffi::CString;
 use std::fs::File;
@@ -25,6 +25,7 @@ pub struct LinuxSupervisorLauncher {
     args: Vec<CString>,
     environment: Vec<CString>,
     identity: (u32, u32),
+    groups: Vec<u32>,
     pipes: LinuxAtomicPipes,
     extra: [OwnedFd; 2],
     materials: UnixDatagram,
@@ -32,6 +33,20 @@ pub struct LinuxSupervisorLauncher {
 }
 
 impl LinuxSupervisorLauncher {
+    /// 参数：原核验镜像、固定参数/环境及原连接内核Unix身份；返回：保留辅助组的出生材料。
+    /// 仅组件准备，不接通产品executor；LSM上下文、镜像隐私及原guardian责任仍须宿主准入。
+    pub fn prepare_user_executor(
+        image: File,
+        args: Vec<CString>,
+        environment: Vec<CString>,
+        identity: &LinuxPeerUnixIdentity,
+    ) -> io::Result<Self> {
+        let mut prepared =
+            Self::prepare(image, args, environment, (identity.uid(), identity.gid()))?;
+        prepared.groups = identity.supplementary_groups().to_vec();
+        Ok(prepared)
+    }
+
     /// 参数：原验证 ELF、固定 args/environment 与专用 UID/GID；返回：全部出生前准备或原错误。
     /// 不建立发行摘要信任、不继承装载环境；准备失败不创建 child 或认领全局槽。
     pub fn prepare(
@@ -63,6 +78,7 @@ impl LinuxSupervisorLauncher {
             args,
             environment,
             identity,
+            groups: Vec::new(),
             pipes,
             extra,
             materials,
@@ -137,6 +153,8 @@ impl LinuxSupervisorLauncher {
             gid: self.identity.1,
             argv: argv.as_ptr(),
             environment: environment.as_ptr(),
+            group_count: self.groups.len() as u32,
+            groups: self.groups.as_ptr(),
         };
         let mut mask = LinuxAtomicSignalMask::new();
         let mut pidfd = -1;

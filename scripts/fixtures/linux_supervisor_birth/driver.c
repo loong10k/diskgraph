@@ -59,7 +59,13 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[2], "sentinel_gid")) request.gid = UINT32_MAX;
     if (!strcmp(argv[2], "low_fd")) request.fds[6] = 1;
     if (!strcmp(argv[2], "aliased_fd")) request.fds[6] = request.fds[5];
-    char *args[] = {argv[1], NULL}; char *environment[] = {NULL};
+    uint32_t executor_groups[2] = {23112, 23113};
+    int supplementary = !strcmp(argv[2], "supplementary");
+    if (supplementary) { request.group_count = 2; request.groups = executor_groups; }
+    if (!strcmp(argv[2], "missing_groups")) request.group_count = 1;
+    if (!strcmp(argv[2], "oversized_groups")) { request.group_count = 65537; request.groups = executor_groups; }
+    if (!strcmp(argv[2], "sentinel_group")) { executor_groups[0] = UINT32_MAX; request.group_count = 1; request.groups = executor_groups; }
+    char *args[] = {argv[1], supplementary ? "supplementary" : NULL, NULL}; char *environment[] = {NULL};
     request.argv = args; request.envp = environment;
     /* 仅本次隔离driver拒绝setgroups；真实child必须报告降权阶段并保留原pidfd退休。 */
     int denied_groups = !strcmp(argv[2], "denied_groups");

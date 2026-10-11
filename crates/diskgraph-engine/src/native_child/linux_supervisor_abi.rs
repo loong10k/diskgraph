@@ -8,6 +8,8 @@ pub(super) struct LinuxSupervisorAbi {
     pub(super) gid: u32,
     pub(super) argv: *const *const c_char,
     pub(super) environment: *const *const c_char,
+    pub(super) group_count: u32,
+    pub(super) groups: *const u32,
 }
 
 unsafe extern "C" {
