@@ -1,0 +1,43 @@
+{
+  "source_parent": "22880d69d7c91a32ded1e095fad9b9240a93c28d",
+  "platform": "local macOS ARM64 isolated database fixtures",
+  "api_red": "missing ExecutorParts and ExecutorResourceOwner imports; compile-time API absence, not runtime behavior red",
+  "new_resource_tests": {
+    "passed": 4,
+    "failed": 0,
+    "os_executor_spawned": false
+  },
+  "supervisor_regression": {
+    "passed": 47,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "clippy": "engine all-targets -D warnings passed",
+  "full_engine_cli_mcp": {
+    "status": "failed",
+    "completed_test_binaries": 99,
+    "passed": 1227,
+    "failed": 370,
+    "ignored": 23,
+    "failed_targets": 30,
+    "fixed_macos_installation_present": false,
+    "driver_fixture_configured": false,
+    "evidence": "multiple Business(Unsupported) and explicit missing root driver fixture failures; remaining failures not exhaustively classified",
+    "cargo_exit": "not separately captured; shell wrapper tail returned zero, logs prove tests failed"
+  },
+  "cross_platform_native": "not yet run for resource split",
+  "services_installed": false,
+  "guardian_executor_product": "not yet connected",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervision/executor_resource_owner_tests.rs": "3eccd33bf2746b7228eb1d6edaa3b6161f8d11940a8e7932d3a8b14e20568a76",
+    "crates/diskgraph-engine/src/supervision/executor_parts.rs": "46ccf5a1ea7abd09f066b7100664c7431456fc616415652dee3c66657172d40b",
+    "crates/diskgraph-engine/src/supervision/supervisor_owner.rs": "0ba61d6f9eea6e95dfb8fe1228f7dc56f7f498922294cec6425f175f0b2ee7d2",
+    "crates/diskgraph-engine/src/supervision/supervisor_recovery_error.rs": "9758efa7a195b3bfdc6dd6e2820af224501675db51b3f65cc31a35f920a21cdc",
+    "crates/diskgraph-engine/src/supervision/mod.rs": "d5771960e7b2db192a540f4b34e6b5c72b90174600eb8f0b6b41f2fb07a7d49f",
+    "crates/diskgraph-engine/src/supervision/supervisor_parts.rs": "1616b3da47cf047940a246101626c23d357d1d548abbe5961d412b8535f3c985",
+    "crates/diskgraph-engine/src/supervision/executor_resource_owner.rs": "9564aaf70f5aad61a8cbe203fbca1d31aa0805db38bf39a5d07f49b2ffa115bf"
+  }
+}

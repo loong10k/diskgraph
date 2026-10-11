@@ -55,3 +55,11 @@ LinuxFrontendConnection现保留SO_PEERCRED/SO_PEERGROUPS不可变快照，组�
 原生产setgroups(0)在新真实exec夹具中丢失两项受信组，角色退出3；原pidfd仍确认退休。修复后Linux ARM64隔离容器13场景通过：两组实际保留、guardian零组、非法数组出生前拒绝、setgroups拒绝时原owner回收、原pidfd信号与wait。x86_64只完成严格交叉编译；原生Rust连接快照与launcher尚待新CI，不能用C实测代替。回执见docs/benchmarks/linux_executor_groups_2026_10_12。
 
 内核依据：[Linux v6.12 sock.c](https://github.com/torvalds/linux/blob/v6.12/net/core/sock.c)，两项socket选项均从连接保留的sk_peer_cred读取。此快照只证明Unix DAC身份，不证明LSM执行上下文或PID寿命；有效GID为0的executor仍受旧出生组件拒绝限制。真正guardian/executor责任分离、私有worker FD、LSM/ACL、同UID注入保护、完整CLI/MCP及三平台服务接线仍未完成，不勾选生产父项。
+
+### 原资源与容量职责拆分的验收
+
+executor资源owner只持原Engine、原ScanWorkerRecovery及Windows原ProbeRecovery，不持容量槽或CLEAN能力；原Engine存在外部引用、真实预留仍占用或原池恢复失败时均不得报告资源退休。绑定错配时整体返还原材料，不封闭任一池。现有SupervisorOwner组合该资源owner与原ActiveSlot，保持既有本地接口、先封闭两个池、实际资源完成才清槽的行为。独立guardian必须另核实原executor进程退休，资源owner单独返回true不能用作跨进程CLEAN证据；本次拆分不授予该跨进程能力。
+
+已实施ExecutorParts/ExecutorResourceOwner，并在现有SupervisorOwner中复用真实退休逻辑。对应对象归入supervision目录，mod.rs仅声明与重导出，原crate根公开路径保持兼容。4项新增真实资源夹具、47项监督回归、6项源码规范及Engine all-targets Clippy通过；API RED是新类型缺失的编译错误，未称作运行时行为失败。
+
+本机完整Engine/CLI/MCP尝试未通过：99个测试二进制汇总1227通过、370失败、23忽略，30个目标失败。固定macOS root安装目录不存在，driver镜像未配置，原日志包含显式前置条件失败及Unsupported；未穷尽归因，不能据此宣称没有其他问题。未安装桌面服务或修改固定安装。原始日志及源码摘要见docs/benchmarks/executor_resource_separation_2026_10_12，资源拆分后的三平台完整CI仍待运行，产品跨进程接线仍未完成。
