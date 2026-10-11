@@ -423,3 +423,6 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 
 
 固定安装准入增量：配置行为RED1/2（schema与4KiB拒绝缺失）→本机配置/原File摘要资格5/0；root逐组件no-follow、单链接普通文件、原64KiB完整摘要、元数据变更拒绝与原期限已实现。Linux格式按POSIX原文本解释，避免Windows宿主路径语义改变协议。源码门禁6/0、Engine all-target Clippy、CI契约5/0、shell语法及六段Python编译通过。新增真实root镜像/配置正向与链接/可写/超限负向门禁未原生执行；公开broker二进制、原Pending退出、三平台服务安装父项保持开放。见supervisor_installation_config.md及supervisor_installation_admission_2026_10_12。
+
+
+2c71eab0 Linux x86_64 MSRV真实root监督门禁通过：原owner7/0、前端凭据4/0、实际doctor launcher1/0、root原镜像/配置1/0、公开broker五场景5/0。实际前端正常wait/EOF、ACTIVE拒绝保持原槽、错误摘要无出生、同UID/root委托与非root委托发送者均拒绝。原生资格来自CI38165131204/job114546090079/artifact11712336247；完整job仍运行，不代替完整CI。新增安装产物fa85346b及实际Pending、systemd运行、其他CLI/MCP、macOS/Windows服务未被这份证据覆盖。见linux_public_broker_2c71_msrv_native。

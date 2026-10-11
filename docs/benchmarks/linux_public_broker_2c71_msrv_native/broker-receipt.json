@@ -1,0 +1,55 @@
+{
+  "passed": 5,
+  "failed": 0,
+  "actual_product_binaries": true,
+  "system_service_installed": false,
+  "active_pending_owner_injected": false,
+  "platform": "Linux",
+  "cases": [
+    {
+      "mode": "clean",
+      "frontend_exit": 0,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": true
+    },
+    {
+      "mode": "active",
+      "frontend_exit": 8,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01A",
+      "json_ok": false
+    },
+    {
+      "mode": "bad_digest",
+      "server_exit": 10,
+      "socket_not_born": true,
+      "database_not_born": true
+    },
+    {
+      "mode": "delegated_same_root_uid_sender",
+      "root_listener_original_pid": 26533,
+      "actual_sender_original_pid": 26540,
+      "frontend_exit": 10,
+      "stdout_bytes": 0,
+      "original_sender_wait_consumed": true
+    },
+    {
+      "mode": "delegated_nonroot_sender",
+      "root_listener_original_pid": 26533,
+      "actual_sender_original_pid": 26542,
+      "frontend_exit": 10,
+      "stdout_bytes": 0,
+      "original_sender_wait_consumed": true
+    }
+  ],
+  "binary_sha256": {
+    "cli": "71f286f77c8965e9eafd2a5af86e3580dddcbb6d3f30f7f0849dcb5bcd4b7a87",
+    "worker": "510be2bdd6d44559338fe1d1b2321ae050c06f74a46b3e67203f2cc64fb75f85",
+    "broker": "1176691ce67caefb42633ff623076c045d1cd8ee1afe1b509a70939ebf516e5d"
+  }
+}

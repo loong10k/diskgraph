@@ -1,0 +1,34 @@
+{
+  "source_sha": "2c71eab0c7b782a789d7974d4b512ff08792ae6a",
+  "run": 38165131204,
+  "job": 114546090079,
+  "artifact_id": 11712336247,
+  "platform": "Linux x86_64",
+  "rust": "1.97.0",
+  "qualification_log_sha256": "7dcad26b8b00d179c301cfd0ec09b4d48aadb1a1a562542f47a715507e3e0fd4",
+  "owner_tests": {
+    "passed": 7,
+    "failed": 0
+  },
+  "frontend_credentials": {
+    "passed": 4,
+    "failed": 0
+  },
+  "actual_doctor_launcher": {
+    "passed": 1,
+    "failed": 0
+  },
+  "root_image_config": {
+    "passed": 1,
+    "failed": 0
+  },
+  "actual_public_broker": {
+    "passed": 5,
+    "failed": 0
+  },
+  "system_service_installed": false,
+  "actual_pending_owner_injected": false,
+  "installer_increment_fa85346b_qualified": false,
+  "full_ci_status": "running at collection",
+  "production_ready": false
+}
