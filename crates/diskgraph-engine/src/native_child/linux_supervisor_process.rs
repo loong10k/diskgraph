@@ -24,6 +24,23 @@ pub struct LinuxSupervisorProcess {
 }
 
 impl LinuxSupervisorProcess {
+    /// 参数：无；返回：原ForegroundEnded后原两输出管道均已排空才为true。
+    /// 仅结束公开业务交付，不代替原child wait、私有完成或ACTIVE退休。
+    pub fn foreground_output_drained(&self) -> io::Result<bool> {
+        if !self.foreground_ended {
+            return Ok(false);
+        }
+        let child = self
+            .child
+            .as_ref()
+            .ok_or_else(|| io::Error::other("original supervisor missing"))?;
+        Ok(!child
+            .stdout_has_buffered_bytes()
+            .map_err(io::Error::other)?
+            && !child
+                .stderr_has_buffered_bytes()
+                .map_err(io::Error::other)?)
+    }
     /// 参数：bytes为宿主已认证前端的单个输入块，deadline/cancel为原交付预算；返回：完整交付或原错误。
     /// 可信内部入口不授予请求身份；ForegroundEnded之后禁止新输入，交付失败仍保留原child/ACTIVE。
     pub fn write_stdin_until(

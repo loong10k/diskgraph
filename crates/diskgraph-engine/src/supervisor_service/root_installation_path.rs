@@ -10,11 +10,28 @@ use std::time::Instant;
 /// 参数：path为固定root安装路径，deadline为原期限；返回：普通原File和原目录链或拒绝。
 /// 不跟随任何链接，不创建或修复部署；执行位和摘要由镜像层继续验证。
 pub(super) fn open(path: &Path, deadline: Instant) -> io::Result<(File, Vec<File>)> {
+    if unsafe { libc::geteuid() } != 0 {
+        return Err(denied("root fixed installation required"));
+    }
+    open_raw(path, deadline, false)
+}
+
+/// 参数：path为固定root保护目录，deadline为原期限；返回：原目录及原祖先链或拒绝。
+/// 允许普通前端只读认证socket祖先；不创建目录，也不授予root或文件写权限。
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+pub(super) fn open_directory(path: &Path, deadline: Instant) -> io::Result<(File, Vec<File>)> {
+    open_raw(path, deadline, true)
+}
+
+fn open_raw(path: &Path, deadline: Instant, leaf_directory: bool) -> io::Result<(File, Vec<File>)> {
     check(deadline)?;
     let text = path
         .to_str()
         .ok_or_else(|| denied("noncanonical installation path"))?;
-    if unsafe { libc::geteuid() } != 0 || !path.is_absolute() || path.as_os_str().len() > 1024 {
+    if !path.is_absolute() || path.as_os_str().len() > 1024 {
         return Err(denied("root fixed installation required"));
     }
     if text.contains('\0')
@@ -46,7 +63,7 @@ pub(super) fn open(path: &Path, deadline: Instant) -> io::Result<(File, Vec<File
         let name =
             CString::new(name.as_bytes()).map_err(|_| denied("invalid installation path"))?;
         check(deadline)?;
-        let directory = components.peek().is_some();
+        let directory = components.peek().is_some() || leaf_directory;
         let flags = libc::O_RDONLY
             | libc::O_NOFOLLOW
             | libc::O_CLOEXEC
@@ -65,6 +82,9 @@ pub(super) fn open(path: &Path, deadline: Instant) -> io::Result<(File, Vec<File
         let file = unsafe { File::from_raw_fd(raw) };
         if directory {
             verify_directory(&file, deadline)?;
+            if components.peek().is_none() {
+                return Ok((file, directories));
+            }
             directories.push(file);
         } else {
             verify_file(&file, deadline)?;

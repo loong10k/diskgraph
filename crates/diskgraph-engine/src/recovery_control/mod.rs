@@ -6,7 +6,7 @@ mod linux_frontend_connection;
 #[cfg(all(test, target_os = "linux"))]
 mod linux_frontend_connection_tests;
 #[cfg(target_os = "linux")]
-mod linux_message_credentials;
+pub(crate) mod linux_message_credentials;
 #[cfg(target_os = "linux")]
 pub use frontend_read::FrontendRead;
 #[cfg(target_os = "linux")]

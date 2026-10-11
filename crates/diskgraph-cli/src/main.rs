@@ -57,6 +57,7 @@ mod service_commands;
 mod snapshot_action;
 mod snapshot_commands;
 mod snapshot_reply;
+mod supervised_entry;
 mod tree_commands;
 mod tui;
 mod tui_commands;
@@ -82,6 +83,7 @@ fn main() -> ExitCode {
         }
     };
     match result {
+        cli_exit::CliExit::Supervised(code) => std::process::exit(code),
         cli_exit::CliExit::Code(code) => code,
         cli_exit::CliExit::Companion(status) => {
             // 工作线程已 join；serve 没有 CLI owner，伴随程序也已实际 wait。
@@ -94,6 +96,7 @@ fn main() -> ExitCode {
 #[cfg(not(windows))]
 fn main() -> ExitCode {
     match cli_main() {
+        cli_exit::CliExit::Supervised(code) => std::process::exit(code),
         cli_exit::CliExit::Code(code) => code,
         cli_exit::CliExit::Companion(status) => ExitCode::from(status.code().unwrap_or(10) as u8),
     }

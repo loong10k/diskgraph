@@ -22,6 +22,9 @@ pub(crate) fn cli_main() -> CliExit {
         return CliExit::Code(ExitCode::from(10));
     }
     let cli = Cli::parse();
+    if cli.supervisor_socket.is_some() {
+        return crate::supervised_entry::run(&cli);
+    }
     #[cfg(target_os = "linux")]
     if (std::env::var_os("DISKGRAPH_LINUX_SUPERVISOR_BIRTH").is_some()
         || std::env::var_os("DISKGRAPH_LINUX_SUPERVISOR_FD").is_some())

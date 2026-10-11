@@ -17,6 +17,9 @@ use std::path::PathBuf;
     disable_help_subcommand = false
 )]
 pub(crate) struct Cli {
+    /// Use the installed supervisor for JSON doctor; its installation selects the data directory.
+    #[arg(long, global = true)]
+    pub(crate) supervisor_socket: Option<PathBuf>,
     /// Data directory holding diskgraph.sqlite and diskgraph-control.sqlite.
     #[arg(long, default_value = "diskgraph-data", global = true)]
     pub(crate) data_dir: PathBuf,

@@ -270,8 +270,10 @@ fn check_rust_contract(root: PathBuf) {
     let mut mounted = BTreeSet::new();
     let mut sources = Vec::new();
     source(&root.join("lib.rs"), true, &mut mounted, &mut sources);
-    if root.join("main.rs").exists() {
-        source(&root.join("main.rs"), true, &mut mounted, &mut sources);
+    for entry in ["main.rs", "supervisor_main.rs", "supervisor_client_main.rs"] {
+        if root.join(entry).exists() {
+            source(&root.join(entry), true, &mut mounted, &mut sources);
+        }
     }
     let mut disk = BTreeSet::new();
     rust_sources(&root, &mut disk);

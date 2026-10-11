@@ -1,0 +1,37 @@
+{
+  "source": "uncommitted broker increment following 334785cf",
+  "local_platform": "macOS",
+  "shared_engine_tests": {
+    "passed": 8,
+    "failed": 0
+  },
+  "cli_route_tests": {
+    "passed": 1,
+    "failed": 0
+  },
+  "source_layout_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "engine_cli_clippy": "passed",
+  "linux_native_compile": "pending CI",
+  "linux_public_broker_native_cases": "pending CI",
+  "system_service_installed": false,
+  "production_ready": false,
+  "previous_ci": {
+    "run": 38160771549,
+    "source": "97d77ca9",
+    "success": 21,
+    "failure": 2,
+    "open_failures": [
+      "Windows MSRV relation expiry authorization",
+      "macOS Intel scope display authorization"
+    ]
+  },
+  "remaining": [
+    "actual pending-owner qualification",
+    "full CLI and MCP supervision",
+    "macOS and Windows service integration and installers",
+    "same-source platform acceptance"
+  ]
+}

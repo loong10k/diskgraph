@@ -8,6 +8,14 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "diskgraph-supervisor"
+path = "src/supervisor_main.rs"
+
+[[bin]]
+name = "diskgraph-supervisor-client"
+path = "src/supervisor_client_main.rs"
+
 
 [features]
 default = ["macos_native_scan_candidate"]

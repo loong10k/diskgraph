@@ -4,7 +4,7 @@ use std::os::fd::{FromRawFd, OwnedFd};
 /// 校验原recvmsg辅助消息并关闭所有意外交付FD；来源：Linux SCM_CREDENTIALS/SCM_RIGHTS原控制合同。
 /// 参数：message为原内核填写的msghdr，control_start/control_bytes为实际对齐缓冲边界；返回：唯一凭据或拒绝。
 /// 调用者须先接收至自身缓冲；即使取消或过期，也必须先调用本函数处置已交付的FD。
-pub(super) fn inspect_credentials(
+pub(crate) fn inspect_credentials(
     message: &libc::msghdr,
     control_start: usize,
     control_bytes: usize,

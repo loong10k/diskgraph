@@ -827,11 +827,11 @@ jobs:
               raise SystemExit('original Engine binary must contain all four frontend credential tests')
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" recovery_control::linux_frontend_connection_tests:: --ignored --nocapture || exit $?
-            cargo build -p diskgraph-cli -p diskgraph-scan-worker --bins --locked --message-format=json > "$fixture/doctor-images.jsonl" || exit $?
+            cargo build -p diskgraph-cli -p diskgraph-scan-worker -p diskgraph-engine --bins --locked --message-format=json > "$fixture/doctor-images.jsonl" || exit $?
             python3 - "$fixture/doctor-images.jsonl" "$fixture" <<'PYTHON' || exit $?
           import json, pathlib, sys
           artifacts = [json.loads(line) for line in open(sys.argv[1])]
-          for name in ('diskgraph', 'diskgraph-scan-worker'):
+          for name in ('diskgraph', 'diskgraph-scan-worker', 'diskgraph-supervisor'):
               paths = [a['executable'] for a in artifacts if a.get('reason') == 'compiler-artifact' and a.get('target', {}).get('name') == name and a.get('executable')]
               if len(paths) != 1:
                   raise SystemExit('expected exactly one current build image for ' + name)
@@ -857,6 +857,8 @@ jobs:
               raise SystemExit('current Engine binary must contain root installation image/config qualification')
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_CLI="$cli_image" "$test_binary" "$image_case" --ignored --exact --nocapture || exit $?
+            broker_image="$(cat "$fixture/diskgraph-supervisor.path")" || exit $?
+            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_public_broker.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --receipt "$fixture/public-broker-receipt.json" || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
@@ -960,6 +962,32 @@ jobs:
         with:
           name: windows-ffi-default-scheduling-${{ matrix.rust }}-${{ github.run_id }}
           path: ${{ runner.temp }}/ffi-default-scheduling.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Observe current authorization failures with unchanged budgets
+        id: authorization_failure_observation
+        if: failure() && !cancelled() && (runner.os == 'Windows' || runner.os == 'macOS') && steps.workspace_tests.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          DISKGRAPH_QUERY_DIAGNOSTICS: '1'
+        shell: bash
+        run: |
+          set +e
+          cargo test -p diskgraph-engine --lib --locked scope_authorization_projection_tests -- --nocapture > "$RUNNER_TEMP/scope-projection-observation.log" 2>&1
+          scope_status=$?
+          cargo test -p diskgraph-engine --lib --locked relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes -- --exact --nocapture > "$RUNNER_TEMP/relation-expiry-observation.log" 2>&1
+          relation_status=$?
+          # 原失败不被观察结果替代；保留默认调度、原请求与原授权窗口。
+          test "$scope_status" -eq 0 && test "$relation_status" -eq 0
+      - name: Preserve current authorization failure observations
+        if: always() && (steps.authorization_failure_observation.outcome == 'success' || steps.authorization_failure_observation.outcome == 'failure')
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: authorization-observation-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/scope-projection-observation.log
+            ${{ runner.temp }}/relation-expiry-observation.log
           if-no-files-found: error
           retention-days: 7
       - name: Native HTTP shutdown and original request deadline
