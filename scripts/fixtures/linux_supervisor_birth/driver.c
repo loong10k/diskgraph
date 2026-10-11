@@ -2,6 +2,10 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/filter.h>
+#include <linux/seccomp.h>
+#include <stddef.h>
+#include <sys/prctl.h>
+#include <sys/syscall.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -57,6 +61,19 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[2], "aliased_fd")) request.fds[6] = request.fds[5];
     char *args[] = {argv[1], NULL}; char *environment[] = {NULL};
     request.argv = args; request.envp = environment;
+    /* 仅本次隔离driver拒绝setgroups；真实child必须报告降权阶段并保留原pidfd退休。 */
+    int denied_groups = !strcmp(argv[2], "denied_groups");
+    if (denied_groups) {
+        const struct sock_filter deny[] = {
+            BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
+            BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SYS_setgroups, 0, 1),
+            BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | EPERM),
+            BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
+        };
+        const struct sock_fprog program = {4, (struct sock_filter *)deny};
+        if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) ||
+                prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &program)) abort();
+    }
     int pidfd = -1, active = 0; uint64_t mask = 0;
 #ifdef BASELINE
     const struct sock_filter filter[] = {{BPF_RET | BPF_K, 0, 0, 0x7fff0000}};
@@ -82,16 +99,24 @@ int main(int argc, char **argv) {
         if (size != -1 || errno != EAGAIN) break;
         usleep(1000);
     }
-    int handshake = send_kind(startup[0], 3) && receive(startup[0], 1) && send_kind(startup[0], 4);
+    struct message terminal = {0};
+    ssize_t terminal_size = -1;
+    int handshake;
+    if (denied_groups) {
+        if (!send_kind(startup[0], 3)) abort();
+        terminal_size = recv(startup[0], &terminal, sizeof(terminal), 0);
+        handshake = 0;
+    } else {
+        handshake = send_kind(startup[0], 3) && receive(startup[0], 1) && send_kind(startup[0], 4);
+    }
     char buffer[4096]; ssize_t size = read(output[0], buffer, sizeof(buffer) - 1);
     if (size > 0) { buffer[size] = 0; fputs(buffer, stdout); }
     siginfo_t info = {0};
     int waited = waitid(P_PIDFD, pidfd, &info, WEXITED) == 0;
-    struct message terminal = {0};
-    ssize_t terminal_size = recv(startup[0], &terminal, sizeof(terminal), MSG_DONTWAIT);
-    printf("{\"startup_after_ack_bytes\":%zd,\"startup_phase\":%u,\"startup_errno\":%d}\n", terminal_size, terminal.phase, terminal.error);
-    printf("{\"original_pidfd_waited\":%s,\"public_eof_before_init\":%s,\"handshake\":%s,\"exit_code\":%d}\n",
-        waited ? "true" : "false", public_eof ? "true" : "false", handshake ? "true" : "false", info.si_status);
+    if (!denied_groups) terminal_size = recv(startup[0], &terminal, sizeof(terminal), MSG_DONTWAIT);
+    printf("{\"startup_after_ack_bytes\":%zd,\"startup_kind\":%u,\"startup_phase\":%u,\"startup_errno\":%d}\n", terminal_size, terminal.kind, terminal.phase, terminal.error);
+    printf("{\"original_pidfd_waited\":%s,\"public_eof_before_init\":%s,\"handshake\":%s,\"exited_normally\":%s,\"exit_code\":%d}\n",
+        waited ? "true" : "false", public_eof ? "true" : "false", handshake ? "true" : "false", info.si_code == CLD_EXITED ? "true" : "false", info.si_status);
     close(pidfd);
     return waited && public_eof && handshake && info.si_code == CLD_EXITED && info.si_status == 0 ? 0 : 42;
 }

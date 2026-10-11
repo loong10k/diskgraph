@@ -18,3 +18,7 @@
 37253b8d 的 CI 38172485982 原 systemd 失败仅证明旧 phase 8 的降权失败，尚未确认具体 syscall。原始日志保持原样；之前日志中的 seccomp 文本是解码器误标，不能作为实际 seccomp 安装失败的证据。下一轮沿用原生成服务，输出具体阶段及 MainPID 能力/安全策略观察，不移除保护或放宽期限。
 
 证据：docs/benchmarks/linux_supervisor_startup_role_2026_10_12/receipt.json。三平台服务、异常不可回收 I/O、完整 CLI/MCP 父项保持未完成。
+
+## C 层受控降权失败夹具
+
+原 root driver 增加 denied_groups 场景：driver 在本次独立进程中安装仅拒绝 setgroups 的过滤器，原 child 经过固定 Init 后真实调用 setgroups 并返回 phase 15 / EPERM。验收必须同时确认消息 kind 2、12 字节、公开描述符已关闭、未 ACK/exec、原 pidfd wait 消耗与正常 exit 127。此过滤器只用于隔离夹具，不改变生成 systemd 服务策略。现有 clean、身份拒绝、坏镜像及 baseline 场景保持。Python 语法和差异检查通过；C 编译及该场景执行等待 Linux CI，不记为本机已通过。
