@@ -273,7 +273,7 @@ def systemd_installation(prefix, config, retained):
             status = status_file.read(16385)
         selected = {line.split(':', 1)[0]: line.split(':', 1)[1].strip()
                     for line in status[:16384].decode('utf-8', 'replace').splitlines()
-                    if ':' in line and line.split(':', 1)[0] in ['Uid', 'Gid', 'NoNewPrivs', 'Seccomp', 'Seccomp_filters', 'CapEff']}
+                    if ':' in line and line.split(':', 1)[0] in ['Uid', 'Gid', 'NoNewPrivs', 'Seccomp', 'Seccomp_filters', 'CapEff', 'CapPrm', 'CapInh', 'CapBnd', 'CapAmb']}
         try:
             with open('/proc/' + str(original_pid) + '/attr/current', 'rb') as label_file:
                 label = label_file.read(4097)
@@ -283,6 +283,12 @@ def systemd_installation(prefix, config, retained):
         print(json.dumps({'original_systemd_observation': {'pid': original_pid,
               'properties': values, 'status': selected, 'status_truncated': len(status) > 16384,
               'lsm_label': lsm}}), flush=True)
+        # 检查原 MainPID 实际能力，而非只检查生成文本；不得以 all-capabilities 掩盖降权失败。
+        assert int(selected['CapEff'], 16) == 0xe0, ('unexpected original effective capabilities', selected)
+        assert int(selected['CapBnd'], 16) == 0xe0, ('unexpected original capability bound', selected)
+        assert int(selected['CapAmb'], 16) == 0x80, ('missing explicit original SETUID ambient', selected)
+        assert selected['NoNewPrivs'] == '1', ('original service permits privilege gain', selected)
+
         frontend = subprocess.Popen([str(prefix / 'images/diskgraph'), '--json', '--supervisor-socket', str(endpoint), 'doctor'],
                                     preexec_fn=lowered, env={}, cwd=prefix, stdin=subprocess.DEVNULL,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)

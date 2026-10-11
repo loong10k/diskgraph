@@ -61,6 +61,17 @@ class BrokerArtifactTests(unittest.TestCase):
         self.assertIn('[Service]', unit.splitlines())
         self.assertNotIn('systemctl', unit)
 
+    def test_broker_preserves_only_birth_and_retirement_capabilities(self):
+        policy = MODULE.validate_identities(23111, 23111, [23112])
+        _, unit = MODULE.broker_artifacts(Path('/var/lib/dg-test'), policy, self.images())
+        properties = dict(line.split('=', 1) for line in unit.splitlines() if '=' in line)
+        self.assertEqual(set(properties.get('CapabilityBoundingSet', '').split()),
+                         {'CAP_SETUID', 'CAP_SETGID', 'CAP_KILL'})
+        self.assertEqual(properties.get('AmbientCapabilities'), 'CAP_SETUID')
+        self.assertEqual(properties.get('NoNewPrivileges'), 'yes')
+        self.assertEqual(properties.get('RestrictAddressFamilies'), 'AF_UNIX')
+        self.assertEqual(properties.get('ProtectSystem'), 'strict')
+
     def test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment(self):
         policy = MODULE.validate_identities(23111, 23111, [23112])
         for prefix in ['/var/lib/dg\nInjected=yes', '/var/lib/' + 'x' * 100, 'relative']:

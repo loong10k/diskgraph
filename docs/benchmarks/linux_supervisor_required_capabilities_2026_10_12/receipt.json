@@ -1,0 +1,60 @@
+{
+  "change": "implement-diskgraph-platform",
+  "original_native_failure": {
+    "source": "bded132c0b0e86c14739f68bde6317acaf18618a",
+    "run": 38175857890,
+    "job": 114577988060,
+    "stage": 17,
+    "operation": "setresuid",
+    "errno": 1,
+    "main_pid_cap_eff": "000001ffffffff7f",
+    "missing_setuid_bit": 7,
+    "no_new_privs": true,
+    "seccomp_filters": 2
+  },
+  "unit_profile": {
+    "bounding": [
+      "CAP_SETUID",
+      "CAP_SETGID",
+      "CAP_KILL"
+    ],
+    "ambient": [
+      "CAP_SETUID"
+    ],
+    "root_business_engine": false,
+    "retained": [
+      "NoNewPrivileges=yes",
+      "ProtectSystem=strict",
+      "RestrictAddressFamilies=AF_UNIX"
+    ]
+  },
+  "tdd": {
+    "python_red": {
+      "passed": 18,
+      "failed": 1
+    },
+    "python_green": 19,
+    "broker_python_regression": 5,
+    "explore_parent_budget_regression": 1,
+    "cli_all_target_clippy": "passed"
+  },
+  "native_c_isolation": {
+    "architecture": "Linux ARM64",
+    "cases": 4,
+    "expected_negative": 2,
+    "expected_positive": 2,
+    "image": "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+    "no_network": true,
+    "no_new_installation": true,
+    "product_systemd_fix_verified": false,
+    "engine_abnormal_io_retirement_verified": false
+  },
+  "source_sha256": {
+    "scripts/prepare_linux_supervisor_installation.py": "a4daa5659db0b24c212469138eebf14133af64515c0e6047be93a0895c87df27",
+    "scripts/qualify_linux_public_broker.py": "c535e43df81ab2df8cf4990a571a95a27c523c8635a56d99837ad78ac79104e2",
+    "scripts/tests/test_linux_supervisor_installation.py": "c1bc038300360363d8147dc2b0435b2a06b173eb3a30dca7f0e64e71a27fb234",
+    "scripts/fixtures/linux_supervisor_birth/driver.c": "e1cafdb9d7ebcc52b51ab7d039a83f109c73a4fd161ecc17a520c4dd59af77e6",
+    "scripts/qualify_linux_supervisor_spawn.py": "ee47f8ba12fe02c23d9d5843c92f441c7c12932109eceb90c0435a96f9df7867",
+    "crates/diskgraph-cli/tests/cli_flow.rs": "fc35e02655e97fc8b00f94de742209284aadef81f4216c256f918f8cb85664cb"
+  }
+}

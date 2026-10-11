@@ -76,11 +76,13 @@ def qualify(driver, role, output, baseline=None):
         malformed.chmod(0o555)
         errors = {'root_uid': 1, 'root_gid': 1, 'sentinel_uid': 1, 'sentinel_gid': 1,
                   'aliased_fd': 22, 'low_fd': 22, 'nonroot': 1}
-        for case in ('clean', *errors, 'bad_image', 'denied_groups'):
+        for case in ('clean', *errors, 'bad_image', 'denied_groups', 'signal_after_ready'):
             exit_code, stdout, stderr = run_driver([str(root / 'driver'), str(malformed if case == 'bad_image' else root / 'role'), case], root, case == 'nonroot')
             records = [json.loads(line) for line in stdout.splitlines()]
             if case == 'clean':
                 passed = exit_code == 0 and records[0]['passed'] and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init'] and records[-1]['exit_code'] == 0
+            elif case == 'signal_after_ready':
+                passed = exit_code == 0 and len(records) == 3 and records[0] == {'original_pidfd_signal_sent': True, 'signal_errno': 0} and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init'] and not records[-1]['handshake'] and not records[-1]['exited_normally'] and records[-1]['exit_code'] == 9
             elif case == 'denied_groups':
                 passed = exit_code == 42 and len(records) == 2 and records[0]['startup_after_ack_bytes'] == 12 and records[0]['startup_kind'] == 2 and records[0]['startup_phase'] == 15 and records[0]['startup_errno'] == 1 and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init'] and not records[-1]['handshake'] and records[-1]['exited_normally'] and records[-1]['exit_code'] == 127
             elif case == 'bad_image':

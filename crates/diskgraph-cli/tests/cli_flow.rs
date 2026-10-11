@@ -504,6 +504,15 @@ fn search_explore_and_impact_report_bounded_results() {
     );
     assert_eq!(run.code, 0, "stderr: {}", run.stderr);
     let summary: serde_json::Value = serde_json::from_str(run.stdout.trim()).unwrap();
+    // 总节点预算包含父节点：1 只能保留父节点，2 才能再返回一个孩子。
+    assert_eq!(summary["data"]["children"].as_array().unwrap().len(), 0);
+    assert_eq!(summary["data"]["truncated"], "node_limit");
+    let run = run_cli(
+        &data_dir,
+        &["explore", "--scope", &scope_id, "--max-nodes", "2"],
+    );
+    assert_eq!(run.code, 0, "stderr: {}", run.stderr);
+    let summary: serde_json::Value = serde_json::from_str(run.stdout.trim()).unwrap();
     assert_eq!(summary["data"]["children"].as_array().unwrap().len(), 1);
     assert_eq!(summary["data"]["truncated"], "node_limit");
 

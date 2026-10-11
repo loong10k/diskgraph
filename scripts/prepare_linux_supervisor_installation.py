@@ -63,6 +63,9 @@ def broker_artifacts(prefix, policy, images):
             '[Service]\nType=simple\nUser=root\nGroup=root\n'
             f'ExecStart={executable} --config {config_path}\n'
             'Restart=no\nKillMode=control-group\nTimeoutStopSec=30\n'
+            # 降权出生与原子进程回收所需；显式 ambient 防止 systemd seccomp 准备阶段丢 SETUID。
+            'CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_KILL\n'
+            'AmbientCapabilities=CAP_SETUID\n'
             'NoNewPrivileges=yes\nProtectSystem=strict\n'
             f'ReadWritePaths={quoted(text)}\nRestrictAddressFamilies=AF_UNIX\n'
             '\n[Install]\nWantedBy=multi-user.target\n')

@@ -1,0 +1,89 @@
+{
+  "scope": "original pidfd signal after C credential drop before ACK; not Engine I/O retirement",
+  "image": "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+  "cases": [
+    {
+      "allowed_parent_capabilities": [
+        "SETUID",
+        "SETGID"
+      ],
+      "docker_args": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "never",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--cap-add",
+        "SETUID",
+        "--cap-add",
+        "SETGID",
+        "--security-opt",
+        "no-new-privileges",
+        "--pids-limit",
+        "16",
+        "--memory",
+        "64m",
+        "--mount",
+        "type=bind,src=/tmp/dg-supervisor-required-caps-signal,dst=/fixture,readonly",
+        "--entrypoint",
+        "/fixture/driver",
+        "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+        "/fixture/role",
+        "signal_after_ready"
+      ],
+      "exit_code": 42,
+      "stdout": "{\"original_pidfd_signal_sent\":false,\"signal_errno\":1}\n{\"passed\":true,\"uid\":23111,\"gid\":23111,\"groups\":0,\"private_endpoints\":true,\"capabilities_empty\":true,\"whitelist\":true,\"no_new_privs\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "allowed_parent_capabilities": [
+        "SETUID",
+        "SETGID",
+        "KILL"
+      ],
+      "docker_args": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "never",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--cap-add",
+        "SETUID",
+        "--cap-add",
+        "SETGID",
+        "--security-opt",
+        "no-new-privileges",
+        "--pids-limit",
+        "16",
+        "--memory",
+        "64m",
+        "--mount",
+        "type=bind,src=/tmp/dg-supervisor-required-caps-signal,dst=/fixture,readonly",
+        "--cap-add",
+        "KILL",
+        "--entrypoint",
+        "/fixture/driver",
+        "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+        "/fixture/role",
+        "signal_after_ready"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"original_pidfd_signal_sent\":true,\"signal_errno\":0}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":false,\"exit_code\":9}\n",
+      "stderr": "",
+      "passed": true
+    }
+  ],
+  "driver_sha256": "867699756627a1ae3d811745a162d9ff7161c082b4ef60aee6c4f0de7f8c733b",
+  "passed": true
+}

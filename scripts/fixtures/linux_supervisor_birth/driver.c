@@ -102,10 +102,21 @@ int main(int argc, char **argv) {
     struct message terminal = {0};
     ssize_t terminal_size = -1;
     int handshake;
+    int signal_after_ready = !strcmp(argv[2], "signal_after_ready");
+    int signalled = -1;
     if (denied_groups) {
         if (!send_kind(startup[0], 3)) abort();
         terminal_size = recv(startup[0], &terminal, sizeof(terminal), 0);
         handshake = 0;
+    } else if (signal_after_ready) {
+        /* Ready已经在实际降权之后：原pidfd发信号需要CAP_KILL，不能靠Root数值身份冒充。 */
+        if (!send_kind(startup[0], 3) || !receive(startup[0], 1)) abort();
+        signalled = (int)syscall(SYS_pidfd_send_signal, pidfd, SIGKILL, NULL, 0);
+        int signal_error = signalled == 0 ? 0 : errno;
+        printf("{\"original_pidfd_signal_sent\":%s,\"signal_errno\":%d}\n",
+            signalled == 0 ? "true" : "false", signal_error);
+        /* 拒绝信号的负向夹具仍推进原ACK让原child自然退出，绝不丢弃唯一owner。 */
+        handshake = signalled == 0 ? 0 : send_kind(startup[0], 4);
     } else {
         handshake = send_kind(startup[0], 3) && receive(startup[0], 1) && send_kind(startup[0], 4);
     }
@@ -118,5 +129,7 @@ int main(int argc, char **argv) {
     printf("{\"original_pidfd_waited\":%s,\"public_eof_before_init\":%s,\"handshake\":%s,\"exited_normally\":%s,\"exit_code\":%d}\n",
         waited ? "true" : "false", public_eof ? "true" : "false", handshake ? "true" : "false", info.si_code == CLD_EXITED ? "true" : "false", info.si_status);
     close(pidfd);
+    if (signal_after_ready) return signalled == 0 && waited && public_eof &&
+        info.si_code == CLD_KILLED && info.si_status == SIGKILL ? 0 : 42;
     return waited && public_eof && handshake && info.si_code == CLD_EXITED && info.si_status == 0 ? 0 : 42;
 }
