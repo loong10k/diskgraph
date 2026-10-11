@@ -1,0 +1,9 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.63s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-1d042a518dc74750)
+
+running 1 test
+test revision_reader_lock_gap_tests::fixture_precise_wait_keeps_original_deadline_and_expired_wait_is_immediate ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 843 filtered out; finished in 0.04s
+

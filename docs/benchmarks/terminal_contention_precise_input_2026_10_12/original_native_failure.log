@@ -1,0 +1,32 @@
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.85s
+[1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/diskgraph_engine-36fe7ed3aca46844)
+
+running 1 test
+test revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window ... terminal_contention: attempt=0, hold_ms=0, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold_lower=Some(3.073833ms), release_upper=Some(3.0755ms), callback=5.181875ms, terminal=10.59325ms, request=25.647833ms; result=Ok(())
+terminal_contention: attempt=0, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold_lower=Some(219.7665ms), release_upper=Some(219.773375ms), callback=88µs, terminal=226.828667ms, request=228.176375ms; result=Ok(())
+terminal_contention_fixture_unqualified: attempt=0, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold_lower=Some(219.7665ms), release_upper=Some(219.773375ms), callback=88µs, terminal=226.828667ms, request=228.176375ms
+terminal_contention: attempt=1, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold_lower=Some(122.53525ms), release_upper=Some(122.538417ms), callback=83µs, terminal=133.423417ms, request=134.537708ms; result=Ok(())
+terminal_contention: attempt=0, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(231.693459ms), release_upper=Some(231.701959ms), callback=87.75µs, terminal=249.123042ms, request=250.305417ms; result=Ok(())
+terminal_contention_fixture_unqualified: attempt=0, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(231.693459ms), release_upper=Some(231.701959ms), callback=87.75µs, terminal=249.123042ms, request=250.305417ms
+terminal_contention: attempt=1, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(230.642833ms), release_upper=Some(230.645917ms), callback=104.583µs, terminal=250.115125ms, request=251.36625ms; result=Ok(())
+terminal_contention_fixture_unqualified: attempt=1, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(230.642833ms), release_upper=Some(230.645917ms), callback=104.583µs, terminal=250.115125ms, request=251.36625ms
+terminal_contention: attempt=2, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(284.3455ms), release_upper=Some(284.35025ms), callback=81.625µs, terminal=254.537125ms, request=255.723375ms; result=Err(Business(BudgetExceeded))
+terminal_contention_fixture_unqualified: attempt=2, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(284.3455ms), release_upper=Some(284.35025ms), callback=81.625µs, terminal=254.537125ms, request=255.723375ms
+terminal_contention: attempt=3, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(247.890209ms), release_upper=Some(247.892667ms), callback=128.583µs, terminal=261.313542ms, request=262.618375ms; result=Err(Business(BudgetExceeded))
+terminal_contention_fixture_unqualified: attempt=3, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(247.890209ms), release_upper=Some(247.892667ms), callback=128.583µs, terminal=261.313542ms, request=262.618375ms
+terminal_contention: attempt=4, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(267.956916ms), release_upper=Some(267.958958ms), callback=96.625µs, terminal=259.014959ms, request=260.162958ms; result=Err(Business(BudgetExceeded))
+terminal_contention_fixture_unqualified: attempt=4, hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=150, actual_hold_lower=Some(267.956916ms), release_upper=Some(267.958958ms), callback=96.625µs, terminal=259.014959ms, request=260.162958ms
+
+thread 'revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window' (109861) panicked at crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs:212:9:
+native scheduling never produced the required short contention input: hold_ms=100, wake_delay_ms=150
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 842 filtered out; finished in 2.22s
+
+[1m[91merror[0m: test failed, to rerun pass `-p diskgraph-engine --lib`

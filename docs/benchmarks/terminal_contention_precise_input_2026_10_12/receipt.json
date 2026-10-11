@@ -1,0 +1,27 @@
+{
+  "source": "a172b51a",
+  "ci_run": 38168994137,
+  "macos_stable_job": 114557426582,
+  "original_native_result": "one mandatory timing test failed to qualify injected 150ms input in five attempts",
+  "actual_hold_ms": [
+    231.693459,
+    230.642833,
+    284.3455,
+    247.890209,
+    267.956916
+  ],
+  "required_input_upper_ms": 180,
+  "production_database_window_ms": 250,
+  "production_capability_window_ms": 50,
+  "fix": "short test fixture waits on original absolute Instant with finite spin; long/denial fixtures retain sleep; no new business retry, no allowance changes",
+  "local_absolute_wait_unit": {
+    "passed": 1,
+    "failed": 0
+  },
+  "engine_clippy": "macOS all-targets passed",
+  "mandatory_native_timing_gate": "pending CI; not satisfied by wait unit test",
+  "arm_image_job": 114557426710,
+  "arm_image_failure": "test fixture reused original 30 seconds across repeated debug image digest admissions; current release image CI change will be requalified",
+  "native_service_or_desktop_install": "not performed locally",
+  "production_ready": false
+}

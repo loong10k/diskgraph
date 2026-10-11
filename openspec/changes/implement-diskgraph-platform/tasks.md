@@ -440,3 +440,5 @@ a172b51a当前CI两个GNU包在组成门禁失败，原夹具只创建三镜像�
 CLI scope show真实越权修复：隔离实际Engine注册根、真实dispatch、未授权主体/期限耗尽/缺末段回调RED0/3；接入with_scope_metadata_until后GREEN4/0，编码后实时撤权与50ms迟到能力拒绝，既有字段保留、原可信scope接口不变；scope列表继承dispatch原期限。监督参数回归3/0、Engine源门禁6/0、CLI源门禁2/0、Python夹具5/0、macOS all-target Clippy/fmt通过。新增真实CLI注册/撤销及监督scope show对照待新CI；不以共同库测试关闭原生服务父项。见cli_scope_show_authorization_2026_10_12。
 
 a172b51a Linux x86 stable/MSRV原root门禁在实际安装准备拒绝debug成员超过64MiB处失败，未运行生成unit；traceback位于常用查询/业务失败与委托发送者场景返回之后，但无逐案receipt，不将该控制流推断称完整资格。改为同源码release实际构建产物并核验Cargo profile，安装64MiB/总256MiB预算保持；CI合同RED5/1→GREEN6/0。新增逐案立即日志，release安装与systemd仍待CI。见linux_installer_release_image_gate_2026_10_12。
+
+a172b51a macOS stable强制竞争门禁未形成合格150ms输入：五次实际持锁230.6–284.4ms，180ms原输入上界均未满足，原失败留证。测试短输入改为原绝对时刻的有限CPU等待，实际范围/五次上限/五场景和生产250/50ms不变；本机纯等待单元1/0、Engine Clippy通过，完整强制原生门禁尚待CI。Linux ARM原held-image检查累计原30秒超时，其ETXTBSY前端夹具4/0、实际doctor1/0已执行，但不得关闭root安装门禁；release方案尚待。见terminal_contention_precise_input_2026_10_12。

@@ -119,17 +119,15 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                             observed_wait
                                 .store(actually_waiting, std::sync::atomic::Ordering::SeqCst);
                             // 模拟原生CI已经观察到的通知后线程延迟；不能在这之后重新给予完整持锁时间。
-                            let wake_remaining = Duration::from_millis(wake_delay_ms)
-                                .saturating_sub(held_started.elapsed());
-                            if !wake_remaining.is_zero() {
-                                std::thread::sleep(wake_remaining);
-                            }
-                            // 持锁预算从原取锁时刻开始；通知等待和线程唤醒已经消耗的时间不得续给。
-                            let remaining = Duration::from_millis(hold_ms)
-                                .saturating_sub(held_started.elapsed());
-                            if !remaining.is_zero() {
-                                std::thread::sleep(remaining);
-                            }
+                            fixture_wait_until(
+                                held_started + Duration::from_millis(wake_delay_ms),
+                                allowed,
+                            );
+                            // 两个等待均指向原持锁时刻；短输入不用可合并sleep定时器，仍测实际释放范围。
+                            fixture_wait_until(
+                                held_started + Duration::from_millis(hold_ms),
+                                allowed,
+                            );
                             // 先记录仍持锁的实际时长；不能把释放后的线程调度/诊断锁等待计为持锁。
                             let actual_hold = held_started.elapsed();
                             drop(held);
@@ -268,4 +266,31 @@ fn known_terminal_withdrawal_wins_after_original_reader_deadline() {
         ),
         "withdrawal masked: {result:?}"
     );
+}
+
+/// 参数：原持锁绝对截止时刻和是否为短输入；返回：等待结束，不续期、不更改生产锁策略。
+fn fixture_wait_until(original: std::time::Instant, precise: bool) {
+    if precise {
+        // 仅资格夹具的有限CPU等待，避免睡眠计时器延迟改变输入；抢占仍由实际释放上界门禁识别。
+        while std::time::Instant::now() < original {
+            std::hint::spin_loop();
+        }
+    } else {
+        let remaining = original.saturating_duration_since(std::time::Instant::now());
+        if !remaining.is_zero() {
+            std::thread::sleep(remaining);
+        }
+    }
+}
+
+#[test]
+fn fixture_precise_wait_keeps_original_deadline_and_expired_wait_is_immediate() {
+    use std::time::{Duration, Instant};
+    let original = Instant::now() + Duration::from_millis(40);
+    std::thread::sleep(Duration::from_millis(15));
+    fixture_wait_until(original, true);
+    assert!(Instant::now() >= original);
+    let finished = Instant::now();
+    fixture_wait_until(original, true);
+    assert!(finished.elapsed() < Duration::from_millis(30));
 }
