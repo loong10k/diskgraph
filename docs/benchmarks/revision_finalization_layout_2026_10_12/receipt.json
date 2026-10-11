@@ -1,0 +1,26 @@
+{
+  "change": "move unchanged revision finalization methods to revision_finalization.rs; preserve Engine public methods",
+  "exact_method_text_matches_parent": "db4908f5",
+  "line_counts": {
+    "relation_request.rs": 319,
+    "revision_finalization.rs": 206,
+    "lib.rs": 494
+  },
+  "layout_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "executor_owner_regression": {
+    "passed": 4,
+    "failed": 0
+  },
+  "relation_regression": {
+    "passed": 9,
+    "failed": 8,
+    "failure_site": "relation_request_tests.rs:110 Business(Unsupported) local native scan fixture not installed; native CI required"
+  },
+  "limits": [
+    "not a full relation suite pass",
+    "Linux and Windows native checks still required"
+  ]
+}

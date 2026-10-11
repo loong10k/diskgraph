@@ -128,6 +128,7 @@ mod revision_comparison;
 mod revision_display_completion;
 #[cfg(test)]
 mod revision_evidence_tests;
+mod revision_finalization;
 mod revision_growth;
 mod revision_history;
 mod revision_locator;
