@@ -29,3 +29,5 @@ CLI node、children、top、explore、search 共用dispatch原期限与独立授
 CLI扫描任务status按任务真实scope检查OperationView与实时授权交集，status和snapshots列表沿原dispatch期限准备有界响应并在编码后终检。原撤权见证贯穿编码，撤销再恢复不能放行原在途响应；没有原生通知能力时授权代次变化返回Conflict。隔离元数据回归与原生服务验收分开记录。
 
 CLI过滤children（含未知大小）和search在拥有字符串、解码旧负载之前准入SQLite实际列成本；原始页超预算时即使最终响应很小也返回budget_exceeded，不生成局部游标。explore将父节点计入max_nodes。隔离20万行release检查证明解码量随页变化且目录索引保留，不代表原生扫描、RSS上限或延迟SLA。
+
+生成的 systemd unit 将 root broker 能力上界收窄为 `CAP_SETUID CAP_SETGID CAP_KILL`，ambient 仅显式保留 `CAP_SETUID`；出生角色执行业务镜像前清空 ambient 与有效能力。原生验收先观察实际 MainPID 的 `CapEff`、`CapBnd` 均为 `0xe0`、`CapAmb` 为 `0x80`，再执行原前端请求，并检查原 owner 退休与 CLEAN 记录。此项修复已复现的 SETUID 缺失导致的启动拒绝；隔离 C 测试不能单独证明生成服务合格，当前源码的真实服务验收仍待 CI。

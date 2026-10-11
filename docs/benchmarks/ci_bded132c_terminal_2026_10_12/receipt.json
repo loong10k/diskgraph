@@ -1,0 +1,32 @@
+{
+  "run_id": 38175857890,
+  "source_sha": "bded132c0b0e86c14739f68bde6317acaf18618a",
+  "counts": {
+    "success": 15,
+    "failure": 8,
+    "cancelled": 0
+  },
+  "windows": [
+    {
+      "platform": "windows-msrv",
+      "failed_tests": [
+        "search_explore_and_impact_report_bounded_results"
+      ],
+      "job_status_revocation_regression": "passed",
+      "original_control_inheritance": "passed_this_run_only",
+      "raw_sha256": "6de4a7f306dcff1dd0719982c1d6d7298c54897ca2bad6ee48db24d014718f25"
+    },
+    {
+      "platform": "windows-stable",
+      "failed_tests": [
+        "search_explore_and_impact_report_bounded_results"
+      ],
+      "job_status_revocation_regression": "passed",
+      "original_control_inheritance": "passed_this_run_only",
+      "raw_sha256": "5917ed3ae7fc5ffdf1ffc27551bf5483bf6d9f41e755fedc77eec28954b49bd5"
+    }
+  ],
+  "fixed_source_sha": "2a6e2db60104e676a88b83e3538e25fa747304eb",
+  "fixed_source_native_qualification": "pending run 38179170488",
+  "production_ready": false
+}
