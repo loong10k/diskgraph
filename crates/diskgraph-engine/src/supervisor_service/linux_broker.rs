@@ -1,3 +1,4 @@
+use super::linux_broker_launch_result::LinuxBrokerLaunchResult;
 use super::{HeldInstallationImage, InstallationConfig, broker_frame, root_installation_path};
 use crate::native_deadline::ClockStamp;
 use crate::recovery_control::{
@@ -211,13 +212,7 @@ impl LinuxBroker {
         }
     }
 
-    fn launch(
-        &self,
-        deadline: Instant,
-    ) -> Result<
-        (Box<LinuxSupervisorProcess>, LinuxSupervisorTrust),
-        (io::Error, Option<Box<LinuxSupervisorProcess>>),
-    > {
+    fn launch(&self, deadline: Instant) -> LinuxBrokerLaunchResult {
         let prepared = (|| {
             let stamp = ClockStamp::capture(deadline).map_err(io::Error::other)?;
             let mut nonce = [0; 32];
@@ -360,11 +355,11 @@ fn deliver(
         if let Some(bytes) = owner.read_stderr()? {
             send(connection, 2, bytes, deadline, cancel)?;
         }
-        if let Some(code) = exit {
-            if owner.foreground_output_drained()? {
-                send(connection, 3, &code.to_be_bytes(), deadline, cancel)?;
-                return Ok(());
-            }
+        if let Some(code) = exit
+            && owner.foreground_output_drained()?
+        {
+            send(connection, 3, &code.to_be_bytes(), deadline, cancel)?;
+            return Ok(());
         }
         std::thread::sleep(Duration::from_millis(1));
     }

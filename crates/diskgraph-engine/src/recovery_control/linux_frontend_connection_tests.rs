@@ -33,10 +33,26 @@ fn run(mode: &str, uid: u32, expected_rejection: bool) {
             Ok(())
         });
     }
-    let child = command
-        .stdout(std::process::Stdio::piped())
-        .spawn()
-        .unwrap();
+    // 并行fork夹具可能短暂继承另一线程尚未关闭的写句柄，导致exec在业务出生前ETXTBSY。
+    // 只对该原OS错误在固定准备期限内重试同一只读镜像；不重试协议、身份或运行失败。
+    let birth_deadline = Instant::now() + Duration::from_secs(5);
+    let mut transient_busy = 0;
+    let child = loop {
+        match command.stdout(std::process::Stdio::piped()).spawn() {
+            Ok(child) => break child,
+            Err(error)
+                if error.raw_os_error() == Some(libc::ETXTBSY)
+                    && Instant::now() < birth_deadline =>
+            {
+                transient_busy += 1;
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            Err(error) => {
+                panic!("frontend pre-exec failed: {error:?}; transient_busy={transient_busy}")
+            }
+        }
+    };
+    eprintln!("frontend actual birth succeeded: transient_busy={transient_busy}");
     let (stream, _) = listener.accept().unwrap();
     let admitted = LinuxFrontendConnection::new(UnixForegroundOutput::new(stream).unwrap(), 23112);
     let deadline = Instant::now() + Duration::from_secs(5);

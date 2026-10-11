@@ -31,6 +31,11 @@ mod linux_broker_client;
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
+mod linux_broker_launch_result;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
 mod original_client_output;
 #[cfg(all(
     target_os = "linux",

@@ -38,33 +38,35 @@ fi
 BUILD_DIR="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/release"
 
 echo "==> building release binaries on $(uname -s) $ARCH"
-cargo zigbuild --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker \
+cargo zigbuild --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker -p diskgraph-engine --bins \
     --target "$BUILD_TARGET.2.17"
 
 # 不允许本机构建静默提高原清单承诺；超出基线时在安装文件和写清单前失败。
 python3 scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target "$BUILD_TARGET" \
-    "$BUILD_DIR/diskgraph" "$BUILD_DIR/diskgraph-mcp" "$BUILD_DIR/diskgraph-scan-worker"
+    "$BUILD_DIR/diskgraph" "$BUILD_DIR/diskgraph-mcp" "$BUILD_DIR/diskgraph-scan-worker" "$BUILD_DIR/diskgraph-supervisor"
 
 mkdir -p "$OUT_DIR/bin" "$OUT_DIR/deploy"
-for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
+for binary in diskgraph diskgraph-mcp diskgraph-scan-worker diskgraph-supervisor; do
     install -m 0755 "$BUILD_DIR/$binary" "$OUT_DIR/bin/$binary"
 done
 
 # 复制后检查真正包内字节，不能用源路径的旧观察为后续副本提供兼容证明。
 python3 scripts/linux_abi_requirements.py --maximum-glibc 2.17 --target "$BUILD_TARGET" \
-    "$OUT_DIR/bin/diskgraph" "$OUT_DIR/bin/diskgraph-mcp" "$OUT_DIR/bin/diskgraph-scan-worker" \
+    "$OUT_DIR/bin/diskgraph" "$OUT_DIR/bin/diskgraph-mcp" "$OUT_DIR/bin/diskgraph-scan-worker" "$OUT_DIR/bin/diskgraph-supervisor" \
     > "$OUT_DIR/GNU_ABI.jsonl"
 
 echo "==> installing the systemd unit example"
 install -m 0644 deploy/diskgraph-mcp.service "$OUT_DIR/deploy/diskgraph-mcp.service"
+install -m 0644 scripts/prepare_linux_supervisor_installation.py "$OUT_DIR/deploy/prepare_linux_supervisor_installation.py"
+install -m 0644 docs/linux_supervisor_installation.md docs/linux_supervisor_installation.zh-CN.md "$OUT_DIR/deploy/"
 
 python3 scripts/worker_manifest.py --bin-dir "$OUT_DIR/bin" --target "$BUILD_TARGET" --version "$VERSION"
 
 echo "==> recording checksums and provenance"
 (
     cd "$OUT_DIR"
-    shasum -a 256 bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/scan-worker-manifest.json > SHA256SUMS 2>/dev/null \
-        || sha256sum bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/scan-worker-manifest.json > SHA256SUMS
+    shasum -a 256 bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/diskgraph-supervisor bin/scan-worker-manifest.json > SHA256SUMS 2>/dev/null \
+        || sha256sum bin/diskgraph bin/diskgraph-mcp bin/diskgraph-scan-worker bin/diskgraph-supervisor bin/scan-worker-manifest.json > SHA256SUMS
     {
         echo "# DiskGraph private Linux bundle"
         echo "version:   $VERSION"
@@ -75,7 +77,7 @@ echo "==> recording checksums and provenance"
         echo
         echo "# Requires only glibc >= 2.17 (bundled SQLite; no system sqlite)."
         echo "# No Rust toolchain, PruneX, or disktree-app at runtime."
-        for binary in diskgraph diskgraph-mcp diskgraph-scan-worker; do
+        for binary in diskgraph diskgraph-mcp diskgraph-scan-worker diskgraph-supervisor; do
             echo "bin/$binary  $(stat -c%s "bin/$binary" 2>/dev/null || stat -f%z "bin/$binary") bytes"
         done
         echo

@@ -1,0 +1,107 @@
+.F.FF..
+======================================================================
+FAIL: test_package_entry_checks_actual_broker_abi_before_writing_archive (test_linux_package_abi_gate.LinuxPackageAbiGateTests.test_package_entry_checks_actual_broker_abi_before_writing_archive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_package_abi_gate.py", line 66, in test_package_entry_checks_actual_broker_abi_before_writing_archive
+    with self.assertRaisesRegex(ValueError, '2.39'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_package_entry_requires_broker_before_creating_output (test_linux_package_abi_gate.LinuxPackageAbiGateTests.test_package_entry_requires_broker_before_creating_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_package_abi_gate.py", line 55, in test_package_entry_requires_broker_before_creating_output
+    with self.assertRaises(FileNotFoundError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: FileNotFoundError not raised
+
+======================================================================
+FAIL: test_private_bundle_builds_declared_target_without_installing_tools (test_linux_package_abi_gate.LinuxPackageAbiGateTests.test_private_bundle_builds_declared_target_without_installing_tools)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_package_abi_gate.py", line 122, in test_private_bundle_builds_declared_target_without_installing_tools
+    self.assertEqual(arguments.read_text().splitlines(), [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "zigbuild", "--release", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "-p", "diskgraph-scan-worker", "-p", "diskgraph-engine", "--bins", "--target", "x86_64-unknown-linux-gnu.2.17",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+AssertionError: Lists differ: ['zig[107 chars]', '--target', 'x86_64-unknown-linux-gnu.2.17'] != ['zig[107 chars]', '-p', 'diskgraph-engine', '--bins', '--targ[32 chars].17']
+
+First differing element 9:
+'--target'
+'-p'
+
+Second list contains 3 additional elements.
+First extra element 11:
+'--bins'
+
+  ['zigbuild',
+   '--release',
+   '--locked',
+   '-p',
+   'diskgraph-cli',
+   '-p',
+   'diskgraph-mcp',
+   '-p',
+   'diskgraph-scan-worker',
++  '-p',
++  'diskgraph-engine',
++  '--bins',
+   '--target',
+   'x86_64-unknown-linux-gnu.2.17']
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.490s
+
+FAILED (failures=3)
+{
+  "target": "x86_64-unknown-linux-gnu",
+  "archive": "/private/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/tmpeg4jhbyr/broker-abi-output/diskgraph-x86_64-unknown-linux-gnu.tar.gz",
+  "sha256": "07780f35ea20ebd34eac676a63fc613c1db2d8a46231f5ec38e0cd308088cd1d",
+  "stdio": 0,
+  "http": 0,
+  "upgrade_rollback": 0,
+  "controlled_load": 0,
+  "controlled_load_200000": 0,
+  "scan_worker": {
+    "executable": {
+      "bytes": 408,
+      "name": "diskgraph-scan-worker",
+      "sha256": "5b28f91e25290e59056e4cb5998e692d45e1a080b2ad40e8c59224263b4ebc40"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "x86_64-unknown-linux-gnu"
+  }
+}
+{
+  "target": "x86_64-unknown-linux-gnu",
+  "archive": "/private/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/tmpbod6w6qb/missing-broker-output/diskgraph-x86_64-unknown-linux-gnu.tar.gz",
+  "sha256": "9fc1e954dbf6948123da158d704b1b1069d311030ca51191acbbd2c0e5bd97ab",
+  "stdio": 0,
+  "http": 0,
+  "upgrade_rollback": 0,
+  "controlled_load": 0,
+  "controlled_load_200000": 0,
+  "scan_worker": {
+    "executable": {
+      "bytes": 408,
+      "name": "diskgraph-scan-worker",
+      "sha256": "5b28f91e25290e59056e4cb5998e692d45e1a080b2ad40e8c59224263b4ebc40"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "x86_64-unknown-linux-gnu"
+  }
+}

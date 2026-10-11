@@ -122,12 +122,14 @@ def inspect_image(path, maximum, expected_machine=None):
     return result
 
 
-def require_gnu_package(bin_dir, target):
-    """参数：最终三个GNU镜像目录及目标；返回：固定2.17声明的静态证据，不替代旧环境运行。"""
+def require_gnu_package(bin_dir, target, with_supervisor=False):
+    """参数：最终GNU镜像目录、目标和监督镜像要求；返回：固定2.17静态证据，不替代运行。"""
     if target not in GNU_TARGET_MACHINES:
         raise ValueError('unsupported GNU package target')
-    images = [inspect_image(Path(bin_dir) / name, '2.17', GNU_TARGET_MACHINES[target])
-              for name in ('diskgraph', 'diskgraph-mcp', 'diskgraph-scan-worker')]
+    names = ('diskgraph', 'diskgraph-mcp', 'diskgraph-scan-worker')
+    if with_supervisor:
+        names += ('diskgraph-supervisor',)
+    images = [inspect_image(Path(bin_dir) / name, '2.17', GNU_TARGET_MACHINES[target]) for name in names]
     return {'target': target, 'advertised_baseline': '2.17', 'images': images,
             'runtime_qualification': False}
 

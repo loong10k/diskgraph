@@ -7,6 +7,10 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+import io
+import tarfile
+import json
+import hashlib
 from unittest import mock
 from test_linux_abi_requirements import fixture
 
@@ -46,6 +50,50 @@ class LinuxPackageAbiGateTests(unittest.TestCase):
                 self.assertEqual(old_archive.read_bytes(), b"existing archive must survive")
                 self.assertEqual(list(output.iterdir()), [old_archive])
                 image.write_bytes(fixture(["GLIBC_2.17"], 62))
+
+    def test_package_entry_requires_broker_before_creating_output(self):
+        output = self.root / 'missing-broker-output'
+        argv = ['accept-readonly-package.py', '--target', 'x86_64-unknown-linux-gnu',
+                '--bin-dir', str(self.bin), '--old-cli', str(self.root / 'old'), '--output-dir', str(output)]
+        with mock.patch.object(sys, 'argv', argv), mock.patch.object(PACKAGE, 'accepted', return_value=0) as run:
+            with self.assertRaises(FileNotFoundError):
+                PACKAGE.main()
+            run.assert_not_called()
+        self.assertFalse(output.exists())
+
+    def test_package_entry_checks_actual_broker_abi_before_writing_archive(self):
+        (self.bin / 'diskgraph-supervisor').write_bytes(fixture(['GLIBC_2.39'], 62))
+        output = self.root / 'broker-abi-output'
+        argv = ['accept-readonly-package.py', '--target', 'x86_64-unknown-linux-gnu',
+                '--bin-dir', str(self.bin), '--old-cli', str(self.root / 'old'), '--output-dir', str(output)]
+        with mock.patch.object(sys, 'argv', argv), mock.patch.object(PACKAGE, 'accepted', return_value=0) as run:
+            with self.assertRaisesRegex(ValueError, '2.39'):
+                PACKAGE.main()
+            run.assert_not_called()
+        self.assertFalse(output.exists())
+
+    def test_actual_archive_keeps_four_images_abi_and_installer(self):
+        # 本用例仅验证真实归档内容；accepted被隔离，不冒充原生ELF运行验收。
+        (self.bin / 'diskgraph-supervisor').write_bytes(fixture(['GLIBC_2.17'], 62))
+        output = self.root / 'four-image-output'
+        argv = ['accept-readonly-package.py', '--target', 'x86_64-unknown-linux-gnu',
+                '--bin-dir', str(self.bin), '--old-cli', str(self.root / 'old'), '--output-dir', str(output)]
+        worker_bytes = (self.bin / 'diskgraph-scan-worker').read_bytes()
+        deployment = {'DISKGRAPH_SCAN_WORKER_PATH': str(self.bin / 'diskgraph-scan-worker'),
+                      'DISKGRAPH_SCAN_WORKER_SHA256': hashlib.sha256(worker_bytes).hexdigest(),
+                      'DISKGRAPH_SCAN_WORKER_BYTES': str(len(worker_bytes))}
+        with mock.patch.object(sys, 'argv', argv), mock.patch.object(PACKAGE, 'accepted', return_value=0), \
+                mock.patch.object(PACKAGE, 'SUFFIX', ''), mock.patch.dict(os.environ, deployment), \
+                mock.patch.object(sys, 'stdout', io.StringIO()):
+            PACKAGE.main()
+        root = 'diskgraph-x86_64-unknown-linux-gnu'
+        with tarfile.open(output / (root + '.tar.gz')) as archive:
+            for name in ['diskgraph', 'diskgraph-mcp', 'diskgraph-scan-worker', 'diskgraph-supervisor']:
+                self.assertEqual(archive.extractfile(root + '/bin/' + name).read(), (self.bin / name).read_bytes())
+            abi = json.load(archive.extractfile(root + '/gnu-abi.json'))
+            self.assertEqual(len(abi['images']), 4)
+            self.assertEqual(archive.extractfile(root + '/deploy/prepare_linux_supervisor_installation.py').read(),
+                             (SCRIPTS / 'prepare_linux_supervisor_installation.py').read_bytes())
 
     def test_baseline_report_binds_all_actual_image_digests(self):
         report = ABI.require_gnu_package(self.bin, "x86_64-unknown-linux-gnu")
@@ -100,7 +148,7 @@ class LinuxPackageAbiGateTests(unittest.TestCase):
         self.assertEqual(result.returncode, 67, result.stderr)
         self.assertEqual(arguments.read_text().splitlines(), [
             "zigbuild", "--release", "--locked", "-p", "diskgraph-cli", "-p", "diskgraph-mcp",
-            "-p", "diskgraph-scan-worker", "--target", "x86_64-unknown-linux-gnu.2.17",
+            "-p", "diskgraph-scan-worker", "-p", "diskgraph-engine", "--bins", "--target", "x86_64-unknown-linux-gnu.2.17",
         ])
         self.assertFalse(output.exists(), "failed build must not create a candidate bundle")
         # 缺少工具、错误平台和非GNU目标都必须在产生候选包前拒绝。

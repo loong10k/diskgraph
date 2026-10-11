@@ -1,0 +1,26 @@
+{
+  "original_ci": 38165131204,
+  "original_source": "2c71eab0c7b782a789d7974d4b512ff08792ae6a",
+  "original_failures": {
+    "linux_stable": "two Clippy lints in Linux broker",
+    "linux_arm64": "frontend fixture pre-exec ETXTBSY; protocol assertions not reached"
+  },
+  "package_red": {
+    "tests": 7,
+    "failures": 3
+  },
+  "abi_green": {
+    "tests": 22,
+    "failures": 0
+  },
+  "worker_deployment_tests": {
+    "tests": 7,
+    "failures": 0
+  },
+  "local_source_layout": "6 passed",
+  "local_engine_clippy": "passed on macOS; Linux cfg not compiled",
+  "native_fixes_qualified": false,
+  "original_business_budgets_changed": false,
+  "desktop_services_installed": false,
+  "production_ready": false
+}

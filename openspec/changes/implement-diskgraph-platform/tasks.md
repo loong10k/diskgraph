@@ -426,3 +426,6 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 
 
 2c71eab0 Linux x86_64 MSRV真实root监督门禁通过：原owner7/0、前端凭据4/0、实际doctor launcher1/0、root原镜像/配置1/0、公开broker五场景5/0。实际前端正常wait/EOF、ACTIVE拒绝保持原槽、错误摘要无出生、同UID/root委托与非root委托发送者均拒绝。原生资格来自CI38165131204/job114546090079/artifact11712336247；完整job仍运行，不代替完整CI。新增安装产物fa85346b及实际Pending、systemd运行、其他CLI/MCP、macOS/Windows服务未被这份证据覆盖。见linux_public_broker_2c71_msrv_native。
+
+
+2c71eab0原生新失败保留：Linux stable broker运行五场景5/0但Clippy拒绝复杂返回类型/嵌套if；ARM64原owner7/0，frontend3/1在exec前ETXTBSY，未到身份/协议验收，后续broker未运行。修正返回类型别名与短路条件，不禁用lint；仅夹具同一只读镜像出生前ETXTBSY按原固定5秒准备期限重试，其余错误立即失败，原连接期限不改。Linux GNU包增加第四个实际broker及随包安装准备器，中间/解包镜像均保持glibc2.17验收。包门禁RED7项中3失败→ABI回归22/0；worker部署7/0、源码门禁6/0、本机macOS Clippy及CI契约8/0。新Linux原生修正和安装链路尚待CI，不把本机通过或归档静态测试当执行证据。见linux_broker_package_and_native_fixes_2026_10_12。

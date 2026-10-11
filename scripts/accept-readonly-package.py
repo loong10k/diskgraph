@@ -106,10 +106,12 @@ def main():
     args = parser.parse_args()
     executable_name(args.target)
     binaries = [f"diskgraph{SUFFIX}", f"diskgraph-mcp{SUFFIX}", f"diskgraph-scan-worker{SUFFIX}"]
+    if args.target in GNU_TARGET_MACHINES:
+        binaries.append("diskgraph-supervisor")
     source = args.bin_dir.resolve()
     # 在写归档或执行程序之前拒绝不满足原兼容声明的真实GNU制品。
     if args.target in GNU_TARGET_MACHINES:
-        require_gnu_package(source, args.target)
+        require_gnu_package(source, args.target, with_supervisor=True)
     old_cli = args.old_cli.resolve()
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -124,8 +126,15 @@ def main():
         for name in binaries:
             copy_artifact(source / name, staging_bin / name)
         if args.target in GNU_TARGET_MACHINES:
-            abi = require_gnu_package(staging_bin, args.target)
+            abi = require_gnu_package(staging_bin, args.target, with_supervisor=True)
             (staging / "gnu-abi.json").write_text(json.dumps(abi, indent=2) + "\n")
+        if args.target in GNU_TARGET_MACHINES:
+            deployment = staging / "deploy"
+            deployment.mkdir()
+            copy_artifact(ROOT / "scripts" / "prepare_linux_supervisor_installation.py",
+                          deployment / "prepare_linux_supervisor_installation.py")
+            for name in ("linux_supervisor_installation.md", "linux_supervisor_installation.zh-CN.md"):
+                copy_artifact(ROOT / "docs" / name, deployment / name)
         version = workspace_version()
         write_manifest(staging_bin, args.target, version)
         for name in ("README.md", "LICENSE"):
@@ -160,7 +169,7 @@ def main():
         manifest = read_manifest(packaged_bin / MANIFEST_NAME)
         verify_manifest(packaged_bin, manifest, args.target, version)
         if args.target in GNU_TARGET_MACHINES:
-            if require_gnu_package(packaged_bin, args.target) != abi:
+            if require_gnu_package(packaged_bin, args.target, with_supervisor=True) != abi:
                 raise RuntimeError("extracted GNU ABI differs from staged images")
 
         deployment = (packaged_worker_environment(packaged_bin, os.environ)

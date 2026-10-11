@@ -1304,7 +1304,7 @@ jobs:
           "$RUNNER_TEMP/diskgraph-gnu-builder/bin/cargo-zigbuild" --version
       - name: Build GNU release binaries against original glibc baseline
         if: runner.os == 'Linux'
-        run: cargo zigbuild --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker --target ${{ matrix.target }}.2.17
+        run: cargo zigbuild --release --locked -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker -p diskgraph-engine --bins --target ${{ matrix.target }}.2.17
       - name: Verify actual GNU package ABI baseline
         if: runner.os == 'Linux'
         id: gnu_abi
@@ -1314,6 +1314,7 @@ jobs:
             'target/${{ matrix.target }}/release/diskgraph' \
             'target/${{ matrix.target }}/release/diskgraph-mcp' \
             'target/${{ matrix.target }}/release/diskgraph-scan-worker' \
+            'target/${{ matrix.target }}/release/diskgraph-supervisor' \
             > "$RUNNER_TEMP/gnu-abi.log" 2>&1
       - name: Preserve actual GNU ABI inspection
         if: always() && runner.os == 'Linux' && (steps.gnu_abi.outcome == 'success' || steps.gnu_abi.outcome == 'failure')
