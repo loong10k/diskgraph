@@ -7,6 +7,9 @@ use diskgraph_core::{
 use diskgraph_store::{ScopeRecord, StoreError};
 use std::path::Path;
 
+#[path = "scope_metadata_query.rs"]
+mod scope_metadata_query;
+
 impl Engine {
     /// 以管理权限注册规范根并授予注册主体既有 scope 权限。
     /// 参数：root 为本机根；principal/authorizer 为主体与请求能力。

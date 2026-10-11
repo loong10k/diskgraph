@@ -23,3 +23,5 @@ Linux GNU安装归档新增固定broker镜像，实际构建、入包、解包�
 固定JSON doctor兼容协议继续保留。新增版本化只读查询请求，包含原ClockStamp和不可变受限命令描述：scope list/show、status、snapshots列表、tree（不写HTML）、node、children、top、search、explore、growth、changes、explain、related、impact、candidates。只接受各命令声明的必要/可选参数及布尔开关，数字字段在出生前验证，重复参数、未知命令/字段、全局数据目录/主体/环境/FD覆盖及过大正文拒绝。参数值以单一`--flag=value`传递，不能被Clap解释成另一条全局开关；scope/revision真实授权仍由现有Engine入口完成。原请求最多4096字节、输出最多1MiB、原30秒不刷新。当前每安装域仍只允许一个可信本地前端UID并使用既有local-user策略；不把这个本地模式用于远程MCP身份。实际CLI查询/业务失败必须保持JSON和原退出状态，之后原owner独立退休。扫描、维护、HTML文件交付和MCP转交仍需单独落地，不能据本增量勾选整个CLI/MCP父项。
 
 版本化请求原生负控：同一真实Linux时间域/有效25秒ClockStamp首先成功执行doctor作为正控，分别仅改变全局主体覆盖、未知命令、重复scope、非法数字、写命令或顶层环境字段。每个负例须观察原状态10与真实公开EOF，数据库未出生、两个原槽仍CLEAN且原broker正常wait；不得用过期/错域时钟替代命令校验。夹具逐笔读取扣同一原30秒，不刷新分片时间；此新增门禁尚待原生执行。
+
+CLI scope show补充统一授权验收：未知主体不可读取注册根展示；正确授权保留既有字段；原dispatch期限耗尽拒绝；编码后能力回调或持久撤权拒绝且不交付缓冲结果。不得以可信内部scope(scope_id)读取替代对外授权。原store/Engine可信兼容读取保留。

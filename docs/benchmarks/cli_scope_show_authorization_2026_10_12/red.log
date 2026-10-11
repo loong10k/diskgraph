@@ -1,0 +1,29 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.73s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-2b297645c71baf0b)
+
+running 3 tests
+
+thread 'scope_show_authorization_tests::scope_show_refuses_ungranted_principal_without_root_display' (3696397) panicked at crates/diskgraph-cli/src/scope_show_authorization_tests.rs:33:5:
+ungranted scope metadata escaped: Ok(()), ["{\"api_version\":2,\"ok\":true,\"server_id\":\"srv-e26dacc4-b4ad-4651-87a9-2b8d1982a55a\",\"coverage\":null,\"data\":{\"revoked\":false,\"root_display\":\"/private/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/.tmp7o119J/private_root\",\"scope_id\":\"scope-7aff6bdd-22d3-48ca-8140-02b36760af66\"},\"warnings\":[],\"truncated\":false}"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'scope_show_authorization_tests::scope_show_keeps_allowed_fields_but_refuses_expired_original_request' (3696395) panicked at crates/diskgraph-cli/src/scope_show_authorization_tests.rs:50:5:
+assertion failed: matches!(result, Err(EngineError::Business(BusinessError::BudgetExceeded)))
+
+thread 'scope_show_authorization_tests::scope_show_rechecks_live_revocation_after_encoding_before_output' (3696396) panicked at crates/diskgraph-cli/src/scope_show_authorization_tests.rs:82:5:
+revoked scope metadata escaped: Ok(()), ["{\"api_version\":2,\"ok\":true,\"server_id\":\"srv-2a33e222-5f7c-4901-a10e-176a921ba609\",\"coverage\":null,\"data\":{\"revoked\":false,\"root_display\":\"/private/var/folders/_s/9_xnnkz141920t1yv5zhvd1r0000gn/T/.tmp4rUx87/private_root\",\"scope_id\":\"scope-3ab392bb-9cb5-4846-bb84-cc0f0b99ecd8\"},\"warnings\":[],\"truncated\":false}"]
+test scope_show_authorization_tests::scope_show_refuses_ungranted_principal_without_root_display ... FAILED
+test scope_show_authorization_tests::scope_show_rechecks_live_revocation_after_encoding_before_output ... FAILED
+test scope_show_authorization_tests::scope_show_keeps_allowed_fields_but_refuses_expired_original_request ... FAILED
+
+failures:
+
+failures:
+    scope_show_authorization_tests::scope_show_keeps_allowed_fields_but_refuses_expired_original_request
+    scope_show_authorization_tests::scope_show_rechecks_live_revocation_after_encoding_before_output
+    scope_show_authorization_tests::scope_show_refuses_ungranted_principal_without_root_display
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 102 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p diskgraph-cli --bin diskgraph`

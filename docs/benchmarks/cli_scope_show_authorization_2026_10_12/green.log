@@ -1,0 +1,12 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.35s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-2b297645c71baf0b)
+
+running 4 tests
+test scope_show_authorization_tests::scope_show_refuses_ungranted_principal_without_root_display ... ok
+test scope_show_authorization_tests::scope_show_keeps_allowed_fields_but_refuses_expired_original_request ... ok
+test scope_show_authorization_tests::scope_show_rechecks_live_revocation_after_encoding_before_output ... ok
+test scope_show_authorization_tests::scope_show_refuses_late_allowed_capability_after_encoding ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 102 filtered out; finished in 0.22s
+

@@ -436,3 +436,5 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 Linux只读元数据转交增量：实际Clap入口RED1/1→GREEN3/0，版本化请求/固定参数/未知字段/原期限交集共同组件12/0、源规范6/0、本机Engine/CLI all-target Clippy及fmt通过；新增真实scope list、snapshots和不存在job的直接/监督结果及原owner退休对照门禁待Linux CI，不据本机共同组件宣称原生服务完成。2c71eab0完整CI终态21/23成功，Windows双工具链、三项macOS及五种原生包成功；Linux stable Clippy和ARM pre-exec ETXTBSY原失败保留，修复尚待新CI。三平台服务、实际Pending、MCP及完整CLI父项继续开放。见linux_broker_metadata_queries_2026_10_12。
 
 a172b51a当前CI两个GNU包在组成门禁失败，原夹具只创建三镜像而生产准入现要求四镜像；日志保留，尚未执行GNU构建。只补齐组成输入并增加任意宿主的GNU回归，本机15/0；移除第四镜像的隔离负控复现同两项FileNotFoundError。新增真实有效Linux时钟doctor正控及六个单字段wire负控待原生CI，夹具期限/EOF单元与失败保留5/0。仍不勾选三平台服务或整体验收。见gnu_four_image_fixture_and_wire_controls_2026_10_12。
+
+CLI scope show真实越权修复：隔离实际Engine注册根、真实dispatch、未授权主体/期限耗尽/缺末段回调RED0/3；接入with_scope_metadata_until后GREEN4/0，编码后实时撤权与50ms迟到能力拒绝，既有字段保留、原可信scope接口不变；scope列表继承dispatch原期限。监督参数回归3/0、Engine源门禁6/0、CLI源门禁2/0、Python夹具5/0、macOS all-target Clippy/fmt通过。新增真实CLI注册/撤销及监督scope show对照待新CI；不以共同库测试关闭原生服务父项。见cli_scope_show_authorization_2026_10_12。

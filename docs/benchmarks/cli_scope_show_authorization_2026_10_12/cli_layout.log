@@ -1,0 +1,10 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.81s
+     Running tests/entry_source_layout.rs (target/debug/deps/entry_source_layout-c01ae569d710a019)
+
+running 2 tests
+test gate_rejects_inline_objects_stubs_wildcards_and_hidden_production_paths ... ok
+test cli_entry_and_its_business_modules_have_real_single_object_responsibilities ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

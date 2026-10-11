@@ -14,6 +14,7 @@ pub(crate) fn run(
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     out: &mut Vec<String>,
+    deadline: std::time::Instant,
 ) -> Result<(), EngineError> {
     match &cli.command {
         Command::Scope { action } => match action {
@@ -26,7 +27,7 @@ pub(crate) fn run(
                 Ok(())
             }
             ScopeAction::List => {
-                let scopes = engine.list_scopes(principal, authorizer)?;
+                let scopes = engine.list_scopes_until(principal, authorizer, deadline)?;
                 let ids: Vec<&str> = scopes.iter().map(|scope| scope.scope_id.as_str()).collect();
                 out.push(envelope_line(
                     engine,
@@ -37,15 +38,24 @@ pub(crate) fn run(
             ScopeAction::Show { scope } => {
                 let scope_id = ScopeId::new(scope.clone())
                     .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-                let record = engine.scope(&scope_id)?;
-                out.push(envelope_line(
-                    engine,
-                    Ok(serde_json::json!({
-                        "scope_id": record.scope_id.as_str(),
-                        "root_display": record.root.display(),
-                        "revoked": record.revoked,
-                    })),
-                ));
+                let encoded = engine.with_scope_metadata_until(
+                    &scope_id,
+                    principal,
+                    authorizer,
+                    deadline,
+                    |record| {
+                        Ok(envelope_line(
+                            engine,
+                            Ok(serde_json::json!({
+                                "scope_id": record.scope_id.as_str(),
+                                "root_display": record.root.display(),
+                                "revoked": record.revoked,
+                            })),
+                        ))
+                    },
+                )?;
+                // 末段实时授权完成后才向命令输出缓冲追加，拒绝不泄露根展示。
+                out.push(encoded);
                 Ok(())
             }
             ScopeAction::Remove { scope } => {

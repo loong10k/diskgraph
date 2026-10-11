@@ -16,7 +16,7 @@ pub(crate) fn dispatch(
 ) -> Result<(), EngineError> {
     match &cli.command {
         Command::Scope { .. } => {
-            crate::scope_commands::run(engine, cli, principal, authorizer, out)
+            crate::scope_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Index { .. } | Command::Sync { .. } | Command::Status { .. } => {
             crate::scan_commands::run(engine, cli, principal, authorizer, out)

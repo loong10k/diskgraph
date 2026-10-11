@@ -1,0 +1,31 @@
+{
+  "base": "a35ff4d1",
+  "problem": "CLI scope show used trusted raw Engine scope read without request permission or deadline",
+  "red": {
+    "passed": 0,
+    "failed": 3,
+    "environment_failure": false
+  },
+  "green": {
+    "passed": 4,
+    "failed": 0,
+    "cases": [
+      "ungranted principal denied without root display",
+      "allowed fields compatible and original deadline expiry denied",
+      "live revocation after encoding denied",
+      "late allowed capability over 50ms denied"
+    ]
+  },
+  "regressions": {
+    "supervised_cli_routes": 3,
+    "engine_source_layout": 6,
+    "cli_source_layout": 2,
+    "python_fixture_and_cleanup": 5
+  },
+  "clippy": "macOS Engine/CLI all-targets passed",
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "native_scope_show_and_revoked_scope_show": "pending next CI; actual CLI scope registration/removal preparation",
+  "trusted_raw_api": "preserved",
+  "full_platform_production_ready": false
+}

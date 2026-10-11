@@ -68,6 +68,19 @@ def prepare(root, args, active=False, bad_digest=False):
     return state, data, config
 
 
+def direct_query(root, data, command):
+    """仅隔离业务对照；由实际专用UID执行固定CLI并消耗同一Popen wait。"""
+    child = subprocess.Popen([str(root / "diskgraph"), "--json", "--data-dir", str(data), *command],
+                             preexec_fn=lowered_service, env={}, cwd=root, stdin=subprocess.DEVNULL,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        stdout, stderr = child.communicate(timeout=35)
+        assert len(stdout) + len(stderr) <= 1 << 20
+        return child.returncode, json.loads(stdout)
+    finally:
+        original_dispose(child)
+
+
 def actual_broker(args, mode):
     with tempfile.TemporaryDirectory(prefix="dg-broker-", dir="/var/lib") as folder:
         root = Path(folder)
@@ -95,15 +108,23 @@ def actual_broker(args, mode):
                 "unknown_job": ["status", "--job", "absent-original-job"],
             }.get(mode, ["doctor"])
             baseline = None
-            if mode in ("scope_list", "snapshots", "unknown_job"):
-                direct = subprocess.Popen([str(root / "diskgraph"), "--json", "--data-dir", str(data), *command],
-                                          preexec_fn=lowered_service, env={}, cwd=root, stdin=subprocess.DEVNULL,
-                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                try:
-                    direct_stdout, direct_stderr = direct.communicate(timeout=35)
-                    baseline = (direct.returncode, json.loads(direct_stdout))
-                finally:
-                    original_dispose(direct)
+            if mode in ("scope_show", "scope_show_revoked"):
+                fixture_root = root / "private_scope"
+                fixture_root.mkdir(mode=0o700)
+                os.chown(fixture_root, 23111, 23111)
+                registered = direct_query(root, data, ["scope", "add", "--root", str(fixture_root)])
+                assert registered[0] == 0 and registered[1]["ok"], registered
+                scope_id = registered[1]["data"]["scope_id"]
+                if mode == "scope_show_revoked":
+                    removed = direct_query(root, data, ["scope", "remove", "--scope", scope_id])
+                    assert removed[0] == 0 and removed[1]["ok"], removed
+                command = ["scope", "show", "--scope", scope_id]
+            if mode in ("scope_list", "snapshots", "unknown_job", "scope_show", "scope_show_revoked"):
+                baseline = direct_query(root, data, command)
+                if mode == "scope_show":
+                    assert baseline[0] == 0 and baseline[1]["data"]["root_display"] == str(fixture_root), baseline
+                elif mode == "scope_show_revoked":
+                    assert baseline[0] == 3 and baseline[1]["error"]["code"] == "permission_denied", baseline
             frontend = subprocess.Popen([str(root / "diskgraph"), "--json", "--supervisor-socket", config["socket_path"], *command],
                                         preexec_fn=lowered, env={}, cwd=root, stdin=subprocess.DEVNULL,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -370,7 +391,7 @@ def main():
         parser.error("--systemd requires the actual installed MCP image via --mcp")
     if os.geteuid() != 0 or os.environ.get("DG_ISOLATED_ROOT_ACCEPTANCE") != "1":
         raise SystemExit("requires explicit isolated root acceptance; never installs desktop service")
-    rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest", "scope_list", "snapshots", "unknown_job")]
+    rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest", "scope_list", "snapshots", "unknown_job", "scope_show", "scope_show_revoked")]
     rows += [delegated_sender(args, lower) for lower in (False, True)]
     rows += [wire_query(args, mode) for mode in ("doctor", "override", "unknown_command", "duplicate", "bad_numeric", "write", "unknown_field")]
     if args.mcp is not None:

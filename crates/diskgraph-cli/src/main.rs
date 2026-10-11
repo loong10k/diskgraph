@@ -51,6 +51,8 @@ mod scan_jobs;
 mod scan_terminal_tests;
 mod scope_action;
 mod scope_commands;
+#[cfg(test)]
+mod scope_show_authorization_tests;
 mod search_commands;
 mod serve_command;
 mod service_commands;
