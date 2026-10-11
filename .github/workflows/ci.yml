@@ -780,7 +780,26 @@ jobs:
             cc -std=c11 -O2 -Wall -Wextra -Werror scripts/fixtures/linux_supervisor_birth/role.c -o "$fixture/role" || exit $?
             cc -std=c11 -O2 -Wall -Wextra -Werror -DBASELINE scripts/fixtures/linux_supervisor_birth/driver.c crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c -o "$fixture/baseline" || exit $?
             cc -std=c11 -O2 -Wall -Wextra -Werror scripts/fixtures/linux_supervisor_birth/driver.c crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c -o "$fixture/driver" || exit $?
-            sudo python3 scripts/qualify_linux_supervisor_spawn.py --driver "$fixture/driver" --role "$fixture/role" --baseline "$fixture/baseline" --output "${{ runner.temp }}/diskgraph-supervisor-spawn.json"
+            sudo python3 scripts/qualify_linux_supervisor_spawn.py --driver "$fixture/driver" --role "$fixture/role" --baseline "$fixture/baseline" --output "${{ runner.temp }}/diskgraph-supervisor-spawn.json" || exit $?
+            cargo test -p diskgraph-engine --lib --locked --no-run --message-format=json > "$fixture/rust-artifacts.json" || exit $?
+            python3 - "$fixture/rust-artifacts.json" "$fixture/rust-test-path" <<'PYTHON' || exit $?
+            import json, sys
+            paths = [entry['executable'] for line in open(sys.argv[1]) if (entry := json.loads(line)).get('reason') == 'compiler-artifact' and entry.get('executable') and entry.get('target', {}).get('name') == 'diskgraph_engine']
+            if len(paths) != 1:
+                raise SystemExit('expected exactly one original Engine libtest executable')
+            with open(sys.argv[2], 'w') as output:
+                output.write(paths[0])
+            PYTHON
+            test_binary="$(cat "$fixture/rust-test-path")" || exit $?
+            "$test_binary" native_child::linux_supervisor_owner_tests:: --ignored --list > "$fixture/owner-tests.list" || exit $?
+            python3 - "$fixture/owner-tests.list" <<'PYTHON' || exit $?
+            import sys
+            names = [line.split(': test')[0] for line in open(sys.argv[1]) if line.rstrip().endswith(': test')]
+            expected = {'native_child::linux_supervisor_owner_tests::' + name for name in ('supervisor_birth_reuses_original_owner_for_normal_retirement', 'supervisor_birth_expired_cleanup_retains_owner_before_init', 'supervisor_birth_panic_after_adoption_consumes_original_wait')}
+            if set(names) != expected or len(names) != 3:
+                raise SystemExit('original Engine binary must contain all three owner qualification tests')
+            PYTHON
+            sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" native_child::linux_supervisor_owner_tests:: --ignored --nocapture || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}

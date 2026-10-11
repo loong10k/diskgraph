@@ -93,3 +93,7 @@ Ready之前建立原 session、禁用 keepcaps、清空ambient、设置no_new_pr
 root出生C层实际RED：旧原子入口exec后UID/GID0、补充组1、缺少双私有端点，原pidfd真实wait，属新监督合同缺失，不报告为旧扫描提权漏洞。新C入口LinuxARM静态ELF九场景9/0，包括三种服务身份、空组、空capabilities、no_new_privs、阻塞于Init前已关闭公开FD、原pidfd wait、原exec ENOEXEC及出生前拒绝；原容器移除。Zig现有0.16交叉编译两种GNU2.17对象，nm无未定义符号；不是glibc2.17运行或Linuxx86运行资格。新C函数已加入Linux构建，Rust父侧原owner/全局bootstrap和产品broker未接，不关闭父项。见linux_root_atomic_supervisor_birth/。
 
 7092a573私有reader真实原生补验：Linuxx86 MSRV job114422588240与LinuxARM job114422588302均成功，9项逐消息凭据/FD关闭/预算/EOF测试实际通过。全量CI另有macOS MSRV持锁夹具失败，原100ms标称持锁实测249.507584ms；不能视为全绿。见linux_control_reader_native_7092a573/。夹具在等待通知后再次睡满100ms，受控150ms唤醒延迟真实RED0/1，改为从原取锁时刻扣已过时间后GREEN3/0、仍保留原短/长竞争和60ms原请求断言。仅修夹具，不改250ms数据库、50ms能力或查询期限，不序列化CI、不禁用原门禁；新源码macOS原生待验收。见terminal_hold_deadline_no_renewal/。
+
+## 原始 Rust pidfd owner 桥接资格（原生待验收）
+
+监督 C 出生后必须先无分配采用内核原 pidfd，再恢复宿主信号 mask、关闭父侧 child 副本或运行检查点。新增隔离 root 原生回归直接调用新 C 入口并采用现有 LinuxAtomicChild/LinuxAtomicExit；验证正常真实 ELF 降权执行及完整输出/原 wait，Init 前过期清理保留 owner，以及采用后的 panic 保留原 payload 并消费原 wait。观察副本只验证 ECHILD，不重新打开 PID，不作为第二 owner。该测试明确要求 root 和指定角色 ELF，普通 workspace 运行仅编译且忽略，CI 用同一原 Engine libtest 二进制显式执行；必须看到三项实际运行通过才能关闭此桥接子项。未执行测试不声称 RED/GREEN；此轮仍未建立生产 RootBroker、bootstrap 或独立服务，不能关闭父项。
