@@ -1,0 +1,13 @@
+{
+  "source_sha": "17af31af6374554c0599369598af484bf4245fd5",
+  "ci_run": 38126837661,
+  "job_id": 114432852092,
+  "artifact_id": 11697423995,
+  "platform": "Linux x86_64 / Rust 1.97.0",
+  "native_c_birth_cases_passed": 9,
+  "baseline_contract_missing_reproduced": true,
+  "artifact_json_sha256": "d02bcf0d66a42534e6ccb4b097772ec89d442ae6e504ee944a887b931cbe69fa",
+  "rust_owner_qualified": false,
+  "product_broker_qualified": false,
+  "whole_ci_conclusion": "still running at capture; not full green"
+}

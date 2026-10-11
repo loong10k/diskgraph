@@ -97,3 +97,5 @@ root出生C层实际RED：旧原子入口exec后UID/GID0、补充组1、缺少�
 ## 原始 Rust pidfd owner 桥接资格（原生待验收）
 
 监督 C 出生后必须先无分配采用内核原 pidfd，再恢复宿主信号 mask、关闭父侧 child 副本或运行检查点。新增隔离 root 原生回归直接调用新 C 入口并采用现有 LinuxAtomicChild/LinuxAtomicExit；验证正常真实 ELF 降权执行及完整输出/原 wait，Init 前过期清理保留 owner，以及采用后的 panic 保留原 payload 并消费原 wait。观察副本只验证 ECHILD，不重新打开 PID，不作为第二 owner。该测试明确要求 root 和指定角色 ELF，普通 workspace 运行仅编译且忽略，CI 用同一原 Engine libtest 二进制显式执行；必须看到三项实际运行通过才能关闭此桥接子项。未执行测试不声称 RED/GREEN；此轮仍未建立生产 RootBroker、bootstrap 或独立服务，不能关闭父项。
+
+17af31af Linux x86_64/MSRV 原生 C 出生子门禁实际通过9/0，原机制合同缺失RED仍被精确复现；原artifact11697423995与job114432852092对应run38126837661，回执保存在linux_root_spawn_native_17af31af/。完整CI捕获时仍在运行。Rust owner桥接、bootstrap和产品broker尚未因此获得资格，不勾选父项。
