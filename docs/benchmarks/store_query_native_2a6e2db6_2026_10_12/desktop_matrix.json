@@ -1,0 +1,794 @@
+{
+  "run_id": 38179170488,
+  "source_sha": "2a6e2db60104e676a88b83e3538e25fa747304eb",
+  "platforms": [
+    {
+      "label": "linux-x86-stable",
+      "job_id": 114587860081,
+      "artifact_id": 11717785265,
+      "log_sha256": "5c3f0a5940166b08c897a1714cc7331539305e49c14c458614a6d07967c1bfef",
+      "measurements": [
+        {
+          "after_counts": {
+            "p50_ms": 0.018935999999999998,
+            "p95_ms": 0.020338000000000002,
+            "samples": 100
+          },
+          "arch": "x86_64",
+          "backup_bytes": 7237632,
+          "before_counts": {
+            "p50_ms": 1.3828390000000002,
+            "p95_ms": 1.4311099999999999,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.085289,
+                "p95_ms": 0.11213,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.222055,
+                "p95_ms": 0.26091800000000004,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.23430900000000002,
+                "p95_ms": 0.2616,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 0.431979,
+                "p95_ms": 0.47370700000000004,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 20000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 0.5503399999999999,
+                "p95_ms": 0.667349,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.543277,
+                "p95_ms": 0.651709,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.546774,
+                "p95_ms": 0.6424030000000001,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.535252,
+                "p95_ms": 0.645909,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 8814592,
+          "db_after_publish_bytes": 20541440,
+          "db_before_migration_bytes": 7237632,
+          "distinct_sizes": 20000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 99.28035799999999,
+          "migration_sampled_peak_sqlite_temp_bytes": 684700,
+          "migration_sampled_peak_wal_bytes": 2397872,
+          "os": "linux",
+          "owned_staging_fenced_publish_ms": 339.51419799999996,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": 1763000,
+          "publish_sampled_peak_wal_bytes": 17753112,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 10395648,
+          "temp_sampling_is_upper_bound": false
+        },
+        {
+          "after_counts": {
+            "p50_ms": 0.018945,
+            "p95_ms": 0.019677,
+            "samples": 100
+          },
+          "arch": "x86_64",
+          "backup_bytes": 72437760,
+          "before_counts": {
+            "p50_ms": 15.618784,
+            "p95_ms": 15.954042000000001,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.084108,
+                "p95_ms": 0.107982,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.21970099999999998,
+                "p95_ms": 0.344575,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.232986,
+                "p95_ms": 0.253414,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 0.432209,
+                "p95_ms": 0.45392099999999996,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 200000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 0.5636960000000001,
+                "p95_ms": 0.676898,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.574245,
+                "p95_ms": 0.673241,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.575627,
+                "p95_ms": 0.671057,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.553106,
+                "p95_ms": 0.678802,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 88989696,
+          "db_after_publish_bytes": 209068032,
+          "db_before_migration_bytes": 72437760,
+          "distinct_sizes": 200000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 972.202836,
+          "migration_sampled_peak_sqlite_temp_bytes": 14349273,
+          "migration_sampled_peak_wal_bytes": 23665312,
+          "os": "linux",
+          "owned_staging_fenced_publish_ms": 3830.742496,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": 9208600,
+          "publish_sampled_peak_wal_bytes": 182907432,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 102391808,
+          "temp_sampling_is_upper_bound": false
+        }
+      ]
+    },
+    {
+      "label": "windows-x86-msrv",
+      "job_id": 114587860124,
+      "artifact_id": 11718515781,
+      "log_sha256": "e716be81b960717bba44ca57335e5e7ec0e8f2485983f18f781ab646c3560535",
+      "measurements": [
+        {
+          "after_counts": {
+            "p50_ms": 0.0102,
+            "p95_ms": 0.010499999999999999,
+            "samples": 100
+          },
+          "arch": "x86_64",
+          "backup_bytes": 7237632,
+          "before_counts": {
+            "p50_ms": 0.7845000000000001,
+            "p95_ms": 0.8455,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.047299999999999995,
+                "p95_ms": 0.0594,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.1255,
+                "p95_ms": 0.1426,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.1206,
+                "p95_ms": 0.13870000000000002,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 0.23149999999999998,
+                "p95_ms": 0.25379999999999997,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 20000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 0.273,
+                "p95_ms": 0.3389,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.2762,
+                "p95_ms": 0.33599999999999997,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.28150000000000003,
+                "p95_ms": 0.3375,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.2836,
+                "p95_ms": 0.3456,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 8814592,
+          "db_after_publish_bytes": 20541440,
+          "db_before_migration_bytes": 7237632,
+          "distinct_sizes": 20000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 163.53480000000002,
+          "migration_sampled_peak_sqlite_temp_bytes": null,
+          "migration_sampled_peak_wal_bytes": 2348432,
+          "os": "windows",
+          "owned_staging_fenced_publish_ms": 1693.4816,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": null,
+          "publish_sampled_peak_wal_bytes": 17753112,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 10395648,
+          "temp_sampling_is_upper_bound": false
+        },
+        {
+          "after_counts": {
+            "p50_ms": 0.0103,
+            "p95_ms": 0.011399999999999999,
+            "samples": 100
+          },
+          "arch": "x86_64",
+          "backup_bytes": 72437760,
+          "before_counts": {
+            "p50_ms": 10.5284,
+            "p95_ms": 12.370199999999999,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.047,
+                "p95_ms": 0.0592,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.12789999999999999,
+                "p95_ms": 0.1445,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.1219,
+                "p95_ms": 0.1361,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 0.23650000000000002,
+                "p95_ms": 0.256,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 200000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 0.2622,
+                "p95_ms": 0.3342,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.2537,
+                "p95_ms": 0.3195,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.2596,
+                "p95_ms": 0.3112,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.2616,
+                "p95_ms": 0.3215,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 88989696,
+          "db_after_publish_bytes": 209068032,
+          "db_before_migration_bytes": 72437760,
+          "distinct_sizes": 200000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 1604.9448,
+          "migration_sampled_peak_sqlite_temp_bytes": null,
+          "migration_sampled_peak_wal_bytes": 23665312,
+          "os": "windows",
+          "owned_staging_fenced_publish_ms": 16401.5276,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": null,
+          "publish_sampled_peak_wal_bytes": 182907432,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 102391808,
+          "temp_sampling_is_upper_bound": false
+        }
+      ]
+    },
+    {
+      "label": "macos-intel-stable",
+      "job_id": 114587860170,
+      "artifact_id": 11718131705,
+      "log_sha256": "0bc7b38edba9ed74d7e16a892aa418189331985073498d632c62b2b09907f6a0",
+      "measurements": [
+        {
+          "after_counts": {
+            "p50_ms": 0.035302,
+            "p95_ms": 0.082082,
+            "samples": 100
+          },
+          "arch": "x86_64",
+          "backup_bytes": 7237632,
+          "before_counts": {
+            "p50_ms": 5.832116,
+            "p95_ms": 6.442435,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.258247,
+                "p95_ms": 0.386533,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.505884,
+                "p95_ms": 0.7993330000000001,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.47507,
+                "p95_ms": 0.786218,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 1.1988420000000002,
+                "p95_ms": 1.637266,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 20000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 1.365556,
+                "p95_ms": 1.981339,
+                "samples": 100
+              },
+              {
+                "p50_ms": 1.313388,
+                "p95_ms": 1.955333,
+                "samples": 100
+              },
+              {
+                "p50_ms": 1.214524,
+                "p95_ms": 1.856501,
+                "samples": 100
+              },
+              {
+                "p50_ms": 1.2100069999999998,
+                "p95_ms": 1.8465260000000001,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 8814592,
+          "db_after_publish_bytes": 20541440,
+          "db_before_migration_bytes": 7237632,
+          "distinct_sizes": 20000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 395.19818699999996,
+          "migration_sampled_peak_sqlite_temp_bytes": 684700,
+          "migration_sampled_peak_wal_bytes": 2348432,
+          "os": "macos",
+          "owned_staging_fenced_publish_ms": 1374.527145,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": 1763000,
+          "publish_sampled_peak_wal_bytes": 17753112,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 10395648,
+          "temp_sampling_is_upper_bound": false
+        },
+        {
+          "after_counts": {
+            "p50_ms": 0.034467,
+            "p95_ms": 0.145239,
+            "samples": 100
+          },
+          "arch": "x86_64",
+          "backup_bytes": 72437760,
+          "before_counts": {
+            "p50_ms": 61.892694999999996,
+            "p95_ms": 127.942507,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.313687,
+                "p95_ms": 0.42052799999999996,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 1.082851,
+                "p95_ms": 4.611255,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.774157,
+                "p95_ms": 1.099348,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 1.578011,
+                "p95_ms": 2.037603,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 200000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 1.639342,
+                "p95_ms": 2.7568010000000003,
+                "samples": 100
+              },
+              {
+                "p50_ms": 1.462897,
+                "p95_ms": 2.635481,
+                "samples": 100
+              },
+              {
+                "p50_ms": 1.488661,
+                "p95_ms": 2.3328390000000003,
+                "samples": 100
+              },
+              {
+                "p50_ms": 1.535334,
+                "p95_ms": 2.77862,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 88989696,
+          "db_after_publish_bytes": 209068032,
+          "db_before_migration_bytes": 72437760,
+          "distinct_sizes": 200000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 3376.6677720000002,
+          "migration_sampled_peak_sqlite_temp_bytes": 14349273,
+          "migration_sampled_peak_wal_bytes": 23665312,
+          "os": "macos",
+          "owned_staging_fenced_publish_ms": 18395.120607,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": 9208600,
+          "publish_sampled_peak_wal_bytes": 182907432,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 102391808,
+          "temp_sampling_is_upper_bound": false
+        }
+      ]
+    },
+    {
+      "label": "macos-arm-stable",
+      "job_id": 114587860129,
+      "artifact_id": 11716299710,
+      "log_sha256": "4ad1ba93581ae94816c06437b47b5be09749d0f4f68f42e1535b4d47583553b8",
+      "measurements": [
+        {
+          "after_counts": {
+            "p50_ms": 0.008417,
+            "p95_ms": 0.008959,
+            "samples": 100
+          },
+          "arch": "aarch64",
+          "backup_bytes": 7237632,
+          "before_counts": {
+            "p50_ms": 0.878792,
+            "p95_ms": 0.9259999999999999,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.046875,
+                "p95_ms": 0.049292,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.113875,
+                "p95_ms": 0.123125,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.117125,
+                "p95_ms": 0.12208400000000001,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 0.21295799999999998,
+                "p95_ms": 0.22204200000000002,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 20000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 0.27125,
+                "p95_ms": 0.452542,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.286792,
+                "p95_ms": 0.427167,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.2945,
+                "p95_ms": 0.470167,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.272291,
+                "p95_ms": 0.4435,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 8814592,
+          "db_after_publish_bytes": 20541440,
+          "db_before_migration_bytes": 7237632,
+          "distinct_sizes": 20000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 77.57183300000001,
+          "migration_sampled_peak_sqlite_temp_bytes": 684700,
+          "migration_sampled_peak_wal_bytes": 2327832,
+          "os": "macos",
+          "owned_staging_fenced_publish_ms": 230.07820900000002,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": 1763000,
+          "publish_sampled_peak_wal_bytes": 17753112,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 10395648,
+          "temp_sampling_is_upper_bound": false
+        },
+        {
+          "after_counts": {
+            "p50_ms": 0.008583,
+            "p95_ms": 0.009125,
+            "samples": 100
+          },
+          "arch": "aarch64",
+          "backup_bytes": 72437760,
+          "before_counts": {
+            "p50_ms": 9.807041,
+            "p95_ms": 10.031708,
+            "samples": 100
+          },
+          "bounded_pages": [
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 10,
+              "directory_page": {
+                "p50_ms": 0.046709,
+                "p95_ms": 0.048083,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 10,
+              "tree_page": {
+                "p50_ms": 0.11349999999999999,
+                "p95_ms": 0.124334,
+                "samples": 100
+              }
+            },
+            {
+              "cache_state": "same connection, repeated warm queries",
+              "decoded_nodes_per_query": 100,
+              "directory_page": {
+                "p50_ms": 0.114791,
+                "p95_ms": 0.11925,
+                "samples": 100
+              },
+              "does_not_measure_sqlite_pages_or_process_rss": true,
+              "page_size": 100,
+              "tree_page": {
+                "p50_ms": 0.219042,
+                "p95_ms": 0.227125,
+                "samples": 100
+              }
+            }
+          ],
+          "children": 200000,
+          "concurrent_directory_pages": {
+            "connection_opening_excluded_from_query_timing": true,
+            "connections": 4,
+            "decoded_nodes_per_query": 100,
+            "page_size": 100,
+            "per_connection": [
+              {
+                "p50_ms": 0.277625,
+                "p95_ms": 0.436417,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.28129099999999996,
+                "p95_ms": 0.448917,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.284958,
+                "p95_ms": 0.453458,
+                "samples": 100
+              },
+              {
+                "p50_ms": 0.28695800000000005,
+                "p95_ms": 0.47120799999999996,
+                "samples": 100
+              }
+            ]
+          },
+          "db_after_migration_bytes": 88989696,
+          "db_after_publish_bytes": 209068032,
+          "db_before_migration_bytes": 72437760,
+          "distinct_sizes": 200000,
+          "fixture": "synthetic immutable metadata",
+          "migration_including_backup_ms": 730.920583,
+          "migration_sampled_peak_sqlite_temp_bytes": 14349273,
+          "migration_sampled_peak_wal_bytes": 23665312,
+          "os": "macos",
+          "owned_staging_fenced_publish_ms": 2371.870042,
+          "profile": "release",
+          "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+          "publish_sampled_peak_sqlite_temp_bytes": 9208600,
+          "publish_sampled_peak_wal_bytes": 182907432,
+          "space_sampling_interval_ms": 1,
+          "staging_db_before_publish_bytes": 102391808,
+          "temp_sampling_is_upper_bound": false
+        }
+      ]
+    }
+  ],
+  "scope": "synthetic on-disk immutable metadata; warm store queries; excludes opening read connections",
+  "physical_scan_measured": false,
+  "rss_measured": false,
+  "full_platform_production_ready": false
+}
