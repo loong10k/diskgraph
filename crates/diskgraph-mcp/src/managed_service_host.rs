@@ -1,7 +1,10 @@
 //! Unix MCP 的实际启动容量准入；不改变远程请求权限。
+#[cfg(any(target_os = "linux", test))]
+use diskgraph_engine::SupervisorOwner;
 use diskgraph_engine::recovery_slot::{ActiveSlot, SlotReservation};
 use diskgraph_engine::{
-    EngineError, ScanWorkerHost, ScanWorkerRecovery, TrustedLocalRecoveryDomain,
+    EngineError, ScanWorkerHost, ScanWorkerRecovery, ScanWorkerRuntimeBudget,
+    SupervisorControlOwner, TrustedLocalRecoveryDomain,
 };
 use diskgraph_mcp::{McpConfig, McpService};
 use std::time::Instant;
@@ -12,8 +15,86 @@ pub(crate) struct ManagedServiceHost {
     pub(crate) service: McpService,
     pub(crate) recovery: Option<ScanWorkerRecovery>,
     pub(crate) slot: Option<ActiveSlot>,
+    pub(crate) control: Option<SupervisorControlOwner>,
+    #[cfg(target_os = "linux")]
+    pub(crate) namespace_guard: Option<diskgraph_engine::recovery_slot::LinuxSupervisorNamespace>,
 }
 impl ManagedServiceHost {
+    /// 参数：config/runtime为固定宿主配置与扫描额度，trusted_local由传输决定，deadline为原启动期限。
+    /// 返回：普通宿主或原认证监督宿主；出生值存在时禁止忽略或兼容回退，认证先于数据库。
+    pub(crate) fn open_environment(
+        config: McpConfig,
+        runtime: ScanWorkerRuntimeBudget,
+        trusted_local: bool,
+        deadline: Instant,
+    ) -> Result<Self, EngineError> {
+        #[cfg(target_os = "linux")]
+        if let Some(birth) = diskgraph_engine::LinuxSupervisorBirth::receive_from_environment()? {
+            if !birth.is_lifecycle() || config.data_dir != birth.data_dir() {
+                return Err(diskgraph_core::BusinessError::PermissionDenied.into());
+            }
+            let admitted = birth.into_supervised_host(runtime, deadline)?;
+            let control = admitted
+                .control
+                .ok_or(diskgraph_core::BusinessError::PermissionDenied)?;
+            let mut opened = Self::open_admitted(
+                config,
+                Some(admitted.host),
+                trusted_local,
+                admitted.deadline,
+                || {
+                    admitted
+                        .namespace
+                        .reserve(admitted.deadline)
+                        .map(Some)
+                        .map_err(EngineError::from)
+                },
+            )?;
+            opened.namespace_guard = Some(admitted.namespace);
+            return opened.attach_control(control, admitted.deadline);
+        }
+        let host = diskgraph_mcp::ScanWorkerSettings::host_from_environment(
+            runtime,
+            deadline,
+            &mut || Ok(()),
+        )
+        .map_err(|error| EngineError::Io(std::io::Error::other(error)))?;
+        Self::open(config, host, trusted_local, deadline)
+    }
+
+    #[cfg(any(target_os = "linux", test))]
+    fn attach_control(
+        mut self,
+        writer: diskgraph_engine::recovery_control::UnixControlWriter,
+        deadline: Instant,
+    ) -> Result<Self, EngineError> {
+        let parts = self.service.clone().into_supervisor_parts(
+            self.recovery.take(),
+            self.slot
+                .take()
+                .ok_or(diskgraph_core::BusinessError::RecoveryUnconfirmed)?,
+        );
+        let owner = match SupervisorOwner::bind(parts, deadline) {
+            Ok(owner) => owner,
+            Err(parts) => {
+                // 未启动runner/协议；失败仍先释放同一服务引用并退休原资源，不丢ACTIVE。
+                drop(self.service);
+                crate::scan_worker_shutdown::finish_original(parts);
+                return Err(diskgraph_core::BusinessError::RecoveryUnconfirmed.into());
+            }
+        };
+        let mut owner = SupervisorControlOwner::new(owner, writer);
+        if owner
+            .ready_lifecycle(&std::sync::atomic::AtomicBool::new(false), deadline)
+            .is_err()
+        {
+            drop(self.service);
+            crate::scan_worker_shutdown::finish_controlled(owner, 10, false);
+            return Err(diskgraph_core::BusinessError::RecoveryUnconfirmed.into());
+        }
+        self.control = Some(owner);
+        Ok(self)
+    }
     /// 参数：config/host 为原本地部署，trusted_local 由传输决定，deadline 为原启动期限。
     /// 返回：原服务及其恢复材料，或数据库出生前的容量拒绝。
     pub(crate) fn open(
@@ -78,6 +159,9 @@ impl ManagedServiceHost {
             service: opened.0,
             recovery: opened.1,
             slot,
+            control: None,
+            #[cfg(target_os = "linux")]
+            namespace_guard: None,
         })
     }
 }

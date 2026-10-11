@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "e49ee361db37ca02abaf80236aad577f4a65b42a",
+  "baseline_run": 38149478669,
+  "baseline_artifact": 11706317505,
+  "baseline_native_platform": "Linux ARM64 GNU",
+  "baseline_mcp_sha256": "61537ead708517fe9628e6427b2f85ae203cdbc2365eeb510b97c7c909a27edb",
+  "baseline_result": "forged birth was ignored; ordinary local database created, exit 0, original child waited",
+  "environment_fault": "first overlay attempt ENOSPC, not a behavior result; successful reproduction used isolated 2GiB tmpfs",
+  "local_platform": "macOS ARM64",
+  "managed_tests": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  "source_layout": {
+    "passed": 11,
+    "failed": 0,
+    "ignored": 0
+  },
+  "workspace_clippy_passed": true,
+  "workspace_fmt_passed": true,
+  "python_syntax_passed": true,
+  "native_fixed_mcp_qualified": false,
+  "public_broker_qualified": false,
+  "three_platform_services_qualified": false,
+  "finite_public_exit_qualified": false,
+  "desktop_service_installed": false,
+  "limits": {
+    "database_ms": 250,
+    "capability_ms": 50
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "8c29da4d9b84e1af7b96e671447c516c3e46aa7f59061127ca3142b49faf7436",
+    "crates/diskgraph-mcp/src/main.rs": "fc4ddd9e1ac695598fc10c102b6a4730d248dbb6dbf3c724273a4daf4f3b8edd",
+    "crates/diskgraph-mcp/src/managed_service_host.rs": "f6b85aab76fbd57cf84b80a9f0b45217123d73eefe7c5a7b90d94f3519be1699",
+    "crates/diskgraph-mcp/src/managed_service_host/tests.rs": "f540e4fd7c7500b96c0d644059e0ffb332a0bb6184a4f7a24dae6b56ec898d10",
+    "crates/diskgraph-mcp/src/scan_worker_shutdown.rs": "d2c2411eba881f1034b839f90d46418179a9c86175d04494a1a9cda0fd73b17a",
+    "crates/diskgraph-mcp/tests/supervisor_birth_admission.rs": "dd5cbee7c29180b2b86384d987593f8be43053ab1d63bf97adefc506e0e57978",
+    "scripts/qualify_linux_supervisor_birth.py": "de4a86d1c68f251ef523fa259a0f0a99044aaa381027fb4a75bdb3bc2010a5c2",
+    ".github/workflows/ci.yml": "42d4c0fcb0e53a23e897d9708a8e69d5164d0ee5e6df84cb50584437747c3263"
+  }
+}

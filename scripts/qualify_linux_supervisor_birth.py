@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""隔离 root/专用 UID 夹具验证真实 CLI 出生接线；不是公共 broker 或服务安装验收。"""
+"""隔离 root/专用 UID 夹具验证真实 CLI/MCP 出生接线；不是公共 broker 或服务安装验收。"""
 import argparse
 import array
 import hashlib
@@ -34,7 +34,7 @@ def demote(primary_gid=SERVICE_UID, groups=(), fixed_fds=None):
 
 
 def run_case(prefix, binary, worker, case):
-    """只运行固定 doctor 镜像与命令；保留原 child 到实际 communicate/wait 完成。"""
+    """运行固定doctor或MCP stdio命令；保留原child到实际communicate/wait完成。"""
     root = prefix / case
     root.mkdir(mode=0o755); root.chmod(0o755)
     state = root / 'state'; state.mkdir(mode=0o755); state.chmod(0o755)
@@ -43,7 +43,8 @@ def run_case(prefix, binary, worker, case):
     slot.chmod(0o600); os.chown(slot, SERVICE_UID, SERVICE_UID)
     data = root / 'data'; data.mkdir(mode=0o700); os.chown(data, SERVICE_UID, SERVICE_UID)
     data = data / 'database'
-    lifecycle = case.startswith('v3_')
+    mcp = case.startswith('mcp_')
+    lifecycle = case.startswith('v3_') or mcp
     # 仅v3夹具预留低FD，保证Popen的pass_fds集合包含原5/6；不碰外部已持有的FD。
     scratch = [os.open('/dev/null', os.O_RDONLY | os.O_CLOEXEC) for _ in range(8)] if lifecycle else []
     if lifecycle and not {5, 6}.issubset(scratch):
@@ -80,12 +81,18 @@ def run_case(prefix, binary, worker, case):
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(root),
            'DISKGRAPH_LINUX_SUPERVISOR_BIRTH': raw.decode(),
            'DISKGRAPH_LINUX_SUPERVISOR_FD': str(4 if case == 'v3_wrong_materials' else 5) if lifecycle else str(child.fileno())}
-    actual_data = data if case != 'wrong_data' else data.parent / 'other_database'
+    if case == 'mcp_v2': request['schema_version'] = 2
+    # MCP正反控也绑定原JSON摘要；不在签发之后改变生效配置。
+    raw = json.dumps(request, separators=(',', ':')).encode() if mcp else raw
+    session = hashlib.sha256(raw).digest() if mcp else session
+    env['DISKGRAPH_LINUX_SUPERVISOR_BIRTH'] = raw.decode()
+    actual_data = data if case not in ('wrong_data', 'mcp_wrong_data') else data.parent / 'other_database'
+    arguments = [str(binary), '--data-dir', str(actual_data), '--transport', 'stdio'] if mcp else [str(binary), '--json', '--data-dir', str(actual_data), 'doctor']
     started = time.monotonic()
     process = None
     try:
-        process = subprocess.Popen([str(binary), '--json', '--data-dir', str(actual_data), 'doctor'],
-                                   env=env, cwd=root, stdin=subprocess.DEVNULL,
+        process = subprocess.Popen(arguments,
+                                   env=env, cwd=root, stdin=subprocess.PIPE if mcp else subprocess.DEVNULL,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    pass_fds=(child.fileno(), control_child.fileno(), *((5, 6) if lifecycle else ()), *((files[0],) if case == 'wrong_type_control' else ())), preexec_fn=partial(demote, primary_gid=0 if case == 'wrong_gid' else SERVICE_UID,
                                                      groups=(0,) if case == 'supplementary_groups' else (), fixed_fds=(child.fileno(), control_child.fileno()) if lifecycle else None))
@@ -104,7 +111,8 @@ def run_case(prefix, binary, worker, case):
             else:
                 parent.sendmsg([b'DGSM01A\n' + session],
                                [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array('i', files))])
-        out, err = process.communicate(timeout=40)
+        initialization = b'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n' if mcp else None
+        out, err = process.communicate(input=initialization, timeout=40)
         # 不能用 SO_PEERCRED 创建者身份或 JSON 自报身份认证实际写入者。
         # 仅接受原 child 的逐消息内核 PID/UID/GID；拒绝截断、附加 FD 与超额字节。
         controls = bytearray()
@@ -131,7 +139,7 @@ def run_case(prefix, binary, worker, case):
             if frame['version'] != (2 if lifecycle else 1) or frame['session'] != list(hashlib.sha256(raw).digest()) or frame['sequence'] != sequence:
                 raise AssertionError('control version, session or sequence mismatch')
         replies = [json.loads(line) for line in out.decode().splitlines()]
-        positive = case in ('clean', 'v3_clean')
+        positive = case in ('clean', 'v3_clean', 'mcp_clean')
         code = replies[0].get('error', {}).get('code') if len(replies) == 1 else None
         # 业务数据来自现有 doctor；拒绝须先于 SQLite 出生，不能用任意错误替代身份/容量语义。
         exact = {'active_slot': 'recovery_unconfirmed', 'forged_role': 'permission_denied',
@@ -140,7 +148,8 @@ def run_case(prefix, binary, worker, case):
                  'aliased_control': 'permission_denied', 'stdio_control': 'permission_denied',
                  'legacy_control': 'permission_denied', 'wrong_type_control': 'permission_denied',
                  'wrong_gid': 'permission_denied', 'supplementary_groups': 'permission_denied', 'v3_wrong_control': 'permission_denied', 'v3_wrong_materials': 'permission_denied'}
-        passed = (process.returncode == 0 and len(replies) == 1 and replies[0].get('ok') is True
+        valid_reply = (len(replies) == 1 and replies[0].get('id') == 1 and isinstance(replies[0].get('result'), dict)) if mcp else (len(replies) == 1 and replies[0].get('ok') is True)
+        passed = (process.returncode == 0 and valid_reply
                   and (data / 'diskgraph.sqlite').is_file() and slot.read_bytes() == b'DGSL01C\n') if positive else (
                   process.returncode != 0 and not actual_data.exists()
                   and (case not in exact or code == exact[case]))
@@ -149,6 +158,7 @@ def run_case(prefix, binary, worker, case):
             passed = passed and frames[1]['notification'] == {'kind': 'foreground_ended', 'exit_code': 0, 'panicked': False}
         else:
             passed = passed and not frames
+            if mcp: passed = passed and process.returncode == 6 and not replies
         if case == 'active_slot': passed = passed and slot.read_bytes() == b'DGSL01A\n'
         return {'case': case, 'passed': passed, 'exit_code': process.returncode,
                 'error_code': code, 'elapsed_seconds': time.monotonic() - started,
@@ -163,8 +173,8 @@ def run_case(prefix, binary, worker, case):
         if process is not None and process.poll() is None: process.wait()
 
 
-def qualify(binary, worker, output):
-    """接受当前构建的两个明确镜像，只在通过预检的全新受保护夹具内执行；不注册服务。"""
+def qualify(binary, worker, output, mcp=None):
+    """接受当前构建的明确镜像，只在通过预检的全新受保护夹具内执行；不注册服务。"""
     if sys.platform != 'linux' or os.geteuid() != 0 or os.getuid() != 0 or os.getgid() != 0:
         raise RuntimeError('qualification requires isolated Linux root')
     # runner 的 /opt 可能是可写工具缓存；不能用它伪装为生产要求的 root 受保护域。
@@ -181,18 +191,23 @@ def qualify(binary, worker, output):
     prefix.chmod(0o755)
     images = prefix / 'images'; images.mkdir(mode=0o755); images.chmod(0o755)
     receipts = {}
-    for name, source in [('diskgraph', binary), ('diskgraph-scan-worker', worker)]:
+    materials = [('diskgraph', binary), ('diskgraph-scan-worker', worker)]
+    if mcp is not None: materials.append(('diskgraph-mcp', mcp))
+    for name, source in materials:
         image = images / name
         with source.open('rb') as src, image.open('xb') as dst: shutil.copyfileobj(src, dst)
         image.chmod(0o555)
         receipts[name] = {'bytes': image.stat().st_size, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest()}
-    result = {'schema_version': 1, 'scope': 'authenticated Linux doctor birth and original retirement notification only',
+    result = {'schema_version': 1, 'scope': 'authenticated Linux doctor and optional MCP stdio birth and original retirement notification only',
               'public_broker_qualified': False, 'pending_frontend_exit_qualified': False,
               'services_registered': False, 'fixture_ancestry': ancestry,
               'images': receipts, 'cases': []}
     try:
         for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data', 'aliased_control', 'stdio_control', 'legacy_control', 'wrong_type_control', 'wrong_gid', 'supplementary_groups', 'v3_clean', 'v3_wrong_control', 'v3_wrong_materials'):
             result['cases'].append(run_case(prefix, images / 'diskgraph', images / 'diskgraph-scan-worker', case))
+        if mcp is not None:
+            for case in ('mcp_clean', 'mcp_v2', 'mcp_wrong_data'):
+                result['cases'].append(run_case(prefix, images / 'diskgraph-mcp', images / 'diskgraph-scan-worker', case))
         result['passed'] = all(case['passed'] for case in result['cases'])
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(result, indent=2) + '\n')
@@ -206,6 +221,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--worker', type=Path, required=True)
+    parser.add_argument('--mcp', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
-    qualify(args.binary.resolve(), args.worker.resolve(), args.output.resolve())
+    qualify(args.binary.resolve(), args.worker.resolve(), args.output.resolve(), args.mcp.resolve() if args.mcp else None)

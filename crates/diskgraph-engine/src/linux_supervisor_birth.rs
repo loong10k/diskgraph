@@ -150,6 +150,11 @@ impl LinuxSupervisorBirth {
         &self.request.data_dir
     }
 
+    /// 参数：无；返回：原认证出生是否显式采用schema3生命周期控制，不修改会话或期限。
+    pub fn is_lifecycle(&self) -> bool {
+        self.request.schema_version == 3
+    }
+
     /// 参数：无；返回：原启动期限，不因 Engine 构造或恢复角色切换刷新。
     pub fn deadline(&self) -> Instant {
         self.deadline

@@ -383,3 +383,5 @@ root监督出生C层增量：独立CLONE_PIDFD／0..6白名单／exec前UID/GID/
 e49ee361 Linux stable原生owner门禁4/1：第五项角色发送完成后提前退出，未守住原datagram屏障。材料端按生产要求继承O_NONBLOCK，固定C角色recv将EAGAIN误当失败并退出5；仅夹具显式改为阻塞材料屏障，原wait/ACTIVE断言和生产非阻塞接口均保留。修复原生Rust验收待新CI，不能把此故障称为已通过。原始job日志保存在root_owner_nonblocking_barrier/。
 
 Linux认证出生schema3接线增量：原30秒启动准入、root逐消息摘要认证、固定材料5/控制6、专用UID/GID与旧schema1/2兼容保持；schema3选择生命周期通知版本2，CLI既有doctor实际宿主Ready/ForegroundEnded及原退休沿有限交付deadline接线。原行为RED0/1→共享解析GREEN8/0，Engine规范6/0、CLI规范2/0、workspace Clippy及fmt通过。隔离LinuxARM对原资格脚本的真实Popen FD映射/UID/GID/空补充组探针通过，只证明夹具本身；真实Rust CLI v3三场景和第六项RootOwner待新CI。MCP/serve白名单未扩展，公共broker与三平台服务/安装父门禁保持开放。见linux_supervisor_birth_v3/。
+
+MCP监督生命周期接线增量：Linux standalone MCP仅接受原认证schema3，并在数据库前拒绝出生配置不完整、旧schema及数据定位替换；同一namespace/Engine/Recovery/ACTIVE进入私有Ready、ForegroundEnded与退休轮询，协议结束先join原runner。传输决定trusted_local，认证出生不授予远程管理员身份。e49真实LinuxARM MCP隔离探针复现伪造出生被忽略并创建普通本地数据库（exit0）；首次ENOSPC为环境故障，单独保留。当前本机managed8/0、源码规范11/0、workspace Clippy及fmt通过；真实Linux MCP三场景与出生拒绝二进制测试待新CI，不能把macOS条件编译零执行当作通过。公共broker、三平台服务及有限前台EOF仍未完成，父项保持开放。见docs/benchmarks/mcp_supervised_lifecycle/receipt.json。

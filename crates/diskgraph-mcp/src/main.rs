@@ -6,10 +6,10 @@ use std::io::{self, BufReader, Read};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-#[cfg(not(any(target_os = "linux", target_os = "macos")))]
-use diskgraph_mcp::McpService;
 use diskgraph_mcp::protocol::ToolProfile;
-use diskgraph_mcp::{McpConfig, ScanWorkerSettings, http, serve_stdio};
+use diskgraph_mcp::{McpConfig, http, serve_stdio};
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+use diskgraph_mcp::{McpService, ScanWorkerSettings};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod managed_service_host;
@@ -168,7 +168,7 @@ fn main() -> ExitCode {
 
     // 部署材料来自本地环境，须在创建数据库前完整拒绝部分/非法配置。
     let worker_deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
-    let worker_host = match diskgraph_engine::ScanWorkerRuntimeBudget::new(
+    let runtime = match diskgraph_engine::ScanWorkerRuntimeBudget::new(
         diskgraph_scan_worker::ProtocolLimits {
             max_frame_bytes: 1 << 20,
             max_stream_bytes: 2 << 30,
@@ -177,16 +177,22 @@ fn main() -> ExitCode {
         },
         64 << 10,
         1,
-    )
-    .and_then(|runtime| {
-        ScanWorkerSettings::host_from_environment(runtime, worker_deadline, &mut || Ok(()))
-    }) {
-        Ok(host) => host,
+    ) {
+        Ok(runtime) => runtime,
         Err(error) => {
             eprintln!("invalid scan worker deployment: {error}");
             return ExitCode::from(10);
         }
     };
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    let worker_host =
+        match ScanWorkerSettings::host_from_environment(runtime, worker_deadline, &mut || Ok(())) {
+            Ok(host) => host,
+            Err(error) => {
+                eprintln!("invalid scan worker deployment: {error}");
+                return ExitCode::from(10);
+            }
+        };
     #[cfg(unix)]
     if termination
         .as_ref()
@@ -225,15 +231,15 @@ fn main() -> ExitCode {
         worker_deadline,
     );
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    let opened = managed_service_host::ManagedServiceHost::open(
+    let opened = managed_service_host::ManagedServiceHost::open_environment(
         config,
-        worker_host,
+        runtime,
         transport == "stdio",
         worker_deadline,
     );
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    let (mut service, recovery, slot) = match opened {
-        Ok(host) => (host.service, host.recovery, host.slot),
+    let admitted = match opened {
+        Ok(host) => host,
         Err(error) => {
             eprintln!("failed to open the DiskGraph service: {error}");
             return match error.primary() {
@@ -244,6 +250,15 @@ fn main() -> ExitCode {
             };
         }
     };
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let (mut service, recovery, slot, control_owner) = (
+        admitted.service,
+        admitted.recovery,
+        admitted.slot,
+        admitted.control,
+    );
+    #[cfg(target_os = "linux")]
+    let _namespace_guard = admitted.namespace_guard;
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     let (mut service, recovery) = match opened {
         Ok(opened) => opened,
@@ -259,7 +274,10 @@ fn main() -> ExitCode {
         .is_some_and(termination_signal::TerminationSignal::requested)
     {
         // 构造期间到达的终止请求仍消费同一原材料；不启动 runner，不提前丢掉 ACTIVE。
-        if let Some(slot) = slot {
+        if let Some(owner) = control_owner {
+            drop(service);
+            scan_worker_shutdown::finish_controlled(owner, 0, false);
+        } else if let Some(slot) = slot {
             scan_worker_shutdown::finish_original(service.into_supervisor_parts(recovery, slot));
         } else {
             scan_worker_shutdown::finish(recovery.as_ref());
@@ -368,11 +386,22 @@ fn main() -> ExitCode {
     // 先停止调度并 join runner，才能处置仍保留的原 OS owner。
     let runner_outcome = job_runner.stop_and_join();
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    match (retirement_service, slot) {
-        (Some(original), Some(slot)) => {
+    match (control_owner, retirement_service, slot) {
+        (Some(owner), None, None) => {
+            let panicked = outcome.is_err() || runner_outcome.is_err();
+            let code = if panicked {
+                101
+            } else if matches!(&outcome, Ok(code) if *code == ExitCode::SUCCESS) {
+                0
+            } else {
+                10
+            };
+            scan_worker_shutdown::finish_controlled(owner, code, panicked);
+        }
+        (None, Some(original), Some(slot)) => {
             scan_worker_shutdown::finish_original(original.into_supervisor_parts(recovery, slot))
         }
-        (None, None) => scan_worker_shutdown::finish(recovery.as_ref()),
+        (None, None, None) => scan_worker_shutdown::finish(recovery.as_ref()),
         _ => unreachable!("original service and slot are created together"),
     }
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]

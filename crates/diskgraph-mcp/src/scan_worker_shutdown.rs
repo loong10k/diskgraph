@@ -1,6 +1,53 @@
 use diskgraph_engine::{EngineError, ScanWorkerRecovery};
 use std::time::Duration;
 
+/// 参数：owner为catch外的原认证监督责任，exit_code/panicked为实际前台与runner结果。
+/// 返回：原资源实际退休；通知失败不丢原owner，调用方须先停止协议并join原runner。
+/// 此函数仍等待同一原资源，不代替公共broker的有限前台EOF证明。
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub(crate) fn finish_controlled(
+    mut owner: diskgraph_engine::SupervisorControlOwner,
+    exit_code: i32,
+    panicked: bool,
+) {
+    let cancel = std::sync::atomic::AtomicBool::new(false);
+    let mut reported = owner
+        .foreground_ended_lifecycle(
+            exit_code,
+            panicked,
+            &cancel,
+            std::time::Instant::now() + Duration::from_millis(50),
+        )
+        .is_err();
+    if reported {
+        eprintln!("MCP private control unconfirmed; original recovery retained");
+    }
+    loop {
+        match owner.poll_retirement(
+            std::time::Instant::now() + Duration::from_millis(50),
+            &cancel,
+        ) {
+            Ok(diskgraph_engine::SupervisorControlProgress::Complete) => return,
+            Ok(diskgraph_engine::SupervisorControlProgress::RetiredUnconfirmed { .. }) => {
+                eprintln!("MCP original resources retired; private completion unconfirmed");
+                return;
+            }
+            Ok(diskgraph_engine::SupervisorControlProgress::Pending { control_failure }) => {
+                if control_failure.is_some() && !reported {
+                    eprintln!("MCP private control unconfirmed; original recovery retained");
+                    reported = true;
+                }
+            }
+            Err(_) if !reported => {
+                eprintln!("MCP original resource retirement pending");
+                reported = true;
+            }
+            Err(_) => {}
+        }
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}
+
 /// 显式等待原扫描及探针资源，不丢弃恢复责任，不启动隐藏后台线程。
 /// 来源：原生 Rust PF-06 MCP 宿主退出合同，无 Java 对等对象。
 /// 参数：recovery 为可选原扫描责任，Windows probe 为原探针责任；runner 须已停止并 join。

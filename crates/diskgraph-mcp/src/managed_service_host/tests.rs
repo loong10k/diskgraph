@@ -6,6 +6,121 @@ use diskgraph_engine::{
 };
 use diskgraph_mcp::McpConfig;
 use std::time::{Duration, Instant};
+
+#[test]
+fn private_lifecycle_ready_preserves_transport_authority_and_original_service_references() {
+    use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId};
+    use diskgraph_engine::SupervisorControlProgress;
+    use diskgraph_engine::recovery_control::{
+        ControlNotification, ControlReceiver, UnixControlWriter,
+    };
+    use std::io::Read;
+    use std::os::unix::net::UnixStream;
+    use std::sync::atomic::AtomicBool;
+    for trusted in [false, true] {
+        let capacity = tempfile::tempdir().unwrap();
+        let data = tempfile::tempdir().unwrap();
+        let until = Instant::now() + Duration::from_secs(5);
+        let domain = domain(&capacity, until);
+        let opened = ManagedServiceHost::open_admitted(
+            McpConfig {
+                data_dir: data.path().join("database"),
+                ..McpConfig::default()
+            },
+            Some(host(&data)),
+            trusted,
+            until,
+            || domain.reserve(until).map(Some).map_err(EngineError::from),
+        )
+        .unwrap();
+        let (sender, mut receiver) = UnixStream::pair().unwrap();
+        let admitted = opened
+            .attach_control(
+                UnixControlWriter::new_lifecycle(sender, [7; 32]).unwrap(),
+                until,
+            )
+            .unwrap();
+        assert!(admitted.slot.is_none() && admitted.recovery.is_none());
+        let decision = admitted
+            .service
+            .engine()
+            .policy_authorizer()
+            .unwrap()
+            .decide(
+                &PrincipalId::new(diskgraph_mcp::STDIO_PRINCIPAL).unwrap(),
+                &Permission::ScopeAdmin,
+                &diskgraph_engine::admin_scope(),
+            );
+        assert_eq!(matches!(decision, Decision::Allowed), trusted);
+        let mut owner = admitted.control.unwrap();
+        let cancel = AtomicBool::new(false);
+        owner
+            .foreground_ended_lifecycle(0, false, &cancel, until)
+            .unwrap();
+        assert_eq!(
+            owner.poll_retirement(until, &cancel).unwrap(),
+            SupervisorControlProgress::Pending {
+                control_failure: None
+            }
+        );
+        assert_eq!(
+            std::fs::read(capacity.path().join("supervisor_0.slot")).unwrap(),
+            b"DGSL01A\n"
+        );
+        drop(admitted.service);
+        assert_eq!(
+            owner.poll_retirement(until, &cancel).unwrap(),
+            SupervisorControlProgress::Complete
+        );
+        drop(owner);
+        let mut bytes = Vec::new();
+        receiver.read_to_end(&mut bytes).unwrap();
+        let mut parser = ControlReceiver::new_lifecycle([7; 32]);
+        let frames = parser.push(&bytes).unwrap();
+        assert_eq!(frames.len(), 4);
+        assert_eq!(frames[0].notification, ControlNotification::Ready {});
+        assert_eq!(
+            frames[3].notification,
+            ControlNotification::CleanupComplete {}
+        );
+        parser.end_of_stream().unwrap();
+    }
+}
+
+#[test]
+fn failed_private_ready_retires_original_resources_without_starting_protocol() {
+    use diskgraph_engine::recovery_control::UnixControlWriter;
+    use std::os::unix::net::UnixStream;
+    let capacity = tempfile::tempdir().unwrap();
+    let data = tempfile::tempdir().unwrap();
+    let until = Instant::now() + Duration::from_secs(5);
+    let domain = domain(&capacity, until);
+    let opened = ManagedServiceHost::open_admitted(
+        McpConfig {
+            data_dir: data.path().join("database"),
+            ..McpConfig::default()
+        },
+        Some(host(&data)),
+        false,
+        until,
+        || domain.reserve(until).map(Some).map_err(EngineError::from),
+    )
+    .unwrap();
+    let (sender, receiver) = UnixStream::pair().unwrap();
+    drop(receiver);
+    let result = opened.attach_control(
+        UnixControlWriter::new_lifecycle(sender, [7; 32]).unwrap(),
+        until,
+    );
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(BusinessError::RecoveryUnconfirmed))
+    ));
+    assert_eq!(
+        std::fs::read(capacity.path().join("supervisor_0.slot")).unwrap(),
+        b"DGSL01C\n"
+    );
+}
 fn host(directory: &tempfile::TempDir) -> ScanWorkerHost {
     let image = directory.path().join("image");
     std::fs::write(&image, b"abc").unwrap();

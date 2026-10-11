@@ -1,5 +1,7 @@
 # Linux 监督 doctor 出生接线
 
+MCP接线增量：独立MCP二进制现采用同一认证出生schema3，配置存在时先认证并核对原数据目录再构造数据库。原namespace、Engine、Recovery与ACTIVE进入同一生命周期owner；Ready在启动runner/协议前发送，ForegroundEnded在原runner停止并join后发送。远程HTTP/SSE的权限仍由现有请求认证与实时数据库授权决定，不由root出生赋予本地身份。CLI内部doctor白名单保持原状。真实LinuxMCP stdio正控、旧schema拒绝和数据定位替换拒绝已纳入CI但尚未原生通过；公共broker及三平台服务/有限前台退出仍开放。
+
 状态：已接入 Engine/CLI 构造、原 owner 与 v2 私有退休通知；558d73f9 的三平台 CI 38122312895 正在验收；同源码 release 归档已在隔离 Linux ARM64 环境通过 v2 全部14场景，完整 CI 尚无终态。d76ad70f 的八场景和69b30d9b的22/23全量结果仅适用于各自源码。公共 broker、原 child 全局容量寿命、broker 完整退休确认和有限前端退出未完成，不关闭监督服务父项。
 
 ```mermaid
@@ -138,3 +140,5 @@ flowchart TD
 受信Linux父侧新增显式spawn_lifecycle：在原出生前固定私有版本2，原启动期限仍覆盖槽激活、内核出生、握手及原材料交付，不能通过模式选择续期。实际原pidfd、逐消息凭据与同会话固定预算保持，后续通知不因启动期限已过失效。旧spawn版本1保持。原生验收要求真实降权ELF发送版本2完整流，在原启动期限已过后仍完成逐消息校验、原输出EOF和实际wait，才释放同一ACTIVE；本机无法执行Linux条件分支，未运行前不得勾选。
 
 出生JSON新增显式schema_version=3选择通知版本2，要求原材料FD5、控制FD6及绑定非root专用UID/GID；JSON原摘要仍须原root父的逐消息内核凭据认证，任何环境值本身不授予信任。schema1/2的旧绝对期限和字段约束保持；缺身份、替换FD、跨版本降级及额外命令字段拒绝。schema3仍由同一30秒原启动期限完成安装镜像和数据库前准入，生命周期通知另取有限交付deadline，不将启动期限转成服务寿命上限。当前CLI只接既有doctor，MCP/serve仍须后续完整入口与权限接线；本增量不解除旧入口命令白名单。
+
+MCP二进制监督出生接线：存在任一出生环境值时，必须先经同一原LinuxSupervisorBirth认证且只接受schema3；缺失、伪造、过期、旧版本或data_dir替换均在数据库与bootstrap前拒绝，不能忽略后回退到普通宿主。无出生材料时保持原本地宿主。HTTP/SSE必须继续使用remote模式、不引导本地管理员，stdio保持可信本地模式；私有出生不授予远程请求权限。原命名空间与SupervisorControlOwner须在协议catch外保留，Ready先于runner和协议，ForeEnded仅在实际前台结束且原runner join后发送；异常也必须先恢复同一原资源，再重抛原主panic。取消启动、控制失败和Pending都不得丢原owner或提前CLEAN。MCP原生正向验收须真实原PID/UID/GID、完整生命周期通知、正常stdio或HTTP停止及原wait；该接线不代替公共broker有限EOF、macOS/Windows服务及安装验收。

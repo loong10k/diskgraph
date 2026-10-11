@@ -776,8 +776,8 @@ jobs:
         timeout-minutes: 10
         shell: bash
         run: |
-          cargo build -p diskgraph-cli -p diskgraph-scan-worker --bins --locked
-          sudo python3 scripts/qualify_linux_supervisor_birth.py --binary target/debug/diskgraph --worker target/debug/diskgraph-scan-worker --output "${{ runner.temp }}/diskgraph-supervisor-birth.json"
+          cargo build -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker --bins --locked
+          sudo python3 scripts/qualify_linux_supervisor_birth.py --binary target/debug/diskgraph --worker target/debug/diskgraph-scan-worker --mcp target/debug/diskgraph-mcp --output "${{ runner.temp }}/diskgraph-supervisor-birth.json"
       - name: Preserve Linux supervisor constructor qualification
         if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
