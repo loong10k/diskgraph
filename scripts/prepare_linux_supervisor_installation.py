@@ -30,6 +30,44 @@ def validate_identities(service_uid, service_gid, frontend_uids):
             'frontend_uids': list(frontend_uids)}
 
 
+def validate_broker_prefix(prefix, policy):
+    """在创建部署前拒绝尚未支持的身份集合和unit/Unix socket路径。"""
+    text = str(prefix)
+    if len(policy['frontend_uids']) != 1:
+        raise ValueError('fixed broker currently requires exactly one frontend UID')
+    if not text.startswith('/') or any(part in ('', '.', '..') for part in text[1:].split('/')):
+        raise ValueError('canonical absolute broker prefix required')
+    if any(ord(c) < 32 or c in '\\$' for c in text):
+        raise ValueError('unsupported unit path character')
+    if len((text + '/front.sock').encode('utf-8')) > 100:
+        raise ValueError('fixed broker socket path exceeds 100 bytes')
+    return text
+
+
+def broker_artifacts(prefix, policy, images):
+    """生成固定配置和未启用unit；摘要只能取实际独占安装镜像的完整摘要。"""
+    text = validate_broker_prefix(prefix, policy)
+    config = {'schema_version': 1, 'frontend_uid': policy['frontend_uids'][0],
+              'service_uid': policy['service_uid'], 'service_gid': policy['service_gid'],
+              'state_dir': text + '/state', 'data_dir': text + '/state/data',
+              'socket_path': text + '/front.sock', 'cli_path': text + '/images/diskgraph',
+              'cli_sha256': images['diskgraph']['sha256'],
+              'worker_path': text + '/images/diskgraph-scan-worker',
+              'worker_sha256': images['diskgraph-scan-worker']['sha256']}
+    # systemd自己的specifier先转义，再对完整参数引用；禁止换行、反斜杠和环境变量语法。
+    def quoted(value):
+        return '"' + value.replace('%', '%%').replace('"', '\\"') + '"'
+    executable = quoted(text + '/images/diskgraph-supervisor')
+    config_path = quoted(text + '/supervisor-config.json')
+    unit = ('[Unit]\nDescription=DiskGraph fixed local supervisor\nAfter=local-fs.target\n\n'
+            '[Service]\nType=simple\nUser=root\nGroup=root\n'
+            f'ExecStart={executable} --config {config_path}\n'
+            'Restart=no\nKillMode=control-group\nTimeoutStopSec=30\n'
+            'NoNewPrivileges=yes\nProtectSystem=strict\n'
+            f'ReadWritePaths={quoted(text)}\nRestrictAddressFamilies=AF_UNIX\n'
+            '\n[Install]\nWantedBy=multi-user.target\n')
+    return config, unit
+
 def verify_root_directory(fd):
     """以打开对象验证 root 目录；不修复已存在目录的所有权或权限。"""
     info = os.fstat(fd)
@@ -132,7 +170,7 @@ def validate_elf_header(block, target):
         raise ValueError('ELF image type, machine or version mismatch')
 
 
-def install_images(archive, images, target):
+def install_images(archive, images, target, with_broker=False):
     """从已核验 root 独占快照流式安装三个固定镜像；不调用 extractall 或执行镜像。"""
     result, manifest, seen = {}, None, set()
     expected_root = 'diskgraph-' + target
@@ -158,14 +196,15 @@ def install_images(archive, images, target):
                     if member.size > 16384:
                         raise ValueError('oversized worker manifest')
                     manifest = json.loads(package.extractfile(member).read(16385))
-                elif name in NAMES:
+                elif name in (*NAMES, 'diskgraph-supervisor'):
                     result[name] = write_at(images, name, package.extractfile(member), MAX_IMAGE_BYTES, 0o555,
                                             validate_header=lambda block: validate_elf_header(block, target))
                     if result[name]['bytes'] != member.size or not member.size:
                         raise ValueError('incomplete or empty role image')
                 else:
                     raise ValueError('unknown executable entry')
-    if set(result) != set(NAMES) or not isinstance(manifest, dict):
+    required = set(NAMES) | ({'diskgraph-supervisor'} if with_broker else set())
+    if not required.issubset(result) or not isinstance(manifest, dict):
         raise ValueError('incomplete package image set')
     if manifest.get('schema_version') != 1 or manifest.get('target') != target or manifest.get('protocol_version') != 2 or manifest.get('pinned_scanner_revision') != PIN:
         raise ValueError('worker platform, protocol or upstream pin mismatch')
@@ -176,10 +215,12 @@ def install_images(archive, images, target):
     return result, manifest
 
 
-def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, frontend_uids):
+def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, frontend_uids, with_broker=False):
     """准备新隔离部署，返回真实对象回执；失败保留未启用的部分树，不重置任何旧槽。"""
     import io
     policy = validate_identities(service_uid, service_gid, frontend_uids)
+    if with_broker:
+        validate_broker_prefix(prefix, policy)
     if sys.platform != 'linux' or os.geteuid() != 0:
         raise PermissionError('requires the isolated Linux root installer; no desktop fallback')
     if len(expected_sha256) != 64 or any(c not in '0123456789abcdef' for c in expected_sha256):
@@ -206,7 +247,7 @@ def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, fro
             os.fchmod(images, 0o755)
             archive_fd = os.open('.source.tar.gz', os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=prefix_fd)
             with os.fdopen(archive_fd, 'rb') as snapshot:
-                binaries, worker = install_images(snapshot, images, target)
+                binaries, worker = install_images(snapshot, images, target, with_broker=with_broker)
         finally:
             os.close(images)
         os.mkdir('state', mode=0o755, dir_fd=prefix_fd)
@@ -219,20 +260,29 @@ def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, fro
             os.fsync(state_fd)
         finally:
             os.close(state_fd)
-        os.mkdir('data', mode=0o700, dir_fd=prefix_fd)
-        data_fd = os.open('data', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=prefix_fd)
+        data_parent = os.open('state', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=prefix_fd) if with_broker else os.dup(prefix_fd)
+        try:
+            os.mkdir('data', mode=0o700, dir_fd=data_parent)
+            data_fd = os.open('data', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=data_parent)
+            os.fsync(data_parent)
+        finally:
+            os.close(data_parent)
         try:
             os.fchown(data_fd, service_uid, service_gid)
             os.fchmod(data_fd, 0o700)
             os.fsync(data_fd)
         finally:
             os.close(data_fd)
+        if with_broker:
+            config, unit = broker_artifacts(prefix, policy, binaries)
+            write_at(prefix_fd, 'supervisor-config.json', io.BytesIO((json.dumps(config) + '\n').encode()), 4096, 0o600)
+            write_at(prefix_fd, 'diskgraph-supervisor.service', io.BytesIO(unit.encode()), 4096, 0o644)
         receipt = {'schema_version': 1, 'status': 'prepared_not_enabled', 'target': target,
                    'archive_sha256': expected_sha256, 'identity_policy': policy,
                    'role_images': binaries, 'worker_manifest': worker,
                    'state_identity': {'device': state_info.st_dev, 'inode': state_info.st_ino},
                    'bootstrap_slot': bootstrap, 'service_slot': service,
-                   'services_started': False, 'broker_authenticated': False,
+                   'services_started': False, 'broker_artifacts_prepared': with_broker, 'broker_authenticated': False,
                    'supervisor_lifecycle_qualified': False}
         write_at(prefix_fd, 'supervisor-deployment.json', io.BytesIO((json.dumps(receipt, indent=2) + '\n').encode()), 16384, 0o644)
         os.unlink('.source.tar.gz', dir_fd=prefix_fd)
@@ -252,8 +302,9 @@ def main():
     parser.add_argument('--service-uid', type=int, required=True)
     parser.add_argument('--service-gid', type=int, required=True)
     parser.add_argument('--frontend-uid', type=int, action='append', required=True)
+    parser.add_argument('--with-broker', action='store_true', help='prepare fixed doctor broker and unenabled systemd unit')
     args = parser.parse_args()
-    receipt = prepare(args.archive, args.expected_sha256, args.prefix, args.service_uid, args.service_gid, args.frontend_uid)
+    receipt = prepare(args.archive, args.expected_sha256, args.prefix, args.service_uid, args.service_gid, args.frontend_uid, with_broker=args.with_broker)
     print(json.dumps(receipt, indent=2))
 
 

@@ -9,6 +9,9 @@ import socket
 import struct
 import subprocess
 import tempfile
+import tarfile
+import platform
+import io
 import time
 
 
@@ -73,7 +76,7 @@ def actual_broker(args, mode):
                 assert not Path(config["socket_path"]).exists() and not (data / "diskgraph-control.sqlite").exists()
                 assert (state / "bootstrap.slot").read_bytes() == original_record
                 return {"mode": mode, "server_exit": server.returncode, "socket_not_born": True, "database_not_born": True}
-            while not Path(config["socket_path"]).exists():
+            while not Path(config["socket_path"]).exists() or (Path(config["socket_path"]).stat().st_mode & 0o777) != 0o666:
                 assert time.monotonic() - started < 30, "original startup never bound socket"
                 assert server.poll() is None, server.communicate()
                 time.sleep(0.005)
@@ -144,17 +147,85 @@ c.close();s.close()
             listener.close()
 
 
+
+def prepared_installation(args):
+    # 实际四镜像归档由独立安装者摘要准入；不复制手写配置代替prepare路径。
+    from prepare_linux_supervisor_installation import prepare, PIN
+    target = {'x86_64': 'x86_64-unknown-linux-gnu', 'aarch64': 'aarch64-unknown-linux-gnu'}[platform.machine()]
+    with tempfile.TemporaryDirectory(prefix='dg-installed-', dir='/var/lib') as folder:
+        root = Path(folder)
+        os.chmod(root, 0o755)
+        archive_path = root / 'product.tar.gz'
+        images = {'diskgraph': args.cli, 'diskgraph-mcp': args.mcp,
+                  'diskgraph-scan-worker': args.worker, 'diskgraph-supervisor': args.broker}
+        worker = {'schema_version': 1, 'target': target, 'protocol_version': 2,
+                  'pinned_scanner_revision': PIN, 'executable': {'name': 'diskgraph-scan-worker',
+                  'bytes': args.worker.stat().st_size, 'sha256': digest(args.worker)}}
+        with tarfile.open(archive_path, 'w:gz') as archive:
+            for name, source in images.items():
+                archive.add(source, arcname='diskgraph-' + target + '/bin/' + name, recursive=False)
+            body = json.dumps(worker).encode()
+            info = tarfile.TarInfo('diskgraph-' + target + '/bin/scan-worker-manifest.json')
+            info.size = len(body)
+            archive.addfile(info, io.BytesIO(body))
+        expected = digest(archive_path)
+        prefix = root / 'installed'
+        receipt = prepare(archive_path, expected, prefix, 23111, 23111, [23112], with_broker=True)
+        assert receipt['broker_artifacts_prepared'] and not receipt['services_started']
+        config_path = prefix / 'supervisor-config.json'
+        assert config_path.stat().st_uid == 0 and (config_path.stat().st_mode & 0o7777) == 0o600
+        # 原生解析实际unit，但不将静态verify冒充systemd运行或安装验收。
+        subprocess.run(['systemd-analyze', 'verify', str(prefix / 'diskgraph-supervisor.service')],
+                       check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+        config = json.loads(config_path.read_text())
+        server = subprocess.Popen([str(prefix / 'images/diskgraph-supervisor'), '--config', str(config_path), '--once'],
+                                  env={}, cwd=root, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        frontend = None
+        try:
+            started = time.monotonic()
+            endpoint = Path(config['socket_path'])
+            while not endpoint.exists() or (endpoint.stat().st_mode & 0o777) != 0o666:
+                assert time.monotonic() - started < 30 and server.poll() is None
+                time.sleep(0.005)
+            frontend = subprocess.Popen([str(prefix / 'images/diskgraph'), '--json', '--supervisor-socket', str(endpoint), 'doctor'],
+                                        preexec_fn=lowered, env={}, cwd=root, stdin=subprocess.DEVNULL,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = frontend.communicate(timeout=35)
+            assert frontend.returncode == 0 and json.loads(stdout)['ok'] is True, (stdout, stderr)
+            server_stdout, server_stderr = server.communicate(timeout=35)
+            assert server.returncode == 0, (server_stdout, server_stderr)
+            assert (prefix / 'state/bootstrap.slot').read_bytes() == b'DGSL01C\n'
+            assert (prefix / 'state/uid_23111.slot').read_bytes() == b'DGSL01C\n'
+            original_config = config_path.read_bytes()
+            try:
+                prepare(archive_path, expected, prefix, 23111, 23111, [23112], with_broker=True)
+            except FileExistsError:
+                pass
+            else:
+                raise AssertionError('installer replaced existing original deployment')
+            assert config_path.read_bytes() == original_config
+            return {'mode': 'actual_prepared_installation', 'frontend_exit': 0, 'original_broker_wait_consumed': True,
+                    'static_unit_verified': True, 'systemd_service_started': False, 'repeat_install_refused': True}
+        finally:
+            if frontend is not None:
+                original_dispose(frontend)
+            original_dispose(server)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cli", type=Path, required=True)
     parser.add_argument("--worker", type=Path, required=True)
     parser.add_argument("--broker", type=Path, required=True)
+    parser.add_argument("--mcp", type=Path, help="actual fourth installed image for preparation qualification")
     parser.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
     if os.geteuid() != 0 or os.environ.get("DG_ISOLATED_ROOT_ACCEPTANCE") != "1":
         raise SystemExit("requires explicit isolated root acceptance; never installs desktop service")
     rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest")]
     rows += [delegated_sender(args, lower) for lower in (False, True)]
+    if args.mcp is not None:
+        rows.append(prepared_installation(args))
     receipt = {"passed": len(rows), "failed": 0, "actual_product_binaries": True, "system_service_installed": False,
                "active_pending_owner_injected": False, "platform": "Linux", "cases": rows,
                "binary_sha256": {name: digest(getattr(args, name)) for name in ("cli", "worker", "broker")}}

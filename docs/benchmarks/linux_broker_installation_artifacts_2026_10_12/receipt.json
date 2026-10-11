@@ -1,0 +1,16 @@
+{
+  "baseline_source": "2c71eab0",
+  "increment": "fixed broker installation artifacts",
+  "local_platform": "macOS",
+  "installer_tests": {
+    "passed": 18,
+    "failed": 0
+  },
+  "red": "broker artifact API absent; original failure log retained",
+  "spec_validation": "passed",
+  "workflow_syntax": "passed",
+  "native_prepared_installation": "pending CI",
+  "systemd_unit_execution": "not run",
+  "desktop_service_installed": false,
+  "full_platform_production_ready": false
+}

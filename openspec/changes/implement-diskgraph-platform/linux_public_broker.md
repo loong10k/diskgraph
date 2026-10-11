@@ -9,3 +9,7 @@
 - 前端验证公开socket父目录及broker原内核root身份，固定原30秒涵盖连接、输入、帧读取及输出；不得在分片后刷新。状态后额外帧、截断、未知种类或缺终态拒绝。
 - ForegroundEnded仅结束公开交付，不清除槽。broker保留原监督child、私有控制和全局ACTIVE直到真实退休；错误仍保留原owner，不从exit=0推定完成。单固定服务域忙时拒绝新出生，不扩张容量。
 - 独立前端二进制与实际CLI/worker在受保护隔离域验收，必须观察真实客户端wait/公共EOF、bootstrap仍ACTIVE或已由原wait合法退休、最终私有完成与原槽CLEAN。异常Pending、服务安装、多域容量、MCP和其他平台仍保持开放。
+
+## 固定安装产物验收
+
+现有隔离安装准备器增加显式`--with-broker`：旧三镜像准备路径保持兼容；启用该模式必须包含第四个原生broker镜像，且首期恰有一个前端UID。所有配置检查在创建安装树前完成，输出root所有0600配置、root保护socket位置、state/data专用服务目录及未启用的systemd unit。配置摘要取实际独占复制的镜像，不能引用包内自签摘要。unit执行固定broker及配置，异常退出不自动重启或删除ACTIVE；准备器不得调用systemctl或安装桌面服务。隔离原生验收须用实际打包的四镜像经准备器启动broker，检查实际CLI结果、原owner退休及新安装tree重复准备拒绝。三平台服务父项保持开放。

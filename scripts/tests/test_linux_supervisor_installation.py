@@ -44,17 +44,51 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(actual['frontend_uids'], [1001, 1002])
 
 
+class BrokerArtifactTests(unittest.TestCase):
+    def images(self):
+        return {name: {'sha256': str(index) * 64} for index, name in enumerate(
+            ['diskgraph', 'diskgraph-scan-worker', 'diskgraph-supervisor'], start=1)}
+
+    def test_fixed_config_uses_actual_installed_images_and_nested_service_data(self):
+        policy = MODULE.validate_identities(23111, 23111, [23112])
+        config, unit = MODULE.broker_artifacts(Path('/var/lib/dg-test'), policy, self.images())
+        self.assertEqual(config['frontend_uid'], 23112)
+        self.assertEqual(config['data_dir'], '/var/lib/dg-test/state/data')
+        self.assertEqual(config['cli_sha256'], self.images()['diskgraph']['sha256'])
+        self.assertEqual(config['worker_sha256'], self.images()['diskgraph-scan-worker']['sha256'])
+        self.assertIn('/images/diskgraph-supervisor', unit)
+        self.assertIn('Restart=no', unit.splitlines())
+        self.assertIn('[Service]', unit.splitlines())
+        self.assertNotIn('systemctl', unit)
+
+    def test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment(self):
+        policy = MODULE.validate_identities(23111, 23111, [23112])
+        for prefix in ['/var/lib/dg\nInjected=yes', '/var/lib/' + 'x' * 100, 'relative']:
+            with self.subTest(prefix=prefix), self.assertRaises(ValueError):
+                MODULE.broker_artifacts(Path(prefix), policy, self.images())
+        with self.assertRaises(ValueError):
+            MODULE.broker_artifacts(Path('/var/lib/dg-test'),
+                MODULE.validate_identities(23111, 23111, [23112, 23113]), self.images())
+
+    def test_systemd_literal_paths_preserve_spaces_quotes_and_percent(self):
+        policy = MODULE.validate_identities(23111, 23111, [23112])
+        _, unit = MODULE.broker_artifacts(Path('/var/lib/dg %n "quoted"'), policy, self.images())
+        self.assertIn('%%n', unit)
+        self.assertIn('\\"quoted\\"', unit)
+
+
 class ArchiveTests(unittest.TestCase):
     target = 'aarch64-unknown-linux-gnu'
 
-    def package(self, extra=None, bad_worker=False, invalid_elf=False, wrong_machine=False):
+    def package(self, extra=None, bad_worker=False, invalid_elf=False, wrong_machine=False, with_broker=False):
         raw = io.BytesIO()
         header = bytearray(64)
         header[:7] = b'\x7fELF\x02\x01\x01'
         header[16:18] = (3).to_bytes(2, 'little')
         header[18:20] = (183).to_bytes(2, 'little')
         header[20:24] = (1).to_bytes(4, 'little')
-        images = {name: bytes(header) + (name + '-fixture').encode() for name in MODULE.NAMES}
+        names = (*MODULE.NAMES, 'diskgraph-supervisor') if with_broker else MODULE.NAMES
+        images = {name: bytes(header) + (name + '-fixture').encode() for name in names}
         if invalid_elf:
             images['diskgraph'] = b'not-an-ELF'
         if wrong_machine:
@@ -75,11 +109,11 @@ class ArchiveTests(unittest.TestCase):
                 archive.addfile(*extra)
         return io.BytesIO(gzip.compress(raw.getvalue()))
 
-    def install(self, archive):
+    def install(self, archive, with_broker=False):
         with tempfile.TemporaryDirectory() as directory:
             fd = os.open(directory, os.O_RDONLY)
             try:
-                result, manifest = MODULE.install_images(archive, fd, self.target)
+                result, manifest = MODULE.install_images(archive, fd, self.target, with_broker=with_broker)
                 for name, metadata in result.items():
                     self.assertEqual((Path(directory) / name).stat().st_size, metadata['bytes'])
                     self.assertEqual(metadata['mode'], 0o555)
@@ -91,6 +125,16 @@ class ArchiveTests(unittest.TestCase):
     def test_exact_fixed_images_and_manifest_are_copied(self):
         result, _ = self.install(self.package())
         self.assertEqual(set(result), set(MODULE.NAMES))
+
+    def test_broker_installation_requires_actual_fourth_image(self):
+        with self.assertRaises(ValueError):
+            self.install(self.package(), with_broker=True)
+        result, _ = self.install(self.package(with_broker=True), with_broker=True)
+        self.assertEqual(set(result), set(MODULE.NAMES) | {'diskgraph-supervisor'})
+
+    def test_old_preparation_accepts_optional_broker_without_enabling_it(self):
+        result, _ = self.install(self.package(with_broker=True))
+        self.assertIn('diskgraph-supervisor', result)
 
     def test_non_elf_role_image_is_refused(self):
         with self.assertRaises(ValueError):

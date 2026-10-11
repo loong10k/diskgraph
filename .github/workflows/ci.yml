@@ -827,11 +827,11 @@ jobs:
               raise SystemExit('original Engine binary must contain all four frontend credential tests')
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" recovery_control::linux_frontend_connection_tests:: --ignored --nocapture || exit $?
-            cargo build -p diskgraph-cli -p diskgraph-scan-worker -p diskgraph-engine --bins --locked --message-format=json > "$fixture/doctor-images.jsonl" || exit $?
+            cargo build -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker -p diskgraph-engine --bins --locked --message-format=json > "$fixture/doctor-images.jsonl" || exit $?
             python3 - "$fixture/doctor-images.jsonl" "$fixture" <<'PYTHON' || exit $?
           import json, pathlib, sys
           artifacts = [json.loads(line) for line in open(sys.argv[1])]
-          for name in ('diskgraph', 'diskgraph-scan-worker', 'diskgraph-supervisor'):
+          for name in ('diskgraph', 'diskgraph-mcp', 'diskgraph-scan-worker', 'diskgraph-supervisor'):
               paths = [a['executable'] for a in artifacts if a.get('reason') == 'compiler-artifact' and a.get('target', {}).get('name') == name and a.get('executable')]
               if len(paths) != 1:
                   raise SystemExit('expected exactly one current build image for ' + name)
@@ -858,7 +858,8 @@ jobs:
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_CLI="$cli_image" "$test_binary" "$image_case" --ignored --exact --nocapture || exit $?
             broker_image="$(cat "$fixture/diskgraph-supervisor.path")" || exit $?
-            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_public_broker.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --receipt "$fixture/public-broker-receipt.json" || exit $?
+            mcp_image="$(cat "$fixture/diskgraph-mcp.path")" || exit $?
+            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_public_broker.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --receipt "$fixture/public-broker-receipt.json" || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
@@ -868,6 +869,7 @@ jobs:
           path: |
             ${{ runner.temp }}/diskgraph-supervisor-spawn.json
             ${{ runner.temp }}/diskgraph-supervisor-spawn-fixture/qualification.log
+            ${{ runner.temp }}/diskgraph-supervisor-spawn-fixture/public-broker-receipt.json
           retention-days: 7
           if-no-files-found: error
       - name: Observe original macOS failures without concurrent test scheduling

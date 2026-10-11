@@ -1,0 +1,59 @@
+........EEEEEE.....
+======================================================================
+ERROR: test_fixed_config_uses_actual_installed_images_and_nested_service_data (test_linux_supervisor_installation.BrokerArtifactTests.test_fixed_config_uses_actual_installed_images_and_nested_service_data)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_supervisor_installation.py", line 54, in test_fixed_config_uses_actual_installed_images_and_nested_service_data
+    config, unit = MODULE.broker_artifacts(Path('/var/lib/dg-test'), policy, self.images())
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'prepare_linux_supervisor_installation' has no attribute 'broker_artifacts'
+
+======================================================================
+ERROR: test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment (test_linux_supervisor_installation.BrokerArtifactTests.test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment) (prefix='/var/lib/dg\nInjected=yes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_supervisor_installation.py", line 67, in test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment
+    MODULE.broker_artifacts(Path(prefix), policy, self.images())
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'prepare_linux_supervisor_installation' has no attribute 'broker_artifacts'
+
+======================================================================
+ERROR: test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment (test_linux_supervisor_installation.BrokerArtifactTests.test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment) (prefix='/var/lib/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_supervisor_installation.py", line 67, in test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment
+    MODULE.broker_artifacts(Path(prefix), policy, self.images())
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'prepare_linux_supervisor_installation' has no attribute 'broker_artifacts'
+
+======================================================================
+ERROR: test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment (test_linux_supervisor_installation.BrokerArtifactTests.test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment) (prefix='relative')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_supervisor_installation.py", line 67, in test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment
+    MODULE.broker_artifacts(Path(prefix), policy, self.images())
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'prepare_linux_supervisor_installation' has no attribute 'broker_artifacts'
+
+======================================================================
+ERROR: test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment (test_linux_supervisor_installation.BrokerArtifactTests.test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_supervisor_installation.py", line 69, in test_multi_frontend_and_unsafe_unit_paths_are_refused_before_deployment
+    MODULE.broker_artifacts(Path('/var/lib/dg-test'),
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'prepare_linux_supervisor_installation' has no attribute 'broker_artifacts'
+
+======================================================================
+ERROR: test_systemd_literal_paths_preserve_spaces_quotes_and_percent (test_linux_supervisor_installation.BrokerArtifactTests.test_systemd_literal_paths_preserve_spaces_quotes_and_percent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_linux_supervisor_installation.py", line 74, in test_systemd_literal_paths_preserve_spaces_quotes_and_percent
+    _, unit = MODULE.broker_artifacts(Path('/var/lib/dg %n "quoted"'), policy, self.images())
+              ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'prepare_linux_supervisor_installation' has no attribute 'broker_artifacts'
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.009s
+
+FAILED (errors=6)
