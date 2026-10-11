@@ -20,11 +20,38 @@ impl Engine {
             return Err(BusinessError::BudgetExceeded.into());
         }
         let expiry = authorizer.expires_at_unix_seconds();
+        // 原见证贯穿范围读取和响应编码，授权恢复不能抹掉本请求已发生的撤权。
+        let control = self.control_until(deadline)?;
+        let (withdrawal, generation, server) = control.with_read_deadline(deadline, |control| {
+            Ok::<_, EngineError>((
+                crate::request_withdrawal_witness::RequestWithdrawalWitness::capture(
+                    control, principal, scope,
+                )?,
+                control.authorization_generation()?,
+                control.existing_server_id()?,
+            ))
+        })?;
+        drop(control);
         self.require_reader_capability_until(authorizer, principal, scope, expiry, deadline)?;
         let record = self.scope_until(scope, deadline)?;
         // 消费者只生成未公开缓冲，不持控制锁；失败结果同样不能绕过末段撤权。
         let result = consumer(&record);
         let timely = self.observe_terminal_relation(authorizer, principal, scope, expiry)?;
+        let control = match self.try_control_store()? {
+            Some(control) => control,
+            None => self.control_until(deadline)?,
+        };
+        withdrawal.check(&control)?;
+        control.with_read_deadline(deadline, |control| {
+            withdrawal.check(control)?;
+            if !withdrawal.has_native_watch() && control.authorization_generation()? != generation {
+                return Err(BusinessError::Conflict.into());
+            }
+            if control.existing_server_id()? != server {
+                return Err(BusinessError::PermissionDenied.into());
+            }
+            Ok::<_, EngineError>(())
+        })?;
         if !timely || Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }

@@ -58,17 +58,18 @@ impl McpService {
                 "legacy_sse": self.legacy_sse,
             }));
         };
-        let record = self.engine.job_status_authorized_until(
+        self.engine.with_job_status_authorized_until(
             job_id,
             self.context.principal(),
             &self.authorizer_until(deadline)?,
             deadline,
-        )?;
-        let result = json!({
-            "job_id": record.job_id,
-            "scope_id": record.scope_id.as_str(),
-            "state": format!("{:?}", record.state).to_ascii_lowercase(),
-        });
-        Ok(result)
+            |record| {
+                Ok(json!({
+                    "job_id": record.job_id,
+                    "scope_id": record.scope_id.as_str(),
+                    "state": format!("{:?}", record.state).to_ascii_lowercase(),
+                }))
+            },
+        )
     }
 }

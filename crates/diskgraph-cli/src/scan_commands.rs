@@ -1,7 +1,6 @@
 //! CLI scan_commands 的实际命令分发。来源：原生 main::dispatch。
 use crate::cli::Cli;
 use crate::command::Command;
-use crate::output::envelope_line;
 use crate::scan_jobs::run_scan;
 use diskgraph_core::{Authorizer, BusinessError, PrincipalId};
 use diskgraph_engine::{Engine, EngineError};
@@ -14,6 +13,7 @@ pub(crate) fn run(
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     out: &mut Vec<String>,
+    deadline: std::time::Instant,
 ) -> Result<(), EngineError> {
     match &cli.command {
         Command::Index { scope, wait } => {
@@ -29,25 +29,19 @@ pub(crate) fn run(
             collector: Some(_), ..
         } => crate::evidence_sync::run(engine, cli, principal, authorizer, out),
         Command::Status { job } => {
-            // Git 状态由共同授权入口绑定实际 scope 和 revision，固定诊断不包含工具原文。
-            // 非 Git 任务返回 None，继续原扫描状态字段及查询路径。
-            if let Some(details) = engine.git_job_status_details(job, principal, authorizer)? {
-                out.push(envelope_line(engine, Ok(details)));
-                return Ok(());
-            }
-            if let Some(details) = engine.process_job_status_details(job, principal, authorizer)? {
-                out.push(envelope_line(engine, Ok(details)));
-                return Ok(());
-            }
-            let record = engine.job_status(job)?;
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "job_id": record.job_id,
-                    "state": format!("{:?}", record.state).to_ascii_lowercase(),
-                    "scope_id": record.scope_id.as_str(),
-                })),
-            ));
+            let server = engine.server_id_until(deadline)?;
+            let encoded = engine.with_job_status_authorized_until(job, principal, authorizer, deadline, |record| {
+                // collector详情仍通过既有实际scope/revision授权服务，全部继承原期限。
+                let data = if let Some(details) = engine.git_job_status_details_until(job, principal, authorizer, deadline)? {
+                    details
+                } else if let Some(details) = engine.process_job_status_details_until(job, principal, authorizer, deadline)? {
+                    details
+                } else {
+                    serde_json::json!({ "job_id": record.job_id, "state": format!("{:?}", record.state).to_ascii_lowercase(), "scope_id": record.scope_id.as_str() })
+                };
+                crate::snapshot_reply::encode_data(server, &data, std::time::Instant::now() >= deadline)
+            })?;
+            out.push(encoded);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

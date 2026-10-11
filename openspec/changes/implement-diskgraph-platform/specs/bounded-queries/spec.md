@@ -326,3 +326,15 @@ Node、children、top、explore、search SHALL 继承 dispatch 原期限，使�
 - **GIVEN** 隔离真实数据库已发布属于该注册 scope 的合成元数据，主体此前有权限
 - **WHEN** 上述 CLI 命令使用已过期的原始期限，或编码终检时撤销该 scope
 - **THEN** 分别返回 BudgetExceeded 或 PermissionDenied，输出缓冲为空；正常权限时兼容字段与 Unicode 匹配保持一致。合成元数据回归不替代原生扫描或服务验收。
+
+### Requirement: CLI management query authorization
+CLI status SHALL 按任务真实scope使用OperationView能力与实时数据库授权，不能调用可信内部job_status直接交付。status和snapshots列表 SHALL 沿dispatch原期限读取并在响应编码后复检权限；拒权或过期时不交付缓冲。
+
+#### Scenario: Ungranted scan job status
+- **GIVEN** 隔离控制库中存在真实排队扫描任务，请求主体没有该scope权限
+- **WHEN** CLI status查询该job
+- **THEN** PermissionDenied且输出为空；过期原请求返回BudgetExceeded。
+
+#### Scenario: Withdrawal restored after management response encoding
+- **WHEN** 元数据或OperationView授权在真实响应编码后撤销并以相同epoch恢复
+- **THEN** 原请求持有的撤权见证拒绝已编码缓冲；平台没有原生通知能力时，授权代次改变返回Conflict，不能声称精确观察到撤权事件。

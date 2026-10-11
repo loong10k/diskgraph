@@ -25,3 +25,5 @@ python3 scripts/prepare_linux_supervisor_installation.py \
 `scope show` 通过授权元数据入口读取：未授 MetadataRead、scope 撤销、原请求期限耗尽或末段能力回调超过50ms时拒绝，编码完成后的实时终检通过才交付根展示。可信内部 `Engine::scope` 保留，但不用于该公开读取入口。新增原生场景仍待 CI。
 
 CLI node、children、top、explore、search 共用dispatch原期限与独立授权reader，客户端scope必须匹配revision持久归属，编码后的数据经实时授权终检才交付；搜索游标绑定实际dispatch主体。隔离合成元数据回归覆盖这些处理器，仍需当前源码原生服务验收。过滤children与search保留既有页解码上限，本次不证明所有查询的严格raw字节或RSS上限。
+
+CLI扫描任务status按任务真实scope检查OperationView与实时授权交集，status和snapshots列表沿原dispatch期限准备有界响应并在编码后终检。原撤权见证贯穿编码，撤销再恢复不能放行原在途响应；没有原生通知能力时授权代次变化返回Conflict。隔离元数据回归与原生服务验收分开记录。

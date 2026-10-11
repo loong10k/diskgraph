@@ -146,6 +146,11 @@ fn comparison_summary_is_partial_when_encoded_terminal_authorization_expires() {
     }
 }
 
+/// 隔离回归在真实编码结束时触发一次外部变更。
+pub(super) fn arm_before_reply(hook: impl FnOnce() + 'static) {
+    BEFORE_REPLY.with(|slot| *slot.borrow_mut() = Some(Box::new(hook)));
+}
+
 pub(super) fn before_reply() {
     if let Some(hook) = BEFORE_REPLY.with(|slot| slot.borrow_mut().take()) {
         hook();

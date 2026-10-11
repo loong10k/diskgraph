@@ -14,6 +14,7 @@ pub(crate) fn run(
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     out: &mut Vec<String>,
+    deadline: std::time::Instant,
 ) -> Result<(), EngineError> {
     match &cli.command {
         Command::Snapshots {
@@ -44,18 +45,30 @@ pub(crate) fn run(
                     .ok_or(EngineError::Business(BusinessError::InvalidArgument))?,
             )
             .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            let snapshots =
-                engine.list_snapshots(&scope_id, principal, authorizer, *limit, *offset)?;
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "snapshots": snapshots.iter().map(|snapshot| serde_json::json!({
-                        "snapshot_id": snapshot.id,
-                        "captured_at_unix_ms": snapshot.captured_at_unix_ms,
-                        "complete": snapshot.coverage.complete,
-                    })).collect::<Vec<_>>(),
-                })),
-            ));
+            let server = engine.server_id_until(deadline)?;
+            let encoded = engine.with_scope_metadata_until(
+                &scope_id,
+                principal,
+                authorizer,
+                deadline,
+                |_| {
+                    let snapshots = engine.list_snapshots_until(
+                        &scope_id, principal, authorizer, *limit, *offset, deadline,
+                    )?;
+                    crate::snapshot_reply::encode_data(
+                        server,
+                        &serde_json::json!({
+                            "snapshots": snapshots.iter().map(|snapshot| serde_json::json!({
+                                "snapshot_id": snapshot.id,
+                                "captured_at_unix_ms": snapshot.captured_at_unix_ms,
+                                "complete": snapshot.coverage.complete,
+                            })).collect::<Vec<_>>(),
+                        }),
+                        std::time::Instant::now() >= deadline,
+                    )
+                },
+            )?;
+            out.push(encoded);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

@@ -19,10 +19,10 @@ pub(crate) fn dispatch(
             crate::scope_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Index { .. } | Command::Sync { .. } | Command::Status { .. } => {
-            crate::scan_commands::run(engine, cli, principal, authorizer, out)
+            crate::scan_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Snapshots { .. } => {
-            crate::snapshot_commands::run(engine, cli, principal, authorizer, out)
+            crate::snapshot_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Tree { .. } => {
             crate::tree_commands::run(engine, cli, principal, authorizer, out, deadline)

@@ -1,7 +1,7 @@
 //! 持久扫描任务状态的有界授权读取；兼容 wire 由适配器保持。
 use crate::{Engine, EngineError};
 use diskgraph_core::{Authorizer, BusinessError, Decision, Permission, PrincipalId};
-use diskgraph_store::{AuthorizationWithdrawalStatus, JobRecord};
+use diskgraph_store::{AuthorizationWithdrawalStatus, ControlStore, JobRecord};
 use std::time::Instant;
 
 impl Engine {
@@ -15,6 +15,25 @@ impl Engine {
         authorizer: &dyn Authorizer,
         deadline: Instant,
     ) -> Result<JobRecord, EngineError> {
+        self.with_job_status_authorized_until(job_id, principal, authorizer, deadline, |job| {
+            Ok(job.clone())
+        })
+    }
+
+    /// 在原任务授权见证内编码响应并复验实时OperationView权限。
+    /// 参数：job_id为实际任务，principal/authorizer为原主体和能力，deadline为原期限，consumer只准备未公开响应。
+    /// 返回：编码结果或撤权、归属冲突、到期及预算失败；消费者不持控制库锁。
+    pub fn with_job_status_authorized_until<T>(
+        &self,
+        job_id: &str,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: Instant,
+        consumer: impl FnOnce(&JobRecord) -> Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
+        if Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
         let expiry = authorizer.expires_at_unix_seconds();
         crate::authority_expiry::check_authority_expiry(expiry)?;
         let control = self.control_until(deadline)?;
@@ -31,13 +50,18 @@ impl Engine {
             Ok::<_, EngineError>((job, watch, control.authorization_generation()?))
         })?;
         drop(control);
+        let capability_deadline =
+            Instant::now() + crate::terminal_authorization_windows::CAPABILITY_WINDOW;
         let decision = authorizer.decide(principal, &Permission::OperationView, &job.scope_id);
         crate::authority_expiry::check_authority_expiry(expiry)?;
         if matches!(decision, Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
-        let control = self.control_until(deadline)?;
-        let current = control.with_read_deadline(deadline, |control| {
+        if Instant::now() >= capability_deadline || Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        // 同一个原始撤权见证用于读前与编码后观察，禁止通过重新捕获掩盖撤权再恢复。
+        let observe = |control: &ControlStore, decision: Decision| {
             match watch.as_ref().map(|watch| watch.status_for(control)) {
                 Some(AuthorizationWithdrawalStatus::Withdrawn) => {
                     return Err(BusinessError::PermissionDenied.into());
@@ -66,8 +90,30 @@ impl Engine {
                 return Err(BusinessError::Conflict.into());
             }
             Ok::<_, EngineError>(current)
-        })?;
+        };
+        let control = self.control_until(deadline)?;
+        let current = control.with_read_deadline(deadline, |control| observe(control, decision))?;
+        drop(control);
+        let result = consumer(&current);
         crate::authority_expiry::check_authority_expiry(expiry)?;
-        Ok(current)
+        let capability_deadline =
+            Instant::now() + crate::terminal_authorization_windows::CAPABILITY_WINDOW;
+        let decision = authorizer.decide(principal, &Permission::OperationView, &job.scope_id);
+        let timely = Instant::now() < capability_deadline;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
+        if matches!(decision, Decision::Denied(_)) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let terminal = Instant::now() + crate::terminal_authorization_windows::DATABASE_WINDOW;
+        let control = match self.try_control_store()? {
+            Some(control) => control,
+            None => self.control_until(terminal.min(deadline))?,
+        };
+        control.with_read_deadline(terminal, |control| observe(control, decision))?;
+        crate::authority_expiry::check_authority_expiry(expiry)?;
+        if !timely || Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
+        result
     }
 }

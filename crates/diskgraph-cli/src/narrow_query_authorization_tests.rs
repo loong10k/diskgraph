@@ -11,7 +11,7 @@ use diskgraph_store::{ControlStore, SqliteSnapshotStore};
 use std::cell::{Cell, RefCell};
 use std::time::{Duration, Instant};
 
-fn fixture() -> (tempfile::TempDir, Engine, PrincipalId, ScopeId) {
+pub(super) fn fixture() -> (tempfile::TempDir, Engine, PrincipalId, ScopeId) {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().join("private_root");
     std::fs::create_dir(&root).unwrap();

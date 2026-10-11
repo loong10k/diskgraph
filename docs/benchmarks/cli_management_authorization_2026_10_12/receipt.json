@@ -1,0 +1,45 @@
+{
+  "base_commit": "c4687cfa6ce05c497913ad620fb7d190d569e166",
+  "sources_sha256": {
+    "crates/diskgraph-engine/src/job_status_read.rs": "0b68ee3299a0817093217d2d49af232f9a74aa2f0ddbbb7b23ffeae458c29fbd",
+    "crates/diskgraph-engine/src/scope_metadata_query.rs": "49a04ecc09fd6cfa69102b43e75f346538c9d1b5472f8cc755ac6267a1f64684",
+    "crates/diskgraph-cli/src/scan_commands.rs": "cd1053f4ed1495197b769bae70b6b7ddde694089bb19dcb9adc2264ea43a9d4d",
+    "crates/diskgraph-cli/src/snapshot_commands.rs": "3e9e0796d214fad99a6c357e4ff14c698df9d996de29cfd289fb0ed4f0eff4bf",
+    "crates/diskgraph-cli/src/dispatch.rs": "f3d39eade5337df471790a3e87d4f3fb5920e016d6f477d7491faa3c19280382",
+    "crates/diskgraph-cli/src/main.rs": "16c205bc9b0708d60229711bc8c75b540d2bd7d7b4dc032bf39984578ed784e8",
+    "crates/diskgraph-cli/src/management_query_authorization_tests.rs": "49aa2afb535f5e3e97a8df80bb31320e97e6c732380e503e5b60d82b7336956f",
+    "crates/diskgraph-cli/src/narrow_query_authorization_tests.rs": "bc0c0706d3f91da536d5b8fc035ba72538b0975f2db09a62a762f327ed5b8f93",
+    "crates/diskgraph-cli/src/query_terminal_tests.rs": "55fc75fd2ed43b38322beea816a0350966c55a8a38a7acd11690b996ea4e39ff",
+    "crates/diskgraph-mcp/src/management_tools.rs": "d87e0dad7eaba1d337493f0f8b6c5d50ebb36382fb2432fd0c79593b27d5e182"
+  },
+  "red": {
+    "passed": 0,
+    "failed": 2,
+    "evidence": "actual CLI scan job status disclosed durable job/scope to ungranted actor and accepted expired original dispatch"
+  },
+  "restore_red": {
+    "passed": 0,
+    "failed": 1,
+    "evidence": "actual snapshots encoding followed by real grant withdrawal/restoration escaped old scope metadata wrapper; status already failed closed with Conflict when native watch unavailable"
+  },
+  "green": {
+    "passed": 5,
+    "failed": 0
+  },
+  "regressions": {
+    "mcp_management": 7,
+    "cli_narrow": 7,
+    "scope_show": 4,
+    "engine_source_layout": 6,
+    "cli_source_layout": 2
+  },
+  "clippy": "macOS CLI/Engine/MCP all targets passed",
+  "fmt": "three modified packages passed",
+  "spec": "OpenSpec strict passed",
+  "boundary": "isolated real control records and owned synthetic metadata publication, actual CLI dispatch and response encoding; no scans/services/desktop install; no native platform completion claim",
+  "remaining": [
+    "current source native CI pending",
+    "full workspace platform gates and independent services remain open",
+    "no abnormal-I/O recovery or strict RSS completion claim"
+  ]
+}
