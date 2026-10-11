@@ -45,11 +45,32 @@ impl SupervisorControlOwner {
     /// 参数：cancel 为原控制取消；返回：Ready 已完整发送或锁存的原控制错误。
     /// 只能尝试一次；失败仍持有全部原资源，调用方不得开始前台业务。
     pub fn ready(&mut self, cancel: &AtomicBool) -> Result<(), ControlError> {
+        self.ready_inner(cancel, None)
+    }
+
+    /// 参数：cancel 为控制取消，deadline 为本条有限交付期限；返回：版本2 Ready交付或原错误。
+    /// 仅原生命周期writer可用；调用方须在失败后停止前台准入，不重新构造原owner。
+    pub fn ready_lifecycle(
+        &mut self,
+        cancel: &AtomicBool,
+        deadline: Instant,
+    ) -> Result<(), ControlError> {
+        if !self.writer.is_lifecycle() {
+            return self.fail(ControlError::Protocol);
+        }
+        self.ready_inner(cancel, Some(deadline))
+    }
+
+    fn ready_inner(
+        &mut self,
+        cancel: &AtomicBool,
+        deadline: Option<Instant>,
+    ) -> Result<(), ControlError> {
         if self.ready_attempted || self.foreground_ended {
             return self.fail(ControlError::Protocol);
         }
         self.ready_attempted = true;
-        self.send(ControlNotification::Ready {}, cancel)
+        self.send(ControlNotification::Ready {}, cancel, deadline)
     }
 
     /// 参数：exit_code/panicked 为实际前台结果，cancel 为原控制取消；返回：通知交付或原失败。
@@ -59,6 +80,31 @@ impl SupervisorControlOwner {
         exit_code: i32,
         panicked: bool,
         cancel: &AtomicBool,
+    ) -> Result<(), ControlError> {
+        self.foreground_ended_inner(exit_code, panicked, cancel, None)
+    }
+
+    /// 参数：exit_code/panicked 为已停止前台并join runner后的结果，cancel/deadline约束本条交付。
+    /// 返回：版本2通知或原错误；控制失败仍记录前台终止，并继续保留原恢复责任。
+    pub fn foreground_ended_lifecycle(
+        &mut self,
+        exit_code: i32,
+        panicked: bool,
+        cancel: &AtomicBool,
+        deadline: Instant,
+    ) -> Result<(), ControlError> {
+        if !self.writer.is_lifecycle() {
+            return self.fail(ControlError::Protocol);
+        }
+        self.foreground_ended_inner(exit_code, panicked, cancel, Some(deadline))
+    }
+
+    fn foreground_ended_inner(
+        &mut self,
+        exit_code: i32,
+        panicked: bool,
+        cancel: &AtomicBool,
+        deadline: Option<Instant>,
     ) -> Result<(), ControlError> {
         if self.foreground_ended {
             return self.fail(ControlError::Protocol);
@@ -73,12 +119,14 @@ impl SupervisorControlOwner {
                 panicked,
             },
             cancel,
+            deadline,
         )
     }
 
     /// 参数：deadline 为原单次恢复期限，cancel 仅取消通知，不取消原恢复责任。
     /// 返回：实际 Pending、原退休且已写完成通知、或原退休但控制未确认；原资源错误原样返回。
-    /// 只在前台结束后推进；重复轮询最多发送一次 Pending 和一次 Complete，不刷新 writer 原期限。
+    /// 只在前台结束后推进；重复轮询最多发送一次Pending和Complete，版本1原期限不刷新。
+    /// 版本2通知使用本轮同一有限deadline；通知失败不取消原恢复，不能伪造完成确认。
     pub fn poll_retirement(
         &mut self,
         deadline: Instant,
@@ -91,7 +139,11 @@ impl SupervisorControlOwner {
         if !self.owner.poll_retirement(deadline)? {
             if !self.pending_attempted {
                 self.pending_attempted = true;
-                let _ = self.send(ControlNotification::CleanupPending {}, cancel);
+                let _ = self.send(
+                    ControlNotification::CleanupPending {},
+                    cancel,
+                    Some(deadline),
+                );
             }
             return Ok(SupervisorControlProgress::Pending {
                 control_failure: self.control_failure,
@@ -99,7 +151,11 @@ impl SupervisorControlOwner {
         }
         if !self.completion_attempted {
             self.completion_attempted = true;
-            let _ = self.send(ControlNotification::CleanupComplete {}, cancel);
+            let _ = self.send(
+                ControlNotification::CleanupComplete {},
+                cancel,
+                Some(deadline),
+            );
         }
         Ok(match self.control_failure {
             Some(control_failure) => {
@@ -113,11 +169,20 @@ impl SupervisorControlOwner {
         &mut self,
         notification: ControlNotification,
         cancel: &AtomicBool,
+        deadline: Option<Instant>,
     ) -> Result<(), ControlError> {
         if let Some(error) = self.control_failure {
             return Err(error);
         }
-        match self.writer.send(notification, cancel) {
+        let result = if self.writer.is_lifecycle() {
+            match deadline {
+                Some(deadline) => self.writer.send_lifecycle(notification, cancel, deadline),
+                None => Err(ControlError::Protocol),
+            }
+        } else {
+            self.writer.send(notification, cancel)
+        };
+        match result {
             Ok(()) => Ok(()),
             Err(error) => self.fail(error),
         }

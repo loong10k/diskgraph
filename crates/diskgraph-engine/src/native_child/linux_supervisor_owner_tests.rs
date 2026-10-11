@@ -13,6 +13,96 @@ use std::os::unix::net::{UnixDatagram, UnixStream};
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::time::{Duration, Instant};
 
+#[test]
+#[ignore = "requires explicit compiled role and isolated root; invoked by native qualification"]
+fn supervisor_root_lifecycle_can_retire_after_original_startup_deadline() {
+    use super::linux_supervisor_launcher::LinuxSupervisorLauncher;
+    use crate::recovery_control::LinuxControlRead;
+    use crate::recovery_slot::{LinuxSupervisorTrust, SlotReservation};
+    use std::sync::atomic::AtomicBool;
+    let directory = tempfile::tempdir().unwrap();
+    let slot_path = directory.path().join("original-bootstrap");
+    let until = Instant::now() + Duration::from_secs(2);
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .open(&slot_path)
+        .unwrap();
+    let reservation = SlotReservation::acquire(file, until).unwrap();
+    let image = File::open(std::env::var_os("DG_LINUX_SUPERVISOR_ROLE").unwrap()).unwrap();
+    let launcher = LinuxSupervisorLauncher::prepare(
+        image,
+        vec![
+            CString::new("fixed-supervisor-role").unwrap(),
+            CString::new("notify2").unwrap(),
+        ],
+        Vec::new(),
+        (23111, 23111),
+    )
+    .unwrap();
+    let mut owner = launcher
+        .spawn_lifecycle(reservation, [7; 32], until)
+        .unwrap();
+    let witness = duplicate(owner.child.as_ref().unwrap().pidfd_for_test());
+    let trust = LinuxSupervisorTrust::from_host(
+        File::open(directory.path()).unwrap(),
+        File::open("/proc/self/ns/user").unwrap(),
+        File::open("/proc/self/ns/mnt").unwrap(),
+    );
+    let cancel = AtomicBool::new(false);
+    owner.send_materials(&trust, &cancel).unwrap();
+    // 同一原启动期限实际耗尽，不能重建reader/session或用通知成功代替原wait。
+    while Instant::now() < until {
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01A\n");
+    let retirement = Instant::now() + Duration::from_secs(5);
+    let mut notifications = 0;
+    loop {
+        assert!(Instant::now() < retirement);
+        match owner.poll_notification(&cancel).unwrap() {
+            LinuxControlRead::Frame(frame) => {
+                assert_eq!(frame.version, 2);
+                notifications += 1;
+            }
+            LinuxControlRead::ConfirmedEof => break,
+            LinuxControlRead::Pending => std::thread::sleep(Duration::from_millis(1)),
+        }
+    }
+    assert_eq!(notifications, 3);
+    let mut output = Vec::new();
+    loop {
+        assert!(Instant::now() < retirement);
+        if let Some(bytes) = owner.read_stdout().unwrap() {
+            output.extend_from_slice(bytes);
+            assert!(output.len() <= 4096);
+        }
+        owner.read_stderr().unwrap();
+        if owner.poll_retirement(retirement).unwrap() {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_original_wait_consumed(&witness);
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output).unwrap()["passed"],
+        true
+    );
+    assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01C\n");
+    SlotReservation::acquire(
+        File::options()
+            .read(true)
+            .write(true)
+            .open(&slot_path)
+            .unwrap(),
+        retirement,
+    )
+    .unwrap()
+    .abort_before_birth(retirement)
+    .unwrap();
+}
+
 /// 出生前固定七描述符材料；来源：linux_supervisor_spawn.h 的 native64 C ABI。
 #[repr(C)]
 struct SupervisorRequest {

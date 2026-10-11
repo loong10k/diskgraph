@@ -6,6 +6,8 @@ mod control_phase;
 mod control_receiver;
 #[cfg(test)]
 mod lifecycle_control_tests;
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod supervisor_control_lifecycle_tests;
 pub use control_error::ControlError;
 pub use control_frame::ControlFrame;
 pub use control_notification::ControlNotification;

@@ -15,6 +15,11 @@ pub struct UnixControlWriter {
     failure: Option<ControlError>,
 }
 impl UnixControlWriter {
+    /// 参数：无；返回：该原writer是否在构造时显式选择版本2，调用不能改变模式。
+    pub(crate) fn is_lifecycle(&self) -> bool {
+        self.version == 2
+    }
+
     /// 参数：原已认证 stream、session 及绝对期限；返回：不继承公开输出的唯一非阻塞写入责任。
     /// 调用方必须提供未克隆、未向其他 owner 借出的私有 stream；设置模式作用于原 socket。
     pub fn new(

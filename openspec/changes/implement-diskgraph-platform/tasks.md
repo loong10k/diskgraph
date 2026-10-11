@@ -377,3 +377,5 @@ root监督出生C层增量：独立CLONE_PIDFD／0..6白名单／exec前UID/GID/
 长运行私有通知增量：版本2解析及Unix实际有界写入已实现，先复现旧解析拒绝版本2，当前本机13/0；旧监督接线8/0、源规范6/0、全workspace Clippy及排除vendored的fmt通过。旧版本1原期限、250ms数据库与50ms能力窗口不变。Linux生命周期逐消息身份新增3项待原生CI，实际服务/安装/前台有限EOF父门禁仍开放。本机全workspace因未配置受信macOS宿主，在CLI前置71/23并返回Unsupported，原失败保留，不为此安装桌面服务或放宽信任；见supervisor_lifecycle_protocol/。
 
 0294c5c2原完整CI终态22/23成功，唯一macOS stable人工短竞争调度夹具失败；Windows两套、Linux三套及五种原生包均成功。新显式timing门禁、第五项原wait正控及生命周期源码需新CI，不沿用旧终态证明新实现。见ci_0294c5c2_terminal/。
+
+生命周期原owner接线增量：显式有限Ready/ForegroundEnded与原退休轮询deadline通知已接入同一Engine/Recovery/ACTIVE，新增5项本机实际owner/通道测试与旧8项全部通过；100次Pending只通知一次，外部Engine引用、通知期限耗尽及断线都不丢原恢复责任。真实行为RED0/1（先修正夹具编译错误）→GREEN13/0，源规范6/0、workspace Clippy及排除vendored的fmt通过。Linux父侧spawn_lifecycle已编码，真实角色ELF版本2在原出生期限已过后退休的第六项原生测试待CI，不能声称本机运行通过；C角色仅交叉编译。原服务父门禁仍开放。见supervisor_lifecycle_owner/。

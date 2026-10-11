@@ -79,6 +79,28 @@ impl LinuxSupervisorLauncher {
         session: [u8; 32],
         deadline: Instant,
     ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
+        self.spawn_inner(reservation, session, deadline, false)
+    }
+
+    /// 参数：原全局reservation、session和启动deadline；返回：保留原owner的版本2生命周期监督进程。
+    /// deadline仍约束出生/握手/原材料交付；仅后续私有通知跟随原owner寿命，单次poll不等待。
+    /// 宿主必须显式选择同版本的受信角色；不得在旧spawn超时后降级或接受客户命令。
+    pub fn spawn_lifecycle(
+        self,
+        reservation: SlotReservation,
+        session: [u8; 32],
+        deadline: Instant,
+    ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
+        self.spawn_inner(reservation, session, deadline, true)
+    }
+
+    fn spawn_inner(
+        self,
+        reservation: SlotReservation,
+        session: [u8; 32],
+        deadline: Instant,
+        lifecycle: bool,
+    ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
         let argv: Vec<_> = self
             .args
             .iter()
@@ -153,9 +175,14 @@ impl LinuxSupervisorLauncher {
             mask.restore().map_err(io::Error::other)?;
             let peer = LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)
                 .map_err(io::Error::other)?;
+            // 模式由出生前受信宿主固定；错误不刷新原启动deadline或重建原控制端点。
             owner.controls = Some(
-                LinuxControlReader::new(self.controls, peer, session, deadline)
-                    .map_err(io::Error::other)?,
+                if lifecycle {
+                    LinuxControlReader::new_lifecycle(self.controls, peer, session)
+                } else {
+                    LinuxControlReader::new(self.controls, peer, session, deadline)
+                }
+                .map_err(io::Error::other)?,
             );
             let peer = LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)
                 .map_err(io::Error::other)?;

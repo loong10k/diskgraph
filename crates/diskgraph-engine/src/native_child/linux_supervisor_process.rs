@@ -7,7 +7,7 @@ use std::sync::atomic::AtomicBool;
 use std::time::Instant;
 
 /// 原监督子进程、私有 IPC 与全局 ACTIVE 槽的唯一父侧 owner；来源：PF-06 root broker 合同。
-/// Drop 不写 CLEAN；原私有绝对期限保持不变，尚不构成长运行 MCP 或安装服务资格。
+/// Drop不写CLEAN；控制版本在出生前固定，版本1原期限不续期；不构成MCP或安装服务资格。
 #[must_use = "retain original process and bootstrap until authenticated retirement"]
 pub struct LinuxSupervisorProcess {
     pub(super) child: Option<Box<LinuxAtomicChild>>,

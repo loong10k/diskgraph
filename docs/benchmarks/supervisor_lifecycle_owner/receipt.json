@@ -1,0 +1,34 @@
+{
+  "base": "e49ee361db37ca02abaf80236aad577f4a65b42a",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervisor_control_owner.rs": "ca949eb9439ffafd56dee0d9e5ca7bc7a91ae777d16dc0fd7b43055e23d8379b",
+    "crates/diskgraph-engine/src/recovery_control/supervisor_control_lifecycle_tests.rs": "68c1c64a5528d078ae4d81603c706c3672c2ec7cca8396ebd80b2414bbeeee46",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_launcher.rs": "62dae21de151cf27b1ddadf1e39247d44286aa7d65675263ac3d828728012418",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_owner_tests.rs": "ecc234fd8265ba1fef9f64ba989f58c71acc3daeb17d056edbd708899425e844",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "aa049fe286a07989efe21c911b34c68627c686508c74fd193d760cf455899bf2"
+  },
+  "owner_lifecycle_red": {
+    "passed": 0,
+    "failed": 1,
+    "cause": "legacy owner cannot send explicit lifecycle version; fixture compilation error corrected before behavior red"
+  },
+  "local_owner_and_legacy_regression": {
+    "new_lifecycle_cases": 5,
+    "legacy_cases": 8,
+    "passed": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "workspace_clippy": true,
+  "native_fixture_aarch64_musl_cross_compile": true,
+  "native_rust_sixth_qualification_executed": false,
+  "desktop_service_installed": false,
+  "three_platform_broker_and_service_complete": false,
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "old_protocol_deadline_renewed": false
+}
