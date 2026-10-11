@@ -47,3 +47,7 @@ flowchart TD
 ## CLI失败正文与前台结束顺序
 
 CLI操作返回失败时，既有有限错误envelope必须在原执行栈结束及ForegroundEnded通知之前写入并flush；不得等原恢复退休后才生成正文。保持原业务错误和退出码，外层不得重复交付。BrokenPipe或flush失败不能吞掉原业务失败，也不能在公共EOF后再次尝试写正文。成功输出flush错误应作为实际交付失败；启动准入失败仍由外层交付。回归需验证失败正文、flush顺序、原错误优先级及禁止重发；本增量不关闭broker与完整原生退出门禁。
+
+## 真实CLI纵向资格
+
+增加独立root原生测试，使用本次构建的实际diskgraph与diskgraph-scan-worker，不以C角色替代业务。隔离root保护目录预置bootstrap和服务槽、服务UID独占数据库，原子launcher通过schema3材料、原ClockStamp、原内核身份通知接入既有doctor。验收真实JSON与公共EOF之后bootstrap仍ACTIVE，最终原wait、私有完成与服务CLEAN全部成立才写bootstrap CLEAN。此项无异常Pending注入，公共端由测试宿主持有；不证明真实前端进程、公开broker服务或安装信任已经完成。

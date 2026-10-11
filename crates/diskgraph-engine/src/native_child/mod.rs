@@ -217,3 +217,6 @@ pub use linux_supervisor_launcher::LinuxSupervisorLauncher;
     target_endian = "little"
 ))]
 pub use linux_supervisor_process::LinuxSupervisorProcess;
+
+#[cfg(all(test, target_os = "linux"))]
+mod linux_supervisor_doctor_tests;

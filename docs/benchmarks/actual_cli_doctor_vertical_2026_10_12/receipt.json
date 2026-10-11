@@ -1,0 +1,17 @@
+{
+  "native_actual_doctor_test_executed": false,
+  "local_platform": "macOS ARM64",
+  "local_clippy_passed": true,
+  "local_clippy_does_not_compile_linux_test": true,
+  "workflow_contract_tests_passed": 5,
+  "yaml_parsed": true,
+  "root_shell_syntax_passed": true,
+  "embedded_python_programs_compiled": 5,
+  "new_test": "native_child::linux_supervisor_doctor_tests::original_launcher_runs_actual_doctor_and_retires_both_original_slots",
+  "scope": "actual CLI doctor via original Rust atomic root launcher and schema3 private materials; actual JSON/EOF before original bootstrap retirement, service and bootstrap CLEAN only after original normal wait",
+  "limits": "30 second original deadline; isolated root /var/lib tree; collected public and diagnostic bytes <=128 KiB; no active pending child injection or actual frontend process; not a production broker/service proof",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_doctor_tests.rs": "1621354b925d68d26ea45c0035db1ab5fac5ee660a55b5d6704b3828dbb25d7c",
+    ".github/workflows/ci.yml": "2de1a6ce43edf9818faa3c9cb14cb1a5e51e2443f378432e22848422163ca9b5"
+  }
+}

@@ -407,3 +407,5 @@ e49ee361完整CI终态：38149478669已完成19/23成功、4失败、0取消，�
 新CI ae6751e8暴露Linux-only辅助校验提取编译错误：helper已有&msghdr，两处CMSG宏额外取引用成为&&msghdr，原生Build E0308。改为直接传原借用，不改变FD关闭、凭据校验或原错误优先级；本机macOS不能代替Linux编译，修正原生验证仍开放。失败原job保存在linux_credentials_compile_fix_2026_10_12/；不取消仍执行的其他平台验收。
 
 CLI真实输出次序修复：原业务失败在host.execute退休完成后才由cli_main打印，受控角色却先通知ForegroundEnded，可能让前台在恢复Pending时丢失失败正文。现将业务身份/查询/dispatch失败包在同一执行栈，原公开错误在其返回前写入并flush；外层按错误尝试标记禁止退休后重发，启动失败仍由原外层输出。原业务失败优先于BrokenPipe，成功交付失败保持失败退出。原成功-only行为抽取后回归RED0/4→GREEN4/0；实际CLI宿主原registry顺序1/0及宿主回归10/0，目标Clippy、显式10包fmt、OpenSpec通过。夹具没有活跃child，不证明Pending时前端进程退出或三平台服务；CI待最终源码。见cli_failure_before_retirement_2026_10_12/。
+
+真实doctor纵向原生门禁新增：本次cargo构建实际CLI与worker，经Rust原子root launcher、schema3原材料及ClockStamp进入既有doctor，公共JSON/EOF之后bootstrap仍ACTIVE，原wait及私有完成后要求服务与bootstrap槽均CLEAN。每次独占root保护/var/lib隔离域，原30秒与128KiB观察限制，精确测试存在性检查；不使用C角色代替CLI。当前Linux测试尚未编译/执行，本机macOS Clippy不覆盖该分支；CI契约5/0、YAML解析、shell语法和五段Python编译通过，仅验证接线。无活跃Pending注入、真实前端或服务进程，父产品门禁仍开放。见actual_cli_doctor_vertical_2026_10_12/。
