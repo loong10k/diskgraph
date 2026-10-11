@@ -22,3 +22,11 @@
 ## C 层受控降权失败夹具
 
 原 root driver 增加 denied_groups 场景：driver 在本次独立进程中安装仅拒绝 setgroups 的过滤器，原 child 经过固定 Init 后真实调用 setgroups 并返回 phase 15 / EPERM。验收必须同时确认消息 kind 2、12 字节、公开描述符已关闭、未 ACK/exec、原 pidfd wait 消耗与正常 exit 127。此过滤器只用于隔离夹具，不改变生成 systemd 服务策略。现有 clean、身份拒绝、坏镜像及 baseline 场景保持。Python 语法和差异检查通过；C 编译及该场景执行等待 Linux CI，不记为本机已通过。
+
+## 隔离 Linux ARM64 C 原语实际结果
+
+使用本机已有 Zig 0.16.0、静态 aarch64-linux-musl、Wall/Wextra/Werror 编译当前 driver、role 与原 C 源码。使用已有不可变镜像 sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0，临时容器无网络、只读系统/夹具、仅 SETUID/SETGID 能力，无新安装，无桌面服务。
+
+实际 clean：UID/GID 23111、辅助组 0、capabilities 空、私有端点与继承白名单正确、no_new_privs，原 pidfd wait 与 exit 0。实际 denied_groups：kind 2 / 12 字节 / phase 15 / errno 1，未 ACK，原 pidfd wait 与正常 exit 127。旧普通 atomic baseline 实际复现 root UID、非空能力、无私有端点并返回失败；三项输入检查均满足预期。证据 linux_arm64_container_c_receipt.json 含原 stdout/stderr、返回码、镜像/产物/源码摘要。
+
+这只补强 Linux ARM64 C 出生原语，不证明 Rust owner、Linux x86、真实 systemd、macOS/Windows 服务或异常 I/O 回收通过。前段“C 编译/执行等待”已由本段在该限定环境补充，原生 CI 服务验收仍待完成。

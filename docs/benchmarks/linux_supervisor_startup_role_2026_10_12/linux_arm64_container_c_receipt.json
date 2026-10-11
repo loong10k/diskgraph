@@ -1,0 +1,109 @@
+{
+  "image": "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+  "host": "macOS ARM64 with Linux ARM64 container",
+  "compiler": "existing Zig 0.16.0; aarch64-linux-musl static; Wall/Wextra/Werror",
+  "scope": "C birth primitive and original pidfd only; not Rust owner or systemd",
+  "cases": [
+    {
+      "executable": "driver",
+      "case": "clean",
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"uid\":23111,\"gid\":23111,\"groups\":0,\"private_endpoints\":true,\"capabilities_empty\":true,\"whitelist\":true,\"no_new_privs\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "records": [
+        {
+          "passed": true,
+          "uid": 23111,
+          "gid": 23111,
+          "groups": 0,
+          "private_endpoints": true,
+          "capabilities_empty": true,
+          "whitelist": true,
+          "no_new_privs": true
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 0
+        }
+      ],
+      "passed": true
+    },
+    {
+      "executable": "driver",
+      "case": "denied_groups",
+      "exit_code": 42,
+      "stdout": "{\"startup_after_ack_bytes\":12,\"startup_kind\":2,\"startup_phase\":15,\"startup_errno\":1}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":true,\"exit_code\":127}\n",
+      "stderr": "",
+      "records": [
+        {
+          "startup_after_ack_bytes": 12,
+          "startup_kind": 2,
+          "startup_phase": 15,
+          "startup_errno": 1
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": false,
+          "exited_normally": true,
+          "exit_code": 127
+        }
+      ],
+      "passed": true
+    },
+    {
+      "executable": "baseline",
+      "case": "clean",
+      "exit_code": 42,
+      "stdout": "{\"passed\":false,\"uid\":0,\"gid\":0,\"groups\":12,\"private_endpoints\":false,\"capabilities_empty\":false,\"whitelist\":true,\"no_new_privs\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":3}\n",
+      "stderr": "",
+      "records": [
+        {
+          "passed": false,
+          "uid": 0,
+          "gid": 0,
+          "groups": 12,
+          "private_endpoints": false,
+          "capabilities_empty": false,
+          "whitelist": true,
+          "no_new_privs": true
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 3
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "binaries": {
+    "driver": "a81b484368a8d442140b7439b7be6de406f8e6e7ad951e702ab68e6e84409e38",
+    "role": "9d076923f83d213da7b22e73055d8aa0fc4e39a87adbc64f5170f0a0acdafbe4",
+    "baseline": "15d7b2ce5744dd63e2a0e0b8088b6ea805893dd51d1a3a8601f63e03bfb39787"
+  },
+  "passed": true,
+  "source_sha256": {
+    "scripts/fixtures/linux_supervisor_birth/driver.c": "7f880037320676a949e6d8281a250aff3b84d6310d915b01df9748440b0417a4",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "c9c7e334d706717894f80d828973d993157ddcf058022841287ef15a5ca089dc",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "99a24fe247c8a14c7087e0904abad1d6d85e796455c51823dc17fbe405aae64c",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c": "526f37cd6c767400eaed1a4eb7d7c74f511ce7bff7b140331070e3a8c57eab94"
+  }
+}

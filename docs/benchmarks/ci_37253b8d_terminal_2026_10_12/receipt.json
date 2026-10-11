@@ -1,0 +1,23 @@
+{
+  "run_id": 38172485982,
+  "source": "37253b8dc6b17099eeee003e94cf9286806e015c",
+  "terminal": true,
+  "success": 15,
+  "failure": 8,
+  "cancelled": 0,
+  "windows": {
+    "control_handle_inheritance": "original stable and MSRV test passed, original 10s retained; one current pass does not eliminate prior intermittent failure",
+    "new_failure": "job_status_remembers_revocation_restored_during_capability_callback; observed BudgetExceeded, expected PermissionDenied; both Rust versions",
+    "mcp_lib_each": {
+      "passed": 232,
+      "failed": 1
+    },
+    "cli_flow_each": {
+      "passed": 15,
+      "failed": 1,
+      "failure": "legacy revoked scope-show success expectation"
+    }
+  },
+  "other_failures": "scope-show legacy fixture and Linux generated service credential drop (old phase8 mislabel), preserve raw original evidence",
+  "next_source_not_qualified": true
+}
