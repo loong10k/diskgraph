@@ -1,0 +1,122 @@
+{
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "databaseId": 114432851783,
+      "name": "Vendored scanner"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851874,
+      "name": "Kotlin native host (macos-15)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851882,
+      "name": "Swift native host (macos-15-intel)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851906,
+      "name": "Swift native host (macos-15)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851935,
+      "name": "Test (ubuntu-latest / Rust stable)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851940,
+      "name": "rustfmt"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851953,
+      "name": "Kotlin native host (ubuntu-24.04)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851976,
+      "name": "Linux ARM64 private FUSE content refusal"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851993,
+      "name": "Kotlin native host (ubuntu-24.04-arm)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432851995,
+      "name": "Kotlin native host (windows-2022)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432852020,
+      "name": "Test (macos-latest / Rust stable)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432852035,
+      "name": "Kotlin native host (macos-15-intel)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432852061,
+      "name": "Test (windows-latest / Rust stable)"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 114432852069,
+      "name": "Test (macos-15-intel / Rust stable)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432852092,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432852093,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432852094,
+      "name": "Test (windows-latest / Rust 1.97.0)"
+    },
+    {
+      "conclusion": "failure",
+      "databaseId": 114432852177,
+      "name": "Test (macos-latest / Rust 1.97.0)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432940345,
+      "name": "Native read-only package (x86_64-unknown-linux-gnu)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432940346,
+      "name": "Native read-only package (aarch64-unknown-linux-gnu)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432940379,
+      "name": "Native read-only package (x86_64-pc-windows-msvc)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432940410,
+      "name": "Native read-only package (x86_64-apple-darwin)"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 114432940426,
+      "name": "Native read-only package (aarch64-apple-darwin)"
+    }
+  ],
+  "source_sha": "17af31af6374554c0599369598af484bf4245fd5",
+  "status": "completed"
+}
