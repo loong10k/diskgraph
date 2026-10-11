@@ -1,0 +1,47 @@
+{
+  "source_sha": "0294c5c2323097204ea5c7834ced3a4eddb6ec79",
+  "ci_run": 38145393829,
+  "native_proof": [
+    {
+      "platform": "x86-stable",
+      "artifact_id": 11705470398,
+      "job_id": 114487552150,
+      "native_c_cases": 9,
+      "native_rust_owner_cases": [
+        "supervisor_birth_expired_cleanup_retains_owner_before_init",
+        "supervisor_birth_panic_after_adoption_consumes_original_wait",
+        "supervisor_birth_reuses_original_owner_for_normal_retirement",
+        "supervisor_root_owner_keeps_bootstrap_active_without_private_completion"
+      ]
+    },
+    {
+      "platform": "x86-msrv",
+      "artifact_id": 11705106415,
+      "job_id": 114487551927,
+      "native_c_cases": 9,
+      "native_rust_owner_cases": [
+        "supervisor_birth_panic_after_adoption_consumes_original_wait",
+        "supervisor_birth_expired_cleanup_retains_owner_before_init",
+        "supervisor_root_owner_keeps_bootstrap_active_without_private_completion",
+        "supervisor_birth_reuses_original_owner_for_normal_retirement"
+      ]
+    },
+    {
+      "platform": "arm-stable",
+      "artifact_id": 11704437868,
+      "job_id": 114487551945,
+      "native_c_cases": 9,
+      "native_rust_owner_cases": [
+        "supervisor_birth_expired_cleanup_retains_owner_before_init",
+        "supervisor_birth_panic_after_adoption_consumes_original_wait",
+        "supervisor_birth_reuses_original_owner_for_normal_retirement",
+        "supervisor_root_owner_keeps_bootstrap_active_without_private_completion"
+      ]
+    }
+  ],
+  "authenticated_completion_and_wait_positive_case_qualified": false,
+  "public_broker_qualified": false,
+  "long_running_mcp_qualified": false,
+  "macos_windows_independent_services_qualified": false,
+  "whole_ci_conclusion": "running at capture; no full-green claim"
+}

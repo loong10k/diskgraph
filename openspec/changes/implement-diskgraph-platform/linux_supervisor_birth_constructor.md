@@ -107,3 +107,20 @@ root出生C层实际RED：旧原子入口exec后UID/GID0、补充组1、缺少�
 17af31af macOS MSRV 原全量失败已保存：人工150ms唤醒延迟仍叠加在真实通知等待之后，终检250.603ms合法拒绝。新夹具同时从原取锁时刻扣除人工唤醒与目标持锁的已耗时间；本机同一正反矩阵3/0，未改变250/50窗口、60ms原请求反控或CI并发。新原生资格待验收。root_owner_wake_budget_fixture/保存原job日志与本机结果；不将新root launcher/容量组件的macOS静态检查称为Linux编译或运行通过。
 
 root owner 正向联合释放验收新增第五项：固定ELF以真实降权PID发送三帧并关闭私有控制，但仍停留于原datagram屏障；父方在原pidfd确认仍活动时不能清槽。交付原三句柄材料解除屏障后，必须实际消费原wait、排空输出、同步CLEAN，下一次预留才能成立。这是进程/容量组件验收，不证明实际CLI/MCP已接入，不在未执行Linux测试前勾选。
+
+0294c5c2 三个Linux矩阵原生C9/0与Rust owner4/0回执已核对并保存于linux_root_owner_native_0294c5c2/，包含无完成通知实际退出后ACTIVE仍不能重新认领的生产API负控。新第五项正向联合释放尚未运行，完整CI捕获时仍在运行，不勾选产品broker/服务父项。
+
+```mermaid
+flowchart TD
+  H["受信宿主：产品接线待完成"] --> P["准备 held ELF、固定 argv/env、私有端点"]
+  P --> R["原全局槽 RESERVED → ACTIVE"]
+  R --> B["CLONE_PIDFD：降权并执行"]
+  B --> O["唯一原 pidfd / IPC / ACTIVE owner"]
+  O --> C["逐消息认证私有 Complete + EOF"]
+  O --> W["输出 EOF + 原整个线程组实际 wait"]
+  C --> J["联合确认"]
+  W --> J
+  J --> F["同步 CLEAN 并释放原锁"]
+  O --> E["启动失败或回收未确认"]
+  E --> A["保留原 owner 与 ACTIVE；阻止新认领"]
+```
