@@ -1,0 +1,45 @@
+{
+  "scope": "isolated ELF exec and same UID environment access feasibility only",
+  "host": "Linux ARM64 Docker",
+  "image_digest": "sha256:29e8589c3f9ba699b5f7aa4b3c7733c58852a3626439e619aa0ee78de08c6ca0",
+  "tools": "existing Zig 0.16.0, existing Docker image; no install or image pull",
+  "container": "network none, read-only, ephemeral exec tmpfs, no-new-privileges, only SETUID SETGID, 16 pids, 64MiB",
+  "normal_role_mode": "0555",
+  "candidate_role_mode": "0511 root owned",
+  "kernel_suid_dumpable": 0,
+  "observations": [
+    {
+      "same_uid_environ_exposed": true,
+      "open_errno": 0
+    },
+    {
+      "dumpable_after_exec": 1,
+      "uid": 23111,
+      "gid": 23111,
+      "groups": 0,
+      "capabilities_empty": true,
+      "original_child_waited": true,
+      "observer_waited": true
+    },
+    {
+      "same_uid_environ_exposed": false,
+      "open_errno": 13
+    },
+    {
+      "dumpable_after_exec": 0,
+      "uid": 23111,
+      "gid": 23111,
+      "groups": 0,
+      "capabilities_empty": true,
+      "original_child_waited": true,
+      "observer_waited": true
+    }
+  ],
+  "source_sha256": "afbdac5a409afe8626e85fd6b6156afad8844a2c6a41bb491cca0a6af9ade757",
+  "binary_sha256": "07fd9298ec23f81ecf8cfa0a70b2575cd3c2ec367190be9713f532e143d2665b",
+  "fixture_setup_correction": "0111 also denied root image read with DAC capabilities removed; used 0511 to preserve root read without DAC override",
+  "product_identity_changed": false,
+  "guardian_executor_qualified": false,
+  "other_platforms_qualified": false,
+  "production_ready": false
+}

@@ -1,0 +1,5 @@
+0
+{"same_uid_environ_exposed":true,"open_errno":0}
+{"dumpable_after_exec":1,"uid":23111,"gid":23111,"groups":0,"capabilities_empty":true,"original_child_waited":true,"observer_waited":true}
+{"same_uid_environ_exposed":false,"open_errno":13}
+{"dumpable_after_exec":0,"uid":23111,"gid":23111,"groups":0,"capabilities_empty":true,"original_child_waited":true,"observer_waited":true}
