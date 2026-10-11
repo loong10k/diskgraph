@@ -39,5 +39,15 @@
     "crates/diskgraph-mcp/tests/supervisor_birth_admission.rs": "dd5cbee7c29180b2b86384d987593f8be43053ab1d63bf97adefc506e0e57978",
     "scripts/qualify_linux_supervisor_birth.py": "de4a86d1c68f251ef523fa259a0f0a99044aaa381027fb4a75bdb3bc2010a5c2",
     ".github/workflows/ci.yml": "42d4c0fcb0e53a23e897d9708a8e69d5164d0ee5e6df84cb50584437747c3263"
+  },
+  "local_binary_configuration": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "local_http_lifecycle": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
   }
 }

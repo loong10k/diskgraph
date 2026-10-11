@@ -387,3 +387,5 @@ Linux认证出生schema3接线增量：原30秒启动准入、root逐消息摘�
 MCP监督生命周期接线增量：Linux standalone MCP仅接受原认证schema3，并在数据库前拒绝出生配置不完整、旧schema及数据定位替换；同一namespace/Engine/Recovery/ACTIVE进入私有Ready、ForegroundEnded与退休轮询，协议结束先join原runner。传输决定trusted_local，认证出生不授予远程管理员身份。e49真实LinuxARM MCP隔离探针复现伪造出生被忽略并创建普通本地数据库（exit0）；首次ENOSPC为环境故障，单独保留。当前本机managed8/0、源码规范11/0、workspace Clippy及fmt通过；真实Linux MCP三场景与出生拒绝二进制测试待新CI，不能把macOS条件编译零执行当作通过。公共broker、三平台服务及有限前台EOF仍未完成，父项保持开放。见docs/benchmarks/mcp_supervised_lifecycle/receipt.json。
 
 原生竞争观测增量：e49 macOS MSRV强制门禁在注入150ms唤醒迟延后约260ms拒绝，断言前actual_hold仍None，保留真实失败，不据此认定仅环境原因。夹具现在先固定查询/终检计时，再join同一持锁线程取得实际持锁时长；原五场景、250/50ms与60ms短请求及通过条件不变。本机五场景整项1/0，500ms实际持锁仍约250ms拒绝，短请求约60ms拒绝；Engine Clippy与fmt通过，新原生验收待CI。见terminal_contention_joined_observation/。
+
+e49ee361完整CI终态：38149478669已完成19/23成功、4失败、0取消，两套Windows与五种原生包均成功。三个Linux原owner门禁均为第五项非阻塞角色4/1；macOS MSRV人工竞争门禁失败，真实HTTP生命周期8/0保持。原始终态及四份失败job日志见ci_e49ee361_terminal/；不得据旧源码证明后续MCP/schema3实现。当前MCP接线另外通过本机真实启动拒绝4/0、HTTP/SSE生命周期8/0，原生监督MCP与服务父门禁仍开放。

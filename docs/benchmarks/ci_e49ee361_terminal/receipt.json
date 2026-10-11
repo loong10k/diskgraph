@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "run": 38149478669,
+  "commit": "e49ee361db37ca02abaf80236aad577f4a65b42a",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/38149478669",
+  "status": "completed",
+  "conclusion": "failure",
+  "job_counts": {
+    "success": 19,
+    "failure": 4,
+    "cancelled": 0
+  },
+  "failures": [
+    {
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "job": 114499740408
+    },
+    {
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "job": 114499740443
+    },
+    {
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "job": 114499740489
+    },
+    {
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "job": 114499740619
+    }
+  ],
+  "linux_failure": "all three root-owner gates executed 5 tests: 4 passed, fifth failed; nonblocking fixture correction is unqualified pending new CI",
+  "macos_msrv_failure": "terminal contention timing gate failed; join-after-timing diagnostic change preserves original verdict; native rerun pending",
+  "windows_stable_success": true,
+  "windows_msrv_success": true,
+  "five_native_packages_success": true,
+  "qualifies_subsequent_source": false,
+  "production_ready": false
+}
