@@ -330,3 +330,87 @@ fn expired_lifecycle_round(pending: bool) {
         ControlNotification::CleanupComplete {}
     ));
 }
+
+#[test]
+fn executor_control_completion_preserves_guardian_active_slot_and_original_pending() {
+    let (directory, parts, registry) = crate::supervisor_binding_tests::fixture();
+    let crate::SupervisorParts {
+        engine,
+        scan,
+        slot: mut guardian_slot,
+        #[cfg(windows)]
+        probe,
+    } = parts;
+    let pending = registry.reserve().unwrap();
+    let resource_owner = crate::ExecutorResourceOwner::bind(crate::ExecutorParts {
+        engine,
+        scan,
+        #[cfg(windows)]
+        probe,
+    })
+    .unwrap_or_else(|_| panic!("original executor binding rejected"));
+    let (sender, mut receiver) = UnixStream::pair().unwrap();
+    receiver.set_nonblocking(true).unwrap();
+    let mut control = SupervisorControlOwner::for_executor(
+        resource_owner,
+        UnixControlWriter::new_lifecycle(sender, [7; 32]).unwrap(),
+    );
+    let cancel = AtomicBool::new(false);
+    control.ready_lifecycle(&cancel, deadline()).unwrap();
+    control
+        .foreground_ended_lifecycle(0, false, &cancel, deadline())
+        .unwrap();
+    assert_eq!(
+        control.poll_retirement(deadline(), &cancel).unwrap(),
+        SupervisorControlProgress::Pending {
+            control_failure: None
+        }
+    );
+    guardian_slot.verify_active(deadline()).unwrap();
+    assert_eq!(registry.occupied().unwrap(), 1);
+    drop(pending);
+    assert_eq!(
+        control.poll_retirement(deadline(), &cancel).unwrap(),
+        SupervisorControlProgress::Complete
+    );
+    assert_eq!(
+        control.poll_retirement(deadline(), &cancel).unwrap(),
+        SupervisorControlProgress::Complete
+    );
+    guardian_slot.verify_active(deadline()).unwrap();
+    assert_eq!(
+        std::fs::read(directory.path().join("slot")).unwrap(),
+        b"DGSL01A\n"
+    );
+    let foreign = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(directory.path().join("slot"))
+        .unwrap();
+    assert!(matches!(
+        crate::recovery_slot::SlotReservation::acquire(foreign, deadline()),
+        Err(crate::recovery_slot::SlotError::Busy)
+    ));
+    let mut bytes = Vec::new();
+    let mut buffer = [0; 4096];
+    loop {
+        match receiver.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(count) => bytes.extend_from_slice(&buffer[..count]),
+            Err(error) if error.kind() == ErrorKind::WouldBlock => break,
+            Err(error) => panic!("original private channel read failed: {error}"),
+        }
+    }
+    let frames = ControlReceiver::new_lifecycle([7; 32])
+        .push(&bytes)
+        .unwrap();
+    assert_eq!(frames.len(), 4);
+    assert!(matches!(
+        frames[2].notification,
+        ControlNotification::CleanupPending {}
+    ));
+    assert!(matches!(
+        frames[3].notification,
+        ControlNotification::CleanupComplete {}
+    ));
+}

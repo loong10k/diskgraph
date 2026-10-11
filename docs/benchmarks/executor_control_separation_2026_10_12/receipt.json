@@ -1,0 +1,27 @@
+{
+  "source_parent": "8a656e28b61172835246f2fd80cba01d822fd100",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervision/control_retirement_owner.rs": "07b39f432698ac1d87b14363af485d482557691623ee1c9cab0ce966e03dd19d",
+    "crates/diskgraph-engine/src/supervision/mod.rs": "e873314e2f9ec658892b394814ac8a050f3053a1d0ac25f61f32f04b7462f76b",
+    "crates/diskgraph-engine/src/supervisor_control_owner.rs": "646175d78dddd012aed4b676c42e05e9c3f2c3df81ed901544d5cc7e15815a06",
+    "crates/diskgraph-engine/src/supervisor_control_owner_tests.rs": "e70838c7a9b51d53667d77f8ba74525dfc3420cd9ce462027b2a43a361928576"
+  },
+  "red": "missing for_executor API E0599, compile absence not runtime behavioral red",
+  "green": {
+    "original_real_pending_reservation_blocks_complete": true,
+    "completion_frame_unique": true,
+    "guardian_actual_slot_still_active_and_locked": true,
+    "control_tests_passed": 11,
+    "control_tests_failed": 0
+  },
+  "layout_passed": 6,
+  "engine_all_targets_clippy": "passed on macOS",
+  "limits": [
+    "new executor entry does not hold ActiveSlot",
+    "existing trusted compatibility entry retains its original supervisor slot",
+    "new entry not yet connected to native executor birth",
+    "no true executor process spawned or waited by this component fixture",
+    "Windows control routing and all platform product acceptance pending",
+    "not production qualification"
+  ]
+}

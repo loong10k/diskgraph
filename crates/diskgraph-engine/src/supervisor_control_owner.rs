@@ -1,4 +1,5 @@
 use crate::recovery_control::{ControlError, ControlNotification, UnixControlWriter};
+use crate::supervision::ControlRetirementOwner;
 use crate::{SupervisorControlProgress, SupervisorOwner, SupervisorRecoveryError};
 use diskgraph_core::BusinessError;
 use std::sync::atomic::AtomicBool;
@@ -10,7 +11,7 @@ use std::time::Instant;
 pub struct SupervisorControlOwner {
     #[cfg(test)]
     pub(crate) after_retirement_poll: Option<Box<dyn FnOnce() + Send>>,
-    owner: SupervisorOwner,
+    owner: ControlRetirementOwner,
     writer: UnixControlWriter,
     ready_attempted: bool,
     foreground_ended: bool,
@@ -23,6 +24,16 @@ impl SupervisorControlOwner {
     /// 参数：owner 为已绑定的原 Engine/Recovery/ACTIVE，writer 为原私有单向控制能力。
     /// 返回：保持两者完整寿命的接线；不发送消息，也不克隆或转移原 pending 内存。
     pub fn new(owner: SupervisorOwner, writer: UnixControlWriter) -> Self {
+        Self::with_owner(ControlRetirementOwner::Supervisor(owner), writer)
+    }
+
+    /// 参数：owner仅持原executor资源，writer为原已认证私有控制能力；返回：无容量槽的接线。
+    /// 完成通知只证明本进程资源回收，不授予guardian CLEAN或原进程wait确认能力。
+    pub fn for_executor(owner: crate::ExecutorResourceOwner, writer: UnixControlWriter) -> Self {
+        Self::with_owner(ControlRetirementOwner::Executor(owner), writer)
+    }
+
+    fn with_owner(owner: ControlRetirementOwner, writer: UnixControlWriter) -> Self {
         Self {
             #[cfg(test)]
             after_retirement_poll: None,
