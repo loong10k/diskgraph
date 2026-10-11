@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import socket
 import stat
+import struct
 import subprocess
 import sys
 import tempfile
@@ -35,18 +36,24 @@ def run_case(prefix, binary, worker, case):
     data = root / 'data'; data.mkdir(mode=0o700); os.chown(data, SERVICE_UID, SERVICE_UID)
     data = data / 'database'
     parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_DGRAM)
+    control_parent, control_child = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
+    control_parent.setsockopt(socket.SOL_SOCKET, socket.SO_PASSCRED, 1)
     # 内核必须在交付之前准备接收凭据；实际接收对象由原子继承，不由命名入口替代。
     child.setsockopt(socket.SOL_SOCKET, socket.SO_PASSCRED, 1)
     files = [os.open(state, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW),
              os.open('/proc/self/ns/user', os.O_RDONLY), os.open('/proc/self/ns/mnt', os.O_RDONLY)]
     domain_file = os.open('/proc/self/ns/time', os.O_RDONLY)
     domain = os.fstat(domain_file); os.close(domain_file)
-    request = {'schema_version': 1, 'nonce': os.urandom(32).hex(), 'service_uid': SERVICE_UID,
+    request = {'schema_version': 2, 'control_fd': control_child.fileno(), 'nonce': os.urandom(32).hex(), 'service_uid': SERVICE_UID,
                'frontend_uid': FRONTEND_UID, 'state_root': str(state), 'data_dir': str(data),
                'worker_path': str(worker), 'worker_sha256': hashlib.sha256(worker.read_bytes()).hexdigest(),
                'worker_bytes': worker.stat().st_size,
                'deadline': {'version': 1, 'domain': [1, domain.st_dev, domain.st_ino],
                             'expires_nanos': time.monotonic_ns() + 30_000_000_000 - 1}}
+    if case == 'wrong_type_control': request['control_fd'] = files[0]
+    if case == 'aliased_control': request['control_fd'] = child.fileno()
+    if case == 'stdio_control': request['control_fd'] = 1
+    if case == 'legacy_control': request['schema_version'] = 1
     if case == 'expired': request['deadline']['expires_nanos'] = time.monotonic_ns() - 1
     if case == 'wrong_image': request['worker_sha256'] = '00' * 32
     raw = json.dumps(request, separators=(',', ':')).encode()
@@ -63,9 +70,9 @@ def run_case(prefix, binary, worker, case):
         process = subprocess.Popen([str(binary), '--json', '--data-dir', str(actual_data), 'doctor'],
                                    env=env, cwd=root, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   pass_fds=(child.fileno(),), preexec_fn=demote)
-        child.close()
-        if case not in ('forged_role', 'expired'):
+                                   pass_fds=(child.fileno(), control_child.fileno(), *((files[0],) if case == 'wrong_type_control' else ())), preexec_fn=demote)
+        child.close(); control_child.close()
+        if case not in ('forged_role', 'expired', 'stdio_control', 'legacy_control'):
             if case == 'wrong_sender':
                 sender_pid = os.fork()
                 if sender_pid == 0:
@@ -80,24 +87,57 @@ def run_case(prefix, binary, worker, case):
                 parent.sendmsg([b'DGSM01A\n' + session],
                                [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array('i', files))])
         out, err = process.communicate(timeout=40)
+        # 不能用 SO_PEERCRED 创建者身份或 JSON 自报身份认证实际写入者。
+        # 仅接受原 child 的逐消息内核 PID/UID/GID；拒绝截断、附加 FD 与超额字节。
+        controls = bytearray()
+        actual_credentials = []
+        while True:
+            chunk, ancillary, flags, _ = control_parent.recvmsg(4096, 256)
+            if flags & (socket.MSG_TRUNC | socket.MSG_CTRUNC): raise AssertionError('control truncated')
+            if not chunk: break
+            credentials = [struct.unpack('3i', value) for level, kind, value in ancillary
+                           if level == socket.SOL_SOCKET and kind == socket.SCM_CREDENTIALS]
+            if len(ancillary) != 1 or credentials != [(process.pid, SERVICE_UID, SERVICE_UID)]:
+                raise AssertionError('control writer does not match original child')
+            actual_credentials.extend(credentials)
+            controls.extend(chunk)
+            if len(controls) > 65536: raise AssertionError('control byte budget exceeded')
+        frames = []
+        while controls:
+            if len(controls) < 4: raise AssertionError('partial control prefix')
+            size = struct.unpack('>I', controls[:4])[0]
+            if not 0 < size <= 4096 or len(controls) < 4 + size: raise AssertionError('invalid control body')
+            frames.append(json.loads(controls[4:4+size])); del controls[:4+size]
+            if len(frames) > 64: raise AssertionError('control frame budget exceeded')
+        for sequence, frame in enumerate(frames):
+            if frame['version'] != 1 or frame['session'] != list(hashlib.sha256(raw).digest()) or frame['sequence'] != sequence:
+                raise AssertionError('control version, session or sequence mismatch')
         replies = [json.loads(line) for line in out.decode().splitlines()]
         positive = case == 'clean'
         code = replies[0].get('error', {}).get('code') if len(replies) == 1 else None
         # 业务数据来自现有 doctor；拒绝须先于 SQLite 出生，不能用任意错误替代身份/容量语义。
         exact = {'active_slot': 'recovery_unconfirmed', 'forged_role': 'permission_denied',
                  'wrong_session': 'permission_denied', 'wrong_sender': 'permission_denied', 'wrong_data': 'permission_denied',
-                 'expired': 'budget_exceeded', 'wrong_image': 'conflict'}
+                 'expired': 'budget_exceeded', 'wrong_image': 'conflict',
+                 'aliased_control': 'permission_denied', 'stdio_control': 'permission_denied',
+                 'legacy_control': 'permission_denied', 'wrong_type_control': 'permission_denied'}
         passed = (process.returncode == 0 and len(replies) == 1 and replies[0].get('ok') is True
                   and (data / 'diskgraph.sqlite').is_file() and slot.read_bytes() == b'DGSL01C\n') if positive else (
                   process.returncode != 0 and not actual_data.exists()
                   and (case not in exact or code == exact[case]))
+        if positive:
+            passed = passed and [f['notification']['kind'] for f in frames] == ['ready', 'foreground_ended', 'cleanup_complete']
+            passed = passed and frames[1]['notification'] == {'kind': 'foreground_ended', 'exit_code': 0, 'panicked': False}
+        else:
+            passed = passed and not frames
         if case == 'active_slot': passed = passed and slot.read_bytes() == b'DGSL01A\n'
         return {'case': case, 'passed': passed, 'exit_code': process.returncode,
                 'error_code': code, 'elapsed_seconds': time.monotonic() - started,
                 'data_born': actual_data.exists(), 'slot_record': slot.read_bytes().decode(),
-                'stdout': out.decode(), 'stderr': err.decode(), 'original_child_waited': True}
+                'stdout': out.decode(), 'stderr': err.decode(), 'original_child_waited': True,
+                'private_frames': frames, 'actual_control_credentials': actual_credentials}
     finally:
-        child.close(); parent.close()
+        child.close(); parent.close(); control_child.close(); control_parent.close()
         for descriptor in files: os.close(descriptor)
         # timeout 不杀死原进程再宣称完成；等待原 doctor owner 自行退出，失败保留完整原错误。
         if process is not None and process.poll() is None: process.wait()
@@ -126,12 +166,12 @@ def qualify(binary, worker, output):
         with source.open('rb') as src, image.open('xb') as dst: shutil.copyfileobj(src, dst)
         image.chmod(0o555)
         receipts[name] = {'bytes': image.stat().st_size, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest()}
-    result = {'schema_version': 1, 'scope': 'authenticated Linux doctor constructor only',
+    result = {'schema_version': 1, 'scope': 'authenticated Linux doctor birth and original retirement notification only',
               'public_broker_qualified': False, 'pending_frontend_exit_qualified': False,
               'services_registered': False, 'fixture_ancestry': ancestry,
               'images': receipts, 'cases': []}
     try:
-        for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data'):
+        for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data', 'aliased_control', 'stdio_control', 'legacy_control', 'wrong_type_control'):
             result['cases'].append(run_case(prefix, images / 'diskgraph', images / 'diskgraph-scan-worker', case))
         result['passed'] = all(case['passed'] for case in result['cases'])
         output.parent.mkdir(parents=True, exist_ok=True)

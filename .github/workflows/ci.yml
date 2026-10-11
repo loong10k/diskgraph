@@ -753,7 +753,8 @@ jobs:
           cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp
           --all-targets --locked --no-fail-fast -- --nocapture
       - name: Authenticate Linux supervisor doctor birth in isolated root fixture
-        if: runner.os == 'Linux'
+        # 原 workspace 失败保持失败，独立构造验收仍执行以保留真实接线证据。
+        if: ${{ !cancelled() && runner.os == 'Linux' && (steps.workspace_tests.outcome == 'success' || steps.workspace_tests.outcome == 'failure') }}
         timeout-minutes: 10
         shell: bash
         run: |

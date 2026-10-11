@@ -15,6 +15,8 @@ pub(crate) struct CliEngineHost {
     slot: Option<diskgraph_engine::recovery_slot::ActiveSlot>,
     #[cfg(target_os = "linux")]
     namespace_guard: Option<diskgraph_engine::recovery_slot::LinuxSupervisorNamespace>,
+    #[cfg(target_os = "linux")]
+    control_owner: Option<diskgraph_engine::SupervisorControlOwner>,
     #[cfg(windows)]
     probe_recovery: diskgraph_engine::ProbeRecovery,
 }
@@ -40,13 +42,24 @@ impl CliEngineHost {
                 return Err(diskgraph_core::BusinessError::PermissionDenied.into());
             }
             let runtime = Self::runtime_budget(&config)?;
-            let (host, namespace, deadline) = birth.into_host(runtime, deadline)?;
+            let admitted = birth.into_supervised_host(runtime, deadline)?;
+            let diskgraph_engine::LinuxSupervisorAdmittedHost {
+                host,
+                namespace,
+                deadline,
+                control,
+            } = admitted;
             // 原 root/ns 材料在 Engine 初始化、出生前撤销及退休整个调用栈中均保持。
             let mut opened = Self::open_admitted_until(config, Some(host), deadline, || {
                 namespace.reserve(deadline).map(Some).map_err(slot_error)
             })?;
             opened.namespace_guard = Some(namespace);
-            return Ok(opened);
+            if let Some(control) = control {
+                if let Err(error) = opened.attach_control(control, deadline) {
+                    return opened.execute(|_| Err(error));
+                }
+            }
+            return opened.finish_open_until(deadline);
         }
         let host = Self::prepare_host_until(&config, deadline).inspect_err(|_| {
             // 仅报告固定阶段，不输出安装路径、配置或凭据，原错误分类保持不变。
@@ -207,6 +220,8 @@ impl CliEngineHost {
             slot,
             #[cfg(target_os = "linux")]
             namespace_guard: None,
+            #[cfg(target_os = "linux")]
+            control_owner: None,
         }
         .finish_open_until(deadline)
     }
@@ -241,6 +256,10 @@ impl CliEngineHost {
     ) -> Result<T, EngineError> {
         let outcome =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| operation(&self.engine)));
+        #[cfg(target_os = "linux")]
+        if self.control_owner.is_some() {
+            return self.retire_controlled_supervisor(outcome);
+        }
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         if self.slot.is_some() {
             return self.retire_original_supervisor(outcome);
@@ -340,3 +359,6 @@ mod tests;
 mod test_engine;
 #[cfg(test)]
 pub(crate) use test_engine::CliTestEngine;
+
+#[cfg(target_os = "linux")]
+mod supervised;

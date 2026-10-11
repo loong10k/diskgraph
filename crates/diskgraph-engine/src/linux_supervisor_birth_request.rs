@@ -19,6 +19,8 @@ pub(crate) struct LinuxSupervisorBirthRequest {
     pub(crate) worker_sha256: String,
     pub(crate) worker_bytes: u64,
     pub(crate) deadline: ClockStamp,
+    #[serde(default)]
+    pub(crate) control_fd: Option<u32>,
 }
 
 impl LinuxSupervisorBirthRequest {
@@ -47,7 +49,12 @@ impl LinuxSupervisorBirthRequest {
                         .all(|c| !c.is_empty() && c != "." && c != "..")
             })
         };
-        if request.schema_version != 1
+        let valid_control = match (request.schema_version, request.control_fd) {
+            (1, None) => true,
+            (2, Some(fd)) => (3..=i32::MAX as u32).contains(&fd),
+            _ => false,
+        };
+        if !valid_control
             || !valid_id(request.service_uid)
             || !valid_id(request.frontend_uid)
             || request.service_uid == request.frontend_uid

@@ -51,3 +51,13 @@ root 内核凭据不代替固定 broker 的发行、镜像与生命周期信任�
 原通知绑定组件已实现：`SupervisorControlOwner` 独占持有原 owner 与私有 writer，`SupervisorControlProgress` 区分 Pending、真实退休且完成通知已写、真实退休但控制未确认。前台结束后不再借出 Engine，原 Arc/资源预留仍阻止实际退休；控制失败锁存，原恢复继续，最多四帧且原控制期限不续期。旧可信 raw encoder 接口保留，实际外部路径尚未接入新绑定，不能据组件通过宣称服务已安全上线。
 
 基线回归真实 RED0/1（原预留仍 Pending 却能编码 Complete），新绑定 macOS ARM64 GREEN8/0，原 owner 回归9/0、源码规范6/0、全目标 Clippy和格式通过。证据见 `docs/benchmarks/supervisor_control_owner_binding/receipt.json`。夹具使用真实容量锁和资源预留，不执行 child；Linux/Windows 及实际 CLI/MCP 的私有出生与前台 EOF 尚待验收。不勾选服务父项。
+
+## v2 原私有控制接入（原生待验收）
+
+v2 的受 root 原消息凭据认证的 JSON 必须指定独立 control_fd，拒绝 stdio、越界、与材料 FD 别名及降级为 v1；v1 不接受 control_fd，仍为可信构造兼容路径。控制对象采用前核对 AF_UNIX/STREAM、未命名连接和原 root 父创建凭据；创建者凭据不代替实际发送者认证。采用后恢复 CLOEXEC。root 验收端对每批实际接收数据核对原 child 的 SCM_CREDENTIALS PID/UID/GID、无额外句柄、帧/累计字节与原 session/sequence。
+
+CLI v2 在实际 Engine 构造、ACTIVE 及原 SupervisorOwner 绑定后发送 Ready，再交前台业务；原输出保持。原前台结束后释放 host 自身 Arc，沿同一 owner 推进恢复，原命名空间持续保留，实际退休才发送 Complete；失败分类为退休未确认，不能据普通 CLI exit 清除 broker bootstrap。所有控制期限只缩短，不续期。旧三元 into_host 对 v2 明确拒绝，新的完整材料 API 不丢控制能力。暂未实现公共 broker、原 child 全局容量或有限客户端 EOF。
+
+共享解析真实 RED0/1→GREEN4/0，macOS兼容host9/0、源码规范6/0、两包Clippy通过；不把它们当作Linux条件代码的编译/运行证据。新增实际二进制脚本覆盖12场景，包括原child逐消息身份、完整三帧正控、FD别名、stdio、降级与实际目录FD反例。Linux同源码执行仍待CI，不勾选服务父项。
+
+69b30d9b LinuxARM全量CI另发现 linux_atomic_startup_reset_tests 的现有reset顺序断言失败，761/1/10；实际panic只有泛化错误，尚不能确认内核返回哪种状态。保留原断言，新增kind/phase/errno、EOF、Pending诊断供原生复验；不改握手、权限或预算，不把诊断视为该问题已修复。

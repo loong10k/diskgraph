@@ -485,3 +485,10 @@ mod supervisor_control_progress;
 pub use supervisor_control_owner::SupervisorControlOwner;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub use supervisor_control_progress::SupervisorControlProgress;
+
+#[cfg(target_os = "linux")]
+mod linux_supervisor_admitted_host;
+#[cfg(target_os = "linux")]
+mod linux_supervisor_control_admission;
+#[cfg(target_os = "linux")]
+pub use linux_supervisor_admitted_host::LinuxSupervisorAdmittedHost;

@@ -68,3 +68,21 @@ fn oversized_birth_json_is_refused_even_when_schema_fields_are_valid() {
     bytes.extend(vec![b' '; 4096]);
     assert!(LinuxSupervisorBirthRequest::parse(&bytes).is_err());
 }
+
+#[test]
+fn v2_requires_private_control_descriptor_and_rejects_legacy_downgrade() {
+    let mut value = request();
+    value["schema_version"] = json!(2);
+    value["control_fd"] = json!(9);
+    assert!(
+        LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_ok(),
+        "authenticated v2 control birth must be accepted"
+    );
+    for fd in [json!(null), json!(0), json!(2), json!(u32::MAX), json!("9")] {
+        value["control_fd"] = fd;
+        assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
+    }
+    value["schema_version"] = json!(1);
+    value["control_fd"] = json!(9);
+    assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
+}

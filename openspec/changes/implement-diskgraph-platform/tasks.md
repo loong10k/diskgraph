@@ -359,3 +359,5 @@ Linux doctor 构造原生补验：d76ad70f 的独立校验 LinuxARM归档在受�
 Windows revision回调夹具：将新revision全部材料由逐条autocommit改为单事务，保持实际发布原子边界、原选定revision断言及原期限。本机行为测试因未安装固定macOS镜像Unsupported，不记行为绿灯；FFI Clippy通过。Windows原生复验待执行，历史终检494ms超时仍未诊断关闭。见docs/benchmarks/windows_atomic_revision_fixture/receipt.json。
 
 监督原owner/私有通知绑定组件增量：真实原预留Pending却被独立raw encoder声明Complete的缺接线回归RED0/1→绑定组件GREEN8/0；原owner回归9/0、规范6/0、全目标Clippy及格式通过。组件不认证通道，不执行原生child，尚未接入CLI/MCP/服务；父生命周期与三平台门禁继续开放。见docs/benchmarks/supervisor_control_owner_binding/receipt.json。
+
+Linux v2 doctor出生已接原控制描述符／原owner退休通知：解析RED0/1→本机GREEN4/0，兼容CLI9/0、源码规范6/0、Engine/CLI全目标Clippy与格式通过。Linux条件编译与12场景原生执行待CI；公共broker、bootstrap原child寿命、有限客户端EOF、MCP与其他平台服务仍未实现。69b LinuxARM原reset顺序测试失败保持，新增观测诊断不视为修复。见linux_supervisor_birth_constructor.md及docs/benchmarks/linux_supervisor_control_v2/receipt.json。

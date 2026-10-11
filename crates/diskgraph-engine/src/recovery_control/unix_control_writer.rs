@@ -46,6 +46,12 @@ impl UnixControlWriter {
         }
         result
     }
+    /// 参数：deadline 为已认证调用方原期限上界；返回：无，只能缩短原写入期限，不能续期。
+    #[cfg(target_os = "linux")]
+    pub(crate) fn restrict_deadline(&mut self, deadline: Instant) {
+        self.deadline = self.deadline.min(deadline);
+    }
+
     fn check(&self, cancel: &AtomicBool) -> Result<(), ControlError> {
         if let Some(error) = self.failure {
             return Err(error);

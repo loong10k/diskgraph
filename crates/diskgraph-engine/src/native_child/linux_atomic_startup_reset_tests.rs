@@ -38,7 +38,13 @@ fn reset_does_not_promote_ready_invalid_packet_or_eof_to_success() {
                 error.native_io_error().unwrap().raw_os_error(),
                 Some(libc::ECONNRESET)
             ),
-            _ => panic!("socket reset cannot become startup success"),
+            Ok(Some(Some(message))) => panic!(
+                "socket reset cannot become startup success: queued kind={} phase={} errno={}",
+                message.kind, message.phase, message.error
+            ),
+            Ok(Some(None)) => panic!("socket reset cannot become startup success: observed EOF"),
+            Ok(None) => panic!("socket reset cannot become startup success: observed Pending"),
+            Err(ChildSpawnError::Checkpoint { .. }) => panic!("unexpected checkpoint failure"),
         }
     }
 }

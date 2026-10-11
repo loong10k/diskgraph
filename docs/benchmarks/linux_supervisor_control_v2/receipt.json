@@ -1,0 +1,45 @@
+{
+  "baseline_source": "aa6e083390390644939e93926dae830f5e101e1d",
+  "parser_red": {
+    "passed": 0,
+    "failed": 1
+  },
+  "parser_green": {
+    "passed": 4,
+    "failed": 0
+  },
+  "cli_compat": {
+    "passed": 9,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "clippy": "Engine and CLI all targets passed on macOS ARM64; Linux conditional compilation not covered",
+  "actual_linux_compile_and_runtime_qualified": false,
+  "actual_mcp_wired": false,
+  "public_broker_qualified": false,
+  "finite_client_eof_qualified": false,
+  "desktop_service_installed": false,
+  "unchanged_control_deadline": true,
+  "control_outbound_credentials_requirement": "original child kernel SCM_CREDENTIALS PID, service UID/GID; creator SO_PEERCRED alone insufficient",
+  "native_script_cases": 12,
+  "unresolved_original_ci_failure": {
+    "source": "69b30d9b277110e77cec9b824c2b2fb18185812a",
+    "run": 38118991414,
+    "job": 114409686821,
+    "target": "reset_does_not_promote_ready_invalid_packet_or_eof_to_success",
+    "result": "761 passed, 1 failed, 10 ignored",
+    "change": "diagnostics only; assertions and production handshake unchanged"
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "7d9fa49daa786c3ce149c1c2333a7d535e7a78d549b9dc1a414fe5685cc3181f",
+    "crates/diskgraph-engine/src/linux_supervisor_admitted_host.rs": "12f84af32205518aa66d3ffe5b18826dbbcf2b44180fb25e163e8a715677db0d",
+    "crates/diskgraph-engine/src/linux_supervisor_control_admission.rs": "aa98cf3f50be59996834a5e364681cb5f731a753af6c1c4e6c228f7d7d11ac22",
+    "crates/diskgraph-engine/src/linux_supervisor_birth_request.rs": "2bdb382e2dfe472d34f648d5b54bd38eeec97550beba5607b0d6dce6c9a99849",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "4783318dfd82845e9f408eb8a5e7e179b9f8616f32e2b1d19d760e6bb22b813f",
+    "crates/diskgraph-cli/src/cli_engine_host/supervised.rs": "56e421a2baa891735c62bfbd321572313d78b25650b795051453dc15f280d2be",
+    "scripts/qualify_linux_supervisor_birth.py": "0ec52cbf37d7fe3addba580c48ac8f3196aa42f3c74bd6e1976564ffbf3f2c4f"
+  }
+}

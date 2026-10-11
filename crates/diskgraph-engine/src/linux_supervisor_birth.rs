@@ -19,6 +19,7 @@ pub struct LinuxSupervisorBirth {
     request: LinuxSupervisorBirthRequest,
     namespace: LinuxSupervisorNamespace,
     deadline: Instant,
+    control: Option<crate::recovery_control::UnixControlWriter>,
 }
 
 impl LinuxSupervisorBirth {
@@ -91,7 +92,8 @@ impl LinuxSupervisorBirth {
         }
         let socket = UnixDatagram::from(owned);
         let session: [u8; 32] = Sha256::digest(bytes).into();
-        let peer = LinuxSupervisorPeer::from_host(unsafe { libc::getppid() }, 0, 0)
+        let parent_pid = unsafe { libc::getppid() };
+        let peer = LinuxSupervisorPeer::from_host(parent_pid, 0, 0)
             .map_err(|_| BusinessError::PermissionDenied)?;
         let mut materials = LinuxSupervisorMaterials::new(socket, peer, session, deadline)
             .map_err(|_| BusinessError::PermissionDenied)?;
@@ -110,10 +112,19 @@ impl LinuxSupervisorBirth {
             request.frontend_uid,
             deadline,
         )?;
+        let control = request
+            .control_fd
+            .map(|control_fd| {
+                crate::linux_supervisor_control_admission::adopt_linux_supervisor_control(
+                    control_fd, fd, parent_pid, session, deadline,
+                )
+            })
+            .transpose()?;
         Ok(Some(Self {
             request,
             namespace,
             deadline,
+            control,
         }))
     }
 
@@ -130,11 +141,29 @@ impl LinuxSupervisorBirth {
     /// 参数：runtime 为原服务扫描额度，maximum_deadline 为调用方原期限；返回：已核验的原固定镜像及保持原域寿命的材料。
     /// 此调用尚不出生原生工作；失败不能启用普通本地兼容回退。
     pub fn into_host(
-        mut self,
+        self,
         runtime: ScanWorkerRuntimeBudget,
         maximum_deadline: Instant,
     ) -> Result<(ScanWorkerHost, LinuxSupervisorNamespace, Instant), EngineError> {
+        // 旧可信构造签名不能悄悄丢弃 v2 的完成责任；v2 调用方须采用完整材料入口。
+        if self.control.is_some() {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let admitted = self.into_supervised_host(runtime, maximum_deadline)?;
+        Ok((admitted.host, admitted.namespace, admitted.deadline))
+    }
+
+    /// 参数：runtime 为原扫描额度，maximum_deadline 为原期限上界；返回：原固定宿主、域及 v2 控制能力。
+    /// 完整交付不允许丢弃控制责任或回退到旧可信入口；本方法仍先于数据库出生。
+    pub fn into_supervised_host(
+        mut self,
+        runtime: ScanWorkerRuntimeBudget,
+        maximum_deadline: Instant,
+    ) -> Result<crate::LinuxSupervisorAdmittedHost, EngineError> {
         self.deadline = self.deadline.min(maximum_deadline);
+        if let Some(control) = self.control.as_mut() {
+            control.restrict_deadline(self.deadline);
+        }
         if Instant::now() >= self.deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
@@ -155,6 +184,11 @@ impl LinuxSupervisorBirth {
         )?;
         let host =
             ScanWorkerHost::new_until(image, expected, runtime, self.deadline, &mut || Ok(()))?;
-        Ok((host, self.namespace, self.deadline))
+        Ok(crate::LinuxSupervisorAdmittedHost {
+            host,
+            namespace: self.namespace,
+            deadline: self.deadline,
+            control: self.control,
+        })
     }
 }
