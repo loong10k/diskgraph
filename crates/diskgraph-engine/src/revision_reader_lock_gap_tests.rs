@@ -111,8 +111,10 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                         let actually_waiting = wait_rx.recv_timeout(Duration::from_secs(2)).is_ok();
                         observed_wait.store(actually_waiting, std::sync::atomic::Ordering::SeqCst);
                         // 模拟原生CI已经观察到的通知后线程延迟；不能在这之后重新给予完整持锁时间。
-                        if wake_delay_ms > 0 {
-                            std::thread::sleep(Duration::from_millis(wake_delay_ms));
+                        let wake_remaining = Duration::from_millis(wake_delay_ms)
+                            .saturating_sub(held_started.elapsed());
+                        if !wake_remaining.is_zero() {
+                            std::thread::sleep(wake_remaining);
                         }
                         // 持锁预算从原取锁时刻开始；通知等待和线程唤醒已经消耗的时间不得续给。
                         let remaining =

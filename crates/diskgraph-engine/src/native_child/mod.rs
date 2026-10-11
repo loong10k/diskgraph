@@ -161,3 +161,59 @@ pub(crate) use windows::WindowsTestBirth;
 
 #[cfg(all(test, target_os = "linux"))]
 mod linux_supervisor_owner_tests;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+mod linux_supervisor_abi;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+mod linux_supervisor_launch_error;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+mod linux_supervisor_launcher;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+mod linux_supervisor_process;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+pub use linux_supervisor_launch_error::LinuxSupervisorLaunchError;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+pub use linux_supervisor_launcher::LinuxSupervisorLauncher;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+pub use linux_supervisor_process::LinuxSupervisorProcess;

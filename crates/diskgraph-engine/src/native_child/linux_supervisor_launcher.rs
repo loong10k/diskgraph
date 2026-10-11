@@ -1,0 +1,194 @@
+use super::linux_atomic_child::LinuxAtomicChild;
+use super::linux_atomic_exit::LinuxAtomicExit;
+use super::linux_atomic_handshake::LinuxAtomicHandshake;
+use super::linux_atomic_launcher::validate_material;
+use super::linux_atomic_pipes::LinuxAtomicPipes;
+use super::linux_atomic_signal_mask::LinuxAtomicSignalMask;
+use super::linux_supervisor_abi::{LinuxSupervisorAbi, dg_linux_supervisor_spawn};
+use super::linux_supervisor_launch_error::LinuxSupervisorLaunchError;
+use super::linux_supervisor_process::LinuxSupervisorProcess;
+use super::unix_child_setup::UnixChildSetup;
+use super::{ChildError, ChildSpawnError};
+use crate::recovery_control::LinuxControlReader;
+use crate::recovery_slot::{LinuxSupervisorMaterials, LinuxSupervisorPeer, SlotReservation};
+use std::ffi::CString;
+use std::fs::File;
+use std::io;
+use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
+use std::os::unix::net::{UnixDatagram, UnixStream};
+use std::time::Instant;
+
+/// 受信 root 父侧的有界监督出生准备；来源：PF-06 CLONE_PIDFD 与固定 held ELF 合同。
+/// 宿主须已验证安装镜像摘要及配置；本接口不从客户路径、命令或消息签发信任。
+pub struct LinuxSupervisorLauncher {
+    image: File,
+    args: Vec<CString>,
+    environment: Vec<CString>,
+    identity: (u32, u32),
+    pipes: LinuxAtomicPipes,
+    extra: [OwnedFd; 2],
+    materials: UnixDatagram,
+    controls: UnixStream,
+}
+
+impl LinuxSupervisorLauncher {
+    /// 参数：原验证 ELF、固定 args/environment 与专用 UID/GID；返回：全部出生前准备或原错误。
+    /// 不建立发行摘要信任、不继承装载环境；准备失败不创建 child 或认领全局槽。
+    pub fn prepare(
+        image: File,
+        args: Vec<CString>,
+        environment: Vec<CString>,
+        identity: (u32, u32),
+    ) -> io::Result<Self> {
+        validate_material(&image, &args, &environment).map_err(io::Error::other)?;
+        if identity.0 == 0 || identity.1 == 0 || identity.0 == u32::MAX || identity.1 == u32::MAX {
+            return Err(io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "dedicated non-root UID/GID required",
+            ));
+        }
+        UnixChildSetup::reject_auto_reap().map_err(io::Error::other)?;
+        let pipes = LinuxAtomicPipes::new(&image).map_err(io::Error::other)?;
+        let (materials, child_materials) = UnixDatagram::pair()?;
+        let child_materials = LinuxSupervisorMaterials::prepare_receiver(child_materials)
+            .map_err(io::Error::other)?;
+        let (controls, child_controls) = UnixStream::pair()?;
+        let controls = LinuxControlReader::prepare_receiver(controls).map_err(io::Error::other)?;
+        let extra = [
+            duplicate(child_materials.as_raw_fd())?,
+            duplicate(child_controls.as_raw_fd())?,
+        ];
+        Ok(Self {
+            image,
+            args,
+            environment,
+            identity,
+            pipes,
+            extra,
+            materials,
+            controls,
+        })
+    }
+
+    /// 参数：reservation 为出生前全局原锁、session 为原认证会话、deadline 为原绝对期限。
+    /// 返回：唯一原 owner；出生后错误保留同一进程和 ACTIVE，调用方必须接管失败中的 owner。
+    /// 本接口只提供有界调用组件，不启用远程入口、长运行 MCP 或桌面服务。
+    pub fn spawn(
+        self,
+        reservation: SlotReservation,
+        session: [u8; 32],
+        deadline: Instant,
+    ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
+        let argv: Vec<_> = self
+            .args
+            .iter()
+            .map(|arg| arg.as_ptr())
+            .chain(std::iter::once(std::ptr::null()))
+            .collect();
+        let environment: Vec<_> = self
+            .environment
+            .iter()
+            .map(|arg| arg.as_ptr())
+            .chain(std::iter::once(std::ptr::null()))
+            .collect();
+        let slot = reservation
+            .activate(deadline)
+            .map_err(|error| LinuxSupervisorLaunchError {
+                error: io::Error::other(error),
+                owner: None,
+            })?;
+        // 两个完整处置槽均先于内核出生分配；ACTIVE 原锁跨越每个后续失败。
+        let mut owner = Box::new(LinuxSupervisorProcess::before_birth(slot));
+        let mut child_slot = Box::<LinuxAtomicChild>::new_uninit();
+        let base = self.pipes.child_fds();
+        let request = LinuxSupervisorAbi {
+            fds: [
+                base[0],
+                base[1],
+                base[2],
+                base[3],
+                base[4],
+                self.extra[0].as_raw_fd(),
+                self.extra[1].as_raw_fd(),
+            ],
+            uid: self.identity.0,
+            gid: self.identity.1,
+            argv: argv.as_ptr(),
+            environment: environment.as_ptr(),
+        };
+        let mut mask = LinuxAtomicSignalMask::new();
+        let mut pidfd = -1;
+        if Instant::now() >= deadline {
+            return Err(LinuxSupervisorLaunchError {
+                error: io::Error::new(io::ErrorKind::TimedOut, "original birth deadline"),
+                owner: Some(owner),
+            });
+        }
+        let pid = unsafe {
+            dg_linux_supervisor_spawn(&request, &mut pidfd, &mut mask.original, &mut mask.active)
+        };
+        if pid < 0 {
+            // 未出生也返回原槽；只允许显式 abort_unborn，不自动改写失败记录。
+            return Err(LinuxSupervisorLaunchError {
+                error: io::Error::other(
+                    ChildError::io(
+                        "supervisor atomic birth",
+                        io::Error::from_raw_os_error(-pid as i32),
+                    )
+                    .with_cleanup(mask.restore()),
+                ),
+                owner: Some(owner),
+            });
+        }
+        // 到原 pidfd 采用之间无分配、回调、断言或格式化；child 永不返回 Rust 栈。
+        let fd = unsafe { OwnedFd::from_raw_fd(pidfd) };
+        child_slot.write(LinuxAtomicChild::adopt(
+            LinuxAtomicExit::adopt(fd, pid as i32),
+            self.pipes,
+        ));
+        owner.child = Some(unsafe { child_slot.assume_init() });
+        owner.born = true;
+        drop(self.extra);
+        let startup = (|| -> io::Result<()> {
+            mask.restore().map_err(io::Error::other)?;
+            let peer = LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)
+                .map_err(io::Error::other)?;
+            owner.controls = Some(
+                LinuxControlReader::new(self.controls, peer, session, deadline)
+                    .map_err(io::Error::other)?,
+            );
+            let peer = LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)
+                .map_err(io::Error::other)?;
+            owner.materials = Some(
+                LinuxSupervisorMaterials::new_sender(self.materials, peer, session, deadline)
+                    .map_err(io::Error::other)?,
+            );
+            let child = owner.child.as_mut().expect("original pidfd adopted");
+            child.configure().map_err(io::Error::other)?;
+            LinuxAtomicHandshake::run(child, deadline, &mut || Ok::<(), ()>(())).map_err(|error| {
+                match error {
+                    ChildSpawnError::Operation(error) => io::Error::other(error),
+                    ChildSpawnError::Checkpoint { .. } => {
+                        io::Error::new(io::ErrorKind::TimedOut, "original startup checkpoint")
+                    }
+                }
+            })
+        })();
+        drop(self.image);
+        match startup {
+            Ok(()) => Ok(owner),
+            Err(error) => Err(LinuxSupervisorLaunchError {
+                error,
+                owner: Some(owner),
+            }),
+        }
+    }
+}
+
+fn duplicate(fd: i32) -> io::Result<OwnedFd> {
+    let raw = unsafe { libc::fcntl(fd, libc::F_DUPFD_CLOEXEC, 10) };
+    if raw < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(unsafe { OwnedFd::from_raw_fd(raw) })
+}

@@ -195,7 +195,8 @@ impl LinuxAtomicLauncher {
     }
 }
 
-fn validate_material(
+/// 参数：原 held ELF 与固定 args/environment；返回：有界材料及架构校验结果，不签发摘要信任。
+pub(super) fn validate_material(
     image: &File,
     args: &[CString],
     environment: &[CString],

@@ -99,3 +99,9 @@ root出生C层实际RED：旧原子入口exec后UID/GID0、补充组1、缺少�
 监督 C 出生后必须先无分配采用内核原 pidfd，再恢复宿主信号 mask、关闭父侧 child 副本或运行检查点。新增隔离 root 原生回归直接调用新 C 入口并采用现有 LinuxAtomicChild/LinuxAtomicExit；验证正常真实 ELF 降权执行及完整输出/原 wait，Init 前过期清理保留 owner，以及采用后的 panic 保留原 payload 并消费原 wait。观察副本只验证 ECHILD，不重新打开 PID，不作为第二 owner。该测试明确要求 root 和指定角色 ELF，普通 workspace 运行仅编译且忽略，CI 用同一原 Engine libtest 二进制显式执行；必须看到三项实际运行通过才能关闭此桥接子项。未执行测试不声称 RED/GREEN；此轮仍未建立生产 RootBroker、bootstrap 或独立服务，不能关闭父项。
 
 17af31af Linux x86_64/MSRV 原生 C 出生子门禁实际通过9/0，原机制合同缺失RED仍被精确复现；原artifact11697423995与job114432852092对应run38126837661，回执保存在linux_root_spawn_native_17af31af/。完整CI捕获时仍在运行。Rust owner桥接、bootstrap和产品broker尚未因此获得资格，不勾选父项。
+
+## 受信 root 父侧进程与全局槽绑定
+
+新增父侧库接口只接受受信宿主已验证的 held ELF、固定 argv/env 与出生前 RESERVED 全局槽；不接受客户端镜像、命令或 FD，不自动签发部署信任。所有管道、私有双端点和指针数组先于出生准备；真实 C 出生后的原 pidfd 先进入唯一预分配 owner，才配置 I/O、构造实际 PID/UID/GID 凭据 reader 或运行握手。出生后失败返回原错误和保留 owner；异常停止、退出码0、public EOF 或 Drop 都不能将 ACTIVE 改为 CLEAN。仅合法原私有 Complete/EOF、两输出 EOF 与原整个线程组实际 wait 同时确认后才能释放全局槽。出生前明确失败可显式清除无人出生的 ACTIVE，不自动清除。此接口沿用原私有绝对期限，只用于有界调用；长运行 MCP 的独立生命周期控制合同及实际 broker/安装接线仍未完成，不借此声明可用。新增 root 原生负控须证明真实角色已执行/退出却未写私有完成通知时槽仍 ACTIVE，原 wait 由同一 owner 回收。
+
+17af31af macOS MSRV 原全量失败已保存：人工150ms唤醒延迟仍叠加在真实通知等待之后，终检250.603ms合法拒绝。新夹具同时从原取锁时刻扣除人工唤醒与目标持锁的已耗时间；本机同一正反矩阵3/0，未改变250/50窗口、60ms原请求反控或CI并发。新原生资格待验收。root_owner_wake_budget_fixture/保存原job日志与本机结果；不将新root launcher/容量组件的macOS静态检查称为Linux编译或运行通过。

@@ -463,32 +463,36 @@ mod scope_registration_deadline_tests;
 
 mod graph_access;
 
-#[cfg(any(test, target_os = "linux"))]
-mod linux_supervisor_birth_request;
-
 #[cfg(target_os = "linux")]
 mod linux_supervisor_birth;
+#[cfg(any(test, target_os = "linux"))]
+mod linux_supervisor_birth_request;
 #[cfg(target_os = "linux")]
 pub use linux_supervisor_birth::LinuxSupervisorBirth;
-
-#[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
-mod verify_supervisor_birth_image;
-
-#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
-mod supervisor_control_owner_tests;
-
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod supervisor_control_owner;
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod supervisor_control_owner_tests;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod supervisor_control_progress;
+#[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
+mod verify_supervisor_birth_image;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub use supervisor_control_owner::SupervisorControlOwner;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub use supervisor_control_progress::SupervisorControlProgress;
-
 #[cfg(target_os = "linux")]
 mod linux_supervisor_admitted_host;
 #[cfg(target_os = "linux")]
 mod linux_supervisor_control_admission;
 #[cfg(target_os = "linux")]
 pub use linux_supervisor_admitted_host::LinuxSupervisorAdmittedHost;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+pub use native_child::{
+    LinuxSupervisorLaunchError, LinuxSupervisorLauncher, LinuxSupervisorProcess,
+};

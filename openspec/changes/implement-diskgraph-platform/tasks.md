@@ -371,3 +371,5 @@ Linux broker接收组件实施：recvmsg逐笔PID/UID/GID、原准备端点、CL
 root监督出生C层增量：独立CLONE_PIDFD／0..6白名单／exec前UID/GID/补充组/caps降权已实现，原C路径实际合同缺失RED→LinuxARM九场景GREEN，双GNU2.17对象无未定义符号；未接Rust原owner、全局bootstrap、产品broker，不勾父项。同709源reader原生Linux双架构各9/0；macOS原持锁夹具100标称实249ms失败保留，受控唤醒迟延RED0/1→取锁原时刻预算扣除GREEN3/0。仅测试夹具修改，生产250/50ms窗口和所有原请求期限不变，新源码三平台CI待验收。见linux_supervisor_birth_constructor.md及三个对应证据目录。
 
 - [ ] Linux 原始 Rust owner 桥接：正常退出、Init 前过期 Pending 与采用后 panic 三项隔离 root 原生验收（测试及 CI 接线已添加，实际 Linux 执行待验证；产品 broker 仍未接入）。
+
+- [ ] Linux 受信 root launcher/global bootstrap owner：失败归还原 owner、实际私有通知和原 wait 联合释放、无通知实际退出仍保留 ACTIVE 的第四项原生回归（已实现组件与测试，原生运行和产品 broker 待验收）。

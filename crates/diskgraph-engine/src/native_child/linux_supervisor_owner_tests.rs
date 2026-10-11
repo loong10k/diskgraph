@@ -170,3 +170,80 @@ fn supervisor_birth_panic_after_adoption_consumes_original_wait() {
     );
     assert_original_wait_consumed(&witness);
 }
+
+#[test]
+#[ignore = "requires explicit compiled role and isolated root; invoked by native qualification"]
+fn supervisor_root_owner_keeps_bootstrap_active_without_private_completion() {
+    use super::linux_supervisor_launcher::LinuxSupervisorLauncher;
+    use crate::recovery_slot::{SlotError, SlotReservation};
+    use std::sync::atomic::AtomicBool;
+
+    let directory = tempfile::tempdir().unwrap();
+    let slot_path = directory.path().join("original-bootstrap");
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .open(&slot_path)
+        .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let image = File::open(std::env::var_os("DG_LINUX_SUPERVISOR_ROLE").unwrap()).unwrap();
+    let launcher = LinuxSupervisorLauncher::prepare(
+        image,
+        vec![CString::new("fixed-supervisor-role").unwrap()],
+        Vec::new(),
+        (23111, 23111),
+    )
+    .unwrap();
+    let reservation = SlotReservation::acquire(file, deadline).unwrap();
+    let mut owner = launcher.spawn(reservation, [7; 32], deadline).unwrap();
+    let witness = duplicate(owner.child.as_ref().unwrap().pidfd_for_test());
+    let cancel = AtomicBool::new(false);
+    let mut output = Vec::new();
+    loop {
+        assert!(Instant::now() < deadline);
+        if let Some(bytes) = owner.read_stdout().unwrap() {
+            output.extend_from_slice(bytes);
+            assert!(output.len() <= 4096);
+        }
+        owner.read_stderr().unwrap();
+        assert!(!owner.poll_retirement(deadline).unwrap());
+        match owner.poll_notification(&cancel) {
+            Ok(crate::recovery_control::LinuxControlRead::Pending) => {
+                std::thread::sleep(Duration::from_millis(1))
+            }
+            Err(error) => {
+                assert_eq!(
+                    error
+                        .get_ref()
+                        .unwrap()
+                        .downcast_ref::<crate::recovery_control::ControlError>(),
+                    Some(&crate::recovery_control::ControlError::Unconfirmed)
+                );
+                break;
+            }
+            other => panic!("silent role must not authenticate completion: {other:?}"),
+        }
+    }
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output).unwrap()["passed"],
+        true
+    );
+    while !owner.poll_cleanup(deadline).unwrap() {
+        assert!(Instant::now() < deadline);
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_original_wait_consumed(&witness);
+    assert!(owner.abort_unborn(deadline).is_err());
+    assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01A\n");
+    drop(owner);
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .open(&slot_path)
+        .unwrap();
+    assert!(matches!(
+        SlotReservation::acquire(file, deadline),
+        Err(SlotError::Unconfirmed)
+    ));
+}

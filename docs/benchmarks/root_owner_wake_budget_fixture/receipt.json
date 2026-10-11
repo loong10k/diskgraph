@@ -1,0 +1,13 @@
+{
+  "native_failed_source": "17af31af6374554c0599369598af484bf4245fd5",
+  "run": 38126837661,
+  "job": 114432852177,
+  "failure": "artificial wake delay added after already elapsed real scheduling wait",
+  "local_regression_passed": 3,
+  "production_authorization_windows_changed": false,
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "native_fixed_fixture_qualified": false,
+  "root_launcher_native_qualified": false,
+  "root_bootstrap_owner_native_qualified": false
+}
