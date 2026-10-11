@@ -303,11 +303,18 @@ fn scope_add_is_idempotent_and_remove_revokes() {
     );
 
     let scope_id = json_field(first.stdout.trim(), "/data/scope_id");
+    let run = run_cli(&data_dir, &["scope", "show", "--scope", &scope_id]);
+    assert_eq!(run.code, 0);
+    assert!(run.stdout.contains("\"revoked\":false"));
     let run = run_cli(&data_dir, &["scope", "remove", "--scope", &scope_id]);
     assert_eq!(run.code, 0);
     let run = run_cli(&data_dir, &["scope", "show", "--scope", &scope_id]);
-    assert_eq!(run.code, 0);
-    assert!(run.stdout.contains("\"revoked\":true"));
+    // 撤销后公开show不得继续交付根路径；注册记录本身仍由可信内部接口保存。
+    assert_eq!(run.code, 3, "stdout: {} stderr: {}", run.stdout, run.stderr);
+    assert_eq!(
+        json_field(run.stdout.trim(), "/error/code"),
+        "permission_denied"
+    );
 
     // Jobs for revoked scopes are refused with a conflict exit code (9).
     let run = run_cli(&data_dir, &["index", "--scope", &scope_id]);

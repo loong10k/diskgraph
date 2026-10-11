@@ -262,6 +262,27 @@ def systemd_installation(prefix, config, retained):
         while not endpoint.exists() or (endpoint.stat().st_mode & 0o777) != 0o666:
             assert time.monotonic() - started < 30, 'actual service never bound original socket'
             time.sleep(0.005)
+        # 只观察原已启动unit与原MainPID的安全属性，不修改沙箱或替换原服务。
+        properties = subprocess.run(['systemctl', 'show', unit_name,
+            '--property=MainPID,NoNewPrivileges,SystemCallFilter,RestrictAddressFamilies,RestrictNamespaces,AppArmorProfile,CapabilityBoundingSet,AmbientCapabilities'],
+            check=True, timeout=2, capture_output=True).stdout
+        values = dict(line.split('=', 1) for line in properties.decode('utf-8', 'replace').splitlines() if '=' in line)
+        original_pid = int(values.get('MainPID', '0'))
+        assert original_pid > 0, 'original generated service has no live MainPID'
+        with open('/proc/' + str(original_pid) + '/status', 'rb') as status_file:
+            status = status_file.read(16385)
+        selected = {line.split(':', 1)[0]: line.split(':', 1)[1].strip()
+                    for line in status[:16384].decode('utf-8', 'replace').splitlines()
+                    if ':' in line and line.split(':', 1)[0] in ['Uid', 'Gid', 'NoNewPrivs', 'Seccomp', 'Seccomp_filters', 'CapEff']}
+        try:
+            with open('/proc/' + str(original_pid) + '/attr/current', 'rb') as label_file:
+                label = label_file.read(4097)
+            lsm = label[:4096].decode('utf-8', 'replace').strip()
+        except OSError as error:
+            lsm = {'unavailable_errno': error.errno}
+        print(json.dumps({'original_systemd_observation': {'pid': original_pid,
+              'properties': values, 'status': selected, 'status_truncated': len(status) > 16384,
+              'lsm_label': lsm}}), flush=True)
         frontend = subprocess.Popen([str(prefix / 'images/diskgraph'), '--json', '--supervisor-socket', str(endpoint), 'doctor'],
                                     preexec_fn=lowered, env={}, cwd=prefix, stdin=subprocess.DEVNULL,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)

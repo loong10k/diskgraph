@@ -1,0 +1,189 @@
+{
+  "run_id": 38172485982,
+  "source": "37253b8dc6b17099eeee003e94cf9286806e015c",
+  "job": 114567822448,
+  "overall": "job failure; whole CI still running when retained",
+  "native_cases_before_systemd_failure": [
+    {
+      "bootstrap_record": "DGSL01C",
+      "direct_business_result_matched": false,
+      "frontend_exit": 0,
+      "frontend_stdout_eof": true,
+      "json_ok": true,
+      "mode": "clean",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "bootstrap_record": "DGSL01A",
+      "direct_business_result_matched": false,
+      "frontend_exit": 8,
+      "frontend_stdout_eof": true,
+      "json_ok": false,
+      "mode": "active",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "database_not_born": true,
+      "mode": "bad_digest",
+      "server_exit": 10,
+      "socket_not_born": true
+    },
+    {
+      "bootstrap_record": "DGSL01C",
+      "direct_business_result_matched": true,
+      "frontend_exit": 0,
+      "frontend_stdout_eof": true,
+      "json_ok": true,
+      "mode": "scope_list",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "bootstrap_record": "DGSL01C",
+      "direct_business_result_matched": true,
+      "frontend_exit": 2,
+      "frontend_stdout_eof": true,
+      "json_ok": false,
+      "mode": "snapshots",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "bootstrap_record": "DGSL01C",
+      "direct_business_result_matched": true,
+      "frontend_exit": 4,
+      "frontend_stdout_eof": true,
+      "json_ok": false,
+      "mode": "unknown_job",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "bootstrap_record": "DGSL01C",
+      "direct_business_result_matched": true,
+      "frontend_exit": 0,
+      "frontend_stdout_eof": true,
+      "json_ok": true,
+      "mode": "scope_show",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "bootstrap_record": "DGSL01C",
+      "direct_business_result_matched": true,
+      "frontend_exit": 3,
+      "frontend_stdout_eof": true,
+      "json_ok": false,
+      "mode": "scope_show_revoked",
+      "original_broker_wait_consumed": true,
+      "server_exit": 0
+    },
+    {
+      "actual_sender_original_pid": 28085,
+      "frontend_exit": 10,
+      "mode": "delegated_same_root_uid_sender",
+      "original_sender_wait_consumed": true,
+      "root_listener_original_pid": 28055,
+      "stdout_bytes": 0
+    },
+    {
+      "actual_sender_original_pid": 28087,
+      "frontend_exit": 10,
+      "mode": "delegated_nonroot_sender",
+      "original_sender_wait_consumed": true,
+      "root_listener_original_pid": 28055,
+      "stdout_bytes": 0
+    },
+    {
+      "database_not_born": false,
+      "mode": "doctor",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 1158,
+      "status": 0,
+      "valid_linux_clock": true
+    },
+    {
+      "database_not_born": true,
+      "mode": "override",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 0,
+      "status": 10,
+      "valid_linux_clock": true
+    },
+    {
+      "database_not_born": true,
+      "mode": "unknown_command",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 0,
+      "status": 10,
+      "valid_linux_clock": true
+    },
+    {
+      "database_not_born": true,
+      "mode": "duplicate",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 0,
+      "status": 10,
+      "valid_linux_clock": true
+    },
+    {
+      "database_not_born": true,
+      "mode": "bad_numeric",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 0,
+      "status": 10,
+      "valid_linux_clock": true
+    },
+    {
+      "database_not_born": true,
+      "mode": "write",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 0,
+      "status": 10,
+      "valid_linux_clock": true
+    },
+    {
+      "database_not_born": true,
+      "mode": "unknown_field",
+      "original_public_eof": true,
+      "original_server_wait_consumed": true,
+      "original_slots_clean": true,
+      "public_output_bytes": 0,
+      "status": 10,
+      "valid_linux_clock": true
+    }
+  ],
+  "failures": [
+    "CLI flow old expectation scope show after revoke exit0; actual permission_denied exit3 follows approved live authorization contract",
+    "Generated unit original doctor birth fails atomic child seccomp EPERM; cause unconfirmed"
+  ],
+  "scope_fixture_change": "Adds before-revoke permitted show and after-revoke exact exit3/error-code assertion; no production bypass",
+  "systemd_change": "Read-only actual original MainPID, NoNewPrivs, Seccomp/filter count, identity/capability, selected unit properties and LSM context diagnostics; no sandbox removal, no deadline widening, no original unit replacement",
+  "source_sha256": {
+    "scripts/qualify_linux_public_broker.py": "9430d89244e5dec9338e54a617492eada7460182493a7617acd3899a4b6a9cdb",
+    "crates/diskgraph-cli/tests/cli_flow.rs": "ab39da787d1c5f80f46d14d8a82ca6472920601818fc00e52a12bad23288d730"
+  },
+  "local_checks": {
+    "python_cleanup_and_wire": 5,
+    "CLI_all_targets_clippy": "passed"
+  },
+  "limits": [
+    "No local native CLI flow acceptance due missing trusted deployment; new expectation must pass native CI",
+    "No local systemd runtime; new diagnostic not a seccomp repair",
+    "Linux generated-unit compatibility and whole multi-platform gate remain open"
+  ]
+}
