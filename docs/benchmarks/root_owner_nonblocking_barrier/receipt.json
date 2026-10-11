@@ -1,0 +1,24 @@
+{
+  "run": 38149478669,
+  "job": 114499740408,
+  "source": "e49ee361db37ca02abaf80236aad577f4a65b42a",
+  "native_owner_passed": 4,
+  "native_owner_failed": 1,
+  "failure": "role held by original datagram barrier",
+  "cause": "fixture inherited O_NONBLOCK then treated recv EAGAIN as immediate exit; production materials prepare_receiver sets nonblocking",
+  "fix": "fixture alone explicitly switches fd5 to blocking for its survival barrier",
+  "production_wait_assertion_preserved": true,
+  "native_fixed_rust_qualification": false,
+  "native_c_barrier_red_green": {
+    "platform": "Linux ARM64 isolated container",
+    "old_source": "a18ade41",
+    "old_exit_code": 5,
+    "new_exit_code": 0,
+    "original_pidfd_waited_both": true,
+    "old_original_alive_before_material": false,
+    "new_original_alive_before_material": true,
+    "no_service_installed": true,
+    "driver_sha256": "ff9d338e50ce3abd8a293a2670597b9941523934042b5004857fcb052afda5e6",
+    "role_source_sha256": "361e595cf7719702ca19ad377f4dfa7dc262fa657396e24dddcb0a2634df4c08"
+  }
+}

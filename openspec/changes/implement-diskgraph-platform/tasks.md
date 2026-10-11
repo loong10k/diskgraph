@@ -379,3 +379,5 @@ root监督出生C层增量：独立CLONE_PIDFD／0..6白名单／exec前UID/GID/
 0294c5c2原完整CI终态22/23成功，唯一macOS stable人工短竞争调度夹具失败；Windows两套、Linux三套及五种原生包均成功。新显式timing门禁、第五项原wait正控及生命周期源码需新CI，不沿用旧终态证明新实现。见ci_0294c5c2_terminal/。
 
 生命周期原owner接线增量：显式有限Ready/ForegroundEnded与原退休轮询deadline通知已接入同一Engine/Recovery/ACTIVE，新增5项本机实际owner/通道测试与旧8项全部通过；100次Pending只通知一次，外部Engine引用、通知期限耗尽及断线都不丢原恢复责任。真实行为RED0/1（先修正夹具编译错误）→GREEN13/0，源规范6/0、workspace Clippy及排除vendored的fmt通过。Linux父侧spawn_lifecycle已编码，真实角色ELF版本2在原出生期限已过后退休的第六项原生测试待CI，不能声称本机运行通过；C角色仅交叉编译。原服务父门禁仍开放。见supervisor_lifecycle_owner/。
+
+e49ee361 Linux stable原生owner门禁4/1：第五项角色发送完成后提前退出，未守住原datagram屏障。材料端按生产要求继承O_NONBLOCK，固定C角色recv将EAGAIN误当失败并退出5；仅夹具显式改为阻塞材料屏障，原wait/ACTIVE断言和生产非阻塞接口均保留。修复原生Rust验收待新CI，不能把此故障称为已通过。原始job日志保存在root_owner_nonblocking_barrier/。

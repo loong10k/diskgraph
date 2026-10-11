@@ -55,6 +55,9 @@ int main(int argc, char **argv) {
             !notification(version, 1, "{\"kind\":\"foreground_ended\",\"exit_code\":0,\"panicked\":false}") ||
             !notification(version, 2, "{\"kind\":\"cleanup_complete\"}") || close(6) != 0) return 4;
         /* 已给出私有完整流，仍以真实datagram屏障保留原进程，验证通知不能代替wait。 */
+        /* 生产材料端继承O_NONBLOCK；仅此固定角色夹具显式采用阻塞屏障，不能把EAGAIN视为材料已到。 */
+        int flags = fcntl(5, F_GETFL);
+        if (flags < 0 || fcntl(5, F_SETFL, flags & ~O_NONBLOCK) != 0) return 4;
         char material[40];
         ssize_t received;
         do { received = recv(5, material, sizeof(material), MSG_TRUNC); } while (received < 0 && errno == EINTR);
