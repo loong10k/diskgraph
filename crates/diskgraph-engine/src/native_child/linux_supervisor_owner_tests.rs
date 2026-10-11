@@ -247,3 +247,90 @@ fn supervisor_root_owner_keeps_bootstrap_active_without_private_completion() {
         Err(SlotError::Unconfirmed)
     ));
 }
+
+#[test]
+#[ignore = "requires explicit compiled role and isolated root; invoked by native qualification"]
+fn supervisor_root_owner_requires_original_wait_after_authenticated_completion() {
+    use super::linux_supervisor_launcher::LinuxSupervisorLauncher;
+    use crate::recovery_control::LinuxControlRead;
+    use crate::recovery_slot::{LinuxSupervisorTrust, SlotReservation};
+    use std::sync::atomic::AtomicBool;
+
+    let directory = tempfile::tempdir().unwrap();
+    let slot_path = directory.path().join("original-bootstrap");
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .open(&slot_path)
+        .unwrap();
+    let reservation = SlotReservation::acquire(file, deadline).unwrap();
+    let image = File::open(std::env::var_os("DG_LINUX_SUPERVISOR_ROLE").unwrap()).unwrap();
+    let launcher = LinuxSupervisorLauncher::prepare(
+        image,
+        vec![
+            CString::new("fixed-supervisor-role").unwrap(),
+            CString::new("notify").unwrap(),
+        ],
+        Vec::new(),
+        (23111, 23111),
+    )
+    .unwrap();
+    let mut owner = launcher.spawn(reservation, [7; 32], deadline).unwrap();
+    let witness = duplicate(owner.child.as_ref().unwrap().pidfd_for_test());
+    let cancel = AtomicBool::new(false);
+    let mut notifications = 0;
+    loop {
+        assert!(Instant::now() < deadline);
+        match owner.poll_notification(&cancel).unwrap() {
+            LinuxControlRead::Frame(_) => notifications += 1,
+            LinuxControlRead::ConfirmedEof => break,
+            LinuxControlRead::Pending => std::thread::sleep(Duration::from_millis(1)),
+        }
+    }
+    assert_eq!(notifications, 3);
+    assert!(
+        !owner.child.as_mut().unwrap().poll().unwrap(),
+        "role held by original datagram barrier"
+    );
+    assert!(
+        !owner.poll_retirement(deadline).unwrap(),
+        "private completion cannot consume original wait early"
+    );
+    assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01A\n");
+    let trust = LinuxSupervisorTrust::from_host(
+        File::open(directory.path()).unwrap(),
+        File::open("/proc/self/ns/user").unwrap(),
+        File::open("/proc/self/ns/mnt").unwrap(),
+    );
+    owner.send_materials(&trust, &cancel).unwrap();
+    let mut output = Vec::new();
+    loop {
+        assert!(Instant::now() < deadline);
+        if let Some(bytes) = owner.read_stdout().unwrap() {
+            output.extend_from_slice(bytes);
+            assert!(output.len() <= 4096);
+        }
+        owner.read_stderr().unwrap();
+        if owner.poll_retirement(deadline).unwrap() {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_original_wait_consumed(&witness);
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output).unwrap()["passed"],
+        true
+    );
+    assert_eq!(std::fs::read(&slot_path).unwrap(), b"DGSL01C\n");
+    let file = File::options()
+        .read(true)
+        .write(true)
+        .open(&slot_path)
+        .unwrap();
+    SlotReservation::acquire(file, deadline)
+        .unwrap()
+        .abort_before_birth(deadline)
+        .unwrap();
+}

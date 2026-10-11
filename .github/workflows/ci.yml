@@ -795,9 +795,9 @@ jobs:
             python3 - "$fixture/owner-tests.list" <<'PYTHON' || exit $?
           import sys
           names = [line.split(': test')[0] for line in open(sys.argv[1]) if line.rstrip().endswith(': test')]
-          expected = {'native_child::linux_supervisor_owner_tests::' + name for name in ('supervisor_birth_reuses_original_owner_for_normal_retirement', 'supervisor_birth_expired_cleanup_retains_owner_before_init', 'supervisor_birth_panic_after_adoption_consumes_original_wait', 'supervisor_root_owner_keeps_bootstrap_active_without_private_completion')}
-          if set(names) != expected or len(names) != 4:
-              raise SystemExit('original Engine binary must contain all four owner qualification tests')
+          expected = {'native_child::linux_supervisor_owner_tests::' + name for name in ('supervisor_birth_reuses_original_owner_for_normal_retirement', 'supervisor_birth_expired_cleanup_retains_owner_before_init', 'supervisor_birth_panic_after_adoption_consumes_original_wait', 'supervisor_root_owner_keeps_bootstrap_active_without_private_completion', 'supervisor_root_owner_requires_original_wait_after_authenticated_completion')}
+          if set(names) != expected or len(names) != 5:
+              raise SystemExit('original Engine binary must contain all five owner qualification tests')
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" native_child::linux_supervisor_owner_tests:: --ignored --nocapture || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
