@@ -1,0 +1,10 @@
+{
+  "run_id": 38145393829,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/38145393829",
+  "source": "0294c5c2323097204ea5c7834ced3a4eddb6ec79",
+  "success": 22,
+  "failed": [
+    "Test (macos-latest / Rust stable)"
+  ],
+  "current_source_acceptance": false
+}

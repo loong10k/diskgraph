@@ -93,6 +93,94 @@ fn empty_live_socket_returns_pending_without_waiting_for_original_deadline() {
 }
 
 #[test]
+fn lifecycle_reader_retains_actual_peer_across_idle_and_completion() {
+    let (stream, sender) = endpoints();
+    let mut reader = LinuxControlReader::new_lifecycle(stream, original_peer(), [7; 32]).unwrap();
+    let cancel = AtomicBool::new(false);
+    assert_eq!(reader.poll(&cancel).unwrap(), LinuxControlRead::Pending);
+    let mut sender = super::UnixControlWriter::new_lifecycle(sender, [7; 32]).unwrap();
+    for (sequence, notification) in [
+        ControlNotification::Ready {},
+        ControlNotification::ForegroundEnded {
+            exit_code: 0,
+            panicked: false,
+        },
+        ControlNotification::CleanupPending {},
+        ControlNotification::CleanupComplete {},
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        sender
+            .send_lifecycle(
+                notification.clone(),
+                &cancel,
+                Instant::now() + Duration::from_secs(1),
+            )
+            .unwrap();
+        assert_eq!(
+            reader.poll(&cancel).unwrap(),
+            LinuxControlRead::Frame(ControlFrame {
+                version: 2,
+                session: [7; 32],
+                sequence: sequence as u64,
+                notification,
+            })
+        );
+        assert_eq!(reader.poll(&cancel).unwrap(), LinuxControlRead::Pending);
+    }
+    drop(sender);
+    assert_eq!(
+        reader.poll(&cancel).unwrap(),
+        LinuxControlRead::ConfirmedEof
+    );
+}
+
+#[test]
+fn lifecycle_reader_requires_all_actual_credentials_and_latches_errors() {
+    let pid = unsafe { libc::getpid() };
+    let uid = unsafe { libc::getuid() };
+    let gid = unsafe { libc::getgid() };
+    for expected in [
+        peer(pid + 1, uid, gid),
+        peer(pid, uid ^ 1, gid),
+        peer(pid, uid, gid ^ 1),
+    ] {
+        let (stream, sender) = endpoints();
+        let mut reader = LinuxControlReader::new_lifecycle(stream, expected, [7; 32]).unwrap();
+        let mut sender = super::UnixControlWriter::new_lifecycle(sender, [7; 32]).unwrap();
+        let cancel = AtomicBool::new(false);
+        sender
+            .send_lifecycle(
+                ControlNotification::Ready {},
+                &cancel,
+                Instant::now() + Duration::from_secs(1),
+            )
+            .unwrap();
+        assert_eq!(reader.poll(&cancel), Err(ControlError::Protocol));
+        assert_eq!(reader.poll(&cancel), Err(ControlError::Protocol));
+    }
+}
+
+#[test]
+fn lifecycle_reader_refuses_unprepared_stream_and_legacy_frames() {
+    let (stream, _writer) = UnixStream::pair().unwrap();
+    assert!(matches!(
+        LinuxControlReader::new_lifecycle(stream, original_peer(), [7; 32]),
+        Err(ControlError::Protocol)
+    ));
+    let (stream, mut writer) = endpoints();
+    let mut reader = LinuxControlReader::new_lifecycle(stream, original_peer(), [7; 32]).unwrap();
+    writer
+        .write_all(&frame(0, ControlNotification::Ready {}))
+        .unwrap();
+    assert_eq!(
+        reader.poll(&AtomicBool::new(false)),
+        Err(ControlError::Protocol)
+    );
+}
+
+#[test]
 fn unprepared_socket_is_refused() {
     let (stream, _writer) = UnixStream::pair().unwrap();
     assert!(matches!(

@@ -1,0 +1,42 @@
+{
+  "base_commit": "6b1fc1ab2d918f2385b7492f12d261631ac619cd",
+  "source_sha256": {
+    "control_receiver.rs": "66b15088b5378ac6e23fe8a9d00fa0e2c6309effa66f702b08dd9ba235fafc87",
+    "unix_control_writer.rs": "9b131aa308a462cf2cb055f82e239894aaab3d98897a18844a65deb96d091716",
+    "linux_control_reader.rs": "9cf0594d894b8d063de070e92631718c0cc9a05f394c1d8e199d1d460f108ffe",
+    "lifecycle_control_tests.rs": "64692008502504cb72a407d22304717100d97f3e7b38e53bc35f1488c45705c7",
+    "linux_control_reader_tests.rs": "0c906f940950687a537d8f1e3c2ddcfa55c19503f33a67dc2a3ef1ad4f28b8a2",
+    "mod.rs": "da5b380f52ec640921608869bfbf011cfd2f01c413ecbce66f2159354020e52b"
+  },
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "reason": "version 2 lifetime contract absent from legacy receiver; not a legacy security defect"
+  },
+  "local_green": {
+    "protocol_and_actual_unix_write": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  "legacy_supervisor_regression": {
+    "passed": 8,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "local_workspace_attempt": {
+    "green": false,
+    "cli_passed": 71,
+    "cli_failed": 23,
+    "cause": "required trusted macOS worker absent; Business(Unsupported); no desktop installation"
+  },
+  "linux_lifecycle_reader_native_run": false,
+  "three_platform_service_acceptance": false,
+  "public_authorization_windows_changed": false,
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "old_protocol_deadline_preserved": true,
+  "workspace_clippy_passed": true
+}

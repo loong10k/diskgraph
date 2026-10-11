@@ -12,7 +12,7 @@ pub struct LinuxControlReader {
     stream: UnixStream,
     peer: LinuxSupervisorPeer,
     receiver: ControlReceiver,
-    deadline: Instant,
+    deadline: Option<Instant>,
     pending: VecDeque<ControlFrame>,
     failure: Option<ControlError>,
     ended: bool,
@@ -47,6 +47,31 @@ impl LinuxControlReader {
         session: [u8; 32],
         deadline: Instant,
     ) -> Result<Self, ControlError> {
+        Self::with_receiver(
+            stream,
+            peer,
+            Some(deadline),
+            ControlReceiver::new(session, deadline),
+        )
+    }
+
+    /// 参数：stream 为出生前已准备的原私有端点，peer/session 为原内核身份及会话。
+    /// 返回：显式版本2生命周期读取责任；每次poll仅一笔非阻塞读取，不刷新公共请求期限。
+    /// 不得在旧协议超时后重建；仍须保留唯一原child与ACTIVE至实际退休。
+    pub fn new_lifecycle(
+        stream: UnixStream,
+        peer: LinuxSupervisorPeer,
+        session: [u8; 32],
+    ) -> Result<Self, ControlError> {
+        Self::with_receiver(stream, peer, None, ControlReceiver::new_lifecycle(session))
+    }
+
+    fn with_receiver(
+        stream: UnixStream,
+        peer: LinuxSupervisorPeer,
+        deadline: Option<Instant>,
+        receiver: ControlReceiver,
+    ) -> Result<Self, ControlError> {
         check_endpoint(&stream)?;
         let mut enabled: libc::c_int = 0;
         let mut length = std::mem::size_of_val(&enabled) as libc::socklen_t;
@@ -64,13 +89,13 @@ impl LinuxControlReader {
         {
             return Err(ControlError::Protocol);
         }
-        if Instant::now() >= deadline {
+        if deadline.is_some_and(|deadline| Instant::now() >= deadline) {
             return Err(ControlError::Deadline);
         }
         Ok(Self {
             stream,
             peer,
-            receiver: ControlReceiver::new(session, deadline),
+            receiver,
             deadline,
             pending: VecDeque::new(),
             failure: None,
@@ -95,7 +120,10 @@ impl LinuxControlReader {
         if cancel.load(Ordering::Acquire) {
             return Err(ControlError::Cancelled);
         }
-        if Instant::now() >= self.deadline {
+        if self
+            .deadline
+            .is_some_and(|deadline| Instant::now() >= deadline)
+        {
             return Err(ControlError::Deadline);
         }
         Ok(())

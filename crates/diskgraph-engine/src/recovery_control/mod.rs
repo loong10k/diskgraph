@@ -4,6 +4,8 @@ mod control_frame;
 mod control_notification;
 mod control_phase;
 mod control_receiver;
+#[cfg(test)]
+mod lifecycle_control_tests;
 pub use control_error::ControlError;
 pub use control_frame::ControlFrame;
 pub use control_notification::ControlNotification;

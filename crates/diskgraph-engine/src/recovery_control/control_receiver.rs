@@ -2,11 +2,14 @@ use super::control_phase::ControlPhase;
 use super::{ControlError, ControlFrame, ControlNotification};
 use std::time::Instant;
 
-/// 绑定原会话与绝对期限的私有通知接收器；来源：PF-06，无 Java 对等对象。
-/// 上限为每帧 4096、累计 65536 字节与 64 帧；不取得或释放原生资源 owner。
+/// 绑定原会话与显式协议版本的私有通知接收器；来源：PF-06，无 Java 对等对象。
+/// 每帧最多4096字节；版本1绑定原期限，版本2最多四次生命周期事件；均不释放原生 owner。
 pub struct ControlReceiver {
     session: [u8; 32],
-    deadline: Instant,
+    deadline: Option<Instant>,
+    version: u16,
+    max_bytes: usize,
+    max_frames: u64,
     charged: usize,
     sequence: u64,
     phase: ControlPhase,
@@ -21,9 +24,29 @@ impl ControlReceiver {
     /// 参数：session 为已认证监督方单向私有通道的原会话，deadline 为原绝对期限；返回：接收器。
     /// 不得用于接受前端命令；本接收器不认证 peer，也不将通知转换为物理回收证明。
     pub fn new(session: [u8; 32], deadline: Instant) -> Self {
+        Self::with_policy(session, Some(deadline), 1, 65536, 64)
+    }
+
+    /// 参数：session 为受信监督方原会话；返回：版本2生命周期接收器，最多4帧/16400字节。
+    /// 不绑定启动期限；调用方仍须认证原发送进程、执行有界I/O并保留原资源回收责任。
+    /// 不得作为请求授权、token续期或版本1超时后的自动降级路径。
+    pub fn new_lifecycle(session: [u8; 32]) -> Self {
+        Self::with_policy(session, None, 2, 4 * (4096 + 4), 4)
+    }
+
+    fn with_policy(
+        session: [u8; 32],
+        deadline: Option<Instant>,
+        version: u16,
+        max_bytes: usize,
+        max_frames: u64,
+    ) -> Self {
         Self {
             session,
             deadline,
+            version,
+            max_bytes,
+            max_frames,
             charged: 0,
             sequence: 0,
             phase: ControlPhase::AwaitReady,
@@ -49,7 +72,10 @@ impl ControlReceiver {
         if let Some(error) = self.failure {
             return Err(error);
         }
-        if Instant::now() >= self.deadline {
+        if self
+            .deadline
+            .is_some_and(|deadline| Instant::now() >= deadline)
+        {
             return Err(ControlError::Deadline);
         }
         Ok(())
@@ -65,13 +91,13 @@ impl ControlReceiver {
             .charged
             .checked_add(bytes.len())
             .ok_or(ControlError::Budget)?;
-        if self.charged > 65536 {
+        if self.charged > self.max_bytes {
             return Err(ControlError::Budget);
         }
         let mut frames = Vec::new();
         while !bytes.is_empty() {
             self.check()?;
-            if self.sequence >= 64 {
+            if self.sequence >= self.max_frames {
                 return Err(ControlError::Budget);
             }
             if self.phase == ControlPhase::Complete {
@@ -119,7 +145,10 @@ impl ControlReceiver {
     }
 
     fn accept(&mut self, frame: &ControlFrame) -> Result<(), ControlError> {
-        if frame.version != 1 || frame.session != self.session || frame.sequence != self.sequence {
+        if frame.version != self.version
+            || frame.session != self.session
+            || frame.sequence != self.sequence
+        {
             return Err(ControlError::Protocol);
         }
         self.phase = match (&self.phase, &frame.notification) {
@@ -127,10 +156,14 @@ impl ControlReceiver {
             (ControlPhase::Running, ControlNotification::ForegroundEnded { .. }) => {
                 ControlPhase::ForegroundEnded
             }
-            (
-                ControlPhase::ForegroundEnded | ControlPhase::Recovering,
-                ControlNotification::CleanupPending {},
-            ) => ControlPhase::Recovering,
+            (ControlPhase::ForegroundEnded, ControlNotification::CleanupPending {}) => {
+                ControlPhase::Recovering
+            }
+            (ControlPhase::Recovering, ControlNotification::CleanupPending {})
+                if self.version == 1 =>
+            {
+                ControlPhase::Recovering
+            }
             (
                 ControlPhase::ForegroundEnded | ControlPhase::Recovering,
                 ControlNotification::CleanupComplete {},
