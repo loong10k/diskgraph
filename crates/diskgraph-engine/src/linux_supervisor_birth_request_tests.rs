@@ -74,6 +74,7 @@ fn v2_requires_private_control_descriptor_and_rejects_legacy_downgrade() {
     let mut value = request();
     value["schema_version"] = json!(2);
     value["control_fd"] = json!(9);
+    value["service_gid"] = json!(1001);
     assert!(
         LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_ok(),
         "authenticated v2 control birth must be accepted"
@@ -85,4 +86,26 @@ fn v2_requires_private_control_descriptor_and_rejects_legacy_downgrade() {
     value["schema_version"] = json!(1);
     value["control_fd"] = json!(9);
     assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
+}
+
+#[test]
+fn v2_missing_primary_group_is_refused_instead_of_accepting_unbound_identity() {
+    let mut value = request();
+    value["schema_version"] = json!(2);
+    value["control_fd"] = json!(9);
+    assert!(
+        LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err(),
+        "v2 must bind the dedicated primary group before admission"
+    );
+}
+
+#[test]
+fn v2_privileged_or_reserved_primary_group_is_refused() {
+    for gid in [0, u32::MAX] {
+        let mut value = request();
+        value["schema_version"] = json!(2);
+        value["control_fd"] = json!(9);
+        value["service_gid"] = json!(gid);
+        assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
+    }
 }

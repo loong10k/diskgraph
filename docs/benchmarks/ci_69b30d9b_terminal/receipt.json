@@ -1,0 +1,16 @@
+{
+  "source": "69b30d9b277110e77cec9b824c2b2fb18185812a",
+  "run": 38118991414,
+  "conclusion": "failure",
+  "jobs_successful": 22,
+  "jobs_total": 23,
+  "failed_job": 114409686821,
+  "failed_target": "reset_does_not_promote_ready_invalid_packet_or_eof_to_success",
+  "windows_msrv_full_success": true,
+  "windows_stable_full_success": true,
+  "macos_intel_full_success": true,
+  "linux_v1_birth_x86_msrv_and_stable_success": true,
+  "v2_source_qualified": false,
+  "supervisor_service_lifecycle_qualified": false,
+  "earlier_windows_494ms_cause_resolved": false
+}

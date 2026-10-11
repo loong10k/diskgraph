@@ -43,6 +43,15 @@ impl LinuxSupervisorBirth {
         if uid != request.service_uid || unsafe { libc::getuid() } != uid {
             return Err(BusinessError::PermissionDenied.into());
         }
+        // v2 专用服务不能只匹配 UID 后继续携带 root 主组或继承的补充组。
+        // v1 为既有可信构造兼容路径；独立服务发行与公共 broker 必须使用 v2。
+        if let Some(gid) = request.service_gid
+            && (unsafe { libc::getgid() } != gid
+                || unsafe { libc::getegid() } != gid
+                || unsafe { libc::getgroups(0, std::ptr::null_mut()) } != 0)
+        {
+            return Err(BusinessError::PermissionDenied.into());
+        }
         let deadline = request.deadline.adopt(Duration::from_secs(30))?;
         let text = descriptor.to_str().ok_or(BusinessError::PermissionDenied)?;
         if text.is_empty() || text.len() > 10 || !text.bytes().all(|b| b.is_ascii_digit()) {

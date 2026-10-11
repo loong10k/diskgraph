@@ -1,0 +1,27 @@
+{
+  "baseline_source": "222a3dc7c07d548b9002c4897be778a0abb39b6c",
+  "red": {
+    "passed": 0,
+    "failed": 1
+  },
+  "parser_green": {
+    "passed": 6,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "clippy": "macOS ARM64 Engine/CLI all targets passed; Linux conditional body not compiled locally",
+  "native_group_refusal_qualified": false,
+  "native_cases": 14,
+  "v1_trusted_compatibility_preserved": true,
+  "v2_primary_group_bound": true,
+  "v2_supplementary_groups_empty_required": true,
+  "database_and_capability_windows_changed": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "b33c51bbda9c96da94011eb1e62b3519af33001636c628299b790b5e62e094e7",
+    "crates/diskgraph-engine/src/linux_supervisor_birth_request.rs": "493156b591d74c9e765080ee60f8c08d378c796380edaeeb5d0c83e7df7c6001",
+    "scripts/qualify_linux_supervisor_birth.py": "0cc9fe009700a366c2ba270d538ac8f9a2c840245cdcf6d35b6cf72dd991d5f6"
+  }
+}

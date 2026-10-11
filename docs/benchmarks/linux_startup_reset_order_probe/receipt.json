@@ -1,0 +1,14 @@
+{
+  "source": "222a3dc7c07d548b9002c4897be778a0abb39b6c",
+  "image": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "cases": 3,
+  "iterations_per_case": 1000,
+  "production_handshake_executed": false,
+  "original_ci_failure_reproduced": false,
+  "network": "none",
+  "container_retired": {
+    "id": "2177ff0d9498df9534ce3d93e2ee17a07f4883bc7caf2b03b9b43f13c8bcc620",
+    "inspect_exit": 1,
+    "stderr": "error: no such object: 2177ff0d9498df9534ce3d93e2ee17a07f4883bc7caf2b03b9b43f13c8bcc620"
+  }
+}

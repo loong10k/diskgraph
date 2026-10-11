@@ -10,6 +10,7 @@ import shutil
 import socket
 import stat
 import struct
+from functools import partial
 import subprocess
 import sys
 import tempfile
@@ -19,9 +20,9 @@ SERVICE_UID = 23111
 FRONTEND_UID = 23112
 
 
-def demote():
-    os.setgroups([])
-    os.setgid(SERVICE_UID)
+def demote(primary_gid=SERVICE_UID, groups=()):
+    os.setgroups(list(groups))
+    os.setgid(primary_gid)
     os.setuid(SERVICE_UID)
 
 
@@ -44,7 +45,7 @@ def run_case(prefix, binary, worker, case):
              os.open('/proc/self/ns/user', os.O_RDONLY), os.open('/proc/self/ns/mnt', os.O_RDONLY)]
     domain_file = os.open('/proc/self/ns/time', os.O_RDONLY)
     domain = os.fstat(domain_file); os.close(domain_file)
-    request = {'schema_version': 2, 'control_fd': control_child.fileno(), 'nonce': os.urandom(32).hex(), 'service_uid': SERVICE_UID,
+    request = {'schema_version': 2, 'control_fd': control_child.fileno(), 'nonce': os.urandom(32).hex(), 'service_uid': SERVICE_UID, 'service_gid': SERVICE_UID,
                'frontend_uid': FRONTEND_UID, 'state_root': str(state), 'data_dir': str(data),
                'worker_path': str(worker), 'worker_sha256': hashlib.sha256(worker.read_bytes()).hexdigest(),
                'worker_bytes': worker.stat().st_size,
@@ -70,9 +71,10 @@ def run_case(prefix, binary, worker, case):
         process = subprocess.Popen([str(binary), '--json', '--data-dir', str(actual_data), 'doctor'],
                                    env=env, cwd=root, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   pass_fds=(child.fileno(), control_child.fileno(), *((files[0],) if case == 'wrong_type_control' else ())), preexec_fn=demote)
+                                   pass_fds=(child.fileno(), control_child.fileno(), *((files[0],) if case == 'wrong_type_control' else ())), preexec_fn=partial(demote, primary_gid=0 if case == 'wrong_gid' else SERVICE_UID,
+                                                     groups=(0,) if case == 'supplementary_groups' else ()))
         child.close(); control_child.close()
-        if case not in ('forged_role', 'expired', 'stdio_control', 'legacy_control'):
+        if case not in ('forged_role', 'expired', 'stdio_control', 'legacy_control', 'wrong_gid', 'supplementary_groups'):
             if case == 'wrong_sender':
                 sender_pid = os.fork()
                 if sender_pid == 0:
@@ -120,7 +122,8 @@ def run_case(prefix, binary, worker, case):
                  'wrong_session': 'permission_denied', 'wrong_sender': 'permission_denied', 'wrong_data': 'permission_denied',
                  'expired': 'budget_exceeded', 'wrong_image': 'conflict',
                  'aliased_control': 'permission_denied', 'stdio_control': 'permission_denied',
-                 'legacy_control': 'permission_denied', 'wrong_type_control': 'permission_denied'}
+                 'legacy_control': 'permission_denied', 'wrong_type_control': 'permission_denied',
+                 'wrong_gid': 'permission_denied', 'supplementary_groups': 'permission_denied'}
         passed = (process.returncode == 0 and len(replies) == 1 and replies[0].get('ok') is True
                   and (data / 'diskgraph.sqlite').is_file() and slot.read_bytes() == b'DGSL01C\n') if positive else (
                   process.returncode != 0 and not actual_data.exists()
@@ -171,7 +174,7 @@ def qualify(binary, worker, output):
               'services_registered': False, 'fixture_ancestry': ancestry,
               'images': receipts, 'cases': []}
     try:
-        for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data', 'aliased_control', 'stdio_control', 'legacy_control', 'wrong_type_control'):
+        for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data', 'aliased_control', 'stdio_control', 'legacy_control', 'wrong_type_control', 'wrong_gid', 'supplementary_groups'):
             result['cases'].append(run_case(prefix, images / 'diskgraph', images / 'diskgraph-scan-worker', case))
         result['passed'] = all(case['passed'] for case in result['cases'])
         output.parent.mkdir(parents=True, exist_ok=True)

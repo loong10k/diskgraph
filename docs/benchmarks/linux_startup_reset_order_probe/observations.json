@@ -1,0 +1,38 @@
+{
+  "platform": {
+    "system": "Linux",
+    "node": "2177ff0d9498",
+    "release": "7.0.14-linuxkit",
+    "version": "#1 SMP PREEMPT Sun Sep 20 16:14:09 UTC 2026",
+    "machine": "aarch64"
+  },
+  "scope": "raw Linux seqpacket receive ordering; no production handshake qualification",
+  "results": [
+    {
+      "queued_packet": [
+        1,
+        0,
+        0
+      ],
+      "observations": {
+        "['errno:104', 'packet:(1, 0, 0)']": 1000
+      }
+    },
+    {
+      "queued_packet": [
+        2,
+        99,
+        13
+      ],
+      "observations": {
+        "['errno:104', 'packet:(2, 99, 13)']": 1000
+      }
+    },
+    {
+      "queued_packet": null,
+      "observations": {
+        "['errno:104', 'EOF']": 1000
+      }
+    }
+  ]
+}

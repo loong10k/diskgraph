@@ -61,3 +61,9 @@ CLI v2 在实际 Engine 构造、ACTIVE 及原 SupervisorOwner 绑定后发送 R
 共享解析真实 RED0/1→GREEN4/0，macOS兼容host9/0、源码规范6/0、两包Clippy通过；不把它们当作Linux条件代码的编译/运行证据。新增实际二进制脚本覆盖12场景，包括原child逐消息身份、完整三帧正控、FD别名、stdio、降级与实际目录FD反例。Linux同源码执行仍待CI，不勾选服务父项。
 
 69b30d9b LinuxARM全量CI另发现 linux_atomic_startup_reset_tests 的现有reset顺序断言失败，761/1/10；实际panic只有泛化错误，尚不能确认内核返回哪种状态。保留原断言，新增kind/phase/errno、EOF、Pending诊断供原生复验；不改握手、权限或预算，不把诊断视为该问题已修复。
+
+## v2 专用服务组身份补验
+
+v2 原材料新增必须绑定的非 root 主GID，缺失、0、保留哨兵均拒绝；出生前核对实际 real/effective GID，并要求补充组已清空。root broker 须在出生层先清空补充组再设置主GID/UID，不能将有root组权限的进程仅凭非root UID视为专用服务。v1 无新增字段的可信兼容路径保持。缺失GID真实RED0/1→共享解析GREEN6/0，规范6/0、两包Clippy通过；Linux条件运行尚待验收。原生脚本新增主GID0和补充root组的实际反例，总14场景，不据本机解析通过关闭原生或服务父门禁。证据见linux_supervisor_primary_group/。
+
+69b30d9b 原CI已终态22/23成功，仅LinuxARM原握手reset测试失败；两个Windows全量和macOS Intel通过，Linuxx86两套v1构造门禁通过。该旧源码结果不证明新v2代码资格，也不证明先前Windows494ms失败根因已消失。完整终态见ci_69b30d9b_terminal/。Linux7 ARM隔离内核三种packet各1000次探针均观察到先reset再packet/EOF，未复现原CI异常，生产断言及预算未修改；待新诊断提供实际异常状态。见linux_startup_reset_order_probe/。

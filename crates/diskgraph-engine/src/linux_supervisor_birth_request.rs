@@ -21,6 +21,8 @@ pub(crate) struct LinuxSupervisorBirthRequest {
     pub(crate) deadline: ClockStamp,
     #[serde(default)]
     pub(crate) control_fd: Option<u32>,
+    #[serde(default)]
+    pub(crate) service_gid: Option<u32>,
 }
 
 impl LinuxSupervisorBirthRequest {
@@ -49,9 +51,13 @@ impl LinuxSupervisorBirthRequest {
                         .all(|c| !c.is_empty() && c != "." && c != "..")
             })
         };
-        let valid_control = match (request.schema_version, request.control_fd) {
-            (1, None) => true,
-            (2, Some(fd)) => (3..=i32::MAX as u32).contains(&fd),
+        let valid_control = match (
+            request.schema_version,
+            request.control_fd,
+            request.service_gid,
+        ) {
+            (1, None, None) => true,
+            (2, Some(fd), Some(gid)) => (3..=i32::MAX as u32).contains(&fd) && valid_id(gid),
             _ => false,
         };
         if !valid_control

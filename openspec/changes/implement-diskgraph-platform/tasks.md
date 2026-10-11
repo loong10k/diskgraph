@@ -361,3 +361,5 @@ Windows revision回调夹具：将新revision全部材料由逐条autocommit改�
 监督原owner/私有通知绑定组件增量：真实原预留Pending却被独立raw encoder声明Complete的缺接线回归RED0/1→绑定组件GREEN8/0；原owner回归9/0、规范6/0、全目标Clippy及格式通过。组件不认证通道，不执行原生child，尚未接入CLI/MCP/服务；父生命周期与三平台门禁继续开放。见docs/benchmarks/supervisor_control_owner_binding/receipt.json。
 
 Linux v2 doctor出生已接原控制描述符／原owner退休通知：解析RED0/1→本机GREEN4/0，兼容CLI9/0、源码规范6/0、Engine/CLI全目标Clippy与格式通过。Linux条件编译与12场景原生执行待CI；公共broker、bootstrap原child寿命、有限客户端EOF、MCP与其他平台服务仍未实现。69b LinuxARM原reset顺序测试失败保持，新增观测诊断不视为修复。见linux_supervisor_birth_constructor.md及docs/benchmarks/linux_supervisor_control_v2/receipt.json。
+
+v2服务组身份增量：补绑定非root主GID、实际real/effective组及空补充组，缺失GID回归RED0/1→共享GREEN6/0、规范6/0、两包Clippy通过；原生14场景待新CI。69b旧源码CI终态22/23成功，LinuxARM reset原断言仍失败，保留具体差距；新源码服务父门禁继续开放。详见linux_supervisor_birth_constructor.md及对应原始证据。
