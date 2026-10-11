@@ -1,0 +1,8 @@
+{
+  "run": 38156782330,
+  "job": 114521282879,
+  "source": "ae6751e89ed493fa4b9b39ede75a09a411660c1a",
+  "failure": "Linux E0308: helper already accepts &msghdr; CMSG_FIRSTHDR and CMSG_NXTHDR received &&msghdr",
+  "change": "Pass original borrowed msghdr directly; ancillary close, validation and error ordering unchanged",
+  "native_fixed_validation_passed": false
+}

@@ -11,7 +11,7 @@ pub(super) fn inspect_credentials(
 ) -> Result<Option<libc::ucred>, ControlError> {
     let mut credentials = None;
     let mut valid = true;
-    let mut header = unsafe { libc::CMSG_FIRSTHDR(&message) };
+    let mut header = unsafe { libc::CMSG_FIRSTHDR(message) };
     while !header.is_null() {
         let base = unsafe { libc::CMSG_LEN(0) } as usize;
         let length = unsafe { (*header).cmsg_len };
@@ -49,7 +49,7 @@ pub(super) fn inspect_credentials(
         } else {
             valid = false;
         }
-        header = unsafe { libc::CMSG_NXTHDR(&message, header) };
+        header = unsafe { libc::CMSG_NXTHDR(message, header) };
     }
     if !valid || message.msg_flags & (libc::MSG_TRUNC | libc::MSG_CTRUNC) != 0 {
         return Err(ControlError::Protocol);
