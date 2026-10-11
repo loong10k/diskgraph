@@ -389,3 +389,11 @@ MCP监督生命周期接线增量：Linux standalone MCP仅接受原认证schema
 原生竞争观测增量：e49 macOS MSRV强制门禁在注入150ms唤醒迟延后约260ms拒绝，断言前actual_hold仍None，保留真实失败，不据此认定仅环境原因。夹具现在先固定查询/终检计时，再join同一持锁线程取得实际持锁时长；原五场景、250/50ms与60ms短请求及通过条件不变。本机五场景整项1/0，500ms实际持锁仍约250ms拒绝，短请求约60ms拒绝；Engine Clippy与fmt通过，新原生验收待CI。见terminal_contention_joined_observation/。
 
 e49ee361完整CI终态：38149478669已完成19/23成功、4失败、0取消，两套Windows与五种原生包均成功。三个Linux原owner门禁均为第五项非阻塞角色4/1；macOS MSRV人工竞争门禁失败，真实HTTP生命周期8/0保持。原始终态及四份失败job日志见ci_e49ee361_terminal/；不得据旧源码证明后续MCP/schema3实现。当前MCP接线另外通过本机真实启动拒绝4/0、HTTP/SSE生命周期8/0，原生监督MCP与服务父门禁仍开放。
+
+公共输出增量：已实现独占Unix输出端、4096字节单块、原deadline/取消与写失败锁存、逐socket SIGPIPE防护和真实EOF；Linux原父owner只在实际逐消息认证ForegroundEnded且原stdout内核缓冲已排空后关闭公共端，保持原child/ACTIVE。FIONREAD防止原read返回EINTR被误当排空。组件本机3/0、规范6/0、workspace Clippy、OpenSpec通过；第五项root原生验收新增EOF先于wait/ACTIVE释放断言，尚未执行新源码，不勾选服务父项。见foreground_output_delivery/。
+
+69931541真实LinuxARM归档独立隔离验收：20/20出生场景及额外三项不完整MCP配置拒绝通过，原子进程均由原Popen wait；原归档与workflow SHA已核验。首次tmpfs noexec是环境故障，次轮18/20的两项失败是夹具误把既有PermissionDenied退出码3写成6；只修正资格脚本及二进制测试断言，生产拒绝行为不变，保留原始失败。当前整体CI仍在运行，输出端新源码未获原生证明，服务父项保持开放。见linux_supervisor_699_native/。
+
+格式验证更正：此前本机使用的cargo fmt --all --exclude参数不受当前工具支持，相关记录不能算通过；MCP接线和竞争观测回执已明确标注旧命令无效。当前依据cargo metadata列出的10个workspace包逐个显式指定--package重新check通过，不包含vendored upstream；新正确日志独立保存，不倒填旧来源证明。
+
+公共输出失败EOF补验：真实超时/取消后socket仍未关闭回归RED0/1，失败时同步关闭公共端并保留原交付错误后GREEN3/0；源规范6/0、workspace Clippy、显式10包fmt与OpenSpec通过。69931541 Linux x86 stable/MSRV两份原job确认六项真实root owner均6/0（含修正屏障及原启动期限过期后的生命周期），两job总体失败来自已定位的退出码夹具错误，不能把子门禁通过叫做整体CI通过，也不能用于证明新增公共EOF接线。

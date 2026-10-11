@@ -19,7 +19,7 @@
     "ignored": 0
   },
   "workspace_clippy_passed": true,
-  "workspace_fmt_passed": true,
+  "workspace_fmt_passed": false,
   "python_syntax_passed": true,
   "native_fixed_mcp_qualified": false,
   "public_broker_qualified": false,
@@ -49,5 +49,7 @@
     "passed": 8,
     "failed": 0,
     "ignored": 0
-  }
+  },
+  "prior_format_command_invalid": true,
+  "current_explicit_workspace_fmt_evidence": "docs/benchmarks/foreground_output_delivery/workspace_fmt_correct.log.gz"
 }

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "local_platform": "macOS ARM64",
+  "tests": {
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0
+  },
+  "initial_failure": "fixture closed peer before Darwin socket configuration; 2 passed/1 failed; not missing-behavior RED",
+  "source_layout": {
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  "workspace_clippy_passed": true,
+  "workspace_fmt_correct_passed": true,
+  "format_correction": "prior --exclude command is unsupported; retained error log; explicit 10 workspace packages checked without vendor",
+  "linux_native_parent_forwarding_qualified": false,
+  "public_broker_qualified": false,
+  "three_platform_services_qualified": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs": "d73f4a90bb9ca557d7c0f613f6b40f198c0b3d5bcf08ae45a1fb81cb25bdfdf5",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_process.rs": "f38dda89f6f73ca4b3c05b7ace4375b5b7168fe5b8ed9e0fcac57ead413e529b",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_owner_tests.rs": "717e9c3f63554ff33fd0cfccffbb59a8ddb505c3ba4c0e50ca63d33fe0f23135",
+    "crates/diskgraph-engine/src/recovery_control/mod.rs": "1fcb302e3f4f31d3f344c46b96ee468ae0f1b221b0a15436b185505576a03243",
+    "crates/diskgraph-engine/src/recovery_control/unix_foreground_output.rs": "9290c2382a613a9908c8cf3403a6a1aa5ab16e596d9e8a0ebd80234b6c552d3f",
+    "crates/diskgraph-engine/src/recovery_control/unix_foreground_output_tests.rs": "3e6c0da64c9d384412ca9c5dbc1ec0d1f4882260bec7e7b22ba9e5da9f581bf8"
+  },
+  "failure_eof_red": {
+    "passed": 0,
+    "failed": 1,
+    "cause": "expired/cancelled output latched but peer still blocked without explicit finish"
+  },
+  "failure_eof_green": {
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0
+  }
+}

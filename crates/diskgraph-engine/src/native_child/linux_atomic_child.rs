@@ -100,6 +100,22 @@ impl LinuxAtomicChild {
         )
     }
 
+    /// 参数：无；返回：原stdout内核管道是否仍有可读字节；EINTR不等于排空，不建立退出许可。
+    pub(super) fn stdout_has_buffered_bytes(&self) -> Result<bool, ChildError> {
+        let Some(pipe) = self.pipes.stdout.as_ref() else {
+            return Ok(false);
+        };
+        let mut bytes: libc::c_int = 0;
+        let result = unsafe { libc::ioctl(pipe.as_raw_fd(), libc::FIONREAD, &mut bytes) };
+        if result != 0 {
+            return Err(ChildError::io(
+                "observe original stdout bytes",
+                io::Error::last_os_error(),
+            ));
+        }
+        Ok(bytes > 0)
+    }
+
     /// 参数：无；返回：一笔至多4096字节的借用 stderr，调用方公平排空两端。
     pub(crate) fn read_stderr(&mut self) -> Result<Option<&[u8]>, ChildError> {
         read_once(

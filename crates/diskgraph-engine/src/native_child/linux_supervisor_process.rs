@@ -1,6 +1,8 @@
 use super::ChildSpawnError;
 use super::linux_atomic_child::LinuxAtomicChild;
-use crate::recovery_control::{LinuxControlRead, LinuxControlReader};
+use crate::recovery_control::{
+    ControlNotification, LinuxControlRead, LinuxControlReader, UnixForegroundOutput,
+};
 use crate::recovery_slot::{ActiveSlot, LinuxSupervisorMaterials, LinuxSupervisorTrust};
 use std::io;
 use std::sync::atomic::AtomicBool;
@@ -17,6 +19,8 @@ pub struct LinuxSupervisorProcess {
     control_eof: bool,
     retired_child: bool,
     slot: Option<ActiveSlot>,
+    foreground: Option<UnixForegroundOutput>,
+    foreground_ended: bool,
 }
 
 impl LinuxSupervisorProcess {
@@ -30,6 +34,8 @@ impl LinuxSupervisorProcess {
             control_eof: false,
             retired_child: false,
             slot: Some(slot),
+            foreground: None,
+            foreground_ended: false,
         }
     }
 
@@ -57,7 +63,51 @@ impl LinuxSupervisorProcess {
         if matches!(&read, LinuxControlRead::ConfirmedEof) {
             self.control_eof = true;
         }
+        if matches!(&read, LinuxControlRead::Frame(frame) if matches!(frame.notification, ControlNotification::ForegroundEnded { .. }))
+        {
+            self.foreground_ended = true;
+        }
         Ok(read)
+    }
+
+    /// 参数：output为宿主已认证前端的原公共输出owner；返回：一次绑定或拒绝，不建立调用者信任。
+    /// 此可信内部入口不接收客户端路径/描述符，不替代公共broker认证；不得与read_stdout混用。
+    pub fn attach_foreground_output(&mut self, output: UnixForegroundOutput) -> io::Result<()> {
+        if self.foreground.is_some() || self.foreground_ended || self.retired_child {
+            return Err(io::Error::other("foreground already attached or ended"));
+        }
+        self.foreground = Some(output);
+        Ok(())
+    }
+
+    /// 参数：deadline/cancel为本次原输出交付预算；返回：true表示交付一块，false表示当前无输出。
+    /// 经原逐消息认证的ForegroundEnded后排空原stdout才关闭公共端；绝不清除ACTIVE或丢原child。
+    pub fn forward_stdout_until(
+        &mut self,
+        deadline: Instant,
+        cancel: &AtomicBool,
+    ) -> io::Result<bool> {
+        let output = self
+            .foreground
+            .as_mut()
+            .ok_or_else(|| io::Error::other("original foreground output unavailable"))?;
+        let child = self
+            .child
+            .as_mut()
+            .ok_or_else(|| io::Error::other("original child unavailable"))?;
+        if let Some(bytes) = child.read_stdout().map_err(io::Error::other)? {
+            output.write_chunk_until(bytes, deadline, cancel)?;
+            return Ok(true);
+        }
+        // 原read的None也可能来自EINTR；必须独立确认旧输出已排空，不能截断仍在内核的结果。
+        if self.foreground_ended
+            && !child
+                .stdout_has_buffered_bytes()
+                .map_err(io::Error::other)?
+        {
+            output.finish()?;
+        }
+        Ok(false)
     }
 
     /// 参数：无；返回：至多4096字节借用 stdout；调用方须公平排空两输出端。

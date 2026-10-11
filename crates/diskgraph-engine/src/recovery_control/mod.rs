@@ -1,4 +1,8 @@
 //! 私有恢复控制协议；协议校验不证明原生资源回收或前端已经有限退出。
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+mod unix_foreground_output;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub use unix_foreground_output::UnixForegroundOutput;
 mod control_error;
 mod control_frame;
 mod control_notification;
@@ -8,6 +12,8 @@ mod control_receiver;
 mod lifecycle_control_tests;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod supervisor_control_lifecycle_tests;
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+mod unix_foreground_output_tests;
 pub use control_error::ControlError;
 pub use control_frame::ControlFrame;
 pub use control_notification::ControlNotification;

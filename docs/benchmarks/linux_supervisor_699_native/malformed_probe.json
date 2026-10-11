@@ -1,0 +1,29 @@
+[
+  {
+    "body_present": true,
+    "fd_present": false,
+    "exit_code": 3,
+    "data_born": false,
+    "stdout_empty": true,
+    "stderr": "failed to open the DiskGraph service: permission_denied (exit 3)\n",
+    "original_child_waited": true
+  },
+  {
+    "body_present": false,
+    "fd_present": true,
+    "exit_code": 3,
+    "data_born": false,
+    "stdout_empty": true,
+    "stderr": "failed to open the DiskGraph service: permission_denied (exit 3)\n",
+    "original_child_waited": true
+  },
+  {
+    "body_present": true,
+    "fd_present": true,
+    "exit_code": 3,
+    "data_born": false,
+    "stdout_empty": true,
+    "stderr": "failed to open the DiskGraph service: permission_denied (exit 3)\n",
+    "original_child_waited": true
+  }
+]

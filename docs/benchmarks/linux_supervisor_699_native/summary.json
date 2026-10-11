@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "source_commit": "69931541820df6ebb2bfb4380a059ef81a10fee7",
+  "run": 38153105527,
+  "artifact": 11706789729,
+  "archive_sha256": "9c3b998a251d13aa3170417d00e0ea1ee24292aca4168bc13d1eca6e90bb3ff8",
+  "native_platform": "Linux ARM64 GNU",
+  "case_count": 20,
+  "passed": 20,
+  "malformed_configuration_passed": 3,
+  "initial_execution_fault": "tmpfs noexec; retried same binaries in exec tmpfs",
+  "initial_qualification": {
+    "passed": 18,
+    "failed": 2,
+    "reason": "MCP PermissionDenied exit is 3; fixture incorrectly expected 6"
+  },
+  "fixture_sha256": "b5b86db637c0bdc1dee708864415a225a4e74013e66a1f69b54813fd3b7d619f",
+  "binary_source_unchanged_between_runs": true,
+  "production_service_qualified": false,
+  "foreground_output_change_qualified": false,
+  "desktop_service_installed": false,
+  "native_root_owner_six_cases": {
+    "linux_x86_stable_job": 114510447339,
+    "linux_x86_msrv_job": 114510447437,
+    "passed_each": 6,
+    "failed_each": 0,
+    "ignored_each": 0,
+    "source_commit": "69931541820df6ebb2bfb4380a059ef81a10fee7",
+    "qualifies_new_foreground_source": false
+  }
+}

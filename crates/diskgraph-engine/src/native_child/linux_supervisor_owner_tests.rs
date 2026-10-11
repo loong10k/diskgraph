@@ -368,6 +368,16 @@ fn supervisor_root_owner_requires_original_wait_after_authenticated_completion()
     )
     .unwrap();
     let mut owner = launcher.spawn(reservation, [7; 32], deadline).unwrap();
+    // 原公共输出与角色内部stdout分离；公共EOF必须先于原pidfd wait和bootstrap释放。
+    let (sender, mut public_receiver) = UnixStream::pair().unwrap();
+    public_receiver
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .unwrap();
+    owner
+        .attach_foreground_output(
+            crate::recovery_control::UnixForegroundOutput::new(sender).unwrap(),
+        )
+        .unwrap();
     let witness = duplicate(owner.child.as_ref().unwrap().pidfd_for_test());
     let cancel = AtomicBool::new(false);
     let mut notifications = 0;
@@ -380,6 +390,14 @@ fn supervisor_root_owner_requires_original_wait_after_authenticated_completion()
         }
     }
     assert_eq!(notifications, 3);
+    while owner.forward_stdout_until(deadline, &cancel).unwrap() {}
+    let mut output = Vec::new();
+    use std::io::Read;
+    public_receiver.read_to_end(&mut output).unwrap();
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output).unwrap()["passed"],
+        true
+    );
     assert!(
         !owner.child.as_mut().unwrap().poll().unwrap(),
         "role held by original datagram barrier"
@@ -395,12 +413,13 @@ fn supervisor_root_owner_requires_original_wait_after_authenticated_completion()
         File::open("/proc/self/ns/mnt").unwrap(),
     );
     owner.send_materials(&trust, &cancel).unwrap();
-    let mut output = Vec::new();
     loop {
         assert!(Instant::now() < deadline);
         if let Some(bytes) = owner.read_stdout().unwrap() {
-            output.extend_from_slice(bytes);
-            assert!(output.len() <= 4096);
+            assert!(
+                bytes.is_empty(),
+                "foreground role wrote after its authenticated end"
+            );
         }
         owner.read_stderr().unwrap();
         if owner.poll_retirement(deadline).unwrap() {

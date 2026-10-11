@@ -26,7 +26,7 @@ fn invalid_supervisor_birth_never_falls_back_to_local_bootstrap() {
         let output = command.output().unwrap();
         assert_eq!(
             output.status.code(),
-            Some(6),
+            Some(3),
             "{}",
             String::from_utf8_lossy(&output.stderr)
         );

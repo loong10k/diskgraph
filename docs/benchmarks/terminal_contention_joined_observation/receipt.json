@@ -23,5 +23,7 @@
   "fixed_native_ci_passed": false,
   "source_sha256": {
     "crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs": "41ec12e7442b472ea5e7de633be0711e1a4d7c278f08bdf840a1adf97aca2664"
-  }
+  },
+  "prior_format_command_invalid": true,
+  "current_explicit_workspace_fmt_evidence": "docs/benchmarks/foreground_output_delivery/workspace_fmt_correct.log.gz"
 }

@@ -158,7 +158,7 @@ def run_case(prefix, binary, worker, case):
             passed = passed and frames[1]['notification'] == {'kind': 'foreground_ended', 'exit_code': 0, 'panicked': False}
         else:
             passed = passed and not frames
-            if mcp: passed = passed and process.returncode == 6 and not replies
+            if mcp: passed = passed and process.returncode == 3 and not replies
         if case == 'active_slot': passed = passed and slot.read_bytes() == b'DGSL01A\n'
         return {'case': case, 'passed': passed, 'exit_code': process.returncode,
                 'error_code': code, 'elapsed_seconds': time.monotonic() - started,
