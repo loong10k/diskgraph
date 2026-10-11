@@ -32,6 +32,11 @@ impl SupervisorControlOwner {
         }
     }
 
+    /// 参数：无；返回：出生前原writer是否显式绑定版本2，不修改模式、期限或授权。
+    pub fn is_lifecycle(&self) -> bool {
+        self.writer.is_lifecycle()
+    }
+
     /// 参数：无；返回：前台结束前的原 Engine 引用，结束后不再提供业务入口。
     /// 借用方若保留原 Arc，真实退休仍 Pending；本方法不复制执行能力或刷新期限。
     pub fn engine(&self) -> Option<&std::sync::Arc<crate::Engine>> {

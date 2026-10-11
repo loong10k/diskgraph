@@ -109,3 +109,40 @@ fn v2_privileged_or_reserved_primary_group_is_refused() {
         assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
     }
 }
+
+#[test]
+fn v3_explicit_lifecycle_birth_binds_fixed_control_and_primary_group() {
+    let mut value = request();
+    value["schema_version"] = json!(3);
+    value["control_fd"] = json!(6);
+    value["service_gid"] = json!(1001);
+    let parsed = LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).unwrap();
+    assert_eq!(parsed.schema_version, 3);
+    assert_eq!(parsed.control_fd, Some(6));
+    assert_eq!(parsed.service_gid, Some(1001));
+}
+
+#[test]
+fn v3_refuses_changed_control_identity_or_silent_version_downgrade() {
+    for (key, invalid) in [
+        ("control_fd", json!(5)),
+        ("control_fd", json!(9)),
+        ("control_fd", json!(null)),
+        ("service_gid", json!(0)),
+        ("service_gid", json!(null)),
+        ("service_uid", json!(0)),
+        ("schema_version", json!(1)),
+        ("schema_version", json!(4)),
+        ("client_selected_command", json!("serve")),
+    ] {
+        let mut value = request();
+        value["schema_version"] = json!(3);
+        value["control_fd"] = json!(6);
+        value["service_gid"] = json!(1001);
+        value[key] = invalid;
+        assert!(
+            LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err(),
+            "accepted {key}"
+        );
+    }
+}

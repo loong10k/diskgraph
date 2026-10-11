@@ -30,7 +30,11 @@ impl CliEngineHost {
             }
         };
         let mut owner = SupervisorControlOwner::new(owner, control);
-        let ready = owner.ready(&AtomicBool::new(false));
+        let ready = if owner.is_lifecycle() {
+            owner.ready_lifecycle(&AtomicBool::new(false), deadline)
+        } else {
+            owner.ready(&AtomicBool::new(false))
+        };
         self.control_owner = Some(owner);
         // 即使 Ready 写入失败也先保存原 owner；失败沿原 execute 恢复而不是丢弃原 ACTIVE。
         ready.map_err(|_| BusinessError::RecoveryUnconfirmed.into())
@@ -54,9 +58,17 @@ impl CliEngineHost {
             Err(_) => (101, true),
         };
         let cancel = AtomicBool::new(false);
-        let mut reported = owner
-            .foreground_ended(exit_code, panicked, &cancel)
-            .is_err();
+        let notification = if owner.is_lifecycle() {
+            owner.foreground_ended_lifecycle(
+                exit_code,
+                panicked,
+                &cancel,
+                Instant::now() + Duration::from_millis(50),
+            )
+        } else {
+            owner.foreground_ended(exit_code, panicked, &cancel)
+        };
+        let mut reported = notification.is_err();
         if reported {
             eprintln!("supervisor private control unconfirmed; original recovery retained");
         }

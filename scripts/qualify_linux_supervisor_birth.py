@@ -20,7 +20,14 @@ SERVICE_UID = 23111
 FRONTEND_UID = 23112
 
 
-def demote(primary_gid=SERVICE_UID, groups=()):
+def demote(primary_gid=SERVICE_UID, groups=(), fixed_fds=None):
+    if fixed_fds is not None:
+        # 固定隔离角色模拟出生层5/6映射；先保存源再替换目标，不借FD数值证明对象身份。
+        copies = [os.dup(fd) for fd in fixed_fds]
+        for fd, target in zip(copies, (5, 6)):
+            os.dup2(fd, target)
+        for fd in copies + list(fixed_fds):
+            os.close(fd)
     os.setgroups(list(groups))
     os.setgid(primary_gid)
     os.setuid(SERVICE_UID)
@@ -36,6 +43,12 @@ def run_case(prefix, binary, worker, case):
     slot.chmod(0o600); os.chown(slot, SERVICE_UID, SERVICE_UID)
     data = root / 'data'; data.mkdir(mode=0o700); os.chown(data, SERVICE_UID, SERVICE_UID)
     data = data / 'database'
+    lifecycle = case.startswith('v3_')
+    # 仅v3夹具预留低FD，保证Popen的pass_fds集合包含原5/6；不碰外部已持有的FD。
+    scratch = [os.open('/dev/null', os.O_RDONLY | os.O_CLOEXEC) for _ in range(8)] if lifecycle else []
+    if lifecycle and not {5, 6}.issubset(scratch):
+        for fd in scratch: os.close(fd)
+        raise RuntimeError('fixed v3 fixture descriptors unavailable')
     parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_DGRAM)
     control_parent, control_child = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
     control_parent.setsockopt(socket.SOL_SOCKET, socket.SO_PASSCRED, 1)
@@ -52,6 +65,9 @@ def run_case(prefix, binary, worker, case):
                'deadline': {'version': 1, 'domain': [1, domain.st_dev, domain.st_ino],
                             'expires_nanos': time.monotonic_ns() + 30_000_000_000 - 1}}
     if case == 'wrong_type_control': request['control_fd'] = files[0]
+    if lifecycle:
+        request['schema_version'] = 3
+        request['control_fd'] = 9 if case == 'v3_wrong_control' else 6
     if case == 'aliased_control': request['control_fd'] = child.fileno()
     if case == 'stdio_control': request['control_fd'] = 1
     if case == 'legacy_control': request['schema_version'] = 1
@@ -63,7 +79,7 @@ def run_case(prefix, binary, worker, case):
     if case == 'forged_role': raw = b'{}'
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(root),
            'DISKGRAPH_LINUX_SUPERVISOR_BIRTH': raw.decode(),
-           'DISKGRAPH_LINUX_SUPERVISOR_FD': str(child.fileno())}
+           'DISKGRAPH_LINUX_SUPERVISOR_FD': str(4 if case == 'v3_wrong_materials' else 5) if lifecycle else str(child.fileno())}
     actual_data = data if case != 'wrong_data' else data.parent / 'other_database'
     started = time.monotonic()
     process = None
@@ -71,10 +87,10 @@ def run_case(prefix, binary, worker, case):
         process = subprocess.Popen([str(binary), '--json', '--data-dir', str(actual_data), 'doctor'],
                                    env=env, cwd=root, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   pass_fds=(child.fileno(), control_child.fileno(), *((files[0],) if case == 'wrong_type_control' else ())), preexec_fn=partial(demote, primary_gid=0 if case == 'wrong_gid' else SERVICE_UID,
-                                                     groups=(0,) if case == 'supplementary_groups' else ()))
+                                   pass_fds=(child.fileno(), control_child.fileno(), *((5, 6) if lifecycle else ()), *((files[0],) if case == 'wrong_type_control' else ())), preexec_fn=partial(demote, primary_gid=0 if case == 'wrong_gid' else SERVICE_UID,
+                                                     groups=(0,) if case == 'supplementary_groups' else (), fixed_fds=(child.fileno(), control_child.fileno()) if lifecycle else None))
         child.close(); control_child.close()
-        if case not in ('forged_role', 'expired', 'stdio_control', 'legacy_control', 'wrong_gid', 'supplementary_groups'):
+        if case not in ('forged_role', 'expired', 'stdio_control', 'legacy_control', 'wrong_gid', 'supplementary_groups', 'v3_wrong_control', 'v3_wrong_materials'):
             if case == 'wrong_sender':
                 sender_pid = os.fork()
                 if sender_pid == 0:
@@ -103,19 +119,19 @@ def run_case(prefix, binary, worker, case):
                 raise AssertionError('control writer does not match original child')
             actual_credentials.extend(credentials)
             controls.extend(chunk)
-            if len(controls) > 65536: raise AssertionError('control byte budget exceeded')
+            if len(controls) > (16400 if lifecycle else 65536): raise AssertionError('control byte budget exceeded')
         frames = []
         while controls:
             if len(controls) < 4: raise AssertionError('partial control prefix')
             size = struct.unpack('>I', controls[:4])[0]
             if not 0 < size <= 4096 or len(controls) < 4 + size: raise AssertionError('invalid control body')
             frames.append(json.loads(controls[4:4+size])); del controls[:4+size]
-            if len(frames) > 64: raise AssertionError('control frame budget exceeded')
+            if len(frames) > (4 if lifecycle else 64): raise AssertionError('control frame budget exceeded')
         for sequence, frame in enumerate(frames):
-            if frame['version'] != 1 or frame['session'] != list(hashlib.sha256(raw).digest()) or frame['sequence'] != sequence:
+            if frame['version'] != (2 if lifecycle else 1) or frame['session'] != list(hashlib.sha256(raw).digest()) or frame['sequence'] != sequence:
                 raise AssertionError('control version, session or sequence mismatch')
         replies = [json.loads(line) for line in out.decode().splitlines()]
-        positive = case == 'clean'
+        positive = case in ('clean', 'v3_clean')
         code = replies[0].get('error', {}).get('code') if len(replies) == 1 else None
         # 业务数据来自现有 doctor；拒绝须先于 SQLite 出生，不能用任意错误替代身份/容量语义。
         exact = {'active_slot': 'recovery_unconfirmed', 'forged_role': 'permission_denied',
@@ -123,7 +139,7 @@ def run_case(prefix, binary, worker, case):
                  'expired': 'budget_exceeded', 'wrong_image': 'conflict',
                  'aliased_control': 'permission_denied', 'stdio_control': 'permission_denied',
                  'legacy_control': 'permission_denied', 'wrong_type_control': 'permission_denied',
-                 'wrong_gid': 'permission_denied', 'supplementary_groups': 'permission_denied'}
+                 'wrong_gid': 'permission_denied', 'supplementary_groups': 'permission_denied', 'v3_wrong_control': 'permission_denied', 'v3_wrong_materials': 'permission_denied'}
         passed = (process.returncode == 0 and len(replies) == 1 and replies[0].get('ok') is True
                   and (data / 'diskgraph.sqlite').is_file() and slot.read_bytes() == b'DGSL01C\n') if positive else (
                   process.returncode != 0 and not actual_data.exists()
@@ -142,6 +158,7 @@ def run_case(prefix, binary, worker, case):
     finally:
         child.close(); parent.close(); control_child.close(); control_parent.close()
         for descriptor in files: os.close(descriptor)
+        for descriptor in scratch: os.close(descriptor)
         # timeout 不杀死原进程再宣称完成；等待原 doctor owner 自行退出，失败保留完整原错误。
         if process is not None and process.poll() is None: process.wait()
 
@@ -174,7 +191,7 @@ def qualify(binary, worker, output):
               'services_registered': False, 'fixture_ancestry': ancestry,
               'images': receipts, 'cases': []}
     try:
-        for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data', 'aliased_control', 'stdio_control', 'legacy_control', 'wrong_type_control', 'wrong_gid', 'supplementary_groups'):
+        for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data', 'aliased_control', 'stdio_control', 'legacy_control', 'wrong_type_control', 'wrong_gid', 'supplementary_groups', 'v3_clean', 'v3_wrong_control', 'v3_wrong_materials'):
             result['cases'].append(run_case(prefix, images / 'diskgraph', images / 'diskgraph-scan-worker', case))
         result['passed'] = all(case['passed'] for case in result['cases'])
         output.parent.mkdir(parents=True, exist_ok=True)

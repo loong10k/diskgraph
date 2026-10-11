@@ -1,0 +1,33 @@
+{
+  "base_commit": "0d1a625983f9acca5c3a7e76d867eed94b3f9439",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "e95f5a3c9f2f874db956e271b174126b0c4d33a52dff8edc7c269d560a2b3936",
+    "crates/diskgraph-engine/src/linux_supervisor_birth_request.rs": "504c5feef051957826e9e85d9a9ca5c0bb3c704da4f9f26705ccdd48e143470c",
+    "crates/diskgraph-engine/src/linux_supervisor_control_admission.rs": "b806ea5a65bd544bcb16c3fc6ea88d6dab2cfec6692f0acf06f6efd035974a62",
+    "crates/diskgraph-cli/src/cli_engine_host/supervised.rs": "a7a3fb3200968637eeb97799cc993ce1ed92730e9772f689c6cc5fa3aba8fa56",
+    "scripts/qualify_linux_supervisor_birth.py": "ca27569ad5a32811669e8f615af685115cecc861690ac3f38e38cde1c3fed701"
+  },
+  "parser_red": {
+    "passed": 0,
+    "failed": 1,
+    "cause": "explicit schema3 contract absent"
+  },
+  "local_parser_green": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  "engine_source_layout_passed": 6,
+  "cli_source_layout_passed": 2,
+  "workspace_clippy_passed": true,
+  "isolated_linux_arm64_python_birth_fixture_fd5_fd6_uid_gid_groups_probe": true,
+  "actual_rust_cli_v3_native_qualification": false,
+  "actual_mcp_supervisor_birth": false,
+  "three_platform_service_and_installation_complete": false,
+  "public_command_whitelist_expanded": false,
+  "desktop_service_installed": false,
+  "database_ms": 250,
+  "capability_ms": 50,
+  "original_startup_deadline_preserved": true,
+  "old_birth_schema1_and_2_preserved": true
+}

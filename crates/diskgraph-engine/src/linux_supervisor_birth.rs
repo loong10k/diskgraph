@@ -43,8 +43,8 @@ impl LinuxSupervisorBirth {
         if uid != request.service_uid || unsafe { libc::getuid() } != uid {
             return Err(BusinessError::PermissionDenied.into());
         }
-        // v2 专用服务不能只匹配 UID 后继续携带 root 主组或继承的补充组。
-        // v1 为既有可信构造兼容路径；独立服务发行与公共 broker 必须使用 v2。
+        // v2/v3专用服务不能只匹配UID后继续携带root主组或继承的补充组。
+        // v1为既有可信构造兼容路径；v3显式固定材料5/控制6及生命周期通知。
         if let Some(gid) = request.service_gid
             && (unsafe { libc::getgid() } != gid
                 || unsafe { libc::getegid() } != gid
@@ -58,7 +58,10 @@ impl LinuxSupervisorBirth {
             return Err(BusinessError::PermissionDenied.into());
         }
         let fd: libc::c_int = text.parse().map_err(|_| BusinessError::PermissionDenied)?;
-        if fd < 3 || unsafe { libc::fcntl(fd, libc::F_GETFD) } < 0 {
+        if fd < 3
+            || (request.schema_version == 3 && fd != 5)
+            || unsafe { libc::fcntl(fd, libc::F_GETFD) } < 0
+        {
             return Err(BusinessError::PermissionDenied.into());
         }
         // 在采用句柄前核对真实内核类型，拒绝普通文件、公开 stdio 或 stream 描述符。
@@ -125,7 +128,12 @@ impl LinuxSupervisorBirth {
             .control_fd
             .map(|control_fd| {
                 crate::linux_supervisor_control_admission::adopt_linux_supervisor_control(
-                    control_fd, fd, parent_pid, session, deadline,
+                    control_fd,
+                    fd,
+                    parent_pid,
+                    session,
+                    deadline,
+                    request.schema_version == 3,
                 )
             })
             .transpose()?;
@@ -162,7 +170,7 @@ impl LinuxSupervisorBirth {
         Ok((admitted.host, admitted.namespace, admitted.deadline))
     }
 
-    /// 参数：runtime 为原扫描额度，maximum_deadline 为原期限上界；返回：原固定宿主、域及 v2 控制能力。
+    /// 参数：runtime为原扫描额度，maximum_deadline为原期限上界；返回：固定宿主、域及认证控制能力。
     /// 完整交付不允许丢弃控制责任或回退到旧可信入口；本方法仍先于数据库出生。
     pub fn into_supervised_host(
         mut self,
@@ -170,7 +178,9 @@ impl LinuxSupervisorBirth {
         maximum_deadline: Instant,
     ) -> Result<crate::LinuxSupervisorAdmittedHost, EngineError> {
         self.deadline = self.deadline.min(maximum_deadline);
-        if let Some(control) = self.control.as_mut() {
+        if self.request.schema_version < 3
+            && let Some(control) = self.control.as_mut()
+        {
             control.restrict_deadline(self.deadline);
         }
         if Instant::now() >= self.deadline {

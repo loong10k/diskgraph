@@ -58,6 +58,7 @@ impl LinuxSupervisorBirthRequest {
         ) {
             (1, None, None) => true,
             (2, Some(fd), Some(gid)) => (3..=i32::MAX as u32).contains(&fd) && valid_id(gid),
+            (3, Some(6), Some(gid)) => valid_id(gid),
             _ => false,
         };
         if !valid_control

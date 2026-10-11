@@ -6,7 +6,8 @@ use std::os::unix::net::UnixStream;
 use std::time::Instant;
 
 /// 采用原 root 出生 JSON 绑定的独占私有控制 FD；来源：Linux 内核对象／PF-06。
-/// 参数：fd/birth_fd 为不同原描述符，parent_pid/session 为已认证原父与原字节摘要，deadline 不刷新。
+/// 参数：fd/birth_fd为不同原描述符，parent_pid/session绑定已认证原父及摘要，deadline不刷新。
+/// lifecycle仅来自原认证schema3；选择通知版本2，不能在旧版本超时后改变。
 /// 返回：同出生 root 创建的未命名 AF_UNIX stream writer；不能从环境值或对端声明自认证。
 pub(crate) fn adopt_linux_supervisor_control(
     fd: u32,
@@ -14,6 +15,7 @@ pub(crate) fn adopt_linux_supervisor_control(
     parent_pid: libc::pid_t,
     session: [u8; 32],
     deadline: Instant,
+    lifecycle: bool,
 ) -> Result<UnixControlWriter, EngineError> {
     if Instant::now() >= deadline {
         return Err(BusinessError::BudgetExceeded.into());
@@ -75,6 +77,10 @@ pub(crate) fn adopt_linux_supervisor_control(
     if Instant::now() >= deadline {
         return Err(BusinessError::BudgetExceeded.into());
     }
-    UnixControlWriter::new(stream, session, deadline)
-        .map_err(|_| BusinessError::PermissionDenied.into())
+    let writer = if lifecycle {
+        UnixControlWriter::new_lifecycle(stream, session)
+    } else {
+        UnixControlWriter::new(stream, session, deadline)
+    };
+    writer.map_err(|_| BusinessError::PermissionDenied.into())
 }
