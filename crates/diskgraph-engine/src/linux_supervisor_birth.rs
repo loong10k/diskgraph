@@ -13,7 +13,7 @@ use std::path::Path;
 use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
-/// root 原出生通道认证后的 Linux doctor 监督材料；来源 PF-06，无 Java 对等对象。
+/// root 原出生通道认证后的 Linux doctor 监督材料；来源：原生 PF-06，无 Java 对等对象。
 /// 原命名空间与期限保持到真实退休；不从邻接清单、远程参数或 inode 数字签发信任。
 pub struct LinuxSupervisorBirth {
     request: LinuxSupervisorBirthRequest,
@@ -144,10 +144,15 @@ impl LinuxSupervisorBirth {
             .map_err(|_| BusinessError::PermissionDenied)?;
         let expected =
             ScanWorkerHostConfig::from_expected_image(digest, self.request.worker_bytes)?;
-        let image = OpenOptions::new()
+        let mut image = OpenOptions::new()
             .read(true)
-            .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC | libc::O_NONBLOCK)
             .open(&self.request.worker_path)?;
+        crate::verify_supervisor_birth_image::verify_supervisor_birth_image(
+            &mut image,
+            &expected,
+            self.deadline,
+        )?;
         let host =
             ScanWorkerHost::new_until(image, expected, runtime, self.deadline, &mut || Ok(()))?;
         Ok((host, self.namespace, self.deadline))

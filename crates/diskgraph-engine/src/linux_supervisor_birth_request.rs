@@ -4,7 +4,7 @@ use diskgraph_core::BusinessError;
 use serde::Deserialize;
 use std::path::PathBuf;
 
-/// root 出生层签发的单次 doctor 启动材料；原生 PF-06，无 Java 对等对象。
+/// root 出生层签发的单次 doctor 启动材料；来源：原生 PF-06，无 Java 对等对象。
 /// JSON 摘要必须由私有通道的 root 内核凭据确认；解析成功本身不授予身份。
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -347,3 +347,9 @@ The internal Linux doctor role SHALL bind the exact bounded startup JSON digest 
 - **WHEN** private credentials/session, schema/version, service identity, original deadline, image expectation or data directory binding fails, or the original service slot is ACTIVE
 - **THEN** startup refuses before database creation, internal-role configuration never grants local compatibility fallback, and ACTIVE is not reset
 - **AND** the internal role accepts only the existing JSON doctor command until separately qualified protocol roles are implemented
+
+#### Scenario: A wrong same-length worker digest refuses even when doctor does not spawn a scan
+- **WHEN** authenticated birth materials contain a worker digest different from the original held image but the byte length is correct
+- **THEN** supervision startup hashes the entire original ordinary file within its remaining startup deadline and refuses with Conflict before Engine/database creation
+- **AND** the verifier allocates only a fixed 64KiB buffer, never reads beyond the remaining expected bytes, checks high precision object metadata, and rewinds the same held file only after full confirmation
+- **AND** the trusted internal ScanWorkerHost constructor retains its existing deferred execution validation semantics

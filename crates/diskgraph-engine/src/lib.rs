@@ -470,3 +470,6 @@ mod linux_supervisor_birth_request;
 mod linux_supervisor_birth;
 #[cfg(target_os = "linux")]
 pub use linux_supervisor_birth::LinuxSupervisorBirth;
+
+#[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
+mod verify_supervisor_birth_image;

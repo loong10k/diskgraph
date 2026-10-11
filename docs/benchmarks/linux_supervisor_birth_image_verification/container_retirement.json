@@ -1,0 +1,6 @@
+{
+  "container_id": "6a924e3f6f9c885a3634a3a82479f605c42ed7ff4557c09b96df973f15374930",
+  "inspect_exit_code": 1,
+  "stdout": "[]\n",
+  "stderr": "error: no such object: 6a924e3f6f9c885a3634a3a82479f605c42ed7ff4557c09b96df973f15374930\n"
+}

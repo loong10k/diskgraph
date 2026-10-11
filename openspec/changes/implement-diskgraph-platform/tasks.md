@@ -351,3 +351,5 @@ Linux监督安装准备增量：独立归档SHA／root独占副本／固定三�
 250ms 同源码原生 CI 终检：0e90fb38／38066204452 已完成23/23 success；保留终态原始JSON及源码摘要回执。仅关闭本次窗口改动的原生CI缺口；独立监督服务与安装准备后续源码尚未取得对应全量CI，不勾选父项。
 
 Linux监督doctor构造增量：root原父消息凭据绑定JSON摘要／原目录与ns／ClockStamp／固定服务UID槽已接入CLI构造；共享解析RED1/2→macOS GREEN3/0，兼容host9/0与两包Clippy通过。新Linux分支尚未原生编译/验收，八场景脚本及CI已配置待执行；公共broker、bootstrap原child owner、私有退休确认和有限前端退出仍未实现。不据构造接线勾选监督父项。见linux_supervisor_birth_constructor.md及对应receipt.json。
+
+5371e15 LinuxARM实际构造验收7/1：同长度错误镜像SHA因内部Host延迟校验而创建数据库。监督入口已补完整有界SHA和高精度原对象观察，保持旧内部API语义；本机helper3/0，修复后的同源码Linux验收待执行。保留原7/1真实失败、实际child wait及原容器移除证据，不勾选监督父项。

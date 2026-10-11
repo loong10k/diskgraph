@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "native_red_observed_fix_implemented_requalification_pending",
+  "prior_source_sha": "5371e15fdafdceea8bbe4cfd34e92b93b874de11",
+  "ci_run_id": 38071033060,
+  "package_job_id": 114268457791,
+  "package_job_conclusion": "success",
+  "archive_sha256": "d4d800eb39fbd20e450b76847a8865d77ed965dab42a52fca56b77642746557b",
+  "source_checkout_and_archive_digest_observed_in_original_job_log": true,
+  "old_constructor_native_results": {
+    "passed": 7,
+    "failed": 1,
+    "wrong_digest_was_accepted_and_database_created": true,
+    "children_all_waited": true,
+    "original_container_retired": true
+  },
+  "helper_macos_tests": {
+    "passed": 3,
+    "failed": 0
+  },
+  "new_source_linux_qualified": false,
+  "overall_ci_terminal_success": false,
+  "supervisor_service_qualified": false,
+  "executed_fixture_sha256": "fbdd51fa5f9cd501f6ca58af43c48b3c0f19362da0e4f8f8371352659fbf020c",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/verify_supervisor_birth_image.rs": "14327d045d23664f3ae53d7fff1e977a2c1a249c949bbcb3fcfe22144c27f77b",
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "29dfbaf8b6465a8b2b69eeaa73b9918a956c2f250d68f267fd9adbfd12f903b5",
+    "scripts/qualify_linux_supervisor_birth.py": "f0cb637e28a5c111d5ee3ccd32d4d9d5a7873f1836a3cef91e130dd7f918cd1a",
+    "crates/diskgraph-engine/src/linux_supervisor_birth_request.rs": "3b160b30e291aa2ee0e2bc6a53333e8e8f3e0b9d667b13dffc79e19587465a7e"
+  },
+  "original_matrix_failed_step": "Test engine and entry packages",
+  "original_matrix_failed_target": "diskgraph-engine --test source_layout",
+  "original_matrix_failed_objects": [
+    "LinuxSupervisorBirthRequest",
+    "LinuxSupervisorBirth"
+  ],
+  "original_matrix_issue": "missing required Chinese source marker; documentation fixed without relaxing gate",
+  "source_layout_macos_green": {
+    "passed": 6,
+    "failed": 0
+  }
+}

@@ -85,7 +85,7 @@ def run_case(prefix, binary, worker, case):
         # 业务数据来自现有 doctor；拒绝须先于 SQLite 出生，不能用任意错误替代身份/容量语义。
         exact = {'active_slot': 'recovery_unconfirmed', 'forged_role': 'permission_denied',
                  'wrong_session': 'permission_denied', 'wrong_sender': 'permission_denied', 'wrong_data': 'permission_denied',
-                 'expired': 'budget_exceeded'}
+                 'expired': 'budget_exceeded', 'wrong_image': 'conflict'}
         passed = (process.returncode == 0 and len(replies) == 1 and replies[0].get('ok') is True
                   and (data / 'diskgraph.sqlite').is_file() and slot.read_bytes() == b'DGSL01C\n') if positive else (
                   process.returncode != 0 and not actual_data.exists()
