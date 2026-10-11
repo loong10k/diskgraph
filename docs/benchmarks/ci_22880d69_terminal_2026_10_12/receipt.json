@@ -1,0 +1,45 @@
+{
+  "run_id": 38182709032,
+  "source_commit": "22880d69d7c91a32ded1e095fad9b9240a93c28d",
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/38182709032",
+  "terminal_status": "completed",
+  "conclusion": "failure",
+  "jobs": {
+    "success": 20,
+    "failure": 3
+  },
+  "cancelled": 0,
+  "windows_native_matrix": [
+    {
+      "databaseId": 114598473822,
+      "name": "Test (windows-latest / Rust stable)",
+      "conclusion": "success",
+      "startedAt": "2026-10-11T23:01:37Z",
+      "completedAt": "2026-10-11T23:41:16Z"
+    },
+    {
+      "databaseId": 114598473838,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "conclusion": "success",
+      "startedAt": "2026-10-11T23:01:37Z",
+      "completedAt": "2026-10-11T23:52:05Z"
+    }
+  ],
+  "log_content_sha256": {
+    "windows_stable.log.gz": "93dbfcd4087839e043f313c6a52d2c1e78f1303fa1651176f74788bcb10257d6",
+    "windows_msrv.log.gz": "abd2d72c64baf32564725d9d55dd9e6ceffeb2df6c6f0ba27e5ca3d2c32098c2",
+    "linux_stable_failure.log.gz": "e36e1e2f4c8466089bfee9843b2032524dd5687796b681711bae75eb4338fa87",
+    "intel_stable_failure.log.gz": "98402c79bbc41c297c6389a23d8ae4cc455a269b37b40585cc9aa7d4521d8b91",
+    "intel_package_download_failure.log.gz": "dc1e2edebd93cd7be228ec60f6db5341b154d193d4b480de2f33cd9537a3bd52"
+  },
+  "failures": {
+    "linux_stable": "original private retirement notification unconfirmed; successor contains regression fix and fixed diagnostic labels, native requalification pending",
+    "macos_intel_stable": "stdio related returned budget_exceeded; phase instrumentation expanded, root cause not yet verified",
+    "macos_intel_package": "Rust toolchain manifest DNS lookup failure before package validation"
+  },
+  "limits": [
+    "applies only to source 22880d69, not successor commits",
+    "Windows matrix does not prove independent guardian service identity routing",
+    "20 successful jobs do not make this failed run production qualification"
+  ]
+}
