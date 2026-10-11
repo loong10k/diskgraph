@@ -391,11 +391,19 @@ def main():
         parser.error("--systemd requires the actual installed MCP image via --mcp")
     if os.geteuid() != 0 or os.environ.get("DG_ISOLATED_ROOT_ACCEPTANCE") != "1":
         raise SystemExit("requires explicit isolated root acceptance; never installs desktop service")
-    rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest", "scope_list", "snapshots", "unknown_job", "scope_show", "scope_show_revoked")]
-    rows += [delegated_sender(args, lower) for lower in (False, True)]
-    rows += [wire_query(args, mode) for mode in ("doctor", "override", "unknown_command", "duplicate", "bad_numeric", "write", "unknown_field")]
+    rows = []
+    def observed(row):
+        rows.append(row)
+        # 逐案留证：后续安装失败也保留之前实际执行的结果，不把整体失败改写成通过。
+        print(json.dumps({"qualified_case": row}, sort_keys=True), flush=True)
+    for mode in ("clean", "active", "bad_digest", "scope_list", "snapshots", "unknown_job", "scope_show", "scope_show_revoked"):
+        observed(actual_broker(args, mode))
+    for lower in (False, True):
+        observed(delegated_sender(args, lower))
+    for mode in ("doctor", "override", "unknown_command", "duplicate", "bad_numeric", "write", "unknown_field"):
+        observed(wire_query(args, mode))
     if args.mcp is not None:
-        rows.append(prepared_installation(args))
+        observed(prepared_installation(args))
     receipt = {"passed": len(rows), "failed": 0, "actual_product_binaries": True, "system_service_installed": args.systemd,
                "desktop_service_installed": False, "isolated_runner_only": True,
                "active_pending_owner_injected": False, "platform": "Linux", "cases": rows,

@@ -1,0 +1,21 @@
+{
+  "source": "a172b51a",
+  "ci_run": 38168994137,
+  "stable_job": 114557426507,
+  "msrv_job": 114557426519,
+  "native_failure": "prepared_installation rejected debug archive member above original 64MiB entry bound; generated unit runtime was not reached",
+  "native_cases_before_failure": "actual_broker clean/active/bad_digest/scope_list/snapshots/unknown_job and two sender delegation cases returned before prepared_installation in each job; inference from source order plus traceback, no per-case receipt written",
+  "fix": "build same-source native release images; require artifact profile debug_assertions=false and test=false; retain all installer bounds",
+  "ci_contract_red": {
+    "passed": 5,
+    "failed": 1
+  },
+  "ci_contract_green": {
+    "passed": 6,
+    "failed": 0
+  },
+  "per_case_observation": "added flushed structured rows so later failures preserve actual earlier results",
+  "native_release_installation": "pending next CI",
+  "desktop_service_installed": false,
+  "production_ready": false
+}

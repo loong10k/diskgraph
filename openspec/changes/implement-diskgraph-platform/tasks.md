@@ -438,3 +438,5 @@ Linux只读元数据转交增量：实际Clap入口RED1/1→GREEN3/0，版本化
 a172b51a当前CI两个GNU包在组成门禁失败，原夹具只创建三镜像而生产准入现要求四镜像；日志保留，尚未执行GNU构建。只补齐组成输入并增加任意宿主的GNU回归，本机15/0；移除第四镜像的隔离负控复现同两项FileNotFoundError。新增真实有效Linux时钟doctor正控及六个单字段wire负控待原生CI，夹具期限/EOF单元与失败保留5/0。仍不勾选三平台服务或整体验收。见gnu_four_image_fixture_and_wire_controls_2026_10_12。
 
 CLI scope show真实越权修复：隔离实际Engine注册根、真实dispatch、未授权主体/期限耗尽/缺末段回调RED0/3；接入with_scope_metadata_until后GREEN4/0，编码后实时撤权与50ms迟到能力拒绝，既有字段保留、原可信scope接口不变；scope列表继承dispatch原期限。监督参数回归3/0、Engine源门禁6/0、CLI源门禁2/0、Python夹具5/0、macOS all-target Clippy/fmt通过。新增真实CLI注册/撤销及监督scope show对照待新CI；不以共同库测试关闭原生服务父项。见cli_scope_show_authorization_2026_10_12。
+
+a172b51a Linux x86 stable/MSRV原root门禁在实际安装准备拒绝debug成员超过64MiB处失败，未运行生成unit；traceback位于常用查询/业务失败与委托发送者场景返回之后，但无逐案receipt，不将该控制流推断称完整资格。改为同源码release实际构建产物并核验Cargo profile，安装64MiB/总256MiB预算保持；CI合同RED5/1→GREEN6/0。新增逐案立即日志，release安装与systemd仍待CI。见linux_installer_release_image_gate_2026_10_12。

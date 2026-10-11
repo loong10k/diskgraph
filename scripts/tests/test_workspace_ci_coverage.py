@@ -27,6 +27,18 @@ class WorkspaceCiCoverageTests(unittest.TestCase):
         self.assertNotIn('--exact', whole_target)
         self.assertIn("'replaces_original_failure': False", whole_target)
 
+    def test_root_installation_gate_uses_current_release_images_with_original_limits(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
+        start = workflow.index('      - name: Native Linux root atomic supervisor birth primitive')
+        end = workflow.index('      - name: Preserve Linux root atomic supervisor birth primitive', start)
+        body = workflow[start:end]
+        self.assertRegex(body, r'cargo build [^\n]*--release[^\n]*doctor-images.jsonl')
+        self.assertIn("a.get('profile', {}).get('debug_assertions') is False", body)
+        self.assertIn('--systemd --receipt', body)
+        installer = (ROOT / 'scripts/prepare_linux_supervisor_installation.py').read_text(encoding='utf-8')
+        self.assertIn('MAX_IMAGE_BYTES = 64 << 20', installer)
+        self.assertIn('MAX_ARCHIVE_BYTES = 256 << 20', installer)
+
     def test_gnu_package_builds_and_worker_receipt_share_the_advertised_baseline(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding='utf-8')
         def step(name):

@@ -829,12 +829,12 @@ jobs:
               raise SystemExit('original Engine binary must contain all four frontend credential tests')
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" recovery_control::linux_frontend_connection_tests:: --ignored --nocapture || exit $?
-            cargo build -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker -p diskgraph-engine --bins --locked --message-format=json > "$fixture/doctor-images.jsonl" || exit $?
+            cargo build -p diskgraph-cli -p diskgraph-mcp -p diskgraph-scan-worker -p diskgraph-engine --bins --release --locked --message-format=json > "$fixture/doctor-images.jsonl" || exit $?
             python3 - "$fixture/doctor-images.jsonl" "$fixture" <<'PYTHON' || exit $?
           import json, pathlib, sys
           artifacts = [json.loads(line) for line in open(sys.argv[1])]
           for name in ('diskgraph', 'diskgraph-mcp', 'diskgraph-scan-worker', 'diskgraph-supervisor'):
-              paths = [a['executable'] for a in artifacts if a.get('reason') == 'compiler-artifact' and a.get('target', {}).get('name') == name and a.get('executable')]
+              paths = [a['executable'] for a in artifacts if a.get('reason') == 'compiler-artifact' and a.get('target', {}).get('name') == name and a.get('executable') and a.get('profile', {}).get('debug_assertions') is False and a.get('profile', {}).get('test') is False]
               if len(paths) != 1:
                   raise SystemExit('expected exactly one current build image for ' + name)
               (pathlib.Path(sys.argv[2]) / (name + '.path')).write_text(paths[0])
