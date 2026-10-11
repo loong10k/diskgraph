@@ -11,16 +11,17 @@ pub(crate) fn finish_controlled(
     panicked: bool,
 ) {
     let cancel = std::sync::atomic::AtomicBool::new(false);
-    let mut reported = owner
-        .foreground_ended_lifecycle(
-            exit_code,
-            panicked,
-            &cancel,
-            std::time::Instant::now() + Duration::from_millis(50),
-        )
-        .is_err();
-    if reported {
-        eprintln!("MCP private control unconfirmed; original recovery retained");
+    let foreground_notification = owner.foreground_ended_lifecycle(
+        exit_code,
+        panicked,
+        &cancel,
+        std::time::Instant::now() + Duration::from_millis(50),
+    );
+    let mut reported = foreground_notification.is_err();
+    if let Err(error) = foreground_notification {
+        eprintln!(
+            "MCP private control unconfirmed; original recovery retained; phase=foreground_ended error={error:?}"
+        );
     }
     loop {
         match owner.poll_retirement(
@@ -28,13 +29,19 @@ pub(crate) fn finish_controlled(
             &cancel,
         ) {
             Ok(diskgraph_engine::SupervisorControlProgress::Complete) => return,
-            Ok(diskgraph_engine::SupervisorControlProgress::RetiredUnconfirmed { .. }) => {
-                eprintln!("MCP original resources retired; private completion unconfirmed");
+            Ok(diskgraph_engine::SupervisorControlProgress::RetiredUnconfirmed {
+                control_failure,
+            }) => {
+                eprintln!(
+                    "MCP original resources retired; private completion unconfirmed; error={control_failure:?}"
+                );
                 return;
             }
             Ok(diskgraph_engine::SupervisorControlProgress::Pending { control_failure }) => {
-                if control_failure.is_some() && !reported {
-                    eprintln!("MCP private control unconfirmed; original recovery retained");
+                if let Some(error) = control_failure.filter(|_| !reported) {
+                    eprintln!(
+                        "MCP private control unconfirmed; original recovery retained; phase=retirement error={error:?}"
+                    );
                     reported = true;
                 }
             }

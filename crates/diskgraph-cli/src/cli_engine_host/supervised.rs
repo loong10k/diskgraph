@@ -69,22 +69,24 @@ impl CliEngineHost {
             owner.foreground_ended(exit_code, panicked, &cancel)
         };
         let mut reported = notification.is_err();
-        if reported {
-            eprintln!("supervisor private control unconfirmed; original recovery retained");
+        if let Err(error) = notification {
+            eprintln!(
+                "supervisor private control unconfirmed; original recovery retained; phase=foreground_ended error={error:?}"
+            );
         }
         loop {
             match owner.poll_retirement(Instant::now() + Duration::from_millis(50), &cancel) {
                 Ok(SupervisorControlProgress::Complete) => break,
-                Ok(SupervisorControlProgress::RetiredUnconfirmed { .. }) => {
+                Ok(SupervisorControlProgress::RetiredUnconfirmed { control_failure }) => {
                     eprintln!(
-                        "supervisor original resources retired; private completion unconfirmed"
+                        "supervisor original resources retired; private completion unconfirmed; error={control_failure:?}"
                     );
                     break;
                 }
                 Ok(SupervisorControlProgress::Pending { control_failure }) => {
-                    if control_failure.is_some() && !reported {
+                    if let Some(error) = control_failure.filter(|_| !reported) {
                         eprintln!(
-                            "supervisor private control unconfirmed; original recovery retained"
+                            "supervisor private control unconfirmed; original recovery retained; phase=retirement error={error:?}"
                         );
                         reported = true;
                     }

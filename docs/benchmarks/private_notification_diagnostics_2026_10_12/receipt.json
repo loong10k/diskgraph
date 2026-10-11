@@ -1,0 +1,23 @@
+{
+  "change": "log fixed ControlError enum and foreground or retirement phase, preserving original messages and cleanup behavior",
+  "source_sha256": {
+    "crates/diskgraph-cli/src/cli_engine_host/supervised.rs": "7ff8a30c53bc09a13d3c2b5f6110f62488c1d1c049172687ced8472300c23bb2",
+    "crates/diskgraph-mcp/src/scan_worker_shutdown.rs": "c379e15f9b516925841aa0b273d555f37cf4c12cb49630eb4c4d345b15c56559"
+  },
+  "mcp_shutdown_binary_test": {
+    "passed": 1,
+    "failed": 0
+  },
+  "cli_all_targets_clippy": "passed",
+  "mcp_all_targets_clippy": "passed",
+  "does_not_log": [
+    "session",
+    "token",
+    "paths",
+    "request identity"
+  ],
+  "limits": [
+    "diagnostic coverage does not prove Linux original notification failure resolved",
+    "native constructor must rerun"
+  ]
+}
